@@ -761,3 +761,24 @@ charge `ordinary_published_displacements(N)` is unchanged: at most one N-vector 
   - Test-only code is blanked in addition: the `else` tails of `let x = if .. {..} else {..};` and `use` semicolons.
 - **Regressions.** These are in `tests/test_862_pr_a.py`: nested test modules, a test statement inside a function,
   `cfg(not(test))`, attribute stacks, fields, arms, literals, and the real lib.rs case.
+
+### IN-WS: the inverse-norm gate's certificate workspace (DEL-04-01 REQ-015; draft, not registered)
+
+The formation check's gate (`formation_check::verified_inverse_operand`) runs the inverse-norm certificate once per
+factor, inside the check, while the factor and the check's outer vectors live. `base/in_owners_model.py` prices that
+run positively in both modes' typed core (IN-WS): the envelope, the connected blocks with their DFS stack, the block
+and attempt records with each attempt's figures, the per-block shifts and filter lists, one profile factor of at most
+H = F(F+1)/2 entries with its three F-vectors, the upward passes' five vectors and, on not verified, the reasons and
+candidates. Every part is summed. The model binds the certificate's function bodies by sha256 and counts every
+allocating construct in the file's production text (the CFG-PROD extractor); a change stops the run. The seven
+private layout atoms are bound in `g5_profile.py` to source uppers that the kernel's
+`the_workspace_layouts_are_within_the_pricing_uppers` checks against `size_of`. The `CertificateSlot` each factor
+object carries is inline and owns no heap; it is listed as a zero-heap owner (IN-SL). Confirmation attempts borrow
+their factor's slot; the confirmation phases are not on D1 (D1.6).
+
+`rules/o10_rules.py` adds IN-CG: the certificate's `.push(` calls in `blocks` and `run` are Vec pushes on local
+vectors, so their by-name edges to `load_ledger::push` are removed for those two callers only. The full-file pins of
+`formation_check.rs`, `structural.rs` and `sparse.rs` (B7a, W1) and KD5M1's body pins of `check`, `check_at` and
+`evaluate` move to the gate's source. Against main `e0e3e3c7a`, 36 coefficients rise and none falls: every phase of
+both modes rises by 4,449,312 B at the assumed layouts (the workspace, 494,368 B at the caps, counted once per
+requested case in the typed core and twice in W2's two evaluations, C_eq = 3). See `tests/test_in_owners_model.py`.

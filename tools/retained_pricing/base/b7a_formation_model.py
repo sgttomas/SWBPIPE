@@ -52,7 +52,11 @@ SOURCE_FILES = {
 # PR-A (DEL-04-07 *Blocked document* and *Published displacement*; diffs from main fe01013f4 read before re-binding;
 # retained-pricing-rules.md §8.62): FK structural.rs only re-exports certify_displacement_step and
     # DisplacementFailureKind (one `pub use` line); no formation owner changes. Previous value aa0080f7…
-    "core/solver/frame_kernel/src/structural.rs": "e47e916ab3a8b05d275bf49a6ab76c5f3bca025be5cf149358d17dc8604245f7",
+    # DEL-04-01 REQ-015 inverse-norm gate (read 0ebce39c1..head): structural.rs gives PositiveFactor a CertificateSlot and
+    # an inverse_norm accessor, passes one InverseNormInput through Represented::formation_check and
+    # finish_checked_factor, and declares the certificate module at its end. No formed-load traversal or finding owner
+    # changes. Previous value e47e916a…
+    "core/solver/frame_kernel/src/structural.rs": "7ec4c02e95cca99a12f054dee5d1070025c10a28804e044533390caefe228f22",
     # T4-U6/U8 (O4): prepare_sources declines Timoshenko, nonzero mill tolerance and nonzero allowance with static
     # `unsupported(..)` messages after the existing declines; close_load_state names the nominal section's area.
     # No formed-load or finding owner changes.
@@ -64,7 +68,11 @@ SOURCE_FILES = {
     # Model document 0.8.0 (§8.26): source_recovery.rs changes two comments (the current version); no owner changes.
     # Model document 0.9.0 (§8.36): source_recovery.rs changes two comments (the current version); no owner changes.
     "core/product_physics/src/source_recovery.rs": "49aa5d3e4343a0d0b13ae4e8e0d5e1e5bf25dca592ab43a34cbec3f3eee1f5ef",
-    "core/solver/frame_kernel/src/structural/sparse.rs": "446e2e67b2edd27d43cea086c2ca079af3f77f6bc67ae47156f1f4418b933683",
+    # DEL-04-01 REQ-015 inverse-norm gate (read 0ebce39c1..head): sparse.rs gives SparsePositiveFactor and
+    # SharedSparseFactor a CertificateSlot (moved by share) and an inverse_norm accessor, and passes one InverseNormInput
+    # to each completion and attempt evaluation. No formed-load traversal or finding owner changes. Previous value
+    # 446e2e67…
+    "core/solver/frame_kernel/src/structural/sparse.rs": "e9400c91868722b6c8e43518e87f8f3cac3b50ba4a11c3894c4b753e4b5491ae",
 }
 RANGE_CONTENT = 59
 REASON = 165057

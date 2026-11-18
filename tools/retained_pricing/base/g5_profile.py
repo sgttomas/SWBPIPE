@@ -399,6 +399,26 @@ BIND.update({   # I104 SQ (RV112 N-5): SP's adapter-reserved owners
     "s(PrimitiveSource)": sz("open_pipe_stress_frame_kernel::structural::retained_api::PrimitiveSource")})
 
 
+# IN-WS (DRAFT; in_owners_model.py): the certificate workspace's private kernel types. The product names none of
+# them; each upper is checked against the actual size_of by the kernel's premise test
+# (inverse_certificate_tests.rs `the_workspace_layouts_are_within_the_pricing_uppers`).
+BIND.update({
+    "s(CertificateBlockRecord)": upr("3 * size_of::<usize>() + size_of::<Vec<u8>>()",
+        "IN-WS: BlockRecord = least, size, k (usize) and its attempts Vec; kernel premise test"),
+    "s(CertificateAttempt)": upr("2 * size_of::<Vec<u8>>() + size_of::<Option<f64>>()",
+        "IN-WS: AttemptRecord = method, shift (one byte each), outcome (f64 or reason and Option<f64>) and figures Vec; kernel premise test"),
+    "s(CertificateFigure)": sz("(&'static str, f64)"),
+    "s(CertificateFailure)": upr("size_of::<usize>()",
+        "IN-WS: Option<FactorFailure>, a two-variant enum's option (one byte); kernel premise test"),
+    "s(CertificateReasons)": upr("size_of::<Vec<u8>>() + 2 * size_of::<usize>()",
+        "IN-WS: AttemptReasons = method, shift and its reasons Vec; kernel premise test"),
+    "s(CertificateReasonCount)": upr("2 * size_of::<usize>()",
+        "IN-WS: (NotVerifiedReason, usize); kernel premise test"),
+    "s(CertificateCandidate)": upr("size_of::<f64>() + 4 * size_of::<usize>()",
+        "IN-WS: CandidateBound = method, shift, block, block_size, bound; kernel premise test"),
+})
+
+
 def tree_atoms(t):
     """The layout atoms a tree's forms use (text atoms are each tree's own, layout-free)."""
     return {a for f in t["forms"].values() for a in f if a != "1" and not a.startswith("Text(")}

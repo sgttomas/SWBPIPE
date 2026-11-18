@@ -19,6 +19,9 @@ from g3lib import X, B, s, V, A, Xc, HashReq, pushcap, total, ASSUMED, j3cap, tr
 # R-A D3 (§8.13): on R-A's source, register the illustrative s(Option<u32>) its T07 rows use (in-build at G5).
 import ra_owners_model as _ra_model
 _ra_model.active(os.environ.get("RP_SNAPSHOT"))
+# IN-WS (DRAFT): the certificate workspace's illustrative atoms, read from ordinary_caps' output (in-build at G5).
+import in_owners_model as _in_model
+_in_model.active(os.environ.get("RP_SNAPSHOT"))
 
 which = sys.argv[1]
 EPS = int(sys.argv[2])

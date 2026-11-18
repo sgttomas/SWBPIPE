@@ -468,6 +468,16 @@ else:
 CG_RULES = list(globals().get("CG_RULES", [])) + [{"caller": _caller, "name": _name, "targets": [_target],
     "added": "KD5C1", "evidence": "the public estimate_rcond delegates to ConditionMatrix's method; exact named definitions, no call bound removed"}]
 
+# IN-CG (DEL-04-01 REQ-015 inverse-norm gate; DRAFT): the certificate's `.push(` calls are Vec::push on its own
+# local vectors (`members`, `stack`, `component` in blocks; `records[b].attempts`, `figures` in run's closures), never
+# load_ledger's `push`: the name-resolved edges are false and are removed by name for these two callers only. Every
+# allocation they make is priced by IN-WS (base/in_owners_model.py), which counts each construct in the file.
+_IC = FK_ + "structural/inverse_certificate.rs"
+if fnkey("verified_inverse_operand", FK_ + "structural/formation_check.rs"):
+    for _ic_caller in ("blocks", "run"):
+        CG_RULES = list(globals().get("CG_RULES", [])) + [{"caller": _fn_n(_ic_caller, _IC, 1, 1), "name": "push", "targets": [],
+            "added": "IN-CG (DRAFT)", "evidence": f"inverse_certificate.rs {_ic_caller}: every `.push(` is Vec::push on a local vector; IN-WS prices them"}]
+
 # KD5C2: four source-changed audit keys move out of the basis line table.
 # Re-add the original site/argument class on historical code and the actual
 # replacement site on unified code. The retired record copy is superseded
@@ -577,7 +587,7 @@ if fnkey("member_group_fires", _FG):
 # KD5A6: Failure::Unavailable's &str converts into an owned String.
 if fnkey("member_group_fires", _FG):
     O10_ID_AUDIT += [(site("detail", FK_ + "structural/formation_check.rs", "Self::Unavailable(s) => (*s).into()", full=True),
-                     {"(*s)": {"bytes": 128, "source": "KD5A6: private Failure::Unavailable uses contraction/Neumann/non-finite Lambda sigma literals, all <=128 B; pinned evaluate body"}})]
+                     {"(*s)": {"bytes": 128, "source": "KD5A6: private Failure::Unavailable uses contraction/Neumann/non-finite Lambda sigma/inverse-norm bound not verified literals, all <=128 B; pinned evaluate body"}})]
 
 # KD5M1/M2: positive per-invocation caps. Each alternative is still charged.
 if fnkey("member_group_fires", _FG):
@@ -605,14 +615,21 @@ if fnkey("member_group_fires", _FG):
         # the per-invocation caps below are unchanged (retained-pricing-rules.md, "T4-U6/U8: actual-source D3").
         _invocation_pins = {
             "detail": "ae006b02fed244b2e77686378bdb17b87c442a1d4873add6f4b2129d3be1bc0f",
-            "check": "d22bba23d1f09025f3ec267d9ea30b8aaa748e6294b5b34d0e4ea7f1f2616ef7",
-            "check_at": "2d966633a32a8764c38630fda96aa386aa8ee568fe484129d6939dbdaba523db",
-            "evaluate": "d121c572da9a4c2767018da6888536db453d127dfcd64ec5d1e7e4b25c641079",
+            "check": "dbd704395da1aedbf055e1d7929b051cf9687dce5ffbf94670372c1d8d4cf67c",
+            "check_at": "102f4832f5c985d7357b92ddfb3392c8b012bef56ddd7cf36910d088f9262a8c",
+            "evaluate": "60973dbcddcc470dcca3a414fc11dfd262165042be79632fed511b43600bfd08",
             "load_closure": "0b662c23c565d94cf0964b6efcbb575afa41958d21a00f4acf8e453527543867",
         }
         # T4-S5 (U5B-TR): load_closure adds the TieRodReference binding arm (tie rods exist only on connectors, none on
         # D1 by P3). Its one refusal is a Failure::Closure "{source}: tie-rod source binding" in the existing Closure
         # path, inside the 8352 B Closure class; the per-invocation caps are unchanged.
+        # DEL-04-01 REQ-015 inverse-norm gate (§8.66, read 0ebce39c1..head): check and check_at gain one
+        # `inverse: InverseNormInput` parameter passed through; evaluate's `let inverse = mul_up(1024.0, est);` becomes
+        # `verified_inverse_operand(est, inverse)?` (its only failure is Failure::Unavailable with a static literal, which
+        # check_at formats in detail's existing Unavailable arm) plus a debug_assert and `let inverse = operand.limit;`,
+        # on the same line (the helper is defined at the file's end, outside these bodies).
+        # No allocation site is added to any pinned body (inventories: detail 7, evaluate 2, check/check_at 0); the
+        # per-invocation caps are unchanged. Previous values d22bba23…, 2d966633…, d121c572….
         _detail_from = "check_at"
     _fc_lines = open(_os.path.join(_SNAP, _FC), encoding="utf-8").read().splitlines(keepends=True)
     # U5B-TR: the TieRodReference arm's one returning Closure format (P3: never reached on D1; still charged).

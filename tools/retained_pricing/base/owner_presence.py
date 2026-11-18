@@ -62,6 +62,7 @@ OWNERS = (
     (210, "CEF constant-effort fallback", "ce_fallback_model.py", "inspect", None),
     (220, "RTL2 pressure elongation", "rtl2_owners_model.py", "inspect", None),
     (230, "PRA-CF correction failure texts", "correction_failure_model.py", "inspect", None),
+    (240, "IN-WS inverse-norm certificate workspace (DRAFT)", "in_owners_model.py", "active", None),
 )
 # label -> (epoch that removed it, why its charge is no longer owed). None today.
 RETIRED = {}

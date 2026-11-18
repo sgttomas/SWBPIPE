@@ -1248,3 +1248,23 @@ fn hypothesis_limit_is_two_to_the_52() {
         (1, 2, 3, 4, 4, 5)
     );
 }
+
+/// The premise of the retained-memory pricing's certificate workspace owner
+/// (IN-WS): each private type the workspace holds is no larger than the upper
+/// the product's profile binds it to, which it states in standard types it
+/// can name. A layout change that outgrows an upper fails here, before the
+/// priced bound could fall short of the run's heap.
+#[test]
+fn the_workspace_layouts_are_within_the_pricing_uppers() {
+    use std::mem::size_of;
+    let vec = size_of::<Vec<u8>>();
+    let word = size_of::<usize>();
+    assert!(size_of::<BlockRecord>() <= 3 * word + vec);
+    assert!(size_of::<AttemptRecord>() <= 2 * vec + size_of::<Option<f64>>());
+    assert!(size_of::<Option<FactorFailure>>() <= word);
+    assert!(size_of::<AttemptReasons>() <= vec + 2 * word);
+    assert!(size_of::<(NotVerifiedReason, usize)>() <= 2 * word);
+    assert!(size_of::<CandidateBound>() <= size_of::<f64>() + 4 * word);
+    // The figures' element is named as is by the profile.
+    assert_eq!(size_of::<(&'static str, f64)>(), 3 * word);
+}

@@ -128,7 +128,12 @@ REDUCED_PINS = {
     # Explicit sliding-friction underflow refusal (DEL-04-01 AC-018): formation_check.rs re-read: sliding_friction_exact
     # adds one refusal branch and four doc-comment lines, reached only through a friction formula D1 never forms. No
     # reduction's owner or lifetime changes; the L5 texts are unchanged.
-    "core/solver/frame_kernel/src/structural/formation_check.rs": "e7b0b7158d017f186c4245c79506dafe7792fd8a86e07cf14092ea5a1205492d",
+    # DEL-04-01 REQ-015 inverse-norm gate (read 0ebce39c1..head): formation_check.rs adds the gate's detail const,
+    # InverseOperand and verified_inverse_operand (Q's formation moves into it), one `inverse: InverseNormInput` parameter
+    # on check/check_at/evaluate passed through, and one test-module declaration at the end. No reduction's owner or
+    # lifetime changes; the L5 texts are unchanged. The certificate's own owners are priced by §8.66 (IN-*). Previous
+    # value e7b0b715…
+    "core/solver/frame_kernel/src/structural/formation_check.rs": "daf57ae54b7e49810cdf73e0b45b5e50f3aa1d10e651fccf0fa630b945d7e266",
     "core/solver/frame_kernel/src/structural/certified_recovery.rs": "a20db871abc328e82a98736e332fbfa707da3956f5faac781af610db59da57c8",
     "core/solver/frame_kernel/src/load_ledger.rs": "8ad71203f34a1c38552530296875c0b051f9a5f4f9990d25f748dac8d3f0584f",
     "core/solver/nonlinear_integration/src/structural_adapter.rs": "72c93deecae3a0a377a02b08d91ab99d18a44d80d9ddb662b1cf1becd782b093",
