@@ -1437,10 +1437,11 @@ def build_doc():
     n_signs = sum(len(v) for v in res["signs"].values())
     checks.append({"check": f"every input replaced by its nearest binary64 ({n_changed_inputs} of {len(inp)} "
                             f"inputs change): every cross-check still agrees, and {n_signs} signs and states are "
-                            f"unchanged: every row of the ten cases that carry rows (and, for the LO state that does "
-                            f"not qualify, its B motions and seated reaction), the five terms and their seated-structure controls, CEF-EQ-SRSS, "
-                            f"CEF-EQ-ABS and CEF-SUS-PLUS-EQ, the directional row, the CEF and JR control and twin "
-                            f"rows, the three lift-off statuses and both sides of the threshold. Not compared: the "
+                            f"unchanged: every row of the ten cases that carry rows, the five terms and their "
+                            f"seated-structure controls, CEF-EQ-SRSS, CEF-EQ-ABS and CEF-SUS-PLUS-EQ, the CEF and JR "
+                            f"control and twin rows; the three directional operands and their signed sum; in each LO "
+                            f"case, the nonqualifying state's six B motion components and its reaction; the three "
+                            f"lift-off statuses and both sides of the threshold. Not compared: the "
                             f"README's rounded key tables and the decimal and binary64 fields themselves",
                    "agrees": not changed and all(c["agrees"] for c in checks_b)})
     secs, mods = res["sections"], res["models"]
@@ -1464,17 +1465,16 @@ def build_doc():
         c = cef["cases"][name]
         case_docs.append({
             "id": f"CEF-{name}", "model": "CEF",
-            "role": "sustained: the weight primitives only" if name == "SUS" else
-            f"seismic {name[-1]}: the weight primitives and the case's generated seismic load",
+            "role": "sustained: weight primitives and the constant-effort device" if name == "SUS" else
+            f"seismic {name[-1]}: weight primitives, the constant-effort device and the case's generated seismic load",
             "seismic": None if name == "SUS" else {"gravity_acceleration_m_s2": str(g), "g_factors": [
                 str(inp["CEF_k"][a]) if COMP[a] == name[-1].lower() else "0" for a in range(3)]},
             "load_sources": {
                 "declared_ledger": [{"source": p["source"], "factor": 1} for p in cef["weight_prims"]],
                 "generated": [{"source": x["source"], "factor": 1} for x in c["generated"]],
-                "statement": "mechanics: the case applies the selected weight primitives once each at factor 1 and "
-                             "each generated load once at factor 1, and nothing else; the labels are this package's "
-                             "own, not the product's identities, and no expected value depends on how the product "
-                             "records the generated loads"},
+                "statement": "Each selected weight primitive and each generated load is listed once at factor 1. "
+                             "The constant-effort action is specified separately. Source labels are local to this "
+                             "reference."},
             "constant_effort": "support:ce-b applies its constant force in this case",
             "generated_loads": c["generated"],
             "rows": pub_rows(c["rows"], mods["CEF"])})
@@ -1485,8 +1485,8 @@ def build_doc():
             "id": f"CEF-{name}", "basis": "result_state_subtraction",
             "minuend": f"CEF-{name[1:]}", "subtrahend": "CEF-SUS", "fixed_load_count": "0 (1 - 1)",
             "expected_outcome": "published, not withheld: a subtraction carries no gate of its own",
-            "statement": "linear model: every row equals the response to the case's generated seismic load alone; "
-                         "the constant-effort force cancels",
+            "statement": "linear model: in exact mechanics every row equals the response to the case's generated "
+                         "seismic load alone; the constant-effort force's own row cancels",
             "generated_resultant": {"force_N": [record(x) for x in t["Fg"]],
                                     "moment_about_origin_N_m": [record(x) for x in t["Mg"]]},
             "reaction_resultant": {"force_N": [record(x) for x in t["Rf"]],
@@ -1532,8 +1532,7 @@ def build_doc():
     dsg = cef["designated"]
     directional_row = {
         "row": dsg["row"], "unit": UNIT[dsg["family"]],
-        "why": "two of the three directional terms are nonzero and of opposite sign here, so the SRSS, the absolute "
-               "sum and the signed sum all differ",
+        "why": "All three terms are nonzero and one is negative, so the SRSS, absolute sum and signed sum differ.",
         "terms": {t: record(v) for t, v in zip(("CEF-dEQX", "CEF-dEQY", "CEF-dEQZ"), dsg["terms"])},
         "srss": dsg["srss"], "absolute_sum": record(dsg["abs"]), "signed_sum": record(dsg["signed"]),
         "signed_sum_published_as": "in exact mechanics, CEF-SUS-PLUS-EQ minus CEF-SUS on this row equals the signed "
@@ -1601,8 +1600,8 @@ def build_doc():
                           "independently solved equilibria, not a response to the seismic load on one structure"),
             "rows": pub_rows(t["rows"], mods["LO"]),
             "linear_superposition_control": {
-                "what": "the seated structure's response to the seismic load alone, which a product would publish "
-                        "if it formed the term from one structure; for EQZ-LIFTED it is wrong",
+                "what": "the generated load solved on the seated structure; for LO-dEQZ-LIFTED it differs from the "
+                        "switched-state subtraction",
                 "equals_term": [r[2] for r in t["rows"]] == [r[2] for r in t["linear"]],
                 "largest_translation_difference": None if lin_big[0] == 0 else {"row": lin_big[1], "value": lin_big[0]},
                 "rows": pub_rows(t["linear"], mods["LO"])}})
@@ -1638,10 +1637,8 @@ def build_doc():
             "id": f"JR-{name}", "model": "JR", "inputs": inputs,
             "load_sources": {"declared_ledger": [], "generated": [{"source": x["source"], "factor": 1}
                                                                   for x in c["generated"]],
-                             "statement": "a valid case with a result: its only action is its generated load; no "
-                                          "pressure, no preload (the connector has zero reference load and "
-                                          "extension), no constant-effort support and no stored primitive "
-                                          "selected. Each generated load acts once at factor 1"},
+                             "statement": "Expect a case result with each generated load applied once at factor "
+                                          "1. Generation is this fixture's only action."},
             "generated_loads": c["generated"],
             "replaced_span": "pipe:b-c carries no generated load (seismic or wind) and publishes no member result; "
                              "the live spans beside it carry their generated loads",
@@ -1651,45 +1648,30 @@ def build_doc():
         "inputs": "JR-EQ, with one stored primitive of the case that its declared ledger does not list: a nodal "
                   f"force {[str(x) for x in inp['JR_decoy_force']]} N at {inp['JR_decoy_node']}, whose identity "
                   "differs from the identity of every generated load of the case",
-        "expected_outcome": "solves; the unlisted primitive is excluded (schemas/load_reference_state.schema.json: "
-                            "a stored primitive of the case not listed in its load sources), so every row equals "
-                            "JR-EQ's",
+        "expected_outcome": "Expect the JR-EQ rows. The distinct unlisted stored primitive is excluded.",
         "rows_equal": "JR-EQ"})
     jr_ctrl = jr["controls"]["REPLACED-SPAN-LOADED"]
-    note = ("no scope or frozen reference package names a code for a wind mark on a connector-replaced span; the "
-            "frozen packages t4_i12 and t4_u5a name JOINT_REPLACED_SPAN_LOAD_UNOWNED for a stored load or "
-            "eigenstrain the replaced span owns, and this package does not assume that code applies to a generated "
-            "wind mark")
+    note = "This reference freezes the refusal and named span. The generated-mark diagnostic code is undecided."
     wind_grounds = ("DEL-03-06 AC-004 (a load on the replaced span which a case applies is refused by name) and the "
                     "reference system's specification section 8.1 (wind on a replaced span is refused), whatever the "
                     "mark's extent")
-    wind_outcome = "no applied partial set of the case's loads and no case result"
+    wind_outcome = "Apply no partial set of case loads and publish no case result."
+    wind_expected = "Refuse the case by name, identifying pipe:b-c. " + wind_outcome
     refusals = [
         {"id": "JR-REFUSE-WIND-ON-REPLACED-SPAN",
          "document": "JR-WIND with a whole-span wind mark also on pipe:b-c, the span the connector replaces",
-         "expected": "the case is refused by name, naming the replaced span; no wind load is generated; no result "
-                     "is published for the case", "rests_on": wind_grounds, "observable_outcome": wind_outcome,
+         "expected": wind_expected, "rests_on": wind_grounds, "observable_outcome": wind_outcome,
          "code": None, "code_note": note},
         {"id": "JR-REFUSE-PART-SPAN-WIND-ON-REPLACED-SPAN",
          "document": f"JR-WIND with a part-span wind mark also on pipe:b-c, over [{part_from}, {part_to}]",
-         "expected": "as JR-REFUSE-WIND-ON-REPLACED-SPAN: refused by name, naming the replaced span; no wind load "
-                     "generated; no result", "rests_on": wind_grounds, "observable_outcome": wind_outcome,
-         "code": None, "code_note": note},
-        {"id": "JR-REFUSE-GENERATED-IDENTITY-COLLISION",
+         "expected": wind_expected, "rests_on": wind_grounds, "observable_outcome": wind_outcome,
+         "code": None, "code_note": note}]
+    open_readings = [
+        {"id": "JR-GENERATED-IDENTITY-EQUALS-UNLISTED-PRIMITIVE",
          "document": "JR-EQ-UNLISTED-PRIMITIVE with the unlisted stored primitive given the identity of one of the "
-                     "case's generated loads, whatever identity the generator gives it",
-         "expected": "the case is refused by name before assembly, naming the identity; no load is applied and no "
-                     "result is published for the case. A collision is not resolved by dropping either load or by "
-                     "applying one in place of the other", "code": None,
-         "rests_on": "a decision of SWBPIPE's Agent 0 (November 2026), among its terms for generation on a load and "
-                     "reference-state document: a generated identity that collides with an unlisted stored primitive "
-                     "is refused before assembly, so that the ordinary and certified paths cannot attribute one "
-                     "identity to two sources. It is not yet scope text and is to become text with the engine unit",
-         "colliding_identities": "a stored primitive of the same case, listed in its ledger or not, whose identity "
-                                 "equals a generated load's identity",
-         "observable_outcome": "the case is refused before assembly; no load is applied; no case result is published",
-         "code_note": "no scope or frozen reference package read names a code for this refusal; this package names "
-                      "none"}]
+                     "case's generated loads",
+         "reading": "Open: whether a generated identity matching an unlisted stored primitive of the same case "
+                    "requires refusal before assembly. Diagnostic code undecided."}]
     dec = jr["controls"]["UNLISTED-PRIMITIVE-APPLIED"]
     dec_big = max((abs(binary64(v)), i) for i, fam, v in dec if fam == "translation")
     jr_controls = [
@@ -1706,15 +1688,19 @@ def build_doc():
 
     doc = {
         "document": "swbpipe.exact_load_state_generated_interactions_references",
-        "status": "candidate frozen references; derived and cross-checked by the author TASK before the engine "
-                  "change they judge, not yet independently refuted; no product test reads them",
-        "representation": "every expected value is a fact about the mechanics (rows), a support status, a gate "
-                          "outcome or a refusal; none is defined by the shape of a published record or by which "
-                          "representation of generated loads the product adopts. Source labels and row ids are this "
-                          "package's own names",
+        "status": "Analytic reference for the generated-load interaction fixtures.",
+        "representation": "The mechanics rows give analytic values. The outcome fields give the support states, gates "
+                          "and refusals expected for the fixtures. Source labels and row IDs are local to this "
+                          "reference.",
         "units": {"force": "N", "moment": "N*m", "translation": "m", "rotation": "rad", "length": "m"},
         "binding": "the product documents that bind this package author euler_bernoulli explicitly for every member "
-                   "of all three models; a Timoshenko selection changes rows (see the README)",
+                   "of all three models; a Timoshenko selection changes rows (see the README). Compare these analytic "
+                   "mechanics rows after mapping quantity, entity, component and SI units. For combinations, apply "
+                   "DEL-05-02 REQ-016 to determine which row kinds the result publishes. Check published combination "
+                   "arithmetic bit for bit from the actual published operands. In each solved case, check that every "
+                   "expected generated source is recorded exactly once with its bound identity and factor 1. Compare "
+                   "the specified support states, gate decisions, refusal outcomes and row presence exactly. Compare a "
+                   "diagnostic code when the reference specifies one",
         "theory": "small-displacement linear-elastic 3D frame, Euler-Bernoulli, axial and torsional deformation "
                   "included; supports rigid; a constant-effort support is a constant nodal force with no stiffness; "
                   "a lift-off support is a rigid restraint on its degree of freedom while in contact and free while "
@@ -1744,7 +1730,9 @@ def build_doc():
                           "floor. A row whose expected value is exactly zero passes when abs(observed) <= floor, the "
                           "floor being 1e-9 times the largest magnitude of that row's family (force, moment, "
                           "translation, rotation) in the same case, term or combination; where the whole family is "
-                          "zero there (no item here has such a family), floor = 1e-9 N or N*m, 1e-12 m or rad. Each "
+                          "zero there, floor = 1e-9 N or N*m, 1e-12 m or rad. Each of the 18 cases, terms and combinations with its own "
+                          "compared rows has a nonzero magnitude in all four compared families; JR-EQ-UNLISTED-PRIMITIVE "
+                          "uses JR-EQ's rows and floors. Each "
                           "item's comparison_floor gives the floors for its exact-zero rows. The threshold g-factor, which is nonzero, is compared "
                           "at 1e-9 relative; its floor 1e-12 would apply only to an exact-zero value. Discrete outcomes "
                           "(support status, gate outcome, withheld, refused, a row's presence or absence) compare "
@@ -1762,6 +1750,7 @@ def build_doc():
         "directional_row": directional_row,
         "lift_off_threshold": threshold,
         "refusals": refusals,
+        "open_readings": open_readings,
         "controls": controls + jr_controls,
         "crosscheck": checks,
     }

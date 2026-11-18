@@ -2,9 +2,10 @@
 (`validation/references/exact_load_state_generated_interactions/`).
 
 The generator rebuilds `references.json` and `SHA256SUMS` in memory, compares them byte for byte with the
-committed files and fails if any of its cross-checks disagrees. The package stays independent: its generator
-imports only the Python standard library, names no product path in any string literal and makes no dynamic
-import or evaluation call. No product test reads the package yet.
+committed files and fails if any of its cross-checks disagrees. The independence scan checks the generator's
+direct import roots against the standard library, whitespace-free string literals for a product-root path segment,
+and calls to named dynamic import and evaluation functions; computed paths, indirect calls and filesystem
+containment are outside it. No product test reads the package yet.
 """
 import ast
 import hashlib
@@ -131,8 +132,7 @@ def test_the_replaced_span_carries_no_generated_load_and_a_wind_mark_on_it_is_re
             assert all(g.get("member") != "pipe:b-c" for g in case.get("generated_loads", [])), case["id"]
             assert not any("/pipe:b-c/" in rid for rid in _rows(case)), case["id"]
     refusals = {r["id"]: r for r in doc["refusals"]}
-    assert set(refusals) == {"JR-REFUSE-WIND-ON-REPLACED-SPAN", "JR-REFUSE-PART-SPAN-WIND-ON-REPLACED-SPAN",
-                             "JR-REFUSE-GENERATED-IDENTITY-COLLISION"}
+    assert set(refusals) == {"JR-REFUSE-WIND-ON-REPLACED-SPAN", "JR-REFUSE-PART-SPAN-WIND-ON-REPLACED-SPAN"}
     assert all(r["code"] is None for r in refusals.values())
     seismic = next(c for c in doc["cases"] if c["id"] == "JR-EQ")
     assert seismic["generated_loads"] and all(any(x["value"] for x in g["intensity_N_per_m"])
@@ -193,8 +193,15 @@ def test_the_refusals_state_their_grounds_and_observable_outcome():
         assert r["rests_on"] and r["observable_outcome"], r["id"]
     for rid in ("JR-REFUSE-WIND-ON-REPLACED-SPAN", "JR-REFUSE-PART-SPAN-WIND-ON-REPLACED-SPAN"):
         assert "DEL-03-06 AC-004" in refusals[rid]["rests_on"] and "8.1" in refusals[rid]["rests_on"], rid
-    collision = refusals["JR-REFUSE-GENERATED-IDENTITY-COLLISION"]
-    assert "Agent 0" in collision["rests_on"] and collision["colliding_identities"]
+        assert "pipe:b-c" in refusals[rid]["expected"], rid
+
+
+def test_the_identity_collision_is_an_open_reading_not_a_refusal():
+    doc = _doc()
+    assert [o["reading"] for o in doc["open_readings"]] == [
+        "Open: whether a generated identity matching an unlisted stored primitive of the same case requires refusal "
+        "before assembly. Diagnostic code undecided."]
+    assert not any("COLLISION" in r["id"] for r in doc["refusals"])
 
 
 def test_every_compared_item_states_its_comparison_floors():

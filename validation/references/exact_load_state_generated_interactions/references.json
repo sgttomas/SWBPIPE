@@ -1,7 +1,7 @@
 {
  "document": "swbpipe.exact_load_state_generated_interactions_references",
- "status": "candidate frozen references; derived and cross-checked by the author TASK before the engine change they judge, not yet independently refuted; no product test reads them",
- "representation": "every expected value is a fact about the mechanics (rows), a support status, a gate outcome or a refusal; none is defined by the shape of a published record or by which representation of generated loads the product adopts. Source labels and row ids are this package's own names",
+ "status": "Analytic reference for the generated-load interaction fixtures.",
+ "representation": "The mechanics rows give analytic values. The outcome fields give the support states, gates and refusals expected for the fixtures. Source labels and row IDs are local to this reference.",
  "units": {
   "force": "N",
   "moment": "N*m",
@@ -9,9 +9,9 @@
   "rotation": "rad",
   "length": "m"
  },
- "binding": "the product documents that bind this package author euler_bernoulli explicitly for every member of all three models; a Timoshenko selection changes rows (see the README)",
+ "binding": "the product documents that bind this package author euler_bernoulli explicitly for every member of all three models; a Timoshenko selection changes rows (see the README). Compare these analytic mechanics rows after mapping quantity, entity, component and SI units. For combinations, apply DEL-05-02 REQ-016 to determine which row kinds the result publishes. Check published combination arithmetic bit for bit from the actual published operands. In each solved case, check that every expected generated source is recorded exactly once with its bound identity and factor 1. Compare the specified support states, gate decisions, refusal outcomes and row presence exactly. Compare a diagnostic code when the reference specifies one",
  "theory": "small-displacement linear-elastic 3D frame, Euler-Bernoulli, axial and torsional deformation included; supports rigid; a constant-effort support is a constant nodal force with no stiffness; a lift-off support is a rigid restraint on its degree of freedom while in contact and free while lifted",
- "conventions": {"motion": "global translation and right-handed rotation of the node", "reaction": "global force of the anchor on the structure at its node, moment about that node", "member_end": "global force and moment exerted on the member by its end node, moment about that end node (end i at the member's first node)", "constant_effort": "the force the support applies on the pipe, along +axis of its degree of freedom", "nonlinear_support": "reaction_Fz: the lift-off support's force on the pipe (0 when lifted); relative_uz: the node's uz less its ground's (the ground does not move here)", "exact": "sum of rational multiples of pi**k; an SRSS value is sqrt of such a sum", "binary64_from_rounded_operands": "on a combination row: RN(sqrt(sum z_i^2)) or RN(sum |z_i|) computed on the ideal rounded analytic operands z_i (the nearest binary64 of each exact operand row), each formed exactly and rounded once; not on operands a product published, which the binding uses instead", "axial": "a member-end force row along its member's own axis is the global component of the node-on-member end action associated with the elastic (effective) axial force N_el; with no pressure it equals the pipe-wall force. On CEF-EQ-SRSS and CEF-EQ-ABS such a row is a magnitude aggregated from those elastic axial components", "comparison": "the rule w16_exact_equivalent_static and w16_timoshenko_partial_wind state (DEC-024/DEC-026), with the scale taken per case, term or combination, in SI, expected being the exact value (its binary64 suffices). A row whose expected value is nonzero passes when abs(observed - expected) <= 1e-9 * abs(expected), the relative tolerance alone, with no floor. A row whose expected value is exactly zero passes when abs(observed) <= floor, the floor being 1e-9 times the largest magnitude of that row's family (force, moment, translation, rotation) in the same case, term or combination; where the whole family is zero there (no item here has such a family), floor = 1e-9 N or N*m, 1e-12 m or rad. Each item's comparison_floor gives the floors for its exact-zero rows. The threshold g-factor, which is nonzero, is compared at 1e-9 relative; its floor 1e-12 would apply only to an exact-zero value. Discrete outcomes (support status, gate outcome, withheld, refused, a row's presence or absence) compare exactly"},
+ "conventions": {"motion": "global translation and right-handed rotation of the node", "reaction": "global force of the anchor on the structure at its node, moment about that node", "member_end": "global force and moment exerted on the member by its end node, moment about that end node (end i at the member's first node)", "constant_effort": "the force the support applies on the pipe, along +axis of its degree of freedom", "nonlinear_support": "reaction_Fz: the lift-off support's force on the pipe (0 when lifted); relative_uz: the node's uz less its ground's (the ground does not move here)", "exact": "sum of rational multiples of pi**k; an SRSS value is sqrt of such a sum", "binary64_from_rounded_operands": "on a combination row: RN(sqrt(sum z_i^2)) or RN(sum |z_i|) computed on the ideal rounded analytic operands z_i (the nearest binary64 of each exact operand row), each formed exactly and rounded once; not on operands a product published, which the binding uses instead", "axial": "a member-end force row along its member's own axis is the global component of the node-on-member end action associated with the elastic (effective) axial force N_el; with no pressure it equals the pipe-wall force. On CEF-EQ-SRSS and CEF-EQ-ABS such a row is a magnitude aggregated from those elastic axial components", "comparison": "the rule w16_exact_equivalent_static and w16_timoshenko_partial_wind state (DEC-024/DEC-026), with the scale taken per case, term or combination, in SI, expected being the exact value (its binary64 suffices). A row whose expected value is nonzero passes when abs(observed - expected) <= 1e-9 * abs(expected), the relative tolerance alone, with no floor. A row whose expected value is exactly zero passes when abs(observed) <= floor, the floor being 1e-9 times the largest magnitude of that row's family (force, moment, translation, rotation) in the same case, term or combination; where the whole family is zero there, floor = 1e-9 N or N*m, 1e-12 m or rad. Each of the 18 cases, terms and combinations with its own compared rows has a nonzero magnitude in all four compared families; JR-EQ-UNLISTED-PRIMITIVE uses JR-EQ's rows and floors. Each item's comparison_floor gives the floors for its exact-zero rows. The threshold g-factor, which is nonzero, is compared at 1e-9 relative; its floor 1e-12 would apply only to an exact-zero value. Discrete outcomes (support status, gate outcome, withheld, refused, a row's presence or absence) compare exactly"},
  "inputs": {
   "E": {"exact": "199300000000", "unit": "Pa"},
   "nu": {"exact": "293/1000", "unit": "1"},
@@ -337,7 +337,7 @@
   {
    "id": "CEF-SUS",
    "model": "CEF",
-   "role": "sustained: the weight primitives only",
+   "role": "sustained: weight primitives and the constant-effort device",
    "seismic": null,
    "load_sources": {
     "declared_ledger": [
@@ -347,7 +347,7 @@
      {"source": "component:valve-c/weight", "factor": 1}
     ],
     "generated": [],
-    "statement": "mechanics: the case applies the selected weight primitives once each at factor 1 and each generated load once at factor 1, and nothing else; the labels are this package's own, not the product's identities, and no expected value depends on how the product records the generated loads"
+    "statement": "Each selected weight primitive and each generated load is listed once at factor 1. The constant-effort action is specified separately. Source labels are local to this reference."
    },
    "constant_effort": "support:ce-b applies its constant force in this case",
    "generated_loads": [],
@@ -917,7 +917,7 @@
   {
    "id": "CEF-EQX",
    "model": "CEF",
-   "role": "seismic X: the weight primitives and the case's generated seismic load",
+   "role": "seismic X: weight primitives, the constant-effort device and the case's generated seismic load",
    "seismic": {
     "gravity_acceleration_m_s2": "9797/1000",
     "g_factors": ["37/100", "0", "0"]
@@ -935,7 +935,7 @@
      {"source": "pipe:d-e/seismic", "factor": 1},
      {"source": "component:valve-c/seismic", "factor": 1}
     ],
-    "statement": "mechanics: the case applies the selected weight primitives once each at factor 1 and each generated load once at factor 1, and nothing else; the labels are this package's own, not the product's identities, and no expected value depends on how the product records the generated loads"
+    "statement": "Each selected weight primitive and each generated load is listed once at factor 1. The constant-effort action is specified separately. Source labels are local to this reference."
    },
    "constant_effort": "support:ce-b applies its constant force in this case",
    "generated_loads": [
@@ -1597,7 +1597,7 @@
   {
    "id": "CEF-EQY",
    "model": "CEF",
-   "role": "seismic Y: the weight primitives and the case's generated seismic load",
+   "role": "seismic Y: weight primitives, the constant-effort device and the case's generated seismic load",
    "seismic": {
     "gravity_acceleration_m_s2": "9797/1000",
     "g_factors": ["0", "53/100", "0"]
@@ -1615,7 +1615,7 @@
      {"source": "pipe:d-e/seismic", "factor": 1},
      {"source": "component:valve-c/seismic", "factor": 1}
     ],
-    "statement": "mechanics: the case applies the selected weight primitives once each at factor 1 and each generated load once at factor 1, and nothing else; the labels are this package's own, not the product's identities, and no expected value depends on how the product records the generated loads"
+    "statement": "Each selected weight primitive and each generated load is listed once at factor 1. The constant-effort action is specified separately. Source labels are local to this reference."
    },
    "constant_effort": "support:ce-b applies its constant force in this case",
    "generated_loads": [
@@ -2277,7 +2277,7 @@
   {
    "id": "CEF-EQZ",
    "model": "CEF",
-   "role": "seismic Z: the weight primitives and the case's generated seismic load",
+   "role": "seismic Z: weight primitives, the constant-effort device and the case's generated seismic load",
    "seismic": {
     "gravity_acceleration_m_s2": "9797/1000",
     "g_factors": ["0", "0", "29/100"]
@@ -2295,7 +2295,7 @@
      {"source": "pipe:d-e/seismic", "factor": 1},
      {"source": "component:valve-c/seismic", "factor": 1}
     ],
-    "statement": "mechanics: the case applies the selected weight primitives once each at factor 1 and each generated load once at factor 1, and nothing else; the labels are this package's own, not the product's identities, and no expected value depends on how the product records the generated loads"
+    "statement": "Each selected weight primitive and each generated load is listed once at factor 1. The constant-effort action is specified separately. Source labels are local to this reference."
    },
    "constant_effort": "support:ce-b applies its constant force in this case",
    "generated_loads": [
@@ -5060,7 +5060,7 @@
      {"source": "pipe:c-n/seismic", "factor": 1},
      {"source": "pipe:n-d/seismic", "factor": 1}
     ],
-    "statement": "a valid case with a result: its only action is its generated load; no pressure, no preload (the connector has zero reference load and extension), no constant-effort support and no stored primitive selected. Each generated load acts once at factor 1"
+    "statement": "Expect a case result with each generated load applied once at factor 1. Generation is this fixture's only action."
    },
    "generated_loads": [
     {
@@ -5858,7 +5858,7 @@
      {"source": "pipe:c-n/wind", "factor": 1},
      {"source": "pipe:n-d/wind", "factor": 1}
     ],
-    "statement": "a valid case with a result: its only action is its generated load; no pressure, no preload (the connector has zero reference load and extension), no constant-effort support and no stored primitive selected. Each generated load acts once at factor 1"
+    "statement": "Expect a case result with each generated load applied once at factor 1. Generation is this fixture's only action."
    },
    "generated_loads": [
     {
@@ -6666,7 +6666,7 @@
      {"source": "pipe:c-n/wind[1/5,13/20]", "factor": 1},
      {"source": "pipe:n-d/wind", "factor": 1}
     ],
-    "statement": "a valid case with a result: its only action is its generated load; no pressure, no preload (the connector has zero reference load and extension), no constant-effort support and no stored primitive selected. Each generated load acts once at factor 1"
+    "statement": "Expect a case result with each generated load applied once at factor 1. Generation is this fixture's only action."
    },
    "generated_loads": [
     {
@@ -7440,7 +7440,7 @@
    "id": "JR-EQ-UNLISTED-PRIMITIVE",
    "model": "JR",
    "inputs": "JR-EQ, with one stored primitive of the case that its declared ledger does not list: a nodal force ['0', '0', '5150'] N at node:m, whose identity differs from the identity of every generated load of the case",
-   "expected_outcome": "solves; the unlisted primitive is excluded (schemas/load_reference_state.schema.json: a stored primitive of the case not listed in its load sources), so every row equals JR-EQ's",
+   "expected_outcome": "Expect the JR-EQ rows. The distinct unlisted stored primitive is excluded.",
    "rows_equal": "JR-EQ"
   }
  ],
@@ -7452,7 +7452,7 @@
    "subtrahend": "CEF-SUS",
    "fixed_load_count": "0 (1 - 1)",
    "expected_outcome": "published, not withheld: a subtraction carries no gate of its own",
-   "statement": "linear model: every row equals the response to the case's generated seismic load alone; the constant-effort force cancels",
+   "statement": "linear model: in exact mechanics every row equals the response to the case's generated seismic load alone; the constant-effort force's own row cancels",
    "generated_resultant": {
     "force_N": [
      {"exact": "246582643287878879/400000000000000*pi + 6919/10", "decimal": "2.628555551639882064884282163864818223667e+3", "value": 2628.555551639882},
@@ -8049,7 +8049,7 @@
    "subtrahend": "CEF-SUS",
    "fixed_load_count": "0 (1 - 1)",
    "expected_outcome": "published, not withheld: a subtraction carries no gate of its own",
-   "statement": "linear model: every row equals the response to the case's generated seismic load alone; the constant-effort force cancels",
+   "statement": "linear model: in exact mechanics every row equals the response to the case's generated seismic load alone; the constant-effort force's own row cancels",
    "generated_resultant": {
     "force_N": [
      {"exact": "0", "decimal": "0", "value": 0.0},
@@ -8646,7 +8646,7 @@
    "subtrahend": "CEF-SUS",
    "fixed_load_count": "0 (1 - 1)",
    "expected_outcome": "published, not withheld: a subtraction carries no gate of its own",
-   "statement": "linear model: every row equals the response to the case's generated seismic load alone; the constant-effort force cancels",
+   "statement": "linear model: in exact mechanics every row equals the response to the case's generated seismic load alone; the constant-effort force's own row cancels",
    "generated_resultant": {
     "force_N": [
      {"exact": "0", "decimal": "0", "value": 0.0},
@@ -9555,7 +9555,7 @@
     }
    ],
    "linear_superposition_control": {
-    "what": "the seated structure's response to the seismic load alone, which a product would publish if it formed the term from one structure; for EQZ-LIFTED it is wrong",
+    "what": "the generated load solved on the seated structure; for LO-dEQZ-LIFTED it differs from the switched-state subtraction",
     "equals_term": true,
     "largest_translation_difference": null,
     "rows": [
@@ -10197,7 +10197,7 @@
     }
    ],
    "linear_superposition_control": {
-    "what": "the seated structure's response to the seismic load alone, which a product would publish if it formed the term from one structure; for EQZ-LIFTED it is wrong",
+    "what": "the generated load solved on the seated structure; for LO-dEQZ-LIFTED it differs from the switched-state subtraction",
     "equals_term": false,
     "largest_translation_difference": {
      "row": "motion/node:c/uz",
@@ -12439,7 +12439,7 @@
  "directional_row": {
   "row": "motion/node:b/uy",
   "unit": "m",
-  "why": "two of the three directional terms are nonzero and of opposite sign here, so the SRSS, the absolute sum and the signed sum all differ",
+  "why": "All three terms are nonzero and one is negative, so the SRSS, absolute sum and signed sum differ.",
   "terms": {
    "CEF-dEQX": {"exact": "-58469862265515359366253641178430389111704032639584760802374103148312212909880768161096233876969060040708089/1898427686478745589598283663912534092078857508254416476768227297320652208684772686019031323816234061400000000000 - 122086105300735820178308499456442062412059395916181876595891573065070900069236196797329354960/4772316959473970813469793021399029894617540241966858915958339108397818523591685987981476429905063/pi", "decimal": "-3.894214872328268356152582486086287969438e-5", "value": -3.8942148723282686e-05},
    "CEF-dEQY": {"exact": "2529191489040865679678803614355675905070657270908291408673832600794279628840415511159461372565738206867697/6244827916048505228941722578659651618680452329784264726211274004344250686463068046115234617816559412500000000 + 3751311787919532741150625478433638823108526520617841970779756922771368055238381725281799091360/5122578754664720964917117279850334841011488149634151313459868584243529974864470280677364608246719/pi", "decimal": "6.381070669832919355297142797214637319851e-4", "value": 0.0006381070669832919},
@@ -12467,30 +12467,27 @@
   {
    "id": "JR-REFUSE-WIND-ON-REPLACED-SPAN",
    "document": "JR-WIND with a whole-span wind mark also on pipe:b-c, the span the connector replaces",
-   "expected": "the case is refused by name, naming the replaced span; no wind load is generated; no result is published for the case",
+   "expected": "Refuse the case by name, identifying pipe:b-c. Apply no partial set of case loads and publish no case result.",
    "rests_on": "DEL-03-06 AC-004 (a load on the replaced span which a case applies is refused by name) and the reference system's specification section 8.1 (wind on a replaced span is refused), whatever the mark's extent",
-   "observable_outcome": "no applied partial set of the case's loads and no case result",
+   "observable_outcome": "Apply no partial set of case loads and publish no case result.",
    "code": null,
-   "code_note": "no scope or frozen reference package names a code for a wind mark on a connector-replaced span; the frozen packages t4_i12 and t4_u5a name JOINT_REPLACED_SPAN_LOAD_UNOWNED for a stored load or eigenstrain the replaced span owns, and this package does not assume that code applies to a generated wind mark"
+   "code_note": "This reference freezes the refusal and named span. The generated-mark diagnostic code is undecided."
   },
   {
    "id": "JR-REFUSE-PART-SPAN-WIND-ON-REPLACED-SPAN",
    "document": "JR-WIND with a part-span wind mark also on pipe:b-c, over [1/5, 13/20]",
-   "expected": "as JR-REFUSE-WIND-ON-REPLACED-SPAN: refused by name, naming the replaced span; no wind load generated; no result",
+   "expected": "Refuse the case by name, identifying pipe:b-c. Apply no partial set of case loads and publish no case result.",
    "rests_on": "DEL-03-06 AC-004 (a load on the replaced span which a case applies is refused by name) and the reference system's specification section 8.1 (wind on a replaced span is refused), whatever the mark's extent",
-   "observable_outcome": "no applied partial set of the case's loads and no case result",
+   "observable_outcome": "Apply no partial set of case loads and publish no case result.",
    "code": null,
-   "code_note": "no scope or frozen reference package names a code for a wind mark on a connector-replaced span; the frozen packages t4_i12 and t4_u5a name JOINT_REPLACED_SPAN_LOAD_UNOWNED for a stored load or eigenstrain the replaced span owns, and this package does not assume that code applies to a generated wind mark"
-  },
+   "code_note": "This reference freezes the refusal and named span. The generated-mark diagnostic code is undecided."
+  }
+ ],
+ "open_readings": [
   {
-   "id": "JR-REFUSE-GENERATED-IDENTITY-COLLISION",
-   "document": "JR-EQ-UNLISTED-PRIMITIVE with the unlisted stored primitive given the identity of one of the case's generated loads, whatever identity the generator gives it",
-   "expected": "the case is refused by name before assembly, naming the identity; no load is applied and no result is published for the case. A collision is not resolved by dropping either load or by applying one in place of the other",
-   "code": null,
-   "rests_on": "a decision of SWBPIPE's Agent 0 (November 2026), among its terms for generation on a load and reference-state document: a generated identity that collides with an unlisted stored primitive is refused before assembly, so that the ordinary and certified paths cannot attribute one identity to two sources. It is not yet scope text and is to become text with the engine unit",
-   "colliding_identities": "a stored primitive of the same case, listed in its ledger or not, whose identity equals a generated load's identity",
-   "observable_outcome": "the case is refused before assembly; no load is applied; no case result is published",
-   "code_note": "no scope or frozen reference package read names a code for this refusal; this package names none"
+   "id": "JR-GENERATED-IDENTITY-EQUALS-UNLISTED-PRIMITIVE",
+   "document": "JR-EQ-UNLISTED-PRIMITIVE with the unlisted stored primitive given the identity of one of the case's generated loads",
+   "reading": "Open: whether a generated identity matching an unlisted stored primitive of the same case requires refusal before assembly. Diagnostic code undecided."
   }
  ],
  "controls": [
@@ -16132,6 +16129,6 @@
   {"check": "JR EQ with the unlisted primitive applied (control): method 1 equals method 2", "agrees": true},
   {"check": "JR: the unlisted primitive, were it applied, would move rows (it discriminates)", "agrees": true},
   {"check": "JR-CTRL-REPLACED-SPAN-LOADED: the rows equal the anchors' actions of the span solved alone as a fixed-fixed beam by the force method", "agrees": true},
-  {"check": "every input replaced by its nearest binary64 (32 of 46 inputs change): every cross-check still agrees, and 2191 signs and states are unchanged: every row of the ten cases that carry rows (and, for the LO state that does not qualify, its B motions and seated reaction), the five terms and their seated-structure controls, CEF-EQ-SRSS, CEF-EQ-ABS and CEF-SUS-PLUS-EQ, the directional row, the CEF and JR control and twin rows, the three lift-off statuses and both sides of the threshold. Not compared: the README's rounded key tables and the decimal and binary64 fields themselves", "agrees": true}
+  {"check": "every input replaced by its nearest binary64 (32 of 46 inputs change): every cross-check still agrees, and 2191 signs and states are unchanged: every row of the ten cases that carry rows, the five terms and their seated-structure controls, CEF-EQ-SRSS, CEF-EQ-ABS and CEF-SUS-PLUS-EQ, the CEF and JR control and twin rows; the three directional operands and their signed sum; in each LO case, the nonqualifying state's six B motion components and its reaction; the three lift-off statuses and both sides of the threshold. Not compared: the README's rounded key tables and the decimal and binary64 fields themselves", "agrees": true}
  ]
 }
