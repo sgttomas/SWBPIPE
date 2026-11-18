@@ -1199,14 +1199,16 @@ mod tests {
     }
 
     /// The sizes behind the catalog's replacement instruction, at the admission step.
-    /// What is observed: arguments carrying a new state one byte too long are refused
-    /// and raise no tool event; arguments carrying the stored state's removal are
-    /// admitted, on a separate protocol instance; and the replacement in one operation
-    /// is over the bound. So a removal can fit where the entry that should follow it
-    /// does not, which is why the instruction has the agent establish that both fit
-    /// before it proposes the removal. The entry's arguments are synthetic. No model
-    /// is read or changed here, and no agent's ordering is observed: that order is the
-    /// instruction's, and this test holds the instruction's words.
+    /// What is observed, with the stored state taken from the reference fixture and the
+    /// new state synthetic: the replacement in one operation is over the bound, which is
+    /// the case in which the instruction has the agent leave the stored state in place
+    /// and tell the person; arguments carrying the stored state's removal are admitted,
+    /// on a separate protocol instance; and arguments carrying a new state one byte too
+    /// long are refused and raise no tool event. So a removal can fit where the entry
+    /// that would follow it does not, which is why the instruction has the agent say
+    /// whether the entry alone fits before the person asks for the removal. No model is
+    /// read or changed here and no agent is observed. The assertion on the instruction
+    /// holds the quoted words and nothing else of the description.
     #[test]
     fn an_entry_over_the_bound_is_refused_at_admission_where_its_removal_would_be_admitted() {
         const REFERENCE: &str = include_str!("../../../../../fixtures/reference_system/reference_system.json");
@@ -1214,7 +1216,7 @@ mod tests {
         let catalog: Value = serde_json::from_str(CATALOG).unwrap();
         let instruction = catalog["tools"].as_array().unwrap().iter()
             .find(|tool| tool["name"] == Tool::ProposeOperations.name()).unwrap()["description"].as_str().unwrap();
-        assert!(instruction.contains("check that its removal and the new state's entry would each fit argumentBytes as a complete proposal alone, counting each proposal's whole arguments with its assumptions. If either exceeds argumentBytes, or you cannot tell, leave the stored state in place and report the limit to the person. If both fit, it is two proposals in order, each alone: its removal, then the new state. Before proposing the removal, tell the person that both proposals fit argumentBytes, that the new state can still be refused when it is checked after the removal, and that if it is, or the replacement is interrupted, the case is left without an analysis state. Propose the new state only after the person has applied the removal (observe it), on the new basis and hash from the summary; if that hash differs from the removal's outcomeModelHash, read the case again and recheck the new state and its assumptions first. If the new state is refused, report the refusal and the case's last confirmed state."));
+        assert!(instruction.contains("If that one operation alone exceeds argumentBytes, leave the stored state in place, propose nothing, and tell the person that you cannot carry this replacement through from one request: it takes a removal and then a new entry, each asked for separately, and once the removal is applied the case has no analysis state and a solve that needs it refuses the case (LOAD_STATE_ANALYSIS_STATE_REQUIRED) until a new state is entered. Say also whether the new state's entry alone would fit argumentBytes by your count on the current basis, counting its complete arguments with their assumptions: if it would not, or you cannot tell, say so; if it would, say that it is a count on the current basis and no promise for a later request. Remove a stored state only when the person asks for its removal (before is read_records before.analysis_state on the current basis, after not_present); say in its assumptions and to the person, before they apply it, that the case then has no analysis state and a solve that needs it refuses the case (LOAD_STATE_ANALYSIS_STATE_REQUIRED) until a new state is entered. Enter a state into a case already in the model only if read_records returns that case with before.analysis_state not_present and you have the new state the person intends: a case the read does not return is not shown to have no state (propose nothing and say what the read returned), and a case with a state takes no entry (say so)"));
         let reference: Value = serde_json::from_str(REFERENCE).unwrap();
         let bound = Catalog::load().unwrap().limits().argument_bytes as usize;
         let stored = reference["load_cases"].as_array().unwrap().iter()
@@ -1231,7 +1233,7 @@ mod tests {
         let removal = args(op(&stored, "not_present"));
         assert!(serde_json::to_vec(&entry).unwrap().len() > bound);
         assert!(serde_json::to_vec(&removal).unwrap().len() <= bound);
-        // The replacement in one operation does not fit either, which is what sends the agent to the two proposals.
+        // The replacement in one operation does not fit either: the case in which the agent leaves the stored state in place.
         assert!(serde_json::to_vec(&args(op(&stored, &"x".repeat(bound - envelope + 1)))).unwrap().len() > bound);
         let mut p = active();
         let refused = p.handle_frame(call(json!(80), "entry", Tool::ProposeOperations.name(), entry), &basis()).unwrap();
