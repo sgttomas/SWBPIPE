@@ -360,11 +360,19 @@ KEY_RESULTS = [
                                                                   "RS-dEQZ"], "identity", "exact identity"),
     ("EQ-5", "The RS-dSAM reactions are self-equilibrated (resultant force and moment zero)", ["RS-dSAM"], "identity",
      "exact identity: no load differs between RS-SAM and RS-SUS"),
-    ("EQ-6", "The resultant of RS-dWIN reactions equals minus the generated wind resultant, and that of RS-dEQx "
-     "equals minus the factor times g times the total mass on the generator's stated mass basis",
+    ("EQ-6", "The reaction resultant of RS-dWIN, force and moment about the origin, equals minus the resultant of "
+     "the generated wind load. That of each of RS-dEQX, RS-dEQY and RS-dEQZ equals minus the resultant of that "
+     "case's generated seismic load: on each member that carries a line load of self-weight, the factor times g "
+     "times the member's mass per length on the generator's stated mass basis; and, in place of that load on the "
+     "body of each of RS-F1, RS-V1, RS-F2 and RS-R1, the factor times the component's entered weight at its centre "
+     "of gravity. Each moment takes every force at its point of action about the origin",
      ["RS-dWIN", "RS-dEQX", "RS-dEQY", "RS-dEQZ"], "closed_form", "closed form from the inputs"),
-    ("EQ-7", "Spectrum directional combination recomputed from the published per-direction results", ["spectrum"],
-     "identity", "exact identity"),
+    ("EQ-7", "Each combined magnitude the spectrum result publishes, for one direction and over the directions, "
+     "agrees to 1e-9 relative with the exact value of its recorded rule on the published signed contributions, the "
+     "rigid contributions included, each cluster's contributions summed with their signs first; a magnitude "
+     "published as zero is exactly zero", ["spectrum"], "identity",
+     "identity of the result with itself, checked by the spectrum readers' recomputation (DEL-04-10 REQ-006) at "
+     "that tolerance; not a bit-exact identity"),
 ]
 
 
