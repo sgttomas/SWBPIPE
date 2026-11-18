@@ -33,4 +33,6 @@ cd core/analysis/response_spectrum
 <cargo wrapper> test --test spectrum_documents write_spectrum_documents -- --ignored
 ```
 
-`documents_are_the_projection_of_their_inputs` requires the committed bytes. The other tests in `tests/spectrum_documents.rs` compare each combined magnitude for which the reference publishes a value at 1e-9 relative (an expected zero exactly) and check REQ-006's worked rows to six significant figures.
+Each direction's formation record (its spectrum, the digest of that spectrum's record in the model stand-in, and its scale factor) is made by the writer from the reference's own request and spectrum, and each origin says so.
+
+`documents_are_the_projection_of_their_inputs` requires the committed bytes. `every_committed_document_conforms_to_the_document_shape` checks each document against the `document_shape` of the committed semantic table. The other tests in `tests/spectrum_documents.rs` compare each combined magnitude for which the reference publishes a value at 1e-9 relative (an expected zero exactly), with the number of compared rows stated per document, and check REQ-006's worked rows to six significant figures.

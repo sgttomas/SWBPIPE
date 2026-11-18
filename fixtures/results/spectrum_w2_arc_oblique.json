@@ -112,12 +112,13 @@
       "status": "published"
     },
     "rigid_constraints": {
-      "digest": "1b78df50568412f15ae314b2429a9ad5459c9ae271ff789cf0b9b975edcfd0de",
+      "digest": "5baf3b58ef0cde0f0b3652b1b04f3493bbb22a01d0329203a3d0618f5be5c007",
       "row_count": 12,
       "rows": [
         {
-          "checksum": "5a0d19aa87413d4258298e3eaa8078acc77899c26955121741b48540b42aebaf",
+          "checksum": "d0a76e16ce0bf23803772ab68ce9266d6ce908e8032043080efb53716a21d8af",
           "component": "UX",
+          "held": "single",
           "holders": [
             "A-anchor"
           ],
@@ -126,8 +127,9 @@
           "row_id": "rigid-constraint:1"
         },
         {
-          "checksum": "a9d86304ef17443e8a0208f40e75a47a26fb37e678c50d747a353ee4af5ff8d4",
+          "checksum": "c645794ddb52c754f1d1124e5ad740727287bf0c8fd98952ef9efeac783eca6c",
           "component": "UY",
+          "held": "single",
           "holders": [
             "A-anchor"
           ],
@@ -136,8 +138,9 @@
           "row_id": "rigid-constraint:2"
         },
         {
-          "checksum": "7d4b5387c08ab8fafed62b4919f18a39a47561de86a448b11f962115bacaa09a",
+          "checksum": "2a7269b029aa64ae74bfa6baed9d0624529084fb28864086b1ab9a596a63277a",
           "component": "UZ",
+          "held": "single",
           "holders": [
             "A-anchor"
           ],
@@ -146,8 +149,9 @@
           "row_id": "rigid-constraint:3"
         },
         {
-          "checksum": "4b8661a63949142b8b4fd1c9a6e423ef6c5ea07a9de1ddc0a24f40495aeefe6a",
+          "checksum": "2f065f9a4a91c6d145a1653117ee066924b73839c0dac7f2bad1f38b7ddccbad",
           "component": "RX",
+          "held": "single",
           "holders": [
             "A-anchor"
           ],
@@ -156,8 +160,9 @@
           "row_id": "rigid-constraint:4"
         },
         {
-          "checksum": "2361831db0091262560c11bdf9ddc057d42b5ba5a09786afa47955f4620c44be",
+          "checksum": "fd1bdf6845447a2611b162f3a9558906d0c1d5a86549b5a25bcd980bef24fa20",
           "component": "RY",
+          "held": "single",
           "holders": [
             "A-anchor"
           ],
@@ -166,8 +171,9 @@
           "row_id": "rigid-constraint:5"
         },
         {
-          "checksum": "1ecb02533553c77b4df83fa4f1599ebb856ae6742bf7c638123a16cd32334474",
+          "checksum": "410f8bd9c7dbb3e7236147dded3f90ca6d1138c709f3874282196a7fee034852",
           "component": "RZ",
+          "held": "single",
           "holders": [
             "A-anchor"
           ],
@@ -176,8 +182,9 @@
           "row_id": "rigid-constraint:6"
         },
         {
-          "checksum": "b31ba655ac61424a8f77439d09506c5c10d61468eaa2ff66ec5e454e79ebc4dd",
+          "checksum": "75a6c43358257e239c3230ee7a8862cd581be0366ee29ae9a9967d797bf49742",
           "component": "UX",
+          "held": "single",
           "holders": [
             "D-anchor"
           ],
@@ -186,8 +193,9 @@
           "row_id": "rigid-constraint:7"
         },
         {
-          "checksum": "b84b31eaa4cd57069cb4edc04dbc96f15d265389c7f12f1c7046529db0cff085",
+          "checksum": "58c9842c6aa8727f1888ec848145585eaf0b9ffec02100f28feb578328dd01f9",
           "component": "UY",
+          "held": "single",
           "holders": [
             "D-anchor"
           ],
@@ -196,8 +204,9 @@
           "row_id": "rigid-constraint:8"
         },
         {
-          "checksum": "e685085e604c818193be93503937a59de3408c08cf95678382a3b88efea20370",
+          "checksum": "a65169ba2889bb60d31f8a256f7b870d4a4a712623ebc9f3e3be3f5e70ac48a2",
           "component": "UZ",
+          "held": "single",
           "holders": [
             "D-anchor"
           ],
@@ -206,8 +215,9 @@
           "row_id": "rigid-constraint:9"
         },
         {
-          "checksum": "a011e2e5e7826d1dfa2ef90c28f23a7961e3b08d21ca2db6a52c14499b8fd190",
+          "checksum": "34e352ed7da59821b99b641f048d39a066c0aeb37f339a48cbec8c7e53d50c04",
           "component": "RX",
+          "held": "single",
           "holders": [
             "D-anchor"
           ],
@@ -216,8 +226,9 @@
           "row_id": "rigid-constraint:10"
         },
         {
-          "checksum": "230b4712bc2ef7303f0690ea72e787c55d062e473139b2ee4828490879b1752f",
+          "checksum": "b4e41ceb8af1495eb711afb0451ab25a50120775102628375b6b8f7964ad9270",
           "component": "RY",
+          "held": "single",
           "holders": [
             "D-anchor"
           ],
@@ -226,8 +237,9 @@
           "row_id": "rigid-constraint:11"
         },
         {
-          "checksum": "7a73118986bd8e02fa545ba206b73ea8e3e27725c4ffb2838c6f63a7c4ab2990",
+          "checksum": "e7ea908720d2e3334e81b0492fdfa653164fd0a85b0dcbcd453b93f4486a53c3",
           "component": "RZ",
+          "held": "single",
           "holders": [
             "D-anchor"
           ],
@@ -402,7 +414,7 @@
       "status": "published"
     },
     "missing_mass": {
-      "arithmetic": "S is the exact sum of the stated binary64 effective masses of the periodic modes, rounded once to the nearest binary64 (ties to even). The cumulative fraction is the binary64 quotient S / T, rounded to nearest. The unrepresented fraction is U / T, rounded to nearest, where U is the exact difference T - S rounded once to the nearest binary64 (ties to even). T is the stated total mass of the direction, which includes the mass that moves with the supports. Where T is zero both fractions are undefined.",
+      "arithmetic": "E is the exact sum of the stated binary64 effective masses of the periodic modes. S is E rounded once to the nearest binary64 (ties to even). U is the exact difference T − E, rounded once the same way. U is not T minus the published S, and the two can differ: where E rounds to T, T minus the published S is zero while the mass the periodic modes leave out is not. The cumulative fraction is the binary64 quotient of the published S by T and the unrepresented fraction the binary64 quotient of the published U by T, each rounded to nearest; they state what fraction of the published total each published mass is, and are recomputable from the published values. T is the stated total mass of the direction, which includes the mass that moves with the supports. Where T is zero both fractions are undefined.",
       "directions": {
         "digest": "ff7b540185f66169858029045388a7625621bf1424eeb1172a70cf3c8398fdfb",
         "row_count": 3,
@@ -1605,9 +1617,10 @@
   "origin": {
     "constructed": [
       "P1's and P2's member-axes rows are constructed, not published by the reference: each signed contribution and rigid response is the exact rotation, by the member's rows x, y and z (x along the member, y = (0, 0, 1) normal to x, z = x cross y; exact rationals), of the reference's published global decimals, rounded once to the nearest binary64.",
+      "P1's and P2's member axes stated in the census are constructed: each component is the exact rational over 25 that REQ-006's definition gives from the stand-in's node coordinates with reference vector (0, 0, 1), rounded once to binary64; the reference does not state them.",
       "The anchors at A and D have no identity in the reference, which names each reaction by its node; their support identities A-anchor and D-anchor are constructed.",
       "The arc's rows are its total end action as published (BEND1.<end>.* and BEND1.<end>.*_t); the reference's elastic and lump_load parts are not rows.",
-      "Except where stated above, each entity identity and the spectra are the reference's. The model document is a stand-in in the model document's shape, not a schema-checked model; its materials, sections and support families are placeholders, not checked against the reference. The spectrum request is this unit's stand-in shape."
+      "Except where stated above, each entity identity and the spectra are the reference's. The model document is a stand-in in the model document's shape, not a schema-checked model; its materials, sections and support families are placeholders, not checked against the reference. The spectrum request is this unit's stand-in shape. The extraction endpoint, the reported and established mode counts and the completion evidence sentence in modal_basis are derived by this writer from the reference's mode list and its Sturm evidence; they are not fields of the reference. Each direction's formation record (its spectrum, the digest of that spectrum's record in the model stand-in, and its scale factor) is this writer's statement of the reference's request."
     ],
     "kind": "constructed_from_reference",
     "produced_by_spectrum_solve": false,
@@ -1702,7 +1715,7 @@
       "status": "published"
     },
     "combined": {
-      "digest": "f970e9ea636c2fdc8d2ee08bce24f85831f50875d145a97ef033a8bc0a02b279",
+      "digest": "8183545af9cfca29bc913fc61e9181d9ba7c1c9aab386ce70557b9872484a14e",
       "row_count": 108,
       "rows": [
         {
@@ -5234,13 +5247,14 @@
           "unit": "unit:newton_meter"
         },
         {
-          "checksum": "7a3d734c19d9e38004c592482dca24863c95ba2b0fc9a9412f211eae5952628c",
+          "checksum": "0fe9b58f4daf81a5f9331068061f2fc464e79a81c6a0f1517208f37408d83ad1",
           "combined": 406.6450351681643,
           "component": "UX",
           "end": null,
           "entity_kind": "rigid_constraint",
           "frame": "global_axes",
           "governing_direction": null,
+          "held": "single",
           "holders": [
             "A-anchor"
           ],
@@ -5273,13 +5287,14 @@
           "unit": "unit:newton"
         },
         {
-          "checksum": "b505b767985fc0d45ab6227460910cad83cfaf5f17171c19a7d90dc268aad57e",
+          "checksum": "42db477c6b69ba43c02d69d8dd4a15ed6fc9a9f1f5126da07ba1b58d74cc8456",
           "combined": 429.9506296681921,
           "component": "UY",
           "end": null,
           "entity_kind": "rigid_constraint",
           "frame": "global_axes",
           "governing_direction": null,
+          "held": "single",
           "holders": [
             "A-anchor"
           ],
@@ -5312,13 +5327,14 @@
           "unit": "unit:newton"
         },
         {
-          "checksum": "c6b82a90f8d20a642f4a655b765027e283c14992d6e1197c8ea7f61f090de0e4",
+          "checksum": "97c6293d674c89e925ef11654be65844a22ba0dc499afcfaa796be0d8023edc7",
           "combined": 298.83249340939074,
           "component": "UZ",
           "end": null,
           "entity_kind": "rigid_constraint",
           "frame": "global_axes",
           "governing_direction": null,
+          "held": "single",
           "holders": [
             "A-anchor"
           ],
@@ -5351,13 +5367,14 @@
           "unit": "unit:newton"
         },
         {
-          "checksum": "5ee221b5a86df8f712b54f1f36763fd6cfd7a79e8f0ae7d26576a86c2783bbad",
+          "checksum": "ecfa60c4fad98dc03ac2bd60a02b6c7a64ec1f0a3e74914d173996fa08106303",
           "combined": 258.5527840763921,
           "component": "RX",
           "end": null,
           "entity_kind": "rigid_constraint",
           "frame": "global_axes",
           "governing_direction": null,
+          "held": "single",
           "holders": [
             "A-anchor"
           ],
@@ -5390,13 +5407,14 @@
           "unit": "unit:newton_meter"
         },
         {
-          "checksum": "579d5f0d553a81bb90ad1a371ea167c7c0a8d1e72ed0901f214b68e0c4a29534",
+          "checksum": "3e201dfde7b80659daff80dc439da6289cd19f29d5fa90a1fe44f8ab09f6c477",
           "combined": 216.7330547551703,
           "component": "RY",
           "end": null,
           "entity_kind": "rigid_constraint",
           "frame": "global_axes",
           "governing_direction": null,
+          "held": "single",
           "holders": [
             "A-anchor"
           ],
@@ -5429,13 +5447,14 @@
           "unit": "unit:newton_meter"
         },
         {
-          "checksum": "2a2d6fce9fe6ff84b5989f1472751a85e927c676f255d28a4f9d2bd16ed5572d",
+          "checksum": "4df40afc608e3139b9a6532866497e0c2e8def4810d4fc0fd9c0e310eb087a3f",
           "combined": 434.8209085676973,
           "component": "RZ",
           "end": null,
           "entity_kind": "rigid_constraint",
           "frame": "global_axes",
           "governing_direction": null,
+          "held": "single",
           "holders": [
             "A-anchor"
           ],
@@ -5468,13 +5487,14 @@
           "unit": "unit:newton_meter"
         },
         {
-          "checksum": "9fa44fddcd89aed67eceae120b4a7081cac47551961d8305e4f092e7f7841236",
+          "checksum": "430c56f9c9b8adf422326b08461c7621c370d0c63b6c05f4e291d8fc8d4e4294",
           "combined": 386.7593197268022,
           "component": "UX",
           "end": null,
           "entity_kind": "rigid_constraint",
           "frame": "global_axes",
           "governing_direction": null,
+          "held": "single",
           "holders": [
             "D-anchor"
           ],
@@ -5507,13 +5527,14 @@
           "unit": "unit:newton"
         },
         {
-          "checksum": "df5125fc2a11fbf0f6858eb1654f301bccb53e53283f89e50b46bbf53caa383c",
+          "checksum": "bf6cc232ac493a758b1eda32f6bd1d14e492fbace1ebb00383e91782978f34ac",
           "combined": 301.01834593169093,
           "component": "UY",
           "end": null,
           "entity_kind": "rigid_constraint",
           "frame": "global_axes",
           "governing_direction": null,
+          "held": "single",
           "holders": [
             "D-anchor"
           ],
@@ -5546,13 +5567,14 @@
           "unit": "unit:newton"
         },
         {
-          "checksum": "5a9975e96d6ec4d045bbd3ef98aa65358cde01ba87eec8613ac541d19b5a809b",
+          "checksum": "20c853dc2b8ddf1a16e6df3a0b9dd7860315bbcf271c39ea6b9a7c7a05e03b41",
           "combined": 370.7345242129296,
           "component": "UZ",
           "end": null,
           "entity_kind": "rigid_constraint",
           "frame": "global_axes",
           "governing_direction": null,
+          "held": "single",
           "holders": [
             "D-anchor"
           ],
@@ -5585,13 +5607,14 @@
           "unit": "unit:newton"
         },
         {
-          "checksum": "9aecdbe1a5dfbf4fe2e0612c20fa7cefff8ad833d6c6753e7a759dd5ee5d38eb",
+          "checksum": "fa33c8a6957a9b85d0ffef626d57e34daaded86e4719a9a955a7e62aba436099",
           "combined": 278.3605680520644,
           "component": "RX",
           "end": null,
           "entity_kind": "rigid_constraint",
           "frame": "global_axes",
           "governing_direction": null,
+          "held": "single",
           "holders": [
             "D-anchor"
           ],
@@ -5624,13 +5647,14 @@
           "unit": "unit:newton_meter"
         },
         {
-          "checksum": "dc1211f5eac53ba81dc3fc4c47e38651344244b551e799c8262a5e3e7442f1cd",
+          "checksum": "a76ddc9422f89c7c4bc78f286bb449abfce98ae1f3a3be2cf7228c627498a90e",
           "combined": 415.3365090531128,
           "component": "RY",
           "end": null,
           "entity_kind": "rigid_constraint",
           "frame": "global_axes",
           "governing_direction": null,
+          "held": "single",
           "holders": [
             "D-anchor"
           ],
@@ -5663,13 +5687,14 @@
           "unit": "unit:newton_meter"
         },
         {
-          "checksum": "525c91b3cb6e1e86d40ec04f2569919557d4c4542ed448f5de21ca124ee967e1",
+          "checksum": "4bc9e91a718e8fcc2b33db4ef7b9d13fa0111086034338efaa877ba93c042e8f",
           "combined": 97.20294774592712,
           "component": "RZ",
           "end": null,
           "entity_kind": "rigid_constraint",
           "frame": "global_axes",
           "governing_direction": null,
+          "held": "single",
           "holders": [
             "D-anchor"
           ],
@@ -5765,7 +5790,7 @@
       "Z"
     ],
     "signed": {
-      "digest": "a319819b251e5ad707adff66d224dc844a8ddf16514c7d6a194fd13ee0f44f7f",
+      "digest": "8142223f8edd1ffe2018f8a28a100290428135aa138de3eae68622be8d07291d",
       "row_count": 108,
       "rows": [
         {
@@ -10161,11 +10186,12 @@
           "unit": "unit:newton_meter"
         },
         {
-          "checksum": "9c81dfe671aec24c3ed2b204260050b54f31d9ffe0c0489b630986fb33b93cc5",
+          "checksum": "8aeede1298ac1b382da9b9b5168ccc4bef1a62fa8049c75d6e1ab7db0cf6809a",
           "component": "UX",
           "end": null,
           "entity_kind": "rigid_constraint",
           "frame": "global_axes",
+          "held": "single",
           "holders": [
             "A-anchor"
           ],
@@ -10209,11 +10235,12 @@
           "unit": "unit:newton"
         },
         {
-          "checksum": "03115b0d711d609924d97f594fdfae8664cb04c283614fe0a6ac0fe9695d98f7",
+          "checksum": "ffe5f35cd8564c1d74975aa47f09ae27fcaa681ec0fcfa8b84e4416fb1e2bc61",
           "component": "UY",
           "end": null,
           "entity_kind": "rigid_constraint",
           "frame": "global_axes",
+          "held": "single",
           "holders": [
             "A-anchor"
           ],
@@ -10257,11 +10284,12 @@
           "unit": "unit:newton"
         },
         {
-          "checksum": "41b9f9411a6b9011b0438f282fd6d213ef2fb147503aeac86c3b5fdfcf0bfcb9",
+          "checksum": "f48da934b00b63515f22d600407cea661babc25978c9aab9ef5b56e48b2a2652",
           "component": "UZ",
           "end": null,
           "entity_kind": "rigid_constraint",
           "frame": "global_axes",
+          "held": "single",
           "holders": [
             "A-anchor"
           ],
@@ -10305,11 +10333,12 @@
           "unit": "unit:newton"
         },
         {
-          "checksum": "3496ed188103236d6652d3246ef6a84fc95b0ea26621c7f7f5e6d8f312d584ba",
+          "checksum": "17740ca11b38ae49ffb3c4fcc56950eb8bb43e10b93f90e06cc8ee71ab7d2554",
           "component": "RX",
           "end": null,
           "entity_kind": "rigid_constraint",
           "frame": "global_axes",
+          "held": "single",
           "holders": [
             "A-anchor"
           ],
@@ -10353,11 +10382,12 @@
           "unit": "unit:newton_meter"
         },
         {
-          "checksum": "8f335943484c15df62b4c26bdcfa0abe8f953dca32b4b1df31a00cc9fca55c2f",
+          "checksum": "f6d77270aa1089a49979aa68e904c08a4a9e59dce49508c010920d72cbd36388",
           "component": "RY",
           "end": null,
           "entity_kind": "rigid_constraint",
           "frame": "global_axes",
+          "held": "single",
           "holders": [
             "A-anchor"
           ],
@@ -10401,11 +10431,12 @@
           "unit": "unit:newton_meter"
         },
         {
-          "checksum": "fb00a7919b8234779c2787eebdb4d8fc5fa78b2cc68fb68fc1a662b5b3693ddb",
+          "checksum": "aa1fb6836656da52165e25c76e5740230cc3f2a8d5d7474c0073cb55e7ff5c8f",
           "component": "RZ",
           "end": null,
           "entity_kind": "rigid_constraint",
           "frame": "global_axes",
+          "held": "single",
           "holders": [
             "A-anchor"
           ],
@@ -10449,11 +10480,12 @@
           "unit": "unit:newton_meter"
         },
         {
-          "checksum": "108150266a106891a1ba0c74e3e1c7de7638cf604e135062e7a04f9e4b0658c6",
+          "checksum": "42daa1755c3e2665f68ecc6d9e420e76da9d1d2eb11907737a32a5e23007bda1",
           "component": "UX",
           "end": null,
           "entity_kind": "rigid_constraint",
           "frame": "global_axes",
+          "held": "single",
           "holders": [
             "D-anchor"
           ],
@@ -10497,11 +10529,12 @@
           "unit": "unit:newton"
         },
         {
-          "checksum": "21d07e42c900e9d7428091c1e5d3c077e46ea34c2313ffb1f611d25f8d8150ad",
+          "checksum": "b5f820e2cffc8902d089f2bd803b30d9187537561d6f94eb4b1822c8d0de9827",
           "component": "UY",
           "end": null,
           "entity_kind": "rigid_constraint",
           "frame": "global_axes",
+          "held": "single",
           "holders": [
             "D-anchor"
           ],
@@ -10545,11 +10578,12 @@
           "unit": "unit:newton"
         },
         {
-          "checksum": "5139f8683235c0a59b9c1d5c5e66dada2c18956e3933de1932be32cf3052bc59",
+          "checksum": "c10968f420d38296a91bc74c6f1ed9ae1bdc37b7b40390e36b6fa0c2c688202e",
           "component": "UZ",
           "end": null,
           "entity_kind": "rigid_constraint",
           "frame": "global_axes",
+          "held": "single",
           "holders": [
             "D-anchor"
           ],
@@ -10593,11 +10627,12 @@
           "unit": "unit:newton"
         },
         {
-          "checksum": "4b6ffb22ede2e870ac6a904298f27091276033b9d17c14d56adf15d3ff2571dd",
+          "checksum": "0b73639c06b75f78165d5bb260089938882134ec9af0f5846a9e26fbb5c9a334",
           "component": "RX",
           "end": null,
           "entity_kind": "rigid_constraint",
           "frame": "global_axes",
+          "held": "single",
           "holders": [
             "D-anchor"
           ],
@@ -10641,11 +10676,12 @@
           "unit": "unit:newton_meter"
         },
         {
-          "checksum": "c284f0155d768560ff7c626a0df04af57893f7f3ed5e93f6f175afce96099255",
+          "checksum": "f6f111bf932095cf340ec22bce4f3c494f3a2d3cbb7cdbb8b4ddae3d4231b951",
           "component": "RY",
           "end": null,
           "entity_kind": "rigid_constraint",
           "frame": "global_axes",
+          "held": "single",
           "holders": [
             "D-anchor"
           ],
@@ -10689,11 +10725,12 @@
           "unit": "unit:newton_meter"
         },
         {
-          "checksum": "475fce38620643379c25a5d6144c1723fb919dea1ea11e3b848e25f96d7ecc4f",
+          "checksum": "500eedf7f6e61822b5486eb5f73c49d9264d876c7660c159e2a1a64c0fe071aa",
           "component": "RZ",
           "end": null,
           "entity_kind": "rigid_constraint",
           "frame": "global_axes",
+          "held": "single",
           "holders": [
             "D-anchor"
           ],
@@ -10741,6 +10778,7 @@
     }
   },
   "rule_statements": {
+    "closeness_rule": null,
     "correlation": {
       "digest": "fe61a8f8aa0f07f0f057cf2aa86f148ee2034553d7eaf3e3714247728da4c6de",
       "row_count": 15,
@@ -10994,7 +11032,7 @@
   "schema_version": "0.1.0",
   "semantic_contract": {
     "id": "openpipestress.result_semantics/spectrum-1",
-    "sha256": "81ad795536c53966cb390bef35fc93395f67f5e74d2af39e30da4698542e95c0"
+    "sha256": "318f40b2679cb72794f83dc8701841a9af047f344836916fe3e04b08b4aa60fb"
   },
   "spectra": {
     "digest": "6964a8f2dae1d240b693aa8095f1faea210ae4c8a4d9b266c9856bf8469360c3",

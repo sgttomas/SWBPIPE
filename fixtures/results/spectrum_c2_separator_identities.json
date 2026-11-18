@@ -74,12 +74,13 @@
       "status": "published"
     },
     "rigid_constraints": {
-      "digest": "c0fcf51e0ece497bec3ce70fd66fca876665c2aedab429f561b83a8fab138493",
+      "digest": "6e55e0184858c8c40810bab7847f5ef0035f14e578a9973cdfa8fb3abd0f064a",
       "row_count": 6,
       "rows": [
         {
-          "checksum": "7c2c495a1537e78320f92e34a5514790c7ecd202c62505352d686dd90455eca9",
+          "checksum": "2eeb35b5ee06fba508decece639ff3979dff7e819e0a1c1ba2e71ec5e6a101ea",
           "component": "UX",
+          "held": "single",
           "holders": [
             "A1.Fx: anchor_m"
           ],
@@ -88,8 +89,9 @@
           "row_id": "rigid-constraint:1"
         },
         {
-          "checksum": "1e9c48e5e55bfb5d08c6e3027cecf4178634ebc424f7ab6a7c51684c986594f4",
+          "checksum": "e875ab4ef3aa3ad44edea2333dcb37f8ed97a5cd096629ec9af54f9917a5c833",
           "component": "UY",
+          "held": "single",
           "holders": [
             "A1.Fx: anchor_m"
           ],
@@ -98,8 +100,9 @@
           "row_id": "rigid-constraint:2"
         },
         {
-          "checksum": "ca9a5460ef4d7a52f79966ed66718a8f87047127a7d429fc72a090d41a28b46c",
+          "checksum": "dd18f525bc40d819b6ef7d800567daaddd28e13d4eaea58bd48d3329e82bceeb",
           "component": "UZ",
+          "held": "single",
           "holders": [
             "A1.Fx: anchor_m"
           ],
@@ -108,8 +111,9 @@
           "row_id": "rigid-constraint:3"
         },
         {
-          "checksum": "1a6d899ad5a6772973135d2a967745fe158be7569fa9e6dd6f3d35e2d406bec4",
+          "checksum": "5e9036e3016d9db86b291ce980dc54b40bfac8472b38f83721bad3e0770e2891",
           "component": "RX",
+          "held": "single",
           "holders": [
             "A1.Fx: anchor_m"
           ],
@@ -118,8 +122,9 @@
           "row_id": "rigid-constraint:4"
         },
         {
-          "checksum": "088927aecb65d8b5fef17705a8e598604b15113b41ca4bee1d13865f385f7c68",
+          "checksum": "65440277c57dcd44e8b48d4ca6fdc95cdf2ef905b3895f01d486af994c0ee181",
           "component": "RY",
+          "held": "single",
           "holders": [
             "A1.Fx: anchor_m"
           ],
@@ -128,8 +133,9 @@
           "row_id": "rigid-constraint:5"
         },
         {
-          "checksum": "f3cf9b1d96473f4e7c976bdb90a0e55b8a7f6fb6e888a183c532db86483200d6",
+          "checksum": "ca3d7b2bdd28e3831d2c01fdb7a5a959f98f0b34ef13b0d1b017e5343f612083",
           "component": "RZ",
+          "held": "single",
           "holders": [
             "A1.Fx: anchor_m"
           ],
@@ -297,7 +303,7 @@
       "status": "published"
     },
     "missing_mass": {
-      "arithmetic": "S is the exact sum of the stated binary64 effective masses of the periodic modes, rounded once to the nearest binary64 (ties to even). The cumulative fraction is the binary64 quotient S / T, rounded to nearest. The unrepresented fraction is U / T, rounded to nearest, where U is the exact difference T - S rounded once to the nearest binary64 (ties to even). T is the stated total mass of the direction, which includes the mass that moves with the supports. Where T is zero both fractions are undefined.",
+      "arithmetic": "E is the exact sum of the stated binary64 effective masses of the periodic modes. S is E rounded once to the nearest binary64 (ties to even). U is the exact difference T − E, rounded once the same way. U is not T minus the published S, and the two can differ: where E rounds to T, T minus the published S is zero while the mass the periodic modes leave out is not. The cumulative fraction is the binary64 quotient of the published S by T and the unrepresented fraction the binary64 quotient of the published U by T, each rounded to nearest; they state what fraction of the published total each published mass is, and are recomputable from the published values. T is the stated total mass of the direction, which includes the mass that moves with the supports. Where T is zero both fractions are undefined.",
       "directions": {
         "digest": "ed9af67c602d75d72e6a06949f8d08bf3d5c8182cae68b387ff118fbc8e45be8",
         "row_count": 1,
@@ -710,8 +716,9 @@
   "origin": {
     "constructed": [
       "Every entity identity is constructed by renaming the reference's: N1 as \"N1.ux: anchor node\", N2 as \"N2 .i.Fx_m\", N3 as \"node:N3.uy_m tip\", P1 as \"P1.i.Fx_m\", P2 as \"pipe: P2.j.Mz_m\", A1 as \"A1.Fx: anchor_m\", S1 as \"S1.UY spring: 1\". Each renamed identity contains a dot, a space, a colon or the member-axes suffix _m, the characters a composed key would separate its fields with; each global-axes value is the reference's value for the original entity.",
+      "The member axes stated in the census are constructed by this writer from the reference's node coordinates and each member's y_reference, by REQ-006's definition (x from end i to end j, y the part of the reference vector normal to x, normalized, z = x cross y); the reference does not state them as vectors. Each is a signed permutation of the global axes.",
       "The member-axes contributions are the reference's global contributions mapped by the signed permutation of each member's axis-aligned frame (x = +X, y = +Z, z = -Y); the reference's convention 2 states that such a frame maps component to component. Each combined magnitude is formed from them.",
-      "Except where stated above, each entity identity and the spectra are the reference's. The model document is a stand-in in the model document's shape, not a schema-checked model; its materials, sections and support families are placeholders, not checked against the reference. The spectrum request is this unit's stand-in shape."
+      "Except where stated above, each entity identity and the spectra are the reference's. The model document is a stand-in in the model document's shape, not a schema-checked model; its materials, sections and support families are placeholders, not checked against the reference. The spectrum request is this unit's stand-in shape. The extraction endpoint, the reported and established mode counts and the completion evidence sentence in modal_basis are derived by this writer from the reference's mode list and its Sturm evidence; they are not fields of the reference. Each direction's formation record (its spectrum, the digest of that spectrum's record in the model stand-in, and its scale factor) is this writer's statement of the reference's request."
     ],
     "kind": "constructed_from_reference",
     "produced_by_spectrum_solve": false,
@@ -782,7 +789,7 @@
       "status": "published"
     },
     "combined": {
-      "digest": "c2f401fa10fcc32bc5f1875ffc2e65d417aaff950bc3d5ad6356b537241c1575",
+      "digest": "96c12df31543e192af2053e6ab849cd0ea14d7f0c7fcb25d9e3b27b6274d5275",
       "row_count": 73,
       "rows": [
         {
@@ -2418,13 +2425,14 @@
           "unit": "unit:newton_meter"
         },
         {
-          "checksum": "2e65a8db58374266ef094ddf96aa0e2c8e3aa258c8ca19c84444404d2324fe0b",
+          "checksum": "f9720e9766bd87c46fab2fcedf8c7a09ac859f1b4e1ed39afacda682b58625df",
           "combined": 0.0,
           "component": "UX",
           "end": null,
           "entity_kind": "rigid_constraint",
           "frame": "global_axes",
           "governing_direction": null,
+          "held": "single",
           "holders": [
             "A1.Fx: anchor_m"
           ],
@@ -2445,13 +2453,14 @@
           "unit": "unit:newton"
         },
         {
-          "checksum": "c640ed76021b69bf2cb0945e3a4496382ba79d31b47b75f8685affd7f041fe1a",
+          "checksum": "4805fef6d3cfe0fc4166109fb713670ed703d2b4e148e3eecf368b03487ce191",
           "combined": 1334.4456464304076,
           "component": "UY",
           "end": null,
           "entity_kind": "rigid_constraint",
           "frame": "global_axes",
           "governing_direction": null,
+          "held": "single",
           "holders": [
             "A1.Fx: anchor_m"
           ],
@@ -2472,13 +2481,14 @@
           "unit": "unit:newton"
         },
         {
-          "checksum": "a81d3f40de6dcbb6338b05dc2d2593d36cf0813add49d869ffcdf42fdbdaae91",
+          "checksum": "05d3f1b9e6fbafe40805ec43d201c92f537147d026f66e1be574061258bc9230",
           "combined": 0.0,
           "component": "UZ",
           "end": null,
           "entity_kind": "rigid_constraint",
           "frame": "global_axes",
           "governing_direction": null,
+          "held": "single",
           "holders": [
             "A1.Fx: anchor_m"
           ],
@@ -2499,13 +2509,14 @@
           "unit": "unit:newton"
         },
         {
-          "checksum": "62906bf98c7926b97bccc6a21b199c163eaacb2d334d82207846f5be87d3212d",
+          "checksum": "3f6281f4dff6e9ad268cc0483f31391b99284f2fd66025371f2a26f5c2d41319",
           "combined": 0.0,
           "component": "RX",
           "end": null,
           "entity_kind": "rigid_constraint",
           "frame": "global_axes",
           "governing_direction": null,
+          "held": "single",
           "holders": [
             "A1.Fx: anchor_m"
           ],
@@ -2526,13 +2537,14 @@
           "unit": "unit:newton_meter"
         },
         {
-          "checksum": "9f53c0566b193da6550ae14caef9929dd5c15e923c54907ae3b1be1f356394dd",
+          "checksum": "3142621782c23cee047ac79bae3311c19eca66e6f468f5d39b644f047344379e",
           "combined": 0.0,
           "component": "RY",
           "end": null,
           "entity_kind": "rigid_constraint",
           "frame": "global_axes",
           "governing_direction": null,
+          "held": "single",
           "holders": [
             "A1.Fx: anchor_m"
           ],
@@ -2553,13 +2565,14 @@
           "unit": "unit:newton_meter"
         },
         {
-          "checksum": "b1d2dbcb7b137ef16968a6b394f7a4ab817785f4fb9f14c458812443dce65785",
+          "checksum": "856d56a144980646d9194b4ff8c48085c914d5b6e3b7810699a37153a6c96fdb",
           "combined": 2687.5930022154766,
           "component": "RZ",
           "end": null,
           "entity_kind": "rigid_constraint",
           "frame": "global_axes",
           "governing_direction": null,
+          "held": "single",
           "holders": [
             "A1.Fx: anchor_m"
           ],
@@ -2633,7 +2646,7 @@
       "Y"
     ],
     "signed": {
-      "digest": "02628b8b281d5f0aa6a6d029b993b775222df992c156b34e7ad221acfc6aba3f",
+      "digest": "b5e9b70960687591f2116a1f841cfe3f3d8e50fd521a2864bae79b84e1f4eea1",
       "row_count": 73,
       "rows": [
         {
@@ -4203,11 +4216,12 @@
           "unit": "unit:newton_meter"
         },
         {
-          "checksum": "be1a8c3f78b373b864add4c3ea27901ab40ee0edf3cfbfed50bc89641a881124",
+          "checksum": "85321c466719da40ba92b009e188a93d738d640127956c7a4f2aa5054063ce5e",
           "component": "UX",
           "end": null,
           "entity_kind": "rigid_constraint",
           "frame": "global_axes",
+          "held": "single",
           "holders": [
             "A1.Fx: anchor_m"
           ],
@@ -4229,11 +4243,12 @@
           "unit": "unit:newton"
         },
         {
-          "checksum": "678c217cea654cf4541904f12bfda0d5e8055be2c60022af31ae067df0e5a6cb",
+          "checksum": "dca4105112f980095ea1718606bcc1359a6ef98a6d34b3727782953778b30bb7",
           "component": "UY",
           "end": null,
           "entity_kind": "rigid_constraint",
           "frame": "global_axes",
+          "held": "single",
           "holders": [
             "A1.Fx: anchor_m"
           ],
@@ -4255,11 +4270,12 @@
           "unit": "unit:newton"
         },
         {
-          "checksum": "cdd978c835c9d5ea2eac02046e0dbd7be0c3d0c2f83ccde25b69a5a69fd50453",
+          "checksum": "5233ba3c42263f4bf8cdc14ebcdd088f5e3c5423058b90f0e833c9ec5e131d6f",
           "component": "UZ",
           "end": null,
           "entity_kind": "rigid_constraint",
           "frame": "global_axes",
+          "held": "single",
           "holders": [
             "A1.Fx: anchor_m"
           ],
@@ -4281,11 +4297,12 @@
           "unit": "unit:newton"
         },
         {
-          "checksum": "15a45c559e717bae8ec8b53c7f20d16900f3c03017a32eba2e12f617151c583c",
+          "checksum": "3c86c9e7a1cdadf91aa260746af6bc2d53c1f326dd3e2926f91db7cfaae7f9a2",
           "component": "RX",
           "end": null,
           "entity_kind": "rigid_constraint",
           "frame": "global_axes",
+          "held": "single",
           "holders": [
             "A1.Fx: anchor_m"
           ],
@@ -4307,11 +4324,12 @@
           "unit": "unit:newton_meter"
         },
         {
-          "checksum": "dc4b5286ec2cd5ef918732e4c537df2803932144514755236080670386ad11a1",
+          "checksum": "73c23eaf8950ba599e53552de5fde63cc6e7e52d154a4ed81aa32aa8e2f27287",
           "component": "RY",
           "end": null,
           "entity_kind": "rigid_constraint",
           "frame": "global_axes",
+          "held": "single",
           "holders": [
             "A1.Fx: anchor_m"
           ],
@@ -4333,11 +4351,12 @@
           "unit": "unit:newton_meter"
         },
         {
-          "checksum": "6e24d1791954751037c1bdb61c2e5adae95a2c5258c1e15a817a78730e0b610b",
+          "checksum": "4da395b4e736ad43dca8a4064daf564395791c4f3979235dc0834e62e507641f",
           "component": "RZ",
           "end": null,
           "entity_kind": "rigid_constraint",
           "frame": "global_axes",
+          "held": "single",
           "holders": [
             "A1.Fx: anchor_m"
           ],
@@ -4386,6 +4405,7 @@
     }
   },
   "rule_statements": {
+    "closeness_rule": null,
     "correlation": null,
     "coupled_pairs": null,
     "groups": null
@@ -4393,7 +4413,7 @@
   "schema_version": "0.1.0",
   "semantic_contract": {
     "id": "openpipestress.result_semantics/spectrum-1",
-    "sha256": "81ad795536c53966cb390bef35fc93395f67f5e74d2af39e30da4698542e95c0"
+    "sha256": "318f40b2679cb72794f83dc8701841a9af047f344836916fe3e04b08b4aa60fb"
   },
   "spectra": {
     "digest": "055a9eaa547101a512d606b36fccf42a527e95110ae834d4fe5932fc7e782212",

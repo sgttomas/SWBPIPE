@@ -16,12 +16,12 @@ fn refuse(code: RefusalCode, object: &str, field: Option<&str>, detail: String) 
     Refusal::new(code, object, field, detail)
 }
 
-/// A supplied cluster, with its modes in ascending order.
-struct Cluster {
-    index: ClusterIndex,
-    modes: Vec<usize>,
-    standing: f64,
-    class: ClusterClass,
+/// A supplied cluster, with its modes (positions in the request) in ascending order.
+pub(crate) struct Cluster {
+    pub(crate) index: ClusterIndex,
+    pub(crate) modes: Vec<usize>,
+    pub(crate) standing: f64,
+    pub(crate) class: ClusterClass,
 }
 
 fn check_choices(request: &CombinationRequest, refusals: &mut Vec<Refusal>) {
@@ -53,7 +53,7 @@ fn check_choices(request: &CombinationRequest, refusals: &mut Vec<Refusal>) {
 
 /// The modal result's structure: modes 1..n in ascending frequency, clusters chained from 1
 /// over adjacent modes. Nothing is inferred; a breach is refused.
-fn check_modes(request: &CombinationRequest, refusals: &mut Vec<Refusal>) -> bool {
+pub(crate) fn check_modes(request: &CombinationRequest, refusals: &mut Vec<Refusal>) -> bool {
     let before = refusals.len();
     let invalid = |object: String, field: &str, detail: String| {
         refuse(RefusalCode::ModalMetadataInvalid, &object, Some(field), detail)
@@ -92,8 +92,9 @@ fn check_modes(request: &CombinationRequest, refusals: &mut Vec<Refusal>) -> boo
 /// The rows (REQ-006, "Roster", "Identity", "Frame and sign"): each identity once, by its fields;
 /// every entity identity a non-blank string; an end action in a frame its member family admits
 /// (member axes are never an arc's frame); a member stated as one family throughout; a rigid
-/// constraint held by at least one support, each named once.
-fn check_rows(request: &CombinationRequest, refusals: &mut Vec<Refusal>) {
+/// constraint held by at least one support, each named once. With `duplicates` false the repeat
+/// of an identity is left to the caller (the spectrum document refuses it against its roster).
+pub(crate) fn check_rows(request: &CombinationRequest, refusals: &mut Vec<Refusal>, duplicates: bool) {
     if request.rows.is_empty() {
         refusals.push(refuse(RefusalCode::RowInvalid, REQUEST, Some("rows"), "no row is supplied".into()));
     }
@@ -143,13 +144,15 @@ fn check_rows(request: &CombinationRequest, refusals: &mut Vec<Refusal>) {
                 }
             }
         }
-        if !seen.insert(row.identity()) {
+        if duplicates && !seen.insert(row.identity()) {
             refusals.push(refuse(RefusalCode::RowInvalid, &label, Some("rows"), "the row is supplied more than once".into()));
         }
     }
 }
 
-fn clusters(request: &CombinationRequest) -> Vec<Cluster> {
+/// The supplied clusters, classified: periodic when the correction is not applied, otherwise when
+/// the cluster's lowest frequency is below f_r. The modes must have passed [`check_modes`].
+pub(crate) fn clusters(request: &CombinationRequest) -> Vec<Cluster> {
     let mut out: Vec<Cluster> = Vec::new();
     for (i, m) in request.modes.iter().enumerate() {
         match out.last_mut() {
@@ -393,7 +396,7 @@ pub fn combine(request: &CombinationRequest) -> Result<Combination, Vec<Refusal>
     let mut refusals = Vec::new();
     check_choices(request, &mut refusals);
     let modes_ok = check_modes(request, &mut refusals);
-    check_rows(request, &mut refusals);
+    check_rows(request, &mut refusals, true);
     if !modes_ok {
         return Err(refusals);
     }

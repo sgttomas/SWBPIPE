@@ -99,12 +99,13 @@
       "status": "published"
     },
     "rigid_constraints": {
-      "digest": "927ed15594253fd10a881bd7c0cc99473b614e97168e0644583e590b75c03844",
+      "digest": "b4759a969a8af07abb97a805c5e122cb1981670bcaa2da4e2b405334ae626d64",
       "row_count": 7,
       "rows": [
         {
-          "checksum": "1f66b0b5c0e867d2694e45e5a73c2b5e7240a4b0483e6ba69d180d3c548cc71c",
+          "checksum": "0cfa388c0be571d2b862a38424e66c2cacb63e74033290568cd8920e3a86618d",
           "component": "UX",
+          "held": "single",
           "holders": [
             "SA"
           ],
@@ -113,8 +114,9 @@
           "row_id": "rigid-constraint:1"
         },
         {
-          "checksum": "99fc7f581d791b7d2d7e381a2cc64ee0036c769ec18c1e89d3a39a0342d4e833",
+          "checksum": "4eb082463e0a56f741369bccd785ee3167d5df4eb9c9f998cea4b409670e4b69",
           "component": "UY",
+          "held": "single",
           "holders": [
             "SA"
           ],
@@ -123,8 +125,9 @@
           "row_id": "rigid-constraint:2"
         },
         {
-          "checksum": "5826010dff3dc11b7254612551343893d2485cfe0da360ddf3c34cb130539a97",
+          "checksum": "997e5c4e5a37dab9ae72d7a72b225e42ff810c2258347320b7c4eb7e8b6c514a",
           "component": "UZ",
+          "held": "single",
           "holders": [
             "SA"
           ],
@@ -133,8 +136,9 @@
           "row_id": "rigid-constraint:3"
         },
         {
-          "checksum": "66f0bac69636e49c63d1f13e3e2c925d3cb0da84104774dc6dd175e34a035448",
+          "checksum": "a4558b489398699355032833dda44b835e069d818651dd43589c6130b937fa55",
           "component": "RX",
+          "held": "single",
           "holders": [
             "SA"
           ],
@@ -143,8 +147,9 @@
           "row_id": "rigid-constraint:4"
         },
         {
-          "checksum": "9ca528c2a0caa65030dd58c56b12d169d9e77de0893f7cbcd80eb609dd6d9447",
+          "checksum": "f33b100926a0606bf09bb1becce10ca23db6e2f4bce932d310597a1fc48b5625",
           "component": "RY",
+          "held": "single",
           "holders": [
             "SA"
           ],
@@ -153,8 +158,9 @@
           "row_id": "rigid-constraint:5"
         },
         {
-          "checksum": "4f7d141c90fd659f1d350e79af9f9cc27c7b01af1e8a66048c62cc8991c1ce97",
+          "checksum": "5f44ec2afb440383d346dc4a524780c363fddf546172baece18f39b1db651aaf",
           "component": "RZ",
+          "held": "single",
           "holders": [
             "SA"
           ],
@@ -163,8 +169,9 @@
           "row_id": "rigid-constraint:6"
         },
         {
-          "checksum": "3685b859c79af0e8323419c4c897bc8c17c3abcd321d8e16dd71015dde3c0cd8",
+          "checksum": "83f711bf562c7f8f706ed2e586c6232529ea5cf60acc58a322f7afacbb0e3144",
           "component": "UZ",
+          "held": "single",
           "holders": [
             "SB"
           ],
@@ -512,7 +519,7 @@
       "status": "published"
     },
     "missing_mass": {
-      "arithmetic": "S is the exact sum of the stated binary64 effective masses of the periodic modes, rounded once to the nearest binary64 (ties to even). The cumulative fraction is the binary64 quotient S / T, rounded to nearest. The unrepresented fraction is U / T, rounded to nearest, where U is the exact difference T - S rounded once to the nearest binary64 (ties to even). T is the stated total mass of the direction, which includes the mass that moves with the supports. Where T is zero both fractions are undefined.",
+      "arithmetic": "E is the exact sum of the stated binary64 effective masses of the periodic modes. S is E rounded once to the nearest binary64 (ties to even). U is the exact difference T − E, rounded once the same way. U is not T minus the published S, and the two can differ: where E rounds to T, T minus the published S is zero while the mass the periodic modes leave out is not. The cumulative fraction is the binary64 quotient of the published S by T and the unrepresented fraction the binary64 quotient of the published U by T, each rounded to nearest; they state what fraction of the published total each published mass is, and are recomputable from the published values. T is the stated total mass of the direction, which includes the mass that moves with the supports. Where T is zero both fractions are undefined.",
       "directions": {
         "digest": "bdd2c1073f3f9032c0198474d9d8c63851bf8f3d9a82f1548fa022d6656d1f68",
         "row_count": 2,
@@ -950,8 +957,9 @@
   "origin": {
     "constructed": [
       "The rules are those of one entry of the reference analysis's published mutations grid, not its base request's; the request stand-in states them. The contributions, rigid responses and modal basis are the analysis's own.",
+      "The member axes stated in the census are constructed by this writer from the reference's node coordinates and each member's y_reference, by REQ-006's definition (x from end i to end j, y the part of the reference vector normal to x, normalized, z = x cross y); the reference does not state them as vectors. Each is a signed permutation of the global axes.",
       "The member-axes contributions are the reference's global contributions mapped by the signed permutation of each member's axis-aligned frame (x = +X, y = +Z, z = -Y); the reference's convention 2 states that such a frame maps component to component. Each combined magnitude is formed from them.",
-      "Except where stated above, each entity identity and the spectra are the reference's. The model document is a stand-in in the model document's shape, not a schema-checked model; its materials, sections and support families are placeholders, not checked against the reference. The spectrum request is this unit's stand-in shape."
+      "Except where stated above, each entity identity and the spectra are the reference's. The model document is a stand-in in the model document's shape, not a schema-checked model; its materials, sections and support families are placeholders, not checked against the reference. The spectrum request is this unit's stand-in shape. The extraction endpoint, the reported and established mode counts and the completion evidence sentence in modal_basis are derived by this writer from the reference's mode list and its Sturm evidence; they are not fields of the reference. Each direction's formation record (its spectrum, the digest of that spectrum's record in the model stand-in, and its scale factor) is this writer's statement of the reference's request."
     ],
     "kind": "constructed_from_reference",
     "produced_by_spectrum_solve": false,
@@ -1034,7 +1042,7 @@
       "status": "published"
     },
     "combined": {
-      "digest": "5c04ff56e3e66800de761044844516f02c7b0027a18c83b61cc5a8b12ce7a81f",
+      "digest": "6fc6d5a1d717342df9c78c6af03d4cc1f13fcd00d22132ff6d3de45cf534650d",
       "row_count": 253,
       "rows": [
         {
@@ -8610,13 +8618,14 @@
           "unit": "unit:newton_meter"
         },
         {
-          "checksum": "e6fb1f772229dad19b1605bc0185da480fedaba66cdb575f80cab9b7a78a272b",
+          "checksum": "0f5da6b607271ad10213192925265ff66909bfca3d7f48d874e615b2e4351a86",
           "combined": 0.0,
           "component": "UX",
           "end": null,
           "entity_kind": "rigid_constraint",
           "frame": "global_axes",
           "governing_direction": null,
+          "held": "single",
           "holders": [
             "SA"
           ],
@@ -8643,13 +8652,14 @@
           "unit": "unit:newton"
         },
         {
-          "checksum": "7519ab31fdeb7cc8e358178512cf50a8972d0a7565b5622aa6579e23155fb9ca",
+          "checksum": "45fa844c780e0d10dae4de8a8197d20762a183ddcf73a76ed1eb0e4f71bb72c6",
           "combined": 195.62032950755696,
           "component": "UY",
           "end": null,
           "entity_kind": "rigid_constraint",
           "frame": "global_axes",
           "governing_direction": null,
+          "held": "single",
           "holders": [
             "SA"
           ],
@@ -8676,13 +8686,14 @@
           "unit": "unit:newton"
         },
         {
-          "checksum": "6a527eddcee0cdc00e39417a0cd3dfc3275f6e50349f2cb23284570c1a8aba8b",
+          "checksum": "7b049d14c3119c82e79ff11a8678566272f89f05dc15c0846c6df27577099468",
           "combined": 178.41760371847516,
           "component": "UZ",
           "end": null,
           "entity_kind": "rigid_constraint",
           "frame": "global_axes",
           "governing_direction": null,
+          "held": "single",
           "holders": [
             "SA"
           ],
@@ -8709,13 +8720,14 @@
           "unit": "unit:newton"
         },
         {
-          "checksum": "1029a0c3929fe2af92c1108d9fda0c39d81426ec54553aa53531246632cdd865",
+          "checksum": "ac2d5cf884497ff5b557a50f0e8296906cdd29465d1483d32647c7d6d592c781",
           "combined": 0.0,
           "component": "RX",
           "end": null,
           "entity_kind": "rigid_constraint",
           "frame": "global_axes",
           "governing_direction": null,
+          "held": "single",
           "holders": [
             "SA"
           ],
@@ -8742,13 +8754,14 @@
           "unit": "unit:newton_meter"
         },
         {
-          "checksum": "7790a3057804761b9bb80565189a9f4f2312dd7fe08217d8eb6398984c9a9ed6",
+          "checksum": "5ff8024197420fe568bd8f25796280eb894b2d48b42b934c0b094c2012fc818a",
           "combined": 535.2528111554255,
           "component": "RY",
           "end": null,
           "entity_kind": "rigid_constraint",
           "frame": "global_axes",
           "governing_direction": null,
+          "held": "single",
           "holders": [
             "SA"
           ],
@@ -8775,13 +8788,14 @@
           "unit": "unit:newton_meter"
         },
         {
-          "checksum": "c3233978b725fd40e273c077dc59a8869114581ce82e8051872692b30a3d1bcc",
+          "checksum": "8288783e67adf556f499dd78584e1b151f791f54c2934f5840f69f54ef1123a3",
           "combined": 1161.9187753717706,
           "component": "RZ",
           "end": null,
           "entity_kind": "rigid_constraint",
           "frame": "global_axes",
           "governing_direction": null,
+          "held": "single",
           "holders": [
             "SA"
           ],
@@ -8808,13 +8822,14 @@
           "unit": "unit:newton_meter"
         },
         {
-          "checksum": "c71ed36ffe47f7112da2ce76f9f0d9a94873e2ebc13957de2280f49f35dec63e",
+          "checksum": "64844919827cf53412c2e20ea043fc33ce2942eff6ceaddc8fedb4653219f74a",
           "combined": 107.05056223108511,
           "component": "UZ",
           "end": null,
           "entity_kind": "rigid_constraint",
           "frame": "global_axes",
           "governing_direction": null,
+          "held": "single",
           "holders": [
             "SB"
           ],
@@ -8871,7 +8886,7 @@
       "Z"
     ],
     "signed": {
-      "digest": "0b9be311bb9d3265e8fac4fbb9455083b133f2adc120ec74522e6045d4ba54de",
+      "digest": "803ea487563d759d2969b78edf35de1ef9bc2ea205ce2e65a163be45246ea304",
       "row_count": 253,
       "rows": [
         {
@@ -15955,11 +15970,12 @@
           "unit": "unit:newton_meter"
         },
         {
-          "checksum": "480a796aedf38dc0e5b3e2b5570cffb7fa1d396d255ce83452aaaec1e12975a5",
+          "checksum": "3a01c57c78e3e23d2cd59e7fd8e6f16537aa5b03446acd51211af72c8e140111",
           "component": "UX",
           "end": null,
           "entity_kind": "rigid_constraint",
           "frame": "global_axes",
+          "held": "single",
           "holders": [
             "SA"
           ],
@@ -15986,11 +16002,12 @@
           "unit": "unit:newton"
         },
         {
-          "checksum": "5569f9bf8c61857d100afcc5966b55f91935cd2a157d34bcae34341eeefeb7ce",
+          "checksum": "15cc18a554024fc03328fc451c5edf410ca6b14957d9edf84a182e9dd33017a4",
           "component": "UY",
           "end": null,
           "entity_kind": "rigid_constraint",
           "frame": "global_axes",
+          "held": "single",
           "holders": [
             "SA"
           ],
@@ -16017,11 +16034,12 @@
           "unit": "unit:newton"
         },
         {
-          "checksum": "be62852373bf157cba6d0bffab0ff9fea9accbcfc2ed30bb36aa84133867b082",
+          "checksum": "c7b00ca8156f15d4cc0cfdca943f6d7f6e5b910c50b2487edce8411b39f2c4f7",
           "component": "UZ",
           "end": null,
           "entity_kind": "rigid_constraint",
           "frame": "global_axes",
+          "held": "single",
           "holders": [
             "SA"
           ],
@@ -16048,11 +16066,12 @@
           "unit": "unit:newton"
         },
         {
-          "checksum": "df0c209fd8ad13a12c9e10a528751d7cdb45c811c11e00042005f6fcf8351b4b",
+          "checksum": "480b990fedaf89048f72078f32c51e3d91e37ca3fb992e3c6b59610a474c223e",
           "component": "RX",
           "end": null,
           "entity_kind": "rigid_constraint",
           "frame": "global_axes",
+          "held": "single",
           "holders": [
             "SA"
           ],
@@ -16079,11 +16098,12 @@
           "unit": "unit:newton_meter"
         },
         {
-          "checksum": "69b08f0e2e2a9364c006d64a116cdf3a7b52b624de4f2114163cadee3143507a",
+          "checksum": "c37219d336717b4cdcfc23937edc1927aeaf00c3f1d532a0ee219d4e8793fda1",
           "component": "RY",
           "end": null,
           "entity_kind": "rigid_constraint",
           "frame": "global_axes",
+          "held": "single",
           "holders": [
             "SA"
           ],
@@ -16110,11 +16130,12 @@
           "unit": "unit:newton_meter"
         },
         {
-          "checksum": "306b2f9533ef210e7eb751282af343930210f3a92c67eeace46b61aeb79467c2",
+          "checksum": "ae485a12b0e63e5a5dd65df80b2a63b38098e0fa4cfdfd976c3d51d9497ba1e8",
           "component": "RZ",
           "end": null,
           "entity_kind": "rigid_constraint",
           "frame": "global_axes",
+          "held": "single",
           "holders": [
             "SA"
           ],
@@ -16141,11 +16162,12 @@
           "unit": "unit:newton_meter"
         },
         {
-          "checksum": "c4baf08318d3707b1c9f34d997843af63a9823564520b9fa44b037d160409894",
+          "checksum": "858d5149f8a49607047987a631ca022bb211d3a6da2b7a61b5ef09f88da3e85b",
           "component": "UZ",
           "end": null,
           "entity_kind": "rigid_constraint",
           "frame": "global_axes",
+          "held": "single",
           "holders": [
             "SB"
           ],
@@ -16176,6 +16198,7 @@
     }
   },
   "rule_statements": {
+    "closeness_rule": null,
     "correlation": null,
     "coupled_pairs": null,
     "groups": null
@@ -16183,7 +16206,7 @@
   "schema_version": "0.1.0",
   "semantic_contract": {
     "id": "openpipestress.result_semantics/spectrum-1",
-    "sha256": "81ad795536c53966cb390bef35fc93395f67f5e74d2af39e30da4698542e95c0"
+    "sha256": "318f40b2679cb72794f83dc8701841a9af047f344836916fe3e04b08b4aa60fb"
   },
   "spectra": {
     "digest": "72bbf7ed0d696e5f7a2046b8be60617568f5cb250e51dffb33ef01c32000ea3d",

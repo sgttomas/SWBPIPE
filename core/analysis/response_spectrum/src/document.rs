@@ -5,10 +5,37 @@
 //! [`spectrum_result_document`] is a pure function from structured inputs to the document value:
 //! the model document (which holds the spectra) and the spectrum request it binds, the statement of
 //! the modal basis the result rests on, the census of the built dynamic model and the signed
-//! contributions. It runs the combinations ([`crate::combine`]) and returns either the solved
-//! document or the refused one, carrying the refusals of the first stage that refused (the input
-//! checks, the combinations, the roster and disclosure checks, or the canonical profile). It forms
-//! no modal response and no rigid response: the signed contributions are its inputs.
+//! contributions with their formation records. It runs the combinations ([`crate::combine`]) and
+//! returns either the solved document or the refused one, carrying the refusals of the first stage
+//! that refused. It forms no modal response and no rigid response: the signed contributions are its
+//! inputs.
+//!
+//! **Stages**, each run only when every earlier one found nothing:
+//! 1. the bindings: the model and the request are each within the checked canonical profile,
+//!    depth first;
+//! 2. the inputs against one another: the request's choices, the model's spectra the request
+//!    names (each identity held once), the combination input's methods, missing-mass fields,
+//!    directions and damping, each direction's formation record, the modal statement (its
+//!    lengths, extraction endpoint and counts, modal result binding, mass operands, cluster rule,
+//!    frequency relation and state), the census (closed on itself, frames, entries) and the origin;
+//! 3. the rows: each row's own fields (`SPECTRUM_ROW_INVALID`: a blank identity, an end action in a
+//!    frame its member family does not admit, a member stated as two families, a constraint's
+//!    holders), then the roster the census gives (each identity once), then the zero contribution
+//!    of each component a census rigid constraint restrains;
+//! 4. the modes' structure (`SPECTRUM_MODAL_METADATA_INVALID`), then the range of each periodic
+//!    mode and of f_r in each spectrum and the extraction premise;
+//! 5. the combinations, with their own checks of the choices and contributions;
+//! 6. the published numbers, each within the checked canonical profile;
+//! 7. the assembled document as a whole within the checked canonical profile.
+//!
+//! **Formation records.** The signed contributions enter as [`SignedContributions`]: with them, for
+//! each requested direction, the record made where they were formed of the spectrum identity, the
+//! digest of that spectrum's record in the model that supplied the table, and the scale factor.
+//! The assembler refuses a direction whose record is missing, repeated or not the bound request's
+//! spectrum and scale factor and the bound model's record. This establishes which request choices
+//! and which spectrum record the producer was told the contributions were formed with, and that
+//! they are the bound request's and model's; it does not establish that the contributions were
+//! formed correctly from them.
 //!
 //! **Conventions taken from the modal result family.** An identity block on every document; the
 //! checked canonical profile `openpipestress_jcs_ijson_v1` for every hash, each the SHA-256 of a
@@ -18,20 +45,41 @@
 //! with a sealed refusals table. The document states that it is experimental and not a public
 //! engineering result.
 //!
-//! **Allocation** (by reading the code; not measured). With Q response quantities, M extracted modes (P of them periodic), C clusters,
-//! D ≤ 3 requested directions, S spectra of K knots in all, and E census entries, the document holds
-//! O(Q·D·(P + 1) + Q·D·C₂ + M + C + K + E + P²) values, where C₂ ≤ C is the number of periodic
-//! clusters of more than one mode and the P² term is the CQC coefficients of the periodic cluster
-//! pairs. Beyond the document itself the assembler allocates: the combinations' own working set
-//! (`combine`); one ordered map of Q row identities for the roster check; the admitted tables of
-//! the S spectra used; and, transiently, the canonical text of one row at a time for its checksum
-//! and of the model and the request once each for their bindings (each bounded by that input's
-//! size). The assembler copies each contribution value once, from the supplied contributions into
-//! its row; it does not recurse on the input's depth beyond the canonical profile's own check.
-use crate::combine::combine;
+//! **Allocation** (by reading the code; not measured). With Q rows, M extracted modes (P of them
+//! periodic), C clusters (C_p periodic, C₂ of them periodic with more than one mode), D ≤ 3
+//! requested directions, S spectra used with K knots in all, and E census entries:
+//! - The document holds O(Q·D·(P + C₂ + 1) + M + C + K + E + R) values, where R is the number of
+//!   rule-statement rows: C_p·(C_p − 1)/2 correlation rows under CQC, at most C_p group entries
+//!   under grouping, and under the ten percent method one row per coupled pair, which is up to
+//!   C_p·(C_p − 1)/2, quadratic in the periodic clusters.
+//! - Before the combinations: the admitted tables of the S spectra used; an ordered map and an
+//!   ordered set of up to Q row identities for the roster; an ordered set of borrowed identity
+//!   tuples per census table (E in all) and of the restrained (node, component) pairs; the
+//!   classified clusters (C).
+//! - The combinations' own working set (`combine`): exact sums of Q·D·C_p dyadics and, under CQC,
+//!   tables of C_p·(C_p − 1)/2 enclosures of ρ for each precision tried.
+//! - The projection: an ordered map of the supplied contributions by (direction, mode position),
+//!   one of the cluster sums by (cluster, direction), one of the census constraints by (node,
+//!   component), and per table an array of its rows' checksums. Each contribution value is copied
+//!   from the supplied contributions into its signed row; each row's fields are copied once more
+//!   when it is sealed (the row is cloned to be hashed), and building a table copies its rows
+//!   again.
+//! - Hashing: for each hashed value (the model, the request, the modal state, each sealed row,
+//!   each table's checksum array, the semantic table and the whole document) three texts or trees
+//!   are held while it is hashed: its compact serialization, the checked parse's tree of that text,
+//!   and its canonical text, each proportional to the value's size; the iterative depth check that
+//!   comes first holds a stack proportional to the number of the value's container members.
+//! - Time beyond the size of what is held: each cell of a signed or cluster-sum row is a lookup in
+//!   an ordered map, O(log(D·M)); each periodic mode's frequency and f_r is located in each spectrum
+//!   used by binary search over its knots, O((P + 1)·S·log K) in all.
+//!
+//! Nothing here recurses on a caller's value before its depth is checked: the model, the request
+//! and the modal state are checked iteratively against the checked parse's depth limit, the
+//! state at its place `/modal_basis/state`.
+use crate::combine::{combine, Cluster};
 use crate::contract::{
-    ClusterClass, ClusterIndex, Combination, CombinationRequest, Direction, DirectionalRule, End, Frame, MemberFamily,
-    MissingMass, ModalRule, Quantity, ReactionComponent, RigidRule, RowIdentity, SignConvention, SignStatus,
+    ClusterClass, ClusterIndex, ClusterStatement, Combination, CombinationRequest, Direction, DirectionalRule, End, Frame, MemberFamily,
+    MissingMass, ModalRule, Quantity, ReactionComponent, RigidRule, RowIdentity, SignConvention, SignStatus, QUANTITY_KINDS,
 };
 use serde::Deserialize;
 use crate::dyadic::Dyadic;
@@ -73,13 +121,17 @@ model, that a signed contribution was recovered correctly, or that the product p
 
 /// The arithmetic of the two mass fractions of the missing-mass disclosure, stated in the
 /// document so that a reader can repeat it bit for bit.
-pub const MASS_FRACTION_ARITHMETIC: &str = "S is the exact sum of the stated binary64 effective masses of the periodic \
-modes, rounded once to the nearest binary64 (ties to even). The cumulative fraction is the binary64 quotient S / T, \
-rounded to nearest. The unrepresented fraction is U / T, rounded to nearest, where U is the exact difference T - S \
-rounded once to the nearest binary64 (ties to even). T is the stated total mass of the direction, which includes the \
-mass that moves with the supports. Where T is zero both fractions are undefined.";
+pub const MASS_FRACTION_ARITHMETIC: &str = "E is the exact sum of the stated binary64 effective masses of the periodic \
+modes. S is E rounded once to the nearest binary64 (ties to even). U is the exact difference T − E, rounded once the same \
+way. U is not T minus the published S, and the two can differ: where E rounds to T, T minus the published S is zero while \
+the mass the periodic modes leave out is not. The cumulative fraction is the binary64 quotient of the published S by T and \
+the unrepresented fraction the binary64 quotient of the published U by T, each rounded to nearest; they state what fraction \
+of the published total each published mass is, and are recomputable from the published values. T is the stated total mass \
+of the direction, which includes the mass that moves with the supports. Where T is zero both fractions are undefined.";
 
 const PROFILE_LIMIT: f64 = 9_007_199_254_740_992.0;
+/// 2^53 − 1, the largest integer the checked canonical profile admits.
+const MAX_SAFE_INTEGER: u64 = 9_007_199_254_740_991;
 
 // ---------------------------------------------------------------------------------------------
 // Inputs.
@@ -307,6 +359,28 @@ impl Census {
     }
 }
 
+/// How one requested direction's signed contributions were formed, recorded where they are
+/// formed.
+#[derive(Debug, Clone, PartialEq)]
+pub struct FormationRecord {
+    pub direction: Direction,
+    /// The scale factor the spectrum's ordinates were scaled by, as represented.
+    pub scale_factor: f64,
+    /// The identity of the spectrum whose table was evaluated.
+    pub spectrum_id: String,
+    /// The SHA-256 (lowercase hex) of the canonical text of that spectrum's record in the model
+    /// document that supplied the table.
+    pub spectrum_record_sha256: String,
+}
+
+/// The signed contributions as they enter the assembler: the rows, modal metadata and signed
+/// contributions, and for each requested direction its formation record.
+#[derive(Debug, Clone, PartialEq)]
+pub struct SignedContributions {
+    pub combination: CombinationRequest,
+    pub formation: Vec<FormationRecord>,
+}
+
 /// Everything a document is assembled from.
 #[derive(Debug, Clone, Copy)]
 pub struct DocumentInputs<'a> {
@@ -318,8 +392,8 @@ pub struct DocumentInputs<'a> {
     pub modal_result: &'a ModalResultBinding,
     pub modal: &'a ModalStatement,
     pub census: &'a Census,
-    /// The rows, modal metadata and signed contributions, under the request's choices.
-    pub combination: &'a CombinationRequest,
+    /// The signed contributions and how they were formed.
+    pub contributions: &'a SignedContributions,
 }
 
 // ---------------------------------------------------------------------------------------------
@@ -435,6 +509,422 @@ pub fn spectrum_semantic_table() -> Value {
         "sign_statuses": statuses,
         "quantity_kinds": kinds,
         "value_kinds": values,
+        "held": HELD.iter().map(|(held, statement)| json!({"held": held, "statement": statement})).collect::<Vec<_>>(),
+        "document_shape": document_shape(),
+    })
+}
+
+// ---------------------------------------------------------------------------------------------
+// The document's shape: every member of every object, with its type and when it may be null.
+
+fn t(kind: &str) -> Value {
+    json!({"type": kind})
+}
+
+fn tokens<S: AsRef<str>>(list: impl IntoIterator<Item = S>) -> Value {
+    json!({"type": "token", "tokens": list.into_iter().map(|s| s.as_ref().to_string()).collect::<Vec<_>>()})
+}
+
+fn vo(kinds: &[&str]) -> Value {
+    json!({"type": "value_object", "kinds": kinds})
+}
+
+fn row_ref(table: &str) -> Value {
+    json!({"type": "row_ref", "target": table})
+}
+
+fn array(items: Value) -> Value {
+    json!({"type": "array", "items": items, "length": null})
+}
+
+fn array_n(items: Value, n: usize) -> Value {
+    json!({"type": "array", "items": items, "length": n})
+}
+
+fn object(shape: &str) -> Value {
+    json!({"type": "object", "shape": shape})
+}
+
+fn sealed(row: &str) -> Value {
+    json!({"type": "table", "row": row})
+}
+
+fn direction_map(values: Value) -> Value {
+    json!({"type": "direction_map", "values": values})
+}
+
+fn mem(name: &str, ty: Value, rule: &str) -> Value {
+    json!({"member": name, "type": ty, "null": rule})
+}
+
+fn shape(name: &str, members: Vec<Value>) -> Value {
+    json!({"shape": name, "members": members, "variants": null})
+}
+
+fn shape_by(name: &str, members: Vec<Value>, by: &str, alternatives: Vec<(String, Vec<Value>)>) -> Value {
+    let alternatives: Vec<Value> = alternatives.into_iter().map(|(when, members)| json!({"when": when, "members": members})).collect();
+    json!({"shape": name, "members": members, "variants": {"by": by, "alternatives": alternatives}})
+}
+
+const DOCUMENT_TYPES: [(&str, &str); 13] = [
+    ("string", "A JSON string."),
+    ("token", "A JSON string that is one of the stated tokens."),
+    ("boolean", "true or false."),
+    ("integer", "A JSON number written as an integer, from 0 to 2^53 - 1."),
+    ("number", "A JSON number within the checked canonical profile (finite, of magnitude below 2^53)."),
+    ("value_object", "An object of shape value_object whose kind is one of the stated kinds and whose unit is that kind's catalog unit in value_kinds."),
+    ("row_ref", "A string that is the row_id of a row of the sealed table at the JSON pointer its target states, in the same document."),
+    ("array", "A JSON array whose every item is of the stated type, of the stated length where one is stated."),
+    ("object", "An object of the named shape."),
+    ("table", "A sealed table: an object with exactly the members status (the token published), row_count (an integer, the number of rows), digest (the SHA-256, lowercase hex, of the canonical text of the array of the rows' checksum strings in row order) and rows (an array of objects of the named row shape). Each row has, beside its shape's members, row_id (a string, unique in the table), ordinal (an integer, its zero-based position in rows) and checksum (the SHA-256, lowercase hex, of the canonical text of the row without its checksum member)."),
+    ("direction_map", "An object whose members are exactly the directions of /rows/directions, each of the stated type."),
+    ("opaque_json", "Any JSON value within the checked canonical profile; its content is attributed, not checked here."),
+    ("null", "A member whose null rule permits it may be null in place of its type."),
+];
+
+const NULL_RULES: [(&str, &str); 16] = [
+    ("never", "The member is never null."),
+    ("always", "The member is always null."),
+    ("permitted", "The member may be null."),
+    ("refused_only", "The member may be null only in a document whose status is refused."),
+    ("correction_not_applied", "The member is null exactly when /request/missing_mass/applied is false."),
+    ("modal_rule_not_cqc", "The member is null exactly when /request/modal_combination is not CQC."),
+    ("modal_rule_not_grouping", "The member is null exactly when /request/modal_combination is not GROUPING."),
+    ("modal_rule_not_ten_percent", "The member is null exactly when /request/modal_combination is not TEN_PERCENT."),
+    ("modal_rule_not_grouping_or_ten_percent", "The member is null exactly when /request/modal_combination is neither GROUPING nor TEN_PERCENT."),
+    ("directional_rule_not_100_40_40", "The member is null exactly when /request/directional_combination is not 100-40-40."),
+    ("binding_not_applicable", "The member is null exactly when /modal_result/binding is not_applicable."),
+    ("binding_bound", "The member is null exactly when /modal_result/binding is bound."),
+    ("origin_spectrum_solve", "The member is null exactly when /origin/kind is spectrum_solve."),
+    ("endpoint_whole_finite_spectrum", "The member is null exactly when /modal_basis/extraction/endpoint is whole_finite_spectrum."),
+    ("no_cluster", "The member is null exactly when /modal_basis/clusters has no rows."),
+    ("undefined_reason_stated", "In a value object: value is null exactly when undefined_reason is not null; undefined_reason is null exactly when value is not null."),
+];
+
+/// The rows' identity members of one quantity kind, and its units, frames and sign convention.
+fn kind_members(kind: &str, entity: &str, has_end: bool, components: &[(&str, UnitId)], bindings: &[StaticBinding],
+    convention: SignConvention, signed: bool) -> Vec<Value> {
+    let mut out = vec![mem("entity_kind", tokens([entity]), "never")];
+    match kind {
+        "node_displacement" => out.push(mem("node", t("string"), "never")),
+        "element_end_action" => {
+            out.push(mem("member", t("string"), "never"));
+            out.push(mem("member_family", tokens(["straight", "arc"]), "never"));
+        }
+        "connector_generalized_force" | "connector_end_action" => out.push(mem("connector", t("string"), "never")),
+        "tie_rod_force" => {
+            out.push(mem("connector", t("string"), "never"));
+            out.push(mem("rod", t("string"), "never"));
+        }
+        "constraint_reaction" => {
+            out.push(mem("node", t("string"), "never"));
+            out.push(mem("holders", array(t("string")), "never"));
+            out.push(mem("held", tokens(HELD.iter().map(|(h, _)| *h)), "never"));
+        }
+        _ => out.push(mem("support", t("string"), "never")),
+    }
+    out.push(if has_end { mem("end", tokens(["i", "j"]), "never") } else { mem("end", tokens(["i", "j"]), "always") });
+    out.push(mem("component", tokens(components.iter().map(|(c, _)| *c)), "never"));
+    let unique = |items: Vec<&'static str>| items.iter().enumerate().filter(|(i, x)| !items[..*i].contains(x)).map(|(_, x)| *x).collect::<Vec<_>>();
+    out.push(mem("unit", tokens(unique(components.iter().map(|(_, u)| u.catalog_id()).collect())), "never"));
+    out.push(mem("frame", tokens(unique(bindings.iter().map(|(f, _, _)| f.as_str()).collect())), "never"));
+    if signed {
+        out.push(mem("sign_convention", tokens([convention.as_str()]), "never"));
+    }
+    out
+}
+
+/// The `document_shape` section of `spectrum-1`: every object of the solved and the refused
+/// document, each member's type and null rule, and the alternatives that depend on a member's
+/// token.
+#[allow(clippy::too_many_lines)]
+fn document_shape() -> Value {
+    let directions = || tokens(Direction::ALL.iter().map(|d| d.as_str()));
+    let clusters = || row_ref("/modal_basis/clusters");
+    let modes = || row_ref("/modal_basis/modes");
+    let class = || tokens([ClusterClass::Periodic.as_str(), ClusterClass::Rigid.as_str()]);
+    let triple = || array_n(t("number"), 3);
+    let never = |name: &str, ty: Value| mem(name, ty, "never");
+    let kinds = quantity_kind_rows();
+    let all_units: Vec<&str> = {
+        let mut u: Vec<&str> = kinds.iter().flat_map(|k| k.3.iter().map(|(_, u)| u.catalog_id())).collect();
+        u.sort_unstable();
+        u.dedup();
+        u
+    };
+    let signed_alternatives = kinds.iter().map(|(kind, entity, has_end, components, convention, bindings)|
+        ((*kind).to_string(), kind_members(kind, entity, *has_end, components, bindings, *convention, true))).collect();
+    let combined_alternatives = kinds.iter().map(|(kind, entity, has_end, components, convention, bindings)|
+        ((*kind).to_string(), kind_members(kind, entity, *has_end, components, bindings, *convention, false))).collect();
+    let kind_tokens = || tokens(QUANTITY_KINDS);
+    let reaction_components = || tokens(["UX", "UY", "UZ", "RX", "RY", "RZ"]);
+    let shapes = vec![
+        shape_by("document", vec![
+            never("document_kind", tokens([SPECTRUM_RESULT_KIND])),
+            never("schema_version", tokens([SPECTRUM_RESULT_VERSION])),
+            never("semantic_contract", object("semantic_contract")),
+            never("profile", object("profile")),
+            never("canonical_profile", tokens([SPECTRUM_RESULT_CANONICAL])),
+            never("admission", object("admission")),
+            never("origin", object("origin")),
+            never("bindings", object("bindings")),
+            never("modal_result", object("modal_result")),
+            never("status", tokens(["solved", "refused"])),
+        ], "status", vec![
+            ("solved".into(), vec![
+                never("standing", object("standing")),
+                never("request", object("request")),
+                never("spectra", sealed("spectrum")),
+                never("modal_basis", object("modal_basis")),
+                never("disclosures", object("disclosures")),
+                never("census", object("census")),
+                never("rows", object("rows")),
+                never("rule_statements", object("rule_statements")),
+            ]),
+            ("refused".into(), vec![never("refusals", sealed("refusal"))]),
+        ]),
+        shape("semantic_contract", vec![never("id", tokens([SPECTRUM_RESULT_SEMANTICS])), never("sha256", t("string"))]),
+        shape("profile", vec![never("profile_id", tokens([SPECTRUM_RESULT_PROFILE])),
+            never("limitations", array_n(tokens(SPECTRUM_RESULT_LIMITATIONS), SPECTRUM_RESULT_LIMITATIONS.len()))]),
+        shape("admission", vec![never("status", tokens(["experimental"])), never("public_engineering_result", t("boolean"))]),
+        shape_by("origin", vec![
+            never("kind", tokens(["spectrum_solve", "constructed_from_reference"])),
+            never("produced_by_spectrum_solve", t("boolean")),
+            mem("reference", object("origin_reference"), "origin_spectrum_solve"),
+            never("constructed", array(t("string"))),
+        ], "kind", vec![
+            ("spectrum_solve".into(), vec![never("statement", tokens([ORIGIN_STATEMENTS[0]]))]),
+            ("constructed_from_reference".into(), vec![never("statement", tokens([ORIGIN_STATEMENTS[1]]))]),
+        ]),
+        shape("origin_reference", vec![never("package", t("string")), never("case", t("string")), never("analysis", t("string"))]),
+        shape("bindings", vec![never("model", object("binding")), never("request", object("binding"))]),
+        shape("binding", vec![
+            never("binds", tokens(["model_document", "spectrum_request"])),
+            never("hash_algorithm", tokens([SPECTRUM_HASH_ALGORITHM])),
+            never("canonical_form", tokens([SPECTRUM_RESULT_CANONICAL])),
+            mem("sha256", t("string"), "refused_only"),
+        ]),
+        shape("modal_result", vec![
+            never("binding", tokens(["bound", "not_applicable"])),
+            mem("reason", t("string"), "binding_bound"),
+            mem("run_id", t("string"), "binding_not_applicable"),
+            mem("request_sha256", t("string"), "binding_not_applicable"),
+            mem("model_sha256", t("string"), "permitted"),
+            mem("materials_sha256", t("string"), "binding_not_applicable"),
+            mem("integrity_parameters_sha256", t("string"), "binding_not_applicable"),
+            mem("state_case", object("state_case"), "permitted"),
+        ]),
+        shape("state_case", vec![never("case_id", t("string")), never("case_index", t("integer")), never("case_sha256", t("string"))]),
+        shape("standing", vec![never("token", t("string")), never("reasons", array(t("string")))]),
+        shape("request", vec![
+            never("modal_combination", tokens(ModalRule::ALL.iter().map(|r| r.as_str()))),
+            never("directional_combination", tokens(DirectionalRule::ALL.iter().map(|r| r.as_str()))),
+            never("damping_ratio", vo(&["damping_ratio"])),
+            never("missing_mass", object("request_missing_mass")),
+            never("directions", array(object("request_direction"))),
+        ]),
+        shape("request_missing_mass", vec![
+            never("applied", t("boolean")),
+            mem("rigid_frequency", vo(&["rigid_frequency"]), "correction_not_applied"),
+            mem("rigid_combination", tokens(RigidRule::ALL.iter().map(|r| r.as_str())), "correction_not_applied"),
+        ]),
+        shape("request_direction", vec![never("direction", directions()), never("spectrum_id", t("string")), never("scale_factor", vo(&["scale_factor"]))]),
+        shape_by("spectrum", vec![
+            never("spectrum_id", t("string")),
+            never("damping_ratio", vo(&["damping_ratio"])),
+            never("abscissa", tokens(["frequency", "period"])),
+            never("abscissa_unit", tokens([UnitId::Hertz.catalog_id(), UnitId::Second.catalog_id()])),
+            never("ordinate", tokens(["acceleration", "g_multiple"])),
+            never("pseudo_spectral_acceleration", t("boolean")),
+            never("interpolation", object("interpolation")),
+            never("points", array(array_n(t("number"), 2))),
+        ], "ordinate", vec![
+            ("acceleration".into(), vec![never("ordinate_unit", tokens([UnitId::MeterPerSecondSquared.catalog_id()])), mem("g", vo(&["spectrum_g"]), "always")]),
+            ("g_multiple".into(), vec![never("ordinate_unit", tokens([UnitId::One.catalog_id()])), never("g", vo(&["spectrum_g"]))]),
+        ]),
+        shape("interpolation", vec![never("abscissa", tokens(["linear", "log"])), never("ordinate", tokens(["linear", "log"]))]),
+        shape("modal_basis", vec![
+            never("attributed_to", t("string")),
+            mem("standings", object("modal_standings"), "permitted"),
+            mem("state", t("opaque_json"), "permitted"),
+            never("extraction", object("extraction")),
+            never("cluster_tolerance", vo(&["cluster_tolerance"])),
+            never("modes", sealed("mode")),
+            never("clusters", sealed("cluster")),
+        ]),
+        shape("modal_standings", vec![
+            never("result_standing", object("result_standing")),
+            never("parameter_standing", object("parameter_standing")),
+            never("integrity_standing", object("standing")),
+        ]),
+        shape("result_standing", vec![never("status", t("string")), never("public_engineering_result", t("boolean"))]),
+        shape("parameter_standing", vec![never("parameter_standing", t("string")), never("parameter_label", t("string"))]),
+        shape("extraction", vec![
+            never("endpoint", tokens(ENDPOINTS)),
+            never("reported_mode_count", t("integer")),
+            mem("established_finite_mode_count", t("integer"), "permitted"),
+            mem("next_computed_frequency", vo(&["next_computed_frequency"]), "endpoint_whole_finite_spectrum"),
+            mem("next_computed_circular_frequency", vo(&["next_computed_circular_frequency"]), "endpoint_whole_finite_spectrum"),
+            never("completion_evidence", t("string")),
+        ]),
+        shape("mode", vec![
+            never("mode_index", t("integer")),
+            never("cluster_ref", clusters()),
+            never("frequency", vo(&["modal_frequency"])),
+            never("circular_frequency", vo(&["modal_circular_frequency"])),
+            never("class", class()),
+            mem("integrity_standing", object("standing"), "permitted"),
+        ]),
+        shape("cluster", vec![
+            never("cluster_index", t("integer")),
+            never("mode_refs", array(modes())),
+            never("frequencies", array(t("number"))),
+            never("frequency_unit", tokens([UnitId::Hertz.catalog_id()])),
+            never("standing_frequency", vo(&["cluster_standing_frequency"])),
+            never("class", class()),
+        ]),
+        shape("disclosures", vec![
+            never("range", sealed("range")),
+            never("extraction_premise", object("extraction_premise")),
+            never("missing_mass", object("missing_mass")),
+            never("fixed", sealed("fixed_disclosure")),
+        ]),
+        shape("range", vec![
+            never("spectrum_id", t("string")),
+            never("directions", array(directions())),
+            never("abscissa", tokens(["frequency", "period"])),
+            never("tabulated_low", vo(&["spectrum_range_frequency", "spectrum_range_period"])),
+            never("tabulated_high", vo(&["spectrum_range_frequency", "spectrum_range_period"])),
+            never("evaluated", array(object("evaluation"))),
+            never("in_range", t("boolean")),
+        ]),
+        shape("evaluation", vec![never("at", t("string")), never("frequency", vo(&["evaluated_frequency"])), never("location", object("location"))]),
+        shape_by("location", vec![never("kind", tokens(["knot", "segment"]))], "kind", vec![
+            ("knot".into(), vec![never("index", t("integer"))]),
+            ("segment".into(), vec![never("lower", t("integer"))]),
+        ]),
+        shape("extraction_premise", vec![
+            never("applies", t("boolean")),
+            mem("rigid_frequency", vo(&["rigid_frequency"]), "correction_not_applied"),
+            never("endpoint", tokens(ENDPOINTS)),
+            never("reported_mode_count", t("integer")),
+            mem("established_finite_mode_count", t("integer"), "permitted"),
+            mem("highest_completed_cluster_ref", clusters(), "no_cluster"),
+            mem("highest_completed_cluster_lowest_frequency", vo(&["cluster_standing_frequency"]), "no_cluster"),
+            mem("next_computed_frequency", vo(&["next_computed_frequency"]), "endpoint_whole_finite_spectrum"),
+            never("completion_evidence", t("string")),
+            mem("holds", t("boolean"), "correction_not_applied"),
+        ]),
+        shape("missing_mass", vec![never("arithmetic", tokens([MASS_FRACTION_ARITHMETIC])), never("directions", sealed("missing_mass_direction"))]),
+        shape("missing_mass_direction", vec![
+            never("direction", directions()),
+            never("total_mass", vo(&["directional_total_mass"])),
+            never("periodic_effective_masses", array(object("periodic_effective_mass"))),
+            never("periodic_effective_mass_sum", vo(&["periodic_effective_mass_sum"])),
+            never("unrepresented_effective_mass", vo(&["unrepresented_effective_mass"])),
+            never("periodic_cumulative_fraction", vo(&["periodic_cumulative_effective_mass_fraction"])),
+            never("unrepresented_fraction", vo(&["unrepresented_mass_fraction"])),
+            never("correction_applied", t("boolean")),
+        ]),
+        shape("periodic_effective_mass", vec![never("mode_ref", modes()), never("effective_mass", vo(&["modal_effective_mass"]))]),
+        shape_by("fixed_disclosure", vec![never("disclosure_id", tokens(FIXED_DISCLOSURES.iter().map(|(id, _)| *id)))], "disclosure_id",
+            FIXED_DISCLOSURES.iter().map(|(id, text)| ((*id).to_string(), vec![never("text", tokens([*text]))])).collect()),
+        shape("census", vec![
+            never("nodes", sealed("census_node")),
+            never("straight_members", sealed("census_straight_member")),
+            never("arcs", sealed("census_arc")),
+            never("connectors", sealed("census_connector")),
+            never("tie_rods", sealed("census_tie_rod")),
+            never("rigid_constraints", sealed("census_rigid_constraint")),
+            never("compliant_supports", sealed("census_compliant_support")),
+            never("supports_without_rows", sealed("census_support_without_row")),
+        ]),
+        shape("census_node", vec![never("node_id", t("string"))]),
+        shape("census_straight_member", vec![never("member_id", t("string")), never("end_i_node", t("string")), never("end_j_node", t("string")),
+            never("reference_vector", triple()), never("member_axes", object("triad"))]),
+        shape("census_arc", vec![never("member_id", t("string")), never("end_i_node", t("string")), never("end_j_node", t("string")),
+            never("tangent_frame_i", object("triad")), never("tangent_frame_j", object("triad"))]),
+        shape("census_connector", vec![never("connector_id", t("string")), never("end_i_node", t("string")), never("end_j_node", t("string")),
+            never("connector_axes", object("triad"))]),
+        shape("census_tie_rod", vec![never("connector_id", t("string")), never("rod_id", t("string")), never("rod_axis", triple())]),
+        shape("census_rigid_constraint", vec![never("node_id", t("string")), never("component", reaction_components()),
+            never("holders", array(t("string"))), never("held", tokens(HELD.iter().map(|(h, _)| *h)))]),
+        shape("census_compliant_support", vec![never("support_id", t("string")), never("node_id", t("string")),
+            never("components", array(reaction_components()))]),
+        shape("census_support_without_row", vec![never("support_id", t("string")), never("reason", t("string"))]),
+        shape("triad", vec![never("x", triple()), never("y", triple()), never("z", triple())]),
+        shape("rows", vec![
+            never("directions", array(directions())),
+            never("contribution_columns", sealed("contribution_column")),
+            never("cluster_sum_columns", sealed("cluster_sum_column")),
+            never("signed", sealed("signed_row")),
+            never("cluster_sums", sealed("cluster_sum_row")),
+            never("combined", sealed("combined_row")),
+        ]),
+        shape("contribution_column", vec![never("column", t("integer")), never("mode_ref", modes()), never("cluster_ref", clusters())]),
+        shape("cluster_sum_column", vec![never("column", t("integer")), never("cluster_ref", clusters()), never("mode_refs", array(modes()))]),
+        shape_by("signed_row", vec![
+            never("quantity_kind", kind_tokens()),
+            never("sign_status", tokens([SignStatus::SignedContribution.as_str()])),
+            never("periodic", direction_map(array(t("number")))),
+            mem("rigid", direction_map(t("number")), "correction_not_applied"),
+        ], "quantity_kind", signed_alternatives),
+        shape("cluster_sum_row", vec![
+            never("quantity_ref", row_ref("/rows/signed")),
+            never("unit", tokens(all_units)),
+            never("frame", tokens(Frame::ALL.iter().map(|f| f.as_str()))),
+            never("sign_status", tokens([SignStatus::SignedClusterSum.as_str()])),
+            never("sign_convention", tokens(SignConvention::ALL.iter().map(|c| c.as_str()))),
+            never("sums", direction_map(array(t("number")))),
+        ]),
+        shape_by("combined_row", vec![
+            never("quantity_kind", kind_tokens()),
+            never("quantity_ref", row_ref("/rows/signed")),
+            never("sign_status", tokens([SignStatus::UnsignedCombinedMagnitude.as_str()])),
+            never("per_direction", array(object("per_direction"))),
+            never("combined", t("number")),
+            mem("governing_direction", directions(), "directional_rule_not_100_40_40"),
+        ], "quantity_kind", combined_alternatives),
+        shape("per_direction", vec![
+            never("direction", directions()),
+            never("periodic", t("number")),
+            mem("rigid", t("number"), "correction_not_applied"),
+            never("combined", t("number")),
+        ]),
+        shape("rule_statements", vec![
+            mem("correlation", sealed("correlation"), "modal_rule_not_cqc"),
+            mem("groups", sealed("group"), "modal_rule_not_grouping"),
+            mem("coupled_pairs", sealed("coupled_pair"), "modal_rule_not_ten_percent"),
+            mem("closeness_rule", tokens([GROUPING_CLOSENESS_RULE, TEN_PERCENT_CLOSENESS_RULE]), "modal_rule_not_grouping_or_ten_percent"),
+        ]),
+        shape("correlation", vec![never("first_cluster_ref", clusters()), never("second_cluster_ref", clusters()),
+            never("rho", vo(&["correlation_coefficient"])), never("status", tokens(["informational"]))]),
+        shape("group", vec![never("cluster_refs", array(clusters()))]),
+        shape("coupled_pair", vec![never("first_cluster_ref", clusters()), never("second_cluster_ref", clusters())]),
+        shape("refusal", vec![
+            never("diagnostic_id", t("string")),
+            never("code", tokens(RefusalCode::ALL.iter().map(|c| c.as_str()))),
+            never("severity", tokens(["blocking"])),
+            never("object", t("string")),
+            mem("field", t("string"), "permitted"),
+            never("detail", t("string")),
+        ]),
+        shape("value_object", vec![
+            never("kind", t("string")),
+            mem("value", t("number"), "undefined_reason_stated"),
+            never("unit", t("string")),
+            never("unit_status", tokens(["catalog"])),
+            never("below_normal", t("boolean")),
+            mem("undefined_reason", tokens(["not_formed", "total_mass_zero"]), "undefined_reason_stated"),
+        ]),
+    ];
+    json!({
+        "statement": "Every object of a spectrum result document has exactly the members its shape declares: the shape's \
+members and, where the shape has variants, those of the alternative its `by` member's token selects. Each member is of its \
+type, or null where its null rule permits. The document itself is of shape document.",
+        "types": DOCUMENT_TYPES.iter().map(|(ty, statement)| json!({"type": ty, "statement": statement})).collect::<Vec<_>>(),
+        "null_rules": NULL_RULES.iter().map(|(rule, statement)| json!({"rule": rule, "statement": statement})).collect::<Vec<_>>(),
+        "shapes": shapes,
     })
 }
 
@@ -451,8 +941,42 @@ fn frame_axes_statement(frame: Frame) -> &'static str {
 // ---------------------------------------------------------------------------------------------
 // Hashing, sealing and values.
 
+/// The checked parse's depth limit: a container nested 128 deep, counting a standalone text's
+/// top value as the first, is refused (`open_pipe_stress_canonical_json`, `PARSE_DEPTH_LIMIT`).
+const DEPTH_LIMIT: usize = 128;
+
+/// Whether `value`, placed at nesting `level` (a standalone text's top value is at level 1), holds
+/// a container at level 128 or deeper. It walks the value with an explicit stack, so a value of
+/// any depth is examined without recursion.
+fn too_deep(value: &Value, level: usize) -> bool {
+    let mut stack = vec![(value, level)];
+    while let Some((v, l)) = stack.pop() {
+        match v {
+            Value::Array(items) => {
+                if l >= DEPTH_LIMIT {
+                    return true;
+                }
+                stack.extend(items.iter().map(|item| (item, l + 1)));
+            }
+            Value::Object(map) => {
+                if l >= DEPTH_LIMIT {
+                    return true;
+                }
+                stack.extend(map.values().map(|item| (item, l + 1)));
+            }
+            _ => {}
+        }
+    }
+    false
+}
+
 /// The SHA-256 (lowercase hex) of a value's checked canonical text; `None` outside the profile.
+/// The value's depth is checked first, without recursion, so that serializing it cannot exhaust
+/// the stack.
 pub fn spectrum_doc_sha256(value: &Value) -> Option<String> {
+    if too_deep(value, 1) {
+        return None;
+    }
     let text = serde_json::to_string(value).ok()?;
     let canonical = canonical_json_checked_v1_text(&text).ok()?;
     Some(Sha256::digest(canonical.as_bytes()).iter().map(|b| format!("{b:02x}")).collect())
@@ -487,6 +1011,18 @@ impl Numbers {
             if self.outside.len() < 16 {
                 self.outside.push(Refusal::new(RefusalCode::DocumentOutsideCanonicalProfile, at, None,
                     format!("{v:e} is outside the checked canonical profile (not finite, or of magnitude 2^53 or more)")));
+            }
+            return Value::Null;
+        }
+        json!(v)
+    }
+
+    /// An integer the document carries outside a value object: refused at 2^53 or more.
+    fn int(&mut self, v: usize, at: &str) -> Value {
+        if v as u64 > MAX_SAFE_INTEGER {
+            if self.outside.len() < 16 {
+                self.outside.push(Refusal::new(RefusalCode::DocumentOutsideCanonicalProfile, at, None,
+                    format!("the integer {v} is outside the checked canonical profile (2^53 or more)")));
             }
             return Value::Null;
         }
@@ -537,8 +1073,22 @@ fn direction_index(d: Direction) -> usize {
     }
 }
 
-/// A row's identity fields (no unit, frame or sign fields).
-fn identity_fields(q: &Quantity) -> Map<String, Value> {
+/// How a rigid constraint is held (REQ-006, "Beside the static result"): by one support, or by
+/// more than one together, undivided.
+fn held(holders: &[String]) -> &'static str {
+    if holders.len() == 1 { HELD[0].0 } else { HELD[1].0 }
+}
+
+/// The `held` tokens and what each states, in REQ-006's words ("Beside the static result").
+pub const HELD: [(&str, &str); 2] = [
+    ("single", "Where one support holds the constraint, the row is that support's reaction."),
+    ("jointly_undivided", "The row states that it is the reaction of the constraint, that the supports it names hold it together, \
+and that it is not divided between them or to be added once per support."),
+];
+
+/// A row's identity fields (no unit, frame or sign fields). A constraint's holders are the
+/// census's, in its order, where `constraints` holds the constraint.
+fn identity_fields(q: &Quantity, constraints: &BTreeMap<(&str, ReactionComponent), &[String]>) -> Map<String, Value> {
     let mut m = Map::new();
     m.insert("quantity_kind".into(), json!(q.kind()));
     m.insert("entity_kind".into(), json!(q.entity_kind()));
@@ -557,9 +1107,11 @@ fn identity_fields(q: &Quantity) -> Map<String, Value> {
             m.insert("connector".into(), json!(connector));
             m.insert("rod".into(), json!(rod));
         }
-        Quantity::ConstraintReaction { node, holders, .. } => {
+        Quantity::ConstraintReaction { node, component, holders } => {
+            let holders = constraints.get(&(node.as_str(), *component)).copied().unwrap_or(holders.as_slice());
             m.insert("node".into(), json!(node));
             m.insert("holders".into(), json!(holders));
+            m.insert("held".into(), json!(held(holders)));
         }
         Quantity::CompliantSupportForce { support, .. } => {
             m.insert("support".into(), json!(support));
@@ -657,6 +1209,7 @@ fn read_choices(request: &Value, refusals: &mut Vec<Refusal>) -> Option<Choices>
         }
     };
     let mut directions = Vec::new();
+    let mut requested = [false; 3];
     match request.get("directions").and_then(Value::as_array) {
         None => refusals.push(Refusal::new(RefusalCode::DirectionInvalid, "request", Some("directions"), "no direction is requested".into())),
         Some(list) => {
@@ -670,10 +1223,11 @@ fn read_choices(request: &Value, refusals: &mut Vec<Refusal>) -> Option<Choices>
                 let scale = d.get("scale_factor").and_then(Value::as_f64).map(ScaleFactor::new);
                 match (direction, spectrum, scale) {
                     (Some(direction), Some(spectrum), Some(Ok(scale))) => {
-                        if directions.iter().any(|(e, _, _)| *e == direction) {
+                        if std::mem::replace(&mut requested[direction_index(direction)], true) {
                             refusals.push(Refusal::new(RefusalCode::DirectionInvalid, &at, Some("direction"), format!("direction {direction} is requested more than once")));
+                        } else {
+                            directions.push((direction, spectrum.to_string(), scale.value()));
                         }
-                        directions.push((direction, spectrum.to_string(), scale.value()));
                     }
                     (_, _, Some(Err(r))) => refusals.push(Refusal::new(RefusalCode::ScaleFactorInvalid, &at, Some("scale_factor"), r.detail)),
                     _ => refusals.push(Refusal::new(RefusalCode::DirectionInvalid, &at, None,
@@ -689,16 +1243,32 @@ fn read_choices(request: &Value, refusals: &mut Vec<Refusal>) -> Option<Choices>
     Some(Choices { modal_rule: modal?, directional_rule: directional?, missing_mass: missing_mass?, directions })
 }
 
+/// The model's record of spectrum identity `id`, where it holds exactly one, and how many it
+/// holds.
+fn spectrum_records<'m>(model: &'m Value, id: &str) -> (Option<&'m Value>, usize) {
+    let records = model.get("spectra").and_then(Value::as_array).map_or(&[][..], Vec::as_slice);
+    let mut found = records.iter().filter(|s| s.get("id").and_then(Value::as_str) == Some(id));
+    let first = found.next();
+    let count = usize::from(first.is_some()) + found.count();
+    (first.filter(|_| count == 1), count)
+}
+
 /// The spectra the request's directions name, admitted from the model's `spectra[]`, each once,
-/// in order of first use.
+/// in order of first use. The model holds exactly one record of each identity a direction names.
 fn read_spectra(model: &Value, choices: &Choices, refusals: &mut Vec<Refusal>) -> Vec<SpectrumTable> {
-    let records = model.get("spectra").and_then(Value::as_array);
     let mut out: Vec<SpectrumTable> = Vec::new();
+    let mut named: Vec<&str> = Vec::new();
     for (direction, id, _) in &choices.directions {
-        if out.iter().any(|t| t.id() == id) {
+        if named.contains(&id.as_str()) {
             continue;
         }
-        let found = records.and_then(|r| r.iter().find(|s| s.get("id").and_then(Value::as_str) == Some(id.as_str())));
+        named.push(id);
+        let (found, count) = spectrum_records(model, id);
+        if count > 1 {
+            refusals.push(input_invalid(direction.as_str(), "spectrum",
+                format!("the model holds {count} spectra of identity `{id}`; a requested direction names one")));
+            continue;
+        }
         let Some(record) = found else {
             refusals.push(Refusal::new(RefusalCode::DirectionInvalid, direction.as_str(), Some("spectrum"),
                 format!("the model holds no spectrum `{id}`")));
@@ -718,38 +1288,82 @@ fn read_spectra(model: &Value, choices: &Choices, refusals: &mut Vec<Refusal>) -
 // ---------------------------------------------------------------------------------------------
 // The assembler.
 
+/// The origin's fixed statement: produced by a spectrum solve, or constructed from a reference.
+pub const ORIGIN_STATEMENTS: [&str; 2] = [
+    "Produced by the product's experimental spectrum solve.",
+    "Constructed from the signed contributions of a frozen reference, not produced by a spectrum solve; \
+its combined magnitudes are formed from those contributions by the product's combinations. It is not evidence that the \
+product recovers these contributions.",
+];
+
 fn origin_json(origin: &Origin) -> Value {
     match origin {
         Origin::SpectrumSolve => json!({"kind": "spectrum_solve", "produced_by_spectrum_solve": true, "reference": null,
-            "constructed": [], "statement": "Produced by the product's experimental spectrum solve."}),
+            "constructed": [], "statement": ORIGIN_STATEMENTS[0]}),
         Origin::ConstructedFromReference { package, case, analysis, constructed } => json!({
             "kind": "constructed_from_reference",
             "produced_by_spectrum_solve": false,
             "reference": {"package": package, "case": case, "analysis": analysis},
             "constructed": constructed,
-            "statement": "Constructed from the signed contributions of a frozen reference, not produced by a spectrum solve; \
-its combined magnitudes are formed from those contributions by the product's combinations. It is not evidence that the \
-product recovers these contributions.",
+            "statement": ORIGIN_STATEMENTS[1],
         }),
     }
 }
 
-fn binding_json(binds: &str, value: &Value, numbers: &mut Numbers) -> Value {
-    let sha = spectrum_doc_sha256(value);
-    if sha.is_none() {
-        numbers.outside.push(Refusal::new(RefusalCode::DocumentOutsideCanonicalProfile, binds, None,
-            format!("the {binds} is outside the checked canonical profile, so it cannot be bound")));
+/// The digests of the model and the request, each formed once; `None` outside the checked
+/// canonical profile.
+struct Bindings {
+    model: Option<String>,
+    request: Option<String>,
+}
+
+impl Bindings {
+    fn of(inputs: &DocumentInputs) -> Self {
+        Self { model: spectrum_doc_sha256(inputs.model), request: spectrum_doc_sha256(inputs.request) }
     }
+
+    /// A refusal for each input outside the checked canonical profile.
+    fn refusals(&self) -> Vec<Refusal> {
+        [("model_document", &self.model), ("spectrum_request", &self.request)]
+            .into_iter()
+            .filter(|(_, sha)| sha.is_none())
+            .map(|(binds, _)| Refusal::new(RefusalCode::DocumentOutsideCanonicalProfile, binds, None,
+                format!("the {binds} is outside the checked canonical profile (too deep, or a number outside it), so it cannot be bound")))
+            .collect()
+    }
+}
+
+/// A state case index outside the checked canonical profile: the same refusal wherever it is
+/// found, so that the refused form states it once.
+fn state_case_index_refusal(index: usize) -> Refusal {
+    Refusal::new(RefusalCode::DocumentOutsideCanonicalProfile, "modal_result", Some("state_case"),
+        format!("the state case index {index} is 2^53 or more"))
+}
+
+fn binding_json(binds: &str, sha: &Option<String>) -> Value {
     json!({"binds": binds, "hash_algorithm": SPECTRUM_HASH_ALGORITHM, "canonical_form": SPECTRUM_RESULT_CANONICAL, "sha256": sha})
 }
 
-fn modal_result_json(b: &ModalResultBinding) -> Value {
+fn modal_result_json(b: &ModalResultBinding, n: &mut Numbers) -> Value {
     match b {
-        ModalResultBinding::Bound { run_id, request_sha256, model_sha256, materials_sha256, integrity_parameters_sha256, state_case } => json!({
-            "binding": "bound", "reason": null, "run_id": run_id, "request_sha256": request_sha256, "model_sha256": model_sha256,
-            "materials_sha256": materials_sha256, "integrity_parameters_sha256": integrity_parameters_sha256,
-            "state_case": state_case.as_ref().map(|(id, index, sha)| json!({"case_id": id, "case_index": index, "case_sha256": sha})),
-        }),
+        ModalResultBinding::Bound { run_id, request_sha256, model_sha256, materials_sha256, integrity_parameters_sha256, state_case } => {
+            let state_case = match state_case {
+                Some((id, index, sha)) => {
+                    let case_index = if *index as u64 > MAX_SAFE_INTEGER {
+                        n.outside.push(state_case_index_refusal(*index));
+                        Value::Null
+                    } else {
+                        json!(index)
+                    };
+                    json!({"case_id": id, "case_index": case_index, "case_sha256": sha})
+                }
+                None => Value::Null,
+            };
+            json!({
+                "binding": "bound", "reason": null, "run_id": run_id, "request_sha256": request_sha256, "model_sha256": model_sha256,
+                "materials_sha256": materials_sha256, "integrity_parameters_sha256": integrity_parameters_sha256, "state_case": state_case,
+            })
+        }
         ModalResultBinding::NotApplicable { reason } => json!({
             "binding": "not_applicable", "reason": reason, "run_id": null, "request_sha256": null, "model_sha256": null,
             "materials_sha256": null, "integrity_parameters_sha256": null, "state_case": null,
@@ -757,7 +1371,7 @@ fn modal_result_json(b: &ModalResultBinding) -> Value {
     }
 }
 
-fn identity(inputs: &DocumentInputs, numbers: &mut Numbers) -> Map<String, Value> {
+fn identity(inputs: &DocumentInputs, bindings: &Bindings, numbers: &mut Numbers) -> Map<String, Value> {
     let mut doc = Map::new();
     doc.insert("document_kind".into(), json!(SPECTRUM_RESULT_KIND));
     doc.insert("schema_version".into(), json!(SPECTRUM_RESULT_VERSION));
@@ -767,20 +1381,21 @@ fn identity(inputs: &DocumentInputs, numbers: &mut Numbers) -> Map<String, Value
     doc.insert("admission".into(), json!({"status": "experimental", "public_engineering_result": false}));
     doc.insert("origin".into(), origin_json(inputs.origin));
     doc.insert("bindings".into(), json!({
-        "model": binding_json("model_document", inputs.model, numbers),
-        "request": binding_json("spectrum_request", inputs.request, numbers),
+        "model": binding_json("model_document", &bindings.model),
+        "request": binding_json("spectrum_request", &bindings.request),
     }));
-    doc.insert("modal_result".into(), modal_result_json(inputs.modal_result));
+    doc.insert("modal_result".into(), modal_result_json(inputs.modal_result, numbers));
     doc
 }
 
-fn refused(inputs: &DocumentInputs, refusals: &[Refusal]) -> Value {
+fn refused(inputs: &DocumentInputs, bindings: &Bindings, refusals: &[Refusal]) -> Value {
     let mut numbers = Numbers { outside: Vec::new() };
-    let mut doc = identity(inputs, &mut numbers);
+    let mut doc = identity(inputs, bindings, &mut numbers);
     doc.insert("status".into(), json!("refused"));
+    let extra: Vec<&Refusal> = numbers.outside.iter().filter(|r| !refusals.contains(r)).collect();
     let rows = refusals
         .iter()
-        .chain(numbers.outside.iter())
+        .chain(extra)
         .enumerate()
         .map(|(i, r)| seal(format!("refusal:{}", i + 1), i, json!({"diagnostic_id": format!("diagnostic:spectrum:refusal:{}", i + 1),
             "code": r.code.as_str(), "severity": "blocking", "object": r.object, "field": r.field, "detail": r.detail})))
@@ -791,7 +1406,7 @@ fn refused(inputs: &DocumentInputs, refusals: &[Refusal]) -> Value {
 
 /// The checks of the inputs against one another that the combinations do not make.
 fn check_agreement(inputs: &DocumentInputs, choices: &Choices, tables: &[SpectrumTable], refusals: &mut Vec<Refusal>) {
-    let c = inputs.combination;
+    let c = &inputs.contributions.combination;
     let mismatch = |field: &str, detail: String| input_invalid("combination", field, detail);
     if c.modal_rule != choices.modal_rule {
         refusals.push(mismatch("modal_combination", "the contributions were combined under another modal rule than the request's".into()));
@@ -817,13 +1432,20 @@ fn check_agreement(inputs: &DocumentInputs, choices: &Choices, tables: &[Spectru
         }
         _ => {}
     }
+    check_formation(inputs, choices, refusals);
     let m = inputs.modal;
-    if m.mode_standings.len() != c.modes.len() || m.effective_mass_kg.len() != c.modes.len() {
+    let lengths_hold = m.mode_standings.len() == c.modes.len() && m.effective_mass_kg.len() == c.modes.len();
+    if !lengths_hold {
         refusals.push(input_invalid("modal_basis", "modes", "the modal statement does not state every extracted mode".into()));
     }
     if m.extraction.reported_mode_count != c.modes.len() {
         refusals.push(input_invalid("modal_basis", "extraction", format!("the modal endpoint reports {} modes; {} are supplied",
             m.extraction.reported_mode_count, c.modes.len())));
+    }
+    check_extraction(inputs, refusals);
+    check_modal_binding(inputs.modal_result, refusals);
+    if lengths_hold {
+        check_mass_operands(inputs, refusals);
     }
     check_cluster_rule(inputs, refusals);
     check_census_closed(inputs.census, refusals);
@@ -831,14 +1453,201 @@ fn check_agreement(inputs: &DocumentInputs, choices: &Choices, tables: &[Spectru
     check_frequency_relation(inputs, refusals);
     check_origin_binding(inputs, refusals);
     if let Some(state) = &inputs.modal.state {
-        if spectrum_doc_sha256(state).is_none() {
+        // The state is placed at /modal_basis/state: the document is level 1, modal_basis level 2.
+        if too_deep(state, 3) || spectrum_doc_sha256(state).is_none() {
             refusals.push(Refusal::new(RefusalCode::DocumentOutsideCanonicalProfile, "modal_basis", Some("state"),
-                "the modal state statement is outside the checked canonical profile".into()));
+                "the modal state statement, placed at /modal_basis/state, is outside the checked canonical profile".into()));
         }
     }
-    if inputs.modal.extraction.established_finite_mode_count.is_some_and(|n| n as f64 >= PROFILE_LIMIT) {
+    if inputs.modal.extraction.established_finite_mode_count.is_some_and(|n| n as u64 > MAX_SAFE_INTEGER) {
         refusals.push(Refusal::new(RefusalCode::DocumentOutsideCanonicalProfile, "modal_basis", Some("extraction"),
             "the established finite mode count is 2^53 or more".into()));
+    }
+}
+
+/// Each requested direction's formation record against the bound request and model: one record
+/// per direction with contributions, none for another direction, its spectrum the request's for
+/// that direction, its record digest that of the model's record of that identity, and its scale
+/// factor the request's, bit for bit.
+fn check_formation(inputs: &DocumentInputs, choices: &Choices, refusals: &mut Vec<Refusal>) {
+    let records = &inputs.contributions.formation;
+    let bad = |d: Direction, detail: String| input_invalid(d.as_str(), "formation", detail);
+    let mut counted = [0usize; 3];
+    for r in records {
+        counted[direction_index(r.direction)] += 1;
+    }
+    for r in records {
+        if !inputs.contributions.combination.directions.contains(&r.direction) {
+            refusals.push(bad(r.direction, format!("a formation record is supplied for direction {}, which has no contributions", r.direction)));
+        }
+    }
+    for d in Direction::ALL {
+        let n = counted[direction_index(d)];
+        if n > 1 {
+            refusals.push(bad(d, format!("{n} formation records are supplied for direction {d}")));
+        }
+    }
+    for &d in &inputs.contributions.combination.directions {
+        let Some(record) = records.iter().find(|r| r.direction == d) else {
+            refusals.push(bad(d, format!("direction {d} has contributions and no formation record")));
+            continue;
+        };
+        let Some((_, spectrum, scale)) = choices.directions.iter().find(|(e, _, _)| *e == d) else {
+            continue; // the direction set's mismatch is refused above
+        };
+        if record.spectrum_id != *spectrum {
+            refusals.push(bad(d, format!("the contributions were formed from spectrum `{}`; the request names `{spectrum}`", record.spectrum_id)));
+        } else if let (Some(model_record), _) = spectrum_records(inputs.model, spectrum) {
+            if spectrum_doc_sha256(model_record).as_deref() != Some(record.spectrum_record_sha256.as_str()) {
+                refusals.push(bad(d, format!("the contributions were formed from a record of spectrum `{spectrum}` whose digest is not that of the model's record")));
+            }
+        }
+        if record.scale_factor.to_bits() != scale.to_bits() {
+            refusals.push(bad(d, format!("the contributions were formed with scale factor {:e}; the request's is {scale:e}", record.scale_factor)));
+        }
+    }
+}
+
+/// The three endpoints of the modal family (`ReportedEndpoint`, `core/product_physics`).
+const ENDPOINTS: [&str; 3] = ["whole_finite_spectrum", "below_computed_cluster", "below_lowest_mode"];
+
+/// The extraction statement's joint invariants: the whole finite spectrum has an established
+/// finite count equal to the reported count and no next computed mode; below a computed cluster
+/// there is a reported mode and both next-frequency values, the next frequency not below the last
+/// reported one; below the lowest mode there is no reported mode and both next-frequency values;
+/// an established count is not below the reported count, and exceeds it where a next computed
+/// mode is stated; the completion evidence is not blank.
+fn check_extraction(inputs: &DocumentInputs, refusals: &mut Vec<Refusal>) {
+    let e = &inputs.modal.extraction;
+    let modes = &inputs.contributions.combination.modes;
+    let bad = |detail: String| input_invalid("modal_basis", "extraction", detail);
+    let both = e.next_computed_frequency_hz.is_some() && e.next_computed_circular_frequency_rad_s.is_some();
+    let stated = e.next_computed_frequency_hz.is_some() || e.next_computed_circular_frequency_rad_s.is_some();
+    let n = e.reported_mode_count;
+    match e.endpoint.as_str() {
+        "whole_finite_spectrum" => {
+            if e.established_finite_mode_count != Some(n) {
+                refusals.push(bad(format!("the whole finite spectrum is stated with an established finite mode count of {:?}, not the {n} reported",
+                    e.established_finite_mode_count)));
+            }
+            if stated {
+                refusals.push(bad("the whole finite spectrum is stated with a next computed mode".into()));
+            }
+        }
+        "below_computed_cluster" => {
+            if n == 0 {
+                refusals.push(bad("the extraction is stated below a computed cluster with no reported mode".into()));
+            }
+            if !both {
+                refusals.push(bad("the extraction is stated below a computed cluster without both the next computed mode's frequency and circular frequency".into()));
+            }
+            if let (Some(f), Some(last)) = (e.next_computed_frequency_hz, modes.last()) {
+                if !(f >= last.frequency_hz) {
+                    refusals.push(bad(format!("the next computed frequency {f:e} Hz is below the last reported mode's {:e} Hz", last.frequency_hz)));
+                }
+            }
+        }
+        "below_lowest_mode" => {
+            if n != 0 {
+                refusals.push(bad(format!("the extraction is stated below the lowest mode with {n} reported modes")));
+            }
+            if !both {
+                refusals.push(bad("the extraction is stated below the lowest mode without both the next computed mode's frequency and circular frequency".into()));
+            }
+        }
+        other => refusals.push(bad(format!("`{other}` is not an extraction endpoint (one of {})", ENDPOINTS.join(", ")))),
+    }
+    if let Some(established) = e.established_finite_mode_count {
+        if established < n {
+            refusals.push(bad(format!("the established finite mode count {established} is below the {n} reported")));
+        } else if stated && established == n {
+            refusals.push(bad(format!("a next computed mode is stated and the established finite mode count {established} does not exceed the {n} reported")));
+        }
+    }
+    if e.evidence.trim().is_empty() {
+        refusals.push(bad("the completion evidence is blank".into()));
+    }
+}
+
+/// 64 lowercase hexadecimal digits.
+fn is_sha256_hex(s: &str) -> bool {
+    s.len() == 64 && s.bytes().all(|b| b.is_ascii_digit() || (b'a'..=b'f').contains(&b))
+}
+
+/// The modal result binding's fields. A bound one: the request, materials and integrity-parameter
+/// digests are each 64 lowercase hexadecimal digits, the model digest is one or null, a state
+/// case has a non-blank id and such a digest, and the run id is the modal result family's:
+/// `modal-run:` and the first 16 hexadecimal digits of the SHA-256 of the canonical text of
+/// `{"request_sha256", "integrity_parameters_sha256"}` (`core/product_physics/src/modal/document.rs`,
+/// `modal_doc_identity`; the modal reader checks the same, `core/reporting/modal_result`,
+/// `mr_binding`). An unbound one: a non-blank reason.
+fn check_modal_binding(binding: &ModalResultBinding, refusals: &mut Vec<Refusal>) {
+    let bad = |field: &str, detail: String| input_invalid("modal_result", field, detail);
+    match binding {
+        ModalResultBinding::Bound { run_id, request_sha256, model_sha256, materials_sha256, integrity_parameters_sha256, state_case } => {
+            for (field, v) in [("request_sha256", request_sha256), ("materials_sha256", materials_sha256),
+                ("integrity_parameters_sha256", integrity_parameters_sha256)] {
+                if !is_sha256_hex(v) {
+                    refusals.push(bad(field, format!("`{v}` is not 64 lowercase hexadecimal digits")));
+                }
+            }
+            if let Some(v) = model_sha256 {
+                if !is_sha256_hex(v) {
+                    refusals.push(bad("model_sha256", format!("`{v}` is neither null nor 64 lowercase hexadecimal digits")));
+                }
+            }
+            if run_id.trim().is_empty() {
+                refusals.push(bad("run_id", "the run id is blank".into()));
+            } else if is_sha256_hex(request_sha256) && is_sha256_hex(integrity_parameters_sha256) {
+                let run = spectrum_doc_sha256(&json!({"request_sha256": request_sha256, "integrity_parameters_sha256": integrity_parameters_sha256}));
+                let expected = run.map(|r| format!("modal-run:{}", &r[..16]));
+                if expected.as_deref() != Some(run_id.as_str()) {
+                    refusals.push(bad("run_id", format!("`{run_id}` is not the modal result family's run id of the stated request and integrity-parameter digests")));
+                }
+            }
+            if let Some((id, index, sha)) = state_case {
+                if id.trim().is_empty() {
+                    refusals.push(bad("state_case", "the state case id is blank".into()));
+                }
+                if !is_sha256_hex(sha) {
+                    refusals.push(bad("state_case", format!("the state case digest `{sha}` is not 64 lowercase hexadecimal digits")));
+                }
+                if *index as u64 > MAX_SAFE_INTEGER {
+                    refusals.push(state_case_index_refusal(*index));
+                }
+            }
+        }
+        ModalResultBinding::NotApplicable { reason } => {
+            if reason.trim().is_empty() {
+                refusals.push(bad("reason", "a modal result binding that is not applicable states no reason".into()));
+            }
+        }
+    }
+}
+
+/// The missing-mass operands of each requested direction, before any arithmetic on them: T and
+/// every mode's effective mass finite (otherwise outside the canonical profile) and not negative,
+/// and every effective mass zero where T is zero.
+fn check_mass_operands(inputs: &DocumentInputs, refusals: &mut Vec<Refusal>) {
+    let m = inputs.modal;
+    let modes = &inputs.contributions.combination.modes;
+    for &d in &inputs.contributions.combination.directions {
+        let k = direction_index(d);
+        let t = m.total_mass_kg[k];
+        let entry = format!("missing_mass/{d}");
+        let mut operands = vec![("the total mass".to_string(), t)];
+        operands.extend(modes.iter().zip(&m.effective_mass_kg).map(|(mode, e)| (format!("{}'s effective mass", mode_ref(mode.mode.0)), e[k])));
+        for (what, v) in &operands {
+            if !v.is_finite() {
+                refusals.push(Refusal::new(RefusalCode::DocumentOutsideCanonicalProfile, &entry, Some("mass"),
+                    format!("{what} in direction {d} is {v}, outside the checked canonical profile")));
+            } else if *v < 0.0 {
+                refusals.push(input_invalid(&entry, "mass", format!("{what} in direction {d} is {v:e}, negative")));
+            }
+        }
+        if t == 0.0 && operands[1..].iter().any(|(_, v)| *v != 0.0) {
+            refusals.push(input_invalid(&entry, "mass", format!("the total mass in direction {d} is zero and an effective mass is not")));
+        }
     }
 }
 
@@ -890,22 +1699,28 @@ fn check_census_entries(census: &Census, refusals: &mut Vec<Refusal>) {
             refusals.push(input_invalid("census", "frame", format!("tie rod {} of connector {}: |a.a - 1| = {v:e} exceeds 2^-40", t.rod, t.connector)));
         }
     }
-    let mut once = |table: &str, keys: Vec<String>| {
+    // Each entity once in its table, compared by its identity fields as borrowed tuples; a label is
+    // composed only for a refusal.
+    fn once<K: Ord>(table: &str, keys: impl Iterator<Item = K>, label: impl Fn(&K) -> String, refusals: &mut Vec<Refusal>) {
         let mut seen = BTreeSet::new();
-        for k in keys {
-            if !seen.insert(k.clone()) {
-                refusals.push(input_invalid("census", table, format!("{k} occurs more than once in the census {table} table")));
+        for key in keys {
+            if seen.contains(&key) {
+                refusals.push(input_invalid("census", table, format!("{} occurs more than once in the census {table} table", label(&key))));
+            } else {
+                seen.insert(key);
             }
         }
-    };
-    once("nodes", census.nodes.iter().map(|n| format!("node {n}")).collect());
-    once("straight_members", census.straight_members.iter().map(|m| format!("straight member {}", m.id)).collect());
-    once("arcs", census.arcs.iter().map(|m| format!("arc {}", m.id)).collect());
-    once("connectors", census.connectors.iter().map(|c| format!("connector {}", c.id)).collect());
-    once("tie_rods", census.tie_rods.iter().map(|t| format!("tie rod {} of connector {}", t.rod, t.connector)).collect());
-    once("rigid_constraints", census.rigid_constraints.iter().map(|r| format!("rigid constraint at {} {}", r.node, r.component.as_str())).collect());
-    once("compliant_supports", census.compliant_supports.iter().map(|s| format!("compliant support {}", s.support)).collect());
-    once("supports_without_rows", census.supports_without_rows.iter().map(|s| format!("support {}", s.support)).collect());
+    }
+    once("nodes", census.nodes.iter().map(String::as_str), |n| format!("node {n}"), refusals);
+    once("straight_members", census.straight_members.iter().map(|m| m.id.as_str()), |id| format!("straight member {id}"), refusals);
+    once("arcs", census.arcs.iter().map(|m| m.id.as_str()), |id| format!("arc {id}"), refusals);
+    once("connectors", census.connectors.iter().map(|c| c.id.as_str()), |id| format!("connector {id}"), refusals);
+    once("tie_rods", census.tie_rods.iter().map(|t| (t.connector.as_str(), t.rod.as_str())),
+        |(connector, rod)| format!("tie rod {rod} of connector {connector}"), refusals);
+    once("rigid_constraints", census.rigid_constraints.iter().map(|r| (r.node.as_str(), r.component)),
+        |(node, component)| format!("rigid constraint at {node} {}", component.as_str()), refusals);
+    once("compliant_supports", census.compliant_supports.iter().map(|s| s.support.as_str()), |id| format!("compliant support {id}"), refusals);
+    once("supports_without_rows", census.supports_without_rows.iter().map(|s| s.support.as_str()), |id| format!("support {id}"), refusals);
     for r in &census.rigid_constraints {
         let entry = format!("rigid constraint at {} {}", r.node, r.component.as_str());
         if r.holders.is_empty() {
@@ -924,7 +1739,7 @@ fn check_census_entries(census: &Census, refusals: &mut Vec<Refusal>) {
 /// frequency f: |w − c·f| ≤ 8·u·w, with c = 2.0 · π (binary64) and c·f one binary64 product.
 fn check_frequency_relation(inputs: &DocumentInputs, refusals: &mut Vec<Refusal>) {
     let c = 2.0 * std::f64::consts::PI;
-    let (m, modes) = (inputs.modal, &inputs.combination.modes);
+    let (m, modes) = (inputs.modal, &inputs.contributions.combination.modes);
     let mut pairs: Vec<(String, f64, f64)> =
         modes.iter().zip(&m.circular_frequency_rad_s).map(|(mode, w)| (mode_ref(mode.mode.0), *w, mode.frequency_hz)).collect();
     if let (Some(w), Some(f)) = (m.extraction.next_computed_circular_frequency_rad_s, m.extraction.next_computed_frequency_hz) {
@@ -997,7 +1812,7 @@ const UNIT_ROUNDOFF: f64 = 1.0 / 9_007_199_254_740_992.0;
 /// extracted mode and the next computed one lie in different clusters and are held to the same
 /// rule.
 fn check_cluster_rule(inputs: &DocumentInputs, refusals: &mut Vec<Refusal>) {
-    let (m, modes) = (inputs.modal, &inputs.combination.modes);
+    let (m, modes) = (inputs.modal, &inputs.contributions.combination.modes);
     let omega = &m.circular_frequency_rad_s;
     let delta = m.cluster_tolerance;
     if !(delta > 0.0 && delta < 1.0) {
@@ -1010,8 +1825,7 @@ fn check_cluster_rule(inputs: &DocumentInputs, refusals: &mut Vec<Refusal>) {
     }
     let next = m.extraction.next_computed_circular_frequency_rad_s;
     if next.is_some() != m.extraction.next_computed_frequency_hz.is_some() {
-        refusals.push(input_invalid("modal_basis", "extraction", "the next computed mode's frequency and circular frequency are not stated together".into()));
-        return;
+        return; // refused by the extraction check
     }
     if let Some(w) = omega.iter().copied().chain(next).find(|w| !(w.is_finite() && *w > 0.0)) {
         refusals.push(input_invalid("modal_basis", "modes", format!("a circular frequency {w:e} is not positive and finite")));
@@ -1040,7 +1854,8 @@ fn check_cluster_rule(inputs: &DocumentInputs, refusals: &mut Vec<Refusal>) {
 }
 
 /// The rows are exactly the roster the census gives, each identity once, with the census's
-/// holders of each constraint and the census's family of each member.
+/// family of each member and the census's holders of each constraint as a set (the document emits
+/// them in the census's order).
 fn check_roster(census: &Census, rows: &[Quantity], refusals: &mut Vec<Refusal>) {
     let expected = census.roster();
     let mut by_identity: BTreeMap<RowIdentity, &Quantity> = BTreeMap::new();
@@ -1049,21 +1864,61 @@ fn check_roster(census: &Census, rows: &[Quantity], refusals: &mut Vec<Refusal>)
             refusals.push(input_invalid("census", "roster", format!("the census gives {} more than once", q.label())));
         }
     }
+    let same = |e: &Quantity, q: &Quantity| match (e, q) {
+        (Quantity::ConstraintReaction { holders: a, .. }, Quantity::ConstraintReaction { holders: b, .. }) => {
+            a.len() == b.len() && a.iter().collect::<BTreeSet<_>>() == b.iter().collect::<BTreeSet<_>>()
+        }
+        _ => e == q,
+    };
     let mut seen = BTreeSet::new();
     for q in rows {
         let id = q.identity();
         match by_identity.get(&id) {
             None => refusals.push(input_invalid(&q.label(), "roster", "the row is not in the roster the census gives".into())),
-            Some(e) if *e != q => refusals.push(input_invalid(&q.label(), "roster",
+            Some(e) if !same(e, q) => refusals.push(input_invalid(&q.label(), "roster",
                 "the row's member family or constraint holders are not the census's".into())),
             Some(_) => {
-                seen.insert(id);
+                if !seen.insert(id) {
+                    refusals.push(input_invalid(&q.label(), "roster", "the row is supplied more than once".into()));
+                }
             }
         }
     }
     for q in &expected {
         if !seen.contains(&q.identity()) {
             refusals.push(input_invalid(&q.label(), "roster", "the census gives this row and no row is supplied for it".into()));
+        }
+    }
+}
+
+fn restrained_component(c: ReactionComponent) -> DisplacementComponent {
+    match c {
+        ReactionComponent::Ux => DisplacementComponent::Ux,
+        ReactionComponent::Uy => DisplacementComponent::Uy,
+        ReactionComponent::Uz => DisplacementComponent::Uz,
+        ReactionComponent::Rx => DisplacementComponent::Rx,
+        ReactionComponent::Ry => DisplacementComponent::Ry,
+        ReactionComponent::Rz => DisplacementComponent::Rz,
+    }
+}
+
+/// A component restrained on a global axis is zero (REQ-006, Nodes): a node displacement or
+/// rotation row whose component a census rigid constraint restrains at that node has every
+/// signed contribution and rigid value zero. One refusal per row, naming the first nonzero value.
+fn check_restrained_zero(inputs: &DocumentInputs, refusals: &mut Vec<Refusal>) {
+    let c = &inputs.contributions.combination;
+    let restrained: BTreeSet<(&str, DisplacementComponent)> =
+        inputs.census.rigid_constraints.iter().map(|r| (r.node.as_str(), restrained_component(r.component))).collect();
+    for (r, q) in c.rows.iter().enumerate() {
+        let Quantity::NodeDisplacement { node, component } = q else { continue };
+        if !restrained.contains(&(node.as_str(), *component)) {
+            continue;
+        }
+        let periodic = c.periodic.iter().map(|p| (format!("{} in direction {}", mode_ref(p.mode.0), p.direction), p.values.get(r)));
+        let rigid = c.rigid.iter().map(|p| (format!("the rigid response in direction {}", p.direction), p.values.get(r)));
+        if let Some((what, v)) = periodic.chain(rigid).find_map(|(what, v)| v.filter(|v| **v != 0.0).map(|v| (what, *v))) {
+            refusals.push(input_invalid(&q.label(), "contribution", format!(
+                "a census rigid constraint restrains this component at this node, so it is zero (REQ-006, Nodes); {what} is {v:e}")));
         }
     }
 }
@@ -1082,36 +1937,64 @@ fn location_json(l: Location) -> Value {
     }
 }
 
-/// Assembles the spectrum result document of `inputs` (module documentation).
+/// Assembles the spectrum result document of `inputs` (module documentation, "Stages").
 pub fn spectrum_result_document(inputs: &DocumentInputs) -> Value {
+    let request = &inputs.contributions.combination;
+    // 1. The bindings.
+    let bindings = Bindings::of(inputs);
+    let refusals = bindings.refusals();
+    if !refusals.is_empty() {
+        return refused(inputs, &bindings, &refusals);
+    }
+    // 2. The inputs against one another.
     let mut refusals = Vec::new();
     let choices = read_choices(inputs.request, &mut refusals);
     let tables = match &choices {
         Some(ch) => read_spectra(inputs.model, ch, &mut refusals),
         None => Vec::new(),
     };
-    if let Some(ch) = &choices {
-        if refusals.is_empty() {
-            check_agreement(inputs, ch, &tables, &mut refusals);
-        }
-    }
-    if !refusals.is_empty() {
-        return refused(inputs, &refusals);
-    }
-    let choices = choices.expect("read");
-    let combination = match combine(inputs.combination) {
-        Ok(c) => c,
-        Err(r) => return refused(inputs, &r),
+    let Some(choices) = choices.filter(|_| refusals.is_empty()) else {
+        return refused(inputs, &bindings, &refusals);
     };
-    check_roster(inputs.census, &inputs.combination.rows, &mut refusals);
-    let disclosures = disclosure_operands(inputs, &choices, &tables, &combination, &mut refusals);
+    check_agreement(inputs, &choices, &tables, &mut refusals);
     if !refusals.is_empty() {
-        return refused(inputs, &refusals);
+        return refused(inputs, &bindings, &refusals);
     }
+    // 3. The rows.
+    crate::combine::check_rows(request, &mut refusals, false);
+    if refusals.is_empty() {
+        check_roster(inputs.census, &request.rows, &mut refusals);
+    }
+    if refusals.is_empty() {
+        check_restrained_zero(inputs, &mut refusals);
+    }
+    if !refusals.is_empty() {
+        return refused(inputs, &bindings, &refusals);
+    }
+    // 4. The modes, then the range and the extraction premise.
+    if !crate::combine::check_modes(request, &mut refusals) {
+        return refused(inputs, &bindings, &refusals);
+    }
+    let clusters = crate::combine::clusters(request);
+    let disclosures = disclosure_operands(inputs, &choices, &tables, &clusters, &mut refusals);
+    if !refusals.is_empty() {
+        return refused(inputs, &bindings, &refusals);
+    }
+    // 5. The combinations.
+    let combination = match combine(request) {
+        Ok(c) => c,
+        Err(r) => return refused(inputs, &bindings, &r),
+    };
+    // 6. The published numbers.
     let mut numbers = Numbers { outside: Vec::new() };
-    let doc = solved(inputs, &choices, &tables, &combination, disclosures, &mut numbers);
+    let doc = solved(inputs, &bindings, &choices, &tables, &combination, disclosures, &mut numbers);
     if !numbers.outside.is_empty() {
-        return refused(inputs, &numbers.outside);
+        return refused(inputs, &bindings, &numbers.outside);
+    }
+    // 7. The document as a whole.
+    if spectrum_doc_sha256(&doc).is_none() {
+        return refused(inputs, &bindings, &[Refusal::new(RefusalCode::DocumentOutsideCanonicalProfile, "document", None,
+            "the assembled document is outside the checked canonical profile".into())]);
     }
     doc
 }
@@ -1125,13 +2008,13 @@ struct Disclosures {
     premise_holds: Option<bool>,
 }
 
-fn disclosure_operands(inputs: &DocumentInputs, choices: &Choices, tables: &[SpectrumTable], c: &Combination,
+fn disclosure_operands(inputs: &DocumentInputs, choices: &Choices, tables: &[SpectrumTable], clusters: &[Cluster],
     refusals: &mut Vec<Refusal>) -> Disclosures {
-    let periodic: Vec<(u32, f64)> = c
-        .clusters
+    let modes = &inputs.contributions.combination.modes;
+    let periodic: Vec<(u32, f64)> = clusters
         .iter()
         .filter(|s| s.class == ClusterClass::Periodic)
-        .flat_map(|s| s.modes.iter().zip(&s.frequencies_hz).map(|(m, f)| (m.0, *f)))
+        .flat_map(|s| s.modes.iter().map(|&p| (modes[p].mode.0, modes[p].frequency_hz)))
         .collect();
     let mut ranges = Vec::with_capacity(tables.len());
     for t in tables {
@@ -1152,7 +2035,8 @@ fn disclosure_operands(inputs: &DocumentInputs, choices: &Choices, tables: &[Spe
         MissingMass::NotApplied => None,
         MissingMass::Applied { rigid_frequency_hz, .. } => {
             let whole = inputs.modal.extraction.endpoint == "whole_finite_spectrum";
-            let highest = c.clusters.last().map(|s| s.standing_frequency_hz);
+            // The highest completed cluster is the last one; its lowest frequency is its standing.
+            let highest = clusters.last().map(|s| s.standing);
             let holds = whole || highest.is_some_and(|f| f >= rigid_frequency_hz);
             if !holds {
                 refusals.push(Refusal::new(RefusalCode::ExtractionBelowRigidFrequency, "modal_basis", Some("extraction"),
@@ -1164,46 +2048,51 @@ fn disclosure_operands(inputs: &DocumentInputs, choices: &Choices, tables: &[Spe
     Disclosures { ranges, premise_holds }
 }
 
-fn fixed_disclosures(choices: &Choices, census: &Census) -> Vec<(&'static str, &'static str)> {
-    let mut out = vec![
-        ("pseudo_acceleration", "Every spectrum ordinate is a pseudo-spectral acceleration: omega squared times the peak relative \
+/// The fixed disclosures: (id, text). Each document carries the first four, one of the next two
+/// by whether the correction is applied, and the last where the census has an arc.
+pub const FIXED_DISCLOSURES: [(&str, &str); 7] = [
+    ("pseudo_acceleration", "Every spectrum ordinate is a pseudo-spectral acceleration: omega squared times the peak relative \
 displacement of a linear oscillator at the spectrum's damping. No other kind of spectrum is converted and no spectrum is extrapolated."),
-        ("uniform_support_motion", "Uniform support motion: in each requested direction every rigid support moves with the ground. \
+    ("uniform_support_motion", "Uniform support motion: in each requested direction every rigid support moves with the ground. \
 Independent support motion is not built."),
-        ("velocity_terms_neglected", "Damping is represented only through the spectra. Each mode's quantities are recovered at its \
+    ("velocity_terms_neglected", "Damping is represented only through the spectra. Each mode's quantities are recovered at its \
 displacement extremum, and the velocity-proportional parts of forces and reactions are neglected; this is an adopted \
 approximation, and no bound on the resulting force or reaction error is claimed."),
-        ("repeated_modes", "The modes of each cluster of the modal basis are summed with their signs first and the modal rule is \
+    ("repeated_modes", "The modes of each cluster of the modal basis are summed with their signs first and the modal rule is \
 applied across the clusters. A cluster is the modal basis's numerical convention, not a statement that its eigenvalues are \
 equal; for a cluster whose modes have unequal frequencies, summing first is an adopted convention, and no independence from \
 the modal basis is claimed for it."),
-    ];
-    match choices.missing_mass {
-        MissingMass::Applied { .. } => out.push(("rigid_response_premise", "The missing-mass correction is applied. The rigid \
+    ("rigid_response_premise", "The missing-mass correction is applied. The rigid \
 response is the static response, on the dynamic stiffness, to the inertia at the rigid acceleration of everything the periodic \
-modes leave out; it assumes that the modes classified as rigid respond in phase with the ground.")),
-        MissingMass::NotApplied => out.push(("missing_mass_not_applied", "The missing-mass correction is not applied: every \
+modes leave out; it assumes that the modes classified as rigid respond in phase with the ground."),
+    ("missing_mass_not_applied", "The missing-mass correction is not applied: every \
 extracted mode is periodic, and the mass the periodic modes do not represent is disclosed with its fractions and is not in \
-any row.")),
-    }
-    if !census.arcs.is_empty() {
-        out.push(("inherited_arc_limitation", "Realized bends enter the modal basis with the thin curved-beam stiffness, whose \
+any row."),
+    ("inherited_arc_limitation", "Realized bends enter the modal basis with the thin curved-beam stiffness, whose \
 application range SWBPIPE's verification has not established (LIM-021, an applicability limitation); this result inherits it \
-through the modal basis."));
+through the modal basis."),
+];
+
+fn fixed_disclosures(choices: &Choices, census: &Census) -> Vec<(&'static str, &'static str)> {
+    let mut out = FIXED_DISCLOSURES[..4].to_vec();
+    out.push(match choices.missing_mass {
+        MissingMass::Applied { .. } => FIXED_DISCLOSURES[4],
+        MissingMass::NotApplied => FIXED_DISCLOSURES[5],
+    });
+    if !census.arcs.is_empty() {
+        out.push(FIXED_DISCLOSURES[6]);
     }
     out
 }
 
 #[allow(clippy::too_many_lines)]
-fn solved(inputs: &DocumentInputs, choices: &Choices, tables: &[SpectrumTable], c: &Combination, disclosures: Disclosures,
-    n: &mut Numbers) -> Value {
-    let mut numbers_scratch = Numbers { outside: Vec::new() };
-    let mut doc = identity(inputs, &mut numbers_scratch);
-    n.outside.extend(numbers_scratch.outside);
+fn solved(inputs: &DocumentInputs, bindings: &Bindings, choices: &Choices, tables: &[SpectrumTable], c: &Combination,
+    disclosures: Disclosures, n: &mut Numbers) -> Value {
+    let mut doc = identity(inputs, bindings, n);
     doc.insert("status".into(), json!("solved"));
     let modal = inputs.modal;
     let census = inputs.census;
-    let request = inputs.combination;
+    let request = &inputs.contributions.combination;
 
     // The spectrum result's own standing: the modal set's integrity standing, carried.
     let standing = match &modal.standings {
@@ -1304,8 +2193,8 @@ fn solved(inputs: &DocumentInputs, choices: &Choices, tables: &[SpectrumTable], 
     };
     let extraction = json!({
         "endpoint": e.endpoint,
-        "reported_mode_count": e.reported_mode_count,
-        "established_finite_mode_count": e.established_finite_mode_count,
+        "reported_mode_count": n.int(e.reported_mode_count, "extraction"),
+        "established_finite_mode_count": e.established_finite_mode_count.map_or(Value::Null, |k| n.int(k, "extraction")),
         "next_computed_frequency": e.next_computed_frequency_hz.map_or(Value::Null, |f| n.fixed("next_computed_frequency", f, "extraction")),
         "next_computed_circular_frequency": e.next_computed_circular_frequency_rad_s
             .map_or(Value::Null, |w| n.fixed("next_computed_circular_frequency", w, "extraction")),
@@ -1346,8 +2235,8 @@ fn solved(inputs: &DocumentInputs, choices: &Choices, tables: &[SpectrumTable], 
         "applies": applies,
         "rigid_frequency": fr.map_or(Value::Null, |f| n.fixed("rigid_frequency", f, "premise")),
         "endpoint": e.endpoint,
-        "reported_mode_count": e.reported_mode_count,
-        "established_finite_mode_count": e.established_finite_mode_count,
+        "reported_mode_count": n.int(e.reported_mode_count, "premise"),
+        "established_finite_mode_count": e.established_finite_mode_count.map_or(Value::Null, |k| n.int(k, "premise")),
         "highest_completed_cluster_ref": highest.map(|s| cluster_ref(s.cluster)),
         "highest_completed_cluster_lowest_frequency": highest.map_or(Value::Null, |s| n.fixed("cluster_standing_frequency", s.standing_frequency_hz, "premise")),
         "next_computed_frequency": e.next_computed_frequency_hz.map_or(Value::Null, |f| n.fixed("next_computed_frequency", f, "premise")),
@@ -1369,17 +2258,18 @@ fn solved(inputs: &DocumentInputs, choices: &Choices, tables: &[SpectrumTable], 
             let k = direction_index(*d);
             let at = format!("missing_mass/{d}");
             let t = modal.total_mass_kg[k];
+            // Every operand was checked finite before this stage (check_mass_operands).
             let mut sum = Dyadic::zero();
             let effective: Vec<Value> = periodic_positions
                 .iter()
                 .map(|&p| {
-                    let m = modal.effective_mass_kg.get(p).map_or(f64::NAN, |e| e[k]);
+                    let m = modal.effective_mass_kg.get(p).map_or(0.0, |e| e[k]);
                     sum = sum.add(&Dyadic::from_f64(if m.is_finite() { m } else { 0.0 }));
                     json!({"mode_ref": mode_ref(request.modes[p].mode.0), "effective_mass": n.fixed("modal_effective_mass", m, &at)})
                 })
                 .collect();
             let s = sum.to_f64();
-            let u = Dyadic::from_f64(t).sub(&sum).to_f64();
+            let u = Dyadic::from_f64(if t.is_finite() { t } else { 0.0 }).sub(&sum).to_f64();
             let (cumulative, unrepresented) = if t == 0.0 {
                 (n.quantity("periodic_cumulative_effective_mass_fraction", None, Some("total_mass_zero"), &at),
                     n.quantity("unrepresented_mass_fraction", None, Some("total_mass_zero"), &at))
@@ -1430,7 +2320,8 @@ fn solved(inputs: &DocumentInputs, choices: &Choices, tables: &[SpectrumTable], 
         seal(format!("tie-rod:{}", i + 1), i, json!({"connector_id": r.connector, "rod_id": r.rod, "rod_axis": n.arr(r.axis, "census/tie_rods")}))
     }).collect();
     let constraints = census.rigid_constraints.iter().enumerate().map(|(i, k)| {
-        seal(format!("rigid-constraint:{}", i + 1), i, json!({"node_id": k.node, "component": k.component.as_str(), "holders": k.holders}))
+        seal(format!("rigid-constraint:{}", i + 1), i, json!({"node_id": k.node, "component": k.component.as_str(), "holders": k.holders,
+            "held": held(&k.holders)}))
     }).collect();
     let compliant = census.compliant_supports.iter().enumerate().map(|(i, s)| {
         seal(format!("compliant-support:{}", i + 1), i, json!({"support_id": s.support, "node_id": s.node,
@@ -1446,7 +2337,9 @@ fn solved(inputs: &DocumentInputs, choices: &Choices, tables: &[SpectrumTable], 
     }));
 
     // The rows.
-    doc.insert("rows".into(), rows_json(request, c, &periodic_positions, n));
+    let constraints: BTreeMap<(&str, ReactionComponent), &[String]> =
+        census.rigid_constraints.iter().map(|k| ((k.node.as_str(), k.component), k.holders.as_slice())).collect();
+    doc.insert("rows".into(), rows_json(request, c, &periodic_positions, &constraints, n));
 
     // The rule statements.
     let correlation = c.correlation.as_ref().map(|pairs| {
@@ -1467,14 +2360,35 @@ fn solved(inputs: &DocumentInputs, choices: &Choices, tables: &[SpectrumTable], 
         "correlation": correlation.unwrap_or(Value::Null),
         "groups": groups.unwrap_or(Value::Null),
         "coupled_pairs": pairs.unwrap_or(Value::Null),
+        "closeness_rule": closeness_rule(c.modal_rule),
     }));
     Value::Object(doc)
+}
+
+/// The grouping method's closeness rule, as the result states it (REQ-003).
+pub const GROUPING_CLOSENESS_RULE: &str = "Periodic clusters in ascending order form groups. A group starts at a cluster, \
+whose standing frequency f_g is the group's lowest, and takes each next cluster whose standing frequency f satisfies \
+(f − f_g) / f_g ≤ 1/10; the next cluster that does not starts a new group. The comparison is decided exactly on the \
+represented frequencies.";
+
+/// The ten percent method's closeness rule, as the result states it (REQ-003).
+pub const TEN_PERCENT_CLOSENESS_RULE: &str = "Two periodic clusters i < j are coupled when their standing frequencies satisfy \
+(f_j − f_i) / f_i ≤ 1/10, whether or not they fall in one group of the grouping method. The comparison is decided exactly \
+on the represented frequencies.";
+
+fn closeness_rule(rule: ModalRule) -> Value {
+    match rule {
+        ModalRule::Grouping => json!(GROUPING_CLOSENESS_RULE),
+        ModalRule::TenPercent => json!(TEN_PERCENT_CLOSENESS_RULE),
+        ModalRule::Srss | ModalRule::Cqc | ModalRule::AbsoluteSum => Value::Null,
+    }
 }
 
 /// The rows: the column statements, then one signed record, one cluster-sum record (where a
 /// periodic cluster has more than one mode) and one combined record per response quantity, in
 /// the roster's order.
-fn rows_json(request: &CombinationRequest, c: &Combination, periodic_positions: &[usize], n: &mut Numbers) -> Value {
+fn rows_json(request: &CombinationRequest, c: &Combination, periodic_positions: &[usize],
+    constraints: &BTreeMap<(&str, ReactionComponent), &[String]>, n: &mut Numbers) -> Value {
     let directions = &c.directions;
     // Contribution columns: the periodic modes in ascending order.
     let columns = periodic_positions
@@ -1485,18 +2399,16 @@ fn rows_json(request: &CombinationRequest, c: &Combination, periodic_positions: 
             seal(format!("contribution-column:{}", i + 1), i, json!({"column": i, "mode_ref": mode_ref(m.mode.0), "cluster_ref": cluster_ref(m.cluster)}))
         })
         .collect();
-    let sum_clusters: Vec<ClusterIndex> = {
-        let mut v: Vec<ClusterIndex> = c.cluster_sums.iter().map(|s| s.cluster).collect();
-        v.sort();
-        v.dedup();
-        v
-    };
+    // Cluster-sum columns: the periodic clusters of more than one mode, in one walk of the
+    // classified clusters (the clusters `combine` states sums for).
+    let sum_clusters: Vec<&ClusterStatement> =
+        c.clusters.iter().filter(|s| s.class == ClusterClass::Periodic && s.modes.len() > 1).collect();
     let sum_columns = sum_clusters
         .iter()
         .enumerate()
-        .map(|(i, k)| {
-            let modes = c.clusters.iter().find(|s| s.cluster == *k).map(|s| s.modes.iter().map(|m| mode_ref(m.0)).collect::<Vec<_>>()).unwrap_or_default();
-            seal(format!("cluster-sum-column:{}", i + 1), i, json!({"column": i, "cluster_ref": cluster_ref(*k), "mode_refs": modes}))
+        .map(|(i, s)| {
+            seal(format!("cluster-sum-column:{}", i + 1), i, json!({"column": i, "cluster_ref": cluster_ref(s.cluster),
+                "mode_refs": s.modes.iter().map(|m| mode_ref(m.0)).collect::<Vec<_>>()}))
         })
         .collect();
     // Index of each supplied contribution, by (direction, mode position).
@@ -1518,20 +2430,21 @@ fn rows_json(request: &CombinationRequest, c: &Combination, periodic_positions: 
         let at = format!("rows/{quantity_ref}");
         let unit = q.unit().catalog_id();
         let frame = q.frame().as_str();
-        let mut fields = identity_fields(q);
+        let mut fields = identity_fields(q, constraints);
         fields.insert("unit".into(), json!(unit));
         fields.insert("frame".into(), json!(frame));
         fields.insert("sign_status".into(), json!(SignStatus::SignedContribution.as_str()));
         fields.insert("sign_convention".into(), json!(q.sign_convention().as_str()));
         let mut per = Map::new();
         for d in directions {
-            per.insert(d.as_str().into(), n.arr(periodic_positions.iter().map(|&p| periodic.get(&(*d, p)).map_or(0.0, |v| v[r])), &at));
+            per.insert(d.as_str().into(), n.arr(periodic_positions.iter()
+                .map(|&p| periodic.get(&(*d, p)).and_then(|v| v.get(r)).copied().unwrap_or(f64::NAN)), &at));
         }
         fields.insert("periodic".into(), Value::Object(per));
         let rigid_values = (!rigid.is_empty()).then(|| {
             let mut m = Map::new();
             for d in directions {
-                m.insert(d.as_str().into(), n.num(rigid[d][r], &at));
+                m.insert(d.as_str().into(), n.num(rigid.get(d).and_then(|v| v.get(r)).copied().unwrap_or(f64::NAN), &at));
             }
             Value::Object(m)
         });
@@ -1541,7 +2454,8 @@ fn rows_json(request: &CombinationRequest, c: &Combination, periodic_positions: 
         if !sum_clusters.is_empty() {
             let mut s = Map::new();
             for d in directions {
-                s.insert(d.as_str().into(), n.arr(sum_clusters.iter().map(|k| sums[&(*k, *d)][r]), &at));
+                s.insert(d.as_str().into(), n.arr(sum_clusters.iter()
+                    .map(|k| sums.get(&(k.cluster, *d)).and_then(|v| v.get(r)).copied().unwrap_or(f64::NAN)), &at));
             }
             cluster_sums.push(seal(format!("cluster-sum:{}", r + 1), r, json!({
                 "quantity_ref": quantity_ref, "unit": unit, "frame": frame,
@@ -1550,8 +2464,8 @@ fn rows_json(request: &CombinationRequest, c: &Combination, periodic_positions: 
             })));
         }
 
-        let row = &c.rows[r];
-        let mut fields = identity_fields(q);
+        let Some(row) = c.rows.get(r) else { continue };
+        let mut fields = identity_fields(q, constraints);
         fields.insert("quantity_ref".into(), json!(quantity_ref));
         fields.insert("unit".into(), json!(unit));
         fields.insert("frame".into(), json!(frame));
@@ -1581,3 +2495,38 @@ fn rows_json(request: &CombinationRequest, c: &Combination, periodic_positions: 
     })
 }
 
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    const IDENTITY: Triad = [[1.0, 0.0, 0.0], [0.0, 1.0, 0.0], [0.0, 0.0, 1.0]];
+
+    fn connector(id: &str) -> Connector {
+        Connector { id: id.into(), end_i: "n".into(), end_j: "n".into(), axes: IDENTITY }
+    }
+
+    fn rod(connector: &str, rod: &str) -> TieRod {
+        TieRod { connector: connector.into(), rod: rod.into(), axis: [1.0, 0.0, 0.0] }
+    }
+
+    /// Two tie rods whose composed labels are equal, (rod "a of connector b", connector "c") and
+    /// (rod "a", connector "b of connector c"), are distinct census entries; the same rod twice
+    /// is a repeat.
+    #[test]
+    fn census_entries_are_compared_by_their_identity_fields() {
+        let mut census = Census {
+            nodes: vec!["n".into()],
+            connectors: vec![connector("c"), connector("b of connector c")],
+            tie_rods: vec![rod("c", "a of connector b"), rod("b of connector c", "a")],
+            ..Census::default()
+        };
+        let mut refusals = Vec::new();
+        check_census_entries(&census, &mut refusals);
+        assert!(refusals.is_empty(), "{refusals:?}");
+        census.tie_rods.push(rod("c", "a of connector b"));
+        check_census_entries(&census, &mut refusals);
+        assert_eq!(refusals.len(), 1, "{refusals:?}");
+        assert_eq!((refusals[0].object.as_str(), refusals[0].field.as_deref()), ("census", Some("tie_rods")));
+    }
+}

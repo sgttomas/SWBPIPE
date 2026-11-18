@@ -211,7 +211,8 @@ fn a_refusal_names_its_object_and_field() {
     let refusal = &combine(&r).unwrap_err()[0];
     assert_eq!(refusal.code, RefusalCode::ContributionInvalid);
     assert_eq!(refusal.object, "mode:1 X");
-    assert_eq!(refusal.field.as_deref(), Some(r.rows[1].label().as_str()));
+    // The field is the row, stated here as the label of P1's member-axes Mz row at end i.
+    assert_eq!(refusal.field.as_deref(), Some("element_end_action member [P1] end i Mz (member_axes)"));
 }
 
 #[test]

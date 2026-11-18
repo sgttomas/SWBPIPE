@@ -17,8 +17,8 @@ mod support;
 
 use open_pipe_stress_response_spectrum::document::{
     spectrum_doc_sha256, spectrum_result_document, spectrum_semantic_table, ArcMember, Census, CompliantSupport,
-    Connector, DocumentInputs, Extraction, ModalResultBinding, ModalStatement, Origin, RigidConstraint, StraightMember,
-    TieRod, Triad,
+    Connector, DocumentInputs, Extraction, FormationRecord, ModalResultBinding, ModalStatement, Origin, RigidConstraint,
+    SignedContributions, StraightMember, TieRod, Triad,
 };
 use open_pipe_stress_response_spectrum::{
     combine, ClusterIndex, CombinationRequest, ConnectorComponent, Direction, DirectionalRule, End, ForceComponent, Frame,
@@ -452,6 +452,9 @@ struct Fixture {
     modal: ModalStatement,
     census: Census,
     combination: CombinationRequest,
+    /// Each direction's formation record, made where the reference's contributions are taken,
+    /// from the reference's own request and spectrum.
+    formation: Vec<FormationRecord>,
 }
 
 impl Fixture {
@@ -461,16 +464,30 @@ impl Fixture {
 the reference's, stated in modal_basis and attributed to it"
                 .into(),
         };
+        self.document_with(&self.origin, &binding)
+    }
+
+    fn document_with(&self, origin: &Origin, binding: &ModalResultBinding) -> Value {
+        let contributions = SignedContributions { combination: self.combination.clone(), formation: self.formation.clone() };
         spectrum_result_document(&DocumentInputs {
-            origin: &self.origin,
+            origin,
             model: &self.model,
             request: &self.request,
-            modal_result: &binding,
+            modal_result: binding,
             modal: &self.modal,
             census: &self.census,
-            combination: &self.combination,
+            contributions: &contributions,
         })
     }
+}
+
+/// The formation records of a reference's request: for each of its directions (direction,
+/// spectrum, scale factor), the spectrum's record as this writer states it in the model stand-in.
+fn formation_records(directions: &[(Direction, String, f64)], record: impl Fn(&str) -> Value) -> Vec<FormationRecord> {
+    directions.iter().map(|(d, id, scale)| FormationRecord {
+        direction: *d, scale_factor: *scale, spectrum_id: id.clone(),
+        spectrum_record_sha256: spectrum_doc_sha256(&record(id)).expect("a spectrum record in the profile"),
+    }).collect()
 }
 
 /// The signed contributions of every periodic mode and direction and the rigid responses, one
@@ -628,6 +645,13 @@ with its frequency"),
         }).collect()
     }
 
+    /// The formation records of the analysis's own request and the case's spectra.
+    fn formation(&self) -> Vec<FormationRecord> {
+        formation_records(&self.directions(), |id| {
+            discrete_spectrum(self.case["spectra"].as_array().unwrap().iter().find(|s| s["id"] == id).unwrap())
+        })
+    }
+
     fn spectra_used(&self) -> Vec<Value> {
         let used: Vec<String> = self.directions().into_iter().map(|(_, s, _)| s).collect();
         self.case["spectra"].as_array().unwrap().iter().filter(|s| used.iter().any(|u| s["id"] == u.as_str())).map(discrete_spectrum).collect()
@@ -690,7 +714,17 @@ fn origin(package: &str, case: &Value, analysis: &str, constructed: Vec<String>)
 
 const STAND_IN: &str = "Except where stated above, each entity identity and the spectra are the reference's. The model \
 document is a stand-in in the model document's shape, not a schema-checked model; its materials, sections and support \
-families are placeholders, not checked against the reference. The spectrum request is this unit's stand-in shape.";
+families are placeholders, not checked against the reference. The spectrum request is this unit's stand-in shape. The \
+extraction endpoint, the reported and established mode counts and the completion evidence sentence in modal_basis are \
+derived by this writer from the reference's mode list and its Sturm evidence; they are not fields of the reference. Each \
+direction's formation record (its spectrum, the digest of that spectrum's record in the model stand-in, and its scale \
+factor) is this writer's statement of the reference's request.";
+
+/// The census axes of axis-aligned straight members, which the discrete references do not state.
+const AXES_FROM_GEOMETRY: &str = "The member axes stated in the census are constructed by this writer from the reference's \
+node coordinates and each member's y_reference, by REQ-006's definition (x from end i to end j, y the part of the reference \
+vector normal to x, normalized, z = x cross y); the reference does not state them as vectors. Each is a signed permutation \
+of the global axes.";
 
 /// 1. C9-Y: the straight members on the space diagonal, in global and member axes.
 fn c9_y_two_frames() -> Fixture {
@@ -758,6 +792,7 @@ fn c9_y_two_frames() -> Fixture {
         census,
         combination: CombinationRequest { damping_ratio: d.damping(), modal_rule, directional_rule, missing_mass: missing, directions,
             modes, rows, periodic: contributions, rigid: vec![] },
+        formation: d.formation(),
     }
 }
 
@@ -843,6 +878,7 @@ fn c7_cancelling_cluster() -> Fixture {
         census,
         combination: CombinationRequest { damping_ratio: d.damping(), modal_rule, directional_rule, missing_mass: missing, directions,
             modes, rows, periodic, rigid: vec![] },
+        formation: d.formation(),
     }
 }
 
@@ -936,6 +972,12 @@ agreeing at every gap); the next computed mode above the {extracted} extracted b
         let zeta = self.zeta();
         let s = self.inputs["spectra"].as_object().unwrap();
         self.dirs().iter().map(|(_, id, _)| w2_spectrum(id, &s[id], zeta)).collect()
+    }
+
+    /// The formation records of the analysis's own request and W2's spectra.
+    fn formation(&self) -> Vec<FormationRecord> {
+        let zeta = self.zeta();
+        formation_records(&self.dirs(), |id| w2_spectrum(id, &self.inputs["spectra"][id], zeta))
     }
 
     fn constituent(&self, id: &str) -> &Value {
@@ -1036,6 +1078,7 @@ fn w2_arc_fixture(name: &'static str, arc_member_axes: bool) -> Fixture {
     left_out.dedup();
     let mut constructed = vec![
         "P1's and P2's member-axes rows are constructed, not published by the reference: each signed contribution and rigid response is the exact rotation, by the member's rows x, y and z (x along the member, y = (0, 0, 1) normal to x, z = x cross y; exact rationals), of the reference's published global decimals, rounded once to the nearest binary64.".into(),
+        "P1's and P2's member axes stated in the census are constructed: each component is the exact rational over 25 that REQ-006's definition gives from the stand-in's node coordinates with reference vector (0, 0, 1), rounded once to binary64; the reference does not state them.".into(),
         "The anchors at A and D have no identity in the reference, which names each reaction by its node; their support identities A-anchor and D-anchor are constructed.".into(),
         "The arc's rows are its total end action as published (BEND1.<end>.* and BEND1.<end>.*_t); the reference's elastic and lump_load parts are not rows.".into(),
         STAND_IN.into(),
@@ -1072,6 +1115,7 @@ fn w2_arc_fixture(name: &'static str, arc_member_axes: bool) -> Fixture {
         combination: CombinationRequest { damping_ratio: w.zeta(), modal_rule: ModalRule::Cqc, directional_rule: DirectionalRule::Srss,
             missing_mass: MissingMass::Applied { rigid_frequency_hz: w.rigid_frequency(), rule: RigidRule::Srss }, directions: directions.clone(),
             modes, rows, periodic, rigid: rigid_entries(&directions, rigid, &left_out) },
+        formation: w.formation(),
     }
 }
 
@@ -1136,6 +1180,7 @@ fn w2_joint_rods() -> Fixture {
             "The span D-E that the connector replaces has no rows; the rods' end actions (R1.<end>.*, R2.<end>.*) are not REQ-006 rows and are left out; each rod has its one axial force.".into(),
             "The anchors at C and F have no identity in the reference, which names each reaction by its node; their support identities C-anchor and F-anchor are constructed.".into(),
             "The connector axes are the columns of the reference's exact Q; the rod axes are its exact unit directions n.".into(),
+            "P2's and P3's member axes stated in the census are constructed by this writer from the reference's node coordinates and the reference vector (0, 0, 1), by REQ-006's definition; the reference states the mapping in its convention 6, not the axes as vectors.".into(),
             STAND_IN.into(),
         ]},
         model,
@@ -1145,6 +1190,7 @@ fn w2_joint_rods() -> Fixture {
         combination: CombinationRequest { damping_ratio: w.zeta(), modal_rule: ModalRule::Cqc, directional_rule: DirectionalRule::Srss,
             missing_mass: MissingMass::Applied { rigid_frequency_hz: w.rigid_frequency(), rule: RigidRule::Srss }, directions: directions.clone(),
             modes, rows, periodic, rigid: rigid_entries(&directions, rigid, &left_out) },
+        formation: w.formation(),
     }
 }
 
@@ -1200,6 +1246,7 @@ fn discrete_fixture<'d>(name: &'static str, d: &'d Discrete, analysis: &str, cen
         census,
         combination: CombinationRequest { damping_ratio: d.damping(), modal_rule, directional_rule, missing_mass: missing, directions: directions.clone(),
             modes, rows, periodic, rigid: rigid_entries(&directions, rigid, &left_out) },
+        formation: d.formation(),
     }
 }
 
@@ -1234,6 +1281,7 @@ fn c8_shared_constraint() -> Fixture {
         }
     };
     discrete_fixture("c8_shared_constraint", &d, "C8-III-TRUNCATION", census, vec![
+        AXES_FROM_GEOMETRY.into(),
         "The holder set of the rigid constraint at node B, component UZ, is constructed: the reference's directional restraint SB holds it, and a rigid snubber SN-B, which the reference does not have, is named as a second holder. The constraint's reaction is the reference's SB.Fz, as published; one row names both holders and is not divided between them.".into(),
         "The member-axes contributions are the reference's global contributions mapped by the signed permutation of each member's axis-aligned frame (x = +X, y = +Z, z = -Y); the reference's convention 2 states that such a frame maps component to component. Each combined magnitude is formed from them.".into(),
         STAND_IN.into(),
@@ -1297,13 +1345,23 @@ fn c2_separator_identities() -> Fixture {
     discrete_fixture("c2_separator_identities", &d, "C2-SPRING", census, vec![
         format!("Every entity identity is constructed by renaming the reference's: {}. Each renamed identity contains a dot, a space, a colon or the member-axes suffix _m, the characters a composed key would separate its fields with; each global-axes value is the reference's value for the original entity.",
             RENAMES.iter().map(|(a, b)| format!("{a} as \"{b}\"")).collect::<Vec<_>>().join(", ")),
+        AXES_FROM_GEOMETRY.into(),
         "The member-axes contributions are the reference's global contributions mapped by the signed permutation of each member's axis-aligned frame (x = +X, y = +Z, z = -Y); the reference's convention 2 states that such a frame maps component to component. Each combined magnitude is formed from them.".into(),
         STAND_IN.into(),
     ], model, &reaction, &original, None, &[])
 }
 
-const MUTATION_NOTE: &str = "The rules are those of one entry of the reference analysis's published mutations grid, not its base \
-request's; the request stand-in states them. The contributions, rigid responses and modal basis are the analysis's own.";
+/// The note of a document built on a grid entry; the entry has rigid responses only where the
+/// correction is applied.
+fn mutation_note(applied: bool) -> String {
+    let own = if applied {
+        "The contributions, rigid responses and modal basis are the analysis's own."
+    } else {
+        "The contributions and modal basis are the analysis's own; with the correction off the entry has no rigid response."
+    };
+    format!("The rules are those of one entry of the reference analysis's published mutations grid, not its base request's; \
+the request stand-in states them. {own}")
+}
 
 fn global_reaction(q: &Quantity) -> String {
     match q {
@@ -1357,7 +1415,8 @@ fn c3_grouping_100_40_40() -> Fixture {
     let census = full_census(&d);
     let model = discrete_model(&d, "project:spectrum-c3", "stand-in: discrete C3-CANTILEVER-3D");
     discrete_fixture("c3_grouping_100_40_40", &d, "C3-BASE", census, vec![
-        MUTATION_NOTE.into(),
+        mutation_note(true),
+        AXES_FROM_GEOMETRY.into(),
         "The member-axes contributions are the reference's global contributions mapped by the signed permutation of each member's axis-aligned frame; each combined magnitude is formed from them.".into(),
         STAND_IN.into(),
     ], model, &global_reaction, &|s| s.to_string(),
@@ -1379,7 +1438,7 @@ fn c9_chain_ten_percent() -> Fixture {
     assert!(census.rigid_constraints.iter().all(|c| c.node == "A") && census.rigid_constraints.len() == 6);
     let model = discrete_model(&d, "project:spectrum-c9-chain", "stand-in: discrete C9-CHAIN, reduced to the quantities it publishes per mode");
     discrete_fixture("c9_chain_ten_percent", &d, "C9-CHAIN-Y", census, vec![
-        MUTATION_NOTE.into(),
+        mutation_note(false),
         "The roster and census are a subset of the reference model: the tip node B, the anchor SA's six constraint reactions at A and the spring S1's force, the quantities the reference publishes per mode, and the node A. The nodes M1 to M7 and the members P1 to P8 are in the model and have no rows here.".into(),
         "A's six displacement and rotation rows are constructed: each contribution is zero because all six components at A are rigidly restrained by the anchor SA (REQ-006, Nodes: a component restrained on a global axis is zero), not because the reference publishes them.".into(),
         STAND_IN.into(),
@@ -1393,7 +1452,8 @@ fn c8_absolute_sums() -> Fixture {
     let census = full_census(&d);
     let model = discrete_model(&d, "project:spectrum-c8-absolute-sums", "stand-in: discrete C8-PIPE-X");
     discrete_fixture("c8_absolute_sums", &d, "C8-III-TRUNCATION", census, vec![
-        MUTATION_NOTE.into(),
+        mutation_note(true),
+        AXES_FROM_GEOMETRY.into(),
         "The member-axes contributions are the reference's global contributions mapped by the signed permutation of each member's axis-aligned frame (x = +X, y = +Z, z = -Y); the reference's convention 2 states that such a frame maps component to component. Each combined magnitude is formed from them.".into(),
         STAND_IN.into(),
     ], model, &global_reaction, &|s| s.to_string(),
@@ -1613,6 +1673,7 @@ fn constructed_documents_agree_with_their_references() {
             Some((real(&a["combined"][&k]), ["X", "Y", "Z"].iter().map(|dir| (dir.to_string(), real(&a["per_direction_combined"][*dir][&k]))).collect()))
         });
         assert_eq!(n, non_member_axes(&d), "{name}: every row but the straights' member-axes rows has a reference value");
+        assert_eq!(n, expected_compared(name), "{name}");
     }
     // Discrete: C9-Y in both frames; C8-III, C2 (renamed) and C7 (reduced) in global axes.
     let c9 = Discrete::new(C9, 0, "C9-Y");
@@ -1630,6 +1691,7 @@ fn constructed_documents_agree_with_their_references() {
         Some((expected(&block["combined"][&key]), vec![("Y".into(), expected(&block["per_direction_combined"]["Y"][&key]))]))
     });
     assert_eq!(n, d["rows"]["combined"]["row_count"].as_u64().unwrap() as usize);
+    assert_eq!(n, expected_compared("c9_y_two_frames"));
     for (name, text, analysis, names) in [("c8_shared_constraint", C8, "C8-III-TRUNCATION", false), ("c2_separator_identities", C2, "C2-SPRING", true),
         ("c7_cancelling_cluster", C7, "C7-PAIRS", false)] {
         let c = Discrete::new(text, 0, analysis);
@@ -1648,6 +1710,22 @@ fn constructed_documents_agree_with_their_references() {
             Some((expected(&c.analysis["combined"][&key]), dirs))
         });
         assert_eq!(n, non_member_axes(&d), "{name}: every row but the member-axes rows has a reference value");
+        assert_eq!(n, expected_compared(name), "{name}");
+    }
+}
+
+/// The number of combined rows each document compares with its reference, stated here so that a
+/// dropped row cannot pass: the roster's rows less the straights' member-axes rows (all rows for
+/// C9-Y, whose reference publishes both frames).
+fn expected_compared(name: &str) -> usize {
+    match name {
+        "w2_arc_oblique" => 84,
+        "w2_joint_rods" => 80,
+        "c9_y_two_frames" => 253,
+        "c8_shared_constraint" => 157,
+        "c2_separator_identities" => 49,
+        "c7_cancelling_cluster" => 18,
+        other => panic!("no stated count for {other}"),
     }
 }
 
@@ -1709,19 +1787,22 @@ fn a_split_of_an_exactly_repeated_cluster_is_refused() {
 }
 
 /// A pair whose gap lies within the margin of the threshold is neither refused shared nor refused
-/// split; a pair clearly above the threshold is refused when shared.
+/// split, and with its frequency set consistently with its circular frequency the document is
+/// solved; a pair clearly above the threshold is refused when shared.
 #[test]
 fn a_pair_inside_the_margin_is_not_refused() {
     let wb = c7_cancelling_cluster().modal.circular_frequency_rad_s[1];
     let delta = CLUSTER_TOLERANCE;
+    let two_pi = 2.0 * std::f64::consts::PI;
     // ω_a with ω_b² − ω_a² = δ_c·ω_b², rounded: its gap is within a few u·ω_b² of the threshold.
     let wa = wb * (1.0 - delta).sqrt();
     let (gap, threshold) = (wb * wb - wa * wa, delta * (wb * wb));
     let margin = 16.0 * f64::EPSILON / 2.0 * (1.0 + delta) * (wb * wb);
     assert!((gap - threshold).abs() < margin, "inside the margin");
-    for split in [false, true] {
+    let with_mode_1 = |w: f64, split: bool| {
         let mut f = c7_cancelling_cluster();
-        f.modal.circular_frequency_rad_s[0] = wa;
+        f.modal.circular_frequency_rad_s[0] = w;
+        f.combination.modes[0].frequency_hz = w / two_pi;
         if split {
             for m in &mut f.combination.modes {
                 if m.mode.0 >= 2 {
@@ -1729,14 +1810,15 @@ fn a_pair_inside_the_margin_is_not_refused() {
                 }
             }
         }
-        let d = f.document();
-        assert!(refusal_details(&d).iter().all(|(_, detail)| !detail.contains("cluster tolerance")), "split {split}: {:?}", refusal_details(&d));
+        f.document()
+    };
+    for split in [false, true] {
+        let d = with_mode_1(wa, split);
+        assert_eq!(d["status"], "solved", "split {split}: {:?}", refusal_details(&d));
     }
-    let mut f = c7_cancelling_cluster();
-    f.modal.circular_frequency_rad_s[0] = wb * (1.0 - 2.0 * delta).sqrt();
-    let refusals = refusal_details(&f.document());
-    assert!(refusals.iter().any(|(_, detail)| detail == "mode:1 and mode:2 share a cluster across a relative gap above the cluster tolerance"),
-        "{refusals:?}");
+    let refusals = refusal_details(&with_mode_1(wb * (1.0 - 2.0 * delta).sqrt(), false));
+    assert_eq!(refusals, vec![("SPECTRUM_DOCUMENT_INPUT_INVALID".to_string(),
+        "mode:1 and mode:2 share a cluster across a relative gap above the cluster tolerance".to_string())], "{refusals:?}");
 }
 
 /// The documents built on a grid entry of the reference's published `mutations`: (name, source
@@ -1801,13 +1883,25 @@ fn the_grouping_document_states_the_reference_groups_and_governing_directions() 
     assert!(doc["rule_statements"]["coupled_pairs"].is_null() && doc["rule_statements"]["correlation"].is_null());
     assert_eq!(doc["rows"]["directions"], json!(["X", "Y", "Z"]));
     assert_eq!(doc["request"]["missing_mass"]["rigid_combination"], "ABSOLUTE_SUM");
+    // Each row's governing direction is the direction of its largest published directional
+    // magnitude, the first in X, Y, Z order on a tie, zero rows included.
     let combined = doc["rows"]["combined"]["rows"].as_array().unwrap();
+    let mut zero_rows = 0;
     for r in combined {
-        let governing = &r["governing_direction"];
-        if r["combined"].as_f64().unwrap() > 0.0 {
-            assert!(["X", "Y", "Z"].iter().any(|g| governing == g), "{r}");
+        let parts = r["per_direction"].as_array().unwrap();
+        let mut expected = 0;
+        for (i, p) in parts.iter().enumerate() {
+            if p["combined"].as_f64().unwrap() > parts[expected]["combined"].as_f64().unwrap() {
+                expected = i;
+            }
+        }
+        assert_eq!(r["governing_direction"], parts[expected]["direction"], "{r}");
+        if parts.iter().all(|p| p["combined"].as_f64() == Some(0.0)) {
+            assert_eq!(r["governing_direction"], "X", "an all-zero row: the first direction {r}");
+            zero_rows += 1;
         }
     }
+    assert!(zero_rows > 0, "the document has rows that are zero in every direction");
     let named: BTreeSet<&str> = combined.iter().filter_map(|r| r["governing_direction"].as_str()).collect();
     assert!(named.len() > 1, "more than one direction governs: {named:?}");
 }
@@ -1869,25 +1963,62 @@ fn frequency_and_circular_frequency_are_checked() {
     assert!(has_refusal(&f.document(), "the next computed mode: its circular frequency"));
 }
 
+/// A bound modal result as the modal family states one: its run id formed from its request and
+/// integrity-parameter digests.
+fn bound_binding() -> ModalResultBinding {
+    let (request, parameters) = ("a".repeat(64), "b".repeat(64));
+    let run = spectrum_doc_sha256(&json!({"request_sha256": request, "integrity_parameters_sha256": parameters})).unwrap();
+    ModalResultBinding::Bound {
+        run_id: format!("modal-run:{}", &run[..16]), request_sha256: request, model_sha256: None, materials_sha256: "c".repeat(64),
+        integrity_parameters_sha256: parameters, state_case: None,
+    }
+}
+
+fn refusal_fields(d: &Value) -> Vec<(String, String, Option<String>)> {
+    d["refusals"]["rows"].as_array().map_or_else(Vec::new, |rows| rows.iter().map(|r| (r["code"].as_str().unwrap().to_string(),
+        r["object"].as_str().unwrap().to_string(), r["field"].as_str().map(str::to_string))).collect())
+}
+
 /// A spectrum solve's document binds its modal result, and a constructed document binds none.
 #[test]
 fn origin_and_modal_binding_are_checked() {
     let f = c7_cancelling_cluster();
-    let bound = ModalResultBinding::Bound {
-        run_id: "run:1".into(), request_sha256: "0".repeat(64), model_sha256: None, materials_sha256: "0".repeat(64),
-        integrity_parameters_sha256: "0".repeat(64), state_case: None,
-    };
     let not_applicable = ModalResultBinding::NotApplicable { reason: "none".into() };
-    let solve = Origin::SpectrumSolve;
     for (origin, binding, detail) in [
-        (&f.origin, &bound, "a document constructed from a reference binds a modal result"),
-        (&solve, &not_applicable, "a document produced by a spectrum solve states its modal result binding as not applicable"),
+        (&f.origin, &bound_binding(), "a document constructed from a reference binds a modal result"),
+        (&Origin::SpectrumSolve, &not_applicable, "a document produced by a spectrum solve states its modal result binding as not applicable"),
     ] {
-        let d = spectrum_result_document(&DocumentInputs { origin, model: &f.model, request: &f.request, modal_result: binding,
-            modal: &f.modal, census: &f.census, combination: &f.combination });
+        let d = f.document_with(origin, binding);
         assert_eq!(d["status"], "refused");
-        assert!(has_refusal(&d, detail), "{detail}");
+        assert_eq!(refusal_details(&d), vec![("SPECTRUM_DOCUMENT_INPUT_INVALID".to_string(), detail.to_string())]);
     }
+}
+
+/// A bound modal result's digests, run id and state case, and an unbound one's reason, are
+/// checked: each failure is refused naming the field.
+#[test]
+fn modal_result_binding_fields_are_checked() {
+    let f = c7_cancelling_cluster();
+    let solve = Origin::SpectrumSolve;
+    let ModalResultBinding::Bound { run_id, request_sha256, materials_sha256, integrity_parameters_sha256, .. } = bound_binding() else { unreachable!() };
+    let bound = |run_id: &str, request: &str, model: Option<&str>, state: Option<(&str, usize, &str)>| ModalResultBinding::Bound {
+        run_id: run_id.into(), request_sha256: request.into(), model_sha256: model.map(str::to_string), materials_sha256: materials_sha256.clone(),
+        integrity_parameters_sha256: integrity_parameters_sha256.clone(), state_case: state.map(|(a, b, c)| (a.into(), b, c.into())),
+    };
+    let fields = |b: &ModalResultBinding| -> Vec<(String, String, Option<String>)> { refusal_fields(&f.document_with(&solve, b)) };
+    let invalid = |field: &str| ("SPECTRUM_DOCUMENT_INPUT_INVALID".to_string(), "modal_result".to_string(), Some(field.to_string()));
+    let sha = "d".repeat(64);
+    // The valid binding passes these checks; the document then publishes.
+    assert!(fields(&bound(&run_id, &request_sha256, Some(sha.as_str()), Some(("case:1", 1, sha.as_str())))).is_empty());
+    assert_eq!(fields(&bound("modal-run:0000000000000000", &request_sha256, None, None)), vec![invalid("run_id")]);
+    assert_eq!(fields(&bound(" ", &request_sha256, None, None)), vec![invalid("run_id")]);
+    assert_eq!(fields(&bound(&run_id, &"A".repeat(64), None, None)), vec![invalid("request_sha256")]);
+    assert_eq!(fields(&bound(&run_id, &request_sha256, Some("short"), None)), vec![invalid("model_sha256")]);
+    assert_eq!(fields(&bound(&run_id, &request_sha256, None, Some(("", 0, "x")))), vec![invalid("state_case"), invalid("state_case")]);
+    assert_eq!(fields(&bound(&run_id, &request_sha256, None, Some(("case:1", 1 << 53, sha.as_str())))),
+        vec![("SPECTRUM_DOCUMENT_OUTSIDE_CANONICAL_PROFILE".to_string(), "modal_result".to_string(), Some("state_case".to_string()))]);
+    let blank = ModalResultBinding::NotApplicable { reason: "  ".into() };
+    assert_eq!(refusal_fields(&f.document_with(&f.origin, &blank)), vec![invalid("reason")]);
 }
 
 /// A census that names a node or a connector it does not hold is refused, naming the entry and
@@ -1941,8 +2072,554 @@ fn separator_identities_are_carried_byte_for_byte() {
         };
     }
     let plain_result = combine(&plain).unwrap();
+    assert_eq!(renamed_result.rows.len(), f.combination.rows.len());
+    assert_eq!(plain_result.rows.len(), renamed_result.rows.len());
     for (a, b) in renamed_result.rows.iter().zip(&plain_result.rows) {
         assert_eq!(a.combined, b.combined);
         assert_eq!(a.per_direction, b.per_direction);
+    }
+    // Two tie rods whose composed labels are equal and whose identities differ are two rows: the
+    // combinations compare identities, not labels.
+    let a = Quantity::TieRodForce { connector: "x] [y".into(), rod: "z".into() };
+    let b = Quantity::TieRodForce { connector: "x".into(), rod: "y] [z".into() };
+    assert_eq!(a.label(), b.label());
+    assert_ne!(a.identity(), b.identity());
+    let mut colliding = f.combination.clone();
+    colliding.rows.extend([a, b]);
+    for p in &mut colliding.periodic {
+        p.values.extend([0.0, 0.0]);
+    }
+    for r in &mut colliding.rigid {
+        r.values.extend([0.0, 0.0]);
+    }
+    let result = combine(&colliding).unwrap();
+    assert_eq!(result.rows.len(), f.combination.rows.len() + 2);
+}
+
+fn mass_row<'a>(d: &'a Value, direction: &str) -> &'a Value {
+    d["disclosures"]["missing_mass"]["directions"]["rows"].as_array().unwrap().iter().find(|r| r["direction"] == direction).unwrap()
+}
+
+fn value_of(v: &Value) -> f64 {
+    v["value"].as_f64().unwrap()
+}
+
+/// The published U is RN(T − E) with E the exact sum, not T minus the published S: the committed
+/// C3 Y row, where the two differ by one unit in the last place; the fractions are the binary64
+/// quotients of the published S and U by T.
+#[test]
+fn the_unrepresented_mass_is_formed_from_the_exact_sum() {
+    let d = document("c3_grouping_100_40_40");
+    assert_eq!(d["disclosures"]["missing_mass"]["arithmetic"], "E is the exact sum of the stated binary64 effective masses of the \
+periodic modes. S is E rounded once to the nearest binary64 (ties to even). U is the exact difference T \u{2212} E, rounded once the \
+same way. U is not T minus the published S, and the two can differ: where E rounds to T, T minus the published S is zero while the \
+mass the periodic modes leave out is not. The cumulative fraction is the binary64 quotient of the published S by T and the \
+unrepresented fraction the binary64 quotient of the published U by T, each rounded to nearest; they state what fraction of the \
+published total each published mass is, and are recomputable from the published values. T is the stated total mass of the \
+direction, which includes the mass that moves with the supports. Where T is zero both fractions are undefined.");
+    let y = mass_row(&d, "Y");
+    let (t, s, u) = (value_of(&y["total_mass"]), value_of(&y["periodic_effective_mass_sum"]), value_of(&y["unrepresented_effective_mass"]));
+    assert_eq!(u, 58.872593076971675);
+    assert_eq!(t - s, 58.87259307697167);
+    assert_ne!(u, t - s);
+    assert_eq!(value_of(&y["periodic_cumulative_fraction"]), s / t);
+    assert_eq!(value_of(&y["unrepresented_fraction"]), u / t);
+}
+
+/// Effective masses whose exact sum E is not T but rounds to T: the published S equals T, T − S
+/// is zero, and the published U is the nonzero RN(T − E).
+#[test]
+fn a_sum_that_rounds_to_the_total_leaves_a_published_unrepresented_mass() {
+    let mut f = c7_cancelling_cluster();
+    let k = 1; // Y
+    f.modal.total_mass_kg[k] = 1.0;
+    let masses = [1.0 - 2f64.powi(-53), 2f64.powi(-53) - 2f64.powi(-60), 0.0, 0.0];
+    for (e, m) in f.modal.effective_mass_kg.iter_mut().zip(masses) {
+        e[k] = m;
+    }
+    let d = f.document();
+    assert_eq!(d["status"], "solved", "{:?}", refusal_details(&d));
+    let y = mass_row(&d, "Y");
+    let (t, s, u) = (value_of(&y["total_mass"]), value_of(&y["periodic_effective_mass_sum"]), value_of(&y["unrepresented_effective_mass"]));
+    assert_eq!((t, s), (1.0, 1.0));
+    assert_eq!(t - s, 0.0);
+    assert_eq!(u, 2f64.powi(-60));
+    assert_eq!(value_of(&y["periodic_cumulative_fraction"]), 1.0);
+    assert_eq!(value_of(&y["unrepresented_fraction"]), 2f64.powi(-60));
+}
+
+/// The mass operands are checked before any arithmetic on them: a nonfinite total or effective
+/// mass is outside the canonical profile, a negative one is invalid, and a zero total with a
+/// nonzero effective mass is invalid; none panics.
+#[test]
+fn mass_operands_are_checked_before_the_arithmetic() {
+    let outside = ("SPECTRUM_DOCUMENT_OUTSIDE_CANONICAL_PROFILE".to_string(), "missing_mass/Y".to_string(), Some("mass".to_string()));
+    let invalid = ("SPECTRUM_DOCUMENT_INPUT_INVALID".to_string(), "missing_mass/Y".to_string(), Some("mass".to_string()));
+    for v in [f64::NAN, f64::INFINITY] {
+        let mut f = c7_cancelling_cluster();
+        f.modal.total_mass_kg[1] = v;
+        assert_eq!(refusal_fields(&f.document()), vec![outside.clone()]);
+        let mut f = c7_cancelling_cluster();
+        f.modal.effective_mass_kg[2][1] = v;
+        assert_eq!(refusal_fields(&f.document()), vec![outside.clone()]);
+    }
+    let mut f = c7_cancelling_cluster();
+    f.modal.effective_mass_kg[0][1] = -1.0;
+    assert_eq!(refusal_fields(&f.document()), vec![invalid.clone()]);
+    let mut f = c7_cancelling_cluster();
+    f.modal.total_mass_kg[1] = 0.0;
+    assert_eq!(refusal_fields(&f.document()), vec![invalid]);
+}
+
+/// An array nested `depth` deep, built without recursion.
+fn nested(depth: usize) -> Value {
+    let mut v = json!(0);
+    for _ in 0..depth {
+        v = Value::Array(vec![v]);
+    }
+    v
+}
+
+/// The model, the request and the modal state are checked for depth before anything serializes
+/// them: too deep for the checked parse is refused, a state that passes on its own but not at
+/// /modal_basis/state is refused, and a very deep model does not exhaust the stack.
+#[test]
+fn caller_values_are_checked_for_depth_first() {
+    let outside = |object: &str, field: Option<&str>| ("SPECTRUM_DOCUMENT_OUTSIDE_CANONICAL_PROFILE".to_string(), object.to_string(), field.map(str::to_string));
+    let mut f = c7_cancelling_cluster();
+    f.model["deep"] = nested(127);
+    assert_eq!(refusal_fields(&f.document()), vec![outside("model_document", None)]);
+    let mut f = c7_cancelling_cluster();
+    f.request["deep"] = nested(127);
+    assert_eq!(refusal_fields(&f.document()), vec![outside("spectrum_request", None)]);
+    // 126 nested arrays pass the checked parse on their own (levels 1 to 126) and not at level 3.
+    let state = nested(126);
+    assert!(spectrum_doc_sha256(&state).is_some());
+    let mut f = c7_cancelling_cluster();
+    f.modal.state = Some(state);
+    assert_eq!(refusal_fields(&f.document()), vec![outside("modal_basis", Some("state"))]);
+    let mut f = c7_cancelling_cluster();
+    f.modal.state = Some(nested(125));
+    assert_eq!(f.document()["status"], "solved");
+    let mut f = c7_cancelling_cluster();
+    f.model["deep"] = nested(200_000);
+    assert_eq!(refusal_fields(&f.document()), vec![outside("model_document", None)]);
+    // Dropping a value this deep recurses; the test leaks it instead.
+    std::mem::forget(f);
+}
+
+/// The extraction statement's joint invariants, each refused as an invalid input naming the
+/// extraction.
+#[test]
+fn the_extraction_statement_is_checked() {
+    let extraction = |change: &dyn Fn(&mut Extraction)| -> Vec<String> {
+        let mut f = c7_cancelling_cluster();
+        change(&mut f.modal.extraction);
+        let d = f.document();
+        assert_eq!(d["status"], "refused");
+        refusal_details(&d).into_iter().map(|(code, detail)| {
+            assert_eq!(code, "SPECTRUM_DOCUMENT_INPUT_INVALID");
+            detail
+        }).collect()
+    };
+    assert_eq!(c7_cancelling_cluster().modal.extraction.endpoint, "below_computed_cluster");
+    assert_eq!(extraction(&|e| e.endpoint = "below_the_cut".into()),
+        ["`below_the_cut` is not an extraction endpoint (one of whole_finite_spectrum, below_computed_cluster, below_lowest_mode)"]);
+    assert_eq!(extraction(&|e| { e.next_computed_frequency_hz = None; e.next_computed_circular_frequency_rad_s = None; }),
+        ["the extraction is stated below a computed cluster without both the next computed mode's frequency and circular frequency"]);
+    assert_eq!(extraction(&|e| e.next_computed_circular_frequency_rad_s = None),
+        ["the extraction is stated below a computed cluster without both the next computed mode's frequency and circular frequency"]);
+    assert_eq!(extraction(&|e| e.established_finite_mode_count = Some(3)), ["the established finite mode count 3 is below the 4 reported"]);
+    assert_eq!(extraction(&|e| e.established_finite_mode_count = Some(4)),
+        ["a next computed mode is stated and the established finite mode count 4 does not exceed the 4 reported"]);
+    assert_eq!(extraction(&|e| e.endpoint = "whole_finite_spectrum".into()), [
+        "the whole finite spectrum is stated with an established finite mode count of Some(12), not the 4 reported",
+        "the whole finite spectrum is stated with a next computed mode"]);
+    assert_eq!(extraction(&|e| e.evidence = " ".into()), ["the completion evidence is blank"]);
+    assert_eq!(extraction(&|e| { e.endpoint = "below_lowest_mode".into(); }), ["the extraction is stated below the lowest mode with 4 reported modes"]);
+}
+
+/// A request whose spectrum or scale factor is not the one a direction's contributions were
+/// formed with, a model whose record of that spectrum is not the one they were formed from, and a
+/// direction with no formation record are each refused, naming the direction.
+#[test]
+fn formation_records_are_checked_against_the_request_and_the_model() {
+    let refused_at = |f: &Fixture| -> Vec<(String, String, Option<String>)> { refusal_fields(&f.document()) };
+    let at_y = vec![("SPECTRUM_DOCUMENT_INPUT_INVALID".to_string(), "Y".to_string(), Some("formation".to_string()))];
+    let f = c2_separator_identities();
+    assert_eq!(f.request["directions"].as_array().unwrap().len(), 1);
+    assert_eq!(f.request["directions"][0]["direction"], "Y");
+    // The scale doubled in the request, the contributions unchanged.
+    let mut g = c2_separator_identities();
+    let scale = g.request["directions"][0]["scale_factor"].as_f64().unwrap();
+    g.request["directions"][0]["scale_factor"] = json!(2.0 * scale);
+    assert_eq!(refused_at(&g), at_y);
+    // The request's spectrum swapped for another in-range spectrum of the same damping.
+    let mut g = c2_separator_identities();
+    let mut other = g.model["spectra"][0].clone();
+    other["id"] = json!("another spectrum");
+    for p in other["points"].as_array_mut().unwrap() {
+        p[1] = json!(p[1].as_f64().unwrap() * 2.0);
+    }
+    g.model["spectra"].as_array_mut().unwrap().push(other);
+    g.request["directions"][0]["spectrum"] = json!("another spectrum");
+    assert_eq!(refused_at(&g), at_y);
+    // The same spectrum identity with one ordinate changed in the model.
+    let mut g = c2_separator_identities();
+    let p = &mut g.model["spectra"][0]["points"][1][1];
+    *p = json!(p.as_f64().unwrap() * 1.5);
+    assert_eq!(refused_at(&g), at_y);
+    // No formation record for a direction with contributions; a record for a direction without.
+    let mut g = c2_separator_identities();
+    g.formation.clear();
+    assert_eq!(refused_at(&g), at_y);
+    let mut g = c2_separator_identities();
+    let mut extra = g.formation[0].clone();
+    extra.direction = Direction::Z;
+    g.formation.push(extra);
+    assert_eq!(refused_at(&g), vec![("SPECTRUM_DOCUMENT_INPUT_INVALID".to_string(), "Z".to_string(), Some("formation".to_string()))]);
+}
+
+/// A model that holds two spectra of the identity a requested direction names is refused.
+#[test]
+fn a_requested_spectrum_identity_held_twice_is_refused() {
+    let mut f = c2_separator_identities();
+    let copy = f.model["spectra"][0].clone();
+    f.model["spectra"].as_array_mut().unwrap().push(copy);
+    let d = f.document();
+    assert_eq!(refusal_fields(&d), vec![("SPECTRUM_DOCUMENT_INPUT_INVALID".to_string(), "Y".to_string(), Some("spectrum".to_string()))]);
+    assert!(refusal_details(&d)[0].1.contains("holds 2 spectra of identity"));
+}
+
+/// A node displacement row whose component a census rigid constraint restrains at that node has
+/// a nonzero contribution: refused.
+#[test]
+fn a_restrained_component_with_a_nonzero_contribution_is_refused() {
+    let mut f = c7_cancelling_cluster();
+    let r = f.combination.rows.iter().position(|q| matches!(q, Quantity::NodeDisplacement { node, .. } if node == "N1")).unwrap();
+    f.combination.periodic[0].values[r] = 1e-3;
+    let d = f.document();
+    assert_eq!(refusal_fields(&d).len(), 1);
+    assert_eq!(refusal_fields(&d)[0].2.as_deref(), Some("contribution"));
+    assert!(refusal_details(&d)[0].1.contains("restrains this component at this node"), "{:?}", refusal_details(&d));
+}
+
+/// A constraint's holders are compared with the census's as a set and published in the census's
+/// order; a row supplied twice is refused against the roster, not as an invalid row.
+#[test]
+fn rows_are_held_to_the_roster() {
+    let reference = c8_shared_constraint().document();
+    let mut f = c8_shared_constraint();
+    for q in &mut f.combination.rows {
+        if let Quantity::ConstraintReaction { holders, .. } = q {
+            holders.reverse();
+        }
+    }
+    let d = f.document();
+    assert_eq!(d, reference, "a reordered holder list is not a refusal and is published in the census's order");
+    let mut f = c8_shared_constraint();
+    let first = f.combination.rows[0].clone();
+    f.combination.rows.push(first);
+    for p in &mut f.combination.periodic {
+        let v = p.values[0];
+        p.values.push(v);
+    }
+    let fields = refusal_fields(&f.document());
+    assert_eq!(fields.len(), 1, "{fields:?}");
+    assert_eq!((fields[0].0.as_str(), fields[0].2.as_deref()), ("SPECTRUM_DOCUMENT_INPUT_INVALID", Some("roster")));
+}
+
+/// A rigid constraint held by one support is `single`; the C8 constraint held by SB and SN-B is
+/// `jointly_undivided`, in its census row, its signed row and its combined row.
+#[test]
+fn constraint_rows_state_how_they_are_held() {
+    let d = document("c8_shared_constraint");
+    let fields = [("node", json!("B")), ("component", json!("UZ"))];
+    assert_eq!(row(&d, "signed", &fields)["held"], "jointly_undivided");
+    assert_eq!(row(&d, "combined", &fields)["held"], "jointly_undivided");
+    let census = d["census"]["rigid_constraints"]["rows"].as_array().unwrap();
+    for c in census {
+        let expected = if c["node_id"] == "B" && c["component"] == "UZ" { "jointly_undivided" } else { "single" };
+        assert_eq!(c["held"], expected, "{c}");
+    }
+    let table: Value = serde_json::from_str(SEMANTIC_TABLE).unwrap();
+    assert_eq!(table["held"][1]["statement"], "The row states that it is the reaction of the constraint, that the supports it names \
+hold it together, and that it is not divided between them or to be added once per support.");
+}
+
+/// The grouping and ten percent documents state their closeness rule; the others state none.
+#[test]
+fn the_closeness_rule_is_stated_with_its_method() {
+    for (name, ..) in COMMITTED {
+        let d = document(name);
+        if d["status"] != "solved" {
+            continue;
+        }
+        let rule = &d["rule_statements"]["closeness_rule"];
+        match d["request"]["modal_combination"].as_str().unwrap() {
+            "GROUPING" => assert!(rule.as_str().unwrap().starts_with("Periodic clusters in ascending order form groups."), "{name}"),
+            "TEN_PERCENT" => assert!(rule.as_str().unwrap().starts_with("Two periodic clusters i < j are coupled"), "{name}"),
+            _ => assert!(rule.is_null(), "{name}"),
+        }
+    }
+}
+
+/// With no extracted mode (the endpoint below the lowest mode), as the code stands: with the
+/// correction off the document publishes, with empty mode, cluster and column tables and zero
+/// magnitudes; with it applied the modes' check refuses it. Neither panics.
+#[test]
+fn an_empty_extracted_set_as_the_code_stands() {
+    let empty = |f: &mut Fixture| {
+        let (fr, w) = (f.combination.modes[0].frequency_hz, f.modal.circular_frequency_rad_s[0]);
+        f.combination.modes.clear();
+        f.combination.periodic.clear();
+        f.modal.mode_standings.clear();
+        f.modal.effective_mass_kg.clear();
+        f.modal.circular_frequency_rad_s.clear();
+        let e = &mut f.modal.extraction;
+        e.endpoint = "below_lowest_mode".into();
+        e.reported_mode_count = 0;
+        e.next_computed_frequency_hz = Some(fr);
+        e.next_computed_circular_frequency_rad_s = Some(w);
+        for r in &mut f.combination.rigid {
+            r.periodic_clusters_left_out.clear();
+        }
+    };
+    let mut f = c7_cancelling_cluster();
+    empty(&mut f);
+    let d = f.document();
+    assert_eq!(d["status"], "solved", "{:?}", refusal_details(&d));
+    assert_eq!(d["modal_basis"]["modes"]["row_count"], 0);
+    assert_eq!(d["modal_basis"]["clusters"]["row_count"], 0);
+    assert!(d["rows"]["combined"]["rows"].as_array().unwrap().iter().all(|r| r["combined"].as_f64() == Some(0.0)));
+    let mut f = w2_arc_fixture("w2_arc_oblique", false);
+    empty(&mut f);
+    let fields = refusal_fields(&f.document());
+    assert!(fields.iter().all(|(code, ..)| code == "SPECTRUM_MODAL_METADATA_INVALID"), "{fields:?}");
+    assert!(!fields.is_empty());
+}
+
+// ---------------------------------------------------------------------------------------------
+// The document's shape, as the committed semantic table states it.
+
+/// Checks a document against the `document_shape` of a semantic table.
+struct ShapeCheck<'a> {
+    shapes: BTreeMap<&'a str, &'a Value>,
+    units: BTreeMap<&'a str, &'a str>,
+    root: &'a Value,
+    errors: Vec<String>,
+}
+
+impl<'a> ShapeCheck<'a> {
+    fn new(table: &'a Value, root: &'a Value) -> Self {
+        let shapes = table["document_shape"]["shapes"].as_array().unwrap().iter().map(|s| (s["shape"].as_str().unwrap(), s)).collect();
+        let units = table["value_kinds"].as_array().unwrap().iter().map(|k| (k["kind"].as_str().unwrap(), k["unit"].as_str().unwrap())).collect();
+        Self { shapes, units, root, errors: Vec::new() }
+    }
+
+    fn fail(&mut self, path: &str, what: String) {
+        self.errors.push(format!("{path}: {what}"));
+    }
+
+    /// Whether `null` (is the member null) is what its rule permits.
+    fn null_ok(&self, rule: &str, parent: &Map<String, Value>, member: &str, null: bool) -> Option<bool> {
+        let root = self.root;
+        let modal = root["request"]["modal_combination"].as_str();
+        let exactly = |condition: bool| null == condition;
+        Some(match rule {
+            "never" => !null,
+            "always" => null,
+            "permitted" => true,
+            "refused_only" => !null || root["status"] == "refused",
+            "correction_not_applied" => exactly(root["request"]["missing_mass"]["applied"] != true),
+            "modal_rule_not_cqc" => exactly(modal != Some("CQC")),
+            "modal_rule_not_grouping" => exactly(modal != Some("GROUPING")),
+            "modal_rule_not_ten_percent" => exactly(modal != Some("TEN_PERCENT")),
+            "modal_rule_not_grouping_or_ten_percent" => exactly(!matches!(modal, Some("GROUPING" | "TEN_PERCENT"))),
+            "directional_rule_not_100_40_40" => exactly(root["request"]["directional_combination"] != "100-40-40"),
+            "binding_not_applicable" => exactly(root["modal_result"]["binding"] == "not_applicable"),
+            "binding_bound" => exactly(root["modal_result"]["binding"] == "bound"),
+            "origin_spectrum_solve" => exactly(root["origin"]["kind"] == "spectrum_solve"),
+            "endpoint_whole_finite_spectrum" => exactly(root["modal_basis"]["extraction"]["endpoint"] == "whole_finite_spectrum"),
+            "no_cluster" => exactly(root["modal_basis"]["clusters"]["row_count"] == 0),
+            "undefined_reason_stated" => {
+                let other = if member == "value" { "undefined_reason" } else { "value" };
+                exactly(!parent.get(other).map_or(true, Value::is_null))
+            }
+            _ => return None,
+        })
+    }
+
+    fn check(&mut self, v: &Value, ty: &Value, path: &str) {
+        let ok = match ty["type"].as_str().unwrap() {
+            "string" => v.is_string(),
+            "token" => v.as_str().is_some_and(|s| ty["tokens"].as_array().unwrap().iter().any(|t| t == s)),
+            "boolean" => v.is_boolean(),
+            "integer" => v.as_u64().is_some_and(|n| n < 1 << 53),
+            "number" => v.as_f64().is_some_and(|x| x.is_finite() && x.abs() < 9_007_199_254_740_992.0),
+            "opaque_json" => true,
+            "value_object" => {
+                self.object(v, "value_object", path);
+                let kind = v["kind"].as_str().unwrap_or("");
+                ty["kinds"].as_array().unwrap().iter().any(|k| k == kind) && self.units.get(kind).is_some_and(|u| v["unit"] == *u)
+            }
+            "row_ref" => {
+                let table = self.root.pointer(ty["target"].as_str().unwrap());
+                table.and_then(|t| t["rows"].as_array()).is_some_and(|rows| rows.iter().any(|r| r["row_id"] == *v))
+            }
+            "array" => match v.as_array() {
+                Some(items) => {
+                    for (i, item) in items.iter().enumerate() {
+                        self.check(item, &ty["items"], &format!("{path}/{i}"));
+                    }
+                    ty["length"].as_u64().map_or(true, |n| n as usize == items.len())
+                }
+                None => false,
+            },
+            "object" => {
+                self.object(v, ty["shape"].as_str().unwrap(), path);
+                true
+            }
+            "direction_map" => match v.as_object() {
+                Some(map) => {
+                    let keys: Vec<&str> = map.keys().map(String::as_str).collect();
+                    let mut expected: Vec<&str> = self.root["rows"]["directions"].as_array().unwrap().iter().map(|d| d.as_str().unwrap()).collect();
+                    expected.sort_unstable();
+                    for (k, item) in map {
+                        self.check(item, &ty["values"], &format!("{path}/{k}"));
+                    }
+                    keys == expected
+                }
+                None => false,
+            },
+            "table" => self.table(v, ty["row"].as_str().unwrap(), path),
+            other => {
+                self.fail(path, format!("unknown type {other}"));
+                true
+            }
+        };
+        if !ok {
+            self.fail(path, format!("{v} is not of type {ty}"));
+        }
+    }
+
+    fn table(&mut self, v: &Value, row: &str, path: &str) -> bool {
+        let Some(map) = v.as_object() else { return false };
+        let keys: Vec<&str> = map.keys().map(String::as_str).collect();
+        if keys != ["digest", "row_count", "rows", "status"] || v["status"] != "published" {
+            return false;
+        }
+        let Some(rows) = v["rows"].as_array() else { return false };
+        let checksums: Vec<Value> = rows.iter().map(|r| r["checksum"].clone()).collect();
+        let mut ok = v["row_count"].as_u64() == Some(rows.len() as u64)
+            && v["digest"].as_str() == spectrum_doc_sha256(&Value::Array(checksums)).as_deref();
+        let mut ids = BTreeSet::new();
+        for (i, r) in rows.iter().enumerate() {
+            let at = format!("{path}/rows/{i}");
+            let mut unsealed = r.as_object().cloned().unwrap_or_default();
+            let checksum = unsealed.remove("checksum");
+            ok &= r["ordinal"].as_u64() == Some(i as u64) && r["row_id"].as_str().is_some_and(|id| ids.insert(id.to_string()))
+                && checksum.as_ref().and_then(Value::as_str) == spectrum_doc_sha256(&Value::Object(unsealed.clone())).as_deref();
+            unsealed.remove("row_id");
+            unsealed.remove("ordinal");
+            self.object(&Value::Object(unsealed), row, &at);
+        }
+        ok
+    }
+
+    fn object(&mut self, v: &Value, shape_name: &str, path: &str) {
+        let Some(map) = v.as_object() else { return self.fail(path, format!("not an object of shape {shape_name}")) };
+        let Some(shape) = self.shapes.get(shape_name).copied() else { return self.fail(path, format!("no shape {shape_name}")) };
+        let mut members: Vec<&Value> = shape["members"].as_array().unwrap().iter().collect();
+        if let Some(variants) = shape["variants"].as_object() {
+            let by = variants["by"].as_str().unwrap();
+            let token = map.get(by).and_then(Value::as_str).unwrap_or("");
+            match variants["alternatives"].as_array().unwrap().iter().find(|a| a["when"] == token) {
+                Some(a) => members.extend(a["members"].as_array().unwrap()),
+                None => return self.fail(path, format!("{by} = {token:?} selects no alternative of {shape_name}")),
+            }
+        }
+        let declared: BTreeSet<&str> = members.iter().map(|m| m["member"].as_str().unwrap()).collect();
+        for k in map.keys() {
+            if !declared.contains(k.as_str()) {
+                self.fail(path, format!("undeclared member {k} in {shape_name}"));
+            }
+        }
+        for m in members {
+            let name = m["member"].as_str().unwrap();
+            let at = format!("{path}/{name}");
+            let Some(value) = map.get(name) else {
+                self.fail(&at, format!("missing member of {shape_name}"));
+                continue;
+            };
+            match self.null_ok(m["null"].as_str().unwrap(), map, name, value.is_null()) {
+                None => self.fail(&at, format!("unknown null rule {}", m["null"])),
+                Some(false) => self.fail(&at, format!("null is not as rule {} states", m["null"])),
+                Some(true) if value.is_null() => {}
+                Some(true) => self.check(value, &m["type"], &at),
+            }
+        }
+    }
+}
+
+fn shape_errors(table: &Value, document: &Value) -> Vec<String> {
+    let mut check = ShapeCheck::new(table, document);
+    check.object(document, "document", "");
+    check.errors
+}
+
+/// Every committed document has exactly the members, types and nulls the committed semantic
+/// table's `document_shape` declares, and its tables are sealed as the shape states.
+#[test]
+fn every_committed_document_conforms_to_the_document_shape() {
+    let table: Value = serde_json::from_str(SEMANTIC_TABLE).unwrap();
+    for (name, text, ..) in COMMITTED {
+        let d: Value = serde_json::from_str(text).unwrap();
+        let errors = shape_errors(&table, &d);
+        assert!(errors.is_empty(), "{name}: {errors:#?}");
+    }
+    // The check sees an undeclared member, a missing member and a wrong type.
+    let base = document("c2_separator_identities");
+    let mut d = base.clone();
+    d["rows"]["combined"]["rows"][0]["extra"] = json!(1);
+    assert!(shape_errors(&table, &d).iter().any(|e| e.contains("undeclared member extra")));
+    let mut d = base.clone();
+    d["request"].as_object_mut().unwrap().remove("directions");
+    assert!(shape_errors(&table, &d).iter().any(|e| e.contains("/request/directions: missing member")));
+    let mut d = base;
+    d["modal_basis"]["cluster_tolerance"]["value"] = json!("small");
+    assert!(!shape_errors(&table, &d).is_empty());
+}
+
+/// The member names no document of this family or its semantic table uses (`token` only in a
+/// standing object), and no published string is the literal "TBD".
+#[test]
+fn no_document_member_is_a_reserved_name() {
+    const RESERVED: [&str; 26] = ["payload", "content", "contents", "secret", "password", "credential", "path", "uri", "query",
+        "table", "sql", "classification", "privacy_class", "privacy_classification", "redistribution_status", "review_status",
+        "lifecycle_status", "provenance", "professional_claim", "field_class", "field_id", "record_id", "export_policy",
+        "user_intent", "local_private_intent", "explicit_local_private_intent"];
+    fn walk(v: &Value, parent: &str, at: &str, bad: &mut Vec<String>) {
+        match v {
+            Value::Object(map) => {
+                for (k, x) in map {
+                    let token_outside = k == "token" && !(parent.ends_with("standing") || parent == "standing");
+                    if RESERVED.contains(&k.as_str()) || token_outside {
+                        bad.push(format!("{at}/{k}"));
+                    }
+                    walk(x, k, &format!("{at}/{k}"), bad);
+                }
+            }
+            Value::Array(items) => items.iter().for_each(|x| walk(x, parent, at, bad)),
+            Value::String(s) if s == "TBD" => bad.push(format!("{at}: TBD")),
+            _ => {}
+        }
+    }
+    let mut texts: Vec<(&str, &str)> = COMMITTED.iter().map(|c| (c.0, c.1)).collect();
+    texts.push(("semantic table", SEMANTIC_TABLE));
+    for (name, text) in texts {
+        let mut bad = Vec::new();
+        walk(&serde_json::from_str(text).unwrap(), "", "", &mut bad);
+        assert!(bad.is_empty(), "{name}: {bad:?}");
     }
 }

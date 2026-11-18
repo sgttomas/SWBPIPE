@@ -70,17 +70,45 @@ pub enum RefusalCode {
     /// finite spectrum (REQ-001, Extraction premise).
     ExtractionBelowRigidFrequency,
     /// The spectrum document's inputs fail one of the document unit's own checks of the request,
-    /// the model's spectra, the modal basis statement, the census and the contributions (for
-    /// example a request choice the contributions were not formed under, a roster that is not the
-    /// census's, a census frame that is not orthonormal, or clusters that contradict the cluster
-    /// rule). No solved document is returned.
+    /// the model's spectra, the formation records, the modal basis statement, the census and the
+    /// rows (for example a formation record that is not the bound request's spectrum and scale
+    /// factor, a roster that is not the census's, a census frame that is not orthonormal, or
+    /// clusters that contradict the cluster rule). No solved document is returned.
     DocumentInputInvalid,
-    /// A value the document would carry is outside the checked canonical profile (not finite, or of
-    /// magnitude 2^53 or more), so its hashes cannot be formed. No solved document is returned.
+    /// An input the document binds or carries, a number or integer it would publish, or the
+    /// assembled document is outside the checked canonical profile (too deep for the checked
+    /// parse, not finite, or of magnitude 2^53 or more), so its hashes cannot be formed. No solved
+    /// document is returned.
     DocumentOutsideCanonicalProfile,
 }
 
 impl RefusalCode {
+    /// Every code, in declaration order.
+    pub const ALL: [RefusalCode; 22] = [
+        Self::RecordInvalid,
+        Self::DampingOutOfRange,
+        Self::DampingMismatch,
+        Self::FrequencyOutsideRange,
+        Self::QueryFrequencyInvalid,
+        Self::ScaleFactorInvalid,
+        Self::EvaluationAccuracyUnsupported,
+        Self::MethodChoiceMissing,
+        Self::CqcDampingUnsupported,
+        Self::DirectionInvalid,
+        Self::ModalMetadataInvalid,
+        Self::RowInvalid,
+        Self::ContributionInvalid,
+        Self::ContributionNotPeriodic,
+        Self::RigidFrequencyInvalid,
+        Self::RigidResponseInvalid,
+        Self::RigidResponsePremiseMismatch,
+        Self::CombinationAccuracyUnsupported,
+        Self::CombinationNonfinite,
+        Self::ExtractionBelowRigidFrequency,
+        Self::DocumentInputInvalid,
+        Self::DocumentOutsideCanonicalProfile,
+    ];
+
     pub const fn as_str(self) -> &'static str {
         match self {
             Self::RecordInvalid => "SPECTRUM_RECORD_INVALID",

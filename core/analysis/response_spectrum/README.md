@@ -334,21 +334,50 @@ cargo run --manifest-path core/analysis/response_spectrum/Cargo.toml --example c
 `openpipestress.result_semantics/spectrum-1`, canonical profile `openpipestress_jcs_ijson_v1`).
 
 - **Bindings.** The model document and the spectrum request are each bound by the SHA-256 of their
-  canonical text. A modal result is bound by its run id and its own binding digests (request,
-  model, materials, integrity parameters, and a state case where one is named), not by a digest of
-  the whole modal document. A document built without a modal result states the binding as not
+  canonical text, after an iterative check of their depth. A modal result is bound by its run id and
+  its own binding digests (request, materials and integrity parameters, the model digest where one
+  is supplied, and a state case where one is named), not by a digest of the whole modal document;
+  the run id is checked against the modal family's derivation from the request and
+  integrity-parameter digests. A document built without a modal result states the binding as not
   applicable, with its reason.
+- **Formation records.** The signed contributions enter as `SignedContributions`, which carries for
+  each requested direction the spectrum identity, the digest of that spectrum's record in the model
+  that supplied the table, and the scale factor the contributions were formed with. The assembler
+  refuses a direction whose record is missing or repeated, or is not the bound request's spectrum
+  and scale factor (bit for bit) and the bound model's record. This establishes which choices and
+  which record the producer was told the contributions were formed with, and that they are the
+  bound ones; it does not establish that the contributions were formed correctly.
 - **What it states.** The experimental admission and origin, the request choices as read, the
   normalized spectra, the modal basis as stated to it (modes with frequencies and circular
   frequencies, clusters, cluster tolerance, standings, state, extraction endpoint), the standing,
   the disclosure operands (each frequency's location in each spectrum, the extraction premise, the
-  missing-mass fractions with their stated arithmetic), the census as supplied, the signed rows with
-  their sign conventions, the signed cluster sums, the unsigned combined rows and the rule
-  statements.
+  missing-mass masses and fractions with their stated arithmetic), the census as supplied (each
+  rigid constraint with `held`: `single` or `jointly_undivided`), the signed rows with their sign
+  conventions, the signed cluster sums, the unsigned combined rows and the rule statements,
+  including the closeness rule of the grouping and ten percent methods. The semantic table's
+  `document_shape` declares every member of every object, its type and when it may be null.
+- **Stages.** The assembler checks, in order, stopping at the first stage that refuses: the
+  bindings; the inputs against one another (request, spectra, combination input, formation records,
+  modal statement, census, origin); the rows' own fields (`SPECTRUM_ROW_INVALID`), the roster and
+  the restrained components; the modes' structure (`SPECTRUM_MODAL_METADATA_INVALID`), the range and
+  the extraction premise; the combinations; the published numbers; and the document as a whole.
 - **What it refuses**, each as `SPECTRUM_DOCUMENT_INPUT_INVALID` unless named otherwise:
-  - a request choice the contributions were not formed under, or a damping ratio that is not the
-    spectra's;
+  - a combination input whose methods, missing-mass fields or directions are not the request's, or
+    whose damping ratio is not the spectra's;
+  - a requested direction with a formation record missing, repeated, or not the request's spectrum
+    and scale factor and the model's record; a model that holds more than one spectrum of an
+    identity a requested direction names;
   - a modal statement that does not state every extracted mode;
+  - an extraction statement whose endpoint, counts and next computed mode disagree: the whole finite
+    spectrum without an established count equal to the reported count, or with a next computed
+    mode; below a computed cluster without a reported mode or without both next-frequency values,
+    or with the next frequency below the last reported one; below the lowest mode with a reported
+    mode or without both next-frequency values; an established count below the reported count, or
+    not above it where a next computed mode is stated; blank completion evidence;
+  - a bound modal result whose digests are not 64 lowercase hexadecimal digits, whose run id is not
+    the modal family's, or whose state case has a blank id; an unbound one with a blank reason;
+  - a total or effective mass that is negative, or an effective mass that is not zero where the
+    total is zero (a nonfinite one is `SPECTRUM_DOCUMENT_OUTSIDE_CANONICAL_PROFILE`);
   - stated clusters that contradict the cluster rule on the stated circular frequencies and
     cluster tolerance beyond the modal reader's margin (16u(1 + δ_c)·ω_b², in binary64 with the
     modal reader's expressions), including between the last extracted mode and the next computed
@@ -356,21 +385,29 @@ cargo run --manifest-path core/analysis/response_spectrum/Cargo.toml --example c
   - a circular frequency w with |w − c·f| > 8u·w, where c = 2.0·π in binary64;
   - a census frame whose rows are not orthonormal and right-handed to 2^-40, or a rod axis that is
     not a unit vector to 2^-40;
-  - an entity that occurs twice in its census table, or a rigid constraint with no holder or with
-    a holder named twice;
+  - an entity that occurs twice in its census table (compared by its identity fields), or a rigid
+    constraint with no holder or with a holder named twice;
   - a census that names a node or connector it does not hold;
   - a modal result binding that does not match the origin;
-  - a roster that is not the census's;
+  - a row the roster does not give, a roster row with no row, a row supplied twice, or a row whose
+    member family or holder set is not the census's (the holders' order is not compared; the
+    document states them in the census's order);
+  - a node displacement or rotation row whose component a census rigid constraint restrains at
+    that node, with a nonzero contribution or rigid value;
   - a periodic frequency or f_r outside a spectrum's range, and an applied correction whose
     extraction premise fails (`SPECTRUM_EXTRACTION_BELOW_RIGID_FREQUENCY`);
-  - a value outside the canonical profile (`SPECTRUM_DOCUMENT_OUTSIDE_CANONICAL_PROFILE`);
+  - a model, request or modal state too deep for the checked parse at its place, an integer of
+    2^53 or more, a number passed to the document's number encoder that is nonfinite or of
+    magnitude 2^53 or more, or an assembled document outside the profile
+    (`SPECTRUM_DOCUMENT_OUTSIDE_CANONICAL_PROFILE`);
   - anything the combinations refuse.
 
   The `refused` document carries the refusals of the first stage that refused.
-- **Allocation** (by reading the code; not measured). With Q rows, M extracted modes (P periodic),
-  C clusters (C₂ periodic of more than one mode), D directions, S spectra of K knots and E census
-  entries, the document holds O(Q·D·(P + 1) + Q·D·C₂ + M + C + K + E + P²) values. Each row is
-  sealed on its own; no table is formatted into an intermediate string.
+- **Allocation** (by reading the code; not measured) is stated in the module documentation of
+  `src/document.rs`: what the document holds, what the checks before the combinations and the
+  projection hold (ordered maps and sets, the checksum arrays, the three texts held while hashing,
+  the row copies), and the time of the per-cell lookups and the knot search. The ten percent
+  method's coupled pairs can be quadratic in the periodic clusters.
 
 `fixtures/results/semantic_contract_spectrum_1.json` is the semantic table
 (`document::spectrum_semantic_table`). The committed documents `fixtures/results/spectrum_*.json`,

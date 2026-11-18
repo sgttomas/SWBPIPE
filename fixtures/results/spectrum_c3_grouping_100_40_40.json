@@ -75,12 +75,13 @@
       "status": "published"
     },
     "rigid_constraints": {
-      "digest": "600ffb6d77005e0012158803a0f4f8062f57f9898ff8df6c1de01b83e51a796b",
+      "digest": "fe157b0f45bc4b781eee54ad1323242ffe06dc6273f20e8b926d88e75b47ac60",
       "row_count": 6,
       "rows": [
         {
-          "checksum": "908bd4fb18ffb5b130270ae84e5c1d5ef85d30a12a0fd1eb319785d2c51fe00d",
+          "checksum": "6f6dd4e97d74fe1b6136992b44faef119ae4d4e03249745c260647a289989f55",
           "component": "UX",
+          "held": "single",
           "holders": [
             "A1"
           ],
@@ -89,8 +90,9 @@
           "row_id": "rigid-constraint:1"
         },
         {
-          "checksum": "c7a88859eb027ec3d5b76140a5cd57c1afc80b03f89dbdeaa3a7dba07cae1f73",
+          "checksum": "20a70fde2e28b503469181df6acee68ce3c3e30cdcef099b1ee1f2ce147b84be",
           "component": "UY",
+          "held": "single",
           "holders": [
             "A1"
           ],
@@ -99,8 +101,9 @@
           "row_id": "rigid-constraint:2"
         },
         {
-          "checksum": "43e4c71bf84a2fe2c1b4c6336c14b64bbbf7c3dd7278e82ac11e3700728af8c9",
+          "checksum": "a70c67d4426abcda45c446bafc1097de196a73319a44bf1a46b38998e0d936b9",
           "component": "UZ",
+          "held": "single",
           "holders": [
             "A1"
           ],
@@ -109,8 +112,9 @@
           "row_id": "rigid-constraint:3"
         },
         {
-          "checksum": "f011047eace86b689a350cd31829d31edd25055a191ad3cabb06eccb60a3a61d",
+          "checksum": "8e115addafefcb04e7ca04c7af5eaa66e4bda18877d4582f9b0ad8b0d1dd0586",
           "component": "RX",
+          "held": "single",
           "holders": [
             "A1"
           ],
@@ -119,8 +123,9 @@
           "row_id": "rigid-constraint:4"
         },
         {
-          "checksum": "a9b6b251abd28406bf6d3ad72758de806ac1a2e45d916c3ed456c8a8b071eecb",
+          "checksum": "e56dc0e9ffbf86cfa5b1e4e87e68c2b5a3bb18b1a7d1782eb446a151bcaa130e",
           "component": "RY",
+          "held": "single",
           "holders": [
             "A1"
           ],
@@ -129,8 +134,9 @@
           "row_id": "rigid-constraint:5"
         },
         {
-          "checksum": "44746cf22a3c9c9eaf25d25d2b125fde312da78c068203790f411f6a506f4056",
+          "checksum": "6a1d1b413237d08ab6729fd7ddcc6fff42f4c89b058b980072665e55aad1ebf2",
           "component": "RZ",
+          "held": "single",
           "holders": [
             "A1"
           ],
@@ -358,7 +364,7 @@
       "status": "published"
     },
     "missing_mass": {
-      "arithmetic": "S is the exact sum of the stated binary64 effective masses of the periodic modes, rounded once to the nearest binary64 (ties to even). The cumulative fraction is the binary64 quotient S / T, rounded to nearest. The unrepresented fraction is U / T, rounded to nearest, where U is the exact difference T - S rounded once to the nearest binary64 (ties to even). T is the stated total mass of the direction, which includes the mass that moves with the supports. Where T is zero both fractions are undefined.",
+      "arithmetic": "E is the exact sum of the stated binary64 effective masses of the periodic modes. S is E rounded once to the nearest binary64 (ties to even). U is the exact difference T − E, rounded once the same way. U is not T minus the published S, and the two can differ: where E rounds to T, T minus the published S is zero while the mass the periodic modes leave out is not. The cumulative fraction is the binary64 quotient of the published S by T and the unrepresented fraction the binary64 quotient of the published U by T, each rounded to nearest; they state what fraction of the published total each published mass is, and are recomputable from the published values. T is the stated total mass of the direction, which includes the mass that moves with the supports. Where T is zero both fractions are undefined.",
       "directions": {
         "digest": "37509cbebb8c64134b2ec3906aebda210c982b30c69c2eca7bd1e2bb5a058034",
         "row_count": 3,
@@ -1561,8 +1567,9 @@
   "origin": {
     "constructed": [
       "The rules are those of one entry of the reference analysis's published mutations grid, not its base request's; the request stand-in states them. The contributions, rigid responses and modal basis are the analysis's own.",
+      "The member axes stated in the census are constructed by this writer from the reference's node coordinates and each member's y_reference, by REQ-006's definition (x from end i to end j, y the part of the reference vector normal to x, normalized, z = x cross y); the reference does not state them as vectors. Each is a signed permutation of the global axes.",
       "The member-axes contributions are the reference's global contributions mapped by the signed permutation of each member's axis-aligned frame; each combined magnitude is formed from them.",
-      "Except where stated above, each entity identity and the spectra are the reference's. The model document is a stand-in in the model document's shape, not a schema-checked model; its materials, sections and support families are placeholders, not checked against the reference. The spectrum request is this unit's stand-in shape."
+      "Except where stated above, each entity identity and the spectra are the reference's. The model document is a stand-in in the model document's shape, not a schema-checked model; its materials, sections and support families are placeholders, not checked against the reference. The spectrum request is this unit's stand-in shape. The extraction endpoint, the reported and established mode counts and the completion evidence sentence in modal_basis are derived by this writer from the reference's mode list and its Sturm evidence; they are not fields of the reference. Each direction's formation record (its spectrum, the digest of that spectrum's record in the model stand-in, and its scale factor) is this writer's statement of the reference's request."
     ],
     "kind": "constructed_from_reference",
     "produced_by_spectrum_solve": false,
@@ -1657,7 +1664,7 @@
       "status": "published"
     },
     "combined": {
-      "digest": "d6852280fe22fd0f68ef7f4f35bd258b7cfe9ae20a6dbf4d1787fb44c7c263d5",
+      "digest": "5ab194e3c6c00bb9b7dbd8f1b57a5fa80b56bad43bc86012d49eed6906316d8f",
       "row_count": 132,
       "rows": [
         {
@@ -6293,13 +6300,14 @@
           "unit": "unit:newton_meter"
         },
         {
-          "checksum": "29598b0ae5ca4af0db92aee8bbb8757347994576f0996cac800faf435e393980",
+          "checksum": "72b21ec19eef7c992e4079667978e77fb037b433f9a0859d3c7311215ef0dcc4",
           "combined": 2790.8995120225327,
           "component": "UX",
           "end": null,
           "entity_kind": "rigid_constraint",
           "frame": "global_axes",
           "governing_direction": "X",
+          "held": "single",
           "holders": [
             "A1"
           ],
@@ -6332,13 +6340,14 @@
           "unit": "unit:newton"
         },
         {
-          "checksum": "bab24828357c0bcdcb8b5da926a3b1bcc87daa039641d57e7f5311a4d370fdb8",
+          "checksum": "b5368464cd2720564e320d0f055ad315b373e160410995c92f8da32e769cca32",
           "combined": 2889.7810351268286,
           "component": "UY",
           "end": null,
           "entity_kind": "rigid_constraint",
           "frame": "global_axes",
           "governing_direction": "Y",
+          "held": "single",
           "holders": [
             "A1"
           ],
@@ -6371,13 +6380,14 @@
           "unit": "unit:newton"
         },
         {
-          "checksum": "c920f5c491084b69c1b057b7c26ab641ec59f3e239505b2016d148e23f2f06b7",
+          "checksum": "1403fad6d8b2e8b4180db8b36742abcbc078f495e7077d8c69d872c38d5b8580",
           "combined": 2218.281316606981,
           "component": "UZ",
           "end": null,
           "entity_kind": "rigid_constraint",
           "frame": "global_axes",
           "governing_direction": "Y",
+          "held": "single",
           "holders": [
             "A1"
           ],
@@ -6410,13 +6420,14 @@
           "unit": "unit:newton"
         },
         {
-          "checksum": "e7c9b63823eb4a5260450724be9780fbfa3fbb0c30eddc68adb596321809c692",
+          "checksum": "16afd54f883416f410a5f7d8f0e1f857e5000ea1eee05e1cbe826c9e05f2f96c",
           "combined": 2534.5068046394567,
           "component": "RX",
           "end": null,
           "entity_kind": "rigid_constraint",
           "frame": "global_axes",
           "governing_direction": "Z",
+          "held": "single",
           "holders": [
             "A1"
           ],
@@ -6449,13 +6460,14 @@
           "unit": "unit:newton_meter"
         },
         {
-          "checksum": "c7597fce6dced7d10d0b6223d3fb5e1282474221af8f4819e262f23b015bcea2",
+          "checksum": "91170cccd2d6a22587ef2268b836ddaca555945b70bb00f7c2373e50bcc72374",
           "combined": 5489.850427537856,
           "component": "RY",
           "end": null,
           "entity_kind": "rigid_constraint",
           "frame": "global_axes",
           "governing_direction": "Y",
+          "held": "single",
           "holders": [
             "A1"
           ],
@@ -6488,13 +6500,14 @@
           "unit": "unit:newton_meter"
         },
         {
-          "checksum": "0fa28eba8191441142ce4148677dd740d4b72ca93ff678e9ae0a00e5ba4d1199",
+          "checksum": "81ba0eb3a374849d64adc16e3b17312f92c771c351fe1e4e271017c429ac44fd",
           "combined": 6753.162741837128,
           "component": "RZ",
           "end": null,
           "entity_kind": "rigid_constraint",
           "frame": "global_axes",
           "governing_direction": "Y",
+          "held": "single",
           "holders": [
             "A1"
           ],
@@ -6590,7 +6603,7 @@
       "Z"
     ],
     "signed": {
-      "digest": "e7868394d1f697c92f7943b9eaccc357e42a7f69fadf75214cea5160fa08cc21",
+      "digest": "e3526f629488fc5bb50b3584e3118f7a18eedcbaa176472115657bff7900be0a",
       "row_count": 132,
       "rows": [
         {
@@ -12360,11 +12373,12 @@
           "unit": "unit:newton_meter"
         },
         {
-          "checksum": "bf31700da2cfb070f7bfd71d6ab8f00fefd52d5cfeec80d8f6934f1b671ef9e0",
+          "checksum": "ccee4fe82ca19ade46e40acef0c43685ec95064d2749bf3e69db5ec0906f1e9d",
           "component": "UX",
           "end": null,
           "entity_kind": "rigid_constraint",
           "frame": "global_axes",
+          "held": "single",
           "holders": [
             "A1"
           ],
@@ -12408,11 +12422,12 @@
           "unit": "unit:newton"
         },
         {
-          "checksum": "8c360d9c6b03ad89725becd6c183f5f057f2f6e9a68abdadcd6e6719bc4a2bde",
+          "checksum": "9d031d6fc5e02a8191befbd84b6872f6267dae7302828fced8e1ce3ecdfd7892",
           "component": "UY",
           "end": null,
           "entity_kind": "rigid_constraint",
           "frame": "global_axes",
+          "held": "single",
           "holders": [
             "A1"
           ],
@@ -12456,11 +12471,12 @@
           "unit": "unit:newton"
         },
         {
-          "checksum": "9950db5602b0d1ecc41ae93c46c597fee3826398a84c0aea4adce016ed868ef9",
+          "checksum": "93cb9f1593a8d3c10d0c44f4f90fd536cb9e2bcc70fee8629823f8a4110d2850",
           "component": "UZ",
           "end": null,
           "entity_kind": "rigid_constraint",
           "frame": "global_axes",
+          "held": "single",
           "holders": [
             "A1"
           ],
@@ -12504,11 +12520,12 @@
           "unit": "unit:newton"
         },
         {
-          "checksum": "79d9954ac2474cc7e8fa496bdfddda6865f3620787dafe8dfa18fac3c0f8fbe3",
+          "checksum": "76a9eeabd7bdeba7f88500fa326fa54d0137548422d2bd81f8e1590bfcd3a71b",
           "component": "RX",
           "end": null,
           "entity_kind": "rigid_constraint",
           "frame": "global_axes",
+          "held": "single",
           "holders": [
             "A1"
           ],
@@ -12552,11 +12569,12 @@
           "unit": "unit:newton_meter"
         },
         {
-          "checksum": "5476a1d127d8dd07ba3c482e47c5999d489b080622efcda0fd60fa192de4a353",
+          "checksum": "852960906186397f465360576670596d12c257c0cbea865b48b9c8a0336e40b4",
           "component": "RY",
           "end": null,
           "entity_kind": "rigid_constraint",
           "frame": "global_axes",
+          "held": "single",
           "holders": [
             "A1"
           ],
@@ -12600,11 +12618,12 @@
           "unit": "unit:newton_meter"
         },
         {
-          "checksum": "e473168abf452dca39b37574480d2984120fc0f1b17e8aa8c251afdee4c0c0e7",
+          "checksum": "1b82488a88a1a4eba3f6cbd4db7c07f4eeb74047796d1dbcde25adb14d5b5a46",
           "component": "RZ",
           "end": null,
           "entity_kind": "rigid_constraint",
           "frame": "global_axes",
+          "held": "single",
           "holders": [
             "A1"
           ],
@@ -12652,6 +12671,7 @@
     }
   },
   "rule_statements": {
+    "closeness_rule": "Periodic clusters in ascending order form groups. A group starts at a cluster, whose standing frequency f_g is the group's lowest, and takes each next cluster whose standing frequency f satisfies (f − f_g) / f_g ≤ 1/10; the next cluster that does not starts a new group. The comparison is decided exactly on the represented frequencies.",
     "correlation": null,
     "coupled_pairs": null,
     "groups": {
@@ -12706,7 +12726,7 @@
   "schema_version": "0.1.0",
   "semantic_contract": {
     "id": "openpipestress.result_semantics/spectrum-1",
-    "sha256": "81ad795536c53966cb390bef35fc93395f67f5e74d2af39e30da4698542e95c0"
+    "sha256": "318f40b2679cb72794f83dc8701841a9af047f344836916fe3e04b08b4aa60fb"
   },
   "spectra": {
     "digest": "250ed4531dec5ab86b62f2540cc6b75a348f2497d4704917fec5cc972fd8029e",
