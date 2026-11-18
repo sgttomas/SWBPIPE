@@ -39,6 +39,11 @@ without a verified inverse-norm bound. This violates exit criterion 18;
 names the maintained false-pass and false-state witness and the limits of the
 rendered report's disclosure. These tokens are not independent assurance.
 
+A separate [structured quantity-edit defect, LIM-027](docs/RELEASE_LIMITATIONS_v1.0.md#lim-027--a-bare-structured-quantity-edit-can-store-its-number-beside-the-old-unit),
+can store a bare entered number beside the old unit and publish a result for
+that unintended physical input. The entry identifies the executed witness and
+which authoring paths it does and does not establish.
+
 ## Start here
 
 - [User guide](docs/user_guide/index.md): model workflows, result interpretation and documented limitations; check each section's stated implementation basis.
