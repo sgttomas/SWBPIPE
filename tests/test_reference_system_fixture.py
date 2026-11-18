@@ -1,10 +1,11 @@
 #!/usr/bin/env python3
 """The reference-system fixture, tranche 1 (DEL-09-01, exit criterion 1).
 
-Checks that the committed files are the generator's output, that the model is a current model document, that it
-solves on EX with every tranche-1 case solved and nothing refused, that the generator's ledger and the authoring
-file's pending flags agree, that no key result carries an expected value without a recorded basis, EQ-1/2/3/5 in
-both solver modes, and KR-05's presence (the tee's rows, no values). Invented inputs only."""
+Checks that the committed files are the generator's output, that the model is a current model document and a desktop
+document (its data boundary stated, no authored diagnostic), that it solves on EX with every tranche-1 case solved and
+nothing refused, that the generator's ledger and the authoring file's pending flags agree, that no key result carries an
+expected value without a recorded basis, EQ-1/2/3/5 in both solver modes, and KR-05's presence (the tee's rows, no
+values). Invented inputs only."""
 
 from __future__ import annotations
 
@@ -102,6 +103,20 @@ def test_the_model_validates_as_the_current_model_document():
                                           "shear_model": "euler_bernoulli"}
     try:
         validate_instance(schema, MODEL, schema_label=str(SCHEMA), instance_label=GENERATOR.MODEL_FILE)
+    except JsonSchemaDependencyMissing as exc:
+        _skip_or_note_missing_jsonschema(exc)
+
+
+def test_the_model_is_a_desktop_document_with_its_boundary_and_no_authored_diagnostic():
+    """Spec §2: the fixture opens in the desktop as it is; the solver's diagnostics stay solve output."""
+    desktop = {"$schema": "https://json-schema.org/draft/2020-12/schema",
+               "$ref": "https://openpipestress.org/schemas/model.schema.yaml#/$defs/DesktopDocument"}
+    assert MODEL["data_boundary"] == GENERATOR.DATA_BOUNDARY
+    assert set(MODEL["data_boundary"]) == {"public_examples_policy", "protected_source_policy", "private_data_policy",
+                                           "professional_boundary"}
+    assert MODEL["diagnostics"] == []
+    try:
+        validate_instance(desktop, MODEL, schema_label="DesktopDocument", instance_label=GENERATOR.MODEL_FILE)
     except JsonSchemaDependencyMissing as exc:
         _skip_or_note_missing_jsonschema(exc)
 

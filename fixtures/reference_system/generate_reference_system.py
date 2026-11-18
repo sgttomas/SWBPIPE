@@ -6,7 +6,9 @@ commercial example or a project. The specification's tables are held here as dat
 generator writes three files beside itself:
 
 - `reference_system.json`: the model document, tranche 1 (every family the §10 ledger marks
-  "in tranche 1"), on the exact route EX;
+  "in tranche 1"), on the exact route EX, in the desktop's open profile
+  (`schemas/model.schema.yaml` `$defs/DesktopDocument`): it states its data boundary and carries no
+  authored diagnostic;
 - `authoring.json`: the authoring marks, the bend corners and the pending ledger (RT-E1's input);
 - `key_results.json`: the named results and equilibrium references of §9, each expected value naming its
   frozen record under `validation/references/reference_system/` (EXPECTED).
@@ -64,6 +66,15 @@ PROVENANCE = ("invented reference-system fixture input (DEL-09-01); "
 SOURCE = "invented user value, DEL-09-01"
 ROUTE = {"version": "3.0.0", "mode": "exact_pressure_v3", "shear_model": "euler_bernoulli"}
 GRAVITY = {"value": -9.80665, "unit": "m/s^2", "axis": "global_z"}  # spec §2: standard gravity along -Z
+# spec §2: the desktop's data-boundary statement (schemas/model.schema.yaml $defs/DataBoundary). It states what the
+# fixture is and holds; no provenance record, contributor certification or review disposition is recorded for it.
+DATA_BOUNDARY = {
+    "public_examples_policy": "invented_test_object_DEL-09-01_committed_in_public_repository_"
+                              "no_provenance_review_disposition_recorded",
+    "protected_source_policy": "no_standard_supplier_catalogue_commercial_example_or_project_content_copied",
+    "private_data_policy": "no_private_project_material_rule_pack_or_owner_data_bundled",
+    "professional_boundary": "test_object_not_a_design_human_review_required_no_code_compliance_or_professional_approval",
+}
 
 # -- §3.1 nodes (m) -------------------------------------------------------------------------------------------------
 NODES = [
@@ -595,6 +606,7 @@ def base_model():
         "schema_version": MODEL_DOCUMENT_VERSION,
         "document_kind": "openpipestress.product_preview.model",
         "pressure_contract": dict(ROUTE),
+        "data_boundary": dict(DATA_BOUNDARY),
         "project": {"id": "project:RS", "name": "Reference system (invented)",
                     "description": "Invented reference system for exit criterion 1 (DEL-09-01), "
                                    "tranche 1; a test object, not a design",
@@ -621,6 +633,7 @@ def base_model():
             "provenance": PROVENANCE}],
         "load_cases": [],
         "combinations": [],
+        "diagnostics": [],  # no authored diagnostic; a solve reports its own
     }
 
 
@@ -768,7 +781,7 @@ def authoring(model):
                 fields = [path for path in leaf_paths({k: v for k, v in entity.items() if k != "id"})]
             inputs.append({"collection": collection, "id": entity["id"],
                            "fields": {path: ("person" if path in person else "agent_authorable") for path in fields}})
-    for key in ("schema_version", "pressure_contract", "project", "analysis_status"):
+    for key in ("schema_version", "pressure_contract", "data_boundary", "project", "analysis_status"):
         inputs.append({"collection": "document", "id": key, "fields": {key: "agent_authorable"}})
     bends = []
     for tag, corner, radius, k, sif_in, sif_out, incoming, outgoing, tangents, arc in BENDS:
