@@ -286,7 +286,10 @@ def _read_case(source: Mapping, case: str) -> _Case:
         _require(consistent(fm, c[:3]) and consistent(mm, c[3:]), "MAGNITUDE")
         if s.source is not None:
             published = action(s.source[0], COMPONENT, COMPONENTS[s.source[1]])
-            _require(published is not None and _bits(abs(published)) == _bits(s.normal[1]), "NORMAL")
+            # A one-way or lift-off source (DEL-04-04 REQ-012): +0 unless its state is active.
+            bearing_inactive = any(other.id == s.source[0] and other.state != "active" for other in supports)
+            expected = None if published is None else (0.0 if bearing_inactive else abs(published))
+            _require(expected is not None and _bits(expected) == _bits(s.normal[1]), "NORMAL")
     diagnostics = _items(source.get("diagnostics"))
 
     def refs(d: Any) -> list:
@@ -323,6 +326,9 @@ def _read_case(source: Mapping, case: str) -> _Case:
     _require(len(quality) == 1, "STANDING")
     solve_quality = _get(quality[0], "solve_quality")
     solve_quality = solve_quality if isinstance(solve_quality, str) else ""
+    # An inspection-only evaluation belongs only to a blocked document; _read has established that this one is solved,
+    # so it is named, never read as a standing.
+    _require(code != "NUMERICAL_INTEGRITY_INSPECTION_ONLY", "INSPECTION_ONLY_IN_SOLVED_DOCUMENT")
     tokens = STANDING_QUALITY.get(code)
     _require(tokens is not None, "STANDING_CODE")
     fields = tuple(_get(quality[0], f) for f in ("structural_status", "solve_quality", "model_matrix_fidelity", "accuracy_evidence"))
@@ -364,7 +370,11 @@ def _free_row_residual(nonlinear: list, translational: bool) -> None:
 
 
 def _read(source: Mapping) -> list[_Case]:
-    return [_read_case(source, case) for case in _case_ids(_items(source.get("results")))]
+    cases = _case_ids(_items(source.get("results")))
+    # DEL-04-07 (the Rust twin): a document whose mechanics are not solved publishes no result, so nonlinear rows in
+    # one are refused before any case's verdict is read.
+    _require(not cases or _get(source, "status", "mechanics") == "MECHANICS_SOLVED", "ROWS_IN_UNSOLVED_DOCUMENT")
+    return [_read_case(source, case) for case in cases]
 
 
 def check(source: Mapping[str, Any]) -> None:
@@ -435,6 +445,22 @@ def _model_input(support: Mapping) -> _Input:
     return item
 
 
+def _bearing_normal_bound(inputs: list, published: list, named: str, at: int, n: float) -> bool:
+    """Rust ``bearing_normal_bound``: from the model's one-way or lift-off support, on its own DOF, s·R while active
+    and positive, else +0; any other (linear) source unchanged."""
+    source = next((i for i in inputs if isinstance(i.id, str) and i.id == named), None)
+    if source is None:
+        return True
+    if source.behavior not in ("one_way", "lift_off") or source.dof != at:
+        return False
+    state = next((s for s in published if s.id == named), None)
+    if state is None:
+        return False
+    bearing = source.sense * state.reaction
+    expected = bearing if state.state == "active" and bearing > 0.0 else 0.0
+    return _bits(expected) == _bits(n)
+
+
 def model_checks(source: Mapping[str, Any], model: Mapping[str, Any]) -> None:
     """Rust ``nonlinear_support_evidence::model_checks``: the rows bound to the model's nonlinear supports and the
     DEC-067 laws that need their inputs; a solved envelope only."""
@@ -469,7 +495,8 @@ def model_checks(source: Mapping[str, Any], model: Mapping[str, Any]) -> None:
                     bound = item.explicit_normal is not None and _bits(item.explicit_normal) == _bits(s.normal[1])
                 elif s.normal is not None and s.normal[0] and s.source is not None:
                     bound = item.source is not None and isinstance(item.source[0], str) \
-                        and item.source[0] == s.source[0] and item.source[1] == s.source[1]
+                        and item.source[0] == s.source[0] and item.source[1] == s.source[1] \
+                        and _bearing_normal_bound(inputs, case.supports, s.source[0], s.source[1], s.normal[1])
                 else:
                     bound = False
             else:

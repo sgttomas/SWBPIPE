@@ -1,0 +1,1035 @@
+{
+  "closed_form": [
+    {
+      "basis": "section identity; invented inputs",
+      "formula": "pi/4 (OD^2 - (OD - 2t)^2)",
+      "quantity": "metal_area",
+      "unit": "m^2",
+      "value": 0.0006926737420674799
+    },
+    {
+      "basis": "weight identity; invented inputs",
+      "formula": "rho A g, g = 9.80665",
+      "quantity": "weight_per_length",
+      "unit": "N/m",
+      "value": 53.323550278271505
+    },
+    {
+      "basis": "mass identity; invented inputs; straights plus quarter arcs",
+      "formula": "rho A (sum of legs - 2 R (legs - 1) + (pi/2) R (legs - 1))",
+      "quantity": "total_mass",
+      "unit": "kg",
+      "value": 40.35898391735756
+    }
+  ],
+  "compared_quantities": [
+    {
+      "bind": "mode order, with SWBPIPE's cluster identifier",
+      "quantity": "frequency"
+    },
+    {
+      "component": "x, y, z",
+      "node": "every node",
+      "quantity": "displacement"
+    },
+    {
+      "component": "x, y, z (global)",
+      "quantity": "reaction_force",
+      "support": "support:A and support:B"
+    },
+    {
+      "component": "x, y, z (global)",
+      "quantity": "reaction_moment",
+      "support": "support:A and support:B"
+    }
+  ],
+  "comparison_conventions": [
+    "For quantities with a nonzero named continuum prediction, relative deviation = (value \u2212 continuum) / |continuum|. This convention defines no comparison where that prediction is absent.",
+    "where a mode's two largest translational components are equal in magnitude, the shape's sign and the participation factor's sign are not compared; frequency, effective mass and combined magnitudes are"
+  ],
+  "document_kind": "openpipestress.caepipe_benchmark.model",
+  "dynamic_request": {
+    "conditions": [
+      "every extracted mode lies strictly inside the table (SWBPIPE refuses outside it; the other program uses the end value)",
+      "the mode count cuts at a wide gap, so that a different mass formulation does not change which modes are extracted"
+    ],
+    "other_program_settings": {
+      "cutoff_frequency_hz": 900.0,
+      "gravitational_acceleration_m_per_s2": 9.80665,
+      "gravitational_direction": "-Y",
+      "include_missing_mass": 0,
+      "note": "the capture also takes every other mode sum and direction sum the program offers, as declared variants of this file; the comparable setting is the one stated here",
+      "number_of_modes": 7,
+      "spectrum_direction_sum": "SRSS",
+      "spectrum_mode_sum": "SRSS"
+    },
+    "spectra": [
+      {
+        "abscissa": "frequency",
+        "abscissa_unit": "Hz",
+        "damping_ratio": 0.05,
+        "id": "spectrum:dyn-flat",
+        "interpolation": {
+          "abscissa": "linear",
+          "ordinate": "linear"
+        },
+        "ordinate": "pseudo_spectral_acceleration",
+        "ordinate_other_program": "acceleration in mm/sec2 (multiply each ordinate by 1000)",
+        "ordinate_unit": "m/s^2",
+        "points": [
+          [
+            0.125,
+            2.5
+          ],
+          [
+            1000.0,
+            2.5
+          ]
+        ]
+      }
+    ],
+    "swbpipe_modal_request": {
+      "frequency_cutoff": null,
+      "mode_count": 7
+    },
+    "swbpipe_spectrum_request": {
+      "directional_combination": "srss",
+      "directions": [
+        {
+          "direction": "X",
+          "scale_factor": 1.0,
+          "spectrum": "spectrum:dyn-flat"
+        },
+        {
+          "direction": "Y",
+          "scale_factor": 0.8,
+          "spectrum": "spectrum:dyn-flat"
+        },
+        {
+          "direction": "Z",
+          "scale_factor": 0.6,
+          "spectrum": "spectrum:dyn-flat"
+        }
+      ],
+      "missing_mass": {
+        "apply": false,
+        "rigid_combination_series": [],
+        "rigid_frequency_hz": null
+      },
+      "modal_combination": "srss"
+    }
+  },
+  "family": "DYN-M",
+  "family_description": "a three-leg run in three planes (X, then up Y, then Z) with two realized 90 degree bends, anchored at both ends, under spectra in three directions",
+  "folded_from": "folded into the seeded generator from the dynamics lane's wrapper files, dynamics family draft 4, 2026-11-12: the model members by the same arithmetic, byte for byte; the reference values quoted from tools/caepipe_correlation/dynamics_reference_quotes.json",
+  "generator": {
+    "seed": 20261028,
+    "version": "caepipe-benchmark-generator-1"
+  },
+  "inexact_input_sizes": {
+    "bend_mass_formulation": "SWBPIPE carries a realized bend's mass as two rigid half-arc bodies, each with its half-arc's exact mass, centroid and second moments; each bend here is 0.0191 of the developed length",
+    "mass_formulation": "no prediction: this layout has no closed form. On the straight case C the difference between a consistent and a lumped mass at members of this length is tabulated in validation/references/f2_spectrum",
+    "shear_deformation": "ESTIMATE, not a reference value: SWBPIPE has no shear deformation in dynamics; the shortest leg here is over 30 outside diameters"
+  },
+  "inexact_inputs": {
+    "case:weight": [
+      "shear_deformation",
+      "bend_flexibility_application",
+      "bend_transverse_shear",
+      "rigid_support_stiffness"
+    ],
+    "dynamic": [
+      "mass_formulation",
+      "bend_mass_formulation",
+      "shear_deformation",
+      "bend_flexibility_application",
+      "bend_transverse_shear"
+    ],
+    "operating": [
+      "shear_deformation",
+      "bend_flexibility_application",
+      "bend_transverse_shear",
+      "rigid_support_stiffness"
+    ]
+  },
+  "mode_count_basis": {
+    "cumulative_effective_mass_fraction_extracted": {
+      "x": 0.408,
+      "y": 0.829,
+      "z": 0.486
+    },
+    "frequencies_hz_rounded": [
+      5.415,
+      10.117,
+      10.945,
+      33.186,
+      34.118,
+      47.503,
+      48.537,
+      70.283
+    ],
+    "note": "the response is truncated at these modes on both sides alike; no missing mass is requested",
+    "relative_gap_after_last_extracted_mode": 0.309,
+    "repeated_clusters_within_extracted_modes": false,
+    "smallest_relative_gap_within_extracted_modes": 0.0213,
+    "what": "SWBPIPE's own modal solve of this model (in-crate, the production criteria, branch head c8c602df6; an experimental surface, not a released result and NOT a reference value). Given so the mode count can be seen to cut at a wide gap and to hold no repeated cluster"
+  },
+  "model": {
+    "analysis_status": {
+      "mechanics": "ready_for_preview_diagnostics",
+      "professional_acceptance": "not_provided",
+      "rule_check": "not_performed_user_rule_inputs_missing"
+    },
+    "combinations": [],
+    "components": [
+      {
+        "geometry": {
+          "bend_angle": {
+            "unit": "rad",
+            "value": 1.5707963267948966
+          },
+          "bend_geometry_source_reference": "invented benchmark bend (dynamics family draft)",
+          "bend_pipe_ref": "pipe:BEND1",
+          "bend_radius": {
+            "unit": "m",
+            "value": 0.09045
+          }
+        },
+        "id": "component:BEND1",
+        "kind": "bend",
+        "mechanics_interface": {
+          "solver_consumption": "curved_bend_macro_element"
+        },
+        "modifiers": {
+          "flexibility_factor_user_value": {
+            "unit": "none",
+            "value": 1.0
+          },
+          "source_reference": "invented benchmark value (dynamics family draft)"
+        },
+        "node": "node:BEND1-near",
+        "provenance": "invented CAEPIPE benchmark input (DEL-17-05; dynamics family draft, DEL-04-09 and DEL-04-10); not library, component, catalog, standard or code-rule data"
+      },
+      {
+        "geometry": {
+          "bend_angle": {
+            "unit": "rad",
+            "value": 1.5707963267948966
+          },
+          "bend_geometry_source_reference": "invented benchmark bend (dynamics family draft)",
+          "bend_pipe_ref": "pipe:BEND2",
+          "bend_radius": {
+            "unit": "m",
+            "value": 0.09045
+          }
+        },
+        "id": "component:BEND2",
+        "kind": "bend",
+        "mechanics_interface": {
+          "solver_consumption": "curved_bend_macro_element"
+        },
+        "modifiers": {
+          "flexibility_factor_user_value": {
+            "unit": "none",
+            "value": 1.0
+          },
+          "source_reference": "invented benchmark value (dynamics family draft)"
+        },
+        "node": "node:BEND2-near",
+        "provenance": "invented CAEPIPE benchmark input (DEL-17-05; dynamics family draft, DEL-04-09 and DEL-04-10); not library, component, catalog, standard or code-rule data"
+      }
+    ],
+    "document_kind": "openpipestress.product_preview.model",
+    "load_cases": [
+      {
+        "id": "case:weight",
+        "primitive_loads": [
+          {
+            "category": "weight",
+            "dimension": "force_per_length",
+            "direction": "global_y",
+            "id": "load:weight:pipe:P1",
+            "magnitude": {
+              "unit": "N/m",
+              "value": -53.323550278271505
+            },
+            "provenance": "invented CAEPIPE benchmark input (DEL-17-05; dynamics family draft, DEL-04-09 and DEL-04-10); not library, component, catalog, standard or code-rule data; w = -rho A g with g = 9.80665 m/s2 and A the bare metal area",
+            "target": {
+              "pipe": "pipe:P1",
+              "type": "element"
+            }
+          },
+          {
+            "category": "weight",
+            "dimension": "force_per_length",
+            "direction": "global_y",
+            "id": "load:weight:pipe:P2",
+            "magnitude": {
+              "unit": "N/m",
+              "value": -53.323550278271505
+            },
+            "provenance": "invented CAEPIPE benchmark input (DEL-17-05; dynamics family draft, DEL-04-09 and DEL-04-10); not library, component, catalog, standard or code-rule data; w = -rho A g with g = 9.80665 m/s2 and A the bare metal area",
+            "target": {
+              "pipe": "pipe:P2",
+              "type": "element"
+            }
+          },
+          {
+            "category": "weight",
+            "dimension": "force_per_length",
+            "direction": "global_y",
+            "id": "load:weight:pipe:P3",
+            "magnitude": {
+              "unit": "N/m",
+              "value": -53.323550278271505
+            },
+            "provenance": "invented CAEPIPE benchmark input (DEL-17-05; dynamics family draft, DEL-04-09 and DEL-04-10); not library, component, catalog, standard or code-rule data; w = -rho A g with g = 9.80665 m/s2 and A the bare metal area",
+            "target": {
+              "pipe": "pipe:P3",
+              "type": "element"
+            }
+          },
+          {
+            "category": "weight",
+            "dimension": "force_per_length",
+            "direction": "global_y",
+            "id": "load:weight:pipe:P4",
+            "magnitude": {
+              "unit": "N/m",
+              "value": -53.323550278271505
+            },
+            "provenance": "invented CAEPIPE benchmark input (DEL-17-05; dynamics family draft, DEL-04-09 and DEL-04-10); not library, component, catalog, standard or code-rule data; w = -rho A g with g = 9.80665 m/s2 and A the bare metal area",
+            "target": {
+              "pipe": "pipe:P4",
+              "type": "element"
+            }
+          },
+          {
+            "category": "weight",
+            "dimension": "force_per_length",
+            "direction": "global_y",
+            "id": "load:weight:pipe:BEND1",
+            "magnitude": {
+              "unit": "N/m",
+              "value": -53.323550278271505
+            },
+            "provenance": "invented CAEPIPE benchmark input (DEL-17-05; dynamics family draft, DEL-04-09 and DEL-04-10); not library, component, catalog, standard or code-rule data; w = -rho A g with g = 9.80665 m/s2 and A the bare metal area",
+            "target": {
+              "pipe": "pipe:BEND1",
+              "type": "element"
+            }
+          },
+          {
+            "category": "weight",
+            "dimension": "force_per_length",
+            "direction": "global_y",
+            "id": "load:weight:pipe:P5",
+            "magnitude": {
+              "unit": "N/m",
+              "value": -53.323550278271505
+            },
+            "provenance": "invented CAEPIPE benchmark input (DEL-17-05; dynamics family draft, DEL-04-09 and DEL-04-10); not library, component, catalog, standard or code-rule data; w = -rho A g with g = 9.80665 m/s2 and A the bare metal area",
+            "target": {
+              "pipe": "pipe:P5",
+              "type": "element"
+            }
+          },
+          {
+            "category": "weight",
+            "dimension": "force_per_length",
+            "direction": "global_y",
+            "id": "load:weight:pipe:P6",
+            "magnitude": {
+              "unit": "N/m",
+              "value": -53.323550278271505
+            },
+            "provenance": "invented CAEPIPE benchmark input (DEL-17-05; dynamics family draft, DEL-04-09 and DEL-04-10); not library, component, catalog, standard or code-rule data; w = -rho A g with g = 9.80665 m/s2 and A the bare metal area",
+            "target": {
+              "pipe": "pipe:P6",
+              "type": "element"
+            }
+          },
+          {
+            "category": "weight",
+            "dimension": "force_per_length",
+            "direction": "global_y",
+            "id": "load:weight:pipe:P7",
+            "magnitude": {
+              "unit": "N/m",
+              "value": -53.323550278271505
+            },
+            "provenance": "invented CAEPIPE benchmark input (DEL-17-05; dynamics family draft, DEL-04-09 and DEL-04-10); not library, component, catalog, standard or code-rule data; w = -rho A g with g = 9.80665 m/s2 and A the bare metal area",
+            "target": {
+              "pipe": "pipe:P7",
+              "type": "element"
+            }
+          },
+          {
+            "category": "weight",
+            "dimension": "force_per_length",
+            "direction": "global_y",
+            "id": "load:weight:pipe:BEND2",
+            "magnitude": {
+              "unit": "N/m",
+              "value": -53.323550278271505
+            },
+            "provenance": "invented CAEPIPE benchmark input (DEL-17-05; dynamics family draft, DEL-04-09 and DEL-04-10); not library, component, catalog, standard or code-rule data; w = -rho A g with g = 9.80665 m/s2 and A the bare metal area",
+            "target": {
+              "pipe": "pipe:BEND2",
+              "type": "element"
+            }
+          },
+          {
+            "category": "weight",
+            "dimension": "force_per_length",
+            "direction": "global_y",
+            "id": "load:weight:pipe:P8",
+            "magnitude": {
+              "unit": "N/m",
+              "value": -53.323550278271505
+            },
+            "provenance": "invented CAEPIPE benchmark input (DEL-17-05; dynamics family draft, DEL-04-09 and DEL-04-10); not library, component, catalog, standard or code-rule data; w = -rho A g with g = 9.80665 m/s2 and A the bare metal area",
+            "target": {
+              "pipe": "pipe:P8",
+              "type": "element"
+            }
+          },
+          {
+            "category": "weight",
+            "dimension": "force_per_length",
+            "direction": "global_y",
+            "id": "load:weight:pipe:P9",
+            "magnitude": {
+              "unit": "N/m",
+              "value": -53.323550278271505
+            },
+            "provenance": "invented CAEPIPE benchmark input (DEL-17-05; dynamics family draft, DEL-04-09 and DEL-04-10); not library, component, catalog, standard or code-rule data; w = -rho A g with g = 9.80665 m/s2 and A the bare metal area",
+            "target": {
+              "pipe": "pipe:P9",
+              "type": "element"
+            }
+          },
+          {
+            "category": "weight",
+            "dimension": "force_per_length",
+            "direction": "global_y",
+            "id": "load:weight:pipe:P10",
+            "magnitude": {
+              "unit": "N/m",
+              "value": -53.323550278271505
+            },
+            "provenance": "invented CAEPIPE benchmark input (DEL-17-05; dynamics family draft, DEL-04-09 and DEL-04-10); not library, component, catalog, standard or code-rule data; w = -rho A g with g = 9.80665 m/s2 and A the bare metal area",
+            "target": {
+              "pipe": "pipe:P10",
+              "type": "element"
+            }
+          },
+          {
+            "category": "weight",
+            "dimension": "force_per_length",
+            "direction": "global_y",
+            "id": "load:weight:pipe:P11",
+            "magnitude": {
+              "unit": "N/m",
+              "value": -53.323550278271505
+            },
+            "provenance": "invented CAEPIPE benchmark input (DEL-17-05; dynamics family draft, DEL-04-09 and DEL-04-10); not library, component, catalog, standard or code-rule data; w = -rho A g with g = 9.80665 m/s2 and A the bare metal area",
+            "target": {
+              "pipe": "pipe:P11",
+              "type": "element"
+            }
+          }
+        ],
+        "provenance": "invented CAEPIPE benchmark input (DEL-17-05; dynamics family draft, DEL-04-09 and DEL-04-10); not library, component, catalog, standard or code-rule data"
+      }
+    ],
+    "materials": [
+      {
+        "elastic_modulus": {
+          "unit": "Pa",
+          "value": 200000000000.0
+        },
+        "id": "material:dyn-a",
+        "provenance": "invented CAEPIPE benchmark input (DEL-17-05; dynamics family draft, DEL-04-09 and DEL-04-10); not library, component, catalog, standard or code-rule data",
+        "shear_modulus": {
+          "unit": "Pa",
+          "value": 78125000000.0
+        },
+        "temperature_points": [],
+        "thermal_expansion_coefficient": {
+          "unit": "1/degC",
+          "value": 1.2e-05
+        }
+      }
+    ],
+    "nodes": [
+      {
+        "id": "node:A",
+        "position": {
+          "x": 0.0,
+          "y": 0.0,
+          "z": 0.0
+        },
+        "provenance": "invented CAEPIPE benchmark input (DEL-17-05; dynamics family draft, DEL-04-09 and DEL-04-10); not library, component, catalog, standard or code-rule data"
+      },
+      {
+        "id": "node:L1M1",
+        "position": {
+          "x": 0.7273875,
+          "y": 0.0,
+          "z": 0.0
+        },
+        "provenance": "invented CAEPIPE benchmark input (DEL-17-05; dynamics family draft, DEL-04-09 and DEL-04-10); not library, component, catalog, standard or code-rule data"
+      },
+      {
+        "id": "node:L1M2",
+        "position": {
+          "x": 1.454775,
+          "y": 0.0,
+          "z": 0.0
+        },
+        "provenance": "invented CAEPIPE benchmark input (DEL-17-05; dynamics family draft, DEL-04-09 and DEL-04-10); not library, component, catalog, standard or code-rule data"
+      },
+      {
+        "id": "node:L1M3",
+        "position": {
+          "x": 2.1821625,
+          "y": 0.0,
+          "z": 0.0
+        },
+        "provenance": "invented CAEPIPE benchmark input (DEL-17-05; dynamics family draft, DEL-04-09 and DEL-04-10); not library, component, catalog, standard or code-rule data"
+      },
+      {
+        "id": "node:BEND1-near",
+        "position": {
+          "x": 2.90955,
+          "y": 0.0,
+          "z": 0.0
+        },
+        "provenance": "invented CAEPIPE benchmark input (DEL-17-05; dynamics family draft, DEL-04-09 and DEL-04-10); not library, component, catalog, standard or code-rule data"
+      },
+      {
+        "id": "node:BEND1-far",
+        "position": {
+          "x": 3.0,
+          "y": 0.09045,
+          "z": 0.0
+        },
+        "provenance": "invented CAEPIPE benchmark input (DEL-17-05; dynamics family draft, DEL-04-09 and DEL-04-10); not library, component, catalog, standard or code-rule data"
+      },
+      {
+        "id": "node:L2M1",
+        "position": {
+          "x": 3.0,
+          "y": 0.6968166666666668,
+          "z": 0.0
+        },
+        "provenance": "invented CAEPIPE benchmark input (DEL-17-05; dynamics family draft, DEL-04-09 and DEL-04-10); not library, component, catalog, standard or code-rule data"
+      },
+      {
+        "id": "node:L2M2",
+        "position": {
+          "x": 3.0,
+          "y": 1.3031833333333334,
+          "z": 0.0
+        },
+        "provenance": "invented CAEPIPE benchmark input (DEL-17-05; dynamics family draft, DEL-04-09 and DEL-04-10); not library, component, catalog, standard or code-rule data"
+      },
+      {
+        "id": "node:BEND2-near",
+        "position": {
+          "x": 3.0,
+          "y": 1.90955,
+          "z": 0.0
+        },
+        "provenance": "invented CAEPIPE benchmark input (DEL-17-05; dynamics family draft, DEL-04-09 and DEL-04-10); not library, component, catalog, standard or code-rule data"
+      },
+      {
+        "id": "node:BEND2-far",
+        "position": {
+          "x": 3.0,
+          "y": 2.0,
+          "z": 0.09045
+        },
+        "provenance": "invented CAEPIPE benchmark input (DEL-17-05; dynamics family draft, DEL-04-09 and DEL-04-10); not library, component, catalog, standard or code-rule data"
+      },
+      {
+        "id": "node:L3M1",
+        "position": {
+          "x": 3.0,
+          "y": 2.0,
+          "z": 0.6928375
+        },
+        "provenance": "invented CAEPIPE benchmark input (DEL-17-05; dynamics family draft, DEL-04-09 and DEL-04-10); not library, component, catalog, standard or code-rule data"
+      },
+      {
+        "id": "node:L3M2",
+        "position": {
+          "x": 3.0,
+          "y": 2.0,
+          "z": 1.2952249999999998
+        },
+        "provenance": "invented CAEPIPE benchmark input (DEL-17-05; dynamics family draft, DEL-04-09 and DEL-04-10); not library, component, catalog, standard or code-rule data"
+      },
+      {
+        "id": "node:L3M3",
+        "position": {
+          "x": 3.0,
+          "y": 2.0,
+          "z": 1.8976125
+        },
+        "provenance": "invented CAEPIPE benchmark input (DEL-17-05; dynamics family draft, DEL-04-09 and DEL-04-10); not library, component, catalog, standard or code-rule data"
+      },
+      {
+        "id": "node:B",
+        "position": {
+          "x": 3.0,
+          "y": 2.0,
+          "z": 2.5
+        },
+        "provenance": "invented CAEPIPE benchmark input (DEL-17-05; dynamics family draft, DEL-04-09 and DEL-04-10); not library, component, catalog, standard or code-rule data"
+      }
+    ],
+    "pipe_segments": [
+      {
+        "from": "node:A",
+        "id": "pipe:P1",
+        "material": "material:dyn-a",
+        "provenance": "invented CAEPIPE benchmark input (DEL-17-05; dynamics family draft, DEL-04-09 and DEL-04-10); not library, component, catalog, standard or code-rule data",
+        "section": {
+          "material_density": {
+            "unit": "kg/m^3",
+            "value": 7850.0
+          },
+          "outside_diameter": {
+            "unit": "m",
+            "value": 0.0603
+          },
+          "wall_thickness": {
+            "unit": "m",
+            "value": 0.00391
+          }
+        },
+        "to": "node:L1M1",
+        "y_reference": {
+          "x": 0.0,
+          "y": 1.0,
+          "z": 0.0
+        }
+      },
+      {
+        "from": "node:L1M1",
+        "id": "pipe:P2",
+        "material": "material:dyn-a",
+        "provenance": "invented CAEPIPE benchmark input (DEL-17-05; dynamics family draft, DEL-04-09 and DEL-04-10); not library, component, catalog, standard or code-rule data",
+        "section": {
+          "material_density": {
+            "unit": "kg/m^3",
+            "value": 7850.0
+          },
+          "outside_diameter": {
+            "unit": "m",
+            "value": 0.0603
+          },
+          "wall_thickness": {
+            "unit": "m",
+            "value": 0.00391
+          }
+        },
+        "to": "node:L1M2",
+        "y_reference": {
+          "x": 0.0,
+          "y": 1.0,
+          "z": 0.0
+        }
+      },
+      {
+        "from": "node:L1M2",
+        "id": "pipe:P3",
+        "material": "material:dyn-a",
+        "provenance": "invented CAEPIPE benchmark input (DEL-17-05; dynamics family draft, DEL-04-09 and DEL-04-10); not library, component, catalog, standard or code-rule data",
+        "section": {
+          "material_density": {
+            "unit": "kg/m^3",
+            "value": 7850.0
+          },
+          "outside_diameter": {
+            "unit": "m",
+            "value": 0.0603
+          },
+          "wall_thickness": {
+            "unit": "m",
+            "value": 0.00391
+          }
+        },
+        "to": "node:L1M3",
+        "y_reference": {
+          "x": 0.0,
+          "y": 1.0,
+          "z": 0.0
+        }
+      },
+      {
+        "from": "node:L1M3",
+        "id": "pipe:P4",
+        "material": "material:dyn-a",
+        "provenance": "invented CAEPIPE benchmark input (DEL-17-05; dynamics family draft, DEL-04-09 and DEL-04-10); not library, component, catalog, standard or code-rule data",
+        "section": {
+          "material_density": {
+            "unit": "kg/m^3",
+            "value": 7850.0
+          },
+          "outside_diameter": {
+            "unit": "m",
+            "value": 0.0603
+          },
+          "wall_thickness": {
+            "unit": "m",
+            "value": 0.00391
+          }
+        },
+        "to": "node:BEND1-near",
+        "y_reference": {
+          "x": 0.0,
+          "y": 1.0,
+          "z": 0.0
+        }
+      },
+      {
+        "from": "node:BEND1-near",
+        "id": "pipe:BEND1",
+        "material": "material:dyn-a",
+        "provenance": "invented CAEPIPE benchmark input (DEL-17-05; dynamics family draft, DEL-04-09 and DEL-04-10); not library, component, catalog, standard or code-rule data",
+        "section": {
+          "material_density": {
+            "unit": "kg/m^3",
+            "value": 7850.0
+          },
+          "outside_diameter": {
+            "unit": "m",
+            "value": 0.0603
+          },
+          "wall_thickness": {
+            "unit": "m",
+            "value": 0.00391
+          }
+        },
+        "to": "node:BEND1-far",
+        "y_reference": {
+          "x": 0.7071067811865475,
+          "y": -0.7071067811865475,
+          "z": 0.0
+        }
+      },
+      {
+        "from": "node:BEND1-far",
+        "id": "pipe:P5",
+        "material": "material:dyn-a",
+        "provenance": "invented CAEPIPE benchmark input (DEL-17-05; dynamics family draft, DEL-04-09 and DEL-04-10); not library, component, catalog, standard or code-rule data",
+        "section": {
+          "material_density": {
+            "unit": "kg/m^3",
+            "value": 7850.0
+          },
+          "outside_diameter": {
+            "unit": "m",
+            "value": 0.0603
+          },
+          "wall_thickness": {
+            "unit": "m",
+            "value": 0.00391
+          }
+        },
+        "to": "node:L2M1",
+        "y_reference": {
+          "x": 1.0,
+          "y": 0.0,
+          "z": 0.0
+        }
+      },
+      {
+        "from": "node:L2M1",
+        "id": "pipe:P6",
+        "material": "material:dyn-a",
+        "provenance": "invented CAEPIPE benchmark input (DEL-17-05; dynamics family draft, DEL-04-09 and DEL-04-10); not library, component, catalog, standard or code-rule data",
+        "section": {
+          "material_density": {
+            "unit": "kg/m^3",
+            "value": 7850.0
+          },
+          "outside_diameter": {
+            "unit": "m",
+            "value": 0.0603
+          },
+          "wall_thickness": {
+            "unit": "m",
+            "value": 0.00391
+          }
+        },
+        "to": "node:L2M2",
+        "y_reference": {
+          "x": 1.0,
+          "y": 0.0,
+          "z": 0.0
+        }
+      },
+      {
+        "from": "node:L2M2",
+        "id": "pipe:P7",
+        "material": "material:dyn-a",
+        "provenance": "invented CAEPIPE benchmark input (DEL-17-05; dynamics family draft, DEL-04-09 and DEL-04-10); not library, component, catalog, standard or code-rule data",
+        "section": {
+          "material_density": {
+            "unit": "kg/m^3",
+            "value": 7850.0
+          },
+          "outside_diameter": {
+            "unit": "m",
+            "value": 0.0603
+          },
+          "wall_thickness": {
+            "unit": "m",
+            "value": 0.00391
+          }
+        },
+        "to": "node:BEND2-near",
+        "y_reference": {
+          "x": 1.0,
+          "y": 0.0,
+          "z": 0.0
+        }
+      },
+      {
+        "from": "node:BEND2-near",
+        "id": "pipe:BEND2",
+        "material": "material:dyn-a",
+        "provenance": "invented CAEPIPE benchmark input (DEL-17-05; dynamics family draft, DEL-04-09 and DEL-04-10); not library, component, catalog, standard or code-rule data",
+        "section": {
+          "material_density": {
+            "unit": "kg/m^3",
+            "value": 7850.0
+          },
+          "outside_diameter": {
+            "unit": "m",
+            "value": 0.0603
+          },
+          "wall_thickness": {
+            "unit": "m",
+            "value": 0.00391
+          }
+        },
+        "to": "node:BEND2-far",
+        "y_reference": {
+          "x": 0.0,
+          "y": 0.7071067811865475,
+          "z": -0.7071067811865475
+        }
+      },
+      {
+        "from": "node:BEND2-far",
+        "id": "pipe:P8",
+        "material": "material:dyn-a",
+        "provenance": "invented CAEPIPE benchmark input (DEL-17-05; dynamics family draft, DEL-04-09 and DEL-04-10); not library, component, catalog, standard or code-rule data",
+        "section": {
+          "material_density": {
+            "unit": "kg/m^3",
+            "value": 7850.0
+          },
+          "outside_diameter": {
+            "unit": "m",
+            "value": 0.0603
+          },
+          "wall_thickness": {
+            "unit": "m",
+            "value": 0.00391
+          }
+        },
+        "to": "node:L3M1",
+        "y_reference": {
+          "x": 0.0,
+          "y": 1.0,
+          "z": 0.0
+        }
+      },
+      {
+        "from": "node:L3M1",
+        "id": "pipe:P9",
+        "material": "material:dyn-a",
+        "provenance": "invented CAEPIPE benchmark input (DEL-17-05; dynamics family draft, DEL-04-09 and DEL-04-10); not library, component, catalog, standard or code-rule data",
+        "section": {
+          "material_density": {
+            "unit": "kg/m^3",
+            "value": 7850.0
+          },
+          "outside_diameter": {
+            "unit": "m",
+            "value": 0.0603
+          },
+          "wall_thickness": {
+            "unit": "m",
+            "value": 0.00391
+          }
+        },
+        "to": "node:L3M2",
+        "y_reference": {
+          "x": 0.0,
+          "y": 1.0,
+          "z": 0.0
+        }
+      },
+      {
+        "from": "node:L3M2",
+        "id": "pipe:P10",
+        "material": "material:dyn-a",
+        "provenance": "invented CAEPIPE benchmark input (DEL-17-05; dynamics family draft, DEL-04-09 and DEL-04-10); not library, component, catalog, standard or code-rule data",
+        "section": {
+          "material_density": {
+            "unit": "kg/m^3",
+            "value": 7850.0
+          },
+          "outside_diameter": {
+            "unit": "m",
+            "value": 0.0603
+          },
+          "wall_thickness": {
+            "unit": "m",
+            "value": 0.00391
+          }
+        },
+        "to": "node:L3M3",
+        "y_reference": {
+          "x": 0.0,
+          "y": 1.0,
+          "z": 0.0
+        }
+      },
+      {
+        "from": "node:L3M3",
+        "id": "pipe:P11",
+        "material": "material:dyn-a",
+        "provenance": "invented CAEPIPE benchmark input (DEL-17-05; dynamics family draft, DEL-04-09 and DEL-04-10); not library, component, catalog, standard or code-rule data",
+        "section": {
+          "material_density": {
+            "unit": "kg/m^3",
+            "value": 7850.0
+          },
+          "outside_diameter": {
+            "unit": "m",
+            "value": 0.0603
+          },
+          "wall_thickness": {
+            "unit": "m",
+            "value": 0.00391
+          }
+        },
+        "to": "node:B",
+        "y_reference": {
+          "x": 0.0,
+          "y": 1.0,
+          "z": 0.0
+        }
+      }
+    ],
+    "project": {
+      "id": "project:cpb-dyn-m-flat",
+      "name": "project:cpb-dyn-m-flat",
+      "units": {
+        "angle": "rad",
+        "force": "N",
+        "length": "m",
+        "pressure": "Pa",
+        "stress": "Pa",
+        "temperature": "degC"
+      }
+    },
+    "schema_version": "0.9.0",
+    "supports": [
+      {
+        "family": "anchor",
+        "id": "support:A",
+        "node": "node:A",
+        "provenance": "invented CAEPIPE benchmark input (DEL-17-05; dynamics family draft, DEL-04-09 and DEL-04-10); not library, component, catalog, standard or code-rule data",
+        "restraints": [
+          "UX",
+          "UY",
+          "UZ",
+          "RX",
+          "RY",
+          "RZ"
+        ]
+      },
+      {
+        "family": "anchor",
+        "id": "support:B",
+        "node": "node:B",
+        "provenance": "invented CAEPIPE benchmark input (DEL-17-05; dynamics family draft, DEL-04-09 and DEL-04-10); not library, component, catalog, standard or code-rule data",
+        "restraints": [
+          "UX",
+          "UY",
+          "UZ",
+          "RX",
+          "RY",
+          "RZ"
+        ]
+      }
+    ]
+  },
+  "model_id": "cpb-dyn-m-flat",
+  "parameters": {
+    "bend_radius": 0.09045,
+    "developed_length": 7.422357055517197,
+    "elastic_modulus": 200000000000.0,
+    "g": 9.80665,
+    "k": 1.0,
+    "legs": [
+      {
+        "axis": "x",
+        "corner_to_corner_length": 3.0,
+        "members": 4,
+        "sign": 1
+      },
+      {
+        "axis": "y",
+        "corner_to_corner_length": 2.0,
+        "members": 3,
+        "sign": 1
+      },
+      {
+        "axis": "z",
+        "corner_to_corner_length": 2.5,
+        "members": 4,
+        "sign": 1
+      }
+    ],
+    "metal_area": 0.0006926737420674799,
+    "od": 0.0603,
+    "rd": 1.5,
+    "rho": 7850.0,
+    "shear_modulus": 78125000000.0,
+    "total_mass": 40.35898391735756,
+    "wall": 0.00391,
+    "weight_per_length": 53.323550278271505
+  },
+  "piping_code": "B311-80",
+  "provenance": {
+    "contributor_note": "invented CAEPIPE benchmark input (DEL-17-05; dynamics family draft, DEL-04-09 and DEL-04-10); not library, component, catalog, standard or code-rule data",
+    "license": "project-original",
+    "origin": "invented",
+    "produced_by_caepipe": false,
+    "redistribution_status": "public_permissive"
+  },
+  "rank": 7,
+  "reference_temperature_c": 20.0,
+  "sampling": "single",
+  "screening_classes": {
+    "modal": "modal",
+    "response_spectrum": "response_spectrum",
+    "static": {
+      "case:weight": "named_inexact",
+      "operating": "named_inexact"
+    }
+  },
+  "series": [],
+  "third_value": "NONE for the dynamic response: no frequency or response closed form exists for this layout (its section, weight and mass identities do not check modal or spectrum response), and no independent reference has been generated for it, so agreement here compares two programs and is not a check against a third value",
+  "tranche": "3"
+}

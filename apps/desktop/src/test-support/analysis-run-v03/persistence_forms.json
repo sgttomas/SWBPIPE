@@ -230,12 +230,12 @@
   {
    "id": "preview:pressure",
    "js_text": {
-    "sha256": "57c70c096fd094fd7d9a31c53b630d31a370768b09e8d474a88c9d9a0698befe",
-    "length": 254705
+    "sha256": "1dc09edf5eb154fda54c870951c0231247b2758b78e5ecfd6b1547711c8933fb",
+    "length": 255029
    },
    "stringify_text": {
-    "sha256": "ed0987b7be70c7b49ef9129583d50272b48638a17a971ae2a99e8783e214488f",
-    "length": 254701
+    "sha256": "b207c0f699dae8db8cd93a632a3aa706ea4955556fdd5fc5d90e41f23194e899",
+    "length": 255025
    },
    "save": {
     "editor_intents": [
@@ -260,7 +260,7 @@
      "canonicalization": "rfc8785_jcs",
      "payload_scope": "model_payload",
      "payload_ref": "project:exact-pressure-connected-fixture",
-     "value": "sha256:f4ef1881023cd3f9a92de87d77522b96ccc5da71d25b6e7a356fd070b8de1787",
+     "value": "sha256:e8c2ceaf7d0ad281ae7634dc40bf4780f20bc6fe929b680f31275f7456b80e84",
      "hash_status": "computed_local_preview"
     },
     "envelope_hash": {
@@ -269,7 +269,7 @@
      "payload_scope": "project_envelope_payload",
      "payload_excludes": "storage_summary_and_envelope_hash_carrier_fields",
      "payload_ref": "project:exact-pressure-connected-fixture",
-     "value": "sha256:7abdc22db53e7dd121ffdc53d10c34bafe611f66093cbe6ae094f23cdb6fc42f",
+     "value": "sha256:d5d54c9c2697a3d42ddb59e6f88a98365d7941d217bd283f75717dab0f14ddf4",
      "hash_status": "computed_local_preview"
     },
     "model_only_envelope_hash": {
@@ -278,7 +278,7 @@
      "payload_scope": "project_envelope_payload",
      "payload_excludes": "storage_summary_and_envelope_hash_carrier_fields",
      "payload_ref": "project:exact-pressure-connected-fixture",
-     "value": "sha256:16fdf27dbef03cb6f3815a5860cdbf2819f1c7c922435370099fad0faa238eb1",
+     "value": "sha256:186521ceba48ce3d5e73b67597003b9a1d722c55284b1e27f182250548795edc",
      "hash_status": "computed_local_preview"
     }
    }
@@ -286,12 +286,12 @@
   {
    "id": "preview:pressure-source",
    "js_text": {
-    "sha256": "5bd099d9ecd48e1f421382596b6c8dcb61aee6c675600404162496177aedca54",
-    "length": 187574
+    "sha256": "46828f509da211e38c48ae46f6f44a472ca81f609b0ab588903bf5738b044311",
+    "length": 187730
    },
    "stringify_text": {
-    "sha256": "5bd099d9ecd48e1f421382596b6c8dcb61aee6c675600404162496177aedca54",
-    "length": 187574
+    "sha256": "46828f509da211e38c48ae46f6f44a472ca81f609b0ab588903bf5738b044311",
+    "length": 187730
    },
    "save": {
     "editor_intents": [
@@ -325,7 +325,7 @@
      "payload_scope": "project_envelope_payload",
      "payload_excludes": "storage_summary_and_envelope_hash_carrier_fields",
      "payload_ref": "synthetic:physics-source:n05",
-     "value": "sha256:d3f9ff6d6b7c9adc6417ab79ffbc20aad57b06c2c37be34dcb147785ebf1304d",
+     "value": "sha256:e57a1ee88522956af0ad16c54d27646489cee1c6171a18c529e0e50243adccc6",
      "hash_status": "computed_local_preview"
     },
     "model_only_envelope_hash": {

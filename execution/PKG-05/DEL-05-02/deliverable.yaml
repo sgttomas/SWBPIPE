@@ -93,6 +93,9 @@ code_paths:
 # The readers' re-derivation of combination rows, gates, standing and certificate, in the Rust
 # reader and in the separately written Python verifiers (tests/verifiers/** is otherwise
 # DEL-04-08's), with their corpora and tests.
+- core/reporting/report_standing/**
+- core/model_operations/operation_applier/tests/report_readability_blocked.rs
+- core/reporting/numerical_vocabulary/**
 - core/reporting/result_export/src/combination_graph.rs
 - core/reporting/result_export/src/combination_certificate.rs
 - core/reporting/result_export/src/exact_combination_evidence.rs
@@ -143,6 +146,10 @@ code_paths:
 - validation/references/rt_a4_combinations/**
 - validation/references/w16_exact_combinations/**
 - validation/references/op1b_difference_basis/**
+# Frozen before the engine work it judges: the declared difference basis on the exact route. No
+# product test reads it yet.
+- validation/references/exact_difference_basis/**
+- tests/test_exact_difference_basis_references.py
 - validation/references/op_mf_held_status/**
 - validation/references/combination_certificate/**
 # The ordinary result reader (OUT-002): dispatch, row semantics, standing and the load-reference,
@@ -151,6 +158,7 @@ code_paths:
 - core/reporting/result_export/src/preview_physics_evidence.rs
 - core/reporting/result_export/src/preview_magnitude_tests.rs
 - core/reporting/result_export/src/physics_evidence.rs
+- core/reporting/result_export/src/direct_view_tests.rs
 - core/reporting/result_export/src/arc_evidence.rs
 - core/reporting/result_export/src/connector_evidence.rs
 - core/reporting/result_export/src/load_reference.rs
@@ -167,6 +175,7 @@ code_paths:
 - core/reporting/result_export/tests/pressure_contract.rs
 - core/reporting/result_export/tests/preview_physics_contract.rs
 - core/reporting/result_export/tests/reader_verdict.rs
+- core/reporting/result_export/tests/reader_view_memory.rs
 - core/reporting/result_export/tests/fixtures/load_reference*
 - fixtures/results/loadReference*.cases.json
 - fixtures/results/pressure_*_mechanics_*.json
@@ -237,6 +246,8 @@ checks:
 - tests/test_preview_held_status.py
 # The ordinary result reader and its tests listed above.
 - core/reporting/result_export/tests/reader_verdict.rs
+- core/reporting/result_export/src/direct_view_tests.rs
+- core/reporting/result_export/tests/reader_view_memory.rs
 - tests/test_base_reader_verifier.py
 - tests/test_declared_member_load_reader.py
 - tests/test_pressure_source_corpus.py

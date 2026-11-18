@@ -15,7 +15,11 @@
 //! - constant-effort consumption, the W-8 topology checks
 //!   (`topology::append_topology_diagnostics`);
 //! - the restraint pre-checks: no support, fewer than six ground constraints,
-//!   and invalid support input.
+//!   and invalid support input;
+//! - equivalent-static generation's input checks
+//!   (`append_equivalent_static_input_findings`, issue 380), which the solve
+//!   runs at the same stage, after the restraint pre-checks and before its
+//!   first stiffness.
 //!
 //! It adds no rule and changes no number. Each check is the function the solve
 //! calls, with the same arguments; the only copies are the diagnostics the
@@ -190,5 +194,9 @@ fn pre_formation_checks(request: LinearStaticPreviewRequest) -> Vec<Diagnostic> 
             vec![finding.support_id.clone()],
         ));
     }
+    if has_blocking(&diagnostics) {
+        return diagnostics;
+    }
+    append_equivalent_static_input_findings(&model, resolved_cases.as_deref(), &mut diagnostics);
     diagnostics
 }

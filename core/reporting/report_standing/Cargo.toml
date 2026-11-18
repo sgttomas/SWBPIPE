@@ -1,0 +1,19 @@
+[package]
+name = "open_pipe_stress_report_standing"
+version = "0.1.0"
+edition = "2021"
+license = "MIT"
+description = "What the reader states of a published result's numerical standing for a report: readability beside eligibility, the historical health projection and the standing record (DEL-05-02 Standing, DEL-08-01 REQ-024)"
+publish = false
+
+[lib]
+path = "src/lib.rs"
+
+# Kept outside result_export so that the reader's priced crate, and the
+# lock files of the crates that depend on it, are unchanged by the report
+# standing (tools/retained_pricing: result_export is a priced source).
+[dependencies]
+open_pipe_stress_result_export = { path = "../result_export" }
+open_pipe_stress_numerical_vocabulary = { path = "../numerical_vocabulary" }
+serde = { version = "1", features = ["derive"] }
+serde_json = { version = "1", features = ["float_roundtrip"] }

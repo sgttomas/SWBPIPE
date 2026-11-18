@@ -7,6 +7,7 @@ import refusedPreviewSparse from "../../../fixtures/product_preview/invented_mec
 import { PREVIEW_PHYSICS_CONTRACT_ID } from "./features/results/numericalResultQuality";
 import { PREVIEW_PHYSICS_CONTRACT_SHA256 } from "./test-support/contractBindings";
 import { createNativeMechanicsReplay, createSolveJobTransport, nativeMechanicsReplayPair, REPLAY_COMMANDS, REPLAY_RESOURCE_GRANT, resultArrayBuffer, solveBytes } from "./test/nativeMechanicsReplay";
+import { REPORT_SOURCE_COMMANDS, reportSourceRegistration } from "./test/reportSourceRegistration";
 import { createNativePersistenceFake, isNativePersistenceCommand } from "./test/nativePersistenceFake";
 import { DisplayUnitsProvider, DisplayUnitSelector } from "./features/display-units";
 import { ComparisonPanel } from "./features/comparison/ComparisonPanel";
@@ -233,8 +234,11 @@ async function installPreviewReplay() {
   // T0R: the fresh ordinary route is preview-physics-2.
   const pair = nativeMechanicsReplayPair("sparse_interactive", { profile: "preview" });
   const mechanics = createNativeMechanicsReplay({ profile: "preview" });
+  const reportSource = reportSourceRegistration();
   const invoke = (command: string, args?: unknown, options?: unknown) => {
     if (command === "get_local_storage_capability") return Promise.resolve(storage);
+    // DEL-08-01 REQ-022: the report source registration the native process answers.
+    if (REPORT_SOURCE_COMMANDS.includes(command)) return reportSource(command, args);
     if (command === "load_design_knowledge") return Promise.resolve(knowledge);
     if (command === "sync_native_shell_state") return Promise.resolve(null);
     if (REPLAY_COMMANDS.includes(command)) return mechanics.invoke(command, args, options);
@@ -9222,18 +9226,23 @@ describe("SWBPIPE desktop preview", () => {
       "Blank Local Model",
     );
 
+    // DEL-07-07 REQ-008: "The Solve command is withheld, naming the findings" while a
+    // solve-blocking finding stands. A blank model's checks return three, so no solve starts.
+    const previewServiceForSolve = await import("./services/previewService");
+    const solveStart = vi.spyOn(previewServiceForSolve, "startPreviewMechanicsJob");
+    const { readSolveTimeline } = await import("./services/solveTimeline");
+    const timelineBefore = readSolveTimeline()?.sequence ?? null;
     fireEvent.click(await runMechanicsButton());
-    await waitFor(
-      () => {
-        expect(solveJobSummary().textContent).toContain(
-          "state=failed",
-        );
-        expect(solveJobSummary().textContent).toContain(
-          "result_rows=0",
-        );
-      },
-      { timeout: 10000 },
-    );
+    const withheld = await screen.findByRole("region", { name: "Solve is withheld" });
+    expect(within(withheld).getByTestId("solve-withheld-summary")).toHaveTextContent("3 solve-blocking findings stand for this model.");
+    for (const code of ["NODE_INPUT_MISSING", "PIPE_INPUT_MISSING", "LOAD_INPUT_MISSING"]) {
+      expect(within(withheld).getByRole("button", { name: new RegExp(`^${code} blocking`) })).toBeInTheDocument();
+    }
+    expect(solveJobSummary().textContent).toContain("state=not_started");
+    expect(solveJobSummary().textContent).toContain("result_rows=0");
+    expect(solveStart).not.toHaveBeenCalled();
+    expect(readSolveTimeline()?.sequence ?? null).toBe(timelineBefore);
+    expect(screen.queryByTestId("solve-progress-job")).not.toBeInTheDocument();
     fireEvent.click(screen.getByTestId("menu-file"));
     expect(
       screen.getByTestId("menu-item-file.save-report-package"),

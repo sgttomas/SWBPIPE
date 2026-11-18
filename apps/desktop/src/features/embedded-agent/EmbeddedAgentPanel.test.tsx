@@ -61,6 +61,24 @@ describe('minimal embedded agent panel',()=>{
   await screen.findByText('Provider settings could not be used. Check Keychain access and refresh settings.');
   expect(screen.getByLabelText('Agent authentication')).toHaveValue('keep');
  });
+ it('names the scripted build\'s Keychain refusal at save, at Start and at cleanup, never as a Keychain fault',async()=>{
+  const denial='This scripted test build refuses Keychain use, so saved API keys are unavailable. Save the provider with no API key.';
+  const {session,port}=setup();render(<EmbeddedAgentPanel session={session} active onReview={()=>{}}/>);await screen.findByText('Start agent');
+  port.start.mockResolvedValueOnce({status:'credential_error',error:{keychain:'smoke_configuration_denied'}});
+  fireEvent.click(screen.getByText('Start agent'));await screen.findByText(denial);
+  expect(screen.getByLabelText('Agent authentication')).toHaveValue('no_key');
+  expect(screen.queryByText(/Check Keychain access|Re-enter your key|Unlock/)).toBeNull();
+  fireEvent.change(screen.getByLabelText('Agent authentication'),{target:{value:'replace'}});
+  fireEvent.change(screen.getByLabelText('Agent API key'),{target:{value:'invented-fixture-credential'}});
+  port.provider.mockResolvedValueOnce({status:'credential_error',error:{keychain:'smoke_configuration_denied'},message:denial});
+  fireEvent.click(screen.getByText('Save provider'));
+  await waitFor(()=>expect(port.provider).toHaveBeenLastCalledWith(expect.objectContaining({kind:'provider_save',credentialMode:'replace'})));
+  await screen.findByText(denial);
+  fireEvent.change(screen.getByLabelText('Agent authentication'),{target:{value:'no_key'}});
+  port.provider.mockResolvedValueOnce({status:'ok',snapshot:{...settings,cleanupPending:null,cleanupError:'smoke_configuration_denied'}});
+  fireEvent.click(screen.getByText('Save provider'));
+  await screen.findByText('Provider saved; this scripted test build refuses Keychain use, so credential cleanup did not run.');
+ });
  it('requires an entered context window in range and sends no default',async()=>{
   const {session,port}=setup(false);render(<EmbeddedAgentPanel session={session} active onReview={()=>{}}/>);
   await screen.findByText('Save a provider and model to begin.');

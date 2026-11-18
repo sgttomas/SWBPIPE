@@ -278,6 +278,11 @@ pub fn physics_model_checks(source: &Value, model: &Value) -> Result<(), String>
     if model.get("pressure_contract").is_some_and(|v| !v.is_null()) {
         crate::section_basis::bind_shear_model(evidence, model)?;
     }
+    // DEL-04-07: a cancellation-screen exception's evidence is bound to the
+    // model's geometry and settings (`exception_model_binding`).
+    if model.get("nodes").is_some_and(|v| !v.is_null()) && model.get("pipe_segments").is_some_and(|v| !v.is_null()) {
+        crate::physics_evidence::exception_model_binding(source, model)?;
+    }
     if model.get("supports").is_some_and(|v| !v.is_null()) {
         let supports = ids(&model["supports"], "id");
         for row in source["results"].as_array().map(Vec::as_slice).unwrap_or(&[]) {
@@ -530,6 +535,9 @@ pub fn source_findings(source: &Value, invocation: &Value) -> Vec<&'static str> 
     }
     if source["status"]["mechanics"] != "MECHANICS_SOLVED" {
         findings.push("MECHANICS_NOT_SOLVED");
+    } else if crate::semantic_contract::carries_inspection_only(source) {
+        // An inspection-only evaluation belongs only to a blocked document.
+        findings.push("INTEGRITY_INSPECTION_ONLY_IN_SOLVED_DOCUMENT");
     }
     let mut seen = std::collections::HashSet::new();
     findings.retain(|f| seen.insert(*f));
@@ -578,8 +586,17 @@ pub fn standing(source: &Value, model: Option<&Value>, invocation: Option<&Value
     let route = match routed {
         Ok((route, _)) => route,
         Err(code) => {
+            // A pressure-2 result is refused with its message: it predates the pressure elongation
+            // setting and must be re-solved (DEL-04-07). Every other route error is unsupported.
             findings.push(
-                if matches!(code.as_str(), sc::RETAINED_PRECISION_DOWNGRADE_FORBIDDEN | "SOURCE_BLOCKS_DOWNGRADE_FORBIDDEN") || code == sc::MECHANICS_RESULT_VERSION_RETIRED { code } else { SOURCE_NUMERICAL_CONTRACT_UNSUPPORTED.into() },
+                if matches!(code.as_str(), sc::RETAINED_PRECISION_DOWNGRADE_FORBIDDEN | "SOURCE_BLOCKS_DOWNGRADE_FORBIDDEN")
+                    || code == sc::MECHANICS_RESULT_VERSION_RETIRED
+                    || code == sc::SOURCE_PRESSURE_2_RETIRED_TEXT
+                {
+                    code
+                } else {
+                    SOURCE_NUMERICAL_CONTRACT_UNSUPPORTED.into()
+                },
             );
             UNSUPPORTED
         }
@@ -631,6 +648,9 @@ pub fn standing(source: &Value, model: Option<&Value>, invocation: Option<&Value
     }
     if source["status"]["mechanics"] != "MECHANICS_SOLVED" {
         findings.push("MECHANICS_NOT_SOLVED".into());
+    } else if crate::semantic_contract::carries_inspection_only(source) {
+        // An inspection-only evaluation belongs only to a blocked document.
+        findings.push("INTEGRITY_INSPECTION_ONLY_IN_SOLVED_DOCUMENT".into());
     }
     done(findings)
 }

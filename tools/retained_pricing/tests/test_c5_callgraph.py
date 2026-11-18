@@ -36,9 +36,10 @@ def test_current_exact_inventory():
     # T4-U6/U8: FallbackError's methods at the priced source's lines, unchanged text (B7b: 744, 747, 763;
     # T4-U6/U8: 754, 757, 773; T4-S5 epoch 4: five lines added above them; W-16 stage 2 R-c (§8.29): +4, the
     # spring-ground parameter of support/support_record); S-K1 (§8.55): +35, the skew support and along-group code above
-    # them (text unchanged).
+    # them (text unchanged); RT-L2: +14, the wall increment by setting in pressure_adjustment and straight_stress_spans
+    # (text unchanged).
     assert {r["exclude_targets"][0] for r in rules} == {
-        CPP + ":798:add", CPP + ":801:mul", CPP + ":817:divided"}
+        CPP + ":812:add", CPP + ":815:mul", CPP + ":831:divided"}
     assert all(not r["caller"].startswith(CPP + ":") for r in rules)
 
 

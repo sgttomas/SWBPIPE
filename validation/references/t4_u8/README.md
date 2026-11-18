@@ -239,10 +239,11 @@ These conventions could not be confirmed from a vetted reference row:
 ## Reproduce and change
 
 ```
-python3 -I generators/u8_reference.py          # check: rebuild everything, compare byte for byte
-python3 -I generators/u8_reference.py --write  # rewrite the outputs (intentional changes only)
+python3 -I generators/u8_reference.py --pressure-elongation all          # check: rebuild everything, compare byte for byte
+python3 -I generators/u8_reference.py --write --pressure-elongation all  # rewrite the outputs (intentional changes only)
 ```
 
+The switch is there because the committed requests name every pressurised load case in `model_settings.pressure_elongation` (DEL-04-07); without it the generator builds them without that member and reports a mismatch.
 Check mode also fails on any cross-check disagreement or unexpected file.
 
 **Re-freeze rules.**

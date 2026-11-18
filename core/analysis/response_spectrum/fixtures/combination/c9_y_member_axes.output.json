@@ -1,0 +1,2689 @@
+{
+  "cluster_sums": [
+    {
+      "cluster": 1,
+      "direction": "Y",
+      "sign_status": "signed_cluster_sum",
+      "values": [
+        0.0,
+        76.55188701421459,
+        44.19725257463061,
+        0.0,
+        -481.6275925051438,
+        834.2034605459885,
+        0.0,
+        -76.33771429112653,
+        -44.07359989530264,
+        0.0,
+        398.8161490613666,
+        -690.7698330532498,
+        0.0,
+        76.33771429112653,
+        44.07359989530264,
+        0.0,
+        -398.8161490613666,
+        690.7698330532498,
+        0.0,
+        -74.91542839139653,
+        -43.25244274822892,
+        0.0,
+        316.7900090681576,
+        -548.6963910362543,
+        0.0,
+        74.91542839139653,
+        43.25244274822892,
+        0.0,
+        -316.7900090681576,
+        548.6963910362543,
+        0.0,
+        -71.28745134152119,
+        -41.15782922186961,
+        0.0,
+        237.41757537043682,
+        -411.21930315140986,
+        0.0,
+        71.28745134152119,
+        41.15782922186961,
+        0.0,
+        -237.41757537043682,
+        411.21930315140986,
+        0.0,
+        -64.68119997079378,
+        -37.34370821464581,
+        0.0,
+        163.52469421601603,
+        -283.2330786743043,
+        0.0,
+        64.68119997079378,
+        37.34370821464581,
+        0.0,
+        -163.52469421601603,
+        283.2330786743043,
+        0.0,
+        -54.537747889023436,
+        -31.487383424723625,
+        0.0,
+        98.65652042668394,
+        -170.87810587697334,
+        0.0,
+        54.537747889023436,
+        31.487383424723625,
+        0.0,
+        -98.65652042668394,
+        170.87810587697334,
+        0.0,
+        -40.491606083547154,
+        -23.37783967225624,
+        0.0,
+        46.85628208375224,
+        -81.15746122283818,
+        0.0,
+        40.491606083547154,
+        23.37783967225624,
+        0.0,
+        -46.85628208375224,
+        81.15746122283818,
+        0.0,
+        -22.339925066193086,
+        -12.897961750642645,
+        0.0,
+        12.471533211103369,
+        -21.60132916991366,
+        0.0,
+        22.339925066193086,
+        12.897961750642645,
+        0.0,
+        -12.471533211103369,
+        21.60132916991366,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0
+      ]
+    },
+    {
+      "cluster": 2,
+      "direction": "Y",
+      "sign_status": "signed_cluster_sum",
+      "values": [
+        -2.1913906444110434,
+        -24.040549772609687,
+        41.6394536480484,
+        0.0,
+        -442.2575625801549,
+        -255.33752280680022,
+        2.1913902293082144,
+        23.9682011113771,
+        -41.514142090933966,
+        0.0,
+        364.24279002756714,
+        210.29567287279622,
+        -2.1913902293082144,
+        -23.9682011113771,
+        41.514142090933966,
+        0.0,
+        -364.24279002756714,
+        -210.29567287279622,
+        2.191388983999885,
+        23.48844982566894,
+        -40.683188489090945,
+        0.0,
+        287.02314121775277,
+        165.71288784572153,
+        -2.191388983999885,
+        -23.48844982566894,
+        40.683188489090945,
+        0.0,
+        -287.02314121775277,
+        -165.71288784572153,
+        2.1913869084865265,
+        22.266914809856765,
+        -38.567427778479804,
+        0.0,
+        212.48611559150402,
+        122.67891603581279,
+        -2.1913869084865265,
+        -22.266914809856765,
+        38.567427778479804,
+        0.0,
+        -212.48611559150402,
+        -122.67891603581279,
+        2.1913840027689258,
+        20.047131771992007,
+        -34.72265077511845,
+        0.0,
+        143.4778616462557,
+        82.83698204421759,
+        -2.1913840027689258,
+        -20.047131771992007,
+        34.72265077511845,
+        0.0,
+        -143.4778616462557,
+        -82.83698204421759,
+        2.1913802668481828,
+        16.64633723741846,
+        -28.83230185513452,
+        0.0,
+        83.55619315420077,
+        48.24119061003818,
+        -2.1913802668481828,
+        -16.64633723741846,
+        28.83230185513452,
+        0.0,
+        -83.55619315420077,
+        -48.24119061003818,
+        2.191375700725714,
+        11.94796454969373,
+        -20.69448164710134,
+        0.0,
+        36.76243789230961,
+        21.224803413191854,
+        -2.191375700725714,
+        -11.94796454969373,
+        20.69448164710134,
+        0.0,
+        -36.76243789230961,
+        -21.224803413191854,
+        2.1913703044032484,
+        5.890238224934783,
+        -10.202191874271362,
+        0.0,
+        7.423856690936885,
+        4.286165658937615,
+        -2.1913703044032484,
+        -5.890238224934783,
+        10.202191874271362,
+        0.0,
+        -7.423856690936885,
+        -4.286165658937615,
+        2.191364077882831,
+        -1.5495283995195555,
+        2.6838619157387558,
+        0.0,
+        0.0,
+        0.0
+      ]
+    },
+    {
+      "cluster": 3,
+      "direction": "Y",
+      "sign_status": "signed_cluster_sum",
+      "values": [
+        0.0,
+        23.511884401257586,
+        13.57459278822143,
+        0.0,
+        -42.59216429228154,
+        73.77179255855253,
+        0.0,
+        -22.850644261045403,
+        -13.192825615270939,
+        0.0,
+        17.324775397571685,
+        -30.00739121831345,
+        0.0,
+        22.850644261045403,
+        13.192825615270939,
+        0.0,
+        -17.324775397571685,
+        30.00739121831345,
+        0.0,
+        -19.139864310117712,
+        -11.050405811699372,
+        0.0,
+        -5.748939419732191,
+        9.957455164611694,
+        0.0,
+        19.139864310117712,
+        11.050405811699372,
+        0.0,
+        5.748939419732191,
+        -9.957455164611694,
+        0.0,
+        -11.745520364412846,
+        -6.781279344165988,
+        0.0,
+        -22.758984468920225,
+        39.41971742884081,
+        0.0,
+        11.745520364412846,
+        6.781279344165988,
+        0.0,
+        22.758984468920225,
+        -39.41971742884081,
+        0.0,
+        -2.2290914568797984,
+        -1.2869665526778467,
+        0.0,
+        -30.396949826814197,
+        52.649061495164176,
+        0.0,
+        2.2290914568797984,
+        1.2869665526778467,
+        0.0,
+        30.396949826814197,
+        -52.649061495164176,
+        0.0,
+        6.497901242769838,
+        3.75156503168077,
+        0.0,
+        -27.86652055050788,
+        48.26622942364188,
+        0.0,
+        -6.497901242769838,
+        -3.75156503168077,
+        0.0,
+        27.86652055050788,
+        -48.26622942364188,
+        0.0,
+        11.244186755371167,
+        6.491834250031968,
+        0.0,
+        -17.772914628118,
+        30.783591134484492,
+        0.0,
+        -11.244186755371167,
+        -6.491834250031968,
+        0.0,
+        17.772914628118,
+        -30.783591134484492,
+        0.0,
+        9.50995943815471,
+        5.4905776416010434,
+        0.0,
+        -5.874439337243564,
+        10.174827398087094,
+        0.0,
+        -9.50995943815471,
+        -5.4905776416010434,
+        0.0,
+        5.874439337243564,
+        -10.174827398087094,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0
+      ]
+    },
+    {
+      "cluster": 4,
+      "direction": "Y",
+      "sign_status": "signed_cluster_sum",
+      "values": [
+        0.034065042381278096,
+        -7.786864509415908,
+        13.487244961963253,
+        0.0,
+        -42.28973677076045,
+        -24.41599090855696,
+        -0.03406481238099499,
+        7.567454090128763,
+        -13.107214968047927,
+        0.0,
+        17.18528820250001,
+        9.921930769814681,
+        0.03406481238099499,
+        -7.567454090128763,
+        13.107214968047927,
+        0.0,
+        -17.18528820250001,
+        -9.921930769814681,
+        -0.034064122383251516,
+        6.336388994495423,
+        -10.974947674986344,
+        0.0,
+        -5.735707066510982,
+        -3.3115120188429543,
+        0.034064122383251516,
+        -6.336388994495423,
+        10.974947674986344,
+        0.0,
+        5.735707066510982,
+        3.3115120188429543,
+        -0.03406297239736511,
+        3.8840711571053457,
+        -6.7274085843192974,
+        0.0,
+        -22.622758343410275,
+        -13.061255619379775,
+        0.03406297239736511,
+        -3.8840711571053457,
+        6.7274085843192974,
+        0.0,
+        22.622758343410275,
+        13.061255619379775,
+        -0.03406136243886473,
+        0.7296562581431754,
+        -1.263801711164572,
+        0.0,
+        -30.18748490674653,
+        -17.428752537067872,
+        0.03406136243886473,
+        -0.7296562581431754,
+        1.263801711164572,
+        0.0,
+        30.18748490674653,
+        17.428752537067872,
+        -0.034059292529490595,
+        -2.1600689757277687,
+        3.741349213813759,
+        0.0,
+        -27.645145091591388,
+        -15.960931960416548,
+        0.034059292529490595,
+        2.1600689757277687,
+        -3.741349213813759,
+        0.0,
+        27.645145091591388,
+        15.960931960416548,
+        -0.034056762697193925,
+        -3.726376084428818,
+        6.454272706340285,
+        0.0,
+        -17.59798932485402,
+        -10.160203873900628,
+        0.034056762697193925,
+        3.726376084428818,
+        -6.454272706340285,
+        0.0,
+        17.59798932485402,
+        10.160203873900628,
+        -0.034053772976136557,
+        -3.141012162360269,
+        5.44039265239977,
+        0.0,
+        -5.7846752647122965,
+        -3.339783821256214,
+        0.034053772976136557,
+        3.141012162360269,
+        -5.44039265239977,
+        0.0,
+        5.7846752647122965,
+        3.339783821256214,
+        -0.03405032340669048,
+        0.024077214582465863,
+        -0.04170295896156915,
+        0.0,
+        0.0,
+        0.0
+      ]
+    },
+    {
+      "cluster": 5,
+      "direction": "Y",
+      "sign_status": "signed_cluster_sum",
+      "values": [
+        0.0,
+        8.081664341284508,
+        4.66595108294081,
+        0.0,
+        -8.918176336627598,
+        15.446734525897483,
+        0.0,
+        -7.11744332759355,
+        -4.109257821128042,
+        0.0,
+        0.4466658944678192,
+        -0.7736480232264611,
+        0.0,
+        7.11744332759355,
+        4.109257821128042,
+        0.0,
+        -0.4466658944678192,
+        0.7736480232264611,
+        0.0,
+        -2.745262156475508,
+        -1.584977845037227,
+        0.0,
+        -5.185655874638234,
+        8.981819445441447,
+        0.0,
+        2.745262156475508,
+        1.584977845037227,
+        0.0,
+        5.185655874638234,
+        -8.981819445441447,
+        0.0,
+        2.9922551716928725,
+        1.7275793288609298,
+        0.0,
+        -4.975009114809986,
+        8.616968554969162,
+        0.0,
+        -2.9922551716928725,
+        -1.7275793288609298,
+        0.0,
+        4.975009114809986,
+        -8.616968554969162,
+        0.0,
+        5.716439741641995,
+        3.3003880236432805,
+        0.0,
+        0.1749773770325563,
+        -0.30306970719552306,
+        0.0,
+        -5.716439741641995,
+        -3.3003880236432805,
+        0.0,
+        -0.1749773770325563,
+        0.30306970719552306,
+        0.0,
+        3.358747643814683,
+        1.9391738562964285,
+        0.0,
+        5.508848315400728,
+        -9.54160517346428,
+        0.0,
+        -3.358747643814683,
+        -1.9391738562964285,
+        0.0,
+        -5.508848315400728,
+        9.54160517346428,
+        0.0,
+        -1.6316106497335667,
+        -0.9420108478363349,
+        0.0,
+        6.461979917279252,
+        -11.192477534217394,
+        0.0,
+        1.6316106497335667,
+        0.9420108478363349,
+        0.0,
+        -6.461979917279252,
+        11.192477534217394,
+        0.0,
+        -4.096294309398225,
+        -2.3649966222109975,
+        0.0,
+        2.9034099061670595,
+        -5.028853472680133,
+        0.0,
+        4.096294309398225,
+        2.3649966222109975,
+        0.0,
+        -2.9034099061670595,
+        5.028853472680133,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0
+      ]
+    },
+    {
+      "cluster": 6,
+      "direction": "Y",
+      "sign_status": "signed_cluster_sum",
+      "values": [
+        -0.00257009173930703,
+        -2.6945523544184584,
+        4.667101581507111,
+        0.0,
+        -8.919612928445547,
+        -5.149740925305302,
+        0.002569955878557381,
+        2.3729924147785897,
+        -4.110143428372076,
+        0.0,
+        0.4460789462805177,
+        0.2575437997148815,
+        -0.002569955878557381,
+        -2.3729924147785897,
+        4.110143428372076,
+        0.0,
+        -0.4460789462805177,
+        -0.2575437997148815,
+        0.002569548310672236,
+        0.9149850526002076,
+        -1.5848005992696412,
+        0.0,
+        -5.186999537033819,
+        -2.9947155789929396,
+        -0.002569548310672236,
+        -0.9149850526002076,
+        1.5848005992696412,
+        0.0,
+        5.186999537033819,
+        2.9947155789929396,
+        0.0025688690787414787,
+        -0.9980837208034147,
+        1.728731714638904,
+        0.0,
+        -4.974979371855261,
+        -2.8723056795534703,
+        -0.0025688690787414787,
+        0.9980837208034147,
+        -1.728731714638904,
+        0.0,
+        4.974979371855261,
+        2.8723056795534703,
+        0.002567918254576523,
+        -1.905967493989433,
+        3.301232537164427,
+        0.0,
+        0.17712252854869082,
+        0.10226173953713381,
+        -0.002567918254576523,
+        1.905967493989433,
+        -3.301232537164427,
+        0.0,
+        -0.17712252854869082,
+        -0.10226173953713381,
+        0.002566695938702716,
+        -1.1192273159932475,
+        1.9385585765192515,
+        0.0,
+        5.511290156378157,
+        3.181944855367064,
+        -0.002566695938702716,
+        1.1192273159932475,
+        -1.9385585765192515,
+        0.0,
+        -5.511290156378157,
+        -3.181944855367064,
+        0.002565202260348715,
+        0.5447938502980277,
+        -0.9436106283672571,
+        0.0,
+        6.462113784458261,
+        3.730903132990968,
+        -0.002565202260348715,
+        -0.5447938502980277,
+        0.9436106283672571,
+        0.0,
+        -6.462113784458261,
+        -3.730903132990968,
+        0.002563437377432821,
+        1.3656884901512205,
+        -2.365441852253942,
+        0.0,
+        2.901222355060814,
+        1.6750215076733208,
+        -0.002563437377432821,
+        -1.3656884901512205,
+        2.365441852253942,
+        0.0,
+        -2.901222355060814,
+        -1.6750215076733208,
+        0.0025614014765462847,
+        -0.0018111843534071134,
+        0.0031370633219749058,
+        0.0,
+        0.0,
+        0.0
+      ]
+    }
+  ],
+  "clusters": [
+    {
+      "class": "periodic",
+      "cluster": 1,
+      "frequencies_hz": [
+        0.25088012387225606
+      ],
+      "modes": [
+        1
+      ],
+      "standing_frequency_hz": 0.25088012387225606
+    },
+    {
+      "class": "periodic",
+      "cluster": 2,
+      "frequencies_hz": [
+        0.2637132709600337
+      ],
+      "modes": [
+        2
+      ],
+      "standing_frequency_hz": 0.2637132709600337
+    },
+    {
+      "class": "periodic",
+      "cluster": 3,
+      "frequencies_hz": [
+        1.5723225779073138
+      ],
+      "modes": [
+        3
+      ],
+      "standing_frequency_hz": 1.5723225779073138
+    },
+    {
+      "class": "periodic",
+      "cluster": 4,
+      "frequencies_hz": [
+        1.5744331816736572
+      ],
+      "modes": [
+        4
+      ],
+      "standing_frequency_hz": 1.5744331816736572
+    },
+    {
+      "class": "periodic",
+      "cluster": 5,
+      "frequencies_hz": [
+        4.404698632256768
+      ],
+      "modes": [
+        5
+      ],
+      "standing_frequency_hz": 4.404698632256768
+    },
+    {
+      "class": "periodic",
+      "cluster": 6,
+      "frequencies_hz": [
+        4.405452709300892
+      ],
+      "modes": [
+        6
+      ],
+      "standing_frequency_hz": 4.405452709300892
+    }
+  ],
+  "cqc_correlation": {
+    "clusters": [
+      1,
+      2,
+      3,
+      4,
+      5,
+      6
+    ],
+    "rho": [
+      [
+        1.0,
+        0.8004397210316592,
+        0.0015528533193771973,
+        0.0015492355518394825,
+        0.00028903930866627027,
+        0.0002889618261806029
+      ],
+      [
+        0.8004397210316592,
+        1.0,
+        0.0016942948303391363,
+        0.001690308965372473,
+        0.00031255872491775245,
+        0.00031247472763097975
+      ],
+      [
+        0.0015528533193771973,
+        0.0016942948303391363,
+        1.0,
+        0.9998198592700647,
+        0.0075369740804165485,
+        0.007533969786963768
+      ],
+      [
+        0.0015492355518394825,
+        0.001690308965372473,
+        0.9998198592700647,
+        1.0,
+        0.007560569522169669,
+        0.007557553251234966
+      ],
+      [
+        0.00028903930866627027,
+        0.00031255872491775245,
+        0.0075369740804165485,
+        0.007560569522169669,
+        1.0,
+        0.9999970659605197
+      ],
+      [
+        0.0002889618261806029,
+        0.00031247472763097975,
+        0.007533969786963768,
+        0.007557553251234966,
+        0.9999970659605197,
+        1.0
+      ]
+    ]
+  },
+  "directions": [
+    "Y"
+  ],
+  "grouping_groups": null,
+  "outcome": "combined",
+  "provenance": "Inputs: the published signed contributions, modal metadata (mode, scope cluster, frequency) and rigid responses of analysis C9-Y (element_end_forces_member_axes) of validation/references/f2_spectrum/discrete/c9_pipe_diagonal.json (frozen), each as its binary64. This is a combination-unit contract fixture: its contributions were not produced by the product, it is not a spectrum solve result or a spectrum-1 document, and it has no standing as an engineering result.",
+  "rows": [
+    {
+      "combined": 2.1915998318175824,
+      "component": "Fx",
+      "end": "i",
+      "frame": "member_axes",
+      "governing_direction": null,
+      "key": "P1.i.Fx_m",
+      "object": "P1",
+      "per_direction": [
+        {
+          "combined": 2.1915998318175824,
+          "direction": "Y",
+          "periodic": 2.1915998318175824,
+          "rigid": null
+        }
+      ],
+      "quantity": "element_end_force",
+      "sign_status": "unsigned_combined_magnitude",
+      "unit": "N"
+    },
+    {
+      "combined": 61.418386741740065,
+      "component": "Fy",
+      "end": "i",
+      "frame": "member_axes",
+      "governing_direction": null,
+      "key": "P1.i.Fy_m",
+      "object": "P1",
+      "per_direction": [
+        {
+          "combined": 61.418386741740065,
+          "direction": "Y",
+          "periodic": 61.418386741740065,
+          "rigid": null
+        }
+      ],
+      "quantity": "element_end_force",
+      "sign_status": "unsigned_combined_magnitude",
+      "unit": "N"
+    },
+    {
+      "combined": 86.39803020420067,
+      "component": "Fz",
+      "end": "i",
+      "frame": "member_axes",
+      "governing_direction": null,
+      "key": "P1.i.Fz_m",
+      "object": "P1",
+      "per_direction": [
+        {
+          "combined": 86.39803020420067,
+          "direction": "Y",
+          "periodic": 86.39803020420067,
+          "rigid": null
+        }
+      ],
+      "quantity": "element_end_force",
+      "sign_status": "unsigned_combined_magnitude",
+      "unit": "N"
+    },
+    {
+      "combined": 0.0,
+      "component": "Mx",
+      "end": "i",
+      "frame": "member_axes",
+      "governing_direction": null,
+      "key": "P1.i.Mx_m",
+      "object": "P1",
+      "per_direction": [
+        {
+          "combined": 0.0,
+          "direction": "Y",
+          "periodic": 0.0,
+          "rigid": null
+        }
+      ],
+      "quantity": "element_end_force",
+      "sign_status": "unsigned_combined_magnitude",
+      "unit": "N*m"
+    },
+    {
+      "combined": 881.1122671776466,
+      "component": "My",
+      "end": "i",
+      "frame": "member_axes",
+      "governing_direction": null,
+      "key": "P1.i.My_m",
+      "object": "P1",
+      "per_direction": [
+        {
+          "combined": 881.1122671776466,
+          "direction": "Y",
+          "periodic": 881.1122671776466,
+          "rigid": null
+        }
+      ],
+      "quantity": "element_end_force",
+      "sign_status": "unsigned_combined_magnitude",
+      "unit": "N*m"
+    },
+    {
+      "combined": 650.1836181052097,
+      "component": "Mz",
+      "end": "i",
+      "frame": "member_axes",
+      "governing_direction": null,
+      "key": "P1.i.Mz_m",
+      "object": "P1",
+      "per_direction": [
+        {
+          "combined": 650.1836181052097,
+          "direction": "Y",
+          "periodic": 650.1836181052097,
+          "rigid": null
+        }
+      ],
+      "quantity": "element_end_force",
+      "sign_status": "unsigned_combined_magnitude",
+      "unit": "N*m"
+    },
+    {
+      "combined": 2.191599413395104,
+      "component": "Fx",
+      "end": "j",
+      "frame": "member_axes",
+      "governing_direction": null,
+      "key": "P1.j.Fx_m",
+      "object": "P1",
+      "per_direction": [
+        {
+          "combined": 2.191599413395104,
+          "direction": "Y",
+          "periodic": 2.191599413395104,
+          "rigid": null
+        }
+      ],
+      "quantity": "element_end_force",
+      "sign_status": "unsigned_combined_magnitude",
+      "unit": "N"
+    },
+    {
+      "combined": 61.0949317330606,
+      "component": "Fy",
+      "end": "j",
+      "frame": "member_axes",
+      "governing_direction": null,
+      "key": "P1.j.Fy_m",
+      "object": "P1",
+      "per_direction": [
+        {
+          "combined": 61.0949317330606,
+          "direction": "Y",
+          "periodic": 61.0949317330606,
+          "rigid": null
+        }
+      ],
+      "quantity": "element_end_force",
+      "sign_status": "unsigned_combined_magnitude",
+      "unit": "N"
+    },
+    {
+      "combined": 85.8205377187012,
+      "component": "Fz",
+      "end": "j",
+      "frame": "member_axes",
+      "governing_direction": null,
+      "key": "P1.j.Fz_m",
+      "object": "P1",
+      "per_direction": [
+        {
+          "combined": 85.8205377187012,
+          "direction": "Y",
+          "periodic": 85.8205377187012,
+          "rigid": null
+        }
+      ],
+      "quantity": "element_end_force",
+      "sign_status": "unsigned_combined_magnitude",
+      "unit": "N"
+    },
+    {
+      "combined": 0.0,
+      "component": "Mx",
+      "end": "j",
+      "frame": "member_axes",
+      "governing_direction": null,
+      "key": "P1.j.Mx_m",
+      "object": "P1",
+      "per_direction": [
+        {
+          "combined": 0.0,
+          "direction": "Y",
+          "periodic": 0.0,
+          "rigid": null
+        }
+      ],
+      "quantity": "element_end_force",
+      "sign_status": "unsigned_combined_magnitude",
+      "unit": "N*m"
+    },
+    {
+      "combined": 724.953848615044,
+      "component": "My",
+      "end": "j",
+      "frame": "member_axes",
+      "governing_direction": null,
+      "key": "P1.j.My_m",
+      "object": "P1",
+      "per_direction": [
+        {
+          "combined": 724.953848615044,
+          "direction": "Y",
+          "periodic": 724.953848615044,
+          "rigid": null
+        }
+      ],
+      "quantity": "element_end_force",
+      "sign_status": "unsigned_combined_magnitude",
+      "unit": "N*m"
+    },
+    {
+      "combined": 537.8354133988813,
+      "component": "Mz",
+      "end": "j",
+      "frame": "member_axes",
+      "governing_direction": null,
+      "key": "P1.j.Mz_m",
+      "object": "P1",
+      "per_direction": [
+        {
+          "combined": 537.8354133988813,
+          "direction": "Y",
+          "periodic": 537.8354133988813,
+          "rigid": null
+        }
+      ],
+      "quantity": "element_end_force",
+      "sign_status": "unsigned_combined_magnitude",
+      "unit": "N*m"
+    },
+    {
+      "combined": 2.191599413395104,
+      "component": "Fx",
+      "end": "i",
+      "frame": "member_axes",
+      "governing_direction": null,
+      "key": "P2.i.Fx_m",
+      "object": "P2",
+      "per_direction": [
+        {
+          "combined": 2.191599413395104,
+          "direction": "Y",
+          "periodic": 2.191599413395104,
+          "rigid": null
+        }
+      ],
+      "quantity": "element_end_force",
+      "sign_status": "unsigned_combined_magnitude",
+      "unit": "N"
+    },
+    {
+      "combined": 61.0949317330606,
+      "component": "Fy",
+      "end": "i",
+      "frame": "member_axes",
+      "governing_direction": null,
+      "key": "P2.i.Fy_m",
+      "object": "P2",
+      "per_direction": [
+        {
+          "combined": 61.0949317330606,
+          "direction": "Y",
+          "periodic": 61.0949317330606,
+          "rigid": null
+        }
+      ],
+      "quantity": "element_end_force",
+      "sign_status": "unsigned_combined_magnitude",
+      "unit": "N"
+    },
+    {
+      "combined": 85.8205377187012,
+      "component": "Fz",
+      "end": "i",
+      "frame": "member_axes",
+      "governing_direction": null,
+      "key": "P2.i.Fz_m",
+      "object": "P2",
+      "per_direction": [
+        {
+          "combined": 85.8205377187012,
+          "direction": "Y",
+          "periodic": 85.8205377187012,
+          "rigid": null
+        }
+      ],
+      "quantity": "element_end_force",
+      "sign_status": "unsigned_combined_magnitude",
+      "unit": "N"
+    },
+    {
+      "combined": 0.0,
+      "component": "Mx",
+      "end": "i",
+      "frame": "member_axes",
+      "governing_direction": null,
+      "key": "P2.i.Mx_m",
+      "object": "P2",
+      "per_direction": [
+        {
+          "combined": 0.0,
+          "direction": "Y",
+          "periodic": 0.0,
+          "rigid": null
+        }
+      ],
+      "quantity": "element_end_force",
+      "sign_status": "unsigned_combined_magnitude",
+      "unit": "N*m"
+    },
+    {
+      "combined": 724.953848615044,
+      "component": "My",
+      "end": "i",
+      "frame": "member_axes",
+      "governing_direction": null,
+      "key": "P2.i.My_m",
+      "object": "P2",
+      "per_direction": [
+        {
+          "combined": 724.953848615044,
+          "direction": "Y",
+          "periodic": 724.953848615044,
+          "rigid": null
+        }
+      ],
+      "quantity": "element_end_force",
+      "sign_status": "unsigned_combined_magnitude",
+      "unit": "N*m"
+    },
+    {
+      "combined": 537.8354133988813,
+      "component": "Mz",
+      "end": "i",
+      "frame": "member_axes",
+      "governing_direction": null,
+      "key": "P2.i.Mz_m",
+      "object": "P2",
+      "per_direction": [
+        {
+          "combined": 537.8354133988813,
+          "direction": "Y",
+          "periodic": 537.8354133988813,
+          "rigid": null
+        }
+      ],
+      "quantity": "element_end_force",
+      "sign_status": "unsigned_combined_magnitude",
+      "unit": "N*m"
+    },
+    {
+      "combined": 2.1915981581280737,
+      "component": "Fx",
+      "end": "j",
+      "frame": "member_axes",
+      "governing_direction": null,
+      "key": "P2.j.Fx_m",
+      "object": "P2",
+      "per_direction": [
+        {
+          "combined": 2.1915981581280737,
+          "direction": "Y",
+          "periodic": 2.1915981581280737,
+          "rigid": null
+        }
+      ],
+      "quantity": "element_end_force",
+      "sign_status": "unsigned_combined_magnitude",
+      "unit": "N"
+    },
+    {
+      "combined": 59.30206913135569,
+      "component": "Fy",
+      "end": "j",
+      "frame": "member_axes",
+      "governing_direction": null,
+      "key": "P2.j.Fy_m",
+      "object": "P2",
+      "per_direction": [
+        {
+          "combined": 59.30206913135569,
+          "direction": "Y",
+          "periodic": 59.30206913135569,
+          "rigid": null
+        }
+      ],
+      "quantity": "element_end_force",
+      "sign_status": "unsigned_combined_magnitude",
+      "unit": "N"
+    },
+    {
+      "combined": 82.73572678253583,
+      "component": "Fz",
+      "end": "j",
+      "frame": "member_axes",
+      "governing_direction": null,
+      "key": "P2.j.Fz_m",
+      "object": "P2",
+      "per_direction": [
+        {
+          "combined": 82.73572678253583,
+          "direction": "Y",
+          "periodic": 82.73572678253583,
+          "rigid": null
+        }
+      ],
+      "quantity": "element_end_force",
+      "sign_status": "unsigned_combined_magnitude",
+      "unit": "N"
+    },
+    {
+      "combined": 0.0,
+      "component": "Mx",
+      "end": "j",
+      "frame": "member_axes",
+      "governing_direction": null,
+      "key": "P2.j.Mx_m",
+      "object": "P2",
+      "per_direction": [
+        {
+          "combined": 0.0,
+          "direction": "Y",
+          "periodic": 0.0,
+          "rigid": null
+        }
+      ],
+      "quantity": "element_end_force",
+      "sign_status": "unsigned_combined_magnitude",
+      "unit": "N*m"
+    },
+    {
+      "combined": 573.1622207921297,
+      "component": "My",
+      "end": "j",
+      "frame": "member_axes",
+      "governing_direction": null,
+      "key": "P2.j.My_m",
+      "object": "P2",
+      "per_direction": [
+        {
+          "combined": 573.1622207921296,
+          "direction": "Y",
+          "periodic": 573.1622207921296,
+          "rigid": null
+        }
+      ],
+      "quantity": "element_end_force",
+      "sign_status": "unsigned_combined_magnitude",
+      "unit": "N*m"
+    },
+    {
+      "combined": 427.830069940116,
+      "component": "Mz",
+      "end": "j",
+      "frame": "member_axes",
+      "governing_direction": null,
+      "key": "P2.j.Mz_m",
+      "object": "P2",
+      "per_direction": [
+        {
+          "combined": 427.830069940116,
+          "direction": "Y",
+          "periodic": 427.830069940116,
+          "rigid": null
+        }
+      ],
+      "quantity": "element_end_force",
+      "sign_status": "unsigned_combined_magnitude",
+      "unit": "N*m"
+    },
+    {
+      "combined": 2.1915981581280737,
+      "component": "Fx",
+      "end": "i",
+      "frame": "member_axes",
+      "governing_direction": null,
+      "key": "P3.i.Fx_m",
+      "object": "P3",
+      "per_direction": [
+        {
+          "combined": 2.1915981581280737,
+          "direction": "Y",
+          "periodic": 2.1915981581280737,
+          "rigid": null
+        }
+      ],
+      "quantity": "element_end_force",
+      "sign_status": "unsigned_combined_magnitude",
+      "unit": "N"
+    },
+    {
+      "combined": 59.30206913135569,
+      "component": "Fy",
+      "end": "i",
+      "frame": "member_axes",
+      "governing_direction": null,
+      "key": "P3.i.Fy_m",
+      "object": "P3",
+      "per_direction": [
+        {
+          "combined": 59.30206913135569,
+          "direction": "Y",
+          "periodic": 59.30206913135569,
+          "rigid": null
+        }
+      ],
+      "quantity": "element_end_force",
+      "sign_status": "unsigned_combined_magnitude",
+      "unit": "N"
+    },
+    {
+      "combined": 82.73572678253583,
+      "component": "Fz",
+      "end": "i",
+      "frame": "member_axes",
+      "governing_direction": null,
+      "key": "P3.i.Fz_m",
+      "object": "P3",
+      "per_direction": [
+        {
+          "combined": 82.73572678253583,
+          "direction": "Y",
+          "periodic": 82.73572678253583,
+          "rigid": null
+        }
+      ],
+      "quantity": "element_end_force",
+      "sign_status": "unsigned_combined_magnitude",
+      "unit": "N"
+    },
+    {
+      "combined": 0.0,
+      "component": "Mx",
+      "end": "i",
+      "frame": "member_axes",
+      "governing_direction": null,
+      "key": "P3.i.Mx_m",
+      "object": "P3",
+      "per_direction": [
+        {
+          "combined": 0.0,
+          "direction": "Y",
+          "periodic": 0.0,
+          "rigid": null
+        }
+      ],
+      "quantity": "element_end_force",
+      "sign_status": "unsigned_combined_magnitude",
+      "unit": "N*m"
+    },
+    {
+      "combined": 573.1622207921297,
+      "component": "My",
+      "end": "i",
+      "frame": "member_axes",
+      "governing_direction": null,
+      "key": "P3.i.My_m",
+      "object": "P3",
+      "per_direction": [
+        {
+          "combined": 573.1622207921296,
+          "direction": "Y",
+          "periodic": 573.1622207921296,
+          "rigid": null
+        }
+      ],
+      "quantity": "element_end_force",
+      "sign_status": "unsigned_combined_magnitude",
+      "unit": "N*m"
+    },
+    {
+      "combined": 427.830069940116,
+      "component": "Mz",
+      "end": "i",
+      "frame": "member_axes",
+      "governing_direction": null,
+      "key": "P3.i.Mz_m",
+      "object": "P3",
+      "per_direction": [
+        {
+          "combined": 427.830069940116,
+          "direction": "Y",
+          "periodic": 427.830069940116,
+          "rigid": null
+        }
+      ],
+      "quantity": "element_end_force",
+      "sign_status": "unsigned_combined_magnitude",
+      "unit": "N*m"
+    },
+    {
+      "combined": 2.1915960660177087,
+      "component": "Fx",
+      "end": "j",
+      "frame": "member_axes",
+      "governing_direction": null,
+      "key": "P3.j.Fx_m",
+      "object": "P3",
+      "per_direction": [
+        {
+          "combined": 2.1915960660177087,
+          "direction": "Y",
+          "periodic": 2.1915960660177087,
+          "rigid": null
+        }
+      ],
+      "quantity": "element_end_force",
+      "sign_status": "unsigned_combined_magnitude",
+      "unit": "N"
+    },
+    {
+      "combined": 55.70647575299497,
+      "component": "Fy",
+      "end": "j",
+      "frame": "member_axes",
+      "governing_direction": null,
+      "key": "P3.j.Fy_m",
+      "object": "P3",
+      "per_direction": [
+        {
+          "combined": 55.70647575299497,
+          "direction": "Y",
+          "periodic": 55.70647575299497,
+          "rigid": null
+        }
+      ],
+      "quantity": "element_end_force",
+      "sign_status": "unsigned_combined_magnitude",
+      "unit": "N"
+    },
+    {
+      "combined": 76.93896300102072,
+      "component": "Fz",
+      "end": "j",
+      "frame": "member_axes",
+      "governing_direction": null,
+      "key": "P3.j.Fz_m",
+      "object": "P3",
+      "per_direction": [
+        {
+          "combined": 76.93896300102072,
+          "direction": "Y",
+          "periodic": 76.93896300102072,
+          "rigid": null
+        }
+      ],
+      "quantity": "element_end_force",
+      "sign_status": "unsigned_combined_magnitude",
+      "unit": "N"
+    },
+    {
+      "combined": 0.0,
+      "component": "Mx",
+      "end": "j",
+      "frame": "member_axes",
+      "governing_direction": null,
+      "key": "P3.j.Mx_m",
+      "object": "P3",
+      "per_direction": [
+        {
+          "combined": 0.0,
+          "direction": "Y",
+          "periodic": 0.0,
+          "rigid": null
+        }
+      ],
+      "quantity": "element_end_force",
+      "sign_status": "unsigned_combined_magnitude",
+      "unit": "N*m"
+    },
+    {
+      "combined": 429.3889948300132,
+      "component": "My",
+      "end": "j",
+      "frame": "member_axes",
+      "governing_direction": null,
+      "key": "P3.j.My_m",
+      "object": "P3",
+      "per_direction": [
+        {
+          "combined": 429.3889948300132,
+          "direction": "Y",
+          "periodic": 429.3889948300132,
+          "rigid": null
+        }
+      ],
+      "quantity": "element_end_force",
+      "sign_status": "unsigned_combined_magnitude",
+      "unit": "N*m"
+    },
+    {
+      "combined": 322.6405772758373,
+      "component": "Mz",
+      "end": "j",
+      "frame": "member_axes",
+      "governing_direction": null,
+      "key": "P3.j.Mz_m",
+      "object": "P3",
+      "per_direction": [
+        {
+          "combined": 322.6405772758373,
+          "direction": "Y",
+          "periodic": 322.6405772758373,
+          "rigid": null
+        }
+      ],
+      "quantity": "element_end_force",
+      "sign_status": "unsigned_combined_magnitude",
+      "unit": "N*m"
+    },
+    {
+      "combined": 2.1915960660177087,
+      "component": "Fx",
+      "end": "i",
+      "frame": "member_axes",
+      "governing_direction": null,
+      "key": "P4.i.Fx_m",
+      "object": "P4",
+      "per_direction": [
+        {
+          "combined": 2.1915960660177087,
+          "direction": "Y",
+          "periodic": 2.1915960660177087,
+          "rigid": null
+        }
+      ],
+      "quantity": "element_end_force",
+      "sign_status": "unsigned_combined_magnitude",
+      "unit": "N"
+    },
+    {
+      "combined": 55.70647575299497,
+      "component": "Fy",
+      "end": "i",
+      "frame": "member_axes",
+      "governing_direction": null,
+      "key": "P4.i.Fy_m",
+      "object": "P4",
+      "per_direction": [
+        {
+          "combined": 55.70647575299497,
+          "direction": "Y",
+          "periodic": 55.70647575299497,
+          "rigid": null
+        }
+      ],
+      "quantity": "element_end_force",
+      "sign_status": "unsigned_combined_magnitude",
+      "unit": "N"
+    },
+    {
+      "combined": 76.93896300102072,
+      "component": "Fz",
+      "end": "i",
+      "frame": "member_axes",
+      "governing_direction": null,
+      "key": "P4.i.Fz_m",
+      "object": "P4",
+      "per_direction": [
+        {
+          "combined": 76.93896300102072,
+          "direction": "Y",
+          "periodic": 76.93896300102072,
+          "rigid": null
+        }
+      ],
+      "quantity": "element_end_force",
+      "sign_status": "unsigned_combined_magnitude",
+      "unit": "N"
+    },
+    {
+      "combined": 0.0,
+      "component": "Mx",
+      "end": "i",
+      "frame": "member_axes",
+      "governing_direction": null,
+      "key": "P4.i.Mx_m",
+      "object": "P4",
+      "per_direction": [
+        {
+          "combined": 0.0,
+          "direction": "Y",
+          "periodic": 0.0,
+          "rigid": null
+        }
+      ],
+      "quantity": "element_end_force",
+      "sign_status": "unsigned_combined_magnitude",
+      "unit": "N*m"
+    },
+    {
+      "combined": 429.3889948300132,
+      "component": "My",
+      "end": "i",
+      "frame": "member_axes",
+      "governing_direction": null,
+      "key": "P4.i.My_m",
+      "object": "P4",
+      "per_direction": [
+        {
+          "combined": 429.3889948300132,
+          "direction": "Y",
+          "periodic": 429.3889948300132,
+          "rigid": null
+        }
+      ],
+      "quantity": "element_end_force",
+      "sign_status": "unsigned_combined_magnitude",
+      "unit": "N*m"
+    },
+    {
+      "combined": 322.6405772758373,
+      "component": "Mz",
+      "end": "i",
+      "frame": "member_axes",
+      "governing_direction": null,
+      "key": "P4.i.Mz_m",
+      "object": "P4",
+      "per_direction": [
+        {
+          "combined": 322.6405772758373,
+          "direction": "Y",
+          "periodic": 322.6405772758373,
+          "rigid": null
+        }
+      ],
+      "quantity": "element_end_force",
+      "sign_status": "unsigned_combined_magnitude",
+      "unit": "N*m"
+    },
+    {
+      "combined": 2.1915931370660364,
+      "component": "Fx",
+      "end": "j",
+      "frame": "member_axes",
+      "governing_direction": null,
+      "key": "P4.j.Fx_m",
+      "object": "P4",
+      "per_direction": [
+        {
+          "combined": 2.1915931370660364,
+          "direction": "Y",
+          "periodic": 2.1915931370660364,
+          "rigid": null
+        }
+      ],
+      "quantity": "element_end_force",
+      "sign_status": "unsigned_combined_magnitude",
+      "unit": "N"
+    },
+    {
+      "combined": 50.26446250124088,
+      "component": "Fy",
+      "end": "j",
+      "frame": "member_axes",
+      "governing_direction": null,
+      "key": "P4.j.Fy_m",
+      "object": "P4",
+      "per_direction": [
+        {
+          "combined": 50.26446250124088,
+          "direction": "Y",
+          "periodic": 50.26446250124088,
+          "rigid": null
+        }
+      ],
+      "quantity": "element_end_force",
+      "sign_status": "unsigned_combined_magnitude",
+      "unit": "N"
+    },
+    {
+      "combined": 68.74717389286454,
+      "component": "Fz",
+      "end": "j",
+      "frame": "member_axes",
+      "governing_direction": null,
+      "key": "P4.j.Fz_m",
+      "object": "P4",
+      "per_direction": [
+        {
+          "combined": 68.74717389286454,
+          "direction": "Y",
+          "periodic": 68.74717389286454,
+          "rigid": null
+        }
+      ],
+      "quantity": "element_end_force",
+      "sign_status": "unsigned_combined_magnitude",
+      "unit": "N"
+    },
+    {
+      "combined": 0.0,
+      "component": "Mx",
+      "end": "j",
+      "frame": "member_axes",
+      "governing_direction": null,
+      "key": "P4.j.Mx_m",
+      "object": "P4",
+      "per_direction": [
+        {
+          "combined": 0.0,
+          "direction": "Y",
+          "periodic": 0.0,
+          "rigid": null
+        }
+      ],
+      "quantity": "element_end_force",
+      "sign_status": "unsigned_combined_magnitude",
+      "unit": "N*m"
+    },
+    {
+      "combined": 297.48309190642317,
+      "component": "My",
+      "end": "j",
+      "frame": "member_axes",
+      "governing_direction": null,
+      "key": "P4.j.My_m",
+      "object": "P4",
+      "per_direction": [
+        {
+          "combined": 297.48309190642317,
+          "direction": "Y",
+          "periodic": 297.48309190642317,
+          "rigid": null
+        }
+      ],
+      "quantity": "element_end_force",
+      "sign_status": "unsigned_combined_magnitude",
+      "unit": "N*m"
+    },
+    {
+      "combined": 225.2608918623204,
+      "component": "Mz",
+      "end": "j",
+      "frame": "member_axes",
+      "governing_direction": null,
+      "key": "P4.j.Mz_m",
+      "object": "P4",
+      "per_direction": [
+        {
+          "combined": 225.2608918623204,
+          "direction": "Y",
+          "periodic": 225.2608918623204,
+          "rigid": null
+        }
+      ],
+      "quantity": "element_end_force",
+      "sign_status": "unsigned_combined_magnitude",
+      "unit": "N*m"
+    },
+    {
+      "combined": 2.1915931370660364,
+      "component": "Fx",
+      "end": "i",
+      "frame": "member_axes",
+      "governing_direction": null,
+      "key": "P5.i.Fx_m",
+      "object": "P5",
+      "per_direction": [
+        {
+          "combined": 2.1915931370660364,
+          "direction": "Y",
+          "periodic": 2.1915931370660364,
+          "rigid": null
+        }
+      ],
+      "quantity": "element_end_force",
+      "sign_status": "unsigned_combined_magnitude",
+      "unit": "N"
+    },
+    {
+      "combined": 50.26446250124088,
+      "component": "Fy",
+      "end": "i",
+      "frame": "member_axes",
+      "governing_direction": null,
+      "key": "P5.i.Fy_m",
+      "object": "P5",
+      "per_direction": [
+        {
+          "combined": 50.26446250124088,
+          "direction": "Y",
+          "periodic": 50.26446250124088,
+          "rigid": null
+        }
+      ],
+      "quantity": "element_end_force",
+      "sign_status": "unsigned_combined_magnitude",
+      "unit": "N"
+    },
+    {
+      "combined": 68.74717389286454,
+      "component": "Fz",
+      "end": "i",
+      "frame": "member_axes",
+      "governing_direction": null,
+      "key": "P5.i.Fz_m",
+      "object": "P5",
+      "per_direction": [
+        {
+          "combined": 68.74717389286454,
+          "direction": "Y",
+          "periodic": 68.74717389286454,
+          "rigid": null
+        }
+      ],
+      "quantity": "element_end_force",
+      "sign_status": "unsigned_combined_magnitude",
+      "unit": "N"
+    },
+    {
+      "combined": 0.0,
+      "component": "Mx",
+      "end": "i",
+      "frame": "member_axes",
+      "governing_direction": null,
+      "key": "P5.i.Mx_m",
+      "object": "P5",
+      "per_direction": [
+        {
+          "combined": 0.0,
+          "direction": "Y",
+          "periodic": 0.0,
+          "rigid": null
+        }
+      ],
+      "quantity": "element_end_force",
+      "sign_status": "unsigned_combined_magnitude",
+      "unit": "N*m"
+    },
+    {
+      "combined": 297.48309190642317,
+      "component": "My",
+      "end": "i",
+      "frame": "member_axes",
+      "governing_direction": null,
+      "key": "P5.i.My_m",
+      "object": "P5",
+      "per_direction": [
+        {
+          "combined": 297.48309190642317,
+          "direction": "Y",
+          "periodic": 297.48309190642317,
+          "rigid": null
+        }
+      ],
+      "quantity": "element_end_force",
+      "sign_status": "unsigned_combined_magnitude",
+      "unit": "N*m"
+    },
+    {
+      "combined": 225.2608918623204,
+      "component": "Mz",
+      "end": "i",
+      "frame": "member_axes",
+      "governing_direction": null,
+      "key": "P5.i.Mz_m",
+      "object": "P5",
+      "per_direction": [
+        {
+          "combined": 225.2608918623204,
+          "direction": "Y",
+          "periodic": 225.2608918623204,
+          "rigid": null
+        }
+      ],
+      "quantity": "element_end_force",
+      "sign_status": "unsigned_combined_magnitude",
+      "unit": "N*m"
+    },
+    {
+      "combined": 2.191589371275895,
+      "component": "Fx",
+      "end": "j",
+      "frame": "member_axes",
+      "governing_direction": null,
+      "key": "P5.j.Fx_m",
+      "object": "P5",
+      "per_direction": [
+        {
+          "combined": 2.191589371275895,
+          "direction": "Y",
+          "periodic": 2.191589371275895,
+          "rigid": null
+        }
+      ],
+      "quantity": "element_end_force",
+      "sign_status": "unsigned_combined_magnitude",
+      "unit": "N"
+    },
+    {
+      "combined": 42.67959384643137,
+      "component": "Fy",
+      "end": "j",
+      "frame": "member_axes",
+      "governing_direction": null,
+      "key": "P5.j.Fy_m",
+      "object": "P5",
+      "per_direction": [
+        {
+          "combined": 42.67959384643137,
+          "direction": "Y",
+          "periodic": 42.67959384643137,
+          "rigid": null
+        }
+      ],
+      "quantity": "element_end_force",
+      "sign_status": "unsigned_combined_magnitude",
+      "unit": "N"
+    },
+    {
+      "combined": 57.84575929901496,
+      "component": "Fz",
+      "end": "j",
+      "frame": "member_axes",
+      "governing_direction": null,
+      "key": "P5.j.Fz_m",
+      "object": "P5",
+      "per_direction": [
+        {
+          "combined": 57.84575929901496,
+          "direction": "Y",
+          "periodic": 57.84575929901496,
+          "rigid": null
+        }
+      ],
+      "quantity": "element_end_force",
+      "sign_status": "unsigned_combined_magnitude",
+      "unit": "N"
+    },
+    {
+      "combined": 0.0,
+      "component": "Mx",
+      "end": "j",
+      "frame": "member_axes",
+      "governing_direction": null,
+      "key": "P5.j.Mx_m",
+      "object": "P5",
+      "per_direction": [
+        {
+          "combined": 0.0,
+          "direction": "Y",
+          "periodic": 0.0,
+          "rigid": null
+        }
+      ],
+      "quantity": "element_end_force",
+      "sign_status": "unsigned_combined_magnitude",
+      "unit": "N*m"
+    },
+    {
+      "combined": 181.86085336944737,
+      "component": "My",
+      "end": "j",
+      "frame": "member_axes",
+      "governing_direction": null,
+      "key": "P5.j.My_m",
+      "object": "P5",
+      "per_direction": [
+        {
+          "combined": 181.8608533694474,
+          "direction": "Y",
+          "periodic": 181.8608533694474,
+          "rigid": null
+        }
+      ],
+      "quantity": "element_end_force",
+      "sign_status": "unsigned_combined_magnitude",
+      "unit": "N*m"
+    },
+    {
+      "combined": 139.2829160460034,
+      "component": "Mz",
+      "end": "j",
+      "frame": "member_axes",
+      "governing_direction": null,
+      "key": "P5.j.Mz_m",
+      "object": "P5",
+      "per_direction": [
+        {
+          "combined": 139.2829160460034,
+          "direction": "Y",
+          "periodic": 139.2829160460034,
+          "rigid": null
+        }
+      ],
+      "quantity": "element_end_force",
+      "sign_status": "unsigned_combined_magnitude",
+      "unit": "N*m"
+    },
+    {
+      "combined": 2.191589371275895,
+      "component": "Fx",
+      "end": "i",
+      "frame": "member_axes",
+      "governing_direction": null,
+      "key": "P6.i.Fx_m",
+      "object": "P6",
+      "per_direction": [
+        {
+          "combined": 2.191589371275895,
+          "direction": "Y",
+          "periodic": 2.191589371275895,
+          "rigid": null
+        }
+      ],
+      "quantity": "element_end_force",
+      "sign_status": "unsigned_combined_magnitude",
+      "unit": "N"
+    },
+    {
+      "combined": 42.67959384643137,
+      "component": "Fy",
+      "end": "i",
+      "frame": "member_axes",
+      "governing_direction": null,
+      "key": "P6.i.Fy_m",
+      "object": "P6",
+      "per_direction": [
+        {
+          "combined": 42.67959384643137,
+          "direction": "Y",
+          "periodic": 42.67959384643137,
+          "rigid": null
+        }
+      ],
+      "quantity": "element_end_force",
+      "sign_status": "unsigned_combined_magnitude",
+      "unit": "N"
+    },
+    {
+      "combined": 57.84575929901496,
+      "component": "Fz",
+      "end": "i",
+      "frame": "member_axes",
+      "governing_direction": null,
+      "key": "P6.i.Fz_m",
+      "object": "P6",
+      "per_direction": [
+        {
+          "combined": 57.84575929901496,
+          "direction": "Y",
+          "periodic": 57.84575929901496,
+          "rigid": null
+        }
+      ],
+      "quantity": "element_end_force",
+      "sign_status": "unsigned_combined_magnitude",
+      "unit": "N"
+    },
+    {
+      "combined": 0.0,
+      "component": "Mx",
+      "end": "i",
+      "frame": "member_axes",
+      "governing_direction": null,
+      "key": "P6.i.Mx_m",
+      "object": "P6",
+      "per_direction": [
+        {
+          "combined": 0.0,
+          "direction": "Y",
+          "periodic": 0.0,
+          "rigid": null
+        }
+      ],
+      "quantity": "element_end_force",
+      "sign_status": "unsigned_combined_magnitude",
+      "unit": "N*m"
+    },
+    {
+      "combined": 181.86085336944737,
+      "component": "My",
+      "end": "i",
+      "frame": "member_axes",
+      "governing_direction": null,
+      "key": "P6.i.My_m",
+      "object": "P6",
+      "per_direction": [
+        {
+          "combined": 181.8608533694474,
+          "direction": "Y",
+          "periodic": 181.8608533694474,
+          "rigid": null
+        }
+      ],
+      "quantity": "element_end_force",
+      "sign_status": "unsigned_combined_magnitude",
+      "unit": "N*m"
+    },
+    {
+      "combined": 139.2829160460034,
+      "component": "Mz",
+      "end": "i",
+      "frame": "member_axes",
+      "governing_direction": null,
+      "key": "P6.i.Mz_m",
+      "object": "P6",
+      "per_direction": [
+        {
+          "combined": 139.2829160460034,
+          "direction": "Y",
+          "periodic": 139.2829160460034,
+          "rigid": null
+        }
+      ],
+      "quantity": "element_end_force",
+      "sign_status": "unsigned_combined_magnitude",
+      "unit": "N*m"
+    },
+    {
+      "combined": 2.1915847686509347,
+      "component": "Fx",
+      "end": "j",
+      "frame": "member_axes",
+      "governing_direction": null,
+      "key": "P6.j.Fx_m",
+      "object": "P6",
+      "per_direction": [
+        {
+          "combined": 2.1915847686509347,
+          "direction": "Y",
+          "periodic": 2.1915847686509347,
+          "rigid": null
+        }
+      ],
+      "quantity": "element_end_force",
+      "sign_status": "unsigned_combined_magnitude",
+      "unit": "N"
+    },
+    {
+      "combined": 32.631230827002,
+      "component": "Fy",
+      "end": "j",
+      "frame": "member_axes",
+      "governing_direction": null,
+      "key": "P6.j.Fy_m",
+      "object": "P6",
+      "per_direction": [
+        {
+          "combined": 32.631230827002,
+          "direction": "Y",
+          "periodic": 32.631230827002,
+          "rigid": null
+        }
+      ],
+      "quantity": "element_end_force",
+      "sign_status": "unsigned_combined_magnitude",
+      "unit": "N"
+    },
+    {
+      "combined": 43.79789914257815,
+      "component": "Fz",
+      "end": "j",
+      "frame": "member_axes",
+      "governing_direction": null,
+      "key": "P6.j.Fz_m",
+      "object": "P6",
+      "per_direction": [
+        {
+          "combined": 43.79789914257815,
+          "direction": "Y",
+          "periodic": 43.79789914257815,
+          "rigid": null
+        }
+      ],
+      "quantity": "element_end_force",
+      "sign_status": "unsigned_combined_magnitude",
+      "unit": "N"
+    },
+    {
+      "combined": 0.0,
+      "component": "Mx",
+      "end": "j",
+      "frame": "member_axes",
+      "governing_direction": null,
+      "key": "P6.j.Mx_m",
+      "object": "P6",
+      "per_direction": [
+        {
+          "combined": 0.0,
+          "direction": "Y",
+          "periodic": 0.0,
+          "rigid": null
+        }
+      ],
+      "quantity": "element_end_force",
+      "sign_status": "unsigned_combined_magnitude",
+      "unit": "N*m"
+    },
+    {
+      "combined": 87.78843472274593,
+      "component": "My",
+      "end": "j",
+      "frame": "member_axes",
+      "governing_direction": null,
+      "key": "P6.j.My_m",
+      "object": "P6",
+      "per_direction": [
+        {
+          "combined": 87.78843472274593,
+          "direction": "Y",
+          "periodic": 87.78843472274593,
+          "rigid": null
+        }
+      ],
+      "quantity": "element_end_force",
+      "sign_status": "unsigned_combined_magnitude",
+      "unit": "N*m"
+    },
+    {
+      "combined": 68.9547434585835,
+      "component": "Mz",
+      "end": "j",
+      "frame": "member_axes",
+      "governing_direction": null,
+      "key": "P6.j.Mz_m",
+      "object": "P6",
+      "per_direction": [
+        {
+          "combined": 68.9547434585835,
+          "direction": "Y",
+          "periodic": 68.9547434585835,
+          "rigid": null
+        }
+      ],
+      "quantity": "element_end_force",
+      "sign_status": "unsigned_combined_magnitude",
+      "unit": "N*m"
+    },
+    {
+      "combined": 2.1915847686509347,
+      "component": "Fx",
+      "end": "i",
+      "frame": "member_axes",
+      "governing_direction": null,
+      "key": "P7.i.Fx_m",
+      "object": "P7",
+      "per_direction": [
+        {
+          "combined": 2.1915847686509347,
+          "direction": "Y",
+          "periodic": 2.1915847686509347,
+          "rigid": null
+        }
+      ],
+      "quantity": "element_end_force",
+      "sign_status": "unsigned_combined_magnitude",
+      "unit": "N"
+    },
+    {
+      "combined": 32.631230827002,
+      "component": "Fy",
+      "end": "i",
+      "frame": "member_axes",
+      "governing_direction": null,
+      "key": "P7.i.Fy_m",
+      "object": "P7",
+      "per_direction": [
+        {
+          "combined": 32.631230827002,
+          "direction": "Y",
+          "periodic": 32.631230827002,
+          "rigid": null
+        }
+      ],
+      "quantity": "element_end_force",
+      "sign_status": "unsigned_combined_magnitude",
+      "unit": "N"
+    },
+    {
+      "combined": 43.79789914257815,
+      "component": "Fz",
+      "end": "i",
+      "frame": "member_axes",
+      "governing_direction": null,
+      "key": "P7.i.Fz_m",
+      "object": "P7",
+      "per_direction": [
+        {
+          "combined": 43.79789914257815,
+          "direction": "Y",
+          "periodic": 43.79789914257815,
+          "rigid": null
+        }
+      ],
+      "quantity": "element_end_force",
+      "sign_status": "unsigned_combined_magnitude",
+      "unit": "N"
+    },
+    {
+      "combined": 0.0,
+      "component": "Mx",
+      "end": "i",
+      "frame": "member_axes",
+      "governing_direction": null,
+      "key": "P7.i.Mx_m",
+      "object": "P7",
+      "per_direction": [
+        {
+          "combined": 0.0,
+          "direction": "Y",
+          "periodic": 0.0,
+          "rigid": null
+        }
+      ],
+      "quantity": "element_end_force",
+      "sign_status": "unsigned_combined_magnitude",
+      "unit": "N*m"
+    },
+    {
+      "combined": 87.78843472274593,
+      "component": "My",
+      "end": "i",
+      "frame": "member_axes",
+      "governing_direction": null,
+      "key": "P7.i.My_m",
+      "object": "P7",
+      "per_direction": [
+        {
+          "combined": 87.78843472274593,
+          "direction": "Y",
+          "periodic": 87.78843472274593,
+          "rigid": null
+        }
+      ],
+      "quantity": "element_end_force",
+      "sign_status": "unsigned_combined_magnitude",
+      "unit": "N*m"
+    },
+    {
+      "combined": 68.9547434585835,
+      "component": "Mz",
+      "end": "i",
+      "frame": "member_axes",
+      "governing_direction": null,
+      "key": "P7.i.Mz_m",
+      "object": "P7",
+      "per_direction": [
+        {
+          "combined": 68.9547434585835,
+          "direction": "Y",
+          "periodic": 68.9547434585835,
+          "rigid": null
+        }
+      ],
+      "quantity": "element_end_force",
+      "sign_status": "unsigned_combined_magnitude",
+      "unit": "N*m"
+    },
+    {
+      "combined": 2.191579329195614,
+      "component": "Fx",
+      "end": "j",
+      "frame": "member_axes",
+      "governing_direction": null,
+      "key": "P7.j.Fx_m",
+      "object": "P7",
+      "per_direction": [
+        {
+          "combined": 2.191579329195614,
+          "direction": "Y",
+          "periodic": 2.191579329195614,
+          "rigid": null
+        }
+      ],
+      "quantity": "element_end_force",
+      "sign_status": "unsigned_combined_magnitude",
+      "unit": "N"
+    },
+    {
+      "combined": 19.250720687948718,
+      "component": "Fy",
+      "end": "j",
+      "frame": "member_axes",
+      "governing_direction": null,
+      "key": "P7.j.Fy_m",
+      "object": "P7",
+      "per_direction": [
+        {
+          "combined": 19.250720687948718,
+          "direction": "Y",
+          "periodic": 19.250720687948718,
+          "rigid": null
+        }
+      ],
+      "quantity": "element_end_force",
+      "sign_status": "unsigned_combined_magnitude",
+      "unit": "N"
+    },
+    {
+      "combined": 24.928303339930693,
+      "component": "Fz",
+      "end": "j",
+      "frame": "member_axes",
+      "governing_direction": null,
+      "key": "P7.j.Fz_m",
+      "object": "P7",
+      "per_direction": [
+        {
+          "combined": 24.928303339930693,
+          "direction": "Y",
+          "periodic": 24.928303339930693,
+          "rigid": null
+        }
+      ],
+      "quantity": "element_end_force",
+      "sign_status": "unsigned_combined_magnitude",
+      "unit": "N"
+    },
+    {
+      "combined": 0.0,
+      "component": "Mx",
+      "end": "j",
+      "frame": "member_axes",
+      "governing_direction": null,
+      "key": "P7.j.Mx_m",
+      "object": "P7",
+      "per_direction": [
+        {
+          "combined": 0.0,
+          "direction": "Y",
+          "periodic": 0.0,
+          "rigid": null
+        }
+      ],
+      "quantity": "element_end_force",
+      "sign_status": "unsigned_combined_magnitude",
+      "unit": "N*m"
+    },
+    {
+      "combined": 22.951968125334204,
+      "component": "My",
+      "end": "j",
+      "frame": "member_axes",
+      "governing_direction": null,
+      "key": "P7.j.My_m",
+      "object": "P7",
+      "per_direction": [
+        {
+          "combined": 22.951968125334204,
+          "direction": "Y",
+          "periodic": 22.951968125334204,
+          "rigid": null
+        }
+      ],
+      "quantity": "element_end_force",
+      "sign_status": "unsigned_combined_magnitude",
+      "unit": "N*m"
+    },
+    {
+      "combined": 19.851313396434392,
+      "component": "Mz",
+      "end": "j",
+      "frame": "member_axes",
+      "governing_direction": null,
+      "key": "P7.j.Mz_m",
+      "object": "P7",
+      "per_direction": [
+        {
+          "combined": 19.851313396434392,
+          "direction": "Y",
+          "periodic": 19.851313396434392,
+          "rigid": null
+        }
+      ],
+      "quantity": "element_end_force",
+      "sign_status": "unsigned_combined_magnitude",
+      "unit": "N*m"
+    },
+    {
+      "combined": 2.191579329195614,
+      "component": "Fx",
+      "end": "i",
+      "frame": "member_axes",
+      "governing_direction": null,
+      "key": "P8.i.Fx_m",
+      "object": "P8",
+      "per_direction": [
+        {
+          "combined": 2.191579329195614,
+          "direction": "Y",
+          "periodic": 2.191579329195614,
+          "rigid": null
+        }
+      ],
+      "quantity": "element_end_force",
+      "sign_status": "unsigned_combined_magnitude",
+      "unit": "N"
+    },
+    {
+      "combined": 19.250720687948718,
+      "component": "Fy",
+      "end": "i",
+      "frame": "member_axes",
+      "governing_direction": null,
+      "key": "P8.i.Fy_m",
+      "object": "P8",
+      "per_direction": [
+        {
+          "combined": 19.250720687948718,
+          "direction": "Y",
+          "periodic": 19.250720687948718,
+          "rigid": null
+        }
+      ],
+      "quantity": "element_end_force",
+      "sign_status": "unsigned_combined_magnitude",
+      "unit": "N"
+    },
+    {
+      "combined": 24.928303339930693,
+      "component": "Fz",
+      "end": "i",
+      "frame": "member_axes",
+      "governing_direction": null,
+      "key": "P8.i.Fz_m",
+      "object": "P8",
+      "per_direction": [
+        {
+          "combined": 24.928303339930693,
+          "direction": "Y",
+          "periodic": 24.928303339930693,
+          "rigid": null
+        }
+      ],
+      "quantity": "element_end_force",
+      "sign_status": "unsigned_combined_magnitude",
+      "unit": "N"
+    },
+    {
+      "combined": 0.0,
+      "component": "Mx",
+      "end": "i",
+      "frame": "member_axes",
+      "governing_direction": null,
+      "key": "P8.i.Mx_m",
+      "object": "P8",
+      "per_direction": [
+        {
+          "combined": 0.0,
+          "direction": "Y",
+          "periodic": 0.0,
+          "rigid": null
+        }
+      ],
+      "quantity": "element_end_force",
+      "sign_status": "unsigned_combined_magnitude",
+      "unit": "N*m"
+    },
+    {
+      "combined": 22.951968125334204,
+      "component": "My",
+      "end": "i",
+      "frame": "member_axes",
+      "governing_direction": null,
+      "key": "P8.i.My_m",
+      "object": "P8",
+      "per_direction": [
+        {
+          "combined": 22.951968125334204,
+          "direction": "Y",
+          "periodic": 22.951968125334204,
+          "rigid": null
+        }
+      ],
+      "quantity": "element_end_force",
+      "sign_status": "unsigned_combined_magnitude",
+      "unit": "N*m"
+    },
+    {
+      "combined": 19.851313396434392,
+      "component": "Mz",
+      "end": "i",
+      "frame": "member_axes",
+      "governing_direction": null,
+      "key": "P8.i.Mz_m",
+      "object": "P8",
+      "per_direction": [
+        {
+          "combined": 19.851313396434392,
+          "direction": "Y",
+          "periodic": 19.851313396434392,
+          "rigid": null
+        }
+      ],
+      "quantity": "element_end_force",
+      "sign_status": "unsigned_combined_magnitude",
+      "unit": "N*m"
+    },
+    {
+      "combined": 2.1915730529152024,
+      "component": "Fx",
+      "end": "j",
+      "frame": "member_axes",
+      "governing_direction": null,
+      "key": "P8.j.Fx_m",
+      "object": "P8",
+      "per_direction": [
+        {
+          "combined": 2.1915730529152024,
+          "direction": "Y",
+          "periodic": 2.1915730529152024,
+          "rigid": null
+        }
+      ],
+      "quantity": "element_end_force",
+      "sign_status": "unsigned_combined_magnitude",
+      "unit": "N"
+    },
+    {
+      "combined": 1.5496761671820438,
+      "component": "Fy",
+      "end": "j",
+      "frame": "member_axes",
+      "governing_direction": null,
+      "key": "P8.j.Fy_m",
+      "object": "P8",
+      "per_direction": [
+        {
+          "combined": 1.5496761671820438,
+          "direction": "Y",
+          "periodic": 1.5496761671820438,
+          "rigid": null
+        }
+      ],
+      "quantity": "element_end_force",
+      "sign_status": "unsigned_combined_magnitude",
+      "unit": "N"
+    },
+    {
+      "combined": 2.6841178568379016,
+      "component": "Fz",
+      "end": "j",
+      "frame": "member_axes",
+      "governing_direction": null,
+      "key": "P8.j.Fz_m",
+      "object": "P8",
+      "per_direction": [
+        {
+          "combined": 2.6841178568379016,
+          "direction": "Y",
+          "periodic": 2.6841178568379016,
+          "rigid": null
+        }
+      ],
+      "quantity": "element_end_force",
+      "sign_status": "unsigned_combined_magnitude",
+      "unit": "N"
+    },
+    {
+      "combined": 0.0,
+      "component": "Mx",
+      "end": "j",
+      "frame": "member_axes",
+      "governing_direction": null,
+      "key": "P8.j.Mx_m",
+      "object": "P8",
+      "per_direction": [
+        {
+          "combined": 0.0,
+          "direction": "Y",
+          "periodic": 0.0,
+          "rigid": null
+        }
+      ],
+      "quantity": "element_end_force",
+      "sign_status": "unsigned_combined_magnitude",
+      "unit": "N*m"
+    },
+    {
+      "combined": 0.0,
+      "component": "My",
+      "end": "j",
+      "frame": "member_axes",
+      "governing_direction": null,
+      "key": "P8.j.My_m",
+      "object": "P8",
+      "per_direction": [
+        {
+          "combined": 0.0,
+          "direction": "Y",
+          "periodic": 0.0,
+          "rigid": null
+        }
+      ],
+      "quantity": "element_end_force",
+      "sign_status": "unsigned_combined_magnitude",
+      "unit": "N*m"
+    },
+    {
+      "combined": 0.0,
+      "component": "Mz",
+      "end": "j",
+      "frame": "member_axes",
+      "governing_direction": null,
+      "key": "P8.j.Mz_m",
+      "object": "P8",
+      "per_direction": [
+        {
+          "combined": 0.0,
+          "direction": "Y",
+          "periodic": 0.0,
+          "rigid": null
+        }
+      ],
+      "quantity": "element_end_force",
+      "sign_status": "unsigned_combined_magnitude",
+      "unit": "N*m"
+    }
+  ],
+  "rules": {
+    "damping_ratio": 0.05,
+    "directional_combination": "SRSS",
+    "missing_mass": {
+      "applied": false
+    },
+    "modal_combination": "CQC"
+  },
+  "schema": "openpipestress.spectrum_combination.output/v1",
+  "statement": "Unsigned combined magnitudes formed by the stated modal, rigid-response and directional combination rules from the supplied signed contributions, summing the modes of each supplied cluster with their signs first. Under an absolute-sum rule a magnitude is the sum of the magnitudes it combines. The contributions and their modal metadata are inputs to this unit; it forms no modal response, solves no eigenproblem or rigid response, and is not a response-spectrum analysis result. It establishes neither physical correctness nor code compliance.",
+  "ten_percent_pairs": null
+}

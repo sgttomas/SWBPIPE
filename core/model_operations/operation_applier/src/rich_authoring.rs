@@ -579,14 +579,35 @@ fn validate_nonlinear(model: &Value, v: &Value) -> Result<()> {
             "supports",
             text(s.get("support_ref"), "support_ref")?,
         )?;
-        if target.get("nonlinear").is_some_and(|n| !n.is_null()) {
-            return Err(err("Friction normal source must be a linear support"));
+        // DEL-04-04 REQ-012: a linear support's restrained translational DOF, or
+        // a one-way or lift-off support's own translational DOF.
+        let bearing = target.get("nonlinear").filter(|n| !n.is_null());
+        if let Some(n) = bearing {
+            let kind = n.get("behavior").and_then(Value::as_str).unwrap_or("");
+            if !matches!(
+                kind,
+                "one_way" | "one-way" | "oneway" | "lift_off" | "lift-off" | "liftoff"
+            ) {
+                return Err(err(
+                    "Friction normal source must be a linear support or a one-way or lift-off support",
+                ));
+            }
         }
         let d = dof(s.get("dof"))?.to_ascii_uppercase();
         if !d.starts_with('U') {
             return Err(err("Friction normal source DOF must be translational"));
         }
-        if !target
+        if let Some(n) = bearing {
+            if !n
+                .get("dof")
+                .and_then(Value::as_str)
+                .is_some_and(|own| own.eq_ignore_ascii_case(&d))
+            {
+                return Err(err(
+                    "Friction normal source DOF must be the one-way or lift-off support's own DOF",
+                ));
+            }
+        } else if !target
             .get("restraints")
             .and_then(Value::as_array)
             .is_some_and(|a| {
@@ -885,6 +906,45 @@ mod tests {
         bad = p;
         bad["id"] = json!("overwrite");
         assert!(edit(&m, "Support", "s", "configuration", &bad).is_err());
+    }
+    #[test]
+    fn a_one_way_or_lift_off_support_is_a_normal_source_on_its_own_translational_dof() {
+        // DEL-04-04 REQ-012: the same set the model build admits.
+        let mut m = model();
+        let source = |behavior: &str, dof: &str| {
+            let mut n = json!({"behavior": behavior, "dof": dof, "initial_state": "active"});
+            match behavior {
+                "one_way" => n["active_when"] = json!("positive_reaction"),
+                "lift_off" => n["contact_when"] = json!("positive_reaction"),
+                "gap" => {
+                    n["closes_when"] = json!("negative_displacement");
+                    n["gap"] = q(1.0, "mm");
+                }
+                _ => {
+                    n["friction_coefficient"] = q(0.2, "1");
+                    n["normal_reaction"] = q(1.0, "N");
+                }
+            }
+            json!({"id": "s", "node": "n", "label": "keep", "restraints": [], "nonlinear": n, "provenance": "entered"})
+        };
+        let friction = m["supports"][1].clone();
+        for (behavior, dof, at, admitted) in [
+            ("one_way", "UZ", "UZ", None),
+            ("lift_off", "uz", "UZ", None),
+            ("one_way", "UZ", "UY", Some("own DOF")),
+            ("one_way", "RZ", "RZ", Some("translational")),
+            ("gap", "UZ", "UZ", Some("a linear support or a one-way or lift-off support")),
+            ("friction", "UZ", "UZ", Some("a linear support or a one-way or lift-off support")),
+        ] {
+            m["supports"][0] = source(behavior, dof);
+            let mut f = friction.clone();
+            f["nonlinear"]["normal_reaction_source"] = json!({"support_ref": "s", "dof": at});
+            let found = validate_support_configuration(&m, &f);
+            match admitted {
+                None => assert!(found.is_ok(), "{behavior} {dof}/{at}: {:?}", found.err().map(|e| e.message)),
+                Some(text) => assert!(found.unwrap_err().message.contains(text), "{behavior} {dof}/{at}"),
+            }
+        }
     }
     #[test]
     fn variable_hanger_requires_explicit_loads_travel_and_correct_stiffness_units() {

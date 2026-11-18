@@ -2,7 +2,7 @@ import { describe, expect, it } from "vitest";
 import { readFileSync } from "node:fs";
 import { resolve } from "node:path";
 import exactTable from "../../../../../fixtures/results/semantic_contract_v0_3_physics_retained_1.json";
-import pressureTable from "../../../../../fixtures/results/semantic_contract_v0_3_pressure_2.json";
+import pressureTable from "../../../../../fixtures/results/semantic_contract_v0_3_pressure_3.json";
 import { PHYSICS_RETAINED_CONTRACT_ID } from "./numericalResultQuality";
 import { PHYSICS_RETAINED_CONTRACT_SHA256, PRESSURE_CONTRACT_SHA256 } from "../../test-support/contractBindings";
 import { readerDispatch, readerRowSemantics, retainedPrecisionDowngrade, sourceContract, sourceSemanticBinding } from "./resultReader";
@@ -33,7 +33,7 @@ describe("the exact retained route on the desktop's carriers", () => {
     expect(readerDispatch(tampered)).toMatchObject({ ok: false, route: "unsupported", error: { code: "SOURCE_PRODUCER_CONTRACT_UNSUPPORTED" } });
     await expect(validateRetainedPrecisionTransport(tampered)).rejects.toMatchObject({ gate: "G0", code: "SOURCE_PRODUCER_CONTRACT_UNSUPPORTED" });
     // The downgrade guard: the base identity, pressure-2 since B7b D4 (a), carrying a receipt is unsupported.
-    const downgraded = structuredClone(source); downgraded.producer.semantic_contract_id = "openpipestress.result_semantics/0.3.0/pressure-2"; downgraded.formulation_basis.profile_id = "exact_pressure_v3";
+    const downgraded = structuredClone(source); downgraded.producer.semantic_contract_id = "openpipestress.result_semantics/0.3.0/pressure-3"; downgraded.formulation_basis.profile_id = "exact_pressure_v3";
     expect(sourceContract(downgraded)).toBe("unsupported");
     expect(retainedPrecisionDowngrade(downgraded)).toBe(true);
     // The exact identity without its receipt is not the successor's route.

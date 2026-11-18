@@ -12,7 +12,7 @@ are then dropped: they do not exist for judging. A reference line becomes a Mode
 (reference_views).
 
 Units are fixed per kind and component by the route's public semantic contract,
-fixtures/results/semantic_contract_v0_3_{preview_physics_2,pressure_2}.json (`rows`: kind, component, unit and
+fixtures/results/semantic_contract_v0_3_{preview_physics_2,pressure_3}.json (`rows`: kind, component, unit and
 declared source basis); any other unit, kind or component is refused. Frames (metadata.coordinate_system) per
 judged kind, the five metadata members and the entity classes are those of the committed result fixtures of
 both routes (fixtures/results/*_mechanics_*.json, preview_physics_*.json) and of the genuine PF probe records.
@@ -38,7 +38,7 @@ HERE = os.path.dirname(os.path.abspath(__file__))
 FIXTURES = os.path.normpath(os.path.join(HERE, "..", "..", "..", "fixtures", "results"))
 # The semantic contracts each route publishes under, in the order a record is matched against them. A record is admitted
 # under the first contract whose table every one of its rows matches; rows are never matched across two contracts.
-# The exact route publishes pressure-2 and, for retained-source maxima, pressure-source-1, which alone declares
+# The exact route publishes pressure-3 and, for retained-source maxima, pressure-source-1, which alone declares
 # `retained_source_endpoint_normal_max_v1` (results.v0.3.schema.yaml: "published only under pressure-source-1").
 # PF publishes Euler-Bernoulli results under preview-physics-2 and Timoshenko results under preview-physics-timoshenko-1
 # (DEL-05-03 Design/pf-timoshenko.md: the same rows, its own identity). The two tables' rows are identical, so rows cannot
@@ -46,7 +46,7 @@ FIXTURES = os.path.normpath(os.path.join(HERE, "..", "..", "..", "fixtures", "re
 CONTRACTS = {"pf": (("openpipestress.result_semantics/0.3.0/preview-physics-2", "semantic_contract_v0_3_preview_physics_2.json"),
                     ("openpipestress.result_semantics/0.3.0/preview-physics-timoshenko-1",
                      "semantic_contract_v0_3_preview_physics_timoshenko_1.json")),
-             "exact": (("openpipestress.result_semantics/0.3.0/pressure-2", "semantic_contract_v0_3_pressure_2.json"),
+             "exact": (("openpipestress.result_semantics/0.3.0/pressure-3", "semantic_contract_v0_3_pressure_3.json"),
                        ("openpipestress.result_semantics/0.3.0/pressure-source-1", "semantic_contract_v0_3_pressure_source_1.json"))}
 CONTRACT_FILES = {"pf": CONTRACTS["pf"][0][1], "pf:preview-physics-timoshenko-1": CONTRACTS["pf"][1][1], "exact": CONTRACTS["exact"][0][1],
                   "exact:pressure-source-1": CONTRACTS["exact"][1][1]}
@@ -54,14 +54,14 @@ CONTRACT_IDS = {"pf": CONTRACTS["pf"][0][0], "exact": CONTRACTS["exact"][0][0]}
 SCHEMAS = os.path.normpath(os.path.join(HERE, "..", "..", "..", "schemas"))
 # The exact route's contract_evidence: its members (required and admitted) and their shapes are read from this schema
 # definition at judge time; only exact_cases' extrema enter the view, the other members are shape-checked or not read.
-EXACT_EVIDENCE_SCHEMA = ("results_pressure_2.v0.3.schema.json", "/$defs/PressureContractEvidence")
+EXACT_EVIDENCE_SCHEMA = ("results_pressure_3.v0.3.schema.json", "/$defs/PressureContractEvidence")
 # Under pressure-source-1 the whole contract_evidence is the recovery evidence of this schema: ordinary, or resolved when
 # it carries load_reference_states. It is validated against that definition at judge time; only its exact_cases'
 # extrema enter the view (pipe_id, result_id, section_basis, value_lower_pa, value_upper_pa: the members kd5's prior
 # judge read), and value_pa, endpoints, the error bounds and the other members are schema-checked and not read.
 SOURCE_RECOVERY_SCHEMA = "physics_source_recovery.schema.json"
 SOURCE_RECOVERY_EVIDENCE = {False: "/$defs/pressure_source_ordinary_evidence", True: "/$defs/pressure_source_resolved_evidence"}
-SCHEMA_FILES = ("results_pressure_2.v0.3.schema.json", "load_reference_state.schema.json", SOURCE_RECOVERY_SCHEMA)
+SCHEMA_FILES = ("results_pressure_3.v0.3.schema.json", "load_reference_state.schema.json", SOURCE_RECOVERY_SCHEMA)
 
 MODES = ("SparseInteractive", "DenseScrutiny")
 HEX64 = re.compile(r"\A[0-9a-f]{64}\Z")
@@ -549,7 +549,7 @@ def _pipe_list(xs, facts):
 
 def _evidence(ev, route, facts, by_id, contract=None):
     """(extrema, problems): the case-bound, validated maximum-stress enclosures; nothing else of the evidence is read.
-    The evidence shape follows the record's contract: pressure-2's PressureContractEvidence, or under pressure-source-1
+    The evidence shape follows the record's contract: pressure-3's PressureContractEvidence, or under pressure-source-1
     the recovery evidence of SOURCE_RECOVERY_SCHEMA (each refused under the other)."""
     out = []
     recovery = route == "exact" and contract == CONTRACTS["exact"][1][0]
@@ -652,8 +652,8 @@ def _evidence(ev, route, facts, by_id, contract=None):
 # ----------------------------------------------------------------- public schemas (exact evidence members)
 _SCHEMA_DOCS = {}
 SCHEMA_KEYWORDS = frozenset({"$ref", "type", "additionalProperties", "required", "properties", "items", "const", "enum", "minLength", "minimum",
-                             "pattern", "oneOf", "minItems", "if", "then", "else", "exclusiveMinimum", "maximum", "maxItems", "uniqueItems",
-                             "description", "title", "$comment"})
+                             "pattern", "oneOf", "allOf", "anyOf", "minItems", "if", "then", "else", "exclusiveMinimum", "maximum", "maxItems",
+                             "uniqueItems", "description", "title", "$comment"})
 SHAPE_CHECKED = ("load_reference_states", "exact_combinations")     # read only for their shape; never judged
 
 
@@ -686,7 +686,7 @@ def evidence_members():
 _TYPES = {"object": lambda v: type(v) is dict, "array": lambda v: type(v) is list, "string": lambda v: type(v) is str,
           "number": lambda v: type(v) in (int, float), "integer": lambda v: type(v) is int or (type(v) is float and v.is_integer()),
           "boolean": lambda v: type(v) is bool, "null": lambda v: v is None}
-_SUBSCHEMA = ("items", "if", "then", "else")       # keywords whose value is one schema; properties and oneOf hold several
+_SUBSCHEMA = ("items", "if", "then", "else")       # keywords whose value is one schema; properties, oneOf, allOf and anyOf hold several
 
 
 class SchemaUnsupported(ValueError):
@@ -694,9 +694,24 @@ class SchemaUnsupported(ValueError):
     unresolvable $ref). It is raised, never reported as a failed match, so the record is refused outright."""
 
 
+class SchemaMalformed(SchemaUnsupported):
+    """A supported keyword whose value is not a schema of its kind (allOf or anyOf not a non-empty array of objects)."""
+
+
+def _branches(node, key, doc_name):
+    """allOf's or anyOf's subschemas: a non-empty list of objects (an empty allOf would admit everything, an empty anyOf
+    nothing); raises SchemaMalformed."""
+    if key not in node:
+        return ()
+    subs = node[key]
+    if not (type(subs) is list and subs and all(type(s) is dict for s in subs)):
+        raise SchemaMalformed(f"{doc_name}: {key} is not a non-empty array of schema objects")
+    return subs
+
+
 def schema_supported(node, doc_name, seen=None):
-    """Every node reachable from `node` (through $ref, properties, additionalProperties, items, if/then/else and oneOf)
-    uses only SCHEMA_KEYWORDS and _TYPES, wherever it sits; raises SchemaUnsupported otherwise."""
+    """Every node reachable from `node` (through $ref, properties, additionalProperties, items, if/then/else, oneOf, allOf
+    and anyOf) uses only SCHEMA_KEYWORDS and _TYPES, wherever it sits; raises SchemaUnsupported otherwise."""
     seen = set() if seen is None else seen
     if (doc_name, id(node)) in seen:
         return
@@ -725,6 +740,9 @@ def schema_supported(node, doc_name, seen=None):
         schema_supported(sub, doc_name, seen)
     for sub in node.get("oneOf", ()):
         schema_supported(sub, doc_name, seen)
+    for key in ("allOf", "anyOf"):
+        for sub in _branches(node, key, doc_name):
+            schema_supported(sub, doc_name, seen)
 
 
 def _json_equal(a, b):
@@ -743,8 +761,10 @@ def _json_equal(a, b):
 
 def schema_problems(value, node, doc_name, where="", budget=None):
     """Problems of a JSON value against a schema node (a closed subset of JSON Schema). The whole schema reachable from
-    the node is checked first: an unsupported keyword anywhere, in a branch of if/then/else or oneOf included, raises
-    SchemaUnsupported (a refusal of the record), never a failed match."""
+    the node is checked first: an unsupported keyword anywhere, in a branch of if/then/else, oneOf, allOf or anyOf included,
+    raises SchemaUnsupported (a refusal of the record), never a failed match. allOf holds when every subschema holds, beside
+    the node's other keywords; each failing branch's problems are reported under `<allOf[i]>`. anyOf holds when at least
+    one subschema holds, beside the node's other keywords."""
     if budget is None:
         schema_supported(node, doc_name)
         budget = [20]
@@ -812,6 +832,11 @@ def schema_problems(value, node, doc_name, where="", budget=None):
         n = sum(1 for sub in node["oneOf"] if not schema_problems(value, sub, doc_name, where, [20]))
         if n != 1:
             bad(f"matches {n} of oneOf's {len(node['oneOf'])} alternatives")
+    for i, sub in enumerate(_branches(node, "allOf", doc_name)):
+        out += schema_problems(value, sub, doc_name, f"{where}<allOf[{i}]>", budget)
+    any_of = _branches(node, "anyOf", doc_name)
+    if any_of and not any(not schema_problems(value, sub, doc_name, where, [20]) for sub in any_of):
+        bad(f"matches none of anyOf's {len(any_of)} alternatives")
     return out
 
 

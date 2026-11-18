@@ -171,7 +171,14 @@
     "provenance": "independent_reference"
    }
   ],
-  "combinations": []
+  "combinations": [],
+  "model_settings": {
+   "pressure_elongation": {
+    "operating_load_cases": [
+     "case:source-section"
+    ]
+   }
+  }
  },
  "materials": []
 }

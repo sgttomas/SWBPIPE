@@ -32,7 +32,7 @@ const SOURCE: &str = "core/product_physics/src/pressure_runtime.rs";
 const FAMILY: &str = "EXACT_PRESSURE_FAMILY_NOT_ADMITTED";
 const NEGATIVE: &str = "PRESSURE_REGION_PRESSURE_NEGATIVE";
 const LOAD_STATE_EQUIVALENT_STATIC: &str = "EXACT_EQUIVALENT_STATIC_LOAD_STATE_UNSUPPORTED";
-const PRESSURE_ID: &str = "openpipestress.result_semantics/0.3.0/pressure-2";
+const PRESSURE_ID: &str = "openpipestress.result_semantics/0.3.0/pressure-3";
 const PROVENANCE: &str = "invented_u0_control";
 
 #[derive(Clone, Copy)]

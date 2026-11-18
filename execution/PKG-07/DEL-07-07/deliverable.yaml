@@ -26,7 +26,9 @@ needs:
   when: Withholding Solve on the model checks' findings
   condition: >-
     The solver and the model checks report each finding with the governed diagnostic fields and its
-    class, and the model checks can be run alone on a solve request.
+    class, and the model checks can be run alone on a solve request. They include the solve's own
+    refusals of missing or invalid static-equivalent generation inputs, so a model lacking one is
+    withheld before any solve job starts.
   gating: true
 - from: DEL-05-04
   condition: >-
@@ -149,6 +151,12 @@ code_paths:
 - core/gui/pkg02_boundary.py
 checks:
 - apps/desktop/src/features/solve/SolvePanel.test.tsx
+- apps/desktop/src/features/solve/SolvePanel.withheld.test.tsx
+- apps/desktop/src/features/workspace/solveGates.readSolveGate.test.ts
+- apps/desktop/src/features/workspace/solveWithheld.session.test.tsx
+- apps/desktop/src/features/workspace/solveWithheld.native.session.test.tsx
+- apps/desktop/src/features/workspace/solveWithheld.reopen.session.test.tsx
+- apps/desktop/src/features/diagnostics/modelChecks.incomplete.test.tsx
 - apps/desktop/src/features/solve/SolveProgressPanel.test.tsx
 - apps/desktop/src/App.solveProgress.test.tsx
 - apps/desktop/src/features/workspace/solveJobResource.session.test.tsx

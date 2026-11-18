@@ -32,11 +32,18 @@ python3 $P/price.py eval <law-test log> <tree>                   # phases at in-
 
 1. **Run the new head.** `run <head>` should complete on all four points with no unmapped loop header and no unclassified argument, and both o10 checks should pass.
 2. **Review the prune.** `summary.json`'s `linemap.pruned` lists every rule the line map dropped, each with its rule. Each one must belong to a function or line the head really deleted. A dropped `site_from`, `site_total`, `edge_per_call` or `loop_total` rule removes a bound, so read the code. The deleted test is per file: a function moved to another file shows up as deleted, and its rules must be re-keyed to the new file rather than dropped. `linemap.resolutions_used` lists the reviewed resolutions that applied.
-3. **Compare.** Use `compare <new tree_merged.json> <registered tree>`.
+3. **Carry the hand-kept keys.** Some models key current-source sites by line rather than through the line map (the
+   B7a domain audits, owner choices, phase, returning errors and scoped TEXT, the `_X` emitter in `sens.py`, KD5C6's
+   offsets). When a pin, an audit preimage or a caller inventory stops on one, map the old line to the new by the
+   file's diff, confirm the text is unchanged, and move the key with a note of the lines that precede it. A key whose
+   text changed is a re-read, not a carry. The registered tree for the comparison comes from the preceding revision's
+   own committed tool (`git archive` it, with `tools/repository_history.py`, into scratch), checked with its own
+   `generate --check`.
+4. **Compare.** Use `compare <new tree_merged.json> <registered tree>`.
    - `a_le_b` true (every coefficient no higher) means the registered block still bounds the head, so nothing needs re-registering.
    - Otherwise, regenerate the block with `generate` and re-pin the law tests whose values moved. The law tests are `cargo test --lib profile_` in `core/product_physics`. Their `I65_G5_ATOM` lines feed `eval`.
-4. **Check the block.** `generate --check` confirms that a committed block is the generator's output for a tree.
-5. **Bind the points' atoms.** The separate points L(2,1) and L(1,2) use atoms the merged tree does not (the combination owners). `point-atoms <run dir> core/product_physics/src/retained_memory_law_tests.rs` writes them, bound by `g5_profile.py`'s own bindings, into the law tests' GENERATED POINT ATOMS block, and `profile_point_atoms_in_build` prints them as `I65_G5_ATOM` lines beside the profile's. An unbound atom, or one bound only as an Estimate, stops the generator: a point is never evaluated at an ASSUMED stride. `point-atoms --check` confirms the committed block against a run. The block is test-only; regenerating it changes the lib-test binary, not the profile or its record.
+5. **Check the block.** `generate --check` confirms that a committed block is the generator's output for a tree.
+6. **Bind the points' atoms.** The separate points L(2,1) and L(1,2) use atoms the merged tree does not (the combination owners). `point-atoms <run dir> core/product_physics/src/retained_memory_law_tests.rs` writes them, bound by `g5_profile.py`'s own bindings, into the law tests' GENERATED POINT ATOMS block, and `profile_point_atoms_in_build` prints them as `I65_G5_ATOM` lines beside the profile's. An unbound atom, or one bound only as an Estimate, stops the generator: a point is never evaluated at an ASSUMED stride. `point-atoms --check` confirms the committed block against a run. The block is test-only; regenerating it changes the lib-test binary, not the profile or its record.
 
 ### The basis line
 
@@ -119,7 +126,7 @@ All outputs go to `--out`.
    - An uncarried key stops the run unless the decisions' `KEYMAP_ALLOW` lists it as `("deleted", why)` and the map reported it deleted. A replaced key is never allowed (`lib/rule_ops.py`).
 6. Run the points. Route L runs at (lc, z) = (3,0), (2,1) and (1,2); route E runs at 3. Caps are `l = 128` and `c = 3`. Each point writes its loop log (`lib/mk_looplog.py`).
 7. Run `lib/o10_check.py`. Each appended loop rule may match only its listed `file:fn` functions, and each multiplicity-0 site must stay at 0. If a check fails, the run ends with exit 3 and no tree.
-8. Merge: `lib/merge_trees.py` takes route L at (3,0), SQ2's worst shape, and route E. Route L's other shapes are priced so they can be compared. Their phases at in-build values come from `eval <law-test log> runs/L_21/work/profile_tree.json` (the log of the `profile_` law tests, whose `I65_G5_ATOM` lines include the point atoms, step 5 above), and they should stay at or below the merged tree's in every phase and mode; the tool does not check this itself.
+8. Merge: `lib/merge_trees.py` takes route L at (3,0), SQ2's worst shape, and route E. Route L's other shapes are priced so they can be compared. Their phases at in-build values come from `eval <law-test log> runs/L_21/work/profile_tree.json` (the log of the `profile_` law tests, whose `I65_G5_ATOM` lines include the point atoms, step 6 of "Reading a profile change"), and they should stay at or below the merged tree's in every phase and mode; the tool does not check this itself.
 
 ## Layout and provenance
 
@@ -159,7 +166,8 @@ All outputs go to `--out`.
   - the same carry, with and without a rename, under adverse repository-local configuration, attributes and replace refs, `GIT_*` variables and global configuration and attributes; UTF-8 reading in the carry, the driver and a chain step under an ASCII locale; the snapshot's raw bytes under adverse attributes and replace refs;
   - the decision-key stop and `KEYMAP_ALLOW`;
   - the `EDGE_ZERO_REMOVE_CALLER` count;
-  - the generator's basis line.
+  - the generator's basis line;
+  - RT-L2's owner bindings and the typed census's acceptance of the setting (`tests/test_rtl2_pressure_elongation.py`).
 
 ## Adding an adjudication rule
 
@@ -365,6 +373,13 @@ the pressure-2 reader's combination pass behind `present()` (W16B-RD, whose dire
 by-name edges into the two new modules' private functions (W16BC-BN); W16BC-ID classifies the new modules' unreached
 format arguments. `rules/sq2_decisions_E.py`'s B7b-LR zero follows the direct pass. See the governing rules' §8.27 and
 `tests/test_w16bc_combinations_equivalent_static.py`.
+
+The reader's dispatch has had three shapes, and W16B-RD guards each by its exact text, so earlier registered revisions
+still price and any other text stops. In the one-view shape (Way H B2), `validate_pressure_evidence_without_certificate`
+holds the dispatch itself. It asks `present` of the received document first, and calls `without_member` only in its
+no-combination arm. `present` reads only `exact_combinations` and the result rows, and `without_member` removes only
+the certificate member, so the arm taken is the RT-A3 §4 shape's. One per-call edge carries both former premises, W16B-RD's and
+RTA3C-WC's: of its three direct-pass calls, the `present` arm's is unreached on D1, and the other two are the arms of one match.
 
 ### W-16 stage 2 imposed displacement with nonlinear supports and on spring bases
 
@@ -587,3 +602,162 @@ passed all seven once-only tests with verified closure at `1a07aec6b`. Exact-hea
 consultation and integration remain pending. S6 was drafted as §8.59; its source and tool comments
 still cite that number, which now means §8.60 (the modal support operations are §8.59). On the final composition
 with §8.59's predecessor (`da0afeabb`) the tool prices S6's tree unchanged. See the governing rules' §8.60.
+
+### RT-L2: pressure elongation per load case and the cancellation screen's exception
+
+**The change.** Model document 0.9.0 gains `model_settings.pressure_elongation`, a closed record holding one list of
+operating load-case ids, refused at validation without a pressure contract, empty, duplicated or naming no case. The
+exact route reads it per case: the straight Poisson coefficient is 2ν or 1, the arc's free-strain push and recovery are
+skipped when a case does not include it, the certified wall increment follows, and the formulation basis carries one of
+three fixed statements. The ordinary semantics move from pressure-2 to pressure-3; readers refuse a stored pressure-2
+result, and a successor whose base is one, by name. `finish_source_groups` gains the cancellation screen's exception:
+when the original screen fails, `cancellation_exception` runs the eligibility predicate, the family and the record; the
+warning is formed only with a record, and `blocked_envelope` removes it from a blocked document in place. D1.4 gains one
+clause: it declines a document whose `operating_load_cases` is longer than its load cases, from the two lengths.
+
+**The list's two bounds (RTL2-K, `base/rtl2_owners_model.py`).** The retained route runs, in order: the closed-field
+check and `CapturedInvocation::parse` (the typed list is allocated there), then `admit`'s censuses, then
+`domain_clauses` (with the clause), then `law_order`, and only with a permit the permitted run, where validation runs
+(once in the ordinary run and once more in a republication). So:
+- at parse time the list is bounded by the raw census only (k ≤ RawValues = 16,384; its strings ≤ RawStringCapacity =
+  131,072 B). RTL2-TS charges the typed list at that bound in T_resident and in T25.1a (`requested()`'s re-derivation;
+  it follows the clause, but its string bytes have no per-string capacity cap below RawStringCapacity, so it is kept at
+  the census as an over-bound);
+- validation sees k ≤ c ≤ C = 3 (`caps::LOAD_CASES`). RTL2-VS (validation's refusal working set, BuildScratch) and
+  RTL2-VL (`rules/o10_rules.py`: the refusal loops, k each, and the diagnostic loop, at most max(2, k + 1)) are priced
+  at k = C, the diagnostic loop as C + 1 = 4.
+The guard stops the run if the clause is removed or changed, leaves `family_clauses` or loses the load-case cap beside
+it, or if the chain that puts it before validation changes (family_clauses ← domain_clauses ← admit before law_order;
+law_order's `domain?` before its permit; admit before `permitted_dispatch`; no validation in retained_memory.rs,
+source_receipt.rs or model_fields.rs). RTL2-FS (the formulation statement's ≤ 3 named cases) and RTL2-RD (the pressure
+reader's key list and statements, T17 V5) do not depend on k.
+
+**Other rules.** Each argument stands beside its rule.
+- RTL2-XZ: on D1 every retained case's factor groups are empty (formed only inside the region loop, D1.5's empty E
+  regions; L never reaches the producer), so the screen is 0, the failed-screen branch is never entered and
+  `cancellation_exception` (the predicate, `family_nodes`, `cap_remainder_record`) and `cap_remainder_warning` are not
+  reached; borrowing the empty group map through the loop and dropping it after the screen holds no bytes. The two
+  edges from `finish_source_groups` and the four inside `cancellation_exception` (`exception_chains`, the predicate,
+  the family, the record) are zero; RTL2-XZ-M zeroes the warning's per-case formatted message
+  (`cap_remainder_warning_message`), formed only inside `cap_remainder_warning`, itself reached only with a record. The guard binds the call
+  structure (one production call of each, the exception inside the failed-screen branch, the warning inside
+  `if let Some(..) = exception`, B5L1's borrowed group loop), not message, code or token text.
+- RTL2-RX: the reader's record checks (`assembled_is_group_sum`, `exception_consistency`, `bore_group_value`) and the
+  warning check are zero edges: no record and no warning exist on D1; `exception_model_binding` is reached only from
+  `reader_verdict`. RTL2-FB: `consistency_bound_ratio`'s and `cap_remainder_record`'s f64 `.min`/`.max` are not
+  FallbackError's. RTL2-FV: `keep_finding`'s `finding()` is its closure parameter. RTL2-ID: the texts' argument classes.
+- `blocked_envelope`'s `retain` is `Vec::retain` in place (no crate target in the call graph, no allocation); it walks
+  the blocked document's diagnostics once.
+- B7a scoped TEXT: `problem` delegates to `finding`, which owns the diag sites; `finding`'s count equals `problem`'s on
+  D1. B7b-B: the route bases {pressure-3, preview-physics-2} select the B7b route-E rules. M08-VZ reads
+  `ExactContract::of` by its impl.
+
+**Carried obligations.** Full-file, prefix and body pins re-read on their diffs and re-bound (B7a domain, its admission
+prefix and `family_clauses`, W1 reductions and member loads, batch 5's prefix and `family_clauses`, KD5C4/C5, O4, TIM,
+RT-A4-HS); hand-kept current-source line keys carried by diff mapping with unchanged text (B7a domain audits, owner
+choices, phase, returning errors, scoped TEXT and its `problem` parents, the `_X` emitter). Batch 5's pressure pin now binds
+the whole production text of pressure_runtime.rs, each `#[cfg(test)]` item removed (B5-PR): the text before the first
+`#[cfg(test)]`, its former scope, would end at the exception's test probe inside `finish_source_groups` and leave the
+production after it unpinned there.
+
+**Outside D1 (not priced by the retained profile).** A pressure region's elongation token and flag, the arc push and
+recovery choice, the exception's predicate (its members and their formed directions), family, record and warning, and
+the reader's record and model checks all run only on a case with a pressure region.
+
+**Derivation and native checks.** On `19eab0355` (the final source with the third and fourth scrutinies' responses) the four points complete with O-10 0/0; the prune (36) and the
+resolutions (8) are main's. Against main `4d29420a0`'s kept tree (reproduced by its own tool), 1,468 of 1,606
+coefficients are equal, 138 higher and none lower: D +8 at every point (two validation calls, at most max(2, k + 1) ≤ C + 1 = 4
+diagnostics each), STATICS[1] +4,497 B (the pressure-3 table and schema, with the exception record's `remainder_force_n` and its
+description; the schema is resident, so its description bytes are priced), O_base +131,212 B with +16,384 s(String), +20 s(&str) and
++6 s((&str,String)) (the typed list at the census; the working set at C), TAV +174,654 B; s((&str,String)) joins the
+profile (four coefficients from 0). The block is regenerated with this revision's basis line (1,718 lines) and the
+point atoms (150 lines); both `--check`s are equal. At the in-build atoms every phase rises in both modes by W1/W2
++781,195 B, W3 +957,715 B, W4 +937,643 B, W5 +858,755 B, X1 +1,268,703 B, X2 +723,247 B, X3 +694,903 B; W3 stays the
+maximum (8,804,212,689 B dense, without R). Every phase of both modes fits the unchanged M, the 0.9 margin and the
+upward-rounded 5% TEXT reserve; the minimum headroom is 2,477,313,452 B (dense W3; sparse 2,536,444,796 B, W3), and
+L(2,1) and L(1,2) stay below the merged tree in every phase and mode. The law tests' pins move with it (the record,
+D_env 28,779 with push capacity 32,768, Text(diag_env) 273,233,168 B = 273,191,600 + 4 · 10,392, reviewed inputs #1
+and #10). This tool, with the twelve re-pinned base files restored from main and main's three o10 pin values, every new
+rule kept, reproduces main `4d29420a0`'s 1,602 coefficients, its 1,713-line block and its 154-line point atoms exactly.
+The source work law takes ΔE = 93 B (the setting's member) in the three mixed requests: each selected case and the
+composite publication charge 24E, so each moves by 2,232.
+
+### §8.62: PR-A, the integrity-diagnostic repair (DEL-04-07 *Blocked document*, *Published displacement*)
+
+The tool now prices the reviewed product behaviour of PR-A. No product behaviour or threshold changes. Each rule binds
+exact source text and names. Each rule is a positive bound, and none is a zero premise. The arguments stand beside the
+rules in `rules/o10_rules.py` and in `base/correction_failure_model.py`, `base/pra_guards.py` and
+`base/u4b_u5b_owners_model.py`. `tests/test_862_pr_a.py` holds the mutation tests.
+
+**PRA-IO, the blocked rewrite.** `blocked_envelope` rewrites each integrity diagnostic whose code is CHECKS_PASSED or
+SENSITIVE.
+- **Loop bound.** The loop's allocating body is bounded by `2*cases`. Only `append_integrity_report`'s one push makes
+  such a diagnostic, and it has two calls in the case solve. A product-crate census of every integrity id, code
+  literal and rewrite call binds this.
+- **Message.** The new message is site-audited: two constants, the prior code (33 B), and the integrity message
+  (inherited `message_int`). The old message is charged at its own site, so both strings are counted while they
+  coexist.
+
+**PRA-CF, the correction failure.** The failure texts are charged in every case solve that forms a correction. No
+premise excludes the failure.
+- **Debug text.** It is bounded from the kernel's own types and literals. `RecoveryFailure` is a `#[derive(Debug)]`
+  enum over `&'static str`, f64, u32 and fieldless enums. Its longest variant is charged at the longest frame-kernel
+  literal, Debug-escaped. It is formed at most once per call, because collect into Result stops at the first Err.
+- **Option chain.** It runs once per case solve. The finite scan inside it allocates nothing.
+- **Other owned texts.** The cloned failure, the held reason, the sentence and the warning (id, message, one ref) are
+  priced at their sites.
+- **Sentence check.** `composite_text.py` checks that the sentence stays within the integrity sentence term `S_len`.
+
+**PRA-TR and PRA-NL.**
+- PRA-TR binds the trigger's prior read and its two calls, whose one String is priced at its own site.
+- PRA-NL is route E's direct `require`. Its message is charged positively at the longest literal.
+
+**U5B-PD-RN, a rename with an explicit correspondence.** `published_nodal_displacements` became
+`corrected_nodal_displacements`. Both shapes are pinned by body and exact calls, and exactly one may be present. The
+charge `ordinary_published_displacements(N)` is unchanged: at most one N-vector of the owner is live at a time.
+
+**The fail-closed class: OWN-PRES and O10-GATE.**
+- **OWN-PRES.** `base/owner_presence.py` registers every presence-gated owner model by epoch. `price.py` stops (exit 4)
+  when an owner of the snapshot's latest epoch, or an earlier one, is absent. An older source that holds none of an
+  epoch's owners still adds nothing. A model that stops during the census counts as present there: it stops again,
+  with its own message, at its pricing step.
+- **O10-GATE.** `rules/o10_rules.py` records every `fnkey` lookup. It stops on any absent target that
+  `O10_ABSENT_REVIEWED` does not explain by a source fact that holds:
+  - a reviewed alternative function is present;
+  - the absent function's own distinctive text is gone from its file, so a rename that keeps the code stops;
+  - or the file itself is absent (a source before the module).
+
+  No allowance stands on absence alone.
+- **FN-VIS.** `fnkey` and the span helpers accept any `pub(...)` scope. The earlier `pub([a-z]+)` missed
+  `pub(in crate::structural) fn skew_spring_matrix`, so SKW-D1's zero edge into it was never added. It is added now.
+- **Limits.** These cover the owner models' readings and o10's gated blocks. They do not cover arbitrary text
+  predicates inside other models; those models' pins stop on change instead.
+
+**CFG-PROD, the production extraction.** `base/cfg_test_items.py` is the one extractor. It removes each exact
+`#[cfg(test)]` item, statement or expression-position element, and only that.
+- **Why.** The earlier helper (o10's `_production` and batch 5's copy) counted a `{` inside parentheses as the
+  element's block. A test statement with a closure (lib.rs's `tests::KD5_RECOVERY_PROBE.with(|probe| {..});`)
+  swallowed the production after it, hiding it from the guards that read that text.
+- **Same class.** RTL2's and U6's helpers truncated at the first `#[cfg(test)]`; they use the extractor now. Their
+  readings were re-checked equal on main 5e71c4d05 and PR-A's source.
+- **Prefix pins kept.** KD5's prefix pins keep their registered scope. The production they leave out of
+  certified_recovery.rs is bound by B7a's and W1's full-file pins of that file.
+- **The scanner, same class.** The scanner that builds the TEXT inventory, loops and call graph
+  (`loopscan.blank_test_items`) ended such a statement correctly at its depth-0 `;`. It ran a test-only struct
+  field on to the next depth-0 `;`, though. In retained_product.rs, after `ProductCapture`'s `#[cfg(test)]
+  trace_fault` field, it blanked the struct's later fields, its `}` and the `REQUESTED_MODE_KIND` constant. Test
+  attributes now end where the extractor ends them. Off-feature attributes keep their own rule, which stops at an
+  expression position.
+  - What the repair moves (both trees): only those field and constant declarations become visible. They hold no
+    call, macro, loop, closure or text site. The field sizes are priced by `size_of` probes (T11), the constant's
+    literal by the static-literal pass (`rust_literals.production_literals`, its own lexer), and its uses by raw-text
+    constant reads.
+  - What the visibility moves: `callgraph_g5` reads struct fields from this text to type `self.<field>` receivers.
+    With ProductCapture's fields hidden, its impls' field calls (`self.adapter.reserve(..)`, `self.parked.len()`, ..)
+    were unknown receivers fanned out by name to every scanned method of that name. Now they resolve to the field's
+    type (418 edges fewer, none added). The fan-out reached lib.rs's `ReservedNotice::reserve`, a diagnostic literal,
+    from 21 functions; it now has its one real caller. D and the diagnostic and TAV text fall on main and PR-A's
+    source alike (an over-approximation removed, not a charge dropped).
+  - Test-only code is blanked in addition: the `else` tails of `let x = if .. {..} else {..};` and `use` semicolons.
+- **Regressions.** These are in `tests/test_862_pr_a.py`: nested test modules, a test statement inside a function,
+  `cfg(not(test))`, attribute stacks, fields, arms, literals, and the real lib.rs case.

@@ -12,7 +12,7 @@ load-reference-1 as their authoring identity; that is admitted for selectors onl
 Mirrors the ordinary first-static adapter: an explicitly selected foreground
 ``openpipestress-runner solve --input - --solver-mode <mode>`` process, the
 ControlledExport/CLI1.0 wrapper and a raw0.2 mechanics envelope whose producer
-is exactly ``openpipestress.result_semantics/0.3.0/pressure-2`` with profile
+is exactly ``openpipestress.result_semantics/0.3.0/pressure-3`` with profile
 ``exact_pressure_v3`` and the load/reference-state group. Cases are not hard-coded: they
 come from a hash-locked case manifest
 (``openpipestress.load_reference_qualification_manifest/1``) named by a run
@@ -64,7 +64,7 @@ REFERENCE_FORMAT = gate.REFERENCE_FORMAT
 BINDING_FORMAT = 'openpipestress.load_reference_consistency_binding/3'
 READER = 'pressure'
 ENTRYPOINT = 'validate_pressure_evidence'
-CONTRACT = 'openpipestress.result_semantics/0.3.0/pressure-2'
+CONTRACT = 'openpipestress.result_semantics/0.3.0/pressure-3'
 PROFILE = 'exact_pressure_v3'
 RECORD_PROFILE = 'resolved_straight_load_state_v1'
 # The frozen package's selector files name the retired load-reference-1 as their authoring identity (B7b moved its

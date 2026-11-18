@@ -430,7 +430,14 @@
     "provenance": "invented T4-U5a reference fixture (JR J3 values); not library, catalog, manufacturer or code-rule data"
    }
   ],
-  "combinations": []
+  "combinations": [],
+  "model_settings": {
+   "pressure_elongation": {
+    "operating_load_cases": [
+     "load:U5A"
+    ]
+   }
+  }
  },
  "materials": []
 }

@@ -1,0 +1,83 @@
+name: Piping Windows read script
+
+# The CAEPIPE harness's read script (DEL-17-05) on hosted Windows: its job query, run as the exact maintained script
+# by digest through `cmd /c` and Windows PowerShell 5.1, against named jobs the test creates and closes, with three
+# controls that must fail. ARM64 (windows-11-arm, the deployed guest's architecture) and x64 (windows-2025).
+#
+# Supplemental evidence that reports beside the required `harness` check: `harness` does not wait on these jobs, and
+# the repository's required-check setting is unchanged. It shows the script's own behaviour on the runner only; it
+# does not establish any guest's deployed bytes, transport, identity, permissions, namespace visibility or job state.
+on:
+  pull_request:
+    paths:
+      - core/handoff/caepipe_external/guest/Read-SwbpipeGuest.ps1
+      - core/handoff/caepipe_external/harness.py
+      - tests/test_caepipe_read_script_windows.py
+      - .github/workflows/piping-windows-read-script.yml
+      - .gitattributes
+  workflow_dispatch:
+
+permissions:
+  contents: read
+concurrency:
+  group: piping-windows-read-script-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
+
+jobs:
+  read-script:
+    name: Windows read script (${{ matrix.arch }})
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - runner: windows-11-arm
+            arch: Arm64
+            python-arch: arm64
+          - runner: windows-2025
+            arch: X64
+            python-arch: x64
+    runs-on: ${{ matrix.runner }}
+    timeout-minutes: 20
+    defaults:
+      run:
+        shell: pwsh
+        working-directory: .
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
+          persist-credentials: false
+          # Historical execution records are not inputs and include paths beyond Windows MAX_PATH.
+          sparse-checkout: |
+            /*
+            !/execution/
+          sparse-checkout-cone-mode: false
+      - name: Verify candidate and native architecture
+        env:
+          EXPECTED_HEAD: ${{ github.event.pull_request.head.sha || github.sha }}
+          EXPECTED_ARCH: ${{ matrix.arch }}
+        run: |
+          if (-not $IsWindows -or (git rev-parse HEAD) -ne $env:EXPECTED_HEAD) { throw 'wrong checkout candidate' }
+          $os = [System.Runtime.InteropServices.RuntimeInformation]::OSArchitecture
+          if ("$os" -ne $env:EXPECTED_ARCH) { throw "native $env:EXPECTED_ARCH Windows required, found $os" }
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+          architecture: ${{ matrix.python-arch }}
+      - name: Record the runner's versions
+        shell: powershell
+        run: |
+          $os = Get-CimInstance -ClassName Win32_OperatingSystem
+          $net = (Get-ItemProperty 'HKLM:\SOFTWARE\Microsoft\NET Framework Setup\NDP\v4\Full').Release
+          "Windows build: $($os.Version) ($($os.Caption))"
+          "OS architecture: $([System.Runtime.InteropServices.RuntimeInformation]::OSArchitecture)"
+          "Windows PowerShell process architecture: $([System.Runtime.InteropServices.RuntimeInformation]::ProcessArchitecture)"
+          "Windows PowerShell: $($PSVersionTable.PSVersion) ($($PSVersionTable.PSEdition))"
+          ".NET Framework release: $net"
+      - name: Run the read script's job query test
+        env:
+          OPENPIPESTRESS_NO_CARGO_BUILD: '1'
+        run: |
+          python -m pip install --disable-pip-version-check --quiet pytest
+          python -m pytest -q -s -p no:cacheprovider --basetemp "$env:RUNNER_TEMP\read-script" tests/test_caepipe_read_script_windows.py
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }

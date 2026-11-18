@@ -223,7 +223,7 @@ describe("numericalHealthView", () => {
       healthCase("X", "not_assessed", { integrity_diagnostic_id: null })
     ]), { eligible: false, verdictHold: false })!;
     const byId = Object.fromEntries(view.cases.map((c) => [c.caseId, c]));
-    expect(byId.P.sentences).toEqual(["The solver's residual and conditioning checks passed for P. These checks look for numerical trouble; they do not measure the error, and they say nothing about whether the model, its inputs or its design are right."]);
+    expect(byId.P.sentences).toEqual(["The solver's residual and conditioning checks passed for P."]);
     expect(byId.P.conditioning).toContain("roughly below 0.1 of the about 16");
     // The figure shows for passed and sensitive cases only.
     expect(byId.U.conditioning).toBeNull();
@@ -237,7 +237,7 @@ describe("numericalHealthView", () => {
     expect(byId.M.integrityDiagnosticId).toBeNull();
     expect(byId.N.sentences[1]).toBe("The assembled stiffness is not positive in some direction. Review element and support properties.");
     expect(byId.F.sentences[1]).toBe("See the solver diagnostic for the reason.");
-    expect(byId.X.sentences).toEqual(["The solver did not assess the numerical quality of X."]);
+    expect(byId.X.sentences).toEqual(["No numerical quality is stated for X."]);
   });
 
   it("prefixes the pressure-source route, adds the eligible wording and places no row badges", () => {
@@ -262,7 +262,7 @@ describe("numericalHealthView", () => {
   it("adds the output sentence only under the verdict-only hold on the generic route", () => {
     const cases = [healthCase("LC1", "sensitive"), healthCase("LC2", "not_assessed"), healthCase("LC3", "checks_passed")];
     expect(numericalHealthView(health("generic", true, cases), { eligible: false, verdictHold: true })!.outputSentence)
-      .toBe("No results of this run can be exported or used by rule checks while 2 load case(s) are not checks passed.");
+      .toBe("Rule checks, the result JSON and stress-neutral exports and the report package do not use this run while 2 load case(s) are not checks passed; results tables, CSV export and, for an exact-route result, the rendered report carry each case's standing.");
     expect(numericalHealthView(health("generic", true, cases), { eligible: false, verdictHold: false })!.outputSentence).toBeNull();
     expect(numericalHealthView(health("generic", false, cases), { eligible: false, verdictHold: false })!.outputSentence).toBeNull();
     expect(numericalHealthView(health("pressure_source", false, cases), { eligible: false, verdictHold: true })!.outputSentence).toBeNull();

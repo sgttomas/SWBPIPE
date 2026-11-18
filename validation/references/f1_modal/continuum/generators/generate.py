@@ -27,7 +27,7 @@ from numerics import emit_json  # noqa: E402
 
 SCHEMA = "swbpipe.f1_modal.continuum/v1"
 STATUS = "candidate references, not yet refuted"
-AUTHORED = ["README.md", "REFUTATION.md"]
+AUTHORED = ["README.md", "REFUTATION.md", "ADDENDUM-1.md"]
 GENERATORS = ["generators/numerics.py", "generators/continuum.py", "generators/fe_convergence.py",
               "generators/inertia_witnesses.py", "generators/generate.py"]
 NUMBER_FORMAT = ("Inputs are binary64: 'binary64' is the shortest round-trip decimal, 'hex' the exact hex form, "

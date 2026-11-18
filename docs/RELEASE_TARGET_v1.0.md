@@ -74,9 +74,13 @@ results with".
   (pressure-design thickness) are dropped from the roadmap. User-rule outcomes
   are shown as "within / exceeds user limit" rather than pass/fail, so that no
   outcome reads as compliance.
-- **Pressure effects.** The Bourdon effect is a Should option for v1.0, off by
-  default and clearly labelled (DEL-04-07). Pressure-dependent flexibility and
-  SIF corrections are out of scope: users enter their own k and SIF.
+- **Pressure effects.** Pressure elongation is a Should option for v1.0, off
+  by default, applied only in the operating load cases the user names and
+  stated on the result of each case that has pressure regions (DEL-04-07). Its
+  correspondence with the Bourdon flag of a CAEPIPE model file is a benchmark
+  hypothesis. The opening of a bend under pressure, which some texts also call
+  the Bourdon effect, and pressure-dependent flexibility and SIF corrections
+  are out of scope: users enter their own k and SIF.
 - **Exact-route results under user release.** Route 010 admits exact-route results with exact source binding, exact sections and limitations, Diagnostics binding and producer item 9 (DEL-08-01, REQ-019).
 - **Usability.** Agent 0 uses its own judgment on typical use cases an
   engineer would go through, and puts the desktop through them thoroughly
@@ -143,7 +147,9 @@ The validation lane proposes the set; this section records the method only:
   Stresses and code checks are left out.
 - **Models.** All invented. A seeded generator covers model families from
   straight spans to nonlinear supports, hangers and dynamics. Closed-form
-  members give an independent third value.
+  members give an independent third value. Where no closed form exists, the
+  comparison with the program is the validation: in the owner's words of
+  14 November 2026, CAEPIPE is "a trusted validator model".
 - **Inputs.** Each code-dependent input that changes mechanics is held equal on
   both sides. Where it cannot be held equal, it is named and carried by a
   one-parameter series. SWBPIPE is never tuned to match.
@@ -157,10 +163,26 @@ The validation lane proposes the set; this section records the method only:
   | A named inexact input remains | 5e-3 |
   | Nonlinear | 2e-2, and support status must match exactly |
   | Modal | 5e-3 on frequencies, MAC ≥ 0.99 |
+  | Spectrum | 1e-2 on displacements and rotations; 5e-3 on element forces, moments and support loads |
 
-  The spectrum class is set before any comparison run, from its closed-form
-  references, never from comparison results, and reported to the owner.
-  Values are only tightened.
+  The spectrum class was set before any spectrum comparison run, from its
+  closed-form references alone, never from comparison results, and was
+  reported to the owner. It applies to combined magnitudes whose two sides
+  correspond: the same periodic modes, matched mode by mode, with no repeated
+  cluster; the same modal, directional and rigid-response rules; and every
+  periodic mode and the rigid frequency inside the spectrum's tabulated range.
+  A row that fails one of these conditions, including a repeated-cluster or
+  mode-set mismatch, is a finding, not a tolerated difference. On the
+  references' own computation, with no product result involved, SWBPIPE's
+  stated formulation has a smallest margin of 5.87 over the consistent-mass
+  combined and rigid-response population at 8 members or more (a force under
+  the missing-mass correction with the continuum's periodic classification,
+  8.52e-4 as summarized), and 34.3 on the benchmark pipe's case C at 8 members
+  (the tip support reaction under the absolute sum, TWO spectrum). DEL-04-10
+  REQ-008 states its derivation, applicability and governing rows. The formulation
+  difference predicted with the references before any comparison is a frozen
+  reference and is changed only on independent grounds. Values are only
+  tightened.
 - **Findings.** Any result outside the profile, an unmatched row, or a status,
   refusal or mode-count mismatch is a finding.
   - Triage order: mapping check, closed form, then SWBPIPE's own invariants,
@@ -288,6 +310,27 @@ target remains adequate. A failure alone does not justify relaxing one.
     acceptance, approval or reliance (F-PIP-3).
 
     *Owning deliverables:* DEL-16-06.
+18. **Numerical claims.** A case governed by DEL-04-01/REQ-015 that is
+    presented as having passed its integrity check, or as established, has
+    the bound and standing that requirement states. Only the modal
+    eigenproblem's integrity checks governed by DEL-04-09/REQ-003 and REQ-004
+    are outside this criterion. A static state-case solve used by a modal
+    analysis, including its nonlinear support-state confirmation, remains
+    within this criterion. The error-bound argument is justified under its stated
+    arithmetic model, and the product establishes its case-dependent
+    conditions; an unproved multiple of a condition estimate does not
+    establish an upper bound. Where the integrity bound's conditions cannot be
+    met, the check is unavailable and the solve is reported as numerically
+    sensitive with its named reason. A converged nonlinear state is presented
+    as confirmed only when DEL-04-01/REQ-016's enclosures establish every
+    nonlinear support's state, as DEL-04-04/REQ-013 and DEL-04-07/CLM-002
+    require; otherwise it remains unconfirmed with its named reason. Readers
+    and consumers preserve these outcomes and apply their existing standing
+    and admission rules. A capability these criteria require that is refused
+    on this ground is a refusal under criterion 3; declaring that refusal
+    acceptable does not make an unmet criterion met.
+
+    *Owning deliverables:* DEL-04-01 (integrity bound and nonlinear enclosures); DEL-04-04 and DEL-04-07 (support-state confirmation and publication); DEL-05-02 (ordinary product reader); DEL-04-08 (retained-result reader, reader bindings and test verifier). The viewer, report, export, rule-binding and modal-state consumers apply their existing rules under their own deliverables (DEL-07-05, DEL-08-01, DEL-08-04, DEL-06-03, DEL-04-09).
 
 ## Reserved to the owner
 
@@ -303,6 +346,7 @@ target remains adequate. A failure alone does not justify relaxing one.
 - Release authority: waiving a release gate, or accepting a risk as the act of
   releasing.
 - The native-smoke `expected.json` values.
+- Amending `docs/PRD.md`.
 
 Agent 0 decides what else the target needs, under the grant in `AGENTS.md`
 ("Posture for this phase"): changing an exit criterion or its value on product

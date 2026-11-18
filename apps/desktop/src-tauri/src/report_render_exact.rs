@@ -139,6 +139,11 @@ pub(crate) fn render_calculation_report_args_in(
         bind_pf_timoshenko_render_input(&input, &texts, registry, lease)?;
     } else if texts.any() {
         return Err(CommandError::Command(sections_mismatch("exact_route").message));
+    } else if input.get("numerical_standing").is_some_and(|record| !record.is_null()) {
+        // DEL-08-01 REQ-024: a standing record is rendered only where this host
+        // re-derives it from a bound result (the exact and pressure-free Timoshenko
+        // bindings above); an unbound input carries none.
+        return Err(CommandError::Command(sections_mismatch("numerical_standing").message));
     } else if limitations(&input).filter_map(|item| item.get("limitation_id").and_then(Value::as_str)).any(is_pf_timoshenko_limitation_id) {
         return Err(CommandError::Command(sections_mismatch(PF_TIMOSHENKO_SECTION).message));
     }
@@ -275,7 +280,7 @@ fn bind_render_admission(
     let growth = exact_render_growth_bytes(result, intake, manifest_text).map_err(CommandError::Command)?;
     lease.grow_to(lease.bytes().saturating_add(growth)).map_err(|refusal| CommandError::Ingress(registry.refuse(refusal)))?;
     // Steps 3-5: parse, the native standing, the result and model digests.
-    let bound = binding::read_delivered_source(admission, &digests, result, intake).map_err(refused)?;
+    let bound = binding::read_delivered_source(admission, &digests, result, intake, binding::SourceAdmission::Render).map_err(refused)?;
     // The input manifest, parsed as the save parses its own: its SHA-256 is the
     // binding's, and its model is the bound model.
     let manifest = crate::report_package_save::parse_canonical("input_manifest", manifest_text)
@@ -288,10 +293,37 @@ fn bind_render_admission(
         .map_err(|_| refused(sections_mismatch("input_manifest.model_basis")))?;
     drop(manifest);
     rederive(input, &bound.source, &bound.model_sha256, &digests).map_err(|section| refused(sections_mismatch(&section)))?;
+    // DEL-08-01 REQ-024: the standing record the report states is the one the
+    // reader derives from the bound result and model, exactly.
+    check_numerical_standing(input, &bound.source, &bound.model, &bound.standing).map_err(|section| refused(sections_mismatch(&section)))?;
+    // The Diagnostics after the result's are the session entries the host
+    // derives from the bound model, and none copies a result diagnostic
+    // (review of f3d02469c, finding 2; `report_session_diagnostics`). The
+    // lease grows by the check's provision first; where it cannot, the pool's
+    // refusal leaves and the check does not run.
+    let provision = crate::report_session_diagnostics::session_check_provision_bytes(
+        intake.len() as u64,
+        crate::report_session_diagnostics::diagnostics_text_bytes(input),
+    );
+    lease.grow_to(lease.bytes().saturating_add(provision)).map_err(|refusal| CommandError::Ingress(registry.refuse(refusal)))?;
+    crate::report_session_diagnostics::check_session_diagnostics(input, &bound.source, &bound.model)
+        .map_err(|detail| refused(sections_mismatch(&format!("diagnostics: {detail}"))))?;
     // Slice C5 (DEL-08-01 Design `report-section-composer.md` §2.7): the
     // model-input tables are P(M, C) of the bound intake model and the input's
     // own composition; the refusal names a JSON pointer, never a value.
     open_pipe_stress_report_package::model_input::check_model_input_tables(&bound.model, input).map_err(CommandError::Command)
+}
+
+/// DEL-08-01 REQ-024: the input's `numerical_standing` equals the standing
+/// record the reader derives from the bound result and model
+/// (`report_standing::report_standing`). `Err` names the section.
+fn check_numerical_standing(input: &Value, source: &Value, model: &Value, standing: &Value) -> Result<(), String> {
+    let derived = open_pipe_stress_report_standing::report_standing::historical_standing_record(source, model, standing)
+        .map_err(|_| "numerical_standing".to_string())?;
+    if input.get("numerical_standing") != Some(&derived) {
+        return Err("numerical_standing".to_string());
+    }
+    Ok(())
 }
 
 /// The re-derivation (§3.6) with the functions the package's items 5, 6 and 9

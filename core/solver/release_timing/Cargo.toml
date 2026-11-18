@@ -14,6 +14,14 @@ publish = false
 # desktop's features (apps/desktop/src-tauri/Cargo.toml), and no release profile
 # is set here because the desktop sets none (cargo's default release profile).
 # Cargo.lock pins the registry packages to the desktop lock's versions.
+# build.rs uses the standard library only (no build dependency): on every build it embeds the
+# source and toolchain identity that `release_timing --build-identity` prints and
+# `release_timing --supervise` records.
+
+# The supervise mode's watch, classification and records (src/lib.rs); the driver mode uses none
+# of it.
+[lib]
+path = "src/lib.rs"
 
 [[bin]]
 name = "release_timing"
@@ -22,10 +30,16 @@ test = false
 
 [dependencies]
 open_pipe_stress_product_physics = { path = "../../product_physics" }
+# The desktop's on-demand model checks (`check_preview_model`), timed by the driver's own
+# `--model-checks` invocation; a solve invocation never calls them.
+open_pipe_stress_operation_applier = { path = "../../model_operations/operation_applier" }
 # The desktop declares float_roundtrip and raw_value; its resolved normal build
 # also has alloc (enabled by another dependency; a no-op beside std). The same
 # resolved set here: default, std, alloc, float_roundtrip, raw_value.
 serde_json = { version = "1", features = ["float_roundtrip", "raw_value", "alloc"] }
+# `serde::de::IgnoredAny`, for parse_back, the cheaper stand-in for the worker's read-back of its
+# result text; already in the closure through serde_json.
+serde = "1"
 sha2 = "0.10"
 
 [target.'cfg(unix)'.dependencies]

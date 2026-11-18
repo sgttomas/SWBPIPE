@@ -61,5 +61,8 @@ checks:
 # Examines the Python module the product does not call, and no acceptance criterion of this scope.
 - tests/test_operation_validation_preview.py
 - core/model_operations/operation_applier/tests/document_validation_apply.rs
+# Issue 380: the material shear modulus field rule (absent G created from an explicit stress unit;
+# unit, dimension, positivity and staleness refusals; E and alpha keep the existing-only rule).
+- core/model_operations/operation_applier/tests/material_shear_modulus_entry.rs
 - apps/desktop/src/services/operationService.test.ts
 - apps/desktop/src/services/operationBatchService.test.ts

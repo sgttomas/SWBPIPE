@@ -84,7 +84,7 @@ pub const MODAL_RESULT_LIMITATIONS: [&str; 2] = [
 ];
 /// Why public engineering-result admission stays disabled (Design §5.3).
 pub const MODAL_RESULT_ADMISSION_CONDITIONS: [&str; 6] = [
-    "production integrity parameters are not pinned (O-6, D-TOL): every document is formed with a labelled test-local set",
+    "parameter standing is not result standing: a document with the selected integrity parameters (A1 to A3) is still experimental, and a test-local document is labelled as such",
     "a document is fully validated only when every mandatory relation passes: an unresolved Bessel relation (interim contract), a subject census not re-derived from the bound request, or a partition from reported nonlinear support states leaves it unmet, whatever the units",
     "the dense work budget is unmeasured and no work guard is applied (O-4)",
     "no native, worker or custody path forms, stores or transports the document",
@@ -116,6 +116,38 @@ const PARAMETER_FIELDS: [&str; 18] = [
     "sturm_separation_multiple", "sturm_growth_limit", "sturm_max_candidates", "sturm_gap_log_positions",
     "sturm_whole_spectrum_offsets", "identity_tolerance",
 ];
+/// The canonical label of the selected parameter standing (DEL-04-09
+/// "Parameter standing").
+pub const MODAL_SELECTED_PARAMETER_LABEL: &str = "selected_a1_a2_a3_criteria";
+/// The reader's own statement of the selected tuple (Agent 0's A1, A2 and A3
+/// selections, DEL-04-09 REQ-001, REQ-003 and REQ-005), each scalar as its
+/// binary64 bit pattern, written from the decided values, not read from the
+/// producer. `max_ql_iterations_per_eigenvalue` and `sturm_max_candidates` are
+/// counts, compared as numbers.
+const SELECTED_SCALARS: [(&str, u64); 15] = [
+    ("infinite_mu_relative_threshold", 0x3CA0_0000_0000_0000),  // 2^-53
+    ("mass_pivot_relative_threshold", 0x3DB0_0000_0000_0000),   // 2^-36
+    ("resolution_floor_constant", 0x3FF0_0000_0000_0000),       // 1
+    ("resolution_floor_multiple", 0x4024_0000_0000_0000),       // 10
+    ("formed_backward_error_multiple", 0x4050_0000_0000_0000),  // 2^6
+    ("screen_error_estimate_threshold", 0x3EB0_C6F7_A0B5_ED8D), // 1e-6
+    ("max_ql_iterations_per_eigenvalue", 0x403E_0000_0000_0000), // 30
+    ("residual_threshold", 0x3E10_0000_0000_0000),              // 2^-30
+    ("orthogonality_threshold", 0x3E80_0000_0000_0000),         // 2^-23
+    ("cluster_tolerance", 0x3EB0_0000_0000_0000),               // 2^-20
+    ("no_translation_threshold", 0x3EB0_C6F7_A0B5_ED8D),        // 1e-6
+    ("sturm_conditioning_multiple", 0x4090_0000_0000_0000),     // 2^10
+    ("sturm_separation_multiple", 0x4060_0000_0000_0000),       // 2^7
+    ("sturm_growth_limit", 0x4330_0000_0000_0000),              // 2^52
+    ("sturm_max_candidates", 0x401C_0000_0000_0000),            // 7
+];
+/// The selected lists, in order, as bit patterns.
+const SELECTED_GAP_LOG_POSITIONS: [u64; 6] =
+    [0x3FD0_0000_0000_0000, 0x3FE8_0000_0000_0000, 0x3FC0_0000_0000_0000, 0x3FD8_0000_0000_0000, 0x3FE4_0000_0000_0000, 0x3FEC_0000_0000_0000];
+const SELECTED_WHOLE_SPECTRUM_OFFSETS: [u64; 3] = [0x3FF0_0000_0000_0000, 0x3FE0_0000_0000_0000, 0x3FD0_0000_0000_0000];
+/// The selected identity tolerance: relative 2^-44, absolute +0.
+const SELECTED_IDENTITY_TOLERANCE: (u64, u64) = (0x3D30_0000_0000_0000, 0);
+
 const DECISIONS: [&str; 8] = [
     "accepted", "outside_gap", "out_of_range", "separation_out_of_range", "factorization_rejected", "unseparated",
     "growth_limit", "ill_conditioned",
@@ -642,15 +674,43 @@ fn mr_identity(doc: &Value) -> R<()> {
     if admission["public_engineering_result"] != Value::Bool(false) {
         return Err("/admission/public_engineering_result: modal_result 0.1.0 admits no public engineering result".into());
     }
-    mr_const(&admission["parameter_standing"], "/admission/parameter_standing", "test_local")?;
-    if mr_text(&admission["parameter_label"], "/admission/parameter_label")?.is_empty() {
+    let standing = mr_one_of(&admission["parameter_standing"], "/admission/parameter_standing", &["selected", "test_local"])?;
+    let label = mr_text(&admission["parameter_label"], "/admission/parameter_label")?;
+    if label.is_empty() {
         return Err("/admission/parameter_label: empty".into());
     }
     let run = mr_object(&doc["run"], "/run", &["run_id", "mode_id_scope", "solver_path"])?;
     mr_text(&run["run_id"], "/run/run_id")?;
     mr_const(&run["mode_id_scope"], "/run/mode_id_scope", "run_local")?;
     mr_const(&run["solver_path"], "/run/solver_path", "dense_scrutiny")?;
-    mr_binding_closure(&doc["binding"], doc["status"] != "refused")
+    mr_binding_closure(&doc["binding"], doc["status"] != "refused")?;
+    mr_parameter_standing(standing, label, &doc["binding"]["integrity_parameters"])
+}
+
+/// The parameter standing against the bound tuple (DEL-04-09 "Parameter
+/// standing"): `selected` exactly when the tuple is the reader's own selected
+/// tuple bit for bit, under the canonical label; `test_local` otherwise, never
+/// under the canonical label. The tuple's shape is already checked.
+fn mr_parameter_standing(standing: &str, label: &str, parameters: &Value) -> R<()> {
+    let bits = |v: &Value| v.as_f64().map(f64::to_bits);
+    let list = |v: &Value, expected: &[u64]| v.as_array().is_some_and(|a| a.len() == expected.len() && a.iter().zip(expected).all(|(x, e)| bits(x) == Some(*e)));
+    let scalars = SELECTED_SCALARS.iter().all(|(name, e)| bits(&parameters[*name]) == Some(*e));
+    let tolerance = &parameters["identity_tolerance"];
+    let selected = scalars
+        && list(&parameters["sturm_gap_log_positions"], &SELECTED_GAP_LOG_POSITIONS)
+        && list(&parameters["sturm_whole_spectrum_offsets"], &SELECTED_WHOLE_SPECTRUM_OFFSETS)
+        && bits(&tolerance["relative"]) == Some(SELECTED_IDENTITY_TOLERANCE.0)
+        && bits(&tolerance["absolute"]) == Some(SELECTED_IDENTITY_TOLERANCE.1);
+    match (standing, selected) {
+        ("selected", true) if label == MODAL_SELECTED_PARAMETER_LABEL => Ok(()),
+        ("selected", true) => Err(format!("/admission/parameter_label: the selected standing carries `{MODAL_SELECTED_PARAMETER_LABEL}`")),
+        ("selected", false) => Err("/admission/parameter_standing: `selected` on a tuple that is not the selected one".into()),
+        (_, true) => Err("/admission/parameter_standing: the bound tuple is the selected one, so it is not `test_local`".into()),
+        (_, false) if label == MODAL_SELECTED_PARAMETER_LABEL => {
+            Err("/admission/parameter_label: a test-local tuple under the selected label".into())
+        }
+        _ => Ok(()),
+    }
 }
 
 /// The binding's shape; `solved` is whether the document is read as solved

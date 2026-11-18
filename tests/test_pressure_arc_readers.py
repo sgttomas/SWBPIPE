@@ -12,7 +12,7 @@ import math
 from pathlib import Path
 
 import pytest
-from tests.verifiers.pressure_2 import (
+from tests.verifiers.pressure_3 import (
     CONTRACT_ID as PRESSURE_ID, validate_exact_pressure_evidence, validate_pressure_evidence, verify_source,
 )
 

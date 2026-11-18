@@ -1,0 +1,3 @@
+release-timing-stage {"lifetime_max_phys_footprint_bytes":2310576,"phys_footprint_bytes":2310576,"repeat":0,"ru_maxrss_bytes":4587520,"seconds":0.000033167,"stage":"read"}
+release-timing-stage {"lifetime_max_phys_footprint_bytes":3228080,"phys_footprint_bytes":3228080,"repeat":0,"ru_maxrss_bytes":6045696,"seconds":0.00181125,"stage":"parse"}
+release-timing-stage {"lifetime_max_phys_footprint_bytes":3228080,"phys_footprint_bytes":3228080,"repeat":0,"ru_maxrss_bytes":6094848,"seconds":3.33e-7,"stage":"request"}

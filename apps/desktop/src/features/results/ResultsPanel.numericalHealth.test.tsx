@@ -39,7 +39,7 @@ describe("ResultsPanel numerical health", () => {
     render(<ResultsPanel result={genericResult()} knowledge={null} analysisRun={null} selectedResultId={null} onSelectResult={() => {}}
       numericalHealth={view(genericHealth(true), { eligible: false, verdictHold: true })} />);
     expect(screen.getByTestId("numerical-health-header-line").textContent).toBe(
-      "Numerical health: 1 sensitive, 1 checks passed. No results of this run can be exported or used by rule checks while 1 load case(s) are not checks passed."
+      "Numerical health: 1 sensitive, 1 checks passed. Rule checks, the result JSON and stress-neutral exports and the report package do not use this run while 1 load case(s) are not checks passed; results tables, CSV export and, for an exact-route result, the rendered report carry each case's standing."
     );
     expect(screen.getByTestId("numerical-health-header")).toHaveTextContent(/^Numerical health: 1 sensitive, 1 checks passed$/);
     expect(screen.getByTestId("numerical-health-header")).toHaveAttribute("data-badge", "red");
@@ -179,6 +179,27 @@ describe("the per-case detail disclosure", () => {
     render(<ResultsPanel result={genericResult()} knowledge={null} analysisRun={null} selectedResultId={null} onSelectResult={() => {}}
       numericalHealth={view({ route: "generic", verdict_only: false, cases: [PASSED, { ...PASSED, case_id: "load:é", integrity_diagnostic_id: "diagnostic:numerical-integrity:load:é" }], combinations: [] }, { eligible: true, verdictHold: false })} />);
     expect(screen.getByTestId("numerical-health-detail")).not.toHaveAttribute("open");
+  });
+});
+
+describe("the boundary sentence", () => {
+  const BOUNDARY = "These checks look for numerical trouble; they do not measure the error, and they say nothing about whether the model, its inputs or its design are right.";
+  const count = () => (screen.getByTestId("numerical-health-detail").textContent ?? "").split(BOUNDARY).length - 1;
+  it("is carried once by every detail, whatever its cases' states (REQ-023, AC-008)", () => {
+    const notAssessed = { case_id: "load:é", state: "not_assessed", code: null, integrity_diagnostic_id: null, rcond: null, digits: null, conditioning_sensitive: false, causes: [] };
+    const failed = { ...notAssessed, case_id: "load:𝔫", state: "solve_failed" };
+    for (const [label, cases] of [
+      ["a blocked document, every case suppressed or unassessed", [notAssessed]],
+      ["a blocked document with a preserved failure", [notAssessed, failed]],
+      ["a passing and a sensitive case", [PASSED, SENSITIVE]],
+      ["passing only", [PASSED]]
+    ] as const) {
+      cleanup();
+      render(<ResultsPanel result={genericResult()} knowledge={null} analysisRun={null} selectedResultId={null} onSelectResult={() => {}}
+        numericalHealth={view({ route: "generic", verdict_only: false, cases, combinations: [] }, { eligible: false, verdictHold: false })} />);
+      expect(count(), label).toBe(1);
+      expect(screen.getByTestId("numerical-health-boundary").textContent).toBe(BOUNDARY);
+    }
   });
 });
 

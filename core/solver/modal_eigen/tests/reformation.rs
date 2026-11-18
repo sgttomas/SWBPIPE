@@ -12,10 +12,20 @@
 //! entry is a chain of at most about 60 such operations from its binary64
 //! leaves (section, element formula, the rotation's 27 products), each of
 //! magnitude at most the matrix's largest entry, so its error is below
-//! 60·4·2⁻¹⁰⁶ ≈ 3·10⁻³⁰ of that largest entry; the reference adds 2⁻¹⁰⁶.
-//! Every comparison is therefore normwise: |x̂ − x| ≤ `NORMWISE`·max|x| over
-//! the matrix (or the quantity), with `NORMWISE` = 10⁻²⁹, three times that
-//! bound. Entries formed by cancellation (exact zeros of an inclined member,
+//! 60·4·2⁻¹⁰⁶ ≈ 3·10⁻³⁰ of that largest entry. The assembled K̂ and M̂ are
+//! then read from their exact sums through `ExactSum::to_wide`, whose
+//! hi + lo errs by up to 2⁻⁹⁷ ≈ 6.3·10⁻³⁰ of the entry (`exact`, "What the
+//! rounding guarantees", issue #337). The reference adds 2⁻¹⁰⁶. The bound
+//! is therefore about 9.3·10⁻³⁰ of the largest entry. Every comparison is
+//! normwise: |x̂ − x| ≤ `NORMWISE`·max|x| over the matrix (or the quantity),
+//! with `NORMWISE` = 10⁻²⁹. The read term applies to the assembled
+//! comparisons (full M, and the eigen cases' K̂ and M̂). For the element and
+//! section comparisons, which do not go through `to_wide`, the budget is
+//! conservative. The margin over the bound is thin, about 7%, and belongs to
+//! this approximate operation-budget model. Correcting the model for the
+//! read does not make it a rigorous forward-error theorem. The measured
+//! differences are far below it (the README). Entries formed
+//! by cancellation (exact zeros of an inclined member,
 //! J_c,22 ≈ α⁵/20 of a small arc) are held to the same normwise bound, which
 //! is the statement the design makes ("well-scaled entries"); the small-arc
 //! case is also checked entrywise in its local frame through the lumps.

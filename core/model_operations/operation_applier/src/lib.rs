@@ -35,8 +35,6 @@ mod rich_authoring;
 mod retained_semantics_binding;
 pub use retained_semantics_binding::retained_precision_semantics_json;
 mod load_state_authoring;
-mod numerical_health;
-pub use numerical_health::numerical_health_json;
 mod model_checks;
 pub use model_checks::{
     model_checks, model_checks_owned, model_checks_text, MODEL_CHECKS_DOCUMENT_KIND, MODEL_CHECKS_INPUT_TOO_LARGE,
@@ -396,11 +394,16 @@ fn field_rules(object_type: &str) -> &'static [FieldRule] {
                     unit_source: UnitSource::SiblingUnitField,
                 },
             },
+            // Issue 380 (DEL-07-02 REQ-002 to REQ-004): G alone is an optional
+            // stress quantity, so an absent G can be entered by the person with
+            // an explicit unit; nothing supplies it. An existing G is edited in
+            // place under the same rule. E and alpha keep the existing-quantity
+            // route, and a material on the E/nu basis keeps its derived G.
             FieldRule {
                 field_path: "shear_modulus.value",
-                kind: FieldKind::Quantity {
-                    require_positive: true,
-                    unit_source: UnitSource::SiblingUnitField,
+                kind: FieldKind::OptionalQuantity {
+                    constraint: ValueConstraint::Positive,
+                    dimension: "stress",
                 },
             },
             FieldRule {
@@ -1000,6 +1003,17 @@ pub fn retained_precision_transport_outcome_json(source_json: &str) -> Result<St
     Ok(rp::outcome_json(&rp::validate_transport_metadata(&source)).to_string())
 }
 
+/// DEL-07-05's numerical health indicator over JSON text: the reader's
+/// historical health projection (`report_standing::historical_health`).
+/// `reader_findings_json` is the Rust reader's findings for the same result, as
+/// that function describes; an absent or `null` value reads as absent. Errors
+/// only on input that is not JSON.
+pub fn numerical_health_json(source_json: &str, reader_findings_json: Option<&str>) -> Result<String, String> {
+    let source = parse_reader_input("source", source_json)?;
+    let findings = optional_reader_input("reader_findings", reader_findings_json)?;
+    open_pipe_stress_report_standing::historical_health::numerical_health_json(&source, findings.as_ref())
+}
+
 /// b7-plan R2: the base-route readers' verdicts (`result_export::reader_verdict`)
 /// over JSON text, through `wasm_api` for the desktop. An absent or `null`
 /// model or invocation reads as absent.
@@ -1020,6 +1034,36 @@ pub fn reader_dispatch_json(
     let model = optional_reader_input("model", model_json)?;
     let invocation = optional_reader_input("invocation", invocation_json)?;
     Ok(rv::dispatch(&source, model.as_ref(), invocation.as_ref()).to_string())
+}
+/// DEL-08-01 REQ-024 and DEL-05-02 Standing, for the report builder: the
+/// reader's standing, its readability verdict beside it, and, for a readable
+/// solved result, the standing record a report states
+/// (`open_pipe_stress_report_standing::report_standing`), as
+/// `{standing, readability, numerical_standing, standing_refusal}`.
+/// `numerical_standing` is null for a result the reader cannot read or whose
+/// mechanics are not solved, and where a tag lies outside the historical
+/// vocabularies, whose refusal `standing_refusal` then names. The native host re-derives the record and requires it equal.
+pub fn reader_report_standing_json(
+    source_json: &str,
+    model_json: &str,
+    invocation_json: Option<&str>,
+) -> Result<String, String> {
+    use open_pipe_stress_product_physics::result_export::reader_verdict as rv;
+    use open_pipe_stress_report_standing::{reader_readability, report_standing};
+    let source = parse_reader_input("source", source_json)?;
+    let model = parse_reader_input("model", model_json)?;
+    let invocation = optional_reader_input("invocation", invocation_json)?;
+    let standing = rv::standing(&source, Some(&model), invocation.as_ref());
+    let readability = reader_readability::readability(&source, &standing);
+    let (record, refusal) = if readability["readable"] == true && readability["solved"] == true {
+        match report_standing::historical_standing_record(&source, &model, &standing) {
+            Ok(record) => (record, Value::Null),
+            Err(refusal) => (Value::Null, Value::String(refusal)),
+        }
+    } else {
+        (Value::Null, Value::Null)
+    };
+    Ok(serde_json::json!({"standing": standing, "readability": readability, "numerical_standing": record, "standing_refusal": refusal}).to_string())
 }
 /// One named reader's raw validation (`reader_verdict::READERS`).
 pub fn reader_validate_json(
@@ -1482,6 +1526,16 @@ mod wasm_api {
     pub fn reader_row_semantics_each_json(rows_json: &str, source_json: Option<String>) -> Result<String, JsError> {
         entry_scope(|| {
             super::reader_row_semantics_each_json(rows_json, source_json.as_deref())
+                .map_err(|error| JsError::new(&error))
+        })
+    }
+
+    /// DEL-08-01 REQ-024: the reader's standing, readability and report
+    /// standing record for the report builder.
+    #[wasm_bindgen]
+    pub fn reader_report_standing_json(source_json: &str, model_json: &str, invocation_json: Option<String>) -> Result<String, JsError> {
+        entry_scope(|| {
+            super::reader_report_standing_json(source_json, model_json, invocation_json.as_deref())
                 .map_err(|error| JsError::new(&error))
         })
     }
@@ -2123,7 +2177,7 @@ fn run_with_context(
                         if let Err(error) =
                             rich_authoring::validate_support_configuration(&candidate, dependent)
                         {
-                            checker.push("OP-SUPPORT-DEPENDENT-INVALID","blocking",error.message,"Keep the referenced linear restraint DOF valid or retarget the dependent nonlinear support first.",vec![target_ref.clone(),dependent["id"].as_str().unwrap_or("unknown").into()]);
+                            checker.push("OP-SUPPORT-DEPENDENT-INVALID","blocking",error.message,"Keep the referenced normal-source support and its DOF valid or retarget the dependent friction support first.",vec![target_ref.clone(),dependent["id"].as_str().unwrap_or("unknown").into()]);
                         }
                     }
                 }
@@ -5854,6 +5908,20 @@ fn resolve_delete_load_case(
             std::iter::once(target_ref.to_string())
                 .chain(references)
                 .collect(),
+        );
+        return None;
+    }
+    // DEL-04-07: a case the pressure-elongation setting names
+    // stays until the user removes it from the setting.
+    if load_case_named_by_pressure_elongation(model, target_ref) {
+        let setting = open_pipe_stress_product_physics::model_settings::PRESSURE_ELONGATION_CASES_PATH;
+        checker.reference_state = "blocked";
+        checker.push(
+            "OP-LOAD-CASE-DELETE-REFERENCED",
+            "blocking",
+            format!("Load case `{target_ref}` is still named by {setting}."),
+            "Remove the load case from the pressure-elongation setting's operating load cases, or switch pressure elongation off, before deleting the load case.",
+            vec![target_ref.to_string(), setting.to_string()],
         );
         return None;
     }
@@ -10061,6 +10129,14 @@ fn combination_operand_references(model: &Value, combination_ref: &str) -> Vec<S
     references.sort();
     references.dedup();
     references
+}
+
+/// Whether `model_settings.pressure_elongation.operating_load_cases` names the load case.
+fn load_case_named_by_pressure_elongation(model: &Value, load_case_ref: &str) -> bool {
+    model
+        .pointer("/model_settings/pressure_elongation/operating_load_cases")
+        .and_then(Value::as_array)
+        .is_some_and(|ids| ids.iter().any(|id| id.as_str() == Some(load_case_ref)))
 }
 
 fn load_case_combination_references(model: &Value, load_case_ref: &str) -> Vec<String> {

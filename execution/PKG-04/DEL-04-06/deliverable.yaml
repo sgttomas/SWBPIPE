@@ -62,6 +62,15 @@ needs:
     run alone, without solving, in their fixed order, which DEL-04-06/REQ-013 relies on; that part
     is not allocated.
   gating: true
+- from: DEL-05-01
+  when: Running the on-demand model checks
+  condition: >-
+    Static-equivalent generation's input checks are reached through the solve's own primitive-load
+    builder on the normalized model, with no stiffness formed and nothing solved: each missing or
+    invalid seismic or wind generation input blocks its case with a named diagnostic naming the
+    case and, for a pipe's section input, the pipe and the field, and nothing is written to the
+    model. The solve reaches the same checks at the same stage before its first stiffness.
+  gating: true
 - from: DEL-07-07
   when: Running the on-demand model checks in the desktop
   condition: >-

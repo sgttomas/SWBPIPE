@@ -26,7 +26,7 @@ const MODES: [PreviewSolverMode; 2] = [PreviewSolverMode::SparseInteractive, Pre
 const RELATIVE: f64 = 1.0e-9;
 const CASE: &str = "case:w9";
 const PF_SEMANTICS: &str = "openpipestress.result_semantics/0.3.0/preview-physics-2";
-const EX_SEMANTICS: &str = "openpipestress.result_semantics/0.3.0/pressure-2";
+const EX_SEMANTICS: &str = "openpipestress.result_semantics/0.3.0/pressure-3";
 
 fn fixture() -> Value {
     serde_json::from_str(FIXTURE).expect("fixture parses")

@@ -60,6 +60,10 @@ impl Error {
             Self::ReenterKey { .. } => {
                 "This build cannot use the saved key. Re-enter your API key."
             }
+            #[cfg(feature = "native-smoke")]
+            Self::Keychain(KeyError::SmokeConfigurationDenied) => {
+                "This scripted test build refuses Keychain use, so saved API keys are unavailable. Save the provider with no API key."
+            }
             Self::Keychain(_) => {
                 "Keychain access is unavailable. Restore access and re-enter your API key."
             }
@@ -85,6 +89,11 @@ pub enum KeyError {
     Duplicate,
     Invalid,
     Unknown,
+    /// The scripted-run build (`native-smoke`, DEL-07-11) refused an
+    /// application-owned Keychain item operation before any Security call.
+    /// No item was asked for: this is not a locked, missing or denied key.
+    #[cfg(feature = "native-smoke")]
+    SmokeConfigurationDenied,
 }
 
 /// The fixed service lives in the native backend. Neither service, account nor
@@ -98,6 +107,12 @@ pub trait Keychain {
     ) -> Result<(), KeyError>;
     fn load(&mut self, key: &CredentialKey, endpoint: &str) -> Result<Secret, KeyError>;
     fn delete(&mut self, key: &CredentialKey) -> Result<(), KeyError>;
+    /// The scripted-run build only: a backend that refuses every item
+    /// operation says so here, and a save asks before it journals a key.
+    #[cfg(feature = "native-smoke")]
+    fn item_refusal(&self) -> Option<KeyError> {
+        None
+    }
 }
 pub struct CredentialKey {
     account: String,
@@ -333,6 +348,12 @@ impl<K: Keychain> Store<K> {
             return Err(Error::RecoveryRequired);
         }
         let mut result = if let CredentialChange::Replace(secret) = change {
+            // A refused key journals no pending intent, which would otherwise
+            // block every later save as cleanup the backend can never run.
+            #[cfg(feature = "native-smoke")]
+            if let Some(refusal) = self.keys.item_refusal() {
+                return Err(Error::Keychain(refusal));
+            }
             let key = CredentialKey::fresh()?;
             let count: i64 = tx
                 .query_row("SELECT count(*) FROM credentials", [], |r| r.get(0))

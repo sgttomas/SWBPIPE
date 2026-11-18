@@ -31,7 +31,7 @@ BINARY_SHA256 = "112fae7a5a1223e673c8a1791d32338f37df8b527ff1159bb8adac6c4dbf1b4
 # sends the supplier at thread start (catalog.rs Catalog::declarations(): type, name, description and
 # expanded input schema), nor the supplier's serialization of it. tools/agent_catalog_resource.py
 # holds the fixture fixtures/embedded_agent/agent-witness-pin.json to this same value.
-CATALOG_SHA256 = "0bbafe22bcc486be81019e10a120961b1880b501fc4ecda88887ec20e2210bdc"
+CATALOG_SHA256 = "97b34466a58686fe40266022d30de68344cb60f171f2ef092b0f9e6189aaeafb"
 FRAME_BYTES = 1024 * 1024
 FORBIDDEN_ITEMS = {"commandExecution", "fileChange", "webSearch", "imageView", "imageGeneration", "browserUse", "computerUse"}
 
@@ -132,7 +132,9 @@ class Native:
         # project instruction roots. Explicit keychain provider authentication
         # uses the child environment; never fall back to a developer's login.
         env = {"PATH": "/usr/bin:/bin:/usr/sbin:/sbin", "LANG": "en_US.UTF-8",
-               "CODEX_HOME": str(home), "HOME": str(root / "os-home"), "TMPDIR": str(root / "tmp")}
+               "CODEX_HOME": str(home), "HOME": str(root / "os-home"), "TMPDIR": str(root / "tmp"),
+               # The supplier's own switch for remote control, as the product host sets it.
+               "CODEX_INTERNAL_APP_SERVER_REMOTE_CONTROL_DISABLED": "1"}
         if api_key is not None:
             env["SWBPIPE_OMLX_API_KEY"] = api_key
         config = self.configuration(model, provider_url, api_key)

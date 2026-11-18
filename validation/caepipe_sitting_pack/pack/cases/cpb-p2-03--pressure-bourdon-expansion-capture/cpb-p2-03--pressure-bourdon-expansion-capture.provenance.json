@@ -1,0 +1,25 @@
+{
+  "generator": {
+    "module": "tools/caepipe_correlation/benchmark_models.py",
+    "tranche": "2",
+    "version": "caepipe-benchmark-generator-1"
+  },
+  "mbf_sha256": "7f111d691de307aa72826f8f6f6c1b81aa82ba6f523845fbd9eae2c7295c3aba",
+  "model_document": {
+    "file_sha256": "ce8e3497e8e82866bd5192813f65ed0458358df39dca711cbfaf3feb3a7cf0b2",
+    "path": "validation/caepipe_benchmark/models/cpb-p2-03.json"
+  },
+  "origin": "invented",
+  "origin_basis": "generator-made; drawn from seed 20261028",
+  "produced_by_caepipe": false,
+  "run": {
+    "added_records": [],
+    "run_id": "cpb-p2-03--pressure-bourdon-expansion-capture",
+    "series": "pressure-bourdon-expansion-capture",
+    "substituted_records": [
+      "OPPRES"
+    ],
+    "through": "benchmark_models.run_mbf_text"
+  },
+  "written_by": "SWBPIPE's model-file writer (core/handoff/caepipe_mbf)"
+}
