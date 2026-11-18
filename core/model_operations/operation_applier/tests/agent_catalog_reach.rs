@@ -202,7 +202,10 @@ fn newly_admitted_kinds_enter_the_reference_families_from_the_fixture_values() {
     model = propose(&model, vec![none("modify", "Model", &project, "set_field", "reference_configurations", "not_present", &canonical_json(&fixture["reference_configurations"]))]);
     // Each case's pressure regions, then each analysis state alone in its proposal.
     let cases: Vec<Value> = fixture["load_cases"].as_array().unwrap().clone();
-    model = propose(&model, cases.iter().map(|case| none("modify", "Load", case["id"].as_str().unwrap(), "update_load", "pressure_regions", "not_present", &canonical_json(&case["pressure_regions"]))).collect());
+    // Four cases' regions exceed the argument bound; two fit.
+    for chunk in cases.chunks(2) {
+        model = propose(&model, chunk.iter().map(|case| none("modify", "Load", case["id"].as_str().unwrap(), "update_load", "pressure_regions", "not_present", &canonical_json(&case["pressure_regions"]))).collect());
+    }
     for case in &cases {
         let state = canonical_json(&case["analysis_state"]);
         assert!(state.chars().count() > 8192, "the reason the after bound moved");
