@@ -79,8 +79,10 @@ def test_status_says_candidate_and_not_frozen():
     data = load(PACKAGE / "references.json")
     assert data["status"] == ("candidate references, derived and cross-checked by their author, awaiting "
                               "independent refutation")
-    readme = (PACKAGE / "README.md").read_text(encoding="utf-8")
-    assert "awaiting independent refutation" in readme
+    readme = " ".join((PACKAGE / "README.md").read_text(encoding="utf-8").split())
+    assert ("Candidate references, derived and cross-checked by their author, awaiting independent refutation."
+            in readme)
+    assert "**Status.** Frozen" not in readme and "accepted" not in readme.lower()
 
 
 def every_row(data):
