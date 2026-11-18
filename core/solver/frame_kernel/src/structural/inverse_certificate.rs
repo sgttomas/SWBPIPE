@@ -9,7 +9,8 @@
 //! matrix the check reads) and a quantity Q, either `Verified { bound: B, .. }`
 //! with ‖A⁻¹‖∞ ≤ B ≤ Q, or `NotVerified` with typed reasons. Not verified never
 //! means the premise ‖A⁻¹‖∞ ≤ Q is refuted. No path returns `Verified` with
-//! B > Q, and there is no path to `Verified` that skips the arithmetic below.
+//! B > Q, and the only path to `Verified` that does not run the arithmetic
+//! below is the empty matrix (n = 0, see Assembly).
 //!
 //! **Arithmetic model.** IEEE 754 binary64, round to nearest with ties to even,
 //! gradual underflow, no fused multiply-add (no `mul_add`, no `sqrt`).
@@ -62,8 +63,8 @@
 //! N′_c = max over the block of c′_i, with a′_j = 1 + Σ_{i>j} |l_ij|,
 //! b′_j = d̂_j·a′_j, c′_i = b′_i + Σ_{j<i} |l_ij|·b′_j (that is ‖|L̂|D̂|L̂ᵀ|‖∞);
 //! ν_c = max over the block of d̂_i + Σ_{j<i} |l_ij|·d̂_j (that is ‖|L̂|D̂‖∞ on
-//! the block, which bounds every absolute term of the block's rows: the
-//! design's ν applied to A_c alone);
+//! the block, which bounds every absolute term of the block's rows; only rows
+//! of block c contribute to them, and n still bounds their count);
 //! β_c = `mul_up(mul_up(2⁻¹⁰⁷⁴, n), add_up(n, ν_c))`. Rounded-to-zero products
 //! and quotients are covered by β_c; underflowing differences are exact. The
 //! shift's own subtraction: ‖E_c‖₂ ≤ δ_c = `mul_up(2u, max_{i∈c} |d̃_i|)`.
@@ -119,8 +120,10 @@
 //! profile (first[i] ≤ i), exactly as `ProfileFactor` holds them. The certificate
 //! verifies on entry what it relies on and otherwise returns not verified with
 //! `InputUnusable`: shapes and ascending distinct columns, finite values,
-//! symmetry with equal bits on both sides, `order` a permutation, first[i] ≤ i,
-//! and every stored nonzero inside the envelope.
+//! symmetry (each stored entry numerically equal to its transpose, so zeros of
+//! either sign are equal, as the kernel's own input validation holds),
+//! `order` a permutation, first[i] ≤ i, and every stored nonzero inside the
+//! envelope.
 #[cfg(test)]
 #[path = "inverse_certificate_tests.rs"]
 mod tests;
@@ -169,7 +172,8 @@ pub(crate) enum InputDefect {
     /// column out of range, repeated or not ascending.
     Shape,
     EntryNotFinite,
-    /// A stored entry without its transpose, or with different bits there.
+    /// A stored entry without its transpose, or with a different value there
+    /// (zeros of either sign are equal).
     NotSymmetric,
     /// `order` is not a permutation of the free positions (or has the wrong
     /// length), or `first` has the wrong length.
@@ -259,7 +263,10 @@ pub(crate) enum InverseNormCertificate {
 /// A symmetric matrix given by its logical lower triangle over free
 /// positions. `value(row, column)` with column ≤ row returns the exact stored
 /// value, and zero where nothing is stored. Only one triangle is read, so the
-/// matrix is symmetric by construction.
+/// matrix is symmetric by construction. The certificate reads an entry more
+/// than once (validation, blocks, each factorization), and its result is about
+/// one matrix only if every read of the same position returns the same value:
+/// an implementation must be a fixed stored matrix for the whole call.
 pub(crate) trait LowerTriangle {
     fn dimension(&self) -> usize;
     fn value(&self, row: usize, column: usize) -> f64;
@@ -358,7 +365,7 @@ fn validate_dense(matrix: &[Vec<f64>]) -> Result<(), InputDefect> {
     }
     for i in 0..n {
         for j in 0..i {
-            if matrix[i][j].to_bits() != matrix[j][i].to_bits() {
+            if matrix[i][j] != matrix[j][i] {
                 return Err(InputDefect::NotSymmetric);
             }
         }
@@ -392,9 +399,8 @@ fn validate_compressed<V: StoredValue>(view: &CompressedView<'_, V>) -> Result<(
             let c = view.columns[index];
             let transpose = &view.columns[starts[c]..starts[c + 1]];
             match transpose.binary_search(&r) {
-                Ok(t)
-                    if view.values[starts[c] + t].binary64().to_bits()
-                        == view.values[index].binary64().to_bits() => {}
+                Ok(t) if view.values[starts[c] + t].binary64() == view.values[index].binary64() => {
+                }
                 _ => return Err(InputDefect::NotSymmetric),
             }
         }

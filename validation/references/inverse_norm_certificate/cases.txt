@@ -52,6 +52,10 @@ avail figure 0 e1 sigma_prime 3f8fffffffffd71d
 direction 0 e1 sigma_prime le 3f8fffffffffd71d
 avail figure 0 e1 s 4070000000001473
 direction 0 e1 s ge 4070000000001472
+operand 0 e1 gamma ge 3cea000000000017
+operand 0 e1 beta ge 00000000000000da
+operand 0 e1 loss ge 3d14720000000018
+operand 0 e1 sigma_prime le 3f8fffffffffd71d
 avail verdict verified 4070000000001473
 end
 case C2
@@ -99,6 +103,10 @@ avail figure 0 e2 sigma_prime 3f61ffffffff80cb
 direction 0 e2 sigma_prime le 3f61ffffffff80cb
 avail figure 0 e2 s 408c71c71c729022
 direction 0 e2 s ge 408c71c71c729022
+operand 0 e2 gamma ge 3cdc00000000000f
+operand 0 e2 beta ge 0000000000000049
+operand 0 e2 loss ge 3d0fcd4146065fe8
+operand 0 e2 sigma_prime le 3f61ffffffff80cb
 avail block 4 1 1
 avail attempt 4 e1 verified 4080000000000ff9
 avail figure 4 e1 sigma 3f60000000000001
@@ -118,6 +126,10 @@ avail figure 4 e1 sigma_prime 3f5fffffffffe011
 direction 4 e1 sigma_prime le 3f5fffffffffe011
 avail figure 4 e1 s 4080000000000ff9
 direction 4 e1 s ge 4080000000000ff8
+operand 4 e1 gamma ge 3cdc00000000000f
+operand 4 e1 beta ge 0000000000000031
+operand 4 e1 loss ge 3cdff00000000013
+operand 4 e1 sigma_prime le 3f5fffffffffe011
 avail block 5 1 1
 avail attempt 5 e1 verified 4080000000000ff9
 avail figure 5 e1 sigma 3f60000000000001
@@ -137,6 +149,10 @@ avail figure 5 e1 sigma_prime 3f5fffffffffe011
 direction 5 e1 sigma_prime le 3f5fffffffffe011
 avail figure 5 e1 s 4080000000000ff9
 direction 5 e1 s ge 4080000000000ff8
+operand 5 e1 gamma ge 3cdc00000000000f
+operand 5 e1 beta ge 0000000000000031
+operand 5 e1 loss ge 3cdff00000000013
+operand 5 e1 sigma_prime le 3f5fffffffffe011
 avail verdict verified 408c71c71c729022
 end
 case C3
@@ -186,6 +202,10 @@ avail figure 0 d den 3fefffffffff0d76
 direction 0 d den le 3fefffffffff0d76
 avail figure 0 d uc 408000000000782d
 direction 0 d uc ge 4080000000007826
+operand 0 d gamma ge 3cdc00000000000f
+operand 0 d beta ge 0000000000000049
+operand 0 d t ge 3d9e51279cfaca10
+operand 0 d uc ge 408000000000782c
 avail block 4 1 1
 avail attempt 4 e1 verified 4080000000000ffa
 avail figure 4 e1 sigma 3f5fffffffffffff
@@ -205,6 +225,10 @@ avail figure 4 e1 sigma_prime 3f5fffffffffe00e
 direction 4 e1 sigma_prime le 3f5fffffffffe00e
 avail figure 4 e1 s 4080000000000ffa
 direction 4 e1 s ge 4080000000000ffa
+operand 4 e1 gamma ge 3cdc00000000000f
+operand 4 e1 beta ge 0000000000000031
+operand 4 e1 loss ge 3cdff00000000013
+operand 4 e1 sigma_prime le 3f5fffffffffe00e
 avail block 5 1 1
 avail attempt 5 e1 verified 4080000000000ffa
 avail figure 5 e1 sigma 3f5fffffffffffff
@@ -224,6 +248,10 @@ avail figure 5 e1 sigma_prime 3f5fffffffffe00e
 direction 5 e1 sigma_prime le 3f5fffffffffe00e
 avail figure 5 e1 s 4080000000000ffa
 direction 5 e1 s ge 4080000000000ffa
+operand 5 e1 gamma ge 3cdc00000000000f
+operand 5 e1 beta ge 0000000000000031
+operand 5 e1 loss ge 3cdff00000000013
+operand 5 e1 sigma_prime le 3f5fffffffffe00e
 avail verdict verified 408000000000782d
 end
 case C4
@@ -273,6 +301,10 @@ avail figure 0 d den 3feffffffffe1acb
 direction 0 d den le 3feffffffffe1acc
 avail figure 0 d uc 409000000000f3b3
 direction 0 d uc ge 409000000000f3aa
+operand 0 d gamma ge 3cdc00000000000f
+operand 0 d beta ge 0000000000000049
+operand 0 d t ge 3dae533e5907a76a
+operand 0 d uc ge 409000000000f3b2
 avail block 4 1 1
 avail attempt 4 e1 verified 4080000000000ff9
 avail figure 4 e1 sigma 3f60000000000001
@@ -292,6 +324,10 @@ avail figure 4 e1 sigma_prime 3f5fffffffffe011
 direction 4 e1 sigma_prime le 3f5fffffffffe011
 avail figure 4 e1 s 4080000000000ff9
 direction 4 e1 s ge 4080000000000ff8
+operand 4 e1 gamma ge 3cdc00000000000f
+operand 4 e1 beta ge 0000000000000031
+operand 4 e1 loss ge 3cdff00000000013
+operand 4 e1 sigma_prime le 3f5fffffffffe011
 avail block 5 1 1
 avail attempt 5 e1 verified 4080000000000ff9
 avail figure 5 e1 sigma 3f60000000000001
@@ -311,6 +347,10 @@ avail figure 5 e1 sigma_prime 3f5fffffffffe011
 direction 5 e1 sigma_prime le 3f5fffffffffe011
 avail figure 5 e1 s 4080000000000ff9
 direction 5 e1 s ge 4080000000000ff8
+operand 5 e1 gamma ge 3cdc00000000000f
+operand 5 e1 beta ge 0000000000000031
+operand 5 e1 loss ge 3cdff00000000013
+operand 5 e1 sigma_prime le 3f5fffffffffe011
 avail verdict not_verified -
 end
 case C5
@@ -360,6 +400,10 @@ avail figure 0 d den 3feffffffe1aaacb
 direction 0 d den le 3feffffffe1aaacc
 avail figure 0 d uc 4110000000f33aa4
 direction 0 d uc ge 4110000000f33a9a
+operand 0 d gamma ge 3cdc00000000000f
+operand 0 d beta ge 0000000000000049
+operand 0 d t ge 3e2e55533e3a14de
+operand 0 d uc ge 4110000000f33aa3
 avail block 4 1 1
 avail attempt 4 e1 verified 4080000000000ff9
 avail figure 4 e1 sigma 3f60000000000001
@@ -379,6 +423,10 @@ avail figure 4 e1 sigma_prime 3f5fffffffffe011
 direction 4 e1 sigma_prime le 3f5fffffffffe011
 avail figure 4 e1 s 4080000000000ff9
 direction 4 e1 s ge 4080000000000ff8
+operand 4 e1 gamma ge 3cdc00000000000f
+operand 4 e1 beta ge 0000000000000031
+operand 4 e1 loss ge 3cdff00000000013
+operand 4 e1 sigma_prime le 3f5fffffffffe011
 avail block 5 1 1
 avail attempt 5 e1 verified 4080000000000ff9
 avail figure 5 e1 sigma 3f60000000000001
@@ -398,6 +446,10 @@ avail figure 5 e1 sigma_prime 3f5fffffffffe011
 direction 5 e1 sigma_prime le 3f5fffffffffe011
 avail figure 5 e1 s 4080000000000ff9
 direction 5 e1 s ge 4080000000000ff8
+operand 5 e1 gamma ge 3cdc00000000000f
+operand 5 e1 beta ge 0000000000000031
+operand 5 e1 loss ge 3cdff00000000013
+operand 5 e1 sigma_prime le 3f5fffffffffe011
 avail verdict not_verified -
 end
 case C6
@@ -446,6 +498,10 @@ avail figure 0 e1 sigma_prime 3f77ffffffffc010
 direction 0 e1 sigma_prime le 3f77ffffffffc011
 avail figure 0 e1 s 4080000000002aa1
 direction 0 e1 s ge 4080000000002aa1
+operand 0 e1 gamma ge 3ce400000000000f
+operand 0 e1 beta ge 000000000000008a
+operand 0 e1 loss ge 3d0ff7c00000001e
+operand 0 e1 sigma_prime le 3f77ffffffffc011
 avail block 1 4 2
 avail attempt 1 e1 verified 40800000000034f6
 avail figure 1 e1 sigma 3f70000000000001
@@ -465,6 +521,10 @@ avail figure 1 e1 sigma_prime 3f6fffffffff9617
 direction 1 e1 sigma_prime le 3f6fffffffff9617
 avail figure 1 e1 s 40800000000034f6
 direction 1 e1 s ge 40800000000034f5
+operand 1 e1 gamma ge 3ce400000000000f
+operand 1 e1 beta ge 000000000000007f
+operand 1 e1 loss ge 3d0a7a8000000019
+operand 1 e1 sigma_prime le 3f6fffffffff9617
 avail verdict verified 40800000000034f6
 end
 case C7
@@ -505,6 +565,10 @@ avail figure 0 e1 sigma_prime 3f6fffffffffde0d
 direction 0 e1 sigma_prime le 3f6fffffffffde0d
 avail figure 0 e1 s 40800000000010fb
 direction 0 e1 s ge 40800000000010fa
+operand 0 e1 gamma ge 3cd4000000000008
+operand 0 e1 beta ge 0000000000000021
+operand 0 e1 loss ge 3cf0fa000000000b
+operand 0 e1 sigma_prime le 3f6fffffffffde0d
 avail block 2 2 2
 avail attempt 2 e1 verified 40800000000016fb
 avail figure 2 e1 sigma 3f70000000000001
@@ -524,5 +588,9 @@ avail figure 2 e1 sigma_prime 3f6fffffffffd20d
 direction 2 e1 sigma_prime le 3f6fffffffffd20d
 avail figure 2 e1 s 40800000000016fb
 direction 2 e1 s ge 40800000000016fa
+operand 2 e1 gamma ge 3cd4000000000008
+operand 2 e1 beta ge 0000000000000027
+operand 2 e1 loss ge 3cf6fa000000000e
+operand 2 e1 sigma_prime le 3f6fffffffffd20d
 avail verdict verified 40800000000016fb
 end
