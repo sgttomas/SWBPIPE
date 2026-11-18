@@ -11,7 +11,7 @@ use serde_json::Value;
 
 #[path = "../tests/common/spring_preload_model.rs"]
 mod model;
-use model::{compare_block, document, model_of, moves_a_base, reference, Route, ROUTES, UNHELD};
+use model::{compare_block, document, model_of, reference, Route, ROUTES, UNHELD};
 #[allow(unused_imports)]
 use model::Hangers;
 
@@ -28,9 +28,6 @@ fn the_binary64_support_action_carries_the_cold_load() {
     for case_id in UNHELD {
         let (_, case) = model_of(&reference, case_id);
         for route in ROUTES {
-            if route == Route::Exact && moves_a_base(case_id) {
-                continue; // EX refuses a moved spring base (the reference test asserts the refusal).
-            }
             for mode in [PreviewSolverMode::SparseInteractive, PreviewSolverMode::DenseScrutiny] {
                 let what = format!("{case_id} {route:?} {mode:?} binary64");
                 let envelope = binary64_solve(&document(case_id, route, crate::MODEL_SCHEMA_VERSION), mode);

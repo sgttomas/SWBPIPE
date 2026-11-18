@@ -11,7 +11,7 @@
 //! displacement, every published support force along +Z (the force on the
 //! pipe), and each hanger's published applied force. A moved base is a
 //! support-targeted imposed displacement on PF and the support's
-//! `boundary_motion` on EX (a load/reference-state document).
+//! `base_motion` on its stiffness axis on EX (a load/reference-state document).
 //!
 //! The force-plus-spring twin (each hanger a plain spring of its rate plus a
 //! separate nodal force F_cold) reproduces the same displacements and the
@@ -50,10 +50,6 @@ fn the_preload_reference_agrees_on_both_routes_and_both_modes() {
         for route in ROUTES {
             for mode in MODES {
                 let what = format!("{case_id} {route:?} {mode:?}");
-                if route == Route::Exact && moves_a_base(case_id) {
-                    assert_ex_base_refused(&solve(&document(case_id, route, MODEL_SCHEMA_VERSION), mode), &what);
-                    continue;
-                }
                 let envelope = solved(&document(case_id, route, MODEL_SCHEMA_VERSION), mode, &what);
                 compare_block(&envelope, &case["expected"], &what);
                 // The retired warning is produced by no solve.
@@ -72,10 +68,6 @@ fn the_force_plus_spring_twin_has_the_same_displacements_and_its_parts_add_to_th
         for route in ROUTES {
             for mode in MODES {
                 let what = format!("{case_id} twin {route:?} {mode:?}");
-                if route == Route::Exact && moves_a_base(case_id) {
-                    assert_ex_base_refused(&solve(&authored(case_id, route, Hangers::Twin, MODEL_SCHEMA_VERSION), mode), &what);
-                    continue;
-                }
                 let twin = solved(&authored(case_id, route, Hangers::Twin, MODEL_SCHEMA_VERSION), mode, &what);
                 for (node, u) in expected["u_nodes_m"].as_object().unwrap() {
                     assert_close(uz(&twin, node), u.as_f64().unwrap(), &format!("{what} u {node}"));

@@ -13,10 +13,6 @@ pub const REFERENCE_CONFIGURATION: &str = "reference:installed";
 pub const UNHELD: [&str; 8] = ["PA-WT", "PA-EMPTY", "PA-BASE", "PA-B", "PA-AB", "PB-WT", "PB-EMPTY", "PB-BASE"];
 pub const APPLIED: &str = "variable_spring_hanger_applied_load";
 pub const COMPANION: &str = "companion";
-/// EX moves a base only where the support restrains the DOF rigidly or is
-/// nonlinear; a spring base's motion there is refused by name, for a variable
-/// spring hanger and a plain spring alike (product behaviour before the preload).
-pub const EX_SPRING_BASE_REFUSAL: &str = "LOAD_STATE_BOUNDARY_MOTION_UNRESTRAINED";
 
 #[derive(Clone, Copy, Debug, PartialEq)]
 pub enum Route {
@@ -159,7 +155,8 @@ pub fn authored(case_id: &str, route: Route, hangers: Hangers, schema_version: &
         m["pressure_contract"] = json!({"version": "3.0.0", "mode": "exact_pressure_v3", "shear_model": "euler_bernoulli"});
         m["load_cases"][0]["pressure_regions"] = json!([]);
         if !moved.is_empty() {
-            // EX moves a base through the load/reference-state group (`boundary_motion`).
+            // EX moves a spring's base through the load/reference-state group: `base_motion` on
+            // its stiffness axis (R-c, `case_state/resolve.rs`).
             let pipe_ids: Vec<Value> = m["pipe_segments"].as_array().unwrap().iter().map(|p| p["id"].clone()).collect();
             m["reference_configurations"] = json!([{"id": REFERENCE_CONFIGURATION, "label": "Installed reference",
                 "geometry_ref": {"kind": "authored_model_geometry"},
@@ -170,7 +167,7 @@ pub fn authored(case_id: &str, route: Route, hangers: Hangers, schema_version: &
                 let motion: Vec<Value> = moved.iter().filter(|g| g["support"] == s["id"])
                     .map(|g| json!({"dof": g["dof"], "value": q(g["value_m"].as_f64().unwrap(), "m"), "meaning": "absolute_reference_displacement"})).collect();
                 if !motion.is_empty() {
-                    state["boundary_motion"] = Value::Array(motion);
+                    state["base_motion"] = Value::Array(motion);
                 }
                 state
             }).collect();
@@ -188,17 +185,7 @@ pub fn authored(case_id: &str, route: Route, hangers: Hangers, schema_version: &
     document
 }
 
-/// Whether the case moves a spring base (solved on PF only; see [`EX_SPRING_BASE_REFUSAL`]).
-pub fn moves_a_base(case_id: &str) -> bool {
-    let reference = reference();
-    !model_of(&reference, case_id).1["spring_base_displacements"].as_array().unwrap().is_empty()
-}
 
-/// EX refuses a moved spring base by name, and solves nothing.
-pub fn assert_ex_base_refused(envelope: &Value, what: &str) {
-    assert_ne!(envelope["status"]["mechanics"], "MECHANICS_SOLVED", "{what}");
-    assert!(envelope["diagnostics"].as_array().unwrap().iter().any(|d| d["code"] == EX_SPRING_BASE_REFUSAL && d["severity"] == "blocking"), "{what}");
-}
 
 pub fn rows<'a>(envelope: &'a Value, kind: &str, entity: &str, component: Option<&str>) -> Vec<&'a Value> {
     envelope["results"].as_array().unwrap().iter().filter(|r| {
