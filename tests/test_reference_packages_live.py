@@ -67,8 +67,8 @@ def whole_changed(name: str, source: str, found: str) -> str:
     return (f"{source} {WHOLE_CHANGED}.\n"
             f"  1. The reference package validation/references/{name} staged its inputs from this file.\n"
             f"  2. In the file's diff, look at {LOOK_AT[source]}. The package's live check "
-            f"(python3 -I {' '.join(LIVE_CHECKS[name].argv)}, from the package directory) reports the leaves and "
-            f"lines it compares; it cannot see everything.\n"
+            f"(python3 -I {' '.join(LIVE_CHECKS[name].argv)}, from the package directory) can show differences in "
+            f"the leaves or table lines it compares; it cannot see everything.\n"
             f"  3. Only after that look: if what the package staged still holds, record the new digest {found} for "
             f"this file in LIVE_CHECKS. If it does not, leave the digest: a decision is needed on re-staging.")
 
