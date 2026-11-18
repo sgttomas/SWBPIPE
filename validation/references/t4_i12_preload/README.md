@@ -56,11 +56,18 @@ outputs, for intentional changes only.
 python3 -I generators/u3_preload_reference.py --check-live
 ```
 
-This separate check, which `--check` does not run, compares the staged hanger
-leaves with the live fixture's, leaf by leaf, and names any that differ. It
-establishes whether the staged inputs still match the fixture. A difference
-means the derivation's input has moved on, not that the committed output is
-wrong for its staged input.
+This separate check, which `--check` does not run, compares the live fixture's
+SH-140 record with the staged leaves that enter the derivation: the id, node
+and family, the stiffness DOF and rate, and the cold load. It names every leaf
+that differs, including a member that is missing or extra, and exits nonzero.
+It establishes whether the staged input still matches the fixture. A
+difference means the source has moved on and a decision is needed on
+re-staging; the committed output still stands for its staged input.
+
+The staged file also records the installed load, hot load and travel range.
+The live check does not compare them, because they are review data the law
+does not apply. The default check still requires the nine documents to carry
+them as staged.
 
 ## Affected cases and derived subtrees
 

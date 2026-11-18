@@ -37,8 +37,9 @@ Modes (run from this package's directory):
                                                           compare byte for byte (changes no file)
   python3 -I generators/u3_preload_reference.py --write   write the outputs (intentional changes only)
   python3 -I generators/u3_preload_reference.py --check-live
-                                                          compare the staged hanger leaves with the live demo
-                                                          fixture's, naming any that differ (not run by --check)
+                                                          compare the staged hanger leaves that enter the
+                                                          derivation with the live demo fixture's, naming any
+                                                          that differ or are missing (not run by --check)
 """
 import argparse
 import contextlib
@@ -333,14 +334,41 @@ def staged_record():
     return json.loads((OUT / STAGED).read_text())["record"]
 
 
+# The members of the hanger record that enter the derivation, compared by --check-live: the identity, node and
+# family, and everything under the stiffness and the cold load. The staged installed load, hot load and travel
+# range are kept as a record only: they are review data the law does not apply.
+LIVE_SCOPE = ("id", "node", "family", "hanger.stiffness", "hanger.cold_load")
+
+
+def scoped_leaves(record):
+    """Every leaf of the record within LIVE_SCOPE, keyed by its dotted path; absent members simply do not appear."""
+    out, stack = {}, [("", record)]
+    while stack:
+        path, v = stack.pop()
+        if isinstance(v, dict):
+            stack += [(f"{path}.{k}" if path else k, x) for k, x in v.items()]
+        elif any(path == p or path.startswith(p + ".") for p in LIVE_SCOPE):
+            out[path] = v
+    return out
+
+
 def check_live():
-    """The staged hanger leaves against the live demo fixture's, leaf by leaf."""
-    (live,) = [s for s in json.loads(FIXTURE.read_text())["supports"] if s["id"] == HANGER_ID]
-    staged, now = mechanical_leaves(staged_record()), mechanical_leaves(live)
-    differ = sorted(k for k in set(staged) | set(now) if staged.get(k) != now.get(k))
+    """The staged hanger leaves that enter the derivation against the live demo fixture's, leaf by leaf."""
+    where = FIXTURE.relative_to(ROOT)
+    found = [s for s in json.loads(FIXTURE.read_text()).get("supports", []) if isinstance(s, dict) and s.get("id") == HANGER_ID]
+    if len(found) != 1:
+        print(f"SOURCE MOVED ON: {where} holds {len(found)} records with id {HANGER_ID}, not one; a decision is needed "
+              "on the staged input")
+        return 1
+    staged, now = scoped_leaves(staged_record()), scoped_leaves(found[0])
+    differ = sorted(set(staged) | set(now), key=str)
+    differ = [k for k in differ if staged.get(k, "<absent>") != now.get(k, "<absent>")]
     for k in differ:
-        print(f"DIFFERS: {HANGER_ID} {k}: staged {staged.get(k)!r}, live {now.get(k)!r}")
-    print(f"live fixture {FIXTURE.relative_to(ROOT)}: {len(staged)} staged leaves compared, {len(differ)} differ")
+        print(f"DIFFERS: {where} {HANGER_ID} {k}: staged {staged.get(k, '<absent>')!r}, live {now.get(k, '<absent>')!r}")
+    print(f"live fixture {where}: {len(staged)} staged leaves that enter the derivation compared, {len(differ)} differ")
+    if differ:
+        print("SOURCE MOVED ON: the live fixture no longer matches the staged input in the leaves named above; a decision "
+              "is needed on whether to re-stage it. The committed output stands for its staged input.")
     return 1 if differ else 0
 
 
