@@ -115,6 +115,7 @@ checks:
 - tests/test_analysis_run_schema.py
 - tests/test_recorded_run_record.py
 - apps/desktop/src/services/analysisRunCompatibility.test.ts
+- apps/desktop/src/services/sameCheckedJson.test.ts
 - apps/desktop/src/services/loadReferenceAnalysisRun.test.ts
 - apps/desktop/src/services/retainedPrecisionAnalysisRun.test.ts
 - apps/desktop/src/services/pressureSourceBridge.test.ts
