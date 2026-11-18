@@ -809,6 +809,105 @@ fn modal_env_a_bounded_diagnostic_is_checked_by_capacity() {
     assert!(!modal_env_diagnostic_within(&escaped, &bound).unwrap(), "within the raw length, not the escaped");
 }
 
+#[test]
+fn modal_env_writer_width_arithmetic_is_checked_at_the_usize_limit() {
+    // Each `usize` operation of the writer that the mirror reproduces,
+    // performed by the mirror in `usize` and checked (`document.rs:555, 593,
+    // 650, 736-737, 751, 768, 785, 797-798, 815`). Run at this host's
+    // `usize::MAX`; a narrower `usize` takes the same checked operation and
+    // is not run separately.
+    let unprojectable = |r: ModalEnvelopeResult<u64>| matches!(r, Err(ModalEnvelopeError::Unprojectable { .. }));
+    assert!(unprojectable(modal_env_next(usize::MAX)));
+    assert_eq!(modal_env_next(usize::MAX - 1).unwrap(), usize::MAX as u64);
+    assert!(matches!(modal_env_previous(0), Err(ModalEnvelopeError::Unprojectable { what: "mode index 0" })));
+    assert!(unprojectable(modal_env_ordinal(0, 6, 0)), "a mode index 0");
+    assert!(unprojectable(modal_env_ordinal(usize::MAX, 6, 0)), "a shape ordinal (:751)");
+    assert!(unprojectable(modal_env_ordinal(usize::MAX / 3 + 2, 3, 0)), "a participation ordinal (:768)");
+    assert!(unprojectable(modal_env_ordinal(2, 3, usize::MAX)), "an ordinal's offset");
+    assert_eq!(modal_env_ordinal(1, 6, usize::MAX).unwrap(), usize::MAX as u64);
+    assert_eq!(modal_env_ordinal(usize::MAX / 3 + 1, 3, 0).unwrap(), (usize::MAX / 3 * 3) as u64);
+    assert!(unprojectable(modal_env_ordinal(usize::MAX / 3 + 1, 3, usize::MAX - usize::MAX / 3 * 3 + 1)));
+    // Every site the writer reaches first, on a solved outcome: the mirror
+    // refuses it by name, and the writer panics where overflow checks are on
+    // (debug-assertion builds here) or wraps where they are off.
+    let (case, outcome, binding) = modal_env_base("component_body");
+    let standing = ModalParameterStanding::modal_doc_standing_of(&case.params, case.label);
+    let mut sites: Vec<(&str, ModalOutcome)> = Vec::new();
+    let mut add = |name, edit: &dyn Fn(&mut ModalOutcome)| {
+        let mut o = outcome.clone();
+        edit(&mut o);
+        sites.push((name, o));
+    };
+    add("the endpoint's next_mode + 1 (:593)", &|o| {
+        o.completed.endpoint = super::eigen::ReportedEndpoint::BelowComputedCluster { next_mode: usize::MAX }
+    });
+    add("an orthogonality pair's a + 1 (:650)", &|o| o.integrity.orthogonality.pair = Some((usize::MAX, 0)));
+    add("an orthogonality pair's b + 1 (:650)", &|o| o.integrity.orthogonality.pair = Some((0, usize::MAX)));
+    add("a mode index 0 (:736)", &|o| o.modes[0].index = 0);
+    add("a mode's cluster + 1 (:737)", &|o| o.modes[0].cluster = usize::MAX);
+    add("a shape ordinal (:751)", &|o| o.modes[0].index = usize::MAX);
+    add("a cluster's id + 1 (:785)", &|o| o.clusters[0].id = usize::MAX);
+    add("a cluster's first mode + 1 (:785)", &|o| o.clusters[0].modes.start = usize::MAX);
+    add("a computed mode's index + 1 (:797)", &|o| o.integrity.computed[0].index = usize::MAX);
+    add("a computed mode's cluster + 1 (:797)", &|o| o.integrity.computed[0].cluster = usize::MAX);
+    for (name, o) in &sites {
+        let found = modal_env_solved_with_binding(o, &binding, standing, CAP);
+        assert!(matches!(found, Err(ModalEnvelopeError::Unprojectable { .. })), "{name}: {found:?}");
+        if cfg!(debug_assertions) {
+            let built = std::panic::catch_unwind(std::panic::AssertUnwindSafe(|| modal_doc_solved(o, &binding, standing)));
+            assert!(built.is_err(), "{name}: the writer panics with overflow checks on");
+        }
+    }
+    // Not reachable as a document's first failure, so held above at the
+    // helper only: the participation ordinal (:768) follows the shape
+    // ordinal (:751) of the same mode, which overflows first when there is a
+    // DOF, and a model without one fails at the mode's reference DOF; a
+    // candidate's j + 1 (:815) and 6·nodes (:555) need a vector longer than
+    // memory allows.
+}
+
+#[test]
+fn modal_env_the_longest_refusal_message_is_within_the_refusal_stage() {
+    let stage = modal_env_refusal_stage();
+    assert_eq!(stage, 3 * MODAL_ENV_VALIDATION_MESSAGE_MAX);
+    let refuse = |value: &Value| canonical_json_checked_v1_text(&serde_json::to_string(value).unwrap()).unwrap_err();
+    // The reader's witness, and the longest message the derivation names.
+    assert_eq!(format!("{}", -f64::MAX).len(), 310);
+    for (name, value, length) in [
+        ("f64::MAX", json!(f64::MAX), Some(345)),
+        ("-f64::MAX", json!(-f64::MAX), Some(346)),
+        ("i64::MIN", json!(i64::MIN), Some(49)),
+        ("u64::MAX", json!(u64::MAX), Some(49)),
+        ("2^53 + 2", json!(9_007_199_254_740_994.0), None),
+    ] {
+        let message = refuse(&value);
+        let (len, capacity) = (message.len() as u64, message.capacity() as u64);
+        println!("refusal {name}: {len} bytes in a capacity of {capacity}");
+        if let Some(length) = length {
+            assert_eq!(len, length, "{name}: {message}");
+        }
+        assert!(len <= MODAL_ENV_VALIDATION_MESSAGE_MAX, "{name}");
+        assert!(capacity <= (2 * len).max(8), "{name}: P3");
+        // Its last growth: the old buffer (< len) beside the new.
+        assert!(capacity + len <= stage, "{name}: the refusal stage");
+    }
+    // Every integral binary64 above 2^53 in magnitude, sampled across its
+    // exponents.
+    for exponent in 53..=1023 {
+        for v in [2f64.powi(exponent), -2f64.powi(exponent) * 1.75, f64::MAX / 2f64.powi(1023 - exponent)] {
+            if v.fract() == 0.0 && v.abs() > 9_007_199_254_740_991.0 {
+                let message = refuse(&json!(v));
+                assert!(message.len() as u64 <= MODAL_ENV_VALIDATION_MESSAGE_MAX && message.capacity() as u64 + message.len() as u64 <= stage, "{v}");
+            }
+        }
+    }
+    // The parse refusal on serialized text: the depth limit.
+    let message = refuse(&modal_env_nested(128));
+    assert!(message.starts_with("CHECKED-JSON-INVALID: recursion limit exceeded at line 1 column "), "{message}");
+    assert!(message.len() as u64 <= MODAL_ENV_PARSE_MESSAGE_MAX, "{message}");
+    assert!(3 * message.len() as u64 + 64 <= stage);
+}
+
 // ---------------------------------------------------------------------------
 // The fallback refused document, from the request alone.
 
@@ -1222,6 +1321,11 @@ mod modal_env_observed {
             ("[0.0, 1000 bytes]".to_owned(), json!([0.0, "x".repeat(1000)])),
             ("[5e-324]".to_owned(), json!([5e-324])),
             ("a value 127 deep".to_owned(), modal_env_nested(127)),
+            // N2's witness and the longest validation refusal.
+            ("f64::MAX".to_owned(), json!(f64::MAX)),
+            ("-f64::MAX".to_owned(), json!(-f64::MAX)),
+            ("[-f64::MAX]".to_owned(), json!([-f64::MAX])),
+            ("null".to_owned(), json!(null)),
             ("the semantic table".to_owned(), modal_semantic_table()),
         ];
         for case in modal_env_cases() {
@@ -1244,6 +1348,43 @@ mod modal_env_observed {
             log.modal_env_within(format!("hash {name}"), &region, hp);
         }
         log.modal_env_report("hashing");
+    }
+
+    /// Stage observations tight enough to fail without the fixed term each
+    /// names: the bound for the stage without that term is exceeded by what
+    /// is observed. Not cheap to isolate, so not observed this way: C's 2048
+    /// and HP's 128, 256 and 384 fixed pieces (their stages are inside the
+    /// writer's and the canonical crate's private code, where no region can
+    /// be set around them alone); the whole-value comparisons above would
+    /// still pass without them.
+    #[test]
+    fn modal_env_observed_fixed_terms_are_needed() {
+        let _serial = SERIAL.lock().unwrap_or_else(|poisoned| poisoned.into_inner());
+        // The float parser's limbs (B2): a lone number parsed on the slow
+        // path holds nothing but them (the number is inline in its Value, and
+        // `from_str` starts with an empty scratch).
+        for text in ["4.1e-23", "[4.1e-23]", "-4.1e-23"] {
+            let (value, region) = modal_env_region(|| serde_json::from_str::<Value>(text).unwrap());
+            drop(value);
+            let observed = region.thread_peak.max(region.process_peak);
+            let elements = if text.starts_with('[') { 4 * MODAL_ENV_VALUE_BYTES } else { 0 };
+            println!("modal-env-observed stage float parse {text}: {region:?}, limbs term {MODAL_ENV_FLOAT_PARSE_BYTES}");
+            assert!(observed <= MODAL_ENV_FLOAT_PARSE_BYTES + elements, "{text}: {region:?}");
+            assert!(observed > elements, "{text}: the bound without the limbs term would hold, so this would not detect it: {region:?}");
+        }
+        // The refusal stage (N2): the checked text of -f64::MAX, whose parse
+        // holds at most the limbs and whose validation the refusal stage.
+        for value in [json!(f64::MAX), json!(-f64::MAX)] {
+            let text = serde_json::to_string(&value).unwrap();
+            let (refused, region) = modal_env_region(|| canonical_json_checked_v1_text(&text));
+            assert!(refused.is_err());
+            drop(refused);
+            let observed = region.thread_peak.max(region.process_peak);
+            let stage = modal_env_refusal_stage();
+            println!("modal-env-observed stage validation refusal {text}: {region:?}, limbs {MODAL_ENV_FLOAT_PARSE_BYTES} + stage {stage}; the former 512 would have bounded {}", MODAL_ENV_FLOAT_PARSE_BYTES + 512);
+            assert!(observed <= MODAL_ENV_FLOAT_PARSE_BYTES + stage, "{text}: {region:?}");
+            assert!(observed > MODAL_ENV_FLOAT_PARSE_BYTES, "{text}: the bound without the refusal stage would hold: {region:?}");
+        }
     }
 
     #[test]
