@@ -18,6 +18,10 @@ Three kinds of value, kept apart (see the README):
   direction  exact-rational checks of the procedure's directed figures on the emulated factor: each upward
              figure is at least, and each downward figure at most, the exact quantity it stands for. Each line
              gives the binary64 number next to the exact quantity on the side the figure must lie.
+  operand    the same check against the exact result of a figure's own last operation on that operation's
+             binary64 operands as the emulation formed them (gamma, beta, loss, sigma_prime, t, uc): a figure
+             can lie on the right side of the ideal quantity only because its operands were already rounded
+             outward, and still be on the wrong side of the operation that formed it.
 
 Independence. Python 3 standard library only (fractions, math, hashlib, argparse, pathlib). It reads, imports and
 runs no product code, product output, fixture or schema. The procedure is emulated from its statement (the
@@ -140,7 +144,7 @@ def chain(n, diag, off):
 
 
 def witness_family(lam):
-    """blockdiag(4(I - (1 - lam) w w^T), 1, 1), w = (1, 1, -1, -1)/2: design section 5.2's scaled free matrix."""
+    """blockdiag(4(I - (1 - lam) w w^T), 1, 1), w = (1, 1, -1, -1)/2; its exact inverse norm is 1/(4 lam)."""
     w = [F(1, 2), F(1, 2), F(-1, 2), F(-1, 2)]
     lower = {}
     for i in range(4):
@@ -374,7 +378,9 @@ def certify(case):
     check(m <= 2 ** 52, "(2n+2)u <= 1/2")
     of, members = blocks_of(n, case["stored"])
     mu = mul_up(float(m), U)
-    gamma = div_up(mu, sub_dn(1.0, mu))
+    one_less = sub_dn(1.0, mu)
+    gamma = div_up(mu, one_less)
+    gamma_last = F(mu) / F(one_less)
     gamma_x = m * U_EXACT / (1 - m * U_EXACT)
     nf = float(n)
     blocks = []
@@ -384,7 +390,9 @@ def certify(case):
         blocks.append(dict(least=mem[0], size=len(mem), k=k, attempts=[], bound=None, members=mem))
 
     def beta_of(nu):
-        return mul_up(mul_up(TINY, nf), add_up(nf, nu))
+        """beta, and the exact product of its last operation's stored operands (None when one is not finite)."""
+        left, right = mul_up(TINY, nf), add_up(nf, nu)
+        return mul_up(left, right), F(left) * F(right) if math.isfinite(right) else None
 
     def beta_exact(nux):
         return TINY_EXACT * n * (n + nux)
@@ -394,7 +402,7 @@ def certify(case):
         for b in which:
             blk = blocks[b]
             sigma = sigmas[b]
-            att = dict(attempt=step, figures=[("sigma", sigma, None)], candidate=None)
+            att = dict(attempt=step, figures=[("sigma", sigma, None)], operands=[], candidate=None)
             blk["attempts"].append(att)
             if failure[b] is not None:
                 att["outcome"] = ("lemma_e_nonpositive_pivot" if failure[b] == "pivot" else "arithmetic_nonfinite",
@@ -405,8 +413,9 @@ def certify(case):
             delta = mul_up(2.0 * U, dmax)
             npr, nprx = p["n_prime"]
             nu, nux = p["nu"]
-            beta = beta_of(nu)
-            loss = add_up(add_up(mul_up(gamma, npr), delta), beta)
+            beta, beta_last = beta_of(nu)
+            inner = add_up(mul_up(gamma, npr), delta)
+            loss = add_up(inner, beta)
             lossx = gamma_x * nprx + 2 * U_EXACT * F(dmax) + beta_exact(nux)
             att["figures"] += [("gamma", gamma, ("ge", gamma_x)), ("n_prime", npr, ("ge", nprx)),
                                ("nu", nu, ("ge", nux)), ("delta", delta, ("ge", 2 * U_EXACT * F(dmax))),
@@ -414,8 +423,11 @@ def certify(case):
             if not all(math.isfinite(x) for x in (npr, nu, delta, beta, loss)):
                 att["outcome"] = ("arithmetic_nonfinite", None)
                 continue
+            att["operands"] += [("gamma", "ge", gamma_last), ("beta", "ge", beta_last),
+                                ("loss", "ge", F(inner) + F(beta))]
             sp = sub_dn(sigma, loss)
             att["figures"].append(("sigma_prime", sp, ("le", F(sigma) - lossx)))
+            att["operands"].append(("sigma_prime", "le", F(sigma) - F(loss)))
             if not sp > 0:
                 att["outcome"] = ("lemma_e_sigma_nonpositive", None)
                 continue
@@ -442,7 +454,7 @@ def certify(case):
         rows, _, failure = factor(case, of, [0.0] * nb)
         for b in need_d:
             blk = blocks[b]
-            att = dict(attempt="d", figures=[("sigma", 0.0, None)], candidate=None)
+            att = dict(attempt="d", figures=[("sigma", 0.0, None)], operands=[], candidate=None)
             blk["attempts"].append(att)
             if failure[b] is not None:
                 att["outcome"] = ("lemma_d_nonpositive_pivot" if failure[b] == "pivot" else "arithmetic_nonfinite",
@@ -452,8 +464,9 @@ def certify(case):
             uu, ux = p["u"]
             nl, nlx = p["n_prime"]
             nu, nux = p["nu"]
-            beta = beta_of(nu)
-            t = mul_up(uu, add_up(mul_up(gamma, nl), beta))
+            beta, beta_last = beta_of(nu)
+            err = add_up(mul_up(gamma, nl), beta)
+            t = mul_up(uu, err)
             tx = ux * (gamma_x * nlx + beta_exact(nux))
             att["figures"] += [("gamma", gamma, ("ge", gamma_x)), ("u", uu, ("ge", ux)), ("n_l", nl, ("ge", nlx)),
                                ("nu", nu, ("ge", nux)), ("beta", beta, ("ge", beta_exact(nux))),
@@ -461,6 +474,8 @@ def certify(case):
             if not all(math.isfinite(x) for x in (uu, nl, nu, beta, t)):
                 att["outcome"] = ("arithmetic_nonfinite", None)
                 continue
+            att["operands"] += [("gamma", "ge", gamma_last), ("beta", "ge", beta_last),
+                                ("t", "ge", F(uu) * F(err))]
             if not t < 1:
                 att["outcome"] = ("lemma_d_contraction_not_below_one", None)
                 continue
@@ -471,6 +486,7 @@ def certify(case):
                 continue
             uc = div_up(uu, den)
             att["figures"].append(("uc", uc, ("ge", ux / (1 - tx))))
+            att["operands"].append(("uc", "ge", F(uu) / F(den)))
             if not math.isfinite(uc):
                 att["outcome"] = ("arithmetic_nonfinite", None)
             elif uc <= q:
@@ -530,12 +546,18 @@ def render_case(case):
                     check(value >= edge if side == "ge" else value <= edge,
                           f"{case['name']} {att['attempt']} {name}: directed figure on its side")
                     out.append(f"direction {blk['least']} {att['attempt']} {name} {side} {bits(edge)}")
+            formed = {name: value for name, value, _ in att["figures"]}
+            for name, side, x in att["operands"]:
+                edge = ru(x) if side == "ge" else rd(x)
+                check(formed[name] >= edge if side == "ge" else formed[name] <= edge,
+                      f"{case['name']} {att['attempt']} {name}: directed figure on the side of its own operation")
+                out.append(f"operand {blk['least']} {att['attempt']} {name} {side} {bits(edge)}")
     out.append(f"avail verdict {verdict} {bits(bound) if bound is not None else '-'}")
     out.append("end")
     return out, verdict, bound, norm, blocks
 
 
-# ---- directed-operation vectors (design 6.6, "Directions of rounding") ----------------------------------------
+# ---- directed-operation vectors: each directed operation against its exact result ----------------------------------------
 def directed_vectors():
     h = TINY
     nd1 = math.nextafter(1.0, 0.0)

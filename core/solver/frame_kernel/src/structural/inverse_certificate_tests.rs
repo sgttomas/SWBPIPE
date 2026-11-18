@@ -115,7 +115,7 @@ fn cases() -> Vec<Case> {
                     .push((w[2].parse().unwrap(), w[3].into(), w[4].into(), hex(w[5])))
             }
             ("avail", Some("verdict")) => c.verdict = (w[2].into(), opt(w[3])),
-            ("direction", _) => c.directions.push((
+            ("direction" | "operand", _) => c.directions.push((
                 w[1].parse().unwrap(),
                 w[2].into(),
                 w[3].into(),
@@ -366,7 +366,9 @@ fn reference_cases_verdicts_methods_figures_and_truth() {
             (InverseNormCertificate::NotVerified(_), "not_verified") => {}
             (r, e) => panic!("{}: {r:?} against {e}", c.name),
         }
-        // Direction: each directed figure on its side of the exact quantity.
+        // Direction: each directed figure on its side of the exact quantity it
+        // stands for (`direction`) and of the exact result of its own last
+        // operation on that operation's operands (`operand`).
         assert!(!c.directions.is_empty());
         for (least, kind, name, side, edge) in &c.directions {
             let block = run.blocks.iter().find(|b| b.least == *least).unwrap();
@@ -747,7 +749,7 @@ fn three_representations_agree() {
 
 // ------------------------------------------------- directions of rounding
 
-/// Each directed operation against the exact result (design 6.6), including
+/// Each directed operation against the exact result, including
 /// RN(1/3) < 1/3 and RN(h/2) = 0 < h/2.
 #[test]
 fn directed_operations_against_exact_arithmetic() {
@@ -1005,6 +1007,61 @@ fn envelope_omitting_a_stored_nonzero_is_not_verified() {
     ));
 }
 
+/// A zero stored as +0.0 on one side and −0.0 on its transpose is a symmetric
+/// matrix (the kernel's input validation compares values and can keep both
+/// signs through scaling and storage): it is certified, with the result of
+/// the same matrix stored with equal bits.
+#[test]
+fn mirrored_zeros_of_opposite_sign_are_symmetric() {
+    let c7 = case("C7");
+    let g = case_forms(&c7);
+    let same = certify_compressed(
+        &g.row_starts,
+        &g.columns,
+        &g.values,
+        &c7.order,
+        &c7.first,
+        c7.q,
+    );
+    assert!(matches!(same, InverseNormCertificate::Verified(_)));
+    let at = (g.row_starts[0]..g.row_starts[1])
+        .find(|&i| g.columns[i] == 3)
+        .unwrap();
+    assert_eq!(g.values[at].to_bits(), (-0.0f64).to_bits());
+    let mut values = g.values.clone();
+    values[at] = 0.0;
+    let bits: Vec<u64> = values.iter().map(|v| v.to_bits()).collect();
+    assert_eq!(
+        certify_compressed(
+            &g.row_starts,
+            &g.columns,
+            &values,
+            &c7.order,
+            &c7.first,
+            c7.q
+        ),
+        same
+    );
+    assert_eq!(
+        certify_compressed_bits(&g.row_starts, &g.columns, &bits, &c7.order, &c7.first, c7.q),
+        same
+    );
+    let mut dense = g.dense.clone();
+    assert_eq!(dense[0][3].to_bits(), (-0.0f64).to_bits());
+    dense[0][3] = 0.0;
+    assert_eq!(
+        certify_dense(
+            &dense,
+            Elimination::Supplied {
+                order: &c7.order,
+                first: &c7.first
+            },
+            c7.q
+        ),
+        same
+    );
+}
+
 #[test]
 fn asymmetric_inputs_are_not_verified() {
     let c = case("C1");
@@ -1041,26 +1098,6 @@ fn asymmetric_inputs_are_not_verified() {
             &c.order,
             &c.first,
             c.q
-        )),
-        InputDefect::NotSymmetric
-    );
-    // Compressed: equal values, different bits (+0.0 against −0.0).
-    let c7 = case("C7");
-    let g = case_forms(&c7);
-    let mut values = g.values.clone();
-    let at = (g.row_starts[0]..g.row_starts[1])
-        .find(|&i| g.columns[i] == 3)
-        .unwrap();
-    assert_eq!(values[at].to_bits(), (-0.0f64).to_bits());
-    values[at] = 0.0;
-    assert_eq!(
-        unusable_with(&certify_compressed(
-            &g.row_starts,
-            &g.columns,
-            &values,
-            &c7.order,
-            &c7.first,
-            c7.q
         )),
         InputDefect::NotSymmetric
     );
