@@ -72,8 +72,8 @@
       "holders": [
         "A1"
       ],
-      "label": "constraint_reaction rigid_constraint [A1] UX (global_axes)",
-      "node": "A1",
+      "label": "constraint_reaction rigid_constraint [N1] UX (global_axes)",
+      "node": "N1",
       "per_direction": [
         {
           "combined": 755.8317502546147,
@@ -101,8 +101,8 @@
       "holders": [
         "A1"
       ],
-      "label": "constraint_reaction rigid_constraint [A1] UY (global_axes)",
-      "node": "A1",
+      "label": "constraint_reaction rigid_constraint [N1] UY (global_axes)",
+      "node": "N1",
       "per_direction": [
         {
           "combined": 146.84691724531254,
@@ -130,8 +130,8 @@
       "holders": [
         "A1"
       ],
-      "label": "constraint_reaction rigid_constraint [A1] UZ (global_axes)",
-      "node": "A1",
+      "label": "constraint_reaction rigid_constraint [N1] UZ (global_axes)",
+      "node": "N1",
       "per_direction": [
         {
           "combined": 0.0,
@@ -159,8 +159,8 @@
       "holders": [
         "A1"
       ],
-      "label": "constraint_reaction rigid_constraint [A1] RX (global_axes)",
-      "node": "A1",
+      "label": "constraint_reaction rigid_constraint [N1] RX (global_axes)",
+      "node": "N1",
       "per_direction": [
         {
           "combined": 301.72284219998784,
@@ -188,8 +188,8 @@
       "holders": [
         "A1"
       ],
-      "label": "constraint_reaction rigid_constraint [A1] RY (global_axes)",
-      "node": "A1",
+      "label": "constraint_reaction rigid_constraint [N1] RY (global_axes)",
+      "node": "N1",
       "per_direction": [
         {
           "combined": 1148.8544693767547,
@@ -217,8 +217,8 @@
       "holders": [
         "A1"
       ],
-      "label": "constraint_reaction rigid_constraint [A1] RZ (global_axes)",
-      "node": "A1",
+      "label": "constraint_reaction rigid_constraint [N1] RZ (global_axes)",
+      "node": "N1",
       "per_direction": [
         {
           "combined": 0.0,
@@ -1397,8 +1397,8 @@
       "holders": [
         "A1"
       ],
-      "label": "constraint_reaction rigid_constraint [A1] UX (global_axes)",
-      "node": "A1",
+      "label": "constraint_reaction rigid_constraint [N1] UX (global_axes)",
+      "node": "N1",
       "quantity": "constraint_reaction",
       "sign_convention": "action_of_support_on_piping",
       "unit": "unit:newton"
@@ -1410,8 +1410,8 @@
       "holders": [
         "A1"
       ],
-      "label": "constraint_reaction rigid_constraint [A1] UY (global_axes)",
-      "node": "A1",
+      "label": "constraint_reaction rigid_constraint [N1] UY (global_axes)",
+      "node": "N1",
       "quantity": "constraint_reaction",
       "sign_convention": "action_of_support_on_piping",
       "unit": "unit:newton"
@@ -1423,8 +1423,8 @@
       "holders": [
         "A1"
       ],
-      "label": "constraint_reaction rigid_constraint [A1] UZ (global_axes)",
-      "node": "A1",
+      "label": "constraint_reaction rigid_constraint [N1] UZ (global_axes)",
+      "node": "N1",
       "quantity": "constraint_reaction",
       "sign_convention": "action_of_support_on_piping",
       "unit": "unit:newton"
@@ -1436,8 +1436,8 @@
       "holders": [
         "A1"
       ],
-      "label": "constraint_reaction rigid_constraint [A1] RX (global_axes)",
-      "node": "A1",
+      "label": "constraint_reaction rigid_constraint [N1] RX (global_axes)",
+      "node": "N1",
       "quantity": "constraint_reaction",
       "sign_convention": "action_of_support_on_piping",
       "unit": "unit:newton_meter"
@@ -1449,8 +1449,8 @@
       "holders": [
         "A1"
       ],
-      "label": "constraint_reaction rigid_constraint [A1] RY (global_axes)",
-      "node": "A1",
+      "label": "constraint_reaction rigid_constraint [N1] RY (global_axes)",
+      "node": "N1",
       "quantity": "constraint_reaction",
       "sign_convention": "action_of_support_on_piping",
       "unit": "unit:newton_meter"
@@ -1462,8 +1462,8 @@
       "holders": [
         "A1"
       ],
-      "label": "constraint_reaction rigid_constraint [A1] RZ (global_axes)",
-      "node": "A1",
+      "label": "constraint_reaction rigid_constraint [N1] RZ (global_axes)",
+      "node": "N1",
       "quantity": "constraint_reaction",
       "sign_convention": "action_of_support_on_piping",
       "unit": "unit:newton_meter"

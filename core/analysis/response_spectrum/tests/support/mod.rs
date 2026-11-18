@@ -4,9 +4,9 @@
 //! **Reference keys.** The references name their rows by composed keys (`N3.uy`, `P1.i.Fx`,
 //! `P1.i.Fx_m`, `A1.Fx`). [`quantity`] maps a reference key to the product's structured row and
 //! [`reference_key`] maps it back, for these tests' lookups in the reference's own tables only: the
-//! product identifies rows by their fields and parses no key. A reference's reaction keys
-//! `<support>.<Fx..Mz>` are mapped to a constraint reaction held by that support (the tests examine
-//! the combinations, which treat every row alike). The rows of a support acting along a skew
+//! product identifies rows by their fields and parses no key. A reference's reaction key
+//! `<support>.<Fx..Mz>` is the constraint reaction at the node that support restrains, held by it,
+//! or the compliant support force of a spring or finite snubber. The rows of a support acting along a skew
 //! direction (C4's and C10's skew springs, `K*.Fx`, `K*.Fy`, `K*.Fz`, `K*.Fd`) are not REQ-006 rows
 //! and are left out of every request ([`skew_supports`]); every other row is compared as before.
 //!
@@ -46,18 +46,30 @@ const REACTIONS: [(&str, ReactionComponent); 6] = [
     ("Mz", ReactionComponent::Rz),
 ];
 
-/// The product row of a reference key: `N3.uy`, `P1.i.Fx` (global axes), `P1.i.Fx_m` (member
-/// axes), `A1.Fx` (a reaction, as a constraint reaction held by `A1`).
-pub fn quantity(key: &str) -> Quantity {
+/// The product row of a reference key in `case`: `N3.uy`, `P1.i.Fx` (global axes), `P1.i.Fx_m`
+/// (member axes), and a support's reaction `A1.Fx`. A reaction of a support that restrains that
+/// component rigidly is the constraint reaction at the restrained node, held by that support; a
+/// reaction of a spring or a finite snubber is that support's compliant support force.
+pub fn quantity(case: &Value, key: &str) -> Quantity {
     let parts: Vec<&str> = key.split('.').collect();
     match parts.as_slice() {
         [object, component] => {
             if let Some(c) = DisplacementComponent::parse(component) {
-                Quantity::NodeDisplacement { node: object.to_string(), component: c }
-            } else {
-                let c = REACTIONS.iter().find(|(n, _)| n == component).unwrap_or_else(|| panic!("component of {key}")).1;
-                Quantity::ConstraintReaction { node: object.to_string(), component: c, holders: vec![object.to_string()] }
+                return Quantity::NodeDisplacement { node: object.to_string(), component: c };
             }
+            let c = REACTIONS.iter().find(|(n, _)| n == component).unwrap_or_else(|| panic!("component of {key}")).1;
+            let dof = c.as_str().to_ascii_lowercase();
+            let restrained = case["derived_model"]["restrained_dofs"].as_array().unwrap().iter()
+                .find(|r| r[2] == *object && r[1] == dof.as_str());
+            if let Some(r) = restrained {
+                return Quantity::ConstraintReaction { node: r[0].as_str().unwrap().to_string(), component: c, holders: vec![object.to_string()] };
+            }
+            let model = &case["model"];
+            let compliant = model["springs"].as_array().into_iter().flatten()
+                .chain(model["snubbers"].as_array().into_iter().flatten().filter(|s| !s["stiffness"].is_null()))
+                .any(|s| s["id"] == *object);
+            assert!(compliant, "{key}: neither a rigid restraint of that component nor a compliant support");
+            Quantity::CompliantSupportForce { support: object.to_string(), component: c }
         }
         [member, end, component] => {
             let (component, frame) = match component.strip_suffix("_m") {
@@ -84,8 +96,11 @@ pub fn reference_key(q: &Quantity) -> String {
             let suffix = if *frame == Frame::MemberAxes { "_m" } else { "" };
             format!("{member}.{}.{}{suffix}", end.as_str(), component.as_str())
         }
-        Quantity::ConstraintReaction { node, component, .. } => {
-            format!("{node}.{}", REACTIONS.iter().find(|(_, c)| c == component).unwrap().0)
+        Quantity::ConstraintReaction { component, holders, .. } => {
+            format!("{}.{}", holders[0], REACTIONS.iter().find(|(_, c)| c == component).unwrap().0)
+        }
+        Quantity::CompliantSupportForce { support, component } => {
+            format!("{support}.{}", REACTIONS.iter().find(|(_, c)| c == component).unwrap().0)
         }
         other => panic!("no reference key for {other:?}"),
     }
@@ -125,6 +140,8 @@ pub struct DiscreteAnalysis {
     pub directions: Vec<Direction>,
     pub modes: Vec<ModalMode>,
     pub keys: Vec<String>,
+    /// The product row of each key, in key order.
+    pub rows: Vec<Quantity>,
     /// (direction, mode) → values in key order, for every mode with published values.
     pub contributions: BTreeMap<(Direction, u32), Vec<f64>>,
     /// The modes the reference classifies as periodic.
@@ -214,6 +231,7 @@ pub fn discrete_analysis(case: &Value, analysis: &Value, block: Option<&str>) ->
         damping: dampings[0],
         directions,
         modes,
+        rows: keys.iter().map(|k| quantity(case, k)).collect(),
         keys,
         contributions,
         periodic_modes,
@@ -262,7 +280,7 @@ impl DiscreteAnalysis {
             missing_mass,
             directions: self.directions.clone(),
             modes: self.modes.clone(),
-            rows: self.keys.iter().map(|k| quantity(k)).collect(),
+            rows: self.rows.clone(),
             periodic,
             rigid: rigid_responses,
         }
@@ -312,7 +330,7 @@ impl Tally {
 pub fn combined_of(c: &Combination, keys: &[String]) -> BTreeMap<String, (f64, BTreeMap<Direction, (f64, Option<f64>, f64)>)> {
     let mut out = BTreeMap::new();
     for (row, key) in c.rows.iter().zip(keys) {
-        assert_eq!(row.quantity, quantity(key));
+        assert_eq!(&reference_key(&row.quantity), key);
         let per = row
             .per_direction
             .iter()

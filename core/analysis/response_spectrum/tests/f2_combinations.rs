@@ -293,7 +293,7 @@ fn c7_repeated_pair_two_bases_give_the_same_combinations() {
                 missing_mass: MissingMass::NotApplied,
                 directions: vec![Direction::Y, Direction::Z],
                 modes: modes.clone(),
-                rows: keys.iter().map(|k| quantity(k)).collect(),
+                rows: keys.iter().map(|k| quantity(case, k)).collect(),
                 periodic: periodic.clone(),
                 rigid: Vec::new(),
             };

@@ -376,7 +376,7 @@
       "holders": [
         "A1"
       ],
-      "node": "A1",
+      "node": "N1",
       "quantity": "constraint_reaction",
       "sign_convention": "action_of_support_on_piping",
       "unit": "unit:newton"
@@ -388,7 +388,7 @@
       "holders": [
         "A1"
       ],
-      "node": "A1",
+      "node": "N1",
       "quantity": "constraint_reaction",
       "sign_convention": "action_of_support_on_piping",
       "unit": "unit:newton"
@@ -400,7 +400,7 @@
       "holders": [
         "A1"
       ],
-      "node": "A1",
+      "node": "N1",
       "quantity": "constraint_reaction",
       "sign_convention": "action_of_support_on_piping",
       "unit": "unit:newton"
@@ -412,7 +412,7 @@
       "holders": [
         "A1"
       ],
-      "node": "A1",
+      "node": "N1",
       "quantity": "constraint_reaction",
       "sign_convention": "action_of_support_on_piping",
       "unit": "unit:newton_meter"
@@ -424,7 +424,7 @@
       "holders": [
         "A1"
       ],
-      "node": "A1",
+      "node": "N1",
       "quantity": "constraint_reaction",
       "sign_convention": "action_of_support_on_piping",
       "unit": "unit:newton_meter"
@@ -436,7 +436,7 @@
       "holders": [
         "A1"
       ],
-      "node": "A1",
+      "node": "N1",
       "quantity": "constraint_reaction",
       "sign_convention": "action_of_support_on_piping",
       "unit": "unit:newton_meter"
