@@ -39,7 +39,8 @@ async function current() {
 }
 type Session = Awaited<ReturnType<typeof current>>;
 type Refs = Session["analysisRun"]["analysis_run"]["result_refs"];
-type Outcome = { document: string } | { refused: string };
+/** A named refusal by its text; an unnamed error by its class, whose message is the engine's. */
+type Outcome = { document: string } | { refused: string } | { thrown: string };
 
 /** The record with its result references replaced; the registered result object is kept. */
 const withRefs = (args: Session, edit: (refs: Refs) => Refs): Session => {
@@ -51,7 +52,7 @@ async function admit(args: Session, searchFromStart: boolean): Promise<Outcome> 
   lookup.searchFromStart = searchFromStart;
   const before = lookup.calls[searchFromStart ? "searchFromStart" : "maintained"];
   try { return { document: JSON.stringify(await buildCurrentResultExport(args)) }; }
-  catch (error) { return { refused: (error as Error).message }; }
+  catch (error) { return error instanceof TypeError ? { thrown: "TypeError" } : { refused: (error as Error).message }; }
   finally { expect(lookup.calls[searchFromStart ? "searchFromStart" : "maintained"]).toBe(before + 1); }
 }
 async function bothWays(args: Session): Promise<Outcome> {
@@ -111,6 +112,14 @@ describe("Current row binding against the search it replaced", () => {
     ];
     for (const [index, edit] of edits.entries())
       expect(await bothWays(withRefs(args, refs => { edit(refs); return refs; })), `edit ${index}`).toStrictEqual(ROW_BINDING);
+  });
+
+  it("refuses references that are not held in an array", async () => {
+    const args = await current();
+    // The record's JSON guard, its text and the length comparison all admit these two.
+    const arrayLike = await bothWays(withRefs(args, refs => ({ ...refs, length: refs.length }) as unknown as Refs));
+    const noPrototype = await bothWays(withRefs(args, refs => Object.setPrototypeOf(refs, null) as Refs));
+    for (const outcome of [arrayLike, noPrototype]) expect(outcome).toStrictEqual({ thrown: "TypeError" });
   });
 
   it("gives the same answer for references in another order", async () => {

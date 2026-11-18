@@ -8,11 +8,20 @@
  * read again, so the lookups for a whole result examine each entry at most once, where a
  * search from the start for every row examines N(N+1)/2 entries for N rows.
  *
- * The equivalence is for a list that does not change between lookups. */
+ * A list that is not an array, or has no `find` to call, is refused with a `TypeError` at the
+ * first lookup, where the search threw one: an object holding numbered entries and a length
+ * is not a list of references.
+ *
+ * The equivalence is for a list whose reads are stable: an ordinary array that nothing
+ * changes between the first lookup and the last. The search read the live list again for
+ * every row and this lookup does not, so the two can differ for a list edited in place
+ * between lookups; the builder's closing comparison of its inputs' text covers an edit that
+ * is still there at the end. */
 export function firstMatchResultRefLookup<T extends { result_ref: { ref: unknown } }>(refs: readonly T[]): (id: unknown) => T | undefined {
   const first = new Map<unknown, T>();
   let next = 0;
   return id => {
+    if (!Array.isArray(refs) || typeof refs.find !== "function") throw new TypeError("result references are not an array");
     // `Map` compares keys by SameValueZero, which differs from `===` only in that NaN equals
     // NaN. `===` matches NaN to nothing, so a NaN id takes no answer from the map.
     if (id === id && first.has(id)) return first.get(id);

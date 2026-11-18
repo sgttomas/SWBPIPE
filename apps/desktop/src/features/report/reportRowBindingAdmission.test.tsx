@@ -83,14 +83,19 @@ async function solve(item: Shape): Promise<Session> {
 
 /** The record with its result references edited; the model, the registered result object
  * and the manifest are the session's own. */
-type Edit = { name: string; apply: (refs: Json[]) => void };
+type Edit = { name: string; refusal: string; apply: (refs: Json[]) => Json };
+const ROW_BINDING = "CURRENT_ROW_BINDING_MISMATCH";
+const NEEDS_RECOMPUTE = "CURRENT_NUMERICAL_INTEGRITY_NEEDS_RECOMPUTE";
+/** An unnamed error is recorded by its class; its message is the engine's. */
+const TYPE_ERROR = "TypeError";
 const EDITS: readonly Edit[] = [
-  { name: "a duplicate reference", apply: refs => { refs[refs.length - 1] = structuredClone(refs[0]); } },
-  { name: "a missing reference", apply: refs => { refs[refs.length >> 1].result_ref.ref = "result:absent"; } }
+  { name: "a duplicate reference", refusal: ROW_BINDING, apply: refs => { refs[refs.length - 1] = structuredClone(refs[0]); return refs; } },
+  { name: "a missing reference", refusal: ROW_BINDING, apply: refs => { refs[refs.length >> 1].result_ref.ref = "result:absent"; return refs; } },
+  { name: "references not held in an array", refusal: TYPE_ERROR, apply: refs => ({ ...refs, length: refs.length }) }
 ];
 const edited = (session: Session, edit: Edit): Session => {
   const analysisRun = structuredClone(session.analysisRun);
-  edit.apply(analysisRun.analysis_run.result_refs);
+  analysisRun.analysis_run.result_refs = edit.apply(analysisRun.analysis_run.result_refs);
   return { ...session, analysisRun };
 };
 
@@ -99,7 +104,7 @@ async function outcomeOf(searchFromStart: boolean, act: () => Promise<unknown>):
   lookup.searchFromStart = searchFromStart;
   const before = lookup.calls;
   try { return { made: JSON.stringify(await act()), reachedRowBinding: lookup.calls > before }; }
-  catch (error) { return { refused: (error as Error).message, reachedRowBinding: lookup.calls > before }; }
+  catch (error) { return { refused: error instanceof TypeError ? TYPE_ERROR : (error as Error).message, reachedRowBinding: lookup.calls > before }; }
 }
 /** The same act under the search and under the maintained lookup; the outcomes are equal. */
 async function bothWays(act: () => Promise<unknown>, why: string): Promise<Outcome> {
@@ -115,9 +120,6 @@ const render = ({ model, result, analysisRun, inputManifest }: Session) => async
 };
 const packageRequest = ({ model, result, analysisRun, inputManifest }: Session) => () =>
   buildReportPackageRequest({ model, result, analysisRun, inputManifest, projectSummary: null, comparison: null, ruleCheckAggregate: null, ruleCheckRun: null });
-
-const ROW_BINDING = "CURRENT_ROW_BINDING_MISMATCH";
-const NEEDS_RECOMPUTE = "CURRENT_NUMERICAL_INTEGRITY_NEEDS_RECOMPUTE";
 
 describe("report admission, standing and refusals against the search the row binding replaced", () => {
   it.each(SHAPES)("$name: the rendered report states the same standing and the package gives the same answer", async item => {
@@ -145,9 +147,9 @@ describe("report admission, standing and refusals against the search the row bin
   it.each(SHAPES.flatMap(item => EDITS.map(edit => ({ item, edit, title: `${item.name}, ${edit.name}` }))))("$title: the same named refusal", async ({ item, edit }) => {
     const session = edited(await solve(item), edit);
     const rendered = await bothWays(render(session), "render");
-    expect(rendered).toStrictEqual({ refused: ROW_BINDING, reachedRowBinding: true });
+    expect(rendered).toStrictEqual({ refused: edit.refusal, reachedRowBinding: true });
     const packaged = await bothWays(packageRequest(session), "package");
     // The standing refusal comes first for a result that is not numerically eligible.
-    expect(packaged).toStrictEqual(item.eligible ? { refused: ROW_BINDING, reachedRowBinding: true } : { refused: NEEDS_RECOMPUTE, reachedRowBinding: false });
+    expect(packaged).toStrictEqual(item.eligible ? { refused: edit.refusal, reachedRowBinding: true } : { refused: NEEDS_RECOMPUTE, reachedRowBinding: false });
   }, 240_000);
 });

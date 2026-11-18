@@ -76,6 +76,20 @@ describe("first-match result reference lookup", () => {
     expectSameAsSearch(sparse, ["a", "b", "a"]);
   });
 
+  it("refuses a list that is not an array, at the first lookup and not before", () => {
+    const entries = [entry("a", 0), entry("b", 1)];
+    const arrayLike = { 0: entries[0], 1: entries[1], length: 2 } as unknown as Entry[];
+    const noPrototype = Object.setPrototypeOf([...entries], null) as Entry[];
+    for (const refs of [arrayLike, noPrototype, { length: 0 } as unknown as Entry[]]) {
+      // The search throws when it is first called on such a list, and so not for a result with no rows.
+      const lookup = firstMatchResultRefLookup(refs);
+      for (const id of ["a", "b", "absent"]) {
+        expect(() => searchFromStart(refs, id)).toThrow(TypeError);
+        expect(() => lookup(id)).toThrow(TypeError);
+      }
+    }
+  });
+
   it("matches the search on generated lists with duplicate, missing and unreadable entries", () => {
     const random = mulberry32(0x5eed), shared = {}, pool: unknown[] = ["a", "b", "c", "d", "e", "", "0", 0, -0, 1, null, true, false, NaN, shared];
     const pick = () => pool[Math.floor(random() * pool.length)];
