@@ -20,19 +20,23 @@ export function endpointLocationDescription(value: unknown): string {
   return "Location evidence unavailable; no unique governing station is inferred.";
 }
 
-/** The scope an ordinary stress-maximum record states for its own interval, and the retained
- * endpoint method's basis and scope: the schemas' constants. */
+/** What the schemas fix for the two kinds of stress-maximum record: an ordinary record states a
+ * coefficient basis and the scope of its interval and has no `basis`; a retained endpoint record
+ * states its basis, its own coefficient basis and its own scope. */
+const POLYNOMIAL_COEFFICIENT_BASIS = "j_side_section_equilibrium_binary64_enclosures";
 const POLYNOMIAL_ENCLOSURE_SCOPE = "supplied_binary64_polynomial_coefficient_enclosures; solution error is separate";
 const RETAINED_ENDPOINT_BASIS = "retained_source_endpoint_normal_max_v1";
+const RETAINED_COEFFICIENT_BASIS = "retained_section_functionals_binary64";
 const RETAINED_ENDPOINT_SCOPE = "retained_action_projection_and_ordered_binary64_recipe;represented_source_section_operands";
 
-/** Which explanation of its interval a stress-maximum record supports: the one whose scope it
- * states exactly. A record whose basis and scope disagree, or whose scope the panel does not
- * know, supports neither. Presentation only; this is no validity or eligibility test. */
+/** Which explanation of its interval a stress-maximum record supports: the one whose method and
+ * scope it states exactly, in all three fields. A record whose basis, coefficient basis and scope
+ * do not all belong to one kind supports neither. Presentation only; this is no validity or
+ * eligibility test. */
 export function maximumIntervalReading(maximum: Record<string, unknown>): "retained_endpoint" | "polynomial_enclosure" | "uninterpreted" {
-  const retained = maximum.basis === RETAINED_ENDPOINT_BASIS;
-  if (retained && maximum.enclosure_scope === RETAINED_ENDPOINT_SCOPE) return "retained_endpoint";
-  if (!retained && maximum.enclosure_scope === POLYNOMIAL_ENCLOSURE_SCOPE) return "polynomial_enclosure";
+  const { basis, coefficient_basis: coefficientBasis, enclosure_scope: scope } = maximum;
+  if (basis === RETAINED_ENDPOINT_BASIS && coefficientBasis === RETAINED_COEFFICIENT_BASIS && scope === RETAINED_ENDPOINT_SCOPE) return "retained_endpoint";
+  if (basis === undefined && coefficientBasis === POLYNOMIAL_COEFFICIENT_BASIS && scope === POLYNOMIAL_ENCLOSURE_SCOPE) return "polynomial_enclosure";
   return "uninterpreted";
 }
 
@@ -43,7 +47,7 @@ export function maximumIntervalReading(maximum: Record<string, unknown>): "retai
 export function qualifiedIntervalDescription(maximum: Record<string, unknown>): string {
   const interval = `[${number(maximum.value_lower_pa)}, ${number(maximum.value_upper_pa)}] Pa`;
   if (maximumIntervalReading(maximum) === "polynomial_enclosure") return `Bound over the supplied binary64 polynomial coefficient enclosures: ${interval}. Solution error is separate.`;
-  return `Recorded interval: ${interval}. This panel does not interpret the scope this record gives for the interval, so it is not shown as a bound.`;
+  return `Recorded interval: ${interval}. This panel cannot determine the interval's scope from this record, so it is not shown as a bound.`;
 }
 
 /** Render original method facts in both live and historical/reference contexts, for
