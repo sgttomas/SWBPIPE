@@ -56,8 +56,11 @@ A diagnostic is a statement about the discrete model and its solve. The absence 
   - *Memory.* The checks run under the memory admission of a solve in the app (a capped worker within the per-invocation budget), and under a stated input size bound in the browser preview. Library-reference findings are read only after that call returns a report from an admitted or bounded check.
   - *Bounded report.* All three groups share one bounded allowance for serialized findings: findings beyond it are counted, not listed; long messages and model-read refusal text are shortened; library messages are kept whole when their findings fit; ids and references are kept whole.
   - *Cancellation.* A check in progress is cancelled, and its memory released, when the project session changes or a newer check is requested (PRD FR-KNOW-002, FR-GUI-006).
+  - *Seismic warning.* The solve's own checks before stiffness formation include the seismic model-check warning of DEL-05-01 REQ-008, raised by one judgement that the solve and the on-demand checks both call.
 
 **Undecided.** Whether the numerical-integrity diagnostic that the solve integration and the retained-precision method raise for a sensitive case already meets REQ-008's obligation.
+
+**Not met.** REQ-013's seismic warning: neither the solve's checks before stiffness formation nor the on-demand checks raise it. DEL-05-01 defines the warning and records it as not met.
 
 ### Acceptance criteria
 

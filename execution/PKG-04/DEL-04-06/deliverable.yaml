@@ -19,6 +19,12 @@ needs:
     The primitive load contracts report each load error and finding with a code and the load's
     identity, including a load that names a missing object.
   gating: true
+- from: DEL-05-01
+  when: Reporting the seismic model-check warning among the checks before stiffness formation
+  condition: >-
+    The seismic model-check warning is defined: what it names on a seismic case and the
+    conditions under which it gives both gravity values (DEL-05-01 REQ-008).
+  gating: true
 - from: DEL-02-03
   condition: >-
     The analysis status vocabulary has distinct states for an incomplete model and for solved
