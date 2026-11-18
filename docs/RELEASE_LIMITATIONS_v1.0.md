@@ -53,9 +53,9 @@ Each entry is one subsection:
 - **Status:** `not yet declared` until Agent 0 declares; then `declared
   acceptable by Agent 0` or `declared not acceptable by Agent 0`, with the PR
   that records it. A refusal declared not acceptable is removed before
-  release, or the criterion it affects stays unmet. A refusal later removed
-  by a landed change is marked `withdrawn` with the PR; the entry is kept,
-  not deleted.
+  release, or the criterion it affects stays unmet. A refusal later removed,
+  or a known product defect later repaired, by a landed change is marked
+  `withdrawn` with the PR; the entry is kept, not deleted.
 
 Entries are added in the same PR that makes the refusal standing. A previously unlisted standing refusal is added when identified; its Basis distinguishes the refusal's existing standing from the PR that records the entry. An unmet-target entry is added in the PR that records the unmet target. An applicability limitation is added when identified; its Basis distinguishes the method's existing standing from the PR that records the entry. The PR names the entry, and the entry names the PR.
 
