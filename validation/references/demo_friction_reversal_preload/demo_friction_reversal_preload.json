@@ -10,7 +10,8 @@
  },
  "law": "DEL-04-03/REQ-014 and DEL-04-11/REQ-014: SH-140 a spring of its entered rate on UZ plus its entered cold load as a constant force along +Z at N-140 in every case and variant; published Fz = F_cold - k u_z; the cold load published separately as SH-140's applied force; installed_load and hot_load not applied",
  "units": "N and mm, support actions act on the structure (the test's)",
- "criteria": "the test's own, unchanged: frame quantities |obs - exp| <= 1e-9 |exp|; an exactly-zero expectation at 1e-9 of the case's authored Y-force scale; the friction force |obs - exp| <= 1e-9 N",
+ "criteria": "the test's own, unchanged: frame quantities |obs - exp| <= 1e-9 |exp|; an exactly-zero expectation at 1e-9 of the case's authored Y-force scale; the friction force |obs - exp| <= 1e-9 * normal_n, one billionth of the scenario's normal force (not a fixed number of newtons)",
+ "margin_values": "each margin's 'exact' is the exact rational and governs; its 'value' is the nearest binary64, which can exceed the exact rational by up to half a unit in the last place; read lower bounds from 'exact'",
  "rows": [
   {
    "case": "load:L-100",

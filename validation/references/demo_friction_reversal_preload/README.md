@@ -109,30 +109,47 @@ relations.
 **Reproduction.** With F_cold set to zero, all six scenarios give the frozen
 states, and every field matches the table at the test's own criteria: frame
 quantities within 1e−9 relative, an exact zero within 1e−9 of the applied Y,
-and friction within 1e−9 N.
+and the friction force within 1e−9 times the scenario's normal force N. That
+bound is one billionth of the normal force; it is not a fixed number of
+newtons.
 
 ## Results under the law
 
-Every scenario has exactly one strictly admissible state. The force margins are
-all at least 4.70 N (the smallest is L-100 Original's normal, N = 4.70 N).
-`notes[]` gives every margin.
+Every scenario has exactly one strictly admissible state. The smallest force
+margin is L-100 Original's normal, N = 4.697951333494526 N as the output gives
+it (at least 4.697 N); every other force margin is larger. Margins quoted here
+are truncated, never rounded up. `notes[]` gives every margin as an exact
+rational (`exact`), which governs, with its nearest binary64 value (`value`).
+That value can exceed the exact rational by up to half a unit in the last
+place, so read lower bounds from `exact`.
 
 | Scenario | NL-140 | NL-130-FRIC | S-130 action | Displacement margins |
 |---|---|---|---|---|
 | L-100 Original | active (as frozen) | **slide +UZ** (frozen: −UZ) | − (as frozen) | slip 0.579 mm |
-| L-100 ReverseZ | active | slide +UZ | + | slip 13.87 mm |
-| L-100 ReverseAll | released | slide +UZ | + | lift-off 4.50 mm, slip 13.33 mm |
+| L-100 ReverseZ | active | slide +UZ | + | slip 13.86 mm |
+| L-100 ReverseAll | released | slide +UZ | + | lift-off 4.49 mm, slip 13.32 mm |
 | L-200 Original | active (as frozen) | **slide +UZ** (frozen: −UZ) | **+** (frozen: −) | slip 3.90 mm |
-| L-200 ReverseZ | active | slide +UZ | + | slip 10.55 mm |
-| L-200 ReverseAll | released | slide +UZ | + | lift-off 0.920 mm, slip 10.44 mm |
+| L-200 ReverseZ | active | slide +UZ | + | slip 10.54 mm |
+| L-200 ReverseAll | released | slide +UZ | + | lift-off 0.920 mm, slip 10.43 mm |
 
 Under the law, SH-140's 430 N lifts N-130 and N-140 in Z in every scenario.
 The shoe then slides +UZ in all six scenarios, and in both Original
 scenarios it slides the opposite way from the frozen state. The Original and
-ReverseZ variants therefore no longer slide in opposite senses. The stop
-states, the released normals (= |applied Y|) and the frictions of the
-released scenarios are unchanged. All other fields move; `notes[].changed`
-lists each change.
+ReverseZ variants therefore no longer slide in opposite senses.
+
+From the output's own change list (`notes[].changed`, which gives each
+changed field beside its frozen value):
+
+- **Every scenario:** `applied_y_n` and `stop_active` are unchanged.
+- **The four scenarios where the stop holds** (Original and ReverseZ of both
+  cases):
+  - `stop_uy_mm` (0) is unchanged;
+  - `stop_reaction_n`, `slip_mm`, `friction_n`, `normal_n`, `s130_fy_n` and
+    `sh140_fz_n` change.
+- **The two released scenarios** (ReverseAll of both cases):
+  - `stop_reaction_n` (0), `friction_n`, `normal_n` (= |applied Y|) and
+    `s130_fy_n` are unchanged;
+  - `stop_uy_mm`, `slip_mm` and `sh140_fz_n` change.
 
 ## Independence
 

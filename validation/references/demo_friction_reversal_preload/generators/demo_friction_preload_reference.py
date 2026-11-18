@@ -454,7 +454,11 @@ def build():
                "the cold load published separately as SH-140's applied force; installed_load and hot_load not applied",
         "units": "N and mm, support actions act on the structure (the test's)",
         "criteria": "the test's own, unchanged: frame quantities |obs - exp| <= 1e-9 |exp|; an exactly-zero expectation "
-                    "at 1e-9 of the case's authored Y-force scale; the friction force |obs - exp| <= 1e-9 N",
+                    "at 1e-9 of the case's authored Y-force scale; the friction force |obs - exp| <= 1e-9 * normal_n, "
+                    "one billionth of the scenario's normal force (not a fixed number of newtons)",
+        "margin_values": "each margin's 'exact' is the exact rational and governs; its 'value' is the nearest binary64, "
+                         "which can exceed the exact rational by up to half a unit in the last place; read lower bounds "
+                         "from 'exact'",
         "rows": rows,
         "notes": notes,
         "findings": findings,
