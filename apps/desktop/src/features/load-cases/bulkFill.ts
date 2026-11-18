@@ -23,14 +23,8 @@ export function fillTargets(ordered: readonly string[], scope: FillScope): strin
 
 /** Members the editors keep "as authored" but do not show or edit: a reason or
  * reference that belongs to its own row, never copied to another (review N1). */
-export const ELEMENT_STATE_UNEDITED = ["mass_state_ref"] as const;
+export const ELEMENT_STATE_UNEDITED = ["analysis_basis_override", "mass_state_ref"] as const;
 export const SUPPORT_STATE_UNEDITED = ["base_motion", "device_reference"] as const;
-/** Members the element-state editor shows and edits on their own row: a reason
- * that belongs to that row. A case copy never carries it, and a fill carries it
- * only when the person includes it explicitly for that fill (review N1). */
-export const ELEMENT_STATE_OWN_ROW = ["analysis_basis_override"] as const;
-/** Every element-state member a fill or a case copy leaves out by default. */
-export const ELEMENT_STATE_NOT_COPIED = [...ELEMENT_STATE_UNEDITED, ...ELEMENT_STATE_OWN_ROW] as const;
 
 /** Why a support state cannot be copied: its locked participation carries
  * components the editor does not show. */
@@ -44,17 +38,14 @@ const without = (row: DraftRecord, omit: readonly string[]) => Object.fromEntrie
 /** Appends a copy of `template`, with `key` set to the target, for each target the
  * list does not already name. Existing rows are kept unchanged and in place; the
  * targets they name are skipped and reported. Members in `omit` are not copied,
- * and those the template held are reported, except those of them the person
- * included explicitly for this fill (`include`), which are copied and reported. */
-export function fillFromTemplate(list: readonly DraftRecord[], template: DraftRecord, key: string, targets: readonly string[], omit: readonly string[] = [], include: readonly string[] = []): { rows: DraftRecord[]; added: string[]; skipped: string[]; omitted: string[]; included: string[] } {
+ * and those the template held are reported. */
+export function fillFromTemplate(list: readonly DraftRecord[], template: DraftRecord, key: string, targets: readonly string[], omit: readonly string[] = []): { rows: DraftRecord[]; added: string[]; skipped: string[]; omitted: string[] } {
   const named = new Set(list.map(row => row[key]).filter((id): id is string => typeof id === "string"));
   const added = targets.filter(id => !named.has(id));
   const skipped = targets.filter(id => named.has(id));
-  const left = omit.filter(member => !include.includes(member));
-  const copy = without(template, left);
-  const omitted = left.filter(member => template[member] !== undefined);
-  const included = omit.filter(member => include.includes(member) && template[member] !== undefined);
-  return { rows: [...list, ...added.map(id => ({ ...clone(copy), [key]: id }))], added, skipped, omitted, included };
+  const copy = without(template, omit);
+  const omitted = omit.filter(member => template[member] !== undefined);
+  return { rows: [...list, ...added.map(id => ({ ...clone(copy), [key]: id }))], added, skipped, omitted };
 }
 
 /** Appends `{source_ref, factor}` for each of the case's primitives the list does not
@@ -68,8 +59,7 @@ export function addEverySource(list: readonly DraftRecord[], primitives: readonl
 
 /** A copy of another case's analysis state for this case. Load sources name the
  * other case's primitives, so those this case does not hold are left out and
- * reported, never redirected. Members the editor does not show, and a reason
- * that belongs to its own row, are left out of
+ * reported, never redirected. Members the editor does not show are left out of
  * the element and support states, and a support state it cannot copy is left
  * out; both are reported (review N1). */
 export function copyAnalysisState(source: unknown, primitives: readonly string[]): { draft: DraftRecord; dropped: string[]; omitted: string[]; supportsLeftOut: string[] } {
@@ -79,7 +69,7 @@ export function copyAnalysisState(source: unknown, primitives: readonly string[]
     for (const member of omit) if (row[member] !== undefined) omitted.add(member);
     return without(row, omit);
   }) : rows;
-  if (Array.isArray(draft.element_states)) draft.element_states = strip(draft.element_states, ELEMENT_STATE_NOT_COPIED);
+  if (Array.isArray(draft.element_states)) draft.element_states = strip(draft.element_states, ELEMENT_STATE_UNEDITED);
   const supportsLeftOut: string[] = [];
   if (Array.isArray(draft.support_states)) {
     const kept = (draft.support_states as DraftRecord[]).filter(row => {

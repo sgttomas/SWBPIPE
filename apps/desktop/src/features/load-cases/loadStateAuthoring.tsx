@@ -163,22 +163,13 @@ export function switchVariant(current: unknown, tag: string, value: string, vari
   return next;
 }
 
-/** The longest text a person may type into a bounded free-text slot, in
- * characters: the desktop's bound on a typed source name (the model batch file
- * import's "Source name"). It limits typing only; an authored longer text is
- * shown in full and kept unchanged, so no document the validation accepts is
- * refused. */
-export const BOUNDED_TEXT_MAX = 512;
-
-/** A plain text slot, or a choice when `choices` is given. The value is stored
- * and shown as text only; `maxLength` bounds what the person types. */
-export function Text({ label, value, onChange, choices, maxLength }: { label: string; value: unknown; onChange: (value: string) => void; choices?: readonly string[]; maxLength?: number }) {
+export function Text({ label, value, onChange, choices }: { label: string; value: unknown; onChange: (value: string) => void; choices?: readonly string[] }) {
   const entered = typeof value === "string" ? value : "";
   return <label>{label}
     {choices ? <select aria-label={label} value={entered} onChange={e => onChange(e.target.value)}>
       <option value="">Not provided</option>
       {Array.from(new Set([...choices, ...(entered ? [entered] : [])])).map(item => <option key={item} value={item}>{item}</option>)}
-    </select> : <input aria-label={label} value={entered} maxLength={maxLength} onChange={e => onChange(e.target.value)} />}
+    </select> : <input aria-label={label} value={entered} onChange={e => onChange(e.target.value)} />}
   </label>;
 }
 
