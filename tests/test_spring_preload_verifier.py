@@ -44,4 +44,4 @@ def test_the_gate_text_names_its_source_and_keeps_constant_effort_text() -> None
     assert spring_preload.fixed_load_gate_message(code, True, False, "old") == "old"
     assert spring_preload.fixed_load_gate_message("COMBINATION_MODULUS_BASIS_MIXED", False, True, "old") == "old"
     assert spring_preload.fixed_load_gate_message(code, False, True, "old") == (
-        "Combination withheld: a variable spring hanger's cold load would be counted by the sum of factors instead of once.")
+        "Combination withheld: a variable spring hanger's cold load would be counted by the sum of factors instead of once. The difference of two solved cases is available as a result state subtraction.")

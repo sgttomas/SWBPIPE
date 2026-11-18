@@ -696,8 +696,8 @@ ROSTER_CODES = frozenset({
     "EXACT_COMBINATION_DERIVED_FROM_CASE_RESULTS", "EXACT_COMBINATION_SOURCE_RECOVERY_EXCLUDED"})
 _PREVIEW_GATE_TEXT = {
     "NONLINEAR_COMBINATION_REQUIRES_SOLVE": "Combination withheld: the model has nonlinear supports, so superposing case states is not a solved state.",
-    "CONSTANT_EFFORT_COMBINATION_REQUIRES_SOLVE": "Combination withheld: a constant-effort support would be counted by the sum of factors instead of once.",
-    "CONSTANT_EFFORT_UNSIGNED_COMBINATION_OPERAND": "Combination withheld: a constant-effort support's force acts in every case state; an absolute sum or SRSS of operands whose fixed-load count is not exactly 0 would count it once per term with its sign discarded.",
+    "CONSTANT_EFFORT_COMBINATION_REQUIRES_SOLVE": "Combination withheld: a constant-effort support would be counted by the sum of factors instead of once. The difference of two solved cases is available as a result state subtraction.",
+    "CONSTANT_EFFORT_UNSIGNED_COMBINATION_OPERAND": "Combination withheld: a constant-effort support's force acts in every case state; an absolute sum or SRSS of operands whose fixed-load count is not exactly 0 would count it once per term with its sign discarded. The difference of two solved cases is available as a result state subtraction.",
     "CONSTANT_EFFORT_COMBINATION_OPERAND_MIXED": "Combination withheld: an operand's fixed-load count is undefined, so the number of times this combination counts a constant-effort support's force cannot be decided.",
     # Operating-case slice 1b (PP `difference_basis`): G-1 and G-2.
     "EXPANSION_BASIS_SUSTAINED_NOT_IN_OPERATING": "Combination withheld: it declares an operating minus sustained difference, and the subtrahend case's primitive loads, as a multiset by content (category, target, direction, dimension, value and unit after normalization; ids ignored), are not contained in the minuend case's.",

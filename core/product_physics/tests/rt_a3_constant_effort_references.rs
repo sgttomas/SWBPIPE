@@ -52,7 +52,7 @@ const APPLIED: &str = "constant_effort_support_applied_load";
 const NOT_CONSUMED: &str = "SUPPORT_CONSTANT_EFFORT_NOT_CONSUMED";
 const GATE_CODE: &str = "CONSTANT_EFFORT_COMBINATION_REQUIRES_SOLVE";
 /// PF's message (`preview_physics.rs` `gate_message`), on EX.
-const GATE_TEXT: &str = "Combination withheld: a constant-effort support would be counted by the sum of factors instead of once.";
+const GATE_TEXT: &str = "Combination withheld: a constant-effort support would be counted by the sum of factors instead of once. The difference of two solved cases is available as a result state subtraction.";
 const STATE_CONTRACT: &str = "openpipestress.load_reference_state/1.0.0";
 const REFERENCE_CONFIGURATION: &str = "reference:installed";
 const LAW: &str = "law:ce3";

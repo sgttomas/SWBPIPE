@@ -22,7 +22,7 @@ const RETIRED: &str = "SPRING_HANGER_LOAD_NOT_APPLIED_AS_PRELOAD";
 const NOT_APPLIED: &str = "SPRING_HANGER_COLD_LOAD_NOT_APPLIED";
 const INSTALLED_DIFFERS: &str = "SPRING_HANGER_INSTALLED_LOAD_DIFFERS_FROM_COLD_LOAD";
 const GATE: &str = "CONSTANT_EFFORT_COMBINATION_REQUIRES_SOLVE";
-const GATE_TEXT: &str = "Combination withheld: a variable spring hanger's cold load would be counted by the sum of factors instead of once.";
+const GATE_TEXT: &str = "Combination withheld: a variable spring hanger's cold load would be counted by the sum of factors instead of once. The difference of two solved cases is available as a result state subtraction.";
 
 fn solve(document: &Value, mode: PreviewSolverMode) -> Value {
     serde_json::to_value(run_linear_static_preview_value_with_mode(document.clone(), mode).expect("the entry accepts the document")).unwrap()

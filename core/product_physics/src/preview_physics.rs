@@ -929,8 +929,8 @@ fn gate_reason(
 fn gate_message(code: &str) -> &'static str {
     match code {
         "NONLINEAR_COMBINATION_REQUIRES_SOLVE" => "Combination withheld: the model has nonlinear supports, so superposing case states is not a solved state.",
-        CONSTANT_EFFORT_REQUIRES_SOLVE => "Combination withheld: a constant-effort support would be counted by the sum of factors instead of once.",
-        CONSTANT_EFFORT_UNSIGNED_OPERAND => "Combination withheld: a constant-effort support's force acts in every case state; an absolute sum or SRSS of operands whose fixed-load count is not exactly 0 would count it once per term with its sign discarded.",
+        CONSTANT_EFFORT_REQUIRES_SOLVE => "Combination withheld: a constant-effort support would be counted by the sum of factors instead of once. The difference of two solved cases is available as a result state subtraction.",
+        CONSTANT_EFFORT_UNSIGNED_OPERAND => "Combination withheld: a constant-effort support's force acts in every case state; an absolute sum or SRSS of operands whose fixed-load count is not exactly 0 would count it once per term with its sign discarded. The difference of two solved cases is available as a result state subtraction.",
         CONSTANT_EFFORT_OPERAND_MIXED => "Combination withheld: an operand's fixed-load count is undefined, so the number of times this combination counts a constant-effort support's force cannot be decided.",
         difference_basis::SUSTAINED_NOT_IN_OPERATING => difference_basis::SUSTAINED_NOT_IN_OPERATING_MESSAGE,
         difference_basis::MODULUS_MIXED => difference_basis::MODULUS_MIXED_MESSAGE,

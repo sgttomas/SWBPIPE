@@ -118,8 +118,9 @@ def fixed_load_gate_message(code: str, constant_effort: bool, springs: bool, exi
         source, acts, each = "a variable spring hanger's cold load", "acts", "it"
     if code == "CONSTANT_EFFORT_UNSIGNED_COMBINATION_OPERAND":
         return (f"Combination withheld: {source} {acts} in every case state; an absolute sum or SRSS of operands whose "
-                f"fixed-load count is not exactly 0 would count {each} once per term with its sign discarded.")
+                f"fixed-load count is not exactly 0 would count {each} once per term with its sign discarded."
+                " The difference of two solved cases is available as a result state subtraction.")
     if code == "CONSTANT_EFFORT_COMBINATION_OPERAND_MIXED":
         return (f"Combination withheld: an operand's fixed-load count is undefined, so the number of times this "
                 f"combination counts {source} cannot be decided.")
-    return f"Combination withheld: {source} would be counted by the sum of factors instead of once."
+    return f"Combination withheld: {source} would be counted by the sum of factors instead of once. The difference of two solved cases is available as a result state subtraction."

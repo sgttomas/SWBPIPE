@@ -345,9 +345,9 @@ pub(crate) fn fixed_load_gate_message(code: &str, constant_effort: bool, springs
         ("a variable spring hanger's cold load", "acts", "it")
     };
     match code {
-        preview_physics::CONSTANT_EFFORT_UNSIGNED_OPERAND => format!("Combination withheld: {source} {acts} in every case state; an absolute sum or SRSS of operands whose fixed-load count is not exactly 0 would count {each} once per term with its sign discarded."),
+        preview_physics::CONSTANT_EFFORT_UNSIGNED_OPERAND => format!("Combination withheld: {source} {acts} in every case state; an absolute sum or SRSS of operands whose fixed-load count is not exactly 0 would count {each} once per term with its sign discarded. The difference of two solved cases is available as a result state subtraction."),
         preview_physics::CONSTANT_EFFORT_OPERAND_MIXED => format!("Combination withheld: an operand's fixed-load count is undefined, so the number of times this combination counts {source} cannot be decided."),
-        _ => format!("Combination withheld: {source} would be counted by the sum of factors instead of once."),
+        _ => format!("Combination withheld: {source} would be counted by the sum of factors instead of once. The difference of two solved cases is available as a result state subtraction."),
     }
 }
 

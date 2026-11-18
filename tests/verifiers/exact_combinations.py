@@ -70,10 +70,11 @@ GATE_MESSAGES = {
     "INSTALLED_REFERENCE_UNSIGNED_COMBINATION_OPERAND": ("Combination withheld: a connector or tie rod has a nonzero installed reference, which "
                                                          "acts in every case state; an absolute sum or SRSS of operands whose fixed-load count "
                                                          "is not exactly 0 would count it once per term with its sign discarded."),
-    "CONSTANT_EFFORT_COMBINATION_REQUIRES_SOLVE": "Combination withheld: a constant-effort support would be counted by the sum of factors instead of once.",
+    "CONSTANT_EFFORT_COMBINATION_REQUIRES_SOLVE": "Combination withheld: a constant-effort support would be counted by the sum of factors instead of once. The difference of two solved cases is available as a result state subtraction.",
     "CONSTANT_EFFORT_UNSIGNED_COMBINATION_OPERAND": ("Combination withheld: a constant-effort support's force acts in every case state; an "
                                                      "absolute sum or SRSS of operands whose fixed-load count is not exactly 0 would count it "
-                                                     "once per term with its sign discarded."),
+                                                     "once per term with its sign discarded. The difference of two solved cases is "
+                                                     "available as a result state subtraction."),
     "CONSTANT_EFFORT_COMBINATION_OPERAND_MIXED": ("Combination withheld: an operand's fixed-load count is undefined, so the number of "
                                                   "times this combination counts a constant-effort support's force cannot be decided."),
 }

@@ -197,7 +197,7 @@ pub(crate) fn c_oper_alt_withheld_and_its_unit_twin(
     input: crate::LinearStaticPreviewRequest,
 ) -> (crate::MechanicsEnvelope, crate::MechanicsEnvelope) {
     const CODE: &str = "CONSTANT_EFFORT_COMBINATION_REQUIRES_SOLVE";
-    const TEXT: &str = "Combination withheld: a variable spring hanger's cold load would be counted by the sum of factors instead of once.";
+    const TEXT: &str = "Combination withheld: a variable spring hanger's cold load would be counted by the sum of factors instead of once. The difference of two solved cases is available as a result state subtraction.";
     let mut twin = input.clone();
     assert_eq!(twin.model.combinations.len(), 1);
     let combination = &mut twin.model.combinations[0];

@@ -117,9 +117,9 @@ pub(crate) fn fixed_load_gate_message(code: &str, constant_effort: bool, springs
         ("a variable spring hanger's cold load", "acts", "it")
     };
     match code {
-        "CONSTANT_EFFORT_UNSIGNED_COMBINATION_OPERAND" => format!("Combination withheld: {source} {acts} in every case state; an absolute sum or SRSS of operands whose fixed-load count is not exactly 0 would count {each} once per term with its sign discarded."),
+        "CONSTANT_EFFORT_UNSIGNED_COMBINATION_OPERAND" => format!("Combination withheld: {source} {acts} in every case state; an absolute sum or SRSS of operands whose fixed-load count is not exactly 0 would count {each} once per term with its sign discarded. The difference of two solved cases is available as a result state subtraction."),
         "CONSTANT_EFFORT_COMBINATION_OPERAND_MIXED" => format!("Combination withheld: an operand's fixed-load count is undefined, so the number of times this combination counts {source} cannot be decided."),
-        "CONSTANT_EFFORT_COMBINATION_REQUIRES_SOLVE" => format!("Combination withheld: {source} would be counted by the sum of factors instead of once."),
+        "CONSTANT_EFFORT_COMBINATION_REQUIRES_SOLVE" => format!("Combination withheld: {source} would be counted by the sum of factors instead of once. The difference of two solved cases is available as a result state subtraction."),
         // Every other gate's text does not name a fixed-load source.
         _ => existing.to_string(),
     }
@@ -165,7 +165,7 @@ mod tests {
         assert_eq!(fixed_load_gate_message("CONSTANT_EFFORT_COMBINATION_REQUIRES_SOLVE", true, false, "old"), "old");
         assert_eq!(
             fixed_load_gate_message("CONSTANT_EFFORT_COMBINATION_REQUIRES_SOLVE", false, true, "old"),
-            "Combination withheld: a variable spring hanger's cold load would be counted by the sum of factors instead of once."
+            "Combination withheld: a variable spring hanger's cold load would be counted by the sum of factors instead of once. The difference of two solved cases is available as a result state subtraction."
         );
     }
 }
