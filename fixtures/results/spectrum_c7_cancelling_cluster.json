@@ -1,0 +1,1887 @@
+{
+  "admission": {
+    "public_engineering_result": false,
+    "status": "experimental"
+  },
+  "bindings": {
+    "model": {
+      "canonical_form": "openpipestress_jcs_ijson_v1",
+      "hash_algorithm": "sha-256",
+      "payload": "model_document",
+      "sha256": "4a0f2787c53c042432e320d6f23ec5c6ae5d1e70405bce83d16534ae728ecfea"
+    },
+    "request": {
+      "canonical_form": "openpipestress_jcs_ijson_v1",
+      "hash_algorithm": "sha-256",
+      "payload": "spectrum_request",
+      "sha256": "091c4f0878b8ea053aeb169b6b7f60540de6d84325d802c5259589781754cf35"
+    }
+  },
+  "canonical_profile": "openpipestress_jcs_ijson_v1",
+  "census": {
+    "arcs": {
+      "digest": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+      "row_count": 0,
+      "rows": [],
+      "status": "published"
+    },
+    "compliant_supports": {
+      "digest": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+      "row_count": 0,
+      "rows": [],
+      "status": "published"
+    },
+    "connectors": {
+      "digest": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+      "row_count": 0,
+      "rows": [],
+      "status": "published"
+    },
+    "nodes": {
+      "digest": "321ae87d98e9e40a252df1edf79a8487d84c8690a91707f32b6585ebc04878de",
+      "row_count": 1,
+      "rows": [
+        {
+          "checksum": "3665d18b649aacf68fcbaf8cec7e27fa8afeb5095906675810c4b61dcb5826ec",
+          "node_id": "N3",
+          "ordinal": 0,
+          "row_id": "node:1"
+        }
+      ],
+      "status": "published"
+    },
+    "rigid_constraints": {
+      "digest": "600ffb6d77005e0012158803a0f4f8062f57f9898ff8df6c1de01b83e51a796b",
+      "row_count": 6,
+      "rows": [
+        {
+          "checksum": "908bd4fb18ffb5b130270ae84e5c1d5ef85d30a12a0fd1eb319785d2c51fe00d",
+          "component": "UX",
+          "holders": [
+            "A1"
+          ],
+          "node_id": "N1",
+          "ordinal": 0,
+          "row_id": "rigid-constraint:1"
+        },
+        {
+          "checksum": "c7a88859eb027ec3d5b76140a5cd57c1afc80b03f89dbdeaa3a7dba07cae1f73",
+          "component": "UY",
+          "holders": [
+            "A1"
+          ],
+          "node_id": "N1",
+          "ordinal": 1,
+          "row_id": "rigid-constraint:2"
+        },
+        {
+          "checksum": "43e4c71bf84a2fe2c1b4c6336c14b64bbbf7c3dd7278e82ac11e3700728af8c9",
+          "component": "UZ",
+          "holders": [
+            "A1"
+          ],
+          "node_id": "N1",
+          "ordinal": 2,
+          "row_id": "rigid-constraint:3"
+        },
+        {
+          "checksum": "f011047eace86b689a350cd31829d31edd25055a191ad3cabb06eccb60a3a61d",
+          "component": "RX",
+          "holders": [
+            "A1"
+          ],
+          "node_id": "N1",
+          "ordinal": 3,
+          "row_id": "rigid-constraint:4"
+        },
+        {
+          "checksum": "a9b6b251abd28406bf6d3ad72758de806ac1a2e45d916c3ed456c8a8b071eecb",
+          "component": "RY",
+          "holders": [
+            "A1"
+          ],
+          "node_id": "N1",
+          "ordinal": 4,
+          "row_id": "rigid-constraint:5"
+        },
+        {
+          "checksum": "44746cf22a3c9c9eaf25d25d2b125fde312da78c068203790f411f6a506f4056",
+          "component": "RZ",
+          "holders": [
+            "A1"
+          ],
+          "node_id": "N1",
+          "ordinal": 5,
+          "row_id": "rigid-constraint:6"
+        }
+      ],
+      "status": "published"
+    },
+    "straight_members": {
+      "digest": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+      "row_count": 0,
+      "rows": [],
+      "status": "published"
+    },
+    "supports_without_rows": {
+      "digest": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+      "row_count": 0,
+      "rows": [],
+      "status": "published"
+    },
+    "tie_rods": {
+      "digest": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+      "row_count": 0,
+      "rows": [],
+      "status": "published"
+    }
+  },
+  "disclosures": {
+    "extraction_premise": {
+      "applies": false,
+      "completion_evidence": "the reference lists every one of the model's 12 finite modes (modal_basis.clusters, with Sturm counts agreeing at every gap in modal_cross_checks); the next computed mode above the 4 extracted is stated with its frequency",
+      "endpoint": "below_computed_cluster",
+      "established_finite_mode_count": 12,
+      "highest_completed_cluster_lowest_frequency": {
+        "below_normal": false,
+        "kind": "cluster_standing_frequency",
+        "undefined_reason": null,
+        "unit": "unit:hertz",
+        "unit_status": "catalog",
+        "value": 60.105657770855174
+      },
+      "highest_completed_cluster_ref": "cluster:2",
+      "holds": null,
+      "next_computed_frequency": {
+        "below_normal": false,
+        "kind": "next_computed_frequency",
+        "undefined_reason": null,
+        "unit": "unit:hertz",
+        "unit_status": "catalog",
+        "value": 202.21331074152323
+      },
+      "reported_mode_count": 4,
+      "rigid_frequency": null
+    },
+    "fixed": {
+      "digest": "7eff2de38b05555ea905d3e8b4a15f01b98e8061089ff7ea6c2100be17a597af",
+      "row_count": 5,
+      "rows": [
+        {
+          "checksum": "81082569d3f85a691a368a2c21f5f699a84bf7931dbebb21e2b5d9b6ebad2341",
+          "disclosure_id": "pseudo_acceleration",
+          "ordinal": 0,
+          "row_id": "disclosure:pseudo_acceleration",
+          "text": "Every spectrum ordinate is a pseudo-spectral acceleration: omega squared times the peak relative displacement of a linear oscillator at the spectrum's damping. No other kind of spectrum is converted and no spectrum is extrapolated."
+        },
+        {
+          "checksum": "e42e37e06e313ee889825fb3aff54b8ecebaa0f0bbf026d0d49e320af90d2a41",
+          "disclosure_id": "uniform_support_motion",
+          "ordinal": 1,
+          "row_id": "disclosure:uniform_support_motion",
+          "text": "Uniform support motion: in each requested direction every rigid support moves with the ground. Independent support motion is not built."
+        },
+        {
+          "checksum": "94fbeaef02881949eccc02d6ff82fa15fd16fa8b2e3312e1c37fd1ad4091e4a7",
+          "disclosure_id": "velocity_terms_neglected",
+          "ordinal": 2,
+          "row_id": "disclosure:velocity_terms_neglected",
+          "text": "Damping is represented only through the spectra. Each mode's quantities are recovered at its displacement extremum, and the velocity-proportional parts of forces and reactions are neglected; this is an adopted approximation, and no bound on the resulting force or reaction error is claimed."
+        },
+        {
+          "checksum": "ef80db85c445a8b4ef6affc3945ec43ae577ed10b5727c057949bb0a98dc475a",
+          "disclosure_id": "repeated_modes",
+          "ordinal": 3,
+          "row_id": "disclosure:repeated_modes",
+          "text": "The modes of each cluster of the modal basis are summed with their signs first and the modal rule is applied across the clusters. A cluster is the modal basis's numerical convention, not a statement that its eigenvalues are equal; for a cluster whose modes have unequal frequencies, summing first is an adopted convention, and no independence from the modal basis is claimed for it."
+        },
+        {
+          "checksum": "4ca5a3b7773b7bde4e538d8085b5c9dfabccdaaaf67193687442fffa4a68133d",
+          "disclosure_id": "missing_mass_not_applied",
+          "ordinal": 4,
+          "row_id": "disclosure:missing_mass_not_applied",
+          "text": "The missing-mass correction is not applied: every extracted mode is periodic, and the mass the periodic modes do not represent is disclosed with its fractions and is not in any row."
+        }
+      ],
+      "status": "published"
+    },
+    "missing_mass": {
+      "arithmetic": "S is the exact sum of the stated binary64 effective masses of the periodic modes, rounded once to the nearest binary64 (ties to even). The cumulative fraction is the binary64 quotient S / T, rounded to nearest. The unrepresented fraction is U / T, rounded to nearest, where U is the exact difference T - S rounded once to the nearest binary64 (ties to even). T is the stated total mass of the direction, which includes the mass that moves with the supports. Where T is zero both fractions are undefined.",
+      "directions": {
+        "digest": "d0678e102a4101bdf5f57a1ed10160fbce892cfa3ad021ed7e2c5f4dfdb3df57",
+        "row_count": 2,
+        "rows": [
+          {
+            "checksum": "3358f13c0f591641cc642b8a94455a6c148f97c2812c8604eb1e62196fc0fe4e",
+            "correction_applied": false,
+            "direction": "Y",
+            "ordinal": 0,
+            "periodic_cumulative_fraction": {
+              "below_normal": false,
+              "kind": "periodic_cumulative_effective_mass_fraction",
+              "undefined_reason": null,
+              "unit": "unit:one",
+              "unit_status": "catalog",
+              "value": 0.7941451850201299
+            },
+            "periodic_effective_mass_sum": {
+              "below_normal": false,
+              "kind": "periodic_effective_mass_sum",
+              "undefined_reason": null,
+              "unit": "unit:kilogram",
+              "unit_status": "catalog",
+              "value": 218.4119832525382
+            },
+            "periodic_effective_masses": [
+              {
+                "effective_mass": {
+                  "below_normal": false,
+                  "kind": "modal_effective_mass",
+                  "undefined_reason": null,
+                  "unit": "unit:kilogram",
+                  "unit_status": "catalog",
+                  "value": 60.636247669559495
+                },
+                "mode_ref": "mode:1"
+              },
+              {
+                "effective_mass": {
+                  "below_normal": false,
+                  "kind": "modal_effective_mass",
+                  "undefined_reason": null,
+                  "unit": "unit:kilogram",
+                  "unit_status": "catalog",
+                  "value": 107.79777363477244
+                },
+                "mode_ref": "mode:2"
+              },
+              {
+                "effective_mass": {
+                  "below_normal": false,
+                  "kind": "modal_effective_mass",
+                  "undefined_reason": null,
+                  "unit": "unit:kilogram",
+                  "unit_status": "catalog",
+                  "value": 49.977961948206264
+                },
+                "mode_ref": "mode:3"
+              },
+              {
+                "effective_mass": {
+                  "below_normal": false,
+                  "kind": "modal_effective_mass",
+                  "undefined_reason": null,
+                  "unit": "unit:kilogram",
+                  "unit_status": "catalog",
+                  "value": 0.0
+                },
+                "mode_ref": "mode:4"
+              }
+            ],
+            "row_id": "missing-mass:Y",
+            "total_mass": {
+              "below_normal": false,
+              "kind": "directional_total_mass",
+              "undefined_reason": null,
+              "unit": "unit:kilogram",
+              "unit_status": "catalog",
+              "value": 275.0277749867638
+            },
+            "unrepresented_effective_mass": {
+              "below_normal": false,
+              "kind": "unrepresented_effective_mass",
+              "undefined_reason": null,
+              "unit": "unit:kilogram",
+              "unit_status": "catalog",
+              "value": 56.6157917342256
+            },
+            "unrepresented_fraction": {
+              "below_normal": false,
+              "kind": "unrepresented_mass_fraction",
+              "undefined_reason": null,
+              "unit": "unit:one",
+              "unit_status": "catalog",
+              "value": 0.20585481497987007
+            }
+          },
+          {
+            "checksum": "66c3487116c6c8fa813e3d622eaa462b58287d743a953fac86c075fd0ddf6fba",
+            "correction_applied": false,
+            "direction": "Z",
+            "ordinal": 1,
+            "periodic_cumulative_fraction": {
+              "below_normal": false,
+              "kind": "periodic_cumulative_effective_mass_fraction",
+              "undefined_reason": null,
+              "unit": "unit:one",
+              "unit_status": "catalog",
+              "value": 0.7941451850201299
+            },
+            "periodic_effective_mass_sum": {
+              "below_normal": false,
+              "kind": "periodic_effective_mass_sum",
+              "undefined_reason": null,
+              "unit": "unit:kilogram",
+              "unit_status": "catalog",
+              "value": 218.4119832525382
+            },
+            "periodic_effective_masses": [
+              {
+                "effective_mass": {
+                  "below_normal": false,
+                  "kind": "modal_effective_mass",
+                  "undefined_reason": null,
+                  "unit": "unit:kilogram",
+                  "unit_status": "catalog",
+                  "value": 107.79777363477244
+                },
+                "mode_ref": "mode:1"
+              },
+              {
+                "effective_mass": {
+                  "below_normal": false,
+                  "kind": "modal_effective_mass",
+                  "undefined_reason": null,
+                  "unit": "unit:kilogram",
+                  "unit_status": "catalog",
+                  "value": 60.636247669559495
+                },
+                "mode_ref": "mode:2"
+              },
+              {
+                "effective_mass": {
+                  "below_normal": false,
+                  "kind": "modal_effective_mass",
+                  "undefined_reason": null,
+                  "unit": "unit:kilogram",
+                  "unit_status": "catalog",
+                  "value": 49.977961948206264
+                },
+                "mode_ref": "mode:3"
+              },
+              {
+                "effective_mass": {
+                  "below_normal": false,
+                  "kind": "modal_effective_mass",
+                  "undefined_reason": null,
+                  "unit": "unit:kilogram",
+                  "unit_status": "catalog",
+                  "value": 0.0
+                },
+                "mode_ref": "mode:4"
+              }
+            ],
+            "row_id": "missing-mass:Z",
+            "total_mass": {
+              "below_normal": false,
+              "kind": "directional_total_mass",
+              "undefined_reason": null,
+              "unit": "unit:kilogram",
+              "unit_status": "catalog",
+              "value": 275.0277749867638
+            },
+            "unrepresented_effective_mass": {
+              "below_normal": false,
+              "kind": "unrepresented_effective_mass",
+              "undefined_reason": null,
+              "unit": "unit:kilogram",
+              "unit_status": "catalog",
+              "value": 56.6157917342256
+            },
+            "unrepresented_fraction": {
+              "below_normal": false,
+              "kind": "unrepresented_mass_fraction",
+              "undefined_reason": null,
+              "unit": "unit:one",
+              "unit_status": "catalog",
+              "value": 0.20585481497987007
+            }
+          }
+        ],
+        "status": "published"
+      }
+    },
+    "range": {
+      "digest": "3ba7312a5eb6b101d538fbc340a9f6615d724fd8b251aaf49bc5bbbb67f06b34",
+      "row_count": 1,
+      "rows": [
+        {
+          "abscissa": "frequency",
+          "checksum": "454b7fda05fe59bcf20a0c2a3cbe4689f560e60ae941f7c4c322bc55f02d5769",
+          "directions": [
+            "Y",
+            "Z"
+          ],
+          "evaluated": [
+            {
+              "at": "mode:1",
+              "frequency": {
+                "below_normal": false,
+                "kind": "evaluated_frequency",
+                "undefined_reason": null,
+                "unit": "unit:hertz",
+                "unit_status": "catalog",
+                "value": 9.539540662786411
+              },
+              "location": {
+                "kind": "segment",
+                "lower": 2
+              }
+            },
+            {
+              "at": "mode:2",
+              "frequency": {
+                "below_normal": false,
+                "kind": "evaluated_frequency",
+                "undefined_reason": null,
+                "unit": "unit:hertz",
+                "unit_status": "catalog",
+                "value": 9.539540662786411
+              },
+              "location": {
+                "kind": "segment",
+                "lower": 2
+              }
+            },
+            {
+              "at": "mode:3",
+              "frequency": {
+                "below_normal": false,
+                "kind": "evaluated_frequency",
+                "undefined_reason": null,
+                "unit": "unit:hertz",
+                "unit_status": "catalog",
+                "value": 60.105657770855174
+              },
+              "location": {
+                "kind": "segment",
+                "lower": 4
+              }
+            },
+            {
+              "at": "mode:4",
+              "frequency": {
+                "below_normal": false,
+                "kind": "evaluated_frequency",
+                "undefined_reason": null,
+                "unit": "unit:hertz",
+                "unit_status": "catalog",
+                "value": 60.105657770855174
+              },
+              "location": {
+                "kind": "segment",
+                "lower": 4
+              }
+            }
+          ],
+          "in_range": true,
+          "ordinal": 0,
+          "row_id": "range:1",
+          "spectrum_id": "S-LL",
+          "tabulated_high": {
+            "below_normal": false,
+            "kind": "spectrum_range_frequency",
+            "undefined_reason": null,
+            "unit": "unit:hertz",
+            "unit_status": "catalog",
+            "value": 1000.0
+          },
+          "tabulated_low": {
+            "below_normal": false,
+            "kind": "spectrum_range_frequency",
+            "undefined_reason": null,
+            "unit": "unit:hertz",
+            "unit_status": "catalog",
+            "value": 0.5
+          }
+        }
+      ],
+      "status": "published"
+    }
+  },
+  "document_kind": "openpipestress.spectrum_result",
+  "modal_basis": {
+    "attributed_to": "frozen_reference:validation/references/f2_spectrum/discrete:C7-REPEATED-PAIR",
+    "clusters": {
+      "digest": "9c2272ddb82a2ae90455d278f2b9588e13446d2217bf49bbad8ef5c92673042a",
+      "row_count": 2,
+      "rows": [
+        {
+          "checksum": "9d35db2b996347e9ddff1f7bfa040a206207ee460cf8df071588ed153df5422e",
+          "class": "periodic",
+          "cluster_index": 1,
+          "frequencies": [
+            9.539540662786411,
+            9.539540662786411
+          ],
+          "frequency_unit": "unit:hertz",
+          "mode_refs": [
+            "mode:1",
+            "mode:2"
+          ],
+          "ordinal": 0,
+          "row_id": "cluster:1",
+          "standing_frequency": {
+            "below_normal": false,
+            "kind": "cluster_standing_frequency",
+            "undefined_reason": null,
+            "unit": "unit:hertz",
+            "unit_status": "catalog",
+            "value": 9.539540662786411
+          }
+        },
+        {
+          "checksum": "b7da2af0250631d26c06a34d8b37a6336bc3e7c0ae6f4fb29e872e61006b4f34",
+          "class": "periodic",
+          "cluster_index": 2,
+          "frequencies": [
+            60.105657770855174,
+            60.105657770855174
+          ],
+          "frequency_unit": "unit:hertz",
+          "mode_refs": [
+            "mode:3",
+            "mode:4"
+          ],
+          "ordinal": 1,
+          "row_id": "cluster:2",
+          "standing_frequency": {
+            "below_normal": false,
+            "kind": "cluster_standing_frequency",
+            "undefined_reason": null,
+            "unit": "unit:hertz",
+            "unit_status": "catalog",
+            "value": 60.105657770855174
+          }
+        }
+      ],
+      "status": "published"
+    },
+    "extraction": {
+      "completion_evidence": "the reference lists every one of the model's 12 finite modes (modal_basis.clusters, with Sturm counts agreeing at every gap in modal_cross_checks); the next computed mode above the 4 extracted is stated with its frequency",
+      "endpoint": "below_computed_cluster",
+      "established_finite_mode_count": 12,
+      "next_computed_frequency": {
+        "below_normal": false,
+        "kind": "next_computed_frequency",
+        "undefined_reason": null,
+        "unit": "unit:hertz",
+        "unit_status": "catalog",
+        "value": 202.21331074152323
+      },
+      "reported_mode_count": 4
+    },
+    "modes": {
+      "digest": "f8c9904527e419050e72f9aab2ac416a014ab17a7d27e0d88503476991275269",
+      "row_count": 4,
+      "rows": [
+        {
+          "checksum": "68740f55382f952f24c07390b1f70b4fd37f27a672a692ff60c562754d5145e3",
+          "class": "periodic",
+          "cluster_ref": "cluster:1",
+          "frequency": {
+            "below_normal": false,
+            "kind": "modal_frequency",
+            "undefined_reason": null,
+            "unit": "unit:hertz",
+            "unit_status": "catalog",
+            "value": 9.539540662786411
+          },
+          "integrity_standing": null,
+          "mode_index": 1,
+          "ordinal": 0,
+          "row_id": "mode:1"
+        },
+        {
+          "checksum": "f942e831c156c979f0c7793f469e3a4448070f9f0bc9d560bf910647ad6afb13",
+          "class": "periodic",
+          "cluster_ref": "cluster:1",
+          "frequency": {
+            "below_normal": false,
+            "kind": "modal_frequency",
+            "undefined_reason": null,
+            "unit": "unit:hertz",
+            "unit_status": "catalog",
+            "value": 9.539540662786411
+          },
+          "integrity_standing": null,
+          "mode_index": 2,
+          "ordinal": 1,
+          "row_id": "mode:2"
+        },
+        {
+          "checksum": "3d2f9928c5988063cb976043f4cda3301185a9e633047f39a5ebccc54fce46e1",
+          "class": "periodic",
+          "cluster_ref": "cluster:2",
+          "frequency": {
+            "below_normal": false,
+            "kind": "modal_frequency",
+            "undefined_reason": null,
+            "unit": "unit:hertz",
+            "unit_status": "catalog",
+            "value": 60.105657770855174
+          },
+          "integrity_standing": null,
+          "mode_index": 3,
+          "ordinal": 2,
+          "row_id": "mode:3"
+        },
+        {
+          "checksum": "449c31515b07cbd475d6c3c89c0a46eabf0ef2ab8fec336dec68b0960d55341d",
+          "class": "periodic",
+          "cluster_ref": "cluster:2",
+          "frequency": {
+            "below_normal": false,
+            "kind": "modal_frequency",
+            "undefined_reason": null,
+            "unit": "unit:hertz",
+            "unit_status": "catalog",
+            "value": 60.105657770855174
+          },
+          "integrity_standing": null,
+          "mode_index": 4,
+          "ordinal": 3,
+          "row_id": "mode:4"
+        }
+      ],
+      "status": "published"
+    },
+    "standings": null,
+    "state": null
+  },
+  "modal_result": {
+    "binding": "not_applicable",
+    "integrity_parameters_sha256": null,
+    "materials_sha256": null,
+    "model_sha256": null,
+    "reason": "constructed from a frozen reference's contributions: no modal result exists, and the modal basis is the reference's, stated in modal_basis and attributed to it",
+    "request_sha256": null,
+    "run_id": null,
+    "state_case": null
+  },
+  "origin": {
+    "constructed": [
+      "The roster and census are a subset of the reference model: the tip node N3 and the anchor A1's six constraint reactions at N1, the quantities the reference's basis_witness publishes per vector. Nodes N1 and N2 and members P1 and P2 are in the model and have no rows here.",
+      "Cluster 1 (modes 1 and 2) is the basis_witness basis_2 vectors 1 and 2 (the M-orthonormal rotation of basis_1 by cos 3/5, sin 4/5, each normalized to unit maximum translation), each value as published; under Y their contributions to N3.uz, N3.ry, the anchor's UZ and RY reactions cancel exactly, and under Z those to N3.uy, N3.rz, UY and RZ.",
+      "Cluster 2's per-mode contributions are constructed: mode 3 carries the cluster's published signed sum (values_signed_sum_over_repeated_cluster) and mode 4 carries zero, in each direction.",
+      "The per-mode effective masses are constructed: each cluster 1 vector's is its published participation factor squared times its published generalized mass, formed exactly from the decimals and rounded once (the two sum to the cluster's published effective mass); mode 3 carries cluster 2's published effective mass and mode 4 none.",
+      "Each entity identity and the spectra are the reference's; the model document is a stand-in in the model document's shape, not a schema-checked model, and the spectrum request is this unit's stand-in shape."
+    ],
+    "kind": "constructed_from_reference",
+    "produced_by_spectrum_solve": false,
+    "reference": {
+      "analysis": "C7-PAIRS",
+      "case": "C7-REPEATED-PAIR",
+      "package": "validation/references/f2_spectrum/discrete"
+    },
+    "statement": "Constructed from the signed contributions of a frozen reference, not produced by a spectrum solve; its combined magnitudes are formed from those contributions by the product's combinations. It shows reader agreement only and is not evidence that the product recovers these contributions."
+  },
+  "profile": {
+    "limitations": [
+      "Experimental response-spectrum preview under uniform support motion, formed from the signed modal and rigid contributions of a small-displacement, linear-elastic modal basis, with damping represented only through the user's pseudo-acceleration spectra; it is not a public engineering result, it is not recorded as an analysis run, and it establishes neither physical correctness nor code compliance.",
+      "Every row is the response to the support motion alone, about the state the modal model was formed at: a combined row is an unsigned magnitude in its stated frame, formed in that frame from signed contributions, and is never a signed quantity, a total force with the state's own action, or a stress; a signed contribution or a signed cluster sum is not a peak response.",
+      "A reader of this document checks that it is consistent with itself and with the inputs it is given; that does not show that the census is the model's, that a stated frame is the entity's, that the modal basis is an eigenbasis of the model, that a signed contribution was recovered correctly, or that the product produced the document."
+    ],
+    "profile_id": "product_preview_spectrum_v1"
+  },
+  "request": {
+    "damping_ratio": {
+      "below_normal": false,
+      "kind": "damping_ratio",
+      "undefined_reason": null,
+      "unit": "unit:one",
+      "unit_status": "catalog",
+      "value": 0.05
+    },
+    "directional_combination": "SRSS",
+    "directions": [
+      {
+        "direction": "Y",
+        "scale_factor": {
+          "below_normal": false,
+          "kind": "scale_factor",
+          "undefined_reason": null,
+          "unit": "unit:one",
+          "unit_status": "catalog",
+          "value": 1.0
+        },
+        "spectrum_id": "S-LL"
+      },
+      {
+        "direction": "Z",
+        "scale_factor": {
+          "below_normal": false,
+          "kind": "scale_factor",
+          "undefined_reason": null,
+          "unit": "unit:one",
+          "unit_status": "catalog",
+          "value": 0.5
+        },
+        "spectrum_id": "S-LL"
+      }
+    ],
+    "missing_mass": {
+      "applied": false,
+      "rigid_combination": null,
+      "rigid_frequency": null
+    },
+    "modal_combination": "SRSS"
+  },
+  "rows": {
+    "cluster_sum_columns": {
+      "digest": "3d1d768e96a34381b46cec184778449b5e4a304692dfa67dd7971c5dc478a1b7",
+      "row_count": 2,
+      "rows": [
+        {
+          "checksum": "b4b8d1d7d24db4ea008e19d502364ee8ecee4e688c6673ed15a74484a5e83a62",
+          "cluster_ref": "cluster:1",
+          "column": 0,
+          "mode_refs": [
+            "mode:1",
+            "mode:2"
+          ],
+          "ordinal": 0,
+          "row_id": "cluster-sum-column:1"
+        },
+        {
+          "checksum": "a7da5637caf7f4c44a1cd7bb6d6c86e06bc8dd6ebb989bebda618fe2dca44712",
+          "cluster_ref": "cluster:2",
+          "column": 1,
+          "mode_refs": [
+            "mode:3",
+            "mode:4"
+          ],
+          "ordinal": 1,
+          "row_id": "cluster-sum-column:2"
+        }
+      ],
+      "status": "published"
+    },
+    "cluster_sums": {
+      "digest": "d20c2514f297414ef8b72ed1162aaf2af0ea3b3248c007b9ff84bc34a726b4fd",
+      "row_count": 12,
+      "rows": [
+        {
+          "checksum": "ffb75c56498dccad9f3a62c6b6a95ed9385cd877e186032eb5c2291fdfd5e45e",
+          "frame": "global_axes",
+          "ordinal": 0,
+          "quantity_ref": "quantity:1",
+          "row_id": "cluster-sum:1",
+          "sign_convention": "positive_along_axis",
+          "sign_status": "signed_cluster_sum",
+          "sums": {
+            "Y": [
+              0.0,
+              0.0
+            ],
+            "Z": [
+              0.0,
+              0.0
+            ]
+          },
+          "unit": "unit:meter"
+        },
+        {
+          "checksum": "e645fd8038a86d4efc70ba4cbc3967b99a559c2454af51b2450358e6f992bd59",
+          "frame": "global_axes",
+          "ordinal": 1,
+          "quantity_ref": "quantity:2",
+          "row_id": "cluster-sum:2",
+          "sign_convention": "positive_along_axis",
+          "sign_status": "signed_cluster_sum",
+          "sums": {
+            "Y": [
+              0.00452138536796835,
+              -0.000033641910721010736
+            ],
+            "Z": [
+              0.0,
+              0.0
+            ]
+          },
+          "unit": "unit:meter"
+        },
+        {
+          "checksum": "4470934299efda4eecf235d4fd571ba4820170ddcd7295ead1a7667caf27bf0e",
+          "frame": "global_axes",
+          "ordinal": 2,
+          "quantity_ref": "quantity:3",
+          "row_id": "cluster-sum:3",
+          "sign_convention": "positive_along_axis",
+          "sign_status": "signed_cluster_sum",
+          "sums": {
+            "Y": [
+              0.0,
+              0.0
+            ],
+            "Z": [
+              0.002260692683984175,
+              -0.000016820955360505368
+            ]
+          },
+          "unit": "unit:meter"
+        },
+        {
+          "checksum": "a41c2c10414683396694015e0c6915b98935526258625bbc139c066ce5d12800",
+          "frame": "global_axes",
+          "ordinal": 3,
+          "quantity_ref": "quantity:4",
+          "row_id": "cluster-sum:4",
+          "sign_convention": "positive_along_axis",
+          "sign_status": "signed_cluster_sum",
+          "sums": {
+            "Y": [
+              0.0,
+              0.0
+            ],
+            "Z": [
+              0.0,
+              0.0
+            ]
+          },
+          "unit": "unit:radian"
+        },
+        {
+          "checksum": "a1dca071db58ba751a7caf652030ad77139ce61bf54fbff7215dc765bb7447cb",
+          "frame": "global_axes",
+          "ordinal": 4,
+          "quantity_ref": "quantity:5",
+          "row_id": "cluster-sum:5",
+          "sign_convention": "positive_along_axis",
+          "sign_status": "signed_cluster_sum",
+          "sums": {
+            "Y": [
+              0.0,
+              0.0
+            ],
+            "Z": [
+              -0.0007780704249987963,
+              0.00002028283647651856
+            ]
+          },
+          "unit": "unit:radian"
+        },
+        {
+          "checksum": "9dcb3ddb533942d8c16030e50ae501075ba82a0e1c6495799420d51f21f09b40",
+          "frame": "global_axes",
+          "ordinal": 5,
+          "quantity_ref": "quantity:6",
+          "row_id": "cluster-sum:6",
+          "sign_convention": "positive_along_axis",
+          "sign_status": "signed_cluster_sum",
+          "sums": {
+            "Y": [
+              0.0015561408499975926,
+              -0.00004056567295303712
+            ],
+            "Z": [
+              0.0,
+              0.0
+            ]
+          },
+          "unit": "unit:radian"
+        },
+        {
+          "checksum": "3373ff6fd1083112c0d7f007086605d97b9a950fbe2636c8ccf87c34d72e6e74",
+          "frame": "global_axes",
+          "ordinal": 6,
+          "quantity_ref": "quantity:7",
+          "row_id": "cluster-sum:7",
+          "sign_convention": "action_of_support_on_piping",
+          "sign_status": "signed_cluster_sum",
+          "sums": {
+            "Y": [
+              0.0,
+              0.0
+            ],
+            "Z": [
+              0.0,
+              0.0
+            ]
+          },
+          "unit": "unit:newton"
+        },
+        {
+          "checksum": "fa86eccd384e9de9a87754ef87c2a18aa8b8d2b102023982d54a818e965dd80a",
+          "frame": "global_axes",
+          "ordinal": 7,
+          "quantity_ref": "quantity:8",
+          "row_id": "cluster-sum:8",
+          "sign_convention": "action_of_support_on_piping",
+          "sign_status": "signed_cluster_sum",
+          "sums": {
+            "Y": [
+              -1747.0464256394241,
+              -279.5861561071318
+            ],
+            "Z": [
+              0.0,
+              0.0
+            ]
+          },
+          "unit": "unit:newton"
+        },
+        {
+          "checksum": "7a38c1db290af9d179c8090ee33422b43536f90908db1d948ee4d3db922d6c72",
+          "frame": "global_axes",
+          "ordinal": 8,
+          "quantity_ref": "quantity:9",
+          "row_id": "cluster-sum:9",
+          "sign_convention": "action_of_support_on_piping",
+          "sign_status": "signed_cluster_sum",
+          "sums": {
+            "Y": [
+              0.0,
+              0.0
+            ],
+            "Z": [
+              -873.5232128197121,
+              -139.7930780535659
+            ]
+          },
+          "unit": "unit:newton"
+        },
+        {
+          "checksum": "35ccd5ed441206b6780daa72416e3f47619af55d70eef9fed4e833e079de897d",
+          "frame": "global_axes",
+          "ordinal": 9,
+          "quantity_ref": "quantity:10",
+          "row_id": "cluster-sum:10",
+          "sign_convention": "action_of_support_on_piping",
+          "sign_status": "signed_cluster_sum",
+          "sums": {
+            "Y": [
+              0.0,
+              0.0
+            ],
+            "Z": [
+              0.0,
+              0.0
+            ]
+          },
+          "unit": "unit:newton_meter"
+        },
+        {
+          "checksum": "0295aa90a515afd8341a6878299d88ceb3217e25b0fe437f7ad41d14c6f05349",
+          "frame": "global_axes",
+          "ordinal": 10,
+          "quantity_ref": "quantity:11",
+          "row_id": "cluster-sum:11",
+          "sign_convention": "action_of_support_on_piping",
+          "sign_status": "signed_cluster_sum",
+          "sums": {
+            "Y": [
+              0.0,
+              0.0
+            ],
+            "Z": [
+              2540.2014224208906,
+              118.27029923824563
+            ]
+          },
+          "unit": "unit:newton_meter"
+        },
+        {
+          "checksum": "f1d7f42fae44a438ba3e33e28cb5cddf9dc914d45425c3a78605f61f5e83b245",
+          "frame": "global_axes",
+          "ordinal": 11,
+          "quantity_ref": "quantity:12",
+          "row_id": "cluster-sum:12",
+          "sign_convention": "action_of_support_on_piping",
+          "sign_status": "signed_cluster_sum",
+          "sums": {
+            "Y": [
+              -5080.402844841781,
+              -236.54059847649125
+            ],
+            "Z": [
+              0.0,
+              0.0
+            ]
+          },
+          "unit": "unit:newton_meter"
+        }
+      ],
+      "status": "published"
+    },
+    "combined": {
+      "digest": "7a5dae9b4a39fba82aceac279e9deb7dc19c5920ae3cbe6fb4e21d3c91f26291",
+      "row_count": 12,
+      "rows": [
+        {
+          "checksum": "3d05bd00a777fe7e3f79fc20b7a22764c992e53696b471bc76e7fa4b74e362c0",
+          "combined": 0.0,
+          "component": "ux",
+          "end": null,
+          "entity_kind": "node",
+          "frame": "global_axes",
+          "governing_direction": null,
+          "node": "N3",
+          "ordinal": 0,
+          "per_direction": [
+            {
+              "combined": 0.0,
+              "direction": "Y",
+              "periodic": 0.0,
+              "rigid": null
+            },
+            {
+              "combined": 0.0,
+              "direction": "Z",
+              "periodic": 0.0,
+              "rigid": null
+            }
+          ],
+          "quantity_kind": "node_displacement",
+          "quantity_ref": "quantity:1",
+          "row_id": "combined:1",
+          "sign_status": "unsigned_combined_magnitude",
+          "unit": "unit:meter"
+        },
+        {
+          "checksum": "38402e0aa3994ecce20957cdde71e025b56380dac982c631edf86d5bf178bab0",
+          "combined": 0.0045215105245742,
+          "component": "uy",
+          "end": null,
+          "entity_kind": "node",
+          "frame": "global_axes",
+          "governing_direction": null,
+          "node": "N3",
+          "ordinal": 1,
+          "per_direction": [
+            {
+              "combined": 0.0045215105245742,
+              "direction": "Y",
+              "periodic": 0.0045215105245742,
+              "rigid": null
+            },
+            {
+              "combined": 0.0,
+              "direction": "Z",
+              "periodic": 0.0,
+              "rigid": null
+            }
+          ],
+          "quantity_kind": "node_displacement",
+          "quantity_ref": "quantity:2",
+          "row_id": "combined:2",
+          "sign_status": "unsigned_combined_magnitude",
+          "unit": "unit:meter"
+        },
+        {
+          "checksum": "fb6149e20f66c0942e9fc703f1be551ffc644948f5cf36c75b5a9182037d84a9",
+          "combined": 0.0022607552622871,
+          "component": "uz",
+          "end": null,
+          "entity_kind": "node",
+          "frame": "global_axes",
+          "governing_direction": null,
+          "node": "N3",
+          "ordinal": 2,
+          "per_direction": [
+            {
+              "combined": 0.0,
+              "direction": "Y",
+              "periodic": 0.0,
+              "rigid": null
+            },
+            {
+              "combined": 0.0022607552622871,
+              "direction": "Z",
+              "periodic": 0.0022607552622871,
+              "rigid": null
+            }
+          ],
+          "quantity_kind": "node_displacement",
+          "quantity_ref": "quantity:3",
+          "row_id": "combined:3",
+          "sign_status": "unsigned_combined_magnitude",
+          "unit": "unit:meter"
+        },
+        {
+          "checksum": "02e28eca88e77c7a80446905e7b81bbc343493fe0d55be95f4d98fd78d161d44",
+          "combined": 0.0,
+          "component": "rx",
+          "end": null,
+          "entity_kind": "node",
+          "frame": "global_axes",
+          "governing_direction": null,
+          "node": "N3",
+          "ordinal": 3,
+          "per_direction": [
+            {
+              "combined": 0.0,
+              "direction": "Y",
+              "periodic": 0.0,
+              "rigid": null
+            },
+            {
+              "combined": 0.0,
+              "direction": "Z",
+              "periodic": 0.0,
+              "rigid": null
+            }
+          ],
+          "quantity_kind": "node_displacement",
+          "quantity_ref": "quantity:4",
+          "row_id": "combined:4",
+          "sign_status": "unsigned_combined_magnitude",
+          "unit": "unit:radian"
+        },
+        {
+          "checksum": "9faaf7f6e0ef57f5e818e96d44dbdadf21355a0b3c15f5c7897ec213debbdd84",
+          "combined": 0.0007783347478516815,
+          "component": "ry",
+          "end": null,
+          "entity_kind": "node",
+          "frame": "global_axes",
+          "governing_direction": null,
+          "node": "N3",
+          "ordinal": 4,
+          "per_direction": [
+            {
+              "combined": 0.0,
+              "direction": "Y",
+              "periodic": 0.0,
+              "rigid": null
+            },
+            {
+              "combined": 0.0007783347478516815,
+              "direction": "Z",
+              "periodic": 0.0007783347478516815,
+              "rigid": null
+            }
+          ],
+          "quantity_kind": "node_displacement",
+          "quantity_ref": "quantity:5",
+          "row_id": "combined:5",
+          "sign_status": "unsigned_combined_magnitude",
+          "unit": "unit:radian"
+        },
+        {
+          "checksum": "7210ceb54b8ccd72cae8f02fe86ab4e685ec31be5621ffc7c908aee6b2213adf",
+          "combined": 0.001556669495703363,
+          "component": "rz",
+          "end": null,
+          "entity_kind": "node",
+          "frame": "global_axes",
+          "governing_direction": null,
+          "node": "N3",
+          "ordinal": 5,
+          "per_direction": [
+            {
+              "combined": 0.001556669495703363,
+              "direction": "Y",
+              "periodic": 0.001556669495703363,
+              "rigid": null
+            },
+            {
+              "combined": 0.0,
+              "direction": "Z",
+              "periodic": 0.0,
+              "rigid": null
+            }
+          ],
+          "quantity_kind": "node_displacement",
+          "quantity_ref": "quantity:6",
+          "row_id": "combined:6",
+          "sign_status": "unsigned_combined_magnitude",
+          "unit": "unit:radian"
+        },
+        {
+          "checksum": "961b6e28f325f0db728091a0a589f1dff40592b5eb939bd2f1b7e5e6b246a470",
+          "combined": 0.0,
+          "component": "UX",
+          "end": null,
+          "entity_kind": "rigid_constraint",
+          "frame": "global_axes",
+          "governing_direction": null,
+          "holders": [
+            "A1"
+          ],
+          "node": "N1",
+          "ordinal": 6,
+          "per_direction": [
+            {
+              "combined": 0.0,
+              "direction": "Y",
+              "periodic": 0.0,
+              "rigid": null
+            },
+            {
+              "combined": 0.0,
+              "direction": "Z",
+              "periodic": 0.0,
+              "rigid": null
+            }
+          ],
+          "quantity_kind": "constraint_reaction",
+          "quantity_ref": "quantity:7",
+          "row_id": "combined:7",
+          "sign_status": "unsigned_combined_magnitude",
+          "unit": "unit:newton"
+        },
+        {
+          "checksum": "de184d380a3f94c73183ed6248b74e30d5deac2647b912292f07439afd1925c5",
+          "combined": 1769.2765843774255,
+          "component": "UY",
+          "end": null,
+          "entity_kind": "rigid_constraint",
+          "frame": "global_axes",
+          "governing_direction": null,
+          "holders": [
+            "A1"
+          ],
+          "node": "N1",
+          "ordinal": 7,
+          "per_direction": [
+            {
+              "combined": 1769.2765843774255,
+              "direction": "Y",
+              "periodic": 1769.2765843774255,
+              "rigid": null
+            },
+            {
+              "combined": 0.0,
+              "direction": "Z",
+              "periodic": 0.0,
+              "rigid": null
+            }
+          ],
+          "quantity_kind": "constraint_reaction",
+          "quantity_ref": "quantity:8",
+          "row_id": "combined:8",
+          "sign_status": "unsigned_combined_magnitude",
+          "unit": "unit:newton"
+        },
+        {
+          "checksum": "c1f09a126177071746bd2f25e7f8f84c151c347e80238ac7bc81d006202bcfa9",
+          "combined": 884.6382921887127,
+          "component": "UZ",
+          "end": null,
+          "entity_kind": "rigid_constraint",
+          "frame": "global_axes",
+          "governing_direction": null,
+          "holders": [
+            "A1"
+          ],
+          "node": "N1",
+          "ordinal": 8,
+          "per_direction": [
+            {
+              "combined": 0.0,
+              "direction": "Y",
+              "periodic": 0.0,
+              "rigid": null
+            },
+            {
+              "combined": 884.6382921887127,
+              "direction": "Z",
+              "periodic": 884.6382921887127,
+              "rigid": null
+            }
+          ],
+          "quantity_kind": "constraint_reaction",
+          "quantity_ref": "quantity:9",
+          "row_id": "combined:9",
+          "sign_status": "unsigned_combined_magnitude",
+          "unit": "unit:newton"
+        },
+        {
+          "checksum": "e7e32a01cc134d8dba5bb60a7ae9cc116680dc150223a1b369df40c8b29d0617",
+          "combined": 0.0,
+          "component": "RX",
+          "end": null,
+          "entity_kind": "rigid_constraint",
+          "frame": "global_axes",
+          "governing_direction": null,
+          "holders": [
+            "A1"
+          ],
+          "node": "N1",
+          "ordinal": 9,
+          "per_direction": [
+            {
+              "combined": 0.0,
+              "direction": "Y",
+              "periodic": 0.0,
+              "rigid": null
+            },
+            {
+              "combined": 0.0,
+              "direction": "Z",
+              "periodic": 0.0,
+              "rigid": null
+            }
+          ],
+          "quantity_kind": "constraint_reaction",
+          "quantity_ref": "quantity:10",
+          "row_id": "combined:10",
+          "sign_status": "unsigned_combined_magnitude",
+          "unit": "unit:newton_meter"
+        },
+        {
+          "checksum": "4d8c1b09a8d9ec4a1c3319d933bcc54651390b752dce9229a3b0b8b0cc027af2",
+          "combined": 2542.953230036097,
+          "component": "RY",
+          "end": null,
+          "entity_kind": "rigid_constraint",
+          "frame": "global_axes",
+          "governing_direction": null,
+          "holders": [
+            "A1"
+          ],
+          "node": "N1",
+          "ordinal": 10,
+          "per_direction": [
+            {
+              "combined": 0.0,
+              "direction": "Y",
+              "periodic": 0.0,
+              "rigid": null
+            },
+            {
+              "combined": 2542.953230036097,
+              "direction": "Z",
+              "periodic": 2542.953230036097,
+              "rigid": null
+            }
+          ],
+          "quantity_kind": "constraint_reaction",
+          "quantity_ref": "quantity:11",
+          "row_id": "combined:11",
+          "sign_status": "unsigned_combined_magnitude",
+          "unit": "unit:newton_meter"
+        },
+        {
+          "checksum": "6812c4ad4da2f4d4129d38b568891c7226750461d7a91b798a456bb14e2bc1c6",
+          "combined": 5085.906460072194,
+          "component": "RZ",
+          "end": null,
+          "entity_kind": "rigid_constraint",
+          "frame": "global_axes",
+          "governing_direction": null,
+          "holders": [
+            "A1"
+          ],
+          "node": "N1",
+          "ordinal": 11,
+          "per_direction": [
+            {
+              "combined": 5085.906460072194,
+              "direction": "Y",
+              "periodic": 5085.906460072194,
+              "rigid": null
+            },
+            {
+              "combined": 0.0,
+              "direction": "Z",
+              "periodic": 0.0,
+              "rigid": null
+            }
+          ],
+          "quantity_kind": "constraint_reaction",
+          "quantity_ref": "quantity:12",
+          "row_id": "combined:12",
+          "sign_status": "unsigned_combined_magnitude",
+          "unit": "unit:newton_meter"
+        }
+      ],
+      "status": "published"
+    },
+    "contribution_columns": {
+      "digest": "1d9f21acd656448011b7c8c1428fa98feef147531ce948a3d1d12998368c4232",
+      "row_count": 4,
+      "rows": [
+        {
+          "checksum": "dca05bab7221b4adce1c8d0f1f30eb35584b3332b218197d7bd98691bfd5bdb7",
+          "cluster_ref": "cluster:1",
+          "column": 0,
+          "mode_ref": "mode:1",
+          "ordinal": 0,
+          "row_id": "contribution-column:1"
+        },
+        {
+          "checksum": "0e111b566339a0c15c885c31ac8e6e578d2599ca0403e86f6982d05c007fd1a2",
+          "cluster_ref": "cluster:1",
+          "column": 1,
+          "mode_ref": "mode:2",
+          "ordinal": 1,
+          "row_id": "contribution-column:2"
+        },
+        {
+          "checksum": "3d1de699013b596d7a4462ea80e40e39b1a39ff669d47126429125f42fb8c9be",
+          "cluster_ref": "cluster:2",
+          "column": 2,
+          "mode_ref": "mode:3",
+          "ordinal": 2,
+          "row_id": "contribution-column:3"
+        },
+        {
+          "checksum": "f1590bc523e299a8032ad07ce0709b8ac69e46c3ea5ed63efaaca91dc8fcc00e",
+          "cluster_ref": "cluster:2",
+          "column": 3,
+          "mode_ref": "mode:4",
+          "ordinal": 3,
+          "row_id": "contribution-column:4"
+        }
+      ],
+      "status": "published"
+    },
+    "directions": [
+      "Y",
+      "Z"
+    ],
+    "signed": {
+      "digest": "76cdbebf36eb84b937e6d93f14c26e13685cc15ef0fe8e35011fe6d87993d6d7",
+      "row_count": 12,
+      "rows": [
+        {
+          "checksum": "63833c4a3c2592196200784809c105cd26161ca57929d1c5d7825d0987bc3d9c",
+          "component": "ux",
+          "end": null,
+          "entity_kind": "node",
+          "frame": "global_axes",
+          "node": "N3",
+          "ordinal": 0,
+          "periodic": {
+            "Y": [
+              0.0,
+              0.0,
+              0.0,
+              0.0
+            ],
+            "Z": [
+              0.0,
+              0.0,
+              0.0,
+              0.0
+            ]
+          },
+          "quantity_kind": "node_displacement",
+          "rigid": null,
+          "row_id": "quantity:1",
+          "sign_convention": "positive_along_axis",
+          "sign_status": "signed_contribution",
+          "unit": "unit:meter"
+        },
+        {
+          "checksum": "f1fa1222c56685ade74bc4ccee2c3a95bc7913b2de77d182ad9975ee7517b180",
+          "component": "uy",
+          "end": null,
+          "entity_kind": "node",
+          "frame": "global_axes",
+          "node": "N3",
+          "ordinal": 1,
+          "periodic": {
+            "Y": [
+              0.0016276987324686063,
+              0.0028936866354997443,
+              -0.000033641910721010736,
+              0.0
+            ],
+            "Z": [
+              0.0010851324883124041,
+              -0.0010851324883124041,
+              0.0,
+              0.0
+            ]
+          },
+          "quantity_kind": "node_displacement",
+          "rigid": null,
+          "row_id": "quantity:2",
+          "sign_convention": "positive_along_axis",
+          "sign_status": "signed_contribution",
+          "unit": "unit:meter"
+        },
+        {
+          "checksum": "dbd53a9864830cb6717c36ea134b635cef747cd0a84fdb860ed7ce1ba3ae67ec",
+          "component": "uz",
+          "end": null,
+          "entity_kind": "node",
+          "frame": "global_axes",
+          "node": "N3",
+          "ordinal": 2,
+          "periodic": {
+            "Y": [
+              0.0021702649766248082,
+              -0.0021702649766248082,
+              0.0,
+              0.0
+            ],
+            "Z": [
+              0.0014468433177498722,
+              0.0008138493662343031,
+              -0.000016820955360505368,
+              0.0
+            ]
+          },
+          "quantity_kind": "node_displacement",
+          "rigid": null,
+          "row_id": "quantity:3",
+          "sign_convention": "positive_along_axis",
+          "sign_status": "signed_contribution",
+          "unit": "unit:meter"
+        },
+        {
+          "checksum": "1861ad53609cfeb6ea457694a89ecbd2d5d8ede98999e83f8b42a2a9be9bc051",
+          "component": "rx",
+          "end": null,
+          "entity_kind": "node",
+          "frame": "global_axes",
+          "node": "N3",
+          "ordinal": 3,
+          "periodic": {
+            "Y": [
+              0.0,
+              0.0,
+              0.0,
+              0.0
+            ],
+            "Z": [
+              0.0,
+              0.0,
+              0.0,
+              0.0
+            ]
+          },
+          "quantity_kind": "node_displacement",
+          "rigid": null,
+          "row_id": "quantity:4",
+          "sign_convention": "positive_along_axis",
+          "sign_status": "signed_contribution",
+          "unit": "unit:radian"
+        },
+        {
+          "checksum": "64b0641367c527de10eb804c3f030c1c22741d961112b2167f22a32f9721674a",
+          "component": "ry",
+          "end": null,
+          "entity_kind": "node",
+          "frame": "global_axes",
+          "node": "N3",
+          "ordinal": 4,
+          "periodic": {
+            "Y": [
+              -0.0007469476079988444,
+              0.0007469476079988444,
+              0.0,
+              0.0
+            ],
+            "Z": [
+              -0.0004979650719992297,
+              -0.00028010535299956665,
+              0.00002028283647651856,
+              0.0
+            ]
+          },
+          "quantity_kind": "node_displacement",
+          "rigid": null,
+          "row_id": "quantity:5",
+          "sign_convention": "positive_along_axis",
+          "sign_status": "signed_contribution",
+          "unit": "unit:radian"
+        },
+        {
+          "checksum": "70f690924671aa327d08781b40cc138019e23cf2e1522e2fda6c2b51d5adf4ca",
+          "component": "rz",
+          "end": null,
+          "entity_kind": "node",
+          "frame": "global_axes",
+          "node": "N3",
+          "ordinal": 5,
+          "periodic": {
+            "Y": [
+              0.0005602107059991333,
+              0.0009959301439984593,
+              -0.00004056567295303712,
+              0.0
+            ],
+            "Z": [
+              0.0003734738039994222,
+              -0.0003734738039994222,
+              0.0,
+              0.0
+            ]
+          },
+          "quantity_kind": "node_displacement",
+          "rigid": null,
+          "row_id": "quantity:6",
+          "sign_convention": "positive_along_axis",
+          "sign_status": "signed_contribution",
+          "unit": "unit:radian"
+        },
+        {
+          "checksum": "a729057bb6c2b80e32fe92703ab28c61412ac9d43ceaf0b7de1b52704cdff6f6",
+          "component": "UX",
+          "end": null,
+          "entity_kind": "rigid_constraint",
+          "frame": "global_axes",
+          "holders": [
+            "A1"
+          ],
+          "node": "N1",
+          "ordinal": 6,
+          "periodic": {
+            "Y": [
+              0.0,
+              0.0,
+              0.0,
+              0.0
+            ],
+            "Z": [
+              0.0,
+              0.0,
+              0.0,
+              0.0
+            ]
+          },
+          "quantity_kind": "constraint_reaction",
+          "rigid": null,
+          "row_id": "quantity:7",
+          "sign_convention": "action_of_support_on_piping",
+          "sign_status": "signed_contribution",
+          "unit": "unit:newton"
+        },
+        {
+          "checksum": "6acf05ce1c1db58e1f9bcac51f2c110dd2e2a1a46393852da6bc6cb1818c4950",
+          "component": "UY",
+          "end": null,
+          "entity_kind": "rigid_constraint",
+          "frame": "global_axes",
+          "holders": [
+            "A1"
+          ],
+          "node": "N1",
+          "ordinal": 7,
+          "periodic": {
+            "Y": [
+              -628.9367132301927,
+              -1118.1097124092314,
+              -279.5861561071318,
+              0.0
+            ],
+            "Z": [
+              -419.2911421534618,
+              419.2911421534618,
+              0.0,
+              0.0
+            ]
+          },
+          "quantity_kind": "constraint_reaction",
+          "rigid": null,
+          "row_id": "quantity:8",
+          "sign_convention": "action_of_support_on_piping",
+          "sign_status": "signed_contribution",
+          "unit": "unit:newton"
+        },
+        {
+          "checksum": "684f7e0b8b7443f2124c46c63f104865065bd15b45af9223d02cfdf3e3aa71ab",
+          "component": "UZ",
+          "end": null,
+          "entity_kind": "rigid_constraint",
+          "frame": "global_axes",
+          "holders": [
+            "A1"
+          ],
+          "node": "N1",
+          "ordinal": 8,
+          "periodic": {
+            "Y": [
+              -838.5822843069236,
+              838.5822843069236,
+              0.0,
+              0.0
+            ],
+            "Z": [
+              -559.0548562046157,
+              -314.46835661509635,
+              -139.7930780535659,
+              0.0
+            ]
+          },
+          "quantity_kind": "constraint_reaction",
+          "rigid": null,
+          "row_id": "quantity:9",
+          "sign_convention": "action_of_support_on_piping",
+          "sign_status": "signed_contribution",
+          "unit": "unit:newton"
+        },
+        {
+          "checksum": "1030e58b86828c8c9112acc441609fe44156c2eab5d23cac4c27364d4e20d621",
+          "component": "RX",
+          "end": null,
+          "entity_kind": "rigid_constraint",
+          "frame": "global_axes",
+          "holders": [
+            "A1"
+          ],
+          "node": "N1",
+          "ordinal": 9,
+          "periodic": {
+            "Y": [
+              0.0,
+              0.0,
+              0.0,
+              0.0
+            ],
+            "Z": [
+              0.0,
+              0.0,
+              0.0,
+              0.0
+            ]
+          },
+          "quantity_kind": "constraint_reaction",
+          "rigid": null,
+          "row_id": "quantity:10",
+          "sign_convention": "action_of_support_on_piping",
+          "sign_status": "signed_contribution",
+          "unit": "unit:newton_meter"
+        },
+        {
+          "checksum": "7185f6829a84deee9dcbb6c1d8cfaedb810c0ff19ff05210d93ac36e9baf0964",
+          "component": "RY",
+          "end": null,
+          "entity_kind": "rigid_constraint",
+          "frame": "global_axes",
+          "holders": [
+            "A1"
+          ],
+          "node": "N1",
+          "ordinal": 10,
+          "periodic": {
+            "Y": [
+              2438.593365524055,
+              -2438.593365524055,
+              0.0,
+              0.0
+            ],
+            "Z": [
+              1625.72891034937,
+              914.4725120715206,
+              118.27029923824563,
+              0.0
+            ]
+          },
+          "quantity_kind": "constraint_reaction",
+          "rigid": null,
+          "row_id": "quantity:11",
+          "sign_convention": "action_of_support_on_piping",
+          "sign_status": "signed_contribution",
+          "unit": "unit:newton_meter"
+        },
+        {
+          "checksum": "c46ca9dff3ba916893dc1621d95020a47bc53f1d261bb44516b24dfd343f4110",
+          "component": "RZ",
+          "end": null,
+          "entity_kind": "rigid_constraint",
+          "frame": "global_axes",
+          "holders": [
+            "A1"
+          ],
+          "node": "N1",
+          "ordinal": 11,
+          "periodic": {
+            "Y": [
+              -1828.945024143041,
+              -3251.45782069874,
+              -236.54059847649125,
+              0.0
+            ],
+            "Z": [
+              -1219.2966827620276,
+              1219.2966827620276,
+              0.0,
+              0.0
+            ]
+          },
+          "quantity_kind": "constraint_reaction",
+          "rigid": null,
+          "row_id": "quantity:12",
+          "sign_convention": "action_of_support_on_piping",
+          "sign_status": "signed_contribution",
+          "unit": "unit:newton_meter"
+        }
+      ],
+      "status": "published"
+    }
+  },
+  "rule_statements": {
+    "correlation": null,
+    "coupled_pairs": null,
+    "groups": null
+  },
+  "schema_version": "0.1.0",
+  "semantic_contract": {
+    "id": "openpipestress.result_semantics/spectrum-1",
+    "sha256": "080429ce57a6a2eb71661db6da144c7810bd6f5f8e2c9db52584d65337de0979"
+  },
+  "spectra": {
+    "digest": "49f2b9032ca3eb81157c68bd5c5159ace10789994239473ef8505f4e3294df58",
+    "row_count": 1,
+    "rows": [
+      {
+        "abscissa": "frequency",
+        "abscissa_unit": "unit:hertz",
+        "checksum": "5387385bc53d24ee25c864ad0598711ef0f4a86e9041b9fd621ec26ae6f3b60e",
+        "damping_ratio": {
+          "below_normal": false,
+          "kind": "damping_ratio",
+          "undefined_reason": null,
+          "unit": "unit:one",
+          "unit_status": "catalog",
+          "value": 0.05
+        },
+        "g": null,
+        "interpolation": {
+          "abscissa": "linear",
+          "ordinate": "linear"
+        },
+        "ordinal": 0,
+        "ordinate": "acceleration",
+        "ordinate_unit": "unit:meter_per_second_squared",
+        "points": [
+          [
+            0.5,
+            1.25
+          ],
+          [
+            2.0,
+            3.5
+          ],
+          [
+            6.0,
+            8.75
+          ],
+          [
+            12.0,
+            11.5
+          ],
+          [
+            30.0,
+            7.25
+          ],
+          [
+            80.0,
+            4.5
+          ],
+          [
+            1000.0,
+            3.0
+          ]
+        ],
+        "pseudo_spectral_acceleration": true,
+        "row_id": "spectrum:1",
+        "spectrum_id": "S-LL"
+      }
+    ],
+    "status": "published"
+  },
+  "standing": {
+    "reasons": [
+      "no modal integrity standing is stated: the modal basis is frozen_reference:validation/references/f2_spectrum/discrete:C7-REPEATED-PAIR's"
+    ],
+    "token": "not_assessed"
+  },
+  "status": "solved"
+}

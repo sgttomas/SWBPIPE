@@ -1,0 +1,21 @@
+{
+  "directional_combination": "SRSS",
+  "directions": [
+    {
+      "direction": "Y",
+      "scale_factor": 1.0,
+      "spectrum": "S-GG"
+    }
+  ],
+  "document_kind": "openpipestress.spectrum_request",
+  "missing_mass": {
+    "applied": true,
+    "rigid_combination": "SRSS",
+    "rigid_frequency": {
+      "unit": "Hz",
+      "value": 33.0
+    }
+  },
+  "modal_combination": "SRSS",
+  "schema_version": "0.1.0"
+}

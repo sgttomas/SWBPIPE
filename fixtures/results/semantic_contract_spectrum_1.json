@@ -1,0 +1,594 @@
+{
+  "canonical_profile": "openpipestress_jcs_ijson_v1",
+  "document_kind": "openpipestress.spectrum_result",
+  "frames": [
+    {
+      "axes": "the global X, Y and Z axes",
+      "frame": "global_axes"
+    },
+    {
+      "axes": "a straight member's axes: x from end i to end j, y the part of the member's reference vector normal to x, normalized, z = x cross y; stated per member in the census as vectors in global axes",
+      "frame": "member_axes"
+    },
+    {
+      "axes": "an arc's tangent frame at the row's end, the static result's (DEL-04-01/REQ-018); stated per arc end in the census as vectors in global axes",
+      "frame": "arc_tangent_frame"
+    },
+    {
+      "axes": "a connector's own axes; stated per connector in the census as vectors in global axes",
+      "frame": "connector_axes"
+    },
+    {
+      "axes": "a tie rod's axis from its attachment at end i to its attachment at end j; stated per rod in the census as one oriented unit vector in global axes",
+      "frame": "rod_axis"
+    }
+  ],
+  "id": "openpipestress.result_semantics/spectrum-1",
+  "quantity_kinds": [
+    {
+      "components": [
+        {
+          "component": "ux",
+          "dimension": "length",
+          "symbol": "m",
+          "unit": "unit:meter",
+          "unit_status": "catalog"
+        },
+        {
+          "component": "uy",
+          "dimension": "length",
+          "symbol": "m",
+          "unit": "unit:meter",
+          "unit_status": "catalog"
+        },
+        {
+          "component": "uz",
+          "dimension": "length",
+          "symbol": "m",
+          "unit": "unit:meter",
+          "unit_status": "catalog"
+        },
+        {
+          "component": "rx",
+          "dimension": "angle",
+          "symbol": "rad",
+          "unit": "unit:radian",
+          "unit_status": "catalog"
+        },
+        {
+          "component": "ry",
+          "dimension": "angle",
+          "symbol": "rad",
+          "unit": "unit:radian",
+          "unit_status": "catalog"
+        },
+        {
+          "component": "rz",
+          "dimension": "angle",
+          "symbol": "rad",
+          "unit": "unit:radian",
+          "unit_status": "catalog"
+        }
+      ],
+      "entity_kind": "node",
+      "frames": [
+        {
+          "frame": "global_axes",
+          "member_family": null,
+          "static_row": "the static nodal displacement or rotation of that node and component, in global axes",
+          "static_row_kind_token": null
+        }
+      ],
+      "has_end": false,
+      "quantity_kind": "node_displacement",
+      "sign_convention": "positive_along_axis"
+    },
+    {
+      "components": [
+        {
+          "component": "Fx",
+          "dimension": "force",
+          "symbol": "N",
+          "unit": "unit:newton",
+          "unit_status": "catalog"
+        },
+        {
+          "component": "Fy",
+          "dimension": "force",
+          "symbol": "N",
+          "unit": "unit:newton",
+          "unit_status": "catalog"
+        },
+        {
+          "component": "Fz",
+          "dimension": "force",
+          "symbol": "N",
+          "unit": "unit:newton",
+          "unit_status": "catalog"
+        },
+        {
+          "component": "Mx",
+          "dimension": "moment",
+          "symbol": "N*m",
+          "unit": "unit:newton_meter",
+          "unit_status": "catalog"
+        },
+        {
+          "component": "My",
+          "dimension": "moment",
+          "symbol": "N*m",
+          "unit": "unit:newton_meter",
+          "unit_status": "catalog"
+        },
+        {
+          "component": "Mz",
+          "dimension": "moment",
+          "symbol": "N*m",
+          "unit": "unit:newton_meter",
+          "unit_status": "catalog"
+        }
+      ],
+      "entity_kind": "member",
+      "frames": [
+        {
+          "frame": "global_axes",
+          "member_family": "straight",
+          "static_row": "the static global end-action row of that member at that end and component",
+          "static_row_kind_token": null
+        },
+        {
+          "frame": "member_axes",
+          "member_family": "straight",
+          "static_row": "the static element-local end row of that member at that end and component, in the member's local frame; on an EX pressure member the axial row takes the frame and sign of the static wall axial end action",
+          "static_row_kind_token": null
+        },
+        {
+          "frame": "global_axes",
+          "member_family": "arc",
+          "static_row": "the static global end-action row of that arc at that end and component",
+          "static_row_kind_token": null
+        },
+        {
+          "frame": "arc_tangent_frame",
+          "member_family": "arc",
+          "static_row": "the static element-local end row of that arc at that end and component, in the arc tangent frame at that end",
+          "static_row_kind_token": null
+        }
+      ],
+      "has_end": true,
+      "quantity_kind": "element_end_action",
+      "sign_convention": "action_on_element_at_end_node"
+    },
+    {
+      "components": [
+        {
+          "component": "axial",
+          "dimension": "force",
+          "symbol": "N",
+          "unit": "unit:newton",
+          "unit_status": "catalog"
+        },
+        {
+          "component": "lateral_y",
+          "dimension": "force",
+          "symbol": "N",
+          "unit": "unit:newton",
+          "unit_status": "catalog"
+        },
+        {
+          "component": "lateral_z",
+          "dimension": "force",
+          "symbol": "N",
+          "unit": "unit:newton",
+          "unit_status": "catalog"
+        },
+        {
+          "component": "torsion",
+          "dimension": "moment",
+          "symbol": "N*m",
+          "unit": "unit:newton_meter",
+          "unit_status": "catalog"
+        },
+        {
+          "component": "bending_y",
+          "dimension": "moment",
+          "symbol": "N*m",
+          "unit": "unit:newton_meter",
+          "unit_status": "catalog"
+        },
+        {
+          "component": "bending_z",
+          "dimension": "moment",
+          "symbol": "N*m",
+          "unit": "unit:newton_meter",
+          "unit_status": "catalog"
+        }
+      ],
+      "entity_kind": "connector",
+      "frames": [
+        {
+          "frame": "connector_axes",
+          "member_family": null,
+          "static_row": "the static connector-local force of that connector and component, without its reference displacement",
+          "static_row_kind_token": null
+        }
+      ],
+      "has_end": false,
+      "quantity_kind": "connector_generalized_force",
+      "sign_convention": "positive_along_connector_axes"
+    },
+    {
+      "components": [
+        {
+          "component": "Fx",
+          "dimension": "force",
+          "symbol": "N",
+          "unit": "unit:newton",
+          "unit_status": "catalog"
+        },
+        {
+          "component": "Fy",
+          "dimension": "force",
+          "symbol": "N",
+          "unit": "unit:newton",
+          "unit_status": "catalog"
+        },
+        {
+          "component": "Fz",
+          "dimension": "force",
+          "symbol": "N",
+          "unit": "unit:newton",
+          "unit_status": "catalog"
+        },
+        {
+          "component": "Mx",
+          "dimension": "moment",
+          "symbol": "N*m",
+          "unit": "unit:newton_meter",
+          "unit_status": "catalog"
+        },
+        {
+          "component": "My",
+          "dimension": "moment",
+          "symbol": "N*m",
+          "unit": "unit:newton_meter",
+          "unit_status": "catalog"
+        },
+        {
+          "component": "Mz",
+          "dimension": "moment",
+          "symbol": "N*m",
+          "unit": "unit:newton_meter",
+          "unit_status": "catalog"
+        }
+      ],
+      "entity_kind": "connector",
+      "frames": [
+        {
+          "frame": "global_axes",
+          "member_family": null,
+          "static_row": "the static connector end action of that connector, end and component",
+          "static_row_kind_token": null
+        }
+      ],
+      "has_end": true,
+      "quantity_kind": "connector_end_action",
+      "sign_convention": "action_on_element_at_end_node"
+    },
+    {
+      "components": [
+        {
+          "component": "axial",
+          "dimension": "force",
+          "symbol": "N",
+          "unit": "unit:newton",
+          "unit_status": "catalog"
+        }
+      ],
+      "entity_kind": "tie_rod",
+      "frames": [
+        {
+          "frame": "rod_axis",
+          "member_family": null,
+          "static_row": "the static tie-rod force of that connector's rod, without its reference elongation or pretension",
+          "static_row_kind_token": null
+        }
+      ],
+      "has_end": false,
+      "quantity_kind": "tie_rod_force",
+      "sign_convention": "tension_positive"
+    },
+    {
+      "components": [
+        {
+          "component": "UX",
+          "dimension": "force",
+          "symbol": "N",
+          "unit": "unit:newton",
+          "unit_status": "catalog"
+        },
+        {
+          "component": "UY",
+          "dimension": "force",
+          "symbol": "N",
+          "unit": "unit:newton",
+          "unit_status": "catalog"
+        },
+        {
+          "component": "UZ",
+          "dimension": "force",
+          "symbol": "N",
+          "unit": "unit:newton",
+          "unit_status": "catalog"
+        },
+        {
+          "component": "RX",
+          "dimension": "moment",
+          "symbol": "N*m",
+          "unit": "unit:newton_meter",
+          "unit_status": "catalog"
+        },
+        {
+          "component": "RY",
+          "dimension": "moment",
+          "symbol": "N*m",
+          "unit": "unit:newton_meter",
+          "unit_status": "catalog"
+        },
+        {
+          "component": "RZ",
+          "dimension": "moment",
+          "symbol": "N*m",
+          "unit": "unit:newton_meter",
+          "unit_status": "catalog"
+        }
+      ],
+      "entity_kind": "rigid_constraint",
+      "frames": [
+        {
+          "frame": "global_axes",
+          "member_family": null,
+          "static_row": "where one support holds the constraint, that support's static reaction of the same component where the static result publishes one; a constraint held by more than one support, or by a snubber alone, has no static row",
+          "static_row_kind_token": null
+        }
+      ],
+      "has_end": false,
+      "quantity_kind": "constraint_reaction",
+      "sign_convention": "action_of_support_on_piping"
+    },
+    {
+      "components": [
+        {
+          "component": "UX",
+          "dimension": "force",
+          "symbol": "N",
+          "unit": "unit:newton",
+          "unit_status": "catalog"
+        },
+        {
+          "component": "UY",
+          "dimension": "force",
+          "symbol": "N",
+          "unit": "unit:newton",
+          "unit_status": "catalog"
+        },
+        {
+          "component": "UZ",
+          "dimension": "force",
+          "symbol": "N",
+          "unit": "unit:newton",
+          "unit_status": "catalog"
+        },
+        {
+          "component": "RX",
+          "dimension": "moment",
+          "symbol": "N*m",
+          "unit": "unit:newton_meter",
+          "unit_status": "catalog"
+        },
+        {
+          "component": "RY",
+          "dimension": "moment",
+          "symbol": "N*m",
+          "unit": "unit:newton_meter",
+          "unit_status": "catalog"
+        },
+        {
+          "component": "RZ",
+          "dimension": "moment",
+          "symbol": "N*m",
+          "unit": "unit:newton_meter",
+          "unit_status": "catalog"
+        }
+      ],
+      "entity_kind": "compliant_support",
+      "frames": [
+        {
+          "frame": "global_axes",
+          "member_family": null,
+          "static_row": "that support's static action of the same component; a snubber has no static row",
+          "static_row_kind_token": null
+        }
+      ],
+      "has_end": false,
+      "quantity_kind": "compliant_support_force",
+      "sign_convention": "action_of_support_on_piping"
+    }
+  ],
+  "schema_version": "0.1.0",
+  "sign_conventions": [
+    {
+      "sign_convention": "positive_along_axis",
+      "statement": "A displacement is positive along its global axis; a rotation is positive by the right-hand rule about its global axis."
+    },
+    {
+      "sign_convention": "action_on_element_at_end_node",
+      "statement": "The generalized force acting on the element at its end node, each component positive along the axis of the row's frame; a moment is about the end node, positive by the right-hand rule. For a member or an arc the internal section force at end i is its negative."
+    },
+    {
+      "sign_convention": "positive_along_connector_axes",
+      "statement": "A connector's generalized force, positive along its connector axes and work-conjugate to its relative displacements; a moment is positive by the right-hand rule."
+    },
+    {
+      "sign_convention": "tension_positive",
+      "statement": "A tie rod's axial force, positive in tension, its axis running from its attachment at end i to its attachment at end j."
+    },
+    {
+      "sign_convention": "action_of_support_on_piping",
+      "statement": "The force or moment the support applies to the piping, positive along the global axis; a moment is about the node, positive by the right-hand rule."
+    }
+  ],
+  "sign_statuses": [
+    {
+      "carries_sign_convention": true,
+      "sign_status": "signed_contribution",
+      "statement": "signed contribution, not a peak response"
+    },
+    {
+      "carries_sign_convention": true,
+      "sign_status": "signed_cluster_sum",
+      "statement": "signed sum of one cluster's contributions, not a peak response"
+    },
+    {
+      "carries_sign_convention": false,
+      "sign_status": "unsigned_combined_magnitude",
+      "statement": "unsigned combined magnitude; it has no sign"
+    }
+  ],
+  "static_row_kind_tokens": "not stated: each frame names the static row of the same physical quantity in REQ-006's words; the static result's own row-kind token is left null for the assigner to state",
+  "value_kinds": [
+    {
+      "dimension": "dimensionless",
+      "kind": "damping_ratio",
+      "symbol": "1",
+      "unit": "unit:one",
+      "unit_status": "catalog"
+    },
+    {
+      "dimension": "dimensionless",
+      "kind": "scale_factor",
+      "symbol": "1",
+      "unit": "unit:one",
+      "unit_status": "catalog"
+    },
+    {
+      "dimension": "frequency",
+      "kind": "rigid_frequency",
+      "symbol": "Hz",
+      "unit": "unit:hertz",
+      "unit_status": "catalog"
+    },
+    {
+      "dimension": "frequency",
+      "kind": "modal_frequency",
+      "symbol": "Hz",
+      "unit": "unit:hertz",
+      "unit_status": "catalog"
+    },
+    {
+      "dimension": "frequency",
+      "kind": "cluster_standing_frequency",
+      "symbol": "Hz",
+      "unit": "unit:hertz",
+      "unit_status": "catalog"
+    },
+    {
+      "dimension": "frequency",
+      "kind": "next_computed_frequency",
+      "symbol": "Hz",
+      "unit": "unit:hertz",
+      "unit_status": "catalog"
+    },
+    {
+      "dimension": "frequency",
+      "kind": "evaluated_frequency",
+      "symbol": "Hz",
+      "unit": "unit:hertz",
+      "unit_status": "catalog"
+    },
+    {
+      "dimension": "frequency",
+      "kind": "spectrum_range_frequency",
+      "symbol": "Hz",
+      "unit": "unit:hertz",
+      "unit_status": "catalog"
+    },
+    {
+      "dimension": "time",
+      "kind": "spectrum_range_period",
+      "symbol": "s",
+      "unit": "unit:second",
+      "unit_status": "catalog"
+    },
+    {
+      "dimension": "acceleration",
+      "kind": "spectrum_g",
+      "symbol": "m/s^2",
+      "unit": "unit:meter_per_second_squared",
+      "unit_status": "catalog"
+    },
+    {
+      "dimension": "mass",
+      "kind": "directional_total_mass",
+      "symbol": "kg",
+      "unit": "unit:kilogram",
+      "unit_status": "catalog"
+    },
+    {
+      "dimension": "mass",
+      "kind": "modal_effective_mass",
+      "symbol": "kg",
+      "unit": "unit:kilogram",
+      "unit_status": "catalog"
+    },
+    {
+      "dimension": "mass",
+      "kind": "periodic_effective_mass_sum",
+      "symbol": "kg",
+      "unit": "unit:kilogram",
+      "unit_status": "catalog"
+    },
+    {
+      "dimension": "mass",
+      "kind": "unrepresented_effective_mass",
+      "symbol": "kg",
+      "unit": "unit:kilogram",
+      "unit_status": "catalog"
+    },
+    {
+      "dimension": "dimensionless",
+      "kind": "periodic_cumulative_effective_mass_fraction",
+      "symbol": "1",
+      "unit": "unit:one",
+      "unit_status": "catalog"
+    },
+    {
+      "dimension": "dimensionless",
+      "kind": "unrepresented_mass_fraction",
+      "symbol": "1",
+      "unit": "unit:one",
+      "unit_status": "catalog"
+    },
+    {
+      "dimension": "dimensionless",
+      "kind": "correlation_coefficient",
+      "symbol": "1",
+      "unit": "unit:one",
+      "unit_status": "catalog"
+    },
+    {
+      "dimension": "dimensionless",
+      "kind": "frame_axis_component",
+      "symbol": "1",
+      "unit": "unit:one",
+      "unit_status": "catalog"
+    },
+    {
+      "dimension": "dimensionless",
+      "kind": "spectrum_ordinate_g_multiple",
+      "symbol": "1",
+      "unit": "unit:one",
+      "unit_status": "catalog"
+    }
+  ]
+}

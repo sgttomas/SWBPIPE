@@ -1,0 +1,310 @@
+{
+  "combinations": [],
+  "components": [
+    {
+      "geometry": {
+        "bend_pipe_ref": "BEND1",
+        "bend_radius": {
+          "unit": "m",
+          "value": 0.78125
+        }
+      },
+      "id": "BEND1 bend",
+      "kind": "bend",
+      "modifiers": {
+        "flexibility_factor_user_value": {
+          "unit": "none",
+          "value": 4.25
+        }
+      },
+      "node": "B",
+      "provenance": "stand-in: recovery_w2 V-ARC-OBL"
+    }
+  ],
+  "document_kind": "openpipestress.product_preview.model",
+  "load_cases": [],
+  "materials": [
+    {
+      "elastic_modulus": {
+        "unit": "Pa",
+        "value": 200000000000.0
+      },
+      "id": "steel",
+      "provenance": "stand-in: recovery_w2 V-ARC-OBL",
+      "shear_modulus": {
+        "unit": "Pa",
+        "value": 78125000000.0
+      }
+    }
+  ],
+  "nodes": [
+    {
+      "id": "A",
+      "position": {
+        "x": 0.0,
+        "y": 0.0,
+        "z": 0.0
+      },
+      "provenance": "stand-in: recovery_w2 V-ARC-OBL"
+    },
+    {
+      "id": "B",
+      "position": {
+        "x": 0.75,
+        "y": 1.0,
+        "z": 0.0
+      },
+      "provenance": "stand-in: recovery_w2 V-ARC-OBL"
+    },
+    {
+      "id": "C",
+      "position": {
+        "x": 0.84375,
+        "y": 1.90625,
+        "z": 0.625
+      },
+      "provenance": "stand-in: recovery_w2 V-ARC-OBL"
+    },
+    {
+      "id": "D",
+      "position": {
+        "x": 0.09375,
+        "y": 2.46875,
+        "z": 1.875
+      },
+      "provenance": "stand-in: recovery_w2 V-ARC-OBL"
+    }
+  ],
+  "pipe_segments": [
+    {
+      "from": "A",
+      "id": "P1",
+      "material": "steel",
+      "provenance": "stand-in: recovery_w2 V-ARC-OBL",
+      "section": {
+        "material_density": {
+          "unit": "kg/m^3",
+          "value": 7850.0
+        },
+        "outside_diameter": {
+          "unit": "m",
+          "value": 0.171875
+        },
+        "wall_thickness": {
+          "unit": "m",
+          "value": 0.0078125
+        }
+      },
+      "to": "B",
+      "y_reference": {
+        "x": 0.0,
+        "y": 0.0,
+        "z": 1.0
+      }
+    },
+    {
+      "from": "B",
+      "id": "BEND1",
+      "material": "steel",
+      "provenance": "stand-in: recovery_w2 V-ARC-OBL",
+      "section": {
+        "material_density": {
+          "unit": "kg/m^3",
+          "value": 7850.0
+        },
+        "outside_diameter": {
+          "unit": "m",
+          "value": 0.171875
+        },
+        "wall_thickness": {
+          "unit": "m",
+          "value": 0.0078125
+        }
+      },
+      "to": "C",
+      "y_reference": {
+        "x": 27.0,
+        "y": 11.0,
+        "z": -20.0
+      }
+    },
+    {
+      "from": "C",
+      "id": "P2",
+      "material": "steel",
+      "provenance": "stand-in: recovery_w2 V-ARC-OBL",
+      "section": {
+        "material_density": {
+          "unit": "kg/m^3",
+          "value": 7850.0
+        },
+        "outside_diameter": {
+          "unit": "m",
+          "value": 0.171875
+        },
+        "wall_thickness": {
+          "unit": "m",
+          "value": 0.0078125
+        }
+      },
+      "to": "D",
+      "y_reference": {
+        "x": 0.0,
+        "y": 0.0,
+        "z": 1.0
+      }
+    }
+  ],
+  "project": {
+    "id": "project:spectrum-w2-arc-oblique",
+    "units": {
+      "angle": "rad",
+      "force": "N",
+      "length": "m",
+      "pressure": "Pa",
+      "stress": "Pa",
+      "temperature": "degC"
+    }
+  },
+  "schema_version": "0.9.0",
+  "spectra": [
+    {
+      "abscissa": "frequency",
+      "damping_ratio": 0.05,
+      "id": "S-W2-LL",
+      "interpolation": {
+        "abscissa": "linear",
+        "ordinate": "linear"
+      },
+      "ordinate": "acceleration",
+      "points": [
+        [
+          1.0,
+          2.0
+        ],
+        [
+          8.0,
+          6.0
+        ],
+        [
+          64.0,
+          9.0
+        ],
+        [
+          256.0,
+          5.0
+        ],
+        [
+          2048.0,
+          3.0
+        ]
+      ],
+      "units": {
+        "abscissa": "Hz",
+        "ordinate": "m/s^2"
+      }
+    },
+    {
+      "abscissa": "frequency",
+      "damping_ratio": 0.05,
+      "id": "S-W2-GG",
+      "interpolation": {
+        "abscissa": "log",
+        "ordinate": "log"
+      },
+      "ordinate": "acceleration",
+      "points": [
+        [
+          1.0,
+          2.0
+        ],
+        [
+          8.0,
+          6.0
+        ],
+        [
+          64.0,
+          9.0
+        ],
+        [
+          256.0,
+          5.0
+        ],
+        [
+          2048.0,
+          3.0
+        ]
+      ],
+      "units": {
+        "abscissa": "Hz",
+        "ordinate": "m/s^2"
+      }
+    },
+    {
+      "abscissa": "period",
+      "damping_ratio": 0.05,
+      "id": "S-W2-PLG",
+      "interpolation": {
+        "abscissa": "linear",
+        "ordinate": "log"
+      },
+      "ordinate": "acceleration",
+      "points": [
+        [
+          0.00048828125,
+          3.0
+        ],
+        [
+          0.00390625,
+          5.0
+        ],
+        [
+          0.015625,
+          9.0
+        ],
+        [
+          0.125,
+          6.0
+        ],
+        [
+          1.0,
+          2.0
+        ]
+      ],
+      "units": {
+        "abscissa": "s",
+        "ordinate": "m/s^2"
+      }
+    }
+  ],
+  "supports": [
+    {
+      "family": "anchor",
+      "id": "A-anchor",
+      "node": "A",
+      "provenance": "stand-in: recovery_w2 V-ARC-OBL",
+      "restraints": [
+        "UX",
+        "UY",
+        "UZ",
+        "RX",
+        "RY",
+        "RZ"
+      ]
+    },
+    {
+      "family": "anchor",
+      "id": "D-anchor",
+      "node": "D",
+      "provenance": "stand-in: recovery_w2 V-ARC-OBL",
+      "restraints": [
+        "UX",
+        "UY",
+        "UZ",
+        "RX",
+        "RY",
+        "RZ"
+      ]
+    }
+  ]
+}

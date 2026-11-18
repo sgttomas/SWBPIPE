@@ -1,4 +1,4 @@
-# response_spectrum (DEL-04-10, units S2 and S4)
+# response_spectrum (DEL-04-10, units S2, S4 and the spectrum result document)
 
 This crate holds two units of DEL-04-10's response-spectrum analysis
 (`execution/PKG-04/DEL-04-10/ScopeOfWork.md`):
@@ -8,9 +8,12 @@ This crate holds two units of DEL-04-10's response-spectrum analysis
 - **S4** combines supplied signed contributions by the modal, rigid-response and directional rules,
   and fixes the signed-contribution contract
   ([Combinations (unit S4)](#combinations-unit-s4)).
+- **The document** (`document`) assembles an `openpipestress.spectrum_result` document
+  (REQ-006) from a combination request, its bindings, the modal basis as used and the census
+  ([The spectrum result document](#the-spectrum-result-document)).
 
-The crate is not a spectrum solve. It forms no modal response or rigid response, and it publishes
-no spectrum result.
+The crate is not a spectrum solve. It forms no modal response or rigid response. Every committed
+document is constructed from a frozen reference's published contributions and says so.
 
 ## The spectrum table (unit S2)
 
@@ -157,12 +160,19 @@ refusals. It does not solve, recover or evaluate anything: every number it combi
   (`cluster:N`) and its frequency in Hz, as the modal result publishes them. No cluster is inferred
   and no cluster tolerance is applied. The structure is checked: modes 1..n in ascending frequency,
   and clusters chained from 1 over adjacent modes.
-- **The rows** (`contract::Quantity`), each with a unit and frame that follow from its kind:
+- **The rows** (`contract::Quantity`), REQ-006's roster, each with the unit, frame and sign
+  convention its kind fixes:
   - node displacements and rotations in global axes (m, rad);
-  - element end forces and moments on the element at end i or j, in global or member axes (N, N*m);
-  - support reactions applied to the piping, in global axes, with `Fd` along a skew support's d/|d|.
+  - straight member end actions on the element at end i or j, in global or member axes (N, N*m);
+  - arc end actions in global axes or the arc's tangent frame at that end (member axes are refused);
+  - connector generalized forces in connector axes, and connector end actions in global axes;
+  - each tie rod's axial force along its axis, tension positive, identified by connector and rod;
+  - rigid constraint reactions by node and component, naming every holder, in global axes;
+  - compliant support forces by support and component, in global axes.
 
-  Keys follow the frozen references: `N3.uy`, `P1.i.Fx`, `P1.i.Fx_m`, `A1.Fx`.
+  A row's identity is its fields (`Quantity::identity`): any non-blank identity is accepted, and
+  a duplicate is refused structurally. `Quantity::label` composes a display label only; no reader
+  parses it. There is no row along a skew support's axis.
 - **The signed contributions.** One per mode of a periodic cluster and requested direction, already
   scaled by the direction's factor. A contribution for a mode of a rigid cluster is refused.
 - **The rigid responses**, when the correction is applied: one signed response per direction,
@@ -174,7 +184,7 @@ refusals. It does not solve, recover or evaluate anything: every number it combi
 1. **Classifies.** A cluster is periodic when its lowest frequency is below f_r, and every cluster is
    periodic without the correction.
 2. **Sums each periodic cluster's contributions with their signs** in ascending mode order. The sums
-   are published with their sign tag.
+   of clusters of more than one mode are published with their sign tag.
 3. **Applies the modal rule** across the cluster sums: SRSS, CQC, grouping, ten percent or absolute
    sum. Each cluster's lowest frequency stands for it in ρ and in the closeness tests.
 4. **Combines the rigid response** with the periodic part: SRSS √(R_p² + R_r²), or the absolute sum
@@ -221,7 +231,8 @@ naming the row (DEL-04-10 scope, "Combined magnitudes are certified against thei
 
 **Field semantics for readers** (released by Agent 0): published cluster sums are the correctly
 rounded binary64 of exact sums while combinations use the retained exact sums; the published
-correlation is informational, from the first level enclosure, while combined magnitudes come from
+correlation is informational, one coefficient per unordered pair of distinct periodic clusters, the
+public `rules::correlation_coefficient` value, while combined magnitudes come from
 the enclosure at the level required; a reader derives its arithmetic from the original represented
 signed contributions, frequencies, damping and method, and never from the rounded display values.
 
@@ -304,7 +315,8 @@ enclosure, including final binary64 conversion, still decides every publication 
 ### JSON entry and example
 
 `combination_json` reads and writes the unit's documents
-(`openpipestress.spectrum_combination.input/v1` and `output/v1`; not `spectrum-1`). The
+(`openpipestress.spectrum_combination.input/v2` and `output/v2`; not `spectrum-1`). Each row is
+stated by its identity fields and sign convention; v1's composed `key` is refused. The
 `combine_contributions` example reads an input document on standard input and prints the output
 document:
 
@@ -314,3 +326,39 @@ cargo run --manifest-path core/analysis/response_spectrum/Cargo.toml --example c
 ```
 
 `fixtures/combination/README.md` lists the contract fixtures.
+
+## The spectrum result document
+
+`document::spectrum_result_document` is a pure function from `DocumentInputs` to a
+`openpipestress.spectrum_result` document (profile `product_preview_spectrum_v1`, semantic table
+`openpipestress.result_semantics/spectrum-1`, canonical profile `openpipestress_jcs_ijson_v1`).
+
+- **Bindings.** The model document and the spectrum request are each bound by the SHA-256 of their
+  canonical text. A modal result is bound by its run id and its own binding digests (request,
+  model, materials, integrity parameters, and a state case where one is named), never by a digest
+  of the whole modal document; a document built without a modal result says the binding is not
+  applicable, with its reason.
+- **What it states.** The experimental admission and origin, the request choices as read, the
+  normalized spectra, the modal basis as used (modes, clusters, standings, state, extraction
+  endpoint), the standing, the disclosure operands (each frequency's location in each spectrum,
+  the extraction premise, the missing-mass fractions with their stated arithmetic), the census of
+  the model's entities and their frames, the signed rows with their sign conventions, the signed
+  cluster sums, the unsigned combined rows and the rule statements.
+- **What it refuses.** A request, modal statement or census that disagrees with the combination,
+  a roster that is not the census's, a value outside the canonical profile, or anything the
+  combination refuses, as a `refused` document naming each refusal.
+- **Allocation.** Linear in its inputs, as the module documentation states: with Q rows, M
+  extracted modes (P periodic), C clusters (C₂ periodic of more than one mode), D directions, S
+  spectra of K knots and E census entries, the document holds O(Q·D·(P + 1) + Q·D·C₂ + M + C + K
+  + E + P²) values. Each row is sealed on its own; no table is formatted into an intermediate
+  string.
+
+`fixtures/results/semantic_contract_spectrum_1.json` is the semantic table
+(`document::spectrum_semantic_table`). The committed documents `fixtures/results/spectrum_*.json`,
+each beside its model stand-in and request, are generated by the ignored writer in
+`tests/spectrum_documents.rs` and guarded byte for byte:
+
+```sh
+cargo test --manifest-path core/analysis/response_spectrum/Cargo.toml --test spectrum_documents \
+  write_spectrum_documents -- --ignored
+```

@@ -49,6 +49,7 @@ mod bigint;
 mod combine;
 pub mod combination_json;
 pub mod contract;
+pub mod document;
 mod dyadic;
 mod exact;
 mod record;
