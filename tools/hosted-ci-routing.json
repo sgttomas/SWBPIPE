@@ -260,7 +260,7 @@
       "core/loads/self_weight_wasm/Cargo.toml": "7041b262bcf36c8b00d380e041d2375016101856a62c61551c0e8abb3d21dc7d",
       "core/loads/stress_recovery/Cargo.toml": "a8d181c7587101e60d9fcc9bc7006822f9ce77105707193933039458637198e4",
       "core/loads/user_loads/Cargo.toml": "6c0add4912f9400459da5f89cfccfe6c7419d29a6641ebff65dbb8dc0c6a3ef6",
-      "core/model_operations/operation_applier/Cargo.toml": "a03aafb14691ea0a72d676b881585940e8144cc64c2934de6e39b9059d424ed0",
+      "core/model_operations/operation_applier/Cargo.toml": "e1b63f3c1ba0f71a75893fc8c37f7e2f0527ad9d6aad673fbcefc6da84cdb9ee",
       "core/numerics/correct_norm/Cargo.toml": "57cbcd985c88d79c7ebf198d9a5d3a68fa67fe74bfd11440791be7c9a44c8844",
       "core/product_physics/Cargo.toml": "13d49e9498d9db024f2f958c7958c98f4a220afb7b8abde6ed62646067857d6d",
       "core/reporting/audit_manifest/Cargo.toml": "b8bc4623a383ed2c22205326bc737486becd9d931bf869e1e8cf40e147f4fad7",
@@ -615,7 +615,7 @@
         ]
       },
       "core/model_operations/operation_applier/tests/numerical_health.rs": {
-        "sha256": "79712698cf8417d77967b8e6abd7bd02d52d87b905e552415666184f900f8b4f",
+        "sha256": "1c30a3f8cd1512b52fbd71d3cf1d0ebbfd5dd32318cb933b9b32eed7a7569a8c",
         "source_trees": [
           "core/model_operations/operation_applier/Cargo.toml"
         ],
@@ -681,6 +681,7 @@
               "fixtures/product_preview/w1_controls/ui/multicase-dense_scrutiny.request.json",
               "fixtures/product_preview/w1_controls/ui/multicase-sparse_interactive.raw.json",
               "fixtures/product_preview/w1_controls/ui/multicase-sparse_interactive.request.json",
+              "fixtures/results/invented/agent_solve_witness/blocked_retained_evaluation-sparse_interactive.raw.json",
               "fixtures/results/pressure_connected_mechanics_dense.json",
               "fixtures/results/pressure_connected_mechanics_sparse.json",
               "fixtures/results/pressure_connected_ui_mechanics_dense.json",
@@ -1477,6 +1478,8 @@
               "fixtures/results/hanger_sizing_result_four_span.json",
               "fixtures/results/hanger_sizing_result_refused.json",
               "fixtures/results/hanger_sizing_result_two_span.json",
+              "fixtures/results/invented/agent_solve_witness/blocked_retained_evaluation-sparse_interactive.raw.json",
+              "fixtures/results/invented/agent_solve_witness/blocked_retained_evaluation.request.json",
               "fixtures/results/invented/derivative_binding_producer_cases.json",
               "fixtures/results/invented/tp_phys_015_canonical_solve_result_envelope.json",
               "fixtures/results/invented/tp_phys_015_section_property_stress_evidence_envelope.json",
@@ -5082,6 +5085,9 @@
               "fixtures/domain/invented_physical_source_of_truth_model.json",
               "fixtures/domain/invented_physical_to_analytical_trace_gap.json",
               "fixtures/embedded_agent/agent-witness-pin.json",
+              "fixtures/embedded_agent/use_cases/missing-data/person_entered.json",
+              "fixtures/embedded_agent/use_cases/missing-data/scenario.json",
+              "fixtures/embedded_agent/use_cases/missing-data/start_model.json",
               "fixtures/export_adapter_sdk/invented/export_adapter_sdk_package.json",
               "fixtures/export_adapter_sdk/invented/source_adapter_sdk_payload.json",
               "fixtures/gui/invented/viewport_editor_session.json",
@@ -5424,6 +5430,8 @@
               "fixtures/results/hanger_sizing_result_four_span.json",
               "fixtures/results/hanger_sizing_result_refused.json",
               "fixtures/results/hanger_sizing_result_two_span.json",
+              "fixtures/results/invented/agent_solve_witness/blocked_retained_evaluation-sparse_interactive.raw.json",
+              "fixtures/results/invented/agent_solve_witness/blocked_retained_evaluation.request.json",
               "fixtures/results/invented/derivative_binding_producer_cases.json",
               "fixtures/results/invented/tp_phys_015_canonical_solve_result_envelope.json",
               "fixtures/results/invented/tp_phys_015_section_property_stress_evidence_envelope.json",

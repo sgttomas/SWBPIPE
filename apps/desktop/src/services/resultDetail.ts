@@ -90,9 +90,13 @@ export function panelDetailFilter(state: Readonly<{ filterText: string; familyFi
   };
 }
 
-/** The embedded agent's current `swbpipe_read_results` filter as the native query states it. */
-export function agentDetailFilter(filter?: Readonly<{ kinds: readonly string[]; entityRefs: readonly string[] }>): DetailFilter {
-  return filter ? { kinds: filter.kinds, entities: filter.entityRefs } : {};
+/** The embedded agent's current `swbpipe_read_results` filter as the native query states it. A
+ * selected load case or combination is the query's `case`, keyed as the results panel keys a
+ * case (`rowCaseKey`: `ref_type:ref_id`), so a load case and a combination that share an id stay
+ * apart (the `set` member, `ref_id` alone, would join them). */
+export function agentDetailFilter(filter?: Readonly<{ kinds: readonly string[]; entityRefs: readonly string[]; case?: Readonly<{ refType: string; refId: string }> }>): DetailFilter {
+  if (!filter) return {};
+  return { kinds: filter.kinds, entities: filter.entityRefs, ...(filter.case ? { case: `${filter.case.refType}:${filter.case.refId}` } : {}) };
 }
 
 export class ResultDetailMalformed extends Error {
