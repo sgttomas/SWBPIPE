@@ -454,6 +454,7 @@ PACKAGES: dict[str, Package] = {
                               (REFERENCE_SYSTEM_REFERENCES, REFERENCE_SYSTEM_REFERENCES)),
                       staged_why=TRANCHE1_SPECIFICATION_WHY),)),
     "seismic_component_weight": _plain("scw_reference.py", deliverables="DEL-05-01"),
+    "reference_system_generated_loads": _plain("rsgl_reference.py", deliverables="DEL-05-01, DEL-09-01"),
     "snubber_static": _plain("snubber_static_reference.py", deliverables="DEL-04-10"),
     # Supplements the inline EXPECTED table of FRICTION_REVERSAL_TEST, not a package, so it has no sibling entry.
     "demo_friction_reversal_preload": _plain(

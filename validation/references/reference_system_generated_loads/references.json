@@ -1,0 +1,5848 @@
+{
+ "document": "validation/references/reference_system_generated_loads/references.json",
+ "status": "candidate references, derived and cross-checked by their author, not yet independently refuted",
+ "governs": {
+  "scope": "execution/PKG-05/DEL-05-01/ScopeOfWork.md at aebd3442f: Static-equivalent generation, Mass basis, Self-weight plan, REQ-008, REQ-015, AC-007, VER-005",
+  "specification": "fixtures/reference_system/SPECIFICATION.md §2, §3, §4.2, §5, §5.1, §8.1, §8.2, §9.2 (EQ-4, EQ-6 as restated at e494a5925)",
+  "quoted": {
+   "gravity_weight": "§2: Gravity is entered on each weight case as `global_z`, value −9.80665 m/s²",
+   "seismic": "§8.1: Each static seismic case, RS-EQX, RS-EQY and RS-EQZ, enters a gravity acceleration of 9.80665 m/s² as a positive magnitude and one factor on its own axis: `g_factor_x` 0.30, `g_factor_y` 0.30 and `g_factor_z` 0.20 respectively, each positive. The factor's sign is the direction's sign.",
+   "wind": "§8.1: RS-WIN | W + P + wind: 0.9 kPa, shape factor 0.7, `global_x`, exposed members RS-P070 … RS-P200 except the replaced span RS-P180",
+   "replaced": "§5.1: The replaced span RS-P180 carries no load, member result or self-weight. It is excluded from weight generation and from every primitive load",
+   "rigid": "§5: The valve, flanges and reducer are rigid-family components (`mechanics_geometry_only`).",
+   "identifier": "§8.1: `load:self-weight:<n>:<case id>:<m>:<pipe id>` for a member's line load, and `load:self-weight:<n>:<case id>:component:<m>:<component id>:force:z` or `…:moment:<axis>` for a component's weight, where `<n>` and `<m>` are the character counts of the id that follows each.",
+   "w_inventory": "§8.1: W is generated self-weight of every member except RS-P180 (gravity as §2), with component weights at their centres of gravity in place of their members' distributed weight: 21 line loads on the straight and arc members other than RS-P020, RS-P030, RS-P040 and RS-P150, and a force and a moment for each of RS-F1, RS-V1, RS-F2 and RS-R1, 29 primitives per case.",
+   "added_weight": "§8: no case carries condition `added_weight`."
+  }
+ },
+ "reads": {
+  "model_file": "fixtures/reference_system/reference_system.json",
+  "members_kept": [
+   "nodes",
+   "pipe_segments",
+   "components",
+   "pressure_contract"
+  ],
+  "members_dropped_unread": [
+   "load_cases",
+   "combinations",
+   "analysis_status",
+   "diagnostics"
+  ]
+ },
+ "units": {
+  "length": "m",
+  "force": "N",
+  "moment": "N*m",
+  "distributed": "N/m",
+  "mass_per_length": "kg/m"
+ },
+ "conventions": {
+  "origin": "global (0, 0, 0)",
+  "moment": "sum of r × F over every force at its point of action, plus the component couples",
+  "sign": "a positive g-factor and global_x wind load along the positive global axis (spec §8.1: the factor's sign is the direction's sign)",
+  "member": "straight: r(s) from its from-node to its to-node; arc: centre C, e1 and e2 the radius vectors to its from- and to-node, length R·π/2, ∫ r ds = R[(π/2)C + e1 + e2]",
+  "exact": "a sum of (q)*sqrt(n)*pi^k terms, q rational",
+  "decimal": "40 significant digits, round half even; value: the nearest binary64; each emitted only when both ends of a bounding interval give the same"
+ },
+ "inputs": {
+  "nodes_m": {
+   "node:RS-010": [
+    "0",
+    "0",
+    "1"
+   ],
+   "node:RS-020": [
+    "2/5",
+    "0",
+    "1"
+   ],
+   "node:RS-030": [
+    "11/20",
+    "0",
+    "1"
+   ],
+   "node:RS-040": [
+    "23/20",
+    "0",
+    "1"
+   ],
+   "node:RS-050": [
+    "13/10",
+    "0",
+    "1"
+   ],
+   "node:RS-060": [
+    "7/2",
+    "0",
+    "1"
+   ],
+   "node:RS-070": [
+    "28/5",
+    "0",
+    "1"
+   ],
+   "node:RS-075": [
+    "6",
+    "0",
+    "7/5"
+   ],
+   "node:RS-080": [
+    "6",
+    "0",
+    "4"
+   ],
+   "node:RS-090": [
+    "6",
+    "0",
+    "33/5"
+   ],
+   "node:RS-095": [
+    "6",
+    "2/5",
+    "7"
+   ],
+   "node:RS-100": [
+    "6",
+    "3",
+    "7"
+   ],
+   "node:RS-110": [
+    "6",
+    "7",
+    "7"
+   ],
+   "node:RS-120": [
+    "6",
+    "11",
+    "7"
+   ],
+   "node:RS-130": [
+    "6",
+    "15",
+    "7"
+   ],
+   "node:RS-140": [
+    "6",
+    "18",
+    "7"
+   ],
+   "node:RS-150": [
+    "6",
+    "20",
+    "7"
+   ],
+   "node:RS-160": [
+    "6",
+    "102/5",
+    "279/40"
+   ],
+   "node:RS-170": [
+    "6",
+    "23",
+    "279/40"
+   ],
+   "node:RS-180": [
+    "6",
+    "25",
+    "279/40"
+   ],
+   "node:RS-190": [
+    "6",
+    "128/5",
+    "279/40"
+   ],
+   "node:RS-200": [
+    "6",
+    "28",
+    "279/40"
+   ],
+   "node:RS-210": [
+    "6",
+    "30",
+    "279/40"
+   ],
+   "node:RS-215": [
+    "6",
+    "15",
+    "9/2"
+   ],
+   "node:RS-220": [
+    "6",
+    "15",
+    "9/4"
+   ],
+   "node:RS-225": [
+    "25/4",
+    "15",
+    "2"
+   ],
+   "node:RS-230": [
+    "8",
+    "15",
+    "2"
+   ]
+  },
+  "members": {
+   "pipe:RS-P010": {
+    "from": "node:RS-010",
+    "to": "node:RS-020",
+    "section_ref": "section:RS-S270",
+    "section_m_and_kg_per_m3": {
+     "D": "27/100",
+     "t": "9/1000",
+     "c_m": "1/1000",
+     "c_a": "3/2000",
+     "t_i": "3/50",
+     "rho_m": "7850",
+     "rho_c": "820",
+     "rho_i": "140"
+    },
+    "arc": null
+   },
+   "pipe:RS-P020": {
+    "from": "node:RS-020",
+    "to": "node:RS-030",
+    "section_ref": "section:RS-S270",
+    "section_m_and_kg_per_m3": {
+     "D": "27/100",
+     "t": "9/1000",
+     "c_m": "1/1000",
+     "c_a": "3/2000",
+     "t_i": "3/50",
+     "rho_m": "7850",
+     "rho_c": "820",
+     "rho_i": "140"
+    },
+    "arc": null
+   },
+   "pipe:RS-P030": {
+    "from": "node:RS-030",
+    "to": "node:RS-040",
+    "section_ref": "section:RS-S270",
+    "section_m_and_kg_per_m3": {
+     "D": "27/100",
+     "t": "9/1000",
+     "c_m": "1/1000",
+     "c_a": "3/2000",
+     "t_i": "3/50",
+     "rho_m": "7850",
+     "rho_c": "820",
+     "rho_i": "140"
+    },
+    "arc": null
+   },
+   "pipe:RS-P040": {
+    "from": "node:RS-040",
+    "to": "node:RS-050",
+    "section_ref": "section:RS-S270",
+    "section_m_and_kg_per_m3": {
+     "D": "27/100",
+     "t": "9/1000",
+     "c_m": "1/1000",
+     "c_a": "3/2000",
+     "t_i": "3/50",
+     "rho_m": "7850",
+     "rho_c": "820",
+     "rho_i": "140"
+    },
+    "arc": null
+   },
+   "pipe:RS-P050": {
+    "from": "node:RS-050",
+    "to": "node:RS-060",
+    "section_ref": "section:RS-S270",
+    "section_m_and_kg_per_m3": {
+     "D": "27/100",
+     "t": "9/1000",
+     "c_m": "1/1000",
+     "c_a": "3/2000",
+     "t_i": "3/50",
+     "rho_m": "7850",
+     "rho_c": "820",
+     "rho_i": "140"
+    },
+    "arc": null
+   },
+   "pipe:RS-P060": {
+    "from": "node:RS-060",
+    "to": "node:RS-070",
+    "section_ref": "section:RS-S270",
+    "section_m_and_kg_per_m3": {
+     "D": "27/100",
+     "t": "9/1000",
+     "c_m": "1/1000",
+     "c_a": "3/2000",
+     "t_i": "3/50",
+     "rho_m": "7850",
+     "rho_c": "820",
+     "rho_i": "140"
+    },
+    "arc": null
+   },
+   "pipe:RS-P065": {
+    "from": "node:RS-070",
+    "to": "node:RS-075",
+    "section_ref": "section:RS-S270",
+    "section_m_and_kg_per_m3": {
+     "D": "27/100",
+     "t": "9/1000",
+     "c_m": "1/1000",
+     "c_a": "3/2000",
+     "t_i": "3/50",
+     "rho_m": "7850",
+     "rho_c": "820",
+     "rho_i": "140"
+    },
+    "arc": {
+     "bend": "component:RS-B1",
+     "radius_m": "2/5"
+    }
+   },
+   "pipe:RS-P070": {
+    "from": "node:RS-075",
+    "to": "node:RS-080",
+    "section_ref": "section:RS-S270",
+    "section_m_and_kg_per_m3": {
+     "D": "27/100",
+     "t": "9/1000",
+     "c_m": "1/1000",
+     "c_a": "3/2000",
+     "t_i": "3/50",
+     "rho_m": "7850",
+     "rho_c": "820",
+     "rho_i": "140"
+    },
+    "arc": null
+   },
+   "pipe:RS-P080": {
+    "from": "node:RS-080",
+    "to": "node:RS-090",
+    "section_ref": "section:RS-S270",
+    "section_m_and_kg_per_m3": {
+     "D": "27/100",
+     "t": "9/1000",
+     "c_m": "1/1000",
+     "c_a": "3/2000",
+     "t_i": "3/50",
+     "rho_m": "7850",
+     "rho_c": "820",
+     "rho_i": "140"
+    },
+    "arc": null
+   },
+   "pipe:RS-P085": {
+    "from": "node:RS-090",
+    "to": "node:RS-095",
+    "section_ref": "section:RS-S270",
+    "section_m_and_kg_per_m3": {
+     "D": "27/100",
+     "t": "9/1000",
+     "c_m": "1/1000",
+     "c_a": "3/2000",
+     "t_i": "3/50",
+     "rho_m": "7850",
+     "rho_c": "820",
+     "rho_i": "140"
+    },
+    "arc": {
+     "bend": "component:RS-B2",
+     "radius_m": "2/5"
+    }
+   },
+   "pipe:RS-P090": {
+    "from": "node:RS-095",
+    "to": "node:RS-100",
+    "section_ref": "section:RS-S270",
+    "section_m_and_kg_per_m3": {
+     "D": "27/100",
+     "t": "9/1000",
+     "c_m": "1/1000",
+     "c_a": "3/2000",
+     "t_i": "3/50",
+     "rho_m": "7850",
+     "rho_c": "820",
+     "rho_i": "140"
+    },
+    "arc": null
+   },
+   "pipe:RS-P100": {
+    "from": "node:RS-100",
+    "to": "node:RS-110",
+    "section_ref": "section:RS-S270",
+    "section_m_and_kg_per_m3": {
+     "D": "27/100",
+     "t": "9/1000",
+     "c_m": "1/1000",
+     "c_a": "3/2000",
+     "t_i": "3/50",
+     "rho_m": "7850",
+     "rho_c": "820",
+     "rho_i": "140"
+    },
+    "arc": null
+   },
+   "pipe:RS-P110": {
+    "from": "node:RS-110",
+    "to": "node:RS-120",
+    "section_ref": "section:RS-S270",
+    "section_m_and_kg_per_m3": {
+     "D": "27/100",
+     "t": "9/1000",
+     "c_m": "1/1000",
+     "c_a": "3/2000",
+     "t_i": "3/50",
+     "rho_m": "7850",
+     "rho_c": "820",
+     "rho_i": "140"
+    },
+    "arc": null
+   },
+   "pipe:RS-P120": {
+    "from": "node:RS-120",
+    "to": "node:RS-130",
+    "section_ref": "section:RS-S270",
+    "section_m_and_kg_per_m3": {
+     "D": "27/100",
+     "t": "9/1000",
+     "c_m": "1/1000",
+     "c_a": "3/2000",
+     "t_i": "3/50",
+     "rho_m": "7850",
+     "rho_c": "820",
+     "rho_i": "140"
+    },
+    "arc": null
+   },
+   "pipe:RS-P130": {
+    "from": "node:RS-130",
+    "to": "node:RS-140",
+    "section_ref": "section:RS-S270",
+    "section_m_and_kg_per_m3": {
+     "D": "27/100",
+     "t": "9/1000",
+     "c_m": "1/1000",
+     "c_a": "3/2000",
+     "t_i": "3/50",
+     "rho_m": "7850",
+     "rho_c": "820",
+     "rho_i": "140"
+    },
+    "arc": null
+   },
+   "pipe:RS-P140": {
+    "from": "node:RS-140",
+    "to": "node:RS-150",
+    "section_ref": "section:RS-S270",
+    "section_m_and_kg_per_m3": {
+     "D": "27/100",
+     "t": "9/1000",
+     "c_m": "1/1000",
+     "c_a": "3/2000",
+     "t_i": "3/50",
+     "rho_m": "7850",
+     "rho_c": "820",
+     "rho_i": "140"
+    },
+    "arc": null
+   },
+   "pipe:RS-P150": {
+    "from": "node:RS-150",
+    "to": "node:RS-160",
+    "section_ref": "section:RS-S270",
+    "section_m_and_kg_per_m3": {
+     "D": "27/100",
+     "t": "9/1000",
+     "c_m": "1/1000",
+     "c_a": "3/2000",
+     "t_i": "3/50",
+     "rho_m": "7850",
+     "rho_c": "820",
+     "rho_i": "140"
+    },
+    "arc": null
+   },
+   "pipe:RS-P160": {
+    "from": "node:RS-160",
+    "to": "node:RS-170",
+    "section_ref": "section:RS-S220",
+    "section_m_and_kg_per_m3": {
+     "D": "11/50",
+     "t": "1/125",
+     "c_m": "9/10000",
+     "c_a": "3/2000",
+     "t_i": "3/50",
+     "rho_m": "7850",
+     "rho_c": "820",
+     "rho_i": "140"
+    },
+    "arc": null
+   },
+   "pipe:RS-P170": {
+    "from": "node:RS-170",
+    "to": "node:RS-180",
+    "section_ref": "section:RS-S220",
+    "section_m_and_kg_per_m3": {
+     "D": "11/50",
+     "t": "1/125",
+     "c_m": "9/10000",
+     "c_a": "3/2000",
+     "t_i": "3/50",
+     "rho_m": "7850",
+     "rho_c": "820",
+     "rho_i": "140"
+    },
+    "arc": null
+   },
+   "pipe:RS-P180": {
+    "from": "node:RS-180",
+    "to": "node:RS-190",
+    "section_ref": "section:RS-S220",
+    "section_m_and_kg_per_m3": {
+     "D": "11/50",
+     "t": "1/125",
+     "c_m": "9/10000",
+     "c_a": "3/2000",
+     "t_i": "3/50",
+     "rho_m": "7850",
+     "rho_c": "820",
+     "rho_i": "140"
+    },
+    "arc": null
+   },
+   "pipe:RS-P190": {
+    "from": "node:RS-190",
+    "to": "node:RS-200",
+    "section_ref": "section:RS-S220",
+    "section_m_and_kg_per_m3": {
+     "D": "11/50",
+     "t": "1/125",
+     "c_m": "9/10000",
+     "c_a": "3/2000",
+     "t_i": "3/50",
+     "rho_m": "7850",
+     "rho_c": "820",
+     "rho_i": "140"
+    },
+    "arc": null
+   },
+   "pipe:RS-P200": {
+    "from": "node:RS-200",
+    "to": "node:RS-210",
+    "section_ref": "section:RS-S220",
+    "section_m_and_kg_per_m3": {
+     "D": "11/50",
+     "t": "1/125",
+     "c_m": "9/10000",
+     "c_a": "3/2000",
+     "t_i": "3/50",
+     "rho_m": "7850",
+     "rho_c": "820",
+     "rho_i": "140"
+    },
+    "arc": null
+   },
+   "pipe:RS-P210": {
+    "from": "node:RS-130",
+    "to": "node:RS-215",
+    "section_ref": "section:RS-S170",
+    "section_m_and_kg_per_m3": {
+     "D": "17/100",
+     "t": "7/1000",
+     "c_m": "1/1250",
+     "c_a": "3/2000",
+     "t_i": "1/20",
+     "rho_m": "7850",
+     "rho_c": "820",
+     "rho_i": "140"
+    },
+    "arc": null
+   },
+   "pipe:RS-P220": {
+    "from": "node:RS-215",
+    "to": "node:RS-220",
+    "section_ref": "section:RS-S170",
+    "section_m_and_kg_per_m3": {
+     "D": "17/100",
+     "t": "7/1000",
+     "c_m": "1/1250",
+     "c_a": "3/2000",
+     "t_i": "1/20",
+     "rho_m": "7850",
+     "rho_c": "820",
+     "rho_i": "140"
+    },
+    "arc": null
+   },
+   "pipe:RS-P225": {
+    "from": "node:RS-220",
+    "to": "node:RS-225",
+    "section_ref": "section:RS-S170",
+    "section_m_and_kg_per_m3": {
+     "D": "17/100",
+     "t": "7/1000",
+     "c_m": "1/1250",
+     "c_a": "3/2000",
+     "t_i": "1/20",
+     "rho_m": "7850",
+     "rho_c": "820",
+     "rho_i": "140"
+    },
+    "arc": {
+     "bend": "component:RS-B3",
+     "radius_m": "1/4"
+    }
+   },
+   "pipe:RS-P230": {
+    "from": "node:RS-225",
+    "to": "node:RS-230",
+    "section_ref": "section:RS-S170",
+    "section_m_and_kg_per_m3": {
+     "D": "17/100",
+     "t": "7/1000",
+     "c_m": "1/1250",
+     "c_a": "3/2000",
+     "t_i": "1/20",
+     "rho_m": "7850",
+     "rho_c": "820",
+     "rho_i": "140"
+    },
+    "arc": null
+   }
+  },
+  "wind": {
+   "pressure_Pa": "900",
+   "shape_factor": "7/10",
+   "direction": "global_x",
+   "exposed": [
+    "pipe:RS-P070",
+    "pipe:RS-P080",
+    "pipe:RS-P085",
+    "pipe:RS-P090",
+    "pipe:RS-P100",
+    "pipe:RS-P110",
+    "pipe:RS-P120",
+    "pipe:RS-P130",
+    "pipe:RS-P140",
+    "pipe:RS-P150",
+    "pipe:RS-P160",
+    "pipe:RS-P170",
+    "pipe:RS-P190",
+    "pipe:RS-P200"
+   ],
+   "excluded": [
+    "pipe:RS-P180"
+   ]
+  },
+  "seismic": {
+   "RS-EQX": {
+    "axis": "x",
+    "g_factor": "3/10",
+    "gravity_m_per_s2": "196133/20000"
+   },
+   "RS-EQY": {
+    "axis": "y",
+    "g_factor": "3/10",
+    "gravity_m_per_s2": "196133/20000"
+   },
+   "RS-EQZ": {
+    "axis": "z",
+    "g_factor": "1/5",
+    "gravity_m_per_s2": "196133/20000"
+   }
+  },
+  "weight_gravity": {
+   "axis": "global_z",
+   "value_m_per_s2": "-196133/20000"
+  },
+  "bend_corners_spec_3_1": {
+   "component:RS-B1": [
+    "6",
+    "0",
+    "1"
+   ],
+   "component:RS-B2": [
+    "6",
+    "0",
+    "7"
+   ],
+   "component:RS-B3": [
+    "6",
+    "15",
+    "2"
+   ]
+  }
+ },
+ "mass_basis": {
+  "name": "source_od_nominal_wall_pressure_bore_areas/v1",
+  "route": "exact (spec §2 pressure_contract exact_pressure_v3)",
+  "formula": "μ = π[ρ_m(R² − (R − t)²) + ρ_c(R − ((t − c_m) − c_a))² + ρ_i((R + t_i)² − R²)]"
+ },
+ "sections": {
+  "section:RS-S270": {
+   "metal_kg_per_m": {
+    "exact": "(368793/20000)*pi",
+    "decimal": "5.792986897476703088961768206248988535859e+1",
+    "value": 57.92986897476703
+   },
+   "contents_kg_per_m": {
+    "exact": "(2708009/200000)*pi",
+    "decimal": "4.253730590127521198947992222855671662966e+1",
+    "value": 42.53730590127521
+   },
+   "insulation_kg_per_m": {
+    "exact": "(693/250)*pi",
+    "decimal": "8.708494835750906857018447458450781994995e+0",
+    "value": 8.708494835750907
+   },
+   "mu_kg_per_m": {
+    "exact": "(6950339/200000)*pi",
+    "decimal": "1.091756697117931497361160517494973839832e+2",
+    "value": 109.17566971179315
+   },
+   "projected_diameter_m": "39/100"
+  },
+  "section:RS-S220": {
+   "metal_kg_per_m": {
+    "exact": "(8321/625)*pi",
+    "decimal": "4.182590795283307125959624894762998959905e+1",
+    "value": 41.82590795283307
+   },
+   "contents_kg_per_m": {
+    "exact": "(2792961/312500)*pi",
+    "decimal": "2.807790642996096804188756136450465169584e+1",
+    "value": 28.07790642996097
+   },
+   "insulation_kg_per_m": {
+    "exact": "(294/125)*pi",
+    "decimal": "7.389025921243193696864137237473390783632e+0",
+    "value": 7.389025921243194
+   },
+   "mu_kg_per_m": {
+    "exact": "(7688461/312500)*pi",
+    "decimal": "7.729284030403723299834794754960803207852e+1",
+    "value": 77.29284030403723
+   },
+   "projected_diameter_m": "17/50"
+  },
+  "section:RS-S170": {
+   "metal_kg_per_m": {
+    "exact": "(179137/20000)*pi",
+    "decimal": "2.813877415930573956792412738752701540832e+1",
+    "value": 28.13877415930574
+   },
+   "contents_kg_per_m": {
+    "exact": "(26437169/5000000)*pi",
+    "decimal": "1.661096318242236410405884066209839839710e+1",
+    "value": 16.610963182422363
+   },
+   "insulation_kg_per_m": {
+    "exact": "(77/50)*pi",
+    "decimal": "4.838052686528281587232470810250434441664e+0",
+    "value": 4.838052686528282
+   },
+   "mu_kg_per_m": {
+    "exact": "(78921419/5000000)*pi",
+    "decimal": "4.958779002825638525921543885987584824709e+1",
+    "value": 49.587790028256386
+   },
+   "projected_diameter_m": "27/100"
+  }
+ },
+ "members": [
+  {
+   "id": "pipe:RS-P010",
+   "from": "node:RS-010",
+   "to": "node:RS-020",
+   "section": "section:RS-S270",
+   "kind": "straight",
+   "length_m": {
+    "exact": "(2/5)",
+    "decimal": "4.000000000000000000000000000000000000000e-1",
+    "value": 0.4
+   },
+   "first_moment_m2": [
+    {
+     "exact": "(2/25)",
+     "decimal": "8.000000000000000000000000000000000000000e-2",
+     "value": 0.08
+    },
+    {
+     "exact": "0",
+     "decimal": "0",
+     "value": 0.0
+    },
+    {
+     "exact": "(2/5)",
+     "decimal": "4.000000000000000000000000000000000000000e-1",
+     "value": 0.4
+    }
+   ],
+   "connector_replaced": false,
+   "wind_exposed": false,
+   "seismic": "distributed"
+  },
+  {
+   "id": "pipe:RS-P020",
+   "from": "node:RS-020",
+   "to": "node:RS-030",
+   "section": "section:RS-S270",
+   "kind": "straight",
+   "length_m": {
+    "exact": "(3/20)",
+    "decimal": "1.500000000000000000000000000000000000000e-1",
+    "value": 0.15
+   },
+   "first_moment_m2": [
+    {
+     "exact": "(57/800)",
+     "decimal": "7.125000000000000000000000000000000000000e-2",
+     "value": 0.07125
+    },
+    {
+     "exact": "0",
+     "decimal": "0",
+     "value": 0.0
+    },
+    {
+     "exact": "(3/20)",
+     "decimal": "1.500000000000000000000000000000000000000e-1",
+     "value": 0.15
+    }
+   ],
+   "connector_replaced": false,
+   "wind_exposed": false,
+   "seismic": "component force of component:RS-F1"
+  },
+  {
+   "id": "pipe:RS-P030",
+   "from": "node:RS-030",
+   "to": "node:RS-040",
+   "section": "section:RS-S270",
+   "kind": "straight",
+   "length_m": {
+    "exact": "(3/5)",
+    "decimal": "6.000000000000000000000000000000000000000e-1",
+    "value": 0.6
+   },
+   "first_moment_m2": [
+    {
+     "exact": "(51/100)",
+     "decimal": "5.100000000000000000000000000000000000000e-1",
+     "value": 0.51
+    },
+    {
+     "exact": "0",
+     "decimal": "0",
+     "value": 0.0
+    },
+    {
+     "exact": "(3/5)",
+     "decimal": "6.000000000000000000000000000000000000000e-1",
+     "value": 0.6
+    }
+   ],
+   "connector_replaced": false,
+   "wind_exposed": false,
+   "seismic": "component force of component:RS-V1"
+  },
+  {
+   "id": "pipe:RS-P040",
+   "from": "node:RS-040",
+   "to": "node:RS-050",
+   "section": "section:RS-S270",
+   "kind": "straight",
+   "length_m": {
+    "exact": "(3/20)",
+    "decimal": "1.500000000000000000000000000000000000000e-1",
+    "value": 0.15
+   },
+   "first_moment_m2": [
+    {
+     "exact": "(147/800)",
+     "decimal": "1.837500000000000000000000000000000000000e-1",
+     "value": 0.18375
+    },
+    {
+     "exact": "0",
+     "decimal": "0",
+     "value": 0.0
+    },
+    {
+     "exact": "(3/20)",
+     "decimal": "1.500000000000000000000000000000000000000e-1",
+     "value": 0.15
+    }
+   ],
+   "connector_replaced": false,
+   "wind_exposed": false,
+   "seismic": "component force of component:RS-F2"
+  },
+  {
+   "id": "pipe:RS-P050",
+   "from": "node:RS-050",
+   "to": "node:RS-060",
+   "section": "section:RS-S270",
+   "kind": "straight",
+   "length_m": {
+    "exact": "(11/5)",
+    "decimal": "2.200000000000000000000000000000000000000e+0",
+    "value": 2.2
+   },
+   "first_moment_m2": [
+    {
+     "exact": "(132/25)",
+     "decimal": "5.280000000000000000000000000000000000000e+0",
+     "value": 5.28
+    },
+    {
+     "exact": "0",
+     "decimal": "0",
+     "value": 0.0
+    },
+    {
+     "exact": "(11/5)",
+     "decimal": "2.200000000000000000000000000000000000000e+0",
+     "value": 2.2
+    }
+   ],
+   "connector_replaced": false,
+   "wind_exposed": false,
+   "seismic": "distributed"
+  },
+  {
+   "id": "pipe:RS-P060",
+   "from": "node:RS-060",
+   "to": "node:RS-070",
+   "section": "section:RS-S270",
+   "kind": "straight",
+   "length_m": {
+    "exact": "(21/10)",
+    "decimal": "2.100000000000000000000000000000000000000e+0",
+    "value": 2.1
+   },
+   "first_moment_m2": [
+    {
+     "exact": "(1911/200)",
+     "decimal": "9.555000000000000000000000000000000000000e+0",
+     "value": 9.555
+    },
+    {
+     "exact": "0",
+     "decimal": "0",
+     "value": 0.0
+    },
+    {
+     "exact": "(21/10)",
+     "decimal": "2.100000000000000000000000000000000000000e+0",
+     "value": 2.1
+    }
+   ],
+   "connector_replaced": false,
+   "wind_exposed": false,
+   "seismic": "distributed"
+  },
+  {
+   "id": "pipe:RS-P065",
+   "from": "node:RS-070",
+   "to": "node:RS-075",
+   "section": "section:RS-S270",
+   "kind": "arc",
+   "length_m": {
+    "exact": "(1/5)*pi",
+    "decimal": "6.283185307179586476925286766559005768394e-1",
+    "value": 0.6283185307179586
+   },
+   "first_moment_m2": [
+    {
+     "exact": "(4/25) + (28/25)*pi",
+     "decimal": "3.678583772020568427078160589273043230301e+0",
+     "value": 3.6785837720205685
+    },
+    {
+     "exact": "0",
+     "decimal": "0",
+     "value": 0.0
+    },
+    {
+     "exact": "(-4/25) + (7/25)*pi",
+     "decimal": "7.196459430051421067695401473182608075752e-1",
+     "value": 0.7196459430051421
+    }
+   ],
+   "connector_replaced": false,
+   "wind_exposed": false,
+   "seismic": "distributed"
+  },
+  {
+   "id": "pipe:RS-P070",
+   "from": "node:RS-075",
+   "to": "node:RS-080",
+   "section": "section:RS-S270",
+   "kind": "straight",
+   "length_m": {
+    "exact": "(13/5)",
+    "decimal": "2.600000000000000000000000000000000000000e+0",
+    "value": 2.6
+   },
+   "first_moment_m2": [
+    {
+     "exact": "(78/5)",
+     "decimal": "1.560000000000000000000000000000000000000e+1",
+     "value": 15.6
+    },
+    {
+     "exact": "0",
+     "decimal": "0",
+     "value": 0.0
+    },
+    {
+     "exact": "(351/50)",
+     "decimal": "7.020000000000000000000000000000000000000e+0",
+     "value": 7.02
+    }
+   ],
+   "connector_replaced": false,
+   "wind_exposed": true,
+   "seismic": "distributed"
+  },
+  {
+   "id": "pipe:RS-P080",
+   "from": "node:RS-080",
+   "to": "node:RS-090",
+   "section": "section:RS-S270",
+   "kind": "straight",
+   "length_m": {
+    "exact": "(13/5)",
+    "decimal": "2.600000000000000000000000000000000000000e+0",
+    "value": 2.6
+   },
+   "first_moment_m2": [
+    {
+     "exact": "(78/5)",
+     "decimal": "1.560000000000000000000000000000000000000e+1",
+     "value": 15.6
+    },
+    {
+     "exact": "0",
+     "decimal": "0",
+     "value": 0.0
+    },
+    {
+     "exact": "(689/50)",
+     "decimal": "1.378000000000000000000000000000000000000e+1",
+     "value": 13.78
+    }
+   ],
+   "connector_replaced": false,
+   "wind_exposed": true,
+   "seismic": "distributed"
+  },
+  {
+   "id": "pipe:RS-P085",
+   "from": "node:RS-090",
+   "to": "node:RS-095",
+   "section": "section:RS-S270",
+   "kind": "arc",
+   "length_m": {
+    "exact": "(1/5)*pi",
+    "decimal": "6.283185307179586476925286766559005768394e-1",
+    "value": 0.6283185307179586
+   },
+   "first_moment_m2": [
+    {
+     "exact": "(6/5)*pi",
+     "decimal": "3.769911184307751886155172059935403461037e+0",
+     "value": 3.7699111843077517
+    },
+    {
+     "exact": "(-4/25) + (2/25)*pi",
+     "decimal": "9.132741228718345907701147066236023073577e-2",
+     "value": 0.09132741228718345
+    },
+    {
+     "exact": "(4/25) + (33/25)*pi",
+     "decimal": "4.306902302738527074770689265928943807140e+0",
+     "value": 4.306902302738527
+    }
+   ],
+   "connector_replaced": false,
+   "wind_exposed": true,
+   "seismic": "distributed"
+  },
+  {
+   "id": "pipe:RS-P090",
+   "from": "node:RS-095",
+   "to": "node:RS-100",
+   "section": "section:RS-S270",
+   "kind": "straight",
+   "length_m": {
+    "exact": "(13/5)",
+    "decimal": "2.600000000000000000000000000000000000000e+0",
+    "value": 2.6
+   },
+   "first_moment_m2": [
+    {
+     "exact": "(78/5)",
+     "decimal": "1.560000000000000000000000000000000000000e+1",
+     "value": 15.6
+    },
+    {
+     "exact": "(221/50)",
+     "decimal": "4.420000000000000000000000000000000000000e+0",
+     "value": 4.42
+    },
+    {
+     "exact": "(91/5)",
+     "decimal": "1.820000000000000000000000000000000000000e+1",
+     "value": 18.2
+    }
+   ],
+   "connector_replaced": false,
+   "wind_exposed": true,
+   "seismic": "distributed"
+  },
+  {
+   "id": "pipe:RS-P100",
+   "from": "node:RS-100",
+   "to": "node:RS-110",
+   "section": "section:RS-S270",
+   "kind": "straight",
+   "length_m": {
+    "exact": "(4)",
+    "decimal": "4.000000000000000000000000000000000000000e+0",
+    "value": 4.0
+   },
+   "first_moment_m2": [
+    {
+     "exact": "(24)",
+     "decimal": "2.400000000000000000000000000000000000000e+1",
+     "value": 24.0
+    },
+    {
+     "exact": "(20)",
+     "decimal": "2.000000000000000000000000000000000000000e+1",
+     "value": 20.0
+    },
+    {
+     "exact": "(28)",
+     "decimal": "2.800000000000000000000000000000000000000e+1",
+     "value": 28.0
+    }
+   ],
+   "connector_replaced": false,
+   "wind_exposed": true,
+   "seismic": "distributed"
+  },
+  {
+   "id": "pipe:RS-P110",
+   "from": "node:RS-110",
+   "to": "node:RS-120",
+   "section": "section:RS-S270",
+   "kind": "straight",
+   "length_m": {
+    "exact": "(4)",
+    "decimal": "4.000000000000000000000000000000000000000e+0",
+    "value": 4.0
+   },
+   "first_moment_m2": [
+    {
+     "exact": "(24)",
+     "decimal": "2.400000000000000000000000000000000000000e+1",
+     "value": 24.0
+    },
+    {
+     "exact": "(36)",
+     "decimal": "3.600000000000000000000000000000000000000e+1",
+     "value": 36.0
+    },
+    {
+     "exact": "(28)",
+     "decimal": "2.800000000000000000000000000000000000000e+1",
+     "value": 28.0
+    }
+   ],
+   "connector_replaced": false,
+   "wind_exposed": true,
+   "seismic": "distributed"
+  },
+  {
+   "id": "pipe:RS-P120",
+   "from": "node:RS-120",
+   "to": "node:RS-130",
+   "section": "section:RS-S270",
+   "kind": "straight",
+   "length_m": {
+    "exact": "(4)",
+    "decimal": "4.000000000000000000000000000000000000000e+0",
+    "value": 4.0
+   },
+   "first_moment_m2": [
+    {
+     "exact": "(24)",
+     "decimal": "2.400000000000000000000000000000000000000e+1",
+     "value": 24.0
+    },
+    {
+     "exact": "(52)",
+     "decimal": "5.200000000000000000000000000000000000000e+1",
+     "value": 52.0
+    },
+    {
+     "exact": "(28)",
+     "decimal": "2.800000000000000000000000000000000000000e+1",
+     "value": 28.0
+    }
+   ],
+   "connector_replaced": false,
+   "wind_exposed": true,
+   "seismic": "distributed"
+  },
+  {
+   "id": "pipe:RS-P130",
+   "from": "node:RS-130",
+   "to": "node:RS-140",
+   "section": "section:RS-S270",
+   "kind": "straight",
+   "length_m": {
+    "exact": "(3)",
+    "decimal": "3.000000000000000000000000000000000000000e+0",
+    "value": 3.0
+   },
+   "first_moment_m2": [
+    {
+     "exact": "(18)",
+     "decimal": "1.800000000000000000000000000000000000000e+1",
+     "value": 18.0
+    },
+    {
+     "exact": "(99/2)",
+     "decimal": "4.950000000000000000000000000000000000000e+1",
+     "value": 49.5
+    },
+    {
+     "exact": "(21)",
+     "decimal": "2.100000000000000000000000000000000000000e+1",
+     "value": 21.0
+    }
+   ],
+   "connector_replaced": false,
+   "wind_exposed": true,
+   "seismic": "distributed"
+  },
+  {
+   "id": "pipe:RS-P140",
+   "from": "node:RS-140",
+   "to": "node:RS-150",
+   "section": "section:RS-S270",
+   "kind": "straight",
+   "length_m": {
+    "exact": "(2)",
+    "decimal": "2.000000000000000000000000000000000000000e+0",
+    "value": 2.0
+   },
+   "first_moment_m2": [
+    {
+     "exact": "(12)",
+     "decimal": "1.200000000000000000000000000000000000000e+1",
+     "value": 12.0
+    },
+    {
+     "exact": "(38)",
+     "decimal": "3.800000000000000000000000000000000000000e+1",
+     "value": 38.0
+    },
+    {
+     "exact": "(14)",
+     "decimal": "1.400000000000000000000000000000000000000e+1",
+     "value": 14.0
+    }
+   ],
+   "connector_replaced": false,
+   "wind_exposed": true,
+   "seismic": "distributed"
+  },
+  {
+   "id": "pipe:RS-P150",
+   "from": "node:RS-150",
+   "to": "node:RS-160",
+   "section": "section:RS-S270",
+   "kind": "straight",
+   "length_m": {
+    "exact": "(1/40)*sqrt(257)",
+    "decimal": "4.007804885470349341217838689422120552024e-1",
+    "value": 0.4007804885470349
+   },
+   "first_moment_m2": [
+    {
+     "exact": "(3/20)*sqrt(257)",
+     "decimal": "2.404682931282209604730703213653272331215e+0",
+     "value": 2.40468293128221
+    },
+    {
+     "exact": "(101/200)*sqrt(257)",
+     "decimal": "8.095765868650105669260034152632683515089e+0",
+     "value": 8.095765868650105
+    },
+    {
+     "exact": "(559/3200)*sqrt(257)",
+     "decimal": "2.800453663722406602175964784233706735727e+0",
+     "value": 2.8004536637224064
+    }
+   ],
+   "connector_replaced": false,
+   "wind_exposed": true,
+   "seismic": "component force of component:RS-R1"
+  },
+  {
+   "id": "pipe:RS-P160",
+   "from": "node:RS-160",
+   "to": "node:RS-170",
+   "section": "section:RS-S220",
+   "kind": "straight",
+   "length_m": {
+    "exact": "(13/5)",
+    "decimal": "2.600000000000000000000000000000000000000e+0",
+    "value": 2.6
+   },
+   "first_moment_m2": [
+    {
+     "exact": "(78/5)",
+     "decimal": "1.560000000000000000000000000000000000000e+1",
+     "value": 15.6
+    },
+    {
+     "exact": "(2821/50)",
+     "decimal": "5.642000000000000000000000000000000000000e+1",
+     "value": 56.42
+    },
+    {
+     "exact": "(3627/200)",
+     "decimal": "1.813500000000000000000000000000000000000e+1",
+     "value": 18.135
+    }
+   ],
+   "connector_replaced": false,
+   "wind_exposed": true,
+   "seismic": "distributed"
+  },
+  {
+   "id": "pipe:RS-P170",
+   "from": "node:RS-170",
+   "to": "node:RS-180",
+   "section": "section:RS-S220",
+   "kind": "straight",
+   "length_m": {
+    "exact": "(2)",
+    "decimal": "2.000000000000000000000000000000000000000e+0",
+    "value": 2.0
+   },
+   "first_moment_m2": [
+    {
+     "exact": "(12)",
+     "decimal": "1.200000000000000000000000000000000000000e+1",
+     "value": 12.0
+    },
+    {
+     "exact": "(48)",
+     "decimal": "4.800000000000000000000000000000000000000e+1",
+     "value": 48.0
+    },
+    {
+     "exact": "(279/20)",
+     "decimal": "1.395000000000000000000000000000000000000e+1",
+     "value": 13.95
+    }
+   ],
+   "connector_replaced": false,
+   "wind_exposed": true,
+   "seismic": "distributed"
+  },
+  {
+   "id": "pipe:RS-P180",
+   "from": "node:RS-180",
+   "to": "node:RS-190",
+   "section": "section:RS-S220",
+   "kind": "straight",
+   "length_m": {
+    "exact": "(3/5)",
+    "decimal": "6.000000000000000000000000000000000000000e-1",
+    "value": 0.6
+   },
+   "first_moment_m2": [
+    {
+     "exact": "(18/5)",
+     "decimal": "3.600000000000000000000000000000000000000e+0",
+     "value": 3.6
+    },
+    {
+     "exact": "(759/50)",
+     "decimal": "1.518000000000000000000000000000000000000e+1",
+     "value": 15.18
+    },
+    {
+     "exact": "(837/200)",
+     "decimal": "4.185000000000000000000000000000000000000e+0",
+     "value": 4.185
+    }
+   ],
+   "connector_replaced": true,
+   "wind_exposed": false,
+   "seismic": "none"
+  },
+  {
+   "id": "pipe:RS-P190",
+   "from": "node:RS-190",
+   "to": "node:RS-200",
+   "section": "section:RS-S220",
+   "kind": "straight",
+   "length_m": {
+    "exact": "(12/5)",
+    "decimal": "2.400000000000000000000000000000000000000e+0",
+    "value": 2.4
+   },
+   "first_moment_m2": [
+    {
+     "exact": "(72/5)",
+     "decimal": "1.440000000000000000000000000000000000000e+1",
+     "value": 14.4
+    },
+    {
+     "exact": "(1608/25)",
+     "decimal": "6.432000000000000000000000000000000000000e+1",
+     "value": 64.32
+    },
+    {
+     "exact": "(837/50)",
+     "decimal": "1.674000000000000000000000000000000000000e+1",
+     "value": 16.74
+    }
+   ],
+   "connector_replaced": false,
+   "wind_exposed": true,
+   "seismic": "distributed"
+  },
+  {
+   "id": "pipe:RS-P200",
+   "from": "node:RS-200",
+   "to": "node:RS-210",
+   "section": "section:RS-S220",
+   "kind": "straight",
+   "length_m": {
+    "exact": "(2)",
+    "decimal": "2.000000000000000000000000000000000000000e+0",
+    "value": 2.0
+   },
+   "first_moment_m2": [
+    {
+     "exact": "(12)",
+     "decimal": "1.200000000000000000000000000000000000000e+1",
+     "value": 12.0
+    },
+    {
+     "exact": "(58)",
+     "decimal": "5.800000000000000000000000000000000000000e+1",
+     "value": 58.0
+    },
+    {
+     "exact": "(279/20)",
+     "decimal": "1.395000000000000000000000000000000000000e+1",
+     "value": 13.95
+    }
+   ],
+   "connector_replaced": false,
+   "wind_exposed": true,
+   "seismic": "distributed"
+  },
+  {
+   "id": "pipe:RS-P210",
+   "from": "node:RS-130",
+   "to": "node:RS-215",
+   "section": "section:RS-S170",
+   "kind": "straight",
+   "length_m": {
+    "exact": "(5/2)",
+    "decimal": "2.500000000000000000000000000000000000000e+0",
+    "value": 2.5
+   },
+   "first_moment_m2": [
+    {
+     "exact": "(15)",
+     "decimal": "1.500000000000000000000000000000000000000e+1",
+     "value": 15.0
+    },
+    {
+     "exact": "(75/2)",
+     "decimal": "3.750000000000000000000000000000000000000e+1",
+     "value": 37.5
+    },
+    {
+     "exact": "(115/8)",
+     "decimal": "1.437500000000000000000000000000000000000e+1",
+     "value": 14.375
+    }
+   ],
+   "connector_replaced": false,
+   "wind_exposed": false,
+   "seismic": "distributed"
+  },
+  {
+   "id": "pipe:RS-P220",
+   "from": "node:RS-215",
+   "to": "node:RS-220",
+   "section": "section:RS-S170",
+   "kind": "straight",
+   "length_m": {
+    "exact": "(9/4)",
+    "decimal": "2.250000000000000000000000000000000000000e+0",
+    "value": 2.25
+   },
+   "first_moment_m2": [
+    {
+     "exact": "(27/2)",
+     "decimal": "1.350000000000000000000000000000000000000e+1",
+     "value": 13.5
+    },
+    {
+     "exact": "(135/4)",
+     "decimal": "3.375000000000000000000000000000000000000e+1",
+     "value": 33.75
+    },
+    {
+     "exact": "(243/32)",
+     "decimal": "7.593750000000000000000000000000000000000e+0",
+     "value": 7.59375
+    }
+   ],
+   "connector_replaced": false,
+   "wind_exposed": false,
+   "seismic": "distributed"
+  },
+  {
+   "id": "pipe:RS-P225",
+   "from": "node:RS-220",
+   "to": "node:RS-225",
+   "section": "section:RS-S170",
+   "kind": "arc",
+   "length_m": {
+    "exact": "(1/8)*pi",
+    "decimal": "3.926990816987241548078304229099378605246e-1",
+    "value": 0.39269908169872414
+   },
+   "first_moment_m2": [
+    {
+     "exact": "(-1/16) + (25/32)*pi",
+     "decimal": "2.391869260617025967548940143187111628279e+0",
+     "value": 2.391869260617026
+    },
+    {
+     "exact": "(15/8)*pi",
+     "decimal": "5.890486225480862322117456343649067907870e+0",
+     "value": 5.8904862254808625
+    },
+    {
+     "exact": "(-1/16) + (9/32)*pi",
+     "decimal": "8.210729338221293483176184515473601861805e-1",
+     "value": 0.8210729338221293
+    }
+   ],
+   "connector_replaced": false,
+   "wind_exposed": false,
+   "seismic": "distributed"
+  },
+  {
+   "id": "pipe:RS-P230",
+   "from": "node:RS-225",
+   "to": "node:RS-230",
+   "section": "section:RS-S170",
+   "kind": "straight",
+   "length_m": {
+    "exact": "(7/4)",
+    "decimal": "1.750000000000000000000000000000000000000e+0",
+    "value": 1.75
+   },
+   "first_moment_m2": [
+    {
+     "exact": "(399/32)",
+     "decimal": "1.246875000000000000000000000000000000000e+1",
+     "value": 12.46875
+    },
+    {
+     "exact": "(105/4)",
+     "decimal": "2.625000000000000000000000000000000000000e+1",
+     "value": 26.25
+    },
+    {
+     "exact": "(7/2)",
+     "decimal": "3.500000000000000000000000000000000000000e+0",
+     "value": 3.5
+    }
+   ],
+   "connector_replaced": false,
+   "wind_exposed": false,
+   "seismic": "distributed"
+  }
+ ],
+ "arcs": {
+  "pipe:RS-P065": {
+   "radius_m": "2/5",
+   "corner": [
+    "6",
+    "0",
+    "1"
+   ],
+   "centre": [
+    "28/5",
+    "0",
+    "7/5"
+   ],
+   "e1": [
+    "0",
+    "0",
+    "-2/5"
+   ],
+   "e2": [
+    "2/5",
+    "0",
+    "0"
+   ]
+  },
+  "pipe:RS-P085": {
+   "radius_m": "2/5",
+   "corner": [
+    "6",
+    "0",
+    "7"
+   ],
+   "centre": [
+    "6",
+    "2/5",
+    "33/5"
+   ],
+   "e1": [
+    "0",
+    "-2/5",
+    "0"
+   ],
+   "e2": [
+    "0",
+    "0",
+    "2/5"
+   ]
+  },
+  "pipe:RS-P225": {
+   "radius_m": "1/4",
+   "corner": [
+    "6",
+    "15",
+    "2"
+   ],
+   "centre": [
+    "25/4",
+    "15",
+    "9/4"
+   ],
+   "e1": [
+    "-1/4",
+    "0",
+    "0"
+   ],
+   "e2": [
+    "0",
+    "0",
+    "-1/4"
+   ]
+  }
+ },
+ "component_qualification": [
+  {
+   "component": "component:RS-F1",
+   "kind": "flange",
+   "node": "node:RS-030",
+   "member": "pipe:RS-P020",
+   "W_N": "350",
+   "center_of_gravity_m": [
+    "-3/40",
+    "0",
+    "0"
+   ],
+   "ordered_conditions": [
+    [
+     "member resolves to a member that is not connector-replaced",
+     true
+    ],
+    [
+     "no rigid-family mapping conflict on the member",
+     true
+    ],
+    [
+     "not declared not_solver_consumed",
+     true
+    ],
+    [
+     "no nonzero centre-of-gravity coordinate that normalizes to zero",
+     true
+    ],
+    [
+     "declares mechanics_geometry_only",
+     true
+    ],
+    [
+     "its member ends at the component's node",
+     true
+    ],
+    [
+     "W normalizes to a finite positive force",
+     true
+    ],
+    [
+     "the centre of gravity normalizes to a finite global length vector",
+     true
+    ]
+   ],
+   "replaces_member_load": true
+  },
+  {
+   "component": "component:RS-V1",
+   "kind": "valve",
+   "node": "node:RS-040",
+   "member": "pipe:RS-P030",
+   "W_N": "2600",
+   "center_of_gravity_m": [
+    "-3/10",
+    "0",
+    "3/10"
+   ],
+   "ordered_conditions": [
+    [
+     "member resolves to a member that is not connector-replaced",
+     true
+    ],
+    [
+     "no rigid-family mapping conflict on the member",
+     true
+    ],
+    [
+     "not declared not_solver_consumed",
+     true
+    ],
+    [
+     "no nonzero centre-of-gravity coordinate that normalizes to zero",
+     true
+    ],
+    [
+     "declares mechanics_geometry_only",
+     true
+    ],
+    [
+     "its member ends at the component's node",
+     true
+    ],
+    [
+     "W normalizes to a finite positive force",
+     true
+    ],
+    [
+     "the centre of gravity normalizes to a finite global length vector",
+     true
+    ]
+   ],
+   "replaces_member_load": true
+  },
+  {
+   "component": "component:RS-F2",
+   "kind": "flange",
+   "node": "node:RS-050",
+   "member": "pipe:RS-P040",
+   "W_N": "350",
+   "center_of_gravity_m": [
+    "-3/40",
+    "0",
+    "0"
+   ],
+   "ordered_conditions": [
+    [
+     "member resolves to a member that is not connector-replaced",
+     true
+    ],
+    [
+     "no rigid-family mapping conflict on the member",
+     true
+    ],
+    [
+     "not declared not_solver_consumed",
+     true
+    ],
+    [
+     "no nonzero centre-of-gravity coordinate that normalizes to zero",
+     true
+    ],
+    [
+     "declares mechanics_geometry_only",
+     true
+    ],
+    [
+     "its member ends at the component's node",
+     true
+    ],
+    [
+     "W normalizes to a finite positive force",
+     true
+    ],
+    [
+     "the centre of gravity normalizes to a finite global length vector",
+     true
+    ]
+   ],
+   "replaces_member_load": true
+  },
+  {
+   "component": "component:RS-R1",
+   "kind": "reducer",
+   "node": "node:RS-160",
+   "member": "pipe:RS-P150",
+   "W_N": "300",
+   "center_of_gravity_m": [
+    "0",
+    "-1/5",
+    "1/80"
+   ],
+   "ordered_conditions": [
+    [
+     "member resolves to a member that is not connector-replaced",
+     true
+    ],
+    [
+     "no rigid-family mapping conflict on the member",
+     true
+    ],
+    [
+     "not declared not_solver_consumed",
+     true
+    ],
+    [
+     "no nonzero centre-of-gravity coordinate that normalizes to zero",
+     true
+    ],
+    [
+     "declares mechanics_geometry_only",
+     true
+    ],
+    [
+     "its member ends at the component's node",
+     true
+    ],
+    [
+     "W normalizes to a finite positive force",
+     true
+    ],
+    [
+     "the centre of gravity normalizes to a finite global length vector",
+     true
+    ]
+   ],
+   "replaces_member_load": true
+  }
+ ],
+ "cases": {
+  "RS-WIN": {
+   "generated_loads": [
+    {
+     "target": "pipe:RS-P070",
+     "kind": "distributed_on_member",
+     "direction": "+X",
+     "span_fraction": [
+      0,
+      1
+     ],
+     "intensity_N_per_m": {
+      "exact": "(2457/10)",
+      "decimal": "2.457000000000000000000000000000000000000e+2",
+      "value": 245.7
+     },
+     "inputs": {
+      "pressure_Pa": "900",
+      "shape_factor": "7/10",
+      "projected_diameter_m": "39/100"
+     }
+    },
+    {
+     "target": "pipe:RS-P080",
+     "kind": "distributed_on_member",
+     "direction": "+X",
+     "span_fraction": [
+      0,
+      1
+     ],
+     "intensity_N_per_m": {
+      "exact": "(2457/10)",
+      "decimal": "2.457000000000000000000000000000000000000e+2",
+      "value": 245.7
+     },
+     "inputs": {
+      "pressure_Pa": "900",
+      "shape_factor": "7/10",
+      "projected_diameter_m": "39/100"
+     }
+    },
+    {
+     "target": "pipe:RS-P085",
+     "kind": "distributed_on_member",
+     "direction": "+X",
+     "span_fraction": [
+      0,
+      1
+     ],
+     "intensity_N_per_m": {
+      "exact": "(2457/10)",
+      "decimal": "2.457000000000000000000000000000000000000e+2",
+      "value": 245.7
+     },
+     "inputs": {
+      "pressure_Pa": "900",
+      "shape_factor": "7/10",
+      "projected_diameter_m": "39/100"
+     }
+    },
+    {
+     "target": "pipe:RS-P090",
+     "kind": "distributed_on_member",
+     "direction": "+X",
+     "span_fraction": [
+      0,
+      1
+     ],
+     "intensity_N_per_m": {
+      "exact": "(2457/10)",
+      "decimal": "2.457000000000000000000000000000000000000e+2",
+      "value": 245.7
+     },
+     "inputs": {
+      "pressure_Pa": "900",
+      "shape_factor": "7/10",
+      "projected_diameter_m": "39/100"
+     }
+    },
+    {
+     "target": "pipe:RS-P100",
+     "kind": "distributed_on_member",
+     "direction": "+X",
+     "span_fraction": [
+      0,
+      1
+     ],
+     "intensity_N_per_m": {
+      "exact": "(2457/10)",
+      "decimal": "2.457000000000000000000000000000000000000e+2",
+      "value": 245.7
+     },
+     "inputs": {
+      "pressure_Pa": "900",
+      "shape_factor": "7/10",
+      "projected_diameter_m": "39/100"
+     }
+    },
+    {
+     "target": "pipe:RS-P110",
+     "kind": "distributed_on_member",
+     "direction": "+X",
+     "span_fraction": [
+      0,
+      1
+     ],
+     "intensity_N_per_m": {
+      "exact": "(2457/10)",
+      "decimal": "2.457000000000000000000000000000000000000e+2",
+      "value": 245.7
+     },
+     "inputs": {
+      "pressure_Pa": "900",
+      "shape_factor": "7/10",
+      "projected_diameter_m": "39/100"
+     }
+    },
+    {
+     "target": "pipe:RS-P120",
+     "kind": "distributed_on_member",
+     "direction": "+X",
+     "span_fraction": [
+      0,
+      1
+     ],
+     "intensity_N_per_m": {
+      "exact": "(2457/10)",
+      "decimal": "2.457000000000000000000000000000000000000e+2",
+      "value": 245.7
+     },
+     "inputs": {
+      "pressure_Pa": "900",
+      "shape_factor": "7/10",
+      "projected_diameter_m": "39/100"
+     }
+    },
+    {
+     "target": "pipe:RS-P130",
+     "kind": "distributed_on_member",
+     "direction": "+X",
+     "span_fraction": [
+      0,
+      1
+     ],
+     "intensity_N_per_m": {
+      "exact": "(2457/10)",
+      "decimal": "2.457000000000000000000000000000000000000e+2",
+      "value": 245.7
+     },
+     "inputs": {
+      "pressure_Pa": "900",
+      "shape_factor": "7/10",
+      "projected_diameter_m": "39/100"
+     }
+    },
+    {
+     "target": "pipe:RS-P140",
+     "kind": "distributed_on_member",
+     "direction": "+X",
+     "span_fraction": [
+      0,
+      1
+     ],
+     "intensity_N_per_m": {
+      "exact": "(2457/10)",
+      "decimal": "2.457000000000000000000000000000000000000e+2",
+      "value": 245.7
+     },
+     "inputs": {
+      "pressure_Pa": "900",
+      "shape_factor": "7/10",
+      "projected_diameter_m": "39/100"
+     }
+    },
+    {
+     "target": "pipe:RS-P150",
+     "kind": "distributed_on_member",
+     "direction": "+X",
+     "span_fraction": [
+      0,
+      1
+     ],
+     "intensity_N_per_m": {
+      "exact": "(2457/10)",
+      "decimal": "2.457000000000000000000000000000000000000e+2",
+      "value": 245.7
+     },
+     "inputs": {
+      "pressure_Pa": "900",
+      "shape_factor": "7/10",
+      "projected_diameter_m": "39/100"
+     }
+    },
+    {
+     "target": "pipe:RS-P160",
+     "kind": "distributed_on_member",
+     "direction": "+X",
+     "span_fraction": [
+      0,
+      1
+     ],
+     "intensity_N_per_m": {
+      "exact": "(1071/5)",
+      "decimal": "2.142000000000000000000000000000000000000e+2",
+      "value": 214.2
+     },
+     "inputs": {
+      "pressure_Pa": "900",
+      "shape_factor": "7/10",
+      "projected_diameter_m": "17/50"
+     }
+    },
+    {
+     "target": "pipe:RS-P170",
+     "kind": "distributed_on_member",
+     "direction": "+X",
+     "span_fraction": [
+      0,
+      1
+     ],
+     "intensity_N_per_m": {
+      "exact": "(1071/5)",
+      "decimal": "2.142000000000000000000000000000000000000e+2",
+      "value": 214.2
+     },
+     "inputs": {
+      "pressure_Pa": "900",
+      "shape_factor": "7/10",
+      "projected_diameter_m": "17/50"
+     }
+    },
+    {
+     "target": "pipe:RS-P190",
+     "kind": "distributed_on_member",
+     "direction": "+X",
+     "span_fraction": [
+      0,
+      1
+     ],
+     "intensity_N_per_m": {
+      "exact": "(1071/5)",
+      "decimal": "2.142000000000000000000000000000000000000e+2",
+      "value": 214.2
+     },
+     "inputs": {
+      "pressure_Pa": "900",
+      "shape_factor": "7/10",
+      "projected_diameter_m": "17/50"
+     }
+    },
+    {
+     "target": "pipe:RS-P200",
+     "kind": "distributed_on_member",
+     "direction": "+X",
+     "span_fraction": [
+      0,
+      1
+     ],
+     "intensity_N_per_m": {
+      "exact": "(1071/5)",
+      "decimal": "2.142000000000000000000000000000000000000e+2",
+      "value": 214.2
+     },
+     "inputs": {
+      "pressure_Pa": "900",
+      "shape_factor": "7/10",
+      "projected_diameter_m": "17/50"
+     }
+    }
+   ],
+   "generated_load_counts": {
+    "distributed_on_member": 14
+   },
+   "resultant": {
+    "force_N": [
+     {
+      "exact": "(200529/25) + (2457/400)*sqrt(257) + (2457/50)*pi",
+      "decimal": "8.274009629033408923051776592453456273693e+3",
+      "value": 8274.00962903341
+     },
+     {
+      "exact": "0",
+      "decimal": "0",
+      "value": 0.0
+     },
+     {
+      "exact": "0",
+      "decimal": "0",
+      "value": 0.0
+     }
+    ],
+    "moment_about_origin_N_m": [
+     {
+      "exact": "0",
+      "decimal": "0",
+      "value": 0.0
+     },
+     {
+      "exact": "(52306317/1000) + (1373463/32000)*sqrt(257) + (81081/250)*pi",
+      "decimal": "5.401328236095945140442579290012496323838e+4",
+      "value": 54013.28236095945
+     },
+     {
+      "exact": "(-4882437/50) + (-248157/2000)*sqrt(257) + (-2457/125)*pi",
+      "decimal": "-9.969962081912629193883241210964359224835e+4",
+      "value": -99699.62081912628
+     }
+    ]
+   },
+   "EQ-6": {
+    "term": "RS-dWIN",
+    "expected_reaction_force_resultant_N": [
+     {
+      "exact": "(-200529/25) + (-2457/400)*sqrt(257) + (-2457/50)*pi",
+      "decimal": "-8.274009629033408923051776592453456273693e+3",
+      "value": -8274.00962903341
+     },
+     {
+      "exact": "0",
+      "decimal": "0",
+      "value": 0.0
+     },
+     {
+      "exact": "0",
+      "decimal": "0",
+      "value": 0.0
+     }
+    ],
+    "expected_reaction_moment_resultant_about_origin_N_m": [
+     {
+      "exact": "0",
+      "decimal": "0",
+      "value": 0.0
+     },
+     {
+      "exact": "(-52306317/1000) + (-1373463/32000)*sqrt(257) + (-81081/250)*pi",
+      "decimal": "-5.401328236095945140442579290012496323838e+4",
+      "value": -54013.28236095945
+     },
+     {
+      "exact": "(4882437/50) + (248157/2000)*sqrt(257) + (2457/125)*pi",
+      "decimal": "9.969962081912629193883241210964359224835e+4",
+      "value": 99699.62081912628
+     }
+    ]
+   },
+   "floors": {
+    "force_N": {
+     "zero_scale": 8274.00962903341,
+     "floor": 8.27400962903341e-06,
+     "exact_zero_components": [
+      "y",
+      "z"
+     ]
+    },
+    "moment_N_m": {
+     "zero_scale": 99699.62081912628,
+     "floor": 9.969962081912629e-05,
+     "exact_zero_components": [
+      "x"
+     ]
+    }
+   },
+   "seismic_model_check": {
+    "expected_findings": "none",
+    "why": "RS-WIN is not a seismic case; AC-007: none of those findings otherwise"
+   }
+  },
+  "RS-EQX": {
+   "generated_loads": [
+    {
+     "target": "pipe:RS-P010",
+     "kind": "distributed_on_member",
+     "direction": "+X",
+     "span_fraction": [
+      0,
+      1
+     ],
+     "intensity_N_per_m": {
+      "exact": "(4089572517261/40000000000)*pi",
+      "decimal": "3.211942744137468875579047436667625561918e+2",
+      "value": 321.1942744137469
+     },
+     "inputs": {
+      "g_factor": "3/10",
+      "gravity_m_per_s2": "196133/20000",
+      "mass_per_length_kg_per_m": {
+       "exact": "(6950339/200000)*pi",
+       "decimal": "1.091756697117931497361160517494973839832e+2",
+       "value": 109.17566971179315
+      },
+      "mass_basis": "source_od_nominal_wall_pressure_bore_areas/v1"
+     }
+    },
+    {
+     "target": "pipe:RS-P050",
+     "kind": "distributed_on_member",
+     "direction": "+X",
+     "span_fraction": [
+      0,
+      1
+     ],
+     "intensity_N_per_m": {
+      "exact": "(4089572517261/40000000000)*pi",
+      "decimal": "3.211942744137468875579047436667625561918e+2",
+      "value": 321.1942744137469
+     },
+     "inputs": {
+      "g_factor": "3/10",
+      "gravity_m_per_s2": "196133/20000",
+      "mass_per_length_kg_per_m": {
+       "exact": "(6950339/200000)*pi",
+       "decimal": "1.091756697117931497361160517494973839832e+2",
+       "value": 109.17566971179315
+      },
+      "mass_basis": "source_od_nominal_wall_pressure_bore_areas/v1"
+     }
+    },
+    {
+     "target": "pipe:RS-P060",
+     "kind": "distributed_on_member",
+     "direction": "+X",
+     "span_fraction": [
+      0,
+      1
+     ],
+     "intensity_N_per_m": {
+      "exact": "(4089572517261/40000000000)*pi",
+      "decimal": "3.211942744137468875579047436667625561918e+2",
+      "value": 321.1942744137469
+     },
+     "inputs": {
+      "g_factor": "3/10",
+      "gravity_m_per_s2": "196133/20000",
+      "mass_per_length_kg_per_m": {
+       "exact": "(6950339/200000)*pi",
+       "decimal": "1.091756697117931497361160517494973839832e+2",
+       "value": 109.17566971179315
+      },
+      "mass_basis": "source_od_nominal_wall_pressure_bore_areas/v1"
+     }
+    },
+    {
+     "target": "pipe:RS-P065",
+     "kind": "distributed_on_member",
+     "direction": "+X",
+     "span_fraction": [
+      0,
+      1
+     ],
+     "intensity_N_per_m": {
+      "exact": "(4089572517261/40000000000)*pi",
+      "decimal": "3.211942744137468875579047436667625561918e+2",
+      "value": 321.1942744137469
+     },
+     "inputs": {
+      "g_factor": "3/10",
+      "gravity_m_per_s2": "196133/20000",
+      "mass_per_length_kg_per_m": {
+       "exact": "(6950339/200000)*pi",
+       "decimal": "1.091756697117931497361160517494973839832e+2",
+       "value": 109.17566971179315
+      },
+      "mass_basis": "source_od_nominal_wall_pressure_bore_areas/v1"
+     }
+    },
+    {
+     "target": "pipe:RS-P070",
+     "kind": "distributed_on_member",
+     "direction": "+X",
+     "span_fraction": [
+      0,
+      1
+     ],
+     "intensity_N_per_m": {
+      "exact": "(4089572517261/40000000000)*pi",
+      "decimal": "3.211942744137468875579047436667625561918e+2",
+      "value": 321.1942744137469
+     },
+     "inputs": {
+      "g_factor": "3/10",
+      "gravity_m_per_s2": "196133/20000",
+      "mass_per_length_kg_per_m": {
+       "exact": "(6950339/200000)*pi",
+       "decimal": "1.091756697117931497361160517494973839832e+2",
+       "value": 109.17566971179315
+      },
+      "mass_basis": "source_od_nominal_wall_pressure_bore_areas/v1"
+     }
+    },
+    {
+     "target": "pipe:RS-P080",
+     "kind": "distributed_on_member",
+     "direction": "+X",
+     "span_fraction": [
+      0,
+      1
+     ],
+     "intensity_N_per_m": {
+      "exact": "(4089572517261/40000000000)*pi",
+      "decimal": "3.211942744137468875579047436667625561918e+2",
+      "value": 321.1942744137469
+     },
+     "inputs": {
+      "g_factor": "3/10",
+      "gravity_m_per_s2": "196133/20000",
+      "mass_per_length_kg_per_m": {
+       "exact": "(6950339/200000)*pi",
+       "decimal": "1.091756697117931497361160517494973839832e+2",
+       "value": 109.17566971179315
+      },
+      "mass_basis": "source_od_nominal_wall_pressure_bore_areas/v1"
+     }
+    },
+    {
+     "target": "pipe:RS-P085",
+     "kind": "distributed_on_member",
+     "direction": "+X",
+     "span_fraction": [
+      0,
+      1
+     ],
+     "intensity_N_per_m": {
+      "exact": "(4089572517261/40000000000)*pi",
+      "decimal": "3.211942744137468875579047436667625561918e+2",
+      "value": 321.1942744137469
+     },
+     "inputs": {
+      "g_factor": "3/10",
+      "gravity_m_per_s2": "196133/20000",
+      "mass_per_length_kg_per_m": {
+       "exact": "(6950339/200000)*pi",
+       "decimal": "1.091756697117931497361160517494973839832e+2",
+       "value": 109.17566971179315
+      },
+      "mass_basis": "source_od_nominal_wall_pressure_bore_areas/v1"
+     }
+    },
+    {
+     "target": "pipe:RS-P090",
+     "kind": "distributed_on_member",
+     "direction": "+X",
+     "span_fraction": [
+      0,
+      1
+     ],
+     "intensity_N_per_m": {
+      "exact": "(4089572517261/40000000000)*pi",
+      "decimal": "3.211942744137468875579047436667625561918e+2",
+      "value": 321.1942744137469
+     },
+     "inputs": {
+      "g_factor": "3/10",
+      "gravity_m_per_s2": "196133/20000",
+      "mass_per_length_kg_per_m": {
+       "exact": "(6950339/200000)*pi",
+       "decimal": "1.091756697117931497361160517494973839832e+2",
+       "value": 109.17566971179315
+      },
+      "mass_basis": "source_od_nominal_wall_pressure_bore_areas/v1"
+     }
+    },
+    {
+     "target": "pipe:RS-P100",
+     "kind": "distributed_on_member",
+     "direction": "+X",
+     "span_fraction": [
+      0,
+      1
+     ],
+     "intensity_N_per_m": {
+      "exact": "(4089572517261/40000000000)*pi",
+      "decimal": "3.211942744137468875579047436667625561918e+2",
+      "value": 321.1942744137469
+     },
+     "inputs": {
+      "g_factor": "3/10",
+      "gravity_m_per_s2": "196133/20000",
+      "mass_per_length_kg_per_m": {
+       "exact": "(6950339/200000)*pi",
+       "decimal": "1.091756697117931497361160517494973839832e+2",
+       "value": 109.17566971179315
+      },
+      "mass_basis": "source_od_nominal_wall_pressure_bore_areas/v1"
+     }
+    },
+    {
+     "target": "pipe:RS-P110",
+     "kind": "distributed_on_member",
+     "direction": "+X",
+     "span_fraction": [
+      0,
+      1
+     ],
+     "intensity_N_per_m": {
+      "exact": "(4089572517261/40000000000)*pi",
+      "decimal": "3.211942744137468875579047436667625561918e+2",
+      "value": 321.1942744137469
+     },
+     "inputs": {
+      "g_factor": "3/10",
+      "gravity_m_per_s2": "196133/20000",
+      "mass_per_length_kg_per_m": {
+       "exact": "(6950339/200000)*pi",
+       "decimal": "1.091756697117931497361160517494973839832e+2",
+       "value": 109.17566971179315
+      },
+      "mass_basis": "source_od_nominal_wall_pressure_bore_areas/v1"
+     }
+    },
+    {
+     "target": "pipe:RS-P120",
+     "kind": "distributed_on_member",
+     "direction": "+X",
+     "span_fraction": [
+      0,
+      1
+     ],
+     "intensity_N_per_m": {
+      "exact": "(4089572517261/40000000000)*pi",
+      "decimal": "3.211942744137468875579047436667625561918e+2",
+      "value": 321.1942744137469
+     },
+     "inputs": {
+      "g_factor": "3/10",
+      "gravity_m_per_s2": "196133/20000",
+      "mass_per_length_kg_per_m": {
+       "exact": "(6950339/200000)*pi",
+       "decimal": "1.091756697117931497361160517494973839832e+2",
+       "value": 109.17566971179315
+      },
+      "mass_basis": "source_od_nominal_wall_pressure_bore_areas/v1"
+     }
+    },
+    {
+     "target": "pipe:RS-P130",
+     "kind": "distributed_on_member",
+     "direction": "+X",
+     "span_fraction": [
+      0,
+      1
+     ],
+     "intensity_N_per_m": {
+      "exact": "(4089572517261/40000000000)*pi",
+      "decimal": "3.211942744137468875579047436667625561918e+2",
+      "value": 321.1942744137469
+     },
+     "inputs": {
+      "g_factor": "3/10",
+      "gravity_m_per_s2": "196133/20000",
+      "mass_per_length_kg_per_m": {
+       "exact": "(6950339/200000)*pi",
+       "decimal": "1.091756697117931497361160517494973839832e+2",
+       "value": 109.17566971179315
+      },
+      "mass_basis": "source_od_nominal_wall_pressure_bore_areas/v1"
+     }
+    },
+    {
+     "target": "pipe:RS-P140",
+     "kind": "distributed_on_member",
+     "direction": "+X",
+     "span_fraction": [
+      0,
+      1
+     ],
+     "intensity_N_per_m": {
+      "exact": "(4089572517261/40000000000)*pi",
+      "decimal": "3.211942744137468875579047436667625561918e+2",
+      "value": 321.1942744137469
+     },
+     "inputs": {
+      "g_factor": "3/10",
+      "gravity_m_per_s2": "196133/20000",
+      "mass_per_length_kg_per_m": {
+       "exact": "(6950339/200000)*pi",
+       "decimal": "1.091756697117931497361160517494973839832e+2",
+       "value": 109.17566971179315
+      },
+      "mass_basis": "source_od_nominal_wall_pressure_bore_areas/v1"
+     }
+    },
+    {
+     "target": "pipe:RS-P160",
+     "kind": "distributed_on_member",
+     "direction": "+X",
+     "span_fraction": [
+      0,
+      1
+     ],
+     "intensity_N_per_m": {
+      "exact": "(4523882763939/62500000000)*pi",
+      "decimal": "2.273951497102760192949746699512090823348e+2",
+      "value": 227.39514971027603
+     },
+     "inputs": {
+      "g_factor": "3/10",
+      "gravity_m_per_s2": "196133/20000",
+      "mass_per_length_kg_per_m": {
+       "exact": "(7688461/312500)*pi",
+       "decimal": "7.729284030403723299834794754960803207852e+1",
+       "value": 77.29284030403723
+      },
+      "mass_basis": "source_od_nominal_wall_pressure_bore_areas/v1"
+     }
+    },
+    {
+     "target": "pipe:RS-P170",
+     "kind": "distributed_on_member",
+     "direction": "+X",
+     "span_fraction": [
+      0,
+      1
+     ],
+     "intensity_N_per_m": {
+      "exact": "(4523882763939/62500000000)*pi",
+      "decimal": "2.273951497102760192949746699512090823348e+2",
+      "value": 227.39514971027603
+     },
+     "inputs": {
+      "g_factor": "3/10",
+      "gravity_m_per_s2": "196133/20000",
+      "mass_per_length_kg_per_m": {
+       "exact": "(7688461/312500)*pi",
+       "decimal": "7.729284030403723299834794754960803207852e+1",
+       "value": 77.29284030403723
+      },
+      "mass_basis": "source_od_nominal_wall_pressure_bore_areas/v1"
+     }
+    },
+    {
+     "target": "pipe:RS-P190",
+     "kind": "distributed_on_member",
+     "direction": "+X",
+     "span_fraction": [
+      0,
+      1
+     ],
+     "intensity_N_per_m": {
+      "exact": "(4523882763939/62500000000)*pi",
+      "decimal": "2.273951497102760192949746699512090823348e+2",
+      "value": 227.39514971027603
+     },
+     "inputs": {
+      "g_factor": "3/10",
+      "gravity_m_per_s2": "196133/20000",
+      "mass_per_length_kg_per_m": {
+       "exact": "(7688461/312500)*pi",
+       "decimal": "7.729284030403723299834794754960803207852e+1",
+       "value": 77.29284030403723
+      },
+      "mass_basis": "source_od_nominal_wall_pressure_bore_areas/v1"
+     }
+    },
+    {
+     "target": "pipe:RS-P200",
+     "kind": "distributed_on_member",
+     "direction": "+X",
+     "span_fraction": [
+      0,
+      1
+     ],
+     "intensity_N_per_m": {
+      "exact": "(4523882763939/62500000000)*pi",
+      "decimal": "2.273951497102760192949746699512090823348e+2",
+      "value": 227.39514971027603
+     },
+     "inputs": {
+      "g_factor": "3/10",
+      "gravity_m_per_s2": "196133/20000",
+      "mass_per_length_kg_per_m": {
+       "exact": "(7688461/312500)*pi",
+       "decimal": "7.729284030403723299834794754960803207852e+1",
+       "value": 77.29284030403723
+      },
+      "mass_basis": "source_od_nominal_wall_pressure_bore_areas/v1"
+     }
+    },
+    {
+     "target": "pipe:RS-P210",
+     "kind": "distributed_on_member",
+     "direction": "+X",
+     "span_fraction": [
+      0,
+      1
+     ],
+     "intensity_N_per_m": {
+      "exact": "(46437284018181/1000000000000)*pi",
+      "decimal": "1.458870303241801441506855250485604461637e+2",
+      "value": 145.88703032418013
+     },
+     "inputs": {
+      "g_factor": "3/10",
+      "gravity_m_per_s2": "196133/20000",
+      "mass_per_length_kg_per_m": {
+       "exact": "(78921419/5000000)*pi",
+       "decimal": "4.958779002825638525921543885987584824709e+1",
+       "value": 49.587790028256386
+      },
+      "mass_basis": "source_od_nominal_wall_pressure_bore_areas/v1"
+     }
+    },
+    {
+     "target": "pipe:RS-P220",
+     "kind": "distributed_on_member",
+     "direction": "+X",
+     "span_fraction": [
+      0,
+      1
+     ],
+     "intensity_N_per_m": {
+      "exact": "(46437284018181/1000000000000)*pi",
+      "decimal": "1.458870303241801441506855250485604461637e+2",
+      "value": 145.88703032418013
+     },
+     "inputs": {
+      "g_factor": "3/10",
+      "gravity_m_per_s2": "196133/20000",
+      "mass_per_length_kg_per_m": {
+       "exact": "(78921419/5000000)*pi",
+       "decimal": "4.958779002825638525921543885987584824709e+1",
+       "value": 49.587790028256386
+      },
+      "mass_basis": "source_od_nominal_wall_pressure_bore_areas/v1"
+     }
+    },
+    {
+     "target": "pipe:RS-P225",
+     "kind": "distributed_on_member",
+     "direction": "+X",
+     "span_fraction": [
+      0,
+      1
+     ],
+     "intensity_N_per_m": {
+      "exact": "(46437284018181/1000000000000)*pi",
+      "decimal": "1.458870303241801441506855250485604461637e+2",
+      "value": 145.88703032418013
+     },
+     "inputs": {
+      "g_factor": "3/10",
+      "gravity_m_per_s2": "196133/20000",
+      "mass_per_length_kg_per_m": {
+       "exact": "(78921419/5000000)*pi",
+       "decimal": "4.958779002825638525921543885987584824709e+1",
+       "value": 49.587790028256386
+      },
+      "mass_basis": "source_od_nominal_wall_pressure_bore_areas/v1"
+     }
+    },
+    {
+     "target": "pipe:RS-P230",
+     "kind": "distributed_on_member",
+     "direction": "+X",
+     "span_fraction": [
+      0,
+      1
+     ],
+     "intensity_N_per_m": {
+      "exact": "(46437284018181/1000000000000)*pi",
+      "decimal": "1.458870303241801441506855250485604461637e+2",
+      "value": 145.88703032418013
+     },
+     "inputs": {
+      "g_factor": "3/10",
+      "gravity_m_per_s2": "196133/20000",
+      "mass_per_length_kg_per_m": {
+       "exact": "(78921419/5000000)*pi",
+       "decimal": "4.958779002825638525921543885987584824709e+1",
+       "value": 49.587790028256386
+      },
+      "mass_basis": "source_od_nominal_wall_pressure_bore_areas/v1"
+     }
+    },
+    {
+     "target": "node:RS-030",
+     "component": "component:RS-F1",
+     "kind": "component_force",
+     "direction": "+X",
+     "value_N": {
+      "exact": "(105)",
+      "decimal": "1.050000000000000000000000000000000000000e+2",
+      "value": 105.0
+     },
+     "binary64_by_formation": {
+      "value": 105.0,
+      "bits": "405a400000000000",
+      "exact_of_binary64": "105"
+     },
+     "required_nonzero": true,
+     "inputs": {
+      "g_factor": "3/10",
+      "W_N": "350",
+      "center_of_gravity_m": [
+       "-3/40",
+       "0",
+       "0"
+      ],
+      "normalized_binary64": {
+       "k": [
+        "3fd3333333333333",
+        "5404319552844595/18014398509481984"
+       ],
+       "W": [
+        "4075e00000000000",
+        "350"
+       ],
+       "r": {
+        "x": [
+         "bfb3333333333333",
+         "-5404319552844595/72057594037927936"
+        ],
+        "y": [
+         "0000000000000000",
+         "0"
+        ],
+        "z": [
+         "0000000000000000",
+         "0"
+        ]
+       }
+      }
+     }
+    },
+    {
+     "target": "node:RS-030",
+     "component": "component:RS-F1",
+     "kind": "component_moment",
+     "axis": "y",
+     "formed_as": "RN(r_z * F)",
+     "value_N_m": {
+      "exact": "0",
+      "decimal": "0",
+      "value": 0.0
+     },
+     "binary64_by_formation": {
+      "value": 0.0,
+      "bits": "0000000000000000",
+      "exact_of_binary64": "0",
+      "sign_of_zero": "not fixed by the scope; +0 and -0 both satisfy it"
+     },
+     "required_nonzero": false,
+     "record_emitted_when_zero": null
+    },
+    {
+     "target": "node:RS-030",
+     "component": "component:RS-F1",
+     "kind": "component_moment",
+     "axis": "z",
+     "formed_as": "-RN(r_y * F)",
+     "value_N_m": {
+      "exact": "0",
+      "decimal": "0",
+      "value": 0.0
+     },
+     "binary64_by_formation": {
+      "value": 0.0,
+      "bits": "0000000000000000",
+      "exact_of_binary64": "0",
+      "sign_of_zero": "not fixed by the scope; +0 and -0 both satisfy it"
+     },
+     "required_nonzero": false,
+     "record_emitted_when_zero": null
+    },
+    {
+     "target": "node:RS-040",
+     "component": "component:RS-V1",
+     "kind": "component_force",
+     "direction": "+X",
+     "value_N": {
+      "exact": "(780)",
+      "decimal": "7.800000000000000000000000000000000000000e+2",
+      "value": 780.0
+     },
+     "binary64_by_formation": {
+      "value": 780.0,
+      "bits": "4088600000000000",
+      "exact_of_binary64": "780"
+     },
+     "required_nonzero": true,
+     "inputs": {
+      "g_factor": "3/10",
+      "W_N": "2600",
+      "center_of_gravity_m": [
+       "-3/10",
+       "0",
+       "3/10"
+      ],
+      "normalized_binary64": {
+       "k": [
+        "3fd3333333333333",
+        "5404319552844595/18014398509481984"
+       ],
+       "W": [
+        "40a4500000000000",
+        "2600"
+       ],
+       "r": {
+        "x": [
+         "bfd3333333333333",
+         "-5404319552844595/18014398509481984"
+        ],
+        "y": [
+         "0000000000000000",
+         "0"
+        ],
+        "z": [
+         "3fd3333333333333",
+         "5404319552844595/18014398509481984"
+        ]
+       }
+      }
+     }
+    },
+    {
+     "target": "node:RS-040",
+     "component": "component:RS-V1",
+     "kind": "component_moment",
+     "axis": "y",
+     "formed_as": "RN(r_z * F)",
+     "value_N_m": {
+      "exact": "(234)",
+      "decimal": "2.340000000000000000000000000000000000000e+2",
+      "value": 234.0
+     },
+     "binary64_by_formation": {
+      "value": 234.0,
+      "bits": "406d400000000000",
+      "exact_of_binary64": "234"
+     },
+     "required_nonzero": true,
+     "record_emitted_when_zero": true
+    },
+    {
+     "target": "node:RS-040",
+     "component": "component:RS-V1",
+     "kind": "component_moment",
+     "axis": "z",
+     "formed_as": "-RN(r_y * F)",
+     "value_N_m": {
+      "exact": "0",
+      "decimal": "0",
+      "value": 0.0
+     },
+     "binary64_by_formation": {
+      "value": 0.0,
+      "bits": "0000000000000000",
+      "exact_of_binary64": "0",
+      "sign_of_zero": "not fixed by the scope; +0 and -0 both satisfy it"
+     },
+     "required_nonzero": false,
+     "record_emitted_when_zero": null
+    },
+    {
+     "target": "node:RS-050",
+     "component": "component:RS-F2",
+     "kind": "component_force",
+     "direction": "+X",
+     "value_N": {
+      "exact": "(105)",
+      "decimal": "1.050000000000000000000000000000000000000e+2",
+      "value": 105.0
+     },
+     "binary64_by_formation": {
+      "value": 105.0,
+      "bits": "405a400000000000",
+      "exact_of_binary64": "105"
+     },
+     "required_nonzero": true,
+     "inputs": {
+      "g_factor": "3/10",
+      "W_N": "350",
+      "center_of_gravity_m": [
+       "-3/40",
+       "0",
+       "0"
+      ],
+      "normalized_binary64": {
+       "k": [
+        "3fd3333333333333",
+        "5404319552844595/18014398509481984"
+       ],
+       "W": [
+        "4075e00000000000",
+        "350"
+       ],
+       "r": {
+        "x": [
+         "bfb3333333333333",
+         "-5404319552844595/72057594037927936"
+        ],
+        "y": [
+         "0000000000000000",
+         "0"
+        ],
+        "z": [
+         "0000000000000000",
+         "0"
+        ]
+       }
+      }
+     }
+    },
+    {
+     "target": "node:RS-050",
+     "component": "component:RS-F2",
+     "kind": "component_moment",
+     "axis": "y",
+     "formed_as": "RN(r_z * F)",
+     "value_N_m": {
+      "exact": "0",
+      "decimal": "0",
+      "value": 0.0
+     },
+     "binary64_by_formation": {
+      "value": 0.0,
+      "bits": "0000000000000000",
+      "exact_of_binary64": "0",
+      "sign_of_zero": "not fixed by the scope; +0 and -0 both satisfy it"
+     },
+     "required_nonzero": false,
+     "record_emitted_when_zero": null
+    },
+    {
+     "target": "node:RS-050",
+     "component": "component:RS-F2",
+     "kind": "component_moment",
+     "axis": "z",
+     "formed_as": "-RN(r_y * F)",
+     "value_N_m": {
+      "exact": "0",
+      "decimal": "0",
+      "value": 0.0
+     },
+     "binary64_by_formation": {
+      "value": 0.0,
+      "bits": "0000000000000000",
+      "exact_of_binary64": "0",
+      "sign_of_zero": "not fixed by the scope; +0 and -0 both satisfy it"
+     },
+     "required_nonzero": false,
+     "record_emitted_when_zero": null
+    },
+    {
+     "target": "node:RS-160",
+     "component": "component:RS-R1",
+     "kind": "component_force",
+     "direction": "+X",
+     "value_N": {
+      "exact": "(90)",
+      "decimal": "9.000000000000000000000000000000000000000e+1",
+      "value": 90.0
+     },
+     "binary64_by_formation": {
+      "value": 90.0,
+      "bits": "4056800000000000",
+      "exact_of_binary64": "90"
+     },
+     "required_nonzero": true,
+     "inputs": {
+      "g_factor": "3/10",
+      "W_N": "300",
+      "center_of_gravity_m": [
+       "0",
+       "-1/5",
+       "1/80"
+      ],
+      "normalized_binary64": {
+       "k": [
+        "3fd3333333333333",
+        "5404319552844595/18014398509481984"
+       ],
+       "W": [
+        "4072c00000000000",
+        "300"
+       ],
+       "r": {
+        "x": [
+         "0000000000000000",
+         "0"
+        ],
+        "y": [
+         "bfc999999999999a",
+         "-3602879701896397/18014398509481984"
+        ],
+        "z": [
+         "3f8999999999999a",
+         "3602879701896397/288230376151711744"
+        ]
+       }
+      }
+     }
+    },
+    {
+     "target": "node:RS-160",
+     "component": "component:RS-R1",
+     "kind": "component_moment",
+     "axis": "y",
+     "formed_as": "RN(r_z * F)",
+     "value_N_m": {
+      "exact": "(9/8)",
+      "decimal": "1.125000000000000000000000000000000000000e+0",
+      "value": 1.125
+     },
+     "binary64_by_formation": {
+      "value": 1.125,
+      "bits": "3ff2000000000000",
+      "exact_of_binary64": "9/8"
+     },
+     "required_nonzero": true,
+     "record_emitted_when_zero": true
+    },
+    {
+     "target": "node:RS-160",
+     "component": "component:RS-R1",
+     "kind": "component_moment",
+     "axis": "z",
+     "formed_as": "-RN(r_y * F)",
+     "value_N_m": {
+      "exact": "(18)",
+      "decimal": "1.800000000000000000000000000000000000000e+1",
+      "value": 18.0
+     },
+     "binary64_by_formation": {
+      "value": 18.0,
+      "bits": "4032000000000000",
+      "exact_of_binary64": "18"
+     },
+     "required_nonzero": true,
+     "record_emitted_when_zero": true
+    }
+   ],
+   "generated_load_counts": {
+    "distributed_on_member": 21,
+    "component_force": 4,
+    "component_moment zero": 5,
+    "component_moment required nonzero": 3
+   },
+   "resultant": {
+    "force_N": [
+     {
+      "exact": "(1080) + (198467059780269/50000000000)*pi + (373603085399061/8000000000000)*pi^2",
+      "decimal": "1.401096747169458028641379606576466698561e+4",
+      "value": 14010.967471694581
+     },
+     {
+      "exact": "0",
+      "decimal": "0",
+      "value": 0.0
+     },
+     {
+      "exact": "0",
+      "decimal": "0",
+      "value": 0.0
+     }
+    ],
+    "moment_about_origin_N_m": [
+     {
+      "exact": "0",
+      "decimal": "0",
+      "value": 0.0
+     },
+     {
+      "exact": "(14823/8) + (3577267409463417621/160000000000000)*pi + (5652588378257709/32000000000000)*pi^2",
+      "decimal": "7.383575668234036140889456311065149278344e+4",
+      "value": 73835.75668234036
+     },
+     {
+      "exact": "(-1818) + (-2068144159465127163/50000000000000)*pi + (-761992420548891/8000000000000)*pi^2",
+      "decimal": "-1.327034004272363854331429332666085953923e+5",
+      "value": -132703.4004272364
+     }
+    ]
+   },
+   "EQ-6": {
+    "term": "RS-dEQX",
+    "expected_reaction_force_resultant_N": [
+     {
+      "exact": "(-1080) + (-198467059780269/50000000000)*pi + (-373603085399061/8000000000000)*pi^2",
+      "decimal": "-1.401096747169458028641379606576466698561e+4",
+      "value": -14010.967471694581
+     },
+     {
+      "exact": "0",
+      "decimal": "0",
+      "value": 0.0
+     },
+     {
+      "exact": "0",
+      "decimal": "0",
+      "value": 0.0
+     }
+    ],
+    "expected_reaction_moment_resultant_about_origin_N_m": [
+     {
+      "exact": "0",
+      "decimal": "0",
+      "value": 0.0
+     },
+     {
+      "exact": "(-14823/8) + (-3577267409463417621/160000000000000)*pi + (-5652588378257709/32000000000000)*pi^2",
+      "decimal": "-7.383575668234036140889456311065149278344e+4",
+      "value": -73835.75668234036
+     },
+     {
+      "exact": "(1818) + (2068144159465127163/50000000000000)*pi + (761992420548891/8000000000000)*pi^2",
+      "decimal": "1.327034004272363854331429332666085953923e+5",
+      "value": 132703.4004272364
+     }
+    ]
+   },
+   "floors": {
+    "force_N": {
+     "zero_scale": 14010.967471694581,
+     "floor": 1.4010967471694583e-05,
+     "exact_zero_components": [
+      "y",
+      "z"
+     ]
+    },
+    "moment_N_m": {
+     "zero_scale": 132703.4004272364,
+     "floor": 0.0001327034004272364,
+     "exact_zero_components": [
+      "x"
+     ]
+    }
+   },
+   "pipes_only_twin": {
+    "what": "every non-replaced member keeps k·g·μ, no component force",
+    "force_N": [
+     {
+      "exact": "(1624542630897501/400000000000)*pi + (4089572517261/1600000000000)*sqrt(257)*pi + (373603085399061/8000000000000)*pi^2",
+      "decimal": "1.334877071688500436546406672523716978122e+4",
+      "value": 13348.770716885005
+     },
+     {
+      "exact": "0",
+      "decimal": "0",
+      "value": 0.0
+     },
+     {
+      "exact": "0",
+      "decimal": "0",
+      "value": 0.0
+     }
+    ],
+    "moment_about_origin_N_m": [
+     {
+      "exact": "0",
+      "decimal": "0",
+      "value": 0.0
+     },
+     {
+      "exact": "(3591989870525557221/160000000000000)*pi + (2286071037148899/128000000000000)*sqrt(257)*pi + (5652588378257709/32000000000000)*pi^2",
+      "decimal": "7.317144621186137112093067015628133934307e+4",
+      "value": 73171.44621186137
+     },
+     {
+      "exact": "(-2068144159465127163/50000000000000)*pi + (-413046824243361/8000000000000)*sqrt(257)*pi + (-761992420548891/8000000000000)*pi^2",
+      "decimal": "-1.334857140712410334141556923480914085921e+5",
+      "value": -133485.71407124103
+     }
+    ],
+    "rule_minus_twin_force_N": [
+     {
+      "exact": "(1080) + (-36806152655349/400000000000)*pi + (-4089572517261/1600000000000)*sqrt(257)*pi",
+      "decimal": "6.621967548095759209497293405274972043923e+2",
+      "value": 662.196754809576
+     },
+     {
+      "exact": "0",
+      "decimal": "0",
+      "value": 0.0
+     },
+     {
+      "exact": "0",
+      "decimal": "0",
+      "value": 0.0
+     }
+    ],
+    "rule_minus_twin_moment_N_m": [
+     {
+      "exact": "0",
+      "decimal": "0",
+      "value": 0.0
+     },
+     {
+      "exact": "(14823/8) + (-36806152655349/400000000000)*pi + (-2286071037148899/128000000000000)*sqrt(257)*pi",
+      "decimal": "6.643104704789902879638929543701534403697e+2",
+      "value": 664.3104704789903
+     },
+     {
+      "exact": "(-1818) + (413046824243361/8000000000000)*sqrt(257)*pi",
+      "decimal": "7.823136440046479810127590814828131997089e+2",
+      "value": 782.3136440046479
+     }
+    ],
+    "discrimination_at_the_comparison_rule": [
+     {
+      "component": "force_x",
+      "expected_exact_zero": false,
+      "difference_over_tolerance": 47262700.0,
+      "discriminates": true
+     },
+     {
+      "component": "force_y",
+      "expected_exact_zero": true,
+      "difference_exact_zero": true,
+      "discriminates": false,
+      "why": "exact zero under both the rule and the twin"
+     },
+     {
+      "component": "force_z",
+      "expected_exact_zero": true,
+      "difference_exact_zero": true,
+      "discriminates": false,
+      "why": "exact zero under both the rule and the twin"
+     },
+     {
+      "component": "moment_x",
+      "expected_exact_zero": true,
+      "difference_exact_zero": true,
+      "discriminates": false,
+      "why": "exact zero under both the rule and the twin"
+     },
+     {
+      "component": "moment_y",
+      "expected_exact_zero": false,
+      "difference_over_tolerance": 8997140.0,
+      "discriminates": true
+     },
+     {
+      "component": "moment_z",
+      "expected_exact_zero": false,
+      "difference_over_tolerance": 5895200.0,
+      "discriminates": true
+     }
+    ]
+   },
+   "seismic_model_check": {
+    "weight_finding_required": false,
+    "weight_finding_ground": "the decision recorded in seismic_warning_decision",
+    "weight_category_loads_of_the_case": {
+     "what": "the case's 29 applied self-weight primitives (spec §8.1), its only weight-category loads; applied generated self-weight, which the decision excludes from the warning",
+     "count": 29,
+     "ids": [
+      "load:self-weight:11:load:RS-EQX:12:pipe:RS-P010",
+      "load:self-weight:11:load:RS-EQX:12:pipe:RS-P050",
+      "load:self-weight:11:load:RS-EQX:12:pipe:RS-P060",
+      "load:self-weight:11:load:RS-EQX:12:pipe:RS-P065",
+      "load:self-weight:11:load:RS-EQX:12:pipe:RS-P070",
+      "load:self-weight:11:load:RS-EQX:12:pipe:RS-P080",
+      "load:self-weight:11:load:RS-EQX:12:pipe:RS-P085",
+      "load:self-weight:11:load:RS-EQX:12:pipe:RS-P090",
+      "load:self-weight:11:load:RS-EQX:12:pipe:RS-P100",
+      "load:self-weight:11:load:RS-EQX:12:pipe:RS-P110",
+      "load:self-weight:11:load:RS-EQX:12:pipe:RS-P120",
+      "load:self-weight:11:load:RS-EQX:12:pipe:RS-P130",
+      "load:self-weight:11:load:RS-EQX:12:pipe:RS-P140",
+      "load:self-weight:11:load:RS-EQX:12:pipe:RS-P160",
+      "load:self-weight:11:load:RS-EQX:12:pipe:RS-P170",
+      "load:self-weight:11:load:RS-EQX:12:pipe:RS-P190",
+      "load:self-weight:11:load:RS-EQX:12:pipe:RS-P200",
+      "load:self-weight:11:load:RS-EQX:12:pipe:RS-P210",
+      "load:self-weight:11:load:RS-EQX:12:pipe:RS-P220",
+      "load:self-weight:11:load:RS-EQX:12:pipe:RS-P225",
+      "load:self-weight:11:load:RS-EQX:12:pipe:RS-P230",
+      "load:self-weight:11:load:RS-EQX:component:15:component:RS-F1:force:z",
+      "load:self-weight:11:load:RS-EQX:component:15:component:RS-F1:moment:y",
+      "load:self-weight:11:load:RS-EQX:component:15:component:RS-V1:force:z",
+      "load:self-weight:11:load:RS-EQX:component:15:component:RS-V1:moment:y",
+      "load:self-weight:11:load:RS-EQX:component:15:component:RS-F2:force:z",
+      "load:self-weight:11:load:RS-EQX:component:15:component:RS-F2:moment:y",
+      "load:self-weight:11:load:RS-EQX:component:15:component:RS-R1:force:z",
+      "load:self-weight:11:load:RS-EQX:component:15:component:RS-R1:moment:x"
+     ],
+     "id_reading": "ids from spec §8.1's rule with <case id> = 'load:RS-EQX', <pipe id> and <component id> the full ids (spec §2 Identities), the component moment's <axis> the one nonzero component of r × (0, 0, −W); listed in spec §3.2 member order, then component by component"
+    },
+    "condition": "these primitives are the self-weight plan's output and still match the model, as the specification states them (spec §8.1); what the warning does with a primitive that no longer matches its model is not established here",
+    "added_weight_named": [],
+    "added_weight_why": "the case is on the exact route, and no case carries condition added_weight (spec §8)",
+    "gravity_comparison": {
+     "baseline_loads": [
+      "load:self-weight:11:load:RS-EQX:component:15:component:RS-F1:force:z",
+      "load:self-weight:11:load:RS-EQX:component:15:component:RS-V1:force:z",
+      "load:self-weight:11:load:RS-EQX:component:15:component:RS-F2:force:z",
+      "load:self-weight:11:load:RS-EQX:component:15:component:RS-R1:force:z"
+     ],
+     "baseline_why": "REQ-008: applied component-weight primitives for the components whose forces the case generates (RS-F1, RS-V1, RS-F2, RS-R1), the seismic case's own when present",
+     "applied_gravity_magnitude_m_per_s2": "196133/20000",
+     "applied_source": "spec §2 (−9.80665 m/s² along global_z on each weight case) and §8.1 (W: gravity as §2)",
+     "seismic_gravity_magnitude_m_per_s2": "196133/20000",
+     "seismic_source": "spec §8.1",
+     "equal_after_normalization": true,
+     "gravity_finding_required": false
+    },
+    "any_seismic_model_check_finding_required": false,
+    "code": null,
+    "message": null,
+    "findings_per_load_or_per_case": null,
+    "order_of_named_loads": null,
+    "open_fields_matter_for": "only a test that asserts the absence of these findings"
+   }
+  },
+  "RS-EQY": {
+   "generated_loads": [
+    {
+     "target": "pipe:RS-P010",
+     "kind": "distributed_on_member",
+     "direction": "+Y",
+     "span_fraction": [
+      0,
+      1
+     ],
+     "intensity_N_per_m": {
+      "exact": "(4089572517261/40000000000)*pi",
+      "decimal": "3.211942744137468875579047436667625561918e+2",
+      "value": 321.1942744137469
+     },
+     "inputs": {
+      "g_factor": "3/10",
+      "gravity_m_per_s2": "196133/20000",
+      "mass_per_length_kg_per_m": {
+       "exact": "(6950339/200000)*pi",
+       "decimal": "1.091756697117931497361160517494973839832e+2",
+       "value": 109.17566971179315
+      },
+      "mass_basis": "source_od_nominal_wall_pressure_bore_areas/v1"
+     }
+    },
+    {
+     "target": "pipe:RS-P050",
+     "kind": "distributed_on_member",
+     "direction": "+Y",
+     "span_fraction": [
+      0,
+      1
+     ],
+     "intensity_N_per_m": {
+      "exact": "(4089572517261/40000000000)*pi",
+      "decimal": "3.211942744137468875579047436667625561918e+2",
+      "value": 321.1942744137469
+     },
+     "inputs": {
+      "g_factor": "3/10",
+      "gravity_m_per_s2": "196133/20000",
+      "mass_per_length_kg_per_m": {
+       "exact": "(6950339/200000)*pi",
+       "decimal": "1.091756697117931497361160517494973839832e+2",
+       "value": 109.17566971179315
+      },
+      "mass_basis": "source_od_nominal_wall_pressure_bore_areas/v1"
+     }
+    },
+    {
+     "target": "pipe:RS-P060",
+     "kind": "distributed_on_member",
+     "direction": "+Y",
+     "span_fraction": [
+      0,
+      1
+     ],
+     "intensity_N_per_m": {
+      "exact": "(4089572517261/40000000000)*pi",
+      "decimal": "3.211942744137468875579047436667625561918e+2",
+      "value": 321.1942744137469
+     },
+     "inputs": {
+      "g_factor": "3/10",
+      "gravity_m_per_s2": "196133/20000",
+      "mass_per_length_kg_per_m": {
+       "exact": "(6950339/200000)*pi",
+       "decimal": "1.091756697117931497361160517494973839832e+2",
+       "value": 109.17566971179315
+      },
+      "mass_basis": "source_od_nominal_wall_pressure_bore_areas/v1"
+     }
+    },
+    {
+     "target": "pipe:RS-P065",
+     "kind": "distributed_on_member",
+     "direction": "+Y",
+     "span_fraction": [
+      0,
+      1
+     ],
+     "intensity_N_per_m": {
+      "exact": "(4089572517261/40000000000)*pi",
+      "decimal": "3.211942744137468875579047436667625561918e+2",
+      "value": 321.1942744137469
+     },
+     "inputs": {
+      "g_factor": "3/10",
+      "gravity_m_per_s2": "196133/20000",
+      "mass_per_length_kg_per_m": {
+       "exact": "(6950339/200000)*pi",
+       "decimal": "1.091756697117931497361160517494973839832e+2",
+       "value": 109.17566971179315
+      },
+      "mass_basis": "source_od_nominal_wall_pressure_bore_areas/v1"
+     }
+    },
+    {
+     "target": "pipe:RS-P070",
+     "kind": "distributed_on_member",
+     "direction": "+Y",
+     "span_fraction": [
+      0,
+      1
+     ],
+     "intensity_N_per_m": {
+      "exact": "(4089572517261/40000000000)*pi",
+      "decimal": "3.211942744137468875579047436667625561918e+2",
+      "value": 321.1942744137469
+     },
+     "inputs": {
+      "g_factor": "3/10",
+      "gravity_m_per_s2": "196133/20000",
+      "mass_per_length_kg_per_m": {
+       "exact": "(6950339/200000)*pi",
+       "decimal": "1.091756697117931497361160517494973839832e+2",
+       "value": 109.17566971179315
+      },
+      "mass_basis": "source_od_nominal_wall_pressure_bore_areas/v1"
+     }
+    },
+    {
+     "target": "pipe:RS-P080",
+     "kind": "distributed_on_member",
+     "direction": "+Y",
+     "span_fraction": [
+      0,
+      1
+     ],
+     "intensity_N_per_m": {
+      "exact": "(4089572517261/40000000000)*pi",
+      "decimal": "3.211942744137468875579047436667625561918e+2",
+      "value": 321.1942744137469
+     },
+     "inputs": {
+      "g_factor": "3/10",
+      "gravity_m_per_s2": "196133/20000",
+      "mass_per_length_kg_per_m": {
+       "exact": "(6950339/200000)*pi",
+       "decimal": "1.091756697117931497361160517494973839832e+2",
+       "value": 109.17566971179315
+      },
+      "mass_basis": "source_od_nominal_wall_pressure_bore_areas/v1"
+     }
+    },
+    {
+     "target": "pipe:RS-P085",
+     "kind": "distributed_on_member",
+     "direction": "+Y",
+     "span_fraction": [
+      0,
+      1
+     ],
+     "intensity_N_per_m": {
+      "exact": "(4089572517261/40000000000)*pi",
+      "decimal": "3.211942744137468875579047436667625561918e+2",
+      "value": 321.1942744137469
+     },
+     "inputs": {
+      "g_factor": "3/10",
+      "gravity_m_per_s2": "196133/20000",
+      "mass_per_length_kg_per_m": {
+       "exact": "(6950339/200000)*pi",
+       "decimal": "1.091756697117931497361160517494973839832e+2",
+       "value": 109.17566971179315
+      },
+      "mass_basis": "source_od_nominal_wall_pressure_bore_areas/v1"
+     }
+    },
+    {
+     "target": "pipe:RS-P090",
+     "kind": "distributed_on_member",
+     "direction": "+Y",
+     "span_fraction": [
+      0,
+      1
+     ],
+     "intensity_N_per_m": {
+      "exact": "(4089572517261/40000000000)*pi",
+      "decimal": "3.211942744137468875579047436667625561918e+2",
+      "value": 321.1942744137469
+     },
+     "inputs": {
+      "g_factor": "3/10",
+      "gravity_m_per_s2": "196133/20000",
+      "mass_per_length_kg_per_m": {
+       "exact": "(6950339/200000)*pi",
+       "decimal": "1.091756697117931497361160517494973839832e+2",
+       "value": 109.17566971179315
+      },
+      "mass_basis": "source_od_nominal_wall_pressure_bore_areas/v1"
+     }
+    },
+    {
+     "target": "pipe:RS-P100",
+     "kind": "distributed_on_member",
+     "direction": "+Y",
+     "span_fraction": [
+      0,
+      1
+     ],
+     "intensity_N_per_m": {
+      "exact": "(4089572517261/40000000000)*pi",
+      "decimal": "3.211942744137468875579047436667625561918e+2",
+      "value": 321.1942744137469
+     },
+     "inputs": {
+      "g_factor": "3/10",
+      "gravity_m_per_s2": "196133/20000",
+      "mass_per_length_kg_per_m": {
+       "exact": "(6950339/200000)*pi",
+       "decimal": "1.091756697117931497361160517494973839832e+2",
+       "value": 109.17566971179315
+      },
+      "mass_basis": "source_od_nominal_wall_pressure_bore_areas/v1"
+     }
+    },
+    {
+     "target": "pipe:RS-P110",
+     "kind": "distributed_on_member",
+     "direction": "+Y",
+     "span_fraction": [
+      0,
+      1
+     ],
+     "intensity_N_per_m": {
+      "exact": "(4089572517261/40000000000)*pi",
+      "decimal": "3.211942744137468875579047436667625561918e+2",
+      "value": 321.1942744137469
+     },
+     "inputs": {
+      "g_factor": "3/10",
+      "gravity_m_per_s2": "196133/20000",
+      "mass_per_length_kg_per_m": {
+       "exact": "(6950339/200000)*pi",
+       "decimal": "1.091756697117931497361160517494973839832e+2",
+       "value": 109.17566971179315
+      },
+      "mass_basis": "source_od_nominal_wall_pressure_bore_areas/v1"
+     }
+    },
+    {
+     "target": "pipe:RS-P120",
+     "kind": "distributed_on_member",
+     "direction": "+Y",
+     "span_fraction": [
+      0,
+      1
+     ],
+     "intensity_N_per_m": {
+      "exact": "(4089572517261/40000000000)*pi",
+      "decimal": "3.211942744137468875579047436667625561918e+2",
+      "value": 321.1942744137469
+     },
+     "inputs": {
+      "g_factor": "3/10",
+      "gravity_m_per_s2": "196133/20000",
+      "mass_per_length_kg_per_m": {
+       "exact": "(6950339/200000)*pi",
+       "decimal": "1.091756697117931497361160517494973839832e+2",
+       "value": 109.17566971179315
+      },
+      "mass_basis": "source_od_nominal_wall_pressure_bore_areas/v1"
+     }
+    },
+    {
+     "target": "pipe:RS-P130",
+     "kind": "distributed_on_member",
+     "direction": "+Y",
+     "span_fraction": [
+      0,
+      1
+     ],
+     "intensity_N_per_m": {
+      "exact": "(4089572517261/40000000000)*pi",
+      "decimal": "3.211942744137468875579047436667625561918e+2",
+      "value": 321.1942744137469
+     },
+     "inputs": {
+      "g_factor": "3/10",
+      "gravity_m_per_s2": "196133/20000",
+      "mass_per_length_kg_per_m": {
+       "exact": "(6950339/200000)*pi",
+       "decimal": "1.091756697117931497361160517494973839832e+2",
+       "value": 109.17566971179315
+      },
+      "mass_basis": "source_od_nominal_wall_pressure_bore_areas/v1"
+     }
+    },
+    {
+     "target": "pipe:RS-P140",
+     "kind": "distributed_on_member",
+     "direction": "+Y",
+     "span_fraction": [
+      0,
+      1
+     ],
+     "intensity_N_per_m": {
+      "exact": "(4089572517261/40000000000)*pi",
+      "decimal": "3.211942744137468875579047436667625561918e+2",
+      "value": 321.1942744137469
+     },
+     "inputs": {
+      "g_factor": "3/10",
+      "gravity_m_per_s2": "196133/20000",
+      "mass_per_length_kg_per_m": {
+       "exact": "(6950339/200000)*pi",
+       "decimal": "1.091756697117931497361160517494973839832e+2",
+       "value": 109.17566971179315
+      },
+      "mass_basis": "source_od_nominal_wall_pressure_bore_areas/v1"
+     }
+    },
+    {
+     "target": "pipe:RS-P160",
+     "kind": "distributed_on_member",
+     "direction": "+Y",
+     "span_fraction": [
+      0,
+      1
+     ],
+     "intensity_N_per_m": {
+      "exact": "(4523882763939/62500000000)*pi",
+      "decimal": "2.273951497102760192949746699512090823348e+2",
+      "value": 227.39514971027603
+     },
+     "inputs": {
+      "g_factor": "3/10",
+      "gravity_m_per_s2": "196133/20000",
+      "mass_per_length_kg_per_m": {
+       "exact": "(7688461/312500)*pi",
+       "decimal": "7.729284030403723299834794754960803207852e+1",
+       "value": 77.29284030403723
+      },
+      "mass_basis": "source_od_nominal_wall_pressure_bore_areas/v1"
+     }
+    },
+    {
+     "target": "pipe:RS-P170",
+     "kind": "distributed_on_member",
+     "direction": "+Y",
+     "span_fraction": [
+      0,
+      1
+     ],
+     "intensity_N_per_m": {
+      "exact": "(4523882763939/62500000000)*pi",
+      "decimal": "2.273951497102760192949746699512090823348e+2",
+      "value": 227.39514971027603
+     },
+     "inputs": {
+      "g_factor": "3/10",
+      "gravity_m_per_s2": "196133/20000",
+      "mass_per_length_kg_per_m": {
+       "exact": "(7688461/312500)*pi",
+       "decimal": "7.729284030403723299834794754960803207852e+1",
+       "value": 77.29284030403723
+      },
+      "mass_basis": "source_od_nominal_wall_pressure_bore_areas/v1"
+     }
+    },
+    {
+     "target": "pipe:RS-P190",
+     "kind": "distributed_on_member",
+     "direction": "+Y",
+     "span_fraction": [
+      0,
+      1
+     ],
+     "intensity_N_per_m": {
+      "exact": "(4523882763939/62500000000)*pi",
+      "decimal": "2.273951497102760192949746699512090823348e+2",
+      "value": 227.39514971027603
+     },
+     "inputs": {
+      "g_factor": "3/10",
+      "gravity_m_per_s2": "196133/20000",
+      "mass_per_length_kg_per_m": {
+       "exact": "(7688461/312500)*pi",
+       "decimal": "7.729284030403723299834794754960803207852e+1",
+       "value": 77.29284030403723
+      },
+      "mass_basis": "source_od_nominal_wall_pressure_bore_areas/v1"
+     }
+    },
+    {
+     "target": "pipe:RS-P200",
+     "kind": "distributed_on_member",
+     "direction": "+Y",
+     "span_fraction": [
+      0,
+      1
+     ],
+     "intensity_N_per_m": {
+      "exact": "(4523882763939/62500000000)*pi",
+      "decimal": "2.273951497102760192949746699512090823348e+2",
+      "value": 227.39514971027603
+     },
+     "inputs": {
+      "g_factor": "3/10",
+      "gravity_m_per_s2": "196133/20000",
+      "mass_per_length_kg_per_m": {
+       "exact": "(7688461/312500)*pi",
+       "decimal": "7.729284030403723299834794754960803207852e+1",
+       "value": 77.29284030403723
+      },
+      "mass_basis": "source_od_nominal_wall_pressure_bore_areas/v1"
+     }
+    },
+    {
+     "target": "pipe:RS-P210",
+     "kind": "distributed_on_member",
+     "direction": "+Y",
+     "span_fraction": [
+      0,
+      1
+     ],
+     "intensity_N_per_m": {
+      "exact": "(46437284018181/1000000000000)*pi",
+      "decimal": "1.458870303241801441506855250485604461637e+2",
+      "value": 145.88703032418013
+     },
+     "inputs": {
+      "g_factor": "3/10",
+      "gravity_m_per_s2": "196133/20000",
+      "mass_per_length_kg_per_m": {
+       "exact": "(78921419/5000000)*pi",
+       "decimal": "4.958779002825638525921543885987584824709e+1",
+       "value": 49.587790028256386
+      },
+      "mass_basis": "source_od_nominal_wall_pressure_bore_areas/v1"
+     }
+    },
+    {
+     "target": "pipe:RS-P220",
+     "kind": "distributed_on_member",
+     "direction": "+Y",
+     "span_fraction": [
+      0,
+      1
+     ],
+     "intensity_N_per_m": {
+      "exact": "(46437284018181/1000000000000)*pi",
+      "decimal": "1.458870303241801441506855250485604461637e+2",
+      "value": 145.88703032418013
+     },
+     "inputs": {
+      "g_factor": "3/10",
+      "gravity_m_per_s2": "196133/20000",
+      "mass_per_length_kg_per_m": {
+       "exact": "(78921419/5000000)*pi",
+       "decimal": "4.958779002825638525921543885987584824709e+1",
+       "value": 49.587790028256386
+      },
+      "mass_basis": "source_od_nominal_wall_pressure_bore_areas/v1"
+     }
+    },
+    {
+     "target": "pipe:RS-P225",
+     "kind": "distributed_on_member",
+     "direction": "+Y",
+     "span_fraction": [
+      0,
+      1
+     ],
+     "intensity_N_per_m": {
+      "exact": "(46437284018181/1000000000000)*pi",
+      "decimal": "1.458870303241801441506855250485604461637e+2",
+      "value": 145.88703032418013
+     },
+     "inputs": {
+      "g_factor": "3/10",
+      "gravity_m_per_s2": "196133/20000",
+      "mass_per_length_kg_per_m": {
+       "exact": "(78921419/5000000)*pi",
+       "decimal": "4.958779002825638525921543885987584824709e+1",
+       "value": 49.587790028256386
+      },
+      "mass_basis": "source_od_nominal_wall_pressure_bore_areas/v1"
+     }
+    },
+    {
+     "target": "pipe:RS-P230",
+     "kind": "distributed_on_member",
+     "direction": "+Y",
+     "span_fraction": [
+      0,
+      1
+     ],
+     "intensity_N_per_m": {
+      "exact": "(46437284018181/1000000000000)*pi",
+      "decimal": "1.458870303241801441506855250485604461637e+2",
+      "value": 145.88703032418013
+     },
+     "inputs": {
+      "g_factor": "3/10",
+      "gravity_m_per_s2": "196133/20000",
+      "mass_per_length_kg_per_m": {
+       "exact": "(78921419/5000000)*pi",
+       "decimal": "4.958779002825638525921543885987584824709e+1",
+       "value": 49.587790028256386
+      },
+      "mass_basis": "source_od_nominal_wall_pressure_bore_areas/v1"
+     }
+    },
+    {
+     "target": "node:RS-030",
+     "component": "component:RS-F1",
+     "kind": "component_force",
+     "direction": "+Y",
+     "value_N": {
+      "exact": "(105)",
+      "decimal": "1.050000000000000000000000000000000000000e+2",
+      "value": 105.0
+     },
+     "binary64_by_formation": {
+      "value": 105.0,
+      "bits": "405a400000000000",
+      "exact_of_binary64": "105"
+     },
+     "required_nonzero": true,
+     "inputs": {
+      "g_factor": "3/10",
+      "W_N": "350",
+      "center_of_gravity_m": [
+       "-3/40",
+       "0",
+       "0"
+      ],
+      "normalized_binary64": {
+       "k": [
+        "3fd3333333333333",
+        "5404319552844595/18014398509481984"
+       ],
+       "W": [
+        "4075e00000000000",
+        "350"
+       ],
+       "r": {
+        "x": [
+         "bfb3333333333333",
+         "-5404319552844595/72057594037927936"
+        ],
+        "y": [
+         "0000000000000000",
+         "0"
+        ],
+        "z": [
+         "0000000000000000",
+         "0"
+        ]
+       }
+      }
+     }
+    },
+    {
+     "target": "node:RS-030",
+     "component": "component:RS-F1",
+     "kind": "component_moment",
+     "axis": "x",
+     "formed_as": "-RN(r_z * F)",
+     "value_N_m": {
+      "exact": "0",
+      "decimal": "0",
+      "value": 0.0
+     },
+     "binary64_by_formation": {
+      "value": 0.0,
+      "bits": "0000000000000000",
+      "exact_of_binary64": "0",
+      "sign_of_zero": "not fixed by the scope; +0 and -0 both satisfy it"
+     },
+     "required_nonzero": false,
+     "record_emitted_when_zero": null
+    },
+    {
+     "target": "node:RS-030",
+     "component": "component:RS-F1",
+     "kind": "component_moment",
+     "axis": "z",
+     "formed_as": "RN(r_x * F)",
+     "value_N_m": {
+      "exact": "(-63/8)",
+      "decimal": "-7.875000000000000000000000000000000000000e+0",
+      "value": -7.875
+     },
+     "binary64_by_formation": {
+      "value": -7.875,
+      "bits": "c01f800000000000",
+      "exact_of_binary64": "-63/8"
+     },
+     "required_nonzero": true,
+     "record_emitted_when_zero": true
+    },
+    {
+     "target": "node:RS-040",
+     "component": "component:RS-V1",
+     "kind": "component_force",
+     "direction": "+Y",
+     "value_N": {
+      "exact": "(780)",
+      "decimal": "7.800000000000000000000000000000000000000e+2",
+      "value": 780.0
+     },
+     "binary64_by_formation": {
+      "value": 780.0,
+      "bits": "4088600000000000",
+      "exact_of_binary64": "780"
+     },
+     "required_nonzero": true,
+     "inputs": {
+      "g_factor": "3/10",
+      "W_N": "2600",
+      "center_of_gravity_m": [
+       "-3/10",
+       "0",
+       "3/10"
+      ],
+      "normalized_binary64": {
+       "k": [
+        "3fd3333333333333",
+        "5404319552844595/18014398509481984"
+       ],
+       "W": [
+        "40a4500000000000",
+        "2600"
+       ],
+       "r": {
+        "x": [
+         "bfd3333333333333",
+         "-5404319552844595/18014398509481984"
+        ],
+        "y": [
+         "0000000000000000",
+         "0"
+        ],
+        "z": [
+         "3fd3333333333333",
+         "5404319552844595/18014398509481984"
+        ]
+       }
+      }
+     }
+    },
+    {
+     "target": "node:RS-040",
+     "component": "component:RS-V1",
+     "kind": "component_moment",
+     "axis": "x",
+     "formed_as": "-RN(r_z * F)",
+     "value_N_m": {
+      "exact": "(-234)",
+      "decimal": "-2.340000000000000000000000000000000000000e+2",
+      "value": -234.0
+     },
+     "binary64_by_formation": {
+      "value": -234.0,
+      "bits": "c06d400000000000",
+      "exact_of_binary64": "-234"
+     },
+     "required_nonzero": true,
+     "record_emitted_when_zero": true
+    },
+    {
+     "target": "node:RS-040",
+     "component": "component:RS-V1",
+     "kind": "component_moment",
+     "axis": "z",
+     "formed_as": "RN(r_x * F)",
+     "value_N_m": {
+      "exact": "(-234)",
+      "decimal": "-2.340000000000000000000000000000000000000e+2",
+      "value": -234.0
+     },
+     "binary64_by_formation": {
+      "value": -234.0,
+      "bits": "c06d400000000000",
+      "exact_of_binary64": "-234"
+     },
+     "required_nonzero": true,
+     "record_emitted_when_zero": true
+    },
+    {
+     "target": "node:RS-050",
+     "component": "component:RS-F2",
+     "kind": "component_force",
+     "direction": "+Y",
+     "value_N": {
+      "exact": "(105)",
+      "decimal": "1.050000000000000000000000000000000000000e+2",
+      "value": 105.0
+     },
+     "binary64_by_formation": {
+      "value": 105.0,
+      "bits": "405a400000000000",
+      "exact_of_binary64": "105"
+     },
+     "required_nonzero": true,
+     "inputs": {
+      "g_factor": "3/10",
+      "W_N": "350",
+      "center_of_gravity_m": [
+       "-3/40",
+       "0",
+       "0"
+      ],
+      "normalized_binary64": {
+       "k": [
+        "3fd3333333333333",
+        "5404319552844595/18014398509481984"
+       ],
+       "W": [
+        "4075e00000000000",
+        "350"
+       ],
+       "r": {
+        "x": [
+         "bfb3333333333333",
+         "-5404319552844595/72057594037927936"
+        ],
+        "y": [
+         "0000000000000000",
+         "0"
+        ],
+        "z": [
+         "0000000000000000",
+         "0"
+        ]
+       }
+      }
+     }
+    },
+    {
+     "target": "node:RS-050",
+     "component": "component:RS-F2",
+     "kind": "component_moment",
+     "axis": "x",
+     "formed_as": "-RN(r_z * F)",
+     "value_N_m": {
+      "exact": "0",
+      "decimal": "0",
+      "value": 0.0
+     },
+     "binary64_by_formation": {
+      "value": 0.0,
+      "bits": "0000000000000000",
+      "exact_of_binary64": "0",
+      "sign_of_zero": "not fixed by the scope; +0 and -0 both satisfy it"
+     },
+     "required_nonzero": false,
+     "record_emitted_when_zero": null
+    },
+    {
+     "target": "node:RS-050",
+     "component": "component:RS-F2",
+     "kind": "component_moment",
+     "axis": "z",
+     "formed_as": "RN(r_x * F)",
+     "value_N_m": {
+      "exact": "(-63/8)",
+      "decimal": "-7.875000000000000000000000000000000000000e+0",
+      "value": -7.875
+     },
+     "binary64_by_formation": {
+      "value": -7.875,
+      "bits": "c01f800000000000",
+      "exact_of_binary64": "-63/8"
+     },
+     "required_nonzero": true,
+     "record_emitted_when_zero": true
+    },
+    {
+     "target": "node:RS-160",
+     "component": "component:RS-R1",
+     "kind": "component_force",
+     "direction": "+Y",
+     "value_N": {
+      "exact": "(90)",
+      "decimal": "9.000000000000000000000000000000000000000e+1",
+      "value": 90.0
+     },
+     "binary64_by_formation": {
+      "value": 90.0,
+      "bits": "4056800000000000",
+      "exact_of_binary64": "90"
+     },
+     "required_nonzero": true,
+     "inputs": {
+      "g_factor": "3/10",
+      "W_N": "300",
+      "center_of_gravity_m": [
+       "0",
+       "-1/5",
+       "1/80"
+      ],
+      "normalized_binary64": {
+       "k": [
+        "3fd3333333333333",
+        "5404319552844595/18014398509481984"
+       ],
+       "W": [
+        "4072c00000000000",
+        "300"
+       ],
+       "r": {
+        "x": [
+         "0000000000000000",
+         "0"
+        ],
+        "y": [
+         "bfc999999999999a",
+         "-3602879701896397/18014398509481984"
+        ],
+        "z": [
+         "3f8999999999999a",
+         "3602879701896397/288230376151711744"
+        ]
+       }
+      }
+     }
+    },
+    {
+     "target": "node:RS-160",
+     "component": "component:RS-R1",
+     "kind": "component_moment",
+     "axis": "x",
+     "formed_as": "-RN(r_z * F)",
+     "value_N_m": {
+      "exact": "(-9/8)",
+      "decimal": "-1.125000000000000000000000000000000000000e+0",
+      "value": -1.125
+     },
+     "binary64_by_formation": {
+      "value": -1.125,
+      "bits": "bff2000000000000",
+      "exact_of_binary64": "-9/8"
+     },
+     "required_nonzero": true,
+     "record_emitted_when_zero": true
+    },
+    {
+     "target": "node:RS-160",
+     "component": "component:RS-R1",
+     "kind": "component_moment",
+     "axis": "z",
+     "formed_as": "RN(r_x * F)",
+     "value_N_m": {
+      "exact": "0",
+      "decimal": "0",
+      "value": 0.0
+     },
+     "binary64_by_formation": {
+      "value": 0.0,
+      "bits": "0000000000000000",
+      "exact_of_binary64": "0",
+      "sign_of_zero": "not fixed by the scope; +0 and -0 both satisfy it"
+     },
+     "required_nonzero": false,
+     "record_emitted_when_zero": null
+    }
+   ],
+   "generated_load_counts": {
+    "distributed_on_member": 21,
+    "component_force": 4,
+    "component_moment zero": 3,
+    "component_moment required nonzero": 5
+   },
+   "resultant": {
+    "force_N": [
+     {
+      "exact": "0",
+      "decimal": "0",
+      "value": 0.0
+     },
+     {
+      "exact": "(1080) + (198467059780269/50000000000)*pi + (373603085399061/8000000000000)*pi^2",
+      "decimal": "1.401096747169458028641379606576466698561e+4",
+      "value": 14010.967471694581
+     },
+     {
+      "exact": "0",
+      "decimal": "0",
+      "value": 0.0
+     }
+    ],
+    "moment_about_origin_N_m": [
+     {
+      "exact": "(-14823/8) + (-3577267409463417621/160000000000000)*pi + (-5652588378257709/32000000000000)*pi^2",
+      "decimal": "-7.383575668234036140889456311065149278344e+4",
+      "value": -73835.75668234036
+     },
+     {
+      "exact": "0",
+      "decimal": "0",
+      "value": 0.0
+     },
+     {
+      "exact": "(2763/2) + (722005672450101501/32000000000000)*pi + (8751178692490941/32000000000000)*pi^2",
+      "decimal": "7.496332462992267058049944425235090422728e+4",
+      "value": 74963.32462992267
+     }
+    ]
+   },
+   "EQ-6": {
+    "term": "RS-dEQY",
+    "expected_reaction_force_resultant_N": [
+     {
+      "exact": "0",
+      "decimal": "0",
+      "value": 0.0
+     },
+     {
+      "exact": "(-1080) + (-198467059780269/50000000000)*pi + (-373603085399061/8000000000000)*pi^2",
+      "decimal": "-1.401096747169458028641379606576466698561e+4",
+      "value": -14010.967471694581
+     },
+     {
+      "exact": "0",
+      "decimal": "0",
+      "value": 0.0
+     }
+    ],
+    "expected_reaction_moment_resultant_about_origin_N_m": [
+     {
+      "exact": "(14823/8) + (3577267409463417621/160000000000000)*pi + (5652588378257709/32000000000000)*pi^2",
+      "decimal": "7.383575668234036140889456311065149278344e+4",
+      "value": 73835.75668234036
+     },
+     {
+      "exact": "0",
+      "decimal": "0",
+      "value": 0.0
+     },
+     {
+      "exact": "(-2763/2) + (-722005672450101501/32000000000000)*pi + (-8751178692490941/32000000000000)*pi^2",
+      "decimal": "-7.496332462992267058049944425235090422728e+4",
+      "value": -74963.32462992267
+     }
+    ]
+   },
+   "floors": {
+    "force_N": {
+     "zero_scale": 14010.967471694581,
+     "floor": 1.4010967471694583e-05,
+     "exact_zero_components": [
+      "x",
+      "z"
+     ]
+    },
+    "moment_N_m": {
+     "zero_scale": 74963.32462992267,
+     "floor": 7.496332462992268e-05,
+     "exact_zero_components": [
+      "y"
+     ]
+    }
+   },
+   "pipes_only_twin": {
+    "what": "every non-replaced member keeps k·g·μ, no component force",
+    "force_N": [
+     {
+      "exact": "0",
+      "decimal": "0",
+      "value": 0.0
+     },
+     {
+      "exact": "(1624542630897501/400000000000)*pi + (4089572517261/1600000000000)*sqrt(257)*pi + (373603085399061/8000000000000)*pi^2",
+      "decimal": "1.334877071688500436546406672523716978122e+4",
+      "value": 13348.770716885005
+     },
+     {
+      "exact": "0",
+      "decimal": "0",
+      "value": 0.0
+     }
+    ],
+    "moment_about_origin_N_m": [
+     {
+      "exact": "(-3591989870525557221/160000000000000)*pi + (-2286071037148899/128000000000000)*sqrt(257)*pi + (-5652588378257709/32000000000000)*pi^2",
+      "decimal": "-7.317144621186137112093067015628133934307e+4",
+      "value": -73171.44621186137
+     },
+     {
+      "exact": "0",
+      "decimal": "0",
+      "value": 0.0
+     },
+     {
+      "exact": "(724508490830665233/32000000000000)*pi + (12268717551783/800000000000)*sqrt(257)*pi + (8751178692490941/32000000000000)*pi^2",
+      "decimal": "7.459990863915749823097017972229047655297e+4",
+      "value": 74599.9086391575
+     }
+    ],
+    "rule_minus_twin_force_N": [
+     {
+      "exact": "0",
+      "decimal": "0",
+      "value": 0.0
+     },
+     {
+      "exact": "(1080) + (-36806152655349/400000000000)*pi + (-4089572517261/1600000000000)*sqrt(257)*pi",
+      "decimal": "6.621967548095759209497293405274972043923e+2",
+      "value": 662.196754809576
+     },
+     {
+      "exact": "0",
+      "decimal": "0",
+      "value": 0.0
+     }
+    ],
+    "rule_minus_twin_moment_N_m": [
+     {
+      "exact": "(-14823/8) + (36806152655349/400000000000)*pi + (2286071037148899/128000000000000)*sqrt(257)*pi",
+      "decimal": "-6.643104704789902879638929543701534403697e+2",
+      "value": -664.3104704789903
+     },
+     {
+      "exact": "0",
+      "decimal": "0",
+      "value": 0.0
+     },
+     {
+      "exact": "(2763/2) + (-625704595140933/8000000000000)*pi + (-12268717551783/800000000000)*sqrt(257)*pi",
+      "decimal": "3.634159907651723495292645300604276743027e+2",
+      "value": 363.41599076517235
+     }
+    ],
+    "discrimination_at_the_comparison_rule": [
+     {
+      "component": "force_x",
+      "expected_exact_zero": true,
+      "difference_exact_zero": true,
+      "discriminates": false,
+      "why": "exact zero under both the rule and the twin"
+     },
+     {
+      "component": "force_y",
+      "expected_exact_zero": false,
+      "difference_over_tolerance": 47262700.0,
+      "discriminates": true
+     },
+     {
+      "component": "force_z",
+      "expected_exact_zero": true,
+      "difference_exact_zero": true,
+      "discriminates": false,
+      "why": "exact zero under both the rule and the twin"
+     },
+     {
+      "component": "moment_x",
+      "expected_exact_zero": false,
+      "difference_over_tolerance": 8997140.0,
+      "discriminates": true
+     },
+     {
+      "component": "moment_y",
+      "expected_exact_zero": true,
+      "difference_exact_zero": true,
+      "discriminates": false,
+      "why": "exact zero under both the rule and the twin"
+     },
+     {
+      "component": "moment_z",
+      "expected_exact_zero": false,
+      "difference_over_tolerance": 4847920.0,
+      "discriminates": true
+     }
+    ]
+   },
+   "seismic_model_check": {
+    "weight_finding_required": false,
+    "weight_finding_ground": "the decision recorded in seismic_warning_decision",
+    "weight_category_loads_of_the_case": {
+     "what": "the case's 29 applied self-weight primitives (spec §8.1), its only weight-category loads; applied generated self-weight, which the decision excludes from the warning",
+     "count": 29,
+     "ids": [
+      "load:self-weight:11:load:RS-EQY:12:pipe:RS-P010",
+      "load:self-weight:11:load:RS-EQY:12:pipe:RS-P050",
+      "load:self-weight:11:load:RS-EQY:12:pipe:RS-P060",
+      "load:self-weight:11:load:RS-EQY:12:pipe:RS-P065",
+      "load:self-weight:11:load:RS-EQY:12:pipe:RS-P070",
+      "load:self-weight:11:load:RS-EQY:12:pipe:RS-P080",
+      "load:self-weight:11:load:RS-EQY:12:pipe:RS-P085",
+      "load:self-weight:11:load:RS-EQY:12:pipe:RS-P090",
+      "load:self-weight:11:load:RS-EQY:12:pipe:RS-P100",
+      "load:self-weight:11:load:RS-EQY:12:pipe:RS-P110",
+      "load:self-weight:11:load:RS-EQY:12:pipe:RS-P120",
+      "load:self-weight:11:load:RS-EQY:12:pipe:RS-P130",
+      "load:self-weight:11:load:RS-EQY:12:pipe:RS-P140",
+      "load:self-weight:11:load:RS-EQY:12:pipe:RS-P160",
+      "load:self-weight:11:load:RS-EQY:12:pipe:RS-P170",
+      "load:self-weight:11:load:RS-EQY:12:pipe:RS-P190",
+      "load:self-weight:11:load:RS-EQY:12:pipe:RS-P200",
+      "load:self-weight:11:load:RS-EQY:12:pipe:RS-P210",
+      "load:self-weight:11:load:RS-EQY:12:pipe:RS-P220",
+      "load:self-weight:11:load:RS-EQY:12:pipe:RS-P225",
+      "load:self-weight:11:load:RS-EQY:12:pipe:RS-P230",
+      "load:self-weight:11:load:RS-EQY:component:15:component:RS-F1:force:z",
+      "load:self-weight:11:load:RS-EQY:component:15:component:RS-F1:moment:y",
+      "load:self-weight:11:load:RS-EQY:component:15:component:RS-V1:force:z",
+      "load:self-weight:11:load:RS-EQY:component:15:component:RS-V1:moment:y",
+      "load:self-weight:11:load:RS-EQY:component:15:component:RS-F2:force:z",
+      "load:self-weight:11:load:RS-EQY:component:15:component:RS-F2:moment:y",
+      "load:self-weight:11:load:RS-EQY:component:15:component:RS-R1:force:z",
+      "load:self-weight:11:load:RS-EQY:component:15:component:RS-R1:moment:x"
+     ],
+     "id_reading": "ids from spec §8.1's rule with <case id> = 'load:RS-EQY', <pipe id> and <component id> the full ids (spec §2 Identities), the component moment's <axis> the one nonzero component of r × (0, 0, −W); listed in spec §3.2 member order, then component by component"
+    },
+    "condition": "these primitives are the self-weight plan's output and still match the model, as the specification states them (spec §8.1); what the warning does with a primitive that no longer matches its model is not established here",
+    "added_weight_named": [],
+    "added_weight_why": "the case is on the exact route, and no case carries condition added_weight (spec §8)",
+    "gravity_comparison": {
+     "baseline_loads": [
+      "load:self-weight:11:load:RS-EQY:component:15:component:RS-F1:force:z",
+      "load:self-weight:11:load:RS-EQY:component:15:component:RS-V1:force:z",
+      "load:self-weight:11:load:RS-EQY:component:15:component:RS-F2:force:z",
+      "load:self-weight:11:load:RS-EQY:component:15:component:RS-R1:force:z"
+     ],
+     "baseline_why": "REQ-008: applied component-weight primitives for the components whose forces the case generates (RS-F1, RS-V1, RS-F2, RS-R1), the seismic case's own when present",
+     "applied_gravity_magnitude_m_per_s2": "196133/20000",
+     "applied_source": "spec §2 (−9.80665 m/s² along global_z on each weight case) and §8.1 (W: gravity as §2)",
+     "seismic_gravity_magnitude_m_per_s2": "196133/20000",
+     "seismic_source": "spec §8.1",
+     "equal_after_normalization": true,
+     "gravity_finding_required": false
+    },
+    "any_seismic_model_check_finding_required": false,
+    "code": null,
+    "message": null,
+    "findings_per_load_or_per_case": null,
+    "order_of_named_loads": null,
+    "open_fields_matter_for": "only a test that asserts the absence of these findings"
+   }
+  },
+  "RS-EQZ": {
+   "generated_loads": [
+    {
+     "target": "pipe:RS-P010",
+     "kind": "distributed_on_member",
+     "direction": "+Z",
+     "span_fraction": [
+      0,
+      1
+     ],
+     "intensity_N_per_m": {
+      "exact": "(1363190839087/20000000000)*pi",
+      "decimal": "2.141295162758312583719364957778417041278e+2",
+      "value": 214.12951627583126
+     },
+     "inputs": {
+      "g_factor": "1/5",
+      "gravity_m_per_s2": "196133/20000",
+      "mass_per_length_kg_per_m": {
+       "exact": "(6950339/200000)*pi",
+       "decimal": "1.091756697117931497361160517494973839832e+2",
+       "value": 109.17566971179315
+      },
+      "mass_basis": "source_od_nominal_wall_pressure_bore_areas/v1"
+     }
+    },
+    {
+     "target": "pipe:RS-P050",
+     "kind": "distributed_on_member",
+     "direction": "+Z",
+     "span_fraction": [
+      0,
+      1
+     ],
+     "intensity_N_per_m": {
+      "exact": "(1363190839087/20000000000)*pi",
+      "decimal": "2.141295162758312583719364957778417041278e+2",
+      "value": 214.12951627583126
+     },
+     "inputs": {
+      "g_factor": "1/5",
+      "gravity_m_per_s2": "196133/20000",
+      "mass_per_length_kg_per_m": {
+       "exact": "(6950339/200000)*pi",
+       "decimal": "1.091756697117931497361160517494973839832e+2",
+       "value": 109.17566971179315
+      },
+      "mass_basis": "source_od_nominal_wall_pressure_bore_areas/v1"
+     }
+    },
+    {
+     "target": "pipe:RS-P060",
+     "kind": "distributed_on_member",
+     "direction": "+Z",
+     "span_fraction": [
+      0,
+      1
+     ],
+     "intensity_N_per_m": {
+      "exact": "(1363190839087/20000000000)*pi",
+      "decimal": "2.141295162758312583719364957778417041278e+2",
+      "value": 214.12951627583126
+     },
+     "inputs": {
+      "g_factor": "1/5",
+      "gravity_m_per_s2": "196133/20000",
+      "mass_per_length_kg_per_m": {
+       "exact": "(6950339/200000)*pi",
+       "decimal": "1.091756697117931497361160517494973839832e+2",
+       "value": 109.17566971179315
+      },
+      "mass_basis": "source_od_nominal_wall_pressure_bore_areas/v1"
+     }
+    },
+    {
+     "target": "pipe:RS-P065",
+     "kind": "distributed_on_member",
+     "direction": "+Z",
+     "span_fraction": [
+      0,
+      1
+     ],
+     "intensity_N_per_m": {
+      "exact": "(1363190839087/20000000000)*pi",
+      "decimal": "2.141295162758312583719364957778417041278e+2",
+      "value": 214.12951627583126
+     },
+     "inputs": {
+      "g_factor": "1/5",
+      "gravity_m_per_s2": "196133/20000",
+      "mass_per_length_kg_per_m": {
+       "exact": "(6950339/200000)*pi",
+       "decimal": "1.091756697117931497361160517494973839832e+2",
+       "value": 109.17566971179315
+      },
+      "mass_basis": "source_od_nominal_wall_pressure_bore_areas/v1"
+     }
+    },
+    {
+     "target": "pipe:RS-P070",
+     "kind": "distributed_on_member",
+     "direction": "+Z",
+     "span_fraction": [
+      0,
+      1
+     ],
+     "intensity_N_per_m": {
+      "exact": "(1363190839087/20000000000)*pi",
+      "decimal": "2.141295162758312583719364957778417041278e+2",
+      "value": 214.12951627583126
+     },
+     "inputs": {
+      "g_factor": "1/5",
+      "gravity_m_per_s2": "196133/20000",
+      "mass_per_length_kg_per_m": {
+       "exact": "(6950339/200000)*pi",
+       "decimal": "1.091756697117931497361160517494973839832e+2",
+       "value": 109.17566971179315
+      },
+      "mass_basis": "source_od_nominal_wall_pressure_bore_areas/v1"
+     }
+    },
+    {
+     "target": "pipe:RS-P080",
+     "kind": "distributed_on_member",
+     "direction": "+Z",
+     "span_fraction": [
+      0,
+      1
+     ],
+     "intensity_N_per_m": {
+      "exact": "(1363190839087/20000000000)*pi",
+      "decimal": "2.141295162758312583719364957778417041278e+2",
+      "value": 214.12951627583126
+     },
+     "inputs": {
+      "g_factor": "1/5",
+      "gravity_m_per_s2": "196133/20000",
+      "mass_per_length_kg_per_m": {
+       "exact": "(6950339/200000)*pi",
+       "decimal": "1.091756697117931497361160517494973839832e+2",
+       "value": 109.17566971179315
+      },
+      "mass_basis": "source_od_nominal_wall_pressure_bore_areas/v1"
+     }
+    },
+    {
+     "target": "pipe:RS-P085",
+     "kind": "distributed_on_member",
+     "direction": "+Z",
+     "span_fraction": [
+      0,
+      1
+     ],
+     "intensity_N_per_m": {
+      "exact": "(1363190839087/20000000000)*pi",
+      "decimal": "2.141295162758312583719364957778417041278e+2",
+      "value": 214.12951627583126
+     },
+     "inputs": {
+      "g_factor": "1/5",
+      "gravity_m_per_s2": "196133/20000",
+      "mass_per_length_kg_per_m": {
+       "exact": "(6950339/200000)*pi",
+       "decimal": "1.091756697117931497361160517494973839832e+2",
+       "value": 109.17566971179315
+      },
+      "mass_basis": "source_od_nominal_wall_pressure_bore_areas/v1"
+     }
+    },
+    {
+     "target": "pipe:RS-P090",
+     "kind": "distributed_on_member",
+     "direction": "+Z",
+     "span_fraction": [
+      0,
+      1
+     ],
+     "intensity_N_per_m": {
+      "exact": "(1363190839087/20000000000)*pi",
+      "decimal": "2.141295162758312583719364957778417041278e+2",
+      "value": 214.12951627583126
+     },
+     "inputs": {
+      "g_factor": "1/5",
+      "gravity_m_per_s2": "196133/20000",
+      "mass_per_length_kg_per_m": {
+       "exact": "(6950339/200000)*pi",
+       "decimal": "1.091756697117931497361160517494973839832e+2",
+       "value": 109.17566971179315
+      },
+      "mass_basis": "source_od_nominal_wall_pressure_bore_areas/v1"
+     }
+    },
+    {
+     "target": "pipe:RS-P100",
+     "kind": "distributed_on_member",
+     "direction": "+Z",
+     "span_fraction": [
+      0,
+      1
+     ],
+     "intensity_N_per_m": {
+      "exact": "(1363190839087/20000000000)*pi",
+      "decimal": "2.141295162758312583719364957778417041278e+2",
+      "value": 214.12951627583126
+     },
+     "inputs": {
+      "g_factor": "1/5",
+      "gravity_m_per_s2": "196133/20000",
+      "mass_per_length_kg_per_m": {
+       "exact": "(6950339/200000)*pi",
+       "decimal": "1.091756697117931497361160517494973839832e+2",
+       "value": 109.17566971179315
+      },
+      "mass_basis": "source_od_nominal_wall_pressure_bore_areas/v1"
+     }
+    },
+    {
+     "target": "pipe:RS-P110",
+     "kind": "distributed_on_member",
+     "direction": "+Z",
+     "span_fraction": [
+      0,
+      1
+     ],
+     "intensity_N_per_m": {
+      "exact": "(1363190839087/20000000000)*pi",
+      "decimal": "2.141295162758312583719364957778417041278e+2",
+      "value": 214.12951627583126
+     },
+     "inputs": {
+      "g_factor": "1/5",
+      "gravity_m_per_s2": "196133/20000",
+      "mass_per_length_kg_per_m": {
+       "exact": "(6950339/200000)*pi",
+       "decimal": "1.091756697117931497361160517494973839832e+2",
+       "value": 109.17566971179315
+      },
+      "mass_basis": "source_od_nominal_wall_pressure_bore_areas/v1"
+     }
+    },
+    {
+     "target": "pipe:RS-P120",
+     "kind": "distributed_on_member",
+     "direction": "+Z",
+     "span_fraction": [
+      0,
+      1
+     ],
+     "intensity_N_per_m": {
+      "exact": "(1363190839087/20000000000)*pi",
+      "decimal": "2.141295162758312583719364957778417041278e+2",
+      "value": 214.12951627583126
+     },
+     "inputs": {
+      "g_factor": "1/5",
+      "gravity_m_per_s2": "196133/20000",
+      "mass_per_length_kg_per_m": {
+       "exact": "(6950339/200000)*pi",
+       "decimal": "1.091756697117931497361160517494973839832e+2",
+       "value": 109.17566971179315
+      },
+      "mass_basis": "source_od_nominal_wall_pressure_bore_areas/v1"
+     }
+    },
+    {
+     "target": "pipe:RS-P130",
+     "kind": "distributed_on_member",
+     "direction": "+Z",
+     "span_fraction": [
+      0,
+      1
+     ],
+     "intensity_N_per_m": {
+      "exact": "(1363190839087/20000000000)*pi",
+      "decimal": "2.141295162758312583719364957778417041278e+2",
+      "value": 214.12951627583126
+     },
+     "inputs": {
+      "g_factor": "1/5",
+      "gravity_m_per_s2": "196133/20000",
+      "mass_per_length_kg_per_m": {
+       "exact": "(6950339/200000)*pi",
+       "decimal": "1.091756697117931497361160517494973839832e+2",
+       "value": 109.17566971179315
+      },
+      "mass_basis": "source_od_nominal_wall_pressure_bore_areas/v1"
+     }
+    },
+    {
+     "target": "pipe:RS-P140",
+     "kind": "distributed_on_member",
+     "direction": "+Z",
+     "span_fraction": [
+      0,
+      1
+     ],
+     "intensity_N_per_m": {
+      "exact": "(1363190839087/20000000000)*pi",
+      "decimal": "2.141295162758312583719364957778417041278e+2",
+      "value": 214.12951627583126
+     },
+     "inputs": {
+      "g_factor": "1/5",
+      "gravity_m_per_s2": "196133/20000",
+      "mass_per_length_kg_per_m": {
+       "exact": "(6950339/200000)*pi",
+       "decimal": "1.091756697117931497361160517494973839832e+2",
+       "value": 109.17566971179315
+      },
+      "mass_basis": "source_od_nominal_wall_pressure_bore_areas/v1"
+     }
+    },
+    {
+     "target": "pipe:RS-P160",
+     "kind": "distributed_on_member",
+     "direction": "+Z",
+     "span_fraction": [
+      0,
+      1
+     ],
+     "intensity_N_per_m": {
+      "exact": "(1507960921313/31250000000)*pi",
+      "decimal": "1.515967664735173461966497799674727215566e+2",
+      "value": 151.59676647351733
+     },
+     "inputs": {
+      "g_factor": "1/5",
+      "gravity_m_per_s2": "196133/20000",
+      "mass_per_length_kg_per_m": {
+       "exact": "(7688461/312500)*pi",
+       "decimal": "7.729284030403723299834794754960803207852e+1",
+       "value": 77.29284030403723
+      },
+      "mass_basis": "source_od_nominal_wall_pressure_bore_areas/v1"
+     }
+    },
+    {
+     "target": "pipe:RS-P170",
+     "kind": "distributed_on_member",
+     "direction": "+Z",
+     "span_fraction": [
+      0,
+      1
+     ],
+     "intensity_N_per_m": {
+      "exact": "(1507960921313/31250000000)*pi",
+      "decimal": "1.515967664735173461966497799674727215566e+2",
+      "value": 151.59676647351733
+     },
+     "inputs": {
+      "g_factor": "1/5",
+      "gravity_m_per_s2": "196133/20000",
+      "mass_per_length_kg_per_m": {
+       "exact": "(7688461/312500)*pi",
+       "decimal": "7.729284030403723299834794754960803207852e+1",
+       "value": 77.29284030403723
+      },
+      "mass_basis": "source_od_nominal_wall_pressure_bore_areas/v1"
+     }
+    },
+    {
+     "target": "pipe:RS-P190",
+     "kind": "distributed_on_member",
+     "direction": "+Z",
+     "span_fraction": [
+      0,
+      1
+     ],
+     "intensity_N_per_m": {
+      "exact": "(1507960921313/31250000000)*pi",
+      "decimal": "1.515967664735173461966497799674727215566e+2",
+      "value": 151.59676647351733
+     },
+     "inputs": {
+      "g_factor": "1/5",
+      "gravity_m_per_s2": "196133/20000",
+      "mass_per_length_kg_per_m": {
+       "exact": "(7688461/312500)*pi",
+       "decimal": "7.729284030403723299834794754960803207852e+1",
+       "value": 77.29284030403723
+      },
+      "mass_basis": "source_od_nominal_wall_pressure_bore_areas/v1"
+     }
+    },
+    {
+     "target": "pipe:RS-P200",
+     "kind": "distributed_on_member",
+     "direction": "+Z",
+     "span_fraction": [
+      0,
+      1
+     ],
+     "intensity_N_per_m": {
+      "exact": "(1507960921313/31250000000)*pi",
+      "decimal": "1.515967664735173461966497799674727215566e+2",
+      "value": 151.59676647351733
+     },
+     "inputs": {
+      "g_factor": "1/5",
+      "gravity_m_per_s2": "196133/20000",
+      "mass_per_length_kg_per_m": {
+       "exact": "(7688461/312500)*pi",
+       "decimal": "7.729284030403723299834794754960803207852e+1",
+       "value": 77.29284030403723
+      },
+      "mass_basis": "source_od_nominal_wall_pressure_bore_areas/v1"
+     }
+    },
+    {
+     "target": "pipe:RS-P210",
+     "kind": "distributed_on_member",
+     "direction": "+Z",
+     "span_fraction": [
+      0,
+      1
+     ],
+     "intensity_N_per_m": {
+      "exact": "(15479094672727/500000000000)*pi",
+      "decimal": "9.725802021612009610045701669904029744246e+1",
+      "value": 97.2580202161201
+     },
+     "inputs": {
+      "g_factor": "1/5",
+      "gravity_m_per_s2": "196133/20000",
+      "mass_per_length_kg_per_m": {
+       "exact": "(78921419/5000000)*pi",
+       "decimal": "4.958779002825638525921543885987584824709e+1",
+       "value": 49.587790028256386
+      },
+      "mass_basis": "source_od_nominal_wall_pressure_bore_areas/v1"
+     }
+    },
+    {
+     "target": "pipe:RS-P220",
+     "kind": "distributed_on_member",
+     "direction": "+Z",
+     "span_fraction": [
+      0,
+      1
+     ],
+     "intensity_N_per_m": {
+      "exact": "(15479094672727/500000000000)*pi",
+      "decimal": "9.725802021612009610045701669904029744246e+1",
+      "value": 97.2580202161201
+     },
+     "inputs": {
+      "g_factor": "1/5",
+      "gravity_m_per_s2": "196133/20000",
+      "mass_per_length_kg_per_m": {
+       "exact": "(78921419/5000000)*pi",
+       "decimal": "4.958779002825638525921543885987584824709e+1",
+       "value": 49.587790028256386
+      },
+      "mass_basis": "source_od_nominal_wall_pressure_bore_areas/v1"
+     }
+    },
+    {
+     "target": "pipe:RS-P225",
+     "kind": "distributed_on_member",
+     "direction": "+Z",
+     "span_fraction": [
+      0,
+      1
+     ],
+     "intensity_N_per_m": {
+      "exact": "(15479094672727/500000000000)*pi",
+      "decimal": "9.725802021612009610045701669904029744246e+1",
+      "value": 97.2580202161201
+     },
+     "inputs": {
+      "g_factor": "1/5",
+      "gravity_m_per_s2": "196133/20000",
+      "mass_per_length_kg_per_m": {
+       "exact": "(78921419/5000000)*pi",
+       "decimal": "4.958779002825638525921543885987584824709e+1",
+       "value": 49.587790028256386
+      },
+      "mass_basis": "source_od_nominal_wall_pressure_bore_areas/v1"
+     }
+    },
+    {
+     "target": "pipe:RS-P230",
+     "kind": "distributed_on_member",
+     "direction": "+Z",
+     "span_fraction": [
+      0,
+      1
+     ],
+     "intensity_N_per_m": {
+      "exact": "(15479094672727/500000000000)*pi",
+      "decimal": "9.725802021612009610045701669904029744246e+1",
+      "value": 97.2580202161201
+     },
+     "inputs": {
+      "g_factor": "1/5",
+      "gravity_m_per_s2": "196133/20000",
+      "mass_per_length_kg_per_m": {
+       "exact": "(78921419/5000000)*pi",
+       "decimal": "4.958779002825638525921543885987584824709e+1",
+       "value": 49.587790028256386
+      },
+      "mass_basis": "source_od_nominal_wall_pressure_bore_areas/v1"
+     }
+    },
+    {
+     "target": "node:RS-030",
+     "component": "component:RS-F1",
+     "kind": "component_force",
+     "direction": "+Z",
+     "value_N": {
+      "exact": "(70)",
+      "decimal": "7.000000000000000000000000000000000000000e+1",
+      "value": 70.0
+     },
+     "binary64_by_formation": {
+      "value": 70.0,
+      "bits": "4051800000000000",
+      "exact_of_binary64": "70"
+     },
+     "required_nonzero": true,
+     "inputs": {
+      "g_factor": "1/5",
+      "W_N": "350",
+      "center_of_gravity_m": [
+       "-3/40",
+       "0",
+       "0"
+      ],
+      "normalized_binary64": {
+       "k": [
+        "3fc999999999999a",
+        "3602879701896397/18014398509481984"
+       ],
+       "W": [
+        "4075e00000000000",
+        "350"
+       ],
+       "r": {
+        "x": [
+         "bfb3333333333333",
+         "-5404319552844595/72057594037927936"
+        ],
+        "y": [
+         "0000000000000000",
+         "0"
+        ],
+        "z": [
+         "0000000000000000",
+         "0"
+        ]
+       }
+      }
+     }
+    },
+    {
+     "target": "node:RS-030",
+     "component": "component:RS-F1",
+     "kind": "component_moment",
+     "axis": "x",
+     "formed_as": "RN(r_y * F)",
+     "value_N_m": {
+      "exact": "0",
+      "decimal": "0",
+      "value": 0.0
+     },
+     "binary64_by_formation": {
+      "value": 0.0,
+      "bits": "0000000000000000",
+      "exact_of_binary64": "0",
+      "sign_of_zero": "not fixed by the scope; +0 and -0 both satisfy it"
+     },
+     "required_nonzero": false,
+     "record_emitted_when_zero": null
+    },
+    {
+     "target": "node:RS-030",
+     "component": "component:RS-F1",
+     "kind": "component_moment",
+     "axis": "y",
+     "formed_as": "-RN(r_x * F)",
+     "value_N_m": {
+      "exact": "(21/4)",
+      "decimal": "5.250000000000000000000000000000000000000e+0",
+      "value": 5.25
+     },
+     "binary64_by_formation": {
+      "value": 5.25,
+      "bits": "4015000000000000",
+      "exact_of_binary64": "21/4"
+     },
+     "required_nonzero": true,
+     "record_emitted_when_zero": true
+    },
+    {
+     "target": "node:RS-040",
+     "component": "component:RS-V1",
+     "kind": "component_force",
+     "direction": "+Z",
+     "value_N": {
+      "exact": "(520)",
+      "decimal": "5.200000000000000000000000000000000000000e+2",
+      "value": 520.0
+     },
+     "binary64_by_formation": {
+      "value": 520.0,
+      "bits": "4080400000000000",
+      "exact_of_binary64": "520"
+     },
+     "required_nonzero": true,
+     "inputs": {
+      "g_factor": "1/5",
+      "W_N": "2600",
+      "center_of_gravity_m": [
+       "-3/10",
+       "0",
+       "3/10"
+      ],
+      "normalized_binary64": {
+       "k": [
+        "3fc999999999999a",
+        "3602879701896397/18014398509481984"
+       ],
+       "W": [
+        "40a4500000000000",
+        "2600"
+       ],
+       "r": {
+        "x": [
+         "bfd3333333333333",
+         "-5404319552844595/18014398509481984"
+        ],
+        "y": [
+         "0000000000000000",
+         "0"
+        ],
+        "z": [
+         "3fd3333333333333",
+         "5404319552844595/18014398509481984"
+        ]
+       }
+      }
+     }
+    },
+    {
+     "target": "node:RS-040",
+     "component": "component:RS-V1",
+     "kind": "component_moment",
+     "axis": "x",
+     "formed_as": "RN(r_y * F)",
+     "value_N_m": {
+      "exact": "0",
+      "decimal": "0",
+      "value": 0.0
+     },
+     "binary64_by_formation": {
+      "value": 0.0,
+      "bits": "0000000000000000",
+      "exact_of_binary64": "0",
+      "sign_of_zero": "not fixed by the scope; +0 and -0 both satisfy it"
+     },
+     "required_nonzero": false,
+     "record_emitted_when_zero": null
+    },
+    {
+     "target": "node:RS-040",
+     "component": "component:RS-V1",
+     "kind": "component_moment",
+     "axis": "y",
+     "formed_as": "-RN(r_x * F)",
+     "value_N_m": {
+      "exact": "(156)",
+      "decimal": "1.560000000000000000000000000000000000000e+2",
+      "value": 156.0
+     },
+     "binary64_by_formation": {
+      "value": 156.0,
+      "bits": "4063800000000000",
+      "exact_of_binary64": "156"
+     },
+     "required_nonzero": true,
+     "record_emitted_when_zero": true
+    },
+    {
+     "target": "node:RS-050",
+     "component": "component:RS-F2",
+     "kind": "component_force",
+     "direction": "+Z",
+     "value_N": {
+      "exact": "(70)",
+      "decimal": "7.000000000000000000000000000000000000000e+1",
+      "value": 70.0
+     },
+     "binary64_by_formation": {
+      "value": 70.0,
+      "bits": "4051800000000000",
+      "exact_of_binary64": "70"
+     },
+     "required_nonzero": true,
+     "inputs": {
+      "g_factor": "1/5",
+      "W_N": "350",
+      "center_of_gravity_m": [
+       "-3/40",
+       "0",
+       "0"
+      ],
+      "normalized_binary64": {
+       "k": [
+        "3fc999999999999a",
+        "3602879701896397/18014398509481984"
+       ],
+       "W": [
+        "4075e00000000000",
+        "350"
+       ],
+       "r": {
+        "x": [
+         "bfb3333333333333",
+         "-5404319552844595/72057594037927936"
+        ],
+        "y": [
+         "0000000000000000",
+         "0"
+        ],
+        "z": [
+         "0000000000000000",
+         "0"
+        ]
+       }
+      }
+     }
+    },
+    {
+     "target": "node:RS-050",
+     "component": "component:RS-F2",
+     "kind": "component_moment",
+     "axis": "x",
+     "formed_as": "RN(r_y * F)",
+     "value_N_m": {
+      "exact": "0",
+      "decimal": "0",
+      "value": 0.0
+     },
+     "binary64_by_formation": {
+      "value": 0.0,
+      "bits": "0000000000000000",
+      "exact_of_binary64": "0",
+      "sign_of_zero": "not fixed by the scope; +0 and -0 both satisfy it"
+     },
+     "required_nonzero": false,
+     "record_emitted_when_zero": null
+    },
+    {
+     "target": "node:RS-050",
+     "component": "component:RS-F2",
+     "kind": "component_moment",
+     "axis": "y",
+     "formed_as": "-RN(r_x * F)",
+     "value_N_m": {
+      "exact": "(21/4)",
+      "decimal": "5.250000000000000000000000000000000000000e+0",
+      "value": 5.25
+     },
+     "binary64_by_formation": {
+      "value": 5.25,
+      "bits": "4015000000000000",
+      "exact_of_binary64": "21/4"
+     },
+     "required_nonzero": true,
+     "record_emitted_when_zero": true
+    },
+    {
+     "target": "node:RS-160",
+     "component": "component:RS-R1",
+     "kind": "component_force",
+     "direction": "+Z",
+     "value_N": {
+      "exact": "(60)",
+      "decimal": "6.000000000000000000000000000000000000000e+1",
+      "value": 60.0
+     },
+     "binary64_by_formation": {
+      "value": 60.0,
+      "bits": "404e000000000000",
+      "exact_of_binary64": "60"
+     },
+     "required_nonzero": true,
+     "inputs": {
+      "g_factor": "1/5",
+      "W_N": "300",
+      "center_of_gravity_m": [
+       "0",
+       "-1/5",
+       "1/80"
+      ],
+      "normalized_binary64": {
+       "k": [
+        "3fc999999999999a",
+        "3602879701896397/18014398509481984"
+       ],
+       "W": [
+        "4072c00000000000",
+        "300"
+       ],
+       "r": {
+        "x": [
+         "0000000000000000",
+         "0"
+        ],
+        "y": [
+         "bfc999999999999a",
+         "-3602879701896397/18014398509481984"
+        ],
+        "z": [
+         "3f8999999999999a",
+         "3602879701896397/288230376151711744"
+        ]
+       }
+      }
+     }
+    },
+    {
+     "target": "node:RS-160",
+     "component": "component:RS-R1",
+     "kind": "component_moment",
+     "axis": "x",
+     "formed_as": "RN(r_y * F)",
+     "value_N_m": {
+      "exact": "(-12)",
+      "decimal": "-1.200000000000000000000000000000000000000e+1",
+      "value": -12.0
+     },
+     "binary64_by_formation": {
+      "value": -12.0,
+      "bits": "c028000000000000",
+      "exact_of_binary64": "-12"
+     },
+     "required_nonzero": true,
+     "record_emitted_when_zero": true
+    },
+    {
+     "target": "node:RS-160",
+     "component": "component:RS-R1",
+     "kind": "component_moment",
+     "axis": "y",
+     "formed_as": "-RN(r_x * F)",
+     "value_N_m": {
+      "exact": "0",
+      "decimal": "0",
+      "value": 0.0
+     },
+     "binary64_by_formation": {
+      "value": 0.0,
+      "bits": "0000000000000000",
+      "exact_of_binary64": "0",
+      "sign_of_zero": "not fixed by the scope; +0 and -0 both satisfy it"
+     },
+     "required_nonzero": false,
+     "record_emitted_when_zero": null
+    }
+   ],
+   "generated_load_counts": {
+    "distributed_on_member": 21,
+    "component_force": 4,
+    "component_moment zero": 4,
+    "component_moment required nonzero": 4
+   },
+   "resultant": {
+    "force_N": [
+     {
+      "exact": "0",
+      "decimal": "0",
+      "value": 0.0
+     },
+     {
+      "exact": "0",
+      "decimal": "0",
+      "value": 0.0
+     },
+     {
+      "exact": "(720) + (66155686593423/25000000000)*pi + (124534361799687/4000000000000)*pi^2",
+      "decimal": "9.340644981129720190942530710509777990405e+3",
+      "value": 9340.64498112972
+     }
+    ],
+    "moment_about_origin_N_m": [
+     {
+      "exact": "(1212) + (689381386488375721/25000000000000)*pi + (253997473516297/4000000000000)*pi^2",
+      "decimal": "8.846893361815759028876195551107239692823e+4",
+      "value": 88468.93361815759
+     },
+     {
+      "exact": "(-921) + (-240668557483367167/16000000000000)*pi + (-2917059564163647/16000000000000)*pi^2",
+      "decimal": "-4.997554975328178038699962950156726948485e+4",
+      "value": -49975.54975328178
+     },
+     {
+      "exact": "0",
+      "decimal": "0",
+      "value": 0.0
+     }
+    ]
+   },
+   "EQ-6": {
+    "term": "RS-dEQZ",
+    "expected_reaction_force_resultant_N": [
+     {
+      "exact": "0",
+      "decimal": "0",
+      "value": 0.0
+     },
+     {
+      "exact": "0",
+      "decimal": "0",
+      "value": 0.0
+     },
+     {
+      "exact": "(-720) + (-66155686593423/25000000000)*pi + (-124534361799687/4000000000000)*pi^2",
+      "decimal": "-9.340644981129720190942530710509777990405e+3",
+      "value": -9340.64498112972
+     }
+    ],
+    "expected_reaction_moment_resultant_about_origin_N_m": [
+     {
+      "exact": "(-1212) + (-689381386488375721/25000000000000)*pi + (-253997473516297/4000000000000)*pi^2",
+      "decimal": "-8.846893361815759028876195551107239692823e+4",
+      "value": -88468.93361815759
+     },
+     {
+      "exact": "(921) + (240668557483367167/16000000000000)*pi + (2917059564163647/16000000000000)*pi^2",
+      "decimal": "4.997554975328178038699962950156726948485e+4",
+      "value": 49975.54975328178
+     },
+     {
+      "exact": "0",
+      "decimal": "0",
+      "value": 0.0
+     }
+    ]
+   },
+   "floors": {
+    "force_N": {
+     "zero_scale": 9340.64498112972,
+     "floor": 9.340644981129722e-06,
+     "exact_zero_components": [
+      "x",
+      "y"
+     ]
+    },
+    "moment_N_m": {
+     "zero_scale": 88468.93361815759,
+     "floor": 8.84689336181576e-05,
+     "exact_zero_components": [
+      "z"
+     ]
+    }
+   },
+   "pipes_only_twin": {
+    "what": "every non-replaced member keeps k·g·μ, no component force",
+    "force_N": [
+     {
+      "exact": "0",
+      "decimal": "0",
+      "value": 0.0
+     },
+     {
+      "exact": "0",
+      "decimal": "0",
+      "value": 0.0
+     },
+     {
+      "exact": "(541514210299167/200000000000)*pi + (1363190839087/800000000000)*sqrt(257)*pi + (124534361799687/4000000000000)*pi^2",
+      "decimal": "8.899180477923336243642711150158113187477e+3",
+      "value": 8899.180477923337
+     }
+    ],
+    "moment_about_origin_N_m": [
+     {
+      "exact": "(689381386488375721/25000000000000)*pi + (137682274747787/4000000000000)*sqrt(257)*pi + (253997473516297/4000000000000)*pi^2",
+      "decimal": "8.899047604749402227610379489872760572803e+4",
+      "value": 88990.47604749403
+     },
+     {
+      "exact": "(-241502830276888411/16000000000000)*pi + (-4089572517261/400000000000)*sqrt(257)*pi + (-2917059564163647/16000000000000)*pi^2",
+      "decimal": "-4.973327242610499882064678648152698436865e+4",
+      "value": -49733.272426104995
+     },
+     {
+      "exact": "0",
+      "decimal": "0",
+      "value": 0.0
+     }
+    ],
+    "rule_minus_twin_force_N": [
+     {
+      "exact": "0",
+      "decimal": "0",
+      "value": 0.0
+     },
+     {
+      "exact": "0",
+      "decimal": "0",
+      "value": 0.0
+     },
+     {
+      "exact": "(720) + (-12268717551783/200000000000)*pi + (-1363190839087/800000000000)*sqrt(257)*pi",
+      "decimal": "4.414645032063839472998195603516648029282e+2",
+      "value": 441.46450320638394
+     }
+    ],
+    "rule_minus_twin_moment_N_m": [
+     {
+      "exact": "(1212) + (-137682274747787/4000000000000)*sqrt(257)*pi",
+      "decimal": "-5.215424293364319873418393876552087998060e+2",
+      "value": -521.542429336432
+     },
+     {
+      "exact": "(-921) + (208568198380311/4000000000000)*pi + (4089572517261/400000000000)*sqrt(257)*pi",
+      "decimal": "-2.422773271767815663528430200402851162018e+2",
+      "value": -242.27732717678157
+     },
+     {
+      "exact": "0",
+      "decimal": "0",
+      "value": 0.0
+     }
+    ],
+    "discrimination_at_the_comparison_rule": [
+     {
+      "component": "force_x",
+      "expected_exact_zero": true,
+      "difference_exact_zero": true,
+      "discriminates": false,
+      "why": "exact zero under both the rule and the twin"
+     },
+     {
+      "component": "force_y",
+      "expected_exact_zero": true,
+      "difference_exact_zero": true,
+      "discriminates": false,
+      "why": "exact zero under both the rule and the twin"
+     },
+     {
+      "component": "force_z",
+      "expected_exact_zero": false,
+      "difference_over_tolerance": 47262700.0,
+      "discriminates": true
+     },
+     {
+      "component": "moment_x",
+      "expected_exact_zero": false,
+      "difference_over_tolerance": 5895200.0,
+      "discriminates": true
+     },
+     {
+      "component": "moment_y",
+      "expected_exact_zero": false,
+      "difference_over_tolerance": 4847920.0,
+      "discriminates": true
+     },
+     {
+      "component": "moment_z",
+      "expected_exact_zero": true,
+      "difference_exact_zero": true,
+      "discriminates": false,
+      "why": "exact zero under both the rule and the twin"
+     }
+    ]
+   },
+   "seismic_model_check": {
+    "weight_finding_required": false,
+    "weight_finding_ground": "the decision recorded in seismic_warning_decision",
+    "weight_category_loads_of_the_case": {
+     "what": "the case's 29 applied self-weight primitives (spec §8.1), its only weight-category loads; applied generated self-weight, which the decision excludes from the warning",
+     "count": 29,
+     "ids": [
+      "load:self-weight:11:load:RS-EQZ:12:pipe:RS-P010",
+      "load:self-weight:11:load:RS-EQZ:12:pipe:RS-P050",
+      "load:self-weight:11:load:RS-EQZ:12:pipe:RS-P060",
+      "load:self-weight:11:load:RS-EQZ:12:pipe:RS-P065",
+      "load:self-weight:11:load:RS-EQZ:12:pipe:RS-P070",
+      "load:self-weight:11:load:RS-EQZ:12:pipe:RS-P080",
+      "load:self-weight:11:load:RS-EQZ:12:pipe:RS-P085",
+      "load:self-weight:11:load:RS-EQZ:12:pipe:RS-P090",
+      "load:self-weight:11:load:RS-EQZ:12:pipe:RS-P100",
+      "load:self-weight:11:load:RS-EQZ:12:pipe:RS-P110",
+      "load:self-weight:11:load:RS-EQZ:12:pipe:RS-P120",
+      "load:self-weight:11:load:RS-EQZ:12:pipe:RS-P130",
+      "load:self-weight:11:load:RS-EQZ:12:pipe:RS-P140",
+      "load:self-weight:11:load:RS-EQZ:12:pipe:RS-P160",
+      "load:self-weight:11:load:RS-EQZ:12:pipe:RS-P170",
+      "load:self-weight:11:load:RS-EQZ:12:pipe:RS-P190",
+      "load:self-weight:11:load:RS-EQZ:12:pipe:RS-P200",
+      "load:self-weight:11:load:RS-EQZ:12:pipe:RS-P210",
+      "load:self-weight:11:load:RS-EQZ:12:pipe:RS-P220",
+      "load:self-weight:11:load:RS-EQZ:12:pipe:RS-P225",
+      "load:self-weight:11:load:RS-EQZ:12:pipe:RS-P230",
+      "load:self-weight:11:load:RS-EQZ:component:15:component:RS-F1:force:z",
+      "load:self-weight:11:load:RS-EQZ:component:15:component:RS-F1:moment:y",
+      "load:self-weight:11:load:RS-EQZ:component:15:component:RS-V1:force:z",
+      "load:self-weight:11:load:RS-EQZ:component:15:component:RS-V1:moment:y",
+      "load:self-weight:11:load:RS-EQZ:component:15:component:RS-F2:force:z",
+      "load:self-weight:11:load:RS-EQZ:component:15:component:RS-F2:moment:y",
+      "load:self-weight:11:load:RS-EQZ:component:15:component:RS-R1:force:z",
+      "load:self-weight:11:load:RS-EQZ:component:15:component:RS-R1:moment:x"
+     ],
+     "id_reading": "ids from spec §8.1's rule with <case id> = 'load:RS-EQZ', <pipe id> and <component id> the full ids (spec §2 Identities), the component moment's <axis> the one nonzero component of r × (0, 0, −W); listed in spec §3.2 member order, then component by component"
+    },
+    "condition": "these primitives are the self-weight plan's output and still match the model, as the specification states them (spec §8.1); what the warning does with a primitive that no longer matches its model is not established here",
+    "added_weight_named": [],
+    "added_weight_why": "the case is on the exact route, and no case carries condition added_weight (spec §8)",
+    "gravity_comparison": {
+     "baseline_loads": [
+      "load:self-weight:11:load:RS-EQZ:component:15:component:RS-F1:force:z",
+      "load:self-weight:11:load:RS-EQZ:component:15:component:RS-V1:force:z",
+      "load:self-weight:11:load:RS-EQZ:component:15:component:RS-F2:force:z",
+      "load:self-weight:11:load:RS-EQZ:component:15:component:RS-R1:force:z"
+     ],
+     "baseline_why": "REQ-008: applied component-weight primitives for the components whose forces the case generates (RS-F1, RS-V1, RS-F2, RS-R1), the seismic case's own when present",
+     "applied_gravity_magnitude_m_per_s2": "196133/20000",
+     "applied_source": "spec §2 (−9.80665 m/s² along global_z on each weight case) and §8.1 (W: gravity as §2)",
+     "seismic_gravity_magnitude_m_per_s2": "196133/20000",
+     "seismic_source": "spec §8.1",
+     "equal_after_normalization": true,
+     "gravity_finding_required": false
+    },
+    "any_seismic_model_check_finding_required": false,
+    "code": null,
+    "message": null,
+    "findings_per_load_or_per_case": null,
+    "order_of_named_loads": null,
+    "open_fields_matter_for": "only a test that asserts the absence of these findings"
+   }
+  }
+ },
+ "EQ-4": {
+  "frozen_values": null,
+  "why": "an identity on published rows (spec §9.2 EQ-4)",
+  "recompute": "on each signed component row of RS-EQ-SRSS and RS-EQ-ABS, with x_X, x_Y, x_Z the matching rows of RS-dEQX, RS-dEQY, RS-dEQZ as published and factors 1: ABS = RN(|x_X| + |x_Y| + |x_Z|), the exact sum rounded once; SRSS = RN(√(x_X² + x_Y² + x_Z²)), the exact square root of the exact sum, rounded once (DEL-05-02 'Absolute sum', 'SRSS'); then SRSS ≤ ABS. Magnitude rows follow the combination's own recomputation rule; withheld rows are excluded"
+ },
+ "comparison_rule": {
+  "nonzero": "|observed − expected| ≤ 1e-9·|expected| (relative alone)",
+  "exact_zero": "|observed| ≤ 1e-9·zero_scale, zero_scale the largest magnitude of its family in the item (each item's floors record it)",
+  "discrete": "compared exactly",
+  "component_bits": "a component force or moment the scope's formation rule fixes is also given as binary64 bits; a test may compare those exactly",
+  "source": "DEL-05-01 AC-001 (1e-9 relative)",
+  "relative": 1e-09
+ },
+ "seismic_warning_decision": {
+  "decided_by": "SWBPIPE's Agent 0",
+  "date": "2026-11-18",
+  "decision": "the seismic model-check warning names the two kinds of weight REQ-008 states, entered weight-category loads and, on the pressure-free route, the added weight a case takes from an operating condition; it does not name applied generated self-weight",
+  "reason": "the warning tells the engineer which weights seismic generation did not scale; a pipe's applied self-weight and a component's applied weight are the ones it did, since generation takes the pipe's mass and the component's W directly",
+  "scope_text": "the scope's sentence is to be clarified in a later change; no wording is quoted for it here"
+ },
+ "warning_readings_considered_and_excluded": [
+  {
+   "reading": "the warning names the seismic case's own applied self-weight primitives (29 per case)",
+   "excluded_by": "SWBPIPE's Agent 0's decision of 2026-11-18 (seismic_warning_decision)"
+  },
+  {
+   "reading": "the warning names every weight-category load in the document",
+   "excluded_by": "REQ-008 'on each seismic case' (the assigner's reading), and the same decision"
+  }
+ ],
+ "open_items": [
+  {
+   "id": "OI-1",
+   "item": "the seismic warning's code and message words",
+   "frozen": null,
+   "unsettled": "REQ-008 states what the findings name, not their code or wording; no finding is required on these cases, so this matters only for a test that asserts absence"
+  },
+  {
+   "id": "OI-2",
+   "item": "one finding per named load or one per case, and their order",
+   "frozen": null,
+   "unsettled": "REQ-008 says 'findings' and fixes neither their number nor their order"
+  },
+  {
+   "id": "OI-3",
+   "item": "whether an exactly zero transverse moment component becomes a load record",
+   "frozen": null,
+   "unsettled": "the scope fixes when a component is required nonzero, not whether a zero one is emitted; the values and the required-nonzero set are frozen, the record count is not"
+  },
+  {
+   "id": "OI-4",
+   "item": "generated-load identities and their order",
+   "frozen": null,
+   "unsettled": "no identifier rule is given for generated wind or seismic loads; loads are keyed here by target, kind and axis"
+  }
+ ],
+ "crosscheck": [
+  {
+   "check": "member order",
+   "compares": "the model's pipe_segments order against spec §3.2's table order",
+   "kind": "transcription",
+   "agrees": true
+  },
+  {
+   "check": "replaced span",
+   "compares": "the objective connector's replaces_span span_ref against spec §5.1 (RS-P180)",
+   "kind": "transcription",
+   "agrees": true
+  },
+  {
+   "check": "exposed set",
+   "compares": "RS-P070 … RS-P200 in §3.2 order less the connector's replaced span, against the 14 members listed here from spec §8.1",
+   "kind": "transcription",
+   "agrees": true,
+   "detail": {
+    "exposed": [
+     "pipe:RS-P070",
+     "pipe:RS-P080",
+     "pipe:RS-P085",
+     "pipe:RS-P090",
+     "pipe:RS-P100",
+     "pipe:RS-P110",
+     "pipe:RS-P120",
+     "pipe:RS-P130",
+     "pipe:RS-P140",
+     "pipe:RS-P150",
+     "pipe:RS-P160",
+     "pipe:RS-P170",
+     "pipe:RS-P190",
+     "pipe:RS-P200"
+    ]
+   }
+  },
+  {
+   "check": "mu section:RS-S270",
+   "compares": "radius-form mass per length against the diameter form",
+   "kind": "distinct calculation",
+   "agrees": true
+  },
+  {
+   "check": "mu section:RS-S220",
+   "compares": "radius-form mass per length against the diameter form",
+   "kind": "distinct calculation",
+   "agrees": true
+  },
+  {
+   "check": "mu section:RS-S170",
+   "compares": "radius-form mass per length against the diameter form",
+   "kind": "distinct calculation",
+   "agrees": true
+  },
+  {
+   "check": "exposed members normal to the wind",
+   "compares": "every exposed member's end nodes have X = 6 m and each exposed arc's centre has X = 6 m with radius vectors of zero X component, so every exposed member lies in the plane X = 6 m, normal to +X",
+   "kind": "distinct calculation",
+   "agrees": true
+  },
+  {
+   "check": "rigid-family components that replace their member",
+   "compares": "the components the ordered rules admit against spec §5's statement (RS-F1, RS-V1, RS-F2, RS-R1)",
+   "kind": "transcription",
+   "agrees": true
+  },
+  {
+   "check": "self-weight inventory",
+   "compares": "21 line loads and a force and a moment for each of four components (29) against spec §8.1",
+   "kind": "transcription",
+   "agrees": true
+  },
+  {
+   "check": "pi",
+   "compares": "Machin bounds against the Gauss-Legendre AGM value",
+   "kind": "distinct calculation",
+   "agrees": true
+  },
+  {
+   "check": "binary64 formation",
+   "compares": "each component force and moment rounded here from the exact rational product (ties to even) against the hardware binary64 product of the same binary64 operands, bits",
+   "kind": "distinct calculation",
+   "agrees": true
+  },
+  {
+   "check": "resultants by quadrature",
+   "compares": "every resultant force and moment (wind, three seismic cases, three twins) against direct quadrature along each member and arc: a different pi (AGM), arc centre from the incoming tangent, trigonometric parametrisation with Romberg integration, diameter-form masses, component forces at node + r; agreement within 1e-50 of each family's largest magnitude",
+   "kind": "distinct calculation",
+   "agrees": true,
+   "detail": {
+    "largest_difference_relative": "8.055e-58"
+   }
+  },
+  {
+   "check": "RS-EQX against reference_system_r1_ce",
+   "compares": "force k·W_total·e and moment k·(S × e) from the frozen weight total W_total and first moment S of validation/references/reference_system_r1_ce (for Z also −k times its weight moment), exactly. Exact because the seismic gravity equals the weight gravity's magnitude (9.80665 m/s², §2, §8.1), the same members carry distributed load on the same basis, and each component's W is held fixed at the same centre of gravity",
+   "kind": "distinct calculation by another author",
+   "agrees": true
+  },
+  {
+   "check": "RS-EQY against reference_system_r1_ce",
+   "compares": "force k·W_total·e and moment k·(S × e) from the frozen weight total W_total and first moment S of validation/references/reference_system_r1_ce (for Z also −k times its weight moment), exactly. Exact because the seismic gravity equals the weight gravity's magnitude (9.80665 m/s², §2, §8.1), the same members carry distributed load on the same basis, and each component's W is held fixed at the same centre of gravity",
+   "kind": "distinct calculation by another author",
+   "agrees": true
+  },
+  {
+   "check": "RS-EQZ against reference_system_r1_ce",
+   "compares": "force k·W_total·e and moment k·(S × e) from the frozen weight total W_total and first moment S of validation/references/reference_system_r1_ce (for Z also −k times its weight moment), exactly. Exact because the seismic gravity equals the weight gravity's magnitude (9.80665 m/s², §2, §8.1), the same members carry distributed load on the same basis, and each component's W is held fixed at the same centre of gravity",
+   "kind": "distinct calculation by another author",
+   "agrees": true
+  },
+  {
+   "check": "RS-EQZ against reference_system (tranche 1)",
+   "compares": "the force k·(W_total(tranche 1) + 300 N − g·μ_S270·√257/40) against RS-EQZ's force, exactly. Not exact without the correction: tranche 1 has no RS-R1, so RS-P150 carries its distributed weight there",
+   "kind": "distinct calculation by another author",
+   "agrees": true
+  },
+  {
+   "check": "RS-WIN against reference_system_pending_cases (full)",
+   "compares": "generated force and moment about the origin, exactly; that package assumed the seismic gravity 9.80665 m/s² before spec §8.1 stated it, under the rule decided on 2026-11-12, the rule the scope now states",
+   "kind": "distinct calculation by another author",
+   "agrees": true
+  },
+  {
+   "check": "RS-EQX against reference_system_pending_cases (full)",
+   "compares": "generated force and moment about the origin, exactly; that package assumed the seismic gravity 9.80665 m/s² before spec §8.1 stated it, under the rule decided on 2026-11-12, the rule the scope now states",
+   "kind": "distinct calculation by another author",
+   "agrees": true
+  },
+  {
+   "check": "RS-EQY against reference_system_pending_cases (full)",
+   "compares": "generated force and moment about the origin, exactly; that package assumed the seismic gravity 9.80665 m/s² before spec §8.1 stated it, under the rule decided on 2026-11-12, the rule the scope now states",
+   "kind": "distinct calculation by another author",
+   "agrees": true
+  },
+  {
+   "check": "RS-EQZ against reference_system_pending_cases (full)",
+   "compares": "generated force and moment about the origin, exactly; that package assumed the seismic gravity 9.80665 m/s² before spec §8.1 stated it, under the rule decided on 2026-11-12, the rule the scope now states",
+   "kind": "distinct calculation by another author",
+   "agrees": true
+  },
+  {
+   "check": "RS-EQX twin against reference_system_pending_cases control",
+   "compares": "the pipes-only twin's force and moment against that package's full-system control 'the rule before 2026-11-12: pipe mass on a mapped member, component weight left out', exactly",
+   "kind": "distinct calculation by another author",
+   "agrees": true
+  },
+  {
+   "check": "RS-EQY twin against reference_system_pending_cases control",
+   "compares": "the pipes-only twin's force and moment against that package's full-system control 'the rule before 2026-11-12: pipe mass on a mapped member, component weight left out', exactly",
+   "kind": "distinct calculation by another author",
+   "agrees": true
+  },
+  {
+   "check": "RS-EQZ twin against reference_system_pending_cases control",
+   "compares": "the pipes-only twin's force and moment against that package's full-system control 'the rule before 2026-11-12: pipe mass on a mapped member, component weight left out', exactly",
+   "kind": "distinct calculation by another author",
+   "agrees": true
+  },
+  {
+   "check": "README quotes",
+   "compares": "the README quotes every nonzero resultant value",
+   "kind": "consistency",
+   "agrees": true
+  }
+ ],
+ "crosscheck_count": 24
+}
