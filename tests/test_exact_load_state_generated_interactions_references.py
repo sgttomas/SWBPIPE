@@ -185,3 +185,32 @@ def test_axial_member_end_rows_say_which_axial_force_they_are():
     cef = next(c for c in doc["cases"] if c["id"] == "CEF-SUS")
     axial = [r for r in cef["rows"] if "axial_quantity" in r]
     assert len(axial) == 8 and all(r["axial_quantity"].startswith("effective (elastic) member force") for r in axial)
+
+
+def test_the_refusals_state_their_grounds_and_observable_outcome():
+    refusals = {r["id"]: r for r in _doc()["refusals"]}
+    for r in refusals.values():
+        assert r["rests_on"] and r["observable_outcome"], r["id"]
+    for rid in ("JR-REFUSE-WIND-ON-REPLACED-SPAN", "JR-REFUSE-PART-SPAN-WIND-ON-REPLACED-SPAN"):
+        assert "DEL-03-06 AC-004" in refusals[rid]["rests_on"] and "8.1" in refusals[rid]["rests_on"], rid
+    collision = refusals["JR-REFUSE-GENERATED-IDENTITY-COLLISION"]
+    assert "Agent 0" in collision["rests_on"] and collision["colliding_identities"]
+
+
+def test_every_compared_item_states_its_comparison_floors():
+    doc = _doc()
+    assert "max(1e-9 * abs(expected), floor)" in doc["conventions"]["comparison"]
+    assert "euler_bernoulli" in doc["binding"]
+    for item in doc["cases"] + doc["terms"] + doc["combinations"]:
+        if item.get("rows"):
+            floor = item["comparison_floor"]
+            assert set(floor) == {"force", "moment", "translation", "rotation"}, item["id"]
+            assert all(v > 0 for v in floor.values()), item["id"]
+    assert doc["lift_off_threshold"]["comparison_floor"] == {"dimensionless": 1e-12}
+
+
+def test_aggregated_axial_rows_are_labelled_as_magnitudes():
+    combos = {c["id"]: c for c in _doc()["combinations"]}
+    for cid in ("CEF-EQ-SRSS", "CEF-EQ-ABS"):
+        axial = [r for r in combos[cid]["rows"] if "axial_quantity" in r]
+        assert len(axial) == 8 and all(r["axial_quantity"].startswith("magnitude aggregated") for r in axial), cid
