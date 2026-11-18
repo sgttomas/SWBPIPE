@@ -3,7 +3,7 @@
 //! under "Method choices that define the solve"; release limitation
 //! LIM-030), observed through the product's public entries:
 //!
-//! - a load term that is not an authored nodal load, the seventh family in
+//! - a load term that is not an authored nodal term, the seventh family in
 //!   `force_scaling_admission`'s order, which `f1b_w2_runtime.rs` does not
 //!   observe at product level (the admission unit tests in `src/f1b_tests.rs`
 //!   name it from the admission function directly);
@@ -225,7 +225,8 @@ fn cantilever(modulus_scale: f64, extra: Vec<Value>, loads: Vec<Value>) -> Value
 }
 
 /// A model with a nonlinear support never reaches force scaling: on a range
-/// failure of the case's ordinary attempt in the certified evaluation, the
+/// failure of the case's ordinary attempt (asserted: the diagnostic states the
+/// kernel's `Range` error, so no other unresolved outcome passes), the
 /// trigger is dropped (`built.nonlinear_supports` is not empty), the failure
 /// is not a contact-seed failure, and the case's integrity diagnostic is the
 /// ordinary one, `NUMERICAL_INTEGRITY_UNRESOLVED` (a range error has no other
@@ -248,6 +249,11 @@ fn range_failure_on_a_nonlinear_model_is_not_force_scaled() {
                 .find(|d| d.id == "diagnostic:numerical-integrity:case:f")
                 .unwrap_or_else(|| panic!("{entry} {mode:?}: {:?}", envelope.diagnostics));
             assert_eq!(record.severity, "blocking");
+            assert!(
+                record.message.contains("structural integrity: Range("),
+                "{entry} {mode:?}: {}",
+                record.message
+            );
         }
     }
 }
