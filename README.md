@@ -32,12 +32,15 @@ The [release limitations](docs/RELEASE_LIMITATIONS_v1.0.md) record each
 remaining refusal and whether Agent 0 has declared it acceptable. Package version strings and older
 0.1.0 documentation do not change the v1.0 publication target.
 
-**Known numerical defect on development main:** ordinary output, desktop badges
-and ordinary numerical eligibility can report passed or established standing
-without a verified inverse-norm bound. This violates exit criterion 18;
+**Known numerical defect on development main:** new solves verify the
+integrity check's inverse-norm bound or report the case numerically sensitive,
+but result documents do not yet record that verification, so stored ordinary
+output, desktop badges and ordinary numerical eligibility can report passed or
+established standing without a recorded verified inverse-norm bound. Exit
+criterion 18 remains unmet;
 [LIM-026](docs/RELEASE_LIMITATIONS_v1.0.md#lim-026--ordinary-results-can-say-checks-passed-or-established-without-a-verified-inverse-norm-bound)
-names the maintained false-pass and false-state witness and the limits of the
-rendered report's disclosure. These tokens are not independent assurance.
+names the maintained witness and the limits of the rendered report's
+disclosure. These tokens are not independent assurance.
 
 A separate [structured quantity-edit defect, LIM-027](docs/RELEASE_LIMITATIONS_v1.0.md#lim-027--a-bare-structured-quantity-edit-can-store-its-number-beside-the-old-unit),
 can store a bare entered number beside the old unit and publish a result for
