@@ -11,7 +11,7 @@ mod support;
 use open_pipe_stress_response_spectrum::{
     combine, ClusterClass, ClusterIndex, CombinationRequest, Direction, DirectionalRule, MissingMass, ModalContribution,
     ModalMode, ModalRule, ModeIndex, Quantity, ReactionComponent, RigidContribution, RigidRule, DisplacementComponent,
-    End, ForceComponent, Frame,
+    End, ForceComponent, Frame, MemberFamily,
 };
 use serde_json::Value;
 use support::*;
@@ -122,9 +122,12 @@ fn c4_cqc_on_a_close_pair_with_opposite_signs() {
     let a = discrete_analysis(case, analysis, None);
     let c = combine(&a.request(ModalRule::Cqc, Some(RigidRule::AbsoluteSum), DirectionalRule::HundredFortyForty)).unwrap();
     let s = combine(&a.request(ModalRule::Srss, Some(RigidRule::AbsoluteSum), DirectionalRule::HundredFortyForty)).unwrap();
+    // One informational coefficient per unordered pair of distinct periodic clusters.
     let rho = c.correlation.as_ref().unwrap();
+    assert_eq!(rho.len(), 1);
+    assert_eq!((rho[0].first, rho[0].second), (ClusterIndex(1), ClusterIndex(2)));
     let published = expected(&analysis["cqc_correlation"]["rho"][0][1]);
-    assert!((rho[0][1] - published).abs() <= 1e-9 * published, "{} against {published}", rho[0][1]);
+    assert!((rho[0].rho - published).abs() <= 1e-9 * published, "{} against {published}", rho[0].rho);
     let cqc = combined_of(&c, &a.keys);
     let srss = combined_of(&s, &a.keys);
     // Under X, N3.uy, A1.Fy and A1.Mx receive opposite-sign contributions from the pair, so CQC
@@ -186,7 +189,7 @@ fn c9_chain_grouping_differs_from_ten_percent() {
 }
 
 fn combined_of_rows(rows: &[open_pipe_stress_response_spectrum::CombinedRow]) -> std::collections::BTreeMap<String, f64> {
-    rows.iter().map(|r| (r.quantity.key(), r.combined.value())).collect()
+    rows.iter().map(|r| (reference_key(&r.quantity), r.combined.value())).collect()
 }
 
 #[test]
@@ -207,6 +210,8 @@ fn c10_unequal_frequency_clusters_cancellation_and_straddling() {
     // N3.uz under Y: the two contributions of ±2.17e-3 m sum to about -4.43e-10 m.
     let i = a.keys.iter().position(|k| k == "N3.uz").unwrap();
     let witness = &analysis["cluster_witness"][0]["per_direction"]["Y"];
+    // Only clusters of more than one mode state a signed sum; both of W2's do.
+    assert_eq!(c.cluster_sums.len(), 2 * a.directions.len());
     let sum = c.cluster_sums.iter().find(|s| s.cluster == ClusterIndex(1) && s.direction == Direction::Y).unwrap().values[i];
     let reference = expected(&witness["cluster_sum_signed"]["N3.uz"]);
     let operands = a.contributions[&(Direction::Y, 1)][i].abs() + a.contributions[&(Direction::Y, 2)][i].abs();
@@ -324,9 +329,9 @@ fn chain_rows() -> Vec<Quantity> {
         Quantity::NodeDisplacement { node: "N1".into(), component: DisplacementComponent::Ux },
         Quantity::NodeDisplacement { node: "N2".into(), component: DisplacementComponent::Ux },
         // A spring's tension is the force on the spring element at its end j along +x.
-        Quantity::ElementEndForce { member: "K1".into(), end: End::J, component: ForceComponent::Fx, frame: Frame::Global },
-        Quantity::ElementEndForce { member: "K2".into(), end: End::J, component: ForceComponent::Fx, frame: Frame::Global },
-        Quantity::SupportReaction { support: "G".into(), component: ReactionComponent::Fx },
+        Quantity::ElementEndAction { member: "K1".into(), family: MemberFamily::Straight, end: End::J, component: ForceComponent::Fx, frame: Frame::GlobalAxes },
+        Quantity::ElementEndAction { member: "K2".into(), family: MemberFamily::Straight, end: End::J, component: ForceComponent::Fx, frame: Frame::GlobalAxes },
+        Quantity::CompliantSupportForce { support: "G".into(), component: ReactionComponent::Ux },
     ]
 }
 

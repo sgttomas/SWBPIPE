@@ -211,21 +211,6 @@ impl CorrelationTable {
     fn get(&self, i: usize, j: usize) -> &Interval {
         &self.rho[i][j - i - 1]
     }
-
-    /// The binary64 nearest each enclosure's midpoint, as a full matrix with a unit diagonal
-    /// (informational).
-    pub(crate) fn nearest(&self, n: usize) -> Vec<Vec<f64>> {
-        let mut m = vec![vec![1.0; n]; n];
-        for i in 0..n {
-            for j in (i + 1)..n {
-                let e = self.get(i, j);
-                let v = e.lo.midpoint(&e.hi).to_f64();
-                m[i][j] = v;
-                m[j][i] = v;
-            }
-        }
-        m
-    }
 }
 
 /// Why an enclosure could not be published at the working precision.

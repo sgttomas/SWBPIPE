@@ -11,9 +11,6 @@
         0.0,
         -0.00040155764281735173,
         -5080.402543673549,
-        -0.00016955191670278168,
-        -0.000101731150021669,
-        -0.00013564153336222533,
         0.0,
         0.0,
         0.0,
@@ -69,9 +66,6 @@
         0.0,
         2540.2011547157954,
         0.00020077882140867587,
-        -0.00011303461113518777,
-        -0.00006782076668111266,
-        -0.00009042768890815022,
         0.0,
         0.0,
         0.0,
@@ -156,11 +150,15 @@
   "rows": [
     {
       "combined": 0.0,
-      "component": "Fx",
-      "frame": "global",
+      "component": "UX",
+      "entity_kind": "rigid_constraint",
+      "frame": "global_axes",
       "governing_direction": null,
-      "key": "A1.Fx",
-      "object": "A1",
+      "holders": [
+        "A1"
+      ],
+      "label": "constraint_reaction rigid_constraint [A1] UX (global_axes)",
+      "node": "A1",
       "per_direction": [
         {
           "combined": 0.0,
@@ -175,17 +173,21 @@
           "rigid": 0.0
         }
       ],
-      "quantity": "support_reaction",
+      "quantity": "constraint_reaction",
       "sign_status": "unsigned_combined_magnitude",
-      "unit": "N"
+      "unit": "unit:newton"
     },
     {
       "combined": 2067.503190529704,
-      "component": "Fy",
-      "frame": "global",
+      "component": "UY",
+      "entity_kind": "rigid_constraint",
+      "frame": "global_axes",
       "governing_direction": null,
-      "key": "A1.Fy",
-      "object": "A1",
+      "holders": [
+        "A1"
+      ],
+      "label": "constraint_reaction rigid_constraint [A1] UY (global_axes)",
+      "node": "A1",
       "per_direction": [
         {
           "combined": 2067.5031905297037,
@@ -200,17 +202,21 @@
           "rigid": 1.9770913654796845e-6
         }
       ],
-      "quantity": "support_reaction",
+      "quantity": "constraint_reaction",
       "sign_status": "unsigned_combined_magnitude",
-      "unit": "N"
+      "unit": "unit:newton"
     },
     {
       "combined": 1033.751573666721,
-      "component": "Fz",
-      "frame": "global",
+      "component": "UZ",
+      "entity_kind": "rigid_constraint",
+      "frame": "global_axes",
       "governing_direction": null,
-      "key": "A1.Fz",
-      "object": "A1",
+      "holders": [
+        "A1"
+      ],
+      "label": "constraint_reaction rigid_constraint [A1] UZ (global_axes)",
+      "node": "A1",
       "per_direction": [
         {
           "combined": 0.00008522308256960977,
@@ -225,17 +231,21 @@
           "rigid": 552.8106473972454
         }
       ],
-      "quantity": "support_reaction",
+      "quantity": "constraint_reaction",
       "sign_status": "unsigned_combined_magnitude",
-      "unit": "N"
+      "unit": "unit:newton"
     },
     {
       "combined": 0.0,
-      "component": "Mx",
-      "frame": "global",
+      "component": "RX",
+      "entity_kind": "rigid_constraint",
+      "frame": "global_axes",
       "governing_direction": null,
-      "key": "A1.Mx",
-      "object": "A1",
+      "holders": [
+        "A1"
+      ],
+      "label": "constraint_reaction rigid_constraint [A1] RX (global_axes)",
+      "node": "A1",
       "per_direction": [
         {
           "combined": 0.0,
@@ -250,17 +260,21 @@
           "rigid": 0.0
         }
       ],
-      "quantity": "support_reaction",
+      "quantity": "constraint_reaction",
       "sign_status": "unsigned_combined_magnitude",
-      "unit": "N*m"
+      "unit": "unit:newton_meter"
     },
     {
       "combined": 2559.3470029717096,
-      "component": "My",
-      "frame": "global",
+      "component": "RY",
+      "entity_kind": "rigid_constraint",
+      "frame": "global_axes",
       "governing_direction": null,
-      "key": "A1.My",
-      "object": "A1",
+      "holders": [
+        "A1"
+      ],
+      "label": "constraint_reaction rigid_constraint [A1] RY (global_axes)",
+      "node": "A1",
       "per_direction": [
         {
           "combined": 0.00040157446594380836,
@@ -275,17 +289,21 @@
           "rigid": 312.4662785016169
         }
       ],
-      "quantity": "support_reaction",
+      "quantity": "constraint_reaction",
       "sign_status": "unsigned_combined_magnitude",
-      "unit": "N*m"
+      "unit": "unit:newton_meter"
     },
     {
       "combined": 5118.694238694792,
-      "component": "Mz",
-      "frame": "global",
+      "component": "RZ",
+      "entity_kind": "rigid_constraint",
+      "frame": "global_axes",
       "governing_direction": null,
-      "key": "A1.Mz",
-      "object": "A1",
+      "holders": [
+        "A1"
+      ],
+      "label": "constraint_reaction rigid_constraint [A1] RZ (global_axes)",
+      "node": "A1",
       "per_direction": [
         {
           "combined": 5118.6942386947885,
@@ -300,92 +318,18 @@
           "rigid": 1.8378787383189653e-6
         }
       ],
-      "quantity": "support_reaction",
+      "quantity": "constraint_reaction",
       "sign_status": "unsigned_combined_magnitude",
-      "unit": "N*m"
-    },
-    {
-      "combined": 0.00020379366407390222,
-      "component": "Fd",
-      "frame": "global",
-      "governing_direction": null,
-      "key": "K1.Fd",
-      "object": "K1",
-      "per_direction": [
-        {
-          "combined": 0.000169566578176878,
-          "direction": "Y",
-          "periodic": 0.00016955191670278168,
-          "rigid": 2.2297930460586018e-6
-        },
-        {
-          "combined": 0.00011304438545125197,
-          "direction": "Z",
-          "periodic": 0.00011303461113518777,
-          "rigid": 1.486528697372401e-6
-        }
-      ],
-      "quantity": "support_reaction",
-      "sign_status": "unsigned_combined_magnitude",
-      "unit": "N"
-    },
-    {
-      "combined": 0.00012227619844434133,
-      "component": "Fy",
-      "frame": "global",
-      "governing_direction": null,
-      "key": "K1.Fy",
-      "object": "K1",
-      "per_direction": [
-        {
-          "combined": 0.00010173994690612677,
-          "direction": "Y",
-          "periodic": 0.000101731150021669,
-          "rigid": 1.337875827635161e-6
-        },
-        {
-          "combined": 0.00006782663127075119,
-          "direction": "Z",
-          "periodic": 0.00006782076668111266,
-          "rigid": 8.919172184234406e-7
-        }
-      ],
-      "quantity": "support_reaction",
-      "sign_status": "unsigned_combined_magnitude",
-      "unit": "N"
-    },
-    {
-      "combined": 0.00016303493125912176,
-      "component": "Fz",
-      "frame": "global",
-      "governing_direction": null,
-      "key": "K1.Fz",
-      "object": "K1",
-      "per_direction": [
-        {
-          "combined": 0.00013565326254150238,
-          "direction": "Y",
-          "periodic": 0.00013564153336222533,
-          "rigid": 1.7838344368468813e-6
-        },
-        {
-          "combined": 0.00009043550836100158,
-          "direction": "Z",
-          "periodic": 0.00009042768890815022,
-          "rigid": 1.189222957897921e-6
-        }
-      ],
-      "quantity": "support_reaction",
-      "sign_status": "unsigned_combined_magnitude",
-      "unit": "N"
+      "unit": "unit:newton_meter"
     },
     {
       "combined": 0.0,
       "component": "rx",
-      "frame": "global",
+      "entity_kind": "node",
+      "frame": "global_axes",
       "governing_direction": null,
-      "key": "N1.rx",
-      "object": "N1",
+      "label": "node_displacement node [N1] rx (global_axes)",
+      "node": "N1",
       "per_direction": [
         {
           "combined": 0.0,
@@ -402,15 +346,16 @@
       ],
       "quantity": "node_displacement",
       "sign_status": "unsigned_combined_magnitude",
-      "unit": "rad"
+      "unit": "unit:radian"
     },
     {
       "combined": 0.0,
       "component": "ry",
-      "frame": "global",
+      "entity_kind": "node",
+      "frame": "global_axes",
       "governing_direction": null,
-      "key": "N1.ry",
-      "object": "N1",
+      "label": "node_displacement node [N1] ry (global_axes)",
+      "node": "N1",
       "per_direction": [
         {
           "combined": 0.0,
@@ -427,15 +372,16 @@
       ],
       "quantity": "node_displacement",
       "sign_status": "unsigned_combined_magnitude",
-      "unit": "rad"
+      "unit": "unit:radian"
     },
     {
       "combined": 0.0,
       "component": "rz",
-      "frame": "global",
+      "entity_kind": "node",
+      "frame": "global_axes",
       "governing_direction": null,
-      "key": "N1.rz",
-      "object": "N1",
+      "label": "node_displacement node [N1] rz (global_axes)",
+      "node": "N1",
       "per_direction": [
         {
           "combined": 0.0,
@@ -452,15 +398,16 @@
       ],
       "quantity": "node_displacement",
       "sign_status": "unsigned_combined_magnitude",
-      "unit": "rad"
+      "unit": "unit:radian"
     },
     {
       "combined": 0.0,
       "component": "ux",
-      "frame": "global",
+      "entity_kind": "node",
+      "frame": "global_axes",
       "governing_direction": null,
-      "key": "N1.ux",
-      "object": "N1",
+      "label": "node_displacement node [N1] ux (global_axes)",
+      "node": "N1",
       "per_direction": [
         {
           "combined": 0.0,
@@ -477,15 +424,16 @@
       ],
       "quantity": "node_displacement",
       "sign_status": "unsigned_combined_magnitude",
-      "unit": "m"
+      "unit": "unit:meter"
     },
     {
       "combined": 0.0,
       "component": "uy",
-      "frame": "global",
+      "entity_kind": "node",
+      "frame": "global_axes",
       "governing_direction": null,
-      "key": "N1.uy",
-      "object": "N1",
+      "label": "node_displacement node [N1] uy (global_axes)",
+      "node": "N1",
       "per_direction": [
         {
           "combined": 0.0,
@@ -502,15 +450,16 @@
       ],
       "quantity": "node_displacement",
       "sign_status": "unsigned_combined_magnitude",
-      "unit": "m"
+      "unit": "unit:meter"
     },
     {
       "combined": 0.0,
       "component": "uz",
-      "frame": "global",
+      "entity_kind": "node",
+      "frame": "global_axes",
       "governing_direction": null,
-      "key": "N1.uz",
-      "object": "N1",
+      "label": "node_displacement node [N1] uz (global_axes)",
+      "node": "N1",
       "per_direction": [
         {
           "combined": 0.0,
@@ -527,15 +476,16 @@
       ],
       "quantity": "node_displacement",
       "sign_status": "unsigned_combined_magnitude",
-      "unit": "m"
+      "unit": "unit:meter"
     },
     {
       "combined": 0.0,
       "component": "rx",
-      "frame": "global",
+      "entity_kind": "node",
+      "frame": "global_axes",
       "governing_direction": null,
-      "key": "N2.rx",
-      "object": "N2",
+      "label": "node_displacement node [N2] rx (global_axes)",
+      "node": "N2",
       "per_direction": [
         {
           "combined": 0.0,
@@ -552,15 +502,16 @@
       ],
       "quantity": "node_displacement",
       "sign_status": "unsigned_combined_magnitude",
-      "unit": "rad"
+      "unit": "unit:radian"
     },
     {
       "combined": 0.0006573297242204163,
       "component": "ry",
-      "frame": "global",
+      "entity_kind": "node",
+      "frame": "global_axes",
       "governing_direction": null,
-      "key": "N2.ry",
-      "object": "N2",
+      "label": "node_displacement node [N2] ry (global_axes)",
+      "node": "N2",
       "per_direction": [
         {
           "combined": 1.2330430992447456e-10,
@@ -577,15 +528,16 @@
       ],
       "quantity": "node_displacement",
       "sign_status": "unsigned_combined_magnitude",
-      "unit": "rad"
+      "unit": "unit:radian"
     },
     {
       "combined": 0.0013146595203645008,
       "component": "rz",
-      "frame": "global",
+      "entity_kind": "node",
+      "frame": "global_axes",
       "governing_direction": null,
-      "key": "N2.rz",
-      "object": "N2",
+      "label": "node_displacement node [N2] rz (global_axes)",
+      "node": "N2",
       "per_direction": [
         {
           "combined": 0.0013146595203644992,
@@ -602,15 +554,16 @@
       ],
       "quantity": "node_displacement",
       "sign_status": "unsigned_combined_magnitude",
-      "unit": "rad"
+      "unit": "unit:radian"
     },
     {
       "combined": 0.0,
       "component": "ux",
-      "frame": "global",
+      "entity_kind": "node",
+      "frame": "global_axes",
       "governing_direction": null,
-      "key": "N2.ux",
-      "object": "N2",
+      "label": "node_displacement node [N2] ux (global_axes)",
+      "node": "N2",
       "per_direction": [
         {
           "combined": 0.0,
@@ -627,15 +580,16 @@
       ],
       "quantity": "node_displacement",
       "sign_status": "unsigned_combined_magnitude",
-      "unit": "m"
+      "unit": "unit:meter"
     },
     {
       "combined": 0.0015355859148106896,
       "component": "uy",
-      "frame": "global",
+      "entity_kind": "node",
+      "frame": "global_axes",
       "governing_direction": null,
-      "key": "N2.uy",
-      "object": "N2",
+      "label": "node_displacement node [N2] uy (global_axes)",
+      "node": "N2",
       "per_direction": [
         {
           "combined": 0.0015355859148106883,
@@ -652,15 +606,16 @@
       ],
       "quantity": "node_displacement",
       "sign_status": "unsigned_combined_magnitude",
-      "unit": "m"
+      "unit": "unit:meter"
     },
     {
       "combined": 0.0007677929181361638,
       "component": "uz",
-      "frame": "global",
+      "entity_kind": "node",
+      "frame": "global_axes",
       "governing_direction": null,
-      "key": "N2.uz",
-      "object": "N2",
+      "label": "node_displacement node [N2] uz (global_axes)",
+      "node": "N2",
       "per_direction": [
         {
           "combined": 1.3468326319841997e-10,
@@ -677,15 +632,16 @@
       ],
       "quantity": "node_displacement",
       "sign_status": "unsigned_combined_magnitude",
-      "unit": "m"
+      "unit": "unit:meter"
     },
     {
       "combined": 0.0,
       "component": "rx",
-      "frame": "global",
+      "entity_kind": "node",
+      "frame": "global_axes",
       "governing_direction": null,
-      "key": "N3.rx",
-      "object": "N3",
+      "label": "node_displacement node [N3] rx (global_axes)",
+      "node": "N3",
       "per_direction": [
         {
           "combined": 0.0,
@@ -702,15 +658,16 @@
       ],
       "quantity": "node_displacement",
       "sign_status": "unsigned_combined_magnitude",
-      "unit": "rad"
+      "unit": "unit:radian"
     },
     {
       "combined": 0.0007788311097596562,
       "component": "ry",
-      "frame": "global",
+      "entity_kind": "node",
+      "frame": "global_axes",
       "governing_direction": null,
-      "key": "N3.ry",
-      "object": "N3",
+      "label": "node_displacement node [N3] ry (global_axes)",
+      "node": "N3",
       "per_direction": [
         {
           "combined": 1.7017115367046448e-10,
@@ -727,15 +684,16 @@
       ],
       "quantity": "node_displacement",
       "sign_status": "unsigned_combined_magnitude",
-      "unit": "rad"
+      "unit": "unit:radian"
     },
     {
       "combined": 0.0015576623187055446,
       "component": "rz",
-      "frame": "global",
+      "entity_kind": "node",
+      "frame": "global_axes",
       "governing_direction": null,
-      "key": "N3.rz",
-      "object": "N3",
+      "label": "node_displacement node [N3] rz (global_axes)",
+      "node": "N3",
       "per_direction": [
         {
           "combined": 0.0015576623187055422,
@@ -752,15 +710,16 @@
       ],
       "quantity": "node_displacement",
       "sign_status": "unsigned_combined_magnitude",
-      "unit": "rad"
+      "unit": "unit:radian"
     },
     {
       "combined": 0.0,
       "component": "ux",
-      "frame": "global",
+      "entity_kind": "node",
+      "frame": "global_axes",
       "governing_direction": null,
-      "key": "N3.ux",
-      "object": "N3",
+      "label": "node_displacement node [N3] ux (global_axes)",
+      "node": "N3",
       "per_direction": [
         {
           "combined": 0.0,
@@ -777,15 +736,16 @@
       ],
       "quantity": "node_displacement",
       "sign_status": "unsigned_combined_magnitude",
-      "unit": "m"
+      "unit": "unit:meter"
     },
     {
       "combined": 0.0045217760084446425,
       "component": "uy",
-      "frame": "global",
+      "entity_kind": "node",
+      "frame": "global_axes",
       "governing_direction": null,
-      "key": "N3.uy",
-      "object": "N3",
+      "label": "node_displacement node [N3] uy (global_axes)",
+      "node": "N3",
       "per_direction": [
         {
           "combined": 0.004521776008444637,
@@ -802,15 +762,16 @@
       ],
       "quantity": "node_displacement",
       "sign_status": "unsigned_combined_magnitude",
-      "unit": "m"
+      "unit": "unit:meter"
     },
     {
       "combined": 0.002260887875073552,
       "component": "uz",
-      "frame": "global",
+      "entity_kind": "node",
+      "frame": "global_axes",
       "governing_direction": null,
-      "key": "N3.uz",
-      "object": "N3",
+      "label": "node_displacement node [N3] uz (global_axes)",
+      "node": "N3",
       "per_direction": [
         {
           "combined": 4.428293665220753e-10,
@@ -827,16 +788,18 @@
       ],
       "quantity": "node_displacement",
       "sign_status": "unsigned_combined_magnitude",
-      "unit": "m"
+      "unit": "unit:meter"
     },
     {
       "combined": 0.0,
       "component": "Fx",
       "end": "i",
-      "frame": "global",
+      "entity_kind": "member",
+      "frame": "global_axes",
       "governing_direction": null,
-      "key": "P1.i.Fx",
-      "object": "P1",
+      "label": "element_end_action member [P1] end i Fx (global_axes)",
+      "member": "P1",
+      "member_family": "straight",
       "per_direction": [
         {
           "combined": 0.0,
@@ -851,18 +814,20 @@
           "rigid": 0.0
         }
       ],
-      "quantity": "element_end_force",
+      "quantity": "element_end_action",
       "sign_status": "unsigned_combined_magnitude",
-      "unit": "N"
+      "unit": "unit:newton"
     },
     {
       "combined": 2067.503190529704,
       "component": "Fy",
       "end": "i",
-      "frame": "global",
+      "entity_kind": "member",
+      "frame": "global_axes",
       "governing_direction": null,
-      "key": "P1.i.Fy",
-      "object": "P1",
+      "label": "element_end_action member [P1] end i Fy (global_axes)",
+      "member": "P1",
+      "member_family": "straight",
       "per_direction": [
         {
           "combined": 2067.5031905297037,
@@ -877,18 +842,20 @@
           "rigid": 1.9770913654796845e-6
         }
       ],
-      "quantity": "element_end_force",
+      "quantity": "element_end_action",
       "sign_status": "unsigned_combined_magnitude",
-      "unit": "N"
+      "unit": "unit:newton"
     },
     {
       "combined": 1033.751573666721,
       "component": "Fz",
       "end": "i",
-      "frame": "global",
+      "entity_kind": "member",
+      "frame": "global_axes",
       "governing_direction": null,
-      "key": "P1.i.Fz",
-      "object": "P1",
+      "label": "element_end_action member [P1] end i Fz (global_axes)",
+      "member": "P1",
+      "member_family": "straight",
       "per_direction": [
         {
           "combined": 0.00008522308256960977,
@@ -903,18 +870,20 @@
           "rigid": 552.8106473972454
         }
       ],
-      "quantity": "element_end_force",
+      "quantity": "element_end_action",
       "sign_status": "unsigned_combined_magnitude",
-      "unit": "N"
+      "unit": "unit:newton"
     },
     {
       "combined": 0.0,
       "component": "Mx",
       "end": "i",
-      "frame": "global",
+      "entity_kind": "member",
+      "frame": "global_axes",
       "governing_direction": null,
-      "key": "P1.i.Mx",
-      "object": "P1",
+      "label": "element_end_action member [P1] end i Mx (global_axes)",
+      "member": "P1",
+      "member_family": "straight",
       "per_direction": [
         {
           "combined": 0.0,
@@ -929,18 +898,20 @@
           "rigid": 0.0
         }
       ],
-      "quantity": "element_end_force",
+      "quantity": "element_end_action",
       "sign_status": "unsigned_combined_magnitude",
-      "unit": "N*m"
+      "unit": "unit:newton_meter"
     },
     {
       "combined": 2559.3470029717096,
       "component": "My",
       "end": "i",
-      "frame": "global",
+      "entity_kind": "member",
+      "frame": "global_axes",
       "governing_direction": null,
-      "key": "P1.i.My",
-      "object": "P1",
+      "label": "element_end_action member [P1] end i My (global_axes)",
+      "member": "P1",
+      "member_family": "straight",
       "per_direction": [
         {
           "combined": 0.00040157446594380836,
@@ -955,18 +926,20 @@
           "rigid": 312.4662785016169
         }
       ],
-      "quantity": "element_end_force",
+      "quantity": "element_end_action",
       "sign_status": "unsigned_combined_magnitude",
-      "unit": "N*m"
+      "unit": "unit:newton_meter"
     },
     {
       "combined": 5118.694238694792,
       "component": "Mz",
       "end": "i",
-      "frame": "global",
+      "entity_kind": "member",
+      "frame": "global_axes",
       "governing_direction": null,
-      "key": "P1.i.Mz",
-      "object": "P1",
+      "label": "element_end_action member [P1] end i Mz (global_axes)",
+      "member": "P1",
+      "member_family": "straight",
       "per_direction": [
         {
           "combined": 5118.6942386947885,
@@ -981,18 +954,20 @@
           "rigid": 1.8378787383189653e-6
         }
       ],
-      "quantity": "element_end_force",
+      "quantity": "element_end_action",
       "sign_status": "unsigned_combined_magnitude",
-      "unit": "N*m"
+      "unit": "unit:newton_meter"
     },
     {
       "combined": 0.0,
       "component": "Fx",
       "end": "j",
-      "frame": "global",
+      "entity_kind": "member",
+      "frame": "global_axes",
       "governing_direction": null,
-      "key": "P1.j.Fx",
-      "object": "P1",
+      "label": "element_end_action member [P1] end j Fx (global_axes)",
+      "member": "P1",
+      "member_family": "straight",
       "per_direction": [
         {
           "combined": 0.0,
@@ -1007,18 +982,20 @@
           "rigid": 0.0
         }
       ],
-      "quantity": "element_end_force",
+      "quantity": "element_end_action",
       "sign_status": "unsigned_combined_magnitude",
-      "unit": "N"
+      "unit": "unit:newton"
     },
     {
       "combined": 1476.9753766984709,
       "component": "Fy",
       "end": "j",
-      "frame": "global",
+      "entity_kind": "member",
+      "frame": "global_axes",
       "governing_direction": null,
-      "key": "P1.j.Fy",
-      "object": "P1",
+      "label": "element_end_action member [P1] end j Fy (global_axes)",
+      "member": "P1",
+      "member_family": "straight",
       "per_direction": [
         {
           "combined": 1476.97537669847,
@@ -1033,18 +1010,20 @@
           "rigid": 5.365320094084901e-7
         }
       ],
-      "quantity": "element_end_force",
+      "quantity": "element_end_action",
       "sign_status": "unsigned_combined_magnitude",
-      "unit": "N"
+      "unit": "unit:newton"
     },
     {
       "combined": 738.4876606802899,
       "component": "Fz",
       "end": "j",
-      "frame": "global",
+      "entity_kind": "member",
+      "frame": "global_axes",
       "governing_direction": null,
-      "key": "P1.j.Fz",
-      "object": "P1",
+      "label": "element_end_action member [P1] end j Fz (global_axes)",
+      "member": "P1",
+      "member_family": "straight",
       "per_direction": [
         {
           "combined": 0.0000949612159355991,
@@ -1059,18 +1038,20 @@
           "rigid": 24.900869457139283
         }
       ],
-      "quantity": "element_end_force",
+      "quantity": "element_end_action",
       "sign_status": "unsigned_combined_magnitude",
-      "unit": "N"
+      "unit": "unit:newton"
     },
     {
       "combined": 0.0,
       "component": "Mx",
       "end": "j",
-      "frame": "global",
+      "entity_kind": "member",
+      "frame": "global_axes",
       "governing_direction": null,
-      "key": "P1.j.Mx",
-      "object": "P1",
+      "label": "element_end_action member [P1] end j Mx (global_axes)",
+      "member": "P1",
+      "member_family": "straight",
       "per_direction": [
         {
           "combined": 0.0,
@@ -1085,18 +1066,20 @@
           "rigid": 0.0
         }
       ],
-      "quantity": "element_end_force",
+      "quantity": "element_end_action",
       "sign_status": "unsigned_combined_magnitude",
-      "unit": "N*m"
+      "unit": "unit:newton_meter"
     },
     {
       "combined": 875.9684831323418,
       "component": "My",
       "end": "j",
-      "frame": "global",
+      "entity_kind": "member",
+      "frame": "global_axes",
       "governing_direction": null,
-      "key": "P1.j.My",
-      "object": "P1",
+      "label": "element_end_action member [P1] end j My (global_axes)",
+      "member": "P1",
+      "member_family": "straight",
       "per_direction": [
         {
           "combined": 0.00022605439696852674,
@@ -1111,18 +1094,20 @@
           "rigid": 149.8834755995674
         }
       ],
-      "quantity": "element_end_force",
+      "quantity": "element_end_action",
       "sign_status": "unsigned_combined_magnitude",
-      "unit": "N*m"
+      "unit": "unit:newton_meter"
     },
     {
       "combined": 1751.9370964322113,
       "component": "Mz",
       "end": "j",
-      "frame": "global",
+      "entity_kind": "member",
+      "frame": "global_axes",
       "governing_direction": null,
-      "key": "P1.j.Mz",
-      "object": "P1",
+      "label": "element_end_action member [P1] end j Mz (global_axes)",
+      "member": "P1",
+      "member_family": "straight",
       "per_direction": [
         {
           "combined": 1751.9370964322077,
@@ -1137,18 +1122,20 @@
           "rigid": 1.2799691372146792e-6
         }
       ],
-      "quantity": "element_end_force",
+      "quantity": "element_end_action",
       "sign_status": "unsigned_combined_magnitude",
-      "unit": "N*m"
+      "unit": "unit:newton_meter"
     },
     {
       "combined": 0.0,
       "component": "Fx",
       "end": "i",
-      "frame": "global",
+      "entity_kind": "member",
+      "frame": "global_axes",
       "governing_direction": null,
-      "key": "P2.i.Fx",
-      "object": "P2",
+      "label": "element_end_action member [P2] end i Fx (global_axes)",
+      "member": "P2",
+      "member_family": "straight",
       "per_direction": [
         {
           "combined": 0.0,
@@ -1163,18 +1150,20 @@
           "rigid": 0.0
         }
       ],
-      "quantity": "element_end_force",
+      "quantity": "element_end_action",
       "sign_status": "unsigned_combined_magnitude",
-      "unit": "N"
+      "unit": "unit:newton"
     },
     {
       "combined": 1476.9753766984709,
       "component": "Fy",
       "end": "i",
-      "frame": "global",
+      "entity_kind": "member",
+      "frame": "global_axes",
       "governing_direction": null,
-      "key": "P2.i.Fy",
-      "object": "P2",
+      "label": "element_end_action member [P2] end i Fy (global_axes)",
+      "member": "P2",
+      "member_family": "straight",
       "per_direction": [
         {
           "combined": 1476.97537669847,
@@ -1189,18 +1178,20 @@
           "rigid": 5.365320094084901e-7
         }
       ],
-      "quantity": "element_end_force",
+      "quantity": "element_end_action",
       "sign_status": "unsigned_combined_magnitude",
-      "unit": "N"
+      "unit": "unit:newton"
     },
     {
       "combined": 738.4876606802899,
       "component": "Fz",
       "end": "i",
-      "frame": "global",
+      "entity_kind": "member",
+      "frame": "global_axes",
       "governing_direction": null,
-      "key": "P2.i.Fz",
-      "object": "P2",
+      "label": "element_end_action member [P2] end i Fz (global_axes)",
+      "member": "P2",
+      "member_family": "straight",
       "per_direction": [
         {
           "combined": 0.0000949612159355991,
@@ -1215,18 +1206,20 @@
           "rigid": 24.900869457139283
         }
       ],
-      "quantity": "element_end_force",
+      "quantity": "element_end_action",
       "sign_status": "unsigned_combined_magnitude",
-      "unit": "N"
+      "unit": "unit:newton"
     },
     {
       "combined": 0.0,
       "component": "Mx",
       "end": "i",
-      "frame": "global",
+      "entity_kind": "member",
+      "frame": "global_axes",
       "governing_direction": null,
-      "key": "P2.i.Mx",
-      "object": "P2",
+      "label": "element_end_action member [P2] end i Mx (global_axes)",
+      "member": "P2",
+      "member_family": "straight",
       "per_direction": [
         {
           "combined": 0.0,
@@ -1241,18 +1234,20 @@
           "rigid": 0.0
         }
       ],
-      "quantity": "element_end_force",
+      "quantity": "element_end_action",
       "sign_status": "unsigned_combined_magnitude",
-      "unit": "N*m"
+      "unit": "unit:newton_meter"
     },
     {
       "combined": 875.9684831323418,
       "component": "My",
       "end": "i",
-      "frame": "global",
+      "entity_kind": "member",
+      "frame": "global_axes",
       "governing_direction": null,
-      "key": "P2.i.My",
-      "object": "P2",
+      "label": "element_end_action member [P2] end i My (global_axes)",
+      "member": "P2",
+      "member_family": "straight",
       "per_direction": [
         {
           "combined": 0.00022605439696852674,
@@ -1267,18 +1262,20 @@
           "rigid": 149.8834755995674
         }
       ],
-      "quantity": "element_end_force",
+      "quantity": "element_end_action",
       "sign_status": "unsigned_combined_magnitude",
-      "unit": "N*m"
+      "unit": "unit:newton_meter"
     },
     {
       "combined": 1751.9370964322113,
       "component": "Mz",
       "end": "i",
-      "frame": "global",
+      "entity_kind": "member",
+      "frame": "global_axes",
       "governing_direction": null,
-      "key": "P2.i.Mz",
-      "object": "P2",
+      "label": "element_end_action member [P2] end i Mz (global_axes)",
+      "member": "P2",
+      "member_family": "straight",
       "per_direction": [
         {
           "combined": 1751.9370964322077,
@@ -1293,18 +1290,20 @@
           "rigid": 1.2799691372146792e-6
         }
       ],
-      "quantity": "element_end_force",
+      "quantity": "element_end_action",
       "sign_status": "unsigned_combined_magnitude",
-      "unit": "N*m"
+      "unit": "unit:newton_meter"
     },
     {
       "combined": 0.0,
       "component": "Fx",
       "end": "j",
-      "frame": "global",
+      "entity_kind": "member",
+      "frame": "global_axes",
       "governing_direction": null,
-      "key": "P2.j.Fx",
-      "object": "P2",
+      "label": "element_end_action member [P2] end j Fx (global_axes)",
+      "member": "P2",
+      "member_family": "straight",
       "per_direction": [
         {
           "combined": 0.0,
@@ -1319,18 +1318,20 @@
           "rigid": 0.0
         }
       ],
-      "quantity": "element_end_force",
+      "quantity": "element_end_action",
       "sign_status": "unsigned_combined_magnitude",
-      "unit": "N"
+      "unit": "unit:newton"
     },
     {
       "combined": 0.00012227619844434133,
       "component": "Fy",
       "end": "j",
-      "frame": "global",
+      "entity_kind": "member",
+      "frame": "global_axes",
       "governing_direction": null,
-      "key": "P2.j.Fy",
-      "object": "P2",
+      "label": "element_end_action member [P2] end j Fy (global_axes)",
+      "member": "P2",
+      "member_family": "straight",
       "per_direction": [
         {
           "combined": 0.00010173994690612677,
@@ -1345,18 +1346,20 @@
           "rigid": 8.919172184234406e-7
         }
       ],
-      "quantity": "element_end_force",
+      "quantity": "element_end_action",
       "sign_status": "unsigned_combined_magnitude",
-      "unit": "N"
+      "unit": "unit:newton"
     },
     {
       "combined": 0.00016303493125912176,
       "component": "Fz",
       "end": "j",
-      "frame": "global",
+      "entity_kind": "member",
+      "frame": "global_axes",
       "governing_direction": null,
-      "key": "P2.j.Fz",
-      "object": "P2",
+      "label": "element_end_action member [P2] end j Fz (global_axes)",
+      "member": "P2",
+      "member_family": "straight",
       "per_direction": [
         {
           "combined": 0.00013565326254150238,
@@ -1371,18 +1374,20 @@
           "rigid": 1.189222957897921e-6
         }
       ],
-      "quantity": "element_end_force",
+      "quantity": "element_end_action",
       "sign_status": "unsigned_combined_magnitude",
-      "unit": "N"
+      "unit": "unit:newton"
     },
     {
       "combined": 0.0,
       "component": "Mx",
       "end": "j",
-      "frame": "global",
+      "entity_kind": "member",
+      "frame": "global_axes",
       "governing_direction": null,
-      "key": "P2.j.Mx",
-      "object": "P2",
+      "label": "element_end_action member [P2] end j Mx (global_axes)",
+      "member": "P2",
+      "member_family": "straight",
       "per_direction": [
         {
           "combined": 0.0,
@@ -1397,18 +1402,20 @@
           "rigid": 0.0
         }
       ],
-      "quantity": "element_end_force",
+      "quantity": "element_end_action",
       "sign_status": "unsigned_combined_magnitude",
-      "unit": "N*m"
+      "unit": "unit:newton_meter"
     },
     {
       "combined": 0.0,
       "component": "My",
       "end": "j",
-      "frame": "global",
+      "entity_kind": "member",
+      "frame": "global_axes",
       "governing_direction": null,
-      "key": "P2.j.My",
-      "object": "P2",
+      "label": "element_end_action member [P2] end j My (global_axes)",
+      "member": "P2",
+      "member_family": "straight",
       "per_direction": [
         {
           "combined": 0.0,
@@ -1423,18 +1430,20 @@
           "rigid": 0.0
         }
       ],
-      "quantity": "element_end_force",
+      "quantity": "element_end_action",
       "sign_status": "unsigned_combined_magnitude",
-      "unit": "N*m"
+      "unit": "unit:newton_meter"
     },
     {
       "combined": 0.0,
       "component": "Mz",
       "end": "j",
-      "frame": "global",
+      "entity_kind": "member",
+      "frame": "global_axes",
       "governing_direction": null,
-      "key": "P2.j.Mz",
-      "object": "P2",
+      "label": "element_end_action member [P2] end j Mz (global_axes)",
+      "member": "P2",
+      "member_family": "straight",
       "per_direction": [
         {
           "combined": 0.0,
@@ -1449,9 +1458,9 @@
           "rigid": 0.0
         }
       ],
-      "quantity": "element_end_force",
+      "quantity": "element_end_action",
       "sign_status": "unsigned_combined_magnitude",
-      "unit": "N*m"
+      "unit": "unit:newton_meter"
     }
   ],
   "rules": {
@@ -1464,7 +1473,555 @@
     },
     "modal_combination": "SRSS"
   },
-  "schema": "openpipestress.spectrum_combination.output/v1",
+  "schema": "openpipestress.spectrum_combination.output/v2",
+  "signed_rows": [
+    {
+      "component": "UX",
+      "entity_kind": "rigid_constraint",
+      "frame": "global_axes",
+      "holders": [
+        "A1"
+      ],
+      "label": "constraint_reaction rigid_constraint [A1] UX (global_axes)",
+      "node": "A1",
+      "quantity": "constraint_reaction",
+      "sign_convention": "action_of_support_on_piping",
+      "unit": "unit:newton"
+    },
+    {
+      "component": "UY",
+      "entity_kind": "rigid_constraint",
+      "frame": "global_axes",
+      "holders": [
+        "A1"
+      ],
+      "label": "constraint_reaction rigid_constraint [A1] UY (global_axes)",
+      "node": "A1",
+      "quantity": "constraint_reaction",
+      "sign_convention": "action_of_support_on_piping",
+      "unit": "unit:newton"
+    },
+    {
+      "component": "UZ",
+      "entity_kind": "rigid_constraint",
+      "frame": "global_axes",
+      "holders": [
+        "A1"
+      ],
+      "label": "constraint_reaction rigid_constraint [A1] UZ (global_axes)",
+      "node": "A1",
+      "quantity": "constraint_reaction",
+      "sign_convention": "action_of_support_on_piping",
+      "unit": "unit:newton"
+    },
+    {
+      "component": "RX",
+      "entity_kind": "rigid_constraint",
+      "frame": "global_axes",
+      "holders": [
+        "A1"
+      ],
+      "label": "constraint_reaction rigid_constraint [A1] RX (global_axes)",
+      "node": "A1",
+      "quantity": "constraint_reaction",
+      "sign_convention": "action_of_support_on_piping",
+      "unit": "unit:newton_meter"
+    },
+    {
+      "component": "RY",
+      "entity_kind": "rigid_constraint",
+      "frame": "global_axes",
+      "holders": [
+        "A1"
+      ],
+      "label": "constraint_reaction rigid_constraint [A1] RY (global_axes)",
+      "node": "A1",
+      "quantity": "constraint_reaction",
+      "sign_convention": "action_of_support_on_piping",
+      "unit": "unit:newton_meter"
+    },
+    {
+      "component": "RZ",
+      "entity_kind": "rigid_constraint",
+      "frame": "global_axes",
+      "holders": [
+        "A1"
+      ],
+      "label": "constraint_reaction rigid_constraint [A1] RZ (global_axes)",
+      "node": "A1",
+      "quantity": "constraint_reaction",
+      "sign_convention": "action_of_support_on_piping",
+      "unit": "unit:newton_meter"
+    },
+    {
+      "component": "rx",
+      "entity_kind": "node",
+      "frame": "global_axes",
+      "label": "node_displacement node [N1] rx (global_axes)",
+      "node": "N1",
+      "quantity": "node_displacement",
+      "sign_convention": "positive_along_axis",
+      "unit": "unit:radian"
+    },
+    {
+      "component": "ry",
+      "entity_kind": "node",
+      "frame": "global_axes",
+      "label": "node_displacement node [N1] ry (global_axes)",
+      "node": "N1",
+      "quantity": "node_displacement",
+      "sign_convention": "positive_along_axis",
+      "unit": "unit:radian"
+    },
+    {
+      "component": "rz",
+      "entity_kind": "node",
+      "frame": "global_axes",
+      "label": "node_displacement node [N1] rz (global_axes)",
+      "node": "N1",
+      "quantity": "node_displacement",
+      "sign_convention": "positive_along_axis",
+      "unit": "unit:radian"
+    },
+    {
+      "component": "ux",
+      "entity_kind": "node",
+      "frame": "global_axes",
+      "label": "node_displacement node [N1] ux (global_axes)",
+      "node": "N1",
+      "quantity": "node_displacement",
+      "sign_convention": "positive_along_axis",
+      "unit": "unit:meter"
+    },
+    {
+      "component": "uy",
+      "entity_kind": "node",
+      "frame": "global_axes",
+      "label": "node_displacement node [N1] uy (global_axes)",
+      "node": "N1",
+      "quantity": "node_displacement",
+      "sign_convention": "positive_along_axis",
+      "unit": "unit:meter"
+    },
+    {
+      "component": "uz",
+      "entity_kind": "node",
+      "frame": "global_axes",
+      "label": "node_displacement node [N1] uz (global_axes)",
+      "node": "N1",
+      "quantity": "node_displacement",
+      "sign_convention": "positive_along_axis",
+      "unit": "unit:meter"
+    },
+    {
+      "component": "rx",
+      "entity_kind": "node",
+      "frame": "global_axes",
+      "label": "node_displacement node [N2] rx (global_axes)",
+      "node": "N2",
+      "quantity": "node_displacement",
+      "sign_convention": "positive_along_axis",
+      "unit": "unit:radian"
+    },
+    {
+      "component": "ry",
+      "entity_kind": "node",
+      "frame": "global_axes",
+      "label": "node_displacement node [N2] ry (global_axes)",
+      "node": "N2",
+      "quantity": "node_displacement",
+      "sign_convention": "positive_along_axis",
+      "unit": "unit:radian"
+    },
+    {
+      "component": "rz",
+      "entity_kind": "node",
+      "frame": "global_axes",
+      "label": "node_displacement node [N2] rz (global_axes)",
+      "node": "N2",
+      "quantity": "node_displacement",
+      "sign_convention": "positive_along_axis",
+      "unit": "unit:radian"
+    },
+    {
+      "component": "ux",
+      "entity_kind": "node",
+      "frame": "global_axes",
+      "label": "node_displacement node [N2] ux (global_axes)",
+      "node": "N2",
+      "quantity": "node_displacement",
+      "sign_convention": "positive_along_axis",
+      "unit": "unit:meter"
+    },
+    {
+      "component": "uy",
+      "entity_kind": "node",
+      "frame": "global_axes",
+      "label": "node_displacement node [N2] uy (global_axes)",
+      "node": "N2",
+      "quantity": "node_displacement",
+      "sign_convention": "positive_along_axis",
+      "unit": "unit:meter"
+    },
+    {
+      "component": "uz",
+      "entity_kind": "node",
+      "frame": "global_axes",
+      "label": "node_displacement node [N2] uz (global_axes)",
+      "node": "N2",
+      "quantity": "node_displacement",
+      "sign_convention": "positive_along_axis",
+      "unit": "unit:meter"
+    },
+    {
+      "component": "rx",
+      "entity_kind": "node",
+      "frame": "global_axes",
+      "label": "node_displacement node [N3] rx (global_axes)",
+      "node": "N3",
+      "quantity": "node_displacement",
+      "sign_convention": "positive_along_axis",
+      "unit": "unit:radian"
+    },
+    {
+      "component": "ry",
+      "entity_kind": "node",
+      "frame": "global_axes",
+      "label": "node_displacement node [N3] ry (global_axes)",
+      "node": "N3",
+      "quantity": "node_displacement",
+      "sign_convention": "positive_along_axis",
+      "unit": "unit:radian"
+    },
+    {
+      "component": "rz",
+      "entity_kind": "node",
+      "frame": "global_axes",
+      "label": "node_displacement node [N3] rz (global_axes)",
+      "node": "N3",
+      "quantity": "node_displacement",
+      "sign_convention": "positive_along_axis",
+      "unit": "unit:radian"
+    },
+    {
+      "component": "ux",
+      "entity_kind": "node",
+      "frame": "global_axes",
+      "label": "node_displacement node [N3] ux (global_axes)",
+      "node": "N3",
+      "quantity": "node_displacement",
+      "sign_convention": "positive_along_axis",
+      "unit": "unit:meter"
+    },
+    {
+      "component": "uy",
+      "entity_kind": "node",
+      "frame": "global_axes",
+      "label": "node_displacement node [N3] uy (global_axes)",
+      "node": "N3",
+      "quantity": "node_displacement",
+      "sign_convention": "positive_along_axis",
+      "unit": "unit:meter"
+    },
+    {
+      "component": "uz",
+      "entity_kind": "node",
+      "frame": "global_axes",
+      "label": "node_displacement node [N3] uz (global_axes)",
+      "node": "N3",
+      "quantity": "node_displacement",
+      "sign_convention": "positive_along_axis",
+      "unit": "unit:meter"
+    },
+    {
+      "component": "Fx",
+      "end": "i",
+      "entity_kind": "member",
+      "frame": "global_axes",
+      "label": "element_end_action member [P1] end i Fx (global_axes)",
+      "member": "P1",
+      "member_family": "straight",
+      "quantity": "element_end_action",
+      "sign_convention": "action_on_element_at_end_node",
+      "unit": "unit:newton"
+    },
+    {
+      "component": "Fy",
+      "end": "i",
+      "entity_kind": "member",
+      "frame": "global_axes",
+      "label": "element_end_action member [P1] end i Fy (global_axes)",
+      "member": "P1",
+      "member_family": "straight",
+      "quantity": "element_end_action",
+      "sign_convention": "action_on_element_at_end_node",
+      "unit": "unit:newton"
+    },
+    {
+      "component": "Fz",
+      "end": "i",
+      "entity_kind": "member",
+      "frame": "global_axes",
+      "label": "element_end_action member [P1] end i Fz (global_axes)",
+      "member": "P1",
+      "member_family": "straight",
+      "quantity": "element_end_action",
+      "sign_convention": "action_on_element_at_end_node",
+      "unit": "unit:newton"
+    },
+    {
+      "component": "Mx",
+      "end": "i",
+      "entity_kind": "member",
+      "frame": "global_axes",
+      "label": "element_end_action member [P1] end i Mx (global_axes)",
+      "member": "P1",
+      "member_family": "straight",
+      "quantity": "element_end_action",
+      "sign_convention": "action_on_element_at_end_node",
+      "unit": "unit:newton_meter"
+    },
+    {
+      "component": "My",
+      "end": "i",
+      "entity_kind": "member",
+      "frame": "global_axes",
+      "label": "element_end_action member [P1] end i My (global_axes)",
+      "member": "P1",
+      "member_family": "straight",
+      "quantity": "element_end_action",
+      "sign_convention": "action_on_element_at_end_node",
+      "unit": "unit:newton_meter"
+    },
+    {
+      "component": "Mz",
+      "end": "i",
+      "entity_kind": "member",
+      "frame": "global_axes",
+      "label": "element_end_action member [P1] end i Mz (global_axes)",
+      "member": "P1",
+      "member_family": "straight",
+      "quantity": "element_end_action",
+      "sign_convention": "action_on_element_at_end_node",
+      "unit": "unit:newton_meter"
+    },
+    {
+      "component": "Fx",
+      "end": "j",
+      "entity_kind": "member",
+      "frame": "global_axes",
+      "label": "element_end_action member [P1] end j Fx (global_axes)",
+      "member": "P1",
+      "member_family": "straight",
+      "quantity": "element_end_action",
+      "sign_convention": "action_on_element_at_end_node",
+      "unit": "unit:newton"
+    },
+    {
+      "component": "Fy",
+      "end": "j",
+      "entity_kind": "member",
+      "frame": "global_axes",
+      "label": "element_end_action member [P1] end j Fy (global_axes)",
+      "member": "P1",
+      "member_family": "straight",
+      "quantity": "element_end_action",
+      "sign_convention": "action_on_element_at_end_node",
+      "unit": "unit:newton"
+    },
+    {
+      "component": "Fz",
+      "end": "j",
+      "entity_kind": "member",
+      "frame": "global_axes",
+      "label": "element_end_action member [P1] end j Fz (global_axes)",
+      "member": "P1",
+      "member_family": "straight",
+      "quantity": "element_end_action",
+      "sign_convention": "action_on_element_at_end_node",
+      "unit": "unit:newton"
+    },
+    {
+      "component": "Mx",
+      "end": "j",
+      "entity_kind": "member",
+      "frame": "global_axes",
+      "label": "element_end_action member [P1] end j Mx (global_axes)",
+      "member": "P1",
+      "member_family": "straight",
+      "quantity": "element_end_action",
+      "sign_convention": "action_on_element_at_end_node",
+      "unit": "unit:newton_meter"
+    },
+    {
+      "component": "My",
+      "end": "j",
+      "entity_kind": "member",
+      "frame": "global_axes",
+      "label": "element_end_action member [P1] end j My (global_axes)",
+      "member": "P1",
+      "member_family": "straight",
+      "quantity": "element_end_action",
+      "sign_convention": "action_on_element_at_end_node",
+      "unit": "unit:newton_meter"
+    },
+    {
+      "component": "Mz",
+      "end": "j",
+      "entity_kind": "member",
+      "frame": "global_axes",
+      "label": "element_end_action member [P1] end j Mz (global_axes)",
+      "member": "P1",
+      "member_family": "straight",
+      "quantity": "element_end_action",
+      "sign_convention": "action_on_element_at_end_node",
+      "unit": "unit:newton_meter"
+    },
+    {
+      "component": "Fx",
+      "end": "i",
+      "entity_kind": "member",
+      "frame": "global_axes",
+      "label": "element_end_action member [P2] end i Fx (global_axes)",
+      "member": "P2",
+      "member_family": "straight",
+      "quantity": "element_end_action",
+      "sign_convention": "action_on_element_at_end_node",
+      "unit": "unit:newton"
+    },
+    {
+      "component": "Fy",
+      "end": "i",
+      "entity_kind": "member",
+      "frame": "global_axes",
+      "label": "element_end_action member [P2] end i Fy (global_axes)",
+      "member": "P2",
+      "member_family": "straight",
+      "quantity": "element_end_action",
+      "sign_convention": "action_on_element_at_end_node",
+      "unit": "unit:newton"
+    },
+    {
+      "component": "Fz",
+      "end": "i",
+      "entity_kind": "member",
+      "frame": "global_axes",
+      "label": "element_end_action member [P2] end i Fz (global_axes)",
+      "member": "P2",
+      "member_family": "straight",
+      "quantity": "element_end_action",
+      "sign_convention": "action_on_element_at_end_node",
+      "unit": "unit:newton"
+    },
+    {
+      "component": "Mx",
+      "end": "i",
+      "entity_kind": "member",
+      "frame": "global_axes",
+      "label": "element_end_action member [P2] end i Mx (global_axes)",
+      "member": "P2",
+      "member_family": "straight",
+      "quantity": "element_end_action",
+      "sign_convention": "action_on_element_at_end_node",
+      "unit": "unit:newton_meter"
+    },
+    {
+      "component": "My",
+      "end": "i",
+      "entity_kind": "member",
+      "frame": "global_axes",
+      "label": "element_end_action member [P2] end i My (global_axes)",
+      "member": "P2",
+      "member_family": "straight",
+      "quantity": "element_end_action",
+      "sign_convention": "action_on_element_at_end_node",
+      "unit": "unit:newton_meter"
+    },
+    {
+      "component": "Mz",
+      "end": "i",
+      "entity_kind": "member",
+      "frame": "global_axes",
+      "label": "element_end_action member [P2] end i Mz (global_axes)",
+      "member": "P2",
+      "member_family": "straight",
+      "quantity": "element_end_action",
+      "sign_convention": "action_on_element_at_end_node",
+      "unit": "unit:newton_meter"
+    },
+    {
+      "component": "Fx",
+      "end": "j",
+      "entity_kind": "member",
+      "frame": "global_axes",
+      "label": "element_end_action member [P2] end j Fx (global_axes)",
+      "member": "P2",
+      "member_family": "straight",
+      "quantity": "element_end_action",
+      "sign_convention": "action_on_element_at_end_node",
+      "unit": "unit:newton"
+    },
+    {
+      "component": "Fy",
+      "end": "j",
+      "entity_kind": "member",
+      "frame": "global_axes",
+      "label": "element_end_action member [P2] end j Fy (global_axes)",
+      "member": "P2",
+      "member_family": "straight",
+      "quantity": "element_end_action",
+      "sign_convention": "action_on_element_at_end_node",
+      "unit": "unit:newton"
+    },
+    {
+      "component": "Fz",
+      "end": "j",
+      "entity_kind": "member",
+      "frame": "global_axes",
+      "label": "element_end_action member [P2] end j Fz (global_axes)",
+      "member": "P2",
+      "member_family": "straight",
+      "quantity": "element_end_action",
+      "sign_convention": "action_on_element_at_end_node",
+      "unit": "unit:newton"
+    },
+    {
+      "component": "Mx",
+      "end": "j",
+      "entity_kind": "member",
+      "frame": "global_axes",
+      "label": "element_end_action member [P2] end j Mx (global_axes)",
+      "member": "P2",
+      "member_family": "straight",
+      "quantity": "element_end_action",
+      "sign_convention": "action_on_element_at_end_node",
+      "unit": "unit:newton_meter"
+    },
+    {
+      "component": "My",
+      "end": "j",
+      "entity_kind": "member",
+      "frame": "global_axes",
+      "label": "element_end_action member [P2] end j My (global_axes)",
+      "member": "P2",
+      "member_family": "straight",
+      "quantity": "element_end_action",
+      "sign_convention": "action_on_element_at_end_node",
+      "unit": "unit:newton_meter"
+    },
+    {
+      "component": "Mz",
+      "end": "j",
+      "entity_kind": "member",
+      "frame": "global_axes",
+      "label": "element_end_action member [P2] end j Mz (global_axes)",
+      "member": "P2",
+      "member_family": "straight",
+      "quantity": "element_end_action",
+      "sign_convention": "action_on_element_at_end_node",
+      "unit": "unit:newton_meter"
+    }
+  ],
   "statement": "Unsigned combined magnitudes formed by the stated modal, rigid-response and directional combination rules from the supplied signed contributions, summing the modes of each supplied cluster with their signs first. Under an absolute-sum rule a magnitude is the sum of the magnitudes it combines. The contributions and their modal metadata are inputs to this unit; it forms no modal response, solves no eigenproblem or rigid response, and is not a response-spectrum analysis result. It establishes neither physical correctness nor code compliance.",
   "ten_percent_pairs": null
 }

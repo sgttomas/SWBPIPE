@@ -65,6 +65,19 @@ pub enum RefusalCode {
     /// An exact cluster sum, or a combined value's enclosure, lies beyond the binary64 range. No
     /// value is published in its place.
     CombinationNonfinite,
+    /// The correction is applied and the extracted modal set does not reach the rigid frequency:
+    /// the lowest frequency of its highest completed cluster is below f_r and it is not the whole
+    /// finite spectrum (REQ-001, Extraction premise).
+    ExtractionBelowRigidFrequency,
+    /// The spectrum document's inputs do not agree with one another: the request, the model's
+    /// spectra, the modal basis statement, the census and the contributions a document is
+    /// assembled from (a missing or unreadable request member, a direction whose spectrum the model
+    /// does not hold, a request choice the contributions were not formed under, a roster that is
+    /// not the census's). The document unit's own refusal; nothing is published.
+    DocumentInputInvalid,
+    /// A value the document would publish is outside the checked canonical profile (an integral
+    /// binary64 of magnitude 2^53 or more), so its hashes cannot be formed. Nothing is published.
+    DocumentOutsideCanonicalProfile,
 }
 
 impl RefusalCode {
@@ -89,6 +102,9 @@ impl RefusalCode {
             Self::RigidResponsePremiseMismatch => "SPECTRUM_RIGID_RESPONSE_PREMISE_MISMATCH",
             Self::CombinationAccuracyUnsupported => "SPECTRUM_COMBINATION_ACCURACY_UNSUPPORTED",
             Self::CombinationNonfinite => "SPECTRUM_COMBINATION_NONFINITE",
+            Self::ExtractionBelowRigidFrequency => "SPECTRUM_EXTRACTION_BELOW_RIGID_FREQUENCY",
+            Self::DocumentInputInvalid => "SPECTRUM_DOCUMENT_INPUT_INVALID",
+            Self::DocumentOutsideCanonicalProfile => "SPECTRUM_DOCUMENT_OUTSIDE_CANONICAL_PROFILE",
         }
     }
 }

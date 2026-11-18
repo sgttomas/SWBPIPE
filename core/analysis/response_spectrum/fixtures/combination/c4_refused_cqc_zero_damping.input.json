@@ -11,12 +11,6 @@
         556.5698007495942,
         -417.4273505621956,
         0.0,
-        -44.11255284970915,
-        -26.467531709825487,
-        -35.29004227976731,
-        0.0,
-        0.0,
-        0.0,
         0.0,
         0.0,
         0.0,
@@ -75,12 +69,6 @@
         0.0,
         0.0,
         0.0,
-        78.37509569632483,
-        -62.700076557059866,
-        47.0250574177949,
-        0.0,
-        0.0,
-        0.0,
         0.0,
         0.0,
         0.0,
@@ -132,12 +120,6 @@
         0.0,
         556.5698007495942,
         -417.4273505621956,
-        0.0,
-        -44.11255284970915,
-        -26.467531709825487,
-        -35.29004227976731,
-        0.0,
-        0.0,
         0.0,
         0.0,
         0.0,
@@ -194,12 +176,6 @@
         282.8737458827633,
         377.16499451035105,
         0.0,
-        0.0,
-        0.0,
-        0.0,
-        -44.08599132918272,
-        35.26879306334617,
-        -26.45159479750963,
         0.0,
         0.0,
         0.0,
@@ -295,12 +271,6 @@
         0.26785216609411916,
         -102.1326752064259,
         0.0,
-        0.4308122796594073,
-        0.2584873677956444,
-        0.34464982372752584,
-        -0.856436116378411,
-        0.6851488931027289,
-        -0.5138616698270466,
         0.0,
         0.0,
         0.0,
@@ -359,12 +329,6 @@
         76.71669172748561,
         -0.20088912457058938,
         0.0,
-        0.4308122796594073,
-        0.2584873677956444,
-        0.34464982372752584,
-        0.4817453154628562,
-        -0.38539625237028496,
-        0.2890471892777137,
         0.0,
         0.0,
         0.0,
@@ -412,461 +376,503 @@
   ],
   "rows": [
     {
-      "component": "Fx",
-      "frame": "global",
-      "key": "A1.Fx",
-      "object": "A1",
-      "quantity": "support_reaction",
-      "unit": "N"
+      "component": "UX",
+      "entity_kind": "rigid_constraint",
+      "frame": "global_axes",
+      "holders": [
+        "A1"
+      ],
+      "node": "A1",
+      "quantity": "constraint_reaction",
+      "sign_convention": "action_of_support_on_piping",
+      "unit": "unit:newton"
     },
     {
-      "component": "Fy",
-      "frame": "global",
-      "key": "A1.Fy",
-      "object": "A1",
-      "quantity": "support_reaction",
-      "unit": "N"
+      "component": "UY",
+      "entity_kind": "rigid_constraint",
+      "frame": "global_axes",
+      "holders": [
+        "A1"
+      ],
+      "node": "A1",
+      "quantity": "constraint_reaction",
+      "sign_convention": "action_of_support_on_piping",
+      "unit": "unit:newton"
     },
     {
-      "component": "Fz",
-      "frame": "global",
-      "key": "A1.Fz",
-      "object": "A1",
-      "quantity": "support_reaction",
-      "unit": "N"
+      "component": "UZ",
+      "entity_kind": "rigid_constraint",
+      "frame": "global_axes",
+      "holders": [
+        "A1"
+      ],
+      "node": "A1",
+      "quantity": "constraint_reaction",
+      "sign_convention": "action_of_support_on_piping",
+      "unit": "unit:newton"
     },
     {
-      "component": "Mx",
-      "frame": "global",
-      "key": "A1.Mx",
-      "object": "A1",
-      "quantity": "support_reaction",
-      "unit": "N*m"
+      "component": "RX",
+      "entity_kind": "rigid_constraint",
+      "frame": "global_axes",
+      "holders": [
+        "A1"
+      ],
+      "node": "A1",
+      "quantity": "constraint_reaction",
+      "sign_convention": "action_of_support_on_piping",
+      "unit": "unit:newton_meter"
     },
     {
-      "component": "My",
-      "frame": "global",
-      "key": "A1.My",
-      "object": "A1",
-      "quantity": "support_reaction",
-      "unit": "N*m"
+      "component": "RY",
+      "entity_kind": "rigid_constraint",
+      "frame": "global_axes",
+      "holders": [
+        "A1"
+      ],
+      "node": "A1",
+      "quantity": "constraint_reaction",
+      "sign_convention": "action_of_support_on_piping",
+      "unit": "unit:newton_meter"
     },
     {
-      "component": "Mz",
-      "frame": "global",
-      "key": "A1.Mz",
-      "object": "A1",
-      "quantity": "support_reaction",
-      "unit": "N*m"
-    },
-    {
-      "component": "Fd",
-      "frame": "global",
-      "key": "K1.Fd",
-      "object": "K1",
-      "quantity": "support_reaction",
-      "unit": "N"
-    },
-    {
-      "component": "Fx",
-      "frame": "global",
-      "key": "K1.Fx",
-      "object": "K1",
-      "quantity": "support_reaction",
-      "unit": "N"
-    },
-    {
-      "component": "Fy",
-      "frame": "global",
-      "key": "K1.Fy",
-      "object": "K1",
-      "quantity": "support_reaction",
-      "unit": "N"
-    },
-    {
-      "component": "Fd",
-      "frame": "global",
-      "key": "K2.Fd",
-      "object": "K2",
-      "quantity": "support_reaction",
-      "unit": "N"
-    },
-    {
-      "component": "Fx",
-      "frame": "global",
-      "key": "K2.Fx",
-      "object": "K2",
-      "quantity": "support_reaction",
-      "unit": "N"
-    },
-    {
-      "component": "Fy",
-      "frame": "global",
-      "key": "K2.Fy",
-      "object": "K2",
-      "quantity": "support_reaction",
-      "unit": "N"
+      "component": "RZ",
+      "entity_kind": "rigid_constraint",
+      "frame": "global_axes",
+      "holders": [
+        "A1"
+      ],
+      "node": "A1",
+      "quantity": "constraint_reaction",
+      "sign_convention": "action_of_support_on_piping",
+      "unit": "unit:newton_meter"
     },
     {
       "component": "rx",
-      "frame": "global",
-      "key": "N1.rx",
-      "object": "N1",
+      "entity_kind": "node",
+      "frame": "global_axes",
+      "node": "N1",
       "quantity": "node_displacement",
-      "unit": "rad"
+      "sign_convention": "positive_along_axis",
+      "unit": "unit:radian"
     },
     {
       "component": "ry",
-      "frame": "global",
-      "key": "N1.ry",
-      "object": "N1",
+      "entity_kind": "node",
+      "frame": "global_axes",
+      "node": "N1",
       "quantity": "node_displacement",
-      "unit": "rad"
+      "sign_convention": "positive_along_axis",
+      "unit": "unit:radian"
     },
     {
       "component": "rz",
-      "frame": "global",
-      "key": "N1.rz",
-      "object": "N1",
+      "entity_kind": "node",
+      "frame": "global_axes",
+      "node": "N1",
       "quantity": "node_displacement",
-      "unit": "rad"
+      "sign_convention": "positive_along_axis",
+      "unit": "unit:radian"
     },
     {
       "component": "ux",
-      "frame": "global",
-      "key": "N1.ux",
-      "object": "N1",
+      "entity_kind": "node",
+      "frame": "global_axes",
+      "node": "N1",
       "quantity": "node_displacement",
-      "unit": "m"
+      "sign_convention": "positive_along_axis",
+      "unit": "unit:meter"
     },
     {
       "component": "uy",
-      "frame": "global",
-      "key": "N1.uy",
-      "object": "N1",
+      "entity_kind": "node",
+      "frame": "global_axes",
+      "node": "N1",
       "quantity": "node_displacement",
-      "unit": "m"
+      "sign_convention": "positive_along_axis",
+      "unit": "unit:meter"
     },
     {
       "component": "uz",
-      "frame": "global",
-      "key": "N1.uz",
-      "object": "N1",
+      "entity_kind": "node",
+      "frame": "global_axes",
+      "node": "N1",
       "quantity": "node_displacement",
-      "unit": "m"
+      "sign_convention": "positive_along_axis",
+      "unit": "unit:meter"
     },
     {
       "component": "rx",
-      "frame": "global",
-      "key": "N2.rx",
-      "object": "N2",
+      "entity_kind": "node",
+      "frame": "global_axes",
+      "node": "N2",
       "quantity": "node_displacement",
-      "unit": "rad"
+      "sign_convention": "positive_along_axis",
+      "unit": "unit:radian"
     },
     {
       "component": "ry",
-      "frame": "global",
-      "key": "N2.ry",
-      "object": "N2",
+      "entity_kind": "node",
+      "frame": "global_axes",
+      "node": "N2",
       "quantity": "node_displacement",
-      "unit": "rad"
+      "sign_convention": "positive_along_axis",
+      "unit": "unit:radian"
     },
     {
       "component": "rz",
-      "frame": "global",
-      "key": "N2.rz",
-      "object": "N2",
+      "entity_kind": "node",
+      "frame": "global_axes",
+      "node": "N2",
       "quantity": "node_displacement",
-      "unit": "rad"
+      "sign_convention": "positive_along_axis",
+      "unit": "unit:radian"
     },
     {
       "component": "ux",
-      "frame": "global",
-      "key": "N2.ux",
-      "object": "N2",
+      "entity_kind": "node",
+      "frame": "global_axes",
+      "node": "N2",
       "quantity": "node_displacement",
-      "unit": "m"
+      "sign_convention": "positive_along_axis",
+      "unit": "unit:meter"
     },
     {
       "component": "uy",
-      "frame": "global",
-      "key": "N2.uy",
-      "object": "N2",
+      "entity_kind": "node",
+      "frame": "global_axes",
+      "node": "N2",
       "quantity": "node_displacement",
-      "unit": "m"
+      "sign_convention": "positive_along_axis",
+      "unit": "unit:meter"
     },
     {
       "component": "uz",
-      "frame": "global",
-      "key": "N2.uz",
-      "object": "N2",
+      "entity_kind": "node",
+      "frame": "global_axes",
+      "node": "N2",
       "quantity": "node_displacement",
-      "unit": "m"
+      "sign_convention": "positive_along_axis",
+      "unit": "unit:meter"
     },
     {
       "component": "rx",
-      "frame": "global",
-      "key": "N3.rx",
-      "object": "N3",
+      "entity_kind": "node",
+      "frame": "global_axes",
+      "node": "N3",
       "quantity": "node_displacement",
-      "unit": "rad"
+      "sign_convention": "positive_along_axis",
+      "unit": "unit:radian"
     },
     {
       "component": "ry",
-      "frame": "global",
-      "key": "N3.ry",
-      "object": "N3",
+      "entity_kind": "node",
+      "frame": "global_axes",
+      "node": "N3",
       "quantity": "node_displacement",
-      "unit": "rad"
+      "sign_convention": "positive_along_axis",
+      "unit": "unit:radian"
     },
     {
       "component": "rz",
-      "frame": "global",
-      "key": "N3.rz",
-      "object": "N3",
+      "entity_kind": "node",
+      "frame": "global_axes",
+      "node": "N3",
       "quantity": "node_displacement",
-      "unit": "rad"
+      "sign_convention": "positive_along_axis",
+      "unit": "unit:radian"
     },
     {
       "component": "ux",
-      "frame": "global",
-      "key": "N3.ux",
-      "object": "N3",
+      "entity_kind": "node",
+      "frame": "global_axes",
+      "node": "N3",
       "quantity": "node_displacement",
-      "unit": "m"
+      "sign_convention": "positive_along_axis",
+      "unit": "unit:meter"
     },
     {
       "component": "uy",
-      "frame": "global",
-      "key": "N3.uy",
-      "object": "N3",
+      "entity_kind": "node",
+      "frame": "global_axes",
+      "node": "N3",
       "quantity": "node_displacement",
-      "unit": "m"
+      "sign_convention": "positive_along_axis",
+      "unit": "unit:meter"
     },
     {
       "component": "uz",
-      "frame": "global",
-      "key": "N3.uz",
-      "object": "N3",
+      "entity_kind": "node",
+      "frame": "global_axes",
+      "node": "N3",
       "quantity": "node_displacement",
-      "unit": "m"
+      "sign_convention": "positive_along_axis",
+      "unit": "unit:meter"
     },
     {
       "component": "Fx",
       "end": "i",
-      "frame": "global",
-      "key": "P1.i.Fx",
-      "object": "P1",
-      "quantity": "element_end_force",
-      "unit": "N"
+      "entity_kind": "member",
+      "frame": "global_axes",
+      "member": "P1",
+      "member_family": "straight",
+      "quantity": "element_end_action",
+      "sign_convention": "action_on_element_at_end_node",
+      "unit": "unit:newton"
     },
     {
       "component": "Fy",
       "end": "i",
-      "frame": "global",
-      "key": "P1.i.Fy",
-      "object": "P1",
-      "quantity": "element_end_force",
-      "unit": "N"
+      "entity_kind": "member",
+      "frame": "global_axes",
+      "member": "P1",
+      "member_family": "straight",
+      "quantity": "element_end_action",
+      "sign_convention": "action_on_element_at_end_node",
+      "unit": "unit:newton"
     },
     {
       "component": "Fz",
       "end": "i",
-      "frame": "global",
-      "key": "P1.i.Fz",
-      "object": "P1",
-      "quantity": "element_end_force",
-      "unit": "N"
+      "entity_kind": "member",
+      "frame": "global_axes",
+      "member": "P1",
+      "member_family": "straight",
+      "quantity": "element_end_action",
+      "sign_convention": "action_on_element_at_end_node",
+      "unit": "unit:newton"
     },
     {
       "component": "Mx",
       "end": "i",
-      "frame": "global",
-      "key": "P1.i.Mx",
-      "object": "P1",
-      "quantity": "element_end_force",
-      "unit": "N*m"
+      "entity_kind": "member",
+      "frame": "global_axes",
+      "member": "P1",
+      "member_family": "straight",
+      "quantity": "element_end_action",
+      "sign_convention": "action_on_element_at_end_node",
+      "unit": "unit:newton_meter"
     },
     {
       "component": "My",
       "end": "i",
-      "frame": "global",
-      "key": "P1.i.My",
-      "object": "P1",
-      "quantity": "element_end_force",
-      "unit": "N*m"
+      "entity_kind": "member",
+      "frame": "global_axes",
+      "member": "P1",
+      "member_family": "straight",
+      "quantity": "element_end_action",
+      "sign_convention": "action_on_element_at_end_node",
+      "unit": "unit:newton_meter"
     },
     {
       "component": "Mz",
       "end": "i",
-      "frame": "global",
-      "key": "P1.i.Mz",
-      "object": "P1",
-      "quantity": "element_end_force",
-      "unit": "N*m"
+      "entity_kind": "member",
+      "frame": "global_axes",
+      "member": "P1",
+      "member_family": "straight",
+      "quantity": "element_end_action",
+      "sign_convention": "action_on_element_at_end_node",
+      "unit": "unit:newton_meter"
     },
     {
       "component": "Fx",
       "end": "j",
-      "frame": "global",
-      "key": "P1.j.Fx",
-      "object": "P1",
-      "quantity": "element_end_force",
-      "unit": "N"
+      "entity_kind": "member",
+      "frame": "global_axes",
+      "member": "P1",
+      "member_family": "straight",
+      "quantity": "element_end_action",
+      "sign_convention": "action_on_element_at_end_node",
+      "unit": "unit:newton"
     },
     {
       "component": "Fy",
       "end": "j",
-      "frame": "global",
-      "key": "P1.j.Fy",
-      "object": "P1",
-      "quantity": "element_end_force",
-      "unit": "N"
+      "entity_kind": "member",
+      "frame": "global_axes",
+      "member": "P1",
+      "member_family": "straight",
+      "quantity": "element_end_action",
+      "sign_convention": "action_on_element_at_end_node",
+      "unit": "unit:newton"
     },
     {
       "component": "Fz",
       "end": "j",
-      "frame": "global",
-      "key": "P1.j.Fz",
-      "object": "P1",
-      "quantity": "element_end_force",
-      "unit": "N"
+      "entity_kind": "member",
+      "frame": "global_axes",
+      "member": "P1",
+      "member_family": "straight",
+      "quantity": "element_end_action",
+      "sign_convention": "action_on_element_at_end_node",
+      "unit": "unit:newton"
     },
     {
       "component": "Mx",
       "end": "j",
-      "frame": "global",
-      "key": "P1.j.Mx",
-      "object": "P1",
-      "quantity": "element_end_force",
-      "unit": "N*m"
+      "entity_kind": "member",
+      "frame": "global_axes",
+      "member": "P1",
+      "member_family": "straight",
+      "quantity": "element_end_action",
+      "sign_convention": "action_on_element_at_end_node",
+      "unit": "unit:newton_meter"
     },
     {
       "component": "My",
       "end": "j",
-      "frame": "global",
-      "key": "P1.j.My",
-      "object": "P1",
-      "quantity": "element_end_force",
-      "unit": "N*m"
+      "entity_kind": "member",
+      "frame": "global_axes",
+      "member": "P1",
+      "member_family": "straight",
+      "quantity": "element_end_action",
+      "sign_convention": "action_on_element_at_end_node",
+      "unit": "unit:newton_meter"
     },
     {
       "component": "Mz",
       "end": "j",
-      "frame": "global",
-      "key": "P1.j.Mz",
-      "object": "P1",
-      "quantity": "element_end_force",
-      "unit": "N*m"
+      "entity_kind": "member",
+      "frame": "global_axes",
+      "member": "P1",
+      "member_family": "straight",
+      "quantity": "element_end_action",
+      "sign_convention": "action_on_element_at_end_node",
+      "unit": "unit:newton_meter"
     },
     {
       "component": "Fx",
       "end": "i",
-      "frame": "global",
-      "key": "P2.i.Fx",
-      "object": "P2",
-      "quantity": "element_end_force",
-      "unit": "N"
+      "entity_kind": "member",
+      "frame": "global_axes",
+      "member": "P2",
+      "member_family": "straight",
+      "quantity": "element_end_action",
+      "sign_convention": "action_on_element_at_end_node",
+      "unit": "unit:newton"
     },
     {
       "component": "Fy",
       "end": "i",
-      "frame": "global",
-      "key": "P2.i.Fy",
-      "object": "P2",
-      "quantity": "element_end_force",
-      "unit": "N"
+      "entity_kind": "member",
+      "frame": "global_axes",
+      "member": "P2",
+      "member_family": "straight",
+      "quantity": "element_end_action",
+      "sign_convention": "action_on_element_at_end_node",
+      "unit": "unit:newton"
     },
     {
       "component": "Fz",
       "end": "i",
-      "frame": "global",
-      "key": "P2.i.Fz",
-      "object": "P2",
-      "quantity": "element_end_force",
-      "unit": "N"
+      "entity_kind": "member",
+      "frame": "global_axes",
+      "member": "P2",
+      "member_family": "straight",
+      "quantity": "element_end_action",
+      "sign_convention": "action_on_element_at_end_node",
+      "unit": "unit:newton"
     },
     {
       "component": "Mx",
       "end": "i",
-      "frame": "global",
-      "key": "P2.i.Mx",
-      "object": "P2",
-      "quantity": "element_end_force",
-      "unit": "N*m"
+      "entity_kind": "member",
+      "frame": "global_axes",
+      "member": "P2",
+      "member_family": "straight",
+      "quantity": "element_end_action",
+      "sign_convention": "action_on_element_at_end_node",
+      "unit": "unit:newton_meter"
     },
     {
       "component": "My",
       "end": "i",
-      "frame": "global",
-      "key": "P2.i.My",
-      "object": "P2",
-      "quantity": "element_end_force",
-      "unit": "N*m"
+      "entity_kind": "member",
+      "frame": "global_axes",
+      "member": "P2",
+      "member_family": "straight",
+      "quantity": "element_end_action",
+      "sign_convention": "action_on_element_at_end_node",
+      "unit": "unit:newton_meter"
     },
     {
       "component": "Mz",
       "end": "i",
-      "frame": "global",
-      "key": "P2.i.Mz",
-      "object": "P2",
-      "quantity": "element_end_force",
-      "unit": "N*m"
+      "entity_kind": "member",
+      "frame": "global_axes",
+      "member": "P2",
+      "member_family": "straight",
+      "quantity": "element_end_action",
+      "sign_convention": "action_on_element_at_end_node",
+      "unit": "unit:newton_meter"
     },
     {
       "component": "Fx",
       "end": "j",
-      "frame": "global",
-      "key": "P2.j.Fx",
-      "object": "P2",
-      "quantity": "element_end_force",
-      "unit": "N"
+      "entity_kind": "member",
+      "frame": "global_axes",
+      "member": "P2",
+      "member_family": "straight",
+      "quantity": "element_end_action",
+      "sign_convention": "action_on_element_at_end_node",
+      "unit": "unit:newton"
     },
     {
       "component": "Fy",
       "end": "j",
-      "frame": "global",
-      "key": "P2.j.Fy",
-      "object": "P2",
-      "quantity": "element_end_force",
-      "unit": "N"
+      "entity_kind": "member",
+      "frame": "global_axes",
+      "member": "P2",
+      "member_family": "straight",
+      "quantity": "element_end_action",
+      "sign_convention": "action_on_element_at_end_node",
+      "unit": "unit:newton"
     },
     {
       "component": "Fz",
       "end": "j",
-      "frame": "global",
-      "key": "P2.j.Fz",
-      "object": "P2",
-      "quantity": "element_end_force",
-      "unit": "N"
+      "entity_kind": "member",
+      "frame": "global_axes",
+      "member": "P2",
+      "member_family": "straight",
+      "quantity": "element_end_action",
+      "sign_convention": "action_on_element_at_end_node",
+      "unit": "unit:newton"
     },
     {
       "component": "Mx",
       "end": "j",
-      "frame": "global",
-      "key": "P2.j.Mx",
-      "object": "P2",
-      "quantity": "element_end_force",
-      "unit": "N*m"
+      "entity_kind": "member",
+      "frame": "global_axes",
+      "member": "P2",
+      "member_family": "straight",
+      "quantity": "element_end_action",
+      "sign_convention": "action_on_element_at_end_node",
+      "unit": "unit:newton_meter"
     },
     {
       "component": "My",
       "end": "j",
-      "frame": "global",
-      "key": "P2.j.My",
-      "object": "P2",
-      "quantity": "element_end_force",
-      "unit": "N*m"
+      "entity_kind": "member",
+      "frame": "global_axes",
+      "member": "P2",
+      "member_family": "straight",
+      "quantity": "element_end_action",
+      "sign_convention": "action_on_element_at_end_node",
+      "unit": "unit:newton_meter"
     },
     {
       "component": "Mz",
       "end": "j",
-      "frame": "global",
-      "key": "P2.j.Mz",
-      "object": "P2",
-      "quantity": "element_end_force",
-      "unit": "N*m"
+      "entity_kind": "member",
+      "frame": "global_axes",
+      "member": "P2",
+      "member_family": "straight",
+      "quantity": "element_end_action",
+      "sign_convention": "action_on_element_at_end_node",
+      "unit": "unit:newton_meter"
     }
   ],
-  "schema": "openpipestress.spectrum_combination.input/v1"
+  "schema": "openpipestress.spectrum_combination.input/v2"
 }

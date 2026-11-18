@@ -1,5 +1,5 @@
 //! Combines supplied signed contributions (DEL-04-10 unit S4): reads a combination input
-//! document (`openpipestress.spectrum_combination.input/v1`) on standard input and writes the
+//! document (`openpipestress.spectrum_combination.input/v2`) on standard input and writes the
 //! output document on standard output. A document that does not decode is reported on standard
 //! error with exit status 2; a refused combination is an output document with its refusals.
 use open_pipe_stress_response_spectrum::combination_json::combine_json;
