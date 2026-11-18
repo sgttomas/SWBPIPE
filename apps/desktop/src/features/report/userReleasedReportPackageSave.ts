@@ -14,10 +14,10 @@
 // persists the selection, records an acceptance or issuance, or sends anything anywhere.
 // Standard claim fence applies (claims taxonomy per DEC-081).
 import { invokeWithIngress } from "../../services/nativeIngress";
-import { canonicalJsonString, canonicalSha256Hex } from "../../services/hashService";
+import { canonicalJsonString } from "../../services/hashService";
 import { buildAnalysisRunPreview } from "../../services/previewService";
 import type { CurrentSessionInputManifestEvidence } from "../../services/inputManifestService";
-import type { ReportPackageSaveReceipt, ReportPackageSaveRoute } from "../../services/reportPackageSaveService";
+import { canonicalTextSha256Hex, type ReportPackageSaveReceipt, type ReportPackageSaveRoute } from "../../services/reportPackageSaveService";
 import type { MechanicsResult, PreviewModel } from "../../types";
 import {
   controlUserReleasedReportPackageRequest,
@@ -130,10 +130,9 @@ export async function prepareUserReleasedReportPackageSave(
   if (!isTauriRuntime()) {
     return { route: "unavailable_browser", diagnostic: "REPORT-PACKAGE-SAVE-DESKTOP-ONLY" };
   }
-  const [requestCanonicalText, screenedRequestText, hex, modelCanonicalText, inputManifestCanonicalText, analysisRunCanonicalText] = await Promise.all([
+  const [requestCanonicalText, screenedRequestText, modelCanonicalText, inputManifestCanonicalText, analysisRunCanonicalText] = await Promise.all([
     canonicalJsonString(controlled.payload),
     canonicalJsonString(request),
-    canonicalSha256Hex(controlled.payload),
     canonicalJsonString(model),
     canonicalJsonString(inputManifest),
     canonicalJsonString(analysisRun)
@@ -144,7 +143,7 @@ export async function prepareUserReleasedReportPackageSave(
       diagnostic: "REPORT-PACKAGE-REDACTION-BLOCKED: the route control changed the request (CANONICAL_PAYLOAD_MATERIALIZATION_CHANGED)."
     };
   }
-  const requestSha256 = `sha256:${hex}`;
+  const requestSha256 = `sha256:${await canonicalTextSha256Hex(requestCanonicalText)}`;
   return {
     route: "ready",
     requestSha256,

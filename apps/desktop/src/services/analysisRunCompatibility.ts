@@ -9,7 +9,7 @@ import previewPhysicsTimoshenkoTable from "../../../../fixtures/results/semantic
 import previewPhysicsRetainedTable from "../../../../fixtures/results/semantic_contract_v0_3_preview_physics_retained_1.json";
 import physicsRetainedTable from "../../../../fixtures/results/semantic_contract_v0_3_physics_retained_1.json";
 import type { AnalysisRunEnvelope, CanonicalResultDimension, MechanicsResult, ObjectRef, PreviewModel } from "../types";
-import { canonicalSha256Hex, canonicalSha256HexCheckedV1, checkedJsonText } from "./hashService";
+import { canonicalSha256Hex, canonicalSha256HexCheckedV1 } from "./hashService";
 import { inputManifestRef, type CurrentSessionInputManifest } from "./inputManifestService";
 import { libraryRefSites } from "./libraryImportService";
 import { trimLikeRust } from "./rustTrim";
@@ -347,6 +347,108 @@ export function structurallyEqual(left: unknown, right: unknown): boolean {
   return Object.is(left, right) || (typeof left === "number" && left === right);
 }
 
+function validUnicodeScalarString(value: string): boolean {
+  for (let index = 0; index < value.length; index += 1) {
+    const unit = value.charCodeAt(index);
+    if (unit >= 0xd800 && unit <= 0xdbff) {
+      const next = value.charCodeAt(index + 1);
+      if (!(next >= 0xdc00 && next <= 0xdfff)) return false;
+      index += 1;
+    } else if (unit >= 0xdc00 && unit <= 0xdfff) return false;
+  }
+  return true;
+}
+
+/** The value `checkedJsonText` (hashService.ts) serialises, read as it reads it: the same
+ * property reads in the same order, refusing with the same error at the same point, and
+ * yielding the same plain data (arrays, null-prototype objects, primitives), but no text. */
+function checkedJsonValue(value: unknown): unknown {
+  const seen = new Set<object>();
+  const freeze = (item: unknown): unknown => {
+    if (item === null || typeof item === "boolean") return item;
+    if (typeof item === "string") {
+      if (!validUnicodeScalarString(item)) throw new Error("CHECKED-JSON-LONE-SURROGATE");
+      return item;
+    }
+    if (typeof item === "number") {
+      if (!Number.isFinite(item) || (Number.isInteger(item) && !Number.isSafeInteger(item))) {
+        throw new Error("CHECKED-JSON-NUMBER-OUTSIDE-PROFILE");
+      }
+      return item;
+    }
+    if (typeof item !== "object") throw new Error(`CHECKED-JSON-UNSUPPORTED-TYPE: ${typeof item}`);
+    if (seen.has(item)) throw new Error("CHECKED-JSON-CYCLIC-VALUE");
+    seen.add(item);
+    try {
+      const descriptors = Object.getOwnPropertyDescriptors(item);
+      const keys = Reflect.ownKeys(descriptors);
+      if (Array.isArray(item)) {
+        if (keys.some((key) => typeof key !== "string")) throw new Error("CHECKED-JSON-SYMBOL-KEY");
+        const lengthDescriptor = descriptors.length;
+        const length = lengthDescriptor?.value;
+        if (!lengthDescriptor || typeof length !== "number" || !Number.isSafeInteger(length) || length < 0) throw new Error("CHECKED-JSON-ARRAY-LENGTH");
+        const allowed = new Set(["length", ...Array.from({ length }, (_, index) => String(index))]);
+        if (keys.some((key) => !allowed.has(key as string))) throw new Error("CHECKED-JSON-ARRAY-OWN-PROPERTY");
+        const frozen: unknown[] = [];
+        for (let index = 0; index < length; index += 1) {
+          const descriptor = descriptors[String(index)];
+          if (!descriptor) throw new Error("CHECKED-JSON-SPARSE-ARRAY");
+          if (descriptor.get || descriptor.set || !descriptor.enumerable) throw new Error("CHECKED-JSON-UNSUPPORTED-PROPERTY");
+          frozen.push(freeze(descriptor.value));
+        }
+        return frozen;
+      }
+      const prototype = Object.getPrototypeOf(item);
+      if (prototype !== Object.prototype && prototype !== null) throw new Error("CHECKED-JSON-NON-PLAIN-OBJECT");
+      const frozen: Record<string, unknown> = Object.create(null) as Record<string, unknown>;
+      for (const key of keys) {
+        if (typeof key !== "string") throw new Error("CHECKED-JSON-SYMBOL-KEY");
+        if (!validUnicodeScalarString(key)) throw new Error("CHECKED-JSON-LONE-SURROGATE");
+        const descriptor = descriptors[key];
+        if (!descriptor || descriptor.get || descriptor.set || !descriptor.enumerable) throw new Error("CHECKED-JSON-UNSUPPORTED-PROPERTY");
+        frozen[key] = freeze(descriptor.value);
+      }
+      return frozen;
+    } finally {
+      seen.delete(item);
+    }
+  };
+  return freeze(value);
+}
+
+/** Equality of two values `checkedJsonValue` yielded, as their JSON texts compare once
+ * parsed and member-sorted: a string, boolean or null by identity, a number by `===`
+ * (zero and negative zero serialise alike), an array by length and element, an object by
+ * its member names (order not significant) and their values; an array never equals an object. */
+function checkedJsonValuesEqual(left: unknown, right: unknown): boolean {
+  if (left === right) return true;
+  if (typeof left !== "object" || typeof right !== "object" || left === null || right === null) return false;
+  const leftArray = Array.isArray(left);
+  if (leftArray !== Array.isArray(right)) return false;
+  if (leftArray) {
+    const a = left as unknown[], b = right as unknown[];
+    if (a.length !== b.length) return false;
+    for (let index = 0; index < a.length; index += 1) if (!checkedJsonValuesEqual(a[index], b[index])) return false;
+    return true;
+  }
+  const a = left as Record<string, unknown>, b = right as Record<string, unknown>;
+  const keys = Object.keys(a);
+  if (keys.length !== Object.keys(b).length) return false;
+  for (const key of keys) if (!Object.hasOwn(b, key) || !checkedJsonValuesEqual(a[key], b[key])) return false;
+  return true;
+}
+
+/** The equality `validateAnalysisRunV03` compares its source bindings by: either side
+ * undefined compares by identity; otherwise both sides pass the checked JSON profile (the
+ * left side wholly first, refusing as `checkedJsonText` refuses) and are equal exactly when
+ * their checked texts, parsed and member-sorted, serialise alike. It makes no text. */
+export function sameCheckedJson(a: unknown, b: unknown): boolean {
+  if (a === undefined || b === undefined) return a === b;
+  const left = checkedJsonValue(a);
+  const right = checkedJsonValue(b);
+  return checkedJsonValuesEqual(left, right);
+}
+
 /** The recorded form's load basis: the stored manifest's load cases, then its combinations. */
 export function manifestLoadBasisRefs(manifest: Pick<CurrentSessionInputManifest, "load_basis">): ObjectRef[] {
   return [
@@ -410,11 +512,7 @@ async function recordedRead(record: AnalysisRunEnvelope, source: MechanicsResult
  * binding a registry variant then reads as it did when recorded; without it (the record
  * builder, the exports) only the current tables are read. */
 export async function validateAnalysisRunV03(record: AnalysisRunEnvelope, source: MechanicsResult, expectedBasisRefs?: ObjectRef[], recordedState?: RecordedStateBinding, options?: { recordedRead?: boolean }): Promise<void> {
-  const same = (a: unknown, b: unknown): boolean => {
-    if (a === undefined || b === undefined) return a === b;
-    const order = (v: any): any => Array.isArray(v) ? v.map(order) : v && typeof v === "object" ? Object.fromEntries(Object.keys(v).sort().map(k => [k, order(v[k])])) : v;
-    return JSON.stringify(order(JSON.parse(checkedJsonText(a)))) === JSON.stringify(order(JSON.parse(checkedJsonText(b))));
-  };
+  const same = sameCheckedJson;
   const recorded = options?.recordedRead ? await recordedRead(record, source) : null;
   // The route the record is read on: the recorded dispatch's under a variant (a successor's
   // header reads only under its variant), else the current dispatch's.

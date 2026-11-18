@@ -14,7 +14,7 @@
 // package's rule packs) and screens the request and the model before the save
 // dialog (`src-tauri/src/report_package_save.rs`).
 import { invokeWithIngress } from "./nativeIngress";
-import { canonicalJsonString, canonicalSha256Hex } from "./hashService";
+import { canonicalJsonString } from "./hashService";
 import type { ControlledRouteExport, LocalFirstRouteEvidence } from "../features/redaction-controls/redactionExportControls";
 import { REPORT_PACKAGE_SAVE_ROUTE_ID } from "../features/report/reportRedactionProjector";
 
@@ -131,6 +131,15 @@ function hasAllowedLocalFirstEvidence(input: ControlledRouteExport): boolean {
   );
 }
 
+/** The SHA-256 of a canonical text's UTF-8 bytes, lowercase hex: what the engine's
+ * `canonical_sha256_hex` returns for the value the text canonicalises (it hashes the UTF-8
+ * bytes of the very text `canonical_json_string` returns), without canonicalising the value
+ * a second time. */
+export async function canonicalTextSha256Hex(canonicalText: string): Promise<string> {
+  const digest = await globalThis.crypto.subtle.digest("SHA-256", new TextEncoder().encode(canonicalText));
+  return Array.from(new Uint8Array(digest), (byte) => byte.toString(16).padStart(2, "0")).join("");
+}
+
 /** The preparation: the route evidence, then the
  * canonical texts. `request` is the request the route control screened; the
  * controlled payload must be canonically equal to it (the route is lossless).
@@ -163,10 +172,9 @@ export async function prepareReportPackageSave(
   if (!isTauriRuntime()) {
     return { route: "unavailable_browser", diagnostic: "REPORT-PACKAGE-SAVE-DESKTOP-ONLY" };
   }
-  const [requestCanonicalText, screenedRequestText, hex, modelCanonicalText, inputManifestCanonicalText] = await Promise.all([
+  const [requestCanonicalText, screenedRequestText, modelCanonicalText, inputManifestCanonicalText] = await Promise.all([
     canonicalJsonString(controlled.payload),
     canonicalJsonString(request),
-    canonicalSha256Hex(controlled.payload),
     canonicalJsonString(model),
     canonicalJsonString(inputManifest)
   ]);
@@ -176,7 +184,7 @@ export async function prepareReportPackageSave(
       diagnostic: "REPORT-PACKAGE-REDACTION-BLOCKED: the route control changed the request (CANONICAL_PAYLOAD_MATERIALIZATION_CHANGED)."
     };
   }
-  const requestSha256 = `sha256:${hex}`;
+  const requestSha256 = `sha256:${await canonicalTextSha256Hex(requestCanonicalText)}`;
   return {
     route: "ready",
     requestSha256,

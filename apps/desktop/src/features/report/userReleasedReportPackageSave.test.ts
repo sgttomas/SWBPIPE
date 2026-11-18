@@ -135,6 +135,33 @@ describe("Save Shareable Report Package… preparation (route 010)", () => {
     });
   }
 
+  it("prepares the texts, hash and screening the six-call preparation made, the payload canonicalised once", async () => {
+    const { model, result, inputManifest } = await pressureFreeSession();
+    const vectors = load("fixtures/reports/invented/user_release_derivation_vectors.json").vectors as Json[];
+    const { controlled, request } = await prepareShareableReportPackageSave({
+      model, result, inputManifest, reportComposition: null, confirmation: { userReleasedAt: INVENTED_USER_RELEASED_AT }
+    });
+    const exact = { exactResultText: "invented result", exactIntakeText: "invented intake" };
+    for (const runRecord of vectors.map((vector) => vector.run_record)) {
+      // The preparation before the change: the payload's hash by its own canonicalisation.
+      const [requestCanonicalText, screenedRequestText, hex, modelCanonicalText, inputManifestCanonicalText, analysisRunCanonicalText] = await Promise.all([
+        canonicalJsonString(controlled.payload), canonicalJsonString(request), canonicalSha256Hex(controlled.payload),
+        canonicalJsonString(model), canonicalJsonString(inputManifest.manifest), canonicalJsonString(runRecord)
+      ]);
+      expect(requestCanonicalText === screenedRequestText).toBe(true);
+      const prepared = await prepareUserReleasedReportPackageSave(controlled, model, request, inputManifest.manifest, runRecord, exact);
+      if (prepared.route !== "ready") throw new Error("not ready");
+      expect(prepared.requestSha256).toBe(`sha256:${hex}`);
+      expect(prepared.args).toEqual({
+        requestCanonicalText, modelCanonicalText, inputManifestCanonicalText, analysisRunCanonicalText,
+        screening: { ...prepared.args.screening, payload_sha256: `sha256:${hex}` },
+        localFirstEvidence: controlled.summary.local_first,
+        ...exact
+      });
+      expect(prepared.args.requestCanonicalText === requestCanonicalText && prepared.args.analysisRunCanonicalText === analysisRunCanonicalText).toBe(true);
+    }
+  });
+
   it("refuses route evidence that is not route 010's, and a browser without the native host", async () => {
     const { model, result, inputManifest } = await pressureFreeSession();
     const { prepared, request } = await prepareShareableReportPackageSave({
