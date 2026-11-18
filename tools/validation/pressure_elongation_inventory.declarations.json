@@ -1543,6 +1543,12 @@
  ],
  "exempt": [
   {
+   "reason": "model-check/solve parity corpus: exact-route variants explicitly keep every region list empty; included preview and self-weight documents are pressure-free, so no pressurised document is solved",
+   "paths": [
+    "core/product_physics/tests/model_checks_runtime.rs"
+   ]
+  },
+  {
    "reason": "product source: reads, validates or routes pressure regions; the field is named in product code only",
    "paths": [
     "core/product_physics/src/case_state/resolve.rs",

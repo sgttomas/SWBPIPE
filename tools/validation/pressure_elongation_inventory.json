@@ -28,11 +28,11 @@
    ".json",
    ".jsonl"
   ],
-  "files": 533,
+  "files": 534,
   "claimed_by": {
    "group": 142,
    "in_code": 63,
-   "exemption": 328
+   "exemption": 329
   }
  },
  "counts": {
@@ -9446,6 +9446,15 @@
   }
  ],
  "exemptions": [
+  {
+   "reason": "model-check/solve parity corpus: exact-route variants explicitly keep every region list empty; included preview and self-weight documents are pressure-free, so no pressurised document is solved",
+   "paths": [
+    "core/product_physics/tests/model_checks_runtime.rs"
+   ],
+   "files": [
+    "core/product_physics/tests/model_checks_runtime.rs"
+   ]
+  },
   {
    "reason": "product source: reads, validates or routes pressure regions; the field is named in product code only",
    "paths": [
