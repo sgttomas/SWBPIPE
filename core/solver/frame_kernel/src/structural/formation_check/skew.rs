@@ -2,7 +2,9 @@
 //! §10): the existing evaluation applied to the intended Qᵀ K_int Q v = Qᵀ f_int,
 //! with Q the basis's exact node-local matrix. No new certificate, no new
 //! threshold. The binary64 factorization, the corrections w and w₂, the
-//! contraction test, σ and the Neumann bound are today's, on coordinates.
+//! contraction test, σ and the Neumann bound are today's, on coordinates. The
+//! inverse operand comes from the same gate (`verified_inverse_operand`), on
+//! the same prepared matrix: the transformed system the factor was computed from.
 //!
 //! - **Loads (ρ, §10.2).** Each physical ledger term or re-formed primitive on
 //!   DOF i enters each coordinate row r with weight q_ir (`RestraintBasis::q_row`),
@@ -280,6 +282,7 @@ pub(super) fn evaluate<F, A, P>(
     solve: &F,
     judged: bool,
     epsilon_cache: Option<&std::cell::Cell<Option<f64>>>,
+    inverse: InverseNormInput<'_>,
 ) -> Result<(Option<FormationCheck>, Option<MemberBoundInputs>), Failure>
 where
     F: Fn(&[f64]) -> Result<Vec<f64>, StructuralError>,
@@ -417,7 +420,9 @@ where
         }
     };
     let (_rcond, est, _norm) = condition;
-    let inverse = mul_up(1024.0, est);
+    let operand = verified_inverse_operand(est, inverse)?;
+    debug_assert!(operand.bound <= operand.limit);
+    let inverse = operand.limit;
     let neumann = mul_up(inverse, epsilon);
     if !neumann.is_finite() || neumann >= 1.0 {
         return Err(Failure::Unavailable("Neumann"));

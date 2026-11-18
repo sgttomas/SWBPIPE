@@ -1,9 +1,11 @@
 //! Certificate arithmetic for the integrity check's inverse-norm step
-//! (DEL-04-01, exit criterion 18). No production code calls this module: the
-//! check still takes `Q = mul_up(1024, est)` as an upper bound on ‖A⁻¹‖∞ without
-//! establishing it, and this module repairs nothing until a later change wires
-//! it into the two sites that form Q (`formation_check.rs` and
-//! `formation_check/skew.rs`).
+//! (DEL-04-01 REQ-015, exit criterion 18). The check's two Λ sites
+//! (`formation_check.rs` and `formation_check/skew.rs`) take `Q = mul_up(1024,
+//! est)` as their inverse operand only through `verified_inverse_operand`,
+//! which returns it only when this certificate verified ‖A⁻¹‖∞ ≤ B ≤ Q for the
+//! matrix the evaluation's `projected` reads, with the elimination of the
+//! factor the solve used (`InverseNormInput`, built by that factor object and
+//! cached in its `CertificateSlot`); otherwise the check is unavailable.
 //!
 //! **What it establishes.** For a symmetric binary64 matrix A (the scaled free
 //! matrix the check reads) and a quantity Q, either `Verified { bound: B, .. }`
@@ -162,6 +164,7 @@ pub(crate) enum NotVerifiedReason {
     ArithmeticNonfinite,
     BoundExceedsExistingQuantity,
     /// The input could not be used (`InputDefect` says how); no method ran.
+    #[cfg_attr(not(test), allow(dead_code))]
     InputUnusable,
 }
 
@@ -236,6 +239,8 @@ pub(crate) struct NotVerified {
     pub(crate) candidates: Vec<CandidateBound>,
 }
 
+// Read by this module's tests and diagnostics only; the gate reads the verdict.
+#[cfg_attr(not(test), allow(dead_code))]
 impl NotVerified {
     /// Every reason, `InputUnusable` included.
     pub(crate) fn reasons(&self) -> Vec<NotVerifiedReason> {
@@ -267,6 +272,8 @@ pub(crate) enum InverseNormCertificate {
 /// than once (validation, blocks, each factorization), and its result is about
 /// one matrix only if every read of the same position returns the same value:
 /// an implementation must be a fixed stored matrix for the whole call.
+// Read by this module's tests and diagnostics only; the gate reads the verdict.
+#[cfg_attr(not(test), allow(dead_code))]
 pub(crate) trait LowerTriangle {
     fn dimension(&self) -> usize;
     fn value(&self, row: usize, column: usize) -> f64;
@@ -337,6 +344,7 @@ impl<V: StoredValue> RowView for CompressedView<'_, V> {
     }
 }
 
+#[cfg_attr(not(test), allow(dead_code))]
 struct LowerView<'a>(&'a dyn LowerTriangle);
 
 impl RowView for LowerView<'_> {
@@ -408,6 +416,7 @@ fn validate_compressed<V: StoredValue>(view: &CompressedView<'_, V>) -> Result<(
     Ok(())
 }
 
+#[cfg_attr(not(test), allow(dead_code))]
 fn validate_lower(matrix: &dyn LowerTriangle) -> Result<(), InputDefect> {
     let n = matrix.dimension();
     for r in 0..n {
@@ -757,6 +766,7 @@ struct AttemptRecord {
     method: BoundMethod,
     shift: Option<ShiftStep>,
     outcome: AttemptOutcome,
+    #[cfg_attr(not(test), allow(dead_code))]
     figures: Vec<(&'static str, f64)>,
 }
 
@@ -781,6 +791,7 @@ impl BlockRecord {
 /// The verdict with every block's attempts (the verdict is formed from them).
 struct Run {
     result: InverseNormCertificate,
+    #[cfg_attr(not(test), allow(dead_code))]
     blocks: Vec<BlockRecord>,
 }
 
@@ -1146,6 +1157,7 @@ fn compressed_run<V: StoredValue>(
     }
 }
 
+#[cfg_attr(not(test), allow(dead_code))]
 fn lower_run(matrix: &dyn LowerTriangle, elimination: Elimination<'_>, q: f64) -> Run {
     run(&LowerView(matrix), validate_lower(matrix), elimination, q)
 }
@@ -1190,10 +1202,151 @@ pub(crate) fn certify_compressed_bits(
 }
 
 /// Any lower-triangle reader (symmetric by construction).
+#[cfg_attr(not(test), allow(dead_code))]
 pub(crate) fn certify_lower(
     matrix: &dyn LowerTriangle,
     elimination: Elimination<'_>,
     q: f64,
 ) -> InverseNormCertificate {
     lower_run(matrix, elimination, q).result
+}
+
+// ------------------------------------------------------------ the gate's input
+
+/// The matrix a Λ step reads through its `projected` callback, in the
+/// representation the solve's factor was computed from, with that factor's
+/// elimination. Only the factor objects (and kernel tests) construct one.
+#[derive(Clone, Copy)]
+pub(crate) enum CertifiedMatrix<'a> {
+    /// `PreparedSystem::matrix`: natural elimination for the dense Cholesky
+    /// backend, the profile backend's order and envelope otherwise.
+    Dense {
+        matrix: &'a [Vec<f64>],
+        elimination: Elimination<'a>,
+    },
+    /// `SparsePreparedSystem`'s stored rows, with the profile factor's order
+    /// and envelope.
+    Compressed {
+        row_starts: &'a [usize],
+        columns: &'a [usize],
+        values: &'a [f64],
+        order: &'a [usize],
+        first: &'a [usize],
+    },
+    /// `SharedSparseFactor`'s kept rows (values as bits), with its factor's
+    /// order and envelope.
+    CompressedBits {
+        row_starts: &'a [usize],
+        columns: &'a [usize],
+        values: &'a [u64],
+        order: &'a [usize],
+        first: &'a [usize],
+    },
+}
+
+// Test builds only: how many certificates this thread has computed (the
+// keying tests count runs per factor). It observes; it decides nothing.
+#[cfg(test)]
+thread_local! {
+    pub(crate) static CERTIFICATE_RUNS: std::cell::Cell<usize> = const { std::cell::Cell::new(0) };
+}
+
+impl CertifiedMatrix<'_> {
+    fn certify(&self, q: f64) -> InverseNormCertificate {
+        #[cfg(test)]
+        CERTIFICATE_RUNS.with(|runs| runs.set(runs.get() + 1));
+        match *self {
+            Self::Dense {
+                matrix,
+                elimination,
+            } => certify_dense(matrix, elimination, q),
+            Self::Compressed {
+                row_starts,
+                columns,
+                values,
+                order,
+                first,
+            } => certify_compressed(row_starts, columns, values, order, first, q),
+            Self::CompressedBits {
+                row_starts,
+                columns,
+                values,
+                order,
+                first,
+            } => certify_compressed_bits(row_starts, columns, values, order, first, q),
+        }
+    }
+}
+
+/// One factor's certificate result, held by the factor object for the matrix
+/// it factored: the bits of the Q it was computed for and, when verified, the
+/// bound (no matrix, workspace or reasons are kept). Filled at most once; a
+/// later request for other Q bits is computed afresh and not stored.
+#[derive(Default)]
+pub(crate) struct CertificateSlot(std::cell::OnceCell<(u64, Option<VerifiedBound>)>);
+
+/// What the Λ step's gate certifies: the matrix and the slot of the factor
+/// that owns it.
+#[derive(Clone, Copy)]
+pub(crate) struct InverseNormInput<'a> {
+    matrix: CertifiedMatrix<'a>,
+    slot: &'a CertificateSlot,
+}
+
+impl<'a> InverseNormInput<'a> {
+    pub(crate) fn new(matrix: CertifiedMatrix<'a>, slot: &'a CertificateSlot) -> Self {
+        Self { matrix, slot }
+    }
+
+    /// The verified bound B ≤ q for this matrix, or `None` (not verified). The
+    /// certificate runs at most once per slot for q's bits; its workspace is
+    /// released before this returns.
+    pub(crate) fn verified_bound(&self, q: f64) -> Option<VerifiedBound> {
+        if let Some((bits, verified)) = self.slot.0.get() {
+            if *bits == q.to_bits() {
+                return verified.clone();
+            }
+        }
+        let verified = match self.matrix.certify(q) {
+            InverseNormCertificate::Verified(v) if v.bound <= q => Some(v),
+            _ => None,
+        };
+        let _ = self.slot.0.set((q.to_bits(), verified.clone()));
+        verified
+    }
+}
+
+#[cfg(test)]
+impl<'a> InverseNormInput<'a> {
+    /// The certified matrix's (row, column) entry over free positions, as the
+    /// certificate reads it (tests compare it with `projected`).
+    pub(crate) fn entry(&self, row: usize, column: usize) -> f64 {
+        match self.matrix {
+            CertifiedMatrix::Dense { matrix, .. } => matrix[row][column],
+            CertifiedMatrix::Compressed { row_starts, columns, values, .. } => columns[row_starts[row]..row_starts[row + 1]]
+                .binary_search(&column)
+                .map_or(0.0, |k| values[row_starts[row] + k]),
+            CertifiedMatrix::CompressedBits { row_starts, columns, values, .. } => columns[row_starts[row]..row_starts[row + 1]]
+                .binary_search(&column)
+                .map_or(0.0, |k| f64::from_bits(values[row_starts[row] + k])),
+        }
+    }
+    /// `None` for natural elimination, else the supplied order and envelope.
+    pub(crate) fn supplied(&self) -> Option<(&'a [usize], &'a [usize])> {
+        match self.matrix {
+            CertifiedMatrix::Dense { elimination: Elimination::Natural, .. } => None,
+            CertifiedMatrix::Dense { elimination: Elimination::Supplied { order, first }, .. }
+            | CertifiedMatrix::Compressed { order, first, .. }
+            | CertifiedMatrix::CompressedBits { order, first, .. } => Some((order, first)),
+        }
+    }
+    pub(crate) fn dimension(&self) -> usize {
+        match self.matrix {
+            CertifiedMatrix::Dense { matrix, .. } => matrix.len(),
+            CertifiedMatrix::Compressed { row_starts, .. } | CertifiedMatrix::CompressedBits { row_starts, .. } => row_starts.len() - 1,
+        }
+    }
+    pub(crate) fn same_slot(&self, other: &Self) -> bool {
+        std::ptr::eq(self.slot, other.slot)
+    }
 }

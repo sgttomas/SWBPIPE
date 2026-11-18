@@ -1,16 +1,18 @@
-//! KNOWN-LIMITATION WITNESS of the integrity check's unproved inverse-norm
-//! premise (DEL-04-01 REQ-015, REQ-016, AC-013; the OUT-001 row of REQ-015 in
-//! `execution/PKG-04/DEL-04-01/ScopeOfWork.md`). It is NOT a requirement: it
-//! asserts the present, wrong behaviour on invented models where taking 1024
-//! times the condition estimate as an upper bound on the scaled inverse norm
-//! fails (1024 times the estimate is 1/256 of the true norm). A change in its
-//! outcome needs the repair's independent evidence, and DEL-04-01's OUT-001 row
-//! reconciled in the same change.
+//! The integrity check's inverse-norm gate on the known-limitation witness
+//! (DEL-04-01 REQ-015, exit criterion 18). The check may use Q = 1024 times
+//! the condition estimate as its inverse operand only when a certificate has
+//! established that the scaled matrix's inverse norm is at most B ≤ Q
+//! (`verified_inverse_operand` in the kernel's formation check). These
+//! invented models have true scaled inverse norm 2¹⁸ against Q of about 1024,
+//! so no certificate can verify Q there, and the product must not publish
+//! checks passed or an established support state resting on it.
 //!
 //! The models and their exact truth are
-//! `validation/references/inverse_norm_witness` (its README states every
-//! number's reason), generated without product code. The requests run here
-//! unchanged, through the product's ordinary entry.
+//! `validation/references/inverse_norm_witness` (frozen; its README states
+//! every number's reason), generated without product code. The requests run
+//! here unchanged, through the product's ordinary entry (the one hanger
+//! sizing's derived solves use). The file keeps the name that package's
+//! README gives its consumer.
 use open_pipe_stress_product_physics::{run_linear_static_preview_value_with_mode, PreviewSolverMode};
 use serde_json::Value;
 use sha2::{Digest, Sha256};
@@ -26,7 +28,10 @@ const ONE_WAY_POSITIVE: &str = include_str!(
     "../../../validation/references/inverse_norm_witness/requests/one_way_positive.request.json"
 );
 const PASSED: &str = "NUMERICAL_INTEGRITY_CHECKS_PASSED";
+const SENSITIVE: &str = "NUMERICAL_INTEGRITY_SENSITIVE";
 const ESTABLISHED: &str = "Converged support state: established at 128-bit precision";
+const NOT_VERIFIED: &str = "inverse-norm bound not verified";
+const MODES: [PreviewSolverMode; 2] = [PreviewSolverMode::DenseScrutiny, PreviewSolverMode::SparseInteractive];
 
 /// The variant's truth, after checking that the reference binds these request bytes.
 fn truth(variant: &str, request: &str) -> Value {
@@ -59,6 +64,20 @@ fn integrity(envelope: &Value) -> (String, String) {
     (found[0]["code"].as_str().unwrap().into(), found[0]["message"].as_str().unwrap().into())
 }
 
+fn blocking(envelope: &Value) -> Vec<&Value> {
+    envelope["diagnostics"].as_array().unwrap().iter().filter(|d| d["severity"] == "blocking").collect()
+}
+
+/// The envelope's numerical quality and its one case's solve quality.
+fn quality(envelope: &Value) -> (String, String) {
+    let cases = envelope["numerical_quality"]["cases"].as_array().unwrap();
+    assert_eq!(cases.len(), 1, "{cases:?}");
+    (
+        envelope["numerical_quality"]["status"].as_str().unwrap().into(),
+        cases[0]["solve_quality"].as_str().unwrap().into(),
+    )
+}
+
 fn result(envelope: &Value, kind: &str, entity: &str) -> f64 {
     let found = envelope["results"]
         .as_array()
@@ -67,68 +86,70 @@ fn result(envelope: &Value, kind: &str, entity: &str) -> f64 {
         .filter(|r| r["kind"] == kind && r["entity_ref"] == entity)
         .collect::<Vec<_>>();
     assert_eq!(found.len(), 1, "{kind} {entity}");
-    let value = found[0]["value"].as_f64().unwrap();
-    match found[0]["unit"].as_str().unwrap() {
-        "mm" => value / 1000.0,
-        _ => value,
-    }
+    found[0]["value"].as_f64().unwrap()
 }
 
-fn exact_sign(value: &Value) -> f64 {
-    let text = value["exact"].as_str().unwrap();
-    if text == "0" {
-        0.0
-    } else if text.starts_with('-') {
-        -1.0
-    } else {
-        1.0
-    }
+/// The gate's disposition: exactly one integrity diagnostic, Sensitive, naming
+/// the not-verified bound; Sensitive everywhere quality is published; nothing
+/// blocking (the solve itself is published as a binary64 result).
+fn assert_gated(envelope: &Value, at: &str) -> String {
+    assert_eq!(envelope["status"]["mechanics"], "MECHANICS_SOLVED", "{at}");
+    let (code, message) = integrity(envelope);
+    assert_eq!(code, SENSITIVE, "{at}: {message}");
+    assert!(message.contains(NOT_VERIFIED), "{at}: {message}");
+    assert!(!message.contains(ESTABLISHED), "{at}: {message}");
+    assert_eq!(quality(envelope), ("sensitive".into(), "sensitive".into()), "{at}");
+    assert!(blocking(envelope).is_empty(), "{at}: {:?}", blocking(envelope));
+    message
 }
 
-/// One-way witnesses: the stop is published inactive, with its state
-/// established and the case passing its checks, where the exact solution has it
-/// active; the published stop displacement lies on the open side while the exact
-/// inactive-state displacement lies on the closed side.
+/// Linear variant, both modes, through the derived-solve entry: Q is not
+/// verified (true norm 2¹⁸ against Q ≈ 1024), so the check is unavailable with
+/// the stable detail and the case is Sensitive, never checks passed.
 #[test]
-fn known_limitation_witness_one_way_stop_published_inactive_where_exact_state_is_active() {
-    for (variant, request, mode) in [
+fn witness_linear_case_is_sensitive_with_the_bound_not_verified_in_both_modes() {
+    let truth = truth("linear", LINEAR);
+    assert_eq!(truth["exact_displacement_B"]["UZ"]["exact"], "0");
+    for mode in MODES {
+        let envelope = run(LINEAR, mode);
+        let message = assert_gated(&envelope, &format!("linear {mode:?}"));
+        assert!(
+            message.contains("formation_check: reason=formation_check_unavailable; detail=inverse-norm bound not verified"),
+            "{mode:?}: {message}"
+        );
+    }
+}
+
+/// One-way variants, both modes. In each variant's witness mode the converged
+/// state is the wrong (inactive) one: its establishment rests on Q at stage B,
+/// so it is refused with the stage named and the case is Sensitive. In the
+/// other mode the product reached the exact (active) state; whatever it
+/// publishes there, it never publishes an established state other than the
+/// exact one, and never checks passed resting on an unverified bound.
+#[test]
+fn witness_one_way_state_is_not_established_on_an_unverified_bound() {
+    for (variant, request, witness_mode) in [
         ("one_way_negative", ONE_WAY_NEGATIVE, PreviewSolverMode::DenseScrutiny),
         ("one_way_positive", ONE_WAY_POSITIVE, PreviewSolverMode::SparseInteractive),
     ] {
         let truth = truth(variant, request);
         assert_eq!(truth["exact_state"], "active", "{variant}");
         assert_eq!(truth["inactive_state"]["admissible"], false, "{variant}");
-        let envelope = run(request, mode);
-        let at = format!("{variant} {mode:?}");
-        assert_eq!(envelope["status"]["mechanics"], "MECHANICS_SOLVED", "{at}");
-        let (code, message) = integrity(&envelope);
-        assert_eq!(code, PASSED, "{at}: {message}");
-        assert!(message.contains(ESTABLISHED), "{at}: {message}");
-        assert_eq!(
-            result(&envelope, "nonlinear_support_active_set_state_code", "support:STOP"),
-            0.0,
-            "{at}: published inactive"
-        );
-        let published = result(&envelope, "nonlinear_support_final_displacement", "support:STOP");
-        let exact = exact_sign(&truth["inactive_state"]["stop_displacement"]);
-        assert!(exact != 0.0 && published * exact < 0.0, "{at}: published {published:e}, exact sign {exact}");
-    }
-}
-
-/// Linear variant. The check's internal enclosure of B's displacement excludes
-/// the exact value (observed only with a print-only probe; these result
-/// documents do not print the enclosure). What is observable: the case passes
-/// its checks, and B's published UZ is not the exact value 0.
-#[test]
-fn known_limitation_witness_linear_case_passes_with_inexact_published_displacement() {
-    let truth = truth("linear", LINEAR);
-    assert_eq!(truth["exact_displacement_B"]["UZ"]["exact"], "0");
-    for mode in [PreviewSolverMode::DenseScrutiny, PreviewSolverMode::SparseInteractive] {
-        let envelope = run(LINEAR, mode);
-        assert_eq!(envelope["status"]["mechanics"], "MECHANICS_SOLVED", "{mode:?}");
-        let (code, message) = integrity(&envelope);
-        assert_eq!(code, PASSED, "{mode:?}: {message}");
-        let uz = result(&envelope, "global_nodal_displacement_z", "node:B");
-        assert!(uz != 0.0, "{mode:?}: published UZ {uz:e}");
+        for mode in MODES {
+            let at = format!("{variant} {mode:?}");
+            let envelope = run(request, mode);
+            assert_eq!(envelope["status"]["mechanics"], "MECHANICS_SOLVED", "{at}");
+            let state = result(&envelope, "nonlinear_support_active_set_state_code", "support:STOP");
+            let (code, message) = integrity(&envelope);
+            if mode == witness_mode {
+                assert_eq!(state, 0.0, "{at}: the computed state is the inactive one");
+                let message = assert_gated(&envelope, &at);
+                assert!(message.contains("not established"), "{at}: {message}");
+                assert!(message.contains(&format!("formation check: stage B: {NOT_VERIFIED}")), "{at}: {message}");
+            } else if code == PASSED || message.contains(ESTABLISHED) {
+                assert!(state != 0.0, "{at}: an established state must be the exact, active one");
+                assert!(!message.contains(NOT_VERIFIED), "{at}: {message}");
+            }
+        }
     }
 }

@@ -515,6 +515,7 @@ trait Represented {
         scale_exponents: &[i32],
         u: &[f64],
         solve: &F,
+        inverse: InverseNormInput<'_>,
     ) -> (Option<FormationCheck>,Option<MemberBoundInputs>)
     where
         F: Fn(&[f64]) -> Result<Vec<f64>, StructuralError>;
@@ -578,11 +579,12 @@ impl Represented for StructuralSystem<'_> {
         scale_exponents: &[i32],
         u: &[f64],
         solve: &F,
+        inverse: InverseNormInput<'_>,
     ) -> (Option<FormationCheck>,Option<MemberBoundInputs>)
     where
         F: Fn(&[f64]) -> Result<Vec<f64>, StructuralError>,
     {
-        formation_check::check(self, source, ledger, scale_exponents, u, condition, &|i,j|self.stiffness[i][j], projected, solve)
+        formation_check::check(self, source, ledger, scale_exponents, u, condition, &|i,j|self.stiffness[i][j], projected, solve, inverse)
     }
 }
 /// K1: what the completion reads from a prepared system, dense or sparse.
@@ -1897,6 +1899,7 @@ fn finish_checked_factor<R, P, F>(
     pivots: Vec<PivotEvidence>,
     factorization: &'static str,
     solve: F,
+    inverse: InverseNormInput<'_>,
 ) -> Result<StructuralSolution, StructuralError>
 where
     R: Represented + ?Sized,
@@ -1974,6 +1977,7 @@ where
                     scale_exponents,
                     &u,
                     &solve,
+                    inverse,
                 ),
                 _ => (None,None),
             };
@@ -2109,6 +2113,7 @@ pub struct PositiveFactor<'p, 's> {
     prepared: &'p PreparedSystem<'s>,
     backend: PositiveBackend,
     pivots: Vec<PivotEvidence>,
+    certificate: CertificateSlot,
 }
 enum PositiveBackend {
     Dense(CholeskyFactor),
@@ -2124,6 +2129,15 @@ impl PositiveFactor<'_, '_> {
             PositiveBackend::Profile(f) => f.solve(rhs),
         }
     }
+    /// The Λ step's gate input: the prepared matrix this factor factored, with
+    /// its elimination (natural for dense Cholesky) and certificate slot.
+    fn inverse_norm(&self) -> InverseNormInput<'_> {
+        let elimination = match &self.backend {
+            PositiveBackend::Dense(_) => Elimination::Natural,
+            PositiveBackend::Profile(f) => Elimination::Supplied { order: &f.order, first: &f.first },
+        };
+        InverseNormInput::new(CertifiedMatrix::Dense { matrix: &self.prepared.matrix, elimination }, &self.certificate)
+    }
 }
 pub fn factor_structural_cholesky<'p, 's>(
     prepared: &'p PreparedSystem<'s>,
@@ -2134,6 +2148,7 @@ pub fn factor_structural_cholesky<'p, 's>(
         prepared,
         backend: PositiveBackend::Dense(factor),
         pivots,
+        certificate: CertificateSlot::default(),
     })
 }
 /// The sole public completion interface accepts checked, source-bound factors only.
@@ -2156,6 +2171,7 @@ pub fn finish_structural(
         factor.pivots.clone(),
         label,
         |rhs| factor.solve(rhs),
+        factor.inverse_norm(),
     )
 }
 /// Nonlinear K-D5 (DEL-04-01 kd5-nonlinear-active-set.md §1.5): the
@@ -2230,6 +2246,7 @@ impl ConfirmationAttempt<'_, '_, '_> {
             &|rhs: &[f64]| self.factor.solve(rhs),
             judged,
             Some(&self.epsilon),
+            self.factor.inverse_norm(),
         ))
     }
 }
@@ -2407,6 +2424,7 @@ pub fn factor_structural_profile<'p, 's>(
         prepared,
         backend: PositiveBackend::Profile(factor),
         pivots,
+        certificate: CertificateSlot::default(),
     })
 }
 
@@ -3358,3 +3376,8 @@ mod tests {
         assert!(factor_structural_profile(&prepared, &[0, 1], &[0, 1]).is_err());
     }
 }
+
+// DEL-04-01 REQ-015: the certificate that gates the formation check's inverse
+// operand (`formation_check::verified_inverse_operand`).
+mod inverse_certificate;
+use inverse_certificate::{CertificateSlot, CertifiedMatrix, Elimination, InverseNormInput};

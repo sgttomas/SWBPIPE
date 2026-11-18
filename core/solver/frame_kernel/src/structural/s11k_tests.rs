@@ -520,6 +520,7 @@ fn k11_forced_refinement_step_stays_exact() {
                 }
                 Ok(y)
             },
+            factor.inverse_norm(),
         )
         .unwrap();
         assert!(solution.report.refinement_attempts >= 1);

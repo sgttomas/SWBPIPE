@@ -5,6 +5,14 @@ use super::super::{
     SolveQuality, StructuralSystem, SymmetryEvidence,
 };
 use super::*;
+use super::super::inverse_certificate::{CertificateSlot, CertifiedMatrix, Elimination};
+
+/// The Λ gate's input for a test that hands `projected` the dense `matrix`:
+/// that matrix, natural elimination, the test's own slot. It runs the real
+/// certificate; no test supplies a verdict.
+fn dense_gate<'a>(matrix: &'a [Vec<f64>], slot: &'a CertificateSlot) -> InverseNormInput<'a> {
+    InverseNormInput::new(CertifiedMatrix::Dense { matrix, elimination: Elimination::Natural }, slot)
+}
 
 use crate::{FrameNode, FrameSection, Matrix12};
 
@@ -320,6 +328,7 @@ fn kd5_zero_scale_clause_fires_on_ledger_terms_that_differ_from_the_solve_force(
         &|i, j| k[i][j],
         &|r, c| prepared.matrix()[r][c],
         &solve,
+        factor.inverse_norm(),
     )
     .0
     .expect("zero-scale clause");
@@ -339,7 +348,8 @@ fn kd5_zero_scale_clause_fires_on_ledger_terms_that_differ_from_the_solve_force(
             condition,
             &|i, j| k[i][j],
             &|r, c| prepared.matrix()[r][c],
-            &solve
+            &solve,
+            factor.inverse_norm(),
         )
         .0,
         None
@@ -1140,6 +1150,7 @@ fn kd5_second_solve_contraction_neumann_zero_over_zero_and_no_ledger_fail_closed
         &|i, j| k[i][j],
         &|_, _| 2.0,
         &solve,
+        dense_gate(&[vec![2.0]], &CertificateSlot::default()),
     );
     assert!(finding.is_none());
     let bound = bound.unwrap();
@@ -1157,6 +1168,7 @@ fn kd5_second_solve_contraction_neumann_zero_over_zero_and_no_ledger_fail_closed
         &|i, j| k[i][j],
         &|_, _| 2.0,
         &solve,
+        dense_gate(&[vec![2.0]], &CertificateSlot::default()),
     );
     assert!(
         matches!(finding.unwrap().reason,FormationCheckReason::FormationCheckUnavailable{detail}if detail=="load closure: no ledger")
@@ -1188,6 +1200,7 @@ fn kd5_second_solve_contraction_neumann_zero_over_zero_and_no_ledger_fail_closed
             &|i, j| k[i][j],
             &|_, _| 2.0,
             &faulty,
+            dense_gate(&[vec![2.0]], &CertificateSlot::default()),
         );
         assert!(bound.is_none());
         let FormationCheckReason::FormationCheckUnavailable { detail } = finding.unwrap().reason
@@ -1214,6 +1227,7 @@ fn kd5_second_solve_contraction_neumann_zero_over_zero_and_no_ledger_fail_closed
         &|i, j| if i == j && i == 0 { 3.0 } else { 0.0 },
         &|_, _| 3.0,
         &solve,
+        dense_gate(&[vec![3.0]], &CertificateSlot::default()),
     );
     assert!(bound.is_none());
     assert!(
@@ -1752,6 +1766,7 @@ fn kd5_load_radius_is_not_a_shift_and_all_prescribed_rows_still_reform() {
         &|i, j| k[i][j],
         &|_, _| 2.0,
         &|rhs| Ok(vec![rhs[0] / 2.0]),
+        dense_gate(&[vec![2.0]], &CertificateSlot::default()),
     );
     assert!(finding.is_none());
     let bound = bound.unwrap();
@@ -2159,6 +2174,7 @@ fn kd5_all_prescribed_formed_load_reformation_failure_is_named() {
         &|_, _| 0.0,
         &|_, _| 0.0,
         &|_| Ok(Vec::new()),
+        dense_gate(&[], &CertificateSlot::default()),
     );
     assert!(bound.is_none());
     assert!(
@@ -2572,7 +2588,10 @@ fn kd5_lambda_carries_the_two_to_ten_inverse_factor_and_its_neumann_boundary() {
     let u = [1.0 + 2.0f64.powi(-40), 0.0, 0.0, 0.0, 0.0, 0.0];
     let inexact = |rhs: &[f64]| Ok(vec![rhs[0] / 2.0 * (1.0 + 2.0f64.powi(-25))]);
     let est = 0.5;
-    let (finding, bound) = check(&system, &source, Some(&force), &[0], &u, (1.0, est, 2.0), &|i, j| k[i][j], &|_, _| 2.0, &inexact);
+    // The gate certifies the matrix `projected` reads, [2] here and [3] below.
+    let (two, three) = (vec![vec![2.0]], vec![vec![3.0]]);
+    let (slot_two, slot_three) = (CertificateSlot::default(), CertificateSlot::default());
+    let (finding, bound) = check(&system, &source, Some(&force), &[0], &u, (1.0, est, 2.0), &|i, j| k[i][j], &|_, _| 2.0, &inexact, dense_gate(&two, &slot_two));
     assert!(finding.is_none(), "{finding:?}");
     let bound = bound.unwrap();
     let sigma = 2.0f64.powi(-89);
@@ -2583,7 +2602,7 @@ fn kd5_lambda_carries_the_two_to_ten_inverse_factor_and_its_neumann_boundary() {
     // est·ε_E = 1/64 < 1, but 2^10·est·ε_E = 16 ≥ 1.
     let exact = |rhs: &[f64]| Ok(vec![rhs[0] / 2.0]);
     let (finding, bound) = check(&system, &source, Some(&force), &[0], &[1.0, 0.0, 0.0, 0.0, 0.0, 0.0], (1.0, 1.0 / 64.0, 3.0),
-        &|i, j| if i == j && i == 0 { 3.0 } else { 0.0 }, &|_, _| 3.0, &exact);
+        &|i, j| if i == j && i == 0 { 3.0 } else { 0.0 }, &|_, _| 3.0, &exact, dense_gate(&three, &slot_three));
     assert!(bound.is_none());
     assert!(matches!(finding.unwrap().reason, FormationCheckReason::FormationCheckUnavailable { detail } if detail == "Neumann"));
 }
