@@ -25,7 +25,8 @@ What it derives, every value an exact rational:
                    RS-SUS, RS-OPE and RS-SAM; a free-length thermal state applies no external load and every pressure
                    closure transfers to the wall, so its vertical reaction sum and reaction moment about the origin
                    are those of the other cases: the r1_ce package's values, bound here by identity of record
-  EQ-3             RS-EXP = RS-OPE-REF - RS-SUS on every published signed component row (an exact identity)
+  EQ-3             RS-EXP = RS-OPE-REF - RS-SUS on every published signed component row (an exact identity); it
+                   establishes the combination's algebra and nothing about either solve
 
 Kelvin values are degC + 273.15 (an exact decimal offset).
 
@@ -255,7 +256,8 @@ def document(result):
             "EQ-2": "in RS-OPE-REF, the horizontal (X, Y) resultant is zero and the support action moment resultant "
                     "about the origin equals reaction_moment_about_origin",
             "EQ-3": "on every published signed component row, RS-EXP = RS-OPE-REF - RS-SUS; magnitude rows equal the "
-                    "norm of the combined components; rows the combination withholds are excluded and listed",
+                    "norm of the combined components; rows the combination withholds are excluded and listed; the "
+                    "identity establishes the combination's algebra and nothing about either solve",
         },
         "criterion": "EQ-1, EQ-2, EQ-3: the r1_ce package's (DEC-024/DEC-026), |observed - expected| <= 1e-9 * "
                      "|expected|, a zero row against 1e-9 * zero_scale; member states: the consumer states its a "
@@ -280,6 +282,7 @@ def document(result):
         },
         "eq3": {
             "combination": "combination:RS-EXP",
+            "label": "RS-EXP expansion: RS-OPE-REF - RS-SUS, the difference of two solved states on the 20 degC modulus",
             "minuend": "load:RS-OPE-REF",
             "subtrahend": "load:RS-SUS",
             "identity": "on every published signed component row (support force and moment components, translation and "
@@ -287,6 +290,10 @@ def document(result):
                         "rows are recomputed from the combined components; rows the combination withholds, such as "
                         "tie-rod forces, are excluded",
             "both_operands_on_one_material_basis": "every member of RS-SUS and RS-OPE-REF selects the 20 degC point",
+            "what_it_establishes": "the combination's algebra: RS-EXP is the row-by-row difference of the two published "
+                                   "solved states; it establishes nothing about either solve, and RS-EXP is the "
+                                   "difference of two independently solved equilibria, not a solution of the system "
+                                   "under the load difference",
         },
     }
 
