@@ -148,24 +148,50 @@ test('a child inherits the lock only through the token the lock holds; holding i
 });
 
 // A separate process running `body` (module JavaScript, with the lock module's
-// exports and `root` in scope); its standard error is read only once `readAfter`
-// resolves, when given.
+// exports and `root` in scope). Install the collector before releasing the stdin
+// start handshake. With readAfter, pause until release: Node may also resume the
+// pipe automatically at child exit, so the collector must already be installed.
 function startScript(root, body, { readAfter = null } = {}) {
   const child = spawn(process.execPath, ['--input-type=module', '-e', `
     import { acquireBuildLock, exitAfterSignals, runUnderLock } from ${JSON.stringify(lockModule)};
     import { execFileSync, spawn } from 'node:child_process';
     import { openSync, readFileSync, writeFileSync, writeSync } from 'node:fs';
     const root = ${JSON.stringify(root)};
+    await new Promise((resolve) => { process.stdin.once('end', resolve); process.stdin.resume(); });
     ${body}
-  `], { stdio: ['ignore', 'pipe', 'pipe'] });
+  `], { stdio: ['pipe', 'pipe', 'pipe'] });
   let output = '';
   child.stdout.on('data', (chunk) => { output += chunk; });
-  const readError = () => child.stderr.on('data', (chunk) => { output += chunk; });
-  if (readAfter) readAfter.then(readError); else readError();
+  child.stderr.on('data', (chunk) => { output += chunk; });
+  if (readAfter) {
+    child.stderr.pause();
+    readAfter.then(() => child.stderr.resume());
+  }
   const closed = new Promise((resolve) => child.on('close', resolve));
   const done = new Promise((resolve) => child.on('exit', (code, signal) => closed.then(() => resolve({ code, signal }))));
+  child.stdin.end();
   return { child, done, output: () => output };
 }
+
+test('the delayed stderr collector keeps a runner that exits before reading is released', async () => {
+  const t = tempRoot();
+  const ready = path.join(t.root, 'ready');
+  let releaseReading;
+  let released = false;
+  const reading = new Promise((resolve) => { releaseReading = () => { released = true; resolve(); }; });
+  const runner = startScript(t.root, `
+    process.once('SIGTERM', () => { writeSync(2, 'early-exit-recovery-marker\\n'); process.exit(143); });
+    writeFileSync(${JSON.stringify(ready)}, 'ready');
+    setInterval(() => {}, 1000);
+  `, { readAfter: reading });
+  try {
+    await untilFile(ready, runner);
+    runner.child.kill('SIGTERM');
+    assert.deepEqual(await runner.done, { code: 143, signal: null });
+    assert.equal(released, false, 'the runner exited before the explicit reading release');
+    assert.equal(runner.output(), 'early-exit-recovery-marker\n', 'Node drains at child exit; the collector must already exist');
+  } finally { releaseReading(); reap(runner, []); t.cleanup(); }
+});
 
 // A separate process that takes the lock (with short stop waits), runs
 // `command args` under it and then runs `after` (JavaScript, with `result`).
@@ -392,27 +418,73 @@ test('Codex r8: the kept-lock recovery message survives a full standard-error pi
   const t = tempRoot();
   const ready = path.join(t.root, 'ready');
   const script = 'my $p = fork(); if ($p == 0) { my $z = fork(); if ($z == 0) { exit 0 } setpgrp(0, 0); open(my $f, ">", "$ARGV[0].tmp"); print $f "$$ $z " . getppid(); close $f; rename("$ARGV[0].tmp", $ARGV[0]); sleep 30; exit 0 } sleep 30';
-  // Standard error is not read until a second after the signal, and the
-  // runner has queued a megabyte for it first.
+  // Fill the actual pipe to EAGAIN. Keep it unread until the real synchronous
+  // recovery write also encounters EAGAIN in the stop/exit path, then drain it.
+  // This measures saturation on this platform; queuing a fixed amount is not proof.
+  const initialFull = path.join(t.root, 'stderr-initial-full');
+  const recoveryFull = path.join(t.root, 'stderr-recovery-full');
   let startReading;
   const reading = new Promise((resolve) => { startReading = resolve; });
   const runner = startScript(t.root, `
+    const fs = await import('node:fs');
+    const { syncBuiltinESMExports } = await import('node:module');
+    const realWrite = fs.default.writeSync;
+    fs.default.writeSync = (...args) => {
+      try { return realWrite(...args); }
+      catch (error) {
+        if (args[0] === 2 && error.code === 'EAGAIN' && Buffer.isBuffer(args[1]) && args[1].toString().startsWith('the worktree build lock ')) {
+          writeFileSync(${JSON.stringify(recoveryFull)}, JSON.stringify({ code: error.code, at: Date.now(), filled }));
+        }
+        throw error;
+      }
+    };
+    syncBuiltinESMExports();
     acquireBuildLock({ purpose: 'pipe', root, stopGraceMs: 200, killWaitMs: 300 });
-    process.stderr.write('x'.repeat(1 << 20) + '\\n');
+    // Initialise Node's nonblocking stderr handle before using writeSync.
+    process.stderr.write('');
+    const filler = Buffer.alloc(65536, 'x');
+    let filled = 0;
+    function fillStderr() {
+      for (let attempt = 0; attempt < 1024; attempt += 1) {
+        try { filled += writeSync(2, filler); }
+        catch (error) { if (error.code !== 'EAGAIN') throw error; return; }
+      }
+      throw new Error('STDERR-SATURATION-NOT-ESTABLISHED: no EAGAIN within 64 MiB');
+    }
+    fillStderr();
+    writeFileSync(${JSON.stringify(initialFull)}, JSON.stringify({ code: 'EAGAIN', filled }));
+    // A paused Readable can still prefetch into its bounded internal buffer.
+    // Refill that newly available pipe space while the command is running.
+    setInterval(fillStderr, 10);
     await runUnderLock('/usr/bin/perl', ['-e', ${JSON.stringify(script)}, ${JSON.stringify(ready)}], { stdio: 'ignore' });
   `, { readAfter: reading });
   let pids = [];
   try {
     pids = await readyPids(ready, runner);
+    const initial = JSON.parse(readFileSync(initialFull, 'utf8'));
+    assert.equal(initial.code, 'EAGAIN', 'STDERR-SATURATION-NOT-ESTABLISHED before the signal');
+    assert.ok(initial.filled > 0, 'the pipe held measured bytes');
+    const signalledAt = Date.now();
     runner.child.kill('SIGTERM');
-    setTimeout(startReading, 1000);
+    for (const start = Date.now(); !existsSync(recoveryFull) && runner.child.exitCode === null && Date.now() - start < 10000;) {
+      await new Promise((resolve) => setTimeout(resolve, 20));
+    }
+    const exitedBeforeDrain = runner.child.exitCode !== null;
+    startReading();
     assert.deepEqual(await runner.done, { code: 143, signal: null });
     const output = runner.output();
     const lockPath = buildLockPath(t.root);
     assert.ok(existsSync(lockPath), 'the lock is kept');
-    // Written synchronously, it may land inside the queued filler.
+    // The synchronous write must survive the saturated pipe; absence or an
+    // asynchronous write that is lost on exit must still fail these assertions.
     assert.match(output, /the worktree build lock .* is kept: SIGTERM: process group \d+ of this build did not empty after SIGTERM and SIGKILL$/m);
     assert.ok(output.includes(`  rm -f '${lockPath}'`), 'the removal step arrived');
+    assert.ok(existsSync(recoveryFull), 'STDERR-SATURATION-NOT-ESTABLISHED at the recovery write in the exit path');
+    const recovery = JSON.parse(readFileSync(recoveryFull, 'utf8'));
+    assert.equal(recovery.code, 'EAGAIN');
+    assert.ok(recovery.at >= signalledAt, 'saturation was observed after the stop signal');
+    assert.equal(exitedBeforeDrain, false, 'the saturated synchronous write waited for the reader before exit');
+    console.log(`stderr saturation: ${initial.filled} bytes initially, ${recovery.filled} including prefetched space; recovery write observed EAGAIN; exit 143 after drain`);
   } finally {
     startReading();
     reap(runner, [pids[0], pids[2]].filter(Boolean));
