@@ -80,11 +80,11 @@ UNSURE_PIN = 37
 # receipt's failure records (support_attribution_ambiguous, unsupported_source_closure, unsupported_family,
 # unsupported_block, unsupported_derived_quantity) are absent capabilities no entry names. No refusal changed.
 # 61 -> 60: MODAL_TIMOSHENKO_MASS_UNSUPPORTED is named wholly by LIM-020. No refusal changed.
-UNNAMED_ABSENT_CAPABILITY_PIN = 59
+UNNAMED_ABSENT_CAPABILITY_PIN = 60
 # 47 -> 52 (review of d776be92e): the same four, and CONSTANT_EFFORT_COMBINATION_REQUIRES_SOLVE, whose product
 # text describes its gate only partially (F7). 52 -> 57 (completeness review): the same five.
 # 57 -> 56: the same code, named wholly by LIM-020.
-NAMED_NOWHERE_TODAY_PIN = 55
+NAMED_NOWHERE_TODAY_PIN = 56
 
 REFRESH = 'run `python3 tools/validation/diagnostic_codes.py --write` and classify the new records by hand'
 COVERAGE = ('whole', 'partial')

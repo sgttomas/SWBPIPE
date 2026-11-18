@@ -18147,14 +18147,14 @@
    "messages": [
     "variable spring hanger {}: its cold load is not applied in load case {}, because {}; the spring acts with its rate only, and no applied force is published for it in this case"
    ],
-   "classification": "disclosure",
-   "reason": "A variable spring hanger whose cold load a load case does not apply (a nonlinear member, a skewed direction or a rotational stiffness DOF) acts with its rate only, and the warning names the reason (warning).",
+   "classification": "absent_capability",
+   "reason": "The product does not apply a variable spring hanger's entered cold load in a load case where it cannot (a nonlinear member, a skewed direction, a single-axis direction along the negative axis or a rotational stiffness DOF); the hanger acts with its rate only, and the warning names the reason (warning).",
    "unsure": true,
    "candidates": [
-    "disclosure",
-    "absent_capability"
+    "absent_capability",
+    "disclosure"
    ],
-   "named_by": null,
+   "named_by": "unnamed",
    "named_by_coverage": null,
    "named_by_statement": null
   },
