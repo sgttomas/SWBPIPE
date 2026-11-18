@@ -63,7 +63,7 @@ positive reaction", RS-CE1, the replaced span RS-P180, EQ-4 and EQ-6).
 | File | Role |
 |---|---|
 | `generators/generated_interactions_reference.py` | the generator: exact rational arithmetic with π symbolic, two solution methods, closed forms, `references.json` and `SHA256SUMS` |
-| `references.json` | inputs, derived sections and masses, the three models, the weight primitives, 9 cases, 5 terms, 3 combinations (1290 expected rows), the lift-off threshold, one refusal, two wrong-implementation controls and 86 cross-check results |
+| `references.json` | inputs, derived sections and masses, the three models, the weight primitives, 11 cases, 5 terms, 5 combinations (1489 expected rows), one directional row with its SRSS, absolute sum and signed sum, the lift-off threshold, 3 refusals, 4 wrong-implementation controls and 108 cross-check results |
 | `SHA256SUMS` | hashes of every file above (`shasum -a 256 -c SHA256SUMS` in this directory) |
 
 ```
@@ -83,6 +83,17 @@ No product request document is included, as in
 `load_sources`), so that the product test that binds the package writes its
 own documents.
 
+## What the expectations are about
+
+Every expected value is a fact about the mechanics (a row), a support status,
+a gate outcome or a refusal. None is defined by the shape of a published record
+or by which of the design's representations of generated loads the product
+adopts: whether a generated load appears in a ledger class beside the declared
+ledger, in the ledger itself or as written primitives changes no value here.
+The source labels (`pipe:a-b/seismic`, …) and the `identity` members are this
+package's own names for what each generated load is generated from; they are
+not the product's identity strings, which this package does not derive.
+
 ## Units, conventions and number format
 
 - SI throughout: m, N, N·m, rad, kg/m³, Pa, m/s².
@@ -100,6 +111,12 @@ own documents.
 - **Member end** (`member_end/<pipe>/<i|j>/Fx…Mz`): the global force and moment
   that the end node exerts on the member, with the moment about that end node.
   End i is the member's first node.
+- **Axial rows.** The member-end force component along the member's own axis
+  is the effective (elastic) member force N_el, as in
+  `../exact_load_state_equivalent_static` ("the member-end rows give the
+  element force N_el"; there the wall force is N_w = N_el + p·A_i). No case
+  in this package carries pressure, so N_el and the pipe-wall force are equal
+  here. Each such row carries `axial_quantity` saying so.
 - **Values**: `exact` is a sum of rational multiples of π^k. Areas and second
   moments of an annulus carry π, so distributed loads carry π, a component's W
   and a constant-effort force are rational, and motions carry 1/π. An SRSS
@@ -210,6 +227,30 @@ withheld. CEF-EQ-SRSS-OF-CASES, the SRSS of the three cases themselves, has
 operands with κ = 1 and is expected to be withheld whole by REQ-011's
 fixed-load count gate, with no rows.
 
+**The device acted: single-case rows and the twin without it.** The terms
+alone cannot show that the constant-effort support acted, since they are the
+same with it and without it. The single-case rows (reactions, motions, member
+ends of CEF-SUS and each seismic case) and the device's own row (2730 N in
+every case) can. CEF-CTRL-DEVICE-REMOVED-FROM-EVERY-CASE is the same document
+with the support removed from every case. It records which rows move: in each
+of the four cases, 78 of the 90 rows other than the device's own (every row but
+the anchors' motions, which are zero both ways), each by exactly the device's
+own response. It also records which do not: every row of the three terms, of
+CEF-EQ-SRSS and of CEF-EQ-ABS. Its twin case rows are frozen too.
+
+**One directional row, three combinations.** `directional_row` is
+`motion/node:b/uy`. All three terms are nonzero there, and dEQX
+(−3.89421e-5 m) is of opposite sign to dEQY (6.38107e-4 m) and dEQZ
+(2.11366e-4 m). So the SRSS (6.73329e-4 m), the absolute sum (8.88415e-4 m)
+and the signed sum (8.10531e-4 m) all differ. All three are frozen with the
+terms. As products of the algebra: CEF-EQ-SIGNED-SUM, a mechanics combination
+of the three terms, has κ = 0 and is expected to be withheld whole by the
+fixed-load count gate in this model with a constant-effort support.
+CEF-SUS-PLUS-EQ, the mechanics combination CEF-SUS + dEQX + dEQY + dEQZ, has
+κ = 1, publishes, and carries the signed sum over SUS. Every row of it equals a
+direct solve of the weight, the device and all three seismic loads together
+(cross-checked).
+
 Key values at C and at anchor A (motions in m and rad; forces in N, moments in
 N·m):
 
@@ -261,9 +302,16 @@ generated seismic Z load per unit g-factor). It lifts at
 
   k* = −R0/R1 = 1 − 668960000000000000/(321645188607653853·π) ≈ 0.337977.
 
-At k* the seated reaction and the lifted separation are both exactly zero
-(cross-checked), so both states are weak there. Below it the support is in
-contact, above it lifted. Without the constant-effort force k* would be 1: the
+The threshold is frozen as a boundary value, derived two ways: from the solves
+as −R0/R1, and from the propped cantilever's closed form with R_B = 0, where EI
+cancels:
+
+  k* = 1 − P·(a²(3L − a)/6) / (μ·g·a²(6L² − 4La + a²)/24).
+
+The two are exactly equal. The two seismic cases lie strictly on either side
+of it: in contact below (0.23), lifted above (0.71). **No state or token is
+expected at k* itself.** The mechanics there is only that the seated reaction
+and the lifted separation are both exactly zero (cross-checked). Without the constant-effort force k* would be 1: the
 weight and the generated load share one mass and one gravity. So k* also tests
 that the force acts in the seismic case.
 
@@ -309,20 +357,57 @@ A(0,0,0) – M(1.45,0,0) – B(3.1,0,0), then the span B–C(3.9,0,0) that
 | Case | Declared ledger | Generated |
 |---|---|---|
 | JR-EQ | empty | seismic on three axes, k = (0.41, 0.27, 0.33): k·g·μ on the four pipes; nothing on `pipe:b-c` |
-| JR-WIND | empty | wind 830 Pa × 0.77 × (D + 2t_ins) along global Z on the four pipes |
+| JR-WIND | empty | wind 830 Pa × 0.77 × (D + 2t_ins) along global Z, a whole-span mark on each of the four pipes |
+| JR-WIND-PART | empty | as JR-WIND, but the mark on `pipe:c-n` is a part span over [1/5, 13/20] |
+| JR-EQ-UNLISTED-PRIMITIVE | empty; the case also stores a nodal force (0, 0, 5150) N at M that the ledger does not list, under an identity no generated load has | as JR-EQ |
 
-Each case's only action is its generated load, consumed beside an empty
-declared ledger; each solves. The reactions at B and C come only from the
-runs' own loads (closed form: −wL/2 at each end of each run).
+**A case whose only action is generation is a valid case with a result.**
+JR-EQ, JR-WIND and JR-WIND-PART have no pressure, no preload (the connector has
+zero reference load and extension), no constant-effort support and no stored
+primitive selected. Each solves, and its rows are frozen. The reactions at B
+and C come only from the runs' own loads (closed form: −wL/2 at each end of
+each run, for the whole-span cases).
 
-**Refusal.** JR-REFUSE-WIND-ON-REPLACED-SPAN: JR-WIND with `exposed_pipe_refs`
-also naming `pipe:b-c`. Expected: the case is refused by name, naming the
-replaced span; no wind load is generated; no result is published for the case.
-**No code is given.** No scope or frozen reference package names a code for a
-wind mark on a connector-replaced span. The frozen packages `t4_i12` and
-`t4_u5a` name `JOINT_REPLACED_SPAN_LOAD_UNOWNED` for a stored load or an
-eigenstrain the replaced span owns. This package does not assume that code
-applies to a generated wind mark.
+**The live spans and the replaced span in one model.** Every live span carries
+a nonzero generated seismic load on each axis (cross-checked); `pipe:b-c`
+carries no generated load, seismic or wind, and no member result.
+
+**Generated identities, whole span and part span.** Each generated load's
+`identity` says what it is generated from: a seismic load the member (whole
+span); a wind load its mark, whole span (fractions 0 and 1) or part span (the
+marked fractions). A part-span mark generates q over exactly its interval: in
+JR-WIND-PART, 0.5175 m of `pipe:c-n` from 0.23 m to 0.7475 m, a resultant of
+105.405 N along Z at (3.9, 0.48875, 0) m (closed form checked). The fractions
+bound the loaded interval and do not multiply the intensity. JR-WIND-PART
+differs from JR-WIND (cross-checked), so the mark's extent acts.
+
+**The unlisted stored primitive.** A stored primitive of the case that its
+ledger does not list is excluded (the schema's own description of such a
+primitive: "A stored primitive of the case not listed in
+analysis_state.load_sources"). So JR-EQ-UNLISTED-PRIMITIVE's rows are JR-EQ's.
+JR-CTRL-UNLISTED-PRIMITIVE-APPLIED gives what applying it would add (up to
+0.384 mm at M uz).
+
+**Refusals.**
+
+- JR-REFUSE-WIND-ON-REPLACED-SPAN: JR-WIND with a whole-span mark also on
+  `pipe:b-c`. JR-REFUSE-PART-SPAN-WIND-ON-REPLACED-SPAN: the same with a
+  part-span mark on it. Expected for each: the case is refused by name, naming
+  the replaced span; no wind load is generated; no result is published for the
+  case.
+- JR-REFUSE-GENERATED-IDENTITY-COLLISION: JR-EQ-UNLISTED-PRIMITIVE with the
+  unlisted stored primitive given the identity of one of the case's generated
+  loads, whatever identity the generator gives it. Expected: the case is
+  refused by name before assembly, naming the identity; no load is applied and
+  no result is published. A collision is not resolved by dropping either load
+  or by applying one in place of the other.
+
+**No code is given for any of the three.** No scope or frozen reference
+package names a code for a wind mark on a connector-replaced span or for this
+collision. The frozen packages `t4_i12` and `t4_u5a` name
+`JOINT_REPLACED_SPAN_LOAD_UNOWNED` for a stored load or an eigenstrain the
+replaced span owns. This package does not assume that code applies to a
+generated wind mark.
 
 Key values (motions in m and rad):
 
@@ -330,6 +415,7 @@ Key values (motions in m and rad):
 |---|---|---|---|---|---|---|---|
 | JR-EQ | 1.54702e-5 | 1.89080e-5 | −3.16122e-6 | 2.58645e-6 | 6.44350e-6 | 5.18623e-6 | 1.86611e-6 |
 | JR-WIND | 0 | 1.77125e-5 | −2.96133e-6 | 0 | 0 | 3.78830e-6 | 1.36311e-6 |
+| JR-WIND-PART | 0 | 1.77125e-5 | −2.96133e-6 | 0 | 0 | 2.76385e-6 | 1.35487e-6 |
 
 Reactions at the connector faces in JR-EQ: B (−314.136, −206.870, −252.841) N
 and (0, −130.634, 106.883) N·m; C (−450.372, −296.586, −362.495) N and
@@ -349,6 +435,9 @@ would make.
 | Id | Wrong implementation | Size |
 |---|---|---|
 | CEF-CTRL-CE-OMITTED-FROM-SEISMIC | the constant-effort force kept in SUS and dropped from the seismic cases; each term would carry minus the force's response | up to 1.89 mm (C uz) |
+| CEF-CTRL-DEVICE-REMOVED-FROM-EVERY-CASE | the device removed from every case; the terms and combinations do not move, the single-case rows do | 78 rows of each case move; no term or combination row |
+| CEF-EQ-SIGNED-SUM | a mechanics combination of the three terms in a model with a fixed load | withheld whole (κ = 0) |
+| JR-CTRL-UNLISTED-PRIMITIVE-APPLIED | the unlisted stored primitive applied | up to 0.384 mm (M uz) |
 | JR-CTRL-REPLACED-SPAN-LOADED | seismic generated on the replaced span as on a pipe; its end actions go into the anchors at B and C | B (−81.07, −53.39, −65.25) N, (0, 8.70, −7.12) N·m; C the same forces, opposite moments |
 | LO `linear_superposition_control` | the lifted term formed on the seated structure | up to 3.94 mm (C uz) |
 | CEF-EQ-SRSS-OF-CASES | an SRSS of the cases instead of the terms | withheld whole (κ undefined) |
@@ -360,7 +449,10 @@ would make.
   EI/L³·[12, 6L, 4L², 2L²]), rotated by exact direction cosines (local x along
   the member, y = ẑ × x, or ŷ × x for a vertical member, z = x × y; for a
   circular section the choice does not affect the results).
-- A uniform member load w (global) enters as work-equivalent nodal loads:
+- Each member is split into elements at its load breakpoints (a part-span
+  mark's fractions), so every member load is uniform over whole elements; the
+  interior nodes are free and not published.
+- A uniform element load w (global) enters as work-equivalent nodal loads:
   wL/2 at each end, with moments ±(L²/12)·x̂ × w.
 - A component's force and moment, and a constant-effort force, enter as nodal
   loads.
@@ -376,7 +468,8 @@ would make.
 - Section actions are the resultant of everything outboard of the cut (member
   loads, nodal loads, redundants), about the cut point.
 - Flexibilities and motions are ∫(N·n/EA + T·t/GJ + M⊥·m⊥/EI) ds, by Simpson's
-  rule on each member. That is exact: the integrands are at most cubic. A
+  rule on each interval between a member's load breakpoints. That is exact:
+  the integrands are at most cubic there. A
   circular section has one EI, so only the bending moment perpendicular to the
   member enters, whatever its local axes.
 - Compatibility at the redundants gives them. Member end actions come from the
@@ -394,7 +487,7 @@ checked separately: by the closed-form generated resultant of each CEF term,
 by the closed-form beams of LO and JR, and by the mass computed from radii and
 from diameters.
 
-## Cross-checks (86, all agree)
+## Cross-checks (108, all agree)
 
 | Check | Shows |
 |---|---|
@@ -404,12 +497,16 @@ from diameters.
 | each CEF term's constant-effort row is zero, and the force is 2730 N in each case | the force acts in every case |
 | each CEF generated resultant = k·g·Σ(μL) + k·W along the axis, moments about the origin (closed form); the anchors' reaction resultant = minus it | EQ-6 |
 | SRSS ≤ absolute sum on every row, exactly; both zero exactly where the three terms are | EQ-4 |
-| LO: exactly one state qualifies strictly in each case; SUS and EQZ-SEATED seated, EQZ-LIFTED lifted; k* strictly between the two g-factors; both states weak at k* | the status and the threshold |
+| LO: exactly one state qualifies strictly in each case; SUS and EQZ-SEATED seated, EQZ-LIFTED lifted; k* strictly between the two g-factors; at k* the seated reaction and the lifted separation both zero | the status and the threshold |
 | LO: dEQZ-SEATED = the seated seismic-only response; dEQZ-LIFTED differs from it; the constant-effort force present in every case and cancelled in each term | the nonlinear term |
 | LO closed forms (cantilever; propped cantilever with overhang) at B and C | a third way |
 | JR closed forms (fixed-fixed beams) at M, N and the anchors; no generated load on `pipe:b-c` | a third way; the replaced span is skipped |
+| CEF twin without the device: each case's rows with the device less the twin's equal the device's own response, row by row; every term row equal with and without it | the device acted, and the terms cannot show it |
+| CEF directional row: SRSS, absolute sum and signed sum differ pairwise (exact); CEF-SUS-PLUS-EQ = a direct solve of everything together | the three combinations are distinguishable; the published signed sum |
+| LO: the threshold from the solves equals the closed-form threshold | the boundary, two ways |
+| JR: every live span carries nonzero seismic on each axis; no generated load names the replaced span; the part-span resultant equals p·C·(D + 2t_ins)·(f1 − f0)·L (closed form); JR-WIND-PART differs from JR-WIND; the unlisted primitive, were it applied, would move rows | the live and replaced spans, the part-span mark, a discriminating exclusion |
 | μ from radii = μ from diameters; section validity | the mass basis, input validity |
-| every input replaced by its nearest binary64 value (30 of 42 change): every cross-check still agrees, and the sign of every row and every lift-off status are unchanged | discrete outcomes are not artefacts of exact inputs |
+| every input replaced by its nearest binary64 value (32 of 46 change): every cross-check still agrees, and the sign of every row and every lift-off status are unchanged | discrete outcomes are not artefacts of exact inputs |
 
 ## Open readings
 
@@ -443,9 +540,9 @@ from diameters.
 6. **The seismic sign.** +axis for a positive g-factor. The opposite convention
    negates every generated row.
 
-Not covered here: pressure; Timoshenko members; partial wind spans; a
-hydrostatic test case; gap and friction supports; and an unlisted stored
-primitive whose identity collides with a generated one.
+Not covered here: pressure (so the effective and wall axial forces coincide
+in every row); Timoshenko members; a hydrostatic test case; gap and friction
+supports.
 
 ## Read and not read
 

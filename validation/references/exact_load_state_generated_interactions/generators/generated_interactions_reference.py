@@ -295,13 +295,15 @@ def default_inputs():
         "JR_L_AM": d(29, 20), "JR_L_MB": d(33, 20), "JR_L_BC": d(4, 5), "JR_L_CN": d(23, 20),
         "JR_L_ND": d(29, 20),
         "JR_k": (d(41, 100), d(27, 100), d(33, 100)),
-        "JR_p_wind": d(830), "JR_C_wind": d(77, 100),
+        "JR_p_wind": d(830), "JR_C_wind": d(77, 100), "JR_part_from": d(1, 5), "JR_part_to": d(13, 20),
+        "JR_decoy_node": "node:m", "JR_decoy_force": (d(0), d(0), d(5150)),
     }
 
 
 UNITS = {"E": "Pa", "nu": "1", "T_point": "K", "g": "m/s^2", "CEF_W_valve": "N", "CEF_r_valve": "m",
          "CEF_scale": "1", "CEF_F_ce": "N", "CEF_k": "1", "LO_F_ce": "N", "LO_k_seated": "1",
-         "LO_k_lifted": "1", "JR_k": "1", "JR_p_wind": "Pa", "JR_C_wind": "1"}
+         "LO_k_lifted": "1", "JR_k": "1", "JR_p_wind": "Pa", "JR_C_wind": "1",
+         "JR_part_from": "1", "JR_part_to": "1", "JR_decoy_node": "node", "JR_decoy_force": "N"}
 
 
 def unit_of_input(name):
@@ -437,7 +439,7 @@ def weight_loads(inp, secs, model):
         if m["id"] in comp_pipes:
             continue
         q = P.of(-secs[m["section"]]["mu"] * g, 1)
-        dist[m["id"]] = [Z, Z, q]
+        dist[m["id"]] = [([Z, Z, q], F(0), F(1))]
         prims.append({"source": f"{m['id']}/weight", "kind": "member load per length, whole span",
                       "target": m["id"], "intensity_N_per_m": [record(Z), record(Z), record(q)], "factor": 1})
     for cid, c in model["components"].items():
@@ -462,10 +464,12 @@ def seismic_loads(inp, secs, model, kvec):
             continue
         mu = secs[m["section"]]["mu"]
         q = [P.of(k * g * mu, 1) for k in kvec]
-        dist[m["id"]] = q
+        dist[m["id"]] = [(q, F(0), F(1))]
         e, L = member_geom(model, m)
         xi = model["nodes"][m["i"]]
         gen.append({"source": f"{m['id']}/seismic", "kind": "generated seismic load per length, whole span",
+                    "identity": {"generated": "seismic", "member": m["id"], "start_fraction": "0",
+                                 "end_fraction": "1"},
                     "member": m["id"], "intensity_N_per_m": [record(x) for x in q],
                     "resultant_N": [record(x * L) for x in q],
                     "resultant_point_m": [str(a + c * L / 2) for a, c in zip(xi, e)], "factor": 1})
@@ -474,24 +478,33 @@ def seismic_loads(inp, secs, model, kvec):
         Mv = cross(list(c["r"]), Fv)
         nodal[c["node"]] = [P.of(x) for x in Fv + Mv]
         gen.append({"source": f"{cid}/seismic", "kind": "generated seismic force and moment at the component's node",
+                    "identity": {"generated": "seismic", "component": cid, "node": c["node"]},
                     "component": cid, "node": c["node"], "force_N": [record(x) for x in Fv],
                     "moment_about_node_N_m": [record(x) for x in Mv], "factor": 1})
     return dist, nodal, gen
 
 
-def wind_loads(inp, secs, model, marked, direction):
+def wind_loads(inp, secs, model, marks, direction):
+    """marks: [(member, start fraction, end fraction)]; (m, 0, 1) is a whole-span mark. One generated load per
+    mark, over exactly the marked interval: q = p C (D + 2 t_ins) in the direction, not multiplied by any angle
+    and not scaled by the fractions."""
     q0 = inp["JR_p_wind"] * inp["JR_C_wind"]
     dist, gen = {}, []
-    for mid in marked:
+    for mid, f0, f1 in marks:
         m = next(x for x in model["members"] if x["id"] == mid)
         q = [P.of(q0 * secs[m["section"]]["projected"] if k == direction else 0) for k in range(3)]
-        dist[mid] = q
+        dist.setdefault(mid, []).append((q, f0, f1))
         e, L = member_geom(model, m)
         xi = model["nodes"][m["i"]]
-        gen.append({"source": f"{mid}/wind", "kind": "generated wind load per length, whole span",
-                    "member": mid, "intensity_N_per_m": [record(x) for x in q],
-                    "resultant_N": [record(x * L) for x in q],
-                    "resultant_point_m": [str(a + c * L / 2) for a, c in zip(xi, e)], "factor": 1})
+        whole = (f0, f1) == (0, 1)
+        gen.append({"source": f"{mid}/wind" + ("" if whole else f"[{f0},{f1}]"),
+                    "kind": "generated wind load per length, " + ("whole span" if whole else "part span"),
+                    "identity": {"generated": "wind", "mark": "whole span" if whole else "part span", "member": mid,
+                                 "start_fraction": str(f0), "end_fraction": str(f1)},
+                    "member": mid, "loaded_length_m": str((f1 - f0) * L),
+                    "intensity_N_per_m": [record(x) for x in q],
+                    "resultant_N": [record(x * ((f1 - f0) * L)) for x in q],
+                    "resultant_point_m": [str(a + c * L * (f0 + f1) / 2) for a, c in zip(xi, e)], "factor": 1})
     return dist, gen
 
 
@@ -499,7 +512,7 @@ def merge_loads(*parts):
     dist, nodal = {}, {}
     for dd, nn in parts:
         for k, v in dd.items():
-            dist[k] = addv(dist.get(k, [Z, Z, Z]), v)
+            dist[k] = dist.get(k, []) + list(v)
         for k, v in nn.items():
             nodal[k] = addv(nodal.get(k, zero6()), v)
     return dist, nodal
@@ -507,7 +520,8 @@ def merge_loads(*parts):
 
 def scale_loads(loads, c):
     dist, nodal = loads
-    return ({k: scalev(v, c) for k, v in dist.items()}, {k: scalev(v, c) for k, v in nodal.items()})
+    return ({k: [(scalev(w, c), f0, f1) for w, f0, f1 in v] for k, v in dist.items()},
+            {k: scalev(v, c) for k, v in nodal.items()})
 
 
 def ce_loads(model):
@@ -524,10 +538,10 @@ def resultant(model, loads):
     dist, nodal = loads
     Fr, Mr = [Z, Z, Z], [Z, Z, Z]
     for m in model["members"]:
-        if m["id"] in dist:
-            e, L = member_geom(model, m)
-            w = scalev(dist[m["id"]], L)
-            c = [a + b * L / 2 for a, b in zip(model["nodes"][m["i"]], e)]
+        e, L = member_geom(model, m)
+        for q, f0, f1 in dist.get(m["id"], []):
+            w = scalev(q, (f1 - f0) * L)
+            c = [a + b * L * (f0 + f1) / 2 for a, b in zip(model["nodes"][m["i"]], e)]
             Fr = addv(Fr, w)
             Mr = addv(Mr, cross(c, w))
     for n, v in nodal.items():
@@ -587,8 +601,7 @@ def k_local(EA, GJ, EI, L):
     return k
 
 
-def element_global(model, inp, secs, m):
-    e, L = member_geom(model, m)
+def element_global(inp, secs, m, e, L):
     ex, ey, ez = axes(e)
     Rm = [ex, ey, ez]
     T = [[F(0)] * 12 for _ in range(12)]
@@ -602,32 +615,55 @@ def element_global(model, inp, secs, m):
     return [[sum(T[k][i] * kt[k][j] for k in range(12) if T[k][i] != 0) for j in range(12)] for i in range(12)]
 
 
-def equivalent_nodal(model, m, w):
-    e, L = member_geom(model, m)
+def equivalent_nodal(e, L, w):
+    """Work-equivalent nodal loads of a uniform load w (global) over a whole element along e of length L."""
     f = scalev(w, L / 2)
     mi = scalev(cross(e, w), L * L / 12)
     return f + mi + f + [-x for x in mi]
 
 
+def breakpoints(dist, mid):
+    return sorted({F(0), F(1)} | {f for _, f0, f1 in dist.get(mid, []) for f in (f0, f1)})
+
+
 def stiffness_solve(model, inp, secs, loads, restrained):
-    """restrained: {node: set of dofs} held at zero. Returns motions, member end actions, support actions."""
+    """restrained: {node: set of dofs} held at zero. Each member is split into elements at its load breakpoints,
+    so every member load is uniform over whole elements; the interior nodes are free and not published.
+    Returns motions, member end actions and the actions at each published node."""
     dist, nodal = loads
-    names = list(model["nodes"])
+    coords = dict(model["nodes"])
+    elems = {}
+    for m in model["members"]:
+        e, L = member_geom(model, m)
+        bps = breakpoints(dist, m["id"])
+        names = [m["i"]] + [f"{m['id']}@{b}" for b in bps[1:-1]] + [m["j"]]
+        for b, n in zip(bps[1:-1], names[1:-1]):
+            coords[n] = tuple(a + c * b * L for a, c in zip(model["nodes"][m["i"]], e))
+        parts = []
+        for a, b, ni, nj in zip(bps, bps[1:], names, names[1:]):
+            w = [Z, Z, Z]
+            for q, f0, f1 in dist.get(m["id"], []):
+                if f0 <= a and b <= f1:
+                    w = addv(w, q)
+            parts.append((ni, nj, (b - a) * L, w))
+        elems[m["id"]] = (e, parts)
+    names = list(coords)
     idx = {n: 6 * i for i, n in enumerate(names)}
     N = 6 * len(names)
     K = [[F(0)] * N for _ in range(N)]
     f = [Z] * N
     kg = {}
     for m in model["members"]:
-        k = element_global(model, inp, secs, m)
-        kg[m["id"]] = k
-        dd = [idx[m["i"]] + c for c in range(6)] + [idx[m["j"]] + c for c in range(6)]
-        for a in range(12):
-            for b in range(12):
-                if k[a][b]:
-                    K[dd[a]][dd[b]] += k[a][b]
-        if m["id"] in dist:
-            fe = equivalent_nodal(model, m, dist[m["id"]])
+        e, parts = elems[m["id"]]
+        for ni, nj, Le, w in parts:
+            k = element_global(inp, secs, m, e, Le)
+            kg[(ni, nj)] = k
+            dd = [idx[ni] + c for c in range(6)] + [idx[nj] + c for c in range(6)]
+            for a in range(12):
+                for b in range(12):
+                    if k[a][b]:
+                        K[dd[a]][dd[b]] += k[a][b]
+            fe = equivalent_nodal(e, Le, w)
             for a in range(12):
                 f[dd[a]] = f[dd[a]] + fe[a]
     for n, v in nodal.items():
@@ -640,26 +676,29 @@ def stiffness_solve(model, inp, secs, loads, restrained):
     u = [Z] * N
     for i, x in zip(free, uf):
         u[i] = x
-    motions = {n: u[idx[n]:idx[n] + 6] for n in names}
+    motions = {n: u[idx[n]:idx[n] + 6] for n in model["nodes"]}
+    node_act = {n: zero6() for n in names}
     ends = {}
     for m in model["members"]:
-        k = kg[m["id"]]
-        dd = [idx[m["i"]] + c for c in range(6)] + [idx[m["j"]] + c for c in range(6)]
-        de = [u[x] for x in dd]
-        fe = equivalent_nodal(model, m, dist[m["id"]]) if m["id"] in dist else [Z] * 12
-        act = []
-        for a in range(12):
-            s = Z
-            for b in range(12):
-                if k[a][b] and not de[b].zero():
-                    s = s + de[b] * k[a][b]
-            act.append(s.shift(1) - fe[a])
-        ends[m["id"]] = {"i": act[:6], "j": act[6:]}
-    # node actions: sum of member end actions minus applied nodal load (= what the supports exert)
-    node_act = {n: zero6() for n in names}
-    for m in model["members"]:
-        node_act[m["i"]] = addv(node_act[m["i"]], ends[m["id"]]["i"])
-        node_act[m["j"]] = addv(node_act[m["j"]], ends[m["id"]]["j"])
+        e, parts = elems[m["id"]]
+        acts = []
+        for ni, nj, Le, w in parts:
+            k = kg[(ni, nj)]
+            dd = [idx[ni] + c for c in range(6)] + [idx[nj] + c for c in range(6)]
+            de = [u[x] for x in dd]
+            fe = equivalent_nodal(e, Le, w)
+            act = []
+            for a in range(12):
+                sm = Z
+                for b in range(12):
+                    if k[a][b] and not de[b].zero():
+                        sm = sm + de[b] * k[a][b]
+                act.append(sm.shift(1) - fe[a])
+            node_act[ni] = addv(node_act[ni], act[:6])
+            node_act[nj] = addv(node_act[nj], act[6:])
+            acts.append(act)
+        ends[m["id"]] = {"i": acts[0][:6], "j": acts[-1][6:]}
+    # node actions: sum of element end actions minus applied nodal load (= what the supports exert)
     for n, v in nodal.items():
         node_act[n] = subv(node_act[n], v)
     return {"motions": motions, "ends": ends, "node_actions": node_act}
@@ -689,13 +728,15 @@ class Chain:
             nonlocal Fs, Ms
             Fs = addv(Fs, force)
             Ms = addv(Ms, addv(cross(subv(at, p), force), moment))
-        if m["id"] in dist:
-            rem = L - s
-            add(scalev(dist[m["id"]], rem), [Z, Z, Z], [a + c * (s + rem / 2) for a, c in zip(self.x[j], e)])
+        for w, f0, f1 in dist.get(m["id"], []):
+            a0, a1 = max(s, f0 * L), f1 * L
+            if a1 > a0:
+                add(scalev(w, a1 - a0), [Z, Z, Z], [a + c * (a0 + a1) / 2 for a, c in zip(self.x[j], e)])
         for q in range(j + 1, len(self.mem)):
             mq, eq, Lq, _ = self.mem[q]
-            if mq["id"] in dist:
-                add(scalev(dist[mq["id"]], Lq), [Z, Z, Z], [a + c * Lq / 2 for a, c in zip(self.x[q], eq)])
+            for w, f0, f1 in dist.get(mq["id"], []):
+                add(scalev(w, (f1 - f0) * Lq), [Z, Z, Z],
+                    [a + c * Lq * (f0 + f1) / 2 for a, c in zip(self.x[q], eq)])
         for q in range(j + 1, len(self.nodes)):
             n = self.nodes[q]
             for src in (nodal, extra):
@@ -704,9 +745,9 @@ class Chain:
                     add(v[:3], v[3:], list(self.x[q]))
         return Fs, Ms
 
-    def integrate(self, real, virtual_node, virtual_dof):
+    def integrate(self, real, virtual_node, virtual_dof, dist=None):
         """Unit-load integral: the motion at (virtual_node, virtual_dof) of the released structure under the
-        section actions real(j, s)."""
+        section actions real(j, s), by Simpson's rule on each interval between the load breakpoints of dist."""
         q = self.nodes.index(virtual_node)
         uvec = [F(0)] * 6
         uvec[virtual_dof] = F(1)
@@ -723,7 +764,9 @@ class Chain:
                 mp = subv(Mu, scalev(e, t))
                 return (N * n).shift(-1) * (1 / pr["EA"]) + (T * t).shift(-1) * (1 / pr["GJ"]) + \
                     dot(Mp, mp).shift(-1) * (1 / pr["EI"])
-            total = total + (f(F(0)) + 4 * f(L / 2) + f(L)) * (L / 6)
+            bps = [b * L for b in breakpoints(dist or {}, m["id"])]
+            for a, b in zip(bps, bps[1:]):
+                total = total + (f(a) + 4 * f((a + b) / 2) + f(b)) * ((b - a) / 6)
         return total
 
     def solve(self, dist, nodal):
@@ -733,7 +776,7 @@ class Chain:
             v = [F(0)] * 6
             v[dof] = F(1)
             return {node: v}
-        delta0 = [self.integrate(lambda j, s: self.section(j, s, dist, nodal, {}), n, d) for n, d in R]
+        delta0 = [self.integrate(lambda j, s: self.section(j, s, dist, nodal, {}), n, d, dist) for n, d in R]
         flex = [[self.integrate(lambda j, s, n2=n2, d2=d2: self.section(j, s, {}, {}, unit_extra(n2, d2)), n, d)
                  for (n2, d2) in R] for (n, d) in R]
         if R:
@@ -753,7 +796,7 @@ class Chain:
             return self.section(j, s, dist, nodal, red)
         motions = {}
         for n in self.nodes:
-            motions[n] = [Z] * 6 if n == self.nodes[0] else [self.integrate(final, n, d) for d in range(6)]
+            motions[n] = [Z] * 6 if n == self.nodes[0] else [self.integrate(final, n, d, dist) for d in range(6)]
         ends = {}
         for j, (m, e, L, _) in enumerate(self.mem):
             Fi, Mi = final(j, F(0))
@@ -851,10 +894,12 @@ def member_equilibrium(model, s1, loads):
         e, L = member_geom(model, m)
         xi, xj = list(model["nodes"][m["i"]]), list(model["nodes"][m["j"]])
         ai, aj = s1["ends"][m["id"]]["i"], s1["ends"][m["id"]]["j"]
-        w = scalev(dist.get(m["id"], [Z, Z, Z]), L)
-        c = [a + b * L / 2 for a, b in zip(xi, e)]
-        Fs = addv(addv(ai[:3], aj[:3]), w)
-        Ms = addv(addv(addv(cross(xi, ai[:3]), ai[3:]), addv(cross(xj, aj[:3]), aj[3:])), cross(c, w))
+        Fs = addv(ai[:3], aj[:3])
+        Ms = addv(addv(cross(xi, ai[:3]), ai[3:]), addv(cross(xj, aj[:3]), aj[3:]))
+        for q, f0, f1 in dist.get(m["id"], []):
+            w = scalev(q, (f1 - f0) * L)
+            c = [a + b * L * (f0 + f1) / 2 for a, b in zip(xi, e)]
+            Fs, Ms = addv(Fs, w), addv(Ms, cross(c, w))
         ok = ok and all(x.zero() for x in Fs + Ms)
     return ok
 
@@ -976,6 +1021,64 @@ def build(inp):
     ctrl["CE-OMITTED-FROM-SEISMIC"] = [(i, fam, -v) for i, fam, v in ce_rows]
     out["cef"]["controls"] = ctrl
 
+    # the twin with the device removed from every case: which rows move and which do not
+    twin_cases = {}
+    for name in cef_cases:
+        L_tw = W if name == "SUS" else merge_loads(W, cef_seis[name][0])
+        s_tw = solve_both(cef, inp, secs, L_tw, anchors, cef["chains"])
+        check(f"CEF twin without the device, {name}: method 1 equals method 2", methods_agree(cef, *s_tw, anchors))
+        check(f"CEF twin without the device, {name}: global equilibrium and free-node balance",
+              equilibrium(cef, s_tw[0], L_tw, anchors))
+        twin_cases[name] = rows_of(cef, s_tw[0], ce_rows=False)
+    strip_ce = lambda rows: [r for r in rows if not r[0].startswith("constant_effort/")]  # noqa: E731
+    moves, still = {}, {}
+    ok_twin = True
+    for name, rows in twin_cases.items():
+        with_dev = strip_ce(cef_cases[name]["rows"])
+        assert [r[0] for r in with_dev] == [r[0] for r in rows]
+        moves[name] = [a[0] for a, b in zip(with_dev, rows) if a[2] != b[2]]
+        still[name] = [a[0] for a, b in zip(with_dev, rows) if a[2] == b[2]]
+        ok_twin = ok_twin and all(a[2] - b[2] == c[2] for a, b, c in zip(with_dev, rows, ce_rows))
+    check("CEF twin: each case's rows with the device minus the twin's equal the device's own response, row by row",
+          ok_twin)
+    twin_terms = {f"d{n}": diff_rows(twin_cases[n], twin_cases["SUS"]) for n in ("EQX", "EQY", "EQZ")}
+    check("CEF twin: every term row is the same with and without the device (the differences cannot show it acted)",
+          all([r[2] for r in strip_ce(cef_terms[t]["rows"])] == [r[2] for r in twin_terms[t]] for t in twin_terms))
+    out["cef"]["twin"] = {"moves": moves, "still": still, "rows": twin_cases}
+
+    # one signed row on which two directional terms are nonzero and of opposite sign
+    def opposite(vals):
+        nz = [v.sign() for v in vals if not v.zero()]
+        return 1 in nz and -1 in nz, len(nz)
+    pick = None
+    for want in (2, 3):
+        for i, rid in enumerate(names):
+            vals = [cef_terms[t]["rows"][i][2] for t in ("dEQX", "dEQY", "dEQZ")]
+            opp, nnz = opposite(vals)
+            if opp and nnz == want:
+                pick = (i, rid, vals)
+                break
+        if pick:
+            break
+    i, rid, vals = pick
+    signed = vals[0] + vals[1] + vals[2]
+    s2, ab = srss[i]["_s2"], srss[i]["_abs"]
+    check(f"CEF designated row {rid}: SRSS, absolute sum and signed sum differ pairwise (exact)",
+          not (ab * ab - s2).zero() and (signed.sign() < 0 or not (signed * signed - s2).zero())
+          and not (ab - absP(signed)).zero())
+    out["cef"]["designated"] = {"row": rid, "family": cef_terms["dEQX"]["rows"][i][1], "terms": vals,
+                                "srss": srss[i]["expected"], "abs": ab, "signed": signed}
+
+    # a published signed sum: SUS + dEQX + dEQY + dEQZ (a mechanics combination, kappa = 1)
+    plus = cef_cases["SUS"]["rows"]
+    for t in ("dEQX", "dEQY", "dEQZ"):
+        plus = [(a[0], a[1], a[2] + b[2]) for a, b in zip(plus, cef_terms[t]["rows"])]
+    S_all = merge_loads(*(cef_seis[n][0] for n in ("EQX", "EQY", "EQZ")))
+    s_all = solve_both(cef, inp, secs, merge_loads(W, CE, S_all), anchors, cef["chains"])
+    check("CEF-SUS-PLUS-EQ: SUS + dEQX + dEQY + dEQZ equals a direct solve of weight, device and all three "
+          "seismic loads, on every row", [r[2] for r in plus] == [r[2] for r in rows_of(cef, s_all[0])])
+    out["cef"]["sus_plus_eq"] = plus
+
     # ------------------------------------------------------------- LO
     lo = mods["LO"]
     a_lo = {"node:a": set(range(6))}
@@ -1025,7 +1128,7 @@ def build(inp):
     # at the threshold both states are weak: seated reaction zero and lifted separation zero
     # (k* carries 1/pi, so the loads at k* are solved with k* as a P factor)
     sd_u, sn_u, _ = seis_unit
-    at_star = merge_loads(WL, CEL, ({m: [x * kstar for x in v] for m, v in sd_u.items()}, {}))
+    at_star = merge_loads(WL, CEL, ({m: [([x * kstar for x in w], f0, f1) for w, f0, f1 in v] for m, v in sd_u.items()}, {}))
     Rs = lo_state(at_star, "seated", "at the threshold")[1]
     s1l = lo_state(at_star, "lifted", "at the threshold")[0]
     check("LO: at the threshold the seated reaction is zero and the lifted separation is zero (both weak)",
@@ -1057,6 +1160,13 @@ def build(inp):
         uC_seated = uC + (RB * (a_len * a_len * (3 * L - a_len) / 6 / EI)).shift(-1)
         cf_ok = cf_ok and c["states"]["seated"]["s1"]["motions"]["node:c"][2] == uC_seated
     check("LO: closed forms (cantilever and propped cantilever with overhang) equal the solves at B and C", cf_ok)
+    # the threshold a second, independent way: R_B = 0 in the propped-cantilever closed form, where the released
+    # tip deflection at B is w a^2 (6L^2 - 4La + a^2)/(24EI) + P a^2 (3L - a)/(6EI) with w = mu g (k - 1);
+    # EI cancels, so k* = 1 - P (a^2 (3L - a)/6) / (mu g a^2 (6L^2 - 4La + a^2)/24)
+    A_ = a_len ** 2 * (6 * L * L - 4 * L * a_len + a_len ** 2) / 24
+    B_ = a_len ** 2 * (3 * L - a_len) / 6
+    kstar_cf = P({0: F(1), -1: -Pce * B_ / (sec["mu"] * inp["g"] * A_)})
+    check("LO: the threshold from the solves (k* = -R0/R1) equals the closed-form threshold", kstar_cf == kstar)
     # terms and the linear control
     lo_terms = {}
     for name in ("EQZ-SEATED", "EQZ-LIFTED"):
@@ -1081,23 +1191,26 @@ def build(inp):
     anchors_jr = {n: set(range(6)) for n in jr["anchors"].values()}
     jr_cases = {}
     sd, sn, sgen = seismic_loads(inp, secs, jr, list(inp["JR_k"]))
-    marked = [m["id"] for m in jr["members"]]
-    wdj, wgen = wind_loads(inp, secs, jr, marked, 2)
-    for name, loads, gen in (("EQ", (sd, sn), sgen), ("WIND", (wdj, {}), wgen)):
+    whole = [(m["id"], F(0), F(1)) for m in jr["members"]]
+    part = [x if x[0] != "pipe:c-n" else ("pipe:c-n", inp["JR_part_from"], inp["JR_part_to"]) for x in whole]
+    wdj, wgen = wind_loads(inp, secs, jr, whole, 2)
+    wdp, wgenp = wind_loads(inp, secs, jr, part, 2)
+    for name, loads, gen in (("EQ", (sd, sn), sgen), ("WIND", (wdj, {}), wgen), ("WIND-PART", (wdp, {}), wgenp)):
         s1, s2 = solve_both(jr, inp, secs, loads, anchors_jr, jr["chains"])
         check(f"JR {name}: method 1 equals method 2", methods_agree(jr, s1, s2, anchors_jr))
         check(f"JR {name}: global equilibrium and free-node balance", equilibrium(jr, s1, loads, anchors_jr))
         check(f"JR {name}: member equilibrium", member_equilibrium(jr, s1, loads))
         # closed form: each run is a fixed-fixed beam; interior node at distance x of a span of length L
         cf = True
-        for run, (n0, nm, n1) in (("A-B", ("node:a", "node:m", "node:b")), ("C-D", ("node:c", "node:n", "node:d"))):
+        runs = (("A-B", ("node:a", "node:m", "node:b")), ("C-D", ("node:c", "node:n", "node:d")))
+        for run, (n0, nm, n1) in (runs if name != "WIND-PART" else runs[:1]):
             m1 = next(m for m in jr["members"] if m["i"] == n0)
             e, _ = member_geom(jr, m1)
             x0, xm_, x1 = (jr["nodes"][n] for n in (n0, nm, n1))
             Lr = sum(abs(b - a) for a, b in zip(x0, x1))
             x = sum(abs(b - a) for a, b in zip(x0, xm_))
             pr = props(inp, secs, m1)
-            w = loads[0][m1["id"]]
+            (w, _, _), = loads[0][m1["id"]]
             u = s1["motions"][nm]
             for c in range(3):
                 wc = w[c]
@@ -1115,22 +1228,42 @@ def build(inp):
             # end reactions -wL/2 at each anchor of the run, as the anchors carry only this run here
             for n in (n0, n1):
                 cf = cf and all(s1["node_actions"][n][c] == -w[c] * (Lr / 2) for c in range(3))
-        check(f"JR {name}: fixed-fixed closed forms (interior motion, end forces -wL/2) equal the solve", cf)
+        check(f"JR {name}: fixed-fixed closed forms (interior motion, end forces -wL/2) equal the solve"
+              + (" on the whole-span run A-B" if name == "WIND-PART" else ""), cf)
         jr_cases[name] = {"rows": rows_of(jr, s1, ce_rows=False), "generated": gen, "loads": loads}
-    check("JR EQ: no generated load names the replaced span",
-          all(g.get("member") != "pipe:b-c" for g in sgen))
+    check("JR: no generated load names the replaced span", all(g.get("member") != "pipe:b-c" for g in sgen + wgen + wgenp))
+    check("JR EQ: every live span carries a nonzero generated seismic load on each axis",
+          all(not x.zero() for m in jr["members"] for w, _, _ in sd[m["id"]] for x in w))
+    # the part-span mark: its generated load is q over exactly [f0, f1] of the member (closed form of its resultant)
+    g_part = next(g for g in wgenp if g["identity"]["mark"] == "part span")
+    mcn = next(m for m in jr["members"] if m["id"] == "pipe:c-n")
+    _, Lcn = member_geom(jr, mcn)
+    qw = inp["JR_p_wind"] * inp["JR_C_wind"] * secs["S1"]["projected"]
+    check("JR WIND-PART: the part-span load's resultant is p C (D + 2 t_ins) (f1 - f0) L along Z (closed form)",
+          g_part["resultant_N"][2] == record(P.of(qw * (inp["JR_part_to"] - inp["JR_part_from"]) * Lcn)))
+    check("JR WIND-PART: the part-span case differs from the whole-span case (the mark's extent acts)",
+          [r[2] for r in jr_cases["WIND-PART"]["rows"]] != [r[2] for r in jr_cases["WIND"]["rows"]])
+    # an unlisted stored primitive: excluded, so the case's rows are JR-EQ's; the control is what it would add
+    dec = {inp["JR_decoy_node"]: [P.of(x) for x in inp["JR_decoy_force"]] + [Z, Z, Z]}
+    s_dec = solve_both(jr, inp, secs, merge_loads((sd, sn), ({}, dec)), anchors_jr, jr["chains"])
+    check("JR EQ with the unlisted primitive applied (control): method 1 equals method 2",
+          methods_agree(jr, *s_dec, anchors_jr))
+    dec_rows = diff_rows(rows_of(jr, s_dec[0], ce_rows=False), jr_cases["EQ"]["rows"])
+    check("JR: the unlisted primitive, were it applied, would move rows (it discriminates)",
+          any(not r[2].zero() for r in dec_rows))
     # control: the replaced span loaded as if it were a pipe (its load lumped to the anchored faces B and C)
     rep = jr["replaced"][0]
     _, Lbc = member_geom(jr, rep)
     q_bc = [P.of(k * inp["g"] * secs["S2"]["mu"], 1) for k in inp["JR_k"]]
     e_bc, _ = member_geom(jr, rep)
-    feq = equivalent_nodal(jr, rep, q_bc)
+    feq = equivalent_nodal(e_bc, Lbc, q_bc)
     # with both faces anchored, the span's fixed-end actions go straight into the anchors at B and C
     ctrl_jr = []
     for sid, n, off in (("support:b", "node:b", 0), ("support:c", "node:c", 6)):
         for c in range(6):
             ctrl_jr.append((f"reaction/{sid}/{ACTS[c]}", "force" if c < 3 else "moment", -feq[off + c]))
-    out["jr"] = {"cases": jr_cases, "controls": {"REPLACED-SPAN-LOADED": ctrl_jr}, "q_bc": q_bc, "L_bc": Lbc}
+    out["jr"] = {"cases": jr_cases, "controls": {"REPLACED-SPAN-LOADED": ctrl_jr, "UNLISTED-PRIMITIVE-APPLIED": dec_rows},
+                 "q_bc": q_bc, "L_bc": Lbc}
 
     # ------------------------------------------------------------- discrete outcomes for the binary64 check
     signs = {}
@@ -1157,12 +1290,31 @@ def inputs_doc(inp):
     return doc
 
 
+def to_binary64(v):
+    if isinstance(v, str):
+        return v
+    return tuple(F(float(x)) for x in v) if isinstance(v, tuple) else F(float(v))
+
+
 def binary64_inputs(inp):
-    return {k: (tuple(F(float(x)) for x in v) if isinstance(v, tuple) else F(float(v))) for k, v in inp.items()}
+    return {k: to_binary64(v) for k, v in inp.items()}
 
 
-def pub_rows(rows):
-    return publish(rows)
+AXIAL = ("effective (elastic) member force N_el; no case in this package carries pressure, so it equals the "
+         "pipe-wall force N_w = N_el + p A_i, as in ../exact_load_state_equivalent_static")
+
+
+def pub_rows(rows, model=None):
+    """Published rows; on a member-end force row along its member's axis, the axial quantity it is."""
+    out = publish(rows)
+    if model is None:
+        return out
+    axis = {m["id"]: member_geom(model, m)[0] for m in model["members"]}
+    for r in out:
+        parts = r["id"].split("/")
+        if parts[0] == "member_end" and parts[3] in ACTS[:3] and axis[parts[1]][ACTS.index(parts[3])] != 0:
+            r["axial_quantity"] = AXIAL
+    return out
 
 
 def model_doc(m):
@@ -1196,8 +1348,7 @@ def build_doc():
     # binary64 input check: discrete outcomes unchanged with every input replaced by its nearest binary64
     res_b, checks_b = build(binary64_inputs(inp))
     changed = sorted(k for k in res["signs"] if res["signs"][k] != res_b["signs"][k])
-    n_changed_inputs = sum(1 for k, v in inp.items()
-                           if (tuple(F(float(x)) for x in v) if isinstance(v, tuple) else F(float(v))) != v)
+    n_changed_inputs = sum(1 for k, v in inp.items() if to_binary64(v) != v)
     checks.append({"check": f"every input replaced by its nearest binary64 ({n_changed_inputs} of {len(inp)} "
                             f"inputs change): every cross-check still agrees, and the sign of every row and "
                             f"every lift-off state are unchanged", "agrees": not changed and all(
@@ -1230,13 +1381,13 @@ def build_doc():
             "load_sources": {
                 "declared_ledger": [{"source": p["source"], "factor": 1} for p in cef["weight_prims"]],
                 "generated": [{"source": x["source"], "factor": 1} for x in c["generated"]],
-                "statement": "the declared ledger lists the self-weight plan's weight primitives at factor 1; each "
-                             "generated load is consumed beside it and enters the case's record of load sources "
-                             "exactly once, with its identity and factor 1; no generated load is named in the "
-                             "declared ledger, and no other generated load enters the record"},
+                "statement": "mechanics: the case applies the selected weight primitives once each at factor 1 and "
+                             "each generated load once at factor 1, and nothing else; the labels are this package's "
+                             "own, not the product's identities, and no expected value depends on how the product "
+                             "records the generated loads"},
             "constant_effort": "support:ce-b applies its constant force in this case",
             "generated_loads": c["generated"],
-            "rows": pub_rows(c["rows"])})
+            "rows": pub_rows(c["rows"], mods["CEF"])})
     term_docs = []
     for name in ("dEQX", "dEQY", "dEQZ"):
         t = cef["terms"][name]
@@ -1253,7 +1404,7 @@ def build_doc():
                                    "supports": sorted(mods["CEF"]["anchors"]),
                                    "equals_minus_generated_resultant": all(
                                        (x + y).zero() for x, y in zip(t["Rf"] + t["Rm"], t["Fg"] + t["Mg"]))},
-            "rows": pub_rows(t["rows"])})
+            "rows": pub_rows(t["rows"], mods["CEF"])})
     comb_docs = [
         {"id": "CEF-EQ-SRSS", "basis": "srss", "operands": ["CEF-dEQX", "CEF-dEQY", "CEF-dEQZ"],
          "factors": [1, 1, 1], "fixed_load_count": "0 (every operand 0)",
@@ -1268,14 +1419,48 @@ def build_doc():
          "expected_outcome": "withheld whole by the fixed-load count gate (DEL-05-02 REQ-011: an absolute sum or "
                              "SRSS any of whose operands has a fixed-load count other than exactly 0); no rows",
          "rows": []},
+        {"id": "CEF-EQ-SIGNED-SUM", "basis": "mechanics", "operands": ["CEF-dEQX", "CEF-dEQY", "CEF-dEQZ"],
+         "factors": [1, 1, 1], "fixed_load_count": "0 (every operand 0)",
+         "expected_outcome": "withheld whole by the fixed-load count gate (DEL-05-02 REQ-011: a mechanics "
+                             "combination in a model with a fixed-load source whose count differs from 1 by more "
+                             "than 2^-46; here it is 0); no rows. The signed sum of the three terms is frozen as "
+                             "arithmetic under directional_row, and published through CEF-SUS-PLUS-EQ",
+         "rows": []},
+        {"id": "CEF-SUS-PLUS-EQ", "basis": "mechanics",
+         "operands": ["CEF-SUS", "CEF-dEQX", "CEF-dEQY", "CEF-dEQZ"], "factors": [1, 1, 1, 1],
+         "fixed_load_count": "1 (1 + 0 + 0 + 0)",
+         "expected_outcome": "published, not withheld: the count is exactly 1, the model has no nonlinear support "
+                             "and every reached case selects the same material point. Every row equals a direct "
+                             "solve of the weight, the device and all three generated seismic loads together",
+         "rows": pub_rows(cef["sus_plus_eq"], mods["CEF"])},
     ]
+    dsg = cef["designated"]
+    directional_row = {
+        "row": dsg["row"], "unit": UNIT[dsg["family"]],
+        "why": "two of the three directional terms are nonzero and of opposite sign here, so the SRSS, the absolute "
+               "sum and the signed sum all differ",
+        "terms": {t: record(v) for t, v in zip(("CEF-dEQX", "CEF-dEQY", "CEF-dEQZ"), dsg["terms"])},
+        "srss": dsg["srss"], "absolute_sum": record(dsg["abs"]), "signed_sum": record(dsg["signed"]),
+        "signed_sum_published_as": "CEF-SUS-PLUS-EQ minus CEF-SUS on this row; a mechanics combination of the three "
+                                   "terms alone is withheld here (CEF-EQ-SIGNED-SUM)"}
+    tw = cef["twin"]
+    ce_twin = {
+        "id": "CEF-CTRL-DEVICE-REMOVED-FROM-EVERY-CASE",
+        "what": "the same document with support:ce-b removed from every case: the subtractions alone cannot show "
+                "that the device acted, the single-case rows can",
+        "rows_that_move": {f"CEF-{n}": tw["moves"][n] for n in tw["moves"]},
+        "rows_that_do_not_move": {
+            **{f"CEF-{n}": tw["still"][n] for n in tw["still"]},
+            "CEF-dEQX, CEF-dEQY, CEF-dEQZ, CEF-EQ-SRSS, CEF-EQ-ABS": "every row (constant-effort row aside)"},
+        "device_row": "constant_effort/support:ce-b/Fz is 2730 N in every case with the device and absent without it",
+        "twin_case_rows": {f"CEF-{n}": pub_rows(r, mods["CEF"]) for n, r in tw["rows"].items()}}
     ctrl = cef["controls"]["CE-OMITTED-FROM-SEISMIC"]
     big = max((abs(binary64(v)), i) for i, fam, v in ctrl if fam == "translation")
     controls = [{"id": "CEF-CTRL-CE-OMITTED-FROM-SEISMIC",
                  "what": "a wrong implementation that drops the constant-effort force from the seismic cases "
                          "(keeping it in SUS): each term would differ from the expected term by these rows",
                  "largest_translation_difference": {"row": big[1], "value": big[0]},
-                 "rows": pub_rows(ctrl)}]
+                 "rows": pub_rows(ctrl, mods["CEF"])}, ce_twin]
 
     lo = res["lo"]
     lo_docs = []
@@ -1299,11 +1484,11 @@ def build_doc():
                 "rule": "contact holds while the reaction on the pipe is positive (+Z); a lifted support "
                         "re-engages when the pipe would move below its ground (uz < 0); each margin here is "
                         "strict, so the state is not weak"},
-            "rows": pub_rows(c["rows"]),
+            "rows": pub_rows(c["rows"], mods["LO"]),
             "other_state_rows": {"state": "lifted" if c["state"] == "seated" else "seated",
                                  "why": "the state that does not qualify, for a reader to see why",
                                  "rows": pub_rows(rows_of(mods["LO"], st["lifted" if c["state"] == "seated" else "seated"]["s1"],
-                                                          lift={"reaction": st["lifted" if c["state"] == "seated" else "seated"]["R"]}))}})
+                                                          lift={"reaction": st["lifted" if c["state"] == "seated" else "seated"]["R"]}), mods["LO"])}})
     lo_term_docs = []
     for name in ("dEQZ-SEATED", "dEQZ-LIFTED"):
         t = lo["terms"][name]
@@ -1316,13 +1501,13 @@ def build_doc():
                           if name.endswith("SEATED") else
                           "the minuend is lifted and the subtrahend seated: the term is the difference of two "
                           "independently solved equilibria, not a response to the seismic load on one structure"),
-            "rows": pub_rows(t["rows"]),
+            "rows": pub_rows(t["rows"], mods["LO"]),
             "linear_superposition_control": {
                 "what": "the seated structure's response to the seismic load alone, which a product would publish "
                         "if it formed the term from one structure; for EQZ-LIFTED it is wrong",
                 "equals_term": [r[2] for r in t["rows"]] == [r[2] for r in t["linear"]],
                 "largest_translation_difference": None if lin_big[0] == 0 else {"row": lin_big[1], "value": lin_big[0]},
-                "rows": pub_rows(t["linear"])}})
+                "rows": pub_rows(t["linear"], mods["LO"])}})
     ks = lo["kstar"]
     threshold = {
         "g_factor_z": record(ks),
@@ -1330,43 +1515,92 @@ def build_doc():
                       "constant-effort force, and R1 the reaction per unit g-factor of the generated seismic Z "
                       "load; k* = -R0 / R1",
         "R0_N": record(lo["R0"]), "R1_N": record(lo["R1"]),
-        "at_threshold": "both states are weak: the seated reaction and the lifted separation are both exactly zero",
+        "closed_form": "k* = 1 - P (a^2 (3L - a)/6) / (mu g a^2 (6L^2 - 4La + a^2)/24), from R_B = 0 in the "
+                       "propped cantilever (EI cancels); equal to -R0/R1 exactly",
+        "at_threshold": "no state or token is expected at k* itself; the mechanics there is that the seated "
+                        "reaction and the lifted separation are both exactly zero",
         "below": f"seated (EQZ-SEATED, k = {inp['LO_k_seated']})", "above": f"lifted (EQZ-LIFTED, k = {inp['LO_k_lifted']})"}
 
     jr = res["jr"]
     jr_docs = []
-    for name in ("EQ", "WIND"):
+    part_from, part_to = inp["JR_part_from"], inp["JR_part_to"]
+    for name in ("EQ", "WIND", "WIND-PART"):
         c = jr["cases"][name]
+        if name == "EQ":
+            inputs = {"seismic": {"gravity_acceleration_m_s2": str(g), "g_factors": [str(x) for x in inp["JR_k"]]}}
+        else:
+            marks = [{"member": m["id"], "mark": "whole span"} for m in mods["JR"]["members"]]
+            if name == "WIND-PART":
+                marks = [x if x["member"] != "pipe:c-n" else {"member": "pipe:c-n", "mark": "part span",
+                                                             "start_fraction": str(part_from),
+                                                             "end_fraction": str(part_to)} for x in marks]
+            inputs = {"wind": {"pressure_Pa": str(inp["JR_p_wind"]), "shape_factor": str(inp["JR_C_wind"]),
+                               "direction": "global_z", "marks": marks}}
         jr_docs.append({
-            "id": f"JR-{name}", "model": "JR",
-            "inputs": ({"seismic": {"gravity_acceleration_m_s2": str(g), "g_factors": [str(x) for x in inp["JR_k"]]}}
-                       if name == "EQ" else
-                       {"wind": {"pressure_Pa": str(inp["JR_p_wind"]), "shape_factor": str(inp["JR_C_wind"]),
-                                 "direction": "global_z",
-                                 "exposed_pipe_refs": [m["id"] for m in mods["JR"]["members"]]}}),
+            "id": f"JR-{name}", "model": "JR", "inputs": inputs,
             "load_sources": {"declared_ledger": [], "generated": [{"source": x["source"], "factor": 1}
                                                                   for x in c["generated"]],
-                             "statement": "no stored primitive: the case's only action is its generated load, "
-                                          "consumed beside an empty declared ledger; it solves"},
+                             "statement": "a valid case with a result: its only action is its generated load; no "
+                                          "pressure, no preload (the connector has zero reference load and "
+                                          "extension), no constant-effort support and no stored primitive "
+                                          "selected. Each generated load acts once at factor 1"},
             "generated_loads": c["generated"],
-            "replaced_span": "pipe:b-c carries no generated load and publishes no member result",
-            "rows": pub_rows(c["rows"])})
+            "replaced_span": "pipe:b-c carries no generated load (seismic or wind) and publishes no member result; "
+                             "the live spans beside it carry their generated loads",
+            "rows": pub_rows(c["rows"], mods["JR"])})
+    jr_docs.append({
+        "id": "JR-EQ-UNLISTED-PRIMITIVE", "model": "JR",
+        "inputs": "JR-EQ, with one stored primitive of the case that its declared ledger does not list: a nodal "
+                  f"force {[str(x) for x in inp['JR_decoy_force']]} N at {inp['JR_decoy_node']}, whose identity "
+                  "differs from the identity of every generated load of the case",
+        "expected_outcome": "solves; the unlisted primitive is excluded (schemas/load_reference_state.schema.json: "
+                            "a stored primitive of the case not listed in its load sources), so every row equals "
+                            "JR-EQ's",
+        "rows_equal": "JR-EQ"})
     jr_ctrl = jr["controls"]["REPLACED-SPAN-LOADED"]
-    refusals = [{
-        "id": "JR-REFUSE-WIND-ON-REPLACED-SPAN",
-        "document": "JR-WIND with exposed_pipe_refs also naming pipe:b-c, the span the connector replaces",
-        "expected": "the case is refused by name, naming the replaced span; no wind load is generated; no result "
-                    "is published for the case",
-        "code": None,
-        "code_note": "no scope or frozen reference package names a code for a wind mark on a connector-replaced "
-                     "span; the frozen packages t4_i12 and t4_u5a name JOINT_REPLACED_SPAN_LOAD_UNOWNED for a "
-                     "stored load or eigenstrain the replaced span owns, and this package does not assume that "
-                     "code applies to a generated wind mark"}]
+    note = ("no scope or frozen reference package names a code for a wind mark on a connector-replaced span; the "
+            "frozen packages t4_i12 and t4_u5a name JOINT_REPLACED_SPAN_LOAD_UNOWNED for a stored load or "
+            "eigenstrain the replaced span owns, and this package does not assume that code applies to a generated "
+            "wind mark")
+    refusals = [
+        {"id": "JR-REFUSE-WIND-ON-REPLACED-SPAN",
+         "document": "JR-WIND with a whole-span wind mark also on pipe:b-c, the span the connector replaces",
+         "expected": "the case is refused by name, naming the replaced span; no wind load is generated; no result "
+                     "is published for the case", "code": None, "code_note": note},
+        {"id": "JR-REFUSE-PART-SPAN-WIND-ON-REPLACED-SPAN",
+         "document": f"JR-WIND with a part-span wind mark also on pipe:b-c, over [{part_from}, {part_to}]",
+         "expected": "as JR-REFUSE-WIND-ON-REPLACED-SPAN: refused by name, naming the replaced span; no wind load "
+                     "generated; no result", "code": None, "code_note": note},
+        {"id": "JR-REFUSE-GENERATED-IDENTITY-COLLISION",
+         "document": "JR-EQ-UNLISTED-PRIMITIVE with the unlisted stored primitive given the identity of one of the "
+                     "case's generated loads, whatever identity the generator gives it",
+         "expected": "the case is refused by name before assembly, naming the identity; no load is applied and no "
+                     "result is published for the case. A collision is not resolved by dropping either load or by "
+                     "applying one in place of the other", "code": None,
+         "code_note": "no scope or frozen reference package read names a code for this refusal; this package names "
+                      "none"}]
+    dec = jr["controls"]["UNLISTED-PRIMITIVE-APPLIED"]
+    dec_big = max((abs(binary64(v)), i) for i, fam, v in dec if fam == "translation")
+    jr_controls = [
+        {"id": "JR-CTRL-REPLACED-SPAN-LOADED",
+         "what": "a wrong implementation that generates seismic load on the replaced span as on a pipe: with both "
+                 "connector faces anchored, the span's work-equivalent end actions go straight into the reactions at "
+                 "B and C; JR-EQ's reactions would differ by these rows (every other row is unchanged)",
+         "rows": pub_rows(jr_ctrl)},
+        {"id": "JR-CTRL-UNLISTED-PRIMITIVE-APPLIED",
+         "what": "a wrong implementation that applies the unlisted stored primitive of JR-EQ-UNLISTED-PRIMITIVE: its "
+                 "rows would differ from JR-EQ's by these rows",
+         "largest_translation_difference": {"row": dec_big[1], "value": dec_big[0]},
+         "rows": pub_rows(dec, mods["JR"])}]
 
     doc = {
         "document": "swbpipe.exact_load_state_generated_interactions_references",
         "status": "candidate frozen references; derived and cross-checked by the author TASK before the engine "
                   "change they judge, not yet independently refuted; no product test reads them",
+        "representation": "every expected value is a fact about the mechanics (rows), a support status, a gate "
+                          "outcome or a refusal; none is defined by the shape of a published record or by which "
+                          "representation of generated loads the product adopts. Source labels and row ids are this "
+                          "package's own names",
         "units": {"force": "N", "moment": "N*m", "translation": "m", "rotation": "rad", "length": "m"},
         "theory": "small-displacement linear-elastic 3D frame, Euler-Bernoulli, axial and torsional deformation "
                   "included; supports rigid; a constant-effort support is a constant nodal force with no stiffness; "
@@ -1394,15 +1628,10 @@ def build_doc():
         "cases": case_docs + lo_docs + jr_docs,
         "terms": term_docs + lo_term_docs,
         "combinations": comb_docs,
+        "directional_row": directional_row,
         "lift_off_threshold": threshold,
         "refusals": refusals,
-        "controls": controls + [{
-            "id": "JR-CTRL-REPLACED-SPAN-LOADED",
-            "what": "a wrong implementation that generates seismic load on the replaced span as on a pipe: with "
-                    "both connector faces anchored, the span's work-equivalent end actions go straight into the "
-                    "reactions at B and C; JR-EQ's reactions would differ by these rows (every other row is "
-                    "unchanged)",
-            "rows": pub_rows(jr_ctrl)}],
+        "controls": controls + jr_controls,
         "crosscheck": checks,
     }
     return doc, checks
@@ -1450,7 +1679,7 @@ def main():
     args = parser.parse_args()
     files, doc, checks = build_files()
     bad = [c for c in checks if not c["agrees"]]
-    nrows = sum(len(c["rows"]) for c in doc["cases"]) + sum(len(t["rows"]) for t in doc["terms"]) + \
+    nrows = sum(len(c.get("rows", [])) for c in doc["cases"]) + sum(len(t["rows"]) for t in doc["terms"]) + \
         sum(len(c["rows"]) for c in doc["combinations"])
     print(f"{len(doc['cases'])} cases, {len(doc['terms'])} terms, {len(doc['combinations'])} combinations, "
           f"{nrows} expected rows")
