@@ -363,7 +363,7 @@ describe('workspace-owned live embedded agent adapter',()=>{
   records.supports=[{id:'support:wide',label:'€'.repeat(10000),node:'node-1',restraints:['UX'],provenance:'p'}];
   call('swbpipe_read_records',{family:'supports',page:{cursor:null,limit:5}});await session.start('revision');await session.poll();await drain();
   let outcome=JSON.parse(session.actual('invented-session:1')!.outcome);expect(outcome.status).toBe('ok');expect(outcome.data.records).toEqual([]);expect(outcome.data.nextCursor).toBeNull();
-  expect(outcome.message).toBe(`${UNBOUND}support:wide. ${PAGE_SENTENCE}`);
+  expect(outcome.message).toBe(`${UNBOUND}"support:wide". ${PAGE_SENTENCE}`);
   // Two records of about 30 KB each: the page holds one and resumes at the next.
   records.supports=[0,1].map(i=>({id:`support:${i}`,label:'€'.repeat(5000),node:'node-1',restraints:['UX'],provenance:'p'}));
   call('swbpipe_read_records',{family:'supports',page:{cursor:null,limit:5}},'invented-session:2');await session.poll();await drain();
@@ -373,7 +373,7 @@ describe('workspace-owned live embedded agent adapter',()=>{
   records.supports=[{id:'support:quoted',label:'"'.repeat(3900),node:'node-1',restraints:['UX'],provenance:'"'.repeat(3900)}];
   call('swbpipe_read_records',{family:'supports',page:{cursor:null,limit:5}},'invented-session:3');await session.poll();await drain();
   outcome=JSON.parse(session.actual('invented-session:3')!.outcome);expect(outcome.status).toBe('ok');expect(outcome.data.records).toEqual([]);expect(outcome.data.nextCursor).toBeNull();
-  expect(outcome.message).toBe(`${UNBOUND}support:quoted. ${PAGE_SENTENCE}`);
+  expect(outcome.message).toBe(`${UNBOUND}"support:quoted". ${PAGE_SENTENCE}`);
   await session.close();
  });
  it('reports the catalog limits and reads back a stored state up to the argument bound, one byte over by name',async()=>{
@@ -394,7 +394,7 @@ describe('workspace-owned live embedded agent adapter',()=>{
   records.load_cases=loadCase(bound-16);
   call('swbpipe_read_records',{family:'load_cases',page:{cursor:null,limit:5}},'invented-session:3');await session.poll();await drain();
   outcome=JSON.parse(session.actual('invented-session:3')!.outcome);expect(outcome.status).toBe('ok');expect(outcome.data.records).toEqual([]);
-  expect(outcome.message).toBe(`${UNBOUND}load:L1. ${PAGE_SENTENCE}`);
+  expect(outcome.message).toBe(`${UNBOUND}"load:L1". ${PAGE_SENTENCE}`);
   await session.close();
  });
  it('reads the reference system\'s load cases back whole across pages, each state and its pressure regions as stored',async()=>{
@@ -421,35 +421,41 @@ describe('workspace-owned live embedded agent adapter',()=>{
   }
   await session.close();
  });
- it('returns the ordinary case beside a case whose two held texts each fit and together exceed a record page, and names that case as not returned (issue 401); that case itself stays unread (issue 403)',async()=>{
+ it('returns the ordinary cases before and after a case whose two held texts each fit and together exceed a record page, each once, names that case as not returned and resumes past it at the same basis (issue 401); that case itself stays unread (issue 403)',async()=>{
   // The record is installed directly, as a person's edit in the desktop can leave it. Its two
   // texts are also of a size the agent's own proposals carry: the reach test
   // (agent_catalog_reach.rs) writes an analysis state and pressure regions of 25,000 canonical
   // bytes each in separate proposals within the argument bound. Each text is within the record
   // text bound; the entry is over the 48 KiB record page and is never cut. The read leaves the
-  // wide case out, names it first in its message and returns the ordinary case beside it, the
-  // same entry it returns when that case is read alone. The wide case itself is still not read:
-  // what the agent can write is not always what it can read (issue 403).
+  // wide case out, names it first in its message and returns the ordinary cases on either side of
+  // it, each the same entry it returns when read without the wide case. The wide case itself is
+  // still not read: what the agent can write is not always what it can read (issue 403).
   vi.useFakeTimers();const {session,call,model}=setup();
   const settle=async()=>{for(let i=0;i<8;i++)await drain();};
   const bytes=(text:string)=>new TextEncoder().encode(text).byteLength;
   // {"provenance":"…"} is 17 bytes around its text; [{"id":"region:wide","provenance":"…"}] is 38.
-  const ordinary={id:'load:ordinary',label:'ordinary',kind:'primitive_user_load',status:'draft',provenance:'invented',primitive_loads:[],analysis_state:{provenance:'invented'},pressure_regions:[]};
+  const ordinary=(name:string)=>({id:`load:${name}`,label:name,kind:'primitive_user_load',status:'draft',provenance:'invented',primitive_loads:[],analysis_state:{provenance:'invented'},pressure_regions:[]});
   const wide={id:'load:wide',label:'wide',kind:'primitive_user_load',status:'draft',provenance:'invented',primitive_loads:[],
    analysis_state:{provenance:'s'.repeat(25000-17)},pressure_regions:[{id:'region:wide',provenance:'r'.repeat(25000-38)}]};
   expect(bytes(await canonicalJsonString(wide.analysis_state))).toBe(25000);expect(bytes(await canonicalJsonString(wide.pressure_regions))).toBe(25000);
   expect(25000).toBeLessThanOrEqual(catalog.definitions.record.properties.before.additionalProperties.maxLength);
-  (model as unknown as Record<string,unknown>).load_cases=[ordinary,wide];await session.start('revision');await session.poll();await settle();
-  call('swbpipe_read_records',{family:'load_cases',page:{cursor:null,limit:5}},'invented-session:2');await session.poll();await settle();
-  const beside=JSON.parse(session.actual('invented-session:2')!.outcome);
-  expect(beside.status).toBe('ok');expect(beside.message).toBe(`${UNBOUND}load:wide. ${PAGE_SENTENCE}`);
-  expect(beside.data.records.map((record:{id:string})=>record.id)).toEqual(['load:ordinary']);expect(beside.data.nextCursor).toBeNull();
-  // The ordinary case alone is read as the same entry.
-  (model as unknown as Record<string,unknown>).load_cases=[ordinary];
-  call('swbpipe_read_records',{family:'load_cases',page:{cursor:null,limit:5}},'invented-session:3');await session.poll();await settle();
-  const alone=JSON.parse(session.actual('invented-session:3')!.outcome);
-  expect(alone.status).toBe('ok');expect(alone.message).toBe(PAGE_SENTENCE);expect(alone.data.records.map((record:{id:string})=>record.id)).toEqual(['load:ordinary']);
-  expect(beside.data.records).toEqual(alone.data.records);
+  (model as unknown as Record<string,unknown>).load_cases=[ordinary('before'),wide,ordinary('after')];await session.start('revision');await session.poll();await settle();
+  let n=1;const read=async(cursor:string|null,limit:number)=>{n++;call('swbpipe_read_records',{family:'load_cases',page:{cursor,limit}},`invented-session:${n}`);await session.poll();await settle();return JSON.parse(session.actual(`invented-session:${n}`)!.outcome);};
+  const idsOf=(page:{data:{records:{id:string}[]}})=>page.data.records.map(record=>record.id);
+  // A page of two rows examines the first ordinary case and the wide one; its cursor resumes past the wide case.
+  const first=await read(null,2);
+  expect(first.status).toBe('ok');expect(first.message).toBe(`${UNBOUND}"load:wide". ${PAGE_SENTENCE}`);expect(idsOf(first)).toEqual(['load:before']);expect(first.data.nextCursor).toEqual(expect.any(String));
+  const second=await read(first.data.nextCursor,2);
+  expect(second.status).toBe('ok');expect(second.message).toBe(PAGE_SENTENCE);expect(idsOf(second)).toEqual(['load:after']);expect(second.data.nextCursor).toBeNull();
+  expect(second.basis).toEqual(first.basis);
+  // One page of five rows returns both and names the wide case between them.
+  const whole=await read(null,5);
+  expect(whole.status).toBe('ok');expect(whole.message).toBe(`${UNBOUND}"load:wide". ${PAGE_SENTENCE}`);expect(idsOf(whole)).toEqual(['load:before','load:after']);expect(whole.data.nextCursor).toBeNull();
+  // Without the wide case the two ordinary cases are read as the same entries.
+  (model as unknown as Record<string,unknown>).load_cases=[ordinary('before'),ordinary('after')];
+  const alone=await read(null,5);
+  expect(alone.status).toBe('ok');expect(alone.message).toBe(PAGE_SENTENCE);expect(idsOf(alone)).toEqual(['load:before','load:after']);
+  expect([...first.data.records,...second.data.records]).toEqual(alone.data.records);expect(whole.data.records).toEqual(alone.data.records);
   await session.close();
  });
  describe('a record the page cannot carry is left out by name and the page continues past it (issue 401)',()=>{
@@ -476,12 +482,18 @@ describe('workspace-owned live embedded agent adapter',()=>{
   }
   const ids=(page:Page)=>page.data.records.map(record=>record.id);
   /** The records a page's message names as not returned for size, in the order named. */
-  const named=(page:Page)=>{const match=/^Not returned, over this catalog's record bound: (.*?)\. (?:Not returned|Bounded)/.exec(page.message);return match?match[1].split(', '):[];};
+  const named=(page:Page):string[]=>{
+   if(!page.message.startsWith(UNBOUND))return [];
+   // The names are JSON strings separated by ", "; the list ends at the first "." outside a string.
+   const rest=page.message.slice(UNBOUND.length);let end=0,inside=false;
+   for(;end<rest.length;end++){const c=rest[end];if(inside){if(c==='\\')end++;else if(c==='"')inside=false;}else if(c==='"')inside=true;else if(c==='.')break;}
+   return JSON.parse(`[${rest.slice(0,end)}]`) as string[];
+  };
   it('returns both ordinary cases beside an oversized one once, names it first, and the cursor resumes past it at the same basis',async()=>{
    const {session,read}=await reader([fits('support:a'),wide('support:W'),fits('support:b')]);
    // A page of two rows: the ordinary record and the oversized one, which is named; the cursor follows it.
    const first=await read(null,2);
-   expect(ids(first)).toEqual(['support:a']);expect(first.message).toBe(`${UNBOUND}support:W. ${PAGE_SENTENCE}`);expect(first.data.nextCursor).toEqual(expect.any(String));
+   expect(ids(first)).toEqual(['support:a']);expect(first.message).toBe(`${UNBOUND}"support:W". ${PAGE_SENTENCE}`);expect(first.data.nextCursor).toEqual(expect.any(String));
    const second=await read(first.data.nextCursor,2);
    expect(ids(second)).toEqual(['support:b']);expect(second.message).toBe(PAGE_SENTENCE);expect(second.data.nextCursor).toBeNull();
    expect(second.basis).toEqual(first.basis);
@@ -496,7 +508,7 @@ describe('workspace-owned live embedded agent adapter',()=>{
    await session.close();
    const left=await reader([fits('support:a'),{id:'',label:'x'},wide('support:W')]);
    const both=await left.read(null,5);
-   expect(both.message).toBe(`${UNBOUND}support:W. ${UNNAMED}1 record. ${PAGE_SENTENCE}`);
+   expect(both.message).toBe(`${UNBOUND}"support:W". ${UNNAMED}1 record. ${PAGE_SENTENCE}`);
    await left.session.close();
   });
   it('names every record left out for size: the page stops before a name that would not fit and the cursor resumes at it',async()=>{
@@ -509,7 +521,12 @@ describe('workspace-owned live embedded agent adapter',()=>{
    do{const page=await read(cursor,50);pages.push(page);cursor=page.data.nextCursor;}while(cursor!==null&&pages.length<rows.length);
    expect(cursor).toBeNull();expect(pages.length).toBeGreaterThan(1);
    // The first page names fewer than all nine, and returns exactly the ordinary records before the first unnamed one.
-   const firstNamed=named(pages[0]);expect(firstNamed.length).toBeGreaterThan(0);expect(firstNamed.length).toBeLessThan(9);
+   const firstNamed=named(pages[0]);
+   // Exactly as many names as the message has room for, no fewer: each is 162 characters as a JSON
+   // string and ", " apart, beside the notice's opening, its full stop, a count clause reserved for
+   // the page's limit of 50 and the page sentence, in 1000 characters.
+   const room=catalog.definitions.recordsOutput.properties.message.maxLength-(UNBOUND.length+1+1+UNNAMED.length+'50 records.'.length+1+PAGE_SENTENCE.length);
+   expect(firstNamed.length).toBe(Math.floor((room+2)/(162+2)));expect(firstNamed.length).toBe(4);
    const resume=all.indexOf(long(firstNamed.length));
    expect(ids(pages[0])).toEqual(all.slice(0,resume).filter(id=>id.length<160));
    expect(named(pages[1])[0]).toBe(long(firstNamed.length));
@@ -524,7 +541,7 @@ describe('workspace-owned live embedded agent adapter',()=>{
    // First on a later page: that page carries nothing but the notice, and the cursor still advances.
    let {session,read}=await reader([fits('support:a'),wide('support:W'),fits('support:b')]);
    const one=await read(null,1);expect(ids(one)).toEqual(['support:a']);expect(one.message).toBe(PAGE_SENTENCE);
-   const two=await read(one.data.nextCursor,1);expect(ids(two)).toEqual([]);expect(two.message).toBe(`${UNBOUND}support:W. ${PAGE_SENTENCE}`);expect(two.data.nextCursor).toEqual(expect.any(String));
+   const two=await read(one.data.nextCursor,1);expect(ids(two)).toEqual([]);expect(two.message).toBe(`${UNBOUND}"support:W". ${PAGE_SENTENCE}`);expect(two.data.nextCursor).toEqual(expect.any(String));
    const three=await read(two.data.nextCursor,1);expect(ids(three)).toEqual(['support:b']);expect(three.message).toBe(PAGE_SENTENCE);expect(three.data.nextCursor).toBeNull();
    await session.close();
    // First on the first page, then last on it.
@@ -536,14 +553,49 @@ describe('workspace-owned live embedded agent adapter',()=>{
    await session.close();
    // Two on one page, named in their order.
    ({session,read}=await reader([fits('support:a'),wide('support:W1'),fits('support:b'),wide('support:W2'),fits('support:c')]));
-   page=await read(null,5);expect(ids(page)).toEqual(['support:a','support:b','support:c']);expect(page.message).toBe(`${UNBOUND}support:W1, support:W2. ${PAGE_SENTENCE}`);expect(page.data.nextCursor).toBeNull();
+   page=await read(null,5);expect(ids(page)).toEqual(['support:a','support:b','support:c']);expect(page.message).toBe(`${UNBOUND}"support:W1", "support:W2". ${PAGE_SENTENCE}`);expect(page.data.nextCursor).toBeNull();
+   await session.close();
+  });
+  it('names each record as a JSON string, so that one name holding a comma is not read as two records',async()=>{
+   // A model identifier may hold a comma, a quote or a line break. One record named "support:a, support:b"
+   // and two records named "support:a" and "support:b" are told apart, and each name reads back exactly.
+   let {session,read}=await reader([wide('support:a, support:b'),fits('support:c')]);
+   const one=await read(null,5);expect(ids(one)).toEqual(['support:c']);
+   expect(one.message).toBe(`${UNBOUND}"support:a, support:b". ${PAGE_SENTENCE}`);expect(named(one)).toEqual(['support:a, support:b']);
+   await session.close();
+   ({session,read}=await reader([wide('support:a'),wide('support:b'),fits('support:c')]));
+   const two=await read(null,5);expect(ids(two)).toEqual(['support:c']);
+   expect(two.message).toBe(`${UNBOUND}"support:a", "support:b". ${PAGE_SENTENCE}`);expect(named(two)).toEqual(['support:a','support:b']);
+   expect(two.message).not.toBe(one.message);
+   await session.close();
+   // A quote, a backslash, a line break and a sentence end inside a name stay inside its string.
+   const awkward=['support:"q", "r"','support:back\\slash','support:line\nbreak. Bounded record page','support:é. Not returned'];
+   ({session,read}=await reader([...awkward.map(wide),fits('support:c')]));
+   const page=await read(null,50);expect(ids(page)).toEqual(['support:c']);expect(named(page)).toEqual(awkward);
+   expect(page.message).toBe(`${UNBOUND}${awkward.map(id=>JSON.stringify(id)).join(', ')}. ${PAGE_SENTENCE}`);expect(page.message).not.toContain('\n');
+   await session.close();
+  });
+  it('names the longest name a notice can carry alone, counts one whose JSON string cannot fit even alone, and always advances',async()=>{
+   // 160 quotes are 322 characters as a JSON string: named, alone on a fresh page. 160 control
+   // characters are 962 as a JSON string, more than a notice has room for with its count and the
+   // page sentence: that record is counted like one whose identifier the catalog cannot carry, so
+   // the page examines it and moves on instead of stopping at it for ever.
+   const quotes='"'.repeat(160),controls='\u0001'.repeat(160);
+   expect(JSON.stringify(quotes)).toHaveLength(322);expect(JSON.stringify(controls)).toHaveLength(962);
+   let {session,read}=await reader([wide(quotes),fits('support:a')]);
+   let page=await read(null,1);expect(ids(page)).toEqual([]);expect(named(page)).toEqual([quotes]);expect(page.data.nextCursor).toEqual(expect.any(String));
+   page=await read(page.data.nextCursor,1);expect(ids(page)).toEqual(['support:a']);expect(page.data.nextCursor).toBeNull();
+   await session.close();
+   ({session,read}=await reader([wide(controls),fits('support:a')]));
+   page=await read(null,1);expect(ids(page)).toEqual([]);expect(page.message).toBe(`${UNNAMED}1 record. ${PAGE_SENTENCE}`);expect(page.data.nextCursor).toEqual(expect.any(String));
+   page=await read(page.data.nextCursor,1);expect(ids(page)).toEqual(['support:a']);expect(page.message).toBe(PAGE_SENTENCE);expect(page.data.nextCursor).toBeNull();
    await session.close();
   });
   it('counts, without a name, a record whose identifier the catalog cannot carry, and continues past it',async()=>{
    // Empty, over 160 characters, not a string, and not well-formed text.
    let {session,read}=await reader([{id:'',label:'e'},fits('support:a'),{id:'x'.repeat(161),label:'l'},{id:42,label:'n'},wide('support:W'),{id:'\ud800x',label:'s'},fits('support:b')]);
    let page=await read(null,50);
-   expect(ids(page)).toEqual(['support:a','support:b']);expect(page.message).toBe(`${UNBOUND}support:W. ${UNNAMED}4 records. ${PAGE_SENTENCE}`);expect(page.data.nextCursor).toBeNull();
+   expect(ids(page)).toEqual(['support:a','support:b']);expect(page.message).toBe(`${UNBOUND}"support:W". ${UNNAMED}4 records. ${PAGE_SENTENCE}`);expect(page.data.nextCursor).toBeNull();
    await session.close();
    // The rows counted take their place in the page's limit, and the cursor resumes after them.
    ({session,read}=await reader([{id:'',label:'e'},{id:42,label:'n'},fits('support:a')]));
