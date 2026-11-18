@@ -292,6 +292,14 @@ fn assert_refused(model: &Value, member: &Member, before: &str, after: &str, uni
     outcome
 }
 
+/// A refusal of an entered unit names the stored unit and the explicit-pair
+/// route, whichever check meets the unit first.
+fn assert_names_stored_unit_and_pair(outcome: &OperationOutcome, member: &Member) {
+    let finding = outcome.diagnostics.iter().find(|d| d.code == "OP-UNIT-MISMATCH-CONVERSION-UNAVAILABLE").unwrap();
+    assert!(finding.message.contains(&format!("stored unit `{}`", member.stored_unit)), "{}: {}", member.name, finding.message);
+    assert!(finding.remediation.contains("explicit JSON value/unit pair"), "{}: {}", member.name, finding.remediation);
+}
+
 /// The member's replacement number as entered in its stored unit.
 fn replacement(member: &Member) -> f64 {
     member.replacement.0
@@ -352,8 +360,9 @@ fn a_unit_of_another_dimension_is_refused_bare_or_paired() {
         let before = member.stored_value.to_string();
         let value = replacement(&member);
         for after in [value.to_string(), pair(value, member.foreign_unit)] {
-            assert_refused(&model, &member, &before, &after, member.foreign_unit, member.dimension,
+            let outcome = assert_refused(&model, &member, &before, &after, member.foreign_unit, member.dimension,
                 "OP-UNIT-MISMATCH-CONVERSION-UNAVAILABLE");
+            assert_names_stored_unit_and_pair(&outcome, &member);
         }
     }
 }
@@ -365,8 +374,9 @@ fn an_unknown_unit_is_refused_bare_or_paired() {
         let before = member.stored_value.to_string();
         let value = replacement(&member);
         for after in [value.to_string(), pair(value, "furlong")] {
-            assert_refused(&model, &member, &before, &after, "furlong", member.dimension,
+            let outcome = assert_refused(&model, &member, &before, &after, "furlong", member.dimension,
                 "OP-UNIT-MISMATCH-CONVERSION-UNAVAILABLE");
+            assert_names_stored_unit_and_pair(&outcome, &member);
         }
     }
 }
@@ -468,6 +478,28 @@ fn a_primitive_whose_category_gives_no_single_dimension_is_not_edited_in_place()
         primitive("shape:test-pressure", "hydrotest", element(OUTBOARD), "global_z", 5.0, "Pa", "pressure");
     for (index, before, unit, dimension) in [(2, "5", "Pa", "pressure"), (8, "-190", "N", "force"), (10, "5", "Pa", "pressure")] {
         let member = member("ungoverned primitive", "Load", SHAPES_CASE, "update_load", &shape(index), dimension, (0.0, unit), unit, ("m", "length"), false);
+        for after in ["7".to_string(), pair(7.0, unit)] {
+            assert_refused(&model, &member, before, &after, unit, dimension, "OP-UNIT-DIMENSION-UNKNOWN");
+        }
+    }
+}
+
+#[test]
+fn a_primitive_whose_shape_the_solve_does_not_read_is_not_edited_in_place() {
+    // A direction outside the solve's vocabulary, an element body load about a
+    // rotational direction, and a support motion whose target DOF and
+    // direction disagree: the solve refuses each, so none governs an edit.
+    let mut model = matrix_model();
+    let shapes = model["load_cases"].as_array().unwrap().len() - 1;
+    model["load_cases"][shapes]["primitive_loads"][8] =
+        primitive("shape:no-direction", "occasional", tip(), "bogus", -190.0, "N", "force");
+    model["load_cases"][shapes]["primitive_loads"][2] =
+        primitive("shape:line-about-z", "distributed_force", element(OUTBOARD), "rotation_z", -190.0, "N/m", "force_per_length");
+    model["load_cases"][shapes]["primitive_loads"][4] =
+        primitive("shape:settlement-disagrees", "imposed_displacement",
+            json!({"type": "support", "support": "support:anchor", "dof": "UX"}), "UY", -0.002, "m", "displacement");
+    for (index, before, unit, dimension) in [(8, "-190", "N", "force"), (2, "-190", "N/m", "force_per_length"), (4, "-0.002", "m", "displacement")] {
+        let member = member("unread primitive", "Load", SHAPES_CASE, "update_load", &shape(index), dimension, (0.0, unit), unit, ("Pa", "pressure"), false);
         for after in ["7".to_string(), pair(7.0, unit)] {
             assert_refused(&model, &member, before, &after, unit, dimension, "OP-UNIT-DIMENSION-UNKNOWN");
         }

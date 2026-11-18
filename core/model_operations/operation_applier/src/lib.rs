@@ -7743,10 +7743,13 @@ fn resolve_field(
                 let direction = text(primitive.get("direction"));
                 let target_type =
                     text(primitive.get("target").and_then(|target| target.get("type")));
+                let target_dof =
+                    text(primitive.get("target").and_then(|target| target.get("dof")));
                 let stored_dimension = text(primitive.get("dimension"));
                 let Some(governed) = stored_primitive_magnitude_dimension(
                     &category,
                     &target_type,
+                    &target_dof,
                     &direction,
                     &stored_dimension,
                 ) else {
@@ -8102,15 +8105,13 @@ fn resolve_field(
             match unit_source {
                 UnitSource::SiblingUnitField => {
                     if !unit_symbol_matches_dimension(unit, dimension_enum) {
-                        checker.unit_state = "blocked";
-                        checker.push(
-                            "OP-UNIT-MISMATCH-CONVERSION-UNAVAILABLE",
-                            "blocking",
-                            format!(
-                                "Intent unit `{unit}` is not an accepted DEC-018 unit for dimension `{field_dimension}` on `{field_path}`."
-                            ),
-                            "Select an accepted DEC-018 unit; no hidden fallback unit is supplied.",
-                            vec![target_ref.to_string()],
+                        refuse_unit_outside_field_dimension(
+                            unit,
+                            field_dimension,
+                            Some(&stored_unit),
+                            target_ref,
+                            field_path,
+                            checker,
                         );
                         return None;
                     }
@@ -8734,15 +8735,22 @@ fn resolve_optional_quantity(
     let unit_ok = unit_symbol_matches_dimension(unit, dimension_enum)
         || (rule_dimension == "dimensionless" && unit == "none");
     if !unit_ok {
-        checker.unit_state = "blocked";
-        checker.push(
-            "OP-UNIT-MISMATCH-CONVERSION-UNAVAILABLE",
-            "blocking",
-            format!(
-                "Intent unit `{unit}` is not an accepted DEC-018 unit for dimension `{rule_dimension}` on `{field_path}`."
-            ),
-            "Select an accepted DEC-018 unit; no hidden fallback unit is supplied.",
-            vec![target_ref.to_string()],
+        // A slot that holds a quantity names its stored unit in the refusal,
+        // as the stored-pair rule does; an absent slot has none to name.
+        let mut unit_segments = segments.clone();
+        unit_segments.pop();
+        unit_segments.push("unit".to_string());
+        let stored_unit = value_at_segments(entity, &segments)
+            .and_then(Value::as_f64)
+            .and_then(|_| value_at_segments(entity, &unit_segments))
+            .and_then(Value::as_str);
+        refuse_unit_outside_field_dimension(
+            unit,
+            rule_dimension,
+            stored_unit,
+            target_ref,
+            field_path,
+            checker,
         );
         return None;
     }
@@ -8875,6 +8883,41 @@ fn resolve_optional_quantity(
             })
         }
     }
+}
+
+/// Refuses an entered unit that the unit catalog does not hold for the
+/// field's own dimension. Where the quantity is stored beside a unit, the
+/// finding names that unit and the two forms an in-place edit takes, so that
+/// the refusal of a bare number says the same thing whichever check meets it
+/// first (issue 382).
+fn refuse_unit_outside_field_dimension(
+    unit: &str,
+    field_dimension: &str,
+    stored_unit: Option<&str>,
+    target_ref: &str,
+    field_path: &str,
+    checker: &mut Checker,
+) {
+    checker.unit_state = "blocked";
+    let (stored, remediation) = match stored_unit {
+        Some(stored_unit) => (
+            format!(" A bare number is read in the stored unit `{stored_unit}`."),
+            "Send the bare number with the stored unit, or send the replacement as an explicit JSON value/unit pair whose unit is an accepted DEC-018 unit of the field's dimension; no hidden fallback unit is supplied.",
+        ),
+        None => (
+            String::new(),
+            "Select an accepted DEC-018 unit; no hidden fallback unit is supplied.",
+        ),
+    };
+    checker.push(
+        "OP-UNIT-MISMATCH-CONVERSION-UNAVAILABLE",
+        "blocking",
+        format!(
+            "Intent unit `{unit}` is not an accepted DEC-018 unit for dimension `{field_dimension}` on `{field_path}`.{stored}"
+        ),
+        remediation,
+        vec![target_ref.to_string()],
+    );
 }
 
 /// The one rule for editing a stored `{ value, unit }` quantity in place
@@ -9499,29 +9542,44 @@ fn authored_primitive_magnitude_dimension(category: &str, direction: &str) -> &'
 ///
 /// This is the load builder's contract for the magnitude it consumes
 /// (`core/loads/primitive_loads`: the node, element and imposed dimension
-/// rules), read from the stored record. A body load (`weight`,
+/// rules), read from the stored record, with the directions the solve reads
+/// (`parse_direction`, `parse_dof`). A body load (`weight`,
 /// `distributed_force`, `wind`, `seismic`, `occasional`, and the concentrated
 /// force and moment the builder reads as occasional) is a force at a node, or
 /// a moment about a rotational direction, and a force per length along an
-/// element. A thermal load on an element is a temperature interval. An imposed
-/// displacement at a support is a displacement, or a rotation on a rotational
-/// DOF. A `hydrotest` primitive on an element admits a pressure, which is
-/// retired, or a force per length: it is governed only where the record itself
-/// states the force per length. A retired `pressure` primitive and any other
-/// category or target are not governed, and are not edited in place. On every
-/// shape creation admits this agrees with
-/// `authored_primitive_magnitude_dimension`.
+/// element in a translational direction. A thermal load on an element is a
+/// temperature interval. An imposed displacement at a support is a
+/// displacement, or a rotation on a rotational DOF, where the target DOF and
+/// the direction name the same frame DOF. A `hydrotest` primitive on an
+/// element admits a pressure, which is retired, or a force per length: it is
+/// governed only where the record itself states the force per length. A
+/// retired `pressure` primitive, a direction the solve does not read, a
+/// support motion whose target DOF and direction disagree, and any other
+/// category or target are not governed, and are not edited in place: the
+/// solve refuses each of them. On every shape creation admits this agrees
+/// with `authored_primitive_magnitude_dimension`.
 fn stored_primitive_magnitude_dimension(
     category: &str,
     target_type: &str,
+    target_dof: &str,
     direction: &str,
     stored_dimension: &str,
 ) -> Option<&'static str> {
-    let rotational = matches!(
-        direction,
-        "rotation_x" | "rotation_y" | "rotation_z"
-            | "RX" | "Rx" | "rx" | "RY" | "Ry" | "ry" | "RZ" | "Rz" | "rz"
-    );
+    // The frame DOF a token names: its axis and whether it is rotational.
+    let frame_dof = |token: &str| match token {
+        "UX" | "Ux" | "ux" => Some(('x', false)),
+        "UY" | "Uy" | "uy" => Some(('y', false)),
+        "UZ" | "Uz" | "uz" => Some(('z', false)),
+        "RX" | "Rx" | "rx" => Some(('x', true)),
+        "RY" | "Ry" | "ry" => Some(('y', true)),
+        "RZ" | "Rz" | "rz" => Some(('z', true)),
+        _ => None,
+    };
+    let rotational = match direction {
+        "global_x" | "GLOBAL_X" | "global_y" | "GLOBAL_Y" | "global_z" | "GLOBAL_Z" => false,
+        "rotation_x" | "rotation_y" | "rotation_z" => true,
+        token => frame_dof(token)?.1,
+    };
     let body_load = matches!(
         category,
         "weight"
@@ -9534,12 +9592,18 @@ fn stored_primitive_magnitude_dimension(
     );
     match target_type {
         "node" if body_load => Some(if rotational { "moment" } else { "force" }),
-        "element" if body_load => Some("force_per_length"),
+        "element" if body_load && !rotational => Some("force_per_length"),
         "element" if category == "thermal" => Some("temperature_interval"),
-        "element" if category == "hydrotest" && stored_dimension == "force_per_length" => {
+        "element"
+            if category == "hydrotest" && stored_dimension == "force_per_length" && !rotational =>
+        {
             Some("force_per_length")
         }
-        "support" if category == "imposed_displacement" => {
+        "support"
+            if category == "imposed_displacement"
+                && frame_dof(direction).is_some()
+                && frame_dof(direction) == frame_dof(target_dof) =>
+        {
             Some(if rotational { "rotation" } else { "displacement" })
         }
         _ => None,
