@@ -359,9 +359,10 @@ function validUnicodeScalarString(value: string): boolean {
   return true;
 }
 
-/** The value `checkedJsonText` (hashService.ts) serialises, read as it reads it: the same
- * property reads in the same order, refusing with the same error at the same point, and
- * yielding the same plain data (arrays, null-prototype objects, primitives), but no text. */
+/** A copy of `checkedJsonTextOf` (hashService.ts) up to its final `JSON.stringify`: the same
+ * checks and errors in the same order, returning the plain data (arrays, null-prototype
+ * objects, primitives) instead of its text. sameCheckedJson.test.ts compares the result with
+ * the text relation it replaced. */
 function checkedJsonValue(value: unknown): unknown {
   const seen = new Set<object>();
   const freeze = (item: unknown): unknown => {
@@ -416,10 +417,10 @@ function checkedJsonValue(value: unknown): unknown {
   return freeze(value);
 }
 
-/** Equality of two values `checkedJsonValue` yielded, as their JSON texts compare once
- * parsed and member-sorted: a string, boolean or null by identity, a number by `===`
- * (zero and negative zero serialise alike), an array by length and element, an object by
- * its member names (order not significant) and their values; an array never equals an object. */
+/** Equality of two values `checkedJsonValue` returned: a string, boolean or null by identity,
+ * a number by `===` (so zero equals negative zero, which serialise alike), an array by length
+ * and element, an object by its member names in any order and their values; an array never
+ * equals an object. */
 function checkedJsonValuesEqual(left: unknown, right: unknown): boolean {
   if (left === right) return true;
   if (typeof left !== "object" || typeof right !== "object" || left === null || right === null) return false;
@@ -438,10 +439,11 @@ function checkedJsonValuesEqual(left: unknown, right: unknown): boolean {
   return true;
 }
 
-/** The equality `validateAnalysisRunV03` compares its source bindings by: either side
- * undefined compares by identity; otherwise both sides pass the checked JSON profile (the
- * left side wholly first, refusing as `checkedJsonText` refuses) and are equal exactly when
- * their checked texts, parsed and member-sorted, serialise alike. It makes no text. */
+/** The equality `validateAnalysisRunV03` compares its source bindings by, without making
+ * text: either side undefined compares by identity; otherwise the left side is checked
+ * wholly, then the right, then the two are compared. It replaces a comparison of the checked
+ * texts, parsed, member-sorted and serialised again; sameCheckedJson.test.ts runs both over a
+ * generated corpus and requires the same result or error on every pair. */
 export function sameCheckedJson(a: unknown, b: unknown): boolean {
   if (a === undefined || b === undefined) return a === b;
   const left = checkedJsonValue(a);

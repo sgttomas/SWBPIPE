@@ -1,10 +1,10 @@
-// `sameCheckedJson` (analysisRunCompatibility.ts), the equality `validateAnalysisRunV03`
-// compares its source bindings by, is the relation it replaces: the checked text of each
-// side (hashService's `checkedJsonText`, the left side wholly first), parsed, member-sorted
-// and serialised again, then compared. That relation is kept below as the reference and
-// both are run over a generated corpus: every refusing shape of the checked profile, on
-// either side and at depth, and pairs drawn from the analysis-run fixtures' own members.
-// They must agree on every pair: the same boolean, or the same error.
+// `sameCheckedJson` (analysisRunCompatibility.ts) replaced, in `validateAnalysisRunV03`, a
+// comparison of the checked text of each side (hashService's `checkedJsonText`, the left side
+// wholly first), parsed, member-sorted and serialised again. That comparison is kept below as
+// the reference and both are run over a generated corpus: the shapes in REFUSING (every
+// refusal of the checked profile except CHECKED-JSON-ARRAY-LENGTH, which no array this test
+// can build reaches), on either side and at depth, and pairs drawn from the analysis-run
+// fixtures' own members. The test requires the same boolean, or the same error, on every pair.
 import { readdirSync, readFileSync } from "node:fs";
 import { resolve } from "node:path";
 import { afterEach, describe, expect, it, vi } from "vitest";

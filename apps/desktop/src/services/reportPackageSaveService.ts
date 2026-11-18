@@ -131,10 +131,12 @@ function hasAllowedLocalFirstEvidence(input: ControlledRouteExport): boolean {
   );
 }
 
-/** The SHA-256 of a canonical text's UTF-8 bytes, lowercase hex: what the engine's
- * `canonical_sha256_hex` returns for the value the text canonicalises (it hashes the UTF-8
- * bytes of the very text `canonical_json_string` returns), without canonicalising the value
- * a second time. */
+/** The SHA-256 of a text's UTF-8 bytes, lowercase hex. In the engine's wasm binding
+ * (core/model_operations/operation_applier), `canonical_sha256_hex` is
+ * `sha256_hex(canonical_json(parse(text)))` and `sha256_hex` hashes the text's UTF-8 bytes;
+ * the preparations take a payload's hash this way from the text `canonical_json_string`
+ * returned instead of canonicalising the payload again. Their tests compare the result with
+ * the engine's on the committed package requests. */
 export async function canonicalTextSha256Hex(canonicalText: string): Promise<string> {
   const digest = await globalThis.crypto.subtle.digest("SHA-256", new TextEncoder().encode(canonicalText));
   return Array.from(new Uint8Array(digest), (byte) => byte.toString(16).padStart(2, "0")).join("");
