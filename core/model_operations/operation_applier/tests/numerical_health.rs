@@ -748,7 +748,7 @@ fn every_committed_result_fixture_parses() {
 
 /// Every committed fixture under `fixtures/` carrying a result envelope with
 /// integrity diagnostics.
-const RESULT_FIXTURES: [&str; 112] = [
+const RESULT_FIXTURES: [&str; 113] = [
     "model_operations/pressure_v3_l_line_authoring.json",
     "product_preview/invented_demo_result_preview_physics_1_dense.json",
     "product_preview/invented_demo_result_preview_physics_1_sparse.json",
@@ -787,6 +787,7 @@ const RESULT_FIXTURES: [&str; 112] = [
     "product_preview/rf_skew_t_cant_off_122_r1e-04.desktop_result_sparse_interactive.json",
     "product_preview/w1_controls/ui/multicase-dense_scrutiny.raw.json",
     "product_preview/w1_controls/ui/multicase-sparse_interactive.raw.json",
+    "results/invented/agent_solve_witness/blocked_retained_evaluation-sparse_interactive.raw.json",
     "results/pressure_connected_mechanics_dense.json",
     "results/pressure_connected_mechanics_sparse.json",
     "results/pressure_connected_ui_mechanics_dense.json",

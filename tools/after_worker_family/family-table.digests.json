@@ -52,7 +52,7 @@
     "source": "features/workspace/workspaceSession.ts: from `if (!hasNativeMechanicsInvocation(output, solveModel, solverMode)) {` to the end of the block opened at `if (!hasCurrentSourceContract(output) || !output.producer) {`; with features/workspace/workspaceSession.ts: from `const runRecord = createNativeAnalysisRun(await traceNativeReaderAwait(\"run_preview\"` through the line holding `})));`; with services/nativeResult.ts: `createNativeResult`; with features/results/resultReader.ts: `hasCurrentSourceContract`; with features/results/resultReader.ts: `currentSemanticContract`; with features/results/resultReader.ts: `sourceSemanticBinding`; with features/results/resultReader.ts: `readerDispatch`; with features/results/resultReader.ts: `nativeDispatch`"
   },
   "the session's manifest arguments": {
-    "sha256": "d632053f9b5868231cf81339cade62d246c7501d2d9c582c222afa87679209e7",
+    "sha256": "8064e63d72acc10a52ab95bd88bca0ea8a21ec11bcd24c57f537f55b2646ba3d",
     "source": "features/workspace/workspaceSession.ts: from `const rulePacks = solveModel.rule_pack_refs?.length` to the end of the block opened at `const manifest = await buildCurrentSessionInputManifest({`"
   },
   "the solver mode": {

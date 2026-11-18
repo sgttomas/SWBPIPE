@@ -205,8 +205,16 @@ FAMILY_PRESENT = {
     "Tee RS-T1 with user SIFs": lambda m: bool(_components(m, "tee")) and all(
         {"branch_header_sif_user_value", "branch_branch_sif_user_value"} <= set(c.get("modifiers", {}))
         for c in _components(m, "tee")),
-    "Eccentric reducer RS-R1 in region RG-R": lambda m: bool(_components(m, "reducer")),
-    "Constant-effort support RS-CE1": lambda m: bool(_supports(m, "constant_effort_support")),
+    "Eccentric reducer RS-R1 in region RG-R": lambda m: bool(_components(m, "reducer")) and all(
+        {"eccentric_offset", "weight", "center_of_gravity"} <= set(c["geometry"])
+        and "stiffness_scaling_user_value" in c.get("modifiers", {})
+        and all(any(r["member_pipe_ids"] == [c["geometry"]["rigid_pipe_ref"]] for r in case.get("pressure_regions", []))
+                for case in _cases(m))
+        for c in _components(m, "reducer")),
+    "Constant-effort support RS-CE1": lambda m: bool(_supports(m, "constant_effort_support")) and all(
+        s.get("hanger", {}).get("constant_load") and len(s.get("restraints", [])) == 1
+        and all(any(x["support_ref"] == s["id"] for x in case["analysis_state"]["support_states"]) for case in _cases(m))
+        for s in _supports(m, "constant_effort_support")),
     "Lift-off, friction and gap (RS-LO1, RS-FR1, RS-G1)": lambda m: bool(_supports(m, "nonlinear")),
     "RS-FR1 with RS-FR1V: lift-off friction shoe pending RT-A3 S7": lambda m: any(
         s["id"] == "support:RS-FR1V" and s.get("family") != "vertical_support" for s in m["supports"]),
@@ -236,8 +244,6 @@ SUB_FEATURES = {
 # An interim record a pending row says is in tranche 1 (`<tag> is in tranche 1`), and what the fixture
 # must hold for it.
 INTERIM = {
-    "Eccentric reducer RS-R1 in region RG-R": ("RS-P150", lambda m: by_id(m, "pipe_segments").get(
-        "pipe:RS-P150", {}).get("section_ref") == "section:RS-S270"),
     "RS-FR1 with RS-FR1V: lift-off friction shoe pending RT-A3 S7": ("RS-FR1V", lambda m: any(
         s["id"] == "support:RS-FR1V" and s.get("family") == "vertical_support" and s.get("restraints") == ["UZ"]
         for s in m["supports"])),
@@ -459,7 +465,7 @@ def _sheet_records(m):
     bend_ids = set()
     for bend in AUTHORING["bends"]:
         bend_ids |= {bend["component"], bend["creates"]["arc_pipe"], *bend["creates"]["tangent_nodes"]}
-    records = m["nodes"] + m["pipe_segments"] + [s for s in m["supports"] if s.get("family") != "variable_spring_hanger"]
+    records = m["nodes"] + m["pipe_segments"] + [s for s in m["supports"] if "hanger" not in s]
     return records + [c for c in m["components"] if c["id"] in bend_ids]
 
 
@@ -489,9 +495,23 @@ BINDINGS = [
     ("tee", "Connection type", lambda m: [c["geometry"]["branch_connection_type"] for c in _components(m, "tee")]),
     ("tee", "Reinforcement reference",
      lambda m: [c["geometry"]["branch_reinforcement_reference"] for c in _components(m, "tee")]),
+    ("reducer", "label", lambda m: [c["label"] for c in _components(m, "reducer")]),
+    ("reducer", "End A reference", lambda m: [c["geometry"]["connection_end_a_reference"] for c in _components(m, "reducer")]),
+    ("reducer", "End B reference", lambda m: [c["geometry"]["connection_end_b_reference"] for c in _components(m, "reducer")]),
+    ("reducer", "Stiffness behavior reference",
+     lambda m: [c["geometry"]["stiffness_behavior_reference"] for c in _components(m, "reducer")]),
+    ("reducer", "Stiffness scale source reference", lambda m: [c["modifiers"]["source_reference"] for c in _components(m, "reducer")]),
+    ("reducer", "New component geometry source",
+     lambda m: [c["geometry"]["rigid_component_source_reference"] for c in _components(m, "reducer")]),
+    ("reducer", "New component provenance", lambda m: [c["provenance"] for c in _components(m, "reducer")]),
+    ("spring", "Support label", lambda m: [s["label"] for s in _supports(m, "variable_spring_hanger")]),
     ("spring", "Support provenance", lambda m: [s["provenance"] for s in _supports(m, "variable_spring_hanger")]),
     ("spring", "Hanger source reference",
      lambda m: [s["hanger"]["source_reference"] for s in _supports(m, "variable_spring_hanger")]),
+    ("ce", "Support label", lambda m: [s["label"] for s in _supports(m, "constant_effort_support")]),
+    ("ce", "Support provenance", lambda m: [s["provenance"] for s in _supports(m, "constant_effort_support")]),
+    ("ce", "Hanger source reference",
+     lambda m: [s["hanger"]["source_reference"] for s in _supports(m, "constant_effort_support")]),
     ("reference", "Member provenance",
      lambda m: [r["provenance"] for c in m["reference_configurations"] for r in c["member_references"]]),
     ("reference", "Configuration provenance", lambda m: [c["provenance"] for c in m["reference_configurations"]]),
@@ -755,11 +775,19 @@ NUMBERS = [
     ("tee", "Header size", lambda m: [(float(c["geometry"]["branch_header_size"]["value"]), None) for c in _components(m, "tee")]),
     ("tee", "Header SIF user value,", lambda m: [(float(c["modifiers"]["branch_header_sif_user_value"]["value"]), None) for c in _components(m, "tee")]),
     ("tee", "Branch SIF user value,", lambda m: [(float(c["modifiers"]["branch_branch_sif_user_value"]["value"]), None) for c in _components(m, "tee")]),
+    ("reducer", "Body length", lambda m: [_q(c["geometry"]["rigid_body_length"])[:1] + (None,) for c in _components(m, "reducer")]),
+    ("reducer", "End A size", lambda m: [(float(c["geometry"]["end_a_size"]["value"]), None) for c in _components(m, "reducer")]),
+    ("reducer", "End B size", lambda m: [(float(c["geometry"]["end_b_size"]["value"]), None) for c in _components(m, "reducer")]),
+    ("reducer", "Weight", lambda m: [(float(c["geometry"]["weight"]["value"]), None) for c in _components(m, "reducer")]),
+    ("reducer", "Stiffness scale", lambda m: [(float(c["modifiers"]["stiffness_scaling_user_value"]["value"]), None)
+                                              for c in _components(m, "reducer")]),
     ("spring", "quantity", lambda m: [_q(s["hanger"]["stiffness"]["value"]) for s in _supports(m, "variable_spring_hanger")]),
     ("spring", "installed load", lambda m: [_q(s["hanger"]["installed_load"]) for s in _supports(m, "variable_spring_hanger")]),
     ("spring", "cold load", lambda m: [_q(s["hanger"]["cold_load"]) for s in _supports(m, "variable_spring_hanger")]),
     ("spring", "hot load", lambda m: [_q(s["hanger"]["hot_load"]) for s in _supports(m, "variable_spring_hanger")]),
     ("spring", "travel range", lambda m: [_q(s["hanger"]["travel_range"]) for s in _supports(m, "variable_spring_hanger")]),
+    ("ce", "constant load", lambda m: [_q(s["hanger"]["constant_load"]) for s in _supports(m, "constant_effort_support")]),
+    ("ce", "travel range", lambda m: [_q(s["hanger"]["travel_range"]) for s in _supports(m, "constant_effort_support")]),
     ("reference", "installation temperature", lambda m: [_q(r["basis"]["installation_temperature"])
                                                          for c in m["reference_configurations"] for r in c["member_references"]]),
     ("weight", "Gravity value", lambda m: [(v, None) for v, _u in _gravity(m)]),
@@ -792,6 +820,19 @@ def number_problems(text: str, model: dict) -> list[str]:
     if entered != _connector(model)["stiffness"]["upper_triangle"]:
         problems.append(f"step joint, work matrix: the sheet enters {entered}, the fixture holds "
                         f"{_connector(model)['stiffness']['upper_triangle']}")
+    # RS-R1's centre of gravity and eccentric offset, each a backticked vector, against the record.
+    body = step(text, "reducer")
+    for name, pattern, key in (("COG", r"COG X, Y, Z\s+`([^`]+)`", "center_of_gravity"),
+                               ("eccentric offset", r"Eccentric offset; value\s+`([^`]+)`\s+with its unit (\w+)", "eccentric_offset")):
+        found = re.search(pattern, body)
+        entered = [number(v) for v in re.split(r"[\s,]+", found.group(1).strip())] if found else None
+        for c in _components(model, "reducer"):
+            vector = c["geometry"][key]
+            held_unit = vector["unit"] if key == "eccentric_offset" else None
+            unit = found.group(2) if found and key == "eccentric_offset" else None
+            if entered is None or [float(vector[a]) for a in "xyz"] != entered or unit != held_unit:
+                problems.append(f"step reducer, {name}: the sheet enters {entered} {unit or ''}, "
+                                f"{c['id']} holds {vector}")
     sam = re.search(r"(?ms)^- \*\*RS-SAM\.\*\*.*", step(text, "states")).group(0)
     motions = [(dof, number(v), unit) for dof, v, unit in re.findall(r"\b(U[XYZ]) ([−-]?\d+(?:\.\d+)?) (mm)\b", sam)]
     held = [(b["dof"], float(b["value"]["value"]), b["value"]["unit"]) for c in _cases(model)
@@ -1042,8 +1083,8 @@ FLIP = {
     "Variable spring as a user-stiffness spring": _keep("supports", lambda s: s.get("family") != "variable_spring_hanger"),
     "Tee RS-T1 with user SIFs":
         lambda m: [c["modifiers"].pop("branch_header_sif_user_value") for c in _components(m, "tee")],
-    "Eccentric reducer RS-R1 in region RG-R": _add("components", {"id": "component:RS-R1", "kind": "reducer"}),
-    "Constant-effort support RS-CE1": _add("supports", {"id": "support:RS-CE1", "family": "constant_effort_support"}),
+    "Eccentric reducer RS-R1 in region RG-R": _keep("components", lambda c: c.get("kind") != "reducer"),
+    "Constant-effort support RS-CE1": _keep("supports", lambda s: s.get("family") != "constant_effort_support"),
     "Lift-off, friction and gap (RS-LO1, RS-FR1, RS-G1)":
         _add("supports", {"id": "support:RS-LO1", "family": "nonlinear"}),
     "RS-FR1 with RS-FR1V: lift-off friction shoe pending RT-A3 S7":
@@ -1093,10 +1134,7 @@ def test_a_changed_sub_feature_or_interim_record_is_caught():
         assert reports(coverage_problems(recorded, MODEL), f"{family}: the ledger says `{name}` is held")
     for family, (subject, _holds) in INTERIM.items():
         model = copy.deepcopy(MODEL)
-        if subject == "RS-P150":
-            by_id(model, "pipe_segments")["pipe:RS-P150"]["section_ref"] = "section:RS-S220"
-        else:
-            by_id(model, "supports")[f"support:{subject}"]["restraints"] = ["UX"]
+        by_id(model, "supports")[f"support:{subject}"]["restraints"] = ["UX"]
         assert reports(coverage_problems(SPEC, model), f"{family}: the ledger says {subject} is in tranche 1"), family
 
 
@@ -1122,8 +1160,9 @@ def test_a_ledger_identity_the_fixture_lacks_or_holds_wrongly_is_caught():
     model["components"] = [c for c in model["components"] if c["id"] != "component:RS-T1"]
     assert reports(coverage_problems(SPEC, model), "Tee RS-T1 with user SIFs: in tranche 1, but the fixture has no component:RS-T1")
     model = copy.deepcopy(MODEL)
-    model["supports"].append({"id": "support:RS-CE1", "family": "anchor"})
-    assert reports(coverage_problems(SPEC, model), "Constant-effort support RS-CE1: pending, but the fixture holds support:RS-CE1")
+    model["supports"].append({"id": "support:RS-LO1", "family": "anchor"})
+    assert reports(coverage_problems(SPEC, model),
+                   "Lift-off, friction and gap (RS-LO1, RS-FR1, RS-G1): pending, but the fixture holds support:RS-LO1")
 
 
 def test_a_missing_or_unknown_identity_is_caught():
