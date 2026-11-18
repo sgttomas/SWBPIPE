@@ -83,6 +83,7 @@ code_paths:
 # reopen's one decision whether a stored run's rows are read or withheld.
 - apps/desktop/src/services/semanticContractRefusal.ts
 - apps/desktop/src/services/tableBinding.ts
+- apps/desktop/src/test-support/tableBindingRefusals.ts
 # The input manifest, and the resolution of a model's rule-pack references at solve time with the
 # diagnostics an unresolved reference receives. DEL-08-04, DEL-15-01 and DEL-17-06 read those
 # diagnostics and also list rulePackRefDiagnostics.ts.
