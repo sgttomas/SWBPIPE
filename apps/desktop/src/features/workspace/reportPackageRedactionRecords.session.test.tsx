@@ -1,8 +1,9 @@
 /** What the report package saves keep of the package request's redaction control, which returns
- * a decision and a finding for every value it screens. The local-private save keeps the control
- * result whole in the session's package state: on that route the state is the one place a
- * caller can read the finding for each value after the save (DEL-12-02 REQ-006, AC-004). The
- * shareable save keeps nothing of it in the session (DEL-08-01 REQ-019) and does not hold it
+ * a decision for every value it screens and a finding for each decision that is not a plain
+ * inclusion. The local-private save keeps the control result whole in the session's package
+ * state: on that route the state is the one place a caller can read those findings after the
+ * save (DEL-12-02 REQ-006, AC-004). The shareable save keeps its status and receipt in the
+ * session and nothing of the control result (DEL-08-01 REQ-019), and does not hold that result
  * while its native save is awaited. Unit transport replay of committed producer bytes through
  * mocked IPC; NOT a native UI qualification witness. */
 import { act, cleanup, render, renderHook, screen, waitFor } from "@testing-library/react";

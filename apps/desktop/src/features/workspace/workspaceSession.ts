@@ -387,8 +387,8 @@ function localPrivateSaveFailureText(error: unknown): string {
  * submission (W-11) is taken and the save prepared. The save handler itself never holds the
  * control result: it is in this function's frame, which has ended before the native save is
  * awaited, and in whatever `keep` keeps. The session keeps it whole (`resultsSessionState.ts`):
- * on this route that state is the one place a caller can read the control's finding for each
- * value after the save (DEL-12-02 REQ-006, AC-004), so its records are kept on purpose. */
+ * on this route that state is the one place a caller can read the control's findings after
+ * the save (DEL-12-02 REQ-006, AC-004), so its records are kept on purpose. */
 async function controlAndPrepareReportPackageSave(
   request: object,
   privateIntent: boolean,
@@ -412,9 +412,9 @@ async function controlAndPrepareReportPackageSave(
 
 /** The shareable save's preparation, for the session: the prepared save and the request (for
  * the exact re-check). The preparation returns its control result to this caller, as it does
- * to any caller; the session reads nothing of it (REQ-019 "Selection": nothing of a user
- * release is kept in session state), so it ends with this function's frame and is not held
- * while the native save is awaited. */
+ * to any caller; the session reads nothing of that result and keeps nothing of it (REQ-019
+ * "Selection"; what the session keeps of a shareable save is its status and receipt), so the
+ * result ends with this function's frame and is not held while the native save is awaited. */
 async function prepareShareableSaveForSession(
   input: Parameters<typeof prepareShareableReportPackageSave>[0]
 ): Promise<Pick<Awaited<ReturnType<typeof prepareShareableReportPackageSave>>, "prepared" | "request">> {

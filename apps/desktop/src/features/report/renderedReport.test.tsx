@@ -1919,7 +1919,8 @@ describe("FR-REP-003 disposition and context boundary (W-11 slice (c), §4.3, §
     expect(screen.queryByTestId("rendered-report-save-local-private")).not.toBeInTheDocument();
   });
 
-  // The render control returns a decision and a finding for every value it screens; the panel
+  // The render control returns a decision for every value it screens and a finding for each
+  // decision that is not a plain inclusion; the panel
   // reads its summary, blocked flag and payload, and keeps nothing else of it once rendered.
   it("keeps the render control's summary line and payload reader, and none of its per-value records", async () => {
     const model = recordModel();
