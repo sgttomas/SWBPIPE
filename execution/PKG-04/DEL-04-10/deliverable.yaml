@@ -97,6 +97,14 @@ needs:
     computation without reported success, and explicit output preserves a complete old or complete
     new destination through owned temporary creation and atomic rename under REQ-015.
   gating: true
+- from: DEL-09-01
+  when: Before the reference system's spectrum case is built.
+  condition: >-
+    The reference system's specification checks the directional combination of its spectrum result
+    (its check EQ-7) by this deliverable's readers' rule: the combination over directions is
+    recomputed from the published signed contributions under the recorded rules and compared at
+    1e-9 relative, and is not checked by recombining the published per-direction magnitudes.
+  gating: true
 - from: external:nrc-nureg-cr
   when: If a published response-spectrum problem is compared.
   condition: >-
