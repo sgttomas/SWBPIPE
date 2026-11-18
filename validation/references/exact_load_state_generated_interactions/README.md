@@ -43,6 +43,12 @@ The comparison rule is under "Product binding".
 - **The constant-effort force in a subtraction.** In the active-support CEF and
   LO fixtures the constant-effort force is the same in both operand cases. Its
   own row cancels in the subtraction.
+- **A generated identity that collides with an unlisted stored primitive is
+  refused.** SWBPIPE's Agent 0, 18 November 2026, among its terms for
+  generation on a load and reference-state document: "a generated identity colliding with an unlisted stored primitive is refused before assembly, so the ordinary and certified paths cannot attribute one identity to two sources." The decision was
+  made for the engine unit's brief and is not yet in any scope of work; the
+  scope takes it in the pull request that lifts the refusal of generation on
+  such a document.
 
 Text relied on: DEL-05-01 (static-equivalent generation, mass basis,
 self-weight plan, REQ-008, REQ-015, AC-002, AC-007), DEL-04-07 (REQ-011,
@@ -59,7 +65,7 @@ positive reaction", RS-CE1, the replaced span RS-P180, EQ-4 and EQ-6).
 | File | Role |
 |---|---|
 | `generators/generated_interactions_reference.py` | the generator: exact rational arithmetic with π symbolic, two solution methods, closed forms, `references.json` and `SHA256SUMS` |
-| `references.json` | inputs, derived sections and masses, the three models, the weight primitives, 11 cases, 5 terms, 5 combinations (1489 expected rows), one directional row with its SRSS, absolute sum and signed sum, the lift-off threshold, 2 refusals, 1 open reading, 4 wrong-implementation controls, the comparison rule with each item's floors for its exact-zero rows and 115 cross-check results |
+| `references.json` | inputs, derived sections and masses, the three models, the weight primitives, 11 cases, 5 terms, 5 combinations (1489 expected rows), one directional row with its SRSS, absolute sum and signed sum, the lift-off threshold, 3 refusals, 1 open reading, 4 wrong-implementation controls, the comparison rule with each item's floors for its exact-zero rows and 115 cross-check results |
 | `SHA256SUMS` | hashes of every file above (`shasum -a 256 -c SHA256SUMS` in this directory) |
 
 ```
@@ -435,15 +441,19 @@ JR-CTRL-UNLISTED-PRIMITIVE-APPLIED gives what applying it would add (up to
   name") and the reference system's specification §8.1 ("wind on a replaced
   span is refused"), whatever the mark's extent. When, inside preparation,
   the case's other wind loads are formed is outside that requirement.
+- JR-REFUSE-GENERATED-IDENTITY-COLLISION: JR-EQ-UNLISTED-PRIMITIVE with the
+  unlisted stored primitive given the identity of one of the case's generated
+  loads, so that the case holds an unlisted stored primitive of the same case
+  whose identity equals a generated load's identity. Expected: refusal before
+  assembly. Grounds: Agent 0's decision under "What is decided". The decision
+  names no diagnostic code, so the code is null and undecided.
 
-**Codes.** This reference freezes the refusal and named span. The
-generated-mark diagnostic code is undecided; both codes are null. (The frozen
+**Codes.** For the two wind refusals, this reference freezes the refusal and
+named span. The generated-mark diagnostic code is undecided; both codes are
+null. (The frozen
 packages `t4_i12` and `t4_u5a` name `JOINT_REPLACED_SPAN_LOAD_UNOWNED` for a
 stored load or an eigenstrain the replaced span owns; this reference does not
 assume it for a generated mark.)
-
-A generated identity equal to an unlisted stored primitive's is not frozen
-here; see open reading 8.
 
 Key values (motions in m and rad):
 
@@ -595,11 +605,9 @@ The README's key tables are rounded from `references.json` by hand.
    weight plan's, so this package cannot tell the valve's fixed W from one
    wrongly rescaled by the ratio of the case's gravity to the weight plan's.
    `../seismic_component_weight` separates the two; no case is added here.
-8. **A generated identity equal to an unlisted stored primitive's.** Open:
-   whether a generated identity matching an unlisted stored primitive of the
-   same case requires refusal before assembly. Diagnostic code undecided. The
-   unlisted primitive with an identity of its own (JR-EQ-UNLISTED-PRIMITIVE) is
-   excluded, as above.
+8. **A generated identity equal to a listed primitive's or a synthesized
+   identity.** Open. The decision covers an unlisted stored primitive only, and
+   no outcome is frozen for these.
 
 Not covered here: pressure (so the effective and wall axial forces coincide
 in every row); Timoshenko members; a hydrostatic test case; gap and friction

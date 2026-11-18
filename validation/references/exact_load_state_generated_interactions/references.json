@@ -12481,13 +12481,21 @@
    "observable_outcome": "Apply no partial set of case loads and publish no case result.",
    "code": null,
    "code_note": "This reference freezes the refusal and named span. The generated-mark diagnostic code is undecided."
+  },
+  {
+   "id": "JR-REFUSE-GENERATED-IDENTITY-COLLISION",
+   "document": "JR-EQ-UNLISTED-PRIMITIVE with the unlisted stored primitive given the identity of one of the case's generated loads",
+   "colliding_identities": "an unlisted stored primitive of the same case whose identity equals a generated load's identity",
+   "expected": "Refuse the case before assembly.",
+   "rests_on": "SWBPIPE's Agent 0, 18 November 2026, among its terms for generation on a load and reference-state document: \"a generated identity colliding with an unlisted stored primitive is refused before assembly, so the ordinary and certified paths cannot attribute one identity to two sources.\" Made for the engine unit's brief and not yet in any scope of work; the scope takes it in the pull request that lifts the refusal of generation on such a document.",
+   "code": null,
+   "code_note": "The decision names no diagnostic code; the code is undecided."
   }
  ],
  "open_readings": [
   {
-   "id": "JR-GENERATED-IDENTITY-EQUALS-UNLISTED-PRIMITIVE",
-   "document": "JR-EQ-UNLISTED-PRIMITIVE with the unlisted stored primitive given the identity of one of the case's generated loads",
-   "reading": "Open: whether a generated identity matching an unlisted stored primitive of the same case requires refusal before assembly. Diagnostic code undecided."
+   "id": "GENERATED-IDENTITY-EQUALS-LISTED-OR-SYNTHESIZED-IDENTITY",
+   "reading": "Open: a generated identity equal to a listed stored primitive's identity, or to a synthesized identity. The decision covers an unlisted stored primitive only; no outcome is frozen for these."
   }
  ],
  "controls": [

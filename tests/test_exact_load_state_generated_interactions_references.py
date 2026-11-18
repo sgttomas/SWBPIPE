@@ -132,7 +132,8 @@ def test_the_replaced_span_carries_no_generated_load_and_a_wind_mark_on_it_is_re
             assert all(g.get("member") != "pipe:b-c" for g in case.get("generated_loads", [])), case["id"]
             assert not any("/pipe:b-c/" in rid for rid in _rows(case)), case["id"]
     refusals = {r["id"]: r for r in doc["refusals"]}
-    assert set(refusals) == {"JR-REFUSE-WIND-ON-REPLACED-SPAN", "JR-REFUSE-PART-SPAN-WIND-ON-REPLACED-SPAN"}
+    assert set(refusals) == {"JR-REFUSE-WIND-ON-REPLACED-SPAN", "JR-REFUSE-PART-SPAN-WIND-ON-REPLACED-SPAN",
+                             "JR-REFUSE-GENERATED-IDENTITY-COLLISION"}
     assert all(r["code"] is None for r in refusals.values())
     seismic = next(c for c in doc["cases"] if c["id"] == "JR-EQ")
     assert seismic["generated_loads"] and all(any(x["value"] for x in g["intensity_N_per_m"])
@@ -189,19 +190,21 @@ def test_axial_member_end_rows_say_which_axial_force_they_are():
 
 def test_the_refusals_state_their_grounds_and_observable_outcome():
     refusals = {r["id"]: r for r in _doc()["refusals"]}
-    for r in refusals.values():
-        assert r["rests_on"] and r["observable_outcome"], r["id"]
     for rid in ("JR-REFUSE-WIND-ON-REPLACED-SPAN", "JR-REFUSE-PART-SPAN-WIND-ON-REPLACED-SPAN"):
+        assert refusals[rid]["observable_outcome"], rid
         assert "DEL-03-06 AC-004" in refusals[rid]["rests_on"] and "8.1" in refusals[rid]["rests_on"], rid
         assert "pipe:b-c" in refusals[rid]["expected"], rid
 
 
-def test_the_identity_collision_is_an_open_reading_not_a_refusal():
+def test_the_identity_collision_is_refused_on_agent_0s_decision_for_an_unlisted_primitive():
     doc = _doc()
-    assert [o["reading"] for o in doc["open_readings"]] == [
-        "Open: whether a generated identity matching an unlisted stored primitive of the same case requires refusal "
-        "before assembly. Diagnostic code undecided."]
-    assert not any("COLLISION" in r["id"] for r in doc["refusals"])
+    collision = next(r for r in doc["refusals"] if r["id"] == "JR-REFUSE-GENERATED-IDENTITY-COLLISION")
+    assert collision["colliding_identities"] == ("an unlisted stored primitive of the same case whose identity equals "
+                                                 "a generated load's identity")
+    assert collision["expected"] == "Refuse the case before assembly."
+    assert "Agent 0, 18 November 2026" in collision["rests_on"] and collision["code"] is None
+    assert "listed or not" not in json.dumps(doc)
+    assert [o["id"] for o in doc["open_readings"]] == ["GENERATED-IDENTITY-EQUALS-LISTED-OR-SYNTHESIZED-IDENTITY"]
 
 
 def test_every_compared_item_states_its_comparison_floors():

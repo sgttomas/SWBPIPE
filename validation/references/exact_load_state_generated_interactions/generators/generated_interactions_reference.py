@@ -1665,13 +1665,24 @@ def build_doc():
         {"id": "JR-REFUSE-PART-SPAN-WIND-ON-REPLACED-SPAN",
          "document": f"JR-WIND with a part-span wind mark also on pipe:b-c, over [{part_from}, {part_to}]",
          "expected": wind_expected, "rests_on": wind_grounds, "observable_outcome": wind_outcome,
-         "code": None, "code_note": note}]
-    open_readings = [
-        {"id": "JR-GENERATED-IDENTITY-EQUALS-UNLISTED-PRIMITIVE",
+         "code": None, "code_note": note},
+        {"id": "JR-REFUSE-GENERATED-IDENTITY-COLLISION",
          "document": "JR-EQ-UNLISTED-PRIMITIVE with the unlisted stored primitive given the identity of one of the "
                      "case's generated loads",
-         "reading": "Open: whether a generated identity matching an unlisted stored primitive of the same case "
-                    "requires refusal before assembly. Diagnostic code undecided."}]
+         "colliding_identities": "an unlisted stored primitive of the same case whose identity equals a generated "
+                                 "load's identity",
+         "expected": "Refuse the case before assembly.",
+         "rests_on": "SWBPIPE's Agent 0, 18 November 2026, among its terms for generation on a load and "
+                     "reference-state document: \"a generated identity colliding with an unlisted stored primitive is "
+                     "refused before assembly, so the ordinary and certified paths cannot attribute one identity to "
+                     "two sources.\" Made for the engine unit's brief and not yet in any scope of work; the scope "
+                     "takes it in the pull request that lifts the refusal of generation on such a document.",
+         "code": None,
+         "code_note": "The decision names no diagnostic code; the code is undecided."}]
+    open_readings = [
+        {"id": "GENERATED-IDENTITY-EQUALS-LISTED-OR-SYNTHESIZED-IDENTITY",
+         "reading": "Open: a generated identity equal to a listed stored primitive's identity, or to a synthesized "
+                    "identity. The decision covers an unlisted stored primitive only; no outcome is frozen for these."}]
     dec = jr["controls"]["UNLISTED-PRIMITIVE-APPLIED"]
     dec_big = max((abs(binary64(v)), i) for i, fam, v in dec if fam == "translation")
     jr_controls = [
