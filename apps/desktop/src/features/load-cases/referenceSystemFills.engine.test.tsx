@@ -102,7 +102,7 @@ it("enters the reference system's load/reference state with fills and copies", a
   queue = renderState(model, "load:RS-SAM");
   change("Copy analysis state from case", "load:RS-SUS");
   click("Replace this draft's analysis state with the copy");
-  expect(screen.getByText(/28 load sources name primitives this case does not hold/)).toBeTruthy();
+  expect(screen.getByText(/29 load sources name primitives this case does not hold/)).toBeTruthy();
   change("Factor for every primitive (dimensionless)", "1");
   click("Add every primitive of this case");
   click("Add Support state 3 boundary motion");

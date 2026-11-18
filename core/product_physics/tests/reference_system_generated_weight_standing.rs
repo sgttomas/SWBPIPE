@@ -72,7 +72,7 @@ fn metre_twin(fixture: &Value) -> Value {
             rewritten += 1;
         }
     }
-    assert_eq!(rewritten, 66, "every generated record of the fixture");
+    assert_eq!(rewritten, 63, "every generated line-load record of the fixture: 21 per case");
     model
 }
 

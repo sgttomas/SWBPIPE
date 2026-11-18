@@ -341,12 +341,13 @@ describe("the reference system entered from blank through the desktop's authorin
     }
     const undoRedone: string[] = [];
     /** The inspector's Task view: Start task from current selection, Property to edit, value, Add (`PropertyInspector`). */
-    async function propertyEdit(entity: EntityRef, property: RegExp, value: string, what: string) {
+    async function propertyEdit(entity: EntityRef, property: RegExp, value: string, what: string, unit?: string) {
       select(entity);
       fireEvent.click(inspector().getByRole("tab", { name: /^Task$/ }));
       const start = screen.queryByTestId("inspector-start-task");
       if (start) fireEvent.click(start);
       chooseByLabel(screen.getByTestId("editor-intent-field"), property);
+      if (unit) chooseCompactOption(screen.getByTestId("editor-intent-unit"), unit);
       fireEvent.change(screen.getByTestId("editor-intent-value"), { target: { value } });
       fireEvent.click(screen.getByTestId("queue-editor-intent"));
       await applyQueuedIntent(what);
@@ -444,7 +445,7 @@ describe("the reference system entered from blank through the desktop's authorin
     expect(model().pipe_segments).toHaveLength(26);
     expect(model().supports).toHaveLength(10);
     // Undo/Redo, geometry and support families: the run sheet's batch, which creates the nodes,
-    // pipes and bends and ten of the eleven supports (the eleventh, RS-VS1, is the form's).
+    // pipes and bends and ten of the twelve supports (RS-VS1 and RS-CE1 are the support form's).
     expect(beforeSheet.supports).toEqual([]);
     await undoRedo("geometry and supports: the run sheet's batch (§3.4)", beforeSheet);
     // Step rs050: RS-050 correction (typed UI): Start task from current selection, X position 1.3, Add, Apply.
@@ -520,6 +521,36 @@ describe("the reference system entered from blank through the desktop's authorin
     await propertyEdit({ type: "component", id: "component:RS-T1" }, /^Branch SIF user value/, "2.0", "step tee: branch SIF");
     await propertyEdit({ type: "component", id: "component:RS-T1" }, /^Modifier source/, S5, "step tee: modifier source");
 
+    // Step reducer: Eccentric reducer RS-R1 (typed UI): New component, kind reducer; then its eccentric offset by a Task edit,
+    // which the creation form does not take.
+    const fixtureR1 = reference.components.find((item) => item.id === "component:RS-R1")!;
+    select({ type: "project", id: model().project.id });
+    chooseCompactOption(screen.getByTestId("create-component-kind"), "reducer");
+    chooseVirtualTarget("create-component-node", "node:RS-160");
+    chooseVirtualTarget("create-component-pipe", "pipe:RS-P150");
+    componentField("ID", "component:RS-R1");
+    componentField("label", "Reducer R1");
+    component("Body length", "0.4007804885470349");
+    component("End A size", "270"); chooseCompactOption(screen.getByTestId("create-component-end-a-size-unit"), "mm");
+    component("End B size", "220"); chooseCompactOption(screen.getByTestId("create-component-end-b-size-unit"), "mm");
+    component("Weight", "300");
+    component("COG X", "0"); component("COG Y", "-0.2"); component("COG Z", "0.0125");
+    component("End A reference", "node:RS-150 (body end on RS-P150)");
+    component("End B reference", "node:RS-160 (body end on RS-P150)");
+    component("Stiffness behavior reference", "rigid body, user stiffness scale 2.0 (DEC-045); invented user value, DEL-09-01");
+    component("Stiffness scale", "2.0");
+    component("Stiffness scale source reference", S5);
+    component("Solver consumption", "mechanics_geometry_only");
+    componentField("geometry source", S5);
+    componentField("provenance", P);
+    fireEvent.click(screen.getByTestId("queue-create-component-intent"));
+    await applyQueuedIntent("step reducer");
+    const { eccentric_offset: fixtureOffset, ...fixtureR1Geometry } = fixtureR1.geometry!;
+    expect(fixtureOffset).toEqual({ x: 0, y: 0, z: 25, unit: "mm" });
+    expect(model().components.find((item) => item.id === "component:RS-R1"), "RS-R1 as created: the fixture's, without its offset").toEqual({ ...fixtureR1, geometry: fixtureR1Geometry });
+    await propertyEdit({ type: "component", id: "component:RS-R1" }, /^Eccentric offset/, "0 0 25", "step reducer: eccentric offset", "mm");
+    expect(model().components.find((item) => item.id === "component:RS-R1")).toEqual(fixtureR1);
+
     // Step spring: Variable spring RS-VS1 (typed UI): select RS-080, New support configuration, with hanger data.
     select({ type: "node", id: "node:RS-080" });
     const beforeSpring = model();
@@ -553,6 +584,31 @@ describe("the reference system entered from blank through the desktop's authorin
     expect(model().supports.find((item) => item.id === "support:RS-VS1")).toEqual(springPayload);
     // Undo/Redo, support family: the variable spring's creation.
     await undoRedo("support: the variable spring RS-VS1 (§3.7)", beforeSpring);
+
+    // Step ce: Constant-effort support RS-CE1 (typed UI): select RS-100, New support configuration, UZ, with hanger data.
+    select({ type: "node", id: "node:RS-100" });
+    const ce = within(screen.getByRole("region", { name: "Support configuration" }));
+    change(ce, "Support ID", "support:RS-CE1");
+    change(ce, "Support label", "Constant-effort support CE1");
+    expect(screen.getByTestId("support-node-picker").querySelector(".virtual-target-picker-current")).toHaveTextContent("node:RS-100");
+    chooseCompactOption(ce.getByRole("combobox", { name: "Support family" }), "constant_effort_support");
+    fireEvent.click(ce.getByRole("checkbox", { name: "Restrain UZ" }));
+    change(ce, "Support provenance", P);
+    fireEvent.click(ce.getByRole("checkbox", { name: "Include hanger data" }));
+    chooseCompactOption(ce.getByRole("combobox", { name: "Hanger type" }), "constant_effort_support");
+    for (const [key, value, unit] of [["constant load", "9000", "N"], ["travel range", "50", "mm"]]) {
+      change(ce, `Hanger ${key} value`, value); change(ce, `Hanger ${key} unit`, unit);
+    }
+    change(ce, "Hanger source reference", S5);
+    click(ce, "Queue support creation");
+    // The form sends the record as typed: exactly the fixture's RS-CE1, nothing added or defaulted.
+    await waitFor(() => expect(ops().editorIntents, `step ce: queued (${alerts()})`).toHaveLength(1), { timeout: 20_000 });
+    const ceIntent = ops().editorIntents[0];
+    expect([ceIntent.operation_kind, ceIntent.change.change_kind, ceIntent.target]).toEqual(["create", "create_support", { object_type: "Support", ref: "support:RS-CE1" }]);
+    const cePayload = JSON.parse(ceIntent.change.after) as AnyRecord;
+    expect(cePayload).toEqual(reference.supports.find((item) => item.id === "support:RS-CE1"));
+    await applyQueuedIntent("step ce");
+    expect(model().supports.find((item) => item.id === "support:RS-CE1")).toEqual(cePayload);
 
     // Step reference: Reference configuration (typed UI, with the member fill).
     select({ type: "project", id: model().project.id });
@@ -693,7 +749,7 @@ describe("the reference system entered from blank through the desktop's authorin
     select({ type: "load", id: "load:RS-SAM" });
     change(state(), "Copy analysis state from case", "load:RS-SUS");
     click(state(), "Replace this draft's analysis state with the copy");
-    expect(state().getByText(/28 load sources name primitives this case does not hold/)).toBeTruthy();
+    expect(state().getByText(/29 load sources name primitives this case does not hold/)).toBeTruthy();
     change(state(), "Factor for every primitive (dimensionless)", "1");
     click(state(), "Add every primitive of this case");
     click(state(), `Add Support state ${rsC} boundary motion`);
@@ -729,16 +785,16 @@ describe("the reference system entered from blank through the desktop's authorin
     expect(BLOCKED).toEqual([]);
     expect(ALLOWED_DIFFERENCES).toHaveLength(15);
     expect(DOCUMENT_DIFFERENCES_NOT_IN_3_14).toEqual(["analysis_status", "data_boundary", "diagnostics"]);
-    // 27 queue/apply cycles: the run sheet's §6 count of 27 cycles. The Undo/Redo labels below keep their earlier section numbers, which the expected list asserts.
-    expect(cycles).toHaveLength(27);
+    // 30 queue/apply cycles: the run sheet's §6 count of 30 cycles. The Undo/Redo labels below keep their earlier section numbers, which the expected list asserts.
+    expect(cycles).toHaveLength(30);
     expect(undoRedone).toEqual([
       "geometry and supports: the run sheet's batch (§3.4)", "component: the tee RS-T1 (§3.6)",
       "support: the variable spring RS-VS1 (§3.7)", "load/reference state: RS-INSTALLED (§3.8)", "combination: RS-dSAM (§3.12)",
     ]);
     const compared = compareWithFixture(model(), "entered");
-    // materials, sections, nodes, pipes, components, supports, cases, combinations, reference configurations: 82 of 82.
-    expect(compared).toBe(1 + 3 + 27 + 26 + 8 + 11 + 3 + 2 + 1);
-    expect(compared).toBe(82);
+    // materials, sections, nodes, pipes, components, supports, cases, combinations, reference configurations: 84 of 84.
+    expect(compared).toBe(1 + 3 + 27 + 26 + 9 + 12 + 3 + 2 + 1);
+    expect(compared).toBe(84);
 
     // Browser save and reopen through the session (`handleSaveProject`, `handleOpenProject`), compared again.
     const projectId = model().project.id;

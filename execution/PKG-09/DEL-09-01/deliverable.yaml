@@ -18,10 +18,11 @@ needs:
 - from: DEL-04-03
   condition: >-
     A rigid restraint holds its degree of freedom exactly, a spring acts with its entered
-    stiffness, and an imposed displacement at a support is solved as a prescribed value that adds
-    no force of its own.
+    stiffness, a constant-effort support applies its entered constant load in every case and
+    publishes it as its support action, and an imposed displacement at a support is solved as a
+    prescribed value that adds no force of its own.
   gating: true
-  when: Solving a support, spring or imposed-displacement case.
+  when: Solving a support, spring, constant-effort or imposed-displacement case, and the reference system.
 - from: DEL-05-01
   condition: >-
     A temperature change on a straight member enters the solve as the free strain alpha times the
@@ -118,6 +119,9 @@ code_paths:
 # weight of the cases still pending in the fixture. No product test reads them yet.
 - validation/references/reference_system_pending_cases/**
 - tests/test_reference_system_pending_cases_references.py
+# Frozen before the fixture solve that adopted RS-R1 and RS-CE1: EQ-1, EQ-2, EQ-5 and RS-CE1's support action
+# with both in the fixture, and the tranche-1 inputs from which the two earlier packages are reproduced.
+- validation/references/reference_system_r1_ce/**
 # The maintained check over every package under validation/references/: checksum-list inventory and
 # verification under the table's recorded exceptions; accounted membership, with no-basis cases named and
 # counted; and the retained check commands. Output entries not regenerated, regeneration gaps and
