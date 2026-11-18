@@ -29,6 +29,8 @@ The list also carries applicability limitations, which exit criterion 3 does not
 
 The list also carries omissions outside the exit criteria, which exit criterion 3 does not require either. An omission is a capability that no exit criterion requires, that the product does not provide, and for which nothing emits a refusal; it is listed so that the release notes state it. Its entry says so in its Kind field. "Exit criteria" and "Requirement affected" say none and why, "Code" says none, and "What is refused" says that nothing is refused and what the user cannot do. Its status records Agent 0's limitation declaration. Declaring an omission acceptable does not make an unmet criterion met.
 
+The list also records known product defects: demonstrated failures to meet stated product requirements. A known product defect's entry says so in its Kind field and identifies the affected requirements, the observed consequences and any containment. Its status records Agent 0's limitation declaration. Recording a known product defect, or declaring it, does not repair it and does not make an unmet criterion met.
+
 ## Entry form
 
 Each entry is one subsection:
@@ -37,7 +39,7 @@ Each entry is one subsection:
 - **Kind:** present only for an applicability limitation: `applicability
   limitation`, with the statement that it causes no automatic refusal; or for
   an omission: `omission outside the exit criteria`, with the statement that
-  no exit criterion requires the capability and nothing emits a refusal.
+  no exit criterion requires the capability and nothing emits a refusal; or for a known product defect: `known product defect`, with the statement of whether it causes an automatic refusal.
 - **Exit criteria:** the release target's exit criteria it affects, by number.
 - **Requirement affected:** the requirement or capability of the exit criteria
   the refusal affects, by its identifier where one exists.
@@ -496,7 +498,7 @@ Entries are added in the same PR that makes the refusal standing. A previously u
 ### LIM-026 — Ordinary results can say checks passed or established without a verified inverse-norm bound
 
 - **Id:** LIM-026
-- **Kind:** applicability limitation; it causes no automatic refusal.
+- **Kind:** known product defect; it causes no automatic refusal.
 - **Exit criteria:** 18; also 1 and 4 where the reference-system analyses and their outputs depend on the affected static solves. Listing this limitation does not make any of these criteria met.
 - **Requirement affected:** DEL-04-01 REQ-015's integrity bound and unavailable disposition, REQ-016's nonlinear state enclosures, and the consumers required to preserve their standing by release exit criterion 18. This includes a static state-case solve used by modal analysis; the modal eigenproblem's own integrity checks and the retained-precision route's separate certificate are outside this entry.
 - **Code:** `NUMERICAL_INTEGRITY_CHECKS_PASSED`, the ordinary result's `checks_passed` quality, the diagnostic sentence reporting a converged support state as established, and ordinary-reader `numerically_eligible` standing. These are present output claims, not warnings or refusals of this limitation.
@@ -512,7 +514,7 @@ Entries are added in the same PR that makes the refusal standing. A previously u
 ### LIM-027 — A bare structured quantity edit can store its number beside the old unit
 
 - **Id:** LIM-027
-- **Kind:** applicability limitation; it causes no automatic refusal.
+- **Kind:** known product defect; it causes no automatic refusal.
 - **Exit criteria:** 17, through the shared operation route used by the embedded agent. The same defect is reachable through imported structured proposals; the witness is not an executed desktop-agent use case.
 - **Requirement affected:** DEL-16-02 REQ-010 and AC-006 require unit and target-dimension validation without an unrequested change of physical value; DEL-07-02 REQ-003 requires unit-bearing edits to preserve their unit meaning and refuse a wrong dimension by name.
 - **Code:** no finding refuses this mismatched bare-number edit. The executed witness later reports `MECHANICS_SOLVED`; `HIGH_DISPLACEMENT_REVIEW` is a warning; it does not diagnose or block the unit error.
