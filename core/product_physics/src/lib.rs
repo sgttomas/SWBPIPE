@@ -810,6 +810,8 @@ pub struct SpringHangerInput {
     pub load_side_review_reference: Option<String>,
     #[serde(default)]
     pub mechanics_consumption: Option<String>,
+    #[serde(skip)] // DEL-04-11 REQ-014: set by `document_members::lower_axis_aligned_directions`, never read from a document.
+    pub(crate) direction_opposes_positive_axis: bool,
 }
 
 #[derive(Debug, Clone, Deserialize)]

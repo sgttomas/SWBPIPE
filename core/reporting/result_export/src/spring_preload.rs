@@ -8,10 +8,13 @@
 //! `spring_hanger` applies its `hanger.cold_load` as a constant force along the
 //! positive axis of its translational stiffness DOF, in every solved case,
 //! unless (in this order) it carries a `nonlinear` member, it is a skewed
-//! record (a non-snubber `direction` with two or more nonzero components), it
+//! record (a non-snubber `direction` with two or more nonzero components), its
+//! single-axis `direction` (exactly one nonzero component) is negative, it
 //! has no cold load, the cold load is not a finite positive force, no stiffness
 //! DOF can be read (`stiffness.dof`, else `hanger.stiffness.dof`, else its first
-//! restraint), that DOF is rotational, or its node is not a model node.
+//! restraint), that DOF is rotational, or its node is not a model node. As the
+//! producer's lowering does, a single-axis direction on another axis than that
+//! DOF's moves the DOF to the translation along the direction's axis.
 //!
 //! The published fact's name ([`COLD_LOAD_FACT`]) and the applied row's kind
 //! ([`APPLIED_LOAD`]) are stated here once for every reader.
@@ -66,6 +69,26 @@ fn skewed(support: &Value) -> bool {
     components.is_some_and(|c| c.iter().filter(|c| **c != 0.0).count() >= 2)
 }
 
+/// A single-axis `direction` of three finite numbers, as the producer's
+/// `document_members::lower_axis_aligned_directions` removes it: its axis, and
+/// whether its one nonzero component is negative.
+fn single_axis(support: &Value) -> Option<(usize, bool)> {
+    let d = &support["direction"];
+    let c: Vec<f64> = ["x", "y", "z"].iter().map(|k| d[*k].as_f64().filter(|c| c.is_finite())).collect::<Option<_>>()?;
+    let nonzero: Vec<usize> = (0..3).filter(|&axis| c[axis] != 0.0).collect();
+    (nonzero.len() == 1).then(|| (nonzero[0], c[nonzero[0]] < 0.0))
+}
+
+/// The axis of a DOF token, translational or rotational (PP `document_members::dof_axis`).
+fn token_axis(token: &str) -> Option<usize> {
+    translation(token)?;
+    match token.chars().nth(1)? {
+        'X' | 'x' => Some(0),
+        'Y' | 'y' => Some(1),
+        _ => Some(2),
+    }
+}
+
 /// Whether `support` applies its cold load, and with which values. `cold_load`
 /// reads the entered cold load as the reader's own route normalizes it (`None`
 /// when it cannot be read as a force).
@@ -74,6 +97,10 @@ pub(crate) fn decide<'a>(support: &'a Value, nodes: &HashSet<&str>, cold_load: i
         return None;
     }
     if support.get("nonlinear").is_some_and(|n| !n.is_null()) || skewed(support) {
+        return None;
+    }
+    let lowered = single_axis(support);
+    if lowered.is_some_and(|(_, negative)| negative) {
         return None;
     }
     let cold = &support["hanger"]["cold_load"];
@@ -86,7 +113,10 @@ pub(crate) fn decide<'a>(support: &'a Value, nodes: &HashSet<&str>, cold_load: i
         .or_else(|| support["hanger"]["stiffness"]["dof"].as_str())
         .filter(|t| translation(t).is_some())
         .or_else(|| support["restraints"][0].as_str().filter(|t| translation(t).is_some()))?;
-    let dof = translation(token).flatten()?;
+    let dof = match lowered {
+        Some((axis, _)) if token_axis(token) != Some(axis) => ["UX", "UY", "UZ"][axis],
+        _ => translation(token).flatten()?,
+    };
     let node = support["node"].as_str().filter(|n| nodes.contains(n))?;
     Some(SpringPreload { id: support["id"].as_str()?, node, dof, force })
 }
@@ -156,8 +186,13 @@ mod tests {
         assert!(refused(json!({"restraints": ["RY"], "hanger": {"hanger_type": "variable_spring_hanger", "stiffness": {"dof": "RY"}, "cold_load": {"value": 5.0, "unit": "N"}}})));
         assert!(refused(json!({"node": "elsewhere"})));
         assert!(refused(json!({"family": "spring", "hanger": null})));
-        // A single-axis direction is not skewed.
+        // A single-axis direction is not skewed; a negative one declines the cold load.
         assert!(!refused(json!({"direction": {"x": 0.0, "y": 0.0, "z": 1.0}})));
+        assert!(refused(json!({"direction": {"x": 0.0, "y": 0.0, "z": -1.0}})));
+        // On another axis than the stiffness DOF's, the lowering moves the DOF to it.
+        let moved = model(hanger(json!({"direction": {"x": -0.0, "y": 2.0, "z": 0.0}})));
+        assert_eq!(applying(&moved, entered_value)[0].dof, "UY");
+        assert!(refused(json!({"direction": {"x": 0.0, "y": -2.0, "z": 0.0}})));
     }
 
     #[test]

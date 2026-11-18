@@ -7,9 +7,12 @@ restate constant-effort consumption. A support whose ``support_hanger_type`` (th
 ``variable_spring_hanger`` or ``spring_hanger`` applies its ``hanger.cold_load`` as a constant force
 along the positive axis of its translational stiffness DOF in every solved case, unless (in this
 order) it carries a ``nonlinear`` member, it is a skewed record (a non-snubber ``direction`` with two
-or more nonzero components), it has no cold load, the cold load is not a finite positive force, no
+or more nonzero components), its single-axis ``direction`` (exactly one nonzero component) is negative,
+it has no cold load, the cold load is not a finite positive force, no
 stiffness DOF can be read (``stiffness.dof``, else ``hanger.stiffness.dof``, else its first
-restraint), that DOF is rotational, or its node is not a model node.
+restraint), that DOF is rotational, or its node is not a model node. As the producer's lowering does,
+a single-axis direction on another axis than that DOF's moves the DOF to the translation along the
+direction's axis.
 
 The published fact's name (``COLD_LOAD_FACT``) and the applied row's kind (``APPLIED_LOAD``) are
 stated here once for every verifier. Standard-library imports only.
@@ -63,6 +66,23 @@ def _skewed(support: Mapping[str, Any]) -> bool:
     return sum(1 for c in components if c != 0) >= 2
 
 
+def _single_axis(support: Mapping[str, Any]) -> tuple[int, bool] | None:
+    """A single-axis ``direction`` of three finite numbers (PP ``lower_axis_aligned_directions``): its axis and
+    whether its one nonzero component is negative."""
+    direction = support.get("direction")
+    if not isinstance(direction, Mapping):
+        return None
+    components = [direction.get(k) for k in ("x", "y", "z")]
+    if not all(isinstance(c, (int, float)) and not isinstance(c, bool) and math.isfinite(c) for c in components):
+        return None
+    nonzero = [axis for axis, c in enumerate(components) if c != 0]
+    return (nonzero[0], components[nonzero[0]] < 0) if len(nonzero) == 1 else None
+
+
+def _token_axis(token: str) -> int:
+    return "XYZ".index(token[1].upper())
+
+
 def _dof_token(value: Any) -> str | None:
     return value if isinstance(value, str) and (value in _TRANSLATION or value in _ROTATIONAL) else None
 
@@ -82,6 +102,9 @@ def applying(model: Mapping[str, Any], cold_load: Callable[[Mapping[str, Any]], 
             continue
         if support.get("nonlinear") is not None or _skewed(support):
             continue
+        lowered = _single_axis(support)
+        if lowered is not None and lowered[1]:
+            continue
         hanger = support.get("hanger")
         cold = hanger.get("cold_load") if isinstance(hanger, Mapping) else None
         if not isinstance(cold, Mapping):
@@ -94,6 +117,8 @@ def applying(model: Mapping[str, Any], cold_load: Callable[[Mapping[str, Any]], 
             stiffness = hanger.get("stiffness") if isinstance(hanger.get("stiffness"), Mapping) else {}
         restraints = support.get("restraints") or []
         token = _dof_token(stiffness.get("dof")) or (_dof_token(restraints[0]) if restraints else None)
+        if token is not None and lowered is not None and _token_axis(token) != lowered[0]:
+            token = ("UX", "UY", "UZ")[lowered[0]]
         if token is None or token not in _TRANSLATION:
             continue
         node = support.get("node")

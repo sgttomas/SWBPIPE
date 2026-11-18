@@ -38,6 +38,9 @@ pub(crate) enum NotApplied {
     NonlinearRecord,
     /// The record has a skewed `direction`: no global axis carries the force.
     SkewedRecord,
+    /// The record's single-axis `direction` points along the negative axis, and the
+    /// cold load acts only along the positive axis of its stiffness DOF.
+    DirectionOpposesPositiveAxis,
     /// No entered `hanger.cold_load`.
     ColdLoadMissing,
     /// The entered cold load is not a finite positive force.
@@ -57,6 +60,7 @@ impl NotApplied {
         match self {
             Self::NonlinearRecord => "nonlinear_record",
             Self::SkewedRecord => "skewed_record",
+            Self::DirectionOpposesPositiveAxis => "direction_opposes_positive_axis",
             Self::ColdLoadMissing => "cold_load_missing",
             Self::ColdLoadNotPositive => "cold_load_not_positive",
             Self::StiffnessDofUnreadable => "stiffness_dof_unreadable",
@@ -69,6 +73,7 @@ impl NotApplied {
         match self {
             Self::NonlinearRecord => "the record carries a nonlinear member, whose own law governs its DOF".into(),
             Self::SkewedRecord => "the record acts along a skewed direction, and the cold load acts only along a global axis".into(),
+            Self::DirectionOpposesPositiveAxis => "the record's direction points along the negative axis of its stiffness DOF, and the cold load acts only along the positive axis".into(),
             Self::ColdLoadMissing => "no hanger.cold_load is entered".into(),
             Self::ColdLoadNotPositive => "the entered hanger.cold_load is not a finite positive force".into(),
             Self::StiffnessDofUnreadable => "no stiffness DOF can be read from the record".into(),
@@ -91,6 +96,9 @@ fn decide(model: &PreviewModel, support: &PreviewSupport) -> Result<Preload, Not
     }
     if document_members::is_skewed_record(support) {
         return Err(NotApplied::SkewedRecord);
+    }
+    if support.hanger.as_ref().is_some_and(|hanger| hanger.direction_opposes_positive_axis) {
+        return Err(NotApplied::DirectionOpposesPositiveAxis);
     }
     let cold = support
         .hanger

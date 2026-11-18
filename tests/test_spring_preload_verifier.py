@@ -37,6 +37,10 @@ def test_the_restated_decision_applies_and_refuses_as_the_producer_does() -> Non
                   {"family": "spring", "hanger": None}):
         assert spring_preload.applying(_model(patch)) == [], patch
     assert spring_preload.applying(_model({"direction": {"x": 0.0, "y": 0.0, "z": 1.0}}))
+    # A negative single-axis direction declines the cold load; on another axis the lowering moves the DOF.
+    assert spring_preload.applying(_model({"direction": {"x": 0.0, "y": 0.0, "z": -1.0}})) == []
+    assert spring_preload.applying(_model({"direction": {"x": -0.0, "y": 2.0, "z": 0.0}}))[0]["dof"] == "UY"
+    assert spring_preload.applying(_model({"direction": {"x": 0.0, "y": -2.0, "z": 0.0}})) == []
 
 
 def test_the_gate_text_names_its_source_and_keeps_constant_effort_text() -> None:
