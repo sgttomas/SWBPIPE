@@ -1,6 +1,6 @@
 {
  "document": "demo_friction_reversal_preload",
- "status": "candidate references under the variable-spring-hanger preload law; derived by their author TASK without sight of any product output; not yet independently refuted",
+ "status": "references under the variable-spring-hanger preload law; derived by their author TASK without sight of any product output, and examined by an independent reader that saw no product output before the package was frozen",
  "supplements": "core/product_physics/tests/friction_reversal_stop_release_runtime.rs EXPECTED (lines 61-66; frozen, unchanged)",
  "model": {
   "file": "staged/invented_demo_model.json",

@@ -244,8 +244,9 @@ def build():
         }
     references = {
         "document": "openpipestress.w16_nonlinear_motion_preload_references",
-        "status": "candidate references under the variable-spring-hanger preload law; derived by their author TASK "
-                  "without sight of any product output, not yet independently refuted",
+        "status": "references under the variable-spring-hanger preload law; derived by their author TASK without "
+                  "sight of any product output, and examined by an independent reader that saw no product output "
+                  "before the package was frozen",
         "supplements": "validation/references/w16_nonlinear_motion/references.json (frozen; unchanged), request c1_hanger",
         "law": "DEL-04-03/REQ-014 and DEL-04-11/REQ-014: spring of the entered rate on its declared translational DOF "
                "plus the entered cold load as a constant force along +DOF at the support's node in every case; "
@@ -306,7 +307,7 @@ def main():
             (Path(tmp) / path).parent.mkdir(parents=True, exist_ok=True)
             (Path(tmp) / path).write_bytes(data)
         failures = [p for p in files if not (OUT / p).exists() or (OUT / p).read_bytes() != (Path(tmp) / p).read_bytes()]
-    committed = {str(p.relative_to(OUT)) for p in OUT.rglob("*") if p.is_file() and "__pycache__" not in p.parts}
+    committed = {p.relative_to(OUT).as_posix() for p in OUT.rglob("*") if p.is_file() and "__pycache__" not in p.parts}
     extra = sorted(committed - set(files) - set(FIXED_FILES))
     if failures or extra:
         print("MISMATCH: " + ", ".join(failures + [f"unexpected {e}" for e in extra]))

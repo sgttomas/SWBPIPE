@@ -440,8 +440,9 @@ def build():
             })
     out = {
         "document": "demo_friction_reversal_preload",
-        "status": "candidate references under the variable-spring-hanger preload law; derived by their author TASK "
-                  "without sight of any product output; not yet independently refuted",
+        "status": "references under the variable-spring-hanger preload law; derived by their author TASK without "
+                  "sight of any product output, and examined by an independent reader that saw no product output "
+                  "before the package was frozen",
         "supplements": "core/product_physics/tests/friction_reversal_stop_release_runtime.rs EXPECTED (lines 61-66; frozen, unchanged)",
         "model": {"file": STAGED_MODEL,
                   # Both inputs were staged at the same commit, which the staged table records.
@@ -498,22 +499,25 @@ def derivation_leaves(doc):
     return {k: v for k, v in flatten(doc).items() if any(fnmatch.fnmatchcase(k, p) for p in DERIVATION_LEAVES)}
 
 
-def live_table_rows(text, name):
-    """The rows of the table declared as the constant `name`, in order, found by the name wherever it sits.
+def live_table(text, name):
+    """The whole initializer of the table declared as the constant `name`, found by the name wherever it sits: its
+    declaration line and every non-blank line up to the closing `];`, in order. Nothing in it is skipped, so a
+    row, comment or anything else this package did not stage is a difference, whatever its form.
 
-    Returns (rows, None), or (None, reason) when the declaration is not found exactly once."""
+    Returns ((declaration, lines), None), or (None, reason) when the declaration is not found exactly once or the
+    initializer is not closed."""
     decl = re.compile(r"^\s*(pub(\([^)]*\))?\s+)?(const|static)\s+" + re.escape(name) + r"\s*:")
     lines = text.splitlines()
     at = [i for i, line in enumerate(lines) if decl.match(line)]
     if len(at) != 1:
         return None, f"the table {name} is declared {len(at)} times in the file, not once"
-    rows = []
+    body = []
     for line in lines[at[0] + 1:]:
         if line.strip().startswith("];"):
-            break
-        if line.strip().startswith("Expected {"):
-            rows.append(line.strip())
-    return rows, None
+            return (lines[at[0]].strip(), body), None
+        if line.strip():
+            body.append(line.strip())
+    return None, f"the table {name} has no closing `];` line"
 
 
 def check_live():
@@ -525,21 +529,25 @@ def check_live():
         if staged.get(k, "<absent>") != live.get(k, "<absent>"):
             differ.append(f"{LIVE_DEMO.relative_to(ROOT)} {k}: staged {staged.get(k, '<absent>')!r}, live {live.get(k, '<absent>')!r}")
     test = LIVE_TEST.relative_to(ROOT)
-    rows, reason = live_table_rows(LIVE_TEST.read_text(), TABLE["table"])
-    if rows is None:
+    table, reason = live_table(LIVE_TEST.read_text(), TABLE["table"])
+    if table is None:
         print(f"SOURCE MOVED ON: {test}: {reason}; the live check cannot find the staged table and does not guess. "
               "A decision is needed on the staged input.")
         return 1
+    declaration, rows = table
+    if declaration != TABLE["table_declaration"].strip():
+        differ.append(f"{test} table {TABLE['table']} declaration: staged {TABLE['table_declaration'].strip()!r}, "
+                      f"live {declaration!r}")
     expected = [r["text"].strip() for r in TABLE["rows"]]
     for i in range(max(len(expected), len(rows))):
         a = expected[i] if i < len(expected) else "<absent>"
         b = rows[i] if i < len(rows) else "<absent>"
         if a != b:
-            differ.append(f"{test} table {TABLE['table']} row {i + 1}: staged {a!r}, live {b!r}")
+            differ.append(f"{test} table {TABLE['table']} line {i + 1} of its initializer: staged {a!r}, live {b!r}")
     for d in differ:
         print("DIFFERS:", d)
-    print(f"live inputs: {len(staged)} model derivation leaves and the {len(expected)} rows of table {TABLE['table']} "
-          f"compared, {len(differ)} differ")
+    print(f"live inputs: {len(staged)} model derivation leaves and the whole initializer of table {TABLE['table']} "
+          f"({len(expected)} staged rows) compared, {len(differ)} differ")
     if differ:
         print("SOURCE MOVED ON: a live source no longer matches the staged input in what is named above; a decision is "
               "needed on whether to re-stage it. The committed output stands for its staged inputs.")
@@ -581,7 +589,7 @@ def main():
         for path, data in files.items():
             (Path(tmp) / path).write_bytes(data)
         failures = [p for p in files if not (OUT / p).exists() or (OUT / p).read_bytes() != (Path(tmp) / p).read_bytes()]
-    committed = {str(p.relative_to(OUT)) for p in OUT.rglob("*") if p.is_file() and "__pycache__" not in p.parts}
+    committed = {p.relative_to(OUT).as_posix() for p in OUT.rglob("*") if p.is_file() and "__pycache__" not in p.parts}
     extra = sorted(committed - set(files) - set(FIXED_FILES))
     if failures or extra:
         print("MISMATCH: " + ", ".join(failures + [f"unexpected {e}" for e in extra]))

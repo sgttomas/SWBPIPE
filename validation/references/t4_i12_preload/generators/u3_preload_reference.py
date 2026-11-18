@@ -415,8 +415,9 @@ def build():
     check("no case outside the five derived here carries a variable spring hanger", others == [])
     doc = {
         "schema_version": "t4-i12-u3-reference-1-preload-addendum-1",
-        "status": "candidate references under the variable-spring-hanger preload law; derived by their author TASK without "
-                  "sight of any product output; not yet independently refuted; not product evidence",
+        "status": "references under the variable-spring-hanger preload law; derived by their author TASK without "
+                  "sight of any product output, and examined by an independent reader that saw no product output "
+                  "before the package was frozen; not product evidence",
         "supplements": {"file": "validation/references/t4_i12/u3_reference_cases.json (frozen; unchanged)",
                         "sha256": hashlib.sha256(raw).hexdigest()},
         "law": "DEL-04-03/REQ-014 and DEL-04-11/REQ-014: spring of the entered rate on its declared translational DOF plus "
@@ -496,7 +497,7 @@ def main():
         for path, data in files.items():
             (Path(tmp) / path).write_bytes(data)
         failures = [p for p in files if not (OUT / p).exists() or (OUT / p).read_bytes() != (Path(tmp) / p).read_bytes()]
-    committed = {str(p.relative_to(OUT)) for p in OUT.rglob("*") if p.is_file() and "__pycache__" not in p.parts}
+    committed = {p.relative_to(OUT).as_posix() for p in OUT.rglob("*") if p.is_file() and "__pycache__" not in p.parts}
     extra = sorted(committed - set(files) - set(FIXED_FILES))
     if failures or extra:
         print("MISMATCH: " + ", ".join(failures + [f"unexpected {e}" for e in extra]))
