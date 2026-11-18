@@ -236,6 +236,10 @@ code_paths:
 - docs/THIRD_PARTY_NOTICES.md
 - apps/desktop/src/features/embedded-agent/**
 - apps/desktop/src/services/embeddedAgentSession.ts
+# What a refused proposal tells the agent (issue 382): a unit or value/unit-pair refusal on a listed
+# quantity field is explained in a closed, bounded form built from the module's own literals; every
+# other refusal is the generic sentence.
+- apps/desktop/src/services/agentUnitRefusal.ts
 - apps/desktop/src/services/embeddedAgentBridge.ts
 # The agent's result filter (agentDetailFilter); the rest of the file is DEL-07-07's.
 - apps/desktop/src/services/resultDetail.ts
@@ -294,6 +298,11 @@ checks:
 - apps/desktop/src/services/embeddedAgentW9a.test.ts
 - apps/desktop/src/services/embeddedAgentM2.test.ts
 - apps/desktop/src/services/embeddedAgentSession.records.test.ts
+# Issue 382: the refusal explanation's controls (malformed, oversized, reflected content, unknown
+# code), and, in the Wasm engine, its field table and unit vocabulary against the engine and the
+# scripted proposal that takes the corrective form the explanation names.
+- apps/desktop/src/services/agentUnitRefusal.test.ts
+- apps/desktop/src/services/agentUnitRefusal.engine.test.ts
 - apps/desktop/src/services/operationAuthorship.routes.test.tsx
 - apps/desktop/src/features/embedded-agent/EmbeddedAgentPanel.test.tsx
 - apps/desktop/src/features/workspace/agentWorkspaceSnapshot.session.test.tsx
