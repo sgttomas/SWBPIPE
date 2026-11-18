@@ -93,7 +93,7 @@ def test_every_row_has_both_entries():
     data = load(PACKAGE / "references.json")
     rows = every_row(data)
     assert [len(data["carried"]["gate_rows"]), len(data["carried"]["pairs"]), len(data["added"]),
-            len(data["builder_witnesses"])] == [19, 17, 14, 2]
+            len(data["builder_witnesses"])] == [19, 17, 15, 2]
     for row in rows:
         adm, mech = row["admission"], row["mechanical"]
         assert adm["verdict"] in VERDICTS, row["id"]
@@ -125,6 +125,7 @@ def test_the_added_rows_state_the_specified_verdicts_and_gate_only_marks():
         "W8": ("refused_g1", True, "linear_increment"), "W9": ("admitted", False, "linear_increment"),
         "F1": ("refused_g1", False, "linear_increment"), "F2": ("refused_g1", False, "linear_increment"),
         "F2b": ("refused_g1", False, "linear_increment"), "K1": ("refused_g2", True, "linear_increment"),
+        "W11": ("refused_g2", True, "state_difference"),
         "X1": ("refused_g1", True, "linear_increment"), "X2": ("admitted", True, "linear_increment")}
 
 
@@ -137,7 +138,7 @@ def test_the_stiffness_readings_are_recorded_and_differ_only_where_the_readme_sa
         assert readings["differ"] == (readings["S"]["verdict"] != readings["R"]["verdict"]), row["id"]
         if readings["differ"]:
             differ.append((row["id"], readings["S"]["verdict"], readings["R"]["verdict"]))
-    assert differ == [("K1", "refused_g2", "admitted")]
+    assert differ == [("K1", "refused_g2", "admitted"), ("W11", "refused_g2", "admitted")]
     readme = (PACKAGE / "README.md").read_text(encoding="utf-8")
     table = readme.split("### Where the two stiffness readings differ", 1)[1].split("\n\n", 2)[1]
     assert [line.split(" | ")[0].strip("| ") for line in table.splitlines()[2:]] == [rid for rid, _, _ in differ]

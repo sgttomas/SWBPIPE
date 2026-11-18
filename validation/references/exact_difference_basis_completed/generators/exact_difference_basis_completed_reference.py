@@ -265,6 +265,20 @@ BASES = {
     # K1 only: a solve temperature at the 300 K endpoint, interpolated between 300 K and 700 K at fraction 0
     "T300": {"selection_kind": "solve_temperature", "temperature": F(300), "interpolate_between": (F(300), F(700))},
 }
+# W11 only: an invented, non-standard material whose two points have equal E and G (so nu = 1/4 at both) and
+# different expansion coefficients. It is not the frozen material and not the frozen bases.
+W11_MATERIAL = "invented_w11_equal_moduli_two_alphas"
+W11_NU = F(1, 4)
+W11_POINTS = {                          # T (K): (E Pa, G Pa, alpha /K)
+    F(250): (F(187500000000), F(75000000000), F(5, 2 ** 19)),
+    F(650): (F(187500000000), F(75000000000), F(7, 2 ** 19)),
+}
+for _t, (_e, _g, _a) in W11_POINTS.items():
+    assert _e / (2 * _g) - 1 == W11_NU
+BASES["W11_LO"] = {"selection_kind": "exact_basis_reference", "temperature": F(250), "points": W11_POINTS,
+                   "material": W11_MATERIAL, "nu": W11_NU}
+BASES["W11_HI"] = {"selection_kind": "exact_basis_reference", "temperature": F(650), "points": W11_POINTS,
+                   "material": W11_MATERIAL, "nu": W11_NU}
 
 for _t, (_e, _g, _a) in FROZEN_POINTS.items():
     assert _e / (2 * _g) - 1 == FROZEN_NU
@@ -273,17 +287,18 @@ for _t, (_e, _g, _a) in FROZEN_POINTS.items():
 def basis_moduli(label):
     """(E, G, alpha, interpolation fraction or None) for a basis label."""
     t = BASES[label]["temperature"]
+    points = BASES[label].get("points", FROZEN_POINTS)
     if "interpolate_between" in BASES[label]:
         lo, hi = BASES[label]["interpolate_between"]
         f = (t - lo) / (hi - lo)
-        return tuple(x + f * (y - x) for x, y in zip(FROZEN_POINTS[lo], FROZEN_POINTS[hi])) + (f,)
-    if t in FROZEN_POINTS:
-        e, g, a = FROZEN_POINTS[t]
+        return tuple(x + f * (y - x) for x, y in zip(points[lo], points[hi])) + (f,)
+    if t in points:
+        e, g, a = points[t]
         return e, g, a, None
-    lo = max(p for p in FROZEN_POINTS if p < t)
-    hi = min(p for p in FROZEN_POINTS if p > t)
+    lo = max(p for p in points if p < t)
+    hi = min(p for p in points if p > t)
     f = (t - lo) / (hi - lo)
-    return tuple(x + f * (y - x) for x, y in zip(FROZEN_POINTS[lo], FROZEN_POINTS[hi])) + (f,)
+    return tuple(x + f * (y - x) for x, y in zip(points[lo], points[hi])) + (f,)
 
 
 FROZEN_RO = FROZEN_D / 2
@@ -558,8 +573,11 @@ def frozen_basis(model_id, label):
     kind = BASES[label]["selection_kind"]
     record = {"kind": kind, "selection_temperature": q(BASES[label]["temperature"]),
               "interpolation_fraction": None if fraction is None else q(fraction),
-              "selected_E": q(e_mod), "selected_nu": q(FROZEN_NU)}
-    return {m[0]: {"E": q(e_mod), "nu": q(FROZEN_NU), "G": q(g_mod), "material": "invented_steel_points_300_700",
+              "selected_E": q(e_mod)}
+    nu = BASES[label].get("nu", FROZEN_NU)
+    material = BASES[label].get("material", "invented_steel_points_300_700")
+    record = dict(record, selected_nu=q(nu))
+    return {m[0]: {"E": q(e_mod), "nu": q(nu), "G": q(g_mod), "material": material,
                    "constitutive_basis": "linear_elastic", "selection_kind": kind, "case_basis_label": label,
                    "selection_record": record, "section": section_record()}
             for m in FROZEN_MODELS[model_id]["members"]}
@@ -1351,7 +1369,68 @@ def added_rows():
 
     # K1: the selection record alone differs (the two stiffness readings separate here)
     rows.append(selection_record_row())
+    # W11: equal moduli, different expansion coefficients, the same authored temperature change in both
+    rows.append(expansion_coefficient_row())
     return rows
+
+
+def m1_hand_reactions(e_mod, strain):
+    """README of the frozen package, 'M1 by hand', for any modulus and uniform member free strain: the in-plane
+    flexibility of the released L at C gives the support force X, Y and moment Z at C (each a multiple of pi)."""
+    a, b = F(21, 4), F(27, 8)
+    ea, ei = e_mod * AREA, e_mod * INERTIA
+    flex = [[b ** 3 / (3 * ei) + a * b * b / ei + a / ea, -a * a * b / (2 * ei), -b * b / (2 * ei) - a * b / ei],
+            [-a * a * b / (2 * ei), b / ea + a ** 3 / (3 * ei), a * a / (2 * ei)],
+            [-b * b / (2 * ei) - a * b / ei, a * a / (2 * ei), (a + b) / ei]]
+    (x,) = gauss_jordan(flex, [[-strain * a, -strain * b, F(0)]])
+    return [Exact({1: v}) for v in x]
+
+
+def expansion_coefficient_row():
+    """M1's geometry and the frozen section, no pressure, in both operands: the weight at B and the thermal
+    primitive dT = 475/2 K on every member. S selects the invented W11 material's 250 K point, O its 650 K point:
+    equal E, nu and G, alpha 5 * 2^-19 against 7 * 2^-19 per K. One operator, equal authored actions; the
+    difference of the two solved states is the response to the free strain (alpha_O - alpha_S) * dT alone."""
+    m = "M1"
+    e_lo, g_lo, a_lo, _ = basis_moduli("W11_LO")
+    e_hi, g_hi, a_hi, _ = basis_moduli("W11_HI")
+    assert (e_lo, g_lo) == (e_hi, g_hi) and a_lo != a_hi
+    rs, _ = frozen_case_rows(m, {"basis": "W11_LO", "p": F(0), "on": False, "thermal": True})
+    ro, _ = frozen_case_rows(m, {"basis": "W11_HI", "p": F(0), "on": False, "thermal": True})
+    diff = {k: ro[k] - rs[k] for k in sorted(ro)}
+    strain = (a_hi - a_lo) * FROZEN_DT
+    assert strain == F(475, 2 ** 19)
+    # the difference is the free-strain response on the common operator, solved separately
+    alone = frame_solve(m, "W11_LO", {}, {mem[0]: Exact.of(strain) for mem in FROZEN_MODELS[m]["members"]})
+    for k, v in alone.items():
+        assert diff[k] == v, ("W11 difference = response to (alpha_O - alpha_S) dT", k)
+    # closed form from the inputs: the M1 hand formula
+    x, y, z = m1_hand_reactions(e_lo, strain)
+    assert [diff["reaction/C/FX"], diff["reaction/C/FY"], diff["reaction/C/MZ"]] == [x, y, z]
+    assert not diff["reaction/C/FX"].is_zero()
+    COUNTS["hand_formula_w11"] += 1
+
+    def w_side_m1(cid, label):
+        return side(cid, primitives=frozen_weights(m) + frozen_thermal(m), regions=[], elongation=False,
+                    supports=anchor_supports(FROZEN_MODELS[m]["anchors"]), basis=frozen_basis(m, label))
+    return ("W11", "equal moduli, different expansion coefficients, thermal in both",
+            w_side_m1("S", "W11_LO"), w_side_m1("O", "W11_HI"),
+            "the case basis label and selection record (selection temperature) differ although E, nu and G are "
+            "equal on every member (stiffness reading S); the expansion coefficient is compared by neither reading",
+            True,
+            "not established here whether the exact route's resolver accepts a material whose points share E and G "
+            "with different expansion coefficients, and records the two selections as given; establishing it would "
+            "need product code",
+            {"kind": "state_difference",
+             "response_to": "the free strain (alpha_O - alpha_S) * dT = 475/524288 on every member, on the common "
+                            "operator: a difference in selected expansion coefficients, not an authored action",
+             "rows": {k: entry(v, row_unit(k)) for k, v in diff.items()},
+             "closed_form_check": {
+                 "method": "the frozen package's M1 hand formula (release the anchor at C; in-plane flexibility "
+                           "with EA = E A_n, EI = E I_n) with the free strain 475/524288 on both members",
+                 "reaction/C/FX": entry(x, "N"), "reaction/C/FY": entry(y, "N"), "reaction/C/MZ": entry(z, "N*m")},
+             "divergence": "reading R admits a pair whose difference is not an expansion response on one basis "
+                           "but the response to a difference in selected expansion coefficients"})
 
 
 def selection_record_row():
@@ -1439,7 +1518,7 @@ def as_records(rows, group):
 EXPECTED_ADDED = {"W1": "admitted", "W2": "admitted", "W3": "admitted", "W4": "admitted", "W5": "refused_g1",
                   "W6": "refused_restraint", "W7a": "refused_restraint", "W7b": "refused_restraint",
                   "W8": "refused_g1", "W9": "admitted", "F1": "refused_g1", "F2": "refused_g1", "F2b": "refused_g1",
-                  "K1": "refused_g2",
+                  "K1": "refused_g2", "W11": "refused_g2",
                   "X1": "refused_g1", "X2": "admitted"}
 
 
@@ -1476,7 +1555,7 @@ def build() -> dict[str, bytes]:
                        "section": section_record(), "thermal_dT_K": q(FROZEN_DT),
                        "pressures_Pa": [q(FROZEN_P), q(FROZEN_P_CHANGED)],
                        "bases": {k: {"selection_kind": v["selection_kind"], "temperature_K": q(v["temperature"])}
-                                 for k, v in BASES.items()},
+                                 for k, v in BASES.items() if "points" not in v},
                        "models": {mid: {"nodes": {n: [q(c) for c in xyz] for n, xyz in m["nodes"].items()},
                                         "anchors": m["anchors"],
                                         "members": [{"id": x[0], "from": x[1], "to": x[2], "y_reference": list(x[3])}
@@ -1484,6 +1563,13 @@ def build() -> dict[str, bytes]:
                                         "regions": m["regions"],
                                         "weights_z_N": {n: q(w) for n, w in m["weights"].items()}}
                                   for mid, m in FROZEN_MODELS.items()}},
+            "w11_material": {"name": W11_MATERIAL, "poisson_ratio": q(W11_NU),
+                             "points": {q(T): {"E": q(e), "G": q(g), "alpha": q(al)}
+                                        for T, (e, g, al) in W11_POINTS.items()},
+                             "selections": {"S": "exact basis reference to the 250 K point (W11_LO)",
+                                            "O": "exact basis reference to the 650 K point (W11_HI)"},
+                             "model": "M1 geometry and the frozen section, no pressure; weight at B and dT on "
+                                      "every member in both operands"},
             "shared_w": {"length_m": q(W_L), "outside_diameter_m": q(W_D), "wall_m": q(W_WALL),
                          "inner_radius_m": q(W_RI), "wall_area_m2": Exact({1: W_AREA}).text(), "E_Pa": q(W_E),
                          "nu": q(W_NU), "EA_N": W_EA.text(), "anchor": "A, all six DOFs rigid"},

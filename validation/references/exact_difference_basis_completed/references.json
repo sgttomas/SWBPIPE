@@ -3931,6 +3931,859 @@
     ]
    },
    "title": "equal resolved moduli, exact point against interpolation at that endpoint"
+  },
+  {
+   "admission": {
+    "gate_only": true,
+    "gate_only_reason": "not established here whether the exact route's resolver accepts a material whose points share E and G with different expansion coefficients, and records the two selections as given; establishing it would need product code",
+    "gates": {
+     "g1": {
+      "holds": true,
+      "why": "every action of the subtrahend is in the minuend, with multiplicity"
+     },
+     "g2": {
+      "holds": false,
+      "why": "member AB differs in case_basis_label"
+     },
+     "restraint": {
+      "holds": true,
+      "why": "the same restraints and devices, and equal fixed-load inventories"
+     }
+    },
+    "reason": "the case basis label and selection record (selection temperature) differ although E, nu and G are equal on every member (stiffness reading S); the expansion coefficient is compared by neither reading",
+    "verdict": "refused_g2"
+   },
+   "id": "W11",
+   "mechanical": {
+    "closed_form_check": {
+     "method": "the frozen package's M1 hand formula (release the anchor at C; in-plane flexibility with EA = E A_n, EI = E I_n) with the free strain 475/524288 on both members",
+     "reaction/C/FX": {
+      "exact": "-600912193299542849981689453125/160652471903546876832514048*pi",
+      "unit": "N",
+      "value": -11750.963490034506
+     },
+     "reaction/C/FY": {
+      "exact": "-279915145922238599981689453125/160652471903546876832514048*pi",
+      "unit": "N",
+      "value": -5473.799161869011
+     },
+     "reaction/C/MZ": {
+      "exact": "-18944398926259435232281494140625/2570439550456750029320224768*pi",
+      "unit": "N*m",
+      "value": -23153.85494392797
+     }
+    },
+    "divergence": "reading R admits a pair whose difference is not an expansion response on one basis but the response to a difference in selected expansion coefficients",
+    "kind": "state_difference",
+    "meaning": "the difference of two independently solved states; no superposition claim",
+    "response_to": "the free strain (alpha_O - alpha_S) * dT = 475/524288 on every member, on the common operator: a difference in selected expansion coefficients, not an authored action",
+    "rows": {
+     "axial/AB/N_mech": {
+      "exact": "-600912193299542849981689453125/160652471903546876832514048*pi",
+      "unit": "N",
+      "value": -11750.963490034506
+     },
+     "axial/AB/N_wall": {
+      "exact": "-600912193299542849981689453125/160652471903546876832514048*pi",
+      "unit": "N",
+      "value": -11750.963490034506
+     },
+     "axial/AB/S": {
+      "exact": "-600912193299542849981689453125/160652471903546876832514048*pi",
+      "unit": "N",
+      "value": -11750.963490034506
+     },
+     "axial/BC/N_mech": {
+      "exact": "-279915145922238599981689453125/160652471903546876832514048*pi",
+      "unit": "N",
+      "value": -5473.799161869011
+     },
+     "axial/BC/N_wall": {
+      "exact": "-279915145922238599981689453125/160652471903546876832514048*pi",
+      "unit": "N",
+      "value": -5473.799161869011
+     },
+     "axial/BC/S": {
+      "exact": "-279915145922238599981689453125/160652471903546876832514048*pi",
+      "unit": "N",
+      "value": -5473.799161869011
+     },
+     "end_force/AB/i/FX": {
+      "exact": "600912193299542849981689453125/160652471903546876832514048*pi",
+      "unit": "N",
+      "value": 11750.963490034506
+     },
+     "end_force/AB/i/FY": {
+      "exact": "279915145922238599981689453125/160652471903546876832514048*pi",
+      "unit": "N",
+      "value": 5473.799161869011
+     },
+     "end_force/AB/i/FZ": {
+      "exact": "0",
+      "unit": "N",
+      "value": 0.0
+     },
+     "end_force/AB/i/MX": {
+      "exact": "0",
+      "unit": "N*m",
+      "value": 0.0
+     },
+     "end_force/AB/i/MY": {
+      "exact": "0",
+      "unit": "N*m",
+      "value": 0.0
+     },
+     "end_force/AB/i/MZ": {
+      "exact": "10008012745552163731732177734375/2570439550456750029320224768*pi",
+      "unit": "N*m",
+      "value": 12231.798764873822
+     },
+     "end_force/AB/j/FX": {
+      "exact": "-600912193299542849981689453125/160652471903546876832514048*pi",
+      "unit": "N",
+      "value": -11750.963490034506
+     },
+     "end_force/AB/j/FY": {
+      "exact": "-279915145922238599981689453125/160652471903546876832514048*pi",
+      "unit": "N",
+      "value": -5473.799161869011
+     },
+     "end_force/AB/j/FZ": {
+      "exact": "0",
+      "unit": "N",
+      "value": 0.0
+     },
+     "end_force/AB/j/MX": {
+      "exact": "0",
+      "unit": "N*m",
+      "value": 0.0
+     },
+     "end_force/AB/j/MY": {
+      "exact": "0",
+      "unit": "N*m",
+      "value": 0.0
+     },
+     "end_force/AB/j/MZ": {
+      "exact": "13504859511915878666729736328125/2570439550456750029320224768*pi",
+      "unit": "N*m",
+      "value": 16505.64683493849
+     },
+     "end_force/BC/i/FX": {
+      "exact": "600912193299542849981689453125/160652471903546876832514048*pi",
+      "unit": "N",
+      "value": 11750.963490034506
+     },
+     "end_force/BC/i/FY": {
+      "exact": "279915145922238599981689453125/160652471903546876832514048*pi",
+      "unit": "N",
+      "value": 5473.799161869011
+     },
+     "end_force/BC/i/FZ": {
+      "exact": "0",
+      "unit": "N",
+      "value": 0.0
+     },
+     "end_force/BC/i/MX": {
+      "exact": "0",
+      "unit": "N*m",
+      "value": 0.0
+     },
+     "end_force/BC/i/MY": {
+      "exact": "0",
+      "unit": "N*m",
+      "value": 0.0
+     },
+     "end_force/BC/i/MZ": {
+      "exact": "-13504859511915878666729736328125/2570439550456750029320224768*pi",
+      "unit": "N*m",
+      "value": -16505.64683493849
+     },
+     "end_force/BC/j/FX": {
+      "exact": "-600912193299542849981689453125/160652471903546876832514048*pi",
+      "unit": "N",
+      "value": -11750.963490034506
+     },
+     "end_force/BC/j/FY": {
+      "exact": "-279915145922238599981689453125/160652471903546876832514048*pi",
+      "unit": "N",
+      "value": -5473.799161869011
+     },
+     "end_force/BC/j/FZ": {
+      "exact": "0",
+      "unit": "N",
+      "value": 0.0
+     },
+     "end_force/BC/j/MX": {
+      "exact": "0",
+      "unit": "N*m",
+      "value": 0.0
+     },
+     "end_force/BC/j/MY": {
+      "exact": "0",
+      "unit": "N*m",
+      "value": 0.0
+     },
+     "end_force/BC/j/MZ": {
+      "exact": "-18944398926259435232281494140625/2570439550456750029320224768*pi",
+      "unit": "N*m",
+      "value": -23153.85494392797
+     },
+     "reaction/A/FX": {
+      "exact": "600912193299542849981689453125/160652471903546876832514048*pi",
+      "unit": "N",
+      "value": 11750.963490034506
+     },
+     "reaction/A/FY": {
+      "exact": "279915145922238599981689453125/160652471903546876832514048*pi",
+      "unit": "N",
+      "value": 5473.799161869011
+     },
+     "reaction/A/FZ": {
+      "exact": "0",
+      "unit": "N",
+      "value": 0.0
+     },
+     "reaction/A/MX": {
+      "exact": "0",
+      "unit": "N*m",
+      "value": 0.0
+     },
+     "reaction/A/MY": {
+      "exact": "0",
+      "unit": "N*m",
+      "value": 0.0
+     },
+     "reaction/A/MZ": {
+      "exact": "10008012745552163731732177734375/2570439550456750029320224768*pi",
+      "unit": "N*m",
+      "value": 12231.798764873822
+     },
+     "reaction/C/FX": {
+      "exact": "-600912193299542849981689453125/160652471903546876832514048*pi",
+      "unit": "N",
+      "value": -11750.963490034506
+     },
+     "reaction/C/FY": {
+      "exact": "-279915145922238599981689453125/160652471903546876832514048*pi",
+      "unit": "N",
+      "value": -5473.799161869011
+     },
+     "reaction/C/FZ": {
+      "exact": "0",
+      "unit": "N",
+      "value": 0.0
+     },
+     "reaction/C/MX": {
+      "exact": "0",
+      "unit": "N*m",
+      "value": 0.0
+     },
+     "reaction/C/MY": {
+      "exact": "0",
+      "unit": "N*m",
+      "value": 0.0
+     },
+     "reaction/C/MZ": {
+      "exact": "-18944398926259435232281494140625/2570439550456750029320224768*pi",
+      "unit": "N*m",
+      "value": -23153.85494392797
+     },
+     "resultant/AB/0/MY": {
+      "exact": "-10008012745552163731732177734375/2570439550456750029320224768*pi",
+      "unit": "N*m",
+      "value": -12231.798764873822
+     },
+     "resultant/AB/0/MZ": {
+      "exact": "0",
+      "unit": "N*m",
+      "value": 0.0
+     },
+     "resultant/AB/0/N": {
+      "exact": "-600912193299542849981689453125/160652471903546876832514048*pi",
+      "unit": "N",
+      "value": -11750.963490034506
+     },
+     "resultant/AB/0/T": {
+      "exact": "0",
+      "unit": "N*m",
+      "value": 0.0
+     },
+     "resultant/AB/0/VY": {
+      "exact": "0",
+      "unit": "N",
+      "value": 0.0
+     },
+     "resultant/AB/0/VZ": {
+      "exact": "279915145922238599981689453125/160652471903546876832514048*pi",
+      "unit": "N",
+      "value": 5473.799161869011
+     },
+     "resultant/AB/1/MY": {
+      "exact": "13504859511915878666729736328125/2570439550456750029320224768*pi",
+      "unit": "N*m",
+      "value": 16505.64683493849
+     },
+     "resultant/AB/1/MZ": {
+      "exact": "0",
+      "unit": "N*m",
+      "value": 0.0
+     },
+     "resultant/AB/1/N": {
+      "exact": "-600912193299542849981689453125/160652471903546876832514048*pi",
+      "unit": "N",
+      "value": -11750.963490034506
+     },
+     "resultant/AB/1/T": {
+      "exact": "0",
+      "unit": "N*m",
+      "value": 0.0
+     },
+     "resultant/AB/1/VY": {
+      "exact": "0",
+      "unit": "N",
+      "value": 0.0
+     },
+     "resultant/AB/1/VZ": {
+      "exact": "279915145922238599981689453125/160652471903546876832514048*pi",
+      "unit": "N",
+      "value": 5473.799161869011
+     },
+     "resultant/BC/0/MY": {
+      "exact": "13504859511915878666729736328125/2570439550456750029320224768*pi",
+      "unit": "N*m",
+      "value": 16505.64683493849
+     },
+     "resultant/BC/0/MZ": {
+      "exact": "0",
+      "unit": "N*m",
+      "value": 0.0
+     },
+     "resultant/BC/0/N": {
+      "exact": "-279915145922238599981689453125/160652471903546876832514048*pi",
+      "unit": "N",
+      "value": -5473.799161869011
+     },
+     "resultant/BC/0/T": {
+      "exact": "0",
+      "unit": "N*m",
+      "value": 0.0
+     },
+     "resultant/BC/0/VY": {
+      "exact": "0",
+      "unit": "N",
+      "value": 0.0
+     },
+     "resultant/BC/0/VZ": {
+      "exact": "-600912193299542849981689453125/160652471903546876832514048*pi",
+      "unit": "N",
+      "value": -11750.963490034506
+     },
+     "resultant/BC/1/MY": {
+      "exact": "-18944398926259435232281494140625/2570439550456750029320224768*pi",
+      "unit": "N*m",
+      "value": -23153.85494392797
+     },
+     "resultant/BC/1/MZ": {
+      "exact": "0",
+      "unit": "N*m",
+      "value": 0.0
+     },
+     "resultant/BC/1/N": {
+      "exact": "-279915145922238599981689453125/160652471903546876832514048*pi",
+      "unit": "N",
+      "value": -5473.799161869011
+     },
+     "resultant/BC/1/T": {
+      "exact": "0",
+      "unit": "N*m",
+      "value": 0.0
+     },
+     "resultant/BC/1/VY": {
+      "exact": "0",
+      "unit": "N",
+      "value": 0.0
+     },
+     "resultant/BC/1/VZ": {
+      "exact": "-600912193299542849981689453125/160652471903546876832514048*pi",
+      "unit": "N",
+      "value": -11750.963490034506
+     },
+     "u/A/RX": {
+      "exact": "0",
+      "unit": "rad",
+      "value": 0.0
+     },
+     "u/A/RY": {
+      "exact": "0",
+      "unit": "rad",
+      "value": 0.0
+     },
+     "u/A/RZ": {
+      "exact": "0",
+      "unit": "rad",
+      "value": 0.0
+     },
+     "u/A/UX": {
+      "exact": "0",
+      "unit": "m",
+      "value": 0.0
+     },
+     "u/A/UY": {
+      "exact": "0",
+      "unit": "m",
+      "value": 0.0
+     },
+     "u/A/UZ": {
+      "exact": "0",
+      "unit": "m",
+      "value": 0.0
+     },
+     "u/B/RX": {
+      "exact": "0",
+      "unit": "rad",
+      "value": 0.0
+     },
+     "u/B/RY": {
+      "exact": "0",
+      "unit": "rad",
+      "value": 0.0
+     },
+     "u/B/RZ": {
+      "exact": "559120578541875/598477095006208408",
+      "unit": "rad",
+      "value": 0.000934238892694924
+     },
+     "u/B/UX": {
+      "exact": "90229739000028075/19151267040198669056",
+      "unit": "m",
+      "value": 0.0047114239914588995
+     },
+     "u/B/UY": {
+      "exact": "-14575238737934175/4787816760049667264",
+      "unit": "m",
+      "value": -0.0030442348712157014
+     },
+     "u/B/UZ": {
+      "exact": "0",
+      "unit": "m",
+      "value": 0.0
+     },
+     "u/C/RX": {
+      "exact": "0",
+      "unit": "rad",
+      "value": 0.0
+     },
+     "u/C/RY": {
+      "exact": "0",
+      "unit": "rad",
+      "value": 0.0
+     },
+     "u/C/RZ": {
+      "exact": "0",
+      "unit": "rad",
+      "value": 0.0
+     },
+     "u/C/UX": {
+      "exact": "0",
+      "unit": "m",
+      "value": 0.0
+     },
+     "u/C/UY": {
+      "exact": "0",
+      "unit": "m",
+      "value": 0.0
+     },
+     "u/C/UZ": {
+      "exact": "0",
+      "unit": "m",
+      "value": 0.0
+     }
+    }
+   },
+   "operating": {
+    "basis": {
+     "AB": {
+      "E": "187500000000",
+      "G": "75000000000",
+      "case_basis_label": "W11_HI",
+      "constitutive_basis": "linear_elastic",
+      "material": "invented_w11_equal_moduli_two_alphas",
+      "nu": "1/4",
+      "section": {
+       "corrosion_allowance": "1/1024",
+       "mill_tolerance": "1/2048",
+       "outside_diameter": "35/128",
+       "wall": "9/1024"
+      },
+      "selection_kind": "exact_basis_reference",
+      "selection_record": {
+       "interpolation_fraction": null,
+       "kind": "exact_basis_reference",
+       "selected_E": "187500000000",
+       "selected_nu": "1/4",
+       "selection_temperature": "650"
+      }
+     },
+     "BC": {
+      "E": "187500000000",
+      "G": "75000000000",
+      "case_basis_label": "W11_HI",
+      "constitutive_basis": "linear_elastic",
+      "material": "invented_w11_equal_moduli_two_alphas",
+      "nu": "1/4",
+      "section": {
+       "corrosion_allowance": "1/1024",
+       "mill_tolerance": "1/2048",
+       "outside_diameter": "35/128",
+       "wall": "9/1024"
+      },
+      "selection_kind": "exact_basis_reference",
+      "selection_record": {
+       "interpolation_fraction": null,
+       "kind": "exact_basis_reference",
+       "selected_E": "187500000000",
+       "selected_nu": "1/4",
+       "selection_temperature": "650"
+      }
+     }
+    },
+    "case_id": "O",
+    "fixed_loads": [],
+    "generated": [],
+    "ledger": null,
+    "member_states": [],
+    "motions": [],
+    "pressure_elongation": false,
+    "pressure_regions": [],
+    "primitives": [
+     {
+      "category": "weight",
+      "dimension": "force",
+      "direction": "global_z",
+      "id": "w:B:z",
+      "target": "node:B",
+      "unit": "N",
+      "value": "-7375/4",
+      "value_bits": "c09ccf0000000000"
+     },
+     {
+      "category": "thermal",
+      "dimension": "temperature_interval",
+      "direction": "none",
+      "id": "t:AB",
+      "target": "pipe:AB",
+      "unit": "K",
+      "value": "475/2",
+      "value_bits": "406db00000000000"
+     },
+     {
+      "category": "thermal",
+      "dimension": "temperature_interval",
+      "direction": "none",
+      "id": "t:BC",
+      "target": "pipe:BC",
+      "unit": "K",
+      "value": "475/2",
+      "value_bits": "406db00000000000"
+     }
+    ],
+    "supports": [
+     {
+      "dof": "UX",
+      "identity": "anchor:A",
+      "law": "rigid",
+      "parameters": {},
+      "participation": "active",
+      "support": "anchor:A"
+     },
+     {
+      "dof": "UY",
+      "identity": "anchor:A",
+      "law": "rigid",
+      "parameters": {},
+      "participation": "active",
+      "support": "anchor:A"
+     },
+     {
+      "dof": "UZ",
+      "identity": "anchor:A",
+      "law": "rigid",
+      "parameters": {},
+      "participation": "active",
+      "support": "anchor:A"
+     },
+     {
+      "dof": "RX",
+      "identity": "anchor:A",
+      "law": "rigid",
+      "parameters": {},
+      "participation": "active",
+      "support": "anchor:A"
+     },
+     {
+      "dof": "RY",
+      "identity": "anchor:A",
+      "law": "rigid",
+      "parameters": {},
+      "participation": "active",
+      "support": "anchor:A"
+     },
+     {
+      "dof": "RZ",
+      "identity": "anchor:A",
+      "law": "rigid",
+      "parameters": {},
+      "participation": "active",
+      "support": "anchor:A"
+     },
+     {
+      "dof": "UX",
+      "identity": "anchor:C",
+      "law": "rigid",
+      "parameters": {},
+      "participation": "active",
+      "support": "anchor:C"
+     },
+     {
+      "dof": "UY",
+      "identity": "anchor:C",
+      "law": "rigid",
+      "parameters": {},
+      "participation": "active",
+      "support": "anchor:C"
+     },
+     {
+      "dof": "UZ",
+      "identity": "anchor:C",
+      "law": "rigid",
+      "parameters": {},
+      "participation": "active",
+      "support": "anchor:C"
+     },
+     {
+      "dof": "RX",
+      "identity": "anchor:C",
+      "law": "rigid",
+      "parameters": {},
+      "participation": "active",
+      "support": "anchor:C"
+     },
+     {
+      "dof": "RY",
+      "identity": "anchor:C",
+      "law": "rigid",
+      "parameters": {},
+      "participation": "active",
+      "support": "anchor:C"
+     },
+     {
+      "dof": "RZ",
+      "identity": "anchor:C",
+      "law": "rigid",
+      "parameters": {},
+      "participation": "active",
+      "support": "anchor:C"
+     }
+    ]
+   },
+   "stiffness_readings": {
+    "R": {
+     "g2_holds": true,
+     "verdict": "admitted"
+    },
+    "S": {
+     "g2_holds": false,
+     "verdict": "refused_g2"
+    },
+    "differ": true
+   },
+   "sustained": {
+    "basis": {
+     "AB": {
+      "E": "187500000000",
+      "G": "75000000000",
+      "case_basis_label": "W11_LO",
+      "constitutive_basis": "linear_elastic",
+      "material": "invented_w11_equal_moduli_two_alphas",
+      "nu": "1/4",
+      "section": {
+       "corrosion_allowance": "1/1024",
+       "mill_tolerance": "1/2048",
+       "outside_diameter": "35/128",
+       "wall": "9/1024"
+      },
+      "selection_kind": "exact_basis_reference",
+      "selection_record": {
+       "interpolation_fraction": null,
+       "kind": "exact_basis_reference",
+       "selected_E": "187500000000",
+       "selected_nu": "1/4",
+       "selection_temperature": "250"
+      }
+     },
+     "BC": {
+      "E": "187500000000",
+      "G": "75000000000",
+      "case_basis_label": "W11_LO",
+      "constitutive_basis": "linear_elastic",
+      "material": "invented_w11_equal_moduli_two_alphas",
+      "nu": "1/4",
+      "section": {
+       "corrosion_allowance": "1/1024",
+       "mill_tolerance": "1/2048",
+       "outside_diameter": "35/128",
+       "wall": "9/1024"
+      },
+      "selection_kind": "exact_basis_reference",
+      "selection_record": {
+       "interpolation_fraction": null,
+       "kind": "exact_basis_reference",
+       "selected_E": "187500000000",
+       "selected_nu": "1/4",
+       "selection_temperature": "250"
+      }
+     }
+    },
+    "case_id": "S",
+    "fixed_loads": [],
+    "generated": [],
+    "ledger": null,
+    "member_states": [],
+    "motions": [],
+    "pressure_elongation": false,
+    "pressure_regions": [],
+    "primitives": [
+     {
+      "category": "weight",
+      "dimension": "force",
+      "direction": "global_z",
+      "id": "w:B:z",
+      "target": "node:B",
+      "unit": "N",
+      "value": "-7375/4",
+      "value_bits": "c09ccf0000000000"
+     },
+     {
+      "category": "thermal",
+      "dimension": "temperature_interval",
+      "direction": "none",
+      "id": "t:AB",
+      "target": "pipe:AB",
+      "unit": "K",
+      "value": "475/2",
+      "value_bits": "406db00000000000"
+     },
+     {
+      "category": "thermal",
+      "dimension": "temperature_interval",
+      "direction": "none",
+      "id": "t:BC",
+      "target": "pipe:BC",
+      "unit": "K",
+      "value": "475/2",
+      "value_bits": "406db00000000000"
+     }
+    ],
+    "supports": [
+     {
+      "dof": "UX",
+      "identity": "anchor:A",
+      "law": "rigid",
+      "parameters": {},
+      "participation": "active",
+      "support": "anchor:A"
+     },
+     {
+      "dof": "UY",
+      "identity": "anchor:A",
+      "law": "rigid",
+      "parameters": {},
+      "participation": "active",
+      "support": "anchor:A"
+     },
+     {
+      "dof": "UZ",
+      "identity": "anchor:A",
+      "law": "rigid",
+      "parameters": {},
+      "participation": "active",
+      "support": "anchor:A"
+     },
+     {
+      "dof": "RX",
+      "identity": "anchor:A",
+      "law": "rigid",
+      "parameters": {},
+      "participation": "active",
+      "support": "anchor:A"
+     },
+     {
+      "dof": "RY",
+      "identity": "anchor:A",
+      "law": "rigid",
+      "parameters": {},
+      "participation": "active",
+      "support": "anchor:A"
+     },
+     {
+      "dof": "RZ",
+      "identity": "anchor:A",
+      "law": "rigid",
+      "parameters": {},
+      "participation": "active",
+      "support": "anchor:A"
+     },
+     {
+      "dof": "UX",
+      "identity": "anchor:C",
+      "law": "rigid",
+      "parameters": {},
+      "participation": "active",
+      "support": "anchor:C"
+     },
+     {
+      "dof": "UY",
+      "identity": "anchor:C",
+      "law": "rigid",
+      "parameters": {},
+      "participation": "active",
+      "support": "anchor:C"
+     },
+     {
+      "dof": "UZ",
+      "identity": "anchor:C",
+      "law": "rigid",
+      "parameters": {},
+      "participation": "active",
+      "support": "anchor:C"
+     },
+     {
+      "dof": "RX",
+      "identity": "anchor:C",
+      "law": "rigid",
+      "parameters": {},
+      "participation": "active",
+      "support": "anchor:C"
+     },
+     {
+      "dof": "RY",
+      "identity": "anchor:C",
+      "law": "rigid",
+      "parameters": {},
+      "participation": "active",
+      "support": "anchor:C"
+     },
+     {
+      "dof": "RZ",
+      "identity": "anchor:C",
+      "law": "rigid",
+      "parameters": {},
+      "participation": "active",
+      "support": "anchor:C"
+     }
+    ]
+   },
+   "title": "equal moduli, different expansion coefficients, thermal in both"
   }
  ],
  "builder_witnesses": [
@@ -33821,21 +34674,22 @@
   ]
  },
  "cross_checks": {
-  "added_rows": 14,
+  "added_rows": 15,
   "bar_solves": 22,
   "builder_witnesses": 2,
   "carried_gate_rows": 19,
   "carried_pair_rows": 1806,
   "carried_pairs": 17,
-  "case_equilibrium": 68,
+  "case_equilibrium": 70,
   "difference_equilibrium": 17,
-  "frame_solves": 91,
+  "frame_solves": 94,
   "hand_formula_m1": 2,
+  "hand_formula_w11": 1,
   "reading_J_pairs": 16,
-  "stiffness_readings_differ": 1,
+  "stiffness_readings_differ": 2,
   "verdict_admitted": 22,
   "verdict_refused_g1": 25,
-  "verdict_refused_g2": 2,
+  "verdict_refused_g2": 3,
   "verdict_refused_restraint": 3,
   "wall_form_equals_free_strain": 21
  },
@@ -34100,6 +34954,27 @@
    "outside_diameter_m": "1/4",
    "wall_area_m2": "7/1024*pi",
    "wall_m": "1/32"
+  },
+  "w11_material": {
+   "model": "M1 geometry and the frozen section, no pressure; weight at B and dT on every member in both operands",
+   "name": "invented_w11_equal_moduli_two_alphas",
+   "points": {
+    "250": {
+     "E": "187500000000",
+     "G": "75000000000",
+     "alpha": "5/524288"
+    },
+    "650": {
+     "E": "187500000000",
+     "G": "75000000000",
+     "alpha": "7/524288"
+    }
+   },
+   "poisson_ratio": "1/4",
+   "selections": {
+    "O": "exact basis reference to the 650 K point (W11_HI)",
+    "S": "exact basis reference to the 250 K point (W11_LO)"
+   }
   }
  },
  "pi_convention": "a value is a finite sum of rational multiples of integer powers of pi, written as in 3/4*pi + 1/2 + 5/7*pi^-1; value is the nearest binary64",

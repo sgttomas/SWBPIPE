@@ -33,7 +33,7 @@ def verdicts():
 
 
 def test_rows_are_all_read():
-    assert len(ROWS) == 19 + 17 + 14 + 2
+    assert len(ROWS) == 19 + 17 + 15 + 2
     assert len({row["id"] for row in ROWS}) == len(ROWS)
 
 
@@ -86,6 +86,10 @@ def _reference_configuration_compared(original):
     return lambda record: original(record) + (record.get("reference_configuration"),)
 
 
+def _selection_dropped_from_reading_s(original):
+    return {"S": original["R"], "R": original["R"]}
+
+
 MUTANTS = {
     "the factor dropped from the primitive key": ("primitive_key", _drop_factor),
     "extent dropped from the generated key": ("generated_key", _drop_extent),
@@ -93,6 +97,7 @@ MUTANTS = {
     "zero motion treated as an action": ("motion_is_action", _zero_motion_is_action),
     "a free DOF treated as fixed": ("restraint_law", _free_is_fixed),
     "the reference-configuration id added to the member key": ("state_key", _reference_configuration_compared),
+    "the selection kind, label and record dropped from reading S": ("READINGS", _selection_dropped_from_reading_s),
 }
 
 

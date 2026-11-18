@@ -11,7 +11,7 @@ The package contains:
 - the admission policy, stated once (below);
 - every row the frozen package has (19 gate rows and 17 numerical pairs), re-derived
   under that policy;
-- the added rows W1 to W9, F1, F2, F2b and K1;
+- the added rows W1 to W9, F1, F2, F2b, K1 and W11;
 - two builder's witnesses, X1 and X2.
 
 Every row carries two entries: an **admission** verdict and a **mechanical** result.
@@ -52,8 +52,8 @@ compares every carried row with `../exact_difference_basis/references.json`. Any
 reversal of a frozen verdict or change of a frozen value fails it. A separately written
 verifier of the policy, `tests/verifiers/exact_difference_basis.py`, reads the same
 rows. Its test, `tests/test_exact_difference_basis_verifier.py`, requires the
-verifier's verdict on every row to equal the package's. It also requires each of six
-wrong policies to reverse at least one row.
+verifier's verdict on every row to equal the package's, under both stiffness readings.
+It also requires each of seven wrong policies to reverse at least one row.
 
 **Re-freeze rule** (the frozen package's). No value changes to match a product output.
 A disagreement goes back to this reference's owner and an independent refuter.
@@ -267,6 +267,7 @@ the two verdicts differ.
 | Row | Under S | Under R | Why |
 |---|---|---|---|
 | K1 | `refused_g2` | `admitted` | equal E, ν and G on every member; S selects the exact 300 K point, O a solve temperature of 300 K interpolated at fraction 0 |
+| W11 | `refused_g2` | `admitted` | equal E, ν and G on every member; S and O select two points of one invented material whose expansion coefficients differ |
 
 No other row differs. The mixed-basis pair has another E, so both readings refuse it.
 `fails_g1_and_g2` fails G-1 first, so both readings refuse it under G-1.
@@ -310,8 +311,11 @@ the gate. Such a row tests the policy function only.
 - `linear_increment`: both operands are on one common linear stiffness and restraint
   operator. The value is the response of that operator to the difference of the two
   load vectors.
-- `state_difference`: the operands are on different operators. The value is the
-  difference of two independently solved states, with no claim of superposition.
+- `state_difference`: the value is the difference of two independently solved states,
+  with no claim of superposition. This is used where the operands are on different
+  operators, and for W11, where the operator is common but the two operands consume
+  different material content. Each such row says what the difference is the response
+  to.
 - `none`: no numerical result is defined. This is the case for the carried gate rows,
   for which the frozen package gives none.
 
@@ -324,7 +328,7 @@ can exist while `admission` refuses. The rows diverge for three reasons:
 - that response, as above (W5, X1);
 - the conservative recipe rule (W8);
 - the stricter stiffness policy, which may refuse a pair whose exact mechanical
-  difference exists (K1).
+  difference exists (K1, W11).
 
 On different operators the mechanical entry is a `state_difference` (W6, W7a, W7b and
 the mixed-basis pair). It is not an increment of anything.
@@ -449,7 +453,8 @@ In the table, "verdict" is the admission verdict and "mechanical" is the result
 | F1 terminal witness | pressurised cantilever, free-end terminal `transfers_to_wall` | the same, free end `separately_supported_or_compensated` | `refused_g1` | `linear_increment`: Δu_B = −p·A_i·L/(E·A) = −64607/81065856 m ⁴ | no |
 | F2 fit witness | free-length state: datum and installation 300 K, operating 500 K, α = 2⁻¹⁶ /K, fit strain 2⁻¹⁰ | the same, no fit | `refused_g1` | `linear_increment`: strain increment −8217/8388608; on a fixed-fixed bar of the W section, N = 57519π/8192 N | no |
 | F2b installation-only variant | as F2's O: installation 300 K, no fit | installation 400 K, no fit | `refused_g1` | `linear_increment`: strain increment −205425/134422528; N = 1437975π/131272 N on the same bar ⁵ | no |
-| K1 selection record only | frozen M1: weight, both regions at 5.75 MPa, elongation on, ΔT on every member; basis `REF` (exact 300 K point) | the same actions; basis a solve temperature of 300 K, interpolated between 300 K and 700 K at fraction 0 | `refused_g2` under S (`admitted` under R): the selection differs although E, ν and G are equal | `linear_increment`: 0 on each of M1's 84 rows (common operator, equal load vectors) | yes ⁶ |
+| K1 selection record only (the specification's W10) | frozen M1: weight, both regions at 5.75 MPa, elongation on, ΔT on every member; basis `REF` (exact 300 K point) | the same actions; basis a solve temperature of 300 K, interpolated between 300 K and 700 K at fraction 0 | `refused_g2` under S (`admitted` under R): the selection differs although E, ν and G are equal | `linear_increment`: 0 on each of M1's 84 rows (common operator, equal load vectors) | yes ⁶ |
+| W11 equal moduli, different expansion coefficients | M1, no pressure; weight at B, ΔT = 475/2 K on every member; the invented material's 250 K point (α = 5·2⁻¹⁹ /K) | the same actions; that material's 650 K point (α = 7·2⁻¹⁹ /K), the same E, ν and G | `refused_g2` under S (`admitted` under R): the selection differs | `state_difference` on the common operator: the response to (α_O − α_S)·ΔT = 475/524288 on every member; see "W11" below | yes ⁷ |
 
 1. Whether exact-route wind generation admits a load along the member axis is not
    established here, because establishing it would need product code. The row
@@ -468,7 +473,58 @@ In the table, "verdict" is the admission verdict and "mechanical" is the result
 6. Not established here whether the exact route's resolver records a solve temperature
    at a table point as an interpolation at fraction 0, rather than as that point.
    Establishing it would need product code. K1 was added at Agent 0's request, to
-   separate the two stiffness readings.
+   separate the two stiffness readings. K1 is the specification's row W10 (its
+   section 5.4, addendum 1: endpoint interpolation against an exact point).
+7. Not established here whether the exact route's resolver accepts a material whose
+   points share E and G but have different expansion coefficients, and records the two
+   selections as given. Establishing it would need product code.
+
+### W11: equal moduli, different expansion coefficients
+
+W11 uses the frozen M1 geometry and section with no pressure. Both operands carry the
+same actions: the weight at B and the thermal primitive ΔT = 475/2 K on every member.
+They select two points of a new invented, non-standard material,
+`invented_w11_equal_moduli_two_alphas`. It is not the frozen material and does not use
+the frozen bases.
+
+| Point | E (Pa) | G (Pa) | ν | α (/K) |
+|---|---|---|---|---|
+| 250 K (S selects it, as an exact basis reference) | 187 500 000 000 | 75 000 000 000 | 1/4 | 5·2⁻¹⁹ |
+| 650 K (O selects it, as an exact basis reference) | 187 500 000 000 | 75 000 000 000 | 1/4 | 7·2⁻¹⁹ |
+
+**Verdicts.**
+
+- Under reading S, the stiffness part refuses W11 (`refused_g2`). The case basis label
+  and the selection record's selection temperature differ.
+- Under reading R, the stiffness part holds and the authored classes hold, so this
+  package's policy admits W11 (`admitted`).
+- Neither reading compares the expansion coefficient.
+
+**Mechanics.** E, ν and G are equal, so the two operands share one operator, and their
+authored actions are equal. Both states are solved. Their difference is the response to
+the free strain (α_O − α_S)·ΔT = 2⁻¹⁸·475/2 = 475/524288 on every member, and to
+nothing else. The generator confirms this on all 84 rows by solving that free strain
+alone on the common operator.
+
+So reading R admits a pair whose published difference is not an expansion response on
+one basis. It is the response to a difference in selected expansion coefficients.
+
+The difference is recorded as a `state_difference`, with every row under `rows`.
+
+**Closed-form check.** The frozen package's "M1 by hand" flexibility, with E = 187.5 GPa
+and the free strain 475/524288 on both members, gives the support force and moment at C:
+
+- X = −11 750.96… N;
+- Y = −5 473.80… N;
+- Z = −23 153.85… N·m.
+
+These equal the difference's `reaction/C/FX`, `FY` and `MZ` exactly. The exact values
+are under `closed_form_check`.
+
+**What this package cannot say.** It cannot say whether a later check on the terms the
+solve consumed would refuse W11 under reading R. That is a matter for the engine's
+design, and nothing about it is frozen here. How the product's resolver records either
+selection is not established here, so W11 is marked gate-only (note 7).
 
 W2's formation note in the specification (a grouped binary64 force at B that differs
 by −2⁻⁴⁹ N from the separately formed extra region) concerns the order in which a
@@ -476,8 +532,8 @@ product forms binary64 values. It is not derived here and is not an entry.
 
 ## Builder's witnesses
 
-X1 and X2 were added by the builder, so that two of the six wrong policies of the
-verifier test can be caught: the added rows contain no ledger factor and no second
+X1 and X2 were added by the builder, so that two of the verifier test's wrong policies
+can be caught: the other added rows contain no ledger factor and no second
 reference-configuration identifier. Both are on the W bar, and each follows from the
 policy as written:
 
@@ -490,6 +546,9 @@ policy as written:
 |---|---|---|---|---|---|
 | X1 same stored primitive, other ledger factor | +1024 N at B.UX, ledger factor 1 | the same primitive, ledger factor 3/2 | `refused_g1`: the factors' bits differ | `linear_increment`: Δu_B = 1/(14π) m | yes: not established here whether the exact route accepts a ledger on this document |
 | X2 equal state, two reference-configuration identifiers | `constant_alpha_interval` on AB, α = 2⁻¹⁶ /K, 64 K, identifier RC-1 | the same operands, identifier RC-2 | `admitted`: no identifier is compared | `linear_increment`: 0 | yes: not established here whether one document can carry two reference configurations for one member |
+
+The verifier test's seventh wrong policy drops the selection kind, label and record
+from reading S. K1 and W11 reverse under it.
 
 ## What this package does not prove
 
