@@ -761,3 +761,46 @@ charge `ordinary_published_displacements(N)` is unchanged: at most one N-vector 
   - Test-only code is blanked in addition: the `else` tails of `let x = if .. {..} else {..};` and `use` semicolons.
 - **Regressions.** These are in `tests/test_862_pr_a.py`: nested test modules, a test statement inside a function,
   `cfg(not(test))`, attribute stacks, fields, arms, literals, and the real lib.rs case.
+
+### §8.63: the modal completed-set boundary (DEL-04-09, PR 390; candidate)
+
+**What moved.** PR 390 bounds the dense modal entry's typed outcome rows and shapes with fallible storage. The entry's
+body moves again, its text unchanged apart from storage, into `run_modal_dense_within` (the caller's completed-set
+limits); `run_modal_dense_with_budget` becomes its one-line delegation, as `run_modal_dense` is to it. The three
+Sensitive and cut-off texts are now `format_args!(..)` arguments of `ModalCompletedSetStorage::modal_completed_set_format`,
+which counts the length by one formatting pass and reserves exactly before writing. resource.rs gains the boundary
+(about 480 lines, 27 TEXT rows); the frame kernel gains `RestraintBasis::lift_into`; the modal eigen crate, which is
+not a priced crate, gains the `_with` storage variants. No function the retained graph reaches changes: at all four
+points the function multiplicities and the reached functions of the changed files are main's, by name.
+
+**Rules** (`rules/o10_rules.py`, label MODAL-CS; `tests/test_863_modal_completed_set.py`). None adds an owner.
+- MODAL-CS-RK: the three dense-entry audits are keyed on the function that holds the body, on their `format_args!(`
+  rows (the inventory's macros include it). The run stops unless `run_modal_dense_with_budget` is exactly its one-line
+  delegation with `None` limits. §8.58's delegation check of `run_modal_dense` stands.
+- MODAL-ID's whole-file pin of resource.rs is re-pinned. Its diff is the boundary's module docs, the two widened `use`
+  lines and the appended boundary; the P0 text is byte-identical, so §8.58's audits stand.
+- MODAL-CS-ID: the boundary's arguments the base leaves unclassified, each at a source bound: usize and u64 decimals
+  20 B; an expression String 54 B and a bound String 82 B, the longest of the pinned callers' own format strings; the
+  refusal's limit String 107 B. Where the base's by-name class already covers the source bound (`actual`, `value`,
+  `count`, `symbol`, `error`, `name`, the dimension's text) no audit is added.
+- MODAL-CS-ST: a refused request's `structure` is 35 B. Every production storage request and `ShapeStorageError`
+  construction in the product crate and the modal eigen crate is read. Each passes one of the named all-literal `&str`
+  constants or its own `structure` parameter. A computed, literal or locally bound structure stops the run.
+- MODAL-CS-RR: a premise read from the source, not an observation. A response-row `name` has no length in the source,
+  but no product build holds a `ModalCompletedSetLimits` or `ModalResponseRowProduct`: neither derives `Default`, no
+  production code constructs either, and `ResponseRows` is named only in the pinned resource.rs. So the name is empty
+  there, and the by-name 128 B covers the dimension's text. A production construction or mention stops the run.
+- MODAL-CS-LI: `lift_into` has no TEXT site. Its only production mention outside its definition is skew_pencil's call
+  (modal, unreached). The graph resolves calls by name, so any other priced mention stops the run.
+- MODAL-CS-M0: the boundary's 25 TEXT lines, the three moved rows and the five audited test rows must stay at
+  multiplicity 0 and present (`o10_check`). J3's test-code pattern sizes 0 the four test Debug sites of a whole
+  `ModalOutcome`, which have no source bound.
+- O10-GATE: two reviewed absences (`run_modal_dense_within`, `modal_completed_set_judge`) are keyed on the boundary's own
+  text, so a source before the boundary still prices.
+
+**Derivation (candidate, not a registration).** On `6f6dadbc2` (PR 390's reviewed head `6c6fc70e5` merged with main
+`3c8fc26a6`) the four points complete with O-10 0/0. The prune (36), the resolutions (8) and the remapped keys (889)
+are main's, and no hand-kept key moves. Against main `3c8fc26a6`'s tree, reproduced by its own tool, all 1,606
+coefficients are equal: none is higher and none is lower. `generate --check` with the registered basis line (1,717
+lines) and `point-atoms --check` (150 lines) are equal on the head. This tool, with only resource.rs's pin restored to
+main's value, reproduces main's tree exactly.
