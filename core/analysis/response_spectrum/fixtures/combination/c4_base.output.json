@@ -1,0 +1,1706 @@
+{
+  "cluster_sums": [
+    {
+      "cluster": 1,
+      "direction": "X",
+      "sign_status": "signed_cluster_sum",
+      "values": [
+        -201.70099546241127,
+        -268.93466061654834,
+        0.0,
+        556.5698007495942,
+        -417.4273505621956,
+        0.0,
+        -44.11255284970915,
+        -26.467531709825487,
+        -35.29004227976731,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        -0.00010517246785676017,
+        0.00007887935089257013,
+        0.0,
+        0.00006983978887864475,
+        0.00009311971850485965,
+        0.0,
+        -0.00012095775339107827,
+        0.00009071831504330871,
+        0.0,
+        0.00020193124168262853,
+        0.000269241655576838,
+        0.0,
+        -201.70099546241127,
+        -268.93466061654834,
+        0.0,
+        556.5698007495942,
+        -417.4273505621956,
+        0.0,
+        165.8443781779286,
+        221.1258375705715,
+        0.0,
+        -171.6008555784888,
+        128.7006416838666,
+        0.0,
+        -165.8443781779286,
+        -221.1258375705715,
+        0.0,
+        171.6008555784888,
+        -128.7006416838666,
+        0.0,
+        -26.467531709825487,
+        -35.29004227976731,
+        0.0,
+        0.0,
+        0.0,
+        0.0
+      ]
+    },
+    {
+      "cluster": 2,
+      "direction": "X",
+      "sign_status": "signed_cluster_sum",
+      "values": [
+        -332.0362498053156,
+        249.0271873539867,
+        0.0,
+        -502.88665934713475,
+        -670.5155457961797,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        78.37509569632483,
+        -62.700076557059866,
+        47.0250574177949,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.00009378700811373394,
+        0.00012504934415164524,
+        0.0,
+        0.00011132831055875317,
+        -0.00008349623291906488,
+        0.0,
+        0.00010628786394434504,
+        0.0001417171519257934,
+        0.0,
+        0.0003189090807955926,
+        -0.00023918181059669443,
+        0.0,
+        -332.0362498053156,
+        249.0271873539867,
+        0.0,
+        -502.88665934713475,
+        -670.5155457961797,
+        0.0,
+        269.59271130652536,
+        -202.194533479894,
+        0.0,
+        147.42414514518464,
+        196.56552686024617,
+        0.0,
+        -269.59271130652536,
+        202.194533479894,
+        0.0,
+        -147.42414514518464,
+        -196.56552686024617,
+        0.0,
+        -62.700076557059866,
+        47.0250574177949,
+        0.0,
+        0.0,
+        0.0,
+        0.0
+      ]
+    },
+    {
+      "cluster": 1,
+      "direction": "Y",
+      "sign_status": "signed_cluster_sum",
+      "values": [
+        -201.70099546241127,
+        -268.93466061654834,
+        0.0,
+        556.5698007495942,
+        -417.4273505621956,
+        0.0,
+        -44.11255284970915,
+        -26.467531709825487,
+        -35.29004227976731,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        -0.00010517246785676017,
+        0.00007887935089257013,
+        0.0,
+        0.00006983978887864475,
+        0.00009311971850485965,
+        0.0,
+        -0.00012095775339107827,
+        0.00009071831504330871,
+        0.0,
+        0.00020193124168262853,
+        0.000269241655576838,
+        0.0,
+        -201.70099546241127,
+        -268.93466061654834,
+        0.0,
+        556.5698007495942,
+        -417.4273505621956,
+        0.0,
+        165.8443781779286,
+        221.1258375705715,
+        0.0,
+        -171.6008555784888,
+        128.7006416838666,
+        0.0,
+        -165.8443781779286,
+        -221.1258375705715,
+        0.0,
+        171.6008555784888,
+        -128.7006416838666,
+        0.0,
+        -26.467531709825487,
+        -35.29004227976731,
+        0.0,
+        0.0,
+        0.0,
+        0.0
+      ]
+    },
+    {
+      "cluster": 2,
+      "direction": "Y",
+      "sign_status": "signed_cluster_sum",
+      "values": [
+        186.77039051549005,
+        -140.07779288661752,
+        0.0,
+        282.8737458827633,
+        377.16499451035105,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        -44.08599132918272,
+        35.26879306334617,
+        -26.45159479750963,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        -0.00005275519206397534,
+        -0.00007034025608530045,
+        0.0,
+        -0.00006262217468929866,
+        0.000046966631016973995,
+        0.0,
+        -0.000059786923468694085,
+        -0.00007971589795825878,
+        0.0,
+        -0.00017938635794752082,
+        0.00013453976846064061,
+        0.0,
+        186.77039051549005,
+        -140.07779288661752,
+        0.0,
+        282.8737458827633,
+        377.16499451035105,
+        0.0,
+        -151.64590010992052,
+        113.73442508244038,
+        0.0,
+        -82.92608164416636,
+        -110.56810885888848,
+        0.0,
+        151.64590010992052,
+        -113.73442508244038,
+        0.0,
+        82.92608164416636,
+        110.56810885888848,
+        0.0,
+        35.26879306334617,
+        -26.45159479750963,
+        0.0,
+        0.0,
+        0.0,
+        0.0
+      ]
+    }
+  ],
+  "clusters": [
+    {
+      "class": "periodic",
+      "cluster": 1,
+      "frequencies_hz": [
+        18.7460838945196
+      ],
+      "modes": [
+        1
+      ],
+      "standing_frequency_hz": 18.7460838945196
+    },
+    {
+      "class": "periodic",
+      "cluster": 2,
+      "frequencies_hz": [
+        19.57271054939856
+      ],
+      "modes": [
+        2
+      ],
+      "standing_frequency_hz": 19.57271054939856
+    },
+    {
+      "class": "rigid",
+      "cluster": 3,
+      "frequencies_hz": [
+        106.91050297398661
+      ],
+      "modes": [
+        3
+      ],
+      "standing_frequency_hz": 106.91050297398661
+    },
+    {
+      "class": "rigid",
+      "cluster": 4,
+      "frequencies_hz": [
+        107.0637306393264
+      ],
+      "modes": [
+        4
+      ],
+      "standing_frequency_hz": 107.0637306393264
+    }
+  ],
+  "cqc_correlation": {
+    "clusters": [
+      1,
+      2
+    ],
+    "rho": [
+      [
+        1.0,
+        0.8428083335720965
+      ],
+      [
+        0.8428083335720965,
+        1.0
+      ]
+    ]
+  },
+  "directions": [
+    "X",
+    "Y"
+  ],
+  "grouping_groups": null,
+  "outcome": "combined",
+  "provenance": "Inputs: the published signed contributions, modal metadata (mode, scope cluster, frequency) and rigid responses of analysis C4-BASE of validation/references/f2_spectrum/discrete/c4_close_pair.json (frozen), each as its binary64. This is a combination-unit contract fixture: its contributions were not produced by the product, it is not a spectrum solve result or a spectrum-1 document, and it has no standing as an engineering result.",
+  "rows": [
+    {
+      "combined": 799.8858254282085,
+      "component": "Fx",
+      "frame": "global",
+      "governing_direction": "X",
+      "key": "A1.Fx",
+      "object": "A1",
+      "per_direction": [
+        {
+          "combined": 755.8317502546147,
+          "direction": "X",
+          "periodic": 513.6346495103327,
+          "rigid": 242.19710074428204
+        },
+        {
+          "combined": 110.13518793398441,
+          "direction": "Y",
+          "periodic": 109.8467147041479,
+          "rigid": 0.28847322983651336
+        }
+      ],
+      "quantity": "support_reaction",
+      "sign_status": "unsigned_combined_magnitude",
+      "unit": "N"
+    },
+    {
+      "combined": 634.8235704775277,
+      "component": "Fy",
+      "frame": "global",
+      "governing_direction": "Y",
+      "key": "A1.Fy",
+      "object": "A1",
+      "per_direction": [
+        {
+          "combined": 146.84691724531254,
+          "direction": "X",
+          "periodic": 146.4622862721972,
+          "rigid": 0.38463097311535116
+        },
+        {
+          "combined": 576.0848035794027,
+          "direction": "Y",
+          "periodic": 394.26870197045315,
+          "rigid": 181.8161016089495
+        }
+      ],
+      "quantity": "support_reaction",
+      "sign_status": "unsigned_combined_magnitude",
+      "unit": "N"
+    },
+    {
+      "combined": 0.0,
+      "component": "Fz",
+      "frame": "global",
+      "governing_direction": "X",
+      "key": "A1.Fz",
+      "object": "A1",
+      "per_direction": [
+        {
+          "combined": 0.0,
+          "direction": "X",
+          "periodic": 0.0,
+          "rigid": 0.0
+        },
+        {
+          "combined": 0.0,
+          "direction": "Y",
+          "periodic": 0.0,
+          "rigid": 0.0
+        }
+      ],
+      "quantity": "support_reaction",
+      "sign_status": "unsigned_combined_magnitude",
+      "unit": "N"
+    },
+    {
+      "combined": 1006.83110332459,
+      "component": "Mx",
+      "frame": "global",
+      "governing_direction": "Y",
+      "key": "A1.Mx",
+      "object": "A1",
+      "per_direction": [
+        {
+          "combined": 301.72284219998784,
+          "direction": "X",
+          "periodic": 301.45499003389375,
+          "rigid": 0.26785216609411916
+        },
+        {
+          "combined": 886.1419664445949,
+          "direction": "Y",
+          "periodic": 809.4252747171093,
+          "rigid": 76.71669172748561
+        }
+      ],
+      "quantity": "support_reaction",
+      "sign_status": "unsigned_combined_magnitude",
+      "unit": "N*m"
+    },
+    {
+      "combined": 1239.371322036751,
+      "component": "My",
+      "frame": "global",
+      "governing_direction": "X",
+      "key": "A1.My",
+      "object": "A1",
+      "per_direction": [
+        {
+          "combined": 1148.8544693767547,
+          "direction": "X",
+          "periodic": 1046.7217941703288,
+          "rigid": 102.1326752064259
+        },
+        {
+          "combined": 226.29213164999086,
+          "direction": "Y",
+          "periodic": 226.09124252542028,
+          "rigid": 0.20088912457058938
+        }
+      ],
+      "quantity": "support_reaction",
+      "sign_status": "unsigned_combined_magnitude",
+      "unit": "N*m"
+    },
+    {
+      "combined": 0.0,
+      "component": "Mz",
+      "frame": "global",
+      "governing_direction": "X",
+      "key": "A1.Mz",
+      "object": "A1",
+      "per_direction": [
+        {
+          "combined": 0.0,
+          "direction": "X",
+          "periodic": 0.0,
+          "rigid": 0.0
+        },
+        {
+          "combined": 0.0,
+          "direction": "Y",
+          "periodic": 0.0,
+          "rigid": 0.0
+        }
+      ],
+      "quantity": "support_reaction",
+      "sign_status": "unsigned_combined_magnitude",
+      "unit": "N*m"
+    },
+    {
+      "combined": 62.36071118111598,
+      "component": "Fd",
+      "frame": "global",
+      "governing_direction": "X",
+      "key": "K1.Fd",
+      "object": "K1",
+      "per_direction": [
+        {
+          "combined": 44.54336512936855,
+          "direction": "X",
+          "periodic": 44.11255284970915,
+          "rigid": 0.4308122796594073
+        },
+        {
+          "combined": 44.54336512936855,
+          "direction": "Y",
+          "periodic": 44.11255284970915,
+          "rigid": 0.4308122796594073
+        }
+      ],
+      "quantity": "support_reaction",
+      "sign_status": "unsigned_combined_magnitude",
+      "unit": "N"
+    },
+    {
+      "combined": 37.41642670866959,
+      "component": "Fx",
+      "frame": "global",
+      "governing_direction": "X",
+      "key": "K1.Fx",
+      "object": "K1",
+      "per_direction": [
+        {
+          "combined": 26.72601907762113,
+          "direction": "X",
+          "periodic": 26.467531709825487,
+          "rigid": 0.2584873677956444
+        },
+        {
+          "combined": 26.72601907762113,
+          "direction": "Y",
+          "periodic": 26.467531709825487,
+          "rigid": 0.2584873677956444
+        }
+      ],
+      "quantity": "support_reaction",
+      "sign_status": "unsigned_combined_magnitude",
+      "unit": "N"
+    },
+    {
+      "combined": 49.888568944892775,
+      "component": "Fy",
+      "frame": "global",
+      "governing_direction": "X",
+      "key": "K1.Fy",
+      "object": "K1",
+      "per_direction": [
+        {
+          "combined": 35.63469210349484,
+          "direction": "X",
+          "periodic": 35.29004227976731,
+          "rigid": 0.34464982372752584
+        },
+        {
+          "combined": 35.63469210349484,
+          "direction": "Y",
+          "periodic": 35.29004227976731,
+          "rigid": 0.34464982372752584
+        }
+      ],
+      "quantity": "support_reaction",
+      "sign_status": "unsigned_combined_magnitude",
+      "unit": "N"
+    },
+    {
+      "combined": 97.05862647056148,
+      "component": "Fd",
+      "frame": "global",
+      "governing_direction": "X",
+      "key": "K2.Fd",
+      "object": "K2",
+      "per_direction": [
+        {
+          "combined": 79.23153181270324,
+          "direction": "X",
+          "periodic": 78.37509569632483,
+          "rigid": 0.856436116378411
+        },
+        {
+          "combined": 44.56773664464558,
+          "direction": "Y",
+          "periodic": 44.08599132918272,
+          "rigid": 0.4817453154628562
+        }
+      ],
+      "quantity": "support_reaction",
+      "sign_status": "unsigned_combined_magnitude",
+      "unit": "N"
+    },
+    {
+      "combined": 77.64690117644919,
+      "component": "Fx",
+      "frame": "global",
+      "governing_direction": "X",
+      "key": "K2.Fx",
+      "object": "K2",
+      "per_direction": [
+        {
+          "combined": 63.385225450162594,
+          "direction": "X",
+          "periodic": 62.700076557059866,
+          "rigid": 0.6851488931027289
+        },
+        {
+          "combined": 35.65418931571646,
+          "direction": "Y",
+          "periodic": 35.26879306334617,
+          "rigid": 0.38539625237028496
+        }
+      ],
+      "quantity": "support_reaction",
+      "sign_status": "unsigned_combined_magnitude",
+      "unit": "N"
+    },
+    {
+      "combined": 58.23517588233688,
+      "component": "Fy",
+      "frame": "global",
+      "governing_direction": "X",
+      "key": "K2.Fy",
+      "object": "K2",
+      "per_direction": [
+        {
+          "combined": 47.53891908762194,
+          "direction": "X",
+          "periodic": 47.0250574177949,
+          "rigid": 0.5138616698270466
+        },
+        {
+          "combined": 26.740641986787345,
+          "direction": "Y",
+          "periodic": 26.45159479750963,
+          "rigid": 0.2890471892777137
+        }
+      ],
+      "quantity": "support_reaction",
+      "sign_status": "unsigned_combined_magnitude",
+      "unit": "N"
+    },
+    {
+      "combined": 0.0,
+      "component": "rx",
+      "frame": "global",
+      "governing_direction": "X",
+      "key": "N1.rx",
+      "object": "N1",
+      "per_direction": [
+        {
+          "combined": 0.0,
+          "direction": "X",
+          "periodic": 0.0,
+          "rigid": 0.0
+        },
+        {
+          "combined": 0.0,
+          "direction": "Y",
+          "periodic": 0.0,
+          "rigid": 0.0
+        }
+      ],
+      "quantity": "node_displacement",
+      "sign_status": "unsigned_combined_magnitude",
+      "unit": "rad"
+    },
+    {
+      "combined": 0.0,
+      "component": "ry",
+      "frame": "global",
+      "governing_direction": "X",
+      "key": "N1.ry",
+      "object": "N1",
+      "per_direction": [
+        {
+          "combined": 0.0,
+          "direction": "X",
+          "periodic": 0.0,
+          "rigid": 0.0
+        },
+        {
+          "combined": 0.0,
+          "direction": "Y",
+          "periodic": 0.0,
+          "rigid": 0.0
+        }
+      ],
+      "quantity": "node_displacement",
+      "sign_status": "unsigned_combined_magnitude",
+      "unit": "rad"
+    },
+    {
+      "combined": 0.0,
+      "component": "rz",
+      "frame": "global",
+      "governing_direction": "X",
+      "key": "N1.rz",
+      "object": "N1",
+      "per_direction": [
+        {
+          "combined": 0.0,
+          "direction": "X",
+          "periodic": 0.0,
+          "rigid": 0.0
+        },
+        {
+          "combined": 0.0,
+          "direction": "Y",
+          "periodic": 0.0,
+          "rigid": 0.0
+        }
+      ],
+      "quantity": "node_displacement",
+      "sign_status": "unsigned_combined_magnitude",
+      "unit": "rad"
+    },
+    {
+      "combined": 0.0,
+      "component": "ux",
+      "frame": "global",
+      "governing_direction": "X",
+      "key": "N1.ux",
+      "object": "N1",
+      "per_direction": [
+        {
+          "combined": 0.0,
+          "direction": "X",
+          "periodic": 0.0,
+          "rigid": 0.0
+        },
+        {
+          "combined": 0.0,
+          "direction": "Y",
+          "periodic": 0.0,
+          "rigid": 0.0
+        }
+      ],
+      "quantity": "node_displacement",
+      "sign_status": "unsigned_combined_magnitude",
+      "unit": "m"
+    },
+    {
+      "combined": 0.0,
+      "component": "uy",
+      "frame": "global",
+      "governing_direction": "X",
+      "key": "N1.uy",
+      "object": "N1",
+      "per_direction": [
+        {
+          "combined": 0.0,
+          "direction": "X",
+          "periodic": 0.0,
+          "rigid": 0.0
+        },
+        {
+          "combined": 0.0,
+          "direction": "Y",
+          "periodic": 0.0,
+          "rigid": 0.0
+        }
+      ],
+      "quantity": "node_displacement",
+      "sign_status": "unsigned_combined_magnitude",
+      "unit": "m"
+    },
+    {
+      "combined": 0.0,
+      "component": "uz",
+      "frame": "global",
+      "governing_direction": "X",
+      "key": "N1.uz",
+      "object": "N1",
+      "per_direction": [
+        {
+          "combined": 0.0,
+          "direction": "X",
+          "periodic": 0.0,
+          "rigid": 0.0
+        },
+        {
+          "combined": 0.0,
+          "direction": "Y",
+          "periodic": 0.0,
+          "rigid": 0.0
+        }
+      ],
+      "quantity": "node_displacement",
+      "sign_status": "unsigned_combined_magnitude",
+      "unit": "m"
+    },
+    {
+      "combined": 0.00017627550610303393,
+      "component": "rx",
+      "frame": "global",
+      "governing_direction": "Y",
+      "key": "N2.rx",
+      "object": "N2",
+      "per_direction": [
+        {
+          "combined": 0.00005684049198846235,
+          "direction": "X",
+          "periodic": 0.0000568387763824211,
+          "rigid": 1.7156060412486502e-9
+        },
+        {
+          "combined": 0.00015353930930764897,
+          "direction": "Y",
+          "periodic": 0.00015230503357260033,
+          "rigid": 1.2342757350486285e-6
+        }
+      ],
+      "quantity": "node_displacement",
+      "sign_status": "unsigned_combined_magnitude",
+      "unit": "rad"
+    },
+    {
+      "combined": 0.00021487707152078022,
+      "component": "ry",
+      "frame": "global",
+      "governing_direction": "X",
+      "key": "N2.ry",
+      "object": "N2",
+      "per_direction": [
+        {
+          "combined": 0.0001978249239242415,
+          "direction": "X",
+          "periodic": 0.00019617822217398595,
+          "rigid": 1.6467017502555664e-6
+        },
+        {
+          "combined": 0.000042630368991346765,
+          "direction": "Y",
+          "periodic": 0.00004262908228681583,
+          "rigid": 1.2867045309364876e-9
+        }
+      ],
+      "quantity": "node_displacement",
+      "sign_status": "unsigned_combined_magnitude",
+      "unit": "rad"
+    },
+    {
+      "combined": 0.0,
+      "component": "rz",
+      "frame": "global",
+      "governing_direction": "X",
+      "key": "N2.rz",
+      "object": "N2",
+      "per_direction": [
+        {
+          "combined": 0.0,
+          "direction": "X",
+          "periodic": 0.0,
+          "rigid": 0.0
+        },
+        {
+          "combined": 0.0,
+          "direction": "Y",
+          "periodic": 0.0,
+          "rigid": 0.0
+        }
+      ],
+      "quantity": "node_displacement",
+      "sign_status": "unsigned_combined_magnitude",
+      "unit": "rad"
+    },
+    {
+      "combined": 0.00019353764379205824,
+      "component": "ux",
+      "frame": "global",
+      "governing_direction": "X",
+      "key": "N2.ux",
+      "object": "N2",
+      "per_direction": [
+        {
+          "combined": 0.00017842149333990352,
+          "direction": "X",
+          "periodic": 0.00017429143419393976,
+          "rigid": 4.130059145963776e-6
+        },
+        {
+          "combined": 0.000037790376130386774,
+          "direction": "Y",
+          "periodic": 0.000037776389167694915,
+          "rigid": 1.3986962691856891e-8
+        }
+      ],
+      "quantity": "node_displacement",
+      "sign_status": "unsigned_combined_magnitude",
+      "unit": "m"
+    },
+    {
+      "combined": 0.00015835025829992783,
+      "component": "uy",
+      "frame": "global",
+      "governing_direction": "Y",
+      "key": "N2.uy",
+      "object": "N2",
+      "per_direction": [
+        {
+          "combined": 0.00005038716817384903,
+          "direction": "X",
+          "periodic": 0.000050368518890259884,
+          "rigid": 1.864928358914252e-8
+        },
+        {
+          "combined": 0.00013819539103038822,
+          "direction": "Y",
+          "periodic": 0.00013508968760934513,
+          "rigid": 3.1057034210430816e-6
+        }
+      ],
+      "quantity": "node_displacement",
+      "sign_status": "unsigned_combined_magnitude",
+      "unit": "m"
+    },
+    {
+      "combined": 0.0,
+      "component": "uz",
+      "frame": "global",
+      "governing_direction": "X",
+      "key": "N2.uz",
+      "object": "N2",
+      "per_direction": [
+        {
+          "combined": 0.0,
+          "direction": "X",
+          "periodic": 0.0,
+          "rigid": 0.0
+        },
+        {
+          "combined": 0.0,
+          "direction": "Y",
+          "periodic": 0.0,
+          "rigid": 0.0
+        }
+      ],
+      "quantity": "node_displacement",
+      "sign_status": "unsigned_combined_magnitude",
+      "unit": "m"
+    },
+    {
+      "combined": 0.00020674249324927074,
+      "component": "rx",
+      "frame": "global",
+      "governing_direction": "Y",
+      "key": "N3.rx",
+      "object": "N3",
+      "per_direction": [
+        {
+          "combined": 0.00006528308620467105,
+          "direction": "X",
+          "periodic": 0.00006524588157355206,
+          "rigid": 3.720463111898586e-8
+        },
+        {
+          "combined": 0.0001806292587674023,
+          "direction": "Y",
+          "periodic": 0.00017434194789925792,
+          "rigid": 6.2873108681444004e-6
+        }
+      ],
+      "quantity": "node_displacement",
+      "sign_status": "unsigned_combined_magnitude",
+      "unit": "rad"
+    },
+    {
+      "combined": 0.0002515182768435472,
+      "component": "ry",
+      "frame": "global",
+      "governing_direction": "X",
+      "key": "N3.ry",
+      "object": "N3",
+      "per_direction": [
+        {
+          "combined": 0.0002319333509821459,
+          "direction": "X",
+          "periodic": 0.00022357197252610613,
+          "rigid": 8.361378456039792e-6
+        },
+        {
+          "combined": 0.000048962314653503295,
+          "direction": "Y",
+          "periodic": 0.00004893441118016406,
+          "rigid": 2.7903473339239396e-8
+        }
+      ],
+      "quantity": "node_displacement",
+      "sign_status": "unsigned_combined_magnitude",
+      "unit": "rad"
+    },
+    {
+      "combined": 0.0,
+      "component": "rz",
+      "frame": "global",
+      "governing_direction": "X",
+      "key": "N3.rz",
+      "object": "N3",
+      "per_direction": [
+        {
+          "combined": 0.0,
+          "direction": "X",
+          "periodic": 0.0,
+          "rigid": 0.0
+        },
+        {
+          "combined": 0.0,
+          "direction": "Y",
+          "periodic": 0.0,
+          "rigid": 0.0
+        }
+      ],
+      "quantity": "node_displacement",
+      "sign_status": "unsigned_combined_magnitude",
+      "unit": "rad"
+    },
+    {
+      "combined": 0.0005501179710388147,
+      "component": "ux",
+      "frame": "global",
+      "governing_direction": "X",
+      "key": "N3.ux",
+      "object": "N3",
+      "per_direction": [
+        {
+          "combined": 0.0005064849686342251,
+          "direction": "X",
+          "periodic": 0.0005010280190452144,
+          "rigid": 5.456949589010597e-6
+        },
+        {
+          "combined": 0.00010908250601147412,
+          "direction": "Y",
+          "periodic": 0.00010907063060801555,
+          "rigid": 1.1875403458565319e-8
+        }
+      ],
+      "quantity": "node_displacement",
+      "sign_status": "unsigned_combined_magnitude",
+      "unit": "m"
+    },
+    {
+      "combined": 0.00045170130466732164,
+      "component": "uy",
+      "frame": "global",
+      "governing_direction": "Y",
+      "key": "N3.uy",
+      "object": "N3",
+      "per_direction": [
+        {
+          "combined": 0.00014544334134863215,
+          "direction": "X",
+          "periodic": 0.00014542750747735406,
+          "rigid": 1.5833871278087094e-8
+        },
+        {
+          "combined": 0.00039352396812786873,
+          "direction": "Y",
+          "periodic": 0.00038942432861742665,
+          "rigid": 4.099639510442111e-6
+        }
+      ],
+      "quantity": "node_displacement",
+      "sign_status": "unsigned_combined_magnitude",
+      "unit": "m"
+    },
+    {
+      "combined": 0.0,
+      "component": "uz",
+      "frame": "global",
+      "governing_direction": "X",
+      "key": "N3.uz",
+      "object": "N3",
+      "per_direction": [
+        {
+          "combined": 0.0,
+          "direction": "X",
+          "periodic": 0.0,
+          "rigid": 0.0
+        },
+        {
+          "combined": 0.0,
+          "direction": "Y",
+          "periodic": 0.0,
+          "rigid": 0.0
+        }
+      ],
+      "quantity": "node_displacement",
+      "sign_status": "unsigned_combined_magnitude",
+      "unit": "m"
+    },
+    {
+      "combined": 799.8858254282085,
+      "component": "Fx",
+      "end": "i",
+      "frame": "global",
+      "governing_direction": "X",
+      "key": "P1.i.Fx",
+      "object": "P1",
+      "per_direction": [
+        {
+          "combined": 755.8317502546147,
+          "direction": "X",
+          "periodic": 513.6346495103327,
+          "rigid": 242.19710074428204
+        },
+        {
+          "combined": 110.13518793398441,
+          "direction": "Y",
+          "periodic": 109.8467147041479,
+          "rigid": 0.28847322983651336
+        }
+      ],
+      "quantity": "element_end_force",
+      "sign_status": "unsigned_combined_magnitude",
+      "unit": "N"
+    },
+    {
+      "combined": 634.8235704775277,
+      "component": "Fy",
+      "end": "i",
+      "frame": "global",
+      "governing_direction": "Y",
+      "key": "P1.i.Fy",
+      "object": "P1",
+      "per_direction": [
+        {
+          "combined": 146.84691724531254,
+          "direction": "X",
+          "periodic": 146.4622862721972,
+          "rigid": 0.38463097311535116
+        },
+        {
+          "combined": 576.0848035794027,
+          "direction": "Y",
+          "periodic": 394.26870197045315,
+          "rigid": 181.8161016089495
+        }
+      ],
+      "quantity": "element_end_force",
+      "sign_status": "unsigned_combined_magnitude",
+      "unit": "N"
+    },
+    {
+      "combined": 0.0,
+      "component": "Fz",
+      "end": "i",
+      "frame": "global",
+      "governing_direction": "X",
+      "key": "P1.i.Fz",
+      "object": "P1",
+      "per_direction": [
+        {
+          "combined": 0.0,
+          "direction": "X",
+          "periodic": 0.0,
+          "rigid": 0.0
+        },
+        {
+          "combined": 0.0,
+          "direction": "Y",
+          "periodic": 0.0,
+          "rigid": 0.0
+        }
+      ],
+      "quantity": "element_end_force",
+      "sign_status": "unsigned_combined_magnitude",
+      "unit": "N"
+    },
+    {
+      "combined": 1006.83110332459,
+      "component": "Mx",
+      "end": "i",
+      "frame": "global",
+      "governing_direction": "Y",
+      "key": "P1.i.Mx",
+      "object": "P1",
+      "per_direction": [
+        {
+          "combined": 301.72284219998784,
+          "direction": "X",
+          "periodic": 301.45499003389375,
+          "rigid": 0.26785216609411916
+        },
+        {
+          "combined": 886.1419664445949,
+          "direction": "Y",
+          "periodic": 809.4252747171093,
+          "rigid": 76.71669172748561
+        }
+      ],
+      "quantity": "element_end_force",
+      "sign_status": "unsigned_combined_magnitude",
+      "unit": "N*m"
+    },
+    {
+      "combined": 1239.371322036751,
+      "component": "My",
+      "end": "i",
+      "frame": "global",
+      "governing_direction": "X",
+      "key": "P1.i.My",
+      "object": "P1",
+      "per_direction": [
+        {
+          "combined": 1148.8544693767547,
+          "direction": "X",
+          "periodic": 1046.7217941703288,
+          "rigid": 102.1326752064259
+        },
+        {
+          "combined": 226.29213164999086,
+          "direction": "Y",
+          "periodic": 226.09124252542028,
+          "rigid": 0.20088912457058938
+        }
+      ],
+      "quantity": "element_end_force",
+      "sign_status": "unsigned_combined_magnitude",
+      "unit": "N*m"
+    },
+    {
+      "combined": 0.0,
+      "component": "Mz",
+      "end": "i",
+      "frame": "global",
+      "governing_direction": "X",
+      "key": "P1.i.Mz",
+      "object": "P1",
+      "per_direction": [
+        {
+          "combined": 0.0,
+          "direction": "X",
+          "periodic": 0.0,
+          "rigid": 0.0
+        },
+        {
+          "combined": 0.0,
+          "direction": "Y",
+          "periodic": 0.0,
+          "rigid": 0.0
+        }
+      ],
+      "quantity": "element_end_force",
+      "sign_status": "unsigned_combined_magnitude",
+      "unit": "N*m"
+    },
+    {
+      "combined": 466.38072192351547,
+      "component": "Fx",
+      "end": "j",
+      "frame": "global",
+      "governing_direction": "X",
+      "key": "P1.j.Fx",
+      "object": "P1",
+      "per_direction": [
+        {
+          "combined": 430.33146437924955,
+          "direction": "X",
+          "periodic": 418.98597011285585,
+          "rigid": 11.345494266393716
+        },
+        {
+          "combined": 90.12314386066464,
+          "direction": "Y",
+          "periodic": 90.0456447436161,
+          "rigid": 0.07749911704855188
+        }
+      ],
+      "quantity": "element_end_force",
+      "sign_status": "unsigned_combined_magnitude",
+      "unit": "N"
+    },
+    {
+      "combined": 379.3682089608972,
+      "component": "Fy",
+      "end": "j",
+      "frame": "global",
+      "governing_direction": "Y",
+      "key": "P1.j.Fy",
+      "object": "P1",
+      "per_direction": [
+        {
+          "combined": 120.16419181421954,
+          "direction": "X",
+          "periodic": 120.06085965815481,
+          "rigid": 0.10333215606473584
+        },
+        {
+          "combined": 331.30253223520936,
+          "direction": "Y",
+          "periodic": 322.8386193536924,
+          "rigid": 8.463912881516965
+        }
+      ],
+      "quantity": "element_end_force",
+      "sign_status": "unsigned_combined_magnitude",
+      "unit": "N"
+    },
+    {
+      "combined": 0.0,
+      "component": "Fz",
+      "end": "j",
+      "frame": "global",
+      "governing_direction": "X",
+      "key": "P1.j.Fz",
+      "object": "P1",
+      "per_direction": [
+        {
+          "combined": 0.0,
+          "direction": "X",
+          "periodic": 0.0,
+          "rigid": 0.0
+        },
+        {
+          "combined": 0.0,
+          "direction": "Y",
+          "periodic": 0.0,
+          "rigid": 0.0
+        }
+      ],
+      "quantity": "element_end_force",
+      "sign_status": "unsigned_combined_magnitude",
+      "unit": "N"
+    },
+    {
+      "combined": 319.2106741996094,
+      "component": "Mx",
+      "end": "j",
+      "frame": "global",
+      "governing_direction": "Y",
+      "key": "P1.j.Mx",
+      "object": "P1",
+      "per_direction": [
+        {
+          "combined": 92.58733569741695,
+          "direction": "X",
+          "periodic": 92.40030999960987,
+          "rigid": 0.1870256978070679
+        },
+        {
+          "combined": 282.1757399206426,
+          "direction": "Y",
+          "periodic": 245.58140868982906,
+          "rigid": 36.59433123081359
+        }
+      ],
+      "quantity": "element_end_force",
+      "sign_status": "unsigned_combined_magnitude",
+      "unit": "N*m"
+    },
+    {
+      "combined": 389.26104088796757,
+      "component": "My",
+      "end": "j",
+      "frame": "global",
+      "governing_direction": "X",
+      "key": "P1.j.My",
+      "object": "P1",
+      "per_direction": [
+        {
+          "combined": 361.4848401787425,
+          "direction": "X",
+          "periodic": 312.80149686137855,
+          "rigid": 48.68334331736399
+        },
+        {
+          "combined": 69.4405017730627,
+          "direction": "Y",
+          "periodic": 69.3002324997074,
+          "rigid": 0.14026927335530093
+        }
+      ],
+      "quantity": "element_end_force",
+      "sign_status": "unsigned_combined_magnitude",
+      "unit": "N*m"
+    },
+    {
+      "combined": 0.0,
+      "component": "Mz",
+      "end": "j",
+      "frame": "global",
+      "governing_direction": "X",
+      "key": "P1.j.Mz",
+      "object": "P1",
+      "per_direction": [
+        {
+          "combined": 0.0,
+          "direction": "X",
+          "periodic": 0.0,
+          "rigid": 0.0
+        },
+        {
+          "combined": 0.0,
+          "direction": "Y",
+          "periodic": 0.0,
+          "rigid": 0.0
+        }
+      ],
+      "quantity": "element_end_force",
+      "sign_status": "unsigned_combined_magnitude",
+      "unit": "N*m"
+    },
+    {
+      "combined": 466.38072192351547,
+      "component": "Fx",
+      "end": "i",
+      "frame": "global",
+      "governing_direction": "X",
+      "key": "P2.i.Fx",
+      "object": "P2",
+      "per_direction": [
+        {
+          "combined": 430.33146437924955,
+          "direction": "X",
+          "periodic": 418.98597011285585,
+          "rigid": 11.345494266393716
+        },
+        {
+          "combined": 90.12314386066464,
+          "direction": "Y",
+          "periodic": 90.0456447436161,
+          "rigid": 0.07749911704855188
+        }
+      ],
+      "quantity": "element_end_force",
+      "sign_status": "unsigned_combined_magnitude",
+      "unit": "N"
+    },
+    {
+      "combined": 379.3682089608972,
+      "component": "Fy",
+      "end": "i",
+      "frame": "global",
+      "governing_direction": "Y",
+      "key": "P2.i.Fy",
+      "object": "P2",
+      "per_direction": [
+        {
+          "combined": 120.16419181421954,
+          "direction": "X",
+          "periodic": 120.06085965815481,
+          "rigid": 0.10333215606473584
+        },
+        {
+          "combined": 331.30253223520936,
+          "direction": "Y",
+          "periodic": 322.8386193536924,
+          "rigid": 8.463912881516965
+        }
+      ],
+      "quantity": "element_end_force",
+      "sign_status": "unsigned_combined_magnitude",
+      "unit": "N"
+    },
+    {
+      "combined": 0.0,
+      "component": "Fz",
+      "end": "i",
+      "frame": "global",
+      "governing_direction": "X",
+      "key": "P2.i.Fz",
+      "object": "P2",
+      "per_direction": [
+        {
+          "combined": 0.0,
+          "direction": "X",
+          "periodic": 0.0,
+          "rigid": 0.0
+        },
+        {
+          "combined": 0.0,
+          "direction": "Y",
+          "periodic": 0.0,
+          "rigid": 0.0
+        }
+      ],
+      "quantity": "element_end_force",
+      "sign_status": "unsigned_combined_magnitude",
+      "unit": "N"
+    },
+    {
+      "combined": 319.2106741996094,
+      "component": "Mx",
+      "end": "i",
+      "frame": "global",
+      "governing_direction": "Y",
+      "key": "P2.i.Mx",
+      "object": "P2",
+      "per_direction": [
+        {
+          "combined": 92.58733569741695,
+          "direction": "X",
+          "periodic": 92.40030999960987,
+          "rigid": 0.1870256978070679
+        },
+        {
+          "combined": 282.1757399206426,
+          "direction": "Y",
+          "periodic": 245.58140868982906,
+          "rigid": 36.59433123081359
+        }
+      ],
+      "quantity": "element_end_force",
+      "sign_status": "unsigned_combined_magnitude",
+      "unit": "N*m"
+    },
+    {
+      "combined": 389.26104088796757,
+      "component": "My",
+      "end": "i",
+      "frame": "global",
+      "governing_direction": "X",
+      "key": "P2.i.My",
+      "object": "P2",
+      "per_direction": [
+        {
+          "combined": 361.4848401787425,
+          "direction": "X",
+          "periodic": 312.80149686137855,
+          "rigid": 48.68334331736399
+        },
+        {
+          "combined": 69.4405017730627,
+          "direction": "Y",
+          "periodic": 69.3002324997074,
+          "rigid": 0.14026927335530093
+        }
+      ],
+      "quantity": "element_end_force",
+      "sign_status": "unsigned_combined_magnitude",
+      "unit": "N*m"
+    },
+    {
+      "combined": 0.0,
+      "component": "Mz",
+      "end": "i",
+      "frame": "global",
+      "governing_direction": "X",
+      "key": "P2.i.Mz",
+      "object": "P2",
+      "per_direction": [
+        {
+          "combined": 0.0,
+          "direction": "X",
+          "periodic": 0.0,
+          "rigid": 0.0
+        },
+        {
+          "combined": 0.0,
+          "direction": "Y",
+          "periodic": 0.0,
+          "rigid": 0.0
+        }
+      ],
+      "quantity": "element_end_force",
+      "sign_status": "unsigned_combined_magnitude",
+      "unit": "N*m"
+    },
+    {
+      "combined": 94.89068690166974,
+      "component": "Fx",
+      "end": "j",
+      "frame": "global",
+      "governing_direction": "X",
+      "key": "P2.j.Fx",
+      "object": "P2",
+      "per_direction": [
+        {
+          "combined": 87.13608436327162,
+          "direction": "X",
+          "periodic": 86.19244810237325,
+          "rigid": 0.9436362608983732
+        },
+        {
+          "combined": 19.386506345995308,
+          "direction": "Y",
+          "periodic": 19.259597461420668,
+          "rigid": 0.12690888457464058
+        }
+      ],
+      "quantity": "element_end_force",
+      "sign_status": "unsigned_combined_magnitude",
+      "unit": "N"
+    },
+    {
+      "combined": 70.29061690840284,
+      "component": "Fy",
+      "end": "j",
+      "frame": "global",
+      "governing_direction": "Y",
+      "key": "P2.j.Fy",
+      "object": "P2",
+      "per_direction": [
+        {
+          "combined": 25.848675127993744,
+          "direction": "X",
+          "periodic": 25.679463281894225,
+          "rigid": 0.16921184609952078
+        },
+        {
+          "combined": 59.951146857205345,
+          "direction": "Y",
+          "periodic": 59.317449844200105,
+          "rigid": 0.6336970130052395
+        }
+      ],
+      "quantity": "element_end_force",
+      "sign_status": "unsigned_combined_magnitude",
+      "unit": "N"
+    },
+    {
+      "combined": 0.0,
+      "component": "Fz",
+      "end": "j",
+      "frame": "global",
+      "governing_direction": "X",
+      "key": "P2.j.Fz",
+      "object": "P2",
+      "per_direction": [
+        {
+          "combined": 0.0,
+          "direction": "X",
+          "periodic": 0.0,
+          "rigid": 0.0
+        },
+        {
+          "combined": 0.0,
+          "direction": "Y",
+          "periodic": 0.0,
+          "rigid": 0.0
+        }
+      ],
+      "quantity": "element_end_force",
+      "sign_status": "unsigned_combined_magnitude",
+      "unit": "N"
+    },
+    {
+      "combined": 0.0,
+      "component": "Mx",
+      "end": "j",
+      "frame": "global",
+      "governing_direction": "X",
+      "key": "P2.j.Mx",
+      "object": "P2",
+      "per_direction": [
+        {
+          "combined": 0.0,
+          "direction": "X",
+          "periodic": 0.0,
+          "rigid": 0.0
+        },
+        {
+          "combined": 0.0,
+          "direction": "Y",
+          "periodic": 0.0,
+          "rigid": 0.0
+        }
+      ],
+      "quantity": "element_end_force",
+      "sign_status": "unsigned_combined_magnitude",
+      "unit": "N*m"
+    },
+    {
+      "combined": 0.0,
+      "component": "My",
+      "end": "j",
+      "frame": "global",
+      "governing_direction": "X",
+      "key": "P2.j.My",
+      "object": "P2",
+      "per_direction": [
+        {
+          "combined": 0.0,
+          "direction": "X",
+          "periodic": 0.0,
+          "rigid": 0.0
+        },
+        {
+          "combined": 0.0,
+          "direction": "Y",
+          "periodic": 0.0,
+          "rigid": 0.0
+        }
+      ],
+      "quantity": "element_end_force",
+      "sign_status": "unsigned_combined_magnitude",
+      "unit": "N*m"
+    },
+    {
+      "combined": 0.0,
+      "component": "Mz",
+      "end": "j",
+      "frame": "global",
+      "governing_direction": "X",
+      "key": "P2.j.Mz",
+      "object": "P2",
+      "per_direction": [
+        {
+          "combined": 0.0,
+          "direction": "X",
+          "periodic": 0.0,
+          "rigid": 0.0
+        },
+        {
+          "combined": 0.0,
+          "direction": "Y",
+          "periodic": 0.0,
+          "rigid": 0.0
+        }
+      ],
+      "quantity": "element_end_force",
+      "sign_status": "unsigned_combined_magnitude",
+      "unit": "N*m"
+    }
+  ],
+  "rules": {
+    "damping_ratio": 0.05,
+    "directional_combination": "100-40-40",
+    "missing_mass": {
+      "applied": true,
+      "rigid_combination": "ABSOLUTE_SUM",
+      "rigid_frequency_hz": 60.0
+    },
+    "modal_combination": "CQC"
+  },
+  "schema": "openpipestress.spectrum_combination.output/v1",
+  "statement": "Unsigned combined magnitudes formed by the stated modal, rigid-response and directional combination rules from the supplied signed contributions, summing the modes of each supplied cluster with their signs first. Under an absolute-sum rule a magnitude is the sum of the magnitudes it combines. The contributions and their modal metadata are inputs to this unit; it forms no modal response, solves no eigenproblem or rigid response, and is not a response-spectrum analysis result. It establishes neither physical correctness nor code compliance.",
+  "ten_percent_pairs": null
+}

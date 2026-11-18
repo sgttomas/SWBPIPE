@@ -86,8 +86,8 @@ describe("embedded agent milestone 2 component journey (webview link)", () => {
     const before = (family: RecordFamily, record: Record<string, unknown>) => recordBefore(family, record, "{}");
     expect(await before("nodes", { id: "node:a", label: "  ", position: { x: 0, y: 0, z: 0 } })).toEqual({});
     expect(await before("nodes", { id: "node:a", label: "A", position: { x: 0, y: Number.NaN, z: 0 } })).toEqual({});
-    expect(await before("pipe_segments", { id: "pipe:a", label: "P", from: "node:a", to: "node:b", material: " " })).toEqual({});
-    expect(Object.keys(await before("supports", { id: "support:a", node: "node:a", restraints: ["UX"] }))).toEqual(["configuration"]);
+    expect(await before("pipe_segments", { id: "pipe:a", label: "P", from: "node:a", to: "node:b", material: " " })).toEqual({ condition_set_ref: "not_present" });
+    expect(Object.keys(await before("supports", { id: "support:a", node: "node:a", restraints: ["UX"] }))).toEqual(["configuration", "provenance_record"]);
   });
 
   it("stops reporting a component once the person's k, SIFs and source are entered", () => {
