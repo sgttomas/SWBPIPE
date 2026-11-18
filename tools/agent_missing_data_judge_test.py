@@ -47,7 +47,7 @@ def synthetic_trace() -> dict:
     text = final_text()
     findings = [finding("finding:inboard-density", INBOARD), finding("finding:outboard-density", OUTBOARD)]
     return {
-        "schema": "swbpipe-agent-missing-data-observation/2",
+        "schema": "swbpipe-agent-missing-data-observation/3",
         "use_case": "missing-data",
         "runner_mode": "agent with a scripted provider",
         "observer": "desktop_harness",
@@ -73,6 +73,7 @@ def synthetic_trace() -> dict:
             enter(OUTBOARD, 8000),
         ],
         "final_model_text": text,
+        "checks_after_entries": {"model_text_sha256": witness_digest(text), "findings": []},
         "agent_report": {"execution_ref": "job:synthetic-2", "result_handle_ref": "handle:synthetic-2",
                          "quoted_results": dict(RESULTS),
                          "missing_values_reported": [{"entity_ref": k[0], "field_path": k[1]} for k in (INBOARD, OUTBOARD)]},
@@ -83,13 +84,26 @@ def codes(observation) -> list[str]:
     return [code for code, _ in judge(observation).failures]
 
 
-def test_the_synthetic_consistent_trace_is_route_only_and_claims_nothing_more():
-    verdict = judge(synthetic_trace())
-    assert verdict.passed, verdict.failures
-    reported = verdict.as_json()
-    assert reported["outcome"] == "trace consistent offline; route only under a scripted provider"
-    assert "not authenticated" in reported["standing"] and "not acceptance" in reported["standing"]
-    for text in (reported["outcome"], reported["standing"], judge_module.__doc__):
+def test_both_consistent_paths_are_named_apart_and_claim_nothing_more():
+    # The truthful executed refusal: consistent, but a job ran first, so it is not the flow.
+    refusal = judge(synthetic_trace())
+    assert refusal.passed, refusal.failures
+    reported = refusal.as_json()
+    assert reported["counts_as_missing_data_flow"] is False
+    assert reported["outcome"] == judge_module.EXECUTED_REFUSAL_OUTCOME
+    assert reported["outcome"].startswith("executed refusal:") and "not the missing-data flow" in reported["outcome"]
+    assert [item["code"] for item in reported["flow_gaps"]] == ["FLOW-INITIAL-SOLVE-EXECUTED", "FLOW-JOB-BEFORE-FINAL-SOLVE"]
+    # The flow: withheld by the gate before any job, then the same entries and the final solve.
+    flow = judge(mutated(withheld))
+    assert flow.passed and flow.counts_as_flow, (flow.failures, flow.flow_gaps)
+    shown = flow.as_json()
+    assert shown["outcome"] == judge_module.FLOW_OUTCOME and shown["flow_gaps"] == []
+    for reported in (reported, shown):
+        assert "not authenticated" in reported["standing"] and "not acceptance" in reported["standing"]
+        # A synthetic pass never claims a captured run.
+        assert reported["capture"].startswith("not established") and "no captured run" in reported["capture"]
+        assert "scripted provider" in reported["outcome"]
+    for text in (shown["outcome"], refusal.as_json()["outcome"], shown["standing"], judge_module.__doc__):
         assert not re.search(r"\b(accepted|qualified|certif|complian)", text.replace("not acceptance", ""), re.I)
 
 
@@ -294,7 +308,8 @@ def test_the_agents_missing_value_report_is_compared_with_the_scenario():
 
 @pytest.mark.parametrize("path", [
     ("schema",), ("executions", 0, "results"), ("findings_shown", 0, "blocks_solve"), ("steps", 0, "kind"),
-    ("agent_report", "quoted_results"), ("final_model_text",),
+    ("agent_report", "quoted_results"), ("final_model_text",), ("checks_after_entries",),
+    ("checks_after_entries", "findings"), ("checks_after_entries", "model_text_sha256"),
 ])
 def test_invalid_shapes_fail_by_name(path):
     trace = synthetic_trace()
@@ -314,8 +329,16 @@ def test_the_cli_reads_only_the_observation_and_never_a_scenario_path(tmp_path):
     observation.write_text(json.dumps(synthetic_trace()))
     script = TOOLS / "agent_missing_data_judge.py"
     done = subprocess.run([sys.executable, str(script), "--observation", str(observation)], capture_output=True, text=True)
+    # The executed refusal is consistent but not the flow: its own exit code.
+    assert done.returncode == 3, done.stderr
+    assert json.loads(done.stdout)["passed"] is True and json.loads(done.stdout)["counts_as_missing_data_flow"] is False
+    observation.write_text(json.dumps(mutated(withheld)))
+    done = subprocess.run([sys.executable, str(script), "--observation", str(observation)], capture_output=True, text=True)
     assert done.returncode == 0, done.stderr
-    assert json.loads(done.stdout)["passed"] is True
+    assert json.loads(done.stdout)["counts_as_missing_data_flow"] is True
+    observation.write_text(json.dumps(mutated(lambda t: t["agent_report"].update(quoted_results={}))))
+    assert subprocess.run([sys.executable, str(script), "--observation", str(observation)], capture_output=True).returncode == 1
+    observation.write_text(json.dumps(synthetic_trace()))
     refused = subprocess.run([sys.executable, str(script), "--observation", str(observation), "--scenario", str(tmp_path)],
                              capture_output=True, text=True)
     assert refused.returncode == 2
@@ -673,3 +696,133 @@ def test_the_start_is_refused_naming_each_missing_value_and_the_entered_model_so
     solved = runner_solve(binary, SCENARIO.expected_final_model())
     assert solved["status"]["mechanics"] == "MECHANICS_SOLVED" and solved["results"]
     assert not [item for item in solved["diagnostics"] if item["severity"] == "blocking"]
+
+
+# --- The missing-data flow (issue 380): the flow's own conditions ----------------
+# Baseline: the gate withholds the first Solve; everything else as the synthetic trace.
+# Each control below keeps the trace from counting as the flow, either as a named
+# consistency failure or as a named flow gap.
+
+def flow_trace() -> dict:
+    """SYNTHETIC: a trace consistent with the missing-data flow."""
+    return mutated(withheld)
+
+
+def flow_mutated(change) -> dict:
+    trace = flow_trace()
+    change(trace)
+    return trace
+
+
+def gaps(observation) -> list[str]:
+    return [code for code, _ in judge(observation).flow_gaps]
+
+
+def not_the_flow(observation) -> None:
+    verdict = judge(observation)
+    assert not verdict.counts_as_flow
+    assert verdict.as_json()["outcome"] != judge_module.FLOW_OUTCOME
+
+
+def test_the_flow_baseline_counts_and_states_its_limits():
+    verdict = judge(flow_trace())
+    assert verdict.counts_as_flow and not verdict.failures and not verdict.flow_gaps
+
+
+def test_a_native_job_before_the_final_solve_keeps_a_trace_from_the_flow():
+    # The withheld Solve gains a job: a consistency failure.
+    def job_appears(trace):
+        trace["executions"][0]["job_id"] = "job:appeared"
+    assert codes(flow_mutated(job_appears)) == ["WITHHELD-SOLVE-HAS-JOB"]
+    not_the_flow(flow_mutated(job_appears))
+    # A refused job between the withheld Solve and the final one: consistent, not the flow.
+    def refused_between(trace):
+        record = copy.deepcopy(synthetic_trace()["executions"][0])
+        record.update(request_id="request:between", job_id="job:between", outcome="refused")
+        trace["executions"].insert(1, record)
+    assert codes(flow_mutated(refused_between)) == []
+    assert gaps(flow_mutated(refused_between)) == ["FLOW-JOB-BEFORE-FINAL-SOLVE"]
+    not_the_flow(flow_mutated(refused_between))
+    # A second withheld Solve between them (one value entered) keeps the flow.
+    def withheld_between(trace):
+        record = copy.deepcopy(trace["executions"][0])
+        record["request_id"] = "request:between"
+        trace["executions"].insert(1, record)
+    assert judge(flow_mutated(withheld_between)).counts_as_flow
+
+
+def test_missing_or_extra_findings_keep_a_trace_from_the_flow():
+    for change, expected in [
+        (lambda t: t["executions"][0]["findings"].pop(), ["INITIAL-FINDINGS-MISSING"]),
+        (lambda t: t["executions"][0]["findings"].append(finding("finding:od", ("pipe:md-inboard", "section.outside_diameter"))),
+         ["INITIAL-FINDINGS-EXTRA"]),
+        (lambda t: t["findings_shown"].append(finding("finding:od", ("pipe:md-inboard", "section.outside_diameter"))),
+         ["FINDINGS-EXTRA"]),
+    ]:
+        assert codes(flow_mutated(change)) == expected
+        not_the_flow(flow_mutated(change))
+
+
+def test_findings_shown_that_the_gate_did_not_give_keep_a_trace_from_the_flow():
+    # Before/after: the findings navigated are not the ones the gate gave before any job.
+    def renamed(trace):
+        trace["findings_shown"][0]["finding_id"] = "finding:after-a-job"
+        trace["steps"][0]["finding_id"] = "finding:after-a-job"
+    assert codes(flow_mutated(renamed)) == []
+    assert gaps(flow_mutated(renamed)) == ["FLOW-FINDING-NOT-FROM-GATE"]
+    not_the_flow(flow_mutated(renamed))
+    def crossed(trace):  # the gate's id now names the other entity
+        trace["executions"][0]["findings"][0]["entity_ref"] = OUTBOARD[0]
+        trace["executions"][0]["findings"][1]["entity_ref"] = INBOARD[0]
+    assert "FLOW-FINDING-NOT-FROM-GATE" in gaps(flow_mutated(crossed))
+
+
+def test_findings_not_cleared_after_the_entries_keep_a_trace_from_the_flow():
+    assert gaps(flow_mutated(lambda t: t.update(checks_after_entries=None))) == ["FLOW-CLEARED-CHECK-MISSING"]
+    def uncleared(trace):
+        trace["checks_after_entries"]["findings"] = [finding("finding:still", OUTBOARD)]
+    assert gaps(flow_mutated(uncleared)) == ["FLOW-FINDINGS-NOT-CLEARED"]
+    # A rule-only finding after the entries does not block a solve and keeps the flow.
+    def rule_only(trace):
+        trace["checks_after_entries"]["findings"] = [{"finding_id": "finding:rule-inputs", "entity_ref": "project:missing-data-use-case",
+                                                      "field_path": "rule_pack_refs", "blocks_solve": False}]
+    assert judge(flow_mutated(rule_only)).counts_as_flow
+    # Before/after: the clearing check is bound to the start model, not the final one.
+    def stale(trace):
+        trace["checks_after_entries"]["model_text_sha256"] = witness_digest(SCENARIO.start_text)
+    assert gaps(flow_mutated(stale)) == ["FLOW-CLEARED-CHECK-NOT-FINAL-MODEL"]
+    for change in (lambda t: t.update(checks_after_entries=None), uncleared, stale):
+        not_the_flow(flow_mutated(change))
+    def malformed(trace):
+        trace["checks_after_entries"]["model_text_sha256"] = "NOT-A-DIGEST"
+    assert codes(flow_mutated(malformed)) == ["CLEARED-CHECK-BINDING-MALFORMED"]
+    not_the_flow(flow_mutated(malformed))
+
+
+@pytest.mark.parametrize("change, expected", [
+    (lambda t: t["steps"][1].update(value=8000), ["ENTRY-VALUE-WRONG"]),
+    (lambda t: t["steps"][3].update(actor="agent"), ["ENTRY-ACTOR-NOT-PERSON"]),
+    (lambda t: t["steps"][3].update(control="run_sheet"), ["ENTRY-NOT-THROUGH-CONTROL"]),
+    (lambda t: t["steps"][3].update(applied=False), ["ENTRY-NOT-THROUGH-CONTROL"]),
+    (lambda t: t["agent_report"].update(execution_ref="job:other"), ["AGENT-REPORT-WRONG-EXECUTION"]),
+    (lambda t: t["agent_report"].update(result_handle_ref="handle:other"), ["AGENT-REPORT-WRONG-HANDLE"]),
+    (lambda t: t["executions"][1].update(outcome="cancelled"), None),
+    (lambda t: t["agent_report"].update(quoted_results={next(iter(RESULTS)): RESULTS[next(iter(RESULTS))]}),
+     ["AGENT-REPORT-TOO-FEW-RESULTS"]),
+], ids=["wrong-repair", "agent-entered", "other-control", "not-applied", "wrong-solve", "wrong-handle",
+        "incomplete-solve", "too-few-results"])
+def test_wrong_repairs_actors_solves_and_results_keep_a_trace_from_the_flow(change, expected):
+    failures = codes(flow_mutated(change))
+    if expected is None:
+        assert "FINAL-SOLVE-NOT-COMPLETED" in failures
+    else:
+        assert failures == expected
+    not_the_flow(flow_mutated(change))
+
+
+def test_a_flow_trace_names_its_gaps_and_a_withheld_start_with_gaps_is_its_own_outcome():
+    trace = flow_mutated(lambda t: t.update(checks_after_entries=None))
+    reported = judge(trace).as_json()
+    assert reported["passed"] is True and reported["counts_as_missing_data_flow"] is False
+    assert reported["outcome"] == judge_module.FLOW_INCOMPLETE_OUTCOME
+    assert [item["code"] for item in reported["flow_gaps"]] == ["FLOW-CLEARED-CHECK-MISSING"]

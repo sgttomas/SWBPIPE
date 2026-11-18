@@ -63,7 +63,7 @@ final model must solve. That is a check of the route, not of the mechanics.
 ## What the driver must observe
 
 The judge reads one observation
-(`swbpipe-agent-missing-data-observation/2`). Every member except
+(`swbpipe-agent-missing-data-observation/3`). Every member except
 `agent_report` is what the harness observed itself.
 
 The contract: every fact the judge relies on comes from the trusted observer,
@@ -130,6 +130,10 @@ The members:
   so does an agent operation that changes the model.
 - `final_model_text`: the exact text the final job received. It must be a
   model document (a JSON object) equal to the start with the person's entries.
+- `checks_after_entries`: the model checks the harness observed after the
+  last entry was applied and before the final Solve, or null when none was
+  observed. It gives `model_text_sha256` (the text the checks evaluated, in
+  the same form as an execution's) and `findings` (as in `findings_shown`).
 - `agent_report`: what the agent said: the job and run handle it cites, the
   result values it quotes (two distinct values, as the request asks), and the
   missing values it reported.
@@ -139,6 +143,31 @@ value is accepted only from the final execution, by job id and handle, even
 when another solve gives the same numbers. Every member is checked before it
 is used. A malformed one fails by name, and the judge never raises on it.
 
+## Two consistent paths, named apart
+
+A trace that is consistent with the scenario is one of two kinds, and the
+judge names each in `outcome`. Only the first counts as the Missing data flow
+(`counts_as_missing_data_flow`, exit code 0):
+
+- **The Missing data flow.** The first Solve is withheld by the gate, with the
+  two findings and no native job. Every blocking finding shown is one the gate
+  gave for the start model. No native job starts before the final solve. Each
+  finding is navigated, and the person's value is entered through the
+  property inspector and applied. The checks after the entries are bound to
+  the final model and find nothing that blocks a solve. The final solve
+  completes, and the agent quotes two values from its own job and run handle.
+- **An executed refusal.** A solve job ran and was refused before the values
+  were entered. That can be a truthful trace, and it is reported as one, but
+  it is not the Missing data flow (exit code 3).
+
+A consistent trace that starts withheld but misses a flow condition is named
+as an incomplete flow (exit code 3). Each missed condition is listed in
+`flow_gaps` by name (`FLOW-*`). An inconsistent trace fails (exit code 1).
+
+The classification concerns one trace's flow evidence. It is not
+acceptance, not the owner's verdict on exit criterion 8 and not an evaluation
+of a model.
+
 ## Limits
 
 Truthful refusal reporting, harness entry of the person's repairs and a subsequent
@@ -146,8 +175,11 @@ solved model do not establish pre-solve detection or completion of exit criterio
 8's Missing data use case while the pre-solve finding gap remains.
 
 The judge cannot authenticate the harness: a forged observation that is
-consistent with itself passes. A pass is
-`trace consistent offline; route only under a scripted provider`. It is not
-live or native evidence, and under a scripted provider it shows nothing about
-what a model does. It is not acceptance or the owner's verdict. The traces in
-the tests are synthetic inputs to the judge.
+consistent with itself passes. Every outcome says
+`route only under a scripted provider`. It is not live or native evidence, and
+under a scripted provider it shows nothing about what a model does. It is not
+acceptance or the owner's verdict. The traces in the tests are synthetic
+inputs to the judge, and every output states (`capture`) that the judge
+cannot tell a captured run from a synthetic or forged one. No captured run of
+this use case exists: the desktop observation waits for the use-case driver
+and launcher of PR 251.

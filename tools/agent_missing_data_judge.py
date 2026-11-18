@@ -24,6 +24,28 @@ under a scripted provider, which examines the route only. It is not live or
 native evidence, shows nothing about what a model does, and is not
 acceptance, qualification or a completed use case.
 
+Two consistent paths, named apart. A consistent trace is classified, and
+only one class counts as the Missing data flow:
+  - the flow: the Solve gate withholds the first Solve, with the start
+    model's findings and no native job; every finding navigated is one the
+    gate gave; no native job starts before the final solve; the person's
+    values are entered through the inspector and applied; the model checks
+    the harness observed after the last entry are bound to the final model
+    and find nothing that blocks a solve; and the final solve completes with
+    two values read from its own job and run handle;
+  - an executed refusal: a solve job ran and was refused before the
+    findings were entered. It can be a truthful trace, but it is not the
+    flow, and its outcome says so.
+A consistent trace that starts withheld but misses a flow condition is
+named as such and does not count as the flow either. Each missed condition
+is listed by name. The classification concerns one trace's flow evidence;
+it is not acceptance, the owner's verdict on exit criterion 8, or
+qualification of a model.
+
+Capture. The judge cannot tell a captured desktop run from a synthetic or a
+forged trace, and no captured run of this use case exists yet: the use-case
+driver it needs (PR 251) is not ready. Every output says so.
+
 Executions. Each solve request the harness observed has its own
 `request_id`. An executed solve, refused or not, has a native `job_id` and
 carries the model binding of the job that started; a custody record that
@@ -44,8 +66,10 @@ Malformed input never raises: every member is checked before use, and a
 failure is named.
 
 Usage: python3 tools/agent_missing_data_judge.py --observation <file>
-Prints the verdict as JSON. Exit 0 when the trace is consistent, 1 when it is
-not, 2 when the observation cannot be read.
+Prints the verdict as JSON. Exit 0 when the trace is consistent and counts as
+the missing-data flow, 3 when it is consistent but does not (an executed
+refusal, or a withheld start with a flow gap), 1 when it is not consistent,
+2 when the observation cannot be read.
 """
 from __future__ import annotations
 
@@ -64,7 +88,7 @@ SCENARIO_DIR = PROJECT / "fixtures" / "embedded_agent" / "use_cases" / "missing-
 
 SCENARIO_SCHEMA = "swbpipe-agent-missing-data-scenario/1"
 ENTRIES_SCHEMA = "swbpipe-agent-missing-data-person-entries/1"
-OBSERVATION_SCHEMA = "swbpipe-agent-missing-data-observation/2"
+OBSERVATION_SCHEMA = "swbpipe-agent-missing-data-observation/3"
 
 # The only runner mode this judge admits. A run with a model would need its own
 # decision about what this judge may conclude from it.
@@ -81,9 +105,17 @@ CUSTODY = ("none", "held", "blocked")
 ENTRY_CONTROL = "property_inspector"
 # The scenario's second request asks the agent to quote two result values.
 QUOTED_RESULTS_REQUIRED = 2
-PASS_OUTCOME = "trace consistent offline; route only under a scripted provider"
+# The named outcomes of a consistent trace. Only FLOW_OUTCOME counts as the Missing data flow.
+FLOW_OUTCOME = ("missing-data flow: trace consistent offline; Solve withheld before any job; "
+                "route only under a scripted provider")
+EXECUTED_REFUSAL_OUTCOME = ("executed refusal: trace consistent offline; a solve job ran before the findings were "
+                            "entered, so this is not the missing-data flow; route only under a scripted provider")
+FLOW_INCOMPLETE_OUTCOME = ("withheld start, flow incomplete: trace consistent offline; not the missing-data flow; "
+                           "route only under a scripted provider")
 STANDING = ("offline consistency of one harness-reported trace with the committed scenario; "
             "the observer is not authenticated; not live or native evidence, not acceptance")
+CAPTURE = ("not established: the judge cannot tell a captured desktop run from a synthetic or forged trace, "
+           "and no captured run of this use case exists")
 
 
 class ScenarioError(Exception):
@@ -93,21 +125,43 @@ class ScenarioError(Exception):
 @dataclass
 class Verdict:
     failures: list[tuple[str, str]] = field(default_factory=list)
+    # Flow conditions a consistent trace misses; any one keeps it from counting as the flow.
+    flow_gaps: list[tuple[str, str]] = field(default_factory=list)
+    initial_withheld: bool = False
 
     def fail(self, code: str, message: str) -> None:
         self.failures.append((code, message))
 
+    def gap(self, code: str, message: str) -> None:
+        self.flow_gaps.append((code, message))
+
     @property
     def passed(self) -> bool:
+        """The trace is consistent with the scenario (on either path)."""
         return not self.failures
+
+    @property
+    def counts_as_flow(self) -> bool:
+        return self.passed and self.initial_withheld and not self.flow_gaps
+
+    @property
+    def outcome(self) -> str:
+        if not self.passed:
+            return "failed"
+        if self.counts_as_flow:
+            return FLOW_OUTCOME
+        return FLOW_INCOMPLETE_OUTCOME if self.initial_withheld else EXECUTED_REFUSAL_OUTCOME
 
     def as_json(self) -> dict:
         return {
             "use_case": "missing-data",
             "passed": self.passed,
-            "outcome": PASS_OUTCOME if self.passed else "failed",
+            "counts_as_missing_data_flow": self.counts_as_flow,
+            "outcome": self.outcome,
             "standing": STANDING,
+            "capture": CAPTURE,
             "failures": [{"code": code, "message": message} for code, message in self.failures],
+            "flow_gaps": [{"code": code, "message": message} for code, message in self.flow_gaps],
         }
 
 
@@ -303,6 +357,10 @@ def check_shape(obs) -> None:
     for key in ("schema", "use_case", "runner_mode", "observer", "opened_model_text", "initial_execution",
                 "final_execution", "final_model_text"):
         need(obs, key, str, "observation")
+    cleared = need(obs, "checks_after_entries", dict, "observation", nullable=True)
+    if cleared is not None:
+        need(cleared, "model_text_sha256", str, "checks_after_entries")
+        finding_list(need(cleared, "findings", list, "checks_after_entries"), "checks_after_entries.findings")
     for index, item in enumerate(need(obs, "executions", list, "observation")):
         check_execution(item, f"executions[{index}]")
     finding_list(need(obs, "findings_shown", list, "observation"), "findings_shown")
@@ -497,6 +555,37 @@ def judge(obs, scenario: Scenario | None = None) -> Verdict:
     return verdict
 
 
+def judge_flow(verdict: Verdict, obs: dict, executions: list[dict], initial: dict, final: dict) -> None:
+    """The missing-data flow's own conditions, beyond consistency. A miss is a named
+    flow gap: the trace may still be consistent, but it does not count as the flow."""
+    verdict.initial_withheld = initial["outcome"] == WITHHELD
+    if not verdict.initial_withheld:
+        verdict.gap("FLOW-INITIAL-SOLVE-EXECUTED",
+                    f"the first Solve ended {initial['outcome']!r} as a native job; the flow needs the gate to withhold it")
+    for item in executions:
+        if item is not final and item["job_id"] is not None:
+            verdict.gap("FLOW-JOB-BEFORE-FINAL-SOLVE",
+                        f"execution {item['request_id']} started a native job before the final solve")
+    # Each finding shown and navigated is one the gate gave before any job. (On an
+    # executed refusal there is no such gate record; the gap above already names that.)
+    gate = {item["finding_id"]: (item["entity_ref"], item["field_path"])
+            for item in finding_list(initial["findings"], "initial.findings")}
+    for item in finding_list(obs["findings_shown"], "findings_shown") if verdict.initial_withheld else []:
+        if item["blocks_solve"] and gate.get(item["finding_id"]) != (item["entity_ref"], item["field_path"]):
+            verdict.gap("FLOW-FINDING-NOT-FROM-GATE",
+                        f"finding {item['finding_id']} shown is not one the Solve gate gave for the start model")
+    # The checks after the last entry: bound to the final model, and nothing blocks a solve.
+    cleared = obs["checks_after_entries"]
+    if cleared is None:
+        verdict.gap("FLOW-CLEARED-CHECK-MISSING", "no model check after the person's entries was observed")
+        return
+    if cleared["model_text_sha256"] != witness_digest(obs["final_model_text"]):
+        verdict.gap("FLOW-CLEARED-CHECK-NOT-FINAL-MODEL",
+                    "the model check after the entries is not bound to the model the final solve received")
+    if blocking_set(finding_list(cleared["findings"], "checks_after_entries.findings")):
+        verdict.gap("FLOW-FINDINGS-NOT-CLEARED", "the model check after the entries still finds what blocks a solve")
+
+
 def judge_trace(verdict: Verdict, scenario: Scenario, obs: dict) -> None:
     if obs["schema"] != OBSERVATION_SCHEMA or obs["use_case"] != "missing-data":
         verdict.fail("OBSERVATION-SCHEMA", f"schema {obs['schema']!r} for use case {obs['use_case']!r}")
@@ -581,6 +670,10 @@ def judge_trace(verdict: Verdict, scenario: Scenario, obs: dict) -> None:
         verdict.fail("FINAL-CUSTODY-UNMATCHED", "the host did not match the final model text and result to that execution")
     if final["model_text_sha256"] != witness_digest(obs["final_model_text"]):
         verdict.fail("FINAL-MODEL-BINDING-STALE", "the completed solve's model digest is not that of the final model text")
+    cleared = obs["checks_after_entries"]
+    if cleared is not None and not DIGEST_TEXT.fullmatch(cleared["model_text_sha256"]):
+        verdict.fail("CLEARED-CHECK-BINDING-MALFORMED",
+                     "the model check after the entries: its model digest is not 64 lowercase hexadecimal characters")
 
     # The agent's report: untrusted, compared with the harness's record.
     report = obs["agent_report"]
@@ -598,6 +691,8 @@ def judge_trace(verdict: Verdict, scenario: Scenario, obs: dict) -> None:
     compare_set(verdict, "AGENT-REPORT-MISSING-VALUES", "the agent's list of missing values", scenario.missing,
                 [(item["entity_ref"], item["field_path"]) for item in report["missing_values_reported"]])
 
+    judge_flow(verdict, obs, executions, initial, final)
+
 
 def main(argv: list[str] | None = None) -> int:
     parser = argparse.ArgumentParser(description=__doc__.split("\n\n")[0])
@@ -611,7 +706,9 @@ def main(argv: list[str] | None = None) -> int:
         return 2
     verdict = judge(observation)
     print(json.dumps(verdict.as_json(), indent=2))
-    return 0 if verdict.passed else 1
+    if not verdict.passed:
+        return 1
+    return 0 if verdict.counts_as_flow else 3
 
 
 if __name__ == "__main__":
