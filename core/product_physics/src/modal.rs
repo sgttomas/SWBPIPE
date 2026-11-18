@@ -39,7 +39,7 @@ mod tests_document;
 #[cfg(test)]
 mod tests_eigen;
 #[cfg(test)]
-mod tests_state; #[cfg(test)] mod tests_skew; #[cfg(test)] mod tests_resource;
+mod tests_state; #[cfg(test)] mod tests_skew; #[cfg(test)] mod tests_resource; #[cfg(test)] mod tests_document_envelope;
 #[cfg(test)]
 mod observation_tests;
 #[cfg(test)]
