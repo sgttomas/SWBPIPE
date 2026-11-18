@@ -13,7 +13,7 @@ made by main's own record builder. It is the witness for that withholding
 |---|---|
 | `pressure_connected_mechanics_sparse.json` | Main at e0e3e3c7a, verbatim (`fixtures/results/pressure_connected_mechanics_sparse.json`) |
 | `exact_pressure_connected_request.json` | Main at e0e3e3c7a, verbatim (`core/product_physics/tests/fixtures/exact_pressure_connected_request.json`) |
-| `pressure_plain_connected_sparse.analysis_run.json` | Built by main's record builder from that statement, in a temporary checkout of main whose pressure-3 table differs by one byte (below); binds `pressure-3` with digest `REVISED_DIGEST` |
+| `pressure_plain_connected_sparse.analysis_run.json` | Built by main's record builder from that statement, in a temporary checkout of main whose pressure-3 table differs by one byte (below); binds `pressure-3` with digest `3471a7035b5b25240b99018edc13b248395252bffd1ed1c3866ba4677a14a812` |
 
 **How the record was made.** It was made in a temporary checkout of main at e0e3e3c7a. One
 newline was appended to `fixtures/results/semantic_contract_v0_3_pressure_3.json`, so no member's
