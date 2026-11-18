@@ -332,11 +332,15 @@ It adds no value and changes none.
    here are in the frame this package defines and publishes per end
    (`tangent_frame_rows_end_i` and `tangent_frame_rows_end_j`, in
    `derived_model.stiffness_constituents`): x the traversal tangent, y toward
-   the centre, z = x × y. A comparison first establishes
-   whether the published end frames agree. It compares directly when they do.
-   If they differ, it rotates the reference's signed contributions into the
-   product's published end frame and recombines them there before comparing
-   the product's published magnitudes.
+   the centre, z = x × y. Before comparing spectrum values, verify the static
+   result's tangent frame at each end against the arc geometry and the static
+   frame convention under DEL-04-01 REQ-018. Under REQ-006, the comparison
+   fails if the axes published for a spectrum arc tangent row do not match
+   that verified frame. When the verified frame matches this package's frame
+   at that end, compare the package's `_t` values directly. When it differs,
+   rotate the reference's signed contributions into the verified frame for
+   the signed comparisons and recombine those contributions there before
+   comparing magnitudes.
 5. **The record of one direction.** The periodic magnitude and the
    combination are carried. The rigid magnitude is the absolute value of
    `rigid_response_signed`. Each `mutations` entry carries only the
