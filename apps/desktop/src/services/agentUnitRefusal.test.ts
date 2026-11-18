@@ -82,7 +82,7 @@ describe('unit refusal explanation', () => {
  });
 
  describe('unknown codes return the generic sentence', () => {
-  const codes: unknown[] = ['OP-STALE-BEFORE-VALUE', 'OP-UNIT-MISMATCH', 'op-unit-dimension-mismatch', ` ${UNIT_REFUSAL_CODES[0]}`, `${UNIT_REFUSAL_CODES[0]} ${HOSTILE}`, HOSTILE, 'X'.repeat(1_000_000), 42, null, {code: UNIT_REFUSAL_CODES[0]}, [UNIT_REFUSAL_CODES[0]]];
+  const codes: unknown[] = ['OP-STALE-BEFORE-VALUE', 'OP-UNIT-METADATA-MISSING', 'OP-UNIT-MISMATCH', 'op-unit-dimension-mismatch', ` ${UNIT_REFUSAL_CODES[0]}`, `${UNIT_REFUSAL_CODES[0]} ${HOSTILE}`, HOSTILE, 'X'.repeat(1_000_000), 42, null, {code: UNIT_REFUSAL_CODES[0]}, [UNIT_REFUSAL_CODES[0]]];
   for (const code of codes) it(`code ${typeof code === 'string' ? code.slice(0, 40) : JSON.stringify(code)}`, () => {
    expect(unitRefusalMessage(outcome([refused(0, [finding(code)])]), [operation()], model())).toBe(GENERIC_REFUSAL);
   });

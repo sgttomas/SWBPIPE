@@ -25,8 +25,10 @@ export const UNIT_REFUSAL_STEPS = 2;
 const MAX_OPERATIONS = 16, MAX_FINDINGS = 64;
 
 /** The unit and value/unit-pair refusal codes of the applier's quantity resolvers
- * (operation_applier lib.rs resolve_field, resolve_optional_quantity, stored_pair_edit_names_its_unit). */
-export const UNIT_REFUSAL_CODES = Object.freeze(['OP-UNIT-MISMATCH-CONVERSION-UNAVAILABLE', 'OP-UNIT-DIMENSION-MISMATCH', 'OP-UNIT-DIMENSION-UNKNOWN', 'OP-UNIT-METADATA-MISSING', 'OP-QUANTITY-PAYLOAD-INVALID'] as const);
+ * (operation_applier lib.rs resolve_field, resolve_optional_quantity, stored_pair_edit_names_its_unit)
+ * that the two corrective forms below answer. OP-UNIT-METADATA-MISSING is not among them: a stored
+ * quantity with no unit is refused whichever form is sent, so naming those forms would mislead. */
+export const UNIT_REFUSAL_CODES = Object.freeze(['OP-UNIT-MISMATCH-CONVERSION-UNAVAILABLE', 'OP-UNIT-DIMENSION-MISMATCH', 'OP-UNIT-DIMENSION-UNKNOWN', 'OP-QUANTITY-PAYLOAD-INVALID'] as const);
 
 export type QuantityField = Readonly<{objectType: 'Material' | 'Element' | 'Component' | 'Load'; fieldPath: string; dimension: string}>;
 /** The quantity fields the agent catalog admits through modify/<type>/set_field, each with the
