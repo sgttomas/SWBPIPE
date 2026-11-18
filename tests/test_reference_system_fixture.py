@@ -4,8 +4,9 @@
 Checks that the committed files are the generator's output, that the model is a current model document and a desktop
 document (its data boundary stated, no authored diagnostic), that it solves on EX with every tranche-1 case solved and
 nothing refused, that the generator's ledger and the authoring file's pending flags agree, that no key result carries an
-expected value without a recorded basis, EQ-1/2/3/5 in both solver modes, RS-CE1's applied load and support action
-(KR-03's identity), and KR-05's presence (the tee's rows, no values). Invented inputs only."""
+expected value without a recorded basis, EQ-1/2/3/5 in both solver modes, the member states RS-OPE and RS-OPE-REF
+publish, RS-CE1's applied load and support action (KR-03's identity), and KR-05's presence (the tee's rows, no values).
+Invented inputs only."""
 
 from __future__ import annotations
 
@@ -128,7 +129,7 @@ def test_tranche_one_holds_its_families_and_leaves_the_pending_ones_out():
     assert len(MODEL["nodes"]) == 27 and len(MODEL["pipe_segments"]) == 26
     for present in ("component:RS-B1", "component:RS-B2", "component:RS-B3", "component:RS-T1", "component:RS-F1",
                     "component:RS-V1", "component:RS-F2", "component:RS-R1", "component:RS-EJ1", "support:RS-CE1",
-                    "support:RS-FR1V", "load:RS-SUS", "load:RS-OPE", "load:RS-SAM", "combination:RS-EXP",
+                    "support:RS-FR1V", "load:RS-SUS", "load:RS-OPE", "load:RS-SAM", "load:RS-OPE-REF", "combination:RS-EXP",
                     "combination:RS-dSAM"):
         assert present in ids, present
     for row in AUTHORING["pending"]:
@@ -232,7 +233,7 @@ def test_every_tranche_one_case_solves_on_ex_with_nothing_refused(solved):
     # there is in a region: the junction is no closure (RT-A3 increment 1, D-1).
     assert not codes & {"EXACT_PRESSURE_JUNCTION_PRESSURES_DIFFER", "EXACT_PRESSURE_JUNCTION_PIPE_OUTSIDE_REGIONS"}
     cases = [case["id"] for case in MODEL["load_cases"]]
-    assert cases == ["load:RS-SUS", "load:RS-OPE", "load:RS-SAM"]
+    assert cases == ["load:RS-SUS", "load:RS-OPE", "load:RS-SAM", "load:RS-OPE-REF"]
     quality = {entry["basis_ref"]["ref_id"]: entry for entry in envelope["numerical_quality"]["cases"]}
     assert set(cases) <= set(quality)
     bases = {(row["basis_ref"]["ref_type"], row["basis_ref"]["ref_id"]) for row in envelope["results"]
@@ -270,10 +271,15 @@ def test_every_key_result_is_named_with_a_basis_and_no_unrecorded_expected_value
 # when |obs - exp| <= 1e-9 |exp|; a zero row when |obs| <= 1e-9 * zero_scale, the largest nonzero magnitude of its
 # family in the case. Product sign convention for support_reaction_component_v2: the action of the support on the
 # pipe, global axes, moments about the support's node.
-# The fixture holds RS-R1 and RS-CE1: EQ-1 and EQ-2 are reference_system_r1_ce's. The tranche-1 package
-# reference_system stays frozen as the earlier fixture's; its README states EQ-3, EQ-5 and the row conventions.
-REFERENCE_PACKAGES = ("validation/references/reference_system/", "validation/references/reference_system_r1_ce/")
+# The fixture holds RS-R1 and RS-CE1: EQ-1 and EQ-2 are reference_system_r1_ce's, bound to RS-OPE-REF by
+# reference_system_ope_ref, which also states EQ-3 on RS-OPE-REF - RS-SUS and the member states of RS-OPE and
+# RS-OPE-REF. The tranche-1 package reference_system stays frozen as the earlier fixture's; its README states EQ-5 and
+# the row conventions.
+REFERENCE_PACKAGES = ("validation/references/reference_system/", "validation/references/reference_system_r1_ce/",
+                      "validation/references/reference_system_ope_ref/")
 REFERENCES = ROOT / "validation" / "references" / "reference_system_r1_ce" / "references.json"
+OPE_REF_REFERENCES = ROOT / "validation" / "references" / "reference_system_ope_ref" / "references.json"
+EQ_CASES = ("load:RS-SUS", "load:RS-OPE", "load:RS-SAM", "load:RS-OPE-REF")
 SOLVER_MODES = ("sparse_interactive", "dense_scrutiny")
 RELATIVE = 1e-9
 FORCES, MOMENTS = ("Fx", "Fy", "Fz"), ("Mx", "My", "Mz")
@@ -293,9 +299,17 @@ WITHHELD_KINDS = {"connector_tie_rod_force_v1"}
 COMBINATION_RECORDS = {"combination_modulus_basis_record"}
 
 
-def reference_values():
+def reference_values(case="load:RS-SUS"):
+    """W_total and the weight's moment about the origin for `case`: the r1_ce package's for the three cases it states,
+    reference_system_ope_ref's binding of the same record for RS-OPE-REF."""
     refs = json.loads(REFERENCES.read_text(encoding="utf-8"))
-    key = refs["key_values"]
+    if case == "load:RS-OPE-REF":
+        bound = json.loads(OPE_REF_REFERENCES.read_text(encoding="utf-8"))["eq1_eq2"]
+        assert case in bound["cases"] and bound["bound_to"] == REFERENCES.relative_to(ROOT).as_posix()
+        key = bound["key_values"]
+    else:
+        assert case in refs["cases"]
+        key = refs["key_values"]
     return key["W_total_N"]["value"], [v["value"] for v in key["weight_moment_about_origin_N_m"]]
 
 
@@ -321,8 +335,10 @@ def summarise(output):
                    for case in envelope["contract_evidence"].get("exact_cases", [])}
     unavailable = {code["affected_refs"][0] for code in envelope["diagnostics"]
                    if code.get("code") == "COMBINATION_INTENSIFIED_STRESS_UNAVAILABLE"}
+    states = {state["load_case_id"]: state.get("members") or []
+              for state in envelope["contract_evidence"].get("load_reference_states", [])}
     return {"rows": rows, "withheld": withheld, "status": envelope["status"]["mechanics"], "intensified": intensified,
-            "intensified_unavailable": unavailable}
+            "intensified_unavailable": unavailable, "member_states": states}
 
 
 @pytest.fixture(scope="module", params=SOLVER_MODES)
@@ -388,10 +404,10 @@ def test_eq1_eq2_reactions_balance_the_independent_weight(mode_rows):
     RS-CE1 is one support among all, its action counted once; the negative controls of the references (RS-P150's
     weight kept beside RS-R1's, RS-R1 omitted, RS-CE1 counted twice or left out) each miss."""
     mode, summary = mode_rows
-    weight, weight_moment = reference_values()
     negative = json.loads(REFERENCES.read_text(encoding="utf-8"))["negative_controls"]
     failures, eq1, eq2 = [], {}, {}
-    for case in ("load:RS-SUS", "load:RS-OPE", "load:RS-SAM"):
+    for case in EQ_CASES:
+        weight, weight_moment = reference_values(case)
         force, moment, (force_scale, moment_scale) = resultants(summary["rows"][case])
         for label, control in negative.items():
             wrong = (control.get("W_N") or control["sum_Fz_N"])["value"]
@@ -440,31 +456,36 @@ def test_eq5_the_anchor_movement_term_is_self_equilibrated(mode_rows):
     assert not failures, failures
 
 
-def test_eq3_expansion_equals_operating_minus_sustained_on_every_component_row(mode_rows):
+def test_eq3_expansion_equals_rs_ope_ref_minus_sustained_on_every_component_row(mode_rows):
+    """EQ-3 on RS-EXP's operands (spec §8.2, §9.2): the combination's algebra, row by row. It establishes nothing about
+    either solve."""
     mode, summary = mode_rows
+    combination = next(c for c in MODEL["combinations"] if c["id"] == "combination:RS-EXP")
+    operands = json.loads(OPE_REF_REFERENCES.read_text(encoding="utf-8"))["eq3"]
+    assert (combination["minuend_id"], combination["subtrahend_id"]) == (operands["minuend"], operands["subtrahend"])
     by_key = {}
-    for case in ("load:RS-OPE", "load:RS-SUS", "combination:RS-EXP"):
+    for case in (operands["minuend"], operands["subtrahend"], "combination:RS-EXP"):
         keyed = {}
         for row in summary["rows"][case]:
             keyed.setdefault(row["key"], []).append(row)
         by_key[case] = keyed
-    ope, sus, exp = by_key["load:RS-OPE"], by_key["load:RS-SUS"], by_key["combination:RS-EXP"]
+    minuend, sus, exp = by_key[operands["minuend"]], by_key[operands["subtrahend"]], by_key["combination:RS-EXP"]
     exp = {key: rows for key, rows in exp.items() if key[0] not in COMBINATION_RECORDS}
     # Coverage: every case component row is combined once, except the withheld (listed) and non-component rows.
-    case_keys = {key for key in ope if key[0] not in NOT_COMPONENT_ROWS}
+    case_keys = {key for key in minuend if key[0] not in NOT_COMPONENT_ROWS}
     assert case_keys == {key for key in sus if key[0] not in NOT_COMPONENT_ROWS}
     withheld = {key for key in case_keys if key[0] in WITHHELD_KINDS}
-    assert withheld and all(len(ope[key]) > 1 for key in withheld)  # the rods share one key
+    assert withheld and all(len(minuend[key]) > 1 for key in withheld)  # the rods share one key
     assert set(exp) == case_keys - withheld, sorted(set(exp) ^ (case_keys - withheld))[:10]
     message = summary["withheld"]["combination:RS-EXP"]
-    withheld_ids = sorted(row["id"] for key in withheld for row in ope[key])
+    withheld_ids = sorted(row["id"] for key in withheld for row in minuend[key])
     assert all(row_id.removeprefix("result:") in message for row_id in withheld_ids), (withheld_ids, message)
-    # Expected values: OPE - SUS for signed rows; the norm of the combined components for magnitude rows.
+    # Expected values: RS-OPE-REF - RS-SUS for signed rows; the norm of the combined components for magnitude rows.
     expected = {}
     for key, rows in exp.items():
-        assert len(rows) == 1 and len(ope[key]) == 1 and len(sus[key]) == 1, key
+        assert len(rows) == 1 and len(minuend[key]) == 1 and len(sus[key]) == 1, key
         if key[0] not in MAGNITUDES:
-            expected[key] = ope[key][0]["value"] - sus[key][0]["value"]
+            expected[key] = minuend[key][0]["value"] - sus[key][0]["value"]
     for key in exp:
         kind = key[0]
         if kind in MAGNITUDES:
@@ -486,6 +507,125 @@ def test_eq3_expansion_equals_operating_minus_sustained_on_every_component_row(m
     eq3["rows"], eq3["withheld"] = len(exp), withheld_ids
     print(f"{mode} EQ-3 {eq3}")
     assert not failures, failures[:20]
+
+
+# The member states of RS-OPE and RS-OPE-REF (spec §4.1, §8.1) against reference_system_ope_ref, read from the published
+# load reference state (contract_evidence.load_reference_states[].members). The tolerance is a priori, from rounding:
+# each published quantity is formed from the decimal inputs by at most about ten binary64 operations (degC to K,
+# interpolation, E/[2(1+nu)], the secant stretches and their ratio less one), each within 2^-53 relative; the one
+# cancellation, a stretch near 1 less 1, amplifies that by at most 1/0.00228, under 440. So the relative error is below
+# 10 * 1.2e-16 * 440, about 5e-13; 1e-12 bounds it. The two cases' moduli differ by 5.85 percent and a missing thermal
+# strain by 100 percent, each far outside it. A zero expectation (RS-P180's strain) is exact.
+MEMBER_STATE_RELATIVE = 1e-12
+# Spec §3.2: RS-P180 is replaced by RS-EJ1 and "carries no load or result", so the published load reference state
+# holds the other 25 members; the reference's RS-P180 row (zero eigenstrain) has no published counterpart.
+UNPUBLISHED_MEMBERS = {"pipe:RS-P180"}
+
+
+def member_state_misses(case, published, expected):
+    """Every difference between a case's published member states and the reference's, by member."""
+    misses = []
+    by_pipe = {member["pipe_id"]: member for member in published}
+    expected = [row for row in expected if row["member"] not in UNPUBLISHED_MEMBERS]
+    assert len(expected) == 25 and sorted(by_pipe) == sorted(row["member"] for row in expected), (case, sorted(by_pipe))
+
+    def close(what, observed, reference):
+        if reference == 0.0:
+            ok = observed == 0.0
+        else:
+            ok = observed is not None and abs(observed - reference) <= MEMBER_STATE_RELATIVE * abs(reference)
+        if not ok:
+            misses.append(f"{case} {what}: published {observed!r}, reference {reference!r}")
+
+    for row in expected:
+        pipe, member = row["member"], by_pipe[row["member"]]
+        points = member["consumed_material_points"]
+        if [p["point_id"] for p in points] != [p["point_id"] for p in row["consumed_material_points"]]:
+            misses.append(f"{case} {pipe} consumed points: published {[p['point_id'] for p in points]}")
+        else:
+            for got, want in zip(points, row["consumed_material_points"]):
+                close(f"{pipe} {want['point_id']} E", got["E_pa"], want["E_Pa"]["value"])
+                close(f"{pipe} {want['point_id']} T", got["temperature_k"], float(Fraction(want["temperature_K"])))
+        if member["material_selection_kind"] != row["material_selection_kind"]:
+            misses.append(f"{case} {pipe} selection: published {member['material_selection_kind']!r}")
+        if row["interpolation_fraction"] is not None:
+            close(f"{pipe} interpolation fraction", member["interpolation_fraction"], row["interpolation_fraction"]["value"])
+        close(f"{pipe} E", member["selected_E_pa"], row["E_Pa"]["value"])
+        close(f"{pipe} nu", member["selected_nu"], row["nu"]["value"])
+        close(f"{pipe} G", member["derived_G_pa"], row["G_Pa"]["value"])
+        close(f"{pipe} thermal strain", member["thermal_strain"], row["thermal_strain"]["value"])
+        close(f"{pipe} total eigenstrain", member["total_eigenstrain"], row["thermal_strain"]["value"])
+        operating = row["operating_temperature_K"]
+        if operating is None:
+            if member["operating_temperature_k"] is not None:
+                misses.append(f"{case} {pipe} operating temperature: published {member['operating_temperature_k']!r}")
+        else:
+            close(f"{pipe} operating temperature", member["operating_temperature_k"], float(Fraction(operating)))
+        override = member.get("analysis_basis_override")
+        reason = override and override.get("reason")
+        if reason != row["analysis_basis_override_reason"]:
+            misses.append(f"{case} {pipe} analysis-basis reason: published {reason!r}")
+    return misses
+
+
+def test_rs_ope_and_rs_ope_ref_publish_the_member_states_the_references_derive(mode_rows):
+    """Each member's consumed point(s), E, nu, G, thermal strain and analysis-basis reason in RS-OPE and RS-OPE-REF
+    equal the independent derivation: one thermal strain, two moduli."""
+    mode, summary = mode_rows
+    reference = json.loads(OPE_REF_REFERENCES.read_text(encoding="utf-8"))["member_states"]
+    misses = []
+    for case in ("load:RS-OPE", "load:RS-OPE-REF"):
+        misses += member_state_misses(case, summary["member_states"][case], reference[case])
+    assert not misses, (mode, misses[:20])
+
+
+def test_the_member_state_check_tells_the_two_cases_apart():
+    """The check discriminates: RS-OPE's published states, read as RS-OPE-REF's, miss on every hot member's modulus,
+    shear modulus, consumed point and reason; a state with no thermal strain misses on its strain."""
+    reference = json.loads(OPE_REF_REFERENCES.read_text(encoding="utf-8"))["member_states"]
+
+    def as_published(row):
+        return {"pipe_id": row["member"], "material_selection_kind": row["material_selection_kind"],
+                "consumed_material_points": [{"point_id": p["point_id"], "E_pa": p["E_Pa"]["value"],
+                                              "temperature_k": float(Fraction(p["temperature_K"]))}
+                                             for p in row["consumed_material_points"]],
+                "interpolation_fraction": row["interpolation_fraction"] and row["interpolation_fraction"]["value"],
+                "selected_E_pa": row["E_Pa"]["value"], "selected_nu": row["nu"]["value"],
+                "derived_G_pa": row["G_Pa"]["value"], "thermal_strain": row["thermal_strain"]["value"],
+                "total_eigenstrain": row["thermal_strain"]["value"],
+                "operating_temperature_k": row["operating_temperature_K"] and float(Fraction(row["operating_temperature_K"])),
+                "analysis_basis_override": row["analysis_basis_override_reason"]
+                and {"reason": row["analysis_basis_override_reason"]}}
+
+    def published(case):
+        return [as_published(r) for r in reference[case] if r["member"] not in UNPUBLISHED_MEMBERS]
+
+    for case in ("load:RS-OPE", "load:RS-OPE-REF"):
+        assert member_state_misses(case, published(case), reference[case]) == []
+    hot_modulus = member_state_misses("load:RS-OPE-REF", published("load:RS-OPE"), reference["load:RS-OPE-REF"])
+    for what in (" E:", " G:", "consumed points", "analysis-basis reason"):
+        assert sum(what in m for m in hot_modulus) >= 25, what
+    cold = [dict(r, thermal_strain=0.0, total_eigenstrain=0.0) for r in published("load:RS-OPE-REF")]
+    no_strain = member_state_misses("load:RS-OPE-REF", cold, reference["load:RS-OPE-REF"])
+    assert sum("thermal strain" in m for m in no_strain) == 25
+
+
+def test_rs_ope_ref_states_the_specification_s_reason_and_the_references_take_its_inputs():
+    """The fixture's RS-OPE-REF carries, on each of its 25 members with an operating temperature, the reason the
+    specification states (§8.1) and the record provenance; RS-P180 states none; the references hold the same reason."""
+    spec = (FIXTURE / "SPECIFICATION.md").read_text(encoding="utf-8")
+    reference = json.loads(OPE_REF_REFERENCES.read_text(encoding="utf-8"))["member_states"]["load:RS-OPE-REF"]
+    reasons = {row["analysis_basis_override_reason"] for row in reference} - {None}
+    assert len(reasons) == 1
+    (reason,) = reasons
+    assert f"`{reason}`" in re.sub(r"\s*\n\s*", " ", spec)
+    case = next(c for c in MODEL["load_cases"] if c["id"] == "load:RS-OPE-REF")
+    states = case["analysis_state"]["element_states"]
+    hot = [s for s in states if "operating_temperature" in s]
+    assert len(hot) == 25 and len(states) == 26
+    for state in hot:
+        assert state["analysis_basis_override"] == {"reason": reason, "provenance": GENERATOR.PROVENANCE}, state["pipe_ref"]
+    assert all("analysis_basis_override" not in s for s in states if s not in hot)
 
 
 # KR-05 (spec §9.1): presence is an identity, checked here; its values come later from a verified solve, so no value is
@@ -543,11 +683,17 @@ def test_eq1_eq2_expected_values_are_the_frozen_references():
     weight, weight_moment = reference_values()
     expected = {entry["id"]: entry["expected"] for entry in KEY_RESULTS["results"]}
     assert expected["EQ-1"]["value"] == weight and expected["EQ-2"]["value"] == weight_moment
+    assert reference_values("load:RS-OPE-REF") == (weight, weight_moment)
     refs = json.loads(REFERENCES.read_text(encoding="utf-8"))
     assert expected["EQ-1"]["exact"] == refs["key_values"]["W_total_N"]["exact"]
     assert expected["EQ-1"]["basis_record"] == expected["EQ-2"]["basis_record"] == REFERENCES.relative_to(ROOT).as_posix()
+    for rid in ("EQ-1", "EQ-2"):
+        assert expected[rid]["cases"] == ["RS-SUS", "RS-OPE", "RS-OPE-REF", "RS-SAM"], rid
+        assert expected[rid]["case_binding"] == {"RS-OPE-REF": OPE_REF_REFERENCES.relative_to(ROOT).as_posix()}, rid
     for rid in ("EQ-3", "EQ-5"):
         assert expected[rid]["identity"] and expected[rid]["basis_record"].endswith("README.md"), rid
+    assert expected["EQ-3"]["cases"] == ["RS-EXP", "RS-OPE-REF", "RS-SUS"]
+    assert expected["EQ-3"]["basis_record"].startswith("validation/references/reference_system_ope_ref/")
     check = next(e for e in KEY_RESULTS["results"] if e["id"] == "KR-03")
     assert check["expected"] is None and check["check"]["kind"] == "identity"
 
@@ -580,8 +726,33 @@ def test_the_fixture_holds_the_inputs_the_references_derive_from():
 
 
 def test_the_reference_generator_checks_pass(tmp_path):
-    """The adopted references' check, in place; and the frozen tranche-1 package's, on the tranche-1 inputs it was
+    """The adopted references' checks (RS-OPE-REF's and RS-R1/RS-CE1's), in place; and the frozen tranche-1 package's, on the tranche-1 inputs it was
     generated from (tests/reference_packages.py stages them)."""
-    for name in ("reference_system_r1_ce", "reference_system"):
+    for name in ("reference_system_ope_ref", "reference_system_r1_ce", "reference_system"):
         problems = reference_packages.check_problems(name, 0, tmp_path / name / "check_output")
         assert not problems, problems
+
+
+def test_the_rs_ope_ref_reference_generator_is_independent_of_the_product():
+    """reference_system_ope_ref's generator imports only the standard library, makes no dynamic import or evaluation,
+    and names no product path: its inputs are the specification's statements, transcribed."""
+    import ast
+    tree = ast.parse((ROOT / "validation" / "references" / "reference_system_ope_ref" / "generators" /
+                      "rs_ope_ref_reference.py").read_text(encoding="utf-8"))
+    modules, called, paths = set(), set(), set()
+    for node in ast.walk(tree):
+        if isinstance(node, ast.Import):
+            modules |= {alias.name.split(".")[0] for alias in node.names}
+        elif isinstance(node, ast.ImportFrom):
+            assert node.level == 0
+            modules.add(node.module.split(".")[0])
+        elif isinstance(node, ast.Call):
+            func = node.func
+            name = func.id if isinstance(func, ast.Name) else func.attr if isinstance(func, ast.Attribute) else None
+            if name in {"__import__", "import_module", "exec", "eval", "spec_from_file_location"}:
+                called.add(name)
+        elif isinstance(node, ast.Constant) and isinstance(node.value, str) and not re.search(r"\s", node.value):
+            if set(re.split(r"[\\/]+", node.value)) & {"core", "apps", "tests", "tools", "fixtures", "schemas"}:
+                paths.add(node.value)
+    assert modules and modules <= set(sys.stdlib_module_names), sorted(modules - set(sys.stdlib_module_names))
+    assert not called and not paths, (called, paths)
