@@ -235,14 +235,23 @@ REGIONS = [
 OPERATING_PRESSURE_KPA = 1600
 
 # -- §8 tranche-1 load cases and combinations -------------------------------------------------------------------------
+# Each case's element state (spec §8.1): INSTALLED (the 20 degC point, no thermal state), OPERATING (the operating
+# thermal state on the modulus at the operating temperature) or OPERATING_REFERENCE_MODULUS (the same thermal state
+# on the 20 degC point, each member stating why its modulus is not the one at its temperature).
+INSTALLED, OPERATING, OPERATING_REFERENCE_MODULUS = "installed", "operating", "operating_reference_modulus"
 CASES = [
-    ("RS-SUS", "RS-SUS sustained: W + P (operating pressure)", False, None),
-    ("RS-OPE", "RS-OPE operating: W + P + T (210 degC, modulus at 210 degC)", True, None),
-    ("RS-SAM", "RS-SAM seismic anchor movement: W + P + anchor RS-C moved UX +15 mm, UY -10 mm", False,
+    ("RS-SUS", "RS-SUS sustained: W + P (operating pressure)", INSTALLED, None),
+    ("RS-OPE", "RS-OPE operating: W + P + T (210 degC, modulus at 210 degC)", OPERATING, None),
+    ("RS-SAM", "RS-SAM seismic anchor movement: W + P + anchor RS-C moved UX +15 mm, UY -10 mm", INSTALLED,
      ("RS-C", [("UX", 15), ("UY", -10)])),
+    ("RS-OPE-REF", "RS-OPE-REF operating thermal state on the 20 degC modulus: W + P + T (210 degC, modulus at 20 degC)",
+     OPERATING_REFERENCE_MODULUS, None),
 ]
+# spec §8.1: the reason each member of RS-OPE-REF gives for a modulus that is not the one at its temperature.
+REFERENCE_MODULUS_REASON = ("RS-OPE-REF takes the operating thermal state on the 20 degC modulus so that the expansion "
+                            "comparison RS-EXP has both operands on one material basis (spec §8.1)")
 COMBINATIONS = [
-    ("RS-EXP", "RS-EXP expansion: RS-OPE - RS-SUS", "RS-OPE", "RS-SUS"),
+    ("RS-EXP", "RS-EXP expansion: RS-OPE-REF - RS-SUS", "RS-OPE-REF", "RS-SUS"),
     ("RS-dSAM", "RS-dSAM anchor movement term: RS-SAM - RS-SUS", "RS-SAM", "RS-SUS"),
 ]
 
@@ -669,7 +678,7 @@ def weight_requests():
     return [{"case_id": f"load:{case}", "label": label, "pipe_refs": weighted_pipes(), "gravity": dict(GRAVITY),
              "provenance": f"{PROVENANCE}; W of {case}: self-weight of every member except {REPLACED_SPAN}, "
                            "component weights at their centres of gravity (spec §8.1)"}
-            for case, label, _thermal, _motion in CASES]
+            for case, label, _element_basis, _motion in CASES]
 
 
 def weight_basis(model):
@@ -689,17 +698,18 @@ def weight_basis(model):
     return "sha256:" + hashlib.sha256(json.dumps(basis, sort_keys=True, separators=(",", ":")).encode()).hexdigest()
 
 
-def element_states(thermal):
+def element_states(element_basis):
     """RS-OPE: every member selects its modulus at the operating temperature, RS-P180 included (the MBF lane's
     coverage rule); every member but RS-P180 takes the free-length state at it, and RS-P180 keeps zero eigenstrain
-    (spec §5.1). Other cases: the installed point and no thermal state."""
+    (spec §5.1). RS-OPE-REF: the same thermal state on the installed point, each member that has an operating
+    temperature stating its analysis basis. Other cases: the installed point and no thermal state."""
     rows = []
     for tag, *_ in MEMBERS:
-        hot = thermal and tag != REPLACED_SPAN
+        hot = element_basis != INSTALLED and tag != REPLACED_SPAN
         row = {"pipe_ref": f"pipe:{tag}"}
         if hot:
             row["operating_temperature"] = q(OPERATING_C, "degC")
-        if thermal:
+        if element_basis == OPERATING:
             row["material_selection"] = {"kind": "temperature_interpolation", "material_ref": f"material:{MATERIAL}",
                                          "temperature": q(OPERATING_C, "degC"), "interpolation": "piecewise_linear",
                                          "extrapolation": "forbidden"}
@@ -708,6 +718,8 @@ def element_states(thermal):
                                          "point_ref": f"point:RS-M1-T{INSTALLATION_C:03d}"}
         if hot:
             row["thermal_state"] = {"kind": "free_length_state", "expansion_law_ref": "law:RS-M1-SECANT"}
+            if element_basis == OPERATING_REFERENCE_MODULUS:
+                row["analysis_basis_override"] = {"reason": REFERENCE_MODULUS_REASON, "provenance": PROVENANCE}
         else:
             reason = ("replaced span RS-P180: zero eigenstrain (spec §5.1)" if tag == REPLACED_SPAN
                       else "no temperature in this case")
@@ -716,7 +728,7 @@ def element_states(thermal):
     return rows
 
 
-def load_case(case, label, thermal, motion, captured):
+def load_case(case, label, element_basis, motion, captured):
     record = dict(captured["case_record"])
     primitives = captured["primitive_loads"]
     record["primitive_loads"] = primitives
@@ -739,7 +751,7 @@ def load_case(case, label, thermal, motion, captured):
     record["analysis_state"] = {
         "contract": "openpipestress.load_reference_state/1.0.0",
         "reference_configuration_ref": "reference:RS-INSTALLED",
-        "element_states": element_states(thermal),
+        "element_states": element_states(element_basis),
         "support_states": states,
         "load_sources": [{"source_ref": p["id"], "factor": 1.0} for p in primitives],
         "history": {"kind": "independent_equilibrium"},
@@ -766,8 +778,8 @@ def read_capture(model):
 def model_document():
     model = base_model()
     captured = read_capture(model)
-    model["load_cases"] = [load_case(case, label, thermal, motion, captured[f"load:{case}"])
-                           for case, label, thermal, motion in CASES]
+    model["load_cases"] = [load_case(case, label, element_basis, motion, captured[f"load:{case}"])
+                           for case, label, element_basis, motion in CASES]
     model["combinations"] = [{"id": f"combination:{tag}", "label": label, "basis": "result_state_subtraction",
                               "minuend_id": f"load:{minuend}", "subtrahend_id": f"load:{subtrahend}",
                               "provenance": PROVENANCE} for tag, label, minuend, subtrahend in COMBINATIONS]

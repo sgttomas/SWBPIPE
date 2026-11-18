@@ -1461,6 +1461,19 @@
       "id": "load:RS-SAM"
     },
     {
+      "collection": "load_cases",
+      "fields": {
+        "analysis_state": "agent_authorable",
+        "kind": "agent_authorable",
+        "label": "agent_authorable",
+        "pressure_regions": "agent_authorable",
+        "primitive_loads": "agent_authorable",
+        "provenance": "agent_authorable",
+        "status": "agent_authorable"
+      },
+      "id": "load:RS-OPE-REF"
+    },
+    {
       "collection": "combinations",
       "fields": {
         "basis": "agent_authorable",
@@ -1747,7 +1760,8 @@
     "cases": [
       "load:RS-SUS",
       "load:RS-OPE",
-      "load:RS-SAM"
+      "load:RS-SAM",
+      "load:RS-OPE-REF"
     ],
     "generator": "self-weight generator (self_weight.rs), captured in self_weight_capture.json",
     "gravity": {
