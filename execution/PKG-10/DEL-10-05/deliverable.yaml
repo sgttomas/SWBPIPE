@@ -132,6 +132,14 @@ needs:
     The spectrum entry takes a model document and a spectrum request as text, applies its own
     admission, and returns one published document, a spectrum result or its refusals.
   gating: true
+- from: DEL-04-10
+  when: Hosting the read command for a spectrum result
+  condition: >-
+    The spectrum result reader takes a spectrum result document and, optionally, the spectrum
+    request it binds, and returns its own verdict, whose decision rejects a document it cannot read
+    or whose checked relations contradict it, and which states public engineering-result admission
+    disabled.
+  gating: true
 - from: DEL-10-04
   condition: >-
     Hosted verification builds the runner's crate and runs its tests when its inputs change, and
