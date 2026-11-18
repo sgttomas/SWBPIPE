@@ -586,8 +586,8 @@ pub(crate) fn demote(diagnostic: &mut Diagnostic, finding: &FormationFinding) ->
 }
 
 /// R-b' after the recovery loop: demotes the case's integrity diagnostic
-/// (found by id) under the no-op rule.
-pub(crate) fn amend_integrity_report(
+/// (found by id) under the no-op rule. Test-only: product writes use `integrity::amend`.
+#[cfg(test)] pub(crate) fn amend_integrity_report(
     diagnostics: &mut [Diagnostic],
     integrity_id: &str,
     finding: &FormationFinding,

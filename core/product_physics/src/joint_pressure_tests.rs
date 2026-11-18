@@ -362,7 +362,7 @@ fn reader_control_for(mode: PreviewSolverMode, anchored: bool) -> Value {
         &mut SourceRecoveryBudget::default(),
         None,
         Some(case.exact),
-        &mut diagnostics,
+        &mut diagnostics, &mut crate::integrity::InverseNormSink::default(),
         None,
         crate::held_status::CaseRole::Own(None),
     )

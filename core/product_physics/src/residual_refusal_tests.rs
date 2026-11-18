@@ -21,7 +21,7 @@ fn the_kernels_residual_refusal_is_published_as_the_named_blocking_finding() {
     .unwrap();
     let model: PreviewModel = serde_json::from_value(wire["model"].clone()).unwrap();
     let mut diagnostics = Vec::new();
-    append_integrity_failure(&mut diagnostics, "load:WITNESS", &error, &model);
+    append_integrity_failure(&mut diagnostics, &mut crate::integrity::InverseNormSink::default(), "load:WITNESS", &error, &model);
     assert_eq!(diagnostics.len(), 1);
     let finding = &diagnostics[0];
     assert_eq!(finding.id, integrity_diagnostic_id("load:WITNESS"));

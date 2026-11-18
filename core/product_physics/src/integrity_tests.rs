@@ -26,6 +26,21 @@ impl Drop for AllowWithdrawal {
     }
 }
 
+/// A test's hand-built diagnostics, with each integrity diagnostic written
+/// through the owner in place: the same vector, order and bytes, and the sink
+/// a product path would have left beside it.
+pub(crate) fn through_owner(built: Vec<Diagnostic>) -> (Vec<Diagnostic>, InverseNormSink) {
+    let mut diagnostics = Vec::new();
+    let mut sink = InverseNormSink::default();
+    for diagnostic in built {
+        match case_of(&diagnostic).map(str::to_string) {
+            Some(case_id) => publish(&mut diagnostics, &mut sink, &case_id, diagnostic, EntryUpdate::None),
+            None => diagnostics.push(diagnostic),
+        }
+    }
+    (diagnostics, sink)
+}
+
 fn integrity(case_id: &str, code: &str) -> Diagnostic {
     crate::diag(&crate::integrity_diagnostic_id(case_id), code, "info", format!("Load case {case_id}: report"), vec![case_id.to_string()])
 }

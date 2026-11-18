@@ -583,6 +583,9 @@ pub(crate) struct HeldRun {
 #[derive(Debug, Clone)]
 pub(crate) struct HeldInverseNorm {
     pub evidence: Option<open_pipe_stress_nonlinear_integration::confirmation::StageEvidence>,
+    /// The confirmation's own outcome, as it reported it: `None` established,
+    /// `Some(reason)` not. A later withdrawal changes the publication use, never this.
+    pub established: Option<String>,
 }
 
 /// A declared operating comparison whose subtrahend is held at the minuend's final status.
@@ -677,7 +680,7 @@ pub(crate) fn held_solve(
     let converged = held.result.converged;
     let HeldStatusSolve { result, confirmation, .. } = held;
     // Carrier revision 4 §6: the held evidence is taken before the confirmation is consumed.
-    let inverse_norm = HeldInverseNorm { evidence: Some(confirmation.evidence().clone()) };
+    let inverse_norm = HeldInverseNorm { evidence: Some(confirmation.evidence().clone()), established: match &confirmation { Confirmation::Established(_) => None, Confirmation::NotEstablished { reason, .. } => Some(reason.clone()) } };
     // Only E publishes the certified rows; every other outcome's rows are binary64 recoveries.
     // An E record is staged: the case's publication-basis decision in `run_case`
     // withdraws it (`HeldRequest::withdraw_established`) if the case does not
@@ -871,3 +874,49 @@ pub(crate) fn record(
 #[cfg(test)]
 #[path = "held_status_tests.rs"]
 mod tests;
+
+impl CaseRole<'_, '_> {
+    /// Carrier revision 5 §6: the case's single publication-basis decision
+    /// (DEL-04-07 *Published displacement*), applied to a held solve's own
+    /// evidence. Only `HeldRun.inverse_norm` survives the held solve, so a
+    /// record withdrawn by `HeldRequest::withdraw_established` is never shown
+    /// as used. Nothing for the case's own loop.
+    pub(crate) fn settle_inverse_norm(&mut self, publication: open_pipe_stress_nonlinear_integration::confirmation::PublicationUse) {
+        if let Self::Held(request) = self {
+            if let Some(Ok(run)) = &mut request.outcome {
+                if let Some(evidence) = &mut run.inverse_norm.evidence {
+                    evidence.set_publication(publication);
+                }
+            }
+        }
+    }
+}
+
+/// Carrier revision 4 §6: each held comparison's evidence, in model combination
+/// order (never the outcomes' `HashMap` order), under its comparison, minuend
+/// and target ids. A withheld comparison keeps its published code and carries
+/// no confirmation: no published withholding reason names inverse-norm
+/// verification in this build. An admitted one carries the held solve's own
+/// evidence and the confirmation's own outcome.
+pub(crate) fn record_inverse_norm(model: &PreviewModel, outcomes: &HashMap<String, HeldOutcome>, sink: &mut crate::integrity::InverseNormSink) {
+    use crate::inverse_norm_evidence::HeldOutcomeView;
+    for combination in &model.combinations {
+        let Some(outcome) = outcomes.get(&combination.id) else { continue };
+        let minuend = combination.minuend_id.as_deref().unwrap_or_default();
+        let target = combination.subtrahend_id.as_deref().unwrap_or_default();
+        match outcome {
+            HeldOutcome::Withheld(refusal) => crate::integrity::record_held(sink, &combination.id, minuend, target, HeldOutcomeView::Withheld { code: refusal.code.to_string() }, None),
+            HeldOutcome::Admitted(operand) => {
+                let run = &operand.run;
+                let kind = match run.evidence.outcome {
+                    Outcome::Established => "established",
+                    Outcome::NotEstablished => "not_established",
+                    Outcome::Released => "released",
+                    Outcome::GapInspection => "gap_inspection",
+                };
+                let confirmation = run.inverse_norm.evidence.clone().map(|evidence| crate::integrity::ConfirmationEntry { evidence, established: run.inverse_norm.established.clone() });
+                crate::integrity::record_held(sink, &combination.id, minuend, target, HeldOutcomeView::Admitted { kind: kind.to_string() }, confirmation);
+            }
+        }
+    }
+}

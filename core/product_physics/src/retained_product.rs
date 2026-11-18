@@ -4853,7 +4853,7 @@ impl ProductCapture {
                 professional_acceptance:ordinary.status.professional_acceptance.clone()},
             summary:Summary{max_displacement:None,max_open_formula_stress:None,..ordinary.summary.clone()},
             results:rows,diagnostics,professional_boundary:ordinary.professional_boundary.clone(),
-            accepted_model_state_mutated:false, inverse_norm: ordinary.inverse_norm.clone()})
+            accepted_model_state_mutated:false, inverse_norm: ordinary.inverse_norm.clone()}).map(|mut envelope| { crate::integrity::reconcile(&envelope.diagnostics, &mut envelope.inverse_norm); envelope }) // carrier revision 5 §3: the retained reconstruction's checkpoint
     }
     /// B4/D1 ruling (4): a failed ordinary case's rows carry exactly one requested-mode basis,
     /// bound to the captured invocation mode, the case and its retained owner (case index 0:

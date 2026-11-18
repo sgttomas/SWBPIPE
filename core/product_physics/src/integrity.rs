@@ -15,8 +15,8 @@
 //! allows it, so every product test that assembles a document guards the pair.
 
 use crate::inverse_norm_evidence::{
-    self, CaseEvidence, IntegrityFailureCode, PriorVerdict, ConfirmationView, EstablishmentView, InverseNormEvidence, PublishedBasisView,
-    VerdictMirror, WithdrawalView,
+    self, CaseEvidence, HeldComparisonEvidence, HeldOutcomeView, IntegrityFailureCode, PriorVerdict, ConfirmationView, EstablishmentView,
+    InverseNormEvidence, PublishedBasisView, VerdictMirror, WithdrawalView,
 };
 use crate::Diagnostic;
 use open_pipe_stress_frame_kernel::structural::InverseNormRecord;
@@ -70,6 +70,19 @@ struct CaseEntry {
 #[derive(Debug, Clone, Default)]
 pub struct InverseNormSink {
     entries: Vec<CaseEntry>,
+    held: Vec<HeldEntry>,
+}
+
+/// A held comparison's evidence (carrier revision 4 §6): the held solve's own
+/// confirmation, never a case entry. Written once per comparison, in model
+/// combination order, by `record_held`.
+#[derive(Debug, Clone)]
+struct HeldEntry {
+    comparison_id: String,
+    minuend_id: String,
+    target_id: String,
+    outcome: HeldOutcomeView,
+    confirmation: Option<ConfirmationEntry>,
 }
 
 /// What an operation changes in the case's entry, beside the diagnostic.
@@ -77,7 +90,6 @@ pub struct InverseNormSink {
 pub(crate) enum EntryUpdate {
     None,
     Linear(Option<InverseNormRecord>),
-    Confirmation(ConfirmationEntry),
     Basis(PublishedBasis),
     ConfirmationAndBasis(ConfirmationEntry, PublishedBasis),
 }
@@ -160,6 +172,15 @@ impl InverseNormSink {
                     entry.confirmation.as_ref().map(confirmation_of)
                 },
                 withdrawn,
+            });
+        }
+        for held in &self.held {
+            out.held.push(HeldComparisonEvidence {
+                comparison_id: held.comparison_id.clone(),
+                minuend_id: held.minuend_id.clone(),
+                target_id: held.target_id.clone(),
+                outcome: held.outcome.clone(),
+                confirmation: held.confirmation.as_ref().map(confirmation_of),
             });
         }
         out
@@ -265,7 +286,6 @@ fn apply(entry: &mut CaseEntry, update: EntryUpdate) {
     match update {
         EntryUpdate::None => {}
         EntryUpdate::Linear(record) => entry.linear = record,
-        EntryUpdate::Confirmation(confirmation) => entry.confirmation = Some(confirmation),
         EntryUpdate::Basis(basis) => entry.published_basis = basis,
         EntryUpdate::ConfirmationAndBasis(confirmation, basis) => {
             entry.confirmation = Some(confirmation);
@@ -333,6 +353,52 @@ pub(crate) fn update_entry(sink: &mut InverseNormSink, case_id: &str, update: En
 pub(crate) fn clear(diagnostics: &mut Vec<Diagnostic>, sink: &mut InverseNormSink) {
     diagnostics.clear();
     sink.entries.clear();
+    sink.held.clear();
+}
+
+/// Edits every integrity diagnostic in place (`blocked_envelope`'s
+/// inspection-only conversion). An entry's mirror follows the edit only where
+/// it agreed with the diagnostic before it, as the first diagnostic of its
+/// case; any other disagreement is left for `reconcile` to withdraw, so the
+/// conversion launders no bypass.
+pub(crate) fn amend_each(diagnostics: &mut [Diagnostic], sink: &mut InverseNormSink, mut edit: impl FnMut(&mut Diagnostic)) {
+    let mut seen: Vec<String> = Vec::new();
+    for diagnostic in diagnostics.iter_mut() {
+        let Some(case_id) = case_of(diagnostic).map(str::to_string) else { continue };
+        let before = mirror_of(diagnostic);
+        let agreed = !seen.contains(&case_id) && sink.entries.iter().any(|e| e.case_id == case_id && e.mirror == before);
+        seen.push(case_id.clone());
+        edit(diagnostic);
+        if agreed {
+            if let Some(entry) = sink.entries.iter_mut().find(|e| e.case_id == case_id) {
+                entry.mirror = mirror_of(diagnostic);
+            }
+        }
+    }
+}
+
+/// The position of a case's integrity diagnostic, read only (the stress-free
+/// notice is placed after it and moves no mirror).
+pub(crate) fn position(diagnostics: &[Diagnostic], case_id: &str) -> Option<usize> {
+    diagnostics.iter().position(|d| case_of(d) == Some(case_id))
+}
+
+/// Records one held comparison's evidence (carrier revision 4 §6).
+pub(crate) fn record_held(
+    sink: &mut InverseNormSink,
+    comparison_id: &str,
+    minuend_id: &str,
+    target_id: &str,
+    outcome: HeldOutcomeView,
+    confirmation: Option<ConfirmationEntry>,
+) {
+    sink.held.push(HeldEntry {
+        comparison_id: comparison_id.to_string(),
+        minuend_id: minuend_id.to_string(),
+        target_id: target_id.to_string(),
+        outcome,
+        confirmation,
+    });
 }
 
 /// The checkpoint: compares every integrity diagnostic with its entry and
@@ -382,3 +448,7 @@ pub(crate) fn reconcile(diagnostics: &[Diagnostic], sink: &mut InverseNormSink) 
 #[cfg(test)]
 #[path = "integrity_tests.rs"]
 pub(crate) mod tests;
+
+#[cfg(test)]
+#[path = "integrity_wiring_tests.rs"]
+mod wiring_tests;
