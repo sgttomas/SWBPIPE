@@ -116,6 +116,10 @@ needs:
 # tests against the frozen references and their examples. No spectrum solve exists yet.
 code_paths:
 - core/analysis/response_spectrum/**
+# The committed spectrum result documents, each with its stand-in model and request, and the
+# `spectrum-1` semantic table (REQ-006, "The document and the readers' checks").
+- fixtures/results/spectrum_*
+- fixtures/results/semantic_contract_spectrum_1.json
 # The frozen references and their maintained regeneration and independence check.
 - validation/references/f2_spectrum/**
 - tests/test_dynamics_references.py
