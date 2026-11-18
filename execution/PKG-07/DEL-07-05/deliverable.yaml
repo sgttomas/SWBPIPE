@@ -18,7 +18,8 @@ needs:
   when: Showing stress rows and the stress headline of each section basis
   condition: >-
     A recovered stress row names its station and its section basis, and on the exact route each
-    basis, nominal and reduced, has its own member maxima.
+    basis, nominal and reduced, has its own member maxima. Each member maximum states, in the
+    members its schema fixes, the method that formed it and what its interval covers.
   gating: true
 - from: DEL-04-01
   when: Drawing element axes

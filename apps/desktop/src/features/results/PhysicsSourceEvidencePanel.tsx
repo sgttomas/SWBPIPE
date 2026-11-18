@@ -10,7 +10,7 @@ const number = (v: unknown) => typeof v === "number" && Number.isFinite(v) ? Str
 /** Presentation of a recorded location claim only; this is no eligibility test. */
 export function endpointLocationDescription(value: unknown): string {
   const locations = record(value);
-  if (locations?.kind === "strict_endpoint" && ["i", "j"].includes(String(locations.endpoint))) {
+  if (locations?.kind === "strict_endpoint" && (locations.endpoint === "i" || locations.endpoint === "j")) {
     return `Strict endpoint ${locations.endpoint}; interior stations are below this maximum. This does not identify a unique circumferential fibre.`;
   }
   if (locations?.kind === "whole_span_constant") return "Whole span constant; every station attains the same maximum.";
@@ -20,34 +20,57 @@ export function endpointLocationDescription(value: unknown): string {
   return "Location evidence unavailable; no unique governing station is inferred.";
 }
 
-/** What the schemas fix for the two kinds of stress-maximum record: an ordinary record states a
- * coefficient basis and the scope of its interval and has no `basis`; a retained endpoint record
- * states its basis, its own coefficient basis and its own scope. */
-const POLYNOMIAL_COEFFICIENT_BASIS = "j_side_section_equilibrium_binary64_enclosures";
-const POLYNOMIAL_ENCLOSURE_SCOPE = "supplied_binary64_polynomial_coefficient_enclosures; solution error is separate";
-const RETAINED_ENDPOINT_BASIS = "retained_source_endpoint_normal_max_v1";
-const RETAINED_COEFFICIENT_BASIS = "retained_section_functionals_binary64";
-const RETAINED_ENDPOINT_SCOPE = "retained_action_projection_and_ordered_binary64_recipe;represented_source_section_operands";
+/** Every member the schema fixes to a constant for each of the two kinds of stress-maximum record
+ * (`schemas/physics_source_recovery.schema.json`, the two variants of `pipe_stress_extrema`). These
+ * name the method that formed the record and the scope of its interval. The panel test reads the
+ * schema and fails when these differ from it. */
+export const POLYNOMIAL_ENCLOSURE_FIXED: Readonly<Record<string, unknown>> = {
+  approximation: "piecewise_quadratic_straight_section_statics",
+  coefficient_basis: "j_side_section_equilibrium_binary64_enclosures",
+  enclosure_scope: "supplied_binary64_polynomial_coefficient_enclosures; solution error is separate",
+};
+export const RETAINED_ENDPOINT_FIXED: Readonly<Record<string, unknown>> = {
+  basis: "retained_source_endpoint_normal_max_v1",
+  coefficient_basis: "retained_section_functionals_binary64",
+  relative_limit: 1e-9,
+  enclosure_scope: "retained_action_projection_and_ordered_binary64_recipe;represented_source_section_operands",
+};
 
-/** Which explanation of its interval a stress-maximum record supports: the one whose method and
- * scope it states exactly, in all three fields. A record whose basis, coefficient basis and scope
- * do not all belong to one kind supports neither. Presentation only; this is no validity or
- * eligibility test. */
-export function maximumIntervalReading(maximum: Record<string, unknown>): "retained_endpoint" | "polynomial_enclosure" | "uninterpreted" {
-  const { basis, coefficient_basis: coefficientBasis, enclosure_scope: scope } = maximum;
-  if (basis === RETAINED_ENDPOINT_BASIS && coefficientBasis === RETAINED_COEFFICIENT_BASIS && scope === RETAINED_ENDPOINT_SCOPE) return "retained_endpoint";
-  if (basis === undefined && coefficientBasis === POLYNOMIAL_COEFFICIENT_BASIS && scope === POLYNOMIAL_ENCLOSURE_SCOPE) return "polynomial_enclosure";
-  return "uninterpreted";
+const finite = (v: unknown): v is number => typeof v === "number" && Number.isFinite(v);
+/** The record states every member fixed for its kind, exactly, and none that only the other kind fixes. */
+const states = (maximum: RecordValue, kind: Readonly<RecordValue>, other: Readonly<RecordValue>) =>
+  Object.entries(kind).every(([key, value]) => maximum[key] === value)
+  && Object.keys(other).every(key => key in kind || maximum[key] === undefined);
+
+/** Which explanation of its interval a stress-maximum record supports. The panel's sentences rely
+ * on these conditions, and each is checked here before a sentence is shown:
+ * - the interval is two finite numbers, not negative, the lower not above the upper;
+ * - the record states every schema-fixed member of one kind and none fixed only for the other;
+ * - for a retained endpoint record, whose published value and error bounds are shown beside the
+ *   bound: the published value is a finite number inside the interval, the error bounds are finite
+ *   and not negative, and the relative error bound is not above the method's limit.
+ * A record that fails any of them supports neither explanation, and its interval is shown as
+ * recorded, not as a bound. Presentation only: this explains the scope a record declares and
+ * re-establishes none of the engine's arithmetic; it is no validity or eligibility test. */
+export function maximumIntervalReading(maximum: RecordValue): "retained_endpoint" | "polynomial_enclosure" | "uninterpreted" {
+  const { value_lower_pa: lower, value_upper_pa: upper } = maximum;
+  if (!finite(lower) || !finite(upper) || lower < 0 || lower > upper) return "uninterpreted";
+  if (states(maximum, POLYNOMIAL_ENCLOSURE_FIXED, RETAINED_ENDPOINT_FIXED)) return "polynomial_enclosure";
+  if (!states(maximum, RETAINED_ENDPOINT_FIXED, POLYNOMIAL_ENCLOSURE_FIXED)) return "uninterpreted";
+  const { value_pa: value, absolute_error_bound_pa: absolute, relative_error_bound: relative } = maximum;
+  const figuresAgree = finite(value) && lower <= value && value <= upper && finite(absolute) && absolute >= 0
+    && finite(relative) && relative >= 0 && relative <= (RETAINED_ENDPOINT_FIXED.relative_limit as number);
+  return figuresAgree ? "retained_endpoint" : "uninterpreted";
 }
 
-/** The interval of a record that is not a retained endpoint maximum, with what the record says
- * it covers, as one sentence, so that the interval is never shown without its qualification.
- * The words are the record's own scope; the panel adds no account of how the coefficients
- * were formed. */
-export function qualifiedIntervalDescription(maximum: Record<string, unknown>): string {
+/** The interval of a record that is not shown as a retained endpoint maximum, with what the record
+ * says it covers, as one sentence, so that the interval is never shown without its qualification.
+ * The words are the record's own scope; the panel adds no account of how the coefficients were
+ * formed. */
+export function qualifiedIntervalDescription(maximum: RecordValue): string {
   const interval = `[${number(maximum.value_lower_pa)}, ${number(maximum.value_upper_pa)}] Pa`;
   if (maximumIntervalReading(maximum) === "polynomial_enclosure") return `Bound over the supplied binary64 polynomial coefficient enclosures: ${interval}. Solution error is separate.`;
-  return `Recorded interval: ${interval}. This panel cannot determine the interval's scope from this record, so it is not shown as a bound.`;
+  return `Recorded interval: ${interval}. The record's fields are not consistent with a method this panel explains, so the interval is not shown as a bound.`;
 }
 
 /** Render original method facts in both live and historical/reference contexts, for
@@ -77,7 +100,7 @@ export function PhysicsSourceEvidencePanel({ result }: { result: MechanicsResult
           <strong>{text(maximum.pipe_id)} — elastic normal-stress maximum</strong>
           {reading === "retained_endpoint"
             ? <p>Method: <code>{text(maximum.basis)}</code>. Bound: [{number(maximum.value_lower_pa)}, {number(maximum.value_upper_pa)}] Pa.</p>
-            : <p>Method: <code>{text(maximum.basis ?? maximum.coefficient_basis)}</code>. <span data-testid={`physics-source-maximum-interval-${text(maximum.result_id)}`}>{qualifiedIntervalDescription(maximum)}</span></p>}
+            : <p>{reading === "polynomial_enclosure" ? "Method" : "Recorded method"}: <code>{text(maximum.basis ?? maximum.coefficient_basis)}</code>. <span data-testid={`physics-source-maximum-interval-${text(maximum.result_id)}`}>{qualifiedIntervalDescription(maximum)}</span></p>}
           {reading === "retained_endpoint" ? <>
             <p>Published value: {number(maximum.value_pa)} Pa; absolute error bound: {number(maximum.absolute_error_bound_pa)} Pa; relative error bound: {number(maximum.relative_error_bound)}; relative limit: {number(maximum.relative_limit)}.</p>
             <p>{endpointLocationDescription(maximum.locations)}</p>
