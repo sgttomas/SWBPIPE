@@ -31,7 +31,7 @@ BINARY_SHA256 = "112fae7a5a1223e673c8a1791d32338f37df8b527ff1159bb8adac6c4dbf1b4
 # sends the supplier at thread start (catalog.rs Catalog::declarations(): type, name, description and
 # expanded input schema), nor the supplier's serialization of it. tools/agent_catalog_resource.py
 # holds the fixture fixtures/embedded_agent/agent-witness-pin.json to this same value.
-CATALOG_SHA256 = "f5551636720df44964afe0c4aa87b5ef196b01e4515af41a21baa7133f319b9b"
+CATALOG_SHA256 = "79a0571eec5f9ec0c6541d22a88a2d91ced04f94508e65b495e7900c1bbf5da3"
 FRAME_BYTES = 1024 * 1024
 # The catalog's limits.argumentBytes, as the host enforces it. agent_host_witness_test.py holds this
 # to the catalog file, so the two cannot diverge unnoticed.

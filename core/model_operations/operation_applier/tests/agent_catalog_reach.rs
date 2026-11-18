@@ -190,7 +190,7 @@ fn newly_admitted_kinds_enter_the_reference_families_from_the_fixture_values() {
         agent("create", "Section", section["id"].as_str().unwrap(), "create_section", "sections", "not_present", &canonical_json(section), unit, "length")
     }).collect());
     let pipes: Vec<Value> = fixture["pipe_segments"].as_array().unwrap().clone();
-    // Sixteen bindings exceed the argument bound (each before is a whole pipe record); ten fit.
+    // Each binding's before is a whole pipe record; ten to a proposal stay well inside the argument bound.
     for chunk in pipes.chunks(10) {
         let ops = chunk.iter().map(|pipe| {
             let id = pipe["id"].as_str().unwrap();
@@ -451,7 +451,7 @@ fn every_admitted_create_kind_refuses_or_drops_a_person_entered_member() {
 
 #[test]
 fn a_removal_applied_alone_leaves_a_case_the_solve_refuses_by_name() {
-    // Replacing a stored analysis state is two proposals: its removal, then the
+    // Replacing a stored analysis state too large to name twice is two proposals: its removal, then the
     // new state. If the person applies only the removal, the preview shows the
     // state going to not_present, and the solve refuses the case by name.
     let fixture = reference();

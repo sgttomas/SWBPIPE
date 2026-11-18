@@ -6,6 +6,7 @@ import type { PreviewModel, ModelHashEvidence, MechanicsResult, Diagnostic } fro
 import type { AgentBasis } from './embeddedAgentBridge';
 import type { SessionResult } from './nativeResult';
 import catalog from '../../src-tauri/resources/agent-capability-catalog.json';
+import referenceJson from '../../../../fixtures/reference_system/reference_system.json';
 const mocks=vi.hoisted(()=>({validate:vi.fn()}));
 vi.mock('./operationBatchService',()=>({validateOperationBatch:mocks.validate}));
 // A native read, scripted only where a test turns it on: the native rows query's page and its ordinals.
@@ -386,6 +387,35 @@ describe('workspace-owned live embedded agent adapter',()=>{
   records.load_cases=loadCase(bound-16);
   call('swbpipe_read_records',{family:'load_cases',page:{cursor:null,limit:5}},'invented-session:3');await session.poll();await drain();
   outcome=JSON.parse(session.actual('invented-session:3')!.outcome);expect(outcome.status).toBe('unavailable');expect(outcome.message).toContain('load:L1');
+  await session.close();
+ });
+ it('reads the reference load cases back whole across pages, and names a case whose held texts together exceed a page',async()=>{
+  vi.useFakeTimers();const {session,call,model}=setup();
+  const records=model as unknown as Record<string,unknown>;
+  // Each record's texts are produced in turn, so a page of several needs more turns than one drain gives.
+  const settle=async()=>{for(let i=0;i<8;i++)await drain();};
+  const cases=structuredClone(referenceJson.load_cases) as unknown as Record<string,any>[];
+  records.load_cases=cases;await session.start('revision');await session.poll();await settle();
+  // Each entry carries the case's state and pressure regions as before texts; a page holds what fits and resumes at the next.
+  const seen:Record<string,any>[]=[];let cursor:string|null=null;
+  for(let page=0;page<cases.length;page++){
+   call('swbpipe_read_records',{family:'load_cases',page:{cursor,limit:5}},`invented-session:${page+2}`);await session.poll();await settle();
+   const outcome=JSON.parse(session.actual(`invented-session:${page+2}`)!.outcome);expect(outcome.status).toBe('ok');
+   seen.push(...outcome.data.records);cursor=outcome.data.nextCursor;if(cursor===null)break;
+  }
+  expect(cursor).toBeNull();expect(seen.map(record=>record.id)).toEqual(cases.map(item=>item.id));
+  for(const [index,record] of seen.entries()){
+   expect(JSON.parse(record.before.analysis_state)).toEqual(cases[index].analysis_state);
+   expect(JSON.parse(record.before.pressure_regions)).toEqual(cases[index].pressure_regions);
+  }
+  // A limit that stands: each text is within the record text bound, but together they exceed the
+  // 48 KiB page, and the entry is never cut. The read names the case and returns nothing.
+  const wide=structuredClone(cases[1]);const fill='p'.repeat(catalog.limits.argumentBytes-14000);
+  wide.analysis_state.provenance=fill;wide.pressure_regions[0].provenance=fill+'p'.repeat(9000);
+  records.load_cases=[cases[0],wide];
+  call('swbpipe_read_records',{family:'load_cases',page:{cursor:null,limit:5}},'invented-session:9');await session.poll();await settle();
+  const refused=JSON.parse(session.actual('invented-session:9')!.outcome);
+  expect(refused.status).toBe('unavailable');expect(refused.message).toContain(wide.id);expect(refused.data).toBeNull();
   await session.close();
  });
  it('filters result pages by kind and entity and binds the filter to the cursor',async()=>{

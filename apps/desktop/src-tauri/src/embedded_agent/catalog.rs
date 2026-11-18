@@ -1021,13 +1021,14 @@ mod tests {
         }
     }
 
-    /// One figure bounds a text the agent writes and the same text read back: the
-    /// argument bytes, the before and after of a change (in characters) and the
-    /// record text and before texts of a record read. An analysis state is one
-    /// field, written whole, and its removal names the stored state as its before;
-    /// a state the agent could enter and not read back could never be removed.
+    /// One figure is the argument byte limit and the schema's bound, in
+    /// characters, on a change's before and after and on a record read's record
+    /// text and before texts: an analysis state is one field, written whole,
+    /// and its removal names the stored state as its before. This holds the four
+    /// figures equal and each schema bound at the figure and one over; that a
+    /// stored state is in fact read back is the desktop session's to show.
     #[test]
-    fn one_bound_serves_a_whole_analysis_state_written_and_read_back() {
+    fn the_text_bounds_of_a_change_and_of_a_record_read_equal_the_argument_bound() {
         let catalog = Catalog::load().unwrap();
         let bound = catalog.limits().argument_bytes;
         assert_eq!(bound, 28672);

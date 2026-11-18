@@ -188,6 +188,25 @@ describe("swbpipe_read_records before texts are the ones the engine compares", (
     model = await applied(model, op("modify", "Support", supportId, "update_support", "provenance_record", (await read(model, "supports", supportId)).before.provenance_record, json({ ...record, review_status: "quarantined" })));
     expect((find(model, "supports", supportId).provenance_record as AnyRecord).review_status).toBe("quarantined");
   }, 120_000);
+
+  it("a state that fills the argument bound is read back as the text its removal and its re-entry compare", async () => {
+    // The longest state a change can carry is as long as the catalog's bound. The producer returns
+    // that same text, and the engine accepts it as the before of the state's removal.
+    let model = structuredClone(referenceJson) as unknown as PreviewModel;
+    const bound = catalog.limits.argumentBytes, bytes = (text: string) => new TextEncoder().encode(text).byteLength;
+    const state = structuredClone(find(model, "load_cases", "load:RS-OPE").analysis_state) as AnyRecord;
+    state.provenance = "p".repeat(bound - bytes(await canonicalJsonString({ ...state, provenance: "" })));
+    const filled = await canonicalJsonString(state);
+    expect(bytes(filled)).toBe(bound);
+    expect(filled.length).toBeLessThanOrEqual(catalog.definitions.operationIntent.properties.change.properties.after.maxLength);
+    const stored = (await read(model, "load_cases", "load:RS-OPE")).before.analysis_state;
+    model = await applied(model, op("modify", "Load", "load:RS-OPE", "update_load", "analysis_state", stored, "not_present"));
+    model = await applied(model, op("modify", "Load", "load:RS-OPE", "update_load", "analysis_state", "not_present", filled));
+    const back = await read(model, "load_cases", "load:RS-OPE");
+    expect(back.before.analysis_state).toBe(filled);
+    model = await applied(model, op("modify", "Load", "load:RS-OPE", "update_load", "analysis_state", back.before.analysis_state, "not_present"));
+    expect(find(model, "load_cases", "load:RS-OPE").analysis_state).toBeUndefined();
+  });
 });
 
 describe("the person-entered members the agent's proposals are refused for", () => {

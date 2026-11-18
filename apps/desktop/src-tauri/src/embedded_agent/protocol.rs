@@ -1160,9 +1160,10 @@ mod tests {
     }
 
     /// Every analysis state of the reference system is admitted as one operation,
-    /// the largest of them included; the argument byte limit, counted before the
-    /// schema, refuses that largest state twice in one proposal, and refuses any
-    /// after that fills the bound with the envelope.
+    /// the largest of them included. The argument byte limit, counted before the
+    /// schema, admits arguments of exactly the bound and refuses one byte more;
+    /// it refuses that largest state twice in one proposal, and any after that
+    /// fills the bound with the envelope.
     #[test]
     fn an_analysis_state_travels_alone_within_the_argument_bound() {
         const REFERENCE: &str = include_str!("../../../../../fixtures/reference_system/reference_system.json");
@@ -1182,7 +1183,12 @@ mod tests {
             let alone = p.handle_frame(call(json!(60 + index), &format!("alone-{index}"), Tool::ProposeOperations.name(), args(vec![op("op1", each)])), &basis()).unwrap();
             assert!(matches!(alone.events.first(), Some(Event::ToolRequested { .. })), "{:?}", alone.outbound);
         }
+        // The byte limit itself: the whole arguments, serialised, at the bound and one byte over.
+        let envelope = serde_json::to_vec(&args(vec![op("op1", "")])).unwrap().len();
+        let exact = p.handle_frame(call(json!(70), "exact", Tool::ProposeOperations.name(), args(vec![op("op1", &"x".repeat(bound - envelope))])), &basis()).unwrap();
+        assert!(matches!(exact.events.first(), Some(Event::ToolRequested { .. })), "{:?}", exact.outbound);
         for (id, ops) in [
+            ("over", vec![op("op1", &"x".repeat(bound - envelope + 1))]),
             ("two", vec![op("op1", &state), op("op2", &state)]),
             ("full", vec![op("op1", &"x".repeat(bound))]),
         ] {
