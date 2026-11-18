@@ -32,12 +32,13 @@ The [release limitations](docs/RELEASE_LIMITATIONS_v1.0.md) record each
 remaining refusal and whether Agent 0 has declared it acceptable. Package version strings and older
 0.1.0 documentation do not change the v1.0 publication target.
 
-**Known numerical defect on development main:** new solves verify the
-integrity check's inverse-norm bound or report the case numerically sensitive,
-but result documents do not yet record that verification, so stored ordinary
-output, desktop badges and ordinary numerical eligibility can report passed or
-established standing without a recorded verified inverse-norm bound. Exit
-criterion 18 remains unmet;
+**Known numerical defect on development main:** result documents do not
+record whether the integrity check's inverse-norm bound was verified, so stored
+ordinary output, desktop badges and ordinary numerical eligibility can report
+passed or established standing with no record of a verified bound. In a new
+solve, the integrity check verifies that bound or reports the case numerically
+sensitive. Exit criterion 18
+remains unmet;
 [LIM-026](docs/RELEASE_LIMITATIONS_v1.0.md#lim-026--ordinary-results-can-say-checks-passed-or-established-without-a-verified-inverse-norm-bound)
 names the maintained witness and the limits of the rendered report's
 disclosure. These tokens are not independent assurance.

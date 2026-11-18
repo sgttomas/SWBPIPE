@@ -81,7 +81,7 @@ code_paths:
 # criteria). The known-limitation witness of the inverse-norm premise (inverse_norm_witness, REQ-015's
 # OUT-001 row) is held by the test that observes the gate's disposition on it. The exact cases of the
 # inverse-norm certificate arithmetic (inverse_norm_certificate) test structural/inverse_certificate.rs,
-# which gates the check's inverse operand (REQ-015's inverse-norm bound).
+# which the check's gate (formation_check's verified_inverse_operand) calls (REQ-015's inverse-norm bound).
 - validation/references/inverse_norm_certificate/**
 - validation/references/inverse_norm_witness/**
 - validation/references/kd5_member_bound/**
