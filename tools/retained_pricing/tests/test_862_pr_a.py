@@ -278,8 +278,12 @@ def test_omitting_the_correction_failure_work_stops(tmp_path):
     parts = {"inspection_only": True, "inspection_only_prior": True, "corrected_nodal_displacements": True,
              "displacement_correction_warning": False}
     assert G["parts_failures"](parts, "corrected")
-    # The registry requires the failure texts' owner wherever U5B-PD's epoch and later owners are present.
-    assert next(e for e in PRES["OWNERS"] if e[1] == "PRA-CF correction failure texts")[0] == max(e[0] for e in PRES["OWNERS"])
+    # The registry requires the failure texts' owner wherever an owner of its epoch or a later one is present: its
+    # epoch is registered after U5B-PD's and within the registry, so the current source (which holds the latest
+    # epoch's owner) owes it. Its position as the latest epoch is not the property: later owners may be added.
+    epoch = {e[1]: e[0] for e in PRES["OWNERS"]}
+    assert epoch["U5B-PD published displacements"] < epoch["PRA-CF correction failure texts"] <= max(epoch.values())
+    assert PRES["check"](SOURCE)["PRA-CF correction failure texts"] is True
 
 
 def test_the_registry_requires_every_owner_up_to_the_latest_present_epoch(tmp_path, monkeypatch):
