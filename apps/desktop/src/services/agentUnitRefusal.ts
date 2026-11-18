@@ -7,17 +7,19 @@
  * dimension as change.dimension and the units it may carry.
  *
  * The engine checks each step against the temporary document the earlier steps produced and stops
- * at the first refused step (operation_applier atomic_batch.rs). The session's document is
- * therefore what the engine evaluated only for the first step. When the first step is refused,
- * the field's state in the session's document selects the forms: a stored number with a unit
- * beside it gets the explicit pair form, and the bare-number form too when the stored unit is a
- * literal of the field's unit list (it is then stated); an absent optional quantity the engine
- * can create gets the creating form alone. When a later step is refused, no stored unit is
- * stated and only the explicit pair form is offered, in fixed words saying that an earlier
- * operation may have changed what is stored, and only when every earlier operation on the same
- * record is a set_field on a field of the table below or on the record's label or provenance.
- * A pipe with a section binding is not explained. Every other refusal, every other state,
- * and anything that does not validate, is the generic sentence, unchanged.
+ * at the first refused step (operation_applier atomic_batch.rs). The forms are selected by the
+ * field's state as the engine judged it: a stored number with a unit beside it gets the explicit
+ * pair form, and the bare-number form too when the stored unit is a literal of the field's unit
+ * list (it is then stated); an absent optional quantity the engine can create gets the creating
+ * form alone. That state is the session's document's, unless an earlier validated step of the same
+ * proposal set the same field on the same record: a validated set_field on a table field leaves
+ * the stored unit equal to that step's change.unit (a bare number must name the stored unit, an
+ * explicit pair and a created quantity write it), so the state is then a stored pair in the unit
+ * of the engine's own diff_preview row for the latest such step, bound to that step and agreeing
+ * with its submitted change. This holds only where every earlier operation on the same record is a
+ * set_field on a field of the table below or on the record's label or provenance; otherwise the
+ * generic sentence. A pipe with a section binding is not explained. Every other refusal, every
+ * other state, and anything that does not validate, is the generic sentence, unchanged.
  *
  * The outcome must fit the engine's sequence: one step per operation up to the refused one, each
  * bound to the submitted operation at its position by its identities (operation_id, change_id,
@@ -31,8 +33,8 @@
  * and a unit symbol reach the text only as the matching entry of the closed lists below, never as
  * the input string; positions and counts are integers this module computed, never values read
  * from an input. No engine message, remediation or affected reference, no proposal text
- * (identifier, rationale, label, before, after, target reference) and no document string other
- * than a stored unit equal to a literal of the field's unit list is read into the text. */
+ * (identifier, rationale, label, before, after, target reference) and no document or preview-row
+ * string other than a unit equal to a literal of the field's unit list is read into the text. */
 
 export const GENERIC_REFUSAL = 'The operation engine refused the proposal; nothing was queued.';
 
@@ -40,9 +42,9 @@ export const GENERIC_REFUSAL = 'The operation engine refused the proposal; nothi
  * most 1000 characters). A composed explanation longer than this is replaced by the generic sentence. */
 export const UNIT_REFUSAL_MAX_CHARS = 1000;
 /** Bounds on what is read: the proposal's operation limit (embeddedAgentSession LIMITS), a cap on
- * findings per list and on records per collection. An input past any of them is not read and the
- * generic sentence is returned. */
-const MAX_OPERATIONS = 16, MAX_FINDINGS = 64, MAX_RECORDS = 100_000;
+ * findings and preview rows per list and on records per collection. An input past any of them is
+ * not read and the generic sentence is returned. */
+const MAX_OPERATIONS = 16, MAX_FINDINGS = 64, MAX_ROWS = 64, MAX_RECORDS = 100_000;
 
 /** The unit and value/unit-pair refusal codes of the applier's quantity resolvers
  * (operation_applier lib.rs resolve_field, resolve_optional_quantity, stored_pair_edit_names_its_unit)
@@ -177,6 +179,20 @@ function fieldState(model: unknown, field: QuantityField, ref: unknown): FieldSt
  return field.optional ? {kind: 'absent'} : null;
 }
 
+/** The unit a validated earlier set_field on the field left stored, from the engine's own account:
+ * the step's single diff_preview row, which must name the submitted record, object type, field
+ * path, change kind, unit and dimension; the matching literal of the field's unit list, or null when
+ * the unit is not on it. A missing, duplicated or contradictory row does not fit. */
+function setterUnit(step: unknown, operation: unknown, field: QuantityField): string | null {
+ const rows = list(own(step, 'diff_preview'), MAX_ROWS);
+ if (rows.length !== 1) return unfit();
+ const row = rows[0], target = own(operation, 'target'), change = own(operation, 'change'), unit = own(row, 'unit');
+ const agreed: [unknown, unknown][] = [[own(row, 'entity_ref'), own(target, 'ref')], [own(row, 'object_type'), field.objectType], [own(row, 'field_path'), field.fieldPath],
+  [own(row, 'change_kind'), 'set_field'], [unit, own(change, 'unit')], [own(row, 'dimension'), own(change, 'dimension')]];
+ if (agreed.some(([engine, submitted]) => typeof engine !== 'string' || engine !== submitted)) return unfit();
+ return UNIT_REFUSAL_UNITS[field.dimension].find(symbol => symbol === unit) ?? null;
+}
+
 /** The explanation of the refused step: fixed words, slots filled only from the literals above and
  * integers computed here. */
 function stepText(code: string, field: QuantityField, state: FieldState, position: number, total: number): string {
@@ -184,8 +200,7 @@ function stepText(code: string, field: QuantityField, state: FieldState, positio
  const pair = `after the JSON text {"value": number, "unit": unit} with change.unit that unit and change.dimension ${dimension}, unit one of ${UNIT_REFUSAL_UNITS[dimension].join(', ')}`;
  const head = `${GENERIC_REFUSAL} Operation ${position} of ${total} (${code}): ${objectType} ${fieldPath} has dimension ${dimension}`;
  let body: string;
- if (position > 1) body = `. An earlier operation of this proposal may have changed what is stored, so no stored unit is stated. Resend it as ${pair}.`;
- else if (state.kind === 'absent') body = `, and no value is stored. Create it with before TBD and ${pair}.`;
+ if (state.kind === 'absent') body = `, and no value is stored. Create it with before TBD and ${pair}.`;
  else if (state.unit) body = `, stored unit ${state.unit}. Resend it as a bare number with change.unit ${state.unit} and change.dimension ${dimension}, read in the stored unit and never converted, or as ${pair}.`;
  else body = `. Resend it as ${pair}.`;
  return head + body + (position < total ? ` Operations after operation ${position} were not checked.` : '');
@@ -217,17 +232,21 @@ function explain(outcome: unknown, operations: unknown, model: unknown): string 
  if (!code || own(refused, 'operation_kind') !== 'modify' || own(change, 'change_kind') !== 'set_field') return unfit();
  const field = tableField(own(target, 'object_type'), own(change, 'field_path'));
  if (!field) return unfit();
- const ref = own(target, 'ref'), state = fieldState(model, field, ref);
+ const ref = own(target, 'ref');
+ let state = fieldState(model, field, ref);
  if (!state) return unfit();
- // A later step's form holds only where every earlier operation on the same record kept the
- // field a value/unit pair or an absent slot and left the record's other state alone: a set_field
- // on a field of the table, or on its label or provenance text.
+ // The state the engine judged: earlier operations on the same record may only be set_field on a
+ // field of the table or on its label or provenance text, which leave the record's other state
+ // alone; the latest of them that set this field gives its stored unit.
+ let setter = -1;
  for (let i = 0; i < last; i++) {
   const earlier = ops[i], earlierTarget = own(earlier, 'target'), earlierChange = own(earlier, 'change');
   if (own(earlierTarget, 'object_type') !== field.objectType || own(earlierTarget, 'ref') !== ref) continue;
   const path = own(earlierChange, 'field_path');
   if (own(earlier, 'operation_kind') !== 'modify' || own(earlierChange, 'change_kind') !== 'set_field' || !(path === 'label' || path === 'provenance' || tableField(field.objectType, path))) return unfit();
+  if (path === field.fieldPath) setter = i;
  }
+ if (setter >= 0) state = {kind: 'pair', unit: setterUnit(steps[setter], ops[setter], field)};
  const text = stepText(code, field, state, last + 1, total);
  return text.length <= UNIT_REFUSAL_MAX_CHARS ? text : unfit();
 }

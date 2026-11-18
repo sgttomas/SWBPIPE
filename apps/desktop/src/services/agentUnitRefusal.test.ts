@@ -17,11 +17,19 @@ function operation(fieldPath = E, objectType = 'Material', ref = 'material:m', e
  return {operation_id: `op:${n}:${HOSTILE}`, operation_kind: 'modify', target: {object_type: objectType, ref},
   change: {change_id: `change:${n}:${HOSTILE}`, change_kind: 'set_field', field_label: HOSTILE, field_path: fieldPath, before: HOSTILE, after: HOSTILE, unit: HOSTILE, dimension: HOSTILE, source_note: HOSTILE}, rationale: HOSTILE, ...extra};
 }
-/** The engine's step for an operation: its identities copied from the operation, as the engine does. */
+/** An operation whose change names a unit and dimension. */
+const withUnit = (op: AnyRecord, unit: unknown, dimension: unknown = 'stress') => ({...op, change: {...(op.change as AnyRecord), unit, dimension}});
+/** The engine's diff_preview row for a validated set_field: the submitted record, type, path, kind, unit and dimension (lib.rs DiffPreviewRow). */
+function row(op: AnyRecord): AnyRecord {
+ const target = op.target as AnyRecord, change = op.change as AnyRecord;
+ return {entity_ref: target.ref, object_type: target.object_type, field_path: change.field_path, before: HOSTILE, after: HOSTILE, unit: change.unit, dimension: change.dimension, change_kind: change.change_kind};
+}
+/** The engine's step for an operation: its identities copied from the operation, as the engine does,
+ * and, when validated, its one diff_preview row. */
 function step(index: number, op: AnyRecord, status: 'validated_on_temporary_state' | 'blocked', findings: unknown[]): AnyRecord {
  const target = op.target as AnyRecord, change = op.change as AnyRecord;
  return {index, operation_id: op.operation_id, change_id: change.change_id, target_object_type: target.object_type, target_ref: target.ref, change_kind: change.change_kind,
-  validation: {schema_validation: 'passed'}, diff_preview: HOSTILE, diagnostics: findings, simulation_status: status};
+  validation: {schema_validation: 'passed'}, diff_preview: status === 'blocked' ? [] : [row(op)], diagnostics: findings, simulation_status: status};
 }
 const passed = (index: number, op: AnyRecord) => step(index, op, 'validated_on_temporary_state', []);
 const refused = (index: number, op: AnyRecord, findings: unknown[] = [finding()]) => step(index, op, 'blocked', findings);
@@ -39,11 +47,11 @@ const model = (unit: unknown = 'Pa', id: unknown = 'material:m') => ({materials:
 const STRESS_UNITS = 'Pa, kPa, MPa, GPa, bar, psi, ksi';
 const PAIR = `after the JSON text {"value": number, "unit": unit} with change.unit that unit and change.dimension stress, unit one of ${STRESS_UNITS}`;
 const head = (field = E, position = 1, total = 1, code = MISMATCH) => `${GENERIC_REFUSAL} Operation ${position} of ${total} (${code}): Material ${field} has dimension stress`;
-const stated = (unit: string, code = MISMATCH) => `${head(E, 1, 1, code)}, stored unit ${unit}. Resend it as a bare number with change.unit ${unit} and change.dimension stress, read in the stored unit and never converted, or as ${PAIR}.`;
-const pairOnly = `${head()}. Resend it as ${PAIR}.`;
+const tail = (position: number, total: number) => position < total ? ` Operations after operation ${position} were not checked.` : '';
+const stated = (unit: string, code = MISMATCH, field = E, position = 1, total = 1) => `${head(field, position, total, code)}, stored unit ${unit}. Resend it as a bare number with change.unit ${unit} and change.dimension stress, read in the stored unit and never converted, or as ${PAIR}.${tail(position, total)}`;
+const pairOnlyAt = (field = E, position = 1, total = 1) => `${head(field, position, total)}. Resend it as ${PAIR}.${tail(position, total)}`;
+const pairOnly = pairOnlyAt();
 const creating = `${head(G)}, and no value is stored. Create it with before TBD and ${PAIR}.`;
-const later = (position: number, total: number) => `${head(E, position, total)}. An earlier operation of this proposal may have changed what is stored, so no stored unit is stated. Resend it as ${PAIR}.`
- + (position < total ? ` Operations after operation ${position} were not checked.` : '');
 /** Every input string a test passes that must never reach the text. */
 const noHostile = (text: string) => {for (const part of ['IGNORE', 'swbpipe_solve', 'PREVIOUS', 'material:m']) expect(text).not.toContain(part);};
 
@@ -105,36 +113,80 @@ describe('unit refusal explanation', () => {
   });
  });
 
- describe('a refused later step', () => {
-  it('states no stored unit, offers the explicit pair form alone, and says an earlier operation may have changed what is stored', () => {
-   const ops = [operation(), operation(), operation()];
-   const text = unitRefusalMessage(outcome([passed(0, ops[0]), refused(1, ops[1])]), ops, model('GPa'));
-   expect(text).toBe(later(2, 3));noHostile(text);
-   expect(text).not.toContain('stored unit GPa');expect(text).not.toContain('bare number');
-   const two = ops.slice(0, 2);
-   expect(unitRefusalMessage(outcome([passed(0, two[0]), refused(1, two[1])]), two, model('GPa'))).toBe(later(2, 2));
+ describe('a refused later step is judged in the state the engine judged it', () => {
+  /** Earlier steps validated with their rows, the last refused. */
+  const run = (ops: AnyRecord[], doc: unknown, total = ops.length) => unitRefusalMessage(outcome([...ops.slice(0, -1).map((op, i) => passed(i, op)), refused(ops.length - 1, ops[ops.length - 1])]),
+   total > ops.length ? [...ops, ...Array.from({length: total - ops.length}, () => operation())] : ops, doc);
+
+  it('an earlier step that set the same field gives the stored unit, from its row, over the starting document', () => {
+   const text = run([withUnit(operation(), 'GPa'), operation()], model('Pa'), 3);
+   expect(text).toBe(stated('GPa', MISMATCH, E, 2, 3));noHostile(text);
+   expect(text).not.toContain('stored unit Pa');
+   // The latest setter governs.
+   expect(run([withUnit(operation(), 'GPa'), withUnit(operation(), 'ksi'), operation()], model('Pa'))).toBe(stated('ksi', MISMATCH, E, 3, 3));
   });
 
-  it('is explained from an absent optional quantity in the same words', () => {
-   const ops = [operation(G), operation(G)];
-   expect(unitRefusalMessage(outcome([passed(0, ops[0]), refused(1, ops[1])]), ops, {materials: [material()]}))
-    .toBe(`${head(G, 2, 2)}. An earlier operation of this proposal may have changed what is stored, so no stored unit is stated. Resend it as ${PAIR}.`);
+  it('an earlier step that created an absent optional quantity gives its unit', () => {
+   const text = run([withUnit(operation(G), 'MPa'), operation(G)], {materials: [material()]});
+   expect(text).toBe(stated('MPa', MISMATCH, G, 2, 2));noHostile(text);
   });
 
-  it('is explained after earlier operations on other records, or on this record\'s table fields, label or provenance', () => {
-   for (const first of [operation('label'), operation('provenance'), operation(G), operation('thermal_expansion_coefficient.value'), operation(E, 'Material', 'material:other'), operation('section.outside_diameter.value', 'Element', 'material:m')]) {
-    const ops = [first, operation()];
-    expect(unitRefusalMessage(outcome([passed(0, ops[0]), refused(1, ops[1])]), ops, model()), JSON.stringify((first.change as AnyRecord).field_path)).toBe(later(2, 2));
+  it('an earlier setter whose unit is not on the list: the explicit pair form alone, the unit not stated', () => {
+   for (const unit of [HOSTILE, 'kip', ' GPa', '']) {
+    const text = run([withUnit(operation(), unit), operation()], model('Pa'));
+    expect(text, JSON.stringify(unit)).toBe(pairOnlyAt(E, 2, 2));noHostile(text);
    }
+  });
+
+  it('earlier operations on other fields of the record, its label or provenance, or other records: the starting document\'s state', () => {
+   for (const first of [operation('label'), operation('provenance'), withUnit(operation(G), 'GPa'), operation('thermal_expansion_coefficient.value'), withUnit(operation(E, 'Material', 'material:other'), 'GPa'), operation('section.outside_diameter.value', 'Element', 'material:m')]) {
+    const text = run([first, operation()], model('Pa'));
+    expect(text, JSON.stringify((first.change as AnyRecord).field_path)).toBe(stated('Pa', MISMATCH, E, 2, 2));noHostile(text);
+   }
+   expect(run([operation('label'), operation(G)], {materials: [material()]})).toBe(`${head(G, 2, 2)}, and no value is stored. Create it with before TBD and ${PAIR}.`);
   });
 
   it('is not explained after another kind of earlier operation on the same record', () => {
    const others = [operation('constitutive_properties'), operation('temperature_points'), operation(E, 'Material', 'material:m', {operation_kind: 'delete'}),
     {...operation(), change: {...(operation().change as AnyRecord), change_kind: 'update_load'}}];
-   for (const first of others) {
-    const ops = [first, operation()];
-    expect(unitRefusalMessage(outcome([passed(0, ops[0]), refused(1, ops[1])]), ops, model())).toBe(GENERIC_REFUSAL);
-   }
+   for (const first of others) expect(run([first, operation()], model())).toBe(GENERIC_REFUSAL);
+  });
+
+  describe('the setter\'s row must be the engine\'s account of that step', () => {
+   const setter = () => withUnit(operation(), 'GPa');
+   /** The outcome for [setter, refused] with the setter step's diff_preview replaced. */
+   const withRows = (rows: unknown) => {
+    const ops = [setter(), operation()];
+    const steps = [{...passed(0, ops[0]), diff_preview: typeof rows === 'function' ? (rows as (op: AnyRecord) => unknown)(ops[0]) : rows}, refused(1, ops[1])];
+    return unitRefusalMessage(outcome(steps), ops, model('Pa'));
+   };
+   it('the control: the row as the engine writes it', () => expect(withRows((op: AnyRecord) => [row(op)])).toBe(stated('GPa', MISMATCH, E, 2, 2)));
+   it('a missing row, an absent or non-array list', () => {
+    for (const rows of [[], undefined, null, HOSTILE, {0: 'x'}]) expect(withRows(rows), JSON.stringify(rows)).toBe(GENERIC_REFUSAL);
+   });
+   it('two rows, for the field or for another', () => {
+    expect(withRows((op: AnyRecord) => [row(op), row(op)])).toBe(GENERIC_REFUSAL);
+    expect(withRows((op: AnyRecord) => [row(op), {...row(op), field_path: 'label'}])).toBe(GENERIC_REFUSAL);
+   });
+   it('a row unit contradicting the submitted unit, and every other contradicting member', () => {
+    for (const [key, value] of [['unit', 'ksi'], ['unit', 42], ['unit', undefined], ['entity_ref', 'material:other'], ['object_type', 'Element'], ['field_path', G], ['change_kind', 'update_load'], ['dimension', 'pressure'], ['dimension', undefined]] as [string, unknown][])
+     expect(withRows((op: AnyRecord) => [{...row(op), [key]: value}]), `${key} ${String(value)}`).toBe(GENERIC_REFUSAL);
+   });
+   it('inherited or accessor members on a row, and a row that is not a plain object', () => {
+    for (const key of ['unit', 'field_path', 'entity_ref']) {
+     expect(withRows((op: AnyRecord) => {const {[key]: inherited, ...others} = row(op);return [Object.assign(Object.create({[key]: inherited}), others)];}), key).toBe(GENERIC_REFUSAL);
+     expect(withRows((op: AnyRecord) => {const r = row(op), value = r[key];delete r[key];return [Object.defineProperty(r, key, {get: () => value, enumerable: true})];}), key).toBe(GENERIC_REFUSAL);
+    }
+    expect(withRows([HOSTILE])).toBe(GENERIC_REFUSAL);
+    expect(withRows((op: AnyRecord) => [[row(op)]])).toBe(GENERIC_REFUSAL);
+   });
+   it('a lying array of rows', () => {
+    const marker = {valueOf: () => 1, toString: () => HOSTILE};
+    for (const length of [marker, 2 ** 53, 65, 0.5])
+     expect(withRows((op: AnyRecord) => new Proxy([row(op)], {get: (t, k, r) => k === 'length' ? length : Reflect.get(t, k, r),
+      getOwnPropertyDescriptor: (t, k) => k === 'length' ? {value: length, writable: true, enumerable: false, configurable: false} : Reflect.getOwnPropertyDescriptor(t, k)})), String(length)).toBe(GENERIC_REFUSAL);
+    expect(withRows((op: AnyRecord) => Array.from({length: 65}, () => row(op)))).toBe(GENERIC_REFUSAL);
+   });
   });
  });
 
@@ -145,7 +197,7 @@ describe('unit refusal explanation', () => {
    const path = field.fieldPath.split('.').slice(0, -1);
    const units = UNIT_REFUSAL_UNITS[field.dimension], longestUnit = [...units].sort((a, b) => b.length - a.length)[0];
    const record = (quantity: unknown) => {const root: AnyRecord = {id: 'r'};let node = root;for (const segment of path.slice(0, -1)) node = (node[segment] = {}) as AnyRecord;if (quantity !== undefined) node[path[path.length - 1]] = quantity;return {[collection[field.objectType] as string]: [root]};};
-   const ops = Array.from({length: 16}, () => operation(field.fieldPath, field.objectType, 'r'));
+   const ops = Array.from({length: 16}, () => withUnit(operation(field.fieldPath, field.objectType, 'r'), longestUnit, field.dimension));
    const first = (doc: unknown) => unitRefusalMessage(outcome([refused(0, ops[0], [finding(longestCode)])]), ops, doc);
    const texts = [first(record({value: 1, unit: longestUnit})), first(record({value: 1, unit: HOSTILE}))];
    if (field.optional) texts.push(first(record(undefined)));
@@ -157,7 +209,8 @@ describe('unit refusal explanation', () => {
     expect(text).toContain(`change.dimension ${field.dimension}, unit one of ${units.join(', ')}.`);
    }
    expect(texts[0]).toContain(`Operation 1 of 16 (${longestCode})`);expect(texts[0]).toContain(`bare number with change.unit ${longestUnit} and change.dimension ${field.dimension},`);
-   expect(texts[texts.length - 1]).toContain('Operation 15 of 16');expect(texts[texts.length - 1].endsWith(' Operations after operation 15 were not checked.')).toBe(true);
+   expect(texts[texts.length - 1]).toContain(`Operation 15 of 16 (${longestCode})`);expect(texts[texts.length - 1]).toContain(`stored unit ${longestUnit}.`);
+   expect(texts[texts.length - 1].endsWith(' Operations after operation 15 were not checked.')).toBe(true);
   }
  });
 
@@ -278,10 +331,10 @@ describe('unit refusal explanation', () => {
   });
   it('positions and counts come only from integers the module computed', () => {
    // The descriptor says 2 and a plain read says the marker: the text holds only the integers counted.
-   const ops = [operation(), operation()];
+   const ops = [operation('label'), operation()];
    const twoFaced = new Proxy([...ops], {get: (t, key, receiver) => key === 'length' ? marker : Reflect.get(t, key, receiver)});
    const text = unitRefusalMessage(outcome([passed(0, ops[0]), refused(1, ops[1])]), twoFaced, model());
-   expect(text).toBe(later(2, 2));expect(text).not.toContain(HOSTILE);
+   expect(text).toBe(stated('Pa', MISMATCH, E, 2, 2));expect(text).not.toContain(HOSTILE);
   });
  });
 
@@ -358,12 +411,13 @@ describe('unit refusal explanation', () => {
    expect(text).toBe(stated('Pa'));noHostile(text);
   });
   it('every word of every explanation is a fixed word, a number or a literal of the module\'s lists', () => {
-   const fixed = new Set(`${GENERIC_REFUSAL} Operation of has dimension stored unit Resend it as a bare number with change.unit and change.dimension read in the never converted or after the JSON text value number that one An earlier operation this proposal may have changed what is so no stated Create before TBD Operations were not checked`
+   const fixed = new Set(`${GENERIC_REFUSAL} Operation of has dimension stored unit Resend it as a bare number with change.unit and change.dimension read in the never converted or after the JSON text value number that one no is Create before TBD Operations were not checked`
     .split(/\s+/).map(word => word.replace(/[;.,]+$/, '')));
    const literals = new Set([...UNIT_REFUSAL_CODES, ...UNIT_REFUSAL_FIELDS.flatMap(f => [f.objectType, f.fieldPath, f.dimension]), ...Object.values(UNIT_REFUSAL_UNITS).flat()]);
    const ops = [operation(), operation(), operation()];
    const texts = [unitRefusalMessage(...single(), model('GPa')), unitRefusalMessage(...single(), model(HOSTILE)), unitRefusalMessage(...single(operation(G)), {materials: [material()]}),
-    unitRefusalMessage(outcome([passed(0, ops[0]), refused(1, ops[1], [finding('OP-QUANTITY-PAYLOAD-INVALID')])]), ops, model())];
+    unitRefusalMessage(outcome([passed(0, ops[0]), refused(1, ops[1], [finding('OP-QUANTITY-PAYLOAD-INVALID')])]), ops, model()),
+    unitRefusalMessage(outcome([passed(0, withUnit(ops[0], 'GPa')), refused(1, ops[1])]), [withUnit(ops[0], 'GPa'), ops[1], ops[2]], model())];
    for (const text of texts) {
     expect(text).not.toBe(GENERIC_REFUSAL);
     for (const raw of text.split(/\s+/)) {

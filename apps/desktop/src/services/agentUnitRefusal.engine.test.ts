@@ -4,7 +4,9 @@
 // form the explanation offers sends a second proposal built from the explanation's own words (the
 // dimension, the stated unit, the listed units, before TBD where it says so); each is registered
 // for review. The table's dimensions and optional flags and the unit lists are checked against the
-// same engine. Invented data; no provider, no native call, nothing launched.
+// same engine, and so is the ground of a refused later step's explanation: a validated set_field on
+// a table field yields one diff_preview row whose unit is the unit then stored. Invented data; no
+// provider, no native call, nothing launched.
 //
 // Not exercised here: the native host's admission of the tool arguments against the catalog
 // schema (src-tauri embedded_agent; the scripted claim hands the arguments straight to the
@@ -19,7 +21,7 @@ import catalog from '../../src-tauri/resources/agent-capability-catalog.json';
 import type { PreviewModel, ModelHashEvidence } from '../types';
 import { EmbeddedAgentSession, agentHash, stampAgentOperations, type WorkspaceExecution, type AgentSolveOutcome } from './embeddedAgentSession';
 import type { AgentBasis } from './embeddedAgentBridge';
-import { validateOperationBatch } from './operationBatchService';
+import { applyOperationBatch, validateOperationBatch } from './operationBatchService';
 import { computeModelHash } from './hashService';
 import { GENERIC_REFUSAL, UNIT_REFUSAL_FIELDS, UNIT_REFUSAL_UNITS, unitRefusalMessage, type QuantityField } from './agentUnitRefusal';
 
@@ -62,6 +64,10 @@ function op(field: QuantityField, ref: string, before: string, after: string, un
 async function validate(doc: PreviewModel, operations: AnyRecord[]) {
  const hash = await computeModelHash(doc);
  return validateOperationBatch(doc, {batch_id: 'agent-unit-refusal', operations: stampAgentOperations(operations, 'proposal', 'request'), source_model_hash: hash!.value}, hash);
+}
+async function apply(doc: PreviewModel, operations: AnyRecord[]) {
+ const hash = await computeModelHash(doc);
+ return applyOperationBatch(doc, {batch_id: 'agent-unit-refusal-apply', operations: stampAgentOperations(operations, 'proposal', 'request'), source_model_hash: hash!.value}, hash);
 }
 const blockingCodes = (outcome: Awaited<ReturnType<typeof validate>>) => outcome.diagnostics.filter(d => d.severity === 'blocking').map(d => d.code);
 const passes = async (doc: PreviewModel, operations: AnyRecord[], label: string) => {
@@ -117,7 +123,7 @@ function readRefusal(text: string) {
  const bare = /Resend it as a bare number with change\.unit (\S+) and change\.dimension ([a-z_]+), read in the stored unit and never converted/.exec(text);
  const pair = /after the JSON text \{"value": number, "unit": unit\} with change\.unit that unit and change\.dimension ([a-z_]+), unit one of (.+?)\.(?: Operations after|$)/.exec(text);
  const create = /Create it with before (TBD) and after the JSON text/.exec(text);
- return {dimension, bare: bare && {unit: bare[1], dimension: bare[2]}, pair: pair && {dimension: pair[1], units: pair[2].split(', ')}, createBefore: create?.[1] ?? null, earlier: text.includes('An earlier operation of this proposal may have changed what is stored')};
+ return {dimension, bare: bare && {unit: bare[1], dimension: bare[2]}, pair: pair && {dimension: pair[1], units: pair[2].split(', ')}, createBefore: create?.[1] ?? null};
 }
 /** The retries the explanation offers for one operation, built from its words and the agent's own
  * knowledge of the target, before value and number. */
@@ -197,7 +203,31 @@ describe('unit refusal explanation against the operation engine', () => {
   }
  });
 
- it('finding 1: a refused later step states no stored unit and offers the pair form, which the engine accepts', async () => {
+ it('a validated set_field on every table field leaves stored the unit of its one diff_preview row, which names the submitted record and field', async () => {
+  for (const field of UNIT_REFUSAL_FIELDS) {
+   const units = UNIT_REFUSAL_UNITS[field.dimension];
+   const forms: [string, (doc: PreviewModel) => {ref: string; operation: AnyRecord}][] = [
+    ['bare in the stored unit', doc => {const t = target(doc, field);return {ref: t.ref, operation: op(field, t.ref, String(t.value), String(t.value * 2), t.unit, field.dimension)};}],
+    ['pair in another unit', doc => {const t = target(doc, field), unit = units[units.length - 1];return {ref: t.ref, operation: op(field, t.ref, String(t.value), JSON.stringify({value: t.value, unit}), unit, field.dimension)};}]
+   ];
+   if (field.optional) forms.push(
+    ['created by a pair', doc => {const t = target(doc, field), unit = units[units.length - 1];delete t.parent[t.key];return {ref: t.ref, operation: op(field, t.ref, 'TBD', JSON.stringify({value: t.value, unit}), unit, field.dimension)};}],
+    ['created by a bare number', doc => {const t = target(doc, field);delete t.parent[t.key];return {ref: t.ref, operation: op(field, t.ref, 'TBD', String(t.value), t.unit, field.dimension)};}]);
+   for (const [form, build] of forms) {
+    const doc = model(), {ref, operation} = build(doc), label = `${field.fieldPath} ${form}`;
+    const outcome = await apply(doc, [operation]) as unknown as {validation: {batch_validation_status: string}; operation_outcomes: AnyRecord[]; applied_model: AnyRecord};
+    expect(outcome.validation.batch_validation_status, label).toBe('passed');
+    const rows = outcome.operation_outcomes[0].diff_preview as AnyRecord[], change = operation.change as AnyRecord;
+    expect(rows, label).toHaveLength(1);
+    expect(rows[0], label).toMatchObject({entity_ref: ref, object_type: field.objectType, field_path: field.fieldPath, unit: change.unit, dimension: field.dimension, change_kind: 'set_field'});
+    const after = target(outcome.applied_model as unknown as PreviewModel, field);
+    expect(after.ref, label).toBe(ref);
+    expect(after.unit, label).toBe(rows[0].unit);
+   }
+  }
+ });
+
+ it('finding 1: a refused later step is judged in the unit an earlier step wrote, and both forms it offers are accepted', async () => {
   const doc = model(), stored = target(doc, E);
   const step1 = op(E, stored.ref, String(stored.value), JSON.stringify({value: 200, unit: 'GPa'}), 'GPa', 'stress', 'op:step1');
   const step2 = op(E, stored.ref, '200', '210000', 'MPa', 'stress', 'op:step2');
@@ -205,17 +235,65 @@ describe('unit refusal explanation against the operation engine', () => {
   try {
    const refusal = await propose([step1, step2]);
    expect(refusal.status).toBe('unavailable');
-   expect(refusal.message).toBe(`${GENERIC_REFUSAL} Operation 2 of 2 (${MISMATCH}): Material elastic_modulus.value has dimension stress. An earlier operation of this proposal may have changed what is stored, so no stored unit is stated. Resend it as after the JSON text {"value": number, "unit": unit} with change.unit that unit and change.dimension stress, unit one of Pa, kPa, MPa, GPa, bar, psi, ksi.`);
-   // The defect repaired: the session's document says Pa, but the engine judges step 2 against GPa,
-   // so the bare form in Pa that the earlier wording offered is refused.
+   expect(refusal.message).toBe(`${GENERIC_REFUSAL} Operation 2 of 2 (${MISMATCH}): Material elastic_modulus.value has dimension stress, stored unit GPa. Resend it as a bare number with change.unit GPa and change.dimension stress, read in the stored unit and never converted, or as after the JSON text {"value": number, "unit": unit} with change.unit that unit and change.dimension stress, unit one of Pa, kPa, MPa, GPa, bar, psi, ksi.`);
+   // The session's document says Pa; the engine judges step 2 against GPa, so a bare number in Pa is refused.
    expect(blockingCodes(await validate(doc, [step1, op(E, stored.ref, '200', '210000000000', 'Pa', 'stress', 'op:step2')]))).toEqual([MISMATCH]);
    const forms = retries(refusal.message, E, stored.ref, '200', 210, 'op:step2');
-   expect(forms.map(form => form.form)).toEqual(['pair']);
-   expect(admitted(forms[0].operation)).toBe(true);
-   const retry = await propose([step1, forms[0].operation]);
-   expect(retry.status, retry.message).toBe('pending_review');
-   expect(vi.mocked(owner.register)).toHaveBeenCalledTimes(1);
+   expect(forms.map(form => form.form)).toEqual(['bare', 'pair']);
+   for (const {form, operation} of forms) {
+    expect(admitted(operation), form).toBe(true);
+    const retry = await propose([step1, operation]);
+    expect(retry.status, `${form}: ${retry.message}`).toBe('pending_review');
+   }
+   expect(vi.mocked(owner.register)).toHaveBeenCalledTimes(2);
   } finally {await close();}
+ });
+
+ it('finding 1 after a creation: an earlier step created the absent shear modulus, and the refused later step is judged in its unit', async () => {
+  const doc = model(), stored = target(doc, G);
+  delete stored.parent[stored.key];
+  const step1 = op(G, stored.ref, 'TBD', JSON.stringify({value: 80, unit: 'GPa'}), 'GPa', 'stress', 'op:create-g');
+  const step2 = op(G, stored.ref, '80', '81000', 'MPa', 'stress', 'op:edit-g');
+  const {propose, close} = await harness(doc);
+  try {
+   const refusal = await propose([step1, step2]);
+   expect(refusal.message).toBe(`${GENERIC_REFUSAL} Operation 2 of 2 (${MISMATCH}): Material shear_modulus.value has dimension stress, stored unit GPa. Resend it as a bare number with change.unit GPa and change.dimension stress, read in the stored unit and never converted, or as after the JSON text {"value": number, "unit": unit} with change.unit that unit and change.dimension stress, unit one of Pa, kPa, MPa, GPa, bar, psi, ksi.`);
+   const forms = retries(refusal.message, G, stored.ref, '80', 81, 'op:edit-g');
+   expect(forms.map(form => form.form)).toEqual(['bare', 'pair']);
+   for (const {form, operation} of forms) {
+    const retry = await propose([step1, operation]);
+    expect(retry.status, `${form}: ${retry.message}`).toBe('pending_review');
+   }
+  } finally {await close();}
+ });
+
+ it('a refused later step whose earlier operations set other fields only is judged in the starting document\'s state', async () => {
+  const doc = model(), e = target(doc, E), alpha = UNIT_REFUSAL_FIELDS.find(field => field.fieldPath === 'thermal_expansion_coefficient.value')!, a = target(doc, alpha);
+  const step1 = op(alpha, a.ref, String(a.value), JSON.stringify({value: 6.5e-6, unit: '1/degF'}), '1/degF', alpha.dimension, 'op:alpha');
+  const step2 = op(E, e.ref, String(e.value), '210', 'GPa', 'stress', 'op:e');
+  const {propose, close} = await harness(doc);
+  try {
+   const refusal = await propose([step1, step2]);
+   expect(refusal.message).toContain(`Operation 2 of 2 (${MISMATCH}): Material elastic_modulus.value has dimension stress, stored unit Pa. Resend it as a bare number with change.unit Pa and change.dimension stress`);
+   const forms = retries(refusal.message, E, e.ref, String(e.value), 210e9, 'op:e');
+   expect(forms.map(form => form.form)).toEqual(['bare', 'pair']);
+   for (const {form, operation} of forms) {
+    const retry = await propose([step1, operation]);
+    expect(retry.status, `${form}: ${retry.message}`).toBe('pending_review');
+   }
+  } finally {await close();}
+ });
+
+ it('a refused later step after an earlier operation of another kind on the same record keeps the generic sentence', async () => {
+  const doc = model(), density = UNIT_REFUSAL_FIELDS.find(field => field.fieldPath === 'section.insulation_density.value')!, d = target(doc, density);
+  const materialRef = String(d.record.material);
+  const step1 = {operation_id: 'op:material', operation_kind: 'modify', target: {object_type: 'Element', ref: d.ref},
+   change: {change_id: 'change:material', change_kind: 'set_field', field_label: 'material', field_path: 'material', before: materialRef, after: materialRef, unit: 'none', dimension: 'dimensionless', source_note: P}, rationale: P};
+  const step2 = op(density, d.ref, String(d.value), '200', 'lb/in^3', density.dimension, 'op:density');
+  const outcome = await validate(doc, [step1, step2]);
+  expect(outcome.operation_outcomes.map(o => o.simulation_status)).toEqual(['validated_on_temporary_state', 'blocked']);
+  expect(blockingCodes(outcome)).toEqual([MISMATCH]);
+  expect(unitRefusalMessage(outcome, [step1, step2], doc)).toBe(GENERIC_REFUSAL);
  });
 
  it('finding 2a: an absent optional quantity is explained with the creating form alone, which the engine accepts', async () => {
@@ -291,12 +369,12 @@ describe('unit refusal explanation against the operation engine', () => {
   } finally {await close();}
  });
 
- it('a refused later step after a label edit on the same record is named by position, and the earlier steps are not', async () => {
+ it('a refused later step after a label edit on the same record is named by position, judged in the starting document\'s state, and the earlier steps are not named', async () => {
   const doc = model();
   const stored = target(doc, E);
   const label = (n: number) => ({operation_id: `op:label:${n}`, operation_kind: 'modify', target: {object_type: 'Material', ref: stored.ref}, change: {change_id: `c:label:${n}`, change_kind: 'set_field', field_label: 'label', field_path: 'label', before: stored.record.label, after: 'Relabelled', unit: 'none', dimension: 'dimensionless', source_note: P}, rationale: P});
   const operations = [label(1), op(E, stored.ref, String(stored.value), '210', 'GPa', 'stress'), label(3)];
   const text = unitRefusalMessage(await validate(doc, operations), operations, doc);
-  expect(text).toBe(`${GENERIC_REFUSAL} Operation 2 of 3 (${MISMATCH}): Material elastic_modulus.value has dimension stress. An earlier operation of this proposal may have changed what is stored, so no stored unit is stated. Resend it as after the JSON text {"value": number, "unit": unit} with change.unit that unit and change.dimension stress, unit one of Pa, kPa, MPa, GPa, bar, psi, ksi. Operations after operation 2 were not checked.`);
+  expect(text).toBe(`${GENERIC_REFUSAL} Operation 2 of 3 (${MISMATCH}): Material elastic_modulus.value has dimension stress, stored unit Pa. Resend it as a bare number with change.unit Pa and change.dimension stress, read in the stored unit and never converted, or as after the JSON text {"value": number, "unit": unit} with change.unit that unit and change.dimension stress, unit one of Pa, kPa, MPa, GPa, bar, psi, ksi. Operations after operation 2 were not checked.`);
  });
 });
