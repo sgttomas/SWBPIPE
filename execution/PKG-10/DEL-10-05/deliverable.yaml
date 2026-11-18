@@ -135,10 +135,10 @@ needs:
 - from: DEL-04-10
   when: Hosting the read command for a spectrum result
   condition: >-
-    The spectrum result reader takes a spectrum result document and, optionally, the spectrum
-    request it binds, and returns its own verdict, whose decision rejects a document it cannot read
-    or whose checked relations contradict it, and which, for an experimental document, states
-    public engineering-result admission disabled.
+    The spectrum result reader takes a spectrum result document and, optionally, the inputs it
+    binds, and returns its own verdict, whose decision rejects a document it cannot read or whose
+    checked relations contradict it, and which, for an experimental document, states public
+    engineering-result admission disabled.
   gating: true
 - from: DEL-10-04
   condition: >-
