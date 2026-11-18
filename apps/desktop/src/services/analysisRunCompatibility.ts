@@ -2,6 +2,7 @@ import { validateRetainedPrecision, validateRetainedPrecisionRecorded } from "..
 import { isRetainedRoute } from "../features/results/numericalResultQuality";
 import { hasCurrentSourceContract, readerDispatch, readerValidate, recordedReaderDispatch, recordedReaderValidate, ResultReaderError, sourceContract, sourceSemanticBinding } from "../features/results/resultReader";
 import { recordedPreRtA4RecordBinding, recordedPreRtA4Table, type RecordedBinding } from "./recordedPreRtA4";
+import { semanticContractMismatch } from "./tableBinding";
 import pressureTable from "../../../../fixtures/results/semantic_contract_v0_3_pressure_3.json";
 import pressureSourceTable from "../../../../fixtures/results/semantic_contract_v0_3_pressure_source_1.json";
 import previewPhysicsTable from "../../../../fixtures/results/semantic_contract_v0_3_preview_physics_2.json";
@@ -474,7 +475,7 @@ export async function validateAnalysisRunV03(record: AnalysisRunEnvelope, source
   if (run.run_id !== source.run_id) throw new Error("ANALYSIS_SOURCE_RUN_MISMATCH");
   if (!recordedState && !same(run.model_state_ref, transientModelStateRef(source.model_ref))) throw new Error("ANALYSIS_SOURCE_MODEL_STATE_MISMATCH");
   const contract = recorded ? { ...recorded.binding } : recordedRunSemanticBinding(run.reproducibility?.semantic_contract, sourceSemanticBinding(source));
-  if (!same(run.reproducibility.semantic_contract, contract)) throw new Error("ANALYSIS_SEMANTIC_CONTRACT_MISMATCH");
+  if (!same(run.reproducibility.semantic_contract, contract)) throw new Error(semanticContractMismatch(run.reproducibility.semantic_contract));
   const checksum = async (scope: string, ref: ObjectRef, value: unknown) => ({algorithm: "sha256", canonicalization: CHECKED_PROFILE_V1, payload_ref: ref, payload_scope: scope, value: await canonicalSha256HexCheckedV1(value)});
   if (!same(run.hashes.filter(h => h.payload_scope === "received_result"), [await checksum("received_result", {object_type:"ResultEnvelope",ref:`result-envelope:${source.run_id}`}, source)])) throw new Error("ANALYSIS_RECEIVED_SOURCE_MISMATCH");
   if (source.results.length !== run.result_refs.length || new Set(source.results.map(r => r.id)).size !== source.results.length) throw new Error("ANALYSIS_ROW_ACCOUNTING_MISMATCH");

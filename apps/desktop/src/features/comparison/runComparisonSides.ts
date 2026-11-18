@@ -18,6 +18,7 @@ import { buildRecordedRunContext, recordedRunBindingFindings } from "../results/
 import { numericalResultStanding, recordedResultStanding, type NumericalStanding } from "../results/resultStanding";
 import { recordedPreRtA4RecordBinding, type RecordedBinding } from "../../services/recordedPreRtA4";
 import { jsonTextKeepingNegativeZero } from "../../services/jsonText";
+import { withheldMessage } from "../../services/tableBinding";
 import type { CurrentSessionInputManifest } from "../../services/inputManifestService";
 import {
   COMPARISON_RUN_NOT_EXACT,
@@ -107,6 +108,11 @@ export async function recordedRunSide(read: AnalysisRunRead): Promise<RunCompari
   const inexact = findings.filter((finding) => Object.hasOwn(NOT_EXACT_FINDINGS, finding));
   if (inexact.length) {
     throw new RunComparisonRefusal(COMPARISON_RUN_NOT_EXACT, `${notExactRunReason(read.run, inexact.map((finding) => NOT_EXACT_FINDINGS[finding]))}, so it is not compared.`);
+  }
+  // The reopen's one decision: a run whose rows are withheld is not compared, in the words the
+  // History panel's check shows.
+  if ("withheld" in context.binding) {
+    throw new RunComparisonRefusal(COMPARISON_RUN_RECORD_MISMATCH, `the results of the recorded run ${runDescription(read.run)} are not shown, so it is not compared: ${withheldMessage(context.binding.withheld)}.`);
   }
   let manifest: CurrentSessionInputManifest | null = null;
   try { manifest = JSON.parse(read.input_manifest_canonical) as CurrentSessionInputManifest; } catch { manifest = null; }

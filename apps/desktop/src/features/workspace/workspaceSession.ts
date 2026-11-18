@@ -1211,6 +1211,8 @@ export function useWorkspaceSession() {
       checkFindings: [...found.check_findings],
       recordedTableRead: found.recorded_table_read ? { id: found.recorded_table_read.id, sha256: found.recorded_table_read.sha256 } : null,
       historicalReaderFindings: found.recorded_table_read ? [...found.historical_reader_findings] : [],
+      // The stored texts are unchanged, so the decision is too; the re-save's states it again.
+      binding: found.binding,
       runId: found.run_id,
       modelHash: reply.model_hash ?? null,
       envelopeHash: reply.project_envelope_hash ?? null,

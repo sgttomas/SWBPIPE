@@ -18,6 +18,7 @@
  *   or under 64 MiB (`read_preview_mechanics_job_rows_all`, `read_restored_result_record_all`); above it
  *   they are refused by name (`RESULT-DETAIL-WEBVIEW-LIMIT`), the run staying held natively. */
 import { invoke } from "@tauri-apps/api/core";
+import { bindingRead, type TableBinding } from "./tableBinding";
 import { invokeWithIngress } from "./nativeIngress";
 import { nativeInvokeError } from "./memoryPool";
 import { disposePreviewMechanicsResult } from "./previewService";
@@ -60,12 +61,21 @@ export type RestoredFindings = Readonly<{
   check_findings: readonly string[];
   recorded_table_read: Readonly<{ id: string; sha256: string }> | null;
   historical_reader_findings: readonly string[];
+  /** The reopen's one decision (`tableBinding.ts`), the native port's of the webview contexts'. */
+  binding: TableBinding;
   run_id: string;
   renderable: boolean;
   mechanics: string | null;
   envelope_payload_hash: string | null;
   model_hash: Json;
 }>;
+
+/** A decision as the native reply states it: exactly `{read}` or `{withheld}` with a known value. */
+function isTableBinding(value: unknown): value is TableBinding {
+  if (!plain(value) || Object.keys(value).length !== 1) return false;
+  if ("read" in value) return value.read === "installed" || value.read === "recorded";
+  return "withheld" in value && ["former_digest", "unrecognised_digest", "unrecorded", "integrity", "unreadable_result"].includes(value.withheld as string);
+}
 
 /** A stored run held natively (`RestoredRun`). */
 export type RestoredRun = Readonly<{
@@ -117,6 +127,9 @@ function decodeRestored(value: unknown, origin: RestoredRun["origin"]): Restored
   const found = value.findings;
   if (!plain(found) || !Array.isArray(found.findings) || !found.findings.every(isText) || !isText(found.run_id) || typeof found.renderable !== "boolean") malformed("the findings are not readable");
   if (!Array.isArray(found.check_findings) || !found.check_findings.every(isText) || !Array.isArray(found.historical_reader_findings) || !found.historical_reader_findings.every(isText)) malformed("the findings' scopes are not readable");
+  if (!isTableBinding(found.binding)) malformed("the table binding is not readable");
+  // A withheld run has no recorded table read and no recorded dispatch.
+  if (!bindingRead(found.binding) && (found.recorded_table_read !== null || value.recorded_dispatch !== null)) malformed("a withheld run names a table it was read under");
   // a recorded table is exactly a registry variant's binding; without one there is no
   // historical reader finding and no recorded dispatch.
   const table = found.recorded_table_read;
