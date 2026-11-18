@@ -1,14 +1,28 @@
-//! §8.30 correction 3 (RT-S3): a variable spring hanger's installed, cold and
-//! hot loads are authored and parsed, but only its stiffness is consumed. Each
-//! non-zero entered load is named by a warning,
-//! `SPRING_HANGER_LOAD_NOT_APPLIED_AS_PRELOAD`, per support and field: the
-//! load is not applied as preload, and results treat the hanger as a linear
-//! spring from zero load. The solve itself is unchanged. Invented inputs only.
+//! DEL-04-11 REQ-014: the two warnings of the variable spring preload, which
+//! replace the retired `SPRING_HANGER_LOAD_NOT_APPLIED_AS_PRELOAD`.
+//!
+//! `SPRING_HANGER_COLD_LOAD_NOT_APPLIED` names each spring whose cold load a
+//! case does not apply, with the reason. Of the seven reasons of
+//! `spring_preload::NotApplied`, a document that passes validation reaches
+//! three: `nonlinear_record` (a nonlinear member on another DOF; on the
+//! stiffness DOF the record is refused, SUPPORT_LINEAR_NONLINEAR_DOF_CONFLICT),
+//! `skewed_record` (family `spring` with hanger type `variable_spring_hanger`
+//! and a skewed `direction`) and `rotational_dof`. Validation refuses the other
+//! four first: `cold_load_missing` and `cold_load_not_positive` by
+//! SPRING_HANGER_LOAD_MISSING, `stiffness_dof_unreadable` by
+//! SPRING_HANGER_STIFFNESS_MISSING (or SUPPORT_STIFFNESS_DOF_INVALID for an
+//! unknown token), and `unknown_node` by SUPPORT_NODE_UNKNOWN.
+//!
+//! `SPRING_HANGER_INSTALLED_LOAD_DIFFERS_FROM_COLD_LOAD` names an entered
+//! installed load that differs from the cold load after unit normalization;
+//! equal loads in different units are quiet. Invented inputs only.
 
 use open_pipe_stress_product_physics::{run_linear_static_preview_value_with_mode, PreviewSolverMode};
 use serde_json::{json, Value};
 
-const CODE: &str = "SPRING_HANGER_LOAD_NOT_APPLIED_AS_PRELOAD";
+const NOT_APPLIED: &str = "SPRING_HANGER_COLD_LOAD_NOT_APPLIED";
+const DIFFERS: &str = "SPRING_HANGER_INSTALLED_LOAD_DIFFERS_FROM_COLD_LOAD";
+const APPLIED: &str = "variable_spring_hanger_applied_load";
 const HANGER: &str = "support:SH";
 const PROV: &str = "invented_830_hanger_preload_input_no_library_data";
 const EXACT: &str = include_str!("fixtures/shared_terminal_junction.request.json");
@@ -87,61 +101,114 @@ fn exact() -> Value {
     document
 }
 
-fn message(name: &str, field: &str) -> String {
-    format!("variable spring hanger {HANGER}: its {name} ({field}) is not applied as preload; results treat the hanger as a linear spring from zero load, whose force is its stiffness times the displacement at its DOF, and the entered load remains review evidence only")
+fn hanger_mut(document: &mut Value) -> &mut Value {
+    document["model"]["supports"].as_array_mut().unwrap().iter_mut().find(|s| s["id"] == HANGER).unwrap()
 }
 
-fn warned(document: &Value, name: &str, field: &str) {
+fn run(document: &Value, mode: PreviewSolverMode) -> Value {
+    serde_json::to_value(run_linear_static_preview_value_with_mode(document.clone(), mode).unwrap()).unwrap()
+}
+
+fn with_code<'a>(envelope: &'a Value, code: &str) -> Vec<&'a Value> {
+    envelope["diagnostics"].as_array().unwrap().iter().filter(|d| d["code"] == code).collect()
+}
+
+/// The case's one not-applied warning names the support, the case and `reason`,
+/// and the case publishes no applied force for the spring.
+fn not_applied(document: &Value, case: &str, reason: &str, what: &str) {
     for mode in MODES {
-        let envelope = serde_json::to_value(
-            run_linear_static_preview_value_with_mode(document.clone(), mode).unwrap(),
-        )
-        .unwrap();
-        assert_eq!(
-            envelope["status"]["mechanics"], "MECHANICS_SOLVED",
-            "{mode:?}: {:#?}",
-            envelope["diagnostics"]
-        );
-        let diagnostics = envelope["diagnostics"].as_array().unwrap();
-        let named = diagnostics
-            .iter()
-            .filter(|d| d["code"] == CODE && d["affected_refs"] == json!([HANGER, field]))
-            .collect::<Vec<_>>();
-        assert_eq!(named.len(), 1, "{mode:?}: {diagnostics:#?}");
-        assert_eq!(named[0]["severity"], "warning");
-        assert_eq!(
-            named[0]["id"],
-            format!("diagnostic:spring-hanger:support-SH:{field}")
-        );
-        assert_eq!(named[0]["message"], message(name, field));
-        // One warning per entered load, no more.
-        assert_eq!(diagnostics.iter().filter(|d| d["code"] == CODE).count(), 3, "{mode:?}");
+        let what = format!("{what} {mode:?}");
+        let envelope = run(document, mode);
+        assert_eq!(envelope["status"]["mechanics"], "MECHANICS_SOLVED", "{what}: {:#?}", envelope["diagnostics"]);
+        let warned = with_code(&envelope, NOT_APPLIED);
+        assert_eq!(warned.len(), 1, "{what}: {:#?}", envelope["diagnostics"]);
+        assert_eq!(warned[0]["severity"], "warning", "{what}");
+        assert_eq!(warned[0]["id"], format!("diagnostic:spring-hanger:support-SH:cold-load-not-applied:{}", case.replace(':', "-")), "{what}");
+        assert_eq!(warned[0]["affected_refs"], json!([HANGER, case]), "{what}");
+        assert_eq!(warned[0]["message"], format!("variable spring hanger {HANGER}: its cold load is not applied in load case {case}, because {reason}; the spring acts with its rate only, and no applied force is published for it in this case"), "{what}");
+        let applied = envelope["results"].as_array().unwrap().iter().filter(|r| r["kind"] == APPLIED).count();
+        assert_eq!(applied, 0, "{what}");
     }
 }
 
 #[test]
-fn an_installed_load_is_named_as_not_applied_as_preload() {
-    warned(&pressure_free(), "installed load", "hanger.installed_load");
+fn a_nonlinear_member_on_another_dof_is_named_as_not_applying_the_cold_load() {
+    let mut document = pressure_free();
+    hanger_mut(&mut document)["nonlinear"] = json!({"behavior": "one_way", "dof": "UX", "initial_state": "active", "active_when": "positive_reaction"});
+    not_applied(&document, "case", "the record carries a nonlinear member, whose own law governs its DOF", "nonlinear");
 }
 
 #[test]
-fn a_cold_load_is_named_as_not_applied_as_preload() {
-    warned(&pressure_free(), "cold load", "hanger.cold_load");
+fn a_skewed_spring_hanger_is_named_as_not_applying_the_cold_load() {
+    let mut document = pressure_free();
+    let support = hanger_mut(&mut document);
+    support["family"] = json!("spring");
+    support["restraints"] = json!(["UZ"]);
+    support["direction"] = json!({"x": 0.0, "y": 0.6, "z": 0.8});
+    not_applied(&document, "case", "the record acts along a skewed direction, and the cold load acts only along a global axis", "skewed");
 }
 
 #[test]
-fn a_hot_load_is_named_as_not_applied_as_preload() {
-    warned(&pressure_free(), "hot load", "hanger.hot_load");
+fn a_rotational_stiffness_dof_is_named_on_both_routes() {
+    for (route, mut document, case) in [("pressure-free", pressure_free(), "case".to_string()), ("exact", exact(), String::new())] {
+        let case = if case.is_empty() { document["model"]["load_cases"][0]["id"].as_str().unwrap().to_string() } else { case };
+        let support = hanger_mut(&mut document);
+        support["hanger"]["stiffness"] = json!({"dof": "RY", "value": q(42_000.0, "N*m/rad")});
+        not_applied(&document, &case, "its stiffness DOF RY is rotational, and the cold load is a force", route);
+    }
+}
+
+/// The four reasons validation refuses before any solve, each by its rule.
+#[test]
+fn the_other_reasons_are_refused_by_validation_first() {
+    let cases: [(&str, &str, fn(&mut Value)); 5] = [
+        ("cold_load_missing", "SPRING_HANGER_LOAD_MISSING", |s| { s["hanger"].as_object_mut().unwrap().remove("cold_load"); }),
+        ("cold_load_not_positive", "SPRING_HANGER_LOAD_MISSING", |s| { s["hanger"]["cold_load"] = q(-5.0, "N"); }),
+        ("stiffness_dof_unreadable", "SPRING_HANGER_STIFFNESS_MISSING", |s| { s["hanger"].as_object_mut().unwrap().remove("stiffness"); }),
+        ("stiffness_dof_unreadable (unknown token)", "SUPPORT_STIFFNESS_DOF_INVALID", |s| { s["hanger"]["stiffness"]["dof"] = json!("UQ"); }),
+        ("unknown_node", "SUPPORT_NODE_UNKNOWN", |s| { s["node"] = json!("N9"); }),
+    ];
+    for (reason, code, patch) in cases {
+        let mut document = pressure_free();
+        patch(hanger_mut(&mut document));
+        let envelope = run(&document, MODES[0]);
+        assert_eq!(envelope["status"]["mechanics"], "MODEL_INCOMPLETE", "{reason}");
+        let blocking: Vec<&Value> = envelope["diagnostics"].as_array().unwrap().iter().filter(|d| d["severity"] == "blocking").collect();
+        assert!(blocking.iter().any(|d| d["code"] == code), "{reason}: {blocking:#?}");
+        assert!(with_code(&envelope, NOT_APPLIED).is_empty(), "{reason}");
+    }
 }
 
 #[test]
-fn the_exact_route_names_each_load_too() {
-    let document = exact();
-    for (name, field) in [
-        ("installed load", "hanger.installed_load"),
-        ("cold load", "hanger.cold_load"),
-        ("hot load", "hanger.hot_load"),
-    ] {
-        warned(&document, name, field);
+fn an_installed_load_differing_from_the_cold_load_is_named_on_both_routes() {
+    for (route, document) in [("pressure-free", pressure_free()), ("exact", exact())] {
+        for mode in MODES {
+            let what = format!("{route} {mode:?}");
+            let envelope = run(&document, mode);
+            assert_eq!(envelope["status"]["mechanics"], "MECHANICS_SOLVED", "{what}: {:#?}", envelope["diagnostics"]);
+            let warned = with_code(&envelope, DIFFERS);
+            assert_eq!(warned.len(), 1, "{what}");
+            assert_eq!(warned[0]["severity"], "warning", "{what}");
+            assert_eq!(warned[0]["id"], "diagnostic:spring-hanger:support-SH:installed-differs-from-cold", "{what}");
+            assert_eq!(warned[0]["affected_refs"], json!([HANGER, "hanger.installed_load", "hanger.cold_load"]), "{what}");
+            assert_eq!(warned[0]["message"], format!("variable spring hanger {HANGER}: its installed load (460 N) differs from its cold load (430 N); the solve applies the cold load, and the installed load is review data only"), "{what}");
+            // The cold load is applied; the hanger's other loads are not named.
+            assert!(with_code(&envelope, NOT_APPLIED).is_empty(), "{what}");
+        }
+    }
+}
+
+#[test]
+fn equal_loads_in_different_units_are_quiet() {
+    for (installed, cold) in [(q(0.43, "kN"), q(430.0, "N")), (q(430.0, "N"), q(430.0, "N"))] {
+        let mut document = pressure_free();
+        let support = hanger_mut(&mut document);
+        support["hanger"]["installed_load"] = installed.clone();
+        support["hanger"]["cold_load"] = cold;
+        for mode in MODES {
+            let envelope = run(&document, mode);
+            assert_eq!(envelope["status"]["mechanics"], "MECHANICS_SOLVED", "{installed} {mode:?}");
+            assert!(with_code(&envelope, DIFFERS).is_empty(), "{installed} {mode:?}: {:#?}", with_code(&envelope, DIFFERS));
+        }
     }
 }

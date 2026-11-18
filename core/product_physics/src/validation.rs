@@ -1054,7 +1054,7 @@ fn validate_variable_spring_hanger(
             "hanger.installed_load,hanger.cold_load,hanger.hot_load",
             "SPRING_HANGER_LOAD_MISSING",
             "blocking",
-            "variable spring hanger requires finite positive installed, cold, and hot load metadata; no preload or operating-load default is supplied",
+            "variable spring hanger requires finite positive installed, cold, and hot loads; the solve applies the cold load, and the installed and hot loads are review data; no preload or operating-load default is supplied",
         ));
     }
     if !positive_optional_quantity(&hanger.travel_range)
