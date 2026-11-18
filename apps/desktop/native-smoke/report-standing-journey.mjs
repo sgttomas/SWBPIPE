@@ -212,6 +212,10 @@ try {
 }
 const layout = chooserLayout(home);
 for (const folder of layout.folders) mkdirSync(folder);
+// The Save canonical HTML… chooser's answer, inside the home like every chooser answer.
+const htmlSaveFolder = path.join(layout.area, "saved-report-html");
+mkdirSync(htmlSaveFolder);
+const htmlSavePath = path.join(htmlSaveFolder, "selected-report.html");
 
 // The model document: the committed request's model with the App test's three display additions.
 const request = JSON.parse(readFileSync(path.join(project, REQUEST_FIXTURE), "utf8"));
@@ -247,7 +251,7 @@ const expected = {
 const nonce = randomBytes(16).toString("hex");
 const report = path.join(root, "observations.json");
 // The driver reports, for each expected statement the runner derived, whether the rendered document states it.
-const plan = { phase: "report-standing", nonce, model: { path: modelPath, project_id: model.project.id }, edit_node: model.nodes[1]?.id ?? model.nodes[0].id, expect: { case_statements: expected.case_statements } };
+const plan = { phase: "report-standing", nonce, model: { path: modelPath, project_id: model.project.id }, html_save: { path: htmlSavePath }, edit_node: model.nodes[1]?.id ?? model.nodes[0].id, expect: { case_statements: expected.case_statements } };
 
 const checks = [];
 function check(name, ok, detail) {
@@ -336,6 +340,31 @@ check("render: each case's health, confirmation and integrity statements are sta
   expected.case_statements.filter((item) => rendered?.statements_present?.[item] !== true));
 check("render: never \"integrity checked\"", rendered?.integrity_checked === false, rendered?.integrity_checked);
 check("render: the canonical hash shown is the rendered document's", rendered?.preview_sha256 && rendered.hash_text?.includes(rendered.preview_sha256), { hash_text: rendered?.hash_text, preview_sha256: rendered?.preview_sha256 });
+// The native HTML save: judged from the bytes the product wrote, read here outside the app, and the document the
+// render step read, never from the app's account of the file. The expected values are re-derived in this run.
+const savedHtml = step("save-html");
+const savedBytes = existsSync(htmlSavePath) ? readFileSync(htmlSavePath) : null;
+const savedSha = savedBytes === null ? null : sha(savedBytes);
+const canonicalBytes = typeof savedHtml?.canonical_html === "string" && savedHtml.canonical_html.length > 0 ? Buffer.from(savedHtml.canonical_html, "utf8") : null;
+const htmlName = path.basename(htmlSavePath);
+check("save HTML: reached through the native Save canonical HTML… control", reached("save-html") && savedHtml?.control_tag === "button", savedHtml && { control: savedHtml.control, tag: savedHtml.control_tag, error: savedHtml.error ?? null });
+check("save HTML: the document saved is the one rendered", typeof savedHtml?.shown_hash === "string" && savedHtml.shown_hash === rendered?.hash_text && canonicalBytes !== null,
+  { save_step_hash: savedHtml?.shown_hash ?? null, render_step_hash: rendered?.hash_text ?? null });
+check("save HTML: its chooser took the queued answer (none left queued)", savedHtml?.chooser_paths_unused === 0, savedHtml?.chooser_paths_unused ?? null);
+check("save HTML: the file the runner reads from the chosen path is the rendered canonical HTML, byte for byte",
+  savedBytes !== null && canonicalBytes !== null && Buffer.compare(savedBytes, canonicalBytes) === 0,
+  { saved_bytes: savedBytes?.length ?? null, canonical_bytes: canonicalBytes?.length ?? null });
+check("save HTML: the SHA-256 the runner recomputes from the saved file is the canonical hash the panel shows",
+  savedSha !== null && savedHtml?.shown_hash === `Canonical HTML SHA-256: ${savedSha}`, { recomputed: savedSha, shown: savedHtml?.shown_hash ?? null });
+const savedLine = /^Saved (\S+): (\d+) bytes, SHA-256 ([0-9a-f]{64})\./.exec(savedHtml?.status ?? "");
+check("save HTML: the panel's outcome names the file, the byte count and the SHA-256 the runner reads",
+  savedLine !== null && savedBytes !== null && savedLine[1] === htmlName && Number(savedLine[2]) === savedBytes.length && savedLine[3] === savedSha, savedHtml?.status ?? null);
+const savedEntry = savedHtml?.entry ?? null;
+check("save HTML: the session's outcome entry says saved, for that file, its bytes and SHA-256, with the workspace unchanged since the report was prepared",
+  savedEntry !== null && ["saved", "saved_durability_unconfirmed"].includes(savedEntry.state) && savedEntry.workspace_changed === "false"
+    && (savedEntry.text ?? "").startsWith(`Saved the selected report. File: ${htmlName}.`) && savedBytes !== null && (savedEntry.text ?? "").includes(`${savedBytes.length} bytes, SHA-256 ${savedSha}`),
+  savedEntry);
+say(`OBSERVED  save HTML: durability as the product reports it: ${savedEntry?.state === "saved" ? "confirmed" : savedEntry?.state === "saved_durability_unconfirmed" ? "the system did not confirm it is durable on disk" : "no saved entry"}`);
 const printed = step("print");
 check("print: the step was reached", reached("print"), printed?.error ?? null);
 // The rendered report's own document and hash, as the render step saw them, are those the print step handed over.
@@ -349,7 +378,14 @@ const printedLine = typeof printedDocument === "string" ? standingLineOf(printed
 check("print: the printed standing line is the one the render step read", typeof printedLine === "string" && printedLine === rendered?.standing_line,
   { printed: printedLine ?? null, rendered: rendered?.standing_line ?? null });
 const edited = step("edit-invalidates");
-check("edit: an edit applied; the panel, present, shows the precondition and no rendered document", reached("edit-invalidates") && edited?.applied === true && edited?.panel_present === true && edited?.precondition === true && edited?.preview === false, edited);
+check("edit: an edit applied; the panel, present, shows the precondition and no rendered document", reached("edit-invalidates") && edited?.applied === true && edited?.panel_present === true && edited?.precondition === true && edited?.preview === false, edited && { ...edited, save_entry_after_edit: undefined });
+// The save completed before the edit (ordinary ordering, no save in transit): its surviving outcome still says it
+// saved, and now says the workspace has changed since its report was prepared.
+const afterEdit = edited?.save_entry_after_edit ?? null;
+check("save HTML after the edit: the outcome entry still says saved, now stating that the workspace has changed since its report was prepared",
+  afterEdit !== null && savedEntry !== null && afterEdit.id === savedEntry.id && afterEdit.state === savedEntry.state && afterEdit.workspace_changed === "true"
+    && (afterEdit.text ?? "").startsWith("Saved the selected report. The workspace has changed since it was prepared.") && savedBytes !== null && (afterEdit.text ?? "").includes(`${savedBytes.length} bytes, SHA-256 ${savedSha}`),
+  afterEdit);
 const resolved = step("resolve-invalidates");
 check("re-solve: rendered again with the witness record's standing line", reached("resolve-invalidates") && resolved?.preview_before === true && (resolved?.rerendered_line ?? "").startsWith(expected.standing_lead), resolved && { preview_before: resolved.preview_before, rerendered_line: resolved.rerendered_line });
 check("re-solve: the fresh solve published a new result (a new solve proof job)", typeof resolved?.proof_job_before === "string" && typeof resolved?.proof_job_after === "string" && resolved.proof_job_before !== resolved.proof_job_after, resolved && { before: resolved.proof_job_before, after: resolved.proof_job_after });
@@ -375,8 +411,8 @@ const written = listing(root);
 const changes = tripwireChanges(state.watchedBefore, statWatched(WATCHED));
 state.tripwireDone = true;
 check(`the real user's Library: none of the ${WATCHED.length} product-named paths appeared, disappeared or changed`, changes.length === 0, changes);
-check("the model document and the observations are inside the evidence root (the home inside it)",
-  modelPath.startsWith(home) && home.startsWith(root) && report.startsWith(root), { root, home, model: modelPath });
+check("the model document, the saved HTML and the observations are inside the evidence root (the home inside it)",
+  modelPath.startsWith(home) && htmlSavePath.startsWith(home) && home.startsWith(root) && report.startsWith(root), { root, home, model: modelPath, html_save: htmlSavePath });
 
 let revision = null;
 let dirty = null;
@@ -386,13 +422,14 @@ try {
 } catch { /* recorded as unknown */ }
 const failed = checks.filter((item) => !item.ok);
 writeFileSync(path.join(root, "summary.json"), JSON.stringify({
-  witness: "rendered report of a solved exact-route result that is not numerically eligible, in the launched native-smoke app; Open chooser and system print dialog substituted (the native print records its document; no dialog presented)",
+  witness: "rendered report of a solved exact-route result that is not numerically eligible, in the launched native-smoke app, with its canonical HTML saved through the native save route; the Open and Save canonical HTML choosers and the system print dialog substituted (the native print records its document; no dialog presented)",
   source_revision: revision,
   uncommitted: dirty,
   app: { binary: app.binary, identity: app.identity, binding_record_sha256: bindingSha },
   engines,
   inputs: { [REQUEST_FIXTURE]: fileSha(path.join(project, REQUEST_FIXTURE)), [APP_REQUEST_FIXTURE]: fileSha(path.join(project, APP_REQUEST_FIXTURE)), [STATEMENTS_FIXTURE]: fileSha(path.join(project, STATEMENTS_FIXTURE)), [DEMO_FIXTURE]: fileSha(path.join(project, DEMO_FIXTURE)) },
   model_document: { path: modelPath, sha256: fileSha(modelPath) },
+  html_save: { path: htmlSavePath, bytes: savedBytes?.length ?? null, sha256: savedSha },
   expected,
   marks,
   launch,

@@ -134,6 +134,40 @@ fn static_state_solve(prepared: &Prepared, mode: PreviewSolverMode) -> (LoadCase
     (solve, diagnostics)
 }
 
+/// PR-A's publication decision also governs the modal consumer: correction failure
+/// withdraws same-run confirmation before modal support linearization can use it.
+/// This is the selected document seam the public experimental entry forwards to unchanged;
+/// the headless modal_cli tests exercise that connecting path in a separate process.
+#[test]
+fn selected_modal_document_refuses_when_static_confirmation_is_withdrawn() {
+    use crate::corrected_displacement_tests::FORCED_CORRECTION_FAILURE;
+    use open_pipe_stress_frame_kernel::structural::DisplacementFailureKind::Certify;
+    let request = state_request(&kd5(U1), "load:PRESSED");
+    let parsed = modal(request.clone());
+    let prepared = prepare_modal(&parsed).unwrap();
+    let (control, _) = static_state_solve(&prepared, PreviewSolverMode::DenseScrutiny);
+    assert!(matches!(control.nonlinear_state.as_ref().unwrap().standing, NonlinearStateStanding::Confirmed));
+    assert_eq!(super::document::modal_selected_result_document(&request)["status"], "solved");
+
+    struct ResetCorrectionProbe;
+    impl Drop for ResetCorrectionProbe {
+        fn drop(&mut self) { FORCED_CORRECTION_FAILURE.with(|f| f.set(None)); }
+    }
+    let _reset = ResetCorrectionProbe;
+    FORCED_CORRECTION_FAILURE.with(|f| f.set(Some((0, Certify))));
+    let (withdrawn, diagnostics) = static_state_solve(&prepared, PreviewSolverMode::DenseScrutiny);
+    assert!(matches!(withdrawn.nonlinear_state.as_ref().unwrap().standing, NonlinearStateStanding::NotEstablished { .. }));
+    assert!(diagnostics.iter().any(|d| d.code == "DISPLACEMENT_CORRECTION_UNAVAILABLE"));
+    let document = super::document::modal_selected_result_document(&request);
+    assert_eq!(document["status"], "refused");
+    assert_eq!(document["admission"]["status"], "experimental");
+    assert_eq!(document["admission"]["public_engineering_result"], false);
+    let rows = document["refusals"]["rows"].as_array().unwrap();
+    assert!(rows.iter().any(|r| r["code"] == MODAL_STATE_CASE_UNAVAILABLE), "{document}");
+    assert!(rows.iter().any(|r| r["code"] == "DISPLACEMENT_CORRECTION_UNAVAILABLE"), "{document}");
+    assert!(document.get("modes").is_none());
+}
+
 // ---------------------------------------------------------------------------
 // Admitted: each mapping against its linear twin
 // ---------------------------------------------------------------------------

@@ -6408,6 +6408,7 @@ pub fn run() {
         native_smoke::native_smoke_read_report_package,
         native_smoke::native_smoke_take_report_prints,
         native_smoke::native_smoke_close_report_print,
+        native_smoke::native_smoke_checkpoint,
         native_smoke::native_smoke_finish,
     ));
     builder

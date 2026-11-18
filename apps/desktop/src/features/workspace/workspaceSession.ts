@@ -5093,6 +5093,8 @@ export function useWorkspaceSession() {
     native: isTauriRuntime(),
     modelEditedRef,
     saveBasisRef: modelDocumentSaveBasisRef,
+    sessionGeneration: projectSessionGeneration,
+    currentSessionGeneration: () => projectSessionGenerationRef.current,
     projectSessionBusy,
     holdModal,
     workingModel: () => currentModel.current ? { name: currentModel.current.project.name, edited: modelEditedRef.current } : null,

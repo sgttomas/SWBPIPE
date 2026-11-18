@@ -56,7 +56,7 @@ needs:
     vocabulary; resolves and solves a named load case once, returning its resolved per-member state
     and its final nonlinear support states with whether each was confirmed; applies the dense
     scrutiny memory ceiling and selects the dense or sparse path by the solver mode; and bounds a
-    nonlinear solve by a stated iteration cap, which the modal work estimate reads.
+    nonlinear solve by a stated iteration cap, which the modal input-class and iteration checks consume.
   gating: true
 - from: DEL-05-01
   condition: >-
@@ -119,6 +119,20 @@ needs:
     (DEL-10-05/REQ-015, DEL-10-05/AC-011), so that the modal command this deliverable builds adds no
     extraction bound, acceleration or other value of its own.
   gating: false
+- from: DEL-07-07
+  when: Before a modal result is admitted for engineering display in the desktop.
+  condition: >-
+    The native job enforces the owning analysis admission profile, can stop its owned computation,
+    and publishes the complete result and required reader verdict atomically into result custody;
+    a cancelled, failed or refused run cannot leave a successful partial result.
+  gating: true
+- from: DEL-10-05
+  when: Before a modal result is admitted as an engineering result through the headless command.
+  condition: >-
+    Bounded ingress and result reading apply on the actual path, interruption ends the foreground
+    computation without reported success, and explicit output preserves a complete old or complete
+    new destination through owned temporary creation and atomic rename under REQ-015.
+  gating: true
 - from: external:nrc-nureg-cr
   when: For the published-benchmark comparison.
   condition: >-
@@ -127,7 +141,10 @@ needs:
     copyrighted or adapted content inside a report is excluded.
   gating: false
 code_paths:
-# The modal entry sits in DEL-04-07's product crate; these files in it are this deliverable's. The
+# The modal entry sits in DEL-04-07's product crate; these files in it are this deliverable's, and
+# lib.rs's modal_experimental_result_document is this deliverable's experimental entry.
+# The headless runner hosts it as the modal command and reads its document with read modal-result
+# (DEL-10-05); tests/modal_cli.rs there is this deliverable's process test. The
 # read-only factorization accessor and the element re-formation entry it calls are in the sparse
 # solver and frame kernel crates, which DEL-04-01 lists.
 - core/solver/modal_eigen/**
@@ -145,9 +162,11 @@ code_paths:
 - tests/modal_feasibility_oracle.py
 - tests/test_dynamics_references.py
 - tools/validation/reference_observation.py
+- core/runner/headless/tests/modal_cli.rs
 checks:
 - core/solver/modal_eigen/tests/*.rs
 - core/product_physics/src/modal/tests*.rs
 - core/reporting/modal_result/tests/*.rs
+- core/runner/headless/tests/modal_cli.rs
 - tests/test_modal_*.py
 - tests/test_dynamics_references.py

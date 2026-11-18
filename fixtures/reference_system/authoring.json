@@ -1460,6 +1460,13 @@
     {
       "collection": "document",
       "fields": {
+        "data_boundary": "agent_authorable"
+      },
+      "id": "data_boundary"
+    },
+    {
+      "collection": "document",
+      "fields": {
         "project": "agent_authorable"
       },
       "id": "project"

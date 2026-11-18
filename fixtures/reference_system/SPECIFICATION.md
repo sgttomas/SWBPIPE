@@ -59,6 +59,15 @@ silence a failure. §9 names the results and their basis; it gives no values.
   Every user value that needs a source (bend k and SIFs, tee SIFs, stiffness scales,
   component geometry, the joint's stiffness, rods and pressure area, the spring's hanger
   data) cites `invented user value, DEL-09-01`.
+- **Desktop document.** The generated fixture satisfies the desktop's open profile
+  (`schemas/model.schema.yaml` `$defs/DesktopDocument`), so the desktop's open checks admit it
+  as it is. Its
+  `data_boundary` states that its data are an invented test object of DEL-09-01 committed in the
+  public repository, with no provenance review disposition recorded; that no standard, supplier
+  catalogue, commercial example or project content is copied into it; that no private project,
+  material, rule-pack or owner data is bundled; and that it is a test object, not a design, needing
+  human review, with no code compliance or professional approval. Its `diagnostics` list is empty:
+  it authors no diagnostic, and the solver's diagnostics remain solve output.
 
 ## 3. Geometry
 
