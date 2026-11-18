@@ -852,8 +852,8 @@ def parse_rustc_args(args: list[str], line: int) -> dict:
             unit["cfgs"].append(take())
         elif arg in ("--check-cfg", "--cap-lints"):
             take()
-        elif arg.startswith(("--allow=", "--warn=", "--deny=", "--forbid=")):
-            pass  # lint levels from the packages' [lints] tables
+        elif arg.startswith(("--allow=", "--warn=", "--deny=", "--forbid=", "--force-warn=")):
+            pass  # lint levels: the packages' [lints] tables, and cargo's own (--force-warn=)
         elif arg == "--out-dir":
             unit["out_dir"] = take()
         elif arg == "-L":
