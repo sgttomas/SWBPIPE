@@ -22,8 +22,8 @@ needs:
 - from: DEL-05-01
   when: Reporting the seismic model-check warning among the checks before stiffness formation
   condition: >-
-    The seismic model-check warning is defined: what it names on a seismic case and the
-    conditions under which it gives both gravity values (DEL-05-01 REQ-008).
+    DEL-05-01 REQ-008 defines when seismic warning findings are raised, which weights they name,
+    and how they select and report applied gravity magnitudes.
   gating: true
 - from: DEL-02-03
   condition: >-
