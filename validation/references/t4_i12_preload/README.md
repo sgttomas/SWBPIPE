@@ -8,8 +8,9 @@ Its system cases solve the re-authored invented demo. In every one of its
 nine system documents, the variable spring hanger `support:SH-140` (node
 N-140, rate 42000 N/m on UZ) carries an entered `cold_load` of 430 N. Round
 02 restored that value verbatim from the committed demo fixture
-`fixtures/product_preview/invented_preview_model.json`; the generator checks
-that the hanger records equal the fixture's. The frozen generators modelled
+`fixtures/product_preview/invented_preview_model.json`. The hanger record's
+mechanical leaves are staged in this package, and the generator checks the
+nine documents' hanger records against that staged copy. The frozen generators modelled
 the hanger as a bare spring, so the cold load was not applied. This package
 derives the same quantities under the law that
 `execution/PKG-04/DEL-04-03/ScopeOfWork.md` REQ-014 and
@@ -32,7 +33,8 @@ refuted, and they are not product evidence.
 
 | File | Role |
 |---|---|
-| `generators/u3_preload_reference.py` | the generator. It runs the frozen round-00/01 generator `../t4_i12/generators/u3_reference.py` in its own namespace, writing that generator's output only to a temporary directory, to use its frame, connector, document interpreter, document solver and formatting. It reads the request documents and frozen values from `../t4_i12/u3_reference_cases.json` and the hanger leaves from the demo fixture. It writes `u3_reference_cases_preload.json` and `SHA256SUMS` |
+| `generators/u3_preload_reference.py` | the generator. It runs the frozen round-00/01 generator `../t4_i12/generators/u3_reference.py` in its own namespace, writing that generator's output only to a temporary directory, to use its frame, connector, document interpreter, document solver and formatting. It reads the request documents and frozen values from `../t4_i12/u3_reference_cases.json` and the hanger leaves from `staged/sh140_hanger_leaves.json`. It writes `u3_reference_cases_preload.json` and `SHA256SUMS` |
+| `staged/sh140_hanger_leaves.json` | an input staged from `fixtures/product_preview/invented_preview_model.json` as committed at `3c8fc26a6c188f1613714f56d9807dc32433c46d`: the mechanical leaves of `support:SH-140` (id, node, family, the stiffness DOF and rate, and the installed, cold and hot loads and travel range), copied as they stand. The fixture's descriptive strings are not staged |
 | `u3_reference_cases_preload.json` | `cases/<case id>/…` holds each derived subtree of the affected cases at the same JSON pointer and in the same string format as the frozen file, so that a test compares what it compared before. `inputs` gives each request document's pointer in the frozen file. `preload` gives the hanger, the published applied force, every changed leaf next to its frozen (stiffness-only) value, and the unaffected parts with the reason for each. `crosscheck` lists every check |
 | `SHA256SUMS` | the hashes of every other file of this package. The generator writes it |
 
@@ -45,8 +47,20 @@ python3 -I generators/u3_preload_reference.py --check
 ```
 
 The check rebuilds the output into a temporary directory and compares it byte
-for byte with the committed files. It changes no file. `--write` rewrites the
+for byte with the committed files. It changes no file and opens nothing outside
+this package and `../t4_i12`. It establishes that the committed output follows
+from the frozen package and the staged hanger leaves. `--write` rewrites the
 outputs, for intentional changes only.
+
+```sh
+python3 -I generators/u3_preload_reference.py --check-live
+```
+
+This separate check, which `--check` does not run, compares the staged hanger
+leaves with the live fixture's, leaf by leaf, and names any that differ. It
+establishes whether the staged inputs still match the fixture. A difference
+means the derivation's input has moved on, not that the committed output is
+wrong for its staged input.
 
 ## Affected cases and derived subtrees
 
@@ -100,12 +114,23 @@ These parts are unaffected and are not repeated here:
    acts along the connector axis r = N-140 − N-130, so r × F_j does not
    change. The frozen text quoting those imbalances therefore still holds.
 
+**Axis and sign of the cold load.** The cold load acts along the positive axis
+of the hanger's declared stiffness DOF (+Z here). This reading comes from
+DEL-04-11 REQ-014 ("through the constant-effort seam") together with DEL-04-03
+REQ-014's positive-axis convention for the constant-effort support; the
+spring's own sentence in DEL-04-03 does not say "positive axis". If the sign
+were decided otherwise, every value here that the cold load moves would
+change.
+
 **Sign convention.** The frozen generator publishes a spring's row as −k·u
 (`solve_doc`: "a spring's is −k u"; conventions: "reactions: support-on-pipe").
 This package adds +F_cold on the hanger's DOF, which is the law's
 F = F_cold − k·(u − g) with g = 0.
 
 ## Independence
+
+This package is independent of the product. It is not independent of the
+frozen package it builds on: it uses the frozen generator's frame and solver.
 
 What is independent: the generator imports, reads and runs no product code and
 no product output. It reads the demo fixture only for the hanger's leaves. It

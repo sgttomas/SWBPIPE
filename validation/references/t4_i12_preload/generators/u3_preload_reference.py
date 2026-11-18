@@ -18,7 +18,9 @@ Standard-library Python 3 only. It imports, reads and runs no product code and n
 executes the frozen round-00/01 generator (reference code) in its own namespace, writing that
 generator's output only to a temporary directory, to use its frame, connector, document interpreter,
 document solver and formatting; it reads the frozen u3_reference_cases.json for the request documents
-and the frozen values, and the committed demo fixture to confirm the hanger's leaves. Every number
+and the frozen values, and staged/sh140_hanger_leaves.json (the hanger record's mechanical leaves, staged
+from the demo fixture at a named commit) to confirm the hanger's leaves. The default check opens no file
+outside this package and the frozen package. Every number
 is formed from the documents' leaves in exact rationals (pi as the frozen generator's 125-decimal
 rational); nothing is copied.
 
@@ -34,6 +36,9 @@ Modes (run from this package's directory):
   python3 -I generators/u3_preload_reference.py --check   regenerate into a temporary directory and
                                                           compare byte for byte (changes no file)
   python3 -I generators/u3_preload_reference.py --write   write the outputs (intentional changes only)
+  python3 -I generators/u3_preload_reference.py --check-live
+                                                          compare the staged hanger leaves with the live demo
+                                                          fixture's, naming any that differ (not run by --check)
 """
 import argparse
 import contextlib
@@ -55,9 +60,10 @@ ROOT = OUT.parents[2]
 FROZEN = OUT.parent / "t4_i12"
 FROZEN_FILE = FROZEN / "u3_reference_cases.json"
 FROZEN_GEN = FROZEN / "generators" / "u3_reference.py"
-FIXTURE = ROOT / "fixtures" / "product_preview" / "invented_preview_model.json"
+FIXTURE = ROOT / "fixtures" / "product_preview" / "invented_preview_model.json"  # --check-live only
+STAGED = "staged/sh140_hanger_leaves.json"
 OUTPUT = "u3_reference_cases_preload.json"
-FIXED_FILES = ("README.md", "generators/u3_preload_reference.py")
+FIXED_FILES = ("README.md", "generators/u3_preload_reference.py", STAGED)
 HANGER_ID = "support:SH-140"
 AXES = {"UX": ("global_x", 0), "UY": ("global_y", 1), "UZ": ("global_z", 2)}
 BASIS = ("stiffness-only result of the frozen package validation/references/t4_i12 (u3_reference_cases.json): the "
@@ -308,6 +314,36 @@ def quantity(pointer):
     return "/".join(p[-2:])
 
 
+def mechanical_leaves(support):
+    """The leaves of a hanger support record that the derivation rests on (descriptive strings excluded)."""
+    h = support["hanger"]
+    out = {"id": support["id"], "node": support["node"], "family": support["family"]}
+    for key in ("stiffness", "installed_load", "cold_load", "hot_load", "travel_range"):
+        stack = [(f"hanger.{key}", h[key])]
+        while stack:
+            path, v = stack.pop()
+            if isinstance(v, dict):
+                stack += [(f"{path}.{k}", x) for k, x in v.items()]
+            else:
+                out[path] = v
+    return out
+
+
+def staged_record():
+    return json.loads((OUT / STAGED).read_text())["record"]
+
+
+def check_live():
+    """The staged hanger leaves against the live demo fixture's, leaf by leaf."""
+    (live,) = [s for s in json.loads(FIXTURE.read_text())["supports"] if s["id"] == HANGER_ID]
+    staged, now = mechanical_leaves(staged_record()), mechanical_leaves(live)
+    differ = sorted(k for k in set(staged) | set(now) if staged.get(k) != now.get(k))
+    for k in differ:
+        print(f"DIFFERS: {HANGER_ID} {k}: staged {staged.get(k)!r}, live {now.get(k)!r}")
+    print(f"live fixture {FIXTURE.relative_to(ROOT)}: {len(staged)} staged leaves compared, {len(differ)} differ")
+    return 1 if differ else 0
+
+
 def encode(obj):
     return (json.dumps(obj, indent=1, sort_keys=False) + "\n").encode()
 
@@ -316,13 +352,12 @@ def build():
     CROSS.clear()
     raw = FROZEN_FILE.read_bytes()
     frozen = json.loads(raw)
-    # The hanger leaves: every system document carries the same SH-140, equal to the committed demo fixture's.
-    fixture = json.loads(FIXTURE.read_text())
-    (fix_h,) = [s["hanger"] for s in fixture["supports"] if s["id"] == HANGER_ID]
+    # The hanger leaves: every system document carries the same SH-140, whose mechanical leaves equal those
+    # staged from the demo fixture (staged/sh140_hanger_leaves.json).
     docs = frozen["round_02"]["b1_hanger_restored"]["documents"]
-    hangers = [get(frozen, p) for p in docs]
-    check(f"the nine system documents' SH-140 hanger records are identical to the committed demo fixture's",
-          len(hangers) == 9 and all(h == fix_h for h in hangers))
+    records = [get(frozen, p.rsplit("/hanger", 1)[0]) for p in docs]
+    check("the nine system documents' SH-140 records have the mechanical leaves staged from the demo fixture",
+          len(records) == 9 and all(mechanical_leaves(r) == mechanical_leaves(staged_record()) for r in records))
     node, dof, k, fc = hanger_of(get(frozen, "/cases/U3-SYS-DEMO-CONNECTOR-001/inputs/document_v3_0.3.0"))
     check("the hanger acts on a translational DOF", dof in AXES)
 
@@ -348,8 +383,7 @@ def build():
               "(plan_section5_substitute_round_02, findings) still holds (the cold load acts along the connector axis r)",
               get(law, pointer) == get(frozen["cases"], pointer))
     # No other case carries a hanger: the nine system documents are the only ones with variable_spring_hanger.
-    others = [cid for cid, case in frozen["cases"].items() if cid not in law
-              and cid not in ("U3-SYS-DEMO-CONNECTOR-001",) and "variable_spring_hanger" in json.dumps(case)]
+    others = [cid for cid, case in frozen["cases"].items() if cid not in law and "variable_spring_hanger" in json.dumps(case)]
     check("no case outside the five derived here carries a variable spring hanger", others == [])
     doc = {
         "schema_version": "t4-i12-u3-reference-1-preload-addendum-1",
@@ -368,6 +402,8 @@ def build():
                       "with the same strings' format (30 significant digits; 20 in the discriminators); the request "
                       "documents are the frozen file's own (see inputs)",
             "criteria": "unchanged: the frozen file's criterion of each case applies"},
+        # Each pointer comes from the frozen file's round_02.b1_hanger_restored.documents, which fixes the hanger at
+        # index 3 of every document's supports list; removing that suffix leaves the document's own pointer.
         "inputs": {p.replace("/model/supports/3/hanger", ""): {"sha256_of_canonical_json": hashlib.sha256(
             json.dumps(get(frozen, p.replace("/model/supports/3/hanger", "")), sort_keys=True, separators=(",", ":")).encode()
         ).hexdigest()} for p in docs},
@@ -399,7 +435,7 @@ def build():
 
 def with_sums(files):
     sums = []
-    for path in sorted(list(files) + list(FIXED_FILES)):
+    for path in sorted(list(files) + list(FIXED_FILES)):  # every file of the package except SHA256SUMS
         data = files[path] if path in files else (OUT / path).read_bytes()
         sums.append(f"{hashlib.sha256(data).hexdigest()}  {path}")
     files["SHA256SUMS"] = ("\n".join(sums) + "\n").encode()
@@ -411,7 +447,10 @@ def main():
     mode = parser.add_mutually_exclusive_group()
     mode.add_argument("--write", action="store_true")
     mode.add_argument("--check", action="store_true")
+    mode.add_argument("--check-live", action="store_true")
     args = parser.parse_args()
+    if args.check_live:
+        return check_live()
     files = with_sums(build())
     bad = [c for c in CROSS if not c["agrees"]]
     print(f"cross-checks: {len(CROSS)} recorded, {len(bad)} disagreeing")

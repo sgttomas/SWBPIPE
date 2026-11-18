@@ -6000,7 +6000,7 @@
  },
  "crosscheck": [
   {
-   "check": "the nine system documents' SH-140 hanger records are identical to the committed demo fixture's",
+   "check": "the nine system documents' SH-140 records have the mechanical leaves staged from the demo fixture",
    "agrees": true
   },
   {
