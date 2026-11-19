@@ -114,3 +114,4 @@ checks:
 - core/product_physics/src/residual_refusal_tests.rs
 - tests/test_global_end_verifier.py
 - tests/test_m3_judge_schema_keywords.py
+- core/product_physics/tests/k2a_formation_range_runtime.rs
