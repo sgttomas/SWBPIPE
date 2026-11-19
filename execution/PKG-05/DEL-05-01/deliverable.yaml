@@ -63,7 +63,7 @@ needs:
     A rigid-family component has a total weight and a centre-of-gravity vector in global axes from
     its node, and its weight acts along gravity at the node with the moment of that force about
     the node.
-  when: Generating a mapped component's weight
+  when: Generating a mapped component's self-weight or its static-equivalent seismic load
   gating: true
 - from: DEL-00-06
   condition: >-
@@ -123,8 +123,9 @@ code_paths:
 - validation/references/hydrostatic_test/**
 - tests/test_exact_load_state_equivalent_static_references.py
 - tests/test_hydrostatic_test_references.py
-# Frozen before the engine work it judges: static seismic taking the weight case's masses, a
-# component's weight included. No product test reads it yet.
+# Frozen before the engine work it judges: static seismic using the route's pipe mass basis and
+# replacing an eligible mapped pipe's load with the component's entered force times its g-factor
+# and the resulting eccentric moment. No product test reads it yet.
 - validation/references/seismic_component_weight/**
 - tests/test_seismic_component_weight_references.py
 # Analytic exact-route references for generated seismic and wind actions with active constant effort,
