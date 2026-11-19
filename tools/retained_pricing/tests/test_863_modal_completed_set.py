@@ -16,6 +16,7 @@ These are source warrants, not runtime allocation observations.
 """
 import hashlib
 import json
+import re
 from pathlib import Path
 import runpy
 import shutil
@@ -35,6 +36,7 @@ RS, TRS, OUTCOME = MODAL + "resource.rs", MODAL + "tests_resource.rs", MODAL + "
 SKEW, MQ = MODAL + "skew_pencil.rs", "core/solver/modal_eigen/src/modal_quantities.rs"
 RB = "core/solver/frame_kernel/src/restraint_basis.rs"
 RS_PIN = "f9c7f62a6061a051042299569a65f2d94e00ae9f566f17074243d1d44f0e5622"
+MQ_PIN = "b8d4cbdc37b56b9359c2b8a6aa593ea8829fcd94de597f6a7e00dfc7364070f3"
 MAIN = "3c8fc26a6c188f1613714f56d9807dc32433c46d"   # main before the boundary (§8.63's comparison basis)
 MAIN_RS_PIN = "f85562f6b73580d02e1c6736d472b74d98ad9fbbf25f0e024c8b0ad3a54c2c5c"
 
@@ -49,6 +51,10 @@ def copy_core(tmp_path):
     return tmp_path
 
 
+def sha(snap, path):
+    return hashlib.sha256((snap / path).read_bytes()).hexdigest()
+
+
 def edit(snap, path, old, new):
     target = snap / path
     text = target.read_text(encoding="utf-8")
@@ -56,15 +62,23 @@ def edit(snap, path, old, new):
     target.write_text(text.replace(old, new), encoding="utf-8")
 
 
-def tool_with_pin(tmp_path, digest, current=RS_PIN):
-    """A scratch copy of the tool whose resource.rs pin is `digest` (the README's step-5 restoration), rules unchanged."""
+def tool_with(tmp_path, edits):
+    """A scratch copy of the tool with exact text edits: {tool-relative file: [(old, new), ...]}, each old text once."""
     tool = tmp_path / "tool"
     shutil.copytree(PRICING, tool, ignore=shutil.ignore_patterns("tests", "__pycache__"))
-    rules = tool / "rules/o10_rules.py"
-    text = rules.read_text(encoding="utf-8")
-    assert text.count(current) == 1
-    rules.write_text(text.replace(current, digest), encoding="utf-8")
+    for rel, pairs in edits.items():
+        text = (tool / rel).read_text(encoding="utf-8")
+        for old, new in pairs:
+            assert text.count(old) == 1, (rel, old)
+            text = text.replace(old, new)
+        (tool / rel).write_text(text, encoding="utf-8")
     return tool
+
+
+def tool_with_pin(tmp_path, digest, current=RS_PIN):
+    """A scratch copy of the tool whose resource.rs pin (or another pin, `current`) is `digest` (the README's step-5
+    restoration), rules otherwise unchanged."""
+    return tool_with(tmp_path, {"rules/o10_rules.py": [(current, digest)]})
 
 
 U = 20
@@ -113,6 +127,10 @@ def test_the_dense_entry_sites_are_the_format_args_rows_of_the_body(monkeypatch)
     start = next(i for i, l in enumerate(text) if l.startswith("pub(crate) fn run_modal_dense_within("))
     lines = [int(k.rsplit(":", 1)[1]) for k in keys]
     assert all(n - 1 > start for n in lines) and all("format_args!(" in text[n - 1] for n in lines)
+    # MODAL-CS-RK's key-to-bound mapping: each re-keyed audit keeps its own argument and bound.
+    bounds = {int(str(k).rsplit(":", 1)[1]): {a: v["bytes"] for a, v in value.items()} for k, value in d["O10_ID_AUDIT"]
+              if str(k) in keys}
+    assert bounds == {446: {"i+1": 20}, 501: {"orthogonality.pair.map(|(a,b)|(a+1,b+1))|?": 50}, 559: {"i+1": 20}}
 
 
 LONG = '"a structure name much longer than any reviewed constant"'
@@ -140,6 +158,21 @@ LONG = '"a structure name much longer than any reviewed constant"'
     (MQ, "    let bytes = requested_bytes::<T>(vec.len(), len, structure)?;\n    vec.try_reserve_exact",
      "    let bytes = requested_bytes::<T>(vec.len(), len, structure)?;\n    let _held = vec.len();\n    vec.try_reserve_exact",
      r"MODAL-CS-ST: core/solver/modal_eigen/src/modal_quantities.rs:reserve_exactly#1 changed"),
+    # MODAL-CS-TM grounds: a test-item declaration (adaptive.rs) and a test-module's declaration (source_recovery.rs's
+    # j7_t4_consequences) lose their #[cfg(test)], so their entries' grounds change.
+    ("core/solver/frame_kernel/src/structural/retained/adaptive.rs",
+     '#[cfg(test)]\n#[path = "../../../tests/retained_k4/adaptive_tests.rs"]', '#[path = "../../../tests/retained_k4/adaptive_tests.rs"]',
+     "MODAL-CS-TM: the reviewed inventory changed"),
+    # (J2 checks that declaration by text and stops first; TM's test-module ground is the same requirement by token.)
+    (PP + "source_recovery.rs", '#[cfg(test)]\n#[path = "source_recovery/j7_t4_consequences.rs"]',
+     '#[path = "source_recovery/j7_t4_consequences.rs"]', r"J2: j7_t4_consequences is no longer a #\[cfg\(test\)\] module"),
+    # MODAL-CS-TM: the one include!'s target moved to a file the walk does not read.
+    ("core/product_physics/build.rs", 'include!("src/build_identity.rs");', 'include!("src/build_identity.inc");',
+     "does not include a .rs file of the walked set"),
+    # MODAL-CS-M0: the reader's renamed format import in the dense body (the template scanner emits its row).
+    (OUTCOME, "    let total = solution.eigenvalues.len();\n",
+     "    let total = solution.eigenvalues.len();\n    use std::format as probe_format;\n    let _ = probe_format!(\"probe\");\n",
+     "the dense body's TEXT rows changed"),
     # MODAL-CS-M0: an added format in the unpinned dense body.
     (OUTCOME, "    let total = solution.eigenvalues.len();\n",
      "    let total = solution.eigenvalues.len();\n    let _probe = format!(\"{total}\");\n", "the dense body's TEXT rows changed"),
@@ -155,9 +188,29 @@ LONG = '"a structure name much longer than any reviewed constant"'
      "MODAL-CS-LI: core/product_physics/src/modal/skew_pencil.rs:modal_lift_within#1 changed"),
 ])
 def test_a_changed_boundary_source_stops(tmp_path, monkeypatch, path, old, new, message):
-    snap = copy_core(tmp_path)
+    snap = copy_core(tmp_path / "src")
     edit(snap, path, old, new)
+    # modal_quantities.rs is pinned whole (its own test below); past that pin, the inner checks still stop.
+    tool = tool_with_pin(tmp_path, sha(snap, MQ), MQ_PIN) if path == MQ else PRICING
     with pytest.raises(SystemExit, match=message):
+        decisions(monkeypatch, snap, tool=tool)
+
+
+SHADOW = ("    storage.modal_shape_reserve(&mut out, modes.len(), CUMULATIVE_FRACTIONS)?;",
+          f"    const CUMULATIVE_FRACTIONS: &str = {LONG};\n    storage.modal_shape_reserve(&mut out, modes.len(), CUMULATIVE_FRACTIONS)?;")
+ALIAS = ("    storage.modal_shape_reserve(&mut out, modes.len(), CUMULATIVE_FRACTIONS)?;",
+         "    {\n        use self::ShapeStorageError::AllocationFailed as Refused;\n        if modes.is_empty() {\n"
+         f"            return Err(Refused {{ structure: {LONG}, elements: 0, bytes: 0 }});\n        }}\n    }}\n"
+         "    storage.modal_shape_reserve(&mut out, modes.len(), CUMULATIVE_FRACTIONS)?;")
+
+
+@pytest.mark.parametrize("old, new", [SHADOW, ALIAS], ids=["shadowing-constant", "aliased-variant"])
+def test_modal_quantities_is_pinned_whole(tmp_path, monkeypatch, old, new):
+    """The second reader's two edits keep every inventoried text and change a production structure's length. The text
+    scan does not resolve names, so it passes them; the whole-file pin stops them."""
+    snap = copy_core(tmp_path / "src")
+    edit(snap, MQ, old, new)
+    with pytest.raises(SystemExit, match=r"MODAL-CS-ST: core/solver/modal_eigen/src/modal_quantities\.rs changed"):
         decisions(monkeypatch, snap)
 
 
@@ -195,6 +248,21 @@ def test_a_changed_boundary_source_stops(tmp_path, monkeypatch, path, old, new, 
     # ...and a test file named there through a nested #[path] stops as from the walked crates.
     ({"core/solver/frame_kernel/tests/retained_k4/support.rs": '\n#[path = "../../../../product_physics/src/modal/tests_resource.rs"]\n'
       "mod copied;\n"}, "MODAL-CS-TM: .* names a reviewed test file"),
+    # The second reader's module: `# [path]` with a space, to a target the walk does not read (not .rs).
+    ({OUTCOME: '\n# [path = "limits.inc"]\nmod extra;\n', MODAL + "limits.inc": "pub(crate) fn extra() {}\n"},
+     "MODAL-CS-TM: the reviewed inventory changed"),
+    # A path literal that is not a plain string.
+    ({MODAL + "new_source.rs": '\n#[path = r"skew_pencil.rs"]\nmod again;\n'}, "MODAL-CS-TM: .* is not a plain literal"),
+    # An added include!, of a walked file: not in the reviewed include inventory.
+    ({MODAL + "new_source.rs": 'include!("skew_pencil.rs");\n'}, "MODAL-CS-TM: the reviewed inventory changed"),
+    # A production file gains an ungated #[path] to a target outside the walked set: no test ground, so a hash entry
+    # the inventory does not hold.
+    ({MODAL + "new_source.rs": '\n#[path = "../../tests/common/current_model.rs"]\nmod current_model;\n'},
+     "MODAL-CS-TM: the reviewed inventory changed"),
+    # The lexer's bracket matching: an unbalanced bracket in a file the scans read stops rather than mis-spanning.
+    ({MODAL + "new_source.rs": "fn probe() {\n    let _ = modal_shape_reserve;\n    let a = (1;\n}\n"}, "MODAL-CS: an unbalanced bracket"),
+    # MODAL-CS-ST's constant lookup: a second declaration of a constant a production request names.
+    ({MODAL + "new_source.rs": 'const SKEW_LIFT_SCATTER: &str = "x";\n'}, "MODAL-CS-ST: .* is not a named literal constant"),
     # The same file under its test declaration alone: no exclusion, so the census still sees its mention.
     ({"core/solver/frame_kernel/src/shared.rs": "fn twice(b: &RestraintBasis, v: &[f64], o: &mut [f64]) {\n    let _ = b.lift_into(v, o);\n}\n",
       "core/solver/frame_kernel/src/lib.rs": "\n#[cfg(test)]\nmod shared;\n"}, "MODAL-CS-LI: the reviewed inventory changed"),
@@ -217,6 +285,15 @@ def test_comments_and_literals_do_not_trip_the_censuses(tmp_path, monkeypatch):
     decisions(monkeypatch, snap)
 
 
+def test_an_edit_to_a_test_helper_brought_in_by_path_passes(tmp_path, monkeypatch):
+    """A test-file entry's target (a tests/ helper) does not bind its bytes: ordinary test work there does not stop."""
+    snap = copy_core(tmp_path)
+    target = snap / "core/solver/frame_kernel/tests/retained_k4/support.rs"
+    target.write_text(target.read_text(encoding="utf-8") + "\npub(crate) fn helper_added_by_a_test() -> u8 {\n    1\n}\n",
+                      encoding="utf-8")
+    decisions(monkeypatch, snap)
+
+
 def test_an_unrelated_path_module_in_the_files_read_passes(tmp_path, monkeypatch):
     """Main e0e3e3c7's form: a #[path] module of the frame kernel naming a file in the files read, nothing of the boundary."""
     snap = copy_core(tmp_path)
@@ -228,8 +305,28 @@ def test_an_unrelated_path_module_in_the_files_read_passes(tmp_path, monkeypatch
     decisions(monkeypatch, snap)
 
 
+ID_FORMATS = ["n_c = {computed}", "r = {r}", "r × n = {r} × {}", "r × g = {r} × {}", "r × ρ = {r} × {}", "{value} as u64",
+              "r × {symbol} = {completed} × {width}", "{count} entries × {element} B", "at most u64::MAX = {}",
+              "at most usize::MAX = {}", "the bytes exceed the addressable size, at most isize::MAX = {} B"]
+
+
+@pytest.mark.parametrize("fmt", ID_FORMATS)
+def test_each_of_the_id_audits_eleven_formats_is_required(tmp_path, monkeypatch, fmt):
+    """Past the whole-file pin, removing any one of the eleven expression or bound formats stops MODAL-CS-ID."""
+    snap = copy_core(tmp_path / "src")
+    target = snap / RS
+    text = target.read_text(encoding="utf-8")
+    assert text.count('format!("' + fmt + '"') >= 1
+    target.write_text(text.replace('format!("' + fmt + '"', 'format!("' + fmt + ' (changed)"'), encoding="utf-8")
+    with pytest.raises(SystemExit, match="MODAL-CS-ID: the boundary's format `" + re.escape(fmt) + "` is gone"):
+        decisions(monkeypatch, snap, tool=tool_with_pin(tmp_path, sha(snap, RS)))
+
+
 @pytest.mark.parametrize("old, new, message", [
     ('format!("n_c = {computed}")', 'format!("n_c := {computed}")', "the boundary's format `n_c = {computed}` is gone"),
+    ('Some(limit) => format!("the caller\'s limit on it is {limit} and was not exceeded',
+     'Some(limit) => format!("the caller\'s stated limit on it is {limit} and was not exceeded',
+     "modal_completed_set_refusal's limit text changed"),
     ('None => "no completed-set limit was supplied".to_string(),', 'None => "no completed-set limit supplied".to_string(),',
      "modal_completed_set_refusal's limit text changed"),
     ('let normalized_entries = entries(ModalCompletedSetDimension::NormalizedEntries, "n", coordinates)?;',
@@ -295,7 +392,10 @@ def point(tmp_path, name, edges=None, roots=("lib.rs:1:root",), rows=(), graph=T
     run = tmp_path / name
     (run / "work").mkdir(parents=True)
     (run / "looplog.json").write_text("[]")
-    (run / "work/text_budget.caps.out.json").write_text(json.dumps({"rows": list(rows), "roots": [PP + r for r in roots]}))
+    budget = {"rows": list(rows)}
+    if roots is not None:
+        budget["roots"] = [PP + r for r in roots]
+    (run / "work/text_budget.caps.out.json").write_text(json.dumps(budget))
     if graph:
         (run / "edges.json").write_text(json.dumps({"edges": edges}))
         (run / "audit.json").write_text(json.dumps({"rows": list(audit)}))
@@ -374,3 +474,110 @@ def test_o10_rejects_a_changed_guarded_row_through_the_emitted_rules(tmp_path, m
         next(r for r in rows if r["file"].endswith("modal/outcome.rs") and r["line"] == 446)["mult"] = 1
     code, out = check(tmp_path, {k: v for k, v in rules.items() if k != "o10_unreached_fns"}, [point(tmp_path, "L_30", {}, rows=rows)])
     assert code == (0 if change == "exact" else 3), out
+
+
+# ---- negative controls for the remaining stops (each through a scratch tool or snapshot copy)
+
+FWD = [("modal_completed_set_rows#1", "94faf840e8c5256c5ef8bc2bf5838c6d0e31309642d5e596436240f79d85c9d8"),
+       ("modal_shape_reserve#1", "9a2ac2cba339e4af78d90ec1df12993476014a7ddff67a9a9933182fe2f1020b"),
+       ("modal_completed_set_text_room#1", "f550243ad823913d017b67b8131a39f03dc7dd5c0b862f1e276d8149e40600fc"),
+       ("modal_completed_set_format#1", "e5b12b9ada9a70b11a5276fbf83fc17ed8c979483cfe8aaa1c08433a5bfba90d"),
+       ("modal_completed_set_copy_text#1", "a15d88778468512f380594418c7b0f1d99ac546c699ed7bacf2c32d5d47a981f"),
+       ("modal_shape_reserve#1", "31e2b71ebf7dc4b28d94866b8d20dd8f049292b9431bf06c1fdac0fabc240df5"),
+       ("reserve_exactly#1", "1ec173384fccea2408263b0c7e9ab1227728adabe8489c5c4d3e5ed3a0ad2f2c"),
+       ("requested_bytes#1", "b5fafc356977136df5f2771a5373e3cc1b9b43959f69e5fcb95daa12909e27ff")]
+
+
+@pytest.mark.parametrize("encl, digest", FWD)
+def test_each_structure_forwarders_body_pin_is_compared(tmp_path, monkeypatch, encl, digest):
+    """Each of the eight forwarders' body pins is checked: a different reviewed digest stops at that function."""
+    tool = tool_with_pin(tmp_path, "0" * 64, digest)
+    with pytest.raises(SystemExit, match="MODAL-CS-ST: .*:" + re.escape(encl) + " changed"):
+        decisions(monkeypatch, tool=tool)
+
+
+def test_the_forwarder_set_is_exact(tmp_path, monkeypatch):
+    line = '                (_MQ, "requested_bytes#1"): "b5fafc356977136df5f2771a5373e3cc1b9b43959f69e5fcb95daa12909e27ff",\n'
+    tool = tool_with(tmp_path, {"rules/o10_rules.py": [(line, "")]})
+    with pytest.raises(SystemExit, match="MODAL-CS-ST: the structure forwarders changed"):
+        decisions(monkeypatch, tool=tool)
+
+
+@pytest.mark.parametrize("rel, old, new, message", [
+    ("price.py", "CORRECT_NORM = (", "CORRECT_NORM = CORRECT_NORM_AGAIN = (", "the driver's chain_crates or CORRECT_NORM is not unique"),
+    ("base/crate_dirs.txt", " core/solver/frame_kernel/src", "", "the driver's crate selection no longer holds the frame kernel"),
+])
+def test_the_driver_selection_sanity_checks_stop(tmp_path, monkeypatch, rel, old, new, message):
+    with pytest.raises(SystemExit, match="MODAL-CS: " + message):
+        decisions(monkeypatch, tool=tool_with(tmp_path, {rel: [(old, new)]}))
+
+
+def test_a_test_entry_outside_its_inline_test_module_stops(tmp_path, monkeypatch):
+    """MODAL-CS-TM's containment: an inventoried modal_quantities.rs entry marked test code must lie in its tests module."""
+    tool = tool_with(tmp_path, {})
+    path = tool / "rules/modal_cs_inventory.json"
+    inv = json.loads(path.read_text(encoding="utf-8"))
+    entry = next(e for e in inv["storage"] if e[0] == MQ and e[4] == "production")
+    entry[4] = "test"
+    path.write_text(json.dumps(inv, indent=1, ensure_ascii=False) + "\n", encoding="utf-8")
+    with pytest.raises(SystemExit, match="MODAL-CS-TM: .* is marked test code but is not inside a reviewed test module"):
+        decisions(monkeypatch, tool=tool)
+
+
+MARKER = '// The completed-set boundary (module docs, "The completed-set boundary").'
+
+
+@pytest.mark.parametrize("change, message", [
+    ("marker", "MODAL-CS-M0: the boundary's marker is not unique"),
+    ("added row", "MODAL-CS-M0: the boundary's TEXT rows changed"),
+])
+def test_the_boundary_row_predicates_stop(tmp_path, monkeypatch, change, message):
+    """Past the whole-file pin: a second boundary marker, and an added TEXT row in the boundary (the aggregate count)."""
+    snap = copy_core(tmp_path / "src")
+    if change == "marker":
+        (snap / RS).write_text((snap / RS).read_text(encoding="utf-8") + "\n" + MARKER + "\n", encoding="utf-8")
+    else:
+        edit(snap, RS, MARKER + "\n", MARKER + '\nfn completed_set_probe() -> String {\n    format!("probe")\n}\n')
+    with pytest.raises(SystemExit, match=message):
+        decisions(monkeypatch, snap, tool=tool_with_pin(tmp_path, sha(snap, RS)))
+
+
+def test_two_dense_rows_on_one_line_stop(tmp_path, monkeypatch):
+    """MODAL-CS-M0's distinct-line predicate: five dense rows, but two of them on one line and a cluster refusal gone."""
+    snap = copy_core(tmp_path)
+    edit(snap, OUTCOME, 'format!("the computed eigenvalues cannot be clustered ({error})")',
+         'String::from("the computed eigenvalues cannot be clustered")')
+    edit(snap, OUTCOME, 'format!("the cluster error estimates cannot be formed ({error:?})"), vec!["model".into()])]',
+         'format!("the cluster error estimates cannot be formed ({error:?})"), vec![format!("model")])]')
+    with pytest.raises(SystemExit, match="MODAL-CS-M0: the dense body's TEXT rows changed"):
+        decisions(monkeypatch, snap)
+
+
+@pytest.mark.parametrize("line", [907, 994, 1060, 1104])
+@pytest.mark.parametrize("change", ["positive", "missing"])
+def test_each_size_zero_test_site_is_guarded(tmp_path, monkeypatch, line, change):
+    """Each of J3's four size-zero test sites, through the emitter's own rules: a positive or missing row fails."""
+    rules = o10_check_rules(decisions(monkeypatch))
+    keys, counts = rules["o10_mult0_sites"], rules["o10_mult0_rows"]
+    assert f"modal/tests_resource.rs:{line}" in map(str, keys)
+    rows = rows_for(keys, counts)
+    hit = [r for r in rows if r["file"].endswith("modal/tests_resource.rs") and r["line"] == line]
+    assert len(hit) == 1
+    if change == "positive":
+        hit[0]["mult"] = 1
+    else:
+        rows.remove(hit[0])
+    code, out = check(tmp_path, {k: v for k, v in rules.items() if k != "o10_unreached_fns"}, [point(tmp_path, "L_30", {}, rows=rows)])
+    assert code == 3, out
+
+
+def test_the_unreached_function_check_needs_points_and_roots(tmp_path):
+    """Part A's two branches: no point at all, and a point whose roots are missing or empty."""
+    rules = o10_check_rules({"O10_UNREACHED_FNS": [{"file": RB, "name": "lift_into", "state": "present", "why": "test"}]})
+    code, out = check(tmp_path, rules, [])
+    assert code == 3 and "no point to check" in out
+    graph = {ROOT: [OTHER], OTHER: [], FN: []}
+    code, out = check(tmp_path, rules, [point(tmp_path, "L_30", graph, roots=None)])
+    assert code == 3 and "the point's graph or roots are missing" in out
+    code, out = check(tmp_path, rules, [point(tmp_path, "L_21", graph, roots=())])
+    assert code == 3 and "no roots, or the function's crate is not in the graph" in out

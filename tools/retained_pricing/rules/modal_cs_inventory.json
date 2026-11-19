@@ -1,5 +1,5 @@
 {
- "_about": "MODAL-CS (§8.63) reviewed inventories; rules/o10_rules.py compares each, as a multiset, with the source. Entries are [file, enclosing fn#ordinal, kind, stripped text, role] (storage) or [file, enclosing fn#ordinal, stripped line] (mentions). Roles: production; test (a #[cfg(test)] module, test fn or statement); other (support.rs's own requested_bytes and SupportResourceError, not ShapeStorage).",
+ "_about": "MODAL-CS (§8.63) reviewed inventories; rules/o10_rules.py compares each, as a multiset, with the source. Entries are [file, enclosing fn#ordinal, kind, stripped text, role] (storage); [file, enclosing fn#ordinal, stripped line] (mentions); [declaring file, path literal, ground (test-file, test-module, test-item, or hash with the target's SHA-256)] (path_outside); [file, enclosing fn#ordinal, stripped line, target] (include). Roles: production; test (a #[cfg(test)] module, test fn or statement); other (support.rs's own requested_bytes and SupportResourceError, not ShapeStorage). A change to this file requires re-reading the source it describes.",
  "storage": [
   [
    "core/product_physics/src/modal/outcome.rs",
@@ -878,355 +878,451 @@
  "path_outside": [
   [
    "core/product_physics/src/corrected_displacement_tests.rs",
-   "../tests/common/current_model.rs"
+   "../tests/common/current_model.rs",
+   "test-file"
   ],
   [
    "core/product_physics/src/corrected_displacement_tests.rs",
-   "../tests/common/t4_u5b.rs"
+   "../tests/common/t4_u5b.rs",
+   "test-file"
   ],
   [
    "core/product_physics/src/modal/tests.rs",
-   "../../tests/common/condition_twin.rs"
+   "../../tests/common/condition_twin.rs",
+   "test-file"
   ],
   [
    "core/product_physics/src/modal/tests.rs",
-   "../../tests/common/current_model.rs"
+   "../../tests/common/current_model.rs",
+   "test-file"
   ],
   [
    "core/product_physics/src/o4_m3_judging_tests.rs",
-   "../../reporting/result_export/tests/support/retained_precision_corpus.rs"
+   "../../reporting/result_export/tests/support/retained_precision_corpus.rs",
+   "test-file"
   ],
   [
    "core/product_physics/src/operating_conditions/resolution_tests.rs",
-   "../../tests/common/condition_twin.rs"
+   "../../tests/common/condition_twin.rs",
+   "test-file"
   ],
   [
    "core/product_physics/src/retained_memory_law_tests.rs",
-   "../tests/common/w1_member_load_inputs.rs"
+   "../tests/common/w1_member_load_inputs.rs",
+   "test-file"
   ],
   [
    "core/product_physics/src/retained_memory_witness_tests.rs",
-   "../tests/common/b1_sq_inputs.rs"
+   "../tests/common/b1_sq_inputs.rs",
+   "test-file"
   ],
   [
    "core/product_physics/src/retained_memory_witness_tests.rs",
-   "../tests/common/w1_member_load_inputs.rs"
+   "../tests/common/w1_member_load_inputs.rs",
+   "test-file"
   ],
   [
    "core/product_physics/src/source_recovery/j7_rf_census.rs",
-   "../../../../validation/benchmarks/numerical_robustness/src/exact.rs"
+   "../../../../validation/benchmarks/numerical_robustness/src/exact.rs",
+   "test-module"
   ],
   [
    "core/product_physics/src/source_recovery/j7_rf_census.rs",
-   "../../../reporting/result_export/tests/support/retained_precision_corpus.rs"
+   "../../../reporting/result_export/tests/support/retained_precision_corpus.rs",
+   "test-module"
   ],
   [
    "core/product_physics/src/source_recovery/j7_t4_consequences.rs",
-   "../../../reporting/result_export/tests/support/retained_precision_corpus.rs"
+   "../../../reporting/result_export/tests/support/retained_precision_corpus.rs",
+   "test-module"
   ],
   [
    "core/product_physics/src/tie_rod_tests.rs",
-   "../tests/common/current_model.rs"
+   "../tests/common/current_model.rs",
+   "test-file"
   ],
   [
    "core/product_physics/src/tie_rod_tests.rs",
-   "../tests/common/t4_u5b.rs"
+   "../tests/common/t4_u5b.rs",
+   "test-file"
   ],
   [
    "core/product_physics/src/w1_coverage_census_tests.rs",
-   "../../reporting/result_export/tests/support/retained_precision_corpus.rs"
+   "../../reporting/result_export/tests/support/retained_precision_corpus.rs",
+   "test-file"
   ],
   [
    "core/product_physics/src/w1_coverage_census_tests.rs",
-   "../tests/common/w1_member_load_inputs.rs"
+   "../tests/common/w1_member_load_inputs.rs",
+   "test-file"
   ],
   [
    "core/product_physics/src/w1_domain_stage1_tests.rs",
-   "../../reporting/result_export/tests/support/retained_precision_corpus.rs"
+   "../../reporting/result_export/tests/support/retained_precision_corpus.rs",
+   "test-file"
   ],
   [
    "core/product_physics/src/w1_successor_census_tests.rs",
-   "../../reporting/result_export/tests/support/retained_precision_corpus.rs"
+   "../../reporting/result_export/tests/support/retained_precision_corpus.rs",
+   "test-file"
   ],
   [
    "core/reporting/result_export/src/retained_precision.rs",
-   "../tests/support/retained_precision_corpus.rs"
+   "../tests/support/retained_precision_corpus.rs",
+   "test-item"
   ],
   [
    "core/solver/frame_kernel/src/structural/retained/adaptive.rs",
-   "../../../tests/retained_k4/adaptive_tests.rs"
+   "../../../tests/retained_k4/adaptive_tests.rs",
+   "test-item"
   ],
   [
    "core/solver/frame_kernel/src/structural/retained/adaptive.rs",
-   "../../../tests/retained_k4/classification_tests.rs"
+   "../../../tests/retained_k4/classification_tests.rs",
+   "test-item"
   ],
   [
    "core/solver/frame_kernel/src/structural/retained/adaptive.rs",
-   "../../../tests/retained_k4/kf1_tracker_tests.rs"
+   "../../../tests/retained_k4/kf1_tracker_tests.rs",
+   "test-item"
   ],
   [
    "core/solver/frame_kernel/src/structural/retained/adaptive.rs",
-   "../../../tests/retained_k4/kf3_tests.rs"
+   "../../../tests/retained_k4/kf3_tests.rs",
+   "test-item"
   ],
   [
    "core/solver/frame_kernel/src/structural/retained/adaptive.rs",
-   "../../../tests/retained_k4/member_adaptive_tests.rs"
+   "../../../tests/retained_k4/member_adaptive_tests.rs",
+   "test-item"
   ],
   [
    "core/solver/frame_kernel/src/structural/retained/adaptive.rs",
-   "../../../tests/retained_k4/method_tests.rs"
+   "../../../tests/retained_k4/method_tests.rs",
+   "test-item"
   ],
   [
    "core/solver/frame_kernel/src/structural/retained/adaptive.rs",
-   "../../../tests/retained_k4/publication_tests.rs"
+   "../../../tests/retained_k4/publication_tests.rs",
+   "test-item"
   ],
   [
    "core/solver/frame_kernel/src/structural/retained/adaptive.rs",
-   "../../../tests/retained_k4/references_tests.rs"
+   "../../../tests/retained_k4/references_tests.rs",
+   "test-item"
   ],
   [
    "core/solver/frame_kernel/src/structural/retained/adaptive.rs",
-   "../../../tests/retained_k4/scale_tests.rs"
+   "../../../tests/retained_k4/scale_tests.rs",
+   "test-item"
   ],
   [
    "core/solver/frame_kernel/src/structural/retained/adaptive.rs",
-   "../../../tests/retained_k4/source_bridge_tests.rs"
+   "../../../tests/retained_k4/source_bridge_tests.rs",
+   "test-item"
   ],
   [
    "core/solver/frame_kernel/src/structural/retained/adaptive.rs",
-   "../../../tests/retained_k4/source_residual_tests.rs"
+   "../../../tests/retained_k4/source_residual_tests.rs",
+   "test-item"
   ],
   [
    "core/solver/frame_kernel/src/structural/retained/assemble.rs",
-   "../../../tests/retained_k4/assemble_tests.rs"
+   "../../../tests/retained_k4/assemble_tests.rs",
+   "test-item"
   ],
   [
    "core/solver/frame_kernel/src/structural/retained/assemble.rs",
-   "../../../tests/retained_k4/timoshenko_tests.rs"
+   "../../../tests/retained_k4/timoshenko_tests.rs",
+   "test-item"
   ],
   [
    "core/solver/frame_kernel/src/structural/retained/bound.rs",
-   "../../../tests/retained_k4/bound_tests.rs"
+   "../../../tests/retained_k4/bound_tests.rs",
+   "test-item"
   ],
   [
    "core/solver/frame_kernel/src/structural/retained/combine.rs",
-   "../../../tests/retained_k4/combine_tests.rs"
+   "../../../tests/retained_k4/combine_tests.rs",
+   "test-item"
   ],
   [
    "core/solver/frame_kernel/src/structural/retained/declared.rs",
-   "../../../tests/retained_k4/member_load_tests.rs"
+   "../../../tests/retained_k4/member_load_tests.rs",
+   "test-item"
   ],
   [
    "core/solver/frame_kernel/src/structural/retained/directed.rs",
-   "../../../tests/retained_k4/directed_tests.rs"
+   "../../../tests/retained_k4/directed_tests.rs",
+   "test-item"
   ],
   [
    "core/solver/frame_kernel/src/structural/retained/directed/certificate.rs",
-   "../../../../tests/retained_k4/certificate_arithmetic_tests.rs"
+   "../../../../tests/retained_k4/certificate_arithmetic_tests.rs",
+   "test-item"
   ],
   [
    "core/solver/frame_kernel/src/structural/retained/factor.rs",
-   "../../../tests/retained_k4/factor_tests.rs"
+   "../../../tests/retained_k4/factor_tests.rs",
+   "test-item"
   ],
   [
    "core/solver/frame_kernel/src/structural/retained/ledger.rs",
-   "../../../tests/retained_k4/ledger_tests.rs"
+   "../../../tests/retained_k4/ledger_tests.rs",
+   "test-item"
   ],
   [
    "core/solver/frame_kernel/src/structural/retained/origins.rs",
-   "../../../tests/retained_k4/origins_tests.rs"
+   "../../../tests/retained_k4/origins_tests.rs",
+   "test-item"
   ],
   [
    "core/solver/frame_kernel/src/structural/retained/product_certificate.rs",
-   "../../../tests/retained_k4/product_certificate_tests.rs"
+   "../../../tests/retained_k4/product_certificate_tests.rs",
+   "test-item"
   ],
   [
    "core/solver/frame_kernel/src/structural/retained/product_certificate/final_case.rs",
-   "../../../../tests/retained_k4/o4_product_tests.rs"
+   "../../../../tests/retained_k4/o4_product_tests.rs",
+   "test-item"
   ],
   [
    "core/solver/frame_kernel/src/structural/retained/product_certificate/final_case.rs",
-   "../../../../tests/retained_k4/product_final_case_tests.rs"
+   "../../../../tests/retained_k4/product_final_case_tests.rs",
+   "test-item"
   ],
   [
    "core/solver/frame_kernel/src/structural/retained/product_certificate/loaded_maximum.rs",
-   "../../../../tests/retained_k4/loaded_maximum_tests.rs"
+   "../../../../tests/retained_k4/loaded_maximum_tests.rs",
+   "test-item"
   ],
   [
    "core/solver/frame_kernel/src/structural/retained/product_certificate/source_residual.rs",
-   "../../../../tests/retained_k4/member_lane_tests.rs"
+   "../../../../tests/retained_k4/member_lane_tests.rs",
+   "test-item"
   ],
   [
    "core/solver/frame_kernel/src/structural/retained/recover.rs",
-   "../../../tests/retained_k4/recover_tests.rs"
+   "../../../tests/retained_k4/recover_tests.rs",
+   "test-item"
   ],
   [
    "core/solver/frame_kernel/src/structural/retained/source.rs",
-   "../../../tests/retained_k4/source_tests.rs"
+   "../../../tests/retained_k4/source_tests.rs",
+   "test-item"
   ],
   [
    "core/solver/frame_kernel/src/structural/retained/verify.rs",
-   "../../../tests/retained_k4/verify_tests.rs"
+   "../../../tests/retained_k4/verify_tests.rs",
+   "test-item"
   ],
   [
    "core/solver/frame_kernel/src/structural/retained/wide.rs",
-   "../../../tests/retained_wide/wide_tests.rs"
+   "../../../tests/retained_wide/wide_tests.rs",
+   "test-item"
   ],
   [
    "core/solver/frame_kernel/src/structural/retained/wide/multi.rs",
-   "../../../../tests/retained_wide_k3/k3_tests.rs"
+   "../../../../tests/retained_wide_k3/k3_tests.rs",
+   "test-item"
   ],
   [
    "core/solver/frame_kernel/src/structural/retained/wide_sum.rs",
-   "../../../tests/retained_k4/wide_sum_tests.rs"
+   "../../../tests/retained_k4/wide_sum_tests.rs",
+   "test-item"
   ],
   [
    "core/solver/frame_kernel/src/structural/retained/work.rs",
-   "../../../tests/retained_k4/work_tests.rs"
+   "../../../tests/retained_k4/work_tests.rs",
+   "test-item"
   ],
   [
    "core/solver/frame_kernel/tests/retained_k4/adaptive_tests.rs",
-   "models.rs"
+   "models.rs",
+   "test-file"
   ],
   [
    "core/solver/frame_kernel/tests/retained_k4/adaptive_tests.rs",
-   "support.rs"
+   "support.rs",
+   "test-file"
   ],
   [
    "core/solver/frame_kernel/tests/retained_k4/assemble_tests.rs",
-   "models.rs"
+   "models.rs",
+   "test-file"
   ],
   [
    "core/solver/frame_kernel/tests/retained_k4/assemble_tests.rs",
-   "support.rs"
+   "support.rs",
+   "test-file"
   ],
   [
    "core/solver/frame_kernel/tests/retained_k4/bound_tests.rs",
-   "support.rs"
+   "support.rs",
+   "test-file"
   ],
   [
    "core/solver/frame_kernel/tests/retained_k4/certificate_arithmetic_tests.rs",
-   "certificate_arithmetic_vectors.rs"
+   "certificate_arithmetic_vectors.rs",
+   "test-file"
   ],
   [
    "core/solver/frame_kernel/tests/retained_k4/classification_tests.rs",
-   "models.rs"
+   "models.rs",
+   "test-file"
   ],
   [
    "core/solver/frame_kernel/tests/retained_k4/classification_tests.rs",
-   "support.rs"
+   "support.rs",
+   "test-file"
   ],
   [
    "core/solver/frame_kernel/tests/retained_k4/combine_tests.rs",
-   "models.rs"
+   "models.rs",
+   "test-file"
   ],
   [
    "core/solver/frame_kernel/tests/retained_k4/combine_tests.rs",
-   "support.rs"
+   "support.rs",
+   "test-file"
   ],
   [
    "core/solver/frame_kernel/tests/retained_k4/directed_tests.rs",
-   "support.rs"
+   "support.rs",
+   "test-file"
   ],
   [
    "core/solver/frame_kernel/tests/retained_k4/factor_tests.rs",
-   "models.rs"
+   "models.rs",
+   "test-file"
   ],
   [
    "core/solver/frame_kernel/tests/retained_k4/factor_tests.rs",
-   "support.rs"
+   "support.rs",
+   "test-file"
   ],
   [
    "core/solver/frame_kernel/tests/retained_k4/kf1_tracker_tests.rs",
-   "models.rs"
+   "models.rs",
+   "test-file"
   ],
   [
    "core/solver/frame_kernel/tests/retained_k4/kf3_tests.rs",
-   "support.rs"
+   "support.rs",
+   "test-file"
   ],
   [
    "core/solver/frame_kernel/tests/retained_k4/ledger_tests.rs",
-   "models.rs"
+   "models.rs",
+   "test-file"
   ],
   [
    "core/solver/frame_kernel/tests/retained_k4/ledger_tests.rs",
-   "support.rs"
+   "support.rs",
+   "test-file"
   ],
   [
    "core/solver/frame_kernel/tests/retained_k4/member_lane_tests.rs",
-   "source_residual_vectors.rs"
+   "source_residual_vectors.rs",
+   "test-file"
   ],
   [
    "core/solver/frame_kernel/tests/retained_k4/member_load_tests.rs",
-   "support.rs"
+   "support.rs",
+   "test-file"
   ],
   [
    "core/solver/frame_kernel/tests/retained_k4/method_tests.rs",
-   "models.rs"
+   "models.rs",
+   "test-file"
   ],
   [
    "core/solver/frame_kernel/tests/retained_k4/method_tests.rs",
-   "support.rs"
+   "support.rs",
+   "test-file"
   ],
   [
    "core/solver/frame_kernel/tests/retained_k4/origins_tests.rs",
-   "models.rs"
+   "models.rs",
+   "test-file"
   ],
   [
    "core/solver/frame_kernel/tests/retained_k4/product_certificate_tests.rs",
-   "product_certificate_vectors.rs"
+   "product_certificate_vectors.rs",
+   "test-file"
   ],
   [
    "core/solver/frame_kernel/tests/retained_k4/product_final_case_tests.rs",
-   "product_certificate_combination_vectors.rs"
+   "product_certificate_combination_vectors.rs",
+   "test-file"
   ],
   [
    "core/solver/frame_kernel/tests/retained_k4/recover_tests.rs",
-   "models.rs"
+   "models.rs",
+   "test-file"
   ],
   [
    "core/solver/frame_kernel/tests/retained_k4/recover_tests.rs",
-   "support.rs"
+   "support.rs",
+   "test-file"
   ],
   [
    "core/solver/frame_kernel/tests/retained_k4/references_tests.rs",
-   "models.rs"
+   "models.rs",
+   "test-file"
   ],
   [
    "core/solver/frame_kernel/tests/retained_k4/references_tests.rs",
-   "support.rs"
+   "support.rs",
+   "test-file"
   ],
   [
    "core/solver/frame_kernel/tests/retained_k4/scale_tests.rs",
-   "models.rs"
+   "models.rs",
+   "test-file"
   ],
   [
    "core/solver/frame_kernel/tests/retained_k4/scale_tests.rs",
-   "support.rs"
+   "support.rs",
+   "test-file"
   ],
   [
    "core/solver/frame_kernel/tests/retained_k4/source_bridge_tests.rs",
-   "source_bridge_vectors.rs"
+   "source_bridge_vectors.rs",
+   "test-file"
   ],
   [
    "core/solver/frame_kernel/tests/retained_k4/source_residual_tests.rs",
-   "source_residual_vectors.rs"
+   "source_residual_vectors.rs",
+   "test-file"
   ],
   [
    "core/solver/frame_kernel/tests/retained_k4/timoshenko_tests.rs",
-   "models.rs"
+   "models.rs",
+   "test-file"
   ],
   [
    "core/solver/frame_kernel/tests/retained_k4/timoshenko_tests.rs",
-   "support.rs"
+   "support.rs",
+   "test-file"
   ],
   [
    "core/solver/frame_kernel/tests/retained_k4/verify_tests.rs",
-   "support.rs"
+   "support.rs",
+   "test-file"
   ],
   [
    "core/solver/frame_kernel/tests/retained_k4/wide_sum_tests.rs",
-   "support.rs"
+   "support.rs",
+   "test-file"
+  ]
+ ],
+ "include": [
+  [
+   "core/product_physics/build.rs",
+   "<item>",
+   "include!(\"src/build_identity.rs\");",
+   "core/product_physics/src/build_identity.rs"
   ]
  ]
 }

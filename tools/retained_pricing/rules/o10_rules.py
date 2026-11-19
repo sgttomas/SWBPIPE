@@ -5433,17 +5433,67 @@ if fnkey("prepare_modal", _MODAL + "prepare.rs"):
             # bound here. Each reviewed test module is declared exactly once in its parent, as `#[cfg(test)] mod name`
             # (a file module `;` or an inline module `{`), and every inventoried test entry of an inline module lies
             # inside it. A file module can also be compiled under another name through `#[path]`. So every `#[path]` in
-            # the files read, and in the files those attributes bring in, must be a plain `#[path = "<literal>"]` whose
-            # literal does not name a reviewed test file (by file name, so no module nesting reaches one); a `cfg_attr`
-            # that sets a path stops. Each target is resolved against its declaring file's directory. A target outside
-            # the walked crates (the crates' tests/ helpers, one benchmark source) is a reviewed entry ('path_outside':
-            # declaring file and literal), and the censuses below read it too, with what it brings in. So no file a
-            # `#[path]` compiles into these crates is unread, and a new `#[path]` inside the walked crates (main
-            # e0e3e3c7's certificate modules) passes because the censuses already read its target.
+            # the files read, and in the files those attributes bring in, found by token, must be a plain
+            # `#[path = "<literal>"]` whose literal does not name a reviewed test file (by file name, so no module
+            # nesting reaches one); a `cfg_attr` that sets a path stops. Each target is resolved against its declaring
+            # file's directory. A target that is not a .rs file of the walked set (outside the crates' src, or not .rs)
+            # is a reviewed entry ('path_outside': declaring file, literal, ground) or the run stops, by the census
+            # below. The censuses read every such target, with what it brings in, where the snapshot has it. Each entry
+            # carries the ground it has in this run, so a declaration that moves from one ground to another changes its
+            # record and stops:
+            # - test-file: the graph's own file filter (base/callgraph_g5.py, its two lines pinned below) leaves the
+            #   declaring file out: a tests, benches, bin or target directory, or a file name holding `test`;
+            # - test-module: the declaring file is a module with exactly one declaration in the files read, a
+            #   `#[path]` item whose own attributes include `#[cfg(test)]`, in a parent that spells `mod <stem>` once
+            #   (j7_rf_census.rs and j7_t4_consequences.rs, both declared so in source_recovery.rs; J3 and J2 check
+            #   those two declarations by text, and stop first when either loses its #[cfg(test)]);
+            # - test-item: the `#[path]` item's own attributes include exactly `#[cfg(test)]` (any other gate is not);
+            # - hash: none of these, so the entry carries the SHA-256 of its target, and a change or absence stops.
+            # The first three rest on the registered build not compiling test code, and on the censuses reading the
+            # file; they do not bind the target's bytes.
             _CS_ST_FILES = sorted(set(_cs_walk([PP_])) | set(_cs_walk(["core/solver/modal_eigen/src/"])))
             _cs_walked = set(_CS_GRAPH_FILES) | set(_CS_ST_FILES)
             _cs_tfiles = {_os.path.join(_p[:-3], _n + ".rs") for _p, _n, _form in _cs_inv["test_modules"] if _form == "file"}
-            _cs_outside, _cs_brought, _cs_todo = [], set(), sorted(_cs_walked)
+            _cs_cg = open(_os.path.join(_os.path.dirname(_os.path.abspath(__file__)), "..", "base", "callgraph_g5.py"), encoding="utf-8").read()
+            if _cs_cg.count('            if "/target" in d or "/tests" in d or "/benches" in d or "/bin" in d and "src/bin" in d:\n') != 1 \
+                    or _cs_cg.count('                if f.endswith(".rs") and "test" not in f and ') != 1:
+                raise SystemExit("MODAL-CS-TM: the call graph's file filter changed; re-review the test-file ground (§8.63)")
+            _cs_graph_out = lambda f: ("/target" in "/" + _os.path.dirname(f) or "/tests" in "/" + _os.path.dirname(f)
+                                       or "/benches" in "/" + _os.path.dirname(f)
+                                       or "/bin" in "/" + _os.path.dirname(f) and "src/bin" in "/" + _os.path.dirname(f)
+                                       or "test" in _os.path.basename(f))
+
+            def _cs_attrs(code, at):
+                # The attribute run of the item whose attribute starts at `at`: every `#[..]` before and after it up to
+                # the item, each with whitespace removed (code only, so comments are already blank).
+                _out, _j = [], at
+                while True:
+                    _k = len(code[:_j].rstrip())
+                    if _k == 0 or code[_k - 1] != "]":
+                        break
+                    _d, _i = 0, _k - 1
+                    while _i >= 0:
+                        _d += code[_i] == "]"
+                        _d -= code[_i] == "["
+                        if _d == 0:
+                            break
+                        _i -= 1
+                    _h = len(code[:_i].rstrip())
+                    if _h == 0 or code[_h - 1] != "#":
+                        break
+                    _out.append("".join(code[_h - 1:_k].split()))
+                    _j = _h - 1
+                _j = at
+                while True:
+                    _g = _re.match(r"\s*#\s*\[", code[_j:])
+                    if not _g:
+                        break
+                    _end = _cs_close(code, _j + _g.end() - 1)
+                    _out.append("".join(code[_j:_end].split()))
+                    _j = _end
+                return _out, _j
+
+            _cs_decls, _cs_brought, _cs_todo = [], set(), sorted(_cs_walked)
             while _cs_todo:
                 _f = _cs_todo.pop()
                 if not _os.path.isfile(_os.path.join(_SNAP, _f)):
@@ -5453,19 +5503,70 @@ if fnkey("prepare_modal", _MODAL + "prepare.rs"):
                 for _m in _re.finditer(r"\bcfg_attr\s*\(", _code):
                     if _re.search(r"\bpath\s*=", _code[_m.end():_cs_close(_code, _m.end() - 1)]):
                         raise SystemExit(f"MODAL-CS-TM: {_f} sets a module path through cfg_attr; re-review (§8.63)")
-                for _m in _re.finditer(r"#\[\s*path\b", _code):
-                    _p = _re.match(r'#\[\s*path\s*=\s*"([^"\\]*)"\s*\]', _raw[_m.start():])
+                # By token in code (comments and literals blanked, so any spacing or comment between `#`, `[`, `path`
+                # and `=` is whitespace here); the literal is then read from the raw text at that offset, and must be a
+                # plain string closed by `]`.
+                for _m in _re.finditer(r"#\s*!?\s*\[\s*path\b", _code):
+                    _q = _re.match(r"\s*=", _code[_m.end():])
+                    _a = _m.end() + (_q.end() if _q else 0)
+                    # The literal is blanked in code: step over blanks until the raw text starts something (a literal's
+                    # first character, or a comment's, which then fails as not a plain literal).
+                    while _q and _a < len(_code) and _code[_a].isspace() and _raw[_a].isspace():
+                        _a += 1
+                    _p = _re.match(r'"([^"\\]*)"', _raw[_a:]) if _q else None
+                    if _p and not _re.match(r"\s*\]", _code[_a + _p.end():]):
+                        _p = None
                     _t = _os.path.normpath(_os.path.join(_os.path.dirname(_f), _p.group(1))) if _p else None
                     if not _p or _t in _cs_tfiles or _os.path.basename(_t) in {_os.path.basename(_x) for _x in _cs_tfiles}:
                         raise SystemExit(f"MODAL-CS-TM: {_f}'s `{_raw[_m.start():_raw.find(chr(10), _m.start())]}` names a "
                                          f"reviewed test file or is not a plain literal; re-review (§8.63)")
-                    if _t not in _cs_walked:
-                        _cs_outside.append([_f, _p.group(1)])
-                        if _t not in _cs_brought:
-                            _cs_brought.add(_t)
-                            _cs_todo.append(_t)
+                    _run, _item = _cs_attrs(_code, _m.start())
+                    _cs_decls.append((_f, _p.group(1), _t, "#[cfg(test)]" in _run))
+                    if _t not in _cs_walked and _t not in _cs_brought:
+                        _cs_brought.add(_t)
+                        _cs_todo.append(_t)
+            _cs_outside = []
+            for _f, _lit, _t, _gated in _cs_decls:
+                if _t in _cs_walked:
+                    continue
+                _own = [_x for _x in _cs_decls if _x[2] == _f]
+                _stem = _os.path.basename(_f)[:-3]
+                if _cs_graph_out(_f):
+                    _cs_outside.append([_f, _lit, "test-file"])
+                elif len(_own) == 1 and _own[0][3] and len(_re.findall(r"\bmod\s+" + _stem + r"\b", _cs_code(_text_of(_own[0][0]), _own[0][0]))) == 1:
+                    _cs_outside.append([_f, _lit, "test-module"])
+                elif _gated:
+                    _cs_outside.append([_f, _lit, "test-item"])
+                else:
+                    _tp = _os.path.join(_SNAP, _t)
+                    _cs_outside.append([_f, _lit, "hash", _modal_hashlib.sha256(open(_tp, "rb").read()).hexdigest()
+                                        if _os.path.isfile(_tp) else None])
             _cs_census("MODAL-CS-TM", _cs_outside, _cs_inv["path_outside"])
             _cs_brought = sorted(_f for _f in _cs_brought if _os.path.isfile(_os.path.join(_SNAP, _f)))
+            # `include!` compiles another file's text in place. Every `include!` (by token, in code) in the .rs files
+            # under the scanned crates' directories (their src, build scripts, tests and benches; not a `target` build
+            # directory) and in the files `#[path]` brings in is a reviewed inventory ('include': file, enclosing fn,
+            # line, and the target, resolved against the including file's directory): today one, product physics'
+            # build.rs line 17, including src/build_identity.rs. Any other stops. The ground for an entry is that its
+            # target is walked: the run stops unless the target is a plain literal naming a .rs file of the walked set
+            # (src/build_identity.rs is, and retained_memory.rs also declares it as a module by #[path]).
+            _cs_roots = sorted({_os.path.dirname(_c.rstrip("/")) for _c in
+                                _cs_ns["chain_crates"](_os.path.join(_os.path.dirname(_os.path.abspath(__file__)), "..", "base"), _SNAP)[0]
+                                + ["core/solver/modal_eigen/src"]})
+            _cs_crate_files = []
+            for _root in _cs_roots:
+                for _d, _ds, _ns in _os.walk(_os.path.join(_SNAP, _root)):
+                    if _os.path.relpath(_d, _SNAP) == _root:
+                        _ds[:] = [_x for _x in _ds if _x != "target"]
+                    _cs_crate_files += [_os.path.relpath(_os.path.join(_d, _n), _SNAP) for _n in _ns if _n.endswith(".rs")]
+            _cs_inc = []
+            for _f, _encl, _line in _cs_mentions(sorted(set(_cs_crate_files) | set(_cs_brought)), r"\binclude\s*!\s*[(\[{]"):
+                _p = _re.search(r'\binclude\s*!\s*\(\s*"([^"\\]*)"\s*\)', _line)
+                _t = _os.path.normpath(_os.path.join(_os.path.dirname(_f), _p.group(1))) if _p else None
+                if _t not in _cs_walked:
+                    raise SystemExit(f"MODAL-CS-TM: {_f}'s `{_line}` does not include a .rs file of the walked set; re-review (§8.63)")
+                _cs_inc.append([_f, _encl, _line, _t])
+            _cs_census("MODAL-CS-TM", _cs_inc, _cs_inv["include"])
             _cs_test_spans = {}
             for _parent, _name, _form in _cs_inv["test_modules"]:
                 _code = _cs_code(_text_of(_parent), _parent)
@@ -5483,6 +5584,21 @@ if fnkey("prepare_modal", _MODAL + "prepare.rs"):
             # enclosing function's own `structure` parameter; every such forwarding function is body-pinned below, so the
             # origin of a forwarded value cannot change unread. The bound is the longest constant a production site
             # passes. Test sites are inventoried and not priced.
+            # What this establishes is two-tier. Where storage originates (modal_quantities.rs, and resource.rs above),
+            # the file is pinned whole, so what was read there holds byte for byte. Elsewhere (outcome.rs, skew_pencil.rs)
+            # the inventory binds each request site's text and its argument's spelling, and the constant is looked up by
+            # that spelling in the files read: a reading of the source, not a resolution of Rust names (an alias, a
+            # shadowing binding, a glob import or a macro is not resolved). The 35-byte bound below is that reading.
+            # modal_quantities.rs, read whole at review: ShapeStorageError, two variants each with a `structure:
+            # &'static str`, its structure() accessor and Display; the ShapeStorage trait and FallibleStorage's impl;
+            # reserve_exactly and requested_bytes, which forward `structure`; the six all-literal structure constants
+            # (lines 243-248, the longest `cumulative effective-mass fractions`, 35 B); and the six production requests,
+            # each naming one of them. It has no alias or glob import of the error or its variants, no macro and no other
+            # `structure` binding outside its #[cfg(test)] module.
+            _MQ = "core/solver/modal_eigen/src/modal_quantities.rs"
+            _mq_digest = _modal_hashlib.sha256(_text_of(_MQ).encode()).hexdigest()
+            if _mq_digest != "b8d4cbdc37b56b9359c2b8a6aa593ea8829fcd94de597f6a7e00dfc7364070f3":
+                raise SystemExit(f"MODAL-CS-ST: {_MQ} changed ({_mq_digest}); re-review its storage requests and re-pin (§8.63)")
             _cs_req = {"modal_shape_reserve": 2, "modal_completed_set_rows": 1, "modal_completed_set_format": 0,
                        "modal_completed_set_copy_text": 1, "modal_completed_set_text_room": 1, "reserve_exactly": 2,
                        "requested_bytes": 2}
@@ -5569,7 +5685,6 @@ if fnkey("prepare_modal", _MODAL + "prepare.rs"):
                     raise SystemExit(f"MODAL-CS-ST: {_f}:{_encl}'s structure `{_arg}` is not a named literal constant; re-review (§8.63)")
             # The forwarders, each body-pinned. Read at review: each takes `structure: &'static str` as a parameter and
             # passes that binding, unchanged, to a request or a ShapeStorageError field, and binds no other `structure`.
-            _MQ = "core/solver/modal_eigen/src/modal_quantities.rs"
             _CS_FWD_PINS = {
                 # ModalCompletedSetStorage (resource.rs, also pinned whole): rows passes it to its own reserve; the
                 # ShapeStorage impl to requested_bytes and reserve_exactly (and the test-only failpoint); text room to
@@ -5707,37 +5822,44 @@ if fnkey("prepare_modal", _MODAL + "prepare.rs"):
                 site("the_completed_count_is_the_actual_set_not_the_requested_count", _TRS, 'format!("{none:?}")'),
                 site("each_completed_set_request_refuses_by_name_at_the_entry", _TRS, 'let plain = format!("{unlimited:?}");'))]
             # MODAL-CS-M0 (B7b-JR, with exact row counts): every TEXT row of the appended boundary (each line after
-            # "// The completed-set boundary" holding a `format!(` or `diag(` in code), every TEXT row of the dense
-            # body (run_modal_dense_within) and the five audited test rows must stay at multiplicity 0. Each key also
-            # binds its exact row count (O10_MULT0_ROWS; resource.rs 1402 and 1422 hold two `format!` each), so the
-            # loss of one row on a shared line stops o10_check.py as a missing row does. The dense body is not pinned,
-            # so its TEXT rows are counted here and bound exactly: the three moved sites and the two cluster refusals.
-            # A future retained entry into the boundary needs its own derivation.
-            _CS_TEXT_RX = r"\b(?:format|format_args|write|writeln)!\s*\(|\bdiag\("
+            # "// The completed-set boundary"), every TEXT row of the dense body (run_modal_dense_within) and the five
+            # audited test rows must stay at multiplicity 0. Each key also binds its exact row count (O10_MULT0_ROWS;
+            # resource.rs 1402 and 1422 hold two rows each), so the loss of one row on a shared line stops o10_check.py
+            # as a missing row does. The rows are the template scanner's own (base/template_inventory.py, the scan whose
+            # output the pricing reads as TEXT rows), run here on resource.rs and outcome.rs, so the counts bound here and
+            # the rows priced are one extraction and cannot disagree. The dense body is not pinned, so its rows are bound
+            # exactly: the three moved sites and the two cluster refusals. A future retained entry into the boundary needs
+            # its own derivation.
+            _OUT = _MODAL + "outcome.rs"
+            _cs_ti = __import__("subprocess").run(
+                [__import__("sys").executable, _os.path.join(_os.path.dirname(_os.path.abspath(__file__)), "..", "base", "template_inventory.py"),
+                 _SNAP, _RS, _OUT], capture_output=True, text=True)
+            if _cs_ti.returncode:
+                raise SystemExit(f"MODAL-CS-M0: the template scanner failed: {_cs_ti.stderr[-400:]}")
+            _cs_ti_rows = __import__("json").loads(_cs_ti.stdout)["rows"]
             _cs_rows = {}
             _cs_lines = _rs_text.split("\n")
             _cs_from = [_i for _i, _l in enumerate(_cs_lines) if _l == "// The completed-set boundary (module docs, \"The completed-set boundary\")."]
             if len(_cs_from) != 1:
                 raise SystemExit("MODAL-CS-M0: the boundary's marker is not unique; re-review (§8.63)")
             _cs_seam = next(_i for _i, _l in enumerate(_cs_lines) if _l == "pub(crate) mod completed_set_seam {")
-            _cs_rs_code = _cs_code(_rs_text, _RS).split("\n")
-            for _i in range(_cs_from[0], _cs_seam):
-                _n = len(_re.findall(_CS_TEXT_RX, _cs_rs_code[_i]))
-                if _n:
-                    _cs_rows[f"modal/resource.rs:{_i + 1}"] = _n
+            for _r in _cs_ti_rows:
+                if _r["file"] == _RS and _cs_from[0] < _r["line"] <= _cs_seam:
+                    _cs_rows[f"modal/resource.rs:{_r['line']}"] = _cs_rows.get(f"modal/resource.rs:{_r['line']}", 0) + 1
             for _k, _ in _CS_AUDITS:
                 if "tests_resource" in str(_k):
                     _cs_rows[str(_k).split("/src/")[-1]] = 1
-            _OUT = _MODAL + "outcome.rs"
             _out_text = _text_of(_OUT)
             _out_code = _cs_code(_out_text, _OUT)
             _out_span = [(_s, _e) for _n, _s, _e in _cs_fn_spans(_out_code) if _n == "run_modal_dense_within"]
             if len(_out_span) != 1:
                 raise SystemExit("MODAL-CS-M0: run_modal_dense_within is not one bodied fn; re-review (§8.63)")
+            _cs_l0 = _out_code.count("\n", 0, _out_span[0][0]) + 1
+            _cs_l1 = _out_code.count("\n", 0, _out_span[0][1]) + 1
             _cs_dense = {}
-            for _m in _re.finditer(_CS_TEXT_RX, _out_code[_out_span[0][0]:_out_span[0][1]]):
-                _line = _out_code.count("\n", 0, _out_span[0][0] + _m.start()) + 1
-                _cs_dense[f"modal/outcome.rs:{_line}"] = _cs_dense.get(f"modal/outcome.rs:{_line}", 0) + 1
+            for _r in _cs_ti_rows:
+                if _r["file"] == _OUT and _cs_l0 <= _r["line"] <= _cs_l1:
+                    _cs_dense[f"modal/outcome.rs:{_r['line']}"] = _cs_dense.get(f"modal/outcome.rs:{_r['line']}", 0) + 1
             _cs_moved = {str(site(_RMD, _OUT, _t, row=_RMD_ROW)) for _t in (
                 '"mode {}: residual backward error η = {:e} exceeds τ_r = {:e}",', "orthogonality.pair.map(|(a, b)| (a + 1, b + 1)),",
                 "has a first-order eigenvalue error estimate")}
