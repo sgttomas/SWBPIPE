@@ -1,0 +1,31 @@
+{
+  "directional_combination": "100-40-40",
+  "directions": [
+    {
+      "direction": "X",
+      "scale_factor": 1.0,
+      "spectrum": "S-LL"
+    },
+    {
+      "direction": "Y",
+      "scale_factor": 1.0,
+      "spectrum": "S-GG"
+    },
+    {
+      "direction": "Z",
+      "scale_factor": 0.75,
+      "spectrum": "S-PLG"
+    }
+  ],
+  "document_kind": "openpipestress.spectrum_request",
+  "missing_mass": {
+    "applied": true,
+    "rigid_combination": "ABSOLUTE_SUM",
+    "rigid_frequency": {
+      "unit": "Hz",
+      "value": 70.0
+    }
+  },
+  "modal_combination": "GROUPING",
+  "schema_version": "0.1.0"
+}

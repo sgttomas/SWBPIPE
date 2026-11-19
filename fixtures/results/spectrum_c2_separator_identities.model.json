@@ -1,0 +1,193 @@
+{
+  "combinations": [],
+  "components": [],
+  "document_kind": "openpipestress.product_preview.model",
+  "load_cases": [],
+  "materials": [
+    {
+      "elastic_modulus": {
+        "unit": "Pa",
+        "value": 200000000000.0
+      },
+      "id": "steel",
+      "provenance": "stand-in: discrete C2-GROUND-SPRING, every entity renamed",
+      "shear_modulus": {
+        "unit": "Pa",
+        "value": 78125000000.0
+      }
+    }
+  ],
+  "nodes": [
+    {
+      "id": "N1.ux: anchor node",
+      "position": {
+        "x": 0.0,
+        "y": 0.0,
+        "z": 0.0
+      },
+      "provenance": "stand-in: discrete C2-GROUND-SPRING, every entity renamed"
+    },
+    {
+      "id": "N2 .i.Fx_m",
+      "position": {
+        "x": 2.0,
+        "y": 0.0,
+        "z": 0.0
+      },
+      "provenance": "stand-in: discrete C2-GROUND-SPRING, every entity renamed"
+    },
+    {
+      "id": "node:N3.uy_m tip",
+      "position": {
+        "x": 4.0,
+        "y": 0.0,
+        "z": 0.0
+      },
+      "provenance": "stand-in: discrete C2-GROUND-SPRING, every entity renamed"
+    }
+  ],
+  "pipe_segments": [
+    {
+      "from": "N1.ux: anchor node",
+      "id": "P1.i.Fx_m",
+      "material": "steel",
+      "provenance": "stand-in: discrete C2-GROUND-SPRING, every entity renamed",
+      "section": {
+        "material_density": {
+          "unit": "kg/m^3",
+          "value": 7850.0
+        },
+        "outside_diameter": {
+          "unit": "m",
+          "value": 0.21875
+        },
+        "wall_thickness": {
+          "unit": "m",
+          "value": 0.0078125
+        }
+      },
+      "to": "N2 .i.Fx_m",
+      "y_reference": {
+        "x": 0.0,
+        "y": 0.0,
+        "z": 1.0
+      }
+    },
+    {
+      "from": "N2 .i.Fx_m",
+      "id": "pipe: P2.j.Mz_m",
+      "material": "steel",
+      "provenance": "stand-in: discrete C2-GROUND-SPRING, every entity renamed",
+      "section": {
+        "material_density": {
+          "unit": "kg/m^3",
+          "value": 7850.0
+        },
+        "outside_diameter": {
+          "unit": "m",
+          "value": 0.21875
+        },
+        "wall_thickness": {
+          "unit": "m",
+          "value": 0.0078125
+        }
+      },
+      "to": "node:N3.uy_m tip",
+      "y_reference": {
+        "x": 0.0,
+        "y": 0.0,
+        "z": 1.0
+      }
+    }
+  ],
+  "project": {
+    "id": "project:spectrum-c2-separators",
+    "units": {
+      "angle": "rad",
+      "force": "N",
+      "length": "m",
+      "pressure": "Pa",
+      "stress": "Pa",
+      "temperature": "degC"
+    }
+  },
+  "schema_version": "0.9.0",
+  "spectra": [
+    {
+      "abscissa": "frequency",
+      "damping_ratio": 0.05,
+      "id": "S-GG",
+      "interpolation": {
+        "abscissa": "log",
+        "ordinate": "log"
+      },
+      "ordinate": "acceleration",
+      "points": [
+        [
+          0.5,
+          1
+        ],
+        [
+          3,
+          4.5
+        ],
+        [
+          9,
+          10.25
+        ],
+        [
+          20,
+          9
+        ],
+        [
+          50,
+          5.5
+        ],
+        [
+          160,
+          3.75
+        ],
+        [
+          1000,
+          3.25
+        ]
+      ],
+      "units": {
+        "abscissa": "Hz",
+        "ordinate": "m/s^2"
+      }
+    }
+  ],
+  "supports": [
+    {
+      "family": "anchor",
+      "id": "A1.Fx: anchor_m",
+      "node": "N1.ux: anchor node",
+      "provenance": "stand-in: discrete C2-GROUND-SPRING, every entity renamed",
+      "restraints": [
+        "UX",
+        "UY",
+        "UZ",
+        "RX",
+        "RY",
+        "RZ"
+      ]
+    },
+    {
+      "family": "spring",
+      "id": "S1.UY spring: 1",
+      "node": "node:N3.uy_m tip",
+      "provenance": "stand-in: discrete C2-GROUND-SPRING, every entity renamed",
+      "restraints": [
+        "UY"
+      ],
+      "stiffness": {
+        "dof": "UY",
+        "value": {
+          "unit": "N/m",
+          "value": 262144
+        }
+      }
+    }
+  ]
+}

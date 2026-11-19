@@ -1,0 +1,26 @@
+{
+  "directional_combination": "ABSOLUTE_SUM",
+  "directions": [
+    {
+      "direction": "Y",
+      "scale_factor": 1.0,
+      "spectrum": "S-C8-TRUNC"
+    },
+    {
+      "direction": "Z",
+      "scale_factor": 1.0,
+      "spectrum": "S-C8-TRUNC"
+    }
+  ],
+  "document_kind": "openpipestress.spectrum_request",
+  "missing_mass": {
+    "applied": true,
+    "rigid_combination": "ABSOLUTE_SUM",
+    "rigid_frequency": {
+      "unit": "Hz",
+      "value": 1.25
+    }
+  },
+  "modal_combination": "ABSOLUTE_SUM",
+  "schema_version": "0.1.0"
+}

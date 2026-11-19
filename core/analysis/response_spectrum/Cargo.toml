@@ -14,7 +14,12 @@ path = "src/lib.rs"
 # request; serde_json's float_roundtrip parses each authored decimal to its
 # nearest binary64, so the exact range and knot comparisons see the value the
 # user wrote. Cargo.lock pins the versions the product already uses.
+#
+# The spectrum result document (`document`) hashes in the checked canonical profile every result
+# family uses, with SHA-256, as the modal result document does.
 [dependencies]
+open_pipe_stress_canonical_json = { path = "../../serialization/canonical_json" }
 open_pipe_stress_units = { path = "../../units" }
 serde = { version = "1", features = ["derive"] }
 serde_json = { version = "1", features = ["float_roundtrip"] }
+sha2 = "0.10"

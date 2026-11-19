@@ -15,6 +15,6 @@
       "object": "Z"
     }
   ],
-  "schema": "openpipestress.spectrum_combination.output/v1",
+  "schema": "openpipestress.spectrum_combination.output/v2",
   "statement": "Unsigned combined magnitudes formed by the stated modal, rigid-response and directional combination rules from the supplied signed contributions, summing the modes of each supplied cluster with their signs first. Under an absolute-sum rule a magnitude is the sum of the magnitudes it combines. The contributions and their modal metadata are inputs to this unit; it forms no modal response, solves no eigenproblem or rigid response, and is not a response-spectrum analysis result. It establishes neither physical correctness nor code compliance."
 }

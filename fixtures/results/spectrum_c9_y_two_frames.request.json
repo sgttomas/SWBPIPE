@@ -1,0 +1,16 @@
+{
+  "directional_combination": "SRSS",
+  "directions": [
+    {
+      "direction": "Y",
+      "scale_factor": 1.0,
+      "spectrum": "S-C9-FLAT"
+    }
+  ],
+  "document_kind": "openpipestress.spectrum_request",
+  "missing_mass": {
+    "applied": false
+  },
+  "modal_combination": "CQC",
+  "schema_version": "0.1.0"
+}

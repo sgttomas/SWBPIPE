@@ -1,0 +1,21 @@
+{
+  "directional_combination": "SRSS",
+  "directions": [
+    {
+      "direction": "Y",
+      "scale_factor": 1.0,
+      "spectrum": "S-LL"
+    },
+    {
+      "direction": "Z",
+      "scale_factor": 0.5,
+      "spectrum": "S-LL"
+    }
+  ],
+  "document_kind": "openpipestress.spectrum_request",
+  "missing_mass": {
+    "applied": false
+  },
+  "modal_combination": "SRSS",
+  "schema_version": "0.1.0"
+}

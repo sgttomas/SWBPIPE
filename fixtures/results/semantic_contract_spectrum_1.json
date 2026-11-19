@@ -1,0 +1,4579 @@
+{
+  "canonical_profile": "openpipestress_jcs_ijson_v1",
+  "document_kind": "openpipestress.spectrum_result",
+  "document_shape": {
+    "null_rules": [
+      {
+        "rule": "never",
+        "statement": "The member is never null."
+      },
+      {
+        "rule": "always",
+        "statement": "The member is always null."
+      },
+      {
+        "rule": "permitted",
+        "statement": "The member may be null."
+      },
+      {
+        "rule": "refused_only",
+        "statement": "The member may be null only in a document whose status is refused."
+      },
+      {
+        "rule": "correction_not_applied",
+        "statement": "The member is null exactly when /request/missing_mass/applied is false."
+      },
+      {
+        "rule": "modal_rule_not_cqc",
+        "statement": "The member is null exactly when /request/modal_combination is not CQC."
+      },
+      {
+        "rule": "modal_rule_not_grouping",
+        "statement": "The member is null exactly when /request/modal_combination is not GROUPING."
+      },
+      {
+        "rule": "modal_rule_not_ten_percent",
+        "statement": "The member is null exactly when /request/modal_combination is not TEN_PERCENT."
+      },
+      {
+        "rule": "modal_rule_not_grouping_or_ten_percent",
+        "statement": "The member is null exactly when /request/modal_combination is neither GROUPING nor TEN_PERCENT."
+      },
+      {
+        "rule": "directional_rule_not_100_40_40",
+        "statement": "The member is null exactly when /request/directional_combination is not 100-40-40."
+      },
+      {
+        "rule": "binding_not_applicable",
+        "statement": "The member is null exactly when /modal_result/binding is not_applicable."
+      },
+      {
+        "rule": "binding_bound",
+        "statement": "The member is null exactly when /modal_result/binding is bound."
+      },
+      {
+        "rule": "origin_spectrum_solve",
+        "statement": "The member is null exactly when /origin/kind is spectrum_solve."
+      },
+      {
+        "rule": "endpoint_whole_finite_spectrum",
+        "statement": "The member is null exactly when /modal_basis/extraction/endpoint is whole_finite_spectrum."
+      },
+      {
+        "rule": "no_cluster",
+        "statement": "The member is null exactly when /modal_basis/clusters has no rows."
+      },
+      {
+        "rule": "undefined_reason_stated",
+        "statement": "In a value object: value is null exactly when undefined_reason is not null; undefined_reason is null exactly when value is not null."
+      }
+    ],
+    "shapes": [
+      {
+        "members": [
+          {
+            "member": "document_kind",
+            "null": "never",
+            "type": {
+              "tokens": [
+                "openpipestress.spectrum_result"
+              ],
+              "type": "token"
+            }
+          },
+          {
+            "member": "schema_version",
+            "null": "never",
+            "type": {
+              "tokens": [
+                "0.1.0"
+              ],
+              "type": "token"
+            }
+          },
+          {
+            "member": "semantic_contract",
+            "null": "never",
+            "type": {
+              "shape": "semantic_contract",
+              "type": "object"
+            }
+          },
+          {
+            "member": "profile",
+            "null": "never",
+            "type": {
+              "shape": "profile",
+              "type": "object"
+            }
+          },
+          {
+            "member": "canonical_profile",
+            "null": "never",
+            "type": {
+              "tokens": [
+                "openpipestress_jcs_ijson_v1"
+              ],
+              "type": "token"
+            }
+          },
+          {
+            "member": "admission",
+            "null": "never",
+            "type": {
+              "shape": "admission",
+              "type": "object"
+            }
+          },
+          {
+            "member": "origin",
+            "null": "never",
+            "type": {
+              "shape": "origin",
+              "type": "object"
+            }
+          },
+          {
+            "member": "bindings",
+            "null": "never",
+            "type": {
+              "shape": "bindings",
+              "type": "object"
+            }
+          },
+          {
+            "member": "modal_result",
+            "null": "never",
+            "type": {
+              "shape": "modal_result",
+              "type": "object"
+            }
+          },
+          {
+            "member": "status",
+            "null": "never",
+            "type": {
+              "tokens": [
+                "solved",
+                "refused"
+              ],
+              "type": "token"
+            }
+          }
+        ],
+        "shape": "document",
+        "variants": {
+          "alternatives": [
+            {
+              "members": [
+                {
+                  "member": "standing",
+                  "null": "never",
+                  "type": {
+                    "shape": "standing",
+                    "type": "object"
+                  }
+                },
+                {
+                  "member": "request",
+                  "null": "never",
+                  "type": {
+                    "shape": "request",
+                    "type": "object"
+                  }
+                },
+                {
+                  "member": "spectra",
+                  "null": "never",
+                  "type": {
+                    "row": "spectrum",
+                    "type": "table"
+                  }
+                },
+                {
+                  "member": "modal_basis",
+                  "null": "never",
+                  "type": {
+                    "shape": "modal_basis",
+                    "type": "object"
+                  }
+                },
+                {
+                  "member": "disclosures",
+                  "null": "never",
+                  "type": {
+                    "shape": "disclosures",
+                    "type": "object"
+                  }
+                },
+                {
+                  "member": "census",
+                  "null": "never",
+                  "type": {
+                    "shape": "census",
+                    "type": "object"
+                  }
+                },
+                {
+                  "member": "rows",
+                  "null": "never",
+                  "type": {
+                    "shape": "rows",
+                    "type": "object"
+                  }
+                },
+                {
+                  "member": "rule_statements",
+                  "null": "never",
+                  "type": {
+                    "shape": "rule_statements",
+                    "type": "object"
+                  }
+                }
+              ],
+              "when": "solved"
+            },
+            {
+              "members": [
+                {
+                  "member": "refusals",
+                  "null": "never",
+                  "type": {
+                    "row": "refusal",
+                    "type": "table"
+                  }
+                }
+              ],
+              "when": "refused"
+            }
+          ],
+          "by": "status"
+        }
+      },
+      {
+        "members": [
+          {
+            "member": "id",
+            "null": "never",
+            "type": {
+              "tokens": [
+                "openpipestress.result_semantics/spectrum-1"
+              ],
+              "type": "token"
+            }
+          },
+          {
+            "member": "sha256",
+            "null": "never",
+            "type": {
+              "type": "string"
+            }
+          }
+        ],
+        "shape": "semantic_contract",
+        "variants": null
+      },
+      {
+        "members": [
+          {
+            "member": "profile_id",
+            "null": "never",
+            "type": {
+              "tokens": [
+                "product_preview_spectrum_v1"
+              ],
+              "type": "token"
+            }
+          },
+          {
+            "member": "limitations",
+            "null": "never",
+            "type": {
+              "items": {
+                "tokens": [
+                  "Experimental response-spectrum preview under uniform support motion, formed from the signed modal and rigid contributions of a small-displacement, linear-elastic modal basis, with damping represented only through the user's pseudo-acceleration spectra; it is not a public engineering result, it is not recorded as an analysis run, and it establishes neither physical correctness nor code compliance.",
+                  "Every row is the response to the support motion alone, about the state the modal model was formed at: a combined row is an unsigned magnitude in its stated frame, formed in that frame from signed contributions, and is never a signed quantity, a total force with the state's own action, or a stress; a signed contribution or a signed cluster sum is not a peak response.",
+                  "That this document is consistent with itself and with the inputs it states does not show that the census is the model's, that a stated frame is the entity's, that the modal basis is an eigenbasis of the model, that a signed contribution was recovered correctly, or that the product produced the document."
+                ],
+                "type": "token"
+              },
+              "length": 3,
+              "type": "array"
+            }
+          }
+        ],
+        "shape": "profile",
+        "variants": null
+      },
+      {
+        "members": [
+          {
+            "member": "status",
+            "null": "never",
+            "type": {
+              "tokens": [
+                "experimental"
+              ],
+              "type": "token"
+            }
+          },
+          {
+            "member": "public_engineering_result",
+            "null": "never",
+            "type": {
+              "type": "boolean"
+            }
+          }
+        ],
+        "shape": "admission",
+        "variants": null
+      },
+      {
+        "members": [
+          {
+            "member": "kind",
+            "null": "never",
+            "type": {
+              "tokens": [
+                "spectrum_solve",
+                "constructed_from_reference"
+              ],
+              "type": "token"
+            }
+          },
+          {
+            "member": "produced_by_spectrum_solve",
+            "null": "never",
+            "type": {
+              "type": "boolean"
+            }
+          },
+          {
+            "member": "reference",
+            "null": "origin_spectrum_solve",
+            "type": {
+              "shape": "origin_reference",
+              "type": "object"
+            }
+          },
+          {
+            "member": "constructed",
+            "null": "never",
+            "type": {
+              "items": {
+                "type": "string"
+              },
+              "length": null,
+              "type": "array"
+            }
+          }
+        ],
+        "shape": "origin",
+        "variants": {
+          "alternatives": [
+            {
+              "members": [
+                {
+                  "member": "statement",
+                  "null": "never",
+                  "type": {
+                    "tokens": [
+                      "Produced by the product's experimental spectrum solve."
+                    ],
+                    "type": "token"
+                  }
+                }
+              ],
+              "when": "spectrum_solve"
+            },
+            {
+              "members": [
+                {
+                  "member": "statement",
+                  "null": "never",
+                  "type": {
+                    "tokens": [
+                      "Constructed from the signed contributions of a frozen reference, not produced by a spectrum solve; its combined magnitudes are formed from those contributions by the product's combinations. It is not evidence that the product recovers these contributions."
+                    ],
+                    "type": "token"
+                  }
+                }
+              ],
+              "when": "constructed_from_reference"
+            }
+          ],
+          "by": "kind"
+        }
+      },
+      {
+        "members": [
+          {
+            "member": "package",
+            "null": "never",
+            "type": {
+              "type": "string"
+            }
+          },
+          {
+            "member": "case",
+            "null": "never",
+            "type": {
+              "type": "string"
+            }
+          },
+          {
+            "member": "analysis",
+            "null": "never",
+            "type": {
+              "type": "string"
+            }
+          }
+        ],
+        "shape": "origin_reference",
+        "variants": null
+      },
+      {
+        "members": [
+          {
+            "member": "model",
+            "null": "never",
+            "type": {
+              "shape": "binding",
+              "type": "object"
+            }
+          },
+          {
+            "member": "request",
+            "null": "never",
+            "type": {
+              "shape": "binding",
+              "type": "object"
+            }
+          }
+        ],
+        "shape": "bindings",
+        "variants": null
+      },
+      {
+        "members": [
+          {
+            "member": "binds",
+            "null": "never",
+            "type": {
+              "tokens": [
+                "model_document",
+                "spectrum_request"
+              ],
+              "type": "token"
+            }
+          },
+          {
+            "member": "hash_algorithm",
+            "null": "never",
+            "type": {
+              "tokens": [
+                "sha-256"
+              ],
+              "type": "token"
+            }
+          },
+          {
+            "member": "canonical_form",
+            "null": "never",
+            "type": {
+              "tokens": [
+                "openpipestress_jcs_ijson_v1"
+              ],
+              "type": "token"
+            }
+          },
+          {
+            "member": "sha256",
+            "null": "refused_only",
+            "type": {
+              "type": "string"
+            }
+          }
+        ],
+        "shape": "binding",
+        "variants": null
+      },
+      {
+        "members": [
+          {
+            "member": "binding",
+            "null": "never",
+            "type": {
+              "tokens": [
+                "bound",
+                "not_applicable"
+              ],
+              "type": "token"
+            }
+          },
+          {
+            "member": "reason",
+            "null": "binding_bound",
+            "type": {
+              "type": "string"
+            }
+          },
+          {
+            "member": "run_id",
+            "null": "binding_not_applicable",
+            "type": {
+              "type": "string"
+            }
+          },
+          {
+            "member": "request_sha256",
+            "null": "binding_not_applicable",
+            "type": {
+              "type": "string"
+            }
+          },
+          {
+            "member": "model_sha256",
+            "null": "permitted",
+            "type": {
+              "type": "string"
+            }
+          },
+          {
+            "member": "materials_sha256",
+            "null": "binding_not_applicable",
+            "type": {
+              "type": "string"
+            }
+          },
+          {
+            "member": "integrity_parameters_sha256",
+            "null": "binding_not_applicable",
+            "type": {
+              "type": "string"
+            }
+          },
+          {
+            "member": "state_case",
+            "null": "permitted",
+            "type": {
+              "shape": "state_case",
+              "type": "object"
+            }
+          }
+        ],
+        "shape": "modal_result",
+        "variants": null
+      },
+      {
+        "members": [
+          {
+            "member": "case_id",
+            "null": "never",
+            "type": {
+              "type": "string"
+            }
+          },
+          {
+            "member": "case_index",
+            "null": "never",
+            "type": {
+              "type": "integer"
+            }
+          },
+          {
+            "member": "case_sha256",
+            "null": "never",
+            "type": {
+              "type": "string"
+            }
+          }
+        ],
+        "shape": "state_case",
+        "variants": null
+      },
+      {
+        "members": [
+          {
+            "member": "token",
+            "null": "never",
+            "type": {
+              "type": "string"
+            }
+          },
+          {
+            "member": "reasons",
+            "null": "never",
+            "type": {
+              "items": {
+                "type": "string"
+              },
+              "length": null,
+              "type": "array"
+            }
+          }
+        ],
+        "shape": "standing",
+        "variants": null
+      },
+      {
+        "members": [
+          {
+            "member": "modal_combination",
+            "null": "never",
+            "type": {
+              "tokens": [
+                "SRSS",
+                "CQC",
+                "GROUPING",
+                "TEN_PERCENT",
+                "ABSOLUTE_SUM"
+              ],
+              "type": "token"
+            }
+          },
+          {
+            "member": "directional_combination",
+            "null": "never",
+            "type": {
+              "tokens": [
+                "SRSS",
+                "100-40-40",
+                "ABSOLUTE_SUM"
+              ],
+              "type": "token"
+            }
+          },
+          {
+            "member": "damping_ratio",
+            "null": "never",
+            "type": {
+              "kinds": [
+                "damping_ratio"
+              ],
+              "type": "value_object"
+            }
+          },
+          {
+            "member": "missing_mass",
+            "null": "never",
+            "type": {
+              "shape": "request_missing_mass",
+              "type": "object"
+            }
+          },
+          {
+            "member": "directions",
+            "null": "never",
+            "type": {
+              "items": {
+                "shape": "request_direction",
+                "type": "object"
+              },
+              "length": null,
+              "type": "array"
+            }
+          }
+        ],
+        "shape": "request",
+        "variants": null
+      },
+      {
+        "members": [
+          {
+            "member": "applied",
+            "null": "never",
+            "type": {
+              "type": "boolean"
+            }
+          },
+          {
+            "member": "rigid_frequency",
+            "null": "correction_not_applied",
+            "type": {
+              "kinds": [
+                "rigid_frequency"
+              ],
+              "type": "value_object"
+            }
+          },
+          {
+            "member": "rigid_combination",
+            "null": "correction_not_applied",
+            "type": {
+              "tokens": [
+                "SRSS",
+                "ABSOLUTE_SUM"
+              ],
+              "type": "token"
+            }
+          }
+        ],
+        "shape": "request_missing_mass",
+        "variants": null
+      },
+      {
+        "members": [
+          {
+            "member": "direction",
+            "null": "never",
+            "type": {
+              "tokens": [
+                "X",
+                "Y",
+                "Z"
+              ],
+              "type": "token"
+            }
+          },
+          {
+            "member": "spectrum_id",
+            "null": "never",
+            "type": {
+              "type": "string"
+            }
+          },
+          {
+            "member": "scale_factor",
+            "null": "never",
+            "type": {
+              "kinds": [
+                "scale_factor"
+              ],
+              "type": "value_object"
+            }
+          }
+        ],
+        "shape": "request_direction",
+        "variants": null
+      },
+      {
+        "members": [
+          {
+            "member": "spectrum_id",
+            "null": "never",
+            "type": {
+              "type": "string"
+            }
+          },
+          {
+            "member": "damping_ratio",
+            "null": "never",
+            "type": {
+              "kinds": [
+                "damping_ratio"
+              ],
+              "type": "value_object"
+            }
+          },
+          {
+            "member": "abscissa",
+            "null": "never",
+            "type": {
+              "tokens": [
+                "frequency",
+                "period"
+              ],
+              "type": "token"
+            }
+          },
+          {
+            "member": "abscissa_unit",
+            "null": "never",
+            "type": {
+              "tokens": [
+                "unit:hertz",
+                "unit:second"
+              ],
+              "type": "token"
+            }
+          },
+          {
+            "member": "ordinate",
+            "null": "never",
+            "type": {
+              "tokens": [
+                "acceleration",
+                "g_multiple"
+              ],
+              "type": "token"
+            }
+          },
+          {
+            "member": "pseudo_spectral_acceleration",
+            "null": "never",
+            "type": {
+              "type": "boolean"
+            }
+          },
+          {
+            "member": "interpolation",
+            "null": "never",
+            "type": {
+              "shape": "interpolation",
+              "type": "object"
+            }
+          },
+          {
+            "member": "points",
+            "null": "never",
+            "type": {
+              "items": {
+                "items": {
+                  "type": "number"
+                },
+                "length": 2,
+                "type": "array"
+              },
+              "length": null,
+              "type": "array"
+            }
+          }
+        ],
+        "shape": "spectrum",
+        "variants": {
+          "alternatives": [
+            {
+              "members": [
+                {
+                  "member": "ordinate_unit",
+                  "null": "never",
+                  "type": {
+                    "tokens": [
+                      "unit:meter_per_second_squared"
+                    ],
+                    "type": "token"
+                  }
+                },
+                {
+                  "member": "g",
+                  "null": "always",
+                  "type": {
+                    "kinds": [
+                      "spectrum_g"
+                    ],
+                    "type": "value_object"
+                  }
+                }
+              ],
+              "when": "acceleration"
+            },
+            {
+              "members": [
+                {
+                  "member": "ordinate_unit",
+                  "null": "never",
+                  "type": {
+                    "tokens": [
+                      "unit:one"
+                    ],
+                    "type": "token"
+                  }
+                },
+                {
+                  "member": "g",
+                  "null": "never",
+                  "type": {
+                    "kinds": [
+                      "spectrum_g"
+                    ],
+                    "type": "value_object"
+                  }
+                }
+              ],
+              "when": "g_multiple"
+            }
+          ],
+          "by": "ordinate"
+        }
+      },
+      {
+        "members": [
+          {
+            "member": "abscissa",
+            "null": "never",
+            "type": {
+              "tokens": [
+                "linear",
+                "log"
+              ],
+              "type": "token"
+            }
+          },
+          {
+            "member": "ordinate",
+            "null": "never",
+            "type": {
+              "tokens": [
+                "linear",
+                "log"
+              ],
+              "type": "token"
+            }
+          }
+        ],
+        "shape": "interpolation",
+        "variants": null
+      },
+      {
+        "members": [
+          {
+            "member": "attributed_to",
+            "null": "never",
+            "type": {
+              "type": "string"
+            }
+          },
+          {
+            "member": "standings",
+            "null": "permitted",
+            "type": {
+              "shape": "modal_standings",
+              "type": "object"
+            }
+          },
+          {
+            "member": "state",
+            "null": "permitted",
+            "type": {
+              "type": "opaque_json"
+            }
+          },
+          {
+            "member": "extraction",
+            "null": "never",
+            "type": {
+              "shape": "extraction",
+              "type": "object"
+            }
+          },
+          {
+            "member": "cluster_tolerance",
+            "null": "never",
+            "type": {
+              "kinds": [
+                "cluster_tolerance"
+              ],
+              "type": "value_object"
+            }
+          },
+          {
+            "member": "modes",
+            "null": "never",
+            "type": {
+              "row": "mode",
+              "type": "table"
+            }
+          },
+          {
+            "member": "clusters",
+            "null": "never",
+            "type": {
+              "row": "cluster",
+              "type": "table"
+            }
+          }
+        ],
+        "shape": "modal_basis",
+        "variants": null
+      },
+      {
+        "members": [
+          {
+            "member": "result_standing",
+            "null": "never",
+            "type": {
+              "shape": "result_standing",
+              "type": "object"
+            }
+          },
+          {
+            "member": "parameter_standing",
+            "null": "never",
+            "type": {
+              "shape": "parameter_standing",
+              "type": "object"
+            }
+          },
+          {
+            "member": "integrity_standing",
+            "null": "never",
+            "type": {
+              "shape": "standing",
+              "type": "object"
+            }
+          }
+        ],
+        "shape": "modal_standings",
+        "variants": null
+      },
+      {
+        "members": [
+          {
+            "member": "status",
+            "null": "never",
+            "type": {
+              "type": "string"
+            }
+          },
+          {
+            "member": "public_engineering_result",
+            "null": "never",
+            "type": {
+              "type": "boolean"
+            }
+          }
+        ],
+        "shape": "result_standing",
+        "variants": null
+      },
+      {
+        "members": [
+          {
+            "member": "parameter_standing",
+            "null": "never",
+            "type": {
+              "type": "string"
+            }
+          },
+          {
+            "member": "parameter_label",
+            "null": "never",
+            "type": {
+              "type": "string"
+            }
+          }
+        ],
+        "shape": "parameter_standing",
+        "variants": null
+      },
+      {
+        "members": [
+          {
+            "member": "endpoint",
+            "null": "never",
+            "type": {
+              "tokens": [
+                "whole_finite_spectrum",
+                "below_computed_cluster",
+                "below_lowest_mode"
+              ],
+              "type": "token"
+            }
+          },
+          {
+            "member": "reported_mode_count",
+            "null": "never",
+            "type": {
+              "type": "integer"
+            }
+          },
+          {
+            "member": "established_finite_mode_count",
+            "null": "permitted",
+            "type": {
+              "type": "integer"
+            }
+          },
+          {
+            "member": "next_computed_frequency",
+            "null": "endpoint_whole_finite_spectrum",
+            "type": {
+              "kinds": [
+                "next_computed_frequency"
+              ],
+              "type": "value_object"
+            }
+          },
+          {
+            "member": "next_computed_circular_frequency",
+            "null": "endpoint_whole_finite_spectrum",
+            "type": {
+              "kinds": [
+                "next_computed_circular_frequency"
+              ],
+              "type": "value_object"
+            }
+          },
+          {
+            "member": "completion_evidence",
+            "null": "never",
+            "type": {
+              "type": "string"
+            }
+          }
+        ],
+        "shape": "extraction",
+        "variants": null
+      },
+      {
+        "members": [
+          {
+            "member": "mode_index",
+            "null": "never",
+            "type": {
+              "type": "integer"
+            }
+          },
+          {
+            "member": "cluster_ref",
+            "null": "never",
+            "type": {
+              "target": "/modal_basis/clusters",
+              "type": "row_ref"
+            }
+          },
+          {
+            "member": "frequency",
+            "null": "never",
+            "type": {
+              "kinds": [
+                "modal_frequency"
+              ],
+              "type": "value_object"
+            }
+          },
+          {
+            "member": "circular_frequency",
+            "null": "never",
+            "type": {
+              "kinds": [
+                "modal_circular_frequency"
+              ],
+              "type": "value_object"
+            }
+          },
+          {
+            "member": "class",
+            "null": "never",
+            "type": {
+              "tokens": [
+                "periodic",
+                "rigid"
+              ],
+              "type": "token"
+            }
+          },
+          {
+            "member": "integrity_standing",
+            "null": "permitted",
+            "type": {
+              "shape": "standing",
+              "type": "object"
+            }
+          }
+        ],
+        "shape": "mode",
+        "variants": null
+      },
+      {
+        "members": [
+          {
+            "member": "cluster_index",
+            "null": "never",
+            "type": {
+              "type": "integer"
+            }
+          },
+          {
+            "member": "mode_refs",
+            "null": "never",
+            "type": {
+              "items": {
+                "target": "/modal_basis/modes",
+                "type": "row_ref"
+              },
+              "length": null,
+              "type": "array"
+            }
+          },
+          {
+            "member": "frequencies",
+            "null": "never",
+            "type": {
+              "items": {
+                "type": "number"
+              },
+              "length": null,
+              "type": "array"
+            }
+          },
+          {
+            "member": "frequency_unit",
+            "null": "never",
+            "type": {
+              "tokens": [
+                "unit:hertz"
+              ],
+              "type": "token"
+            }
+          },
+          {
+            "member": "standing_frequency",
+            "null": "never",
+            "type": {
+              "kinds": [
+                "cluster_standing_frequency"
+              ],
+              "type": "value_object"
+            }
+          },
+          {
+            "member": "class",
+            "null": "never",
+            "type": {
+              "tokens": [
+                "periodic",
+                "rigid"
+              ],
+              "type": "token"
+            }
+          }
+        ],
+        "shape": "cluster",
+        "variants": null
+      },
+      {
+        "members": [
+          {
+            "member": "range",
+            "null": "never",
+            "type": {
+              "row": "range",
+              "type": "table"
+            }
+          },
+          {
+            "member": "extraction_premise",
+            "null": "never",
+            "type": {
+              "shape": "extraction_premise",
+              "type": "object"
+            }
+          },
+          {
+            "member": "missing_mass",
+            "null": "never",
+            "type": {
+              "shape": "missing_mass",
+              "type": "object"
+            }
+          },
+          {
+            "member": "fixed",
+            "null": "never",
+            "type": {
+              "row": "fixed_disclosure",
+              "type": "table"
+            }
+          }
+        ],
+        "shape": "disclosures",
+        "variants": null
+      },
+      {
+        "members": [
+          {
+            "member": "spectrum_id",
+            "null": "never",
+            "type": {
+              "type": "string"
+            }
+          },
+          {
+            "member": "directions",
+            "null": "never",
+            "type": {
+              "items": {
+                "tokens": [
+                  "X",
+                  "Y",
+                  "Z"
+                ],
+                "type": "token"
+              },
+              "length": null,
+              "type": "array"
+            }
+          },
+          {
+            "member": "abscissa",
+            "null": "never",
+            "type": {
+              "tokens": [
+                "frequency",
+                "period"
+              ],
+              "type": "token"
+            }
+          },
+          {
+            "member": "tabulated_low",
+            "null": "never",
+            "type": {
+              "kinds": [
+                "spectrum_range_frequency",
+                "spectrum_range_period"
+              ],
+              "type": "value_object"
+            }
+          },
+          {
+            "member": "tabulated_high",
+            "null": "never",
+            "type": {
+              "kinds": [
+                "spectrum_range_frequency",
+                "spectrum_range_period"
+              ],
+              "type": "value_object"
+            }
+          },
+          {
+            "member": "evaluated",
+            "null": "never",
+            "type": {
+              "items": {
+                "shape": "evaluation",
+                "type": "object"
+              },
+              "length": null,
+              "type": "array"
+            }
+          },
+          {
+            "member": "in_range",
+            "null": "never",
+            "type": {
+              "type": "boolean"
+            }
+          }
+        ],
+        "shape": "range",
+        "variants": null
+      },
+      {
+        "members": [
+          {
+            "member": "at",
+            "null": "never",
+            "type": {
+              "type": "string"
+            }
+          },
+          {
+            "member": "frequency",
+            "null": "never",
+            "type": {
+              "kinds": [
+                "evaluated_frequency"
+              ],
+              "type": "value_object"
+            }
+          },
+          {
+            "member": "location",
+            "null": "never",
+            "type": {
+              "shape": "location",
+              "type": "object"
+            }
+          }
+        ],
+        "shape": "evaluation",
+        "variants": null
+      },
+      {
+        "members": [
+          {
+            "member": "kind",
+            "null": "never",
+            "type": {
+              "tokens": [
+                "knot",
+                "segment"
+              ],
+              "type": "token"
+            }
+          }
+        ],
+        "shape": "location",
+        "variants": {
+          "alternatives": [
+            {
+              "members": [
+                {
+                  "member": "index",
+                  "null": "never",
+                  "type": {
+                    "type": "integer"
+                  }
+                }
+              ],
+              "when": "knot"
+            },
+            {
+              "members": [
+                {
+                  "member": "lower",
+                  "null": "never",
+                  "type": {
+                    "type": "integer"
+                  }
+                }
+              ],
+              "when": "segment"
+            }
+          ],
+          "by": "kind"
+        }
+      },
+      {
+        "members": [
+          {
+            "member": "applies",
+            "null": "never",
+            "type": {
+              "type": "boolean"
+            }
+          },
+          {
+            "member": "rigid_frequency",
+            "null": "correction_not_applied",
+            "type": {
+              "kinds": [
+                "rigid_frequency"
+              ],
+              "type": "value_object"
+            }
+          },
+          {
+            "member": "endpoint",
+            "null": "never",
+            "type": {
+              "tokens": [
+                "whole_finite_spectrum",
+                "below_computed_cluster",
+                "below_lowest_mode"
+              ],
+              "type": "token"
+            }
+          },
+          {
+            "member": "reported_mode_count",
+            "null": "never",
+            "type": {
+              "type": "integer"
+            }
+          },
+          {
+            "member": "established_finite_mode_count",
+            "null": "permitted",
+            "type": {
+              "type": "integer"
+            }
+          },
+          {
+            "member": "highest_completed_cluster_ref",
+            "null": "no_cluster",
+            "type": {
+              "target": "/modal_basis/clusters",
+              "type": "row_ref"
+            }
+          },
+          {
+            "member": "highest_completed_cluster_lowest_frequency",
+            "null": "no_cluster",
+            "type": {
+              "kinds": [
+                "cluster_standing_frequency"
+              ],
+              "type": "value_object"
+            }
+          },
+          {
+            "member": "next_computed_frequency",
+            "null": "endpoint_whole_finite_spectrum",
+            "type": {
+              "kinds": [
+                "next_computed_frequency"
+              ],
+              "type": "value_object"
+            }
+          },
+          {
+            "member": "completion_evidence",
+            "null": "never",
+            "type": {
+              "type": "string"
+            }
+          },
+          {
+            "member": "holds",
+            "null": "correction_not_applied",
+            "type": {
+              "type": "boolean"
+            }
+          }
+        ],
+        "shape": "extraction_premise",
+        "variants": null
+      },
+      {
+        "members": [
+          {
+            "member": "arithmetic",
+            "null": "never",
+            "type": {
+              "tokens": [
+                "E is the exact sum of the stated binary64 effective masses of the periodic modes. S is E rounded once to the nearest binary64 (ties to even). U is the exact difference T − E, rounded once the same way. U is not T minus the published S, and the two can differ: where E rounds to T, T minus the published S is zero while the mass the periodic modes leave out is not. The cumulative fraction is the binary64 quotient of the published S by T and the unrepresented fraction the binary64 quotient of the published U by T, each rounded to nearest; they state what fraction of the published total each published mass is, and are recomputable from the published values. T is the stated total mass of the direction, which includes the mass that moves with the supports. Where T is zero both fractions are undefined."
+              ],
+              "type": "token"
+            }
+          },
+          {
+            "member": "directions",
+            "null": "never",
+            "type": {
+              "row": "missing_mass_direction",
+              "type": "table"
+            }
+          }
+        ],
+        "shape": "missing_mass",
+        "variants": null
+      },
+      {
+        "members": [
+          {
+            "member": "direction",
+            "null": "never",
+            "type": {
+              "tokens": [
+                "X",
+                "Y",
+                "Z"
+              ],
+              "type": "token"
+            }
+          },
+          {
+            "member": "total_mass",
+            "null": "never",
+            "type": {
+              "kinds": [
+                "directional_total_mass"
+              ],
+              "type": "value_object"
+            }
+          },
+          {
+            "member": "periodic_effective_masses",
+            "null": "never",
+            "type": {
+              "items": {
+                "shape": "periodic_effective_mass",
+                "type": "object"
+              },
+              "length": null,
+              "type": "array"
+            }
+          },
+          {
+            "member": "periodic_effective_mass_sum",
+            "null": "never",
+            "type": {
+              "kinds": [
+                "periodic_effective_mass_sum"
+              ],
+              "type": "value_object"
+            }
+          },
+          {
+            "member": "unrepresented_effective_mass",
+            "null": "never",
+            "type": {
+              "kinds": [
+                "unrepresented_effective_mass"
+              ],
+              "type": "value_object"
+            }
+          },
+          {
+            "member": "periodic_cumulative_fraction",
+            "null": "never",
+            "type": {
+              "kinds": [
+                "periodic_cumulative_effective_mass_fraction"
+              ],
+              "type": "value_object"
+            }
+          },
+          {
+            "member": "unrepresented_fraction",
+            "null": "never",
+            "type": {
+              "kinds": [
+                "unrepresented_mass_fraction"
+              ],
+              "type": "value_object"
+            }
+          },
+          {
+            "member": "correction_applied",
+            "null": "never",
+            "type": {
+              "type": "boolean"
+            }
+          }
+        ],
+        "shape": "missing_mass_direction",
+        "variants": null
+      },
+      {
+        "members": [
+          {
+            "member": "mode_ref",
+            "null": "never",
+            "type": {
+              "target": "/modal_basis/modes",
+              "type": "row_ref"
+            }
+          },
+          {
+            "member": "effective_mass",
+            "null": "never",
+            "type": {
+              "kinds": [
+                "modal_effective_mass"
+              ],
+              "type": "value_object"
+            }
+          }
+        ],
+        "shape": "periodic_effective_mass",
+        "variants": null
+      },
+      {
+        "members": [
+          {
+            "member": "disclosure_id",
+            "null": "never",
+            "type": {
+              "tokens": [
+                "pseudo_acceleration",
+                "uniform_support_motion",
+                "velocity_terms_neglected",
+                "repeated_modes",
+                "rigid_response_premise",
+                "missing_mass_not_applied",
+                "inherited_arc_limitation"
+              ],
+              "type": "token"
+            }
+          }
+        ],
+        "shape": "fixed_disclosure",
+        "variants": {
+          "alternatives": [
+            {
+              "members": [
+                {
+                  "member": "text",
+                  "null": "never",
+                  "type": {
+                    "tokens": [
+                      "Every spectrum ordinate is a pseudo-spectral acceleration: omega squared times the peak relative displacement of a linear oscillator at the spectrum's damping. No other kind of spectrum is converted and no spectrum is extrapolated."
+                    ],
+                    "type": "token"
+                  }
+                }
+              ],
+              "when": "pseudo_acceleration"
+            },
+            {
+              "members": [
+                {
+                  "member": "text",
+                  "null": "never",
+                  "type": {
+                    "tokens": [
+                      "Uniform support motion: in each requested direction every rigid support moves with the ground. Independent support motion is not built."
+                    ],
+                    "type": "token"
+                  }
+                }
+              ],
+              "when": "uniform_support_motion"
+            },
+            {
+              "members": [
+                {
+                  "member": "text",
+                  "null": "never",
+                  "type": {
+                    "tokens": [
+                      "Damping is represented only through the spectra. Each mode's quantities are recovered at its displacement extremum, and the velocity-proportional parts of forces and reactions are neglected; this is an adopted approximation, and no bound on the resulting force or reaction error is claimed."
+                    ],
+                    "type": "token"
+                  }
+                }
+              ],
+              "when": "velocity_terms_neglected"
+            },
+            {
+              "members": [
+                {
+                  "member": "text",
+                  "null": "never",
+                  "type": {
+                    "tokens": [
+                      "The modes of each cluster of the modal basis are summed with their signs first and the modal rule is applied across the clusters. A cluster is the modal basis's numerical convention, not a statement that its eigenvalues are equal; for a cluster whose modes have unequal frequencies, summing first is an adopted convention, and no independence from the modal basis is claimed for it."
+                    ],
+                    "type": "token"
+                  }
+                }
+              ],
+              "when": "repeated_modes"
+            },
+            {
+              "members": [
+                {
+                  "member": "text",
+                  "null": "never",
+                  "type": {
+                    "tokens": [
+                      "The missing-mass correction is applied. The rigid response is the static response, on the dynamic stiffness, to the inertia at the rigid acceleration of everything the periodic modes leave out; it assumes that the modes classified as rigid respond in phase with the ground."
+                    ],
+                    "type": "token"
+                  }
+                }
+              ],
+              "when": "rigid_response_premise"
+            },
+            {
+              "members": [
+                {
+                  "member": "text",
+                  "null": "never",
+                  "type": {
+                    "tokens": [
+                      "The missing-mass correction is not applied: every extracted mode is periodic, and the mass the periodic modes do not represent is disclosed with its fractions and is not in any row."
+                    ],
+                    "type": "token"
+                  }
+                }
+              ],
+              "when": "missing_mass_not_applied"
+            },
+            {
+              "members": [
+                {
+                  "member": "text",
+                  "null": "never",
+                  "type": {
+                    "tokens": [
+                      "Realized bends enter the modal basis with the thin curved-beam stiffness, whose application range SWBPIPE's verification has not established (LIM-021, an applicability limitation); this result inherits it through the modal basis."
+                    ],
+                    "type": "token"
+                  }
+                }
+              ],
+              "when": "inherited_arc_limitation"
+            }
+          ],
+          "by": "disclosure_id"
+        }
+      },
+      {
+        "members": [
+          {
+            "member": "nodes",
+            "null": "never",
+            "type": {
+              "row": "census_node",
+              "type": "table"
+            }
+          },
+          {
+            "member": "straight_members",
+            "null": "never",
+            "type": {
+              "row": "census_straight_member",
+              "type": "table"
+            }
+          },
+          {
+            "member": "arcs",
+            "null": "never",
+            "type": {
+              "row": "census_arc",
+              "type": "table"
+            }
+          },
+          {
+            "member": "connectors",
+            "null": "never",
+            "type": {
+              "row": "census_connector",
+              "type": "table"
+            }
+          },
+          {
+            "member": "tie_rods",
+            "null": "never",
+            "type": {
+              "row": "census_tie_rod",
+              "type": "table"
+            }
+          },
+          {
+            "member": "rigid_constraints",
+            "null": "never",
+            "type": {
+              "row": "census_rigid_constraint",
+              "type": "table"
+            }
+          },
+          {
+            "member": "compliant_supports",
+            "null": "never",
+            "type": {
+              "row": "census_compliant_support",
+              "type": "table"
+            }
+          },
+          {
+            "member": "supports_without_rows",
+            "null": "never",
+            "type": {
+              "row": "census_support_without_row",
+              "type": "table"
+            }
+          }
+        ],
+        "shape": "census",
+        "variants": null
+      },
+      {
+        "members": [
+          {
+            "member": "node_id",
+            "null": "never",
+            "type": {
+              "type": "string"
+            }
+          }
+        ],
+        "shape": "census_node",
+        "variants": null
+      },
+      {
+        "members": [
+          {
+            "member": "member_id",
+            "null": "never",
+            "type": {
+              "type": "string"
+            }
+          },
+          {
+            "member": "end_i_node",
+            "null": "never",
+            "type": {
+              "type": "string"
+            }
+          },
+          {
+            "member": "end_j_node",
+            "null": "never",
+            "type": {
+              "type": "string"
+            }
+          },
+          {
+            "member": "reference_vector",
+            "null": "never",
+            "type": {
+              "items": {
+                "type": "number"
+              },
+              "length": 3,
+              "type": "array"
+            }
+          },
+          {
+            "member": "member_axes",
+            "null": "never",
+            "type": {
+              "shape": "triad",
+              "type": "object"
+            }
+          }
+        ],
+        "shape": "census_straight_member",
+        "variants": null
+      },
+      {
+        "members": [
+          {
+            "member": "member_id",
+            "null": "never",
+            "type": {
+              "type": "string"
+            }
+          },
+          {
+            "member": "end_i_node",
+            "null": "never",
+            "type": {
+              "type": "string"
+            }
+          },
+          {
+            "member": "end_j_node",
+            "null": "never",
+            "type": {
+              "type": "string"
+            }
+          },
+          {
+            "member": "tangent_frame_i",
+            "null": "never",
+            "type": {
+              "shape": "triad",
+              "type": "object"
+            }
+          },
+          {
+            "member": "tangent_frame_j",
+            "null": "never",
+            "type": {
+              "shape": "triad",
+              "type": "object"
+            }
+          }
+        ],
+        "shape": "census_arc",
+        "variants": null
+      },
+      {
+        "members": [
+          {
+            "member": "connector_id",
+            "null": "never",
+            "type": {
+              "type": "string"
+            }
+          },
+          {
+            "member": "end_i_node",
+            "null": "never",
+            "type": {
+              "type": "string"
+            }
+          },
+          {
+            "member": "end_j_node",
+            "null": "never",
+            "type": {
+              "type": "string"
+            }
+          },
+          {
+            "member": "connector_axes",
+            "null": "never",
+            "type": {
+              "shape": "triad",
+              "type": "object"
+            }
+          }
+        ],
+        "shape": "census_connector",
+        "variants": null
+      },
+      {
+        "members": [
+          {
+            "member": "connector_id",
+            "null": "never",
+            "type": {
+              "type": "string"
+            }
+          },
+          {
+            "member": "rod_id",
+            "null": "never",
+            "type": {
+              "type": "string"
+            }
+          },
+          {
+            "member": "rod_axis",
+            "null": "never",
+            "type": {
+              "items": {
+                "type": "number"
+              },
+              "length": 3,
+              "type": "array"
+            }
+          }
+        ],
+        "shape": "census_tie_rod",
+        "variants": null
+      },
+      {
+        "members": [
+          {
+            "member": "node_id",
+            "null": "never",
+            "type": {
+              "type": "string"
+            }
+          },
+          {
+            "member": "component",
+            "null": "never",
+            "type": {
+              "tokens": [
+                "UX",
+                "UY",
+                "UZ",
+                "RX",
+                "RY",
+                "RZ"
+              ],
+              "type": "token"
+            }
+          },
+          {
+            "member": "holders",
+            "null": "never",
+            "type": {
+              "items": {
+                "type": "string"
+              },
+              "length": null,
+              "type": "array"
+            }
+          },
+          {
+            "member": "held",
+            "null": "never",
+            "type": {
+              "tokens": [
+                "single",
+                "jointly_undivided"
+              ],
+              "type": "token"
+            }
+          }
+        ],
+        "shape": "census_rigid_constraint",
+        "variants": null
+      },
+      {
+        "members": [
+          {
+            "member": "support_id",
+            "null": "never",
+            "type": {
+              "type": "string"
+            }
+          },
+          {
+            "member": "node_id",
+            "null": "never",
+            "type": {
+              "type": "string"
+            }
+          },
+          {
+            "member": "components",
+            "null": "never",
+            "type": {
+              "items": {
+                "tokens": [
+                  "UX",
+                  "UY",
+                  "UZ",
+                  "RX",
+                  "RY",
+                  "RZ"
+                ],
+                "type": "token"
+              },
+              "length": null,
+              "type": "array"
+            }
+          }
+        ],
+        "shape": "census_compliant_support",
+        "variants": null
+      },
+      {
+        "members": [
+          {
+            "member": "support_id",
+            "null": "never",
+            "type": {
+              "type": "string"
+            }
+          },
+          {
+            "member": "reason",
+            "null": "never",
+            "type": {
+              "type": "string"
+            }
+          }
+        ],
+        "shape": "census_support_without_row",
+        "variants": null
+      },
+      {
+        "members": [
+          {
+            "member": "x",
+            "null": "never",
+            "type": {
+              "items": {
+                "type": "number"
+              },
+              "length": 3,
+              "type": "array"
+            }
+          },
+          {
+            "member": "y",
+            "null": "never",
+            "type": {
+              "items": {
+                "type": "number"
+              },
+              "length": 3,
+              "type": "array"
+            }
+          },
+          {
+            "member": "z",
+            "null": "never",
+            "type": {
+              "items": {
+                "type": "number"
+              },
+              "length": 3,
+              "type": "array"
+            }
+          }
+        ],
+        "shape": "triad",
+        "variants": null
+      },
+      {
+        "members": [
+          {
+            "member": "directions",
+            "null": "never",
+            "type": {
+              "items": {
+                "tokens": [
+                  "X",
+                  "Y",
+                  "Z"
+                ],
+                "type": "token"
+              },
+              "length": null,
+              "type": "array"
+            }
+          },
+          {
+            "member": "contribution_columns",
+            "null": "never",
+            "type": {
+              "row": "contribution_column",
+              "type": "table"
+            }
+          },
+          {
+            "member": "cluster_sum_columns",
+            "null": "never",
+            "type": {
+              "row": "cluster_sum_column",
+              "type": "table"
+            }
+          },
+          {
+            "member": "signed",
+            "null": "never",
+            "type": {
+              "row": "signed_row",
+              "type": "table"
+            }
+          },
+          {
+            "member": "cluster_sums",
+            "null": "never",
+            "type": {
+              "row": "cluster_sum_row",
+              "type": "table"
+            }
+          },
+          {
+            "member": "combined",
+            "null": "never",
+            "type": {
+              "row": "combined_row",
+              "type": "table"
+            }
+          }
+        ],
+        "shape": "rows",
+        "variants": null
+      },
+      {
+        "members": [
+          {
+            "member": "column",
+            "null": "never",
+            "type": {
+              "type": "integer"
+            }
+          },
+          {
+            "member": "mode_ref",
+            "null": "never",
+            "type": {
+              "target": "/modal_basis/modes",
+              "type": "row_ref"
+            }
+          },
+          {
+            "member": "cluster_ref",
+            "null": "never",
+            "type": {
+              "target": "/modal_basis/clusters",
+              "type": "row_ref"
+            }
+          }
+        ],
+        "shape": "contribution_column",
+        "variants": null
+      },
+      {
+        "members": [
+          {
+            "member": "column",
+            "null": "never",
+            "type": {
+              "type": "integer"
+            }
+          },
+          {
+            "member": "cluster_ref",
+            "null": "never",
+            "type": {
+              "target": "/modal_basis/clusters",
+              "type": "row_ref"
+            }
+          },
+          {
+            "member": "mode_refs",
+            "null": "never",
+            "type": {
+              "items": {
+                "target": "/modal_basis/modes",
+                "type": "row_ref"
+              },
+              "length": null,
+              "type": "array"
+            }
+          }
+        ],
+        "shape": "cluster_sum_column",
+        "variants": null
+      },
+      {
+        "members": [
+          {
+            "member": "quantity_kind",
+            "null": "never",
+            "type": {
+              "tokens": [
+                "node_displacement",
+                "element_end_action",
+                "connector_generalized_force",
+                "connector_end_action",
+                "tie_rod_force",
+                "constraint_reaction",
+                "compliant_support_force"
+              ],
+              "type": "token"
+            }
+          },
+          {
+            "member": "sign_status",
+            "null": "never",
+            "type": {
+              "tokens": [
+                "signed_contribution"
+              ],
+              "type": "token"
+            }
+          },
+          {
+            "member": "periodic",
+            "null": "never",
+            "type": {
+              "type": "direction_map",
+              "values": {
+                "items": {
+                  "type": "number"
+                },
+                "length": null,
+                "type": "array"
+              }
+            }
+          },
+          {
+            "member": "rigid",
+            "null": "correction_not_applied",
+            "type": {
+              "type": "direction_map",
+              "values": {
+                "type": "number"
+              }
+            }
+          }
+        ],
+        "shape": "signed_row",
+        "variants": {
+          "alternatives": [
+            {
+              "members": [
+                {
+                  "member": "entity_kind",
+                  "null": "never",
+                  "type": {
+                    "tokens": [
+                      "node"
+                    ],
+                    "type": "token"
+                  }
+                },
+                {
+                  "member": "node",
+                  "null": "never",
+                  "type": {
+                    "type": "string"
+                  }
+                },
+                {
+                  "member": "end",
+                  "null": "always",
+                  "type": {
+                    "tokens": [
+                      "i",
+                      "j"
+                    ],
+                    "type": "token"
+                  }
+                },
+                {
+                  "member": "component",
+                  "null": "never",
+                  "type": {
+                    "tokens": [
+                      "ux",
+                      "uy",
+                      "uz",
+                      "rx",
+                      "ry",
+                      "rz"
+                    ],
+                    "type": "token"
+                  }
+                },
+                {
+                  "member": "unit",
+                  "null": "never",
+                  "type": {
+                    "tokens": [
+                      "unit:meter",
+                      "unit:radian"
+                    ],
+                    "type": "token"
+                  }
+                },
+                {
+                  "member": "frame",
+                  "null": "never",
+                  "type": {
+                    "tokens": [
+                      "global_axes"
+                    ],
+                    "type": "token"
+                  }
+                },
+                {
+                  "member": "sign_convention",
+                  "null": "never",
+                  "type": {
+                    "tokens": [
+                      "positive_along_axis"
+                    ],
+                    "type": "token"
+                  }
+                }
+              ],
+              "when": "node_displacement"
+            },
+            {
+              "members": [
+                {
+                  "member": "entity_kind",
+                  "null": "never",
+                  "type": {
+                    "tokens": [
+                      "member"
+                    ],
+                    "type": "token"
+                  }
+                },
+                {
+                  "member": "member",
+                  "null": "never",
+                  "type": {
+                    "type": "string"
+                  }
+                },
+                {
+                  "member": "member_family",
+                  "null": "never",
+                  "type": {
+                    "tokens": [
+                      "straight",
+                      "arc"
+                    ],
+                    "type": "token"
+                  }
+                },
+                {
+                  "member": "end",
+                  "null": "never",
+                  "type": {
+                    "tokens": [
+                      "i",
+                      "j"
+                    ],
+                    "type": "token"
+                  }
+                },
+                {
+                  "member": "component",
+                  "null": "never",
+                  "type": {
+                    "tokens": [
+                      "Fx",
+                      "Fy",
+                      "Fz",
+                      "Mx",
+                      "My",
+                      "Mz"
+                    ],
+                    "type": "token"
+                  }
+                },
+                {
+                  "member": "unit",
+                  "null": "never",
+                  "type": {
+                    "tokens": [
+                      "unit:newton",
+                      "unit:newton_meter"
+                    ],
+                    "type": "token"
+                  }
+                },
+                {
+                  "member": "frame",
+                  "null": "never",
+                  "type": {
+                    "tokens": [
+                      "global_axes",
+                      "member_axes",
+                      "arc_tangent_frame"
+                    ],
+                    "type": "token"
+                  }
+                },
+                {
+                  "member": "sign_convention",
+                  "null": "never",
+                  "type": {
+                    "tokens": [
+                      "action_on_element_at_end_node"
+                    ],
+                    "type": "token"
+                  }
+                }
+              ],
+              "when": "element_end_action"
+            },
+            {
+              "members": [
+                {
+                  "member": "entity_kind",
+                  "null": "never",
+                  "type": {
+                    "tokens": [
+                      "connector"
+                    ],
+                    "type": "token"
+                  }
+                },
+                {
+                  "member": "connector",
+                  "null": "never",
+                  "type": {
+                    "type": "string"
+                  }
+                },
+                {
+                  "member": "end",
+                  "null": "always",
+                  "type": {
+                    "tokens": [
+                      "i",
+                      "j"
+                    ],
+                    "type": "token"
+                  }
+                },
+                {
+                  "member": "component",
+                  "null": "never",
+                  "type": {
+                    "tokens": [
+                      "axial",
+                      "lateral_y",
+                      "lateral_z",
+                      "torsion",
+                      "bending_y",
+                      "bending_z"
+                    ],
+                    "type": "token"
+                  }
+                },
+                {
+                  "member": "unit",
+                  "null": "never",
+                  "type": {
+                    "tokens": [
+                      "unit:newton",
+                      "unit:newton_meter"
+                    ],
+                    "type": "token"
+                  }
+                },
+                {
+                  "member": "frame",
+                  "null": "never",
+                  "type": {
+                    "tokens": [
+                      "connector_axes"
+                    ],
+                    "type": "token"
+                  }
+                },
+                {
+                  "member": "sign_convention",
+                  "null": "never",
+                  "type": {
+                    "tokens": [
+                      "positive_along_connector_axes"
+                    ],
+                    "type": "token"
+                  }
+                }
+              ],
+              "when": "connector_generalized_force"
+            },
+            {
+              "members": [
+                {
+                  "member": "entity_kind",
+                  "null": "never",
+                  "type": {
+                    "tokens": [
+                      "connector"
+                    ],
+                    "type": "token"
+                  }
+                },
+                {
+                  "member": "connector",
+                  "null": "never",
+                  "type": {
+                    "type": "string"
+                  }
+                },
+                {
+                  "member": "end",
+                  "null": "never",
+                  "type": {
+                    "tokens": [
+                      "i",
+                      "j"
+                    ],
+                    "type": "token"
+                  }
+                },
+                {
+                  "member": "component",
+                  "null": "never",
+                  "type": {
+                    "tokens": [
+                      "Fx",
+                      "Fy",
+                      "Fz",
+                      "Mx",
+                      "My",
+                      "Mz"
+                    ],
+                    "type": "token"
+                  }
+                },
+                {
+                  "member": "unit",
+                  "null": "never",
+                  "type": {
+                    "tokens": [
+                      "unit:newton",
+                      "unit:newton_meter"
+                    ],
+                    "type": "token"
+                  }
+                },
+                {
+                  "member": "frame",
+                  "null": "never",
+                  "type": {
+                    "tokens": [
+                      "global_axes"
+                    ],
+                    "type": "token"
+                  }
+                },
+                {
+                  "member": "sign_convention",
+                  "null": "never",
+                  "type": {
+                    "tokens": [
+                      "action_on_element_at_end_node"
+                    ],
+                    "type": "token"
+                  }
+                }
+              ],
+              "when": "connector_end_action"
+            },
+            {
+              "members": [
+                {
+                  "member": "entity_kind",
+                  "null": "never",
+                  "type": {
+                    "tokens": [
+                      "tie_rod"
+                    ],
+                    "type": "token"
+                  }
+                },
+                {
+                  "member": "connector",
+                  "null": "never",
+                  "type": {
+                    "type": "string"
+                  }
+                },
+                {
+                  "member": "rod",
+                  "null": "never",
+                  "type": {
+                    "type": "string"
+                  }
+                },
+                {
+                  "member": "end",
+                  "null": "always",
+                  "type": {
+                    "tokens": [
+                      "i",
+                      "j"
+                    ],
+                    "type": "token"
+                  }
+                },
+                {
+                  "member": "component",
+                  "null": "never",
+                  "type": {
+                    "tokens": [
+                      "axial"
+                    ],
+                    "type": "token"
+                  }
+                },
+                {
+                  "member": "unit",
+                  "null": "never",
+                  "type": {
+                    "tokens": [
+                      "unit:newton"
+                    ],
+                    "type": "token"
+                  }
+                },
+                {
+                  "member": "frame",
+                  "null": "never",
+                  "type": {
+                    "tokens": [
+                      "rod_axis"
+                    ],
+                    "type": "token"
+                  }
+                },
+                {
+                  "member": "sign_convention",
+                  "null": "never",
+                  "type": {
+                    "tokens": [
+                      "tension_positive"
+                    ],
+                    "type": "token"
+                  }
+                }
+              ],
+              "when": "tie_rod_force"
+            },
+            {
+              "members": [
+                {
+                  "member": "entity_kind",
+                  "null": "never",
+                  "type": {
+                    "tokens": [
+                      "rigid_constraint"
+                    ],
+                    "type": "token"
+                  }
+                },
+                {
+                  "member": "node",
+                  "null": "never",
+                  "type": {
+                    "type": "string"
+                  }
+                },
+                {
+                  "member": "holders",
+                  "null": "never",
+                  "type": {
+                    "items": {
+                      "type": "string"
+                    },
+                    "length": null,
+                    "type": "array"
+                  }
+                },
+                {
+                  "member": "held",
+                  "null": "never",
+                  "type": {
+                    "tokens": [
+                      "single",
+                      "jointly_undivided"
+                    ],
+                    "type": "token"
+                  }
+                },
+                {
+                  "member": "end",
+                  "null": "always",
+                  "type": {
+                    "tokens": [
+                      "i",
+                      "j"
+                    ],
+                    "type": "token"
+                  }
+                },
+                {
+                  "member": "component",
+                  "null": "never",
+                  "type": {
+                    "tokens": [
+                      "UX",
+                      "UY",
+                      "UZ",
+                      "RX",
+                      "RY",
+                      "RZ"
+                    ],
+                    "type": "token"
+                  }
+                },
+                {
+                  "member": "unit",
+                  "null": "never",
+                  "type": {
+                    "tokens": [
+                      "unit:newton",
+                      "unit:newton_meter"
+                    ],
+                    "type": "token"
+                  }
+                },
+                {
+                  "member": "frame",
+                  "null": "never",
+                  "type": {
+                    "tokens": [
+                      "global_axes"
+                    ],
+                    "type": "token"
+                  }
+                },
+                {
+                  "member": "sign_convention",
+                  "null": "never",
+                  "type": {
+                    "tokens": [
+                      "action_of_support_on_piping"
+                    ],
+                    "type": "token"
+                  }
+                }
+              ],
+              "when": "constraint_reaction"
+            },
+            {
+              "members": [
+                {
+                  "member": "entity_kind",
+                  "null": "never",
+                  "type": {
+                    "tokens": [
+                      "compliant_support"
+                    ],
+                    "type": "token"
+                  }
+                },
+                {
+                  "member": "support",
+                  "null": "never",
+                  "type": {
+                    "type": "string"
+                  }
+                },
+                {
+                  "member": "end",
+                  "null": "always",
+                  "type": {
+                    "tokens": [
+                      "i",
+                      "j"
+                    ],
+                    "type": "token"
+                  }
+                },
+                {
+                  "member": "component",
+                  "null": "never",
+                  "type": {
+                    "tokens": [
+                      "UX",
+                      "UY",
+                      "UZ",
+                      "RX",
+                      "RY",
+                      "RZ"
+                    ],
+                    "type": "token"
+                  }
+                },
+                {
+                  "member": "unit",
+                  "null": "never",
+                  "type": {
+                    "tokens": [
+                      "unit:newton",
+                      "unit:newton_meter"
+                    ],
+                    "type": "token"
+                  }
+                },
+                {
+                  "member": "frame",
+                  "null": "never",
+                  "type": {
+                    "tokens": [
+                      "global_axes"
+                    ],
+                    "type": "token"
+                  }
+                },
+                {
+                  "member": "sign_convention",
+                  "null": "never",
+                  "type": {
+                    "tokens": [
+                      "action_of_support_on_piping"
+                    ],
+                    "type": "token"
+                  }
+                }
+              ],
+              "when": "compliant_support_force"
+            }
+          ],
+          "by": "quantity_kind"
+        }
+      },
+      {
+        "members": [
+          {
+            "member": "quantity_ref",
+            "null": "never",
+            "type": {
+              "target": "/rows/signed",
+              "type": "row_ref"
+            }
+          },
+          {
+            "member": "unit",
+            "null": "never",
+            "type": {
+              "tokens": [
+                "unit:meter",
+                "unit:newton",
+                "unit:newton_meter",
+                "unit:radian"
+              ],
+              "type": "token"
+            }
+          },
+          {
+            "member": "frame",
+            "null": "never",
+            "type": {
+              "tokens": [
+                "global_axes",
+                "member_axes",
+                "arc_tangent_frame",
+                "connector_axes",
+                "rod_axis"
+              ],
+              "type": "token"
+            }
+          },
+          {
+            "member": "sign_status",
+            "null": "never",
+            "type": {
+              "tokens": [
+                "signed_cluster_sum"
+              ],
+              "type": "token"
+            }
+          },
+          {
+            "member": "sign_convention",
+            "null": "never",
+            "type": {
+              "tokens": [
+                "positive_along_axis",
+                "action_on_element_at_end_node",
+                "positive_along_connector_axes",
+                "tension_positive",
+                "action_of_support_on_piping"
+              ],
+              "type": "token"
+            }
+          },
+          {
+            "member": "sums",
+            "null": "never",
+            "type": {
+              "type": "direction_map",
+              "values": {
+                "items": {
+                  "type": "number"
+                },
+                "length": null,
+                "type": "array"
+              }
+            }
+          }
+        ],
+        "shape": "cluster_sum_row",
+        "variants": null
+      },
+      {
+        "members": [
+          {
+            "member": "quantity_kind",
+            "null": "never",
+            "type": {
+              "tokens": [
+                "node_displacement",
+                "element_end_action",
+                "connector_generalized_force",
+                "connector_end_action",
+                "tie_rod_force",
+                "constraint_reaction",
+                "compliant_support_force"
+              ],
+              "type": "token"
+            }
+          },
+          {
+            "member": "quantity_ref",
+            "null": "never",
+            "type": {
+              "target": "/rows/signed",
+              "type": "row_ref"
+            }
+          },
+          {
+            "member": "sign_status",
+            "null": "never",
+            "type": {
+              "tokens": [
+                "unsigned_combined_magnitude"
+              ],
+              "type": "token"
+            }
+          },
+          {
+            "member": "per_direction",
+            "null": "never",
+            "type": {
+              "items": {
+                "shape": "per_direction",
+                "type": "object"
+              },
+              "length": null,
+              "type": "array"
+            }
+          },
+          {
+            "member": "combined",
+            "null": "never",
+            "type": {
+              "type": "number"
+            }
+          },
+          {
+            "member": "governing_direction",
+            "null": "directional_rule_not_100_40_40",
+            "type": {
+              "tokens": [
+                "X",
+                "Y",
+                "Z"
+              ],
+              "type": "token"
+            }
+          }
+        ],
+        "shape": "combined_row",
+        "variants": {
+          "alternatives": [
+            {
+              "members": [
+                {
+                  "member": "entity_kind",
+                  "null": "never",
+                  "type": {
+                    "tokens": [
+                      "node"
+                    ],
+                    "type": "token"
+                  }
+                },
+                {
+                  "member": "node",
+                  "null": "never",
+                  "type": {
+                    "type": "string"
+                  }
+                },
+                {
+                  "member": "end",
+                  "null": "always",
+                  "type": {
+                    "tokens": [
+                      "i",
+                      "j"
+                    ],
+                    "type": "token"
+                  }
+                },
+                {
+                  "member": "component",
+                  "null": "never",
+                  "type": {
+                    "tokens": [
+                      "ux",
+                      "uy",
+                      "uz",
+                      "rx",
+                      "ry",
+                      "rz"
+                    ],
+                    "type": "token"
+                  }
+                },
+                {
+                  "member": "unit",
+                  "null": "never",
+                  "type": {
+                    "tokens": [
+                      "unit:meter",
+                      "unit:radian"
+                    ],
+                    "type": "token"
+                  }
+                },
+                {
+                  "member": "frame",
+                  "null": "never",
+                  "type": {
+                    "tokens": [
+                      "global_axes"
+                    ],
+                    "type": "token"
+                  }
+                }
+              ],
+              "when": "node_displacement"
+            },
+            {
+              "members": [
+                {
+                  "member": "entity_kind",
+                  "null": "never",
+                  "type": {
+                    "tokens": [
+                      "member"
+                    ],
+                    "type": "token"
+                  }
+                },
+                {
+                  "member": "member",
+                  "null": "never",
+                  "type": {
+                    "type": "string"
+                  }
+                },
+                {
+                  "member": "member_family",
+                  "null": "never",
+                  "type": {
+                    "tokens": [
+                      "straight",
+                      "arc"
+                    ],
+                    "type": "token"
+                  }
+                },
+                {
+                  "member": "end",
+                  "null": "never",
+                  "type": {
+                    "tokens": [
+                      "i",
+                      "j"
+                    ],
+                    "type": "token"
+                  }
+                },
+                {
+                  "member": "component",
+                  "null": "never",
+                  "type": {
+                    "tokens": [
+                      "Fx",
+                      "Fy",
+                      "Fz",
+                      "Mx",
+                      "My",
+                      "Mz"
+                    ],
+                    "type": "token"
+                  }
+                },
+                {
+                  "member": "unit",
+                  "null": "never",
+                  "type": {
+                    "tokens": [
+                      "unit:newton",
+                      "unit:newton_meter"
+                    ],
+                    "type": "token"
+                  }
+                },
+                {
+                  "member": "frame",
+                  "null": "never",
+                  "type": {
+                    "tokens": [
+                      "global_axes",
+                      "member_axes",
+                      "arc_tangent_frame"
+                    ],
+                    "type": "token"
+                  }
+                }
+              ],
+              "when": "element_end_action"
+            },
+            {
+              "members": [
+                {
+                  "member": "entity_kind",
+                  "null": "never",
+                  "type": {
+                    "tokens": [
+                      "connector"
+                    ],
+                    "type": "token"
+                  }
+                },
+                {
+                  "member": "connector",
+                  "null": "never",
+                  "type": {
+                    "type": "string"
+                  }
+                },
+                {
+                  "member": "end",
+                  "null": "always",
+                  "type": {
+                    "tokens": [
+                      "i",
+                      "j"
+                    ],
+                    "type": "token"
+                  }
+                },
+                {
+                  "member": "component",
+                  "null": "never",
+                  "type": {
+                    "tokens": [
+                      "axial",
+                      "lateral_y",
+                      "lateral_z",
+                      "torsion",
+                      "bending_y",
+                      "bending_z"
+                    ],
+                    "type": "token"
+                  }
+                },
+                {
+                  "member": "unit",
+                  "null": "never",
+                  "type": {
+                    "tokens": [
+                      "unit:newton",
+                      "unit:newton_meter"
+                    ],
+                    "type": "token"
+                  }
+                },
+                {
+                  "member": "frame",
+                  "null": "never",
+                  "type": {
+                    "tokens": [
+                      "connector_axes"
+                    ],
+                    "type": "token"
+                  }
+                }
+              ],
+              "when": "connector_generalized_force"
+            },
+            {
+              "members": [
+                {
+                  "member": "entity_kind",
+                  "null": "never",
+                  "type": {
+                    "tokens": [
+                      "connector"
+                    ],
+                    "type": "token"
+                  }
+                },
+                {
+                  "member": "connector",
+                  "null": "never",
+                  "type": {
+                    "type": "string"
+                  }
+                },
+                {
+                  "member": "end",
+                  "null": "never",
+                  "type": {
+                    "tokens": [
+                      "i",
+                      "j"
+                    ],
+                    "type": "token"
+                  }
+                },
+                {
+                  "member": "component",
+                  "null": "never",
+                  "type": {
+                    "tokens": [
+                      "Fx",
+                      "Fy",
+                      "Fz",
+                      "Mx",
+                      "My",
+                      "Mz"
+                    ],
+                    "type": "token"
+                  }
+                },
+                {
+                  "member": "unit",
+                  "null": "never",
+                  "type": {
+                    "tokens": [
+                      "unit:newton",
+                      "unit:newton_meter"
+                    ],
+                    "type": "token"
+                  }
+                },
+                {
+                  "member": "frame",
+                  "null": "never",
+                  "type": {
+                    "tokens": [
+                      "global_axes"
+                    ],
+                    "type": "token"
+                  }
+                }
+              ],
+              "when": "connector_end_action"
+            },
+            {
+              "members": [
+                {
+                  "member": "entity_kind",
+                  "null": "never",
+                  "type": {
+                    "tokens": [
+                      "tie_rod"
+                    ],
+                    "type": "token"
+                  }
+                },
+                {
+                  "member": "connector",
+                  "null": "never",
+                  "type": {
+                    "type": "string"
+                  }
+                },
+                {
+                  "member": "rod",
+                  "null": "never",
+                  "type": {
+                    "type": "string"
+                  }
+                },
+                {
+                  "member": "end",
+                  "null": "always",
+                  "type": {
+                    "tokens": [
+                      "i",
+                      "j"
+                    ],
+                    "type": "token"
+                  }
+                },
+                {
+                  "member": "component",
+                  "null": "never",
+                  "type": {
+                    "tokens": [
+                      "axial"
+                    ],
+                    "type": "token"
+                  }
+                },
+                {
+                  "member": "unit",
+                  "null": "never",
+                  "type": {
+                    "tokens": [
+                      "unit:newton"
+                    ],
+                    "type": "token"
+                  }
+                },
+                {
+                  "member": "frame",
+                  "null": "never",
+                  "type": {
+                    "tokens": [
+                      "rod_axis"
+                    ],
+                    "type": "token"
+                  }
+                }
+              ],
+              "when": "tie_rod_force"
+            },
+            {
+              "members": [
+                {
+                  "member": "entity_kind",
+                  "null": "never",
+                  "type": {
+                    "tokens": [
+                      "rigid_constraint"
+                    ],
+                    "type": "token"
+                  }
+                },
+                {
+                  "member": "node",
+                  "null": "never",
+                  "type": {
+                    "type": "string"
+                  }
+                },
+                {
+                  "member": "holders",
+                  "null": "never",
+                  "type": {
+                    "items": {
+                      "type": "string"
+                    },
+                    "length": null,
+                    "type": "array"
+                  }
+                },
+                {
+                  "member": "held",
+                  "null": "never",
+                  "type": {
+                    "tokens": [
+                      "single",
+                      "jointly_undivided"
+                    ],
+                    "type": "token"
+                  }
+                },
+                {
+                  "member": "end",
+                  "null": "always",
+                  "type": {
+                    "tokens": [
+                      "i",
+                      "j"
+                    ],
+                    "type": "token"
+                  }
+                },
+                {
+                  "member": "component",
+                  "null": "never",
+                  "type": {
+                    "tokens": [
+                      "UX",
+                      "UY",
+                      "UZ",
+                      "RX",
+                      "RY",
+                      "RZ"
+                    ],
+                    "type": "token"
+                  }
+                },
+                {
+                  "member": "unit",
+                  "null": "never",
+                  "type": {
+                    "tokens": [
+                      "unit:newton",
+                      "unit:newton_meter"
+                    ],
+                    "type": "token"
+                  }
+                },
+                {
+                  "member": "frame",
+                  "null": "never",
+                  "type": {
+                    "tokens": [
+                      "global_axes"
+                    ],
+                    "type": "token"
+                  }
+                }
+              ],
+              "when": "constraint_reaction"
+            },
+            {
+              "members": [
+                {
+                  "member": "entity_kind",
+                  "null": "never",
+                  "type": {
+                    "tokens": [
+                      "compliant_support"
+                    ],
+                    "type": "token"
+                  }
+                },
+                {
+                  "member": "support",
+                  "null": "never",
+                  "type": {
+                    "type": "string"
+                  }
+                },
+                {
+                  "member": "end",
+                  "null": "always",
+                  "type": {
+                    "tokens": [
+                      "i",
+                      "j"
+                    ],
+                    "type": "token"
+                  }
+                },
+                {
+                  "member": "component",
+                  "null": "never",
+                  "type": {
+                    "tokens": [
+                      "UX",
+                      "UY",
+                      "UZ",
+                      "RX",
+                      "RY",
+                      "RZ"
+                    ],
+                    "type": "token"
+                  }
+                },
+                {
+                  "member": "unit",
+                  "null": "never",
+                  "type": {
+                    "tokens": [
+                      "unit:newton",
+                      "unit:newton_meter"
+                    ],
+                    "type": "token"
+                  }
+                },
+                {
+                  "member": "frame",
+                  "null": "never",
+                  "type": {
+                    "tokens": [
+                      "global_axes"
+                    ],
+                    "type": "token"
+                  }
+                }
+              ],
+              "when": "compliant_support_force"
+            }
+          ],
+          "by": "quantity_kind"
+        }
+      },
+      {
+        "members": [
+          {
+            "member": "direction",
+            "null": "never",
+            "type": {
+              "tokens": [
+                "X",
+                "Y",
+                "Z"
+              ],
+              "type": "token"
+            }
+          },
+          {
+            "member": "periodic",
+            "null": "never",
+            "type": {
+              "type": "number"
+            }
+          },
+          {
+            "member": "rigid",
+            "null": "correction_not_applied",
+            "type": {
+              "type": "number"
+            }
+          },
+          {
+            "member": "combined",
+            "null": "never",
+            "type": {
+              "type": "number"
+            }
+          }
+        ],
+        "shape": "per_direction",
+        "variants": null
+      },
+      {
+        "members": [
+          {
+            "member": "correlation",
+            "null": "modal_rule_not_cqc",
+            "type": {
+              "row": "correlation",
+              "type": "table"
+            }
+          },
+          {
+            "member": "groups",
+            "null": "modal_rule_not_grouping",
+            "type": {
+              "row": "group",
+              "type": "table"
+            }
+          },
+          {
+            "member": "coupled_pairs",
+            "null": "modal_rule_not_ten_percent",
+            "type": {
+              "row": "coupled_pair",
+              "type": "table"
+            }
+          },
+          {
+            "member": "closeness_rule",
+            "null": "modal_rule_not_grouping_or_ten_percent",
+            "type": {
+              "tokens": [
+                "Periodic clusters in ascending order form groups. A group starts at a cluster, whose standing frequency f_g is the group's lowest, and takes each next cluster whose standing frequency f satisfies (f − f_g) / f_g ≤ 1/10; the next cluster that does not starts a new group. The comparison is decided exactly on the represented frequencies.",
+                "Two periodic clusters i < j are coupled when their standing frequencies satisfy (f_j − f_i) / f_i ≤ 1/10, whether or not they fall in one group of the grouping method. The comparison is decided exactly on the represented frequencies."
+              ],
+              "type": "token"
+            }
+          }
+        ],
+        "shape": "rule_statements",
+        "variants": null
+      },
+      {
+        "members": [
+          {
+            "member": "first_cluster_ref",
+            "null": "never",
+            "type": {
+              "target": "/modal_basis/clusters",
+              "type": "row_ref"
+            }
+          },
+          {
+            "member": "second_cluster_ref",
+            "null": "never",
+            "type": {
+              "target": "/modal_basis/clusters",
+              "type": "row_ref"
+            }
+          },
+          {
+            "member": "rho",
+            "null": "never",
+            "type": {
+              "kinds": [
+                "correlation_coefficient"
+              ],
+              "type": "value_object"
+            }
+          },
+          {
+            "member": "status",
+            "null": "never",
+            "type": {
+              "tokens": [
+                "informational"
+              ],
+              "type": "token"
+            }
+          }
+        ],
+        "shape": "correlation",
+        "variants": null
+      },
+      {
+        "members": [
+          {
+            "member": "cluster_refs",
+            "null": "never",
+            "type": {
+              "items": {
+                "target": "/modal_basis/clusters",
+                "type": "row_ref"
+              },
+              "length": null,
+              "type": "array"
+            }
+          }
+        ],
+        "shape": "group",
+        "variants": null
+      },
+      {
+        "members": [
+          {
+            "member": "first_cluster_ref",
+            "null": "never",
+            "type": {
+              "target": "/modal_basis/clusters",
+              "type": "row_ref"
+            }
+          },
+          {
+            "member": "second_cluster_ref",
+            "null": "never",
+            "type": {
+              "target": "/modal_basis/clusters",
+              "type": "row_ref"
+            }
+          }
+        ],
+        "shape": "coupled_pair",
+        "variants": null
+      },
+      {
+        "members": [
+          {
+            "member": "diagnostic_id",
+            "null": "never",
+            "type": {
+              "type": "string"
+            }
+          },
+          {
+            "member": "code",
+            "null": "never",
+            "type": {
+              "tokens": [
+                "SPECTRUM_RECORD_INVALID",
+                "SPECTRUM_DAMPING_OUT_OF_RANGE",
+                "SPECTRUM_DAMPING_MISMATCH",
+                "SPECTRUM_FREQUENCY_OUTSIDE_RANGE",
+                "SPECTRUM_QUERY_FREQUENCY_INVALID",
+                "SPECTRUM_SCALE_FACTOR_INVALID",
+                "SPECTRUM_EVALUATION_ACCURACY_UNSUPPORTED",
+                "SPECTRUM_METHOD_CHOICE_MISSING",
+                "SPECTRUM_CQC_DAMPING_UNSUPPORTED",
+                "SPECTRUM_DIRECTION_INVALID",
+                "SPECTRUM_MODAL_METADATA_INVALID",
+                "SPECTRUM_ROW_INVALID",
+                "SPECTRUM_CONTRIBUTION_INVALID",
+                "SPECTRUM_CONTRIBUTION_NOT_PERIODIC",
+                "SPECTRUM_RIGID_FREQUENCY_INVALID",
+                "SPECTRUM_RIGID_RESPONSE_INVALID",
+                "SPECTRUM_RIGID_RESPONSE_PREMISE_MISMATCH",
+                "SPECTRUM_COMBINATION_ACCURACY_UNSUPPORTED",
+                "SPECTRUM_COMBINATION_NONFINITE",
+                "SPECTRUM_EXTRACTION_BELOW_RIGID_FREQUENCY",
+                "SPECTRUM_DOCUMENT_INPUT_INVALID",
+                "SPECTRUM_DOCUMENT_OUTSIDE_CANONICAL_PROFILE"
+              ],
+              "type": "token"
+            }
+          },
+          {
+            "member": "severity",
+            "null": "never",
+            "type": {
+              "tokens": [
+                "blocking"
+              ],
+              "type": "token"
+            }
+          },
+          {
+            "member": "object",
+            "null": "never",
+            "type": {
+              "type": "string"
+            }
+          },
+          {
+            "member": "field",
+            "null": "permitted",
+            "type": {
+              "type": "string"
+            }
+          },
+          {
+            "member": "detail",
+            "null": "never",
+            "type": {
+              "type": "string"
+            }
+          }
+        ],
+        "shape": "refusal",
+        "variants": null
+      },
+      {
+        "members": [
+          {
+            "member": "kind",
+            "null": "never",
+            "type": {
+              "type": "string"
+            }
+          },
+          {
+            "member": "value",
+            "null": "undefined_reason_stated",
+            "type": {
+              "type": "number"
+            }
+          },
+          {
+            "member": "unit",
+            "null": "never",
+            "type": {
+              "type": "string"
+            }
+          },
+          {
+            "member": "unit_status",
+            "null": "never",
+            "type": {
+              "tokens": [
+                "catalog"
+              ],
+              "type": "token"
+            }
+          },
+          {
+            "member": "below_normal",
+            "null": "never",
+            "type": {
+              "type": "boolean"
+            }
+          },
+          {
+            "member": "undefined_reason",
+            "null": "undefined_reason_stated",
+            "type": {
+              "tokens": [
+                "not_formed",
+                "total_mass_zero"
+              ],
+              "type": "token"
+            }
+          }
+        ],
+        "shape": "value_object",
+        "variants": null
+      }
+    ],
+    "statement": "Every object of a spectrum result document has exactly the members its shape declares: the shape's members and, where the shape has variants, those of the alternative its `by` member's token selects. Each member is of its type, or null where its null rule permits. The document itself is of shape document.",
+    "types": [
+      {
+        "statement": "A JSON string.",
+        "type": "string"
+      },
+      {
+        "statement": "A JSON string that is one of the stated tokens.",
+        "type": "token"
+      },
+      {
+        "statement": "true or false.",
+        "type": "boolean"
+      },
+      {
+        "statement": "A JSON number written as an integer, from 0 to 2^53 - 1.",
+        "type": "integer"
+      },
+      {
+        "statement": "A JSON number within the checked canonical profile (finite, of magnitude below 2^53).",
+        "type": "number"
+      },
+      {
+        "statement": "An object of shape value_object whose kind is one of the stated kinds and whose unit is that kind's catalog unit in value_kinds.",
+        "type": "value_object"
+      },
+      {
+        "statement": "A string that is the row_id of a row of the sealed table at the JSON pointer its target states, in the same document.",
+        "type": "row_ref"
+      },
+      {
+        "statement": "A JSON array whose every item is of the stated type, of the stated length where one is stated.",
+        "type": "array"
+      },
+      {
+        "statement": "An object of the named shape.",
+        "type": "object"
+      },
+      {
+        "statement": "A sealed table: an object with exactly the members status (the token published), row_count (an integer, the number of rows), digest (the SHA-256, lowercase hex, of the canonical text of the array of the rows' checksum strings in row order) and rows (an array of objects of the named row shape). Each row has, beside its shape's members, row_id (a string, unique in the table), ordinal (an integer, its zero-based position in rows) and checksum (the SHA-256, lowercase hex, of the canonical text of the row without its checksum member).",
+        "type": "table"
+      },
+      {
+        "statement": "An object whose members are exactly the directions of /rows/directions, each of the stated type.",
+        "type": "direction_map"
+      },
+      {
+        "statement": "Any JSON value within the checked canonical profile; its content is attributed, not checked here.",
+        "type": "opaque_json"
+      },
+      {
+        "statement": "A member whose null rule permits it may be null in place of its type.",
+        "type": "null"
+      }
+    ]
+  },
+  "frames": [
+    {
+      "axes": "the global X, Y and Z axes",
+      "frame": "global_axes"
+    },
+    {
+      "axes": "a straight member's axes: x from end i to end j, y the part of the member's reference vector normal to x, normalized, z = x cross y; stated per member in the census as vectors in global axes",
+      "frame": "member_axes"
+    },
+    {
+      "axes": "an arc's tangent frame at the row's end, the static result's (DEL-04-01/REQ-018); stated per arc end in the census as vectors in global axes",
+      "frame": "arc_tangent_frame"
+    },
+    {
+      "axes": "a connector's own axes; stated per connector in the census as vectors in global axes",
+      "frame": "connector_axes"
+    },
+    {
+      "axes": "a tie rod's axis from its attachment at end i to its attachment at end j; stated per rod in the census as one oriented unit vector in global axes",
+      "frame": "rod_axis"
+    }
+  ],
+  "held": [
+    {
+      "held": "single",
+      "statement": "Where one support holds the constraint, the row is that support's reaction."
+    },
+    {
+      "held": "jointly_undivided",
+      "statement": "The row states that it is the reaction of the constraint, that the supports it names hold it together, and that it is not divided between them or to be added once per support."
+    }
+  ],
+  "id": "openpipestress.result_semantics/spectrum-1",
+  "quantity_kinds": [
+    {
+      "components": [
+        {
+          "component": "ux",
+          "dimension": "length",
+          "symbol": "m",
+          "unit": "unit:meter",
+          "unit_status": "catalog"
+        },
+        {
+          "component": "uy",
+          "dimension": "length",
+          "symbol": "m",
+          "unit": "unit:meter",
+          "unit_status": "catalog"
+        },
+        {
+          "component": "uz",
+          "dimension": "length",
+          "symbol": "m",
+          "unit": "unit:meter",
+          "unit_status": "catalog"
+        },
+        {
+          "component": "rx",
+          "dimension": "angle",
+          "symbol": "rad",
+          "unit": "unit:radian",
+          "unit_status": "catalog"
+        },
+        {
+          "component": "ry",
+          "dimension": "angle",
+          "symbol": "rad",
+          "unit": "unit:radian",
+          "unit_status": "catalog"
+        },
+        {
+          "component": "rz",
+          "dimension": "angle",
+          "symbol": "rad",
+          "unit": "unit:radian",
+          "unit_status": "catalog"
+        }
+      ],
+      "entity_kind": "node",
+      "frames": [
+        {
+          "frame": "global_axes",
+          "member_family": null,
+          "static_row": "the static nodal displacement or rotation of that node and component, in global axes"
+        }
+      ],
+      "has_end": false,
+      "quantity_kind": "node_displacement",
+      "sign_convention": "positive_along_axis"
+    },
+    {
+      "components": [
+        {
+          "component": "Fx",
+          "dimension": "force",
+          "symbol": "N",
+          "unit": "unit:newton",
+          "unit_status": "catalog"
+        },
+        {
+          "component": "Fy",
+          "dimension": "force",
+          "symbol": "N",
+          "unit": "unit:newton",
+          "unit_status": "catalog"
+        },
+        {
+          "component": "Fz",
+          "dimension": "force",
+          "symbol": "N",
+          "unit": "unit:newton",
+          "unit_status": "catalog"
+        },
+        {
+          "component": "Mx",
+          "dimension": "moment",
+          "symbol": "N*m",
+          "unit": "unit:newton_meter",
+          "unit_status": "catalog"
+        },
+        {
+          "component": "My",
+          "dimension": "moment",
+          "symbol": "N*m",
+          "unit": "unit:newton_meter",
+          "unit_status": "catalog"
+        },
+        {
+          "component": "Mz",
+          "dimension": "moment",
+          "symbol": "N*m",
+          "unit": "unit:newton_meter",
+          "unit_status": "catalog"
+        }
+      ],
+      "entity_kind": "member",
+      "frames": [
+        {
+          "frame": "global_axes",
+          "member_family": "straight",
+          "static_row": "the static global end-action row of that member at that end and component"
+        },
+        {
+          "frame": "member_axes",
+          "member_family": "straight",
+          "static_row": "the static element-local end row of that member at that end and component, in the member's local frame; on an EX pressure member the axial row takes the frame and sign of the static wall axial end action"
+        },
+        {
+          "frame": "global_axes",
+          "member_family": "arc",
+          "static_row": "the static global end-action row of that arc at that end and component"
+        },
+        {
+          "frame": "arc_tangent_frame",
+          "member_family": "arc",
+          "static_row": "the static element-local end row of that arc at that end and component, in the arc tangent frame at that end"
+        }
+      ],
+      "has_end": true,
+      "quantity_kind": "element_end_action",
+      "sign_convention": "action_on_element_at_end_node"
+    },
+    {
+      "components": [
+        {
+          "component": "axial",
+          "dimension": "force",
+          "symbol": "N",
+          "unit": "unit:newton",
+          "unit_status": "catalog"
+        },
+        {
+          "component": "lateral_y",
+          "dimension": "force",
+          "symbol": "N",
+          "unit": "unit:newton",
+          "unit_status": "catalog"
+        },
+        {
+          "component": "lateral_z",
+          "dimension": "force",
+          "symbol": "N",
+          "unit": "unit:newton",
+          "unit_status": "catalog"
+        },
+        {
+          "component": "torsion",
+          "dimension": "moment",
+          "symbol": "N*m",
+          "unit": "unit:newton_meter",
+          "unit_status": "catalog"
+        },
+        {
+          "component": "bending_y",
+          "dimension": "moment",
+          "symbol": "N*m",
+          "unit": "unit:newton_meter",
+          "unit_status": "catalog"
+        },
+        {
+          "component": "bending_z",
+          "dimension": "moment",
+          "symbol": "N*m",
+          "unit": "unit:newton_meter",
+          "unit_status": "catalog"
+        }
+      ],
+      "entity_kind": "connector",
+      "frames": [
+        {
+          "frame": "connector_axes",
+          "member_family": null,
+          "static_row": "the static connector-local force of that connector and component, without its reference displacement"
+        }
+      ],
+      "has_end": false,
+      "quantity_kind": "connector_generalized_force",
+      "sign_convention": "positive_along_connector_axes"
+    },
+    {
+      "components": [
+        {
+          "component": "Fx",
+          "dimension": "force",
+          "symbol": "N",
+          "unit": "unit:newton",
+          "unit_status": "catalog"
+        },
+        {
+          "component": "Fy",
+          "dimension": "force",
+          "symbol": "N",
+          "unit": "unit:newton",
+          "unit_status": "catalog"
+        },
+        {
+          "component": "Fz",
+          "dimension": "force",
+          "symbol": "N",
+          "unit": "unit:newton",
+          "unit_status": "catalog"
+        },
+        {
+          "component": "Mx",
+          "dimension": "moment",
+          "symbol": "N*m",
+          "unit": "unit:newton_meter",
+          "unit_status": "catalog"
+        },
+        {
+          "component": "My",
+          "dimension": "moment",
+          "symbol": "N*m",
+          "unit": "unit:newton_meter",
+          "unit_status": "catalog"
+        },
+        {
+          "component": "Mz",
+          "dimension": "moment",
+          "symbol": "N*m",
+          "unit": "unit:newton_meter",
+          "unit_status": "catalog"
+        }
+      ],
+      "entity_kind": "connector",
+      "frames": [
+        {
+          "frame": "global_axes",
+          "member_family": null,
+          "static_row": "the static connector end action of that connector, end and component"
+        }
+      ],
+      "has_end": true,
+      "quantity_kind": "connector_end_action",
+      "sign_convention": "action_on_element_at_end_node"
+    },
+    {
+      "components": [
+        {
+          "component": "axial",
+          "dimension": "force",
+          "symbol": "N",
+          "unit": "unit:newton",
+          "unit_status": "catalog"
+        }
+      ],
+      "entity_kind": "tie_rod",
+      "frames": [
+        {
+          "frame": "rod_axis",
+          "member_family": null,
+          "static_row": "the static tie-rod force of that connector's rod, without its reference elongation or pretension"
+        }
+      ],
+      "has_end": false,
+      "quantity_kind": "tie_rod_force",
+      "sign_convention": "tension_positive"
+    },
+    {
+      "components": [
+        {
+          "component": "UX",
+          "dimension": "force",
+          "symbol": "N",
+          "unit": "unit:newton",
+          "unit_status": "catalog"
+        },
+        {
+          "component": "UY",
+          "dimension": "force",
+          "symbol": "N",
+          "unit": "unit:newton",
+          "unit_status": "catalog"
+        },
+        {
+          "component": "UZ",
+          "dimension": "force",
+          "symbol": "N",
+          "unit": "unit:newton",
+          "unit_status": "catalog"
+        },
+        {
+          "component": "RX",
+          "dimension": "moment",
+          "symbol": "N*m",
+          "unit": "unit:newton_meter",
+          "unit_status": "catalog"
+        },
+        {
+          "component": "RY",
+          "dimension": "moment",
+          "symbol": "N*m",
+          "unit": "unit:newton_meter",
+          "unit_status": "catalog"
+        },
+        {
+          "component": "RZ",
+          "dimension": "moment",
+          "symbol": "N*m",
+          "unit": "unit:newton_meter",
+          "unit_status": "catalog"
+        }
+      ],
+      "entity_kind": "rigid_constraint",
+      "frames": [
+        {
+          "frame": "global_axes",
+          "member_family": null,
+          "static_row": "where one support holds the constraint, that support's static reaction of the same component where the static result publishes one; a constraint held by more than one support, or by a snubber alone, has no static row"
+        }
+      ],
+      "has_end": false,
+      "quantity_kind": "constraint_reaction",
+      "sign_convention": "action_of_support_on_piping"
+    },
+    {
+      "components": [
+        {
+          "component": "UX",
+          "dimension": "force",
+          "symbol": "N",
+          "unit": "unit:newton",
+          "unit_status": "catalog"
+        },
+        {
+          "component": "UY",
+          "dimension": "force",
+          "symbol": "N",
+          "unit": "unit:newton",
+          "unit_status": "catalog"
+        },
+        {
+          "component": "UZ",
+          "dimension": "force",
+          "symbol": "N",
+          "unit": "unit:newton",
+          "unit_status": "catalog"
+        },
+        {
+          "component": "RX",
+          "dimension": "moment",
+          "symbol": "N*m",
+          "unit": "unit:newton_meter",
+          "unit_status": "catalog"
+        },
+        {
+          "component": "RY",
+          "dimension": "moment",
+          "symbol": "N*m",
+          "unit": "unit:newton_meter",
+          "unit_status": "catalog"
+        },
+        {
+          "component": "RZ",
+          "dimension": "moment",
+          "symbol": "N*m",
+          "unit": "unit:newton_meter",
+          "unit_status": "catalog"
+        }
+      ],
+      "entity_kind": "compliant_support",
+      "frames": [
+        {
+          "frame": "global_axes",
+          "member_family": null,
+          "static_row": "that support's static action of the same component; a snubber has no static row"
+        }
+      ],
+      "has_end": false,
+      "quantity_kind": "compliant_support_force",
+      "sign_convention": "action_of_support_on_piping"
+    }
+  ],
+  "schema_version": "0.1.0",
+  "sign_conventions": [
+    {
+      "sign_convention": "positive_along_axis",
+      "statement": "A displacement is positive along its global axis; a rotation is positive by the right-hand rule about its global axis."
+    },
+    {
+      "sign_convention": "action_on_element_at_end_node",
+      "statement": "The generalized force acting on the element at its end node, each component positive along the axis of the row's frame; a moment is about the end node, positive by the right-hand rule. For a member or an arc the internal section force at end i is its negative."
+    },
+    {
+      "sign_convention": "positive_along_connector_axes",
+      "statement": "A connector's generalized force, positive along its connector axes and work-conjugate to its relative displacements; a moment is positive by the right-hand rule."
+    },
+    {
+      "sign_convention": "tension_positive",
+      "statement": "A tie rod's axial force, positive in tension, its axis running from its attachment at end i to its attachment at end j."
+    },
+    {
+      "sign_convention": "action_of_support_on_piping",
+      "statement": "The force or moment the support applies to the piping, positive along the global axis; a moment is about the node, positive by the right-hand rule."
+    }
+  ],
+  "sign_statuses": [
+    {
+      "carries_sign_convention": true,
+      "sign_status": "signed_contribution",
+      "statement": "signed contribution, not a peak response"
+    },
+    {
+      "carries_sign_convention": true,
+      "sign_status": "signed_cluster_sum",
+      "statement": "signed sum of one cluster's contributions, not a peak response"
+    },
+    {
+      "carries_sign_convention": false,
+      "sign_status": "unsigned_combined_magnitude",
+      "statement": "unsigned combined magnitude; it has no sign"
+    }
+  ],
+  "value_kinds": [
+    {
+      "dimension": "dimensionless",
+      "kind": "damping_ratio",
+      "symbol": "1",
+      "unit": "unit:one",
+      "unit_status": "catalog"
+    },
+    {
+      "dimension": "dimensionless",
+      "kind": "scale_factor",
+      "symbol": "1",
+      "unit": "unit:one",
+      "unit_status": "catalog"
+    },
+    {
+      "dimension": "frequency",
+      "kind": "rigid_frequency",
+      "symbol": "Hz",
+      "unit": "unit:hertz",
+      "unit_status": "catalog"
+    },
+    {
+      "dimension": "frequency",
+      "kind": "modal_frequency",
+      "symbol": "Hz",
+      "unit": "unit:hertz",
+      "unit_status": "catalog"
+    },
+    {
+      "dimension": "angular_frequency",
+      "kind": "modal_circular_frequency",
+      "symbol": "rad/s",
+      "unit": "unit:radian_per_second",
+      "unit_status": "catalog"
+    },
+    {
+      "dimension": "angular_frequency",
+      "kind": "next_computed_circular_frequency",
+      "symbol": "rad/s",
+      "unit": "unit:radian_per_second",
+      "unit_status": "catalog"
+    },
+    {
+      "dimension": "dimensionless",
+      "kind": "cluster_tolerance",
+      "symbol": "1",
+      "unit": "unit:one",
+      "unit_status": "catalog"
+    },
+    {
+      "dimension": "frequency",
+      "kind": "cluster_standing_frequency",
+      "symbol": "Hz",
+      "unit": "unit:hertz",
+      "unit_status": "catalog"
+    },
+    {
+      "dimension": "frequency",
+      "kind": "next_computed_frequency",
+      "symbol": "Hz",
+      "unit": "unit:hertz",
+      "unit_status": "catalog"
+    },
+    {
+      "dimension": "frequency",
+      "kind": "evaluated_frequency",
+      "symbol": "Hz",
+      "unit": "unit:hertz",
+      "unit_status": "catalog"
+    },
+    {
+      "dimension": "frequency",
+      "kind": "spectrum_range_frequency",
+      "symbol": "Hz",
+      "unit": "unit:hertz",
+      "unit_status": "catalog"
+    },
+    {
+      "dimension": "time",
+      "kind": "spectrum_range_period",
+      "symbol": "s",
+      "unit": "unit:second",
+      "unit_status": "catalog"
+    },
+    {
+      "dimension": "acceleration",
+      "kind": "spectrum_g",
+      "symbol": "m/s^2",
+      "unit": "unit:meter_per_second_squared",
+      "unit_status": "catalog"
+    },
+    {
+      "dimension": "mass",
+      "kind": "directional_total_mass",
+      "symbol": "kg",
+      "unit": "unit:kilogram",
+      "unit_status": "catalog"
+    },
+    {
+      "dimension": "mass",
+      "kind": "modal_effective_mass",
+      "symbol": "kg",
+      "unit": "unit:kilogram",
+      "unit_status": "catalog"
+    },
+    {
+      "dimension": "mass",
+      "kind": "periodic_effective_mass_sum",
+      "symbol": "kg",
+      "unit": "unit:kilogram",
+      "unit_status": "catalog"
+    },
+    {
+      "dimension": "mass",
+      "kind": "unrepresented_effective_mass",
+      "symbol": "kg",
+      "unit": "unit:kilogram",
+      "unit_status": "catalog"
+    },
+    {
+      "dimension": "dimensionless",
+      "kind": "periodic_cumulative_effective_mass_fraction",
+      "symbol": "1",
+      "unit": "unit:one",
+      "unit_status": "catalog"
+    },
+    {
+      "dimension": "dimensionless",
+      "kind": "unrepresented_mass_fraction",
+      "symbol": "1",
+      "unit": "unit:one",
+      "unit_status": "catalog"
+    },
+    {
+      "dimension": "dimensionless",
+      "kind": "correlation_coefficient",
+      "symbol": "1",
+      "unit": "unit:one",
+      "unit_status": "catalog"
+    },
+    {
+      "dimension": "dimensionless",
+      "kind": "frame_axis_component",
+      "symbol": "1",
+      "unit": "unit:one",
+      "unit_status": "catalog"
+    },
+    {
+      "dimension": "dimensionless",
+      "kind": "spectrum_ordinate_g_multiple",
+      "symbol": "1",
+      "unit": "unit:one",
+      "unit_status": "catalog"
+    }
+  ]
+}

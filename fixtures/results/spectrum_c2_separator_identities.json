@@ -1,0 +1,4486 @@
+{
+  "admission": {
+    "public_engineering_result": false,
+    "status": "experimental"
+  },
+  "bindings": {
+    "model": {
+      "binds": "model_document",
+      "canonical_form": "openpipestress_jcs_ijson_v1",
+      "hash_algorithm": "sha-256",
+      "sha256": "41cada6d3c6fa98752202787fad9f72e644488946b84153fbdc59c96a26f0bce"
+    },
+    "request": {
+      "binds": "spectrum_request",
+      "canonical_form": "openpipestress_jcs_ijson_v1",
+      "hash_algorithm": "sha-256",
+      "sha256": "fb37e056ed4288331e64e9a969542f8f8b10d8fb866c851f3a9b3e5b31212212"
+    }
+  },
+  "canonical_profile": "openpipestress_jcs_ijson_v1",
+  "census": {
+    "arcs": {
+      "digest": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+      "row_count": 0,
+      "rows": [],
+      "status": "published"
+    },
+    "compliant_supports": {
+      "digest": "670ee42760f10c106fe5a5cbd08b3bd7aa159f6cd4aa2cd5b8f1480dd8982738",
+      "row_count": 1,
+      "rows": [
+        {
+          "checksum": "6d50acd45d2abba3004b4c83d6c3f8172fce81e27429bf3e7e5ead9cd22cd880",
+          "components": [
+            "UY"
+          ],
+          "node_id": "node:N3.uy_m tip",
+          "ordinal": 0,
+          "row_id": "compliant-support:1",
+          "support_id": "S1.UY spring: 1"
+        }
+      ],
+      "status": "published"
+    },
+    "connectors": {
+      "digest": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+      "row_count": 0,
+      "rows": [],
+      "status": "published"
+    },
+    "nodes": {
+      "digest": "3a85c58ff8bda4e6a5e6c9eb4ecd1bf346472bd6804ecfd3fd4db6e60d45b6fb",
+      "row_count": 3,
+      "rows": [
+        {
+          "checksum": "ea9c8896312e0bacd3f0e74b2c42857164d846eaa66751b402e8215958972fb2",
+          "node_id": "N1.ux: anchor node",
+          "ordinal": 0,
+          "row_id": "node:1"
+        },
+        {
+          "checksum": "38f8f2c382b5dbd629401510a420fc3089990d1840f1c7f087a75376d5300b8e",
+          "node_id": "N2 .i.Fx_m",
+          "ordinal": 1,
+          "row_id": "node:2"
+        },
+        {
+          "checksum": "e47650cb59a64de2240fa4e5c71dd7eab46f6ce925d52ced7fd5f39d09214156",
+          "node_id": "node:N3.uy_m tip",
+          "ordinal": 2,
+          "row_id": "node:3"
+        }
+      ],
+      "status": "published"
+    },
+    "rigid_constraints": {
+      "digest": "6e55e0184858c8c40810bab7847f5ef0035f14e578a9973cdfa8fb3abd0f064a",
+      "row_count": 6,
+      "rows": [
+        {
+          "checksum": "2eeb35b5ee06fba508decece639ff3979dff7e819e0a1c1ba2e71ec5e6a101ea",
+          "component": "UX",
+          "held": "single",
+          "holders": [
+            "A1.Fx: anchor_m"
+          ],
+          "node_id": "N1.ux: anchor node",
+          "ordinal": 0,
+          "row_id": "rigid-constraint:1"
+        },
+        {
+          "checksum": "e875ab4ef3aa3ad44edea2333dcb37f8ed97a5cd096629ec9af54f9917a5c833",
+          "component": "UY",
+          "held": "single",
+          "holders": [
+            "A1.Fx: anchor_m"
+          ],
+          "node_id": "N1.ux: anchor node",
+          "ordinal": 1,
+          "row_id": "rigid-constraint:2"
+        },
+        {
+          "checksum": "dd18f525bc40d819b6ef7d800567daaddd28e13d4eaea58bd48d3329e82bceeb",
+          "component": "UZ",
+          "held": "single",
+          "holders": [
+            "A1.Fx: anchor_m"
+          ],
+          "node_id": "N1.ux: anchor node",
+          "ordinal": 2,
+          "row_id": "rigid-constraint:3"
+        },
+        {
+          "checksum": "5e9036e3016d9db86b291ce980dc54b40bfac8472b38f83721bad3e0770e2891",
+          "component": "RX",
+          "held": "single",
+          "holders": [
+            "A1.Fx: anchor_m"
+          ],
+          "node_id": "N1.ux: anchor node",
+          "ordinal": 3,
+          "row_id": "rigid-constraint:4"
+        },
+        {
+          "checksum": "65440277c57dcd44e8b48d4ca6fdc95cdf2ef905b3895f01d486af994c0ee181",
+          "component": "RY",
+          "held": "single",
+          "holders": [
+            "A1.Fx: anchor_m"
+          ],
+          "node_id": "N1.ux: anchor node",
+          "ordinal": 4,
+          "row_id": "rigid-constraint:5"
+        },
+        {
+          "checksum": "ca3d7b2bdd28e3831d2c01fdb7a5a959f98f0b34ef13b0d1b017e5343f612083",
+          "component": "RZ",
+          "held": "single",
+          "holders": [
+            "A1.Fx: anchor_m"
+          ],
+          "node_id": "N1.ux: anchor node",
+          "ordinal": 5,
+          "row_id": "rigid-constraint:6"
+        }
+      ],
+      "status": "published"
+    },
+    "straight_members": {
+      "digest": "6e20e5a18020de836a67ac2b11089951133f5fc71abadf3e77c5795a8465a224",
+      "row_count": 2,
+      "rows": [
+        {
+          "checksum": "651a3ca38c3376a912405615678495f2127a512f48a29d6658e183dd1a146682",
+          "end_i_node": "N1.ux: anchor node",
+          "end_j_node": "N2 .i.Fx_m",
+          "member_axes": {
+            "x": [
+              1.0,
+              0.0,
+              0.0
+            ],
+            "y": [
+              0.0,
+              0.0,
+              1.0
+            ],
+            "z": [
+              0.0,
+              -1.0,
+              0.0
+            ]
+          },
+          "member_id": "P1.i.Fx_m",
+          "ordinal": 0,
+          "reference_vector": [
+            0.0,
+            0.0,
+            1.0
+          ],
+          "row_id": "straight-member:1"
+        },
+        {
+          "checksum": "0243cbd83d860c2c241f21c4561009596857707215a7bffad1be26e0f2c27c03",
+          "end_i_node": "N2 .i.Fx_m",
+          "end_j_node": "node:N3.uy_m tip",
+          "member_axes": {
+            "x": [
+              1.0,
+              0.0,
+              0.0
+            ],
+            "y": [
+              0.0,
+              0.0,
+              1.0
+            ],
+            "z": [
+              0.0,
+              -1.0,
+              0.0
+            ]
+          },
+          "member_id": "pipe: P2.j.Mz_m",
+          "ordinal": 1,
+          "reference_vector": [
+            0.0,
+            0.0,
+            1.0
+          ],
+          "row_id": "straight-member:2"
+        }
+      ],
+      "status": "published"
+    },
+    "supports_without_rows": {
+      "digest": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+      "row_count": 0,
+      "rows": [],
+      "status": "published"
+    },
+    "tie_rods": {
+      "digest": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+      "row_count": 0,
+      "rows": [],
+      "status": "published"
+    }
+  },
+  "disclosures": {
+    "extraction_premise": {
+      "applies": true,
+      "completion_evidence": "the reference lists every one of the model's 12 finite modes (modal_basis.clusters, with Sturm counts agreeing at every gap in modal_cross_checks); the next computed mode above the 4 extracted is stated with its frequency",
+      "endpoint": "below_computed_cluster",
+      "established_finite_mode_count": 12,
+      "highest_completed_cluster_lowest_frequency": {
+        "below_normal": false,
+        "kind": "cluster_standing_frequency",
+        "undefined_reason": null,
+        "unit": "unit:hertz",
+        "unit_status": "catalog",
+        "value": 60.931777778095054
+      },
+      "highest_completed_cluster_ref": "cluster:4",
+      "holds": true,
+      "next_computed_frequency": {
+        "below_normal": false,
+        "kind": "next_computed_frequency",
+        "undefined_reason": null,
+        "unit": "unit:hertz",
+        "unit_status": "catalog",
+        "value": 202.21331074152323
+      },
+      "reported_mode_count": 4,
+      "rigid_frequency": {
+        "below_normal": false,
+        "kind": "rigid_frequency",
+        "undefined_reason": null,
+        "unit": "unit:hertz",
+        "unit_status": "catalog",
+        "value": 33.0
+      }
+    },
+    "fixed": {
+      "digest": "93fd12b6641156910746b6fab368394c2a53a97aa508b7dd3a9ea96953d52254",
+      "row_count": 5,
+      "rows": [
+        {
+          "checksum": "81082569d3f85a691a368a2c21f5f699a84bf7931dbebb21e2b5d9b6ebad2341",
+          "disclosure_id": "pseudo_acceleration",
+          "ordinal": 0,
+          "row_id": "disclosure:pseudo_acceleration",
+          "text": "Every spectrum ordinate is a pseudo-spectral acceleration: omega squared times the peak relative displacement of a linear oscillator at the spectrum's damping. No other kind of spectrum is converted and no spectrum is extrapolated."
+        },
+        {
+          "checksum": "e42e37e06e313ee889825fb3aff54b8ecebaa0f0bbf026d0d49e320af90d2a41",
+          "disclosure_id": "uniform_support_motion",
+          "ordinal": 1,
+          "row_id": "disclosure:uniform_support_motion",
+          "text": "Uniform support motion: in each requested direction every rigid support moves with the ground. Independent support motion is not built."
+        },
+        {
+          "checksum": "94fbeaef02881949eccc02d6ff82fa15fd16fa8b2e3312e1c37fd1ad4091e4a7",
+          "disclosure_id": "velocity_terms_neglected",
+          "ordinal": 2,
+          "row_id": "disclosure:velocity_terms_neglected",
+          "text": "Damping is represented only through the spectra. Each mode's quantities are recovered at its displacement extremum, and the velocity-proportional parts of forces and reactions are neglected; this is an adopted approximation, and no bound on the resulting force or reaction error is claimed."
+        },
+        {
+          "checksum": "ef80db85c445a8b4ef6affc3945ec43ae577ed10b5727c057949bb0a98dc475a",
+          "disclosure_id": "repeated_modes",
+          "ordinal": 3,
+          "row_id": "disclosure:repeated_modes",
+          "text": "The modes of each cluster of the modal basis are summed with their signs first and the modal rule is applied across the clusters. A cluster is the modal basis's numerical convention, not a statement that its eigenvalues are equal; for a cluster whose modes have unequal frequencies, summing first is an adopted convention, and no independence from the modal basis is claimed for it."
+        },
+        {
+          "checksum": "a0d660853b786e2ead0aea09ca6c0499898313d04a8d248d81e8c2245ad90b6f",
+          "disclosure_id": "rigid_response_premise",
+          "ordinal": 4,
+          "row_id": "disclosure:rigid_response_premise",
+          "text": "The missing-mass correction is applied. The rigid response is the static response, on the dynamic stiffness, to the inertia at the rigid acceleration of everything the periodic modes leave out; it assumes that the modes classified as rigid respond in phase with the ground."
+        }
+      ],
+      "status": "published"
+    },
+    "missing_mass": {
+      "arithmetic": "E is the exact sum of the stated binary64 effective masses of the periodic modes. S is E rounded once to the nearest binary64 (ties to even). U is the exact difference T − E, rounded once the same way. U is not T minus the published S, and the two can differ: where E rounds to T, T minus the published S is zero while the mass the periodic modes leave out is not. The cumulative fraction is the binary64 quotient of the published S by T and the unrepresented fraction the binary64 quotient of the published U by T, each rounded to nearest; they state what fraction of the published total each published mass is, and are recomputable from the published values. T is the stated total mass of the direction, which includes the mass that moves with the supports. Where T is zero both fractions are undefined.",
+      "directions": {
+        "digest": "ed9af67c602d75d72e6a06949f8d08bf3d5c8182cae68b387ff118fbc8e45be8",
+        "row_count": 1,
+        "rows": [
+          {
+            "checksum": "ae23c0ae4364c997ba0743f41fa38b2fe018a224487e300582c8e9ccd86ff803",
+            "correction_applied": true,
+            "direction": "Y",
+            "ordinal": 0,
+            "periodic_cumulative_fraction": {
+              "below_normal": false,
+              "kind": "periodic_cumulative_effective_mass_fraction",
+              "undefined_reason": null,
+              "unit": "unit:one",
+              "unit_status": "catalog",
+              "value": 0.6295815087515836
+            },
+            "periodic_effective_mass_sum": {
+              "below_normal": false,
+              "kind": "periodic_effective_mass_sum",
+              "undefined_reason": null,
+              "unit": "unit:kilogram",
+              "unit_status": "catalog",
+              "value": 173.1524015247578
+            },
+            "periodic_effective_masses": [
+              {
+                "effective_mass": {
+                  "below_normal": false,
+                  "kind": "modal_effective_mass",
+                  "undefined_reason": null,
+                  "unit": "unit:kilogram",
+                  "unit_status": "catalog",
+                  "value": 0.0
+                },
+                "mode_ref": "mode:1"
+              },
+              {
+                "effective_mass": {
+                  "below_normal": false,
+                  "kind": "modal_effective_mass",
+                  "undefined_reason": null,
+                  "unit": "unit:kilogram",
+                  "unit_status": "catalog",
+                  "value": 173.1524015247578
+                },
+                "mode_ref": "mode:2"
+              }
+            ],
+            "row_id": "missing-mass:Y",
+            "total_mass": {
+              "below_normal": false,
+              "kind": "directional_total_mass",
+              "undefined_reason": null,
+              "unit": "unit:kilogram",
+              "unit_status": "catalog",
+              "value": 275.0277749867638
+            },
+            "unrepresented_effective_mass": {
+              "below_normal": false,
+              "kind": "unrepresented_effective_mass",
+              "undefined_reason": null,
+              "unit": "unit:kilogram",
+              "unit_status": "catalog",
+              "value": 101.875373462006
+            },
+            "unrepresented_fraction": {
+              "below_normal": false,
+              "kind": "unrepresented_mass_fraction",
+              "undefined_reason": null,
+              "unit": "unit:one",
+              "unit_status": "catalog",
+              "value": 0.37041849124841636
+            }
+          }
+        ],
+        "status": "published"
+      }
+    },
+    "range": {
+      "digest": "c07cf06d76aa7488fee94ab1c20e72d514858823be2765a9c03791c6036cf282",
+      "row_count": 1,
+      "rows": [
+        {
+          "abscissa": "frequency",
+          "checksum": "795f78ec898319a75ea90675e42c164c5ea1474d3b7c6151e134a39114365ef5",
+          "directions": [
+            "Y"
+          ],
+          "evaluated": [
+            {
+              "at": "mode:1",
+              "frequency": {
+                "below_normal": false,
+                "kind": "evaluated_frequency",
+                "undefined_reason": null,
+                "unit": "unit:hertz",
+                "unit_status": "catalog",
+                "value": 9.539540662786411
+              },
+              "location": {
+                "kind": "segment",
+                "lower": 2
+              }
+            },
+            {
+              "at": "mode:2",
+              "frequency": {
+                "below_normal": false,
+                "kind": "evaluated_frequency",
+                "undefined_reason": null,
+                "unit": "unit:hertz",
+                "unit_status": "catalog",
+                "value": 13.588849786940033
+              },
+              "location": {
+                "kind": "segment",
+                "lower": 2
+              }
+            },
+            {
+              "at": "rigid_frequency",
+              "frequency": {
+                "below_normal": false,
+                "kind": "evaluated_frequency",
+                "undefined_reason": null,
+                "unit": "unit:hertz",
+                "unit_status": "catalog",
+                "value": 33.0
+              },
+              "location": {
+                "kind": "segment",
+                "lower": 3
+              }
+            }
+          ],
+          "in_range": true,
+          "ordinal": 0,
+          "row_id": "range:1",
+          "spectrum_id": "S-GG",
+          "tabulated_high": {
+            "below_normal": false,
+            "kind": "spectrum_range_frequency",
+            "undefined_reason": null,
+            "unit": "unit:hertz",
+            "unit_status": "catalog",
+            "value": 1000.0
+          },
+          "tabulated_low": {
+            "below_normal": false,
+            "kind": "spectrum_range_frequency",
+            "undefined_reason": null,
+            "unit": "unit:hertz",
+            "unit_status": "catalog",
+            "value": 0.5
+          }
+        }
+      ],
+      "status": "published"
+    }
+  },
+  "document_kind": "openpipestress.spectrum_result",
+  "modal_basis": {
+    "attributed_to": "frozen_reference:validation/references/f2_spectrum/discrete:C2-GROUND-SPRING",
+    "cluster_tolerance": {
+      "below_normal": false,
+      "kind": "cluster_tolerance",
+      "undefined_reason": null,
+      "unit": "unit:one",
+      "unit_status": "catalog",
+      "value": 9.5367431640625e-7
+    },
+    "clusters": {
+      "digest": "038ebe1cc3358e4e4eda6218b0037793b964205cbafa2bd7b0b45c2fac33b15a",
+      "row_count": 4,
+      "rows": [
+        {
+          "checksum": "69e42644c40cb0d066217f4ed543193088e31d53d5c1a3c419840e6b14e2fd3d",
+          "class": "periodic",
+          "cluster_index": 1,
+          "frequencies": [
+            9.539540662786411
+          ],
+          "frequency_unit": "unit:hertz",
+          "mode_refs": [
+            "mode:1"
+          ],
+          "ordinal": 0,
+          "row_id": "cluster:1",
+          "standing_frequency": {
+            "below_normal": false,
+            "kind": "cluster_standing_frequency",
+            "undefined_reason": null,
+            "unit": "unit:hertz",
+            "unit_status": "catalog",
+            "value": 9.539540662786411
+          }
+        },
+        {
+          "checksum": "515a1a1627d0244f3e96f80971ff52f38a9530118664ce01c7662f5cc6cd65e8",
+          "class": "periodic",
+          "cluster_index": 2,
+          "frequencies": [
+            13.588849786940033
+          ],
+          "frequency_unit": "unit:hertz",
+          "mode_refs": [
+            "mode:2"
+          ],
+          "ordinal": 1,
+          "row_id": "cluster:2",
+          "standing_frequency": {
+            "below_normal": false,
+            "kind": "cluster_standing_frequency",
+            "undefined_reason": null,
+            "unit": "unit:hertz",
+            "unit_status": "catalog",
+            "value": 13.588849786940033
+          }
+        },
+        {
+          "checksum": "5779f128a0cf6f1571ee86830b7e079799ec01428825b10a047d02d1218684db",
+          "class": "rigid",
+          "cluster_index": 3,
+          "frequencies": [
+            60.105657770855174
+          ],
+          "frequency_unit": "unit:hertz",
+          "mode_refs": [
+            "mode:3"
+          ],
+          "ordinal": 2,
+          "row_id": "cluster:3",
+          "standing_frequency": {
+            "below_normal": false,
+            "kind": "cluster_standing_frequency",
+            "undefined_reason": null,
+            "unit": "unit:hertz",
+            "unit_status": "catalog",
+            "value": 60.105657770855174
+          }
+        },
+        {
+          "checksum": "77e3ddb45667e3e2d914afc1b65f67479b308dd65acf6ae17512972902303aa5",
+          "class": "rigid",
+          "cluster_index": 4,
+          "frequencies": [
+            60.931777778095054
+          ],
+          "frequency_unit": "unit:hertz",
+          "mode_refs": [
+            "mode:4"
+          ],
+          "ordinal": 3,
+          "row_id": "cluster:4",
+          "standing_frequency": {
+            "below_normal": false,
+            "kind": "cluster_standing_frequency",
+            "undefined_reason": null,
+            "unit": "unit:hertz",
+            "unit_status": "catalog",
+            "value": 60.931777778095054
+          }
+        }
+      ],
+      "status": "published"
+    },
+    "extraction": {
+      "completion_evidence": "the reference lists every one of the model's 12 finite modes (modal_basis.clusters, with Sturm counts agreeing at every gap in modal_cross_checks); the next computed mode above the 4 extracted is stated with its frequency",
+      "endpoint": "below_computed_cluster",
+      "established_finite_mode_count": 12,
+      "next_computed_circular_frequency": {
+        "below_normal": false,
+        "kind": "next_computed_circular_frequency",
+        "undefined_reason": null,
+        "unit": "unit:radian_per_second",
+        "unit_status": "catalog",
+        "value": 1270.543702967279
+      },
+      "next_computed_frequency": {
+        "below_normal": false,
+        "kind": "next_computed_frequency",
+        "undefined_reason": null,
+        "unit": "unit:hertz",
+        "unit_status": "catalog",
+        "value": 202.21331074152323
+      },
+      "reported_mode_count": 4
+    },
+    "modes": {
+      "digest": "8637d3d47cdd37c69d69322ed31650eb6252a9de00e05cf3545ecbe45f4a51c2",
+      "row_count": 4,
+      "rows": [
+        {
+          "checksum": "3b090b1ad672d616fc4136d8893e2ff851462d2ef9c5c1af3858be1dcf6d33a7",
+          "circular_frequency": {
+            "below_normal": false,
+            "kind": "modal_circular_frequency",
+            "undefined_reason": null,
+            "unit": "unit:radian_per_second",
+            "unit_status": "catalog",
+            "value": 59.938701729661794
+          },
+          "class": "periodic",
+          "cluster_ref": "cluster:1",
+          "frequency": {
+            "below_normal": false,
+            "kind": "modal_frequency",
+            "undefined_reason": null,
+            "unit": "unit:hertz",
+            "unit_status": "catalog",
+            "value": 9.539540662786411
+          },
+          "integrity_standing": null,
+          "mode_index": 1,
+          "ordinal": 0,
+          "row_id": "mode:1"
+        },
+        {
+          "checksum": "d0f203a5fa31b74177a1971fe170d37a250a30b5ddc5dfeb293b92e020f4afd7",
+          "circular_frequency": {
+            "below_normal": false,
+            "kind": "modal_circular_frequency",
+            "undefined_reason": null,
+            "unit": "unit:radian_per_second",
+            "unit_status": "catalog",
+            "value": 85.38126132277206
+          },
+          "class": "periodic",
+          "cluster_ref": "cluster:2",
+          "frequency": {
+            "below_normal": false,
+            "kind": "modal_frequency",
+            "undefined_reason": null,
+            "unit": "unit:hertz",
+            "unit_status": "catalog",
+            "value": 13.588849786940033
+          },
+          "integrity_standing": null,
+          "mode_index": 2,
+          "ordinal": 1,
+          "row_id": "mode:2"
+        },
+        {
+          "checksum": "accbc48364f2efa3347d667cb37c2d0da2f1d3ff850f59859ac6e2889b7ef9c4",
+          "circular_frequency": {
+            "below_normal": false,
+            "kind": "modal_circular_frequency",
+            "undefined_reason": null,
+            "unit": "unit:radian_per_second",
+            "unit_status": "catalog",
+            "value": 377.6549857842018
+          },
+          "class": "rigid",
+          "cluster_ref": "cluster:3",
+          "frequency": {
+            "below_normal": false,
+            "kind": "modal_frequency",
+            "undefined_reason": null,
+            "unit": "unit:hertz",
+            "unit_status": "catalog",
+            "value": 60.105657770855174
+          },
+          "integrity_standing": null,
+          "mode_index": 3,
+          "ordinal": 2,
+          "row_id": "mode:3"
+        },
+        {
+          "checksum": "4563ebf6ad7c4d8ec348f8dd7acf607eba00daf6e6499347af2735636f852c9f",
+          "circular_frequency": {
+            "below_normal": false,
+            "kind": "modal_circular_frequency",
+            "undefined_reason": null,
+            "unit": "unit:radian_per_second",
+            "unit_status": "catalog",
+            "value": 382.84565087565846
+          },
+          "class": "rigid",
+          "cluster_ref": "cluster:4",
+          "frequency": {
+            "below_normal": false,
+            "kind": "modal_frequency",
+            "undefined_reason": null,
+            "unit": "unit:hertz",
+            "unit_status": "catalog",
+            "value": 60.931777778095054
+          },
+          "integrity_standing": null,
+          "mode_index": 4,
+          "ordinal": 3,
+          "row_id": "mode:4"
+        }
+      ],
+      "status": "published"
+    },
+    "standings": null,
+    "state": null
+  },
+  "modal_result": {
+    "binding": "not_applicable",
+    "integrity_parameters_sha256": null,
+    "materials_sha256": null,
+    "model_sha256": null,
+    "reason": "constructed from a frozen reference's contributions: no modal result exists, and the modal basis is the reference's, stated in modal_basis and attributed to it",
+    "request_sha256": null,
+    "run_id": null,
+    "state_case": null
+  },
+  "origin": {
+    "constructed": [
+      "Every entity identity is constructed by renaming the reference's: N1 as \"N1.ux: anchor node\", N2 as \"N2 .i.Fx_m\", N3 as \"node:N3.uy_m tip\", P1 as \"P1.i.Fx_m\", P2 as \"pipe: P2.j.Mz_m\", A1 as \"A1.Fx: anchor_m\", S1 as \"S1.UY spring: 1\". Each renamed identity contains a dot, a space, a colon or the member-axes suffix _m, the characters a composed key would separate its fields with; each global-axes value is the reference's value for the original entity.",
+      "The member axes stated in the census are constructed by this writer from the reference's node coordinates and each member's y_reference, by REQ-006's definition (x from end i to end j, y the part of the reference vector normal to x, normalized, z = x cross y); the reference does not state them as vectors. Each is a signed permutation of the global axes.",
+      "The member-axes contributions are the reference's global contributions mapped by the signed permutation of each member's axis-aligned frame (x = +X, y = +Z, z = -Y); the reference's convention 2 states that such a frame maps component to component. Each combined magnitude is formed from them.",
+      "Except where stated above, each entity identity and the spectra are the reference's. The model document is a stand-in in the model document's shape, not a schema-checked model; its materials, sections and support families are placeholders, not checked against the reference. The spectrum request is this unit's stand-in shape. The extraction endpoint, the reported and established mode counts and the completion evidence sentence in modal_basis are derived by this writer from the reference's mode list and its Sturm evidence; they are not fields of the reference. Each direction's formation record (its spectrum, the digest of that spectrum's record in the model stand-in, and its scale factor) is this writer's statement of the reference's request."
+    ],
+    "kind": "constructed_from_reference",
+    "produced_by_spectrum_solve": false,
+    "reference": {
+      "analysis": "C2-SPRING",
+      "case": "C2-GROUND-SPRING",
+      "package": "validation/references/f2_spectrum/discrete"
+    },
+    "statement": "Constructed from the signed contributions of a frozen reference, not produced by a spectrum solve; its combined magnitudes are formed from those contributions by the product's combinations. It is not evidence that the product recovers these contributions."
+  },
+  "profile": {
+    "limitations": [
+      "Experimental response-spectrum preview under uniform support motion, formed from the signed modal and rigid contributions of a small-displacement, linear-elastic modal basis, with damping represented only through the user's pseudo-acceleration spectra; it is not a public engineering result, it is not recorded as an analysis run, and it establishes neither physical correctness nor code compliance.",
+      "Every row is the response to the support motion alone, about the state the modal model was formed at: a combined row is an unsigned magnitude in its stated frame, formed in that frame from signed contributions, and is never a signed quantity, a total force with the state's own action, or a stress; a signed contribution or a signed cluster sum is not a peak response.",
+      "That this document is consistent with itself and with the inputs it states does not show that the census is the model's, that a stated frame is the entity's, that the modal basis is an eigenbasis of the model, that a signed contribution was recovered correctly, or that the product produced the document."
+    ],
+    "profile_id": "product_preview_spectrum_v1"
+  },
+  "request": {
+    "damping_ratio": {
+      "below_normal": false,
+      "kind": "damping_ratio",
+      "undefined_reason": null,
+      "unit": "unit:one",
+      "unit_status": "catalog",
+      "value": 0.05
+    },
+    "directional_combination": "SRSS",
+    "directions": [
+      {
+        "direction": "Y",
+        "scale_factor": {
+          "below_normal": false,
+          "kind": "scale_factor",
+          "undefined_reason": null,
+          "unit": "unit:one",
+          "unit_status": "catalog",
+          "value": 1.0
+        },
+        "spectrum_id": "S-GG"
+      }
+    ],
+    "missing_mass": {
+      "applied": true,
+      "rigid_combination": "SRSS",
+      "rigid_frequency": {
+        "below_normal": false,
+        "kind": "rigid_frequency",
+        "undefined_reason": null,
+        "unit": "unit:hertz",
+        "unit_status": "catalog",
+        "value": 33.0
+      }
+    },
+    "modal_combination": "SRSS"
+  },
+  "rows": {
+    "cluster_sum_columns": {
+      "digest": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+      "row_count": 0,
+      "rows": [],
+      "status": "published"
+    },
+    "cluster_sums": {
+      "digest": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+      "row_count": 0,
+      "rows": [],
+      "status": "published"
+    },
+    "combined": {
+      "digest": "96c12df31543e192af2053e6ab849cd0ea14d7f0c7fcb25d9e3b27b6274d5275",
+      "row_count": 73,
+      "rows": [
+        {
+          "checksum": "0ed64ad0f2c0b9ee7d03f4084883726447a94e3d6ebd4a479335efeed8b0b504",
+          "combined": 0.0,
+          "component": "ux",
+          "end": null,
+          "entity_kind": "node",
+          "frame": "global_axes",
+          "governing_direction": null,
+          "node": "N1.ux: anchor node",
+          "ordinal": 0,
+          "per_direction": [
+            {
+              "combined": 0.0,
+              "direction": "Y",
+              "periodic": 0.0,
+              "rigid": 0.0
+            }
+          ],
+          "quantity_kind": "node_displacement",
+          "quantity_ref": "quantity:1",
+          "row_id": "combined:1",
+          "sign_status": "unsigned_combined_magnitude",
+          "unit": "unit:meter"
+        },
+        {
+          "checksum": "54f6f1234b70603dd188913f8173a9b0dd0ae14809118c9a0d65b19301f32474",
+          "combined": 0.0,
+          "component": "uy",
+          "end": null,
+          "entity_kind": "node",
+          "frame": "global_axes",
+          "governing_direction": null,
+          "node": "N1.ux: anchor node",
+          "ordinal": 1,
+          "per_direction": [
+            {
+              "combined": 0.0,
+              "direction": "Y",
+              "periodic": 0.0,
+              "rigid": 0.0
+            }
+          ],
+          "quantity_kind": "node_displacement",
+          "quantity_ref": "quantity:2",
+          "row_id": "combined:2",
+          "sign_status": "unsigned_combined_magnitude",
+          "unit": "unit:meter"
+        },
+        {
+          "checksum": "cf1a10d0a3b6122f4139f4ee00f03a29ee8c068abb7175c058390d463a2ace04",
+          "combined": 0.0,
+          "component": "uz",
+          "end": null,
+          "entity_kind": "node",
+          "frame": "global_axes",
+          "governing_direction": null,
+          "node": "N1.ux: anchor node",
+          "ordinal": 2,
+          "per_direction": [
+            {
+              "combined": 0.0,
+              "direction": "Y",
+              "periodic": 0.0,
+              "rigid": 0.0
+            }
+          ],
+          "quantity_kind": "node_displacement",
+          "quantity_ref": "quantity:3",
+          "row_id": "combined:3",
+          "sign_status": "unsigned_combined_magnitude",
+          "unit": "unit:meter"
+        },
+        {
+          "checksum": "93a4d5bd857b02b2122e05741fc4250f2900c57fa5f08552a3c9e35721159285",
+          "combined": 0.0,
+          "component": "rx",
+          "end": null,
+          "entity_kind": "node",
+          "frame": "global_axes",
+          "governing_direction": null,
+          "node": "N1.ux: anchor node",
+          "ordinal": 3,
+          "per_direction": [
+            {
+              "combined": 0.0,
+              "direction": "Y",
+              "periodic": 0.0,
+              "rigid": 0.0
+            }
+          ],
+          "quantity_kind": "node_displacement",
+          "quantity_ref": "quantity:4",
+          "row_id": "combined:4",
+          "sign_status": "unsigned_combined_magnitude",
+          "unit": "unit:radian"
+        },
+        {
+          "checksum": "1ed6a25fbc97b9f5a645c4fc2bddc116b9d43eee1a179f5aa525188def6d6cac",
+          "combined": 0.0,
+          "component": "ry",
+          "end": null,
+          "entity_kind": "node",
+          "frame": "global_axes",
+          "governing_direction": null,
+          "node": "N1.ux: anchor node",
+          "ordinal": 4,
+          "per_direction": [
+            {
+              "combined": 0.0,
+              "direction": "Y",
+              "periodic": 0.0,
+              "rigid": 0.0
+            }
+          ],
+          "quantity_kind": "node_displacement",
+          "quantity_ref": "quantity:5",
+          "row_id": "combined:5",
+          "sign_status": "unsigned_combined_magnitude",
+          "unit": "unit:radian"
+        },
+        {
+          "checksum": "d1f0ce0618823ce5f5580206c9633bfb4f401bf8cce71d18877c8d50a1493dc4",
+          "combined": 0.0,
+          "component": "rz",
+          "end": null,
+          "entity_kind": "node",
+          "frame": "global_axes",
+          "governing_direction": null,
+          "node": "N1.ux: anchor node",
+          "ordinal": 5,
+          "per_direction": [
+            {
+              "combined": 0.0,
+              "direction": "Y",
+              "periodic": 0.0,
+              "rigid": 0.0
+            }
+          ],
+          "quantity_kind": "node_displacement",
+          "quantity_ref": "quantity:6",
+          "row_id": "combined:6",
+          "sign_status": "unsigned_combined_magnitude",
+          "unit": "unit:radian"
+        },
+        {
+          "checksum": "62eb67df024be0ca61fd16a44a50ac504ab86bb4149e5abd15e3fe54d5c1e2f1",
+          "combined": 0.0,
+          "component": "ux",
+          "end": null,
+          "entity_kind": "node",
+          "frame": "global_axes",
+          "governing_direction": null,
+          "node": "N2 .i.Fx_m",
+          "ordinal": 6,
+          "per_direction": [
+            {
+              "combined": 0.0,
+              "direction": "Y",
+              "periodic": 0.0,
+              "rigid": 0.0
+            }
+          ],
+          "quantity_kind": "node_displacement",
+          "quantity_ref": "quantity:7",
+          "row_id": "combined:7",
+          "sign_status": "unsigned_combined_magnitude",
+          "unit": "unit:meter"
+        },
+        {
+          "checksum": "c51c33d071e94ba604e8e0feeb7c7af7b86c3cd4295f7aaa0382052a5284ecef",
+          "combined": 0.0007494938467464118,
+          "component": "uy",
+          "end": null,
+          "entity_kind": "node",
+          "frame": "global_axes",
+          "governing_direction": null,
+          "node": "N2 .i.Fx_m",
+          "ordinal": 7,
+          "per_direction": [
+            {
+              "combined": 0.0007494938467464118,
+              "direction": "Y",
+              "periodic": 0.0007489899362619578,
+              "rigid": 0.000027479113687349207
+            }
+          ],
+          "quantity_kind": "node_displacement",
+          "quantity_ref": "quantity:8",
+          "row_id": "combined:8",
+          "sign_status": "unsigned_combined_magnitude",
+          "unit": "unit:meter"
+        },
+        {
+          "checksum": "ecdb8a5f7ce82757220303747f23c0dfc78a8ada84d4a314e6397197f2cffb25",
+          "combined": 0.0,
+          "component": "uz",
+          "end": null,
+          "entity_kind": "node",
+          "frame": "global_axes",
+          "governing_direction": null,
+          "node": "N2 .i.Fx_m",
+          "ordinal": 8,
+          "per_direction": [
+            {
+              "combined": 0.0,
+              "direction": "Y",
+              "periodic": 0.0,
+              "rigid": 0.0
+            }
+          ],
+          "quantity_kind": "node_displacement",
+          "quantity_ref": "quantity:9",
+          "row_id": "combined:9",
+          "sign_status": "unsigned_combined_magnitude",
+          "unit": "unit:meter"
+        },
+        {
+          "checksum": "350a332b308050459b3141c507d6fb7d8063e7b943ba4509a3e11dde8d2775dd",
+          "combined": 0.0,
+          "component": "rx",
+          "end": null,
+          "entity_kind": "node",
+          "frame": "global_axes",
+          "governing_direction": null,
+          "node": "N2 .i.Fx_m",
+          "ordinal": 9,
+          "per_direction": [
+            {
+              "combined": 0.0,
+              "direction": "Y",
+              "periodic": 0.0,
+              "rigid": 0.0
+            }
+          ],
+          "quantity_kind": "node_displacement",
+          "quantity_ref": "quantity:10",
+          "row_id": "combined:10",
+          "sign_status": "unsigned_combined_magnitude",
+          "unit": "unit:radian"
+        },
+        {
+          "checksum": "305792ab26b12bc7a69262f7b928e39c8483b6a520296fd3d5ead6ec2b05323a",
+          "combined": 0.0,
+          "component": "ry",
+          "end": null,
+          "entity_kind": "node",
+          "frame": "global_axes",
+          "governing_direction": null,
+          "node": "N2 .i.Fx_m",
+          "ordinal": 10,
+          "per_direction": [
+            {
+              "combined": 0.0,
+              "direction": "Y",
+              "periodic": 0.0,
+              "rigid": 0.0
+            }
+          ],
+          "quantity_kind": "node_displacement",
+          "quantity_ref": "quantity:11",
+          "row_id": "combined:11",
+          "sign_status": "unsigned_combined_magnitude",
+          "unit": "unit:radian"
+        },
+        {
+          "checksum": "86ae2c4f0ce9e0ca100f76858a0e4c576ec966d13f3914a46bcf68a7e50d0ae3",
+          "combined": 0.0006093835170748637,
+          "component": "rz",
+          "end": null,
+          "entity_kind": "node",
+          "frame": "global_axes",
+          "governing_direction": null,
+          "node": "N2 .i.Fx_m",
+          "ordinal": 11,
+          "per_direction": [
+            {
+              "combined": 0.0006093835170748637,
+              "direction": "Y",
+              "periodic": 0.0006093183385420402,
+              "rigid": 8.912530443059592e-6
+            }
+          ],
+          "quantity_kind": "node_displacement",
+          "quantity_ref": "quantity:12",
+          "row_id": "combined:12",
+          "sign_status": "unsigned_combined_magnitude",
+          "unit": "unit:radian"
+        },
+        {
+          "checksum": "814ca009f093d0207cd9ca360ba1cdeb149947e21e485d64b5abf453b287a969",
+          "combined": 0.0,
+          "component": "ux",
+          "end": null,
+          "entity_kind": "node",
+          "frame": "global_axes",
+          "governing_direction": null,
+          "node": "node:N3.uy_m tip",
+          "ordinal": 12,
+          "per_direction": [
+            {
+              "combined": 0.0,
+              "direction": "Y",
+              "periodic": 0.0,
+              "rigid": 0.0
+            }
+          ],
+          "quantity_kind": "node_displacement",
+          "quantity_ref": "quantity:13",
+          "row_id": "combined:13",
+          "sign_status": "unsigned_combined_magnitude",
+          "unit": "unit:meter"
+        },
+        {
+          "checksum": "e3c5e7d6753dc3d48482e912df499cdabe307861c62d22b94b15e8d658edf454",
+          "combined": 0.0020217462866012727,
+          "component": "uy",
+          "end": null,
+          "entity_kind": "node",
+          "frame": "global_axes",
+          "governing_direction": null,
+          "node": "node:N3.uy_m tip",
+          "ordinal": 13,
+          "per_direction": [
+            {
+              "combined": 0.0020217462866012727,
+              "direction": "Y",
+              "periodic": 0.002021404465086993,
+              "rigid": 0.00003717574360255445
+            }
+          ],
+          "quantity_kind": "node_displacement",
+          "quantity_ref": "quantity:14",
+          "row_id": "combined:14",
+          "sign_status": "unsigned_combined_magnitude",
+          "unit": "unit:meter"
+        },
+        {
+          "checksum": "4ec00be460890e06904f8b536f1493db0ae3820d57ddbe060aedd5ee0fdfa430",
+          "combined": 0.0,
+          "component": "uz",
+          "end": null,
+          "entity_kind": "node",
+          "frame": "global_axes",
+          "governing_direction": null,
+          "node": "node:N3.uy_m tip",
+          "ordinal": 14,
+          "per_direction": [
+            {
+              "combined": 0.0,
+              "direction": "Y",
+              "periodic": 0.0,
+              "rigid": 0.0
+            }
+          ],
+          "quantity_kind": "node_displacement",
+          "quantity_ref": "quantity:15",
+          "row_id": "combined:15",
+          "sign_status": "unsigned_combined_magnitude",
+          "unit": "unit:meter"
+        },
+        {
+          "checksum": "f5fe58d24450a168b81d5b47f0a56320f8ca04d0e1d15a768873374cd4a4d0c4",
+          "combined": 0.0,
+          "component": "rx",
+          "end": null,
+          "entity_kind": "node",
+          "frame": "global_axes",
+          "governing_direction": null,
+          "node": "node:N3.uy_m tip",
+          "ordinal": 15,
+          "per_direction": [
+            {
+              "combined": 0.0,
+              "direction": "Y",
+              "periodic": 0.0,
+              "rigid": 0.0
+            }
+          ],
+          "quantity_kind": "node_displacement",
+          "quantity_ref": "quantity:16",
+          "row_id": "combined:16",
+          "sign_status": "unsigned_combined_magnitude",
+          "unit": "unit:radian"
+        },
+        {
+          "checksum": "4fed2ecadc88bc60d104248d5ae752c99db4fae1f909be2ca7a1b318996fca31",
+          "combined": 0.0,
+          "component": "ry",
+          "end": null,
+          "entity_kind": "node",
+          "frame": "global_axes",
+          "governing_direction": null,
+          "node": "node:N3.uy_m tip",
+          "ordinal": 16,
+          "per_direction": [
+            {
+              "combined": 0.0,
+              "direction": "Y",
+              "periodic": 0.0,
+              "rigid": 0.0
+            }
+          ],
+          "quantity_kind": "node_displacement",
+          "quantity_ref": "quantity:17",
+          "row_id": "combined:17",
+          "sign_status": "unsigned_combined_magnitude",
+          "unit": "unit:radian"
+        },
+        {
+          "checksum": "5f7986fde06a3cd3dc5bcedee6bb3f5cfea356f4e7edf744555935379f5fbc52",
+          "combined": 0.0006263744109572211,
+          "component": "rz",
+          "end": null,
+          "entity_kind": "node",
+          "frame": "global_axes",
+          "governing_direction": null,
+          "node": "node:N3.uy_m tip",
+          "ordinal": 17,
+          "per_direction": [
+            {
+              "combined": 0.0006263744109572211,
+              "direction": "Y",
+              "periodic": 0.0006249819629319487,
+              "rigid": 0.00004174264859510013
+            }
+          ],
+          "quantity_kind": "node_displacement",
+          "quantity_ref": "quantity:18",
+          "row_id": "combined:18",
+          "sign_status": "unsigned_combined_magnitude",
+          "unit": "unit:radian"
+        },
+        {
+          "checksum": "05f537a2559bb8d8af62e6ac64d74f32ecc34d14857818779c7f5afcf1fc6cdd",
+          "combined": 0.0,
+          "component": "Fx",
+          "end": "i",
+          "entity_kind": "member",
+          "frame": "global_axes",
+          "governing_direction": null,
+          "member": "P1.i.Fx_m",
+          "member_family": "straight",
+          "ordinal": 18,
+          "per_direction": [
+            {
+              "combined": 0.0,
+              "direction": "Y",
+              "periodic": 0.0,
+              "rigid": 0.0
+            }
+          ],
+          "quantity_kind": "element_end_action",
+          "quantity_ref": "quantity:19",
+          "row_id": "combined:19",
+          "sign_status": "unsigned_combined_magnitude",
+          "unit": "unit:newton"
+        },
+        {
+          "checksum": "49f532083bdbbcc086fddbc9ab630cfacb7051e47408f6e282721cea641a4fd0",
+          "combined": 1334.4456464304076,
+          "component": "Fy",
+          "end": "i",
+          "entity_kind": "member",
+          "frame": "global_axes",
+          "governing_direction": null,
+          "member": "P1.i.Fx_m",
+          "member_family": "straight",
+          "ordinal": 19,
+          "per_direction": [
+            {
+              "combined": 1334.4456464304076,
+              "direction": "Y",
+              "periodic": 1129.7197865900714,
+              "rigid": 710.2664197777843
+            }
+          ],
+          "quantity_kind": "element_end_action",
+          "quantity_ref": "quantity:20",
+          "row_id": "combined:20",
+          "sign_status": "unsigned_combined_magnitude",
+          "unit": "unit:newton"
+        },
+        {
+          "checksum": "ced19abf35a497dc50511aa60850714e0a4aaccd092356ac7190019f7a8f8cfe",
+          "combined": 0.0,
+          "component": "Fz",
+          "end": "i",
+          "entity_kind": "member",
+          "frame": "global_axes",
+          "governing_direction": null,
+          "member": "P1.i.Fx_m",
+          "member_family": "straight",
+          "ordinal": 20,
+          "per_direction": [
+            {
+              "combined": 0.0,
+              "direction": "Y",
+              "periodic": 0.0,
+              "rigid": 0.0
+            }
+          ],
+          "quantity_kind": "element_end_action",
+          "quantity_ref": "quantity:21",
+          "row_id": "combined:21",
+          "sign_status": "unsigned_combined_magnitude",
+          "unit": "unit:newton"
+        },
+        {
+          "checksum": "9547593832e0fa6fd1a8aab5afbd43d8d4d96da7fb3bcfcee211eb7c53e86463",
+          "combined": 0.0,
+          "component": "Mx",
+          "end": "i",
+          "entity_kind": "member",
+          "frame": "global_axes",
+          "governing_direction": null,
+          "member": "P1.i.Fx_m",
+          "member_family": "straight",
+          "ordinal": 21,
+          "per_direction": [
+            {
+              "combined": 0.0,
+              "direction": "Y",
+              "periodic": 0.0,
+              "rigid": 0.0
+            }
+          ],
+          "quantity_kind": "element_end_action",
+          "quantity_ref": "quantity:22",
+          "row_id": "combined:22",
+          "sign_status": "unsigned_combined_magnitude",
+          "unit": "unit:newton_meter"
+        },
+        {
+          "checksum": "03779f37afce04e433a4929f81991b55b05fd569e5c082684ffeab08fe3f5af3",
+          "combined": 0.0,
+          "component": "My",
+          "end": "i",
+          "entity_kind": "member",
+          "frame": "global_axes",
+          "governing_direction": null,
+          "member": "P1.i.Fx_m",
+          "member_family": "straight",
+          "ordinal": 22,
+          "per_direction": [
+            {
+              "combined": 0.0,
+              "direction": "Y",
+              "periodic": 0.0,
+              "rigid": 0.0
+            }
+          ],
+          "quantity_kind": "element_end_action",
+          "quantity_ref": "quantity:23",
+          "row_id": "combined:23",
+          "sign_status": "unsigned_combined_magnitude",
+          "unit": "unit:newton_meter"
+        },
+        {
+          "checksum": "445f4b2f6cf1d1493458b5849185446e901d70e8c11c06b51f818f9342fd7533",
+          "combined": 2687.5930022154766,
+          "component": "Mz",
+          "end": "i",
+          "entity_kind": "member",
+          "frame": "global_axes",
+          "governing_direction": null,
+          "member": "P1.i.Fx_m",
+          "member_family": "straight",
+          "ordinal": 23,
+          "per_direction": [
+            {
+              "combined": 2687.5930022154766,
+              "direction": "Y",
+              "periodic": 2658.6599924447214,
+              "rigid": 393.2978389610519
+            }
+          ],
+          "quantity_kind": "element_end_action",
+          "quantity_ref": "quantity:24",
+          "row_id": "combined:24",
+          "sign_status": "unsigned_combined_magnitude",
+          "unit": "unit:newton_meter"
+        },
+        {
+          "checksum": "6214e902a862a0c9adb8a1538c63f169ef5646fe7748f6cb7522394e0bee794a",
+          "combined": 0.0,
+          "component": "Fx",
+          "end": "j",
+          "entity_kind": "member",
+          "frame": "global_axes",
+          "governing_direction": null,
+          "member": "P1.i.Fx_m",
+          "member_family": "straight",
+          "ordinal": 24,
+          "per_direction": [
+            {
+              "combined": 0.0,
+              "direction": "Y",
+              "periodic": 0.0,
+              "rigid": 0.0
+            }
+          ],
+          "quantity_kind": "element_end_action",
+          "quantity_ref": "quantity:25",
+          "row_id": "combined:25",
+          "sign_status": "unsigned_combined_magnitude",
+          "unit": "unit:newton"
+        },
+        {
+          "checksum": "6a9fb49af15b581fc1e74497a53fe05a89d17a3f2e17035d20a1d87c0e060e15",
+          "combined": 856.9921520848643,
+          "component": "Fy",
+          "end": "j",
+          "entity_kind": "member",
+          "frame": "global_axes",
+          "governing_direction": null,
+          "member": "P1.i.Fx_m",
+          "member_family": "straight",
+          "ordinal": 25,
+          "per_direction": [
+            {
+              "combined": 856.9921520848643,
+              "direction": "Y",
+              "periodic": 856.1035146498664,
+              "rigid": 39.016931442556924
+            }
+          ],
+          "quantity_kind": "element_end_action",
+          "quantity_ref": "quantity:26",
+          "row_id": "combined:26",
+          "sign_status": "unsigned_combined_magnitude",
+          "unit": "unit:newton"
+        },
+        {
+          "checksum": "53b423b8e9114422184f6a73cd06ce293e82c6bc68bffce88a5565ac5a9f4f39",
+          "combined": 0.0,
+          "component": "Fz",
+          "end": "j",
+          "entity_kind": "member",
+          "frame": "global_axes",
+          "governing_direction": null,
+          "member": "P1.i.Fx_m",
+          "member_family": "straight",
+          "ordinal": 26,
+          "per_direction": [
+            {
+              "combined": 0.0,
+              "direction": "Y",
+              "periodic": 0.0,
+              "rigid": 0.0
+            }
+          ],
+          "quantity_kind": "element_end_action",
+          "quantity_ref": "quantity:27",
+          "row_id": "combined:27",
+          "sign_status": "unsigned_combined_magnitude",
+          "unit": "unit:newton"
+        },
+        {
+          "checksum": "c56b1b8badcadc17b016ebe69a4a767c6b9a7445d3444e53222858baded71390",
+          "combined": 0.0,
+          "component": "Mx",
+          "end": "j",
+          "entity_kind": "member",
+          "frame": "global_axes",
+          "governing_direction": null,
+          "member": "P1.i.Fx_m",
+          "member_family": "straight",
+          "ordinal": 27,
+          "per_direction": [
+            {
+              "combined": 0.0,
+              "direction": "Y",
+              "periodic": 0.0,
+              "rigid": 0.0
+            }
+          ],
+          "quantity_kind": "element_end_action",
+          "quantity_ref": "quantity:28",
+          "row_id": "combined:28",
+          "sign_status": "unsigned_combined_magnitude",
+          "unit": "unit:newton_meter"
+        },
+        {
+          "checksum": "e16d628c028420b4dd2602616529bb46bad2a6acc5a0295b0334e61e7151a6a6",
+          "combined": 0.0,
+          "component": "My",
+          "end": "j",
+          "entity_kind": "member",
+          "frame": "global_axes",
+          "governing_direction": null,
+          "member": "P1.i.Fx_m",
+          "member_family": "straight",
+          "ordinal": 28,
+          "per_direction": [
+            {
+              "combined": 0.0,
+              "direction": "Y",
+              "periodic": 0.0,
+              "rigid": 0.0
+            }
+          ],
+          "quantity_kind": "element_end_action",
+          "quantity_ref": "quantity:29",
+          "row_id": "combined:29",
+          "sign_status": "unsigned_combined_magnitude",
+          "unit": "unit:newton_meter"
+        },
+        {
+          "checksum": "bd943bda79d867436bc6aed060ebbd36def1afacde7dbf2cb25555dfa7452d91",
+          "combined": 572.3304062027898,
+          "component": "Mz",
+          "end": "j",
+          "entity_kind": "member",
+          "frame": "global_axes",
+          "governing_direction": null,
+          "member": "P1.i.Fx_m",
+          "member_family": "straight",
+          "ordinal": 29,
+          "per_direction": [
+            {
+              "combined": 572.3304062027898,
+              "direction": "Y",
+              "periodic": 541.9332653430093,
+              "rigid": 184.03920717856255
+            }
+          ],
+          "quantity_kind": "element_end_action",
+          "quantity_ref": "quantity:30",
+          "row_id": "combined:30",
+          "sign_status": "unsigned_combined_magnitude",
+          "unit": "unit:newton_meter"
+        },
+        {
+          "checksum": "bb2ec28eafc2f4812a6751f18246114b221d35750cccde641cd58db47935d9d3",
+          "combined": 0.0,
+          "component": "Fx",
+          "end": "i",
+          "entity_kind": "member",
+          "frame": "member_axes",
+          "governing_direction": null,
+          "member": "P1.i.Fx_m",
+          "member_family": "straight",
+          "ordinal": 30,
+          "per_direction": [
+            {
+              "combined": 0.0,
+              "direction": "Y",
+              "periodic": 0.0,
+              "rigid": 0.0
+            }
+          ],
+          "quantity_kind": "element_end_action",
+          "quantity_ref": "quantity:31",
+          "row_id": "combined:31",
+          "sign_status": "unsigned_combined_magnitude",
+          "unit": "unit:newton"
+        },
+        {
+          "checksum": "1978acb426d5885d95333112aed9ad70cc638f12e96e9b69ab68d3316e5f75d9",
+          "combined": 0.0,
+          "component": "Fy",
+          "end": "i",
+          "entity_kind": "member",
+          "frame": "member_axes",
+          "governing_direction": null,
+          "member": "P1.i.Fx_m",
+          "member_family": "straight",
+          "ordinal": 31,
+          "per_direction": [
+            {
+              "combined": 0.0,
+              "direction": "Y",
+              "periodic": 0.0,
+              "rigid": 0.0
+            }
+          ],
+          "quantity_kind": "element_end_action",
+          "quantity_ref": "quantity:32",
+          "row_id": "combined:32",
+          "sign_status": "unsigned_combined_magnitude",
+          "unit": "unit:newton"
+        },
+        {
+          "checksum": "50ba1182489b7dae72dd974e6b6471ef9dd12ed5386a56399129fe16243412d1",
+          "combined": 1334.4456464304076,
+          "component": "Fz",
+          "end": "i",
+          "entity_kind": "member",
+          "frame": "member_axes",
+          "governing_direction": null,
+          "member": "P1.i.Fx_m",
+          "member_family": "straight",
+          "ordinal": 32,
+          "per_direction": [
+            {
+              "combined": 1334.4456464304076,
+              "direction": "Y",
+              "periodic": 1129.7197865900714,
+              "rigid": 710.2664197777843
+            }
+          ],
+          "quantity_kind": "element_end_action",
+          "quantity_ref": "quantity:33",
+          "row_id": "combined:33",
+          "sign_status": "unsigned_combined_magnitude",
+          "unit": "unit:newton"
+        },
+        {
+          "checksum": "47c19b023d28ec654a26254f65a545872b5d10f99151f66e3522c3d9027d9104",
+          "combined": 0.0,
+          "component": "Mx",
+          "end": "i",
+          "entity_kind": "member",
+          "frame": "member_axes",
+          "governing_direction": null,
+          "member": "P1.i.Fx_m",
+          "member_family": "straight",
+          "ordinal": 33,
+          "per_direction": [
+            {
+              "combined": 0.0,
+              "direction": "Y",
+              "periodic": 0.0,
+              "rigid": 0.0
+            }
+          ],
+          "quantity_kind": "element_end_action",
+          "quantity_ref": "quantity:34",
+          "row_id": "combined:34",
+          "sign_status": "unsigned_combined_magnitude",
+          "unit": "unit:newton_meter"
+        },
+        {
+          "checksum": "35bb336473c2aabf707e9011596d488f0a84b0e7e5d553991789b423131b750e",
+          "combined": 2687.5930022154766,
+          "component": "My",
+          "end": "i",
+          "entity_kind": "member",
+          "frame": "member_axes",
+          "governing_direction": null,
+          "member": "P1.i.Fx_m",
+          "member_family": "straight",
+          "ordinal": 34,
+          "per_direction": [
+            {
+              "combined": 2687.5930022154766,
+              "direction": "Y",
+              "periodic": 2658.6599924447214,
+              "rigid": 393.2978389610519
+            }
+          ],
+          "quantity_kind": "element_end_action",
+          "quantity_ref": "quantity:35",
+          "row_id": "combined:35",
+          "sign_status": "unsigned_combined_magnitude",
+          "unit": "unit:newton_meter"
+        },
+        {
+          "checksum": "3202b050442cfea4439ffbd30892ff0df135fad692ee7c8243e744677c91aecb",
+          "combined": 0.0,
+          "component": "Mz",
+          "end": "i",
+          "entity_kind": "member",
+          "frame": "member_axes",
+          "governing_direction": null,
+          "member": "P1.i.Fx_m",
+          "member_family": "straight",
+          "ordinal": 35,
+          "per_direction": [
+            {
+              "combined": 0.0,
+              "direction": "Y",
+              "periodic": 0.0,
+              "rigid": 0.0
+            }
+          ],
+          "quantity_kind": "element_end_action",
+          "quantity_ref": "quantity:36",
+          "row_id": "combined:36",
+          "sign_status": "unsigned_combined_magnitude",
+          "unit": "unit:newton_meter"
+        },
+        {
+          "checksum": "536bafae72ca9da45751aab59193a3a7c09142ce53ce05e5f72b6bd9639ad2be",
+          "combined": 0.0,
+          "component": "Fx",
+          "end": "j",
+          "entity_kind": "member",
+          "frame": "member_axes",
+          "governing_direction": null,
+          "member": "P1.i.Fx_m",
+          "member_family": "straight",
+          "ordinal": 36,
+          "per_direction": [
+            {
+              "combined": 0.0,
+              "direction": "Y",
+              "periodic": 0.0,
+              "rigid": 0.0
+            }
+          ],
+          "quantity_kind": "element_end_action",
+          "quantity_ref": "quantity:37",
+          "row_id": "combined:37",
+          "sign_status": "unsigned_combined_magnitude",
+          "unit": "unit:newton"
+        },
+        {
+          "checksum": "5816b10f89a211649f6e6fac0e7c548e40d19a428d7780f41687b2f0f85effa0",
+          "combined": 0.0,
+          "component": "Fy",
+          "end": "j",
+          "entity_kind": "member",
+          "frame": "member_axes",
+          "governing_direction": null,
+          "member": "P1.i.Fx_m",
+          "member_family": "straight",
+          "ordinal": 37,
+          "per_direction": [
+            {
+              "combined": 0.0,
+              "direction": "Y",
+              "periodic": 0.0,
+              "rigid": 0.0
+            }
+          ],
+          "quantity_kind": "element_end_action",
+          "quantity_ref": "quantity:38",
+          "row_id": "combined:38",
+          "sign_status": "unsigned_combined_magnitude",
+          "unit": "unit:newton"
+        },
+        {
+          "checksum": "d9f1fe178eda97ddc009b817ea2d844f49ffd38401063b34c70ab38c61cd073b",
+          "combined": 856.9921520848643,
+          "component": "Fz",
+          "end": "j",
+          "entity_kind": "member",
+          "frame": "member_axes",
+          "governing_direction": null,
+          "member": "P1.i.Fx_m",
+          "member_family": "straight",
+          "ordinal": 38,
+          "per_direction": [
+            {
+              "combined": 856.9921520848643,
+              "direction": "Y",
+              "periodic": 856.1035146498664,
+              "rigid": 39.016931442556924
+            }
+          ],
+          "quantity_kind": "element_end_action",
+          "quantity_ref": "quantity:39",
+          "row_id": "combined:39",
+          "sign_status": "unsigned_combined_magnitude",
+          "unit": "unit:newton"
+        },
+        {
+          "checksum": "e4fd88207ff23f7776e843f6cc2e4744262eda4e8c39e4920801d34975dad797",
+          "combined": 0.0,
+          "component": "Mx",
+          "end": "j",
+          "entity_kind": "member",
+          "frame": "member_axes",
+          "governing_direction": null,
+          "member": "P1.i.Fx_m",
+          "member_family": "straight",
+          "ordinal": 39,
+          "per_direction": [
+            {
+              "combined": 0.0,
+              "direction": "Y",
+              "periodic": 0.0,
+              "rigid": 0.0
+            }
+          ],
+          "quantity_kind": "element_end_action",
+          "quantity_ref": "quantity:40",
+          "row_id": "combined:40",
+          "sign_status": "unsigned_combined_magnitude",
+          "unit": "unit:newton_meter"
+        },
+        {
+          "checksum": "5b2bf23560ad36b5449416cff7c945edcda8f55f8d5f3393cbcb3deb5f4b060b",
+          "combined": 572.3304062027898,
+          "component": "My",
+          "end": "j",
+          "entity_kind": "member",
+          "frame": "member_axes",
+          "governing_direction": null,
+          "member": "P1.i.Fx_m",
+          "member_family": "straight",
+          "ordinal": 40,
+          "per_direction": [
+            {
+              "combined": 572.3304062027898,
+              "direction": "Y",
+              "periodic": 541.9332653430093,
+              "rigid": 184.03920717856255
+            }
+          ],
+          "quantity_kind": "element_end_action",
+          "quantity_ref": "quantity:41",
+          "row_id": "combined:41",
+          "sign_status": "unsigned_combined_magnitude",
+          "unit": "unit:newton_meter"
+        },
+        {
+          "checksum": "676fbecc8a0b839eb64d770822bf221b36f68bc5bc6626c0f613adda29710443",
+          "combined": 0.0,
+          "component": "Mz",
+          "end": "j",
+          "entity_kind": "member",
+          "frame": "member_axes",
+          "governing_direction": null,
+          "member": "P1.i.Fx_m",
+          "member_family": "straight",
+          "ordinal": 41,
+          "per_direction": [
+            {
+              "combined": 0.0,
+              "direction": "Y",
+              "periodic": 0.0,
+              "rigid": 0.0
+            }
+          ],
+          "quantity_kind": "element_end_action",
+          "quantity_ref": "quantity:42",
+          "row_id": "combined:42",
+          "sign_status": "unsigned_combined_magnitude",
+          "unit": "unit:newton_meter"
+        },
+        {
+          "checksum": "7f8408e800a7c9a7cea59b70f340406c7491bf30b47f9e9ba0f1cbee6e1fd55c",
+          "combined": 0.0,
+          "component": "Fx",
+          "end": "i",
+          "entity_kind": "member",
+          "frame": "global_axes",
+          "governing_direction": null,
+          "member": "pipe: P2.j.Mz_m",
+          "member_family": "straight",
+          "ordinal": 42,
+          "per_direction": [
+            {
+              "combined": 0.0,
+              "direction": "Y",
+              "periodic": 0.0,
+              "rigid": 0.0
+            }
+          ],
+          "quantity_kind": "element_end_action",
+          "quantity_ref": "quantity:43",
+          "row_id": "combined:43",
+          "sign_status": "unsigned_combined_magnitude",
+          "unit": "unit:newton"
+        },
+        {
+          "checksum": "65419d0e6df14138a9a1e3a96248931759f652b5fe4e1157165c2fd7c350b320",
+          "combined": 856.9921520848643,
+          "component": "Fy",
+          "end": "i",
+          "entity_kind": "member",
+          "frame": "global_axes",
+          "governing_direction": null,
+          "member": "pipe: P2.j.Mz_m",
+          "member_family": "straight",
+          "ordinal": 43,
+          "per_direction": [
+            {
+              "combined": 856.9921520848643,
+              "direction": "Y",
+              "periodic": 856.1035146498664,
+              "rigid": 39.016931442556924
+            }
+          ],
+          "quantity_kind": "element_end_action",
+          "quantity_ref": "quantity:44",
+          "row_id": "combined:44",
+          "sign_status": "unsigned_combined_magnitude",
+          "unit": "unit:newton"
+        },
+        {
+          "checksum": "e33e551ddf7ea9db823eb0bcda77db68ac6434e220fc858b65047ef8061c3a19",
+          "combined": 0.0,
+          "component": "Fz",
+          "end": "i",
+          "entity_kind": "member",
+          "frame": "global_axes",
+          "governing_direction": null,
+          "member": "pipe: P2.j.Mz_m",
+          "member_family": "straight",
+          "ordinal": 44,
+          "per_direction": [
+            {
+              "combined": 0.0,
+              "direction": "Y",
+              "periodic": 0.0,
+              "rigid": 0.0
+            }
+          ],
+          "quantity_kind": "element_end_action",
+          "quantity_ref": "quantity:45",
+          "row_id": "combined:45",
+          "sign_status": "unsigned_combined_magnitude",
+          "unit": "unit:newton"
+        },
+        {
+          "checksum": "d311a09130f4a584ae791d170b167fa0562e1f812653e0a973c65f48d2f9689f",
+          "combined": 0.0,
+          "component": "Mx",
+          "end": "i",
+          "entity_kind": "member",
+          "frame": "global_axes",
+          "governing_direction": null,
+          "member": "pipe: P2.j.Mz_m",
+          "member_family": "straight",
+          "ordinal": 45,
+          "per_direction": [
+            {
+              "combined": 0.0,
+              "direction": "Y",
+              "periodic": 0.0,
+              "rigid": 0.0
+            }
+          ],
+          "quantity_kind": "element_end_action",
+          "quantity_ref": "quantity:46",
+          "row_id": "combined:46",
+          "sign_status": "unsigned_combined_magnitude",
+          "unit": "unit:newton_meter"
+        },
+        {
+          "checksum": "30cf4a120d805727ce7d6fd6fa09a745ffecd2ed1f96476e7ef36575e6ff6ac9",
+          "combined": 0.0,
+          "component": "My",
+          "end": "i",
+          "entity_kind": "member",
+          "frame": "global_axes",
+          "governing_direction": null,
+          "member": "pipe: P2.j.Mz_m",
+          "member_family": "straight",
+          "ordinal": 46,
+          "per_direction": [
+            {
+              "combined": 0.0,
+              "direction": "Y",
+              "periodic": 0.0,
+              "rigid": 0.0
+            }
+          ],
+          "quantity_kind": "element_end_action",
+          "quantity_ref": "quantity:47",
+          "row_id": "combined:47",
+          "sign_status": "unsigned_combined_magnitude",
+          "unit": "unit:newton_meter"
+        },
+        {
+          "checksum": "174cb365ad21fca90c1bd2ee3205f2b7a40745ab95dc533d935e8fe4efcef73d",
+          "combined": 572.3304062027898,
+          "component": "Mz",
+          "end": "i",
+          "entity_kind": "member",
+          "frame": "global_axes",
+          "governing_direction": null,
+          "member": "pipe: P2.j.Mz_m",
+          "member_family": "straight",
+          "ordinal": 47,
+          "per_direction": [
+            {
+              "combined": 572.3304062027898,
+              "direction": "Y",
+              "periodic": 541.9332653430093,
+              "rigid": 184.03920717856255
+            }
+          ],
+          "quantity_kind": "element_end_action",
+          "quantity_ref": "quantity:48",
+          "row_id": "combined:48",
+          "sign_status": "unsigned_combined_magnitude",
+          "unit": "unit:newton_meter"
+        },
+        {
+          "checksum": "b42571270924ce0f2560f8a46d578d0aeb921a59f9cf384f222f592565ad7119",
+          "combined": 0.0,
+          "component": "Fx",
+          "end": "j",
+          "entity_kind": "member",
+          "frame": "global_axes",
+          "governing_direction": null,
+          "member": "pipe: P2.j.Mz_m",
+          "member_family": "straight",
+          "ordinal": 48,
+          "per_direction": [
+            {
+              "combined": 0.0,
+              "direction": "Y",
+              "periodic": 0.0,
+              "rigid": 0.0
+            }
+          ],
+          "quantity_kind": "element_end_action",
+          "quantity_ref": "quantity:49",
+          "row_id": "combined:49",
+          "sign_status": "unsigned_combined_magnitude",
+          "unit": "unit:newton"
+        },
+        {
+          "checksum": "45ba63e32e531859ad34c145fa129164f099c4b81266f114f96fbee74ad5bdbf",
+          "combined": 529.988658554804,
+          "component": "Fy",
+          "end": "j",
+          "entity_kind": "member",
+          "frame": "global_axes",
+          "governing_direction": null,
+          "member": "pipe: P2.j.Mz_m",
+          "member_family": "straight",
+          "ordinal": 49,
+          "per_direction": [
+            {
+              "combined": 529.988658554804,
+              "direction": "Y",
+              "periodic": 529.8990520957647,
+              "rigid": 9.745398130948034
+            }
+          ],
+          "quantity_kind": "element_end_action",
+          "quantity_ref": "quantity:50",
+          "row_id": "combined:50",
+          "sign_status": "unsigned_combined_magnitude",
+          "unit": "unit:newton"
+        },
+        {
+          "checksum": "fb2e4ad78215732d677064901c9ed0479f00d99f6648ffe0880e92cfe2ea6a0a",
+          "combined": 0.0,
+          "component": "Fz",
+          "end": "j",
+          "entity_kind": "member",
+          "frame": "global_axes",
+          "governing_direction": null,
+          "member": "pipe: P2.j.Mz_m",
+          "member_family": "straight",
+          "ordinal": 50,
+          "per_direction": [
+            {
+              "combined": 0.0,
+              "direction": "Y",
+              "periodic": 0.0,
+              "rigid": 0.0
+            }
+          ],
+          "quantity_kind": "element_end_action",
+          "quantity_ref": "quantity:51",
+          "row_id": "combined:51",
+          "sign_status": "unsigned_combined_magnitude",
+          "unit": "unit:newton"
+        },
+        {
+          "checksum": "65a7872c7d55af9f02f4931c784f190a6a784d5dfd5fff759071d48c512f08f6",
+          "combined": 0.0,
+          "component": "Mx",
+          "end": "j",
+          "entity_kind": "member",
+          "frame": "global_axes",
+          "governing_direction": null,
+          "member": "pipe: P2.j.Mz_m",
+          "member_family": "straight",
+          "ordinal": 51,
+          "per_direction": [
+            {
+              "combined": 0.0,
+              "direction": "Y",
+              "periodic": 0.0,
+              "rigid": 0.0
+            }
+          ],
+          "quantity_kind": "element_end_action",
+          "quantity_ref": "quantity:52",
+          "row_id": "combined:52",
+          "sign_status": "unsigned_combined_magnitude",
+          "unit": "unit:newton_meter"
+        },
+        {
+          "checksum": "3eddc56c897fd03e49bfbd178833c0d3f7e840313e72a933ce1d250ac3bbb8df",
+          "combined": 0.0,
+          "component": "My",
+          "end": "j",
+          "entity_kind": "member",
+          "frame": "global_axes",
+          "governing_direction": null,
+          "member": "pipe: P2.j.Mz_m",
+          "member_family": "straight",
+          "ordinal": 52,
+          "per_direction": [
+            {
+              "combined": 0.0,
+              "direction": "Y",
+              "periodic": 0.0,
+              "rigid": 0.0
+            }
+          ],
+          "quantity_kind": "element_end_action",
+          "quantity_ref": "quantity:53",
+          "row_id": "combined:53",
+          "sign_status": "unsigned_combined_magnitude",
+          "unit": "unit:newton_meter"
+        },
+        {
+          "checksum": "347ee33933fed8a6df53a926761cbcb3ffb36b6e57880e2dfd6e6abc5964956a",
+          "combined": 0.0,
+          "component": "Mz",
+          "end": "j",
+          "entity_kind": "member",
+          "frame": "global_axes",
+          "governing_direction": null,
+          "member": "pipe: P2.j.Mz_m",
+          "member_family": "straight",
+          "ordinal": 53,
+          "per_direction": [
+            {
+              "combined": 0.0,
+              "direction": "Y",
+              "periodic": 0.0,
+              "rigid": 0.0
+            }
+          ],
+          "quantity_kind": "element_end_action",
+          "quantity_ref": "quantity:54",
+          "row_id": "combined:54",
+          "sign_status": "unsigned_combined_magnitude",
+          "unit": "unit:newton_meter"
+        },
+        {
+          "checksum": "a3512bceedce6bcc9814bfa70a92fadf1cb4efb6662e4f0211471cd6742d5f28",
+          "combined": 0.0,
+          "component": "Fx",
+          "end": "i",
+          "entity_kind": "member",
+          "frame": "member_axes",
+          "governing_direction": null,
+          "member": "pipe: P2.j.Mz_m",
+          "member_family": "straight",
+          "ordinal": 54,
+          "per_direction": [
+            {
+              "combined": 0.0,
+              "direction": "Y",
+              "periodic": 0.0,
+              "rigid": 0.0
+            }
+          ],
+          "quantity_kind": "element_end_action",
+          "quantity_ref": "quantity:55",
+          "row_id": "combined:55",
+          "sign_status": "unsigned_combined_magnitude",
+          "unit": "unit:newton"
+        },
+        {
+          "checksum": "ab3c09d787c898ea9940b5b70a6dcea9e9dcd154c1eaca90332d5116bcff68b2",
+          "combined": 0.0,
+          "component": "Fy",
+          "end": "i",
+          "entity_kind": "member",
+          "frame": "member_axes",
+          "governing_direction": null,
+          "member": "pipe: P2.j.Mz_m",
+          "member_family": "straight",
+          "ordinal": 55,
+          "per_direction": [
+            {
+              "combined": 0.0,
+              "direction": "Y",
+              "periodic": 0.0,
+              "rigid": 0.0
+            }
+          ],
+          "quantity_kind": "element_end_action",
+          "quantity_ref": "quantity:56",
+          "row_id": "combined:56",
+          "sign_status": "unsigned_combined_magnitude",
+          "unit": "unit:newton"
+        },
+        {
+          "checksum": "c6ae609cf3815377d22a588dac724d33e61db3ba942743c8b58117ae18464e66",
+          "combined": 856.9921520848643,
+          "component": "Fz",
+          "end": "i",
+          "entity_kind": "member",
+          "frame": "member_axes",
+          "governing_direction": null,
+          "member": "pipe: P2.j.Mz_m",
+          "member_family": "straight",
+          "ordinal": 56,
+          "per_direction": [
+            {
+              "combined": 856.9921520848643,
+              "direction": "Y",
+              "periodic": 856.1035146498664,
+              "rigid": 39.016931442556924
+            }
+          ],
+          "quantity_kind": "element_end_action",
+          "quantity_ref": "quantity:57",
+          "row_id": "combined:57",
+          "sign_status": "unsigned_combined_magnitude",
+          "unit": "unit:newton"
+        },
+        {
+          "checksum": "d2db39ac931070649e53390ee6e907ba9b4072810ae0575ed4104d693fda9b6f",
+          "combined": 0.0,
+          "component": "Mx",
+          "end": "i",
+          "entity_kind": "member",
+          "frame": "member_axes",
+          "governing_direction": null,
+          "member": "pipe: P2.j.Mz_m",
+          "member_family": "straight",
+          "ordinal": 57,
+          "per_direction": [
+            {
+              "combined": 0.0,
+              "direction": "Y",
+              "periodic": 0.0,
+              "rigid": 0.0
+            }
+          ],
+          "quantity_kind": "element_end_action",
+          "quantity_ref": "quantity:58",
+          "row_id": "combined:58",
+          "sign_status": "unsigned_combined_magnitude",
+          "unit": "unit:newton_meter"
+        },
+        {
+          "checksum": "601cdee91fef4291a03b20f526d3d419cd6a0bef771a1342b98c82265a442e87",
+          "combined": 572.3304062027898,
+          "component": "My",
+          "end": "i",
+          "entity_kind": "member",
+          "frame": "member_axes",
+          "governing_direction": null,
+          "member": "pipe: P2.j.Mz_m",
+          "member_family": "straight",
+          "ordinal": 58,
+          "per_direction": [
+            {
+              "combined": 572.3304062027898,
+              "direction": "Y",
+              "periodic": 541.9332653430093,
+              "rigid": 184.03920717856255
+            }
+          ],
+          "quantity_kind": "element_end_action",
+          "quantity_ref": "quantity:59",
+          "row_id": "combined:59",
+          "sign_status": "unsigned_combined_magnitude",
+          "unit": "unit:newton_meter"
+        },
+        {
+          "checksum": "581e5d9884b4ea693670ad39d88ad83d2a1078a95b4c345879ac104fc478e3c5",
+          "combined": 0.0,
+          "component": "Mz",
+          "end": "i",
+          "entity_kind": "member",
+          "frame": "member_axes",
+          "governing_direction": null,
+          "member": "pipe: P2.j.Mz_m",
+          "member_family": "straight",
+          "ordinal": 59,
+          "per_direction": [
+            {
+              "combined": 0.0,
+              "direction": "Y",
+              "periodic": 0.0,
+              "rigid": 0.0
+            }
+          ],
+          "quantity_kind": "element_end_action",
+          "quantity_ref": "quantity:60",
+          "row_id": "combined:60",
+          "sign_status": "unsigned_combined_magnitude",
+          "unit": "unit:newton_meter"
+        },
+        {
+          "checksum": "b12a8b83beee42cf5497139f536c8a55e134e93412c7009264473fabdaeb3e1a",
+          "combined": 0.0,
+          "component": "Fx",
+          "end": "j",
+          "entity_kind": "member",
+          "frame": "member_axes",
+          "governing_direction": null,
+          "member": "pipe: P2.j.Mz_m",
+          "member_family": "straight",
+          "ordinal": 60,
+          "per_direction": [
+            {
+              "combined": 0.0,
+              "direction": "Y",
+              "periodic": 0.0,
+              "rigid": 0.0
+            }
+          ],
+          "quantity_kind": "element_end_action",
+          "quantity_ref": "quantity:61",
+          "row_id": "combined:61",
+          "sign_status": "unsigned_combined_magnitude",
+          "unit": "unit:newton"
+        },
+        {
+          "checksum": "6721ce6c72ee0e139a0c8901bccbe46a9c805c4f6c151b56f7d6d67620abc56d",
+          "combined": 0.0,
+          "component": "Fy",
+          "end": "j",
+          "entity_kind": "member",
+          "frame": "member_axes",
+          "governing_direction": null,
+          "member": "pipe: P2.j.Mz_m",
+          "member_family": "straight",
+          "ordinal": 61,
+          "per_direction": [
+            {
+              "combined": 0.0,
+              "direction": "Y",
+              "periodic": 0.0,
+              "rigid": 0.0
+            }
+          ],
+          "quantity_kind": "element_end_action",
+          "quantity_ref": "quantity:62",
+          "row_id": "combined:62",
+          "sign_status": "unsigned_combined_magnitude",
+          "unit": "unit:newton"
+        },
+        {
+          "checksum": "c6f3950de3e6069dc4714a39520658adb3a3cd790a6698e3e4df3126297e418c",
+          "combined": 529.988658554804,
+          "component": "Fz",
+          "end": "j",
+          "entity_kind": "member",
+          "frame": "member_axes",
+          "governing_direction": null,
+          "member": "pipe: P2.j.Mz_m",
+          "member_family": "straight",
+          "ordinal": 62,
+          "per_direction": [
+            {
+              "combined": 529.988658554804,
+              "direction": "Y",
+              "periodic": 529.8990520957647,
+              "rigid": 9.745398130948034
+            }
+          ],
+          "quantity_kind": "element_end_action",
+          "quantity_ref": "quantity:63",
+          "row_id": "combined:63",
+          "sign_status": "unsigned_combined_magnitude",
+          "unit": "unit:newton"
+        },
+        {
+          "checksum": "84d3bd00f6bae75ba11dbf70c2fe0902fe9561dc6ef116608653bb930c99733f",
+          "combined": 0.0,
+          "component": "Mx",
+          "end": "j",
+          "entity_kind": "member",
+          "frame": "member_axes",
+          "governing_direction": null,
+          "member": "pipe: P2.j.Mz_m",
+          "member_family": "straight",
+          "ordinal": 63,
+          "per_direction": [
+            {
+              "combined": 0.0,
+              "direction": "Y",
+              "periodic": 0.0,
+              "rigid": 0.0
+            }
+          ],
+          "quantity_kind": "element_end_action",
+          "quantity_ref": "quantity:64",
+          "row_id": "combined:64",
+          "sign_status": "unsigned_combined_magnitude",
+          "unit": "unit:newton_meter"
+        },
+        {
+          "checksum": "ceba4f327e61701146936be4126ed03836f1cc0ac9442596b261891ae58918e1",
+          "combined": 0.0,
+          "component": "My",
+          "end": "j",
+          "entity_kind": "member",
+          "frame": "member_axes",
+          "governing_direction": null,
+          "member": "pipe: P2.j.Mz_m",
+          "member_family": "straight",
+          "ordinal": 64,
+          "per_direction": [
+            {
+              "combined": 0.0,
+              "direction": "Y",
+              "periodic": 0.0,
+              "rigid": 0.0
+            }
+          ],
+          "quantity_kind": "element_end_action",
+          "quantity_ref": "quantity:65",
+          "row_id": "combined:65",
+          "sign_status": "unsigned_combined_magnitude",
+          "unit": "unit:newton_meter"
+        },
+        {
+          "checksum": "289db0d0839872ff97fbea8a641a95a1e306f324412392e7ecb2cf59f5afd4de",
+          "combined": 0.0,
+          "component": "Mz",
+          "end": "j",
+          "entity_kind": "member",
+          "frame": "member_axes",
+          "governing_direction": null,
+          "member": "pipe: P2.j.Mz_m",
+          "member_family": "straight",
+          "ordinal": 65,
+          "per_direction": [
+            {
+              "combined": 0.0,
+              "direction": "Y",
+              "periodic": 0.0,
+              "rigid": 0.0
+            }
+          ],
+          "quantity_kind": "element_end_action",
+          "quantity_ref": "quantity:66",
+          "row_id": "combined:66",
+          "sign_status": "unsigned_combined_magnitude",
+          "unit": "unit:newton_meter"
+        },
+        {
+          "checksum": "f9720e9766bd87c46fab2fcedf8c7a09ac859f1b4e1ed39afacda682b58625df",
+          "combined": 0.0,
+          "component": "UX",
+          "end": null,
+          "entity_kind": "rigid_constraint",
+          "frame": "global_axes",
+          "governing_direction": null,
+          "held": "single",
+          "holders": [
+            "A1.Fx: anchor_m"
+          ],
+          "node": "N1.ux: anchor node",
+          "ordinal": 66,
+          "per_direction": [
+            {
+              "combined": 0.0,
+              "direction": "Y",
+              "periodic": 0.0,
+              "rigid": 0.0
+            }
+          ],
+          "quantity_kind": "constraint_reaction",
+          "quantity_ref": "quantity:67",
+          "row_id": "combined:67",
+          "sign_status": "unsigned_combined_magnitude",
+          "unit": "unit:newton"
+        },
+        {
+          "checksum": "4805fef6d3cfe0fc4166109fb713670ed703d2b4e148e3eecf368b03487ce191",
+          "combined": 1334.4456464304076,
+          "component": "UY",
+          "end": null,
+          "entity_kind": "rigid_constraint",
+          "frame": "global_axes",
+          "governing_direction": null,
+          "held": "single",
+          "holders": [
+            "A1.Fx: anchor_m"
+          ],
+          "node": "N1.ux: anchor node",
+          "ordinal": 67,
+          "per_direction": [
+            {
+              "combined": 1334.4456464304076,
+              "direction": "Y",
+              "periodic": 1129.7197865900714,
+              "rigid": 710.2664197777843
+            }
+          ],
+          "quantity_kind": "constraint_reaction",
+          "quantity_ref": "quantity:68",
+          "row_id": "combined:68",
+          "sign_status": "unsigned_combined_magnitude",
+          "unit": "unit:newton"
+        },
+        {
+          "checksum": "05d3f1b9e6fbafe40805ec43d201c92f537147d026f66e1be574061258bc9230",
+          "combined": 0.0,
+          "component": "UZ",
+          "end": null,
+          "entity_kind": "rigid_constraint",
+          "frame": "global_axes",
+          "governing_direction": null,
+          "held": "single",
+          "holders": [
+            "A1.Fx: anchor_m"
+          ],
+          "node": "N1.ux: anchor node",
+          "ordinal": 68,
+          "per_direction": [
+            {
+              "combined": 0.0,
+              "direction": "Y",
+              "periodic": 0.0,
+              "rigid": 0.0
+            }
+          ],
+          "quantity_kind": "constraint_reaction",
+          "quantity_ref": "quantity:69",
+          "row_id": "combined:69",
+          "sign_status": "unsigned_combined_magnitude",
+          "unit": "unit:newton"
+        },
+        {
+          "checksum": "3f6281f4dff6e9ad268cc0483f31391b99284f2fd66025371f2a26f5c2d41319",
+          "combined": 0.0,
+          "component": "RX",
+          "end": null,
+          "entity_kind": "rigid_constraint",
+          "frame": "global_axes",
+          "governing_direction": null,
+          "held": "single",
+          "holders": [
+            "A1.Fx: anchor_m"
+          ],
+          "node": "N1.ux: anchor node",
+          "ordinal": 69,
+          "per_direction": [
+            {
+              "combined": 0.0,
+              "direction": "Y",
+              "periodic": 0.0,
+              "rigid": 0.0
+            }
+          ],
+          "quantity_kind": "constraint_reaction",
+          "quantity_ref": "quantity:70",
+          "row_id": "combined:70",
+          "sign_status": "unsigned_combined_magnitude",
+          "unit": "unit:newton_meter"
+        },
+        {
+          "checksum": "3142621782c23cee047ac79bae3311c19eca66e6f468f5d39b644f047344379e",
+          "combined": 0.0,
+          "component": "RY",
+          "end": null,
+          "entity_kind": "rigid_constraint",
+          "frame": "global_axes",
+          "governing_direction": null,
+          "held": "single",
+          "holders": [
+            "A1.Fx: anchor_m"
+          ],
+          "node": "N1.ux: anchor node",
+          "ordinal": 70,
+          "per_direction": [
+            {
+              "combined": 0.0,
+              "direction": "Y",
+              "periodic": 0.0,
+              "rigid": 0.0
+            }
+          ],
+          "quantity_kind": "constraint_reaction",
+          "quantity_ref": "quantity:71",
+          "row_id": "combined:71",
+          "sign_status": "unsigned_combined_magnitude",
+          "unit": "unit:newton_meter"
+        },
+        {
+          "checksum": "856d56a144980646d9194b4ff8c48085c914d5b6e3b7810699a37153a6c96fdb",
+          "combined": 2687.5930022154766,
+          "component": "RZ",
+          "end": null,
+          "entity_kind": "rigid_constraint",
+          "frame": "global_axes",
+          "governing_direction": null,
+          "held": "single",
+          "holders": [
+            "A1.Fx: anchor_m"
+          ],
+          "node": "N1.ux: anchor node",
+          "ordinal": 71,
+          "per_direction": [
+            {
+              "combined": 2687.5930022154766,
+              "direction": "Y",
+              "periodic": 2658.6599924447214,
+              "rigid": 393.2978389610519
+            }
+          ],
+          "quantity_kind": "constraint_reaction",
+          "quantity_ref": "quantity:72",
+          "row_id": "combined:72",
+          "sign_status": "unsigned_combined_magnitude",
+          "unit": "unit:newton_meter"
+        },
+        {
+          "checksum": "6ed5f08f45a41e98974bc0e58ba207d8c3034888408ce1da092a4aa823661917",
+          "combined": 529.988658554804,
+          "component": "UY",
+          "end": null,
+          "entity_kind": "compliant_support",
+          "frame": "global_axes",
+          "governing_direction": null,
+          "ordinal": 72,
+          "per_direction": [
+            {
+              "combined": 529.988658554804,
+              "direction": "Y",
+              "periodic": 529.8990520957647,
+              "rigid": 9.745398130948034
+            }
+          ],
+          "quantity_kind": "compliant_support_force",
+          "quantity_ref": "quantity:73",
+          "row_id": "combined:73",
+          "sign_status": "unsigned_combined_magnitude",
+          "support": "S1.UY spring: 1",
+          "unit": "unit:newton"
+        }
+      ],
+      "status": "published"
+    },
+    "contribution_columns": {
+      "digest": "cac4205642ab547361aee833331304e27d842538636ff32bc2c3c1dadc9549ce",
+      "row_count": 2,
+      "rows": [
+        {
+          "checksum": "dca05bab7221b4adce1c8d0f1f30eb35584b3332b218197d7bd98691bfd5bdb7",
+          "cluster_ref": "cluster:1",
+          "column": 0,
+          "mode_ref": "mode:1",
+          "ordinal": 0,
+          "row_id": "contribution-column:1"
+        },
+        {
+          "checksum": "3450e85df0991d07786ba291a669c46c0af1f4ea101145df25744314f20cfb2e",
+          "cluster_ref": "cluster:2",
+          "column": 1,
+          "mode_ref": "mode:2",
+          "ordinal": 1,
+          "row_id": "contribution-column:2"
+        }
+      ],
+      "status": "published"
+    },
+    "directions": [
+      "Y"
+    ],
+    "signed": {
+      "digest": "b5e9b70960687591f2116a1f841cfe3f3d8e50fd521a2864bae79b84e1f4eea1",
+      "row_count": 73,
+      "rows": [
+        {
+          "checksum": "51853f53eb58994dded4140005ceba058f6a741cc12c9b2a19d5d65f956982a4",
+          "component": "ux",
+          "end": null,
+          "entity_kind": "node",
+          "frame": "global_axes",
+          "node": "N1.ux: anchor node",
+          "ordinal": 0,
+          "periodic": {
+            "Y": [
+              0.0,
+              0.0
+            ]
+          },
+          "quantity_kind": "node_displacement",
+          "rigid": {
+            "Y": 0.0
+          },
+          "row_id": "quantity:1",
+          "sign_convention": "positive_along_axis",
+          "sign_status": "signed_contribution",
+          "unit": "unit:meter"
+        },
+        {
+          "checksum": "5b2326ca7a72adc6e23dd3a06182daba6ead392d8f5a9693952307881ecd929a",
+          "component": "uy",
+          "end": null,
+          "entity_kind": "node",
+          "frame": "global_axes",
+          "node": "N1.ux: anchor node",
+          "ordinal": 1,
+          "periodic": {
+            "Y": [
+              0.0,
+              0.0
+            ]
+          },
+          "quantity_kind": "node_displacement",
+          "rigid": {
+            "Y": 0.0
+          },
+          "row_id": "quantity:2",
+          "sign_convention": "positive_along_axis",
+          "sign_status": "signed_contribution",
+          "unit": "unit:meter"
+        },
+        {
+          "checksum": "bdd623f492d173956ced6b2fb115fbe14157ec7b4de3288dd608e306b8055c22",
+          "component": "uz",
+          "end": null,
+          "entity_kind": "node",
+          "frame": "global_axes",
+          "node": "N1.ux: anchor node",
+          "ordinal": 2,
+          "periodic": {
+            "Y": [
+              0.0,
+              0.0
+            ]
+          },
+          "quantity_kind": "node_displacement",
+          "rigid": {
+            "Y": 0.0
+          },
+          "row_id": "quantity:3",
+          "sign_convention": "positive_along_axis",
+          "sign_status": "signed_contribution",
+          "unit": "unit:meter"
+        },
+        {
+          "checksum": "52ada193e4b24ebeb2a9567a313bd643da7f1e2b7064c6f3248157696e8c905f",
+          "component": "rx",
+          "end": null,
+          "entity_kind": "node",
+          "frame": "global_axes",
+          "node": "N1.ux: anchor node",
+          "ordinal": 3,
+          "periodic": {
+            "Y": [
+              0.0,
+              0.0
+            ]
+          },
+          "quantity_kind": "node_displacement",
+          "rigid": {
+            "Y": 0.0
+          },
+          "row_id": "quantity:4",
+          "sign_convention": "positive_along_axis",
+          "sign_status": "signed_contribution",
+          "unit": "unit:radian"
+        },
+        {
+          "checksum": "2ada67f4e9b39256916b3ceef27a3c7eb13bdbf1530e2b6e321364cefc255181",
+          "component": "ry",
+          "end": null,
+          "entity_kind": "node",
+          "frame": "global_axes",
+          "node": "N1.ux: anchor node",
+          "ordinal": 4,
+          "periodic": {
+            "Y": [
+              0.0,
+              0.0
+            ]
+          },
+          "quantity_kind": "node_displacement",
+          "rigid": {
+            "Y": 0.0
+          },
+          "row_id": "quantity:5",
+          "sign_convention": "positive_along_axis",
+          "sign_status": "signed_contribution",
+          "unit": "unit:radian"
+        },
+        {
+          "checksum": "1936726c88cc9a641055f8a498d3768d562d716e20cfd1889efb96f555d52f1b",
+          "component": "rz",
+          "end": null,
+          "entity_kind": "node",
+          "frame": "global_axes",
+          "node": "N1.ux: anchor node",
+          "ordinal": 5,
+          "periodic": {
+            "Y": [
+              0.0,
+              0.0
+            ]
+          },
+          "quantity_kind": "node_displacement",
+          "rigid": {
+            "Y": 0.0
+          },
+          "row_id": "quantity:6",
+          "sign_convention": "positive_along_axis",
+          "sign_status": "signed_contribution",
+          "unit": "unit:radian"
+        },
+        {
+          "checksum": "e33df32951d413cc6564b7480245fe086946cf8e78ed1cb62cca5d1e61207c9e",
+          "component": "ux",
+          "end": null,
+          "entity_kind": "node",
+          "frame": "global_axes",
+          "node": "N2 .i.Fx_m",
+          "ordinal": 6,
+          "periodic": {
+            "Y": [
+              0.0,
+              0.0
+            ]
+          },
+          "quantity_kind": "node_displacement",
+          "rigid": {
+            "Y": 0.0
+          },
+          "row_id": "quantity:7",
+          "sign_convention": "positive_along_axis",
+          "sign_status": "signed_contribution",
+          "unit": "unit:meter"
+        },
+        {
+          "checksum": "5eb394638f9eae5fedd83a23fc20d9485b89e91fcfc05918c1dd6e0c9bc18c37",
+          "component": "uy",
+          "end": null,
+          "entity_kind": "node",
+          "frame": "global_axes",
+          "node": "N2 .i.Fx_m",
+          "ordinal": 7,
+          "periodic": {
+            "Y": [
+              0.0,
+              0.0007489899362619578
+            ]
+          },
+          "quantity_kind": "node_displacement",
+          "rigid": {
+            "Y": 0.000027479113687349207
+          },
+          "row_id": "quantity:8",
+          "sign_convention": "positive_along_axis",
+          "sign_status": "signed_contribution",
+          "unit": "unit:meter"
+        },
+        {
+          "checksum": "0fceddee0c3fdeab31a8ee446b1e3b96b811d4cb0b17a7ac407145731e12d9f6",
+          "component": "uz",
+          "end": null,
+          "entity_kind": "node",
+          "frame": "global_axes",
+          "node": "N2 .i.Fx_m",
+          "ordinal": 8,
+          "periodic": {
+            "Y": [
+              0.0,
+              0.0
+            ]
+          },
+          "quantity_kind": "node_displacement",
+          "rigid": {
+            "Y": 0.0
+          },
+          "row_id": "quantity:9",
+          "sign_convention": "positive_along_axis",
+          "sign_status": "signed_contribution",
+          "unit": "unit:meter"
+        },
+        {
+          "checksum": "b57b69201cffa4e475beb2b4defe8b51468c156ce108357c7b5561d98b92d05e",
+          "component": "rx",
+          "end": null,
+          "entity_kind": "node",
+          "frame": "global_axes",
+          "node": "N2 .i.Fx_m",
+          "ordinal": 9,
+          "periodic": {
+            "Y": [
+              0.0,
+              0.0
+            ]
+          },
+          "quantity_kind": "node_displacement",
+          "rigid": {
+            "Y": 0.0
+          },
+          "row_id": "quantity:10",
+          "sign_convention": "positive_along_axis",
+          "sign_status": "signed_contribution",
+          "unit": "unit:radian"
+        },
+        {
+          "checksum": "736f9c7922371088dde33f81609b2c44fe28ef9748d9998c6e75a16297a3e35c",
+          "component": "ry",
+          "end": null,
+          "entity_kind": "node",
+          "frame": "global_axes",
+          "node": "N2 .i.Fx_m",
+          "ordinal": 10,
+          "periodic": {
+            "Y": [
+              0.0,
+              0.0
+            ]
+          },
+          "quantity_kind": "node_displacement",
+          "rigid": {
+            "Y": 0.0
+          },
+          "row_id": "quantity:11",
+          "sign_convention": "positive_along_axis",
+          "sign_status": "signed_contribution",
+          "unit": "unit:radian"
+        },
+        {
+          "checksum": "dc6b209e99bf4bd453fc1f989e90cb95eff3bf161d300b0ff7c8622afe9d4c19",
+          "component": "rz",
+          "end": null,
+          "entity_kind": "node",
+          "frame": "global_axes",
+          "node": "N2 .i.Fx_m",
+          "ordinal": 11,
+          "periodic": {
+            "Y": [
+              0.0,
+              0.0006093183385420402
+            ]
+          },
+          "quantity_kind": "node_displacement",
+          "rigid": {
+            "Y": -8.912530443059592e-6
+          },
+          "row_id": "quantity:12",
+          "sign_convention": "positive_along_axis",
+          "sign_status": "signed_contribution",
+          "unit": "unit:radian"
+        },
+        {
+          "checksum": "a50de56091dfcae448e20ccb53fd63144584acdcf84d50dcb66a93f9b9845cce",
+          "component": "ux",
+          "end": null,
+          "entity_kind": "node",
+          "frame": "global_axes",
+          "node": "node:N3.uy_m tip",
+          "ordinal": 12,
+          "periodic": {
+            "Y": [
+              0.0,
+              0.0
+            ]
+          },
+          "quantity_kind": "node_displacement",
+          "rigid": {
+            "Y": 0.0
+          },
+          "row_id": "quantity:13",
+          "sign_convention": "positive_along_axis",
+          "sign_status": "signed_contribution",
+          "unit": "unit:meter"
+        },
+        {
+          "checksum": "04a32219b580b5a080b81564641ba98a40404ec05b7a8bb44b99188b18256ea7",
+          "component": "uy",
+          "end": null,
+          "entity_kind": "node",
+          "frame": "global_axes",
+          "node": "node:N3.uy_m tip",
+          "ordinal": 13,
+          "periodic": {
+            "Y": [
+              0.0,
+              0.002021404465086993
+            ]
+          },
+          "quantity_kind": "node_displacement",
+          "rigid": {
+            "Y": -0.00003717574360255445
+          },
+          "row_id": "quantity:14",
+          "sign_convention": "positive_along_axis",
+          "sign_status": "signed_contribution",
+          "unit": "unit:meter"
+        },
+        {
+          "checksum": "fbf642032969d042fa030dbb1c53df585d99d4afa9bb68f7ff355162732cfbe2",
+          "component": "uz",
+          "end": null,
+          "entity_kind": "node",
+          "frame": "global_axes",
+          "node": "node:N3.uy_m tip",
+          "ordinal": 14,
+          "periodic": {
+            "Y": [
+              0.0,
+              0.0
+            ]
+          },
+          "quantity_kind": "node_displacement",
+          "rigid": {
+            "Y": 0.0
+          },
+          "row_id": "quantity:15",
+          "sign_convention": "positive_along_axis",
+          "sign_status": "signed_contribution",
+          "unit": "unit:meter"
+        },
+        {
+          "checksum": "b2a7184023847477b3755c4343992241cad267fe9d4a1df06238c72d056a6778",
+          "component": "rx",
+          "end": null,
+          "entity_kind": "node",
+          "frame": "global_axes",
+          "node": "node:N3.uy_m tip",
+          "ordinal": 15,
+          "periodic": {
+            "Y": [
+              0.0,
+              0.0
+            ]
+          },
+          "quantity_kind": "node_displacement",
+          "rigid": {
+            "Y": 0.0
+          },
+          "row_id": "quantity:16",
+          "sign_convention": "positive_along_axis",
+          "sign_status": "signed_contribution",
+          "unit": "unit:radian"
+        },
+        {
+          "checksum": "42e426673fc139ad7736910729b878d5ec566b0825141cf82d81c8b3b6ab394f",
+          "component": "ry",
+          "end": null,
+          "entity_kind": "node",
+          "frame": "global_axes",
+          "node": "node:N3.uy_m tip",
+          "ordinal": 16,
+          "periodic": {
+            "Y": [
+              0.0,
+              0.0
+            ]
+          },
+          "quantity_kind": "node_displacement",
+          "rigid": {
+            "Y": 0.0
+          },
+          "row_id": "quantity:17",
+          "sign_convention": "positive_along_axis",
+          "sign_status": "signed_contribution",
+          "unit": "unit:radian"
+        },
+        {
+          "checksum": "8836d9add7d16a3bb741a58e28163f808bbcdb01506fc126b04449509e20978b",
+          "component": "rz",
+          "end": null,
+          "entity_kind": "node",
+          "frame": "global_axes",
+          "node": "node:N3.uy_m tip",
+          "ordinal": 17,
+          "periodic": {
+            "Y": [
+              0.0,
+              0.0006249819629319487
+            ]
+          },
+          "quantity_kind": "node_displacement",
+          "rigid": {
+            "Y": -0.00004174264859510013
+          },
+          "row_id": "quantity:18",
+          "sign_convention": "positive_along_axis",
+          "sign_status": "signed_contribution",
+          "unit": "unit:radian"
+        },
+        {
+          "checksum": "95ad6fc162f90139e8b7f3117e4bb1dcc9504320dc990b6b7ce31b695215e0d8",
+          "component": "Fx",
+          "end": "i",
+          "entity_kind": "member",
+          "frame": "global_axes",
+          "member": "P1.i.Fx_m",
+          "member_family": "straight",
+          "ordinal": 18,
+          "periodic": {
+            "Y": [
+              0.0,
+              0.0
+            ]
+          },
+          "quantity_kind": "element_end_action",
+          "rigid": {
+            "Y": 0.0
+          },
+          "row_id": "quantity:19",
+          "sign_convention": "action_on_element_at_end_node",
+          "sign_status": "signed_contribution",
+          "unit": "unit:newton"
+        },
+        {
+          "checksum": "67470188617dded19bde216705d345f080ccebb23beb2cc4f838ee48a37d6daf",
+          "component": "Fy",
+          "end": "i",
+          "entity_kind": "member",
+          "frame": "global_axes",
+          "member": "P1.i.Fx_m",
+          "member_family": "straight",
+          "ordinal": 19,
+          "periodic": {
+            "Y": [
+              0.0,
+              -1129.7197865900714
+            ]
+          },
+          "quantity_kind": "element_end_action",
+          "rigid": {
+            "Y": -710.2664197777843
+          },
+          "row_id": "quantity:20",
+          "sign_convention": "action_on_element_at_end_node",
+          "sign_status": "signed_contribution",
+          "unit": "unit:newton"
+        },
+        {
+          "checksum": "bfe5dd7626ec41facf737091c1021798fd9a860b3d72de42fb1f008e989b1bd0",
+          "component": "Fz",
+          "end": "i",
+          "entity_kind": "member",
+          "frame": "global_axes",
+          "member": "P1.i.Fx_m",
+          "member_family": "straight",
+          "ordinal": 20,
+          "periodic": {
+            "Y": [
+              0.0,
+              0.0
+            ]
+          },
+          "quantity_kind": "element_end_action",
+          "rigid": {
+            "Y": 0.0
+          },
+          "row_id": "quantity:21",
+          "sign_convention": "action_on_element_at_end_node",
+          "sign_status": "signed_contribution",
+          "unit": "unit:newton"
+        },
+        {
+          "checksum": "6fb85ab807bb5559ee68d36bee144eac98684b4b3a58455e0896b26df751dc32",
+          "component": "Mx",
+          "end": "i",
+          "entity_kind": "member",
+          "frame": "global_axes",
+          "member": "P1.i.Fx_m",
+          "member_family": "straight",
+          "ordinal": 21,
+          "periodic": {
+            "Y": [
+              0.0,
+              0.0
+            ]
+          },
+          "quantity_kind": "element_end_action",
+          "rigid": {
+            "Y": 0.0
+          },
+          "row_id": "quantity:22",
+          "sign_convention": "action_on_element_at_end_node",
+          "sign_status": "signed_contribution",
+          "unit": "unit:newton_meter"
+        },
+        {
+          "checksum": "fff243560c5bac2d2762c44cc8e0d0337ba107e7c47cb704ebacdba62c0759ff",
+          "component": "My",
+          "end": "i",
+          "entity_kind": "member",
+          "frame": "global_axes",
+          "member": "P1.i.Fx_m",
+          "member_family": "straight",
+          "ordinal": 22,
+          "periodic": {
+            "Y": [
+              0.0,
+              0.0
+            ]
+          },
+          "quantity_kind": "element_end_action",
+          "rigid": {
+            "Y": 0.0
+          },
+          "row_id": "quantity:23",
+          "sign_convention": "action_on_element_at_end_node",
+          "sign_status": "signed_contribution",
+          "unit": "unit:newton_meter"
+        },
+        {
+          "checksum": "7a4d2048aec6f2d9b2eb64d5a300f138bd5ca09dae37c73ead86f85a830a1da3",
+          "component": "Mz",
+          "end": "i",
+          "entity_kind": "member",
+          "frame": "global_axes",
+          "member": "P1.i.Fx_m",
+          "member_family": "straight",
+          "ordinal": 23,
+          "periodic": {
+            "Y": [
+              0.0,
+              -2658.6599924447214
+            ]
+          },
+          "quantity_kind": "element_end_action",
+          "rigid": {
+            "Y": -393.2978389610519
+          },
+          "row_id": "quantity:24",
+          "sign_convention": "action_on_element_at_end_node",
+          "sign_status": "signed_contribution",
+          "unit": "unit:newton_meter"
+        },
+        {
+          "checksum": "22bd3ef42ca9aedc43d7cdbacd8610ca83b4402e948912e5b4ecd8840568ff00",
+          "component": "Fx",
+          "end": "j",
+          "entity_kind": "member",
+          "frame": "global_axes",
+          "member": "P1.i.Fx_m",
+          "member_family": "straight",
+          "ordinal": 24,
+          "periodic": {
+            "Y": [
+              0.0,
+              0.0
+            ]
+          },
+          "quantity_kind": "element_end_action",
+          "rigid": {
+            "Y": 0.0
+          },
+          "row_id": "quantity:25",
+          "sign_convention": "action_on_element_at_end_node",
+          "sign_status": "signed_contribution",
+          "unit": "unit:newton"
+        },
+        {
+          "checksum": "693dfacef5bf1132bf7d52bdce0ef0cfc012a6ee7390bbc34f521ac53949c4a3",
+          "component": "Fy",
+          "end": "j",
+          "entity_kind": "member",
+          "frame": "global_axes",
+          "member": "P1.i.Fx_m",
+          "member_family": "straight",
+          "ordinal": 25,
+          "periodic": {
+            "Y": [
+              0.0,
+              856.1035146498664
+            ]
+          },
+          "quantity_kind": "element_end_action",
+          "rigid": {
+            "Y": -39.016931442556924
+          },
+          "row_id": "quantity:26",
+          "sign_convention": "action_on_element_at_end_node",
+          "sign_status": "signed_contribution",
+          "unit": "unit:newton"
+        },
+        {
+          "checksum": "ef96fdab780b8ce2a537b00e3bcda1fce1d8b0919ba81fe0838c4c15f249ec7b",
+          "component": "Fz",
+          "end": "j",
+          "entity_kind": "member",
+          "frame": "global_axes",
+          "member": "P1.i.Fx_m",
+          "member_family": "straight",
+          "ordinal": 26,
+          "periodic": {
+            "Y": [
+              0.0,
+              0.0
+            ]
+          },
+          "quantity_kind": "element_end_action",
+          "rigid": {
+            "Y": 0.0
+          },
+          "row_id": "quantity:27",
+          "sign_convention": "action_on_element_at_end_node",
+          "sign_status": "signed_contribution",
+          "unit": "unit:newton"
+        },
+        {
+          "checksum": "2a3a04b78baca7d9cacce20d0df970c9007a6e6068b021d1af27cf208095d369",
+          "component": "Mx",
+          "end": "j",
+          "entity_kind": "member",
+          "frame": "global_axes",
+          "member": "P1.i.Fx_m",
+          "member_family": "straight",
+          "ordinal": 27,
+          "periodic": {
+            "Y": [
+              0.0,
+              0.0
+            ]
+          },
+          "quantity_kind": "element_end_action",
+          "rigid": {
+            "Y": 0.0
+          },
+          "row_id": "quantity:28",
+          "sign_convention": "action_on_element_at_end_node",
+          "sign_status": "signed_contribution",
+          "unit": "unit:newton_meter"
+        },
+        {
+          "checksum": "f738368b01ecf8760686988279e213f2dafc7f98a8835fde63db4c6694b4b884",
+          "component": "My",
+          "end": "j",
+          "entity_kind": "member",
+          "frame": "global_axes",
+          "member": "P1.i.Fx_m",
+          "member_family": "straight",
+          "ordinal": 28,
+          "periodic": {
+            "Y": [
+              0.0,
+              0.0
+            ]
+          },
+          "quantity_kind": "element_end_action",
+          "rigid": {
+            "Y": 0.0
+          },
+          "row_id": "quantity:29",
+          "sign_convention": "action_on_element_at_end_node",
+          "sign_status": "signed_contribution",
+          "unit": "unit:newton_meter"
+        },
+        {
+          "checksum": "5a544e96865bdb77bd2f33de2f8244db3171da8904079eeb0d0d42683686c496",
+          "component": "Mz",
+          "end": "j",
+          "entity_kind": "member",
+          "frame": "global_axes",
+          "member": "P1.i.Fx_m",
+          "member_family": "straight",
+          "ordinal": 29,
+          "periodic": {
+            "Y": [
+              0.0,
+              541.9332653430093
+            ]
+          },
+          "quantity_kind": "element_end_action",
+          "rigid": {
+            "Y": -184.03920717856255
+          },
+          "row_id": "quantity:30",
+          "sign_convention": "action_on_element_at_end_node",
+          "sign_status": "signed_contribution",
+          "unit": "unit:newton_meter"
+        },
+        {
+          "checksum": "5709895f673e0ef86616ede6d2ad2bcad7b7db20ac7aa7ebc941fca299e5e90e",
+          "component": "Fx",
+          "end": "i",
+          "entity_kind": "member",
+          "frame": "member_axes",
+          "member": "P1.i.Fx_m",
+          "member_family": "straight",
+          "ordinal": 30,
+          "periodic": {
+            "Y": [
+              0.0,
+              0.0
+            ]
+          },
+          "quantity_kind": "element_end_action",
+          "rigid": {
+            "Y": 0.0
+          },
+          "row_id": "quantity:31",
+          "sign_convention": "action_on_element_at_end_node",
+          "sign_status": "signed_contribution",
+          "unit": "unit:newton"
+        },
+        {
+          "checksum": "e585860311297be3a8419ebc98298f0ace246c1dee3f971e1d9d36914d9c7773",
+          "component": "Fy",
+          "end": "i",
+          "entity_kind": "member",
+          "frame": "member_axes",
+          "member": "P1.i.Fx_m",
+          "member_family": "straight",
+          "ordinal": 31,
+          "periodic": {
+            "Y": [
+              0.0,
+              0.0
+            ]
+          },
+          "quantity_kind": "element_end_action",
+          "rigid": {
+            "Y": 0.0
+          },
+          "row_id": "quantity:32",
+          "sign_convention": "action_on_element_at_end_node",
+          "sign_status": "signed_contribution",
+          "unit": "unit:newton"
+        },
+        {
+          "checksum": "2bb95c41685bbf8f3a4901f83a3439105c3d92bf2956317f95164ab96299c0f2",
+          "component": "Fz",
+          "end": "i",
+          "entity_kind": "member",
+          "frame": "member_axes",
+          "member": "P1.i.Fx_m",
+          "member_family": "straight",
+          "ordinal": 32,
+          "periodic": {
+            "Y": [
+              -0.0,
+              1129.7197865900714
+            ]
+          },
+          "quantity_kind": "element_end_action",
+          "rigid": {
+            "Y": 710.2664197777843
+          },
+          "row_id": "quantity:33",
+          "sign_convention": "action_on_element_at_end_node",
+          "sign_status": "signed_contribution",
+          "unit": "unit:newton"
+        },
+        {
+          "checksum": "52bcffe178602448b2cc9c657092d2ed9a4de311cf0ffc52084b26f68e7f45f2",
+          "component": "Mx",
+          "end": "i",
+          "entity_kind": "member",
+          "frame": "member_axes",
+          "member": "P1.i.Fx_m",
+          "member_family": "straight",
+          "ordinal": 33,
+          "periodic": {
+            "Y": [
+              0.0,
+              0.0
+            ]
+          },
+          "quantity_kind": "element_end_action",
+          "rigid": {
+            "Y": 0.0
+          },
+          "row_id": "quantity:34",
+          "sign_convention": "action_on_element_at_end_node",
+          "sign_status": "signed_contribution",
+          "unit": "unit:newton_meter"
+        },
+        {
+          "checksum": "3b02d097e0b262893bdcc69d9b9f080f666d2e1a699be33e706b1e8133ec7fb7",
+          "component": "My",
+          "end": "i",
+          "entity_kind": "member",
+          "frame": "member_axes",
+          "member": "P1.i.Fx_m",
+          "member_family": "straight",
+          "ordinal": 34,
+          "periodic": {
+            "Y": [
+              0.0,
+              -2658.6599924447214
+            ]
+          },
+          "quantity_kind": "element_end_action",
+          "rigid": {
+            "Y": -393.2978389610519
+          },
+          "row_id": "quantity:35",
+          "sign_convention": "action_on_element_at_end_node",
+          "sign_status": "signed_contribution",
+          "unit": "unit:newton_meter"
+        },
+        {
+          "checksum": "0f23cf968f188301c1e61bac9f05a1718506646efd4955c9fa17dc45b169575e",
+          "component": "Mz",
+          "end": "i",
+          "entity_kind": "member",
+          "frame": "member_axes",
+          "member": "P1.i.Fx_m",
+          "member_family": "straight",
+          "ordinal": 35,
+          "periodic": {
+            "Y": [
+              -0.0,
+              -0.0
+            ]
+          },
+          "quantity_kind": "element_end_action",
+          "rigid": {
+            "Y": -0.0
+          },
+          "row_id": "quantity:36",
+          "sign_convention": "action_on_element_at_end_node",
+          "sign_status": "signed_contribution",
+          "unit": "unit:newton_meter"
+        },
+        {
+          "checksum": "b0cad4effd936fc0b10b12478be3e3fffec7266b0c86501add1be04409f112b8",
+          "component": "Fx",
+          "end": "j",
+          "entity_kind": "member",
+          "frame": "member_axes",
+          "member": "P1.i.Fx_m",
+          "member_family": "straight",
+          "ordinal": 36,
+          "periodic": {
+            "Y": [
+              0.0,
+              0.0
+            ]
+          },
+          "quantity_kind": "element_end_action",
+          "rigid": {
+            "Y": 0.0
+          },
+          "row_id": "quantity:37",
+          "sign_convention": "action_on_element_at_end_node",
+          "sign_status": "signed_contribution",
+          "unit": "unit:newton"
+        },
+        {
+          "checksum": "79f4f011b0950237992436f4ae3965017af55bd77ceeced14924af65786e33b8",
+          "component": "Fy",
+          "end": "j",
+          "entity_kind": "member",
+          "frame": "member_axes",
+          "member": "P1.i.Fx_m",
+          "member_family": "straight",
+          "ordinal": 37,
+          "periodic": {
+            "Y": [
+              0.0,
+              0.0
+            ]
+          },
+          "quantity_kind": "element_end_action",
+          "rigid": {
+            "Y": 0.0
+          },
+          "row_id": "quantity:38",
+          "sign_convention": "action_on_element_at_end_node",
+          "sign_status": "signed_contribution",
+          "unit": "unit:newton"
+        },
+        {
+          "checksum": "c1fcd4a843d6ff0fef7fd9877f2d1157f3f79ecd32445ef5996b6198d794bd4c",
+          "component": "Fz",
+          "end": "j",
+          "entity_kind": "member",
+          "frame": "member_axes",
+          "member": "P1.i.Fx_m",
+          "member_family": "straight",
+          "ordinal": 38,
+          "periodic": {
+            "Y": [
+              -0.0,
+              -856.1035146498664
+            ]
+          },
+          "quantity_kind": "element_end_action",
+          "rigid": {
+            "Y": 39.016931442556924
+          },
+          "row_id": "quantity:39",
+          "sign_convention": "action_on_element_at_end_node",
+          "sign_status": "signed_contribution",
+          "unit": "unit:newton"
+        },
+        {
+          "checksum": "c7e53e0c68cb4ed7ce3735e8218b220b77cf792491264d04025f117f71a8a1d8",
+          "component": "Mx",
+          "end": "j",
+          "entity_kind": "member",
+          "frame": "member_axes",
+          "member": "P1.i.Fx_m",
+          "member_family": "straight",
+          "ordinal": 39,
+          "periodic": {
+            "Y": [
+              0.0,
+              0.0
+            ]
+          },
+          "quantity_kind": "element_end_action",
+          "rigid": {
+            "Y": 0.0
+          },
+          "row_id": "quantity:40",
+          "sign_convention": "action_on_element_at_end_node",
+          "sign_status": "signed_contribution",
+          "unit": "unit:newton_meter"
+        },
+        {
+          "checksum": "ed065d62b5f6293604942b24294a3808effd720c907a78a5a2dce5381ed5caff",
+          "component": "My",
+          "end": "j",
+          "entity_kind": "member",
+          "frame": "member_axes",
+          "member": "P1.i.Fx_m",
+          "member_family": "straight",
+          "ordinal": 40,
+          "periodic": {
+            "Y": [
+              0.0,
+              541.9332653430093
+            ]
+          },
+          "quantity_kind": "element_end_action",
+          "rigid": {
+            "Y": -184.03920717856255
+          },
+          "row_id": "quantity:41",
+          "sign_convention": "action_on_element_at_end_node",
+          "sign_status": "signed_contribution",
+          "unit": "unit:newton_meter"
+        },
+        {
+          "checksum": "fd41896b69b2a79cf7b79f11fa158bea19121a5ec6e72d2bf4d214c363a43a56",
+          "component": "Mz",
+          "end": "j",
+          "entity_kind": "member",
+          "frame": "member_axes",
+          "member": "P1.i.Fx_m",
+          "member_family": "straight",
+          "ordinal": 41,
+          "periodic": {
+            "Y": [
+              -0.0,
+              -0.0
+            ]
+          },
+          "quantity_kind": "element_end_action",
+          "rigid": {
+            "Y": -0.0
+          },
+          "row_id": "quantity:42",
+          "sign_convention": "action_on_element_at_end_node",
+          "sign_status": "signed_contribution",
+          "unit": "unit:newton_meter"
+        },
+        {
+          "checksum": "62d385b3f64748a0a527c0ab53eed85080b1ea4b9b99c1e13be0872385839e83",
+          "component": "Fx",
+          "end": "i",
+          "entity_kind": "member",
+          "frame": "global_axes",
+          "member": "pipe: P2.j.Mz_m",
+          "member_family": "straight",
+          "ordinal": 42,
+          "periodic": {
+            "Y": [
+              0.0,
+              0.0
+            ]
+          },
+          "quantity_kind": "element_end_action",
+          "rigid": {
+            "Y": 0.0
+          },
+          "row_id": "quantity:43",
+          "sign_convention": "action_on_element_at_end_node",
+          "sign_status": "signed_contribution",
+          "unit": "unit:newton"
+        },
+        {
+          "checksum": "e0e71ad62dd63225013e6bb3fc8f8d946e363279cab0f4823452abea370c2c14",
+          "component": "Fy",
+          "end": "i",
+          "entity_kind": "member",
+          "frame": "global_axes",
+          "member": "pipe: P2.j.Mz_m",
+          "member_family": "straight",
+          "ordinal": 43,
+          "periodic": {
+            "Y": [
+              0.0,
+              -856.1035146498664
+            ]
+          },
+          "quantity_kind": "element_end_action",
+          "rigid": {
+            "Y": 39.016931442556924
+          },
+          "row_id": "quantity:44",
+          "sign_convention": "action_on_element_at_end_node",
+          "sign_status": "signed_contribution",
+          "unit": "unit:newton"
+        },
+        {
+          "checksum": "3033e2d1e9344a51e6213d8ba66b8b908ee009b4948995797be9d738cf4ee50f",
+          "component": "Fz",
+          "end": "i",
+          "entity_kind": "member",
+          "frame": "global_axes",
+          "member": "pipe: P2.j.Mz_m",
+          "member_family": "straight",
+          "ordinal": 44,
+          "periodic": {
+            "Y": [
+              0.0,
+              0.0
+            ]
+          },
+          "quantity_kind": "element_end_action",
+          "rigid": {
+            "Y": 0.0
+          },
+          "row_id": "quantity:45",
+          "sign_convention": "action_on_element_at_end_node",
+          "sign_status": "signed_contribution",
+          "unit": "unit:newton"
+        },
+        {
+          "checksum": "8e2b4db862eac6b54846b9c51398e5566112765eeac53b596112e62e3b015d2c",
+          "component": "Mx",
+          "end": "i",
+          "entity_kind": "member",
+          "frame": "global_axes",
+          "member": "pipe: P2.j.Mz_m",
+          "member_family": "straight",
+          "ordinal": 45,
+          "periodic": {
+            "Y": [
+              0.0,
+              0.0
+            ]
+          },
+          "quantity_kind": "element_end_action",
+          "rigid": {
+            "Y": 0.0
+          },
+          "row_id": "quantity:46",
+          "sign_convention": "action_on_element_at_end_node",
+          "sign_status": "signed_contribution",
+          "unit": "unit:newton_meter"
+        },
+        {
+          "checksum": "a1b5cb2f66c2d38d118b2c803245982ff2c1203cb13e7a7af0357f35f8971ff4",
+          "component": "My",
+          "end": "i",
+          "entity_kind": "member",
+          "frame": "global_axes",
+          "member": "pipe: P2.j.Mz_m",
+          "member_family": "straight",
+          "ordinal": 46,
+          "periodic": {
+            "Y": [
+              0.0,
+              0.0
+            ]
+          },
+          "quantity_kind": "element_end_action",
+          "rigid": {
+            "Y": 0.0
+          },
+          "row_id": "quantity:47",
+          "sign_convention": "action_on_element_at_end_node",
+          "sign_status": "signed_contribution",
+          "unit": "unit:newton_meter"
+        },
+        {
+          "checksum": "c4dac856a5a72889895d41ba4b0605a978d732f95f1ea7286dec66585fc036fb",
+          "component": "Mz",
+          "end": "i",
+          "entity_kind": "member",
+          "frame": "global_axes",
+          "member": "pipe: P2.j.Mz_m",
+          "member_family": "straight",
+          "ordinal": 47,
+          "periodic": {
+            "Y": [
+              0.0,
+              -541.9332653430093
+            ]
+          },
+          "quantity_kind": "element_end_action",
+          "rigid": {
+            "Y": 184.03920717856255
+          },
+          "row_id": "quantity:48",
+          "sign_convention": "action_on_element_at_end_node",
+          "sign_status": "signed_contribution",
+          "unit": "unit:newton_meter"
+        },
+        {
+          "checksum": "76e7fada552bf6abd548b30a419b2157c2777be39890479010e64cf49f3ced01",
+          "component": "Fx",
+          "end": "j",
+          "entity_kind": "member",
+          "frame": "global_axes",
+          "member": "pipe: P2.j.Mz_m",
+          "member_family": "straight",
+          "ordinal": 48,
+          "periodic": {
+            "Y": [
+              0.0,
+              0.0
+            ]
+          },
+          "quantity_kind": "element_end_action",
+          "rigid": {
+            "Y": 0.0
+          },
+          "row_id": "quantity:49",
+          "sign_convention": "action_on_element_at_end_node",
+          "sign_status": "signed_contribution",
+          "unit": "unit:newton"
+        },
+        {
+          "checksum": "c820c44774be032de87d6dd83050995de18c0a4f8f1afce50552bbcb3c4aa001",
+          "component": "Fy",
+          "end": "j",
+          "entity_kind": "member",
+          "frame": "global_axes",
+          "member": "pipe: P2.j.Mz_m",
+          "member_family": "straight",
+          "ordinal": 49,
+          "periodic": {
+            "Y": [
+              0.0,
+              -529.8990520957647
+            ]
+          },
+          "quantity_kind": "element_end_action",
+          "rigid": {
+            "Y": 9.745398130948034
+          },
+          "row_id": "quantity:50",
+          "sign_convention": "action_on_element_at_end_node",
+          "sign_status": "signed_contribution",
+          "unit": "unit:newton"
+        },
+        {
+          "checksum": "b8288fd80da27fe2d1d50c7d7aabd730e066feb5f87a6b40296196b798d60138",
+          "component": "Fz",
+          "end": "j",
+          "entity_kind": "member",
+          "frame": "global_axes",
+          "member": "pipe: P2.j.Mz_m",
+          "member_family": "straight",
+          "ordinal": 50,
+          "periodic": {
+            "Y": [
+              0.0,
+              0.0
+            ]
+          },
+          "quantity_kind": "element_end_action",
+          "rigid": {
+            "Y": 0.0
+          },
+          "row_id": "quantity:51",
+          "sign_convention": "action_on_element_at_end_node",
+          "sign_status": "signed_contribution",
+          "unit": "unit:newton"
+        },
+        {
+          "checksum": "01c00de1f5ce3cc77b723eac270b4fa7bdca187bdc6b353f8b34772f198d28d0",
+          "component": "Mx",
+          "end": "j",
+          "entity_kind": "member",
+          "frame": "global_axes",
+          "member": "pipe: P2.j.Mz_m",
+          "member_family": "straight",
+          "ordinal": 51,
+          "periodic": {
+            "Y": [
+              0.0,
+              0.0
+            ]
+          },
+          "quantity_kind": "element_end_action",
+          "rigid": {
+            "Y": 0.0
+          },
+          "row_id": "quantity:52",
+          "sign_convention": "action_on_element_at_end_node",
+          "sign_status": "signed_contribution",
+          "unit": "unit:newton_meter"
+        },
+        {
+          "checksum": "d7fc13814e69534a51410a578a2c38702bb11a8395a6338e39d533303dfc03a4",
+          "component": "My",
+          "end": "j",
+          "entity_kind": "member",
+          "frame": "global_axes",
+          "member": "pipe: P2.j.Mz_m",
+          "member_family": "straight",
+          "ordinal": 52,
+          "periodic": {
+            "Y": [
+              0.0,
+              0.0
+            ]
+          },
+          "quantity_kind": "element_end_action",
+          "rigid": {
+            "Y": 0.0
+          },
+          "row_id": "quantity:53",
+          "sign_convention": "action_on_element_at_end_node",
+          "sign_status": "signed_contribution",
+          "unit": "unit:newton_meter"
+        },
+        {
+          "checksum": "c2cfc42827ee7321e3b785ee6ba34a6e4869bec81fd979a28a3b1d3510787814",
+          "component": "Mz",
+          "end": "j",
+          "entity_kind": "member",
+          "frame": "global_axes",
+          "member": "pipe: P2.j.Mz_m",
+          "member_family": "straight",
+          "ordinal": 53,
+          "periodic": {
+            "Y": [
+              0.0,
+              0.0
+            ]
+          },
+          "quantity_kind": "element_end_action",
+          "rigid": {
+            "Y": 0.0
+          },
+          "row_id": "quantity:54",
+          "sign_convention": "action_on_element_at_end_node",
+          "sign_status": "signed_contribution",
+          "unit": "unit:newton_meter"
+        },
+        {
+          "checksum": "a571f35eb745e7e7e022f68a9c41ae379b1cfd7a54630851b47a06a99ade63a8",
+          "component": "Fx",
+          "end": "i",
+          "entity_kind": "member",
+          "frame": "member_axes",
+          "member": "pipe: P2.j.Mz_m",
+          "member_family": "straight",
+          "ordinal": 54,
+          "periodic": {
+            "Y": [
+              0.0,
+              0.0
+            ]
+          },
+          "quantity_kind": "element_end_action",
+          "rigid": {
+            "Y": 0.0
+          },
+          "row_id": "quantity:55",
+          "sign_convention": "action_on_element_at_end_node",
+          "sign_status": "signed_contribution",
+          "unit": "unit:newton"
+        },
+        {
+          "checksum": "f8a702377fb097fd6cf6b36d0c370c8c7fa86f34bce2dc6ace7fe41df0c53c22",
+          "component": "Fy",
+          "end": "i",
+          "entity_kind": "member",
+          "frame": "member_axes",
+          "member": "pipe: P2.j.Mz_m",
+          "member_family": "straight",
+          "ordinal": 55,
+          "periodic": {
+            "Y": [
+              0.0,
+              0.0
+            ]
+          },
+          "quantity_kind": "element_end_action",
+          "rigid": {
+            "Y": 0.0
+          },
+          "row_id": "quantity:56",
+          "sign_convention": "action_on_element_at_end_node",
+          "sign_status": "signed_contribution",
+          "unit": "unit:newton"
+        },
+        {
+          "checksum": "788a2ece89941f6c2c3d9742c19744f57c7dec0b5e86ae80fddd4f7802fb96f0",
+          "component": "Fz",
+          "end": "i",
+          "entity_kind": "member",
+          "frame": "member_axes",
+          "member": "pipe: P2.j.Mz_m",
+          "member_family": "straight",
+          "ordinal": 56,
+          "periodic": {
+            "Y": [
+              -0.0,
+              856.1035146498664
+            ]
+          },
+          "quantity_kind": "element_end_action",
+          "rigid": {
+            "Y": -39.016931442556924
+          },
+          "row_id": "quantity:57",
+          "sign_convention": "action_on_element_at_end_node",
+          "sign_status": "signed_contribution",
+          "unit": "unit:newton"
+        },
+        {
+          "checksum": "060b15b1c89a6e964d8e6d0f62d11601a9d2ba7b01874977dab01451bd90fe11",
+          "component": "Mx",
+          "end": "i",
+          "entity_kind": "member",
+          "frame": "member_axes",
+          "member": "pipe: P2.j.Mz_m",
+          "member_family": "straight",
+          "ordinal": 57,
+          "periodic": {
+            "Y": [
+              0.0,
+              0.0
+            ]
+          },
+          "quantity_kind": "element_end_action",
+          "rigid": {
+            "Y": 0.0
+          },
+          "row_id": "quantity:58",
+          "sign_convention": "action_on_element_at_end_node",
+          "sign_status": "signed_contribution",
+          "unit": "unit:newton_meter"
+        },
+        {
+          "checksum": "bc012eb7bb0d196a75e05683f5e9a20f9bca3bef5b27f28e835319e0c521407c",
+          "component": "My",
+          "end": "i",
+          "entity_kind": "member",
+          "frame": "member_axes",
+          "member": "pipe: P2.j.Mz_m",
+          "member_family": "straight",
+          "ordinal": 58,
+          "periodic": {
+            "Y": [
+              0.0,
+              -541.9332653430093
+            ]
+          },
+          "quantity_kind": "element_end_action",
+          "rigid": {
+            "Y": 184.03920717856255
+          },
+          "row_id": "quantity:59",
+          "sign_convention": "action_on_element_at_end_node",
+          "sign_status": "signed_contribution",
+          "unit": "unit:newton_meter"
+        },
+        {
+          "checksum": "9556eab5626420df7ebf10e2f76546cd8c620bc315e76d701b11a7ac286f509a",
+          "component": "Mz",
+          "end": "i",
+          "entity_kind": "member",
+          "frame": "member_axes",
+          "member": "pipe: P2.j.Mz_m",
+          "member_family": "straight",
+          "ordinal": 59,
+          "periodic": {
+            "Y": [
+              -0.0,
+              -0.0
+            ]
+          },
+          "quantity_kind": "element_end_action",
+          "rigid": {
+            "Y": -0.0
+          },
+          "row_id": "quantity:60",
+          "sign_convention": "action_on_element_at_end_node",
+          "sign_status": "signed_contribution",
+          "unit": "unit:newton_meter"
+        },
+        {
+          "checksum": "87004f0d19f46ffd6f5fb77e77d7a852ea1ec767d40a368039a7cabf4be83828",
+          "component": "Fx",
+          "end": "j",
+          "entity_kind": "member",
+          "frame": "member_axes",
+          "member": "pipe: P2.j.Mz_m",
+          "member_family": "straight",
+          "ordinal": 60,
+          "periodic": {
+            "Y": [
+              0.0,
+              0.0
+            ]
+          },
+          "quantity_kind": "element_end_action",
+          "rigid": {
+            "Y": 0.0
+          },
+          "row_id": "quantity:61",
+          "sign_convention": "action_on_element_at_end_node",
+          "sign_status": "signed_contribution",
+          "unit": "unit:newton"
+        },
+        {
+          "checksum": "74e0bf438e007742fb5ddc1734a4aedacfd29a316367d592ae0fae1a0cf001ac",
+          "component": "Fy",
+          "end": "j",
+          "entity_kind": "member",
+          "frame": "member_axes",
+          "member": "pipe: P2.j.Mz_m",
+          "member_family": "straight",
+          "ordinal": 61,
+          "periodic": {
+            "Y": [
+              0.0,
+              0.0
+            ]
+          },
+          "quantity_kind": "element_end_action",
+          "rigid": {
+            "Y": 0.0
+          },
+          "row_id": "quantity:62",
+          "sign_convention": "action_on_element_at_end_node",
+          "sign_status": "signed_contribution",
+          "unit": "unit:newton"
+        },
+        {
+          "checksum": "889d3ab0b2bc0ef449b408bc05f8ceb0875729af59da29e956da85a050d2e262",
+          "component": "Fz",
+          "end": "j",
+          "entity_kind": "member",
+          "frame": "member_axes",
+          "member": "pipe: P2.j.Mz_m",
+          "member_family": "straight",
+          "ordinal": 62,
+          "periodic": {
+            "Y": [
+              -0.0,
+              529.8990520957647
+            ]
+          },
+          "quantity_kind": "element_end_action",
+          "rigid": {
+            "Y": -9.745398130948034
+          },
+          "row_id": "quantity:63",
+          "sign_convention": "action_on_element_at_end_node",
+          "sign_status": "signed_contribution",
+          "unit": "unit:newton"
+        },
+        {
+          "checksum": "5b4480333556e4c87e318e9511f52129d54b04cf97d3b1ce562d97822a48dac6",
+          "component": "Mx",
+          "end": "j",
+          "entity_kind": "member",
+          "frame": "member_axes",
+          "member": "pipe: P2.j.Mz_m",
+          "member_family": "straight",
+          "ordinal": 63,
+          "periodic": {
+            "Y": [
+              0.0,
+              0.0
+            ]
+          },
+          "quantity_kind": "element_end_action",
+          "rigid": {
+            "Y": 0.0
+          },
+          "row_id": "quantity:64",
+          "sign_convention": "action_on_element_at_end_node",
+          "sign_status": "signed_contribution",
+          "unit": "unit:newton_meter"
+        },
+        {
+          "checksum": "9571f38aca9d86918c9512a8350aab246db1dc993ea5c1f53c0a4da087507f1e",
+          "component": "My",
+          "end": "j",
+          "entity_kind": "member",
+          "frame": "member_axes",
+          "member": "pipe: P2.j.Mz_m",
+          "member_family": "straight",
+          "ordinal": 64,
+          "periodic": {
+            "Y": [
+              0.0,
+              0.0
+            ]
+          },
+          "quantity_kind": "element_end_action",
+          "rigid": {
+            "Y": 0.0
+          },
+          "row_id": "quantity:65",
+          "sign_convention": "action_on_element_at_end_node",
+          "sign_status": "signed_contribution",
+          "unit": "unit:newton_meter"
+        },
+        {
+          "checksum": "6837848a4390ea3a1f70af78a2c23b46a7a0c28eddf00ca9de518a2309f82ddd",
+          "component": "Mz",
+          "end": "j",
+          "entity_kind": "member",
+          "frame": "member_axes",
+          "member": "pipe: P2.j.Mz_m",
+          "member_family": "straight",
+          "ordinal": 65,
+          "periodic": {
+            "Y": [
+              -0.0,
+              -0.0
+            ]
+          },
+          "quantity_kind": "element_end_action",
+          "rigid": {
+            "Y": -0.0
+          },
+          "row_id": "quantity:66",
+          "sign_convention": "action_on_element_at_end_node",
+          "sign_status": "signed_contribution",
+          "unit": "unit:newton_meter"
+        },
+        {
+          "checksum": "85321c466719da40ba92b009e188a93d738d640127956c7a4f2aa5054063ce5e",
+          "component": "UX",
+          "end": null,
+          "entity_kind": "rigid_constraint",
+          "frame": "global_axes",
+          "held": "single",
+          "holders": [
+            "A1.Fx: anchor_m"
+          ],
+          "node": "N1.ux: anchor node",
+          "ordinal": 66,
+          "periodic": {
+            "Y": [
+              0.0,
+              0.0
+            ]
+          },
+          "quantity_kind": "constraint_reaction",
+          "rigid": {
+            "Y": 0.0
+          },
+          "row_id": "quantity:67",
+          "sign_convention": "action_of_support_on_piping",
+          "sign_status": "signed_contribution",
+          "unit": "unit:newton"
+        },
+        {
+          "checksum": "dca4105112f980095ea1718606bcc1359a6ef98a6d34b3727782953778b30bb7",
+          "component": "UY",
+          "end": null,
+          "entity_kind": "rigid_constraint",
+          "frame": "global_axes",
+          "held": "single",
+          "holders": [
+            "A1.Fx: anchor_m"
+          ],
+          "node": "N1.ux: anchor node",
+          "ordinal": 67,
+          "periodic": {
+            "Y": [
+              0.0,
+              -1129.7197865900714
+            ]
+          },
+          "quantity_kind": "constraint_reaction",
+          "rigid": {
+            "Y": -710.2664197777843
+          },
+          "row_id": "quantity:68",
+          "sign_convention": "action_of_support_on_piping",
+          "sign_status": "signed_contribution",
+          "unit": "unit:newton"
+        },
+        {
+          "checksum": "5233ba3c42263f4bf8cdc14ebcdd088f5e3c5423058b90f0e833c9ec5e131d6f",
+          "component": "UZ",
+          "end": null,
+          "entity_kind": "rigid_constraint",
+          "frame": "global_axes",
+          "held": "single",
+          "holders": [
+            "A1.Fx: anchor_m"
+          ],
+          "node": "N1.ux: anchor node",
+          "ordinal": 68,
+          "periodic": {
+            "Y": [
+              0.0,
+              0.0
+            ]
+          },
+          "quantity_kind": "constraint_reaction",
+          "rigid": {
+            "Y": 0.0
+          },
+          "row_id": "quantity:69",
+          "sign_convention": "action_of_support_on_piping",
+          "sign_status": "signed_contribution",
+          "unit": "unit:newton"
+        },
+        {
+          "checksum": "3c86c9e7a1cdadf91aa260746af6bc2d53c1f326dd3e2926f91db7cfaae7f9a2",
+          "component": "RX",
+          "end": null,
+          "entity_kind": "rigid_constraint",
+          "frame": "global_axes",
+          "held": "single",
+          "holders": [
+            "A1.Fx: anchor_m"
+          ],
+          "node": "N1.ux: anchor node",
+          "ordinal": 69,
+          "periodic": {
+            "Y": [
+              0.0,
+              0.0
+            ]
+          },
+          "quantity_kind": "constraint_reaction",
+          "rigid": {
+            "Y": 0.0
+          },
+          "row_id": "quantity:70",
+          "sign_convention": "action_of_support_on_piping",
+          "sign_status": "signed_contribution",
+          "unit": "unit:newton_meter"
+        },
+        {
+          "checksum": "73c23eaf8950ba599e53552de5fde63cc6e7e52d154a4ed81aa32aa8e2f27287",
+          "component": "RY",
+          "end": null,
+          "entity_kind": "rigid_constraint",
+          "frame": "global_axes",
+          "held": "single",
+          "holders": [
+            "A1.Fx: anchor_m"
+          ],
+          "node": "N1.ux: anchor node",
+          "ordinal": 70,
+          "periodic": {
+            "Y": [
+              0.0,
+              0.0
+            ]
+          },
+          "quantity_kind": "constraint_reaction",
+          "rigid": {
+            "Y": 0.0
+          },
+          "row_id": "quantity:71",
+          "sign_convention": "action_of_support_on_piping",
+          "sign_status": "signed_contribution",
+          "unit": "unit:newton_meter"
+        },
+        {
+          "checksum": "4da395b4e736ad43dca8a4064daf564395791c4f3979235dc0834e62e507641f",
+          "component": "RZ",
+          "end": null,
+          "entity_kind": "rigid_constraint",
+          "frame": "global_axes",
+          "held": "single",
+          "holders": [
+            "A1.Fx: anchor_m"
+          ],
+          "node": "N1.ux: anchor node",
+          "ordinal": 71,
+          "periodic": {
+            "Y": [
+              0.0,
+              -2658.6599924447214
+            ]
+          },
+          "quantity_kind": "constraint_reaction",
+          "rigid": {
+            "Y": -393.2978389610519
+          },
+          "row_id": "quantity:72",
+          "sign_convention": "action_of_support_on_piping",
+          "sign_status": "signed_contribution",
+          "unit": "unit:newton_meter"
+        },
+        {
+          "checksum": "611d375291666db32d2788b9e9d37f724b4ee0b397bc9cf83fe526e897abf42f",
+          "component": "UY",
+          "end": null,
+          "entity_kind": "compliant_support",
+          "frame": "global_axes",
+          "ordinal": 72,
+          "periodic": {
+            "Y": [
+              0.0,
+              -529.8990520957647
+            ]
+          },
+          "quantity_kind": "compliant_support_force",
+          "rigid": {
+            "Y": 9.745398130948034
+          },
+          "row_id": "quantity:73",
+          "sign_convention": "action_of_support_on_piping",
+          "sign_status": "signed_contribution",
+          "support": "S1.UY spring: 1",
+          "unit": "unit:newton"
+        }
+      ],
+      "status": "published"
+    }
+  },
+  "rule_statements": {
+    "closeness_rule": null,
+    "correlation": null,
+    "coupled_pairs": null,
+    "groups": null
+  },
+  "schema_version": "0.1.0",
+  "semantic_contract": {
+    "id": "openpipestress.result_semantics/spectrum-1",
+    "sha256": "318f40b2679cb72794f83dc8701841a9af047f344836916fe3e04b08b4aa60fb"
+  },
+  "spectra": {
+    "digest": "055a9eaa547101a512d606b36fccf42a527e95110ae834d4fe5932fc7e782212",
+    "row_count": 1,
+    "rows": [
+      {
+        "abscissa": "frequency",
+        "abscissa_unit": "unit:hertz",
+        "checksum": "c46d18e7294b8a691e57596dd5fa73aaf762c01ac2efe97046d8656c39e9f8a4",
+        "damping_ratio": {
+          "below_normal": false,
+          "kind": "damping_ratio",
+          "undefined_reason": null,
+          "unit": "unit:one",
+          "unit_status": "catalog",
+          "value": 0.05
+        },
+        "g": null,
+        "interpolation": {
+          "abscissa": "log",
+          "ordinate": "log"
+        },
+        "ordinal": 0,
+        "ordinate": "acceleration",
+        "ordinate_unit": "unit:meter_per_second_squared",
+        "points": [
+          [
+            0.5,
+            1.0
+          ],
+          [
+            3.0,
+            4.5
+          ],
+          [
+            9.0,
+            10.25
+          ],
+          [
+            20.0,
+            9.0
+          ],
+          [
+            50.0,
+            5.5
+          ],
+          [
+            160.0,
+            3.75
+          ],
+          [
+            1000.0,
+            3.25
+          ]
+        ],
+        "pseudo_spectral_acceleration": true,
+        "row_id": "spectrum:1",
+        "spectrum_id": "S-GG"
+      }
+    ],
+    "status": "published"
+  },
+  "standing": {
+    "reasons": [
+      "no modal integrity standing is stated: the modal basis is frozen_reference:validation/references/f2_spectrum/discrete:C2-GROUND-SPRING's"
+    ],
+    "token": "not_assessed"
+  },
+  "status": "solved"
+}

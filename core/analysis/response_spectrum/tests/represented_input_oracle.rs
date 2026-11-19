@@ -75,7 +75,7 @@ fn frozen_reference_inputs_against_the_oracle() {
             let directional = directional_rule(result["directional_combination"].as_str().unwrap());
             let c = combine(&a.request(modal, rigid, directional)).expect("certified");
             for row in &c.rows {
-                let key = row.quantity.key();
+                let key = reference_key(&row.quantity);
                 let what = format!("{id} {modal:?}/{rigid:?}/{directional:?} {key}");
                 check(&what, row.combined.value(), decimal(&result["combined"][&key]), &mut largest);
                 compared += 1;
@@ -83,7 +83,8 @@ fn frozen_reference_inputs_against_the_oracle() {
         }
     }
     eprintln!("oracle, frozen inputs: {compared} values, largest relative deviation {largest:e}");
-    assert!(compared > 2000);
+    // C4's rows of its two skew springs are left out (tests/support); every other row is compared.
+    assert!(compared > 1900);
 }
 
 fn single_row(modal: ModalRule, zeta: f64, freqs: &[f64], clusters: &[u32], values: &[f64]) -> CombinationRequest {
@@ -175,7 +176,8 @@ fn review_witnesses_refused_by_the_accuracy_rule() {
     assert!(refused[0].detail.starts_with("this implemented error argument does not establish the required relative accuracy"));
     assert!(refused[0].detail.contains(&format!("{}-bit cap", PRECISION_LADDER[PRECISION_LADDER.len() - 1])));
     assert_eq!(refused[0].field.as_deref(), Some("X"));
-    assert_eq!(refused[0].object, "N1.ux");
+    // The refusal names the row by its label.
+    assert_eq!(refused[0].object, Quantity::NodeDisplacement { node: "N1".into(), component: DisplacementComponent::Ux }.label());
 }
 
 #[test]
