@@ -111,7 +111,7 @@ describe("committed load/reference-state request models render unmodified in the
   });
 });
 
-/** Every authored load/reference-state key the plain fields cannot edit yet, with an invented value. */
+/** Invented values for the retained members and stored override exercised below. */
 const PASS_THROUGH = {
   "element_states[0].analysis_basis_override": { reason: "invented_wp3_pass_through", provenance: "invented_wp3_pass_through" },
   "element_states[0].mass_state_ref": "invented:wp3-mass-state",
@@ -182,7 +182,7 @@ describe("workspace session on a committed load/reference-state model opened thr
     });
   }
 
-  it("every authored key the fields cannot edit passes through an edit byte-exactly, and Undo restores the document", async () => {
+  it("The fixture's retained values and stored override have equal canonical JSON after Apply, and Undo restores the model's serialized JSON", async () => {
     const model = withPassThrough();
     const bytes = JSON.stringify(model);
     const before = passThroughValues(model);
@@ -190,7 +190,8 @@ describe("workspace session on a committed load/reference-state model opened thr
     expect(JSON.stringify(hook.result.current.model.model)).toBe(bytes);
     const queue = vi.fn();
     renderPanels(hook.result.current.model.model!, PASS_CASE, queue);
-    expect(screen.getByTestId("load-state-analysis-state")).toHaveTextContent("Retained as authored (not edited here): analysis_basis_override, mass_state_ref.");
+    expect(screen.getByTestId("load-state-analysis-state")).toHaveTextContent("Retained as authored (not edited here): mass_state_ref.");
+    expect(screen.getByTestId("element-state-1-analysis-basis-override").textContent).toBe(JSON.stringify(PASS_THROUGH["element_states[0].analysis_basis_override"]));
     expect(screen.getByTestId("load-state-analysis-state")).toHaveTextContent("Retained as authored (not edited here): base_motion, device_reference.");
     expect(screen.getByTestId("load-state-analysis-state")).toHaveTextContent("Retained as authored (not edited here): participation.components.");
     // An edit elsewhere in the same record: a support motion value and the load-source factor.
