@@ -21,8 +21,7 @@ export function fillTargets(ordered: readonly string[], scope: FillScope): strin
   return from < 0 || to < from ? [] : ordered.slice(from, to + 1);
 }
 
-/** Members that belong to their own row and are never copied to another: a
- * reason or a reference (review N1). */
+/** Per-row members omitted by fill and copy. */
 export const ELEMENT_STATE_UNEDITED = ["analysis_basis_override", "mass_state_ref"] as const;
 export const SUPPORT_STATE_UNEDITED = ["base_motion", "device_reference"] as const;
 

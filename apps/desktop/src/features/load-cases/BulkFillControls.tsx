@@ -108,7 +108,7 @@ export function EverySourceFill({ list, primitives, onChange }: { list: DraftRec
 /** G7/G8: replaces a case's draft with a copy from another case, through `onCopy`,
  * which returns the outcome or throws, leaving the draft unchanged. Only a case
  * still offered can be the source (review N2). */
-export function CopyFromCase({ what, cases, onCopy, note }: { what: string; cases: readonly Option[]; onCopy: (caseId: string) => string; /** A fixed sentence shown before any copy, describing the select and the button. */ note?: string }) {
+export function CopyFromCase({ what, cases, onCopy, note }: { what: string; cases: readonly Option[]; onCopy: (caseId: string) => string; /** Text shown above the case select and used in both controls' descriptions. */ note?: string }) {
   const noteId = useId();
   const reasonId = useId();
   const [chosen, setSource] = useState("");

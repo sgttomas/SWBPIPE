@@ -35,9 +35,7 @@ type Entered = { reason?: string; provenance?: string };
 const entered = (row: DraftRecord): Entered => (row as { [ENTERED]?: Entered })[ENTERED] ?? {};
 const enter = (row: DraftRecord, key: keyof Entered, text: string): DraftRecord => ({ ...row, [ENTERED]: { ...entered(row), [key]: text } });
 
-/** The draft as Queue sends it: on each element state whose member is absent or
- * null, the fields that hold text become `analysis_basis_override`, as typed; with
- * neither holding text the member is left as it was. */
+/** Materialize entered reason and provenance in eligible element rows before payload conversion. */
 function withEnteredOverrides(draft: DraftRecord): DraftRecord {
   const states = rows(draft.element_states);
   if (!states) return draft;
@@ -49,6 +47,21 @@ function withEnteredOverrides(draft: DraftRecord): DraftRecord {
     if (provenance) typed.provenance = provenance;
     return Object.keys(typed).length ? { ...row, analysis_basis_override: typed } : row;
   }) };
+}
+
+const HELD = Symbol("held element-state analysis_basis_override");
+
+/** The payload conversion of the analysis-state draft, except that each direct
+ * `element_states[]` row's `analysis_basis_override` is sent unconverted. The member
+ * is held out under a placeholder (the row keeps its keys) and put back afterwards;
+ * every other location converts as `toPayload` converts it. */
+function analysisStatePayload(draft: DraftRecord): unknown {
+  const states = rows(draft.element_states);
+  if (!states) return toPayload(draft);
+  const held = states.map(row => record(row).analysis_basis_override);
+  const payload = toPayload({ ...draft, element_states: states.map((row, e) => held[e] === undefined ? row : { ...row, analysis_basis_override: HELD }) }) as DraftRecord;
+  (payload.element_states as DraftRecord[]).forEach((row, e) => { if (held[e] !== undefined) row.analysis_basis_override = held[e]; });
+  return payload;
 }
 
 function BoundedText({ label, value, onChange }: { label: string; value: string | undefined; onChange: (value: string) => void }) {
@@ -152,7 +165,7 @@ function AnalysisStateEditor(props: RichFormProps & { loadCase: LoadCase }) {
       <LoadSources primitives={primitives} value={rows(draft.load_sources)} onChange={v => set("load_sources", v)} />
       <Text label="History" value={record(draft.history).kind} choices={["independent_equilibrium"]} onChange={v => set("history", v ? { kind: v } : undefined)} />
       <Text label="Analysis state provenance" value={draft.provenance} onChange={v => set("provenance", v)} />
-      <button type="button" onClick={() => void state.submit(spec, current, () => toPayload(withEnteredOverrides(draft), undefined, undefined, ["analysis_basis_override"]))}>Queue analysis state</button>
+      <button type="button" onClick={() => void state.submit(spec, current, () => analysisStatePayload(withEnteredOverrides(draft)))}>Queue analysis state</button>
       {current !== undefined && <button type="button" onClick={() => void state.submit(spec, current, () => NOT_PRESENT)}>Queue removal of analysis state</button>}
     </fieldset>
     <LoadStateFeedback {...state} testId="load-state-analysis" />
