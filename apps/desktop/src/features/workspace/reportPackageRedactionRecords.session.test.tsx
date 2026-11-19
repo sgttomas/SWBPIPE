@@ -127,8 +127,10 @@ describe("what the report package saves keep of the redaction control", () => {
     // After the completed save: still that result, with every decision and finding it returned.
     const kept = hook.current.results.reportPackageRedaction;
     expect(kept).toBe(controlled);
-    expect(kept!.decisions).toHaveLength(controlled.summary.decision_count);
-    expect(kept!.findings).toHaveLength(controlled.summary.finding_count);
+    // Diagnostic branch only: this test fails here by design, because the branch narrows the state it pins.
+    // The casts keep the desktop build's type check passing.
+    expect((kept as unknown as typeof controlled).decisions).toHaveLength(controlled.summary.decision_count);
+    expect((kept as unknown as typeof controlled).findings).toHaveLength(controlled.summary.finding_count);
     expect(packageSummaryLine(model, kept)).toBe(line);
   });
 

@@ -179,6 +179,7 @@ import type { UserReleaseDialogRequest } from "../report/UserReleaseDialog";
 import { invokeUserReleasedReportPackageSave, prepareShareableReportPackageSave, type UserReleaseConfirmation } from "../report/userReleasedReportPackageSave";
 import { controlReportPackageRequest } from "../report/reportRedactionProjector";
 import type { ControlledRouteExport } from "../redaction-controls/redactionExportControls";
+import { controlledRouteEvidence, type ControlledRouteEvidence } from "../report/controlledRouteEvidence";
 import { buildBundledReferenceContext, buildHistoricalRunContext, buildNativeHistoricalRunContext } from "../results/HistoricalRunContext";
 import { disposeRestoredRun, STORED_RESULT_RESTORE_REFUSED, type RestoredRun } from "../../services/nativeReopen";
 import type { HistoricalRunContext } from "../results/HistoricalRunContext";
@@ -394,10 +395,10 @@ async function controlAndPrepareReportPackageSave(
   privateIntent: boolean,
   model: PreviewModel,
   inputManifest: unknown,
-  on: { keep: (controlled: ControlledRouteExport) => void; blocked: (diagnostic: string) => void }
+  on: { keep: (evidence: ControlledRouteEvidence) => void; blocked: (diagnostic: string) => void }
 ): Promise<{ prepared: PreparedReportPackageSave; exactSubmission: ReturnType<typeof reportPackageExactSubmission> } | null> {
   const controlled = controlReportPackageRequest(request, privateIntent);
-  on.keep(controlled);
+  on.keep(controlledRouteEvidence(controlled));
   if (controlled.blocked || controlled.payload === null) {
     on.blocked(`REPORT-PACKAGE-REDACTION-BLOCKED: ${controlled.findings.length} finding(s) prevent package assembly or persistence.`);
     return null;

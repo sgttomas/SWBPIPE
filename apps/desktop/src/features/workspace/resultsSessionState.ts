@@ -23,7 +23,7 @@ import type {
   SelectedReviewTarget,
   SolveJobAuditState
 } from "../../types";
-import type { ControlledRouteExport } from "../redaction-controls/redactionExportControls";
+import type { ControlledRouteEvidence } from "../report/controlledRouteEvidence";
 import type { HistoricalRunContext } from "../results/HistoricalRunContext";
 import { RuleRevisionGenerationGate, SolveRunGenerationGate } from "./solveGates";
 import { initialSolveJob } from "./solveJobAudit";
@@ -195,7 +195,7 @@ export function useResultsSessionState(advanceReportSource?: () => number) {
   reportCompositionRef.current = reportComposition;
   const [reportPackagePrivateIntent, setReportPackagePrivateIntent] = useState(false);
   const [reportPackageBusy, setReportPackageBusy] = useState(false);
-  const [reportPackageRedaction, setReportPackageRedaction] = useState<ControlledRouteExport | null>(null);
+  const [reportPackageRedaction, setReportPackageRedaction] = useState<ControlledRouteEvidence | null>(null);
   const [reportPackageRoute, setReportPackageRoute] = useState<ReportPackageSaveRoute | null>(null);
   const reportPackageRequestGenerationRef = useRef(0);
   const reportPackageBusyGenerationRef = useRef<number | null>(null);
