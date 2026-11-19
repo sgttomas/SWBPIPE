@@ -150,6 +150,9 @@ code_paths:
 # product test reads it yet.
 - validation/references/exact_difference_basis/**
 - tests/test_exact_difference_basis_references.py
+# Analytic exact-route references for seismic subtraction terms, SRSS, absolute sum and fixed-load gating.
+- validation/references/exact_load_state_generated_interactions/**
+- tests/test_exact_load_state_generated_interactions_references.py
 - validation/references/op_mf_held_status/**
 - validation/references/combination_certificate/**
 # The ordinary result reader (OUT-002): dispatch, row semantics, standing and the load-reference,
