@@ -79,10 +79,14 @@ code_paths:
 # t4_o13, t4_i9), the confirmation of a converged nonlinear state (kd5_nonlinear, also examined under
 # DEL-04-04/AC-010 and DEL-04-07/AC-002), and the curved-bend element (t4_i6, examined under DEL-03-03's
 # criteria). The known-limitation witness of the inverse-norm premise (inverse_norm_witness, REQ-015's
-# OUT-001 row) is a witness and not a reference of a criterion.
+# OUT-001 row) is a witness and not a reference of a criterion. The exact cases of the inverse-norm
+# certificate arithmetic (inverse_norm_certificate) test structural/inverse_certificate.rs, which no
+# production code calls yet.
+- validation/references/inverse_norm_certificate/**
 - validation/references/inverse_norm_witness/**
 - validation/references/kd5_member_bound/**
 - validation/references/kd5_nonlinear/**
+- validation/references/kd5_nonlinear_preload/**
 - validation/references/m3_judge/**
 - validation/references/t4_i6/**
 - validation/references/t4_i9/**
@@ -110,3 +114,4 @@ checks:
 - core/product_physics/src/residual_refusal_tests.rs
 - tests/test_global_end_verifier.py
 - tests/test_m3_judge_schema_keywords.py
+- core/product_physics/tests/k2a_formation_range_runtime.rs

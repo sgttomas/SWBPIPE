@@ -77,6 +77,7 @@ code_paths:
 # The record builder and validator of the web session, and the hash scope of a received result.
 # DEL-07-05 lists the whole results feature folder.
 - apps/desktop/src/services/analysisRunCompatibility.ts
+- apps/desktop/src/services/hashService.ts
 - apps/desktop/src/features/results/analysisResultHashScope.ts
 # The input manifest, and the resolution of a model's rule-pack references at solve time with the
 # diagnostics an unresolved reference receives. DEL-08-04, DEL-15-01 and DEL-17-06 read those
@@ -115,6 +116,8 @@ checks:
 - tests/test_analysis_run_schema.py
 - tests/test_recorded_run_record.py
 - apps/desktop/src/services/analysisRunCompatibility.test.ts
+- apps/desktop/src/services/sameCheckedJson.test.ts
+- apps/desktop/src/services/analysisRunDepth.test.ts
 - apps/desktop/src/services/loadReferenceAnalysisRun.test.ts
 - apps/desktop/src/services/retainedPrecisionAnalysisRun.test.ts
 - apps/desktop/src/services/pressureSourceBridge.test.ts

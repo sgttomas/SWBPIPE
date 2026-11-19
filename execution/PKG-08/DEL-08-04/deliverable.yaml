@@ -138,6 +138,8 @@ checks:
 - core/reporting/report_package/tests/schema_eval.rs
 - tests/test_schema_eval_parity.py
 - apps/desktop/src/features/result-export/resultExportAdapter.test.ts
+- apps/desktop/src/features/result-export/resultRefLookup.test.ts
+- apps/desktop/src/features/result-export/resultRefAdmission.test.ts
 - apps/desktop/src/features/result-export/ResultExportPanel.test.tsx
 - apps/desktop/src/features/result-export/exactOutputTwins.test.tsx
 - apps/desktop/src/features/result-export/exactOutputContractMutations.test.ts
