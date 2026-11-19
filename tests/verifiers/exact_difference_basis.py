@@ -45,8 +45,11 @@ QUANTITY_FIELDS = frozenset({
 })
 
 
+MOST_DIGITS = 1000   # the longest run of digits a stiffness text may hold, leading zeros counted
+
+
 def _digits(text: str) -> bool:
-    return text != "" and all(character in "0123456789" for character in text)
+    return 1 <= len(text) <= MOST_DIGITS and all(character in "0123456789" for character in text)
 
 
 def _signed_digits(text: str) -> bool:
@@ -58,8 +61,10 @@ def _pi_terms(text: str) -> frozenset:
 
     The whole text must be terms joined by " + ". A term is a rational coefficient (an optional "-", ASCII digits,
     and optionally "/" and ASCII digits that are not zero), optionally followed by "*pi", optionally followed by
-    "^" and an integer (an optional "-" and ASCII digits). No "*pi" is the power 0 and "*pi" alone the power 1;
-    terms of one power add. Any other text raises ValueError: it is not read as a value and so equals nothing."""
+    "^" and an integer (an optional "-" and ASCII digits). Each run of digits holds 1 to 1000 digits, leading
+    zeros counted; the bound is this reader's own and does not rest on the interpreter's limit on converting
+    digits. No "*pi" is the power 0 and "*pi" alone the power 1; terms of one power add. Any other text raises
+    ValueError: it is not read as a value and so equals nothing."""
     terms = {}
     for part in text.split(" + "):
         coefficient, star_pi, exponent = part.partition("*pi")

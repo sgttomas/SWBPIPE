@@ -657,11 +657,13 @@ def norm_mapping(m, field=None):
 #     term     = rational [ "*pi" [ "^" integer ] ]
 #     rational = [ "-" ] digits [ "/" digits ]      any rational spelling; the denominator is not zero
 #     integer  = [ "-" ] digits
-#     digits   = one or more of the ASCII characters 0 to 9
+#     digits   = 1 to 1000 of the ASCII characters 0 to 9, leading zeros counted
 #
 # A term without "*pi" is the power 0, "*pi" alone is the power 1, and terms of one power add. Nothing else is a
 # value: a text that this grammar does not produce in full is refused with ValueError, and so is never compared.
-EXACT_TERM = re.compile(r"(-?[0-9]+(?:/[0-9]+)?)(\*pi(?:\^(-?[0-9]+))?)?")
+# The bound on a run of digits is this grammar's own, enforced by the pattern below; it is far above any stiffness
+# that is entered and below the interpreter's limit on converting digits to an integer, which is not relied on.
+EXACT_TERM = re.compile(r"(-?[0-9]{1,1000}(?:/[0-9]{1,1000})?)(\*pi(?:\^(-?[0-9]{1,1000}))?)?")
 
 
 def exact_from_text(text):

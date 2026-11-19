@@ -71,6 +71,29 @@ WELL_FORMED_STIFFNESS = {
     "1*pi + 2*pi": {"1": "3"},
 }
 RECORDED_STIFFNESS = {"7168*pi": {"1": "7168"}}
+# A run of digits (numerator, denominator or exponent) holds at most 1,000 digits, leading zeros counted. The bound
+# is the grammar's own: at 1,000 a text is read with its value, at 1,001 it is refused, in each position.
+NINES = "9" * 1000
+AT_THE_DIGIT_BOUND = {
+    "numerator": (NINES, {"0": NINES}),
+    "negative numerator": ("-" + NINES + "*pi", {"1": "-" + NINES}),
+    "numerator with leading zeros": ("0" * 999 + "7", {"0": "7"}),
+    "denominator": ("1/1" + "0" * 999, {"0": "1/1" + "0" * 999}),
+    "denominator with leading zeros": ("1/" + "0" * 999 + "2*pi", {"1": "1/2"}),
+    "exponent": ("3*pi^" + NINES, {NINES: "3"}),
+    "negative exponent": ("3*pi^-" + NINES, {"-" + NINES: "3"}),
+    "exponent with leading zeros": ("3*pi^" + "0" * 999 + "2", {"2": "3"}),
+}
+PAST_THE_DIGIT_BOUND = {
+    "numerator": NINES + "9",
+    "negative numerator": "-" + NINES + "9*pi",
+    "numerator with leading zeros": "0" * 1000 + "7",
+    "denominator": "1/1" + "0" * 1000,
+    "denominator with leading zeros": "1/" + "0" * 1000 + "2*pi",
+    "exponent": "3*pi^" + NINES + "9",
+    "negative exponent": "3*pi^-" + NINES + "9",
+    "exponent with leading zeros": "3*pi^" + "0" * 1000 + "2",
+}
 GENERATOR_PROBE = """
 import copy, json, sys
 sys.path.insert(0, sys.argv[1])
@@ -114,7 +137,8 @@ def generator_probe():
     data = load(PACKAGE / "references.json")
     w4 = next(row for row in data["carried"]["gate_rows"] + data["carried"]["pairs"] + data["added"]
               + data["builder_witnesses"] if row["id"] == "W4")
-    request = {"texts": MALFORMED_STIFFNESS + list(WELL_FORMED_STIFFNESS),
+    request = {"texts": (MALFORMED_STIFFNESS + list(WELL_FORMED_STIFFNESS)
+                         + [text for text, _ in AT_THE_DIGIT_BOUND.values()] + list(PAST_THE_DIGIT_BOUND.values())),
                "w4": {"sustained": w4["sustained"], "operating": w4["operating"]}}
     result = subprocess.run([sys.executable, "-I", "-B", "-c", GENERATOR_PROBE, str(GENERATOR.parent)],
                             input=json.dumps(request), capture_output=True, text=True, timeout=600)
@@ -131,6 +155,19 @@ def test_the_generator_refuses_a_malformed_stiffness_text(generator_probe, text)
 @pytest.mark.parametrize("text", list(WELL_FORMED_STIFFNESS))
 def test_the_generator_reads_a_well_formed_stiffness_text_as_its_terms(generator_probe, text):
     assert generator_probe["parsed"][text] == WELL_FORMED_STIFFNESS[text]
+
+
+@pytest.mark.parametrize("position", list(AT_THE_DIGIT_BOUND))
+def test_the_generator_reads_a_run_of_1000_digits_with_its_value(generator_probe, position):
+    text, terms = AT_THE_DIGIT_BOUND[position]
+    assert generator_probe["parsed"][text] == terms
+
+
+@pytest.mark.parametrize("position", list(PAST_THE_DIGIT_BOUND))
+def test_the_generator_refuses_a_run_of_1001_digits(generator_probe, position):
+    text = PAST_THE_DIGIT_BOUND[position]
+    assert generator_probe["parsed"][text] == "ValueError"
+    assert generator_probe["compared"][text] == {"sustained": "ValueError", "operating": "ValueError"}
 
 
 def test_the_generator_admits_w4_with_its_stiffness_written_differently(generator_probe):

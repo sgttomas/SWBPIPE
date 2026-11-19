@@ -162,10 +162,12 @@ subtrahend's recipe is missing, as in W8.
 - The same holds for a nonlinear support's law.
 - A spring's stiffness is compared as an exact value, term by term, so `1024` and
   `2048/2` are one stiffness, and so are `7168*pi` and `14336/2*pi`. Its text is terms
-  joined by ` + `; a term is a rational coefficient, optionally `*pi`, optionally `^`
-  and an integer. A text outside that grammar is not read as a value and equals
-  nothing: the generator and the verifier each raise `ValueError` on it and return no
-  verdict.
+  joined by ` + `. A term begins with a coefficient: an optional `-`, digits, and
+  optionally `/` and digits, the denominator not zero. `*pi` may follow the
+  coefficient directly, and `^` with an integer (an optional `-` and digits) may
+  follow `*pi` directly. Each run of digits holds at most 1,000 digits, leading zeros
+  counted. A text outside that grammar is not read as a value and equals nothing: the
+  generator and the verifier each raise `ValueError` on it and return no verdict.
 
 **Then motion increments.**
 

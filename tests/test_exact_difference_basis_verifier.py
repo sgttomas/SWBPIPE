@@ -292,6 +292,48 @@ WELL_FORMED_STIFFNESS = {
 RECORDED_STIFFNESS = {"7168*pi": {1: Fraction(7168)}}
 
 
+# A run of digits (numerator, denominator or exponent) holds at most 1,000 digits, leading zeros counted. The bound
+# is the grammar's own: at 1,000 a text is read with its value, at 1,001 it is refused, in each position.
+NINES = "9" * 1000
+AT_THE_DIGIT_BOUND = {
+    "numerator": (NINES, {0: Fraction(10 ** 1000 - 1)}),
+    "negative numerator": ("-" + NINES + "*pi", {1: Fraction(1 - 10 ** 1000)}),
+    "numerator with leading zeros": ("0" * 999 + "7", {0: Fraction(7)}),
+    "denominator": ("1/1" + "0" * 999, {0: Fraction(1, 10 ** 999)}),
+    "denominator with leading zeros": ("1/" + "0" * 999 + "2*pi", {1: Fraction(1, 2)}),
+    "exponent": ("3*pi^" + NINES, {10 ** 1000 - 1: Fraction(3)}),
+    "negative exponent": ("3*pi^-" + NINES, {1 - 10 ** 1000: Fraction(3)}),
+    "exponent with leading zeros": ("3*pi^" + "0" * 999 + "2", {2: Fraction(3)}),
+}
+PAST_THE_DIGIT_BOUND = {
+    "numerator": NINES + "9",
+    "negative numerator": "-" + NINES + "9*pi",
+    "numerator with leading zeros": "0" * 1000 + "7",
+    "denominator": "1/1" + "0" * 1000,
+    "denominator with leading zeros": "1/" + "0" * 1000 + "2*pi",
+    "exponent": "3*pi^" + NINES + "9",
+    "negative exponent": "3*pi^-" + NINES + "9",
+    "exponent with leading zeros": "3*pi^" + "0" * 1000 + "2",
+}
+
+
+@pytest.mark.parametrize("position", list(AT_THE_DIGIT_BOUND))
+def test_a_run_of_1000_digits_is_read_with_its_value(position):
+    text, terms = AT_THE_DIGIT_BOUND[position]
+    assert dict(policy._pi_terms(text)) == terms
+
+
+@pytest.mark.parametrize("position", list(PAST_THE_DIGIT_BOUND))
+def test_a_run_of_1001_digits_is_refused_at_the_parser_and_at_the_comparison(position):
+    text = PAST_THE_DIGIT_BOUND[position]
+    with pytest.raises(ValueError):
+        policy._pi_terms(text)
+    s, o = _row("W4")
+    _support(o, "spring:B")["parameters"]["stiffness"] = text
+    with pytest.raises(ValueError):
+        policy.admission(s, o)
+
+
 def _stiffness_texts(value, field=None) -> set:
     if isinstance(value, dict):
         return set().union(*(_stiffness_texts(v, k) for k, v in value.items())) if value else set()
