@@ -1206,6 +1206,24 @@ def add_dep(path, extra):
 
 
 ITOA = f"{REGISTRY}#itoa@1.0.18"
+PROC_MACRO2_RUN = "proc-macro2-5d24402fc79aac90/build-script-build`"
+
+
+def test_a_build_script_run_told_that_no_path_is_trimmed_attests_as_before():
+    # Cargo 1.100 and later give every build-script run the trim-paths setting, as `none` and an
+    # empty remap when the profile trims nothing; earlier cargo gives neither. With both added to
+    # every run of the captured build, the attestation is the one the capture gives without them.
+    def told(text):
+        lines = text.split("\n")
+        runs = [i for i, line in enumerate(lines) if line.endswith("/build-script-build`")]
+        assert len(runs) == 10, len(runs)
+        for i in runs:
+            lines[i] = edit(lines[i], "CARGO_ENCODED_RUSTFLAGS=''",
+                            "CARGO_ENCODED_RUSTFLAGS='' CARGO_TRIM_PATHS_REMAP='' CARGO_TRIM_PATHS_SCOPE=none")
+        return "\n".join(lines)
+    assert attest_captured(stderr=told) == attest_captured()
+
+
 CAPTURED_REFUSALS = {
     # Runtime profile checks: a unit the runner links (transitively, through serde_json) at another setting.
     "a linked dependency at opt-level 0": (dict(
@@ -1243,6 +1261,15 @@ CAPTURED_REFUSALS = {
     "a build script run beside a wrapper": (dict(stderr=lambda t: edit_line(
         t, "proc-macro2-5d24402fc79aac90/build-script-build`", "CARGO_ENCODED_RUSTFLAGS=''",
         "CARGO_ENCODED_RUSTFLAGS='' RUSTC_WRAPPER=/HOME/bin/wrap")), "unexpected environment variable RUSTC_WRAPPER"),
+    # Cargo 1.100 and later tell a build script the profile's trim-paths setting; only "trims nothing" attests.
+    "a build script run under a trim-paths scope": (dict(stderr=lambda t: edit_line(
+        t, PROC_MACRO2_RUN, "CARGO_ENCODED_RUSTFLAGS=''",
+        "CARGO_ENCODED_RUSTFLAGS='' CARGO_TRIM_PATHS_REMAP='' CARGO_TRIM_PATHS_SCOPE=object")),
+        "ran with CARGO_TRIM_PATHS_SCOPE='object', not 'none'"),
+    "a build script run given a path remap": (dict(stderr=lambda t: edit_line(
+        t, PROC_MACRO2_RUN, "CARGO_ENCODED_RUSTFLAGS=''",
+        "CARGO_ENCODED_RUSTFLAGS='' CARGO_TRIM_PATHS_REMAP=/WT=. CARGO_TRIM_PATHS_SCOPE=none")),
+        "ran with CARGO_TRIM_PATHS_REMAP='/WT=.', not ''"),
     # Flags and environment.
     "-Z": (dict(stderr=lambda t: edit_line(t, BIN_LINE, "--out-dir", "-Zshare-generics --out-dir")),
            "unknown rustc argument '-Zshare-generics'"),

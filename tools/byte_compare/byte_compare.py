@@ -104,6 +104,11 @@ BUILD_SCRIPT_ENV = frozenset({"CARGO", "CARGO_ENCODED_RUSTFLAGS", "CARGO_MANIFES
                               "DEBUG", "HOST", "NUM_JOBS", "OPT_LEVEL", "OUT_DIR", "PROFILE", "RUSTC", "RUSTDOC",
                               "TARGET"})
 BUILD_SCRIPT_ENV_PREFIXES = ("CARGO_CFG_", "CARGO_FEATURE_", "CARGO_PKG_")
+# The profile's trim-paths setting, which cargo 1.100 and later give every build-script run (earlier
+# cargo gives neither). The attested build trims no paths, so each may be present only with the value
+# that says so. A remap pair names the build's own directories, which differ between the two sides,
+# and a build script may write what it is given into the source it generates.
+BUILD_SCRIPT_TRIM_PATHS_ENV = {"CARGO_TRIM_PATHS_SCOPE": "none", "CARGO_TRIM_PATHS_REMAP": ""}
 # The dynamic-library search path cargo sets for every process it starts (macOS, Linux).
 LIBRARY_PATH_ENV = frozenset({"DYLD_FALLBACK_LIBRARY_PATH", "LD_LIBRARY_PATH"})
 # Build-script output cargo acts on that this runner's closure may use; any other line refuses.
@@ -1267,8 +1272,13 @@ def attest_build(parsed: dict, *, tree: str, target: str, lock_text: str, settin
             if env.get(name) != value:
                 raise BuildRefused(f"{compile_unit['package']['id']}'s build script ran with {name}={env.get(name)!r}, "
                                    f"not {value!r}")
+        for name, value in BUILD_SCRIPT_TRIM_PATHS_ENV.items():
+            if name in env and env[name] != value:
+                raise BuildRefused(f"{compile_unit['package']['id']}'s build script ran with {name}={env[name]!r}, "
+                                   f"not {value!r}")
         for name in env:
-            if name not in BUILD_SCRIPT_ENV and name not in LIBRARY_PATH_ENV and not name.startswith(BUILD_SCRIPT_ENV_PREFIXES):
+            if name not in BUILD_SCRIPT_ENV and name not in BUILD_SCRIPT_TRIM_PATHS_ENV and name not in LIBRARY_PATH_ENV \
+                    and not name.startswith(BUILD_SCRIPT_ENV_PREFIXES):
                 raise BuildRefused(f"{compile_unit['package']['id']}'s build script ran with an unexpected environment "
                                    f"variable {name}")
         if run["args"]:
