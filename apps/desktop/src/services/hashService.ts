@@ -48,9 +48,11 @@ function checkedJsonTextOf(value: unknown): string {
   return JSON.stringify(checkedJsonWalk(value, true));
 }
 
-/** The checked profile's checks on `value`, throwing the error `checkedJsonText` throws, in
- * the same order, without making its copy or its text. `sameCheckedJson`
- * (analysisRunCompatibility.ts) checks each operand with it before comparing them. */
+/** The checked profile's checks on `value`, in the order `checkedJsonText` runs them and
+ * throwing the error each throws, without making its copy or its text. It does not serialise,
+ * so an error `JSON.stringify` would raise after the checks pass is not raised here.
+ * `sameCheckedJson` (analysisRunCompatibility.ts) checks each operand with it before
+ * comparing them. */
 export function checkJsonProfile(value: unknown): void {
   checkedJsonWalk(value, false);
 }
@@ -91,8 +93,7 @@ function checkedJsonWalk(value: unknown, copy: boolean): unknown {
         const descriptor = descriptors[String(index)];
         if (!descriptor) throw new Error("CHECKED-JSON-SPARSE-ARRAY");
         if (!descriptor || descriptor.get || descriptor.set || !descriptor.enumerable) throw new Error("CHECKED-JSON-UNSUPPORTED-PROPERTY");
-        const element = freeze(descriptor.value);
-        if (frozen) frozen.push(element);
+        if (frozen) frozen.push(freeze(descriptor.value)); else freeze(descriptor.value);
       }
       return frozen;
       }
@@ -104,8 +105,7 @@ function checkedJsonWalk(value: unknown, copy: boolean): unknown {
         if (!validUnicodeScalarString(key)) throw new Error("CHECKED-JSON-LONE-SURROGATE");
         const descriptor = descriptors[key];
         if (!descriptor || descriptor.get || descriptor.set || !descriptor.enumerable) throw new Error("CHECKED-JSON-UNSUPPORTED-PROPERTY");
-        const member = freeze(descriptor.value);
-        if (frozen) frozen[key] = member;
+        if (frozen) frozen[key] = freeze(descriptor.value); else freeze(descriptor.value);
       }
       return frozen;
     } finally {

@@ -160,10 +160,12 @@ const PRESSURE_SOURCE_SITES: Site[] = [
 ];
 
 describe("the wasm engine's JSON parse depth limit, which sameCheckedJson's agreement with the old comparison rests on", () => {
-  // `sameCheckedJson` and the old text comparison differ only for values nested deeper than the
-  // JavaScript engine's JSON.stringify recursion allows (thousands of levels). The validator
-  // never accepts such a value because the wasm engine's serde_json parse refuses a container
-  // nested 128 deep, in the reader's dispatch of the source and in the checked profile's hash.
+  // For plain data, `sameCheckedJson` and the old text comparison differ only on values nested
+  // deeper than the old comparison's recursion could go (thousands of levels, by machine). The
+  // wasm engine's serde_json parse refuses a container nested 128 deep, so the validator refuses
+  // such a value in the source (at the reader's dispatch) and in the record members that the
+  // checked record hash covers. Record members compared against a shallow operand are refused
+  // by their comparison; the second group of tests runs those.
   // If that limit is raised or disabled (serde_json's `unbounded_depth`, or another parser),
   // the validator's protection against deep values must be shown again: see
   // analysisRunCompatibility.ts, sameCheckedJson.
@@ -196,21 +198,19 @@ describe("the wasm engine's JSON parse depth limit, which sameCheckedJson's agre
 });
 
 describe("validateAnalysisRunV03 on values nested past the parse limit", () => {
-  it("accepts no deep value in a member it examines, at 200 and 5,000 levels, on the three routes' members", async () => {
-    const setups: Array<[Setup | string, Site[]]> = [];
+  it("refuses each deep value placed at a comparison site or in the source, at 200 and 5,000 levels, on three routes' records", async () => {
+    const setups: Array<[Setup, Site[]]> = [];
     setups.push([await previewSetup(), PREVIEW_SITES]);
     setups.push([await retainedSetup(), RETAINED_SITES]);
-    try { setups.push([await pressureSourceSetup(), PRESSURE_SOURCE_SITES]); }
-    catch (error) { setups.push([`pressure-source-1 (n05 fixture): not built, ${code(error)}`, []]); }
+    setups.push([await pressureSourceSetup(), PRESSURE_SOURCE_SITES]);
     for (const [setup, sites] of setups) {
-      // A route whose setup cannot be built contributes no case; the other routes' cases still run.
-      if (typeof setup === "string") continue;
       for (const site of sites) {
         for (const both of site.source ? [true, false] : [false]) {
           const key = `${setup.name} / ${site.name} / ${both ? "record and source" : "record only"}`;
           for (const levels of [2, 200, 5000]) {
             const deepCase = await placed(setup, site, both, levels);
-            if (!deepCase) break;
+            // Every listed site must take the deep value; a site that cannot is a failure, not a skip.
+            if (!deepCase) throw new Error(`${key}: the site is not an object in this record`);
             const validator = await outcome(() => validateAnalysisRunV03(deepCase.record, deepCase.source, setup.basis));
             if (site.unread) continue;
             if (levels > 2) {

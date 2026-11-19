@@ -376,14 +376,20 @@ function checkedJsonValuesEqual(left: unknown, right: unknown): boolean {
  * replaced a comparison of the checked texts, parsed, member-sorted and serialised again;
  * sameCheckedJson.test.ts runs both over a generated corpus and requires the same result or
  * error on every pair.
- * Its domain is values nested no deeper than the JavaScript engine's `JSON.stringify`
- * recursion allows, whose members read the same on a second read (plain data), with the
- * built-in prototypes unpatched. Outside it the two differ, and this is not repaired:
- * - Nested deeper than `JSON.stringify` recursion allows, the old comparison failed with the
- *   engine's stack error and this one does not. In the validator the operands that come from
- *   the source are refused first, by the wasm reader's parse depth limit (128 levels, pinned
- *   in analysisRunDepth.test.ts), and a deep record member is then unequal to its shallow
- *   operand; analysisRunDepth.test.ts records each case.
+ * Its domain is what the validator can accept: plain data, whose members read the same on
+ * a second read, nested within the wasm parser's bound (it refuses a container at level 128;
+ * analysisRunDepth.test.ts pins this), with the built-in prototypes unpatched. Outside that
+ * domain the two differ, and this is not repaired:
+ * - Nested deeper, the old comparison failed with the JavaScript engine's stack error at a
+ *   depth that depends on the machine (its member sort failed at 2,500 levels on one machine
+ *   where `JSON.stringify` alone still succeeded). This one returns its answer there, and it
+ *   too fails with the stack error when nested deeper still. In the validator a deep source
+ *   is refused first, at the reader's dispatch, and a deep record member is then unequal to
+ *   its shallow operand; analysisRunDepth.test.ts runs those cases.
+ * - A Proxy can answer differently each time it is read. The old comparison read each
+ *   operand once, through its property descriptors; this one reads the operands again after
+ *   checking them, so a Proxy whose traps disagree with its descriptors can compare
+ *   differently. JSON text cannot carry a Proxy.
  * - A `toJSON` added to `Array.prototype` or `Object.prototype` was consulted by the old
  *   comparison's `JSON.stringify` and is not read here; the product patches neither. */
 export function sameCheckedJson(a: unknown, b: unknown): boolean {

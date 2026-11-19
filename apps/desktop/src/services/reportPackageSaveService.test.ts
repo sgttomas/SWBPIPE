@@ -2,22 +2,14 @@
 // §2.5, §2.6): the preparation's evidence checks and canonical texts, then the
 // invocation's native arguments and its `stillCurrent` guard before every send.
 import { createHash } from "node:crypto";
-import { readFileSync } from "node:fs";
-import { resolve } from "node:path";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import type { ControlledRouteExport } from "../features/redaction-controls/redactionExportControls";
 import { invokeReportPackageSave, prepareReportPackageSave } from "./reportPackageSaveService";
 import { IngressRequestRetiredError } from "./nativeIngress";
-import * as hashService from "./hashService";
 import { canonicalJsonString } from "./hashService";
 
 const invokeMock = vi.hoisted(() => vi.fn());
 vi.mock("@tauri-apps/api/core", async () => ({ invoke: (await import("../test/nativeIngress")).ingressDecodingInvoke(invokeMock) }));
-// The engine's canonical functions, counted (each call goes through to the engine).
-vi.mock("./hashService", async (importOriginal) => {
-  const actual = await importOriginal<typeof import("./hashService")>();
-  return { ...actual, canonicalJsonString: vi.fn(actual.canonicalJsonString), canonicalSha256Hex: vi.fn(actual.canonicalSha256Hex) };
-});
 
 const REQUEST = { package_id: "invented", report: { z: 1, a: [2, "Ω"] } };
 const MODEL = { project: { id: "project:invented", name: "Invented" }, nodes: [{ id: "node:A", x: 1.5 }] };
@@ -212,99 +204,5 @@ describe("invokeReportPackageSave", () => {
     expect(await pending).toBeInstanceOf(IngressRequestRetiredError);
     expect(guard).toHaveBeenCalledTimes(2);
     expect(invokeMock).toHaveBeenCalledOnce();
-  });
-});
-
-/** The preparation's canonical texts and hash as computed before the payload was
- * canonicalised once: five engine calls, the payload's hash by its own canonicalisation. */
-async function referencePreparation(controlled: ControlledRouteExport, model: unknown, request: unknown, inputManifest: unknown) {
-  const actual = await vi.importActual<typeof import("./hashService")>("./hashService");
-  const [requestCanonicalText, screenedRequestText, hex, modelCanonicalText, inputManifestCanonicalText] = await Promise.all([
-    actual.canonicalJsonString(controlled.payload),
-    actual.canonicalJsonString(request),
-    actual.canonicalSha256Hex(controlled.payload),
-    actual.canonicalJsonString(model),
-    actual.canonicalJsonString(inputManifest)
-  ]);
-  return { lossless: requestCanonicalText === screenedRequestText, requestCanonicalText, requestSha256: `sha256:${hex}`, modelCanonicalText, inputManifestCanonicalText };
-}
-
-const fixture = (file: string) => JSON.parse(readFileSync(resolve(__dirname, "../../../../", file), "utf8")) as Record<string, unknown>;
-/** Eight payloads: the invented request; an invented request of escaped texts, ordered keys and
- * numbers; the committed exact package request; the committed user-release request; and the four
- * derivation vectors' run records, used as payloads. */
-function requestCorpus(): Array<[string, unknown, unknown, unknown]> {
-  const exact = fixture("fixtures/reports/invented/exact_report_package_requests/pressure_2_straight.json");
-  const released = fixture("fixtures/reports/invented/user_release_exact/pressure_source_1.json");
-  const vectors = fixture("fixtures/reports/invented/user_release_derivation_vectors.json").vectors as Array<Record<string, unknown>>;
-  return [
-    ["invented", REQUEST, MODEL, INPUT_MANIFEST],
-    ["texts and numbers", {
-      z: ["\u2028\u2029", "</script>", "\u0000\u001f\u007f", "\ud83d\ude00 astral", "e\u0301 é", "\"\\/", "\ufeff"],
-      "é": 1, "\u{1f600}": 2, "\u00e9a": 3, "10": 4, "2": 5, a: { b: [1e21, 1e-7, -0, 0.1, 5e-324, 2 ** 53 + 2, -1.5e300, 123456789012] }, A: null, "": true
-    }, MODEL, INPUT_MANIFEST],
-    ["exact package request", exact.request, exact.model, exact.input_manifest],
-    ["user release request", released.request, released.model, released.input_manifest],
-    ...vectors.map((vector) => [`run record ${vector.name}`, vector.run_record, MODEL, vector.input_manifest] as [string, unknown, unknown, unknown])
-  ];
-}
-
-describe("prepareReportPackageSave canonicalises the payload once", () => {
-  it("prepares the same texts, hash and screening as the five-call preparation, on each of eight payloads", async () => {
-    desktop();
-    for (const [name, request, model, inputManifest] of requestCorpus()) {
-      const controlled = controlledRequest(structuredClone(request));
-      const reference = await referencePreparation(controlled, model, request, inputManifest);
-      expect(reference.lossless, name).toBe(true);
-      const prepared = await prepareReportPackageSave(controlled, model, request, inputManifest, { exactResultText: "invented result", exactIntakeText: "invented intake" });
-      if (prepared.route !== "ready") throw new Error(`${name}: not ready`);
-      expect(prepared.requestSha256, name).toBe(reference.requestSha256);
-      expect(prepared.args.requestCanonicalText === reference.requestCanonicalText, name).toBe(true);
-      expect(prepared.args.modelCanonicalText === reference.modelCanonicalText, name).toBe(true);
-      expect(prepared.args.inputManifestCanonicalText === reference.inputManifestCanonicalText, name).toBe(true);
-      expect(prepared.args.screening.payload_sha256, name).toBe(reference.requestSha256);
-      expect(prepared.args, name).toEqual({
-        requestCanonicalText: reference.requestCanonicalText,
-        modelCanonicalText: reference.modelCanonicalText,
-        inputManifestCanonicalText: reference.inputManifestCanonicalText,
-        screening: { ...prepared.args.screening, payload_sha256: reference.requestSha256 },
-        localFirstEvidence: controlled.summary.local_first,
-        exactResultText: "invented result",
-        exactIntakeText: "invented intake"
-      });
-    }
-  });
-
-  it("makes four canonical texts and no second canonicalisation of the payload for its hash", async () => {
-    desktop();
-    vi.mocked(hashService.canonicalJsonString).mockClear();
-    vi.mocked(hashService.canonicalSha256Hex).mockClear();
-    const controlled = controlledRequest();
-    const prepared = await prepareReportPackageSave(controlled, MODEL, REQUEST, INPUT_MANIFEST);
-    expect(prepared.route).toBe("ready");
-    expect(hashService.canonicalSha256Hex).not.toHaveBeenCalled();
-    expect(vi.mocked(hashService.canonicalJsonString).mock.calls.map(([value]) => value)).toEqual([controlled.payload, REQUEST, MODEL, INPUT_MANIFEST]);
-  });
-
-  it("admits or refuses seven payload variants as canonical-text equality does", async () => {
-    desktop();
-    const cases: Array<[string, unknown, boolean]> = [
-      ["member order only", { report: { a: [2, "Ω"], z: 1 }, package_id: "invented" }, true],
-      ["a number's spelling only", { package_id: "invented", report: { z: 1.0, a: [2e0, "Ω"] } }, true],
-      ["negative zero for zero", { package_id: "invented", report: { z: 1, a: [2, "Ω"], zero: -0 } }, true],
-      ["one value", { package_id: "invented", report: { z: 2, a: [2, "Ω"] } }, false],
-      ["an extra member", { package_id: "invented", report: { z: 1, a: [2, "Ω"], y: null } }, false],
-      ["a missing member", { package_id: "invented", report: { z: 1 } }, false],
-      ["array order", { package_id: "invented", report: { z: 1, a: ["Ω", 2] } }, false]
-    ];
-    for (const [name, payload, equal] of cases) {
-      const screened = name === "negative zero for zero" ? { ...REQUEST, report: { ...REQUEST.report, zero: 0 } } : REQUEST;
-      const reference = await referencePreparation(controlledRequest(payload), MODEL, screened, INPUT_MANIFEST);
-      expect(reference.lossless, name).toBe(equal);
-      const prepared = await prepareReportPackageSave(controlledRequest(payload), MODEL, screened, INPUT_MANIFEST);
-      expect(prepared.route, name).toBe(equal ? "ready" : "redaction_blocked");
-      if (prepared.route === "ready") expect(prepared.requestSha256, name).toBe(reference.requestSha256);
-      else expect(prepared.diagnostic, name).toBe("REPORT-PACKAGE-REDACTION-BLOCKED: the route control changed the request (CANONICAL_PAYLOAD_MATERIALIZATION_CHANGED).");
-    }
   });
 });
