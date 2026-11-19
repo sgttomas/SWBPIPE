@@ -26,6 +26,7 @@ from __future__ import annotations
 
 import hashlib
 import json
+import re
 import struct
 import sys
 from collections import Counter
@@ -650,14 +651,32 @@ def norm_mapping(m, field=None):
     return ("q", str(F(m))) if field in NUMERIC_FIELDS else ("text", str(m))
 
 
+# The text of an exact value, as Exact.text writes it and as exact_from_text reads it:
+#
+#     value    = term *( " + " term )
+#     term     = rational [ "*pi" [ "^" integer ] ]
+#     rational = [ "-" ] digits [ "/" digits ]      any rational spelling; the denominator is not zero
+#     integer  = [ "-" ] digits
+#     digits   = one or more of the ASCII characters 0 to 9
+#
+# A term without "*pi" is the power 0, "*pi" alone is the power 1, and terms of one power add. Nothing else is a
+# value: a text that this grammar does not produce in full is refused with ValueError, and so is never compared.
+EXACT_TERM = re.compile(r"(-?[0-9]+(?:/[0-9]+)?)(\*pi(?:\^(-?[0-9]+))?)?")
+
+
 def exact_from_text(text):
-    """An exact value written as in Exact.text, with any rational spelling of each coefficient: '7168*pi',
-    '14336/2*pi', '1024', '3/4*pi + 1/2 + 5/7*pi^-1'."""
+    """The exact value a text states under the grammar above: '7168*pi', '14336/2*pi', '1024',
+    '3/4*pi + 1/2 + 5/7*pi^-1'. Any other text raises ValueError."""
     out = Exact()
     for part in text.split(" + "):
-        coefficient, _, power = part.strip().partition("*pi")
-        k = 0 if not _ else int(power[1:]) if power.startswith("^") else 1
-        out = out + Exact({k: F(coefficient)})
+        term = EXACT_TERM.fullmatch(part)
+        if term is None:
+            raise ValueError(f"not an exact value: {text!r}; term {part!r}")
+        coefficient, pi, power = term.groups()
+        try:
+            out = out + Exact({0 if pi is None else 1 if power is None else int(power): F(coefficient)})
+        except ZeroDivisionError:
+            raise ValueError(f"not an exact value: {text!r}; term {part!r} divides by zero") from None
     return out
 
 

@@ -160,6 +160,12 @@ subtrahend's recipe is missing, as in W8.
 - A rigid restraint with another identity is a different case (X3), and so is one with
   another participation or other parameters.
 - The same holds for a nonlinear support's law.
+- A spring's stiffness is compared as an exact value, term by term, so `1024` and
+  `2048/2` are one stiffness, and so are `7168*pi` and `14336/2*pi`. Its text is terms
+  joined by ` + `; a term is a rational coefficient, optionally `*pi`, optionally `^`
+  and an integer. A text outside that grammar is not read as a value and equals
+  nothing: the generator and the verifier each raise `ValueError` on it and return no
+  verdict.
 
 **Then motion increments.**
 

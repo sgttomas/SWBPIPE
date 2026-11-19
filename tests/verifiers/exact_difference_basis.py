@@ -45,17 +45,36 @@ QUANTITY_FIELDS = frozenset({
 })
 
 
+def _digits(text: str) -> bool:
+    return text != "" and all(character in "0123456789" for character in text)
+
+
+def _signed_digits(text: str) -> bool:
+    return _digits(text[1:] if text.startswith("-") else text)
+
+
 def _pi_terms(text: str) -> frozenset:
-    """'a + b*pi + c*pi^k' (any rational spelling of each coefficient) as its non-zero terms {(power, value)}."""
+    """A spring stiffness text as its non-zero terms {(power of pi, rational coefficient)}.
+
+    The whole text must be terms joined by " + ". A term is a rational coefficient (an optional "-", ASCII digits,
+    and optionally "/" and ASCII digits that are not zero), optionally followed by "*pi", optionally followed by
+    "^" and an integer (an optional "-" and ASCII digits). No "*pi" is the power 0 and "*pi" alone the power 1;
+    terms of one power add. Any other text raises ValueError: it is not read as a value and so equals nothing."""
     terms = {}
-    for part in text.split("+"):
-        part = part.strip()
-        if "pi" in part:
-            coefficient, _, rest = part.partition("*pi")
-            power = int(rest.lstrip("^")) if rest else 1
+    for part in text.split(" + "):
+        coefficient, star_pi, exponent = part.partition("*pi")
+        numerator, slash, denominator = coefficient.partition("/")
+        if not _signed_digits(numerator) or (slash and (not _digits(denominator) or int(denominator) == 0)):
+            raise ValueError(f"not a stiffness text: {text!r}; coefficient {coefficient!r}")
+        if not star_pi:
+            power = 0
+        elif exponent == "":
+            power = 1
+        elif exponent.startswith("^") and _signed_digits(exponent[1:]):
+            power = int(exponent[1:])
         else:
-            coefficient, power = part, 0
-        terms[power] = terms.get(power, Fraction(0)) + Fraction(coefficient)
+            raise ValueError(f"not a stiffness text: {text!r}; after '*pi' comes {exponent!r}")
+        terms[power] = terms.get(power, Fraction(0)) + Fraction(int(numerator), int(denominator) if slash else 1)
     return frozenset((k, v) for k, v in terms.items() if v)
 
 

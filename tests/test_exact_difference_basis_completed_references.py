@@ -17,6 +17,8 @@ import sys
 from fractions import Fraction
 from pathlib import Path
 
+import pytest
+
 PROJECT = Path(__file__).resolve().parents[1]
 REFERENCES = PROJECT / "validation" / "references"
 PACKAGE = REFERENCES / "exact_difference_basis_completed"
@@ -47,6 +49,102 @@ def test_sha256sums_verify():
     for line in lines:
         digest, name = line.split("  ", 1)
         assert hashlib.sha256((PACKAGE / name).read_bytes()).hexdigest() == digest, name
+
+
+# ---- the generator's stiffness text grammar -----------------------------------------------------------------
+# The generator's own reader of an exact value (exact_from_text) is exercised in a child process that imports the
+# generator and nothing of the verifier. A text outside the grammar must raise ValueError there, at the parser and
+# at the generator's own comparison; it must not be read as a value. The first three below were once read. The
+# probe reports any other error by its type, so that it fails the test and not the probe.
+
+MALFORMED_STIFFNESS = [
+    "7168*pi1", "7168*pi2", "7168*piJUNK", "7168*pi^", "7168*pi^2x", "7168*pi*pi",
+    "pi", "*pi", "7168pi", "7168*PI", "7168 *pi", " 7168*pi", "7168*pi ", "7168*pi\n", "",
+    "7168*pi^+2", "7168*pi^-", "7168*pi^2.0", "7168*pi+1", "7168*pi + ", "7168*pi  +  1",
+    "+7168*pi", "--7168*pi", "1.5*pi", "1e3", "1_000", "1/0", "1/0*pi", "1/-2", "1/2/3", "\uff17*pi",
+]
+WELL_FORMED_STIFFNESS = {
+    "7168*pi": {"1": "7168"}, "14336/2*pi": {"1": "7168"}, "3584*pi": {"1": "3584"},
+    "1024": {"0": "1024"}, "2048/2": {"0": "1024"}, "0": {}, "0*pi": {},
+    "7*pi^1": {"1": "7"}, "7*pi^0": {"0": "7"}, "-3/4*pi^2": {"2": "-3/4"},
+    "3/4*pi + 1/2 + 5/7*pi^-1": {"1": "3/4", "0": "1/2", "-1": "5/7"},
+    "1*pi + 2*pi": {"1": "3"},
+}
+RECORDED_STIFFNESS = {"7168*pi": {"1": "7168"}}
+GENERATOR_PROBE = """
+import copy, json, sys
+sys.path.insert(0, sys.argv[1])
+import exact_difference_basis_completed_reference as generator
+request = json.loads(sys.stdin.read())
+
+def parsed(text):
+    try:
+        return {str(k): str(v) for k, v in generator.exact_from_text(text).c.items()}
+    except Exception as error:
+        return type(error).__name__
+
+def compared(text, side):
+    s, o = copy.deepcopy(request["w4"]["sustained"]), copy.deepcopy(request["w4"]["operating"])
+    for support in (s if side == "sustained" else o)["supports"]:
+        if support["support"] == "spring:B":
+            support["parameters"]["stiffness"] = text
+    try:
+        return {reading: generator.verdict_under(s, o, reading)[0] for reading in ("S", "R")}
+    except Exception as error:
+        return type(error).__name__
+
+print(json.dumps({
+    "parsed": {text: parsed(text) for text in request["texts"]},
+    "compared": {text: {side: compared(text, side) for side in ("sustained", "operating")}
+                 for text in request["texts"]},
+}))
+"""
+
+
+def _stiffness_texts(value, field=None) -> set:
+    if isinstance(value, dict):
+        return set().union(*(_stiffness_texts(v, k) for k, v in value.items())) if value else set()
+    if isinstance(value, list):
+        return set().union(*(_stiffness_texts(v, field) for v in value)) if value else set()
+    return {value} if field == "stiffness" else set()
+
+
+@pytest.fixture(scope="module")
+def generator_probe():
+    data = load(PACKAGE / "references.json")
+    w4 = next(row for row in data["carried"]["gate_rows"] + data["carried"]["pairs"] + data["added"]
+              + data["builder_witnesses"] if row["id"] == "W4")
+    request = {"texts": MALFORMED_STIFFNESS + list(WELL_FORMED_STIFFNESS),
+               "w4": {"sustained": w4["sustained"], "operating": w4["operating"]}}
+    result = subprocess.run([sys.executable, "-I", "-B", "-c", GENERATOR_PROBE, str(GENERATOR.parent)],
+                            input=json.dumps(request), capture_output=True, text=True, timeout=600)
+    assert result.returncode == 0, result.stdout + result.stderr
+    return json.loads(result.stdout)
+
+
+@pytest.mark.parametrize("text", MALFORMED_STIFFNESS)
+def test_the_generator_refuses_a_malformed_stiffness_text(generator_probe, text):
+    assert generator_probe["parsed"][text] == "ValueError"
+    assert generator_probe["compared"][text] == {"sustained": "ValueError", "operating": "ValueError"}
+
+
+@pytest.mark.parametrize("text", list(WELL_FORMED_STIFFNESS))
+def test_the_generator_reads_a_well_formed_stiffness_text_as_its_terms(generator_probe, text):
+    assert generator_probe["parsed"][text] == WELL_FORMED_STIFFNESS[text]
+
+
+def test_the_generator_admits_w4_with_its_stiffness_written_differently(generator_probe):
+    """The control for the refusals above: the probe's comparison does return verdicts for texts it can read."""
+    assert generator_probe["compared"]["14336/2*pi"] == {
+        "sustained": {"S": "admitted", "R": "admitted"}, "operating": {"S": "admitted", "R": "admitted"}}
+    assert generator_probe["compared"]["3584*pi"]["operating"] == {
+        "S": "refused_restraint", "R": "refused_restraint"}
+
+
+def test_every_recorded_stiffness_text_is_read_by_the_generator_as_its_recorded_value(generator_probe):
+    assert _stiffness_texts(load(PACKAGE / "references.json")) == set(RECORDED_STIFFNESS)
+    for text, terms in RECORDED_STIFFNESS.items():
+        assert generator_probe["parsed"][text] == terms
 
 
 def names_a_product_path(text: str) -> bool:

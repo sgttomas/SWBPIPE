@@ -271,6 +271,73 @@ def test_focused_policy_case(name):
     assert policy.admission(s, o, "R")["verdict"] == under_r
 
 
+# ---- the stiffness text's grammar ---------------------------------------------------------------------------
+# A stiffness text is terms joined by " + ", each a rational coefficient, optionally "*pi", optionally "^" and an
+# integer. A text outside that grammar must be refused, not read: the first three below were read by an earlier
+# parser as 7168*pi, 7168*pi^2 and an error respectively.
+
+MALFORMED_STIFFNESS = [
+    "7168*pi1", "7168*pi2", "7168*piJUNK", "7168*pi^", "7168*pi^2x", "7168*pi*pi",
+    "pi", "*pi", "7168pi", "7168*PI", "7168 *pi", " 7168*pi", "7168*pi ", "7168*pi\n", "",
+    "7168*pi^+2", "7168*pi^-", "7168*pi^2.0", "7168*pi+1", "7168*pi + ", "7168*pi  +  1",
+    "+7168*pi", "--7168*pi", "1.5*pi", "1e3", "1_000", "1/0", "1/0*pi", "1/-2", "1/2/3", "\uff17*pi",
+]
+WELL_FORMED_STIFFNESS = {
+    "7168*pi": {1: Fraction(7168)}, "14336/2*pi": {1: Fraction(7168)}, "3584*pi": {1: Fraction(3584)},
+    "1024": {0: Fraction(1024)}, "2048/2": {0: Fraction(1024)}, "0": {}, "0*pi": {},
+    "7*pi^1": {1: Fraction(7)}, "7*pi^0": {0: Fraction(7)}, "-3/4*pi^2": {2: Fraction(-3, 4)},
+    "3/4*pi + 1/2 + 5/7*pi^-1": {1: Fraction(3, 4), 0: Fraction(1, 2), -1: Fraction(5, 7)},
+    "1*pi + 2*pi": {1: Fraction(3)},
+}
+RECORDED_STIFFNESS = {"7168*pi": {1: Fraction(7168)}}
+
+
+def _stiffness_texts(value, field=None) -> set:
+    if isinstance(value, dict):
+        return set().union(*(_stiffness_texts(v, k) for k, v in value.items())) if value else set()
+    if isinstance(value, list):
+        return set().union(*(_stiffness_texts(v, field) for v in value)) if value else set()
+    return {value} if field == "stiffness" else set()
+
+
+@pytest.mark.parametrize("text", MALFORMED_STIFFNESS)
+def test_a_malformed_stiffness_text_is_refused_by_the_parser(text):
+    with pytest.raises(ValueError):
+        policy._pi_terms(text)
+
+
+@pytest.mark.parametrize("text", MALFORMED_STIFFNESS)
+@pytest.mark.parametrize("side", ["sustained", "operating"])
+@pytest.mark.parametrize("reading", ["S", "R"])
+def test_a_malformed_stiffness_text_is_refused_at_the_comparison_and_not_read_as_equal(text, side, reading):
+    """W4 with only one side's spring stiffness text changed and its bits kept: no verdict is returned."""
+    s, o = _row("W4")
+    _support(s if side == "sustained" else o, "spring:B")["parameters"]["stiffness"] = text
+    with pytest.raises(ValueError):
+        policy.admission(s, o, reading)
+
+
+def test_a_malformed_stiffness_text_on_both_sides_is_refused_and_not_equal_to_itself():
+    s, o = _row("W4")
+    for side in (s, o):
+        _support(side, "spring:B")["parameters"]["stiffness"] = "7168*pi1"
+    with pytest.raises(ValueError):
+        policy.admission(s, o)
+
+
+@pytest.mark.parametrize("text", list(WELL_FORMED_STIFFNESS))
+def test_a_well_formed_stiffness_text_parses_to_its_terms(text):
+    assert dict(policy._pi_terms(text)) == WELL_FORMED_STIFFNESS[text]
+
+
+def test_every_recorded_stiffness_text_parses_to_its_recorded_value():
+    """Every stiffness text in references.json, with the value it has always stood for; a new text is added here."""
+    found = _stiffness_texts(json.loads((PACKAGE / "references.json").read_text(encoding="utf-8")))
+    assert found == set(RECORDED_STIFFNESS)
+    for text, terms in RECORDED_STIFFNESS.items():
+        assert dict(policy._pi_terms(text)) == terms
+
+
 # ---- recorded prose bound to the operands (X5 only) ---------------------------------------------------------
 
 X5_REASON = "the recipes' mass bases differ, so the subtrahend's seismic recipe is not in the minuend"
