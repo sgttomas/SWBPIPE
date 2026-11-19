@@ -236,6 +236,151 @@ describe("validateAnalysisRunV03 on values nested past the parse limit", () => {
     }
     // What each case gives, as run in this test runtime (Node's stack limit decides the 5,000-level
     // column of the old comparison; the wasm engine's parse limit decides the source cases).
-    expect(observed).toMatchInlineSnapshot();
+    expect(observed).toMatchInlineSnapshot(`
+      {
+        "pressure-source-1 (n05 fixture) / contract_evidence / record and source": {
+          "validator 2": "PHYSICS_SOURCE_PHYSICAL_SHAPE",
+          "validator 200": "ANALYSIS_SOURCE_CONTRACT_VERSION_MISMATCH",
+          "validator 5000": "ANALYSIS_SOURCE_CONTRACT_VERSION_MISMATCH",
+        },
+        "pressure-source-1 (n05 fixture) / contract_evidence / record only": {
+          "old comparison 2": "false",
+          "old comparison 200": "false",
+          "old comparison 5000": "RangeError",
+          "validator 2": "ANALYSIS_PHYSICS_SOURCE_EVIDENCE_MISMATCH",
+          "validator 200": "ANALYSIS_PHYSICS_SOURCE_EVIDENCE_MISMATCH",
+          "validator 5000": "ANALYSIS_PHYSICS_SOURCE_EVIDENCE_MISMATCH",
+        },
+        "pressure-source-1 (n05 fixture) / source_block_recovery / record and source": {
+          "validator 2": "ANALYSIS_SOURCE_CONTRACT_VERSION_MISMATCH",
+          "validator 200": "ANALYSIS_SOURCE_CONTRACT_VERSION_MISMATCH",
+          "validator 5000": "ANALYSIS_SOURCE_CONTRACT_VERSION_MISMATCH",
+        },
+        "pressure-source-1 (n05 fixture) / source_block_recovery / record only": {
+          "old comparison 2": "false",
+          "old comparison 200": "false",
+          "old comparison 5000": "RangeError",
+          "validator 2": "ANALYSIS_SOURCE_BLOCK_RECEIPT_MISMATCH",
+          "validator 200": "ANALYSIS_SOURCE_BLOCK_RECEIPT_MISMATCH",
+          "validator 5000": "ANALYSIS_SOURCE_BLOCK_RECEIPT_MISMATCH",
+        },
+        "preview-physics-2 (synthetic) / load_basis_refs entry / record only": {
+          "old comparison 2": "false",
+          "old comparison 200": "false",
+          "old comparison 5000": "RangeError",
+          "validator 2": "ANALYSIS_SOURCE_LOAD_BASIS_MISMATCH",
+          "validator 200": "ANALYSIS_SOURCE_LOAD_BASIS_MISMATCH",
+          "validator 5000": "ANALYSIS_SOURCE_LOAD_BASIS_MISMATCH",
+        },
+        "preview-physics-2 (synthetic) / model_state_ref / record only": {
+          "old comparison 2": "false",
+          "old comparison 200": "false",
+          "old comparison 5000": "RangeError",
+          "validator 2": "ANALYSIS_SOURCE_MODEL_STATE_MISMATCH",
+          "validator 200": "ANALYSIS_SOURCE_MODEL_STATE_MISMATCH",
+          "validator 5000": "ANALYSIS_SOURCE_MODEL_STATE_MISMATCH",
+        },
+        "preview-physics-2 (synthetic) / producer diagnostic / record and source": {
+          "validator 2": "accepted",
+          "validator 200": "ANALYSIS_SOURCE_CONTRACT_VERSION_MISMATCH",
+          "validator 5000": "ANALYSIS_SOURCE_CONTRACT_VERSION_MISMATCH",
+        },
+        "preview-physics-2 (synthetic) / producer diagnostic / record only": {
+          "old comparison 2": "false",
+          "old comparison 200": "false",
+          "old comparison 5000": "RangeError",
+          "validator 2": "ANALYSIS_SOURCE_DIAGNOSTICS_MISMATCH",
+          "validator 200": "ANALYSIS_SOURCE_DIAGNOSTICS_MISMATCH",
+          "validator 5000": "ANALYSIS_SOURCE_DIAGNOSTICS_MISMATCH",
+        },
+        "preview-physics-2 (synthetic) / provenance (checksum only) / record only": {
+          "validator 2": "accepted",
+          "validator 200": "CHECKED-JSON-INVALID",
+          "validator 5000": "RangeError",
+        },
+        "preview-physics-2 (synthetic) / received_result hash entry / record only": {
+          "old comparison 2": "false",
+          "old comparison 200": "false",
+          "old comparison 5000": "RangeError",
+          "validator 2": "ANALYSIS_RECEIVED_SOURCE_MISMATCH",
+          "validator 200": "ANALYSIS_RECEIVED_SOURCE_MISMATCH",
+          "validator 5000": "ANALYSIS_RECEIVED_SOURCE_MISMATCH",
+        },
+        "preview-physics-2 (synthetic) / row hash_refs entry / record only": {
+          "old comparison 2": "false",
+          "old comparison 200": "false",
+          "old comparison 5000": "RangeError",
+          "validator 2": "ANALYSIS_ROW_SOURCE_BINDING_MISMATCH",
+          "validator 200": "ANALYSIS_ROW_SOURCE_BINDING_MISMATCH",
+          "validator 5000": "ANALYSIS_ROW_SOURCE_BINDING_MISMATCH",
+        },
+        "preview-physics-2 (synthetic) / row interpretation / record only": {
+          "old comparison 2": "false",
+          "old comparison 200": "false",
+          "old comparison 5000": "RangeError",
+          "validator 2": "ANALYSIS_ROW_INTERPRETATION_MISMATCH",
+          "validator 200": "ANALYSIS_ROW_INTERPRETATION_MISMATCH",
+          "validator 5000": "ANALYSIS_ROW_INTERPRETATION_MISMATCH",
+        },
+        "preview-physics-2 (synthetic) / row metadata / record and source": {
+          "validator 2": "accepted",
+          "validator 200": "ANALYSIS_SOURCE_CONTRACT_VERSION_MISMATCH",
+          "validator 5000": "ANALYSIS_SOURCE_CONTRACT_VERSION_MISMATCH",
+        },
+        "preview-physics-2 (synthetic) / row metadata / record only": {
+          "old comparison 2": "false",
+          "old comparison 200": "false",
+          "old comparison 5000": "RangeError",
+          "validator 2": "ANALYSIS_ROW_INTERPRETATION_MISMATCH",
+          "validator 200": "ANALYSIS_ROW_INTERPRETATION_MISMATCH",
+          "validator 5000": "ANALYSIS_ROW_INTERPRETATION_MISMATCH",
+        },
+        "preview-physics-2 (synthetic) / row result_ref / record only": {
+          "old comparison 2": "false",
+          "old comparison 200": "false",
+          "old comparison 5000": "RangeError",
+          "validator 2": "ANALYSIS_ROW_SOURCE_BINDING_MISMATCH",
+          "validator 200": "ANALYSIS_ROW_SOURCE_BINDING_MISMATCH",
+          "validator 5000": "ANALYSIS_ROW_SOURCE_BINDING_MISMATCH",
+        },
+        "preview-physics-2 (synthetic) / row semantic_contract / record only": {
+          "old comparison 2": "false",
+          "old comparison 200": "false",
+          "old comparison 5000": "RangeError",
+          "validator 2": "ANALYSIS_ROW_SOURCE_BINDING_MISMATCH",
+          "validator 200": "ANALYSIS_ROW_SOURCE_BINDING_MISMATCH",
+          "validator 5000": "ANALYSIS_ROW_SOURCE_BINDING_MISMATCH",
+        },
+        "preview-physics-2 (synthetic) / row source_annotation / record only": {
+          "old comparison 2": "false",
+          "old comparison 200": "false",
+          "old comparison 5000": "RangeError",
+          "validator 2": "ANALYSIS_ROW_INTERPRETATION_MISMATCH",
+          "validator 200": "ANALYSIS_ROW_INTERPRETATION_MISMATCH",
+          "validator 5000": "ANALYSIS_ROW_INTERPRETATION_MISMATCH",
+        },
+        "preview-physics-2 (synthetic) / semantic_contract / record only": {
+          "old comparison 2": "false",
+          "old comparison 200": "false",
+          "old comparison 5000": "RangeError",
+          "validator 2": "ANALYSIS_SEMANTIC_CONTRACT_MISMATCH",
+          "validator 200": "ANALYSIS_SEMANTIC_CONTRACT_MISMATCH",
+          "validator 5000": "ANALYSIS_SEMANTIC_CONTRACT_MISMATCH",
+        },
+        "retained successor (combination fixture) / retained_precision / record and source": {
+          "validator 2": "ANALYSIS_SOURCE_CONTRACT_VERSION_MISMATCH",
+          "validator 200": "ANALYSIS_SOURCE_CONTRACT_VERSION_MISMATCH",
+          "validator 5000": "ANALYSIS_SOURCE_CONTRACT_VERSION_MISMATCH",
+        },
+        "retained successor (combination fixture) / retained_precision / record only": {
+          "old comparison 2": "false",
+          "old comparison 200": "false",
+          "old comparison 5000": "RangeError",
+          "validator 2": "ANALYSIS_RETAINED_PRECISION_RECEIPT_MISMATCH",
+          "validator 200": "ANALYSIS_RETAINED_PRECISION_RECEIPT_MISMATCH",
+          "validator 5000": "ANALYSIS_RETAINED_PRECISION_RECEIPT_MISMATCH",
+        },
+      }
+    `);
   }, 300_000);
 });
