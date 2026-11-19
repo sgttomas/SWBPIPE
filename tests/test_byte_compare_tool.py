@@ -1206,6 +1206,26 @@ def add_dep(path, extra):
 
 
 ITOA = f"{REGISTRY}#itoa@1.0.18"
+PROC_MACRO2_RUN = "proc-macro2-5d24402fc79aac90/build-script-build`"
+
+
+@pytest.mark.parametrize("given", ["CARGO_TRIM_PATHS_REMAP='' CARGO_TRIM_PATHS_SCOPE=none",
+                                   "CARGO_TRIM_PATHS_REMAP=''", "CARGO_TRIM_PATHS_SCOPE=none"])
+def test_a_build_script_run_told_that_no_path_is_trimmed_attests_as_before(given):
+    # Cargo 1.100 and later give every build-script run the trim-paths setting, as `none` and an
+    # empty remap when the profile trims nothing. Either variable may be absent. With both, or
+    # either one alone, added to every run of the captured build, the attestation is the one the
+    # capture gives without them.
+    def told(text):
+        lines = text.split("\n")
+        runs = [i for i, line in enumerate(lines) if line.endswith("/build-script-build`")]
+        assert len(runs) == 10, len(runs)
+        for i in runs:
+            lines[i] = edit(lines[i], "CARGO_ENCODED_RUSTFLAGS=''", f"CARGO_ENCODED_RUSTFLAGS='' {given}")
+        return "\n".join(lines)
+    assert attest_captured(stderr=told) == attest_captured()
+
+
 CAPTURED_REFUSALS = {
     # Runtime profile checks: a unit the runner links (transitively, through serde_json) at another setting.
     "a linked dependency at opt-level 0": (dict(
@@ -1243,6 +1263,15 @@ CAPTURED_REFUSALS = {
     "a build script run beside a wrapper": (dict(stderr=lambda t: edit_line(
         t, "proc-macro2-5d24402fc79aac90/build-script-build`", "CARGO_ENCODED_RUSTFLAGS=''",
         "CARGO_ENCODED_RUSTFLAGS='' RUSTC_WRAPPER=/HOME/bin/wrap")), "unexpected environment variable RUSTC_WRAPPER"),
+    # Cargo 1.100 and later tell a build script the profile's trim-paths setting; only "trims nothing" attests.
+    "a build script run under a trim-paths scope": (dict(stderr=lambda t: edit_line(
+        t, PROC_MACRO2_RUN, "CARGO_ENCODED_RUSTFLAGS=''",
+        "CARGO_ENCODED_RUSTFLAGS='' CARGO_TRIM_PATHS_REMAP='' CARGO_TRIM_PATHS_SCOPE=object")),
+        "ran with CARGO_TRIM_PATHS_SCOPE='object', not 'none'"),
+    "a build script run given a path remap": (dict(stderr=lambda t: edit_line(
+        t, PROC_MACRO2_RUN, "CARGO_ENCODED_RUSTFLAGS=''",
+        "CARGO_ENCODED_RUSTFLAGS='' CARGO_TRIM_PATHS_REMAP=/WT=. CARGO_TRIM_PATHS_SCOPE=none")),
+        "ran with CARGO_TRIM_PATHS_REMAP='/WT=.', not ''"),
     # Flags and environment.
     "-Z": (dict(stderr=lambda t: edit_line(t, BIN_LINE, "--out-dir", "-Zshare-generics --out-dir")),
            "unknown rustc argument '-Zshare-generics'"),
@@ -1613,9 +1642,18 @@ def run_real(world, capsys):
 
 
 def generated_source(world, side):
-    found = list((world["tmp"] / "scratch" / "build" / "target").glob(f"{side}-*/release/build/dep-*/out/gen.rs"))
-    assert len(found) == 1, found
-    return found[0].read_text()
+    # Where cargo itself says the build script wrote (its `build-script-executed` message), since the
+    # layout of the target directory is cargo's to change.
+    log = world["tmp"] / "scratch" / f"build-{side}.jsonl"
+    messages = (json.loads(line) for line in log.read_text().splitlines() if line.startswith("{"))
+    paths = [
+        Path(message["out_dir"]) / "gen.rs"
+        for message in messages
+        if message.get("reason") == "build-script-executed"
+        and message["package_id"].endswith("/dep#0.1.0")
+    ]
+    assert len(paths) == 1, paths
+    return paths[0].read_text()
 
 
 @RUNS_CARGO
