@@ -4,8 +4,7 @@ Per-load and warning references for RS-WIN, RS-EQX, RS-EQY and RS-EQZ.
 
 ## Relation to the pending-cases package
 
-Use [`reference_system_pending_cases`](../reference_system_pending_cases/README.md) for EQ-6 as restated at
-`e494a5925`. This generator compares the four analytic resultants and three pipes-only twins coefficient by
+Use [`reference_system_pending_cases`](../reference_system_pending_cases/README.md) for EQ-6. This generator compares the four analytic resultants and three pipes-only twins coefficient by
 coefficient with constants transcribed from that package. The maintained test checks those constants against the
 sibling files. Both use 9.80665 m/s² for seismic gravity. The pending-cases package assumed it, and §8.1 states it.
 

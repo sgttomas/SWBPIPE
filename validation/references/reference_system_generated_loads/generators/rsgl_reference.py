@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """Reference system, per-load and warning references for RS-WIN, RS-EQX, RS-EQY, RS-EQZ (DEL-05-01, DEL-09-01).
 
-Use validation/references/reference_system_pending_cases for EQ-6 as restated at e494a5925. This generator
+Use validation/references/reference_system_pending_cases for EQ-6. This generator
 compares the four analytic resultants and three pipes-only twins coefficient by coefficient with constants
 transcribed from that package.
 
@@ -72,7 +72,7 @@ def cross(name, compares, kind, agrees, detail=None):
 # Transcribed governing text
 # ---------------------------------------------------------------------------------------------------------------
 
-RELATION = ('Per-load and warning references for RS-WIN, RS-EQX, RS-EQY and RS-EQZ. Use `reference_system_pending_cases` for EQ-6 as restated at `e494a5925`. This generator compares the four analytic resultants and three pipes-only twins coefficient by coefficient with constants transcribed from that package. The maintained test checks those constants against the sibling files. Both use 9.80665 m/s² for seismic gravity. The pending-cases package assumed it, and §8.1 states it.')
+RELATION = ('Per-load and warning references for RS-WIN, RS-EQX, RS-EQY and RS-EQZ. Use `reference_system_pending_cases` for EQ-6. This generator compares the four analytic resultants and three pipes-only twins coefficient by coefficient with constants transcribed from that package. The maintained test checks those constants against the sibling files. Both use 9.80665 m/s² for seismic gravity. The pending-cases package assumed it, and §8.1 states it.')
 
 SPEC = {
     "gravity_weight": "§2: Gravity is entered on each weight case as `global_z`, value −9.80665 m/s²",
@@ -1060,7 +1060,7 @@ def build():
         "governs": {"scope": "execution/PKG-05/DEL-05-01/ScopeOfWork.md at aebd3442f: Static-equivalent "
                              "generation, Mass basis, Self-weight plan, REQ-008, REQ-015, AC-007, VER-005",
                     "specification": "fixtures/reference_system/SPECIFICATION.md §2, §3, §4.2, §5, §5.1, §8.1, "
-                                     "§8.2, §9.2 (EQ-4, EQ-6 as restated at e494a5925)",
+                                     "§8.2, §9.2 (EQ-4, EQ-6)",
                     "quoted": SPEC},
         "reads": {"staged_input": STAGED_REL, "staged_from": MODEL_REL,
                   "staged_at_commit": STAGED_META["staged_at_commit"],
