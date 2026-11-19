@@ -1,0 +1,2125 @@
+{
+ "basis": "exact rational solve of independently formed Euler-Bernoulli frames (../kd5_nonlinear/reference.py), every support state enumerated; a variable spring hanger is a spring of its entered rate plus its entered cold load as a constant force along the positive axis of its DOF, published support force F_cold - k*u, applied force F_cold",
+ "cases": {
+  "load:LIFTED": {
+   "changed_from_stiffness_only": {
+    "basis": "stiffness-only result of ../kd5_nonlinear/u1_spring_oracle.json: the hanger modelled as a bare spring of its entered rate, its cold load not applied",
+    "cold_load": {
+     "support": "support:SH-C",
+     "unit": "N",
+     "value": 430
+    },
+    "quantities": [
+     {
+      "quantity": "strict_states/0/groups/pipe:AB/cut_i/bending",
+      "stiffness_only_value": [
+       119.97324184667939,
+       119.9732418466794
+      ],
+      "value": [
+       635.8581817874007,
+       635.8581817874008
+      ]
+     },
+     {
+      "quantity": "strict_states/0/groups/pipe:AB/cut_i/shear",
+      "stiffness_only_value": [
+       59.98662092333969,
+       59.9866209233397
+      ],
+      "value": [
+       317.92909089370033,
+       317.9290908937004
+      ]
+     },
+     {
+      "quantity": "strict_states/0/groups/pipe:AB/cut_i/torsion",
+      "stiffness_only_value": [
+       119.97324184667939,
+       119.9732418466794
+      ],
+      "value": [
+       635.8581817874007,
+       635.8581817874008
+      ]
+     },
+     {
+      "quantity": "strict_states/0/groups/pipe:AB/cut_j/shear",
+      "stiffness_only_value": [
+       59.98662092333969,
+       59.9866209233397
+      ],
+      "value": [
+       317.92909089370033,
+       317.9290908937004
+      ]
+     },
+     {
+      "quantity": "strict_states/0/groups/pipe:AB/cut_j/torsion",
+      "stiffness_only_value": [
+       119.97324184667939,
+       119.9732418466794
+      ],
+      "value": [
+       635.8581817874007,
+       635.8581817874008
+      ]
+     },
+     {
+      "quantity": "strict_states/0/groups/pipe:AB/end_i/bending",
+      "stiffness_only_value": [
+       119.97324184667939,
+       119.9732418466794
+      ],
+      "value": [
+       635.8581817874007,
+       635.8581817874008
+      ]
+     },
+     {
+      "quantity": "strict_states/0/groups/pipe:AB/end_i/shear",
+      "stiffness_only_value": [
+       59.98662092333969,
+       59.9866209233397
+      ],
+      "value": [
+       317.92909089370033,
+       317.9290908937004
+      ]
+     },
+     {
+      "quantity": "strict_states/0/groups/pipe:AB/end_i/torsion",
+      "stiffness_only_value": [
+       119.97324184667939,
+       119.9732418466794
+      ],
+      "value": [
+       635.8581817874007,
+       635.8581817874008
+      ]
+     },
+     {
+      "quantity": "strict_states/0/groups/pipe:AB/end_j/shear",
+      "stiffness_only_value": [
+       59.98662092333969,
+       59.9866209233397
+      ],
+      "value": [
+       317.92909089370033,
+       317.9290908937004
+      ]
+     },
+     {
+      "quantity": "strict_states/0/groups/pipe:AB/end_j/torsion",
+      "stiffness_only_value": [
+       119.97324184667939,
+       119.9732418466794
+      ],
+      "value": [
+       635.8581817874007,
+       635.8581817874008
+      ]
+     },
+     {
+      "quantity": "strict_states/0/groups/pipe:AB/midspan/bending",
+      "stiffness_only_value": [
+       59.98662092333969,
+       59.9866209233397
+      ],
+      "value": [
+       317.92909089370033,
+       317.9290908937004
+      ]
+     },
+     {
+      "quantity": "strict_states/0/groups/pipe:AB/midspan/shear",
+      "stiffness_only_value": [
+       59.98662092333969,
+       59.9866209233397
+      ],
+      "value": [
+       317.92909089370033,
+       317.9290908937004
+      ]
+     },
+     {
+      "quantity": "strict_states/0/groups/pipe:AB/midspan/torsion",
+      "stiffness_only_value": [
+       119.97324184667939,
+       119.9732418466794
+      ],
+      "value": [
+       635.8581817874007,
+       635.8581817874008
+      ]
+     },
+     {
+      "quantity": "strict_states/0/groups/pipe:AB/quarter_1/bending",
+      "stiffness_only_value": [
+       89.97993138500954,
+       89.97993138500955
+      ],
+      "value": [
+       476.89363634055053,
+       476.8936363405506
+      ]
+     },
+     {
+      "quantity": "strict_states/0/groups/pipe:AB/quarter_1/shear",
+      "stiffness_only_value": [
+       59.98662092333969,
+       59.9866209233397
+      ],
+      "value": [
+       317.92909089370033,
+       317.9290908937004
+      ]
+     },
+     {
+      "quantity": "strict_states/0/groups/pipe:AB/quarter_1/torsion",
+      "stiffness_only_value": [
+       119.97324184667939,
+       119.9732418466794
+      ],
+      "value": [
+       635.8581817874007,
+       635.8581817874008
+      ]
+     },
+     {
+      "quantity": "strict_states/0/groups/pipe:AB/quarter_3/bending",
+      "stiffness_only_value": [
+       29.993310461669846,
+       29.99331046166985
+      ],
+      "value": [
+       158.96454544685017,
+       158.9645454468502
+      ]
+     },
+     {
+      "quantity": "strict_states/0/groups/pipe:AB/quarter_3/shear",
+      "stiffness_only_value": [
+       59.98662092333969,
+       59.9866209233397
+      ],
+      "value": [
+       317.92909089370033,
+       317.9290908937004
+      ]
+     },
+     {
+      "quantity": "strict_states/0/groups/pipe:AB/quarter_3/torsion",
+      "stiffness_only_value": [
+       119.97324184667939,
+       119.9732418466794
+      ],
+      "value": [
+       635.8581817874007,
+       635.8581817874008
+      ]
+     },
+     {
+      "quantity": "strict_states/0/groups/pipe:BC/cut_i/bending",
+      "stiffness_only_value": [
+       119.97324184667939,
+       119.9732418466794
+      ],
+      "value": [
+       635.8581817874007,
+       635.8581817874008
+      ]
+     },
+     {
+      "quantity": "strict_states/0/groups/pipe:BC/cut_i/shear",
+      "stiffness_only_value": [
+       59.98662092333969,
+       59.9866209233397
+      ],
+      "value": [
+       317.92909089370033,
+       317.9290908937004
+      ]
+     },
+     {
+      "quantity": "strict_states/0/groups/pipe:BC/cut_j/shear",
+      "stiffness_only_value": [
+       59.98662092333969,
+       59.9866209233397
+      ],
+      "value": [
+       317.92909089370033,
+       317.9290908937004
+      ]
+     },
+     {
+      "quantity": "strict_states/0/groups/pipe:BC/end_i/bending",
+      "stiffness_only_value": [
+       119.97324184667939,
+       119.9732418466794
+      ],
+      "value": [
+       635.8581817874007,
+       635.8581817874008
+      ]
+     },
+     {
+      "quantity": "strict_states/0/groups/pipe:BC/end_i/shear",
+      "stiffness_only_value": [
+       59.98662092333969,
+       59.9866209233397
+      ],
+      "value": [
+       317.92909089370033,
+       317.9290908937004
+      ]
+     },
+     {
+      "quantity": "strict_states/0/groups/pipe:BC/end_j/shear",
+      "stiffness_only_value": [
+       59.98662092333969,
+       59.9866209233397
+      ],
+      "value": [
+       317.92909089370033,
+       317.9290908937004
+      ]
+     },
+     {
+      "quantity": "strict_states/0/groups/pipe:BC/midspan/bending",
+      "stiffness_only_value": [
+       59.98662092333969,
+       59.9866209233397
+      ],
+      "value": [
+       317.92909089370033,
+       317.9290908937004
+      ]
+     },
+     {
+      "quantity": "strict_states/0/groups/pipe:BC/midspan/shear",
+      "stiffness_only_value": [
+       59.98662092333969,
+       59.9866209233397
+      ],
+      "value": [
+       317.92909089370033,
+       317.9290908937004
+      ]
+     },
+     {
+      "quantity": "strict_states/0/groups/pipe:BC/quarter_1/bending",
+      "stiffness_only_value": [
+       89.97993138500954,
+       89.97993138500955
+      ],
+      "value": [
+       476.89363634055053,
+       476.8936363405506
+      ]
+     },
+     {
+      "quantity": "strict_states/0/groups/pipe:BC/quarter_1/shear",
+      "stiffness_only_value": [
+       59.98662092333969,
+       59.9866209233397
+      ],
+      "value": [
+       317.92909089370033,
+       317.9290908937004
+      ]
+     },
+     {
+      "quantity": "strict_states/0/groups/pipe:BC/quarter_3/bending",
+      "stiffness_only_value": [
+       29.993310461669846,
+       29.99331046166985
+      ],
+      "value": [
+       158.96454544685017,
+       158.9645454468502
+      ]
+     },
+     {
+      "quantity": "strict_states/0/groups/pipe:BC/quarter_3/shear",
+      "stiffness_only_value": [
+       59.98662092333969,
+       59.9866209233397
+      ],
+      "value": [
+       317.92909089370033,
+       317.9290908937004
+      ]
+     },
+     {
+      "quantity": "strict_states/0/groups/support:ANCHOR/node/support_force",
+      "stiffness_only_value": [
+       59.98662092333969,
+       59.9866209233397
+      ],
+      "value": [
+       317.92909089370033,
+       317.9290908937004
+      ]
+     },
+     {
+      "quantity": "strict_states/0/groups/support:ANCHOR/node/support_force_magnitude",
+      "stiffness_only_value": [
+       59.98662092333969,
+       59.9866209233397
+      ],
+      "value": [
+       317.92909089370033,
+       317.9290908937004
+      ]
+     },
+     {
+      "quantity": "strict_states/0/groups/support:ANCHOR/node/support_moment",
+      "stiffness_only_value": [
+       169.66778574144132,
+       169.66778574144135
+      ],
+      "value": [
+       899.239264429639,
+       899.2392644296391
+      ]
+     },
+     {
+      "quantity": "strict_states/0/groups/support:ANCHOR/node/support_moment_magnitude",
+      "stiffness_only_value": [
+       169.66778574144132,
+       169.66778574144135
+      ],
+      "value": [
+       899.239264429639,
+       899.2392644296391
+      ]
+     },
+     {
+      "quantity": "strict_states/0/groups/support:SH-C/node/support_force",
+      "stiffness_only_value": [
+       40.0133790766603,
+       40.01337907666031
+      ],
+      "value": [
+       217.92909089370036,
+       217.9290908937004
+      ]
+     },
+     {
+      "quantity": "strict_states/0/groups/support:SH-C/node/support_force_magnitude",
+      "stiffness_only_value": [
+       40.0133790766603,
+       40.01337907666031
+      ],
+      "value": [
+       217.92909089370036,
+       217.9290908937004
+      ]
+     },
+     {
+      "quantity": "strict_states/0/signed/support:ANCHOR/components/RX",
+      "stiffness_only_value": [
+       -119.9732418466794,
+       -119.97324184667939
+      ],
+      "value": [
+       -635.8581817874008,
+       -635.8581817874007
+      ]
+     },
+     {
+      "quantity": "strict_states/0/signed/support:ANCHOR/components/RY",
+      "stiffness_only_value": [
+       119.97324184667939,
+       119.9732418466794
+      ],
+      "value": [
+       635.8581817874007,
+       635.8581817874008
+      ]
+     },
+     {
+      "quantity": "strict_states/0/signed/support:ANCHOR/components/UZ",
+      "stiffness_only_value": [
+       -59.9866209233397,
+       -59.98662092333969
+      ],
+      "value": [
+       -317.9290908937004,
+       -317.92909089370033
+      ]
+     },
+     {
+      "quantity": "strict_states/0/signed/support:SH-C/components/UZ",
+      "stiffness_only_value": [
+       -40.01337907666031,
+       -40.0133790766603
+      ],
+      "value": [
+       217.92909089370036,
+       217.9290908937004
+      ]
+     }
+    ]
+   },
+   "enumerated": [
+    {
+     "margins": {
+      "support:NL-U": {
+       "exact": "-530",
+       "measure": "reaction",
+       "value": [
+        -530.0,
+        -530.0
+       ]
+      }
+     },
+     "standing": "inadmissible",
+     "states": {
+      "support:NL-U": "active"
+     }
+    },
+    {
+     "margins": {
+      "support:NL-U": {
+       "exact": "702705657057873231872/331354102276067040911875",
+       "measure": "lift",
+       "value": [
+        0.002120709091062996,
+        0.0021207090910629963
+       ]
+      }
+     },
+     "standing": "strict",
+     "states": {
+      "support:NL-U": "inactive"
+     }
+    }
+   ],
+   "strict_states": [
+    {
+     "applied_force": {
+      "support:SH-C": {
+       "exact": "430",
+       "slot": "UZ",
+       "value": [
+        430.0,
+        430.0
+       ]
+      }
+     },
+     "displacements": {
+      "node:A": [
+       [
+        0.0,
+        0.0
+       ],
+       [
+        0.0,
+        0.0
+       ],
+       [
+        0.0,
+        0.0
+       ],
+       [
+        0.0,
+        0.0
+       ],
+       [
+        0.0,
+        0.0
+       ],
+       [
+        0.0,
+        0.0
+       ]
+      ],
+      "node:B": [
+       [
+        0.0,
+        0.0
+       ],
+       [
+        0.0,
+        0.0
+       ],
+       [
+        0.0003688189723587819,
+        0.00036881897235878196
+       ],
+       [
+        0.0006915355731727161,
+        0.0006915355731727162
+       ],
+       [
+        -0.00027661422926908647,
+        -0.0002766142292690864
+       ],
+       [
+        0.0,
+        0.0
+       ]
+      ],
+      "node:C": [
+       [
+        0.0,
+        0.0
+       ],
+       [
+        0.0,
+        0.0
+       ],
+       [
+        0.002120709091062996,
+        0.0021207090910629963
+       ],
+       [
+        0.0009681498024418025,
+        0.0009681498024418026
+       ],
+       [
+        -0.00027661422926908647,
+        -0.0002766142292690864
+       ],
+       [
+        0.0,
+        0.0
+       ]
+      ]
+     },
+     "groups": {
+      "pipe:AB": {
+       "cut_i": {
+        "axial": [
+         0.0,
+         0.0
+        ],
+        "bending": [
+         635.8581817874007,
+         635.8581817874008
+        ],
+        "shear": [
+         317.92909089370033,
+         317.9290908937004
+        ],
+        "torsion": [
+         635.8581817874007,
+         635.8581817874008
+        ]
+       },
+       "cut_j": {
+        "axial": [
+         0.0,
+         0.0
+        ],
+        "bending": [
+         0.0,
+         0.0
+        ],
+        "shear": [
+         317.92909089370033,
+         317.9290908937004
+        ],
+        "torsion": [
+         635.8581817874007,
+         635.8581817874008
+        ]
+       },
+       "end_i": {
+        "axial": [
+         0.0,
+         0.0
+        ],
+        "bending": [
+         635.8581817874007,
+         635.8581817874008
+        ],
+        "shear": [
+         317.92909089370033,
+         317.9290908937004
+        ],
+        "torsion": [
+         635.8581817874007,
+         635.8581817874008
+        ]
+       },
+       "end_j": {
+        "axial": [
+         0.0,
+         0.0
+        ],
+        "bending": [
+         0.0,
+         0.0
+        ],
+        "shear": [
+         317.92909089370033,
+         317.9290908937004
+        ],
+        "torsion": [
+         635.8581817874007,
+         635.8581817874008
+        ]
+       },
+       "midspan": {
+        "axial": [
+         0.0,
+         0.0
+        ],
+        "bending": [
+         317.92909089370033,
+         317.9290908937004
+        ],
+        "shear": [
+         317.92909089370033,
+         317.9290908937004
+        ],
+        "torsion": [
+         635.8581817874007,
+         635.8581817874008
+        ]
+       },
+       "quarter_1": {
+        "axial": [
+         0.0,
+         0.0
+        ],
+        "bending": [
+         476.89363634055053,
+         476.8936363405506
+        ],
+        "shear": [
+         317.92909089370033,
+         317.9290908937004
+        ],
+        "torsion": [
+         635.8581817874007,
+         635.8581817874008
+        ]
+       },
+       "quarter_3": {
+        "axial": [
+         0.0,
+         0.0
+        ],
+        "bending": [
+         158.96454544685017,
+         158.9645454468502
+        ],
+        "shear": [
+         317.92909089370033,
+         317.9290908937004
+        ],
+        "torsion": [
+         635.8581817874007,
+         635.8581817874008
+        ]
+       }
+      },
+      "pipe:BC": {
+       "cut_i": {
+        "axial": [
+         0.0,
+         0.0
+        ],
+        "bending": [
+         635.8581817874007,
+         635.8581817874008
+        ],
+        "shear": [
+         317.92909089370033,
+         317.9290908937004
+        ],
+        "torsion": [
+         0.0,
+         0.0
+        ]
+       },
+       "cut_j": {
+        "axial": [
+         0.0,
+         0.0
+        ],
+        "bending": [
+         0.0,
+         0.0
+        ],
+        "shear": [
+         317.92909089370033,
+         317.9290908937004
+        ],
+        "torsion": [
+         0.0,
+         0.0
+        ]
+       },
+       "end_i": {
+        "axial": [
+         0.0,
+         0.0
+        ],
+        "bending": [
+         635.8581817874007,
+         635.8581817874008
+        ],
+        "shear": [
+         317.92909089370033,
+         317.9290908937004
+        ],
+        "torsion": [
+         0.0,
+         0.0
+        ]
+       },
+       "end_j": {
+        "axial": [
+         0.0,
+         0.0
+        ],
+        "bending": [
+         0.0,
+         0.0
+        ],
+        "shear": [
+         317.92909089370033,
+         317.9290908937004
+        ],
+        "torsion": [
+         0.0,
+         0.0
+        ]
+       },
+       "midspan": {
+        "axial": [
+         0.0,
+         0.0
+        ],
+        "bending": [
+         317.92909089370033,
+         317.9290908937004
+        ],
+        "shear": [
+         317.92909089370033,
+         317.9290908937004
+        ],
+        "torsion": [
+         0.0,
+         0.0
+        ]
+       },
+       "quarter_1": {
+        "axial": [
+         0.0,
+         0.0
+        ],
+        "bending": [
+         476.89363634055053,
+         476.8936363405506
+        ],
+        "shear": [
+         317.92909089370033,
+         317.9290908937004
+        ],
+        "torsion": [
+         0.0,
+         0.0
+        ]
+       },
+       "quarter_3": {
+        "axial": [
+         0.0,
+         0.0
+        ],
+        "bending": [
+         158.96454544685017,
+         158.9645454468502
+        ],
+        "shear": [
+         317.92909089370033,
+         317.9290908937004
+        ],
+        "torsion": [
+         0.0,
+         0.0
+        ]
+       }
+      },
+      "support:ANCHOR": {
+       "node": {
+        "support_force": [
+         317.92909089370033,
+         317.9290908937004
+        ],
+        "support_force_magnitude": [
+         317.92909089370033,
+         317.9290908937004
+        ],
+        "support_moment": [
+         899.239264429639,
+         899.2392644296391
+        ],
+        "support_moment_magnitude": [
+         899.239264429639,
+         899.2392644296391
+        ]
+       }
+      },
+      "support:NL-U": {
+       "node": {
+        "support_force": [
+         0.0,
+         0.0
+        ],
+        "support_force_magnitude": [
+         0.0,
+         0.0
+        ],
+        "support_moment": [
+         0.0,
+         0.0
+        ],
+        "support_moment_magnitude": [
+         0.0,
+         0.0
+        ]
+       }
+      },
+      "support:SH-C": {
+       "node": {
+        "support_force": [
+         217.92909089370036,
+         217.9290908937004
+        ],
+        "support_force_magnitude": [
+         217.92909089370036,
+         217.9290908937004
+        ],
+        "support_moment": [
+         0.0,
+         0.0
+        ],
+        "support_moment_magnitude": [
+         0.0,
+         0.0
+        ]
+       }
+      }
+     },
+     "hanger_force": {
+      "support:SH-C": {
+       "exact": "115538717236674407047850/530166563641707265459",
+       "slot": "UZ",
+       "value": [
+        217.92909089370036,
+        217.9290908937004
+       ]
+      }
+     },
+     "margins": {
+      "support:NL-U": {
+       "exact": "702705657057873231872/331354102276067040911875",
+       "measure": "lift",
+       "value": [
+        0.002120709091062996,
+        0.0021207090910629963
+       ]
+      }
+     },
+     "signed": {
+      "support:ANCHOR": {
+       "components": [
+        [
+         0.0,
+         0.0
+        ],
+        [
+         0.0,
+         0.0
+        ],
+        [
+         -317.9290908937004,
+         -317.92909089370033
+        ],
+        [
+         -635.8581817874008,
+         -635.8581817874007
+        ],
+        [
+         635.8581817874007,
+         635.8581817874008
+        ],
+        [
+         0.0,
+         0.0
+        ]
+       ]
+      },
+      "support:NL-U": {
+       "components": [
+        [
+         0.0,
+         0.0
+        ],
+        [
+         0.0,
+         0.0
+        ],
+        [
+         0.0,
+         0.0
+        ],
+        [
+         0.0,
+         0.0
+        ],
+        [
+         0.0,
+         0.0
+        ],
+        [
+         0.0,
+         0.0
+        ]
+       ],
+       "slot": "UZ",
+       "value": [
+        0.0,
+        0.0
+       ]
+      },
+      "support:SH-C": {
+       "components": [
+        [
+         0.0,
+         0.0
+        ],
+        [
+         0.0,
+         0.0
+        ],
+        [
+         217.92909089370036,
+         217.9290908937004
+        ],
+        [
+         0.0,
+         0.0
+        ],
+        [
+         0.0,
+         0.0
+        ],
+        [
+         0.0,
+         0.0
+        ]
+       ]
+      }
+     },
+     "standing": "strict",
+     "states": {
+      "support:NL-U": "inactive"
+     }
+    }
+   ],
+   "weak_states": []
+  },
+  "load:PRESSED": {
+   "changed_from_stiffness_only": {
+    "basis": "stiffness-only result of ../kd5_nonlinear/u1_spring_oracle.json: the hanger modelled as a bare spring of its entered rate, its cold load not applied",
+    "cold_load": {
+     "support": "support:SH-C",
+     "unit": "N",
+     "value": 430
+    },
+    "quantities": [
+     {
+      "quantity": "strict_states/0/groups/pipe:AB/cut_i/bending",
+      "stiffness_only_value": [
+       0.0,
+       0.0
+      ],
+      "value": [
+       395.9116980940419,
+       395.911698094042
+      ]
+     },
+     {
+      "quantity": "strict_states/0/groups/pipe:AB/cut_i/shear",
+      "stiffness_only_value": [
+       0.0,
+       0.0
+      ],
+      "value": [
+       197.95584904702096,
+       197.955849047021
+      ]
+     },
+     {
+      "quantity": "strict_states/0/groups/pipe:AB/cut_i/torsion",
+      "stiffness_only_value": [
+       0.0,
+       0.0
+      ],
+      "value": [
+       395.9116980940419,
+       395.911698094042
+      ]
+     },
+     {
+      "quantity": "strict_states/0/groups/pipe:AB/cut_j/shear",
+      "stiffness_only_value": [
+       0.0,
+       0.0
+      ],
+      "value": [
+       197.95584904702096,
+       197.955849047021
+      ]
+     },
+     {
+      "quantity": "strict_states/0/groups/pipe:AB/cut_j/torsion",
+      "stiffness_only_value": [
+       0.0,
+       0.0
+      ],
+      "value": [
+       395.9116980940419,
+       395.911698094042
+      ]
+     },
+     {
+      "quantity": "strict_states/0/groups/pipe:AB/end_i/bending",
+      "stiffness_only_value": [
+       0.0,
+       0.0
+      ],
+      "value": [
+       395.9116980940419,
+       395.911698094042
+      ]
+     },
+     {
+      "quantity": "strict_states/0/groups/pipe:AB/end_i/shear",
+      "stiffness_only_value": [
+       0.0,
+       0.0
+      ],
+      "value": [
+       197.95584904702096,
+       197.955849047021
+      ]
+     },
+     {
+      "quantity": "strict_states/0/groups/pipe:AB/end_i/torsion",
+      "stiffness_only_value": [
+       0.0,
+       0.0
+      ],
+      "value": [
+       395.9116980940419,
+       395.911698094042
+      ]
+     },
+     {
+      "quantity": "strict_states/0/groups/pipe:AB/end_j/shear",
+      "stiffness_only_value": [
+       0.0,
+       0.0
+      ],
+      "value": [
+       197.95584904702096,
+       197.955849047021
+      ]
+     },
+     {
+      "quantity": "strict_states/0/groups/pipe:AB/end_j/torsion",
+      "stiffness_only_value": [
+       0.0,
+       0.0
+      ],
+      "value": [
+       395.9116980940419,
+       395.911698094042
+      ]
+     },
+     {
+      "quantity": "strict_states/0/groups/pipe:AB/midspan/bending",
+      "stiffness_only_value": [
+       0.0,
+       0.0
+      ],
+      "value": [
+       197.95584904702096,
+       197.955849047021
+      ]
+     },
+     {
+      "quantity": "strict_states/0/groups/pipe:AB/midspan/shear",
+      "stiffness_only_value": [
+       0.0,
+       0.0
+      ],
+      "value": [
+       197.95584904702096,
+       197.955849047021
+      ]
+     },
+     {
+      "quantity": "strict_states/0/groups/pipe:AB/midspan/torsion",
+      "stiffness_only_value": [
+       0.0,
+       0.0
+      ],
+      "value": [
+       395.9116980940419,
+       395.911698094042
+      ]
+     },
+     {
+      "quantity": "strict_states/0/groups/pipe:AB/quarter_1/bending",
+      "stiffness_only_value": [
+       0.0,
+       0.0
+      ],
+      "value": [
+       296.93377357053146,
+       296.9337735705315
+      ]
+     },
+     {
+      "quantity": "strict_states/0/groups/pipe:AB/quarter_1/shear",
+      "stiffness_only_value": [
+       0.0,
+       0.0
+      ],
+      "value": [
+       197.95584904702096,
+       197.955849047021
+      ]
+     },
+     {
+      "quantity": "strict_states/0/groups/pipe:AB/quarter_1/torsion",
+      "stiffness_only_value": [
+       0.0,
+       0.0
+      ],
+      "value": [
+       395.9116980940419,
+       395.911698094042
+      ]
+     },
+     {
+      "quantity": "strict_states/0/groups/pipe:AB/quarter_3/bending",
+      "stiffness_only_value": [
+       0.0,
+       0.0
+      ],
+      "value": [
+       98.97792452351048,
+       98.9779245235105
+      ]
+     },
+     {
+      "quantity": "strict_states/0/groups/pipe:AB/quarter_3/shear",
+      "stiffness_only_value": [
+       0.0,
+       0.0
+      ],
+      "value": [
+       197.95584904702096,
+       197.955849047021
+      ]
+     },
+     {
+      "quantity": "strict_states/0/groups/pipe:AB/quarter_3/torsion",
+      "stiffness_only_value": [
+       0.0,
+       0.0
+      ],
+      "value": [
+       395.9116980940419,
+       395.911698094042
+      ]
+     },
+     {
+      "quantity": "strict_states/0/groups/pipe:BC/cut_i/bending",
+      "stiffness_only_value": [
+       0.0,
+       0.0
+      ],
+      "value": [
+       395.9116980940419,
+       395.911698094042
+      ]
+     },
+     {
+      "quantity": "strict_states/0/groups/pipe:BC/cut_i/shear",
+      "stiffness_only_value": [
+       0.0,
+       0.0
+      ],
+      "value": [
+       197.95584904702096,
+       197.955849047021
+      ]
+     },
+     {
+      "quantity": "strict_states/0/groups/pipe:BC/cut_j/shear",
+      "stiffness_only_value": [
+       0.0,
+       0.0
+      ],
+      "value": [
+       197.95584904702096,
+       197.955849047021
+      ]
+     },
+     {
+      "quantity": "strict_states/0/groups/pipe:BC/end_i/bending",
+      "stiffness_only_value": [
+       0.0,
+       0.0
+      ],
+      "value": [
+       395.9116980940419,
+       395.911698094042
+      ]
+     },
+     {
+      "quantity": "strict_states/0/groups/pipe:BC/end_i/shear",
+      "stiffness_only_value": [
+       0.0,
+       0.0
+      ],
+      "value": [
+       197.95584904702096,
+       197.955849047021
+      ]
+     },
+     {
+      "quantity": "strict_states/0/groups/pipe:BC/end_j/shear",
+      "stiffness_only_value": [
+       0.0,
+       0.0
+      ],
+      "value": [
+       197.95584904702096,
+       197.955849047021
+      ]
+     },
+     {
+      "quantity": "strict_states/0/groups/pipe:BC/midspan/bending",
+      "stiffness_only_value": [
+       0.0,
+       0.0
+      ],
+      "value": [
+       197.95584904702096,
+       197.955849047021
+      ]
+     },
+     {
+      "quantity": "strict_states/0/groups/pipe:BC/midspan/shear",
+      "stiffness_only_value": [
+       0.0,
+       0.0
+      ],
+      "value": [
+       197.95584904702096,
+       197.955849047021
+      ]
+     },
+     {
+      "quantity": "strict_states/0/groups/pipe:BC/quarter_1/bending",
+      "stiffness_only_value": [
+       0.0,
+       0.0
+      ],
+      "value": [
+       296.93377357053146,
+       296.9337735705315
+      ]
+     },
+     {
+      "quantity": "strict_states/0/groups/pipe:BC/quarter_1/shear",
+      "stiffness_only_value": [
+       0.0,
+       0.0
+      ],
+      "value": [
+       197.95584904702096,
+       197.955849047021
+      ]
+     },
+     {
+      "quantity": "strict_states/0/groups/pipe:BC/quarter_3/bending",
+      "stiffness_only_value": [
+       0.0,
+       0.0
+      ],
+      "value": [
+       98.97792452351048,
+       98.9779245235105
+      ]
+     },
+     {
+      "quantity": "strict_states/0/groups/pipe:BC/quarter_3/shear",
+      "stiffness_only_value": [
+       0.0,
+       0.0
+      ],
+      "value": [
+       197.95584904702096,
+       197.955849047021
+      ]
+     },
+     {
+      "quantity": "strict_states/0/groups/support:ANCHOR/node/support_force",
+      "stiffness_only_value": [
+       0.0,
+       0.0
+      ],
+      "value": [
+       197.95584904702096,
+       197.955849047021
+      ]
+     },
+     {
+      "quantity": "strict_states/0/groups/support:ANCHOR/node/support_force_magnitude",
+      "stiffness_only_value": [
+       0.0,
+       0.0
+      ],
+      "value": [
+       197.95584904702096,
+       197.955849047021
+      ]
+     },
+     {
+      "quantity": "strict_states/0/groups/support:ANCHOR/node/support_moment",
+      "stiffness_only_value": [
+       0.0,
+       0.0
+      ],
+      "value": [
+       559.9036929467563,
+       559.9036929467565
+      ]
+     },
+     {
+      "quantity": "strict_states/0/groups/support:ANCHOR/node/support_moment_magnitude",
+      "stiffness_only_value": [
+       0.0,
+       0.0
+      ],
+      "value": [
+       559.9036929467563,
+       559.9036929467565
+      ]
+     },
+     {
+      "quantity": "strict_states/0/groups/support:NL-U/node/support_force",
+      "stiffness_only_value": [
+       100.0,
+       100.0
+      ],
+      "value": [
+       0.0,
+       0.0
+      ]
+     },
+     {
+      "quantity": "strict_states/0/groups/support:NL-U/node/support_force_magnitude",
+      "stiffness_only_value": [
+       100.0,
+       100.0
+      ],
+      "value": [
+       0.0,
+       0.0
+      ]
+     },
+     {
+      "quantity": "strict_states/0/groups/support:SH-C/node/support_force",
+      "stiffness_only_value": [
+       0.0,
+       0.0
+      ],
+      "value": [
+       297.95584904702093,
+       297.955849047021
+      ]
+     },
+     {
+      "quantity": "strict_states/0/groups/support:SH-C/node/support_force_magnitude",
+      "stiffness_only_value": [
+       0.0,
+       0.0
+      ],
+      "value": [
+       297.95584904702093,
+       297.955849047021
+      ]
+     },
+     {
+      "quantity": "strict_states/0/signed/support:ANCHOR/components/RX",
+      "stiffness_only_value": [
+       0.0,
+       0.0
+      ],
+      "value": [
+       -395.911698094042,
+       -395.9116980940419
+      ]
+     },
+     {
+      "quantity": "strict_states/0/signed/support:ANCHOR/components/RY",
+      "stiffness_only_value": [
+       0.0,
+       0.0
+      ],
+      "value": [
+       395.9116980940419,
+       395.911698094042
+      ]
+     },
+     {
+      "quantity": "strict_states/0/signed/support:ANCHOR/components/UZ",
+      "stiffness_only_value": [
+       0.0,
+       0.0
+      ],
+      "value": [
+       -197.955849047021,
+       -197.95584904702096
+      ]
+     },
+     {
+      "quantity": "strict_states/0/signed/support:NL-U/components/UZ",
+      "stiffness_only_value": [
+       100.0,
+       100.0
+      ],
+      "value": [
+       0.0,
+       0.0
+      ]
+     },
+     {
+      "quantity": "strict_states/0/signed/support:NL-U/value",
+      "stiffness_only_value": [
+       100.0,
+       100.0
+      ],
+      "value": [
+       0.0,
+       0.0
+      ]
+     },
+     {
+      "quantity": "strict_states/0/signed/support:SH-C/components/UZ",
+      "stiffness_only_value": [
+       0.0,
+       0.0
+      ],
+      "value": [
+       297.95584904702093,
+       297.955849047021
+      ]
+     },
+     {
+      "quantity": "strict_states/0/states/support:NL-U",
+      "stiffness_only_value": "active",
+      "value": "inactive"
+     }
+    ]
+   },
+   "enumerated": [
+    {
+     "margins": {
+      "support:NL-U": {
+       "exact": "-330",
+       "measure": "reaction",
+       "value": [
+        -330.0,
+        -330.0
+       ]
+      }
+     },
+     "standing": "inadmissible",
+     "states": {
+      "support:NL-U": "active"
+     }
+    },
+    {
+     "margins": {
+      "support:NL-U": {
+       "exact": "437533710998298427392/331354102276067040911875",
+       "measure": "lift",
+       "value": [
+        0.00132044150952979,
+        0.0013204415095297902
+       ]
+      }
+     },
+     "standing": "strict",
+     "states": {
+      "support:NL-U": "inactive"
+     }
+    }
+   ],
+   "strict_states": [
+    {
+     "applied_force": {
+      "support:SH-C": {
+       "exact": "430",
+       "slot": "UZ",
+       "value": [
+        430.0,
+        430.0
+       ]
+      }
+     },
+     "displacements": {
+      "node:A": [
+       [
+        0.0,
+        0.0
+       ],
+       [
+        0.0,
+        0.0
+       ],
+       [
+        0.0,
+        0.0
+       ],
+       [
+        0.0,
+        0.0
+       ],
+       [
+        0.0,
+        0.0
+       ],
+       [
+        0.0,
+        0.0
+       ]
+      ],
+      "node:B": [
+       [
+        0.0,
+        0.0
+       ],
+       [
+        0.0,
+        0.0
+       ],
+       [
+        0.0002296420016573548,
+        0.00022964200165735482
+       ],
+       [
+        0.00043057875310754023,
+        0.0004305787531075403
+       ],
+       [
+        -0.00017223150124301613,
+        -0.0001722315012430161
+       ],
+       [
+        0.0,
+        0.0
+       ]
+      ],
+      "node:C": [
+       [
+        0.0,
+        0.0
+       ],
+       [
+        0.0,
+        0.0
+       ],
+       [
+        0.00132044150952979,
+        0.0013204415095297902
+       ],
+       [
+        0.0006028102543505563,
+        0.0006028102543505564
+       ],
+       [
+        -0.00017223150124301613,
+        -0.0001722315012430161
+       ],
+       [
+        0.0,
+        0.0
+       ]
+      ]
+     },
+     "groups": {
+      "pipe:AB": {
+       "cut_i": {
+        "axial": [
+         0.0,
+         0.0
+        ],
+        "bending": [
+         395.9116980940419,
+         395.911698094042
+        ],
+        "shear": [
+         197.95584904702096,
+         197.955849047021
+        ],
+        "torsion": [
+         395.9116980940419,
+         395.911698094042
+        ]
+       },
+       "cut_j": {
+        "axial": [
+         0.0,
+         0.0
+        ],
+        "bending": [
+         0.0,
+         0.0
+        ],
+        "shear": [
+         197.95584904702096,
+         197.955849047021
+        ],
+        "torsion": [
+         395.9116980940419,
+         395.911698094042
+        ]
+       },
+       "end_i": {
+        "axial": [
+         0.0,
+         0.0
+        ],
+        "bending": [
+         395.9116980940419,
+         395.911698094042
+        ],
+        "shear": [
+         197.95584904702096,
+         197.955849047021
+        ],
+        "torsion": [
+         395.9116980940419,
+         395.911698094042
+        ]
+       },
+       "end_j": {
+        "axial": [
+         0.0,
+         0.0
+        ],
+        "bending": [
+         0.0,
+         0.0
+        ],
+        "shear": [
+         197.95584904702096,
+         197.955849047021
+        ],
+        "torsion": [
+         395.9116980940419,
+         395.911698094042
+        ]
+       },
+       "midspan": {
+        "axial": [
+         0.0,
+         0.0
+        ],
+        "bending": [
+         197.95584904702096,
+         197.955849047021
+        ],
+        "shear": [
+         197.95584904702096,
+         197.955849047021
+        ],
+        "torsion": [
+         395.9116980940419,
+         395.911698094042
+        ]
+       },
+       "quarter_1": {
+        "axial": [
+         0.0,
+         0.0
+        ],
+        "bending": [
+         296.93377357053146,
+         296.9337735705315
+        ],
+        "shear": [
+         197.95584904702096,
+         197.955849047021
+        ],
+        "torsion": [
+         395.9116980940419,
+         395.911698094042
+        ]
+       },
+       "quarter_3": {
+        "axial": [
+         0.0,
+         0.0
+        ],
+        "bending": [
+         98.97792452351048,
+         98.9779245235105
+        ],
+        "shear": [
+         197.95584904702096,
+         197.955849047021
+        ],
+        "torsion": [
+         395.9116980940419,
+         395.911698094042
+        ]
+       }
+      },
+      "pipe:BC": {
+       "cut_i": {
+        "axial": [
+         0.0,
+         0.0
+        ],
+        "bending": [
+         395.9116980940419,
+         395.911698094042
+        ],
+        "shear": [
+         197.95584904702096,
+         197.955849047021
+        ],
+        "torsion": [
+         0.0,
+         0.0
+        ]
+       },
+       "cut_j": {
+        "axial": [
+         0.0,
+         0.0
+        ],
+        "bending": [
+         0.0,
+         0.0
+        ],
+        "shear": [
+         197.95584904702096,
+         197.955849047021
+        ],
+        "torsion": [
+         0.0,
+         0.0
+        ]
+       },
+       "end_i": {
+        "axial": [
+         0.0,
+         0.0
+        ],
+        "bending": [
+         395.9116980940419,
+         395.911698094042
+        ],
+        "shear": [
+         197.95584904702096,
+         197.955849047021
+        ],
+        "torsion": [
+         0.0,
+         0.0
+        ]
+       },
+       "end_j": {
+        "axial": [
+         0.0,
+         0.0
+        ],
+        "bending": [
+         0.0,
+         0.0
+        ],
+        "shear": [
+         197.95584904702096,
+         197.955849047021
+        ],
+        "torsion": [
+         0.0,
+         0.0
+        ]
+       },
+       "midspan": {
+        "axial": [
+         0.0,
+         0.0
+        ],
+        "bending": [
+         197.95584904702096,
+         197.955849047021
+        ],
+        "shear": [
+         197.95584904702096,
+         197.955849047021
+        ],
+        "torsion": [
+         0.0,
+         0.0
+        ]
+       },
+       "quarter_1": {
+        "axial": [
+         0.0,
+         0.0
+        ],
+        "bending": [
+         296.93377357053146,
+         296.9337735705315
+        ],
+        "shear": [
+         197.95584904702096,
+         197.955849047021
+        ],
+        "torsion": [
+         0.0,
+         0.0
+        ]
+       },
+       "quarter_3": {
+        "axial": [
+         0.0,
+         0.0
+        ],
+        "bending": [
+         98.97792452351048,
+         98.9779245235105
+        ],
+        "shear": [
+         197.95584904702096,
+         197.955849047021
+        ],
+        "torsion": [
+         0.0,
+         0.0
+        ]
+       }
+      },
+      "support:ANCHOR": {
+       "node": {
+        "support_force": [
+         197.95584904702096,
+         197.955849047021
+        ],
+        "support_force_magnitude": [
+         197.95584904702096,
+         197.955849047021
+        ],
+        "support_moment": [
+         559.9036929467563,
+         559.9036929467565
+        ],
+        "support_moment_magnitude": [
+         559.9036929467563,
+         559.9036929467565
+        ]
+       }
+      },
+      "support:NL-U": {
+       "node": {
+        "support_force": [
+         0.0,
+         0.0
+        ],
+        "support_force_magnitude": [
+         0.0,
+         0.0
+        ],
+        "support_moment": [
+         0.0,
+         0.0
+        ],
+        "support_moment_magnitude": [
+         0.0,
+         0.0
+        ]
+       }
+      },
+      "support:SH-C": {
+       "node": {
+        "support_force": [
+         297.95584904702093,
+         297.955849047021
+        ],
+        "support_force_magnitude": [
+         297.95584904702093,
+         297.955849047021
+        ],
+        "support_moment": [
+         0.0,
+         0.0
+        ],
+        "support_moment_magnitude": [
+         0.0,
+         0.0
+        ]
+       }
+      }
+     },
+     "hanger_force": {
+      "support:SH-C": {
+       "exact": "157966228606206375764650/530166563641707265459",
+       "slot": "UZ",
+       "value": [
+        297.95584904702093,
+        297.955849047021
+       ]
+      }
+     },
+     "margins": {
+      "support:NL-U": {
+       "exact": "437533710998298427392/331354102276067040911875",
+       "measure": "lift",
+       "value": [
+        0.00132044150952979,
+        0.0013204415095297902
+       ]
+      }
+     },
+     "signed": {
+      "support:ANCHOR": {
+       "components": [
+        [
+         0.0,
+         0.0
+        ],
+        [
+         0.0,
+         0.0
+        ],
+        [
+         -197.955849047021,
+         -197.95584904702096
+        ],
+        [
+         -395.911698094042,
+         -395.9116980940419
+        ],
+        [
+         395.9116980940419,
+         395.911698094042
+        ],
+        [
+         0.0,
+         0.0
+        ]
+       ]
+      },
+      "support:NL-U": {
+       "components": [
+        [
+         0.0,
+         0.0
+        ],
+        [
+         0.0,
+         0.0
+        ],
+        [
+         0.0,
+         0.0
+        ],
+        [
+         0.0,
+         0.0
+        ],
+        [
+         0.0,
+         0.0
+        ],
+        [
+         0.0,
+         0.0
+        ]
+       ],
+       "slot": "UZ",
+       "value": [
+        0.0,
+        0.0
+       ]
+      },
+      "support:SH-C": {
+       "components": [
+        [
+         0.0,
+         0.0
+        ],
+        [
+         0.0,
+         0.0
+        ],
+        [
+         297.95584904702093,
+         297.955849047021
+        ],
+        [
+         0.0,
+         0.0
+        ],
+        [
+         0.0,
+         0.0
+        ],
+        [
+         0.0,
+         0.0
+        ]
+       ]
+      }
+     },
+     "standing": "strict",
+     "states": {
+      "support:NL-U": "inactive"
+     }
+    }
+   ],
+   "weak_states": []
+  }
+ },
+ "elastic_modulus_pa": 200000000000.0,
+ "normalized_sections": {
+  "pipe:AB": {
+   "As_m2": 0.003540574920595698,
+   "I_m4": 1.1493591335983782e-05,
+   "J_m4": 2.2987182671967564e-05
+  },
+  "pipe:BC": {
+   "As_m2": 0.003540574920595698,
+   "I_m4": 1.1493591335983782e-05,
+   "J_m4": 2.2987182671967564e-05
+  }
+ },
+ "request": "../kd5_nonlinear/u1_spring_request.json",
+ "request_sha256": "c5e5dbcf2f761ebaf903731c5f4903a1e9d0a3784f6fcf28ba2101add6581fc4",
+ "shear_modulus_pa": 80000000000.0,
+ "supersedes": {
+  "file": "../kd5_nonlinear/u1_spring_oracle.json",
+  "for": "expectations of u1_spring_request.json under the variable spring preload law",
+  "sha256": "5fad40349d527fabb1726a02e2922de6c8ab1c79e6b4ceeb70be94b7ff459f12"
+ }
+}

@@ -545,13 +545,15 @@ def test_a_full_document_missing_project_is_not_partial_and_fails():
 def test_frozen_coverage_includes_every_retired_version_and_json_lines():
     frozen = [(relative, document["schema_version"]) for bucket, relative, _, document in classify()
               if bucket == "reauthored_frozen"]
-    # The 0.1.0 frozen requests (validation/references/kd5_nonlinear) are unbound (UNBOUND_FROZEN_INPUTS). No frozen
+    # The 0.1.0 frozen requests of validation/references/kd5_nonlinear are unbound (UNBOUND_FROZEN_INPUTS); the two
+    # 0.1.0 requests of its supplement kd5_nonlinear_preload are bound by that package's SHA256SUMS, so 0.1.0 is
+    # covered. No frozen
     # 0.6.0 or 0.7.0 model document exists under validation/**: the t4_u4b and t4_u5b references are case
     # descriptions that the builders author requests from, the committed 0.6.0 requests elsewhere were re-authored
     # to 0.7.0, and the committed 0.7.0 ones to 0.8.0 (the tp_runner_015 witness input by its generator). The
     # 0.8.0 frozen requests (kd5_timoshenko, pf_timoshenko and others authored at 0.8.0) are re-authored in memory
     # since model document 0.9.0.
-    assert {version for _, version in frozen} == RETIRED_VERSIONS - {"0.1.0", "0.6.0", "0.7.0"}
+    assert {version for _, version in frozen} == RETIRED_VERSIONS - {"0.6.0", "0.7.0"}
     assert not any(relative.startswith(FROZEN_ROOT) for bucket, relative, _, _ in classify() if bucket == "retired")
     # JSON-lines frozen documents are read and validated. The kd5_timoshenko frozen subset, formerly the only
     # retired-version .jsonl, is re-authored as 0.8.0 (Agent 0, 2026-10-28, #1716), so its lines are now validated

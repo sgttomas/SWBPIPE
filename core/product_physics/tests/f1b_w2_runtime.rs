@@ -721,8 +721,9 @@ fn f1b_w2_lef_large_analogue_scales_by_exact_powers_of_two() {
 /// Admission (ROOT Q3, OQ7 and OQ13 narrowed): a range case carrying an
 /// excluded family is published by the orchestrator at b != 0 and then refused
 /// by name, with b; its b = 0 twin solves with no `range_scaling:` text.
-/// (The user-stiffness element and non-nodal checks are unreachable in the
-/// product and pinned at unit level. The legacy pressure-thrust check, reachable
+/// (The objective connector check is pinned at unit level. The non-nodal
+/// check is observed in
+/// `f1b_range_refusal_controls.rs`. The legacy pressure-thrust check, reachable
 /// through a zero-valued legacy pressure primitive until U3 refused such
 /// primitives before any solve, was removed with the legacy computation.)
 #[test]

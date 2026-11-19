@@ -132,6 +132,11 @@ code_paths:
 - tests/test_hanger_sizing_*.py
 - core/runner/headless/tests/size_hangers_cli.rs
 - validation/references/hanger_sizing/**
+# The preload law's references (REQ-014), each beside the frozen package or table it supplements.
+- validation/references/demo_friction_reversal_preload/**
+- validation/references/kd5_nonlinear_preload/**
+- validation/references/t4_i12_preload/**
+- validation/references/w16_nonlinear_motion_preload/**
 - apps/desktop/src/features/results/HangerSizing*
 - apps/desktop/src/features/results/hangerSizingResult.ts
 - apps/desktop/src/features/results/hangerSizingView.ts

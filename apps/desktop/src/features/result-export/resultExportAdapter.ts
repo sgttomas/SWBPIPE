@@ -10,6 +10,7 @@ import { verifyAnalysisRunRecord, validateAnalysisRunV03, modelLoadBasisRefs } f
 import { hasNativeMechanicsInvocation } from '../../services/previewService';
 import { verifyCurrentSessionInputManifest, type CurrentSessionInputManifestEvidence } from '../../services/inputManifestService';
 import { recordRulePackRefAnnotations, rulePackRefAnnotationsToAdd, type RulePackRefDiagnosticAnnotation } from '../../services/rulePackRefDiagnostics';
+import { firstMatchResultRefLookup } from './resultRefLookup';
 // JSON assembly is independent of saved analysis/persistence types. Qualification
 // below owns Current authenticity; the pure projection never authenticates shape.
 export type JsonObject = Record<string, any>;
@@ -296,7 +297,7 @@ export async function buildCurrentResultExport({model,result,analysisRun,inputMa
   const envelopeHashes=run.hashes.filter(h=>h.payload_scope===envelopeScope);
   const expectedEnvelope=await canonicalSha256HexCheckedV1(result);
   if(envelopeHashes.length!==1||!proofChecksum(envelopeHashes[0],envelopeScope,'ResultEnvelope',`result-envelope:${result.run_id}`,canonicalization)||envelopeHashes[0].value!==expectedEnvelope||run.result_refs.length!==result.results.length)throw new Error('CURRENT_RESULT_BINDING_MISMATCH');
-  const seen=new Set<string>();for(const row of result.results){const rr=run.result_refs.find(x=>x.result_ref.ref===row.id);const expectedRow=await canonicalSha256HexCheckedV1(row);if(seen.has(row.id)||!rr||rr.result_ref.object_type!=='Result'||!proofChecksum(rr.hash_refs[0],'result_row','Result',row.id,canonicalization)||rr.hash_refs.length!==1||rr.hash_refs[0].value!==expectedRow)throw new Error('CURRENT_ROW_BINDING_MISMATCH');seen.add(row.id);}
+  const seen=new Set<string>(),resultRefFor=firstMatchResultRefLookup(run.result_refs);for(const row of result.results){const rr=resultRefFor(row.id);const expectedRow=await canonicalSha256HexCheckedV1(row);if(seen.has(row.id)||!rr||rr.result_ref.object_type!=='Result'||!proofChecksum(rr.hash_refs[0],'result_row','Result',row.id,canonicalization)||rr.hash_refs.length!==1||rr.hash_refs[0].value!==expectedRow)throw new Error('CURRENT_ROW_BINDING_MISMATCH');seen.add(row.id);}
   const ruleStatus=run.analysis_status.find(s=>['RULE_INPUTS_INCOMPLETE','USER_RULE_CHECKED','USER_RULE_FAILED'].includes(s));if(!ruleStatus||JSON.stringify([...run.analysis_status].sort())!==JSON.stringify(['HUMAN_REVIEW_REQUIRED','MECHANICS_SOLVED',ruleStatus].sort()))throw new Error('CURRENT_STATUS_BINDING_MISMATCH');
   if(await verifyAnalysisRunRecord(analysisRun)!=='match')throw new Error('CURRENT_ANALYSIS_RECORD_MISMATCH');
   await validateAnalysisRunV03(analysisRun,result,modelLoadBasisRefs(model));
