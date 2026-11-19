@@ -260,6 +260,7 @@ checks:
 - apps/desktop/src/features/report/ReportComposer.test.tsx
 - apps/desktop/src/features/report/exactReportLimitations.test.ts
 - apps/desktop/src/features/report/exactReportBelowGate.test.tsx
+- apps/desktop/src/features/report/reportRowBindingAdmission.test.tsx
 - apps/desktop/src/features/report/userReleaseDerivation.parity.test.ts
 - apps/desktop/src/features/report/userReleaseExact.parity.test.ts
 - apps/desktop/src/features/report/UserReleaseDialog.test.tsx
