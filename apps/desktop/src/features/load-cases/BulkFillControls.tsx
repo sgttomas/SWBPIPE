@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useId, useState } from "react";
 import type { DraftRecord } from "../rich-authoring/formSupport";
 import { VirtualMultiTargetPicker } from "../workspace/VirtualTargetPicker";
 import { addEverySource, fillFromTemplate, fillTargets, type FillScope } from "./bulkFill";
@@ -19,7 +19,7 @@ export function TemplateFill({ name, noun, list, keyName, targets, onChange, omi
   keyName: string;
   targets: readonly Option[];
   onChange: (rows: DraftRecord[]) => void;
-  /** Members the editor keeps as authored but does not show; never copied. */
+  /** Members never copied to another row. */
   omit?: readonly string[];
   /** Why a row cannot be a template, if it cannot. */
   refuseTemplate?: (row: DraftRecord) => string | undefined;
@@ -108,7 +108,9 @@ export function EverySourceFill({ list, primitives, onChange }: { list: DraftRec
 /** G7/G8: replaces a case's draft with a copy from another case, through `onCopy`,
  * which returns the outcome or throws, leaving the draft unchanged. Only a case
  * still offered can be the source (review N2). */
-export function CopyFromCase({ what, cases, onCopy }: { what: string; cases: readonly Option[]; onCopy: (caseId: string) => string }) {
+export function CopyFromCase({ what, cases, onCopy, note }: { what: string; cases: readonly Option[]; onCopy: (caseId: string) => string; /** Text shown above the case select and used in both controls' descriptions. */ note?: string }) {
+  const noteId = useId();
+  const reasonId = useId();
   const [chosen, setSource] = useState("");
   const [status, setStatus] = useState("");
   const source = cases.some(c => c.value === chosen) ? chosen : "";
@@ -117,15 +119,19 @@ export function CopyFromCase({ what, cases, onCopy }: { what: string; cases: rea
     if (!source) return;
     try { setStatus(onCopy(source)); } catch (e) { setStatus(e instanceof Error ? e.message : String(e)); }
   }
+  // With a note, the button is described by the note and by the reason it is
+  // disabled, if any (aria-describedby takes the place of its title).
+  const buttonDescription = note ? [noteId, ...(reason ? [reasonId] : [])].join(" ") : undefined;
   return <fieldset><legend>Copy {what} from another case</legend>
+    {note && <p id={noteId}>{note}</p>}
     <label>{`Copy ${what} from case`}
-      <select aria-label={`Copy ${what} from case`} value={source} onChange={e => setSource(e.target.value)}>
+      <select aria-label={`Copy ${what} from case`} aria-describedby={note ? noteId : undefined} value={source} onChange={e => setSource(e.target.value)}>
         <option value="">Choose a case</option>
         {cases.map(c => <option key={c.value} value={c.value}>{c.label}</option>)}
       </select>
     </label>
-    <button type="button" disabled={reason !== undefined} title={reason} onClick={copy}>{`Replace this draft's ${what} with the copy`}</button>
-    {reason && <small>{reason}</small>}
+    <button type="button" disabled={reason !== undefined} title={reason} aria-describedby={buttonDescription} onClick={copy}>{`Replace this draft's ${what} with the copy`}</button>
+    {reason && <small id={reasonId}>{reason}</small>}
     <p role="status">{status}</p>
   </fieldset>;
 }

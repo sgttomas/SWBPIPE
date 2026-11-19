@@ -391,10 +391,70 @@
 //! existing growth by std's infallible allocation (a failure there still
 //! aborts; the limb allotment bounds the limbs). Their lifetimes and the
 //! retained workspace are the open ledger's.
+//!
+//! **The completed-set boundary** (`outcome::run_modal_dense_within`). It is
+//! not P0, S2 or R_max: it takes **caller-supplied** limits
+//! ([`ModalCompletedSetLimits`]) on the completed set's **actual**
+//! dimensions, has no default and no selected value, has no production
+//! caller, and admits nothing. P0 is unchanged and runs first: a budgeted
+//! request is still refused there (above). Without limits (`None`, every
+//! existing entry) nothing is compared, and the outcome is unchanged.
+//! - *Stage A*, after the dense solve: n_c, the computed finite modes the
+//!   solve returned, against its limit, before any row sized by n_c.
+//! - *Stage B*, after `complete_reported_set`: r, the completed set's modes
+//!   **as completed** (cluster extension included, never the requested
+//!   `mode_count`), r·n (n the pencil's order) and r·g (g = 6N), each a
+//!   checked `usize` product whose binary64 bytes are checked against
+//!   `isize::MAX`, and each caller-named r·ρ (ρ rows per mode, for a
+//!   later consumer; checked in u64, nothing allocated for it), against
+//!   their limits. Every exceeded dimension is named.
+//! - *Storage*, with or without limits: every typed outcome row and shape
+//!   the boundary forms is requested once, exactly, through
+//!   [`ModalCompletedSetStorage`] (`try_reserve_exact` after a checked byte
+//!   size): the n_c-row evidence, the computed cluster ids
+//!   (`clusters::cluster_ids_into`) and the per-cluster estimates
+//!   (`reformation::cluster_error_estimates_into`), the r-row modes, the
+//!   normalized r×n and the published r×g shapes with their below-normal
+//!   index lists, the normalization scratch, a reduced pencil's scatter and
+//!   lifted vectors (`RestraintBasis::lift_into`), the cumulative fractions,
+//!   the Sensitive reasons (the set's list, each reason's text and its copy,
+//!   each mode's one-reason list) and the cut-off crossing disclosures (the
+//!   list's added room and each text). A text is requested at its exact
+//!   formatted length, counted by a first formatting pass. Values,
+//!   arithmetic, texts and order are unchanged; a reduced pencil's lifted
+//!   shapes are moved, not copied, into its rows.
+//! - *Refusals*, each of the whole set with no partial modes, truncation,
+//!   omitted low modes or changed standing, and each naming the dimension:
+//!   `MODAL_RESOURCE_COMPLETED_SET_LIMIT_EXCEEDED` (its expression, actual
+//!   value and limit); `MODAL_RESOURCE_ARITHMETIC_OVERFLOW` (the operands,
+//!   the checked expression and the representable or addressable limit);
+//!   `MODAL_RESOURCE_ALLOCATION_REFUSED` (the structure, its bytes, the
+//!   dimension's actual value and the caller's limit, stated as not
+//!   exceeded, or that none was supplied). None is a numerical refusal.
+//! - *What it delivers*: fallible, checked typed outcome rows and shapes.
+//!   The counts bound cardinalities, not the bytes of anything built from
+//!   the outcome.
+//! - *Not in it*, numerical workspace: the eigensolve and everything before
+//!   it (the solution's own vectors included), the exact sums, limbs and
+//!   term lists, the residual, re-formation and orthogonality workspaces,
+//!   the Sturm factorizations and candidates, and the band-recovery list
+//!   and screened evidence (the kernel's screened population).
+//! - *Not in it*, per-model storage: positions, node ids, free-DOF metadata,
+//!   mass entries, subjects, member discretization, `ModalBasis::new`'s
+//!   index vector and set, and the fixed and state-case disclosures, which
+//!   do not grow with n_c or r.
+//! - *Not in it*, publication (held for its own unit): the modal document's
+//!   construction (its row, string and nesting envelopes, the `Value`
+//!   rows, maps and strings of every table, row copies and digest material)
+//!   and its canonical hashing, each still by infallible allocation with no
+//!   typed storage error, and so with no row, string, depth, byte or
+//!   retained-workspace envelope enforced there.
+//! - Resident memory and time are not bounded.
 use super::integrity::{ModalIntegrityParameters, MODAL_RESOURCE_ARITHMETIC_OVERFLOW, MODAL_RESOURCE_PREFLIGHT_EXCEEDED};
 use super::prepare::Prepared;
 use crate::{diag, Diagnostic, DOF_PER_NODE};
-use open_pipe_stress_modal_eigen::dense::DenseAllotments;
+use open_pipe_stress_modal_eigen::dense::{DenseAllotments, RESOURCE_ALLOCATION_REFUSED as MODAL_RESOURCE_ALLOCATION_REFUSED};
+use open_pipe_stress_modal_eigen::modal_quantities::{formatted_length, requested_bytes, reserve_exactly, ModalQuantityError, ShapeStorage, ShapeStorageError};
 use open_pipe_stress_modal_eigen::SupportResourceError;
 use open_pipe_stress_nonlinear_supports::NonlinearSupportBehavior;
 use std::collections::BTreeSet;
@@ -1199,4 +1259,481 @@ pub(crate) fn modal_resource_judge(
         ));
     }
     Ok(ModalResourcePreflight { dimensions, counts, charges, stage_allotments, total })
+}
+
+// The completed-set boundary (module docs, "The completed-set boundary").
+
+/// A caller limit of the completed-set boundary is exceeded by the set's
+/// actual dimension: a resource refusal of the whole set, distinct from the
+/// numerical ones and from P0's budget comparison.
+pub(crate) const MODAL_RESOURCE_COMPLETED_SET_LIMIT_EXCEEDED: &str = "MODAL_RESOURCE_COMPLETED_SET_LIMIT_EXCEEDED";
+
+/// A dimension of the completed modal set (module docs).
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub(crate) enum ModalCompletedSetDimension {
+    /// n_c, the computed finite modes the dense solve returned.
+    ComputedModes,
+    /// r, the completed set's modes, cluster extension included.
+    CompletedModes,
+    /// r·n, the normalized shapes' entries over the pencil's n coordinates.
+    NormalizedEntries,
+    /// r·g, the published (and, with a restraint basis, lifted) shapes'
+    /// entries over the g = 6N global DOFs.
+    PublishedEntries,
+    /// r·ρ, a caller-named response-row product.
+    ResponseRows(&'static str),
+}
+
+impl ModalCompletedSetDimension {
+    /// The dimension's reference in a refusal.
+    pub(crate) fn modal_completed_set_ref(self) -> String {
+        match self {
+            Self::ComputedModes => "completed_set:computed_modes".into(),
+            Self::CompletedModes => "completed_set:completed_modes".into(),
+            Self::NormalizedEntries => "completed_set:normalized_entries".into(),
+            Self::PublishedEntries => "completed_set:published_entries".into(),
+            Self::ResponseRows(name) => format!("completed_set:response_rows:{name}"),
+        }
+    }
+
+    fn modal_completed_set_text(self) -> String {
+        match self {
+            Self::ComputedModes => "computed mode count n_c".into(),
+            Self::CompletedModes => "completed mode count r".into(),
+            Self::NormalizedEntries => "normalized shape entries r·n".into(),
+            Self::PublishedEntries => "published shape entries r·g".into(),
+            Self::ResponseRows(name) => format!("response rows r·ρ of `{name}`"),
+        }
+    }
+}
+
+/// One caller-named response-row product: ρ rows per completed mode, with
+/// its limit on r·ρ. The boundary checks the product and allocates nothing
+/// for it; it names no response roster and recovers nothing.
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub(crate) struct ModalResponseRowProduct {
+    pub(crate) name: &'static str,
+    pub(crate) rows_per_mode: u64,
+    pub(crate) limit: u64,
+}
+
+/// The caller's limits on the completed set's actual dimensions (module
+/// docs). Inclusive. No `Default` and no constructor with values: every
+/// field is the caller's, none is selected, and only tests build one. An
+/// empty `response_rows` declares no response-row product.
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub(crate) struct ModalCompletedSetLimits {
+    pub(crate) computed_modes: u64,
+    pub(crate) completed_modes: u64,
+    pub(crate) normalized_entries: u64,
+    pub(crate) published_entries: u64,
+    pub(crate) response_rows: Vec<ModalResponseRowProduct>,
+}
+
+impl ModalCompletedSetLimits {
+    fn modal_completed_set_limit_of(&self, dimension: ModalCompletedSetDimension) -> Option<u64> {
+        match dimension {
+            ModalCompletedSetDimension::ComputedModes => Some(self.computed_modes),
+            ModalCompletedSetDimension::CompletedModes => Some(self.completed_modes),
+            ModalCompletedSetDimension::NormalizedEntries => Some(self.normalized_entries),
+            ModalCompletedSetDimension::PublishedEntries => Some(self.published_entries),
+            ModalCompletedSetDimension::ResponseRows(name) => self.response_rows.iter().find(|p| p.name == name).map(|p| p.limit),
+        }
+    }
+}
+
+/// The completed set's actual dimensions, each product checked (module
+/// docs).
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub(crate) struct ModalCompletedSetSizes {
+    /// n_c.
+    pub(crate) computed: usize,
+    /// r.
+    pub(crate) completed: usize,
+    /// n, the pencil's order (free DOFs, or reduced coordinates).
+    pub(crate) coordinates: usize,
+    /// g = 6N.
+    pub(crate) global: usize,
+    /// r·n and r·g.
+    pub(crate) normalized_entries: usize,
+    pub(crate) published_entries: usize,
+}
+
+impl ModalCompletedSetSizes {
+    fn modal_completed_set_actual(&self, dimension: ModalCompletedSetDimension) -> Option<usize> {
+        match dimension {
+            ModalCompletedSetDimension::ComputedModes => Some(self.computed),
+            ModalCompletedSetDimension::CompletedModes => Some(self.completed),
+            ModalCompletedSetDimension::NormalizedEntries => Some(self.normalized_entries),
+            ModalCompletedSetDimension::PublishedEntries => Some(self.published_entries),
+            ModalCompletedSetDimension::ResponseRows(_) => None,
+        }
+    }
+}
+
+fn modal_completed_set_exceeded(dimension: ModalCompletedSetDimension, expression: String, actual: u64, limit: u64) -> Diagnostic {
+    diag(
+        "diagnostic:modal:resource:completed-set",
+        MODAL_RESOURCE_COMPLETED_SET_LIMIT_EXCEEDED,
+        "blocking",
+        format!(
+            "the completed modal set's {} is {expression} = {actual}, over the caller's limit of {limit}; the whole set is refused before its storage is requested, with no partial modes, truncation or omitted low modes (a resource refusal, not a numerical one)",
+            dimension.modal_completed_set_text()
+        ),
+        vec!["model".into(), dimension.modal_completed_set_ref()],
+    )
+}
+
+fn modal_completed_set_overflow(dimension: ModalCompletedSetDimension, expression: String, bound: String) -> Vec<Diagnostic> {
+    vec![diag(
+        "diagnostic:modal:resource:completed-set",
+        MODAL_RESOURCE_ARITHMETIC_OVERFLOW,
+        "blocking",
+        format!(
+            "the completed modal set's {}, {expression}, is not representable ({bound}); nothing is wrapped or saturated, and the whole set is refused before its storage is requested, with no partial result (a resource refusal, not a numerical one)",
+            dimension.modal_completed_set_text()
+        ),
+        vec!["model".into(), dimension.modal_completed_set_ref()],
+    )]
+}
+
+/// `value` as u64 for a limit comparison, or the overflow refusal.
+fn modal_completed_set_as_u64(dimension: ModalCompletedSetDimension, value: usize) -> Result<u64, Vec<Diagnostic>> {
+    u64::try_from(value).map_err(|_| modal_completed_set_overflow(dimension, format!("{value} as u64"), format!("at most u64::MAX = {}", u64::MAX)))
+}
+
+/// Stage A (module docs): n_c against the caller's limit, before any row
+/// sized by it is requested. Without limits it admits.
+pub(crate) fn modal_completed_set_computed(computed: usize, limits: Option<&ModalCompletedSetLimits>) -> Result<(), Vec<Diagnostic>> {
+    let Some(limits) = limits else { return Ok(()) };
+    let dimension = ModalCompletedSetDimension::ComputedModes;
+    let actual = modal_completed_set_as_u64(dimension, computed)?;
+    if actual > limits.computed_modes {
+        return Err(vec![modal_completed_set_exceeded(dimension, format!("n_c = {computed}"), actual, limits.computed_modes)]);
+    }
+    Ok(())
+}
+
+/// The checked products r·n and r·g and their binary64 byte sizes (module
+/// docs), with or without limits.
+pub(crate) fn modal_completed_set_sizes(computed: usize, completed: usize, coordinates: usize, global: usize) -> Result<ModalCompletedSetSizes, Vec<Diagnostic>> {
+    let entries = |dimension: ModalCompletedSetDimension, symbol: &str, width: usize| -> Result<usize, Vec<Diagnostic>> {
+        let count = completed.checked_mul(width).ok_or_else(|| {
+            modal_completed_set_overflow(dimension, format!("r × {symbol} = {completed} × {width}"), format!("at most usize::MAX = {}", usize::MAX))
+        })?;
+        let element = std::mem::size_of::<f64>();
+        count.checked_mul(element).filter(|&bytes| bytes <= isize::MAX as usize).ok_or_else(|| {
+            modal_completed_set_overflow(
+                dimension,
+                format!("{count} entries × {element} B"),
+                format!("the bytes exceed the addressable size, at most isize::MAX = {} B", isize::MAX),
+            )
+        })?;
+        Ok(count)
+    };
+    let normalized_entries = entries(ModalCompletedSetDimension::NormalizedEntries, "n", coordinates)?;
+    let published_entries = entries(ModalCompletedSetDimension::PublishedEntries, "g", global)?;
+    Ok(ModalCompletedSetSizes { computed, completed, coordinates, global, normalized_entries, published_entries })
+}
+
+/// Stage B (module docs): r, r·n, r·g and every caller-named r·ρ against
+/// their limits, naming each that is exceeded, before any storage sized by
+/// them is requested. Without limits it admits.
+pub(crate) fn modal_completed_set_judge(sizes: &ModalCompletedSetSizes, limits: Option<&ModalCompletedSetLimits>) -> Result<(), Vec<Diagnostic>> {
+    let Some(limits) = limits else { return Ok(()) };
+    let r = sizes.completed;
+    let mut exceeded = Vec::new();
+    for (dimension, expression, actual, limit) in [
+        (ModalCompletedSetDimension::CompletedModes, format!("r = {r}"), r, limits.completed_modes),
+        (ModalCompletedSetDimension::NormalizedEntries, format!("r × n = {r} × {}", sizes.coordinates), sizes.normalized_entries, limits.normalized_entries),
+        (ModalCompletedSetDimension::PublishedEntries, format!("r × g = {r} × {}", sizes.global), sizes.published_entries, limits.published_entries),
+    ] {
+        let actual = modal_completed_set_as_u64(dimension, actual)?;
+        if actual > limit {
+            exceeded.push(modal_completed_set_exceeded(dimension, expression, actual, limit));
+        }
+    }
+    let rows = modal_completed_set_as_u64(ModalCompletedSetDimension::CompletedModes, r)?;
+    for product in &limits.response_rows {
+        let dimension = ModalCompletedSetDimension::ResponseRows(product.name);
+        let expression = format!("r × ρ = {r} × {}", product.rows_per_mode);
+        let actual = rows
+            .checked_mul(product.rows_per_mode)
+            .ok_or_else(|| modal_completed_set_overflow(dimension, expression.clone(), format!("at most u64::MAX = {}", u64::MAX)))?;
+        if actual > product.limit {
+            exceeded.push(modal_completed_set_exceeded(dimension, expression, actual, product.limit));
+        }
+    }
+    if exceeded.is_empty() { Ok(()) } else { Err(exceeded) }
+}
+
+/// A normalization's storage refusal outside the boundary's context (the
+/// quantities' own entry, `eigen::quantity_refusal`): by its resource name,
+/// with no partial result, never a numerical or range refusal.
+pub(crate) fn modal_shape_storage_refusal(error: &ShapeStorageError) -> Vec<Diagnostic> {
+    match error {
+        ShapeStorageError::CapacityOverflow { .. } => vec![diag(
+            "diagnostic:modal:resource:shape-storage",
+            MODAL_RESOURCE_ARITHMETIC_OVERFLOW,
+            "blocking",
+            format!("{error}; the modal set is refused with no partial result (a resource refusal, not a numerical one)"),
+            vec!["model".into()],
+        )],
+        ShapeStorageError::AllocationFailed { .. } => vec![diag(
+            "diagnostic:modal:resource:shape-storage",
+            MODAL_RESOURCE_ALLOCATION_REFUSED,
+            "blocking",
+            format!("{error}; the modal set is refused with no partial result (a resource refusal, not a numerical one)"),
+            vec!["model".into()],
+        )],
+    }
+}
+
+/// The structures the boundary requests in the product (module docs).
+pub(crate) const MODAL_SET_COMPUTED_EIGENVALUES: &str = "computed eigenvalues";
+pub(crate) const MODAL_SET_COMPUTED_FREQUENCIES: &str = "computed frequencies";
+pub(crate) const MODAL_SET_COMPUTED_VECTORS: &str = "computed vector views";
+pub(crate) const MODAL_SET_COMPUTED_RESIDUALS: &str = "computed residuals";
+pub(crate) const MODAL_SET_COMPUTED_ESTIMATES: &str = "computed error estimates";
+pub(crate) const MODAL_SET_COMPUTED_CLUSTER_ESTIMATES: &str = "computed cluster estimates";
+pub(crate) const MODAL_SET_COMPUTED_BAND_FLAGS: &str = "computed band-recovery flags";
+pub(crate) const MODAL_SET_COMPUTED_EVIDENCE: &str = "computed-mode evidence";
+pub(crate) const MODAL_SET_CLUSTERS: &str = "clusters";
+pub(crate) const MODAL_SET_NORMALIZED_MODES: &str = "normalized modes";
+pub(crate) const MODAL_SET_LIFTED_SHAPES: &str = "lifted shapes";
+pub(crate) const MODAL_SET_PUBLISHED_VIEWS: &str = "published shape views";
+pub(crate) const MODAL_SET_MODES: &str = "modes";
+pub(crate) const MODAL_SET_PUBLISHED_SHAPE: &str = "published global shape";
+pub(crate) const MODAL_SET_CLUSTER_IDS: &str = "computed cluster ids";
+pub(crate) const MODAL_SET_CLUSTER_ESTIMATES: &str = "per-cluster error estimates";
+pub(crate) const MODAL_SET_SENSITIVE_REASONS: &str = "Sensitive set reasons";
+pub(crate) const MODAL_SET_SENSITIVE_REASON: &str = "Sensitive reason text";
+pub(crate) const MODAL_SET_SENSITIVE_MODE_REASONS: &str = "Sensitive mode reasons";
+pub(crate) const MODAL_SET_CUTOFF_DISCLOSURES: &str = "cut-off crossing disclosures";
+pub(crate) const MODAL_SET_CUTOFF_DISCLOSURE: &str = "cut-off crossing disclosure text";
+
+/// The dimension a requested structure belongs to (module docs).
+pub(crate) fn modal_completed_set_dimension_of(structure: &str) -> ModalCompletedSetDimension {
+    use open_pipe_stress_modal_eigen::modal_quantities as q;
+    if [
+        MODAL_SET_COMPUTED_EIGENVALUES,
+        MODAL_SET_COMPUTED_FREQUENCIES,
+        MODAL_SET_COMPUTED_VECTORS,
+        MODAL_SET_COMPUTED_RESIDUALS,
+        MODAL_SET_COMPUTED_ESTIMATES,
+        MODAL_SET_COMPUTED_CLUSTER_ESTIMATES,
+        MODAL_SET_COMPUTED_BAND_FLAGS,
+        MODAL_SET_COMPUTED_EVIDENCE,
+        MODAL_SET_CLUSTERS,
+        MODAL_SET_CLUSTER_IDS,
+        MODAL_SET_CLUSTER_ESTIMATES,
+        MODAL_SET_CUTOFF_DISCLOSURES,
+        MODAL_SET_CUTOFF_DISCLOSURE,
+    ]
+    .contains(&structure)
+    {
+        ModalCompletedSetDimension::ComputedModes
+    } else if [q::NORMALIZED_SHAPE, q::NORMALIZED_BELOW_NORMAL, q::NORMALIZATION_SCRATCH].contains(&structure) {
+        ModalCompletedSetDimension::NormalizedEntries
+    } else if [q::LIFTED_SHAPE, q::LIFTED_BELOW_NORMAL, super::skew_pencil::SKEW_LIFT_SCATTER, super::skew_pencil::SKEW_LIFTED_VECTOR, MODAL_SET_PUBLISHED_SHAPE]
+        .contains(&structure)
+    {
+        ModalCompletedSetDimension::PublishedEntries
+    } else {
+        ModalCompletedSetDimension::CompletedModes
+    }
+}
+
+/// The boundary's storage (module docs): every request is checked and made
+/// with `try_reserve_exact`, and a refusal is mapped with the dimension it
+/// belongs to, its actual value and the caller's limit.
+#[derive(Debug, Clone)]
+pub(crate) struct ModalCompletedSetStorage<'a> {
+    limits: Option<&'a ModalCompletedSetLimits>,
+    computed: usize,
+    sizes: Option<ModalCompletedSetSizes>,
+}
+
+impl<'a> ModalCompletedSetStorage<'a> {
+    /// After stage A: n_c is known.
+    pub(crate) fn modal_completed_set_storage(limits: Option<&'a ModalCompletedSetLimits>, computed: usize) -> Self {
+        Self { limits, computed, sizes: None }
+    }
+
+    /// After stage B: every dimension is known.
+    pub(crate) fn modal_completed_set_measured(&mut self, sizes: ModalCompletedSetSizes) {
+        self.sizes = Some(sizes);
+    }
+
+    /// An empty vector with capacity for exactly `len` rows of `structure`,
+    /// or the refusal by name.
+    pub(crate) fn modal_completed_set_rows<T>(&mut self, len: usize, structure: &'static str) -> Result<Vec<T>, Vec<Diagnostic>> {
+        let mut rows = Vec::new();
+        self.modal_shape_reserve(&mut rows, len, structure).map_err(|error| self.modal_completed_set_refusal(error))?;
+        Ok(rows)
+    }
+
+    /// A storage refusal (module docs): an overflow names its operands and
+    /// the addressable limit; an allocator refusal names the structure, its
+    /// bytes, its dimension's actual value and the caller's limit, which it
+    /// does not claim was exceeded.
+    pub(crate) fn modal_completed_set_refusal(&self, error: ShapeStorageError) -> Vec<Diagnostic> {
+        let dimension = modal_completed_set_dimension_of(error.structure());
+        let actual = match dimension {
+            ModalCompletedSetDimension::ComputedModes => Some(self.computed),
+            other => self.sizes.and_then(|sizes| sizes.modal_completed_set_actual(other)),
+        };
+        let actual = actual.map_or_else(|| "not yet measured".to_string(), |value| value.to_string());
+        let limit = match self.limits.and_then(|limits| limits.modal_completed_set_limit_of(dimension)) {
+            Some(limit) => format!("the caller's limit on it is {limit} and was not exceeded: the allocator refused, not the limit"),
+            None => "no completed-set limit was supplied".to_string(),
+        };
+        match error {
+            ShapeStorageError::CapacityOverflow { structure, elements, element_size } => vec![diag(
+                "diagnostic:modal:resource:completed-set",
+                MODAL_RESOURCE_ARITHMETIC_OVERFLOW,
+                "blocking",
+                format!(
+                    "the storage of `{structure}` for the completed modal set's {} ({actual}), {elements} elements × {element_size} B, overflows the addressable size (at most isize::MAX = {} B); nothing was requested, and the whole set is refused with no partial result (a resource refusal, not a numerical one)",
+                    dimension.modal_completed_set_text(),
+                    isize::MAX
+                ),
+                vec!["model".into(), dimension.modal_completed_set_ref()],
+            )],
+            ShapeStorageError::AllocationFailed { structure, elements, bytes } => vec![diag(
+                "diagnostic:modal:resource:completed-set",
+                MODAL_RESOURCE_ALLOCATION_REFUSED,
+                "blocking",
+                format!(
+                    "the allocator refused {bytes} B ({elements} elements) for `{structure}`, storage of the completed modal set's {} ({actual}); {limit}. The whole set is refused, with no partial modes, truncation or omitted low modes (a resource refusal, not a numerical one)",
+                    dimension.modal_completed_set_text()
+                ),
+                vec!["model".into(), dimension.modal_completed_set_ref()],
+            )],
+        }
+    }
+
+    /// A normalization or publication error: a storage refusal by its
+    /// resource name (above), anything else as the quantities' range refusal.
+    pub(crate) fn modal_completed_set_quantity(&self, mode: usize, error: ModalQuantityError) -> Vec<Diagnostic> {
+        match error {
+            ModalQuantityError::Storage(storage) => self.modal_completed_set_refusal(storage),
+            other => super::eigen::quantity_refusal(Some(mode), other),
+        }
+    }
+}
+
+impl ShapeStorage for ModalCompletedSetStorage<'_> {
+    fn modal_shape_reserve<T>(&mut self, vec: &mut Vec<T>, len: usize, structure: &'static str) -> Result<(), ShapeStorageError> {
+        let bytes = requested_bytes::<T>(vec.len(), len, structure)?;
+        modal_completed_set_failpoint(structure, len, bytes)?;
+        reserve_exactly(vec, len, structure)
+    }
+}
+
+/// TEST-ONLY: the failpoint's refusal of a nonzero request (module
+/// `completed_set_seam`); nothing in a product build.
+fn modal_completed_set_failpoint(structure: &'static str, elements: usize, bytes: usize) -> Result<(), ShapeStorageError> {
+    #[cfg(test)]
+    if bytes > 0 {
+        let refuses = completed_set_seam::modal_completed_set_refuses();
+        completed_set_seam::modal_completed_set_note(structure);
+        if refuses {
+            return Err(ShapeStorageError::AllocationFailed { structure, elements, bytes });
+        }
+    }
+    let _ = (structure, elements, bytes);
+    Ok(())
+}
+
+impl ModalCompletedSetStorage<'_> {
+    /// An empty string with capacity for exactly `len` bytes (one request,
+    /// checked like every other), or the refusal by name.
+    fn modal_completed_set_text_room(&mut self, len: usize, structure: &'static str) -> Result<String, Vec<Diagnostic>> {
+        let refuse = |storage: &Self, error| storage.modal_completed_set_refusal(error);
+        let bytes = requested_bytes::<u8>(0, len, structure).map_err(|error| refuse(self, error))?;
+        modal_completed_set_failpoint(structure, len, bytes).map_err(|error| refuse(self, error))?;
+        let mut text = String::new();
+        text.try_reserve_exact(len)
+            .map_err(|_| refuse(self, ShapeStorageError::AllocationFailed { structure, elements: len, bytes }))?;
+        Ok(text)
+    }
+
+    /// The text `args` formats, requested at its exact length: the length is
+    /// counted by a first formatting pass (checked, storing nothing), the
+    /// string requested, then the same arguments written into it, so the
+    /// bytes are `format!`'s and the string never grows.
+    pub(crate) fn modal_completed_set_format(&mut self, structure: &'static str, args: std::fmt::Arguments<'_>) -> Result<String, Vec<Diagnostic>> {
+        let length = formatted_length(args)
+            .ok_or_else(|| self.modal_completed_set_refusal(ShapeStorageError::CapacityOverflow { structure, elements: usize::MAX, element_size: 1 }))?;
+        let mut text = self.modal_completed_set_text_room(length, structure)?;
+        std::fmt::write(&mut text, args).expect("writing into a String does not fail");
+        debug_assert_eq!(text.len(), length, "the second formatting pass wrote the counted bytes");
+        Ok(text)
+    }
+
+    /// A copy of `text` in its own exactly requested string (the bytes of a
+    /// `clone`).
+    pub(crate) fn modal_completed_set_copy_text(&mut self, text: &str, structure: &'static str) -> Result<String, Vec<Diagnostic>> {
+        let mut copy = self.modal_completed_set_text_room(text.len(), structure)?;
+        copy.push_str(text);
+        Ok(copy)
+    }
+}
+
+/// TEST-ONLY: the boundary's allocation failpoint and a limits override for
+/// the entry's existing callers (the document writer). Never compiled into a
+/// product build.
+#[cfg(test)]
+pub(crate) mod completed_set_seam {
+    use super::ModalCompletedSetLimits;
+    use std::cell::{Cell, RefCell};
+
+    std::thread_local! {
+        static ARMED: Cell<Option<usize>> = const { Cell::new(None) };
+        static SEEN: Cell<usize> = const { Cell::new(0) };
+        static STRUCTURES: RefCell<Vec<&'static str>> = const { RefCell::new(Vec::new()) };
+        static LIMITS: RefCell<Option<ModalCompletedSetLimits>> = const { RefCell::new(None) };
+    }
+
+    /// Arms the failpoint at the `k`-th nonzero request from now (`None`:
+    /// count only) and resets the count.
+    pub(crate) fn modal_completed_set_arm(k: Option<usize>) {
+        ARMED.with(|armed| armed.set(k));
+        SEEN.with(|seen| seen.set(0));
+        STRUCTURES.with(|s| s.borrow_mut().clear());
+    }
+
+    /// Disarms it and returns the structures of the nonzero requests seen
+    /// since `arm`, in order.
+    pub(crate) fn modal_completed_set_disarm() -> Vec<&'static str> {
+        ARMED.with(|armed| armed.set(None));
+        STRUCTURES.with(|s| s.borrow().clone())
+    }
+
+    pub(super) fn modal_completed_set_refuses() -> bool {
+        let index = SEEN.with(|seen| {
+            let index = seen.get();
+            seen.set(index + 1);
+            index
+        });
+        ARMED.with(Cell::get) == Some(index)
+    }
+
+    /// Records the structure of the request just counted.
+    pub(super) fn modal_completed_set_note(structure: &'static str) {
+        STRUCTURES.with(|s| s.borrow_mut().push(structure));
+    }
+
+    /// Runs `f` with `limits` supplied to every entry call that passes none.
+    pub(crate) fn modal_completed_set_with_limits<R>(limits: Option<ModalCompletedSetLimits>, f: impl FnOnce() -> R) -> R {
+        LIMITS.with(|l| *l.borrow_mut() = limits);
+        let out = f();
+        LIMITS.with(|l| *l.borrow_mut() = None);
+        out
+    }
+
+    pub(crate) fn modal_completed_set_test_limits() -> Option<ModalCompletedSetLimits> {
+        LIMITS.with(|l| l.borrow().clone())
+    }
 }

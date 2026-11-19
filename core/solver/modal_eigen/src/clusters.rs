@@ -76,6 +76,28 @@ pub fn cluster_ids(eigenvalues: &[f64], delta_c: f64) -> Result<Vec<usize>, Clus
     Ok(ids)
 }
 
+/// [`cluster_ids`] into the caller's `out`, which allocates nothing: `out`
+/// must have one slot per eigenvalue (`InvalidClusterIds` otherwise, before
+/// any write). The checks, the comparison and the numbering are
+/// `cluster_ids`'s; on success `out` holds exactly its ids.
+pub fn cluster_ids_into(eigenvalues: &[f64], delta_c: f64, out: &mut [usize]) -> Result<(), ClusterError> {
+    if !(delta_c.is_finite() && delta_c >= 0.0) {
+        return Err(ClusterError::InvalidTolerance);
+    }
+    check_ascending(eigenvalues)?;
+    if out.len() != eigenvalues.len() {
+        return Err(ClusterError::InvalidClusterIds);
+    }
+    let mut id = 0;
+    for (i, &value) in eigenvalues.iter().enumerate() {
+        if i > 0 && value - eigenvalues[i - 1] > delta_c * value {
+            id += 1;
+        }
+        out[i] = id;
+    }
+    Ok(())
+}
+
 /// The extraction bound on the request: a mode count, an
 /// inclusive frequency cut-off (Hz), or both, whichever stops first.
 #[derive(Debug, Clone, Copy, PartialEq)]
@@ -350,5 +372,38 @@ mod tests {
             reported_set(&f, &[0], ExtractionBound::ModeCount(1)),
             Err(ClusterError::InvalidClusterIds)
         );
+    }
+
+    /// The caller-owned entry gives exactly `cluster_ids`'s ids and
+    /// refusals on chained, broken, tied, empty and invalid inputs, and
+    /// refuses an output of the wrong length before any write.
+    #[test]
+    fn cluster_ids_into_is_cluster_ids() {
+        let cases: [(&[f64], f64); 9] = [
+            (&[], 1e-6),
+            (&[1.0], 0.0),
+            (&[1.0, 1.0, 1.0 + 1e-7, 2.0, 2.0 + 1e-12, 5.0], 1e-6),
+            (&[1.0, 1.0 + 2e-6, 1.0 + 4e-6], 1e-6),
+            (&[0.0, 0.0, 1.0], 0.0),
+            (&[1.0, 2.0], f64::NAN),
+            (&[2.0, 1.0], 1e-6),
+            (&[1.0, f64::INFINITY], 1e-6),
+            (&[-1.0, 1.0], 1e-6),
+        ];
+        for (values, delta) in cases {
+            let old = cluster_ids(values, delta);
+            let mut out = vec![usize::MAX; values.len()];
+            let new = cluster_ids_into(values, delta, &mut out);
+            match old {
+                Ok(ids) => {
+                    assert_eq!(new, Ok(()), "{values:?}");
+                    assert_eq!(out, ids, "{values:?}");
+                }
+                Err(error) => assert_eq!(new, Err(error), "{values:?}"),
+            }
+        }
+        let mut short = vec![usize::MAX; 2];
+        assert_eq!(cluster_ids_into(&[1.0, 2.0, 3.0], 1e-6, &mut short), Err(ClusterError::InvalidClusterIds));
+        assert_eq!(short, [usize::MAX; 2]);
     }
 }

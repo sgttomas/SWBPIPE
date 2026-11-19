@@ -24,6 +24,49 @@ const THERMAL = {
   free_length_state: ["expansion_law_ref"]
 } as const;
 const PARTICIPATION = { active_model_device: [], inactive: [], locked_equivalent_support: ["components"] } as const;
+const COPY_NOTE = "Copy replaces this draft's analysis state. Analysis-basis overrides from the source case are left out.";
+
+/** Text typed into an element state's analysis-basis fields while its
+ * `analysis_basis_override` is absent or null. It is held under a symbol key, so
+ * it stays on its row through the row edits (which spread the row) and is left
+ * out of JSON copies and of `toPayload`; Queue writes it into the member. */
+const ENTERED = Symbol("entered analysis-basis override");
+type Entered = { reason?: string; provenance?: string };
+const entered = (row: DraftRecord): Entered => (row as { [ENTERED]?: Entered })[ENTERED] ?? {};
+const enter = (row: DraftRecord, key: keyof Entered, text: string): DraftRecord => ({ ...row, [ENTERED]: { ...entered(row), [key]: text } });
+
+/** Materialize entered reason and provenance in eligible element rows before payload conversion. */
+function withEnteredOverrides(draft: DraftRecord): DraftRecord {
+  const states = rows(draft.element_states);
+  if (!states) return draft;
+  return { ...draft, element_states: states.map(row => {
+    if (row.analysis_basis_override !== undefined && row.analysis_basis_override !== null) return row;
+    const { reason, provenance } = entered(row);
+    const typed: DraftRecord = {};
+    if (reason) typed.reason = reason;
+    if (provenance) typed.provenance = provenance;
+    return Object.keys(typed).length ? { ...row, analysis_basis_override: typed } : row;
+  }) };
+}
+
+const HELD = Symbol("held element-state analysis_basis_override");
+
+/** The payload conversion of the analysis-state draft, except that each direct
+ * `element_states[]` row's `analysis_basis_override` is sent unconverted. The member
+ * is held out under a placeholder (the row keeps its keys) and put back afterwards;
+ * every other location converts as `toPayload` converts it. */
+function analysisStatePayload(draft: DraftRecord): unknown {
+  const states = rows(draft.element_states);
+  if (!states) return toPayload(draft);
+  const held = states.map(row => record(row).analysis_basis_override);
+  const payload = toPayload({ ...draft, element_states: states.map((row, e) => held[e] === undefined ? row : { ...row, analysis_basis_override: HELD }) }) as DraftRecord;
+  (payload.element_states as DraftRecord[]).forEach((row, e) => { if (held[e] !== undefined) row.analysis_basis_override = held[e]; });
+  return payload;
+}
+
+function BoundedText({ label, value, onChange }: { label: string; value: string | undefined; onChange: (value: string) => void }) {
+  return <label>{label}<input aria-label={label} maxLength={512} value={value ?? ""} onChange={e => onChange(e.target.value)} /></label>;
+}
 
 /** Current exact reference configurations and the selected case's analysis
  * state. Without that contract only the gating line is shown. */
@@ -104,7 +147,7 @@ function AnalysisStateEditor(props: RichFormProps & { loadCase: LoadCase }) {
     <h4>Analysis state — {caseName}</h4>
     <p>{current === undefined ? "analysis_state is absent for this case." : current === null ? "analysis_state is an explicit null for this case." : "analysis_state is applied for this case."}</p>
     <fieldset disabled={state.busy}>
-      <CopyFromCase what="analysis state" cases={model.load_cases.filter(c => c.id !== loadCase.id && c.analysis_state && typeof c.analysis_state === "object").map(c => ({ value: c.id, label: c.label || c.id }))} onCopy={id => {
+      <CopyFromCase what="analysis state" note={COPY_NOTE} cases={model.load_cases.filter(c => c.id !== loadCase.id && c.analysis_state && typeof c.analysis_state === "object").map(c => ({ value: c.id, label: c.label || c.id }))} onCopy={id => {
         const source = model.load_cases.find(c => c.id === id)?.analysis_state;
         if (!source || typeof source !== "object") throw new Error(`${id} has no analysis state to copy. The draft is unchanged.`);
         const { draft: copied, dropped, omitted, supportsLeftOut } = copyAnalysisState(source, primitives);
@@ -122,7 +165,7 @@ function AnalysisStateEditor(props: RichFormProps & { loadCase: LoadCase }) {
       <LoadSources primitives={primitives} value={rows(draft.load_sources)} onChange={v => set("load_sources", v)} />
       <Text label="History" value={record(draft.history).kind} choices={["independent_equilibrium"]} onChange={v => set("history", v ? { kind: v } : undefined)} />
       <Text label="Analysis state provenance" value={draft.provenance} onChange={v => set("provenance", v)} />
-      <button type="button" onClick={() => void state.submit(spec, current, () => toPayload(draft))}>Queue analysis state</button>
+      <button type="button" onClick={() => void state.submit(spec, current, () => analysisStatePayload(withEnteredOverrides(draft)))}>Queue analysis state</button>
       {current !== undefined && <button type="button" onClick={() => void state.submit(spec, current, () => NOT_PRESENT)}>Queue removal of analysis state</button>}
     </fieldset>
     <LoadStateFeedback {...state} testId="load-state-analysis" />
@@ -178,7 +221,15 @@ function ElementStates({ model, value, onChange }: ListProps & { model: PreviewM
         </>}
         {thermal.kind === "free_length_state" && <Text label={`${k} expansion law`} value={thermal.expansion_law_ref} choices={laws} onChange={v => setThermal("expansion_law_ref", v)} />}
         {thermal.kind !== undefined && thermal.kind !== "free_length_state" && <Text label={`${k} thermal provenance`} value={thermal.provenance} onChange={v => setThermal("provenance", v)} />}
-        {(row.analysis_basis_override !== undefined || row.mass_state_ref !== undefined) && <p>Retained as authored (not edited here): {["analysis_basis_override", "mass_state_ref"].filter(key => row[key] !== undefined).join(", ")}.</p>}
+        {row.analysis_basis_override === undefined || row.analysis_basis_override === null ? <>
+          <BoundedText label={`${k} analysis-basis reason`} value={entered(row).reason} onChange={v => onChange(replaceAt(list, e, enter(row, "reason", v)))} />
+          <BoundedText label={`${k} analysis-basis provenance`} value={entered(row).provenance} onChange={v => onChange(replaceAt(list, e, enter(row, "provenance", v)))} />
+        </> : <div>
+          {k} analysis-basis override, stored (remove it to enter another):
+          <pre data-testid={`element-state-${e + 1}-analysis-basis-override`} style={{ whiteSpace: "pre-wrap", overflowWrap: "anywhere" }}>{JSON.stringify(row.analysis_basis_override)}</pre>
+          <button type="button" onClick={() => set("analysis_basis_override", undefined)}>Remove {k} analysis-basis override</button>
+        </div>}
+        {row.mass_state_ref !== undefined && <p>Retained as authored (not edited here): mass_state_ref.</p>}
         <button type="button" onClick={() => onChange(list.filter((_, i) => i !== e))}>Remove {k}</button>
       </fieldset>;
     })}
