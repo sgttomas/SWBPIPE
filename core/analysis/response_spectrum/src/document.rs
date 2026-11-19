@@ -22,8 +22,9 @@
 //!    frame its member family does not admit, a member stated as two families, a constraint's
 //!    holders), then the roster the census gives (each identity once), then the zero contribution
 //!    of each component a census rigid constraint restrains;
-//! 4. the modes' structure (`SPECTRUM_MODAL_METADATA_INVALID`), then the range of each periodic
-//!    mode and of f_r in each spectrum and the extraction premise;
+//! 4. the modes' structure (`SPECTRUM_MODAL_METADATA_INVALID`; with no extracted mode no response
+//!    is formed and the request is refused by name, whether or not the correction is applied),
+//!    then the range of each periodic mode and of f_r in each spectrum and the extraction premise;
 //! 5. the combinations, with their own checks of the choices and contributions;
 //! 6. the published numbers, each within the checked canonical profile;
 //! 7. the assembled document as a whole within the checked canonical profile.
@@ -1971,8 +1972,14 @@ pub fn spectrum_result_document(inputs: &DocumentInputs) -> Value {
     if !refusals.is_empty() {
         return refused(inputs, &bindings, &refusals);
     }
-    // 4. The modes, then the range and the extraction premise.
-    if !crate::combine::check_modes(request, &mut refusals) {
+    // 4. The modes, then the range and the extraction premise. With no extracted mode no
+    // response is formed: the request is refused by name whether or not the correction is
+    // applied (`combine` itself refuses only the applied case).
+    let modes_ok = crate::combine::check_modes(request, &mut refusals);
+    if request.modes.is_empty() && matches!(request.missing_mass, MissingMass::NotApplied) {
+        refusals.push(crate::combine::no_extracted_mode());
+    }
+    if !modes_ok || !refusals.is_empty() {
         return refused(inputs, &bindings, &refusals);
     }
     let clusters = crate::combine::clusters(request);

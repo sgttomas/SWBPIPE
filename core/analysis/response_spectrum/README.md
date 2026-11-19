@@ -368,6 +368,9 @@ cargo run --manifest-path core/analysis/response_spectrum/Cargo.toml --example c
     and scale factor and the model's record; a model that holds more than one spectrum of an
     identity a requested direction names;
   - a modal statement that does not state every extracted mode;
+  - no extracted mode, whether or not the correction is applied: no response is formed and the
+    request is refused by name (`SPECTRUM_MODAL_METADATA_INVALID`, "no extracted mode is
+    supplied");
   - an extraction statement whose endpoint, counts and next computed mode disagree: the whole finite
     spectrum without an established count equal to the reported count, or with a next computed
     mode; below a computed cluster without a reported mode or without both next-frequency values,

@@ -2364,11 +2364,12 @@ fn the_closeness_rule_is_stated_with_its_method() {
     }
 }
 
-/// With no extracted mode (the endpoint below the lowest mode), as the code stands: with the
-/// correction off the document publishes, with empty mode, cluster and column tables and zero
-/// magnitudes; with it applied the modes' check refuses it. Neither panics.
+/// With no extracted mode (the endpoint below the lowest mode, the modal family's empty set), no
+/// response is formed: with the correction applied or not, the request is refused by name
+/// (`SPECTRUM_MODAL_METADATA_INVALID`), and the document is the refused form only, with none of the
+/// members a solved document adds.
 #[test]
-fn an_empty_extracted_set_as_the_code_stands() {
+fn an_empty_extracted_set_is_refused_by_name() {
     let empty = |f: &mut Fixture| {
         let (fr, w) = (f.combination.modes[0].frequency_hz, f.modal.circular_frequency_rad_s[0]);
         f.combination.modes.clear();
@@ -2385,18 +2386,25 @@ fn an_empty_extracted_set_as_the_code_stands() {
             r.periodic_clusters_left_out.clear();
         }
     };
-    let mut f = c7_cancelling_cluster();
-    empty(&mut f);
-    let d = f.document();
-    assert_eq!(d["status"], "solved", "{:?}", refusal_details(&d));
-    assert_eq!(d["modal_basis"]["modes"]["row_count"], 0);
-    assert_eq!(d["modal_basis"]["clusters"]["row_count"], 0);
-    assert!(d["rows"]["combined"]["rows"].as_array().unwrap().iter().all(|r| r["combined"].as_f64() == Some(0.0)));
-    let mut f = w2_arc_fixture("w2_arc_oblique", false);
-    empty(&mut f);
-    let fields = refusal_fields(&f.document());
-    assert!(fields.iter().all(|(code, ..)| code == "SPECTRUM_MODAL_METADATA_INVALID"), "{fields:?}");
-    assert!(!fields.is_empty());
+    let table: Value = serde_json::from_str(SEMANTIC_TABLE).unwrap();
+    let mut not_applied = c7_cancelling_cluster();
+    assert_eq!(not_applied.combination.missing_mass, MissingMass::NotApplied);
+    let mut applied = w2_arc_fixture("w2_arc_oblique", false);
+    assert!(matches!(applied.combination.missing_mass, MissingMass::Applied { .. }));
+    for f in [&mut not_applied, &mut applied] {
+        empty(&mut *f);
+        let d = f.document();
+        assert_eq!(d["status"], "refused", "{}", f.name);
+        let fields = refusal_fields(&d);
+        assert!(!fields.is_empty());
+        assert_eq!(refusal_details(&d), vec![("SPECTRUM_MODAL_METADATA_INVALID".to_string(), "no extracted mode is supplied".to_string())],
+            "{}", f.name);
+        assert_eq!(fields, vec![("SPECTRUM_MODAL_METADATA_INVALID".to_string(), "request".to_string(), Some("modes".to_string()))]);
+        for member in ["standing", "request", "spectra", "modal_basis", "disclosures", "census", "rows", "rule_statements"] {
+            assert!(d.get(member).is_none(), "{}: a refused document carries no {member}", f.name);
+        }
+        assert!(shape_errors(&table, &d).is_empty(), "{}: {:?}", f.name, shape_errors(&table, &d));
+    }
 }
 
 // ---------------------------------------------------------------------------------------------

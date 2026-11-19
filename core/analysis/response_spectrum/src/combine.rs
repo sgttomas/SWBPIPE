@@ -61,7 +61,7 @@ pub(crate) fn check_modes(request: &CombinationRequest, refusals: &mut Vec<Refus
     // REQ-002 permits an empty extracted set. With correction off its modal sums are zero;
     // the existing missing-mass admission is unchanged by this empty-set repair.
     if request.modes.is_empty() && matches!(request.missing_mass, MissingMass::Applied { .. }) {
-        refusals.push(invalid(REQUEST.into(), "modes", "no extracted mode is supplied".into()));
+        refusals.push(no_extracted_mode());
     }
     for (i, m) in request.modes.iter().enumerate() {
         let object = m.mode.to_string();
@@ -87,6 +87,11 @@ pub(crate) fn check_modes(request: &CombinationRequest, refusals: &mut Vec<Refus
         }
     }
     refusals.len() == before
+}
+
+/// The refusal of a request with no extracted mode (`SPECTRUM_MODAL_METADATA_INVALID`).
+pub(crate) fn no_extracted_mode() -> Refusal {
+    refuse(RefusalCode::ModalMetadataInvalid, REQUEST, Some("modes"), "no extracted mode is supplied".into())
 }
 
 /// The rows (REQ-006, "Roster", "Identity", "Frame and sign"): each identity once, by its fields;
