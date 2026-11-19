@@ -63,7 +63,7 @@ static DEALLOCS: AtomicUsize = AtomicUsize::new(0);
 static REALLOCS: AtomicUsize = AtomicUsize::new(0);
 static MOVED_REALLOCS: AtomicUsize = AtomicUsize::new(0);
 /// The module's tests share the global counters: one runs at a time.
-static SERIAL: Mutex<()> = Mutex::new(());
+pub(crate) static SERIAL: Mutex<()> = Mutex::new(());
 
 #[cfg(target_os = "macos")]
 extern "C" {
@@ -184,14 +184,14 @@ unsafe impl GlobalAlloc for Counting {
 static GLOBAL: Counting = Counting;
 
 #[derive(Debug, Clone, Copy)]
-struct Snapshot {
-    live_req: usize,
+pub(crate) struct Snapshot {
+    pub(crate) live_req: usize,
     live_rnd: usize,
-    allocs: usize,
+    pub(crate) allocs: usize,
     deallocs: usize,
     reallocs: usize,
     moved: usize,
-    thread_live: isize,
+    pub(crate) thread_live: isize,
 }
 
 fn snapshot() -> Snapshot {
@@ -206,7 +206,7 @@ fn snapshot() -> Snapshot {
     }
 }
 
-fn reset_peaks(slot: usize) -> Snapshot {
+pub(crate) fn reset_peaks(slot: usize) -> Snapshot {
     let now = snapshot();
     PEAK_REQ[slot].store(now.live_req, SeqCst);
     PEAK_MOVE[slot].store(now.live_req, SeqCst);
@@ -218,15 +218,15 @@ fn reset_peaks(slot: usize) -> Snapshot {
 /// A region's end: every counter and peak, read at once and without allocating, before any
 /// report is formed.
 #[derive(Debug, Clone, Copy)]
-struct Endpoint {
-    at: Snapshot,
-    peak_req: usize,
+pub(crate) struct Endpoint {
+    pub(crate) at: Snapshot,
+    pub(crate) peak_req: usize,
     peak_rnd: usize,
-    peak_move: usize,
-    thread_peak: isize,
+    pub(crate) peak_move: usize,
+    pub(crate) thread_peak: isize,
 }
 
-fn endpoint(slot: usize) -> Endpoint {
+pub(crate) fn endpoint(slot: usize) -> Endpoint {
     Endpoint {
         thread_peak: thread_peak(slot),
         peak_req: PEAK_REQ[slot].load(SeqCst),
