@@ -23,7 +23,7 @@ files alone and compares them byte for byte with the committed files. `--write` 
 The maintained tests
 ([`tests/test_reference_system_generated_loads_references.py`](../../../tests/test_reference_system_generated_loads_references.py))
 check byte reproduction with package-only inputs, manifest membership and hashes, static imports and selected call
-and path literals, eight specification excerpts, the rigid-family phrase and the sibling constants. They check
+and path literals, eight specification excerpts and the sibling constants. They check
 recorded load counts, component encodings against stored values, warning record consistency and resultant floors.
 
 ## What the generator reads and does not read

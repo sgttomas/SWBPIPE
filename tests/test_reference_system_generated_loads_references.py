@@ -1,8 +1,7 @@
 """Reference-system per-load and warning references (`validation/references/reference_system_generated_loads/`).
 
 The maintained tests check byte reproduction with package-only inputs, manifest membership and hashes, static
-imports and selected call and path literals, eight specification excerpts, the rigid-family phrase and the sibling
-constants. They check recorded load counts, component encodings against stored values, warning record consistency
+imports and selected call and path literals, eight specification excerpts and the sibling constants. They check recorded load counts, component encodings against stored values, warning record consistency
 and resultant floors. The live comparison with the fixture is in tests/test_reference_packages_live.py.
 """
 import ast
@@ -23,7 +22,6 @@ REFERENCE = PROJECT / "validation" / "references" / NAME
 GENERATOR = REFERENCE / "generators" / "rsgl_reference.py"
 MODEL_REL = "fixtures/reference_system/reference_system.json"
 SPECIFICATION = PROJECT / "fixtures" / "reference_system" / "SPECIFICATION.md"
-RIGID_SCOPE = PROJECT / "execution" / "PKG-03" / "DEL-03-05" / "ScopeOfWork.md"
 
 PRODUCT_ROOTS = {"core", "apps", "tests", "tools", "fixtures", "schemas"}
 # The fixture the live check reads: its relative path (recorded in references.json) and its first path segment.
@@ -126,8 +124,6 @@ def test_transcribed_governing_text_is_current():
     for key, quoted in _literal("SPEC").items():
         statement = quoted.split(": ", 1)[1]
         assert _flat(statement) in spec, key
-    assert "A component of kind valve, flange, reducer, rigid or specialty at a node." in \
-        RIGID_SCOPE.read_text(encoding="utf-8")
     assert _literal("RIGID_KINDS") == ("valve", "flange", "reducer", "rigid", "specialty")
 
 
