@@ -1,6 +1,7 @@
-// The capability and schema reference download is the capability list and the operation schema
-// (DEL-07-08 REQ-014): the same bytes whatever project is open, also after the person has opened the
-// checked example, which stays on screen for the open model. Invented content only.
+// DEL-07-08 REQ-014 makes the capability list and the operation schema downloadable. Regression
+// expectations of this test: the link holds the static reference, the same bytes whatever project
+// is open and after the person has opened the checked example, and the display still includes the
+// checked example for the open model. Invented content only.
 import { cleanup, fireEvent, render, screen, waitFor } from "@testing-library/react";
 import { afterEach, describe, expect, it } from "vitest";
 import operationSchema from "../../../../../schemas/model_operation.schema.json";
@@ -17,6 +18,8 @@ const capabilityReference = {
   operation_schema: operationSchema,
   provider_status: "Imported proposals require explicit human review; live availability is shown by the native agent panel."
 };
+/** What the download must hold, taken before anything is rendered with the reference. */
+const expectedBytes = JSON.stringify(capabilityReference, null, 2);
 
 /** A second project, materially different: its own identity, coordinates and labels. */
 function otherModel(): PreviewModel {
@@ -36,7 +39,12 @@ async function downloadAfterOpening(model: PreviewModel): Promise<{ bytes: strin
   const details = screen.getByText("Offline authoring reference").closest("details")!;
   details.open = true;
   fireEvent(details, new Event("toggle"));
-  await waitFor(() => expect(screen.getByTestId("capability-reference-json")).toHaveTextContent("reconnect_pipe_run"));
+  // Wait for the checked example itself: the static schema already holds the words `reconnect_pipe_run`.
+  await waitFor(() => {
+    const shown = JSON.parse(screen.getByTestId("capability-reference-json").textContent ?? "null");
+    const batch = shown.operation_examples.reconnect_pipe_run.batch;
+    expect(JSON.parse(batch.operations[0].change.before).label).toBe(model.pipe_segments[0].label);
+  });
   const link = screen.getByRole("link", { name: "Download capability and schema reference" });
   expect(link).toHaveAttribute("download", "piping-operation-capabilities.json");
   const href = link.getAttribute("href") ?? "";
@@ -47,21 +55,14 @@ async function downloadAfterOpening(model: PreviewModel): Promise<{ bytes: strin
 }
 
 describe("capability and schema reference download", () => {
-  it("is the same bytes for different open projects, after the checked example is opened, which stays on screen", async () => {
+  it("holds the static reference for different open projects after the checked example is opened, and the example stays on screen", async () => {
     clearReconnectExampleCache();
     const first = reconnectModel();
     const second = otherModel();
     const a = await downloadAfterOpening(first);
     const b = await downloadAfterOpening(second);
-    expect(a.bytes).toBe(b.bytes);
-    expect(a.bytes).toBe(JSON.stringify(capabilityReference, null, 2));
-    for (const download of [a.bytes, b.bytes]) {
-      const parsed = JSON.parse(download);
-      expect(Object.keys(parsed).sort()).toEqual(["capabilities", "operation_schema", "provider_status"]);
-      for (const projectText of ["project:w10-session", "project:invented-other", "Invented other P", "W-10 session"]) {
-        expect(download).not.toContain(projectText);
-      }
-    }
+    expect(a.bytes).toBe(expectedBytes);
+    expect(b.bytes).toBe(expectedBytes);
     // The checked example is shown on screen for the open model.
     for (const [shown, model] of [[a.shown, first], [b.shown, second]] as const) {
       const reference = JSON.parse(shown);

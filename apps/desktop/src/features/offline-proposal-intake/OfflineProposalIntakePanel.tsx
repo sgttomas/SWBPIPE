@@ -67,7 +67,7 @@ export function OfflineProposalIntakePanel(props: WorkflowProps & {
           ? "Checking an executable reconnect example against this model with the shared engine."
           : examplesState === "failed" ? "The executable examples could not be checked; the reference below omits them."
           : currentExamples ? "Executable examples were checked against this model by the shared engine." : "Open this reference to check executable examples against the current model."}</p> : null}
-        {/* The download is the capability list and the operation schema; the checked example stays on screen. */}
+        {/* The link serializes the static reference (capability list, operation schema and status line); the display below includes the checked example. */}
         <a download="piping-operation-capabilities.json" href={`data:application/json;charset=utf-8,${encodeURIComponent(JSON.stringify(props.capabilityReference, null, 2))}`}>Download capability and schema reference</a>
         <pre data-testid="capability-reference-json">{JSON.stringify(reference, null, 2)}</pre>
       </>}
