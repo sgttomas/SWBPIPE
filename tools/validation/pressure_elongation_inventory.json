@@ -28,11 +28,11 @@
    ".json",
    ".jsonl"
   ],
-  "files": 534,
+  "files": 538,
   "claimed_by": {
    "group": 142,
    "in_code": 63,
-   "exemption": 329
+   "exemption": 333
   }
  },
  "counts": {
@@ -9613,6 +9613,7 @@
     "core/reporting/result_export/tests/retained_precision_contract.rs",
     "tests/verifiers/physics_source.py",
     "tests/verifiers/retained_precision.py",
+    "tests/verifiers/exact_difference_basis.py",
     "tests/test_physics_source_contract.py",
     "tests/test_retained_precision_b3.py",
     "tests/test_reference_system_records.py"
@@ -9626,6 +9627,7 @@
     "tests/test_physics_source_contract.py",
     "tests/test_reference_system_records.py",
     "tests/test_retained_precision_b3.py",
+    "tests/verifiers/exact_difference_basis.py",
     "tests/verifiers/physics_source.py",
     "tests/verifiers/retained_precision.py"
    ]
@@ -9841,10 +9843,12 @@
    "reason": "independent reference generator (imports no product code) that states pressure elongation on or off per case; no product test solves its cases yet",
    "paths": [
     "validation/references/exact_difference_basis/generators/exact_difference_basis_reference.py",
+    "validation/references/exact_difference_basis_completed/generators/exact_difference_basis_completed_reference.py",
     "validation/references/exact_load_state_equivalent_static/generators/exact_load_state_reference.py"
    ],
    "files": [
     "validation/references/exact_difference_basis/generators/exact_difference_basis_reference.py",
+    "validation/references/exact_difference_basis_completed/generators/exact_difference_basis_completed_reference.py",
     "validation/references/exact_load_state_equivalent_static/generators/exact_load_state_reference.py"
    ]
   },
@@ -9876,6 +9880,7 @@
     "validation/references/*/README.md"
    ],
    "files": [
+    "validation/references/exact_difference_basis_completed/README.md",
     "validation/references/o4_retained_source/README.md",
     "validation/references/t4_u8/README.md",
     "validation/references/w15_component_weight/README.md",
@@ -10246,10 +10251,12 @@
    "reason": "reference case inputs that give pressure as a plain number and state pressure elongation on or off per case; no product test solves them yet",
    "paths": [
     "validation/references/exact_difference_basis/references.json",
+    "validation/references/exact_difference_basis_completed/references.json",
     "validation/references/exact_load_state_equivalent_static/references.json"
    ],
    "files": [
     "validation/references/exact_difference_basis/references.json",
+    "validation/references/exact_difference_basis_completed/references.json",
     "validation/references/exact_load_state_equivalent_static/references.json"
    ]
   },
