@@ -9659,17 +9659,17 @@
    "severity": "blocking",
    "first_site": {
     "file": "core/product_physics/src/modal/document.rs",
-    "line": 488,
+    "line": 527,
     "via": "diag()"
    },
    "sites": [
     {
      "file": "core/product_physics/src/modal/document.rs",
-     "line": 488,
+     "line": 527,
      "via": "diag()",
      "severity": "blocking",
      "through": [
-      "const MODAL_DOCUMENT_SKEW_RESTRAINT_UNSUPPORTED (core/product_physics/src/modal/integrity.rs:87)"
+      "const MODAL_DOCUMENT_SKEW_RESTRAINT_UNSUPPORTED (core/product_physics/src/modal/integrity.rs:89)"
      ]
     }
    ],
@@ -9702,7 +9702,7 @@
      "via": "diag()",
      "severity": "blocking",
      "through": [
-      "const MODAL_EIGENSOLVE_UNAVAILABLE (core/product_physics/src/modal/integrity.rs:82)"
+      "const MODAL_EIGENSOLVE_UNAVAILABLE (core/product_physics/src/modal/integrity.rs:84)"
      ]
     }
    ],
@@ -9821,7 +9821,7 @@
      "via": "diag()",
      "severity": "blocking",
      "through": [
-      "const MODAL_FINITE_COUNT_UNRESOLVED (core/product_physics/src/modal/integrity.rs:68)"
+      "const MODAL_FINITE_COUNT_UNRESOLVED (core/product_physics/src/modal/integrity.rs:70)"
      ]
     }
    ],
@@ -9844,17 +9844,17 @@
    "severity": "blocking",
    "first_site": {
     "file": "core/product_physics/src/modal/integrity.rs",
-    "line": 156,
+    "line": 158,
     "via": "diag()"
    },
    "sites": [
     {
      "file": "core/product_physics/src/modal/integrity.rs",
-     "line": 156,
+     "line": 158,
      "via": "diag()",
      "severity": "blocking",
      "through": [
-      "const MODAL_INTEGRITY_PARAMETER_INVALID (core/product_physics/src/modal/integrity.rs:57)"
+      "const MODAL_INTEGRITY_PARAMETER_INVALID (core/product_physics/src/modal/integrity.rs:59)"
      ]
     }
    ],
@@ -9953,7 +9953,7 @@
      "via": "diag()",
      "severity": "blocking",
      "through": [
-      "const MODAL_NO_FINITE_MODES (core/product_physics/src/modal/integrity.rs:65)"
+      "const MODAL_NO_FINITE_MODES (core/product_physics/src/modal/integrity.rs:67)"
      ]
     },
     {
@@ -9962,7 +9962,7 @@
      "via": "blocked()",
      "severity": "blocking",
      "through": [
-      "const MODAL_NO_FINITE_MODES (core/product_physics/src/modal/integrity.rs:65)"
+      "const MODAL_NO_FINITE_MODES (core/product_physics/src/modal/integrity.rs:67)"
      ]
     },
     {
@@ -9971,7 +9971,7 @@
      "via": "blocked()",
      "severity": "blocking",
      "through": [
-      "const MODAL_NO_FINITE_MODES (core/product_physics/src/modal/integrity.rs:65)"
+      "const MODAL_NO_FINITE_MODES (core/product_physics/src/modal/integrity.rs:67)"
      ]
     }
    ],
@@ -9997,13 +9997,13 @@
    "severity": "blocking",
    "first_site": {
     "file": "core/product_physics/src/modal/integrity.rs",
-    "line": 301,
+    "line": 354,
     "via": "diag()"
    },
    "sites": [
     {
      "file": "core/product_physics/src/modal/integrity.rs",
-     "line": 301,
+     "line": 354,
      "via": "diag()",
      "severity": "blocking",
      "through": [
@@ -10012,7 +10012,7 @@
     },
     {
      "file": "core/product_physics/src/modal/integrity.rs",
-     "line": 526,
+     "line": 579,
      "via": "diag()",
      "severity": "blocking",
      "any_arm": true,
@@ -10023,7 +10023,7 @@
     },
     {
      "file": "core/product_physics/src/modal/integrity.rs",
-     "line": 542,
+     "line": 595,
      "via": "diag()",
      "severity": "blocking",
      "through": [
@@ -10090,36 +10090,36 @@
    "severity": "blocking",
    "first_site": {
     "file": "core/product_physics/src/modal/integrity.rs",
-    "line": 340,
+    "line": 393,
     "via": "diag()"
    },
    "sites": [
     {
      "file": "core/product_physics/src/modal/integrity.rs",
-     "line": 340,
+     "line": 393,
      "via": "diag()",
      "severity": "blocking",
      "through": [
-      "const MODAL_REFORMATION_UNAVAILABLE (core/product_physics/src/modal/integrity.rs:63)"
+      "const MODAL_REFORMATION_UNAVAILABLE (core/product_physics/src/modal/integrity.rs:65)"
      ]
     },
     {
      "file": "core/product_physics/src/modal/integrity.rs",
-     "line": 526,
+     "line": 579,
      "via": "diag()",
      "severity": "blocking",
      "any_arm": true,
      "through": [
-      "const MODAL_REFORMATION_UNAVAILABLE <- returned by modal_refusal_code() [any arm] (core/product_physics/src/modal/integrity.rs:63)"
+      "const MODAL_REFORMATION_UNAVAILABLE <- returned by modal_refusal_code() [any arm] (core/product_physics/src/modal/integrity.rs:65)"
      ]
     },
     {
      "file": "core/product_physics/src/modal/integrity.rs",
-     "line": 542,
+     "line": 595,
      "via": "diag()",
      "severity": "blocking",
      "through": [
-      "const MODAL_REFORMATION_UNAVAILABLE (core/product_physics/src/modal/integrity.rs:63)"
+      "const MODAL_REFORMATION_UNAVAILABLE (core/product_physics/src/modal/integrity.rs:65)"
      ]
     }
    ],
@@ -10144,13 +10144,13 @@
    "severity": "blocking",
    "first_site": {
     "file": "core/product_physics/src/modal/document.rs",
-    "line": 472,
+    "line": 511,
     "via": "diag()"
    },
    "sites": [
     {
      "file": "core/product_physics/src/modal/document.rs",
-     "line": 472,
+     "line": 511,
      "via": "diag()",
      "severity": "blocking"
     }
@@ -10175,13 +10175,13 @@
    "severity": "blocking",
    "first_site": {
     "file": "core/product_physics/src/modal/resource.rs",
-    "line": 1121,
+    "line": 1181,
     "via": "diag()"
    },
    "sites": [
     {
      "file": "core/product_physics/src/modal/integrity.rs",
-     "line": 526,
+     "line": 579,
      "via": "diag()",
      "severity": "blocking",
      "by_name": true,
@@ -10192,11 +10192,29 @@
     },
     {
      "file": "core/product_physics/src/modal/resource.rs",
-     "line": 1121,
+     "line": 1181,
      "via": "diag()",
      "severity": "blocking",
      "through": [
       "const RESOURCE_ALLOCATION_REFUSED <- returned by SupportResourceError::code() (core/solver/modal_eigen/src/dense.rs:1398)"
+     ]
+    },
+    {
+     "file": "core/product_physics/src/modal/resource.rs",
+     "line": 1482,
+     "via": "diag()",
+     "severity": "blocking",
+     "through": [
+      "const RESOURCE_ALLOCATION_REFUSED (core/solver/modal_eigen/src/dense.rs:1398)"
+     ]
+    },
+    {
+     "file": "core/product_physics/src/modal/resource.rs",
+     "line": 1603,
+     "via": "diag()",
+     "severity": "blocking",
+     "through": [
+      "const RESOURCE_ALLOCATION_REFUSED (core/solver/modal_eigen/src/dense.rs:1398)"
      ]
     },
     {
@@ -10221,7 +10239,9 @@
    ],
    "messages": [
     "{error}; {stage} is refused before that structure exists, with no partial result (a resource refusal, not a numerical one)",
-    "element {subject} cannot be re-formed from its leaves ({failure:?}); the formation check fails closed, so the modal set is refused"
+    "element {subject} cannot be re-formed from its leaves ({failure:?}); the formation check fails closed, so the modal set is refused",
+    "{error}; the modal set is refused with no partial result (a resource refusal, not a numerical one)",
+    "the allocator refused {bytes} B ({elements} elements) for `{structure}`, storage of the completed modal set's {} ({actual}); {limit}. The whole set is refused, with no partial modes, truncation or omitted low modes (a resource refusal, not a numerical one)"
    ],
    "classification": "internal",
    "reason": "The allocator refused a request; an environment limit, not a document matter.",
@@ -10255,7 +10275,7 @@
     },
     {
      "file": "core/product_physics/src/modal/integrity.rs",
-     "line": 526,
+     "line": 579,
      "via": "diag()",
      "severity": "blocking",
      "by_name": true,
@@ -10266,7 +10286,7 @@
     },
     {
      "file": "core/product_physics/src/modal/resource.rs",
-     "line": 1099,
+     "line": 1159,
      "via": "diag()",
      "severity": "blocking",
      "through": [
@@ -10275,11 +10295,38 @@
     },
     {
      "file": "core/product_physics/src/modal/resource.rs",
-     "line": 1121,
+     "line": 1181,
      "via": "diag()",
      "severity": "blocking",
      "through": [
       "const RESOURCE_ARITHMETIC_OVERFLOW <- returned by SupportResourceError::code() (core/solver/modal_eigen/src/dense.rs:100)"
+     ]
+    },
+    {
+     "file": "core/product_physics/src/modal/resource.rs",
+     "line": 1388,
+     "via": "diag()",
+     "severity": "blocking",
+     "through": [
+      "const RESOURCE_ARITHMETIC_OVERFLOW (core/solver/modal_eigen/src/dense.rs:100)"
+     ]
+    },
+    {
+     "file": "core/product_physics/src/modal/resource.rs",
+     "line": 1475,
+     "via": "diag()",
+     "severity": "blocking",
+     "through": [
+      "const RESOURCE_ARITHMETIC_OVERFLOW (core/solver/modal_eigen/src/dense.rs:100)"
+     ]
+    },
+    {
+     "file": "core/product_physics/src/modal/resource.rs",
+     "line": 1592,
+     "via": "diag()",
+     "severity": "blocking",
+     "through": [
+      "const RESOURCE_ARITHMETIC_OVERFLOW (core/solver/modal_eigen/src/dense.rs:100)"
      ]
     },
     {
@@ -10385,6 +10432,39 @@
    "named_by_statement": null
   },
   {
+   "code": "MODAL_RESOURCE_COMPLETED_SET_LIMIT_EXCEEDED",
+   "crates": [
+    "core/product_physics"
+   ],
+   "severity": "blocking",
+   "first_site": {
+    "file": "core/product_physics/src/modal/resource.rs",
+    "line": 1375,
+    "via": "diag()"
+   },
+   "sites": [
+    {
+     "file": "core/product_physics/src/modal/resource.rs",
+     "line": 1375,
+     "via": "diag()",
+     "severity": "blocking",
+     "through": [
+      "const MODAL_RESOURCE_COMPLETED_SET_LIMIT_EXCEEDED (core/product_physics/src/modal/resource.rs:1269)"
+     ]
+    }
+   ],
+   "messages": [
+    "the completed modal set's {} is {expression} = {actual}, over the caller's limit of {limit}; the whole set is refused before its storage is requested, with no partial modes, truncation or omitted low modes (a resource refusal, not a numerical one)"
+   ],
+   "classification": "internal",
+   "reason": "A caller-supplied limit on the completed modal set's actual dimensions is exceeded and the whole set is refused before its storage is requested. No production caller supplies such a limit (tests only), so no document a user authors reaches it; a selected production limit would make it a model-size limit.",
+   "unsure": false,
+   "candidates": null,
+   "named_by": null,
+   "named_by_coverage": null,
+   "named_by_statement": null
+  },
+  {
    "code": "MODAL_RESOURCE_PREFLIGHT_EXCEEDED",
    "crates": [
     "core/product_physics"
@@ -10392,17 +10472,17 @@
    "severity": "blocking",
    "first_site": {
     "file": "core/product_physics/src/modal/resource.rs",
-    "line": 1112,
+    "line": 1172,
     "via": "diag()"
    },
    "sites": [
     {
      "file": "core/product_physics/src/modal/resource.rs",
-     "line": 1112,
+     "line": 1172,
      "via": "diag()",
      "severity": "blocking",
      "through": [
-      "const MODAL_RESOURCE_PREFLIGHT_EXCEEDED (core/product_physics/src/modal/integrity.rs:95)"
+      "const MODAL_RESOURCE_PREFLIGHT_EXCEEDED (core/product_physics/src/modal/integrity.rs:97)"
      ]
     }
    ],
@@ -10599,7 +10679,7 @@
      "via": "sturm_refusal()",
      "severity": "blocking",
      "through": [
-      "const MODAL_STURM_COUNT_MISMATCH (core/product_physics/src/modal/integrity.rs:78)"
+      "const MODAL_STURM_COUNT_MISMATCH (core/product_physics/src/modal/integrity.rs:80)"
      ]
     }
    ],
@@ -10632,7 +10712,7 @@
      "via": "code-message pair",
      "severity": null,
      "through": [
-      "const MODAL_STURM_GROWTH_LIMIT (core/product_physics/src/modal/integrity.rs:76)"
+      "const MODAL_STURM_GROWTH_LIMIT (core/product_physics/src/modal/integrity.rs:78)"
      ]
     },
     {
@@ -10641,7 +10721,7 @@
      "via": "code-message pair",
      "severity": null,
      "through": [
-      "const MODAL_STURM_GROWTH_LIMIT (core/product_physics/src/modal/integrity.rs:76)"
+      "const MODAL_STURM_GROWTH_LIMIT (core/product_physics/src/modal/integrity.rs:78)"
      ]
     },
     {
@@ -10650,7 +10730,7 @@
      "via": "sturm_refusal()",
      "severity": "blocking",
      "through": [
-      "const MODAL_STURM_GROWTH_LIMIT (core/product_physics/src/modal/integrity.rs:76)"
+      "const MODAL_STURM_GROWTH_LIMIT (core/product_physics/src/modal/integrity.rs:78)"
      ]
     }
    ],
@@ -10685,7 +10765,7 @@
      "via": "code-message pair",
      "severity": null,
      "through": [
-      "const MODAL_STURM_SHIFT_ILL_CONDITIONED (core/product_physics/src/modal/integrity.rs:73)"
+      "const MODAL_STURM_SHIFT_ILL_CONDITIONED (core/product_physics/src/modal/integrity.rs:75)"
      ]
     },
     {
@@ -10694,7 +10774,7 @@
      "via": "sturm_refusal()",
      "severity": "blocking",
      "through": [
-      "const MODAL_STURM_SHIFT_ILL_CONDITIONED (core/product_physics/src/modal/integrity.rs:73)"
+      "const MODAL_STURM_SHIFT_ILL_CONDITIONED (core/product_physics/src/modal/integrity.rs:75)"
      ]
     }
    ],
@@ -10728,7 +10808,7 @@
      "via": "sturm_refusal()",
      "severity": "blocking",
      "through": [
-      "const MODAL_STURM_SHIFT_UNSEPARATED (core/product_physics/src/modal/integrity.rs:70)"
+      "const MODAL_STURM_SHIFT_UNSEPARATED (core/product_physics/src/modal/integrity.rs:72)"
      ]
     },
     {
@@ -10737,7 +10817,7 @@
      "via": "code-message pair",
      "severity": null,
      "through": [
-      "const MODAL_STURM_SHIFT_UNSEPARATED (core/product_physics/src/modal/integrity.rs:70)"
+      "const MODAL_STURM_SHIFT_UNSEPARATED (core/product_physics/src/modal/integrity.rs:72)"
      ]
     },
     {
@@ -10746,7 +10826,7 @@
      "via": "sturm_refusal()",
      "severity": "blocking",
      "through": [
-      "const MODAL_STURM_SHIFT_UNSEPARATED (core/product_physics/src/modal/integrity.rs:70)"
+      "const MODAL_STURM_SHIFT_UNSEPARATED (core/product_physics/src/modal/integrity.rs:72)"
      ]
     }
    ],
@@ -12885,7 +12965,7 @@
     },
     {
      "file": "core/product_physics/src/modal/skew_pencil.rs",
-     "line": 190,
+     "line": 206,
      "via": "diag()",
      "severity": "blocking",
      "any_arm": true,
@@ -12982,7 +13062,7 @@
     },
     {
      "file": "core/product_physics/src/modal/skew_pencil.rs",
-     "line": 190,
+     "line": 206,
      "via": "diag()",
      "severity": "blocking",
      "any_arm": true,
@@ -13080,7 +13160,7 @@
     },
     {
      "file": "core/product_physics/src/modal/skew_pencil.rs",
-     "line": 190,
+     "line": 206,
      "via": "diag()",
      "severity": "blocking",
      "any_arm": true,
@@ -13147,7 +13227,7 @@
     },
     {
      "file": "core/product_physics/src/modal/skew_pencil.rs",
-     "line": 190,
+     "line": 206,
      "via": "diag()",
      "severity": "blocking",
      "any_arm": true,
@@ -13317,7 +13397,7 @@
     },
     {
      "file": "core/product_physics/src/modal/skew_pencil.rs",
-     "line": 190,
+     "line": 206,
      "via": "diag()",
      "severity": "blocking",
      "any_arm": true,
@@ -21079,7 +21159,7 @@
   },
   {
    "file": "core/product_physics/src/modal/document.rs",
-   "line": 349,
+   "line": 356,
    "at": "json code",
    "why": "the code field of diagnostic, whose record type the scanner cannot prove is built only at code positions it reads",
    "expression": "diagnostic.code",
@@ -21171,20 +21251,20 @@
   {
    "literal": "D_K",
    "sites": [
-    "core/product_physics/src/modal/resource.rs:1049"
+    "core/product_physics/src/modal/resource.rs:1109"
    ]
   },
   {
    "literal": "D_M",
    "sites": [
-    "core/product_physics/src/modal/resource.rs:1051",
-    "core/product_physics/src/modal/resource.rs:1052"
+    "core/product_physics/src/modal/resource.rs:1111",
+    "core/product_physics/src/modal/resource.rs:1112"
    ]
   },
   {
    "literal": "FAILED_MANIFEST_COPY",
    "sites": [
-    "core/product_physics/src/retained_memory.rs:2991"
+    "core/product_physics/src/retained_memory.rs:2990"
    ]
   },
   {
@@ -21196,7 +21276,7 @@
   {
    "literal": "FORMATION_VALUE_BUILD",
    "sites": [
-    "core/product_physics/src/retained_memory.rs:2992"
+    "core/product_physics/src/retained_memory.rs:2991"
    ]
   },
   {
@@ -21362,7 +21442,7 @@
   {
    "literal": "MODAL_PHASE_REPLAY_SKEW_RESTRAINT_UNSUPPORTED",
    "sites": [
-    "core/product_physics/src/modal/integrity.rs:90"
+    "core/product_physics/src/modal/integrity.rs:92"
    ]
   },
   {
@@ -21479,7 +21559,7 @@
   {
    "literal": "S_T1",
    "sites": [
-    "core/product_physics/src/modal/resource.rs:1061"
+    "core/product_physics/src/modal/resource.rs:1121"
    ]
   },
   {
@@ -21496,115 +21576,115 @@
   {
    "literal": "T16_P1",
    "sites": [
-    "core/product_physics/src/retained_memory.rs:3010"
+    "core/product_physics/src/retained_memory.rs:3009"
    ]
   },
   {
    "literal": "T16_P2",
    "sites": [
-    "core/product_physics/src/retained_memory.rs:3011"
+    "core/product_physics/src/retained_memory.rs:3010"
    ]
   },
   {
    "literal": "T16_P3",
    "sites": [
-    "core/product_physics/src/retained_memory.rs:3012"
+    "core/product_physics/src/retained_memory.rs:3011"
    ]
   },
   {
    "literal": "T16_P4",
    "sites": [
-    "core/product_physics/src/retained_memory.rs:3013"
+    "core/product_physics/src/retained_memory.rs:3012"
    ]
   },
   {
    "literal": "T17_V1",
    "sites": [
-    "core/product_physics/src/retained_memory.rs:3015"
+    "core/product_physics/src/retained_memory.rs:3014"
    ]
   },
   {
    "literal": "T17_V3",
    "sites": [
-    "core/product_physics/src/retained_memory.rs:3018"
+    "core/product_physics/src/retained_memory.rs:3017"
    ]
   },
   {
    "literal": "T17_V4",
    "sites": [
-    "core/product_physics/src/retained_memory.rs:3019"
+    "core/product_physics/src/retained_memory.rs:3018"
    ]
   },
   {
    "literal": "T17_V5",
    "sites": [
-    "core/product_physics/src/retained_memory.rs:3020"
+    "core/product_physics/src/retained_memory.rs:3019"
    ]
   },
   {
    "literal": "T17_V6",
    "sites": [
-    "core/product_physics/src/retained_memory.rs:3021"
+    "core/product_physics/src/retained_memory.rs:3020"
    ]
   },
   {
    "literal": "T25_I1",
    "sites": [
-    "core/product_physics/src/retained_memory.rs:3026"
+    "core/product_physics/src/retained_memory.rs:3025"
    ]
   },
   {
    "literal": "T25_I2",
    "sites": [
-    "core/product_physics/src/retained_memory.rs:3027"
+    "core/product_physics/src/retained_memory.rs:3026"
    ]
   },
   {
    "literal": "T25_I3",
    "sites": [
-    "core/product_physics/src/retained_memory.rs:3028"
+    "core/product_physics/src/retained_memory.rs:3027"
    ]
   },
   {
    "literal": "T25_S1",
    "sites": [
-    "core/product_physics/src/retained_memory.rs:3029"
+    "core/product_physics/src/retained_memory.rs:3028"
    ]
   },
   {
    "literal": "T25_S2",
    "sites": [
-    "core/product_physics/src/retained_memory.rs:3030"
+    "core/product_physics/src/retained_memory.rs:3029"
    ]
   },
   {
    "literal": "T25_S3",
    "sites": [
-    "core/product_physics/src/retained_memory.rs:3031"
+    "core/product_physics/src/retained_memory.rs:3030"
    ]
   },
   {
    "literal": "T25_S4",
    "sites": [
-    "core/product_physics/src/retained_memory.rs:3032"
+    "core/product_physics/src/retained_memory.rs:3031"
    ]
   },
   {
    "literal": "T25_S5",
    "sites": [
-    "core/product_physics/src/retained_memory.rs:3033"
+    "core/product_physics/src/retained_memory.rs:3032"
    ]
   },
   {
    "literal": "TAV_W",
    "sites": [
-    "core/product_physics/src/retained_memory.rs:3036"
+    "core/product_physics/src/retained_memory.rs:3035"
    ]
   },
   {
    "literal": "TAV_X",
    "sites": [
-    "core/product_physics/src/retained_memory.rs:3037"
+    "core/product_physics/src/retained_memory.rs:3036"
    ]
   },
   {
@@ -21707,7 +21787,7 @@
   {
    "literal": "W1_MEMBER_READER",
    "sites": [
-    "core/product_physics/src/retained_memory.rs:3039"
+    "core/product_physics/src/retained_memory.rs:3038"
    ]
   },
   {

@@ -33,6 +33,18 @@
 //! refuses the mode (`QuantityOutOfRange`); one whose exact value is
 //! nonzero but below the normal range is published as 0 and flagged,
 //! decided on the exact value.
+//!
+//! **Storage.** Every vector this module returns for a mode (a normalized or
+//! lifted shape, its below-normal indices, a row of cumulative fractions)
+//! and the normalization's below-normal scratch is requested through a
+//! [`ShapeStorage`], once, at its exact element count, with no further
+//! growth. [`FallibleStorage`] checks `len × size_of::<T>()` against
+//! `isize::MAX` before any request and asks the allocator with
+//! `try_reserve_exact`, so an overflow or an allocator refusal is a typed
+//! [`ModalQuantityError::Storage`] with no partial result, never an abort or
+//! a numerical refusal. A caller may supply its own storage to add its
+//! limits' context or, in its tests, to inject a refusal. The functions
+//! without `_with` use [`FallibleStorage`]. Storage changes no value.
 
 use std::collections::BTreeSet;
 use std::error::Error;
@@ -121,7 +133,119 @@ pub enum ModalQuantityError {
         name: &'static str,
         direction: Option<usize>,
     },
+    /// A storage request refused (module docs, "Storage"): a resource
+    /// refusal, not a numerical one. Nothing was published.
+    Storage(ShapeStorageError),
 }
+
+/// A storage request refused by a [`ShapeStorage`], before any partial
+/// result.
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub enum ShapeStorageError {
+    /// `elements × element_size` bytes overflows `usize` or exceeds
+    /// `isize::MAX`. Nothing was requested.
+    CapacityOverflow {
+        structure: &'static str,
+        elements: usize,
+        element_size: usize,
+    },
+    /// The allocator refused `bytes` (`elements` elements) for `structure`.
+    /// Nothing was allocated.
+    AllocationFailed {
+        structure: &'static str,
+        elements: usize,
+        bytes: usize,
+    },
+}
+
+impl ShapeStorageError {
+    /// The structure whose request was refused.
+    pub fn structure(&self) -> &'static str {
+        match self {
+            Self::CapacityOverflow { structure, .. } | Self::AllocationFailed { structure, .. } => structure,
+        }
+    }
+}
+
+impl fmt::Display for ShapeStorageError {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        match self {
+            Self::CapacityOverflow { structure, elements, element_size } => write!(
+                f,
+                "the storage of `{structure}`, {elements} elements × {element_size} B, overflows the addressable size (at most isize::MAX = {} B); nothing was requested",
+                isize::MAX
+            ),
+            Self::AllocationFailed { structure, elements, bytes } => {
+                write!(f, "the allocator refused {bytes} B ({elements} elements) for `{structure}`")
+            }
+        }
+    }
+}
+
+impl Error for ShapeStorageError {}
+
+/// Where the vectors of this module's results are requested (module docs,
+/// "Storage").
+pub trait ShapeStorage {
+    /// Gives `vec` room for exactly `len` more elements (callers here pass
+    /// an empty vector unless they extend one), one request, or refuses
+    /// with nothing requested or allocated.
+    fn modal_shape_reserve<T>(&mut self, vec: &mut Vec<T>, len: usize, structure: &'static str) -> Result<(), ShapeStorageError>;
+}
+
+/// The default [`ShapeStorage`]: [`reserve_exactly`].
+#[derive(Debug, Clone, Copy, Default, PartialEq, Eq)]
+pub struct FallibleStorage;
+
+impl ShapeStorage for FallibleStorage {
+    fn modal_shape_reserve<T>(&mut self, vec: &mut Vec<T>, len: usize, structure: &'static str) -> Result<(), ShapeStorageError> {
+        reserve_exactly(vec, len, structure)
+    }
+}
+
+/// [`requested_bytes`] (a [`ShapeStorageError::CapacityOverflow`], before
+/// any request), then `try_reserve_exact(len)` (an allocator refusal is
+/// [`ShapeStorageError::AllocationFailed`]). A zero length requests nothing.
+pub fn reserve_exactly<T>(vec: &mut Vec<T>, len: usize, structure: &'static str) -> Result<(), ShapeStorageError> {
+    let bytes = requested_bytes::<T>(vec.len(), len, structure)?;
+    vec.try_reserve_exact(len).map_err(|_| ShapeStorageError::AllocationFailed { structure, elements: len, bytes })
+}
+
+/// The bytes `len` more `T` request, checked with the whole resulting
+/// length: `(held + len) × size_of::<T>()` must be at most `isize::MAX`
+/// (else [`ShapeStorageError::CapacityOverflow`], with nothing requested).
+pub fn requested_bytes<T>(held: usize, len: usize, structure: &'static str) -> Result<usize, ShapeStorageError> {
+    let element_size = std::mem::size_of::<T>();
+    let overflow = ShapeStorageError::CapacityOverflow { structure, elements: len, element_size };
+    held.checked_add(len)
+        .and_then(|total| total.checked_mul(element_size))
+        .filter(|&bytes| bytes <= isize::MAX as usize)
+        .ok_or(overflow)?;
+    Ok(len * element_size)
+}
+
+/// The bytes `args` formats to, counted with checked addition by a pass
+/// that stores nothing; `None` when the count overflows `usize`. Writing the
+/// same arguments again gives exactly that many bytes.
+pub fn formatted_length(args: fmt::Arguments<'_>) -> Option<usize> {
+    struct Length(usize);
+    impl fmt::Write for Length {
+        fn write_str(&mut self, text: &str) -> fmt::Result {
+            self.0 = self.0.checked_add(text.len()).ok_or(fmt::Error)?;
+            Ok(())
+        }
+    }
+    let mut length = Length(0);
+    fmt::write(&mut length, args).ok().map(|()| length.0)
+}
+
+/// The structures this module requests (module docs, "Storage").
+pub const NORMALIZED_SHAPE: &str = "normalized shape";
+pub const NORMALIZED_BELOW_NORMAL: &str = "normalized below-normal indices";
+pub const NORMALIZATION_SCRATCH: &str = "normalization below-normal scratch";
+pub const LIFTED_SHAPE: &str = "lifted shape";
+pub const LIFTED_BELOW_NORMAL: &str = "lifted below-normal indices";
+pub const CUMULATIVE_FRACTIONS: &str = "cumulative effective-mass fractions";
 
 impl fmt::Display for ModalQuantityError {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
@@ -151,6 +275,7 @@ impl fmt::Display for ModalQuantityError {
                 Some(k) => write!(f, "mode {mode}: `{name}` in direction {k} is not finite"),
                 None => write!(f, "mode {mode}: `{name}` is not finite"),
             },
+            Self::Storage(error) => write!(f, "{error}"),
         }
     }
 }
@@ -376,17 +501,28 @@ pub fn normalize_mode(
     phi: &[f64],
     basis: &ModalBasis<'_>,
 ) -> Result<NormalizedMode, ModalQuantityError> {
+    normalize_mode_with(mode, phi, basis, &mut FallibleStorage)
+}
+
+/// [`normalize_mode`] with the caller's [`ShapeStorage`].
+pub fn normalize_mode_with<S: ShapeStorage>(
+    mode: usize,
+    phi: &[f64],
+    basis: &ModalBasis<'_>,
+    storage: &mut S,
+) -> Result<NormalizedMode, ModalQuantityError> {
     // The basis's workspace, reset where used, for every mode.
     basis
         .workspace
-        .with(|workspace| normalize_mode_in(mode, phi, basis, workspace))
+        .with(|workspace| normalize_mode_in(mode, phi, basis, workspace, storage))
 }
 
-fn normalize_mode_in(
+fn normalize_mode_in<S: ShapeStorage>(
     mode: usize,
     phi: &[f64],
     basis: &ModalBasis<'_>,
     workspace: &mut SumWorkspace,
+    storage: &mut S,
 ) -> Result<NormalizedMode, ModalQuantityError> {
     let SumWorkspace { sum, limbs, below } = workspace;
     let n = basis.dimension();
@@ -410,7 +546,7 @@ fn normalize_mode_in(
     };
     let reference = reference.ok_or(ModalQuantityError::ZeroShape { mode })?;
     let pivot = phi[reference];
-    finish_normalization(mode, phi, basis, sum, limbs, below, Chosen { case, reference, pivot, t, theta })
+    finish_normalization(mode, phi, basis, sum, limbs, below, Chosen { case, reference, pivot, t, theta }, storage)
 }
 
 /// the normalization of a
@@ -478,13 +614,28 @@ pub struct LiftedShape {
 
 /// The published lifted shape (see [`LiftedShape`]).
 pub fn publish_lifted(mode: usize, lifted: &[f64], chosen: &LiftedNormalization) -> Result<LiftedShape, ModalQuantityError> {
+    publish_lifted_with(mode, lifted, chosen, &mut FallibleStorage)
+}
+
+/// [`publish_lifted`] with the caller's [`ShapeStorage`]. The shape is
+/// requested at the lifted length; the below-normal indices, counted in the
+/// shape's pass, are then requested at their exact count and gathered by a
+/// second pass that applies the same exact test to the same entries.
+pub fn publish_lifted_with<S: ShapeStorage>(
+    mode: usize,
+    lifted: &[f64],
+    chosen: &LiftedNormalization,
+    storage: &mut S,
+) -> Result<LiftedShape, ModalQuantityError> {
     let pivot = chosen.pivot;
     if pivot == 0.0 || !pivot.is_finite() {
         return Err(ModalQuantityError::ZeroShape { mode });
     }
     let threshold = WideDd::from_f64(pivot.abs()).mul_f64(f64::MIN_POSITIVE);
-    let mut shape = Vec::with_capacity(lifted.len());
-    let mut below_normal_range = Vec::new();
+    let below_normal = |v: f64| v != 0.0 && !WideDd::from_f64(v.abs()).sub(threshold).is_non_negative();
+    let mut shape = Vec::new();
+    storage.modal_shape_reserve(&mut shape, lifted.len(), LIFTED_SHAPE).map_err(ModalQuantityError::Storage)?;
+    let mut below_count = 0;
     for (index, &v) in lifted.iter().enumerate() {
         if !v.is_finite() {
             return Err(ModalQuantityError::NonFinite { name: "lifted phi", index });
@@ -493,13 +644,16 @@ pub fn publish_lifted(mode: usize, lifted: &[f64], chosen: &LiftedNormalization)
         if !s.is_finite() {
             return Err(ModalQuantityError::ShapeOutOfRange { mode, index });
         }
-        if v != 0.0 && !WideDd::from_f64(v.abs()).sub(threshold).is_non_negative() {
-            below_normal_range.push(index);
+        if below_normal(v) {
+            below_count += 1;
             shape.push(0.0);
         } else {
             shape.push(s);
         }
     }
+    let mut below_normal_range = Vec::new();
+    storage.modal_shape_reserve(&mut below_normal_range, below_count, LIFTED_BELOW_NORMAL).map_err(ModalQuantityError::Storage)?;
+    below_normal_range.extend(lifted.iter().enumerate().filter(|&(_, &v)| below_normal(v)).map(|(index, _)| index));
     Ok(LiftedShape { shape, below_normal_range })
 }
 
@@ -513,6 +667,17 @@ pub fn normalize_mode_lifted(
     phi: &[f64],
     basis: &ModalBasis<'_>,
     chosen: LiftedNormalization,
+) -> Result<NormalizedMode, ModalQuantityError> {
+    normalize_mode_lifted_with(mode, phi, basis, chosen, &mut FallibleStorage)
+}
+
+/// [`normalize_mode_lifted`] with the caller's [`ShapeStorage`].
+pub fn normalize_mode_lifted_with<S: ShapeStorage>(
+    mode: usize,
+    phi: &[f64],
+    basis: &ModalBasis<'_>,
+    chosen: LiftedNormalization,
+    storage: &mut S,
 ) -> Result<NormalizedMode, ModalQuantityError> {
     basis.workspace.with(|workspace| {
         let SumWorkspace { sum, limbs, below } = workspace;
@@ -533,7 +698,7 @@ pub fn normalize_mode_lifted(
             t: chosen.max_translation,
             theta: chosen.max_rotation,
         };
-        finish_normalization(mode, phi, basis, sum, limbs, below, chosen_at)
+        finish_normalization(mode, phi, basis, sum, limbs, below, chosen_at, storage)
     })
 }
 
@@ -546,7 +711,8 @@ struct Chosen {
     theta: f64,
 }
 
-fn finish_normalization(
+#[allow(clippy::too_many_arguments)]
+fn finish_normalization<S: ShapeStorage>(
     mode: usize,
     phi: &[f64],
     basis: &ModalBasis<'_>,
@@ -554,6 +720,7 @@ fn finish_normalization(
     limbs: &mut Vec<i64>,
     below: &mut Vec<usize>,
     chosen: Chosen,
+    storage: &mut S,
 ) -> Result<NormalizedMode, ModalQuantityError> {
     let n = basis.dimension();
     let Chosen { case, reference, pivot, t, theta } = chosen;
@@ -565,12 +732,13 @@ fn finish_normalization(
     // quantities below are formed from the published shape.
     let threshold = WideDd::from_f64(pivot.abs()).mul_f64(f64::MIN_POSITIVE);
     let mut below_normal_range = BelowNormalRange::default();
-    let mut shape = Vec::with_capacity(n);
+    let mut shape = Vec::new();
+    storage.modal_shape_reserve(&mut shape, n, NORMALIZED_SHAPE).map_err(ModalQuantityError::Storage)?;
     // The below-normal indices are gathered in the workspace (room for n,
     // requested once) and copied out at exact capacity.
     below.clear();
     if below.capacity() < n {
-        below.reserve_exact(n);
+        storage.modal_shape_reserve(below, n, NORMALIZATION_SCRATCH).map_err(ModalQuantityError::Storage)?;
     }
     for (index, &v) in phi.iter().enumerate() {
         let s = v / pivot;
@@ -585,7 +753,7 @@ fn finish_normalization(
             shape.push(s);
         }
     }
-    below_normal_range.shape = Vec::with_capacity(below.len());
+    storage.modal_shape_reserve(&mut below_normal_range.shape, below.len(), NORMALIZED_BELOW_NORMAL).map_err(ModalQuantityError::Storage)?;
     below_normal_range.shape.extend_from_slice(below);
 
     let m = mass_bilinear(basis.mass, &shape, &shape, sum, limbs);
@@ -654,8 +822,26 @@ fn finish_normalization(
 /// Running sums of the published effective-mass fractions, in mode order,
 /// accumulated in double-double and rounded once each.
 pub fn cumulative_effective_mass_fractions(modes: &[NormalizedMode]) -> Vec<[Option<f64>; 3]> {
-    let mut sums = [DdAccumulator::new(); 3];
     let mut out = Vec::with_capacity(modes.len());
+    push_cumulative_fractions(modes, &mut out);
+    out
+}
+
+/// [`cumulative_effective_mass_fractions`] with the caller's
+/// [`ShapeStorage`]: the rows are requested first, at the mode count, and
+/// formed only once the request is granted.
+pub fn cumulative_effective_mass_fractions_with<S: ShapeStorage>(
+    modes: &[NormalizedMode],
+    storage: &mut S,
+) -> Result<Vec<[Option<f64>; 3]>, ShapeStorageError> {
+    let mut out = Vec::new();
+    storage.modal_shape_reserve(&mut out, modes.len(), CUMULATIVE_FRACTIONS)?;
+    push_cumulative_fractions(modes, &mut out);
+    Ok(out)
+}
+
+fn push_cumulative_fractions(modes: &[NormalizedMode], out: &mut Vec<[Option<f64>; 3]>) {
+    let mut sums = [DdAccumulator::new(); 3];
     for mode in modes {
         let mut row = [None; 3];
         for k in 0..3 {
@@ -666,7 +852,6 @@ pub fn cumulative_effective_mass_fractions(modes: &[NormalizedMode]) -> Vec<[Opt
         }
         out.push(row);
     }
-    out
 }
 
 /// f (Hz), ω (rad/s) and T (s) of an eigenvalue λ = ω² (rad²/s²).
@@ -768,6 +953,102 @@ mod tests {
             }
         }
         (mass, dofs, p)
+    }
+
+    /// A test storage: counts each nonzero request and refuses the `armed`-th
+    /// (0-based) as an allocator refusal would, before any request.
+    struct CountingStorage {
+        armed: Option<usize>,
+        seen: Vec<&'static str>,
+    }
+
+    impl ShapeStorage for CountingStorage {
+        fn modal_shape_reserve<T>(&mut self, vec: &mut Vec<T>, len: usize, structure: &'static str) -> Result<(), ShapeStorageError> {
+            if len > 0 {
+                let index = self.seen.len();
+                self.seen.push(structure);
+                if self.armed == Some(index) {
+                    return Err(ShapeStorageError::AllocationFailed { structure, elements: len, bytes: len * std::mem::size_of::<T>() });
+                }
+            }
+            reserve_exactly(vec, len, structure)
+        }
+    }
+
+    /// Every storage request of a normalization (plain and lifted), a lifted
+    /// publication and the cumulative rows refuses in turn with the typed
+    /// storage error and nothing published; unarmed, each result is the
+    /// default storage's, bit for bit.
+    #[test]
+    fn each_storage_request_refuses_typed_and_unarmed_results_are_unchanged() {
+        let (mass, dofs, p) = twelve_dof_basis_parts();
+        let basis = ModalBasis::new(&mass, &dofs, [&p[0], &p[1], &p[2]], [10.0; 3], 2.0, TAU_T).unwrap();
+        let mut phi = vec![0.0; 12];
+        phi[0] = 0.5;
+        phi[7] = -1.25;
+        phi[9] = f64::MIN_POSITIVE * 1e-3; // a below-normal published component
+        let lifted: Vec<f64> = phi.iter().map(|v| v * 3.0).collect();
+        let chosen = lifted_normalization(0, &lifted, 2.0, TAU_T).unwrap();
+        let bits = |v: &[f64]| v.iter().map(|x| x.to_bits()).collect::<Vec<_>>();
+        type Run<'a> = Box<dyn Fn(&mut CountingStorage) -> Result<String, ModalQuantityError> + 'a>;
+        let runs: Vec<(&str, Run<'_>, String, Vec<&str>)> = {
+            let plain = normalize_mode(0, &phi, &basis).unwrap();
+            let reduced = normalize_mode_lifted(0, &phi, &basis, chosen).unwrap();
+            let published = publish_lifted(0, &lifted, &chosen).unwrap();
+            let cumulative = cumulative_effective_mass_fractions(std::slice::from_ref(&plain));
+            assert_eq!(plain.below_normal_range.shape, vec![9]);
+            assert_eq!(published.below_normal_range, vec![9]);
+            let b = &basis;
+            let (phi2, phi3, lifted2, plain2) = (phi.clone(), phi.clone(), lifted.clone(), plain.clone());
+            vec![
+                ("plain", Box::new(move |s: &mut CountingStorage| normalize_mode_with(0, &phi2, b, s).map(|m| format!("{m:?}{:?}", bits(&m.shape)))) as Run<'_>,
+                    format!("{plain:?}{:?}", bits(&plain.shape)), vec![NORMALIZED_SHAPE, NORMALIZED_BELOW_NORMAL]),
+                ("reduced", Box::new(move |s: &mut CountingStorage| normalize_mode_lifted_with(0, &phi3, b, chosen, s).map(|m| format!("{m:?}{:?}", bits(&m.shape)))) as Run<'_>,
+                    format!("{reduced:?}{:?}", bits(&reduced.shape)), vec![NORMALIZED_SHAPE, NORMALIZED_BELOW_NORMAL]),
+                ("lifted", Box::new(move |s: &mut CountingStorage| publish_lifted_with(0, &lifted2, &chosen, s).map(|m| format!("{m:?}{:?}", bits(&m.shape)))) as Run<'_>,
+                    format!("{published:?}{:?}", bits(&published.shape)), vec![LIFTED_SHAPE, LIFTED_BELOW_NORMAL]),
+                ("cumulative", Box::new(move |s: &mut CountingStorage| {
+                    cumulative_effective_mass_fractions_with(std::slice::from_ref(&plain2), s).map(|c| format!("{c:?}")).map_err(ModalQuantityError::Storage)
+                }) as Run<'_>, format!("{cumulative:?}"), vec![CUMULATIVE_FRACTIONS]),
+            ]
+        };
+        for (name, run, expected, structures) in &runs {
+            let mut unarmed = CountingStorage { armed: None, seen: Vec::new() };
+            assert_eq!(&run(&mut unarmed).unwrap(), expected, "{name}: unarmed equals the default storage");
+            assert_eq!(&unarmed.seen, structures, "{name}: the requests (the workspace scratch is already retained)");
+            for k in 0..structures.len() {
+                let mut armed = CountingStorage { armed: Some(k), seen: Vec::new() };
+                match run(&mut armed) {
+                    Err(ModalQuantityError::Storage(ShapeStorageError::AllocationFailed { structure, .. })) => assert_eq!(structure, structures[k], "{name} {k}"),
+                    other => panic!("{name}: request {k} did not refuse typed: {other:?}"),
+                }
+                assert_eq!(armed.seen.len(), k + 1, "{name}: the refusal at request {k} ends the call");
+            }
+        }
+        // A fresh basis's first normalization also requests its retained scratch.
+        let fresh = ModalBasis::new(&mass, &dofs, [&p[0], &p[1], &p[2]], [10.0; 3], 2.0, TAU_T).unwrap();
+        let mut first = CountingStorage { armed: Some(1), seen: Vec::new() };
+        assert!(matches!(
+            normalize_mode_with(0, &phi, &fresh, &mut first),
+            Err(ModalQuantityError::Storage(ShapeStorageError::AllocationFailed { structure: NORMALIZATION_SCRATCH, .. }))
+        ));
+    }
+
+    /// The byte size is checked before any request: an element count whose
+    /// bytes pass isize::MAX refuses CapacityOverflow and allocates nothing;
+    /// a zero count requests nothing.
+    #[test]
+    fn storage_overflow_is_refused_before_any_request() {
+        let mut v: Vec<f64> = Vec::new();
+        let too_many = (isize::MAX as usize) / 8 + 1;
+        assert_eq!(
+            reserve_exactly(&mut v, too_many, LIFTED_SHAPE),
+            Err(ShapeStorageError::CapacityOverflow { structure: LIFTED_SHAPE, elements: too_many, element_size: 8 })
+        );
+        assert_eq!(reserve_exactly(&mut v, usize::MAX, LIFTED_SHAPE).unwrap_err().structure(), LIFTED_SHAPE);
+        assert_eq!(v.capacity(), 0);
+        reserve_exactly(&mut v, 0, LIFTED_SHAPE).unwrap();
+        assert_eq!(v.capacity(), 0);
     }
 
     #[test]

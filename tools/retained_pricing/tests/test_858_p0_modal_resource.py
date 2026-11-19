@@ -1,8 +1,9 @@
 """DEL-04-09 O-4 P0 and S1 (§8.58): the modal resource preflight's pricing rules.
 
 No retained root reaches modal, so every resource.rs and tests_resource.rs site is at multiplicity zero. The rules:
-- MODAL-ID re-keys run_modal_dense's three sites to run_modal_dense_with_budget, which now holds the body, and stops
-  unless run_modal_dense is exactly its one-line delegation;
+- MODAL-ID re-keys run_modal_dense's three sites to run_modal_dense_with_budget, which held the body at §8.58, and stops
+  unless run_modal_dense is exactly its one-line delegation (since §8.63 the body is run_modal_dense_within's, and
+  run_modal_dense_with_budget is in turn its one-line delegation: MODAL-CS-RK, tests/test_863_modal_completed_set.py);
 - MODAL-FB subtracts modal_resource_bound_dimensions' `.min(` (a u128 receiver) from certified_publication's private
   FallbackError, its body pinned;
 - MODAL-ID audits resource.rs's refusal arguments (resource.rs pinned whole) and tests_resource.rs's, and sizes the two
@@ -61,8 +62,9 @@ EXPECTED_ARGS = [
 @pytest.mark.parametrize("route", ["L", "E"])
 def test_the_p0_audits_and_test_site_sizes_are_carried(monkeypatch, route):
     d = decisions(monkeypatch, route=route)
+    # The §8.58 audits only; the completed-set boundary's (MODAL-CS, §8.63) are test_863's.
     found = [{a: v["bytes"] for a, v in value.items()} for key, value in d["O10_ID_AUDIT"]
-             if str(key).rsplit(":", 1)[0] in (RS, TRS)]
+             if str(key).rsplit(":", 1)[0] in (RS, TRS) and "MODAL-CS" not in next(iter(value.values()))["source"]]
     assert found == EXPECTED_ARGS
     sizes = [(str(k), b) for k, b, why in d["O10_SITE_SIZE"] if "§8.58" in why]
     assert [b for _, b in sizes] == [0, 0]
@@ -75,8 +77,9 @@ def test_the_dense_entry_sites_follow_its_body(monkeypatch, route):
     keys = [str(k) for k, v in d["O10_ID_AUDIT"] if str(k).startswith(OUTCOME + ":")
             and set(v) & {"i+1", "orthogonality.pair.map(|(a,b)|(a+1,b+1))|?"}]
     assert len(keys) == 3
+    # They follow the body: in run_modal_dense_within since §8.63 (MODAL-CS-RK), after every wrapper.
     text = (SOURCE / OUTCOME).read_text(encoding="utf-8").split("\n")
-    start = next(i for i, l in enumerate(text) if l.startswith("pub(crate) fn run_modal_dense_with_budget("))
+    start = next(i for i, l in enumerate(text) if l.startswith("pub(crate) fn run_modal_dense_within("))
     assert all(int(k.rsplit(":", 1)[1]) - 1 > start for k in keys)
 
 
