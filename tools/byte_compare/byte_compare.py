@@ -104,10 +104,10 @@ BUILD_SCRIPT_ENV = frozenset({"CARGO", "CARGO_ENCODED_RUSTFLAGS", "CARGO_MANIFES
                               "DEBUG", "HOST", "NUM_JOBS", "OPT_LEVEL", "OUT_DIR", "PROFILE", "RUSTC", "RUSTDOC",
                               "TARGET"})
 BUILD_SCRIPT_ENV_PREFIXES = ("CARGO_CFG_", "CARGO_FEATURE_", "CARGO_PKG_")
-# The profile's trim-paths setting, which cargo 1.100 and later give every build-script run (earlier
-# cargo gives neither). The attested build trims no paths, so each may be present only with the value
-# that says so. A remap pair names the build's own directories, which differ between the two sides,
-# and a build script may write what it is given into the source it generates.
+# The profile's trim-paths setting, which cargo 1.100 and later give every build-script run. Either
+# variable may be absent. The attested build trims no paths, so each may be present only with the
+# value that says so. A nonempty remap can expose build-specific paths, which differ between the two
+# sides, to the source a build script generates.
 BUILD_SCRIPT_TRIM_PATHS_ENV = {"CARGO_TRIM_PATHS_SCOPE": "none", "CARGO_TRIM_PATHS_REMAP": ""}
 # The dynamic-library search path cargo sets for every process it starts (macOS, Linux).
 LIBRARY_PATH_ENV = frozenset({"DYLD_FALLBACK_LIBRARY_PATH", "LD_LIBRARY_PATH"})

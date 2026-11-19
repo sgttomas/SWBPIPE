@@ -1209,17 +1209,19 @@ ITOA = f"{REGISTRY}#itoa@1.0.18"
 PROC_MACRO2_RUN = "proc-macro2-5d24402fc79aac90/build-script-build`"
 
 
-def test_a_build_script_run_told_that_no_path_is_trimmed_attests_as_before():
+@pytest.mark.parametrize("given", ["CARGO_TRIM_PATHS_REMAP='' CARGO_TRIM_PATHS_SCOPE=none",
+                                   "CARGO_TRIM_PATHS_REMAP=''", "CARGO_TRIM_PATHS_SCOPE=none"])
+def test_a_build_script_run_told_that_no_path_is_trimmed_attests_as_before(given):
     # Cargo 1.100 and later give every build-script run the trim-paths setting, as `none` and an
-    # empty remap when the profile trims nothing; earlier cargo gives neither. With both added to
-    # every run of the captured build, the attestation is the one the capture gives without them.
+    # empty remap when the profile trims nothing. Either variable may be absent. With both, or
+    # either one alone, added to every run of the captured build, the attestation is the one the
+    # capture gives without them.
     def told(text):
         lines = text.split("\n")
         runs = [i for i, line in enumerate(lines) if line.endswith("/build-script-build`")]
         assert len(runs) == 10, len(runs)
         for i in runs:
-            lines[i] = edit(lines[i], "CARGO_ENCODED_RUSTFLAGS=''",
-                            "CARGO_ENCODED_RUSTFLAGS='' CARGO_TRIM_PATHS_REMAP='' CARGO_TRIM_PATHS_SCOPE=none")
+            lines[i] = edit(lines[i], "CARGO_ENCODED_RUSTFLAGS=''", f"CARGO_ENCODED_RUSTFLAGS='' {given}")
         return "\n".join(lines)
     assert attest_captured(stderr=told) == attest_captured()
 
@@ -1640,9 +1642,18 @@ def run_real(world, capsys):
 
 
 def generated_source(world, side):
-    found = list((world["tmp"] / "scratch" / "build" / "target").glob(f"{side}-*/release/build/dep-*/out/gen.rs"))
-    assert len(found) == 1, found
-    return found[0].read_text()
+    # Where cargo itself says the build script wrote (its `build-script-executed` message), since the
+    # layout of the target directory is cargo's to change.
+    log = world["tmp"] / "scratch" / f"build-{side}.jsonl"
+    messages = (json.loads(line) for line in log.read_text().splitlines() if line.startswith("{"))
+    paths = [
+        Path(message["out_dir"]) / "gen.rs"
+        for message in messages
+        if message.get("reason") == "build-script-executed"
+        and message["package_id"].endswith("/dep#0.1.0")
+    ]
+    assert len(paths) == 1, paths
+    return paths[0].read_text()
 
 
 @RUNS_CARGO
