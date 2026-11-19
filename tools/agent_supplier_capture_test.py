@@ -409,6 +409,15 @@ def test_original_stub_provider_post_seam_preserves_its_script_without_a_listene
     assert provider.requests[0]['answer'] == 'swbpipe_read_model_summary'
 
 
+def test_every_scripted_summary_reports_the_catalogs_limits():
+    """The scripted replies are sent beside tool declarations loaded from the current catalog, so
+    a summary among them must report that catalog's limits and no earlier figure."""
+    limits = json.loads(adapter.CATALOG.read_text())['limits']
+    outcomes = json.loads(adapter.OUTCOMES.read_text())['outcomes']
+    reported = [o['data']['limits'] for o in outcomes if isinstance(o.get('data'), dict) and 'limits' in o['data']]
+    assert len(reported) == 2 and all(found == limits for found in reported)
+
+
 def test_selected_outcome_values_keep_the_frozen_reference_meaning():
     from tools.agent_journey_fixture import w9a_reference, COMPONENT
     outcomes = json.loads(adapter.OUTCOMES.read_text())['outcomes']

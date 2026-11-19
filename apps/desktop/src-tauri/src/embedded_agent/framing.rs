@@ -396,6 +396,23 @@ mod tests {
     }
 
     #[test]
+    fn arguments_are_admitted_at_the_bound_and_refused_one_byte_over() {
+        let registry = registry();
+        let limits = limits();
+        // The span counted is the raw arguments value, its two quotes included.
+        let frame = |span: usize| format!(
+            r#"{{"id":1,"method":"item/tool/call","params":{{"arguments":"{}"}}}}"#,
+            "x".repeat(span - 2)
+        );
+        let bound = limits.argument_bytes as usize;
+        assert!(decode(frame(bound).as_bytes(), &registry, limits).is_ok());
+        assert!(matches!(
+            decode(frame(bound + 1).as_bytes(), &registry, limits),
+            Err(Error::Invalid("agent payload byte cap exceeded"))
+        ));
+    }
+
+    #[test]
     fn arguments_are_capped_without_materializing_their_string() {
         let registry = registry();
         let limits = limits();

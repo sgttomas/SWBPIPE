@@ -61,7 +61,7 @@ function holdsRun(result:SessionResult|null,run:Run):result is SessionResult{
  return !!result&&result===run.receipt.result;
 }
 type Proof=Record<string,unknown>;
-const LIMITS={argumentBytes:16384,resultBytes:65536,pageRows:50,pendingCalls:16,proposalOperations:16};
+const LIMITS={argumentBytes:28672,resultBytes:65536,pageRows:50,pendingCalls:16,proposalOperations:16};
 const plain=(x:unknown):x is Record<string,unknown>=>!!x&&typeof x==='object'&&!Array.isArray(x);
 const ENGINE_HASH=/^sha256:[0-9a-f]{64}$/,CATALOG_HASH=/^[0-9a-f]{64}$/;
 /** A workspace hash in the catalog's form. The workspace and the operation engine write
@@ -85,7 +85,7 @@ export const ADMITTED_OPERATION_KINDS=Object.freeze(['modify/Node/set_field/posi
 export const RECORD_FAMILIES=['components','supports','pipe_segments','nodes','materials','sections','load_cases','primitive_loads','combinations','condition_sets','rule_pack_refs','project'] as const;
 export type RecordFamily=typeof RECORD_FAMILIES[number];
 const SUPPORT_CONFIGURATION=['family','restraints','stiffness','hanger','nonlinear','provenance'] as const;
-const RECORD_PAGE_BYTES=48*1024,RECORD_TEXT_BYTES=16384,ID_CHARS=160;
+const RECORD_PAGE_BYTES=48*1024,RECORD_TEXT_BYTES=28672,ID_CHARS=160;
 // A result page stops before the row whose native row text would take the page's row texts past
 // this many bytes (always at least one row); the cursor resumes it. The host applies the same rule
 // to the native rows query's own page, so the page's extent is the query's, not the webview's.
