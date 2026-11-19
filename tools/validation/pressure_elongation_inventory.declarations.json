@@ -1910,6 +1910,12 @@
    "paths": [
     "apps/desktop/src/services/embeddedAgentSession.records.test.ts"
    ]
+  },
+  {
+   "reason": "session tests of the agent's bounded record read: the committed reference system's load cases read back across pages, and invented cases that name pressure regions as a held text; no mechanics solve is performed",
+   "paths": [
+    "apps/desktop/src/services/embeddedAgentSession.test.ts"
+   ]
   }
  ],
  "notes": [
