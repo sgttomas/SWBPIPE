@@ -7,15 +7,16 @@
 // stale. Scalar field edits take their stored value from recordText, as the tool says.
 // Route checks with scripted inputs on committed invented fixtures; nothing here is a
 // person's entry or a use case completed.
-import { describe, expect, it } from "vitest";
+import { describe, expect, it, vi } from "vitest";
 import referenceJson from "../../../../fixtures/reference_system/reference_system.json";
 import demoJson from "../../../../fixtures/product_preview/invented_demo_model.json";
 import m2 from "../../../../fixtures/model_operations/agent_m2_component_journey.json";
 import catalog from "../../src-tauri/resources/agent-capability-catalog.json";
-import type { PreviewModel } from "../types";
+import type { ModelHashEvidence, PreviewModel } from "../types";
 import { readFileSync } from "node:fs";
 import { resolve } from "node:path";
-import { familyRecords, RECORD_FAMILIES, recordBefore, stampAgentOperations, type RecordFamily } from "./embeddedAgentSession";
+import { EmbeddedAgentSession, familyRecords, RECORD_FAMILIES, recordBefore, stampAgentOperations, type RecordFamily, type WorkspaceExecution } from "./embeddedAgentSession";
+import type { AgentBasis } from "./embeddedAgentBridge";
 import { PERSON_ENTERED_CHECK, writesUserEnteredModifier } from "./operationAuthorship";
 import { applyOperationBatch } from "./operationBatchService";
 import { canonicalJsonString, computeModelHash } from "./hashService";
@@ -50,6 +51,40 @@ async function applied(model: PreviewModel, operation: AnyRecord): Promise<Previ
   return outcome.applied_model!;
 }
 const json = (value: unknown) => JSON.stringify(value);
+type RecordPage = { status: string; message: string; data: { records: { id: string }[]; nextCursor: string | null } };
+/** The agent session's own read of the load cases, page by page, over this model: the native side is scripted, the read is the product's. */
+async function readLoadCases(model: PreviewModel): Promise<RecordPage[]> {
+  const hash = { algorithm: "sha256", canonicalization: "rfc8785_jcs", payload_scope: "model_payload", payload_ref: "invented", value: "a".repeat(64), hash_status: "computed_local_preview" } as ModelHashEvidence;
+  const basis: AgentBasis = { workspaceHandle: "workspace-invented", applicationGeneration: 1, modelRevision: 1, modelHash: hash, stateId: null, runId: null };
+  let reference = "records:1", tool = "swbpipe_read_model_summary", args: AnyRecord = {};
+  const owner: WorkspaceExecution = { snapshot: () => ({ model, hash: { ...hash, value: `sha256:${hash.value}` } as ModelHashEvidence, revision: 1, generation: 1, result: null, standing: null }),
+    register: async () => "batch-key", proposal: () => ({ status: "pending_review" as const, outcomeModelHash: null }), solve: async () => ({ kind: "not_started" as const, message: "not started" }), withdraw: () => undefined };
+  const invoke = async (value: AnyRecord): Promise<unknown> => {
+    switch (value.kind) {
+      case "register": return { ...basis, ownerCapability: "private-owner-capability" };
+      case "start": return { status: "starting" };
+      case "poll": return { status: "ready", notices: [reference], messages: [], closed: false, turnActive: false, turnStatus: "none" };
+      case "claim": return { raw: JSON.stringify({ requestRef: reference, threadId: "thread-1", turnId: "turn-1", callId: "call-1", basis, tool, arguments: args }) };
+      case "publish_actual": return { recorded: true };
+      case "complete": return { delivery: "detached" };
+      default: return {};
+    }
+  };
+  // The session polls on a timer; here each poll is made by hand, so that timer is held still.
+  vi.useFakeTimers({ toFake: ["setTimeout", "clearTimeout"] });
+  const session = new EmbeddedAgentSession(owner, invoke);
+  const settle = async () => { for (let i = 0; i < 4000 && !session.actual(reference); i++) await new Promise((done) => setImmediate(done)); };
+  await session.start("revision"); await session.poll(); await settle();
+  const pages: RecordPage[] = []; let cursor: string | null = null;
+  do {
+    reference = `records:${pages.length + 2}`; tool = "swbpipe_read_records"; args = { family: "load_cases", page: { cursor, limit: 5 } };
+    await session.poll(); await settle();
+    const page = JSON.parse(session.actual(reference)!.outcome) as RecordPage; pages.push(page); cursor = page.data?.nextCursor ?? null;
+  } while (cursor !== null && pages.length < 20);
+  await session.close();
+  vi.useRealTimers();
+  return pages;
+}
 const find = (model: PreviewModel, collection: string, id: string) => ((model as unknown as AnyRecord)[collection] as AnyRecord[]).find((row) => row.id === id)!;
 
 describe("swbpipe_read_records before texts are the ones the engine compares", () => {
@@ -187,6 +222,34 @@ describe("swbpipe_read_records before texts are the ones the engine compares", (
     model = await applied(model, op("modify", "Support", supportId, "update_support", "provenance_record", (await read(model, "supports", supportId)).before.provenance_record, json(record)));
     model = await applied(model, op("modify", "Support", supportId, "update_support", "provenance_record", (await read(model, "supports", supportId)).before.provenance_record, json({ ...record, review_status: "quarantined" })));
     expect((find(model, "supports", supportId).provenance_record as AnyRecord).review_status).toBe("quarantined");
+  }, 120_000);
+
+  it("a record the read names as not returned exists: the engine refuses to create another with its identifier", async () => {
+    // A read leaves a record over its bound out and names it (issue 401). Here the reference
+    // system's sustained case is given a state one byte over the record text bound, and the
+    // session's read of the load cases names it as not returned and returns the other cases. An
+    // agent that took the name for an absent record and proposed to create it could not: the
+    // engine refuses a create whose identifier is that case's, and applies the same create under
+    // a new identifier.
+    const model = structuredClone(referenceJson) as unknown as PreviewModel;
+    const bytes = (text: string) => new TextEncoder().encode(text).byteLength;
+    const sus = find(model, "load_cases", "load:RS-SUS");
+    const state = sus.analysis_state as AnyRecord;
+    state.provenance = "p".repeat(catalog.limits.argumentBytes + 1 - bytes(await canonicalJsonString({ ...state, provenance: "" })));
+    expect(bytes(await canonicalJsonString(state))).toBe(catalog.definitions.record.properties.before.additionalProperties.maxLength + 1);
+    const pages = await readLoadCases(model);
+    expect(pages.map((page) => page.status)).toEqual(pages.map(() => "ok"));
+    expect(pages[0].message.startsWith('Not returned, over this catalog\'s record bound: "load:RS-SUS".')).toBe(true);
+    expect(pages.flatMap((page) => page.data.records.map((record) => record.id))).toEqual(model.load_cases.map((item) => item.id).filter((id) => id !== "load:RS-SUS"));
+    const stored = await canonicalJsonString(sus);
+    const create = (id: string) => op("create", "Load", id, "create_load_case", "load_cases", "not_present", json({ id, label: "agent check", kind: "primitive_user_load", status: "draft", provenance: P }));
+    const refused = await run(model, create("load:RS-SUS"));
+    expect(refused.applied_model).toBeNull();
+    expect(refused.validation.batch_validation_status).not.toBe("passed");
+    expect(codes(refused)).toEqual(["OP-TARGET-ALREADY-EXISTS: Load case `load:RS-SUS` already exists in the current model."]);
+    expect(await canonicalJsonString(find(model, "load_cases", "load:RS-SUS"))).toBe(stored);
+    const fresh = await run(model, create("load:agent-fresh"));
+    expect(fresh.validation.batch_validation_status, codes(fresh).join(" | ")).toBe("passed");
   }, 120_000);
 
   it("the record producer and the engine agree on a stored state as long as the record text bound", async () => {

@@ -85,7 +85,7 @@ export const ADMITTED_OPERATION_KINDS=Object.freeze(['modify/Node/set_field/posi
 export const RECORD_FAMILIES=['components','supports','pipe_segments','nodes','materials','sections','load_cases','primitive_loads','combinations','condition_sets','rule_pack_refs','project'] as const;
 export type RecordFamily=typeof RECORD_FAMILIES[number];
 const SUPPORT_CONFIGURATION=['family','restraints','stiffness','hanger','nonlinear','provenance'] as const;
-const RECORD_PAGE_BYTES=48*1024,RECORD_TEXT_BYTES=28672,ID_CHARS=160;
+const RECORD_PAGE_BYTES=48*1024,RECORD_TEXT_BYTES=28672,ID_CHARS=160,MESSAGE_CHARS=1000;
 // A result page stops before the row whose native row text would take the page's row texts past
 // this many bytes (always at least one row); the cursor resumes it. The host applies the same rule
 // to the native rows query's own page, so the page's extent is the query's, not the webview's.
@@ -106,6 +106,18 @@ const byteLength=(text:string)=>utf8.encode(text).byteLength;
 function namedIds(ids:readonly string[],budget:number):string{
  const shown:string[]=[];let used=0;for(const id of ids){if(used+id.length+2>budget)break;shown.push(id);used+=id.length+2;}
  return `${shown.join(', ')}${shown.length<ids.length?`${shown.length?', ':''}…`:''}`;
+}
+/** A record page's message. Whatever the page left out comes first, so that a page which omits
+ * records is not read as complete: each record over the record bound by name, then a count of any
+ * whose identifier the message cannot carry. With nothing left out it is the page's sentence alone.
+ * `unbound` holds each name as its JSON string (`recordName`): an identifier is model text and may
+ * hold a comma, a quote or a line break, so a bare list could not be told apart from another list. */
+function recordsMessage(unbound:readonly string[],unnamed:number):string{
+ const notice=[
+  ...unbound.length?[`Not returned, over this catalog's record bound: ${unbound.join(', ')}.`]:[],
+  ...unnamed?[`Not returned, with an identifier this catalog cannot carry: ${unnamed} record${unnamed===1?'':'s'}.`]:[],
+ ];
+ return [...notice,'Bounded record page at the captured basis; before texts are exact for that basis only.'].join(' ');
 }
 const blankText=(value:unknown)=>typeof value!=='string'||!value.trim();
 /** At most `limit` Unicode characters (the catalog counts characters), an ellipsis marking a cut. */
@@ -470,17 +482,30 @@ export class EmbeddedAgentSession {
    const family=call.arguments.family as RecordFamily;if(!RECORD_FAMILIES.includes(family))return this.failure(call,'Record family is unavailable.');
    const rows=familyRecords(model,family);
    const offset=this.offset(call),page=call.arguments.page as {limit:number};const records=[];let bytes=0,end=offset;
-   for(;end<rows.length&&records.length<page.limit;end++){
-    const {id,text,record}=rows[end];if(typeof id!=='string'||!id||id.length>ID_CHARS)return this.failure(call,'Record identifier exceeds this catalog page.');
+   // A record the page cannot carry is left out and the page continues past it: never cut, never
+   // silently dropped. Each one left out for size is named in the message as a JSON string, and one
+   // whose identifier the message cannot carry is counted: an identifier the catalog does not admit,
+   // or one whose JSON string would not fit a notice even alone, so that no page can fail to advance.
+   // The limit bounds the rows examined, so the count is at most the limit; the page stops before a
+   // record whose name would not fit beside the names already given, and the cursor resumes it.
+   // RECORD_PAGE_BYTES bounds the sum of the entries' encoded bytes. The array's brackets and commas
+   // (at most 51 bytes at the largest limit) and the result's other members are not charged to it;
+   // they lie in the margin between that sum and the result bound, which the native side enforces.
+   const unbound:string[]=[];let unnamed=0;
+   for(;end<rows.length&&end-offset<page.limit;end++){
+    const {id,text,record}=rows[end];if(!isShortId(id)){unnamed++;continue;}
     const recordText=await canonicalJsonString(text);const before=await recordBefore(family,record,recordText);
-    // Bounds are UTF-8 bytes; a record whose escaped entry alone exceeds a page is unavailable, never cut.
-    if(byteLength(recordText)>RECORD_TEXT_BYTES||Object.values(before).some(text=>byteLength(text)>RECORD_TEXT_BYTES))return this.failure(call,`Record ${id} exceeds this catalog page.`);
+    // Bounds are UTF-8 bytes; a record whose escaped entry alone exceeds a page is left out, never cut.
     const entry={id,recordText,before};const size=byteLength(JSON.stringify(entry));
-    if(size>RECORD_PAGE_BYTES)return this.failure(call,`Record ${id} exceeds this catalog page.`);
+    if(byteLength(recordText)>RECORD_TEXT_BYTES||Object.values(before).some(text=>byteLength(text)>RECORD_TEXT_BYTES)||size>RECORD_PAGE_BYTES){
+     const name=JSON.stringify(id);
+     if(!fitsChars(recordsMessage([name],page.limit),MESSAGE_CHARS)){unnamed++;continue;}
+     if(!fitsChars(recordsMessage([...unbound,name],page.limit),MESSAGE_CHARS))break;unbound.push(name);continue;
+    }
     if(bytes+size>RECORD_PAGE_BYTES)break;bytes+=size;records.push(entry);
    }
    if(!this.current(call))return this.failure(call,'Workspace changed while reading records.','stale_basis');
-   return this.result(call,'ok','Bounded record page at the captured basis; before texts are exact for that basis only.',{family,records,nextCursor:this.cursor(call,end,end<rows.length)},{kind:'read'});
+   return this.result(call,'ok',recordsMessage(unbound,unnamed),{family,records,nextCursor:this.cursor(call,end,end<rows.length)},{kind:'read'});
   }
   if(call.tool==='swbpipe_propose_operations'){
    if(this.#proposals.size>=64)return this.failure(call,'Proposal retention is full.');
