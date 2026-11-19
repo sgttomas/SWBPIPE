@@ -237,9 +237,12 @@ target remains adequate. A failure alone does not justify relaxing one.
      load in cases that use that load.
    - For numerical comparisons, use independent references applicable to the
      fixture revision under test. The packages `reference_system`,
-     `reference_system_r1_ce` and `reference_system_pending_cases` state
-     their respective bases and status. Section 9 also defines identities
-     that require no package.
+     `reference_system_r1_ce`, `reference_system_pending_cases` and
+     `reference_system_generated_loads` state their respective bases and
+     status. `reference_system_generated_loads` holds per-load and warning
+     references for the wind and static seismic cases;
+     `reference_system_pending_cases` remains the reference for EQ-6.
+     Section 9 also defines identities that require no package.
    - No independent solution of the full system's response is frozen, so
      these checks do not establish the response throughout the system.
 
