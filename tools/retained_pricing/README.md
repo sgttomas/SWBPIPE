@@ -793,7 +793,7 @@ without anyone seeing it. Renaming an import or moving a module is ordinary main
 below says whether such a change is made visible (a record changes, so the run stops naming it), is walked (the
 graph reads it), or stops the run outright.
 
-**Rules** (`rules/o10_rules.py`, label MODAL-CS; `tests/test_863_modal_completed_set.py`). None adds an owner.
+**Rules** (`rules/o10_rules.py`, label MODAL-CS; `tests/test_863_modal_completed_set.py` and `tests/test_863_modal_cs_*.py`). None adds an owner.
 - MODAL-CS-RK: the three dense-entry audits are keyed on the function that holds the body, on their `format_args!(`
   rows (the inventory's macros include it). The run stops unless `run_modal_dense_with_budget` is exactly its one-line
   delegation with `None` limits. §8.58's delegation check of `run_modal_dense` stands. Maintenance: renaming either
