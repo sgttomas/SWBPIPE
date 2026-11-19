@@ -155,7 +155,7 @@ import {
   type HandoffBasis
 } from "../handoff/handoffPackageSave";
 import type { HandoffSaveChoice, HandoffSaveDialogRequest } from "../handoff/HandoffSaveDialog";
-import { invokeReportPackageSave, prepareReportPackageSave } from "../../services/reportPackageSaveService";
+import { invokeReportPackageSave, prepareReportPackageSave, type PreparedReportPackageSave } from "../../services/reportPackageSaveService";
 import type { RuleCheckStatus } from "../../services/ruleCheckService";
 import type { ExcludedRulePackRef } from "../../services/rulePackRefDiagnostics";
 import type { SessionRuleCheckRun } from "../report/renderableReportInput";
@@ -178,6 +178,7 @@ import { buildReportPackageRequest, reportPackageExactSubmission, userReleaseMod
 import type { UserReleaseDialogRequest } from "../report/UserReleaseDialog";
 import { invokeUserReleasedReportPackageSave, prepareShareableReportPackageSave, type UserReleaseConfirmation } from "../report/userReleasedReportPackageSave";
 import { controlReportPackageRequest } from "../report/reportRedactionProjector";
+import type { ControlledRouteExport } from "../redaction-controls/redactionExportControls";
 import { buildBundledReferenceContext, buildHistoricalRunContext, buildNativeHistoricalRunContext } from "../results/HistoricalRunContext";
 import { disposeRestoredRun, STORED_RESULT_RESTORE_REFUSED, type RestoredRun } from "../../services/nativeReopen";
 import type { HistoricalRunContext } from "../results/HistoricalRunContext";
@@ -378,6 +379,47 @@ function shareableSaveFailureStatement(error: unknown, sent: boolean): string {
 function localPrivateSaveFailureText(error: unknown): string {
   const diagnostic = formatPackageSaveError(error);
   return readSaveCommandError(error)?.cleanupFailed ? `${LOCAL_PRIVATE_SAVE_TEMP_MAY_REMAIN} ${diagnostic}` : diagnostic;
+}
+
+/** The local-private package request's control and its save's preparation, in that order:
+ * `keep` receives the control result for the session's package state; a blocked control is
+ * passed to `blocked`, at once, and ends here (null); otherwise the request's exact
+ * submission (W-11) is taken and the save prepared. The save handler itself never holds the
+ * control result: it is in this function's frame, which has ended before the native save is
+ * awaited, and in whatever `keep` keeps. The session keeps it whole (`resultsSessionState.ts`):
+ * on this route that state is the one place a caller can read the control's findings after
+ * the save (DEL-12-02 REQ-006, AC-004), so its records are kept on purpose. */
+async function controlAndPrepareReportPackageSave(
+  request: object,
+  privateIntent: boolean,
+  model: PreviewModel,
+  inputManifest: unknown,
+  on: { keep: (controlled: ControlledRouteExport) => void; blocked: (diagnostic: string) => void }
+): Promise<{ prepared: PreparedReportPackageSave; exactSubmission: ReturnType<typeof reportPackageExactSubmission> } | null> {
+  const controlled = controlReportPackageRequest(request, privateIntent);
+  on.keep(controlled);
+  if (controlled.blocked || controlled.payload === null) {
+    on.blocked(`REPORT-PACKAGE-REDACTION-BLOCKED: ${controlled.findings.length} finding(s) prevent package assembly or persistence.`);
+    return null;
+  }
+  // W-11 (DEL-08-01 Design `exact-route-report-sections.md` §3.1, §3.6): a request
+  // from an exact source carries the texts the native save binds, and its admission
+  // is re-checked immediately before each send (null for a pressure-free request).
+  const exactSubmission = reportPackageExactSubmission(request);
+  const prepared = await prepareReportPackageSave(controlled, model, request, inputManifest, exactSubmission);
+  return { prepared, exactSubmission };
+}
+
+/** The shareable save's preparation, for the session: the prepared save and the request (for
+ * the exact re-check). The preparation returns its control result to this caller, as it does
+ * to any caller; the session reads nothing of that result and keeps nothing of it (REQ-019
+ * "Selection"; what the session keeps of a shareable save is its status and receipt), so the
+ * result ends with this function's frame and is not held while the native save is awaited. */
+async function prepareShareableSaveForSession(
+  input: Parameters<typeof prepareShareableReportPackageSave>[0]
+): Promise<Pick<Awaited<ReturnType<typeof prepareShareableReportPackageSave>>, "prepared" | "request">> {
+  const { prepared, request } = await prepareShareableReportPackageSave(input);
+  return { prepared, request };
 }
 
 /**
@@ -4186,20 +4228,13 @@ export function useWorkspaceSession() {
         reportComposition: basis.reportComposition
       });
       if (!isCurrent()) return;
-      const controlled = controlReportPackageRequest(request, basis.privateIntent);
-      setReportPackageRedaction(controlled);
-      if (controlled.blocked || controlled.payload === null) {
-        setReportPackageRoute({
-          route: "redaction_blocked",
-          diagnostic: `REPORT-PACKAGE-REDACTION-BLOCKED: ${controlled.findings.length} finding(s) prevent package assembly or persistence.`
-        });
-        return;
-      }
-      // W-11 (DEL-08-01 Design `exact-route-report-sections.md` §3.1, §3.6): a request
-      // from an exact source carries the texts the native save binds, and its admission
-      // is re-checked immediately before each send (null for a pressure-free request).
-      const exactSubmission = reportPackageExactSubmission(request);
-      const prepared = await prepareReportPackageSave(controlled, basis.model, request, basis.inputManifest.manifest, exactSubmission);
+      // The session's package state keeps the control result (`controlAndPrepareReportPackageSave`).
+      const screened = await controlAndPrepareReportPackageSave(request, basis.privateIntent, basis.model, basis.inputManifest.manifest, {
+        keep: setReportPackageRedaction,
+        blocked: (diagnostic) => setReportPackageRoute({ route: "redaction_blocked", diagnostic })
+      });
+      if (screened === null) return;
+      const { prepared, exactSubmission } = screened;
       if (!isCurrent()) return;
       if (prepared.route !== "ready") {
         setReportPackageRoute(prepared);
@@ -4319,7 +4354,7 @@ export function useWorkspaceSession() {
       // The package reads full rows (C2): a native result's bounded full copy.
       const full = isNativeResult(basis.result) ? (await loadC2Full(basis.result)).result : (basis.result as MechanicsResult);
       if (!isCurrent()) return;
-      const { controlled, prepared, request } = await prepareShareableReportPackageSave({
+      const { prepared, request } = await prepareShareableSaveForSession({
         model: basis.model,
         result: full,
         inputManifest: basis.inputManifest,
