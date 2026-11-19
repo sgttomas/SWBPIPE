@@ -1,7 +1,6 @@
 """tools/serialization/semantic_contract_tables.py: the derived table members are current, and `repin` scopes its
 edits (frozen references and historical records are never edited; an old value found only there is refused; the
-registered retained-memory profile's reviewed_inputs record is never edited), and the committed tables are every
-apply command's fixed point, the spring applied-load row last (apply-spring)."""
+registered retained-memory profile's reviewed_inputs record is never edited)."""
 import importlib.util
 import sys
 from pathlib import Path
@@ -248,58 +247,3 @@ def test_timoshenko_table_is_preview_physics_2_with_its_identity_profile_and_lim
                   == derived["semantic_contract_id"])
     assert branch["properties"]["formulation_basis"]["properties"]["profile_id"]["const"] == derived["formulation_profile_id"]
     assert branch["properties"]["formulation_basis"]["properties"]["limitations"]["const"] == derived["supported_profile_limitations"]
-
-
-def test_every_apply_command_is_current_at_head():
-    # The committed tables are each command's fixed point: none would rewrite a byte.
-    tool = _tool()
-    for apply in (tool.apply_u4b, tool.apply_w7, tool.apply_w16, tool.apply_sk1, tool.apply_branch, tool.apply_spring):
-        assert apply(check=True) == 0, apply.__name__
-
-
-def test_the_spring_applied_load_row_is_constant_efforts_with_its_own_kind_and_is_last():
-    # DEL-04-11 REQ-014 (apply-spring): member for member constant effort's applied-load row but
-    # for the id, kind and component; last on each table it is appended to, numbered after the
-    # highest id of the rows before it; a linear state kind wherever a combination policy is stated.
-    import json
-    tool = _tool()
-    kind = tool.SPRING_APPLIED
-    for name in tool.SPRING_TABLES:
-        table = json.loads((PROJECT / (tool.TABLE % name)).read_text(encoding="utf-8"))
-        rows = table["rows"]
-        assert [r["kind"] for r in rows].count(kind) == 1, name
-        spring = rows[-1]
-        assert spring["kind"] == kind, name
-        assert spring["signature_id"] == "supported-source-%03d" % (tool.highest(rows[:-1]) + 1), name
-        constant_effort = next(r for r in rows if r["kind"] == "constant_effort_support_applied_load")
-        assert list(spring) == list(constant_effort), name
-        differing = {k for k in spring if spring[k] != constant_effort[k]}
-        assert differing == {"signature_id", "kind", "component"}, name
-        assert spring["component"] == kind, name
-    for name in ("pressure_3", "preview_physics_2", "preview_physics_retained_1"):
-        table = json.loads((PROJECT / (tool.TABLE % name)).read_text(encoding="utf-8"))
-        assert kind in table["combination_policy"]["linear_state_kinds"], name
-
-
-def test_the_other_commands_keep_the_spring_row_last_with_its_number():
-    # Re-applying each earlier command to the committed tables, in memory, leaves the spring row
-    # last on every table that carries it, under the same id; no other row's id moves.
-    import json
-    tool = _tool()
-    paths = sorted({tool.TABLE % n for n in tool.SPRING_TABLES + ("physics_retained_1", "preview_physics_retained_1")}
-                   | set(tool.U4B_PATHS) | set(tool.W7_PATHS) | set(tool.BRANCH_PATHS) | set(tool.SK1_PATHS))
-    committed = {p: (PROJECT / p).read_text(encoding="utf-8") for p in paths}
-
-    def ids(files):
-        return {p: [r["signature_id"] for r in json.loads(files[p])["rows"]]
-                for p in files if p.startswith("fixtures/results/semantic_contract_v0_3_")}
-
-    before = ids(committed)
-    for transform in (tool.u4b_tables, tool.w7_tables, tool.w16_tables, tool.branch_tables, tool.sk1_tables):
-        files = dict(committed)
-        transform(files)
-        after = ids(files)
-        assert after == before, transform.__name__
-        for name in tool.SPRING_TABLES:
-            rows = json.loads(files[tool.TABLE % name])["rows"]
-            assert rows[-1]["kind"] == tool.SPRING_APPLIED, (transform.__name__, name)

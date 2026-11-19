@@ -48,11 +48,6 @@ derived from it is regenerated here, never edited by hand:
           commands keep it there and carry it to the inheriting tables), its vocabulary, both
           preview policies' linear state kinds and the result schemas' metadata enums.
           Idempotent; `--check` reports a difference instead of writing.
-  apply-spring  the DEL-04-11 REQ-014 variable spring hanger applied-load signature, member for member
-          constant effort's applied-load row with its own kind and component, on pressure-2,
-          preview-physics-2 and pressure-source-1 (last; the other commands keep it there and carry it
-          to the inheriting tables), numbered after each table's highest id, and the kind in the
-          combination policies' linear state kinds. Idempotent; `--check` reports a difference.
   apply-branch  the RT-A3 increment 1 branch-connection intensified signatures on pressure-2
           (after the W-7 rows; apply-u4b and apply-w7 keep them there and derive carries them
           to physics-retained-1), their basis vocabulary, and pressure-2's result-schema
@@ -298,9 +293,7 @@ SIGNED = {
     "connector_pressure_force_v1", "connector_effective_axial_force_v1", "connector_tie_rod_force_v1",
     "element_global_end_force_v1", "element_global_end_moment_v1",
     # R-6/R-7 S-K1 (DEL-04-03 skew-restraints.md §7.1): a skewed record's along-direction value.
-    "support_reaction_along_direction_v1",
-    # DEL-04-11 REQ-014 (apply-spring): a variable spring hanger's applied cold load.
-    "variable_spring_hanger_applied_load"}
+    "support_reaction_along_direction_v1"}
 RECOMPUTED = {"displacement_magnitude", "support_reaction_force_magnitude_v2", "support_reaction_moment_magnitude_v2"}
 
 # §2.5 and §2.8: the limitation texts.
@@ -417,8 +410,8 @@ def u4b_tables(files: dict) -> None:
         table = json.loads(files[TABLE % name], object_pairs_hook=collections.OrderedDict)
         # W-7's rows, then W-16's and RT-A3's, follow the U4b rows and keep their numbers
         # (apply-w7, apply-w16, apply-branch).
-        w7 = [r for r in table["rows"] if r["kind"] in W7_KINDS + W16_KINDS + BRANCH_KINDS + SK1_KINDS + SPRING_KINDS]
-        rows = [r for r in table["rows"] if r["kind"] not in U4B_KINDS and r["kind"] not in W7_KINDS + W16_KINDS + BRANCH_KINDS + SK1_KINDS + SPRING_KINDS]
+        w7 = [r for r in table["rows"] if r["kind"] in W7_KINDS + W16_KINDS + BRANCH_KINDS + SK1_KINDS]
+        rows = [r for r in table["rows"] if r["kind"] not in U4B_KINDS and r["kind"] not in W7_KINDS + W16_KINDS + BRANCH_KINDS + SK1_KINDS]
         rows = marked(rows + u4b_rows(exact, highest(rows) + 1) + w7)
         table["rows"] = rows
         table["source_signature_count"] = len(rows)
@@ -457,9 +450,8 @@ def u4b_tables(files: dict) -> None:
         files[TABLE % name] = table_text(table)
     # §4.3: pressure-source-1 (its own table; not an inheriting one).
     table = json.loads(files[TABLE % "pressure_source_1"], object_pairs_hook=collections.OrderedDict)
-    spring = [r for r in table["rows"] if r["kind"] in SPRING_KINDS]
-    rows = [r for r in table["rows"] if r["kind"] not in U4B_KINDS and r["kind"] not in SPRING_KINDS]
-    rows = rows + source_u4b_rows(highest(rows) + 1) + spring
+    rows = [r for r in table["rows"] if r["kind"] not in U4B_KINDS]
+    rows = rows + source_u4b_rows(highest(rows) + 1)
     table["rows"] = rows
     table["source_signature_count"] = len(rows)
     table["source_kind_count"] = len({r["kind"] for r in rows})
@@ -509,8 +501,8 @@ def w7_tables(files: dict) -> None:
     for name, bases in (("pressure_3", [W7_BASIS, W7_WALL_BASIS]), ("preview_physics_2", [W7_BASIS])):
         table = json.loads(files[TABLE % name], object_pairs_hook=collections.OrderedDict)
         # W-16's rows (apply-w16) and RT-A3's (apply-branch) follow W-7's and keep their numbers.
-        w16 = [r for r in table["rows"] if r["kind"] in W16_KINDS + BRANCH_KINDS + SK1_KINDS + SPRING_KINDS]
-        rows = [r for r in table["rows"] if r["kind"] not in W7_KINDS + W16_KINDS + BRANCH_KINDS + SK1_KINDS + SPRING_KINDS]
+        w16 = [r for r in table["rows"] if r["kind"] in W16_KINDS + BRANCH_KINDS + SK1_KINDS]
+        rows = [r for r in table["rows"] if r["kind"] not in W7_KINDS + W16_KINDS + BRANCH_KINDS + SK1_KINDS]
         rows = rows + w7_rows(highest(rows) + 1) + w16
         table["rows"] = rows
         table["source_signature_count"] = len(rows)
@@ -586,8 +578,8 @@ def w16_rows(first: int) -> list:
 
 def w16_tables(files: dict) -> None:
     table = json.loads(files[TABLE % "preview_physics_2"], object_pairs_hook=collections.OrderedDict)
-    sk1 = [r for r in table["rows"] if r["kind"] in SK1_KINDS + SPRING_KINDS]
-    rows = [r for r in table["rows"] if r["kind"] not in W16_KINDS + SK1_KINDS + SPRING_KINDS]
+    sk1 = [r for r in table["rows"] if r["kind"] in SK1_KINDS]
+    rows = [r for r in table["rows"] if r["kind"] not in W16_KINDS + SK1_KINDS]
     rows = rows + w16_rows(highest(rows) + 1) + sk1
     table["rows"] = rows
     table["source_signature_count"] = len(rows)
@@ -653,9 +645,8 @@ def branch_record() -> dict:
 
 def branch_tables(files: dict) -> None:
     table = json.loads(files[TABLE % "pressure_3"], object_pairs_hook=collections.OrderedDict)
-    spring = [r for r in table["rows"] if r["kind"] in SPRING_KINDS]
-    rows = [r for r in table["rows"] if r["kind"] not in BRANCH_KINDS + SPRING_KINDS]
-    rows = rows + branch_rows(highest(rows) + 1) + spring
+    rows = [r for r in table["rows"] if r["kind"] not in BRANCH_KINDS]
+    rows = rows + branch_rows(highest(rows) + 1)
     table["rows"] = rows
     table["source_signature_count"] = len(rows)
     table["source_kind_count"] = len({r["kind"] for r in rows})
@@ -718,9 +709,8 @@ def sk1_rows(first: int) -> list:
 
 def sk1_tables(files: dict) -> None:
     table = json.loads(files[TABLE % "preview_physics_2"], object_pairs_hook=collections.OrderedDict)
-    spring = [r for r in table["rows"] if r["kind"] in SPRING_KINDS]
-    rows = [r for r in table["rows"] if r["kind"] not in SK1_KINDS + SPRING_KINDS]
-    rows = rows + sk1_rows(highest(rows) + 1) + spring
+    rows = [r for r in table["rows"] if r["kind"] not in SK1_KINDS]
+    rows = rows + sk1_rows(highest(rows) + 1)
     table["rows"] = rows
     table["source_signature_count"] = len(rows)
     table["source_kind_count"] = len({r["kind"] for r in rows})
@@ -742,64 +732,6 @@ def sk1_tables(files: dict) -> None:
 
 
 SK1_PATHS = [TABLE % "preview_physics_2", TABLE % "preview_physics_retained_1", "schemas/results.v0.3.schema.yaml"]
-
-
-# ---------------------------------------------------------------- DEL-04-11 REQ-014
-# A variable spring hanger's applied cold load (`variable_spring_hanger_applied_load`, N), stated
-# member for member as constant effort's applied-load row (`constant_effort_support_applied_load`)
-# with its own kind and component: one signature on each table that carries constant effort's row
-# (pressure-2, preview-physics-2, pressure-source-1), appended after every other row and numbered
-# after the table's highest id; every other command keeps it last, apply-u4b carries it to
-# preview-physics-retained-1 and derive to physics-retained-1 and preview-physics-timoshenko-1. A
-# signed linear state (the policies' linear_state_kinds). Idempotent; `--check` reports a difference.
-
-SPRING_APPLIED = "variable_spring_hanger_applied_load"
-SPRING_KINDS = (SPRING_APPLIED,)
-SPRING_TABLES = ("pressure_3", "preview_physics_2", "pressure_source_1")
-
-
-def spring_rows(first: int, marked_table: bool) -> list:
-    row = collections.OrderedDict([
-        ("signature_id", "supported-source-%03d" % first), ("kind", SPRING_APPLIED), ("unit", "N"),
-        ("component", SPRING_APPLIED), ("source_physical_semantic_dimension", "force"),
-        ("derivative_target_dimension", "force"), ("category", "assembled_load_review"), ("family", None),
-        ("canonical_disposition", "exported_review"), ("legacy_declared_dimension", None),
-        ("legacy_run_creation_admission", "throws_ANALYSIS_RUN_RESULT_DIMENSION_UNDECLARED"),
-        ("governing_ratio_eligible", False)])
-    if marked_table:
-        row["combination_algebra"] = algebra(SPRING_APPLIED)
-    return [row]
-
-
-def spring_tables(files: dict) -> None:
-    for name in SPRING_TABLES + ("preview_physics_retained_1",):
-        table = json.loads(files[TABLE % name], object_pairs_hook=collections.OrderedDict)
-        if name in SPRING_TABLES:
-            rows = [r for r in table["rows"] if r["kind"] not in SPRING_KINDS]
-            rows = rows + spring_rows(highest(rows) + 1, "combination_algebra" in rows[0])
-            table["rows"] = rows
-            table["source_signature_count"] = len(rows)
-            table["source_kind_count"] = len({r["kind"] for r in rows})
-        policy = table.get("combination_policy")
-        if policy is not None:
-            extend(policy["linear_state_kinds"], SPRING_KINDS)
-        files[TABLE % name] = table_text(table)
-
-
-SPRING_PATHS = [TABLE % n for n in SPRING_TABLES + ("preview_physics_retained_1",)]
-
-
-def apply_spring(check: bool) -> int:
-    current = {p: (PROJECT / p).read_text(encoding="utf-8") for p in SPRING_PATHS}
-    files = dict(current)
-    spring_tables(files)
-    stale = [p for p in SPRING_PATHS if files[p] != current[p]]
-    for path in SPRING_PATHS:
-        state = "unchanged" if path not in stale else ("differs" if check else "written")
-        if path in stale and not check:
-            (PROJECT / path).write_text(files[path], encoding="utf-8")
-        print(f"{path}: {state}; sha256 {hashlib.sha256(files[path].encode('utf-8')).hexdigest()}")
-    return 1 if check and stale else 0
 
 
 def apply_sk1(check: bool) -> int:
@@ -1156,8 +1088,6 @@ def main(argv: list[str]) -> int:
     w16_parser.add_argument("--check", action="store_true")
     sk1_parser = sub.add_parser("apply-sk1")
     sk1_parser.add_argument("--check", action="store_true")
-    spring_parser = sub.add_parser("apply-spring")
-    spring_parser.add_argument("--check", action="store_true")
     branch_parser = sub.add_parser("apply-branch")
     branch_parser.add_argument("--check", action="store_true")
     derive_parser = sub.add_parser("derive")
@@ -1178,8 +1108,6 @@ def main(argv: list[str]) -> int:
         return apply_w16(args.check)
     if args.command == "apply-sk1":
         return apply_sk1(args.check)
-    if args.command == "apply-spring":
-        return apply_spring(args.check)
     if args.command == "apply-branch":
         return apply_branch(args.check)
     if args.command == "derive":

@@ -1,7 +1,7 @@
 {
   "schema_version": "0.3.0",
-  "source_signature_count": 138,
-  "source_kind_count": 70,
+  "source_signature_count": 137,
+  "source_kind_count": 69,
   "canonical_metadata_vocabulary": {
     "component": {
       "type": "string",
@@ -2259,21 +2259,6 @@
       "governing_ratio_eligible": false,
       "source_basis": "user_branch_sif_times_basis_bending_stress_rows_v1; section_basis=reduced_section",
       "combination_algebra": "never_combined"
-    },
-    {
-      "signature_id": "supported-source-115",
-      "kind": "variable_spring_hanger_applied_load",
-      "unit": "N",
-      "component": "variable_spring_hanger_applied_load",
-      "source_physical_semantic_dimension": "force",
-      "derivative_target_dimension": "force",
-      "category": "assembled_load_review",
-      "family": null,
-      "canonical_disposition": "exported_review",
-      "legacy_declared_dimension": null,
-      "legacy_run_creation_admission": "throws_ANALYSIS_RUN_RESULT_DIMENSION_UNDECLARED",
-      "governing_ratio_eligible": false,
-      "combination_algebra": "signed_linear"
     }
   ],
   "hash_vectors": [
@@ -2438,8 +2423,7 @@
       "connector_endpoint_moment_v1",
       "connector_pressure_force_v1",
       "connector_effective_axial_force_v1",
-      "connector_tie_rod_force_v1",
-      "variable_spring_hanger_applied_load"
+      "connector_tie_rod_force_v1"
     ],
     "recomputed_magnitude_kinds": [
       "displacement_magnitude",
