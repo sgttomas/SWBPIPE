@@ -996,9 +996,21 @@ def test_hosted_selection_runs_this_test_when_the_tool_or_its_manifest_changes()
 
 # ------------------------------------------------------------------ build attestation (threat (b)), stubbed
 
+def test_a_lint_level_cargo_itself_passes_is_accounted_for_and_changes_nothing(world):
+    """Cargo on a newer toolchain passes `--force-warn=unused_crate_dependencies` to every unit. It is a lint
+    level, which the attestation accounts for and does not compare, like the levels of a package's [lints]
+    table. The comparison is the one `test_identical_revisions_compare_only_the_numerical_pairs` sees
+    without the argument."""
+    code, table, _ = world["run"](env={"STUB_RUSTC_ARGS": "--force-warn=unused_crate_dependencies"})
+    assert code == 0, table
+    assert "Compared with numerical work on both sides: 4 of 8 pairs** (4 identical, 0 different)" in table
+
+
 @pytest.mark.parametrize("env, needle", [
     ({"STUB_RUSTC_ARGS": "-Zshare-generics"}, "unknown rustc argument '-Zshare-generics'"),
     ({"STUB_RUSTC_ARGS": "--target aarch64-apple-darwin"}, "unknown rustc argument '--target'"),
+    # Only the `=` form cargo writes is a lint level here; the bare flag, whose value is the next word, refuses.
+    ({"STUB_RUSTC_ARGS": "--force-warn unused_crate_dependencies"}, "unknown rustc argument '--force-warn'"),
     ({"STUB_RUSTC_ARGS": "-C linker=/usr/bin/cc"}, "not the runtime settings"),
     ({"STUB_RUSTC_ARGS": "--cfg stray"}, "that its build script did not declare"),
     ({"STUB_RUSTC_ENV": "SNEAKY=1"}, "unexpected environment variable SNEAKY"),

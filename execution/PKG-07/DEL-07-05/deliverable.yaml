@@ -149,6 +149,7 @@ checks:
 - apps/desktop/src/features/results/loadReferenceOutputRefusal.test.tsx
 - apps/desktop/src/features/results/HistoricalRunContext.test.tsx
 - apps/desktop/src/features/results/KnownSemanticNotices.test.tsx
+- apps/desktop/src/features/results/PhysicsSourceEvidencePanel.test.tsx
 - tests/test_results_viewer_contract.py
 - apps/desktop/src/features/viewport/deformationOverlay.test.ts
 - apps/desktop/src/features/viewport/viewportRotationGlyph.test.ts
