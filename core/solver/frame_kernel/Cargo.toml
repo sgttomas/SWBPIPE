@@ -39,3 +39,10 @@ census-probe = []
 # command passes `--features loaded-maximum-hooks`. It stays out of the
 # registered build identity, as `mutation-controls` does.
 loaded-maximum-hooks = []
+# B1 (the declared operating-minus-sustained difference work, DEL-05-02 REQ-012): the test-only
+# ledger-site observer, which records every applied-load ledger append, seal, appended copy and
+# force scaling, and the right-hand side each structural factor completion consumes, with a hook
+# that alters one formed right-hand-side entry. Opt-in only: product_physics forwards it as its own
+# `ledger-site-observer` feature, no `[dev-dependencies]` entry enables it, and only the
+# `ledger-site-observer-test` command passes `--features ledger-site-observer`.
+ledger-site-observer = []

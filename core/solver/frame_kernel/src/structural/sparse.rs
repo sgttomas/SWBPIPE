@@ -1726,6 +1726,8 @@ fn prepare_sparse_bound<'s>(
     prepared.assembly_relative_perturbation_estimate = perturbation;
     prepared.assembly_load_perturbation_estimate = load_perturbation;
     prepared.contribution_rounding = rounding;
+    #[cfg(feature = "ledger-site-observer")]
+    crate::load_ledger::site_observer::formed(crate::load_ledger::site_observer::Preparation::Sparse, &mut prepared.rhs, &prepared.scale_exponents);
     Ok(prepared)
 }
 

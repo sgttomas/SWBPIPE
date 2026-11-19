@@ -41,6 +41,10 @@ census-probe = ["open_pipe_stress_frame_kernel/census-probe"]
 # the genuine-exhaustion control only. No dev-dependency enables it; the guard test
 # `loaded_maximum_hooks_are_off_in_the_ordinary_test_build` asserts it is off there.
 loaded-maximum-hooks = ["open_pipe_stress_frame_kernel/loaded-maximum-hooks"]
+# B1: the kernel's test-only ledger-site observer, for `tests/ledger_site_observer.rs` only. No
+# dev-dependency enables it; that file's guard test asserts the kernel's constant is false in the
+# ordinary test build.
+ledger-site-observer = ["open_pipe_stress_frame_kernel/ledger-site-observer"]
 
 [dev-dependencies]
 # RF source-method design §5.4: the J7 RF census's maintained control reads the

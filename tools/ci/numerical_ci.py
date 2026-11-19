@@ -531,6 +531,15 @@ def affected_manifests(project, manifests, paths, declarations=None, ignored_pat
     return [Path(m) for m in selection['manifests']]
 
 
+# B1's ledger-site observer tests: the same command as the registered check
+# `ledger-site-observer-test` in software-workflow.json.
+LEDGER_SITE_OBSERVER_TEST = (
+    'cargo', 'test', '--offline', '--locked', '--manifest-path', 'core/product_physics/Cargo.toml',
+    '--features', 'ledger-site-observer', '--test', 'ledger_site_observer',
+    '--config', 'profile.test.opt-level=2', '--config', 'profile.test.debug-assertions=true',
+    '--config', 'profile.test.overflow-checks=true')
+
+
 # Named heavy crates keep their complete command groups, including witnesses.
 # Every other current or future manifest belongs to the catch-all shard.
 SHARDS = ('physics', 'reporting-runner', 'other')
@@ -602,6 +611,11 @@ def cargo_plan(project, paths=None, selection=None, shard=None):
                 for witness in readiness.stack_witness_commands():
                     split = witness.index('--')
                     tests.append(list(witness[:split]) + ['--locked'] + list(witness[split:]))
+            if manifest.as_posix() == 'core/product_physics/Cargo.toml':
+                # B1 (DEL-05-02 REQ-012): the ledger-site observer's tests and controls,
+                # the one command that turns the off feature on (registered check
+                # `ledger-site-observer-test`). Measurement builds never pass it.
+                tests.append(list(LEDGER_SITE_OBSERVER_TEST))
         else:
             tests.append(argv)
     fetches = [['cargo', 'fetch', '--locked', '--manifest-path', p.as_posix()] for p in chosen]
