@@ -19032,8 +19032,11 @@
     "absent_capability",
     "numerical_standing"
    ],
-   "named_by": "unnamed",
-   "named_by_coverage": null,
+   "named_by": "LIM-030",
+   "named_by_coverage": {
+    "coverage": "whole",
+    "reason": "LIM-030 names the code for a linear skew model's case that meets a binary64 range failure, which is the only place the product raises it: the case's failure arm, after the range trigger and before any force scaling."
+   },
    "named_by_statement": null
   },
   {
