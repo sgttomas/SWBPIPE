@@ -68,6 +68,7 @@ code_paths:
 # Independent references for the connector. The tied and pressurized joint references
 # (validation/references/t4_u5a, t4_u5b) are held by DEL-04-07.
 - validation/references/t4_i12/**
+- validation/references/t4_i12_preload/**
 # Shared with DEL-03-02, which owns the format: the expansion-joint family's field kinds,
 # completeness rule and diagnostic codes in it are this deliverable's.
 - schemas/component.schema.yaml
