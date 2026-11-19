@@ -1,0 +1,2122 @@
+{
+ "source": "fixtures/reference_system/reference_system.json",
+ "staged_at_commit": "b5569a8215847bedcceac7de7a1b8429a5fde41b",
+ "source_git_blob": "8a9729b033e9929a820b4c5b96a040f4458da1df",
+ "members": {
+  "nodes": [
+   {
+    "id": "node:RS-010",
+    "label": "RS-010 Anchor A (nozzle A)",
+    "position": {
+     "x": 0,
+     "y": 0,
+     "z": 1.0
+    },
+    "provenance": "invented reference-system fixture input (DEL-09-01); not standard, supplier, commercial or project data"
+   },
+   {
+    "id": "node:RS-020",
+    "label": "RS-020 Flange F1 start",
+    "position": {
+     "x": 0.4,
+     "y": 0,
+     "z": 1.0
+    },
+    "provenance": "invented reference-system fixture input (DEL-09-01); not standard, supplier, commercial or project data"
+   },
+   {
+    "id": "node:RS-030",
+    "label": "RS-030 Valve V1 start",
+    "position": {
+     "x": 0.55,
+     "y": 0,
+     "z": 1.0
+    },
+    "provenance": "invented reference-system fixture input (DEL-09-01); not standard, supplier, commercial or project data"
+   },
+   {
+    "id": "node:RS-040",
+    "label": "RS-040 Flange F2 start",
+    "position": {
+     "x": 1.15,
+     "y": 0,
+     "z": 1.0
+    },
+    "provenance": "invented reference-system fixture input (DEL-09-01); not standard, supplier, commercial or project data"
+   },
+   {
+    "id": "node:RS-050",
+    "label": "RS-050 Flange F2 end",
+    "position": {
+     "x": 1.3,
+     "y": 0,
+     "z": 1.0
+    },
+    "provenance": "invented reference-system fixture input (DEL-09-01); not standard, supplier, commercial or project data"
+   },
+   {
+    "id": "node:RS-060",
+    "label": "RS-060 Line stop LS1; vertical support V060",
+    "position": {
+     "x": 3.5,
+     "y": 0,
+     "z": 1.0
+    },
+    "provenance": "invented reference-system fixture input (DEL-09-01); not standard, supplier, commercial or project data"
+   },
+   {
+    "id": "node:RS-070",
+    "label": "RS-070 Bend B1 near tangent",
+    "position": {
+     "x": 5.6,
+     "y": 0,
+     "z": 1.0
+    },
+    "provenance": "invented reference-system fixture input (DEL-09-01); not standard, supplier, commercial or project data"
+   },
+   {
+    "id": "node:RS-075",
+    "label": "RS-075 Bend B1 far tangent",
+    "position": {
+     "x": 6.0,
+     "y": 0,
+     "z": 1.4
+    },
+    "provenance": "invented reference-system fixture input (DEL-09-01); not standard, supplier, commercial or project data"
+   },
+   {
+    "id": "node:RS-080",
+    "label": "RS-080 Variable spring VS1 (riser)",
+    "position": {
+     "x": 6.0,
+     "y": 0,
+     "z": 4.0
+    },
+    "provenance": "invented reference-system fixture input (DEL-09-01); not standard, supplier, commercial or project data"
+   },
+   {
+    "id": "node:RS-090",
+    "label": "RS-090 Bend B2 near tangent",
+    "position": {
+     "x": 6.0,
+     "y": 0,
+     "z": 6.6
+    },
+    "provenance": "invented reference-system fixture input (DEL-09-01); not standard, supplier, commercial or project data"
+   },
+   {
+    "id": "node:RS-095",
+    "label": "RS-095 Bend B2 far tangent",
+    "position": {
+     "x": 6.0,
+     "y": 0.4,
+     "z": 7.0
+    },
+    "provenance": "invented reference-system fixture input (DEL-09-01); not standard, supplier, commercial or project data"
+   },
+   {
+    "id": "node:RS-100",
+    "label": "RS-100 Constant-effort support CE1",
+    "position": {
+     "x": 6.0,
+     "y": 3.0,
+     "z": 7.0
+    },
+    "provenance": "invented reference-system fixture input (DEL-09-01); not standard, supplier, commercial or project data"
+   },
+   {
+    "id": "node:RS-110",
+    "label": "RS-110 Lift-off support LO1",
+    "position": {
+     "x": 6.0,
+     "y": 7.0,
+     "z": 7.0
+    },
+    "provenance": "invented reference-system fixture input (DEL-09-01); not standard, supplier, commercial or project data"
+   },
+   {
+    "id": "node:RS-120",
+    "label": "RS-120 Resting support with friction FR1",
+    "position": {
+     "x": 6.0,
+     "y": 11.0,
+     "z": 7.0
+    },
+    "provenance": "invented reference-system fixture input (DEL-09-01); not standard, supplier, commercial or project data"
+   },
+   {
+    "id": "node:RS-130",
+    "label": "RS-130 Tee T1",
+    "position": {
+     "x": 6.0,
+     "y": 15.0,
+     "z": 7.0
+    },
+    "provenance": "invented reference-system fixture input (DEL-09-01); not standard, supplier, commercial or project data"
+   },
+   {
+    "id": "node:RS-140",
+    "label": "RS-140 Gap guide G1; vertical support V140",
+    "position": {
+     "x": 6.0,
+     "y": 18.0,
+     "z": 7.0
+    },
+    "provenance": "invented reference-system fixture input (DEL-09-01); not standard, supplier, commercial or project data"
+   },
+   {
+    "id": "node:RS-150",
+    "label": "RS-150 Reducer R1, large end",
+    "position": {
+     "x": 6.0,
+     "y": 20.0,
+     "z": 7.0
+    },
+    "provenance": "invented reference-system fixture input (DEL-09-01); not standard, supplier, commercial or project data"
+   },
+   {
+    "id": "node:RS-160",
+    "label": "RS-160 Reducer R1, small end (eccentric, flat on bottom)",
+    "position": {
+     "x": 6.0,
+     "y": 20.4,
+     "z": 6.975
+    },
+    "provenance": "invented reference-system fixture input (DEL-09-01); not standard, supplier, commercial or project data"
+   },
+   {
+    "id": "node:RS-170",
+    "label": "RS-170 Guide G2",
+    "position": {
+     "x": 6.0,
+     "y": 23.0,
+     "z": 6.975
+    },
+    "provenance": "invented reference-system fixture input (DEL-09-01); not standard, supplier, commercial or project data"
+   },
+   {
+    "id": "node:RS-180",
+    "label": "RS-180 Expansion joint EJ1, face i",
+    "position": {
+     "x": 6.0,
+     "y": 25.0,
+     "z": 6.975
+    },
+    "provenance": "invented reference-system fixture input (DEL-09-01); not standard, supplier, commercial or project data"
+   },
+   {
+    "id": "node:RS-190",
+    "label": "RS-190 Expansion joint EJ1, face j",
+    "position": {
+     "x": 6.0,
+     "y": 25.6,
+     "z": 6.975
+    },
+    "provenance": "invented reference-system fixture input (DEL-09-01); not standard, supplier, commercial or project data"
+   },
+   {
+    "id": "node:RS-200",
+    "label": "RS-200 Vertical support V200",
+    "position": {
+     "x": 6.0,
+     "y": 28.0,
+     "z": 6.975
+    },
+    "provenance": "invented reference-system fixture input (DEL-09-01); not standard, supplier, commercial or project data"
+   },
+   {
+    "id": "node:RS-210",
+    "label": "RS-210 Anchor B (nozzle B)",
+    "position": {
+     "x": 6.0,
+     "y": 30.0,
+     "z": 6.975
+    },
+    "provenance": "invented reference-system fixture input (DEL-09-01); not standard, supplier, commercial or project data"
+   },
+   {
+    "id": "node:RS-215",
+    "label": "RS-215 Branch guide G3",
+    "position": {
+     "x": 6.0,
+     "y": 15.0,
+     "z": 4.5
+    },
+    "provenance": "invented reference-system fixture input (DEL-09-01); not standard, supplier, commercial or project data"
+   },
+   {
+    "id": "node:RS-220",
+    "label": "RS-220 Bend B3 near tangent",
+    "position": {
+     "x": 6.0,
+     "y": 15.0,
+     "z": 2.25
+    },
+    "provenance": "invented reference-system fixture input (DEL-09-01); not standard, supplier, commercial or project data"
+   },
+   {
+    "id": "node:RS-225",
+    "label": "RS-225 Bend B3 far tangent",
+    "position": {
+     "x": 6.25,
+     "y": 15.0,
+     "z": 2.0
+    },
+    "provenance": "invented reference-system fixture input (DEL-09-01); not standard, supplier, commercial or project data"
+   },
+   {
+    "id": "node:RS-230",
+    "label": "RS-230 Anchor C (nozzle C; seismic anchor movement)",
+    "position": {
+     "x": 8.0,
+     "y": 15.0,
+     "z": 2.0
+    },
+    "provenance": "invented reference-system fixture input (DEL-09-01); not standard, supplier, commercial or project data"
+   }
+  ],
+  "pipe_segments": [
+   {
+    "from": "node:RS-010",
+    "id": "pipe:RS-P010",
+    "label": "RS-P010",
+    "material": "material:RS-M1",
+    "provenance": "invented reference-system fixture input (DEL-09-01); not standard, supplier, commercial or project data",
+    "section": {
+     "contents_density": {
+      "unit": "kg/m^3",
+      "value": 820
+     },
+     "corrosion_allowance": {
+      "unit": "mm",
+      "value": 1.5
+     },
+     "insulation_density": {
+      "unit": "kg/m^3",
+      "value": 140
+     },
+     "insulation_thickness": {
+      "unit": "mm",
+      "value": 60
+     },
+     "material_density": {
+      "unit": "kg/m^3",
+      "value": 7850
+     },
+     "mill_tolerance": {
+      "unit": "mm",
+      "value": 1.0
+     },
+     "outside_diameter": {
+      "unit": "mm",
+      "value": 270
+     },
+     "wall_thickness": {
+      "unit": "mm",
+      "value": 9.0
+     }
+    },
+    "section_ref": "section:RS-S270",
+    "to": "node:RS-020",
+    "y_reference": {
+     "x": 0.0,
+     "y": 0.0,
+     "z": 1.0
+    }
+   },
+   {
+    "from": "node:RS-020",
+    "id": "pipe:RS-P020",
+    "label": "RS-P020 (Flange F1)",
+    "material": "material:RS-M1",
+    "provenance": "invented reference-system fixture input (DEL-09-01); not standard, supplier, commercial or project data",
+    "section": {
+     "contents_density": {
+      "unit": "kg/m^3",
+      "value": 820
+     },
+     "corrosion_allowance": {
+      "unit": "mm",
+      "value": 1.5
+     },
+     "insulation_density": {
+      "unit": "kg/m^3",
+      "value": 140
+     },
+     "insulation_thickness": {
+      "unit": "mm",
+      "value": 60
+     },
+     "material_density": {
+      "unit": "kg/m^3",
+      "value": 7850
+     },
+     "mill_tolerance": {
+      "unit": "mm",
+      "value": 1.0
+     },
+     "outside_diameter": {
+      "unit": "mm",
+      "value": 270
+     },
+     "wall_thickness": {
+      "unit": "mm",
+      "value": 9.0
+     }
+    },
+    "section_ref": "section:RS-S270",
+    "to": "node:RS-030",
+    "y_reference": {
+     "x": 0.0,
+     "y": 0.0,
+     "z": 1.0
+    }
+   },
+   {
+    "from": "node:RS-030",
+    "id": "pipe:RS-P030",
+    "label": "RS-P030 (Valve V1)",
+    "material": "material:RS-M1",
+    "provenance": "invented reference-system fixture input (DEL-09-01); not standard, supplier, commercial or project data",
+    "section": {
+     "contents_density": {
+      "unit": "kg/m^3",
+      "value": 820
+     },
+     "corrosion_allowance": {
+      "unit": "mm",
+      "value": 1.5
+     },
+     "insulation_density": {
+      "unit": "kg/m^3",
+      "value": 140
+     },
+     "insulation_thickness": {
+      "unit": "mm",
+      "value": 60
+     },
+     "material_density": {
+      "unit": "kg/m^3",
+      "value": 7850
+     },
+     "mill_tolerance": {
+      "unit": "mm",
+      "value": 1.0
+     },
+     "outside_diameter": {
+      "unit": "mm",
+      "value": 270
+     },
+     "wall_thickness": {
+      "unit": "mm",
+      "value": 9.0
+     }
+    },
+    "section_ref": "section:RS-S270",
+    "to": "node:RS-040",
+    "y_reference": {
+     "x": 0.0,
+     "y": 0.0,
+     "z": 1.0
+    }
+   },
+   {
+    "from": "node:RS-040",
+    "id": "pipe:RS-P040",
+    "label": "RS-P040 (Flange F2)",
+    "material": "material:RS-M1",
+    "provenance": "invented reference-system fixture input (DEL-09-01); not standard, supplier, commercial or project data",
+    "section": {
+     "contents_density": {
+      "unit": "kg/m^3",
+      "value": 820
+     },
+     "corrosion_allowance": {
+      "unit": "mm",
+      "value": 1.5
+     },
+     "insulation_density": {
+      "unit": "kg/m^3",
+      "value": 140
+     },
+     "insulation_thickness": {
+      "unit": "mm",
+      "value": 60
+     },
+     "material_density": {
+      "unit": "kg/m^3",
+      "value": 7850
+     },
+     "mill_tolerance": {
+      "unit": "mm",
+      "value": 1.0
+     },
+     "outside_diameter": {
+      "unit": "mm",
+      "value": 270
+     },
+     "wall_thickness": {
+      "unit": "mm",
+      "value": 9.0
+     }
+    },
+    "section_ref": "section:RS-S270",
+    "to": "node:RS-050",
+    "y_reference": {
+     "x": 0.0,
+     "y": 0.0,
+     "z": 1.0
+    }
+   },
+   {
+    "from": "node:RS-050",
+    "id": "pipe:RS-P050",
+    "label": "RS-P050",
+    "material": "material:RS-M1",
+    "provenance": "invented reference-system fixture input (DEL-09-01); not standard, supplier, commercial or project data",
+    "section": {
+     "contents_density": {
+      "unit": "kg/m^3",
+      "value": 820
+     },
+     "corrosion_allowance": {
+      "unit": "mm",
+      "value": 1.5
+     },
+     "insulation_density": {
+      "unit": "kg/m^3",
+      "value": 140
+     },
+     "insulation_thickness": {
+      "unit": "mm",
+      "value": 60
+     },
+     "material_density": {
+      "unit": "kg/m^3",
+      "value": 7850
+     },
+     "mill_tolerance": {
+      "unit": "mm",
+      "value": 1.0
+     },
+     "outside_diameter": {
+      "unit": "mm",
+      "value": 270
+     },
+     "wall_thickness": {
+      "unit": "mm",
+      "value": 9.0
+     }
+    },
+    "section_ref": "section:RS-S270",
+    "to": "node:RS-060",
+    "y_reference": {
+     "x": 0.0,
+     "y": 0.0,
+     "z": 1.0
+    }
+   },
+   {
+    "from": "node:RS-060",
+    "id": "pipe:RS-P060",
+    "label": "RS-P060",
+    "material": "material:RS-M1",
+    "provenance": "invented reference-system fixture input (DEL-09-01); not standard, supplier, commercial or project data",
+    "section": {
+     "contents_density": {
+      "unit": "kg/m^3",
+      "value": 820
+     },
+     "corrosion_allowance": {
+      "unit": "mm",
+      "value": 1.5
+     },
+     "insulation_density": {
+      "unit": "kg/m^3",
+      "value": 140
+     },
+     "insulation_thickness": {
+      "unit": "mm",
+      "value": 60
+     },
+     "material_density": {
+      "unit": "kg/m^3",
+      "value": 7850
+     },
+     "mill_tolerance": {
+      "unit": "mm",
+      "value": 1.0
+     },
+     "outside_diameter": {
+      "unit": "mm",
+      "value": 270
+     },
+     "wall_thickness": {
+      "unit": "mm",
+      "value": 9.0
+     }
+    },
+    "section_ref": "section:RS-S270",
+    "to": "node:RS-070",
+    "y_reference": {
+     "x": 0.0,
+     "y": 0.0,
+     "z": 1.0
+    }
+   },
+   {
+    "from": "node:RS-070",
+    "id": "pipe:RS-P065",
+    "label": "RS-P065 (Bend B1 (arc))",
+    "material": "material:RS-M1",
+    "provenance": "invented reference-system fixture input (DEL-09-01); not standard, supplier, commercial or project data",
+    "section": {
+     "contents_density": {
+      "unit": "kg/m^3",
+      "value": 820
+     },
+     "corrosion_allowance": {
+      "unit": "mm",
+      "value": 1.5
+     },
+     "insulation_density": {
+      "unit": "kg/m^3",
+      "value": 140
+     },
+     "insulation_thickness": {
+      "unit": "mm",
+      "value": 60
+     },
+     "material_density": {
+      "unit": "kg/m^3",
+      "value": 7850
+     },
+     "mill_tolerance": {
+      "unit": "mm",
+      "value": 1.0
+     },
+     "outside_diameter": {
+      "unit": "mm",
+      "value": 270
+     },
+     "wall_thickness": {
+      "unit": "mm",
+      "value": 9.0
+     }
+    },
+    "section_ref": "section:RS-S270",
+    "to": "node:RS-075",
+    "y_reference": {
+     "x": 1.0,
+     "y": 0.0,
+     "z": 0.0
+    }
+   },
+   {
+    "from": "node:RS-075",
+    "id": "pipe:RS-P070",
+    "label": "RS-P070",
+    "material": "material:RS-M1",
+    "provenance": "invented reference-system fixture input (DEL-09-01); not standard, supplier, commercial or project data",
+    "section": {
+     "contents_density": {
+      "unit": "kg/m^3",
+      "value": 820
+     },
+     "corrosion_allowance": {
+      "unit": "mm",
+      "value": 1.5
+     },
+     "insulation_density": {
+      "unit": "kg/m^3",
+      "value": 140
+     },
+     "insulation_thickness": {
+      "unit": "mm",
+      "value": 60
+     },
+     "material_density": {
+      "unit": "kg/m^3",
+      "value": 7850
+     },
+     "mill_tolerance": {
+      "unit": "mm",
+      "value": 1.0
+     },
+     "outside_diameter": {
+      "unit": "mm",
+      "value": 270
+     },
+     "wall_thickness": {
+      "unit": "mm",
+      "value": 9.0
+     }
+    },
+    "section_ref": "section:RS-S270",
+    "to": "node:RS-080",
+    "y_reference": {
+     "x": 1.0,
+     "y": 0.0,
+     "z": 0.0
+    }
+   },
+   {
+    "from": "node:RS-080",
+    "id": "pipe:RS-P080",
+    "label": "RS-P080",
+    "material": "material:RS-M1",
+    "provenance": "invented reference-system fixture input (DEL-09-01); not standard, supplier, commercial or project data",
+    "section": {
+     "contents_density": {
+      "unit": "kg/m^3",
+      "value": 820
+     },
+     "corrosion_allowance": {
+      "unit": "mm",
+      "value": 1.5
+     },
+     "insulation_density": {
+      "unit": "kg/m^3",
+      "value": 140
+     },
+     "insulation_thickness": {
+      "unit": "mm",
+      "value": 60
+     },
+     "material_density": {
+      "unit": "kg/m^3",
+      "value": 7850
+     },
+     "mill_tolerance": {
+      "unit": "mm",
+      "value": 1.0
+     },
+     "outside_diameter": {
+      "unit": "mm",
+      "value": 270
+     },
+     "wall_thickness": {
+      "unit": "mm",
+      "value": 9.0
+     }
+    },
+    "section_ref": "section:RS-S270",
+    "to": "node:RS-090",
+    "y_reference": {
+     "x": 1.0,
+     "y": 0.0,
+     "z": 0.0
+    }
+   },
+   {
+    "from": "node:RS-090",
+    "id": "pipe:RS-P085",
+    "label": "RS-P085 (Bend B2 (arc))",
+    "material": "material:RS-M1",
+    "provenance": "invented reference-system fixture input (DEL-09-01); not standard, supplier, commercial or project data",
+    "section": {
+     "contents_density": {
+      "unit": "kg/m^3",
+      "value": 820
+     },
+     "corrosion_allowance": {
+      "unit": "mm",
+      "value": 1.5
+     },
+     "insulation_density": {
+      "unit": "kg/m^3",
+      "value": 140
+     },
+     "insulation_thickness": {
+      "unit": "mm",
+      "value": 60
+     },
+     "material_density": {
+      "unit": "kg/m^3",
+      "value": 7850
+     },
+     "mill_tolerance": {
+      "unit": "mm",
+      "value": 1.0
+     },
+     "outside_diameter": {
+      "unit": "mm",
+      "value": 270
+     },
+     "wall_thickness": {
+      "unit": "mm",
+      "value": 9.0
+     }
+    },
+    "section_ref": "section:RS-S270",
+    "to": "node:RS-095",
+    "y_reference": {
+     "x": 0.0,
+     "y": 0.0,
+     "z": 1.0
+    }
+   },
+   {
+    "from": "node:RS-095",
+    "id": "pipe:RS-P090",
+    "label": "RS-P090",
+    "material": "material:RS-M1",
+    "provenance": "invented reference-system fixture input (DEL-09-01); not standard, supplier, commercial or project data",
+    "section": {
+     "contents_density": {
+      "unit": "kg/m^3",
+      "value": 820
+     },
+     "corrosion_allowance": {
+      "unit": "mm",
+      "value": 1.5
+     },
+     "insulation_density": {
+      "unit": "kg/m^3",
+      "value": 140
+     },
+     "insulation_thickness": {
+      "unit": "mm",
+      "value": 60
+     },
+     "material_density": {
+      "unit": "kg/m^3",
+      "value": 7850
+     },
+     "mill_tolerance": {
+      "unit": "mm",
+      "value": 1.0
+     },
+     "outside_diameter": {
+      "unit": "mm",
+      "value": 270
+     },
+     "wall_thickness": {
+      "unit": "mm",
+      "value": 9.0
+     }
+    },
+    "section_ref": "section:RS-S270",
+    "to": "node:RS-100",
+    "y_reference": {
+     "x": 0.0,
+     "y": 0.0,
+     "z": 1.0
+    }
+   },
+   {
+    "from": "node:RS-100",
+    "id": "pipe:RS-P100",
+    "label": "RS-P100",
+    "material": "material:RS-M1",
+    "provenance": "invented reference-system fixture input (DEL-09-01); not standard, supplier, commercial or project data",
+    "section": {
+     "contents_density": {
+      "unit": "kg/m^3",
+      "value": 820
+     },
+     "corrosion_allowance": {
+      "unit": "mm",
+      "value": 1.5
+     },
+     "insulation_density": {
+      "unit": "kg/m^3",
+      "value": 140
+     },
+     "insulation_thickness": {
+      "unit": "mm",
+      "value": 60
+     },
+     "material_density": {
+      "unit": "kg/m^3",
+      "value": 7850
+     },
+     "mill_tolerance": {
+      "unit": "mm",
+      "value": 1.0
+     },
+     "outside_diameter": {
+      "unit": "mm",
+      "value": 270
+     },
+     "wall_thickness": {
+      "unit": "mm",
+      "value": 9.0
+     }
+    },
+    "section_ref": "section:RS-S270",
+    "to": "node:RS-110",
+    "y_reference": {
+     "x": 0.0,
+     "y": 0.0,
+     "z": 1.0
+    }
+   },
+   {
+    "from": "node:RS-110",
+    "id": "pipe:RS-P110",
+    "label": "RS-P110",
+    "material": "material:RS-M1",
+    "provenance": "invented reference-system fixture input (DEL-09-01); not standard, supplier, commercial or project data",
+    "section": {
+     "contents_density": {
+      "unit": "kg/m^3",
+      "value": 820
+     },
+     "corrosion_allowance": {
+      "unit": "mm",
+      "value": 1.5
+     },
+     "insulation_density": {
+      "unit": "kg/m^3",
+      "value": 140
+     },
+     "insulation_thickness": {
+      "unit": "mm",
+      "value": 60
+     },
+     "material_density": {
+      "unit": "kg/m^3",
+      "value": 7850
+     },
+     "mill_tolerance": {
+      "unit": "mm",
+      "value": 1.0
+     },
+     "outside_diameter": {
+      "unit": "mm",
+      "value": 270
+     },
+     "wall_thickness": {
+      "unit": "mm",
+      "value": 9.0
+     }
+    },
+    "section_ref": "section:RS-S270",
+    "to": "node:RS-120",
+    "y_reference": {
+     "x": 0.0,
+     "y": 0.0,
+     "z": 1.0
+    }
+   },
+   {
+    "from": "node:RS-120",
+    "id": "pipe:RS-P120",
+    "label": "RS-P120 (Tee T1 header (in))",
+    "material": "material:RS-M1",
+    "provenance": "invented reference-system fixture input (DEL-09-01); not standard, supplier, commercial or project data",
+    "section": {
+     "contents_density": {
+      "unit": "kg/m^3",
+      "value": 820
+     },
+     "corrosion_allowance": {
+      "unit": "mm",
+      "value": 1.5
+     },
+     "insulation_density": {
+      "unit": "kg/m^3",
+      "value": 140
+     },
+     "insulation_thickness": {
+      "unit": "mm",
+      "value": 60
+     },
+     "material_density": {
+      "unit": "kg/m^3",
+      "value": 7850
+     },
+     "mill_tolerance": {
+      "unit": "mm",
+      "value": 1.0
+     },
+     "outside_diameter": {
+      "unit": "mm",
+      "value": 270
+     },
+     "wall_thickness": {
+      "unit": "mm",
+      "value": 9.0
+     }
+    },
+    "section_ref": "section:RS-S270",
+    "to": "node:RS-130",
+    "y_reference": {
+     "x": 0.0,
+     "y": 0.0,
+     "z": 1.0
+    }
+   },
+   {
+    "from": "node:RS-130",
+    "id": "pipe:RS-P130",
+    "label": "RS-P130 (Tee T1 header (out))",
+    "material": "material:RS-M1",
+    "provenance": "invented reference-system fixture input (DEL-09-01); not standard, supplier, commercial or project data",
+    "section": {
+     "contents_density": {
+      "unit": "kg/m^3",
+      "value": 820
+     },
+     "corrosion_allowance": {
+      "unit": "mm",
+      "value": 1.5
+     },
+     "insulation_density": {
+      "unit": "kg/m^3",
+      "value": 140
+     },
+     "insulation_thickness": {
+      "unit": "mm",
+      "value": 60
+     },
+     "material_density": {
+      "unit": "kg/m^3",
+      "value": 7850
+     },
+     "mill_tolerance": {
+      "unit": "mm",
+      "value": 1.0
+     },
+     "outside_diameter": {
+      "unit": "mm",
+      "value": 270
+     },
+     "wall_thickness": {
+      "unit": "mm",
+      "value": 9.0
+     }
+    },
+    "section_ref": "section:RS-S270",
+    "to": "node:RS-140",
+    "y_reference": {
+     "x": 0.0,
+     "y": 0.0,
+     "z": 1.0
+    }
+   },
+   {
+    "from": "node:RS-140",
+    "id": "pipe:RS-P140",
+    "label": "RS-P140",
+    "material": "material:RS-M1",
+    "provenance": "invented reference-system fixture input (DEL-09-01); not standard, supplier, commercial or project data",
+    "section": {
+     "contents_density": {
+      "unit": "kg/m^3",
+      "value": 820
+     },
+     "corrosion_allowance": {
+      "unit": "mm",
+      "value": 1.5
+     },
+     "insulation_density": {
+      "unit": "kg/m^3",
+      "value": 140
+     },
+     "insulation_thickness": {
+      "unit": "mm",
+      "value": 60
+     },
+     "material_density": {
+      "unit": "kg/m^3",
+      "value": 7850
+     },
+     "mill_tolerance": {
+      "unit": "mm",
+      "value": 1.0
+     },
+     "outside_diameter": {
+      "unit": "mm",
+      "value": 270
+     },
+     "wall_thickness": {
+      "unit": "mm",
+      "value": 9.0
+     }
+    },
+    "section_ref": "section:RS-S270",
+    "to": "node:RS-150",
+    "y_reference": {
+     "x": 0.0,
+     "y": 0.0,
+     "z": 1.0
+    }
+   },
+   {
+    "from": "node:RS-150",
+    "id": "pipe:RS-P150",
+    "label": "RS-P150 (Reducer R1)",
+    "material": "material:RS-M1",
+    "provenance": "invented reference-system fixture input (DEL-09-01); not standard, supplier, commercial or project data",
+    "section": {
+     "contents_density": {
+      "unit": "kg/m^3",
+      "value": 820
+     },
+     "corrosion_allowance": {
+      "unit": "mm",
+      "value": 1.5
+     },
+     "insulation_density": {
+      "unit": "kg/m^3",
+      "value": 140
+     },
+     "insulation_thickness": {
+      "unit": "mm",
+      "value": 60
+     },
+     "material_density": {
+      "unit": "kg/m^3",
+      "value": 7850
+     },
+     "mill_tolerance": {
+      "unit": "mm",
+      "value": 1.0
+     },
+     "outside_diameter": {
+      "unit": "mm",
+      "value": 270
+     },
+     "wall_thickness": {
+      "unit": "mm",
+      "value": 9.0
+     }
+    },
+    "section_ref": "section:RS-S270",
+    "to": "node:RS-160",
+    "y_reference": {
+     "x": 0.0,
+     "y": 0.0,
+     "z": 1.0
+    }
+   },
+   {
+    "from": "node:RS-160",
+    "id": "pipe:RS-P160",
+    "label": "RS-P160",
+    "material": "material:RS-M1",
+    "provenance": "invented reference-system fixture input (DEL-09-01); not standard, supplier, commercial or project data",
+    "section": {
+     "contents_density": {
+      "unit": "kg/m^3",
+      "value": 820
+     },
+     "corrosion_allowance": {
+      "unit": "mm",
+      "value": 1.5
+     },
+     "insulation_density": {
+      "unit": "kg/m^3",
+      "value": 140
+     },
+     "insulation_thickness": {
+      "unit": "mm",
+      "value": 60
+     },
+     "material_density": {
+      "unit": "kg/m^3",
+      "value": 7850
+     },
+     "mill_tolerance": {
+      "unit": "mm",
+      "value": 0.9
+     },
+     "outside_diameter": {
+      "unit": "mm",
+      "value": 220
+     },
+     "wall_thickness": {
+      "unit": "mm",
+      "value": 8.0
+     }
+    },
+    "section_ref": "section:RS-S220",
+    "to": "node:RS-170",
+    "y_reference": {
+     "x": 0.0,
+     "y": 0.0,
+     "z": 1.0
+    }
+   },
+   {
+    "from": "node:RS-170",
+    "id": "pipe:RS-P170",
+    "label": "RS-P170 (EJ1 face pipe i)",
+    "material": "material:RS-M1",
+    "provenance": "invented reference-system fixture input (DEL-09-01); not standard, supplier, commercial or project data",
+    "section": {
+     "contents_density": {
+      "unit": "kg/m^3",
+      "value": 820
+     },
+     "corrosion_allowance": {
+      "unit": "mm",
+      "value": 1.5
+     },
+     "insulation_density": {
+      "unit": "kg/m^3",
+      "value": 140
+     },
+     "insulation_thickness": {
+      "unit": "mm",
+      "value": 60
+     },
+     "material_density": {
+      "unit": "kg/m^3",
+      "value": 7850
+     },
+     "mill_tolerance": {
+      "unit": "mm",
+      "value": 0.9
+     },
+     "outside_diameter": {
+      "unit": "mm",
+      "value": 220
+     },
+     "wall_thickness": {
+      "unit": "mm",
+      "value": 8.0
+     }
+    },
+    "section_ref": "section:RS-S220",
+    "to": "node:RS-180",
+    "y_reference": {
+     "x": 0.0,
+     "y": 0.0,
+     "z": 1.0
+    }
+   },
+   {
+    "from": "node:RS-180",
+    "id": "pipe:RS-P180",
+    "label": "RS-P180 (Replaced by EJ1 (carries no load or result))",
+    "material": "material:RS-M1",
+    "provenance": "invented reference-system fixture input (DEL-09-01); not standard, supplier, commercial or project data",
+    "section": {
+     "contents_density": {
+      "unit": "kg/m^3",
+      "value": 820
+     },
+     "corrosion_allowance": {
+      "unit": "mm",
+      "value": 1.5
+     },
+     "insulation_density": {
+      "unit": "kg/m^3",
+      "value": 140
+     },
+     "insulation_thickness": {
+      "unit": "mm",
+      "value": 60
+     },
+     "material_density": {
+      "unit": "kg/m^3",
+      "value": 7850
+     },
+     "mill_tolerance": {
+      "unit": "mm",
+      "value": 0.9
+     },
+     "outside_diameter": {
+      "unit": "mm",
+      "value": 220
+     },
+     "wall_thickness": {
+      "unit": "mm",
+      "value": 8.0
+     }
+    },
+    "section_ref": "section:RS-S220",
+    "to": "node:RS-190",
+    "y_reference": {
+     "x": 0.0,
+     "y": 0.0,
+     "z": 1.0
+    }
+   },
+   {
+    "from": "node:RS-190",
+    "id": "pipe:RS-P190",
+    "label": "RS-P190 (EJ1 face pipe j)",
+    "material": "material:RS-M1",
+    "provenance": "invented reference-system fixture input (DEL-09-01); not standard, supplier, commercial or project data",
+    "section": {
+     "contents_density": {
+      "unit": "kg/m^3",
+      "value": 820
+     },
+     "corrosion_allowance": {
+      "unit": "mm",
+      "value": 1.5
+     },
+     "insulation_density": {
+      "unit": "kg/m^3",
+      "value": 140
+     },
+     "insulation_thickness": {
+      "unit": "mm",
+      "value": 60
+     },
+     "material_density": {
+      "unit": "kg/m^3",
+      "value": 7850
+     },
+     "mill_tolerance": {
+      "unit": "mm",
+      "value": 0.9
+     },
+     "outside_diameter": {
+      "unit": "mm",
+      "value": 220
+     },
+     "wall_thickness": {
+      "unit": "mm",
+      "value": 8.0
+     }
+    },
+    "section_ref": "section:RS-S220",
+    "to": "node:RS-200",
+    "y_reference": {
+     "x": 0.0,
+     "y": 0.0,
+     "z": 1.0
+    }
+   },
+   {
+    "from": "node:RS-200",
+    "id": "pipe:RS-P200",
+    "label": "RS-P200",
+    "material": "material:RS-M1",
+    "provenance": "invented reference-system fixture input (DEL-09-01); not standard, supplier, commercial or project data",
+    "section": {
+     "contents_density": {
+      "unit": "kg/m^3",
+      "value": 820
+     },
+     "corrosion_allowance": {
+      "unit": "mm",
+      "value": 1.5
+     },
+     "insulation_density": {
+      "unit": "kg/m^3",
+      "value": 140
+     },
+     "insulation_thickness": {
+      "unit": "mm",
+      "value": 60
+     },
+     "material_density": {
+      "unit": "kg/m^3",
+      "value": 7850
+     },
+     "mill_tolerance": {
+      "unit": "mm",
+      "value": 0.9
+     },
+     "outside_diameter": {
+      "unit": "mm",
+      "value": 220
+     },
+     "wall_thickness": {
+      "unit": "mm",
+      "value": 8.0
+     }
+    },
+    "section_ref": "section:RS-S220",
+    "to": "node:RS-210",
+    "y_reference": {
+     "x": 0.0,
+     "y": 0.0,
+     "z": 1.0
+    }
+   },
+   {
+    "from": "node:RS-130",
+    "id": "pipe:RS-P210",
+    "label": "RS-P210 (Tee T1 branch)",
+    "material": "material:RS-M1",
+    "provenance": "invented reference-system fixture input (DEL-09-01); not standard, supplier, commercial or project data",
+    "section": {
+     "contents_density": {
+      "unit": "kg/m^3",
+      "value": 820
+     },
+     "corrosion_allowance": {
+      "unit": "mm",
+      "value": 1.5
+     },
+     "insulation_density": {
+      "unit": "kg/m^3",
+      "value": 140
+     },
+     "insulation_thickness": {
+      "unit": "mm",
+      "value": 50
+     },
+     "material_density": {
+      "unit": "kg/m^3",
+      "value": 7850
+     },
+     "mill_tolerance": {
+      "unit": "mm",
+      "value": 0.8
+     },
+     "outside_diameter": {
+      "unit": "mm",
+      "value": 170
+     },
+     "wall_thickness": {
+      "unit": "mm",
+      "value": 7.0
+     }
+    },
+    "section_ref": "section:RS-S170",
+    "to": "node:RS-215",
+    "y_reference": {
+     "x": 1.0,
+     "y": 0.0,
+     "z": 0.0
+    }
+   },
+   {
+    "from": "node:RS-215",
+    "id": "pipe:RS-P220",
+    "label": "RS-P220",
+    "material": "material:RS-M1",
+    "provenance": "invented reference-system fixture input (DEL-09-01); not standard, supplier, commercial or project data",
+    "section": {
+     "contents_density": {
+      "unit": "kg/m^3",
+      "value": 820
+     },
+     "corrosion_allowance": {
+      "unit": "mm",
+      "value": 1.5
+     },
+     "insulation_density": {
+      "unit": "kg/m^3",
+      "value": 140
+     },
+     "insulation_thickness": {
+      "unit": "mm",
+      "value": 50
+     },
+     "material_density": {
+      "unit": "kg/m^3",
+      "value": 7850
+     },
+     "mill_tolerance": {
+      "unit": "mm",
+      "value": 0.8
+     },
+     "outside_diameter": {
+      "unit": "mm",
+      "value": 170
+     },
+     "wall_thickness": {
+      "unit": "mm",
+      "value": 7.0
+     }
+    },
+    "section_ref": "section:RS-S170",
+    "to": "node:RS-220",
+    "y_reference": {
+     "x": 1.0,
+     "y": 0.0,
+     "z": 0.0
+    }
+   },
+   {
+    "from": "node:RS-220",
+    "id": "pipe:RS-P225",
+    "label": "RS-P225 (Bend B3 (arc))",
+    "material": "material:RS-M1",
+    "provenance": "invented reference-system fixture input (DEL-09-01); not standard, supplier, commercial or project data",
+    "section": {
+     "contents_density": {
+      "unit": "kg/m^3",
+      "value": 820
+     },
+     "corrosion_allowance": {
+      "unit": "mm",
+      "value": 1.5
+     },
+     "insulation_density": {
+      "unit": "kg/m^3",
+      "value": 140
+     },
+     "insulation_thickness": {
+      "unit": "mm",
+      "value": 50
+     },
+     "material_density": {
+      "unit": "kg/m^3",
+      "value": 7850
+     },
+     "mill_tolerance": {
+      "unit": "mm",
+      "value": 0.8
+     },
+     "outside_diameter": {
+      "unit": "mm",
+      "value": 170
+     },
+     "wall_thickness": {
+      "unit": "mm",
+      "value": 7.0
+     }
+    },
+    "section_ref": "section:RS-S170",
+    "to": "node:RS-225",
+    "y_reference": {
+     "x": 0.0,
+     "y": 0.0,
+     "z": -1.0
+    }
+   },
+   {
+    "from": "node:RS-225",
+    "id": "pipe:RS-P230",
+    "label": "RS-P230",
+    "material": "material:RS-M1",
+    "provenance": "invented reference-system fixture input (DEL-09-01); not standard, supplier, commercial or project data",
+    "section": {
+     "contents_density": {
+      "unit": "kg/m^3",
+      "value": 820
+     },
+     "corrosion_allowance": {
+      "unit": "mm",
+      "value": 1.5
+     },
+     "insulation_density": {
+      "unit": "kg/m^3",
+      "value": 140
+     },
+     "insulation_thickness": {
+      "unit": "mm",
+      "value": 50
+     },
+     "material_density": {
+      "unit": "kg/m^3",
+      "value": 7850
+     },
+     "mill_tolerance": {
+      "unit": "mm",
+      "value": 0.8
+     },
+     "outside_diameter": {
+      "unit": "mm",
+      "value": 170
+     },
+     "wall_thickness": {
+      "unit": "mm",
+      "value": 7.0
+     }
+    },
+    "section_ref": "section:RS-S170",
+    "to": "node:RS-230",
+    "y_reference": {
+     "x": 0.0,
+     "y": 0.0,
+     "z": 1.0
+    }
+   }
+  ],
+  "components": [
+   {
+    "geometry": {
+     "bend_geometry_source_reference": "invented user value, DEL-09-01",
+     "bend_pipe_ref": "pipe:RS-P065",
+     "bend_radius": {
+      "unit": "m",
+      "value": 0.4
+     }
+    },
+    "id": "component:RS-B1",
+    "kind": "bend",
+    "label": "Bend B1",
+    "mechanics_interface": {
+     "solver_consumption": "curved_bend_macro_element"
+    },
+    "modifiers": {
+     "flexibility_factor_user_value": {
+      "unit": "none",
+      "value": 4.2
+     },
+     "sif_in_plane_user_value": {
+      "unit": "1",
+      "value": 2.1
+     },
+     "sif_out_of_plane_user_value": {
+      "unit": "1",
+      "value": 1.8
+     },
+     "source_reference": "invented user value, DEL-09-01"
+    },
+    "node": "node:RS-070",
+    "provenance": "invented reference-system fixture input (DEL-09-01); not standard, supplier, commercial or project data"
+   },
+   {
+    "geometry": {
+     "bend_geometry_source_reference": "invented user value, DEL-09-01",
+     "bend_pipe_ref": "pipe:RS-P085",
+     "bend_radius": {
+      "unit": "m",
+      "value": 0.4
+     }
+    },
+    "id": "component:RS-B2",
+    "kind": "bend",
+    "label": "Bend B2",
+    "mechanics_interface": {
+     "solver_consumption": "curved_bend_macro_element"
+    },
+    "modifiers": {
+     "flexibility_factor_user_value": {
+      "unit": "none",
+      "value": 4.2
+     },
+     "sif_in_plane_user_value": {
+      "unit": "1",
+      "value": 2.1
+     },
+     "sif_out_of_plane_user_value": {
+      "unit": "1",
+      "value": 1.8
+     },
+     "source_reference": "invented user value, DEL-09-01"
+    },
+    "node": "node:RS-090",
+    "provenance": "invented reference-system fixture input (DEL-09-01); not standard, supplier, commercial or project data"
+   },
+   {
+    "geometry": {
+     "bend_geometry_source_reference": "invented user value, DEL-09-01",
+     "bend_pipe_ref": "pipe:RS-P225",
+     "bend_radius": {
+      "unit": "m",
+      "value": 0.25
+     }
+    },
+    "id": "component:RS-B3",
+    "kind": "bend",
+    "label": "Bend B3",
+    "mechanics_interface": {
+     "solver_consumption": "curved_bend_macro_element"
+    },
+    "modifiers": {
+     "flexibility_factor_user_value": {
+      "unit": "none",
+      "value": 3.6
+     },
+     "sif_in_plane_user_value": {
+      "unit": "1",
+      "value": 2.3
+     },
+     "sif_out_of_plane_user_value": {
+      "unit": "1",
+      "value": 1.9
+     },
+     "source_reference": "invented user value, DEL-09-01"
+    },
+    "node": "node:RS-220",
+    "provenance": "invented reference-system fixture input (DEL-09-01); not standard, supplier, commercial or project data"
+   },
+   {
+    "geometry": {
+     "branch_branch_pipe_ref": "pipe:RS-P210",
+     "branch_connection_angle": {
+      "unit": "deg",
+      "value": 90
+     },
+     "branch_connection_type": "invented unreinforced tee",
+     "branch_geometry_source_reference": "invented user value, DEL-09-01",
+     "branch_header_pipe_ref": "pipe:RS-P120",
+     "branch_header_size": {
+      "unit": "mm",
+      "value": 270.0
+     },
+     "branch_reinforcement_reference": "invented: no reinforcement",
+     "branch_run_size": {
+      "unit": "mm",
+      "value": 170.0
+     }
+    },
+    "id": "component:RS-T1",
+    "kind": "tee",
+    "label": "Tee T1",
+    "modifiers": {
+     "branch_branch_sif_user_value": {
+      "unit": "none",
+      "value": 2.0
+     },
+     "branch_header_sif_user_value": {
+      "unit": "none",
+      "value": 2.4
+     },
+     "source_reference": "invented user value, DEL-09-01"
+    },
+    "node": "node:RS-130",
+    "provenance": "invented reference-system fixture input (DEL-09-01); not standard, supplier, commercial or project data"
+   },
+   {
+    "geometry": {
+     "center_of_gravity": {
+      "unit": "m",
+      "x": -0.075,
+      "y": 0.0,
+      "z": 0.0
+     },
+     "connection_end_a_reference": "node:RS-020 (body end on RS-P020)",
+     "connection_end_b_reference": "node:RS-030 (body end on RS-P020)",
+     "end_a_size": {
+      "unit": "mm",
+      "value": 270
+     },
+     "end_b_size": {
+      "unit": "mm",
+      "value": 270
+     },
+     "rigid_body_length": {
+      "unit": "m",
+      "value": 0.15
+     },
+     "rigid_component_source_reference": "invented user value, DEL-09-01",
+     "rigid_pipe_ref": "pipe:RS-P020",
+     "stiffness_behavior_reference": "rigid body, user stiffness scale 10.0 (DEC-045); invented user value, DEL-09-01",
+     "weight": {
+      "unit": "N",
+      "value": 350
+     }
+    },
+    "id": "component:RS-F1",
+    "kind": "flange",
+    "label": "Flange F1",
+    "mechanics_interface": {
+     "solver_consumption": "mechanics_geometry_only"
+    },
+    "modifiers": {
+     "source_reference": "invented user value, DEL-09-01",
+     "stiffness_scaling_user_value": {
+      "unit": "none",
+      "value": 10.0
+     }
+    },
+    "node": "node:RS-030",
+    "provenance": "invented reference-system fixture input (DEL-09-01); not standard, supplier, commercial or project data"
+   },
+   {
+    "geometry": {
+     "center_of_gravity": {
+      "unit": "m",
+      "x": -0.3,
+      "y": 0.0,
+      "z": 0.3
+     },
+     "connection_end_a_reference": "node:RS-030 (body end on RS-P030)",
+     "connection_end_b_reference": "node:RS-040 (body end on RS-P030)",
+     "end_a_size": {
+      "unit": "mm",
+      "value": 270
+     },
+     "end_b_size": {
+      "unit": "mm",
+      "value": 270
+     },
+     "rigid_body_length": {
+      "unit": "m",
+      "value": 0.6
+     },
+     "rigid_component_source_reference": "invented user value, DEL-09-01",
+     "rigid_pipe_ref": "pipe:RS-P030",
+     "stiffness_behavior_reference": "rigid body, user stiffness scale 10.0 (DEC-045); invented user value, DEL-09-01",
+     "weight": {
+      "unit": "N",
+      "value": 2600
+     }
+    },
+    "id": "component:RS-V1",
+    "kind": "valve",
+    "label": "Valve V1",
+    "mechanics_interface": {
+     "solver_consumption": "mechanics_geometry_only"
+    },
+    "modifiers": {
+     "source_reference": "invented user value, DEL-09-01",
+     "stiffness_scaling_user_value": {
+      "unit": "none",
+      "value": 10.0
+     }
+    },
+    "node": "node:RS-040",
+    "provenance": "invented reference-system fixture input (DEL-09-01); not standard, supplier, commercial or project data"
+   },
+   {
+    "geometry": {
+     "center_of_gravity": {
+      "unit": "m",
+      "x": -0.075,
+      "y": 0.0,
+      "z": 0.0
+     },
+     "connection_end_a_reference": "node:RS-040 (body end on RS-P040)",
+     "connection_end_b_reference": "node:RS-050 (body end on RS-P040)",
+     "end_a_size": {
+      "unit": "mm",
+      "value": 270
+     },
+     "end_b_size": {
+      "unit": "mm",
+      "value": 270
+     },
+     "rigid_body_length": {
+      "unit": "m",
+      "value": 0.15
+     },
+     "rigid_component_source_reference": "invented user value, DEL-09-01",
+     "rigid_pipe_ref": "pipe:RS-P040",
+     "stiffness_behavior_reference": "rigid body, user stiffness scale 10.0 (DEC-045); invented user value, DEL-09-01",
+     "weight": {
+      "unit": "N",
+      "value": 350
+     }
+    },
+    "id": "component:RS-F2",
+    "kind": "flange",
+    "label": "Flange F2",
+    "mechanics_interface": {
+     "solver_consumption": "mechanics_geometry_only"
+    },
+    "modifiers": {
+     "source_reference": "invented user value, DEL-09-01",
+     "stiffness_scaling_user_value": {
+      "unit": "none",
+      "value": 10.0
+     }
+    },
+    "node": "node:RS-050",
+    "provenance": "invented reference-system fixture input (DEL-09-01); not standard, supplier, commercial or project data"
+   },
+   {
+    "geometry": {
+     "center_of_gravity": {
+      "unit": "m",
+      "x": 0.0,
+      "y": -0.2,
+      "z": 0.0125
+     },
+     "connection_end_a_reference": "node:RS-150 (body end on RS-P150)",
+     "connection_end_b_reference": "node:RS-160 (body end on RS-P150)",
+     "eccentric_offset": {
+      "unit": "mm",
+      "x": 0.0,
+      "y": 0.0,
+      "z": 25.0
+     },
+     "end_a_size": {
+      "unit": "mm",
+      "value": 270
+     },
+     "end_b_size": {
+      "unit": "mm",
+      "value": 220
+     },
+     "rigid_body_length": {
+      "unit": "m",
+      "value": 0.4007804885470349
+     },
+     "rigid_component_source_reference": "invented user value, DEL-09-01",
+     "rigid_pipe_ref": "pipe:RS-P150",
+     "stiffness_behavior_reference": "rigid body, user stiffness scale 2.0 (DEC-045); invented user value, DEL-09-01",
+     "weight": {
+      "unit": "N",
+      "value": 300
+     }
+    },
+    "id": "component:RS-R1",
+    "kind": "reducer",
+    "label": "Reducer R1",
+    "mechanics_interface": {
+     "solver_consumption": "mechanics_geometry_only"
+    },
+    "modifiers": {
+     "source_reference": "invented user value, DEL-09-01",
+     "stiffness_scaling_user_value": {
+      "unit": "none",
+      "value": 2.0
+     }
+    },
+    "node": "node:RS-160",
+    "provenance": "invented reference-system fixture input (DEL-09-01); not standard, supplier, commercial or project data"
+   },
+   {
+    "id": "component:RS-EJ1",
+    "kind": "expansion_joint",
+    "label": "Expansion joint EJ1 (tied)",
+    "node": "node:RS-190",
+    "objective_connector": {
+     "calibration": {
+      "includes_pressure_dependent_tangent": false,
+      "installed_geometry": "authored model geometry",
+      "kind": "constant_structural_elasticity_v1"
+     },
+     "connector_axes_global": [
+      [
+       0.0,
+       -1.0,
+       0.0
+      ],
+      [
+       1.0,
+       0.0,
+       0.0
+      ],
+      [
+       0.0,
+       0.0,
+       1.0
+      ]
+     ],
+     "end_i": {
+      "initial_node_axes_global": [
+       [
+        1.0,
+        0.0,
+        0.0
+       ],
+       [
+        0.0,
+        1.0,
+        0.0
+       ],
+       [
+        0.0,
+        0.0,
+        1.0
+       ]
+      ],
+      "node_ref": "node:RS-180",
+      "offset_local": {
+       "unit": "m",
+       "x": 0.0,
+       "y": 0.0,
+       "z": 0.0
+      }
+     },
+     "end_j": {
+      "initial_node_axes_global": [
+       [
+        1.0,
+        0.0,
+        0.0
+       ],
+       [
+        0.0,
+        1.0,
+        0.0
+       ],
+       [
+        0.0,
+        0.0,
+        1.0
+       ]
+      ],
+      "node_ref": "node:RS-190",
+      "offset_local": {
+       "unit": "m",
+       "x": 0.0,
+       "y": 0.0,
+       "z": 0.0
+      }
+     },
+     "hardware": {
+      "kind": "explicit_axial_rods_v1",
+      "rods": [
+       {
+        "id": "rod:RS-EJ1-RYP",
+        "law": "bilateral_linear",
+        "offset_i": {
+         "x": {
+          "unit": "m",
+          "value": 0.0
+         },
+         "y": {
+          "unit": "m",
+          "value": 0.2
+         },
+         "z": {
+          "unit": "m",
+          "value": 0.0
+         }
+        },
+        "offset_j": {
+         "x": {
+          "unit": "m",
+          "value": 0.0
+         },
+         "y": {
+          "unit": "m",
+          "value": 0.2
+         },
+         "z": {
+          "unit": "m",
+          "value": 0.0
+         }
+        },
+        "reference_extension": {
+         "unit": "m",
+         "value": 0.0
+        },
+        "source_reference": "invented user value, DEL-09-01",
+        "stiffness": {
+         "unit": "N/m",
+         "value": 120000000.0
+        }
+       },
+       {
+        "id": "rod:RS-EJ1-RYN",
+        "law": "bilateral_linear",
+        "offset_i": {
+         "x": {
+          "unit": "m",
+          "value": 0.0
+         },
+         "y": {
+          "unit": "m",
+          "value": -0.2
+         },
+         "z": {
+          "unit": "m",
+          "value": 0.0
+         }
+        },
+        "offset_j": {
+         "x": {
+          "unit": "m",
+          "value": 0.0
+         },
+         "y": {
+          "unit": "m",
+          "value": -0.2
+         },
+         "z": {
+          "unit": "m",
+          "value": 0.0
+         }
+        },
+        "reference_extension": {
+         "unit": "m",
+         "value": 0.0
+        },
+        "source_reference": "invented user value, DEL-09-01",
+        "stiffness": {
+         "unit": "N/m",
+         "value": 120000000.0
+        }
+       }
+      ]
+     },
+     "installed_reference_temperature": {
+      "unit": "degC",
+      "value": 20
+     },
+     "motion_basis": "symmetric_midpoint_small_rotation_v1",
+     "pressure_model": {
+      "effective_area": {
+       "unit": "m^2",
+       "value": 0.049
+      },
+      "kind": "constant_effective_area_reference_v1",
+      "pressure_basis": "internal_differential_zero_external_v1",
+      "source_reference": "invented user value, DEL-09-01"
+     },
+     "provenance": {
+      "basis_transform_reference": "none",
+      "measurement_restraints": "invented; no measurement",
+      "source_reference": "invented user value, DEL-09-01",
+      "validity_statement": "invented test object; no applicability claim"
+     },
+     "q_ref": {
+      "rotation": {
+       "unit": "rad",
+       "x": 0.0,
+       "y": 0.0,
+       "z": 0.0
+      },
+      "translation": {
+       "unit": "m",
+       "x": 0.0,
+       "y": 0.0,
+       "z": 0.0
+      }
+     },
+     "reference_state": "stress_free",
+     "stiffness": {
+      "coefficient_unit": "N*m",
+      "coordinate_order": [
+       "tx",
+       "ty",
+       "tz",
+       "rx",
+       "ry",
+       "rz"
+      ],
+      "provenance": {
+       "basis_transform_reference": "none (authored directly in the connector basis)",
+       "measurement_restraints": "invented diagonal work matrix; no measurement",
+       "source_reference": "invented user value, DEL-09-01"
+      },
+      "representation": "scaled_work_coefficients_v1",
+      "rotation_scale": {
+       "unit": "rad",
+       "value": 1.0
+      },
+      "translation_scale": {
+       "unit": "m",
+       "value": 1.0
+      },
+      "upper_triangle": [
+       150000.0,
+       0.0,
+       0.0,
+       0.0,
+       0.0,
+       0.0,
+       400000.0,
+       0.0,
+       0.0,
+       0.0,
+       0.0,
+       400000.0,
+       0.0,
+       0.0,
+       0.0,
+       500000.0,
+       0.0,
+       0.0,
+       1500.0,
+       0.0,
+       1500.0
+      ],
+      "version": "1.0.0"
+     },
+     "temperature_applicability": "fixed_installed_parameters_v1",
+     "topology": {
+      "span_ref": "pipe:RS-P180",
+      "type": "replaces_span"
+     },
+     "version": "1.0.0"
+    },
+    "provenance": "invented reference-system fixture input (DEL-09-01); not standard, supplier, commercial or project data"
+   }
+  ],
+  "pressure_contract": {
+   "mode": "exact_pressure_v3",
+   "shear_model": "euler_bernoulli",
+   "version": "3.0.0"
+  }
+ }
+}
