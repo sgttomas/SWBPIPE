@@ -2048,9 +2048,9 @@ fn family_of(result: Result<(), ForceScalingFailure>) -> &'static str {
 }
 
 /// Admission (ROOT Q3, OQ13 narrowed; the A2 order): each check names its
-/// family, including the two the product cannot reach at b != 0 (an
-/// objective connector, outside the declared F1b subset; a non-nodal ledger
-/// term), and a thermal load is named
+/// family, including the objective connector (outside the declared F1b
+/// subset; covered here, at unit level) and the non-nodal ledger term,
+/// observed at product level in `tests/f1b_range_refusal_controls.rs`; a thermal load is named
 /// as thermal although it is also an element primitive. (The exact-pressure
 /// operand, family 4, is reached at product level, in
 /// `tests/f1b_w2_runtime.rs`; the legacy pressure-thrust family is retired

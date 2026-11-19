@@ -150,6 +150,9 @@ code_paths:
 # product test reads it yet.
 - validation/references/exact_difference_basis/**
 - tests/test_exact_difference_basis_references.py
+# Analytic exact-route references for seismic subtraction terms, SRSS, absolute sum and fixed-load gating.
+- validation/references/exact_load_state_generated_interactions/**
+- tests/test_exact_load_state_generated_interactions_references.py
 # Candidate analytical values and admission-policy checks for the exact route.
 - validation/references/exact_difference_basis_completed/**
 - tests/test_exact_difference_basis_completed_references.py

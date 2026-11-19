@@ -437,6 +437,8 @@ PACKAGES: dict[str, Package] = {
     "exact_difference_basis": _plain("exact_difference_basis_reference.py", deliverables="DEL-05-02"),
     "exact_difference_basis_completed": _plain("exact_difference_basis_completed_reference.py", deliverables="DEL-05-02"),
     "exact_load_state_equivalent_static": _plain("exact_load_state_reference.py", deliverables="DEL-05-01"),
+    "exact_load_state_generated_interactions": _plain("generated_interactions_reference.py",
+                                                      deliverables="DEL-05-01, DEL-05-02"),
     "friction_one_way_normal": _plain("friction_one_way_normal_reference.py", deliverables="DEL-04-04"),
     "inverse_norm_certificate": _plain("inverse_norm_certificate_reference.py", deliverables="DEL-04-01"),
     "inverse_norm_witness": _plain("inverse_norm_witness_reference.py", deliverables="DEL-04-01"),
@@ -455,6 +457,10 @@ PACKAGES: dict[str, Package] = {
                               (REFERENCE_SYSTEM_REFERENCES, REFERENCE_SYSTEM_REFERENCES)),
                       staged_why=TRANCHE1_SPECIFICATION_WHY),)),
     "seismic_component_weight": _plain("scw_reference.py", deliverables="DEL-05-01"),
+    # Per-load and warning references for RS-WIN and the three static seismic cases, supplementing
+    # reference_system_pending_cases (the reference for EQ-6). Its default check reads the model members it staged
+    # from REFERENCE_FIXTURE; tests/test_reference_packages_live.py runs its live check (--check-live).
+    "reference_system_generated_loads": _plain("rsgl_reference.py", deliverables="DEL-05-01, DEL-09-01"),
     "snubber_static": _plain("snubber_static_reference.py", deliverables="DEL-04-10"),
     # Supplements the inline EXPECTED table of FRICTION_REVERSAL_TEST, not a package, so it has no sibling entry.
     "demo_friction_reversal_preload": _plain(

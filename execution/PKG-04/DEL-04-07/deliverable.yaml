@@ -312,6 +312,9 @@ checks:
 - core/product_physics/tests/pressure_section_geometry.rs
 - core/product_physics/tests/t4_u2_pressure_references.rs
 - core/product_physics/tests/formation_check_runtime.rs
+- core/product_physics/tests/f1b_w2_runtime.rs
+- core/product_physics/tests/f1b_range_refusal_controls.rs
+- core/product_physics/tests/k2a_formation_range_runtime.rs
 - core/solver/nonlinear_integration/src/lib.rs
 - core/solver/nonlinear_integration/src/confirmation_tests.rs
 - core/runner/headless/tests/untied_joint_pressure_references.rs
