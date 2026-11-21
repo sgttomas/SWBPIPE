@@ -119,8 +119,8 @@ describe("a load row's Direction cell", () => {
     // Every LoadDimension of the model schema.
     const dimensions = ["force", "moment", "force_per_length", "pressure", "temperature_change", "temperature_interval", "acceleration", "displacement", "rotation"];
     expect(Object.fromEntries(dimensions.map((dimension) => [dimension, loadRowDirection(dimension, "Global Z")]))).toEqual({
-      force: "Global Z", moment: "Global Z", force_per_length: "Global Z", displacement: "Global Z", rotation: "Global Z",
-      pressure: "—", temperature_change: "—", temperature_interval: "—", acceleration: "—"
+      force: "Global Z", moment: "Global Z", force_per_length: "Global Z", displacement: "Global Z", rotation: "Global Z", acceleration: "Global Z",
+      pressure: "—", temperature_change: "—", temperature_interval: "—"
     });
   });
 

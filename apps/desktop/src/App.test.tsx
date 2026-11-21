@@ -3954,8 +3954,8 @@ describe("SWBPIPE desktop preview", () => {
     expectVirtualTargetValue(manager, "load-manager-create-primitive-load-case", "load:L-100");
     expectVirtualTargetValue(manager, "load-manager-create-primitive-pipe", "pipe:P-100");
     expect(
-      within(manager).getByTestId("load-manager-create-primitive-direction"),
-    ).toHaveValue("global_z");
+      within(manager).queryByTestId("load-manager-create-primitive-direction"),
+    ).toBeNull();
     expect(
       within(manager).getByTestId("load-manager-create-primitive-unit"),
     ).toHaveValue("degC");

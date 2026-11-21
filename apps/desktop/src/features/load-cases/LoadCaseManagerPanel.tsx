@@ -1018,6 +1018,9 @@ export function LoadCaseManagerPanel({
                     ))}
                   </select>
                 </label>
+                {/* A temperature has no direction: no choice is offered, and the draft keeps the
+                    schema-required default (global_z) that a category change sets. */}
+                {primitiveLoadDraft.category !== "thermal" ? (
                 <label>
                   <span>Direction</span>
                   <select
@@ -1033,6 +1036,7 @@ export function LoadCaseManagerPanel({
                     ))}
                   </select>
                 </label>
+                ) : null}
                 <label>
                   <span>Magnitude ({primitiveDraftUnitBasis.label})</span>
                   <input

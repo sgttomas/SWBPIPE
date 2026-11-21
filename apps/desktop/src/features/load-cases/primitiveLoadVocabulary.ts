@@ -43,7 +43,7 @@ export function defaultPrimitiveLoadDirection(category: PrimitiveLoadCategory): 
 
 /** The load dimensions that act along a direction; a load of any other dimension
  * (a temperature, a pressure) has none, though the document carries the member. */
-const DIRECTED_LOAD_DIMENSIONS: ReadonlySet<string> = new Set(["force", "force_per_length", "moment", "displacement", "rotation"]);
+const DIRECTED_LOAD_DIMENSIONS: ReadonlySet<string> = new Set(["force", "force_per_length", "moment", "displacement", "rotation", "acceleration"]);
 
 /** A load row's Direction cell: a dash for a load whose stated dimension acts along
  * no direction; otherwise `shown` (the direction as that row writes it), so a record
