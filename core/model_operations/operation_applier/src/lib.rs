@@ -1942,6 +1942,8 @@ fn run_with_context(
     // underspecified viewport gestures are held rather than invented.
     let rich_kind = match (object_type.as_str(), field_path.as_str()) {
         ("Support", "configuration") => Some("update_support"),
+        // The explicit removal of a support's stored direction (rich_authoring).
+        ("Support", rich_authoring::SUPPORT_DIRECTION) => Some("update_support"),
         ("Model", "pressure_profile") | ("Material", "constitutive_properties" | "temperature_points") => Some("set_field"),
         ("Load", "pressure_regions") => Some("update_load"),
         ("Component", "bend_realization") => Some("set_field"),
@@ -2085,13 +2087,12 @@ fn run_with_context(
                     if error.code == "OP-BEFORE-VALUE-MISMATCH" {
                         checker.before_state = "blocked";
                     }
-                    checker.push(
-                        error.code,
-                        "blocking",
-                        error.message,
-                        "Refresh and correct the explicit configuration payload.",
-                        vec![target_ref.clone()],
-                    );
+                    let remedy = if object_type == "Support" && field_path == rich_authoring::SUPPORT_DIRECTION {
+                        rich_authoring::support_direction_remedy(&error)
+                    } else {
+                        "Refresh and correct the explicit configuration payload."
+                    };
+                    checker.push(error.code, "blocking", error.message, remedy, vec![target_ref.clone()]);
                 }
             }
         }

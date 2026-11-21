@@ -218,11 +218,12 @@ describe("a stored direction", () => {
     expect(m.supports[1].direction).toEqual(STORED);
   });
 
-  it("is left out of hanger selection's update_support payload", async () => {
+  it("is left out of hanger selection's update_support payload, and removed only by its own explicit change ahead of it", async () => {
     const m = model();
     const doc = structuredClone(fixture) as HangerDocument;
     const batch = await buildHangerSelectionBatch(m, doc, doc.hanger_records[0].hanger_id, { supportId: "support:skew", restraints: ["UY"] });
-    const config = batch.operations[0].change;
+    expect(batch.operations[0].change).toMatchObject({ change_kind: "update_support", field_path: "direction", before: JSON.stringify(STORED), after: "not_present" });
+    const config = batch.operations[1].change;
     expect(config).toMatchObject({ change_kind: "update_support", field_path: "configuration" });
     expect(JSON.parse(config.before)).toEqual({ family: "line_stop", restraints: ["UY"], provenance: "invented" });
     expect(Object.keys(JSON.parse(config.after)).sort()).toEqual(["family", "hanger", "provenance", "restraints"]);
