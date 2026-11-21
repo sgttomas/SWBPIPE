@@ -1,9 +1,10 @@
 // W-12 S3c composition (Codex r2 on #1619): a within-run choice made in Results and
-// dropped while the user is elsewhere is named beside the package actions in Report
-// and Exports, not only in the inactive Results section. The application solves the
-// range-envelope model, the user chooses L-200 in Results and moves to Report; a model
-// document that offers no L-200 is opened and solved; the Report and Exports notices
-// name the dropped bases and the default pair the packages now carry. Solves are unit
+// dropped while the user is elsewhere is named beside the package actions in Report,
+// not only in the inactive Results section; the Exports page carries no comparison and
+// says nothing of it. The application solves the range-envelope model, the user chooses
+// L-200 in Results and moves to Report; a model document that offers no L-200 is opened
+// and solved; the Report notice names the dropped bases, and with neither fixed basis in
+// that run the local-private report package carries no comparison sentence. Solves are unit
 // transport replays of committed producer bytes (NOT a native UI qualification
 // witness). Invented data only.
 import { act, fireEvent, render, screen, waitFor, within } from "@testing-library/react";
@@ -57,7 +58,7 @@ async function solve() {
   await act(async () => { fireEvent.click(within(solveSection).getByTestId("run-mechanics-preview")); });
 }
 
-it("names a dropped choice beside the package actions in Report and Exports", async () => {
+it("names a dropped choice beside the package actions in Report, and says nothing of the comparison in Exports", async () => {
   const storage = await getLocalStorageCapability(), knowledge = await loadDesignKnowledge();
   const transport = createSolveJobTransport((sent) => {
     if (isDeepStrictEqual(sent.model, RANGE_MODEL)) return RANGE_BYTES;
@@ -83,11 +84,11 @@ it("names a dropped choice beside the package actions in Report and Exports", as
   fireEvent.click(await within(results).findByTestId("c2-result-load"));
   const left = await within(results).findByTestId("comparison-left-select") as HTMLSelectElement;
   fireEvent.change(left, { target: { value: "load:L-200" } });
-  await waitFor(() => expect(within(results).getByTestId("comparison-package-basis-text")).toHaveTextContent("Packages omit the comparison of load case L-200 vs combination U4B-RANGE-MAX: ANALYSIS-RUN-RESULT-DIMENSION-UNDECLARED"));
+  await waitFor(() => expect(within(results).getByTestId("comparison-package-basis-text")).toHaveTextContent("The local-private report package omits the comparison of load case L-200 vs combination U4B-RANGE-MAX: ANALYSIS-RUN-RESULT-DIMENSION-UNDECLARED"));
 
   // Report: the packages carry the choice.
   const report = openSection("report");
-  expect(within(report).getByTestId("report-comparison-package-notice-text")).toHaveTextContent("Packages omit the comparison of load case L-200 vs combination U4B-RANGE-MAX: ANALYSIS-RUN-RESULT-DIMENSION-UNDECLARED");
+  expect(within(report).getByTestId("report-comparison-package-notice-text")).toHaveTextContent("The local-private report package omits the comparison of load case L-200 vs combination U4B-RANGE-MAX: ANALYSIS-RUN-RESULT-DIMENSION-UNDECLARED");
 
   // A model document that offers no L-200 replaces the model; its solve drops the choice.
   nativeMenuCommand("file.open-model");

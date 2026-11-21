@@ -220,7 +220,7 @@ import { useModelStateHistory, type LandedProjectSave, type ProjectBinding } fro
 import { unsavedChangesRefusal, useUnsavedChangesGuard } from "../project-storage/unsavedChangesGuard";
 import { openAutosaveSource, useAutosave } from "../autosave";
 import { createModalHolds, type ModalHolds } from "../project-storage/modalHolds";
-import { withinRunBusyReason, type WithinRunPair } from "../comparison/withinRunComparison";
+import { packagedComparisonForRun, withinRunBusyReason, type WithinRunPair } from "../comparison/withinRunComparison";
 import { listModelStates, modelStateDescription, saveModelState, type ModelStateRead } from "../../services/modelStateService";
 import { useProjectSessionState } from "./projectSessionState";
 import { useResultsSessionState } from "./resultsSessionState";
@@ -642,6 +642,8 @@ export function useWorkspaceSession() {
     packagedWithinRun,
     withinRun,
     droppedWithinRunBases,
+    heldWithinRunSelection,
+    heldWithinRunSelectionRef,
     setHeldWithinRunSelection,
     setDroppedWithinRunBases
   } = useResultsSessionState(reportSource.owner.advance);
@@ -4196,12 +4198,16 @@ export function useWorkspaceSession() {
       analysisRun,
       comparison,
       comparisonUnavailable,
+      heldWithinRunSelection,
       projectSummary,
       ruleCheckAggregate,
       ruleCheckRun: ruleCheckReportRun,
       reportComposition,
       privateIntent: reportPackagePrivateIntent
     } as const;
+    // Whether the held choice was dropped for the report run (set once that run is read):
+    // the session then drops it too, by the same rule, which leaves the save current.
+    let heldDroppedForRun = false;
     // Refs, because the awaited build and preparation outlive this render's closure.
     const isCurrent = () =>
       reportPackageRequestGenerationRef.current === generation &&
@@ -4214,13 +4220,33 @@ export function useWorkspaceSession() {
       analysisBasisRef.current.value === basis.analysisRun &&
       ruleCheckAggregateRef.current === basis.ruleCheckAggregate &&
       ruleCheckReportRunRef.current === basis.ruleCheckRun &&
-      reportCompositionRef.current === basis.reportComposition;
+      reportCompositionRef.current === basis.reportComposition &&
+      (heldWithinRunSelectionRef.current === basis.heldWithinRunSelection ||
+        (heldDroppedForRun && heldWithinRunSelectionRef.current === null));
     reportPackageBusyGenerationRef.current = generation;
     setReportPackageBusy(true);
     setReportPackageRoute(null);
     try {
       // The report package reads full rows (C2): a native result's bounded full copy and record.
       const reportRun = basis.result && isNativeResult(basis.result) ? await loadC2Full(basis.result, { record: true }) : { result: basis.result as MechanicsResult, analysisRun: basis.analysisRun as AnalysisRunEnvelope };
+      // The within-run comparison the package carries. The session's is null on both members
+      // until a native result's full copy is loaded (for its comparisons, or above by this
+      // save); then it is resolved here, by the session's rules, from the report run this save
+      // already holds. No other full copy is read and no full-copy gate is added: the request
+      // takes (comparison, comparisonUnavailable) as plain inputs, so a package built from
+      // custody above the webview's limit can supply them from custody (or omit them without
+      // a choice) without passing through this seam.
+      let packagedComparison = { comparison: basis.comparison, comparisonUnavailable: basis.comparisonUnavailable };
+      if (basis.comparison === null && basis.comparisonUnavailable === null) {
+        const resolved = packagedComparisonForRun({
+          result: reportRun.result,
+          analysisRun: reportRun.analysisRun!,
+          model: basis.inputManifest.manifest.model_basis.model_payload ?? null,
+          held: basis.heldWithinRunSelection
+        });
+        heldDroppedForRun = resolved.heldDropped;
+        packagedComparison = { comparison: resolved.packaged?.comparison ?? null, comparisonUnavailable: resolved.packaged?.unavailable ?? null };
+      }
       if (!isCurrent()) return;
       const request = await buildReportPackageRequest({
         model: basis.model,
@@ -4228,8 +4254,8 @@ export function useWorkspaceSession() {
         analysisRun: reportRun.analysisRun!,
         inputManifest: basis.inputManifest,
         projectSummary: basis.projectSummary,
-        comparison: basis.comparison,
-        comparisonUnavailable: basis.comparisonUnavailable,
+        comparison: packagedComparison.comparison,
+        comparisonUnavailable: packagedComparison.comparisonUnavailable,
         ruleCheckAggregate: basis.ruleCheckAggregate,
         ruleCheckRun: basis.ruleCheckRun,
         reportComposition: basis.reportComposition
@@ -5237,6 +5263,7 @@ export function useWorkspaceSession() {
       packagedWithinRun,
       withinRun,
       droppedWithinRunBases,
+      heldWithinRunSelection,
       withinRunDisabledReason,
       handleSelectWithinRunBases,
       proposal,

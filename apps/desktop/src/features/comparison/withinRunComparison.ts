@@ -43,8 +43,9 @@ export type WithinRunPair = { left: string; right: string };
 /** The user's choice of a load case and a combination. */
 export type HeldWithinRunSelection = WithinRunPair;
 
-/** What a package carries in place of a comparison the builder refused: the chosen
- * bases, the run and the builder's reason, by name. */
+/** What a package carries in place of a comparison that is not made: the pair's
+ * bases, the run and the reason by name, when a basis has no result rows in the run
+ * (`COMPARISON_BASIS_WITHOUT_ROWS`) or the builder refused the pair. */
 export type PreviewComparisonUnavailable = {
   document_kind: "openpipestress.technical_preview.comparison_unavailable";
   comparison_id: string;
@@ -117,15 +118,46 @@ function orderedOptions(counts: Map<string, number>, listed: Array<{ id: string;
   return options;
 }
 
-/** The load cases and combinations that have result rows in `result`, ordered by
+/** Row kinds that record how a basis was solved, not a result of it (the producers'
+ * modulus-basis presence records, `source_receipt/rows.rs`): a withheld combination
+ * may still have them, so they never count as its result rows. */
+export const BOOKKEEPING_ROW_KINDS: ReadonlySet<string> = new Set(["modulus_basis_record", "combination_modulus_basis_record"]);
+
+/** A row that is a result of its basis (not a bookkeeping record). */
+function isResultRow(row: MechanicsResult["results"][number]): boolean {
+  return !BOOKKEEPING_ROW_KINDS.has(row.kind);
+}
+
+/** The combinations the solve withheld, with each gate's reason code, from either
+ * evidence form: the preview route's `contract_evidence.combination_gates` and the
+ * exact route's `contract_evidence.exact_combinations[].gate`. */
+export function withheldCombinationGates(result: MechanicsResult): { combination_id: string; reason: string | null }[] {
+  const gates = previewCombinationGates(result)
+    .filter((gate) => gate.withheld)
+    .map((gate) => ({ combination_id: gate.combination_id, reason: typeof gate.reason === "string" ? gate.reason : null }));
+  const exact = (result.contract_evidence as { exact_combinations?: unknown } | undefined)?.exact_combinations;
+  if (Array.isArray(exact)) {
+    for (const record of exact) {
+      const entry = record as { combination_id?: unknown; gate?: { withheld?: unknown; reason?: unknown } } | null;
+      if (entry && typeof entry.combination_id === "string" && entry.gate?.withheld === true) {
+        gates.push({ combination_id: entry.combination_id, reason: typeof entry.gate.reason === "string" ? entry.gate.reason : null });
+      }
+    }
+  }
+  return gates;
+}
+
+/** The load cases and combinations that have result rows in `result` (bookkeeping
+ * rows do not count, and a combination the solve withheld is not offered), ordered by
  * the run's solved model (`model`, its input manifest's snapshot). */
 export function withinRunBasisOptions(result: MechanicsResult, model: PreviewModel | null | undefined): WithinRunOptions {
   const loadCaseCounts = new Map<string, number>();
   const combinationCounts = new Map<string, number>();
+  const withheld = new Set(withheldCombinationGates(result).map((gate) => gate.combination_id));
   for (const row of result.results) {
     const basis = row.basis_ref;
-    if (!basis || typeof basis.ref_id !== "string" || basis.ref_id === "") continue;
-    const counts = basis.ref_type === "load_case" ? loadCaseCounts : basis.ref_type === "combination" ? combinationCounts : null;
+    if (!basis || typeof basis.ref_id !== "string" || basis.ref_id === "" || !isResultRow(row)) continue;
+    const counts = basis.ref_type === "load_case" ? loadCaseCounts : basis.ref_type === "combination" && !withheld.has(basis.ref_id) ? combinationCounts : null;
     if (counts) counts.set(basis.ref_id, (counts.get(basis.ref_id) ?? 0) + 1);
   }
   return {
@@ -166,16 +198,20 @@ export function droppedBases(held: HeldWithinRunSelection, options: WithinRunOpt
  * withholding text where its combination gate withheld it: the message of the gate's
  * diagnostic (its code is the gate's reason and it names the combination first). */
 export function basesWithoutRows(result: MechanicsResult, pair: WithinRunPair): WithinRunBasisWithoutRows[] {
-  const withRows = new Set(result.results.map((row) => row.basis_ref?.ref_id));
-  const gates = previewCombinationGates(result);
-  const sides: Array<["left" | "right", string]> = [["left", pair.left], ["right", pair.right]];
-  return sides.filter(([, id]) => !withRows.has(id)).map(([side, id]) => {
-    const gate = gates.find((item) => item.combination_id === id && item.withheld);
+  // Strictly by kind and id: a load case and a combination may share an id. The left
+  // basis is a load case, the right a combination; only the right can be withheld.
+  const hasRows = (refType: "load_case" | "combination", id: string) =>
+    result.results.some((row) => row.basis_ref?.ref_type === refType && row.basis_ref.ref_id === id && isResultRow(row));
+  const gate = withheldCombinationGates(result).find((item) => item.combination_id === pair.right);
+  const withoutRows: WithinRunBasisWithoutRows[] = [];
+  if (!hasRows("load_case", pair.left)) withoutRows.push({ side: "left", ref_id: pair.left, withheld: false, withheld_reason: null });
+  if (gate || !hasRows("combination", pair.right)) {
     const message = gate
-      ? result.diagnostics?.find((item) => item.code === gate.reason && item.affected_refs?.[0] === id)?.message
+      ? result.diagnostics?.find((item) => item.code === gate.reason && item.affected_refs?.[0] === pair.right)?.message
       : undefined;
-    return { side, ref_id: id, withheld: Boolean(gate), withheld_reason: typeof message === "string" && message !== "" ? message : null };
-  });
+    withoutRows.push({ side: "right", ref_id: pair.right, withheld: Boolean(gate), withheld_reason: typeof message === "string" && message !== "" ? message : null });
+  }
+  return withoutRows;
 }
 
 /** The reason code of a pair with a basis that has no result rows in the run. */
@@ -185,7 +221,10 @@ export const COMPARISON_BASIS_WITHOUT_ROWS = "COMPARISON-BASIS-WITHOUT-RESULT-RO
  * ids, and for each basis the solve withheld, the solve's own message. */
 function withoutRowsReason(withoutRows: WithinRunBasisWithoutRows[]): string {
   const ids = withoutRows.map((basis) => basis.ref_id);
-  const subject = `${ids.join(" and ")} ${ids.length === 1 ? "has" : "have"} no result rows in this run, so the pair is not compared.`;
+  // One id for both sides (a direct caller's pair) is named once, as both.
+  const subject = ids.length === 2 && ids[0] === ids[1]
+    ? `${ids[0]} has no result rows in this run as the load case or as the combination, so the pair is not compared.`
+    : `${ids.join(" and ")} ${ids.length === 1 ? "has" : "have"} no result rows in this run, so the pair is not compared.`;
   const withheld = withoutRows.filter((basis) => basis.withheld).map((basis) =>
     basis.withheld_reason ? `${basis.ref_id}: ${basis.withheld_reason}` : `${basis.ref_id}: withheld by the solve.`);
   return [`${COMPARISON_BASIS_WITHOUT_ROWS}: ${subject}`, ...withheld].join(" ");
@@ -230,8 +269,12 @@ const samePair = (left: WithinRunPair, right: WithinRunPair) => left.left === ri
  * withheld it (its combination gate), or the solved model lists it (the load case as
  * a load case, the combination as a combination). */
 function fixedPairPresent(result: MechanicsResult, model: PreviewModel | null | undefined): boolean {
-  if (result.results.some((row) => row.basis_ref?.ref_id === FIXED_PAIR.left || row.basis_ref?.ref_id === FIXED_PAIR.right)) return true;
-  if (previewCombinationGates(result).some((gate) => gate.withheld && (gate.combination_id === FIXED_PAIR.left || gate.combination_id === FIXED_PAIR.right))) return true;
+  // Strictly by kind and id (a load case and a combination may share an id); any row of
+  // the basis, a bookkeeping record included, shows that it belongs to the run.
+  if (result.results.some((row) =>
+    (row.basis_ref?.ref_type === "load_case" && row.basis_ref.ref_id === FIXED_PAIR.left) ||
+    (row.basis_ref?.ref_type === "combination" && row.basis_ref.ref_id === FIXED_PAIR.right))) return true;
+  if (withheldCombinationGates(result).some((gate) => gate.combination_id === FIXED_PAIR.right)) return true;
   const loadCases = Array.isArray(model?.load_cases) ? model.load_cases : [];
   const combinations = Array.isArray(model?.combinations) ? model.combinations : [];
   return loadCases.some((entry) => entry?.id === FIXED_PAIR.left) || combinations.some((entry) => entry?.id === FIXED_PAIR.right);
@@ -284,6 +327,29 @@ export function packagedComparison(
   return resolved.view.status === "ready" && resolved.view.source === "selected" ? resolved.build : fixedPair;
 }
 
+/** What the packages carry for one run and a held choice, by the session's own rules
+ * (`resultsSessionState.ts`): the options of `result` under its solved `model`, the
+ * held choice dropped when the run does not offer both of its bases, the fixed pair
+ * (or nothing, by the absent-pair rule) without an applying choice. Also returns
+ * whether the held choice was dropped for this run. Pure: it reads only its inputs. */
+export function packagedComparisonForRun({
+  result,
+  analysisRun,
+  model,
+  held
+}: {
+  result: MechanicsResult;
+  analysisRun: ComparedRun;
+  model: PreviewModel | null | undefined;
+  held: HeldWithinRunSelection | null;
+}): { packaged: WithinRunComparisonBuild | null; heldDropped: boolean } {
+  const options = withinRunBasisOptions(result, model);
+  const heldDropped = held !== null && droppedBases(held, options).length > 0;
+  const fixedPair = fixedPairComparison(result, analysisRun, model);
+  const resolved = resolveWithinRun({ result, analysisRun, options, held: heldDropped ? null : held, fixedPair });
+  return { packaged: packagedComparison(resolved, fixedPair), heldDropped };
+}
+
 /** A basis as a person reads it, as the Loads page names its kinds: the kind in
  * words and the id without its stored prefix ("load case L-100", "combination
  * C-OPER-ALT"). An id without the prefix is shown as it is. */
@@ -292,8 +358,9 @@ export function basisName(side: "left" | "right", refId: string): string {
   return `${kind} ${refId.startsWith(prefix) && refId.length > prefix.length ? refId.slice(prefix.length) : refId}`;
 }
 
-/** What the packages carry for the within-run pair:
- * - `compared`: both bases have result rows and the packages include their comparison;
+/** What the local-private report package carries for the within-run pair (the
+ * shareable package carries no comparison, DEL-08-01 REQ-019):
+ * - `compared`: both bases have result rows and the package includes their comparison;
  * - `none_carried`: a basis has no result rows in this run (`withoutRows`, with the
  *   solve's own withholding text where there is one), so no comparison is carried;
  * - `omitted`: the builder refused the pair (`reason` is its reason). */
@@ -320,11 +387,12 @@ export type PackageNoticeParts = {
 function withheldPhrase(basis: WithinRunBasisWithoutRows): string | null {
   if (!basis.withheld) return null;
   if (!basis.withheld_reason) return "withheld by the solve";
-  const reason = basis.withheld_reason.replace(/^Combination withheld:\s*/, "").replace(/\.$/, "");
-  return `withheld by the solve: ${reason}`;
+  const reason = basis.withheld_reason.replace(/^Combination withheld:\s*/, "").replace(/\.$/, "").trim();
+  return reason ? `withheld by the solve: ${reason}` : "withheld by the solve";
 }
 
-/** The package notice's members and sentence. Null when there is no Current run. */
+/** The package notice's members and sentence. Null when nothing is packaged: no
+ * Current run, or no fixed pair in the run without a choice (the absent-pair rule). */
 export function packageNoticeParts(packaged: WithinRunComparisonBuild | null): PackageNoticeParts | null {
   if (!packaged) return null;
   const { left, right } = packaged.pair;
@@ -345,18 +413,18 @@ export function packageNoticeParts(packaged: WithinRunComparisonBuild | null): P
       state: "none_carried",
       withoutRows,
       reason,
-      text: `The packages carry no comparison of ${leftName} with ${rightName}: ${subject}${reason ? ` (${reason})` : ""}.`
+      text: `The local-private report package carries no comparison of ${leftName} with ${rightName}: ${subject}${reason ? ` (${reason})` : ""}.`
     };
   }
   if (packaged.comparison) {
-    return { ...base, state: "compared", withoutRows: [], reason: null, text: `The packages include the comparison of ${leftName} with ${rightName}.` };
+    return { ...base, state: "compared", withoutRows: [], reason: null, text: `The local-private report package includes the comparison of ${leftName} with ${rightName}.` };
   }
   const reason = packaged.unavailable?.reason ?? "it could not be built";
-  return { ...base, state: "omitted", withoutRows: [], reason, text: `Packages omit the comparison of ${leftName} vs ${rightName}: ${reason}` };
+  return { ...base, state: "omitted", withoutRows: [], reason, text: `The local-private report package omits the comparison of ${leftName} vs ${rightName}: ${reason}` };
 }
 
-/** The package notice: which comparison the packages carry, or that they carry none
- * and why. Null when there is no Current run. */
+/** The package notice: which comparison the local-private report package carries, or
+ * that it carries none and why. Null when nothing is packaged (`packageNoticeParts`). */
 export function packageNotice(packaged: WithinRunComparisonBuild | null): string | null {
   return packageNoticeParts(packaged)?.text ?? null;
 }

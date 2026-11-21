@@ -1,7 +1,7 @@
 // W-12 S3c packages (Agent 0, option A): the report, handoff, export-review and
 // design-workspace documents carry the within-run comparison the session hands
-// them, and the structured unavailable record when the builder refused the chosen
-// pair. Without that record each document is byte-identical to before: the key is
+// them, and the structured unavailable record when a basis has no result rows or the
+// builder refused the pair. Without that record each document is byte-identical to before: the key is
 // absent and `comparison_ref` reads as it did. Invented data only.
 import rangeEnvelopeResult from "../../../../../fixtures/results/preview_physics_range_envelope_sparse.json";
 import rangeEnvelopeModel from "../../../../../core/product_physics/tests/fixtures/preview_physics_range_envelope_model.json";
@@ -130,7 +130,7 @@ describe("the demonstration model's withheld combination", () => {
       state: "none_carried",
       withoutRows: [{ side: "right", ref_id: "combination:C-OPER-ALT", withheld: true, withheld_reason: solveReason }],
       reason: "withheld by the solve: the model has nonlinear supports, so superposing case states is not a solved state",
-      text: "The packages carry no comparison of load case L-100 with combination C-OPER-ALT: combination C-OPER-ALT has no results in this run (withheld by the solve: the model has nonlinear supports, so superposing case states is not a solved state)."
+      text: "The local-private report package carries no comparison of load case L-100 with combination C-OPER-ALT: combination C-OPER-ALT has no results in this run (withheld by the solve: the model has nonlinear supports, so superposing case states is not a solved state)."
     });
     expect(packageNotice(packaged)).toBe(packageNoticeParts(packaged)!.text);
   });

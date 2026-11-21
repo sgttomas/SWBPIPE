@@ -232,6 +232,10 @@ export function useResultsSessionState(advanceReportSource?: () => number) {
   // the next choice (never silently carried or reset).
   const [heldWithinRunSelection, setHeldWithinRunSelection, dropWithinRunSelection] = useSequencedState<HeldWithinRunSelection | null>(null, advanceReportSource);
   const [droppedWithinRunBases, setDroppedWithinRunBases] = useState<string[] | null>(null);
+  // The held choice as the latest render has it, for a report-package save's currency
+  // check across its awaits (`workspaceSession.ts` `handleSaveReportPackage`).
+  const heldWithinRunSelectionRef = useRef<HeldWithinRunSelection | null>(heldWithinRunSelection);
+  heldWithinRunSelectionRef.current = heldWithinRunSelection;
   const withinRunOptions = useMemo(
     () => (comparedResult && comparedRun ? withinRunBasisOptions(comparedResult, solvedModel) : null),
     [comparedRun, comparedResult, solvedModel]
@@ -296,6 +300,8 @@ export function useResultsSessionState(advanceReportSource?: () => number) {
     packagedWithinRun,
     withinRun,
     droppedWithinRunBases: withinRunOptions ? droppedWithinRunBases : null,
+    heldWithinRunSelection,
+    heldWithinRunSelectionRef,
     setHeldWithinRunSelection,
     setDroppedWithinRunBases
   };

@@ -41,7 +41,12 @@ afterEach(() => {
   for (const hook of liveHooks) { try { hook.unmount(); } catch { /* already unmounted */ } }
   liveHooks.clear();
   invokeMock.mockReset(); window.localStorage.clear(); delete (window as Json).__TAURI_INTERNALS__;
+  saves.length = 0;
 });
+
+/** The arguments of each `save_report_package` the session sends; the invented native side
+ * performs no save (it refuses after recording what was sent). */
+const saves: Json[] = [];
 
 async function currentSession(answer: (bytes: string) => string | Promise<string> = (bytes) => bytes) {
   // `answer` maps the producer's bytes to what the replayed job returns.
@@ -71,6 +76,7 @@ async function currentSession(answer: (bytes: string) => string | Promise<string
     if (command === "load_design_knowledge") return knowledge;
     if (command === "sync_native_shell_state") return null;
     if (command === "load_preview_model" && args === undefined) return structuredClone(MODEL);
+    if (command === "save_report_package") { saves.push(args); throw new Error("INVENTED_SAVE_NOT_PERFORMED"); }
     return transport.invoke(command, args, options);
   });
   (window as Json).__TAURI_INTERNALS__ = {};
@@ -171,4 +177,57 @@ it("refuses a choice while a solve runs, and states the reason", async () => {
   // The new run's comparison copy, requested: no refused choice was held for it.
   await act(async () => { await results().loadC2Full(results().currentSolvedResult!); });
   expect(pairOf(results())).toEqual({ left: "load:L-100", right: RANGE, source: "default" });
+});
+
+/** A new solve whose comparison copy is not requested: the session compares nothing yet. */
+async function freshSolve(hook: { result: { current: ReturnType<typeof useWorkspaceSession> } }) {
+  const before = hook.result.current.results.currentSolvedResult;
+  await act(async () => { await hook.result.current.results.handleRun(); });
+  await waitFor(() => expect(hook.result.current.results.currentSolvedResult).not.toBeNull());
+  expect(hook.result.current.results.currentSolvedResult !== before).toBe(true);
+  expect(hook.result.current.results.withinRun).toEqual({ status: "no_result" });
+  expect(hook.result.current.results.comparison).toBeNull();
+  expect(hook.result.current.results.comparisonUnavailable).toBeNull();
+}
+
+/** The comparison members of the last request the session sent. */
+function sentComparison() {
+  expect(saves.length).toBeGreaterThan(0);
+  const request = JSON.parse(saves[saves.length - 1].requestCanonicalText);
+  const record = request.state_comparison_handoff_records[0];
+  return { unavailable: record.comparison_unavailable ?? null, sections: record.sections.comparison_sections };
+}
+
+it("File > Save Report Package on a fresh native solve, before its comparison copy is loaded, carries the comparison the session resolves", async () => {
+  const hook = await currentSession();
+  const results = () => hook.result.current.results;
+  await freshSolve(hook);
+  act(() => results().setReportPackagePrivateIntent(true));
+  await act(async () => { await results().handleSaveReportPackage(); });
+  expect(saves).toHaveLength(1);
+  // Without a choice, the fixed pair: C-OPER-ALT is withheld here, so its unavailable record
+  // (not two absent members, and not an empty comparison).
+  const sent = sentComparison();
+  expect(sent.sections).toEqual([]);
+  expect(sent.unavailable).toMatchObject({ left_basis_ref: "load:L-100", right_basis_ref: "combination:C-OPER-ALT", reason_code: COMPARISON_BASIS_WITHOUT_ROWS });
+  // The save read the report run's full copy; the session's own comparison is now the same.
+  expect(results().comparisonUnavailable).toEqual(sent.unavailable);
+});
+
+it("the same save carries a choice held from an earlier run, and a choice attempted during the save neither applies nor changes the package", async () => {
+  const hook = await currentSession();
+  const results = () => hook.result.current.results;
+  act(() => results().handleSelectWithinRunBases({ left: "load:L-200", right: RANGE }));
+  expect(results().heldWithinRunSelection).toEqual({ left: "load:L-200", right: RANGE });
+  await freshSolve(hook);
+  act(() => results().setReportPackagePrivateIntent(true));
+  let saving!: Promise<void>;
+  act(() => { saving = results().handleSaveReportPackage(); });
+  // Refused while the package is being prepared: the held choice stays the save's basis.
+  act(() => results().handleSelectWithinRunBases({ left: "load:L-100", right: RANGE }));
+  await act(async () => { await saving; });
+  expect(results().heldWithinRunSelection).toEqual({ left: "load:L-200", right: RANGE });
+  expect(saves).toHaveLength(1);
+  // The held choice's outcome: the unchanged builder refuses the producer's range-envelope rows.
+  expect(sentComparison().unavailable).toMatchObject({ left_basis_ref: "load:L-200", right_basis_ref: RANGE, reason_code: "ANALYSIS-RUN-RESULT-DIMENSION-UNDECLARED" });
 });
