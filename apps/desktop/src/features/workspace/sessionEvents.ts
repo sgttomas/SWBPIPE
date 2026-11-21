@@ -12,7 +12,7 @@ export type SessionEvent =
   | Readonly<{ type: "queued"; batchId: string; key: string; basisRevision: number; basisHash: string }>
   | Readonly<{ type: "validated"; batchId: string; key: string; outcome: OperationBatchOutcome }>
   | Readonly<{ type: "refused"; batchId: string; key: string; outcome: OperationBatchOutcome }>
-  | Readonly<{ type: "checkpoint"; operationId: string; appliedModel?: PreviewModel; operationOutcomes?: OperationBatchOutcome["operation_outcomes"] }>
+  | Readonly<{ type: "checkpoint"; operationId: string; submittedId?: string; appliedModel?: PreviewModel; operationOutcomes?: OperationBatchOutcome["operation_outcomes"] }>
   | Readonly<{ type: "undone"; operationId: string }>
   | Readonly<{ type: "redone"; operationId: string }>
   | Readonly<{ type: "history-reset"; projectId: string | null }>

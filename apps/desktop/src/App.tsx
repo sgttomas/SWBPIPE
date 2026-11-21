@@ -166,7 +166,8 @@ export function App() {
 }
 
 function AppSession() {
-  const session = useWorkspaceSession();
+  // DEL-16-03, Commit: the editors' binder stays here, out of the context; this slice binds no editor to it.
+  const { editorBinding, ...session } = useWorkspaceSession();
   // DEL-08-01 REQ-022: the report source sequence and the report output outcomes, owned by
   // the session; the outcomes are shown outside the dormant Report section.
   const reportOutput = {

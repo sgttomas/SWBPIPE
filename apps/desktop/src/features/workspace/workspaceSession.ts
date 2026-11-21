@@ -1,7 +1,7 @@
 import type { ReportComposition } from "../report/reportComposition";
 import { EmbeddedAgentSession, type AgentContext, type AgentRunReceipt, type AgentSolveFailure, type AgentSolveOutcome, type AgentSolverMode } from "../../services/embeddedAgentSession";
 import { presentedResultDiagnostics } from "../results/suppliedDiagnostics";
-import { requeueRetainedRecord, stampEditorCommit, type EditorCommitRole, type ImportContext } from "../../services/operationAuthorship";
+import { requeueRetainedRecord, stampEditorCommit, editorBuilderRefusal, editorInputRefusal, type ImportContext } from "../../services/operationAuthorship";
 import { hasCurrentSourceContract } from "../results/resultReader";
 import type React from "react";
 import {
@@ -2624,178 +2624,299 @@ export function useWorkspaceSession() {
     }
   }
 
-  // DEL-16-03, Commit: the one entry by which a person's own edit in a live desktop editor is applied where it is
-  // made. The session mints one route per editor role and recognises a route by identity; only the desktop's
-  // editors are handed a route (the agent's host and offline intake hold none, and register into the review queue).
-  // The route stamps the person (`stampEditorCommit`), never reading an author from the payload, and refuses a
-  // payload carrying another origin's marks. The engine validates the stamped batch on the current model, then
-  // applies that same batch on the same basis: one checkpoint, one batch receipt and one applied-operation record,
-  // as for an applied queued batch. A refusal changes nothing and returns the engine's reason to the caller.
-  const editorRoutes = useRef(Object.freeze({
-    gui: Object.freeze({ role: "gui_editor" as EditorCommitRole }),
-    viewport: Object.freeze({ role: "viewport_editor" as EditorCommitRole })
-  })).current;
-  const editorPreviews = useRef(new WeakMap<object, Readonly<{ fingerprint: string; entry: QueuedBatch; outcome: OperationBatchOutcome }>>());
+  // DEL-16-03, Commit: a person's own edit in a live desktop editor, applied where it is made. Nothing here takes an
+  // intent or a batch from anyone. The application root binds each editor's own pure builder (its typed input, a
+  // declared input guard and its role) through `editorBinding`, which the session returns outside `operations` and
+  // outside everything the context provider is given; the bound callback takes the editor's typed values only, and
+  // the batch is built inside, on the live model, by the bound builder, then stamped as the person's by the binding.
+  // Form 1, `commit(input)`, is one step for an immediate edit. Form 2, `preview(input)` then `commit(handle)`, is for
+  // an action whose dialog shows the engine's preview first; its single-use handle is invalidated by any change of
+  // model or project and consumed by its commit. The engine validates and previews the stamped batch, and applies
+  // that same batch on the same basis: one checkpoint, one batch receipt and one applied-operation record, as for an
+  // applied queued batch. A refusal changes nothing; every result is a detached frozen copy.
+  type EditorRefusal = import("../../services/operationAuthorship").EditorRefusal;
+  type EditorCommitResult = import("../../services/operationAuthorship").EditorCommitResult;
+  type EditorPreviewResult = import("../../services/operationAuthorship").EditorPreviewResult;
+  type EditorPreviewHandle = import("../../services/operationAuthorship").EditorPreviewHandle;
+  type EditorBuilder<I> = import("../../services/operationAuthorship").EditorBuilder<I>;
+  type EngineFinding = OperationBatchOutcome["diagnostics"][number];
+  type EditorBindingRecord = Readonly<{ builder: EditorBuilder<never>; form: "commit" | "dialog" }>;
+  type EditorPreviewRecord = {
+    readonly binding: EditorBindingRecord; readonly batch: OperationBatch; readonly fingerprint: string; readonly basisHash: ModelHashEvidence;
+    readonly revision: number; readonly generation: number; readonly outcome: OperationBatchOutcome; consumed: boolean;
+  };
+  type EditorCheckedBatch = Readonly<{ batch: OperationBatch; fingerprint: string; basisModel: PreviewModel; basisHash: ModelHashEvidence; validation: OperationBatchOutcome }>;
+  const editorPreviews = useRef(new WeakMap<object, EditorPreviewRecord>());
+  const editorBuildSequence = useRef(0);
   const editorCommitSequence = useRef(0);
-  type EditorRefusal = Extract<import("../../services/operationAuthorship").EditorCommitResult, { status: "refused" }>;
-  const editorRefusal = (reason: string, outcome: OperationBatchOutcome | null = null): EditorRefusal => Object.freeze({ status: "refused", reason, outcome });
-  const EDITOR_SUPERSEDED = "The model changed while this edit was checked, so nothing was applied. Enter it again.";
-
+  // Whether a result is held, read live at publication (A8): render-assigned, as the session's other live refs are.
+  const editorHeldRef = useRef({ result, analysisRun, inputManifest, ruleCheckAggregate, historicalRun });
+  editorHeldRef.current = { result, analysisRun, inputManifest, ruleCheckAggregate, historicalRun };
+  const EDITOR_SUPERSEDED = "The model or the project changed while this edit was checked, so nothing was applied. Enter it again.";
+  const editorFindings = (findings: readonly EngineFinding[]) =>
+    findings.map((item) => ({ code: String(item.code), severity: String(item.severity), message: String(item.message), affected_refs: [...(item.affected_refs ?? [])].map(String) }));
+  const editorRefusal = (reason: string, outcome: OperationBatchOutcome | null = null): EditorRefusal => deepFreeze({ status: "refused" as const, reason,
+    findings: outcome ? editorFindings([...(outcome.diagnostics ?? []), ...(outcome.operation_outcomes ?? []).flatMap((step) => step.diagnostics ?? [])]) : [] });
+  const blockingFindings = (outcome: OperationBatchOutcome) =>
+    [...(outcome.diagnostics ?? []), ...(outcome.operation_outcomes ?? []).flatMap((step) => step.diagnostics ?? [])].filter((item) => item.severity === "blocking");
   /** The engine's own reason for a refusal: its blocking findings' messages, in order, without repeats. */
   function engineRefusalReason(outcome: OperationBatchOutcome): string {
-    const findings = [...(outcome.diagnostics ?? []), ...(outcome.operation_outcomes ?? []).flatMap((step) => step.diagnostics ?? [])];
-    const blocking = findings.filter((item) => item.severity === "blocking");
-    const messages = [...new Set((blocking.length ? blocking : findings).map((item) => item.message).filter(Boolean))];
+    const blocking = blockingFindings(outcome);
+    const findings = blocking.length ? blocking : [...(outcome.diagnostics ?? []), ...(outcome.operation_outcomes ?? []).flatMap((step) => step.diagnostics ?? [])];
+    const messages = [...new Set(findings.map((item) => item.message).filter(Boolean))];
     return messages.length ? `${messages.join(" ")} Nothing was applied.` : `The engine did not apply this change (${outcome.validation.application_status}). Nothing was applied.`;
   }
-  const passedOnBasis = (outcome: OperationBatchOutcome) =>
-    outcome.validation.batch_validation_status === "passed" &&
-    outcome.simulation_disposition !== "rolled_back_no_model_published" &&
-    ![...(outcome.diagnostics ?? []), ...(outcome.operation_outcomes ?? []).flatMap((step) => step.diagnostics ?? [])].some((item) => item.severity === "blocking");
 
-  /** The checks a preview and a commit share: the route, its stamp, the session's state, the basis and the engine's
-   * validate-only outcome on it. Runs under one operation request; the caller releases it. */
-  async function validateEditorEdit(route: unknown, edit: unknown, stillCurrent: () => boolean): Promise<EditorRefusal | Readonly<{
-    batch: OperationBatch; fingerprint: string; basisModel: PreviewModel; basisHash: ModelHashEvidence; validation: OperationBatchOutcome }>> {
-    const basisModel = clonePreviewModel(currentModel.current!);
-    const role = (route === editorRoutes.gui || route === editorRoutes.viewport) ? (route as { role: EditorCommitRole }).role : null;
-    if (!role) return editorRefusal("This change did not come from a desktop editor, so nothing was applied. A proposal or an import is applied from Review changes.");
-    const stamped = stampEditorCommit(edit, role);
-    if ("refused" in stamped) return editorRefusal(stamped.refused);
-    const batch = stamped.batch;
-    const [basisHash, fingerprint] = await Promise.all([computeModelHash(basisModel), canonicalSha256Hex(batch)]);
-    if (!stillCurrent()) return editorRefusal(EDITOR_SUPERSEDED);
-    if (!basisHash) throw new Error("The current model hash is unavailable.");
-    const validation = await validateOperationBatch(basisModel, batch, basisHash);
-    if (!stillCurrent()) return editorRefusal(EDITOR_SUPERSEDED);
-    if (validation.mode !== "validate_only" || validation.batch_id !== batch.batch_id || validation.initial_model_hash?.value !== basisHash.value ||
-      validation.applied_model || validation.acceptance || validation.validation.application_status === "applied_to_session_model") {
-      return editorRefusal("The engine's check does not match this change on the current model; it was discarded and nothing was applied.");
-    }
-    if (!passedOnBasis(validation)) return editorRefusal(engineRefusalReason(validation), validation);
-    return Object.freeze({ batch, fingerprint, basisModel, basisHash, validation });
-  }
-
-  /** Runs `work` as the session's one operation request; refuses at once while another runs or with no model. */
-  async function asEditorRequest<T>(work: (stillCurrent: () => boolean) => Promise<T | EditorRefusal>): Promise<T | EditorRefusal> {
-    if (!model || !currentModel.current) return editorRefusal("No model is open, so nothing was applied.");
+  /** The session's own operation request for an editor's edit: refused at once, with nothing toggled, counted or
+   * cloned, while another request runs or no model is held (A10). The basis is captured here, at entry. */
+  function beginEditorRequest(): EditorRefusal | Readonly<{ basisModel: PreviewModel; revision: number; generation: number; stillCurrent: () => boolean; release: () => void }> {
+    if (!currentModel.current) return editorRefusal("No model is open, so nothing was applied.");
     if (operationRequest.current.busy) return editorRefusal("Another change is still being checked or applied, so nothing was applied. Commit again when it finishes.");
     const revision = modelRevision.current;
     const generation = projectSessionGenerationRef.current;
+    const basisModel = clonePreviewModel(currentModel.current);
     const request = ++operationRequest.current.sequence;
     operationRequest.current.busy = true;
     setOperationBusy(true);
     const stillCurrent = () => operationRequest.current.sequence === request && modelRevision.current === revision && projectSessionGenerationRef.current === generation;
-    try {
-      return await work(stillCurrent);
-    } catch (error) {
-      return editorRefusal(stillCurrent() ? `The change could not be checked: ${nativeFailureText(error)}. Nothing was applied.` : EDITOR_SUPERSEDED);
-    } finally {
+    const release = () => {
       if (operationRequest.current.sequence === request) {
         operationRequest.current.busy = false;
         setOperationBusy(false);
       }
+    };
+    return { basisModel, revision, generation, stillCurrent, release };
+  }
+
+  /** Builds the editor's edit on the captured model, stamps it, and has the engine validate and preview it on that
+   * basis. The reply must be this batch's validate-only preview: its id, its basis hash, its batch hash (the
+   * session's own fingerprint), a generated preview and the validate-only disposition (A5). Currentness is checked
+   * after every await. */
+  async function buildAndValidateEditorEdit(binding: EditorBindingRecord, input: unknown, basisModel: PreviewModel, stillCurrent: () => boolean): Promise<EditorRefusal | EditorCheckedBatch> {
+    const sequence = ++editorBuildSequence.current;
+    let built: unknown;
+    try {
+      built = await binding.builder.build(clonePreviewModel(basisModel), input as never, Object.freeze({ sequence, batchId: `${binding.builder.name}-${sequence}` }));
+    } catch (error) {
+      return stillCurrent() ? editorRefusal(`The editor could not build this change: ${nativeFailureText(error)}. Nothing was applied.`) : editorRefusal(EDITOR_SUPERSEDED);
+    }
+    if (!stillCurrent()) return editorRefusal(EDITOR_SUPERSEDED);
+    const stamped = stampEditorCommit(built, binding.builder.role);
+    if ("refused" in stamped) return editorRefusal(`${binding.builder.name}: ${stamped.refused}`);
+    const batch = deepFreeze(structuredClone(stamped.batch));
+    if (binding.form === "commit" && batchRequiresPreview(batch)) return editorRefusal(`Nothing was applied. ${PREVIEW_REQUIRED_REASON(batch)}`);
+    const [basisHash, fingerprint] = await Promise.all([computeModelHash(basisModel), canonicalSha256Hex(batch)]);
+    if (!stillCurrent()) return editorRefusal(EDITOR_SUPERSEDED);
+    if (!basisHash) return editorRefusal("The current model hash is unavailable, so nothing was applied.");
+    const validation = await validateOperationBatch(basisModel, batch, basisHash);
+    if (!stillCurrent()) return editorRefusal(EDITOR_SUPERSEDED);
+    if (validation.mode !== "validate_only") return editorRefusal("The engine's check came back in another mode than validate-only, so nothing was applied.");
+    if (validation.batch_id !== batch.batch_id) return editorRefusal("The engine's check names another batch, so nothing was applied.");
+    if (validation.initial_model_hash?.value !== basisHash.value) return editorRefusal("The engine's check was made on another model, so nothing was applied.");
+    if (validation.batch_hash !== `sha256:${fingerprint}`) return editorRefusal("The engine's check is of other content than this change, so nothing was applied.");
+    if (validation.applied_model || validation.acceptance || validation.validation.application_status === "applied_to_session_model") {
+      return editorRefusal("The engine's check returned an application result, so it was discarded and nothing was applied.");
+    }
+    if (validation.validation.batch_validation_status !== "passed" || blockingFindings(validation).length > 0) return editorRefusal(engineRefusalReason(validation), validation);
+    if (validation.validation.diff_preview_status !== "generated") return editorRefusal("The engine generated no preview of this change, so nothing was applied.", validation);
+    if (validation.simulation_disposition !== "validation_only_discarded") return editorRefusal("The engine's check did not end as a discarded validation, so nothing was applied.", validation);
+    return { batch, fingerprint, basisModel, basisHash, validation };
+  }
+
+  /** Applies a checked batch on its basis and publishes it as one checkpoint. Refusals before publication change
+   * nothing; once the model and history are published, the session's own clears complete and a listener's failure
+   * comes back as the notice on a committed result (A9). */
+  async function applyAndPublishEditorBatch(checked: EditorCheckedBatch, stillCurrent: () => boolean, onPublished: () => void): Promise<EditorCommitResult> {
+    const { batch, fingerprint, basisModel, basisHash } = checked;
+    const outcome = await applyOperationBatch(basisModel, batch, basisHash);
+    if (!stillCurrent() || !currentModel.current) return editorRefusal(EDITOR_SUPERSEDED);
+    const currentHash = await computeModelHash(currentModel.current);
+    if (!stillCurrent()) return editorRefusal(EDITOR_SUPERSEDED);
+    if (currentHash?.value !== basisHash.value) return editorRefusal(EDITOR_SUPERSEDED);
+    if (outcome.mode !== "apply") return editorRefusal("The engine's application came back in another mode, so nothing was applied.");
+    if (outcome.batch_id !== batch.batch_id) return editorRefusal("The engine's application names another batch, so nothing was applied.");
+    if (outcome.initial_model_hash?.value !== basisHash.value) return editorRefusal("The engine's application was made on another model, so nothing was applied.");
+    if (outcome.batch_hash !== `sha256:${fingerprint}`) return editorRefusal("The engine applied other content than this change, so it was discarded and nothing was applied.");
+    if (outcome.validation.application_status !== "applied_to_session_model") return editorRefusal(engineRefusalReason(outcome), outcome);
+    if (!outcome.applied_model || !outcome.acceptance || outcome.simulation_disposition !== "committed_as_one_batch") {
+      return editorRefusal("The engine did not return a complete application receipt, so nothing was applied.", outcome);
+    }
+    const appliedHash = await computeModelHash(outcome.applied_model);
+    if (!stillCurrent()) return editorRefusal(EDITOR_SUPERSEDED);
+    if (appliedHash?.value !== outcome.applied_model_backend_hash) return editorRefusal("The applied model does not match the hash the engine reported, so nothing was applied.", outcome);
+
+    // Prepare: every value the publication needs, as for an applied queued batch (`handleRunOperationBatch`),
+    // computed before any state changes; the session keeps its own copies, none of them handed out.
+    const key = `editor-commit-${++editorCommitSequence.current}`;
+    const kept = structuredClone(outcome);
+    const appliedModel = kept.applied_model!;
+    const publication = prepareModelPublication(appliedModel);
+    const liveSelection = orderedSelectionRef.current;
+    const checkpoint: SessionModelCheckpoint = {
+      checkpoint_id: `undo-${key}`,
+      operation_id: key,
+      submitted_id: batch.batch_id,
+      model: clonePreviewModel(basisModel),
+      selection: primarySelection(liveSelection, defaultSelection(basisModel))
+    };
+    const keptBatch = structuredClone(batch) as OperationBatch;
+    const batchReceipt = { batch: keptBatch, outcome: kept };
+    const reviewContext = structuredClone(keptBatch.operations);
+    const appliedFields: Omit<AppliedOperationReceipt, "receipt_id" | "sequence"> = {
+      operation_id: batch.batch_id,
+      change_id: batch.batch_id,
+      target_object_type: "Model",
+      target_ref: basisModel.project.id,
+      field_path: "batch",
+      before: basisHash.value,
+      after: kept.applied_model_backend_hash ?? "not_reported",
+      application_route: kept.application_route === "local_wasm_engine" ? "local_wasm_engine" : "tauri_backend_apply",
+      applied_model_hash: kept.applied_model_backend_hash ?? "not_reported",
+      acceptance: kept.acceptance!,
+      diagnostics: kept.diagnostics,
+      professional_boundary: kept.professional_boundary
+    };
+    // A12: a commit that creates, inserts or connects focuses what it created (the last such step), as the single
+    // change Apply does; any other commit keeps the selection, pruned to the applied model.
+    const created = [...kept.operation_outcomes].reverse().find((step) => /^(create_|insert_|connect_)/.test(step.change_kind));
+    const createdRef = created ? selectionForOperationOutcome(created as unknown as OperationOutcome) : null;
+    const appliedSelection = createdRef ? singletonSelection(createdRef, liveSelection) : prunedSelectionForPublication(appliedModel);
+    const appliedSolveJob = sessionHistoryChangedSolveJob("batch", batch.batch_id);
+    let notice: string | null = null;
+    let publishEvents: () => void;
+    try {
+      publishEvents = sessionEvents.stage({ type: "checkpoint", operationId: key, submittedId: batch.batch_id, appliedModel, operationOutcomes: kept.operation_outcomes });
+    } catch (error) {
+      return editorRefusal(`A view of the session could not take this change, so nothing was applied: ${nativeFailureText(error)}`);
+    }
+    const held = editorHeldRef.current;
+    const resultsCleared = [held.result, held.analysisRun, held.inputManifest, held.ruleCheckAggregate, held.historicalRun].some((value) => value !== null);
+
+    // Publish: one synchronous block of state setters and session-owned ref writes.
+    setUndoStack((current) => [checkpoint, ...current].slice(0, 25));
+    setRedoStack([]);
+    setBatchReceipts((current) => [...current, batchReceipt]);
+    setRetainedReviewContext((current) => [...current, ...reviewContext]);
+    setAppliedOperations((current) => [...current, { receipt_id: `applied-${key}`, sequence: current.length + 1, ...appliedFields }]);
+    publishModel(publication);
+    onPublished();
+    try {
+      commitSelectionState(appliedSelection, appliedModel);
+    } catch (error) {
+      notice = `The selection did not follow this change: ${nativeFailureText(error)}`;
+    }
+    try {
+      publishEvents();
+    } catch (error) {
+      notice = `${notice ? `${notice} ` : ""}A view of the session did not take this change: ${nativeFailureText(error)}`;
+    }
+    clearComputedModelState(appliedSolveJob);
+
+    // Notify: the viewport's failure comes back beside the commit; the published change is not rolled back.
+    const viewportFailure = retireViewportBoxGestureAfterPublication();
+    if (viewportFailure) notice = `${notice ? `${notice} ` : ""}${viewportFailure}`;
+    return deepFreeze({ status: "committed" as const, checkpointId: checkpoint.checkpoint_id, historyName: batch.batch_id, resultsCleared, notice });
+  }
+
+  /** Form 1: the one-step commit of an immediate edit. */
+  async function commitEditorInput(binding: EditorBindingRecord, input: unknown): Promise<EditorCommitResult> {
+    const refused = editorInputRefusal(binding.builder.input, input);
+    if (refused) return editorRefusal(`${binding.builder.name}: ${refused}`);
+    const request = beginEditorRequest();
+    if ("status" in request) return request;
+    try {
+      const checked = await buildAndValidateEditorEdit(binding, input, request.basisModel, request.stillCurrent);
+      if ("status" in checked) return checked;
+      return await applyAndPublishEditorBatch(checked, request.stillCurrent, () => {});
+    } catch (error) {
+      return editorRefusal(request.stillCurrent() ? `The change could not be checked: ${nativeFailureText(error)}. Nothing was applied.` : EDITOR_SUPERSEDED);
+    } finally {
+      request.release();
     }
   }
 
-  /** The engine's validate-only preview of an editor's batch on the current model, for an action's own dialog to
-   * show its extent. The returned handle is what a commit of that exact batch on that model presents; a bend
-   * insertion or a reconnect is committed only with one (`previewSatisfied`). Nothing is applied. */
-  function previewEditorEdit(route: EditorCommitRoute, edit: EditorEdit): Promise<import("../../services/operationAuthorship").EditorPreviewResult> {
-    return asEditorRequest(async (stillCurrent) => {
-      const checked = await validateEditorEdit(route, edit, stillCurrent);
+  /** Form 2, first step: the engine's validate-only preview for a dialog to show, and the single-use handle its
+   * confirm presents. Nothing is applied. */
+  async function previewEditorInput(binding: EditorBindingRecord, input: unknown): Promise<EditorPreviewResult> {
+    const refused = editorInputRefusal(binding.builder.input, input);
+    if (refused) return editorRefusal(`${binding.builder.name}: ${refused}`);
+    const request = beginEditorRequest();
+    if ("status" in request) return request;
+    try {
+      const checked = await buildAndValidateEditorEdit(binding, input, request.basisModel, request.stillCurrent);
       if ("status" in checked) return checked;
-      const preview = Object.freeze({ batchId: checked.batch.batch_id });
-      const entry: QueuedBatch = { key: `editor-preview-${++editorCommitSequence.current}`, batch: checked.batch, basisModel: checked.basisModel,
-        basisHash: checked.basisHash, basisRevision: modelRevision.current, requiresPreview: batchRequiresPreview(checked.batch) };
-      editorPreviews.current.set(preview, Object.freeze({ fingerprint: checked.fingerprint, entry, outcome: checked.validation }));
-      return Object.freeze({ status: "previewed" as const, preview, outcome: checked.validation });
-    });
+      if (!request.stillCurrent()) return editorRefusal(EDITOR_SUPERSEDED);
+      const handle: EditorPreviewHandle = Object.freeze({ handle: "editor-preview" as const });
+      editorPreviews.current.set(handle, { binding, batch: checked.batch, fingerprint: checked.fingerprint, basisHash: checked.basisHash,
+        revision: request.revision, generation: request.generation, outcome: deepFreeze(structuredClone(checked.validation)), consumed: false });
+      const extent = deepFreeze({
+        historyName: checked.batch.batch_id,
+        steps: checked.validation.operation_outcomes.map((step) => ({ operationId: step.operation_id, changeKind: step.change_kind, targetType: step.target_object_type,
+          targetRef: step.target_ref, diff: structuredClone(step.diff_preview) as unknown as Record<string, unknown>[] })),
+        findings: editorFindings([...(checked.validation.diagnostics ?? []), ...checked.validation.operation_outcomes.flatMap((step) => step.diagnostics ?? [])])
+      });
+      return deepFreeze({ status: "previewed" as const, handle, extent });
+    } catch (error) {
+      return editorRefusal(request.stillCurrent() ? `The change could not be checked: ${nativeFailureText(error)}. Nothing was applied.` : EDITOR_SUPERSEDED);
+    } finally {
+      request.release();
+    }
   }
 
-  /** Commits a person's own edit from a desktop editor: validated, then applied whole on the same basis, as one
-   * history checkpoint. `preview`, from `previewEditorEdit`, must be of this exact batch on the current model when
-   * given, and is required for a batch holding an operation that requires preview. */
-  function commitEditorEdit(route: EditorCommitRoute, edit: EditorEdit, options: { preview?: import("../../services/operationAuthorship").EditorCommitPreview } = {}): Promise<import("../../services/operationAuthorship").EditorCommitResult> {
-    // Whether a result is held when the person commits; a commit clears it, and the caller says so at the edit.
-    const heldResult = result !== null || analysisRun !== null || historicalRun !== null;
-    return asEditorRequest(async (stillCurrent) => {
-      const presented = options.preview === undefined ? null : editorPreviews.current.get(options.preview) ?? null;
-      if (options.preview !== undefined && !presented) return editorRefusal("The preview shown was not made by this session, so nothing was applied. Show the preview again.");
-      const checked = await validateEditorEdit(route, edit, stillCurrent);
-      if ("status" in checked) return checked;
-      const { batch, fingerprint, basisModel, basisHash } = checked;
-      const key = `editor-commit-${++editorCommitSequence.current}`;
-      const entry: QueuedBatch = { key, batch, basisModel, basisHash, basisRevision: modelRevision.current, requiresPreview: batchRequiresPreview(batch) };
-      if (presented && (presented.fingerprint !== fingerprint || presented.entry.basisHash.value !== basisHash.value ||
-        !previewSatisfied({ ...presented.entry, requiresPreview: true }, presented.outcome, modelRevision.current))) {
-        return editorRefusal("The preview shown is of another change or an earlier model, so nothing was applied. Show the preview again.");
-      }
-      if (entry.requiresPreview && !presented) return editorRefusal(`Nothing was applied. ${PREVIEW_REQUIRED_REASON(batch)}`);
-      const outcome = await applyOperationBatch(basisModel, batch, basisHash);
-      if (!stillCurrent() || !currentModel.current) return editorRefusal(EDITOR_SUPERSEDED);
-      const currentHash = await computeModelHash(currentModel.current);
-      if (!stillCurrent()) return editorRefusal(EDITOR_SUPERSEDED);
-      if (currentHash?.value !== basisHash.value || outcome.mode !== "apply" || outcome.initial_model_hash?.value !== basisHash.value ||
-        outcome.batch_id !== batch.batch_id || outcome.batch_hash !== `sha256:${fingerprint}`) {
-        return editorRefusal("The engine's result does not match this change on the current model; it was discarded and nothing was applied.");
-      }
-      if (outcome.validation.application_status !== "applied_to_session_model") return editorRefusal(engineRefusalReason(outcome), outcome);
-      if (!outcome.applied_model || !outcome.acceptance || outcome.simulation_disposition !== "committed_as_one_batch") {
-        return editorRefusal("The engine did not return a complete application receipt, so nothing was applied.", outcome);
-      }
-      const appliedHash = await computeModelHash(outcome.applied_model);
-      if (!stillCurrent()) return editorRefusal(EDITOR_SUPERSEDED);
-      if (appliedHash?.value !== outcome.applied_model_backend_hash) return editorRefusal("The applied model does not match the hash the engine reported, so nothing was applied.", outcome);
+  /** Form 2, second step: the dialog's confirm. Only a handle this binding's preview minted, not yet committed, on
+   * the current project and model revision, is applied; every other is refused by name before the request (A10). */
+  async function commitEditorPreview(binding: EditorBindingRecord, handle: unknown): Promise<EditorCommitResult> {
+    const record = handle !== null && typeof handle === "object" ? editorPreviews.current.get(handle) : undefined;
+    if (!record) return editorRefusal("This is not a preview this session showed, so nothing was applied. Show the preview again.");
+    if (record.binding !== binding) return editorRefusal("This preview was shown by another editor, so nothing was applied.");
+    if (record.consumed) return editorRefusal("This preview was already committed, so nothing was applied.");
+    if (record.generation !== projectSessionGenerationRef.current) return editorRefusal("This preview is of another project, so nothing was applied.");
+    if (record.revision !== modelRevision.current) return editorRefusal("This preview is of an earlier model, so nothing was applied. Show the preview again.");
+    const request = beginEditorRequest();
+    if ("status" in request) return request;
+    try {
+      const basisHash = await computeModelHash(request.basisModel);
+      if (!request.stillCurrent()) return editorRefusal(EDITOR_SUPERSEDED);
+      if (basisHash?.value !== record.basisHash.value) return editorRefusal("This preview is of an earlier model, so nothing was applied. Show the preview again.");
+      const entry: QueuedBatch = { key: "editor-preview", batch: record.batch, basisModel: request.basisModel, basisHash: record.basisHash, basisRevision: record.revision, requiresPreview: true };
+      if (!previewSatisfied(entry, record.outcome, modelRevision.current)) return editorRefusal(`Nothing was applied. ${PREVIEW_REQUIRED_REASON(record.batch)}`);
+      return await applyAndPublishEditorBatch({ batch: record.batch, fingerprint: record.fingerprint, basisModel: request.basisModel, basisHash: record.basisHash, validation: record.outcome },
+        request.stillCurrent, () => { record.consumed = true; });
+    } catch (error) {
+      return editorRefusal(request.stillCurrent() ? `The change could not be applied: ${nativeFailureText(error)}. Nothing was applied.` : EDITOR_SUPERSEDED);
+    } finally {
+      request.release();
+    }
+  }
 
-      // Prepare: every value the publication needs, as for an applied queued batch (`handleRunOperationBatch`),
-      // computed before any state changes. A failure here leaves the model, history and receipts as they were.
-      const appliedModel = outcome.applied_model;
-      const publication = prepareModelPublication(appliedModel);
-      const checkpoint: SessionModelCheckpoint = {
-        checkpoint_id: `undo-${key}`,
-        operation_id: batch.batch_id,
-        model: clonePreviewModel(basisModel),
-        selection: selection ?? defaultSelection(basisModel)
-      };
-      const batchReceipt = { batch, outcome };
-      const reviewContext = structuredClone(batch.operations);
-      const appliedFields: Omit<AppliedOperationReceipt, "receipt_id" | "sequence"> = {
-        operation_id: batch.batch_id,
-        change_id: batch.batch_id,
-        target_object_type: "Model",
-        target_ref: basisModel.project.id,
-        field_path: "batch",
-        before: basisHash.value,
-        after: outcome.applied_model_backend_hash ?? "not_reported",
-        application_route: outcome.application_route === "local_wasm_engine" ? "local_wasm_engine" : "tauri_backend_apply",
-        applied_model_hash: outcome.applied_model_backend_hash ?? "not_reported",
-        acceptance: outcome.acceptance,
-        diagnostics: outcome.diagnostics,
-        professional_boundary: outcome.professional_boundary
-      };
-      const prunedSelection = prunedSelectionForPublication(appliedModel);
-      const appliedSolveJob = sessionHistoryChangedSolveJob("batch", batch.batch_id);
-      const publishEvents = sessionEvents.stage({ type: "checkpoint", operationId: batch.batch_id, appliedModel, operationOutcomes: outcome.operation_outcomes });
-
-      // Publish: one synchronous block of state setters and session-owned ref writes; nothing here throws.
-      setUndoStack((current) => [checkpoint, ...current].slice(0, 25));
-      setRedoStack([]);
-      setBatchReceipts((current) => [...current, batchReceipt]);
-      setRetainedReviewContext((current) => [...current, ...reviewContext]);
-      setAppliedOperations((current) => [...current, { receipt_id: `applied-${key}`, sequence: current.length + 1, ...appliedFields }]);
-      publishModel(publication);
-      commitSelectionState(prunedSelection, appliedModel);
-      publishEvents();
-      clearComputedModelState(appliedSolveJob);
-
-      // Notify: the viewport's failure is returned beside the commit; the published change is not rolled back.
-      const notice = retireViewportBoxGestureAfterPublication();
-      return Object.freeze({ status: "committed" as const, batchId: batch.batch_id, checkpointId: checkpoint.checkpoint_id, outcome, resultsCleared: heldResult, notice });
+  // The binder, stable for the session's life; its callbacks reach this render's entries through a ref.
+  const editorEntries = useRef({ commitEditorInput, previewEditorInput, commitEditorPreview });
+  editorEntries.current = { commitEditorInput, previewEditorInput, commitEditorPreview };
+  const editorBinding = useRef<null | Readonly<{
+    bindCommit: <I>(builder: EditorBuilder<I>) => (input: I) => Promise<EditorCommitResult>;
+    bindDialog: <I>(builder: EditorBuilder<I>) => Readonly<{ preview: (input: I) => Promise<EditorPreviewResult>; commit: (handle: EditorPreviewHandle) => Promise<EditorCommitResult> }>;
+  }>>(null);
+  if (!editorBinding.current) {
+    const bind = (builder: unknown, form: "commit" | "dialog"): EditorBindingRecord => {
+      const refused = editorBuilderRefusal(builder);
+      if (refused) throw new Error(`EDITOR-BIND-REFUSED: ${refused}`);
+      const declared = builder as EditorBuilder<never>;
+      return Object.freeze({ builder: Object.freeze({ name: declared.name, role: declared.role, input: Object.freeze({ members: Object.freeze([...declared.input.members]), check: declared.input.check }), build: declared.build }), form });
+    };
+    editorBinding.current = Object.freeze({
+      bindCommit: <I,>(builder: EditorBuilder<I>) => {
+        const binding = bind(builder, "commit");
+        return (input: I) => editorEntries.current.commitEditorInput(binding, input);
+      },
+      bindDialog: <I,>(builder: EditorBuilder<I>) => {
+        const binding = bind(builder, "dialog");
+        return Object.freeze({
+          preview: (input: I) => editorEntries.current.previewEditorInput(binding, input),
+          commit: (handle: EditorPreviewHandle) => editorEntries.current.commitEditorPreview(binding, handle)
+        });
+      }
     });
   }
-  type EditorCommitRoute = import("../../services/operationAuthorship").EditorCommitRoute;
-  type EditorEdit = import("../../services/operationAuthorship").EditorEdit;
 
   function handleApplyNextQueuedIntent() {
     if (operationBusy) return;
@@ -2821,6 +2942,8 @@ export function useWorkspaceSession() {
     const source = action === "undo" ? undoStack : redoStack;
     if (operationRequest.current.busy || !model || !selection || source.length === 0) return;
     const [checkpoint, ...remaining] = source;
+    // The name a person reads: a commit's checkpoint is identified by the session's own id, and named by what was submitted.
+    const checkpointName = checkpoint.submitted_id ?? checkpoint.operation_id;
 
     // Prepare: every value the publication needs, computed before any state
     // changes. A failure leaves the model and both stacks as they were, so the
@@ -2841,11 +2964,12 @@ export function useWorkspaceSession() {
         reverse: {
           checkpoint_id: `${action === "undo" ? "redo" : "undo"}-${checkpoint.checkpoint_id}`,
           operation_id: checkpoint.operation_id,
+          ...(checkpoint.submitted_id === undefined ? {} : { submitted_id: checkpoint.submitted_id }),
           model: clonePreviewModel(model),
           selection
         },
         restoredSelection: singletonSelection(checkpoint.selection, orderedSelectionRef.current),
-        solveJob: sessionHistoryChangedSolveJob(action, checkpoint.operation_id),
+        solveJob: sessionHistoryChangedSolveJob(action, checkpointName),
         publishEvents: sessionEvents.stage({ type: action === "undo" ? "undone" : "redone", operationId: checkpoint.operation_id })
       };
     } catch (error) {
@@ -2869,7 +2993,7 @@ export function useWorkspaceSession() {
     commitSelectionState(prepared.restoredSelection, prepared.restoredModel);
     clearComputedModelState(prepared.solveJob);
     const steppedMessage =
-      `${action === "undo" ? "Undid" : "Redid"} ${checkpoint.operation_id} in the local session; previous solve results were cleared. Save is still required to persist the current session model.`;
+      `${action === "undo" ? "Undid" : "Redid"} ${checkpointName} in the local session; previous solve results were cleared. Save is still required to persist the current session model.`;
     setOperationMessage(steppedMessage);
 
     // Notify: external callbacks, each caught and reported; the step is not
@@ -2877,7 +3001,7 @@ export function useWorkspaceSession() {
     const viewportFailure = retireViewportBoxGestureAfterPublication();
     if (viewportFailure) {
       setOperationMessage(`${steppedMessage} ${viewportFailure}`);
-      setHistoryFailure(`${action === "undo" ? "Undid" : "Redid"} ${checkpoint.operation_id}. ${viewportFailure}`);
+      setHistoryFailure(`${action === "undo" ? "Undid" : "Redid"} ${checkpointName}. ${viewportFailure}`);
     }
   }
 
@@ -5355,6 +5479,9 @@ export function useWorkspaceSession() {
 
   return {
     agent: agentSessionRef.current,
+    // DEL-16-03, Commit: the binder of the desktop's editors. Only the application root takes it, and it is stripped
+    // from what the context provider is given; this slice binds no editor to it.
+    editorBinding: editorBinding.current!,
     model: {
       model,
       knowledge,
@@ -5475,11 +5602,7 @@ export function useWorkspaceSession() {
       handleReviewQueuedIntentsAsBatch,
       handleUndoSessionModelEdit,
       handleRedoSessionModelEdit,
-      invalidateDirectDraftContext,
-      // DEL-16-03, Commit: handed to no editor yet; a later change wires the desktop's editors to it in App.tsx.
-      editorRoutes,
-      previewEditorEdit,
-      commitEditorEdit
+      invalidateDirectDraftContext
     },
     project: {
       modelEdited,
@@ -5560,7 +5683,8 @@ export function useWorkspaceSession() {
 }
 
 /** What the view receives: the six slices `useWorkspaceSession` returns. */
-export type WorkspaceSession = ReturnType<typeof useWorkspaceSession>;
+export type WorkspaceSession = Omit<ReturnType<typeof useWorkspaceSession>, "editorBinding">;
+export type EditorBinding = ReturnType<typeof useWorkspaceSession>["editorBinding"];
 
 /** What one Solve request through `results.handleSolveRequest` reports: the gate's outcome
  * (`SolveGateOutcome`; null where a solve already held the run, so the request did
