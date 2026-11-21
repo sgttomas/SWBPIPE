@@ -245,3 +245,46 @@ fn the_products_timoshenko_result_with_a_realized_arc_renders_its_projection() {
     removed["report_sections"]["limitations"].as_array_mut().unwrap().pop();
     refused(&case, &removed, true, SECTIONS_MISMATCH, "the product's limitation removed");
 }
+
+const PRODUCT_STRAIGHT: &str = include_str!("../../../../fixtures/results/preview_physics_timoshenko_straight_sparse.json");
+const PRODUCT_STRAIGHT_REQUEST: &str =
+    include_str!("../../../../validation/references/pf_timoshenko/requests/PFT-SB-L1-CM0-TIMOSHENKO.request.json");
+
+/// DEL-08-01 REQ-024: a pressure-free Timoshenko report states each load case's numerical health
+/// from the standing record the native render derives, not from generic `numerical-health:<case>`
+/// rows, which no boundary derives again. The product's eligible straight result renders the
+/// standing line and one health statement per load case, in the renderer's words; the same input
+/// with such a row appended to its result rows, as the desktop's report builder appends one for
+/// a Current pressure-free result, is refused as `result_rows`.
+#[test]
+fn a_timoshenko_report_states_health_from_its_standing_record_and_refuses_an_appended_health_row() {
+    let source: Value = serde_json::from_str(PRODUCT_STRAIGHT).unwrap();
+    let mut model = serde_json::from_str::<Value>(PRODUCT_STRAIGHT_REQUEST).unwrap()["model"].clone();
+    model["project"]["name"] = json!("PFT-SB-L1-CM0-TIMOSHENKO");
+    let case = case_of(model, source);
+    let cases = case.input["numerical_standing"]["cases"].as_array().expect("the derived standing record").clone();
+    assert!(!cases.is_empty());
+    let rendered = render(&case, &case.input, true).unwrap_or_else(|error| panic!("{error:?}"));
+    assert_eq!(rendered["export_blocked"], json!(false), "{}", rendered["blocking_reasons"]);
+    let html = rendered["html"].as_str().unwrap();
+    assert!(html.contains("Numerical health, as the solver reports it: checks passed for"), "the standing line");
+    for standing in &cases {
+        assert_eq!(standing["health"], json!("checks_passed"));
+        let id = open_pipe_stress_report_renderer::escape_html(standing["case_id"].as_str().unwrap());
+        assert!(html.contains(&format!("<tr><td>{id}</td><td>Numerical health: checks passed</td>")), "{id}'s health by load case");
+    }
+    let rows = case.input["result_rows"].as_array().unwrap();
+    assert!(rows.iter().all(|row| !row["row_id"].as_str().unwrap_or("").starts_with("numerical-health:")));
+    let mut appended = case.input.clone();
+    let id = cases[0]["case_id"].as_str().unwrap();
+    appended["result_rows"].as_array_mut().unwrap().push(json!({
+        "row_id": format!("numerical-health:{id}"), "label": "Numerical health: checks passed",
+        "case_ref": format!("load_case:{id}"), "quantity_display": "", "source_ref": "numerical_quality"}));
+    match render(&case, &appended, true) {
+        Err(CommandError::Command(message)) => {
+            assert!(message.starts_with(&format!("{SECTIONS_MISMATCH}: result_rows")), "expected result_rows, got {message}")
+        }
+        Ok(rendered) => panic!("an appended health row rendered (blocked: {})", rendered["export_blocked"]),
+        Err(other) => panic!("{other:?}"),
+    }
+}
