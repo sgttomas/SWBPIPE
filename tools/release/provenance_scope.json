@@ -209,7 +209,7 @@
     },
     {
       "path": "fixtures/model_document/desktop_emitted.json",
-      "sha256": "a2815e0d9593086728b1fef780e37f5195eae8e4456401e86691fdd5914826bf",
+      "sha256": "06caf1cf9869140804918a5ad1b4f401db97b8df2346ab4dc7306b1d30eae274",
       "labels": [
         [
           "\"invented_non_engineering_example\"",

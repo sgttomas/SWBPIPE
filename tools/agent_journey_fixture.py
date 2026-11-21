@@ -54,7 +54,8 @@ PIN = PROJECT / "fixtures" / "embedded_agent" / "agent-witness-pin.json"
 DRIVER = PROJECT / "apps" / "desktop" / "native-smoke" / "agent-journey.js"
 STEPS = ["new blank", "provider and start", "turn 1", "apply", "turn 2", "observe", "stop"]
 TURNS = [
-    "Build the W9-A L-frame from the blank model as one batch for my review: material W9 steel "
+    "Build the W9-A L-frame from the blank model as one batch for my review: shear deformation in "
+    "straight members not included (Euler-Bernoulli), material W9 steel "
     "(E 200 GPa, G 76.923 GPa, alpha 1.2e-5 per degC), nodes node:a (0,0,0), node:c (4,0,0) and "
     "node:d (4,3,0) m, pipes pipe:a-c and pipe:c-d (OD 0.2 m, wall 0.01 m), anchors at node:a and "
     "node:d, and one thermal load case raising both pipes by 100 degC. Do not solve yet.",
