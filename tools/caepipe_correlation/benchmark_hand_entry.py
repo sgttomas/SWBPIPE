@@ -52,19 +52,19 @@ LIMIT_STOP = _page("limit_stop", "Limit Stop")
 CONSTANT_SUPPORT = _page("constant_support", "Constant Support")
 IMPORT = (f"https://docs.sstcae.com/users_manual/import_mbf.htm (\"IMPORT MBF\"; CAEPIPE-IMPORT-MBF, "
           f"execution/PKG-17/DEL-17-01/Source_Basis_Register.md), read {DATE_READ}")
-HELD = ("captured at the sitting and HELD, stored sealed, until SWBPIPE's own result for this case and this load case is "
-        "published by the product as checks passed; no comparison is formed before then")
-# The hold of a case whose named input no one-parameter series carries (REQ-019): cpb-h-01's constant_support_load.
+COMPARED = ("captured at the sitting and compared with SWBPIPE's solve of this case and this load case at a named commit, "
+            "each comparison stating the numerical standing the product published for that solve (LIM-026)")
+# The comparison of a case whose named input no one-parameter series carries (REQ-019): cpb-h-01's
+# constant_support_load.
 SERIES_WAIT = ("an independently justified one-parameter series supplying the evidence REQ-019 requires for the input "
                "constant_support_load, which no series does yet")
-HELD_UNTIL_SERIES = ("captured at the sitting and HELD, stored sealed, and not compared, until " + SERIES_WAIT + ", as "
-                     "well as SWBPIPE's own result for this case and this load case published by the product as checks "
-                     "passed and the capture's binding to the model actually run; the series's load values are never "
-                     "fitted to the captured result")
-# The sentence every one-way case carries (the project's Agent 0's words, 2026-11-12); it is the only text here about
-# whether SWBPIPE's result for such a case may be compared.
-ONE_WAY = ("a one-way support: its capture is taken at the sitting and held; whether SWBPIPE's result for it may be "
-           "compared is read from the product at each solve and is recorded nowhere here.")
+COMPARED_NAMING_INPUT = (COMPARED + ", and naming the input constant_support_load, to which the difference it carries "
+                         "is attributed until " + SERIES_WAIT + "; the series's load values are never fitted to the "
+                         "captured result")
+# The sentence every one-way case carries.
+ONE_WAY = ("a one-way support: its capture is compared with SWBPIPE's solve, and the support state and numerical "
+           "standing the product publishes at that solve are stated with the comparison; nothing here records them in "
+           "advance.")
 PRINT_PAGE = f"https://docs.sstcae.com/users_manual/print__ctrl_p__2.htm (user's manual, \"Print (Ctrl+P)\"), read {DATE_READ}"
 ANALYSIS_PAGE = (f"https://docs.sstcae.com/users_manual/analysis.htm (user's manual, \"Analysis\"), read {DATE_READ}")
 DATE_READ_2 = "2026-11-13"
@@ -519,7 +519,6 @@ def hand_entry_document(document: dict[str, Any]) -> dict[str, Any]:
     run["model"] = hand_entry_model(document)
     run["closed_form"] = hand["third_values"]
     run["run_id"] = hand["run"]["run_id"]
-    run["capture_held"] = True
     return run
 
 
@@ -558,8 +557,8 @@ def documents(seed: int, common: dict[str, Any], static_classes) -> list[dict[st
                 "base_rule": ("model is the WRITTEN BASE: the case's SWBPIPE model with the member's support records "
                               "left out; hand_entry_model appends them to model.supports and changes nothing else"),
                 "third_values": third, "expected_status": expected_status,
-                "held": {case: (HELD_UNTIL_SERIES if CONSTANT_LOAD in inexact_all[OPERATING] else HELD)
-                         for case in cases},
+                "comparison": {case: (COMPARED_NAMING_INPUT if CONSTANT_LOAD in inexact_all[OPERATING] else COMPARED)
+                               for case in cases},
                 **({"one_way_case": ONE_WAY} if spec["one_way"] else {}),
                 "run": {
                     "series": "hand-entry", "kind": "hand_entry", "label": spec["label"], "run_id": run_id,
