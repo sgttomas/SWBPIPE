@@ -556,6 +556,28 @@ describe("project handlers: a failed save or create leaves the open project's in
     expect(screen.getByTestId(`tree-row-project-${encodeURIComponent(envelope.model.project.id)}`)).toBeInTheDocument();
   });
 
+  it("says Saving the project… on the Project page while Save as New Local Project runs, until its outcome replaces it", async () => {
+    const model = await loadPreviewModel();
+    render(<App />);
+    await screen.findByTestId("desktop-preview-shell");
+    await openProjectWithBothMismatchesRecorded(model);
+
+    const pendingCreate = deferred<LocalProjectEnvelope>();
+    invokeMock.mockImplementation((command: string) =>
+      command === "create_local_project" ? pendingCreate.promise : Promise.reject(new Error(`Unexpected command ${command}`)),
+    );
+    act(() => nativeMenuCommand("file.new-local"));
+    await waitFor(() => expect(invokeMock).toHaveBeenCalledWith("create_local_project", expect.any(Object)));
+    // Held pending: the line says the save is running, as a status.
+    expect(projectMessage()).toHaveTextContent(/^Saving the project…$/);
+    expect(projectMessage()).toHaveAttribute("role", "status");
+    await act(async () => {
+      pendingCreate.reject(new Error("Invented create failure"));
+      await pendingCreate.promise.catch(() => {});
+    });
+    await waitFor(() => expect(projectMessage()).toHaveTextContent("Create failed: Error: Invented create failure"));
+  });
+
   it("blocks a later Open while pending Save fails and preserves both mismatches", async () => {
     const model = await loadPreviewModel();
     render(<App />);

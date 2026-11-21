@@ -225,6 +225,8 @@ function RunRow({ run, selection }: { run: AnalysisRunSummary; selection: RunSel
   const busy = historyBusy || projectBusy;
   const [editing, setEditing] = useState<LabelsDraft | null>(null);
   const [confirmingDelete, setConfirmingDelete] = useState(false);
+  // While Check record runs, one line says so where it was pressed, until its outcome replaces it.
+  const [checking, setChecking] = useState(false);
   const testId = `recorded-run-${run.recording_id}`;
   const check = runCheck?.recordingId === run.recording_id ? runCheck : null;
   const bindingFindings = check?.context ? recordedRunBindingFindings(check.context) : [];
@@ -247,7 +249,9 @@ function RunRow({ run, selection }: { run: AnalysisRunSummary; selection: RunSel
           ))}
         </ul>
       ) : null}
-      {check ? (
+      {checking ? (
+        <p className="model-history-meta operation-running" data-testid={`${testId}-checking`} role="status">Checking the record…</p>
+      ) : check ? (
         <div className="model-history-meta" data-testid={`${testId}-check`} role="status">
           {check.failure ? (
             <>
@@ -292,7 +296,7 @@ function RunRow({ run, selection }: { run: AnalysisRunSummary; selection: RunSel
         </div>
       ) : (
         <div className="report-actions">
-          <button type="button" data-testid={`${testId}-check-run`} disabled={busy} title={reasonFor(busy)} onClick={() => void checkRun(run.recording_id)}>Check record</button>
+          <button type="button" data-testid={`${testId}-check-run`} disabled={busy} title={reasonFor(busy)} onClick={() => { setChecking(true); void checkRun(run.recording_id).finally(() => setChecking(false)); }}>Check record</button>
           <button type="button" data-testid={`${testId}-edit`} disabled={busy || editing !== null} title={reasonFor(busy, editing ? "The labels are being edited below." : null)} onClick={() => setEditing(runDraftFrom(run))}>Edit labels</button>
           <button type="button" data-testid={`${testId}-delete`} disabled={busy} title={reasonFor(busy)} onClick={() => setConfirmingDelete(true)}>Delete…</button>
         </div>
@@ -345,6 +349,8 @@ function RecordRunForm({ onDone }: { onDone: () => void }) {
   const busy = historyBusy || projectBusy;
   const [draft, setDraft] = useState<LabelsDraft>(() => runDraftFrom(null));
   const [snapshotName, setSnapshotName] = useState("");
+  // While Record Run runs, one line says so in the form, until its outcome replaces it.
+  const [recording, setRecording] = useState(false);
   const labels = runLabelsFromDraft(draft);
   const needsSnapshot = !recordRunState;
   const missing = recordRunUnavailableReason
@@ -356,7 +362,10 @@ function RecordRunForm({ onDone }: { onDone: () => void }) {
       aria-label="Record Run"
       onSubmit={(event) => {
         event.preventDefault();
-        void recordRun({ labels, snapshotName: needsSnapshot ? snapshotName : null }).then((recorded) => { if (recorded) onDone(); });
+        setRecording(true);
+        void recordRun({ labels, snapshotName: needsSnapshot ? snapshotName : null })
+          .finally(() => setRecording(false))
+          .then((recorded) => { if (recorded) onDone(); });
       }}
     >
       <p className="muted" data-testid="record-run-state">
@@ -377,6 +386,7 @@ function RecordRunForm({ onDone }: { onDone: () => void }) {
         <button type="submit" data-testid="record-run-submit" disabled={busy || missing !== null} title={reasonFor(busy, missing)}>Record run</button>
         <button type="button" onClick={onDone}>Cancel</button>
       </div>
+      {recording ? <p className="operation-running" data-testid="record-run-pending" role="status">Recording the run…</p> : null}
     </form>
   );
 }

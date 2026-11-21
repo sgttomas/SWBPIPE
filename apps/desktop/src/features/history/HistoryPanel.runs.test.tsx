@@ -2,7 +2,7 @@
 // states, with their labels, label editing, the record check, delete and Record Run…,
 // against a fake of the session's history slice. The flows behind these controls are
 // `recordRun.session.test.tsx`; the store's checks are the Rust tests.
-import { fireEvent, render, screen, within } from "@testing-library/react";
+import { act, fireEvent, render, screen, within } from "@testing-library/react";
 import { describe, expect, it, vi } from "vitest";
 import type { AnalysisRunSummary } from "../../services/analysisRunService";
 import { LABELS_DO_NOT_CHANGE_RUN, RUN_RECORD_MANIFEST_UNAVAILABLE } from "../../services/analysisRunService";
@@ -137,5 +137,32 @@ describe("recorded runs in the History panel (W-12 S2)", () => {
     fireEvent.change(screen.getByTestId("record-run-name"), { target: { value: "Run C" } });
     fireEvent.click(screen.getByTestId("record-run-submit"));
     expect(slice.recordRun).toHaveBeenCalledWith({ labels: { run_name: "Run C", tags: [], notes: [], assumptions: [] }, snapshotName: null });
+  });
+
+  it("says Checking the record… where Check record was pressed while the check is pending, until its outcome replaces it", async () => {
+    let finish: (value: boolean) => void = () => {};
+    const slice = history({ checkRun: vi.fn(() => new Promise<boolean>((resolve) => { finish = resolve; })) });
+    renderPanel(slice);
+    fireEvent.click(screen.getByTestId(`recorded-run-${RUN.recording_id}-check-run`));
+    const line = screen.getByTestId(`recorded-run-${RUN.recording_id}-checking`);
+    expect(line).toHaveTextContent("Checking the record…");
+    expect(line).toHaveAttribute("role", "status");
+    expect(within(screen.getByTestId(`recorded-run-${RUN.recording_id}`)).getByTestId(`recorded-run-${RUN.recording_id}-checking`)).toBe(line);
+    await act(async () => { finish(true); });
+    expect(screen.queryByTestId(`recorded-run-${RUN.recording_id}-checking`)).toBeNull();
+  });
+
+  it("says Recording the run… in the form while Record Run is pending, until its outcome replaces it", async () => {
+    let finish: (value: boolean) => void = () => {};
+    const slice = history({ recordRun: vi.fn(() => new Promise<boolean>((resolve) => { finish = resolve; })) });
+    renderPanel(slice);
+    fireEvent.click(screen.getByTestId("record-run-open"));
+    fireEvent.change(screen.getByTestId("record-run-name"), { target: { value: "Run D" } });
+    fireEvent.click(screen.getByTestId("record-run-submit"));
+    const line = within(screen.getByTestId("record-run-form")).getByTestId("record-run-pending");
+    expect(line).toHaveTextContent("Recording the run…");
+    expect(line).toHaveAttribute("role", "status");
+    await act(async () => { finish(false); });
+    expect(screen.queryByTestId("record-run-pending")).toBeNull();
   });
 });
