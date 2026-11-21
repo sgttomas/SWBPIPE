@@ -716,7 +716,17 @@ describe("refusals change nothing", () => {
         outcome.diagnostics = [...outcome.diagnostics, { id: "d", code: "INVENTED-APPLY-REFUSAL", severity: "blocking", message: "Invented apply refusal.", remediation: "", affected_refs: [], source: "test" }]; }), "Invented apply refusal."],
       ["an application of other content", () => alter("applyOperationBatch", (outcome) => { outcome.batch_hash = `sha256:${"2".repeat(64)}`; }), "applied other content than this change"],
       ["an applied model with another hash", () => alter("applyOperationBatch", (outcome) => { outcome.applied_model_backend_hash = `sha256:${"3".repeat(64)}`; }), "does not match the hash the engine reported"],
-      ["an incomplete receipt", () => alter("applyOperationBatch", (outcome) => { outcome.acceptance = null; }), "did not return a complete application receipt"]
+      ["an incomplete receipt", () => alter("applyOperationBatch", (outcome) => { outcome.acceptance = null; }), "did not return a complete application receipt"],
+      ["a check reporting the change blocked while its batch passed (Q2)", () => alter("validateOperationBatch", (outcome) => { outcome.validation.application_status = "blocked"; }), "does not report the change as not applied"],
+      ["a check whose schema validation did not pass (Q2)", () => alter("validateOperationBatch", (outcome) => { outcome.validation.schema_validation = "blocked"; }), "did not pass schema validation"],
+      ["a check whose step shows another after value, every id and hash intact (Q2)", () => alter("validateOperationBatch", (outcome) => { outcome.operation_outcomes[0].diff_preview[0].after = "9"; }), "The change the engine shows for submitted operation 1 is not the change that would be applied"],
+      ["a check whose step shows no change (Q2)", () => alter("validateOperationBatch", (outcome) => { outcome.operation_outcomes[0].diff_preview = []; }), "shows no change for submitted operation 1"],
+      ["a check whose step validation did not pass (Q2)", () => alter("validateOperationBatch", (outcome) => { outcome.operation_outcomes[0].validation.reference_validation = "blocked"; }), "does not show submitted operation 1 as validated with its preview"],
+      ["an application with a contradictory step validation (Q2)", () => alter("applyOperationBatch", (outcome) => { outcome.operation_outcomes[0].validation.schema_validation = "blocked"; }), "does not show submitted operation 1 as validated with its preview"],
+      ["an application whose step shows another field (Q2)", () => alter("applyOperationBatch", (outcome) => { outcome.operation_outcomes[0].diff_preview[0].field_path = "position.x"; }), "The change the engine shows for submitted operation 1 is not the change that would be applied"],
+      ["an application without schema validation (Q2)", () => alter("applyOperationBatch", (outcome) => { outcome.validation.schema_validation = "blocked"; }), "did not pass schema validation with its preview"],
+      ["an application naming other submitted operations (Q2)", () => alter("applyOperationBatch", (outcome) => { outcome.submitted_operations = [{ ...outcome.submitted_operations[0], rationale: "another" }]; }), "names other operations than this change"],
+      ["an application with a truthy but incomplete acceptance (Q2)", () => alter("applyOperationBatch", (outcome) => { outcome.acceptance = { acceptance_basis: "invented", acceptance_is_professional_approval: false, persistence_status: "" }; }), "did not return a complete application receipt"]
     ];
     const before = snapshot(result);
     // Counters: a refusal after the request is taken advances the request sequence by one (taken, released, never
@@ -732,6 +742,20 @@ describe("refusals change nothing", () => {
     }
     committed(await run(() => commit(input)));
     expect(result.current.operations.undoStack[0].operation_id).toMatch(/-1$/);
+  });
+
+  it("a preview whose step shows another after value than the operation, every id and hash intact, issues no handle (Q2)", async () => {
+    const result = await session();
+    const dialog = bindDialog(result, gridCell);
+    const before = snapshot(result);
+    alter("validateOperationBatch", (outcome) => { outcome.operation_outcomes[0].diff_preview[0].after = "9"; });
+    const outcome = await run(() => dialog.preview({ nodeId: "node:C", axis: "y", value: "2.5" }));
+    expect(refused(outcome).reason).toContain("The change the engine shows for submitted operation 1 is not the change that would be applied");
+    expect(Object.hasOwn(outcome, "handle")).toBe(false);
+    expect(snapshot(result)).toEqual(before);
+    vi.restoreAllMocks();
+    const shown = await run(() => dialog.preview({ nodeId: "node:C", axis: "y", value: "2.5" }));
+    expect(shown.status).toBe("previewed");
   });
 
   it("while another request runs, a call is refused at once and the running one is not disturbed", async () => {

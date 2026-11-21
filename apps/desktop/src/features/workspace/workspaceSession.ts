@@ -2697,8 +2697,42 @@ export function useWorkspaceSession() {
       }
       if (step.simulation_status !== "validated_on_temporary_state") return `The engine did not validate submitted operation ${index + 1}, so nothing was applied.`;
       if ((step.diagnostics ?? []).some((item) => item.severity === "blocking")) return `The engine reported a blocking finding on submitted operation ${index + 1}, so nothing was applied.`;
+      // Q2: the step's own validation passed and its preview, which the person is shown, is generated, not empty,
+      // and is a change of the submitted operation.
+      const checks = step.validation;
+      if (!checks || checks.schema_validation !== "passed" || checks.reference_validation !== "passed" || checks.unit_validation !== "passed"
+        || checks.before_state_validation !== "passed" || checks.diff_preview_status !== "generated") {
+        return `The engine's reply does not show submitted operation ${index + 1} as validated with its preview, so nothing was applied.`;
+      }
+      const rows = Array.isArray(step.diff_preview) ? step.diff_preview : [];
+      if (rows.length === 0) return `The engine's reply shows no change for submitted operation ${index + 1}, so nothing was applied.`;
+      if (!editorDiffShowsOperation(rows, operation)) return `The change the engine shows for submitted operation ${index + 1} is not the change that would be applied, so nothing was applied.`;
     }
     return null;
+  }
+  const EDITOR_DIFF_FIELDS = ["entity_ref", "object_type", "field_path", "before", "after", "unit", "dimension", "change_kind"] as const;
+  /** Q2: what the person is shown for one step is the submitted operation. A one-row preview is compared as the
+   * viewport route compares its own (routeDraft.ts `diffPreviewMatchesIntent`): the same entity, object type, field,
+   * before, after, unit, dimension and change kind. A step the engine expands into several rows (a bend at a corner,
+   * a geometry edit, a library apply) derives their values itself, so those cannot equal the operation's text; it
+   * must show a row for the operation's own target with the operation's change kind, and every row must be complete. */
+  function editorDiffShowsOperation(rows: readonly unknown[], operation: OperationBatch["operations"][number]): boolean {
+    const complete = rows.every((row) => row !== null && typeof row === "object" && EDITOR_DIFF_FIELDS.every((field) => typeof (row as Record<string, unknown>)[field] === "string"));
+    if (!complete) return false;
+    const typed = rows as ReadonlyArray<Record<(typeof EDITOR_DIFF_FIELDS)[number], string>>;
+    if (typed.length === 1) {
+      const row = typed[0];
+      return row.entity_ref === operation.target.ref && row.object_type === operation.target.object_type && row.field_path === operation.change.field_path
+        && row.before === operation.change.before && row.after === operation.change.after && row.unit === operation.change.unit
+        && row.dimension === operation.change.dimension && row.change_kind === operation.change.change_kind;
+    }
+    return typed.some((row) => row.entity_ref === operation.target.ref && row.object_type === operation.target.object_type && row.change_kind === operation.change.change_kind);
+  }
+  /** Equal JSON values, whatever their keys' order. */
+  function editorSameJson(left: unknown, right: unknown): boolean {
+    const stable = (value: unknown): unknown => Array.isArray(value) ? value.map(stable)
+      : value !== null && typeof value === "object" ? Object.fromEntries(Object.keys(value).sort().map((key) => [key, stable((value as Record<string, unknown>)[key])])) : value;
+    return JSON.stringify(stable(left)) === JSON.stringify(stable(right));
   }
 
   /** The session's own operation request for an editor's edit: refused at once, with nothing toggled, counted or
@@ -2753,6 +2787,9 @@ export function useWorkspaceSession() {
     if (validation.applied_model || validation.acceptance || validation.validation.application_status === "applied_to_session_model") {
       return editorRefusal("The engine's check returned an application result, so it was discarded and nothing was applied.");
     }
+    // Q2: a check applies nothing and its schema validation passed.
+    if (validation.validation.application_status !== "not_applied") return editorRefusal("The engine's check does not report the change as not applied, so nothing was applied.", validation);
+    if (validation.validation.schema_validation !== "passed") return editorRefusal("The engine's check did not pass schema validation, so nothing was applied.", validation);
     if (validation.validation.batch_validation_status !== "passed" || blockingFindings(validation).length > 0) return editorRefusal(engineRefusalReason(validation), validation);
     if (validation.validation.diff_preview_status !== "generated") return editorRefusal("The engine generated no preview of this change, so nothing was applied.", validation);
     if (validation.simulation_disposition !== "validation_only_discarded") return editorRefusal("The engine's check did not end as a discarded validation, so nothing was applied.", validation);
@@ -2780,6 +2817,17 @@ export function useWorkspaceSession() {
     if (outcome.validation.application_status !== "applied_to_session_model") return editorRefusal(engineRefusalReason(outcome), outcome);
     if (outcome.validation.batch_validation_status !== "passed" || blockingFindings(outcome).length > 0) return editorRefusal(engineRefusalReason(outcome), outcome);
     if (!outcome.applied_model || !outcome.acceptance || outcome.simulation_disposition !== "committed_as_one_batch") {
+      return editorRefusal("The engine did not return a complete application receipt, so nothing was applied.", outcome);
+    }
+    // Q2: the receipt is the one for this change: schema validation passed, its preview generated, the operations it
+    // names are the submitted ones, and its acceptance is complete (as the viewport route's `completeAcceptance`).
+    if (outcome.validation.schema_validation !== "passed" || outcome.validation.diff_preview_status !== "generated") {
+      return editorRefusal("The engine's application did not pass schema validation with its preview, so nothing was applied.", outcome);
+    }
+    if (!editorSameJson(outcome.submitted_operations, batch.operations)) return editorRefusal("The engine's application names other operations than this change, so nothing was applied.", outcome);
+    const acceptance = outcome.acceptance as Record<string, unknown>;
+    if (acceptance.acceptance_basis !== "user_initiated_apply_in_local_session" || acceptance.acceptance_is_professional_approval !== false
+      || acceptance.persistence_status !== "session_state_only_not_yet_saved") {
       return editorRefusal("The engine did not return a complete application receipt, so nothing was applied.", outcome);
     }
     const appliedSteps = editorStepsMismatch(outcome, batch);
