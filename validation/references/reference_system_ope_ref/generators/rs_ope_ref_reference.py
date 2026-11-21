@@ -248,8 +248,11 @@ def document(result):
         "controls_read": [R1CE_REL],
         "units": {"modulus": "Pa", "temperature": "K", "strain": "1", "force": "N", "moment": "N*m"},
         "checks": {
-            "member states": "for each member of RS-OPE and RS-OPE-REF, the consumed material point(s), E, nu, G, "
-                             "the thermal strain and (RS-OPE-REF) the analysis-basis reason equal `member_states`",
+            "member states": "the reference derives the state of every member of RS-OPE and RS-OPE-REF, 26 per case; "
+                             "for each member the product publishes, 25 per case (it removes the replaced span "
+                             "RS-P180's record before publication, though it still resolves the member), the consumed "
+                             "material point(s), E, nu, G, the thermal strain and (RS-OPE-REF) the analysis-basis "
+                             "reason equal `member_states`",
             "EQ-1": "in RS-OPE-REF, the sum of the global Z support action components over every support, RS-VS1 and "
                     "RS-CE1 included, equals W_total",
             "EQ-2": "in RS-OPE-REF, the horizontal (X, Y) resultant is zero and the support action moment resultant "
