@@ -114,7 +114,7 @@ nothing. A launch invocation builds nothing: anything stale refuses it by name.
 | `exports` | 22 | Solved, then the Exports page, top to foot. |
 | `reference-system` | 23 | Named alone, for its long solve: File > Open Model Document… of the reference system fixture, Run, the standing, the health line, Results, Report. |
 | `prepared-project` | 24 | A model document placed in the throwaway home before launch, opened by File > Open Model Document…: the start other journeys build on. |
-| `refused-stored-run` | 25 | A local project store built before launch from SQL text (`fixtures/persistence/refused_stored_run/`), whose saved run's record binds its result rules at a revision this version does not read: File > Open Local Project…, the Results stage, File > Save Local Project and what the person is told, then the Project page (last: opening it after this open has emptied the window). The index's `stored_runs` says whether the stored run's texts are still the placed ones in copies of the store the app wrote after the open and after the save. |
+| `refused-stored-run` | 25 | A local project store built before launch from SQL text (`fixtures/persistence/refused_stored_run/`), whose saved run's record binds its result rules at a revision this version does not read: File > Open Local Project…, the Project page with what it says of the run, the Results stage, File > Save Local Project and what the person is told. The index's `stored_runs` says whether the stored run's texts are still the placed ones in copies of the store the app wrote after the open and after the save. |
 
 Without `--journey` the first three run, one launch each. `--show-window`, off
 by default, brings each launched window to the front for its run so that the
