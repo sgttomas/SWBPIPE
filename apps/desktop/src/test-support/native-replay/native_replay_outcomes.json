@@ -504,6 +504,23 @@
       "source_sha256": "73ea7b6c5dc69a6aec16e7ee0553bc908b3b5112c5c2e3bbd0661d626ed85471"
     },
     {
+      "command": "read_preview_mechanics_job_verdict",
+      "key": "0b1c17cea886563353943c3f28b790d80c6b45c842815efdf952db23a8b28815",
+      "reply": {
+        "body": "json",
+        "ok": true,
+        "value": {
+          "document_kind": "swbpipe.desktop.report_frame_statements",
+          "frame_statements": [
+            "Support states: not confirmed. Not confirmed: the solver's confirmation reports every support state of this load case established, conditional on the solver's inverse-norm step. This result does not publish the deciding quantities or their intervals."
+          ],
+          "job_id": "$JOB",
+          "version": 1
+        }
+      },
+      "source_sha256": "5365c97e415ed16d1f5372c1803ec253e7470a55996e449a50f5f75082933d11"
+    },
+    {
       "command": "query_preview_mechanics_job_rows",
       "key": "0b26ebb9db3c96bf07e27664a17069213edd69d3cdd3dbf768f0a0c4444fa68d",
       "reply": {
@@ -8393,6 +8410,21 @@
         "ok": true
       },
       "source_sha256": "7492f53d61f82682388a8926c23bc8036172f25ef269ccc8340f65ef6b221199"
+    },
+    {
+      "command": "read_preview_mechanics_job_verdict",
+      "key": "ae2dde151dc3954d3bb04c1e8742cfd121dafc72a2c1dd3e0b2221f0a71acb1e",
+      "reply": {
+        "body": "json",
+        "ok": true,
+        "value": {
+          "document_kind": "swbpipe.desktop.report_frame_statements",
+          "frame_statements": [],
+          "job_id": "$JOB",
+          "version": 1
+        }
+      },
+      "source_sha256": "6ed191dc109cb3bb08c9401ef033635c8ef04d1aa0f0bb946da31b0264908f97"
     },
     {
       "command": "read_preview_mechanics_job_verdict",

@@ -25,6 +25,18 @@
 //!   reading the model-free `pressure` reader again. The reply is unchanged,
 //!   and a dispatch, a refusal, another reader or a restored result notes
 //!   nothing.
+//! - **The report's frame statements (DEL-08-01 REQ-024, "Package and user
+//!   release").** `{jobId, operation:"report_frame_statements", modelJson,
+//!   invocationJson?}` reads the held result as `report_standing` does, with the
+//!   same texts and admission, and returns the frame statements the renderer
+//!   composes from that standing record (`report_renderer::standing::frame_statements`),
+//!   each a line, in the frame's order: `{document_kind:
+//!   "swbpipe.desktop.report_frame_statements", version: 1, job_id,
+//!   frame_statements}`. The user-release dialog shows them before the user's
+//!   statement; the webview composes none of them. A reading that gives no standing
+//!   record (a result the reader cannot read, mechanics not solved, or a tag outside
+//!   the historical vocabularies) is refused as
+//!   `REPORT-FRAME-STATEMENTS-UNAVAILABLE: <why>`.
 //! - **Inputs that are not JSON.** Each text is first prescanned without
 //!   allocating, in the reader's own order (source, model, invocation). A text
 //!   the prescan refuses is refused with the reader's own message: serde_json
@@ -227,7 +239,8 @@ pub(crate) fn run(registry: SolveJobRegistry, raw: Vec<u8>, copy: Lease) -> Resu
     // does, with the same texts and admission, and returns
     // `operation_applier::reader_report_standing_json`: the standing, its
     // readability and the standing record a report states.
-    let report_standing = operation.as_deref() == Some(REPORT_STANDING);
+    let frame_statements = operation.as_deref() == Some(REPORT_FRAME_STATEMENTS);
+    let report_standing = frame_statements || operation.as_deref() == Some(REPORT_STANDING);
     if let Some(operation) = operation.filter(|_| !report_standing) {
         if operation != "route_header" || args.keys().next().is_some() {
             return Err(crate::solve_jobs::SolveJobError::InvalidRequest { message: "NATIVE-ROUTE-HEADER-ARGS: unknown operation or mixed/unknown route-header fields".into() }.into());
@@ -298,7 +311,43 @@ pub(crate) fn run(registry: SolveJobRegistry, raw: Vec<u8>, copy: Lease) -> Resu
         held.note_validation(reader, text);
     }
     drop((reading, held, lease));
+    if frame_statements {
+        return outcome.and_then(|text| frame_statements_reply(&job_id, &text).map_err(CommandError::Command));
+    }
     outcome
+}
+
+/// The verdict command's operation that returns the report's frame statements for a
+/// held result (DEL-08-01 REQ-024, "Package and user release").
+pub(crate) const REPORT_FRAME_STATEMENTS: &str = "report_frame_statements";
+/// No frame statements can be given for the held result.
+pub(crate) const FRAME_STATEMENTS_UNAVAILABLE: &str = "REPORT-FRAME-STATEMENTS-UNAVAILABLE";
+/// The reply's document kind.
+pub(crate) const FRAME_STATEMENTS_DOCUMENT_KIND: &str = "swbpipe.desktop.report_frame_statements";
+
+/// The frame statements of a report standing reading
+/// (`operation_applier::reader_report_standing_json`): those the renderer composes
+/// from its standing record, or a refusal where it gives none.
+pub(crate) fn frame_statements_reply(job_id: &str, reading: &str) -> Result<String, String> {
+    let reading: serde_json::Value =
+        serde_json::from_str(reading).map_err(|error| format!("{FRAME_STATEMENTS_UNAVAILABLE}: the report standing reading is not JSON: {error}"))?;
+    let record = &reading["numerical_standing"];
+    if record.is_null() {
+        let why = match reading["standing_refusal"].as_str() {
+            Some(refusal) => refusal.to_string(),
+            None => "the reader gives no standing record for this result: it cannot read it, or its mechanics are not solved".to_string(),
+        };
+        return Err(format!("{FRAME_STATEMENTS_UNAVAILABLE}: {why}"));
+    }
+    let standing: open_pipe_stress_report_renderer::standing::NumericalStanding =
+        serde_json::from_value(record.clone()).map_err(|error| format!("{FRAME_STATEMENTS_UNAVAILABLE}: {error}"))?;
+    Ok(serde_json::json!({
+        "document_kind": FRAME_STATEMENTS_DOCUMENT_KIND,
+        "version": 1,
+        "job_id": job_id,
+        "frame_statements": open_pipe_stress_report_renderer::standing::frame_statements(&standing),
+    })
+    .to_string())
 }
 
 /// The verdict command's operation that returns a held result's report

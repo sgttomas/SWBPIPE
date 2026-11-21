@@ -8,6 +8,8 @@ import path from "node:path";
 import { afterEach, describe, expect, it, vi } from "vitest";
 import {
   USER_RELEASE_DIALOG_TITLE,
+  USER_RELEASE_FRAME_STATEMENTS_LEAD,
+  USER_RELEASE_FRAME_STATEMENTS_REFUSAL,
   USER_RELEASE_LIBRARY_REFUSAL,
   USER_RELEASE_RESULT_REFUSAL,
   UserReleaseDialog,
@@ -21,12 +23,18 @@ afterEach(() => {
 });
 
 const root = path.resolve(__dirname, "../../../../..");
+/** A witness's frame statements as the native host gives them, committed and held equal to the
+ * native operation by `report_standing_package_tests.rs`. */
+function committedFrameStatements(name: string): string[] {
+  return JSON.parse(readFileSync(path.join(root, "fixtures/reports/invented/report_standing_witnesses", `${name}.frame_statements.json`), "utf8")).frame_statements;
+}
 
 function request(overrides: Partial<UserReleaseDialogRequest> = {}): UserReleaseDialogRequest {
   return {
     projectName: "Invented project",
     modelDocumentSha256: "0123456789abcdef".repeat(4),
     runId: "run:invented-001",
+    frameStatements: [],
     refusal: null,
     opener: null,
     cancel: vi.fn(),
@@ -36,6 +44,53 @@ function request(overrides: Partial<UserReleaseDialogRequest> = {}): UserRelease
 }
 
 describe("UserReleaseDialog", () => {
+  /** DEL-08-01 REQ-024, "Package and user release": the report frame's statements on the
+   * result's standing, as the native host gives them (the committed files of each witness),
+   * each on its own line, word for word, before the statement. */
+  it("states each of the frame's statements, word for word, before the statement, each on its own line", () => {
+    const gap = committedFrameStatements("pressure_3_gap_unresolved");
+    expect(gap).toHaveLength(2);
+    expect(gap[0].startsWith("Support states: not confirmed.")).toBe(true);
+    expect(gap[1].startsWith("Kept for inspection.")).toBe(true);
+    render(<UserReleaseDialog request={request({ frameStatements: gap })} />);
+    const block = screen.getByTestId("user-release-frame-statements");
+    expect(block.firstElementChild).toHaveTextContent(USER_RELEASE_FRAME_STATEMENTS_LEAD);
+    expect(screen.getAllByTestId("user-release-frame-statement").map((line) => line.textContent)).toEqual(gap);
+    // Before the statement control in the dialog's order, and the save waits for the statement.
+    const statement = screen.getByTestId("user-release-statement");
+    expect(block.compareDocumentPosition(statement) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
+    expect(screen.getByTestId("user-release-confirm")).toBeDisabled();
+    fireEvent.click(statement);
+    expect(screen.getByTestId("user-release-confirm")).toBeEnabled();
+  });
+
+  it("states only the support-states line for a result with nonlinear supports and no recovery-basis mark", () => {
+    const friction = committedFrameStatements("pressure_3_coupled_friction_sensitive");
+    expect(friction).toHaveLength(1);
+    expect(friction[0].startsWith("Support states: not confirmed.")).toBe(true);
+    render(<UserReleaseDialog request={request({ frameStatements: friction })} />);
+    expect(screen.getAllByTestId("user-release-frame-statement").map((line) => line.textContent)).toEqual(friction);
+    expect(screen.getByTestId("user-release-dialog")).not.toHaveTextContent("Kept for inspection.");
+  });
+
+  it("states no frame statement where the report's frame states none", () => {
+    render(<UserReleaseDialog request={request({ frameStatements: [] })} />);
+    expect(screen.queryByTestId("user-release-frame-statements")).toBeNull();
+    expect(screen.getByTestId("user-release-statement")).toBeInTheDocument();
+  });
+
+  it("refuses, offers no statement and saves nothing where the frame statements could not be obtained", () => {
+    const save = vi.fn();
+    render(<UserReleaseDialog request={request({ save, refusal: { kind: "frame_statements", reason: "REPORT-FRAME-STATEMENTS-UNAVAILABLE: invented" } })} />);
+    expect(screen.getByTestId("user-release-refusal")).toHaveTextContent(USER_RELEASE_FRAME_STATEMENTS_REFUSAL);
+    expect(screen.getByTestId("user-release-refusal-reason")).toHaveTextContent("REPORT-FRAME-STATEMENTS-UNAVAILABLE: invented");
+    expect(screen.queryByTestId("user-release-statement")).toBeNull();
+    expect(screen.queryByTestId("user-release-frame-statements")).toBeNull();
+    fireEvent.click(screen.getByTestId("user-release-confirm"));
+    expect(screen.getByTestId("user-release-confirm")).toBeDisabled();
+    expect(save).not.toHaveBeenCalled();
+  });
+
   it("states the statement verbatim as the record's and the renderer's constant", () => {
     const renderer = readFileSync(path.join(root, "core/reporting/report_renderer/src/lib.rs"), "utf8");
     const constant = /pub const USER_RELEASE_STATEMENT: &str =\s*"([^"]+)";/.exec(renderer)?.[1];

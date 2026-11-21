@@ -40,7 +40,10 @@ use open_pipe_stress_operation_applier::{canonical_json, sha256_hex};
 use open_pipe_stress_product_physics::PreviewSolverMode;
 use open_pipe_stress_report_package::{read_report_package_container, ReadReportPackage};
 use open_pipe_stress_report_package::user_release::{derive_exact, SoftwareIdentity, UserReleaseBasis};
-use open_pipe_stress_report_renderer::standing::{standing_line, support_states_frame_statement, NumericalStanding};
+use open_pipe_stress_report_renderer::standing::{
+    frame_statements, kept_for_inspection_frame_statement, standing_line, support_states_frame_statement, NumericalStanding, KEPT_FOR_INSPECTION,
+    SUPPORT_STATES_NOT_CONFIRMED,
+};
 use open_pipe_stress_report_renderer::{escape_html, UserReleaseRecord, USER_RELEASE_EXACT_RECORD_VERSION, USER_RELEASE_NOT_CARRIED};
 use serde_json::{json, Value};
 use std::path::{Path, PathBuf};
@@ -223,12 +226,29 @@ impl Witness {
         assert!(html.contains(&line), "{}: the package's frame states the standing line", self.name);
         assert!(rendered.contains(&line), "{}: the rendered report states the same standing line", self.name);
         assert!(!html.contains("integrity checked"), "{}", self.name);
-        // The frame says the result is for inspection only because its support states are
-        // not confirmed, from the same record (each witness has nonlinear supports).
+        // The frame's statements, each its own line, from the same record: the support states
+        // for both witnesses (each has nonlinear supports); "Kept for inspection." only for the
+        // gap witness, whose load cases carry the solver's recovery-basis mark.
+        let gap = self.name == "pressure_3_gap_unresolved";
         let statement = support_states_frame_statement(&record).expect("each witness has a nonlinear support");
         let frame = format!("<div class=\"standing-support-states\">{}</div>", escape_html(&statement));
         assert!(html.contains(&frame), "{}: the package's frame states the support states", self.name);
         assert!(rendered.contains(&frame), "{}: the rendered report's frame states the same", self.name);
+        let kept = kept_for_inspection_frame_statement(&record);
+        assert_eq!(kept.is_some(), gap, "{}: only the gap witness carries the recovery-basis mark", self.name);
+        assert_eq!(frame_statements(&record).len(), if gap { 2 } else { 1 }, "{}", self.name);
+        assert_eq!(html.contains("<div class=\"standing-kept-for-inspection\">"), gap, "{}", self.name);
+        if let Some(kept) = &kept {
+            let line = format!("<div class=\"standing-kept-for-inspection\">{}</div>", escape_html(kept));
+            assert!(html.contains(&format!("{frame}\n{line}")), "{}: the kept-for-inspection line follows on a line of its own", self.name);
+            assert!(rendered.contains(&line), "{}", self.name);
+        }
+        // The PDF member's frame carries the same banners: each statement opens a banner of
+        // its own, so its first words are in the PDF's text.
+        let pdf = read.members.iter().find(|member| member.file_name.ends_with(".pdf")).expect("the PDF member");
+        let pdf_contains = |needle: &str| pdf.bytes.windows(needle.len()).any(|window| window == needle.as_bytes());
+        assert!(pdf_contains(SUPPORT_STATES_NOT_CONFIRMED), "{}: the PDF states the support states", self.name);
+        assert_eq!(pdf_contains(KEPT_FOR_INSPECTION), gap, "{}: the PDF states kept for inspection only for the gap witness", self.name);
         let phrases: &[&str] = if self.name == "pressure_3_gap_unresolved" {
             &[
                 "Numerical health, as the solver reports it: 0 checks passed, 0 sensitive, 2 quality unresolved, 0 not assessed, of 2 load cases.",
@@ -311,4 +331,74 @@ fn route_010_saves_each_standing_witness_stating_its_standing() {
             other => panic!("{name}: an altered standing record must be refused, got {:?}", other.map(|_| "admitted")),
         }
     }
+}
+
+/// The frame statements file of a witness: what the native host gives the user-release
+/// dialog for it, committed so that the web view's tests show the renderer's words
+/// (`UserReleaseDialog.test.tsx`, `renderedReportGate.app.test.tsx`).
+/// `OPENPIPESTRESS_WRITE_FRAME_STATEMENTS=1` rewrites it.
+const WRITE_FRAME_STATEMENTS: &str = "OPENPIPESTRESS_WRITE_FRAME_STATEMENTS";
+
+fn frame_statements_reply_for(registry: &SolveJobRegistry, job: &str, model_text: &str) -> Result<Value, String> {
+    let args = json!({"jobId": job, "operation": crate::native_verdict::REPORT_FRAME_STATEMENTS, "modelJson": model_text});
+    let body = InvokeBody::Raw(serde_json::to_vec(&args).unwrap());
+    let (raw, lease) = crate::native_verdict::reserve(registry, &body, &headers(Some(INGRESS_ARGS_JSON_V1))).map_err(|error| format!("{error:?}"))?;
+    let text = crate::native_verdict::run(registry.clone(), raw, lease).map_err(|error| match error {
+        crate::command_ingress::CommandError::Command(message) => message,
+        other => format!("{other:?}"),
+    })?;
+    Ok(serde_json::from_str(&text).unwrap())
+}
+
+/// DEL-08-01 REQ-024, "Package and user release": for a result held in native custody, the
+/// native host gives the user-release dialog the frame statements the renderer composes from
+/// the result's standing record, the statements the saved package's report states. The gap
+/// witness, whose load cases carry the solver's recovery-basis mark, has two lines (support
+/// states not confirmed; kept for inspection); the friction witness, with nonlinear supports
+/// and no mark, has the first only. Where no standing record can be read the host refuses by
+/// name, and so it does for a result it does not hold.
+#[test]
+fn the_native_host_gives_the_dialog_the_frame_statements_the_package_states() {
+    for name in NAMES {
+        let w = witness(name);
+        let (registry, _gate, job) = held_natively(ScriptedHost::normal(), w.intake.as_bytes(), Some("sparse_interactive"), &w.raw);
+        let model_text = serde_json::to_string(&w.model).unwrap();
+        let reply = frame_statements_reply_for(&registry, &job, &model_text).unwrap_or_else(|error| panic!("{name}: {error}"));
+        assert_eq!(reply["document_kind"], crate::native_verdict::FRAME_STATEMENTS_DOCUMENT_KIND, "{name}");
+        assert_eq!(reply["version"], 1, "{name}");
+        assert_eq!(reply["job_id"], job.as_str(), "{name}");
+        let record: NumericalStanding = serde_json::from_value(w.render["input"]["numerical_standing"].clone()).unwrap();
+        let statements = frame_statements(&record);
+        assert_eq!(reply["frame_statements"], json!(statements), "{name}: the renderer's statements of the report's own record");
+        if name == "pressure_3_gap_unresolved" {
+            assert_eq!(statements.len(), 2, "{name}");
+            assert!(statements[0].starts_with(SUPPORT_STATES_NOT_CONFIRMED) && statements[1].starts_with(KEPT_FOR_INSPECTION), "{name}: {statements:?}");
+        } else {
+            assert_eq!(statements.len(), 1, "{name}");
+            assert!(statements[0].starts_with(SUPPORT_STATES_NOT_CONFIRMED), "{name}: {statements:?}");
+        }
+        let path = format!("{DIR}/{name}.frame_statements.json");
+        let file = format!(
+            "{}\n",
+            serde_json::to_string_pretty(&json!({
+                "description": "DEL-08-01 REQ-024: the frame statements the native host gives the user-release dialog for this witness held in native custody (the verdict command's report_frame_statements operation), the renderer's own lines for its standing record. Written by report_standing_package_tests.rs; unit transport replay, not a native UI qualification witness; every id is invented.",
+                "frame_statements": statements,
+            }))
+            .unwrap()
+        );
+        if std::env::var_os(WRITE_FRAME_STATEMENTS).is_some() {
+            std::fs::write(project(&path), &file).unwrap();
+        } else {
+            let committed = std::fs::read_to_string(project(&path)).unwrap_or_else(|e| panic!("{path}: {e}; {WRITE_FRAME_STATEMENTS}=1 writes it"));
+            assert!(committed == file, "{path} is stale; {WRITE_FRAME_STATEMENTS}=1 rewrites it");
+        }
+    }
+    // No statements without a standing record, and none for a result the host does not hold.
+    let unavailable = crate::native_verdict::frame_statements_reply("invented-job", r#"{"numerical_standing":null,"standing_refusal":null}"#).unwrap_err();
+    assert!(unavailable.starts_with(&format!("{}: ", crate::native_verdict::FRAME_STATEMENTS_UNAVAILABLE)), "{unavailable}");
+    let refused = crate::native_verdict::frame_statements_reply("invented-job", r#"{"numerical_standing":null,"standing_refusal":"NUMERICAL_TAG_UNSUPPORTED: invented"}"#).unwrap_err();
+    assert_eq!(refused, format!("{}: NUMERICAL_TAG_UNSUPPORTED: invented", crate::native_verdict::FRAME_STATEMENTS_UNAVAILABLE));
+    let w = witness(NAMES[0]);
+    let model_text = serde_json::to_string(&w.model).unwrap();
+    assert!(frame_statements_reply_for(&w.registry, "invented-unknown-job", &model_text).is_err());
 }

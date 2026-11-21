@@ -301,20 +301,22 @@ pub fn outcome_confirms_states(outcome: HistoricalConfirmation) -> bool {
     }
 }
 
-/// SUPPORT-STATES-FRAME's lead (DEL-08-01 REQ-024, "Package and user release").
-pub const SUPPORT_STATES_INSPECTION_ONLY: &str = "For inspection only.";
 /// SUPPORT-STATES-FRAME's state words.
 pub const SUPPORT_STATES_NOT_CONFIRMED: &str = "Support states: not confirmed.";
 /// The family fact for a gap support (DEL-04-01 REQ-016), as the support rows state it.
 pub const GAP_NOT_CONFIRMED: &str = "Not confirmed: no confirmation covers gap supports.";
+/// KEPT-FOR-INSPECTION-FRAME's stem, the stem of the desktop's sentence for the same mark
+/// (`numericalHealthText.ts`, `KEPT_FOR_INSPECTION_TEXT`, `RECOVERY_BASIS_UNQUALIFIED_TEXT`).
+pub const KEPT_FOR_INSPECTION: &str = "Kept for inspection.";
 
 /// SUPPORT-STATES-FRAME (DEL-08-01 REQ-024, "Package and user release"): the frame's
-/// statement that the result is for inspection only because its support states are not
-/// confirmed, where any load case has a nonlinear support whose state the record does not
-/// let the report call confirmed. Its reasons are the reviewed statements of the support
-/// rows, once each in load-case order: the gap family fact for a load case with a gap
-/// support, else the case's confirmation statement. `None` where no load case has such a
-/// support.
+/// statement that the result's support states are not confirmed, where any load case has
+/// a nonlinear support whose state the record does not let the report call confirmed.
+/// Its reasons are the reviewed statements of the support rows, once each in load-case
+/// order: the gap family fact for a load case with a gap support, else the case's
+/// confirmation statement. `None` where no load case has such a support. It does not say
+/// that a load case is kept for inspection; that is
+/// [`kept_for_inspection_frame_statement`]'s.
 pub fn support_states_frame_statement(standing: &NumericalStanding) -> Option<String> {
     let mut reasons: Vec<&'static str> = Vec::new();
     for case in &standing.cases {
@@ -330,7 +332,36 @@ pub fn support_states_frame_statement(standing: &NumericalStanding) -> Option<St
     if reasons.is_empty() {
         return None;
     }
-    Some(format!("{SUPPORT_STATES_INSPECTION_ONLY} {SUPPORT_STATES_NOT_CONFIRMED} {}", reasons.join(" ")))
+    Some(format!("{SUPPORT_STATES_NOT_CONFIRMED} {}", reasons.join(" ")))
+}
+
+/// Whether `case` carries the solver's published mark that its recovery basis is
+/// unqualified, as the standing record gives it: the cause `recovery_basis_unqualified`
+/// or the integrity code `NUMERICAL_INTEGRITY_RECOVERY_BASIS_UNQUALIFIED`. It reads neither
+/// the case's supports nor its confirmation outcome: the mark is the solver's, and a gap
+/// support in the model is not it.
+pub fn case_carries_recovery_basis_unqualified(case: &CaseStanding) -> bool {
+    case.causes.iter().any(|cause| cause.cause.0 == HistoricalCause::RecoveryBasisUnqualified)
+        || case.integrity_code.as_ref().is_some_and(|code| code.0 == HistoricalIntegrityCode::RecoveryBasisUnqualified)
+}
+
+/// KEPT-FOR-INSPECTION-FRAME (DEL-08-01 REQ-024, "Package and user release"): on a line
+/// of its own, "Kept for inspection." with the reviewed cause statement of
+/// `recovery_basis_unqualified`, where any load case carries that mark
+/// ([`case_carries_recovery_basis_unqualified`]); else `None`.
+pub fn kept_for_inspection_frame_statement(standing: &NumericalStanding) -> Option<String> {
+    standing
+        .cases
+        .iter()
+        .any(case_carries_recovery_basis_unqualified)
+        .then(|| format!("{KEPT_FOR_INSPECTION} {}", cause_statement(HistoricalCause::RecoveryBasisUnqualified)))
+}
+
+/// The frame's statements that apply to `standing`, each its own line, in the order the
+/// frame shows them: SUPPORT-STATES-FRAME, then KEPT-FOR-INSPECTION-FRAME. The
+/// user-release dialog shows the same list, word for word.
+pub fn frame_statements(standing: &NumericalStanding) -> Vec<String> {
+    [support_states_frame_statement(standing), kept_for_inspection_frame_statement(standing)].into_iter().flatten().collect()
 }
 
 /// L-ERROR-FIGURE-BASIS, its title and its text.

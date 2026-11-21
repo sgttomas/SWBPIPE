@@ -4,11 +4,14 @@ import { USER_RELEASE_STATEMENT, userReleasedAtOf } from "./reportPackageRequest
 import type { UserReleaseConfirmation } from "./userReleasedReportPackageSave";
 
 /** Why a shareable package cannot be saved for this report, shown in place of the statement
- * (§2.2): the model's library or rule-pack reference, or a result the user-release cell
- * refuses (with the cell's reason). */
+ * (§2.2): the model's library or rule-pack reference, a result the user-release cell
+ * refuses (with the cell's reason), or a report whose frame statements on the result's
+ * standing could not be obtained to show before the statement (DEL-08-01 REQ-024, with the
+ * native host's reason). */
 export type UserReleaseDialogRefusal =
   | { kind: "library_or_rule_pack"; reason: string }
-  | { kind: "result"; reason: string };
+  | { kind: "result"; reason: string }
+  | { kind: "frame_statements"; reason: string };
 
 /** The open Save Shareable Report Package… dialog: the report it covers, its opener (focus
  * returns there), any refusal, and the two answers. */
@@ -17,6 +20,10 @@ export type UserReleaseDialogRequest = {
   /** SHA-256 of the RFC 8785 bytes of the session model document (64 lowercase hex). */
   modelDocumentSha256: string;
   runId: string;
+  /** DEL-08-01 REQ-024, "Package and user release": the report frame's statements on this
+   * result's standing, each a line, word for word the renderer's (`reportFrameStatements`);
+   * shown before the statement. Empty where the frame states none. */
+  frameStatements: readonly string[];
   refusal: UserReleaseDialogRefusal | null;
   opener: HTMLElement | null;
   cancel: () => void;
@@ -28,6 +35,18 @@ export const USER_RELEASE_LIBRARY_REFUSAL =
   "This model uses a library record or a rule pack. Shareable packages do not yet carry library record values or rule-pack checks, so a shareable package cannot be saved for this model. Its local private package is unaffected.";
 export const USER_RELEASE_RESULT_REFUSAL =
   "This result is not one a shareable package carries. Shareable packages carry a pressure-free (preview-physics-2) result, or an exact pressure route (pressure-3 or pressure-source-1) result, so a shareable package cannot be saved for this result. Its local private package is unaffected.";
+export const USER_RELEASE_FRAME_STATEMENTS_REFUSAL =
+  "The report's statements on this result's standing could not be read, so they cannot be shown before your statement, and a shareable package cannot be saved for this result now. Nothing was saved.";
+/** The lead of the frame statements' block; the statements follow it, each on its own line. */
+export const USER_RELEASE_FRAME_STATEMENTS_LEAD = "The report states of this result:";
+
+function refusalText(refusal: UserReleaseDialogRefusal): string {
+  switch (refusal.kind) {
+    case "library_or_rule_pack": return USER_RELEASE_LIBRARY_REFUSAL;
+    case "result": return USER_RELEASE_RESULT_REFUSAL;
+    case "frame_statements": return USER_RELEASE_FRAME_STATEMENTS_REFUSAL;
+  }
+}
 
 /** File > Save Shareable Report Package… (W-18b; DEL-08-01 Design `report-user-release.md`
  * §2.2). The user's explicit selection (opening this dialog from its own control) and
@@ -120,10 +139,19 @@ function UserReleaseDialogBody({ request }: { request: UserReleaseDialogRequest 
         </ul>
         {refused ? (
           <div role="status" data-testid="user-release-refusal">
-            <p>{request.refusal!.kind === "library_or_rule_pack" ? USER_RELEASE_LIBRARY_REFUSAL : USER_RELEASE_RESULT_REFUSAL}</p>
+            <p>{refusalText(request.refusal!)}</p>
             <p data-testid="user-release-refusal-reason">{request.refusal!.reason}</p>
           </div>
-        ) : (
+        ) : null}
+        {!refused && request.frameStatements.length > 0 ? (
+          <div role="note" data-testid="user-release-frame-statements">
+            <p>{USER_RELEASE_FRAME_STATEMENTS_LEAD}</p>
+            {request.frameStatements.map((line, index) => (
+              <p key={index} data-testid="user-release-frame-statement">{line}</p>
+            ))}
+          </div>
+        ) : null}
+        {refused ? null : (
           <label className="model-document-save-intent">
             <input
               ref={statement}

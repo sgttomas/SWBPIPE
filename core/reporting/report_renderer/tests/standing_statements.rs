@@ -128,20 +128,23 @@ fn a_record_carrying_a_tag_outside_the_vocabulary_is_refused_by_name() {
     }
 }
 
-/// DEL-08-01 REQ-024, "Package and user release": the frame's support-states statement.
-/// It is absent without a nonlinear support, and, where a load case has one, states that
-/// the result is for inspection only with each reason once, in load-case order: the gap
-/// family fact for a load case with a gap support, else that case's confirmation statement.
+/// DEL-08-01 REQ-024, "Package and user release": the frame's two statements, each its
+/// own line. SUPPORT-STATES-FRAME is absent without a nonlinear support, and, where a load
+/// case has one, states each reason once, in load-case order: the gap family fact for a load
+/// case with a gap support, else that case's confirmation statement. KEPT-FOR-INSPECTION-FRAME
+/// follows only where a load case carries the solver's recovery-basis mark, by its cause or
+/// by its integrity code; a gap support without the mark does not bring it.
 #[test]
-fn the_frame_states_support_states_not_confirmed_where_a_load_case_has_a_nonlinear_support() {
+fn the_frame_states_support_states_and_kept_for_inspection_as_separate_lines() {
+    use open_pipe_stress_numerical_vocabulary::{HistoricalCause, HistoricalConfirmation};
     use open_pipe_stress_report_renderer::standing::{
-        confirmation_statement, support_states_frame_statement, NumericalStanding, GAP_NOT_CONFIRMED, SUPPORT_STATES_INSPECTION_ONLY,
-        SUPPORT_STATES_NOT_CONFIRMED,
+        cause_statement, confirmation_statement, frame_statements, kept_for_inspection_frame_statement, support_states_frame_statement,
+        NumericalStanding, GAP_NOT_CONFIRMED, KEPT_FOR_INSPECTION, SUPPORT_STATES_NOT_CONFIRMED,
     };
-    use open_pipe_stress_numerical_vocabulary::HistoricalConfirmation;
-    let case = |id: &str, outcome: &str, behaviors: &[&str]| {
+    let case = |id: &str, outcome: &str, behaviors: &[&str], code: Option<&str>, causes: &[&str]| {
         serde_json::json!({
-            "case_id": id, "health": "sensitive", "integrity_code": null, "integrity_diagnostic_id": null, "causes": [],
+            "case_id": id, "health": "sensitive", "integrity_code": code, "integrity_diagnostic_id": null,
+            "causes": causes.iter().map(|c| serde_json::json!({"cause": c, "diagnostic_id": null, "locations": []})).collect::<Vec<_>>(),
             "confirmation": {"outcome": outcome, "detail": null, "status": null, "premises": []},
             "supports": behaviors.iter().enumerate().map(|(i, b)| serde_json::json!({
                 "support_id": format!("support:{i}"), "behavior": b, "friction_normal": null, "state": "active", "state_row_id": null
@@ -156,23 +159,39 @@ fn the_frame_states_support_states_not_confirmed_where_a_load_case_has_a_nonline
         }))
         .unwrap()
     };
-    assert_eq!(support_states_frame_statement(&record(vec![case("load:A", "not_applicable", &[])])), None);
-    let lead = format!("{SUPPORT_STATES_INSPECTION_ONLY} {SUPPORT_STATES_NOT_CONFIRMED}");
+    let kept = format!("{KEPT_FOR_INSPECTION} {}", cause_statement(HistoricalCause::RecoveryBasisUnqualified));
+    let linear = record(vec![case("load:A", "not_applicable", &[], Some("NUMERICAL_INTEGRITY_CHECKS_PASSED"), &[])]);
+    assert_eq!(frame_statements(&linear), Vec::<String>::new());
+
+    // The gap witness's form: the mark by cause and by code on each case; both lines, separately.
+    let marked = record(vec![
+        case("load:A", "no_confirmation_record", &["gap", "one_way"], Some("NUMERICAL_INTEGRITY_RECOVERY_BASIS_UNQUALIFIED"), &["recovery_basis_unqualified"]),
+        case("load:B", "no_confirmation_record", &["gap"], Some("NUMERICAL_INTEGRITY_RECOVERY_BASIS_UNQUALIFIED"), &["recovery_basis_unqualified"]),
+    ]);
+    assert_eq!(frame_statements(&marked), vec![format!("{SUPPORT_STATES_NOT_CONFIRMED} {GAP_NOT_CONFIRMED}"), kept.clone()]);
+
+    // Nonlinear supports without the mark: the first line only.
+    let unmarked = record(vec![
+        case("load:A", "solver_reported_established", &["friction"], Some("NUMERICAL_INTEGRITY_SENSITIVE"), &["formation_recovery"]),
+        case("load:B", "not_applicable", &[], None, &[]),
+        case("load:C", "no_confirmation_record", &["one_way"], None, &[]),
+        case("load:D", "solver_reported_established", &["one_way"], None, &[]),
+    ]);
     assert_eq!(
-        support_states_frame_statement(&record(vec![case("load:A", "no_confirmation_record", &["gap", "one_way"]), case("load:B", "no_confirmation_record", &["gap"])])),
-        Some(format!("{lead} {GAP_NOT_CONFIRMED}"))
-    );
-    assert_eq!(
-        support_states_frame_statement(&record(vec![
-            case("load:A", "solver_reported_established", &["friction"]),
-            case("load:B", "not_applicable", &[]),
-            case("load:C", "no_confirmation_record", &["one_way"]),
-            case("load:D", "solver_reported_established", &["one_way"]),
-        ])),
-        Some(format!(
-            "{lead} {} {}",
+        frame_statements(&unmarked),
+        vec![format!(
+            "{SUPPORT_STATES_NOT_CONFIRMED} {} {}",
             confirmation_statement(HistoricalConfirmation::SolverReportedEstablished),
             confirmation_statement(HistoricalConfirmation::NoConfirmationRecord)
-        ))
+        )]
     );
+
+    // A gap support is not the mark; either form of the mark alone brings the line.
+    assert_eq!(kept_for_inspection_frame_statement(&record(vec![case("load:A", "no_confirmation_record", &["gap"], None, &[])])), None);
+    assert_eq!(kept_for_inspection_frame_statement(&record(vec![case("load:A", "no_confirmation_record", &[], None, &["recovery_basis_unqualified"])])), Some(kept.clone()));
+    assert_eq!(
+        kept_for_inspection_frame_statement(&record(vec![case("load:A", "no_confirmation_record", &[], Some("NUMERICAL_INTEGRITY_RECOVERY_BASIS_UNQUALIFIED"), &[])])),
+        Some(kept)
+    );
+    assert_eq!(support_states_frame_statement(&linear), None);
 }

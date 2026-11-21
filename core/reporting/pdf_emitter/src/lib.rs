@@ -267,9 +267,14 @@ fn emit_pdf_document(
         emitter.note(&line);
         emitter.banner(&line, false);
     }
-    // DEL-08-01 REQ-024, "Package and user release": the support-states statement, after
-    // the standing line, as the HTML emission places it.
+    // DEL-08-01 REQ-024, "Package and user release": the support-states statement, then
+    // the kept-for-inspection statement on a banner line of its own, after the standing line,
+    // as the HTML emission places them.
     if let Some(statement) = renderer::support_states_banner_text(input) {
+        emitter.note(&statement);
+        emitter.banner(&statement, false);
+    }
+    if let Some(statement) = renderer::kept_for_inspection_banner_text(input) {
         emitter.note(&statement);
         emitter.banner(&statement, false);
     }

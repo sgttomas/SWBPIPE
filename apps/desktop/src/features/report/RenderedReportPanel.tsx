@@ -136,7 +136,6 @@ export function RenderedReportPanel({
   packageBusy = false,
   packageRedaction = null,
   packageRoute = null,
-  packageNeedsCurrent = false,
   numericalHealth = null,
   reportComposition: sessionComposition,
   onReportCompositionChange,
@@ -173,10 +172,6 @@ export function RenderedReportPanel({
   /** The package control, of which the panel reads the summary and the blocked flag. */
   packageRedaction?: ControlledRouteEvidence | null;
   packageRoute?: ReportPackageSaveRoute | null;
-  /** DEL-08-01 REQ-024: the panel's result is shown for its rendered report only (a solved
-   * exact-route result that is not numerically eligible). The report package takes only a
-   * Current result, so its save buttons stay disabled for it, as the File menu's are. */
-  packageNeedsCurrent?: boolean;
   onPackagePrivateIntentChange?: (value: boolean) => void;
   onSaveReportPackage?: () => void;
   /** W-18b (DEL-08-01 Design `report-user-release.md` §2.2): opens the user-release dialog. */
@@ -185,9 +180,7 @@ export function RenderedReportPanel({
   const [panelComposition, setPanelComposition] = useState<ReportComposition | null>(null);
   const packageSaveTitle = !result || !analysisRun
     ? "Solve first: report-package save needs the current mechanics result and analysis-run record."
-    : packageNeedsCurrent
-      ? "Not available for this result: report-package save needs a numerically eligible result. The rendered report states this result's numerical standing."
-      : undefined;
+    : undefined;
   const reportComposition = sessionComposition === undefined ? panelComposition : sessionComposition;
   const changeComposition = onReportCompositionChange ?? setPanelComposition;
   const [localPrivateIntent, setLocalPrivateIntent] = useState(false);
@@ -549,7 +542,7 @@ export function RenderedReportPanel({
           <button
             type="button"
             data-testid="report-package-save"
-            disabled={!result || !analysisRun || packageBusy || packageNeedsCurrent}
+            disabled={!result || !analysisRun || packageBusy}
             title={packageSaveTitle}
             onClick={onSaveReportPackage}
           >
@@ -559,7 +552,7 @@ export function RenderedReportPanel({
             <button
               type="button"
               data-testid="report-package-user-release"
-              disabled={!result || !analysisRun || packageBusy || packageNeedsCurrent}
+              disabled={!result || !analysisRun || packageBusy}
               title={packageSaveTitle}
               onClick={onSaveShareableReportPackage}
             >
