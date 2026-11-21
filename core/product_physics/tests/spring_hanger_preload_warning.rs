@@ -4,11 +4,11 @@
 //! `SPRING_HANGER_COLD_LOAD_NOT_APPLIED` names each spring whose cold load a
 //! case does not apply, with the reason. Of the seven reasons of
 //! `spring_preload::NotApplied`, a document that passes validation reaches
-//! three: `nonlinear_record` (a nonlinear member on another DOF; on the
-//! stiffness DOF the record is refused, SUPPORT_LINEAR_NONLINEAR_DOF_CONFLICT),
-//! `skewed_record` (family `spring` with hanger type `variable_spring_hanger`
-//! and a skewed `direction`) and `rotational_dof`. Validation refuses the other
-//! four first: `cold_load_missing` and `cold_load_not_positive` by
+//! two: `nonlinear_record` (a nonlinear member on another DOF; on the
+//! stiffness DOF the record is refused, SUPPORT_LINEAR_NONLINEAR_DOF_CONFLICT)
+//! and `rotational_dof`. Validation refuses the other five first:
+//! `skewed_record` by SUPPORT_DIRECTION_RECORD_UNSUPPORTED (a direction is not
+//! an input of a hanger), `cold_load_missing` and `cold_load_not_positive` by
 //! SPRING_HANGER_LOAD_MISSING, `stiffness_dof_unreadable` by
 //! SPRING_HANGER_STIFFNESS_MISSING (or SUPPORT_STIFFNESS_DOF_INVALID for an
 //! unknown token), and `unknown_node` by SUPPORT_NODE_UNKNOWN.
@@ -139,16 +139,6 @@ fn a_nonlinear_member_on_another_dof_is_named_as_not_applying_the_cold_load() {
 }
 
 #[test]
-fn a_skewed_spring_hanger_is_named_as_not_applying_the_cold_load() {
-    let mut document = pressure_free();
-    let support = hanger_mut(&mut document);
-    support["family"] = json!("spring");
-    support["restraints"] = json!(["UZ"]);
-    support["direction"] = json!({"x": 0.0, "y": 0.6, "z": 0.8});
-    not_applied(&document, "case", "the record acts along a skewed direction, and the cold load acts only along a global axis", "skewed");
-}
-
-#[test]
 fn a_rotational_stiffness_dof_is_named_on_both_routes() {
     for (route, mut document, case) in [("pressure-free", pressure_free(), "case".to_string()), ("exact", exact(), String::new())] {
         let case = if case.is_empty() { document["model"]["load_cases"][0]["id"].as_str().unwrap().to_string() } else { case };
@@ -158,10 +148,15 @@ fn a_rotational_stiffness_dof_is_named_on_both_routes() {
     }
 }
 
-/// The four reasons validation refuses before any solve, each by its rule.
+/// The five reasons validation refuses before any solve, each by its rule.
 #[test]
 fn the_other_reasons_are_refused_by_validation_first() {
-    let cases: [(&str, &str, fn(&mut Value)); 5] = [
+    let cases: [(&str, &str, fn(&mut Value)); 6] = [
+        ("skewed_record", "SUPPORT_DIRECTION_RECORD_UNSUPPORTED", |s| {
+            s["family"] = json!("spring");
+            s["restraints"] = json!(["UZ"]);
+            s["direction"] = json!({"x": 0.0, "y": 0.6, "z": 0.8});
+        }),
         ("cold_load_missing", "SPRING_HANGER_LOAD_MISSING", |s| { s["hanger"].as_object_mut().unwrap().remove("cold_load"); }),
         ("cold_load_not_positive", "SPRING_HANGER_LOAD_MISSING", |s| { s["hanger"]["cold_load"] = q(-5.0, "N"); }),
         ("stiffness_dof_unreadable", "SPRING_HANGER_STIFFNESS_MISSING", |s| { s["hanger"].as_object_mut().unwrap().remove("stiffness"); }),

@@ -201,10 +201,6 @@ impl MemberFindings {
 pub enum DirectionInput {
     Vector([f64; 3]),
     Invalid,
-    /// Never decoded: what [`lower_axis_aligned_directions`] leaves of an exactly
-    /// axis-aligned direction whose one nonzero component is negative, once the record's
-    /// DOF tokens name that axis (a positive one leaves no direction). DEL-04-11 REQ-014.
-    NegativeAxis,
 }
 
 impl DirectionInput {
@@ -408,6 +404,12 @@ fn supports_findings(supports: &[SupportView<'_>], found: &mut MemberFindings) {
         let snubber_shape = !snubber || support.restraints.len() == 1;
         if !admitted_family {
             found.push(refuse(SUPPORT_DIRECTION_RECORD_UNSUPPORTED, "is admitted only on an explicit line_stop, spring or snubber family"));
+        } else if support.hanger {
+            // DEL-04-03 REQ-014, DEL-04-11 REQ-014: a hanger's axis is its stiffness DOF or its
+            // single translational restraint, and its load acts along that axis's positive
+            // direction; a direction is not an input of either hanger family.
+            found.push(refuse(SUPPORT_DIRECTION_RECORD_UNSUPPORTED,
+                "is not an input of a hanger: a hanger's load acts along the positive axis of its stiffness DOF (or of its single translational restraint), so remove the direction"));
         } else if support.nonlinear {
             found.push(refuse(SUPPORT_DIRECTION_RECORD_UNSUPPORTED, "is not admitted on a support with a nonlinear member"));
         } else {
@@ -912,14 +914,11 @@ pub(crate) fn interim_exact_combination_refusals(model: &PreviewModel, diagnosti
 /// §2.1: an exactly axis-aligned direction takes today's path, byte for byte. It is
 /// removed, and when its axis is not the record's DOF axis, the record's DOF tokens
 /// (its single restraint and its stiffness DOF) are set to `UX`, `UY` or `UZ` for it.
-/// DEL-04-11 REQ-014: a negative one is kept as [`DirectionInput::NegativeAxis`], which
-/// the variable spring preload decision reads (`spring_preload`); every other reader of
-/// a lowered record's direction reads only `Vector`.
 pub(crate) fn lower_axis_aligned_directions(model: &mut PreviewModel) {
     for support in &mut model.supports {
         let Some(DirectionInput::Vector(d)) = support.direction else { continue };
         let Some(axis) = single_axis(d) else { continue };
-        support.direction = (d[axis] < 0.0).then_some(DirectionInput::NegativeAxis);
+        support.direction = None;
         let token = TRANSLATION_TOKENS[axis];
         let differs = |dof: &str| dof_axis(dof).is_some_and(|(_, current)| current != axis);
         for restraint in &mut support.restraints {

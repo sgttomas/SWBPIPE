@@ -97,7 +97,6 @@ fn each_not_applied_reason_has_its_fixed_token() {
     let pinned = [
         (N::NonlinearRecord, "nonlinear_record"),
         (N::SkewedRecord, "skewed_record"),
-        (N::DirectionOpposesPositiveAxis, "direction_opposes_positive_axis"),
         (N::ColdLoadMissing, "cold_load_missing"),
         (N::ColdLoadNotPositive, "cold_load_not_positive"),
         (N::StiffnessDofUnreadable, "stiffness_dof_unreadable"),
@@ -224,9 +223,9 @@ pub(crate) fn c_oper_alt_withheld_and_its_unit_twin(
 
 /// `s(PreviewSupport)` is a priced size atom of the retained memory law
 /// (`retained_memory.rs`: `size_of::<crate::PreviewSupport>()`), and a
-/// `PreviewSupport` holds its `SpringHangerInput` inline. The preload's
-/// direction fact (`DirectionInput::NegativeAxis`) adds no byte to either; a
-/// change of these sizes moves a priced size and is for the pricing audit.
+/// `PreviewSupport` holds its `SpringHangerInput` inline. The preload adds no
+/// byte to either; a change of these sizes moves a priced size and is for the
+/// pricing audit.
 #[test]
 fn the_support_and_hanger_records_keep_their_priced_sizes() {
     use std::mem::{align_of, size_of};
