@@ -151,6 +151,7 @@ checks:
 - core/reporting/result_document_stream/tests/refusal_parity.rs
 - core/reporting/result_document_stream/tests/walk_guarantees.rs
 - core/reporting/result_document_stream/tests/canonical_writer.rs
+- core/reporting/result_document_stream/tests/map_order.rs
 - core/product_physics/tests/combined_connector_export.rs
 - core/reporting/report_package/tests/schema_eval.rs
 - tests/test_schema_eval_parity.py

@@ -354,8 +354,10 @@ impl<'a> RowBasis<'a> {
     /// annotation and target, with its refusal codes and in its order (`derivative.rs` lines
     /// 546 to 765). `place` is the target's index in its list, where the entry is written,
     /// and `class` the row's validated class. Every value is recomputed from the source row
-    /// through the public functions and (a) and (c), not taken from the derivation.
-    pub(crate) fn check_row(&self, i: usize, row: &Value, class: Option<&AccuracyClass>, a: &Value, ann: &Value, target: &Value, place: usize) -> Result<(), String> {
+    /// through the public functions and (a) and (c), not taken from the derivation. A
+    /// non-disclosed row's witness expectation is returned for [`RowBasis::check_witness`], as
+    /// `validate_document` keeps it for its witness loop.
+    pub(crate) fn check_row(&self, i: usize, row: &Value, class: Option<&AccuracyClass>, a: &Value, ann: &Value, target: &Value, place: usize) -> Result<Option<Expected>, String> {
         let id = row["id"].as_str().ok_or("SOURCE_ID_MISSING")?;
         // The sweep refuses a repeated id before any check, as derive_document does.
         if a["source_row_index"] != i || a["source_result_id"] != row["id"] || a["source_kind"] != row["kind"] || a["source_field_path"] != format!("/results/{i}") {
@@ -482,38 +484,33 @@ impl<'a> RowBasis<'a> {
             if disposition == Disposition::Quantity && (target["family"] != family || target.get("metadata").cloned() != md) {
                 return Err("PHYSICAL_SEMANTICS_MISMATCH".into());
             }
+            return Ok(Some(Expected { disposition, row_hash, original, observed, math, dimension }));
         }
-        Ok(())
+        Ok(None)
     }
 
     /// The comparisons `validate_document` makes of row `i`'s witness (`derivative.rs` lines
-    /// 767 to 804): a non-disclosed row has exactly one, equal to what its source row and
-    /// target give; a disclosed row has none.
-    pub(crate) fn check_witness(&self, i: usize, row: &Value, a: &Value, target: &Value, disposition: Disposition, witness: Option<&Value>) -> Result<(), String> {
-        let w = match (disposition, witness) {
-            (Disposition::Disclosed, None) => return Ok(()),
-            (Disposition::Disclosed, Some(_)) | (_, None) => return Err("WITNESS_CARDINALITY".into()),
-            (_, Some(w)) => w,
+    /// 767 to 804), against the expectation [`RowBasis::check_row`] returned: a non-disclosed
+    /// row has exactly one witness, equal to what its source row and target give; a disclosed
+    /// row has none.
+    pub(crate) fn check_witness(&self, i: usize, row: &Value, a: &Value, target: &Value, expected: Option<&Expected>, witness: Option<&Value>) -> Result<(), String> {
+        let (expected, w) = match (expected, witness) {
+            (None, None) => return Ok(()),
+            (Some(expected), Some(w)) => (expected, w),
+            _ => return Err("WITNESS_CARDINALITY".into()),
         };
-        let s = signature_for(self.source, self.table, row)?;
-        let math = s.as_ref().map(|s| s["source_physical_semantic_dimension"].clone()).unwrap_or(Value::Null);
-        let dimension = s.as_ref().map(|s| s["derivative_target_dimension"].clone()).unwrap_or(Value::Null);
-        let row_hash = checksum(row, self.row_scope, self.carrier_ref.clone())?;
-        let original = match &self.original_ref {
-            Some(payload_ref) => checksum(row, "raw_source_row", payload_ref.clone())?,
-            None => Value::Null,
-        };
+        let Expected { disposition, row_hash, original, observed, math, dimension } = expected;
         if w["witness_id"] != format!("value-unit-witness:{i}")
             || w["source_row_index"] != i
             || w["source_result_ref"] != reference("received_result", row["id"].as_str().unwrap_or_default())
             || w["source_field_path"] != a["source_field_path"]
-            || !json_value_eq(&w["source_quantity"], &json!({"value":row["value"],"unit":row["unit"],"observed_dimension":observed(row)}))
+            || !json_value_eq(&w["source_quantity"], &json!({"value":row["value"],"unit":row["unit"],"observed_dimension":observed}))
             || w["target_result_ref"] != a["target_ref"]
             || w["target_field_path"] != a["target_field_path"]
             || !json_value_eq(&w["target_quantity"], &json!({"value":row["value"],"unit":row["unit"],"dimension":dimension}))
-            || w["received_carrier_row_checksum"] != row_hash
-            || w["original_producer_row_checksum"] != original
-            || w["source_physical_semantic_dimension"] != math
+            || w["received_carrier_row_checksum"] != *row_hash
+            || w["original_producer_row_checksum"] != *original
+            || w["source_physical_semantic_dimension"] != *math
             || w["source_origin_ref"] != self.origin_ref
             || w["unit_system_ref"] != self.unit_system
             || w["provenance"] != self.provenance
@@ -526,6 +523,16 @@ impl<'a> RowBasis<'a> {
         }
         Ok(())
     }
+}
+
+/// What `validate_document`'s row loop keeps of a non-disclosed row for its witness loop.
+pub(crate) struct Expected {
+    disposition: Disposition,
+    row_hash: Value,
+    original: Value,
+    observed: Value,
+    math: Value,
+    dimension: Value,
 }
 
 /// The row's carrier dimension as observed: present or not, and its value.

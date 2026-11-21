@@ -4,7 +4,7 @@
 #![allow(dead_code)]
 
 use open_pipe_stress_canonical_json::canonical_json;
-use open_pipe_stress_result_document_stream::{DocumentSource, Member, Peek, SourceList, SourceObject, WalkStopped};
+use open_pipe_stress_result_document_stream::{DocumentSource, Member, Peek, SourceList, SourceObject, WalkStopped, MAX_SOURCE_NESTING};
 use open_pipe_stress_result_export::derivative::{self as d, derive_document};
 use open_pipe_stress_result_export::json_value_eq;
 use serde_json::{json, Map, Value};
@@ -213,8 +213,14 @@ fn walk_collect(object: &dyn SourceObject, path: &mut Vec<String>, lists: &mut V
 
 /// A recording visitor: rebuilds the value of everything a source object shows, checking on
 /// the way the promises a rule checks of a source (distinct names, ascending order, the
-/// peek/walk pairing, `provenance` held as a value, `None` for a name that is not a member).
+/// peek/walk pairing, `provenance` held as a value, `None` for a name that is not a member,
+/// nesting within `MAX_SOURCE_NESTING` with the root as 1).
 pub fn record_object(object: &dyn SourceObject) -> Result<Value, WalkStopped> {
+    record_object_at(object, 1)
+}
+
+fn record_object_at(object: &dyn SourceObject, depth: usize) -> Result<Value, WalkStopped> {
+    assert!(depth <= MAX_SOURCE_NESTING, "sources nest deeper than {MAX_SOURCE_NESTING}");
     let names = object.member_names();
     let mut unique = names.clone();
     unique.sort();
@@ -241,12 +247,12 @@ pub fn record_object(object: &dyn SourceObject) -> Result<Value, WalkStopped> {
             Member::Object(child) => {
                 assert_ne!(name, "provenance", "provenance given by walk");
                 assert!(matches!(peeked, Peek::Object), "{name}: walked as an object, peeked otherwise");
-                record_object(child)?
+                record_object_at(child, depth + 1)?
             }
             Member::List(list) => {
                 assert_ne!(name, "provenance", "provenance given by walk");
                 assert!(matches!(peeked, Peek::List), "{name}: walked as a list, peeked otherwise");
-                record_list(list)?
+                record_list_at(list, depth + 1)?
             }
         };
         map.insert(name.to_owned(), value);
@@ -257,12 +263,17 @@ pub fn record_object(object: &dyn SourceObject) -> Result<Value, WalkStopped> {
 }
 
 pub fn record_list(list: &dyn SourceList) -> Result<Value, WalkStopped> {
+    record_list_at(list, 1)
+}
+
+fn record_list_at(list: &dyn SourceList, depth: usize) -> Result<Value, WalkStopped> {
+    assert!(depth <= MAX_SOURCE_NESTING, "sources nest deeper than {MAX_SOURCE_NESTING}");
     let mut items = Vec::new();
     list.walk(&mut |entry| {
         items.push(match entry {
             Member::Value(value) => value.clone(),
-            Member::Object(child) => record_object(child)?,
-            Member::List(inner) => record_list(inner)?,
+            Member::Object(child) => record_object_at(child, depth + 1)?,
+            Member::List(inner) => record_list_at(inner, depth + 1)?,
         });
         Ok(())
     })?;

@@ -263,14 +263,16 @@ impl<'a> DocumentSource<'a> {
             let place = placed[derived.disposition.slot()];
             placed[derived.disposition.slot()] += 1;
             if row_refusal.is_none() {
-                row_refusal = basis
-                    .check_row(index, row, class, &derived.accounting, &derived.annotation, &derived.target, place)
-                    .err();
-            }
-            if witness_refusal.is_none() {
-                witness_refusal = basis
-                    .check_witness(index, row, &derived.accounting, &derived.target, derived.disposition, derived.witness.as_ref())
-                    .err();
+                match basis.check_row(index, row, class, &derived.accounting, &derived.annotation, &derived.target, place) {
+                    Err(refusal) => row_refusal = Some(refusal),
+                    Ok(expected) => {
+                        if witness_refusal.is_none() {
+                            witness_refusal = basis
+                                .check_witness(index, row, &derived.accounting, &derived.target, expected.as_ref(), derived.witness.as_ref())
+                                .err();
+                        }
+                    }
+                }
             }
             checked(RowList::of_target(derived.disposition), &derived.target);
             checked(RowList::Accounting, &derived.accounting);

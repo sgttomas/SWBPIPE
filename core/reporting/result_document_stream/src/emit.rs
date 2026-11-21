@@ -6,6 +6,11 @@
 //! other member is handed over as a whole value. Walking a member hands it to the visitor and
 //! stages exactly that member's canonical bytes, with its punctuation, in the same call.
 //!
+//! A member handed over as a value is a `serde_json::Value` whose objects iterate their
+//! members in sorted order, which a rule walking it relies on: that holds because serde_json
+//! is built without its `preserve_order` feature (no manifest in the repository enables it;
+//! `tests/map_order.rs` fails if a dependency ever does).
+//!
 //! Whatever the visitor does, a walk returns `Ok` only when every member was handed over, no
 //! visitor call returned `Err`, and every source object or list handed over had been walked
 //! to its end exactly once when the visitor's call for it returned; otherwise the emission
@@ -162,7 +167,8 @@ impl<'s, 'a> Emission<'s, 'a> {
     /// Whether the emission succeeded: the root was walked once to its end, nothing failed,
     /// every byte reached the stage, and the bytes without the hash member digest to the
     /// derivative hash. On `Err` the staged bytes are not the document and are discarded by
-    /// the caller.
+    /// the caller. This is the producer's outcome only: where a rule walked the emission,
+    /// whether the bytes may be exposed is the rule's outcome, whatever the walk returned.
     pub fn finish(self) -> Result<Emitted, String> {
         let document = self.document;
         let (emitted, payload) = self.finish_payload(Ok(()))?;
