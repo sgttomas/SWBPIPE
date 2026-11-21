@@ -11,7 +11,7 @@
  * registered source is Rust's with that invocation. A copy, a header, a hash or a saved
  * record never registers, and any later byte change voids it. G3 (the caller's model is
  * the dispatched one) is previewService's capture check. */
-import { readerDispatch, readerReportStanding, readerSourceText, recordedReaderDispatch, readerValidate, ResultReaderError, type ReaderStanding, type ReaderValidation, type ReportStandingReading } from "./resultReader";
+import { readerDispatch, readerReportStanding, readerSourceText, recordedReaderDispatch, readerValidate, ResultReaderError, type IntegrityBound, type ReaderStanding, type ReaderValidation, type ReportStandingReading, type StandingStatus } from "./resultReader";
 import { retainedPrecisionStanding } from "./retainedPrecisionStanding";
 import { isRetainedRoute, RETAINED_STANDING_STATUS, type SourceContract } from "./numericalResultQuality";
 import type { MechanicsResult, PreviewModel } from "../../types";
@@ -24,7 +24,7 @@ export const SOURCE_BLOCKS_VALIDATED_INVOCATION_REQUIRED = "SOURCE_BLOCKS_VALIDA
 export const LOAD_REFERENCE_SOURCE_NOT_NUMERICALLY_ELIGIBLE = "LOAD_REFERENCE_SOURCE_NOT_NUMERICALLY_ELIGIBLE_IN_T1";
 
 export type SourceRecoveryInvocation = Readonly<{ request: unknown; solver_mode: "dense_scrutiny" | "sparse_interactive" }>;
-export type NumericalStanding = { contract: SourceContract; status: "integrity_checked" | "needs_recompute"; eligible: boolean; findings: string[] };
+export type NumericalStanding = { contract: SourceContract; status: StandingStatus; eligible: boolean; findings: string[]; integrity_bound: IntegrityBound | null };
 type Json = any; // eslint-disable-line @typescript-eslint/no-explicit-any
 
 /** Structural JSON-data equality with signed zeros distinct (the desktop's model
@@ -102,7 +102,7 @@ export function sourceRecoveryModeMatches(source: MechanicsResult, model: Previe
  * Standing
  * -------------------------------------------------------------------------- */
 function presented(standing: ReaderStanding): NumericalStanding {
-  return { contract: standing.route, status: standing.status, eligible: standing.eligible, findings: [...standing.findings] };
+  return { contract: standing.route, status: standing.status, eligible: standing.eligible, findings: [...standing.findings], integrity_bound: standing.integrity_bound };
 }
 /** RT-A4 §10.4: the standing a run recorded before RT-A4 read with, for its display as a recorded
  * (historical) run: under the record's registry variant `binding` the ordinary routes take Rust's
@@ -110,10 +110,11 @@ function presented(standing: ReaderStanding): NumericalStanding {
  * registration's, as for any saved successor (a saved statement never registers). It is display
  * evidence of a historical run only: no caller treats it as a current solve's standing. */
 export function recordedResultStanding(source: MechanicsResult, binding: Readonly<{ id: string; sha256: string }>, model?: (Pick<PreviewModel, "load_cases"> & Partial<Pick<PreviewModel, "pipe_segments" | "supports">>) | null): NumericalStanding {
-  const route = recordedReaderDispatch(source, binding).route;
+  const dispatched = recordedReaderDispatch(source, binding);
+  const route = dispatched.route;
   if (isRetainedRoute(route)) {
     const standing = retainedPrecisionStanding(source, model);
-    return { contract: route, status: RETAINED_STANDING_STATUS[standing.standing], eligible: standing.eligible, findings: standing.findings };
+    return { contract: route, status: RETAINED_STANDING_STATUS[standing.standing], eligible: standing.eligible, findings: standing.findings, integrity_bound: dispatched.standing.integrity_bound };
   }
   if (route === "pressure_source") return numericalResultStanding(source, model);
   return presented(recordedReaderDispatch(source, binding, model).standing);
@@ -138,13 +139,14 @@ export function numericalResultStanding(source: MechanicsResult | NativeResult, 
     const bound = model != null && textOf(model) === binding.standingModelText;
     return presented(bound ? verdict.standing : { ...verdict.standing, token: "needs_recompute", status: "needs_recompute", eligible: false, findings: ["NATIVE_VERDICT_NOT_BOUND"] });
   }
-  const route = readerDispatch(source).route;
+  const dispatched = readerDispatch(source);
+  const route = dispatched.route;
   if (route === "pressure_source") {
     return presented(readerDispatch(source, model, registeredInvocation(source, model, route) ?? undefined).standing);
   }
   if (isRetainedRoute(route)) {
     const standing = retainedPrecisionStanding(source, model);
-    return { contract: route, status: RETAINED_STANDING_STATUS[standing.standing], eligible: standing.eligible, findings: standing.findings };
+    return { contract: route, status: RETAINED_STANDING_STATUS[standing.standing], eligible: standing.eligible, findings: standing.findings, integrity_bound: dispatched.standing.integrity_bound };
   }
   return presented(readerDispatch(source, model).standing);
 }

@@ -24,7 +24,7 @@
     "source": "services/previewService.ts: nativeRegistrationHolds; with services/previewService.ts: `hasNativeMechanicsInvocation`; with services/nativeResult.ts: `isNativeResult`"
   },
   "readNativeFreshResult (its order of reads)": {
-    "sha256": "8012aae6dac4e328151c2860635425c370d46e5cfb42211b885180f2e56d2b41",
+    "sha256": "0d9dbeeae8ed3a2fba5ab1c891d6362ac0ea59acfc9caa716cc359a4c3ca8525",
     "source": "services/previewService.ts: readNativeFreshResult; with services/nativeResult.ts: `readNativeRouteHeader`; with services/previewService.ts: `readNativeStanding`; with services/previewService.ts: `presentedStanding`; with services/nativeResult.ts: `queryNativeRecovery`; with services/resultDetail.ts: `queryResultSourceRecovery`; with services/nativeIngress.ts: `invokeWithIngress`"
   },
   "readNativeSummary's text refusal": {
@@ -32,8 +32,8 @@
     "source": "services/nativeResult.ts: the line holding `if (typeof delivered === \"string\") throw new Error(\"RESULT-SUMMARY-MALFORMED`"
   },
   "readNativeVerdict and readNativeSummary (their cache keys)": {
-    "sha256": "49d6b73c3430e074abfe590246e9c363defc53a46b3759de3e9b7bbdc56b973a",
-    "source": "services/nativeResult.ts: from the declaration of readNativeVerdict to the end of readNativeSummary, holding `keyOf(\"summary\", modelText, JSON.stringify(standingArg))`"
+    "sha256": "fcddf32a8b9a5370b0984328eeb7e984147d2786b9566f6d0879cf0844f0f0e8",
+    "source": "services/nativeResult.ts: from the declaration of readNativeVerdict to the end of readNativeSummary, holding `keyOf(\"summary\", modelText, JSON.stringify(standingArg), modelUse ?? null)`"
   },
   "the model-reference check": {
     "sha256": "7ca05003e6295f28dcb73c1cce331a8f5f09c2864d70884034b9747ab93486bb",

@@ -1,7 +1,7 @@
 import { cleanup, render, screen, within } from "@testing-library/react";
 import { afterEach, describe, expect, it } from "vitest";
 import { SolvePanel } from "./SolvePanel";
-import { INTEGRITY_CHECKED, NEEDS_RECOMPUTE_NOT_CURRENT } from "./LoadReferenceStatesBlock";
+import { SOLVER_CHECKS_PASSED_LABEL, NEEDS_RECOMPUTE_NOT_CURRENT } from "./LoadReferenceStatesBlock";
 import { initialSolveJob } from "../workspace/solveJobAudit";
 import { LOAD_REFERENCE_SOURCE_NOT_NUMERICALLY_ELIGIBLE, SOURCE_BLOCKS_VALIDATED_INVOCATION_REQUIRED, numericalResultStanding, registerSourceRecovery } from "../results/resultStanding";
 import { PRESSURE_2_OUTPUT_REFUSAL, PRESSURE_SOURCE_OUTPUT_REFUSAL } from "../results/loadReferenceOutputAvailability";
@@ -86,11 +86,11 @@ describe("resolved-state block: ordinary pressure-2 with load/reference states",
       const before = JSON.stringify(result);
       renderSolve(model, result, mode);
       const standing = numericalResultStanding(result, model);
-      expect(standing).toMatchObject({ contract: "pressure", status: "integrity_checked", eligible: true });
+      expect(standing).toMatchObject({ contract: "pressure", status: "solver_checks_passed", eligible: true });
       expect(screen.getByTestId("load-reference-states-route")).toHaveTextContent("Route: ordinary pressure-3");
-      expect(screen.getByTestId("load-reference-states-standing")).toHaveTextContent("Result standing: integrity_checked");
+      expect(screen.getByTestId("load-reference-states-standing")).toHaveTextContent("Result standing: numerically eligible; the ordinary solve's error bound is not verified");
       for (const record of records(result)) {
-        expect(screen.getByTestId(`load-reference-state-standing-${record.load_case_id}`)).toHaveTextContent(`Numerical standing: ${INTEGRITY_CHECKED} (published solve quality: checks_passed).`);
+        expect(screen.getByTestId(`load-reference-state-standing-${record.load_case_id}`)).toHaveTextContent(`Numerical standing: ${SOLVER_CHECKS_PASSED_LABEL} (published solve quality: not verified).`);
         expect(screen.getByTestId(`load-reference-state-${record.load_case_id}`)).toHaveTextContent(`mode ${mode}`);
       }
       expect(screen.getByTestId("load-reference-states-block")).not.toHaveTextContent(NEEDS_RECOMPUTE_NOT_CURRENT);
@@ -111,7 +111,7 @@ describe("resolved-state block: ordinary pressure-2 with load/reference states",
     expect(screen.getByTestId("load-reference-states-standing")).toHaveTextContent("NUMERICAL_INTEGRITY_NOT_QUALIFIED");
     for (const record of records(result))
       expect(screen.getByTestId(`load-reference-state-standing-${record.load_case_id}`)).toHaveTextContent(`Numerical standing: ${NEEDS_RECOMPUTE_NOT_CURRENT}`);
-    expect(screen.getByTestId("load-reference-states-block")).not.toHaveTextContent(INTEGRITY_CHECKED);
+    expect(screen.getByTestId("load-reference-states-block")).not.toHaveTextContent(SOLVER_CHECKS_PASSED_LABEL);
     expectPublishedValues(result);
     expectReadOnly(PRESSURE_2_OUTPUT_REFUSAL);
   });
@@ -146,7 +146,7 @@ describe("resolved-state block: joined pressure-source-1 with load/reference sta
       expect(screen.getByTestId("load-reference-states-standing")).toHaveTextContent(LOAD_REFERENCE_SOURCE_NOT_NUMERICALLY_ELIGIBLE);
       for (const record of records(result))
         expect(screen.getByTestId(`load-reference-state-standing-${record.load_case_id}`)).toHaveTextContent(`Numerical standing: ${NEEDS_RECOMPUTE_NOT_CURRENT}`);
-      expect(screen.getByTestId("load-reference-states-block")).not.toHaveTextContent(INTEGRITY_CHECKED);
+      expect(screen.getByTestId("load-reference-states-block")).not.toHaveTextContent(SOLVER_CHECKS_PASSED_LABEL);
       expectPublishedValues(result);
       expectReadOnly(PRESSURE_SOURCE_OUTPUT_REFUSAL);
     });
@@ -156,7 +156,7 @@ describe("resolved-state block: joined pressure-source-1 with load/reference sta
     const { request, model, result } = pair("load_reference_source", "mixed", "sparse_interactive");
     await registerSourceRecovery(result, { request, solver_mode: "sparse_interactive" }, model);
     renderSolve(model, result);
-    expect(screen.getByTestId("load-reference-state-standing-case:ordinary-pressure")).toHaveTextContent(`Numerical standing: ${NEEDS_RECOMPUTE_NOT_CURRENT} (published solve quality: checks_passed).`);
+    expect(screen.getByTestId("load-reference-state-standing-case:ordinary-pressure")).toHaveTextContent(`Numerical standing: ${NEEDS_RECOMPUTE_NOT_CURRENT} (published solve quality: not verified).`);
   });
 
   it("a tampered joined publication is refused and shows no value", () => {

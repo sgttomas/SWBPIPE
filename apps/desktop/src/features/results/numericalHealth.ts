@@ -9,7 +9,7 @@
  * then only arranges and formats. It never takes part in admission, standing or an
  * output gate. */
 import { loadedWasmEngine } from "../../services/wasmEngine/loadWasmEngine";
-import { readerSourceText } from "./resultReader";
+import { readerSourceText, type IntegrityBound } from "./resultReader";
 import {
   CONDITIONING_CAUSE_TEXT,
   DIGITS_BELOW_FIRST_DECIMAL,
@@ -38,6 +38,7 @@ import {
   type NumericalHealthState
 } from "./numericalHealthText";
 import type { MechanicsResult, ResultBasisRef } from "../../types";
+import type { SupportStatesLine } from "./integrityStatus";
 
 export type { NumericalHealthState } from "./numericalHealthText";
 export type NumericalHealthRoute = "generic" | "pressure_source" | "retained" | "unsupported";
@@ -207,18 +208,18 @@ export function readNumericalHealth(result: MechanicsResult, readerFindings?: re
 /* -------------------------------------------------------------------------- *
  * Presentation
  * -------------------------------------------------------------------------- */
-export type NumericalHealthBadge = "green" | "red" | "grey";
+/** Release exit criterion 18: no state is styled as success. A case the solver reports checks passed for
+ * (shown "not verified") takes the neutral grey style a not-assessed case has; there is no green badge. */
+export type NumericalHealthBadge = "red" | "grey";
 /** The header's count order, which is also the order of the worst state. */
 export const NUMERICAL_HEALTH_ORDER: readonly NumericalHealthState[] = ["solve_failed", "quality_unresolved", "sensitive", "not_assessed", "checks_passed"];
 
 export function badgeOf(state: NumericalHealthState): NumericalHealthBadge {
-  return state === "checks_passed" ? "green" : state === "not_assessed" ? "grey" : "red";
+  return state === "checks_passed" || state === "not_assessed" ? "grey" : "red";
 }
-/** Red if any case is red, otherwise grey if any is grey, green only if all pass. No case reads grey. */
+/** Red if any case is red, otherwise grey (no case, or every case not verified or not assessed). */
 export function headerBadge(cases: readonly Pick<NumericalHealthCase, "state">[]): NumericalHealthBadge {
-  if (cases.some((c) => badgeOf(c.state) === "red")) return "red";
-  if (cases.length === 0 || cases.some((c) => badgeOf(c.state) === "grey")) return "grey";
-  return "green";
+  return cases.some((c) => badgeOf(c.state) === "red") ? "red" : "grey";
 }
 export function worstState(cases: readonly Pick<NumericalHealthCase, "state">[]): NumericalHealthState {
   return NUMERICAL_HEALTH_ORDER.find((s) => cases.some((c) => c.state === s)) ?? "not_assessed";
@@ -247,8 +248,11 @@ function locationsText(causes: readonly NumericalHealthCause[]): string {
 }
 
 /** The detail sentences of one case, in the design's order. `eligible` is the reader's
- * standing (the recovery passed, on the pressure-source route). */
-export function caseDetailSentences(c: NumericalHealthCase, route: NumericalHealthRoute, eligible: boolean): string[] {
+ * standing (the recovery passed, on the pressure-source route). `recovered`: the case's published
+ * values come from the producer's recovery (the method the result records for it,
+ * `integrityStatus.ts` `recoveredCaseIds`); an ordinary companion of a mixed pressure-source run was
+ * solved by the ordinary solve alone, and its values are not the recovery's. */
+export function caseDetailSentences(c: NumericalHealthCase, route: NumericalHealthRoute, eligible: boolean, recovered = false): string[] {
   const of = (kind: NumericalHealthCauseKind) => c.causes.filter((x) => x.kind === kind);
   const sentences: string[] = [];
   switch (c.state) {
@@ -279,7 +283,7 @@ export function caseDetailSentences(c: NumericalHealthCase, route: NumericalHeal
       sentences.push(notAssessedText(c.case_id));
       break;
   }
-  if (route === "pressure_source" && eligible) sentences.push(ELIGIBLE_RECOVERY_TEXT);
+  if (route === "pressure_source" && eligible && recovered) sentences.push(ELIGIBLE_RECOVERY_TEXT);
   return sentences;
 }
 
@@ -293,6 +297,10 @@ export type NumericalHealthCaseView = Readonly<{
   conditioning: string | null;
   locations: readonly NumericalHealthLocation[];
   integrityDiagnosticId: string | null;
+  /** "Support states: not confirmed" and the reviewed statement of the case's confirmation outcome,
+   * with the solver's quoted reason where the outcome carries one, for a case with nonlinear supports
+   * (`integrityStatus.ts` `supportStatesLine`); null otherwise. */
+  supportStates: SupportStatesLine | null;
 }>;
 export type NumericalHealthCombinationView = Readonly<{
   combinationId: string;
@@ -321,7 +329,7 @@ export type NumericalHealthView = Readonly<{
 /** The presentation of the generic and pressure-source routes; null for the retained and
  * unsupported routes, whose texts are unchanged. `verdictHold` is `numericalHealthHold`'s
  * condition: the generic result is not Current because of its verdict alone. */
-export function numericalHealthView(health: NumericalHealth | null, options: { eligible: boolean; verdictHold: boolean }): NumericalHealthView | null {
+export function numericalHealthView(health: NumericalHealth | null, options: { eligible: boolean; verdictHold: boolean; supportStates?: ReadonlyMap<string, SupportStatesLine>; recoveredCases?: ReadonlySet<string> }): NumericalHealthView | null {
   if (!health || (health.route !== "generic" && health.route !== "pressure_source")) return null;
   const route = health.route;
   const prefix = route === "pressure_source";
@@ -331,10 +339,11 @@ export function numericalHealthView(health: NumericalHealth | null, options: { e
     state: c.state,
     badge: badgeOf(c.state),
     headline: numericalHealthHeadline(c.state, prefix),
-    sentences: caseDetailSentences(c, route, options.eligible),
+    sentences: caseDetailSentences(c, route, options.eligible, options.recoveredCases?.has(c.case_id) ?? false),
     conditioning: c.digits !== null && (c.state === "checks_passed" || c.state === "sensitive") ? conditioningDetailText(formatDigits(c.digits)) : null,
     locations: c.causes.flatMap((x) => x.locations),
-    integrityDiagnosticId: c.integrity_diagnostic_id
+    integrityDiagnosticId: c.integrity_diagnostic_id,
+    supportStates: options.supportStates?.get(c.case_id) ?? null
   }));
   // A withheld combination (or one with no state) keeps its existing finding and gets
   // no badge or detail of its own.
@@ -366,12 +375,13 @@ export type NumericalHealthHold = Readonly<{ headline: string; shortHeadline: st
 
 /** The chip and rail replacement predicate: every
  * Current requirement other than numerical eligibility holds, the Rust `verdict_only` is
- * true, and some load case is red or grey. Anything else, including missing or
- * malformed evidence, keeps "Needs recompute". Admission is not read or changed here. */
+ * true, and some load case is in a state other than the solver's checks passed (red, or grey for
+ * not assessed). Anything else, including missing or malformed evidence, keeps "Needs recompute".
+ * Admission is not read or changed here. */
 export function numericalHealthHold(input: { isCurrent: boolean; otherCurrentRequirementsHold: boolean; health: NumericalHealth | null }): boolean {
   const { isCurrent, otherCurrentRequirementsHold, health } = input;
   return !isCurrent && otherCurrentRequirementsHold && health !== null && health.verdict_only
-    && health.cases.some((c) => badgeOf(c.state) !== "green");
+    && health.cases.some((c) => c.state !== "checks_passed");
 }
 
 /** The state the results table badges a row with: its load case's state, or its combination's
@@ -386,14 +396,17 @@ export function rowHealthState(health: NumericalHealthView | null, row: Readonly
 
 /** What a result overlay in the viewport (result colour, reaction arrows) is given: the reader's
  * numerical standing of the result and the session's numerical health presentation of it. */
-export type ResultOverlayStanding = Readonly<{ eligible: boolean; health: NumericalHealthView | null }>;
+export type ResultOverlayStanding = Readonly<{ eligible: boolean; health: NumericalHealthView | null;
+  /** The reader verdict's `integrity_bound` (release exit criterion 18), where the holder reads one. */
+  integrityBound?: IntegrityBound | null }>;
 
 /**
  * Whether a row's value may drive a result overlay. It reuses, and adds nothing to, the rules the
  * results surface already applies: the reader's numerical standing admits the result (when it does
  * not, the header says which outputs do not use the run and which carry each case's standing), the
- * numerical health indicator exists for the result's route, and the results table gives the row no
- * badge other than "checks passed". Anything missing fails closed. Presentation only.
+ * numerical health indicator exists for the result's route, and the row's state is the solver's
+ * checks passed (shown "not verified"; it asserts no bound). Anything missing fails closed.
+ * Presentation only.
  */
 export function overlayMayShowRow(standing: ResultOverlayStanding | null | undefined, row: Readonly<{ basis_ref?: ResultBasisRef }>): boolean {
   if (!standing || !standing.eligible || !standing.health) return false;

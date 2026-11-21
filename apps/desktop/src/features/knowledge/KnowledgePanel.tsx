@@ -5,6 +5,7 @@ import { QuantityReadout } from "../display-units";
 import { BookOpen } from "lucide-react";
 import type { DesignKnowledge, KnowledgeRecord, MechanicsResult } from "../../types";
 import { presentedResultDiagnostics } from "../results/suppliedDiagnostics";
+import { needsSolverReportNote, SOLVER_REPORT_NOTE } from "../results/integrityStatus";
 
 const RESULT_UNIT_DISPLAY_ORDER = ["MPa", "N", "N*m", "mm", "rad"];
 
@@ -90,7 +91,9 @@ export function physicsRecords(result: SessionResult | null, axialRow?: Row | nu
       id: `knowledge:${diagnostic.id ?? diagnostic.code}`,
       kind: "computed_mechanics_context",
       title: diagnostic.code.replaceAll("_", " "),
-      summary: diagnostic.message,
+      // Release exit criterion 18: a solver message that states a claim on the ordinary solve's
+      // unverified bound carries the note directly after it, wherever the record is shown.
+      summary: needsSolverReportNote(diagnostic) ? `${diagnostic.message} ${SOLVER_REPORT_NOTE}` : diagnostic.message,
       affected_refs: diagnostic.affected_refs ?? [],
       provenance: "computed_preview_result",
       status: diagnostic.severity

@@ -10,10 +10,10 @@ import { initialSolveJob } from "../workspace/solveJobAudit";
 // Rust's real standing.
 vi.mock("../results/resultStanding", async (importOriginal) => {
   const actual = await importOriginal<typeof import("../results/resultStanding")>();
-  return { ...actual, numericalResultStanding: () => ({ contract: "pressure_source", status: "integrity_checked", eligible: true, findings: [] }) };
+  return { ...actual, numericalResultStanding: () => ({ contract: "pressure_source", status: "solver_checks_passed", eligible: true, findings: [] }) };
 });
 const { SolvePanel } = await import("./SolvePanel");
-const { INTEGRITY_CHECKED, NEEDS_RECOMPUTE_NOT_CURRENT } = await import("./LoadReferenceStatesBlock");
+const { SOLVER_CHECKS_PASSED_LABEL, NEEDS_RECOMPUTE_NOT_CURRENT } = await import("./LoadReferenceStatesBlock");
 import request from "../../../../../fixtures/product_preview/pressure_source/load_reference_source/mixed.request.json";
 import { receivedFixture } from "../../test-support/receivedText";
 
@@ -24,7 +24,16 @@ it("labels joined cases needs recompute even against an eligible standing report
   const result = receivedFixture<MechanicsResult>("fixtures/product_preview/pressure_source/load_reference_source/mixed-sparse_interactive.raw.json");
   render(<SolvePanel analysisRun={null} model={model} result={result} running={false} solveJob={initialSolveJob()} solverMode="sparse_interactive" onCancel={() => {}} onRun={() => {}} onSolverModeChange={() => {}} />);
   expect(screen.getByTestId("load-reference-state-standing-case:ordinary-pressure")).toBeInTheDocument();
-  for (const id of ["case", "case:ordinary-pressure"])
+  for (const id of ["case", "case:ordinary-pressure"]) {
     expect(screen.getByTestId(`load-reference-state-standing-${id}`)).toHaveTextContent(`Numerical standing: ${NEEDS_RECOMPUTE_NOT_CURRENT}`);
-  expect(screen.getByTestId("load-reference-states-block")).not.toHaveTextContent(INTEGRITY_CHECKED);
+    expect(screen.getByTestId(`load-reference-state-standing-${id}`)).not.toHaveTextContent(SOLVER_CHECKS_PASSED_LABEL);
+  }
+  // The stubbed route standing is shown as an admission standing (release exit criterion 18; the stub
+  // carries no reader verdict's bound member, so none is worded); no text of the block carries the
+  // eligible case label.
+  const block = screen.getByTestId("load-reference-states-block").textContent ?? "";
+  const route = screen.getByTestId("load-reference-states-standing").textContent ?? "";
+  expect(route).toBe("Result standing: numerically eligible");
+  expect(SOLVER_CHECKS_PASSED_LABEL).toBe("numerically eligible; not verified");
+  expect(block).not.toContain(SOLVER_CHECKS_PASSED_LABEL);
 });

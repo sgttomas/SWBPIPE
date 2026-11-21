@@ -7,6 +7,7 @@ import { readFileSync } from "node:fs";
 import { resolve } from "node:path";
 import { afterEach, describe, expect, it, vi } from "vitest";
 import { ResultsPanel } from "./ResultsPanel";
+import { numericalQualityStatusText, recoveredCaseIds, withLimitationsNote } from "./integrityStatus";
 import { numericalHealthView, parseNumericalHealth, type NumericalHealthView } from "./numericalHealth";
 import { resolveLocatedCauseSelection } from "./resultInterpretation";
 import type { MechanicsResult, PreviewModel } from "../../types";
@@ -14,7 +15,7 @@ import unicodeSparse from "../../../../../fixtures/results/preview_physics_unico
 
 afterEach(cleanup);
 
-function view(raw: unknown, options: { eligible: boolean; verdictHold: boolean }): NumericalHealthView {
+function view(raw: unknown, options: Parameters<typeof numericalHealthView>[1]): NumericalHealthView {
   const health = parseNumericalHealth(raw);
   expect(health).not.toBeNull();
   return numericalHealthView(health, options)!;
@@ -39,20 +40,20 @@ describe("ResultsPanel numerical health", () => {
     render(<ResultsPanel result={genericResult()} knowledge={null} analysisRun={null} selectedResultId={null} onSelectResult={() => {}}
       numericalHealth={view(genericHealth(true), { eligible: false, verdictHold: true })} />);
     expect(screen.getByTestId("numerical-health-header-line").textContent).toBe(
-      "Numerical health: 1 sensitive, 1 checks passed. Rule checks, the result JSON and stress-neutral exports and the report package do not use this run while 1 load case(s) are not checks passed; results tables, CSV export and, for an exact-route result, the rendered report carry each case's standing."
+      "Numerical health: 1 sensitive, 1 not verified. Rule checks, the result JSON and stress-neutral exports and the report package do not use this run while 1 load case(s) are sensitive, quality unresolved, solve failed or not assessed; results tables, CSV export and, for an exact-route result, the rendered report carry each case's standing."
     );
-    expect(screen.getByTestId("numerical-health-header")).toHaveTextContent(/^Numerical health: 1 sensitive, 1 checks passed$/);
+    expect(screen.getByTestId("numerical-health-header")).toHaveTextContent(/^Numerical health: 1 sensitive, 1 not verified$/);
     expect(screen.getByTestId("numerical-health-header")).toHaveAttribute("data-badge", "red");
     expect(screen.getByTestId("numerical-health-case-text-load:é").textContent).toContain("Its values are kept for inspection.");
     expect(screen.getByTestId("numerical-health-case-conditioning-load:é").textContent).toContain("roughly 11.0 of the about 16 decimal digits");
-    expect(screen.getByTestId("numerical-health-case-badge-load:𝔫")).toHaveTextContent("Numerical health: checks passed");
+    expect(screen.getByTestId("numerical-health-case-badge-load:𝔫")).toHaveTextContent("Numerical health: not verified");
     expect(screen.getByTestId("numerical-health-combination-badge-combination:Σ")).toHaveTextContent("sensitive");
   });
 
   it("adds no output sentence without the verdict-only hold", () => {
     render(<ResultsPanel result={genericResult()} knowledge={null} analysisRun={null} selectedResultId={null} onSelectResult={() => {}}
       numericalHealth={view(genericHealth(false), { eligible: false, verdictHold: false })} />);
-    expect(screen.getByTestId("numerical-health-header-line").textContent).toBe("Numerical health: 1 sensitive, 1 checks passed");
+    expect(screen.getByTestId("numerical-health-header-line").textContent).toBe("Numerical health: 1 sensitive, 1 not verified");
     expect(screen.queryByTestId("numerical-health-output-sentence")).toBeNull();
   });
 
@@ -64,7 +65,7 @@ describe("ResultsPanel numerical health", () => {
     for (const row of rows) {
       const badge = screen.queryByTestId(`result-row-health-${row.id}`);
       if (!row.basis_ref) { expect(badge).toBeNull(); continue; }
-      expect(badge?.textContent).toBe(row.basis_ref.ref_id === "load:𝔫" ? "checks passed" : "sensitive");
+      expect(badge?.textContent).toBe(row.basis_ref.ref_id === "load:𝔫" ? "not verified" : "sensitive");
     }
   });
 
@@ -111,7 +112,7 @@ describe("ResultsPanel numerical health", () => {
   it("prefixes the pressure-source header, keeps the recovery text, adds the eligible wording and places no row badges", () => {
     const result = JSON.parse(readFileSync(resolve(__dirname, "../../../../../fixtures/product_preview/pressure_source/physics_source/n05-dense_scrutiny.raw.json"), "utf8")) as MechanicsResult;
     const health = view({ route: "pressure_source", verdict_only: false, cases: [{ ...SENSITIVE, case_id: "case", integrity_diagnostic_id: "diagnostic:numerical-integrity:case", causes: [] }], combinations: [] },
-      { eligible: true, verdictHold: false });
+      { eligible: true, verdictHold: false, recoveredCases: recoveredCaseIds(result) });
     render(<ResultsPanel result={result} knowledge={null} analysisRun={null} selectedResultId={null} onSelectResult={() => {}} numericalHealth={health} />);
     expect(screen.getByTestId("numerical-health-header").textContent).toBe("Ordinary solve — Numerical health: 1 sensitive");
     expect(screen.getByTestId("numerical-result-standing").textContent).toMatch(/^Ordinary solve: sensitive\. Producer recovery receipt: qualified\. /);
@@ -126,12 +127,12 @@ describe("ResultsPanel numerical health", () => {
 
   it("keeps today's line when the indicator is absent or its route disagrees", () => {
     render(<ResultsPanel result={genericResult()} knowledge={null} analysisRun={null} selectedResultId={null} onSelectResult={() => {}} numericalHealth={null} />);
-    expect(screen.getByTestId("numerical-result-standing").textContent).toMatch(/^Numerical integrity: checks_passed\. /);
+    expect(screen.getByTestId("numerical-result-standing").textContent).toMatch(/^Numerical health: not verified\. /);
     expect(screen.queryByTestId("numerical-health-detail")).toBeNull();
     cleanup();
     const pressureSource = view({ route: "pressure_source", verdict_only: false, cases: [PASSED], combinations: [] }, { eligible: true, verdictHold: false });
     render(<ResultsPanel result={genericResult()} knowledge={null} analysisRun={null} selectedResultId={null} onSelectResult={() => {}} numericalHealth={pressureSource} />);
-    expect(screen.getByTestId("numerical-result-standing").textContent).toMatch(/^Numerical integrity: checks_passed\. /);
+    expect(screen.getByTestId("numerical-result-standing").textContent).toMatch(/^Numerical health: not verified\. /);
   });
 });
 
@@ -141,8 +142,8 @@ describe("the standing line beside the health header", () => {
   const original = (result: MechanicsResult) => sourceContractText(result);
   function sourceContractText(result: MechanicsResult): string {
     return result.source_block_recovery
-      ? `Ordinary solve: ${result.numerical_quality!.status}. Producer recovery receipt: ${(result.source_block_recovery as { body: { status: string } }).body.status}. ${result.formulation_basis!.limitations.join(" ")} Current use is checked separately against the actual invocation and complete result evidence. Numerical checks do not establish engineering correctness.`
-      : `Numerical integrity: ${result.numerical_quality!.status}. ${result.formulation_basis!.limitations.join(" ")} Numerical checks do not establish engineering correctness.`;
+      ? `Ordinary solve: ${numericalQualityStatusText(result.numerical_quality!.status)}. Producer recovery receipt: ${(result.source_block_recovery as { body: { status: string } }).body.status}. ${withLimitationsNote(result.formulation_basis!.limitations)} Current use is checked separately against the actual invocation and complete result evidence. Numerical checks do not establish engineering correctness.`
+      : `Numerical health: ${numericalQualityStatusText(result.numerical_quality!.status)}. ${withLimitationsNote(result.formulation_basis!.limitations)} Numerical checks do not establish engineering correctness.`;
   }
   it.each([
     ["generic", () => genericResult(), () => view(genericHealth(true), { eligible: false, verdictHold: true })],

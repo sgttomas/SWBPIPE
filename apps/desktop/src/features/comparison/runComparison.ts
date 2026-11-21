@@ -10,7 +10,7 @@
 // `tests/test_analysis_run_comparison_parity.py`.
 //
 // A mapped pair gets a `right − left` delta only when the conservative,
-// whole-run standing gate holds: both runs read `integrity_checked`
+// whole-run standing gate holds: both runs read `solver_checks_passed`
 // (`numericalResultStanding`, eligible), both carry the same result semantic
 // identity (route and producer contract), and the two rows' units are equal.
 // As the reference engine, a delta is computed only for its supported result
