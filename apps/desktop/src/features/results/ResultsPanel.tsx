@@ -10,7 +10,7 @@ import { resultRowLabel } from "./knownSemanticLimitations";
 import { componentBodyNotice } from "./componentBody";
 import { hangerPreloadStanding } from "./hangerPreload";
 import { retainedPrecisionStandingParts } from "./retainedPrecisionStanding";
-import { ResultsStageTabs, withRowsTab } from "./ResultsStageTabs";
+import { ResultsStageTabs, withLeadIn, withRowsTab } from "./ResultsStageTabs";
 import { EngineeringQuantity } from "./EngineeringQuantity";
 import { caseNameOf, entityNameOf, nextRowsSort, ResultRowsTable, sortRows, type RowsSort, type RowsSortColumn } from "./ResultRowsTable";
 import { RESULTS_RUN_LABELS, ResultsStageHeader, type HeaderCase, type ResultsRunIdentity } from "./ResultsStageHeader";
@@ -510,10 +510,9 @@ function FullResultsPanel({
               <MechanicsGapLedger gaps={mechanicsGaps()} />
             </>}
           />
-          <SectionBasisHeadlines result={result} />
           {stageContent?.governing}
           <ResultsStageTabs
-            tabs={withRowsTab(stageContent?.tabs ?? [], { id: ALL_ROWS_TAB, label: "All rows", content: <>
+            tabs={withLeadIn(withRowsTab(stageContent?.tabs ?? [], { id: ALL_ROWS_TAB, label: "All rows", content: <>
           <ResultControls
             familyCounts={familyCounts}
             familyFilter={familyFilter}
@@ -604,7 +603,7 @@ function FullResultsPanel({
               </p>
             )}
           </div>
-            </> })}
+            </> }), <SectionBasisHeadlines result={result} />, "stress", ALL_ROWS_TAB)}
             current={stageTab}
             onChoose={setStageTab}
           />

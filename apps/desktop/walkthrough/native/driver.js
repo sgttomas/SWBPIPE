@@ -235,21 +235,37 @@
         await press(`results-stage-tab-${id}`);
         await sleep(200);
         const panel = document.getElementById(tab.getAttribute("aria-controls"));
+        // The tab bar brought up under the stage's header, so the tab's own table is what is in view.
+        const bar = document.querySelector(".results-stage-tabbar");
+        if (bar) await scrollTo(bar, "start");
         return panel ? `${panel.querySelectorAll("tbody tr").length} table rows shown` : "";
       });
     }
-    await journey.step("sorted", "All rows sorted by value (largest magnitude first)", async () => {
+    await journey.step("rows-sort", "All rows: its sort, where the table can order every matching row", async () => {
       await chooseTab("rows");
-      await press("results-sort-value");
+      const button = byTestId("results-sort-value");
+      if (!button) throw new Error("the All rows table shows no value column sort");
+      // Natively a sort needs every matching row on one page; the header states why where it cannot.
+      if (button.getAttribute("aria-disabled") === "true") return `not sortable here: ${button.getAttribute("title")}`;
+      acting(button, "results-sort-value").click();
       await sleep(300);
-      const header = byTestId("results-sort-value")?.closest("th");
-      const first = document.querySelector('[data-testid="results-stage-content-rows"] tbody tr');
-      return `aria-sort ${header?.getAttribute("aria-sort") ?? "absent"}; first row ${first?.getAttribute("data-row-id") ?? "none"}`;
+      return `aria-sort ${button.closest("th")?.getAttribute("aria-sort") ?? "absent"}`;
     });
-    await journey.step("unsorted", "All rows: the value sort reversed, then the stage back at its head", async () => {
-      await press("results-sort-value");
+    await journey.step("sorted", "Displacements sorted by a component's largest magnitude", async () => {
+      await chooseTab("displacements");
+      const button = [...document.querySelectorAll('[data-testid="results-stage-content-displacements"] [data-testid^="displacement-extremes-sort-"]')]
+        .find((item) => visible(item) && item.getAttribute("data-testid") !== "displacement-extremes-sort-model");
+      if (!button) throw new Error("the Displacements table shows no component sort");
+      const name = button.getAttribute("data-testid");
+      acting(button, name).click();
+      await sleep(300);
+      const first = document.querySelector('[data-testid="results-stage-content-displacements"] tbody tr');
+      return `${name}: aria-sort ${button.closest("th")?.getAttribute("aria-sort") ?? "absent"}; first row ${first?.getAttribute("data-testid") ?? "none"}`;
+    });
+    await journey.step("unsorted", "Displacements back in model order, then the stage back at its head", async () => {
+      await press("displacement-extremes-sort-model");
       await scrollTo(byTestId("results-stage-header"), "start");
-      return byTestId("results-sort-value")?.closest("th")?.getAttribute("aria-sort") ?? "";
+      return byTestId("displacement-extremes-sort-model")?.closest("th")?.getAttribute("aria-sort") ?? "";
     });
     await journey.step("governing-jump", "A governing value pressed: its table opens with its row in view and selected", async () => {
       const button = [...document.querySelectorAll('[data-testid="governing-values"] button.governing-value')].find((item) => visible(item) && item.getAttribute("data-testid") !== "governing-weight-open");

@@ -4870,15 +4870,16 @@ body { min-width: 760px; min-height: 540px; }
 .app-shell .results-method > summary { display: inline-flex; align-items: center; gap: var(--space-2); cursor: pointer; color: var(--ui-muted); list-style: none; }
 .app-shell .results-method > summary::-webkit-details-marker { display: none; }
 .app-shell .results-method[open] > summary .results-method-chevron { transform: rotate(90deg); }
-.app-shell .results-method-body { max-height: 45vh; overflow-y: auto; margin-top: var(--space-3); padding-inline-end: var(--space-4); display: grid; gap: var(--space-3); }
+.app-shell .results-method-body { max-height: 30vh; overflow-y: auto; margin-top: var(--space-3); padding-inline-end: var(--space-4); display: grid; gap: var(--space-3); }
 .app-shell .results-method-body .result-standing { margin-block: 0; }
 
 /* The governing values under the Results stage's header: one line per quantity, each value a
    control that opens its table with its row in view. Neutral surfaces only. */
 .app-shell .governing-values { display: grid; gap: var(--space-2); padding: var(--space-3) 0; border-bottom: 1px solid var(--ui-border); }
-.app-shell .governing-row { display: grid; grid-template-columns: minmax(10ch, 16ch) 1fr; align-items: baseline; gap: var(--space-4); }
-.app-shell .governing-label { color: var(--ui-muted); font-size: var(--type-size-caption); text-transform: uppercase; letter-spacing: 0.04em; }
-.app-shell .governing-items { display: flex; flex-wrap: wrap; gap: var(--space-2) var(--space-4); min-width: 0; }
+.app-shell .governing-row { display: flex; flex-wrap: wrap; align-items: baseline; gap: var(--space-2) var(--space-3); }
+.app-shell .governing-label { color: var(--ui-muted); font-size: var(--type-size-caption); text-transform: uppercase; letter-spacing: 0.04em; white-space: nowrap; }
+.app-shell .governing-items { display: contents; }
+.app-shell .governing-more { padding: 0; border: 0; background: none; color: var(--text-link); font: inherit; text-decoration: underline; cursor: pointer; }
 .app-shell .governing-value {
   display: inline-flex; flex-wrap: nowrap; white-space: nowrap; align-items: baseline; gap: var(--space-3);
   padding: var(--space-1) var(--space-3); border: 1px solid var(--ui-border); border-radius: var(--radius-control);
@@ -4897,6 +4898,7 @@ button.governing-value { cursor: pointer; }
 .app-shell .results-stage-tabbar {
   display: flex; flex-wrap: wrap; align-items: end; gap: var(--space-4);
   border-bottom: 1px solid var(--ui-border); margin-top: var(--space-2);
+  scroll-margin-top: var(--results-header-h, 0px);
 }
 .app-shell .results-stage-tabs { display: flex; flex-wrap: wrap; gap: 0; }
 .app-shell .results-stage-tabs [role="tab"] {

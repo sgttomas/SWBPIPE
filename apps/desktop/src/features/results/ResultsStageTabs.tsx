@@ -49,3 +49,9 @@ export function withRowsTab(tabs: readonly StageTab[], rows: StageTab): StageTab
   const after = tabs.findIndex((tab) => tab.id === "displacements");
   return after < 0 ? [rows, ...tabs] : [...tabs.slice(0, after + 1), rows, ...tabs.slice(after + 1)];
 }
+
+/** `tabs` with `lead` at the head of the tab `id`, else at the head of the tab `fallback`. */
+export function withLeadIn(tabs: readonly StageTab[], lead: ReactNode, id: string, fallback: string): StageTab[] {
+  const target = tabs.some((tab) => tab.id === id) ? id : fallback;
+  return tabs.map((tab) => (tab.id === target ? { ...tab, content: <>{lead}{tab.content}</> } : tab));
+}

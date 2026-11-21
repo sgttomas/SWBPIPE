@@ -84,7 +84,7 @@ import { displayRoute, sameContractBinding, type RowSemantics } from "./resultRe
 import { isRetainedRoute } from "./numericalResultQuality";
 import { retainedPrecisionStandingParts } from "./retainedPrecisionStanding";
 import { ResultsStageHeader } from "./ResultsStageHeader";
-import { ResultsStageTabs, withRowsTab } from "./ResultsStageTabs";
+import { ResultsStageTabs, withLeadIn, withRowsTab } from "./ResultsStageTabs";
 import { caseNameOf, entityNameOf, nextRowsSort, ResultRowsTable, sortRows, type RowsSort } from "./ResultRowsTable";
 import { recordedTableLabel, type RecordedBinding } from "../../services/recordedPreRtA4";
 
@@ -549,10 +549,9 @@ export function NativeResultsPanel({
           <MechanicsGapLedger gaps={mechanicsGaps()} />
         </>}
       />
-      <SectionBasisHeadlines result={result as never} />
       {stageContent?.governing}
       <ResultsStageTabs
-        tabs={withRowsTab(stageContent?.tabs ?? [], { id: ALL_ROWS_TAB, label: "All rows", content: <>
+        tabs={withLeadIn(withRowsTab(stageContent?.tabs ?? [], { id: ALL_ROWS_TAB, label: "All rows", content: <>
           <ResultControls
             familyCounts={familyCounts}
             familyFilter={familyFilter as never}
@@ -638,7 +637,7 @@ export function NativeResultsPanel({
               </section>
             )) : current?.status === "ready" ? <p className="muted" data-testid="result-filter-empty">No computed preview result rows match this filter.</p> : null}
           </div>
-        </> })}
+        </> }), <SectionBasisHeadlines result={result as never} />, "stress", ALL_ROWS_TAB)}
         current={stageTab}
         onChoose={setStageTab}
       />

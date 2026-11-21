@@ -75,8 +75,18 @@ export function GoverningValuesPanel({ values, onOpenDisplacement, onOpenReactio
           : <ValueButton key={item.column} item={item} testId={`governing-reaction-${item.column}`} onOpen={() => onOpenReaction(item)} />)}
       </Row>
       <Row label="Largest stress" testId="governing-stress">
-        {isAbsent(stresses) ? <Absence text={stresses.absent} testId="governing-stress-absent" />
-          : stresses.map((item) => <ValueButton key={item.groupId} item={item} prefix={stresses.length > 1 ? item.groupLabel : undefined} testId={`governing-stress-${item.groupId}`} onOpen={() => onOpenStress(item, "stress")} />)}
+        {/* The first stress the Stress table ranks; its other kinds are one press away, in that table. */}
+        {isAbsent(stresses) ? <Absence text={stresses.absent} testId="governing-stress-absent" /> : (
+          <>
+            <ValueButton item={stresses[0]} prefix={stresses.length > 1 ? stresses[0].groupLabel : undefined} testId={`governing-stress-${stresses[0].groupId}`} onOpen={() => onOpenStress(stresses[0], "stress")} />
+            {stresses.length > 1 ? (
+              <button type="button" className="governing-more" data-testid="governing-stress-more" onClick={() => onOpenStress(stresses[1], "stress")}
+                title={stresses.slice(1).map((item) => item.groupLabel).join("; ")}>
+                {stresses.length - 1} more in Stress
+              </button>
+            ) : null}
+          </>
+        )}
       </Row>
       <Row label="Largest ratio" testId="governing-ratio">
         {isAbsent(ratios) ? <Absence text={ratios.absent} testId="governing-ratio-absent" />
