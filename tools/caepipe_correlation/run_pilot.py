@@ -886,6 +886,11 @@ def load_benchmark(manifest_path: Path, selected: list[str] | None = None,
                 document = benchmark_models.series_document(document, series)
                 if document["run_id"] != declared[series].get("run_id"):
                     raise ValueError(f"{manifest_path.name}: {model_id} names another run id for {series}")
+                # A window run's instruction as the manifest declares it is the run's, text and digest.
+                if (document.get("window_instruction") or declared[series].get("window_instruction")) and (
+                        document.get("window_instruction") != declared[series].get("window_instruction")):
+                    raise ValueError(f"{manifest_path.name}: {model_id}'s {series} run declares another window "
+                                     "instruction than the run's")
         models[model_id] = document
     if selected:
         unknown = sorted(set(selected) - set(models))
@@ -1625,16 +1630,19 @@ def window_main(models: list[Mapping[str, Any]], config: HarnessConfig, *, runne
     results = []
     for entry in windows:
         run_id = benchmark_run_id(entry)
-        paths = case_paths(config, run_id)
+        declaration = declarations.get(entry["model_id"])
 
-        def solve(document: Mapping[str, Any], paths=paths) -> tuple[Any, str, dict[str, Any]]:
+        def solve(document: Mapping[str, Any], run_id=run_id) -> tuple[Any, str, dict[str, Any]]:
+            # The case folders are made only here, once a capture has passed every check: a refusal writes nothing.
+            paths = case_paths(config, run_id)
             _, output, error, made = _solve_benchmark(root, paths, document, runner)
             return (output or {}).get("payload") if output is not None else None, error, made
 
         captures = []
         if folder is not None:
             try:
-                capture_id, record = window_capture.store_capture(entry, root, folder, identity=_source_identity())
+                capture_id, record = window_capture.store_capture(entry, root, folder, identity=_source_identity(),
+                                                                  declaration=declaration)
             except window_capture.CaptureRefused as refused:
                 emit(f"{run_id}: route={refused.route}; {refused.reason}; nothing stored")
                 results.append(False)
@@ -1651,7 +1659,7 @@ def window_main(models: list[Mapping[str, Any]], config: HarnessConfig, *, runne
             try:
                 path, comparison = window_capture.compare_capture(
                     entry, root, capture_id, solve=solve, write=lambda target, value: _create_private_json(
-                        root, target, value), declaration=declarations.get(entry["model_id"]),
+                        root, target, value), declaration=declaration,
                     identity=_source_identity())
             except window_capture.CaptureRefused as refused:
                 emit(f"{run_id}: capture {capture_id}: route={refused.route}; {refused.reason}; no comparison")

@@ -83,7 +83,8 @@ IDENTITY = {"source_commit": "0" * 40, "source_tree_clean": True}
 
 def stored(tmp_path: Path, entry: dict, **folder) -> tuple[Path, str, dict]:
     root = fake_config(tmp_path).exchange_root
-    capture_id, record = wc.store_capture(entry, root, capture_folder(tmp_path, entry, **folder), identity=IDENTITY)
+    capture_id, record = wc.store_capture(entry, root, capture_folder(tmp_path, entry, **folder), identity=IDENTITY,
+                                          declaration=declared(entry))
     return root, capture_id, record
 
 
@@ -93,7 +94,8 @@ def test_a_capture_is_stored_whole_by_content_once_and_its_folder_is_never_chang
     folder = capture_folder(tmp_path, entry, extra={"screen-1.png": b"INVENTED IMAGE",
                                                     f"{entry['run_id']}.res": b"INVENTED RESULT FILE"})
     before = tree(folder)
-    capture_id, record = wc.store_capture(entry, root, folder, identity=IDENTITY)
+    capture_id, record = wc.store_capture(entry, root, folder, identity=IDENTITY,
+                                          declaration=declared(entry))
     assert tree(folder) == before  # copied, never moved or changed
     names = wc._names(entry)
     printed = (folder / names["print"]).read_bytes()
@@ -111,11 +113,13 @@ def test_a_capture_is_stored_whole_by_content_once_and_its_folder_is_never_chang
     assert [item["title"] for item in record["parse"]["sections_not_read"]] == [
         "Invented unread section: Sustained (W+P)"]
     with pytest.raises(wc.CaptureRefused) as again:
-        wc.store_capture(entry, root, folder, identity=IDENTITY)
+        wc.store_capture(entry, root, folder, identity=IDENTITY,
+                         declaration=declared(entry))
     assert again.value.route == "capture_stored"
     # A different print of the same run is a second capture beside the first.
     (folder / names["print"]).write_text(invented_print() + "\r\n", encoding="utf-8")
-    second, _ = wc.store_capture(entry, root, folder, identity=IDENTITY)
+    second, _ = wc.store_capture(entry, root, folder, identity=IDENTITY,
+                                 declaration=declared(entry))
     assert second != capture_id and wc.stored_captures(root, entry["run_id"]) == sorted([capture_id, second])
     assert not [path.name for path in stored_dir.parent.iterdir() if path.name.startswith(wc.INCOMING)]
 
@@ -155,7 +159,8 @@ def test_a_capture_is_refused_before_anything_is_written(tmp_path, change, route
         folder = tmp_path / "linked-folder"
     before = tree(root)
     with pytest.raises(wc.CaptureRefused) as refused:
-        wc.store_capture(entry, root, folder, identity=IDENTITY)
+        wc.store_capture(entry, root, folder, identity=IDENTITY,
+                         declaration=declared(entry))
     assert refused.value.route == route and tree(root) == before
     if change == "mbf":
         assert hashlib.sha256(b"AN OLDER FILE\r\n").hexdigest() in refused.value.reason
@@ -175,7 +180,8 @@ def test_an_interrupted_store_is_never_listed_and_never_bars_a_retry(tmp_path, m
         return real(descriptor, *args, **kwargs)
     monkeypatch.setattr(wc.os, "fdopen", interrupted)
     with pytest.raises(OSError):
-        wc.store_capture(entry, root, folder, identity=IDENTITY)
+        wc.store_capture(entry, root, folder, identity=IDENTITY,
+                         declaration=declared(entry))
     monkeypatch.undo()
     assert wc.stored_captures(root, entry["run_id"]) == []
     window = root.resolve() / "cases" / entry["run_id"] / "caepipe_out" / "window"
@@ -183,7 +189,8 @@ def test_an_interrupted_store_is_never_listed_and_never_bars_a_retry(tmp_path, m
     # A partial directory left by a process that died is not listed either, and the retry stores the capture.
     (window / f"{wc.INCOMING}abandoned").mkdir()
     ((window / f"{wc.INCOMING}abandoned") / "partial.csv").write_bytes(b"PARTIAL")
-    capture_id, _ = wc.store_capture(entry, root, folder, identity=IDENTITY)
+    capture_id, _ = wc.store_capture(entry, root, folder, identity=IDENTITY,
+                                     declaration=declared(entry))
     assert wc.stored_captures(root, entry["run_id"]) == [capture_id]
 
 
@@ -191,7 +198,8 @@ def test_a_store_that_loses_a_race_or_meets_another_print_under_its_id_is_refuse
     entry = run_entry()
     root = fake_config(tmp_path).exchange_root
     folder = capture_folder(tmp_path, entry)
-    first, _ = wc.store_capture(entry, root, folder, identity=IDENTITY)
+    first, _ = wc.store_capture(entry, root, folder, identity=IDENTITY,
+                                declaration=declared(entry))
     target = wc.capture_dir(root.resolve(), entry["run_id"], first)
     # Another print whose digest begins with the same 12 hex digits (the stored record edited to say so).
     record = json.loads((target / wc.WINDOW_RECORD).read_text())
@@ -199,7 +207,8 @@ def test_a_store_that_loses_a_race_or_meets_another_print_under_its_id_is_refuse
     os.chmod(target / wc.WINDOW_RECORD, 0o600)
     (target / wc.WINDOW_RECORD).write_text(json.dumps(record))
     with pytest.raises(wc.CaptureRefused) as collided:
-        wc.store_capture(entry, root, folder, identity=IDENTITY)
+        wc.store_capture(entry, root, folder, identity=IDENTITY,
+                         declaration=declared(entry))
     assert collided.value.route == "capture_id_collision" and first + "f" * 52 in collided.value.reason
     # A concurrent store of the same print that lands first: this one ends in the named refusal, nothing replaced.
     other = tmp_path / "other"
@@ -215,7 +224,8 @@ def test_a_store_that_loses_a_race_or_meets_another_print_under_its_id_is_refuse
         return real(source, destination)
     monkeypatch.setattr(wc.os, "rename", raced)
     with pytest.raises(wc.CaptureRefused) as lost:
-        wc.store_capture(entry, root, folder2, identity=IDENTITY)
+        wc.store_capture(entry, root, folder2, identity=IDENTITY,
+                         declaration=declared(entry))
     assert lost.value.route == "capture_stored"
     assert not [path.name for path in target.parent.iterdir() if path.name.startswith(wc.INCOMING)]
 
@@ -223,7 +233,7 @@ def test_a_store_that_loses_a_race_or_meets_another_print_under_its_id_is_refuse
 def test_a_batch_run_is_not_a_window_run(tmp_path):
     [entry] = run_pilot.load_benchmark(MANIFEST, ["cpb-g1-01"])
     with pytest.raises(wc.CaptureRefused) as refused:
-        wc.store_capture(entry, fake_config(tmp_path).exchange_root, tmp_path, identity=IDENTITY)
+        wc.store_capture(entry, fake_config(tmp_path).exchange_root, tmp_path, identity=IDENTITY, declaration=None)
     assert refused.value.route == "not_a_window_run"
 
 
@@ -463,6 +473,143 @@ def test_the_unread_member_text_cites_no_page_outside_its_register_boundary():
                                              "nonlinear member entered at the window")
 
 
+@pytest.mark.parametrize("stale, route", [("mbf", "pack_file_differs"), ("instruction_text", "instruction_differs"),
+                                          ("instruction_sha", "instruction_differs")])
+def test_a_stale_manifest_declaration_is_refused_in_store_and_in_replay(tmp_path, stale, route):
+    """The run and the writer agree; only the selected manifest run declaration is stale. Neither the store nor the
+    replay passes over it."""
+    entry = run_entry()
+    good = declared(entry)
+    bad = json.loads(json.dumps(good))
+    if stale == "mbf":
+        bad["mbf"]["sha256"] = "0" * 64
+    elif stale == "instruction_text":
+        bad["window_instruction"]["text"] += "\nAn invented later step."
+    else:
+        bad["window_instruction"]["sha256"] = "0" * 64
+    root = fake_config(tmp_path).exchange_root
+    before = tree(root)
+    with pytest.raises(wc.CaptureRefused) as refused:
+        wc.store_capture(entry, root, capture_folder(tmp_path, entry), identity=IDENTITY, declaration=bad)
+    assert refused.value.route == route and tree(root) == before
+    (tmp_path / "again").mkdir()
+    root, capture_id, _ = stored(tmp_path / "again", entry)
+    with pytest.raises(wc.CaptureRefused) as refused:
+        wc.compare_capture(entry, root, capture_id, solve=never_solved, write=never_written, declaration=bad)
+    assert refused.value.route == route
+
+
+def test_a_manifest_whose_window_instruction_is_not_the_runs_is_refused_at_load(monkeypatch):
+    real = run_pilot.benchmark_models.series_document
+
+    def drifted(document, series):
+        out = real(document, series)
+        if out.get("window_instruction"):
+            text = out["window_instruction"]["text"] + "\nAn invented later step."
+            out["window_instruction"] = {"text": text, "sha256": hashlib.sha256(text.encode("utf-8")).hexdigest()}
+        return out
+    monkeypatch.setattr(run_pilot.benchmark_models, "series_document", drifted)
+    with pytest.raises(ValueError, match="window instruction"):
+        run_pilot.load_benchmark(MANIFEST, ["cpb-n-04"], HAND)
+
+
+def test_a_capture_the_command_refuses_makes_no_case_folder(tmp_path, monkeypatch, capsys):
+    entry = run_entry()
+    config = fake_config(tmp_path)
+    monkeypatch.setattr(run_pilot, "resolve_harness_config", lambda environ, require_vm_tools: config)
+    monkeypatch.setattr(run_pilot, "solve_swbpipe", lambda runner, case: pytest.fail("solved"))
+    runner = tmp_path / "runner"
+    runner.write_text("invented", encoding="utf-8")
+    folder = capture_folder(tmp_path, entry)
+    (folder / wc._names(entry)["saved_model"]).unlink()
+    argv = ["--benchmark", str(MANIFEST), "--series", HAND, "--case", "cpb-n-04", "--runner", str(runner)]
+    assert run_pilot.main(argv + ["--window-capture", str(folder)], environ={}) == 1
+    assert "route=capture_incomplete" in capsys.readouterr().out
+    assert not (config.exchange_root.resolve() / "cases" / entry["run_id"]).exists()
+
+
+def static_classes(value):
+    def alter(entry):
+        if value == "absent":
+            return {key: item for key, item in entry.items() if key != "screening_classes"}
+        static = {**entry["screening_classes"]["static"], "operating": value}
+        return {**entry, "screening_classes": {**entry["screening_classes"], "static": static}}
+    return alter
+
+
+@pytest.mark.parametrize("value", ["absent", None, ["nonlinear"], "linear"])
+def test_a_window_case_without_a_valid_declared_static_class_is_refused_before_solving(tmp_path, value):
+    entry = static_classes(value)(run_entry())
+    root, capture_id, _ = stored(tmp_path, entry)
+    with pytest.raises(wc.CaptureRefused) as refused:
+        wc.compare_capture(entry, root, capture_id, solve=never_solved, write=never_written,
+                           declaration=declared(entry))
+    assert refused.value.route == "class_not_declared"
+
+
+@pytest.mark.parametrize("value", [None, ["nonlinear"]])
+def test_the_record_refuses_a_declared_class_that_is_not_a_static_class_name(tmp_path, monkeypatch, value):
+    """Past the command's own check (removed here): a declared class of None or of another type is refused by the
+    record itself, never replaced by a derived class."""
+    monkeypatch.setattr(wc, "compared_cases", lambda mbf: [])
+    with pytest.raises(ValueError, match="operating"):
+        mirror_compare(tmp_path, "cpb-n-04", alter=static_classes(value))
+
+
+@pytest.mark.parametrize("change", ["saved_model_name", "saved_model_role", "run_line_missing", "run_line_text",
+                                    "parse", "checkout"])
+def test_a_window_record_without_its_saved_model_run_line_parse_or_checkout_is_refused(tmp_path, change):
+    entry = run_entry()
+    root, capture_id, record = stored(tmp_path, entry)
+    target = wc.capture_dir(root.resolve(), entry["run_id"], capture_id)
+    names = wc._names(entry)
+    if change == "saved_model_name":
+        record["saved_model"] = "another.mod"
+    elif change == "saved_model_role":
+        record["files"][names["saved_model"]]["role"] = wc.KEPT_NOT_EXAMINED
+    elif change == "run_line_missing":
+        del record["files"][names["run_line"]]
+    elif change == "run_line_text":
+        record["run_line_text"] = None
+    else:
+        record[change] = [change]
+    rewrite_record(target, record)
+    with pytest.raises(wc.CaptureRefused) as refused:
+        wc.compare_capture(entry, root, capture_id, solve=never_solved, write=never_written,
+                           declaration=declared(entry))
+    assert refused.value.route == "no_window_record"
+
+
+@pytest.mark.parametrize("name", ["../outside.csv", "sub/print.csv", "sub\\print.csv", "print\0.csv", ".", "..",
+                                  wc.WINDOW_RECORD])
+def test_a_declared_capture_file_name_that_is_not_a_single_name_is_refused_before_opening(tmp_path, name):
+    entry = run_entry()
+    root, capture_id, _ = stored(tmp_path, entry)
+    run = {**entry["hand_entry"]["run"], "expected_print_file": name}
+    renamed = {**entry, "hand_entry": {**entry["hand_entry"], "run": run}}
+    with pytest.raises(wc.CaptureRefused) as refused:
+        wc.compare_capture(renamed, root, capture_id, solve=never_solved, write=never_written,
+                           declaration=declared(entry))
+    assert refused.value.route == "capture_name_refused"
+    (tmp_path / "again").mkdir()
+    with pytest.raises(wc.CaptureRefused) as refused:
+        wc.store_capture(renamed, root, capture_folder(tmp_path / "again", entry), identity=IDENTITY,
+                         declaration=declared(entry))
+    assert refused.value.route == "capture_name_refused"
+
+
+def test_a_file_read_from_an_open_directory_is_a_single_name_never_a_path(tmp_path):
+    (tmp_path / "inner").mkdir()
+    (tmp_path / "secret.txt").write_bytes(b"OUTSIDE")
+    descriptor = os.open(tmp_path / "inner", os.O_RDONLY | os.O_DIRECTORY)
+    try:
+        for name in ("../secret.txt", "..", ""):
+            with pytest.raises(wc.CaptureRefused):
+                wc._read_regular(descriptor, name, "invented_route")
+    finally:
+        os.close(descriptor)
+
+
 def mirror_compare(tmp_path: Path, model_id: str, monkeypatch=None, *, raising_bases: bool = False, alter=None):
     entry = run_entry(model_id)
     if alter is not None:
@@ -471,7 +618,8 @@ def mirror_compare(tmp_path: Path, model_id: str, monkeypatch=None, *, raising_b
     model = benchmark_hand_entry.hand_entry_model(entry)
     payload = solve(model)
     _, text = mirror_csv(entry, payload)
-    capture_id, _ = wc.store_capture(entry, root, capture_folder(tmp_path, entry, print_text=text), identity=IDENTITY)
+    capture_id, _ = wc.store_capture(entry, root, capture_folder(tmp_path, entry, print_text=text), identity=IDENTITY,
+                                     declaration=declared(entry))
     written, solved = {}, []
 
     def fake_solve(document):

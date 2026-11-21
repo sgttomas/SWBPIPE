@@ -553,11 +553,12 @@ def build_benchmark_record(benchmark_model: Mapping[str, Any], *, swbpipe_result
     model's closed form for it, where one is declared, beside SWBPIPE's value.
 
     `declared_classes` ({case: class}) are the screening classes a run declares (a window comparison), used in place
-    of the class derived from the case's inexact inputs; every compared case must have one (ValueError otherwise,
-    never a derived class in its place). A nonlinear case requires its support status to match
-    exactly, and `expected_support_states` ({support: {case: state}}) are the states declared for it. The match is
-    recorded per case and per support, as not available where the printed state is not read, never as matching; a
-    nonlinear case with no declared state has one unmatched support-state row saying so (SUPPORT_STATE_NOT_DECLARED)."""
+    of the class derived from the case's inexact inputs; every compared case must have one, a string naming a static
+    class of the screening profile (ValueError otherwise, never a derived class in its place). A nonlinear case
+    requires its support status to match exactly, and `expected_support_states` ({support: {case: state}}) are the
+    states declared for it. The match is recorded per case and per support, as not available where the printed state
+    is not read, never as matching; a nonlinear case with no declared state has one unmatched support-state row saying
+    so (SUPPORT_STATE_NOT_DECLARED)."""
     mbf = mbf_result.to_dict() if hasattr(mbf_result, "to_dict") else dict(mbf_result)
     envelope = swbpipe_result_payload.get("mechanics_envelope", swbpipe_result_payload)
     results = list(envelope.get("results") or [])
@@ -581,21 +582,20 @@ def build_benchmark_record(benchmark_model: Mapping[str, Any], *, swbpipe_result
     expected = _expected_keys(mbf)
 
     if declared_classes is not None:
-        undeclared = [case for case, _, _ in compared if case not in declared_classes]
+        static = SCREENING_PROFILE["relative"]
+        undeclared = [case for case, _, _ in compared
+                      if not (isinstance(declared_classes.get(case), str) and declared_classes[case] in static)]
         if undeclared:
-            raise ValueError(f"the run declares screening classes but none for {', '.join(undeclared)}; a declared "
-                             "comparison never screens a case under a derived class in its place")
+            raise ValueError(f"the run declares no valid static screening class for {', '.join(undeclared)}; a "
+                             "declared comparison never screens a case under a derived class in its place")
     cases_out, rows, unbound_rows, bindings = [], [], [], {}
     not_compared: dict[str, int] = {}                 # expected quantities of a case that is not compared
     digit_witness_by_case: dict[str, dict[str, int]] = {}
     for case_name, swbpipe_cases, label in compared:
         inputs = list(inexact.get(case_name) or [])
-        cls = screening_class(inputs)
-        declared_class = (declared_classes or {}).get(case_name)
-        if declared_class is not None:
-            if declared_class not in SCREENING_PROFILE["relative"]:
-                raise ValueError(f"{case_name}: declared screening class {declared_class!r} is not a static class")
-            cls = declared_class
+        # Batch derivation without declared classes; with them, only the case's declared class (checked above).
+        declared_class = declared_classes[case_name] if declared_classes is not None else None
+        cls = declared_class if declared_class is not None else screening_class(inputs)
         status = {"case": case_name, "swbpipe_cases": swbpipe_cases, "caepipe_load_case": label,
                   "screening_class": cls, "inexact_inputs": inputs,
                   **({"screening_class_basis": "declared by the run"} if declared_class is not None else {}),

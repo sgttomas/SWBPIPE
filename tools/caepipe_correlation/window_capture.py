@@ -50,7 +50,7 @@ from pathlib import Path
 from typing import Any, Callable, Mapping
 
 from core.handoff.caepipe_external import parse_caepipe_print_bytes
-from core.handoff.caepipe_external.benchmark import build_benchmark_record, compared_cases
+from core.handoff.caepipe_external.benchmark import SCREENING_PROFILE, build_benchmark_record, compared_cases
 from core.handoff.caepipe_external.harness import ContainmentError, contained, contained_dir
 from core.handoff.caepipe_mbf import render_caepipe_mbf_si
 from tools.caepipe_correlation import benchmark_hand_entry, benchmark_models, stated_bases
@@ -114,13 +114,46 @@ def run_mbf(entry: Mapping[str, Any]) -> tuple[Any, str]:
     return mbf, benchmark_models.run_mbf_text(entry, mbf.text)
 
 
+def _basename(name: Any) -> bool:
+    """Whether `name` is one non-empty file name: no path separator, no NUL, not `.` or `..`."""
+    return (isinstance(name, str) and name not in ("", ".", "..")
+            and not any(character in name for character in ("/", "\\", "\0")))
+
+
 def _names(entry: Mapping[str, Any]) -> dict[str, str]:
+    """The run's capture file names by role, each a single file name other than the window record's (refused by name
+    otherwise, before any file is opened)."""
     run = (entry.get("hand_entry") or {}).get("run") or {}
     run_id = entry["run_id"]
-    return {"print": run.get("expected_print_file") or f"{run_id}.print.csv",
-            "saved_model": run.get("expected_saved_file") or f"{run_id}.mod",
-            "run_line": RUN_LINE, "imported_mbf": f"{run_id}.mbf",
-            "instruction": f"{run_id}.window-instruction.txt"}
+    names = {"print": run.get("expected_print_file") or f"{run_id}.print.csv",
+             "saved_model": run.get("expected_saved_file") or f"{run_id}.mod",
+             "run_line": RUN_LINE, "imported_mbf": f"{run_id}.mbf",
+             "instruction": f"{run_id}.window-instruction.txt"}
+    for role, name in names.items():
+        if not _basename(name) or name == WINDOW_RECORD:
+            raise CaptureRefused("capture_name_refused", f"the run's {role} file name {name!r} is not a single file "
+                                                         f"name other than {WINDOW_RECORD}")
+    return names
+
+
+def check_declaration(entry: Mapping[str, Any], declaration: Mapping[str, Any] | None, writer_sha: str) -> None:
+    """The selected manifest run declaration against the run as loaded and the writer's file now: its window
+    instruction (text and digest) must be the run's, and its MBF digest the writer's. A stale digest in the manifest
+    alone is refused, never passed over."""
+    if declaration is None:
+        raise CaptureRefused("not_declared", f"{entry.get('run_id')} has no run declaration in the manifest")
+    declared = declaration.get("window_instruction")
+    instruction = entry.get("window_instruction")
+    if not (isinstance(declared, Mapping) and isinstance(instruction, Mapping)
+            and declared.get("text") == instruction.get("text")
+            and declared.get("sha256") == instruction.get("sha256")):
+        raise CaptureRefused("instruction_differs", "the manifest's run declaration states another window "
+                                                    "instruction than the run's")
+    mbf = declaration.get("mbf")
+    declared_mbf = mbf.get("sha256") if isinstance(mbf, Mapping) else None
+    if declared_mbf != writer_sha:
+        raise CaptureRefused("pack_file_differs", f"the manifest's run declaration states the MBF SHA-256 "
+                                                  f"{declared_mbf}; the writer's file for this run is {writer_sha}")
 
 
 def checkout(identity: Mapping[str, Any]) -> dict[str, Any]:
@@ -156,7 +189,10 @@ def capture_dir(root: Path, run_id: str, capture_id: str) -> Path:
 
 
 def _read_regular(dir_fd: int, name: str, route: str) -> bytes:
-    """A regular file in an open directory, opened without following a link and checked on the open file."""
+    """A regular file in an open directory, opened without following a link and checked on the open file. Only a
+    single file name is opened: never a path."""
+    if not _basename(name):
+        raise CaptureRefused(route, f"{name!r} is not a single file name; nothing outside the directory is opened")
     try:
         descriptor = os.open(name, os.O_RDONLY | os.O_NOFOLLOW | os.O_NONBLOCK, dir_fd=dir_fd)
     except OSError as error:
@@ -221,22 +257,24 @@ def _already_stored(root: Path, target: Path, run_id: str, capture_id: str, prin
                                                   f"is {print_sha}); nothing is written")
 
 
-def store_capture(entry: Mapping[str, Any], root: Path, folder: Path, *,
-                  identity: Mapping[str, Any]) -> tuple[str, dict[str, Any]]:
+def store_capture(entry: Mapping[str, Any], root: Path, folder: Path, *, identity: Mapping[str, Any],
+                  declaration: Mapping[str, Any] | None) -> tuple[str, dict[str, Any]]:
     """Store one capture folder of a window run; (capture id, record). Refuses (CaptureRefused) before anything is
     written unless the run is declared with a window instruction, the folder holds the required files as regular
-    files, its imported MBF is the writer's file in this checkout and its instruction is the manifest's."""
+    files, its imported MBF is the writer's file in this checkout and its instruction is the manifest's, with the
+    selected manifest run `declaration` stating that same instruction and file (check_declaration)."""
     if not is_window_run(entry):
         raise CaptureRefused("not_a_window_run", f"{entry.get('run_id') or entry.get('model_id')} is not declared "
                                                  "with a window instruction")
     root = Path(root).resolve()
-    files = _read_folder(Path(folder))
     names = _names(entry)
+    _, mbf_text = run_mbf(entry)
+    writer_sha = _sha256(mbf_text.encode("utf-8"))
+    check_declaration(entry, declaration, writer_sha)
+    files = _read_folder(Path(folder))
     missing = [names[role] for role in REQUIRED if names[role] not in files]
     if missing:
         raise CaptureRefused("capture_incomplete", f"the folder lacks {', '.join(missing)}")
-    _, mbf_text = run_mbf(entry)
-    writer_sha = _sha256(mbf_text.encode("utf-8"))
     imported_sha = _sha256(files[names["imported_mbf"]])
     if imported_sha != writer_sha:
         raise CaptureRefused("pack_file_differs", f"the imported file's SHA-256 is {imported_sha}; the writer's file "
@@ -380,8 +418,9 @@ def unread_members(entry: Mapping[str, Any]) -> dict[str, str]:
 
 def _record_files(record: Mapping[str, Any], names: Mapping[str, str]) -> dict[str, dict[str, Any]]:
     """The record's files, each a digest, a size and a role, checked to agree with the record's own fields: the
-    print, instruction and imported MBF are this run's files under their roles, and the instruction's and MBF's
-    digests are the ones the record states at its top level. Anything else is not a window record of this run."""
+    print, instruction, imported MBF, saved model and run line are this run's files under their roles, the
+    instruction's and MBF's digests are the ones the record states at its top level, the run line's text is held, and
+    the parse status and checkout are records. Anything else is not a window record of this run."""
     files = record.get("files")
     if not isinstance(files, Mapping) or not all(
             isinstance(name, str) and isinstance(item, Mapping) and isinstance(item.get("sha256"), str)
@@ -396,6 +435,17 @@ def _record_files(record: Mapping[str, Any], names: Mapping[str, str]) -> dict[s
         if files[names[role]]["sha256"] != record.get(field):
             raise CaptureRefused("no_window_record", f"the record's {field} is not the digest it lists for "
                                                      f"{names[role]}")
+    # The saved model and the run line are kept, not examined: listed under their roles, never hashed again here.
+    if record.get("saved_model") != names["saved_model"] or names["saved_model"] not in files \
+            or files[names["saved_model"]]["role"] != "saved_model":
+        raise CaptureRefused("no_window_record", f"the record does not name this run's saved model "
+                                                 f"{names['saved_model']}")
+    if names["run_line"] not in files or files[names["run_line"]]["role"] != "run_line" \
+            or not isinstance(record.get("run_line_text"), str):
+        raise CaptureRefused("no_window_record", f"the record does not hold this run's {names['run_line']}")
+    for field in ("parse", "checkout"):
+        if not isinstance(record.get(field), Mapping):
+            raise CaptureRefused("no_window_record", f"the window record's {field} is not a record")
     return {str(name): dict(item) for name, item in files.items()}
 
 
@@ -408,13 +458,14 @@ def compare_capture(entry: Mapping[str, Any], root: Path, capture_id: str, *,
     `solve(document)` solves SWBPIPE's side in a new solve folder: (payload or None, error, solve record);
     `write(path, value)` creates a file, never replacing one. `declaration` is the run's manifest declaration.
 
-    Refuses (CaptureRefused), with nothing solved or written: a run that is not a window run, or whose instruction text
-    is not its declared digest; a run the declaration does not let be compared, or that leaves a compared case without
-    a declared class; a capture whose record is not this run's (its files each a digest and a role, agreeing with its
-    own fields); whose print is not the one its capture id names; whose stored files no longer have the record's
-    digests; whose print does not parse (when stored or now); whose stored instruction or file differs from the run's
-    now. The plain comparison is written first; the stated bases are then written beside it (STATED_BASES_RECORD) and
-    never cost it."""
+    Refuses (CaptureRefused), with nothing solved or written: a run that is not a window run, whose instruction text
+    is not its declared digest, or whose capture file names are not single file names; a run the declaration does not
+    let be compared, that states another instruction or MBF digest than the run's (check_declaration), or that does
+    not declare a static screening class for every compared case; a capture whose record is not this run's (its files
+    each a digest and a role, agreeing with its own fields, and its parse status and checkout records); whose print is
+    not the one its capture id names; whose stored files no longer have the record's digests; whose print does not
+    parse (when stored or now); whose stored instruction or file differs from the run's now. The plain comparison is
+    written first; the stated bases are then written beside it (STATED_BASES_RECORD) and never cost it."""
     root = Path(root).resolve()
     if not is_window_run(entry):
         raise CaptureRefused("not_a_window_run", f"{entry.get('run_id') or entry.get('model_id')} is not declared "
@@ -434,10 +485,10 @@ def compare_capture(entry: Mapping[str, Any], root: Path, capture_id: str, *,
     names = _names(entry)
     dir_fd, record = _stored(root, entry["run_id"], capture_id)
     try:
-        if (record.get("parse") or {}).get("status") != "parsed":
-            raise CaptureRefused("print_not_parsed", f"the print did not parse when stored: "
-                                                     f"{(record.get('parse') or {}).get('reason')}")
         files = _record_files(record, names)
+        if record["parse"].get("status") != "parsed":
+            raise CaptureRefused("print_not_parsed", f"the print did not parse when stored: "
+                                                     f"{record['parse'].get('reason')}")
         stored = {role: _read_regular(dir_fd, names[role], "stored_file_changed")
                   for role in ("print", "instruction", "imported_mbf")}
     finally:
@@ -461,12 +512,17 @@ def compare_capture(entry: Mapping[str, Any], root: Path, capture_id: str, *,
     stored_mbf = _sha256(stored["imported_mbf"])
     if stored_mbf != writer_sha:
         raise CaptureRefused("pack_file_differs", f"the capture was made from a file of SHA-256 {stored_mbf} "
-                                                  f"({(record.get('checkout') or {}).get('writer_file')}); the "
+                                                  f"({record['checkout'].get('writer_file')}); the "
                                                   f"writer's file for this run now is {writer_sha}")
+    check_declaration(entry, declaration, writer_sha)
     classes = declared_classes(entry)
-    undeclared = [case for case in compared_cases(mbf) if classes is not None and case not in classes]
+    if classes is None:
+        raise CaptureRefused("class_not_declared", "the run declares no static screening classes; a window "
+                                                   "comparison screens only under declared classes")
+    undeclared = [case for case in compared_cases(mbf) if not (
+        isinstance(classes.get(case), str) and classes[case] in SCREENING_PROFILE["relative"])]
     if undeclared:
-        raise CaptureRefused("class_not_declared", f"the run declares screening classes but none for "
+        raise CaptureRefused("class_not_declared", f"the run declares no valid static screening class for "
                                                    f"{', '.join(undeclared)}; no case is screened under a derived "
                                                    "class in its place")
     status, parsed = parse_status(stored["print"])
@@ -493,7 +549,7 @@ def compare_capture(entry: Mapping[str, Any], root: Path, capture_id: str, *,
         "members_not_compared": unread,
         "kept_not_examined": sorted(name for name, item in files.items()
                                     if item["role"] in (KEPT_NOT_EXAMINED, "saved_model")),
-        "stored_at": record.get("checkout") or record.get("stored_at"),
+        "stored_at": record["checkout"],
         "compared_at": checkout(identity or {}),
         "declaration": {"screened": declaration.get("screened"),
                         "screening_waits_for": declaration.get("screening_waits_for"),
