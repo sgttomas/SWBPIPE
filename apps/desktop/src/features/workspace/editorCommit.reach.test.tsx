@@ -23,7 +23,10 @@ vi.mock("./workspaceSession", async (importOriginal) => {
   return { ...actual, useWorkspaceSession: () => {
     const session = actual.useWorkspaceSession();
     captured.sessions.push(session);
-    // A callback bound as the root will bind one, so the walk also looks for a bound callback.
+    // A callback bound as the root will bind one, so the walk also looks for a bound callback. No editor is wired in
+    // this slice, so these are probes this test binds. When the first editor is wired, this test must capture the
+    // callbacks App itself receives from bindCommit and bindDialog (wrap the binder's two methods here and record
+    // every value they return to App), so the walk looks for the callbacks the application actually holds.
     if (captured.bound.length === 0) {
       captured.bound.push(session.editorBinding.bindCommit({ name: "probe", role: "gui_editor", input: { members: ["value"], check: () => null }, build: () => { throw new Error("never built"); } }));
       const dialog = session.editorBinding.bindDialog({ name: "probe-dialog", role: "gui_editor", input: { members: ["value"], check: () => null }, build: () => { throw new Error("never built"); } });

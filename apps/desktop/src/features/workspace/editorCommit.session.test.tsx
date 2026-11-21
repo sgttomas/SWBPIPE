@@ -117,14 +117,19 @@ function refused<T extends { status: string }>(outcome: T) {
   return outcome as Extract<T, { status: "refused" }>;
 }
 
-/** Everything a commit may change: the model, the history, the receipts and the review queue. */
+/** Everything a commit may change: the model, the history, the receipts, the review queue, the selection, the held
+ * result and the solve job. The held values are compared by identity (they are not copied). */
 function snapshot(result: Session) {
-  const operations = result.current.operations;
-  return structuredClone({
-    model: result.current.model.model, undoStack: operations.undoStack, redoStack: operations.redoStack, batchReceipts: operations.batchReceipts,
-    retainedReviewContext: operations.retainedReviewContext, appliedOperations: operations.appliedOperations, queuedBatches: operations.queuedBatches,
-    editorIntents: operations.editorIntents, batchOutcomes: operations.batchOutcomes, operationOutcomes: operations.operationOutcomes
-  });
+  const operations = result.current.operations, results = result.current.results;
+  return {
+    ...structuredClone({
+      model: result.current.model.model, undoStack: operations.undoStack, redoStack: operations.redoStack, batchReceipts: operations.batchReceipts,
+      retainedReviewContext: operations.retainedReviewContext, appliedOperations: operations.appliedOperations, queuedBatches: operations.queuedBatches,
+      editorIntents: operations.editorIntents, batchOutcomes: operations.batchOutcomes, operationOutcomes: operations.operationOutcomes,
+      selection: result.current.selection.selection, orderedSelection: result.current.selection.orderedSelection, solveJob: results.solveJob
+    }),
+    held: [results.result, results.analysisRun, results.inputManifest, results.ruleCheckAggregate, results.historicalRun]
+  };
 }
 /** The request state a refused call must leave alone (A10). */
 const requestState = (result: Session) => ({ sequence: result.current.operations.operationRequest.current.sequence, busy: result.current.operations.operationBusy });
@@ -173,9 +178,13 @@ describe("form 1: the one-step commit of an immediate edit", () => {
     expect(operations.undoStack[0]).toMatchObject({ operation_id: expect.stringMatching(/^editor-commit-[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}-1$/), submitted_id: operationId, model: original });
     const checkpoint = seen.find((event) => event.type === "checkpoint")!;
     expect(checkpoint).toMatchObject({ operationId: operations.undoStack[0].operation_id, submittedId: operationId });
-    // One decision record (the batch receipt with the engine's acceptance) and one outcome record, as for an applied queued batch.
+    // One decision record, and it is the post-apply one: the batch receipt with the engine's acceptance from apply
+    // mode. No pre-apply record exists for an editor commit: its validate-only reply is checked and discarded, and
+    // nothing is kept among the queue's batch outcomes. One outcome record, as for an applied queued batch.
     expect(operations.batchReceipts).toHaveLength(1);
+    expect(operations.batchReceipts[0].outcome).toMatchObject({ mode: "apply", simulation_disposition: "committed_as_one_batch" });
     expect(operations.batchReceipts[0].outcome.acceptance).not.toBeNull();
+    expect(operations.batchOutcomes).toEqual({});
     expect(operations.batchReceipts[0].batch.operations[0]).toMatchObject({ author_type: "user",
       source: { source_ref: `desktop-editor:gui_editor:${operationId}:1`, source_channel: "local_desktop_preview", source_role: "gui_editor" } });
     expect(operations.appliedOperations).toEqual([expect.objectContaining({ sequence: 1, operation_id: operationId, before: originalHash, after: committedHash, field_path: "batch" })]);
@@ -579,13 +588,19 @@ describe("refusals change nothing", () => {
       ["an incomplete receipt", () => alter("applyOperationBatch", (outcome) => { outcome.acceptance = null; }), "did not return a complete application receipt"]
     ];
     const before = snapshot(result);
+    // Counters: a refusal after the request is taken advances the request sequence by one (taken, released, never
+    // superseding anything, since the request is busy while it runs) and the editor's build sequence (ids only);
+    // it advances no commit number and leaves the request not busy.
     for (const [name, arrange, words] of cases) {
       arrange();
+      const request = requestState(result);
       expect(refused(await run(() => commit(input))).reason, name).toContain(words);
       expect(snapshot(result), name).toEqual(before);
+      expect(requestState(result), name).toEqual({ sequence: request.sequence + 1, busy: false });
       vi.restoreAllMocks();
     }
     committed(await run(() => commit(input)));
+    expect(result.current.operations.undoStack[0].operation_id).toMatch(/-1$/);
   });
 
   it("while another request runs, a call is refused at once and the running one is not disturbed", async () => {
@@ -992,7 +1007,7 @@ describe("DEL-16-06: the binder and the command triggers are out of reach of the
     return /\.(ts|tsx)$/.test(name) && !/\.test\.tsx?$/.test(name) ? [path] : [];
   });
   const files = sources(SOURCE).map((path) => ({ file: relative(SOURCE, path).split("\\").join("/"), text: readFileSync(path, "utf8") }));
-  const REACH = /\b(editorBinding|bindCommit|bindDialog|stampEditorCommit|editorBuilderRefusal|editorInputRefusal|runMenuCommand|runMenuCommandRef|handleToolkitCommand|useSessionOperations|useWorkspaceSessionContext|useWorkspaceSession|handleApplyIntent|handleApplyNextQueuedIntent|handleRunOperationBatch|handleApplyDraftReview|applyOperationBatch|applyModelOperation)\b/;
+  const REACH = /\b(editorBinding|bindCommit|bindDialog|stampEditorCommit|editorBuilderRefusal|ownEditorInput|runMenuCommand|runMenuCommandRef|handleToolkitCommand|useSessionOperations|useSessionChrome|useWorkspaceSessionContext|useWorkspaceSession|handleApplyIntent|handleApplyNextQueuedIntent|handleRunOperationBatch|handleApplyDraftReview|applyOperationBatch|applyModelOperation)\b/;
 
   it("the agent's host is constructed with its five functions only", async () => {
     const result = await session();
@@ -1007,9 +1022,11 @@ describe("DEL-16-06: the binder and the command triggers are out of reach of the
     expect([...declared.matchAll(/^\s*(\w+)\(/gm)].map((match) => match[1]).sort()).toEqual(["proposal", "register", "snapshot", "solve", "withdraw"]);
   });
 
-  it("no source of the agent, its proposals or offline intake names the binder, a command trigger, the session's context hooks or an apply", () => {
-    const reached = files.filter(({ file }) => /^(features\/(embedded-agent|agent-proposals|offline-proposal-intake)\/|services\/embeddedAgent)/.test(file));
-    expect(reached.length).toBeGreaterThan(3);
+  it("no source of the agent, its proposals, offline intake, the library or the model batch file import names the binder, a command trigger, the session's context hooks or an apply", () => {
+    const reached = files.filter(({ file }) => /^(features\/(embedded-agent|agent-proposals|offline-proposal-intake|library|caepipe-mbf)\/|services\/embeddedAgent)/.test(file));
+    for (const folder of ["features/embedded-agent/", "features/agent-proposals/", "features/offline-proposal-intake/", "features/library/", "features/caepipe-mbf/", "services/embeddedAgent"]) {
+      expect(reached.some(({ file }) => file.startsWith(folder)), folder).toBe(true);
+    }
     expect(reached.filter(({ text }) => REACH.test(text)).map(({ file }) => file)).toEqual([]);
   });
 

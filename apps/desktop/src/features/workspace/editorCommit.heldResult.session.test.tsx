@@ -98,3 +98,18 @@ it("a commit with a fresh result held clears the result, its analysis run, its i
   expect(state().model.model!.nodes[1].position.z).toBe(node.position.z + 0.5);
   expect(state().operations.undoStack).toHaveLength(1);
 }, 60_000);
+
+it("a listener's failure after publication, with a fresh result held: the commit is committed with a notice, and every held value is still cleared", async () => {
+  const state = await solvedSession();
+  const held = state().results;
+  expect([held.result, held.analysisRun, held.inputManifest, held.ruleCheckAggregate].map((value) => value !== null)).toEqual([true, true, true, true]);
+  state().operations.sessionEvents.listen((event) => event.type === "checkpoint" ? () => { throw new Error("invented listener failure"); } : undefined);
+  const node = state().model.model!.nodes[1];
+  let outcome: Json;
+  await act(async () => { outcome = await state().editorBinding.bindCommit(coordinate)({ nodeId: node.id, value: String(node.position.z + 0.5) }); });
+  expect(outcome).toMatchObject({ status: "committed", resultsCleared: true });
+  expect(outcome.notice).toContain("invented listener failure");
+  const cleared = state().results;
+  expect([cleared.result, cleared.analysisRun, cleared.inputManifest, cleared.ruleCheckAggregate, cleared.historicalRun]).toEqual([null, null, null, null, null]);
+  expect(state().model.model!.nodes[1].position.z).toBe(node.position.z + 0.5);
+}, 60_000);
