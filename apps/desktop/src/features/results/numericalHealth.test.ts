@@ -250,11 +250,11 @@ describe("numericalHealthView", () => {
       "The solver's checks flagged case as numerically sensitive.",
       "The scaled stiffness is poorly conditioned.",
       "Solving the unchanged model again in the same solver mode gives the same result. A very short or very stiff element next to flexible ones, stiffnesses that differ by many orders of magnitude, or a weakly restrained direction are common causes.",
-      "The values shown come from the producer's recovery of this case, whose own checks found no problem, but SWBPIPE has not verified an error bound for its values. This badge describes the ordinary solve only."
+      "The values shown come from the producer's recovery of this case, which passed its own checks. This badge describes the ordinary solve only."
     ]);
     const notEligible = numericalHealthView(health("pressure_source", false, [healthCase("case", "sensitive")]), { eligible: false, verdictHold: false })!;
     expect(notEligible.cases[0].sentences).toContain("Its values are kept for inspection.");
-    expect(notEligible.cases[0].sentences).not.toContain("The values shown come from the producer's recovery of this case, whose own checks found no problem, but SWBPIPE has not verified an error bound for its values. This badge describes the ordinary solve only.");
+    expect(notEligible.cases[0].sentences).not.toContain("The values shown come from the producer's recovery of this case, which passed its own checks. This badge describes the ordinary solve only.");
     // The generic route's rows carry badges.
     expect(numericalHealthView(health("generic", false, [healthCase("LC1", "checks_passed")]), { eligible: true, verdictHold: false })!.rowBadges).toBe(true);
   });

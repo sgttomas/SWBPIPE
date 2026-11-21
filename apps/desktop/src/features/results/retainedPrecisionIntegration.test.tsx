@@ -1116,8 +1116,8 @@ describe("notices, labels and the results-panel standing text", () => {
     expect(text).toBe(retainedPrecisionStandingText(received));
     expect(text).toContain("receipt validated by the retained-precision reader against the actual invocation");
     // The limitation text names a "sensitive" member recovery check (T4-U5b); the ordinary
-    // numerical_quality status would read "Numerical integrity: sensitive.".
-    expect(text).not.toMatch(/Numerical integrity:|: sensitive\./);
+    // numerical_quality status would read "Numerical health: sensitive.".
+    expect(text).not.toMatch(/Numerical health:|: sensitive\./);
     const absolute = received.results.find(row => retainedRowClasses(received)!.get(row.id)!.class === "absolute_verified" && row.unit === "N")!;
     expect(screen.getByTestId(`result-row-label-${absolute.id}`).textContent).toContain("Uncovered quantity: verified only to an absolute bound");
     expect(screen.getByTestId("results-notice-retained-precision-absolute:case")).toBeTruthy();

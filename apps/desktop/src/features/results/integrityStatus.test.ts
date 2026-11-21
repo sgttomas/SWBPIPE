@@ -29,8 +29,8 @@ describe("standing and results-line words", () => {
     expect(status.standingStatusText("needs_recompute")).toBe("needs_recompute");
     expect(status.numericalQualityStatusText("checks_passed")).toBe("not verified");
     for (const other of ["sensitive", "unresolved", "failed", "not_assessed"]) expect(status.numericalQualityStatusText(other)).toBe(other);
-    expect(status.numericalIntegrityLead({ numerical_quality: { status: "checks_passed" } } as never)).toBe("Numerical integrity: not verified.");
-    expect(status.numericalIntegrityLead({ numerical_quality: { status: "sensitive" } } as never)).toBe("Numerical integrity: sensitive.");
+    expect(status.numericalHealthLead({ numerical_quality: { status: "checks_passed" } } as never)).toBe("Numerical health: not verified.");
+    expect(status.numericalHealthLead({ numerical_quality: { status: "sensitive" } } as never)).toBe("Numerical health: sensitive.");
     expect(status.ordinarySolveLead({ numerical_quality: { status: "checks_passed" } } as never)).toBe("Ordinary solve: not verified.");
   });
 });

@@ -30,7 +30,7 @@ import { useDisplayQuantityResolver, type DisplaySourceQuantity } from "../displ
 import { hangerPreloadStanding } from "./hangerPreload";
 import { knownSemanticNotices, PREVIEW_ALONG_DIRECTION_KIND, resultRowLabel } from "./knownSemanticLimitations";
 import { NUMERICAL_HEALTH_STATE_TEXT } from "./numericalHealthText";
-import { numericalIntegrityLead, ordinarySolveLead, supportStatesByCase, withLimitationsNote } from "./integrityStatus";
+import { numericalHealthLead, ordinarySolveLead, supportStatesByCase, withLimitationsNote } from "./integrityStatus";
 import { numericalHealthView, parseNumericalHealth, rowHealthState, type NumericalHealthLocation, type NumericalHealthView } from "./numericalHealth";
 import { ALL_CASES, isNavigatorExcludedTarget, navigatorKeyStep, stepIndex, type NavigatorAxis, type NavigatorCase } from "./resultsNavigator";
 import { mechanicsGaps } from "./resultInterpretation";
@@ -250,7 +250,7 @@ export function NativeResultsPanel({
     : isRetainedRoute(route) ? retainedPrecisionStandingText(result as never)
     : route === "pressure_source"
       ? `${ordinarySolveLead(result)} Producer recovery receipt: ${String(recovery?.status ?? "unavailable")}. ${withLimitationsNote(result.formulation_basis!.limitations)} Current use is checked separately against the actual invocation and complete result evidence. Numerical checks do not establish engineering correctness.`
-      : `${numericalIntegrityLead(result)} ${withLimitationsNote(result.formulation_basis!.limitations)} Numerical checks do not establish engineering correctness.`);
+      : `${numericalHealthLead(result)} ${withLimitationsNote(result.formulation_basis!.limitations)} Numerical checks do not establish engineering correctness.`);
   const csvRecord = isNativeAnalysisRun(exportAnalysisRun) || exportAnalysisRun === null ? exportAnalysisRun : null;
   const exportGroup = async (title: string): Promise<CsvStreamExport> => {
     // Every row the filters admit in this group, across all pages, by bounded native pages, written
