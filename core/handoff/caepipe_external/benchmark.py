@@ -153,8 +153,55 @@ def _close(a: float, b: float, unit: str) -> bool:
 Key = tuple[str, str, str, str]  # (kind, entity, end or "", component)
 
 
+WALL_AXIAL = "pipe_wall_axial_force_v2"
+EFFECTIVE_AXIAL = "pipe_effective_axial_force_v2"
+# The sign of the end action on the element along its axis at each end (end_i: -N, end_j: +N).
+_END_ACTION_SIGN = {"end_i": -1.0, "end_j": 1.0}
+
+
+def effective_axial_deltas(results: list[Any], case_ids: list[str],
+                           axes: Mapping[tuple[str, str], tuple[float, float, float]],
+                           pressurised: Mapping[str, set[str]]) -> tuple[dict[tuple[str, str, str], tuple[float, ...]],
+                                                                        dict[tuple[str, str], str]]:
+    """The change of each element end force (case, member, end) from the wall binding to the effective binding,
+    s (S - N_w) t, in N along global x, y, z, from SWBPIPE's own rows pipe_wall_axial_force_v2 and
+    pipe_effective_axial_force_v2 at that end; and why a (member, end) of a pressurised member has none. A member that
+    is not pressurised in a case has S = N_w there: no change. A pressurised member's end without both finite rows in
+    N, or without a known axis, has none."""
+    found: dict[tuple[str, str, str, str], list[float]] = {}
+    for row in results:
+        if not isinstance(row, Mapping) or row.get("kind") not in (WALL_AXIAL, EFFECTIVE_AXIAL):
+            continue
+        case = (row.get("basis_ref") or {}).get("ref_id")
+        location = (row.get("metadata") or {}).get("location")
+        value = row.get("value")
+        if case in case_ids and location in _END_ACTION_SIGN:
+            found.setdefault((str(case), str(row.get("entity_ref")), location, row["kind"]), []).append(
+                float(value) if row.get("unit") == "N" and isinstance(value, (int, float))
+                and not isinstance(value, bool) and math.isfinite(value) else math.nan)
+    deltas: dict[tuple[str, str, str], tuple[float, ...]] = {}
+    missing: dict[tuple[str, str], str] = {}
+    for case in case_ids:
+        for member in sorted(pressurised.get(case) or ()):
+            for end, sign in _END_ACTION_SIGN.items():
+                wall = found.get((case, member, end, WALL_AXIAL)) or []
+                effective = found.get((case, member, end, EFFECTIVE_AXIAL)) or []
+                axis = axes.get((member, end))
+                if axis is None:
+                    missing[(member, end)] = "the member's axis at this end is not known"
+                elif len(wall) != 1 or len(effective) != 1 or not all(map(math.isfinite, wall + effective)):
+                    missing[(member, end)] = (f"SWBPIPE's result does not carry one finite {WALL_AXIAL} and one "
+                                              f"{EFFECTIVE_AXIAL} in N at this end in {case}")
+                else:
+                    deltas[(case, member, end)] = tuple(sign * (effective[0] - wall[0]) * c for c in axis)
+    return deltas, missing
+
+
 def swbpipe_values(results: list[Any], case_ids: list[str], support_nodes: Mapping[str, str],
-                   anchor_nodes: set[str] | frozenset[str] = frozenset()) -> tuple[dict[Key, float], set[Key]]:
+                   anchor_nodes: set[str] | frozenset[str] = frozenset(),
+                   end_force_deltas: tuple[Mapping[tuple[str, str, str], tuple[float, ...]],
+                                           Mapping[tuple[str, str], str]] | None = None
+                   ) -> tuple[dict[Key, float], set[Key]]:
     """SWBPIPE's values of the named cases, summed over the cases (one case, or the operating sum), in SI, and the
     keys that cannot be screened: a contribution that is missing from one of the cases, not a finite number in a
     known unit, or a sum that is not finite. Those keys carry no value and are classed unmatched, never screened on
@@ -163,7 +210,11 @@ def swbpipe_values(results: list[Any], case_ids: list[str], support_nodes: Mappi
     Support reactions are summed per CAEPIPE node (`support_nodes`: support id -> node label) because the target
     program prints one row per node; displacements are keyed by SWBPIPE node, element ends by member and end. The
     moment components of supports at a node that is not written as an anchor (`anchor_nodes`) are left out: the
-    printed restraint rows give forces only."""
+    printed restraint rows give forces only.
+
+    With `end_force_deltas` (effective_axial_deltas), each element end force of a pressurised member is taken under the
+    effective binding: its delta is added in each case where it is pressurised, and an end without one is not
+    screenable (invalid)."""
     # Each contribution keeps its own identity (a support's reaction its support id) until it is complete in every
     # case; only then are contributions summed into the compared key.
     Source = tuple[Key, str]
@@ -189,7 +240,15 @@ def swbpipe_values(results: list[Any], case_ids: list[str], support_nodes: Mappi
             location = (row.get("metadata") or {}).get("location")
             component = str((row.get("metadata") or {}).get("component", "")).lower()
             if location in ("end_i", "end_j") and len(component) == 2 and component[1] in _AXES:
-                add(case, (_SWBPIPE_END[kind][0], str(row.get("entity_ref")), location, component[1]), value)
+                key = (_SWBPIPE_END[kind][0], str(row.get("entity_ref")), location, component[1])
+                if end_force_deltas is not None and kind == "element_global_end_force_v1" and value is not None:
+                    deltas, missing = end_force_deltas
+                    delta = deltas.get((case, key[1], location))
+                    if delta is not None:
+                        value = value + delta[_AXES.index(component[1])]
+                    elif (key[1], location) in missing:
+                        value = None
+                add(case, key, value)
         elif kind == _SWBPIPE_SUPPORT:
             component = str((row.get("metadata") or {}).get("component", ""))
             node = support_nodes.get(str(row.get("entity_ref")))
@@ -433,8 +492,15 @@ def _quantity_counts(rows: list[dict[str, Any]], cases: list[str], not_compared:
 
 
 def build_benchmark_record(benchmark_model: Mapping[str, Any], *, swbpipe_result_payload: Mapping[str, Any],
-                           mbf_result: Any, mbf_text: str, parsed_caepipe: Mapping[str, Any] | None) -> dict[str, Any]:
-    """The two-way comparison record of one benchmark model (private)."""
+                           mbf_result: Any, mbf_text: str, parsed_caepipe: Mapping[str, Any] | None,
+                           support_aliases: Mapping[str, str] | None = None,
+                           end_force_binding: Mapping[str, Any] | None = None) -> dict[str, Any]:
+    """The two-way comparison record of one benchmark model (private).
+
+    For a stated basis (tools/caepipe_correlation/stated_bases.py) only: `support_aliases` maps a support id of the
+    solved document to the written support whose node it stands for (an anchor realized as springs), and
+    `end_force_binding` ({"axes", "pressurised"}) takes the element end forces of pressurised members under the
+    effective axial force binding (effective_axial_deltas). Without them the record is the plain comparison."""
     mbf = mbf_result.to_dict() if hasattr(mbf_result, "to_dict") else dict(mbf_result)
     envelope = swbpipe_result_payload.get("mechanics_envelope", swbpipe_result_payload)
     results = list(envelope.get("results") or [])
@@ -445,6 +511,8 @@ def build_benchmark_record(benchmark_model: Mapping[str, Any], *, swbpipe_result
     inexact = benchmark_model.get("inexact_inputs") or {}
     support_nodes = {support: str(entry.get("node")) for support, entry in (mbf.get("support_map") or {}).items()
                      if isinstance(entry, Mapping)}
+    support_nodes.update({alias: support_nodes[original] for alias, original in (support_aliases or {}).items()
+                          if original in support_nodes})
     anchor_nodes = {str(entry.get("node")) for entry in (mbf.get("support_map") or {}).values()
                     if isinstance(entry, Mapping) and entry.get("caepipe_kind") == "anchor"}
     case_map = dict(mbf.get("load_case_map") or {})
@@ -477,7 +545,9 @@ def build_benchmark_record(benchmark_model: Mapping[str, Any], *, swbpipe_result
                          "reason": reason})
             not_compared[case_name] = len(expected)
             continue
-        swb, swb_invalid = swbpipe_values(results, swbpipe_cases, support_nodes, anchor_nodes)
+        deltas = (effective_axial_deltas(results, swbpipe_cases, end_force_binding["axes"],
+                                         end_force_binding["pressurised"]) if end_force_binding is not None else None)
+        swb, swb_invalid = swbpipe_values(results, swbpipe_cases, support_nodes, anchor_nodes, deltas)
         cae, unbound, binding, floors, unresolved, digit_witness, zero_floors = caepipe_values(
             parsed_cases[label], units, mbf, parsed_printed.get(label))
         digit_witness_by_case[case_name] = digit_witness
