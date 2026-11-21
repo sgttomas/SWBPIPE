@@ -60,6 +60,8 @@ import {
 } from "./combinationAuthoring";
 import { SeismicTemplateSection } from "./SeismicTemplateSection";
 import { HydrostaticTestSection, hydrostaticSummary } from "./HydrostaticTestSection";
+import { SeismicSection, WindSection } from "./EquivalentStaticSections";
+import { seismicSummary, windSummary } from "./equivalentStaticIntents";
 import { SEISMIC_TEMPLATE_LABEL, SEISMIC_TEMPLATE_PROVENANCE } from "./seismicTemplate";
 import { isLoadStateModel } from "./loadStateAuthoring";
 import { CaseSectionList, CreateForm, More, basisLabel, categoryLabel, directionLabel, plural, shortRef, type CaseSection } from "./LoadsPageParts";
@@ -1122,6 +1124,24 @@ export function LoadCaseManagerPanel({
       hasContent: (selectedLoadCase.pressure_regions?.length ?? 0) > 0,
       render: () => (
         <PressureRegionsEditor model={model} selection={selection} queuedIntents={queuedIntents} operationBusy={operationBusy} preparationEpoch={preparationEpoch} getPreparationEpoch={getPreparationEpoch} onQueueIntent={onQueueIntent} loadCase={selectedLoadCase} />
+      )
+    },
+    {
+      id: "wind",
+      title: "Wind",
+      summary: windSummary(selectedLoadCase.equivalent_static),
+      hasContent: selectedLoadCase.equivalent_static?.wind !== undefined,
+      render: () => (
+        <WindSection model={model} queuedIntents={queuedIntents} operationBusy={operationBusy} preparationEpoch={preparationEpoch} getPreparationEpoch={getPreparationEpoch} onQueueIntent={onQueueIntent} loadCase={selectedLoadCase} unitCatalogRoute={unitCatalogRoute} />
+      )
+    },
+    {
+      id: "seismic",
+      title: "Seismic",
+      summary: seismicSummary(selectedLoadCase.equivalent_static),
+      hasContent: selectedLoadCase.equivalent_static?.seismic !== undefined,
+      render: () => (
+        <SeismicSection model={model} queuedIntents={queuedIntents} operationBusy={operationBusy} preparationEpoch={preparationEpoch} getPreparationEpoch={getPreparationEpoch} onQueueIntent={onQueueIntent} loadCase={selectedLoadCase} unitCatalogRoute={unitCatalogRoute} />
       )
     },
     {

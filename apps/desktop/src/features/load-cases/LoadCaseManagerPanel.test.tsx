@@ -682,8 +682,10 @@ describe("LoadCaseManagerPanel layout", () => {
     expect(byId("load-manager-analysis-settings")).not.toHaveAttribute("open");
     // The selected case's sections, in order; a disclosure states what the case has and is open when it has content.
     const sections = within(byId("load-manager-selected-case")).getAllByTestId(/^load-case-section-/).map((section) => section.dataset.testid);
-    expect(sections).toEqual(["load-case-section-case", "load-case-section-loads", "load-case-section-pressure", "load-case-section-hydrostatic-test", "load-case-section-conditions", "load-case-section-reference-state"]);
+    expect(sections).toEqual(["load-case-section-case", "load-case-section-loads", "load-case-section-pressure", "load-case-section-wind", "load-case-section-seismic", "load-case-section-hydrostatic-test", "load-case-section-conditions", "load-case-section-reference-state"]);
     expect(byId("load-case-section-pressure")).toHaveTextContent("Pressure: none (declared empty)");
+    expect(byId("load-case-section-wind")).toHaveTextContent("Wind: none");
+    expect(byId("load-case-section-seismic")).toHaveTextContent("Seismic: none");
     expect(byId("load-case-section-hydrostatic-test")).toHaveTextContent("Hydrostatic test: off");
     expect(byId("load-case-section-hydrostatic-test")).not.toHaveAttribute("open");
     expect(byId("load-case-section-pressure")).not.toHaveAttribute("open");
