@@ -102,7 +102,8 @@ needs:
 - from: DEL-07-06
   when: Asking a person to perform the timed, unassisted entry
   condition: >-
-    DEL-07-06 AC-008 is met, on walkthroughs at the revision that person will use.
+    DEL-07-06 AC-008 is met, on a walkthrough of the launched application at the revision that
+    person will use.
   gating: true
 code_paths:
 - apps/desktop/src/features/model-tree/**
