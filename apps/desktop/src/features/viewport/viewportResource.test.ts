@@ -168,7 +168,7 @@ describe("viewport resource primitives", () => {
     const host = document.createElement("div");
     const fake = Object.assign(Object.create(ViewportResource.prototype), {
       disposed: false, resizeObserver: observer, host, sizeWatchers: new Map(), resize
-    }) as ViewportResource & { deliverSizes(entries: { target: Element }[]): void };
+    }) as unknown as { observeSize(element: Element, callback: () => void): () => void; deliverSizes(entries: { target: Element }[]): void };
     const bar = document.createElement("div");
     const legend = document.createElement("div");
     const onBar = vi.fn();
@@ -337,6 +337,7 @@ describe("viewport resource primitives", () => {
       disposed: false,
       navigationAdvancing: true,
       suppressControlsChange: false,
+      pointersDown: new Map(),
       camera,
       controls
     }) as ViewportResource;
@@ -745,7 +746,8 @@ describe("viewport resource primitives", () => {
     const host = { replaceChildren: vi.fn() };
     const teardownGeneration = (currentOwnedViewportResourceSnapshot()?.context.generation ?? 0) + 1_000_000;
     const ownership = new ViewportOwnershipLedger(teardownGeneration);
-    ownership.createLifecycle({ controls: 1, eventBindings: 7, resizeObservers: 1 });
+    // As the constructor accounts: seven bindings, and the canvas's five input listeners.
+    ownership.createLifecycle({ controls: 1, eventBindings: 12, resizeObservers: 1 });
     const removeWindowListener = vi.spyOn(window, "removeEventListener");
     const removeDocumentListener = vi.spyOn(document, "removeEventListener");
     const resource = Object.assign(Object.create(ViewportResource.prototype), {
@@ -755,6 +757,7 @@ describe("viewport resource primitives", () => {
       contextRestoredCount: 0,
       scheduler,
       resizeObserver,
+      sizeWatchers: new Map(),
       controls,
       renderer,
       host,
@@ -780,7 +783,8 @@ describe("viewport resource primitives", () => {
     expect(resizeObserver.disconnect).toHaveBeenCalledTimes(1);
     expect(controls.removeEventListener).toHaveBeenCalledTimes(3);
     expect(controls.dispose).toHaveBeenCalledTimes(1);
-    expect(canvas.removeEventListener).toHaveBeenCalledTimes(2);
+    // The two context listeners and the five input listeners.
+    expect(canvas.removeEventListener).toHaveBeenCalledTimes(7);
     expect(removeWindowListener).toHaveBeenCalledWith("resize", expect.any(Function));
     expect(removeDocumentListener).toHaveBeenCalledWith("visibilitychange", expect.any(Function));
     expect(host.replaceChildren).toHaveBeenCalledTimes(1);
