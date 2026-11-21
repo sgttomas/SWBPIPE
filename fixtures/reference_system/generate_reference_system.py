@@ -426,9 +426,10 @@ EXPECTED = {
 CHECKS = {
     "KR-03": {
         "kind": "identity", "test": "tests/test_reference_system_fixture.py", "basis_record": REFERENCES,
-        "check": "in RS-SUS, RS-OPE and RS-SAM RS-CE1's constant_effort_support_applied_load row and its published "
-                 "support_reaction_component_v2 Fz each equal its entered constant_load, 9000 N, and its Fx, Fy, Mx, My "
-                 "and Mz are zero (DEC-049); RS-VS1's load awaits a verified solve, so no value of it is recorded",
+        "check": "in RS-SUS, RS-OPE, RS-SAM and RS-OPE-REF RS-CE1's constant_effort_support_applied_load row and its "
+                 "published support_reaction_component_v2 Fz each equal its entered constant_load, 9000 N, and its Fx, Fy, "
+                 "Mx, My and Mz are zero (DEC-049); the basis record names the first three, and RS-OPE-REF's are compared "
+                 "with the entered load alone; RS-VS1's load awaits a verified solve, so no value of it is recorded",
     },
     "KR-05": {
         "kind": "presence", "test": "tests/test_reference_system_fixture.py",

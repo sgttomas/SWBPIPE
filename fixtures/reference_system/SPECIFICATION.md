@@ -559,7 +559,8 @@ records of RS-EXP as RS-OPE − RS-SUS are history.
 [`tests/test_reference_system_fixture.py`](../../tests/test_reference_system_fixture.py)
 checks all four in both solver modes, each member state RS-OPE and RS-OPE-REF publish, and
 that RS-CE1's applied load and its published support action are its entered 9.0 kN in
-RS-SUS, RS-OPE and RS-SAM. RS-HYD's weight with the test contents is referenced
+RS-SUS, RS-OPE, RS-SAM and RS-OPE-REF, the first three against `reference_system_r1_ce` and
+RS-OPE-REF, which that package does not name, against the entered load alone. RS-HYD's weight with the test contents is referenced
 when RS-HYD is authored. The same test checks KR-05's presence, an identity: the tee's rows
 at the RS-130 ends of RS-P120 and RS-P210 on both section bases in RS-SUS and RS-OPE
 (RS-EXP withholds intensified rows); KR-05's values wait for a verified solve.

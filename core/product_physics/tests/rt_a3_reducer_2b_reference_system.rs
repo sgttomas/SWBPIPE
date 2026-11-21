@@ -94,9 +94,10 @@ const BODY: &str = "pipe:RS-P150";
 const N: &str = "node:RS-160";
 const F: &str = "node:RS-150";
 const CASES: [&str; 4] = ["load:RS-SUS", "load:RS-OPE", "load:RS-SAM", "load:RS-OPE-REF"];
-/// The cases whose RS-CE1 applied load, support action and integrity code the
-/// RT-S3 test below states (KR-03's identity covers these three); RS-OPE-REF's
-/// equilibrium is checked with the others in `check_eq`.
+/// The cases whose integrity code the RT-S3 test below states. RS-CE1's applied
+/// load and support action, KR-03's identity, are stated in every case of
+/// `CASES`, RS-OPE-REF's from the entered load alone; RS-OPE-REF's equilibrium
+/// is checked with the others in `check_eq`.
 const STANDING_CASES: [&str; 3] = ["load:RS-SUS", "load:RS-OPE", "load:RS-SAM"];
 const SOURCE: &str = "invented user value, DEL-09-01";
 const R1_WEIGHT_N: f64 = 300.0;
@@ -1446,7 +1447,7 @@ fn rt_s3_consumed_constant_effort_is_published_on_the_no_nonlinear_reference_sys
         assert_eq!(reader_verdict::validate("pressure", &envelope, Some(&model), None)["ok"], true, "{label}: model-bound reader");
         assert_eq!(reader_verdict::validate("pressure", &envelope, None, None)["ok"], true, "{label}: standalone reader");
         let rows = Rows::new(&envelope);
-        for case in STANDING_CASES {
+        for case in CASES {
             assert_eq!(rows.get("constant_effort_support_applied_load", CE, case, None, None, ""), 9000.0);
             for (k, component) in ["Fx", "Fy", "Fz", "Mx", "My", "Mz"].iter().enumerate() {
                 let got = rows.get("support_reaction_component_v2", CE, case, None, Some(component), "");

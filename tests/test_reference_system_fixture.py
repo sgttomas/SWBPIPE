@@ -423,26 +423,34 @@ def test_eq1_eq2_reactions_balance_the_independent_weight(mode_rows):
 
 
 def test_rs_ce1_applies_and_publishes_its_entered_constant_load_in_every_case(mode_rows):
-    """KR-03's identity for RS-CE1 (DEC-049): its applied-load row and its published support action Fz are its entered
-    constant_load, and its other five components are zero; the supports other than RS-CE1 carry W less it."""
+    """KR-03's identity for RS-CE1 (DEC-049): in every case, its applied-load row and its published support action Fz
+    are its entered constant_load, and its other five components are zero. RS-SUS, RS-OPE and RS-SAM are compared with
+    the frozen reference_system_r1_ce, which also gives the supports other than RS-CE1 W less it; RS-OPE-REF, which that
+    package does not name, is compared with the entered load alone, the identity needing nothing else."""
     mode, summary = mode_rows
     refs = json.loads(REFERENCES.read_text(encoding="utf-8"))
     ce = refs["constant_effort"]
     record = next(s for s in MODEL["supports"] if s["id"] == ce["support"])
     assert (record["family"], record["node"], record["restraints"]) == ("constant_effort_support", ce["node"], ["UZ"])
     assert record["hanger"]["constant_load"] == {"value": float(ce["constant_load_N"]), "unit": "N"}
+    entered = record["hanger"]["constant_load"]["value"]
     others_expected = ce["other_supports_sum_Fz_N"]["value"]
-    for case in ce["cases"]:
+    assert [c["id"] for c in MODEL["load_cases"]] == [*ce["cases"], "load:RS-OPE-REF"]
+    for case in [*ce["cases"], "load:RS-OPE-REF"]:
         rows = summary["rows"][case]
         applied = [row for row in rows if row["key"][0] == "constant_effort_support_applied_load"
                    and row["key"][2] == ce["support"]]
-        assert [row["value"] for row in applied] == [float(ce["applied_load_N"])], (mode, case, applied)
         action = supports(rows)[ce["support"]]
-        expected = dict(zip(FORCES + MOMENTS, [float(v) for v in ce["support_action_on_pipe_N"]]
-                            + [float(v) for v in ce["support_action_moment_about_node_N_m"]]))
+        if case in ce["cases"]:
+            assert [row["value"] for row in applied] == [float(ce["applied_load_N"])], (mode, case, applied)
+            expected = dict(zip(FORCES + MOMENTS, [float(v) for v in ce["support_action_on_pipe_N"]]
+                                + [float(v) for v in ce["support_action_moment_about_node_N_m"]]))
+            others = sum(values["Fz"] for support, values in supports(rows).items() if support != ce["support"])
+            assert abs(others - others_expected) <= RELATIVE * others_expected, (mode, case, others, others_expected)
+        else:
+            assert [row["value"] for row in applied] == [entered], (mode, case, applied)
+            expected = dict(zip(FORCES + MOMENTS, [0.0, 0.0, entered, 0.0, 0.0, 0.0]))
         assert action == expected, (mode, case, action)
-        others = sum(values["Fz"] for support, values in supports(rows).items() if support != ce["support"])
-        assert abs(others - others_expected) <= RELATIVE * others_expected, (mode, case, others, others_expected)
 
 
 def test_eq5_the_anchor_movement_term_is_self_equilibrated(mode_rows):
