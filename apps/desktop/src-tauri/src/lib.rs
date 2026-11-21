@@ -9852,7 +9852,7 @@ mod tests {
                 if bytes > self.0 {
                     return Err(format!("{}: reading {what} needs {bytes} bytes, above the invented allowance of {} bytes; nothing more was read.", stored_read::STORE_READ_MEMORY_UNAVAILABLE, self.0));
                 }
-                stored_read::UnmeteredReadMemory.reserve(what, bytes)
+                stored_read::ReadMemory::reserve(&stored_read::UnmeteredReadMemory, what, bytes)
             }
         }
         let root = std::env::temp_dir().join(format!(
@@ -9920,7 +9920,7 @@ mod tests {
         upsert_project(&mut connection, &project_id, "Invented keep", &model, &json!([]), &Value::Null, &Value::Null, &Value::Null, &Value::Null, &Value::Null, &json!({"value": "base"})).unwrap();
         connection.execute("UPDATE local_projects SET proposal_json = ?1", params![odd]).unwrap();
         drop(connection);
-        let model_canonical = open_pipe_stress_canonical_json::canonical_json(&model);
+        let model_canonical = open_pipe_stress_operation_applier::canonical_json(&model);
         let state = save_state_in_store(&db, SaveModelStateRequest {
             project_id: project_id.clone(),
             expected_base: "base".to_string(),
@@ -9929,7 +9929,10 @@ mod tests {
             state_kind: "design_snapshot".to_string(),
             parent_state_id: None,
             labels: labels_from_value(json!({ "state_name": "Invented state" })).unwrap(),
-        }, &StateWriteHooks { allocate: &|| Ok(("invented".to_string(), 1_793_000_000_000)), between_rows: &|_| Ok(()) }).unwrap().state;
+        }, &StateWriteHooks {
+            allocate: &|| -> Result<(String, i64), String> { Ok(("0123456789abcdef0123456789abcdef".to_string(), 1_793_000_000_000)) },
+            between_rows: &|_: &rusqlite::Transaction<'_>| -> Result<(), String> { Ok(()) },
+        }).unwrap().state;
         let opened = read_state_in_store(&db, &project_id, &state.state_id).unwrap();
         let request = SaveLocalProjectRequest::from_value(json!({
             "project_id": project_id, "project_name": "Invented keep", "model": opened.model,
