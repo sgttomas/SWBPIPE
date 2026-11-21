@@ -14,7 +14,7 @@ import type { EditorOperationIntent, PreviewModel } from "../../types";
 import { applyModelOperation, validateModelOperation } from "../../services/operationService";
 import { computeModelHash } from "../../services/hashService";
 import { loadWasmEngine } from "../../services/wasmEngine/loadWasmEngine";
-import { ModelSettingsSection, SHEAR_MODEL_EXACT_NOTE } from "./ModelSettingsSection";
+import { ModelSettingsSection, SHEAR_MODEL_CHOICES, SHEAR_MODEL_EXACT_NOTE, UNSTATED_SHEAR_MODEL } from "./ModelSettingsSection";
 
 const projectRoot = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "../../../../..");
 const demo = () =>
@@ -40,6 +40,17 @@ beforeAll(async () => {
 afterEach(cleanup);
 
 describe("model settings: straight-member shear deformation", () => {
+  it("marks as in effect, on a document that states none, the theory it solves with, by value and in whatever order the choices are listed", () => {
+    // An unstated pressure-free document solves Euler–Bernoulli (DEL-05-03); no position in the list stands for that.
+    expect(UNSTATED_SHEAR_MODEL).toBe("euler_bernoulli");
+    render(<ModelSettingsSection model={demo()} onQueueIntent={() => undefined} />);
+    const radios = screen.getAllByRole("radio").filter((radio) => radio.getAttribute("name") === "model-settings-shear-model") as HTMLInputElement[];
+    expect(radios.map((radio) => radio.value).sort()).toEqual(SHEAR_MODEL_CHOICES.map((choice) => choice.value).sort());
+    for (const radio of radios) expect(radio.checked).toBe(radio.value === "euler_bernoulli");
+    expect(byId("model-settings-shear-model-effective")).toHaveTextContent("Euler–Bernoulli");
+    expect(byId("model-settings-shear-model-effective")).not.toHaveTextContent("Timoshenko");
+  });
+
   it("shows the default, states the rules, and offers both choices with nothing written", () => {
     const model = demo();
     render(<ModelSettingsSection model={model} onQueueIntent={() => undefined} />);

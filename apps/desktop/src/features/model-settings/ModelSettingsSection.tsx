@@ -57,6 +57,8 @@ export const SHEAR_MODEL_CHOICES = Object.freeze([
   { value: "euler_bernoulli", label: "Euler–Bernoulli (the default)" },
   { value: "timoshenko_annulus_energy_v1", label: "Timoshenko (energy-matched annular factor)" }
 ] as const);
+/** What a pressure-free document that states no shear model solves with, whatever order the choices are listed in. */
+export const UNSTATED_SHEAR_MODEL = "euler_bernoulli";
 export const SHEAR_MODEL_NOTE =
   "Every straight member, tee leg, rigid component and geometry-only bend. Realized arcs stay Euler–Bernoulli. Timoshenko uses Poisson's ratio E/(2G) − 1 from each case's moduli, not an entered one.";
 export const SHEAR_MODEL_EXACT_NOTE =
@@ -153,7 +155,7 @@ export function ModelSettingsSection(props: ModelSettingsSectionProps) {
   const exactDocument = model.pressure_contract != null;
   const authoredShear = authoredShearModel(model);
   const effectiveShear = authoredShear === null
-    ? `${SHEAR_MODEL_CHOICES[0].label.replace(" (the default)", "")} (default)`
+    ? `${SHEAR_MODEL_CHOICES.find((choice) => choice.value === UNSTATED_SHEAR_MODEL)?.label.replace(" (the default)", "") ?? UNSTATED_SHEAR_MODEL} (default)`
     : SHEAR_MODEL_CHOICES.find((choice) => choice.value === authoredShear)?.label.replace(" (the default)", "") ?? authoredShear;
 
   async function submit(build: (canonicalize: Canonicalize) => Promise<EditorOperationIntent>, path: SettingPath = NODE_PROXIMITY_TOLERANCE_PATH) {
@@ -296,7 +298,7 @@ export function ModelSettingsSection(props: ModelSettingsSectionProps) {
                 name="model-settings-shear-model"
                 value={choice.value}
                 data-testid={`model-settings-shear-model-${choice.value}`}
-                checked={!exactDocument && (authoredShear ?? SHEAR_MODEL_CHOICES[0].value) === choice.value}
+                checked={!exactDocument && (authoredShear ?? UNSTATED_SHEAR_MODEL) === choice.value}
                 {...disabledBy(working, [exactDocument, SHEAR_MODEL_EXACT_NOTE], [authoredShear === choice.value, "This choice is already set."])}
                 onChange={() => undefined}
                 onClick={() => { if (!working && !exactDocument && authoredShear !== choice.value) void submit((canon) => setShearModelIntent(canon, model, choice.value), SHEAR_MODEL_PATH); }}

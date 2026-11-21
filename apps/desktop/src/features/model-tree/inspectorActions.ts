@@ -3,7 +3,7 @@
 import type { EntityRef, PreviewModel } from "../../types";
 import { authoredPressureElongationCases, authoredShearModel, effectiveNodeProximityTolerance, pressurisedCasesNotIncluded } from "../model-settings/modelSettingsIntents";
 import { documentShearModel, SHEAR_MODEL_CHOICES as PROFILE_SHEAR_CHOICES } from "../pressure-authoring/pressureContract";
-import { SHEAR_MODEL_CHOICES } from "../model-settings/ModelSettingsSection";
+import { SHEAR_MODEL_CHOICES, UNSTATED_SHEAR_MODEL } from "../model-settings/ModelSettingsSection";
 import { PROJECT_UNIT_KEYS } from "../../services/projectService";
 
 /**
@@ -38,7 +38,7 @@ export function modelSettingsValues(model: PreviewModel): string {
   const shearLabel = exact
     ? `${profileShear ?? "not stated"}, set by the pressure profile`
     : shear === null
-      ? "Euler–Bernoulli (default)"
+      ? `${SHEAR_MODEL_CHOICES.find((choice) => choice.value === UNSTATED_SHEAR_MODEL)?.label.replace(" (the default)", "") ?? UNSTATED_SHEAR_MODEL} (default)`
       : SHEAR_MODEL_CHOICES.find((choice) => choice.value === shear)?.label.replace(" (the default)", "") ?? shear;
   const parts = [`Shear deformation: ${shearLabel}`, `Node proximity: ${effectiveNodeProximityTolerance(model)}`];
   if (exact) {
