@@ -85,8 +85,8 @@ import previewPhysicsSemanticContract from "../../../../../fixtures/results/sema
 import previewPhysicsRetainedSemanticContract from "../../../../../fixtures/results/semantic_contract_v0_3_preview_physics_retained_1.json";
 import { ResultsPanel } from "./ResultsPanel";
 import { buildHistoricalRunContext } from "./HistoricalRunContext";
-import { deliveredMechanicsResultJob, hasNativeMechanicsInvocation, pollPreviewMechanicsJob, runPreviewMechanics, startPreviewMechanicsJob, takePreviewMechanicsJobResult, type PreviewSolverMode } from "../../services/previewService";
-import { ruleBindingPrecheck, runRuleChecks, selectSolverRows, solverSelectorForRow, type RuleCheckBasisRef, type RuleCheckBindingPlan } from "../../services/ruleCheckService";
+import { hasNativeMechanicsInvocation, pollPreviewMechanicsJob, runPreviewMechanics, startPreviewMechanicsJob, takePreviewMechanicsJobResult, type PreviewSolverMode } from "../../services/previewService";
+import { RULE_CHECK_RESULT_NOT_HELD, ruleBindingPrecheck, runRuleChecks, selectSolverRows, solverSelectorForRow, type RuleCheckBasisRef, type RuleCheckBindingPlan } from "../../services/ruleCheckService";
 
 // A binding plan whose solver inputs select the given rows by their 0.5.0
 // selectors, each used by one check on its row's own basis (DEL-06-01 Design
@@ -513,7 +513,7 @@ describe("the post-U7 standing rules (seams, independent of the reader's flag)",
 });
 
 describe.each(MODES)("%s: the post-U7 path through the real carriers", (mode) => {
-  it("standing becomes eligible only for the requested cases, and the rule-check gate passes the registered invocation", async () => {
+  it("standing becomes eligible only for the requested cases; the rule check refuses the received successor as not held natively", async () => {
     const { source, invocation, model } = milestone(mode);
     const received = await deliverDirect(source, model, mode);
     expect(numericalResultStanding(received, model)).toStrictEqual({ contract: "retained_preview_physics", status: "integrity_checked", eligible: true, findings: [] });
@@ -522,18 +522,12 @@ describe.each(MODES)("%s: the post-U7 path through the real carriers", (mode) =>
     expect(retainedPrecisionInvocation(received, model)).toStrictEqual(invocation);
     expect(classificationSummary(received, model)[0].withheld).toBe(69 + 15 + 12);
     expect(classificationSummary(received, null)[0].withheld).toBe(97 + 15 + 12);
+    // C1: the rule check reads only a result native custody holds. A received (taken) successor is
+    // held in the webview: its job no longer holds it natively, and the native command refuses such
+    // a job by name (`rule_check_handle_tests.rs`), so the service refuses it first and sends nothing.
     invokeMock.mockReset();
-    invokeMock.mockImplementation(async (command: string, args: Json) => {
-      expect(command).toBe("run_rule_checks");
-      expect(args.sourceBlockInvocation).toStrictEqual(invocation);
-      // Only the handle of the job that holds the bytes travels, never a copy.
-      expect(args).not.toHaveProperty("solvedEnvelope");
-      expect(args.jobId).toBe(deliveredMechanicsResultJob(received));
-      return { document_kind: "rule_check_run", rule_pack_id: "invented", grammar_version: "1.0.0", aggregate_status: "RULE_INPUTS_INCOMPLETE", checks: [], professional_boundary_notice: "unit simulation" };
-    });
-    const route = await runRuleChecks({ rulePackDocument: {} as RulePackDocument, model, solvedEnvelope: received });
-    expect(route.route).toBe("tauri_backend");
-    expect(invokeMock).toHaveBeenCalledTimes(1);
+    await expect(runRuleChecks({ rulePackDocument: {} as RulePackDocument, model, solvedEnvelope: received })).rejects.toThrow(RULE_CHECK_RESULT_NOT_HELD);
+    expect(invokeMock).not.toHaveBeenCalled();
     // Saved or copied bytes still never register.
     expect(numericalResultStanding(structuredClone(received), model).findings).toStrictEqual([RETAINED_PRECISION_VALIDATION_REQUIRED]);
   });
@@ -563,17 +557,12 @@ describe.each(MODES)("%s: the post-U7 path through the real carriers", (mode) =>
 
 describe.each(MODES)("%s: the rule-check gate and binding refusals", (mode) => {
   const pack = {} as RulePackDocument;
-  it("passes a registered successor to the rule backend with its invocation (U7); copies and refused bytes are not native; the held reader's needs_recompute is refused before any backend call", async () => {
-    const { source, invocation, model } = milestone(mode);
+  it("refuses a received successor as not held natively (U7's invocation is not sent); copies and refused bytes are not native; the held reader's needs_recompute is refused before any backend call", async () => {
+    const { source, model } = milestone(mode);
     const received = await deliverDirect(source, model, mode);
     invokeMock.mockReset();
-    invokeMock.mockImplementation(async (command: string, args: Json) => {
-      expect(command).toBe("run_rule_checks");
-      expect(args.sourceBlockInvocation).toStrictEqual(invocation);
-      return { document_kind: "rule_check_run", rule_pack_id: "invented", grammar_version: "1.0.0", aggregate_status: "RULE_INPUTS_INCOMPLETE", checks: [], professional_boundary_notice: "unit simulation" };
-    });
-    expect((await runRuleChecks({ rulePackDocument: pack, model, solvedEnvelope: received })).route).toBe("tauri_backend");
-    expect(invokeMock).toHaveBeenCalledTimes(1);
+    await expect(runRuleChecks({ rulePackDocument: pack, model, solvedEnvelope: received })).rejects.toThrow(RULE_CHECK_RESULT_NOT_HELD);
+    expect(invokeMock).not.toHaveBeenCalled();
     invokeMock.mockReset();
     await expect(runRuleChecks({ rulePackDocument: pack, model, solvedEnvelope: structuredClone(received) })).rejects.toThrow("RULE_NATIVE_INVOCATION_REQUIRED");
     const edited = structuredClone(source); edited.results[0].value = 12345;

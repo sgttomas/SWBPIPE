@@ -2,6 +2,7 @@ import { act, cleanup, fireEvent, render, screen, waitFor } from "@testing-libra
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { RuleCheckRunPanel } from "./RuleCheckRunPanel";
 import { deliveredMechanicsResultJob, hasNativeMechanicsInvocation, runPreviewMechanics, type PreviewSolverMode } from "../../services/previewService";
+import { solveHeldCopy } from "../../test/heldResultCopy";
 import { numericalResultStanding } from "../results/resultStanding";
 import { createNativeMechanicsReplay, nativeMechanicsReplayPair } from "../../test/nativeMechanicsReplay";
 import type { MechanicsResult, PreviewModel } from "../../types";
@@ -20,15 +21,14 @@ vi.mock("@tauri-apps/api/core", async () => ({ invoke: (await import("../../test
 import previewInvented from "../../../../../fixtures/results/preview_physics_invented_sparse.json";
 
 // A natively invoked, numerically eligible source as the rule service requires:
-// the captured preview-physics-2 producer pair
-// is replayed through mocked IPC and registered only by the production private
-// IPC route. The mock is reset afterwards, so each test's own invoke mock sees
+// the captured preview-physics-2 producer pair is replayed through mocked IPC, held
+// natively, and read as its registered full copy (the run sends the holding job's handle). The mock is reset afterwards, so each test's own invoke mock sees
 // the panel's calls only.
 async function nativeSolvedBasis(mode: PreviewSolverMode = "sparse_interactive") {
   const pair = nativeMechanicsReplayPair(mode, { profile: "preview" });
   (window as unknown as Record<string, unknown>).__TAURI_INTERNALS__ = {};
   invokeMock.mockImplementation(createNativeMechanicsReplay({ profile: "preview" }).invoke);
-  const result = await runPreviewMechanics(pair.model, mode);
+  const result = await solveHeldCopy(pair.model, mode);
   expect(hasNativeMechanicsInvocation(result, pair.model, mode)).toBe(true);
   expect(numericalResultStanding(result, pair.model).eligible).toBe(true);
   invokeMock.mockReset();

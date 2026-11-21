@@ -17,6 +17,7 @@ const invokeMock = vi.hoisted(() => vi.fn());
 vi.mock("@tauri-apps/api/core", async () => ({ invoke: (await import("../../test/nativeIngress")).ingressDecodingInvoke(invokeMock) }));
 import { createSolveJobTransport, nativeMechanicsReplayPair } from "../../test/nativeMechanicsReplay";
 import { deliveredMechanicsResultJob, hasNativeMechanicsInvocation, runPreviewMechanics, type PreviewSolverMode } from "../../services/previewService";
+import { solveHeldCopy } from "../../test/heldResultCopy";
 import { N_RULE_CHECK_NOT_NUMERICALLY_ELIGIBLE } from "../../services/ruleCheckService";
 import { LOAD_REFERENCE_SOURCE_NOT_NUMERICALLY_ELIGIBLE, numericalResultStanding } from "../results/resultStanding";
 import { N_LOAD_REFERENCE_RULE_CHECK } from "../results/loadReferenceDisclosure";
@@ -72,10 +73,10 @@ function install({ model, bytes }: Input, mode: Mode, ruleAnswer: () => unknown 
   (window as unknown as Record<string, unknown>).__TAURI_INTERNALS__ = {};
   return transport;
 }
-/** A natively solved, registered source. */
+/** A natively solved, registered source: the full copy of a result native custody holds. */
 async function solved(input: Input, mode: Mode) {
   const transport = install(input, mode);
-  const result = await runPreviewMechanics(input.model, mode);
+  const result = await solveHeldCopy(input.model, mode);
   expect(hasNativeMechanicsInvocation(result, input.model, mode)).toBe(true);
   invokeMock.mockClear();
   return { result, transport };

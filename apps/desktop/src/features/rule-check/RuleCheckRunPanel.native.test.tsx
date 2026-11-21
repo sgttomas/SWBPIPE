@@ -55,11 +55,15 @@ function previewReply(queries: { input_id: string; selector: SolverResultRef; ba
     inputs: queries.map((query) => ({
       input_id: query.input_id,
       selector_readable: true,
-      bases: query.bases.map((basis) => ({
-        basis_ref: basis,
-        solved: full.results.some((row) => { const read = readBasisRef(row.basis_ref); return read?.ref_type === basis.ref_type && read.ref_id === basis.ref_id; }),
-        rows: selectSolverRows(full, query.selector, basis).map((row) => ({ id: row.id, value: row.value, unit: row.unit, dimension: row.dimension ?? null, binding_refusal: ruleBindingRefusal(full, row) }))
-      }))
+      bases: query.bases.map((basis) => {
+        const selected = selectSolverRows(full, query.selector, basis);
+        return {
+          basis_ref: basis,
+          solved: full.results.some((row) => { const read = readBasisRef(row.basis_ref); return read?.ref_type === basis.ref_type && read.ref_id === basis.ref_id; }),
+          matched: Math.min(selected.length, 2),
+          rows: selected.length === 1 ? selected.map((row) => ({ id: row.id, value: row.value, unit: row.unit, dimension: row.dimension ?? null, binding_refusal: ruleBindingRefusal(full, row) })) : []
+        };
+      })
     })),
     job_id: "$JOB"
   };

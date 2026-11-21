@@ -11,7 +11,7 @@ import type { RulePackDocument, RulePackDocumentValidation } from "./rulePackSer
 import {
   abandonPreviewMechanicsJob,
   awaitPreviewMechanicsJob,
-  deliveredMechanicsResultJob,
+  nativeHeldMechanicsResultJob,
   discardPreviewMechanicsJobResult,
   disposeDeliveredMechanicsResult,
   hasNativeMechanicsInvocation,
@@ -153,6 +153,7 @@ function unavailable(): RuleCheckUnavailable {
 
 /** The refusal of a solved result whose bytes no native job holds any more. */
 export const RULE_CHECK_RESULT_NOT_HELD = "RULE_CHECK_RESULT_NOT_HELD";
+const NOT_HELD_MESSAGE = `${RULE_CHECK_RESULT_NOT_HELD}: the solved result is no longer held. Solve again to run rule checks.`;
 
 export async function runRuleChecks(args: {
   rulePackDocument: RulePackDocument;
@@ -193,28 +194,27 @@ async function solveTransientNative(model: PreviewModel): Promise<NativeResult> 
   try {
     terminal = await awaitPreviewMechanicsJob(receipt.job_id);
   } catch (error) {
-    void abandonPreviewMechanicsJob(receipt.job_id, receipt.backend_cancellation_token);
+    await abandonPreviewMechanicsJob(receipt.job_id, receipt.backend_cancellation_token);
     throw error;
   }
   if (terminal.state !== "completed") throw terminalJobError(terminal);
   try {
     return (await readNativeFreshResult(receipt.job_id, terminal.result_bytes ?? 0, { standingModel: model, summaryModel: model })).result;
   } catch (error) {
-    void discardPreviewMechanicsJobResult(receipt.job_id);
+    await discardPreviewMechanicsJobResult(receipt.job_id);
     throw error;
   }
 }
 
-/** The custody handle of the native job holding `source`'s exact bytes, or null. */
-function heldJobOf(source: SessionResult): string | null {
-  return isNativeResult(source) ? (isNativeJobLive(nativeCustody(source).jobId) ? nativeCustody(source).jobId : null) : deliveredMechanicsResultJob(source);
-}
 
 async function checkSolvedSource(
   args: Parameters<typeof runRuleChecks>[0],
   source: SessionResult,
   model: PreviewModel
 ): Promise<RuleCheckRunRoute> {
+  // A native handle whose custody has ended names no result: refused as not held, before the
+  // checks below read its (released) registration.
+  if (isNativeResult(source) && !isNativeJobLive(nativeCustody(source).jobId)) throw new Error(NOT_HELD_MESSAGE);
   if (!hasNativeMechanicsInvocation(source, model)) throw new Error("RULE_NATIVE_INVOCATION_REQUIRED: reference or saved data is not a fresh supported solve.");
   // T0R: only the static fresh-identity set is rule-eligible (epoch 8 adds pressure-2 and
   // pressure-source-1, as Rust's set holds them).
@@ -238,9 +238,11 @@ async function checkSolvedSource(
     // never publishes a successor), so it has no invocation to send.
     if (isNativeResult(source)) throw new Error("RETAINED_PRECISION_NATIVE_REGISTRATION_UNAVAILABLE: the retained-precision result is not numerically eligible for rule checks.");
   }
-  // C1: only the custody handle travels; the backend reads the result its native custody holds.
-  const jobId = heldJobOf(source);
-  if (jobId === null) throw new Error(`${RULE_CHECK_RESULT_NOT_HELD}: the solved result is no longer held. Solve again to run rule checks.`);
+  // C1: only the custody handle of the native job holding the result's exact bytes travels; the
+  // backend reads the result its native custody holds. A result no native job holds natively
+  // (disposed, or taken into the webview) is refused by name, and nothing is sent.
+  const jobId = nativeHeldMechanicsResultJob(source);
+  if (jobId === null) throw new Error(NOT_HELD_MESSAGE);
   const invokeArgs: Record<string, unknown> = { rulePackDocument: args.rulePackDocument, jobId };
   if (!isNativeResult(source) && isRetainedRoute(sourceContract(source))) invokeArgs.sourceBlockInvocation = retainedPrecisionInvocation(source, model);
   // Without the registered invocation the backend's pressure-source-1 standing is never eligible.
@@ -775,7 +777,8 @@ export type NativeSolverRowsPreview = {
   inputs: {
     input_id: string;
     selector_readable: boolean;
-    bases: { basis_ref: RuleCheckBasisRef; solved: boolean; rows: NativeSolverRowsPreviewRow[] }[];
+    /** `matched`: 0, 1 or 2 (two or more) rows named; `rows` holds the row only when it is the one. */
+    bases: { basis_ref: RuleCheckBasisRef; solved: boolean; matched: number; rows: NativeSolverRowsPreviewRow[] }[];
   }[];
 };
 
@@ -785,13 +788,14 @@ export type SolverRowsQuery = { input_id: string; selector: SolverResultRef; bas
 export async function previewSolverRowsByHandle(source: NativeResult, queries: readonly SolverRowsQuery[]): Promise<NativeSolverRowsPreview> {
   if (!isTauriRuntime()) throw new Error(RULE_CHECK_BACKEND_DIAGNOSTIC);
   const { jobId } = nativeCustody(source);
-  if (!isNativeJobLive(jobId)) throw new Error(`${RULE_CHECK_RESULT_NOT_HELD}: the solved result is no longer held. Solve again to run rule checks.`);
+  if (!isNativeJobLive(jobId)) throw new Error(NOT_HELD_MESSAGE);
   return invokeWithIngress<NativeSolverRowsPreview>("preview_rule_solver_rows", {
     jobId,
     queries: queries.map((query) => ({
       input_id: query.input_id,
       selector: query.selector,
-      bases: query.bases.flatMap((loadCase) => (loadCase.basis_ref ? [loadCase.basis_ref] : []))
+      // Each basis once: the native preview refuses a basis named twice in one query.
+      bases: query.bases.flatMap((loadCase, index) => (loadCase.basis_ref && query.bases.findIndex((other) => sameBasis(other.basis_ref, loadCase.basis_ref!)) === index ? [loadCase.basis_ref] : []))
     }))
   });
 }
@@ -810,10 +814,11 @@ export function solverResolutionFromPreview(
     if (!basis) continue;
     const found = read?.bases.find((entry) => sameBasis(entry.basis_ref, basis));
     const rows = (found?.rows ?? []).map(({ id, value, unit, dimension }) => ({ id, value, unit, dimension: dimension ?? undefined })) as SolverPreviewRow[];
-    const status: SolverSelectorBasisStatus = rows.length === 1
+    const matched = found?.matched ?? 0;
+    const status: SolverSelectorBasisStatus = matched === 1
       ? "resolves"
-      : rows.length > 1 ? "row_ambiguous" : found?.solved ? "row_missing" : "basis_unsolved";
-    bases.push({ required_load_case_id: loadCase.required_load_case_id, name: loadCase.name, basis_ref: basis, status, rows });
+      : matched > 1 ? "row_ambiguous" : found?.solved ? "row_missing" : "basis_unsolved";
+    bases.push({ required_load_case_id: loadCase.required_load_case_id, name: loadCase.name, basis_ref: basis, status, rows: matched === 1 ? rows : [] });
   }
   return { status: bases.length > 0 && bases.every((entry) => entry.status === "resolves") ? "resolves" : "incomplete", bases };
 }
@@ -835,9 +840,9 @@ export function bindingPrecheckFromPreview(preview: NativeSolverRowsPreview, pla
     const read = preview.inputs.find((entry) => entry.input_id === query.input_id);
     for (const { basis_ref: basis } of query.bases) {
       if (!basis) continue;
-      const rows = read?.bases.find((entry) => sameBasis(entry.basis_ref, basis))?.rows ?? [];
-      if (rows.length !== 1) continue;
-      const row = rows[0];
+      const found = read?.bases.find((entry) => sameBasis(entry.basis_ref, basis));
+      if (found?.matched !== 1 || found.rows.length !== 1) continue;
+      const row = found.rows[0];
       if (!row.binding_refusal) continue;
       const notice = row.binding_refusal === COMPONENT_BODY_REFERENCE_SECTION && row.component_body
         ? `stress of the reference pipe section of component body ${row.component_body.component_ref} (stiffness scale ${row.component_body.stiffness_scale}); not a stress of the component body`

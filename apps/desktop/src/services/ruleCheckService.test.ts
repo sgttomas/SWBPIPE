@@ -23,6 +23,7 @@ import connectorCorpus from "../../../../fixtures/results/pressure_v3_connector_
 import { readFileSync } from "node:fs";
 import { resolve } from "node:path";
 import { createSolveJobTransport } from "../test/nativeMechanicsReplay";
+import { solveHeldCopy } from "../test/heldResultCopy";
 import { deliveredMechanicsResultJob, hasNativeMechanicsInvocation } from "./previewService";
 import {
   LOAD_REFERENCE_SOURCE_NOT_NUMERICALLY_ELIGIBLE,
@@ -433,7 +434,7 @@ describe("runRuleChecks", () => {
     invokeMock.mockImplementation(async (command, args, options) => command === "run_rule_checks" ? ruleResponse : replay.invoke(command, args, options));
     (window as unknown as Record<string, unknown>).__TAURI_INTERNALS__ = {};
 
-    const solvedEnvelope = await runPreviewMechanics(pair.model);
+    const solvedEnvelope = await solveHeldCopy(pair.model);
     invokeMock.mockClear();
     await runRuleChecks({
       rulePackDocument: { metadata: { rule_pack_id: "x" } },
@@ -689,7 +690,8 @@ describe("epoch 8: the exact routes reach the rule backend only at Rust's eligib
     const { route, loadReference, input } = ADMITTED[name];
     const exact = input(mode);
     installNative(exact, mode);
-    const source = await runPreviewMechanics(exact.model, mode);
+    // The session's full copy of a result native custody holds: the run sends that job's handle.
+    const source = await solveHeldCopy(exact.model, mode);
     expect(hasNativeMechanicsInvocation(source, exact.model, mode)).toBe(true);
     expect(numericalResultStanding(source, exact.model)).toMatchObject({ contract: route, eligible: true, findings: [] });
     invokeMock.mockClear();

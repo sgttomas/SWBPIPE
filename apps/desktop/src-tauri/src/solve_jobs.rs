@@ -644,6 +644,17 @@ pub(crate) struct EnvelopeBasis {
 /// The most envelope bases a handle keeps (its reopen basis and the latest re-saves').
 pub(crate) const MAX_ENVELOPE_BASES: usize = 32;
 
+/// A registry's issue tag: 64 random bits, hex. Should the system source fail,
+/// the time and process id stand in (still distinct from another process's).
+fn random_issue_tag() -> String {
+    let mut bytes = [0u8; 8];
+    if getrandom::fill(&mut bytes).is_err() {
+        let nanos = SystemTime::now().duration_since(UNIX_EPOCH).map(|d| d.as_nanos()).unwrap_or_default();
+        bytes = ((nanos as u64) ^ ((std::process::id() as u64) << 32)).to_le_bytes();
+    }
+    bytes.iter().map(|byte| format!("{byte:02x}")).collect()
+}
+
 /// The prefix of a restored result's handle (a solve's is `backend-solve-job-`).
 pub(crate) const RESTORED_HANDLE_PREFIX: &str = "restored-stored-result-";
 /// The route pricing a restored result's status reports: no worker ran.
@@ -849,6 +860,14 @@ pub(crate) struct SolveJobRegistry {
     /// The largest result a solve job may publish:
     /// [`MAX_DISPLAYABLE_RESULT_BYTES`], lowered only by tests.
     result_limit: u64,
+    /// This registry's issue tag, written into every handle it issues
+    /// ([`Self::handle`]): random for the process's registry ([`Self::new`]),
+    /// so a handle another registry or an earlier process issued names no
+    /// record here; numbers are never reused within one registry, resets
+    /// included. Empty for a test registry built with [`Self::with_hooks`]
+    /// unless a test sets one ([`Self::with_issue_tag`]), so the committed
+    /// native replies keep their handles.
+    issue_tag: Arc<str>,
 }
 
 fn thread_spawn(job: Box<dyn FnOnce() + Send + 'static>) -> std::io::Result<()> {
@@ -926,7 +945,22 @@ impl Drop for WorkerExit {
 
 impl SolveJobRegistry {
     pub(crate) fn new(pool: Arc<MemoryPool>) -> Self {
-        Self::with_hooks(pool, Arc::new(CurrentExeLauncher), Arc::new(thread_spawn))
+        let mut registry = Self::with_hooks(pool, Arc::new(CurrentExeLauncher), Arc::new(thread_spawn));
+        registry.issue_tag = random_issue_tag().into();
+        registry
+    }
+
+    /// Test seam: the same registry issuing handles under `tag`.
+    #[cfg(test)]
+    pub(crate) fn with_issue_tag(mut self, tag: &str) -> Self {
+        self.issue_tag = tag.into();
+        self
+    }
+
+    /// The handle for the `number`th job or restored result, under `prefix`
+    /// (`backend-solve-job-` or [`RESTORED_HANDLE_PREFIX`]) and this registry's tag.
+    fn handle(&self, prefix: &str, number: u64) -> String {
+        if self.issue_tag.is_empty() { format!("{prefix}{number}") } else { format!("{prefix}{}-{number}", self.issue_tag) }
     }
 
     pub(crate) fn with_hooks(pool: Arc<MemoryPool>, launcher: Arc<dyn WorkerLauncher>, spawn: SpawnFn) -> Self {
@@ -939,6 +973,7 @@ impl SolveJobRegistry {
             checks: Arc::default(),
             hanger_sizing: crate::hanger_sizing_job::HangerSizingRuns::default(),
             result_limit: MAX_DISPLAYABLE_RESULT_BYTES,
+            issue_tag: "".into(),
         }
     }
 
@@ -1115,7 +1150,7 @@ impl SolveJobRegistry {
             table.next_job_number += 1;
             let number = table.next_job_number;
             let nanos = SystemTime::now().duration_since(UNIX_EPOCH).map(|d| d.as_nanos()).unwrap_or_default();
-            let job_id = format!("backend-solve-job-{number}");
+            let job_id = self.handle("backend-solve-job-", number);
             let token = format!("solve-cancel-token-{number}-{nanos:x}");
             table.records.insert(
                 job_id.clone(),
@@ -1705,7 +1740,7 @@ impl SolveJobRegistry {
         }
         table.next_job_number += 1;
         let number = table.next_job_number;
-        let job_id = format!("{RESTORED_HANDLE_PREFIX}{number}");
+        let job_id = self.handle(RESTORED_HANDLE_PREFIX, number);
         let result_bytes = result.text.len() as u64;
         // C1: the handle's custody is established here, under the registry
         // lock that inserts it: the leases backing its bytes leave the
