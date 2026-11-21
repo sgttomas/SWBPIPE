@@ -1006,8 +1006,9 @@ fn an_unreadable_solved_document_has_no_confirmations() {
 /// run carries the saved model, so where the interactive ingress cap is smaller than the model text
 /// that read is refused with an ingress error, and, under headroom too small for the model text, the
 /// plain read of the same job that follows (`"null"`, no `modelUse`, as `nativeReopen.ts` falls back)
-/// is admitted, has no confirmations member, and the job's rows are then read from the same handle;
-/// the job is still held and the pool holds only the result's own lease.
+/// is admitted, has no confirmations member and leaves the pool holding only the result's own lease,
+/// and the job's rows are then read from the same handle; the job is still held, and disposing it
+/// releases everything.
 #[test]
 fn a_refused_confirmations_read_leaves_the_plain_read_and_the_job() {
     let host = ScriptedHost::normal();
@@ -1035,6 +1036,7 @@ fn a_refused_confirmations_read_leaves_the_plain_read_and_the_job() {
     let plain = decode(&read_summary(&registry, &args(&job, "null", standing)).unwrap()).unwrap();
     assert_eq!(plain.header["job_id"], json!(job));
     assert!(plain.header.get("support_confirmations").is_none());
+    assert_eq!(registry.pool().reserved_total(), held, "the plain read leaves only the held result's own lease");
     let rows_args = json!({"jobId": job, "filter": {"case": "all", "family": "all", "frame": "all", "text": ""}, "offset": 0, "limit": 5});
     let command = crate::result_detail::ROWS_COMMAND;
     let (raw, lease) = crate::result_detail::reserve(&registry, &body(&rows_args), &headers(Some(INGRESS_ARGS_JSON_V1)), command).unwrap();
@@ -1044,7 +1046,6 @@ fn a_refused_confirmations_read_leaves_the_plain_read_and_the_job() {
     let rows_header: Value = serde_json::from_slice(&rows[16..16 + length]).unwrap();
     assert!(rows_header["total"].as_u64().unwrap() > 0, "the rows are read from the same handle");
     assert!(registry.status(&job).unwrap().result_available, "the job is still held");
-    assert_eq!(registry.pool().reserved_total(), held, "only the held result's own lease remains");
     registry.dispose_result(&job).unwrap();
     assert_eq!(registry.pool().reserved_total(), 0);
 }
