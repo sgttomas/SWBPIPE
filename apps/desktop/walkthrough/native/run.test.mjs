@@ -1149,7 +1149,7 @@ test("a refusal for a mark names the mark found, as the record does, and says th
   const none = { sky_computer_use_service_launchd: false, sky_computer_use_service_process: false, codex_app_server_stdio: false, app_v4_candidate_bundle: false, check_failures: [] };
   const line = markRefusalLine({ ...none, sky_computer_use_service_process: true, codex_app_server_stdio: true });
   assert.match(line, /^NATIVE-SMOKE-MARK-PRESENT: a SkyComputerUseService process; a "codex app-server --listen stdio:\/\/" process: /);
-  assert.match(line, /not launched, and nothing in --out was changed\. Start the attended launch before the attendant's screen tool is started, and start that tool only after the handover is printed$/);
+  assert.match(line, /not launched, and nothing in --out was changed\. Start the attended launch before the attendant's screen tool is started, and start that tool only after the handover is printed; or, when the agent on the screen is this launch's attendant, say so with --attendant-on-screen <who states it>$/);
   assert.match(markRefusalLine({ ...none, check_failures: ["lsappinfo list: exit 1"] }), /a check that could not be made \(lsappinfo list: exit 1\)/);
   assert.match(markRefusalLine({ ...none, app_v4_candidate_bundle: true }), /^NATIVE-SMOKE-MARK-PRESENT: a running App v4 candidate bundle: /);
 });
