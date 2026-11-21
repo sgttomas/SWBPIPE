@@ -96,7 +96,7 @@ code_paths:
 # private-term scan of the repository candidate.
 - tools/repository_history.py
 - tools/validation/validate_private_terms.py
-# The readiness panel.
+# The readiness panel, which the v1.0 interface does not mount (LIM-039).
 - apps/desktop/src/features/build-readiness/BuildReadinessPanel.tsx
 checks:
 - tests/test_ci_python.py

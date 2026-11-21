@@ -15,7 +15,7 @@ from pathlib import Path
 
 import pytest
 
-from tests.verifiers.reader_verdict import Refused, expected_generated_load_ids, physics_model_checks, rust_f64_display
+from tests.verifiers.reader_verdict import Refused, _expected_component_forces, expected_generated_load_ids, physics_model_checks, rust_f64_display
 
 FIXTURE = json.loads((Path(__file__).resolve().parents[1] / "core/reporting/result_export/tests/fixtures/generated_identities.json").read_text())
 
@@ -42,7 +42,10 @@ def test_a_negative_zero_is_written_as_rust_writes_it():
 
 def _source(model, records):
     """A solved source naming every model case, with the members the model's connectors leave and the given records.
-    The model checks that read sections and the shear model are not reached: the model passed below carries neither."""
+    A seismic case's record also carries the component entries the model forms, as the reader recomputes them
+    (``_expected_component_forces``): their values are bound by tests/test_seismic_component_record_reader.py, and
+    here only the identities vary. The model checks that read sections and the shear model are not reached: the
+    model passed below carries neither."""
     replaced = {c["objective_connector"]["topology"]["span_ref"] for c in model.get("components", []) if "objective_connector" in c}
     members = [{"pipe_id": p["id"]} for p in model["pipe_segments"] if p["id"] not in replaced]
     cases = []
@@ -50,6 +53,10 @@ def _source(model, records):
         entry = {"load_case_id": case["id"], "pipe_materials": members}
         if case["id"] in records:
             entry["equivalent_static"] = {"generated_load_ids": records[case["id"]]}
+            seismic = case["equivalent_static"].get("seismic")
+            components = _expected_component_forces(model, case["id"], seismic) if seismic else []
+            if components:
+                entry["equivalent_static"]["component_forces"] = components
         cases.append(entry)
     return {"status": {"mechanics": "MECHANICS_SOLVED"}, "results": [],
             "contract_evidence": {"exact_cases": cases, "connector": [{"replaced_pipe_id": p} for p in sorted(replaced)]}}

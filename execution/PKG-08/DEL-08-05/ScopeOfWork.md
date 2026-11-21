@@ -17,7 +17,7 @@ Neither instrument decides anything. The engine is a heuristic and can miss; the
 
 It serves SOW-043 under OBJ-002 and OBJ-007 (`execution/_Decomposition/SOFTWARE_DECOMP.md`, PKG-08, row DEL-08-05), and PRD FR-REP-005, §19.4 and §20.1. In `docs/RELEASE_TARGET_v1.0.md` it is the owning deliverable of exit criterion 14: the release-candidate protected-content scan is signed off by the owner.
 
-- **OUT-001** — The lint engine: its targets and surface kinds, its finding record and schema, its command-line entry, and the desktop's lint view of a session's report content (REQ-001 to REQ-013).
+- **OUT-001** — The lint engine: its targets and surface kinds, its finding record and schema, its command-line entry, and the desktop's lint view of a session's report content, which the v1.0 interface does not mount (LIM-039) (REQ-001 to REQ-013).
 - **OUT-002** — The release-candidate scan: the scan runner, the scan record, and the signed scan of each release candidate (REQ-014).
 
 ## Deliverable Definition — Ontology

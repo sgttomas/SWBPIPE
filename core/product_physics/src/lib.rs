@@ -5580,6 +5580,7 @@ fn solve_prepared_load_case(
     // S11 sections 4.2 and 4.3: every producer pushes its contributions, term
     // by term, into one per-case exact ledger; the solve's force vector is
     // each DOF's correctly rounded net, and it can be built only here.
+    let ledger_before = diagnostics.len();
     let mut ledger = case_force_ledger(
         model,
         built,
@@ -5590,6 +5591,34 @@ fn solve_prepared_load_case(
         &load_case.id,
         diagnostics,
     );
+    // A generated seismic component value that is not the rule's was not
+    // pushed (`certified_loads::nodal`): the case stops here, before its
+    // ledger is finished, so it is never assembled or solved without that
+    // term. The other refusals raised while the ledger is built keep their
+    // own path.
+    if diagnostics[ledger_before..]
+        .iter()
+        .any(|d| d.code == seismic_component::VALUE_MISMATCH)
+    {
+        return Ok(LoadCaseSolve {
+            load_state_evidence: None,
+            exact_case_evidence: None,
+            pressure_evidence: Vec::new(),
+            source_case: None,
+            source_selected: false,
+            load_case_id: load_case.id.clone(),
+            results: Vec::new(),
+            max_displacement: None,
+            max_stress: None,
+            max_stress_reduced: None,
+            component_stress_modifier_count: 0,
+            preview: None,
+            withheld_summaries: Vec::new(),
+            held_status_source: None,
+            certificate_operand: None,
+            nonlinear_state: None,
+        });
+    }
     // W-16 R-c: a pressure-free case's moved spring bases, one per prepared
     // spring (0.0 when unmoved), and their formed loads k·g; refusals join
     // the motion maps' check below.

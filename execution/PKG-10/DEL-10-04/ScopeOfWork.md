@@ -24,7 +24,7 @@ Outputs:
 - **OUT-002** — Hosted verification: the workflows, check registry and selection that give the single required result `harness`.
 - **OUT-003** — Release packaging: the signed, notarized macOS artifact, its checksum and its release artifact record, with the build and release guide `docs/BUILD_AND_RELEASE.md` and the release-notes template `docs/RELEASE_NOTES_TEMPLATE.md`.
 - **OUT-004** — The public repository `sgttomas/SWBPIPE` as SWBPIPE's independent home.
-- **OUT-005** — The desktop's build and package readiness panel.
+- **OUT-005** — The desktop's build and package readiness panel. Its component is kept; the v1.0 interface does not mount it (LIM-039).
 
 ## Deliverable Definition — Ontology
 

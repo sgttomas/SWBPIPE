@@ -336,7 +336,9 @@ def _connector_replaced(model: Mapping[str, Any]) -> set:
 
 def _eligible_components(model: Mapping[str, Any]) -> list:
     """Rust `physics_evidence::eligible_components`: REQ-015's eligible rigid-family components, in model order,
-    with their weight and centre of gravity in SI."""
+    with their weight and centre of gravity in SI. Each coordinate is read after the document's ordinary conversion
+    to metres, as the solve converts it before generation reads it: a coordinate that converts to zero is a zero
+    coordinate there, and no moment term uses it."""
     from .units import to_canonical
     components = [c for c in _items(model.get("components")) if isinstance(c, Mapping)]
     pipes = [p for p in _items(model.get("pipe_segments")) if isinstance(p, Mapping)]
@@ -373,8 +375,6 @@ def _eligible_components(model: Mapping[str, Any]) -> list:
             continue
         if not all(type(e) in (int, float) and math.isfinite(e) for e in entered):
             continue
-        # Each coordinate after the document's ordinary conversion to metres, which the solve applies before
-        # generation reads it: a coordinate that converts to zero is a zero coordinate, and no moment term uses it.
         try:
             r = [to_canonical(e, cog.get("unit"), "length") for e in entered]
         except (ValueError, OverflowError, KeyError, TypeError):
@@ -385,6 +385,73 @@ def _eligible_components(model: Mapping[str, Any]) -> list:
             continue
         eligible.append((component, weight, r))
     return eligible
+
+
+def _bits(value: float) -> str:
+    import struct
+    return struct.pack(">d", value).hex()
+
+
+def _expected_component_forces(model: Mapping[str, Any], case_id: str, seismic: Mapping[str, Any]) -> list:
+    """Rust `physics_evidence::expected_component_forces`: for each entered axis in order, each eligible component's
+    entry: the force fl(k × W) and each moment fl(F × ±r_j), one per nonzero transverse coordinate, as the bits of
+    binary64 values. With k nonzero, a force or moment that is zero or nonfinite after rounding is one the product
+    refuses (`EQUIVALENT_STATIC_COMPONENT_RANGE_INVALID`), so no solved record of the model exists: refused."""
+    eligible = _eligible_components(model)
+    entries = []
+    for axis in range(3):
+        k = _model_quantity(seismic.get(f"g_factor_{_AXIS_LETTERS[axis]}"), "dimensionless")
+        if k is None:
+            continue
+        for component, w, r in eligible:
+            cid = component.get("id") if isinstance(component.get("id"), str) else ""
+            prefix = f"{case_id}:generated:seismic:{_AXIS_LABELS[axis]}:component:{len(cid.encode())}:{cid}"
+            force = k * w
+            in_range = lambda v: k == 0 or (v != 0 and math.isfinite(v))
+            if not in_range(force):
+                raise Refused("SOURCE_PHYSICS_EQUIVALENT_STATIC_COMPONENT_RANGE")
+            levers = ([0.0, r[2], -r[1]], [-r[2], 0.0, r[0]], [r[1], -r[0], 0.0])[axis]
+            moments = []
+            for i in (i for i in range(3) if i != axis and levers[i] != 0):
+                value = levers[i] * force
+                if not in_range(value):
+                    raise Refused("SOURCE_PHYSICS_EQUIVALENT_STATIC_COMPONENT_RANGE")
+                moments.append({"load_id": f"{prefix}:moment:{_AXIS_LETTERS[i]}", "axis": _AXIS_KEYS[i], "value_N_m": _bits(value)})
+            entries.append({"component_ref": cid, "node_ref": component.get("node"), "axis": _AXIS_KEYS[axis],
+                            "g_factor": _bits(k), "weight_N": _bits(w), "center_of_gravity_m": [_bits(n) for n in r],
+                            "force": {"load_id": f"{prefix}:force", "value_N": _bits(force)}, "moments": moments})
+    return entries
+
+
+def equivalent_static_component_checks(source: Mapping[str, Any], model: Mapping[str, Any]) -> None:
+    """Rust `physics_evidence::equivalent_static_model_binding` (DEL-05-01, issue 450 item 4): every solved exact
+    case's ``equivalent_static.component_forces``, recomputed from the model alone and compared by bits in
+    generation order. A case that generates no component force (a wind-only case, a case without generation, a
+    seismic case with no replacing component) has an empty expected list, so any entry it carries is refused; a
+    record without the key where the model forms an entry is refused (a result saved before the product formed
+    component forces, decision 3 of issue 450)."""
+    if (source.get("status") or {}).get("mechanics") != "MECHANICS_SOLVED":
+        return
+    evidence = source.get("contract_evidence") or {}
+    cases = _items(evidence.get("exact_cases") if isinstance(evidence, Mapping) else None)
+    for case in _items(model.get("load_cases")):
+        if not isinstance(case, Mapping):
+            continue
+        found = next((c for c in cases if isinstance(c, Mapping) and c.get("load_case_id") == case.get("id")), None)
+        if found is None:
+            continue
+        case_id = case.get("id")
+        if not isinstance(case_id, str) or not case_id:
+            raise Refused("SOURCE_PHYSICS_STRING_INVALID")
+        generation = case.get("equivalent_static")
+        seismic = generation.get("seismic") if isinstance(generation, Mapping) else None
+        expected = _expected_component_forces(model, case_id, seismic) if isinstance(seismic, Mapping) else []
+        record = found.get("equivalent_static")
+        if not isinstance(record, Mapping) or "component_forces" not in record:
+            if expected:
+                raise Refused("SOURCE_PHYSICS_EQUIVALENT_STATIC_COMPONENT_RECORD_MISSING")
+        elif record["component_forces"] != expected:
+            raise Refused("SOURCE_PHYSICS_EQUIVALENT_STATIC_COMPONENT_MODEL_MISMATCH")
 
 
 def expected_generated_load_ids(model: Mapping[str, Any], case: Mapping[str, Any]) -> list:
@@ -473,7 +540,11 @@ def physics_model_checks(source: Mapping[str, Any], model: Mapping[str, Any]) ->
             sb.bind_shear_model(evidence, model)
         except sb.BasisError as error:
             raise Refused(str(error)) from error
-    # DEL-05-01 REQ-008 (issue 452): which generated loads each solved case has, rederived from the model, in order.
+    # DEL-05-01 (issue 450 item 4): each component force entry, recomputed from the model.
+    if model.get("load_cases") is not None:
+        equivalent_static_component_checks(source, model)
+    # DEL-05-01 REQ-008 (issue 452): which generated loads each solved case has, rederived from the model, in order,
+    # after the component values are compared (as in Rust).
     if model.get("load_cases") is not None and (source.get("status") or {}).get("mechanics") == "MECHANICS_SOLVED":
         for authored in _items(model["load_cases"]):
             if not isinstance(authored, Mapping) or not isinstance(authored.get("equivalent_static"), Mapping):

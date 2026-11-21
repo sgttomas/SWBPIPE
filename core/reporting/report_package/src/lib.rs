@@ -70,6 +70,7 @@ pub mod model_input;
 pub mod pf_timoshenko;
 pub mod quantity_display;
 pub mod reader;
+pub mod report_members;
 pub mod schema_eval;
 pub mod user_release;
 pub mod wire;

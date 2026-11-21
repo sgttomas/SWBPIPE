@@ -394,12 +394,18 @@ fn solve_all(route: Route, model: Model, mode: PreviewSolverMode) -> Vec<(String
 
 // ------------------------------------------------------------------ the oracle
 /// Every seismic reference document a person can make, on both routes, both
-/// models and both solver modes: every nodal motion, support reaction, member
-/// end action, generated load and load resultant within the criterion (84
-/// rows a case on the cantilever, 90 on the fixed-ended model).
+/// models and both solver modes: every row of each of the package's 32
+/// seismic reference cases (every nodal motion, support reaction, member end
+/// action, generated load and load resultant) within the criterion: 84 rows a
+/// case on the cantilever, 81 for the cases with no replacing component and
+/// the zero-weight fallback (BND-NONE, CTRL-ZERO-AS-NOT-APPLIED), 90 on the
+/// fixed-ended model. The package's self-weight reference cases are not
+/// solved here, and its controls and limits are read as controls
+/// ([`the_product_disagrees_with_every_control`]).
 #[test]
 fn every_seismic_reference_case_is_reproduced() {
     let mut worst = 0usize;
+    let mut compared = std::collections::BTreeSet::new();
     for route in [Route::Pf, Route::Ex] {
         for model in [Model::Cant, Model::Fixed] {
             for mode in MODES {
@@ -410,11 +416,17 @@ fn every_seismic_reference_case_is_reproduced() {
                     assert_eq!(n, r["rows"].as_array().unwrap().len(), "{id}: every row is compared");
                     assert!(failures.is_empty(), "{id} {}: {} rows outside the criterion:\n{}", mode.as_str(), failures.len(), failures.join("\n"));
                     worst = worst.max(n);
+                    compared.insert(id);
                 }
             }
         }
     }
     assert!(worst > 0);
+    let package: std::collections::BTreeSet<String> = refs()["cases"].as_array().unwrap().iter()
+        .filter(|c| c["role"] == "reference" && c["load_kind"] == "seismic")
+        .map(|c| c["id"].as_str().unwrap().to_string()).collect();
+    assert_eq!(compared.len(), 32);
+    assert_eq!(compared, package, "every seismic reference case of the package is compared");
 }
 
 /// Each labelled control is a wrong rule, and the product must disagree
@@ -752,6 +764,7 @@ fn the_readers_bind_the_component_record() {
     let zero = document(Route::Ex, Model::Cant, ZERO_WEIGHT, vec![case_of(reference(id), "case:s")]);
     let bound = reader_verdict::validate("pressure", &out, Some(&zero["model"]), None);
     assert_eq!(bound["ok"], false, "{bound}");
+    assert_eq!(bound["error"]["code"], "SOURCE_PHYSICS_EQUIVALENT_STATIC_COMPONENT_MODEL_MISMATCH", "{bound}");
 }
 
 /// Issue 450 round 1 finding 3. The model-bound check compares every solved
@@ -820,6 +833,7 @@ fn a_component_record_on_a_case_that_generates_none_is_refused() {
         "generated_load_ids": ids, "component_forces": [entry]});
     let bound = reader_verdict::validate("pressure", &forged, Some(model), None);
     assert_eq!(bound["ok"], false, "{bound}");
+    assert_eq!(bound["error"]["code"], "SOURCE_PHYSICS_EQUIVALENT_STATIC_COMPONENT_MODEL_MISMATCH", "{bound}");
     // A model whose required force rounds to zero (k = 0.3, W the smallest positive binary64 in N).
     let mut range = model.clone();
     range["components"][0]["geometry"]["weight"] = qv(f64::from_bits(1), "N");
@@ -895,6 +909,52 @@ fn a_coordinate_that_converts_to_zero_forms_no_moment_and_the_reader_agrees() {
         "source_model_hash": format!("sha256:{}", "a".repeat(64))})).unwrap();
     let refused = open_pipe_stress_product_physics::self_weight::generate_self_weight_operations(&model, &request).expect_err("the plan's block fires");
     assert!(!refused.is_empty() && refused.iter().all(|d| d.code == "SELF_WEIGHT_RANGE_INVALID"), "{refused:?}");
+}
+
+// ------------------------------------------------------------------ the shared record corpus
+const RECORD_CORPUS_PATH: &str = concat!(env!("CARGO_MANIFEST_DIR"), "/../../fixtures/results/seismic_component_record_corpus.json");
+
+/// The shared component record corpus (issue 450 round 2 item 2): solved
+/// exact-route envelopes with their models, read by
+/// `tests/test_seismic_component_record_reader.py`, which runs the same
+/// forgeries through the Rust model-bound reader (the runner's `read
+/// pressure`) and its Python mirror (`tests/verifiers/reader_verdict.py`).
+/// The first holds a seismic case, a wind-only case and a case without
+/// generation; the second a centre-of-gravity coordinate that converts to
+/// zero metres. Regenerate with `SCW_WRITE_CORPUS=1`; otherwise the committed
+/// bytes must be current.
+#[test]
+fn shared_component_record_corpus_is_current() {
+    let id = "SCW-CANT-EX-SEISMIC-XYZ";
+    let wind = json!({"id": "case:w", "primitive_loads": [], "provenance": PROV, "equivalent_static": {"wind": {
+        "pressure": qv(500.0, "Pa"), "shape_factor": qv(0.7, "1"), "direction": "global_z", "exposed_pipe_refs": ["AB"]},
+        "provenance": PROV}});
+    let plain = json!({"id": "case:p", "provenance": PROV, "primitive_loads": [{"id": "load:p", "category": "concentrated_force",
+        "target": {"type": "node", "node": "C"}, "direction": "global_z", "magnitude": qv(-10.0, "N"), "dimension": "force", "provenance": PROV}]});
+    let three = document(Route::Ex, Model::Cant, ONE_MAPPED, vec![case_of(reference(id), "case:s"), wind, plain]);
+    let mut tiny = document(Route::Ex, Model::Cant, ONE_MAPPED, vec![case_of(reference(id), "case:s")]);
+    tiny["model"]["components"][0]["geometry"]["center_of_gravity"] = json!({"x": -175.0, "y": 1.0e-321, "z": 125.0, "unit": "mm"});
+    let mut cases = Vec::new();
+    for (label, wire) in [
+        ("seismic, wind-only and plain cases", three),
+        ("a centre-of-gravity coordinate that converts to zero metres", tiny),
+    ] {
+        let envelope = solved(&wire, PreviewSolverMode::SparseInteractive, label);
+        cases.push(json!({"label": label, "model": wire["model"], "envelope": envelope}));
+    }
+    let corpus = json!({
+        "corpus": "DEL-05-01 seismic component record reader corpus",
+        "generator": "core/product_physics/tests/seismic_component_weight.rs::shared_component_record_corpus_is_current",
+        "cases": cases,
+    });
+    let bytes = serde_json::to_string_pretty(&corpus).unwrap() + "\n";
+    if std::env::var_os("SCW_WRITE_CORPUS").is_some() {
+        std::fs::write(RECORD_CORPUS_PATH, &bytes).unwrap();
+        return;
+    }
+    // Read at compile time, so the numerical CI's read index binds it to this test.
+    let committed = include_str!("../../../fixtures/results/seismic_component_record_corpus.json");
+    assert!(committed == bytes, "the shared component record corpus is stale; regenerate it with SCW_WRITE_CORPUS=1");
 }
 
 // ------------------------------------------------------------------ the rule's value
