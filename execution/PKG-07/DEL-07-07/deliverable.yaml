@@ -66,9 +66,9 @@ needs:
   gating: false
 - from: DEL-07-11
   condition: >-
-    The workspace shell mounts the solve, progress and diagnostics panels, routes the Solve command
-    to the job, holds the session's current result handle, and refuses a solve where no model is
-    open.
+    The workspace shell mounts the solve panel, the solve status line and the diagnostics panel,
+    routes the Solve command to the job, holds the session's current result handle, and refuses a
+    solve where no model is open.
   gating: true
 code_paths:
 - apps/desktop/src/features/solve/**
@@ -198,3 +198,5 @@ checks:
 - apps/desktop/src/features/diagnostics/DiagnosticsPanel.supplied.test.tsx
 - apps/desktop/src/features/diagnostics/DiagnosticsPanel.native.supplied.test.tsx
 - apps/desktop/src/features/diagnostics/DiagnosticsPanel.filterRequest.test.tsx
+- apps/desktop/src/features/diagnostics/issueItems.test.tsx
+- apps/desktop/src/features/solve/SolvePanel.diagnosticsRow.test.tsx
