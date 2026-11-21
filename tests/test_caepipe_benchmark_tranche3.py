@@ -567,19 +567,19 @@ def test_each_hand_entry_run_is_one_change_with_stated_fields_and_a_save():
             # No field carries a value whose unit a saved page does not state: only zero, blank, unitless entries.
             assert field["value"] in ("0", "1", "blank", "pressed", "Rigid (the default)"), field
         assert 1 <= run["fields_entered_estimate"] <= 6
-        held = document["hand_entry"]["held"]
-        assert set(held) == set(document["screening_classes"]["static"]) and all("HELD" in item for item in held.values())
+        compared = document["hand_entry"]["comparison"]
+        assert set(compared) == set(document["screening_classes"]["static"])
+        assert all(item.startswith(hand.COMPARED) for item in compared.values())
 
 
 def test_hand_entry_screening_classes_and_one_way_declarations():
-    one_way = ("a one-way support: its capture is taken at the sitting and held; whether SWBPIPE's result for it may be "
-               "compared is read from the product at each solve and is recorded nowhere here.")
+    one_way = hand.ONE_WAY
     for document in hand_documents():
         classes = document["screening_classes"]["static"]
         assert "gap_case" not in document["hand_entry"]
         if document["family"] == "N":
             assert set(classes.values()) == {"nonlinear"} and document["hand_entry"]["one_way_case"] == one_way
-            assert set(document["hand_entry"]["held"].values()) == {hand.HELD}
+            assert set(document["hand_entry"]["comparison"].values()) == {hand.COMPARED}
             assert document["hand_entry"]["expected_status"]
         else:
             assert classes == {case: screening_class(document["inexact_inputs"][case]) for case in classes}
@@ -590,12 +590,12 @@ def test_hand_entry_screening_classes_and_one_way_declarations():
             assert "never adjusted to what comes back" in document["description"]
             [member] = document["hand_entry"]["member"]
             assert member["restraints"] == ["UY"] and member["hanger"]["constant_load"]["value"] > 0
-            # REQ-019: no one-parameter series carries constant_support_load, so every case's hold waits for an
-            # independently justified one as well as for the product's own result and the capture's binding.
-            for held in document["hand_entry"]["held"].values():
-                assert held == hand.HELD_UNTIL_SERIES and "constant_support_load" in held and "REQ-019" in held
-                assert "independently justified one-parameter series" in held and "never fitted" in held
-                assert "binding to the model actually run" in held and "not compared" in held
+            # REQ-019: no one-parameter series carries constant_support_load, so every case's comparison names that
+            # input and attributes its difference to it until an independently justified series exists.
+            for compared in document["hand_entry"]["comparison"].values():
+                assert compared == hand.COMPARED_NAMING_INPUT and "constant_support_load" in compared
+                assert "REQ-019" in compared and "independently justified one-parameter series" in compared
+                assert "never fitted" in compared
             [run] = [entry for entry in manifest()["models"] if entry["model_id"] == document["model_id"]][0]["runs"]
             assert hand.SERIES_WAIT in run["screening_waits_for"]
     assert manifest()["hand_entry"]["one_way_cases"] == one_way

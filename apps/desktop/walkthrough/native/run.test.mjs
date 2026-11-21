@@ -9,8 +9,9 @@ import test from "node:test";
 import vm from "node:vm";
 import { composeIndex } from "../compose-index.mjs";
 import { MENU_SURFACE, NATIVE_SURFACE, NATIVE_SURFACES, PICTURE_BASIS, VIEW_3D_SURFACE, nativeSurfacesFor, readStepRecords, renderScreens, screensFromRecords, writePart } from "./render.mjs";
-import { mkdirSync, symlinkSync } from "node:fs";
-import { DEFAULT_JOURNEYS, JOURNEYS, composeDriver, emptyNativeOutput, nativeMenuRecord, parseArguments, placeFiles, placementsFor, screenLockState, windowShownRecord } from "./run.mjs";
+import { existsSync, mkdirSync, symlinkSync } from "node:fs";
+import { createHash } from "node:crypto";
+import { DEFAULT_JOURNEYS, JOURNEYS, composeDriver, emptyNativeOutput, nativeMenuRecord, parseArguments, placeFiles, placementsFor, readStoredRuns, screenLockState, storeCopiesFor, storedRunEvidence, windowShownRecord } from "./run.mjs";
 
 function scratch(t) {
   const folder = mkdtempSync(path.join(os.tmpdir(), "native-walkthrough-test-"));
@@ -1272,4 +1273,147 @@ test("the handover and the index say the launch started with an agent on the scr
   const index = JSON.parse(readFileSync(path.join(out, "INDEX.json"), "utf8"));
   assert.equal(index.journeys[0].launch.attendant_on_screen.stated_by, "the lane's agent");
   assert.match(readFileSync(path.join(out, "index.html"), "utf8"), /Started with an agent on the screen: a SkyComputerUseService process\. the lane&#39;s agent stated|Started with an agent on the screen: a SkyComputerUseService process\. the lane's agent stated that the agent operating the screen is this launch's attendant \(--attendant-on-screen\)/);
+});
+
+test("stored runs: each project's stored texts by SHA-256, as placed and at each copy; a changed or missing copy is not unchanged", async (t) => {
+  const { DatabaseSync } = await import("node:sqlite");
+  const root = scratch(t);
+  const store = (file, record) => {
+    const db = new DatabaseSync(file);
+    db.exec("CREATE TABLE local_projects (project_id TEXT PRIMARY KEY, mechanics_result_json TEXT, analysis_run_json TEXT)");
+    db.prepare("INSERT INTO local_projects VALUES (?, ?, ?)").run("project:a", "{\"r\":1}", record);
+    db.close();
+  };
+  const report = path.join(root, "report-x.json");
+  store(path.join(root, "placed.sqlite3"), "{\"k\":1}");
+  store(`${report}.store-after-open.store.sqlite3`, "{\"k\":1}");
+  store(`${report}.store-after-save.store.sqlite3`, "{\"k\":2}");
+  const placed = await readStoredRuns(path.join(root, "placed.sqlite3"));
+  assert.equal(placed.length, 1);
+  assert.match(placed[0].result_sha256, /^[0-9a-f]{64}$/);
+  const same = await storedRunEvidence({ names: ["after-open"], report, placed });
+  assert.equal(same.unchanged, true);
+  assert.deepEqual(same.at["after-open"], placed);
+  const changed = await storedRunEvidence({ names: ["after-open", "after-save", "never"], report, placed });
+  assert.equal(changed.unchanged, false);
+  assert.notEqual(changed.at["after-save"][0].record_sha256, placed[0].record_sha256);
+  assert.match(changed.at.never.missing, /no copy/);
+});
+
+test("store copies: each is a name, never a path; a journey that declares none has none", () => {
+  const store = [{ key: "store", at: "{app-data}/openpipestress-projects.sqlite3", from: "fixtures/s.sql", build: "sqlite3-from-sql" }];
+  assert.deepEqual(storeCopiesFor({ place: store, store_copies: ["after-open", "after-save"] }), ["after-open", "after-save"]);
+  assert.deepEqual(storeCopiesFor({}), []);
+  assert.deepEqual(storeCopiesFor(JOURNEYS["prepared-project"]), []);
+  for (const outside of ["../store", "/tmp/store", "a/b", "chooser/models/x.sqlite3", "Upper", "", "x".repeat(27)]) {
+    assert.throws(() => storeCopiesFor({ place: store, store_copies: [outside] }), new RegExp(`store_copies\\[0\\] \\(${outside.replace(/[.*+?^${}()|[\]\\/]/g, "\\$&")}\\): a store copy is named by .*it is not a path`), outside);
+  }
+  assert.throws(() => storeCopiesFor({ place: store, store_copies: ["a", "a"] }), /twice/);
+  assert.throws(() => storeCopiesFor({ place: [], store_copies: ["a"] }), /needs a store placed at \{app-data\}/);
+  assert.throws(() => storeCopiesFor({ place: store, store_copies: "after-open" }), /a list of names/);
+});
+
+test("the refused-stored-run journey builds its store from SQL text and copies it after the open and the save", () => {
+  const spec = JOURNEYS["refused-stored-run"];
+  assert.equal(spec.number, 25);
+  assert.deepEqual(spec.place.map((item) => [item.at, item.build]), [["{app-data}/openpipestress-projects.sqlite3", "sqlite3-from-sql"]]);
+  assert.match(spec.place[0].from, /^fixtures\/.*\.sql$/);
+  assert.equal(spec.open.by, "local-project");
+  const driver = readFileSync(new URL("./driver.js", import.meta.url), "utf8");
+  for (const name of storeCopiesFor(spec)) assert.match(driver, new RegExp(`storeCopy\\("${name}"\\)`));
+});
+
+function sqlFixture(t) {
+  const root = scratch(t);
+  const home = path.join(root, "home");
+  mkdirSync(path.join(root, "fixtures"), { recursive: true });
+  mkdirSync(home);
+  const sql = "PRAGMA journal_mode = WAL;\nPRAGMA user_version = 3;\nBEGIN TRANSACTION;\nCREATE TABLE local_projects (project_id TEXT PRIMARY KEY, mechanics_result_json TEXT, analysis_run_json TEXT);\nINSERT INTO \"local_projects\" VALUES('project:a','{}','{\"k\":1}');\nCOMMIT;\n";
+  writeFileSync(path.join(root, "fixtures", "store.sql"), sql);
+  const entry = { key: "store", at: "{app-data}/openpipestress-projects.sqlite3", from: "fixtures/store.sql", build: "sqlite3-from-sql" };
+  return { root, home, sql, entry, options: { home, identifier: "com.example.app", projectRoot: root } };
+}
+
+test("placement sqlite3-from-sql: the outside-home, outside-fixtures, link and missing-file refusals hold for the kind", (t) => {
+  const { root, home, entry, options } = sqlFixture(t);
+  writeFileSync(path.join(root, "secret.sql"), "");
+  symlinkSync(path.join(root, "secret.sql"), path.join(root, "fixtures", "link.sql"));
+  const refused = (change, pattern) => assert.throws(() => placementsFor([{ ...entry, ...change }], options), pattern);
+  refused({ at: "/etc/store.sqlite3" }, /place\[0\] \(store\): at must be a relative path inside the home/);
+  refused({ at: "chooser/../../store.sqlite3" }, /place\[0\] \(store\): at must be a relative path inside the home/);
+  refused({ from: "secret.sql" }, /place\[0\] \(store\): from must be a committed path under fixtures/);
+  refused({ from: "fixtures/../secret.sql" }, /place\[0\] \(store\): from must be a committed path under fixtures/);
+  refused({ from: "fixtures/link.sql" }, /place\[0\] \(store\): fixtures\/link.sql is not a regular file/);
+  refused({ from: "fixtures/missing.sql" }, /place\[0\] \(store\): fixtures\/missing.sql does not exist/);
+  refused({ build: "shell" }, /place\[0\] \(store\): build must be "sqlite3-from-sql"/);
+  assert.deepEqual(readdirSync(home), []);
+});
+
+test("placement sqlite3-from-sql: an absent sqlite3 refuses by name before anything is placed", (t) => {
+  const { home, entry, options } = sqlFixture(t);
+  assert.throws(() => placementsFor([entry], { ...options, sqlite3: path.join(home, "no-sqlite3") }), /place\[0\] \(store\): sqlite3-from-sql needs .*no-sqlite3, which is not there to run/);
+  assert.deepEqual(readdirSync(home), []);
+});
+
+test("placement sqlite3-from-sql: sqlite3 is run by its path with a fixed argument list and the SQL on standard input; a failure places nothing", (t) => {
+  const { sql, entry, options } = sqlFixture(t);
+  const placements = placementsFor([entry], { ...options, sqlite3: process.execPath });
+  const calls = [];
+  const failing = (command, args, opts) => { calls.push({ command, args, input: String(opts.input), cwd: opts.cwd, env: opts.env, shell: opts.shell }); const error = new Error("exit 1"); error.stderr = Buffer.from("Parse error near line 1\n"); throw error; };
+  assert.throws(() => placeFiles(placements, { sqlite3: "/usr/bin/sqlite3", run: failing }), /place \(store\): sqlite3-from-sql: \/usr\/bin\/sqlite3 failed \(Parse error near line 1\)/);
+  assert.equal(calls.length, 1);
+  assert.equal(calls[0].command, "/usr/bin/sqlite3");
+  assert.deepEqual(calls[0].args, ["-bail", "-batch", "-safe", "built.sqlite3"]);
+  assert.equal(calls[0].input, sql);
+  assert.equal(calls[0].shell, undefined);
+  assert.deepEqual(calls[0].env, { HOME: calls[0].cwd });
+  assert.ok(calls[0].cwd.startsWith(path.dirname(placements[0].to)));
+  // Nothing placed, and the build folder is gone.
+  assert.deepEqual(readdirSync(path.dirname(placements[0].to)), []);
+});
+
+test("placement sqlite3-from-sql: /usr/bin/sqlite3 builds the store at its destination and both SHA-256s are recorded", { skip: !existsSync("/usr/bin/sqlite3") && "no /usr/bin/sqlite3 on this host" }, async (t) => {
+  const { sql, entry, options } = sqlFixture(t);
+  const placements = placementsFor([entry], options);
+  const built = [];
+  const placed = placeFiles(placements, { built });
+  const store = placed.store;
+  assert.deepEqual(readdirSync(path.dirname(store)), ["openpipestress-projects.sqlite3"]);
+  const bytes = readFileSync(store);
+  assert.equal(bytes.subarray(0, 16).toString("latin1"), "SQLite format 3\0");
+  assert.equal(bytes[18], 2, "WAL mode");
+  const sha = (data) => createHash("sha256").update(data).digest("hex");
+  assert.deepEqual(built, [{ key: "store", from: "store.sql", build: "sqlite3-from-sql", sql_sha256: sha(sql), sha256: sha(bytes), bytes: bytes.length }]);
+  assert.equal((await readStoredRuns(store))[0].project_id, "project:a");
+  // Never over a file already there.
+  assert.throws(() => placeFiles(placements, { built: [] }), /exists/);
+});
+
+test("the index carries a journey's built placements and stored runs, and a journey without them has neither", (t) => {
+  const out = scratch(t);
+  const screens = [{ number: 2501, journey: "x", step: "opened", note: "n" }];
+  writePart(out, { number: 25, name: "x", title: "X", use_case: "u", revision: null, build: null, screens, launch: null, built_placements: [{ key: "store", sql_sha256: "a", sha256: "b", bytes: 1, build: "sqlite3-from-sql", from: "s.sql" }], stored_runs: { what: "w", placed: [], at: { o: [] }, unchanged: true } });
+  writePart(out, { number: 24, name: "y", title: "Y", use_case: "u", revision: null, build: null, screens: [{ number: 2401, journey: "y", step: "opened", note: "n" }], launch: null });
+  composeIndex(out);
+  const index = JSON.parse(readFileSync(path.join(out, "INDEX.json"), "utf8"));
+  const [y, x] = index.journeys;
+  assert.equal(x.built_placements[0].sha256, "b");
+  assert.equal(x.stored_runs.unchanged, true);
+  assert.ok(!("built_placements" in y) && !("stored_runs" in y));
+  assert.deepEqual(Object.keys(x).filter((key) => !["built_placements", "stored_runs"].includes(key)), Object.keys(y));
+});
+
+test("placement sqlite3-from-sql: a WAL left with content, or any other file beside the store, refuses and places nothing", (t) => {
+  const { entry, options } = sqlFixture(t);
+  const placements = placementsFor([entry], { ...options, sqlite3: process.execPath });
+  const leaving = (extra) => (command, args, opts) => {
+    writeFileSync(path.join(opts.cwd, "built.sqlite3"), "store");
+    for (const [name, text] of Object.entries(extra)) writeFileSync(path.join(opts.cwd, name), text);
+  };
+  assert.throws(() => placeFiles(placements, { run: leaving({ "built.sqlite3-wal": "frames", "built.sqlite3-shm": "" }) }), /sqlite3 left built.sqlite3-shm, built.sqlite3-wal/);
+  assert.throws(() => placeFiles(placements, { run: leaving({ "other": "x" }) }), /sqlite3 left other/);
+  assert.deepEqual(readdirSync(path.dirname(placements[0].to)), []);
+  // An empty WAL (this platform's sqlite3 keeps one after a clean close) goes with its index.
+  const placed = placeFiles(placements, { run: leaving({ "built.sqlite3-wal": "", "built.sqlite3-shm": "index" }) });
+  assert.deepEqual(readdirSync(path.dirname(placed.store)), ["openpipestress-projects.sqlite3"]);
 });

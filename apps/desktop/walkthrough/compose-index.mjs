@@ -252,6 +252,8 @@ export function composeIndex(out, { size = null } = {}) {
       ...(journey.picture_basis ? { picture_basis: journey.picture_basis } : {}),
       ...(journey.launch ? { launch: journey.launch } : {}),
       ...(journey.window_shown ? { window_shown: journey.window_shown } : {}),
+      ...(journey.built_placements ? { built_placements: journey.built_placements } : {}),
+      ...(journey.stored_runs ? { stored_runs: journey.stored_runs } : {}),
       screens: journey.screens.filter((screen) => screen.file && !screen.failed).length,
       stopped_at: journey.screens.find((screen) => screen.failed)?.step ?? null,
       not_reached: journey.screens.filter((screen) => screen.not_reached).map((screen) => screen.step),
@@ -331,7 +333,11 @@ function renderHtml(index) {
     const stops = journey.stopped_by_launch?.length ? `<p class="substituted">Stopped by the launch, while the attendant worked:</p><ul class="stops">${journey.stopped_by_launch.map((item) => `<li>${escapeHtml(item.at ?? "at an unrecorded time")}, ${escapeHtml(item.control ?? "an unnamed control")}: ${escapeHtml(item.what ?? "")}</li>`).join("")}</ul>` : "";
     const onScreen = journey.launch?.attendant_on_screen;
     const agent = onScreen?.stated ? `<p class="substituted">Started with an agent on the screen: ${escapeHtml(onScreen.marks_before_start?.length ? onScreen.marks_before_start.join("; ") : "no mark was found directly before the start")}. ${escapeHtml(onScreen.stated_by)} stated that ${escapeHtml(onScreen.statement)} (${escapeHtml(onScreen.option)}).</p>` : "";
-    return `<section id="j${journey.number}"><h2>${journey.number}. ${escapeHtml(journey.title)}</h2>${facts}${surface}${agent}${stopped}${stops}${unexplained}<ol class="screens">${screens.map(renderScreen).join("")}</ol></section>`;
+    const builds = (journey.built_placements ?? []).map((item) => `<p class="surface">Placed ${escapeHtml(item.key)}: built by ${escapeHtml(item.build)} from ${escapeHtml(item.from)} (SQL SHA-256 ${escapeHtml(item.sql_sha256)}; built file SHA-256 ${escapeHtml(item.sha256)}, ${item.bytes} bytes).</p>`).join("");
+    const stored = journey.stored_runs
+      ? `<p class="surface">Stored runs: ${journey.stored_runs.error ? `not read (${escapeHtml(journey.stored_runs.error)})` : `${journey.stored_runs.unchanged ? "unchanged" : "not shown unchanged"} at ${escapeHtml(Object.keys(journey.stored_runs.at).join(", "))}: ${escapeHtml(journey.stored_runs.what)}`}.</p>`
+      : "";
+    return `<section id="j${journey.number}"><h2>${journey.number}. ${escapeHtml(journey.title)}</h2>${facts}${builds}${stored}${surface}${agent}${stopped}${stops}${unexplained}<ol class="screens">${screens.map(renderScreen).join("")}</ol></section>`;
   }).join("");
   const rows = index.screens.filter((screen) => screen.words_on_screen !== undefined).map((screen) =>
     `<tr><td><a href="#s${screen.number}">${screen.number}</a></td><td>${escapeHtml(screen.journey)}</td><td>${escapeHtml(screen.step)}</td><td>${[screen.redrawn ? "redrawn" : "", screen.capture === "the actual window" ? "attended capture; counts the application's own" : "", screen.substitutions?.length ? "substituted" : "", screen.window_shown ? "window shown" : ""].filter(Boolean).join(", ")}</td><td class="n">${screen.words_on_screen}</td><td class="n">${screen.words_in_page}</td><td class="n">${screen.buttons_on_screen}</td><td class="n">${screen.inputs_on_screen}</td><td class="n">${screen.longest_scroll_screens}</td></tr>`).join("");

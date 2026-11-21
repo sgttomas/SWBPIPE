@@ -237,9 +237,10 @@ function restoreDrawnState() {
 
 /**
  * Writes the journey's part file in the browser walkthrough's form, with its surface, the launch's reading of the
- * menu the app built (`native_menu`) and whether its window was shown (`window_shown`, run.mjs windowShownRecord).
+ * menu the app built (`native_menu`), whether its window was shown (`window_shown`, run.mjs windowShownRecord), and,
+ * where the journey has them, the stores it built at placement and its stored-run evidence.
  */
-export function writePart(out, { number, name, title, use_case, revision, build, screens, launch, native_menu = null, window_shown = null }) {
+export function writePart(out, { number, name, title, use_case, revision, build, screens, launch, native_menu = null, window_shown = null, built_placements, stored_runs }) {
   const windows = [...new Set(screens.map((screen) => screen.window).filter(Boolean))];
   const part = {
     number, name, title, use_case, revision, build, surface: NATIVE_SURFACE, picture_basis: PICTURE_BASIS,
@@ -247,7 +248,8 @@ export function writePart(out, { number, name, title, use_case, revision, build,
     native_surfaces: nativeSurfacesFor({ menu: native_menu, windowShown: window_shown?.shown === true, screens }),
     ...(native_menu ? { native_menu } : {}),
     ...(window_shown ? { window_shown } : {}),
-    launch, screens
+    launch,
+    ...(built_placements ? { built_placements } : {}), ...(stored_runs ? { stored_runs } : {}), screens
   };
   const file = path.join(out, `part-${String(number).padStart(2, "0")}-${name}.json`);
   writeFileSync(file, `${JSON.stringify(part, null, 2)}\n`);
