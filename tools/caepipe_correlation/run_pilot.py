@@ -1330,13 +1330,10 @@ def _run_benchmark_model(entry: Mapping[str, Any], config: HarnessConfig, *, run
     return RECORDED, route, ""
 
 
-def _benchmark_gate(model_id: str, config: HarnessConfig, stops: BenchmarkStops, *,
-                    liveness: Callable[[HarnessConfig], dict[str, Any]],
-                    precondition: Callable[[HarnessConfig], dict[str, Any]], sleep: Callable[[float], None],
-                    emit: Callable[[str], None]) -> str | None:
-    """Before each live model: the freeze file, a pending exclusive job, the guest's liveness (checked again once
-    after BENCHMARK_RETRY_WAIT_S) and the no-foreign-instance precondition. None when the model may start, else why
-    the run stops."""
+def _stops_hold(stops: BenchmarkStops, label: str, *, sleep: Callable[[float], None],
+                emit: Callable[[str], None]) -> str | None:
+    """The host's stop files, checked with no guest call: the freeze file present stops; a pending exclusive job is
+    waited for (up to BENCHMARK_EXCLUSIVE_WAIT_S), then stops. None when neither holds."""
     if stops.freeze.exists():
         return "the freeze file is present"
     waited = 0.0
@@ -1344,9 +1341,22 @@ def _benchmark_gate(model_id: str, config: HarnessConfig, stops: BenchmarkStops,
         if waited >= BENCHMARK_EXCLUSIVE_WAIT_S:
             return f"an exclusive job was still pending after {waited:g} s"
         if waited == 0.0:
-            emit(f"{model_id}: an exclusive job is pending; waiting for it (up to {BENCHMARK_EXCLUSIVE_WAIT_S:g} s)")
+            emit(f"{label}: an exclusive job is pending; waiting for it (up to {BENCHMARK_EXCLUSIVE_WAIT_S:g} s)")
         sleep(BENCHMARK_POLL_S)
         waited += BENCHMARK_POLL_S
+    return None
+
+
+def _benchmark_gate(model_id: str, config: HarnessConfig, stops: BenchmarkStops, *,
+                    liveness: Callable[[HarnessConfig], dict[str, Any]],
+                    precondition: Callable[[HarnessConfig], dict[str, Any]], sleep: Callable[[float], None],
+                    emit: Callable[[str], None]) -> str | None:
+    """Before each live model: the freeze file, a pending exclusive job, the guest's liveness (checked again once
+    after BENCHMARK_RETRY_WAIT_S) and the no-foreign-instance precondition. None when the model may start, else why
+    the run stops."""
+    held = _stops_hold(stops, model_id, sleep=sleep, emit=emit)
+    if held is not None:
+        return held
     alive = liveness(config)
     if alive["status"] != "alive":
         emit(f"{model_id}: liveness {alive['status']}; {alive.get('reason', '')}; "
@@ -1615,12 +1625,22 @@ def benchmark_main(args: argparse.Namespace, environ: Mapping[str, str]) -> int:
         return 2
     for warning in config.warnings:
         print(f"warning: {warning}")
-    if not args.offline:
+    stops = None if args.offline else BenchmarkStops(freeze=Path(args.freeze_file),
+                                                     exclusive=Path(args.exclusive_file))
+    if stops is not None:
+        # Before the session's first guest call: the batch argument, then the host's stop files, so no guest call is
+        # made for an out-of-range batch or while a stop is in force (an exclusive measurement window included).
+        batches = benchmark_batches(models, args.batch_size)
+        if args.batch is not None and not 1 <= args.batch <= len(batches):
+            print(f"error: --batch {args.batch} is not one of the {len(batches)} batches")
+            return 2
+        held = _stops_hold(stops, "before the session", sleep=time.sleep, emit=print)
+        if held is not None:
+            print(f"stopped before the first guest step: {held}")
+            return 1
         config = live_session(config)
         if config is None:
             return 1
-    stops = None if args.offline else BenchmarkStops(freeze=Path(args.freeze_file),
-                                                     exclusive=Path(args.exclusive_file))
     return run_benchmark(models, config, runner=runner, offline=args.offline, batch_size=args.batch_size,
                          batch=args.batch, stops=stops, pace_s=args.pace_s, collect_only=args.collect_only)
 

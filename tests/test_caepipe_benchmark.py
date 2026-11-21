@@ -2160,13 +2160,15 @@ def test_a_pending_exclusive_job_holds_the_run(fake_benchmark, monkeypatch, caps
     monkeypatch.setattr(run_pilot.time, "sleep", command_sleep(poll))
     assert run_pilot.main(state["argv"] + ["--case", "cpb-g1-01"], environ={}) == 0
     assert polls == [30.0, 30.0] and [call[0] for call in state["calls"]] == ["cpb-g1-01"]
-    assert "cpb-g1-01: an exclusive job is pending; waiting for it (up to 1800 s)" in capsys.readouterr().out
+    # The hold is checked before the session's first guest call, so the run waits there, then opens the session.
+    assert "before the session: an exclusive job is pending; waiting for it (up to 1800 s)" in capsys.readouterr().out
     state["calls"].clear()
     state["exclusive"].write_text(f"{os.getpid()}\n", encoding="ascii")
     monkeypatch.setattr(run_pilot.time, "sleep", command_sleep(lambda seconds: None))
     assert run_pilot.main(state["argv"] + ["--case", "cpb-g1-01"], environ={}) == 1
     assert state["calls"] == []
-    assert "stopped before cpb-g1-01: an exclusive job was still pending after 1800 s" in capsys.readouterr().out
+    assert "stopped before the first guest step: an exclusive job was still pending after 1800 s" in \
+        capsys.readouterr().out
 
 
 # The answer's form is the Windows version line alone, with nothing on stderr: any other text with exit 0 (an
