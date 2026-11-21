@@ -31,7 +31,10 @@
 //! open checks to solve, persistence and export, runs on the product's code.
 //! The evidence journeys (`native-smoke/evidence-journeys.mjs`) also write
 //! checkpoints of their report, and a read-only copy of the store, while the app
-//! runs (`native_smoke_checkpoint`); they change nothing the app does.
+//! runs (`native_smoke_checkpoint`); they change nothing the app does. The native
+//! walkthrough also reads back the menu the app built (`native_smoke_menu_items`)
+//! and, when its run asks, brings the window to the front with the window's own
+//! API so the 3D view draws (`native_smoke_show_window`).
 
 use serde::Serialize;
 use serde_json::Value;
@@ -569,6 +572,164 @@ async fn confirm_closed(selected: Option<String>, registered: impl Fn(&str) -> b
 #[tauri::command]
 pub fn native_smoke_menu(app: AppHandle, command_id: String) {
     crate::dispatch_native_menu_command(&app, &command_id);
+}
+
+/// One entry of the menu the app built, as [`native_smoke_menu_items`] returns it. A separator carries nothing; an
+/// item its label as the menu shows it (mnemonics stripped), its command identifier where it has one (the id a click
+/// dispatches; a system item such as Copy or About has none), whether it is enabled where the menu API reports it
+/// (it does not for a system item), and, for a check item, whether it is ticked.
+#[derive(Serialize, Debug, PartialEq)]
+#[serde(tag = "kind", rename_all = "snake_case")]
+pub enum BuiltMenuEntry {
+    Separator,
+    Item {
+        label: String,
+        command_id: Option<String>,
+        enabled: Option<bool>,
+        #[serde(skip_serializing_if = "Option::is_none")]
+        checked: Option<bool>,
+        system: bool,
+    },
+    Submenu {
+        label: String,
+        enabled: bool,
+        items: Vec<BuiltMenuEntry>,
+    },
+}
+
+/// What one node of a built menu says of itself, read through the menu API. A system item (muda's predefined item)
+/// whose label is empty is a separator: every other system item has a label.
+enum MenuNode<N> {
+    Submenu { label: String, enabled: bool, children: Vec<N> },
+    Command { id: String, label: String, enabled: bool, checked: Option<bool> },
+    System { label: String },
+}
+
+trait ReadMenuNode: Sized {
+    fn read(&self) -> Result<MenuNode<Self>, String>;
+}
+
+impl<R: Runtime> ReadMenuNode for tauri::menu::MenuItemKind<R> {
+    fn read(&self) -> Result<MenuNode<Self>, String> {
+        use tauri::menu::MenuItemKind;
+        let failed = |error: tauri::Error| error.to_string();
+        Ok(match self {
+            MenuItemKind::Submenu(menu) => MenuNode::Submenu { label: menu.text().map_err(failed)?, enabled: menu.is_enabled().map_err(failed)?, children: menu.items().map_err(failed)? },
+            MenuItemKind::MenuItem(item) => MenuNode::Command { id: item.id().0.clone(), label: item.text().map_err(failed)?, enabled: item.is_enabled().map_err(failed)?, checked: None },
+            MenuItemKind::Check(item) => MenuNode::Command { id: item.id().0.clone(), label: item.text().map_err(failed)?, enabled: item.is_enabled().map_err(failed)?, checked: Some(item.is_checked().map_err(failed)?) },
+            MenuItemKind::Icon(item) => MenuNode::Command { id: item.id().0.clone(), label: item.text().map_err(failed)?, enabled: item.is_enabled().map_err(failed)?, checked: None },
+            MenuItemKind::Predefined(item) => MenuNode::System { label: item.text().map_err(failed)? },
+        })
+    }
+}
+
+/// The entries of `nodes`, in their order, each submenu with its own entries.
+fn describe_menu<N: ReadMenuNode>(nodes: &[N]) -> Result<Vec<BuiltMenuEntry>, String> {
+    nodes
+        .iter()
+        .map(|node| {
+            Ok(match node.read()? {
+                MenuNode::Submenu { label, enabled, children } => BuiltMenuEntry::Submenu { label, enabled, items: describe_menu(&children)? },
+                MenuNode::Command { id, label, enabled, checked } => BuiltMenuEntry::Item { label, command_id: Some(id), enabled: Some(enabled), checked, system: false },
+                MenuNode::System { label } if label.is_empty() => BuiltMenuEntry::Separator,
+                MenuNode::System { label } => BuiltMenuEntry::Item { label, command_id: None, enabled: None, checked: None, system: true },
+            })
+        })
+        .collect()
+}
+
+/// The application menu as the app built and installed it (`app.menu()`, the menu `build_app_menu` returned and the
+/// app has since updated), read item by item through the menu API: each top-level menu, its items in order with their
+/// labels, command identifiers, enabled and ticked state, and its separators. It reads the built menu, never a list
+/// of its own, so it cannot drift from what the menu bar holds; it says nothing of how the system draws or places it.
+#[tauri::command]
+pub fn native_smoke_menu_items(app: AppHandle) -> Result<Vec<BuiltMenuEntry>, String> {
+    let menu = app.menu().ok_or_else(|| "NATIVE-MENU-UNAVAILABLE: application menu is not installed".to_string())?;
+    describe_menu(&menu.items().map_err(|error| error.to_string())?)
+}
+
+/// Shows the main window and brings it to the front for the run, with the window's own API (no system automation,
+/// nothing captured): unminimized, shown, kept above other windows and given focus, so that its web view reports its
+/// page visible and the 3D view draws. Returns what the window then reports. The window closes with the app.
+#[tauri::command]
+pub fn native_smoke_show_window(app: AppHandle) -> Result<Value, String> {
+    let window = app.get_webview_window("main").ok_or_else(|| "NATIVE-WINDOW-UNAVAILABLE: main webview is not installed".to_string())?;
+    let failed = |error: tauri::Error| error.to_string();
+    window.unminimize().map_err(failed)?;
+    window.show().map_err(failed)?;
+    window.set_always_on_top(true).map_err(failed)?;
+    window.set_focus().map_err(failed)?;
+    Ok(serde_json::json!({
+        "visible": window.is_visible().map_err(failed)?,
+        "focused": window.is_focused().map_err(failed)?,
+        "minimized": window.is_minimized().map_err(failed)?,
+        "always_on_top": true,
+    }))
+}
+
+#[cfg(test)]
+mod built_menu_tests {
+    use super::{describe_menu, BuiltMenuEntry, MenuNode, ReadMenuNode};
+
+    /// A menu node as the menu API would report it.
+    #[derive(Clone)]
+    enum Fake {
+        Submenu(&'static str, bool, Vec<Fake>),
+        Command(&'static str, &'static str, bool, Option<bool>),
+        System(&'static str),
+    }
+
+    impl ReadMenuNode for Fake {
+        fn read(&self) -> Result<MenuNode<Self>, String> {
+            Ok(match self.clone() {
+                Fake::Submenu(label, enabled, children) => MenuNode::Submenu { label: label.into(), enabled, children },
+                Fake::Command(id, label, enabled, checked) => MenuNode::Command { id: id.into(), label: label.into(), enabled, checked },
+                Fake::System(label) => MenuNode::System { label: label.into() },
+            })
+        }
+    }
+
+    #[test]
+    fn the_built_menu_is_described_in_order_with_separators_ids_and_state() {
+        let menu = [
+            Fake::Submenu("SWBPIPE", true, vec![Fake::System("About SWBPIPE"), Fake::System(""), Fake::Command("app.quit", "Quit SWBPIPE", true, None)]),
+            Fake::Submenu("View", true, vec![
+                Fake::Command("view.view.both", "Both View", true, Some(true)),
+                Fake::Command("view.stage.results", "Results Stage", false, Some(false)),
+                Fake::Submenu("Nested", false, vec![Fake::Command("x.y", "Inner", true, None)]),
+            ]),
+        ];
+        let described = describe_menu(&menu).unwrap();
+        let item = |label: &str, id: &str, enabled: bool, checked: Option<bool>| BuiltMenuEntry::Item { label: label.into(), command_id: Some(id.into()), enabled: Some(enabled), checked, system: false };
+        assert_eq!(described, vec![
+            BuiltMenuEntry::Submenu { label: "SWBPIPE".into(), enabled: true, items: vec![
+                BuiltMenuEntry::Item { label: "About SWBPIPE".into(), command_id: None, enabled: None, checked: None, system: true },
+                BuiltMenuEntry::Separator,
+                item("Quit SWBPIPE", "app.quit", true, None),
+            ] },
+            BuiltMenuEntry::Submenu { label: "View".into(), enabled: true, items: vec![
+                item("Both View", "view.view.both", true, Some(true)),
+                item("Results Stage", "view.stage.results", false, Some(false)),
+                BuiltMenuEntry::Submenu { label: "Nested".into(), enabled: false, items: vec![item("Inner", "x.y", true, None)] },
+            ] },
+        ]);
+        // The form the walkthrough reads: a tagged kind, no checked member on a plain item.
+        let json = serde_json::to_value(&described[0]).unwrap();
+        assert_eq!(json["kind"], "submenu");
+        assert_eq!(json["items"][1], serde_json::json!({ "kind": "separator" }));
+        assert_eq!(json["items"][2], serde_json::json!({ "kind": "item", "label": "Quit SWBPIPE", "command_id": "app.quit", "enabled": true, "system": false }));
+    }
+
+    #[test]
+    fn a_failed_read_is_an_error_not_a_shorter_menu() {
+        struct Broken;
+        impl ReadMenuNode for Broken {
+            fn read(&self) -> Result<MenuNode<Self>, String> {
+                Err("menu read failed".into())
+            }
+        }
+        assert_eq!(describe_menu(&[Broken]).unwrap_err(), "menu read failed");
+    }
 }
 
 #[tauri::command]

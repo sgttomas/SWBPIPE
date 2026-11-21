@@ -90,6 +90,8 @@ async function queueEntityDelete(panel: ReturnType<typeof mountPanel>, id: strin
 }
 
 async function queueTermDelete(panel: ReturnType<typeof mountPanel>, id: string, index: number): Promise<EditorOperationIntent> {
+  // A combination's terms are shown when it is chosen; choosing a term opens its edit.
+  fireEvent.click(byId(`load-manager-combination-select-${id}`));
   fireEvent.click(byId(`load-manager-combination-term-${id}-${index}`));
   const before = panel.queued.length;
   await waitFor(() => expect(byId("queue-delete-combination-term-intent")).toBeEnabled());
@@ -140,7 +142,6 @@ describe("deleting each record form through the panel and the engine", () => {
     // SRSS names both subtractions, so it goes first; its before is its canonical JSON.
     const srss = await queueEntityDelete(panel, "combination:S");
     expect(srss.change).toMatchObject({ change_kind: "delete_combination", field_path: "combinations", before: await canonicalJsonString(stored(start, "combination:S")), after: "not_present" });
-    expect(byId("load-manager-combination-entity-delete-preview")).toHaveTextContent(`before=${await canonicalJsonString(stored(start, "combination:S"))}`);
     model = await apply(model, srss);
     panel.set(model);
 

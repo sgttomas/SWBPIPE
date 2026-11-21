@@ -99,6 +99,8 @@ it("names a dropped choice beside the package actions in Report and Exports", as
   const reportAgain = openSection("report");
   await waitFor(() => expect(within(reportAgain).getByTestId("report-comparison-package-notice-dropped")).toHaveTextContent(dropped));
   expect(within(reportAgain).getByTestId("report-comparison-package-notice-text")).toHaveTextContent("Packages include: load:L-100 vs combination:C-OPER-ALT.");
+  // The Exports page says nothing of the comparison: none of the exports it offers carries it.
   const exportsSection = openSection("exports");
-  expect(within(exportsSection).getByTestId("handoff-comparison-package-notice-dropped")).toHaveTextContent(dropped);
+  expect(within(exportsSection).queryByTestId("handoff-comparison-package-notice")).toBeNull();
+  expect(exportsSection).not.toHaveTextContent("Packages include");
 });

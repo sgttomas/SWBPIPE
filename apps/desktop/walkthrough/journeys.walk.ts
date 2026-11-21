@@ -22,7 +22,6 @@ import { Journey } from "./recorder";
 const INVENTED = "invented_walkthrough_input";
 // The parts of the screen a person reads when they are not the tallest scrolling region.
 const ISSUES = '[data-testid="issues-home"]';
-const AUDIT = '[data-testid="audit-boundary-drawer"]';
 const INSPECTOR = "#shell-inspector";
 
 async function open(page: Page): Promise<void> {
@@ -56,7 +55,7 @@ async function clearOverlays(page: Page): Promise<void> {
     const control = page.getByTestId(testId);
     if (await control.isVisible()) await control.click();
   }
-  for (const drawer of ["issues-home", "audit-boundary-drawer"]) {
+  for (const drawer of ["issues-home"]) {
     const close = page.getByTestId(drawer).getByRole("button", { name: "Close", exact: true });
     if (await close.isVisible()) await close.click();
   }
@@ -95,8 +94,8 @@ test("01 orientation: every menu, stage and page as first met", async ({ page })
   });
   await page.keyboard.press("Escape");
 
-  await journey.step("agent-control", "The toolbar's Agent control, as offered", async () => {
-    await page.getByTestId("toggle-agent").hover();
+  await journey.step("agent-control", "The agent strip's Agent control: Review changes opened on its Agent tab", async () => {
+    await page.getByTestId("agent-strip-open").click();
   });
 
   for (const stage of ["model", "loads", "results", "review"]) {
@@ -110,19 +109,36 @@ test("01 orientation: every menu, stage and page as first met", async ({ page })
       await control.click();
     });
   }
+
+  // A dialog in each theme: the units dialog of File > New Blank Project, with the theme set as a
+  // person sets it (View > Dark, View > Light) and the page's colour scheme emulated to match.
+  for (const theme of ["dark", "light"] as const) {
+    await journey.step(`dialog-${theme}`, `The units dialog of File > New Blank Project in the ${theme} theme`, async () => {
+      await page.emulateMedia({ colorScheme: theme });
+      await menu(page, "view", `view.theme.${theme}`);
+      await projectCommand(page, "new-blank");
+      await expect(page.getByTestId("project-units-dialog")).toBeVisible();
+    });
+    const cancel = page.getByTestId("project-units-cancel");
+    if (await cancel.isVisible()) await cancel.click();
+  }
+  await menu(page, "view", "view.theme.system");
+  await page.emulateMedia({ colorScheme: null });
   journey.finish();
 });
 
 test("02 pages: each page of the workspace, top to bottom", async ({ page }) => {
-  const journey = new Journey(page, 2, "pages", "Pages: each page reached from the View menu, with what lies below the fold");
+  const journey = new Journey(page, 2, "pages", "Pages: each page, reached from the rail or the View menu, with what lies below the fold");
   await open(page);
   const pages: ReadonlyArray<[Parameters<typeof openWorkspaceSection>[1], string]> = [
     ["operations", "Review changes"], ["loads", "Load Cases"], ["libraries", "Libraries"], ["rule-packs", "Rules"],
     ["solve", "Analyze"], ["results", "Results"], ["report", "Report"], ["project", "Project"],
-    ["exports", "Exports"], ["evidence", "Audit & Boundaries"]
+    ["exports", "Exports"], ["evidence", "Evidence"]
   ];
   for (const [id, label] of pages) {
-    await journey.step(`page-${id}`, `The ${label} page, opened from the View menu`, async () => { await openWorkspaceSection(page, id); });
+    // Review changes and Load Cases are reached by the rail and the stage tab; the View menu does not list them.
+    const route = id === "operations" || id === "loads" ? "the rail and its tab" : "the View menu";
+    await journey.step(`page-${id}`, `The ${label} page, opened from ${route}`, async () => { await openWorkspaceSection(page, id); });
     await journey.scrolled(`page-${id}`, `The ${label} page`);
   }
   await showModelTree(page);
@@ -135,9 +151,6 @@ test("02 pages: each page of the workspace, top to bottom", async ({ page }) => 
   await showModelTree(page);
   await journey.step("drawer-issues", "The Issues drawer, from the status bar", async () => { await page.getByTestId("issues-drawer-toggle").click(); });
   await journey.scrolled("drawer-issues", "The Issues drawer", 2, ISSUES);
-  await clearOverlays(page);
-  await journey.step("drawer-audit", "The Audit and boundaries drawer, from the status bar", async () => { await page.getByTestId("audit-drawer-toggle").click(); });
-  await journey.scrolled("drawer-audit", "The Audit and boundaries drawer", 2, AUDIT);
   await clearOverlays(page);
   await journey.step("key-results", "Key results, from the View menu, before any solve", async () => { await menu(page, "view", "view.key-results"); });
   journey.finish();
@@ -214,7 +227,57 @@ test("05 loads: define cases and combinations (DEL-07-06 AC-007, every required 
   const journey = new Journey(page, 5, "loads", "Loads: the page an engineer uses to define cases, loads and combinations");
   await open(page);
   await journey.step("loads-stage", "The Loads stage on the demonstration model", async () => { await page.getByTestId("rail-stage-loads").click(); });
-  await journey.scrolled("loads-stage", "The Loads stage", 6);
+  await journey.scrolled("loads-stage", "The Loads stage", 2);
+  const loads = page.getByTestId("load-case-manager");
+  const caseRows = loads.getByTestId("load-case-manager-cases").locator('button[data-testid^="load-manager-case-"]');
+  for (const testId of await caseRows.evaluateAll((rows) => rows.map((row) => row.getAttribute("data-testid") ?? ""))) {
+    const id = testId.replace("load-manager-case-", "");
+    await journey.step(`case-${id.replace(/[^A-Za-z0-9-]+/g, "-")}`, `The case ${id} chosen in the list`, async () => {
+      await loads.getByTestId(testId).click();
+      await loads.getByTestId("load-manager-selected-case").scrollIntoViewIfNeeded();
+    });
+  }
+  await journey.step("load-edit", "A load row chosen: its magnitude edit and delete open in place", async () => {
+    await caseRows.first().click();
+    await loads.locator('[data-testid^="load-manager-primitive-"]').first().click();
+    await loads.getByTestId("load-manager-selected-primitive").scrollIntoViewIfNeeded();
+  });
+  await journey.step("add-load", "Add load, with the selected case already chosen", async () => {
+    await loads.getByTestId("load-manager-add-load").click();
+    await loads.getByTestId("load-manager-add-load-form").scrollIntoViewIfNeeded();
+  });
+  await journey.step("pressure-and-conditions", "The case's Pressure and Conditions sections opened", async () => {
+    await loads.getByTestId("load-manager-add-load-cancel").click();
+    for (const section of ["load-case-section-pressure", "load-case-section-conditions"]) {
+      const details = loads.getByTestId(section);
+      if (!(await details.evaluate((element) => (element as HTMLDetailsElement).open))) await details.locator(":scope > summary").click();
+    }
+    await loads.getByTestId("load-case-section-pressure").scrollIntoViewIfNeeded();
+  });
+  await journey.scrolled("pressure-and-conditions", "The Pressure and Conditions sections", 2);
+  await journey.step("combination", "A combination chosen: its terms, basis and delete", async () => {
+    await loads.locator('[data-testid^="load-manager-combination-select-"]').first().click();
+    await loads.getByTestId("load-manager-selected-combination").scrollIntoViewIfNeeded();
+  });
+  await journey.step("new-case", "New case", async () => { await loads.getByTestId("load-manager-new-case").click(); });
+  await journey.step("new-combination", "New combination", async () => {
+    await loads.getByTestId("load-manager-create-load-cancel").click();
+    await loads.getByTestId("load-manager-new-combination").click();
+  });
+  await journey.step("templates", "The Templates command opened", async () => {
+    await loads.getByTestId("load-manager-create-combination-cancel").click();
+    await loads.getByTestId("load-manager-templates").click();
+  });
+  await journey.step("seismic-template", "The three-axis static seismic template", async () => {
+    await loads.getByTestId("load-manager-template-seismic").click();
+  });
+  await journey.scrolled("seismic-template", "The seismic template", 2);
+  await journey.step("analysis-settings", "Analysis settings opened at the foot of the page", async () => {
+    await loads.getByTestId("load-manager-seismic-template-cancel").click();
+    const settings = loads.getByTestId("load-manager-analysis-settings");
+    await settings.locator(":scope > summary").click();
+    await settings.scrollIntoViewIfNeeded();
+  });
   journey.finish();
 });
 

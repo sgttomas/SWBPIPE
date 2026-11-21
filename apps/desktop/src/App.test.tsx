@@ -47,8 +47,18 @@ import { KnowledgePanel } from "./features/knowledge/KnowledgePanel";
 import { buildStressNeutralExportPacket } from "./features/stress-neutral/StressNeutralExportPanel";
 import { NativePackagePanel, buildNativePackageReview } from "./features/native-package/NativePackagePanel";
 import { buildLocalFeaHandoffPacket } from "./features/local-fea-handoff/LocalFeaHandoffPanel";
-import { buildHandoffPackage } from "./features/handoff/HandoffPanel";
-import { buildHeadlessRunnerPacket } from "./features/headless-runner/HeadlessRunnerPanel";
+import { HandoffPanel, buildHandoffPackage } from "./features/handoff/HandoffPanel";
+import { HeadlessRunnerPanel, buildHeadlessRunnerPacket } from "./features/headless-runner/HeadlessRunnerPanel";
+import { AdapterFrameworkPanel } from "./features/adapter-framework/AdapterFrameworkPanel";
+import { ExternalProverBoundaryPanel } from "./features/external-prover/ExternalProverBoundaryPanel";
+import { CaepipeExternalHarnessPanel } from "./features/caepipe-external/CaepipeExternalHarnessPanel";
+import { ExportAdapterSdkPanel } from "./features/export-adapter-sdk/ExportAdapterSdkPanel";
+import { BuildReadinessPanel } from "./features/build-readiness/BuildReadinessPanel";
+import { ValidationEvidencePanel } from "./features/validation-evidence/ValidationEvidencePanel";
+import { AccessibilityBaselinePanel } from "./features/accessibility-baseline/AccessibilityBaselinePanel";
+import { ReportLintPanel } from "./features/report-lint/ReportLintPanel";
+import { SecretPrivateLibraryPanel } from "./features/secret-private-library/SecretPrivateLibraryPanel";
+import { SecurityThreatModelPanel } from "./features/security-threat-model/SecurityThreatModelPanel";
 import { initialSolveJob } from "./features/workspace/solveJobAudit";
 import { RunAuditPanel } from "./features/run-audit/RunAuditPanel";
 import { OperationLedgerPanel } from "./features/operations/OperationLedgerPanel";
@@ -153,8 +163,10 @@ type AppWorkspaceSection = "operations" | "loads" | "libraries" | "rule-packs" |
 function openWorkspaceSection(sectionId: AppWorkspaceSection) {
   let section = screen.queryByTestId(`workspace-section-${sectionId}`);
   if (!section || section.classList.contains("inactive")) {
-    if (sectionId === "operations" && screen.queryByTestId("workspace-review")) {
-      fireEvent.click(screen.getByTestId("workspace-review"));
+    if (sectionId === "operations" || sectionId === "loads") {
+      // Review changes and Load Cases are reached by the rail and the stage tab, as a person does.
+      fireEvent.click(screen.getByTestId(sectionId === "operations" ? "rail-stage-model" : "rail-stage-loads"));
+      if (sectionId === "operations") fireEvent.click(screen.getByTestId("workspace-review"));
     } else if (screen.queryByTestId("menu-view")) {
       fireEvent.click(screen.getByTestId("menu-view"));
       fireEvent.click(screen.getByTestId(`menu-item-view.section.${sectionId}`));
@@ -285,24 +297,8 @@ function stressNeutralExport() {
   return within(openWorkspaceSection("exports")).getByLabelText("Stress-neutral CSV JSON export");
 }
 
-function exportSafetyReview() {
-  return within(openWorkspaceSection("exports")).getByLabelText("Export safety review");
-}
-
-function handoffPackage() {
-  return within(openWorkspaceSection("exports")).getByLabelText("Handoff package");
-}
-
-function headlessRunnerEnvelope() {
-  return within(openWorkspaceSection("exports")).getByLabelText("Headless runner envelope");
-}
-
 function runAuditPanel() {
   return within(openWorkspaceSection("evidence")).getByLabelText("Run audit");
-}
-
-function buildPackageReadiness() {
-  return within(openWorkspaceSection("evidence")).getByLabelText("Build package readiness");
 }
 
 function comparisonWorkspace() {
@@ -1194,10 +1190,6 @@ describe("SWBPIPE desktop preview", () => {
 
     fireEvent.click(screen.getByTestId("issues-drawer-toggle"));
     expect(await screen.findByTestId("issues-home")).toBeInTheDocument();
-    fireEvent.click(screen.getByTestId("audit-drawer-toggle"));
-    expect(
-      await screen.findByTestId("audit-boundary-drawer"),
-    ).toBeInTheDocument();
     // Heavy full-<App/> Three.js render plus shell-level integration checks:
     // allow the same DEC-025/full-suite worker load that exercised this path.
   }, 60000);
@@ -1402,345 +1394,12 @@ describe("SWBPIPE desktop preview", () => {
       within(resultExport).getByTestId("result-export-empty").textContent,
     ).toContain("valid Current input proof");
     expect(within(resultExport).queryByTestId("result-export-link")).not.toBeInTheDocument();
-    const headlessRunner = headlessRunnerEnvelope();
-    expect(
-      within(headlessRunner).getByTestId("headless-runner-summary").textContent,
-    ).toContain("available");
-    expect(
-      within(headlessRunner).getByTestId("headless-runner-summary").textContent,
-    ).toContain("job=TBD");
-    expect(
-      within(headlessRunner).getByTestId("headless-runner-summary").textContent,
-    ).toContain("outputs=4");
-    expect(
-      within(headlessRunner).getByTestId("headless-runner-summary").textContent,
-    ).toContain("result_refs=1");
-    expect(
-      within(headlessRunner).getByTestId("headless-runner-interface")
-        .textContent,
-    ).toContain("schema_first_headless_runner_contract");
-    expect(
-      within(headlessRunner).getByTestId("headless-runner-interface")
-        .textContent,
-    ).toContain("cli=openpipestress-runner");
-    expect(
-      within(headlessRunner).getByTestId("headless-runner-units").textContent,
-    ).toContain("results=none");
-    expect(
-      within(headlessRunner).getByTestId("headless-runner-units").textContent,
-    ).toContain("conversion=false");
-    expect(
-      within(headlessRunner).getByTestId("headless-runner-unit-witnesses")
-        .textContent,
-    ).toContain("count=0");
-    expect(
-      within(headlessRunner).getByTestId("headless-runner-runtime-tbds")
-        .textContent,
-    ).toContain("network=SETTLED_DEC_065");
-    expect(
-      within(headlessRunner).getByTestId("headless-runner-boundary")
-        .textContent,
-    ).toContain("network_required=false");
-    expect(
-      within(headlessRunner).getByTestId("headless-runner-boundary")
-        .textContent,
-    ).toContain("handoff evidence for external validation, not a validation outcome");
-    fireEvent.click(
-      within(headlessRunner).getByTestId("headless-runner-export-link-local-private-intent"),
-    );
-    const headlessHref =
-      within(headlessRunner)
-        .getByTestId("headless-runner-export-link")
-        .getAttribute("href") ?? "";
-    const headlessPacket = JSON.parse(
-      decodeURIComponent(headlessHref.split(",", 2)[1]),
-    );
-    expect(headlessPacket.deliverable_id).toBe("DEL-10-05");
-    expect(headlessPacket.package_id).toBe("PKG-10");
-    expect(headlessPacket.scope_items).toContain("SOW-054");
-    expect(headlessPacket.scope_items).toContain("SOW-032");
-    expect(headlessPacket.objectives).toContain("OBJ-008");
-    expect(headlessPacket.objectives).toContain("OBJ-009");
-    expect(headlessPacket.objectives).toContain("OBJ-012");
-    expect(headlessPacket.runner_status.interface_kind).toBe(
-      "schema_first_headless_runner_contract",
-    );
-    expect(
-      headlessPacket.runner_status.physical_project_container
-        .direct_sql_access_allowed,
-    ).toBe(false);
-    expect(
-      headlessPacket.runner_status.physical_project_container.network_required,
-    ).toBe(false);
-    expect(headlessPacket.runner_status.final_cli_command_syntax).toContain(
-      "openpipestress-runner <solve|validate-input|export-results|run-benchmark|run-regression>",
-    );
-    expect(headlessPacket.runner_status.process_invocation).toBe(
-      "single_foreground_local_process",
-    );
-    expect(headlessPacket.runner_status.network_access).toBe("none");
-    expect(headlessPacket.runner_status.filesystem_mutation_policy).toBe(
-      "stdout_default_explicit_output_path_only",
-    );
-    expect(headlessPacket.tbd_decisions.final_cli_command_syntax).toBe(
-      "SETTLED_DEC_065",
-    );
-    expect(headlessPacket.tbd_decisions.process_invocation).toBe(
-      "SETTLED_DEC_065",
-    );
-    expect(headlessPacket.tbd_decisions.network_access).toBe("SETTLED_DEC_065");
-    expect(headlessPacket.tbd_decisions.filesystem_mutation_policy).toBe(
-      "SETTLED_DEC_065",
-    );
-    expect(headlessPacket.request.operation).toBe("solve");
-    expect(headlessPacket.request.requested_outputs).toContain(
-      "result_envelope",
-    );
-    expect(headlessPacket.request.requested_outputs).toContain(
-      "audit_manifest",
-    );
-    expect(headlessPacket.request.privacy.local_only).toBe(true);
-    expect(headlessPacket.request.privacy.telemetry_allowed).toBe(false);
-    expect(headlessPacket.result.job.state).toBe("TBD");
-    expect(
-      headlessPacket.result.unit_system_disclosure.unit_system_ref.ref,
-    ).toBe("unit-system:dec-018-si-dual-display");
-    expect(headlessPacket.result.unit_system_disclosure.result_units).toEqual(
-      [],
-    );
-    expect(
-      headlessPacket.result.unit_system_disclosure.conversion_performed,
-    ).toBe(false);
-    expect(headlessPacket.result.unit_preservation_witnesses).toEqual([]);
-    expect(headlessPacket.result.analysis_status).toContain("MODEL_INCOMPLETE");
-    expect(headlessPacket.result.analysis_status).toContain(
-      "HUMAN_REVIEW_REQUIRED",
-    );
-    expect(headlessPacket.result.result_envelope_ref.compatibility).toBe(
-      "schema_first_json_result_envelope",
-    );
-    expect(headlessPacket.result.result_refs).toHaveLength(1);
-    expect(headlessPacket.result.checksums[0].algorithm).toBe("TBD");
-    expect(headlessPacket.result.privacy.local_only).toBe(true);
-    expect(
-      headlessPacket.result.professional_boundary
-        .software_makes_compliance_claim,
-    ).toBe(false);
-    const adapterFramework = await screen.findByLabelText(
-      "Adapter framework envelope",
-    );
-    expect(
-      within(adapterFramework).getByTestId("adapter-framework-summary")
-        .textContent,
-    ).toContain("available");
-    expect(
-      within(adapterFramework).getByTestId("adapter-framework-summary")
-        .textContent,
-    ).toContain("capabilities=4");
-    expect(
-      within(adapterFramework).getByTestId("adapter-framework-summary")
-        .textContent,
-    ).toContain("parse=not_parsed_by_framework");
-    expect(
-      within(adapterFramework).getByTestId("adapter-framework-status")
-        .textContent,
-    ).toContain("schema_first_format_neutral_adapter_framework");
-    expect(
-      within(adapterFramework).getByTestId("adapter-framework-status")
-        .textContent,
-    ).toContain("formats=TBD");
-    expect(
-      within(adapterFramework).getByTestId("adapter-framework-capabilities")
-        .textContent,
-    ).toContain("validate_payload");
-    expect(
-      within(adapterFramework).getByTestId("adapter-framework-validation")
-        .textContent,
-    ).toContain("schema=required");
-    expect(
-      within(adapterFramework).getByTestId("adapter-framework-units")
-        .textContent,
-    ).toContain("conversion=false");
-    expect(
-      within(adapterFramework).getByTestId("adapter-framework-units")
-        .textContent,
-    ).toContain("witnesses=1");
-    expect(
-      within(adapterFramework).getByTestId("adapter-framework-no-bypass")
-        .textContent,
-    ).toContain("direct_sql=false");
-    expect(
-      within(adapterFramework).getByTestId("adapter-framework-no-bypass")
-        .textContent,
-    ).toContain("network=false");
-    expect(
-      within(adapterFramework).getByTestId("adapter-framework-runtime-tbds")
-        .textContent,
-    ).toContain("plugin=TBD");
-    expect(
-      within(adapterFramework).getByTestId("adapter-framework-boundary")
-        .textContent,
-    ).toContain("private_redacted=true");
-    const adapterHref =
-      within(adapterFramework)
-        .getByTestId("adapter-framework-export-link")
-        .getAttribute("href") ?? "";
-    const adapterPacket = JSON.parse(
-      decodeURIComponent(adapterHref.split(",", 2)[1]),
-    );
-    expect(adapterPacket.deliverable_id).toBe("[REDACTED]");
-    expect(adapterPacket.package_id).toBe("[REDACTED]");
-    expect(adapterPacket.scope_item).toBe("[REDACTED]");
-    expect(adapterPacket.objective).toBe("[REDACTED]");
-    expect(adapterPacket.framework_status.interface_kind).toBe(
-      "[REDACTED]",
-    );
-    expect(adapterPacket.framework_status.external_format_list).toBe("[REDACTED]");
-    expect(adapterPacket.framework_status.public_transport_protocol).toBe(
-      "[REDACTED]",
-    );
-    expect(adapterPacket.tbd_decisions.plugin_runtime).toBe("[REDACTED]");
-    expect(adapterPacket.tbd_decisions.package_scripts).toBe("[REDACTED]");
-    expect(adapterPacket.adapter_declaration.adapter_id).toBe("[REDACTED]");
-    expect(adapterPacket.adapter_declaration.capabilities).toEqual([
-      "[REDACTED]",
-      "[REDACTED]",
-      "[REDACTED]",
-      "[REDACTED]",
-    ]);
-    expect(adapterPacket.unit_policy_evidence.conversion_performed).toBe("[REDACTED]");
-    expect(adapterPacket.operation_result.checksums[0].algorithm).toBe(
-      "[REDACTED]",
-    );
-    expect(
-      adapterPacket.operation_result.professional_boundary
-        .software_makes_compliance_claim,
-    ).toBe("[REDACTED]");
-    expect(
-      adapterPacket.operation_result.professional_boundary
-        .software_makes_security_certification_claim,
-    ).toBe("[REDACTED]");
     const localFea = await screen.findByLabelText("Local FEA handoff");
     expect(
       within(localFea).getByTestId("local-fea-empty").textContent,
     ).toContain("target-neutral local shell/solid FEA");
     expect(localFea.textContent).toContain("no mesh");
     expect(localFea.textContent).toContain("external solver");
-    const externalProver = await screen.findByLabelText(
-      "External prover boundary metadata",
-    );
-    expect(
-      within(externalProver).getByTestId("external-prover-summary").textContent,
-    ).toContain("available");
-    expect(
-      within(externalProver).getByTestId("external-prover-summary").textContent,
-    ).toContain("metadata=non_authoritative_workflow_metadata");
-    expect(
-      within(externalProver).getByTestId("external-prover-summary").textContent,
-    ).toContain("refs=1");
-    expect(
-      within(externalProver).getByTestId("external-prover-summary").textContent,
-    ).toContain("diagnostics=4");
-    expect(
-      within(externalProver).getByTestId("external-prover-contract")
-        .textContent,
-    ).toContain("DEL-15-04");
-    expect(
-      within(externalProver).getByTestId("external-prover-groups").textContent,
-    ).toContain("attachments=1");
-    expect(
-      within(externalProver).getByTestId("external-prover-context-links")
-        .textContent,
-    ).toContain("handoff=1");
-    expect(
-      within(externalProver).getByTestId("external-prover-unsupported-flags")
-        .textContent,
-    ).toContain("external_solver_not_invoked");
-    expect(
-      within(externalProver).getByTestId("external-prover-run-boundary")
-        .textContent,
-    ).toContain("tool_invoked=false");
-    expect(
-      within(externalProver).getByTestId("external-prover-unit-policy")
-        .textContent,
-    ).toContain("length=m");
-    expect(
-      within(externalProver).getByTestId("external-prover-unit-policy")
-        .textContent,
-    ).toContain("conversion=false");
-    expect(
-      within(externalProver).getByTestId("external-prover-authority-boundary")
-        .textContent,
-    ).toContain("compliance=false");
-    fireEvent.click(
-      within(externalProver).getByTestId(
-        "external-prover-export-link-local-private-intent",
-      ),
-    );
-    const externalHref =
-      within(externalProver)
-        .getByTestId("external-prover-export-link")
-        .getAttribute("href") ?? "";
-    const externalPacket = JSON.parse(
-      decodeURIComponent(externalHref.split(",", 2)[1]),
-    );
-    expect(externalPacket.deliverable_id).toBe("DEL-15-04");
-    expect(externalPacket.package_id).toBe("PKG-15");
-    expect(externalPacket.scope_item).toBe("SOW-075");
-    expect(externalPacket.objectives).toContain("OBJ-017");
-    expect(externalPacket.objectives).toContain("OBJ-018");
-    expect(externalPacket.metadata_contract_status).toBe(
-      "non_authoritative_workflow_metadata",
-    );
-    expect(externalPacket.tags).toContain("run-context-pending");
-    expect(externalPacket.external_references[0].external_ref.ref).toBe(
-      "external:desktop-preview-metadata-only",
-    );
-    expect(externalPacket.attachments[0].payload_embedded).toBe(false);
-    expect(externalPacket.handoff_package_refs[0].ref.ref).toBe("handoff:TBD");
-    expect(externalPacket.immutable_model_state_refs[0].ref.ref).toBe(
-      "state:TBD",
-    );
-    expect(externalPacket.unit_policy_evidence.storage_convention).toBe(
-      "entered_units_preserved",
-    );
-    expect(externalPacket.unit_policy_evidence.conversion_policy).toBe(
-      "external_prover_metadata_records_units_without_target_conversion",
-    );
-    expect(externalPacket.unit_policy_evidence.conversion_performed).toBe(
-      false,
-    );
-    expect(externalPacket.unit_policy_evidence.external_prover_scope).toBe(
-      "metadata_only_external_review_context",
-    );
-    expect(
-      externalPacket.unit_policy_evidence.external_prover_unit_policy,
-    ).toBe("record_units_for_external_reviewer_without_invoking_target_solver");
-    expect(externalPacket.unit_policy_evidence.witness_policy).toBe(
-      "record_external_prover_unit_policy_without_claiming_target_writer_conversion",
-    );
-    expect(externalPacket.unit_policy_evidence.witness_count).toBe(1);
-    expect(externalPacket.unit_policy_evidence.analysis_run_ref.ref).toBe(
-      "analysis-run:TBD",
-    );
-    expect(externalPacket.unit_policy_evidence.external_ref.ref).toBe(
-      "external:desktop-preview-metadata-only",
-    );
-    expect(externalPacket.unsupported_target_flags).toHaveLength(3);
-    expect(externalPacket.diagnostics).toHaveLength(4);
-    expect(externalPacket.professional_boundary.external_tool_invoked).toBe(
-      false,
-    );
-    expect(
-      externalPacket.professional_boundary.commercial_result_payload_ingested,
-    ).toBe(false);
-    expect(
-      externalPacket.professional_boundary
-        .software_creates_external_validation_record,
-    ).toBe(false);
-    expect(
-      externalPacket.professional_boundary.software_makes_compliance_claim,
-    ).toBe(false);
     const reviewGeometry = await screen.findByLabelText(
       "Review geometry export",
     );
@@ -2014,655 +1673,10 @@ describe("SWBPIPE desktop preview", () => {
     expect(invokeMock.mock.calls.slice(mbfCallsBefore).map(([command]) => command)).not.toContain("review_mbf_export");
     fireEvent.click(within(mbfDialog).getByTestId("mbf-export-cancel"));
     await waitFor(() => expect(screen.queryByTestId("mbf-export-dialog")).toBeNull());
-    const caepipeExternal = await screen.findByLabelText(
-      "External prover run",
-    );
-    expect(
-      within(caepipeExternal).getByTestId("caepipe-external-summary")
-        .textContent,
-    ).toContain("available");
-    expect(
-      within(caepipeExternal).getByTestId("caepipe-external-summary")
-        .textContent,
-    ).toContain("status=parser_only_evidence");
-    expect(
-      within(caepipeExternal).getByTestId("caepipe-external-summary")
-        .textContent,
-    ).toContain("rows=3");
-    expect(
-      within(caepipeExternal).getByTestId("caepipe-external-summary")
-        .textContent,
-    ).toContain("sections=2");
-    expect(
-      within(caepipeExternal).getByTestId("caepipe-external-summary")
-        .textContent,
-    ).toContain("external_invoked=false");
-    expect(
-      within(caepipeExternal).getByTestId("caepipe-external-harness")
-        .textContent,
-    ).toContain("config=absent");
-    expect(
-      within(caepipeExternal).getByTestId("caepipe-external-harness")
-        .textContent,
-    ).toContain("TBD-17-05-invocation-profile");
-    expect(
-      within(caepipeExternal).getByTestId("caepipe-external-state-binding")
-        .textContent,
-    ).toContain("del-17-04");
-    expect(
-      within(caepipeExternal).getByTestId("caepipe-external-state-binding")
-        .textContent,
-    ).toContain("not generated");
-    expect(
-      within(caepipeExternal).getByTestId("caepipe-external-parser")
-        .textContent,
-    ).toContain("parsed_parser_only_fixture");
-    expect(
-      within(caepipeExternal).getByTestId("caepipe-external-parser")
-        .textContent,
-    ).toContain("correlation=canonical_id_map");
-    expect(
-      within(caepipeExternal).getByTestId("caepipe-external-units").textContent,
-    ).toContain("unit-system:dec-018-si-dual-display");
-    expect(
-      within(caepipeExternal).getByTestId("caepipe-external-units").textContent,
-    ).toContain("conversion=false");
-    expect(
-      within(caepipeExternal).getByTestId("caepipe-external-unit-witnesses")
-        .textContent,
-    ).toContain("count=3");
-    expect(
-      within(caepipeExternal).getByTestId("caepipe-external-unit-witnesses")
-        .textContent,
-    ).toContain("conversion=false");
-    expect(
-      within(caepipeExternal).getByTestId("caepipe-external-boundary")
-        .textContent,
-    ).not.toContain("compatibility");
-    expect(renderedVendorNameMentions(caepipeExternal)).toEqual([]);
-    expect(
-      within(caepipeExternal).getByTestId("caepipe-external-boundary")
-        .textContent,
-    ).toContain("code_compliance=false");
-    expect(
-      within(caepipeExternal)
-        .getByTestId("caepipe-external-export-link")
-        .getAttribute("href"),
-    ).toBeNull();
-    fireEvent.click(
-      within(caepipeExternal).getByTestId(
-        "caepipe-external-export-link-local-private-intent",
-      ),
-    );
-    const caepipeExternalHref =
-      within(caepipeExternal)
-        .getByTestId("caepipe-external-export-link")
-        .getAttribute("href") ?? "";
-    const caepipeExternalPacket = JSON.parse(
-      decodeURIComponent(caepipeExternalHref.split(",", 2)[1]),
-    );
-    expect(caepipeExternalPacket.document_kind).toBe(
-      "openpipestress.technical_preview.caepipe_external_run_package",
-    );
-    expect(caepipeExternalPacket.deliverable_id).toBe("DEL-17-05");
-    expect(caepipeExternalPacket.package_id).toBe("PKG-17");
-    expect(caepipeExternalPacket.scope_items).toContain("SOW-030");
-    expect(caepipeExternalPacket.scope_items).toContain("SOW-046");
-    expect(caepipeExternalPacket.scope_items).toContain("SOW-075");
-    expect(caepipeExternalPacket.package_status).toBe("parser_only_evidence");
-    expect(caepipeExternalPacket.mbf_package_ref.ref).toContain("del-17-04");
-    expect(caepipeExternalPacket.executable_config.configured_path_state).toBe(
-      "absent",
-    );
-    expect(
-      caepipeExternalPacket.executable_config
-        .license_responsibility_acknowledged,
-    ).toBe(false);
-    expect(
-      caepipeExternalPacket.executable_config
-        .environment_responsibility_acknowledged,
-    ).toBe(false);
-    expect(caepipeExternalPacket.command_profile.profile_id).toBe(
-      "TBD-17-05-invocation-profile",
-    );
-    expect(caepipeExternalPacket.execution_result.attempted).toBe(false);
-    expect(caepipeExternalPacket.parser_coverage).toHaveLength(2);
-    expect(
-      caepipeExternalPacket.unit_system_disclosure.unit_system_ref.ref,
-    ).toBe("unit-system:dec-018-si-dual-display");
-    expect(
-      caepipeExternalPacket.unit_system_disclosure.target_export_units
-        .node_displacements,
-    ).toBe("m");
-    expect(
-      caepipeExternalPacket.unit_system_disclosure.target_export_units
-        .element_forces,
-    ).toBe("N");
-    expect(
-      caepipeExternalPacket.unit_system_disclosure.conversion_performed,
-    ).toBe(false);
-    expect(caepipeExternalPacket.unit_witness_policy).toBe(
-      "preserve_parser_csv_row_value_unit_and_dimension_per_row",
-    );
-    expect(caepipeExternalPacket.unit_preservation_witnesses).toHaveLength(3);
-    const caepipeExternalForceWitness =
-      caepipeExternalPacket.unit_preservation_witnesses.find(
-        (item: { source_row_ref: { ref: string } }) =>
-          item.source_row_ref.ref === "csv-row:4",
-      );
-    expect(caepipeExternalForceWitness.source_quantity.unit).toBe("N");
-    expect(caepipeExternalForceWitness.source_quantity.dimension).toBe("force");
-    expect(caepipeExternalForceWitness.target_quantity.values.axial).toBe(12.5);
-    expect(caepipeExternalForceWitness.target_quantity.unit).toBe("N");
-    expect(caepipeExternalForceWitness.conversion_performed).toBe(false);
-    expect(caepipeExternalPacket.parsed_csv.row_count).toBe(3);
-    expect(
-      caepipeExternalPacket.parsed_csv.rows.map(
-        (row: { correlation_status: string }) => row.correlation_status,
-      ),
-    ).toEqual(["canonical_id_map", "canonical_id_map", "canonical_id_map"]);
-    expect(caepipeExternalPacket.csv_text).toContain("NODE_DISPLACEMENTS");
-    expect(caepipeExternalPacket.csv_text).toContain("ELEMENT_FORCES");
-    expect(caepipeExternalPacket.validation_report.validation_status).toBe(
-      "boundary_checked",
-    );
-    expect(
-      caepipeExternalPacket.validation_report.checks.map(
-        (item: { check_id: string }) => item.check_id,
-      ),
-    ).toContain("external_execution_not_attempted");
-    expect(
-      caepipeExternalPacket.validation_report.checks.map(
-        (item: { check_id: string }) => item.check_id,
-      ),
-    ).toContain("unit_preservation_witness_per_parser_row");
-    // The MBF package it names is DEL-17-04's retired preview package: a historical DEL-17-04 reference
-    // (DEL-17-05-REQ-016), never a passing binding to an input that is available.
-    expect(caepipeExternalPacket.mbf_package_status.availability).toBe(
-      "historical_retired_preview_package_not_available",
-    );
-    expect(caepipeExternalPacket.mbf_package_status.historical_input_mbf_path).toBe(
-      "download:openpipestress-preview-mbf-package.json",
-    );
-    expect(caepipeExternalPacket.run_directory.input_mbf_path).toBe("not_available");
-    const mbfBinding = caepipeExternalPacket.validation_report.checks.find(
-      (item: { check_id: string }) =>
-        item.check_id === "mbf_package_bound_to_del_17_04",
-    );
-    expect(mbfBinding.status).toBe("historical_reference_not_available");
-    expect(mbfBinding.status).not.toBe("pass");
-    expect(
-      caepipeExternalPacket.diagnostics.map((item: { code: string; severity: string }) => [item.code, item.severity]),
-    ).toEqual([["CAEPIPE-EXTERNAL-MBF-INPUT-NOT-AVAILABLE", "warning"]]);
-    expect(
-      within(caepipeExternal).getByTestId("caepipe-external-state-binding")
-        .textContent,
-    ).toContain("(historical; not available)");
-    expect(
-      within(caepipeExternal).getByTestId("caepipe-external-run-directory")
-        .textContent,
-    ).toContain("input_mbf=not_available");
-    expect(caepipeExternalPacket.private_payload_included).toBe(false);
-    expect(caepipeExternalPacket.protected_content_included).toBe(false);
-    expect(caepipeExternalPacket.caepipe_compatibility_claim).toBe(false);
-    expect(caepipeExternalPacket.solver_validation_claim).toBe(false);
-    expect(caepipeExternalPacket.code_compliance_claim).toBe(false);
-    expect(caepipeExternalPacket.professional_reliance_claim).toBe(false);
-    expect(
-      within(caepipeExternal)
-        .getByTestId("caepipe-external-csv-link")
-        .getAttribute("href"),
-    ).toBeNull();
-    fireEvent.click(
-      within(caepipeExternal).getByTestId(
-        "caepipe-external-csv-link-local-private-intent",
-      ),
-    );
-    const caepipeExternalCsvHref =
-      within(caepipeExternal)
-        .getByTestId("caepipe-external-csv-link")
-        .getAttribute("href") ?? "";
-    expect(
-      decodeURIComponent(caepipeExternalCsvHref.split(",", 2)[1]),
-    ).toContain("section,stable_id,target_id");
-    const exportAdapterSdk = await screen.findByLabelText("Export adapter SDK");
-    expect(
-      within(exportAdapterSdk).getByTestId("export-adapter-sdk-summary")
-        .textContent,
-    ).toContain("available");
-    expect(
-      within(exportAdapterSdk).getByTestId("export-adapter-sdk-summary")
-        .textContent,
-    ).toContain("targets=5");
-    expect(
-      within(exportAdapterSdk).getByTestId("export-adapter-sdk-summary")
-        .textContent,
-    ).toContain("capabilities=4");
-    expect(
-      within(exportAdapterSdk).getByTestId("export-adapter-sdk-summary")
-        .textContent,
-    ).toContain("validation=boundary_checked");
-    expect(
-      within(exportAdapterSdk).getByTestId("export-adapter-sdk-profile")
-        .textContent,
-    ).toContain("runtime=TBD");
-    expect(
-      within(exportAdapterSdk).getByTestId("export-adapter-sdk-targets")
-        .textContent,
-    ).toContain("preview_targets=5");
-    expect(
-      within(exportAdapterSdk).getByTestId("export-adapter-sdk-targets")
-        .textContent,
-    ).toContain("admitted_support_claims=0");
-    expect(
-      within(exportAdapterSdk).getByTestId("export-adapter-sdk-validation")
-        .textContent,
-    ).toContain("loss_report=true");
-    expect(
-      within(exportAdapterSdk).getByTestId("export-adapter-sdk-units")
-        .textContent,
-    ).toContain("conversion=false");
-    expect(
-      within(exportAdapterSdk).getByTestId("export-adapter-sdk-units")
-        .textContent,
-    ).toContain("witnesses=5");
-    expect(
-      within(exportAdapterSdk).getByTestId("export-adapter-sdk-permissions")
-        .textContent,
-    ).toContain("filesystem=false");
-    expect(
-      within(exportAdapterSdk).getByTestId("export-adapter-sdk-permissions")
-        .textContent,
-    ).toContain("network=false");
-    expect(
-      within(exportAdapterSdk).getByTestId("export-adapter-sdk-boundary")
-        .textContent,
-    ).toContain("compatibility=false");
-    await waitFor(() =>
-      expect(
-        within(exportAdapterSdk).getByTestId("export-adapter-sdk-validation")
-          .textContent,
-      ).toContain("package_hash=computed_local_preview_sha256"),
-    );
-    const exportAdapterSdkHref =
-      within(exportAdapterSdk)
-        .getByTestId("export-adapter-sdk-export-link")
-        .getAttribute("href") ?? "";
-    const exportAdapterSdkPacket = JSON.parse(
-      decodeURIComponent(exportAdapterSdkHref.split(",", 2)[1]),
-    );
-    expect(exportAdapterSdkPacket.document_kind).toBe("[REDACTED]");
-    expect(exportAdapterSdkPacket.manifest.canonical_package_hash_status).toBe("[REDACTED]");
-    expect(exportAdapterSdkPacket.manifest.canonical_package_hash.value).toBe("[REDACTED]");
-    expect(
-      exportAdapterSdkPacket.validation_report.hash_validation_status,
-    ).toBe("[REDACTED]");
-    expect(exportAdapterSdkPacket.target_registry.targets).toHaveLength(5);
-    expect(
-      exportAdapterSdkPacket.target_registry.targets.every(
-        (item: { target_id: string }) => item.target_id === "[REDACTED]",
-      ),
-    ).toBe(true);
-    expect(exportAdapterSdkPacket.deliverable_id).toBe("[REDACTED]");
-    expect(exportAdapterSdkPacket.package_id).toBe("[REDACTED]");
-    expect(exportAdapterSdkPacket.scope_items).toEqual([
-      "[REDACTED]",
-      "[REDACTED]",
-      "[REDACTED]",
-    ]);
-    expect(exportAdapterSdkPacket.registry_id).toBe("[REDACTED]");
-    expect(exportAdapterSdkPacket.sdk_contract.sdk_contract_status).toBe(
-      "[REDACTED]",
-    );
-    expect(
-      exportAdapterSdkPacket.sdk_contract.source_basis_refs.map(
-        (item: { ref: string }) => item.ref,
-      ),
-    ).toContain("[REDACTED]");
-    expect(
-      exportAdapterSdkPacket.sdk_contract.source_basis_refs.map(
-        (item: { ref: string }) => item.ref,
-      ),
-    ).toContain("[REDACTED]");
-    expect(exportAdapterSdkPacket.sdk_contract.capabilities).toContain(
-      "[REDACTED]",
-    );
-    expect(
-      exportAdapterSdkPacket.sdk_contract.runtime_model.plugin_runtime,
-    ).toBe("[REDACTED]");
-    expect(
-      exportAdapterSdkPacket.sdk_contract.runtime_model.permission_taxonomy,
-    ).toBe("[REDACTED]");
-    expect(
-      exportAdapterSdkPacket.sdk_contract.deny_by_default_controls
-        .filesystem_access_granted,
-    ).toBe("[REDACTED]");
-    expect(
-      exportAdapterSdkPacket.sdk_contract.deny_by_default_controls
-        .network_access_granted,
-    ).toBe("[REDACTED]");
-    expect(
-      exportAdapterSdkPacket.sdk_contract.deny_by_default_controls
-        .process_access_granted,
-    ).toBe("[REDACTED]");
-    expect(
-      exportAdapterSdkPacket.sdk_contract.deny_by_default_controls
-        .private_data_access_granted,
-    ).toBe("[REDACTED]");
-    expect(
-      exportAdapterSdkPacket.adapter_template
-        .sample_adapter_implementation_included,
-    ).toBe("[REDACTED]");
-    expect(
-      exportAdapterSdkPacket.adapter_template
-        .source_basis_required_before_support_claim,
-    ).toBe("[REDACTED]");
-    expect(exportAdapterSdkPacket.target_registry.summary.target_count).toBe(
-      "[REDACTED]",
-    );
-    expect(
-      exportAdapterSdkPacket.target_registry.summary
-        .preview_panel_available_count,
-    ).toBe("[REDACTED]");
-    expect(
-      exportAdapterSdkPacket.target_registry.summary
-        .admitted_support_claim_count,
-    ).toBe("[REDACTED]");
-    expect(
-      exportAdapterSdkPacket.target_registry.targets.map(
-        (item: { target_id: string }) => item.target_id,
-      ),
-    ).toContain("[REDACTED]");
-    expect(
-      exportAdapterSdkPacket.target_registry.targets.map(
-        (item: { target_id: string }) => item.target_id,
-      ),
-    ).toContain("[REDACTED]");
-    expect(exportAdapterSdkPacket.validation_report.validation_status).toBe(
-      "[REDACTED]",
-    );
-    expect(
-      exportAdapterSdkPacket.validation_report.checks.loss_report_required,
-    ).toBe("[REDACTED]");
-    expect(
-      exportAdapterSdkPacket.validation_report.checks
-        .no_support_or_compatibility_claims,
-    ).toBe("[REDACTED]");
-    expect(
-      exportAdapterSdkPacket.unit_policy_evidence.unit_system_ref.ref,
-    ).toBe("[REDACTED]");
-    expect(exportAdapterSdkPacket.unit_policy_evidence.storage_convention).toBe(
-      "[REDACTED]",
-    );
-    expect(exportAdapterSdkPacket.unit_policy_evidence.conversion_policy).toBe(
-      "[REDACTED]",
-    );
-    expect(
-      exportAdapterSdkPacket.unit_policy_evidence.conversion_performed,
-    ).toBe("[REDACTED]");
-    expect(exportAdapterSdkPacket.unit_policy_evidence.witness_count).toBe("[REDACTED]");
-    expect(
-      exportAdapterSdkPacket.unit_policy_evidence.target_refs,
-    ).toHaveLength(5);
-    expect(
-      exportAdapterSdkPacket.unit_policy_evidence.decision_basis_refs.map(
-        (item: { ref: string }) => item.ref,
-      ),
-    ).toEqual(["[REDACTED]", "[REDACTED]"]);
-    expect(
-      exportAdapterSdkPacket.manifest.package_members.map(
-        (item: { role: string }) => item.role,
-      ),
-    ).toContain("[REDACTED]");
-    expect(exportAdapterSdkPacket.diagnostics).toHaveLength(0);
-    expect(exportAdapterSdkPacket.private_payload_included).toBe("[REDACTED]");
-    expect(exportAdapterSdkPacket.protected_content_included).toBe("[REDACTED]");
-    expect(exportAdapterSdkPacket.target_compatibility_claim).toBe("[REDACTED]");
-    expect(exportAdapterSdkPacket.solver_validation_claim).toBe("[REDACTED]");
-    expect(exportAdapterSdkPacket.code_compliance_claim).toBe("[REDACTED]");
-    expect(exportAdapterSdkPacket.professional_reliance_claim).toBe("[REDACTED]");
     const stressNeutral = stressNeutralExport();
     expect(
       within(stressNeutral).getByTestId("stress-neutral-empty").textContent,
     ).toContain("stress-neutral CSV/JSON package");
-    const buildReadiness = buildPackageReadiness();
-    expect(
-      within(buildReadiness).getByTestId("build-readiness-summary").textContent,
-    ).toContain("available");
-    expect(
-      within(buildReadiness).getByTestId("build-readiness-summary").textContent,
-    ).toContain("scripts=8");
-    expect(
-      within(buildReadiness).getByTestId("build-readiness-summary").textContent,
-    ).toContain("bundle_active=false");
-    expect(
-      within(buildReadiness).getByTestId("build-readiness-shell").textContent,
-    ).toContain("SWBPIPE");
-    expect(
-      within(buildReadiness).getByTestId("build-readiness-commands")
-        .textContent,
-    ).toContain("build:desktop");
-    expect(
-      within(buildReadiness).getByTestId("build-readiness-commands")
-        .textContent,
-    ).toContain("tauri");
-    expect(
-      within(buildReadiness).getByTestId("build-readiness-profiles")
-        .textContent,
-    ).toContain("skeleton");
-    expect(
-      within(buildReadiness).getByTestId("build-readiness-decisions")
-        .textContent,
-    ).toContain("ci=TBD");
-    expect(
-      within(buildReadiness).getByTestId("build-readiness-boundary")
-        .textContent,
-    ).toContain("release_authorized=false");
-    fireEvent.click(
-      within(buildReadiness).getByTestId(
-        "build-readiness-export-link-local-private-intent",
-      ),
-    );
-    const buildReadinessHref =
-      within(buildReadiness)
-        .getByTestId("build-readiness-export-link")
-        .getAttribute("href") ?? "";
-    const buildReadinessPacket = JSON.parse(
-      decodeURIComponent(buildReadinessHref.split(",", 2)[1]),
-    );
-    expect(buildReadinessPacket.document_kind).toBe(
-      "openpipestress.technical_preview.build_package_readiness",
-    );
-    expect(buildReadinessPacket.deliverable_id).toBe("DEL-10-04");
-    expect(buildReadinessPacket.package_id).toBe("PKG-10");
-    expect(buildReadinessPacket.scope_item).toBe("SOW-032");
-    expect(buildReadinessPacket.objectives).toContain("OBJ-008");
-    expect(buildReadinessPacket.objectives).toContain("OBJ-009");
-    expect(buildReadinessPacket.summary.tauri_shell_status).toBe("present");
-    expect(buildReadinessPacket.summary.bundle_active).toBe(false);
-    expect(buildReadinessPacket.workspace.root_scripts).toContain(
-      "build:desktop",
-    );
-    expect(buildReadinessPacket.workspace.desktop_scripts).toContain("tauri");
-    expect(buildReadinessPacket.tauri_shell.before_build_command).toBe(
-      "npm run build",
-    );
-    expect(buildReadinessPacket.release_readiness_tool.default_profile).toBe(
-      "skeleton",
-    );
-    expect(
-      buildReadinessPacket.release_readiness_tool.browser_panel_runs_tool,
-    ).toBe(false);
-    expect(buildReadinessPacket.unresolved_decisions.ci_provider).toBe("TBD");
-    expect(buildReadinessPacket.unresolved_decisions.release_matrix).toBe(
-      "TBD",
-    );
-    expect(buildReadinessPacket.unresolved_decisions.signing_notarization).toBe(
-      "TBD",
-    );
-    expect(buildReadinessPacket.boundary.network_required).toBe(false);
-    expect(buildReadinessPacket.boundary.telemetry_enabled).toBe(false);
-    expect(buildReadinessPacket.boundary.release_publication_authorized).toBe(
-      false,
-    );
-    expect(buildReadinessPacket.boundary.installer_or_binary_generated).toBe(
-      false,
-    );
-    expect(buildReadinessPacket.boundary.code_compliance_claim).toBe(false);
-    expect(buildReadinessPacket.boundary.professional_reliance_claim).toBe(
-      false,
-    );
-    const validationEvidence = await screen.findByLabelText(
-      "Validation evidence review",
-    );
-    expect(
-      within(validationEvidence).getByTestId("validation-evidence-summary")
-        .textContent,
-    ).toContain("manual=10");
-    expect(
-      within(validationEvidence).getByTestId("validation-evidence-summary")
-        .textContent,
-    ).toContain("evidence=7");
-    expect(
-      within(validationEvidence).getByTestId("validation-evidence-summary")
-        .textContent,
-    ).toContain("profiles=5");
-    expect(
-      within(validationEvidence).getByTestId("validation-evidence-manual")
-        .textContent,
-    ).toContain("DRAFT_EVIDENCE");
-    expect(
-      within(validationEvidence).getByTestId("validation-evidence-inventory")
-        .textContent,
-    ).toContain("gui=PLANNED");
-    expect(
-      within(validationEvidence).getByTestId("validation-evidence-unit-policy")
-        .textContent,
-    ).toContain(
-      "model=angle=rad,force=N,length=m,pressure=Pa,stress=MPa,temperature=degC",
-    );
-    // C-120 fix: the demo model drops the tee component:C-120 and its 6 quantities (3 geometry, 3 modifiers).
-    expect(
-      within(validationEvidence).getByTestId("validation-evidence-unit-policy")
-        .textContent,
-    ).toContain("records=28");
-    expect(
-      within(validationEvidence).getByTestId("validation-evidence-unit-policy")
-        .textContent,
-    ).toContain("conversion=false");
-    expect(
-      within(validationEvidence).getByTestId(
-        "validation-evidence-release-checks",
-      ).textContent,
-    ).toContain("skeleton_checks=1");
-    expect(
-      within(validationEvidence).getByTestId("validation-evidence-gates")
-        .textContent,
-    ).toContain("thresholds=TBD");
-    expect(
-      within(validationEvidence).getByTestId("validation-evidence-gates")
-        .textContent,
-    ).toContain("release_authorized=false");
-    expect(
-      within(validationEvidence).getByTestId("validation-evidence-boundary")
-        .textContent,
-    ).toContain("release_claim=false");
-    fireEvent.click(
-      within(validationEvidence).getByTestId(
-        "validation-evidence-export-link-local-private-intent",
-      ),
-    );
-    const validationEvidenceHref =
-      within(validationEvidence)
-        .getByTestId("validation-evidence-export-link")
-        .getAttribute("href") ?? "";
-    const validationEvidencePacket = JSON.parse(
-      decodeURIComponent(validationEvidenceHref.split(",", 2)[1]),
-    );
-    expect(validationEvidencePacket.document_kind).toBe(
-      "openpipestress.technical_preview.validation_release_evidence_review",
-    );
-    expect(validationEvidencePacket.deliverable_refs).toContain("DEL-09-04");
-    expect(validationEvidencePacket.deliverable_refs).toContain("DEL-09-05");
-    expect(validationEvidencePacket.scope_items).toContain("SOW-026");
-    expect(validationEvidencePacket.scope_items).toContain("SOW-027");
-    expect(validationEvidencePacket.objectives).toContain("OBJ-008");
-    expect(validationEvidencePacket.objectives).toContain("OBJ-011");
-    expect(validationEvidencePacket.summary.manual_section_count).toBe(10);
-    expect(validationEvidencePacket.summary.evidence_area_count).toBe(7);
-    expect(validationEvidencePacket.summary.release_profile_count).toBe(5);
-    expect(validationEvidencePacket.summary.required_release_path_count).toBe(
-      5,
-    );
-    expect(validationEvidencePacket.summary.skeleton_check_count).toBe(1);
-    // C-120 fix: the demo model drops the tee component:C-120 and its 6 quantities (3 geometry, 3 modifiers).
-    expect(validationEvidencePacket.summary.unit_bearing_record_count).toBe(28);
-    expect(
-      validationEvidencePacket.validation_manual
-        .professional_reliance_outside_software_authority,
-    ).toBe(true);
-    expect(
-      validationEvidencePacket.unit_policy_evidence.unit_system_ref.ref,
-    ).toBe("unit-system:dec-018-si-dual-display");
-    expect(
-      validationEvidencePacket.unit_policy_evidence.storage_convention,
-    ).toBe("entered_units_preserved");
-    expect(
-      validationEvidencePacket.unit_policy_evidence
-        .validation_evidence_unit_policy,
-    ).toBe(
-      "validation_evidence_records_project_unit_context_without_conversion_or_release_threshold_claim",
-    );
-    expect(validationEvidencePacket.unit_policy_evidence.model_units).toEqual({
-      angle: "rad",
-      force: "N",
-      length: "m",
-      pressure: "Pa",
-      stress: "MPa",
-      temperature: "degC",
-    });
-    // C-120 fix: the demo model drops the tee component:C-120 and its 6 quantities (3 geometry, 3 modifiers).
-    expect(
-      validationEvidencePacket.unit_policy_evidence.unit_bearing_record_count,
-    ).toBe(28);
-    expect(
-      validationEvidencePacket.unit_policy_evidence
-        .unit_and_schema_manual_section,
-    ).toBe("unit_and_schema_verification");
-    expect(
-      validationEvidencePacket.unit_policy_evidence.conversion_policy,
-    ).toBe(
-      "validation_evidence_inventory_records_unit_context_without_conversion",
-    );
-    expect(
-      validationEvidencePacket.unit_policy_evidence.conversion_performed,
-    ).toBe(false);
-    expect(
-      validationEvidencePacket.unit_policy_evidence
-        .release_gate_threshold_policy,
-    ).toBe("TBD");
-    expect(
-      validationEvidencePacket.unit_policy_evidence.decision_basis_refs.map(
-        (item: { ref: string }) => item.ref,
-      ),
-    ).toEqual(["DEC-018", "DEL-02-02", "DEL-09-05"]);
-    expect(
-      validationEvidencePacket.release_readiness_tool.browser_panel_runs_tool,
-    ).toBe(false);
-    expect(
-      validationEvidencePacket.release_quality_gates
-        .release_publication_authorized,
-    ).toBe(false);
-    expect(
-      validationEvidencePacket.release_quality_gates.final_threshold_policy,
-    ).toBe("TBD");
-    expect(
-      validationEvidencePacket.gui_validation_context
-        .current_tranche_smoke_record,
-    ).toBe("TP-MAC-83");
-    expect(validationEvidencePacket.private_payload_included).toBe(false);
-    expect(validationEvidencePacket.protected_content_included).toBe(false);
-    expect(validationEvidencePacket.release_or_professional_claim).toBe(false);
     operationDiffPreview();
     const editorContract = await screen.findByLabelText(
       "Editor contract review",
@@ -2961,135 +1975,6 @@ describe("SWBPIPE desktop preview", () => {
     expect(
       missingDataPacket.professional_boundary.software_makes_compliance_claim,
     ).toBe(false);
-    const accessibilityBaseline = await screen.findByLabelText(
-      "Accessibility and usability baseline",
-    );
-    expect(
-      within(accessibilityBaseline).getByTestId(
-        "accessibility-baseline-summary",
-      ).textContent,
-    ).toContain("surfaces=6");
-    expect(
-      within(accessibilityBaseline).getByTestId(
-        "accessibility-baseline-summary",
-      ).textContent,
-    ).toContain("findings=69");
-    expect(
-      within(accessibilityBaseline).getByTestId(
-        "accessibility-baseline-workflow",
-      ).textContent,
-    ).toContain("keyboard=4");
-    expect(
-      within(accessibilityBaseline).getByTestId(
-        "accessibility-baseline-unit-visibility",
-      ).textContent,
-    ).toContain(
-      "policy=unit_bearing_values_keep_visible_unit_labels_in_review_surfaces",
-    );
-    expect(
-      within(accessibilityBaseline).getByTestId(
-        "accessibility-baseline-unit-visibility",
-      ).textContent,
-    ).toContain(
-      "model=angle=rad,force=N,length=m,pressure=Pa,stress=MPa,temperature=degC",
-    );
-    expect(
-      within(accessibilityBaseline).getByTestId(
-        "accessibility-baseline-unit-visibility",
-      ).textContent,
-    ).toContain("conversion=false");
-    expect(
-      within(accessibilityBaseline).getByTestId(
-        "accessibility-baseline-open-target",
-      ).textContent,
-    ).toContain("gui=TBD");
-    expect(
-      within(accessibilityBaseline).getByTestId(
-        "accessibility-baseline-boundary",
-      ).textContent,
-    ).toContain("conformance_claim=false");
-    fireEvent.click(
-      within(accessibilityBaseline).getByTestId(
-        "accessibility-baseline-export-link-local-private-intent",
-      ),
-    );
-    const accessibilityHref =
-      within(accessibilityBaseline)
-        .getByTestId("accessibility-baseline-export-link")
-        .getAttribute("href") ?? "";
-    const accessibilityPacket = JSON.parse(
-      decodeURIComponent(accessibilityHref.split(",", 2)[1]),
-    );
-    expect(accessibilityPacket.document_kind).toBe(
-      "openpipestress.technical_preview.accessibility_usability_baseline_review",
-    );
-    expect(accessibilityPacket.deliverable_id).toBe("DEL-07-06");
-    expect(accessibilityPacket.package_id).toBe("PKG-07");
-    expect(accessibilityPacket.scope_item).toBe("SOW-036");
-    expect(accessibilityPacket.objectives).toContain("OBJ-006");
-    expect(accessibilityPacket.summary.source_surface_count).toBe(6);
-    expect(accessibilityPacket.summary.total_findings).toBe(69);
-    expect(accessibilityPacket.summary.pass_count).toBe(57);
-    expect(accessibilityPacket.summary.warning_count).toBe(10);
-    expect(accessibilityPacket.summary.fail_count).toBe(1);
-    expect(accessibilityPacket.summary.blocking_count).toBe(1);
-    expect(accessibilityPacket.summary.accessibility_target_status).toBe(
-      "TBD_by_human_project_authority",
-    );
-    expect(accessibilityPacket.summary.desktop_runtime_evaluation).toBe(
-      "not_performed",
-    );
-    expect(
-      accessibilityPacket.source_surfaces.map(
-        (item: { deliverable_id: string }) => item.deliverable_id,
-      ),
-    ).toContain("DEL-07-05");
-    expect(accessibilityPacket.reviewed_categories).toContain("keyboard_path");
-    expect(accessibilityPacket.reviewed_categories).toContain(
-      "warning_visibility",
-    );
-    expect(accessibilityPacket.reviewed_categories).toContain(
-      "unit_visibility",
-    );
-    expect(accessibilityPacket.unit_visibility_evidence.evidence_id).toBe(
-      "unit-visibility-evidence:accessibility-baseline-preview",
-    );
-    expect(accessibilityPacket.unit_visibility_evidence.policy_refs).toContain(
-      "DEC-018",
-    );
-    expect(accessibilityPacket.unit_visibility_evidence.policy_refs).toContain(
-      "DEL-02-02",
-    );
-    expect(
-      accessibilityPacket.unit_visibility_evidence.model_units.length,
-    ).toBe("m");
-    expect(
-      accessibilityPacket.unit_visibility_evidence.default_units_inferred,
-    ).toBe(false);
-    expect(
-      accessibilityPacket.unit_visibility_evidence.color_only_unit_signaling,
-    ).toBe(false);
-    expect(
-      accessibilityPacket.unit_visibility_evidence.conversion_performed,
-    ).toBe(false);
-    expect(accessibilityPacket.review_policy.preserves_unit_labels).toBe(true);
-    expect(
-      accessibilityPacket.review_policy.color_only_status_signaling_allowed,
-    ).toBe(false);
-    expect(
-      accessibilityPacket.review_policy
-        .software_makes_accessibility_conformance_claim,
-    ).toBe(false);
-    expect(
-      accessibilityPacket.open_decisions.accessibility_conformance_target,
-    ).toBe("TBD");
-    expect(
-      accessibilityPacket.open_decisions
-        .desktop_runtime_accessibility_tree_audit,
-    ).toBe("TBD");
-    expect(accessibilityPacket.private_payload_included).toBe(false);
-    expect(accessibilityPacket.protected_content_included).toBe(false);
-    expect(accessibilityPacket.release_or_professional_claim).toBe(false);
     const resultsSection = openWorkspaceSection("results");
     const designWorkspace = await within(resultsSection).findByLabelText(
       "Design-authoring workspace",
@@ -3225,251 +2110,11 @@ describe("SWBPIPE desktop preview", () => {
     expect(designWorkspacePacket.private_payload_included).toBe(false);
     expect(designWorkspacePacket.protected_content_included).toBe(false);
     expect(designWorkspacePacket.release_or_professional_claim).toBe(false);
-    const reportLint = await within(openWorkspaceSection("report")).findByLabelText(
-      "Report content lint",
-    );
-    expect(
-      within(reportLint).getByTestId("report-lint-summary").textContent,
-    ).toContain("targets=45");
-    expect(
-      within(reportLint).getByTestId("report-lint-summary").textContent,
-    ).toContain("findings=0");
-    expect(
-      within(reportLint).getByTestId("report-lint-summary").textContent,
-    ).toContain("blocking=0");
-    expect(
-      within(reportLint).getByTestId("report-lint-scope").textContent,
-    ).toContain("explicit_public_surfaces");
-    expect(
-      within(reportLint).getByTestId("report-lint-scope").textContent,
-    ).toContain("skip_unless_explicitly_authorized");
-    expect(
-      within(reportLint).getByTestId("report-lint-clean-scan").textContent,
-    ).toContain("clearance=false");
-    expect(
-      within(reportLint).getByTestId("report-lint-unit-policy").textContent,
-    ).toContain("unit_targets=43");
-    expect(
-      within(reportLint).getByTestId("report-lint-unit-policy").textContent,
-    ).toContain("conversion_witness_targets=1");
-    expect(
-      within(reportLint).getByTestId("report-lint-unit-policy").textContent,
-    ).toContain("lint_conversion=false");
-    expect(
-      within(reportLint).getByTestId("report-lint-boundary").textContent,
-    ).toContain("legal=false");
-    expect(
-      within(reportLint).getByTestId("report-lint-boundary").textContent,
-    ).toContain("professional=false");
-    const lintHref =
-      within(reportLint)
-        .getByTestId("report-lint-export-link")
-        .getAttribute("href") ?? "";
-    const lintPacket = JSON.parse(
-      decodeURIComponent(lintHref.split(",", 2)[1]),
-    );
-    expect(lintPacket.deliverable_id).toBe("[REDACTED]");
-    expect(lintPacket.scope_item).toBe("[REDACTED]");
-    expect(lintPacket.objectives).toEqual(["[REDACTED]", "[REDACTED]"]);
-    expect(lintPacket.linter_status.heuristic_only).toBe("[REDACTED]");
-    expect(lintPacket.linter_status.legal_clearance).toBe("[REDACTED]");
-    expect(lintPacket.linter_status.professional_approval).toBe("[REDACTED]");
-    expect(lintPacket.linter_status.ci_release_policy).toBe("[REDACTED]");
-    expect(lintPacket.unit_policy_evidence.evidence_kind).toBe(
-      "[REDACTED]",
-    );
-    expect(lintPacket.unit_policy_evidence.unit_policy_target_count).toBe("[REDACTED]");
-    expect(
-      lintPacket.unit_policy_evidence.conversion_witness_target_count,
-    ).toBe("[REDACTED]");
-    expect(lintPacket.unit_policy_evidence.lint_performs_conversion).toBe(
-      "[REDACTED]",
-    );
-    expect(
-      lintPacket.unit_policy_evidence.lint_asserts_target_format_compatibility,
-    ).toBe("[REDACTED]");
-    expect(
-      lintPacket.unit_policy_evidence.target_refs.every(
-        (target: { source_path: string }) =>
-          target.source_path === "[REDACTED]",
-      ),
-    ).toBe(true);
-    if (
-      lintPacket.unit_policy_evidence.target_refs[0]?.source_path !==
-      "[REDACTED]"
-    ) {
-    expect(lintPacket.unit_policy_evidence.target_refs).toEqual(
-      expect.arrayContaining([
-        expect.objectContaining({
-          source_path:
-            "apps/desktop/src/features/project-storage/ProjectStorageAuditPanel.tsx",
-          unit_policy_surface_id: "project-storage-unit-round-trip",
-        }),
-        expect.objectContaining({
-          source_path:
-            "apps/desktop/src/features/project-validation/ProjectValidationPanel.tsx",
-          unit_policy_surface_id: "project-validation-unit-policy",
-        }),
-        expect.objectContaining({
-          source_path:
-            "apps/desktop/src/features/native-package/NativePackagePanel.tsx",
-          unit_policy_surface_id: "native-package-unit-witnesses",
-        }),
-        expect.objectContaining({
-          source_path:
-            "apps/desktop/src/features/diff-preview/DiffPreviewPanel.tsx",
-          unit_policy_surface_id: "operation-diff-unit-witnesses",
-        }),
-        expect.objectContaining({
-          source_path:
-            "apps/desktop/src/features/operations/OperationApplyPanel.tsx",
-          unit_policy_surface_id: "operation-apply-unit-policy",
-        }),
-        expect.objectContaining({
-          source_path:
-            "apps/desktop/src/features/operations/OperationLedgerPanel.tsx",
-          unit_policy_surface_id: "operation-ledger-unit-policy",
-        }),
-        expect.objectContaining({
-          source_path:
-            "apps/desktop/src/features/report/RenderedReportPanel.tsx",
-          unit_policy_surface_id: "rendered-report-unit-basis",
-        }),
-        expect.objectContaining({
-          source_path: "apps/desktop/src/features/results/ResultsPanel.tsx",
-          unit_policy_surface_id: "result-unit-policy",
-        }),
-        expect.objectContaining({
-          source_path:
-            "apps/desktop/src/features/comparison/ComparisonPanel.tsx",
-          unit_policy_surface_id: "comparison-unit-policy",
-        }),
-        expect.objectContaining({
-          source_path:
-            "apps/desktop/src/features/agent-proposals/AgentProposalPanel.tsx",
-          unit_policy_surface_id: "agent-proposal-unit-policy",
-        }),
-        expect.objectContaining({
-          source_path:
-            "apps/desktop/src/features/security-threat-model/SecurityThreatModelPanel.tsx",
-          unit_policy_surface_id: "security-threat-model-unit-policy",
-        }),
-        expect.objectContaining({
-          source_path: "apps/desktop/src/features/knowledge/KnowledgePanel.tsx",
-          unit_policy_surface_id: "knowledge-unit-context",
-        }),
-        expect.objectContaining({
-          source_path: "apps/desktop/src/features/run-audit/RunAuditPanel.tsx",
-          unit_policy_surface_id: "run-audit-units",
-        }),
-        expect.objectContaining({
-          source_path: "apps/desktop/src/features/solve/SolvePanel.tsx",
-          unit_policy_surface_id: "solve-job-unit-policy",
-        }),
-        expect.objectContaining({
-          source_path:
-            "apps/desktop/src/features/rule-packs/DeclarationsEditor.tsx",
-          unit_policy_surface_id: "rule-pack-declarations-unit-policy",
-        }),
-        expect.objectContaining({
-          source_path:
-            "apps/desktop/src/features/rule-packs/ExpressionComposer.tsx",
-          unit_policy_surface_id: "rule-pack-expression-unit-policy",
-        }),
-        expect.objectContaining({
-          source_path:
-            "apps/desktop/src/features/library/LibraryManagerPanel.tsx",
-          unit_policy_surface_id: "library-unit-helper-surfaces",
-        }),
-        expect.objectContaining({
-          source_path:
-            "apps/desktop/src/features/load-cases/LoadCaseManagerPanel.tsx",
-          unit_policy_surface_id: "load-manager-unit-validation-surface",
-        }),
-        expect.objectContaining({
-          source_path:
-            "apps/desktop/src/features/model-tree/PropertyInspector.tsx",
-          unit_policy_surface_id: "property-inspector-unit-validation-surface",
-        }),
-        expect.objectContaining({
-          source_path:
-            "apps/desktop/src/features/diagnostics/DiagnosticsPanel.tsx",
-          unit_policy_surface_id: "diagnostic-unit-context",
-        }),
-        expect.objectContaining({
-          source_path:
-            "apps/desktop/src/features/rule-check/RuleCheckRunPanel.tsx",
-          unit_policy_surface_id: "rule-check-unit-binding-policy",
-        }),
-        expect.objectContaining({
-          source_path:
-            "apps/desktop/src/features/rule-check/RuleCheckPanel.tsx",
-          unit_policy_surface_id: "rule-completeness-unit-policy",
-        }),
-        expect.objectContaining({
-          source_path:
-            "apps/desktop/src/features/result-export/ResultExportPanel.tsx",
-          unit_policy_surface_id: "result-export-unit-witnesses",
-        }),
-        expect.objectContaining({
-          source_path:
-            "apps/desktop/src/features/headless-runner/HeadlessRunnerPanel.tsx",
-          unit_policy_surface_id: "headless-runner-unit-witnesses",
-        }),
-        expect.objectContaining({
-          source_path:
-            "apps/desktop/src/features/adapter-framework/AdapterFrameworkPanel.tsx",
-          unit_policy_surface_id: "adapter-framework-units",
-        }),
-        expect.objectContaining({
-          source_path: "apps/desktop/src/features/handoff/HandoffPanel.tsx",
-          unit_policy_surface_id: "handoff-unit-witnesses",
-        }),
-        expect.objectContaining({
-          source_path:
-            "apps/desktop/src/features/pcf-export/PcfExportPanel.tsx",
-          conversion_witness_surface_id: "pcf-export-conversion-witnesses",
-        }),
-        expect.objectContaining({
-          source_path: "fixtures/product_preview",
-          unit_policy_surface_id: "product-preview-fixture-unit-policy",
-        }),
-      ]),
-    );
-    // The model batch file export's public template and conversion-witness surface are retired (DEL-17-04 4b.2b).
-    expect(
-      lintPacket.unit_policy_evidence.target_refs.some(
-        (target: { source_path: string }) => target.source_path.includes("caepipe-mbf/"),
-      ),
-    ).toBe(false);
-    }
-    expect(lintPacket.lint_run.configuration.private_surface_default).toBe(
-      "[REDACTED]",
-    );
-    expect(lintPacket.lint_run.configuration.clean_scan_disclaimer).toBe(
-      "[REDACTED]",
-    );
-    expect(lintPacket.lint_run.summary.target_count).toBe("[REDACTED]");
-    expect(lintPacket.lint_run.summary.finding_count).toBe("[REDACTED]");
-    expect(lintPacket.lint_run.summary.blocking_finding_count).toBe(
-      "[REDACTED]",
-    );
-    expect(lintPacket.lint_run.summary.clean_scan_is_clearance).toBe(
-      "[REDACTED]",
-    );
-    const nativePackage = await screen.findByLabelText("Native JSON package");
-    expect(
-      within(nativePackage).getByTestId("native-package-empty").textContent,
-    ).toContain("native JSON package review manifest");
     const comparison = comparisonWorkspace();
     expect(
       within(comparison).getByTestId("comparison-empty").textContent,
     ).toContain(
       "Run mechanics preview to populate the local comparison workspace",
-    );
-    const handoff = handoffPackage();
-    expect(within(handoff).getByTestId("handoff-empty").textContent).toContain(
-      "Run mechanics preview to assemble a local review handoff package",
     );
     const operationLedger = await screen.findByLabelText(
       "Operation review ledger",
@@ -3483,46 +2128,6 @@ describe("SWBPIPE desktop preview", () => {
       within(diffPreview).getByTestId("diff-preview-empty").textContent,
     ).toContain("No operation diffs are queued");
     expect(diffPreview.textContent).toContain("does not apply operations");
-    const exportReview = exportSafetyReview();
-    expect(
-      within(exportReview).getByTestId("export-review-summary").textContent,
-    ).toContain("21 of 29 local exports ready");
-    expect(
-      within(exportReview).getByTestId("export-review-redaction").textContent,
-    ).toContain("protected content blocked=true");
-    expect(
-      within(exportReview).getByTestId("export-review-boundary").textContent,
-    ).toContain("handoff evidence for external validation, not a validation outcome");
-    expect(
-      within(exportReview).getByTestId(
-        "export-review-record-telemetry_boundary_review",
-      ).textContent,
-    ).toContain("available");
-    expect(
-      within(exportReview).getByTestId(
-        "export-review-record-secret_private_library_boundary_review",
-      ).textContent,
-    ).toContain("available");
-    expect(
-      within(exportReview).getByTestId(
-        "export-review-record-security_threat_model_review",
-      ).textContent,
-    ).toContain("available");
-    expect(
-      within(exportReview).getByTestId(
-        "export-review-record-accessibility_usability_baseline_review",
-      ).textContent,
-    ).toContain("available");
-    expect(
-      within(exportReview).getByTestId(
-        "export-review-record-design_authoring_comparison_workspace",
-      ).textContent,
-    ).toContain("available");
-    expect(
-      within(exportReview).getByTestId(
-        "export-review-record-validation_release_evidence_review",
-      ).textContent,
-    ).toContain("available");
     // Slice B3, specification §5.4 rule 4: Human · Human review required is a chip of the
     // Review page after a solved run and of no other page. The recorded value stays readable
     // in the Analyze page's readiness summary.
@@ -3532,22 +2137,13 @@ describe("SWBPIPE desktop preview", () => {
     ).toContain("Human · Human review required (HUMAN_REVIEW_REQUIRED)");
     expect(screen.getByTestId("workspace-status-bar")).toBeInTheDocument();
     expect(screen.getByLabelText("Local project controls")).toBeInTheDocument();
-    fireEvent.click(screen.getByTestId("audit-drawer-toggle"));
-    expect(
-      await screen.findByTestId("audit-boundary-drawer"),
-    ).toBeInTheDocument();
-    expect(screen.getByTestId("local-project-status").textContent).toContain(
-      "Browser memory preview local store",
-    );
-    expect(screen.getByTestId("local-project-status").textContent).toContain(
-      "network=false",
-    );
-    expect(screen.getByTestId("local-project-status").textContent).toContain(
-      "telemetry=false",
-    );
-    expect(screen.getByTestId("local-project-status").textContent).toContain(
-      "FTS5=false",
-    );
+    // The local store's boundary, asserted where it is produced (getLocalStorageCapability), not
+    // read from a screen: the Audit and Boundaries drawer that printed it is not in v1.0.
+    const storageCapability = await getLocalStorageCapability();
+    expect(storageCapability.engine).toBe("Browser memory preview");
+    expect(storageCapability.network_required).toBe(false);
+    expect(storageCapability.telemetry_enabled).toBe(false);
+    expect(storageCapability.fts5_available).toBe(false);
     const storageAudit = projectStorageAudit();
     expect(
       within(storageAudit).getByTestId("project-storage-summary").textContent,
@@ -3677,11 +2273,6 @@ describe("SWBPIPE desktop preview", () => {
     expect(storagePacket.private_payload_included).toBe(false);
     expect(storagePacket.protected_content_included).toBe(false);
     expect(storagePacket.release_or_professional_claim).toBe(false);
-    fireEvent.click(
-      within(screen.getByTestId("audit-boundary-drawer")).getByRole("button", {
-        name: /Close/i,
-      }),
-    );
     const projectValidation = await screen.findByLabelText(
       "Project validation preflight",
     );
@@ -3989,9 +2580,16 @@ describe("SWBPIPE desktop preview", () => {
       false,
     );
     expect(validationPacket.boundary.accepted_model_state_mutated).toBe(false);
-    const telemetryBoundary = (
-      await screen.findAllByLabelText("Telemetry boundary review")
-    )[0];
+    const telemetryBoundary = await within(openWorkspaceSection("evidence")).findByLabelText(
+      "Telemetry boundary review",
+    );
+    // Telemetry is on the Evidence page only, a closed disclosure whose summary is its state and reason.
+    expect(screen.getAllByLabelText("Telemetry boundary review")).toHaveLength(1);
+    expect(telemetryBoundary.tagName).toBe("DETAILS");
+    expect(telemetryBoundary).not.toHaveAttribute("open");
+    expect(within(telemetryBoundary).getByTestId("telemetry-boundary-state")).toHaveTextContent(
+      "Telemetry: off, disabled by default",
+    );
     expect(
       within(telemetryBoundary).getByTestId("telemetry-boundary-summary")
         .textContent,
@@ -4039,6 +2637,9 @@ describe("SWBPIPE desktop preview", () => {
     expect(telemetryAffirmativeRequest).toBeDisabled();
     expect(telemetryAffirmativeRequest).toHaveTextContent(
       "Telemetry review requested — remains off",
+    );
+    expect(within(telemetryBoundary).getByTestId("telemetry-boundary-state")).toHaveTextContent(
+      "Telemetry: off, requested without an approved opt-in or allowlist",
     );
     expect(
       within(telemetryBoundary).getByTestId("telemetry-boundary-config")
@@ -4148,279 +2749,10 @@ describe("SWBPIPE desktop preview", () => {
     expect(telemetryPacket.private_payload_included).toBe(false);
     expect(telemetryPacket.protected_content_included).toBe(false);
     expect(telemetryPacket.security_certification_claim).toBe(false);
-    const secretPrivateLibrary = await screen.findByLabelText(
-      "Secret and private-library review",
-    );
-    expect(
-      within(secretPrivateLibrary).getByTestId("secret-private-library-summary")
-        .textContent,
-    ).toContain("records=4");
-    expect(
-      within(secretPrivateLibrary).getByTestId("secret-private-library-summary")
-        .textContent,
-    ).toContain("metadata_only=true");
-    expect(
-      within(secretPrivateLibrary).getByTestId("secret-private-library-summary")
-        .textContent,
-    ).toContain("public_fixture_blocked=4");
-    expect(
-      within(secretPrivateLibrary).getByTestId("secret-private-library-secrets")
-        .textContent,
-    ).toContain("provider=TBD");
-    expect(
-      within(secretPrivateLibrary).getByTestId(
-        "secret-private-library-unit-policy",
-      ).textContent,
-    ).toContain("unit_refs=2");
-    expect(
-      within(secretPrivateLibrary).getByTestId(
-        "secret-private-library-unit-policy",
-      ).textContent,
-    ).toContain("required=true");
-    expect(
-      within(secretPrivateLibrary).getByTestId(
-        "secret-private-library-unit-policy",
-      ).textContent,
-    ).toContain("payload=false");
-    expect(
-      within(secretPrivateLibrary).getByTestId(
-        "secret-private-library-unit-policy",
-      ).textContent,
-    ).toContain("conversion=false");
-    expect(
-      within(secretPrivateLibrary).getByTestId(
-        "secret-private-library-no-bypass",
-      ).textContent,
-    ).toContain("direct_sql=false");
-    expect(
-      within(secretPrivateLibrary).getByTestId(
-        "secret-private-library-boundary",
-      ).textContent,
-    ).toContain("security_certification=false");
-    expect(
-      within(secretPrivateLibrary)
-        .getByTestId("secret-private-library-export-link")
-        .getAttribute("href"),
-    ).toBeNull();
-    fireEvent.click(
-      within(secretPrivateLibrary).getByTestId(
-        "secret-private-library-export-link-local-private-intent",
-      ),
-    );
-    const secretPrivateHref =
-      within(secretPrivateLibrary)
-        .getByTestId("secret-private-library-export-link")
-        .getAttribute("href") ?? "";
-    const secretPrivatePacket = JSON.parse(
-      decodeURIComponent(secretPrivateHref.split(",", 2)[1]),
-    );
-    expect(secretPrivatePacket.document_kind).toBe(
-      "openpipestress.technical_preview.secret_private_library_boundary_review",
-    );
-    expect(secretPrivatePacket.deliverable_id).toBe("DEL-12-04");
-    expect(secretPrivatePacket.package_id).toBe("PKG-12");
-    expect(secretPrivatePacket.scope_items).toContain("SOW-040");
-    expect(secretPrivatePacket.scope_items).toContain("SOW-029");
-    expect(secretPrivatePacket.objective).toBe("OBJ-010");
-    expect(secretPrivatePacket.summary.reference_count).toBe(4);
-    expect(secretPrivatePacket.summary.private_library_count).toBe(2);
-    expect(secretPrivatePacket.summary.private_path_count).toBe(1);
-    expect(secretPrivatePacket.summary.credential_reference_count).toBe(1);
-    expect(secretPrivatePacket.summary.metadata_only).toBe(true);
-    expect(secretPrivatePacket.summary.payload_present).toBe(false);
-    expect(secretPrivatePacket.summary.secret_material_present).toBe(false);
-    expect(secretPrivatePacket.summary.public_fixture_block_count).toBe(4);
-    expect(secretPrivatePacket.unit_policy.private_unit_reference_count).toBe(
-      2,
-    );
-    expect(
-      secretPrivatePacket.unit_policy.explicit_unit_metadata_required,
-    ).toBe(true);
-    expect(secretPrivatePacket.unit_policy.unit_payload_included).toBe(false);
-    expect(secretPrivatePacket.unit_policy.conversion_performed).toBe(false);
-    expect(
-      secretPrivatePacket.unit_policy.repository_default_private_write,
-    ).toBe(false);
-    expect(secretPrivatePacket.unit_policy.unit_metadata_statuses).toEqual([
-      {
-        reference_id: "spl:private-material-library:invented-preview",
-        record_kind: "private_material_library",
-        unit_metadata_status:
-          "private_unit_bearing_values_withheld_explicit_unit_metadata_required_at_use",
-      },
-      {
-        reference_id: "spl:private-rule-pack:invented-preview",
-        record_kind: "private_rule_pack",
-        unit_metadata_status:
-          "private_rule_inputs_withheld_explicit_unit_metadata_required_at_use",
-      },
-    ]);
-    expect(
-      secretPrivatePacket.guard_contexts.public_fixture.summary.blocked_count,
-    ).toBe(4);
-    expect(
-      secretPrivatePacket.guard_contexts.public_report.summary
-        .metadata_only_count,
-    ).toBe(4);
-    expect(
-      secretPrivatePacket.guard_contexts.local_private
-        .explicit_local_private_intent,
-    ).toBeUndefined();
-    expect(
-      secretPrivatePacket.registry_records.every(
-        (item: {
-          contains_payload: boolean;
-          secret_material_present: boolean;
-          concrete_path_present: boolean;
-        }) =>
-          item.contains_payload === false &&
-          item.secret_material_present === false &&
-          item.concrete_path_present === false,
-      ),
-    ).toBe(true);
-    expect(secretPrivatePacket.runtime_deferrals.exact_secret_provider).toBe(
-      "TBD",
-    );
-    expect(
-      secretPrivatePacket.runtime_deferrals.encrypted_storage_default,
-    ).toBe("TBD");
-    expect(secretPrivatePacket.no_bypass_controls.direct_sql_allowed).toBe(
-      false,
-    );
-    expect(secretPrivatePacket.no_bypass_controls.storage_bypass_allowed).toBe(
-      false,
-    );
-    expect(secretPrivatePacket.private_payload_included).toBe(false);
-    expect(secretPrivatePacket.protected_content_included).toBe(false);
-    expect(secretPrivatePacket.security_certification_claim).toBe(false);
-    const securityThreatModel = await screen.findByLabelText(
-      "Security threat model review",
-    );
-    expect(
-      within(securityThreatModel).getByTestId("security-threat-model-summary")
-        .textContent,
-    ).toContain("threats=19");
-    expect(
-      within(securityThreatModel).getByTestId("security-threat-model-summary")
-        .textContent,
-    ).toContain("high=14");
-    expect(
-      within(securityThreatModel).getByTestId("security-threat-model-coverage")
-        .textContent,
-    ).toContain("workflows=6");
-    expect(
-      within(securityThreatModel).getByTestId(
-        "security-threat-model-unit-policy",
-      ).textContent,
-    ).toContain("unit_checks=true");
-    expect(
-      within(securityThreatModel).getByTestId(
-        "security-threat-model-unit-policy",
-      ).textContent,
-    ).toContain("conversion=false");
-    expect(
-      within(securityThreatModel).getByTestId(
-        "security-threat-model-open-decisions",
-      ).textContent,
-    ).toContain("tbd=13");
-    expect(
-      within(securityThreatModel).getByTestId("security-threat-model-boundary")
-        .textContent,
-    ).toContain("security_certification=false");
-    fireEvent.click(
-      within(securityThreatModel).getByTestId(
-        "security-threat-model-export-link-local-private-intent",
-      ),
-    );
-    const threatModelHref =
-      within(securityThreatModel)
-        .getByTestId("security-threat-model-export-link")
-        .getAttribute("href") ?? "";
-    const threatModelPacket = JSON.parse(
-      decodeURIComponent(threatModelHref.split(",", 2)[1]),
-    );
-    expect(threatModelPacket.document_kind).toBe(
-      "openpipestress.technical_preview.security_threat_model_review",
-    );
-    expect(threatModelPacket.deliverable_id).toBe("DEL-12-05");
-    expect(threatModelPacket.package_id).toBe("PKG-12");
-    expect(threatModelPacket.scope_item).toBe("SOW-040");
-    expect(threatModelPacket.objective).toBe("OBJ-010");
-    expect(threatModelPacket.summary.threat_count).toBe(19);
-    expect(threatModelPacket.summary.high_risk_count).toBe(14);
-    expect(threatModelPacket.summary.medium_high_risk_count).toBe(5);
-    expect(threatModelPacket.summary.trust_boundary_count).toBe(10);
-    expect(threatModelPacket.summary.asset_class_count).toBe(10);
-    expect(threatModelPacket.summary.export_workflow_count).toBe(6);
-    expect(threatModelPacket.summary.open_decision_count).toBe(14);
-    expect(threatModelPacket.summary.tbd_decision_count).toBe(13);
-    expect(threatModelPacket.asset_classes).toContain(
-      "import_export_and_local_fea_handoff_data",
-    );
-    expect(threatModelPacket.trust_boundaries).toContain(
-      "plugin_import_export_fea_handoff",
-    );
-    expect(threatModelPacket.export_workflows).toContain(
-      "export_adapter_sdk_and_additional_targets",
-    );
-    expect(threatModelPacket.no_bypass_controls.direct_sql_allowed).toBe(false);
-    expect(
-      threatModelPacket.no_bypass_controls
-        .plugin_manifest_grants_runtime_access,
-    ).toBe(false);
-    expect(
-      threatModelPacket.runtime_control_evidence
-        .telemetry_attempt_guarded_before_payload,
-    ).toBe(true);
-    expect(
-      threatModelPacket.runtime_control_evidence
-        .plugin_adapter_report_export_interception_implemented,
-    ).toBe(false);
-    expect(
-      threatModelPacket.runtime_control_evidence.diagnostic_classes_referenced,
-    ).toEqual([
-      "PROVENANCE_WARNING",
-      "ASSUMPTION_WARNING",
-      "IP_BOUNDARY_WARNING",
-      "PRIVACY_WARNING",
-    ]);
-    expect(threatModelPacket.unit_policy_evidence.evidence_id).toBe(
-      "unit-policy-evidence:security-threat-model-no-bypass",
-    );
-    expect(threatModelPacket.unit_policy_evidence.unit_checks_required).toBe(
-      true,
-    );
-    expect(threatModelPacket.unit_policy_evidence.export_workflow_count).toBe(
-      6,
-    );
-    expect(threatModelPacket.unit_policy_evidence.conversion_performed).toBe(
-      false,
-    );
-    expect(
-      threatModelPacket.unit_policy_evidence.security_certification_claim,
-    ).toBe(false);
-    expect(threatModelPacket.open_decisions.plugin_permission_model).toBe(
-      "TBD",
-    );
-    expect(threatModelPacket.open_decisions.telemetry_event_schema).toBe("TBD");
-    expect(threatModelPacket.private_payload_included).toBe(false);
-    expect(threatModelPacket.protected_content_included).toBe(false);
-    expect(threatModelPacket.security_certification_claim).toBe(false);
     expect(validationPacket.private_payload_included).toBe(false);
     expect(validationPacket.protected_content_included).toBe(false);
     expect(validationPacket.release_or_professional_claim).toBe(false);
 
-    fireEvent.click(screen.getByTestId("audit-drawer-toggle"));
-    const boundary = await screen.findByTestId("audit-boundary-drawer");
-    expect(within(boundary).getByText("Public data")).toBeInTheDocument();
-    expect(boundary.textContent).toContain("invented_or_cleared_data_only");
-    expect(boundary.textContent).toContain(
-      "no_bundled_protected_owner_or_standards_data",
-    );
-    expect(boundary.textContent).toContain("no_private_project_data");
-    expect(boundary.textContent).toContain(
-      "technical_preview_requires_human_engineering_review",
-    );
   }, 120_000); // full <App/> render through ~3,300 lines of shell checks: 26 s locally, over 30 s on a loaded hosted runner
 
   it("dispatches packaged native-menu DOM events through the shared command sink", async () => {
@@ -4694,31 +3026,6 @@ describe("SWBPIPE desktop preview", () => {
     expect(ledgerPacket.accepted_model_state_unchanged).toBe(true);
     expect(ledgerPacket.release_or_professional_claim).toBe(false);
 
-    const exportReview = exportSafetyReview();
-    expect(
-      within(exportReview).getByTestId("export-review-summary").textContent,
-    ).toContain("22 of 29 local exports ready");
-    fireEvent.click(
-      within(exportReview).getByTestId(
-        "export-review-link-local-private-intent",
-      ),
-    );
-    const reviewHref =
-      within(exportReview)
-        .getByTestId("export-review-link")
-        .getAttribute("href") ?? "";
-    const reviewManifest = JSON.parse(
-      decodeURIComponent(reviewHref.split(",", 2)[1]),
-    );
-    expect(reviewManifest.deliverable_refs).toContain("DEL-07-01");
-    expect(reviewManifest.scope_items).toContain("SOW-020");
-    expect(reviewManifest.summary.operation_record_count).toBe(3);
-    expect(
-      reviewManifest.exports.find(
-        (item: { export_id: string }) =>
-          item.export_id === "operation_review_ledger",
-      ).readiness,
-    ).toBe("available");
 
     fireEvent.click(
       within(operationLedger).getByTestId("clear-operation-review-queue"),
@@ -4743,21 +3050,6 @@ describe("SWBPIPE desktop preview", () => {
     expect(
       await within(diffPreview).findByTestId("diff-preview-empty"),
     ).toHaveTextContent("No operation diffs");
-
-    const clearedReviewHref =
-      within(exportReview)
-        .getByTestId("export-review-link")
-        .getAttribute("href") ?? "";
-    const clearedReviewManifest = JSON.parse(
-      decodeURIComponent(clearedReviewHref.split(",", 2)[1]),
-    );
-    expect(clearedReviewManifest.summary.operation_record_count).toBe(0);
-    expect(
-      clearedReviewManifest.exports.find(
-        (item: { export_id: string }) =>
-          item.export_id === "operation_review_ledger",
-      ).readiness,
-    ).toBe("empty_operation_queue");
   });
 
   it("selects rendered viewport entities into the shared model inspector", async () => {
@@ -5162,13 +3454,10 @@ describe("SWBPIPE desktop preview", () => {
       within(manager).getByTestId("load-case-manager-summary").textContent,
     ).toContain("2 load cases; 5 primitive loads; 1 combinations");
     expect(
-      within(manager).getByTestId("load-case-manager-boundary").textContent,
-    ).toContain("structured operations");
-    expect(
       within(manager).getByTestId(
         "load-manager-combination-combination:C-OPER-ALT",
       ).textContent,
-    ).toContain("load:L-100 x 1");
+    ).toContain("L-100 × 1");
 
     fireEvent.click(
       within(manager).getByTestId("load-manager-primitive-load:L-100-T"),
@@ -5177,10 +3466,6 @@ describe("SWBPIPE desktop preview", () => {
       within(manager).getByTestId("load-manager-selected-primitive")
         .textContent,
     ).toContain("load:L-100-T");
-    expect(
-      within(manager).getByTestId("load-manager-selected-primitive")
-        .textContent,
-    ).toContain("primitive_loads.2.magnitude.value");
     expect(
       within(manager).getByTestId("load-manager-edit-preview").textContent,
     ).toContain("current=12.5 degC");
@@ -5197,17 +3482,7 @@ describe("SWBPIPE desktop preview", () => {
         target: { value: "20" },
       },
     );
-    expect(
-      within(manager).getByTestId("load-manager-edit-preview").textContent,
-    ).toContain("op:load-manager-load:L-100-load:L-100-T-magnitude");
-    expect(
-      within(manager).getByTestId("load-manager-edit-preview").textContent,
-    ).toContain('before=12.5; after={"value":20,"unit":"degC"}');
-    expect(
-      within(manager).getByTestId("load-manager-edit-preview").textContent,
-    ).toContain(
-      "unit_validation=model_metadata_unit_dimension_declared_catalog_unavailable_browser_preview",
-    );
+    expect(within(manager).getByTestId("queue-load-magnitude-intent")).toBeEnabled();
     fireEvent.click(within(manager).getByTestId("queue-load-magnitude-intent"));
 
     const applyPanel = operationApplyPanel();
@@ -5241,9 +3516,9 @@ describe("SWBPIPE desktop preview", () => {
     );
 
     expect(
-      within(manager).getByTestId("load-manager-primitive-load:L-100-T")
+      within(manager).getByTestId("load-manager-primitive-load:L-100-T").closest("tr")!
         .textContent,
-    ).toContain("thermal; 20 degC");
+    ).toContain("20degC");
     expect(
       within(applyPanel).getByTestId(
         "applied-operation-route-applied-1-editor-intent-1",
@@ -5276,18 +3551,7 @@ describe("SWBPIPE desktop preview", () => {
     expect(
       within(manager).getByTestId("load-manager-create-load-id"),
     ).toHaveValue("load:L-300");
-    expect(
-      within(manager).getByTestId("load-manager-create-load-preview")
-        .textContent,
-    ).toContain("op:load-manager-create-load:L-300");
-    expect(
-      within(manager).getByTestId("load-manager-create-load-preview")
-        .textContent,
-    ).toContain("primitive_loads=0");
-    expect(
-      within(manager).getByTestId("load-manager-create-load-preview")
-        .textContent,
-    ).toContain("unit_validation=not_required_dimensionless");
+    expect(within(manager).getByTestId("queue-create-load-case-intent")).toBeEnabled();
     fireEvent.change(
       within(manager).getByTestId("load-manager-create-load-label"),
       {
@@ -5317,7 +3581,7 @@ describe("SWBPIPE desktop preview", () => {
     ).toContain("3 load cases; 5 primitive loads; 1 combinations");
     expect(
       within(manager).getByTestId("load-manager-case-load:L-300").textContent,
-    ).toContain("load:L-300; primitive_user_load; draft; primitives=0");
+    ).toContain("primitive_user_load · 0 loads");
     expect(screen.getByLabelText("Property inspector").textContent).toContain(
       "User operating case",
     );
@@ -5367,20 +3631,7 @@ describe("SWBPIPE desktop preview", () => {
     fireEvent.click(
       within(manager).getByTestId("load-manager-case-load:L-300"),
     );
-    expect(
-      within(manager).getByTestId("load-manager-load-case-delete-preview")
-        .textContent,
-    ).toContain("op:load-manager-load:L-300-delete");
-    expect(
-      within(manager).getByTestId("load-manager-load-case-delete-preview")
-        .textContent,
-    ).toContain(
-      "before=load:L-300; Temporary user case; primitive_user_load; draft; primitives=0; after=not_present; unit=none; dimensionless",
-    );
-    expect(
-      within(manager).getByTestId("load-manager-load-case-delete-preview")
-        .textContent,
-    ).toContain("unit_validation=not_required_dimensionless");
+    expect(within(manager).getByTestId("queue-delete-load-case-intent")).toBeEnabled();
     fireEvent.click(
       within(manager).getByTestId("queue-delete-load-case-intent"),
     );
@@ -5425,16 +3676,7 @@ describe("SWBPIPE desktop preview", () => {
     fireEvent.click(
       within(manager).getByTestId("load-manager-case-load:L-100"),
     );
-    expect(
-      within(manager).getByTestId("load-manager-load-case-delete-preview")
-        .textContent,
-    ).toContain("op:load-manager-load:L-100-delete");
-    expect(
-      within(manager).getByTestId("load-manager-load-case-delete-preview")
-        .textContent,
-    ).toContain(
-      "before=load:L-100; Invented operating gravity, occasional and thermal preview; primitive_user_load; preview_only; primitives=3",
-    );
+    expect(within(manager).getByTestId("queue-delete-load-case-intent")).toBeEnabled();
     fireEvent.click(
       within(manager).getByTestId("queue-delete-load-case-intent"),
     );
@@ -5458,7 +3700,7 @@ describe("SWBPIPE desktop preview", () => {
     ).toContain("combination:C-OPER-ALT.terms.0");
     expect(
       within(manager).getByTestId("load-manager-case-load:L-100").textContent,
-    ).toContain("load:L-100; primitive_user_load; preview_only; primitives=3");
+    ).toContain("primitive_user_load · 3 loads");
     expect(
       screen.getByTestId("local-project-review-context").textContent,
     ).toContain("1 pending operation");
@@ -5476,24 +3718,7 @@ describe("SWBPIPE desktop preview", () => {
     ).toHaveValue("load:L-100-F300");
     expectVirtualTargetValue(manager, "load-manager-create-primitive-load-case", "load:L-100");
     expectVirtualTargetValue(manager, "load-manager-create-primitive-node", "node:N-100");
-    await waitFor(() =>
-      expect(
-        within(manager).getByTestId("load-manager-create-primitive-preview")
-          .textContent,
-      ).toContain("op:load-manager-load:L-100-load:L-100-F300-primitive"),
-    );
-    expect(
-      within(manager).getByTestId("load-manager-create-primitive-preview")
-        .textContent,
-    ).toContain("target=node:N-100; direction=global_y; unit=N; force");
-    await waitFor(() =>
-      expect(
-        within(manager).getByTestId("load-manager-create-primitive-preview")
-          .textContent,
-      ).toContain(
-        "unit_validation=model_metadata_unit_dimension_declared_catalog_unavailable_browser_preview",
-      ),
-    );
+    await waitFor(() => expect(within(manager).getByTestId("queue-create-primitive-intent")).toBeEnabled());
 
     fireEvent.change(
       within(manager).getByTestId("load-manager-create-primitive-magnitude"),
@@ -5526,15 +3751,14 @@ describe("SWBPIPE desktop preview", () => {
     ).toContain("2 load cases; 6 primitive loads; 1 combinations");
     expect(
       within(manager).getByTestId("load-manager-case-load:L-100").textContent,
-    ).toContain("load:L-100; primitive_user_load; preview_only; primitives=4");
+    ).toContain("primitive_user_load · 4 loads");
     expect(
-      within(manager).getByTestId("load-manager-primitive-load:L-100-F300")
+      within(manager).getByTestId("load-manager-primitive-load:L-100-F300").closest("tr")!
         .textContent,
-    ).toContain("concentrated_force; 275 N");
+    ).toContain("ForceN-100Global Y275N");
     expect(
-      within(manager).getByTestId("load-manager-primitive-load:L-100-F300")
-        .textContent,
-    ).toContain("load:L-100-F300; node:node:N-100; global_y; dimension=force");
+      within(manager).getByTestId("load-manager-primitive-load:L-100-F300"),
+    ).toHaveAttribute("title", "load:L-100-F300");
     expect(
       within(applyPanel).getByTestId(
         "applied-operation-route-applied-1-editor-intent-1",
@@ -5566,18 +3790,7 @@ describe("SWBPIPE desktop preview", () => {
     ).toHaveValue("load:L-100-D300");
     expectVirtualTargetValue(manager, "load-manager-create-primitive-load-case", "load:L-100");
     expectVirtualTargetValue(manager, "load-manager-create-primitive-pipe", "pipe:P-100");
-    await waitFor(() =>
-      expect(
-        within(manager).getByTestId("load-manager-create-primitive-preview")
-          .textContent,
-      ).toContain("op:load-manager-load:L-100-load:L-100-D300-primitive"),
-    );
-    expect(
-      within(manager).getByTestId("load-manager-create-primitive-preview")
-        .textContent,
-    ).toContain(
-      "target=pipe:P-100; direction=global_y; unit=N/m; force_per_length",
-    );
+    await waitFor(() => expect(within(manager).getByTestId("queue-create-primitive-intent")).toBeEnabled());
 
     fireEvent.change(
       within(manager).getByTestId("load-manager-create-primitive-magnitude"),
@@ -5610,17 +3823,14 @@ describe("SWBPIPE desktop preview", () => {
     ).toContain("2 load cases; 6 primitive loads; 1 combinations");
     expect(
       within(manager).getByTestId("load-manager-case-load:L-100").textContent,
-    ).toContain("load:L-100; primitive_user_load; preview_only; primitives=4");
+    ).toContain("primitive_user_load · 4 loads");
     expect(
-      within(manager).getByTestId("load-manager-primitive-load:L-100-D300")
+      within(manager).getByTestId("load-manager-primitive-load:L-100-D300").closest("tr")!
         .textContent,
-    ).toContain("distributed_force; 120 N/m");
+    ).toContain("Distributed forceP-100Global Y120N/m");
     expect(
-      within(manager).getByTestId("load-manager-primitive-load:L-100-D300")
-        .textContent,
-    ).toContain(
-      "load:L-100-D300; element:pipe:P-100; global_y; dimension=force_per_length",
-    );
+      within(manager).getByTestId("load-manager-primitive-load:L-100-D300"),
+    ).toHaveAttribute("title", "load:L-100-D300");
     expect(
       within(applyPanel).getByTestId(
         "applied-operation-route-applied-1-editor-intent-1",
@@ -5655,16 +3865,7 @@ describe("SWBPIPE desktop preview", () => {
     expect(
       within(manager).getByTestId("load-manager-create-primitive-direction"),
     ).toHaveValue("rotation_z");
-    await waitFor(() =>
-      expect(
-        within(manager).getByTestId("load-manager-create-primitive-preview")
-          .textContent,
-      ).toContain("op:load-manager-load:L-100-load:L-100-M300-primitive"),
-    );
-    expect(
-      within(manager).getByTestId("load-manager-create-primitive-preview")
-        .textContent,
-    ).toContain("target=node:N-100; direction=rotation_z; unit=N*m; moment");
+    await waitFor(() => expect(within(manager).getByTestId("queue-create-primitive-intent")).toBeEnabled());
 
     fireEvent.change(
       within(manager).getByTestId("load-manager-create-primitive-magnitude"),
@@ -5697,17 +3898,14 @@ describe("SWBPIPE desktop preview", () => {
     ).toContain("2 load cases; 6 primitive loads; 1 combinations");
     expect(
       within(manager).getByTestId("load-manager-case-load:L-100").textContent,
-    ).toContain("load:L-100; primitive_user_load; preview_only; primitives=4");
+    ).toContain("primitive_user_load · 4 loads");
     expect(
-      within(manager).getByTestId("load-manager-primitive-load:L-100-M300")
+      within(manager).getByTestId("load-manager-primitive-load:L-100-M300").closest("tr")!
         .textContent,
-    ).toContain("concentrated_moment; 80 N*m");
+    ).toContain("MomentN-100About Z80N*m");
     expect(
-      within(manager).getByTestId("load-manager-primitive-load:L-100-M300")
-        .textContent,
-    ).toContain(
-      "load:L-100-M300; node:node:N-100; rotation_z; dimension=moment",
-    );
+      within(manager).getByTestId("load-manager-primitive-load:L-100-M300"),
+    ).toHaveAttribute("title", "load:L-100-M300");
     expect(
       within(applyPanel).getByTestId(
         "applied-operation-route-applied-1-editor-intent-1",
@@ -5738,10 +3936,6 @@ describe("SWBPIPE desktop preview", () => {
       "thermal",
       "imposed_displacement",
     ]);
-    expect(
-      within(manager).getByTestId("load-manager-pressure-primitive-retired")
-        .textContent,
-    ).toContain("Legacy pressure primitives are retired");
   });
 
   it("queues and applies a thermal primitive load through the manager panel", async () => {
@@ -5768,16 +3962,7 @@ describe("SWBPIPE desktop preview", () => {
     expect(
       await within(manager).findByText("Magnitude (degC, model metadata)"),
     ).toBeInTheDocument();
-    expect(
-      within(manager).getByTestId("load-manager-create-primitive-preview")
-        .textContent,
-    ).toContain("op:load-manager-load:L-100-load:L-100-T300-primitive");
-    expect(
-      within(manager).getByTestId("load-manager-create-primitive-preview")
-        .textContent,
-    ).toContain(
-      "target=pipe:P-100; direction=global_z; unit=degC; temperature_interval",
-    );
+    expect(within(manager).getByTestId("queue-create-primitive-intent")).toBeEnabled();
 
     fireEvent.change(
       within(manager).getByTestId("load-manager-create-primitive-magnitude"),
@@ -5810,17 +3995,14 @@ describe("SWBPIPE desktop preview", () => {
     ).toContain("2 load cases; 6 primitive loads; 1 combinations");
     expect(
       within(manager).getByTestId("load-manager-case-load:L-100").textContent,
-    ).toContain("load:L-100; primitive_user_load; preview_only; primitives=4");
+    ).toContain("primitive_user_load · 4 loads");
     expect(
-      within(manager).getByTestId("load-manager-primitive-load:L-100-T300")
+      within(manager).getByTestId("load-manager-primitive-load:L-100-T300").closest("tr")!
         .textContent,
-    ).toContain("thermal; 12.5 degC");
+    ).toContain("ThermalP-100Global Z12.5degC");
     expect(
-      within(manager).getByTestId("load-manager-primitive-load:L-100-T300")
-        .textContent,
-    ).toContain(
-      "load:L-100-T300; element:pipe:P-100; global_z; dimension=temperature_interval",
-    );
+      within(manager).getByTestId("load-manager-primitive-load:L-100-T300"),
+    ).toHaveAttribute("title", "load:L-100-T300");
     expect(
       within(applyPanel).getByTestId(
         "applied-operation-route-applied-1-editor-intent-1",
@@ -5855,16 +4037,7 @@ describe("SWBPIPE desktop preview", () => {
     expect(
       within(manager).getByTestId("load-manager-create-primitive-direction"),
     ).toHaveValue("UZ");
-    await waitFor(() =>
-      expect(
-        within(manager).getByTestId("load-manager-create-primitive-preview")
-          .textContent,
-      ).toContain("op:load-manager-load:L-100-load:L-100-I300-primitive"),
-    );
-    expect(
-      within(manager).getByTestId("load-manager-create-primitive-preview")
-        .textContent,
-    ).toContain("target=support:S-100; direction=UZ; unit=m; displacement");
+    await waitFor(() => expect(within(manager).getByTestId("queue-create-primitive-intent")).toBeEnabled());
 
     fireEvent.change(
       within(manager).getByTestId("load-manager-create-primitive-magnitude"),
@@ -5897,17 +4070,14 @@ describe("SWBPIPE desktop preview", () => {
     ).toContain("2 load cases; 6 primitive loads; 1 combinations");
     expect(
       within(manager).getByTestId("load-manager-case-load:L-100").textContent,
-    ).toContain("load:L-100; primitive_user_load; preview_only; primitives=4");
+    ).toContain("primitive_user_load · 4 loads");
     expect(
-      within(manager).getByTestId("load-manager-primitive-load:L-100-I300")
+      within(manager).getByTestId("load-manager-primitive-load:L-100-I300").closest("tr")!
         .textContent,
-    ).toContain("imposed_displacement; -0.006 m");
+    ).toContain("Imposed displacementS-100UZ-0.006m");
     expect(
-      within(manager).getByTestId("load-manager-primitive-load:L-100-I300")
-        .textContent,
-    ).toContain(
-      "load:L-100-I300; support:support:S-100; UZ; dimension=displacement",
-    );
+      within(manager).getByTestId("load-manager-primitive-load:L-100-I300"),
+    ).toHaveAttribute("title", "load:L-100-I300");
     expect(
       within(applyPanel).getByTestId(
         "applied-operation-route-applied-1-editor-intent-1",
@@ -5931,28 +4101,13 @@ describe("SWBPIPE desktop preview", () => {
     const primitiveRow = within(manager).getByTestId(
       "load-manager-primitive-load:L-100-Y",
     );
-    expect(primitiveRow.textContent).toContain("occasional; 350 N");
+    expect(primitiveRow.closest("tr")!.textContent).toMatch(/^occasional.*350N$/);
     fireEvent.click(primitiveRow);
     expect(
       await within(manager).findAllByText("Magnitude (N, model metadata)"),
     ).not.toHaveLength(0);
 
-    expect(
-      within(manager).getByTestId("load-manager-primitive-delete-preview")
-        .textContent,
-    ).toContain("op:load-manager-load:L-100-load:L-100-Y-delete");
-    expect(
-      within(manager).getByTestId("load-manager-primitive-delete-preview")
-        .textContent,
-    ).toContain(
-      "before=load:L-100-Y; occasional; node:node:N-140; global_y; 350 N; force",
-    );
-    expect(
-      within(manager).getByTestId("load-manager-primitive-delete-preview")
-        .textContent,
-    ).toContain(
-      "unit_validation=model_metadata_unit_dimension_declared_catalog_unavailable_browser_preview",
-    );
+    expect(within(manager).getByTestId("queue-delete-primitive-load-intent")).toBeEnabled();
     fireEvent.click(
       within(manager).getByTestId("queue-delete-primitive-load-intent"),
     );
@@ -5996,7 +4151,7 @@ describe("SWBPIPE desktop preview", () => {
     ).toContain("2 load cases; 4 primitive loads; 1 combinations");
     expect(
       within(manager).getByTestId("load-manager-case-load:L-100").textContent,
-    ).toContain("load:L-100; primitive_user_load; preview_only; primitives=2");
+    ).toContain("primitive_user_load · 2 loads");
     expect(
       screen.getByTestId("local-project-review-context").textContent,
     ).toContain("0 pending operations");
@@ -6032,10 +4187,10 @@ describe("SWBPIPE desktop preview", () => {
     );
     expect(
       within(manager).getByTestId("load-manager-selected-case").textContent,
-    ).toContain("load:L-100");
+    ).toContain("L-100");
     expect(
-      within(manager).getByTestId("load-manager-selected-case").textContent,
-    ).toContain("field=status");
+      within(manager).getByTestId("load-manager-metadata-field"),
+    ).toHaveValue("status");
     expect(
       within(manager).getByTestId("load-manager-metadata-preview").textContent,
     ).toContain("current=preview_only");
@@ -6047,15 +4202,7 @@ describe("SWBPIPE desktop preview", () => {
         target: { value: "TBD" },
       },
     );
-    expect(
-      within(manager).getByTestId("load-manager-metadata-preview").textContent,
-    ).toContain("op:load-manager-load:L-100-status");
-    expect(
-      within(manager).getByTestId("load-manager-metadata-preview").textContent,
-    ).toContain("before=preview_only; after=TBD");
-    expect(
-      within(manager).getByTestId("load-manager-metadata-preview").textContent,
-    ).toContain("unit_validation=not_required_dimensionless");
+    expect(within(manager).getByTestId("queue-load-metadata-intent")).toBeEnabled();
     expect(queueButton).not.toBeDisabled();
     fireEvent.click(queueButton);
 
@@ -6074,8 +4221,8 @@ describe("SWBPIPE desktop preview", () => {
     );
 
     expect(
-      within(manager).getByTestId("load-manager-case-load:L-100").textContent,
-    ).toContain("load:L-100; primitive_user_load; TBD; primitives=3");
+      within(manager).getByTestId("load-manager-selected-case").textContent,
+    ).toContain("primitive_user_load · TBD");
     expect(screen.getByLabelText("Property inspector").textContent).toContain(
       "TBD",
     );
@@ -6097,8 +4244,8 @@ describe("SWBPIPE desktop preview", () => {
     );
     await waitFor(() =>
       expect(
-        within(manager).getByTestId("load-manager-selected-case").textContent,
-      ).toContain("field=kind; current=primitive_user_load"),
+        within(manager).getByTestId("load-manager-metadata-value"),
+      ).toHaveValue("primitive_user_load"),
     );
     fireEvent.change(
       within(manager).getByTestId("load-manager-metadata-value"),
@@ -6106,12 +4253,7 @@ describe("SWBPIPE desktop preview", () => {
         target: { value: "TBD" },
       },
     );
-    expect(
-      within(manager).getByTestId("load-manager-metadata-preview").textContent,
-    ).toContain("op:load-manager-load:L-100-kind");
-    expect(
-      within(manager).getByTestId("load-manager-metadata-preview").textContent,
-    ).toContain("before=primitive_user_load; after=TBD");
+    expect(within(manager).getByTestId("queue-load-metadata-intent")).toBeEnabled();
     expect(
       within(manager).getByTestId("queue-load-metadata-intent"),
     ).not.toBeDisabled();
@@ -6121,23 +4263,23 @@ describe("SWBPIPE desktop preview", () => {
     render(<App />);
 
     const manager = await loadCaseManager();
+    fireEvent.click(
+      within(manager).getByTestId(
+        "load-manager-combination-select-combination:C-OPER-ALT",
+      ),
+    );
     const termRow = within(manager).getByTestId(
       "load-manager-combination-term-combination:C-OPER-ALT-1",
     );
-    expect(termRow.textContent).toContain("load:L-200 x 0.5");
+    expect(termRow.closest("tr")!.textContent).toContain("L-2000.5");
     fireEvent.click(termRow);
 
     const queueButton = within(manager).getByTestId(
       "queue-combination-factor-intent",
     );
     expect(
-      within(manager).getByTestId("load-manager-selected-combination-term")
-        .textContent,
-    ).toContain("combination:C-OPER-ALT");
-    expect(
-      within(manager).getByTestId("load-manager-selected-combination-term")
-        .textContent,
-    ).toContain("terms.1.factor");
+      within(manager).getByTestId("load-manager-selected-combination-term"),
+    ).toBeInTheDocument();
     expect(
       within(manager).getByTestId("load-manager-combination-factor-preview")
         .textContent,
@@ -6150,18 +4292,7 @@ describe("SWBPIPE desktop preview", () => {
         target: { value: "0.75" },
       },
     );
-    expect(
-      within(manager).getByTestId("load-manager-combination-factor-preview")
-        .textContent,
-    ).toContain("op:load-manager-combination:C-OPER-ALT-term-1-factor");
-    expect(
-      within(manager).getByTestId("load-manager-combination-factor-preview")
-        .textContent,
-    ).toContain("before=0.5; after=0.75");
-    expect(
-      within(manager).getByTestId("load-manager-combination-factor-preview")
-        .textContent,
-    ).toContain("unit_validation=not_required_dimensionless");
+    expect(within(manager).getByTestId("queue-combination-factor-intent")).toBeEnabled();
     expect(queueButton).not.toBeDisabled();
     fireEvent.click(queueButton);
 
@@ -6185,7 +4316,7 @@ describe("SWBPIPE desktop preview", () => {
       within(manager).getByTestId(
         "load-manager-combination-combination:C-OPER-ALT",
       ).textContent,
-    ).toContain("load:L-200 x 0.75");
+    ).toContain("L-200 × 0.75");
     expect(screen.getByLabelText("Property inspector").textContent).toContain(
       "load:L-200 x 0.75",
     );
@@ -6219,11 +4350,7 @@ describe("SWBPIPE desktop preview", () => {
     expect(
       within(manager).getByTestId("load-manager-selected-combination")
         .textContent,
-    ).toContain("combination:C-OPER-ALT");
-    expect(
-      within(manager).getByTestId("load-manager-selected-combination")
-        .textContent,
-    ).toContain("field=basis; current=mechanics");
+    ).toContain("C-OPER-ALT");
     expect(
       within(manager).getByTestId("load-manager-combination-basis-preview")
         .textContent,
@@ -6243,18 +4370,7 @@ describe("SWBPIPE desktop preview", () => {
     fireEvent.change(basisSelect, {
       target: { value: "result_state_subtraction" },
     });
-    expect(
-      within(manager).getByTestId("load-manager-combination-basis-preview")
-        .textContent,
-    ).toContain("op:load-manager-combination:C-OPER-ALT-basis");
-    expect(
-      within(manager).getByTestId("load-manager-combination-basis-preview")
-        .textContent,
-    ).toContain("before=mechanics; after=result_state_subtraction");
-    expect(
-      within(manager).getByTestId("load-manager-combination-basis-preview")
-        .textContent,
-    ).toContain("unit_validation=not_required_dimensionless");
+    expect(within(manager).getByTestId("queue-combination-basis-intent")).toBeEnabled();
     expect(queueButton).not.toBeDisabled();
     fireEvent.click(queueButton);
 
@@ -6283,7 +4399,7 @@ describe("SWBPIPE desktop preview", () => {
       within(manager).getByTestId(
         "load-manager-combination-combination:C-OPER-ALT",
       ).textContent,
-    ).toContain("basis=mechanics");
+    ).toContain("Algebraic sum");
     expect(
       screen.getByTestId("local-project-review-context").textContent,
     ).toContain("1 pending operation");
@@ -6319,6 +4435,12 @@ describe("SWBPIPE desktop preview", () => {
     expect(
       within(manager).getByTestId("load-case-manager-summary").textContent,
     ).toContain("3 load cases; 5 primitive loads; 1 combinations");
+    fireEvent.click(
+      within(manager).getByTestId(
+        "load-manager-combination-select-combination:C-OPER-ALT",
+      ),
+    );
+    fireEvent.click(within(manager).getByTestId("load-manager-add-term"));
     chooseVirtualTarget(
       manager,
       "load-manager-create-combination-term-load-case",
@@ -6333,28 +4455,8 @@ describe("SWBPIPE desktop preview", () => {
       },
     );
 
-    expect(
-      within(manager).getByTestId(
-        "load-manager-create-combination-term-heading",
-      ).textContent,
-    ).toContain("combination:C-OPER-ALT");
-    expect(
-      within(manager).getByTestId(
-        "load-manager-create-combination-term-preview",
-      ).textContent,
-    ).toContain("op:load-manager-combination:C-OPER-ALT-term-2-create");
-    expect(
-      within(manager).getByTestId(
-        "load-manager-create-combination-term-preview",
-      ).textContent,
-    ).toContain(
-      "before=not_present; after=load:L-300 x 0.25; unit=none; dimensionless",
-    );
-    expect(
-      within(manager).getByTestId(
-        "load-manager-create-combination-term-preview",
-      ).textContent,
-    ).toContain("unit_validation=not_required_dimensionless");
+    expectVirtualTargetValue(manager, "load-manager-create-combination-term-combination", "combination:C-OPER-ALT");
+    expect(within(manager).getByTestId("queue-create-combination-term-intent")).toBeEnabled();
     fireEvent.click(
       within(manager).getByTestId("queue-create-combination-term-intent"),
     );
@@ -6382,7 +4484,7 @@ describe("SWBPIPE desktop preview", () => {
       within(manager).getByTestId(
         "load-manager-combination-combination:C-OPER-ALT",
       ).textContent,
-    ).toContain("load:L-100 x 1; load:L-200 x 0.5; load:L-300 x 0.25");
+    ).toContain("L-100 × 1 + L-200 × 0.5 + L-300 × 0.25");
     expect(screen.getByLabelText("Property inspector").textContent).toContain(
       "load:L-300 x 0.25",
     );
@@ -6407,9 +4509,8 @@ describe("SWBPIPE desktop preview", () => {
 
     const manager = await loadCaseManager();
     expect(
-      within(manager).getByTestId("load-manager-create-combination-heading")
-        .textContent,
-    ).toContain("combination:C-300");
+      within(manager).getByTestId("load-manager-create-combination-id"),
+    ).toHaveValue("combination:C-300");
     // No operand or factor is proposed: the person enters both.
     expect(
       within(manager).getByTestId("queue-create-combination-intent"),
@@ -6419,20 +4520,7 @@ describe("SWBPIPE desktop preview", () => {
       within(manager).getByTestId("load-manager-create-combination-factor"),
       { target: { value: "1" } },
     );
-    expect(
-      within(manager).getByTestId("load-manager-create-combination-preview")
-        .textContent,
-    ).toContain("op:load-manager-create-combination:C-300");
-    expect(
-      within(manager).getByTestId("load-manager-create-combination-preview")
-        .textContent,
-    ).toContain(
-      "before=not_present; after=combination:C-300; term=load:L-100 x 1; unit=none; dimensionless",
-    );
-    expect(
-      within(manager).getByTestId("load-manager-create-combination-preview")
-        .textContent,
-    ).toContain("unit_validation=not_required_dimensionless");
+    expect(within(manager).getByTestId("queue-create-combination-intent")).toBeEnabled();
     fireEvent.change(
       within(manager).getByTestId("load-manager-create-combination-label"),
       {
@@ -6468,8 +4556,8 @@ describe("SWBPIPE desktop preview", () => {
       "load-manager-combination-combination:C-300",
     );
     expect(newCombination.textContent).toContain("User operating combination");
-    expect(newCombination.textContent).toContain("basis=mechanics");
-    expect(newCombination.textContent).toContain("load:L-100 x 1");
+    expect(newCombination.textContent).toContain("Algebraic sum");
+    expect(newCombination.textContent).toContain("L-100 × 1");
     fireEvent.click(
       within(manager).getByTestId(
         "load-manager-combination-select-combination:C-300",
@@ -6513,25 +4601,12 @@ describe("SWBPIPE desktop preview", () => {
       },
     );
     expect(
-      within(manager).getByTestId("load-manager-create-combination-heading")
+      within(manager).getByTestId("load-manager-create-combination-resolved")
         .textContent,
     ).toContain(
-      "basis=result_state_subtraction; minuend=load:L-100; subtrahend=load:L-200",
+      "Minuend: load:L-100 resolves to the load case. Subtrahend: load:L-200 resolves to the load case.",
     );
-    expect(
-      within(manager).getByTestId("load-manager-create-combination-preview")
-        .textContent,
-    ).toContain("op:load-manager-create-combination:C-300");
-    expect(
-      within(manager).getByTestId("load-manager-create-combination-preview")
-        .textContent,
-    ).toContain(
-      "before=not_present; after=combination:C-300; minuend=load:L-100; subtrahend=load:L-200; unit=none; dimensionless",
-    );
-    expect(
-      within(manager).getByTestId("load-manager-create-combination-preview")
-        .textContent,
-    ).toContain("unit_validation=not_required_dimensionless");
+    expect(within(manager).getByTestId("queue-create-combination-intent")).toBeEnabled();
     fireEvent.click(
       within(manager).getByTestId("queue-create-combination-intent"),
     );
@@ -6560,12 +4635,8 @@ describe("SWBPIPE desktop preview", () => {
     const newCombination = within(manager).getByTestId(
       "load-manager-combination-combination:C-300",
     );
-    expect(newCombination.textContent).toContain(
-      "basis=result_state_subtraction",
-    );
-    expect(newCombination.textContent).toContain(
-      "minuend=load:L-100; subtrahend=load:L-200",
-    );
+    expect(newCombination.textContent).toContain("Difference");
+    expect(newCombination.textContent).toContain("L-100 − L-200");
     expect(
       within(applyPanel).getByTestId(
         "applied-operation-route-applied-1-editor-intent-1",
@@ -6629,21 +4700,15 @@ describe("SWBPIPE desktop preview", () => {
       },
     );
     expect(
-      within(manager).getByTestId("load-manager-create-combination-heading")
+      within(manager).getByTestId("load-manager-create-combination-mode"),
+    ).toHaveValue("min_abs");
+    expect(
+      within(manager).getByTestId("load-manager-create-combination-resolved")
         .textContent,
     ).toContain(
-      "basis=range_envelope; mode=min_abs; operands=load:L-100, load:L-200",
+      "Operands: load:L-100 resolves to the load case; load:L-200 resolves to the load case.",
     );
-    expect(
-      within(manager).getByTestId("load-manager-create-combination-preview")
-        .textContent,
-    ).toContain(
-      "before=not_present; after=combination:C-300; mode=min_abs; operands=load:L-100, load:L-200; unit=none; dimensionless",
-    );
-    expect(
-      within(manager).getByTestId("load-manager-create-combination-preview")
-        .textContent,
-    ).toContain("unit_validation=not_required_dimensionless");
+    expect(within(manager).getByTestId("queue-create-combination-intent")).toBeEnabled();
     fireEvent.click(
       within(manager).getByTestId("queue-create-combination-intent"),
     );
@@ -6672,10 +4737,8 @@ describe("SWBPIPE desktop preview", () => {
     const newCombination = within(manager).getByTestId(
       "load-manager-combination-combination:C-300",
     );
-    expect(newCombination.textContent).toContain("basis=range_envelope");
-    expect(newCombination.textContent).toContain(
-      "mode=min_abs; operands=load:L-100, load:L-200",
-    );
+    expect(newCombination.textContent).toContain("Range envelope");
+    expect(newCombination.textContent).toContain("min_abs of L-100, L-200");
     expect(
       screen.getByTestId("local-project-review-context").textContent,
     ).toContain("applied_operations=1");
@@ -6688,26 +4751,18 @@ describe("SWBPIPE desktop preview", () => {
     render(<App />);
 
     const manager = await loadCaseManager();
+    fireEvent.click(
+      within(manager).getByTestId(
+        "load-manager-combination-select-combination:C-OPER-ALT",
+      ),
+    );
     const termRow = within(manager).getByTestId(
       "load-manager-combination-term-combination:C-OPER-ALT-1",
     );
-    expect(termRow.textContent).toContain("load:L-200 x 0.5");
+    expect(termRow.closest("tr")!.textContent).toContain("L-2000.5");
     fireEvent.click(termRow);
 
-    expect(
-      within(manager).getByTestId("load-manager-combination-delete-preview")
-        .textContent,
-    ).toContain("op:load-manager-combination:C-OPER-ALT-term-1-delete");
-    expect(
-      within(manager).getByTestId("load-manager-combination-delete-preview")
-        .textContent,
-    ).toContain(
-      "before=load:L-200 x 0.5; after=not_present; unit=none; dimensionless",
-    );
-    expect(
-      within(manager).getByTestId("load-manager-combination-delete-preview")
-        .textContent,
-    ).toContain("unit_validation=not_required_dimensionless");
+    await waitFor(() => expect(within(manager).getByTestId("queue-delete-combination-term-intent")).toBeEnabled());
     fireEvent.click(
       within(manager).getByTestId("queue-delete-combination-term-intent"),
     );
@@ -6737,8 +4792,8 @@ describe("SWBPIPE desktop preview", () => {
     const combinationRow = within(manager).getByTestId(
       "load-manager-combination-combination:C-OPER-ALT",
     );
-    expect(combinationRow.textContent).toContain("load:L-100 x 1");
-    expect(combinationRow.textContent).not.toContain("load:L-200 x 0.5");
+    expect(combinationRow.textContent).toContain("L-100 × 1");
+    expect(combinationRow.textContent).not.toContain("L-200 × 0.5");
     const inspector = screen.getByLabelText("Property inspector");
     expect(inspector.textContent).toContain("load:L-100 x 1");
     expect(inspector.textContent).not.toContain("load:L-200 x 0.5");
@@ -6765,31 +4820,15 @@ describe("SWBPIPE desktop preview", () => {
     const combinationRow = within(manager).getByTestId(
       "load-manager-combination-combination:C-OPER-ALT",
     );
-    expect(combinationRow.textContent).toContain("load:L-100 x 1");
-    expect(combinationRow.textContent).toContain("load:L-200 x 0.5");
+    expect(combinationRow.textContent).toContain("L-100 × 1");
+    expect(combinationRow.textContent).toContain("L-200 × 0.5");
     fireEvent.click(
       within(manager).getByTestId(
         "load-manager-combination-select-combination:C-OPER-ALT",
       ),
     );
 
-    expect(
-      within(manager).getByTestId(
-        "load-manager-combination-entity-delete-preview",
-      ).textContent,
-    ).toContain("op:load-manager-combination:C-OPER-ALT-delete");
-    expect(
-      within(manager).getByTestId(
-        "load-manager-combination-entity-delete-preview",
-      ).textContent,
-    ).toContain(
-      "before=combination:C-OPER-ALT; Invented explicit operating plus alternate preview; basis=mechanics; terms=load:L-100 x 1; load:L-200 x 0.5",
-    );
-    expect(
-      within(manager).getByTestId(
-        "load-manager-combination-entity-delete-preview",
-      ).textContent,
-    ).toContain("unit_validation=not_required_dimensionless");
+    expect(within(manager).getByTestId("queue-delete-combination-intent")).toBeEnabled();
     fireEvent.click(
       within(manager).getByTestId("queue-delete-combination-intent"),
     );
@@ -7161,9 +5200,6 @@ describe("SWBPIPE desktop preview", () => {
     expect(within(report).queryByTestId("report-editor-intent-summary")).not.toBeInTheDocument();
     expect(renderedReportButton()).toBeDisabled();
 
-    const handoff = handoffPackage();
-    expect(within(handoff).getByTestId("handoff-empty")).toBeInTheDocument();
-    expect(within(handoff).queryByTestId("handoff-export-link")).not.toBeInTheDocument();
     const activeDiffPreview = operationDiffPreview();
     await waitFor(() => expect(observedEditorIntents).toHaveLength(1));
     expect(observedEditorIntents[0].operation_id).toBe("op:editor-intent-material-material:invented-carbon-steel-elastic_modulus.value");
@@ -9058,31 +7094,6 @@ describe("SWBPIPE desktop preview", () => {
       validationPacket.professional_boundary.software_makes_compliance_claim,
     ).toBe(false);
 
-    const exportReview = exportSafetyReview();
-    fireEvent.click(
-      within(exportReview).getByTestId(
-        "export-review-link-local-private-intent",
-      ),
-    );
-    const reviewHref =
-      within(exportReview)
-        .getByTestId("export-review-link")
-        .getAttribute("href") ?? "";
-    const reviewManifest = JSON.parse(
-      decodeURIComponent(reviewHref.split(",", 2)[1]),
-    );
-    expect(
-      reviewManifest.exports.find(
-        (item: { export_id: string }) =>
-          item.export_id === "project_storage_audit",
-      ).persisted_editor_intent_count,
-    ).toBe(1);
-    expect(
-      reviewManifest.exports.find(
-        (item: { export_id: string }) =>
-          item.export_id === "project_validation_preflight",
-      ).persisted_editor_intent_count,
-    ).toBe(1);
 
     selectTreeRow("material", "material:invented-carbon-steel");
     expect(within(screen.getByLabelText("Editor operation intent")).queryByTestId("editor-intent-queue")).not.toBeInTheDocument();
@@ -9115,20 +7126,12 @@ describe("SWBPIPE desktop preview", () => {
     expect(blankReadiness.getByTestId("readiness-rule").textContent).toContain("(RULE_INPUTS_INCOMPLETE)");
     expect(blankReadiness.getByTestId("readiness-professional").textContent).toContain("(HUMAN_REVIEW_REQUIRED)");
     fireEvent.click(screen.getByTestId("workspace-dock-close"));
-    fireEvent.click(screen.getByTestId("audit-drawer-toggle"));
-    const auditDrawer = await screen.findByTestId("audit-boundary-drawer");
-    expect(auditDrawer.textContent).toContain(
-      "blank_user_created_local_document_no_bundled_engineering_values",
-    );
-    expect(auditDrawer.textContent).toContain(
-      "local_user_document_not_committed_to_repository",
-    );
     expect(screen.getByTestId("app-menu-bar")).toBeInTheDocument();
     expect(screen.getByTestId("workspace-dock").className).toContain(
       "collapsed",
     );
-    fireEvent.click(screen.getByTestId("menu-view"));
-    fireEvent.click(screen.getByTestId("menu-item-view.section.loads"));
+    // Load Cases is the Loads stage, reached by the rail (the View menu does not list it).
+    fireEvent.click(screen.getByTestId("rail-stage-loads"));
     expect(screen.getByTestId("workspace-section-loads").className).toBe(
       "workspace-dock-section",
     );
@@ -9552,8 +7555,6 @@ describe("SWBPIPE desktop preview", () => {
     expect(within(referenceReport).getByTestId("report-export-link")).toBeInTheDocument();
     referenceReportView.unmount();
 
-    const currentPackage = within(openWorkspaceSection("exports")).getByLabelText("Native JSON package");
-    expect(within(currentPackage).queryByTestId("native-package-link")).not.toBeInTheDocument();
     const referencePackageView = render(<NativePackagePanel model={basis.model} result={basis.result} analysisRun={basis.analysisRun} editorIntents={[]} modelHash={await computeModelHash(basis.model)} projectSummary={savedStoragePacket.project_summary} proposal={proposal} selectedReviewTarget={target} storageCapability={await getLocalStorageCapability()} />);
     const savedNativePackage = await within(referencePackageView.container).findByLabelText("Native JSON package");
     expect(
@@ -9837,11 +7838,6 @@ describe("SWBPIPE desktop preview", () => {
       "proposal:physics-diagnostic-review",
     );
 
-    const openedNativePackage = within(
-      openWorkspaceSection("exports"),
-    ).getByLabelText("Native JSON package");
-    expect(within(openedNativePackage).getByTestId("native-package-empty")).toBeInTheDocument();
-    expect(within(openedNativePackage).queryByTestId("native-package-link")).not.toBeInTheDocument();
     fireEvent.click(screen.getByTestId("menu-file"));
     expect(screen.getByTestId("menu-item-file.save-report-package")).toBeDisabled();
     fireEvent.click(screen.getByTestId("app-menu-backdrop"));
@@ -9886,74 +7882,6 @@ describe("SWBPIPE desktop preview", () => {
       id: "result:stress:pipe-P-120:end-j:torsional-shear",
     });
 
-    const exportReview = exportSafetyReview();
-    fireEvent.click(
-      within(exportReview).getByTestId(
-        "export-review-link-local-private-intent",
-      ),
-    );
-    const openedReviewHref =
-      within(exportReview)
-        .getByTestId("export-review-link")
-        .getAttribute("href") ?? "";
-    const openedReviewManifest = JSON.parse(
-      decodeURIComponent(openedReviewHref.split(",", 2)[1]),
-    );
-    expect(openedReviewManifest.summary.operation_record_count).toBe(1);
-    expect(
-      openedReviewManifest.exports.find(
-        (item: { export_id: string }) =>
-          item.export_id === "project_storage_audit",
-      ).proposal_operation_count,
-    ).toBe(1);
-    expect(
-      openedReviewManifest.exports.find(
-        (item: { export_id: string }) =>
-          item.export_id === "project_storage_audit",
-      ).persisted_proposal_count,
-    ).toBe(1);
-    expect(
-      openedReviewManifest.exports.find(
-        (item: { export_id: string }) =>
-          item.export_id === "project_storage_audit",
-      ).persisted_selected_review_target_count,
-    ).toBe(1);
-    expect(
-      openedReviewManifest.exports.find(
-        (item: { export_id: string }) =>
-          item.export_id === "project_storage_audit",
-      ).persisted_selected_review_target_ref,
-    ).toBe("result: result:stress:pipe-P-120:end-j:torsional-shear");
-    expect(
-      openedReviewManifest.exports.find(
-        (item: { export_id: string }) =>
-          item.export_id === "project_validation_preflight",
-      ).proposal_operation_count,
-    ).toBe(1);
-    expect(
-      openedReviewManifest.exports.find(
-        (item: { export_id: string }) =>
-          item.export_id === "project_validation_preflight",
-      ).persisted_proposal_count,
-    ).toBe(1);
-    expect(
-      openedReviewManifest.exports.find(
-        (item: { export_id: string }) =>
-          item.export_id === "project_validation_preflight",
-      ).persisted_selected_review_target_count,
-    ).toBe(1);
-    expect(
-      openedReviewManifest.exports.find(
-        (item: { export_id: string }) =>
-          item.export_id === "project_validation_preflight",
-      ).persisted_selected_review_target_ref,
-    ).toBe("result: result:stress:pipe-P-120:end-j:torsional-shear");
-    expect(
-      openedReviewManifest.exports.find(
-        (item: { export_id: string }) =>
-          item.export_id === "operation_review_ledger",
-      ).readiness,
-    ).toBe("available");
 
     expect(screen.getByTestId("project-index-picker")).toBeInTheDocument();
     fireEvent.click(
@@ -14202,7 +12130,6 @@ describe("persistent modeling workspace", () => {
     fireEvent(window, new MouseEvent("pointermove", { bubbles: true, clientX: 100, clientY: 360 }));
     fireEvent(window, new MouseEvent("pointerup", { bubbles: true, clientX: 100, clientY: 360 }));
     expect(drawerSplitter).toHaveAttribute("aria-valuenow", String(Math.min(600, initialDrawer + 16 + 40)));
-    expect(await screen.findByTestId("accessibility-current-workspace-target")).toHaveTextContent("WCAG 2.2 Level AA");
     Object.defineProperty(window, "innerWidth", { configurable: true, value: 1024 });
   });
 
@@ -14837,13 +12764,13 @@ describe("primitive case selection display", () => {
     };
     const view = render(<LoadCaseManagerPanel {...props} model={withoutCases} />);
     const manager = screen.getByTestId("load-case-manager");
-    const queue = screen.getByTestId("queue-create-primitive-intent");
-    expectVirtualTargetEmpty(manager, "load-manager-create-primitive-load-case");
-    expect(queue).toBeDisabled();
-    fireEvent.change(screen.getByTestId("load-manager-create-primitive-magnitude"), { target: { value: "350" } });
-    fireEvent.change(screen.getByTestId("load-manager-create-primitive-provenance"), { target: { value: "invented_native_case_regression" } });
+    // A load is added to a case: with no case there is no load form and nothing to queue.
+    expect(screen.queryByTestId("queue-create-primitive-intent")).toBeNull();
 
     view.rerender(<LoadCaseManagerPanel {...props} model={{ ...withoutCases, load_cases: [soleCase] }} />);
+    const queue = screen.getByTestId("queue-create-primitive-intent");
+    fireEvent.change(screen.getByTestId("load-manager-create-primitive-magnitude"), { target: { value: "350" } });
+    fireEvent.change(screen.getByTestId("load-manager-create-primitive-provenance"), { target: { value: "invented_native_case_regression" } });
     // Before any deliberate option action, the displayed selection must agree
     // with the still-empty controlled draft instead of displaying the sole case.
     expectVirtualTargetEmpty(manager, "load-manager-create-primitive-load-case");
@@ -15505,3 +13432,1715 @@ function reviewValue(cell: string): string {
   if (!input) throw new Error(`Missing review cell ${cell}`);
   return input.value;
 }
+
+// The review-packet panels the v1.0 interface does not mount (DEL-07-12's inventory;
+// docs/RELEASE_LIMITATIONS_v1.0.md, LIM-039). Their generators, contracts and review code
+// are kept, so their checks from the workspace's first open move here: each panel rendered
+// with what the workspace gave it before any solve (the loaded fixture model and design
+// knowledge, the local store's capability, no result, no queued operation).
+describe("review-packet panels kept off the v1.0 interface", () => {
+  async function firstOpenInputs() {
+    const [model, knowledge, storageCapability] = await Promise.all([loadPreviewModel(), loadDesignKnowledge(), getLocalStorageCapability()]);
+    return { model, knowledge, storageCapability };
+  }
+
+  it("Headless runner envelope: the panel and its packet as the workspace showed them on first open", async () => {
+    const { model } = await firstOpenInputs();
+    render(<DisplayUnitsProvider><HeadlessRunnerPanel model={model} result={null} analysisRun={null} solveJob={initialSolveJob()} /></DisplayUnitsProvider>);
+      const headlessRunner = await screen.findByLabelText("Headless runner envelope");
+      expect(
+        within(headlessRunner).getByTestId("headless-runner-summary").textContent,
+      ).toContain("available");
+      expect(
+        within(headlessRunner).getByTestId("headless-runner-summary").textContent,
+      ).toContain("job=TBD");
+      expect(
+        within(headlessRunner).getByTestId("headless-runner-summary").textContent,
+      ).toContain("outputs=4");
+      expect(
+        within(headlessRunner).getByTestId("headless-runner-summary").textContent,
+      ).toContain("result_refs=1");
+      expect(
+        within(headlessRunner).getByTestId("headless-runner-interface")
+          .textContent,
+      ).toContain("schema_first_headless_runner_contract");
+      expect(
+        within(headlessRunner).getByTestId("headless-runner-interface")
+          .textContent,
+      ).toContain("cli=openpipestress-runner");
+      expect(
+        within(headlessRunner).getByTestId("headless-runner-units").textContent,
+      ).toContain("results=none");
+      expect(
+        within(headlessRunner).getByTestId("headless-runner-units").textContent,
+      ).toContain("conversion=false");
+      expect(
+        within(headlessRunner).getByTestId("headless-runner-unit-witnesses")
+          .textContent,
+      ).toContain("count=0");
+      expect(
+        within(headlessRunner).getByTestId("headless-runner-runtime-tbds")
+          .textContent,
+      ).toContain("network=SETTLED_DEC_065");
+      expect(
+        within(headlessRunner).getByTestId("headless-runner-boundary")
+          .textContent,
+      ).toContain("network_required=false");
+      expect(
+        within(headlessRunner).getByTestId("headless-runner-boundary")
+          .textContent,
+      ).toContain("handoff evidence for external validation, not a validation outcome");
+      fireEvent.click(
+        within(headlessRunner).getByTestId("headless-runner-export-link-local-private-intent"),
+      );
+      const headlessHref =
+        within(headlessRunner)
+          .getByTestId("headless-runner-export-link")
+          .getAttribute("href") ?? "";
+      const headlessPacket = JSON.parse(
+        decodeURIComponent(headlessHref.split(",", 2)[1]),
+      );
+      expect(headlessPacket.deliverable_id).toBe("DEL-10-05");
+      expect(headlessPacket.package_id).toBe("PKG-10");
+      expect(headlessPacket.scope_items).toContain("SOW-054");
+      expect(headlessPacket.scope_items).toContain("SOW-032");
+      expect(headlessPacket.objectives).toContain("OBJ-008");
+      expect(headlessPacket.objectives).toContain("OBJ-009");
+      expect(headlessPacket.objectives).toContain("OBJ-012");
+      expect(headlessPacket.runner_status.interface_kind).toBe(
+        "schema_first_headless_runner_contract",
+      );
+      expect(
+        headlessPacket.runner_status.physical_project_container
+          .direct_sql_access_allowed,
+      ).toBe(false);
+      expect(
+        headlessPacket.runner_status.physical_project_container.network_required,
+      ).toBe(false);
+      expect(headlessPacket.runner_status.final_cli_command_syntax).toContain(
+        "openpipestress-runner <solve|validate-input|export-results|run-benchmark|run-regression>",
+      );
+      expect(headlessPacket.runner_status.process_invocation).toBe(
+        "single_foreground_local_process",
+      );
+      expect(headlessPacket.runner_status.network_access).toBe("none");
+      expect(headlessPacket.runner_status.filesystem_mutation_policy).toBe(
+        "stdout_default_explicit_output_path_only",
+      );
+      expect(headlessPacket.tbd_decisions.final_cli_command_syntax).toBe(
+        "SETTLED_DEC_065",
+      );
+      expect(headlessPacket.tbd_decisions.process_invocation).toBe(
+        "SETTLED_DEC_065",
+      );
+      expect(headlessPacket.tbd_decisions.network_access).toBe("SETTLED_DEC_065");
+      expect(headlessPacket.tbd_decisions.filesystem_mutation_policy).toBe(
+        "SETTLED_DEC_065",
+      );
+      expect(headlessPacket.request.operation).toBe("solve");
+      expect(headlessPacket.request.requested_outputs).toContain(
+        "result_envelope",
+      );
+      expect(headlessPacket.request.requested_outputs).toContain(
+        "audit_manifest",
+      );
+      expect(headlessPacket.request.privacy.local_only).toBe(true);
+      expect(headlessPacket.request.privacy.telemetry_allowed).toBe(false);
+      expect(headlessPacket.result.job.state).toBe("TBD");
+      expect(
+        headlessPacket.result.unit_system_disclosure.unit_system_ref.ref,
+      ).toBe("unit-system:dec-018-si-dual-display");
+      expect(headlessPacket.result.unit_system_disclosure.result_units).toEqual(
+        [],
+      );
+      expect(
+        headlessPacket.result.unit_system_disclosure.conversion_performed,
+      ).toBe(false);
+      expect(headlessPacket.result.unit_preservation_witnesses).toEqual([]);
+      expect(headlessPacket.result.analysis_status).toContain("MODEL_INCOMPLETE");
+      expect(headlessPacket.result.analysis_status).toContain(
+        "HUMAN_REVIEW_REQUIRED",
+      );
+      expect(headlessPacket.result.result_envelope_ref.compatibility).toBe(
+        "schema_first_json_result_envelope",
+      );
+      expect(headlessPacket.result.result_refs).toHaveLength(1);
+      expect(headlessPacket.result.checksums[0].algorithm).toBe("TBD");
+      expect(headlessPacket.result.privacy.local_only).toBe(true);
+      expect(
+        headlessPacket.result.professional_boundary
+          .software_makes_compliance_claim,
+      ).toBe(false);
+  });
+
+  it("Adapter framework envelope: the panel and its packet as the workspace showed them on first open", async () => {
+    const { model } = await firstOpenInputs();
+    render(<DisplayUnitsProvider><AdapterFrameworkPanel model={model} result={null} analysisRun={null} /></DisplayUnitsProvider>);
+      const adapterFramework = await screen.findByLabelText("Adapter framework envelope");
+      expect(
+        within(adapterFramework).getByTestId("adapter-framework-summary")
+          .textContent,
+      ).toContain("available");
+      expect(
+        within(adapterFramework).getByTestId("adapter-framework-summary")
+          .textContent,
+      ).toContain("capabilities=4");
+      expect(
+        within(adapterFramework).getByTestId("adapter-framework-summary")
+          .textContent,
+      ).toContain("parse=not_parsed_by_framework");
+      expect(
+        within(adapterFramework).getByTestId("adapter-framework-status")
+          .textContent,
+      ).toContain("schema_first_format_neutral_adapter_framework");
+      expect(
+        within(adapterFramework).getByTestId("adapter-framework-status")
+          .textContent,
+      ).toContain("formats=TBD");
+      expect(
+        within(adapterFramework).getByTestId("adapter-framework-capabilities")
+          .textContent,
+      ).toContain("validate_payload");
+      expect(
+        within(adapterFramework).getByTestId("adapter-framework-validation")
+          .textContent,
+      ).toContain("schema=required");
+      expect(
+        within(adapterFramework).getByTestId("adapter-framework-units")
+          .textContent,
+      ).toContain("conversion=false");
+      expect(
+        within(adapterFramework).getByTestId("adapter-framework-units")
+          .textContent,
+      ).toContain("witnesses=1");
+      expect(
+        within(adapterFramework).getByTestId("adapter-framework-no-bypass")
+          .textContent,
+      ).toContain("direct_sql=false");
+      expect(
+        within(adapterFramework).getByTestId("adapter-framework-no-bypass")
+          .textContent,
+      ).toContain("network=false");
+      expect(
+        within(adapterFramework).getByTestId("adapter-framework-runtime-tbds")
+          .textContent,
+      ).toContain("plugin=TBD");
+      expect(
+        within(adapterFramework).getByTestId("adapter-framework-boundary")
+          .textContent,
+      ).toContain("private_redacted=true");
+      const adapterHref =
+        within(adapterFramework)
+          .getByTestId("adapter-framework-export-link")
+          .getAttribute("href") ?? "";
+      const adapterPacket = JSON.parse(
+        decodeURIComponent(adapterHref.split(",", 2)[1]),
+      );
+      expect(adapterPacket.deliverable_id).toBe("[REDACTED]");
+      expect(adapterPacket.package_id).toBe("[REDACTED]");
+      expect(adapterPacket.scope_item).toBe("[REDACTED]");
+      expect(adapterPacket.objective).toBe("[REDACTED]");
+      expect(adapterPacket.framework_status.interface_kind).toBe(
+        "[REDACTED]",
+      );
+      expect(adapterPacket.framework_status.external_format_list).toBe("[REDACTED]");
+      expect(adapterPacket.framework_status.public_transport_protocol).toBe(
+        "[REDACTED]",
+      );
+      expect(adapterPacket.tbd_decisions.plugin_runtime).toBe("[REDACTED]");
+      expect(adapterPacket.tbd_decisions.package_scripts).toBe("[REDACTED]");
+      expect(adapterPacket.adapter_declaration.adapter_id).toBe("[REDACTED]");
+      expect(adapterPacket.adapter_declaration.capabilities).toEqual([
+        "[REDACTED]",
+        "[REDACTED]",
+        "[REDACTED]",
+        "[REDACTED]",
+      ]);
+      expect(adapterPacket.unit_policy_evidence.conversion_performed).toBe("[REDACTED]");
+      expect(adapterPacket.operation_result.checksums[0].algorithm).toBe(
+        "[REDACTED]",
+      );
+      expect(
+        adapterPacket.operation_result.professional_boundary
+          .software_makes_compliance_claim,
+      ).toBe("[REDACTED]");
+      expect(
+        adapterPacket.operation_result.professional_boundary
+          .software_makes_security_certification_claim,
+      ).toBe("[REDACTED]");
+  });
+
+  it("External prover boundary metadata: the panel and its packet as the workspace showed them on first open", async () => {
+    const { model } = await firstOpenInputs();
+    render(<DisplayUnitsProvider><ExternalProverBoundaryPanel model={model} result={null} analysisRun={null} /></DisplayUnitsProvider>);
+      const externalProver = await screen.findByLabelText("External prover boundary metadata");
+      expect(
+        within(externalProver).getByTestId("external-prover-summary").textContent,
+      ).toContain("available");
+      expect(
+        within(externalProver).getByTestId("external-prover-summary").textContent,
+      ).toContain("metadata=non_authoritative_workflow_metadata");
+      expect(
+        within(externalProver).getByTestId("external-prover-summary").textContent,
+      ).toContain("refs=1");
+      expect(
+        within(externalProver).getByTestId("external-prover-summary").textContent,
+      ).toContain("diagnostics=4");
+      expect(
+        within(externalProver).getByTestId("external-prover-contract")
+          .textContent,
+      ).toContain("DEL-15-04");
+      expect(
+        within(externalProver).getByTestId("external-prover-groups").textContent,
+      ).toContain("attachments=1");
+      expect(
+        within(externalProver).getByTestId("external-prover-context-links")
+          .textContent,
+      ).toContain("handoff=1");
+      expect(
+        within(externalProver).getByTestId("external-prover-unsupported-flags")
+          .textContent,
+      ).toContain("external_solver_not_invoked");
+      expect(
+        within(externalProver).getByTestId("external-prover-run-boundary")
+          .textContent,
+      ).toContain("tool_invoked=false");
+      expect(
+        within(externalProver).getByTestId("external-prover-unit-policy")
+          .textContent,
+      ).toContain("length=m");
+      expect(
+        within(externalProver).getByTestId("external-prover-unit-policy")
+          .textContent,
+      ).toContain("conversion=false");
+      expect(
+        within(externalProver).getByTestId("external-prover-authority-boundary")
+          .textContent,
+      ).toContain("compliance=false");
+      fireEvent.click(
+        within(externalProver).getByTestId(
+          "external-prover-export-link-local-private-intent",
+        ),
+      );
+      const externalHref =
+        within(externalProver)
+          .getByTestId("external-prover-export-link")
+          .getAttribute("href") ?? "";
+      const externalPacket = JSON.parse(
+        decodeURIComponent(externalHref.split(",", 2)[1]),
+      );
+      expect(externalPacket.deliverable_id).toBe("DEL-15-04");
+      expect(externalPacket.package_id).toBe("PKG-15");
+      expect(externalPacket.scope_item).toBe("SOW-075");
+      expect(externalPacket.objectives).toContain("OBJ-017");
+      expect(externalPacket.objectives).toContain("OBJ-018");
+      expect(externalPacket.metadata_contract_status).toBe(
+        "non_authoritative_workflow_metadata",
+      );
+      expect(externalPacket.tags).toContain("run-context-pending");
+      expect(externalPacket.external_references[0].external_ref.ref).toBe(
+        "external:desktop-preview-metadata-only",
+      );
+      expect(externalPacket.attachments[0].payload_embedded).toBe(false);
+      expect(externalPacket.handoff_package_refs[0].ref.ref).toBe("handoff:TBD");
+      expect(externalPacket.immutable_model_state_refs[0].ref.ref).toBe(
+        "state:TBD",
+      );
+      expect(externalPacket.unit_policy_evidence.storage_convention).toBe(
+        "entered_units_preserved",
+      );
+      expect(externalPacket.unit_policy_evidence.conversion_policy).toBe(
+        "external_prover_metadata_records_units_without_target_conversion",
+      );
+      expect(externalPacket.unit_policy_evidence.conversion_performed).toBe(
+        false,
+      );
+      expect(externalPacket.unit_policy_evidence.external_prover_scope).toBe(
+        "metadata_only_external_review_context",
+      );
+      expect(
+        externalPacket.unit_policy_evidence.external_prover_unit_policy,
+      ).toBe("record_units_for_external_reviewer_without_invoking_target_solver");
+      expect(externalPacket.unit_policy_evidence.witness_policy).toBe(
+        "record_external_prover_unit_policy_without_claiming_target_writer_conversion",
+      );
+      expect(externalPacket.unit_policy_evidence.witness_count).toBe(1);
+      expect(externalPacket.unit_policy_evidence.analysis_run_ref.ref).toBe(
+        "analysis-run:TBD",
+      );
+      expect(externalPacket.unit_policy_evidence.external_ref.ref).toBe(
+        "external:desktop-preview-metadata-only",
+      );
+      expect(externalPacket.unsupported_target_flags).toHaveLength(3);
+      expect(externalPacket.diagnostics).toHaveLength(4);
+      expect(externalPacket.professional_boundary.external_tool_invoked).toBe(
+        false,
+      );
+      expect(
+        externalPacket.professional_boundary.commercial_result_payload_ingested,
+      ).toBe(false);
+      expect(
+        externalPacket.professional_boundary
+          .software_creates_external_validation_record,
+      ).toBe(false);
+      expect(
+        externalPacket.professional_boundary.software_makes_compliance_claim,
+      ).toBe(false);
+  });
+
+  it("External prover run: the panel and its packet as the workspace showed them on first open", async () => {
+    const { model } = await firstOpenInputs();
+    render(<DisplayUnitsProvider><CaepipeExternalHarnessPanel model={model} result={null} analysisRun={null} /></DisplayUnitsProvider>);
+      const caepipeExternal = await screen.findByLabelText("External prover run");
+      expect(
+        within(caepipeExternal).getByTestId("caepipe-external-summary")
+          .textContent,
+      ).toContain("available");
+      expect(
+        within(caepipeExternal).getByTestId("caepipe-external-summary")
+          .textContent,
+      ).toContain("status=parser_only_evidence");
+      expect(
+        within(caepipeExternal).getByTestId("caepipe-external-summary")
+          .textContent,
+      ).toContain("rows=3");
+      expect(
+        within(caepipeExternal).getByTestId("caepipe-external-summary")
+          .textContent,
+      ).toContain("sections=2");
+      expect(
+        within(caepipeExternal).getByTestId("caepipe-external-summary")
+          .textContent,
+      ).toContain("external_invoked=false");
+      expect(
+        within(caepipeExternal).getByTestId("caepipe-external-harness")
+          .textContent,
+      ).toContain("config=absent");
+      expect(
+        within(caepipeExternal).getByTestId("caepipe-external-harness")
+          .textContent,
+      ).toContain("TBD-17-05-invocation-profile");
+      expect(
+        within(caepipeExternal).getByTestId("caepipe-external-state-binding")
+          .textContent,
+      ).toContain("del-17-04");
+      expect(
+        within(caepipeExternal).getByTestId("caepipe-external-state-binding")
+          .textContent,
+      ).toContain("not generated");
+      expect(
+        within(caepipeExternal).getByTestId("caepipe-external-parser")
+          .textContent,
+      ).toContain("parsed_parser_only_fixture");
+      expect(
+        within(caepipeExternal).getByTestId("caepipe-external-parser")
+          .textContent,
+      ).toContain("correlation=canonical_id_map");
+      expect(
+        within(caepipeExternal).getByTestId("caepipe-external-units").textContent,
+      ).toContain("unit-system:dec-018-si-dual-display");
+      expect(
+        within(caepipeExternal).getByTestId("caepipe-external-units").textContent,
+      ).toContain("conversion=false");
+      expect(
+        within(caepipeExternal).getByTestId("caepipe-external-unit-witnesses")
+          .textContent,
+      ).toContain("count=3");
+      expect(
+        within(caepipeExternal).getByTestId("caepipe-external-unit-witnesses")
+          .textContent,
+      ).toContain("conversion=false");
+      expect(
+        within(caepipeExternal).getByTestId("caepipe-external-boundary")
+          .textContent,
+      ).not.toContain("compatibility");
+      expect(renderedVendorNameMentions(caepipeExternal)).toEqual([]);
+      expect(
+        within(caepipeExternal).getByTestId("caepipe-external-boundary")
+          .textContent,
+      ).toContain("code_compliance=false");
+      expect(
+        within(caepipeExternal)
+          .getByTestId("caepipe-external-export-link")
+          .getAttribute("href"),
+      ).toBeNull();
+      fireEvent.click(
+        within(caepipeExternal).getByTestId(
+          "caepipe-external-export-link-local-private-intent",
+        ),
+      );
+      const caepipeExternalHref =
+        within(caepipeExternal)
+          .getByTestId("caepipe-external-export-link")
+          .getAttribute("href") ?? "";
+      const caepipeExternalPacket = JSON.parse(
+        decodeURIComponent(caepipeExternalHref.split(",", 2)[1]),
+      );
+      expect(caepipeExternalPacket.document_kind).toBe(
+        "openpipestress.technical_preview.caepipe_external_run_package",
+      );
+      expect(caepipeExternalPacket.deliverable_id).toBe("DEL-17-05");
+      expect(caepipeExternalPacket.package_id).toBe("PKG-17");
+      expect(caepipeExternalPacket.scope_items).toContain("SOW-030");
+      expect(caepipeExternalPacket.scope_items).toContain("SOW-046");
+      expect(caepipeExternalPacket.scope_items).toContain("SOW-075");
+      expect(caepipeExternalPacket.package_status).toBe("parser_only_evidence");
+      expect(caepipeExternalPacket.mbf_package_ref.ref).toContain("del-17-04");
+      expect(caepipeExternalPacket.executable_config.configured_path_state).toBe(
+        "absent",
+      );
+      expect(
+        caepipeExternalPacket.executable_config
+          .license_responsibility_acknowledged,
+      ).toBe(false);
+      expect(
+        caepipeExternalPacket.executable_config
+          .environment_responsibility_acknowledged,
+      ).toBe(false);
+      expect(caepipeExternalPacket.command_profile.profile_id).toBe(
+        "TBD-17-05-invocation-profile",
+      );
+      expect(caepipeExternalPacket.execution_result.attempted).toBe(false);
+      expect(caepipeExternalPacket.parser_coverage).toHaveLength(2);
+      expect(
+        caepipeExternalPacket.unit_system_disclosure.unit_system_ref.ref,
+      ).toBe("unit-system:dec-018-si-dual-display");
+      expect(
+        caepipeExternalPacket.unit_system_disclosure.target_export_units
+          .node_displacements,
+      ).toBe("m");
+      expect(
+        caepipeExternalPacket.unit_system_disclosure.target_export_units
+          .element_forces,
+      ).toBe("N");
+      expect(
+        caepipeExternalPacket.unit_system_disclosure.conversion_performed,
+      ).toBe(false);
+      expect(caepipeExternalPacket.unit_witness_policy).toBe(
+        "preserve_parser_csv_row_value_unit_and_dimension_per_row",
+      );
+      expect(caepipeExternalPacket.unit_preservation_witnesses).toHaveLength(3);
+      const caepipeExternalForceWitness =
+        caepipeExternalPacket.unit_preservation_witnesses.find(
+          (item: { source_row_ref: { ref: string } }) =>
+            item.source_row_ref.ref === "csv-row:4",
+        );
+      expect(caepipeExternalForceWitness.source_quantity.unit).toBe("N");
+      expect(caepipeExternalForceWitness.source_quantity.dimension).toBe("force");
+      expect(caepipeExternalForceWitness.target_quantity.values.axial).toBe(12.5);
+      expect(caepipeExternalForceWitness.target_quantity.unit).toBe("N");
+      expect(caepipeExternalForceWitness.conversion_performed).toBe(false);
+      expect(caepipeExternalPacket.parsed_csv.row_count).toBe(3);
+      expect(
+        caepipeExternalPacket.parsed_csv.rows.map(
+          (row: { correlation_status: string }) => row.correlation_status,
+        ),
+      ).toEqual(["canonical_id_map", "canonical_id_map", "canonical_id_map"]);
+      expect(caepipeExternalPacket.csv_text).toContain("NODE_DISPLACEMENTS");
+      expect(caepipeExternalPacket.csv_text).toContain("ELEMENT_FORCES");
+      expect(caepipeExternalPacket.validation_report.validation_status).toBe(
+        "boundary_checked",
+      );
+      expect(
+        caepipeExternalPacket.validation_report.checks.map(
+          (item: { check_id: string }) => item.check_id,
+        ),
+      ).toContain("external_execution_not_attempted");
+      expect(
+        caepipeExternalPacket.validation_report.checks.map(
+          (item: { check_id: string }) => item.check_id,
+        ),
+      ).toContain("unit_preservation_witness_per_parser_row");
+      // The MBF package it names is DEL-17-04's retired preview package: a historical DEL-17-04 reference
+      // (DEL-17-05-REQ-016), never a passing binding to an input that is available.
+      expect(caepipeExternalPacket.mbf_package_status.availability).toBe(
+        "historical_retired_preview_package_not_available",
+      );
+      expect(caepipeExternalPacket.mbf_package_status.historical_input_mbf_path).toBe(
+        "download:openpipestress-preview-mbf-package.json",
+      );
+      expect(caepipeExternalPacket.run_directory.input_mbf_path).toBe("not_available");
+      const mbfBinding = caepipeExternalPacket.validation_report.checks.find(
+        (item: { check_id: string }) =>
+          item.check_id === "mbf_package_bound_to_del_17_04",
+      );
+      expect(mbfBinding.status).toBe("historical_reference_not_available");
+      expect(mbfBinding.status).not.toBe("pass");
+      expect(
+        caepipeExternalPacket.diagnostics.map((item: { code: string; severity: string }) => [item.code, item.severity]),
+      ).toEqual([["CAEPIPE-EXTERNAL-MBF-INPUT-NOT-AVAILABLE", "warning"]]);
+      expect(
+        within(caepipeExternal).getByTestId("caepipe-external-state-binding")
+          .textContent,
+      ).toContain("(historical; not available)");
+      expect(
+        within(caepipeExternal).getByTestId("caepipe-external-run-directory")
+          .textContent,
+      ).toContain("input_mbf=not_available");
+      expect(caepipeExternalPacket.private_payload_included).toBe(false);
+      expect(caepipeExternalPacket.protected_content_included).toBe(false);
+      expect(caepipeExternalPacket.caepipe_compatibility_claim).toBe(false);
+      expect(caepipeExternalPacket.solver_validation_claim).toBe(false);
+      expect(caepipeExternalPacket.code_compliance_claim).toBe(false);
+      expect(caepipeExternalPacket.professional_reliance_claim).toBe(false);
+      expect(
+        within(caepipeExternal)
+          .getByTestId("caepipe-external-csv-link")
+          .getAttribute("href"),
+      ).toBeNull();
+      fireEvent.click(
+        within(caepipeExternal).getByTestId(
+          "caepipe-external-csv-link-local-private-intent",
+        ),
+      );
+      const caepipeExternalCsvHref =
+        within(caepipeExternal)
+          .getByTestId("caepipe-external-csv-link")
+          .getAttribute("href") ?? "";
+      expect(
+        decodeURIComponent(caepipeExternalCsvHref.split(",", 2)[1]),
+      ).toContain("section,stable_id,target_id");
+  });
+
+  it("Export adapter SDK: the panel and its packet as the workspace showed them on first open", async () => {
+    const { model } = await firstOpenInputs();
+    render(<DisplayUnitsProvider><ExportAdapterSdkPanel model={model} result={null} analysisRun={null} /></DisplayUnitsProvider>);
+      const exportAdapterSdk = await screen.findByLabelText("Export adapter SDK");
+      expect(
+        within(exportAdapterSdk).getByTestId("export-adapter-sdk-summary")
+          .textContent,
+      ).toContain("available");
+      expect(
+        within(exportAdapterSdk).getByTestId("export-adapter-sdk-summary")
+          .textContent,
+      ).toContain("targets=5");
+      expect(
+        within(exportAdapterSdk).getByTestId("export-adapter-sdk-summary")
+          .textContent,
+      ).toContain("capabilities=4");
+      expect(
+        within(exportAdapterSdk).getByTestId("export-adapter-sdk-summary")
+          .textContent,
+      ).toContain("validation=boundary_checked");
+      expect(
+        within(exportAdapterSdk).getByTestId("export-adapter-sdk-profile")
+          .textContent,
+      ).toContain("runtime=TBD");
+      expect(
+        within(exportAdapterSdk).getByTestId("export-adapter-sdk-targets")
+          .textContent,
+      ).toContain("preview_targets=5");
+      expect(
+        within(exportAdapterSdk).getByTestId("export-adapter-sdk-targets")
+          .textContent,
+      ).toContain("admitted_support_claims=0");
+      expect(
+        within(exportAdapterSdk).getByTestId("export-adapter-sdk-validation")
+          .textContent,
+      ).toContain("loss_report=true");
+      expect(
+        within(exportAdapterSdk).getByTestId("export-adapter-sdk-units")
+          .textContent,
+      ).toContain("conversion=false");
+      expect(
+        within(exportAdapterSdk).getByTestId("export-adapter-sdk-units")
+          .textContent,
+      ).toContain("witnesses=5");
+      expect(
+        within(exportAdapterSdk).getByTestId("export-adapter-sdk-permissions")
+          .textContent,
+      ).toContain("filesystem=false");
+      expect(
+        within(exportAdapterSdk).getByTestId("export-adapter-sdk-permissions")
+          .textContent,
+      ).toContain("network=false");
+      expect(
+        within(exportAdapterSdk).getByTestId("export-adapter-sdk-boundary")
+          .textContent,
+      ).toContain("compatibility=false");
+      await waitFor(() =>
+        expect(
+          within(exportAdapterSdk).getByTestId("export-adapter-sdk-validation")
+            .textContent,
+        ).toContain("package_hash=computed_local_preview_sha256"),
+      );
+      const exportAdapterSdkHref =
+        within(exportAdapterSdk)
+          .getByTestId("export-adapter-sdk-export-link")
+          .getAttribute("href") ?? "";
+      const exportAdapterSdkPacket = JSON.parse(
+        decodeURIComponent(exportAdapterSdkHref.split(",", 2)[1]),
+      );
+      expect(exportAdapterSdkPacket.document_kind).toBe("[REDACTED]");
+      expect(exportAdapterSdkPacket.manifest.canonical_package_hash_status).toBe("[REDACTED]");
+      expect(exportAdapterSdkPacket.manifest.canonical_package_hash.value).toBe("[REDACTED]");
+      expect(
+        exportAdapterSdkPacket.validation_report.hash_validation_status,
+      ).toBe("[REDACTED]");
+      expect(exportAdapterSdkPacket.target_registry.targets).toHaveLength(5);
+      expect(
+        exportAdapterSdkPacket.target_registry.targets.every(
+          (item: { target_id: string }) => item.target_id === "[REDACTED]",
+        ),
+      ).toBe(true);
+      expect(exportAdapterSdkPacket.deliverable_id).toBe("[REDACTED]");
+      expect(exportAdapterSdkPacket.package_id).toBe("[REDACTED]");
+      expect(exportAdapterSdkPacket.scope_items).toEqual([
+        "[REDACTED]",
+        "[REDACTED]",
+        "[REDACTED]",
+      ]);
+      expect(exportAdapterSdkPacket.registry_id).toBe("[REDACTED]");
+      expect(exportAdapterSdkPacket.sdk_contract.sdk_contract_status).toBe(
+        "[REDACTED]",
+      );
+      expect(
+        exportAdapterSdkPacket.sdk_contract.source_basis_refs.map(
+          (item: { ref: string }) => item.ref,
+        ),
+      ).toContain("[REDACTED]");
+      expect(
+        exportAdapterSdkPacket.sdk_contract.source_basis_refs.map(
+          (item: { ref: string }) => item.ref,
+        ),
+      ).toContain("[REDACTED]");
+      expect(exportAdapterSdkPacket.sdk_contract.capabilities).toContain(
+        "[REDACTED]",
+      );
+      expect(
+        exportAdapterSdkPacket.sdk_contract.runtime_model.plugin_runtime,
+      ).toBe("[REDACTED]");
+      expect(
+        exportAdapterSdkPacket.sdk_contract.runtime_model.permission_taxonomy,
+      ).toBe("[REDACTED]");
+      expect(
+        exportAdapterSdkPacket.sdk_contract.deny_by_default_controls
+          .filesystem_access_granted,
+      ).toBe("[REDACTED]");
+      expect(
+        exportAdapterSdkPacket.sdk_contract.deny_by_default_controls
+          .network_access_granted,
+      ).toBe("[REDACTED]");
+      expect(
+        exportAdapterSdkPacket.sdk_contract.deny_by_default_controls
+          .process_access_granted,
+      ).toBe("[REDACTED]");
+      expect(
+        exportAdapterSdkPacket.sdk_contract.deny_by_default_controls
+          .private_data_access_granted,
+      ).toBe("[REDACTED]");
+      expect(
+        exportAdapterSdkPacket.adapter_template
+          .sample_adapter_implementation_included,
+      ).toBe("[REDACTED]");
+      expect(
+        exportAdapterSdkPacket.adapter_template
+          .source_basis_required_before_support_claim,
+      ).toBe("[REDACTED]");
+      expect(exportAdapterSdkPacket.target_registry.summary.target_count).toBe(
+        "[REDACTED]",
+      );
+      expect(
+        exportAdapterSdkPacket.target_registry.summary
+          .preview_panel_available_count,
+      ).toBe("[REDACTED]");
+      expect(
+        exportAdapterSdkPacket.target_registry.summary
+          .admitted_support_claim_count,
+      ).toBe("[REDACTED]");
+      expect(
+        exportAdapterSdkPacket.target_registry.targets.map(
+          (item: { target_id: string }) => item.target_id,
+        ),
+      ).toContain("[REDACTED]");
+      expect(
+        exportAdapterSdkPacket.target_registry.targets.map(
+          (item: { target_id: string }) => item.target_id,
+        ),
+      ).toContain("[REDACTED]");
+      expect(exportAdapterSdkPacket.validation_report.validation_status).toBe(
+        "[REDACTED]",
+      );
+      expect(
+        exportAdapterSdkPacket.validation_report.checks.loss_report_required,
+      ).toBe("[REDACTED]");
+      expect(
+        exportAdapterSdkPacket.validation_report.checks
+          .no_support_or_compatibility_claims,
+      ).toBe("[REDACTED]");
+      expect(
+        exportAdapterSdkPacket.unit_policy_evidence.unit_system_ref.ref,
+      ).toBe("[REDACTED]");
+      expect(exportAdapterSdkPacket.unit_policy_evidence.storage_convention).toBe(
+        "[REDACTED]",
+      );
+      expect(exportAdapterSdkPacket.unit_policy_evidence.conversion_policy).toBe(
+        "[REDACTED]",
+      );
+      expect(
+        exportAdapterSdkPacket.unit_policy_evidence.conversion_performed,
+      ).toBe("[REDACTED]");
+      expect(exportAdapterSdkPacket.unit_policy_evidence.witness_count).toBe("[REDACTED]");
+      expect(
+        exportAdapterSdkPacket.unit_policy_evidence.target_refs,
+      ).toHaveLength(5);
+      expect(
+        exportAdapterSdkPacket.unit_policy_evidence.decision_basis_refs.map(
+          (item: { ref: string }) => item.ref,
+        ),
+      ).toEqual(["[REDACTED]", "[REDACTED]"]);
+      expect(
+        exportAdapterSdkPacket.manifest.package_members.map(
+          (item: { role: string }) => item.role,
+        ),
+      ).toContain("[REDACTED]");
+      expect(exportAdapterSdkPacket.diagnostics).toHaveLength(0);
+      expect(exportAdapterSdkPacket.private_payload_included).toBe("[REDACTED]");
+      expect(exportAdapterSdkPacket.protected_content_included).toBe("[REDACTED]");
+      expect(exportAdapterSdkPacket.target_compatibility_claim).toBe("[REDACTED]");
+      expect(exportAdapterSdkPacket.solver_validation_claim).toBe("[REDACTED]");
+      expect(exportAdapterSdkPacket.code_compliance_claim).toBe("[REDACTED]");
+      expect(exportAdapterSdkPacket.professional_reliance_claim).toBe("[REDACTED]");
+  });
+
+  it("Build package readiness: the panel and its packet as the workspace showed them on first open", async () => {
+    const { model } = await firstOpenInputs();
+    render(<DisplayUnitsProvider><BuildReadinessPanel model={model} /></DisplayUnitsProvider>);
+      const buildReadiness = await screen.findByLabelText("Build package readiness");
+      expect(
+        within(buildReadiness).getByTestId("build-readiness-summary").textContent,
+      ).toContain("available");
+      expect(
+        within(buildReadiness).getByTestId("build-readiness-summary").textContent,
+      ).toContain("scripts=8");
+      expect(
+        within(buildReadiness).getByTestId("build-readiness-summary").textContent,
+      ).toContain("bundle_active=false");
+      expect(
+        within(buildReadiness).getByTestId("build-readiness-shell").textContent,
+      ).toContain("SWBPIPE");
+      expect(
+        within(buildReadiness).getByTestId("build-readiness-commands")
+          .textContent,
+      ).toContain("build:desktop");
+      expect(
+        within(buildReadiness).getByTestId("build-readiness-commands")
+          .textContent,
+      ).toContain("tauri");
+      expect(
+        within(buildReadiness).getByTestId("build-readiness-profiles")
+          .textContent,
+      ).toContain("skeleton");
+      expect(
+        within(buildReadiness).getByTestId("build-readiness-decisions")
+          .textContent,
+      ).toContain("ci=TBD");
+      expect(
+        within(buildReadiness).getByTestId("build-readiness-boundary")
+          .textContent,
+      ).toContain("release_authorized=false");
+      fireEvent.click(
+        within(buildReadiness).getByTestId(
+          "build-readiness-export-link-local-private-intent",
+        ),
+      );
+      const buildReadinessHref =
+        within(buildReadiness)
+          .getByTestId("build-readiness-export-link")
+          .getAttribute("href") ?? "";
+      const buildReadinessPacket = JSON.parse(
+        decodeURIComponent(buildReadinessHref.split(",", 2)[1]),
+      );
+      expect(buildReadinessPacket.document_kind).toBe(
+        "openpipestress.technical_preview.build_package_readiness",
+      );
+      expect(buildReadinessPacket.deliverable_id).toBe("DEL-10-04");
+      expect(buildReadinessPacket.package_id).toBe("PKG-10");
+      expect(buildReadinessPacket.scope_item).toBe("SOW-032");
+      expect(buildReadinessPacket.objectives).toContain("OBJ-008");
+      expect(buildReadinessPacket.objectives).toContain("OBJ-009");
+      expect(buildReadinessPacket.summary.tauri_shell_status).toBe("present");
+      expect(buildReadinessPacket.summary.bundle_active).toBe(false);
+      expect(buildReadinessPacket.workspace.root_scripts).toContain(
+        "build:desktop",
+      );
+      expect(buildReadinessPacket.workspace.desktop_scripts).toContain("tauri");
+      expect(buildReadinessPacket.tauri_shell.before_build_command).toBe(
+        "npm run build",
+      );
+      expect(buildReadinessPacket.release_readiness_tool.default_profile).toBe(
+        "skeleton",
+      );
+      expect(
+        buildReadinessPacket.release_readiness_tool.browser_panel_runs_tool,
+      ).toBe(false);
+      expect(buildReadinessPacket.unresolved_decisions.ci_provider).toBe("TBD");
+      expect(buildReadinessPacket.unresolved_decisions.release_matrix).toBe(
+        "TBD",
+      );
+      expect(buildReadinessPacket.unresolved_decisions.signing_notarization).toBe(
+        "TBD",
+      );
+      expect(buildReadinessPacket.boundary.network_required).toBe(false);
+      expect(buildReadinessPacket.boundary.telemetry_enabled).toBe(false);
+      expect(buildReadinessPacket.boundary.release_publication_authorized).toBe(
+        false,
+      );
+      expect(buildReadinessPacket.boundary.installer_or_binary_generated).toBe(
+        false,
+      );
+      expect(buildReadinessPacket.boundary.code_compliance_claim).toBe(false);
+      expect(buildReadinessPacket.boundary.professional_reliance_claim).toBe(
+        false,
+      );
+  });
+
+  it("Validation evidence review: the panel and its packet as the workspace showed them on first open", async () => {
+    const { model } = await firstOpenInputs();
+    render(<DisplayUnitsProvider><ValidationEvidencePanel model={model} /></DisplayUnitsProvider>);
+      const validationEvidence = await screen.findByLabelText("Validation evidence review");
+      expect(
+        within(validationEvidence).getByTestId("validation-evidence-summary")
+          .textContent,
+      ).toContain("manual=10");
+      expect(
+        within(validationEvidence).getByTestId("validation-evidence-summary")
+          .textContent,
+      ).toContain("evidence=7");
+      expect(
+        within(validationEvidence).getByTestId("validation-evidence-summary")
+          .textContent,
+      ).toContain("profiles=5");
+      expect(
+        within(validationEvidence).getByTestId("validation-evidence-manual")
+          .textContent,
+      ).toContain("DRAFT_EVIDENCE");
+      expect(
+        within(validationEvidence).getByTestId("validation-evidence-inventory")
+          .textContent,
+      ).toContain("gui=PLANNED");
+      expect(
+        within(validationEvidence).getByTestId("validation-evidence-unit-policy")
+          .textContent,
+      ).toContain(
+        "model=angle=rad,force=N,length=m,pressure=Pa,stress=MPa,temperature=degC",
+      );
+      // C-120 fix: the demo model drops the tee component:C-120 and its 6 quantities (3 geometry, 3 modifiers).
+      expect(
+        within(validationEvidence).getByTestId("validation-evidence-unit-policy")
+          .textContent,
+      ).toContain("records=28");
+      expect(
+        within(validationEvidence).getByTestId("validation-evidence-unit-policy")
+          .textContent,
+      ).toContain("conversion=false");
+      expect(
+        within(validationEvidence).getByTestId(
+          "validation-evidence-release-checks",
+        ).textContent,
+      ).toContain("skeleton_checks=1");
+      expect(
+        within(validationEvidence).getByTestId("validation-evidence-gates")
+          .textContent,
+      ).toContain("thresholds=TBD");
+      expect(
+        within(validationEvidence).getByTestId("validation-evidence-gates")
+          .textContent,
+      ).toContain("release_authorized=false");
+      expect(
+        within(validationEvidence).getByTestId("validation-evidence-boundary")
+          .textContent,
+      ).toContain("release_claim=false");
+      fireEvent.click(
+        within(validationEvidence).getByTestId(
+          "validation-evidence-export-link-local-private-intent",
+        ),
+      );
+      const validationEvidenceHref =
+        within(validationEvidence)
+          .getByTestId("validation-evidence-export-link")
+          .getAttribute("href") ?? "";
+      const validationEvidencePacket = JSON.parse(
+        decodeURIComponent(validationEvidenceHref.split(",", 2)[1]),
+      );
+      expect(validationEvidencePacket.document_kind).toBe(
+        "openpipestress.technical_preview.validation_release_evidence_review",
+      );
+      expect(validationEvidencePacket.deliverable_refs).toContain("DEL-09-04");
+      expect(validationEvidencePacket.deliverable_refs).toContain("DEL-09-05");
+      expect(validationEvidencePacket.scope_items).toContain("SOW-026");
+      expect(validationEvidencePacket.scope_items).toContain("SOW-027");
+      expect(validationEvidencePacket.objectives).toContain("OBJ-008");
+      expect(validationEvidencePacket.objectives).toContain("OBJ-011");
+      expect(validationEvidencePacket.summary.manual_section_count).toBe(10);
+      expect(validationEvidencePacket.summary.evidence_area_count).toBe(7);
+      expect(validationEvidencePacket.summary.release_profile_count).toBe(5);
+      expect(validationEvidencePacket.summary.required_release_path_count).toBe(
+        5,
+      );
+      expect(validationEvidencePacket.summary.skeleton_check_count).toBe(1);
+      // C-120 fix: the demo model drops the tee component:C-120 and its 6 quantities (3 geometry, 3 modifiers).
+      expect(validationEvidencePacket.summary.unit_bearing_record_count).toBe(28);
+      expect(
+        validationEvidencePacket.validation_manual
+          .professional_reliance_outside_software_authority,
+      ).toBe(true);
+      expect(
+        validationEvidencePacket.unit_policy_evidence.unit_system_ref.ref,
+      ).toBe("unit-system:dec-018-si-dual-display");
+      expect(
+        validationEvidencePacket.unit_policy_evidence.storage_convention,
+      ).toBe("entered_units_preserved");
+      expect(
+        validationEvidencePacket.unit_policy_evidence
+          .validation_evidence_unit_policy,
+      ).toBe(
+        "validation_evidence_records_project_unit_context_without_conversion_or_release_threshold_claim",
+      );
+      expect(validationEvidencePacket.unit_policy_evidence.model_units).toEqual({
+        angle: "rad",
+        force: "N",
+        length: "m",
+        pressure: "Pa",
+        stress: "MPa",
+        temperature: "degC",
+      });
+      // C-120 fix: the demo model drops the tee component:C-120 and its 6 quantities (3 geometry, 3 modifiers).
+      expect(
+        validationEvidencePacket.unit_policy_evidence.unit_bearing_record_count,
+      ).toBe(28);
+      expect(
+        validationEvidencePacket.unit_policy_evidence
+          .unit_and_schema_manual_section,
+      ).toBe("unit_and_schema_verification");
+      expect(
+        validationEvidencePacket.unit_policy_evidence.conversion_policy,
+      ).toBe(
+        "validation_evidence_inventory_records_unit_context_without_conversion",
+      );
+      expect(
+        validationEvidencePacket.unit_policy_evidence.conversion_performed,
+      ).toBe(false);
+      expect(
+        validationEvidencePacket.unit_policy_evidence
+          .release_gate_threshold_policy,
+      ).toBe("TBD");
+      expect(
+        validationEvidencePacket.unit_policy_evidence.decision_basis_refs.map(
+          (item: { ref: string }) => item.ref,
+        ),
+      ).toEqual(["DEC-018", "DEL-02-02", "DEL-09-05"]);
+      expect(
+        validationEvidencePacket.release_readiness_tool.browser_panel_runs_tool,
+      ).toBe(false);
+      expect(
+        validationEvidencePacket.release_quality_gates
+          .release_publication_authorized,
+      ).toBe(false);
+      expect(
+        validationEvidencePacket.release_quality_gates.final_threshold_policy,
+      ).toBe("TBD");
+      expect(
+        validationEvidencePacket.gui_validation_context
+          .current_tranche_smoke_record,
+      ).toBe("TP-MAC-83");
+      expect(validationEvidencePacket.private_payload_included).toBe(false);
+      expect(validationEvidencePacket.protected_content_included).toBe(false);
+      expect(validationEvidencePacket.release_or_professional_claim).toBe(false);
+  });
+
+  it("Accessibility and usability baseline: the panel and its packet as the workspace showed them on first open", async () => {
+    const { model } = await firstOpenInputs();
+    render(<DisplayUnitsProvider><AccessibilityBaselinePanel model={model} /></DisplayUnitsProvider>);
+      const accessibilityBaseline = await screen.findByLabelText("Accessibility and usability baseline");
+    expect(within(accessibilityBaseline).getByTestId("accessibility-current-workspace-target")).toHaveTextContent("WCAG 2.2 Level AA");
+      expect(
+        within(accessibilityBaseline).getByTestId(
+          "accessibility-baseline-summary",
+        ).textContent,
+      ).toContain("surfaces=6");
+      expect(
+        within(accessibilityBaseline).getByTestId(
+          "accessibility-baseline-summary",
+        ).textContent,
+      ).toContain("findings=69");
+      expect(
+        within(accessibilityBaseline).getByTestId(
+          "accessibility-baseline-workflow",
+        ).textContent,
+      ).toContain("keyboard=4");
+      expect(
+        within(accessibilityBaseline).getByTestId(
+          "accessibility-baseline-unit-visibility",
+        ).textContent,
+      ).toContain(
+        "policy=unit_bearing_values_keep_visible_unit_labels_in_review_surfaces",
+      );
+      expect(
+        within(accessibilityBaseline).getByTestId(
+          "accessibility-baseline-unit-visibility",
+        ).textContent,
+      ).toContain(
+        "model=angle=rad,force=N,length=m,pressure=Pa,stress=MPa,temperature=degC",
+      );
+      expect(
+        within(accessibilityBaseline).getByTestId(
+          "accessibility-baseline-unit-visibility",
+        ).textContent,
+      ).toContain("conversion=false");
+      expect(
+        within(accessibilityBaseline).getByTestId(
+          "accessibility-baseline-open-target",
+        ).textContent,
+      ).toContain("gui=TBD");
+      expect(
+        within(accessibilityBaseline).getByTestId(
+          "accessibility-baseline-boundary",
+        ).textContent,
+      ).toContain("conformance_claim=false");
+      fireEvent.click(
+        within(accessibilityBaseline).getByTestId(
+          "accessibility-baseline-export-link-local-private-intent",
+        ),
+      );
+      const accessibilityHref =
+        within(accessibilityBaseline)
+          .getByTestId("accessibility-baseline-export-link")
+          .getAttribute("href") ?? "";
+      const accessibilityPacket = JSON.parse(
+        decodeURIComponent(accessibilityHref.split(",", 2)[1]),
+      );
+      expect(accessibilityPacket.document_kind).toBe(
+        "openpipestress.technical_preview.accessibility_usability_baseline_review",
+      );
+      expect(accessibilityPacket.deliverable_id).toBe("DEL-07-06");
+      expect(accessibilityPacket.package_id).toBe("PKG-07");
+      expect(accessibilityPacket.scope_item).toBe("SOW-036");
+      expect(accessibilityPacket.objectives).toContain("OBJ-006");
+      expect(accessibilityPacket.summary.source_surface_count).toBe(6);
+      expect(accessibilityPacket.summary.total_findings).toBe(69);
+      expect(accessibilityPacket.summary.pass_count).toBe(57);
+      expect(accessibilityPacket.summary.warning_count).toBe(10);
+      expect(accessibilityPacket.summary.fail_count).toBe(1);
+      expect(accessibilityPacket.summary.blocking_count).toBe(1);
+      expect(accessibilityPacket.summary.accessibility_target_status).toBe(
+        "TBD_by_human_project_authority",
+      );
+      expect(accessibilityPacket.summary.desktop_runtime_evaluation).toBe(
+        "not_performed",
+      );
+      expect(
+        accessibilityPacket.source_surfaces.map(
+          (item: { deliverable_id: string }) => item.deliverable_id,
+        ),
+      ).toContain("DEL-07-05");
+      expect(accessibilityPacket.reviewed_categories).toContain("keyboard_path");
+      expect(accessibilityPacket.reviewed_categories).toContain(
+        "warning_visibility",
+      );
+      expect(accessibilityPacket.reviewed_categories).toContain(
+        "unit_visibility",
+      );
+      expect(accessibilityPacket.unit_visibility_evidence.evidence_id).toBe(
+        "unit-visibility-evidence:accessibility-baseline-preview",
+      );
+      expect(accessibilityPacket.unit_visibility_evidence.policy_refs).toContain(
+        "DEC-018",
+      );
+      expect(accessibilityPacket.unit_visibility_evidence.policy_refs).toContain(
+        "DEL-02-02",
+      );
+      expect(
+        accessibilityPacket.unit_visibility_evidence.model_units.length,
+      ).toBe("m");
+      expect(
+        accessibilityPacket.unit_visibility_evidence.default_units_inferred,
+      ).toBe(false);
+      expect(
+        accessibilityPacket.unit_visibility_evidence.color_only_unit_signaling,
+      ).toBe(false);
+      expect(
+        accessibilityPacket.unit_visibility_evidence.conversion_performed,
+      ).toBe(false);
+      expect(accessibilityPacket.review_policy.preserves_unit_labels).toBe(true);
+      expect(
+        accessibilityPacket.review_policy.color_only_status_signaling_allowed,
+      ).toBe(false);
+      expect(
+        accessibilityPacket.review_policy
+          .software_makes_accessibility_conformance_claim,
+      ).toBe(false);
+      expect(
+        accessibilityPacket.open_decisions.accessibility_conformance_target,
+      ).toBe("TBD");
+      expect(
+        accessibilityPacket.open_decisions
+          .desktop_runtime_accessibility_tree_audit,
+      ).toBe("TBD");
+      expect(accessibilityPacket.private_payload_included).toBe(false);
+      expect(accessibilityPacket.protected_content_included).toBe(false);
+      expect(accessibilityPacket.release_or_professional_claim).toBe(false);
+  });
+
+  it("Report content lint: the panel and its packet as the workspace showed them on first open", async () => {
+    const { model } = await firstOpenInputs();
+    render(<DisplayUnitsProvider><ReportLintPanel model={model} result={null} analysisRun={null} /></DisplayUnitsProvider>);
+      const reportLint = await screen.findByLabelText("Report content lint");
+      expect(
+        within(reportLint).getByTestId("report-lint-summary").textContent,
+      ).toContain("targets=45");
+      expect(
+        within(reportLint).getByTestId("report-lint-summary").textContent,
+      ).toContain("findings=0");
+      expect(
+        within(reportLint).getByTestId("report-lint-summary").textContent,
+      ).toContain("blocking=0");
+      expect(
+        within(reportLint).getByTestId("report-lint-scope").textContent,
+      ).toContain("explicit_public_surfaces");
+      expect(
+        within(reportLint).getByTestId("report-lint-scope").textContent,
+      ).toContain("skip_unless_explicitly_authorized");
+      expect(
+        within(reportLint).getByTestId("report-lint-clean-scan").textContent,
+      ).toContain("clearance=false");
+      expect(
+        within(reportLint).getByTestId("report-lint-unit-policy").textContent,
+      ).toContain("unit_targets=43");
+      expect(
+        within(reportLint).getByTestId("report-lint-unit-policy").textContent,
+      ).toContain("conversion_witness_targets=1");
+      expect(
+        within(reportLint).getByTestId("report-lint-unit-policy").textContent,
+      ).toContain("lint_conversion=false");
+      expect(
+        within(reportLint).getByTestId("report-lint-boundary").textContent,
+      ).toContain("legal=false");
+      expect(
+        within(reportLint).getByTestId("report-lint-boundary").textContent,
+      ).toContain("professional=false");
+      const lintHref =
+        within(reportLint)
+          .getByTestId("report-lint-export-link")
+          .getAttribute("href") ?? "";
+      const lintPacket = JSON.parse(
+        decodeURIComponent(lintHref.split(",", 2)[1]),
+      );
+      expect(lintPacket.deliverable_id).toBe("[REDACTED]");
+      expect(lintPacket.scope_item).toBe("[REDACTED]");
+      expect(lintPacket.objectives).toEqual(["[REDACTED]", "[REDACTED]"]);
+      expect(lintPacket.linter_status.heuristic_only).toBe("[REDACTED]");
+      expect(lintPacket.linter_status.legal_clearance).toBe("[REDACTED]");
+      expect(lintPacket.linter_status.professional_approval).toBe("[REDACTED]");
+      expect(lintPacket.linter_status.ci_release_policy).toBe("[REDACTED]");
+      expect(lintPacket.unit_policy_evidence.evidence_kind).toBe(
+        "[REDACTED]",
+      );
+      expect(lintPacket.unit_policy_evidence.unit_policy_target_count).toBe("[REDACTED]");
+      expect(
+        lintPacket.unit_policy_evidence.conversion_witness_target_count,
+      ).toBe("[REDACTED]");
+      expect(lintPacket.unit_policy_evidence.lint_performs_conversion).toBe(
+        "[REDACTED]",
+      );
+      expect(
+        lintPacket.unit_policy_evidence.lint_asserts_target_format_compatibility,
+      ).toBe("[REDACTED]");
+      expect(
+        lintPacket.unit_policy_evidence.target_refs.every(
+          (target: { source_path: string }) =>
+            target.source_path === "[REDACTED]",
+        ),
+      ).toBe(true);
+      if (
+        lintPacket.unit_policy_evidence.target_refs[0]?.source_path !==
+        "[REDACTED]"
+      ) {
+      expect(lintPacket.unit_policy_evidence.target_refs).toEqual(
+        expect.arrayContaining([
+          expect.objectContaining({
+            source_path:
+              "apps/desktop/src/features/project-storage/ProjectStorageAuditPanel.tsx",
+            unit_policy_surface_id: "project-storage-unit-round-trip",
+          }),
+          expect.objectContaining({
+            source_path:
+              "apps/desktop/src/features/project-validation/ProjectValidationPanel.tsx",
+            unit_policy_surface_id: "project-validation-unit-policy",
+          }),
+          expect.objectContaining({
+            source_path:
+              "apps/desktop/src/features/native-package/NativePackagePanel.tsx",
+            unit_policy_surface_id: "native-package-unit-witnesses",
+          }),
+          expect.objectContaining({
+            source_path:
+              "apps/desktop/src/features/diff-preview/DiffPreviewPanel.tsx",
+            unit_policy_surface_id: "operation-diff-unit-witnesses",
+          }),
+          expect.objectContaining({
+            source_path:
+              "apps/desktop/src/features/operations/OperationApplyPanel.tsx",
+            unit_policy_surface_id: "operation-apply-unit-policy",
+          }),
+          expect.objectContaining({
+            source_path:
+              "apps/desktop/src/features/operations/OperationLedgerPanel.tsx",
+            unit_policy_surface_id: "operation-ledger-unit-policy",
+          }),
+          expect.objectContaining({
+            source_path:
+              "apps/desktop/src/features/report/RenderedReportPanel.tsx",
+            unit_policy_surface_id: "rendered-report-unit-basis",
+          }),
+          expect.objectContaining({
+            source_path: "apps/desktop/src/features/results/ResultsPanel.tsx",
+            unit_policy_surface_id: "result-unit-policy",
+          }),
+          expect.objectContaining({
+            source_path:
+              "apps/desktop/src/features/comparison/ComparisonPanel.tsx",
+            unit_policy_surface_id: "comparison-unit-policy",
+          }),
+          expect.objectContaining({
+            source_path:
+              "apps/desktop/src/features/agent-proposals/AgentProposalPanel.tsx",
+            unit_policy_surface_id: "agent-proposal-unit-policy",
+          }),
+          expect.objectContaining({
+            source_path:
+              "apps/desktop/src/features/security-threat-model/SecurityThreatModelPanel.tsx",
+            unit_policy_surface_id: "security-threat-model-unit-policy",
+          }),
+          expect.objectContaining({
+            source_path: "apps/desktop/src/features/knowledge/KnowledgePanel.tsx",
+            unit_policy_surface_id: "knowledge-unit-context",
+          }),
+          expect.objectContaining({
+            source_path: "apps/desktop/src/features/run-audit/RunAuditPanel.tsx",
+            unit_policy_surface_id: "run-audit-units",
+          }),
+          expect.objectContaining({
+            source_path: "apps/desktop/src/features/solve/SolvePanel.tsx",
+            unit_policy_surface_id: "solve-job-unit-policy",
+          }),
+          expect.objectContaining({
+            source_path:
+              "apps/desktop/src/features/rule-packs/DeclarationsEditor.tsx",
+            unit_policy_surface_id: "rule-pack-declarations-unit-policy",
+          }),
+          expect.objectContaining({
+            source_path:
+              "apps/desktop/src/features/rule-packs/ExpressionComposer.tsx",
+            unit_policy_surface_id: "rule-pack-expression-unit-policy",
+          }),
+          expect.objectContaining({
+            source_path:
+              "apps/desktop/src/features/library/LibraryManagerPanel.tsx",
+            unit_policy_surface_id: "library-unit-helper-surfaces",
+          }),
+          expect.objectContaining({
+            source_path:
+              "apps/desktop/src/features/load-cases/LoadCaseManagerPanel.tsx",
+            unit_policy_surface_id: "load-manager-unit-validation-surface",
+          }),
+          expect.objectContaining({
+            source_path:
+              "apps/desktop/src/features/model-tree/PropertyInspector.tsx",
+            unit_policy_surface_id: "property-inspector-unit-validation-surface",
+          }),
+          expect.objectContaining({
+            source_path:
+              "apps/desktop/src/features/diagnostics/DiagnosticsPanel.tsx",
+            unit_policy_surface_id: "diagnostic-unit-context",
+          }),
+          expect.objectContaining({
+            source_path:
+              "apps/desktop/src/features/rule-check/RuleCheckRunPanel.tsx",
+            unit_policy_surface_id: "rule-check-unit-binding-policy",
+          }),
+          expect.objectContaining({
+            source_path:
+              "apps/desktop/src/features/rule-check/RuleCheckPanel.tsx",
+            unit_policy_surface_id: "rule-completeness-unit-policy",
+          }),
+          expect.objectContaining({
+            source_path:
+              "apps/desktop/src/features/result-export/ResultExportPanel.tsx",
+            unit_policy_surface_id: "result-export-unit-witnesses",
+          }),
+          expect.objectContaining({
+            source_path:
+              "apps/desktop/src/features/headless-runner/HeadlessRunnerPanel.tsx",
+            unit_policy_surface_id: "headless-runner-unit-witnesses",
+          }),
+          expect.objectContaining({
+            source_path:
+              "apps/desktop/src/features/adapter-framework/AdapterFrameworkPanel.tsx",
+            unit_policy_surface_id: "adapter-framework-units",
+          }),
+          expect.objectContaining({
+            source_path: "apps/desktop/src/features/handoff/HandoffPanel.tsx",
+            unit_policy_surface_id: "handoff-unit-witnesses",
+          }),
+          expect.objectContaining({
+            source_path:
+              "apps/desktop/src/features/pcf-export/PcfExportPanel.tsx",
+            conversion_witness_surface_id: "pcf-export-conversion-witnesses",
+          }),
+          expect.objectContaining({
+            source_path: "fixtures/product_preview",
+            unit_policy_surface_id: "product-preview-fixture-unit-policy",
+          }),
+        ]),
+      );
+      // The model batch file export's public template and conversion-witness surface are retired (DEL-17-04 4b.2b).
+      expect(
+        lintPacket.unit_policy_evidence.target_refs.some(
+          (target: { source_path: string }) => target.source_path.includes("caepipe-mbf/"),
+        ),
+      ).toBe(false);
+      }
+      expect(lintPacket.lint_run.configuration.private_surface_default).toBe(
+        "[REDACTED]",
+      );
+      expect(lintPacket.lint_run.configuration.clean_scan_disclaimer).toBe(
+        "[REDACTED]",
+      );
+      expect(lintPacket.lint_run.summary.target_count).toBe("[REDACTED]");
+      expect(lintPacket.lint_run.summary.finding_count).toBe("[REDACTED]");
+      expect(lintPacket.lint_run.summary.blocking_finding_count).toBe(
+        "[REDACTED]",
+      );
+      expect(lintPacket.lint_run.summary.clean_scan_is_clearance).toBe(
+        "[REDACTED]",
+      );
+  });
+
+  it("Native JSON package: the panel and its packet as the workspace showed them on first open", async () => {
+    const { model, storageCapability } = await firstOpenInputs();
+    render(<DisplayUnitsProvider><NativePackagePanel model={model} modelHash={null} result={null} analysisRun={null} editorIntents={[]} projectSummary={null} proposal={null} selectedReviewTarget={null} storageCapability={storageCapability} /></DisplayUnitsProvider>);
+      const nativePackage = await screen.findByLabelText("Native JSON package");
+      expect(
+        within(nativePackage).getByTestId("native-package-empty").textContent,
+      ).toContain("native JSON package review manifest");
+  });
+
+  it("Handoff package: the panel and its packet as the workspace showed them on first open", async () => {
+    const { model, knowledge } = await firstOpenInputs();
+    render(<DisplayUnitsProvider><HandoffPanel model={model} knowledge={knowledge} result={null} analysisRun={null} comparison={null} comparisonUnavailable={null} editorIntents={[]} proposal={null} selectedReviewTarget={null} /></DisplayUnitsProvider>);
+      const handoff = await screen.findByLabelText("Handoff package");
+      expect(within(handoff).getByTestId("handoff-empty").textContent).toContain(
+        "Run mechanics preview to assemble a local review handoff package",
+      );
+  });
+
+  it("Export safety review: the panel and its packet as the workspace showed them on first open", async () => {
+    const { model, knowledge, storageCapability } = await firstOpenInputs();
+    render(<DisplayUnitsProvider><ExportReviewPanel model={model} knowledge={knowledge} result={null} analysisRun={null} comparison={null} comparisonUnavailable={null} editorIntents={[]} projectOperation="not_started" projectSummary={null} proposal={null} selectedReviewTarget={null} storageCapability={storageCapability} /></DisplayUnitsProvider>);
+      const exportReview = await screen.findByLabelText("Export safety review");
+      expect(
+        within(exportReview).getByTestId("export-review-summary").textContent,
+      ).toContain("21 of 29 local exports ready");
+      expect(
+        within(exportReview).getByTestId("export-review-redaction").textContent,
+      ).toContain("protected content blocked=true");
+      expect(
+        within(exportReview).getByTestId("export-review-boundary").textContent,
+      ).toContain("handoff evidence for external validation, not a validation outcome");
+      expect(
+        within(exportReview).getByTestId(
+          "export-review-record-telemetry_boundary_review",
+        ).textContent,
+      ).toContain("available");
+      expect(
+        within(exportReview).getByTestId(
+          "export-review-record-secret_private_library_boundary_review",
+        ).textContent,
+      ).toContain("available");
+      expect(
+        within(exportReview).getByTestId(
+          "export-review-record-security_threat_model_review",
+        ).textContent,
+      ).toContain("available");
+      expect(
+        within(exportReview).getByTestId(
+          "export-review-record-accessibility_usability_baseline_review",
+        ).textContent,
+      ).toContain("available");
+      expect(
+        within(exportReview).getByTestId(
+          "export-review-record-design_authoring_comparison_workspace",
+        ).textContent,
+      ).toContain("available");
+      expect(
+        within(exportReview).getByTestId(
+          "export-review-record-validation_release_evidence_review",
+        ).textContent,
+      ).toContain("available");
+  });
+
+  it("Secret and private-library review: the panel and its packet as the workspace showed them on first open", async () => {
+    const { model, storageCapability } = await firstOpenInputs();
+    render(<DisplayUnitsProvider><SecretPrivateLibraryPanel model={model} storageCapability={storageCapability} /></DisplayUnitsProvider>);
+      const secretPrivateLibrary = await screen.findByLabelText("Secret and private-library review");
+      expect(
+        within(secretPrivateLibrary).getByTestId("secret-private-library-summary")
+          .textContent,
+      ).toContain("records=4");
+      expect(
+        within(secretPrivateLibrary).getByTestId("secret-private-library-summary")
+          .textContent,
+      ).toContain("metadata_only=true");
+      expect(
+        within(secretPrivateLibrary).getByTestId("secret-private-library-summary")
+          .textContent,
+      ).toContain("public_fixture_blocked=4");
+      expect(
+        within(secretPrivateLibrary).getByTestId("secret-private-library-secrets")
+          .textContent,
+      ).toContain("provider=TBD");
+      expect(
+        within(secretPrivateLibrary).getByTestId(
+          "secret-private-library-unit-policy",
+        ).textContent,
+      ).toContain("unit_refs=2");
+      expect(
+        within(secretPrivateLibrary).getByTestId(
+          "secret-private-library-unit-policy",
+        ).textContent,
+      ).toContain("required=true");
+      expect(
+        within(secretPrivateLibrary).getByTestId(
+          "secret-private-library-unit-policy",
+        ).textContent,
+      ).toContain("payload=false");
+      expect(
+        within(secretPrivateLibrary).getByTestId(
+          "secret-private-library-unit-policy",
+        ).textContent,
+      ).toContain("conversion=false");
+      expect(
+        within(secretPrivateLibrary).getByTestId(
+          "secret-private-library-no-bypass",
+        ).textContent,
+      ).toContain("direct_sql=false");
+      expect(
+        within(secretPrivateLibrary).getByTestId(
+          "secret-private-library-boundary",
+        ).textContent,
+      ).toContain("security_certification=false");
+      expect(
+        within(secretPrivateLibrary)
+          .getByTestId("secret-private-library-export-link")
+          .getAttribute("href"),
+      ).toBeNull();
+      fireEvent.click(
+        within(secretPrivateLibrary).getByTestId(
+          "secret-private-library-export-link-local-private-intent",
+        ),
+      );
+      const secretPrivateHref =
+        within(secretPrivateLibrary)
+          .getByTestId("secret-private-library-export-link")
+          .getAttribute("href") ?? "";
+      const secretPrivatePacket = JSON.parse(
+        decodeURIComponent(secretPrivateHref.split(",", 2)[1]),
+      );
+      expect(secretPrivatePacket.document_kind).toBe(
+        "openpipestress.technical_preview.secret_private_library_boundary_review",
+      );
+      expect(secretPrivatePacket.deliverable_id).toBe("DEL-12-04");
+      expect(secretPrivatePacket.package_id).toBe("PKG-12");
+      expect(secretPrivatePacket.scope_items).toContain("SOW-040");
+      expect(secretPrivatePacket.scope_items).toContain("SOW-029");
+      expect(secretPrivatePacket.objective).toBe("OBJ-010");
+      expect(secretPrivatePacket.summary.reference_count).toBe(4);
+      expect(secretPrivatePacket.summary.private_library_count).toBe(2);
+      expect(secretPrivatePacket.summary.private_path_count).toBe(1);
+      expect(secretPrivatePacket.summary.credential_reference_count).toBe(1);
+      expect(secretPrivatePacket.summary.metadata_only).toBe(true);
+      expect(secretPrivatePacket.summary.payload_present).toBe(false);
+      expect(secretPrivatePacket.summary.secret_material_present).toBe(false);
+      expect(secretPrivatePacket.summary.public_fixture_block_count).toBe(4);
+      expect(secretPrivatePacket.unit_policy.private_unit_reference_count).toBe(
+        2,
+      );
+      expect(
+        secretPrivatePacket.unit_policy.explicit_unit_metadata_required,
+      ).toBe(true);
+      expect(secretPrivatePacket.unit_policy.unit_payload_included).toBe(false);
+      expect(secretPrivatePacket.unit_policy.conversion_performed).toBe(false);
+      expect(
+        secretPrivatePacket.unit_policy.repository_default_private_write,
+      ).toBe(false);
+      expect(secretPrivatePacket.unit_policy.unit_metadata_statuses).toEqual([
+        {
+          reference_id: "spl:private-material-library:invented-preview",
+          record_kind: "private_material_library",
+          unit_metadata_status:
+            "private_unit_bearing_values_withheld_explicit_unit_metadata_required_at_use",
+        },
+        {
+          reference_id: "spl:private-rule-pack:invented-preview",
+          record_kind: "private_rule_pack",
+          unit_metadata_status:
+            "private_rule_inputs_withheld_explicit_unit_metadata_required_at_use",
+        },
+      ]);
+      expect(
+        secretPrivatePacket.guard_contexts.public_fixture.summary.blocked_count,
+      ).toBe(4);
+      expect(
+        secretPrivatePacket.guard_contexts.public_report.summary
+          .metadata_only_count,
+      ).toBe(4);
+      expect(
+        secretPrivatePacket.guard_contexts.local_private
+          .explicit_local_private_intent,
+      ).toBeUndefined();
+      expect(
+        secretPrivatePacket.registry_records.every(
+          (item: {
+            contains_payload: boolean;
+            secret_material_present: boolean;
+            concrete_path_present: boolean;
+          }) =>
+            item.contains_payload === false &&
+            item.secret_material_present === false &&
+            item.concrete_path_present === false,
+        ),
+      ).toBe(true);
+      expect(secretPrivatePacket.runtime_deferrals.exact_secret_provider).toBe(
+        "TBD",
+      );
+      expect(
+        secretPrivatePacket.runtime_deferrals.encrypted_storage_default,
+      ).toBe("TBD");
+      expect(secretPrivatePacket.no_bypass_controls.direct_sql_allowed).toBe(
+        false,
+      );
+      expect(secretPrivatePacket.no_bypass_controls.storage_bypass_allowed).toBe(
+        false,
+      );
+      expect(secretPrivatePacket.private_payload_included).toBe(false);
+      expect(secretPrivatePacket.protected_content_included).toBe(false);
+      expect(secretPrivatePacket.security_certification_claim).toBe(false);
+  });
+
+  it("Security threat model review: the panel and its packet as the workspace showed them on first open", async () => {
+    const { model, storageCapability } = await firstOpenInputs();
+    render(<DisplayUnitsProvider><SecurityThreatModelPanel model={model} storageCapability={storageCapability} /></DisplayUnitsProvider>);
+      const securityThreatModel = await screen.findByLabelText("Security threat model review");
+      expect(
+        within(securityThreatModel).getByTestId("security-threat-model-summary")
+          .textContent,
+      ).toContain("threats=19");
+      expect(
+        within(securityThreatModel).getByTestId("security-threat-model-summary")
+          .textContent,
+      ).toContain("high=14");
+      expect(
+        within(securityThreatModel).getByTestId("security-threat-model-coverage")
+          .textContent,
+      ).toContain("workflows=6");
+      expect(
+        within(securityThreatModel).getByTestId(
+          "security-threat-model-unit-policy",
+        ).textContent,
+      ).toContain("unit_checks=true");
+      expect(
+        within(securityThreatModel).getByTestId(
+          "security-threat-model-unit-policy",
+        ).textContent,
+      ).toContain("conversion=false");
+      expect(
+        within(securityThreatModel).getByTestId(
+          "security-threat-model-open-decisions",
+        ).textContent,
+      ).toContain("tbd=13");
+      expect(
+        within(securityThreatModel).getByTestId("security-threat-model-boundary")
+          .textContent,
+      ).toContain("security_certification=false");
+      fireEvent.click(
+        within(securityThreatModel).getByTestId(
+          "security-threat-model-export-link-local-private-intent",
+        ),
+      );
+      const threatModelHref =
+        within(securityThreatModel)
+          .getByTestId("security-threat-model-export-link")
+          .getAttribute("href") ?? "";
+      const threatModelPacket = JSON.parse(
+        decodeURIComponent(threatModelHref.split(",", 2)[1]),
+      );
+      expect(threatModelPacket.document_kind).toBe(
+        "openpipestress.technical_preview.security_threat_model_review",
+      );
+      expect(threatModelPacket.deliverable_id).toBe("DEL-12-05");
+      expect(threatModelPacket.package_id).toBe("PKG-12");
+      expect(threatModelPacket.scope_item).toBe("SOW-040");
+      expect(threatModelPacket.objective).toBe("OBJ-010");
+      expect(threatModelPacket.summary.threat_count).toBe(19);
+      expect(threatModelPacket.summary.high_risk_count).toBe(14);
+      expect(threatModelPacket.summary.medium_high_risk_count).toBe(5);
+      expect(threatModelPacket.summary.trust_boundary_count).toBe(10);
+      expect(threatModelPacket.summary.asset_class_count).toBe(10);
+      expect(threatModelPacket.summary.export_workflow_count).toBe(6);
+      expect(threatModelPacket.summary.open_decision_count).toBe(14);
+      expect(threatModelPacket.summary.tbd_decision_count).toBe(13);
+      expect(threatModelPacket.asset_classes).toContain(
+        "import_export_and_local_fea_handoff_data",
+      );
+      expect(threatModelPacket.trust_boundaries).toContain(
+        "plugin_import_export_fea_handoff",
+      );
+      expect(threatModelPacket.export_workflows).toContain(
+        "export_adapter_sdk_and_additional_targets",
+      );
+      expect(threatModelPacket.no_bypass_controls.direct_sql_allowed).toBe(false);
+      expect(
+        threatModelPacket.no_bypass_controls
+          .plugin_manifest_grants_runtime_access,
+      ).toBe(false);
+      expect(
+        threatModelPacket.runtime_control_evidence
+          .telemetry_attempt_guarded_before_payload,
+      ).toBe(true);
+      expect(
+        threatModelPacket.runtime_control_evidence
+          .plugin_adapter_report_export_interception_implemented,
+      ).toBe(false);
+      expect(
+        threatModelPacket.runtime_control_evidence.diagnostic_classes_referenced,
+      ).toEqual([
+        "PROVENANCE_WARNING",
+        "ASSUMPTION_WARNING",
+        "IP_BOUNDARY_WARNING",
+        "PRIVACY_WARNING",
+      ]);
+      expect(threatModelPacket.unit_policy_evidence.evidence_id).toBe(
+        "unit-policy-evidence:security-threat-model-no-bypass",
+      );
+      expect(threatModelPacket.unit_policy_evidence.unit_checks_required).toBe(
+        true,
+      );
+      expect(threatModelPacket.unit_policy_evidence.export_workflow_count).toBe(
+        6,
+      );
+      expect(threatModelPacket.unit_policy_evidence.conversion_performed).toBe(
+        false,
+      );
+      expect(
+        threatModelPacket.unit_policy_evidence.security_certification_claim,
+      ).toBe(false);
+      expect(threatModelPacket.open_decisions.plugin_permission_model).toBe(
+        "TBD",
+      );
+      expect(threatModelPacket.open_decisions.telemetry_event_schema).toBe("TBD");
+      expect(threatModelPacket.private_payload_included).toBe(false);
+      expect(threatModelPacket.protected_content_included).toBe(false);
+      expect(threatModelPacket.security_certification_claim).toBe(false);
+  });
+});

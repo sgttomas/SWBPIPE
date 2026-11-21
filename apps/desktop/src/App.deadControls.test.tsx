@@ -69,8 +69,12 @@ function enumerateButtons(container: HTMLElement): HTMLButtonElement[] {
 }
 
 function openWorkspaceSection(section: "loads" | "solve" | "results"): HTMLElement {
-  fireEvent.click(screen.getByTestId("menu-view"));
-  fireEvent.click(screen.getByTestId(`menu-item-view.section.${section}`));
+  // Load Cases is the Loads stage, reached by the rail (the View menu does not list it).
+  if (section === "loads") fireEvent.click(screen.getByTestId("rail-stage-loads"));
+  else {
+    fireEvent.click(screen.getByTestId("menu-view"));
+    fireEvent.click(screen.getByTestId(`menu-item-view.section.${section}`));
+  }
   const workspaceSection = screen.getByTestId(`workspace-section-${section}`);
   expect(workspaceSection).not.toHaveClass("inactive");
   return workspaceSection;
