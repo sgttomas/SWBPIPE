@@ -99,7 +99,7 @@ model, and an empty `reference_configurations`; step profile sets the shear mode
 
 ### Step profile
 
-*Loads* stage, *Load Cases* tab, panel **Pressure mechanics profile**: **Pressure profile** =
+*Loads* stage, *Load Cases* tab, open **Analysis settings**; panel **Pressure mechanics profile**: **Pressure profile** =
 exact_pressure_v3; **Shear model**: select Euler–Bernoulli (the blank shows Timoshenko).
 **Queue pressure profile**, Apply. Done
 before any member exists, the panel's corrosion-allowance condition holds.
@@ -374,7 +374,7 @@ creation**, Apply. Step states' support fill gives RS-CE1 its support state with
 
 ### Step reference
 
-*Loads* stage, *Load Cases* tab, **Reference configurations**: **Add reference configuration**; ID
+*Loads* stage, *Load Cases* tab, open **Reference state**; **Reference configurations**: **Add reference configuration**; ID
 `reference:RS-INSTALLED`; label `Installed reference (20 degC)`; geometry
 authored_model_geometry. **Add member to reference configuration 1**: pipe RS-P010, basis
 temperature_reference, installation temperature 20 degC, fit none, **Member provenance** ⟨P⟩. Under
@@ -406,7 +406,7 @@ RS-P150, chosen with the others, takes no line load.
 
 ### Step regions
 
-*Loads* stage, *Load Cases* tab: select RS-SUS in **Load cases**; panel **Pressure regions — RS-SUS …**. For
+*Loads* stage, *Load Cases* tab: select RS-SUS in **Load cases** and open its **Pressure** section; panel **Pressure regions — RS-SUS …**. For
 each region: **Add pressure region**; Region ID; member pipes (and, for RG-4, member
 connectors); pressure basis internal_differential_zero_external_v1; pressure 1600 kPa; two
 ordered terminals, each with node, closure transfer transfers_to_wall and **Terminal
@@ -420,7 +420,7 @@ provenance** ⟨P⟩; **Region provenance** ⟨P⟩. **Queue pressure regions**,
 | `region:RS-SUS-RG-R` | RS-P150 | | RS-150, RS-160 |
 | `region:RS-SUS-RG-4` | RS-P160, RS-P170, RS-P190, RS-P200 | `component:RS-EJ1` | RS-160, RS-210 |
 
-Then select RS-OPE: **Copy pressure regions from case** RS-SUS, **Replace this draft's
+Then select RS-OPE and open its **Pressure** section: **Copy pressure regions from case** RS-SUS, **Replace this draft's
 pressure regions with the copy**, which re-derives the ids (`region:RS-OPE-RG-1`,
 `region:RS-OPE-RG-2`, `region:RS-OPE-RG-3`, `region:RS-OPE-RG-R`, `region:RS-OPE-RG-4`);
 **Queue pressure regions**, Apply. The same for RS-SAM (`region:RS-SAM-RG-1`,
@@ -438,7 +438,7 @@ fixture includes pressure elongation in every pressurised case, these four.
 
 ### Step states
 
-*Loads* stage, *Load Cases* tab, select the case; panel **Analysis state — ⟨case⟩**.
+*Loads* stage, *Load Cases* tab, select the case and open its **Reference state** section; panel **Analysis state — ⟨case⟩**.
 Contract `openpipestress.load_reference_state/1.0.0`; reference configuration
 `reference:RS-INSTALLED`; history independent_equilibrium; **Analysis state provenance** ⟨P⟩.
 Each list is entered as one typed row and a fill: **Add element state** creates element
@@ -488,7 +488,8 @@ state**, Apply, per case.
 
 ### Step combinations
 
-*Loads* stage, *Load Cases* tab, **Create combination**, twice. For the first: ID; Label; Basis result_state_subtraction;
+*Loads* stage, *Load Cases* tab, **New combination**, twice; each opens the create-combination form. In the first, also open
+the form's **More**, which holds ID, Provenance and Rationale and stays open for the second. For the first: ID; Label; Basis result_state_subtraction;
 leave the **Operating minus sustained difference** template unticked (its
 `difference_basis` is refused on a document with a pressure contract,
 `LOAD_COMBINATION_DIFFERENCE_BASIS_EXACT_UNSUPPORTED`); **Subtraction minuend** and
