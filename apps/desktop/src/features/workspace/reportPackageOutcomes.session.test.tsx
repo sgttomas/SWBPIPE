@@ -128,7 +128,7 @@ function outcomeStatuses(): HTMLElement[] {
 const outcomeLines = () => outcomeStatuses().map((status) => status.querySelector("p")?.textContent ?? "");
 
 function coordinateEdit(model: PreviewModel) {
-  const target = model.nodes[2];
+  const target = model.nodes[0];
   const column: GridColumn = { key: "y", label: "Y", fieldPath: "position.y", objectType: "Node", changeKind: "set_field", dimension: "length", sourceNote: "entered coordinate", unit: () => model.project.units.length, value: () => String(target.position.y) };
   return buildGridOperationIntent({ column, model, row: { id: target.id, label: target.label, type: "node", raw: target, searchText: "" }, sequence: 1, value: String(target.position.y + 1.5), interaction: "cell" });
 }
@@ -151,9 +151,15 @@ async function makeChange(change: Change, state: () => WorkspaceSession) {
   const before = state().results.reportSourceSequence;
   switch (change) {
     case "a model edit": {
+      // The edit runs in the browser engine (the wasm operation applier), as a person's edit is
+      // applied; the native save's reply is still outstanding meanwhile.
+      const internals = (window as unknown as Record<string, unknown>).__TAURI_INTERNALS__;
+      delete (window as unknown as Record<string, unknown>).__TAURI_INTERNALS__;
       let applied: unknown;
-      await act(async () => { applied = await state().operations.handleApplyIntent(coordinateEdit(state().model.model!)); });
-      expect(applied).toBeTruthy();
+      try {
+        await act(async () => { applied = await state().operations.handleApplyIntent(coordinateEdit(state().model.model!)); });
+      } finally { (window as unknown as Record<string, unknown>).__TAURI_INTERNALS__ = internals; }
+      expect(applied, JSON.stringify(state().operations.operationOutcomes)).toBe(true);
       break;
     }
     case "a solve start":
