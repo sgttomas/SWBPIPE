@@ -325,9 +325,10 @@ corpus uses parametrized items across shard classes, and the O4 envelope checks
 use separate classes so these expensive modules can occupy multiple workers.
 Full preview, schema and qualification suites remain available on dispatch, alongside the full Cargo suite.
 
-Hosted builds are unregistered. The retained-memory profile is registered only
-for the qualification host's exact build identity, so a hosted build reports
-`Stale` and takes the ordinary route. A test that depends on registration
+Hosted Linux builds are unregistered. The retained-memory profile is registered only
+for the qualification host's exact build identity, so such a build reports
+`Stale` and takes the ordinary route. A macOS debug build with the same Rust
+release is that identity; the retained registration drift check's Rust part relies on it. A test that depends on registration
 asserts both branches: the registered facts in the registered build, and `Stale`
 with the unchanged ordinary route otherwise, as `retained_facade_tests.rs`'s
 `registered()` does. When product_physics is selected, the numerical job also runs the six
@@ -455,6 +456,135 @@ all belong to the keyed input set and the key must still match. The main-only
 true`, so other PRs can read main-scoped engine outputs without running tests
 or installing browsers in the warmer.
 
+## Retained registration drift check
+
+The retained registration drift check (DEL-04-08 REQ-004) is a named selection
+with its own workflow, `retained-drift-check.yml`, and is a plain red or green
+run. A green run shows that no committed digest pin or reviewed input has
+drifted from the registration at the checked revision (the pull request's head,
+or the dispatched ref); it does not compare a premise pin's expected text with
+its source, which only the pricing driver does, and it runs no four-point
+pricing of any revision. The driver's premise-pin step
+(`tools/retained_pricing/price.py`, after its line map) makes that comparison at
+registration, and the pricing (`tools/retained_pricing/README.md`) is the D3
+audit that a registration or a release candidate needs. Nor does a green run
+show the running total's overflow behaviour outside a registered build: every
+build checks only the spelling of its accumulation
+(`b1_sp_seam_running_total_saturates_in_every_build`), and the behavioural
+test, `b1_sp_seam_overflow_is_a_typed_g_b_refusal`, runs only in a registered
+build.
+
+It holds every test file under `tools/retained_pricing/tests` that runs the
+pricing tool's models on the checkout's own priced source, and the
+registered build's Rust tests. Those tests stop wherever the source or a
+reviewed input differs from what the tool's pins and the registered profile
+were reviewed against. They therefore report drift of the checked revision from
+the committed registration, not a fault of the change under test.
+`python_ci.retained_drift_check` lists the Python files: all but the two that
+`python_ci.RETAINED_PRICING_SOURCE_INDEPENDENT` names, which read only the
+tool's own files or a fixture repository, and the point-atoms regeneration
+check (below).
+
+- **Pull requests and the merge queue** leave the drift check out
+  (`python_ci.drift_check_deferred`) unless the change touches a
+  `python_ci.RETAINED_PRICING_REGISTRATION` path:
+  - `tools/retained_pricing/`;
+  - `tools/repository_history.py`, which the tool imports;
+  - `core/product_physics/src/retained_memory.rs`, which holds the generated
+    profile block and `REGISTERED_PROFILES`;
+  - `core/product_physics/build.rs` and `src/build_identity.rs`, which compute
+    the build identity and the reviewed-input record a profile is matched
+    against;
+  - `core/product_physics/tests/retained_memory_challenge.rs`, whose bounds are
+    the generated profile's values;
+  - `.github/workflows/retained-registration-rust.yml`, which runs the
+    registered build's tests.
+
+  A directory entry matches every path under it, and a file entry only its
+  exact name, as the `retained-pricing-tool-tests` rule in
+  `software-workflow.json` does. A candidate whose complete diff is unavailable
+  (the plan has no base and no paths) counts as touching one: the selection
+  fails closed to both parts. An empty diff changes nothing and runs neither.
+  The planner's tests (`tools/software_workflow/test_hosted_ci.py`) hold that
+  the two parts are selected together or left out together.
+  Such a change runs both parts of the drift check in its `harness`: every
+  drift-check Python file in the Python shards, and the registered build's Rust
+  tests (`retained-registration-rust.yml`, called by the product workflow when
+  the selection's `retained_registration` output is `true`). The product
+  workflow's aggregate requires that job's success when it is selected and its
+  skip otherwise. The source-independent tool tests,
+  `tests/test_retained_pricing_tool.py` and the Rust tests of the `Stale`
+  fallback stay where their reads and rules select them. While the solver core
+  carries changes not yet registered, a pull request that touches a
+  registration path fails the drift check until the re-registration lands.
+- **The point-atoms regeneration check**
+  (`tools/retained_pricing/tests/test_point_atoms_block.py`) regenerates the law
+  tests' GENERATED POINT ATOMS block from its generator. It reads only the
+  generator and `core/product_physics/src/retained_memory_law_tests.rs`, so it
+  is not part of the drift check, and a change to that file selects it in every
+  pull request without making the file a registration path.
+- **Every other selection leaves it out**, including the nightly full run and a
+  dispatched `governance-harness` run, so drift does not fail them.
+- **The drift check workflow** runs by `workflow_dispatch` on any ref. It has
+  no schedule: until the solver freeze, `main` is expected to fail it, so a
+  daily run would spend a macOS runner to report what is already known. The
+  schedule is turned on with the freeze's registration. The workflow adds no
+  required check, writes nothing and opens no issue. It has two parts:
+  - the Python selection, in four shards;
+  - `retained-registration-rust.yml`, which runs `core/product_physics`'s
+    library tests and `tests/retained_precision_admission.rs` on macOS with
+    Rust 1.97.1 (the registered build identity), with
+    `OPS_RETAINED_DRIFT_CHECK` set (below), `--no-fail-fast` so that every test
+    binary runs, and `CARGO_TERM_COLOR=never`.
+- **Re-registration and re-pinning** are done when the solver core is frozen
+  before a release candidate, and again on the candidate's exact revision when
+  any priced source or reviewed input differs from the last revision actually
+  priced. A priced source is any file the pricing tool reads, pins or
+  inventories when it prices; its driver, domain model and rules name them, and
+  no single list in the repository is the whole of them. Where it cannot be
+  shown from the tool itself that no such file differs, the candidate's exact
+  revision is priced. Whether a drift check is green never decides it: a green
+  drift check prices nothing.
+- **Locally**, run `python3 tools/ci/python_ci.py --drift-check`
+  (`--dry-run` lists the files; `--shard-index` and `--shard-count` take one
+  shard), or the registered `retained-drift-check` check, within the host's
+  job wrapper. On the registration host, the Rust part is
+  `OPS_RETAINED_DRIFT_CHECK=1 cargo test --locked --no-fail-fast
+  --manifest-path core/product_physics/Cargo.toml --lib --test
+  retained_precision_admission`, also within the wrapper. The registered
+  `retained-pricing-tool-tests` check runs the whole tool test directory and is
+  selected by the same registration paths.
+
+The Rust tests that depend on registration branch on
+`retained_facade_tests::registered()`. It holds only for the registered
+identity with its reviewed inputs and reader layouts (`retained_profile()`),
+not for the identity alone. Without the drift check's switch, a change to a reviewed input,
+such as a result schema or fixture the registered profile digests, makes the
+registered identity read `Stale`. Those tests then assert the `Stale` branch,
+with the unchanged ordinary route, on the registration host as on any other
+build. The reviewed-input record is not moved per pull request: moving it would
+declare the profile registered against inputs no registration has examined.
+`reviewed_inputs_bind_the_lock_and_the_reader_statics` follows the same rule:
+- On every host, it checks that its copy of the record encodes to the
+  registered profile's, and that build.rs's digests match the files' bytes.
+- Where an input has moved from the record, it asserts that the registered
+  binding fails and that the build reads `Stale`. Under the drift check it
+  fails.
+
+With `OPS_RETAINED_DRIFT_CHECK` set, `registered()` requires the registered
+identity and its registration, so the drift check fails where the registration
+has drifted instead of passing as `Stale`.
+
+The build does not bind the profile to the source: the build identity and
+reviewed inputs (`core/product_physics/src/build_identity.rs`,
+`retained_memory.rs`'s `REGISTERED_PROFILES`) name the toolchain, target,
+profile, package version, lock file, schemas and fixtures, not the priced
+source. Until re-registration, therefore, a debug build of unregistered source
+on the registration host reports `Registered` and may be granted a retained
+permit against the old coefficients. Hosted Linux and release builds report
+`Stale` and take the ordinary route. No local debug run of a revision that has
+drifted is cited as retained-route evidence.
+
 ## Known costs
 
 Measured on main at `bfc649fd7` (2026-11-13) over 14 pull requests. None is
@@ -492,7 +622,8 @@ range from them and never falls back to `HEAD^1`. The run therefore covers:
 - the core browser journey with every spec group;
 - both desktop behaviour shards and the desktop Rust tests;
 - all three numerical Cargo shards;
-- all four Python shards, including `tests/test_ci_numerical.py`.
+- all four Python shards, including `tests/test_ci_numerical.py`, without the
+  retained registration drift check, which has its own workflow (above).
 
 The run does not reuse or record verified results. The repository
 tool/routing suite is not path-selected, so it runs whole on every product PR

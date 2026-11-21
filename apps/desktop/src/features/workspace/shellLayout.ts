@@ -144,9 +144,6 @@ export function tableDrawerState(view: ShellView, narrowWindow: boolean, collaps
   return { collapsible: true, expanded: !collapsed, reason: null };
 }
 
-/** The Agent toggle and the agent strip: the column is a later slice and its live binding is the host gap G-19. */
-export const AGENT_UNAVAILABLE_REASON = "Agent: not available yet";
-
 // ---------------------------------------------------------------------------
 // The home of each of today's sections (the cut of B3, section 3)
 

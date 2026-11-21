@@ -7,7 +7,11 @@
 // window's own controls. The only substitution is the file chooser: `native_smoke_choose` names the file the next
 // one returns (every answer the runner plans lies inside the throwaway home). Print is not pressed. At each step it
 // records the counts and a snapshot of the document as drawn, and writes them as the checkpoint `step-<number>`
-// (`native_smoke_checkpoint`, no store copy). A step whose control is missing or disabled is recorded as where a
+// (`native_smoke_checkpoint`, no store copy). Once per launch it reads the menu the app built
+// (`native_smoke_menu_items`) and writes it as the checkpoint `menu`; with the plan's `show_window` (the runner's
+// --show-window) it first has the app bring its own window to the front (`native_smoke_show_window`), waits for the
+// page to report itself visible, writes the outcome as the checkpoint `window`, and at each step waits for a drawn
+// frame of the 3D view before the record. A step whose control is missing or disabled is recorded as where a
 // person stops, with the reason the window gives, and the journey's later steps as not reached. It judges nothing.
 (() => {
   const ipc = window.__TAURI_INTERNALS__;
@@ -26,6 +30,8 @@
   const log = (line) => call("native_smoke_log", { line: String(line) }).catch(() => {});
   let nonce = null;
   let T = { ui: 60000, step: 300000, solve: 900000, save: 900000 };
+  // Whether this launch's window was brought to the front (--show-window) and its page then reported visible.
+  let windowShown = false;
   // The act about to start, written as the `act` checkpoint: a strict chooser stop is named by it.
   const act = async (name) => {
     await log(`act: ${name}`);
@@ -121,8 +127,8 @@
       let counts;
       try { counts = readScreenCounts(); } catch (error) { counts = { counts_error: String(error?.message ?? error) }; }
       let snapshot;
-      try { snapshot = await takeSnapshot(); } catch (error) { snapshot = null; counts.snapshot_error = String(error?.message ?? error); }
-      return { ...counts, snapshot };
+      try { snapshot = windowShown ? await drawnSnapshot() : await takeSnapshot(); } catch (error) { snapshot = null; counts.snapshot_error = String(error?.message ?? error); }
+      return { ...counts, snapshot, window_shown: windowShown, page_visibility: document.visibilityState };
     }
 
     async write(record) {
@@ -165,6 +171,45 @@
         await this.step(`${step}-scroll${index}`, `${note}, scrolled ${index} screen${index === 1 ? "" : "s"} down`);
       }
     }
+  }
+
+  // ------------------------------------------------------------ the window and the menu (once per launch)
+
+  // With the window shown: the page visible first, then a snapshot whose 3D view read a drawn frame, tried up to
+  // three times, half a second apart; the last attempt is kept, and the notes say how many were made.
+  async function drawnSnapshot() {
+    await waitFor("the page reported visible", () => document.visibilityState === "visible", 5000).catch(() => null);
+    let snapshot = null;
+    let attempts = 0;
+    while (attempts < 3) {
+      attempts += 1;
+      snapshot = await takeSnapshot({ frameTimeoutMs: 5000 });
+      if (snapshot.view_3d !== "not captured") break;
+      await sleep(500);
+    }
+    if (attempts > 1) snapshot.notes.push(`the 3D view was read ${attempts} times for a drawn frame (${snapshot.view_3d} at the last)`);
+    return snapshot;
+  }
+  async function showWindow() {
+    const record = { nonce, at: Date.now() };
+    try {
+      record.window = await call("native_smoke_show_window");
+      const started = Date.now();
+      const visible = await waitFor("the page reported visible", () => document.visibilityState === "visible", 10000).then(() => true, () => false);
+      record.waited_ms = Date.now() - started;
+      record.page_visibility = document.visibilityState;
+      record.focus = document.hasFocus() ? "held" : "not held";
+      windowShown = Boolean(record.window?.visible) && visible;
+    } catch (error) {
+      record.error = String(error?.message ?? error).slice(0, 400);
+    }
+    await log(`window: ${JSON.stringify(record)}`);
+    await call("native_smoke_checkpoint", { name: "window", report: record, storeSnapshot: false });
+  }
+  async function readMenu() {
+    const record = { nonce, read_when: "once, when the shell first showed and before the journey's first step" };
+    try { record.menus = await call("native_smoke_menu_items"); } catch (error) { record.error = String(error?.message ?? error).slice(0, 400); }
+    await call("native_smoke_checkpoint", { name: "menu", report: record, storeSnapshot: false });
   }
 
   // ------------------------------------------------------------ shared acts
@@ -487,6 +532,8 @@
       if (!run) throw new Error(`unknown journey ${plan.journey}`);
       await waitFor("the desktop shell", () => byTestId("desktop-preview-shell") && byTestId(`tree-row-project-${encodeURIComponent(plan.bundled_project_id)}`), T.step);
       await sleep(1000);
+      if (plan.show_window) await showWindow();
+      await readMenu();
       await log(`native walkthrough ${plan.journey} started`);
       journey = new Journey(plan);
       await run(journey, plan);

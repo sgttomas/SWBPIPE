@@ -2,7 +2,7 @@
 // The native walkthrough's command (../README.md, "The launched app"), macOS:
 //
 //   npm run walkthrough:native --workspace apps/desktop -- --build-only
-//   npm run walkthrough:native --workspace apps/desktop -- [--journey <names>] [--out DIR]
+//   npm run walkthrough:native --workspace apps/desktop -- [--journey <names>] [--out DIR] [--show-window]
 //
 // Run each under a host slot, as separate jobs, as `native-smoke/evidence-journeys.mjs` says of itself; each takes
 // the worktree build lock itself. --build-only builds and binds the `native-smoke` app exactly as that runner does
@@ -29,6 +29,11 @@
 //                          rules at a revision this version does not read: File > Open Local Project…, the Results
 //                          stage, File > Save Local Project, the Project page, and whether the stored run's texts
 //                          are still the placed ones in copies of the store taken after the open and the save.
+//
+// Each launch reads the menu the app built once (`native_smoke_menu_items`, a command of the scripted-run build), and
+// the index records it (`native_menus`). --show-window, off by default, has the app bring its own window to the front
+// for the run (`native_smoke_show_window`: the window's own API, no system automation, nothing captured from the
+// screen), so its web view reports its page visible and the 3D view draws; the window closes with the app.
 //
 // At each step the driver (`driver.js`, given the shared counts of `../screen-counts.mjs` and the snapshot of
 // `snapshot.mjs`) records the counts and a snapshot of the document as drawn, as the checkpoint `step-<number>`.
@@ -118,12 +123,17 @@ export const DEFAULT_JOURNEYS = Object.freeze(["solve-and-results", "report", "e
 // Named alone: its solve is long, as evidence-journeys.mjs keeps it apart.
 export const SEPARATE_JOURNEYS = Object.freeze(["reference-system"]);
 
-/** The command line: { buildOnly, journeys, out } or { error }. --build-only takes nothing else. */
+/** The command line: { buildOnly, journeys, out, showWindow } or { error }. --build-only takes nothing else. */
 export function parseArguments(argv, { defaultOut = path.join(walkthrough, "output") } = {}) {
-  const options = { buildOnly: false, journeys: null, out: null };
+  const options = { buildOnly: false, journeys: null, out: null, showWindow: false };
   for (let index = 0; index < argv.length; index += 1) {
     const name = argv[index];
     if (name === "--build-only") { options.buildOnly = true; continue; }
+    if (name === "--show-window") {
+      if (options.showWindow) return { error: `${name} is given twice` };
+      options.showWindow = true;
+      continue;
+    }
     if (name !== "--journey" && name !== "--out") return { error: `unknown argument ${name}` };
     const value = argv[index + 1];
     if (value === undefined || value.startsWith("--")) return { error: `${name} needs a value` };
@@ -133,15 +143,15 @@ export function parseArguments(argv, { defaultOut = path.join(walkthrough, "outp
     index += 1;
   }
   if (options.buildOnly) {
-    if (options.journeys !== null || options.out !== null) return { error: "--build-only builds and binds the app and takes no journey or output folder" };
-    return { buildOnly: true, journeys: [], out: null };
+    if (options.journeys !== null || options.out !== null || options.showWindow) return { error: "--build-only builds and binds the app and takes no journey, output folder or --show-window" };
+    return { buildOnly: true, journeys: [], out: null, showWindow: false };
   }
   const journeys = options.journeys ?? [...DEFAULT_JOURNEYS];
   const unknown = journeys.filter((item) => !Object.hasOwn(JOURNEYS, item));
   if (journeys.length === 0 || unknown.length > 0) return { error: `choose --journey with one or more of ${DEFAULT_JOURNEYS.join(", ")} (or ${SEPARATE_JOURNEYS.join(", ")} alone)${unknown.length ? `; unknown: ${unknown.join(", ")}` : ""}` };
   if (new Set(journeys).size !== journeys.length) return { error: "a journey is named twice" };
   if (journeys.some((item) => SEPARATE_JOURNEYS.includes(item)) && journeys.length > 1) return { error: `${SEPARATE_JOURNEYS.join(", ")} runs alone: name it as the only journey` };
-  return { buildOnly: false, journeys, out: path.resolve(options.out ?? defaultOut) };
+  return { buildOnly: false, journeys, out: path.resolve(options.out ?? defaultOut), showWindow: options.showWindow };
 }
 
 /** The app's own data folder inside a home, where a placed local project store goes. */
@@ -298,6 +308,43 @@ export async function storedRunEvidence({ names, report, placed }) {
   };
 }
 
+/**
+ * The launch's reading of the menu the app built, from the driver's `menu` checkpoint (`readReport`'s { report,
+ * problem }): { read: true, journey, number, read_when, menus } or { read: false, journey, number, error }.
+ */
+export function nativeMenuRecord({ report, problem } = {}, { journey, number }) {
+  if (!report) return { read: false, journey, number, error: `the driver recorded no reading of the menu (${problem ?? "no checkpoint"})` };
+  if (!Array.isArray(report.menus)) return { read: false, journey, number, error: String(report.error ?? "the reading holds no menus") };
+  return { read: true, journey, number, read_when: report.read_when ?? null, source: "native_smoke_menu_items: the application menu as the app built and installed it, read item by item through the menu API", menus: report.menus };
+}
+
+/**
+ * Whether this launch's window was shown for the run: the option, what the window and its page then reported, and
+ * `screenLocked` (screenLockState, read before and after the launch), which says why a shown window's page can stay
+ * hidden: a locked screen shows no window of the session.
+ */
+export function windowShownRecord(option, record, screenLocked = null) {
+  if (!option) return { option: false, shown: false, why: "--show-window was not given: the window is left where the system put it" };
+  const locked = screenLocked ? { screen_locked: screenLocked } : {};
+  if (!record) return { option: true, shown: false, ...locked, why: "the driver recorded no outcome of showing the window" };
+  if (record.error) return { option: true, shown: false, ...locked, why: `showing the window failed: ${record.error}` };
+  const visible = record.page_visibility === "visible";
+  const lockedNow = screenLocked && (screenLocked.before === true || screenLocked.after === true);
+  const why = `the page still reported itself ${record.page_visibility ?? "of unknown visibility"} after the window was shown${lockedNow ? ": the host's screen was locked, and a locked screen shows no window of the session" : ""}`;
+  return { option: true, shown: Boolean(record.window?.visible) && visible, window: record.window ?? null, page_visibility: record.page_visibility ?? null, focus: record.focus ?? null, waited_ms: record.waited_ms ?? null, ...locked, ...(visible ? {} : { why }) };
+}
+
+/**
+ * Whether the session's screen is locked, from the console session's own record (`ioreg`, the IORegistry root's
+ * IOConsoleUsers: CGSSessionScreenIsLocked); true, false, or null when it cannot be read. Reads no window and needs
+ * no permission. `text` is ioreg's output (a seam for the test).
+ */
+export function screenLockState(text) {
+  if (typeof text !== "string") return null;
+  const match = text.match(/<key>CGSSessionScreenIsLocked<\/key>\s*<(true|false)\/>/);
+  return match ? match[1] === "true" : (text.includes("<key>IOConsoleUsers</key>") ? false : null);
+}
+
 /** Removes the earlier output of the journeys this run replaces (their numbers), keeping every other journey's. */
 export function emptyNativeOutput(out, journeys) {
   const numbers = new Set(journeys.map((item) => JOURNEYS[item].number));
@@ -329,7 +376,7 @@ async function main() {
     refuseLine(parsed.error);
     process.exit(2);
   }
-  const { buildOnly, journeys: selected, out } = parsed;
+  const { buildOnly, journeys: selected, out, showWindow } = parsed;
 
   // The named timeouts (ms), passed to the driver, and each launch's hard limit.
   const TIMEOUTS = { ui: 60_000, step: 300_000, solve: 900_000, save: 900_000 };
@@ -482,6 +529,9 @@ async function main() {
   process.on("exit", closeOnExit);
   console.log(`${NAME}: launching ${binary}, a private copy of ${app.binary} (${app.identity.sha256}); evidence in ${RUN_ROOT}; pictures in ${out}`);
 
+  function readScreenLock() {
+    try { return screenLockState(execFileSync("/usr/sbin/ioreg", ["-n", "Root", "-d1", "-a"], { encoding: "utf8", timeout: 15000, maxBuffer: 16 * 1024 * 1024 })); } catch { return null; }
+  }
   function check(name, ok, detail) {
     checks.push({ journey, name, ok: Boolean(ok), detail });
     console.log(`${ok ? "PASS" : "FAIL"}  ${journey}: ${name}${detail === undefined ? "" : `  [${(typeof detail === "string" ? detail : JSON.stringify(detail) ?? "").slice(0, 600)}]`}`);
@@ -581,7 +631,7 @@ async function main() {
   async function walk(name) {
     const spec = JOURNEYS[name];
     const where = journeyRoot(name);
-    const plan = { journey: name, number: spec.number, bundled_project_id: demo.project.id, support_text: firstSupport.replace(/^support:/, "") };
+    const plan = { journey: name, number: spec.number, bundled_project_id: demo.project.id, support_text: firstSupport.replace(/^support:/, ""), show_window: showWindow };
     const timeoutMs = spec.launch_ms ?? LAUNCH_MS;
     if (spec.timeouts) plan.timeouts = spec.timeouts;
     if (name === "report") plan.local_package = path.join(where.saved, "walkthrough-local.opsproj");
@@ -609,12 +659,18 @@ async function main() {
       check("the prepared files were placed in the throwaway home", false, error.message);
       return;
     }
+    const lockedBefore = showWindow ? readScreenLock() : null;
     const { report, seen, failures } = await launch(where, plan, { timeoutMs });
     if (seen && seen.ok === false && seen.error) console.log(`${NAME}: ${name}: the driver reported ${seen.error.split("\n")[0]}`);
     // The launch was censused (an unresolved census ended the run), so its home may go before anything is rendered.
     if (removeHome(where.home) !== null) check("its throwaway home was removed", false, leftHomes.get(where.home));
     else check("its throwaway home was removed", true);
     const records = readStepRecords(report);
+    const nativeMenu = nativeMenuRecord(readReport(`${report}.menu.json`), { journey: name, number: spec.number });
+    const windowRecord = readReport(`${report}.window.json`).report ?? null;
+    const shown = windowShownRecord(showWindow, windowRecord, showWindow ? { before: lockedBefore, after: readScreenLock() } : null);
+    check("the menu the app built was read", nativeMenu.read, nativeMenu.read ? `${nativeMenu.menus.length} menus` : nativeMenu.error);
+    if (showWindow) check("the window was brought to the front (--show-window)", shown.shown, shown);
     let storedRuns;
     if (storeCopies.length > 0) {
       try {
@@ -631,13 +687,15 @@ async function main() {
     const executablePath = process.env.PLAYWRIGHT_CHROMIUM_EXECUTABLE_PATH || undefined;
     await renderScreens(records, screens, { out, snapshots: path.join(where.root, "snapshots"), launchBrowser: () => chromium.launch({ executablePath }) });
     writePart(out, {
-      number: spec.number, name, title: spec.title, use_case: spec.use_case, screens,
+      number: spec.number, name, title: spec.title, use_case: spec.use_case, screens, native_menu: nativeMenu, window_shown: shown,
       revision: { commit: revision, uncommitted_paths: uncommitted },
-      build: { kind: "scripted-run build (native-smoke feature), launched as a private copy", app_sha256: app.identity.sha256, app_bytes: app.identity.size, binding_record_sha256: bindingSha }, launch: { ended_cleanly: failures.length === 0, failures, driver_finished: seen?.ok === true },
+      build: { kind: "scripted-run build (native-smoke feature), launched as a private copy", app_sha256: app.identity.sha256, app_bytes: app.identity.size, binding_record_sha256: bindingSha }, launch: { ended_cleanly: failures.length === 0, failures, driver_finished: seen?.ok === true, window_shown: shown.shown },
       ...(built.length ? { built_placements: built } : {}), ...(storedRuns ? { stored_runs: storedRuns } : {}) });
     const pictured = screens.filter((screen) => screen.file).length;
     const stop = screens.find((screen) => screen.failed);
-    console.log(`${NAME}: ${name}: ${pictured} screens${stop ? `; stopped at "${stop.step}": ${stop.failed}` : ""}`);
+    const drawn = screens.filter((screen) => screen.view_3d === "captured").length;
+    const blank = screens.filter((screen) => screen.view_3d === "not captured").length;
+    console.log(`${NAME}: ${name}: ${pictured} screens${stop ? `; stopped at "${stop.step}": ${stop.failed}` : ""}; window ${shown.shown ? "shown" : "not shown"}; 3D view captured at ${drawn} step(s), not captured at ${blank}`);
     writeFileSync(path.join(where.root, "summary.json"), JSON.stringify({ journey: name, source_revision: revision, app: { binary: app.binary, identity: app.identity, binding_record_sha256: bindingSha }, launches: { [name]: launches[`${name}/walk`] }, checks: checks.filter((item) => item.journey === name) }, null, 2));
   }
 

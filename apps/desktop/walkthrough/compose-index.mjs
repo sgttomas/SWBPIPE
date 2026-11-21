@@ -31,8 +31,17 @@ export function composeIndex(out, { size = null } = {}) {
     use_case: journey.use_case ?? journey.title,
     ...(screen.file && !screen.redrawn ? { redrawn: false } : {})
   })));
-  // The native surfaces not pictured, each named once with what prevents it.
-  const nativeSurfaces = [...new Map(journeys.flatMap((journey) => journey.native_surfaces ?? []).map((item) => [item.surface, item])).values()];
+  // The native surfaces not pictured, each named once with what prevents it: where the journeys' launches differ, the
+  // entry of the first launch that left its evidence missing, so a surface counts as supplied only when every launch
+  // supplied it.
+  const bySurface = new Map();
+  for (const item of journeys.flatMap((journey) => journey.native_surfaces ?? [])) {
+    const held = bySurface.get(item.surface);
+    if (!held || (item.missing_evidence && !held.missing_evidence)) bySurface.set(item.surface, item);
+  }
+  const nativeSurfaces = [...bySurface.values()];
+  // Each launch's reading of the menu the app built (native/run.mjs nativeMenuRecord).
+  const nativeMenus = journeys.filter((journey) => journey.native_menu).map((journey) => ({ ...journey.native_menu, build: journey.build ?? null }));
   const stops = screens.filter((screen) => screen.failed).map((screen) => ({ journey: screen.journey, step: screen.step, reason: screen.failed }));
   const index = {
     schema: "swbpipe-walkthrough-index/v1",
@@ -41,9 +50,12 @@ export function composeIndex(out, { size = null } = {}) {
     marks_explained: {
       redrawn: "true where the picture is the application's document redrawn outside its window by Chromium, not a capture of the window",
       substitutions: "each substitution of the scripted-run build the step used: the file a chooser returns, a native menu command, the report print dialog",
-      native_surfaces: "each native surface not pictured, what prevents it (the permission prompt, or the substitution) and whether that leaves evidence missing"
+      native_surfaces: "each native surface not pictured, what prevents it (the permission prompt, or the substitution) and whether that leaves evidence missing",
+      native_menus: "for each launch of the app, the menu it built, read from it once by the scripted-run build: each menu's items in order with label, command identifier, enabled and ticked state, and separators; names, order and state, not appearance or placement",
+      window_shown: "on a native screen, whether the run brought the app's window to the front (--show-window) so its web view drew; page_visibility is what the page reported at that step"
     },
     native_surfaces: nativeSurfaces,
+    native_menus: nativeMenus,
     counts_explained: {
       words_on_screen: "words a person can read without scrolling: in the window, not clipped, not covered",
       words_in_page: "words in the page's whole text, off-screen and scrolled-away text included",
@@ -63,6 +75,7 @@ export function composeIndex(out, { size = null } = {}) {
       window: journey.window ?? size ?? null,
       ...(journey.picture_basis ? { picture_basis: journey.picture_basis } : {}),
       ...(journey.launch ? { launch: journey.launch } : {}),
+      ...(journey.window_shown ? { window_shown: journey.window_shown } : {}),
       ...(journey.built_placements ? { built_placements: journey.built_placements } : {}),
       ...(journey.stored_runs ? { stored_runs: journey.stored_runs } : {}),
       screens: journey.screens.filter((screen) => screen.file && !screen.failed).length,
@@ -97,6 +110,20 @@ function renderScreen(screen) {
   return `<li class="screen${screen.failed ? " stopped" : ""}" id="s${screen.number}"><h3>${screen.number} · ${escapeHtml(screen.step)}</h3><p>${escapeHtml(screen.note)}</p>${stop}${substituted}${picture}${basis}${unpictured}${counts}${controls}</li>`;
 }
 
+// The menu the app built, for reading: one launch's, the others said to match it or listed apart.
+function renderMenus(readings) {
+  const entry = (item) => item.kind === "separator" ? `<li class="separator" aria-label="separator">—</li>`
+    : item.kind === "submenu" ? `<li>${escapeHtml(item.label)}${item.enabled ? "" : " (disabled)"}<ul>${item.items.map(entry).join("")}</ul></li>`
+    : `<li>${escapeHtml(item.label)}${item.command_id ? ` <code>${escapeHtml(item.command_id)}</code>` : " (system item)"}${item.enabled === false ? " (disabled)" : ""}${item.checked === true ? " ✓" : ""}</li>`;
+  const read = readings.filter((reading) => reading.read);
+  const failed = readings.filter((reading) => !reading.read).map((reading) => `<p class="stop">${escapeHtml(reading.journey)}: the menu was not read (${escapeHtml(reading.error)}).</p>`).join("");
+  if (read.length === 0) return `<h2>The native menu bar, as the app built it</h2>${failed}`;
+  const first = JSON.stringify(read[0].menus);
+  const differs = read.filter((reading) => JSON.stringify(reading.menus) !== first).map((reading) => reading.journey);
+  const same = read.filter((reading) => !differs.includes(reading.journey)).map((reading) => reading.journey);
+  return `<h2>The native menu bar, as the app built it</h2><p class="basis">Read from the launched app once per launch (${escapeHtml(read[0].read_when ?? "once")}), through its menu API: names, order, command identifiers, enabled and ticked state. Not a picture: how the system draws and places the menu bar is not shown. As read in ${escapeHtml(same.join(", "))}${differs.length ? `; it differed in ${escapeHtml(differs.join(", "))} (see INDEX.json native_menus)` : ""}.</p>${failed}<div class="menus">${read[0].menus.map((menu) => `<div class="menu"><h3>${escapeHtml(menu.label)}${menu.enabled === false ? " (disabled)" : ""}</h3><ul>${(menu.items ?? []).map(entry).join("")}</ul></div>`).join("")}</div>`;
+}
+
 function renderHtml(index) {
   const sections = index.journeys.map((journey) => {
     const screens = index.screens.filter((screen) => screen.journey === journey.name);
@@ -114,7 +141,7 @@ function renderHtml(index) {
     return `<section id="j${journey.number}"><h2>${journey.number}. ${escapeHtml(journey.title)}</h2>${facts}${builds}${stored}${surface}${stopped}<ol class="screens">${screens.map(renderScreen).join("")}</ol></section>`;
   }).join("");
   const rows = index.screens.filter((screen) => screen.words_on_screen !== undefined).map((screen) =>
-    `<tr><td><a href="#s${screen.number}">${screen.number}</a></td><td>${escapeHtml(screen.journey)}</td><td>${escapeHtml(screen.step)}</td><td>${[screen.redrawn ? "redrawn" : "", screen.substitutions?.length ? "substituted" : ""].filter(Boolean).join(", ")}</td><td class="n">${screen.words_on_screen}</td><td class="n">${screen.words_in_page}</td><td class="n">${screen.buttons_on_screen}</td><td class="n">${screen.inputs_on_screen}</td><td class="n">${screen.longest_scroll_screens}</td></tr>`).join("");
+    `<tr><td><a href="#s${screen.number}">${screen.number}</a></td><td>${escapeHtml(screen.journey)}</td><td>${escapeHtml(screen.step)}</td><td>${[screen.redrawn ? "redrawn" : "", screen.substitutions?.length ? "substituted" : "", screen.window_shown ? "window shown" : ""].filter(Boolean).join(", ")}</td><td class="n">${screen.words_on_screen}</td><td class="n">${screen.words_in_page}</td><td class="n">${screen.buttons_on_screen}</td><td class="n">${screen.inputs_on_screen}</td><td class="n">${screen.longest_scroll_screens}</td></tr>`).join("");
   return `<!doctype html>
 <html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
 <title>SWBPIPE walkthrough</title>
@@ -132,6 +159,9 @@ nav ol { padding-left: 20px; }
 .screen.stopped { border-color: var(--stop); } .stop { color: var(--stop); font-weight: 600; overflow-wrap: anywhere; }
 .screen.missing { opacity: 0.7; }
 .basis, .surface { color: var(--muted); font-size: 13px; }
+.menus { display: grid; gap: 12px; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); font-size: 13px; }
+.menu { background: var(--card); border: 1px solid var(--line); border-radius: 6px; padding: 8px 12px; min-width: 0; overflow-wrap: anywhere; }
+.menu ul { padding-left: 16px; margin: 4px 0; } .menu .separator { list-style: none; color: var(--muted); }
 .substituted { font-size: 13px; border-left: 3px solid var(--stop); padding-left: 6px; }
 dl { display: grid; grid-template-columns: repeat(3, 1fr); gap: 4px 12px; margin: 0; } dl div { min-width: 0; }
 dt { color: var(--muted); font-size: 12px; } dd { margin: 0; font-variant-numeric: tabular-nums; font-weight: 600; }
@@ -143,7 +173,8 @@ th, td { border-bottom: 1px solid var(--line); padding: 3px 8px; text-align: lef
 <h1>SWBPIPE walkthrough</h1>
 <p class="lede">Screens of the application (${escapeHtml(index.surface)}${index.window ? `, at ${escapeHtml(index.window)}` : ""}), taken by driving its own controls. Each screen lists what a person has in front of them. A journey that stops shows where a person would be stuck.${index.journeys.some((journey) => journey.surface !== "browser build") ? " Journeys of the launched app are not captures of its window: each picture is the launched app's document, recorded in its own web view, redrawn by Chromium, so fonts and form controls may differ in detail. Each journey states its surface." : ""}</p>
 <nav><ol>${index.journeys.map((journey) => `<li><a href="#j${journey.number}">${escapeHtml(journey.title)}</a>${journey.stopped_at ? ` <span class="stop">(stopped at “${escapeHtml(journey.stopped_at)}”)</span>` : ""}</li>`).join("")}</ol></nav>
-${index.native_surfaces.length ? `<h2>Native surfaces not pictured</h2><ul class="surfaces">${index.native_surfaces.map((item) => `<li><strong>${escapeHtml(item.surface)}</strong>: ${escapeHtml(item.prevented_by)}. Instead: ${escapeHtml(item.instead)}.${item.missing_evidence ? ' <span class="stop">Missing evidence.</span>' : ""}</li>`).join("")}</ul>` : ""}
+${index.native_surfaces.length ? `<h2>Native surfaces not pictured</h2><ul class="surfaces">${index.native_surfaces.map((item) => `<li><strong>${escapeHtml(item.surface)}</strong>: ${escapeHtml(item.prevented_by)}. Instead: ${escapeHtml(item.instead)}.${item.missing_evidence ? ' <span class="stop">Missing evidence.</span>' : item.evidence === "supplied" ? " Evidence supplied." : ""}</li>`).join("")}</ul>` : ""}
+${index.native_menus.length ? renderMenus(index.native_menus) : ""}
 <h2>Every screen, by the numbers</h2>
 <div class="table-wrap"><table><thead><tr><th>No.</th><th>Journey</th><th>Step</th><th>Marks</th><th class="n">Words on screen</th><th class="n">Words in page</th><th class="n">Buttons</th><th class="n">Inputs</th><th class="n">Scroll</th></tr></thead><tbody>${rows}</tbody></table></div>
 ${sections}

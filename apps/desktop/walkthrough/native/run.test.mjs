@@ -8,10 +8,10 @@ import path from "node:path";
 import test from "node:test";
 import vm from "node:vm";
 import { composeIndex } from "../compose-index.mjs";
-import { NATIVE_SURFACE, NATIVE_SURFACES, PICTURE_BASIS, readStepRecords, renderScreens, screensFromRecords, writePart } from "./render.mjs";
+import { MENU_SURFACE, NATIVE_SURFACE, NATIVE_SURFACES, PICTURE_BASIS, VIEW_3D_SURFACE, nativeSurfacesFor, readStepRecords, renderScreens, screensFromRecords, writePart } from "./render.mjs";
 import { existsSync, mkdirSync, symlinkSync } from "node:fs";
 import { createHash } from "node:crypto";
-import { DEFAULT_JOURNEYS, JOURNEYS, composeDriver, emptyNativeOutput, parseArguments, placeFiles, placementsFor, readStoredRuns, storeCopiesFor, storedRunEvidence } from "./run.mjs";
+import { DEFAULT_JOURNEYS, JOURNEYS, composeDriver, emptyNativeOutput, nativeMenuRecord, parseArguments, placeFiles, placementsFor, readStoredRuns, screenLockState, storeCopiesFor, storedRunEvidence, windowShownRecord } from "./run.mjs";
 
 function scratch(t) {
   const folder = mkdtempSync(path.join(os.tmpdir(), "native-walkthrough-test-"));
@@ -20,10 +20,15 @@ function scratch(t) {
 }
 
 test("arguments: --build-only alone, journeys by name, the reference system alone", () => {
-  assert.deepEqual(parseArguments(["--build-only"]), { buildOnly: true, journeys: [], out: null });
+  assert.deepEqual(parseArguments(["--build-only"]), { buildOnly: true, journeys: [], out: null, showWindow: false });
   assert.match(parseArguments(["--build-only", "--journey", "report"]).error, /takes no journey/);
-  assert.match(parseArguments(["--build-only", "--out", "x"]).error, /takes no journey or output folder/);
-  assert.deepEqual(parseArguments([], { defaultOut: "/o" }), { buildOnly: false, journeys: [...DEFAULT_JOURNEYS], out: "/o" });
+  assert.match(parseArguments(["--build-only", "--out", "x"]).error, /takes no journey, output folder/);
+  assert.match(parseArguments(["--build-only", "--show-window"]).error, /--show-window/);
+  // Off unless given; given, it is the only change.
+  assert.deepEqual(parseArguments([], { defaultOut: "/o" }), { buildOnly: false, journeys: [...DEFAULT_JOURNEYS], out: "/o", showWindow: false });
+  assert.deepEqual(parseArguments(["--show-window"], { defaultOut: "/o" }), { buildOnly: false, journeys: [...DEFAULT_JOURNEYS], out: "/o", showWindow: true });
+  assert.equal(parseArguments(["--journey", "prepared-project", "--show-window", "--out", "/w"]).showWindow, true);
+  assert.match(parseArguments(["--show-window", "--show-window"]).error, /given twice/);
   assert.deepEqual(parseArguments(["--journey", "report,exports", "--out", "/tmp/w"]).journeys, ["report", "exports"]);
   assert.match(parseArguments(["--journey", "reference-system,report"]).error, /runs alone/);
   assert.deepEqual(parseArguments(["--journey", "reference-system"]).journeys, ["reference-system"]);
@@ -63,10 +68,114 @@ test("the composed driver is one script: the shared counts, the snapshot, then t
   const composed = composeDriver(driver);
   assert.doesNotThrow(() => new vm.Script(composed));
   const counts = composed.indexOf("const readScreenCounts = function readScreenCounts()");
-  const snapshot = composed.indexOf("const takeSnapshot = async function takeSnapshot()");
+  const snapshot = composed.indexOf("const takeSnapshot = async function takeSnapshot(");
   assert.ok(counts > 0 && snapshot > counts && composed.indexOf(driver) > snapshot);
   // The driver does not press Print, and starts no agent.
   assert.doesNotMatch(driver, /rendered-report-print"|report-print|toggle-agent|embedded_agent/);
+});
+
+test("the driver reads the built menu once per launch and shows the window only when the plan asks", async () => {
+  const driver = readFileSync(new URL("./driver.js", import.meta.url), "utf8");
+  const launch = async (plan) => {
+    const calls = [];
+    const listeners = {};
+    const document = {
+      visibilityState: "hidden",
+      querySelector: (selector) => (/desktop-preview-shell|tree-row-project/.test(selector) ? {} : null),
+      querySelectorAll: () => [],
+      hasFocus: () => false,
+      body: {}
+    };
+    let finished;
+    const done = new Promise((resolve) => { finished = resolve; });
+    const window = {
+      __TAURI_INTERNALS__: {
+        invoke: async (command, args) => {
+          calls.push([command, args]);
+          if (command === "native_smoke_plan") return { ...plan, nonce: "n", journey: "probe", timeouts: { ui: 50, step: 50 } };
+          if (command === "native_smoke_show_window") { document.visibilityState = "visible"; return { visible: true, focused: true, minimized: false, always_on_top: true }; }
+          if (command === "native_smoke_menu_items") return [{ kind: "submenu", label: "File", enabled: true, items: [{ kind: "separator" }] }];
+          if (command === "native_smoke_finish") finished(args.report);
+          return null;
+        }
+      },
+      addEventListener: (name, listener) => { listeners[name] = listener; }
+    };
+    // The driver's journeys table, with a probe journey of no steps.
+    const script = composeDriver(driver.replace('const JOURNEYS = { "solve-and-results"', 'const JOURNEYS = { probe: async () => {}, "solve-and-results"'));
+    vm.runInNewContext(script, { window, document, navigator: { userAgent: "test" }, CSS: { escape: (text) => text }, setTimeout, Date, JSON, Promise, String, Error, Boolean, Object, Math, Array, Set, Map, encodeURIComponent, getComputedStyle: () => ({}), requestAnimationFrame: (callback) => setTimeout(callback, 0), innerWidth: 1, innerHeight: 1, devicePixelRatio: 1, matchMedia: () => ({ matches: false }) });
+    const report = await done;
+    return { calls, report, document };
+  };
+  const plain = await launch({ show_window: false });
+  assert.equal(plain.report.ok, true, plain.report.error);
+  assert.equal(plain.calls.filter(([command]) => command === "native_smoke_menu_items").length, 1);
+  assert.equal(plain.calls.filter(([command]) => command === "native_smoke_show_window").length, 0);
+  const menu = plain.calls.find(([command, args]) => command === "native_smoke_checkpoint" && args.name === "menu")[1].report;
+  assert.equal(menu.menus[0].label, "File");
+  assert.equal(plain.calls.some(([command, args]) => command === "native_smoke_checkpoint" && args.name === "window"), false);
+  const shown = await launch({ show_window: true });
+  assert.equal(shown.calls.filter(([command]) => command === "native_smoke_show_window").length, 1);
+  const window = shown.calls.find(([command, args]) => command === "native_smoke_checkpoint" && args.name === "window")[1].report;
+  assert.equal(window.window.visible, true);
+  assert.equal(window.page_visibility, "visible");
+  // The window is shown before the menu is read, both before the journey starts.
+  const order = shown.calls.map(([command, args]) => (command === "native_smoke_checkpoint" ? args.name : command));
+  assert.ok(order.indexOf("native_smoke_show_window") < order.indexOf("native_smoke_menu_items"));
+});
+
+test("the menu reading and the window's outcome become the part file's records", () => {
+  const menus = [{ kind: "submenu", label: "File", enabled: true, items: [{ kind: "item", label: "Open Model Document…", command_id: "file.open-model", enabled: true, system: false }, { kind: "separator" }] }];
+  assert.deepEqual(nativeMenuRecord({ report: { nonce: "n", read_when: "once", menus } }, { journey: "exports", number: 22 }), {
+    read: true, journey: "exports", number: 22, read_when: "once",
+    source: "native_smoke_menu_items: the application menu as the app built and installed it, read item by item through the menu API", menus
+  });
+  assert.deepEqual(nativeMenuRecord({ report: { error: "NATIVE-MENU-UNAVAILABLE" } }, { journey: "exports", number: 22 }), { read: false, journey: "exports", number: 22, error: "NATIVE-MENU-UNAVAILABLE" });
+  assert.match(nativeMenuRecord({ report: null, problem: "no report" }, { journey: "exports", number: 22 }).error, /no reading of the menu \(no report\)/);
+  assert.deepEqual(windowShownRecord(false, null), { option: false, shown: false, why: "--show-window was not given: the window is left where the system put it" });
+  assert.equal(windowShownRecord(true, null).shown, false);
+  assert.match(windowShownRecord(true, { error: "boom" }).why, /failed: boom/);
+  assert.equal(windowShownRecord(true, { window: { visible: true }, page_visibility: "visible" }).shown, true);
+  assert.match(windowShownRecord(true, { window: { visible: true }, page_visibility: "hidden" }).why, /still reported itself hidden/);
+  const locked = windowShownRecord(true, { window: { visible: true }, page_visibility: "hidden" }, { before: true, after: true });
+  assert.deepEqual(locked.screen_locked, { before: true, after: true });
+  assert.match(locked.why, /the host's screen was locked/);
+  assert.doesNotMatch(windowShownRecord(true, { window: { visible: true }, page_visibility: "hidden" }, { before: false, after: false }).why, /locked/);
+  assert.equal(screenLockState("<dict><key>IOConsoleUsers</key><array><dict><key>CGSSessionScreenIsLocked</key>\n<true/></dict></array></dict>"), true);
+  assert.equal(screenLockState("<dict><key>IOConsoleUsers</key><array><dict><key>kCGSSessionOnConsoleKey</key><true/></dict></array></dict>"), false);
+  assert.equal(screenLockState("nothing"), null);
+  assert.equal(screenLockState(undefined), null);
+});
+
+test("native surfaces: the menu bar supplied by a reading, the 3D view captured or why not, and missing wins in the index", (t) => {
+  const menu = { read: true, read_when: "once", menus: [] };
+  const menuEntry = (surfaces) => surfaces.find((item) => item.surface === MENU_SURFACE);
+  const viewEntry = (surfaces) => surfaces.find((item) => item.surface === VIEW_3D_SURFACE);
+  assert.equal(menuEntry(nativeSurfacesFor()).missing_evidence, true);
+  const supplied = menuEntry(nativeSurfacesFor({ menu }));
+  assert.equal(supplied.missing_evidence, false);
+  assert.equal(supplied.evidence, "supplied");
+  assert.equal(supplied.captured, false);
+  assert.match(supplied.instead, /names, order and enabled state as built; not how the system draws the menu bar, where it places it/);
+  assert.match(supplied.prevented_by, /Accessibility permission/);
+  assert.match(menuEntry(nativeSurfacesFor({ menu: { read: false, error: "no menu" } })).prevented_by, /: no menu$/);
+  const drawn = [{ view_3d: "captured" }, { view_3d: "not on screen" }, { view_3d: "captured" }];
+  assert.equal(viewEntry(nativeSurfacesFor({ windowShown: true, screens: drawn })).missing_evidence, false);
+  assert.equal(viewEntry(nativeSurfacesFor({ windowShown: true, screens: drawn })).captured, true);
+  const partly = viewEntry(nativeSurfacesFor({ windowShown: true, screens: [...drawn, { view_3d: "not captured", canvases: [{ label: "3D view", captured: false, reason: "its pixels read blank" }] }] }));
+  assert.equal(partly.missing_evidence, true);
+  assert.match(partly.prevented_by, /--show-window\), but at 1 of 3 steps that showed the 3D view it was not captured: its pixels read blank/);
+  assert.match(viewEntry(nativeSurfacesFor({ windowShown: false, screens: [{ view_3d: "not captured" }] })).prevented_by, /not given --show-window/);
+  // In the index, one launch that left the evidence missing keeps the surface missing.
+  const out = scratch(t);
+  writePart(out, { number: 20, name: "solve-and-results", title: "A", use_case: "u", screens: [], native_menu: { ...menu, journey: "solve-and-results", number: 20 }, window_shown: { option: true, shown: true }, launch: { ended_cleanly: true, window_shown: true } });
+  writePart(out, { number: 22, name: "exports", title: "B", use_case: "u", screens: [], native_menu: { read: false, journey: "exports", number: 22, error: "x" }, launch: { ended_cleanly: true } });
+  composeIndex(out);
+  const index = JSON.parse(readFileSync(path.join(out, "INDEX.json"), "utf8"));
+  assert.equal(menuEntry(index.native_surfaces).missing_evidence, true);
+  assert.deepEqual(index.native_menus.map((reading) => [reading.journey, reading.read]), [["solve-and-results", true], ["exports", false]]);
+  assert.deepEqual(index.journeys[0].window_shown, { option: true, shown: true });
+  assert.match(readFileSync(path.join(out, "index.html"), "utf8"), /The native menu bar, as the app built it/);
 });
 
 test("the driver acts only through what a person can reach: every click goes through control() or acting()", () => {
@@ -164,7 +273,8 @@ test("pictures: each snapshot rendered at its recorded size with nothing loaded,
   assert.equal(native[1].substitutions, undefined);
   assert.deepEqual(index.native_surfaces.map((item) => item.surface), NATIVE_SURFACES.map((item) => item.surface));
   assert.ok(index.native_surfaces.every((item) => item.prevented_by && typeof item.missing_evidence === "boolean"));
-  assert.ok(index.native_surfaces.some((item) => /menu bar/.test(item.surface) && /Accessibility permission/.test(item.prevented_by)));
+  assert.ok(index.native_surfaces.some((item) => /menu bar/.test(item.surface) && /Accessibility permission/.test(item.prevented_by) && item.missing_evidence === true));
+  assert.deepEqual(index.native_menus, []);
   assert.ok(index.native_surfaces.some((item) => /window/.test(item.surface) && /Screen Recording permission/.test(item.prevented_by)));
   const html = readFileSync(path.join(out, "index.html"), "utf8");
   assert.match(html, /redrawn by Chromium/);
