@@ -327,6 +327,41 @@ class HostedCITests(unittest.TestCase):
                 repository = hosted_ci.repository_plan(self.root, 'merge_group', base, 'HEAD')
                 self.assertEqual((repository['mode'], repository['deselect']), ('full', []))
 
+    def test_the_drift_check_halves_are_both_selected_or_both_left_out(self):
+        """docs/CI_STRATEGY.md, "Retained registration drift check", at the planner: an unavailable diff fails closed
+        to both halves (the whole Python drift check in a full Python selection, and the registered build's Rust job);
+        a registration-path diff runs both; an empty diff, or another solver change, runs neither."""
+        python = hosted_ci.python_module(SOURCE_ROOT)
+        drift = set(python.retained_drift_check(SOURCE_ROOT))
+
+        def halves(plan):
+            rust = python.registration_output(plan) == "retained_registration=true"
+            chosen = set(python.select(SOURCE_ROOT, plan)) if plan["modes"]["piping-python"] == "full" else set()
+            self.assertIn(chosen & drift, (set(), drift))
+            return rust, chosen >= drift
+
+        for event in ("pull_request", "merge_group"):
+            with self.subTest(event=event, diff="unavailable"):
+                self.assertEqual(halves(make_plan(self.root, PROFILE, event, "", "HEAD")), (True, True))
+        with self.subTest(diff="empty"):
+            plan = self.plan()
+            self.assertEqual((plan["base"], plan["paths"]), (self.base, []))
+            self.assertEqual(halves(plan), (False, False))
+        for path, expected in [("core/product_physics/src/lib.rs", (False, False)),
+                               *((path, (True, True)) for path in (
+                                   "tools/retained_pricing/base/sens.py", "tools/repository_history.py",
+                                   "core/product_physics/src/retained_memory.rs", "core/product_physics/build.rs",
+                                   "core/product_physics/src/build_identity.rs",
+                                   "core/product_physics/tests/retained_memory_challenge.rs",
+                                   ".github/workflows/retained-registration-rust.yml"))]:
+            with self.subTest(path=path):
+                base = self.git("rev-parse", "HEAD")
+                self.write(path, "changed " + path)
+                self.commit()
+                plan = self.plan(base)
+                self.assertEqual(plan["paths"], [path])
+                self.assertEqual(halves(plan), expected)
+
     def test_scheduled_and_dispatched_runs_select_full_coverage_with_no_range(self):
         """A full run of main has no candidate base: even a base it is handed is
         not a diff range, so every suite and spec is selected over the whole
