@@ -183,8 +183,9 @@ or evidence-status labels (§2.1), and no state is worded or styled as a
 pass, a certificate or an approval.
 
 **Belongs on:** the desktop's numerical-health indicator, and the
-numerical-health line of generated reports. The canonical sentence accompanies
-every state.
+numerical-health line of generated reports. On the desktop's indicator the
+canonical sentence accompanies every state; on a generated report's line it
+accompanies a verdict of checks passed.
 
 ### EV-FIGURE — evidence status of a numerical figure, state or comparison
 
