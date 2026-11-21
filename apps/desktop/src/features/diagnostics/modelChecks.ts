@@ -1,6 +1,6 @@
 // On-demand model checks: the
-// model's existing checks, run when the user asks and by themselves whenever no
-// completed run describes the model as it stands (workspaceSession), with their
+// model's existing checks, run when the user asks and by themselves whenever the
+// model opens or changes without a completed run for it (workspaceSession), with their
 // findings as the checks state them. No check is defined here; each comes from its owner:
 // - the solve's own checks before stiffness formation (input validation, the
 //   restraint pre-checks and the W-8 topology checks) and the solve's load
@@ -66,6 +66,14 @@ export type ModelCheckRun = Readonly<{
   /** Where a later run of the checks on this same model value did not complete, why.
    * The findings are this run's, the last that completed for the model value. */
   laterCheckNotCompleted?: string;
+  /** The engine's serialized findings (solve and slots), counted against the
+   * report's bound; the library group takes what is left. */
+  engineBytes?: number;
+  /** Whether showing this run moves keyboard focus to its outcome: a run the
+   * person or a Solve request asked for does; one the session published by itself
+   * (the automatic check, a refresh of the library-reference findings) does not,
+   * so an editor keeps focus. Absent reads as true. */
+  focusSummary?: boolean;
 }>;
 
 /** The browser engine's input bound, as the engine itself refuses above it
@@ -256,6 +264,44 @@ function entityFor(model: PreviewModel, diagnostic: Diagnostic): EntityRef | nul
   return null;
 }
 
+type LibraryCollection = {
+  listed: Diagnostic[];
+  notShown: number;
+  notShownBlocking: number;
+  notCompleted?: string;
+};
+
+/** The library-reference findings within `remaining` bytes of the report's
+ * bound, in the store's order: once one does not fit, it and every later one are
+ * counted, not listed. A collection that fails lists nothing and says why; the
+ * engine's findings stand. */
+function collectLibraryFindings(libraryReferenceDiagnostics: () => readonly Diagnostic[], remaining: number): LibraryCollection {
+  const collection: LibraryCollection = { listed: [], notShown: 0, notShownBlocking: 0 };
+  let collected: readonly Diagnostic[] = [];
+  try { collected = libraryReferenceDiagnostics(); }
+  catch (error) { collection.notCompleted = error instanceof Error ? error.message : String(error); }
+  for (const diagnostic of collected) {
+    const length = utf8ByteLength(JSON.stringify(diagnostic)) + 1;
+    if (collection.notShown > 0 || length > remaining) {
+      collection.notShown += 1;
+      if (diagnostic.severity === "blocking" || diagnostic.severity === "error") collection.notShownBlocking += 1;
+      continue;
+    }
+    remaining -= length;
+    collection.listed.push(diagnostic);
+  }
+  return collection;
+}
+
+function groupFindings(model: PreviewModel, group: ModelCheckGroupId, diagnostics: readonly Diagnostic[]): ModelCheckFinding[] {
+  return diagnostics.map((diagnostic, index): ModelCheckFinding => ({
+    key: `${group}:${index}:${diagnostic.id ?? diagnostic.code}`,
+    group,
+    diagnostic,
+    entity: entityFor(model, diagnostic)
+  }));
+}
+
 /** Runs every check on `model` and lists the findings by group, in each check's
  * own order, within the report's bound: the library-reference findings take
  * what the engine's report leaves of it, and are read only when the engine's
@@ -266,47 +312,43 @@ export async function runModelChecks(
   options: { stillCurrent?: () => boolean } = {}
 ): Promise<ModelCheckRun> {
   const engine = await engineModelChecks(model, options);
-  let libraryNotCompleted: string | undefined;
-  let library: Diagnostic[] = [];
-  let libraryNotShown = 0;
-  let libraryNotShownBlocking = 0;
-  if (engine.outcome.kind !== "unavailable") {
-    let remaining = MODEL_CHECKS_MAX_RESPONSE_BYTES - engine.bytes;
-    // A collection that fails leaves the engine's findings standing and the library group unknown.
-    let collected: readonly Diagnostic[] = [];
-    try { collected = libraryReferenceDiagnostics(); }
-    catch (error) { libraryNotCompleted = error instanceof Error ? error.message : String(error); }
-    for (const diagnostic of collected) {
-      const length = utf8ByteLength(JSON.stringify(diagnostic)) + 1;
-      if (libraryNotShown > 0 || length > remaining) {
-        libraryNotShown += 1;
-        if (diagnostic.severity === "blocking" || diagnostic.severity === "error") libraryNotShownBlocking += 1;
-        continue;
-      }
-      remaining -= length;
-      library.push(diagnostic);
-    }
-  }
-  const groups: Array<[ModelCheckGroupId, readonly Diagnostic[]]> = [
-    ["solve", engine.solve],
-    ["slots", engine.slots],
-    ["library", library]
+  const library: LibraryCollection = engine.outcome.kind !== "unavailable"
+    ? collectLibraryFindings(libraryReferenceDiagnostics, MODEL_CHECKS_MAX_RESPONSE_BYTES - engine.bytes)
+    : { listed: [], notShown: 0, notShownBlocking: 0 };
+  const findings = [
+    ...groupFindings(model, "solve", engine.solve),
+    ...groupFindings(model, "slots", engine.slots),
+    ...groupFindings(model, "library", library.listed)
   ];
-  const findings = groups.flatMap(([group, diagnostics]) =>
-    diagnostics.map((diagnostic, index): ModelCheckFinding => ({
-      key: `${group}:${index}:${diagnostic.id ?? diagnostic.code}`,
-      group,
-      diagnostic,
-      entity: entityFor(model, diagnostic)
-    }))
-  );
   return {
     model,
     solve: engine.outcome,
     findings,
-    notShown: { solve: engine.notShown.solve, slots: engine.notShown.slots, library: libraryNotShown },
-    notShownBlocking: engine.notShownBlocking + libraryNotShownBlocking,
-    notShownBlockingByGroup: { solve: engine.notShownBlockingByGroup.solve, slots: engine.notShownBlockingByGroup.slots, library: libraryNotShownBlocking },
-    ...(libraryNotCompleted === undefined ? {} : { libraryNotCompleted })
+    notShown: { solve: engine.notShown.solve, slots: engine.notShown.slots, library: library.notShown },
+    notShownBlocking: engine.notShownBlocking + library.notShownBlocking,
+    notShownBlockingByGroup: { solve: engine.notShownBlockingByGroup.solve, slots: engine.notShownBlockingByGroup.slots, library: library.notShownBlocking },
+    engineBytes: engine.bytes,
+    ...(library.notCompleted === undefined ? {} : { libraryNotCompleted: library.notCompleted })
+  };
+}
+
+/** `run` with its library-reference group read again (the store published a
+ * change for the model, after the run): the engine's outcome, findings and
+ * counts stand as they are, the library group is collected anew within what the
+ * engine's findings leave of the report's bound, and showing it does not move
+ * focus. A run whose engine checks were not admitted reads no library findings,
+ * as `runModelChecks` reads none, and is returned unchanged. */
+export function withLibraryRefFindings(run: ModelCheckRun, libraryReferenceDiagnostics: () => readonly Diagnostic[]): ModelCheckRun {
+  if (run.solve.kind === "unavailable") return run;
+  const library = collectLibraryFindings(libraryReferenceDiagnostics, MODEL_CHECKS_MAX_RESPONSE_BYTES - (run.engineBytes ?? 0));
+  const { libraryNotCompleted: _earlier, ...standing } = run;
+  return {
+    ...standing,
+    findings: [...run.findings.filter((finding) => finding.group !== "library"), ...groupFindings(run.model, "library", library.listed)],
+    notShown: { ...run.notShown, library: library.notShown },
+    notShownBlocking: run.notShownBlockingByGroup.solve + run.notShownBlockingByGroup.slots + library.notShownBlocking,
+    notShownBlockingByGroup: { ...run.notShownBlockingByGroup, library: library.notShownBlocking },
+    focusSummary: false,
+    ...(library.notCompleted === undefined ? {} : { libraryNotCompleted: library.notCompleted })
   };
 }

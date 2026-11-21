@@ -38,12 +38,16 @@ export function ModelChecksPanel({
   const summaryRef = useRef<HTMLParagraphElement>(null);
   const listRef = useRef<HTMLOListElement>(null);
   const titleId = useId();
-  // A new run moves keyboard focus to its outcome, which is announced; showing
-  // an earlier run again (the drawer reopened) does not.
+  // A new run the person or a Solve request asked for moves keyboard focus to
+  // its outcome; every new run is announced (the summary is a polite live
+  // region). A run the session published by itself (`focusSummary: false`: the
+  // automatic check, a refresh of the library-reference findings) leaves focus
+  // where it is, an editor's field say, and showing an earlier run again (the
+  // drawer reopened) does not move it either.
   useEffect(() => {
     if (run === null || announcedRuns.has(run)) return;
     announcedRuns.add(run);
-    summaryRef.current?.focus();
+    if (run.focusSummary !== false) summaryRef.current?.focus();
   }, [run]);
 
   const grouped = useMemo(() => GROUP_ORDER.map((group) => [group, run?.findings.filter((item) => item.group === group) ?? []] as const), [run]);

@@ -91,6 +91,21 @@ describe("ModelChecksPanel", () => {
     expect(screen.queryByTestId("model-checks-stale")).toBeNull();
   });
 
+  it("announces a run the session published by itself without taking focus from an editor", () => {
+    const view = render(<><input aria-label="Invented editor field" /><ModelChecksPanel model={model} run={null} onRun={() => {}} onSelectEntity={() => {}} /></>);
+    const editor = screen.getByRole("textbox", { name: "Invented editor field" });
+    editor.focus();
+    const automatic: ModelCheckRun = { ...run, focusSummary: false };
+    view.rerender(<><input aria-label="Invented editor field" /><ModelChecksPanel model={model} run={automatic} onRun={() => {}} onSelectEntity={() => {}} /></>);
+    const summary = screen.getByTestId("model-checks-summary");
+    expect(summary).toHaveAttribute("aria-live", "polite");
+    expect(summary).toHaveTextContent("3 findings: 1 blocking or error, 2 warnings, 0 info.");
+    expect(document.activeElement).toBe(editor);
+    // A run the person asked for moves focus to its outcome.
+    view.rerender(<><input aria-label="Invented editor field" /><ModelChecksPanel model={model} run={{ ...run, focusSummary: true }} onRun={() => {}} onSelectEntity={() => {}} /></>);
+    expect(document.activeElement).toBe(summary);
+  });
+
   it("marks a run of an earlier model as out of date and states when the solve's checks did not run", () => {
     const edited = { diagnostics: [] } as unknown as PreviewModel;
     render(<ModelChecksPanel model={edited} run={{ ...run, solve: { kind: "refused", refusal: "INVENTED_REFUSAL: text" }, findings: run.findings.filter((item) => item.group !== "solve") }} onRun={() => {}} onSelectEntity={() => {}} />);
