@@ -309,14 +309,14 @@ async function libraryReferenceWarnings(model: PreviewModel): Promise<string> {
 // Diagnostics generations must not repeat across real same-page App remounts.
 let nextUiModelPublicationGeneration = 0;
 
-/** C1 slice 5: a native save's small reply as the session adopts a write. The model and editor
- * intents are the request's own (the store hashed the stored model natively and the reply names it
- * by that hash, which the session checks); the stored result and record are not sent back, so the
- * adopted envelope holds none. */
 /** Generate's completion when the session moved on while it ran (issue 519 review): the proposal is
  * dropped, never shown on another project or model revision. */
 export const GENERATED_PROPOSAL_SUPERSEDED = "The generated review proposal was not shown, because the project or its model changed while it was generated. Generate it again for the model now open.";
 
+/** C1 slice 5: a native save's small reply as the session adopts a write. The model and editor
+ * intents are the request's own (the store hashed the stored model natively and the reply names it
+ * by that hash, which the session checks); the stored result and record are not sent back, so the
+ * adopted envelope holds none. */
 function adoptNativeSave(reply: NativeProjectSave, model: PreviewModel, editorIntents: EditorOperationIntent[]): WrittenProjectEnvelope {
   return {
     summary: reply.summary,
