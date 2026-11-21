@@ -12,6 +12,7 @@
  * preview-physics-2 result is the control: its outputs are unchanged. Unit rendering over
  * committed producer bytes and records; all inputs are invented. */
 import { render, screen, cleanup } from "@testing-library/react";
+import { openExportStep } from "../export-step/openExportStep";
 import { afterEach, describe, expect, it } from "vitest";
 import { readFileSync } from "node:fs";
 import { resolve } from "node:path";
@@ -314,6 +315,7 @@ describe("identifier-only downloads are not gated and carry no result values", (
     expect(JSON.stringify(changed)).toBe(JSON.stringify(base));
     render(<ReviewGeometryPanel model={model} result={result} analysisRun={analysisRun} />);
     expect(screen.queryByTestId("review-geometry-load-reference-output-unavailable")).toBeNull();
+    await openExportStep("review-geometry");
     expect(screen.getByTestId("review-geometry-export-link")).toBeTruthy();
   });
   it.each(STATES)("%s: diff preview and review ledger packets are invariant under every AnalysisRun value", async (_id, make) => {

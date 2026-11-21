@@ -15,7 +15,7 @@
  * comparison (a C2 consumer) is built once its full copy is requested, and the panel reads that
  * copy, as the app's comparisons gate passes it; the other surfaces read the native result.
  * Unit transport replay; NOT a native UI qualification witness. All inputs are invented. */
-import { act, cleanup, render, renderHook, screen, waitFor, within } from "@testing-library/react";
+import { act, cleanup, fireEvent, render, renderHook, screen, waitFor, within } from "@testing-library/react";
 import { afterEach, describe, expect, it, vi } from "vitest";
 const invokeMock = vi.hoisted(() => vi.fn());
 vi.mock("@tauri-apps/api/core", async () => ({ invoke: (await import("../../test/nativeIngress")).ingressDecodingInvoke(invokeMock) }));
@@ -163,8 +163,13 @@ describe.each(CASES)("an eligible pressure-2 %s Current result reaches the Curre
 
     // ReviewGeometryPanel: one glTF review download, which names the result by run_id only.
     const reviewView = render(<ReviewGeometryPanel model={model!} result={result} analysisRun={analysisRun} />);
-    const link = within(reviewView.container).getByTestId("review-geometry-export-link");
-    expect(reviewView.container.querySelectorAll("[data-testid$='-export-link']")).toHaveLength(1);
+    // The download is in the step between the row's button and the save.
+    expect(reviewView.container.querySelectorAll("[data-testid$='-export-link']")).toHaveLength(0);
+    fireEvent.click(within(reviewView.container).getByTestId("review-geometry-open"));
+    const reviewStep = screen.getByTestId("review-geometry-step");
+    expect(reviewStep).toHaveAttribute("role", "dialog");
+    const link = within(reviewStep).getByTestId("review-geometry-export-link");
+    expect(reviewStep.querySelectorAll("[data-testid$='-export-link']")).toHaveLength(1);
     const packet = buildReviewGeometryPacket({ model: model!, result, analysisRun });
     // The link exposes its data href only after the user's explicit local intent; when
     // exposed, it is exactly this packet.

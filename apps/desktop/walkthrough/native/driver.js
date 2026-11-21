@@ -382,12 +382,46 @@
     });
   }
 
-  // C. The Exports page after the solve, top to foot.
+  // C. The Exports page after the solve, top to foot; then each export's step between its row's button and its save
+  // (DEL-07-12), opened from the row, scrolled to its end with its save control in view, and closed. Nothing is saved.
+  const EXPORT_STEPS = [
+    ["result-export", "Result Export"], ["stress-neutral", "Stress-neutral CSV/JSON"], ["pcf-export", "Conservative PCF Export"],
+    ["review-geometry", "Review Geometry Export"], ["local-fea", "Local FEA Handoff"]
+  ];
   async function exportsPage(journey) {
     await journey.step("run", "Run pressed on the demonstration model", pressRun);
     await journey.step("solved", "The solve, once it ended", awaitSolve);
     await journey.step("exports-page", "The Exports page, from the View menu", async () => { await closeOverlays(); await showSection("exports"); });
     await journey.scrolled("exports-page", "The Exports page", 10);
+    for (const [prefix, name] of EXPORT_STEPS) {
+      await journey.step(`step-${prefix}`, `${name}: its step, opened from the row's button`, async () => {
+        // A result export's record is read once the section shows; its button is enabled once the record is there.
+        await waitFor(`${name}'s button enabled`, () => { const item = byTestId(`${prefix}-open`); return item && !item.disabled ? item : null; }, T.ui).catch(() => null);
+        await press(`${prefix}-open`);
+        await waitFor(`${name}'s step`, () => visible(byTestId(`${prefix}-step`)), T.ui);
+      });
+      await journey.step(`step-${prefix}-end`, `${name}: its step, scrolled to its end, with its save in view`, async () => {
+        const record = byTestId(`${prefix}-step`)?.querySelector(".export-step-record");
+        if (!record) throw new Error(`${name}'s step shows no record`);
+        record.scrollTop = record.scrollHeight;
+        await sleep(100);
+        const saves = byTestId(`${prefix}-step-saves`);
+        return saves ? `${saves.querySelectorAll("button, a").length} save control(s) in the step` : "the step shows no save control";
+      });
+      if (journey.broken) return;
+      await press(`${prefix}-step-close`);
+    }
+    await journey.step("step-mbf", "Model batch file: Export MBF…, its dialog", async () => {
+      await press("caepipe-mbf-export");
+      await waitFor("the Export MBF dialog", () => visible(byTestId("mbf-export-dialog")), T.ui);
+      // The native review runs; its outcome, or its refusal, is what the dialog shows.
+      await waitFor("the review's outcome", () => !byTestId("mbf-export-review-running") && byTestId("mbf-export-review")?.textContent?.trim(), T.step).catch(() => null);
+    });
+    await journey.step("step-mbf-end", "Model batch file: its dialog scrolled to its end, with its save in view", async () => {
+      const dialog = byTestId("mbf-export-dialog");
+      await scrollTo(byTestId("mbf-export-save") ?? dialog, "end");
+    });
+    if (!journey.broken) await press("mbf-export-cancel");
   }
 
   // A prepared project (run.mjs JOURNEYS `place` and `open`): the files were placed in the home before the app

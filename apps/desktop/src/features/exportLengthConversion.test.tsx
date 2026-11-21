@@ -4,7 +4,7 @@
 // conversion. Expected millimetres are hand-computed from the invented inputs. The .mbf
 // export's TypeScript builder is retired (DEL-17-04 A-6, slice 4b.2b): the native writer
 // owns the MBF's unit arithmetic.
-import { render, screen, within } from "@testing-library/react";
+import { fireEvent, render, screen, within } from "@testing-library/react";
 import { describe, expect, it } from "vitest";
 import demoModelFixture from "../../../../fixtures/product_preview/invented_demo_model.json";
 import type { PreviewModel } from "../types";
@@ -84,6 +84,14 @@ function witness(packet: { conversion_witnesses: Array<{ witness_id: string }> }
   };
 }
 
+/** The PCF export's step, opened from its row's button; asserted open before a check reads inside it. */
+function pcfStep(): HTMLElement {
+  fireEvent.click(screen.getByTestId("pcf-export-open"));
+  const step = screen.getByTestId("pcf-export-step");
+  expect(step).toHaveAttribute("role", "dialog");
+  return step;
+}
+
 function downloadedPackage(panel: HTMLElement, testId: string) {
   const href = within(panel).getByTestId(testId).getAttribute("href");
   expect(href).toBeTruthy();
@@ -137,7 +145,11 @@ describe.each([
 
   it("the downloadable package carries the true factor through the real export control", () => {
     render(<PcfExportPanel model={input()} result={null} analysisRun={null} />);
-    const pcfPackage = downloadedPackage(screen.getByTestId("pcf-export-panel"), "pcf-export-link");
+    // The save controls are in the page only while the step is open.
+    expect(screen.getByTestId("pcf-export-open")).toBeEnabled();
+    expect(screen.queryByTestId("pcf-export-link")).toBeNull();
+    expect(screen.queryByTestId("pcf-text-link")).toBeNull();
+    const pcfPackage = downloadedPackage(pcfStep(), "pcf-export-link");
     expect(witness(pcfPackage, "pcf-conversion:node-n-110:position:x").conversion_factor_to_target).toBe(factor);
   });
 });
@@ -171,7 +183,7 @@ describe("PCF section quantities convert by their own units", () => {
     expect(packet.diagnostics.map((item) => item.code)).not.toContain(PCF_LENGTH_UNIT_UNSUPPORTED);
 
     render(<PcfExportPanel model={input} result={null} analysisRun={null} />);
-    const downloaded = downloadedPackage(screen.getByTestId("pcf-export-panel"), "pcf-export-link");
+    const downloaded = downloadedPackage(pcfStep(), "pcf-export-link");
     expect(witness(downloaded, "pcf-conversion:pipe-p-120:outside_diameter").conversion_factor_to_target).toBe(factor);
     expect(witness(downloaded, "pcf-conversion:pipe-p-120:wall_thickness").conversion_factor_to_target).toBe(factor);
   });
@@ -206,7 +218,11 @@ describe("a length with no routine exact conversion is refused by name", () => {
     const status = within(panel).getByTestId("pcf-export-length-unit-refused");
     expect(status).toHaveTextContent(PCF_LENGTH_UNIT_UNSUPPORTED);
     named.forEach((text) => expect(status).toHaveTextContent(text));
-    expect(within(panel).getByTestId("pcf-export-summary")).toHaveTextContent(/^refused;/);
+    // The refused package's record is in the step, which offers no save.
+    const step = pcfStep();
+    expect(within(step).getByTestId("pcf-export-summary")).toHaveTextContent(/^refused;/);
+    expect(within(step).queryByTestId("pcf-export-link")).toBeNull();
+    expect(within(step).queryByTestId("pcf-text-link")).toBeNull();
     return packet;
   }
 

@@ -11,7 +11,8 @@
  *   the product's manifest builder refuses it; the product flow is B8's native witness.
  * - The negative and multi-case controls. Unit tests over mocked IPC only: NOT a native
  *   witness, and no producer-origin claim (D-U7-6). */
-import { cleanup, render, screen } from "@testing-library/react";
+import { cleanup, render, screen, within } from "@testing-library/react";
+import { openExportStep } from "../export-step/openExportStep";
 import { afterEach, describe, expect, it, vi } from "vitest";
 import { createHash } from "node:crypto";
 import { readFileSync } from "node:fs";
@@ -214,8 +215,10 @@ describe.each(MODES)("%s: the Current builder and panel export an eligible succe
   it("the panel offers the local result JSON, with its summary line", async () => {
     const { received, model, analysisRun, inputManifest } = await eligible(mode);
     render(<ResultExportPanel model={model} result={received} analysisRun={analysisRun} inputManifest={inputManifest} />);
-    expect((await screen.findByTestId("result-export-summary", undefined, { timeout: 10_000 })).textContent).toContain(`available; rows=${GOLDEN[mode].rows - 69 - 15 - 12 - GOLDEN[mode].nonQuantity}`);
-    expect(screen.getByTestId("result-export-retained-precision-summary").textContent).toBe("Retained precision, per case: case: 69 verified only to an absolute bound; 27 uncovered.");
+    // The summary line and the result's notices are in the step between the row's button and the save.
+    const step = await openExportStep("result-export", 10_000);
+    expect((await within(step).findByTestId("result-export-summary", undefined, { timeout: 10_000 })).textContent).toContain(`available; rows=${GOLDEN[mode].rows - 69 - 15 - 12 - GOLDEN[mode].nonQuantity}`);
+    expect(within(step).getByTestId("result-export-retained-precision-summary").textContent).toBe("Retained precision, per case: case: 69 verified only to an absolute bound; 27 uncovered.");
     cleanup();
     // A moved model is not the live capture: the panel refuses with the standing's code.
     render(<ResultExportPanel model={moved(model)} result={received} analysisRun={analysisRun} inputManifest={inputManifest} />);

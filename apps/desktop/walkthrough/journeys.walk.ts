@@ -18,6 +18,8 @@ import {
   showModelTree
 } from "../e2e/workspace-driver";
 import { Journey } from "./recorder";
+import { readFileSync } from "node:fs";
+import path from "node:path";
 
 const INVENTED = "invented_walkthrough_input";
 // The parts of the screen a person reads when they are not the tallest scrolling region.
@@ -325,5 +327,65 @@ test("08 save, close and resume (DEL-07-06 AC-007)", async ({ page }) => {
   await journey.step("list-local", "File > List Local Projects", async () => { await menu(page, "file", "file.list-local"); });
   await journey.step("reopened", "The application opened again in the same browser", async () => { await open(page); });
   await journey.step("open-local", "File > Open Local Project", async () => { await menu(page, "file", "file.open-local"); });
+  journey.finish();
+});
+
+// The Exports page (DEL-07-12): each export's row at rest, and the step between its button and its save, opened
+// from the row's button and scrolled to its end. An export whose button is disabled says why in its row; it is
+// pictured there, and its step is not reached.
+const EXPORTS: ReadonlyArray<[string, string]> = [
+  ["result-export", "Result Export"], ["stress-neutral", "Stress-neutral CSV/JSON"], ["pcf-export", "Conservative PCF Export"],
+  ["review-geometry", "Review Geometry Export"], ["local-fea", "Local FEA Handoff"]
+];
+
+async function exportSteps(page: Page, journey: Journey): Promise<void> {
+  for (const [prefix, name] of EXPORTS) {
+    const button = page.getByTestId(`${prefix}-open`);
+    if (await button.count() === 0) {
+      await journey.step(`row-${prefix}`, `${name}: its row`, async () => "this row has no button that opens a step");
+      continue;
+    }
+    if (await button.isDisabled()) {
+      await journey.step(`row-${prefix}`, `${name}: its row`, async () => {
+        await button.scrollIntoViewIfNeeded();
+        const reason = await button.getAttribute("aria-describedby");
+        return `its button is disabled, "${reason ? await page.locator(`[id="${reason}"]`).innerText() : "no reason given"}"`;
+      });
+      continue;
+    }
+    await journey.step(`step-${prefix}`, `${name}: its step, opened from the row's button`, async () => {
+      await button.click();
+      await expect(page.getByTestId(`${prefix}-step`)).toBeVisible();
+    });
+    await journey.step(`step-${prefix}-end`, `${name}: its step, scrolled to its end`, async () => {
+      await page.getByTestId(`${prefix}-step`).locator(".export-step-record").evaluate((element) => { element.scrollTop = element.scrollHeight; });
+    });
+    await page.keyboard.press("Escape");
+    await expect(page.getByTestId(`${prefix}-step`)).toHaveCount(0);
+  }
+}
+
+test("09 exports: each export's row and the step before its save (DEL-07-12)", async ({ page }) => {
+  const journey = new Journey(page, 9, "exports", "Exports: the page at rest, and each export's step between its button and its save");
+  await open(page);
+  await journey.step("page", "The Exports page at rest, from the View menu", async () => { await openWorkspaceSection(page, "exports"); });
+  await journey.scrolled("page", "The Exports page", 10);
+  await page.getByTestId("workspace-section-exports").evaluate((element) => { element.scrollIntoView({ block: "start" }); });
+  await exportSteps(page, journey);
+  journey.finish();
+});
+
+// The browser build cannot remove a project unit, so this journey is served the demonstration model without its
+// length unit: the one substitution, named in its title. The PCF export refuses by name; nothing is written.
+test("10 exports with a missing unit: the row refused by name (DEL-07-12 AC-009)", async ({ page }) => {
+  const journey = new Journey(page, 10, "exports-missing-unit", "Exports with a missing unit: the demonstration model served without project.units.length (a substitution: the browser build cannot remove a unit)");
+  const fixture = JSON.parse(readFileSync(path.resolve(import.meta.dirname, "../../../fixtures/product_preview/invented_demo_model.json"), "utf8"));
+  delete fixture.project.units.length;
+  await page.route(/invented_demo_model\.json/, (route) => route.fulfill({ status: 200, contentType: "text/javascript", body: `export default ${JSON.stringify(fixture)};\n` }));
+  await open(page);
+  await journey.step("page", "The Exports page with the length unit missing", async () => { await openWorkspaceSection(page, "exports"); });
+  await journey.step("pcf-row", "The PCF export's row: the refusal by name, its button disabled", async () => {
+    await page.getByTestId("pcf-export-panel").scrollIntoViewIfNeeded();
+  });
   journey.finish();
 });

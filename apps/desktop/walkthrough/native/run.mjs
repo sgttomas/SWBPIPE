@@ -19,7 +19,7 @@
 //                          Render (local private), the preview, Save Shareable Report Package… to its release dialog
 //                          and its Cancel, Save Report Package… answered by the queued chooser, the outcome list.
 //                          Print is not pressed.
-//   exports            22  Solved, then the Exports page, top to foot.
+//   exports            22  Solved, then the Exports page, top to foot, and each export's step before its save.
 //   reference-system   23  Named alone (its solve is long, as evidence-journeys.mjs keeps it apart): File > Open Model
 //                          Document… of the reference system fixture, Run, the standing, the health line, Results,
 //                          Report.
@@ -89,8 +89,8 @@ export const JOURNEYS = Object.freeze({
     use_case: "DEL-07-06 AC-007 Blank to released report, in part: from the solve of the demonstration model to a saved local-private package; the release is cancelled and Print is not pressed"
   },
   exports: {
-    number: 22, title: "Exports (launched app): the Exports page after the solve, top to foot",
-    use_case: "DEL-07-06 AC-007 Review and export results, in part: the Exports page as a person meets it; nothing is exported"
+    number: 22, title: "Exports (launched app): the Exports page after the solve, top to foot, and each export's step before its save",
+    use_case: "DEL-07-06 AC-007 Review and export results, in part: the Exports page as a person meets it, and each export's step opened, read to its end and closed; nothing is exported"
   },
   "reference-system": {
     number: 23, title: "Reference system (launched app): opened as a model document, solved, its standing, health line, Results and Report",

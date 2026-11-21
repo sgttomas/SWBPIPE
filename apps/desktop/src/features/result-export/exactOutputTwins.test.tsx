@@ -23,7 +23,8 @@
  *
  * Unit transport replay of committed producer bytes through mocked IPC; NOT a native UI
  * qualification witness. No digest is pinned. */
-import { cleanup, render, screen, waitFor } from "@testing-library/react";
+import { cleanup, render, screen, waitFor, within } from "@testing-library/react";
+import { closeExportStep, openExportStep } from "../export-step/openExportStep";
 import { afterEach, describe, expect, it, vi } from "vitest";
 import { readFileSync, writeFileSync } from "node:fs";
 import { resolve } from "node:path";
@@ -312,11 +313,16 @@ describe("pressure-2 load/reference-state results: the Current builders equal th
     // The line names the published load cases: the Python record's, here.
     for (const ref of pythonRecord.analysis_run.load_basis_refs) expect(exportLine).toContain(ref.ref);
     const resultView = render(<ResultExportPanel model={props.model} result={props.result} analysisRun={props.analysisRun} inputManifest={props.inputManifest} />);
-    await screen.findByTestId("result-export-link", undefined, { timeout: 60_000 });
-    expect(screen.getByTestId("result-export-load-reference-disclosure").textContent).toBe(exportLine);
+    // The link and the disclosure line are in the step between the row's button and the save.
+    let step = await openExportStep("result-export", 60_000);
+    await within(step).findByTestId("result-export-link", undefined, { timeout: 60_000 });
+    expect(within(step).getByTestId("result-export-load-reference-disclosure").textContent).toBe(exportLine);
+    closeExportStep("result-export");
     const stressView = render(<StressNeutralExportPanel model={props.model} result={props.result} analysisRun={props.analysisRun} />);
-    await screen.findByTestId("stress-neutral-export-link", undefined, { timeout: 60_000 });
-    expect(screen.getByTestId("stress-neutral-load-reference-disclosure").textContent).toBe(packageLine);
+    step = await openExportStep("stress-neutral", 60_000);
+    await within(step).findByTestId("stress-neutral-export-link", undefined, { timeout: 60_000 });
+    expect(within(step).getByTestId("stress-neutral-load-reference-disclosure").textContent).toBe(packageLine);
+    closeExportStep("stress-neutral");
     for (const edit of [editedReference, editedState]) {
       const changed = edit(props.model);
       expect(hasNativeMechanicsInvocation(props.result, changed, input.mode)).toBe(false);
@@ -329,8 +335,10 @@ describe("pressure-2 load/reference-state results: the Current builders equal th
       await waitFor(() => expect(screen.getByTestId("result-export-empty").textContent).toContain("CURRENT_"));
       resultView.rerender(<ResultExportPanel model={props.model} result={props.result} analysisRun={props.analysisRun} inputManifest={props.inputManifest} />);
       stressView.rerender(<StressNeutralExportPanel model={props.model} result={props.result} analysisRun={props.analysisRun} />);
-      await screen.findByTestId("result-export-link", undefined, { timeout: 60_000 });
-      await screen.findByTestId("stress-neutral-export-link", undefined, { timeout: 60_000 });
+      await within(await openExportStep("result-export", 60_000)).findByTestId("result-export-link", undefined, { timeout: 60_000 });
+      closeExportStep("result-export");
+      await within(await openExportStep("stress-neutral", 60_000)).findByTestId("stress-neutral-export-link", undefined, { timeout: 60_000 });
+      closeExportStep("stress-neutral");
     }
   }, 240_000);
 
@@ -376,9 +384,12 @@ describe("plain exact results: the Current builders equal the committed plain tw
     const props = await solve(input.rawPath, input.requestPath, input.mode);
     const resultView = render(<ResultExportPanel model={props.model} result={props.result} analysisRun={props.analysisRun} inputManifest={props.inputManifest} />);
     const stressView = render(<StressNeutralExportPanel model={props.model} result={props.result} analysisRun={props.analysisRun} />);
-    await screen.findByTestId("result-export-link", undefined, { timeout: 60_000 });
-    await screen.findByTestId("stress-neutral-export-link", undefined, { timeout: 60_000 });
+    let step = await openExportStep("result-export", 60_000);
+    await within(step).findByTestId("result-export-link", undefined, { timeout: 60_000 });
     expect(screen.queryByTestId("result-export-load-reference-disclosure")).toBeNull();
+    closeExportStep("result-export");
+    step = await openExportStep("stress-neutral", 60_000);
+    await within(step).findByTestId("stress-neutral-export-link", undefined, { timeout: 60_000 });
     expect(screen.queryByTestId("stress-neutral-load-reference-disclosure")).toBeNull();
     const changed = editedNode(props.model);
     resultView.rerender(<ResultExportPanel model={changed} result={props.result} analysisRun={props.analysisRun} inputManifest={props.inputManifest} />);

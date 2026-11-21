@@ -114,6 +114,12 @@ function untilRendered<T>(read:()=>T|null|undefined):Promise<T>{
   observer.observe(document.body,{subtree:true,childList:true,attributes:true,characterData:true});check();
  }));
 }
+/** Opens the stress-neutral step from its row's button once the packet is offered (`untilRendered`, as the
+ * waits below), and asserts that it is open before any check reads inside it. */
+async function openStep():Promise<void>{
+ const button=await untilRendered(()=>{const element=screen.queryByTestId('stress-neutral-open') as HTMLButtonElement|null;return element&&!element.disabled?element:null;});
+ fireEvent.click(button);expect(screen.getByTestId('stress-neutral-step')).toHaveAttribute('role','dialog');
+}
 it('does not publish a delayed packet after its source result is replaced',async()=>{
  const first=await currentPrecision(),second=await currentPrecision("dense_scrutiny");
  const expected=await buildStressNeutralExportPacket(second);
@@ -125,6 +131,9 @@ it('does not publish a delayed packet after its source result is replaced',async
  const view=render(<StressNeutralExportPanel {...first}/>);await getConfig().asyncWrapper(()=>held);expect(calls).toBe(1);view.rerender(<StressNeutralExportPanel {...second}/>);
  // The second build, then the link's validation, can each outlast the default 1 s wait under
  // load (hosted run 39779582833), so these waits end on the rendered state instead.
+ // The save control is in the page only while the step is open.
+ await untilRendered(()=>screen.queryByTestId('stress-neutral-units'));expect(screen.queryByTestId('stress-neutral-export-link')).toBeNull();expect(screen.queryByTestId('stress-neutral-csv-link')).toBeNull();
+ await openStep();
  await untilRendered(()=>screen.queryByTestId('stress-neutral-state-binding'));fireEvent.click(screen.getByTestId('stress-neutral-export-link-local-private-intent'));
  await untilRendered(()=>/^data:application\/json/.test(screen.queryByTestId('stress-neutral-export-link')?.getAttribute('href')??'')||null);
  const href=screen.getByTestId('stress-neutral-export-link').getAttribute('href')!;
@@ -137,10 +146,12 @@ it('saves native stress JSON after validation and intent and invalidates a pendi
  const first=await currentPrecision(),second=await currentPrecision("dense_scrutiny");
  let finishOld!:(value:any)=>void;vi.mocked(saveNativeResultJson).mockImplementationOnce(()=>new Promise(resolve=>{finishOld=resolve;}));
  const view=render(<StressNeutralExportPanel {...first}/>);
+ await openStep();
  const firstButton=await screen.findByRole('button',{name:/Package JSON/},{timeout:10_000});expect(firstButton).toBeDisabled();expect(saveNativeResultJson).not.toHaveBeenCalled();
  fireEvent.click(screen.getByTestId('stress-neutral-export-link-local-private-intent'));await waitFor(()=>expect(firstButton).toBeEnabled(),{timeout:10_000});fireEvent.click(firstButton);
  expect(saveNativeResultJson).toHaveBeenCalledTimes(1);const firstRequest=vi.mocked(saveNativeResultJson).mock.calls[0][0];expect(firstRequest.screening.route_id).toBe('DOTH-FORMAT-003');expect(firstRequest.file_name).toMatch(/^openpipestress-preview-stress-neutral-[a-z0-9-]+\.json$/);expect(firstRequest.local_first.route_id).toBe('DOTH-FORMAT-003');
- view.rerender(<StressNeutralExportPanel {...second}/>);await waitFor(()=>expect(screen.getByTestId('stress-neutral-summary')).toHaveTextContent(`rows=${second.result.results.length}`),{timeout:10_000});
+ // The replaced source retires the step that showed the first packet; the second is reviewed in its own.
+ view.rerender(<StressNeutralExportPanel {...second}/>);expect(screen.queryByTestId('stress-neutral-step')).toBeNull();await openStep();await waitFor(()=>expect(screen.getByTestId('stress-neutral-summary')).toHaveTextContent(`rows=${second.result.results.length}`),{timeout:10_000});
  const secondButton=screen.getByRole('button',{name:/Package JSON/});expect(secondButton).toBeDisabled();
  await act(async()=>{finishOld({outcome:'saved',file_name:firstRequest.file_name,byte_count:10,replaced_existing:false,durability:'not_guaranteed',path_containment:'best_effort_non_adversarial'});});expect(screen.getByTestId('stress-neutral-export-link-native-save-status')).toBeEmptyDOMElement();
  expect(saveNativeResultJson).toHaveBeenCalledTimes(1);expect(secondButton).not.toHaveAttribute('href');
@@ -462,6 +473,7 @@ it.each(['json','csv'] as const)('rechecks source and analysis contents at %s ac
   const id=route==='json'?'stress-neutral-export-link':'stress-neutral-csv-link';
   // The packet build, then the link's validation, can outlast a 1 s wait under load, so
   // these waits end on the rendered state (`untilRendered`, as the delayed-packet test).
+  await openStep();
   if(route==='json'){await untilRendered(()=>view.queryByTestId(`${id}-local-private-intent`));fireEvent.click(view.getByTestId(`${id}-local-private-intent`));}
   const link=await untilRendered(()=>{const element=view.queryByTestId(id);
    return element&&element.tagName===(route==='json'?'BUTTON':'SPAN')&&(route==='json'?!(element as HTMLButtonElement).disabled:element.getAttribute('aria-disabled')==='true')?element:null;});

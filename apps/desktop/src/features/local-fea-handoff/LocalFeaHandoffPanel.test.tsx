@@ -12,6 +12,7 @@ import { render, screen, within } from "@testing-library/react";
 import { describe, expect, it } from "vitest";
 import type { AnalysisRunEnvelope, MechanicsResult, PreviewModel } from "../../types";
 import { LocalFeaHandoffPanel, buildLocalFeaHandoffPacket } from "./LocalFeaHandoffPanel";
+import { openExportStep } from "../export-step/openExportStep";
 
 function inventedModel(): PreviewModel {
   return {
@@ -100,7 +101,7 @@ function exportedPacket(): string {
 }
 
 describe("LocalFeaHandoffPanel result-summary boundary hygiene", () => {
-  it("emits an explicit incomplete-state finding instead of invented entity references when summary location refs are missing", () => {
+  it("emits an explicit incomplete-state finding instead of invented entity references when summary location refs are missing", async () => {
     render(
       <LocalFeaHandoffPanel
         model={inventedModel()}
@@ -109,7 +110,9 @@ describe("LocalFeaHandoffPanel result-summary boundary hygiene", () => {
       />
     );
 
-    const panel = screen.getByTestId("local-fea-panel");
+    // The save control is in the page only while the step is open; the record and the save are in the step.
+    expect(screen.queryByTestId("local-fea-export-link")).toBeNull();
+    const panel = await openExportStep("local-fea");
     const region = within(panel).getByTestId("local-fea-region").textContent ?? "";
     expect(region).toContain("local-region:stress-location-ref-missing:displacement-location-ref-missing");
     expect(region).toContain("nodes=0");
@@ -127,7 +130,7 @@ describe("LocalFeaHandoffPanel result-summary boundary hygiene", () => {
     expect(packet).not.toContain("node:N-140");
   });
 
-  it("keeps the standing four findings and real references when the summary carries location refs", () => {
+  it("keeps the standing four findings and real references when the summary carries location refs", async () => {
     render(
       <LocalFeaHandoffPanel
         model={inventedModel()}
@@ -139,7 +142,7 @@ describe("LocalFeaHandoffPanel result-summary boundary hygiene", () => {
       />
     );
 
-    const panel = screen.getByTestId("local-fea-panel");
+    const panel = await openExportStep("local-fea");
     const region = within(panel).getByTestId("local-fea-region").textContent ?? "";
     expect(region).toContain("local-region:pipe:P-1:node:N-2");
     expect(within(panel).getByTestId("local-fea-summary").textContent).toContain("diagnostics=4");
@@ -299,7 +302,7 @@ describe("Local FEA manifest result units agree with every referenced row", () =
     expect(packet.handoff_package.units_manifest.coordinate_unit).toBe(units.length);
   });
 
-  it("a stress row in another unit than the governing maximum is not referenced, and a non-blocking diagnostic names it", () => {
+  it("a stress row in another unit than the governing maximum is not referenced, and a non-blocking diagnostic names it", async () => {
     const result = inventedResult(GOVERNING, rows("Pa", "MPa"));
     const packet = buildLocalFeaHandoffPacket({ model: withUnits(SI), result, analysisRun: inventedAnalysisRun() });
     expect(packet.handoff_package.units_manifest.stress_unit).toBe("Pa");
@@ -312,6 +315,7 @@ describe("Local FEA manifest result units agree with every referenced row", () =
       `Result row ${TORSION} (MPa) is not referenced: this handoff declares stress_unit Pa, from the governing stress result, and references only stress rows in that unit; nothing is converted.`
     );
     render(<LocalFeaHandoffPanel model={withUnits(SI)} result={result} analysisRun={inventedAnalysisRun()} />);
+    await openExportStep("local-fea");
     expect(screen.getByTestId("local-fea-export-link")).toBeInTheDocument();
   });
 

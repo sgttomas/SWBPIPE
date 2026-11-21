@@ -111,7 +111,7 @@ nothing. A launch invocation builds nothing: anything stale refuses it by name.
 | --- | --- | --- |
 | `solve-and-results` | 20 | The bundled demonstration model: Run, the progress, the Results stage and each of its panels scrolled to its foot, the filter to a support's rows, a row chosen and its place in the viewport, Key results and each of its views, the Evidence tab, the Analyze page, the Issues drawer. |
 | `report` | 21 | Solved, then the Review stage, the Report tab, "Load for…" where offered, the composer, Render (local private), the preview, Save Shareable Report Package… to its release dialog and Cancel, Save Report Package… with its chooser answered inside the throwaway home, the outcome list. Print is not pressed. |
-| `exports` | 22 | Solved, then the Exports page, top to foot. |
+| `exports` | 22 | Solved, then the Exports page, top to foot; then each export's step between its button and its save, opened from its row, scrolled to its end with its save in view, and closed, and the model batch file's Export MBF… dialog the same way. Nothing is saved. |
 | `reference-system` | 23 | Named alone, for its long solve: File > Open Model Document… of the reference system fixture, Run, the standing, the health line, Results, Report. |
 | `prepared-project` | 24 | A model document placed in the throwaway home before launch, opened by File > Open Model Document…: the start other journeys build on. |
 

@@ -8,7 +8,8 @@
  * two-case bases, read by id. The policy's own tests are in
  * `../results/outputPolicy.test.ts`. Unit tests over mocked IPC only: NOT a native
  * witness (CQ-10 and CQ-11 keep that for B8). */
-import { cleanup, render, screen } from "@testing-library/react";
+import { cleanup, render, screen, within } from "@testing-library/react";
+import { openExportStep } from "../export-step/openExportStep";
 import { afterEach, describe, expect, it, vi } from "vitest";
 import { createHash } from "node:crypto";
 import { readFileSync } from "node:fs";
@@ -326,7 +327,8 @@ describe.each(MODES)("%s: stress-neutral export of an eligible successor (T6S-5)
   it("shows the package in the panel, and the specific standing reason otherwise", async () => {
     const { received, model, analysisRun } = await eligible(mode);
     render(<StressNeutralExportPanel model={model} result={received} analysisRun={analysisRun} />);
-    expect((await screen.findByTestId("stress-neutral-summary", undefined, { timeout: 10_000 })).textContent).toContain(`available; rows=${received.results.length}`);
+    const step = await openExportStep("stress-neutral", 10_000);
+    expect((await within(step).findByTestId("stress-neutral-summary", undefined, { timeout: 10_000 })).textContent).toContain(`available; rows=${received.results.length}`);
     expect(screen.queryByTestId("stress-neutral-load-reference-output-unavailable")).toBeNull();
     cleanup();
     render(<StressNeutralExportPanel model={moved(model)} result={received} analysisRun={analysisRun} />);

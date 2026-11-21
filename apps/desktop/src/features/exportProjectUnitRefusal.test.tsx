@@ -6,12 +6,13 @@
 // export's TypeScript builder and its MBF-PROJECT-UNIT-MISSING are retired (DEL-17-04 A-6,
 // slice 4b.2b): the native writer refuses units by name itself (MBF-SI-PROJECT-UNIT-UNSUPPORTED).
 // Invented data only.
-import { cleanup, render, screen, within } from "@testing-library/react";
+import { cleanup, fireEvent, render, screen, within } from "@testing-library/react";
 import { describe, expect, it } from "vitest";
 import demoModelFixture from "../../../../fixtures/product_preview/invented_demo_model.json";
 import type { AnalysisRunEnvelope, MechanicsResult, PreviewModel } from "../types";
 import { buildPcfExportPacket, PcfExportPanel, PCF_LENGTH_UNIT_UNSUPPORTED, PCF_PROJECT_UNIT_MISSING } from "./pcf-export/PcfExportPanel";
 import { LocalFeaHandoffPanel, localFeaHandoffRefusal } from "./local-fea-handoff/LocalFeaHandoffPanel";
+import { openExportStep } from "./export-step/openExportStep";
 
 const HARD_LOCK = "Re-author the model with a length unit; no fix is offered.";
 
@@ -58,6 +59,13 @@ describe("a missing length key: the project-unit refusal takes precedence over L
     expect(within(pcf).queryByTestId("pcf-export-length-unit-refused")).toBeNull();
     expect(within(pcf).queryByTestId("pcf-export-link")).toBeNull();
     expect(within(pcf).queryByTestId("pcf-text-link")).toBeNull();
+    // The step shows the refused package's record and the refusal in place of the save: nothing can be written.
+    fireEvent.click(within(pcf).getByTestId("pcf-export-open"));
+    const step = screen.getByTestId("pcf-export-step");
+    expect(step).toHaveAttribute("role", "dialog");
+    expect(within(step).getByTestId("pcf-export-step-refusal")).toHaveTextContent(`PCF export refused. ${PCF_PROJECT_UNIT_MISSING}: `);
+    expect(within(step).queryByTestId("pcf-export-link")).toBeNull();
+    expect(within(step).queryByTestId("pcf-text-link")).toBeNull();
   });
 
   it("with no nodes, a missing length is offered to be set, not the hard lock", () => {
@@ -113,9 +121,10 @@ describe("local FEA handoff: a missing project unit it writes is refused by name
     }
   });
 
-  it("with every key present, the handoff is offered", () => {
+  it("with every key present, the handoff is offered", async () => {
     expect(localFeaHandoffRefusal(model(), result)).toBeNull();
     render(<LocalFeaHandoffPanel model={model()} result={result} analysisRun={analysisRun} />);
+    await openExportStep("local-fea");
     expect(screen.getByTestId("local-fea-export-link")).toBeInTheDocument();
   });
 });

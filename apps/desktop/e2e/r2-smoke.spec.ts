@@ -703,10 +703,17 @@ test("R2 browser smoke covers authoring, explicit reference results, and qualifi
   // Private intent changes redaction permission, never missing Current evidence.
   await openWorkspaceSection(page, "exports");
   const pcfExport = page.getByLabel("Conservative PCF export");
-  await expect(pcfExport.getByTestId("pcf-export-conversion-witnesses")).toContainText("count=23");
-  await expect(pcfExport.getByTestId("pcf-export-conversion-witnesses")).toContainText(
+  // The record is in the step between the row's button and the save (DEL-07-12): no save while it is closed.
+  await expect(page.getByTestId("pcf-export-link")).toHaveCount(0);
+  await pcfExport.getByTestId("pcf-export-open").click();
+  const pcfStep = page.getByTestId("pcf-export-step");
+  await expect(pcfStep).toBeVisible();
+  await expect(pcfStep.getByTestId("pcf-export-conversion-witnesses")).toContainText("count=23");
+  await expect(pcfStep.getByTestId("pcf-export-conversion-witnesses")).toContainText(
     "target_length=MM"
   );
+  await pcfStep.getByTestId("pcf-export-step-close").click();
+  await expect(pcfStep).toHaveCount(0);
   // DEL-17-04 slice 4b.2b: the panel's preview builder and its conversion witnesses are retired (A-6); its one
   // action opens Export MBF…, whose native writer owns the MBF's unit conversions.
   const caepipeMbfExport = page.getByLabel("Model batch file (.mbf) export");

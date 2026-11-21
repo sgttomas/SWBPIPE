@@ -21,6 +21,7 @@ import { retiredMechanicsResult } from "../../test-support/retiredMechanicsResul
 import { afterEach, beforeAll, beforeEach, describe, expect, it, vi } from "vitest";
 import { createSolveJobTransport, resultArrayBuffer, solveBytes } from "../../test/nativeMechanicsReplay";
 import { cleanup, render, screen } from "@testing-library/react";
+import { openExportStep } from "../export-step/openExportStep";
 import { createHash } from "node:crypto";
 import { readFileSync } from "node:fs";
 import { resolve } from "node:path";
@@ -996,6 +997,7 @@ describe.each(MODES)("%s: the T6 panels gate a successor by an explicit policy e
     cleanup();
     // The admission: the captured model is the live capture, and the panel offers the packet.
     render(<ResultExportPanel model={model} result={received} analysisRun={analysisRun} inputManifest={manifest} />);
+    await openExportStep("result-export");
     expect((await screen.findByTestId("result-export-summary")).textContent).toContain("available");
   });
   it("stress-neutral: the live binding is closed for a moved model, whose panel shows the standing's refusal", async () => {

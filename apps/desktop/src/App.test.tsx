@@ -1403,50 +1403,55 @@ describe("SWBPIPE desktop preview", () => {
     const reviewGeometry = await screen.findByLabelText(
       "Review geometry export",
     );
+    // The row holds the unit line; the rest of the record and the save are in the step (DEL-07-12).
+    expect(within(reviewGeometry).queryByTestId("review-geometry-export-link")).toBeNull();
+    fireEvent.click(within(reviewGeometry).getByTestId("review-geometry-open"));
+    const reviewGeometryStep = screen.getByTestId("review-geometry-step");
+    expect(reviewGeometryStep).toHaveAttribute("role", "dialog");
     expect(
-      within(reviewGeometry).getByTestId("review-geometry-summary").textContent,
+      within(reviewGeometryStep).getByTestId("review-geometry-summary").textContent,
     ).toContain("available");
     expect(
-      within(reviewGeometry).getByTestId("review-geometry-summary").textContent,
+      within(reviewGeometryStep).getByTestId("review-geometry-summary").textContent,
     ).toContain("format=glTF_2_0_json_preview");
     expect(
-      within(reviewGeometry).getByTestId("review-geometry-summary").textContent,
+      within(reviewGeometryStep).getByTestId("review-geometry-summary").textContent,
     ).toContain("segments=4");
     expect(
-      within(reviewGeometry).getByTestId("review-geometry-summary").textContent,
+      within(reviewGeometryStep).getByTestId("review-geometry-summary").textContent,
     ).toContain("nodes=5");
     // C-120 fix: the demo model drops the tee component:C-120, one model entity fewer.
     expect(
-      within(reviewGeometry).getByTestId("review-geometry-summary").textContent,
+      within(reviewGeometryStep).getByTestId("review-geometry-summary").textContent,
     ).toContain("stable_ids=24");
     expect(
-      within(reviewGeometry).getByTestId("review-geometry-format").textContent,
+      within(reviewGeometryStep).getByTestId("review-geometry-format").textContent,
     ).toContain("asset=2.0");
     expect(
-      within(reviewGeometry).getByTestId("review-geometry-format").textContent,
+      within(reviewGeometryStep).getByTestId("review-geometry-format").textContent,
     ).toContain("units=m");
     expect(
-      within(reviewGeometry).getByTestId("review-geometry-state-binding")
+      within(reviewGeometryStep).getByTestId("review-geometry-state-binding")
         .textContent,
     ).toContain("not generated");
     expect(
-      within(reviewGeometry).getByTestId("review-geometry-state-binding")
+      within(reviewGeometryStep).getByTestId("review-geometry-state-binding")
         .textContent,
     ).toContain("state:TBD");
     expect(
-      within(reviewGeometry).getByTestId("review-geometry-coverage")
+      within(reviewGeometryStep).getByTestId("review-geometry-coverage")
         .textContent,
     ).toContain("pipe_segments");
     expect(
-      within(reviewGeometry).getByTestId("review-geometry-coverage")
+      within(reviewGeometryStep).getByTestId("review-geometry-coverage")
         .textContent,
     ).toContain("supports");
     expect(
-      within(reviewGeometry).getByTestId("review-geometry-coverage")
+      within(reviewGeometryStep).getByTestId("review-geometry-coverage")
         .textContent,
     ).toContain("load_cases");
     expect(
-      within(reviewGeometry).getByTestId("review-geometry-stable-ids")
+      within(reviewGeometryStep).getByTestId("review-geometry-stable-ids")
         .textContent,
     ).toContain("sidecar=required");
     // C-120 fix: the demo model drops the tee component:C-120 and its 3 geometry quantities (run size, header size, connection angle).
@@ -1463,50 +1468,56 @@ describe("SWBPIPE desktop preview", () => {
         .textContent,
     ).toContain("target=m");
     expect(
-      within(reviewGeometry).getByTestId("review-geometry-boundary")
+      within(reviewGeometryStep).getByTestId("review-geometry-boundary")
         .textContent,
     ).toContain("visual_review_geometry_only");
     expect(
-      within(reviewGeometry).getByTestId("review-geometry-boundary")
+      within(reviewGeometryStep).getByTestId("review-geometry-boundary")
         .textContent,
     ).toContain("solver_geometry_equivalence=false");
     expect(
-      within(reviewGeometry)
+      within(reviewGeometryStep)
         .getByTestId("review-geometry-export-link")
         .getAttribute("href"),
     ).toBeNull();
     expect(
-      within(reviewGeometry).getByTestId(
+      within(reviewGeometryStep).getByTestId(
         "review-geometry-export-link-redaction-summary",
       ),
     ).toHaveTextContent("blocked=true");
+    fireEvent.click(within(reviewGeometryStep).getByTestId("review-geometry-step-close"));
+    expect(screen.queryByTestId("review-geometry-step")).toBeNull();
     const pcfExport = await screen.findByLabelText("Conservative PCF export");
+    expect(within(pcfExport).queryByTestId("pcf-export-link")).toBeNull();
+    fireEvent.click(within(pcfExport).getByTestId("pcf-export-open"));
+    const pcfExportStep = screen.getByTestId("pcf-export-step");
+    expect(pcfExportStep).toHaveAttribute("role", "dialog");
     expect(
-      within(pcfExport).getByTestId("pcf-export-summary").textContent,
+      within(pcfExportStep).getByTestId("pcf-export-summary").textContent,
     ).toContain("available");
     expect(
-      within(pcfExport).getByTestId("pcf-export-summary").textContent,
+      within(pcfExportStep).getByTestId("pcf-export-summary").textContent,
     ).toContain("segments=4");
     expect(
-      within(pcfExport).getByTestId("pcf-export-summary").textContent,
+      within(pcfExportStep).getByTestId("pcf-export-summary").textContent,
     ).toContain("nodes=5");
     expect(
-      within(pcfExport).getByTestId("pcf-export-summary").textContent,
+      within(pcfExportStep).getByTestId("pcf-export-summary").textContent,
     ).toContain("validation=blocked_missing_explicit_pcf_target_fields");
     expect(
-      within(pcfExport).getByTestId("pcf-export-profile").textContent,
+      within(pcfExportStep).getByTestId("pcf-export-profile").textContent,
     ).toContain("target_version=TBD");
     expect(
-      within(pcfExport).getByTestId("pcf-export-state-binding").textContent,
+      within(pcfExportStep).getByTestId("pcf-export-state-binding").textContent,
     ).toContain("not generated");
     expect(
-      within(pcfExport).getByTestId("pcf-export-state-binding").textContent,
+      within(pcfExportStep).getByTestId("pcf-export-state-binding").textContent,
     ).toContain("state:TBD");
     expect(
-      within(pcfExport).getByTestId("pcf-export-coverage").textContent,
+      within(pcfExportStep).getByTestId("pcf-export-coverage").textContent,
     ).toContain("pipe_segments");
     expect(
-      within(pcfExport).getByTestId("pcf-export-coverage").textContent,
+      within(pcfExportStep).getByTestId("pcf-export-coverage").textContent,
     ).toContain("nominal_size");
     expect(
       within(pcfExport).getByTestId("pcf-export-units").textContent,
@@ -1524,35 +1535,35 @@ describe("SWBPIPE desktop preview", () => {
       within(pcfExport).getByTestId("pcf-export-units").textContent,
     ).toContain("conversion=true");
     expect(
-      within(pcfExport).getByTestId("pcf-export-conversion-witnesses")
+      within(pcfExportStep).getByTestId("pcf-export-conversion-witnesses")
         .textContent,
     ).toContain("count=23");
     expect(
-      within(pcfExport).getByTestId("pcf-export-conversion-witnesses")
+      within(pcfExportStep).getByTestId("pcf-export-conversion-witnesses")
         .textContent,
     ).toContain("target_length=MM");
     expect(
-      within(pcfExport).getByTestId("pcf-export-package").textContent,
+      within(pcfExportStep).getByTestId("pcf-export-package").textContent,
     ).toContain("members=8");
     expect(
-      within(pcfExport).getByTestId("pcf-export-package").textContent,
+      within(pcfExportStep).getByTestId("pcf-export-package").textContent,
     ).toContain("stable_ids=4");
     expect(
-      within(pcfExport).getByTestId("pcf-export-package").textContent,
+      within(pcfExportStep).getByTestId("pcf-export-package").textContent,
     ).toContain("diagnostics=4");
     await waitFor(() =>
       expect(
-        within(pcfExport).getByTestId("pcf-export-package").textContent,
+        within(pcfExportStep).getByTestId("pcf-export-package").textContent,
       ).toContain("package_hash=computed_local_preview_sha256"),
     );
     expect(
-      within(pcfExport).getByTestId("pcf-export-boundary").textContent,
+      within(pcfExportStep).getByTestId("pcf-export-boundary").textContent,
     ).toContain("target_compatibility=false");
     expect(
-      within(pcfExport).getByTestId("pcf-export-boundary").textContent,
+      within(pcfExportStep).getByTestId("pcf-export-boundary").textContent,
     ).toContain("solver_validation=false");
     const pcfHref =
-      within(pcfExport).getByTestId("pcf-export-link").getAttribute("href") ??
+      within(pcfExportStep).getByTestId("pcf-export-link").getAttribute("href") ??
       "";
     const pcfPacket = JSON.parse(decodeURIComponent(pcfHref.split(",", 2)[1]));
     expect(pcfPacket.document_kind).toBe("[REDACTED]");
@@ -1624,7 +1635,7 @@ describe("SWBPIPE desktop preview", () => {
     );
     expect(pcfPacket.pcf_text).toBe("[REDACTED]");
     expect(
-      within(pcfExport).getByTestId("pcf-text-link").getAttribute("href"),
+      within(pcfExportStep).getByTestId("pcf-text-link").getAttribute("href"),
     ).toBeNull();
     expect(pcfPacket.stable_id_map).toHaveLength(4);
     expect(pcfPacket.loss_report).toHaveLength(6);
@@ -1653,6 +1664,8 @@ describe("SWBPIPE desktop preview", () => {
     expect(pcfPacket.solver_validation_claim).toBe("[REDACTED]");
     expect(pcfPacket.code_compliance_claim).toBe("[REDACTED]");
     expect(pcfPacket.professional_reliance_claim).toBe("[REDACTED]");
+    fireEvent.click(within(pcfExportStep).getByTestId("pcf-export-step-close"));
+    expect(screen.queryByTestId("pcf-export-step")).toBeNull();
     // DEL-17-04 slice 4b.2b: the Model batch file panel's one action opens the mounted Export MBF… dialog. The
     // TypeScript preview builder, its package and MBF text links and its summary are retired (A-6). In the browser
     // preview the review declines with MBF-REVIEW-NATIVE-ONLY before anything reaches the native export, and Save
@@ -8785,8 +8798,14 @@ describe("SWBPIPE desktop preview", () => {
     expect(await renderedReportButtonReady()).toBeEnabled();
     // The export panel reads the native result's C2 full copy when its section opens.
     const exportPanel = await within(openWorkspaceSection("exports")).findByLabelText("Result export audit");
-    await within(exportPanel).findByTestId("result-export-summary");
-    expect(within(exportPanel).getByTestId("result-export-link")).not.toHaveAttribute("href");
+    // The record and the save are in the step between the row's button and the save (DEL-07-12).
+    await waitFor(() => expect(within(exportPanel).getByTestId("result-export-open")).toBeEnabled());
+    expect(within(exportPanel).queryByTestId("result-export-link")).toBeNull();
+    fireEvent.click(within(exportPanel).getByTestId("result-export-open"));
+    const exportStep = screen.getByTestId("result-export-step");
+    expect(exportStep).toHaveAttribute("role", "dialog");
+    await within(exportStep).findByTestId("result-export-summary");
+    expect(within(exportStep).getByTestId("result-export-link")).not.toHaveAttribute("href");
     // Native runtime renders a save button. Inspect the real screened request
     // sent to the mocked save seam, not a nonexistent browser download href.
     const saveRequests: NativeResultSaveRequest[] = [];
@@ -8798,8 +8817,8 @@ describe("SWBPIPE desktop preview", () => {
       }
       return pair.replay.invoke(command, args, options);
     });
-    fireEvent.click(within(exportPanel).getByTestId("result-export-link-local-private-intent"));
-    const saveButton = within(exportPanel).getByTestId("result-export-link");
+    fireEvent.click(within(exportStep).getByTestId("result-export-link-local-private-intent"));
+    const saveButton = within(exportStep).getByTestId("result-export-link");
     expect(saveButton.tagName).toBe("BUTTON");
     fireEvent.click(saveButton);
     await waitFor(() => expect(saveRequests).toHaveLength(1));
@@ -8808,6 +8827,8 @@ describe("SWBPIPE desktop preview", () => {
     expect(packet.schema_version).toBe("0.3.0");
     expect(packet.result_envelope.row_accounting).toHaveLength(pair.source.results.length);
     expect(packet.result_envelope.producer).toEqual(pair.source.producer);
+    fireEvent.click(within(exportStep).getByTestId("result-export-step-close"));
+    expect(screen.queryByTestId("result-export-step")).toBeNull();
     // Inspection first retains the native result, then loads the bundled reference and publishes it only if its
     // generation is still current. On hosted runners that path takes longer than the default 1 s query, so wait
     // for the inspection's own reference load (a call-through spy) to settle, then query as before. If inspection
@@ -13048,6 +13069,11 @@ describe("historical lifecycle history transitions", () => {
       }, { timeout: 10000 });
       expect(within(exportsSection).queryByTestId("result-export-summary")).not.toBeInTheDocument();
       expect(within(exportsSection).queryByTestId("stress-neutral-summary")).not.toBeInTheDocument();
+      // No record is offered: the summaries are in the steps, which cannot open while none is.
+      expect(within(exportsSection).getByTestId("result-export-open")).toBeDisabled();
+      expect(within(exportsSection).getByTestId("stress-neutral-open")).toBeDisabled();
+      expect(screen.queryByTestId("result-export-summary")).not.toBeInTheDocument();
+      expect(screen.queryByTestId("stress-neutral-summary")).not.toBeInTheDocument();
 
       act(() => nativeMenuCommand("file.open-local"));
       await waitFor(() =>
@@ -13068,6 +13094,10 @@ describe("historical lifecycle history transitions", () => {
       expect(within(reopenedExports).getByTestId("stress-neutral-empty")).toBeInTheDocument();
       expect(within(reopenedExports).queryByTestId("result-export-summary")).not.toBeInTheDocument();
       expect(within(reopenedExports).queryByTestId("stress-neutral-summary")).not.toBeInTheDocument();
+      expect(within(reopenedExports).getByTestId("result-export-open")).toBeDisabled();
+      expect(within(reopenedExports).getByTestId("stress-neutral-open")).toBeDisabled();
+      expect(screen.queryByTestId("result-export-summary")).not.toBeInTheDocument();
+      expect(screen.queryByTestId("stress-neutral-summary")).not.toBeInTheDocument();
       act(() => nativeMenuCommand("view.section.report"));
       const reopenedReport = screen.getByTestId("workspace-section-report");
       expect(reopenedReport).not.toHaveClass("inactive");
