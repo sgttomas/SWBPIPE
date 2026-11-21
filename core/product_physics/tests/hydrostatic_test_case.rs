@@ -400,6 +400,21 @@ fn mark_and_balance(out: &Value, reference: &Value, built: &Built, cold: bool) {
             assert!(close(si(applied[0]), entry["applied_force"]["value"].as_f64().unwrap(), 1.0));
         }
     }
+    // A held support acts in the case only as a rigid restraint: its rows in
+    // the case are its reaction (components and norms), with no applied-load
+    // or spring-force row, and its vertical reaction is the frozen held one.
+    // The held variable spring's rate and cold load and the held
+    // constant-effort support's force do not act.
+    if expected["held_supports_choice"] == "springs_and_constant_effort" {
+        const REACTION: [&str; 3] = ["support_reaction_component_v2", "support_reaction_force_magnitude_v2", "support_reaction_moment_magnitude_v2"];
+        for support in expected["held_support_ids"].as_array().unwrap().iter().map(|s| s.as_str().unwrap()) {
+            let kinds: BTreeSet<&str> = case_rows(out, id).filter(|row| row["entity_ref"] == support).map(|row| row["kind"].as_str().unwrap()).collect();
+            assert_eq!(kinds, REACTION.into_iter().collect::<BTreeSet<_>>(), "{id}: a held support's rows are its reaction only");
+            let frozen = reference["rows"].as_array().unwrap().iter().find(|row| row["id"] == format!("{support}.fz").as_str()).expect("a frozen held reaction");
+            let fz = support_force(out, id, support, "Fz").expect("the held support's reaction");
+            assert!(close(fz, frozen["value"].as_f64().unwrap(), scale_of(reference, frozen, built)), "{id}: {support} Fz {fz}");
+        }
+    }
     if cold {
         return;
     }

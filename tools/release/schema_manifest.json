@@ -80,7 +80,7 @@
     },
     {
       "path": "schemas/results_pressure_3.v0.3.schema.json",
-      "sha256": "3c265841dc6091f1287d2096c7cb0d246830a03547496824d9d69e5c45e75916"
+      "sha256": "7ae252ee1747efff39862f6d7cdb09229399d988777d28f33cdd7371cd8085e2"
     },
     {
       "path": "schemas/retained_precision_mp_v2.schema.json",

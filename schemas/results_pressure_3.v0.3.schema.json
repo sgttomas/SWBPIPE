@@ -1640,7 +1640,7 @@
       }
     },
     "PressureExactTestCondition": {
-      "description": "The hydrostatic test a case was solved as (DEL-05-01 REQ-014): present only on a case that declares a test condition, absent on every other case. held_supports is the case's own choice; held_support_refs are the spring, variable spring and constant-effort supports replaced, each on the degree of freedom it acts on, by a rigid restraint at zero displacement (empty when none are held); contents_condition is the condition key the case selects; contents_resolution states, for each generated self-weight load of the case, the contents density that replaced the section's own contents, once, and the resulting mass and applied intensity.",
+      "description": "The hydrostatic test a case was solved as (DEL-05-01 REQ-014): present only on a case that declares a test condition, absent on every other case. held_supports is the case's own choice; held_support_refs are the spring, variable spring and constant-effort supports replaced, each on the degree of freedom it acts on, by a rigid restraint at zero displacement (empty when none are held). A held variable spring hanger's rate and cold load do not act in that case, and a held constant-effort support's force does not act; each held support's reaction in that case is a rigid restraint's. contents_condition is the condition key the case selects; contents_resolution states, for each generated self-weight load of the case, the contents density that replaced the section's own contents, once, and the resulting mass and applied intensity.",
       "type": "object",
       "additionalProperties": false,
       "required": [
