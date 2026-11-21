@@ -57,7 +57,8 @@ describe("the reader's cache keys", () => {
   it("keeps two raw texts of equal values apart", () => {
     const { text } = statement("raw-forms");
     expect(text).toContain("-0.0");
-    const other = text.replace(/-0\.0(?![0-9])/g, "-0");
+    // The number tokens -0.0 only (the text also says -0.0 inside strings).
+    const other = text.replace(/([:[,]\s*)-0\.0(?![0-9eE.])/g, "$1-0");
     expect(other).not.toBe(text);
     const a = JSON.parse(text) as Json, b = JSON.parse(other) as Json;
     expect(jsonTextKeepingNegativeZero(a)).toBe(jsonTextKeepingNegativeZero(b));

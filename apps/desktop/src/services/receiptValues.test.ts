@@ -177,7 +177,11 @@ describe("the full-copy receipt's values: the new path's equal main's", () => {
       for (const [label, mutate] of MUTATIONS) {
         const changed = faithfulCopy(value);
         if (!mutate(changed)) continue;
-        const sameFingerprint = baselineNativeContentFingerprintOf(changed) === beforeFingerprint;
+        // A change can leave the profile (moving a `__proto__` member assigns a prototype):
+        // then both paths refuse it alike.
+        const changedFingerprint = outcome(() => baselineNativeContentFingerprintOf(changed));
+        if ("error" in changedFingerprint) { expect(outcome(() => nativeContentDigest(changed)), `${id}: ${label}`).toEqual(changedFingerprint); continue; }
+        const sameFingerprint = changedFingerprint.value === beforeFingerprint;
         expect(nativeContentDigest(changed) === fingerprintDigest, `${id}: ${label}`).toBe(sameFingerprint);
         const sameWritten = baselineWrittenText(changed) === beforeWritten;
         expect(digestOf((put) => writeJsonTextKeepingNegativeZero(changed, put)) === writtenDigest, `${id}: ${label}`).toBe(sameWritten);
