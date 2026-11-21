@@ -423,6 +423,8 @@ Release labels describe software maturity and validation evidence.
 - TBD: coverage, performance, tolerance, and permitted-variance thresholds.
 - Decided by DEC-027: sole human maintainer and release authority, quorum one.
   Artifact retention remains a separate delivery matter.
-- Decided: desktop project container is the multi-member archive per the
-  PKG-17 contracts (`DEC-028`, 2026-06-11), named `.opsproj` /
-  "OpenPipeStress Project Package" by the `DEC-057` naming rider.
+- Decided: the desktop's portable project package is to be the multi-member
+  archive per the PKG-17 contracts (`DEC-028`, 2026-06-11), named `.opsproj` /
+  "OpenPipeStress Project Package" by the `DEC-057` naming rider; it is not
+  provided in v1.0 (`docs/RELEASE_LIMITATIONS_v1.0.md`, LIM-045), and the
+  `.opsproj` file v1.0 writes is a report package, not a project.

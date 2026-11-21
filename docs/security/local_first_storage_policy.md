@@ -41,7 +41,7 @@ Storage choices must fail closed. Absent, unknown, unresolved, ambiguous, or
 unsupported storage choices remain explicit warning, finding, or unsupported
 states rather than silent defaults.
 
-The physical project package/container decision is SCA-003: a local
+The physical project store decision is SCA-003: a local
 SQLite-backed project store/index that stores canonical JSON/JCS-compatible
 payload bytes and private indexed projections behind application-service
 boundaries. Local storage placement follows DEC-012's accepted brief/change
@@ -192,7 +192,7 @@ path-class vocabulary.
 
 | Decision | Current state |
 |---|---|
-| Physical project package/container | SCA-003 local SQLite-backed project store/index. |
+| Physical project store | SCA-003 local SQLite-backed project store/index. The portable project package (`DEC-028`) is not provided in v1.0 (`docs/RELEASE_LIMITATIONS_v1.0.md`, LIM-045). |
 | Operating-system roots and application data directories | Local placement is implementation evidence under DEC-012; preserve symbolic private-path and application-service boundaries. Product-specific native/OS behavior requires its own witness. |
 | DB migration and product schema migration framework | DEC-019/028 and DEL-02-05 govern separate versioned migration concerns; current store evidence does not establish every rollback or compatibility guarantee. |
 | Encryption, secret storage, and key management | `TBD`; no encryption or secret-storage claim is made here. |
