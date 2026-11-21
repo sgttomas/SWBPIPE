@@ -1022,7 +1022,7 @@ fn a_refused_confirmations_read_leaves_the_plain_read_and_the_job() {
     model["project"]["invented_padding"] = json!("x".repeat((4 * materialization + held) as usize));
     let model = serde_json::to_string(&model).unwrap();
     assert!(model.len() as u64 > budget && "null".len() as u64 * 1024 < budget);
-    registry.configure_pool(192 * crate::memory_pool::test_host::GIB, budget, false).unwrap();
+    registry.configure_pool(8 * crate::memory_pool::test_host::GIB, budget, false).unwrap();
     let standing = json!({"eligible": false, "findings": []});
     let mut confirmations = args(&job, &model, standing.clone());
     confirmations["modelUse"] = json!("confirmations");
