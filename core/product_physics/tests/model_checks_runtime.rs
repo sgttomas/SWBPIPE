@@ -11,8 +11,12 @@ use open_pipe_stress_product_physics::LinearStaticPreviewRequest;
 fn preview_model_checks_value(request: Value) -> Result<Vec<open_pipe_stress_product_physics::Diagnostic>, String> {
     LinearStaticPreviewRequest::pre_formation_checks_value(request)
 }
-use open_pipe_stress_product_physics::{run_linear_static_preview_value_with_mode, PreviewSolverMode};
+use open_pipe_stress_product_physics::{run_linear_static_preview_value_with_mode, solve_input_missing_codes, PreviewSolverMode};
 use serde_json::{json, Value};
+
+// The frozen 0.8.0 requests keep their bytes; each parsed copy is re-authored (common/current_model.rs).
+#[path = "common/current_model.rs"]
+mod current_model;
 
 const MODES: [PreviewSolverMode; 2] = [PreviewSolverMode::SparseInteractive, PreviewSolverMode::DenseScrutiny];
 const BUNDLED_DEMO: &str = include_str!("../../../fixtures/product_preview/invented_demo_model.json");
@@ -117,6 +121,7 @@ fn corpus() -> Vec<(&'static str, Value)> {
     zero_length["model"]["nodes"][1]["position"] = json!({"x":0.0,"y":0.0,"z":0.0});
     cases.push(("a zero-length pipe", zero_length));
     cases.push(("an unknown support family with a stale generated self-weight load", intermediate_stop()));
+    cases.extend(solve_input_cases());
     cases
 }
 
@@ -198,4 +203,255 @@ fn the_checks_stop_where_the_solve_stops() {
     valid["model"]["supports"][0]["family"] = json!("anchor");
     let found = codes(&checked(&valid));
     assert!(found.contains(&"SELF_WEIGHT_INPUTS_STALE".to_string()), "{found:?}");
+}
+
+// ---------------------------------------------------------------------------
+// Issue 530 and the missing-data use case (DEL-04-06 REQ-013, AC-008; DEL-07-06
+// AC-007): the cases on which the checks once differed from the solve, and the
+// load generation's findings before any solve. All models are invented.
+// ---------------------------------------------------------------------------
+
+const STRAIGHT_TIMOSHENKO: &str = include_str!("../../../validation/references/pf_timoshenko/requests/PFT-SB-L1-CM0-TIMOSHENKO.request.json");
+const SKEW_TIMOSHENKO: &str = include_str!("../../../validation/references/pf_timoshenko/requests/PFT-SKEW-SPRING-TIMOSHENKO.request.json");
+const SKEW_EULER_BERNOULLI: &str = include_str!("../../../validation/references/pf_timoshenko/requests/PFT-SKEW-SPRING-EULER-BERNOULLI.request.json");
+const SHARED_TERMINAL_JUNCTION: &str = include_str!("fixtures/shared_terminal_junction.request.json");
+const MISSING_DATA: &str = include_str!("../../../fixtures/embedded_agent/use_cases/missing-data/start_model.json");
+const PERSON_ENTERED: &str = include_str!("../../../fixtures/embedded_agent/use_cases/missing-data/person_entered.json");
+const CODE_TABLE: &str = include_str!("../../../fixtures/diagnostics/exact_route_codes.json");
+
+fn current(text: &str) -> Value {
+    current_model::reauthor_request(serde_json::from_str(text).unwrap())
+}
+
+/// Issue 530's model: one member A-B along +X and a line stop at B along (3, 4, 0).
+fn skew_model(supports: Value) -> Value {
+    let q = |value: f64, unit: &str| json!({"value": value, "unit": unit});
+    json!({"model": {"schema_version": "0.9.0", "document_kind": "openpipestress.product_preview.model",
+        "project": {"id": "project:skew", "units": {"length": "m", "force": "N", "angle": "rad", "pressure": "Pa", "stress": "Pa", "temperature": "degC"}},
+        "analysis_status": {"mechanics": "ready_for_preview_diagnostics", "rule_check": "not_performed_user_rule_inputs_missing", "professional_acceptance": "not_provided"},
+        "nodes": [node("A", 0.0, 0.0, 0.0), node("B", 4.0, 0.0, 0.0)],
+        "pipe_segments": [{"id": "pipe:AB", "from": "A", "to": "B", "section": {"outside_diameter": q(0.206, "m"), "wall_thickness": q(0.011, "m")},
+            "material": "material:skew", "y_reference": {"x": 0.0, "y": 0.0, "z": 1.0}, "provenance": "checks"}],
+        "supports": supports, "components": [],
+        "materials": [{"id": "material:skew", "elastic_modulus": q(171_798_691_840.0, "Pa"), "shear_modulus": q(68_719_476_736.0, "Pa"), "provenance": "checks"}],
+        "load_cases": [{"id": "case:skew", "primitive_loads": [{"id": "load:global_y", "category": "concentrated_force", "target": {"type": "node", "node": "B"},
+            "direction": "global_y", "magnitude": q(1000.0, "N"), "dimension": "force", "provenance": "checks"}], "provenance": "checks"}],
+        "combinations": []}, "materials": []})
+}
+fn skewed_stop() -> Value {
+    json!({"id": "stop_B", "node": "B", "family": "line_stop", "restraints": ["UY"], "direction": {"x": 3.0, "y": 4.0, "z": 0.0}, "provenance": "checks"})
+}
+
+/// The straight Timoshenko request with a wind case whose exposed span is part
+/// of its member (`partial`) or the whole member, and a seismic case carrying an
+/// entered weight load. Its pipe states no density, so the seismic generation
+/// refuses once nothing before formation does.
+fn timoshenko_wind_and_seismic(partial: bool) -> Value {
+    let mut request = current(STRAIGHT_TIMOSHENKO);
+    let pipe = request["model"]["pipe_segments"][0]["id"].clone();
+    let wind = if partial {
+        json!({"pressure": {"value": 480.0, "unit": "Pa"}, "shape_factor": {"value": 0.7, "unit": "1"}, "direction": "global_y", "exposed_pipe_refs": [],
+            "exposed_spans": [{"pipe_ref": pipe, "start_fraction": {"value": 0.25, "unit": "1"}, "end_fraction": {"value": 0.75, "unit": "1"}}]})
+    } else {
+        json!({"pressure": {"value": 480.0, "unit": "Pa"}, "shape_factor": {"value": 0.7, "unit": "1"}, "direction": "global_y", "exposed_pipe_refs": [pipe]})
+    };
+    let cases = request["model"]["load_cases"].as_array_mut().unwrap();
+    cases[0]["equivalent_static"] = json!({"wind": wind, "provenance": "checks"});
+    cases.push(json!({"id": "case:seismic", "kind": "primitive_user_load", "primitive_loads": [
+            {"id": "load:weight", "category": "weight", "target": {"type": "element", "pipe": pipe}, "direction": "global_y",
+                "magnitude": {"value": -100.0, "unit": "N/m"}, "dimension": "force_per_length", "provenance": "checks"}],
+        "equivalent_static": {"seismic": {"gravity_acceleration": {"value": 9.81, "unit": "m/s^2"}, "g_factor_y": {"value": 0.4, "unit": "none"}},
+            "provenance": "checks"},
+        "provenance": "checks"}));
+    request
+}
+
+/// An eccentric offset on a component that is not a reducer, which the solve
+/// refuses on the normalized geometry.
+fn eccentric_offset_on_a_valve() -> Value {
+    let mut wire = cantilever();
+    wire["model"]["components"] = json!([{"id": "component:v", "kind": "valve", "node": "node:a",
+        "geometry": {"rigid_pipe_ref": "pipe:a-b", "eccentric_offset": {"x": 0.0, "y": 0.0, "z": 1.0, "unit": "mm"}},
+        "modifiers": {"stiffness_scaling_user_value": {"value": 2.0, "unit": "1"}, "source_reference": "invented"},
+        "mechanics_interface": {"solver_consumption": "mechanics_geometry_only"}, "provenance": "checks"}]);
+    wire
+}
+
+/// The missing-data use case's start model with the person's first `entered` values.
+fn missing_data(entered: usize) -> Value {
+    let mut model: Value = serde_json::from_str(MISSING_DATA).unwrap();
+    let entries: Value = serde_json::from_str(PERSON_ENTERED).unwrap();
+    for entry in entries["entries"].as_array().unwrap().iter().take(entered) {
+        assert_eq!(entry["field_path"], "section.material_density");
+        let pipe = model["pipe_segments"].as_array_mut().unwrap().iter_mut().find(|pipe| pipe["id"] == entry["entity_ref"]).unwrap();
+        pipe["section"]["material_density"] = json!({"value": entry["value"], "unit": entry["unit"]});
+    }
+    json!({"model": model, "materials": []})
+}
+
+fn solve_input_cases() -> Vec<(&'static str, Value)> {
+    let anchor_five = json!({"id": "anchor_A", "node": "A", "family": "anchor", "restraints": ["UY", "UZ", "RX", "RY", "RZ"], "provenance": "checks"});
+    let anchor_six = json!({"id": "anchor_A", "node": "A", "family": "anchor", "restraints": ["UX", "UY", "UZ", "RX", "RY", "RZ"], "provenance": "checks"});
+    let junction = || {
+        let mut request: Value = serde_json::from_str(SHARED_TERMINAL_JUNCTION).unwrap();
+        if request.get("model").is_none() {
+            request = json!({"model": request, "materials": []});
+        }
+        request
+    };
+    let mut differ = junction();
+    differ["model"]["load_cases"][0]["pressure_regions"][2]["pressure"] = json!({"value": 5.0, "unit": "MPa"});
+    let mut dry = junction();
+    dry["model"]["load_cases"][0]["pressure_regions"].as_array_mut().unwrap().remove(2);
+    vec![
+        ("issue 530: five anchor restraints and one skewed stop", skew_model(json!([anchor_five, skewed_stop()]))),
+        ("issue 530: a full anchor and one skewed stop", skew_model(json!([anchor_six, skewed_stop()]))),
+        ("issue 530: only a skewed stop", skew_model(json!([skewed_stop()]))),
+        ("issue 530: PFT-SKEW-SPRING-TIMOSHENKO", current(SKEW_TIMOSHENKO)),
+        ("issue 530: PFT-SKEW-SPRING-EULER-BERNOULLI", current(SKEW_EULER_BERNOULLI)),
+        ("a Timoshenko partial-span wind entry with a seismic weight case", timoshenko_wind_and_seismic(true)),
+        ("a Timoshenko whole-span wind entry with a seismic weight case", timoshenko_wind_and_seismic(false)),
+        ("an eccentric offset on a valve", eccentric_offset_on_a_valve()),
+        ("a shared terminal junction", junction()),
+        ("a shared terminal junction whose pressures differ", differ),
+        ("a shared terminal junction with a pipe outside its regions", dry),
+        ("missing data: the start model", missing_data(0)),
+        ("missing data: the first density entered", missing_data(1)),
+        ("missing data: both densities entered", missing_data(2)),
+    ]
+}
+
+fn solve_inputs(wire: &Value) -> (Vec<Value>, Vec<Value>) {
+    let checks = LinearStaticPreviewRequest::solve_input_checks_value(wire.clone()).expect("the checks read the request");
+    let values = |list: Vec<open_pipe_stress_product_physics::Diagnostic>| list.into_iter().map(|d| serde_json::to_value(d).unwrap()).collect::<Vec<_>>();
+    (values(checks.before_formation), values(checks.load_generation))
+}
+fn envelope(wire: &Value, mode: PreviewSolverMode) -> Value {
+    serde_json::to_value(run_linear_static_preview_value_with_mode(wire.clone(), mode).expect("the solve reads the request")).unwrap()
+}
+fn is_blocking(diagnostic: &Value) -> bool {
+    matches!(diagnostic["severity"].as_str(), Some("blocking" | "error"))
+}
+
+/// For every model of the corpus, in both modes: the findings before formation
+/// are the pre-formation checks; a model the solve solves has no blocking
+/// finding from the checks, either part; a model whose checks before formation
+/// do not block is not refused by the solve before formation; and every load
+/// generation finding is blocking (the generation's disclosures are the
+/// solve's to publish).
+#[test]
+fn the_solve_input_checks_agree_with_the_solve() {
+    for (name, wire) in corpus() {
+        let (before, generation) = solve_inputs(&wire);
+        assert_eq!(before, checked(&wire), "{name}: the findings before formation are the pre-formation checks");
+        if before.iter().any(is_blocking) {
+            assert!(generation.is_empty(), "{name}: no generation runs past a blocking finding before formation");
+        }
+        assert!(generation.iter().all(is_blocking), "{name}: {generation:#?}");
+        for mode in MODES {
+            let solve = envelope(&wire, mode);
+            let published = solve["diagnostics"].as_array().cloned().unwrap_or_default();
+            let solved = solve["status"]["mechanics"] == "MECHANICS_SOLVED";
+            if solved {
+                let blocking: Vec<_> = before.iter().chain(&generation).filter(|d| is_blocking(d)).collect();
+                assert!(blocking.is_empty(), "{name} ({mode:?}): the solve solves, yet the checks block\n{blocking:#?}");
+            }
+            if !before.iter().any(is_blocking) {
+                let first_blocking = published.iter().position(is_blocking);
+                assert!(first_blocking.is_none_or(|at| at >= before.len()), "{name} ({mode:?}): the checks pass before formation, yet the solve refuses there\n{published:#?}");
+            }
+        }
+    }
+}
+
+/// Issue 530: the solve solves the model whose skewed stop supplies the sixth
+/// ground constraint, and the checks no longer block it; with only the skewed
+/// stop both refuse with the same finding.
+#[test]
+fn a_skewed_restraint_counts_in_the_checks_as_in_the_solve() {
+    let anchor_five = json!({"id": "anchor_A", "node": "A", "family": "anchor", "restraints": ["UY", "UZ", "RX", "RY", "RZ"], "provenance": "checks"});
+    let wire = skew_model(json!([anchor_five, skewed_stop()]));
+    assert!(!checked(&wire).iter().any(is_blocking), "{:#?}", checked(&wire));
+    for mode in MODES {
+        assert_eq!(envelope(&wire, mode)["status"]["mechanics"], "MECHANICS_SOLVED", "{mode:?}");
+    }
+    let only = skew_model(json!([skewed_stop()]));
+    let found = checked(&only);
+    assert_eq!(found.iter().filter(|d| is_blocking(d)).map(|d| d["code"].as_str().unwrap()).collect::<Vec<_>>(), ["SOLVER_SYSTEM_BLOCKED"]);
+    assert!(found.iter().any(|d| d["message"].as_str().unwrap().ends_with("; skewed constraints: 1")), "{found:#?}");
+}
+
+/// The three steps the checks once restated or omitted: each refusal or
+/// warning the solve raises before formation is a finding of the checks.
+#[test]
+fn partial_spans_eccentric_offsets_and_junction_closures_are_found_before_formation() {
+    let codes = |wire: &Value| checked(wire).iter().map(|d| d["code"].as_str().unwrap().to_string()).collect::<Vec<_>>();
+    assert!(codes(&timoshenko_wind_and_seismic(true)).contains(&"PF_TIMOSHENKO_PARTIAL_SPAN_UNSUPPORTED".to_string()));
+    assert!(codes(&eccentric_offset_on_a_valve()).contains(&"RIGID_COMPONENT_ECCENTRIC_OFFSET_INVALID".to_string()));
+    let cases = solve_input_cases();
+    let case = |name: &str| &cases.iter().find(|(n, _)| *n == name).unwrap().1;
+    assert!(codes(case("a shared terminal junction whose pressures differ")).contains(&"EXACT_PRESSURE_JUNCTION_PRESSURES_DIFFER".to_string()));
+    assert!(codes(case("a shared terminal junction with a pipe outside its regions")).contains(&"EXACT_PRESSURE_JUNCTION_PIPE_OUTSIDE_REGIONS".to_string()));
+    // With the whole span the seismic case's missing density is the generation's finding.
+    let (before, generation) = solve_inputs(&timoshenko_wind_and_seismic(false));
+    assert!(!before.iter().any(is_blocking), "{before:#?}");
+    assert!(generation.iter().any(|d| d["code"] == "EQUIVALENT_STATIC_INPUT_MISSING"), "{generation:#?}");
+}
+
+/// DEL-07-06 AC-007, Missing data: each missing density is reported on its pipe
+/// before any solve, as the solve states it; entering one leaves exactly the
+/// other; entering both leaves none, and the solve then runs.
+#[test]
+fn every_missing_density_is_reported_before_any_solve() {
+    let missing = solve_input_missing_codes();
+    let blocking = |wire: &Value| {
+        let (before, generation) = solve_inputs(wire);
+        assert!(!before.iter().any(is_blocking), "{before:#?}");
+        generation.into_iter().filter(is_blocking).collect::<Vec<_>>()
+    };
+    let refs = |found: &[Value]| found.iter().map(|d| d["affected_refs"].clone()).collect::<Vec<_>>();
+    let start = blocking(&missing_data(0));
+    assert_eq!(refs(&start), [json!(["pipe:md-inboard", "material_density", "case:md-seismic"]), json!(["pipe:md-outboard", "material_density", "case:md-seismic"])]);
+    let one = blocking(&missing_data(1));
+    assert_eq!(refs(&one), [json!(["pipe:md-outboard", "material_density", "case:md-seismic"])]);
+    for (wire, found) in [(missing_data(0), &start), (missing_data(1), &one)] {
+        for finding in found {
+            assert_eq!(finding["code"], "EQUIVALENT_STATIC_INPUT_MISSING");
+            assert!(missing.iter().any(|code| finding["code"] == code.as_str()), "{finding:#}");
+        }
+        for mode in MODES {
+            let solve = envelope(&wire, mode);
+            let refused: Vec<Value> = solve["diagnostics"].as_array().unwrap().iter().filter(|d| is_blocking(d)).cloned().collect();
+            assert_eq!(&refused, found, "{mode:?}: the solve refuses with exactly the checks' findings");
+        }
+    }
+    let both = missing_data(2);
+    assert!(blocking(&both).is_empty());
+    for mode in MODES {
+        assert_eq!(envelope(&both, mode)["status"]["mechanics"], "MECHANICS_SOLVED", "{mode:?}");
+    }
+}
+
+/// The exported list of the codes that mean a solve input is missing: every
+/// member is a code the solve crates construct, classified `input_error`, and
+/// every `input_error` code named `…_MISSING` is a member.
+#[test]
+fn the_missing_input_codes_are_the_tables_missing_input_errors() {
+    let table: Value = serde_json::from_str(CODE_TABLE).unwrap();
+    let classified = |code: &str| table["codes"].as_array().unwrap().iter().find(|entry| entry["code"] == code).map(|entry| entry["classification"].clone());
+    let listed = solve_input_missing_codes();
+    assert!(!listed.is_empty());
+    let mut sorted = listed.clone();
+    sorted.sort();
+    sorted.dedup();
+    assert_eq!(sorted, listed, "the list is sorted and has no duplicate");
+    for code in &listed {
+        assert_eq!(classified(code), Some(json!("input_error")), "{code}");
+    }
+    for entry in table["codes"].as_array().unwrap() {
+        let code = entry["code"].as_str().unwrap();
+        if code.ends_with("_MISSING") && entry["classification"] == "input_error" {
+            assert!(listed.iter().any(|listed| listed == code), "{code} is a missing input and is not listed");
+        }
+    }
 }
