@@ -229,6 +229,7 @@ checks:
 - core/reporting/report_package/tests/exact_sections_parity.rs
 - core/reporting/report_package/tests/report_rows_parity.rs
 - core/reporting/report_package/tests/report_diagnostics_parity.rs
+- core/reporting/report_package/tests/report_members_parity.rs
 - core/reporting/report_package/tests/quantity_display_parity.rs
 - core/reporting/report_package/tests/user_release_derivation.rs
 - core/reporting/report_package/tests/user_release_package.rs
