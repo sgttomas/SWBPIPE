@@ -555,17 +555,21 @@ export class ViewportResource {
    * never the person's move.
    */
   private inputMoved = false;
-  /** Where each pointer pressed on the canvas went down, in CSS pixels. */
-  private readonly pointersDown = new Map<number, { x: number; y: number }>();
+  /** Each pointer pressed on the canvas: where its travel is measured from (where it went down, or
+   * where it was when a programmatic pose re-armed the gesture) and where it is now, in CSS pixels. */
+  private readonly pointersDown = new Map<number, { x: number; y: number; currentX: number; currentY: number }>();
 
   private notePointerDown(event: Pick<PointerEvent, "pointerId" | "clientX" | "clientY">): void {
     if (this.pointersDown.size === 0) this.inputMoved = false;
-    this.pointersDown.set(event.pointerId, { x: event.clientX, y: event.clientY });
+    this.pointersDown.set(event.pointerId, { x: event.clientX, y: event.clientY, currentX: event.clientX, currentY: event.clientY });
   }
 
   private notePointerMove(event: Pick<PointerEvent, "pointerId" | "clientX" | "clientY">): void {
     const down = this.pointersDown.get(event.pointerId);
-    if (!down || this.inputMoved) return;
+    if (!down) return;
+    down.currentX = event.clientX;
+    down.currentY = event.clientY;
+    if (this.inputMoved) return;
     const ratio = typeof window === "undefined" ? 1 : window.devicePixelRatio || 1;
     if (Math.hypot(event.clientX - down.x, event.clientY - down.y) * ratio > INPUT_TRAVEL_DEVICE_PX) this.inputMoved = true;
   }
@@ -574,8 +578,25 @@ export class ViewportResource {
     this.pointersDown.delete(event.pointerId);
   }
 
-  private noteWheel(): void {
+  /** A wheel the controls consume: they dolly only on a vertical delta, and only while zoom is on. */
+  private noteWheel(event: Pick<WheelEvent, "deltaY">): void {
+    if (event.deltaY === 0 || this.controls.enabled === false || this.controls.enableZoom === false) return;
     this.inputMoved = true;
+  }
+
+  /**
+   * A programmatic pose while a pointer is pressed (a view button pressed from the keyboard during a
+   * drag, a refit for a new canvas size): the gesture is armed again from where the pointer is now,
+   * so that its movement after the pose is the person's move, even though the controls send no new
+   * start.
+   */
+  private rearmGesture(): void {
+    this.gesture = "pressed";
+    this.inputMoved = false;
+    for (const pointer of this.pointersDown.values()) {
+      pointer.x = pointer.currentX;
+      pointer.y = pointer.currentY;
+    }
   }
 
   private noteGestureStart(): void {
@@ -603,7 +624,7 @@ export class ViewportResource {
   private readonly handleInputPointerDown = (event: PointerEvent): void => this.notePointerDown(event);
   private readonly handleInputPointerMove = (event: PointerEvent): void => this.notePointerMove(event);
   private readonly handleInputPointerUp = (event: PointerEvent): void => this.notePointerUp(event);
-  private readonly handleInputWheel = (): void => this.noteWheel();
+  private readonly handleInputWheel = (event: WheelEvent): void => this.noteWheel(event);
   private presentationBottomInsetPx = 0;
   private readonly ownership = new ViewportOwnershipLedger(this.resourceGeneration);
   // The edge line is one CSS pixel wide, which is this many device pixels. It is the renderer's
@@ -992,11 +1013,14 @@ export class ViewportResource {
    * The exact public camera/target pose is restored before returning.
    */
   cancelNavigation(options?: Readonly<{ keepGesture?: boolean }>): void {
-    // A programmatic pose follows: nothing pending is the person's. A pointer still pressed keeps
-    // its gesture (a refit for a new canvas size can come between pointer-down and the first
-    // movement of a drag, and the drag that follows is still the person's), as does the render
-    // loop retiring a settled damping tail.
-    if (!options?.keepGesture && this.pointersDown.size === 0) this.clearGesture();
+    // A programmatic pose follows: nothing pending is the person's. A pointer still pressed has its
+    // gesture armed again from where it is now (a view button pressed from the keyboard during a
+    // drag, or a refit for a new canvas size, and the drag that follows is still the person's). The
+    // render loop retiring a settled damping tail keeps the gesture as it is.
+    if (!options?.keepGesture) {
+      if (this.pointersDown.size > 0) this.rearmGesture();
+      else this.clearGesture();
+    }
     if (this.disposed || !this.navigationAdvancing) return;
     // The local Three addon declaration intentionally exposes only the
     // controls surface used by the app. OrbitControls' runtime API includes

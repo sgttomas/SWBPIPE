@@ -174,6 +174,40 @@ test.describe("the camera: fitted views refit, a view the person set is kept", (
     expectSamePose(await pose(page), set);
   });
 
+  test("a view button pressed from the keyboard during a held drag: the drag after it is the person's, and a resize keeps it", async ({ page }) => {
+    await open(page);
+    const top = page.getByTestId("viewport-view-top");
+    const box = await canvasBox(page);
+    await page.mouse.move(box.x + box.width * 0.2, box.y + box.height * 0.8);
+    await page.mouse.down();
+    await page.mouse.move(box.x + box.width * 0.3, box.y + box.height * 0.75, { steps: 6 });
+    // The button is held; Top is pressed from the keyboard.
+    await top.focus();
+    await page.keyboard.press("Enter");
+    await expect(top).toHaveAttribute("aria-pressed", "true");
+    await page.mouse.move(box.x + box.width * 0.45, box.y + box.height * 0.7, { steps: 8 });
+    await page.mouse.up();
+    const set = await pose(page);
+    await expect(top).toHaveAttribute("aria-pressed", "false");
+    await resize(page, WIDER.width, WIDER.height);
+    expectSamePose(await pose(page), set);
+  });
+
+  test("in Top, a horizontal-only wheel is not the person's move: Top stays pressed and a resize refits", async ({ page }) => {
+    await open(page, "top");
+    const fitted = await pose(page);
+    const box = await canvasBox(page);
+    await page.mouse.move(box.x + box.width * 0.5, box.y + box.height * 0.3);
+    await page.mouse.wheel(120, 0);
+    await settled(page);
+    await expect(page.getByTestId("viewport-view-top")).toHaveAttribute("aria-pressed", "true");
+    await resize(page, WIDER.width, WIDER.height);
+    expect(moved(await pose(page), fitted)).toBe(true);
+    await expect(page.getByTestId("viewport-view-top")).toHaveAttribute("aria-pressed", "true");
+    await resize(page, NARROW.width, NARROW.height);
+    expectSamePose(await pose(page), fitted);
+  });
+
   for (const command of ["viewport-fit-model", "viewport-fit-visible", "viewport-fit-selection", "viewport-view-front", "viewport-view-top", "viewport-view-side", "viewport-view-isometric"] as const) {
     test(`${command} returns a moved view to fitted, and it refits as that command would`, async ({ page }) => {
       const model = await open(page);

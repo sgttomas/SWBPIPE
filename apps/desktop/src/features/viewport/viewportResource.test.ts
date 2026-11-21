@@ -195,7 +195,7 @@ describe("viewport resource primitives", () => {
       notePointerDown(event: { pointerId: number; clientX: number; clientY: number }): void;
       notePointerMove(event: { pointerId: number; clientX: number; clientY: number }): void;
       notePointerUp(event: { pointerId: number }): void;
-      noteWheel(): void;
+      noteWheel(event: { deltaY: number }): void;
       noteGestureStart(): void;
       noteGestureEnd(): void;
       render(time: number): boolean;
@@ -291,9 +291,45 @@ describe("viewport resource primitives", () => {
       expect(onCameraMovedByPerson).toHaveBeenCalledTimes(1);
     });
 
+    it("a pose applied while the drag is held re-arms the gesture: the drag after it is the person's again", () => {
+      const { fake, onCameraMovedByPerson, down, frame, up, orbitBy } = gestureFake("front");
+      down();
+      fake.notePointerMove({ pointerId: 1, clientX: 110, clientY: 100 });
+      orbitBy(0.1);
+      frame();
+      expect(onCameraMovedByPerson).toHaveBeenCalledTimes(1);
+      // A standard view pressed from the keyboard while the button is held: a programmatic pose.
+      fake.cancelNavigation();
+      // Movement within the travel threshold of where the pointer was at the pose is not a move.
+      fake.notePointerMove({ pointerId: 1, clientX: 111, clientY: 100 });
+      orbitBy(0.01);
+      frame();
+      expect(onCameraMovedByPerson).toHaveBeenCalledTimes(1);
+      fake.notePointerMove({ pointerId: 1, clientX: 130, clientY: 100 });
+      orbitBy(0.1);
+      frame();
+      up();
+      expect(onCameraMovedByPerson).toHaveBeenCalledTimes(2);
+    });
+
+    it("a horizontal-only wheel, which the controls do not consume, is not a move, even in Top", () => {
+      const { fake, camera, onCameraMovedByPerson, frame } = gestureFake("top");
+      const before = camera.position.clone();
+      fake.noteWheel({ deltaY: 0 });
+      fake.noteGestureStart();
+      fake.navigationAdvancing = true;
+      frame();
+      fake.noteGestureEnd();
+      fake.navigationAdvancing = true;
+      frame();
+      expect(onCameraMovedByPerson).not.toHaveBeenCalled();
+      // The controls' normalisation looking straight down did move the camera.
+      expect(camera.position.distanceTo(before)).toBeGreaterThan(0);
+    });
+
     it("a wheel is the person's move; a programmatic pose afterwards is not", () => {
       const { fake, onCameraMovedByPerson, frame, dollyIn } = gestureFake("front");
-      fake.noteWheel();
+      fake.noteWheel({ deltaY: -100 });
       fake.noteGestureStart();
       fake.navigationAdvancing = true;
       dollyIn(1.2);
