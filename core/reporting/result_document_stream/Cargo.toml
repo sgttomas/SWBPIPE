@@ -11,5 +11,8 @@ path = "src/lib.rs"
 [dependencies]
 open_pipe_stress_result_export = { path = "../result_export" }
 open_pipe_stress_canonical_json = { path = "../../serialization/canonical_json" }
+# DEL-12-02: the content-source traits the second emission implements, so that the export
+# control's content rule can walk the document as a source.
+open_pipe_stress_export_decision = { path = "../../security/export_decision" }
 serde_json = { version = "1", features = ["float_roundtrip"] }
 sha2 = "0.10"

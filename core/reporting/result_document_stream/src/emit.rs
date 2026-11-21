@@ -17,7 +17,7 @@
 //! has failed, and [`Emission::finish`] says why. Nothing is staged after a failure.
 
 use crate::canonical;
-use crate::source_traits::{Member, Peek, SourceList, SourceObject, WalkStopped};
+use open_pipe_stress_export_decision::{Member, Peek, SourceList, SourceObject, WalkStopped};
 use crate::{DocumentSource, RowList, Slot};
 use sha2::{Digest, Sha256};
 use std::borrow::Cow;

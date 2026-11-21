@@ -37,10 +37,9 @@ mod canonical;
 mod emit;
 mod header;
 mod rows;
-mod source_traits;
 
 pub use emit::{walk_whole, Emission, Emitted};
-pub use source_traits::{Member, Peek, SourceList, SourceObject, WalkStopped, MAX_SOURCE_NESTING};
+pub use open_pipe_stress_export_decision::{Member, Peek, SourceList, SourceObject, WalkStopped, MAX_SOURCE_NESTING};
 
 #[doc(hidden)]
 pub use canonical::canonical_text;

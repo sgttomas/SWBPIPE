@@ -2870,7 +2870,6 @@
               "core/reporting/result_document_stream/src/header.rs",
               "core/reporting/result_document_stream/src/lib.rs",
               "core/reporting/result_document_stream/src/rows.rs",
-              "core/reporting/result_document_stream/src/source_traits.rs",
               "core/reporting/result_export/src/along_direction_evidence.rs",
               "core/reporting/result_export/src/arc_evidence.rs",
               "core/reporting/result_export/src/arc_marker_tests.rs",
