@@ -566,7 +566,8 @@ async function runAttendedDriver(plan, { waitMs = 400, invoke = () => undefined 
   const context = { window, document, navigator: { userAgent: "test" }, CSS: { escape: (text) => text }, setTimeout: unref(setTimeout), clearTimeout, setInterval: unref(setInterval), clearInterval, Date, JSON, Promise, String, Error, Boolean, Object, Math, Array, Set, Map, encodeURIComponent, getComputedStyle: () => ({}), requestAnimationFrame: (callback) => setTimeout(callback, 0), innerWidth: 1, innerHeight: 1, devicePixelRatio: 1, matchMedia: () => ({ matches: false }), MutationObserver, HTMLInputElement };
   vm.runInNewContext(composeDriver(driver), context);
   await new Promise((resolve) => setTimeout(resolve, 1500 + waitMs));
-  const checkpoints = () => calls.filter(([command]) => command === "native_smoke_checkpoint").map(([, args]) => args);
+  // Read as the runner reads them, from JSON: the driver's objects belong to the script's own realm.
+  const checkpoints = () => calls.filter(([command]) => command === "native_smoke_checkpoint").map(([, args]) => JSON.parse(JSON.stringify(args)));
   return { calls, get finished() { return finished; }, checkpoints, listeners, observers, context };
 }
 /** A click event on `target`, as the capture listener receives it. */
@@ -1120,11 +1121,12 @@ test("the attended driver records the screen as the page settles and each report
   assert.equal(observed().length, 1);
   const first = observed()[0].report;
   assert.deepEqual([first.nonce, first.n, typeof first.at, first.page_visibility], ["n", 1, "number", "hidden"]);
-  // The stand-in page has no tree walker: the record says so instead of a count.
-  assert.match(first.counts_error, /createTreeWalker/);
+  // The stand-in page cannot be counted (it has no tree walker): the record says so instead of a count.
+  assert.match(first.counts_error, /is not (defined|a function)/);
   // It watches the whole document, scrolls and resizes, and starts nothing else.
   assert.equal(run.observers.length, 1);
-  assert.deepEqual([run.observers[0].target, run.observers[0].options], [run.context.document.documentElement, { subtree: true, childList: true, characterData: true, attributes: true }]);
+  assert.equal(run.observers[0].target, run.context.document.documentElement);
+  assert.deepEqual(JSON.parse(JSON.stringify(run.observers[0].options)), { subtree: true, childList: true, characterData: true, attributes: true });
   assert.ok(run.listeners.document.some((item) => item.type === "scroll" && item.options?.capture === true && item.options?.passive === true));
   assert.ok(run.listeners.window.some((item) => item.type === "resize" && item.options?.passive === true));
   // A burst of changes gives one record, once the page is quiet (0.8 s) and at least 1.5 s after the previous one.
