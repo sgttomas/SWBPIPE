@@ -5511,7 +5511,7 @@ const NATIVE_VIEW_SECTIONS: &[(&str, &str)] = &[
     ("view.section.report", "Report"),
     ("view.section.project", "Project"),
     ("view.section.exports", "Exports"),
-    ("view.section.evidence", "Audit & Boundaries"),
+    ("view.section.evidence", "Evidence"),
 ];
 
 // Native macOS menu bar (TP-R3UX-CADSHELL). Each custom item carries the same
@@ -7072,7 +7072,7 @@ mod tests {
                 ("view.section.report", "Report"),
                 ("view.section.project", "Project"),
                 ("view.section.exports", "Exports"),
-                ("view.section.evidence", "Audit & Boundaries"),
+                ("view.section.evidence", "Evidence"),
             ]
         );
         for removed in ["view.tree", "view.section.operations", "view.section.loads"] {

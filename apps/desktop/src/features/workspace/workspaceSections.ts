@@ -74,7 +74,7 @@ export const WORKSPACE_SECTIONS: ReadonlyArray<{ id: WorkspaceSectionId; label: 
   },
   {
     id: "evidence",
-    label: "Audit & Boundaries",
+    label: "Evidence",
     description: "Run audit and telemetry state"
   }
 ];

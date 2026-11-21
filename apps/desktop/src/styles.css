@@ -4596,6 +4596,9 @@ body { min-width: 760px; min-height: 540px; }
   color: var(--prompt-disabled-text); background: var(--disabled-fill);
 }
 .replace-project-prompt :focus-visible { outline: 2px solid var(--focus-ring); outline-offset: 2px; }
+/* The units dialog's Preset line: the label and its select side by side with a gap, so that the
+   select's focus ring does not cover the label. */
+.project-units-dialog .project-units-preset { display: inline-flex; align-items: center; gap: var(--space-4); }
 
 /* DEL-07-05 numerical health badges: the state text is always shown; colour only repeats it. */
 .numerical-health-badge {

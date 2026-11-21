@@ -133,7 +133,7 @@ test("02 pages: each page of the workspace, top to bottom", async ({ page }) => 
   const pages: ReadonlyArray<[Parameters<typeof openWorkspaceSection>[1], string]> = [
     ["operations", "Review changes"], ["loads", "Load Cases"], ["libraries", "Libraries"], ["rule-packs", "Rules"],
     ["solve", "Analyze"], ["results", "Results"], ["report", "Report"], ["project", "Project"],
-    ["exports", "Exports"], ["evidence", "Audit & Boundaries"]
+    ["exports", "Exports"], ["evidence", "Evidence"]
   ];
   for (const [id, label] of pages) {
     // Review changes and Load Cases are reached by the rail and the stage tab; the View menu does not list them.
