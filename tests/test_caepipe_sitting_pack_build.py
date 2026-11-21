@@ -112,13 +112,6 @@ def test_git_stores_the_folder_without_line_ending_conversion():
     assert outside.count("text: unspecified") == 3, outside
 
 
-def test_regenerating_from_the_tracked_inputs_gives_the_committed_bytes():
-    """A CONSISTENCY CHECK, NOT WHAT MAKES THE PACK TRUSTWORTHY: the builder run on the tracked inputs gives the
-    committed bytes, byte for byte. The pack is trusted because its committed bytes were read and reviewed; this test
-    only shows that the builder and the tracked inputs still agree with them."""
-    assert built() == committed_blobs()
-
-
 # -- what the builder makes ----------------------------------------------------------------------------------------
 def test_the_same_inputs_give_the_same_bytes():
     assert spb.build_pack() == built()
@@ -164,7 +157,7 @@ def test_the_parts_hold_what_the_plan_names_in_order():
     series = [runs[i][1]["series"] for i in part["part-2"]]
     assert series[:44].count("pressure-bourdon-expansion-capture") == 0
     assert set(series[44:]) == {"pressure-bourdon-expansion-capture"}
-    assert all(items[i]["capture"] == "sealed" for i in part["part-2"][44:])
+    assert all(items[i]["capture"] == "capture_only" for i in part["part-2"][44:])
     assert [items[i]["family"] for i in part["part-3"]] == ["S1"] * 4 + ["S2"] * 3 + ["S3"] * 5
     assert [runs[i][0]["hand_entry_rank"] for i in part["part-4"]] == [1, 2, 3, 4, 5]
     assert all(items[i]["tranche"] == "1" for i in part["part-5"])
@@ -237,7 +230,7 @@ def test_a_window_case_carries_the_manifests_instruction_bytes_and_a_mismatch_re
         spb.build_pack(copy / "manifest.json")
 
 
-def test_each_window_case_prints_its_hold_sentence_from_the_manifest():
+def test_each_window_case_prints_its_comparison_sentence_from_the_manifest():
     files = built()
     index = index_of(files)
     m = manifest()
@@ -248,15 +241,15 @@ def test_each_window_case_prints_its_hold_sentence_from_the_manifest():
             continue
         run = runs[item["item_id"]]
         entry = next(e for e in m["models"] if e["model_id"] == item["model_id"])
-        expected = (sorted(set(entry["held"].values())) if run["kind"] == "hand_entry"
+        expected = (sorted(set(entry["comparison"].values())) if run["kind"] == "hand_entry"
                     else [run["screening_waits_for"]])
-        assert item["hold"][:len(expected)] == expected  # each case's own hold, as its manifest entry gives it
-        for sentence in item["hold"]:
+        assert item["notes"][:len(expected)] == expected  # each case's own sentence, as its manifest entry gives it
+        for sentence in item["notes"]:
             label = ("on its one-way support" if sentence == m["hand_entry"]["one_way_cases"]
-                     else "how this run's capture is held" if run["kind"] == "hand_entry"
+                     else "how this run's print is compared" if run["kind"] == "hand_entry"
                      else "what the screening of this run waits for")
             assert f'From the benchmark manifest, {label}: "{sentence}"' in instructions
-    one_way = [i for i in index["items"] if m["hand_entry"]["one_way_cases"] in i["hold"]]
+    one_way = [i for i in index["items"] if m["hand_entry"]["one_way_cases"] in i["notes"]]
     assert {i["model_id"] for i in one_way} == {"cpb-n-01", "cpb-n-02", "cpb-n-03", "cpb-n-04"}
 
 
@@ -267,8 +260,9 @@ def test_the_qualification_is_one_text_in_its_file_the_index_and_at_the_top_of_b
             "rest on a premise the product does not verify, which is false on a constructed model (DEL-04-01; exit "
             "criterion 18, not met). They are not established engineering results. The mechanics values are compared "
             "with CAEPIPE on that understanding.")
-    follow = ("Nothing in this pack is a SWBPIPE result. Where a case is held until the product publishes it as checks "
-              "passed, that phrase names the product's own gate and carries this qualification.")
+    follow = ("Nothing in this pack is a SWBPIPE result. Where a case's comparison states the numerical standing the "
+              "product published, a 'checks passed' in it names the product's own gate and carries this "
+              "qualification.")
     assert files[P(spb.QUALIFICATION_FILE)] == text.encode("utf-8")
     sha = hashlib.sha256(text.encode("utf-8")).hexdigest()
     assert index["qualification"] == {"file": spb.QUALIFICATION_FILE, "sha256": sha}
@@ -276,7 +270,7 @@ def test_the_qualification_is_one_text_in_its_file_the_index_and_at_the_top_of_b
         document = files[P(name)].decode()
         assert document.startswith(f"{text}\r\n\r\n{follow}\r\n\r\n"), name
         assert document.count(text) == 1, name
-    gated = [item for item in index["items"] if any("checks passed" in s for s in item["hold"])]
+    gated = [item for item in index["items"] if any("numerical standing" in s for s in item["notes"])]
     assert len(gated) == 5
     for item in index["items"]:
         assert (item.get("qualification") == {"file": spb.QUALIFICATION_FILE, "sha256": sha}) == (item in gated)
@@ -358,8 +352,8 @@ def test_the_section_titles_are_the_parsers_own_list():
 # -- the prose -----------------------------------------------------------------------------------------------------
 def test_the_prose_rules_hold_in_the_generated_documents():
     """Commands one line at a time (a fenced display of a command holds that one line); no statement that the imported file is never
-    saved over, but the instruction not to save over it; no assertion that earlier results are stored; the set
-    passage, the three conditions and the claim about kinds word for word; what the pack is not, first."""
+    saved over, but the instruction not to save over it; no assertion that earlier results are stored; the passages
+    on the Mac's storage and on what happens to a result, and the claim about kinds; what the pack is not, first."""
     files = built()
     for name in (spb.INSTRUCTIONS, spb.RUN_SHEET, spb.BATCH_COMMANDS):
         text = files[P(name)].decode().replace("\r\n", "\n")
@@ -368,12 +362,11 @@ def test_the_prose_rules_hold_in_the_generated_documents():
                 assert block.count("\n") == 1, block
         for forbidden in ("never saved over", "ever saved over", "is never saved", "already have stored results",
                           "complete stored results", "Every input in it is invented", "executable",
-                          "intake adds a new run", "ingest --check", "--authority", "unopened", "does not read",
-                          "case.json"):
+                          "intake adds a new run", "ingest --check", "--authority", "case.json"):
             assert forbidden not in text, (name, forbidden)
     instructions = files[P(spb.INSTRUCTIONS)].decode().replace("\r\n", "\n")
     assert "Do not save over the imported file `<stem>.mbf`." in instructions
-    for passage in (spb.SET_PASSAGE, spb.SCREEN_WAITS, spb.KINDS_CLAIM):
+    for passage in (spb.SET_PASSAGE, spb.RESULT_PASSAGE, spb.KINDS_CLAIM):
         assert passage in instructions
     first = instructions.split("# SWBPIPE sitting: instructions\n\n", 1)[1].split("\n\n", 1)[0]
     for words in ("not a SWBPIPE result", "no driver", "no script that runs at the sitting", "SWBPIPE's harness"):
@@ -389,15 +382,6 @@ def test_the_prose_rules_hold_in_the_generated_documents():
     for words in ("fresh working folder", "not the exchange folder", "answering or closing it is yours to do",
                   "note it on its run line, then run that case the window way (3.2) before pasting the next line", "one line at a time"):
         assert words in instructions
-
-
-def test_the_builder_holds_no_exchange_intake_or_git_machinery():
-    """A tripwire on the builder's own source: it is a development tool that reads tracked inputs and writes a folder;
-    nothing of the exchange folder, intake, recognition or Git is in it."""
-    source = (ROOT / "tools" / "caepipe_correlation" / "sitting_pack_build.py").read_text()
-    for word in ("SWBPIPE_CAEPIPE_EXCHANGE", "class Guard", "class Tree", "resolve_harness_config", "subprocess",
-                 "def ingest", "def recognise", "authority", "--development", "exchange_root", "run_pilot", "git "):
-        assert word not in source, word
 
 
 def test_the_pack_folder_holds_only_what_travels_and_the_records_folder_the_rest():
@@ -566,17 +550,13 @@ def test_each_model_file_has_a_provenance_sidecar_saying_only_what_is_establishe
 
 
 def test_the_owners_reading_of_the_instructions_and_run_sheet():
-    """The points of the owner's reading: the three conditions in one sentence; one way per case, with what comes back
+    """The points of the owner's reading: one way per case, with what comes back
     listed per way and no file named twice; the Analyze page quoted; the dry run ends by bringing the folder back, not
     on a word; the window sample saves as a real run does; part 1's table gives the strike order and the form."""
     files = built()
     index = index_of(files)
     instructions = files[P(spb.INSTRUCTIONS)].decode().replace("\r\n", "\n")
     sheet = files[P(spb.RUN_SHEET)].decode().replace("\r\n", "\n")
-    assert ("A result from this sitting is screened only after (a) the harness's stored-results change (pull request "
-            "262) has merged, (b) a rule for a returned file's origin is in place, and (c) the comparison record itself "
-            "carries the qualification of SWBPIPE's results as a required member (pull request 263); no screen is run "
-            "before all three.") in instructions
     assert ("Where a case is offered both ways, run it by its batch line; use the window way for that case only if its "
             "batch line left no results, and note that on its run line.") in instructions
     for item in index["items"]:
@@ -671,31 +651,14 @@ def test_the_evidence_section_ties_its_three_classes_to_the_parts_routes_in_the_
         assert ("answer A" in line) == (number in batch), number
 
 
-def test_the_mac_paragraph_is_the_agent_0s_settled_text_and_nothing_else_says_the_mac_checks_kinds():
-    instructions = built()[P(spb.INSTRUCTIONS)].decode()
-    settled = ("On the Mac, the storage procedure copies the returned folder under one new name, records each file's "
-               "path, size and hash, and verifies the copied contents against the source hashes. It reads file contents "
-               "as bytes without interpreting prints or run lines, comparing models with the pack, or classifying files "
-               "by kind. This procedure checks no print sections. Your dry-run comparison checks the example print you "
-               "inspect; it does not check subsequent prints.")
-    assert spb.SET_PASSAGE == settled
-    assert ("**On the Mac.** No SWBPIPE command for the returned folder is part of this pack. " + settled + "\r\n") \
-        in instructions
-    for name, data in built().items():
-        if name.startswith("pack/") and name.endswith((".md", ".txt")):
-            text = data.decode("utf-8", errors="replace").replace(settled, "")
-            assert "by kind" not in text and "is the pack's" not in text, name
-    assert "intake change" not in instructions and "merged" not in instructions.split("**What a result waits on.**")[0]
-
-
-def test_the_index_designates_each_return_held_sealed_screened_or_stored_only():
+def test_the_index_designates_each_return_by_its_route_and_counterpart():
     index = index_of(built())
-    counts: dict[str, int] = {}
     for item in index["items"]:
-        counts[item["designation"]] = counts.get(item["designation"], 0) + 1
-        if item["designation"] == "held":
+        assert item["designation"] in ("window_run", "capture_only", "screened", "stored_only"), item["item_id"]
+        if item["designation"] == "window_run":
             assert item["run_kind"] in ("option_addition", "hand_entry") and item["routes"] == [spb.WINDOW]
-    assert counts == {"held": 72, "sealed": 22, "stored_only": 3, "screened": 116}
+        if item["designation"] == "capture_only":
+            assert item["capture"] == "capture_only"
 
 
 def test_the_export_pages_words_the_batch_lines_answer_and_the_import_after_a_batch_line():

@@ -390,8 +390,8 @@ def test_every_pressurised_model_declares_three_runs_of_the_same_file():
         assert declared["oppres_line"] == lines[name] and declared["screened"] is (name != RUNS[2])
         assert [member["model_id"] for member in declared["members"]] == names
     capture_text = manifest["series"][RUNS[2]]["description"]
-    assert manifest["series"][RUNS[2]]["swbpipe"] is None and "collects nothing for it" in capture_text
-    assert "capture_path_unavailable" in capture_text and "screened against nothing" not in capture_text
+    assert manifest["series"][RUNS[2]]["swbpipe"] is None and "no SWBPIPE counterpart" in capture_text
+    assert "collected, bound and parsed" in capture_text
     hypothesis = manifest["pressure_hypothesis"]
     assert hypothesis["statement"].startswith("HYPOTHESIS") and "tests and does not assume" in hypothesis["statement"]
     assert "docs.sstcae.com/users_manual/import_mbf.htm" in hypothesis["format_source"]
