@@ -1621,6 +1621,7 @@
     "apps/desktop/src/features/bend-authoring/lLineAuthoring.test.tsx",
     "apps/desktop/src/features/caepipe-mbf/mbfImport.test.ts",
     "apps/desktop/src/features/load-cases/LoadCaseManagerPanel.test.tsx",
+    "apps/desktop/src/features/load-cases/hydrostaticTest.engine.test.tsx",
     "apps/desktop/src/features/load-cases/referenceSystemFills.engine.test.tsx",
     "apps/desktop/src/features/model-settings/ModelSettingsPressureElongation.test.tsx",
     "apps/desktop/src/features/native-package/NativePackagePanel.test.ts",
