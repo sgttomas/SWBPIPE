@@ -2487,6 +2487,12 @@ export function PipeViewport({
     );
   }
 
+  // The quiet status line over the canvas: only statements that apply now, never an empty row.
+  // Actual OD states itself only while it is asked for and not wholly drawn.
+  const actualOdStatusShown = geometryMode === "actual-od" && actualOd.status !== "available";
+  const viewportStatusShown = Boolean(elementAxes) || hiddenCount > 0 || selectedHiddenCount > 0 || actualOdStatusShown ||
+    viewportContextStatus !== "ready" || activeModelIndex.invalidGeometry.size > 0 || Boolean(renderTransformResolution.issue);
+
   // The canvas's one Fit: the visible selection when there is one, the whole model otherwise.
   const canvasFitCommand: "fit-selection" | "fit-model" = fitSelectionBounds ? "fit-selection" : "fit-model";
 
@@ -2758,33 +2764,8 @@ export function PipeViewport({
             }
           ]}
         />
-        <div className="viewport-toolbar-status-strip" aria-label="Viewport status">
-          <span
-            className="viewport-toolbar-selection-status"
-            title={`Selected ${selection.type}: ${selection.id}`}
-          >Selected: {selection.id}</span>
-          {elementAxes ? <ElementAxesStatus view={elementAxes} selection={selection} /> : null}
-          {hiddenCount > 0 ? <button type="button" className="viewport-hidden-count" data-testid="viewport-hidden-count" onClick={() => dispatchViewportViewCommand({ type: "show-all" })} title="Clear Hide and isolation">{hiddenCount} hidden · Show all</button> : null}
-          {selectedHiddenCount > 0 ? <span role="status" title={`${selectedHiddenCount} selected item${selectedHiddenCount === 1 ? " is" : "s are"} hidden`}>{selectedHiddenCount} selected item{selectedHiddenCount === 1 ? " is" : "s are"} hidden</span> : null}
-          <span role="status" data-testid="viewport-od-status" title={geometryMode === "actual-od" ? actualOd.reason : "Schematic centerline geometry"}>{geometryMode === "actual-od" ? actualOd.reason : "Schematic centerline geometry"}</span>
-          <span role="status" aria-label="View command status" data-testid="viewport-view-command-status" title={viewCommandStatus}>{viewCommandStatus}</span>
-          {viewportContextStatus !== "ready" ? (
-            <span role="status" data-testid="viewport-context-status" title={viewportContextStatus === "lost" ? "3D context lost; rendering paused." : "Restoring 3D resources…"}>
-              {viewportContextStatus === "lost" ? "3D context lost; rendering paused." : "Restoring 3D resources…"}
-            </span>
-          ) : null}
-          {activeModelIndex.invalidGeometry.size > 0 ? (
-            <span role="status" data-testid="viewport-invalid-geometry" title={`${activeModelIndex.invalidGeometry.size} item${activeModelIndex.invalidGeometry.size === 1 ? "" : "s"} excluded: ${activeModelIndex.invalidGeometry.values().next().value}`}>
-              {activeModelIndex.invalidGeometry.size} item{activeModelIndex.invalidGeometry.size === 1 ? "" : "s"} excluded: {activeModelIndex.invalidGeometry.values().next().value}
-            </span>
-          ) : null}
-          {renderTransformResolution.issue ? (
-            <span role="status" data-testid="viewport-render-transform-status" title={`Viewport geometry excluded: ${renderTransformResolution.issue}`}>
-              Viewport geometry excluded: {renderTransformResolution.issue}
-            </span>
-          ) : null}
-        </div>
       </div>
+      <span className="visually-hidden" role="status" aria-label="View command status" data-testid="viewport-view-command-status">{viewCommandStatus}</span>
       <div className={`viewport-frame${boxSelectActive ? " box-select-active" : ""}`}>
         <div
           className="viewport-canvas"
@@ -2872,48 +2853,53 @@ export function PipeViewport({
         <div className="viewport-axis-triad" aria-label="Orientation gizmo showing X, Y, Z axes" data-testid="viewport-axis-triad" role="img">
           <div className="viewport-gizmo-host" ref={gizmoHostRef} aria-hidden="true" />
         </div>
-        <div className="viewport-view-cube" role="group" aria-label="View controls" data-testid="viewport-view-cube" title="Drag to orbit · scroll to zoom · right-drag to pan">
-          <button
-            type="button"
-            className="viewport-fit"
-            data-testid={canvasFitCommand === "fit-selection" ? "viewport-fit-selection" : "viewport-fit-model"}
-            onClick={() => dispatchViewportViewCommand({ type: canvasFitCommand })}
-            title={canvasFitCommand === "fit-selection" ? "Fit the selection in the view" : "Fit the whole model in the view"}
-          >{canvasFitCommand === "fit-selection" ? "Fit Selection" : "Fit Model"}</button>
-          <span className="viewport-view-presets">
-            <button type="button" data-testid="viewport-view-front" aria-pressed={viewPreset === "front"} onClick={() => setViewPreset("front")} title="Look along −Z at the X–Y plane">Front</button>
-            <button type="button" data-testid="viewport-view-top" aria-pressed={viewPreset === "top"} onClick={() => setViewPreset("top")} title="Look down −Y at the X–Z plane">Top</button>
-            <button type="button" data-testid="viewport-view-side" aria-pressed={viewPreset === "side"} onClick={() => setViewPreset("side")} title="Look along −X at the Z–Y plane">Side</button>
-            <button type="button" data-testid="viewport-view-isometric" aria-pressed={viewPreset === "iso"} onClick={() => setViewPreset("iso")} title="Isometric view">Isometric</button>
-          </span>
+        {/* The canvas furniture keeps to its own places so that none covers another: the view
+            cluster with the result legend under it down the right; the status line, the factor
+            and the scale bar along the foot, between the axis triad and the right edge. */}
+        <div className="viewport-canvas-right" data-testid="viewport-canvas-right">
+          <div className="viewport-view-cube" role="group" aria-label="View controls" data-testid="viewport-view-cube" title="Drag to orbit · scroll to zoom · right-drag to pan">
+            <button
+              type="button"
+              className="viewport-fit"
+              data-testid={canvasFitCommand === "fit-selection" ? "viewport-fit-selection" : "viewport-fit-model"}
+              onClick={() => dispatchViewportViewCommand({ type: canvasFitCommand })}
+              title={canvasFitCommand === "fit-selection" ? "Fit the selection in the view" : "Fit the whole model in the view"}
+            >{canvasFitCommand === "fit-selection" ? "Fit Selection" : "Fit Model"}</button>
+            <span className="viewport-view-presets">
+              <button type="button" data-testid="viewport-view-front" aria-pressed={viewPreset === "front"} onClick={() => setViewPreset("front")} title="Look along −Z at the X–Y plane">Front</button>
+              <button type="button" data-testid="viewport-view-top" aria-pressed={viewPreset === "top"} onClick={() => setViewPreset("top")} title="Look down −Y at the X–Z plane">Top</button>
+              <button type="button" data-testid="viewport-view-side" aria-pressed={viewPreset === "side"} onClick={() => setViewPreset("side")} title="Look along −X at the Z–Y plane">Side</button>
+              <button type="button" data-testid="viewport-view-isometric" aria-pressed={viewPreset === "iso"} onClick={() => setViewPreset("iso")} title="Isometric view">Isometric</button>
+            </span>
+          </div>
+          {result && (colourOverlay || reactionOverlay) ? (
+            <ResultOverlayLegend
+              result={sessionResult}
+              cases={overlayCases}
+              overlayCase={overlayCase}
+              onCaseChange={setOverlayCaseKey}
+              quantities={overlayQuantities}
+              quantity={overlayQuantity}
+              onQuantityChange={setOverlayQuantityId}
+              colour={colourOverlay}
+              reactions={reactionOverlay}
+              standing={resultStanding}
+              focus={overlayFocus(hoveredEntityKey, selection)}
+              contour={colourOverlay ? {
+                resolution: overlayResolution,
+                onResolutionChange: setOverlayResolution,
+                display: overlayDisplay,
+                onDisplayChange: setOverlayDisplay,
+                thresholdOn: overlayThresholdOn,
+                onThresholdOnChange: setOverlayThresholdOn,
+                thresholdText: overlayThresholdText,
+                onThresholdTextChange: setOverlayThresholdText,
+                threshold: overlayThreshold,
+                numbers: contourValues && contourValueAnchors ? { selected: contourValueAnchors.length, candidates: contourValues.candidateCount } : null
+              } : null}
+            />
+          ) : null}
         </div>
-        {result && (colourOverlay || reactionOverlay) ? (
-          <ResultOverlayLegend
-            result={sessionResult}
-            cases={overlayCases}
-            overlayCase={overlayCase}
-            onCaseChange={setOverlayCaseKey}
-            quantities={overlayQuantities}
-            quantity={overlayQuantity}
-            onQuantityChange={setOverlayQuantityId}
-            colour={colourOverlay}
-            reactions={reactionOverlay}
-            standing={resultStanding}
-            focus={overlayFocus(hoveredEntityKey, selection)}
-            contour={colourOverlay ? {
-              resolution: overlayResolution,
-              onResolutionChange: setOverlayResolution,
-              display: overlayDisplay,
-              onDisplayChange: setOverlayDisplay,
-              thresholdOn: overlayThresholdOn,
-              onThresholdOnChange: setOverlayThresholdOn,
-              thresholdText: overlayThresholdText,
-              onThresholdTextChange: setOverlayThresholdText,
-              threshold: overlayThreshold,
-              numbers: contourValues && contourValueAnchors ? { selected: contourValueAnchors.length, candidates: contourValues.candidateCount } : null
-            } : null}
-          />
-        ) : null}
         {colourOverlay?.state === "available" && colourOverlay.quantity && contourValueAnchors ? (
           <ResultValueLabels
             anchors={contourValueAnchors}
@@ -2922,13 +2908,40 @@ export function PipeViewport({
             resourceRef={viewportResourceRef}
           />
         ) : null}
-        {deformation.state === "available" ? (
-          <div className="viewport-deflection-label" data-testid="viewport-deflection-label">
-            {deflectionLabel(deformation, deflectionCase?.label ?? null)}
+        <div className="viewport-canvas-foot">
+          {viewportStatusShown ? (
+            <div className="viewport-status-line" aria-label="Viewport status" data-testid="viewport-status-line">
+              {elementAxes ? <ElementAxesStatus view={elementAxes} selection={selection} /> : null}
+              {hiddenCount > 0 ? <button type="button" className="viewport-hidden-count" data-testid="viewport-hidden-count" onClick={() => dispatchViewportViewCommand({ type: "show-all" })} title="Clear Hide and isolation">{hiddenCount} hidden · Show all</button> : null}
+              {selectedHiddenCount > 0 ? <span role="status" title={`${selectedHiddenCount} selected item${selectedHiddenCount === 1 ? " is" : "s are"} hidden`}>{selectedHiddenCount} selected item{selectedHiddenCount === 1 ? " is" : "s are"} hidden</span> : null}
+              {actualOdStatusShown ? <span role="status" data-testid="viewport-od-status" title={actualOd.reason}>{actualOd.reason}</span> : null}
+              {viewportContextStatus !== "ready" ? (
+                <span role="status" data-testid="viewport-context-status" title={viewportContextStatus === "lost" ? "3D context lost; rendering paused." : "Restoring 3D resources…"}>
+                  {viewportContextStatus === "lost" ? "3D context lost; rendering paused." : "Restoring 3D resources…"}
+                </span>
+              ) : null}
+              {activeModelIndex.invalidGeometry.size > 0 ? (
+                <span role="status" data-testid="viewport-invalid-geometry" title={`${activeModelIndex.invalidGeometry.size} item${activeModelIndex.invalidGeometry.size === 1 ? "" : "s"} excluded: ${activeModelIndex.invalidGeometry.values().next().value}`}>
+                  {activeModelIndex.invalidGeometry.size} item{activeModelIndex.invalidGeometry.size === 1 ? "" : "s"} excluded: {activeModelIndex.invalidGeometry.values().next().value}
+                </span>
+              ) : null}
+              {renderTransformResolution.issue ? (
+                <span role="status" data-testid="viewport-render-transform-status" title={`Viewport geometry excluded: ${renderTransformResolution.issue}`}>
+                  Viewport geometry excluded: {renderTransformResolution.issue}
+                </span>
+              ) : null}
+            </div>
+          ) : null}
+          <div className="viewport-canvas-foot-end">
+            {deformation.state === "available" ? (
+              <div className="viewport-deflection-label" data-testid="viewport-deflection-label">
+                {deflectionLabel(deformation, deflectionCase?.label ?? null)}
+              </div>
+            ) : null}
+            <div className="viewport-scale-bar" data-testid="viewport-scale-bar">
+              <QuantityReadout quantity={{ value: 1, unit: defaultLengthUnit, dimension_id: "length" }} />
+            </div>
           </div>
-        ) : null}
-        <div className="viewport-scale-bar" data-testid="viewport-scale-bar">
-          <QuantityReadout quantity={{ value: 1, unit: defaultLengthUnit, dimension_id: "length" }} />
         </div>
       </div>
       <section className="command-bar" aria-label="Command and selection bar" data-testid="command-bar">

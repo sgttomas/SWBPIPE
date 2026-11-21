@@ -758,7 +758,8 @@ for (const theme of APPEARANCE_THEMES) {
         // Selecting in the tree closes the page onto the Model stage. Restore the same task and
         // page layout before comparing rectangles (measure reopens the page).
         if (viewport.width < 1280) await ensureRail(page, "tree", false);
-        await expect(page.locator(".viewport-toolbar-selection-status")).toHaveText("Selected: node:N-110");
+        // The window's status bar states the selection; the view repeats it nowhere.
+        await expect(page.getByTestId("status-selection")).toContainText("node: node:N-110");
         expect(await measure("changed primary; task/dock restored")).toEqual(beforeSelection);
         await closePage();
         await ensureRail(page, "inspector", true);
@@ -1564,12 +1565,13 @@ async function readPublishedSelection(page: Page): Promise<any> {
   });
 }
 
+/** The selection as the window's status bar states it (the view no longer repeats it). */
 async function readViewportToolbarSelectionStatus(page: Page): Promise<any> {
-  const status = page.locator(".viewport-toolbar-selection-status");
+  const status = page.getByTestId("status-selection");
   await expect(status).toHaveCount(1);
   return status.evaluate((element) => {
-    const toolbar = element.closest(".viewport-toolbar");
-    if (!(toolbar instanceof HTMLElement)) throw new Error("Viewport toolbar is unavailable.");
+    const toolbar = element.closest('[data-testid="workspace-status-bar"]');
+    if (!(toolbar instanceof HTMLElement)) throw new Error("Workspace status bar is unavailable.");
     const rect = element.getBoundingClientRect();
     const toolbarRect = toolbar.getBoundingClientRect();
     const style = getComputedStyle(element);
@@ -1593,7 +1595,7 @@ async function readViewportToolbarSelectionStatus(page: Page): Promise<any> {
 }
 
 function expectToolbarSelectionStatus(status: any, id: string, label: string): void {
-  expect(status.text, `${label} full selected ID`).toBe(`Selected: ${id}`);
+  expect(status.text, `${label} full selected ID`).toContain(id);
   expect(status.rect.left, `${label} selected status left bound`).toBeGreaterThanOrEqual(status.toolbarRect.left - 0.5);
   expect(status.rect.right, `${label} selected status right bound`).toBeLessThanOrEqual(status.toolbarRect.right + 0.5);
   expect(status.rect.top, `${label} selected status top bound`).toBeGreaterThanOrEqual(status.toolbarRect.top - 0.5);

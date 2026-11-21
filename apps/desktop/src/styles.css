@@ -4934,8 +4934,35 @@ body { min-width: 760px; min-height: 540px; }
 }
 .app-shell .viewport-bar .viewport-deformation-status > summary { min-height: 24px; line-height: 24px; white-space: nowrap; }
 .app-shell .viewport-more-menu .viewport-deformation-status[open] > div { position: static; width: auto; box-shadow: none; }
+/* The canvas furniture has its own places, so none covers another. Down the right: Fit and the
+   standard views, then the result legend, ending above the foot. Along the foot, between the axis
+   triad and the right edge: the status line, then the deflection factor and the scale bar. */
+.app-shell .viewport-canvas-right {
+  position: absolute; z-index: 4; top: var(--space-4); right: var(--space-4);
+  bottom: calc(var(--space-4) + 44px + var(--viewport-presentation-bottom-inset, 0px));
+  display: flex; flex-direction: column; align-items: flex-end; gap: var(--space-4);
+  max-width: calc(100% - 2 * var(--space-4)); pointer-events: none;
+}
+.app-shell .viewport-canvas-right > * { pointer-events: auto; }
+.app-shell .viewport-canvas-right > .viewport-result-legend { position: static; flex: 0 1 auto; min-height: 0; max-height: none; max-width: 100%; }
+.app-shell .viewport-canvas-foot {
+  position: absolute; z-index: 4; left: calc(var(--space-4) + 96px + var(--space-4)); right: var(--space-4);
+  bottom: calc(var(--space-4) + var(--viewport-presentation-bottom-inset, 0px));
+  display: flex; align-items: flex-end; justify-content: space-between; gap: var(--space-4); pointer-events: none;
+}
+.app-shell .viewport-canvas-foot > * { pointer-events: auto; }
+.app-shell .viewport-canvas-foot-end { display: flex; flex: none; flex-direction: column; align-items: flex-end; gap: var(--space-2); margin-inline-start: auto; pointer-events: none; }
+.app-shell .viewport-canvas-foot-end > .viewport-scale-bar, .app-shell .viewport-canvas-foot-end > .viewport-deflection-label { position: static; }
+/* The status line: only what applies now, quiet, on the canvas's label plate. */
+.app-shell .viewport-status-line {
+  display: flex; flex: 0 1 auto; flex-wrap: wrap; align-items: center; gap: var(--space-1) var(--space-4); min-width: 0;
+  padding: var(--space-1) var(--space-3); border-radius: var(--radius-control);
+  color: var(--canvas-label); background: var(--canvas-labelBg); font-size: var(--type-size-caption); line-height: 16px;
+}
+.app-shell .viewport-status-line > span { min-width: 0; overflow-wrap: anywhere; }
+.app-shell .viewport-status-line .viewport-hidden-count { min-height: 24px; height: 24px; padding: 0 var(--space-3); font-size: var(--type-size-caption); }
 /* Fit and the standard views: one cluster at the canvas's top right. */
-.app-shell .viewport-view-cube { top: var(--space-4); right: var(--space-4); display: flex; align-items: center; gap: var(--space-3); }
+.app-shell .viewport-view-cube { position: static; display: flex; flex-wrap: wrap; justify-content: flex-end; align-items: center; gap: var(--space-3); max-width: 100%; }
 .app-shell .viewport-view-cube button {
   min-height: 24px; height: 24px; padding: 0 var(--space-3); font-size: var(--type-size-caption); box-shadow: var(--elevation-1);
 }

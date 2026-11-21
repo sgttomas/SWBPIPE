@@ -116,7 +116,7 @@ test("C3 snapshot, Hide precedence, persistent hidden count, theme and Show All 
   await page.keyboard.press("Shift+Tab"); await page.keyboard.press("Tab");
   await expect(hidden).toBeFocused();
   const containment = await hidden.evaluate(el => {
-    const parentElement = el.closest(".viewport-toolbar-status-strip")!;
+    const parentElement = el.closest(".viewport-status-line")!;
     const r = el.getBoundingClientRect(), parent = parentElement.getBoundingClientRect();
     const style = getComputedStyle(el);
     const details = (element: Element) => {
@@ -141,7 +141,7 @@ test("C3 snapshot, Hide precedence, persistent hidden count, theme and Show All 
   expect(containment.width).toBeGreaterThanOrEqual(24); expect(containment.height).toBeGreaterThanOrEqual(24);
   expect(parseFloat(containment.outlineWidth)).toBeGreaterThan(0); expect(parseFloat(containment.outlineOffset)).toBeLessThan(0);
   await info.attach("hidden-count-containment", { body: JSON.stringify(containment), contentType: "application/json" });
-  await info.attach("narrow-hidden-count-focus", { body: await page.locator(".viewport-toolbar-status-strip").screenshot(), contentType: "image/png" });
+  await info.attach("narrow-hidden-count-focus", { body: await page.locator(".viewport-status-line").screenshot(), contentType: "image/png" });
   await hidden.click();
   await expect(hidden).toHaveCount(0);
   await expect(label(page, "pipe:C3-B")).toHaveAttribute("data-dimmed", "false");
