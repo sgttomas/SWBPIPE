@@ -10,7 +10,12 @@
 //! and take from its caller only the members that do not follow the rows.
 //!
 //! Each producer's output equals the desktop builder's in canonical form
-//! (RFC 8785). The rows and the Diagnostics are the projections the request
+//! (RFC 8785), for a result the product reader admits and a run record made
+//! for it. Outside that they differ, and fail closed: they refuse a row with
+//! no id or a unit that is not text, a diagnostic reference that is not text
+//! and a number the checked canonical form does not admit, where the builder
+//! writes a placeholder; and they write the row's digest where the builder,
+//! given a run record entry with none, writes `TBD`. The rows and the Diagnostics are the projections the request
 //! checks already apply ([`crate::bindings::expected_report_result_rows`],
 //! [`crate::bindings::expected_report_diagnostics`]); the references carry the
 //! row digest [`crate::bindings::check_report_result_refs`] requires. Parity:
@@ -87,10 +92,20 @@ pub fn result_diagnostics(source: &Value, provenance: &Value) -> Result<Vec<Valu
 /// The report's `unit_display_summary`: the storage convention, the model's
 /// project units, the source rows' stored units (each once, in UTF-16 code
 /// unit order, as the desktop sorts them), the display policy and
-/// `conversion_performed`.
+/// `conversion_performed`. A row with no unit, or an empty one, adds none; a
+/// unit that is not text refuses.
 pub fn unit_display_summary(model: &Value, source: &Value) -> Result<Value, String> {
     let units = model.pointer("/project/units").filter(|units| units.is_object()).ok_or_else(|| mismatch("the model's project units"))?;
-    let result_units = sorted_unique(source_rows(source)?.iter().filter_map(|row| row["unit"].as_str()).filter(|unit| !unit.is_empty()).map(str::to_string));
+    let mut stored = Vec::new();
+    for row in source_rows(source)? {
+        match row.get("unit") {
+            None | Some(Value::Null) => {}
+            Some(Value::String(unit)) if unit.is_empty() => {}
+            Some(Value::String(unit)) => stored.push(unit.clone()),
+            Some(_) => return Err(mismatch("a source row's unit is not text")),
+        }
+    }
+    let result_units = sorted_unique(stored.into_iter());
     Ok(json!({
         "storage_convention": STORAGE_CONVENTION,
         "model_units": units,
@@ -113,18 +128,26 @@ pub fn result_coordinate_systems(source: &Value) -> Result<Vec<String>, String> 
     ))
 }
 
-fn member<'a>(report: &'a mut Value, pointer: &str) -> Result<&'a mut serde_json::Map<String, Value>, String> {
-    report.pointer_mut(pointer).and_then(Value::as_object_mut).ok_or_else(|| not_placed(format_args!("the report input has no {pointer} object")))
-}
+const SECTION_REFS: &str = "/calculation_report/report_section_refs";
 
-fn place(object: &mut serde_json::Map<String, Value>, key: &str, value: Value, path: &str) -> Result<(), String> {
-    match object.get(key) {
-        None | Some(Value::Null) => {
-            object.insert(key.to_string(), value);
-            Ok(())
-        }
-        Some(_) => Err(not_placed(format_args!("the report input already carries {path}"))),
-    }
+/// The four members [`place_members`] writes: the object that holds each, its
+/// key, and its name in a refusal.
+const PLACED: [(&str, &str, &str); 4] = [
+    ("", "result_rows", "result_rows"),
+    ("/calculation_report", "result_export_refs", "calculation_report.result_export_refs"),
+    ("/calculation_report/model_input_summary", "unit_display_summary", "calculation_report.model_input_summary.unit_display_summary"),
+    ("/report_context", "result_coordinate_systems", "report_context.result_coordinate_systems"),
+];
+
+/// The report's one `report_section_refs` entry's checksum object.
+fn sections_checksum(report: &mut Value) -> Result<&mut serde_json::Map<String, Value>, String> {
+    report
+        .pointer_mut(SECTION_REFS)
+        .and_then(Value::as_array_mut)
+        .filter(|refs| refs.len() == 1)
+        .and_then(|refs| refs[0].get_mut("checksum"))
+        .and_then(Value::as_object_mut)
+        .ok_or_else(|| not_placed("the report input has no single calculation_report.report_section_refs entry with a checksum"))
 }
 
 /// Writes the row-scale members into a report input that came without them:
@@ -136,10 +159,18 @@ fn place(object: &mut serde_json::Map<String, Value>, key: &str, value: Value, p
 ///
 /// A report input that already carries one of the four members refuses
 /// ([`MEMBERS_NOT_PLACED`]), naming the member and no value: a host that
-/// derives a member does not also take it from its caller. The Diagnostics
-/// cannot be told apart this way; the caller's own check of the session
-/// entries follows. `report_section_refs` is not written: see
-/// [`seal_report_sections`].
+/// derives a member does not also take it from its caller. So does one with
+/// no place for a member. Every refusal is decided before anything is
+/// written, so a refused input is unchanged.
+///
+/// The Diagnostics a caller sends cannot be told from the result's this way:
+/// the caller's own check of the session entries follows (the desktop host's
+/// `report_session_diagnostics`). The generic route's numerical-health lines,
+/// which the desktop appends to `result_rows`, are not placed here.
+///
+/// The completed sections no longer have the checksum the input stated, so
+/// its value is removed: a report input placed and not sealed
+/// ([`seal_report_sections`]) does not decode as a renderer input.
 pub fn place_members(report: &mut Value, model: &Value, source: &Value) -> Result<(), String> {
     let provenance = session_provenance(model)?;
     let rows = result_rows(source)?;
@@ -150,21 +181,27 @@ pub fn place_members(report: &mut Value, model: &Value, source: &Value) -> Resul
     if !report.is_object() {
         return Err(not_placed("the report input is not an object"));
     }
-    place(member(report, "")?, "result_rows", Value::Array(rows), "result_rows")?;
-    place(member(report, "/calculation_report")?, "result_export_refs", Value::Array(refs), "calculation_report.result_export_refs")?;
-    place(
-        member(report, "/calculation_report/model_input_summary")?,
-        "unit_display_summary",
-        units,
-        "calculation_report.model_input_summary.unit_display_summary",
-    )?;
-    place(member(report, "/report_context")?, "result_coordinate_systems", json!(systems), "report_context.result_coordinate_systems")?;
-    let session = report
-        .pointer_mut("/report_sections/diagnostics")
-        .and_then(Value::as_array_mut)
-        .ok_or_else(|| not_placed("the report input has no report_sections.diagnostics list"))?;
-    diagnostics.append(session);
-    *session = diagnostics;
+    for (pointer, key, path) in PLACED {
+        let object = report.pointer(pointer).and_then(Value::as_object).ok_or_else(|| not_placed(format_args!("the report input has no {pointer} object")))?;
+        if object.get(key).is_some_and(|value| !value.is_null()) {
+            return Err(not_placed(format_args!("the report input already carries {path}")));
+        }
+    }
+    if !report.pointer("/report_sections/diagnostics").is_some_and(Value::is_array) {
+        return Err(not_placed("the report input has no report_sections.diagnostics list"));
+    }
+    sections_checksum(report)?;
+    // Nothing below refuses: every place was found above.
+    for ((pointer, key, _), value) in PLACED.into_iter().zip([Value::Array(rows), Value::Array(refs), units, json!(systems)]) {
+        if let Some(object) = report.pointer_mut(pointer).and_then(Value::as_object_mut) {
+            object.insert(key.to_string(), value);
+        }
+    }
+    if let Some(session) = report.pointer_mut("/report_sections/diagnostics").and_then(Value::as_array_mut) {
+        diagnostics.append(session);
+        *session = diagnostics;
+    }
+    sections_checksum(report)?.remove("value");
     Ok(())
 }
 
@@ -173,16 +210,24 @@ pub fn place_members(report: &mut Value, model: &Value, source: &Value) -> Resul
 /// sections' canonical form, as the desktop's builder computes it once every
 /// section member is in place. Called after [`place_members`] and after any
 /// other member the host writes into the sections.
+///
+/// The entry must be the builder's: it names these sections
+/// (`report_sections`, their `report_section_id`), and its checksum states
+/// SHA-256 over RFC 8785 for that same reference. Any other entry refuses and
+/// nothing is written.
 pub fn seal_report_sections(report: &mut Value) -> Result<(), String> {
     let sections = report.get("report_sections").filter(|sections| sections.is_object()).ok_or_else(|| not_placed("the report input has no report_sections object"))?;
+    let id = sections["report_section_id"].as_str().ok_or_else(|| not_placed("the report sections have no report_section_id"))?;
+    let named = reference("report_sections", id);
     let checksum = digest(sections).map_err(|detail| format!("{SOURCE_INVALID}: {detail}"))?;
-    let refs = report
-        .pointer_mut("/calculation_report/report_section_refs")
-        .and_then(Value::as_array_mut)
-        .filter(|refs| refs.len() == 1)
-        .ok_or_else(|| not_placed("the report input has no single calculation_report.report_section_refs entry"))?;
-    let entry = refs[0].get_mut("checksum").and_then(Value::as_object_mut).ok_or_else(|| not_placed("the report section reference has no checksum"))?;
-    entry.insert("value".to_string(), Value::String(checksum));
+    let entry = report.pointer(SECTION_REFS).and_then(Value::as_array).filter(|refs| refs.len() == 1).map(|refs| &refs[0]);
+    let stated = entry.and_then(|entry| entry.get("checksum"));
+    let is_the_builders = entry.is_some_and(|entry| entry["ref"] == named)
+        && stated.is_some_and(|stated| stated["algorithm"] == "sha256" && stated["canonicalization"] == "rfc8785_jcs" && stated["payload_ref"] == named);
+    if !is_the_builders {
+        return Err(not_placed("the report input's calculation_report.report_section_refs is not one SHA-256 RFC 8785 reference to its report_sections"));
+    }
+    sections_checksum(report)?.insert("value".to_string(), Value::String(checksum));
     Ok(())
 }
 
@@ -192,6 +237,11 @@ pub fn seal_report_sections(report: &mut Value) -> Result<(), String> {
 /// origin, and the derivative of `source`. Of the run record it reads the
 /// `analysis_run` header and the count of its diagnostics, not its
 /// `result_refs`.
+///
+/// Not every run the desktop's assembly accepts: a run record that carries a
+/// diagnostic the source does not (a rule-pack reference exclusion) is refused
+/// by the document base (`REPORT-USER-RELEASE-BASIS-INVALID`), where the
+/// desktop's assembly adds a document diagnostic for it.
 pub fn result_document(model: &Value, source: &Value, run_record: &Value, manifest_ref: &str, solver_basis: &Value) -> Result<Value, String> {
     let origin = current_received_origin(model, source, manifest_ref)?;
     let base = current_result_document_base(model, source, run_record, manifest_ref, solver_basis)?;

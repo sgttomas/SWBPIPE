@@ -18,6 +18,7 @@ use open_pipe_stress_report_package::report_members::{
     seal_report_sections, unit_display_summary, MEMBERS_NOT_PLACED,
 };
 use open_pipe_stress_report_package::user_release::{first_difference, session_provenance};
+use open_pipe_stress_result_export::derivative::digest;
 use serde_json::{json, Value};
 
 const WITNESS_REQUESTS: [(&str, &str); 5] = [
@@ -210,8 +211,11 @@ fn a_report_input_that_carries_a_derived_member_refuses() {
         for carried in [json!([]), json!(["invented-carried-value"]), json!({"invented": "carried-value"})] {
             let mut report = stripped.clone();
             report.pointer_mut(pointer).unwrap().as_object_mut().unwrap().insert(key.to_string(), carried);
+            let before = report.clone();
             let error = place_members(&mut report, &built.model, &built.source).unwrap_err();
             assert_eq!(error, format!("{MEMBERS_NOT_PLACED}: the report input already carries {path}"));
+            // Decided before anything is written: no derived member sits beside the caller's.
+            assert_eq!(report, before, "{path}");
         }
         // A null member is an absent one.
         let mut report = stripped.clone();
@@ -224,20 +228,83 @@ fn a_report_input_that_carries_a_derived_member_refuses() {
 fn a_report_input_with_no_place_for_a_member_refuses() {
     let built = built_reports().into_iter().next().unwrap();
     let stripped = without_row_scale_members(&built);
-    for pointer in ["/calculation_report", "/calculation_report/model_input_summary", "/report_context", "/report_sections/diagnostics"] {
+    for pointer in [
+        "/calculation_report",
+        "/calculation_report/model_input_summary",
+        "/report_context",
+        "/report_sections/diagnostics",
+        "/report_sections",
+        "/calculation_report/report_section_refs",
+        "/calculation_report/report_section_refs/0/checksum",
+    ] {
         let mut report = stripped.clone();
         *report.pointer_mut(pointer).unwrap() = Value::Null;
+        let before = report.clone();
         let error = place_members(&mut report, &built.model, &built.source).unwrap_err();
-        assert!(error.starts_with(&format!("{MEMBERS_NOT_PLACED}: ")), "{error}");
+        assert!(error.starts_with(&format!("{MEMBERS_NOT_PLACED}: ")), "{pointer}: {error}");
+        assert_eq!(report, before, "{pointer}");
     }
     let error = place_members(&mut json!([]), &built.model, &built.source).unwrap_err();
     assert!(error.starts_with(&format!("{MEMBERS_NOT_PLACED}: ")), "{error}");
-    for refs in [json!([]), json!([{"checksum": {}}, {"checksum": {}}]), json!([{}])] {
+}
+
+/// The seal writes only into the builder's own reference to these sections:
+/// one entry, naming the sections by their id, stating SHA-256 over RFC 8785
+/// for that same reference. Anything else refuses and writes nothing.
+#[test]
+fn the_seal_refuses_any_other_sections_reference() {
+    let built = built_reports().into_iter().next().unwrap();
+    let entry = built.report["calculation_report"]["report_section_refs"][0].clone();
+    let with = |pointer: &str, value: Value| {
+        let mut entry = entry.clone();
+        *entry.pointer_mut(pointer).unwrap() = value;
+        json!([entry])
+    };
+    for (what, refs) in [
+        ("no entry", json!([])),
+        ("two entries", json!([entry.clone(), entry.clone()])),
+        ("no checksum", json!([{"ref": entry["ref"]}])),
+        ("not a list", Value::Null),
+        ("another algorithm", with("/checksum/algorithm", json!("sha512"))),
+        ("another canonical form", with("/checksum/canonicalization", json!("JCS"))),
+        ("a checksum of another payload", with("/checksum/payload_ref/ref_id", json!("sections:another"))),
+        ("a reference to other sections", with("/ref/ref_id", json!("sections:another"))),
+        ("a reference of another type", with("/ref/ref_type", json!("report"))),
+    ] {
         let mut report = built.report.clone();
         report["calculation_report"]["report_section_refs"] = refs;
+        let before = report.clone();
         let error = seal_report_sections(&mut report).unwrap_err();
-        assert!(error.starts_with(&format!("{MEMBERS_NOT_PLACED}: ")), "{error}");
+        assert!(error.starts_with(&format!("{MEMBERS_NOT_PLACED}: ")), "{what}: {error}");
+        assert_eq!(report, before, "{what}");
     }
+    for (what, sections) in [("no sections", Value::Null), ("sections without an id", json!({"diagnostics": []}))] {
+        let mut report = built.report.clone();
+        report["report_sections"] = sections;
+        let error = seal_report_sections(&mut report).unwrap_err();
+        assert!(error.starts_with(&format!("{MEMBERS_NOT_PLACED}: ")), "{what}: {error}");
+    }
+    // A number the canonical form does not admit, anywhere in the sections.
+    let mut report = built.report.clone();
+    report["report_sections"]["assumptions"] = json!([1e21]);
+    let before = report.clone();
+    assert!(seal_report_sections(&mut report).unwrap_err().starts_with("REPORT-PACKAGE-SOURCE-INVALID: "));
+    assert_eq!(report, before);
+}
+
+/// A report input placed and not sealed states no sections checksum, and so
+/// does not decode as a renderer input; sealed, it does.
+#[test]
+fn a_placed_input_is_not_a_renderer_input_until_it_is_sealed() {
+    use open_pipe_stress_report_renderer::decode_renderable_report_input;
+    let built = built_reports().into_iter().next().unwrap();
+    let mut report = without_row_scale_members(&built);
+    assert_eq!(report["calculation_report"]["report_section_refs"][0]["checksum"]["value"], "TBD");
+    place_members(&mut report, &built.model, &built.source).unwrap();
+    assert!(report["calculation_report"]["report_section_refs"][0]["checksum"].get("value").is_none());
+    assert!(decode_renderable_report_input(report.clone()).is_err());
+    seal_report_sections(&mut report).unwrap();
+    assert!(decode_renderable_report_input(report).is_ok());
 }
 
 /// A refused placement leaves the members it reached before the refusal, so
@@ -284,6 +351,63 @@ fn units_and_coordinate_systems_follow_the_desktops_order() {
     assert_eq!(summary["model_units"], json!({"length": "m"}));
     assert_eq!(summary["conversion_performed"], false);
     assert_eq!(result_coordinate_systems(&source).unwrap(), ["global", "\u{1F600}", "\u{FF2E}"]);
+    // The check that binds the summary agrees with the producer on that order.
+    let report = json!({"calculation_report": {"model_input_summary": {"unit_display_summary": summary}}});
+    check_unit_display_summary(&report, &source).unwrap();
+
+    // A name is kept as written: only a name that is blank after trimming, or exactly `TBD`, is dropped.
+    let source = json!({"results": [row("a", "N", json!(" global ")), row("b", "N", json!(" TBD ")), row("c", "N", json!("\u{feff}"))]});
+    assert_eq!(result_coordinate_systems(&source).unwrap(), [" TBD ", " global "]);
+
+    // A row with no unit, or a null one, adds none; a unit that is not text refuses.
+    let source = json!({"results": [{"id": "a", "unit": null}, {"id": "b"}, {"id": "c", "unit": "N"}]});
+    assert_eq!(unit_display_summary(&model, &source).unwrap()["result_units"], json!(["N"]));
+    for unit in [json!(7), json!(true), json!(["N"]), json!({"unit": "N"})] {
+        let error = unit_display_summary(&model, &json!({"results": [{"id": "a", "unit": unit}]})).unwrap_err();
+        assert_eq!(error, "REPORT-PACKAGE-BINDING-MISMATCH: a source row's unit is not text");
+    }
+
+    // No rows: empty members, and nothing displayed scaled.
+    let empty = json!({"results": [], "diagnostics": []});
+    assert_eq!(result_rows(&empty).unwrap(), Vec::<Value>::new());
+    assert_eq!(result_export_refs(&empty, &json!({})).unwrap(), Vec::<Value>::new());
+    assert_eq!(result_coordinate_systems(&empty).unwrap(), Vec::<String>::new());
+    let summary = unit_display_summary(&model, &empty).unwrap();
+    assert_eq!((&summary["result_units"], &summary["conversion_performed"]), (&json!([]), &json!(false)));
+}
+
+/// `conversion_performed` without a row stored in Pa: on an exact-route source
+/// a stress headline stored in Pa is displayed in MPa; on any other source the
+/// summary is not read.
+#[test]
+fn a_stress_headline_stored_in_pa_is_a_conversion_on_an_exact_source_only() {
+    let built = built_reports().into_iter().next().unwrap();
+    let exact_identity = built.source["producer"]["semantic_contract_id"].clone();
+    let model = json!({"project": {"units": {}}});
+    let source = |identity: Value, headline_unit: &str| {
+        json!({
+            "producer": {"semantic_contract_id": identity},
+            "summary": {"max_open_formula_stress_reduced_section": {"value": 1.0, "unit": headline_unit}},
+            "results": [{"id": "a", "kind": "k", "value": 1, "unit": "N"}]
+        })
+    };
+    let performed = |source: &Value| unit_display_summary(&model, source).unwrap()["conversion_performed"].clone();
+    assert_eq!(performed(&source(exact_identity.clone(), "Pa")), true);
+    assert_eq!(performed(&source(exact_identity, "MPa")), false);
+    assert_eq!(performed(&source(json!("openpipestress.result_semantics/invented"), "Pa")), false);
+}
+
+/// The section-basis token is trimmed as JavaScript trims: U+FEFF around a
+/// token is removed and U+0085 is kept, so the first names a section basis and
+/// the second names none.
+#[test]
+fn a_section_basis_token_is_trimmed_as_the_desktop_trims() {
+    let row = |basis: &str| json!({"results": [{"id": "a", "kind": "k", "value": 1, "unit": "N", "metadata": {"component": "c", "basis": basis}}]});
+    let label = |basis: &str| result_rows(&row(basis)).unwrap()[0]["label"].as_str().unwrap().to_string();
+    assert_eq!(label("invented; section_basis=nominal_section"), "k (c) [nominal section]");
+    assert_eq!(label("invented;\u{feff}section_basis=nominal_section\u{feff}"), "k (c) [nominal section]");
+    assert_eq!(label("invented;\u{85}section_basis=nominal_section"), "k (c)");
+    assert!(result_rows(&row("section_basis=nominal_section\u{85}")).unwrap_err().contains("unreadable section basis"));
 }
 
 /// The Diagnostics producer is the shared projection with the provenance
@@ -344,6 +468,21 @@ fn the_result_document_is_the_desktop_assemblys() {
         let manifest_ref = vector["expected"]["input_manifest_ref"].as_str().unwrap();
         let document = result_document(&model, &source, &vector["run_record"], manifest_ref, &vector["input_manifest"]["solver_basis"]).unwrap();
         assert_eq!(derivative_sha256(&document).unwrap(), vector["expected"]["result_document_derivative_sha256"], "{}", vector["name"]);
+        // The whole document, by the digest the desktop's builder recorded for it.
+        assert_eq!(digest(&document).unwrap(), vector["expected"]["result_document_sha256"].as_str().unwrap(), "{}", vector["name"]);
     }
     assert!(derivative_sha256(&json!({})).unwrap_err().starts_with("REPORT-PACKAGE-BINDING-MISMATCH: "));
+}
+
+/// A stated limit: a run record that carries a diagnostic the source does not
+/// (a rule-pack reference exclusion) has no native document. The desktop's
+/// assembly accepts such a run and adds a document diagnostic for it.
+#[test]
+fn a_run_record_with_a_rule_pack_exclusion_has_no_native_document() {
+    let fixture = parse(USER_RELEASE_EXACT[0].1);
+    let manifest_ref = fixture["request"]["audit_manifest"]["manifest_id"].as_str().unwrap();
+    let mut run_record = fixture["run_record"].clone();
+    run_record["analysis_run"]["diagnostics"].as_array_mut().unwrap().push(json!({"source_annotation": {"code": "MODEL-RULE-PACK-REF-UNRESOLVED"}}));
+    let error = result_document(&fixture["model"], &fixture["source"], &run_record, manifest_ref, &fixture["input_manifest"]["solver_basis"]).unwrap_err();
+    assert!(error.starts_with("REPORT-USER-RELEASE-BASIS-INVALID: "), "{error}");
 }
