@@ -11,7 +11,7 @@ vi.mock("@tauri-apps/api/core", async () => ({ invoke: (await import("../test/na
 
 import { awaitPreviewMechanicsJob, discardPreviewMechanicsJobResult, disposeDeliveredMechanicsResult, loadNativeFullResult, readNativeFreshResult, resetSessionResultCustodyForTests, startPreviewMechanicsJob } from "./previewService";
 import * as readerModule from "../features/results/resultReader";
-import { decodeNativeVerdict, decodeNativeValidation, decodeNativeRouteHeader, requireRouteHeaderAgreement, readNativeRouteHeader, readNativeVerdict, setNativeResultTransportForTests, tauriNativeResultInvoke, forgetNativeJob, describeFullResultRefused, FullResultRefused, isNativeJobLive, isNativeResult, loadFullResult, nativeCustody, NativeResultRowsGuarded, resetNativeResultsForTests } from "./nativeResult";
+import { decodeNativeVerdict, decodeNativeValidation, decodeNativeRouteHeader, requireRouteHeaderAgreement, readNativeRouteHeader, readNativeVerdict, setNativeResultTransportForTests, tauriNativeResultInvoke, forgetNativeJob, describeFullResultRefused, fullResultRefusalWords, FullResultRefused, isNativeJobLive, isNativeResult, loadFullResult, nativeCustody, NativeResultRowsGuarded, resetNativeResultsForTests } from "./nativeResult";
 import { createNativeMechanicsReplay, createSolveJobTransport, nativeMechanicsReplayPair, REPLAY_COMMANDS } from "../test/nativeMechanicsReplay";
 import { readerDispatch, rememberReceivedText } from "../features/results/resultReader";
 import type { MechanicsResult } from "../types";
@@ -106,9 +106,33 @@ describe("C1 slice 4: a fresh solve's result is read natively and never taken", 
     expect(events.some(event=>event.edge === "exit" && event.status === "error")).toBe(true);
     expect(events.some(event=>event.phase === "summary")).toBe(false);
   });
-  it("names the run record when its full-copy size is refused", () => {
-    const refusal = new FullResultRefused("RESULT-DETAIL-WEBVIEW-LIMIT", 65, 64, "record_bytes=65", "record");
-    expect(describeFullResultRefused(refusal,"reports")).toContain("This run record is 65 bytes");
+  // The size refusal's words, once: each part as a person reads it, and the one text the gate shows.
+  it("says a size refusal in a person's words, part by part", () => {
+    const MIB = 1024 * 1024;
+    const record = fullResultRefusalWords(new FullResultRefused("RESULT-DETAIL-WEBVIEW-LIMIT", 88 * MIB, 64 * MIB, "record_bytes", "record"), "the report package");
+    expect(record).toEqual({
+      fact: "This run record is too large for the report package: 88 MiB, and the most it can take is 64 MiB.",
+      stillWorks: "The results can still be read: the summary, the tables and the model view.",
+      advice: "To use the report package for this model, solve fewer load cases at a time: remove the cases and combinations this review does not need, or solve them in groups, each in its own copy of the model (File > Save Model Document…), or split the model into parts.",
+      details: "RESULT-DETAIL-WEBVIEW-LIMIT: run record 92274688 bytes; limit 67108864 bytes.",
+      reading: "this run record is too large for it (88 MiB; the most it can take is 64 MiB)"
+    });
+    // Sizes round as before (two places, trailing zeros dropped; GiB from 1024 MiB).
+    const result = fullResultRefusalWords(new FullResultRefused("RESULT-DETAIL-WEBVIEW-LIMIT", 64 * MIB + 1, 64 * MIB, ""), "rule checks");
+    expect(result.fact).toBe("This result is too large for rule checks: 64 MiB, and the most it can take is 64 MiB.");
+    expect(fullResultRefusalWords(new FullResultRefused("RESULT-DETAIL-WEBVIEW-LIMIT", 1.5 * 1024 * MIB, 64 * MIB, ""), "comparisons").reading)
+      .toBe("this result is too large for it (1.5 GiB; the most it can take is 64 MiB)");
+    expect(fullResultRefusalWords(new FullResultRefused("RESULT-DETAIL-WEBVIEW-LIMIT", 70.125 * MIB, 64 * MIB, ""), "comparisons").fact)
+      .toContain(": 70.13 MiB, and");
+    // Sizes not known: the fact without them; the details say so.
+    const unknown = fullResultRefusalWords(new FullResultRefused("RESULT-DETAIL-WEBVIEW-LIMIT", null, null, ""), "the report");
+    expect([unknown.fact, unknown.reading, unknown.details]).toEqual([
+      "This result is too large for the report.", "this result is too large for it", "RESULT-DETAIL-WEBVIEW-LIMIT: result of unknown size; limit not known."]);
+    // The gate's one text is parts 1 to 3 in order; no line a person reads carries the code or these words.
+    const rendered = fullResultRefusalWords(new FullResultRefused("RESULT-DETAIL-WEBVIEW-LIMIT", 88 * MIB, 64 * MIB, "", "record"), "the rendered report");
+    const text = describeFullResultRefused(new FullResultRefused("RESULT-DETAIL-WEBVIEW-LIMIT", 88 * MIB, 64 * MIB, "", "record"), "the rendered report");
+    expect(text).toBe(`${rendered.fact} ${rendered.stillWorks} ${rendered.advice}`);
+    for (const line of [text, record.reading]) expect(line).not.toMatch(/RESULT-DETAIL|webview|native|viewport|bytes/i);
   });
   it("releases a copied result when its required re-registration fails", async () => {
     const replay=createNativeMechanicsReplay({profile:"preview"});

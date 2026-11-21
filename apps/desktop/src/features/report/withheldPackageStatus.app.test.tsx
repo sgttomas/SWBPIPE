@@ -2,7 +2,7 @@
  * fitting result and a run record above the webview's limit, the rendered report's gate refuses
  * and its panel (which holds the package-save status) is not shown; a save started from the File
  * menu (the shareable save before its release dialog opens, or the local-private save) is refused
- * for the record in the gates' words, and its refusal is shown once in the gate's place in the Report section and kept as
+ * for the record, in the size refusal's fact, and its refusal is shown once in the gate's place in the Report section and kept as
  * the session's outcome in the report output strip (issue 508), which alone announces it. With the
  * panel shown, the receipt is the panel's, and the strip keeps and announces the outcome in its own
  * words. The whole App renders; the solve is the native job transport replay of committed
@@ -27,12 +27,11 @@ afterEach(() => {
   delete (window as unknown as Record<string, unknown>).__TAURI_INTERNALS__;
 });
 
-/** The record-size refusal as the save's status shows it: the C2 gates' sentence for the report
- * package, with the record's size and the limit in bytes and MiB. */
-const RECORD_REFUSAL = nativeResult.describeFullResultRefused(
+/** The record-size refusal's words for the report package: the save's status shows the fact, the
+ * outcome strip's line the reading, and its Details the code with the exact sizes. */
+const RECORD_WORDS = nativeResult.fullResultRefusalWords(
   new nativeResult.FullResultRefused("RESULT-DETAIL-WEBVIEW-LIMIT", RESULT_DETAIL_WEBVIEW_LIMIT_BYTES + 1, RESULT_DETAIL_WEBVIEW_LIMIT_BYTES, "", "record"), "the report package");
-/** That refusal as the outcome strip reads it: without its leading code, which it names at the end. */
-const RECORD_READING = RECORD_REFUSAL.replace(/^RESULT-DETAIL-WEBVIEW-LIMIT: /, "").replace(/\.$/, "");
+const RECORD_REFUSAL = RECORD_WORDS.fact;
 
 /** A saved shareable package's receipt, as the native save answers it. */
 const SAVED_RECEIPT = {
@@ -85,18 +84,21 @@ async function settle() {
   await act(async () => { await new Promise((resolve) => setTimeout(resolve, 50)); });
 }
 
-/** The save's refusal on screen: once in the Report section and once as the session's kept
- * outcome in the report output strip (DEL-08-01 REQ-022, issue 508), announced by exactly one
- * status region, the strip's (mounted before the outcome existed). `strip` is the strip's line. */
+/** The save's refusal on screen: its fact once, in the Report section, and the session's kept
+ * outcome in the report output strip (DEL-08-01 REQ-022, issue 508), which alone announces it
+ * (mounted before the outcome existed), with the code and exact sizes behind its Details. `strip`
+ * is the strip's line. */
 async function expectWithheldRefusal(report: HTMLElement, strip: string) {
   const shown = await within(report).findByText((text) => text.includes(RECORD_REFUSAL));
-  expect(within(report).getAllByText((text) => text.includes(RECORD_REFUSAL))).toEqual([shown]);
+  expect(screen.getAllByText((text) => text.includes(RECORD_REFUSAL))).toEqual([shown]);
   expect(shown).toHaveAttribute("data-testid", "report-package-save-status");
   const outcomes = screen.getByRole("region", { name: "Report output outcomes" });
   const kept = within(outcomes).getByRole("status");
   expect(kept.querySelector("p")?.textContent).toBe(strip);
-  expect(screen.getAllByText((text) => text.includes(RECORD_READING))).toHaveLength(2);
-  expect(screen.getAllByRole("status").filter((status) => status.textContent?.includes(RECORD_READING))).toEqual([kept]);
+  expect([...kept.querySelectorAll("details li")].map((line) => line.textContent)).toContain(RECORD_WORDS.details);
+  expect(screen.getAllByText((text) => text.includes(RECORD_WORDS.reading))).toHaveLength(1);
+  expect(screen.getAllByRole("status").filter((status) => status.textContent?.includes(RECORD_WORDS.reading))).toEqual([kept]);
+  expect(screen.getAllByRole("status").filter((status) => status.textContent?.includes(RECORD_REFUSAL))).toEqual([]);
   expect(shown).not.toHaveAttribute("role");
   expect(within(report).getByTestId("c2-result-withheld")).toContainElement(shown);
   // It stands below the rendered report's own refusal, in the panel's place.
@@ -112,7 +114,7 @@ describe("a report-package save started while the rendered report is withheld fo
     expect(within(report).queryByTestId("report-package-save-status")).toBeNull();
     nativeMenuCommand("file.save-shareable-report-package");
     const shown = await expectWithheldRefusal(report,
-      `Shareable report package not saved: ${RECORD_READING} (RESULT-DETAIL-WEBVIEW-LIMIT). Nothing was written.`);
+      `Shareable report package not saved: ${RECORD_WORDS.reading}. Nothing was written.`);
     expect(shown.textContent).toBe(`Not saved: no shareable report package was written and no user release was made. ${RECORD_REFUSAL}`);
     expect(screen.queryByTestId("user-release-dialog")).toBeNull();
     expect(copies()).toBe(0);
@@ -124,7 +126,7 @@ describe("a report-package save started while the rendered report is withheld fo
     expect(await within(report).findAllByTestId("c2-result-refused")).not.toHaveLength(0);
     nativeMenuCommand("file.save-report-package");
     const shown = await expectWithheldRefusal(report,
-      `Report package not saved: ${RECORD_READING} (RESULT-DETAIL-WEBVIEW-LIMIT). Nothing was written.`);
+      `Report package not saved: ${RECORD_WORDS.reading}. Nothing was written.`);
     expect(shown.textContent).toBe(RECORD_REFUSAL);
     expect(copies()).toBe(0);
     expect(sent("save_report_package")).toBe(false);

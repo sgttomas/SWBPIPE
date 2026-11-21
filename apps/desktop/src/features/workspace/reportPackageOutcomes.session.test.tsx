@@ -322,10 +322,11 @@ function recordOverLimit() {
   const preview = nativeResult.nativeRunPreview;
   vi.spyOn(nativeResult, "nativeRunPreview").mockImplementation((run) => ({ ...preview(run), record_bytes: RECORD_OVER }));
 }
-/** The C2 gates' sentence for that record, for the report package: the words both package commands show. */
-const SIZE_SENTENCE = nativeResult.describeFullResultRefused(
+/** That record's size refusal for the report package: both package commands show its fact, the
+ * strip's line its reading, and the entry's Details its code and exact sizes. */
+const SIZE_WORDS = nativeResult.fullResultRefusalWords(
   new nativeResult.FullResultRefused("RESULT-DETAIL-WEBVIEW-LIMIT", RECORD_OVER, nativeResult.RESULT_DETAIL_WEBVIEW_LIMIT_BYTES, "", "record"), "the report package");
-const SIZE_READING = SIZE_SENTENCE.replace(/^RESULT-DETAIL-WEBVIEW-LIMIT: /, "").replace(/\.$/, "");
+const outcomeDetails = () => outcomeStatuses().map((status) => [...status.querySelectorAll("details li")].map((line) => line.textContent));
 const wholeResultReads = () => invokeMock.mock.calls.filter(([command]) => command === "read_preview_mechanics_job_rows_all").length;
 
 describe("a run record too large for the full copy", () => {
@@ -335,19 +336,21 @@ describe("a run record too large for the full copy", () => {
     await act(async () => { await state().results.requestSaveShareableReportPackage(); });
     expect(state().results.userReleaseRequest).toBeNull();
     const section = screen.getByRole("region", { name: "Report section" });
-    expect(section.textContent).toBe(`Not saved: no shareable report package was written and no user release was made. ${SIZE_SENTENCE}`);
-    expect(outcomeLines()).toEqual([`Shareable report package not saved: ${SIZE_READING} (RESULT-DETAIL-WEBVIEW-LIMIT). Nothing was written.`]);
+    expect(section.textContent).toBe(`Not saved: no shareable report package was written and no user release was made. ${SIZE_WORDS.fact}`);
+    expect(outcomeLines()).toEqual([`Shareable report package not saved: ${SIZE_WORDS.reading}. Nothing was written.`]);
+    expect(outcomeDetails()[0]).toContain(SIZE_WORDS.details);
     expect(wholeResultReads()).toBe(0);
     expect(saveCalls()).toHaveLength(0);
   }, 90_000);
 
-  it("File > Save Report Package… is refused at once, in the same sentence", async () => {
+  it("File > Save Report Package… is refused at once, in the same fact", async () => {
     const { state } = await solvedSession(async () => receipt("report_package"));
     recordOverLimit();
     await act(async () => { await state().results.handleSaveReportPackage(); });
     const section = screen.getByRole("region", { name: "Report section" });
-    expect(section.textContent).toBe(SIZE_SENTENCE);
-    expect(outcomeLines()).toEqual([`Report package not saved: ${SIZE_READING} (RESULT-DETAIL-WEBVIEW-LIMIT). Nothing was written.`]);
+    expect(section.textContent).toBe(SIZE_WORDS.fact);
+    expect(outcomeLines()).toEqual([`Report package not saved: ${SIZE_WORDS.reading}. Nothing was written.`]);
+    expect(outcomeDetails()[0]).toContain(SIZE_WORDS.details);
     expect(wholeResultReads()).toBe(0);
     expect(saveCalls()).toHaveLength(0);
   }, 90_000);

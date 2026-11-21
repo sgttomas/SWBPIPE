@@ -18,6 +18,19 @@ import * as previewService from "./services/previewService";
 import * as nativeResult from "./services/nativeResult";
 import { RESULT_DETAIL_WEBVIEW_LIMIT_BYTES } from "./services/nativeResult";
 import { loadDesignKnowledge } from "./services/previewService";
+
+/** A gate's size refusal on screen: the words the refusal function gives for one of `features`
+ * (parts 1 to 3), and the code with the exact sizes behind the Details that follows it. */
+function expectSizeRefusal(shown: HTMLElement, payload: "result" | "record", features: readonly string[]) {
+  const refusal = new nativeResult.FullResultRefused("RESULT-DETAIL-WEBVIEW-LIMIT", RESULT_DETAIL_WEBVIEW_LIMIT_BYTES + 1, RESULT_DETAIL_WEBVIEW_LIMIT_BYTES, "", payload);
+  expect(features.map((feature) => nativeResult.describeFullResultRefused(refusal, feature))).toContain(shown.textContent);
+  const details = shown.nextElementSibling as HTMLDetailsElement;
+  expect(details.tagName).toBe("DETAILS");
+  expect(details.open).toBe(false);
+  expect(details.querySelector("summary")?.textContent).toBe("Details");
+  expect(details.querySelector("p")?.textContent).toBe(nativeResult.fullResultRefusalWords(refusal, features[0]).details);
+}
+const REPORT_GATES = ["the rendered report", "the report"] as const;
 import { createNativeMechanicsReplay, REPLAY_COMMANDS } from "./test/nativeMechanicsReplay";
 
 afterEach(() => {
@@ -130,10 +143,7 @@ describe("a native result's first paint in the app", () => {
     nativeMenuCommand("view.section.report");
     const reportSection = screen.getByTestId("workspace-section-report");
     const refusals = await within(reportSection).findAllByTestId("c2-result-refused");
-    for (const refusal of refusals) {
-      expect(refusal).toHaveTextContent(`RESULT-DETAIL-WEBVIEW-LIMIT: This run record is ${RESULT_DETAIL_WEBVIEW_LIMIT_BYTES + 1} bytes`);
-      expect(refusal).toHaveTextContent(`above the ${RESULT_DETAIL_WEBVIEW_LIMIT_BYTES} bytes (64 MiB) the webview can hold whole`);
-    }
+    for (const refusal of refusals) expectSizeRefusal(refusal, "record", REPORT_GATES);
     expect(within(reportSection).queryByTestId("report-panel")).toBeNull();
     expect(fullRecordBuilds).not.toHaveBeenCalled();
     expect(sent("read_preview_mechanics_job_rows_all")).toBe(1);
@@ -150,10 +160,10 @@ describe("a native result's first paint in the app", () => {
     await solve();
     const solveSection = screen.getByTestId("workspace-section-solve");
     fireEvent.click(within(solveSection).getByTestId("c2-result-load"));
-    expect(await within(solveSection).findByTestId("c2-result-refused")).toHaveTextContent(`RESULT-DETAIL-WEBVIEW-LIMIT: This result is ${RESULT_DETAIL_WEBVIEW_LIMIT_BYTES + 1} bytes`);
+    expectSizeRefusal(await within(solveSection).findByTestId("c2-result-refused"), "result", ["rule checks"]);
     nativeMenuCommand("view.section.report");
     const refusals = await within(screen.getByTestId("workspace-section-report")).findAllByTestId("c2-result-refused");
-    for (const refusal of refusals) expect(refusal).toHaveTextContent(`RESULT-DETAIL-WEBVIEW-LIMIT: This result is ${RESULT_DETAIL_WEBVIEW_LIMIT_BYTES + 1} bytes`);
+    for (const refusal of refusals) expectSizeRefusal(refusal, "result", REPORT_GATES);
     expect(mechanics.nativeHeld()).toHaveLength(1);
   }, 90_000);
 });

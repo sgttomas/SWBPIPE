@@ -373,13 +373,13 @@ test("a gate that reads the full copy by itself is waited for without a click", 
 });
 
 test("a matching gate that refused ends the wait at once with its own text; another feature's failure does not end it", { timeout: 5000 }, async () => {
-  const refused = "RESULT-DETAIL-WEBVIEW-LIMIT: This result is 80 MiB, above the 64 MiB the webview can hold whole, so rule checks cannot read it until its native path lands.";
+  const refused = "This result is too large for rule checks: 80 MiB, and the most it can take is 64 MiB. The results can still be read: the summary, the tables and the model view. To use rule checks for this model, solve fewer load cases at a time: remove the cases and combinations this review does not need, or solve them in groups, each in its own copy of the model (File > Save Model Document…), or split the model into parts.";
   const w = gatedWindow();
   const solve = w.section("solve");
   w.explicitGate(solve, "rule checks", () => w.place(solve, w.element("c2-result-refused", { textContent: refused })));
   const started = Date.now();
   await assert.rejects(w.hooks.openC2Gate("solve", "rule checks", "rule-check-run-panel", 3000), (error) => {
-    assert.match(error.message, /^rule checks: RESULT-DETAIL-WEBVIEW-LIMIT: /);
+    assert.match(error.message, /^rule checks: This result is too large for rule checks: /);
     assert.match(error.message, /clicked=true$/);
     return true;
   });

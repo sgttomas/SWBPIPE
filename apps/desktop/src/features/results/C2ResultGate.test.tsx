@@ -8,7 +8,10 @@ const context=vi.hoisted(() => ({result:null as unknown}));
 vi.mock("@tauri-apps/api/core",async () => ({invoke:(await import("../../test/nativeIngress")).ingressDecodingInvoke(invokeMock)}));
 vi.mock("../workspace/WorkspaceSessionContext",() => ({useOptionalSessionResults:() => ({result:context.result})}));
 import { awaitPreviewMechanicsJob, readNativeFreshResult, resetSessionResultCustodyForTests, startPreviewMechanicsJob } from "../../services/previewService";
-import { FullResultRefused, RESULT_DETAIL_WEBVIEW_LIMIT_BYTES, resetNativeResultsForTests } from "../../services/nativeResult";
+import { describeFullResultRefused, FullResultRefused, fullResultRefusalWords, RESULT_DETAIL_WEBVIEW_LIMIT_BYTES, resetNativeResultsForTests } from "../../services/nativeResult";
+
+/** The record one byte above the limit, refused for its size. */
+const RECORD_REFUSED = new FullResultRefused("RESULT-DETAIL-WEBVIEW-LIMIT", RESULT_DETAIL_WEBVIEW_LIMIT_BYTES + 1, RESULT_DETAIL_WEBVIEW_LIMIT_BYTES, "record_bytes", "record");
 import { ReportPackageSaveStatus } from "../report/RenderedReportPanel";
 import type { ReportPackageSaveRoute } from "../../services/reportPackageSaveService";
 import { createNativeMechanicsReplay, nativeMechanicsReplayPair } from "../../test/nativeMechanicsReplay";
@@ -39,6 +42,7 @@ it("drops a ready explicit gate's old copy even when dormant props still name th
   function Consumer() { useEffect(() => () => { cleanups+=1; },[]); return <span data-testid="full-consumer">{full.run_id}</span>; }
   const gate=() => <C2ResultGate result={first} analysisRun={null} feature="comparisons" explicit load={load}>{() => <Consumer/>}</C2ResultGate>;
   const view=render(gate());
+  expect(screen.getByTestId("c2-result-explicit").textContent).toBe("The full result rows for comparisons are read on request. Load for comparisons");
   await act(async () => { fireEvent.click(screen.getByTestId("c2-result-load")); });
   expect(screen.getByTestId("full-consumer")).toBeInTheDocument();
   context.result=second;
@@ -83,7 +87,7 @@ it("asks the loader for the run record exactly when it was given one, and loads 
 // announced by the session's report output strip, which keeps it (issue 508), not again here.
 it.each([
   ["a request that did not proceed", { route: "not_requested", diagnostic: "Not saved: a report package was already being saved." }, true],
-  ["the oversized record's refusal", { route: "redaction_blocked", diagnostic: `RESULT-DETAIL-WEBVIEW-LIMIT (record_bytes=${RESULT_DETAIL_WEBVIEW_LIMIT_BYTES + 1}, limit_bytes=${RESULT_DETAIL_WEBVIEW_LIMIT_BYTES}): the run record is above the size the webview can hold whole.` }, false]
+  ["the oversized record's refusal", { route: "redaction_blocked", diagnostic: fullResultRefusalWords(RECORD_REFUSED, "the report package").fact }, false]
 ] as const)("under a refused gate, %s is shown below the refusal (announced here: %s)", async (_name, route, announcedHere) => {
   const replay=createNativeMechanicsReplay({profile:"preview"});
   invokeMock.mockImplementation(replay.invoke);
@@ -95,7 +99,7 @@ it.each([
   const native=(await readNativeFreshResult(started.job_id,terminal.result_bytes??0,{standingModel:pair.model,summaryModel:pair.model})).result;
   context.result=native;
   const record={analysis_run:{run_id:native.run_id}} as unknown as SessionAnalysisRun;
-  const load=vi.fn(async () => { throw new FullResultRefused("RESULT-DETAIL-WEBVIEW-LIMIT", RESULT_DETAIL_WEBVIEW_LIMIT_BYTES + 1, RESULT_DETAIL_WEBVIEW_LIMIT_BYTES, "record_bytes", "record"); });
+  const load=vi.fn(async () => { throw RECORD_REFUSED; });
   render(
     <C2ResultGate result={native} analysisRun={record} feature="the rendered report" load={load}
       withheld={<ReportPackageSaveStatus route={route as ReportPackageSaveRoute} />}>
@@ -104,6 +108,13 @@ it.each([
   );
   const refusal=await screen.findByTestId("c2-result-refused");
   expect(screen.queryByTestId("full-consumer")).toBeNull();
+  // Parts 1 to 3 as the refusal's status; the code and exact sizes behind a closed Details after it.
+  expect(refusal.textContent).toBe(describeFullResultRefused(RECORD_REFUSED, "the rendered report"));
+  const details=screen.getByTestId("c2-result-refused-details") as HTMLDetailsElement;
+  expect(refusal.nextElementSibling).toBe(details);
+  expect([details.open, details.querySelector("summary")?.textContent, details.querySelector("p")?.textContent])
+    .toEqual([false, "Details", fullResultRefusalWords(RECORD_REFUSED, "the rendered report").details]);
+  expect(details).not.toHaveAttribute("role");
   const shown=screen.getByTestId("report-package-save-status");
   expect(shown.textContent).toBe(route.diagnostic);
   const announced=screen.getAllByRole("status").filter((status) => status.textContent?.includes(route.diagnostic));
