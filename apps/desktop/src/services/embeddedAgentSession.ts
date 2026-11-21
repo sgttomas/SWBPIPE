@@ -10,6 +10,8 @@ import { agentDetailFilter } from './resultDetail';
 import type { OperationBatch } from './operationBatchService';
 import { validateOperationBatch } from './operationBatchService';
 import { overlayMayShowRow, type ResultOverlayStanding } from '../features/results/numericalHealth';
+import { needsSolverReportNote, SOLVER_REPORT_NOTE } from '../features/results/integrityStatus';
+import type { IntegrityBound } from '../features/results/resultReader';
 import { rowCaseKey } from '../features/results/resultsNavigator';
 import { canonicalJsonString } from './hashService';
 import { applierDisplayNumber, nodeDeletionSummary, pipeDeletionSummary, supportDeletionSummary } from '../features/model-tree/removalIntents';
@@ -159,12 +161,22 @@ function boundedIds(ids:readonly unknown[]):{count:number;ids:string[]}{
  * would not fit, and every finding not listed is counted. A finding that cannot be stated
  * exactly (a code or severity outside the catalog) is counted among those not listed, never
  * altered. Messages are cut at 500 characters, references at eight. */
+/** Release exit criterion 18: a results read's standing carries the reader verdict's
+ * `integrity_bound` as one of its checks, `integrity_bound:{status}:{reason}`, in the catalog's
+ * existing `checks` strings. None when no reader verdict was read (the values are then withheld). */
+export function integrityBoundChecks(bound:IntegrityBound|null|undefined):string[]{
+ return bound?[`integrity_bound:${bound.status}:${bound.reason}`]:[];
+}
 export function boundedFindings(diagnostics:readonly Diagnostic[],notListed:number):{diagnostics:{code:string;severity:string;message:string;affectedRefs:string[]}[];notListed:number}{
  const listed:{code:string;severity:string;message:string;affectedRefs:string[]}[]=[];let entries=0;
  for(const diagnostic of diagnostics){
   if(listed.length>=FINDINGS)break;
   if(!isShortId(diagnostic?.code)||!SEVERITIES.includes(diagnostic.severity))continue;
-  const message=typeof diagnostic.message==='string'&&diagnostic.message?clip(diagnostic.message,FINDING_TEXT):'No message stated.';
+  // Release exit criterion 18: the solver's text that reports a check passed or a state established
+  // reaches the agent with the note people read beside it, never alone (`needsSolverReportNote`).
+  const noted=needsSolverReportNote(diagnostic);
+  const stated=typeof diagnostic.message==='string'&&diagnostic.message?clip(diagnostic.message,noted?FINDING_TEXT-SOLVER_REPORT_NOTE.length-1:FINDING_TEXT):'No message stated.';
+  const message=noted?`${stated} ${SOLVER_REPORT_NOTE}`:stated;
   const affectedRefs:string[]=[];
   for(const ref of Array.isArray(diagnostic.affected_refs)?diagnostic.affected_refs:[]){if(affectedRefs.length>=FINDING_REFS)break;if(isShortId(ref))affectedRefs.push(ref);}
   const finding={code:diagnostic.code,severity:diagnostic.severity,message,affectedRefs};
@@ -577,6 +589,6 @@ export class EmbeddedAgentSession {
    values.push(value);
   }
   const end=offset+values.length;
-  return this.result(call,'ok','Permitted bounded source-unit values; withheld values have no substitute number.',{runHandle:handle,runId:run.receipt.runId,evaluatedModelHash:run.basis.modelHash,values,nextCursor:this.cursor(call,end,end<total,handle),standing:{route:result.producer?.semantic_contract_id??'unavailable',health:run.receipt.health,checks:snap.standing?.eligible?['numerical_view_eligible']:['numerical_view_withheld']}},{kind:'run',handle,runId:run.receipt.runId,basis:run.basis,status:'completed',nativeJobId:run.receipt.jobId,...(ordinals?{ordinals:ordinals.slice(0,values.length)}:{})});
+  return this.result(call,'ok','Permitted bounded source-unit values; withheld values have no substitute number.',{runHandle:handle,runId:run.receipt.runId,evaluatedModelHash:run.basis.modelHash,values,nextCursor:this.cursor(call,end,end<total,handle),standing:{route:result.producer?.semantic_contract_id??'unavailable',health:run.receipt.health,checks:[snap.standing?.eligible?'numerical_view_eligible':'numerical_view_withheld',...integrityBoundChecks(snap.standing?.integrityBound)]}},{kind:'run',handle,runId:run.receipt.runId,basis:run.basis,status:'completed',nativeJobId:run.receipt.jobId,...(ordinals?{ordinals:ordinals.slice(0,values.length)}:{})});
  }
 }
