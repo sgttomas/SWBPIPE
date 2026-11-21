@@ -7,7 +7,7 @@ import { readFileSync } from "node:fs";
 import { resolve } from "node:path";
 import { afterEach, describe, expect, it, vi } from "vitest";
 import { ResultsPanel } from "./ResultsPanel";
-import { numericalQualityStatusText, withLimitationsNote } from "./integrityStatus";
+import { numericalQualityStatusText, recoveredCaseIds, withLimitationsNote } from "./integrityStatus";
 import { numericalHealthView, parseNumericalHealth, type NumericalHealthView } from "./numericalHealth";
 import { resolveLocatedCauseSelection } from "./resultInterpretation";
 import type { MechanicsResult, PreviewModel } from "../../types";
@@ -15,7 +15,7 @@ import unicodeSparse from "../../../../../fixtures/results/preview_physics_unico
 
 afterEach(cleanup);
 
-function view(raw: unknown, options: { eligible: boolean; verdictHold: boolean }): NumericalHealthView {
+function view(raw: unknown, options: Parameters<typeof numericalHealthView>[1]): NumericalHealthView {
   const health = parseNumericalHealth(raw);
   expect(health).not.toBeNull();
   return numericalHealthView(health, options)!;
@@ -112,7 +112,7 @@ describe("ResultsPanel numerical health", () => {
   it("prefixes the pressure-source header, keeps the recovery text, adds the eligible wording and places no row badges", () => {
     const result = JSON.parse(readFileSync(resolve(__dirname, "../../../../../fixtures/product_preview/pressure_source/physics_source/n05-dense_scrutiny.raw.json"), "utf8")) as MechanicsResult;
     const health = view({ route: "pressure_source", verdict_only: false, cases: [{ ...SENSITIVE, case_id: "case", integrity_diagnostic_id: "diagnostic:numerical-integrity:case", causes: [] }], combinations: [] },
-      { eligible: true, verdictHold: false });
+      { eligible: true, verdictHold: false, recoveredCases: recoveredCaseIds(result) });
     render(<ResultsPanel result={result} knowledge={null} analysisRun={null} selectedResultId={null} onSelectResult={() => {}} numericalHealth={health} />);
     expect(screen.getByTestId("numerical-health-header").textContent).toBe("Ordinary solve — Numerical health: 1 sensitive");
     expect(screen.getByTestId("numerical-result-standing").textContent).toMatch(/^Ordinary solve: sensitive\. Producer recovery receipt: qualified\. /);

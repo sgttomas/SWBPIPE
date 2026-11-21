@@ -38,6 +38,7 @@ import {
   type NumericalHealthState
 } from "./numericalHealthText";
 import type { MechanicsResult, ResultBasisRef } from "../../types";
+import type { SupportStatesLine } from "./integrityStatus";
 
 export type { NumericalHealthState } from "./numericalHealthText";
 export type NumericalHealthRoute = "generic" | "pressure_source" | "retained" | "unsupported";
@@ -247,8 +248,11 @@ function locationsText(causes: readonly NumericalHealthCause[]): string {
 }
 
 /** The detail sentences of one case, in the design's order. `eligible` is the reader's
- * standing (the recovery passed, on the pressure-source route). */
-export function caseDetailSentences(c: NumericalHealthCase, route: NumericalHealthRoute, eligible: boolean): string[] {
+ * standing (the recovery passed, on the pressure-source route). `recovered`: the case's published
+ * values come from the producer's recovery (the method the result records for it,
+ * `integrityStatus.ts` `recoveredCaseIds`); an ordinary companion of a mixed pressure-source run was
+ * solved by the ordinary solve alone, and its values are not the recovery's. */
+export function caseDetailSentences(c: NumericalHealthCase, route: NumericalHealthRoute, eligible: boolean, recovered = false): string[] {
   const of = (kind: NumericalHealthCauseKind) => c.causes.filter((x) => x.kind === kind);
   const sentences: string[] = [];
   switch (c.state) {
@@ -279,7 +283,7 @@ export function caseDetailSentences(c: NumericalHealthCase, route: NumericalHeal
       sentences.push(notAssessedText(c.case_id));
       break;
   }
-  if (route === "pressure_source" && eligible) sentences.push(ELIGIBLE_RECOVERY_TEXT);
+  if (route === "pressure_source" && eligible && recovered) sentences.push(ELIGIBLE_RECOVERY_TEXT);
   return sentences;
 }
 
@@ -294,8 +298,9 @@ export type NumericalHealthCaseView = Readonly<{
   locations: readonly NumericalHealthLocation[];
   integrityDiagnosticId: string | null;
   /** "Support states: not confirmed" and the reviewed statement of the case's confirmation outcome,
-   * for a case with nonlinear supports (`integrityStatus.ts` `supportStatesText`); null otherwise. */
-  supportStates: string | null;
+   * with the solver's quoted reason where the outcome carries one, for a case with nonlinear supports
+   * (`integrityStatus.ts` `supportStatesLine`); null otherwise. */
+  supportStates: SupportStatesLine | null;
 }>;
 export type NumericalHealthCombinationView = Readonly<{
   combinationId: string;
@@ -324,7 +329,7 @@ export type NumericalHealthView = Readonly<{
 /** The presentation of the generic and pressure-source routes; null for the retained and
  * unsupported routes, whose texts are unchanged. `verdictHold` is `numericalHealthHold`'s
  * condition: the generic result is not Current because of its verdict alone. */
-export function numericalHealthView(health: NumericalHealth | null, options: { eligible: boolean; verdictHold: boolean; supportStates?: ReadonlyMap<string, string> }): NumericalHealthView | null {
+export function numericalHealthView(health: NumericalHealth | null, options: { eligible: boolean; verdictHold: boolean; supportStates?: ReadonlyMap<string, SupportStatesLine>; recoveredCases?: ReadonlySet<string> }): NumericalHealthView | null {
   if (!health || (health.route !== "generic" && health.route !== "pressure_source")) return null;
   const route = health.route;
   const prefix = route === "pressure_source";
@@ -334,7 +339,7 @@ export function numericalHealthView(health: NumericalHealth | null, options: { e
     state: c.state,
     badge: badgeOf(c.state),
     headline: numericalHealthHeadline(c.state, prefix),
-    sentences: caseDetailSentences(c, route, options.eligible),
+    sentences: caseDetailSentences(c, route, options.eligible, options.recoveredCases?.has(c.case_id) ?? false),
     conditioning: c.digits !== null && (c.state === "checks_passed" || c.state === "sensitive") ? conditioningDetailText(formatDigits(c.digits)) : null,
     locations: c.causes.flatMap((x) => x.locations),
     integrityDiagnosticId: c.integrity_diagnostic_id,

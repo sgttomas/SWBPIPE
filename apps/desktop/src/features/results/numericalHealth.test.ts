@@ -241,8 +241,8 @@ describe("numericalHealthView", () => {
   });
 
   it("prefixes the pressure-source route, adds the eligible wording and places no row badges", () => {
-    const eligible = numericalHealthView(health("pressure_source", false, [healthCase("case", "sensitive", { digits: 10.2, conditioning_sensitive: true })]), { eligible: true, verdictHold: false })!;
-    expect(eligible.headline).toBe("Ordinary solve — Numerical health: 1 sensitive");
+    const eligible = numericalHealthView(health("pressure_source", false, [healthCase("case", "sensitive", { digits: 10.2, conditioning_sensitive: true }), healthCase("case:ordinary", "checks_passed")]), { eligible: true, verdictHold: false, recoveredCases: new Set(["case"]) })!;
+    expect(eligible.headline).toBe("Ordinary solve — Numerical health: 1 sensitive, 1 not verified");
     expect(eligible.cases[0].headline).toBe("Ordinary solve — Numerical health: sensitive");
     expect(eligible.rowBadges).toBe(false);
     expect(eligible.outputSentence).toBeNull();
@@ -252,7 +252,9 @@ describe("numericalHealthView", () => {
       "Solving the unchanged model again in the same solver mode gives the same result. A very short or very stiff element next to flexible ones, stiffnesses that differ by many orders of magnitude, or a weakly restrained direction are common causes.",
       "The values shown come from the producer's recovery of this case, which passed its own checks. This badge describes the ordinary solve only."
     ]);
-    const notEligible = numericalHealthView(health("pressure_source", false, [healthCase("case", "sensitive")]), { eligible: false, verdictHold: false })!;
+    // An ordinary companion of a mixed run was solved by the ordinary solve alone: its values are not the recovery's.
+    expect(eligible.cases[1].sentences).toEqual(["The solver's own checks found no problem with case:ordinary, but SWBPIPE has not verified an error bound for its values."]);
+    const notEligible = numericalHealthView(health("pressure_source", false, [healthCase("case", "sensitive")]), { eligible: false, verdictHold: false, recoveredCases: new Set(["case"]) })!;
     expect(notEligible.cases[0].sentences).toContain("Its values are kept for inspection.");
     expect(notEligible.cases[0].sentences).not.toContain("The values shown come from the producer's recovery of this case, which passed its own checks. This badge describes the ordinary solve only.");
     // The generic route's rows carry badges.
