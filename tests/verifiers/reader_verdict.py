@@ -45,6 +45,7 @@ from typing import Any
 
 from . import compatibility as c
 from . import physics_source, preview_physics_evidence, pressure_3, section_basis as sb, source_blocks
+from .exact_combinations import held_supports
 
 ROUTES = ("pressure_source", "preview_physics", "pressure", "retained_preview_physics", "retained_physics")
 READERS = ("preview-physics", "pressure-source", "source-recovery", "pressure")
@@ -333,32 +334,6 @@ def physics_model_checks(source: Mapping[str, Any], model: Mapping[str, Any]) ->
 
 # The self-weight generation method whose loads a test case's contents enter (PP self_weight::GENERATED_METHOD).
 _GENERATED_SELF_WEIGHT_METHOD = "pipe_mass_per_length_times_explicit_axis_acceleration/v2"
-
-
-def _held_family(support: Any) -> bool:
-    """Rust `reader_verdict::held_family`: a family a hydrostatic test case holds (DEL-05-01 REQ-014, DEL-04-07
-    REQ-011): linear, not a snubber, and a spring or a support whose hanger type (the hanger's non-blank hanger_type,
-    otherwise its family, trimmed) is variable_spring_hanger, spring_hanger or constant_effort_support."""
-    if not isinstance(support, Mapping):
-        return False
-    family = support.get("family") if isinstance(support.get("family"), str) else None
-    hanger = support.get("hanger") if isinstance(support.get("hanger"), Mapping) else {}
-    declared = hanger.get("hanger_type")
-    hanger_type = declared.strip() if isinstance(declared, str) and declared.strip() else (family.strip() if family is not None else None)
-    return (support.get("nonlinear") is None and family != "snubber"
-            and (family == "spring" or hanger_type in ("variable_spring_hanger", "spring_hanger", "constant_effort_support")))
-
-
-def held_supports(model: Mapping[str, Any], case: Any) -> list[str]:
-    """Rust `reader_verdict::held_supports`: the supports the model's case holds, sorted, when its test condition chooses
-    springs_and_constant_effort; otherwise none. The one statement of the held set for the model-bound readers (the mark
-    binding here and the constant-effort binding of `exact_combinations.model_checks`). It binds the model's held set;
-    it does not establish that the model was solvable as held."""
-    test = case.get("test_condition") if isinstance(case, Mapping) else None
-    if not isinstance(test, Mapping) or test.get("held_supports") != "springs_and_constant_effort":
-        return []
-    supports = model.get("supports") if isinstance(model.get("supports"), list) else []
-    return sorted(s["id"] for s in supports if _held_family(s) and isinstance(s.get("id"), str))
 
 
 def _bits(value: Any) -> int | None:

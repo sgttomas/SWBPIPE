@@ -932,6 +932,33 @@ def validate(source: Mapping[str, Any], table: Mapping[str, Any]) -> None:
         _require(len(matching) == 1 and bit_equal(matching[0], expected), "DIAGNOSTICS")
 
 
+def _held_family(support: Any) -> bool:
+    """Rust `reader_verdict::held_family`: a family a hydrostatic test case holds (DEL-05-01 REQ-014, DEL-04-07
+    REQ-011): linear, not a snubber, and a spring or a support whose hanger type (the hanger's non-blank hanger_type,
+    otherwise its family, trimmed) is variable_spring_hanger, spring_hanger or constant_effort_support."""
+    if not isinstance(support, Mapping):
+        return False
+    family = support.get("family") if isinstance(support.get("family"), str) else None
+    hanger = support.get("hanger") if isinstance(support.get("hanger"), Mapping) else {}
+    declared = hanger.get("hanger_type")
+    hanger_type = declared.strip() if isinstance(declared, str) and declared.strip() else (family.strip() if family is not None else None)
+    return (support.get("nonlinear") is None and family != "snubber"
+            and (family == "spring" or hanger_type in ("variable_spring_hanger", "spring_hanger", "constant_effort_support")))
+
+
+def held_supports(model: Mapping[str, Any], case: Any) -> list[str]:
+    """Rust `reader_verdict::held_supports`: the supports the model's case holds, sorted, when its test condition chooses
+    springs_and_constant_effort; otherwise none. The one statement of the held set for the model-bound readers (the
+    constant-effort binding of `model_checks` here and the mark binding of `reader_verdict`, which imports it). It
+    lives here, not in `reader_verdict`, so that this module's import closure stays the standard library. It binds the
+    model's held set; it does not establish that the model was solvable as held."""
+    test = case.get("test_condition") if isinstance(case, Mapping) else None
+    if not isinstance(test, Mapping) or test.get("held_supports") != "springs_and_constant_effort":
+        return []
+    supports = model.get("supports") if isinstance(model.get("supports"), list) else []
+    return sorted(s["id"] for s in supports if _held_family(s) and isinstance(s.get("id"), str))
+
+
 def model_checks(source: Mapping[str, Any], model: Mapping[str, Any]) -> None:
     """G2: one record per model combination, in the model's evaluation order (absolute-sum-srss section 2), with the
     model's expression and operand selections. A supplied model is complete: an absent or null `combinations` is the
@@ -971,8 +998,8 @@ def model_checks(source: Mapping[str, Any], model: Mapping[str, Any]) -> None:
     # deafe7153).
     # DEL-05-01 REQ-014, DEL-04-07 REQ-011: a hydrostatic test case that holds springs and constant-effort supports
     # applies no held support's force, so its consuming set excludes the supports it holds (Rust
-    # `reader_verdict::held_supports`, the model-bound readers' one held set); every other case's set is the whole one.
-    from .reader_verdict import held_supports
+    # `reader_verdict::held_supports`; `held_supports` above, the model-bound readers' one held set); every other
+    # case's set is the whole one.
     every = consuming_constant_effort(model)
     results = _items(source.get("results"))
     for position, case in enumerate(_items((source.get("contract_evidence") or {}).get("exact_cases"))):
