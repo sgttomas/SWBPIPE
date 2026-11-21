@@ -15,7 +15,7 @@ import * as previewService from "../../services/previewService";
 import * as operationBatchService from "../../services/operationBatchService";
 import * as hashService from "../../services/hashService";
 import { canonicalJsonString, computeModelHash } from "../../services/hashService";
-import { requeueRetainedRecord, stampImportedBatch, type EditorBuilder, type EditorCommitResult, type EditorEdit, type EditorInputGuard } from "../../services/operationAuthorship";
+import { ownEditorInput, requeueRetainedRecord, stampImportedBatch, type EditorBuilder, type EditorCommitResult, type EditorEdit, type EditorInputGuard } from "../../services/operationAuthorship";
 import { stampAgentOperations } from "../../services/embeddedAgentSession";
 import { parseOfflineBatch } from "../offline-proposal-intake/OfflineProposalIntakePanel";
 import { buildReconnectBatch, emptyGeometryDraft } from "../geometry-tools/geometryDraft";
@@ -493,6 +493,47 @@ describe("the input is owned (P4)", () => {
     expect(built).toBe(0);
     expect(seen).toEqual({ checked: [], built: [] });
     expect(snapshot(result)).toEqual(before);
+  });
+
+  it("every object in the owned copy has a null prototype: a builder cannot call hasOwnProperty, toString or valueOf on its input, nor make it a string (Q1)", async () => {
+    const result = await session();
+    for (const call of ["commit", "preview"] as const) {
+      const { builder, seen } = recording();
+      const input = { key: "k", value: { a: { b: [{ c: 1 }, [{ d: 2 }]] } } };
+      const outcome = call === "commit" ? await run(() => bindCommit(result, builder)(input as never)) : await run(() => bindDialog(result, builder).preview(input as never));
+      expect(refused(outcome).reason, call).toContain("not built in this test");
+      const copy = seen.built[0] as Record<string, unknown>;
+      expect(seen.checked[0], call).toBe(copy);
+      const prototypes: unknown[] = [];
+      const walk = (value: unknown) => {
+        if (value === null || typeof value !== "object") return;
+        prototypes.push(Array.isArray(value) ? "array" : Object.getPrototypeOf(value));
+        for (const member of Object.values(value)) walk(member);
+      };
+      walk(copy);
+      expect(prototypes, call).toEqual([null, null, null, "array", null, "array", null]);
+      expect((copy as { hasOwnProperty?: unknown }).hasOwnProperty, call).toBeUndefined();
+      expect(() => String(copy), call).toThrow(TypeError);
+      expect(Object.hasOwn(copy, "key"), call).toBe(true);
+      expect(JSON.parse(JSON.stringify(copy)), call).toEqual(input);
+      expect(structuredClone(copy), call).toEqual(input);
+    }
+  });
+
+  it("an array's elements are defined, not assigned: an inherited setter for an index never fires (Q1)", () => {
+    // Installed only around the synchronous copy: while it stands, an assignment to a fresh array's index calls it.
+    const fired: unknown[] = [];
+    let owned: ReturnType<typeof ownEditorInput>;
+    Object.defineProperty(Object.prototype, "0", { set(value) { fired.push(value); }, get() { return undefined; }, configurable: true });
+    try {
+      owned = ownEditorInput({ members: ["key", "value"], check: () => null }, { key: "k", value: ["first", { inner: ["second"] }] });
+    } finally {
+      delete (Object.prototype as Record<string, unknown>)["0"];
+    }
+    expect(fired).toEqual([]);
+    if (!("input" in owned)) throw new Error(owned.refused);
+    expect(owned.input.value).toEqual(["first", { inner: ["second"] }]);
+    expect(Object.hasOwn(owned.input.value as object, "0")).toBe(true);
   });
 
   it("members named like inherited ones are copied as own plain data, and no inherited setter fires for any key (Q1)", async () => {

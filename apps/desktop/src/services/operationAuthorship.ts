@@ -292,7 +292,12 @@ export type EditorEdit = Readonly<{ intent: EditorOperationIntent }> | Readonly<
 export type EditorInputGuard = Readonly<{ members: readonly string[]; check: (input: Readonly<Record<string, unknown>>) => string | null }>;
 /** A desktop editor's own builder, bound once at the application root (`editorBinding`): its name, the role its
  * edits are stamped with, its input guard, and the pure function that turns its typed input into its edit on the
- * live model. `id` is minted by the session for the edit's identifiers. */
+ * live model. `id` is minted by the session for the edit's identifiers.
+ * The input the guard's check and the builder receive is the session's owned copy: deep-frozen, and every object in
+ * it has a null prototype (arrays stay arrays). Neither may call an Object.prototype method on it or on a nested
+ * object (hasOwnProperty, toString, valueOf, isPrototypeOf), turn one into a string (String(), a template string,
+ * concatenation), or rely on a library that recognises a plain object by its prototype. Read members directly; use
+ * Object.hasOwn(value, key) for a presence check. structuredClone and JSON.stringify accept the copy. */
 export type EditorBuilder<I> = Readonly<{
   name: string;
   role: EditorCommitRole;
@@ -344,7 +349,7 @@ export function editorBuilderRefusal(builder: unknown): string | null {
 }
 
 /** P4: the input a bound callback owns. The caller's value is materialised once, synchronously, into a fresh
- * deep-frozen copy of data only, and the guard's check and the builder get that copy, never the caller's object.
+ * deep-frozen copy of data only, each object in it with a null prototype (see `EditorBuilder`), and the guard's check and the builder get that copy, never the caller's object.
  * Accepted: null, booleans, finite numbers, strings, arrays of accepted values with no other members, and strictly
  * plain objects (prototype Object.prototype or null) whose own keys are all enumerable string data properties.
  * Refused by name: an accessor, a symbol key, a non-enumerable key, a function, any other prototype (a Map, a Set, a
@@ -415,7 +420,8 @@ export function ownEditorInput(guard: EditorInputGuard, input: unknown): { input
         }
         copy = Object.freeze(out);
       } else {
-        const out: Record<string, unknown> = {};
+        // Q1: no prototype, so inheritance is impossible by construction.
+        const out: Record<string, unknown> = Object.create(null);
         for (const key of keys) {
           if (typeof key === "symbol") throw new InputRefusal("carries a symbol key");
           if (NOT_TYPED_ANYWHERE.includes(key) || (top && NOT_TYPED_AT_TOP.includes(key))) throw new InputRefusal(`carries ${key}, a member of an operation, a batch or a stamp`);
