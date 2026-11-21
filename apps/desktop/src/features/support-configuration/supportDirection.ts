@@ -16,8 +16,9 @@ export type { SupportDirection };
 
 export const EMPTY_DIRECTION_TEXT: DirectionText = Object.freeze({ x: "", y: "", z: "" });
 
-/** The stored-direction label: S-K1 has no `update_support`/`set_field` path for it. */
-export const STORED_DIRECTION_NOTE = "edit/remove not supported yet (S-K1)";
+/** The stored-direction label: no edit path writes it; the one change that removes it is its explicit removal, queued
+ * when the support is given a hanger (a hanger takes no direction). */
+export const STORED_DIRECTION_NOTE = "not editable; removed only by giving the support a hanger";
 
 export const DIRECTION_REFUSAL = {
   partial: (missing: readonly DirectionAxis[]) =>
