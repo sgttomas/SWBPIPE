@@ -5486,6 +5486,7 @@ fn solve_prepared_load_case(
     if let Some(state) = load_state {
         refuse_load_state_generated_collisions(model, load_case, state, &loads, diagnostics);
     }
+    refuse_document_generated_collisions(model, load_case, &loads, diagnostics);
     let load_application = prepare_loads(built.nodes.len(), built.pipes.len(), &loads);
     for finding in &load_application.findings {
         diagnostics.push(diag(
@@ -11733,6 +11734,68 @@ fn refuse_load_state_generated_collisions(
             message,
             vec![effective.id.clone(), id.to_string()],
         ));
+    }
+}
+
+/// DEL-05-01 REQ-008 (issue 452, the identity domain; SWBPIPE's Agent 0): a
+/// generated identity names one source in the whole document, on plain and
+/// load/reference-state documents alike. Run in each case's solve, after its
+/// generation and before its assembly, beside the case-local scans: a
+/// generated identity equal to a stored primitive of another case of the
+/// (lowered) model, a primitive a lowering added included, or to an identity
+/// another case generates, is refused by name. A generated identity is
+/// `<case>:generated:<tail>`, so another case B can generate the same identity
+/// only when B is the identity cut at another occurrence of the marker
+/// `:generated:` (in a case id or a component identity); only such a case's
+/// generation is formed again here, with its own findings discarded. Either
+/// case's solve meets the coincidence, so the first of the two to solve is
+/// refused and the document with it.
+fn refuse_document_generated_collisions(
+    model: &PreviewModel,
+    load_case: &PreviewLoadCase,
+    loads: &[PrimitiveLoad],
+    diagnostics: &mut Vec<Diagnostic>,
+) {
+    if load_case.equivalent_static.is_none() {
+        return;
+    }
+    const MARKER: &str = ":generated:";
+    let mut refuse = |id: &str, message: String| {
+        diagnostics.push(diag(
+            &equivalent_static_diag_id(&load_case.id, &format!("collision:{}", stable_suffix(id))),
+            "EQUIVALENT_STATIC_GENERATED_ID_COLLISION",
+            "blocking",
+            message,
+            vec![load_case.id.clone(), id.to_string()],
+        ));
+    };
+    for load in loads.iter().filter(|load| is_generated_equivalent_static_load(load_case, &load.load_id, None)) {
+        let id = load.load_id.as_str();
+        if let Some(other) = model
+            .load_cases
+            .iter()
+            .find(|case| case.id != load_case.id && case.primitive_loads.iter().any(|stored| stored.id == id))
+        {
+            refuse(id, format!(
+                "stored primitive load {id} of load case {} has the id of a load the equivalent_static generation of load case {} produces; one identity cannot name two sources in a document, so rename the stored primitive (generated ids are <case>:generated:<kind>:...)",
+                other.id, load_case.id
+            ));
+            continue;
+        }
+        let own = load_case.id.len();
+        for (at, _) in id.match_indices(MARKER).filter(|(at, _)| *at != own) {
+            let prefix = &id[..at];
+            let Some(other) = model.load_cases.iter().find(|case| case.id == prefix && case.equivalent_static.is_some()) else { continue };
+            let mut scratch = Vec::new();
+            let formed = build_load_case_primitive_loads(model, other, &mut scratch);
+            if formed.iter().any(|g| g.load_id == id && is_generated_equivalent_static_load(other, &g.load_id, None)) {
+                refuse(id, format!(
+                    "load cases {} and {} both generate a load with the id {id}; one identity cannot name two sources in a document, so rename a load case or a component (generated ids are <case>:generated:<kind>:...)",
+                    load_case.id, other.id
+                ));
+                break;
+            }
+        }
     }
 }
 

@@ -925,6 +925,101 @@ fn load_state_generated_identity_collisions_are_refused() {
     }
 }
 
+/// Item 3 of issue 452's first review round (SWBPIPE's Agent 0): the identity
+/// domain is the whole document, on plain and load/reference-state documents
+/// alike. A generated identity equal to a stored primitive of another case,
+/// a primitive a lowering adds to that case included, or to an identity
+/// another case generates, is refused by
+/// EQUIVALENT_STATIC_GENERATED_ID_COLLISION before assembly, in both modes,
+/// naming both cases. Before this rule each of these documents solved.
+#[test]
+fn generated_identities_are_refused_document_wide() {
+    const OTHER: &str = "case:other";
+    let generated = format!("{CASE}:generated:seismic:global-y:element-0");
+    let expect = |found: &[Value], cases: &[&str], id: &str, what: &str| {
+        let refs = found.iter().filter(|d| d["affected_refs"].as_array().unwrap().contains(&json!(id))).collect::<Vec<_>>();
+        assert!(!refs.is_empty(), "{what}: a finding names {id}: {found:?}");
+        for case in cases {
+            assert!(refs.iter().any(|d| d["message"].as_str().unwrap().contains(case)), "{what}: a message names {case}: {refs:?}");
+        }
+    };
+    // A stored primitive of another case, which generates nothing.
+    for route in [Route::Exact, Route::Preview] {
+        let wire = cantilever(route, EULER_BERNOULLI, vec![case(CASE, Some(seismic()), vec![]),
+            case(OTHER, None, vec![distributed(&generated, "pipe:a-b", "global_z", 250.0)])]);
+        let found = refused(&wire, "EQUIVALENT_STATIC_GENERATED_ID_COLLISION", &format!("{route:?} stored in another case"));
+        assert_eq!(found.len(), 1, "{route:?}: {found:?}");
+        assert_eq!(found[0]["affected_refs"], json!([CASE, generated]));
+        expect(&found, &[CASE, OTHER], &generated, "stored in another case");
+        if route == Route::Exact {
+            // Its load/reference-state twin, the other case's primitive listed in its ledger.
+            let mut twin = load_state_document_of(&wire);
+            twin["model"]["load_cases"][1]["analysis_state"]["load_sources"] = json!([{"source_ref": generated, "factor": 1.0}]);
+            let found = refused(&twin, "EQUIVALENT_STATIC_GENERATED_ID_COLLISION", "load-state twin, stored in another case");
+            assert_eq!(found.len(), 1, "{found:?}");
+            expect(&found, &[CASE, OTHER], &generated, "load-state twin");
+        }
+    }
+    // A primitive that a lowering adds to another case: operating-condition
+    // added weight on the pressure-free route (condition use is refused on
+    // EX) appends `load:condition-added-weight:<len>:<case>:<len>:<pipe>`.
+    // With a pipe and a generating case named for it, that is the generating
+    // case's identity for the pipe's element.
+    let pipe_id = "generated:seismic:global-y:element-0";
+    let generating = format!("load:condition-added-weight:{}:{OTHER}:{}", OTHER.len(), pipe_id.len());
+    let lowered_id = format!("{generating}:{pipe_id}");
+    let mut lowered = cantilever(Route::Preview, EULER_BERNOULLI, vec![case(&generating, Some(seismic()), vec![]), case(OTHER, None, vec![])]);
+    let model = &mut lowered["model"];
+    let renamed = serde_json::to_string(&*model).unwrap().replace("\"pipe:a-b\"", &format!("\"{pipe_id}\""));
+    *model = serde_json::from_str(&renamed).unwrap();
+    model["pipe_segments"][0]["condition_set_ref"] = json!("cs");
+    model["condition_sets"] = json!([{"id": "cs", "provenance": PROV, "installation_temperature": qv(20.0, "degC"),
+        "conditions": [{"key": "OPE1", "temperature": qv(20.0, "degC")}], "added_weight": {"magnitude": qv(-1.0, "N/m"), "direction": "global_z"}}]);
+    model["load_cases"][1]["condition_use"] = json!({"added_weight": true});
+    let mut unused = lowered.clone();
+    unused["model"]["load_cases"][1].as_object_mut().unwrap().remove("condition_use");
+    for mode in MODES {
+        solved(&unused, Route::Preview, mode, "without the added weight, nothing collides");
+    }
+    let found = refused(&lowered, "EQUIVALENT_STATIC_GENERATED_ID_COLLISION", "added by lowering to another case");
+    assert_eq!(found.len(), 1, "{found:?}");
+    expect(&found, &[&generating, OTHER], &lowered_id, "added by lowering");
+    // Two generating cases whose generated identities coincide: a component
+    // identity carries its component's id, so case B's item for component
+    // `valve:c:generated:...` equals case X's item for `valve:d` when X is B's
+    // identity cut where that component id begins. Each case's solve meets
+    // the coincidence; the solve stops at the first blocked case, so in
+    // either order the first case is refused.
+    for (route, x_first) in [(Route::Exact, false), (Route::Exact, true), (Route::Preview, false), (Route::Preview, true)] {
+        let (b, name2) = ("case:b", "valve:d");
+        let name = format!("valve:c:generated:seismic:global-y:component:{}:{name2}", name2.len());
+        let x = format!("{b}:generated:seismic:global-y:component:{}:valve:c", name.len());
+        let shared = format!("{x}:generated:seismic:global-y:component:{}:{name2}:force", name2.len());
+        assert_eq!(shared, format!("{b}:generated:seismic:global-y:component:{}:{name}:force", name.len()));
+        let span = length() / 3.0;
+        let mut wire = document(route, EULER_BERNOULLI,
+            vec![node("node:a", 0.0), node("node:b", span), node("node:c", 2.0 * span), node("node:d", 3.0 * span)],
+            vec![pipe("pipe:a-b", "node:a", "node:b", route), pipe("pipe:b-c", "node:b", "node:c", route), pipe("pipe:c-d", "node:c", "node:d", route)],
+            if x_first { vec![case(&x, Some(seismic()), vec![]), case(b, Some(seismic()), vec![])] } else { vec![case(b, Some(seismic()), vec![]), case(&x, Some(seismic()), vec![])] });
+        let valve = |id: &str, node: &str, replaced: &str| json!({"id": id, "kind": "valve", "node": node,
+            "geometry": {"rigid_pipe_ref": replaced, "weight": qv(2350.0, "N"), "center_of_gravity": {"x": 0.0, "y": 0.0, "z": 0.0, "unit": "m"}},
+            "mechanics_interface": {"solver_consumption": "mechanics_geometry_only"}, "provenance": PROV});
+        wire["model"]["components"] = json!([valve(&name, "node:c", "pipe:b-c"), valve(name2, "node:d", "pipe:c-d")]);
+        let what = format!("{route:?} two generating cases, {} first", if x_first { "X" } else { "B" });
+        let found = refused(&wire, "EQUIVALENT_STATIC_GENERATED_ID_COLLISION", &what);
+        expect(&found, &[b, &x], &shared, &what);
+        let named = found.iter().map(|d| d["affected_refs"][0].as_str().unwrap().to_string()).collect::<Vec<_>>();
+        assert_eq!(named, vec![if x_first { x.clone() } else { b.to_string() }], "{route:?}: the first case is refused");
+        // Renaming the second component removes the coincidence.
+        let renamed = serde_json::to_string(&wire).unwrap().replace(&format!("\"{name2}\""), "\"valve:e\"");
+        let renamed: Value = serde_json::from_str(&renamed).unwrap();
+        for mode in MODES {
+            let out = run(&renamed, mode);
+            assert!(!codes(&out).iter().any(|c| c == "EQUIVALENT_STATIC_GENERATED_ID_COLLISION"), "{route:?} renamed: {:?}", blocking(&out));
+        }
+    }
+}
+
 /// Decision 2 (vi) of issue 452: a generated case commits whole or not at
 /// all. Valid seismic inputs beside invalid wind inputs refuse the case: no
 /// row, no generated record and no load-state record is published.
