@@ -622,10 +622,11 @@ RS-G1 does not restore eligibility: the same overlay without RS-G1 publishes RS-
 the interim linear RS-FR1V. With RS-FR1's intended one-way normal source, they solve and are
 not confirmed: the confirmation admits only a base restraint as a derived normal's source, so
 without RS-G1 RS-SUS, RS-OPE and RS-SAM are each `NUMERICAL_INTEGRITY_SENSITIVE` with that named reason.
-RS-OPE-REF is solved in these overlays only as RS-EXP's minuend: it has not been examined under them, and no
-standing is stated for it. The published support states are reported, not
-verified (KR-04). None of these families is in the fixture until this specification adopts
-it.
+RS-OPE-REF is solved in these overlays. Where RS-EXP is published in the overlay with RS-G1, RS-OPE-REF's
+published translation and support-reaction rows are read as its minuend. No support-state, equilibrium or
+standing check is made on RS-OPE-REF in any of the overlays, and no standing is stated for it. The published
+support states are reported, not verified (KR-04). None of these families is in the fixture until this
+specification adopts it.
 
 **RS-P180 under MBF export (a coverage note, not a ledger row).** RS-OPE selects RS-P180's
 modulus at 210 °C (`material_selection` `temperature_interpolation`) while its
