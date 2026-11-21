@@ -680,6 +680,8 @@ describe("LoadCaseManagerPanel layout", () => {
       expect(byId(form)).not.toHaveAttribute("open");
     }
     expect(byId("load-manager-analysis-settings")).not.toHaveAttribute("open");
+    // The editor names the entity it holds by its full id, for a journey that must know which case is chosen.
+    expect(byId("load-manager-selected-case")).toHaveAttribute("data-entity-id", model.load_cases[0].id);
     // The selected case's sections, in order; a disclosure states what the case has and is open when it has content.
     const sections = within(byId("load-manager-selected-case")).getAllByTestId(/^load-case-section-/).map((section) => section.dataset.testid);
     expect(sections).toEqual(["load-case-section-case", "load-case-section-loads", "load-case-section-pressure", "load-case-section-wind", "load-case-section-seismic", "load-case-section-hydrostatic-test", "load-case-section-conditions", "load-case-section-reference-state"]);

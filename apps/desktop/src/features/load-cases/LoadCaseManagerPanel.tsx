@@ -1580,7 +1580,7 @@ export function LoadCaseManagerPanel({
           </CreateForm>
 
           {showCombination && selectedCombination ? (
-            <section className="combination-basis-editor loads-entity" aria-label="Combination editor" data-testid="load-manager-selected-combination">
+            <section className="combination-basis-editor loads-entity" aria-label="Combination editor" data-testid="load-manager-selected-combination" data-entity-id={selectedCombination.id}>
               <div className="loads-entity-head">
                 <h3>{selectedCombination.label || selectedCombination.id}</h3>
                 <p className="muted">{shortRef(selectedCombination.id)} · {basisLabel(currentCombinationBasis)}</p>
@@ -1874,7 +1874,7 @@ export function LoadCaseManagerPanel({
               </div>
             </section>
           ) : selectedLoadCase ? (
-            <section className="load-metadata-editor loads-entity" aria-label="Load case editor" data-testid="load-manager-selected-case">
+            <section className="load-metadata-editor loads-entity" aria-label="Load case editor" data-testid="load-manager-selected-case" data-entity-id={selectedLoadCase.id}>
               <div className="loads-entity-head">
                 <h3>{loadCaseLabelDisplay(selectedLoadCase)}</h3>
                 <p className="muted">{shortRef(selectedLoadCase.id)} · {metadataDisplay(selectedLoadCase.kind)} · {metadataDisplay(selectedLoadCase.status)}</p>

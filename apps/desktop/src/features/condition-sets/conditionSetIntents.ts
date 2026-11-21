@@ -397,10 +397,10 @@ export type HeldSupports = "springs_and_constant_effort" | "none";
 export type TestCondition = { kind: "hydrostatic"; held_supports: HeldSupports };
 export const HELD_SUPPORTS: readonly HeldSupports[] = ["springs_and_constant_effort", "none"];
 
-/** The case's stored test condition as stored (any value), or undefined when it has none.
- * `types.ts` does not declare the member yet, so it is read here by name. */
+/** The case's stored test condition as stored, or undefined when it has none. It is returned as
+ * unknown because a stored document may hold a value the engine refuses, which is shown as stored. */
 export function storedTestCondition(loadCase: LoadCase): unknown {
-  return (loadCase as LoadCase & { test_condition?: unknown }).test_condition;
+  return loadCase.test_condition;
 }
 
 /** Set (`next` the whole condition) or clear (`next` null) a load case's test condition, in

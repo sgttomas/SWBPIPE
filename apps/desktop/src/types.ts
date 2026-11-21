@@ -534,6 +534,10 @@ export type PreviewModel = {
     analysis_state?: AnalysisStateInput | null;
     /** Model document 0.9.0: the case's use of its pipes' condition sets. */
     condition_use?: ConditionUse;
+    /** The case's hydrostatic test condition (DEL-05-01 REQ-014): both members are entered, nothing
+     * is defaulted. This is the authored input; a solved test case's mark in a result is another
+     * object and does not use this type. */
+    test_condition?: { kind: "hydrostatic"; held_supports: "springs_and_constant_effort" | "none" };
   }>;
   combinations?: Array<ModelAnnotations & {
     id: string;
