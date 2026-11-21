@@ -26,8 +26,8 @@
 //   prepared-project   24  A model document placed in the throwaway home before launch (the journey's `place`),
 //                          opened by File > Open Model Document…: the start other journeys build on.
 //   refused-stored-run 25  A local project store placed before launch, its saved run's record binding the result
-//                          rules at a revision this version does not read: File > Open Local Project…, the Project
-//                          page, the Results stage, File > Save Local Project, and whether the stored run's texts
+//                          rules at a revision this version does not read: File > Open Local Project…, the Results
+//                          stage, File > Save Local Project, the Project page, and whether the stored run's texts
 //                          are still the placed ones in copies of the store taken after the open and the save.
 //
 // At each step the driver (`driver.js`, given the shared counts of `../screen-counts.mjs` and the snapshot of

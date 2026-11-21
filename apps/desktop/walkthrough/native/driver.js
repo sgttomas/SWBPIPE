@@ -400,13 +400,10 @@
   // opened from the placed store: what the person is told, the Results stage, and a save in place.
   async function refusedStoredRun(journey, plan) {
     await openPrepared(journey, plan, "a saved project whose stored run this version does not read");
-    await journey.step("project-page", "The Project page after the open, with what it says of the stored run", async () => {
-      await closeOverlays();
-      await showSection("project");
-      await storeCopy("after-open");
-      return projectMessage() || "the Project page shows no message";
-    });
+    // The Project page comes last: opening it after this open has emptied the window (the page's root drawn empty),
+    // and nothing after it could be recorded in the same launch.
     await journey.step("results-stage", "The Results stage: what the window says of the run", async () => {
+      await storeCopy("after-open");
       await closeOverlays();
       const stage = await waitFor("the Results stage in the rail", () => { const item = byTestId("rail-stage-results"); return visible(item) ? item : null; }, T.ui);
       if (stage.disabled || stage.getAttribute("aria-disabled") === "true") {
@@ -422,12 +419,17 @@
     });
     await journey.step("save", "File > Save Local Project: what the person is told", async () => {
       await closeOverlays();
-      await showSection("project");
       const before = projectMessage();
       await menu("file.save-local");
-      const shown = await waitFor("the save's outcome", () => { const now = projectMessage(); return now && now !== before ? now : null; }, T.save);
+      const said = await waitFor("the save's outcome", () => { const now = projectMessage(); return now && now !== before ? now : null; }, T.save);
       await storeCopy("after-save");
-      return shown;
+      // The message is the project strip's; it is on screen only where the window shows that strip.
+      return `${said}${visible(byTestId("local-project-message")) ? "" : " (this message is not on screen here: the window shows it in the Project page's strip)"}`;
+    });
+    await journey.step("project-page", "The Project page, with what it says of the stored run", async () => {
+      await closeOverlays();
+      await showSection("project");
+      return projectMessage() || "the Project page shows no message";
     });
   }
 
