@@ -177,6 +177,8 @@ export function composeIndex(out, { size = null } = {}) {
   const journeys = readParts(out);
   const surfaces = [...new Set(journeys.map(surfaceOf))];
   const windows = [...new Set(journeys.map((journey) => journey.window ?? size).filter(Boolean))];
+  // Each attended capture's binding to its launch, checked against the files as they now stand (attendedBindings).
+  const bindings = attendedBindings(out, journeys);
   // Every screen carries its journey's revision, build and use case (DEL-07-06 VER-007: the index records, for each
   // screen, the revision, the build, the use case, the step, the picture and the words and controls on screen).
   const screens = journeys.flatMap((journey) => journey.screens.map((screen) => ({
@@ -188,7 +190,6 @@ export function composeIndex(out, { size = null } = {}) {
     ...(bindings.checks.has(screen.file) ? { binding_check: bindings.checks.get(screen.file) ?? "intact: the picture and its sidecar are the ones its launch recorded" } : {})
   })));
   // The native surfaces, each named once: supplied, unseen with what prevented it, or missing evidence (nativeSurfacesOf).
-  const bindings = attendedBindings(out, journeys);
   const { surfaces: nativeSurfaces, unexplained: unexplainedSurfaces } = nativeSurfacesOf(journeys, { bindings });
   // Each launch's reading of the menu the app built (native/run.mjs nativeMenuRecord).
   const nativeMenus = journeys.filter((journey) => journey.native_menu).map((journey) => ({ ...journey.native_menu, build: journey.build ?? null }));
