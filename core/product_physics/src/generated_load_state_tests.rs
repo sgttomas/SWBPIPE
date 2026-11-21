@@ -8,8 +8,9 @@ use serde_json::{json, Value};
 const GENERATED: &str = "case:join:generated:seismic:global-y:element-0";
 
 /// The maintained load/reference-state witness with seismic generation on its
-/// one case and a stored primitive under `id`, listed in the ledger or not.
-fn model(id: &str, listed: bool) -> PreviewModel {
+/// one case and a stored primitive under `id`, listed in the ledger at
+/// `factor` or not listed (`None`).
+fn request(id: &str, factor: Option<f64>) -> Value {
     let mut request: Value = serde_json::from_str(include_str!(
         "../../../fixtures/product_preview/pressure_source/load_reference_source/eigen_motion.request.json"
     ))
@@ -20,12 +21,30 @@ fn model(id: &str, listed: bool) -> PreviewModel {
     let mut stored = case["primitive_loads"][0].clone();
     stored["id"] = json!(id);
     case["primitive_loads"].as_array_mut().unwrap().push(stored);
-    if listed {
-        case["analysis_state"]["load_sources"].as_array_mut().unwrap().push(json!({"source_ref": id, "factor": 1.0}));
+    if let Some(factor) = factor {
+        case["analysis_state"]["load_sources"].as_array_mut().unwrap().push(json!({"source_ref": id, "factor": factor}));
     }
+    request
+}
+
+fn model(id: &str, listed: bool) -> PreviewModel {
+    to_model(request(id, listed.then_some(1.0)))
+}
+
+fn to_model(request: Value) -> PreviewModel {
     let request: LinearStaticPreviewRequest = serde_json::from_value(request).unwrap();
     assert!(case_state::is_load_state(&request.model));
     request.model
+}
+
+/// The witness with a valve at the tip that replaces its member, its centre
+/// of gravity off the member's axis so that the y generation forms a moment.
+fn with_valve(mut request: Value) -> Value {
+    request["model"]["components"] = json!([{"id": "component:valve", "kind": "valve", "node": "tip",
+        "geometry": {"rigid_pipe_ref": "member", "weight": {"value": 2350.0, "unit": "N"},
+            "center_of_gravity": {"x": 0.0, "y": 0.0, "z": 0.125, "unit": "m"}},
+        "mechanics_interface": {"solver_consumption": "mechanics_geometry_only"}, "provenance": "invented"}]);
+    request
 }
 
 /// A stored primitive that the ledger lists, a lowering-appended one listed
@@ -64,6 +83,83 @@ fn the_origin_test_reads_the_effective_case() {
     let mut none = model(GENERATED, false);
     none.load_cases[0].equivalent_static = None;
     assert!(!is_generated_in_effective_case(&none, &none.load_cases[0], GENERATED, None));
+}
+
+/// The certified nodal ledger (`certified_loads::nodal`) on a load and
+/// reference-state document (issue 452 decision 10), on the witness with a
+/// valve at the tip:
+/// - a stored primitive under the generated component force's identity that
+///   the ledger lists is authored: it takes its ledger factor through
+///   `source_factor`, as a formed product, and the component rule is not
+///   consulted;
+/// - one the ledger does not list is outside the effective case, and the
+///   solve refuses the collision by name before assembly;
+/// - a truly generated component force and moment are pushed as the stored
+///   values the rule gives, at factor 1, and pass the binding: the document
+///   solves in both modes with no value mismatch.
+#[test]
+fn the_nodal_ledger_reads_the_effective_case() {
+    use crate::seismic_component::{load_id, rule_value, Part, VALUE_MISMATCH};
+    use open_pipe_stress_primitive_loads::NodalLoadContribution;
+    let force = load_id("case:join", "component:valve", 1, Part::Force);
+    let moment = load_id("case:join", "component:valve", 1, Part::Moment(0));
+    let ledger_of = |model: &PreviewModel, loads: Vec<NodalLoadContribution>| {
+        let application = LoadApplication { nodal_loads: loads, ..prepare_loads(model.nodes.len(), model.pipe_segments.len(), &[]) };
+        let mut ledger = LoadLedger::new();
+        let mut diagnostics = Vec::new();
+        certified_loads::nodal(&mut ledger, model, &application, "case:join", model.nodes.len(), &mut diagnostics);
+        (ledger.finish(model.nodes.len() * 6).unwrap(), diagnostics)
+    };
+
+    // Listed at 1.25: the authored lookalike is a formed product of its stored
+    // magnitude and its ledger factor.
+    let listed = to_model(with_valve(request(&force, Some(1.25))));
+    let magnitude = listed.load_cases[0].primitive_loads.iter().find(|load| load.id == force).unwrap().magnitude.value;
+    assert!(rule_value(&listed, "case:join", &force).is_none(), "a listed lookalike is not generated");
+    let lookalike = NodalLoadContribution { load_id: force.clone(), node_index: 1, global_dof: 9, value: magnitude * 1.25 };
+    let (ledger, diagnostics) = ledger_of(&listed, vec![lookalike]);
+    assert!(diagnostics.is_empty(), "{diagnostics:?}");
+    assert!(ledger.closure_records()[0].formed);
+    assert!(matches!(ledger.load_primitives()[0].formula, LoadFormula::NodalProduct { global_dof: 9, magnitude: m, factor: 1.25 } if m == magnitude));
+
+    // Unlisted: outside the effective case, so the identity is the
+    // generator's, and the solve refuses the collision before assembly.
+    let unlisted = with_valve(request(&force, None));
+    for mode in [PreviewSolverMode::SparseInteractive, PreviewSolverMode::DenseScrutiny] {
+        let out = serde_json::to_value(run_linear_static_preview_value_with_mode(unlisted.clone(), mode).unwrap()).unwrap();
+        assert_eq!(out["status"]["mechanics"], "MODEL_INCOMPLETE", "{mode:?}");
+        assert!(out["results"].as_array().unwrap().is_empty(), "{mode:?}");
+        let found: Vec<&Value> = out["diagnostics"].as_array().unwrap().iter().filter(|d| d["code"] == "EQUIVALENT_STATIC_GENERATED_ID_COLLISION").collect();
+        assert_eq!(found.len(), 1, "{mode:?}");
+        assert!(found[0]["message"].as_str().unwrap().contains("not listed in analysis_state.load_sources"), "{mode:?}");
+    }
+
+    // Truly generated: the generator's own loads, pushed as the rule's values.
+    let plain = with_valve(request("case:join:authored", Some(1.0)));
+    let model = to_model(plain.clone());
+    let mut diagnostics = Vec::new();
+    let loads = build_load_case_primitive_loads(&model, &model.load_cases[0], &mut diagnostics);
+    assert!(!has_blocking(&diagnostics), "{diagnostics:?}");
+    let application = prepare_loads(model.nodes.len(), model.pipe_segments.len(), &loads);
+    let generated: Vec<NodalLoadContribution> =
+        application.nodal_loads.iter().filter(|load| load.load_id == force || load.load_id == moment).cloned().collect();
+    assert_eq!(generated.len(), 2, "the force and the moment about x");
+    for load in &generated {
+        let rule = rule_value(&model, "case:join", &load.load_id).expect("a generated component load");
+        assert_eq!(load.value.to_bits(), rule.0.to_bits(), "{} is the rule's stored value", load.load_id);
+    }
+    let (ledger, diagnostics) = ledger_of(&model, generated.clone());
+    assert!(diagnostics.is_empty(), "{diagnostics:?}");
+    assert!(ledger.closure_records().iter().all(|record| !record.formed), "input terms at factor 1");
+    assert!(ledger.load_primitives().is_empty());
+    for load in &generated {
+        assert_eq!(ledger.values()[load.global_dof].to_bits(), load.value.to_bits());
+    }
+    for mode in [PreviewSolverMode::SparseInteractive, PreviewSolverMode::DenseScrutiny] {
+        let out = serde_json::to_value(run_linear_static_preview_value_with_mode(plain.clone(), mode).unwrap()).unwrap();
+        assert_eq!(out["status"]["mechanics"], "MECHANICS_SOLVED", "{mode:?}");
+        assert!(out["diagnostics"].as_array().unwrap().iter().all(|d| d["code"] != VALUE_MISMATCH), "{mode:?}");
+    }
 }
 
 /// The certified intensity producer (`certified_loads::intensity`) and the
