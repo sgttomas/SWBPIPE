@@ -435,7 +435,8 @@ def test_record_carries_prd_22_5_fields():
     assert result["target_tool"] == "CAEPIPE" and result["target_version"] == "0.0-invented"
     assert result["manual_changes"] == "none"
     assert result["comparison_basis"]["caepipe_load_cases_compared"] == [SUS]
-    assert "not validation" in result["evidence_classification"]
+    assert result["evidence_classification"].startswith("private validation evidence")
+    assert "code compliance or professional acceptance" in result["evidence_classification"]
     assert all(entry["basis"] == "ASSUMPTION" for name, entry in result["tolerance_basis"].items()
                if isinstance(entry, dict))
 
@@ -629,7 +630,7 @@ def test_round_trip_records_route_and_never_runs_a_real_prlctl(tmp_path, fake_cl
     assert (config.exchange_root / "_harness" / sha / "Invoke-CaepipeRoundTrip.ps1").is_file()
     assert record_["observed_csv_path"]["host"] == f"caepipe_out/{token}/model_results.csv"
     assert record_["expected_batch_csv_path"] == f"C:\\invented-work\\cpc-x\\{token}\\model.csv"
-    assert record_["boundary_note"].startswith("regression/handoff evidence only")
+    assert record_["boundary_note"].startswith("private validation evidence; not")
     assert "invented-vm" not in json.dumps(record_)
     stored = json.loads((case_dir / "caepipe_out" / "run_record.json").read_text(encoding="utf-8"))
     assert stored["route"] == "csv_from_gui_print"

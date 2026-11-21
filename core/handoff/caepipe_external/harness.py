@@ -85,7 +85,7 @@ WRITE_SCRIPT_REPOSITORY_PATH = "core/handoff/caepipe_external/guest/Write-Swbpip
 HARNESS_DIR = "_harness"
 RUN_RECORD_KIND = "openpipestress.caepipe_harness_run_record"
 BATCH_COMMAND_SHAPE = '<exe> "<mbf>";batchmode=yes'
-BOUNDARY_NOTE = "regression/handoff evidence only; not validation, compatibility proof or professional acceptance"
+BOUNDARY_NOTE = "private validation evidence; not compatibility proof, code compliance or professional acceptance"
 CASE_LAYERS = ("swbpipe", "caepipe_in", "caepipe_out", "parsed", "comparison")
 OUTPUT_NAMES = ("model.res", "model.mod")
 # The batch print written with a .txt extension (the tool's saved print-file extension); accepted only when its

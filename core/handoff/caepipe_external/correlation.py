@@ -14,8 +14,7 @@ evaluates a declared hypothesis across a slenderness series of cases.
 The record built from CAEPIPE output is private. It is validation evidence
 (docs/PRD.md §22.5) that agents read and use to find and fix SWBPIPE's defects;
 it is not compatibility proof, code compliance or professional acceptance, and
-agreement establishes nothing about acceptance. Its stored
-`evidence_classification` value is kept as written.
+agreement establishes nothing about acceptance.
 """
 
 from __future__ import annotations
@@ -28,7 +27,7 @@ from typing import Any, Mapping
 
 COMPARISON_RECORD_KIND = "openpipestress.caepipe_correlation.comparison_record"
 COMPARISON_RECORD_VERSION = "2"
-EVIDENCE_CLASSIFICATION = ("private regression and handoff evidence; not validation, compatibility proof, code "
+EVIDENCE_CLASSIFICATION = ("private validation evidence (docs/PRD.md section 22.5); not compatibility proof, code "
                            "compliance or professional acceptance")
 TARGET_TOOL = "CAEPIPE"
 
