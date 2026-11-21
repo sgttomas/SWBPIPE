@@ -1,5 +1,6 @@
-import type { ReactNode } from "react";
-import type { EntityRef } from "../../types";
+import { Fragment, type ReactNode } from "react";
+import type { Diagnostic, EntityRef } from "../../types";
+import { needsSolverReportNote, SOLVER_REPORT_NOTE } from "../results/integrityStatus";
 import { classText, ISSUE_ORIGIN_LABELS, itemClassText, memberDifference, type IssueItem, type IssueMember } from "./issueItems";
 
 /**
@@ -11,7 +12,9 @@ import { classText, ISSUE_ORIGIN_LABELS, itemClassText, memberDifference, type I
  * every report in a disclosure inside the item, each with its own code, severity,
  * class ("class not supplied" where its producer gave none), source, what tells it
  * apart and message. A report that is a diagnostic opens its detail wherever its
- * item is listed. The item's severity is its worst member's.
+ * item is listed. The item's severity is its worst member's. Wherever a report's
+ * message is shown, the solver-report note follows it as its next sibling where
+ * `needsSolverReportNote` says the report takes one (release exit criterion 18).
  */
 export function IssueItemView({
   item,
@@ -29,7 +32,7 @@ export function IssueItemView({
 }) {
   const first = item.members[0];
   if (item.members.length === 1) {
-    return <>{main(<><p>{first.shown.message}</p><small className="issue-class" data-testid="issue-class">{classText(first.diagnostic)}</small></>)}</>;
+    return <>{main(<><p>{first.shown.message}</p><SolverReportNote report={first.shown} /><small className="issue-class" data-testid="issue-class">{classText(first.diagnostic)}</small></>)}</>;
   }
   const origins = [...new Set(item.members.map((member) => member.origin))];
   return (
@@ -38,10 +41,19 @@ export function IssueItemView({
         <>
           <small className="issue-group-count" data-testid="issue-group-count">{item.members.length} reports</small>
           <p>{first.shown.message}</p>
+          <SolverReportNote report={first.shown} />
           <small className="issue-class" data-testid="issue-class">{itemClassText(item)}</small>
           {item.differences.length > 0 ? (
             <small className="issue-group-also" data-testid="issue-group-also">
-              Reported for each of: {item.differences.join("; ")}.
+              Reported for each of:{" "}
+              {item.differences.map((difference, index) => (
+                <Fragment key={index}>
+                  {index > 0 ? "; " : null}
+                  <span className="issue-group-difference">{difference}</span>
+                  <SolverReportNote report={differenceReport(item, index)} />
+                </Fragment>
+              ))}
+              .
             </small>
           ) : null}
           {origins.length > 1 ? (
@@ -99,10 +111,25 @@ function MemberButton({ member, difference, selected, onSelectDiagnostic, onSele
       <span className="muted">
         {diagnostic.severity} · <span data-testid="issue-member-class">{classText(diagnostic)}</span> · from {ISSUE_ORIGIN_LABELS[member.origin]}
       </span>
-      {difference ? <small className="issue-member-difference" data-testid="issue-member-difference">For: {difference}</small> : null}
       <p>{shown.message}</p>
+      <SolverReportNote report={shown} />
+      {difference ? <small className="issue-member-difference" data-testid="issue-member-difference">For: {difference}</small> : null}
     </button>
   );
+}
+
+/** The note beside a report's text, where `needsSolverReportNote` says that report takes one;
+ * nothing otherwise. One per shown text of one report; never one for the item. */
+function SolverReportNote({ report }: { report: Diagnostic | null }) {
+  return report && needsSolverReportNote(report)
+    ? <span className="muted issue-solver-report-note" data-testid={`diagnostic-solver-report-note-${report.code}`}>{SOLVER_REPORT_NOTE}</span>
+    : null;
+}
+
+/** The report a difference was read from: the first member with that distinct message, as shown. */
+function differenceReport(item: IssueItem, index: number): Diagnostic | null {
+  const distinct = [...new Set(item.members.map((member) => member.diagnostic.message))];
+  return item.members.find((member) => member.diagnostic.message === distinct[index])?.shown ?? null;
 }
 
 function joinWords(words: readonly string[]): string {

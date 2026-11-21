@@ -4588,6 +4588,7 @@ body { min-width: 760px; min-height: 540px; }
 .issue-group > .diagnostic small,
 .issue-group > .issue-row small { display: block; margin-top: var(--space-2); font-size: var(--type-size-caption); }
 .issue-group-also { color: var(--ui-text); font-weight: 600; }
+.issue-group-also .issue-solver-report-note { margin-left: 0.3em; font-weight: 400; }
 .issue-group-members { margin-inline-start: var(--space-5); font-size: var(--type-size-chip); }
 .issue-group-members > summary { cursor: pointer; padding: var(--space-1) 0; color: var(--ui-muted); }
 .issue-group-members ol { display: grid; gap: var(--space-2); margin: var(--space-2) 0 0; padding: 0; list-style: none; }

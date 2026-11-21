@@ -268,3 +268,53 @@ describe("no report that joins an item lowers it", () => {
     ]);
   });
 });
+
+describe("a solver report's note stands beside each of its messages in an item", () => {
+  it("an item of two reports whose code takes the note shows it after the collapsed line's message and after each report's", () => {
+    const code = "NUMERICAL_INTEGRITY_CHECKS_PASSED";
+    const forCase = (id: string, lc: string) => diagnostic(id, code, "info", `invented report for load case ${lc} on support:H-1`);
+    renderDiagnostics([forCase("n1", "LC-1"), forCase("n2", "LC-2")]);
+    const group = screen.getByTestId(`issue-group-${code}`);
+    const line = screen.getByTestId(`diagnostic-${code}`);
+    const lineMessage = within(line).getByText("invented report for load case LC-1 on support:H-1");
+    expect(lineMessage.nextElementSibling).toHaveAttribute("data-testid", `diagnostic-solver-report-note-${code}`);
+    expect(lineMessage.nextElementSibling).toHaveTextContent(/^Reported by the solver; not verified by SWBPIPE\.$/);
+    const rows = memberRows(openReports(group), code);
+    expect(rows).toHaveLength(2);
+    for (const [row, lc] of [[rows[0], "LC-1"], [rows[1], "LC-2"]] as const) {
+      const message = within(row).getByText(`invented report for load case ${lc} on support:H-1`);
+      expect(message.nextElementSibling).toHaveAttribute("data-testid", `diagnostic-solver-report-note-${code}`);
+    }
+    // The collapsed line's derived text (what tells the reports apart) states each report's claim too.
+    const differences = [...within(within(line).getByTestId("issue-group-also")).getAllByText(/^LC-[12]$/)];
+    expect(differences.map((node) => node.nextElementSibling?.getAttribute("data-testid"))).toEqual([`diagnostic-solver-report-note-${code}`, `diagnostic-solver-report-note-${code}`]);
+    expect(within(group).getAllByTestId(`diagnostic-solver-report-note-${code}`)).toHaveLength(5);
+  });
+
+  it("a mixed item: the report that quotes a claim takes the note, its neighbour does not, and the item takes none of its own", () => {
+    const code = "NUMERICAL_INTEGRITY_SENSITIVE";
+    const quoting = diagnostic("q1", code, "warning", "invented case LC-1 on support:H-1: its prior outcome was NUMERICAL_INTEGRITY_CHECKS_PASSED");
+    const plain = diagnostic("q2", code, "warning", "invented case LC-2 on support:H-1: its prior outcome was none");
+    renderDiagnostics([plain, quoting]);
+    const group = screen.getByTestId(`issue-group-${code}`);
+    const line = screen.getByTestId(`diagnostic-${code}`);
+    // The collapsed line shows the first report's message, which quotes no claim: no note after it.
+    const lineMessage = within(line).getByText(plain.message);
+    expect(lineMessage.nextElementSibling?.getAttribute("data-testid")).not.toBe(`diagnostic-solver-report-note-${code}`);
+    // Its derived text: the quoting report's difference takes the note; the plain one's does not.
+    const also = within(line).getByTestId("issue-group-also");
+    const [plainPart, quotingPart] = [...also.querySelectorAll(".issue-group-difference")];
+    expect(quotingPart).toHaveTextContent("NUMERICAL_INTEGRITY_CHECKS_PASSED");
+    expect(quotingPart.nextElementSibling).toHaveAttribute("data-testid", `diagnostic-solver-report-note-${code}`);
+    expect(plainPart.nextElementSibling?.getAttribute("data-testid") ?? null).toBeNull();
+    const rows = memberRows(openReports(group), code);
+    expect(within(rows[0]).getByText(plain.message).nextElementSibling?.getAttribute("data-testid")).not.toBe(`diagnostic-solver-report-note-${code}`);
+    expect(within(rows[1]).getByText(quoting.message).nextElementSibling).toHaveAttribute("data-testid", `diagnostic-solver-report-note-${code}`);
+    expect(within(group).getAllByTestId(`diagnostic-solver-report-note-${code}`)).toHaveLength(2);
+  });
+
+  it("gives no note to a report whose code does not take one", () => {
+    renderDiagnostics([hanger("installed"), hanger("cold")]);
+    expect(screen.queryAllByTestId(/^diagnostic-solver-report-note-/)).toHaveLength(0);
+  });
+});
