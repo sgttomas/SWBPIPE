@@ -49,7 +49,7 @@ async function solvedSession() {
   const transport = createSolveJobTransport((request) => {
     if (!isDeepStrictEqual(request.model, pair.model)) throw new Error("REPLAY_REQUEST_MISMATCH");
     return pair.bytes;
-  }, { jobIdPrefix: "unit-editor-commit" });
+  }); // each session its own job ids (the default prefix is unique per transport)
   invokeMock.mockImplementation(async (command: string, args: Json, options?: unknown) => {
     switch (command) {
       case "get_local_storage_capability": return storage;

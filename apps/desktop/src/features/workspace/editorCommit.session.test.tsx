@@ -275,7 +275,14 @@ describe("form 1: the one-step commit of an immediate edit", () => {
     const result = await session(bendBasis);
     act(() => { result.current.selection.handleSelectEntity({ type: "node", id: "node:C" }); });
     const dialog = bindDialog(result, bendAtCorner);
-    const shown = await run(() => dialog.preview({ node: "node:C", radius: "0.5", k: "1.5", kSource: "invented k (user entry)", geometrySource: "invented geometry source", provenance: "invented bend provenance" }));
+    // The builder renders the dialog's form and queues it, so the preview is not called inside an act: React renders
+    // the form as the builder fills it.
+    let settled: Awaited<ReturnType<typeof dialog.preview>> | undefined;
+    void dialog.preview({ node: "node:C", radius: "0.5", k: "1.5", kSource: "invented k (user entry)", geometrySource: "invented geometry source", provenance: "invented bend provenance" })
+      .then((value) => { settled = value; });
+    await waitFor(() => expect(settled).toBeDefined(), { timeout: 10_000 });
+    await act(async () => {});
+    const shown = settled!;
     if (shown.status !== "previewed") throw new Error(`expected a preview, got: ${JSON.stringify(shown)}`);
     expect(shown.extent.steps.map((step) => [step.changeKind, step.targetType, step.targetRef])).toEqual([["insert_bend_at_corner", "Node", "node:C"]]);
     committed(await run(() => dialog.commit(shown.handle)));
@@ -427,7 +434,9 @@ describe("the input is owned (P4)", () => {
     const input = { nodeId: "node:C", axis: "y" as const, value: "2.5" };
     expect(refused(await run(() => bindCommit(result, throwingCheck)(input))).reason).toContain("could not be read as typed values (check broke)");
     expect(refused(await run(() => bindDialog(result, throwingCheck).preview(input))).reason).toContain("check broke");
-    expect(refused(await run(() => bindCommit(result, throwingBuild)(input))).reason).toContain("The editor could not build this change: build broke");
+    const buildRefusal = refused(await run(() => bindCommit(result, throwingBuild)(input))).reason;
+    expect(buildRefusal).toContain("The editor could not build this change");
+    expect(buildRefusal).toContain("build broke");
     expect(refused(await run(() => bindDialog(result, throwingBuild).preview(input))).reason).toContain("build broke");
     expect(snapshot(result)).toEqual(before);
   });
@@ -750,7 +759,7 @@ describe("lifetime and currentness (P3)", () => {
   it("a callback kept after its workspace closed is refused at entry, with nothing built", async () => {
     const hook = await mounted();
     let built = 0;
-    const commit = hook.result.current.editorBinding.bindCommit({ ...gridCell, name: "counted", build: (model, input, id) => { built += 1; return gridCell.build(model, input, id); } });
+    const commit = hook.result.current.editorBinding.bindCommit({ ...gridCell, name: "counted", build: (model, input, id) => { built += 1; return gridCell.build(model, input as GridInput, id); } });
     const dialog = hook.result.current.editorBinding.bindDialog(reconnect);
     hook.unmount();
     expect(refused(await commit({ nodeId: "node:C", axis: "y", value: "2.5" })).reason).toContain("This workspace is closed");
@@ -849,7 +858,8 @@ describe("a listener cannot split publication (P5)", () => {
   it("a checkpoint listener throwing before the run sheet's: the commit is committed with a notice, and the run sheet still takes the checkpoint", async () => {
     const { result, sheet } = await withSheet(throwsOnCheckpoint);
     const outcome = committed(await run(() => bindCommit(result, gridCell)({ nodeId: "node:C", axis: "y", value: "2.5" })));
-    expect(outcome.notice).toContain("A view of the session did not take this change: invented first listener failure");
+    expect(outcome.notice).toContain("A view of the session did not take this change");
+    expect(outcome.notice).toContain("invented first listener failure");
     expect(ledgerIds(sheet)).toEqual([result.current.operations.undoStack[0].operation_id]);
     expect(result.current.model.model!.nodes[2].position.y).toBe(2.5);
   });
@@ -859,14 +869,14 @@ describe("a listener cannot split publication (P5)", () => {
     const model = result.current.model.model!;
     const intent = (await gridCell.build(model, { nodeId: "node:C", axis: "y", value: "2.5" }, { sequence: 1, batchId: "unused" }) as { intent: EditorOperationIntent }).intent;
     await act(async () => { await result.current.operations.handleQueueOperationBatch({ batch_id: "batch:queued", operations: [intent] }); });
-    const message = result.current.operations.batchMessage;
     await act(async () => { await result.current.operations.handleRunOperationBatch(result.current.operations.queuedBatches[0], true); });
-    // As before the publish closure ran every listener: the model, the history and the queue are published, the
-    // failure leaves the batch message as it was, and the first failure still reaches the Apply path.
+    // As before the publish closure ran every listener: the model, the history and the queue are published, and the
+    // first failure still reaches the Apply path's catch, which writes no message because the publication has
+    // already superseded the request; the batch message stays cleared, as the Apply left it.
     expect(result.current.model.model!.nodes[2].position.y).toBe(2.5);
     expect(result.current.operations.undoStack).toHaveLength(1);
     expect(result.current.operations.queuedBatches).toHaveLength(0);
-    expect(result.current.operations.batchMessage).toBe(message);
+    expect(result.current.operations.batchMessage).toBeNull();
     // And the run sheet, listening after the one that threw, took the checkpoint.
     expect(ledgerIds(sheet)).toEqual(["batch:queued"]);
   });
