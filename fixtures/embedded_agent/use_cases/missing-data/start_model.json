@@ -1,0 +1,171 @@
+{
+  "schema_version": "0.9.0",
+  "document_kind": "openpipestress.product_preview.model",
+  "data_boundary": {
+    "source": "invented_example_not_library_data"
+  },
+  "project": {
+    "id": "project:missing-data-use-case",
+    "name": "Invented two-span cantilever lacking pipe densities",
+    "description": "Invented pressure-free model for the missing-data use case. Neither pipe states its material density, which the seismic static-equivalent case needs.",
+    "units": {
+      "length": "m",
+      "force": "N",
+      "angle": "rad",
+      "pressure": "Pa",
+      "stress": "Pa",
+      "temperature": "degC"
+    }
+  },
+  "analysis_status": {
+    "mechanics": "ready_for_preview_diagnostics",
+    "rule_check": "not_performed_user_rule_inputs_missing",
+    "professional_acceptance": "not_provided"
+  },
+  "materials": [
+    {
+      "id": "material:md-steel-like",
+      "label": "Invented steel-like material",
+      "elastic_modulus": {
+        "value": 200000000000,
+        "unit": "Pa"
+      },
+      "shear_modulus": {
+        "value": 77000000000,
+        "unit": "Pa"
+      },
+      "provenance": "invented_missing_data_use_case_not_library_data"
+    }
+  ],
+  "nodes": [
+    {
+      "id": "node:md-1",
+      "label": "MD-1",
+      "position": {
+        "x": 0,
+        "y": 0,
+        "z": 0
+      },
+      "provenance": "invented_missing_data_use_case_not_library_data"
+    },
+    {
+      "id": "node:md-2",
+      "label": "MD-2",
+      "position": {
+        "x": 1.0,
+        "y": 0,
+        "z": 0
+      },
+      "provenance": "invented_missing_data_use_case_not_library_data"
+    },
+    {
+      "id": "node:md-3",
+      "label": "MD-3",
+      "position": {
+        "x": 2.0,
+        "y": 0,
+        "z": 0
+      },
+      "provenance": "invented_missing_data_use_case_not_library_data"
+    }
+  ],
+  "pipe_segments": [
+    {
+      "id": "pipe:md-inboard",
+      "label": "Inboard span",
+      "from": "node:md-1",
+      "to": "node:md-2",
+      "section": {
+        "outside_diameter": {
+          "value": 0.1143,
+          "unit": "m"
+        },
+        "wall_thickness": {
+          "value": 0.006,
+          "unit": "m"
+        }
+      },
+      "material": "material:md-steel-like",
+      "y_reference": {
+        "x": 0,
+        "y": 1,
+        "z": 0
+      },
+      "provenance": "invented_missing_data_use_case_not_library_data"
+    },
+    {
+      "id": "pipe:md-outboard",
+      "label": "Outboard span",
+      "from": "node:md-2",
+      "to": "node:md-3",
+      "section": {
+        "outside_diameter": {
+          "value": 0.1143,
+          "unit": "m"
+        },
+        "wall_thickness": {
+          "value": 0.006,
+          "unit": "m"
+        }
+      },
+      "material": "material:md-steel-like",
+      "y_reference": {
+        "x": 0,
+        "y": 1,
+        "z": 0
+      },
+      "provenance": "invented_missing_data_use_case_not_library_data"
+    }
+  ],
+  "supports": [
+    {
+      "id": "support:md-anchor",
+      "label": "Anchor at MD-1",
+      "node": "node:md-1",
+      "family": "anchor",
+      "restraints": [
+        "UX",
+        "UY",
+        "UZ",
+        "RX",
+        "RY",
+        "RZ"
+      ],
+      "provenance": "invented_missing_data_use_case_not_library_data"
+    }
+  ],
+  "components": [],
+  "load_cases": [
+    {
+      "id": "case:md-seismic",
+      "label": "Invented seismic static-equivalent",
+      "kind": "primitive_user_load",
+      "status": "preview_only",
+      "primitive_loads": [],
+      "equivalent_static": {
+        "seismic": {
+          "gravity_acceleration": {
+            "value": 9.81,
+            "unit": "m/s^2"
+          },
+          "g_factor_x": {
+            "value": 0,
+            "unit": "none"
+          },
+          "g_factor_y": {
+            "value": 0.4,
+            "unit": "none"
+          },
+          "g_factor_z": {
+            "value": 0,
+            "unit": "none"
+          }
+        },
+        "provenance": "invented_missing_data_use_case_not_library_data"
+      },
+      "provenance": "invented_missing_data_use_case_not_library_data"
+    }
+  ],
+  "combinations": [],
+  "diagnostics": []
+}

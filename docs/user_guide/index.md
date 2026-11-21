@@ -836,10 +836,13 @@ scope is DEL-04-09 (`execution/PKG-04/DEL-04-09/ScopeOfWork.md`).
 values, and every document states that as its parameter standing
 (`parameter_standing: selected`, `parameter_label: selected_a1_a2_a3_criteria`).
 That is separate from the result standing. DEL-04-09's admission conditions for
-an engineering result are not met: the dense path's work guard has no measured
-budget, and the resource preflight refuses every budgeted request. The command
-runs without a budget. It applies the dense path's memory guard, every request
-and model refusal, and the integrity checks.
+an engineering result are not met: the calibrated input class and its
+allocation, stopping and publication protections are not established, and
+production caps remain unset. The existing command runs without an internal
+weighted-work budget and remains experimental. It applies the dense memory
+guard, every request/model refusal and the integrity checks. The resource
+policy promises neither a completion time nor a process-memory bound; it does
+not weaken the numerical checks.
 
 **The input.** The input is one JSON object, the modal request, which the
 command passes to the product's modal entry unchanged:

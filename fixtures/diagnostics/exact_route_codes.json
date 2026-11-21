@@ -10623,7 +10623,7 @@
    "severity": "blocking",
    "first_site": {
     "file": "core/product_physics/src/modal/resource.rs",
-    "line": 1121,
+    "line": 1181,
     "via": "diag()"
    },
    "sites": [
@@ -10640,11 +10640,29 @@
     },
     {
      "file": "core/product_physics/src/modal/resource.rs",
-     "line": 1121,
+     "line": 1181,
      "via": "diag()",
      "severity": "blocking",
      "through": [
       "const RESOURCE_ALLOCATION_REFUSED <- returned by SupportResourceError::code() (core/solver/modal_eigen/src/dense.rs:1398)"
+     ]
+    },
+    {
+     "file": "core/product_physics/src/modal/resource.rs",
+     "line": 1482,
+     "via": "diag()",
+     "severity": "blocking",
+     "through": [
+      "const RESOURCE_ALLOCATION_REFUSED (core/solver/modal_eigen/src/dense.rs:1398)"
+     ]
+    },
+    {
+     "file": "core/product_physics/src/modal/resource.rs",
+     "line": 1603,
+     "via": "diag()",
+     "severity": "blocking",
+     "through": [
+      "const RESOURCE_ALLOCATION_REFUSED (core/solver/modal_eigen/src/dense.rs:1398)"
      ]
     },
     {
@@ -10669,7 +10687,9 @@
    ],
    "messages": [
     "{error}; {stage} is refused before that structure exists, with no partial result (a resource refusal, not a numerical one)",
-    "element {subject} cannot be re-formed from its leaves ({failure:?}); the formation check fails closed, so the modal set is refused"
+    "element {subject} cannot be re-formed from its leaves ({failure:?}); the formation check fails closed, so the modal set is refused",
+    "{error}; the modal set is refused with no partial result (a resource refusal, not a numerical one)",
+    "the allocator refused {bytes} B ({elements} elements) for `{structure}`, storage of the completed modal set's {} ({actual}); {limit}. The whole set is refused, with no partial modes, truncation or omitted low modes (a resource refusal, not a numerical one)"
    ],
    "classification": "internal",
    "reason": "The allocator refused a request; an environment limit, not a document matter.",
@@ -10714,7 +10734,7 @@
     },
     {
      "file": "core/product_physics/src/modal/resource.rs",
-     "line": 1099,
+     "line": 1159,
      "via": "diag()",
      "severity": "blocking",
      "through": [
@@ -10723,11 +10743,38 @@
     },
     {
      "file": "core/product_physics/src/modal/resource.rs",
-     "line": 1121,
+     "line": 1181,
      "via": "diag()",
      "severity": "blocking",
      "through": [
       "const RESOURCE_ARITHMETIC_OVERFLOW <- returned by SupportResourceError::code() (core/solver/modal_eigen/src/dense.rs:100)"
+     ]
+    },
+    {
+     "file": "core/product_physics/src/modal/resource.rs",
+     "line": 1388,
+     "via": "diag()",
+     "severity": "blocking",
+     "through": [
+      "const RESOURCE_ARITHMETIC_OVERFLOW (core/solver/modal_eigen/src/dense.rs:100)"
+     ]
+    },
+    {
+     "file": "core/product_physics/src/modal/resource.rs",
+     "line": 1475,
+     "via": "diag()",
+     "severity": "blocking",
+     "through": [
+      "const RESOURCE_ARITHMETIC_OVERFLOW (core/solver/modal_eigen/src/dense.rs:100)"
+     ]
+    },
+    {
+     "file": "core/product_physics/src/modal/resource.rs",
+     "line": 1592,
+     "via": "diag()",
+     "severity": "blocking",
+     "through": [
+      "const RESOURCE_ARITHMETIC_OVERFLOW (core/solver/modal_eigen/src/dense.rs:100)"
      ]
     },
     {
@@ -10833,6 +10880,39 @@
    "named_by_statement": null
   },
   {
+   "code": "MODAL_RESOURCE_COMPLETED_SET_LIMIT_EXCEEDED",
+   "crates": [
+    "core/product_physics"
+   ],
+   "severity": "blocking",
+   "first_site": {
+    "file": "core/product_physics/src/modal/resource.rs",
+    "line": 1375,
+    "via": "diag()"
+   },
+   "sites": [
+    {
+     "file": "core/product_physics/src/modal/resource.rs",
+     "line": 1375,
+     "via": "diag()",
+     "severity": "blocking",
+     "through": [
+      "const MODAL_RESOURCE_COMPLETED_SET_LIMIT_EXCEEDED (core/product_physics/src/modal/resource.rs:1269)"
+     ]
+    }
+   ],
+   "messages": [
+    "the completed modal set's {} is {expression} = {actual}, over the caller's limit of {limit}; the whole set is refused before its storage is requested, with no partial modes, truncation or omitted low modes (a resource refusal, not a numerical one)"
+   ],
+   "classification": "internal",
+   "reason": "A caller-supplied limit on the completed modal set's actual dimensions is exceeded and the whole set is refused before its storage is requested. No production caller supplies such a limit (tests only), so no document a user authors reaches it; a selected production limit would make it a model-size limit.",
+   "unsure": false,
+   "candidates": null,
+   "named_by": null,
+   "named_by_coverage": null,
+   "named_by_statement": null
+  },
+  {
    "code": "MODAL_RESOURCE_PREFLIGHT_EXCEEDED",
    "crates": [
     "core/product_physics"
@@ -10840,13 +10920,13 @@
    "severity": "blocking",
    "first_site": {
     "file": "core/product_physics/src/modal/resource.rs",
-    "line": 1112,
+    "line": 1172,
     "via": "diag()"
    },
    "sites": [
     {
      "file": "core/product_physics/src/modal/resource.rs",
-     "line": 1112,
+     "line": 1172,
      "via": "diag()",
      "severity": "blocking",
      "through": [
@@ -13333,7 +13413,7 @@
     },
     {
      "file": "core/product_physics/src/modal/skew_pencil.rs",
-     "line": 190,
+     "line": 206,
      "via": "diag()",
      "severity": "blocking",
      "any_arm": true,
@@ -13430,7 +13510,7 @@
     },
     {
      "file": "core/product_physics/src/modal/skew_pencil.rs",
-     "line": 190,
+     "line": 206,
      "via": "diag()",
      "severity": "blocking",
      "any_arm": true,
@@ -13528,7 +13608,7 @@
     },
     {
      "file": "core/product_physics/src/modal/skew_pencil.rs",
-     "line": 190,
+     "line": 206,
      "via": "diag()",
      "severity": "blocking",
      "any_arm": true,
@@ -13595,7 +13675,7 @@
     },
     {
      "file": "core/product_physics/src/modal/skew_pencil.rs",
-     "line": 190,
+     "line": 206,
      "via": "diag()",
      "severity": "blocking",
      "any_arm": true,
@@ -13765,7 +13845,7 @@
     },
     {
      "file": "core/product_physics/src/modal/skew_pencil.rs",
-     "line": 190,
+     "line": 206,
      "via": "diag()",
      "severity": "blocking",
      "any_arm": true,
@@ -19480,8 +19560,11 @@
     "absent_capability",
     "numerical_standing"
    ],
-   "named_by": "unnamed",
-   "named_by_coverage": null,
+   "named_by": "LIM-030",
+   "named_by_coverage": {
+    "coverage": "whole",
+    "reason": "LIM-030 names the code for a linear skew model's case that meets a binary64 range failure, which is the only place the product raises it: the case's failure arm, after the range trigger and before any force scaling."
+   },
    "named_by_statement": null
   },
   {
@@ -21730,14 +21813,14 @@
   {
    "literal": "D_K",
    "sites": [
-    "core/product_physics/src/modal/resource.rs:1049"
+    "core/product_physics/src/modal/resource.rs:1109"
    ]
   },
   {
    "literal": "D_M",
    "sites": [
-    "core/product_physics/src/modal/resource.rs:1051",
-    "core/product_physics/src/modal/resource.rs:1052"
+    "core/product_physics/src/modal/resource.rs:1111",
+    "core/product_physics/src/modal/resource.rs:1112"
    ]
   },
   {
@@ -21960,7 +22043,7 @@
   {
    "literal": "S_T1",
    "sites": [
-    "core/product_physics/src/modal/resource.rs:1061"
+    "core/product_physics/src/modal/resource.rs:1121"
    ]
   },
   {

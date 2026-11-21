@@ -1,13 +1,15 @@
 #!/usr/bin/env python3
 """The reference-system fixture, tranche 1 (DEL-09-01, exit criterion 1).
 
-Checks that the committed files are the generator's output, that the model is a current model document, that it
-solves on EX with every tranche-1 case solved and nothing refused, that the generator's ledger and the authoring
-file's pending flags agree, that no key result carries an expected value without a recorded basis, EQ-1/2/3/5 in
-both solver modes, and KR-05's presence (the tee's rows, no values). Invented inputs only."""
+Checks that the committed files are the generator's output, that the model is a current model document and a desktop
+document (its data boundary stated, no authored diagnostic), that it solves on EX with every tranche-1 case solved and
+nothing refused, that the generator's ledger and the authoring file's pending flags agree, that no key result carries an
+expected value without a recorded basis, EQ-1/2/3/5 in both solver modes, RS-CE1's applied load and support action
+(KR-03's identity), and KR-05's presence (the tee's rows, no values). Invented inputs only."""
 
 from __future__ import annotations
 
+from fractions import Fraction
 import importlib.util
 import json
 import os
@@ -24,6 +26,7 @@ if str(ROOT / "tests") not in sys.path:
     sys.path.insert(0, str(ROOT / "tests"))
 
 from schema_validation import JsonSchemaDependencyMissing, _skip_or_note_missing_jsonschema, validate_instance  # noqa: E402
+import reference_packages  # noqa: E402
 
 FIXTURE = ROOT / "fixtures" / "reference_system"
 SCHEMA = ROOT / "schemas" / "model.schema.yaml"
@@ -106,12 +109,27 @@ def test_the_model_validates_as_the_current_model_document():
         _skip_or_note_missing_jsonschema(exc)
 
 
+def test_the_model_is_a_desktop_document_with_its_boundary_and_no_authored_diagnostic():
+    """Spec §2: the fixture opens in the desktop as it is; the solver's diagnostics stay solve output."""
+    desktop = {"$schema": "https://json-schema.org/draft/2020-12/schema",
+               "$ref": "https://openpipestress.org/schemas/model.schema.yaml#/$defs/DesktopDocument"}
+    assert MODEL["data_boundary"] == GENERATOR.DATA_BOUNDARY
+    assert set(MODEL["data_boundary"]) == {"public_examples_policy", "protected_source_policy", "private_data_policy",
+                                           "professional_boundary"}
+    assert MODEL["diagnostics"] == []
+    try:
+        validate_instance(desktop, MODEL, schema_label="DesktopDocument", instance_label=GENERATOR.MODEL_FILE)
+    except JsonSchemaDependencyMissing as exc:
+        _skip_or_note_missing_jsonschema(exc)
+
+
 def test_tranche_one_holds_its_families_and_leaves_the_pending_ones_out():
     ids = all_ids(MODEL)
     assert len(MODEL["nodes"]) == 27 and len(MODEL["pipe_segments"]) == 26
     for present in ("component:RS-B1", "component:RS-B2", "component:RS-B3", "component:RS-T1", "component:RS-F1",
-                    "component:RS-V1", "component:RS-F2", "component:RS-EJ1", "support:RS-FR1V", "load:RS-SUS", "load:RS-OPE",
-                    "load:RS-SAM", "combination:RS-EXP", "combination:RS-dSAM"):
+                    "component:RS-V1", "component:RS-F2", "component:RS-R1", "component:RS-EJ1", "support:RS-CE1",
+                    "support:RS-FR1V", "load:RS-SUS", "load:RS-OPE", "load:RS-SAM", "combination:RS-EXP",
+                    "combination:RS-dSAM"):
         assert present in ids, present
     for row in AUTHORING["pending"]:
         if not row["in_tranche_1"] and row["family"] != "RS-FR1 with RS-FR1V: lift-off friction shoe pending RT-A3 S7":
@@ -243,8 +261,7 @@ def test_every_key_result_is_named_with_a_basis_and_no_unrecorded_expected_value
         expected = entry["expected"]
         if expected is not None:
             record = expected.get("basis_record", "") if isinstance(expected, dict) else ""
-            assert record.startswith("validation/references/reference_system/") and (ROOT / record).is_file(), \
-                entry["id"]
+            assert record.startswith(REFERENCE_PACKAGES) and (ROOT / record).is_file(), entry["id"]
 
 
 # -- (f) EQ-1, EQ-2, EQ-3 and EQ-5 in both solver modes ---------------------------------------------------------------
@@ -253,7 +270,10 @@ def test_every_key_result_is_named_with_a_basis_and_no_unrecorded_expected_value
 # when |obs - exp| <= 1e-9 |exp|; a zero row when |obs| <= 1e-9 * zero_scale, the largest nonzero magnitude of its
 # family in the case. Product sign convention for support_reaction_component_v2: the action of the support on the
 # pipe, global axes, moments about the support's node.
-REFERENCES = ROOT / "validation" / "references" / "reference_system" / "references.json"
+# The fixture holds RS-R1 and RS-CE1: EQ-1 and EQ-2 are reference_system_r1_ce's. The tranche-1 package
+# reference_system stays frozen as the earlier fixture's; its README states EQ-3, EQ-5 and the row conventions.
+REFERENCE_PACKAGES = ("validation/references/reference_system/", "validation/references/reference_system_r1_ce/")
+REFERENCES = ROOT / "validation" / "references" / "reference_system_r1_ce" / "references.json"
 SOLVER_MODES = ("sparse_interactive", "dense_scrutiny")
 RELATIVE = 1e-9
 FORCES, MOMENTS = ("Fx", "Fy", "Fz"), ("Mx", "My", "Mz")
@@ -364,12 +384,18 @@ def resultants(case_rows):
 
 
 def test_eq1_eq2_reactions_balance_the_independent_weight(mode_rows):
-    """EQ-1: sum of vertical reactions = W_total; EQ-2: horizontal resultant zero, moment resultant = -M_weight."""
+    """EQ-1: sum of vertical reactions = W_total; EQ-2: horizontal resultant zero, moment resultant = -M_weight.
+    RS-CE1 is one support among all, its action counted once; the negative controls of the references (RS-P150's
+    weight kept beside RS-R1's, RS-R1 omitted, RS-CE1 counted twice or left out) each miss."""
     mode, summary = mode_rows
     weight, weight_moment = reference_values()
+    negative = json.loads(REFERENCES.read_text(encoding="utf-8"))["negative_controls"]
     failures, eq1, eq2 = [], {}, {}
     for case in ("load:RS-SUS", "load:RS-OPE", "load:RS-SAM"):
         force, moment, (force_scale, moment_scale) = resultants(summary["rows"][case])
+        for label, control in negative.items():
+            wrong = (control.get("W_N") or control["sum_Fz_N"])["value"]
+            assert abs(force[2] - wrong) > 1e3 * RELATIVE * abs(wrong), (mode, case, label, force[2], wrong)
         check_row(f"EQ-1 {case} sum Fz", force[2], weight, force_scale, failures, eq1)
         for i, axis in enumerate("XY"):
             check_row(f"EQ-2 {case} sum F{axis.lower()}", force[i], 0.0, force_scale, failures, eq2)
@@ -378,6 +404,29 @@ def test_eq1_eq2_reactions_balance_the_independent_weight(mode_rows):
                       moment_scale, failures, eq2)
     print(f"{mode} EQ-1 {eq1} EQ-2 {eq2}")  # largest relative error and zero-row ratio (pytest -s)
     assert not failures, failures
+
+
+def test_rs_ce1_applies_and_publishes_its_entered_constant_load_in_every_case(mode_rows):
+    """KR-03's identity for RS-CE1 (DEC-049): its applied-load row and its published support action Fz are its entered
+    constant_load, and its other five components are zero; the supports other than RS-CE1 carry W less it."""
+    mode, summary = mode_rows
+    refs = json.loads(REFERENCES.read_text(encoding="utf-8"))
+    ce = refs["constant_effort"]
+    record = next(s for s in MODEL["supports"] if s["id"] == ce["support"])
+    assert (record["family"], record["node"], record["restraints"]) == ("constant_effort_support", ce["node"], ["UZ"])
+    assert record["hanger"]["constant_load"] == {"value": float(ce["constant_load_N"]), "unit": "N"}
+    others_expected = ce["other_supports_sum_Fz_N"]["value"]
+    for case in ce["cases"]:
+        rows = summary["rows"][case]
+        applied = [row for row in rows if row["key"][0] == "constant_effort_support_applied_load"
+                   and row["key"][2] == ce["support"]]
+        assert [row["value"] for row in applied] == [float(ce["applied_load_N"])], (mode, case, applied)
+        action = supports(rows)[ce["support"]]
+        expected = dict(zip(FORCES + MOMENTS, [float(v) for v in ce["support_action_on_pipe_N"]]
+                            + [float(v) for v in ce["support_action_moment_about_node_N_m"]]))
+        assert action == expected, (mode, case, action)
+        others = sum(values["Fz"] for support, values in supports(rows).items() if support != ce["support"])
+        assert abs(others - others_expected) <= RELATIVE * others_expected, (mode, case, others, others_expected)
 
 
 def test_eq5_the_anchor_movement_term_is_self_equilibrated(mode_rows):
@@ -496,11 +545,43 @@ def test_eq1_eq2_expected_values_are_the_frozen_references():
     assert expected["EQ-1"]["value"] == weight and expected["EQ-2"]["value"] == weight_moment
     refs = json.loads(REFERENCES.read_text(encoding="utf-8"))
     assert expected["EQ-1"]["exact"] == refs["key_values"]["W_total_N"]["exact"]
+    assert expected["EQ-1"]["basis_record"] == expected["EQ-2"]["basis_record"] == REFERENCES.relative_to(ROOT).as_posix()
     for rid in ("EQ-3", "EQ-5"):
         assert expected[rid]["identity"] and expected[rid]["basis_record"].endswith("README.md"), rid
+    check = next(e for e in KEY_RESULTS["results"] if e["id"] == "KR-03")
+    assert check["expected"] is None and check["check"]["kind"] == "identity"
 
 
-def test_the_reference_generator_check_passes():
-    generator = REFERENCES.parent / "generators" / "rs_reference.py"
-    completed = subprocess.run([sys.executable, "-I", str(generator)], capture_output=True, text=True, check=False)
-    assert completed.returncode == 0, completed.stdout + completed.stderr
+def test_the_fixture_holds_the_inputs_the_references_derive_from():
+    """The references read no fixture: the fixture's weighted members, the members a component's weight replaces, and
+    each rigid-family component's weight, centre of gravity and node are the ones they derive."""
+    refs = json.loads(REFERENCES.read_text(encoding="utf-8"))
+    by_member = {row["member"]: row for row in refs["members"]}
+    for case in MODEL["load_cases"]:
+        lines = sorted(load["target"]["pipe"] for load in case["primitive_loads"] if load["target"]["type"] == "element")
+        assert lines == refs["self_weight_inventory"]["weighted_members"], case["id"]
+        assert len(case["primitive_loads"]) == refs["self_weight_inventory"]["per_case"]["total"], case["id"]
+    replaced = {c["geometry"]["rigid_pipe_ref"]: c["id"] for c in MODEL["components"] if "rigid_pipe_ref" in c.get("geometry", {})}
+    assert replaced == {f"pipe:{row['member']}": row["by"] for row in by_member.values() if "by" in row}
+    nodes = {node["id"]: node["position"] for node in MODEL["nodes"]}
+    for comp in refs["components"]:
+        record = next(c for c in MODEL["components"] if c["id"] == comp["component"])
+        assert record["node"] == comp["node"] and float(record["geometry"]["weight"]["value"]) == comp["weight_N"]["value"]
+        cog = record["geometry"]["center_of_gravity"]
+        assert [cog[a] for a in "xyz"] == [float(Fraction(v)) for v in comp["center_of_gravity_from_node_m"]], comp
+        assert [nodes[comp["node"]][a] + cog[a] for a in "xyz"] == pytest.approx(
+            [float(Fraction(v)) for v in comp["position_m"]], rel=1e-15, abs=1e-15)
+    reducer = refs["reducer"]
+    record = next(c for c in MODEL["components"] if c["id"] == reducer["component"])
+    offset = record["geometry"]["eccentric_offset"]
+    assert (offset["unit"], [offset[a] for a in "xyz"]) == ("mm", [float(v) for v in reducer["eccentric_offset_mm"]])
+    assert [record["geometry"][k]["value"] for k in ("end_a_size", "end_b_size")] == [int(v) for v in reducer["end_sizes_mm"]]
+    assert record["modifiers"]["stiffness_scaling_user_value"]["value"] == float(reducer["stiffness_scale"])
+
+
+def test_the_reference_generator_checks_pass(tmp_path):
+    """The adopted references' check, in place; and the frozen tranche-1 package's, on the tranche-1 inputs it was
+    generated from (tests/reference_packages.py stages them)."""
+    for name in ("reference_system_r1_ce", "reference_system"):
+        problems = reference_packages.check_problems(name, 0, tmp_path / name / "check_output")
+        assert not problems, problems

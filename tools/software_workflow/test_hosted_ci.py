@@ -473,6 +473,7 @@ class HostedCITests(unittest.TestCase):
             ('fixtures/model_document/invented_every_slot_model.json', 'desktop-rust-compile-read'),
             ('fixtures/product_preview/r2_from_blank_rehearsal.json', 'desktop-rust-source-reference'),
             ('fixtures/results/new_exact_source.json', 'desktop-rust-source-reference'),
+            ('fixtures/results/invented/agent_solve_witness/blocked_retained_evaluation-sparse_interactive.raw.json', 'desktop-rust-source-reference'),
             # The user-release reach scan reads the headless runner's sources, an allowed
             # dependent of report_package (code review r9 at #1682), so a runner change re-runs it.
             ('core/runner/headless/src/lib.rs', 'desktop-rust-source-reference'),

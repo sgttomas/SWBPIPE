@@ -21,7 +21,10 @@ needs:
     The linear support model defines the degrees of freedom each support restrains, an axis spring
     as a stiffness on the global diagonal, a skewed spring as the rank-one term k·d·dᵀ/(dᵀd), and a
     skewed rigid restraint as an exact constraint in the authored direction; an imposed-displacement
-    degree of freedom is restrained, and a constant-effort support contributes no stiffness.
+    degree of freedom is restrained, and a constant-effort support contributes no stiffness. The
+    restraint basis lifts a coordinate vector into an output the caller supplies, with its lift's
+    checks, exact sums, single roundings, order and refusals, so that the modal path requests the
+    lifted vector's storage itself.
   gating: true
 - from: DEL-04-04
   condition: >-
@@ -56,7 +59,7 @@ needs:
     vocabulary; resolves and solves a named load case once, returning its resolved per-member state
     and its final nonlinear support states with whether each was confirmed; applies the dense
     scrutiny memory ceiling and selects the dense or sparse path by the solver mode; and bounds a
-    nonlinear solve by a stated iteration cap, which the modal work estimate reads.
+    nonlinear solve by a stated iteration cap, which the modal input-class and iteration checks consume.
   gating: true
 - from: DEL-05-01
   condition: >-
@@ -119,6 +122,20 @@ needs:
     (DEL-10-05/REQ-015, DEL-10-05/AC-011), so that the modal command this deliverable builds adds no
     extraction bound, acceleration or other value of its own.
   gating: false
+- from: DEL-07-07
+  when: Before a modal result is admitted for engineering display in the desktop.
+  condition: >-
+    The native job enforces the owning analysis admission profile, can stop its owned computation,
+    and publishes the complete result and required reader verdict atomically into result custody;
+    a cancelled, failed or refused run cannot leave a successful partial result.
+  gating: true
+- from: DEL-10-05
+  when: Before a modal result is admitted as an engineering result through the headless command.
+  condition: >-
+    Bounded ingress and result reading apply on the actual path, interruption ends the foreground
+    computation without reported success, and explicit output preserves a complete old or complete
+    new destination through owned temporary creation and atomic rename under REQ-015.
+  gating: true
 - from: external:nrc-nureg-cr
   when: For the published-benchmark comparison.
   condition: >-

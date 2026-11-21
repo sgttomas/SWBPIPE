@@ -6991,6 +6991,24 @@
    "source_sha256": "fa94f535c1a0f05ef5be3e37e7bbeb69d6fd9bf27807d74c67eaa85bcb1f0ec9"
   },
   {
+   "key": "62929bbf3519deabfd736084ba0a613bec208f2400ce0436ada0a61a098d2b7a",
+   "command": "read_preview_mechanics_job_summary",
+   "args": {
+    "jobId": "$JOB",
+    "modelJson": "{\"schema_version\":\"0.9.0\",\"document_kind\":\"openpipestress.product_preview.model\",\"data_boundary\":{\"public_examples_policy\":\"invented_or_cleared_data_only\",\"protected_source_policy\":\"no_bundled_protected_owner_or_standards_data\",\"private_data_policy\":\"no_private_project_data\",\"professional_boundary\":\"technical_preview_requires_human_engineering_review\"},\"project\":{\"id\":\"invented:rv17-coex:CX-F\",\"units\":{\"angle\":\"rad\",\"force\":\"N\",\"length\":\"m\",\"pressure\":\"Pa\",\"stress\":\"Pa\",\"temperature\":\"degC\"},\"name\":\"Invented agent solve witness\",\"description\":\"Invented: a passing case before the CX-F case, whose ordinary solve fails numerically, so the producer blocks the document.\"},\"analysis_status\":{\"mechanics\":\"ready_for_preview_diagnostics\",\"professional_acceptance\":\"not_provided\",\"rule_check\":\"not_performed_user_rule_inputs_missing\"},\"materials\":[{\"elastic_modulus\":{\"unit\":\"Pa\",\"value\":579465463.915025},\"id\":\"mat:C\",\"provenance\":\"invented_rv17_f1b_review_input_no_library_data\",\"shear_modulus\":{\"unit\":\"Pa\",\"value\":222871332.2750096},\"label\":\"mat:C\"}],\"nodes\":[{\"id\":\"N0\",\"position\":{\"x\":0,\"y\":0,\"z\":0},\"provenance\":\"invented_rv17_f1b_review_input_no_library_data\"},{\"id\":\"N1\",\"position\":{\"x\":1,\"y\":0,\"z\":0},\"provenance\":\"invented_rv17_f1b_review_input_no_library_data\"}],\"pipe_segments\":[{\"from\":\"N0\",\"id\":\"M1\",\"material\":\"mat:C\",\"provenance\":\"invented_rv17_f1b_review_input_no_library_data\",\"section\":{\"outside_diameter\":{\"unit\":\"m\",\"value\":0.02},\"wall_thickness\":{\"unit\":\"m\",\"value\":0.002}},\"to\":\"N1\",\"y_reference\":{\"x\":0,\"y\":1,\"z\":0}}],\"supports\":[{\"family\":\"anchor\",\"id\":\"anchor:N0\",\"node\":\"N0\",\"provenance\":\"invented_rv17_f1b_review_input_no_library_data\",\"restraints\":[\"UX\",\"UY\",\"UZ\",\"RX\",\"RY\",\"RZ\"]},{\"family\":\"anchor\",\"id\":\"anchor:N1\",\"node\":\"N1\",\"provenance\":\"invented_rv17_f1b_review_input_no_library_data\",\"restraints\":[\"UY\",\"UZ\",\"RX\",\"RY\",\"RZ\"]}],\"components\":[],\"load_cases\":[{\"id\":\"case:pass\",\"label\":\"PASS\",\"kind\":\"primitive_user_load\",\"status\":\"preview_only\",\"provenance\":\"invented_rv17_f1b_review_input_no_library_data\",\"primitive_loads\":[{\"id\":\"load:pass\",\"category\":\"concentrated_force\",\"dimension\":\"force\",\"direction\":\"global_x\",\"magnitude\":{\"unit\":\"N\",\"value\":1000},\"target\":{\"type\":\"node\",\"node\":\"N1\"},\"provenance\":\"invented_rv17_f1b_review_input_no_library_data\"}]},{\"id\":\"case\",\"kind\":\"primitive_user_load\",\"status\":\"preview_only\",\"label\":\"CX-F\",\"primitive_loads\":[{\"category\":\"concentrated_force\",\"dimension\":\"force\",\"direction\":\"global_x\",\"id\":\"load:0\",\"magnitude\":{\"unit\":\"N\",\"value\":4.2721418083338267e-306},\"provenance\":\"invented_rv17_f1b_review_input_no_library_data\",\"target\":{\"node\":\"N1\",\"type\":\"node\"}}],\"provenance\":\"invented_rv17_f1b_review_input_no_library_data\"}],\"combinations\":[],\"diagnostics\":[]}",
+    "standing": {
+     "eligible": false,
+     "findings": [
+      "NUMERICAL_INTEGRITY_NOT_QUALIFIED",
+      "NUMERICAL_CASE_EVIDENCE_INCOMPLETE",
+      "MECHANICS_NOT_SOLVED"
+     ]
+    }
+   },
+   "source_sha256": "1fe90c01aa94aa3aed06be7a5065fb484b0951cf951c5d86764b318405bb31e4",
+   "source_path": "fixtures/results/invented/agent_solve_witness/blocked_retained_evaluation-sparse_interactive.raw.json"
+  },
+  {
    "key": "62bedf0c7aa2a3d466eb0a234f34f569ed51e5265c621e1fa35f7dd0dd27a6c0",
    "command": "lookup_preview_mechanics_job_rows",
    "args": {
@@ -8304,6 +8322,16 @@
     "match": "first"
    },
    "source_sha256": "180cdcac7af02b9383aa065eddd72f802c503db93ccd023c51099c805f850d39"
+  },
+  {
+   "key": "78847a3c306bfed3bf9cd72f93316b687baed8bae01b9adcbbf0f08b3df80c8f",
+   "command": "read_preview_mechanics_job_verdict",
+   "args": {
+    "jobId": "$JOB",
+    "operation": "route_header"
+   },
+   "source_sha256": "1fe90c01aa94aa3aed06be7a5065fb484b0951cf951c5d86764b318405bb31e4",
+   "source_path": "fixtures/results/invented/agent_solve_witness/blocked_retained_evaluation-sparse_interactive.raw.json"
   },
   {
    "key": "78d7333e5a604f3ec98ece4c4e3e1333637610acfec9edc209d30a2bade34a93",
@@ -12738,6 +12766,17 @@
    "source_sha256": "55b659aa3531496896b111718041281cf485b78338334f7c32cb5f49acfd3edb"
   },
   {
+   "key": "b81c3572192dfc877a642e931c5a50bcd1e5dec09b220e3e926faaf1f06545cb",
+   "command": "read_preview_mechanics_job_verdict",
+   "args": {
+    "jobId": "$JOB",
+    "reader": "preview-physics",
+    "modelJson": "{\"schema_version\":\"0.9.0\",\"document_kind\":\"openpipestress.product_preview.model\",\"data_boundary\":{\"public_examples_policy\":\"invented_or_cleared_data_only\",\"protected_source_policy\":\"no_bundled_protected_owner_or_standards_data\",\"private_data_policy\":\"no_private_project_data\",\"professional_boundary\":\"technical_preview_requires_human_engineering_review\"},\"project\":{\"id\":\"invented:rv17-coex:CX-F\",\"units\":{\"angle\":\"rad\",\"force\":\"N\",\"length\":\"m\",\"pressure\":\"Pa\",\"stress\":\"Pa\",\"temperature\":\"degC\"},\"name\":\"Invented agent solve witness\",\"description\":\"Invented: a passing case before the CX-F case, whose ordinary solve fails numerically, so the producer blocks the document.\"},\"analysis_status\":{\"mechanics\":\"ready_for_preview_diagnostics\",\"professional_acceptance\":\"not_provided\",\"rule_check\":\"not_performed_user_rule_inputs_missing\"},\"materials\":[{\"elastic_modulus\":{\"unit\":\"Pa\",\"value\":579465463.915025},\"id\":\"mat:C\",\"provenance\":\"invented_rv17_f1b_review_input_no_library_data\",\"shear_modulus\":{\"unit\":\"Pa\",\"value\":222871332.2750096},\"label\":\"mat:C\"}],\"nodes\":[{\"id\":\"N0\",\"position\":{\"x\":0,\"y\":0,\"z\":0},\"provenance\":\"invented_rv17_f1b_review_input_no_library_data\"},{\"id\":\"N1\",\"position\":{\"x\":1,\"y\":0,\"z\":0},\"provenance\":\"invented_rv17_f1b_review_input_no_library_data\"}],\"pipe_segments\":[{\"from\":\"N0\",\"id\":\"M1\",\"material\":\"mat:C\",\"provenance\":\"invented_rv17_f1b_review_input_no_library_data\",\"section\":{\"outside_diameter\":{\"unit\":\"m\",\"value\":0.02},\"wall_thickness\":{\"unit\":\"m\",\"value\":0.002}},\"to\":\"N1\",\"y_reference\":{\"x\":0,\"y\":1,\"z\":0}}],\"supports\":[{\"family\":\"anchor\",\"id\":\"anchor:N0\",\"node\":\"N0\",\"provenance\":\"invented_rv17_f1b_review_input_no_library_data\",\"restraints\":[\"UX\",\"UY\",\"UZ\",\"RX\",\"RY\",\"RZ\"]},{\"family\":\"anchor\",\"id\":\"anchor:N1\",\"node\":\"N1\",\"provenance\":\"invented_rv17_f1b_review_input_no_library_data\",\"restraints\":[\"UY\",\"UZ\",\"RX\",\"RY\",\"RZ\"]}],\"components\":[],\"load_cases\":[{\"id\":\"case:pass\",\"label\":\"PASS\",\"kind\":\"primitive_user_load\",\"status\":\"preview_only\",\"provenance\":\"invented_rv17_f1b_review_input_no_library_data\",\"primitive_loads\":[{\"id\":\"load:pass\",\"category\":\"concentrated_force\",\"dimension\":\"force\",\"direction\":\"global_x\",\"magnitude\":{\"unit\":\"N\",\"value\":1000},\"target\":{\"type\":\"node\",\"node\":\"N1\"},\"provenance\":\"invented_rv17_f1b_review_input_no_library_data\"}]},{\"id\":\"case\",\"kind\":\"primitive_user_load\",\"status\":\"preview_only\",\"label\":\"CX-F\",\"primitive_loads\":[{\"category\":\"concentrated_force\",\"dimension\":\"force\",\"direction\":\"global_x\",\"id\":\"load:0\",\"magnitude\":{\"unit\":\"N\",\"value\":4.2721418083338267e-306},\"provenance\":\"invented_rv17_f1b_review_input_no_library_data\",\"target\":{\"node\":\"N1\",\"type\":\"node\"}}],\"provenance\":\"invented_rv17_f1b_review_input_no_library_data\"}],\"combinations\":[],\"diagnostics\":[]}"
+   },
+   "source_sha256": "1fe90c01aa94aa3aed06be7a5065fb484b0951cf951c5d86764b318405bb31e4",
+   "source_path": "fixtures/results/invented/agent_solve_witness/blocked_retained_evaluation-sparse_interactive.raw.json"
+  },
+  {
    "key": "b820fe6928a1d4c47757ccd1725b217e818c19e6e7f388b954b7a9bdbe5bdbf6",
    "command": "read_preview_mechanics_job_verdict",
    "args": {
@@ -13660,6 +13699,16 @@
     "sha256": "1ccc9561cb4ce59d047f3dab7927a927c44a707efb3acb90e7b07a21b3bad0a2"
    },
    "source_sha256": "1583a27bc8a9715826dcae91210f2be0b03ce8377374beedfe219ad41235ba10"
+  },
+  {
+   "key": "c7c93557ef84d4bd430aa5cee4ea13ab10cd90dc8f274522b8ce6a446d10d8b6",
+   "command": "read_preview_mechanics_job_verdict",
+   "args": {
+    "jobId": "$JOB",
+    "modelJson": "{\"schema_version\":\"0.9.0\",\"document_kind\":\"openpipestress.product_preview.model\",\"data_boundary\":{\"public_examples_policy\":\"invented_or_cleared_data_only\",\"protected_source_policy\":\"no_bundled_protected_owner_or_standards_data\",\"private_data_policy\":\"no_private_project_data\",\"professional_boundary\":\"technical_preview_requires_human_engineering_review\"},\"project\":{\"id\":\"invented:rv17-coex:CX-F\",\"units\":{\"angle\":\"rad\",\"force\":\"N\",\"length\":\"m\",\"pressure\":\"Pa\",\"stress\":\"Pa\",\"temperature\":\"degC\"},\"name\":\"Invented agent solve witness\",\"description\":\"Invented: a passing case before the CX-F case, whose ordinary solve fails numerically, so the producer blocks the document.\"},\"analysis_status\":{\"mechanics\":\"ready_for_preview_diagnostics\",\"professional_acceptance\":\"not_provided\",\"rule_check\":\"not_performed_user_rule_inputs_missing\"},\"materials\":[{\"elastic_modulus\":{\"unit\":\"Pa\",\"value\":579465463.915025},\"id\":\"mat:C\",\"provenance\":\"invented_rv17_f1b_review_input_no_library_data\",\"shear_modulus\":{\"unit\":\"Pa\",\"value\":222871332.2750096},\"label\":\"mat:C\"}],\"nodes\":[{\"id\":\"N0\",\"position\":{\"x\":0,\"y\":0,\"z\":0},\"provenance\":\"invented_rv17_f1b_review_input_no_library_data\"},{\"id\":\"N1\",\"position\":{\"x\":1,\"y\":0,\"z\":0},\"provenance\":\"invented_rv17_f1b_review_input_no_library_data\"}],\"pipe_segments\":[{\"from\":\"N0\",\"id\":\"M1\",\"material\":\"mat:C\",\"provenance\":\"invented_rv17_f1b_review_input_no_library_data\",\"section\":{\"outside_diameter\":{\"unit\":\"m\",\"value\":0.02},\"wall_thickness\":{\"unit\":\"m\",\"value\":0.002}},\"to\":\"N1\",\"y_reference\":{\"x\":0,\"y\":1,\"z\":0}}],\"supports\":[{\"family\":\"anchor\",\"id\":\"anchor:N0\",\"node\":\"N0\",\"provenance\":\"invented_rv17_f1b_review_input_no_library_data\",\"restraints\":[\"UX\",\"UY\",\"UZ\",\"RX\",\"RY\",\"RZ\"]},{\"family\":\"anchor\",\"id\":\"anchor:N1\",\"node\":\"N1\",\"provenance\":\"invented_rv17_f1b_review_input_no_library_data\",\"restraints\":[\"UY\",\"UZ\",\"RX\",\"RY\",\"RZ\"]}],\"components\":[],\"load_cases\":[{\"id\":\"case:pass\",\"label\":\"PASS\",\"kind\":\"primitive_user_load\",\"status\":\"preview_only\",\"provenance\":\"invented_rv17_f1b_review_input_no_library_data\",\"primitive_loads\":[{\"id\":\"load:pass\",\"category\":\"concentrated_force\",\"dimension\":\"force\",\"direction\":\"global_x\",\"magnitude\":{\"unit\":\"N\",\"value\":1000},\"target\":{\"type\":\"node\",\"node\":\"N1\"},\"provenance\":\"invented_rv17_f1b_review_input_no_library_data\"}]},{\"id\":\"case\",\"kind\":\"primitive_user_load\",\"status\":\"preview_only\",\"label\":\"CX-F\",\"primitive_loads\":[{\"category\":\"concentrated_force\",\"dimension\":\"force\",\"direction\":\"global_x\",\"id\":\"load:0\",\"magnitude\":{\"unit\":\"N\",\"value\":4.2721418083338267e-306},\"provenance\":\"invented_rv17_f1b_review_input_no_library_data\",\"target\":{\"node\":\"N1\",\"type\":\"node\"}}],\"provenance\":\"invented_rv17_f1b_review_input_no_library_data\"}],\"combinations\":[],\"diagnostics\":[]}"
+   },
+   "source_sha256": "1fe90c01aa94aa3aed06be7a5065fb484b0951cf951c5d86764b318405bb31e4",
+   "source_path": "fixtures/results/invented/agent_solve_witness/blocked_retained_evaluation-sparse_interactive.raw.json"
   },
   {
    "key": "c805f897dd5423773fdeae1c7a02e0336980015ed6c1647b47749ab6681d581c",
@@ -17072,6 +17121,25 @@
    },
    "source_sha256": "e908e4e85e1cd4b3355c99b71c3bfa9714ef6a2fc3803bcbba7f31589f22c40e",
    "source_path": "fixtures/product_preview/pressure_source/physics_source/n05_units-sparse_interactive.raw.json"
+  },
+  {
+   "key": "f6ac03bc56d517bebfa1582c84bc3277bf0b18fb76a4e2d6d352ebea2280573d",
+   "command": "read_preview_mechanics_job_analysis_run_preview",
+   "args": {
+    "jobId": "$JOB",
+    "inputManifest": {
+     "manifest_ref": {
+      "object_type": "InputManifest",
+      "ref": "input-manifest:invented-rv17-coex-CX-F:f0d8f65115471f1f0a56366c188cc088248b4bd72280c6fe4466eade7326f911"
+     },
+     "manifest_sha256": "f0d8f65115471f1f0a56366c188cc088248b4bd72280c6fe4466eade7326f911",
+     "canonical_bytes": "{\"active_rule_packs\":[],\"document_kind\":\"openpipestress.current_session_input_manifest\",\"external_assets\":[],\"identity_policy\":{\"canonical_bytes_scope\":\"entire_input_manifest_object\",\"canonicalization\":\"rfc8785_jcs\",\"hash_algorithm\":\"sha256\"},\"load_basis\":{\"combinations\":[],\"load_cases\":[{\"id\":\"case:pass\",\"kind\":\"primitive_user_load\",\"label\":\"PASS\",\"primitive_loads\":[{\"category\":\"concentrated_force\",\"dimension\":\"force\",\"direction\":\"global_x\",\"id\":\"load:pass\",\"magnitude\":{\"unit\":\"N\",\"value\":1000},\"provenance\":\"invented_rv17_f1b_review_input_no_library_data\",\"target\":{\"node\":\"N1\",\"type\":\"node\"}}],\"provenance\":\"invented_rv17_f1b_review_input_no_library_data\",\"status\":\"preview_only\"},{\"id\":\"case\",\"kind\":\"primitive_user_load\",\"label\":\"CX-F\",\"primitive_loads\":[{\"category\":\"concentrated_force\",\"dimension\":\"force\",\"direction\":\"global_x\",\"id\":\"load:0\",\"magnitude\":{\"unit\":\"N\",\"value\":4.2721418083338267e-306},\"provenance\":\"invented_rv17_f1b_review_input_no_library_data\",\"target\":{\"node\":\"N1\",\"type\":\"node\"}}],\"provenance\":\"invented_rv17_f1b_review_input_no_library_data\",\"status\":\"preview_only\"}]},\"model_basis\":{\"model_payload\":{\"analysis_status\":{\"mechanics\":\"ready_for_preview_diagnostics\",\"professional_acceptance\":\"not_provided\",\"rule_check\":\"not_performed_user_rule_inputs_missing\"},\"combinations\":[],\"components\":[],\"data_boundary\":{\"private_data_policy\":\"no_private_project_data\",\"professional_boundary\":\"technical_preview_requires_human_engineering_review\",\"protected_source_policy\":\"no_bundled_protected_owner_or_standards_data\",\"public_examples_policy\":\"invented_or_cleared_data_only\"},\"diagnostics\":[],\"document_kind\":\"openpipestress.product_preview.model\",\"load_cases\":[{\"id\":\"case:pass\",\"kind\":\"primitive_user_load\",\"label\":\"PASS\",\"primitive_loads\":[{\"category\":\"concentrated_force\",\"dimension\":\"force\",\"direction\":\"global_x\",\"id\":\"load:pass\",\"magnitude\":{\"unit\":\"N\",\"value\":1000},\"provenance\":\"invented_rv17_f1b_review_input_no_library_data\",\"target\":{\"node\":\"N1\",\"type\":\"node\"}}],\"provenance\":\"invented_rv17_f1b_review_input_no_library_data\",\"status\":\"preview_only\"},{\"id\":\"case\",\"kind\":\"primitive_user_load\",\"label\":\"CX-F\",\"primitive_loads\":[{\"category\":\"concentrated_force\",\"dimension\":\"force\",\"direction\":\"global_x\",\"id\":\"load:0\",\"magnitude\":{\"unit\":\"N\",\"value\":4.2721418083338267e-306},\"provenance\":\"invented_rv17_f1b_review_input_no_library_data\",\"target\":{\"node\":\"N1\",\"type\":\"node\"}}],\"provenance\":\"invented_rv17_f1b_review_input_no_library_data\",\"status\":\"preview_only\"}],\"materials\":[{\"elastic_modulus\":{\"unit\":\"Pa\",\"value\":579465463.915025},\"id\":\"mat:C\",\"label\":\"mat:C\",\"provenance\":\"invented_rv17_f1b_review_input_no_library_data\",\"shear_modulus\":{\"unit\":\"Pa\",\"value\":222871332.2750096}}],\"nodes\":[{\"id\":\"N0\",\"position\":{\"x\":0,\"y\":0,\"z\":0},\"provenance\":\"invented_rv17_f1b_review_input_no_library_data\"},{\"id\":\"N1\",\"position\":{\"x\":1,\"y\":0,\"z\":0},\"provenance\":\"invented_rv17_f1b_review_input_no_library_data\"}],\"pipe_segments\":[{\"from\":\"N0\",\"id\":\"M1\",\"material\":\"mat:C\",\"provenance\":\"invented_rv17_f1b_review_input_no_library_data\",\"section\":{\"outside_diameter\":{\"unit\":\"m\",\"value\":0.02},\"wall_thickness\":{\"unit\":\"m\",\"value\":0.002}},\"to\":\"N1\",\"y_reference\":{\"x\":0,\"y\":1,\"z\":0}}],\"project\":{\"description\":\"Invented: a passing case before the CX-F case, whose ordinary solve fails numerically, so the producer blocks the document.\",\"id\":\"invented:rv17-coex:CX-F\",\"name\":\"Invented agent solve witness\",\"units\":{\"angle\":\"rad\",\"force\":\"N\",\"length\":\"m\",\"pressure\":\"Pa\",\"stress\":\"Pa\",\"temperature\":\"degC\"}},\"schema_version\":\"0.9.0\",\"supports\":[{\"family\":\"anchor\",\"id\":\"anchor:N0\",\"node\":\"N0\",\"provenance\":\"invented_rv17_f1b_review_input_no_library_data\",\"restraints\":[\"UX\",\"UY\",\"UZ\",\"RX\",\"RY\",\"RZ\"]},{\"family\":\"anchor\",\"id\":\"anchor:N1\",\"node\":\"N1\",\"provenance\":\"invented_rv17_f1b_review_input_no_library_data\",\"restraints\":[\"UY\",\"UZ\",\"RX\",\"RY\",\"RZ\"]}]},\"model_ref\":\"invented:rv17-coex:CX-F\"},\"replay_boundary\":{\"current_session_ref_hash_integrity_only\":true,\"included_as_package_member\":false,\"portable_replay_claimed\":false},\"schema_version\":\"1.0.0\",\"solver_basis\":{\"settings\":{\"nonlinear_iteration_policy\":\"DEC-046-CV-B-product-preview-active-set-count-v1\",\"sparse_evidence_lane\":true},\"solver_build_ref\":\"open_pipe_stress_product_physics@0.2.0\",\"solver_mode\":\"sparse_interactive\",\"solver_name\":\"open_pipe_stress_product_physics\",\"solver_version\":\"0.2.0\"},\"unit_basis\":{\"project_units\":{\"angle\":\"rad\",\"force\":\"N\",\"length\":\"m\",\"pressure\":\"Pa\",\"stress\":\"Pa\",\"temperature\":\"degC\"}}}"
+    },
+    "ruleCheckAggregate": null,
+    "rulePackExclusions": []
+   },
+   "source_sha256": "1fe90c01aa94aa3aed06be7a5065fb484b0951cf951c5d86764b318405bb31e4",
+   "source_path": "fixtures/results/invented/agent_solve_witness/blocked_retained_evaluation-sparse_interactive.raw.json"
   },
   {
    "key": "f6f1ceec1fbcd7a5e424f9cef9f507550854254721b44a5b689248730594665f",

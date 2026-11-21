@@ -34,9 +34,8 @@ this system is evidence for the owner's release decision, not the decision (F-PI
 
 **Expected values.** A key result gets an expected value only from (a) a closed-form or
 hand-calculation reference with an independent generator, (b) an exact identity between
-published quantities, or (c) a verified solve, frozen in
-[`validation/references/reference_system/`](../../validation/references/reference_system/)
-with its basis recorded. No expected value is entered otherwise, and none is changed to
+published quantities, or (c) a verified solve, frozen in a reference-system package under
+`validation/references/` (§9.2) with its basis recorded. No expected value is entered otherwise, and none is changed to
 silence a failure. §9 names the results and their basis; it gives no values.
 
 ## 2. Conventions
@@ -59,6 +58,15 @@ silence a failure. §9 names the results and their basis; it gives no values.
   Every user value that needs a source (bend k and SIFs, tee SIFs, stiffness scales,
   component geometry, the joint's stiffness, rods and pressure area, the spring's hanger
   data) cites `invented user value, DEL-09-01`.
+- **Desktop document.** The generated fixture satisfies the desktop's open profile
+  (`schemas/model.schema.yaml` `$defs/DesktopDocument`), so the desktop's open checks admit it
+  as it is. Its
+  `data_boundary` states that its data are an invented test object of DEL-09-01 committed in the
+  public repository, with no provenance review disposition recorded; that no standard, supplier
+  catalogue, commercial example or project content is copied into it; that no private project,
+  material, rule-pack or owner data is bundled; and that it is a test object, not a design, needing
+  human review, with no code compliance or professional approval. Its `diagnostics` list is empty:
+  it authors no diagnostic, and the solver's diagnostics remain solve output.
 
 ## 3. Geometry
 
@@ -139,8 +147,7 @@ at Z = 6.865 m.
 | RS-P230 | 225 → 230 | S170 | |
 
 Each member's label is its tag, followed by what it carries in parentheses when it carries
-something. While the reducer is pending (§10), RS-P150's label reads
-`RS-P150 (Reducer R1 (plain S270 member in tranche 1))`.
+something.
 
 Pipe `y_reference` (orientation): horizontal straights take global +Z and vertical straights
 global +X. Each bend arc takes the direction of its incoming straight toward the corner, as
@@ -200,21 +207,24 @@ default k, SIF or stiffness.
 | RS-F2 | `flange` | RS-P040, node RS-050 | weight 350 N; CoG at the body midpoint; stiffness scale 10.0 |
 | RS-EJ1 | `expansion_joint`, objective connector 1.0.0 | replaces RS-P180, faces RS-180 / RS-190 | §5.1 |
 
-The bend and tee labels are `Bend B1`, `Bend B2`, `Bend B3` and `Tee T1`; the valve and
-flanges are `Valve V1`, `Flange F1` and `Flange F2`. The bends' k and SIFs, and the tee's
+The bend and tee labels are `Bend B1`, `Bend B2`, `Bend B3` and `Tee T1`; the valve, flanges
+and reducer are `Valve V1`, `Flange F1`, `Flange F2` and `Reducer R1`. The bends' k and SIFs, and the tee's
 SIFs, are the person's entries with their source (§11.3).
 
 The member under the eccentric reducer RS-R1, RS-P150, carries section S270, the larger
 end's. The reducer's weight and its centre of gravity are those its row gives.
 
-The valve and flanges are rigid-family components (`mechanics_geometry_only`). Each body is
-its mapped member: body length the member's length, both end sizes 270 mm, end references
-`node:<start> (body end on <member>)` and `node:<end> (body end on <member>)`. The
-stiffness scales are user values with a non-blank source reference, and each component's
-stiffness behaviour reference reads `rigid body, user stiffness scale 10.0 (DEC-045);
-invented user value, DEL-09-01`. The centre of gravity is entered from the component's
-node, in global axes; "body midpoint" therefore becomes (−0.075, 0, 0) m for RS-F1 and
-RS-F2 and (−0.3, 0, 0.3) m for RS-V1.
+The valve, flanges and reducer are rigid-family components (`mechanics_geometry_only`).
+Each body is its mapped member: body length the member's length (√257/40 m for RS-R1's
+inclined RS-P150), end sizes 270 mm at both ends for the valve and flanges and RS-R1's
+270 mm at RS-150 and 220 mm at RS-160, end references `node:<start> (body end on <member>)`
+and `node:<end> (body end on <member>)`. The stiffness scales are user values with a
+non-blank source reference, and each component's stiffness behaviour reference reads
+`rigid body, user stiffness scale <scale> (DEC-045); invented user value, DEL-09-01`, with
+its row's scale: 10.0 for the valve and flanges, 2.0 for RS-R1. The centre of gravity is
+entered from the component's node, in global axes; "body midpoint" therefore becomes
+(−0.075, 0, 0) m for RS-F1 and RS-F2, (−0.3, 0, 0.3) m for RS-V1 and (0, −0.2, 0.0125) m
+for RS-R1. RS-R1's `eccentric_offset` is entered in mm, in global axes, as its row gives it.
 
 ### 5.1 Expansion joint RS-EJ1
 
@@ -258,7 +268,7 @@ All supports are axis-aligned and carry no authored direction.
 | RS-LS1 | RS-060 | `line_stop` | UX | Axial stop on the first run, so thermal growth of the run is directed into the riser |
 | RS-V060 | RS-060 | `vertical_support` | UZ | Carries the valve run |
 | RS-VS1 | RS-080 | `variable_spring_hanger` | no restraint; hanger stiffness UZ 180 kN/m; installed and cold load 8.0 kN, hot load 7.4 kN, travel range 50 mm (all invented); `mechanics_consumption` `linear_spring_primitive_user_stiffness` | Riser, where vertical growth rules out a rigid support; sized by hanger sizing (§8.8) |
-| RS-CE1 | RS-100 | `constant_effort_support` | UZ; `constant_load` 9.0 kN (invented input) | Near bend B2, where vertical movement is largest; sized by hanger sizing |
+| RS-CE1 | RS-100 | `constant_effort_support` | UZ; `constant_load` 9.0 kN (invented input); travel range 50 mm (invented) | Near bend B2, where vertical movement is largest; sized by hanger sizing |
 | RS-LO1 | RS-110 | `nonlinear` | `lift_off`, UZ, initial state active, contact on positive reaction | A rack support near the riser, where operating movement can lift the pipe; whether it lifts is a solve result, not claimed |
 | RS-FR1V | RS-120 | `nonlinear` | `one_way`, UZ (resting); in tranche 1 an interim linear `vertical_support` UZ (§10) | Normal-force source for RS-FR1, so criterion 1 exercises a lift-off friction shoe |
 | RS-FR1 | RS-120 | `nonlinear` | `friction`, UY (axial), μ 0.30 (invented), normal reaction from RS-FR1V UZ | Axial sliding along the rack |
@@ -271,11 +281,15 @@ All supports are axis-aligned and carry no authored direction.
 
 The support labels are: `Anchor A (nozzle A)`, `Anchor B (nozzle B)`, `Anchor C (nozzle C)`,
 `Line stop LS1`, `Vertical support V060`, `Variable spring VS1 (user stiffness)`,
+`Constant-effort support CE1`,
 `RS-FR1V interim linear vertical support (one_way target pending R-4 S7)`,
 `Vertical support V140`, `Guide G2`, `Vertical support V200` and `Branch guide G3`.
 
 The constant-effort force acts along the positive UZ axis, its single translational
-restraint. A `variable_spring_hanger` must carry entered installed, cold and hot loads and a
+restraint, in every case. Support creation requires a constant-effort support's hanger to
+carry a hanger type, a source reference and a positive travel range or movement limit, so
+RS-CE1 carries an invented travel range of 50 mm: review metadata, which the solve compares
+with the computed movement and does not otherwise consume. A `variable_spring_hanger` must carry entered installed, cold and hot loads and a
 travel range or movement limit (`SPRING_HANGER_LOAD_MISSING`, `SPRING_HANGER_TRAVEL_MISSING`),
 so RS-VS1 carries invented ones. They are review metadata: only the stiffness is consumed,
 and each entered load warns `SPRING_HANGER_LOAD_NOT_APPLIED_AS_PRELOAD`. Like the
@@ -349,9 +363,9 @@ The case labels in the fixture are `RS-SUS sustained: W + P (operating pressure)
 `RS-SAM seismic anchor movement: W + P + anchor RS-C moved UX +15 mm, UY -10 mm`.
 
 W is generated self-weight of every member except RS-P180 (gravity as §2), with component
-weights at their centres of gravity in place of their members' distributed weight: 22 line
-loads on the straight and arc members other than RS-P020, RS-P030 and RS-P040, and a force
-and a moment for each of RS-F1, RS-V1 and RS-F2, 28 primitives per case. The fixture's W is
+weights at their centres of gravity in place of their members' distributed weight: 21 line
+loads on the straight and arc members other than RS-P020, RS-P030, RS-P040 and RS-P150, and a
+force and a moment for each of RS-F1, RS-V1, RS-F2 and RS-R1, 29 primitives per case. The fixture's W is
 the product's self-weight generator's output for each case (`core/product_physics/src/self_weight.rs`, through
 `core/loads/self_weight_wasm`), captured in
 [`self_weight_capture.json`](self_weight_capture.json); the fixture generator copies it and
@@ -502,14 +516,18 @@ RS-VS1's or RS-CE1's entered inputs.
 | EQ-6 | The resultant of RS-dWIN reactions equals minus the generated wind resultant, and that of each of RS-dEQX, RS-dEQY and RS-dEQZ equals minus the factor times g times the total mass on the generator's stated mass basis | closed form from the inputs |
 | EQ-7 | Spectrum directional combination recomputed from the published per-direction results | exact identity |
 
-Each closed-form reference is computed by an independent generator in
+Each closed-form reference is computed by an independent generator, not by the solver under
+test. EQ-1 and EQ-2 for the cases the fixture holds are frozen in
+[`validation/references/reference_system_r1_ce/`](../../validation/references/reference_system_r1_ce/):
+the total weight and its moment about the origin, recomputed from §3–§6 without the captured
+self-weight, with RS-R1's 300 N at its centre of gravity in place of RS-P150's distributed
+weight, and RS-CE1's 9.0 kN counted once, as one support's action. EQ-3 and EQ-5 are identities
+recorded in the README of
 [`validation/references/reference_system/`](../../validation/references/reference_system/),
-not by the solver under test. EQ-1 and EQ-2 are frozen there for the cases the fixture holds
-(the total weight and its moment about the origin, recomputed from §3–§5 without the
-captured self-weight); EQ-3 and EQ-5 are identities recorded in its
-[README](../../validation/references/reference_system/README.md).
+which stays frozen as the references of the fixture before RS-R1 and RS-CE1.
 [`tests/test_reference_system_fixture.py`](../../tests/test_reference_system_fixture.py)
-checks all four in both solver modes. RS-HYD's weight with the test contents is referenced
+checks all four in both solver modes, and that RS-CE1's applied load and its published
+support action are its entered 9.0 kN in every case. RS-HYD's weight with the test contents is referenced
 when RS-HYD is authored. The same test checks KR-05's presence, an identity: the tee's rows
 at the RS-130 ends of RS-P120 and RS-P210 on both section bases in RS-SUS and RS-OPE
 (RS-EXP withholds intensified rows); KR-05's values wait for a verified solve.
@@ -539,8 +557,8 @@ that owns it under exit criterion 1.
 | Anchors, guides, line stop, vertical supports | in tranche 1 | — | solved |
 | Variable spring as a user-stiffness spring | in tranche 1 | — | solved |
 | Tee RS-T1 with user SIFs | in tranche 1 | `component:RS-T1` | solved, with KR-05's rows present |
-| Eccentric reducer RS-R1 in region RG-R | pending; RS-P150 is in tranche 1 as a plain S270 member in its own region RG-R | `component:RS-R1` | absent; RS-P150 is a plain S270 member |
-| Constant-effort support RS-CE1 | pending | `support:RS-CE1` | absent |
+| Eccentric reducer RS-R1 in region RG-R | in tranche 1 | `component:RS-R1` | solved; RS-P150 is its body, in its own region RG-R |
+| Constant-effort support RS-CE1 | in tranche 1 | `support:RS-CE1` | solved; its 9.0 kN applied and published in every case |
 | Lift-off, friction and gap (RS-LO1, RS-FR1, RS-G1) | pending | `support:RS-LO1`, `support:RS-FR1`, `support:RS-G1` | absent |
 | RS-FR1 with RS-FR1V: lift-off friction shoe pending RT-A3 S7 | pending; RS-FR1V is in tranche 1 as an interim linear `vertical_support` UZ | `support:RS-FR1V` | RS-FR1V solved as a linear vertical support; no one-way support and no friction |
 | RS-SUS, RS-OPE (thermal, modulus by temperature) | in tranche 1 as linear cases (load/reference-state group) | — | solved |
@@ -555,12 +573,11 @@ that owns it under exit criterion 1.
 | Hanger sizing and table | pending | — | absent: no sizing request |
 | Snubber RS-SN1 (RS-110, UX, rigid) | pending | `support:RS-SN1` | absent; on any static solve it would be refused (§6) |
 
-With the pending supports and the reducer overlaid on the full system in tests only
-([`core/product_physics/tests/rt_a3_s6_reference_system.rs`](../../core/product_physics/tests/rt_a3_s6_reference_system.rs)
-and
-[`core/product_physics/tests/rt_a3_reducer_2b_reference_system.rs`](../../core/product_physics/tests/rt_a3_reducer_2b_reference_system.rs)),
-the exact route admits RS-R1, RS-CE1, RS-LO1, RS-FR1 and RS-G1: the combined test overlay
-solves with no blocking finding. Every case of that overlay is published unqualified,
+[`core/product_physics/tests/rt_a3_reducer_2b_reference_system.rs`](../../core/product_physics/tests/rt_a3_reducer_2b_reference_system.rs)
+examines the fixture's own RS-R1 and RS-CE1 on the connecting path. With the pending
+supports RS-LO1, RS-FR1 and RS-G1 overlaid on the fixture in tests only
+([`core/product_physics/tests/rt_a3_s6_reference_system.rs`](../../core/product_physics/tests/rt_a3_s6_reference_system.rs)),
+the exact route admits them: the combined test overlay solves with no blocking finding. Every case of that overlay is published unqualified,
 numerical quality `unresolved` with `NUMERICAL_INTEGRITY_RECOVERY_BASIS_UNQUALIFIED`,
 because a published case of a solve with a gap support is never qualified or confirmed, and
 its report package is refused (LIM-017 and LIM-016 in
@@ -593,13 +610,13 @@ with every Must family marked covered or carrying its named refusal.
 
 What an export of the 0.9.0 fixture can show follows the ledger (§10). The fixture holds the
 temperature-dependent modulus table (§4.1), the realized bends, the tee, the valve and
-flanges, the expansion joint and its rods, the variable spring, the linear supports, the
+flanges, the eccentric reducer, the expansion joint and its rods, the variable spring, the
+constant-effort support, the linear supports, the
 cases RS-SUS, RS-OPE and RS-SAM and the combinations RS-EXP and RS-dSAM. The writer refuses
 the temperature table today (`MBF-SI-TEMPERATURE-DEPENDENT-MATERIAL-UNSUPPORTED`); it stays
 in the system, and no family is dropped to make criterion 6 pass. Which of the other families
 the fixture holds the loss report lists is DEL-17-04's to state from an export of the
-fixture. The eccentric reducer, the constant-effort, lift-off, friction and gap supports, the
-snubber, the other cases and combinations, the spectrum and the modal and hanger-sizing
+fixture. The lift-off, friction and gap supports, the snubber, the other cases and combinations, the spectrum and the modal and hanger-sizing
 requests are pending (§10): the fixture does not hold them, so no export of it reports them.
 
 Each family moves to "covered" as a coverage tranche lands. Any family with no admitted
@@ -612,7 +629,7 @@ criterion 6 met.
 
 Criterion 7 says the system is "entered by run sheet and solved in ≤ 30 minutes
 *(provisional)*". The run sheet enters nodes, members, realized bends, the valve and
-flanges and ten of the eleven supports through the desktop's run sheet, and everything else
+flanges and ten of the twelve supports through the desktop's run sheet, and everything else
 through the desktop's forms and load manager. [`RUN_SHEET.md`](RUN_SHEET.md) gives the
 steps for the fixture as it is, their entry counts and an estimate of the time, and lists
 every difference between the model it yields and the fixture. When a pending row of §10 is

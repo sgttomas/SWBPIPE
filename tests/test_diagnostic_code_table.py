@@ -82,15 +82,16 @@ UNSURE_PIN = 39
 # receipt's failure records (support_attribution_ambiguous, unsupported_source_closure, unsupported_family,
 # unsupported_block, unsupported_derived_quantity) are absent capabilities no entry names. No refusal changed.
 # 61 -> 60: MODAL_TIMOSHENKO_MASS_UNSUPPORTED is named wholly by LIM-020. No refusal changed.
-# 60 -> 61 (PR 272): retire EXACT_ROUTE_PENDING (-1), add CANDIDATE_MOVED and
+# 60 -> 59: SUPPORT_DIRECTION_SKEW_FORCE_SCALED_UNSUPPORTED is named wholly by LIM-030. No refusal changed.
+# 59 -> 60 (PR 272): retire EXACT_ROUTE_PENDING (-1), add CANDIDATE_MOVED and
 # WEIGHT_SUPPORT_STATE_UNSUPPORTED (+2), each only partly named by LIM-008/009.
-UNNAMED_ABSENT_CAPABILITY_PIN = 61
+UNNAMED_ABSENT_CAPABILITY_PIN = 60
 # 47 -> 52 (review of d776be92e): the same four, and CONSTANT_EFFORT_COMBINATION_REQUIRES_SOLVE, whose product
 # text describes its gate only partially (F7). 52 -> 57 (completeness review): the same five.
-# 57 -> 56: the same code, named wholly by LIM-020.
-# 56 -> 57 (PR 272): the same retirement and two partially named, double-use codes;
+# 57 -> 56: the same code, named wholly by LIM-020. 56 -> 55: the skew code above, named wholly by LIM-030.
+# 55 -> 56 (PR 272): the same retirement and two partially named, double-use codes;
 # neither new code has a whole in-product statement covering both uses.
-NAMED_NOWHERE_TODAY_PIN = 57
+NAMED_NOWHERE_TODAY_PIN = 56
 
 REFRESH = 'run `python3 tools/validation/diagnostic_codes.py --write` and classify the new records by hand'
 COVERAGE = ('whole', 'partial')

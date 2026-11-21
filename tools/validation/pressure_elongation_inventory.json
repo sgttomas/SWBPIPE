@@ -28,11 +28,11 @@
    ".json",
    ".jsonl"
   ],
-  "files": 537,
+  "files": 542,
   "claimed_by": {
    "group": 143,
    "in_code": 65,
-   "exemption": 329
+   "exemption": 334
   }
  },
  "counts": {
@@ -6538,7 +6538,7 @@
      ]
     },
     {
-     "pointer": "/requests/419/args/invocationJson",
+     "pointer": "/requests/420/args/invocationJson",
      "text_pointers": [
       "/request/model"
      ],
@@ -6548,7 +6548,7 @@
      ]
     },
     {
-     "pointer": "/requests/427/args/modelJson",
+     "pointer": "/requests/428/args/modelJson",
      "text_pointers": [
       ""
      ],
@@ -6558,7 +6558,7 @@
      ]
     },
     {
-     "pointer": "/requests/437/args/modelJson",
+     "pointer": "/requests/438/args/modelJson",
      "text_pointers": [
       ""
      ],
@@ -6568,7 +6568,7 @@
      ]
     },
     {
-     "pointer": "/requests/443/args/modelJson",
+     "pointer": "/requests/444/args/modelJson",
      "text_pointers": [
       ""
      ],
@@ -6578,7 +6578,7 @@
      ]
     },
     {
-     "pointer": "/requests/475/args/inputManifest/canonical_bytes",
+     "pointer": "/requests/477/args/inputManifest/canonical_bytes",
      "text_pointers": [
       "/model_basis/model_payload"
      ],
@@ -6588,7 +6588,7 @@
      ]
     },
     {
-     "pointer": "/requests/518/args/modelJson",
+     "pointer": "/requests/520/args/modelJson",
      "text_pointers": [
       ""
      ],
@@ -6598,7 +6598,7 @@
      ]
     },
     {
-     "pointer": "/requests/522/args/modelJson",
+     "pointer": "/requests/524/args/modelJson",
      "text_pointers": [
       ""
      ],
@@ -6609,7 +6609,7 @@
      ]
     },
     {
-     "pointer": "/requests/530/args/modelJson",
+     "pointer": "/requests/532/args/modelJson",
      "text_pointers": [
       ""
      ],
@@ -6619,7 +6619,7 @@
      ]
     },
     {
-     "pointer": "/requests/558/args/modelJson",
+     "pointer": "/requests/560/args/modelJson",
      "text_pointers": [
       ""
      ],
@@ -6629,7 +6629,7 @@
      ]
     },
     {
-     "pointer": "/requests/558/args/invocationJson",
+     "pointer": "/requests/560/args/invocationJson",
      "text_pointers": [
       "/request/model"
      ],
@@ -6639,7 +6639,7 @@
      ]
     },
     {
-     "pointer": "/requests/565/args/modelJson",
+     "pointer": "/requests/567/args/modelJson",
      "text_pointers": [
       ""
      ],
@@ -6649,7 +6649,7 @@
      ]
     },
     {
-     "pointer": "/requests/570/args/inputManifest/canonical_bytes",
+     "pointer": "/requests/572/args/inputManifest/canonical_bytes",
      "text_pointers": [
       "/model_basis/model_payload"
      ],
@@ -6659,7 +6659,7 @@
      ]
     },
     {
-     "pointer": "/requests/577/args/modelJson",
+     "pointer": "/requests/579/args/modelJson",
      "text_pointers": [
       ""
      ],
@@ -6669,7 +6669,7 @@
      ]
     },
     {
-     "pointer": "/requests/596/args/modelJson",
+     "pointer": "/requests/598/args/modelJson",
      "text_pointers": [
       ""
      ],
@@ -6679,7 +6679,7 @@
      ]
     },
     {
-     "pointer": "/requests/601/args/inputManifest/canonical_bytes",
+     "pointer": "/requests/603/args/inputManifest/canonical_bytes",
      "text_pointers": [
       "/model_basis/model_payload"
      ],
@@ -6689,7 +6689,7 @@
      ]
     },
     {
-     "pointer": "/requests/640/args/inputManifest/canonical_bytes",
+     "pointer": "/requests/642/args/inputManifest/canonical_bytes",
      "text_pointers": [
       "/model_basis/model_payload"
      ],
@@ -6699,7 +6699,7 @@
      ]
     },
     {
-     "pointer": "/requests/659/args/modelJson",
+     "pointer": "/requests/661/args/modelJson",
      "text_pointers": [
       ""
      ],
@@ -6709,7 +6709,7 @@
      ]
     },
     {
-     "pointer": "/requests/659/args/invocationJson",
+     "pointer": "/requests/661/args/invocationJson",
      "text_pointers": [
       "/request/model"
      ],
@@ -6719,7 +6719,7 @@
      ]
     },
     {
-     "pointer": "/requests/686/args/modelJson",
+     "pointer": "/requests/688/args/modelJson",
      "text_pointers": [
       ""
      ],
@@ -6729,7 +6729,7 @@
      ]
     },
     {
-     "pointer": "/requests/707/args/modelJson",
+     "pointer": "/requests/709/args/modelJson",
      "text_pointers": [
       ""
      ],
@@ -6739,7 +6739,7 @@
      ]
     },
     {
-     "pointer": "/requests/719/args/modelJson",
+     "pointer": "/requests/721/args/modelJson",
      "text_pointers": [
       ""
      ],
@@ -6750,7 +6750,7 @@
      ]
     },
     {
-     "pointer": "/requests/720/args/inputManifest/canonical_bytes",
+     "pointer": "/requests/722/args/inputManifest/canonical_bytes",
      "text_pointers": [
       "/model_basis/model_payload"
      ],
@@ -6760,7 +6760,7 @@
      ]
     },
     {
-     "pointer": "/requests/733/args/modelJson",
+     "pointer": "/requests/736/args/modelJson",
      "text_pointers": [
       ""
      ],
@@ -6770,7 +6770,7 @@
      ]
     },
     {
-     "pointer": "/requests/735/args/modelJson",
+     "pointer": "/requests/738/args/modelJson",
      "text_pointers": [
       ""
      ],
@@ -6781,17 +6781,7 @@
      ]
     },
     {
-     "pointer": "/requests/753/args/modelJson",
-     "text_pointers": [
-      ""
-     ],
-     "schema_version": "0.9.0",
-     "pressurised_load_cases": [
-      "case:ordinary-pressure"
-     ]
-    },
-    {
-     "pointer": "/requests/786/args/modelJson",
+     "pointer": "/requests/756/args/modelJson",
      "text_pointers": [
       ""
      ],
@@ -6807,7 +6797,7 @@
      ],
      "schema_version": "0.9.0",
      "pressurised_load_cases": [
-      "case:closed-pressure"
+      "case:ordinary-pressure"
      ]
     },
     {
@@ -6817,11 +6807,21 @@
      ],
      "schema_version": "0.9.0",
      "pressurised_load_cases": [
+      "case:closed-pressure"
+     ]
+    },
+    {
+     "pointer": "/requests/798/args/modelJson",
+     "text_pointers": [
+      ""
+     ],
+     "schema_version": "0.9.0",
+     "pressurised_load_cases": [
       "case:ordinary-pressure"
      ]
     },
     {
-     "pointer": "/requests/843/args/modelJson",
+     "pointer": "/requests/847/args/modelJson",
      "text_pointers": [
       ""
      ],
@@ -6831,7 +6831,7 @@
      ]
     },
     {
-     "pointer": "/requests/865/args/invocationJson",
+     "pointer": "/requests/869/args/invocationJson",
      "text_pointers": [
       "/request/model"
      ],
@@ -6841,7 +6841,7 @@
      ]
     },
     {
-     "pointer": "/requests/917/args/modelJson",
+     "pointer": "/requests/921/args/modelJson",
      "text_pointers": [
       ""
      ],
@@ -6851,7 +6851,7 @@
      ]
     },
     {
-     "pointer": "/requests/925/args/modelJson",
+     "pointer": "/requests/929/args/modelJson",
      "text_pointers": [
       ""
      ],
@@ -6861,7 +6861,7 @@
      ]
     },
     {
-     "pointer": "/requests/940/args/modelJson",
+     "pointer": "/requests/944/args/modelJson",
      "text_pointers": [
       ""
      ],
@@ -6871,7 +6871,7 @@
      ]
     },
     {
-     "pointer": "/requests/982/args/invocationJson",
+     "pointer": "/requests/987/args/invocationJson",
      "text_pointers": [
       "/request/model"
      ],
@@ -6881,7 +6881,7 @@
      ]
     },
     {
-     "pointer": "/requests/983/args/modelJson",
+     "pointer": "/requests/988/args/modelJson",
      "text_pointers": [
       ""
      ],
@@ -6891,7 +6891,7 @@
      ]
     },
     {
-     "pointer": "/requests/997/args/modelJson",
+     "pointer": "/requests/1002/args/modelJson",
      "text_pointers": [
       ""
      ],
@@ -6901,7 +6901,7 @@
      ]
     },
     {
-     "pointer": "/requests/1008/args/inputManifest/canonical_bytes",
+     "pointer": "/requests/1013/args/inputManifest/canonical_bytes",
      "text_pointers": [
       "/model_basis/model_payload"
      ],
@@ -9673,6 +9673,7 @@
     "core/reporting/result_export/tests/retained_precision_contract.rs",
     "tests/verifiers/physics_source.py",
     "tests/verifiers/retained_precision.py",
+    "tests/verifiers/exact_difference_basis.py",
     "tests/test_physics_source_contract.py",
     "tests/test_retained_precision_b3.py",
     "tests/test_reference_system_records.py"
@@ -9686,6 +9687,7 @@
     "tests/test_physics_source_contract.py",
     "tests/test_reference_system_records.py",
     "tests/test_retained_precision_b3.py",
+    "tests/verifiers/exact_difference_basis.py",
     "tests/verifiers/physics_source.py",
     "tests/verifiers/retained_precision.py"
    ]
@@ -9901,10 +9903,12 @@
    "reason": "independent reference generator (imports no product code) that states pressure elongation on or off per case; no product test solves its cases yet",
    "paths": [
     "validation/references/exact_difference_basis/generators/exact_difference_basis_reference.py",
+    "validation/references/exact_difference_basis_completed/generators/exact_difference_basis_completed_reference.py",
     "validation/references/exact_load_state_equivalent_static/generators/exact_load_state_reference.py"
    ],
    "files": [
     "validation/references/exact_difference_basis/generators/exact_difference_basis_reference.py",
+    "validation/references/exact_difference_basis_completed/generators/exact_difference_basis_completed_reference.py",
     "validation/references/exact_load_state_equivalent_static/generators/exact_load_state_reference.py"
    ]
   },
@@ -9936,6 +9940,7 @@
     "validation/references/*/README.md"
    ],
    "files": [
+    "validation/references/exact_difference_basis_completed/README.md",
     "validation/references/o4_retained_source/README.md",
     "validation/references/t4_u8/README.md",
     "validation/references/w15_component_weight/README.md",
@@ -10306,10 +10311,12 @@
    "reason": "reference case inputs that give pressure as a plain number and state pressure elongation on or off per case; no product test solves them yet",
    "paths": [
     "validation/references/exact_difference_basis/references.json",
+    "validation/references/exact_difference_basis_completed/references.json",
     "validation/references/exact_load_state_equivalent_static/references.json"
    ],
    "files": [
     "validation/references/exact_difference_basis/references.json",
+    "validation/references/exact_difference_basis_completed/references.json",
     "validation/references/exact_load_state_equivalent_static/references.json"
    ]
   },
@@ -10353,6 +10360,15 @@
    ],
    "files": [
     "apps/desktop/src/services/embeddedAgentSession.records.test.ts"
+   ]
+  },
+  {
+   "reason": "session tests of the agent's bounded record read: the committed reference system's load cases read back across pages, and invented cases that name pressure regions as a held text; no mechanics solve is performed",
+   "paths": [
+    "apps/desktop/src/services/embeddedAgentSession.test.ts"
+   ],
+   "files": [
+    "apps/desktop/src/services/embeddedAgentSession.test.ts"
    ]
   }
  ]

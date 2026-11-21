@@ -18,10 +18,11 @@ needs:
 - from: DEL-04-03
   condition: >-
     A rigid restraint holds its degree of freedom exactly, a spring acts with its entered
-    stiffness, and an imposed displacement at a support is solved as a prescribed value that adds
-    no force of its own.
+    stiffness, a constant-effort support applies its entered constant load in every case and
+    publishes it as its support action, and an imposed displacement at a support is solved as a
+    prescribed value that adds no force of its own.
   gating: true
-  when: Solving a support, spring or imposed-displacement case.
+  when: Solving a support, spring, constant-effort or imposed-displacement case, and the reference system.
 - from: DEL-05-01
   condition: >-
     A temperature change on a straight member enters the solve as the free strain alpha times the
@@ -52,7 +53,8 @@ needs:
   when: Running a benchmark case by name and solving the reference system.
 - from: DEL-02-01
   condition: >-
-    A committed model document at the current version validates against the model schema, and a
+    A committed model document at the current version validates against the model schema and its
+    desktop profile, the desktop's shape check admits a document that satisfies that profile, and a
     malformed member is refused with its code and path.
   gating: true
   when: Validating the reference system's fixture.
@@ -109,12 +111,21 @@ code_paths:
 - fixtures/reference_system/**
 - validation/references/reference_system/**
 - tests/test_reference_system_fixture.py
+# The fixture as the desktop's open path checks it.
+- apps/desktop/src/features/model-file/referenceSystemOpen.test.ts
 # The specification's ledger and identities and the run sheet's identities, texts and links against the fixture.
 - tests/test_reference_system_records.py
 # Frozen before the fixture units they judge: the wind and seismic resultants and the hydrotest
 # weight of the cases still pending in the fixture. No product test reads them yet.
 - validation/references/reference_system_pending_cases/**
 - tests/test_reference_system_pending_cases_references.py
+# Frozen before the fixture solve that adopted RS-R1 and RS-CE1: EQ-1, EQ-2, EQ-5 and RS-CE1's support action
+# with both in the fixture, and the tranche-1 inputs from which the two earlier packages are reproduced.
+- validation/references/reference_system_r1_ce/**
+# Per-load and warning references for RS-WIN and the three static seismic cases.
+# `reference_system_pending_cases` remains the EQ-6 reference.
+- validation/references/reference_system_generated_loads/**
+- tests/test_reference_system_generated_loads_references.py
 # The maintained check over every package under validation/references/: checksum-list inventory and
 # verification under the table's recorded exceptions; accounted membership, with no-basis cases named and
 # counted; and the retained check commands. Output entries not regenerated, regeneration gaps and
@@ -124,6 +135,9 @@ code_paths:
 - tests/reference_packages.py
 - tests/test_reference_packages.py
 - tests/test_reference_packages_regeneration.py
+# The live checks of the packages that staged inputs from live repository files: each compares the staged
+# copies with the files they came from, which the table names.
+- tests/test_reference_packages_live.py
 # The fixture's generated-weight verdicts, fixed by its metre twin's.
 - core/product_physics/tests/reference_system_generated_weight_standing.rs
 # Not decided: which deliverable's criteria govern the required-output qualification gate below.
@@ -145,9 +159,11 @@ checks:
 - core/product_physics/tests/w9_solver_benchmarks.rs
 - core/product_physics/tests/w16_imposed_motion.rs
 - tests/test_reference_system_fixture.py
+- apps/desktop/src/features/model-file/referenceSystemOpen.test.ts
 - tests/test_reference_system_records.py
 - tests/test_reference_packages.py
 - tests/test_reference_packages_regeneration.py
+- tests/test_reference_packages_live.py
 - core/product_physics/tests/reference_system_generated_weight_standing.rs
 - tests/test_qualification_gate.py
 - tests/test_qualification_physics.py
@@ -155,3 +171,7 @@ checks:
 - tests/test_qualification_physics_integration.py
 - tests/test_qualification_load_reference.py
 - tests/test_first_static_selection.py
+# The reference system opened and solved in the launched app, and what a person then meets (render
+# and package offered or refused) recorded in the window's own words, never worked around
+# (evidence-journeys.mjs --journey reference-system, run alone).
+- apps/desktop/native-smoke/evidence-journeys.mjs

@@ -1,21 +1,39 @@
 import { afterEach, describe, expect, it, vi } from 'vitest';
-import { EmbeddedAgentSession, type WorkspaceExecution, type AgentRunReceipt } from './embeddedAgentSession';
+import { EmbeddedAgentSession, boundedFindings, type WorkspaceExecution, type AgentSolveOutcome, type AgentSolverMode } from './embeddedAgentSession';
+import { agentDetailFilter } from './resultDetail';
 import { PERSON_ENTERED_CHECK } from './operationAuthorship';
-import type { PreviewModel, ModelHashEvidence, MechanicsResult } from '../types';
+import type { PreviewModel, ModelHashEvidence, MechanicsResult, Diagnostic } from '../types';
 import type { AgentBasis } from './embeddedAgentBridge';
+import type { SessionResult } from './nativeResult';
 import catalog from '../../src-tauri/resources/agent-capability-catalog.json';
+import referenceJson from '../../../../fixtures/reference_system/reference_system.json';
+import { canonicalJsonString } from './hashService';
 const mocks=vi.hoisted(()=>({validate:vi.fn()}));
 vi.mock('./operationBatchService',()=>({validateOperationBatch:mocks.validate}));
+// A native read, scripted only where a test turns it on: the native rows query's page and its ordinals.
+const native=vi.hoisted(()=>({on:false,rows:[] as {ordinal:number;row:unknown}[]}));
+vi.mock('./nativeResult',async(importOriginal)=>{
+ const actual=await importOriginal<typeof import('./nativeResult')>();
+ return {...actual,
+  isNativeResult:(value:unknown)=>native.on||actual.isNativeResult(value),
+  nativeCustody:(value:unknown)=>native.on?{jobId:'job-1',summary:{header:{omitted_members:[]}}}:actual.nativeCustody(value as never),
+  queryNativeRows:async(...args:Parameters<typeof actual.queryNativeRows>)=>native.on?{rows:native.rows,total:native.rows.length}:actual.queryNativeRows(...args)};
+});
 const hash={algorithm:'sha256',canonicalization:'rfc8785_jcs',payload_scope:'model_payload',payload_ref:'invented',value:'a'.repeat(64),hash_status:'computed_local_preview'} as ModelHashEvidence;
 // The workspace and the engine write `sha256:` hex; the agent's catalog form is the hex alone.
 const engineHash={...hash,value:`sha256:${hash.value}`} as ModelHashEvidence;
 const basis:AgentBasis={workspaceHandle:'workspace-invented',applicationGeneration:1,modelRevision:1,modelHash:hash,stateId:null,runId:null};
 function deferred<T>(){let resolve!:(v:T)=>void;const promise=new Promise<T>(r=>{resolve=r;});return {resolve,promise};}
+// The result the session publishes for a completed solve: a completed outcome carries it, and it
+// is the run's identity (with the native job), never the run id.
+let heldResult:MechanicsResult|null=null;
+const held=()=>heldResult as unknown as SessionResult;
 function setup(workspaceHash:ModelHashEvidence=engineHash){
+ heldResult=null;
  let revision=1,generation=1,tool='swbpipe_read_model_summary',args:Record<string,unknown>={},reference='invented-session:1',turn='turn-1';
  const model={schema_version:'0.9.0',project:{id:'invented',units:{length:'m'}},nodes:[{id:'node-1',label:'N1',position:{x:-0,y:1,z:2}}]} as unknown as PreviewModel;
  let result:MechanicsResult|null=null;
- const owner:WorkspaceExecution={snapshot:()=>({model,hash:workspaceHash,revision,generation,result,standing:null}),register:vi.fn(async()=> 'batch-key'),proposal:vi.fn(()=>({status:'pending_review' as const,outcomeModelHash:null})),solve:vi.fn(async()=>undefined),withdraw:vi.fn()};
+ const owner:WorkspaceExecution={snapshot:()=>({model,hash:workspaceHash,revision,generation,result,standing:null}),register:vi.fn(async()=> 'batch-key'),proposal:vi.fn(()=>({status:'pending_review' as const,outcomeModelHash:null})),solve:vi.fn(async(_mode?:AgentSolverMode):Promise<AgentSolveOutcome>=>({kind:'not_started',message:'Invented: nothing was started.'})),withdraw:vi.fn()};
  const sent:Record<string,unknown>[]=[];
  const invoke=vi.fn(async(value:Record<string,unknown>):Promise<unknown>=>{
   sent.push(value);
@@ -31,7 +49,7 @@ function setup(workspaceHash:ModelHashEvidence=engineHash){
   }
  });
  const session=new EmbeddedAgentSession(owner,invoke);
- return {session,owner,invoke,sent,model,setResult:(value:MechanicsResult)=>{result=value;},edit:()=>{revision++;},retire:()=>{generation++;},call:(name:string,a:Record<string,unknown>={},ref='invented-session:1',turnId='turn-1')=>{tool=name;args=a;reference=ref;turn=turnId;}};
+ return {session,owner,invoke,sent,model,setResult:(value:MechanicsResult)=>{result=value;heldResult=value;},edit:()=>{revision++;},retire:()=>{generation++;},call:(name:string,a:Record<string,unknown>={},ref='invented-session:1',turnId='turn-1')=>{tool=name;args=a;reference=ref;turn=turnId;}};
 }
 afterEach(()=>{vi.useRealTimers();vi.clearAllMocks();});
 async function drain(){for(let i=0;i<16;i++)await Promise.resolve();}
@@ -42,7 +60,7 @@ describe('workspace-owned live embedded agent adapter',()=>{
   const bases=sent.filter(v=>v.kind==='register'||v.kind==='basis').map(v=>(v.basis as {modelHash:ModelHashEvidence}).modelHash);
   expect(sent.some(v=>v.kind==='basis')).toBe(true);expect(bases.every(item=>JSON.stringify(item)===JSON.stringify(hash))).toBe(true);
   expect(JSON.parse(session.actual('invented-session:1')!.outcome).status).toBe('ok');
-  vi.mocked(owner.solve).mockResolvedValueOnce({jobId:'job-1',runId:'run-1',modelHash:engineHash,solverMode:'sparse_interactive',health:'ok'});
+  vi.mocked(owner.solve).mockResolvedValueOnce({kind:'completed',jobId:'job-1',runId:'run-1',modelHash:engineHash,solverMode:'sparse_interactive',health:'MECHANICS_SOLVED',result:held()});
   call('swbpipe_solve',{},'invented-session:2');await session.poll();await drain();
   const solved=JSON.parse(session.actual('invented-session:2')!.outcome);expect(solved.status).toBe('completed');expect(solved.data.evaluatedModelHash).toEqual(hash);
   await session.close();
@@ -90,9 +108,9 @@ describe('workspace-owned live embedded agent adapter',()=>{
  });
  it('cannot be reached past the member-count bound or the length bound through the agent: such arguments exceed the host argument bound first',()=>{
   // The smallest after value with more members than the walk reads, and any after text longer
-  // than the check reads, is far larger than the 16,384 argument bytes the host admits
+  // than the check reads, is far larger than the 28,672 argument bytes the host admits
   // (protocol.rs refuses larger arguments before the webview; the catalog caps an after at
-  // 16,384 characters), and the bridge refuses a claim over 64 KiB; these bounds are for intake
+  // 28,672 characters), and the bridge refuses a claim over 64 KiB; these bounds are for intake
   // and requeue (operationAuthorship.bounds.test.ts).
   const smallest=`[${'0,'.repeat(PERSON_ENTERED_CHECK.maxMembers)}0]`;
   expect(new TextEncoder().encode(smallest).byteLength).toBeGreaterThan(64*1024);
@@ -206,16 +224,16 @@ describe('workspace-owned live embedded agent adapter',()=>{
   expect(context.threadId).toBe('thread-1');expect(JSON.parse(session.actual('invented-session:1')!.outcome).status).toBe('pending_review');
  });
  it('binds the actual solve receipt to its evaluated basis after a live edit',async()=>{
-  vi.useFakeTimers();const {session,owner,call,edit,sent}=setup();const gate=deferred<AgentRunReceipt|undefined>();vi.mocked(owner.solve).mockReturnValueOnce(gate.promise);
+  vi.useFakeTimers();const {session,owner,call,edit,sent}=setup();const gate=deferred<AgentSolveOutcome>();vi.mocked(owner.solve).mockReturnValueOnce(gate.promise);
   call('swbpipe_solve');await session.start('revision');await session.poll();await drain();edit();
-  gate.resolve({jobId:'job-1',runId:'run-1',modelHash:engineHash,solverMode:'sparse_interactive',health:'ok'});await drain();
+  gate.resolve({kind:'completed',jobId:'job-1',runId:'run-1',modelHash:engineHash,solverMode:'sparse_interactive',health:'MECHANICS_SOLVED',result:held()});await drain();
   const actual=JSON.parse(session.actual('invented-session:1')!.outcome);expect(actual.basis.modelRevision).toBe(1);expect(actual.data.runId).toBe('run-1');
   expect(sent.find(v=>v.kind==='publish_actual')!.proof).toMatchObject({nativeJobId:'job-1',status:'completed'});await session.close();
  });
  it('tells the agent when a solve treated bends awaiting the person\'s k as straight chords',async()=>{
   vi.useFakeTimers();const {session,owner,call,model}=setup();
   (model as unknown as Record<string,unknown>).components=[{id:'component:b1',kind:'bend'},{id:'component:t1',kind:'tee'}];
-  vi.mocked(owner.solve).mockResolvedValueOnce({jobId:'job-1',runId:'run-1',modelHash:engineHash,solverMode:'sparse_interactive',health:'ok'});
+  vi.mocked(owner.solve).mockResolvedValueOnce({kind:'completed',jobId:'job-1',runId:'run-1',modelHash:engineHash,solverMode:'sparse_interactive',health:'MECHANICS_SOLVED',result:held()});
   call('swbpipe_solve');await session.start('revision');await session.poll();await drain();
   const message=JSON.parse(session.actual('invented-session:1')!.outcome).message;
   expect(message).toContain('component:b1');expect(message).toContain('straight chords');expect(message).toContain('k does not affect chord stiffness');expect(message).not.toContain('component:t1');
@@ -225,7 +243,7 @@ describe('workspace-owned live embedded agent adapter',()=>{
  it('says a scalar SIF applies only to chords that have one',async()=>{
   vi.useFakeTimers();const {session,owner,call,model}=setup();
   (model as unknown as Record<string,unknown>).components=[{id:'component:b1',kind:'bend',modifiers:{sif_user_value:{value:1.5,unit:'none'}}},{id:'component:b2',kind:'bend',modifiers:{sif_user_value:{value:0,unit:'none'}}}];
-  vi.mocked(owner.solve).mockResolvedValue({jobId:'job-1',runId:'run-1',modelHash:engineHash,solverMode:'sparse_interactive',health:'ok'});
+  vi.mocked(owner.solve).mockResolvedValue({kind:'completed',jobId:'job-1',runId:'run-1',modelHash:engineHash,solverMode:'sparse_interactive',health:'MECHANICS_SOLVED',result:held()});
   call('swbpipe_solve');await session.start('revision');await session.poll();await drain();
   let message:string=JSON.parse(session.actual('invented-session:1')!.outcome).message;
   expect(message).toContain('A supplied scalar SIF applies to the other chords; no scalar SIF was supplied for 1 of them (component:b2)');
@@ -243,7 +261,7 @@ describe('workspace-owned live embedded agent adapter',()=>{
   const summary=JSON.parse(session.actual('invented-session:1')!.outcome).data.componentsAwaitingUserModifiers;
   expect(summary.count).toBe(41);expect(summary.ids).toHaveLength(32);expect(summary.ids.every((id:string)=>id.length<=160)).toBe(true);
   await session.close();
-  vi.mocked(owner.solve).mockResolvedValueOnce({jobId:'job-1',runId:'run-1',modelHash:engineHash,solverMode:'sparse_interactive',health:'ok'});
+  vi.mocked(owner.solve).mockResolvedValueOnce({kind:'completed',jobId:'job-1',runId:'run-1',modelHash:engineHash,solverMode:'sparse_interactive',health:'MECHANICS_SOLVED',result:held()});
   call('swbpipe_solve',{},'invented-session:2');await session.start('revision');await session.poll();await drain();
   const chord=JSON.parse(session.actual('invented-session:2')!.outcome);
   expect(chord.status).toBe('completed');expect(chord.message.length).toBeLessThanOrEqual(1000);expect(chord.message).toContain(long(0));expect(chord.message).toContain('…');
@@ -337,8 +355,8 @@ describe('workspace-owned live embedded agent adapter',()=>{
  it('bounds record pages in UTF-8 bytes and never cuts an oversized first entry',async()=>{
   vi.useFakeTimers();const {session,call,model}=setup();
   const records=model as unknown as Record<string,unknown>;
-  // 6000 three-byte characters: under 16384 UTF-16 units, over 16384 bytes.
-  records.supports=[{id:'support:wide',label:'€'.repeat(6000),node:'node-1',restraints:['UX'],provenance:'p'}];
+  // 10000 three-byte characters: under 28672 UTF-16 units, over 28672 bytes.
+  records.supports=[{id:'support:wide',label:'€'.repeat(10000),node:'node-1',restraints:['UX'],provenance:'p'}];
   call('swbpipe_read_records',{family:'supports',page:{cursor:null,limit:5}});await session.start('revision');await session.poll();await drain();
   let outcome=JSON.parse(session.actual('invented-session:1')!.outcome);expect(outcome.status).toBe('unavailable');expect(outcome.message).toContain('support:wide');
   // Two records of about 30 KB each: the page holds one and resumes at the next.
@@ -346,17 +364,89 @@ describe('workspace-owned live embedded agent adapter',()=>{
   call('swbpipe_read_records',{family:'supports',page:{cursor:null,limit:5}},'invented-session:2');await session.poll();await drain();
   outcome=JSON.parse(session.actual('invented-session:2')!.outcome);expect(outcome.data.records.map((r:{id:string})=>r.id)).toEqual(['support:0']);expect(outcome.data.nextCursor).toEqual(expect.any(String));
   expect(outcome.data.records[0].before.delete).toBe('€'.repeat(5000));
-  // Each text fits 16 KiB, but escaping makes the single entry larger than a page.
+  // Each text fits the record text bound, but escaping makes the single entry larger than a page.
   records.supports=[{id:'support:quoted',label:'"'.repeat(3900),node:'node-1',restraints:['UX'],provenance:'"'.repeat(3900)}];
   call('swbpipe_read_records',{family:'supports',page:{cursor:null,limit:5}},'invented-session:3');await session.poll();await drain();
   outcome=JSON.parse(session.actual('invented-session:3')!.outcome);expect(outcome.status).toBe('unavailable');expect(outcome.message).toContain('support:quoted');
+  await session.close();
+ });
+ it('reports the catalog limits and reads back a stored state up to the argument bound, one byte over by name',async()=>{
+  // One figure bounds a text the agent writes (the argument bytes, a change's before and after)
+  // and the same text read back: a state the agent could enter and not read could never be removed,
+  // since its removal names the stored state as its before.
+  vi.useFakeTimers();const {session,call,model}=setup();
+  const bound=catalog.limits.argumentBytes;expect(bound).toBe(28672);
+  await session.start('revision');await session.poll();await drain();
+  expect(JSON.parse(session.actual('invented-session:1')!.outcome).data.limits).toEqual(catalog.limits);
+  const records=model as unknown as Record<string,unknown>;
+  // {"provenance":"…"} is 17 bytes around its text.
+  const loadCase=(fill:number)=>[{id:'load:L1',label:'L1',kind:'sustained',status:'active',primitive_loads:[],analysis_state:{provenance:'x'.repeat(fill)}}];
+  records.load_cases=loadCase(bound-17);
+  call('swbpipe_read_records',{family:'load_cases',page:{cursor:null,limit:5}},'invented-session:2');await session.poll();await drain();
+  let outcome=JSON.parse(session.actual('invented-session:2')!.outcome);expect(outcome.status).toBe('ok');
+  expect(new TextEncoder().encode(outcome.data.records[0].before.analysis_state).byteLength).toBe(bound);
+  records.load_cases=loadCase(bound-16);
+  call('swbpipe_read_records',{family:'load_cases',page:{cursor:null,limit:5}},'invented-session:3');await session.poll();await drain();
+  outcome=JSON.parse(session.actual('invented-session:3')!.outcome);expect(outcome.status).toBe('unavailable');expect(outcome.message).toContain('load:L1');
+  await session.close();
+ });
+ it('reads the reference system\'s load cases back whole across pages, each state and its pressure regions as stored',async()=>{
+  // A read-back that succeeds: the committed reference system's own load cases, through the
+  // session's pager. Each entry carries the case's analysis state and pressure regions as before
+  // texts; a page holds what fits and the cursor resumes at the next case.
+  vi.useFakeTimers();const {session,call,model}=setup();
+  const settle=async()=>{for(let i=0;i<8;i++)await drain();};
+  const cases=structuredClone((referenceJson as unknown as {load_cases:Record<string,any>[]}).load_cases);
+  expect(cases.length).toBeGreaterThanOrEqual(3);
+  (model as unknown as Record<string,unknown>).load_cases=cases;await session.start('revision');await session.poll();await settle();
+  const seen:Record<string,any>[]=[];let cursor:string|null=null,pages=0;
+  for(;pages<cases.length;){
+   call('swbpipe_read_records',{family:'load_cases',page:{cursor,limit:5}},`invented-session:${pages+2}`);await session.poll();await settle();
+   const outcome=JSON.parse(session.actual(`invented-session:${pages+2}`)!.outcome);expect(outcome.status).toBe('ok');pages++;
+   seen.push(...outcome.data.records);cursor=outcome.data.nextCursor;if(cursor===null)break;
+  }
+  expect(cursor).toBeNull();expect(pages).toBeGreaterThan(1);
+  // Every case exactly once, in the document's order.
+  expect(seen.map(record=>record.id)).toEqual(cases.map(item=>item.id));
+  for(const [index,record] of seen.entries()){
+   expect(record.before.analysis_state).toBe(await canonicalJsonString(cases[index].analysis_state));
+   expect(record.before.pressure_regions).toBe(await canonicalJsonString(cases[index].pressure_regions));
+  }
+  await session.close();
+ });
+ it('characterises a known failure of paging (issue 401): a case whose two held texts each fit and together exceed a record page is not returned, and the page is lost with it',async()=>{
+  // Not a read-back that succeeds. The record is installed directly, as a person's edit in the
+  // desktop can leave it. Its two texts are also of a size the agent's own proposals carry: the
+  // reach test (agent_catalog_reach.rs) writes an analysis state and pressure regions of 25,000
+  // canonical bytes each in separate proposals within the argument bound. Each text is within the
+  // record text bound; the entry is over the 48 KiB record page and is never cut. The read names
+  // the case, discards the ordinary case already gathered for the response and issues no cursor.
+  // So what the agent can write is not always what it can read.
+  vi.useFakeTimers();const {session,call,model}=setup();
+  const settle=async()=>{for(let i=0;i<8;i++)await drain();};
+  const bytes=(text:string)=>new TextEncoder().encode(text).byteLength;
+  // {"provenance":"…"} is 17 bytes around its text; [{"id":"region:wide","provenance":"…"}] is 38.
+  const ordinary={id:'load:ordinary',label:'ordinary',kind:'primitive_user_load',status:'draft',provenance:'invented',primitive_loads:[],analysis_state:{provenance:'invented'},pressure_regions:[]};
+  const wide={id:'load:wide',label:'wide',kind:'primitive_user_load',status:'draft',provenance:'invented',primitive_loads:[],
+   analysis_state:{provenance:'s'.repeat(25000-17)},pressure_regions:[{id:'region:wide',provenance:'r'.repeat(25000-38)}]};
+  expect(bytes(await canonicalJsonString(wide.analysis_state))).toBe(25000);expect(bytes(await canonicalJsonString(wide.pressure_regions))).toBe(25000);
+  expect(25000).toBeLessThanOrEqual(catalog.definitions.record.properties.before.additionalProperties.maxLength);
+  (model as unknown as Record<string,unknown>).load_cases=[ordinary,wide];await session.start('revision');await session.poll();await settle();
+  call('swbpipe_read_records',{family:'load_cases',page:{cursor:null,limit:5}},'invented-session:2');await session.poll();await settle();
+  const refused=JSON.parse(session.actual('invented-session:2')!.outcome);
+  expect(refused.status).toBe('unavailable');expect(refused.message).toBe('Record load:wide exceeds this catalog page.');expect(refused.data).toBeNull();
+  // The ordinary case alone is read: it is the wide case that costs the page.
+  (model as unknown as Record<string,unknown>).load_cases=[ordinary];
+  call('swbpipe_read_records',{family:'load_cases',page:{cursor:null,limit:5}},'invented-session:3');await session.poll();await settle();
+  const alone=JSON.parse(session.actual('invented-session:3')!.outcome);
+  expect(alone.status).toBe('ok');expect(alone.data.records.map((record:{id:string})=>record.id)).toEqual(['load:ordinary']);
   await session.close();
  });
  it('filters result pages by kind and entity and binds the filter to the cursor',async()=>{
   vi.useFakeTimers();const {session,owner,call,sent,setResult}=setup();
   const rows=Array.from({length:60},(_,i)=>({id:`r${i}`,kind:i%2?'support_reaction_component_v2':'global_nodal_displacement_x',entity_ref:i%4<2?'support:a':'node:c',unit:'N',value:i}));
   setResult({run_id:'run-1',results:rows} as unknown as MechanicsResult);
-  vi.mocked(owner.solve).mockResolvedValueOnce({jobId:'job-1',runId:'run-1',modelHash:engineHash,solverMode:'sparse_interactive',health:'ok'});
+  vi.mocked(owner.solve).mockResolvedValueOnce({kind:'completed',jobId:'job-1',runId:'run-1',modelHash:engineHash,solverMode:'sparse_interactive',health:'MECHANICS_SOLVED',result:held()});
   call('swbpipe_solve');await session.start('revision');await session.poll();await drain();
   const runHandle=JSON.parse(session.actual('invented-session:1')!.outcome).data.runHandle;
   const filter={kinds:['support_reaction_component_v2'],entityRefs:['support:a']};
@@ -371,4 +461,290 @@ describe('workspace-owned live embedded agent adapter',()=>{
   expect(sent.some(v=>v.kind==='complete')).toBe(true);await session.close();
  });
 
+});
+
+describe('the solve tool reports what the solve route says happened (scripted owner outcomes)',()=>{
+ const finding=(i:number,extra:Partial<Diagnostic>={}):Diagnostic=>({code:`INVENTED_FINDING_${i}`,severity:'blocking',message:`Invented finding ${i}.`,affected_refs:[`node:${i}`],...extra});
+ const outcome=(session:EmbeddedAgentSession,ref='invented-session:1')=>JSON.parse(session.actual(ref)!.outcome);
+ const proof=(sent:Record<string,unknown>[])=>sent.filter(v=>v.kind==='publish_actual').at(-1)!.proof as Record<string,unknown>;
+ it('reports a refused solve as rejected with its bounded findings and no run, never as completed',async()=>{
+  vi.useFakeTimers();const {session,owner,call,sent}=setup();
+  const diagnostics=[finding(0,{message:'m'.repeat(900),affected_refs:Array.from({length:10},(_,i)=>`node:${i}`)}),finding(1,{severity:'fatal' as Diagnostic['severity']}),...Array.from({length:18},(_,i)=>finding(i+2))];
+  vi.mocked(owner.solve).mockResolvedValueOnce({kind:'rejected',jobId:'job-1',modelHash:engineHash,solverMode:'sparse_interactive',health:'MODEL_INCOMPLETE',diagnostics,notListed:3});
+  call('swbpipe_solve');await session.start('revision');await session.poll();await drain();
+  const refused=outcome(session);
+  expect(refused.status).toBe('rejected');expect(refused.message).not.toMatch(/completed/i);expect(refused.message).toContain('Not solved');
+  expect(refused.data).toMatchObject({runHandle:null,runId:null,evaluatedModelHash:hash,health:'MODEL_INCOMPLETE',failure:null});
+  expect(refused.data.diagnostics).toHaveLength(16);
+  // The finding with a severity outside the catalog is counted, not altered: 3 + 20 - 16.
+  expect(refused.data.diagnosticsNotListed).toBe(7);expect(refused.data.diagnostics.map((d:{code:string})=>d.code)).not.toContain('INVENTED_FINDING_1');
+  expect(Array.from(refused.data.diagnostics[0].message as string)).toHaveLength(500);expect(refused.data.diagnostics[0].affectedRefs).toHaveLength(8);
+  expect(proof(sent)).toMatchObject({kind:'run',handle:null,runId:null,status:'rejected',nativeJobId:'job-1'});
+  // No run is retained: there is nothing to read.
+  call('swbpipe_read_results',{runHandle:'r'.repeat(48),page:{cursor:null,limit:5}},'invented-session:2');await session.poll();await drain();
+  expect(outcome(session,'invented-session:2').status).toBe('unavailable');expect(owner.solve).toHaveBeenCalledOnce();
+  await session.close();
+ });
+ it('reports a refusal before any job (a solve gate) in the same form, bound to the call while the model is unchanged',async()=>{
+  vi.useFakeTimers();const {session,owner,call,sent}=setup();
+  vi.mocked(owner.solve).mockResolvedValueOnce({kind:'rejected',jobId:null,modelHash:null,solverMode:'sparse_interactive',health:'MODEL_INCOMPLETE',diagnostics:[finding(0)],notListed:2});
+  call('swbpipe_solve');await session.start('revision');await session.poll();await drain();
+  const refused=outcome(session);
+  expect(refused.status).toBe('rejected');expect(refused.data).toMatchObject({evaluatedModelHash:hash,diagnosticsNotListed:2});
+  expect(proof(sent)).toMatchObject({status:'rejected',nativeJobId:null,handle:null});
+  await session.close();
+ });
+ it('reports a failed solve with its kind and bounded message, no run and no job claim',async()=>{
+  vi.useFakeTimers();const {session,owner,call,sent}=setup();
+  vi.mocked(owner.solve).mockResolvedValueOnce({kind:'failed',failure:'result_too_large',message:'x'.repeat(800),modelHash:engineHash,solverMode:'sparse_interactive'});
+  call('swbpipe_solve');await session.start('revision');await session.poll();await drain();
+  const failed=outcome(session);
+  expect(failed.status).toBe('failed');expect(failed.message).not.toMatch(/completed/i);
+  expect(failed.data).toMatchObject({runHandle:null,runId:null,diagnostics:[],diagnosticsNotListed:0,failure:{kind:'result_too_large'}});
+  expect(Array.from(failed.data.failure.message as string)).toHaveLength(500);
+  expect(proof(sent)).toMatchObject({kind:'run',handle:null,runId:null,status:'failed',nativeJobId:null});
+  await session.close();
+ });
+ it('reports nothing started as unavailable and an outcome for another model state as stale',async()=>{
+  vi.useFakeTimers();const {session,owner,call}=setup();
+  call('swbpipe_solve');await session.start('revision');await session.poll();await drain();
+  expect(outcome(session).status).toBe('unavailable');
+  vi.mocked(owner.solve).mockResolvedValueOnce({kind:'failed',failure:'job_failed',message:'Invented.',modelHash:{...engineHash,value:`sha256:${'c'.repeat(64)}`},solverMode:'sparse_interactive'});
+  call('swbpipe_solve',{},'invented-session:2');await session.poll();await drain();
+  expect(outcome(session,'invented-session:2').status).toBe('stale_basis');
+  await session.close();
+ });
+ it('solves in the mode the call names, and reports the mode that ran',async()=>{
+  vi.useFakeTimers();const {session,owner,call}=setup();
+  vi.mocked(owner.solve).mockImplementation(async(mode)=>({kind:'completed',jobId:'job-1',runId:'run-1',modelHash:engineHash,solverMode:mode??'sparse_interactive',health:'MECHANICS_SOLVED',result:held()}));
+  call('swbpipe_solve',{solverMode:'dense_scrutiny'});await session.start('revision');await session.poll();await drain();
+  expect(vi.mocked(owner.solve).mock.calls[0]).toEqual(['dense_scrutiny']);expect(outcome(session).data.solverMode).toBe('dense_scrutiny');
+  call('swbpipe_solve',{},'invented-session:2');await session.poll();await drain();
+  expect(vi.mocked(owner.solve).mock.calls[1]).toEqual([undefined]);expect(outcome(session,'invented-session:2').data.solverMode).toBe('sparse_interactive');
+  // A route that ran another mode than the one named is not reported as the named mode's run.
+  vi.mocked(owner.solve).mockResolvedValueOnce({kind:'completed',jobId:'job-1',runId:'run-1',modelHash:engineHash,solverMode:'sparse_interactive',health:'MECHANICS_SOLVED',result:held()});
+  call('swbpipe_solve',{solverMode:'dense_scrutiny'},'invented-session:3');await session.poll();await drain();
+  expect(outcome(session,'invented-session:3').status).toBe('unknown');
+  await session.close();
+ });
+});
+
+describe('result pages know their load case or combination',()=>{
+ const row=(i:number,ref:{ref_type:string;ref_id:string}|null,extra:Record<string,unknown>={})=>({id:`r${i}`,kind:'global_nodal_displacement_x',entity_ref:'node:c',unit:'mm',value:i,basis_ref:ref,metadata:{component:'ux',coordinate_system:'global',location:'node',basis:'b',sign_convention:'positive_global'},...extra});
+ const sustained={ref_type:'load_case',ref_id:'lc-sustained'},expansion={ref_type:'load_case',ref_id:'lc-expansion'},combo={ref_type:'combination',ref_id:'lc-sustained'};
+ async function solved(rows:unknown[]){
+  vi.useFakeTimers();const harness=setup();harness.setResult({run_id:'run-1',results:rows} as unknown as MechanicsResult);
+  vi.mocked(harness.owner.solve).mockResolvedValueOnce({kind:'completed',jobId:'job-1',runId:'run-1',modelHash:engineHash,solverMode:'sparse_interactive',health:'MECHANICS_SOLVED',result:held()});
+  harness.call('swbpipe_solve');await harness.session.start('revision');await harness.session.poll();await drain();
+  return {...harness,runHandle:JSON.parse(harness.session.actual('invented-session:1')!.outcome).data.runHandle as string};
+ }
+ const read=async(h:Awaited<ReturnType<typeof solved>>,ref:string,args:Record<string,unknown>)=>{h.call('swbpipe_read_results',{runHandle:h.runHandle,...args},ref);await h.session.poll();await drain();return JSON.parse(h.session.actual(ref)!.outcome);};
+ it('selects one load case or combination by type and id, and names each value\'s case and metadata',async()=>{
+  const h=await solved([row(0,sustained),row(1,expansion),row(2,combo),row(3,null),row(4,sustained,{metadata:undefined})]);
+  const page=await read(h,'invented-session:2',{page:{cursor:null,limit:50},filter:{kinds:[],entityRefs:[],case:{refType:'load_case',refId:'lc-sustained'}}});
+  expect(page.data.values.map((v:{id:string})=>v.id)).toEqual(['r0','r4']);
+  expect(page.data.values[0]).toMatchObject({case:{refType:'load_case',refId:'lc-sustained'},component:'ux',coordinateSystem:'global',location:'node',signConvention:'positive_global'});
+  expect(page.data.values[1]).toMatchObject({case:{refType:'load_case',refId:'lc-sustained'},component:null,coordinateSystem:null,location:null,signConvention:null});
+  // The combination sharing the load case's id stays apart.
+  const combination=await read(h,'invented-session:3',{page:{cursor:null,limit:50},filter:{kinds:[],entityRefs:[],case:{refType:'combination',refId:'lc-sustained'}}});
+  expect(combination.data.values.map((v:{id:string})=>v.id)).toEqual(['r2']);
+  const all=await read(h,'invented-session:4',{page:{cursor:null,limit:50}});
+  expect(all.data.values.map((v:{case:unknown})=>v.case)).toEqual([{refType:'load_case',refId:'lc-sustained'},{refType:'load_case',refId:'lc-expansion'},{refType:'combination',refId:'lc-sustained'},null,{refType:'load_case',refId:'lc-sustained'}]);
+  await h.session.close();
+ });
+ it('binds the selected case to the cursor',async()=>{
+  const h=await solved(Array.from({length:6},(_,i)=>row(i,i%2?expansion:sustained)));
+  const first=await read(h,'invented-session:2',{page:{cursor:null,limit:2},filter:{kinds:[],entityRefs:[],case:{refType:'load_case',refId:'lc-sustained'}}});
+  expect(first.data.values.map((v:{id:string})=>v.id)).toEqual(['r0','r2']);expect(first.data.nextCursor).toEqual(expect.any(String));
+  const other=await read(h,'invented-session:3',{page:{cursor:first.data.nextCursor,limit:2},filter:{kinds:[],entityRefs:[],case:{refType:'load_case',refId:'lc-expansion'}}});
+  expect(other.status).toBe('execution_error');
+  const next=await read(h,'invented-session:4',{page:{cursor:first.data.nextCursor,limit:2},filter:{kinds:[],entityRefs:[],case:{refType:'load_case',refId:'lc-sustained'}}});
+  expect(next.data.values.map((v:{id:string})=>v.id)).toEqual(['r4']);expect(next.data.nextCursor).toBeNull();
+  await h.session.close();
+ });
+ it('never cuts a case or metadata member, and stops a page before the result byte cap',async()=>{
+  let h=await solved([row(0,sustained,{metadata:{location:'l'.repeat(161)}})]);
+  expect((await read(h,'invented-session:2',{page:{cursor:null,limit:5}})).status).toBe('unavailable');await h.session.close();
+  const wide=(i:number)=>row(i,{ref_type:'load_case',ref_id:`${i}`.padEnd(160,'c')},{id:`r${i}`.padEnd(160,'i'),kind:'k'.repeat(160),entity_ref:'e'.repeat(160),metadata:{component:'c'.repeat(160),coordinate_system:'s'.repeat(160),location:'l'.repeat(160),sign_convention:'g'.repeat(160)}});
+  h=await solved(Array.from({length:50},(_,i)=>wide(i)));
+  const page=await read(h,'invented-session:2',{page:{cursor:null,limit:50}});
+  expect(page.status).toBe('ok');expect(page.data.values.length).toBeLessThan(50);expect(page.data.nextCursor).toEqual(expect.any(String));
+  expect(new TextEncoder().encode(h.session.actual('invented-session:2')!.outcome).byteLength).toBeLessThanOrEqual(65536);
+  // Following the cursor reaches every row once, each page inside the cap.
+  let seen=page.data.values.length,cursor=page.data.nextCursor,n=3;
+  while(cursor){const ref=`invented-session:${n++}`;const next=await read(h,ref,{page:{cursor,limit:50}});
+   expect(next.status).toBe('ok');expect(new TextEncoder().encode(h.session.actual(ref)!.outcome).byteLength).toBeLessThanOrEqual(65536);
+   seen+=next.data.values.length;cursor=next.data.nextCursor;}
+  expect(seen).toBe(50);
+  await h.session.close();
+ });
+ it('cuts a page by its rows\' text as the host does: no more than 32 KiB of row text, at least one row',async()=>{
+  // Four rows of about 12 KiB of text each, limit 4: the page holds two (a third would pass 32 KiB).
+  const h=await solved(Array.from({length:4},(_,i)=>row(i,sustained,{note:'p'.repeat(12*1024)})));
+  const first=await read(h,'invented-session:2',{page:{cursor:null,limit:4}});
+  expect(first.data.values.map((v:{id:string})=>v.id)).toEqual(['r0','r1']);expect(first.data.nextCursor).toEqual(expect.any(String));
+  // One row larger than the bound still makes a page of one.
+  await h.session.close();
+  const g=await solved([row(0,sustained,{note:'p'.repeat(40*1024)}),row(1,sustained)]);
+  const single=await read(g,'invented-session:2',{page:{cursor:null,limit:4}});
+  expect(single.data.values.map((v:{id:string})=>v.id)).toEqual(['r0']);
+  await g.session.close();
+ });
+ it('states the selected case to the native query as the results panel keys it',()=>{
+  expect(agentDetailFilter({kinds:['k'],entityRefs:[]})).toEqual({kinds:['k'],entities:[]});
+  expect(agentDetailFilter({kinds:[],entityRefs:['node:c'],case:{refType:'combination',refId:'c-1'}})).toEqual({kinds:[],entities:['node:c'],case:'combination:c-1'});
+ });
+ it('lists the model\'s load case and combination ids in the summary, bounded',async()=>{
+  vi.useFakeTimers();const {session,model}=setup();
+  Object.assign(model as unknown as Record<string,unknown>,{load_cases:Array.from({length:40},(_,i)=>({id:`lc-${i}`})),combinations:[{id:'c-1'},{id:'x'.repeat(161)}]});
+  await session.start('revision');await session.poll();await drain();
+  const data=JSON.parse(session.actual('invented-session:1')!.outcome).data;
+  expect(data.loadCases.count).toBe(40);expect(data.loadCases.ids).toHaveLength(32);expect(data.combinations).toEqual({count:2,ids:['c-1']});
+  await session.close();
+ });
+});
+
+describe('a refusal stays informative inside the result cap',()=>{
+ const outcomeOf=(session:EmbeddedAgentSession,ref='invented-session:1')=>JSON.parse(session.actual(ref)!.outcome);
+ const loneSurrogate=/[\ud800-\udbff](?![\udc00-\udfff])|(?<![\ud800-\udbff])[\udc00-\udfff]/;
+ async function refuse(rejected:Partial<Extract<AgentSolveOutcome,{kind:'rejected'}>>){
+  vi.useFakeTimers();const harness=setup();
+  vi.mocked(harness.owner.solve).mockResolvedValueOnce({kind:'rejected',jobId:'job-1',modelHash:engineHash,solverMode:'sparse_interactive',health:'MODEL_INCOMPLETE',diagnostics:[],notListed:0,...rejected});
+  harness.call('swbpipe_solve');await harness.session.start('revision');await harness.session.poll();await drain();
+  return harness;
+ }
+ it('lists as many findings as fit a refusal larger than the cap and counts the rest, never an execution error',async()=>{
+  const wide=(i:number):Diagnostic=>({code:`INVENTED_WIDE_${i}`,severity:'blocking',message:'€'.repeat(500),affected_refs:Array.from({length:8},(_,j)=>`${i}:${j}:`.padEnd(160,'€'))});
+  const {session}=await refuse({diagnostics:Array.from({length:20},(_,i)=>wide(i)),notListed:5});
+  const raw=session.actual('invented-session:1')!.outcome,refused=JSON.parse(raw);
+  expect(refused.status).toBe('rejected');expect(new TextEncoder().encode(raw).byteLength).toBeLessThanOrEqual(65536);
+  const listed=refused.data.diagnostics.length;expect(listed).toBeGreaterThan(0);expect(listed).toBeLessThan(16);
+  expect(refused.data.diagnosticsNotListed).toBe(5+20-listed);
+  expect(refused.message).toContain(`25 findings, ${5+20-listed} not listed`);
+  await session.close();
+ });
+ it('cuts a multi-megabyte message to a bounded outcome and never ends a cut in half a surrogate pair',async()=>{
+  const huge='😀'.repeat(2_000_000);
+  const {session,owner,call}=await refuse({diagnostics:[{code:'INVENTED_HUGE',severity:'error',message:huge,affected_refs:['x'.repeat(5_000_000),'node:a']}],message:`a${huge}`});
+  const refused=outcomeOf(session);
+  const text:string=refused.data.diagnostics[0].message;
+  expect(Array.from(text)).toHaveLength(500);expect(text.endsWith('😀…')).toBe(true);expect(loneSurrogate.test(text)).toBe(false);
+  expect(refused.data.diagnostics[0].affectedRefs).toEqual(['node:a']);
+  expect(Array.from(refused.message as string).length).toBeLessThanOrEqual(1000);expect(loneSurrogate.test(refused.message)).toBe(false);
+  // An odd cut position: the prefix before the ellipsis is whole characters.
+  vi.mocked(owner.solve).mockResolvedValueOnce({kind:'failed',failure:'error',message:`ab${'😀'.repeat(1_000_000)}`,modelHash:engineHash,solverMode:'sparse_interactive'});
+  call('swbpipe_solve',{},'invented-session:2');await session.poll();await drain();
+  const failed:string=outcomeOf(session,'invented-session:2').data.failure.message;
+  expect(Array.from(failed)).toHaveLength(500);expect(loneSurrogate.test(failed)).toBe(false);expect(failed.startsWith('ab😀')).toBe(true);
+  await session.close();
+ });
+ it('says how many findings and how many are not listed, with the refusal\'s own text when it gives one',async()=>{
+  const {session}=await refuse({diagnostics:[{code:'INVENTED_A',severity:'blocking',message:'Invented.'}],notListed:1,message:'Invented refusal text.'});
+  const refused=outcomeOf(session);
+  expect(refused.message).toContain('2 findings, 1 not listed');expect(refused.message).toContain('Invented refusal text.');
+  await session.close();
+ });
+ it('carries a refusal\'s text when it gives no findings, and invents none',async()=>{
+  const {session}=await refuse({jobId:null,modelHash:null,message:'The model could not be read.'});
+  const refused=outcomeOf(session);
+  expect(refused.status).toBe('rejected');expect(refused.message).toContain('Not solved: the solve was refused. The model could not be read.');
+  expect(refused.message).not.toMatch(/finding/);expect(refused.data.diagnostics).toEqual([]);expect(refused.data.diagnosticsNotListed).toBe(0);
+  await session.close();
+ });
+ it('says plainly that no reason was reported when a refusal has neither findings nor text',async()=>{
+  const {session}=await refuse({});
+  const refused=outcomeOf(session);
+  expect(refused.status).toBe('rejected');expect(refused.message).toContain('Not solved: the solve was refused. No reason was reported.');
+  expect(refused.data.diagnostics).toEqual([]);
+  await session.close();
+ });
+ it('lists summary case and combination ids within their byte budget, counting all',async()=>{
+  vi.useFakeTimers();const {session,model}=setup();
+  Object.assign(model as unknown as Record<string,unknown>,{load_cases:Array.from({length:40},(_,i)=>({id:`${i}:`.padEnd(160,'€')})),combinations:[]});
+  await session.start('revision');await session.poll();await drain();
+  const data=JSON.parse(session.actual('invented-session:1')!.outcome).data;
+  expect(data.loadCases.count).toBe(40);expect(data.loadCases.ids.length).toBeLessThan(32);
+  expect(new TextEncoder().encode(JSON.stringify(data.loadCases.ids)).byteLength).toBeLessThanOrEqual(8*1024+64);
+  await session.close();
+ });
+});
+
+describe('a run handle reads only its own solve\'s result',()=>{
+ it('refuses a handle whose result was replaced by a later solve under the same run id',async()=>{
+  vi.useFakeTimers();const {session,owner,call,setResult}=setup();
+  const rows=(tag:string)=>[{id:`r-${tag}`,kind:'global_nodal_displacement_x',entity_ref:'node:c',unit:'mm',value:1}];
+  const first={run_id:'run:preview-linear-static-001',results:rows('a')} as unknown as MechanicsResult;
+  setResult(first);
+  vi.mocked(owner.solve).mockResolvedValueOnce({kind:'completed',jobId:'job-a',runId:'run:preview-linear-static-001',modelHash:engineHash,solverMode:'sparse_interactive',health:'MECHANICS_SOLVED',result:held()});
+  call('swbpipe_solve');await session.start('revision');await session.poll();await drain();
+  const a=JSON.parse(session.actual('invented-session:1')!.outcome).data.runHandle;
+  // A second solve publishes another result under the producer's one run id.
+  const second={run_id:'run:preview-linear-static-001',results:rows('b')} as unknown as MechanicsResult;
+  setResult(second);
+  vi.mocked(owner.solve).mockResolvedValueOnce({kind:'completed',jobId:'job-b',runId:'run:preview-linear-static-001',modelHash:engineHash,solverMode:'sparse_interactive',health:'MECHANICS_SOLVED',result:held()});
+  call('swbpipe_solve',{},'invented-session:2');await session.poll();await drain();
+  const b=JSON.parse(session.actual('invented-session:2')!.outcome).data.runHandle;
+  call('swbpipe_read_results',{runHandle:a,page:{cursor:null,limit:5}},'invented-session:3');await session.poll();await drain();
+  const stale=JSON.parse(session.actual('invented-session:3')!.outcome);
+  expect(stale.status).toBe('unavailable');expect(stale.data).toBeNull();
+  call('swbpipe_read_results',{runHandle:b,page:{cursor:null,limit:5}},'invented-session:4');await session.poll();await drain();
+  const current=JSON.parse(session.actual('invented-session:4')!.outcome);
+  expect(current.status).toBe('ok');expect(current.data.values.map((v:{id:string})=>v.id)).toEqual(['r-b']);
+  await session.close();
+ });
+});
+
+describe('the byte budgets count the encoded array, brackets and commas included',()=>{
+ const bytes=(value:unknown)=>new TextEncoder().encode(JSON.stringify(value)).byteLength;
+ const finding=(message:string,ref:string):Diagnostic=>({code:'CC',severity:'blocking',message,affected_refs:[ref]});
+ it('lists fifteen of the reviewer\'s sixteen findings whose array would be 32,785 bytes, and all sixteen at exactly 32,768',()=>{
+  const wide=finding('€'.repeat(500),'€'.repeat(160));
+  const sixteen=Array.from({length:16},()=>wide);
+  const all=boundedFindings(sixteen,0);
+  expect(bytes(boundedFindings([wide],0).diagnostics[0])).toBe(2048);
+  expect(all.diagnostics).toHaveLength(15);expect(all.notListed).toBe(1);expect(bytes(all.diagnostics)).toBeLessThanOrEqual(32768);
+  // The sixteenth shortened so the whole array is exactly 32,768 bytes: then all fit, and one byte more does not.
+  // The listed form's bytes with an empty reference text (its key is affectedRefs).
+  const fixed=bytes({code:'CC',severity:'blocking',message:'€'.repeat(500),affectedRefs:['']});
+  const room=32768-(2+15*2048+15)-fixed;
+  const exact=finding('€'.repeat(500),'€'.repeat(Math.floor(room/3))+'a'.repeat(room%3));
+  const atLimit=[...Array.from({length:15},()=>wide),exact];
+  expect(bytes(boundedFindings(atLimit,0).diagnostics)).toBe(32768);
+  expect(boundedFindings(atLimit,0).diagnostics).toHaveLength(16);
+  const over=[...Array.from({length:15},()=>wide),finding(exact.message,`${exact.affected_refs![0]}a`)];
+  expect(boundedFindings(over,0)).toMatchObject({notListed:1});expect(boundedFindings(over,0).diagnostics).toHaveLength(15);
+ });
+ it('lists fifteen of the reviewer\'s sixteen ids whose array would be 8,193 bytes, and all sixteen at exactly 8,192',async()=>{
+  vi.useFakeTimers();const {session,model}=setup();
+  // The reviewer's id: 29 emoji and 131 euro signs, 160 characters, 511 bytes with its quotes.
+  const reviewer=`${'😀'.repeat(29)}${'€'.repeat(131)}`;
+  const tooMany=Array.from({length:16},()=>reviewer);
+  expect(bytes(tooMany)).toBe(8193);
+  // One emoji fewer and one euro sign more in one id (160 characters, one byte less): exactly 8,192.
+  const atLimit=[...tooMany.slice(0,15),`${'😀'.repeat(28)}${'€'.repeat(132)}`];
+  expect(bytes(atLimit)).toBe(8192);
+  Object.assign(model as unknown as Record<string,unknown>,{load_cases:tooMany.map(value=>({id:value})),combinations:atLimit.map(value=>({id:value}))});
+  await session.start('revision');await session.poll();await drain();
+  const data=JSON.parse(session.actual('invented-session:1')!.outcome).data;
+  expect(data.loadCases.count).toBe(16);expect(data.loadCases.ids).toHaveLength(15);expect(bytes(data.loadCases.ids)).toBeLessThanOrEqual(8192);
+  expect(data.combinations.count).toBe(16);expect(data.combinations.ids).toHaveLength(16);expect(bytes(data.combinations.ids)).toBe(8192);
+  await session.close();
+ });
+});
+
+describe('a native result read tells the host which rows its values are',()=>{
+ afterEach(()=>{native.on=false;native.rows=[];});
+ it('carries each value\'s native row ordinal in the read\'s proof, in page order',async()=>{
+  vi.useFakeTimers();const {session,owner,call,sent,setResult}=setup();
+  setResult({run_id:'run:preview-linear-static-001'} as unknown as MechanicsResult);
+  vi.mocked(owner.solve).mockResolvedValueOnce({kind:'completed',jobId:'job-1',runId:'run:preview-linear-static-001',modelHash:engineHash,solverMode:'sparse_interactive',health:'MECHANICS_SOLVED',result:held()});
+  call('swbpipe_solve');await session.start('revision');await session.poll();await drain();
+  const runHandle=JSON.parse(session.actual('invented-session:1')!.outcome).data.runHandle;
+  native.on=true;
+  native.rows=[7,9].map(ordinal=>({ordinal,row:{id:`r${ordinal}`,kind:'k',entity_ref:'node:a',unit:'mm',value:1}}));
+  call('swbpipe_read_results',{runHandle,page:{cursor:null,limit:5}},'invented-session:2');await session.poll();await drain();
+  expect(JSON.parse(session.actual('invented-session:2')!.outcome).status).toBe('ok');
+  expect(sent.filter(v=>v.kind==='publish_actual').at(-1)!.proof).toMatchObject({kind:'run',handle:runHandle,nativeJobId:'job-1',ordinals:[7,9]});
+  await session.close();
+ });
 });

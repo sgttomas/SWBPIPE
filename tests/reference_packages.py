@@ -72,12 +72,20 @@ class Sums:
 
 @dataclass(frozen=True)
 class Check:
-    """A documented check command, run from `cwd` (package-relative)."""
+    """A documented check command, run from `cwd` (package-relative).
+
+    `staged` runs it on the inputs a frozen package was generated from, where a repository file it reads has since
+    moved on: ((path the generator reads, relative to the repository root), (repository file holding that input)),
+    each copied byte for byte. The package's own files are copied byte for byte beside them, into a fresh scratch
+    root, and the command runs there; the committed package is not touched, and its outputs are compared with the
+    copies, which are its committed bytes."""
     argv: tuple
     cwd: str = "."
     stdout_equals: str | None = None  # package-relative file the stdout must equal byte for byte
     stdout_platforms: tuple = ()  # sys.platform values on which the stdout comparison is made; () means every one
     stdout_gap: str | None = None  # what was observed where the comparison is not made, and its repair
+    staged: tuple = ()  # ((read path, source path), ...), both repository-relative; see above
+    staged_why: str | None = None  # why the inputs are staged: required exactly when `staged` is set
 
 
 # Five packages whose committed outputs were generated with --pressure-elongation all (pull request 217, eff19a897);
@@ -150,6 +158,35 @@ CONTAINERS = {
         "and SHA256SUMS"),
 }
 
+# The tranche-1 inputs of the two frozen reference-system packages (DEL-09-01). Each generator reads a repository file
+# that moved on when the fixture adopted RS-R1 and RS-CE1: rs_reference.py the fixture (it reads its nodes,
+# pipe_segments, components and pressure_contract), rs_pending_reference.py the specification (its §10 RS-R1 row
+# verbatim, among its tables and quoted statements). The basis holds those inputs as they were at 5dcdb4e21, the last
+# revision at which both checks reproduced in place: the four fixture members, each value with its decimal text, and
+# the specification byte for byte.
+TRANCHE1_BASIS = "validation/references/reference_system_r1_ce/tranche1_basis/"
+REFERENCE_FIXTURE = "fixtures/reference_system/reference_system.json"
+REFERENCE_SPECIFICATION = "fixtures/reference_system/SPECIFICATION.md"
+REFERENCE_SYSTEM_REFERENCES = "validation/references/reference_system/references.json"
+TRANCHE1_FIXTURE_WHY = ("the fixture adopted RS-R1, which this frozen tranche-1 generator does not hold (SPEC_RIGID); it "
+                        "reads only nodes, pipe_segments, components and pressure_contract, given here as they were at "
+                        "5dcdb4e21")
+TRANCHE1_SPECIFICATION_WHY = ("the specification cleared its RS-R1 ledger row, which this frozen generator quotes "
+                              "verbatim; it reads the specification as it was at 5dcdb4e21, and the existing "
+                              "package's references.json as committed")
+
+# No product test reads the four preload packages (the entries named *_preload) yet: the preload law
+# (DEL-04-11/REQ-014) is not implemented, and its landing points the product tests at them and removes this note.
+# Until then each package's own check and this table's tests maintain them.
+#
+# The live repository files that two preload packages staged their inputs from: t4_i12_preload the preview fixture,
+# demo_friction_reversal_preload the demo fixture and the product test whose inline table it supplements. Their
+# default checks read only the staged copies; tests/test_reference_packages_live.py runs their separate live checks
+# (--check-live), which compare the copies with these files.
+PREVIEW_MODEL = "fixtures/product_preview/invented_preview_model.json"
+DEMO_MODEL = "fixtures/product_preview/invented_demo_model.json"
+FRICTION_REVERSAL_TEST = "core/product_physics/tests/friction_reversal_stop_release_runtime.rs"
+
 DYNAMICS_TEST = "tests/test_dynamics_references.py"
 REGENERATION_GAP = "no check command (regeneration gap)"
 F1_TRUST = "taken on trust until 268's test lands"
@@ -179,8 +216,16 @@ PACKAGES: dict[str, Package] = {
         members=Membership("README file table: `SHA256SUMS` | Hashes of the generator and `references.json` (the "
                            "generator rebuilds references.json only)",
                            unlisted={"README.md": "outside the README's stated set"})),
-    "reference_system": _plain(
-        "rs_reference.py", deliverables="DEL-09-01"),
+    "reference_system": Package(
+        "DEL-09-01", _generated("generators/rs_reference.py"), sums=(Sums("SHA256SUMS"),),
+        checks=(Check(("generators/rs_reference.py",),
+                      staged=((REFERENCE_FIXTURE, TRANCHE1_BASIS + "reference_system_inputs.json"),),
+                      staged_why=TRANCHE1_FIXTURE_WHY),)),
+    "reference_system_r1_ce": _plain(
+        "rs_r1_ce_reference.py", deliverables="DEL-09-01",
+        members=_generated("generators/rs_r1_ce_reference.py",
+                           "its file table: SHA256SUMS hashes every other file of the package, the tranche-1 basis "
+                           "of the two frozen reference-system packages included")),
     "rt_a3_s6": _plain("rt_a3_s6_reference.py", *PE_ALL, deliverables="DEL-04-07"),
     "rt_a3_constant_effort": _plain("rt_a3_constant_effort_reference.py", "--check", deliverables="DEL-04-07"),
     "rt_a3_nonlinear": _plain("rt_a3_nonlinear_reference.py", "--check", deliverables="DEL-04-07"),
@@ -204,6 +249,10 @@ PACKAGES: dict[str, Package] = {
     "w16_exact_equivalent_static": _plain("w16c_reference.py", deliverables="DEL-05-01"),
     "w16_imposed_motion": _plain("w16_reference.py", deliverables="DEL-04-03, DEL-09-01"),
     "w16_nonlinear_motion": _plain("w16_nl_reference.py", deliverables="DEL-04-03"),
+    "w16_nonlinear_motion_preload": _plain(
+        "w16_nl_preload_reference.py", "--check", deliverables="DEL-04-03, DEL-04-11",
+        members=Membership("README file table: `SHA256SUMS` | the hashes of every other file of this package. The "
+                           "generator writes it")),
     "w16_timoshenko_partial_wind": _plain("w16t_reference.py", deliverables="DEL-05-01"),
     "t4_u4b": _plain("u4b_reference.py", deliverables="DEL-04-07"),
     "t4_u5a": _plain("u5a_reference.py", *PE_ALL, deliverables="DEL-03-06, DEL-04-07",
@@ -253,6 +302,14 @@ PACKAGES: dict[str, Package] = {
         no_sums=True,
         # No README; the module docstring gives the command: "Run it to verify the maintained oracles".
         checks=(Check(("reference.py",)),)),
+    "kd5_nonlinear_preload": Package(
+        "DEL-04-01, DEL-04-03, DEL-04-11",
+        Membership("README: 'Membership: the files in the table above. `SHA256SUMS` lists the five generated JSON "
+                   "files. `README.md` and `reference_preload.py` are outside it.'",
+                   unlisted={"README.md": "outside SHA256SUMS (README, Membership)",
+                             "reference_preload.py": "the generator, outside SHA256SUMS (README, Membership)"}),
+        sums=(Sums("SHA256SUMS"),),
+        checks=(Check(("reference_preload.py", "--check")),)),
     "t4_i7": Package(
         "DEL-04-07", Membership("README file table: four files, and `SHA256SUMS` holds these four digests",
                                 unlisted={"README.md": "outside the README's file table, which lists what SHA256SUMS holds"}),
@@ -304,6 +361,10 @@ PACKAGES: dict[str, Package] = {
         sums=(Sums("SHA256SUMS"),),
         regeneration_gap="u3_reference_cases.json: the README gives no check mode: both commands write to a given "
                          "output path"),
+    "t4_i12_preload": _plain(
+        "u3_preload_reference.py", "--check", deliverables="DEL-03-06, DEL-04-03, DEL-04-11",
+        members=Membership("README file table: `SHA256SUMS` | the hashes of every other file of this package. The "
+                           "generator writes it")),
     "t4_o13": Package(
         "DEL-04-01", Membership("README file table: o13_candidates.json, o13_fk_references.py and "
                                 "o13_fk_references.txt, which SHA256SUMS holds",
@@ -374,8 +435,12 @@ PACKAGES: dict[str, Package] = {
 
     # Exact-route references frozen after the first table; each also has its own maintained test.
     "exact_difference_basis": _plain("exact_difference_basis_reference.py", deliverables="DEL-05-02"),
+    "exact_difference_basis_completed": _plain("exact_difference_basis_completed_reference.py", deliverables="DEL-05-02"),
     "exact_load_state_equivalent_static": _plain("exact_load_state_reference.py", deliverables="DEL-05-01"),
+    "exact_load_state_generated_interactions": _plain("generated_interactions_reference.py",
+                                                      deliverables="DEL-05-01, DEL-05-02"),
     "friction_one_way_normal": _plain("friction_one_way_normal_reference.py", deliverables="DEL-04-04"),
+    "inverse_norm_certificate": _plain("inverse_norm_certificate_reference.py", deliverables="DEL-04-01"),
     "inverse_norm_witness": _plain("inverse_norm_witness_reference.py", deliverables="DEL-04-01"),
     "modal_timoshenko_mass": Package(
         "DEL-04-09",
@@ -385,10 +450,23 @@ PACKAGES: dict[str, Package] = {
         sums=(Sums("SHA256SUMS"),),
         checks=(Check(("generator.py",)),)),
     "hydrostatic_test": _plain("hydrostatic_test_reference.py", deliverables="DEL-05-01"),
-    "reference_system_pending_cases": _plain(
-        "rs_pending_reference.py", deliverables="DEL-09-01"),
+    "reference_system_pending_cases": Package(
+        "DEL-09-01", _generated("generators/rs_pending_reference.py"), sums=(Sums("SHA256SUMS"),),
+        checks=(Check(("generators/rs_pending_reference.py",),
+                      staged=((REFERENCE_SPECIFICATION, TRANCHE1_BASIS + "SPECIFICATION.md.txt"),
+                              (REFERENCE_SYSTEM_REFERENCES, REFERENCE_SYSTEM_REFERENCES)),
+                      staged_why=TRANCHE1_SPECIFICATION_WHY),)),
     "seismic_component_weight": _plain("scw_reference.py", deliverables="DEL-05-01"),
+    # Per-load and warning references for RS-WIN and the three static seismic cases, supplementing
+    # reference_system_pending_cases (the reference for EQ-6). Its default check reads the model members it staged
+    # from REFERENCE_FIXTURE; tests/test_reference_packages_live.py runs its live check (--check-live).
+    "reference_system_generated_loads": _plain("rsgl_reference.py", deliverables="DEL-05-01, DEL-09-01"),
     "snubber_static": _plain("snubber_static_reference.py", deliverables="DEL-04-10"),
+    # Supplements the inline EXPECTED table of FRICTION_REVERSAL_TEST, not a package, so it has no sibling entry.
+    "demo_friction_reversal_preload": _plain(
+        "demo_friction_preload_reference.py", "--check", deliverables="DEL-04-03, DEL-04-11",
+        members=Membership("README file table: `SHA256SUMS` | the hashes of every other file of this package. The "
+                           "generator writes it")),
 }
 
 # Outputs not regenerated, regeneration gaps and stdout comparisons made only on named platforms, each a row
@@ -501,6 +579,10 @@ def classification_problems() -> list[str]:
         elif pkg.checks and pkg.regeneration_gap:
             problems.append(f"{name}: a regeneration gap beside check commands")
         for c in pkg.checks:
+            if bool(c.staged) != bool((c.staged_why or "").strip()):
+                problems.append(f"{name}: {' '.join(c.argv)} stages inputs without saying why, or says why with none")
+            problems += [f"{name}: {' '.join(c.argv)} stages {read} from {source}, which is not a committed file"
+                         for read, source in c.staged if not (ROOT / source).is_file()]
             if c.stdout_platforms and not (c.stdout_equals and (c.stdout_gap or "").strip()):
                 problems.append(f"{name}: {' '.join(c.argv)} compares its stdout only on named platforms, without a "
                                 "frozen file or without saying what was observed elsewhere")
@@ -602,6 +684,22 @@ def _changes(before: dict, after: dict) -> list[str]:
     return out
 
 
+def stage(name: str, root: Path, inputs: tuple) -> Path:
+    """A fresh scratch repository root holding the package's files and the staged inputs, each copied byte for
+    byte; returns the staged package directory."""
+    root.mkdir(parents=True, exist_ok=False)
+    staged_pkg = root / "validation" / "references" / name
+    for path in files(REFS / name):
+        target = staged_pkg / path.relative_to(REFS / name)
+        target.parent.mkdir(parents=True, exist_ok=True)
+        target.write_bytes(path.read_bytes())
+    for read, source in inputs:
+        target = root / read
+        target.parent.mkdir(parents=True, exist_ok=True)
+        target.write_bytes((ROOT / source).read_bytes())
+    return staged_pkg
+
+
 def check_problems(name: str, index: int, scratch: Path) -> list[str]:
     """Runs the package's check `index` as `python3 -I -B` from its directory, with TMP replaced by
     `scratch` (a fresh directory outside the repository). It must leave every file under
@@ -611,9 +709,13 @@ def check_problems(name: str, index: int, scratch: Path) -> list[str]:
     argv = [str(scratch) if a == TMP else a for a in check.argv]
     before = tree_state()
     label = f"python3 -I -B {' '.join(argv)} (in {check.cwd})"
+    cwd = REFS / name / check.cwd
+    if check.staged:
+        cwd = stage(name, scratch.with_name(scratch.name + "_staged"), check.staged) / check.cwd
+        label += f", staged: {', '.join(read for read, _ in check.staged)}"
     limit = CHECK_TIMEOUT_S
     try:
-        run = subprocess.run([sys.executable, "-I", "-B", *argv], cwd=REFS / name / check.cwd,
+        run = subprocess.run([sys.executable, "-I", "-B", *argv], cwd=cwd,
                              capture_output=True, timeout=limit)
     except subprocess.TimeoutExpired:
         return [f"{label} did not finish within its {limit} s limit (reference_packages.CHECK_TIMEOUT_S)"]

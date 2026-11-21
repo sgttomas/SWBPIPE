@@ -347,3 +347,122 @@ fn write_modal_fixtures() {
         std::fs::write(root.join(format!("modal_{}.json", fixture.name)), fixture_text(&document)).unwrap();
     }
 }
+
+// ---------------------------------------------------------------------------
+// The completed-set boundary through the existing writer. Every limit here is
+// TEST-LOCAL. The committed fixtures are main's bytes (the baseline at the
+// boundary's base revision); nothing here regenerates them.
+// ---------------------------------------------------------------------------
+
+use super::resource::completed_set_seam::{modal_completed_set_arm, modal_completed_set_disarm, modal_completed_set_with_limits};
+use super::resource::{ModalCompletedSetLimits, ModalResponseRowProduct, MODAL_RESOURCE_COMPLETED_SET_LIMIT_EXCEEDED};
+use super::tests::modal;
+
+/// TEST-LOCAL limits exactly at a solved fixture's actual dimensions.
+fn completed_set_limits_at(fixture: &Fixture) -> ModalCompletedSetLimits {
+    let outcome = run_modal_dense(&modal(fixture.request.clone()), &fixture.params).unwrap_or_else(|found| panic!("{}: {found:#?}", fixture.name));
+    let (computed, completed, n, g) =
+        (outcome.integrity.computed.len() as u64, outcome.modes.len() as u64, outcome.free_dofs.len() as u64, 6 * outcome.node_ids.len() as u64);
+    ModalCompletedSetLimits {
+        computed_modes: computed,
+        completed_modes: completed,
+        normalized_entries: completed * n,
+        published_entries: completed * g,
+        response_rows: vec![ModalResponseRowProduct { name: "test-local rows", rows_per_mode: 3, limit: 3 * completed }],
+    }
+}
+
+/// TEST-LOCAL limits that every fixture is under.
+fn completed_set_limits_looser() -> ModalCompletedSetLimits {
+    ModalCompletedSetLimits {
+        computed_modes: u64::MAX,
+        completed_modes: u64::MAX,
+        normalized_entries: u64::MAX,
+        published_entries: u64::MAX,
+        response_rows: vec![ModalResponseRowProduct { name: "test-local rows", rows_per_mode: 1, limit: u64::MAX }],
+    }
+}
+
+/// Byte identity: every committed fixture document, solved or refused, is
+/// the writer's output under looser limits, and every solved one also under
+/// limits exactly at its actual dimensions; the unlimited case is
+/// `fixtures_are_the_projection_of_their_requests`.
+#[test]
+fn the_committed_documents_are_byte_identical_at_and_under_completed_set_limits() {
+    for fixture in fixtures() {
+        let (text, _) = committed(fixture.name);
+        let mut limit_sets = vec![("looser", completed_set_limits_looser())];
+        if fixture.refused.is_none() {
+            limit_sets.push(("at the actual dimensions", completed_set_limits_at(&fixture)));
+        }
+        for (which, limits) in limit_sets {
+            let document = modal_completed_set_with_limits(Some(limits), || modal_result_document(&fixture.request, &fixture.params, fixture.label));
+            assert!(fixture_text(&document) == text, "{} {which}: the committed bytes", fixture.name);
+        }
+    }
+}
+
+/// A refusal at the boundary reaches the writer whole: a refused document
+/// with only the boundary's diagnostic, no modes table, for a limit one
+/// under the completed count (the requested count, 1, under its cluster
+/// extension) and for an allocator refusal at each request.
+#[test]
+fn a_completed_set_refusal_is_a_whole_refused_document() {
+    let fixture = fixtures().into_iter().find(|f| f.name == "cantilever_cluster_extension").unwrap();
+    let mut limits = completed_set_limits_at(&fixture);
+    limits.completed_modes = 1;
+    let refused_doc = |document: Value, code: &str| {
+        assert_eq!(document["status"], "refused");
+        assert!(document.get("tables").is_none() && document.get("modes").is_none(), "{document:#}");
+        let rows = document["refusals"]["rows"].as_array().unwrap();
+        assert_eq!(rows.len(), 1, "{document:#}");
+        assert_eq!(rows[0]["code"], code);
+        rows[0]["affected_refs"].clone()
+    };
+    let document = modal_completed_set_with_limits(Some(limits.clone()), || modal_result_document(&fixture.request, &fixture.params, fixture.label));
+    assert_eq!(refused_doc(document, MODAL_RESOURCE_COMPLETED_SET_LIMIT_EXCEEDED), json!(["model", "completed_set:completed_modes"]));
+
+    modal_completed_set_arm(None);
+    let (text, _) = committed(fixture.name);
+    assert!(fixture_text(&modal_result_document(&fixture.request, &fixture.params, fixture.label)) == text);
+    let requests = modal_completed_set_disarm().len();
+    assert!(requests > 10, "{requests}");
+    for k in 0..requests {
+        modal_completed_set_arm(Some(k));
+        let document = modal_result_document(&fixture.request, &fixture.params, fixture.label);
+        modal_completed_set_disarm();
+        let refs = refused_doc(document, "MODAL_RESOURCE_ALLOCATION_REFUSED");
+        assert!(refs[1].as_str().unwrap().starts_with("completed_set:"), "{refs}");
+    }
+}
+
+/// The maintained Sensitive fixture through the writer: each request of the
+/// boundary (its Sensitive reasons included) refused in turn, with no limits
+/// and with limits at its dimensions, gives a whole refused document by the
+/// allocation name; past the last request the committed bytes.
+#[test]
+fn each_request_of_the_sensitive_fixture_refuses_a_whole_document() {
+    let fixture = fixtures().into_iter().find(|f| f.name == "cantilever_sensitive").unwrap();
+    let (text, _) = committed(fixture.name);
+    for limits in [None, Some(completed_set_limits_at(&fixture))] {
+        let write = || modal_completed_set_with_limits(limits.clone(), || modal_result_document(&fixture.request, &fixture.params, fixture.label));
+        modal_completed_set_arm(None);
+        assert!(fixture_text(&write()) == text);
+        let structures = modal_completed_set_disarm();
+        for expected in ["Sensitive set reasons", "Sensitive reason text", "Sensitive mode reasons"] {
+            assert!(structures.contains(&expected), "{structures:?}");
+        }
+        for k in 0..structures.len() {
+            modal_completed_set_arm(Some(k));
+            let document = write();
+            modal_completed_set_disarm();
+            assert_eq!(document["status"], "refused", "{k} {}", structures[k]);
+            assert!(document.get("tables").is_none());
+            let rows = document["refusals"]["rows"].as_array().unwrap();
+            assert_eq!((rows.len(), rows[0]["code"].as_str()), (1, Some("MODAL_RESOURCE_ALLOCATION_REFUSED")), "{k}");
+        }
+        modal_completed_set_arm(Some(structures.len()));
+        assert!(fixture_text(&write()) == text);
+        modal_completed_set_disarm();
+    }
+}

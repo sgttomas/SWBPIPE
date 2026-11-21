@@ -67,7 +67,7 @@ describe("swbpipe_read_records before texts are the ones the engine compares", (
     expect(sus.before.pressure_regions).toBe(await canonicalJsonString(stored.pressure_regions));
     expect(sus.before.condition_use).toBe("not_present");
     const loads = familyRecords(model, "primitive_loads");
-    expect(loads).toHaveLength(84);
+    expect(loads).toHaveLength(87);
     const first = await read(model, "primitive_loads", String(loads[0].id));
     expect(first.record).toEqual({ load_case: "load:RS-SUS", primitive_load: (stored.primitive_loads as AnyRecord[])[0] });
     expect(first.before).toEqual({});
@@ -188,6 +188,29 @@ describe("swbpipe_read_records before texts are the ones the engine compares", (
     model = await applied(model, op("modify", "Support", supportId, "update_support", "provenance_record", (await read(model, "supports", supportId)).before.provenance_record, json({ ...record, review_status: "quarantined" })));
     expect((find(model, "supports", supportId).provenance_record as AnyRecord).review_status).toBe("quarantined");
   }, 120_000);
+
+  it("the record producer and the engine agree on a stored state as long as the record text bound", async () => {
+    // An engine check, not a call an agent could make: the operations here go straight to the
+    // engine, past the argument gate and the pager. A state whose canonical text is as long as
+    // the record text bound is returned by the producer as that same text, and the engine accepts
+    // it as the before of the state's removal. No agent call carries a text this long (its
+    // operation and envelope take the arguments past the same figure), so the read bound has
+    // margin over anything the agent can write.
+    let model = structuredClone(referenceJson) as unknown as PreviewModel;
+    const bound = catalog.limits.argumentBytes, bytes = (text: string) => new TextEncoder().encode(text).byteLength;
+    const state = structuredClone(find(model, "load_cases", "load:RS-OPE").analysis_state) as AnyRecord;
+    state.provenance = "p".repeat(bound - bytes(await canonicalJsonString({ ...state, provenance: "" })));
+    const filled = await canonicalJsonString(state);
+    expect(bytes(filled)).toBe(bound);
+    expect(filled.length).toBeLessThanOrEqual(catalog.definitions.operationIntent.properties.change.properties.after.maxLength);
+    const stored = (await read(model, "load_cases", "load:RS-OPE")).before.analysis_state;
+    model = await applied(model, op("modify", "Load", "load:RS-OPE", "update_load", "analysis_state", stored, "not_present"));
+    model = await applied(model, op("modify", "Load", "load:RS-OPE", "update_load", "analysis_state", "not_present", filled));
+    const back = await read(model, "load_cases", "load:RS-OPE");
+    expect(back.before.analysis_state).toBe(filled);
+    model = await applied(model, op("modify", "Load", "load:RS-OPE", "update_load", "analysis_state", back.before.analysis_state, "not_present"));
+    expect(find(model, "load_cases", "load:RS-OPE").analysis_state).toBeUndefined();
+  });
 });
 
 describe("the person-entered members the agent's proposals are refused for", () => {

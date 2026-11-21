@@ -30,7 +30,7 @@
       "success"
     ],
     "textItemType": "inputText",
-    "successRule": "false only for execution_error; rejection, stale_basis, unavailable and unknown are domain outcomes, not affirmative execution claims",
+    "successRule": "false for execution_error, and for a solve that was rejected or failed (the requested solve produced no result); a proposal's rejection, stale_basis, unavailable and unknown are domain outcomes, not affirmative execution claims",
     "internalResultFields": [
       "content",
       "structuredContent",
@@ -38,7 +38,7 @@
     ]
   },
   "limits": {
-    "argumentBytes": 16384,
+    "argumentBytes": 28672,
     "resultBytes": 65536,
     "pageRows": 50,
     "pendingCalls": 16,
@@ -419,9 +419,9 @@
     "completion": "Resolve requestRef to the immutable original pending call and require its conversation/turn/call/tool, workspace and application-generation binding. The submitting webview must remain the admitted session. For summary/node reads require unchanged live revision through completion. For queued proposals, observations, solves and result reads validate the host-retained proposal/run record against its captured basis; a later live revision is permitted only as an explicitly historical/applied outcome, never rebased to current. Duplicate or forged completions and wrong/detached sessions are refused. Preserve already admitted application outcome as actual or unknown on loss; never redispatch.",
     "interruption": "Withdraw pending review only; application already admitted yields actual outcome or unknown. Turn interruption is not solve cancellation or rollback.",
     "limits": "Apply the smaller of catalog caps and existing admission budgets before parsing/allocating argument or result payloads; bounded producers, no whole-model serialization followed by truncation.",
-    "results": "Use existing permitted view/value-record semantics and redaction floors. No raw private row bypass. Preserve exact decimal where required; withheld/unavailable has no numeric value. A run handle binds its evaluated model hash, never relabel historical results as current.",
+    "results": "Use existing permitted view/value-record semantics and redaction floors. No raw private row bypass. Preserve exact decimal where required; withheld/unavailable has no numeric value. A run handle binds its evaluated model hash, never relabel historical results as current. Each value names the load case or combination of its row (basis_ref) and its metadata's component, coordinate system, location and sign convention where present; an optional case filter selects one load case or combination by its type and id, as the results panel's case selection does.",
     "autonomy": "No apply/accept/release/grant tools. Any later autonomy needs separately authorized host policy and implementation.",
-    "solve": "Require claimedModelHash == basis.modelHash == current session hash before handleRun; retain evaluated hash even if run id changes. Return session solverMode, health and run handle; progress only to existing supported notifications/panel.",
+    "solve": "Require claimedModelHash == basis.modelHash == current session hash before handleRun; retain evaluated hash even if run id changes. An optional solverMode argument (closed list) is the mode the solve runs in and sets the session's selection to it; without it the session-selected mode runs. Return the mode that ran, health and the outcome: completed (run handle and run id, no diagnostics, no failure); rejected when the solve was refused (no run handle or run id, and no run or published result is required: the refusal's bounded findings and a count of findings not listed); failed (no run handle or run id, the failure's kind and bounded message, no entity). Neither rejected nor failed is retried. Progress only to existing supported notifications/panel.",
     "proposalContext": "Require an explicit bounded assumptions array (empty means none declared), separate from unchanged native operation intents and per-operation rationale. Each assumption has a stable id, statement and existing affected operation ids. Validate id uniqueness and operation membership; capture immutable context with proposal handle, batch id, original attribution and basis. Display it with the queue and retain it with session outcomes/receipts, including reject/withdraw/unknown; do not inject extra fields into native intents or claim durable persistence.",
     "basisAdmission": "Summary has no caller basis. Node reads, proposal submission and solve admission require the current live basis. Proposal observation uses the host-retained proposal basis; result reads use the host-retained evaluated run basis. All require the admitted workspace/application generation. Historical calls are not refused solely because the current model revision advanced."
   },
@@ -771,6 +771,9 @@
         },
         "claimedModelHash": {
           "$ref": "#/definitions/hash"
+        },
+        "solverMode": {
+          "$ref": "#/definitions/solverMode"
         }
       }
     },
@@ -782,7 +785,10 @@
         "runId",
         "evaluatedModelHash",
         "health",
-        "solverMode"
+        "solverMode",
+        "diagnostics",
+        "diagnosticsNotListed",
+        "failure"
       ],
       "properties": {
         "runHandle": {
@@ -816,9 +822,28 @@
           "maxLength": 1000
         },
         "solverMode": {
-          "type": "string",
-          "minLength": 1,
-          "maxLength": 160
+          "$ref": "#/definitions/solverMode"
+        },
+        "diagnostics": {
+          "type": "array",
+          "maxItems": 16,
+          "items": {
+            "$ref": "#/definitions/solveDiagnostic"
+          }
+        },
+        "diagnosticsNotListed": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "failure": {
+          "anyOf": [
+            {
+              "$ref": "#/definitions/solveFailure"
+            },
+            {
+              "type": "null"
+            }
+          ]
         }
       }
     },
@@ -871,6 +896,9 @@
                 "minLength": 1,
                 "maxLength": 160
               }
+            },
+            "case": {
+              "$ref": "#/definitions/caseSelector"
             }
           }
         }
@@ -887,7 +915,12 @@
         "exactDecimal",
         "unit",
         "availability",
-        "reason"
+        "reason",
+        "case",
+        "component",
+        "coordinateSystem",
+        "location",
+        "signConvention"
       ],
       "properties": {
         "id": {
@@ -945,6 +978,64 @@
               "type": "string",
               "minLength": 1,
               "maxLength": 1000
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "case": {
+          "anyOf": [
+            {
+              "$ref": "#/definitions/caseRef"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "component": {
+          "anyOf": [
+            {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 160
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "coordinateSystem": {
+          "anyOf": [
+            {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 160
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "location": {
+          "anyOf": [
+            {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 160
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "signConvention": {
+          "anyOf": [
+            {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 160
             },
             {
               "type": "null"
@@ -1134,6 +1225,7 @@
           "enum": [
             "completed",
             "rejected",
+            "failed",
             "unknown",
             "unavailable",
             "stale_basis",
@@ -1403,12 +1495,12 @@
             "before": {
               "type": "string",
               "minLength": 1,
-              "maxLength": 16384
+              "maxLength": 28672
             },
             "after": {
               "type": "string",
               "minLength": 1,
-              "maxLength": 16384
+              "maxLength": 28672
             },
             "unit": {
               "type": "string",
@@ -1498,7 +1590,9 @@
         "objectCounts",
         "admittedOperationKinds",
         "limits",
-        "componentsAwaitingUserModifiers"
+        "componentsAwaitingUserModifiers",
+        "loadCases",
+        "combinations"
       ],
       "properties": {
         "workspaceHandle": {
@@ -1658,6 +1752,12 @@
               }
             }
           }
+        },
+        "loadCases": {
+          "$ref": "#/definitions/boundedIds"
+        },
+        "combinations": {
+          "$ref": "#/definitions/boundedIds"
         }
       }
     },
@@ -1791,7 +1891,7 @@
         "recordText": {
           "type": "string",
           "minLength": 1,
-          "maxLength": 16384
+          "maxLength": 28672
         },
         "before": {
           "type": "object",
@@ -1799,7 +1899,7 @@
           "additionalProperties": {
             "type": "string",
             "minLength": 1,
-            "maxLength": 16384
+            "maxLength": 28672
           }
         }
       }
@@ -1885,12 +1985,146 @@
           ]
         }
       }
+    },
+    "solverMode": {
+      "enum": [
+        "sparse_interactive",
+        "dense_scrutiny"
+      ]
+    },
+    "solveDiagnostic": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "code",
+        "severity",
+        "message",
+        "affectedRefs"
+      ],
+      "properties": {
+        "code": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 160
+        },
+        "severity": {
+          "enum": [
+            "info",
+            "warning",
+            "error",
+            "blocking"
+          ]
+        },
+        "message": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 500
+        },
+        "affectedRefs": {
+          "type": "array",
+          "maxItems": 8,
+          "items": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 160
+          }
+        }
+      }
+    },
+    "solveFailure": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "kind",
+        "message"
+      ],
+      "properties": {
+        "kind": {
+          "enum": [
+            "resource_refused",
+            "result_too_large",
+            "job_failed",
+            "cancelled",
+            "superseded",
+            "error"
+          ]
+        },
+        "message": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 500
+        }
+      }
+    },
+    "caseSelector": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "refType",
+        "refId"
+      ],
+      "properties": {
+        "refType": {
+          "enum": [
+            "load_case",
+            "combination"
+          ]
+        },
+        "refId": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 160
+        }
+      }
+    },
+    "caseRef": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "refType",
+        "refId"
+      ],
+      "properties": {
+        "refType": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 160
+        },
+        "refId": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 160
+        }
+      }
+    },
+    "boundedIds": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "count",
+        "ids"
+      ],
+      "properties": {
+        "count": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "ids": {
+          "type": "array",
+          "maxItems": 32,
+          "items": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 160
+          }
+        }
+      }
     }
   },
   "tools": [
     {
       "name": "swbpipe_read_model_summary",
-      "description": "Orient: workspace handle, current basis and model hash, project id, model version, pressure contract and its before text, units, counts, components awaiting the person's k/SIF, admitted kinds and limits. No arguments.",
+      "description": "Orient: workspace handle, current basis and model hash, project id, model version, pressure contract and its before text, units, counts, load case and combination ids, components awaiting the person's k/SIF, admitted kinds and limits. No arguments.",
       "inputSchema": {
         "$ref": "#/definitions/summaryInput"
       },
@@ -1950,7 +2184,7 @@
     },
     {
       "name": "swbpipe_propose_operations",
-      "description": "Queue operations as one atomic batch for the person's review; never applies them. Steps apply in order, so later steps may name ids created earlier. Send only operation_id, operation_kind, target, change, rationale; the host stamps the rest. Use the summary's basis and hash. after is JSON text; quantities are {value, unit}; every record needs id, label (not primitive loads) and provenance (the person's stated source). Arguments are capped at the summary's argumentBytes, so an operation with a long after (an analysis state) travels alone in its proposal. Kinds as operation_kind/object_type/change_kind/field_path [unit; dimension; before]. before: not_present for a new record or absent member; b.X is read_records before.X; rec is recordText; a scalar field takes its stored value from rec (a number as stored, a vector as \"x, y, z unit\", text or an id, ids joined by \", \") or TBD when absent. Project, target.ref projectId: modify/Project/set_project_unit/project.units.<length|force|moment|pressure|stress|temperature|angle> [the after symbol; the key; summary projectUnits value or not_present] after a catalog symbol (length is locked once nodes exist); modify/Project/set_model_setting/model_settings.node_proximity_tolerance [length unit; length; b.X] after number text, model_settings.shear_model [none; dimensionless; b.X] after euler_bernoulli|timoshenko_annulus_energy_v1 (pressure-free only); modify/Model/set_field/reference_configurations [none; dimensionless; b.X] (exact route) [{id, label, geometry_ref {kind \"authored_model_geometry\"}, member_references [{pipe_ref, basis {kind \"temperature_reference\", installation_temperature}, fit {kind \"none\"}, provenance}], provenance}]. create/Material/create_material/materials [project stress unit; stress; not_present]: elastic_modulus and either shear_modulus or constitutive_basis \"homogeneous_isotropic_E_nu_v1\" with poisson_ratio (unit \"1\"); optional thermal_expansion_coefficient (1/degC). modify/Material/set_field: elastic_modulus.value|shear_modulus.value [unit; stress; number], thermal_expansion_coefficient.value [unit; thermal_expansion_coefficient; number] after {value, unit}; constitutive_properties [none; dimensionless; b.X] {constitutive_basis, elastic_modulus, poisson_ratio|shear_modulus, thermal_expansion_coefficient, provenance}; temperature_points [none; dimensionless; b.X] [{id, temperature, elastic_modulus, poisson_ratio|shear_modulus, thermal_expansion_coefficient, provenance}]; expansion_laws [none; dimensionless; b.X] (exact route) [{id, definition \"engineering_secant\", datum_temperature, data {kind \"constant\", coefficient}, provenance}]. create/Section/create_section/sections [its length unit; length; not_present]: name, section_type \"pipe\", properties {outside_diameter, wall_thickness}. modify/Element/assign_section/section_ref [none; dimensionless; rec] after {\"section_ref\": id}. modify/Element/set_field/material [none; dimensionless; id] after a material id; section.<outside_diameter|wall_thickness|corrosion_allowance|mill_tolerance|insulation_thickness>.value [unit; length; number or TBD] and section.<material_density|contents_density|insulation_density>.value [unit; density; number or TBD] after {value, unit}; a bound pipe's diameter and wall change only through its section. connect/Element/connect_pipe_run/pipe_segments [length unit; length; not_present]: from, to, material, y_reference {x,y,z} (not parallel), section {outside_diameter, wall_thickness, corrosion_allowance before exact route; optional mill_tolerance, material_density, contents_density, insulation_thickness, insulation_density}. insert/Component/insert_component_symbol/components [none; dimensionless; not_present]: kind, node, geometry. bend: bend_pipe_ref, bend_radius, bend_angle, bend_geometry_source_reference. tee: branch_header_pipe_ref, branch_branch_pipe_ref, branch_run_size, branch_header_size, branch_connection_angle, branch_connection_type, branch_reinforcement_reference, branch_geometry_source_reference. reducer/valve/flange: rigid_pipe_ref, rigid_body_length, end_a_size, end_b_size, weight, center_of_gravity {x,y,z,unit}, connection_end_a_reference, connection_end_b_reference, stiffness_behavior_reference, rigid_component_source_reference; reducer eccentric_offset {x,y,z,unit} must equal its pipe's transverse node separation. expansion_joint: pressure-free mechanics_interface {solver_consumption \"not_solver_consumed\"}; exact route objective_connector (ask the person for its stiffness, axes and offsets). modify/Component/set_field/geometry.<member> [quantity unit, else none; angle for bend_angle and branch_connection_angle, force for weight, area for effective_area, length for other quantities and vectors, else dimensionless; stored value or TBD] quantities after {value, unit}, center_of_gravity and eccentric_offset {x,y,z,unit}, references and text as plain text. modify/Component/set_field/objective_connector.hardware|pressure_model [none; dimensionless; b.X]. create/Support/create_support/supports [none; dimensionless; not_present]: node, restraints (at least one of UX..RZ), family (anchor, guide, line_stop, vertical_support, spring, variable_spring_hanger, spring_hanger, constant_effort_support, nonlinear), optional stiffness {dof, value}, hanger, nonlinear {behavior gap|lift_off|one_way|friction, dof (not linearly restrained), initial_state, gap+closes_when | contact_when | active_when | friction_coefficient+normal_reaction_source {support_ref, dof}: a linear support's restrained translational DOF, or a one-way or lift-off support's own translational DOF}. modify/Support/update_support/configuration [none; dimensionless; b.X]: whole new configuration; provenance_record [none; dimensionless; b.X] the hanger selection's record object. create/Load/create_load_case/load_cases [none; dimensionless; not_present]: non-empty kind and status (the reference system uses \"primitive_user_load\", \"draft\"), primitive_loads []. create/Load/create_primitive_load/primitive_loads, target.ref the case [magnitude unit; its dimension; not_present]: category thermal (element pipe, global_x, temperature_interval), distributed_force (element pipe, global_x|y|z, force_per_length), concentrated_force (node, global_x|y|z, force), concentrated_moment (node, rotation_x|y|z, moment), weight (node, global_x|y|z force or rotation_x|y|z moment), imposed_displacement (support+dof, direction = dof, displacement|rotation). modify/Load/update_load, exact route: pressure_regions [none; dimensionless; b.X] [] or [{id, member_pipe_ids, member_connector_ids, pressure_basis \"internal_differential_zero_external_v1\", pressure, terminals [two {node_ref, closure_transfer transfers_to_wall|separately_supported_or_compensated, provenance}], provenance}]; analysis_state [none; dimensionless; b.X] {contract \"openpipestress.load_reference_state/1.0.0\", reference_configuration_ref, element_states [{pipe_ref, operating_temperature, material_selection {kind exact_point|temperature_interpolation, material_ref, point_ref|temperature, interpolation, extrapolation}, thermal_state {kind, expansion_law_ref}}], support_states [{support_ref, participation {kind}, boundary_motion [{dof, meaning, value}]}], load_sources [{source_ref, factor}], history {kind}, provenance} (after not_present removes it). Replacing a stored state is two proposals in order, each alone: its removal, then the new state; declare in each proposal's assumptions that they are one replacement, on the removal that the case has no analysis state until the next proposal is applied and that a solve in between refuses the case (LOAD_STATE_ANALYSIS_STATE_REQUIRED), and tell the person the same; equivalent_static.wind.exposure [none; dimensionless; b.X] {exposed_pipe_refs, exposed_spans}. modify/Load/set_field/equivalent_static.seismic.gravity_acceleration.value [unit; acceleration], .seismic.g_factor_<x|y|z>.value and .wind.shape_factor.value [none; dimensionless], .wind.pressure.value [unit; pressure] after {value, unit}; .wind.direction global_x|y|z and .wind.exposed_pipe_refs ids joined by \",\" [none; dimensionless]; before the stored value or TBD. create/Combination/create_combination/combinations [none; dimensionless; not_present]: label, basis result_state_subtraction {minuend_id, subtrahend_id} | range_envelope {operand_ids, mode min|max|min_abs|max_abs} | mechanics|absolute_sum|srss {terms [{load_case, factor}], at least one}, provenance. create/Combination/create_combination_term/terms, target.ref the combination [none; dimensionless; not_present]: {load_case, factor}. create/ConditionSet/create_condition_set/condition_sets [none; dimensionless; not_present]: {id, label, installation_temperature, conditions [{key, temperature}], added_weight {magnitude, direction}, exposure {wind}, provenance}; modify/ConditionSet/update_condition_set/condition_sets [none; dimensionless; rec] the whole record; modify/Element/assign_condition_set/condition_set_ref [none; dimensionless; b.X] after {\"condition_set_ref\": id} or not_present; modify/Load/set_load_case_condition_use/condition_use [none; dimensionless; b.X] {temperature key, added_weight, wind_exposure} (pressure-free only). create/RulePackRef/add_rule_pack_ref/rule_pack_refs, target.ref its rule_pack_id [none; dimensionless; not_present]: the pack's identity record. Deletes delete/<type>/delete_component|delete_material|delete_section|delete_support|delete_pipe_run|delete_node|delete_load_case|delete_combination|delete_condition_set|remove_rule_pack_ref [none; dimensionless; b.delete] after \"deleted\" (component, material, section) or \"not_present\"; refused while referenced. A proposal any of whose operations carries modifiers, bend_realization or a curved-bend mechanics_interface at the top level of its after object is refused and nothing is queued: these are values the person enters, and the engine would not write them for an agent. Exact route: modify/Model/set_field/pressure_profile, target.ref projectId [none; dimensionless; summary pressureProfileBefore]: {schema_version, pressure_contract {version \"3.0.0\", mode \"exact_pressure_v3\", shear_model}}; set it before any load case exists, or after every case has pressure_regions; then each case needs pressure_regions ([] when unpressurized). Build in phases of at most the summary's operation limit, each applied before the next: units and profile; materials and sections; geometry; components; supports; loads; reference configuration, states and combinations. Never author k or SIF: right after the components phase, ask the person to realize each bend (Insert bend at corner) and enter k, SIFs and their source, and tee modifiers; supports and loads must not attach to a corner before. On the exact route a solve is refused until every bend is realized; on the pressure-free route an unrealized bend solves as a straight chord (k does not affect chord stiffness; a supplied positive scalar SIF applies to the chord, and without one no intensified measure is published), and you must say so when reporting.",
+      "description": "Queue operations as one atomic batch for the person's review; never applies them. Steps apply in order, so later steps may name ids created earlier. Send only operation_id, operation_kind, target, change, rationale; the host stamps the rest. Use the summary's basis and hash. after is JSON text; quantities are {value, unit}; every record needs id, label (not primitive loads) and provenance (the person's stated source). Arguments are capped at the summary's argumentBytes, so an operation with a long after (an analysis state) may have to travel alone in its proposal. Kinds as operation_kind/object_type/change_kind/field_path [unit; dimension; before]. before: not_present for a new record or absent member; b.X is read_records before.X; rec is recordText; a scalar field takes its stored value from rec (a number as stored, a vector as \"x, y, z unit\", text or an id, ids joined by \", \") or TBD when absent. Project, target.ref projectId: modify/Project/set_project_unit/project.units.<length|force|moment|pressure|stress|temperature|angle> [the after symbol; the key; summary projectUnits value or not_present] after a catalog symbol (length is locked once nodes exist); modify/Project/set_model_setting/model_settings.node_proximity_tolerance [length unit; length; b.X] after number text, model_settings.shear_model [none; dimensionless; b.X] after euler_bernoulli|timoshenko_annulus_energy_v1 (pressure-free only); modify/Model/set_field/reference_configurations [none; dimensionless; b.X] (exact route) [{id, label, geometry_ref {kind \"authored_model_geometry\"}, member_references [{pipe_ref, basis {kind \"temperature_reference\", installation_temperature}, fit {kind \"none\"}, provenance}], provenance}]. create/Material/create_material/materials [project stress unit; stress; not_present]: elastic_modulus and either shear_modulus or constitutive_basis \"homogeneous_isotropic_E_nu_v1\" with poisson_ratio (unit \"1\"); optional thermal_expansion_coefficient (1/degC). modify/Material/set_field: elastic_modulus.value|shear_modulus.value [unit; stress; number], thermal_expansion_coefficient.value [unit; thermal_expansion_coefficient; number] after {value, unit}; constitutive_properties [none; dimensionless; b.X] {constitutive_basis, elastic_modulus, poisson_ratio|shear_modulus, thermal_expansion_coefficient, provenance}; temperature_points [none; dimensionless; b.X] [{id, temperature, elastic_modulus, poisson_ratio|shear_modulus, thermal_expansion_coefficient, provenance}]; expansion_laws [none; dimensionless; b.X] (exact route) [{id, definition \"engineering_secant\", datum_temperature, data {kind \"constant\", coefficient}, provenance}]. create/Section/create_section/sections [its length unit; length; not_present]: name, section_type \"pipe\", properties {outside_diameter, wall_thickness}. modify/Element/assign_section/section_ref [none; dimensionless; rec] after {\"section_ref\": id}. modify/Element/set_field/material [none; dimensionless; id] after a material id; section.<outside_diameter|wall_thickness|corrosion_allowance|mill_tolerance|insulation_thickness>.value [unit; length; number or TBD] and section.<material_density|contents_density|insulation_density>.value [unit; density; number or TBD] after {value, unit}; a bound pipe's diameter and wall change only through its section. connect/Element/connect_pipe_run/pipe_segments [length unit; length; not_present]: from, to, material, y_reference {x,y,z} (not parallel), section {outside_diameter, wall_thickness, corrosion_allowance before exact route; optional mill_tolerance, material_density, contents_density, insulation_thickness, insulation_density}. insert/Component/insert_component_symbol/components [none; dimensionless; not_present]: kind, node, geometry. bend: bend_pipe_ref, bend_radius, bend_angle, bend_geometry_source_reference. tee: branch_header_pipe_ref, branch_branch_pipe_ref, branch_run_size, branch_header_size, branch_connection_angle, branch_connection_type, branch_reinforcement_reference, branch_geometry_source_reference. reducer/valve/flange: rigid_pipe_ref, rigid_body_length, end_a_size, end_b_size, weight, center_of_gravity {x,y,z,unit}, connection_end_a_reference, connection_end_b_reference, stiffness_behavior_reference, rigid_component_source_reference; reducer eccentric_offset {x,y,z,unit} must equal its pipe's transverse node separation. expansion_joint: pressure-free mechanics_interface {solver_consumption \"not_solver_consumed\"}; exact route objective_connector (ask the person for its stiffness, axes and offsets). modify/Component/set_field/geometry.<member> [quantity unit, else none; angle for bend_angle and branch_connection_angle, force for weight, area for effective_area, length for other quantities and vectors, else dimensionless; stored value or TBD] quantities after {value, unit}, center_of_gravity and eccentric_offset {x,y,z,unit}, references and text as plain text. modify/Component/set_field/objective_connector.hardware|pressure_model [none; dimensionless; b.X]. create/Support/create_support/supports [none; dimensionless; not_present]: node, restraints (at least one of UX..RZ), family (anchor, guide, line_stop, vertical_support, spring, variable_spring_hanger, spring_hanger, constant_effort_support, nonlinear), optional stiffness {dof, value}, hanger, nonlinear {behavior gap|lift_off|one_way|friction, dof (not linearly restrained), initial_state, gap+closes_when | contact_when | active_when | friction_coefficient+normal_reaction_source {support_ref, dof}: a linear support's restrained translational DOF, or a one-way or lift-off support's own translational DOF}. modify/Support/update_support/configuration [none; dimensionless; b.X]: whole new configuration; provenance_record [none; dimensionless; b.X] the hanger selection's record object. create/Load/create_load_case/load_cases [none; dimensionless; not_present]: non-empty kind and status (the reference system uses \"primitive_user_load\", \"draft\"), primitive_loads []. create/Load/create_primitive_load/primitive_loads, target.ref the case [magnitude unit; its dimension; not_present]: category thermal (element pipe, global_x, temperature_interval), distributed_force (element pipe, global_x|y|z, force_per_length), concentrated_force (node, global_x|y|z, force), concentrated_moment (node, rotation_x|y|z, moment), weight (node, global_x|y|z force or rotation_x|y|z moment), imposed_displacement (support+dof, direction = dof, displacement|rotation). modify/Load/update_load, exact route: pressure_regions [none; dimensionless; b.X] [] or [{id, member_pipe_ids, member_connector_ids, pressure_basis \"internal_differential_zero_external_v1\", pressure, terminals [two {node_ref, closure_transfer transfers_to_wall|separately_supported_or_compensated, provenance}], provenance}]; analysis_state [none; dimensionless; b.X] {contract \"openpipestress.load_reference_state/1.0.0\", reference_configuration_ref, element_states [{pipe_ref, operating_temperature, material_selection {kind exact_point|temperature_interpolation, material_ref, point_ref|temperature, interpolation, extrapolation}, thermal_state {kind, expansion_law_ref}}], support_states [{support_ref, participation {kind}, boundary_motion [{dof, meaning, value}]}], load_sources [{source_ref, factor}], history {kind}, provenance} (after not_present removes it). Replace a stored state in one operation (before the stored state, after the new one), alone in its proposal if other operations would take the arguments past argumentBytes. A new state equal to the stored one needs no proposal. If that one operation alone exceeds argumentBytes, leave the stored state in place, propose nothing, and tell the person that you cannot carry this replacement through from one request: it takes a removal and then a new entry, each asked for separately, and once the removal is applied the case has no analysis state and a solve that needs it refuses the case (LOAD_STATE_ANALYSIS_STATE_REQUIRED) until a new state is entered. Say also whether the new state's entry alone would fit argumentBytes by your count on the current basis, counting its complete arguments with their assumptions: if it would not, or you cannot tell, say so; if it would, say that it is a count on the current basis and no promise for a later request. Remove a stored state only when the person asks for its removal (before is read_records before.analysis_state on the current basis, after not_present); say in its assumptions and to the person, before they apply it, that the case then has no analysis state and a solve that needs it refuses the case (LOAD_STATE_ANALYSIS_STATE_REQUIRED) until a new state is entered. Enter a state into a case already in the model only if read_records returns that case with before.analysis_state not_present and you have the new state the person intends: a case the read does not return is not shown to have no state (propose nothing and say what the read returned), and a case with a state takes no entry (say so); equivalent_static.wind.exposure [none; dimensionless; b.X] {exposed_pipe_refs, exposed_spans}. modify/Load/set_field/equivalent_static.seismic.gravity_acceleration.value [unit; acceleration], .seismic.g_factor_<x|y|z>.value and .wind.shape_factor.value [none; dimensionless], .wind.pressure.value [unit; pressure] after {value, unit}; .wind.direction global_x|y|z and .wind.exposed_pipe_refs ids joined by \",\" [none; dimensionless]; before the stored value or TBD. create/Combination/create_combination/combinations [none; dimensionless; not_present]: label, basis result_state_subtraction {minuend_id, subtrahend_id} | range_envelope {operand_ids, mode min|max|min_abs|max_abs} | mechanics|absolute_sum|srss {terms [{load_case, factor}], at least one}, provenance. create/Combination/create_combination_term/terms, target.ref the combination [none; dimensionless; not_present]: {load_case, factor}. create/ConditionSet/create_condition_set/condition_sets [none; dimensionless; not_present]: {id, label, installation_temperature, conditions [{key, temperature}], added_weight {magnitude, direction}, exposure {wind}, provenance}; modify/ConditionSet/update_condition_set/condition_sets [none; dimensionless; rec] the whole record; modify/Element/assign_condition_set/condition_set_ref [none; dimensionless; b.X] after {\"condition_set_ref\": id} or not_present; modify/Load/set_load_case_condition_use/condition_use [none; dimensionless; b.X] {temperature key, added_weight, wind_exposure} (pressure-free only). create/RulePackRef/add_rule_pack_ref/rule_pack_refs, target.ref its rule_pack_id [none; dimensionless; not_present]: the pack's identity record. Deletes delete/<type>/delete_component|delete_material|delete_section|delete_support|delete_pipe_run|delete_node|delete_load_case|delete_combination|delete_condition_set|remove_rule_pack_ref [none; dimensionless; b.delete] after \"deleted\" (component, material, section) or \"not_present\"; refused while referenced. A proposal any of whose operations carries modifiers, bend_realization or a curved-bend mechanics_interface at the top level of its after object is refused and nothing is queued: these are values the person enters, and the engine would not write them for an agent. Exact route: modify/Model/set_field/pressure_profile, target.ref projectId [none; dimensionless; summary pressureProfileBefore]: {schema_version, pressure_contract {version \"3.0.0\", mode \"exact_pressure_v3\", shear_model}}; set it before any load case exists, or after every case has pressure_regions; then each case needs pressure_regions ([] when unpressurized). Build in phases of at most the summary's operation limit, each applied before the next: units and profile; materials and sections; geometry; components; supports; loads; reference configuration, states and combinations. Never author k or SIF: right after the components phase, ask the person to realize each bend (Insert bend at corner) and enter k, SIFs and their source, and tee modifiers; supports and loads must not attach to a corner before. On the exact route a solve is refused until every bend is realized; on the pressure-free route an unrealized bend solves as a straight chord (k does not affect chord stiffness; a supplied positive scalar SIF applies to the chord, and without one no intensified measure is published), and you must say so when reporting.",
       "inputSchema": {
         "$ref": "#/definitions/proposeInput"
       },
@@ -1990,7 +2224,7 @@
     },
     {
       "name": "swbpipe_solve",
-      "description": "Solve the current model at the supplied basis using the session-selected solver mode. Wait for the actual job outcome.",
+      "description": "Solve the current model at the supplied basis, in solverMode if given (the Solve panel's selection is set to it), else in the session-selected mode. Wait for the actual job outcome: completed gives a run handle; rejected means the model was refused and gives the findings (and how many were not listed), no run; failed gives the failure's kind and message, no run.",
       "inputSchema": {
         "$ref": "#/definitions/solveInput"
       },
@@ -2003,14 +2237,14 @@
         "idempotentHint": false
       },
       "effect": "solve",
-      "availability": "admitted live webview workspace; adapters not yet implemented",
+      "availability": "admitted live webview workspace",
       "sourceRoute": "workspaceSession.ts handleRun; previewService.ts startPreviewMechanicsJob/takePreviewMechanicsJobResult",
       "canonicalUnits": "node coordinates: exact project.units.length; result values: source row unit, no display conversion",
-      "basisPolicy": "Current claimed/live basis required at job admission. Completion binds captured job/evaluated hash/run identity even if live revision advances; no result implies current-state applicability."
+      "basisPolicy": "Current claimed/live basis required at job admission. Completion binds natively the job (made after the call was claimed, which shows order, not cause; named by no other completion), its mode, the digest of its result bytes and its solved status; that the job's model is the call's model rests on the webview's account; the binding holds even if the live revision advances; no result implies current-state applicability."
     },
     {
       "name": "swbpipe_read_results",
-      "description": "Read a bounded page of permitted result values for a run handle, optionally filtered by kinds and entityRefs; withheld values have no number.",
+      "description": "Read a bounded page of permitted result values for a run handle, optionally filtered by kinds, entityRefs and one load case or combination (case: refType and refId). Each value names its case and, where the row has them, its component, coordinate system, location and sign convention; withheld values have no number.",
       "inputSchema": {
         "$ref": "#/definitions/resultsInput"
       },
@@ -2023,10 +2257,10 @@
         "idempotentHint": true
       },
       "effect": "read",
-      "availability": "admitted live webview workspace; adapters not yet implemented",
+      "availability": "admitted live webview workspace",
       "sourceRoute": "MechanicsResult.results; features/results/resultReader.ts; features/result-export/csvTable.ts view/value policy",
       "canonicalUnits": "node coordinates: exact project.units.length; result values: source row unit, no display conversion",
-      "basisPolicy": "Input basis and cursor must match retained evaluated run basis in the same admitted workspace/generation. Later live model edits do not invalidate an available historical run; disappearance is unavailable, never a fabricated current run."
+      "basisPolicy": "Input basis and cursor must match retained evaluated run basis in the same admitted workspace/generation. Later live model edits do not invalidate an available historical run; disappearance is unavailable, never a fabricated current run. Each page is checked natively against the run's held result: the native rows query at the call's filter, start (where the page that issued its cursor ended) and limit gives exactly its rows, cut by the page's row-text rule, and its continuation; each value gives its row's identity, case, metadata and unit and either the row's exact number or null marked withheld. That a withheld value had to be withheld rests on the webview's account (a false withheld, never a false number)."
     }
   ],
   "limitsStanding": "Fixture/default host configuration only, reported by summary; operation batch count is not a schema constant. Production host config may choose another bounded count."

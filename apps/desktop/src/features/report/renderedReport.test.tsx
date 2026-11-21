@@ -19,6 +19,7 @@ import { numericalResultStanding } from "../results/resultStanding";
 import { readFileSync } from "node:fs";
 import { resolve } from "node:path";
 import * as reportRedactionProjector from "./reportRedactionProjector";
+import { collectGarbage } from "../../test/garbageCollection";
 
 const PUBLIC_CONTEXT = { exportContext: "public_report", generatedAt: "2026-10-22T12:00:00.000Z" } as const;
 const LOCAL_PRIVATE_CONTEXT = { exportContext: "local_private", generatedAt: "2026-10-22T12:00:00.000Z" } as const;
@@ -1916,6 +1917,40 @@ describe("FR-REP-003 disposition and context boundary (W-11 slice (c), §4.3, §
     expect(screen.getByTestId("rendered-report-blocking-reasons")).toHaveTextContent(`${reason("user_supplied_values[2]")} (material-provenance:material:with-record)`);
     expect(screen.queryByTestId("rendered-report-preview")).not.toBeInTheDocument();
     expect(screen.queryByTestId("rendered-report-save-local-private")).not.toBeInTheDocument();
+  });
+
+  // The render control returns a decision for every value it screens and a finding for each
+  // decision that is not a plain inclusion; the panel
+  // reads its summary, blocked flag and payload, and keeps nothing else of it once rendered.
+  it("keeps the render control's summary line and payload reader, and none of its per-value records", async () => {
+    const model = recordModel();
+    const reason = `report provenance: REPORT_PROVENANCE_DISPOSITION_BLOCKED (user_supplied_values[2] review_status quarantined; review that record's disposition in the model before reporting)`;
+    const real = reportRedactionProjector.controlReportRendererInput;
+    // The control result and, each by itself, its decisions and its findings arrays.
+    const held: WeakRef<object>[] = [];
+    let expectedLine = "";
+    const control = vi.spyOn(reportRedactionProjector, "controlReportRendererInput").mockImplementation((...args) => {
+      const controlled = real(...args);
+      held.push(new WeakRef(controlled), new WeakRef(controlled.decisions), new WeakRef(controlled.findings));
+      expect(controlled.decisions.length).toBeGreaterThan(0);
+      expect(controlled.findings.length).toBeGreaterThan(0);
+      // The line as the panel showed it when it kept the whole control result.
+      expectedLine = `route=${controlled.summary.route_id}; context=local_private; explicit_intent=${String(controlled.summary.local_first?.explicit_local_private_intent === true)}; decisions=${controlled.summary.decision_count}; findings=${controlled.summary.finding_count}; warnings=${controlled.summary.warning_count}; blocking=${controlled.summary.blocking_count}; blocked=${String(controlled.blocked)}`;
+      return controlled;
+    });
+    (window as unknown as Record<string, unknown>).__TAURI_INTERNALS__ = {};
+    invokeMock.mockResolvedValue({ ...unblockedOutcome(), html: "", derived_print_html: "", export_blocked: true, content_withheld: true, blocking_reasons: [reason] });
+    renderPanel({ model });
+    fireEvent.click(screen.getByTestId("rendered-report-local-private-intent"));
+    fireEvent.click(screen.getByTestId("rendered-report-render"));
+    await waitFor(() => expect(screen.getByTestId("rendered-report-blocking-reasons")).toBeInTheDocument());
+    // The spy's own record of the call would keep the result; drop it.
+    control.mockRestore();
+    await collectGarbage();
+    expect(held).toHaveLength(3);
+    expect(held.map((ref) => ref.deref())).toEqual([undefined, undefined, undefined]);
+    expect(screen.getByTestId("rendered-report-redaction-summary").textContent).toBe(expectedLine);
+    expect(screen.getByTestId("rendered-report-blocking-reasons")).toHaveTextContent(`${reason} (material-provenance:material:with-record)`);
   });
 
   it("keeps the report packet free of the new records", () => {

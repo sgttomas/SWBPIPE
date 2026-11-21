@@ -1196,6 +1196,30 @@
     {
       "collection": "components",
       "fields": {
+        "geometry.center_of_gravity": "agent_authorable",
+        "geometry.connection_end_a_reference": "agent_authorable",
+        "geometry.connection_end_b_reference": "agent_authorable",
+        "geometry.eccentric_offset": "agent_authorable",
+        "geometry.end_a_size": "agent_authorable",
+        "geometry.end_b_size": "agent_authorable",
+        "geometry.rigid_body_length": "agent_authorable",
+        "geometry.rigid_component_source_reference": "agent_authorable",
+        "geometry.rigid_pipe_ref": "agent_authorable",
+        "geometry.stiffness_behavior_reference": "agent_authorable",
+        "geometry.weight": "agent_authorable",
+        "kind": "agent_authorable",
+        "label": "agent_authorable",
+        "mechanics_interface.solver_consumption": "agent_authorable",
+        "modifiers.source_reference": "agent_authorable",
+        "modifiers.stiffness_scaling_user_value": "agent_authorable",
+        "node": "agent_authorable",
+        "provenance": "agent_authorable"
+      },
+      "id": "component:RS-R1"
+    },
+    {
+      "collection": "components",
+      "fields": {
         "kind": "agent_authorable",
         "label": "agent_authorable",
         "node": "agent_authorable",
@@ -1316,6 +1340,21 @@
         "restraints": "agent_authorable"
       },
       "id": "support:RS-VS1"
+    },
+    {
+      "collection": "supports",
+      "fields": {
+        "family": "agent_authorable",
+        "hanger.constant_load": "agent_authorable",
+        "hanger.hanger_type": "agent_authorable",
+        "hanger.source_reference": "agent_authorable",
+        "hanger.travel_range": "agent_authorable",
+        "label": "agent_authorable",
+        "node": "agent_authorable",
+        "provenance": "agent_authorable",
+        "restraints": "agent_authorable"
+      },
+      "id": "support:RS-CE1"
     },
     {
       "collection": "supports",
@@ -1460,6 +1499,13 @@
     {
       "collection": "document",
       "fields": {
+        "data_boundary": "agent_authorable"
+      },
+      "id": "data_boundary"
+    },
+    {
+      "collection": "document",
+      "fields": {
         "project": "agent_authorable"
       },
       "id": "project"
@@ -1549,21 +1595,21 @@
       "entities": [
         "component:RS-R1"
       ],
-      "expected_until_then": "admitted in the combined test overlay; solved with no blocking finding (core/product_physics/tests/rt_a3_s6_reference_system.rs; alone, core/product_physics/tests/rt_a3_reducer_2b_reference_system.rs)",
+      "expected_until_then": "—",
       "family": "Eccentric reducer RS-R1 in region RG-R",
-      "in_tranche_1": false,
-      "row_lane": "RT-A3 reducer increment 2b (eccentric); initial concentric 2a does not unblock RS-R1",
-      "state": "pending; RS-P150 is in tranche 1 as a plain S270 member in its own region"
+      "in_tranche_1": true,
+      "row_lane": "—",
+      "state": "in tranche 1"
     },
     {
       "entities": [
         "support:RS-CE1"
       ],
-      "expected_until_then": "admitted in the combined test overlay; consumed, 9,000 N applied and published (core/product_physics/tests/rt_a3_s6_reference_system.rs)",
+      "expected_until_then": "—",
       "family": "Constant-effort support RS-CE1",
-      "in_tranche_1": false,
-      "row_lane": "RT-A3 increment 3",
-      "state": "pending"
+      "in_tranche_1": true,
+      "row_lane": "—",
+      "state": "in tranche 1"
     },
     {
       "entities": [

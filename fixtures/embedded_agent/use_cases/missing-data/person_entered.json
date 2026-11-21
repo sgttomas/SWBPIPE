@@ -1,0 +1,19 @@
+{
+  "schema": "swbpipe-agent-missing-data-person-entries/1",
+  "use_case": "missing-data",
+  "provenance": "invented values for this use case; no material standard or catalog",
+  "entries": [
+    {
+      "entity_ref": "pipe:md-inboard",
+      "field_path": "section.material_density",
+      "value": 7850,
+      "unit": "kg/m^3"
+    },
+    {
+      "entity_ref": "pipe:md-outboard",
+      "field_path": "section.material_density",
+      "value": 8000,
+      "unit": "kg/m^3"
+    }
+  ]
+}

@@ -214,10 +214,37 @@ target remains adequate. A failure alone does not justify relaxing one.
    sizing.
 
    *Owning deliverables:* DEL-04-07 (one route); DEL-03-03 to DEL-03-06 (components); DEL-04-03 and DEL-04-04 (supports); DEL-05-01 and DEL-05-02 (loads, cases, combinations); DEL-04-09 (modal); DEL-04-10 (response spectrum); DEL-04-11 (hanger sizing).
-2. **Benchmarks.** Each analysis in criterion 1 passes closed-form or hand-calculation
-   references frozen in `validation/references/` with an independent generator.
-   Modal also passes at least one published piping benchmark (DEL-04-09
-   AC-010).
+2. **Benchmarks.** Each analysis in criterion 1 passes closed-form or
+   hand-calculation benchmarks on invented cases that exercise that analysis,
+   using references frozen in `validation/references/` with an independent
+   generator. Modal also passes at least one published piping benchmark
+   (DEL-04-09 AC-010).
+
+   In both solver modes, the solved reference-system fixture passes every
+   reference check that its cases admit (DEL-09-01 AC-009). The fixture
+   specification names them (`fixtures/reference_system/SPECIFICATION.md`
+   §9). An applicable check counts as met only when demonstrated. Checks that
+   require pending cases apply when those cases are admitted.
+   - The checks include support force and moment balance against case
+     weight, including hydrotest weight. The change in support force and
+     moment resultants from sustained balances each wind or static seismic
+     load resultant. The anchor-movement reaction difference is
+     self-equilibrated. The expansion difference, the static seismic SRSS and
+     absolute-sum combinations, and the spectrum directional combination are
+     checked against their definitions. The checks also include the presence
+     of the specified tee stress rows and agreement of the constant-effort
+     support's published applied load and support action with its entered
+     load in cases that use that load.
+   - For numerical comparisons, use independent references applicable to the
+     fixture revision under test. The packages `reference_system`,
+     `reference_system_r1_ce`, `reference_system_pending_cases` and
+     `reference_system_generated_loads` state their respective bases and
+     status. `reference_system_generated_loads` holds per-load and warning
+     references for the wind and static seismic cases;
+     `reference_system_pending_cases` remains the reference for EQ-6.
+     Section 9 also defines identities that require no package.
+   - No independent solution of the full system's response is frozen, so
+     these checks do not establish the response throughout the system.
 
    *Owning deliverables:* each analysis's deliverable under criterion 1, with DEL-09-01 for the reference system.
 3. **Limitations.** Every remaining refusal of a capability these criteria require is listed in the
