@@ -320,7 +320,7 @@ def test_every_maintained_test_runs_when_a_path_it_reads_changes():
         if test in ci.UNROUTED:
             continue
         assert derived[test], test
-        assert test in named or test in dispatch, test
+        assert test in named or test in dispatch or test in ci.retained_pricing_audit(PROJECT), test
         path = probe(derived[test])
         assert routed(test, path), (test, path)
         assert test in selected(test), test
@@ -470,7 +470,7 @@ EVERY_PULL_REQUEST = frozenset((
     'test_the_audit_is_every_tool_test_but_the_source_independent_ones',
     'test_a_solver_core_pull_request_leaves_the_audit_out',
     'test_a_pull_request_changing_the_tool_or_the_registration_runs_the_whole_audit',
-    'test_schedule_dispatch_and_queue_runs_keep_the_audit_as_their_selection_gives_it',
+    'test_full_selections_and_the_queue_leave_the_audit_to_its_workflow',
     'test_repository_numerical_routing_checks_are_not_duplicated_in_product_job',
     'test_merge_group_selects_python_tests_as_a_pull_request',
     'test_sensitive_families_follow_their_inputs',
@@ -875,10 +875,13 @@ def test_a_pull_request_changing_the_tool_or_the_registration_runs_the_whole_aud
     assert set(ci.retained_pricing_audit(PROJECT)) <= set(both)
 
 
-def test_schedule_dispatch_and_queue_runs_keep_the_audit_as_their_selection_gives_it():
+def test_full_selections_and_the_queue_leave_the_audit_to_its_workflow():
+    """Schedule, dispatch and push runs, the nightly full run's included, select full coverage less the audit, which
+    runs in retained-pricing-audit.yml; a queue group is verified as a pull request."""
     audit = set(ci.retained_pricing_audit(PROJECT))
     for event in ('schedule', 'workflow_dispatch', 'push'):
-        assert ci.audit_deferred(PROJECT, {'event': event, 'paths': ['core/product_physics/src/lib.rs']}) == frozenset()
-        assert audit <= set(ci.select(PROJECT, {'event': event})), event
-    # The merge queue verifies a candidate as a pull request.
+        assert ci.audit_deferred(PROJECT, {'event': event, 'paths': ['tools/retained_pricing/price.py']}) == audit
+        assert not audit & set(ci.select(PROJECT, {'event': event})), event
+        assert set(ci.RETAINED_PRICING_SOURCE_INDEPENDENT) <= set(ci.select(PROJECT, {'event': event})), event
     assert ci.audit_deferred(PROJECT, {'event': 'merge_group', 'paths': ['core/product_physics/src/lib.rs']}) == audit
+    assert ci.audit_deferred(PROJECT, {'event': 'merge_group', 'paths': ['tools/retained_pricing/price.py']}) == frozenset()

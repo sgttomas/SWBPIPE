@@ -235,8 +235,12 @@ fn b7b_current_source_is_registered_and_issues_a_permit() {
         assert!(!bindings_hold(LAYOUT_WITNESSES, Some(&changed), compiled, &READER_LAYOUTS, &READER_LAYOUTS));
         assert_eq!(identity_match(Some(REGISTERED_IDENTITY), [REGISTERED_IDENTITY].into_iter()), Ok(0));
         assert_eq!(identity_match(Some("v1;another-build"), [REGISTERED_IDENTITY].into_iter()), Err(ProfileStatus::Stale));
-        assert_eq!(identity_match(option_env!("OPS_RETAINED_BUILD_IDENTITY"), [REGISTERED_IDENTITY].into_iter()),
-            Err(ProfileStatus::Stale), "this build's identity is not the registered one");
+        // Another identity is Stale at the identity; the registered identity reads Stale only between audits, when its
+        // reviewed inputs or reader layouts have moved (`registered()`), and then by the binding asserted above.
+        if option_env!("OPS_RETAINED_BUILD_IDENTITY") != Some(REGISTERED_IDENTITY) {
+            assert_eq!(identity_match(option_env!("OPS_RETAINED_BUILD_IDENTITY"), [REGISTERED_IDENTITY].into_iter()),
+                Err(ProfileStatus::Stale), "this build's identity is not the registered one");
+        }
         for mode in [PreviewSolverMode::SparseInteractive, PreviewSolverMode::DenseScrutiny] {
             let raw = crate::retained_facade_tests::m3x();
             let plain = serde_json::to_vec(&run_linear_static_preview_value_with_mode(raw.clone(), mode).unwrap()).unwrap();

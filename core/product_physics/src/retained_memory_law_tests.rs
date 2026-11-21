@@ -2696,7 +2696,7 @@ fn g_c_declines_w1_when_the_ordinary_solve_was_not_attempted() {
 /// publishes, and a solve that ran but failed still reaches W1.
 #[test]
 fn registered_g_c_declines_only_unattempted_solves() {
-    if COMPILED_IDENTITY != Some(REGISTERED_PROFILES[0].identity) {
+    if !crate::retained_facade_tests::registered() {
         return;
     }
     for mode in MODES {
@@ -2732,7 +2732,7 @@ fn registered_g_c_declines_only_unattempted_solves() {
 #[test]
 fn b1_sa_d1_4_admits_one_to_c_load_cases() {
     assert_eq!(caps::LOAD_CASES, 3, "C = 3 (option S3)");
-    let registered = COMPILED_IDENTITY == Some(REGISTERED_PROFILES[0].identity);
+    let registered = crate::retained_facade_tests::registered();
     for c in 0..=caps::LOAD_CASES + 1 {
         let expected = if (1..=caps::LOAD_CASES).contains(&c) { None } else { family(D1Clause::Invocation, FamilyFact::LoadCases) };
         for mode in MODES {
@@ -2857,7 +2857,7 @@ fn b1_sa_g_b_reads_each_case_and_the_running_total() {
     assert_eq!(gate(129, 385), Err((PhaseFact::CaseLoads, 129, 128)), "table order: the case before the total");
     assert_eq!(gate(3, usize::MAX), Err((PhaseFact::CaseLoadsTotal, u64::MAX, 384)), "a saturated total refuses at G-B");
     // The actual seam, in the registered build: by G-B the capture holds the case's loads.
-    if COMPILED_IDENTITY == Some(REGISTERED_PROFILES[0].identity) {
+    if crate::retained_facade_tests::registered() {
         for mode in MODES {
             let (request, capture) = CapturedInvocation::parse(milestone(), mode).unwrap();
             let (permit, _report) = admit(&capture, &request, Entry::Direct, RETAINED_LIMIT).unwrap_or_else(|r| panic!("{mode:?}: {:?}", r.law().refusal));
@@ -2969,7 +2969,7 @@ fn b1_sa_t3_e_counts_the_requested_cases() {
     }
     // Direct, in the registered build: admitted (c = C is inside D1), G-C declines, and the
     // published bytes are exactly the value route's, with no notice and no successor.
-    if COMPILED_IDENTITY != Some(REGISTERED_PROFILES[0].identity) {
+    if !crate::retained_facade_tests::registered() {
         return;
     }
     for (label, raw, _) in blocked {
@@ -3252,7 +3252,7 @@ fn with_combinations(mut raw: Value, z: usize) -> Value {
 #[test]
 fn b2_a_d1_admits_case_equivalents_up_to_three() {
     assert_eq!((caps::COMBINATIONS, caps::CASE_EQUIVALENTS, caps::COMBINATION_TERMS, caps::RANGE_OPERANDS), (2, 3, 3, 3));
-    let registered = COMPILED_IDENTITY == Some(REGISTERED_PROFILES[0].identity);
+    let registered = crate::retained_facade_tests::registered();
     for c in 1..=caps::LOAD_CASES {
         for z in 0..=caps::CASE_EQUIVALENTS {
             let expected = if z > caps::COMBINATIONS {
@@ -3432,7 +3432,7 @@ fn b2_a_g_c_bounds_are_per_case_equivalent() {
 /// Stale (unregistered) builds refuse at D1.1 and keep the plain bytes.
 #[test]
 fn b2_a_admitted_combinations_run_w1_and_publish_the_validated_successor() {
-    let registered = COMPILED_IDENTITY == Some(REGISTERED_PROFILES[0].identity);
+    let registered = crate::retained_facade_tests::registered();
     let mut mixed = milestone_cases(2);
     mixed["model"]["combinations"] = json!([{"id": "range", "basis": "range_envelope", "operand_ids": ["case-1", "case-2"], "mode": "max_abs",
         "provenance": "invented_i103_b2_a_range"}]);
@@ -3499,7 +3499,7 @@ const N06: &str = include_str!("../../../fixtures/product_preview/pressure_sourc
 fn b3b_d1_admits_the_exact_route_with_empty_regions() {
     use D1Clause as C;
     use FamilyFact as F;
-    let registered = COMPILED_IDENTITY == Some(REGISTERED_PROFILES[0].identity);
+    let registered = crate::retained_facade_tests::registered();
     let mut mix = milestone();
     mix["model"]["load_cases"].as_array_mut().unwrap().push(json!({"id": "case:b", "label": "I99 B3-W second case (anchor)",
         "kind": "primitive_user_load", "primitive_loads": [{"id": "load:b:0", "category": "concentrated_force", "target": {"type": "node", "node": "N0"},
@@ -3624,7 +3624,7 @@ fn w16_d1_refuses_support_targeted_imposed_displacement_on_both_branches() {
 /// Stale (unregistered) builds refuse at D1.1 and keep the plain bytes.
 #[test]
 fn b3b_direct_entry_coexistence_keeps_the_exact_bytes_and_m3x_publishes_the_successor() {
-    let registered = COMPILED_IDENTITY == Some(REGISTERED_PROFILES[0].identity);
+    let registered = crate::retained_facade_tests::registered();
     let read = |text: &str| -> Value { serde_json::from_str(text).unwrap() };
     for (label, raw) in [("m3x", exact3(milestone())), ("n05", read(N05)), ("n06", read(N06))] {
         for mode in MODES {

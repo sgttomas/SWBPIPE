@@ -632,8 +632,32 @@ pub(super) const REGISTERED_IDENTITY: &str = "v1;rustc.release=1.97.1;rustc.comm
 /// opt-in capacity hook. Its writer and the corner-2 gating check share them.
 #[cfg(feature = "loaded-maximum-hooks")]
 const W1_EXHAUSTION_CONTROL_LIMITS: (usize, u8, usize) = (256, 64, 0);
+/// The variable the retained pricing audit sets for these tests (docs/CI_STRATEGY.md, "Retained pricing audit").
+pub(super) const PRICING_AUDIT: &str = "OPS_RETAINED_PRICING_AUDIT";
+/// Whether this build holds the whole registration that grants a permit: the registered identity, and its reviewed
+/// inputs and reader layouts (`retained_profile()`). Between audits a build of the registered identity whose reviewed
+/// inputs have moved reads `Stale` (DEL-04-08 REQ-004), and every test that branches here then asserts the `Stale`
+/// branch: the unchanged ordinary route. With `OPS_RETAINED_PRICING_AUDIT` set, the build must be the registered
+/// identity and hold its registration, so a registration that has drifted fails the audit instead of passing as Stale.
 pub(super) fn registered() -> bool {
-    option_env!("OPS_RETAINED_BUILD_IDENTITY") == Some(REGISTERED_IDENTITY)
+    let identity = option_env!("OPS_RETAINED_BUILD_IDENTITY") == Some(REGISTERED_IDENTITY);
+    let registered = identity && crate::retained_profile().is_ok();
+    if std::env::var_os(PRICING_AUDIT).is_some() {
+        assert!(identity, "the retained pricing audit runs in the registered build identity, not {:?}",
+            option_env!("OPS_RETAINED_BUILD_IDENTITY"));
+        assert!(registered, "the retained pricing audit: the registered identity reads {:?}; its reviewed inputs or \
+            reader layouts have moved since the last registration", crate::retained_profile().err());
+    }
+    registered
+}
+/// The retained pricing audit's own check: with `OPS_RETAINED_PRICING_AUDIT` set, this build is the registered identity
+/// and holds its registration (`registered()`). Without it, the tests that branch on `registered()` assert the branch
+/// the build is in, and this one asserts nothing.
+#[test]
+fn the_pricing_audit_requires_the_registered_build() {
+    if std::env::var_os(PRICING_AUDIT).is_some() {
+        assert!(registered());
+    }
 }
 /// One actual Direct invocation, counted: its output and the runs and G-C consultations.
 fn direct(raw: &Value, mode: PreviewSolverMode) -> (RetainedPreviewOutput, Counts) {

@@ -659,3 +659,37 @@ def test_merge_group_missing_base_fails_closed():
     source = inspect.getsource(REPOSITORY_CHECKS.diff_base)
     assert source.index('if event == "merge_group"') < source.index('return "HEAD^1"')
     assert 'HEAD^1' not in (ROOT / ".github/workflows/governance-harness.yml").read_text()
+
+
+def test_the_retained_pricing_audit_runs_on_its_own_schedule_and_dispatch_and_keeps_one_drift_issue():
+    """docs/CI_STRATEGY.md, "Retained pricing audit": its own workflow, on a schedule and by dispatch on any ref; no
+    candidate event; only the report job writes issues, and never the `nightly` label."""
+    text = (ROOT / '.github/workflows/retained-pricing-audit.yml').read_text()
+    audit = workflow('retained-pricing-audit.yml')
+    assert set(audit['on']) == {'schedule', 'workflow_dispatch'}
+    assert audit['permissions'] == {'contents': 'read'}
+    jobs = audit['jobs']
+    assert set(jobs) == {'audit', 'rust-audit', 'report'}
+    [run] = [s for s in jobs['audit']['steps'] if 'run' in s and 'python_ci.py' in s['run']]
+    assert '--audit' in run['run'] and '--shard-count 4' in run['run']
+    assert jobs['audit']['strategy']['matrix']['shard'] == ['1', '2', '3', '4']
+    assert 'permissions' not in jobs['audit']
+    # The Rust half runs the registration tests in the registered build identity, with the audit switch set.
+    rust = jobs['rust-audit']
+    assert rust['runs-on'] == 'macos-26' and 'permissions' not in rust
+    assert any(s.get('uses') == 'dtolnay/rust-toolchain@1.97.1' for s in rust['steps'])
+    [cargo] = [s for s in rust['steps'] if 'cargo test' in s.get('run', '')]
+    assert cargo['env'] == {'OPS_RETAINED_PRICING_AUDIT': '1'}
+    assert '--manifest-path core/product_physics/Cargo.toml --lib --test retained_precision_admission' in cargo['run']
+    report = jobs['report']
+    assert report['if'] == 'always()' and report['needs'] == ['audit', 'rust-audit']
+    assert report['permissions'] == {'contents': 'read', 'issues': 'write'}
+    [step] = [s for s in report['steps'] if 'run' in s]
+    assert step['run'] == 'python3 tools/software_workflow/pricing_audit_report.py'
+    assert step['env']['RESULTS'] == '${{ toJSON(needs) }}'
+    assert text.count('write') == 1 and 'secrets.' not in text and 'nightly' not in text
+    for job in jobs.values():
+        for entry in job.get('steps', []):
+            assert '${{' not in entry.get('run', '')
+            if str(entry.get('uses', '')).startswith('actions/checkout@'):
+                assert entry['with']['ref'] == '${{ github.sha }}'

@@ -124,10 +124,11 @@ PREFIX_TESTS = {
 
 # The retained-memory pricing audit (DEL-04-08 REQ-004, "Registration"; docs/CI_STRATEGY.md, "Retained pricing
 # audit"). These tool tests run the pricing tool's models on the checkout's own priced source, and they stop wherever
-# that source differs from the source the tool's pins and the registered profile were reviewed against. A solver-core
-# change is priced by the audit, not by its own pull request, so a pull request's selection leaves them out unless the
-# pull request changes the tool or the registration. Schedule and dispatch runs, and every other full selection, keep
-# them. Every other test file under the directory reads the checkout's priced source and is part of the audit.
+# that source differs from the source the tool's pins and the registered profile were reviewed against: they report
+# drift between the solver core and its registration, not a fault of the change under test. They run in their own
+# workflow (retained-pricing-audit.yml), on a schedule and by dispatch, and in a pull request or queue group only when it
+# changes the tool or the registration. Every other selection, the nightly full run's included, leaves them out. Every
+# test file under the directory is part of the audit except the source-independent ones named here.
 RETAINED_PRICING_TESTS = 'tools/retained_pricing/tests'
 RETAINED_PRICING_SOURCE_INDEPENDENT = {
     'tools/retained_pricing/tests/test_linemap_prune_collision.py': 'reads only a two-commit fixture repository',
@@ -153,9 +154,9 @@ def changes_registration(plan):
 
 
 def audit_deferred(project, plan):
-    """The audit tests a plan's selection leaves out: all of them for a pull request or queue group that changes
-    neither the tool nor the registration, none for any other plan."""
-    if plan.get('event') not in hosted_ci.CANDIDATE_EVENTS or changes_registration(plan):
+    """The audit tests a plan's selection leaves to the audit workflow: none for a pull request or queue group that
+    changes the tool or the registration, all of them for every other plan."""
+    if plan.get('event') in hosted_ci.CANDIDATE_EVENTS and changes_registration(plan):
         return frozenset()
     return frozenset(retained_pricing_audit(project))
 
@@ -429,11 +430,26 @@ def reaching_paths(project, paths):
                  or set(select(project, {'event': 'pull_request', 'paths': [path]})) - base)]
 
 
+def run_audit(project, shard_index, shard_count, junit_xml, dry_run):
+    """Run the audit selection, or one shard of it, on this checkout."""
+    selected = list(retained_pricing_audit(project))
+    if shard_count is not None:
+        assignments, totals = shard_selection(project, selected, shard_count, load_timings())
+        selected = assignments[shard_index - 1]
+    print(json.dumps({'audit': selected, 'shard': shard_index, 'count': shard_count}, indent=2), flush=True)
+    if dry_run or not selected:
+        return 0
+    report = ['--junitxml', str(junit_xml)] if junit_xml else []
+    return subprocess.run([sys.executable, '-m', 'pytest', '-v', '--tb=short', '-o', 'tmp_path_retention_policy=failed',
+                           '-n', 'auto', *report, *selected], cwd=project).returncode
+
+
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument('--audit', action='store_true',
                         help='Run the retained pricing audit selection on this checkout, without a plan')
     parser.add_argument('--plan', type=Path)
+    parser.add_argument('--junit-xml', type=Path, help='With --audit: write pytest\'s JUnit report here')
     parser.add_argument('--dry-run', action='store_true')
     parser.add_argument('--repository-checks-run', action='store_true',
                         help='The caller runs tests/test_ci_numerical.py in Repository checks')
@@ -442,19 +458,18 @@ def main():
     args = parser.parse_args()
     project = Path(__file__).resolve().parents[2]
     if args.audit:
-        if args.plan or args.shard_count is not None or args.repository_checks_run:
-            parser.error('--audit takes no plan, shard or repository-checks option')
-        selected = list(retained_pricing_audit(project))
-        print(json.dumps({'audit': selected}, indent=2), flush=True)
-        if args.dry_run:
-            return 0
-        return subprocess.run([sys.executable, '-m', 'pytest', '-q', '-n', 'auto', *selected], cwd=project).returncode
-    if args.plan is None:
+        if args.plan or args.repository_checks_run:
+            parser.error('--audit takes no plan or repository-checks option')
+    elif args.junit_xml:
+        parser.error('--junit-xml is for --audit')
+    elif args.plan is None:
         parser.error('--plan is required unless --audit is given')
     if (args.shard_index is None) != (args.shard_count is None):
         parser.error('shard index and count must be supplied together')
     if args.shard_count is not None and (args.shard_count < 1 or not 1 <= args.shard_index <= args.shard_count):
         parser.error('shard index must be between 1 and shard count')
+    if args.audit:
+        return run_audit(project, args.shard_index, args.shard_count, args.junit_xml, args.dry_run)
     plan = json.loads(args.plan.read_text())
     root = project
     hosted_ci.validate_plan(root, plan)

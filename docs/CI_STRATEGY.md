@@ -325,9 +325,10 @@ corpus uses parametrized items across shard classes, and the O4 envelope checks
 use separate classes so these expensive modules can occupy multiple workers.
 Full preview, schema and qualification suites remain available on dispatch, alongside the full Cargo suite.
 
-Hosted builds are unregistered. The retained-memory profile is registered only
-for the qualification host's exact build identity, so a hosted build reports
-`Stale` and takes the ordinary route. A test that depends on registration
+Hosted Linux builds are unregistered. The retained-memory profile is registered only
+for the qualification host's exact build identity, so such a build reports
+`Stale` and takes the ordinary route. A macOS debug build with the same Rust
+release is that identity; the retained pricing audit's Rust part relies on it. A test that depends on registration
 asserts both branches: the registered facts in the registered build, and `Stale`
 with the unchanged ordinary route otherwise, as `retained_facade_tests.rs`'s
 `registered()` does. When product_physics is selected, the numerical job also runs the six
@@ -458,7 +459,7 @@ or installing browsers in the warmer.
 ## Retained pricing audit
 
 The retained-memory pricing audit (D3, DEL-04-08 REQ-004) is a named
-selection, not part of every pull request's Python selection. It holds every
+selection with its own workflow, `retained-pricing-audit.yml`. It holds every
 test file under `tools/retained_pricing/tests` that runs the pricing tool's
 models on the checkout's own priced source. Those tests stop wherever that
 source differs from what the tool's pins and the registered profile were
@@ -473,23 +474,52 @@ tool's own files or a fixture repository.
   `python_ci.RETAINED_PRICING_REGISTRATION` path: `tools/retained_pricing/`,
   `tools/repository_history.py`, which the tool imports, or
   `core/product_physics/src/retained_memory.rs`, which holds the generated
-  profile block and `REGISTERED_PROFILES`. Such a change runs the whole audit.
-  The source-independent tool tests, `tests/test_retained_pricing_tool.py` and
-  the Rust tests of the `Stale` fallback stay where their reads and rules
-  select them.
-- **Scheduled and dispatched runs** keep it. They select full coverage, so the
-  nightly full run of `main` and a dispatched `governance-harness` or
-  `nightly-full-ci` run on any branch run the audit. A failure in the nightly
-  run opens a `nightly` issue, and that issue is the audit's drift signal.
-  Re-registration and re-pinning are done when the solver core freezes before
-  a release candidate, and again on the candidate's exact revision if anything
-  priced has moved, not after each day's merges. While `main` carries unaudited
-  priced source, a pull request that touches a registration path fails the
-  audit until the re-pricing lands.
+  profile block and `REGISTERED_PROFILES`. Such a change runs the whole audit
+  in its `harness`. The source-independent tool tests,
+  `tests/test_retained_pricing_tool.py` and the Rust tests of the `Stale`
+  fallback stay where their reads and rules select them. While `main` carries
+  unaudited priced source, a pull request that touches a registration path
+  fails the audit until the re-pricing lands.
+- **Every other selection leaves it out**, the nightly full run and a
+  dispatched `governance-harness` run included, so drift does not fail them.
+- **The audit workflow** runs daily at 08:30 UTC on `main` and by
+  `workflow_dispatch` on any ref, such as a release candidate's. It adds no
+  required check. It has two parts. The Python selection runs in four shards.
+  The Rust part runs `core/product_physics`'s library tests and
+  `tests/retained_precision_admission.rs` on macOS with Rust 1.97.1, which is
+  the registered build identity, with `OPS_RETAINED_PRICING_AUDIT` set (below). On `main`, its last job
+  (`tools/software_workflow/pricing_audit_report.py`) keeps one standing issue
+  labelled `pricing-drift`. The first failure opens it, each later failure
+  comments with the commit, the failing test count and the run, and a passing
+  run closes it. A cancelled or skipped run, or a run of another ref, reports
+  nothing. The label is not `nightly`, so the issue does not call for the
+  triage before each merge that an open `nightly` issue does.
+- **Re-registration and re-pinning** are done once, when the solver core is
+  frozen before a release candidate, and again on the candidate's exact
+  revision if a priced source or reviewed input has moved since, not after
+  each day's merges.
 - **Locally**, run `python3 tools/ci/python_ci.py --audit` (`--dry-run` lists
-  the files), or the registered `retained-pricing-audit` check, within the
-  host's job wrapper. The registered `retained-pricing-tool-tests` check runs
-  the whole directory and is selected by the registration paths.
+  the files; `--shard-index` and `--shard-count` take one shard), or the
+  registered `retained-pricing-audit` check, within the host's job wrapper.
+  On the registration host, the Rust part is
+  `OPS_RETAINED_PRICING_AUDIT=1 cargo test --locked --manifest-path
+  core/product_physics/Cargo.toml --lib --test retained_precision_admission`,
+  also within the wrapper.
+  The registered `retained-pricing-tool-tests` check runs the whole directory
+  and is selected by the registration paths.
+
+The Rust tests that depend on registration branch on
+`retained_facade_tests::registered()`. It holds only for the registered
+identity with its reviewed inputs and reader layouts (`retained_profile()`),
+not for the identity alone. Between audits, a change to a reviewed input, such
+as a result schema or fixture the registered profile digests, makes the
+registered identity read `Stale`. Those tests then assert the `Stale` branch,
+with the unchanged ordinary route, on the registration host as on any other
+build. The reviewed-input record is not moved per pull request: moving it
+would declare the profile registered against inputs no audit has examined.
+With `OPS_RETAINED_PRICING_AUDIT` set, `registered()` requires the registered
+identity and its registration, so the audit fails where the registration has
+drifted instead of passing as `Stale`.
 
 The build does not bind the profile to the source: the build identity and
 reviewed inputs (`core/product_physics/src/build_identity.rs`,
@@ -538,7 +568,8 @@ range from them and never falls back to `HEAD^1`. The run therefore covers:
 - the core browser journey with every spec group;
 - both desktop behaviour shards and the desktop Rust tests;
 - all three numerical Cargo shards;
-- all four Python shards, including `tests/test_ci_numerical.py`.
+- all four Python shards, including `tests/test_ci_numerical.py`, without the
+  retained pricing audit, which has its own workflow (above).
 
 The run does not reuse or record verified results. The repository
 tool/routing suite is not path-selected, so it runs whole on every product PR
