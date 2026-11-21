@@ -394,12 +394,18 @@ fn solve_all(route: Route, model: Model, mode: PreviewSolverMode) -> Vec<(String
 
 // ------------------------------------------------------------------ the oracle
 /// Every seismic reference document a person can make, on both routes, both
-/// models and both solver modes: every nodal motion, support reaction, member
-/// end action, generated load and load resultant within the criterion (84
-/// rows a case on the cantilever, 90 on the fixed-ended model).
+/// models and both solver modes: every row of each of the package's 32
+/// seismic reference cases (every nodal motion, support reaction, member end
+/// action, generated load and load resultant) within the criterion: 84 rows a
+/// case on the cantilever, 81 for the cases with no replacing component and
+/// the zero-weight fallback (BND-NONE, CTRL-ZERO-AS-NOT-APPLIED), 90 on the
+/// fixed-ended model. The package's self-weight reference cases are not
+/// solved here, and its controls and limits are read as controls
+/// ([`the_product_disagrees_with_every_control`]).
 #[test]
 fn every_seismic_reference_case_is_reproduced() {
     let mut worst = 0usize;
+    let mut compared = std::collections::BTreeSet::new();
     for route in [Route::Pf, Route::Ex] {
         for model in [Model::Cant, Model::Fixed] {
             for mode in MODES {
@@ -410,11 +416,17 @@ fn every_seismic_reference_case_is_reproduced() {
                     assert_eq!(n, r["rows"].as_array().unwrap().len(), "{id}: every row is compared");
                     assert!(failures.is_empty(), "{id} {}: {} rows outside the criterion:\n{}", mode.as_str(), failures.len(), failures.join("\n"));
                     worst = worst.max(n);
+                    compared.insert(id);
                 }
             }
         }
     }
     assert!(worst > 0);
+    let package: std::collections::BTreeSet<String> = refs()["cases"].as_array().unwrap().iter()
+        .filter(|c| c["role"] == "reference" && c["load_kind"] == "seismic")
+        .map(|c| c["id"].as_str().unwrap().to_string()).collect();
+    assert_eq!(compared.len(), 32);
+    assert_eq!(compared, package, "every seismic reference case of the package is compared");
 }
 
 /// Each labelled control is a wrong rule, and the product must disagree
@@ -752,6 +764,7 @@ fn the_readers_bind_the_component_record() {
     let zero = document(Route::Ex, Model::Cant, ZERO_WEIGHT, vec![case_of(reference(id), "case:s")]);
     let bound = reader_verdict::validate("pressure", &out, Some(&zero["model"]), None);
     assert_eq!(bound["ok"], false, "{bound}");
+    assert_eq!(bound["error"]["code"], "SOURCE_PHYSICS_EQUIVALENT_STATIC_COMPONENT_MODEL_MISMATCH", "{bound}");
 }
 
 /// Issue 450 round 1 finding 3. The model-bound check compares every solved
@@ -820,6 +833,7 @@ fn a_component_record_on_a_case_that_generates_none_is_refused() {
         "generated_load_ids": ids, "component_forces": [entry]});
     let bound = reader_verdict::validate("pressure", &forged, Some(model), None);
     assert_eq!(bound["ok"], false, "{bound}");
+    assert_eq!(bound["error"]["code"], "SOURCE_PHYSICS_EQUIVALENT_STATIC_COMPONENT_MODEL_MISMATCH", "{bound}");
     // A model whose required force rounds to zero (k = 0.3, W the smallest positive binary64 in N).
     let mut range = model.clone();
     range["components"][0]["geometry"]["weight"] = qv(f64::from_bits(1), "N");
