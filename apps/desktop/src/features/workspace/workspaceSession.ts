@@ -2688,6 +2688,7 @@ export function useWorkspaceSession() {
   /** The session's own operation request for an editor's edit: refused at once, with nothing toggled, counted or
    * cloned, while another request runs or no model is held (A10). The basis is captured here, at entry. */
   function beginEditorRequest(): EditorRefusal | Readonly<{ basisModel: PreviewModel; revision: number; generation: number; stillCurrent: () => boolean; release: () => void }> {
+    if (!sessionMounted.current) return editorRefusal("This workspace is closed, so nothing was applied.");
     if (!currentModel.current) return editorRefusal("No model is open, so nothing was applied.");
     if (operationRequest.current.busy) return editorRefusal("Another change is still being checked or applied, so nothing was applied. Commit again when it finishes.");
     const revision = modelRevision.current;
@@ -2696,7 +2697,8 @@ export function useWorkspaceSession() {
     const request = ++operationRequest.current.sequence;
     operationRequest.current.busy = true;
     setOperationBusy(true);
-    const stillCurrent = () => operationRequest.current.sequence === request && modelRevision.current === revision && projectSessionGenerationRef.current === generation;
+    // P3: the session's mounted state is part of currentness, so a callback outliving its workspace lands nowhere.
+    const stillCurrent = () => sessionMounted.current && operationRequest.current.sequence === request && modelRevision.current === revision && projectSessionGenerationRef.current === generation;
     const release = () => {
       if (operationRequest.current.sequence === request) {
         operationRequest.current.busy = false;
@@ -2748,6 +2750,8 @@ export function useWorkspaceSession() {
    * comes back as the notice on a committed result (A9). */
   async function applyAndPublishEditorBatch(checked: EditorCheckedBatch, stillCurrent: () => boolean, onPublished: () => void): Promise<EditorCommitResult> {
     const { batch, fingerprint, basisModel, basisHash } = checked;
+    // P3: currentness immediately before the engine is asked to apply.
+    if (!stillCurrent()) return editorRefusal(EDITOR_SUPERSEDED);
     const outcome = await applyOperationBatch(basisModel, batch, basisHash);
     if (!stillCurrent() || !currentModel.current) return editorRefusal(EDITOR_SUPERSEDED);
     const currentHash = await computeModelHash(currentModel.current);
@@ -2852,6 +2856,7 @@ export function useWorkspaceSession() {
     try {
       const checked = await buildAndValidateEditorEdit(binding, input, request.basisModel, request.stillCurrent);
       if ("status" in checked) return checked;
+      if (!request.stillCurrent()) return editorRefusal(EDITOR_SUPERSEDED);
       return await applyAndPublishEditorBatch(checked, request.stillCurrent, () => {});
     } catch (error) {
       return editorRefusal(request.stillCurrent() ? `The change could not be checked: ${nativeFailureText(error)}. Nothing was applied.` : EDITOR_SUPERSEDED);
@@ -2891,6 +2896,7 @@ export function useWorkspaceSession() {
   /** Form 2, second step: the dialog's confirm. Only a handle this binding's preview minted, not yet committed, on
    * the current project and model revision, is applied; every other is refused by name before the request (A10). */
   async function commitEditorPreview(binding: EditorBindingRecord, handle: unknown): Promise<EditorCommitResult> {
+    if (!sessionMounted.current) return editorRefusal("This workspace is closed, so nothing was applied.");
     const record = handle !== null && typeof handle === "object" ? editorPreviews.current.get(handle) : undefined;
     if (!record) return editorRefusal("This is not a preview this session showed, so nothing was applied. Show the preview again.");
     if (record.binding !== binding) return editorRefusal("This preview was shown by another editor, so nothing was applied.");

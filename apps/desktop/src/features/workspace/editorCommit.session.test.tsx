@@ -508,6 +508,72 @@ describe("supersession: a commit started on one model never lands on another", (
   });
 });
 
+describe("lifetime and currentness (P3)", () => {
+  async function mounted(load: () => PreviewModel = reconnectModel) {
+    vi.spyOn(previewService, "loadPreviewModel").mockResolvedValue(load());
+    const hook = renderHook(() => useWorkspaceSession());
+    await waitFor(() => expect(hook.result.current.model.model).not.toBeNull());
+    return hook;
+  }
+  it.each([["the builder's await"], ["validation"], ["application"]])("an unmount during %s: nothing reports committed, and the engine applies nothing after an unmount before application", async (at) => {
+    const hook = await mounted();
+    let release!: () => void, arrived!: Promise<void>;
+    let commit: (input: GridInput) => Promise<EditorCommitResult>;
+    if (at === "the builder's await") {
+      const gate = new Promise<void>((resolve) => { release = resolve; });
+      let reached!: () => void;
+      arrived = new Promise<void>((resolve) => { reached = resolve; });
+      commit = hook.result.current.editorBinding.bindCommit({ ...gridCell, name: "slow-grid-cell", build: async (model, input, id) => { reached(); await gate; return gridCell.build(model, input, id); } });
+    } else {
+      ({ release, arrived } = hold(at === "validation" ? "validateOperationBatch" : "applyOperationBatch"));
+      commit = hook.result.current.editorBinding.bindCommit(gridCell);
+    }
+    // Once the hold is in place, any further call of the engine's apply is a call after the unmount.
+    const applied = vi.spyOn(operationBatchService, "applyOperationBatch");
+    let pending: Promise<EditorCommitResult> = Promise.resolve(null as never);
+    act(() => { pending = commit({ nodeId: "node:C", axis: "y", value: "2.5" }); });
+    await arrived;
+    const callsAtUnmount = applied.mock.calls.length;
+    hook.unmount();
+    release();
+    const outcome = await pending;
+    expect(outcome.status).toBe("refused");
+    expect(applied.mock.calls.length).toBe(callsAtUnmount);
+  });
+
+  it("a callback kept after its workspace closed is refused at entry, with nothing built", async () => {
+    const hook = await mounted();
+    let built = 0;
+    const commit = hook.result.current.editorBinding.bindCommit({ ...gridCell, name: "counted", build: (model, input, id) => { built += 1; return gridCell.build(model, input, id); } });
+    const dialog = hook.result.current.editorBinding.bindDialog(reconnect);
+    hook.unmount();
+    expect(refused(await commit({ nodeId: "node:C", axis: "y", value: "2.5" })).reason).toContain("This workspace is closed");
+    expect(refused(await dialog.preview({ pipeId: "pipe:P", targetNode: "node:C" })).reason).toContain("This workspace is closed");
+    expect(refused(await dialog.commit({ handle: "editor-preview" })).reason).toContain("This workspace is closed");
+    expect(built).toBe(0);
+  });
+
+  it("a project opened as the validation returns, before the engine is asked to apply: the engine applies nothing", async () => {
+    const result = await session();
+    await act(async () => { await result.current.project.handleSaveProject(); });
+    await waitFor(() => expect(result.current.project.projectBusy).toBe(false));
+    const projectId = result.current.model.model!.project.id;
+    const apply = vi.spyOn(operationBatchService, "applyOperationBatch");
+    const real = operationBatchService.validateOperationBatch;
+    vi.spyOn(operationBatchService, "validateOperationBatch").mockImplementationOnce(async (...args) => {
+      const outcome = await real(...args);
+      // The reply is ready; the project is replaced before the session resumes with it.
+      await result.current.project.handleOpenProject(projectId);
+      return outcome;
+    });
+    const outcome = await run(() => bindCommit(result, gridCell)({ nodeId: "node:C", axis: "y", value: "2.5" }));
+    await waitFor(() => expect(result.current.project.projectBusy).toBe(false));
+    expect(refused(outcome).reason).toContain("changed while this edit was checked");
+    expect(apply).not.toHaveBeenCalled();
+    expect(result.current.model.model!.nodes[2].position.y).toBe(2);
+  });
+});
+
 describe("live values at publication", () => {
   it("a result published during the commit's awaits is cleared and reported as cleared; a selection changed during them is the one Undo restores", async () => {
     const result = await session();
