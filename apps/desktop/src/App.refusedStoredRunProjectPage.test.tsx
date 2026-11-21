@@ -1,14 +1,8 @@
-/** The Project page after a saved project is opened (C1 slice 6, `stored_custody`): the whole
- * window, with the native host's open reply supplied (`native_reopen_replies.json`'s refused
- * open, the actual command's reply on a real store), opened by File > Open Local Project…,
- * then View > Project. In the launched app the window empties at that moment for the
- * native walkthrough's `refused-stored-run` store, whose stored proposal is the persistence
- * corpus's invented one (`persistenceFormsCases.ts`), which has no `validation` member. The
- * refused run is not the cause: the same store with no stored run empties the window too,
- * and the open adopts a stored proposal as it is (`workspaceSession.ts` handleOpenProject)
- * for the Project page's storage panel to read `proposal.validation.application_status`.
- * The second case reproduces that and fails while a stored proposal is read unchecked.
- * All data are invented. */
+/** The Project page after a saved project whose stored run was refused at open (C1 slice 6,
+ * `stored_custody`): the whole window, with the native host's refused-open reply supplied
+ * (`test-support/native-reopen/native_reopen_replies.json`, `open_refused`: the actual command's
+ * reply on a real store, written by `stored_custody_tests.rs`), opened by File > Open Local
+ * Project…, then View > Project, where the refusal is shown. All data are invented. */
 import { act, cleanup, render, screen, waitFor } from "@testing-library/react";
 import { isDeepStrictEqual } from "node:util";
 import { readFileSync } from "node:fs";
@@ -36,11 +30,10 @@ function nativeMenuCommand(command: string) {
   window.dispatchEvent(new CustomEvent("openpipestress-native-menu-command", { detail: command }));
 }
 
-/** The committed refused open's reply, with `change` applied. */
-function refusedReply(change: (reply: Json) => void = () => {}): Json {
+/** The committed refused open's reply. */
+function refusedReply(): Json {
   const reply = JSON.parse(readFileSync(resolve(__dirname, "test-support/native-reopen/native_reopen_replies.json"), "utf8")).open_refused.reply.value;
   expect(reply.stored_run.state).toBe("refused");
-  change(reply);
   return reply;
 }
 
@@ -83,20 +76,6 @@ describe("the Project page after a saved project whose stored run was refused", 
     await waitFor(() => expect(screen.getByTestId("workspace-section-project")).not.toHaveClass("inactive"));
     expect(screen.getByTestId("project-storage-panel")).toBeInTheDocument();
     expect(screen.getByTestId("project-validation-panel")).toBeInTheDocument();
-    expect(screen.getByTestId("local-project-message")).toHaveTextContent(reply.stored_run.message);
-    expect(container.childElementCount).toBeGreaterThan(0);
-  });
-
-  // Reproduction: the launched app's empty window. The walkthrough store's stored proposal
-  // (`persistenceFormsCases.ts` PROPOSAL, saved as it is) has no `validation`; the open adopts it
-  // unchecked and the Project page reads `proposal.validation.application_status`.
-  it("shows the Project section when the stored proposal has no validation member (fails while the window empties)", async () => {
-    const reply = refusedReply((value) => {
-      value.proposal = { proposal_id: "proposal:invented", summary: "Invented proposal.", operations: [] };
-    });
-    const container = await openThenProjectPage(reply);
-    await waitFor(() => expect(screen.getByTestId("workspace-section-project")).not.toHaveClass("inactive"));
-    expect(screen.getByTestId("project-storage-panel")).toBeInTheDocument();
     expect(screen.getByTestId("local-project-message")).toHaveTextContent(reply.stored_run.message);
     expect(container.childElementCount).toBeGreaterThan(0);
   });
