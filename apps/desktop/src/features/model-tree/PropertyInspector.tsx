@@ -2,7 +2,8 @@ import { CompactSelect } from "../workspace/CompactSelect";
 import { QuantityReadout } from "../display-units";
 import { FAMILIES as SUPPORT_FAMILIES, SupportConfigurationForm } from "../support-configuration/SupportConfigurationForm";
 import { MaterialTemperatureForm } from "../material-temperature/MaterialTemperatureForm";
-import { BendRealizationForm, InsertBendAtCornerForm } from "../bend-authoring/BendAuthoringForms";
+import { BendRealizationForm, GEOMETRY_ONLY_BANNER, InsertBendAtCornerForm } from "../bend-authoring/BendAuthoringForms";
+import { isPressureV3 } from "../pressure-authoring/pressureContract";
 import { JointPressureModelEditor } from "../pressure-authoring/JointPressureModelEditor";
 import { WindExposureForm } from "../wind-exposure/WindExposureForm";
 import { SectionAssignment } from "../toolkit/SectionAssignment";
@@ -15,7 +16,7 @@ import { combinationTermsText } from "../load-cases/combinationOperands";
 import { ModelSettingsSection } from "../model-settings/ModelSettingsSection";
 import { ProjectUnitsSection } from "../project-units/ProjectUnitsSection";
 import { ListPlus, Pencil, PlayCircle, PlusCircle, SearchCheck, Trash2, X } from "lucide-react";
-import { bendAtCornerOffer, kindName, modelSettingsValues, offersSupportForm, projectUnitValues, supportFormLine } from "./inspectorActions";
+import { kindName, offersBendAtCorner, modelSettingsValues, offersSupportForm, projectUnitValues, supportFormLine } from "./inspectorActions";
 import { useEffect, useLayoutEffect, useMemo, useRef, useState, type ReactNode } from "react";
 import type {
   EditorOperationIntent,
@@ -530,8 +531,11 @@ export function PropertyInspector({
       {form}
     </div>
   );
-  const cornerOffer = propertiesTarget.type === "node" ? bendAtCornerOffer(model, propertiesTarget.id) : { offered: false as const };
+  const offersCornerBend = propertiesTarget.type === "node" && offersBendAtCorner(model, propertiesTarget.id);
   const selectedComponent = propertiesTarget.type === "component" ? model.components.find((component) => component.id === propertiesTarget.id) : undefined;
+  const selectedBend = selectedComponent && (selectedComponent.kind === "bend" || selectedComponent.kind === "elbow") ? selectedComponent : undefined;
+  // The exact pressure contract refuses a geometry-only bend; the warning stands on the bend's line.
+  const bendGeometryOnly = Boolean(selectedBend) && selectedBend?.mechanics_interface?.solver_consumption !== "curved_bend_macro_element" && isPressureV3(model);
   const selectedMaterial = propertiesTarget.type === "material" ? model.materials?.find((material) => material.id === propertiesTarget.id) : undefined;
   const selectedLoad = propertiesTarget.type === "load" ? model.load_cases.find((load) => load.id === propertiesTarget.id) : undefined;
   const richProps = { getPreparationEpoch, model, preparationEpoch: selectionState?.preparationEpoch, selection: propertiesTarget, queuedIntents, onQueueIntent, operationBusy: operationBusy || multiSelection };
@@ -1005,26 +1009,26 @@ export function PropertyInspector({
           <SupportConfigurationForm getPreparationEpoch={getPreparationEpoch} key={`support-properties:${projectSessionGeneration}`} model={model} preparationEpoch={selectionState?.preparationEpoch} selection={propertiesTarget} queuedIntents={queuedIntents} onQueueIntent={onQueueIntent} operationBusy={operationBusy || multiSelection} />
         </details>
       ) : null}
-      {cornerOffer.offered ? (
+      {offersCornerBend ? (
         <details className="inspector-details" data-testid="insert-bend-at-corner-details">
-          <summary>Bend at this corner{cornerOffer.refusal ? <span className="inspector-line-value"> unavailable</span> : null}</summary>
-          {cornerOffer.refusal
-            ? <p role="note" data-testid="insert-bend-at-corner-refusal">{cornerOffer.refusal}</p>
-            : <InsertBendAtCornerForm key={propertiesTarget.id} {...richProps} node={propertiesTarget.id} />}
+          <summary>Bend at this corner</summary>
+          <InsertBendAtCornerForm key={propertiesTarget.id} {...richProps} node={propertiesTarget.id} />
         </details>
       ) : null}
-      {selectedComponent && (selectedComponent.kind === "bend" || selectedComponent.kind === "elbow") ? (
-        <details className="inspector-details" data-testid="inspector-bend-realization-details">
-          {/* The engine refuses to realize a bend that names no arc span (OP-BEND-REALIZE-SPAN-MISSING):
-              it marks a corner, which its node's Bend at this corner turns into an arc. */}
-          {selectedComponent.geometry?.bend_pipe_ref?.trim() || selectedComponent.mechanics_interface?.solver_consumption === "curved_bend_macro_element" ? <>
-            <summary>Bend flexibility and SIFs</summary>
-            <BendRealizationForm key={selectedComponent.id} {...richProps} component={selectedComponent} />
-          </> : <>
-            <summary>Bend flexibility and SIFs <span className="inspector-line-value">unavailable</span></summary>
-            <p role="note" data-testid="bend-realization-corner-marker">This bend marks a corner. Select {selectedComponent.node} and use Bend at this corner, which places the tangent points.</p>
-          </>}
-        </details>
+      {selectedBend ? (
+        // The engine refuses to realize a bend that names no arc span (OP-BEND-REALIZE-SPAN-MISSING), so a
+        // marker has no realization line; it says what it is, and where its corner's line is when there is one.
+        selectedBend.geometry?.bend_pipe_ref?.trim() || selectedBend.mechanics_interface?.solver_consumption === "curved_bend_macro_element" ? (
+          <details className="inspector-details" data-testid="inspector-bend-realization-details">
+            <summary>Bend flexibility and SIFs{bendGeometryOnly ? <span className="inspector-line-warning" role="note"> {GEOMETRY_ONLY_BANNER}</span> : null}</summary>
+            <BendRealizationForm key={selectedBend.id} {...richProps} component={selectedBend} />
+          </details>
+        ) : <>
+          <p role="note" data-testid="bend-realization-corner-marker">{selectedBend.node && offersBendAtCorner(model, selectedBend.node)
+            ? `This bend marks the corner at ${selectedBend.node}. Select ${selectedBend.node} and use Bend at this corner, which places the tangent points.`
+            : `This bend marks a turn at ${selectedBend.node ?? "no node"} and names no arc span.`}</p>
+          {bendGeometryOnly ? <p className="inspector-line-warning" role="note" data-testid="bend-geometry-only-warning">{GEOMETRY_ONLY_BANNER}</p> : null}
+        </>
       ) : null}
       {selectedComponent?.kind === "expansion_joint" ? <JointPressureModelEditor {...richProps} /> : null}
       {selectedMaterial ? (

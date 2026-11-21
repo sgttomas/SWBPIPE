@@ -1,7 +1,7 @@
 // The inspector shows the selected entity's facts and the actions that apply to it, and
 // nothing about other kinds of entity. Each case opens a line before it reads inside it, so
 // nothing here passes on a control a person cannot reach. Invented model data only.
-import { cleanup, fireEvent, render, screen, within } from "@testing-library/react";
+import { cleanup, fireEvent, render, screen, waitFor, within } from "@testing-library/react";
 import type { ComponentProps } from "react";
 import { afterEach, describe, expect, it, vi } from "vitest";
 import { buildBlankLocalModelDocument } from "../../services/projectService";
@@ -10,7 +10,7 @@ import { DisplayUnitsProvider } from "../display-units";
 import { entityKey } from "../workspace/selectionState";
 import { chooseVirtualTarget } from "../../test-support/workspaceTestControls";
 import { PropertyInspector } from "./PropertyInspector";
-import { bendAtCornerOffer } from "./inspectorActions";
+import { offersBendAtCorner } from "./inspectorActions";
 
 afterEach(cleanup);
 
@@ -44,34 +44,81 @@ function openLine(name: string | RegExp) {
   return details;
 }
 
-describe("insert bend at corner is offered by the engine's own rule", () => {
-  it("offers it at a corner of two pipes, and not at a run's end or on a straight run", () => {
+describe("Bend at this corner: offered on what a person can see, refused only by the engine", () => {
+  it("is offered on a node that joins exactly two pipes, and nowhere else", () => {
     const model = inventedModel();
-    expect(bendAtCornerOffer(model, "node:C")).toEqual({ offered: true, refusal: null });
-    expect(bendAtCornerOffer(model, "node:A")).toEqual({ offered: false });
-    expect(bendAtCornerOffer(model, "node:M")).toEqual({ offered: false });
+    expect(offersBendAtCorner(model, "node:C")).toBe(true);
+    expect(offersBendAtCorner(model, "node:M")).toBe(true);
+    expect(offersBendAtCorner(model, "node:A")).toBe(false);
+    mount({ type: "node", id: "node:A" });
+    expect(screen.queryByText("Bend at this corner")).toBeNull();
   });
 
-  it("states the refusal no entry can avoid: something on the corner, or pipes that differ", () => {
-    const supported = inventedModel();
-    supported.supports.push({ id: "support:C", label: "Guide C", node: "node:C", restraints: ["UY"], provenance: "invented support" });
-    expect(bendAtCornerOffer(supported, "node:C")).toEqual({ offered: true, refusal: "Remove support:C from this corner first." });
-    const differing = inventedModel();
-    differing.pipe_segments[1].material = "material:Y";
-    expect(bendAtCornerOffer(differing, "node:C")).toEqual({ offered: true, refusal: "pipe:AC and pipe:CB differ in section or material." });
-  });
-
-  it("shows the bend as a closed line on a corner, holding the form, and not at all on a straight node", () => {
+  it("shows the form closed, and an untouched form shows no error when it is opened", () => {
     mount({ type: "node", id: "node:C" });
     const form = screen.getByTestId("insert-bend-at-corner-form");
     expect(form).not.toBeVisible();
     openLine("Bend at this corner");
     expect(form).toBeVisible();
     expect(within(form).getByRole("group", { name: "Bend radius R" })).toBeVisible();
-    cleanup();
-    mount({ type: "node", id: "node:M" });
-    expect(screen.queryByText("Bend at this corner")).toBeNull();
-    expect(screen.queryByTestId("insert-bend-at-corner-form")).toBeNull();
+    expect(within(line("Bend at this corner")).queryByRole("alert")).toBeNull();
+    expect(screen.queryByTestId("insert-bend-at-corner-engine-diagnostics")).toBeNull();
+  });
+
+  /** Opens the corner's line, enters a complete bend and presses Queue. */
+  function queueBend(model: PreviewModel) {
+    const { queue } = mount({ type: "node", id: "node:C" }, {}, model);
+    const details = openLine("Bend at this corner");
+    const field = (label: string, value: string) => {
+      const input = within(details).getByLabelText(label);
+      expect(input).toBeVisible();
+      fireEvent.change(input, { target: { value } });
+    };
+    field("Bend radius R value", "0.5");
+    field("Corner bend flexibility factor k", "1.5");
+    field("Corner bend source of k", "invented k source");
+    if (within(details).queryByLabelText("Bend component ID")) field("Geometry source reference", "invented geometry source");
+    field("Corner bend provenance", "invented provenance");
+    fireEvent.click(within(details).getByRole("button", { name: "Queue insert bend at corner" }));
+    return { queue, details };
+  }
+  const refusedBy = async (details: HTMLElement, code: string) =>
+    expect(await within(details).findByTestId(`insert-bend-at-corner-engine-diagnostic-${code}`, {}, { timeout: 20_000 })).toBeVisible();
+
+  it("accepts two pipes whose equal sections are written in different member order", async () => {
+    const model = inventedModel();
+    const pipe = model.pipe_segments[1];
+    pipe.section = { wall_thickness: { unit: "m", value: 0.007 }, outside_diameter: { unit: "m", value: 0.168 } } as typeof pipe.section;
+    const { queue } = queueBend(model);
+    await waitFor(() => expect(queue).toHaveBeenCalledTimes(1), { timeout: 20_000 });
+    expect(queue.mock.calls[0][0].change.change_kind).toBe("insert_bend_at_corner");
+  });
+
+  it("queues nothing the engine refuses, and shows its code: a primitive load on the corner", async () => {
+    const model = inventedModel();
+    model.load_cases = [{ id: "load:L", label: "Invented case", kind: "primitive_user_load", status: "preview_only", provenance: "invented case",
+      primitive_loads: [{ id: "load:L-C", category: "occasional", target: { type: "node", node: "node:C" }, direction: "global_y", magnitude: { value: 10, unit: "N" }, dimension: "force", provenance: "invented load" }] }] as unknown as PreviewModel["load_cases"];
+    const { queue, details } = queueBend(model);
+    await refusedBy(details, "OP-BEND-CORNER-ATTACHMENT-UNSUPPORTED");
+    expect(queue).not.toHaveBeenCalled();
+  });
+
+  it("refuses a reference to either straight", async () => {
+    const model = inventedModel();
+    model.load_cases = [{ id: "load:L", label: "Invented case", kind: "primitive_user_load", status: "preview_only", provenance: "invented case",
+      primitive_loads: [{ id: "load:L-P", category: "weight", target: { type: "element", pipe: "pipe:AC" }, direction: "global_z", magnitude: { value: -10, unit: "N/m" }, dimension: "force_per_length", provenance: "invented load" }] }] as unknown as PreviewModel["load_cases"];
+    const { queue, details } = queueBend(model);
+    await refusedBy(details, "OP-BEND-CORNER-ATTACHMENT-UNSUPPORTED");
+    expect(queue).not.toHaveBeenCalled();
+  });
+
+  it("refuses a marker whose angle disagrees with the corner", async () => {
+    const model = inventedModel();
+    model.components = [{ id: "component:K", label: "Invented marker", kind: "bend", node: "node:C", provenance: "invented marker",
+      geometry: { bend_angle: { value: 1.0, unit: "rad" } }, mechanics_interface: { solver_consumption: "mechanics_geometry_only" } }] as unknown as PreviewModel["components"];
+    const { queue, details } = queueBend(model);
+    await refusedBy(details, "OP-BEND-CORNER-ANGLE-CONFLICT");
+    expect(queue).not.toHaveBeenCalled();
   });
 });
 
@@ -155,17 +202,6 @@ describe("settings are not properties", () => {
     expect(units).not.toHaveAttribute("open");
     expect(units.querySelector("summary")).toHaveTextContent("m, N");
     expect(screen.getByTestId("inspector-overview")).not.toHaveTextContent("Schema");
-  });
-});
-
-describe("a refused bend says why, in place of its form", () => {
-  it("shows the corner's line with the reason and no form when a support sits on the corner", () => {
-    const model = inventedModel();
-    model.supports.push({ id: "support:C", label: "Guide C", node: "node:C", restraints: ["UY"], provenance: "invented support" });
-    mount({ type: "node", id: "node:C" }, {}, model);
-    const details = openLine(/^Bend at this corner/);
-    expect(within(details).getByTestId("insert-bend-at-corner-refusal")).toHaveTextContent("Remove support:C from this corner first.");
-    expect(screen.queryByTestId("insert-bend-at-corner-form")).toBeNull();
   });
 });
 

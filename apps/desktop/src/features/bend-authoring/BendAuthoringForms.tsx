@@ -1,7 +1,10 @@
 import { useEffect, useState } from "react";
-import { QueueFeedback, QuantityField, requireText, TextField, useRichQueue, type DraftRecord, type RichFormProps } from "../rich-authoring/formSupport";
+import { makeRichIntent, QueueFeedback, QuantityField, requireText, TextField, useRichQueue, type DraftRecord, type RichFormProps } from "../rich-authoring/formSupport";
 import { isPressureV3 } from "../pressure-authoring/pressureContract";
-import type { PreviewComponent, PreviewModel } from "../../types";
+import { EngineFeedback, isBlocking } from "../condition-sets/engineCheckedQueue";
+import { canonicalJsonString, computeModelHash } from "../../services/hashService";
+import { validateModelOperation } from "../../services/operationService";
+import type { EditorOperationIntent, OperationOutcomeDiagnostic, PreviewComponent, PreviewModel } from "../../types";
 
 /** T4-U2 (T4-I11 D-A, D-G): bend authoring for 3.0.0/exact_pressure_v3. A
  * realized bend carries the user's flexibility factor k; k is never suggested
@@ -113,7 +116,10 @@ export function InsertBendAtCornerForm(props: RichFormProps & { node: string }) 
   const [convert, setConvert] = useState(Boolean(marker));
   const update = (key: string, value: unknown) => setDraft(current => ({ ...current, [key]: value }));
   const state = useRichQueue(props);
-  async function submit() { try {
+  // The operation engine's findings on the last Queue: a check the engine makes is made by the engine,
+  // before queueing, and shown by its own code; nothing it refuses is queued.
+  const [findings, setFindings] = useState<OperationOutcomeDiagnostic[]>([]);
+  async function submit() { setFindings([]); try {
     if (context.pipes.length !== 2) throw new Error("A corner joins exactly two pipes.");
     const radius = draft.radius as DraftRecord;
     const value = Number(radius.value);
@@ -130,7 +136,11 @@ export function InsertBendAtCornerForm(props: RichFormProps & { node: string }) 
         ? { convert: marker.id, ...(typeof draft.geometrySource === "string" && draft.geometrySource.trim() ? { geometry_source_reference: draft.geometrySource } : {}) }
         : { ...record(draft.component, "Bend"), geometry_source_reference: requireText(draft.geometrySource, "Geometry source reference") },
     };
-    await state.queue({ object_type: "Node", ref: node }, "insert_bend_at_corner", "bend_at_corner", context, after, "Insert bend at corner");
+    const target: EditorOperationIntent["target"] = { object_type: "Node", ref: node };
+    const outcome = await validateModelOperation(model, makeRichIntent(target, "insert_bend_at_corner", "bend_at_corner", await canonicalJsonString(context), after, "Insert bend at corner"), await computeModelHash(model));
+    setFindings(outcome.diagnostics);
+    if (outcome.diagnostics.some(isBlocking)) throw new Error("Insert bend at corner was refused by the operation engine; nothing was queued.");
+    await state.queue(target, "insert_bend_at_corner", "bend_at_corner", context, after, "Insert bend at corner");
   } catch (e) { state.setError(e instanceof Error ? e.message : String(e)); } }
   return <section aria-label="Insert bend at corner" data-testid="insert-bend-at-corner-form">
     <fieldset disabled={state.busy}>
@@ -148,7 +158,7 @@ export function InsertBendAtCornerForm(props: RichFormProps & { node: string }) 
       <TextField label="Corner bend provenance" value={draft.provenance} onChange={v => update("provenance", v)} />
       <p>Both pipes shorten to the tangent points and the arc, carrying your k, joins them; nothing is repartitioned. Remove supports, loads and regions on the corner or either pipe first.</p>
       <button type="button" onClick={() => void submit()}>Queue insert bend at corner</button>
-    </fieldset><QueueFeedback {...state} />
+    </fieldset><QueueFeedback {...state} /><EngineFeedback error="" notice="" diagnostics={findings} testId="insert-bend-at-corner-engine" />
   </section>;
 }
 
