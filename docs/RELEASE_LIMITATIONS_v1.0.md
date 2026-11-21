@@ -613,8 +613,8 @@ Entries are added in the same PR that makes the refusal standing. A previously u
   - Frequencies are not among v1.0's published results, and a snubber has no use in v1.0 (LIM-036).
 - **Why:** Agent 0 decided on 2026-11-20, under the grant in `AGENTS.md` and the owner's instruction "Static seismic is enough for v1.0 but response spectrum will follow later so keep what's there.", that static seismic is v1.0's seismic analysis and that modal and response-spectrum analysis follow after it. The work already done on them is kept in the repository.
 - **What the user does instead:** the static seismic cases and their combinations (DEL-05-01, DEL-05-02). A dynamic analysis, where the user's engineer needs one, is made in other software.
-- **Basis:** [release target](RELEASE_TARGET_v1.0.md), Direction, "Seismic"; DEL-04-09 [scope](../execution/PKG-04/DEL-04-09/ScopeOfWork.md) and DEL-04-10 [scope](../execution/PKG-04/DEL-04-10/ScopeOfWork.md); PRD §12.9 as amended on 2026-11-20. LIM-020 and LIM-022 to LIM-025 describe limits of the kept work and apply when it is taken up. This entry is added by PR #PR_NUM.
-- **Status:** declared acceptable by Agent 0 (PR #PR_NUM).
+- **Basis:** [release target](RELEASE_TARGET_v1.0.md), Direction, "Seismic"; DEL-04-09 [scope](../execution/PKG-04/DEL-04-09/ScopeOfWork.md) and DEL-04-10 [scope](../execution/PKG-04/DEL-04-10/ScopeOfWork.md); PRD §12.9 as amended on 2026-11-20. LIM-020 and LIM-022 to LIM-025 describe limits of the kept work and apply when it is taken up. This entry is added by PR #475.
+- **Status:** declared acceptable by Agent 0 (PR #475).
 
 ### LIM-036 — A model with a snubber is refused on every static solve
 
@@ -626,8 +626,8 @@ Entries are added in the same PR that makes the refusal standing. A previously u
 - **What it means in practice for a user:** a model with a snubber gives no static result until the snubber record is removed. Under REQ-005 a static solve ignores a snubber, so the model without the record is the static model REQ-005 defines; the result then carries no snubber disclosure.
 - **Why:** the static leave-out with its disclosure and the modal inclusion are planned as one landing (issue #418), which is not built. With dynamic analysis after v1.0, Agent 0 decided on 2026-11-20 that it follows after v1.0 too.
 - **What the user does instead:** leave snubbers out of a model for static analysis.
-- **Basis:** DEL-04-10 [scope](../execution/PKG-04/DEL-04-10/ScopeOfWork.md), REQ-005 and AC-003; DEL-04-09 [scope](../execution/PKG-04/DEL-04-09/ScopeOfWork.md), REQ-006; issue #418. The refusal was standing before this entry; this entry is added by PR #PR_NUM.
-- **Status:** declared acceptable by Agent 0 (PR #PR_NUM).
+- **Basis:** DEL-04-10 [scope](../execution/PKG-04/DEL-04-10/ScopeOfWork.md), REQ-005 and AC-003; DEL-04-09 [scope](../execution/PKG-04/DEL-04-09/ScopeOfWork.md), REQ-006; issue #418. The refusal was standing before this entry; this entry is added by PR #475.
+- **Status:** declared acceptable by Agent 0 (PR #475).
 
 ### LIM-037 — The state of a sliding friction support on a derived normal is not established on verified evidence
 
@@ -640,8 +640,8 @@ Entries are added in the same PR that makes the refusal standing. A previously u
 - **What it means in practice for a user:** such a support solves as any friction support does, and its converged state is a statement about the discrete model that is not confirmed on verified evidence. A "checks passed" or "established" token for it on development main is the observation LIM-026 describes, not evidence. Where the normal comes from a one-way support, LIM-019's separate non-convergence refusal may apply; this entry concerns only the confirmation of a converged state.
 - **Why:** confirmation on a derived normal depends on the verified inverse-norm bound and the evidence carrier's finalization boundary, neither of which is on main, and Agent 0 decided on 2026-11-20 that the verified bound follows after v1.0.
 - **What the user does instead:** treat the support's state as an inspection result, and have the user's engineer judge whether it is admissible.
-- **Basis:** issue #453; DEL-04-01 [scope](../execution/PKG-04/DEL-04-01/ScopeOfWork.md), REQ-016; DEL-04-03 [scope](../execution/PKG-04/DEL-04-03/ScopeOfWork.md); [release target](RELEASE_TARGET_v1.0.md), exit criterion 18; LIM-019 and LIM-026. This entry is added by PR #PR_NUM.
-- **Status:** declared acceptable by Agent 0 (PR #PR_NUM).
+- **Basis:** issue #453; DEL-04-01 [scope](../execution/PKG-04/DEL-04-01/ScopeOfWork.md), REQ-016; DEL-04-03 [scope](../execution/PKG-04/DEL-04-03/ScopeOfWork.md); [release target](RELEASE_TARGET_v1.0.md), exit criterion 18; LIM-019 and LIM-026. This entry is added by PR #475.
+- **Status:** declared acceptable by Agent 0 (PR #475).
 
 ### LIM-038 — A declared difference basis is refused on the exact route
 
@@ -653,5 +653,5 @@ Entries are added in the same PR that makes the refusal standing. A previously u
 - **What it means in practice for a user:** the user gets the expansion difference, operating minus sustained, as a plain result-state subtraction with no declared basis, as the reference system's RS-EXP is solved today (`fixtures/reference_system/SPECIFICATION.md`, "solved as a subtraction, with no `difference_basis`"). The product does not check, for that subtraction, that the sustained case's loads are contained in the operating case's or that the two cases share a modulus basis; the user's engineer checks that the two cases form the intended expansion pair. The pressure-free route admits the declared basis. LIM-004's held-status subtrahend is refused with it.
 - **Why:** the declared-difference gate on the exact route (issue #451) is not built and its design is not final. Agent 0 decided on 2026-11-20 that it follows after v1.0.
 - **What the user does instead:** a plain subtraction, with neither `difference_basis` nor `subtrahend_support_state`, of two cases the user's engineer has checked.
-- **Basis:** DEL-05-02 [scope](../execution/PKG-05/DEL-05-02/ScopeOfWork.md), REQ-012, AC-003, AC-012 and "Withheld in v1.0"; issue #451, with its draft observer #444; LIM-004. The refusal was standing before this entry; this entry is added by PR #PR_NUM.
-- **Status:** declared acceptable by Agent 0 (PR #PR_NUM). The declaration is a limitation decision: exit criterion 1's expansion with its basis stays unmet on the exact route, and DEL-05-02 AC-012 stays unmet.
+- **Basis:** DEL-05-02 [scope](../execution/PKG-05/DEL-05-02/ScopeOfWork.md), REQ-012, AC-003, AC-012 and "Withheld in v1.0"; issue #451, with its draft observer #444; LIM-004. The refusal was standing before this entry; this entry is added by PR #475.
+- **Status:** declared acceptable by Agent 0 (PR #475). The declaration is a limitation decision: exit criterion 1's expansion with its basis stays unmet on the exact route, and DEL-05-02 AC-012 stays unmet.
