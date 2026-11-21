@@ -174,6 +174,7 @@ checks:
 - apps/desktop/src/features/model-tree/PropertyInspector.supportFamily.test.tsx
 - apps/desktop/src/features/support-configuration/supportDirection.test.tsx
 - apps/desktop/src/features/support-configuration/supportDirectionEngine.test.tsx
+- apps/desktop/src/features/support-configuration/supportHangerDirection.engine.test.tsx
 - apps/desktop/src/features/model-tree/PropertyInspector.supportFamilyEngine.test.tsx
 - apps/desktop/src/features/boundary-authoring/BoundaryAuthoringPanel.test.tsx
 - apps/desktop/src/App.splitAndSlope.test.tsx
