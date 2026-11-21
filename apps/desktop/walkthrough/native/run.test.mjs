@@ -953,3 +953,22 @@ test("the launch's stops reach both indexes under the attended launch", (t) => {
   assert.deepEqual(index.journeys[0].stopped_by_launch, [{ at: "2026-01-01T00:00:00.000Z", control: "Import hanger library", what: "The launch stopped this control from opening the system's file panel." }]);
   assert.match(readFileSync(path.join(out, "index.html"), "utf8"), /Import hanger library: The launch stopped this control from opening the system&#39;s file panel\.|Import hanger library: The launch stopped this control from opening the system's file panel\./);
 });
+
+test("an attended launch stops the embedded agent's Start agent, whatever provider is chosen, and records it", async () => {
+  const run = await runAttendedDriver({ attended: true, show_window: false, start: null });
+  assert.deepEqual(run.checkpoints().find((item) => item.name === "start").report.guards, ["file panels", "agent start"]);
+  const [click] = run.listeners.document.filter((item) => item.type === "click");
+  const startButton = { textContent: " Start agent ", closest: () => null, matches: () => false };
+  const inPane = { matches: () => false, closest: (selector) => (selector === 'section[aria-label="Embedded agent"] button' ? startButton : null) };
+  const save = { matches: () => false, closest: (selector) => (selector === 'section[aria-label="Embedded agent"] button' ? { textContent: "Save provider" } : null) };
+  const event = clickOn(inPane);
+  click.listener(event);
+  assert.deepEqual([event.defaultPrevented, event.stopped], [true, true]);
+  const other = clickOn(save);
+  click.listener(other);
+  assert.deepEqual([other.defaultPrevented, other.stopped], [false, false]);
+  await new Promise((resolve) => setTimeout(resolve, 50));
+  const [stop] = run.checkpoints().filter((item) => item.name === "substitutions").at(-1).report.substitutions;
+  assert.deepEqual([stop.kind, stop.control], ["agent start stopped by the launch", "Embedded agent: Start agent"]);
+  assert.match(stop.what, /no other provider is used/);
+});

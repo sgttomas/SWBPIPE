@@ -221,6 +221,7 @@
   // on each, at most ATTENDED_LIMITS.substitutions of them); the runner marks each on the capture that follows it.
   const ATTENDED_LIMITS = { substitutions: 2000 };
   const STOPPED_FILE_PANEL = "The launch stopped this control from opening the system's file panel.";
+  const STOPPED_AGENT_START = "The launch stopped this control from starting the embedded agent: an attended launch has no scripted provider, and no other provider is used.";
   const attendedSubstitutions = [];
   const substituted = (item) => {
     if (attendedSubstitutions.length >= ATTENDED_LIMITS.substitutions) return;
@@ -237,14 +238,24 @@
   // A page file field (Import hanger library, Proposal file) would open the system's file panel, which the strict
   // chooser does not govern: every activation of one is stopped. A click on the field or on its label (which is how
   // a keyboard press reaches it too) has its default prevented in the capture phase, before anything else sees it,
-  // and showPicker on a file field does nothing. Nothing else on the page is changed.
+  // and showPicker on a file field does nothing. The embedded agent's Start agent is stopped the same way: only the
+  // agent journeys' scripted provider (a loopback stand-in their own runner starts) may be used, and an attended launch
+  // has none, so no provider, model, key, network or sign-in is reached from its pane. Nothing else on the page is
+  // changed.
+  const agentStartOf = (target) => {
+    if (typeof target?.closest !== "function") return null;
+    const button = target.closest('section[aria-label="Embedded agent"] button');
+    return button && String(button.textContent ?? "").trim() === "Start agent" ? button : null;
+  };
   function installAttendedGuards() {
     document.addEventListener("click", (event) => {
       const input = fileInputOf(event.target);
-      if (!input) return;
+      const start = input ? null : agentStartOf(event.target);
+      if (!input && !start) return;
       event.preventDefault();
       event.stopImmediatePropagation();
-      substituted({ kind: "file panel stopped by the launch", control: accessibleName(input), what: STOPPED_FILE_PANEL });
+      if (input) substituted({ kind: "file panel stopped by the launch", control: accessibleName(input), what: STOPPED_FILE_PANEL });
+      else substituted({ kind: "agent start stopped by the launch", control: "Embedded agent: Start agent", what: STOPPED_AGENT_START });
     }, true);
     const Input = typeof HTMLInputElement === "function" ? HTMLInputElement : null;
     const showPicker = Input?.prototype?.showPicker;
@@ -283,7 +294,7 @@
       record.error = String(error?.message ?? error).split("\n")[0].slice(0, 400);
     }
     if (record.ok) {
-      try { installAttendedGuards(); record.guards = ["file panels"]; } catch (error) { record.ok = false; record.error = `the launch's guards could not be installed: ${String(error?.message ?? error).slice(0, 300)}`; }
+      try { installAttendedGuards(); record.guards = ["file panels", "agent start"]; } catch (error) { record.ok = false; record.error = `the launch's guards could not be installed: ${String(error?.message ?? error).slice(0, 300)}`; }
     }
     record.ready_at = Date.now();
     await call("native_smoke_checkpoint", { name: "start", report: record, storeSnapshot: false });
