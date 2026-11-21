@@ -362,7 +362,7 @@ fn reader_control_for(mode: PreviewSolverMode, anchored: bool) -> Value {
         &mut SourceRecoveryBudget::default(),
         None,
         Some(case.exact),
-        &mut diagnostics,
+        &mut diagnostics, &mut crate::integrity::InverseNormSink::default(),
         None,
         crate::held_status::CaseRole::Own(None),
     )
@@ -408,7 +408,7 @@ fn reader_control_for(mode: PreviewSolverMode, anchored: bool) -> Value {
         results: solve.results,
         diagnostics,
         professional_boundary: professional_boundary(),
-        accepted_model_state_mutated: false,
+        accepted_model_state_mutated: false, inverse_norm: Default::default(),
     };
     serde_json::to_value(envelope).unwrap()
 }

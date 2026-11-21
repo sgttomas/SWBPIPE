@@ -253,7 +253,7 @@ fn confirm(input: &NonlinearFrameSolveInput, force: &AssembledForce, mode: Linea
 
 fn reason(c: Confirmation) -> String {
     match c {
-        Confirmation::NotEstablished { reason } => reason,
+        Confirmation::NotEstablished { reason, .. } => reason,
         Confirmation::Established(_) => panic!("expected a named reason"),
     }
 }
@@ -389,9 +389,9 @@ fn evaluations_take_the_loops_displacement_and_only_the_influence_is_unjudged() 
     let code = include_str!("confirmation.rs");
     let code = &code[..code.find("#[cfg(test)]").unwrap()];
     assert_eq!(code.matches("let u = &solve.displacements;").count(), 1);
-    assert_eq!(code.matches("context.evaluate_at(&stage_b, u, true)").count(), 1);
-    assert_eq!(code.matches("context.evaluate_at(stage_a_force, u, true)").count(), 1);
-    assert_eq!(code.matches("context.evaluate_at(&unit, &zero, false)").count(), 1);
+    assert_eq!(code.matches("context.evaluate_at(&stage_b, u, true, binding)").count(), 1);
+    assert_eq!(code.matches("context.evaluate_at(stage_a_force, u, true, binding)").count(), 1);
+    assert_eq!(code.matches("context.evaluate_at(&unit, &zero, false, binding)").count(), 1);
     assert_eq!(code.matches("evaluate_at(").count(), 3);
     assert!(!code.contains("gate.displacements"));
 }

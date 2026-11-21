@@ -1,7 +1,7 @@
 //! M03-INTEGRITY-v1: operational checks of represented passive equations.
 //! No formal inertia certificate or guaranteed forward accuracy is claimed.
 pub mod exact_boundary;
-mod formation_check;
+mod formation_check; mod inverse_bound; pub use inverse_bound::{inputs_digest, BoundMethod, BoundStage, EvaluationBinding, FormationEvaluation, FormationParts, InverseNormOutcome, InverseNormRecord, MethodAttempt, NotVerifiedReason, NotVerifiedSummary, ShiftStep, StageKey, VerificationProgress, VerifiedSummary}; #[cfg(feature = "test-synthetic-records")] pub use inverse_bound::synthetic; // The inverse-norm evidence carrier (DEL-04-01; carrier revision 4 §1), on this line so that no line moves.
 /// DEL-04-09 seam (i): K-D5's p128 element formation from supplied operands.
 pub mod element_reformation;
 mod arc_certificate;
@@ -443,7 +443,7 @@ pub struct StructuralSolution {
     pub formation_check: Option<FormationCheck>,
     /// Recovery inputs from the closed intended system, present only after K-D5 passes.
     /// Attempt exponents and LambdaSigma keep their basis through W2 publication.
-    pub member_bound: Option<MemberBoundInputs>,
+    pub member_bound: Option<MemberBoundInputs>, inverse_norm: Option<InverseNormRecord>, // private: carrier revision 4 §1.4
 }
 #[derive(Debug)]
 pub struct PreparedSystem<'s> {
@@ -1983,7 +1983,7 @@ where
                 displacements: u,
                 load_fidelity: load_fidelity.clone(),
                 formation_check: formation_check.clone(),
-                member_bound,
+                member_bound, inverse_norm: None,
                 report: StructuralReport {
                     policy: POLICY,
                     quality: if ordinary_sensitive || formation_check.is_some() {
@@ -2201,8 +2201,8 @@ impl ConfirmationAttempt<'_, '_, '_> {
         &self,
         system: &FormationCheckedSystem<'_>,
         u: &[f64],
-        judged: bool,
-    ) -> Result<(Option<FormationCheck>, Option<MemberBoundInputs>), StructuralError> {
+        judged: bool, binding: &EvaluationBinding,
+    ) -> Result<FormationEvaluation, StructuralError> { // carrier revision 4 §1.3: every return carries `binding`
         let gate = self.factor.prepared.source;
         let s = &system.system;
         let same_contributions = match (s.contributions, gate.contributions) {
@@ -2218,7 +2218,7 @@ impl ConfirmationAttempt<'_, '_, '_> {
             return Err(StructuralError::InvalidInput("confirmation system"));
         }
         let prepared = self.factor.prepared;
-        Ok(formation_check::check_at(
+        Ok(FormationEvaluation::from_check(Some(binding.clone()), formation_check::check_at(
             s,
             system.source,
             system.force,
@@ -2230,7 +2230,7 @@ impl ConfirmationAttempt<'_, '_, '_> {
             &|rhs: &[f64]| self.factor.solve(rhs),
             judged,
             Some(&self.epsilon),
-        ))
+        )))
     }
 }
 pub fn solve_structural_dense(
@@ -3356,5 +3356,32 @@ mod tests {
         assert!((result.displacements[1] - 1.0 / 3.0).abs() < 1e-15);
         assert!(factor_structural_profile(&prepared, &[0, 0], &[0, 0]).is_err());
         assert!(factor_structural_profile(&prepared, &[0, 1], &[0, 1]).is_err());
+    }
+}
+
+/// The ordinary formation check's inverse-norm record (carrier revision 4 §1.4):
+/// private on `StructuralSolution`, never part of `StructuralReport`. `None` in
+/// this build, which has no verifier. Appended here so that no line moves.
+impl StructuralSolution {
+    /// The record, when one was minted.
+    pub fn inverse_norm_record(&self) -> Option<&InverseNormRecord> {
+        self.inverse_norm.as_ref()
+    }
+    /// Moves the record out, leaving `None`.
+    pub fn take_inverse_norm_record(&mut self) -> Option<InverseNormRecord> {
+        self.inverse_norm.take()
+    }
+}
+
+impl ConfirmationAttempt<'_, '_, '_> {
+    /// The attempt's matrix fingerprint (carrier revision 4 §1.5, diagnostic):
+    /// the prepared matrix's logical lower triangle and scale exponents.
+    pub fn matrix_digest(&self) -> u64 {
+        let prepared = self.factor.prepared;
+        inverse_bound::matrix_digest_rows(&prepared.scale_exponents, |r, emit| {
+            for c in 0..=r {
+                emit(c, prepared.matrix[r][c]);
+            }
+        })
     }
 }

@@ -373,7 +373,7 @@ pub(crate) fn solve_modal_state_case(prepared: &Prepared, mode: PreviewSolverMod
         None,
         &mut scratch_budget,
         prepared.state_resolution.as_ref(),
-        &mut diagnostics,
+        &mut diagnostics, &mut crate::integrity::InverseNormSink::default(),
         None,
         crate::held_status::CaseRole::Own(None),
     );

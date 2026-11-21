@@ -241,7 +241,7 @@ pub(crate) fn solve(
         structural_report: checked.report,
         load_fidelity: checked.load_fidelity,
         formation_check: checked.formation_check,
-        member_bound,
+        member_bound, inverse_norm: None, // carrier revision 5 §11: the skew route is unbound, and its recorded lift arrives with milestone 2
         solution_basis: match solver_mode {
             PreviewSolverMode::DenseScrutiny => "dense_structural_integrity_primary",
             PreviewSolverMode::SparseInteractive => "sparse_structural_integrity_primary",

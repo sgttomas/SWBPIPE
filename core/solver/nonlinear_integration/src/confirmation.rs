@@ -18,6 +18,12 @@ use open_pipe_stress_frame_kernel::structural::{
     StructuralSolution,
 };
 use open_pipe_stress_frame_kernel::{node_dof_index, FrameDof};
+pub use crate::stage_evidence::{
+    AssociationFailure, AssociationKind, ConfirmationRun, DiscardReason, PlannedStage, PublicationUse, RequiredPlan, StageEvidence,
+    StageProgress,
+};
+use crate::stage_evidence::CollectRefusal;
+use open_pipe_stress_frame_kernel::structural::{BoundStage, StageKey};
 use open_pipe_stress_nonlinear_supports::{
     ActivationSense, ActiveSetState, NonlinearSupport, NonlinearSupportBehavior,
 };
@@ -48,13 +54,58 @@ pub struct ConfirmedState {
     /// Each derived-normal friction support's source reaction (Stage B), by
     /// the friction support's id.
     pub derived_normals: HashMap<String, ConfirmedRow>,
+    /// The confirmation's inverse-norm evidence (carrier revision 4 §2).
+    /// Private: read through `evidence`.
+    evidence: StageEvidence,
+}
+
+impl ConfirmedState {
+    pub fn evidence(&self) -> &StageEvidence {
+        &self.evidence
+    }
+    pub fn evidence_mut(&mut self) -> &mut StageEvidence {
+        &mut self.evidence
+    }
 }
 
 #[derive(Debug)]
 pub enum Confirmation {
     Established(Box<ConfirmedState>),
-    /// The case fails closed with this named reason (§2.4).
-    NotEstablished { reason: String },
+    /// The case fails closed with this named reason (§2.4), keeping the
+    /// evidence of whatever ran (carrier revision 4 §2).
+    NotEstablished { reason: String, evidence: StageEvidence },
+}
+
+impl Confirmation {
+    /// A refusal with no plan: every exit before a required plan is formed.
+    pub fn not_determined(reason: impl Into<String>) -> Self {
+        Self::NotEstablished { reason: reason.into(), evidence: StageEvidence::not_determined() }
+    }
+    /// The explicit not-run branch: no confirmation was attempted.
+    pub fn not_run(reason: impl Into<String>) -> Self {
+        Self::NotEstablished { reason: reason.into(), evidence: StageEvidence::not_run() }
+    }
+    pub fn evidence(&self) -> &StageEvidence {
+        match self {
+            Self::Established(state) => &state.evidence,
+            Self::NotEstablished { evidence, .. } => evidence,
+        }
+    }
+    pub fn into_evidence(self) -> StageEvidence {
+        match self {
+            Self::Established(state) => state.evidence,
+            Self::NotEstablished { evidence, .. } => evidence,
+        }
+    }
+    /// The attempt's evidence replaces the placeholder the attempt's own
+    /// exits carry; used once, where the attempt returns.
+    fn with_evidence(mut self, attempt: StageEvidence) -> Self {
+        match &mut self {
+            Self::Established(state) => state.evidence = attempt,
+            Self::NotEstablished { evidence, .. } => *evidence = attempt,
+        }
+        self
+    }
 }
 
 #[derive(Debug, Clone, Copy, PartialEq)]
@@ -96,9 +147,22 @@ pub fn confirm_converged_state(
 }
 
 fn not_established(reason: impl Into<String>) -> Result<Confirmation, NonlinearIntegrationError> {
-    Ok(Confirmation::NotEstablished {
-        reason: reason.into(),
-    })
+    Ok(Confirmation::not_determined(reason))
+}
+
+/// A refusal inside the attempt; its evidence is attached where the attempt returns.
+fn refused(reason: impl Into<String>) -> Confirmation {
+    Confirmation::not_determined(reason)
+}
+
+/// The refusal reason of a planned stage whose collection was refused.
+fn collect_refusal(stage: &str, refusal: CollectRefusal) -> String {
+    match refusal {
+        CollectRefusal::CallError(error) => format!("formation check: {stage}: {error}"),
+        CollectRefusal::Foreign | CollectRefusal::Duplicate | CollectRefusal::UnknownSlot => {
+            format!("formation check: {stage}: evaluation association failed")
+        }
+    }
 }
 
 fn is_translational(dof: FrameDof) -> bool {
@@ -288,20 +352,30 @@ pub(crate) fn confirm_with_applied(
         detail: format!("confirmation force: {error}"),
     })?;
 
+    // Carrier revision 4 §2: the required plan, formed before any evaluation:
+    // [A, influence(id), B] with coupled friction, otherwise [B]. Every exit
+    // after this point carries it.
+    let mut evidence = StageEvidence::planned(match (&coupled, phi0) {
+        (Some(term), Some(Some(_))) => vec![
+            StageKey::new(BoundStage::ConfirmationStageA, None),
+            StageKey::new(BoundStage::ConfirmationInfluence, Some(term.support_id.clone())),
+            StageKey::new(BoundStage::ConfirmationStageB, None),
+        ],
+        _ => vec![StageKey::new(BoundStage::ConfirmationStageB, None)],
+    });
     let evaluate = |gate: &StructuralSolution, context: &ConfirmationContext<'_>| {
+        evidence.set_matrix_digest(context.matrix_digest());
         if gate.report.quality != SolveQuality::Passed || gate.load_fidelity.is_some() {
-            return Confirmation::NotEstablished {
-                reason: format!(
-                    "confirmation attempt: gate Sensitive (reciprocal condition estimate {:?})",
-                    gate.report.reciprocal_condition_estimate
-                ),
-            };
+            return refused(format!(
+                "confirmation attempt: gate Sensitive (reciprocal condition estimate {:?})",
+                gate.report.reciprocal_condition_estimate
+            ));
         }
         let (coupled_ball, stage_b) = match (&coupled, phi0) {
             (Some(term), Some(Some(phi0))) => {
-                let ball = match stage_a(context, &gate_force, term, phi0, u, n) {
+                let ball = match stage_a(context, &mut evidence, &gate_force, term, phi0, u, n) {
                     Ok(ball) => ball,
-                    Err(reason) => return Confirmation::NotEstablished { reason },
+                    Err(reason) => return refused(reason),
                 };
                 (
                     Some(ball),
@@ -311,22 +385,17 @@ pub(crate) fn confirm_with_applied(
             _ => (None, force.with_appended(appended_ledger(&sliding, applied, None, None))),
         };
         let Ok(stage_b) = stage_b else {
-            return Confirmation::NotEstablished {
-                reason: "friction coupling not established".into(),
-            };
+            return refused("friction coupling not established");
         };
-        let bound = match context.evaluate_at(&stage_b, u, true) {
-            Ok((None, Some(bound))) => bound,
-            Ok((check, _)) => {
-                return Confirmation::NotEstablished {
-                    reason: format!("formation check: stage B: {}", render_check(check.as_ref())),
+        let slot_b = evidence.slot_of(BoundStage::ConfirmationStageB, None);
+        let bound = match evidence.evaluate_slot(slot_b, |binding| context.evaluate_at(&stage_b, u, true, binding)) {
+            Ok(parts) => match (parts.finding, parts.inputs) {
+                (None, Some(bound)) => bound,
+                (check, _) => {
+                    return refused(format!("formation check: stage B: {}", render_check(check.as_ref())))
                 }
-            }
-            Err(error) => {
-                return Confirmation::NotEstablished {
-                    reason: format!("formation check: stage B: {error}"),
-                }
-            }
+            },
+            Err(refusal) => return refused(collect_refusal("stage B", refusal)),
         };
         certify_state(
             input,
@@ -396,8 +465,8 @@ pub(crate) fn confirm_with_applied(
         }
     };
     match attempt {
-        Ok(confirmation) => Ok(confirmation),
-        Err(error) => not_established(format!("confirmation attempt: {error}")),
+        Ok(confirmation) => Ok(confirmation.with_evidence(evidence)),
+        Err(error) => Ok(refused(format!("confirmation attempt: {error}")).with_evidence(evidence)),
     }
 }
 
@@ -720,6 +789,7 @@ fn appended_ledger(
 /// φ⁰ + (c·N⁰ − φ⁰)/(1 − c·g), c = −dir·μ·β, published as (v, r').
 fn stage_a(
     context: &ConfirmationContext<'_>,
+    evidence: &mut StageEvidence,
     stage_a_force: &AssembledForce,
     term: &SlidingTerm,
     phi0: f64,
@@ -730,12 +800,15 @@ fn stage_a(
         return Err("friction coupling not established".into());
     };
     let id = &term.support_id;
-    let bound_a = match context.evaluate_at(stage_a_force, u, true) {
-        Ok((None, Some(bound))) => bound,
-        Ok((check, _)) => {
-            return Err(format!("formation check: stage A: {}", render_check(check.as_ref())))
-        }
-        Err(error) => return Err(format!("formation check: stage A: {error}")),
+    let slot_a = evidence.slot_of(BoundStage::ConfirmationStageA, None);
+    let bound_a = match evidence.evaluate_slot(slot_a, |binding| context.evaluate_at(stage_a_force, u, true, binding)) {
+        Ok(parts) => match (parts.finding, parts.inputs) {
+            (None, Some(bound)) => bound,
+            (check, _) => {
+                return Err(format!("formation check: stage A: {}", render_check(check.as_ref())))
+            }
+        },
+        Err(refusal) => return Err(collect_refusal("stage A", refusal)),
     };
     // The influence evaluation precedes A-3, so every formation-check failure
     // of Stage A's two evaluations is reported before β (§2.4 items 5 and 7).
@@ -745,12 +818,15 @@ fn stage_a(
         .finish(n)
         .map_err(|error| format!("formation check: influence: {error}"))?;
     let zero = vec![0.0; n];
-    let bound_u = match context.evaluate_at(&unit, &zero, false) {
-        Ok((None, Some(bound))) => bound,
-        Ok((check, _)) => {
-            return Err(format!("formation check: influence: {}", render_check(check.as_ref())))
-        }
-        Err(error) => return Err(format!("formation check: influence: {error}")),
+    let slot_u = evidence.slot_of(BoundStage::ConfirmationInfluence, Some(id.as_str()));
+    let bound_u = match evidence.evaluate_slot(slot_u, |binding| context.evaluate_at(&unit, &zero, false, binding)) {
+        Ok(parts) => match (parts.finding, parts.inputs) {
+            (None, Some(bound)) => bound,
+            (check, _) => {
+                return Err(format!("formation check: influence: {}", render_check(check.as_ref())))
+            }
+        },
+        Err(refusal) => return Err(collect_refusal("influence", refusal)),
     };
     let normal = context
         .reaction(stage_a_force, source_dof, u, &bound_a)
@@ -1105,12 +1181,14 @@ fn certify_state(
         );
     }
     match certificate_reason(&failures) {
-        Some(reason) => Confirmation::NotEstablished { reason },
+        Some(reason) => refused(reason),
+        // The attempt's evidence replaces this placeholder where the attempt returns.
         None => Confirmation::Established(Box::new(ConfirmedState {
             member_bound: bound,
             force,
             supports: rows,
             derived_normals: normals,
+            evidence: StageEvidence::not_determined(),
         })),
     }
 }

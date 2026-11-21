@@ -7,7 +7,7 @@
 //! private datasets, or professional acceptance are bundled by this crate.
 
 mod annulus_geometry;
-mod formation_guard; #[cfg(test)] mod residual_refusal_tests; // DEL-04-01 VER-007 at product level, on this line so that no line moves.
+mod formation_guard; #[cfg(test)] mod residual_refusal_tests; mod integrity; pub mod inverse_norm_evidence; // DEL-04-01 VER-007 at product level, and the inverse-norm evidence carrier (carrier revision 4 §3, §5), on this line so that no line moves.
 mod certified_loads;
 mod certified_publication;
 // Resolved load/reference-state case (model 0.4.0); one resolved case per load
@@ -1255,7 +1255,7 @@ pub struct MechanicsEnvelope {
     pub results: Vec<ResultItem>,
     pub diagnostics: Vec<Diagnostic>,
     pub professional_boundary: ProfessionalBoundary,
-    pub accepted_model_state_mutated: bool,
+    pub accepted_model_state_mutated: bool, #[serde(skip)] inverse_norm: integrity::InverseNormSink, // private: carrier revision 4 §4
 }
 
 /// Prospective source semantics; historical raw 0.1 carriers retain their identity.
@@ -1547,7 +1547,7 @@ fn inspection_only(diagnostic: &mut Diagnostic) {
 /// record is byte-identical to today's.
 #[allow(clippy::too_many_arguments)]
 fn append_integrity_report(
-    diagnostics: &mut Vec<Diagnostic>,
+    diagnostics: &mut Vec<Diagnostic>, sink: &mut integrity::InverseNormSink,
     case_id: &str,
     report: &StructuralReport,
     model: &PreviewModel,
@@ -1556,41 +1556,41 @@ fn append_integrity_report(
     >,
     formation: Option<&formation_guard::FormationFinding>,
     formation_check: Option<&FormationCheck>,
-    range_scaling: Option<&ForceScaledPublication>,
+    range_scaling: Option<&ForceScaledPublication>, update: integrity::EntryUpdate,
 ) {
     let code = if report.quality == SolveQuality::Sensitive {
         "NUMERICAL_INTEGRITY_SENSITIVE"
     } else {
         "NUMERICAL_INTEGRITY_CHECKS_PASSED"
     };
-    diagnostics.push(diag(&integrity_diagnostic_id(case_id), code, if report.quality == SolveQuality::Sensitive { "warning" } else { "info" },
+    let mut record = diag(&integrity_diagnostic_id(case_id), code, if report.quality == SolveQuality::Sensitive { "warning" } else { "info" },
         format!("{} represented original-equation structural evidence for load case {}: {:?}; global_dof_map={:?}. {} No certified inertia, guaranteed forward accuracy, or pressure/component/stress engineering qualification is claimed.", report.policy, case_id, report, integrity_dof_map(model),
             equilibrium.map(|e|format!("{} final same-state evaluated equilibrium and derived residual-work evidence: {:?}; residual units are N for global DOF%6<3 and N*m otherwise; work units N*m; observed maximum only, exact represented maximum not claimed; general-energy historical alias is residual work, not total energy balance; separate zero count/cap/contact/sliding checks passed",e.policy,e)).unwrap_or_else(||"The contribution audit distinguishes intended assembly from stored equations; physical formulation limitations remain applicable.".into())),
-        vec![case_id.to_string()]));
-    if let (Some(finding), Some(record)) = (formation, diagnostics.last_mut()) {
-        formation_guard::demote(record, finding);
+        vec![case_id.to_string()]);
+    if let Some(finding) = formation {
+        formation_guard::demote(&mut record, finding);
     }
-    if let (Some(check), Some(record)) = (formation_check, diagnostics.last_mut()) {
+    if let Some(check) = formation_check {
         record.message = format!(
             "{} {}",
             record.message,
             formation_check_evidence_line(model, check)
         );
     }
-    if let (Some(publication), Some(record)) = (range_scaling, diagnostics.last_mut()) {
+    if let Some(publication) = range_scaling {
         record.message = format!(
             "{} {}",
             record.message,
             range_scaling_evidence_line(model, publication)
         );
-    }
+    } integrity::publish(diagnostics, sink, case_id, record, update); // the pair owner (carrier revision 5 §3), on this line so that no line moves.
 }
 
 /// DEL-04-01 kd5-nonlinear-active-set.md §3.1, §2.4: what the nonlinear helper
 /// hands publication: a confirmed state, or the fail-closed sentence.
 enum NonlinearStanding {
     Confirmed(Box<open_pipe_stress_nonlinear_integration::confirmation::ConfirmedState>),
-    NotEstablished(String),
+    NotEstablished { sentence: String, evidence: open_pipe_stress_nonlinear_integration::confirmation::StageEvidence }, // with whatever the confirmation ran (carrier revision 4 §2)
 }
 
 /// DEL-04-01 kd5-nonlinear-active-set.md §2.4: the fail-closed sentence of a
@@ -1790,13 +1790,13 @@ fn integrity_failure_code(error: &StructuralError) -> &'static str {
 }
 
 fn append_integrity_failure(
-    diagnostics: &mut Vec<Diagnostic>,
+    diagnostics: &mut Vec<Diagnostic>, sink: &mut integrity::InverseNormSink,
     case_id: &str,
     error: &StructuralError,
     model: &PreviewModel,
 ) {
     let code = integrity_failure_code(error);
-    diagnostics.push(diag(&integrity_diagnostic_id(case_id), code, "blocking", format!("Load case {case_id}: {error}; global_dof_map={:?}; no structural rejection is bypassed by generic LU or output quantization", integrity_dof_map(model)), vec![case_id.to_string()]));
+    integrity::publish(diagnostics, sink, case_id, diag(&integrity_diagnostic_id(case_id), code, "blocking", format!("Load case {case_id}: {error}; global_dof_map={:?}; no structural rejection is bypassed by generic LU or output quantization", integrity_dof_map(model)), vec![case_id.to_string()]), integrity::EntryUpdate::None);
 }
 
 /// HELP_HUMAN's ruling 5 (2026-10-10; DEL-04-01 "Stable small-angle
@@ -2065,7 +2065,7 @@ fn force_scaling_attempt(
     let solve = PreviewLinearSolve {
         structural_report: solution.report.clone(),
         load_fidelity: solution.load_fidelity.clone(),
-        formation_check: solution.formation_check.clone(),
+        formation_check: solution.formation_check.clone(), inverse_norm: solution.inverse_norm_record().cloned(),
         member_bound: solution.member_bound.clone(),
         solution: free
             .iter()
@@ -2341,7 +2341,7 @@ fn range_scaling_evidence_line(
 /// outcome carries it: `none` where no b exists (steps 2-3), omitted where the
 /// orchestrator does not return it (step 4, a non-range failure).
 fn append_force_scaling_refusal(
-    diagnostics: &mut Vec<Diagnostic>,
+    diagnostics: &mut Vec<Diagnostic>, sink: &mut integrity::InverseNormSink,
     case_id: &str,
     failure: &ForceScalingFailure,
     trigger: &RangeTrigger,
@@ -2387,7 +2387,7 @@ fn append_force_scaling_refusal(
             String::new(),
         ),
     };
-    diagnostics.push(diag(
+    integrity::publish(diagnostics, sink, case_id, diag(
         &integrity_diagnostic_id(case_id),
         code,
         "blocking",
@@ -2396,7 +2396,7 @@ fn append_force_scaling_refusal(
             integrity_dof_map(model)
         ),
         vec![case_id.to_string()],
-    ));
+    ), integrity::EntryUpdate::None);
 }
 
 fn assessed_numerical_quality(
@@ -2405,9 +2405,9 @@ fn assessed_numerical_quality(
 ) -> NumericalQuality {
     let mut quality = unassessed_numerical_quality();
     for case in &model.load_cases {
-        let evidence = { let wanted_id = integrity_diagnostic_id(&case.id); diagnostics
-            .iter()
-            .find(|d| d.id == wanted_id) };
+        let evidence = {
+            integrity::find(diagnostics, &case.id)
+        };
         let (structural_status, solve_quality, model_matrix_fidelity, accuracy_evidence) =
             match evidence.map(|d| d.code.as_str()) {
                 // A blocked document's retained evaluation: no case verdict stands.
@@ -3034,7 +3034,7 @@ fn republication(
 fn fail_closed_form(mut envelope: MechanicsEnvelope) -> MechanicsEnvelope {
     if source_finalization_failed(&envelope) {
         envelope.results = Vec::new();
-        envelope.diagnostics = Vec::new();
+        integrity::clear(&mut envelope.diagnostics, &mut envelope.inverse_norm);
         envelope.contract_evidence = None;
         envelope.summary.max_displacement = None;
         envelope.summary.max_open_formula_stress = None;
@@ -3083,7 +3083,7 @@ fn run_linear_static_preview_observed_inner(
     } else {
         request.materials
     };
-    let mut diagnostics = Vec::new();
+    let mut diagnostics = Vec::new(); let mut sink = integrity::InverseNormSink::default(); // the pair owner (carrier revision 5 §3), on this line so that no line moves.
 
     // Model document 0.9.0 (DEL-02-01 Design `model-document-0.9.0.md` §1.5): the
     // lowering judges the 0.9.0 members' document-level rules and S1's interim
@@ -3097,7 +3097,7 @@ fn run_linear_static_preview_observed_inner(
     // W-16 slice a: the named imposed-displacement checks (and the exact
     // route's refusal) run ahead of generic validation.
     if imposed_motion::validate(&model, &mut diagnostics) {
-        return blocked_envelope(model, diagnostics);
+        return blocked_envelope(model, diagnostics, sink);
     }
     validate_model_inputs(&model, &materials, &mut diagnostics);
     validate_support_family_tokens(&model, &mut diagnostics);
@@ -3121,24 +3121,24 @@ fn run_linear_static_preview_observed_inner(
         ));
     }
     if has_blocking(&diagnostics) {
-        return blocked_envelope(model, diagnostics);
+        return blocked_envelope(model, diagnostics, sink);
     }
     // S1's interim withholding (§2.2, §2.4): every combination was judged above.
     document_members::withhold_interim_combinations(&mut model, &mut diagnostics);
 
     self_weight::validate_applied_self_weight(&model, &mut diagnostics);
     if has_blocking(&diagnostics) {
-        return blocked_envelope(model, diagnostics);
+        return blocked_envelope(model, diagnostics, sink);
     }
 
     resolve_shared_sections(&mut model, &mut diagnostics);
     if has_blocking(&diagnostics) {
-        return blocked_envelope(model, diagnostics);
+        return blocked_envelope(model, diagnostics, sink);
     }
 
     normalize_model_units(&mut model, &mut materials, &mut diagnostics);
     if has_blocking(&diagnostics) {
-        return blocked_envelope(model, diagnostics);
+        return blocked_envelope(model, diagnostics, sink);
     }
     // W-15 slice c (DEL-03-05 Design `eccentric-reducer-offset.md` §3.2): a
     // declared eccentric offset is checked against the normalized node
@@ -3147,7 +3147,7 @@ fn run_linear_static_preview_observed_inner(
     // slot. The tolerance was admitted by `validate_model_settings`.
     rigid_component::append_eccentric_offset_refusals(&model, &mut diagnostics);
     if has_blocking(&diagnostics) {
-        return blocked_envelope(model, diagnostics);
+        return blocked_envelope(model, diagnostics, sink);
     }
 
     let load_state = case_state::is_load_state(&model);
@@ -3157,7 +3157,7 @@ fn run_linear_static_preview_observed_inner(
         pressure_material::resolve_base(&model, &mut materials, &mut diagnostics);
     }
     if has_blocking(&diagnostics) {
-        return blocked_envelope(model, diagnostics);
+        return blocked_envelope(model, diagnostics, sink);
     }
     if let Some(observer) = product.as_deref_mut() {
         observer.normalized(&model, &materials, request_materials_supplied);
@@ -3171,12 +3171,12 @@ fn run_linear_static_preview_observed_inner(
             })
             .collect::<Vec<_>>();
         if has_blocking(&diagnostics) || resolved.len() != model.load_cases.len() {
-            return blocked_envelope(model, diagnostics);
+            return blocked_envelope(model, diagnostics, sink);
         }
         case_state::resolve::refuse_resolved_span_strain(&model, &resolved, &mut diagnostics);
         case_state::resolve::refuse_all_reference_states(&resolved, &mut diagnostics);
         if has_blocking(&diagnostics) {
-            return blocked_envelope(model, diagnostics);
+            return blocked_envelope(model, diagnostics, sink);
         }
         Some(resolved)
     } else {
@@ -3194,7 +3194,7 @@ fn run_linear_static_preview_observed_inner(
         &mut diagnostics,
     );
     if has_blocking(&diagnostics) {
-        return blocked_envelope(model, diagnostics);
+        return blocked_envelope(model, diagnostics, sink);
     }
     let built = built.expect("build_model returns Some when no blocking diagnostics were added");
     append_constant_effort_consumption_diagnostics(&model, &mut diagnostics);
@@ -3252,7 +3252,7 @@ fn run_linear_static_preview_observed_inner(
         ));
     }
     if has_blocking(&diagnostics) {
-        return blocked_envelope(model, diagnostics);
+        return blocked_envelope(model, diagnostics, sink);
     }
 
     // F1b (T3 D1 §4.8, W3): the kernel's sparse assembly per basis; no dense
@@ -3267,7 +3267,7 @@ fn run_linear_static_preview_observed_inner(
     }
     let stiffness = match form_basis_stiffness(&built, &boundary.springs, linear) {
         Ok(stiffness) => stiffness,
-        Err(error) => return solver_blocked(model, diagnostics, error),
+        Err(error) => return solver_blocked(model, diagnostics, sink, error),
     };
     // §8.30 correction 2 (RT-U4, RT-A2): the dense-scrutiny active-set loop holds
     // n^2 buffers; since R-4 stage P the sparse-mode loop runs on the pattern, and NI
@@ -3288,7 +3288,7 @@ fn run_linear_static_preview_observed_inner(
                 format!("{refusal}; it applies in sparse_interactive and dense_scrutiny alike"),
                 vec!["model".to_string()],
             ));
-            return blocked_envelope(model, diagnostics);
+            return blocked_envelope(model, diagnostics, sink);
         }
     }
     // F1b (§4.8 resource guard; ROOT Q8): dense scrutiny refuses, once per
@@ -3300,7 +3300,7 @@ fn run_linear_static_preview_observed_inner(
             dense_scrutiny_ceiling_bytes(),
         ) {
             diagnostics.push(dense_scrutiny_refusal_diagnostic(&refusal));
-            return blocked_envelope(model, diagnostics);
+            return blocked_envelope(model, diagnostics, sink);
         }
     }
 
@@ -3335,14 +3335,14 @@ fn run_linear_static_preview_observed_inner(
                     &mut diagnostics,
                 );
                 if has_blocking(&diagnostics) {
-                    return blocked_envelope(model, diagnostics);
+                    return blocked_envelope(model, diagnostics, sink);
                 }
                 let case_built = case_built
                     .expect("build_model returns Some when no blocking diagnostics were added");
                 let case_stiffness =
                     match form_basis_stiffness(&case_built, &boundary.springs, linear) {
                         Ok(stiffness) => stiffness,
-                        Err(error) => return solver_blocked(model, diagnostics, error),
+                        Err(error) => return solver_blocked(model, diagnostics, sink, error),
                     };
                 basis_solve_states.push((
                     Some(format!("load_state:{}", load_case.id)),
@@ -3368,21 +3368,21 @@ fn run_linear_static_preview_observed_inner(
                 capture,
                 source_budget,
                 Some(resolved),
-                &mut diagnostics,
+                &mut diagnostics, &mut sink,
                 product.as_deref_mut(),
                 held_status::CaseRole::Own(Some(invocation)),
             ) {
                 Ok(solve) => load_case_solves.push(solve),
-                Err(error) => return solver_blocked(model, diagnostics, error),
+                Err(error) => return solver_blocked(model, diagnostics, sink, error),
             }
             if has_blocking(&diagnostics) {
-                return blocked_envelope(model, diagnostics);
+                return blocked_envelope(model, diagnostics, sink);
             }
             continue;
         }
         let Some(basis_key) = modulus_basis_key(load_case, &mut diagnostics) else {
             if has_blocking(&diagnostics) {
-                return blocked_envelope(model, diagnostics);
+                return blocked_envelope(model, diagnostics, sink);
             }
             let (_, basis_materials, basis_built, basis_stiffness, basis_record) =
                 &basis_solve_states[0];
@@ -3399,15 +3399,15 @@ fn run_linear_static_preview_observed_inner(
                 capture,
                 source_budget,
                 None,
-                &mut diagnostics,
+                &mut diagnostics, &mut sink,
                 product.as_deref_mut(),
                 held_status::CaseRole::Own(Some(invocation)),
             ) {
                 Ok(solve) => load_case_solves.push(solve),
-                Err(error) => return solver_blocked(model, diagnostics, error),
+                Err(error) => return solver_blocked(model, diagnostics, sink, error),
             }
             if has_blocking(&diagnostics) {
-                return blocked_envelope(model, diagnostics);
+                return blocked_envelope(model, diagnostics, sink);
             }
             continue;
         };
@@ -3420,18 +3420,18 @@ fn run_linear_static_preview_observed_inner(
                 let Some((basis_materials, basis_record)) =
                     materials_for_modulus_basis_observed(&model, &materials, load_case, &mut diagnostics, product.as_deref_mut())
                 else {
-                    return blocked_envelope(model, diagnostics);
+                    return blocked_envelope(model, diagnostics, sink);
                 };
                 let basis_built = build_model_for_basis(&model, &basis_materials, None, consumed_bases.selected(&basis_key), &mut diagnostics);
                 if has_blocking(&diagnostics) {
-                    return blocked_envelope(model, diagnostics);
+                    return blocked_envelope(model, diagnostics, sink);
                 }
                 let basis_built = basis_built
                     .expect("build_model returns Some when no blocking diagnostics were added");
                 let basis_stiffness =
                     match form_basis_stiffness(&basis_built, &boundary.springs, linear) {
                         Ok(stiffness) => stiffness,
-                        Err(error) => return solver_blocked(model, diagnostics, error),
+                        Err(error) => return solver_blocked(model, diagnostics, sink, error),
                     };
                 basis_solve_states.push((
                     Some(basis_key.clone()),
@@ -3467,15 +3467,15 @@ fn run_linear_static_preview_observed_inner(
             capture,
             source_budget,
             None,
-            &mut diagnostics,
+            &mut diagnostics, &mut sink,
             product.as_deref_mut(),
             held_status::CaseRole::Own(Some(invocation)),
         ) {
             Ok(solve) => load_case_solves.push(solve),
-            Err(error) => return solver_blocked(model, diagnostics, error),
+            Err(error) => return solver_blocked(model, diagnostics, sink, error),
         }
         if has_blocking(&diagnostics) {
-            return blocked_envelope(model, diagnostics);
+            return blocked_envelope(model, diagnostics, sink);
         }
     }
     let built = &basis_solve_states[0].2;
@@ -3504,7 +3504,7 @@ fn run_linear_static_preview_observed_inner(
                     (None, Some(key)) => basis_solve_states.iter().position(|(k, ..)| k.as_ref() == Some(&key))?,
                 };
                 let (_, basis_materials, basis_built, basis_stiffness, basis_record) = &basis_solve_states[state_index];
-                let mut local = Vec::new();
+                let mut local = Vec::new(); let mut local_sink = integrity::InverseNormSink::default(); // the held solve's local pair (carrier revision 4 §6)
                 let mut solve = solve_load_case_observed(
                     &model,
                     basis_built,
@@ -3518,7 +3518,7 @@ fn run_linear_static_preview_observed_inner(
                     None,
                     &mut SourceRecoveryBudget::default(),
                     resolved,
-                    &mut local,
+                    &mut local, &mut local_sink,
                     None,
                     held_status::CaseRole::Held(request),
                 )
@@ -3725,7 +3725,7 @@ fn run_linear_static_preview_observed_inner(
             .chain(max_stress_nominal.iter().flatten().map(|q| q.value))
             .chain(max_stress_reduced.iter().flatten().map(|q| q.value)),
     ) {
-        return solver_blocked(model, diagnostics, error);
+        return solver_blocked(model, diagnostics, sink, error);
     }
     // Publish finite computed binary64 quantities without an absolute decimal quantum.
     let composite = source_selected && pressure_runtime::is_exact(&model);
@@ -3740,7 +3740,7 @@ fn run_linear_static_preview_observed_inner(
                 // S1 (pre-0.4 failure unification §2.1): recorded on both routes.
                 source_budget.record_load_state_join_failure(format!("captured source context: {}", error.0));
                 diagnostics.push(diag("diagnostic:source-recovery:publication", "SOURCE_BLOCK_RECOVERY_FINALIZATION_FAILED", "blocking", error.0, vec![]));
-                return blocked_envelope(model, diagnostics);
+                return blocked_envelope(model, diagnostics, sink);
             }
         }
     } else { None };
@@ -3754,7 +3754,7 @@ fn run_linear_static_preview_observed_inner(
     // W-15 slice c (Design `eccentric-reducer-offset.md` §3.4): the realized
     // offset of each checked reducer, on a published result only.
     rigid_component::append_eccentric_offset_realized(&model, &mut diagnostics);
-    let preview_basis = preview.is_some().then(|| pf_timoshenko::formulation_basis(&model));
+    let preview_basis = preview.is_some().then(|| pf_timoshenko::formulation_basis(&model)); held_status::record_inverse_norm(&model, &held_operands, &mut sink); // carrier revision 4 §6, on this line so that no line moves.
     let mut envelope = MechanicsEnvelope {
         contract_evidence: connector_evidence.map(|connector| {
             let mut evidence = serde_json::json!({"pressure": pressure_evidence, "connector": connector, "exact_cases": exact_cases});
@@ -3797,7 +3797,7 @@ fn run_linear_static_preview_observed_inner(
         results,
         diagnostics,
         professional_boundary: professional_boundary(),
-        accepted_model_state_mutated: false,
+        accepted_model_state_mutated: false, inverse_norm: sink,
     };
     // W-16 slice b (§5): each operand's standing, from the assessed quality.
     if let Some(records) = envelope.contract_evidence.as_mut().and_then(|e| e.get_mut("exact_combinations")).and_then(serde_json::Value::as_array_mut) {
@@ -3834,7 +3834,7 @@ fn run_linear_static_preview_observed_inner(
     // derived groups with their stated bounds; only on a document with a combination.
     let case_ids: Vec<&str> = model.load_cases.iter().map(|case| case.id.as_str()).collect();
     combination_certificate::publish(&model.combinations, &case_ids, &mut envelope, &certificate_operands);
-    if let Some(observer) = product.as_deref_mut() { observer.finish(&envelope); }
+    integrity::reconcile(&envelope.diagnostics, &mut envelope.inverse_norm); if let Some(observer) = product.as_deref_mut() { observer.finish(&envelope); }
     envelope
 }
 
@@ -5410,7 +5410,7 @@ fn solve_load_case(
     diagnostics: &mut Vec<Diagnostic>,
 ) -> Result<LoadCaseSolve, FrameKernelError> {
     solve_load_case_observed(model, built, materials, stiffness, restrained_dofs, spring_entries,
-        load_case, modulus_basis_record, solver_mode, capture, source_budget, load_state, diagnostics, None,
+        load_case, modulus_basis_record, solver_mode, capture, source_budget, load_state, diagnostics, &mut integrity::InverseNormSink::default(), None,
         held_status::CaseRole::Own(None))
 }
 
@@ -5427,7 +5427,7 @@ fn solve_load_case_observed(
     capture: Option<&source_receipt::CapturedInvocation>,
     source_budget: &mut SourceRecoveryBudget,
     load_state: Option<&case_state::resolve::ResolvedCase>,
-    diagnostics: &mut Vec<Diagnostic>,
+    diagnostics: &mut Vec<Diagnostic>, sink: &mut integrity::InverseNormSink,
     product: Option<&mut retained_product::ProductCapture>,
     role: held_status::CaseRole<'_, '_>,
 ) -> Result<LoadCaseSolve, FrameKernelError> {
@@ -5443,7 +5443,7 @@ fn solve_load_case_observed(
         diagnostics,
     );
     solve_prepared_load_case(model,built,materials,stiffness,restrained_dofs,spring_entries,load_case,
-        modulus_basis_record,solver_mode,capture,source_budget,load_state,exact_pressure,diagnostics,product,role)
+        modulus_basis_record,solver_mode,capture,source_budget,load_state,exact_pressure,diagnostics,sink,product,role)
 }
 
 /// Private mechanics composition after the wrapper's unchanged profile
@@ -5464,7 +5464,7 @@ fn solve_prepared_load_case(
     source_budget: &mut SourceRecoveryBudget,
     load_state: Option<&case_state::resolve::ResolvedCase>,
     exact_pressure: Option<pressure_runtime::ExactPressureCase>,
-    diagnostics: &mut Vec<Diagnostic>,
+    diagnostics: &mut Vec<Diagnostic>, sink: &mut integrity::InverseNormSink,
     mut product: Option<&mut retained_product::ProductCapture>,
     mut role: held_status::CaseRole<'_, '_>,
 ) -> Result<LoadCaseSolve, FrameKernelError> {
@@ -5890,11 +5890,11 @@ fn solve_prepared_load_case(
         Err(OrdinaryFailure::Structural(error)) if selected_source.is_some() => {
             // Preserve the rejected ordinary attempt as evidence. It is not the
             // selected solve and is not relabelled as a successful factorization.
-            append_integrity_failure(diagnostics, &load_case.id, &error, model);
-            if let Some(record) = diagnostics.last_mut() {
+            append_integrity_failure(diagnostics, sink, &load_case.id, &error, model);
+            integrity::amend(diagnostics, sink, &load_case.id, |record| {
                 record.severity = "info".into();
-                record.message = format!("Rejected ordinary attempt; a separate retained-source response is selected. {}", record.message);
-            }
+                record.message = format!("Rejected ordinary attempt; a separate retained-source response is selected. {}", record.message); true
+            }, integrity::EntryUpdate::None);
             ordinary_error = Some(error);
             None
         }
@@ -5942,7 +5942,7 @@ fn solve_prepared_load_case(
                     }
                     Err(refusal) => {
                         append_force_scaling_refusal(
-                            diagnostics,
+                            diagnostics, sink,
                             &load_case.id,
                             &refusal,
                             &trigger,
@@ -5981,7 +5981,7 @@ fn solve_prepared_load_case(
                 // attempt has no solution basis to advertise; propagate its
                 // actual error alone.
                 (None, OrdinaryFailure::Structural(error)) => {
-                    append_integrity_failure(diagnostics, &load_case.id, &error, model);
+                    append_integrity_failure(diagnostics, sink, &load_case.id, &error, model);
                     // I61 U1 (G-b): the initial failure's own integrity diagnostic.
                     if let (Some(observer), Some(record)) = (product.as_deref_mut(), diagnostics.last()) {
                         observer.ordinary_failure_diagnostic(&load_case.id, &record.id);
@@ -6061,7 +6061,7 @@ fn solve_prepared_load_case(
     let (selected_nonlinear, nonlinear_standing, nonlinear_qualification, nonlinear_staged) =
         match append_nonlinear_support_loop_results(
             &mut results,
-            diagnostics,
+            diagnostics, sink,
             model,
             built,
             restrained_dofs,
@@ -6116,14 +6116,14 @@ fn solve_prepared_load_case(
     if built.nonlinear_supports.is_empty() {
         if let Some(linear) = &linear_solve {
             append_integrity_report(
-                diagnostics,
+                diagnostics, sink,
                 &load_case.id,
                 &linear.structural_report,
                 model,
                 None,
                 load_row_finding.as_ref(),
                 linear.formation_check.as_ref(),
-                w2_publication.as_ref(),
+                w2_publication.as_ref(), integrity::EntryUpdate::Linear(linear.inverse_norm.clone()),
             );
             // I61 U1 (G-b): the published report; `demote` discloses the finding
             // only on a Passed report, and K-D5's record is one line of it.
@@ -6146,7 +6146,7 @@ fn solve_prepared_load_case(
         if matches!(&iteration.strict_gap, StrictGapEvidence::Qualified(_)) {
             // The ordinary factor/solve report precedes exact-ratio selection.
             // It cannot qualify the selected mixed field-recovery basis.
-            diagnostics.push(diag(
+            integrity::publish(diagnostics, sink, &load_case.id, diag(
                 &integrity_diagnostic_id(&load_case.id),
                 "NUMERICAL_INTEGRITY_RECOVERY_BASIS_UNQUALIFIED",
                 "warning",
@@ -6155,9 +6155,9 @@ fn solve_prepared_load_case(
                     load_case.id, iteration.structural_report, iteration.product_equilibrium
                 ),
                 vec![load_case.id.clone()],
-            ));
+            ), integrity::EntryUpdate::None);
         } else if let StrictGapEvidence::Unsupported { reason, .. } = &iteration.strict_gap {
-            diagnostics.push(diag(
+            integrity::publish(diagnostics, sink, &load_case.id, diag(
                 &integrity_diagnostic_id(&load_case.id),
                 "NUMERICAL_INTEGRITY_RECOVERY_BASIS_UNQUALIFIED",
                 "warning",
@@ -6166,30 +6166,30 @@ fn solve_prepared_load_case(
                     load_case.id, iteration.structural_report, iteration.product_equilibrium
                 ),
                 vec![load_case.id.clone()],
-            ));
+            ), integrity::EntryUpdate::None);
         } else {
             append_integrity_report(
-                diagnostics,
+                diagnostics, sink,
                 &load_case.id,
                 &iteration.structural_report,
                 model,
                 Some(&iteration.product_equilibrium),
                 load_row_finding.as_ref(),
                 None,
-                None,
+                None, integrity::EntryUpdate::None,
             );
         }
     }
     // Publication eligibility is the public standing after all prior guards,
     // not the structural report that preceded the load-row demotion.
-    let pre_guard_passed = { let wanted_id = integrity_diagnostic_id(&load_case.id); diagnostics.iter().find(|d| d.id == wanted_id).is_some_and(|d| d.code == "NUMERICAL_INTEGRITY_CHECKS_PASSED") };
+    let pre_guard_passed = integrity::find(diagnostics, &load_case.id).is_some_and(|d| d.code == "NUMERICAL_INTEGRITY_CHECKS_PASSED");
     let linear_bound = linear_solve.as_ref().filter(|solve| pre_guard_passed && load_row_finding.is_none() && built.nonlinear_supports.is_empty() && solve.structural_report.quality == SolveQuality::Passed && selected_source.is_none()).and_then(|solve| solve.member_bound.as_ref());
     // DEL-04-01 kd5-nonlinear-active-set.md §3.1: a nonlinear case publishes
     // the certified rows of its confirmed converged state (Stage B).
-    let (confirmed_state, nonlinear_sentence) = match nonlinear_standing {
-        Some(NonlinearStanding::Confirmed(state)) => (Some(state), None),
-        Some(NonlinearStanding::NotEstablished(sentence)) => (None, Some(sentence)),
-        None => (None, None),
+    let (confirmed_state, nonlinear_sentence, attempted_evidence) = match nonlinear_standing { // carrier revision 4 §3: evidence taken before this consuming match
+        Some(NonlinearStanding::Confirmed(state)) => (Some(state), None, None),
+        Some(NonlinearStanding::NotEstablished { sentence, evidence }) => (None, Some(sentence), Some(evidence)),
+        None => (None, None, None),
     };
     let confirmed_candidate = confirmed_state.as_deref().filter(|_| pre_guard_passed && load_row_finding.is_none() && !built.nonlinear_supports.is_empty());
     // DEL-04-07 *Published displacement*: the corrected displacement is formed
@@ -6279,7 +6279,7 @@ fn solve_prepared_load_case(
     // publication, which cannot naturally admit nonlinear supports yet.
     #[cfg(test)]
     let member_bound = if U4A_FORCE_BINARY64.with(|flag| flag.get()) { None } else { member_bound };
-    if member_bound.is_none() {
+    settle_case_inverse_norm(sink, &mut role, &load_case.id, confirmed_state.as_deref(), attempted_evidence, nonlinear_sentence.as_deref(), confirmed, member_bound, correction_failure.is_some(), pre_guard_passed, !built.nonlinear_supports.is_empty()); if member_bound.is_none() {
         let sentence = match nonlinear_sentence {
             Some(sentence) => sentence,
             None => {
@@ -6288,12 +6288,12 @@ fn solve_prepared_load_case(
             }
         };
         let finding = formation_guard::FormationFinding { guard: formation_guard::Guard::Recovery, sentence, fired: Vec::new() };
-        formation_guard::amend_integrity_report(diagnostics, &integrity_diagnostic_id(&load_case.id), &finding);
+        integrity::amend(diagnostics, sink, &load_case.id, |record| formation_guard::demote(record, &finding), integrity::EntryUpdate::None);
     } else if confirmed.is_some() {
-        let integrity_id = integrity_diagnostic_id(&load_case.id);
-        if let Some(record) = diagnostics.iter_mut().find(|d| d.id == integrity_id) {
-            record.message = format!("{} {NONLINEAR_CONFIRMED_EVIDENCE_LINE}", record.message);
-        }
+        integrity::amend(diagnostics, sink, &load_case.id,
+            |record| {
+                record.message = format!("{} {NONLINEAR_CONFIRMED_EVIDENCE_LINE}", record.message); true
+            }, integrity::EntryUpdate::None);
     }
     let certified_force = confirmed.map_or(&force, |state| &state.force);
     let certified_nonlinear = confirmed.map(|state| &state.supports);
@@ -6332,10 +6332,10 @@ fn solve_prepared_load_case(
     if let Some(solve) = &selected_nonlinear {
         let appended = append_nonlinear_relative_displacements(&mut results, built, &ground_motion, &published_displacements, solve, solver_mode);
         if appended && confirmed.is_some() {
-            let integrity_id = integrity_diagnostic_id(&load_case.id);
-            if let Some(record) = diagnostics.iter_mut().find(|d| d.id == integrity_id) {
-                record.message = format!("{} {NONLINEAR_RELATIVE_DISPLACEMENT_CLAUSE}", record.message);
-            }
+            integrity::amend(diagnostics, sink, &load_case.id,
+                |record| {
+                    record.message = format!("{} {NONLINEAR_RELATIVE_DISPLACEMENT_CLAUSE}", record.message); true
+                }, integrity::EntryUpdate::None);
         }
     }
     let mut max_displacement = None;
@@ -7514,10 +7514,10 @@ fn solve_prepared_load_case(
         // kd5-member-relative-bound.md section 3.3); O-13's short-bend rule is
         // removed on the verified closed recovery (section 4.3, M3).
         if let Some(finding) = formation_guard::recovery_finding(&recovery_records, &scales, &load_case.id) {
-            let demoted = formation_guard::amend_integrity_report(
-                diagnostics,
-                &integrity_diagnostic_id(&load_case.id),
-                &finding,
+            let demoted = integrity::amend(
+                diagnostics, sink,
+                &load_case.id,
+                |record| formation_guard::demote(record, &finding), integrity::EntryUpdate::None,
             );
             // I61 U1 (G-b): no wire member carries R-b''s finding.
             if let (true, Some(observer)) = (demoted, product.as_deref_mut()) {
@@ -7526,7 +7526,7 @@ fn solve_prepared_load_case(
             // Section 3.3 condition 2: the unified predicate itself demotes.
             if demoted && pre_guard_passed && member_bound.is_some() && load_row_finding.is_none() {
                 if let Some(notice) = formation_guard::stress_free_notice(&recovery_records, &load_case.id) {
-                    let index = { let wanted_id = integrity_diagnostic_id(&load_case.id); diagnostics.iter().position(|d| d.id == wanted_id) }; if let Some(index) = index { diagnostics.insert(index+1,notice); }
+                    let index = integrity::position(diagnostics, &load_case.id); if let Some(index) = index { diagnostics.insert(index+1,notice); }
                 }
             }
         }
@@ -7751,7 +7751,7 @@ struct NonlinearSupportBuild {
 
 fn append_nonlinear_support_loop_results(
     results: &mut Vec<ResultItem>,
-    diagnostics: &mut Vec<Diagnostic>,
+    diagnostics: &mut Vec<Diagnostic>, sink: &mut integrity::InverseNormSink,
     model: &PreviewModel,
     built: &BuiltModel,
     restrained_dofs: &[usize],
@@ -7829,8 +7829,8 @@ fn append_nonlinear_support_loop_results(
                                     &frame_member_identities(built),
                                     solver_mode.nonlinear_mode(),
                                 )
-                                .unwrap_or_else(|error| Confirmation::NotEstablished {
-                                    reason: format!("confirmation attempt: {error}"),
+                                .unwrap_or_else(|error| {
+                                    Confirmation::not_determined(format!("confirmation attempt: {error}"))
                                 }),
                             );
                         }
@@ -7847,7 +7847,7 @@ fn append_nonlinear_support_loop_results(
                     }
                     outcome => {
                         let error=StructuralError::NumericallyUnresolved{reason:"M03 product final same-state equilibrium/contact qualification failed",global_dof:None};
-                        append_integrity_failure(diagnostics, &load_case.id, &error, model);
+                        append_integrity_failure(diagnostics, sink, &load_case.id, &error, model);
                         if let Err(error) = outcome {
                             diagnostics.push(nonlinear_loop_blocked_diag(&load_case.id, error));
                         }
@@ -8094,18 +8094,18 @@ fn append_nonlinear_support_loop_results(
             // return, so only a model with nonlinear supports forms it.
             let standing = match confirmation {
                 Some(Confirmation::Established(state)) => NonlinearStanding::Confirmed(state),
-                Some(Confirmation::NotEstablished { reason }) => {
-                    NonlinearStanding::NotEstablished(nonlinear_not_established_sentence(&reason))
+                Some(Confirmation::NotEstablished { reason, evidence }) => {
+                    NonlinearStanding::NotEstablished { sentence: nonlinear_not_established_sentence(&reason), evidence }
                 }
-                None => NonlinearStanding::NotEstablished(nonlinear_not_established_sentence(
+                None => NonlinearStanding::NotEstablished { sentence: nonlinear_not_established_sentence(
                     "confirmation attempt: not run",
-                )),
+                ), evidence: open_pipe_stress_nonlinear_integration::confirmation::StageEvidence::not_run() },
             };
             Some((solve, standing, qualification, staged))
         }
         Err(error) => {
             if let NonlinearIntegrationError::Structural(structural) = &error {
-                append_integrity_failure(diagnostics, &load_case.id, structural, model);
+                append_integrity_failure(diagnostics, sink, &load_case.id, structural, model);
             }
             diagnostics.push(nonlinear_loop_blocked_diag(&load_case.id, error));
             None
@@ -8207,7 +8207,7 @@ struct PreviewLinearSolve {
     /// F1a: K-D5's formation-check record, `Some` only when the check demoted
     /// the case; rendered only as the integrity diagnostic's evidence line.
     formation_check: Option<FormationCheck>,
-    member_bound: Option<MemberBoundInputs>,
+    member_bound: Option<MemberBoundInputs>, inverse_norm: Option<open_pipe_stress_frame_kernel::structural::InverseNormRecord>, // carrier revision 4 §1.4
     solution: Vec<f64>,
     solution_basis: &'static str,
     dense_fallback_message: Option<String>,
@@ -8279,7 +8279,7 @@ fn solve_preview_reduced_system(
         &curved_sources,
         built.nonlinear_supports.is_empty(),
     )?;
-    Ok(PreviewLinearSolve {
+    Ok(PreviewLinearSolve { inverse_norm: checked.inverse_norm_record().cloned(),
         solution: free.iter().map(|&i| checked.displacements[i]).collect(),
         structural_report: checked.report,
         load_fidelity: checked.load_fidelity,
@@ -15526,7 +15526,7 @@ fn result_tail(base_id: &str) -> &str {
     base_id.strip_prefix("result:").unwrap_or(base_id)
 }
 
-fn blocked_envelope(model: PreviewModel, mut diagnostics: Vec<Diagnostic>) -> MechanicsEnvelope {
+fn blocked_envelope(model: PreviewModel, mut diagnostics: Vec<Diagnostic>, mut sink: integrity::InverseNormSink) -> MechanicsEnvelope {
     // DEL-04-07: a case's cap remainder warning stands exactly where its
     // published evidence carries the exception record. A case is published
     // only in a document that is not blocked (every refusal of a case is
@@ -15541,9 +15541,9 @@ fn blocked_envelope(model: PreviewModel, mut diagnostics: Vec<Diagnostic>) -> Me
     // wrapped twice; every other retained diagnostic (a mechanism refusal, say)
     // is kept as it is. A rewritten case is not assessed; a failure keeps its
     // classification (`blocked_numerical_quality`).
-    for diagnostic in diagnostics.iter_mut().filter(|d| d.id.starts_with(INTEGRITY_DIAGNOSTIC_PREFIX)) {
+    integrity::amend_each(&mut diagnostics, &mut sink, |diagnostic| {
         inspection_only(diagnostic);
-    }
+    });
     // T1 routes every blocked 0.4.0 envelope to load-reference-1 (0.4.0 is
     // exact-route only); it never publishes preview-physics-2.
     let exact_namespace = pressure_runtime::is_exact(&model) || case_state::is_load_state(&model);
@@ -15591,19 +15591,19 @@ fn blocked_envelope(model: PreviewModel, mut diagnostics: Vec<Diagnostic>) -> Me
         results: vec![],
         diagnostics,
         professional_boundary: professional_boundary(),
-        accepted_model_state_mutated: false,
+        accepted_model_state_mutated: false, inverse_norm: sink,
     };
     if let Some(basis) = preview_basis {
         envelope.formulation_basis = basis;
         envelope.contract_evidence = Some(preview_physics::empty_evidence());
         preview_physics::sanitize_blocked_diagnostics(&mut envelope.diagnostics);
     }
-    envelope
+    integrity::reconcile(&envelope.diagnostics, &mut envelope.inverse_norm); envelope // the pair owner (carrier revision 5 §3, the checkpoint), on this line so that no line moves.
 }
 
 fn solver_blocked(
     model: PreviewModel,
-    mut diagnostics: Vec<Diagnostic>,
+    mut diagnostics: Vec<Diagnostic>, sink: integrity::InverseNormSink,
     error: FrameKernelError,
 ) -> MechanicsEnvelope {
     diagnostics.push(diag(
@@ -15613,7 +15613,7 @@ fn solver_blocked(
         error.to_string(),
         vec!["model".to_string()],
     ));
-    blocked_envelope(model, diagnostics)
+    blocked_envelope(model, diagnostics, sink)
 }
 
 /// T4-U5b item 6 (HELP_HUMAN ruling (A), 2026-10-18): the published nodal
@@ -26217,4 +26217,89 @@ fn capture_nonlinear_state_evidence(
 /// and the integrity checks apply. No retained or static entry calls it.
 pub fn modal_experimental_result_document(request: &serde_json::Value) -> serde_json::Value {
     modal::modal_selected_result_document(request)
+}
+
+/// The document's inverse-norm evidence (carrier revision 4 §4, §5): exactly
+/// one entry per case of `numerical_quality.cases`, in that order, from the
+/// sink carried with this envelope. Identity-free. Appended here so that no
+/// line moves.
+impl MechanicsEnvelope {
+    pub fn inverse_norm_evidence(&self) -> inverse_norm_evidence::InverseNormEvidence {
+        let cases: Vec<&str> = self.numerical_quality.cases.iter().map(|c| c.basis_ref.ref_id.as_str()).collect();
+        self.inverse_norm.projection(&self.diagnostics, &cases)
+    }
+}
+
+/// Carrier revision 5 §3, on DEL-04-07 *Published displacement*'s single
+/// publication-basis decision: what the case's entry records, and, for a held
+/// solve, its own evidence's publication use. Appended here so that no line
+/// moves.
+///
+/// - A linear case's basis is `Linear` exactly when its published rows rest on
+///   the ordinary check's member bound (`selected_bound`, after the correction
+///   and every publication guard); its record was taken at publication.
+/// - A nonlinear case keeps the confirmation's evidence, whatever ran, with the
+///   confirmation's own outcome. Publication used it only when the case stayed
+///   confirmed (`confirmed`). A confirmation that established its state and was
+///   then not used is discarded with the first reason that decided it, in the
+///   decision's own order: the eligibility filter (`pre_guard_passed &&
+///   load_row_finding.is_none()`) before the corrected displacement, which is
+///   formed only for an admitted candidate. A load-row finding demotes the
+///   verdict before the filter reads it, so the filter's first operand decides
+///   and the reason is `PreGuardNotPassed`; `LoadRowFinding` would be reached
+///   only by a finding that left the verdict passing. A not-established
+///   confirmation was never consulted.
+/// - The basis is `ConfirmedStageB` only where the published rows rest on the
+///   confirmed state and its Stage B inputs are those of the selected bound.
+#[allow(clippy::too_many_arguments)]
+fn settle_case_inverse_norm(
+    sink: &mut integrity::InverseNormSink,
+    role: &mut held_status::CaseRole<'_, '_>,
+    case_id: &str,
+    confirmed_state: Option<&open_pipe_stress_nonlinear_integration::confirmation::ConfirmedState>,
+    attempted: Option<open_pipe_stress_nonlinear_integration::confirmation::StageEvidence>,
+    sentence: Option<&str>,
+    confirmed: Option<&open_pipe_stress_nonlinear_integration::confirmation::ConfirmedState>,
+    selected_bound: Option<&MemberBoundInputs>,
+    correction_failed: bool,
+    pre_guard_passed: bool,
+    nonlinear: bool,
+) {
+    use open_pipe_stress_nonlinear_integration::confirmation::{DiscardReason, PublicationUse};
+    if !nonlinear {
+        if selected_bound.is_some() {
+            integrity::update_entry(sink, case_id, integrity::EntryUpdate::Basis(integrity::PublishedBasis::Linear));
+        }
+        return;
+    }
+    let publication = match (confirmed_state, confirmed) {
+        (None, _) => PublicationUse::NotConsulted,
+        (Some(_), Some(_)) => PublicationUse::UsedForPublishedBasis,
+        (Some(_), None) => PublicationUse::Discarded {
+            reason: if correction_failed {
+                DiscardReason::DisplacementCorrectionUnavailable
+            } else if !pre_guard_passed {
+                DiscardReason::PreGuardNotPassed
+            } else {
+                DiscardReason::LoadRowFinding
+            },
+        },
+    };
+    role.settle_inverse_norm(publication.clone());
+    let (mut evidence, established) = match (confirmed_state, attempted) {
+        (Some(state), _) => (state.evidence().clone(), None),
+        (None, Some(evidence)) => (evidence, Some(sentence.unwrap_or_default().to_string())),
+        // The loop refused before any standing: its integrity failure stands alone.
+        (None, None) => return,
+    };
+    evidence.set_publication(publication);
+    let basis = match (confirmed, selected_bound) {
+        (Some(state), Some(bound)) if state.evidence().binds_stage_b(bound) => integrity::PublishedBasis::ConfirmedStageB,
+        _ => integrity::PublishedBasis::None,
+    };
+    integrity::update_entry(
+        sink,
+        case_id,
+        integrity::EntryUpdate::ConfirmationAndBasis(integrity::ConfirmationEntry { evidence, established }, basis),
+    );
 }

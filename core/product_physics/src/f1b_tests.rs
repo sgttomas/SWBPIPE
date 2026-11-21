@@ -1097,14 +1097,14 @@ fn f1b_no_range_record_is_byte_identical_to_main() {
                 let mut ours = vec![existing.clone()];
                 let mut mains = vec![existing.clone()];
                 append_integrity_report(
-                    &mut ours,
+                    &mut ours, &mut crate::integrity::InverseNormSink::default(),
                     "c",
                     &report,
                     &model,
                     None,
                     finding.as_ref(),
                     check.as_ref(),
-                    None,
+                    None, crate::integrity::EntryUpdate::None,
                 );
                 main_append_integrity_report_e7d930d49(
                     &mut mains,
@@ -1213,14 +1213,14 @@ fn w2_record(
 ) -> Diagnostic {
     let mut diagnostics = Vec::new();
     append_integrity_report(
-        &mut diagnostics,
+        &mut diagnostics, &mut crate::integrity::InverseNormSink::default(),
         "c",
         &w2_unit_report(quality),
         &w2_unit_model(),
         None,
         finding,
         check,
-        publication,
+        publication, crate::integrity::EntryUpdate::None,
     );
     assert_eq!(diagnostics.len(), 1);
     diagnostics.pop().unwrap()
@@ -1392,7 +1392,7 @@ fn f1b_force_scaling_refusal_exact_template() {
     ];
     for (failure, trigger, code, reason) in cases {
         let mut diagnostics = vec![diag("diagnostic:x", "X", "info", "x", vec![])];
-        append_force_scaling_refusal(&mut diagnostics, "c", &failure, trigger, &model);
+        append_force_scaling_refusal(&mut diagnostics, &mut crate::integrity::InverseNormSink::default(), "c", &failure, trigger, &model);
         assert_eq!(diagnostics.len(), 2);
         let d = &diagnostics[1];
         assert_eq!(d.id, "diagnostic:numerical-integrity:c", "{failure:?}");
@@ -1484,10 +1484,10 @@ fn f1b_non_range_failure_at_b_keeps_the_integrity_code() {
         StructuralError::Range("r"),
     ] {
         let mut main_route = Vec::new();
-        append_integrity_failure(&mut main_route, "c", &error, &model);
+        append_integrity_failure(&mut main_route, &mut crate::integrity::InverseNormSink::default(), "c", &error, &model);
         let mut w2 = Vec::new();
         append_force_scaling_refusal(
-            &mut w2,
+            &mut w2, &mut crate::integrity::InverseNormSink::default(),
             "c",
             &ForceScalingFailure::Failed(ForceScaledError::Structural(error.clone())),
             &trigger,
@@ -1537,7 +1537,7 @@ fn f1b_a_non_range_failure_never_engages_w2() {
         .unwrap_err();
         assert!(!matches!(error, StructuralError::Range(_)), "{error:?}");
         let mut expected = Vec::new();
-        append_integrity_failure(&mut expected, "case", &error, &model);
+        append_integrity_failure(&mut expected, &mut crate::integrity::InverseNormSink::default(), "case", &error, &model);
         let envelopes = [
             run_linear_static_preview_value_with_mode(request.clone(), mode).unwrap(),
             run_linear_static_preview_with_mode(

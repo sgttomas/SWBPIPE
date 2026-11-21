@@ -501,7 +501,8 @@ fn a_blocked_document_carries_no_passing_verdict_and_keeps_its_failures() {
          vec![integrity("load:L-100", "NUMERICAL_INTEGRITY_CHECKS_PASSED", "info"), integrity("load:L-200", "NUMERICAL_INTEGRITY_SENSITIVE", "warning"), blocking.clone()],
          vec![("load:L-100", unassessed), ("load:L-200", unassessed)], "not_assessed"),
     ] {
-        let envelope = serde_json::to_value(blocked_envelope(model.clone(), retained.clone())).unwrap();
+        let (retained_paired, sink) = crate::integrity::tests::through_owner(retained.clone());
+        let envelope = serde_json::to_value(blocked_envelope(model.clone(), retained_paired, sink)).unwrap();
         assert_eq!(envelope["status"]["mechanics"], "MODEL_INCOMPLETE", "{label}");
         assert_eq!(envelope["numerical_quality"]["status"], aggregate, "{label}");
         let cases = envelope["numerical_quality"]["cases"].as_array().unwrap();
@@ -555,7 +556,7 @@ fn inspection_only_is_never_wrapped_twice() {
 /// The held operand of op_mf_held_status's H-16a (a `minuend_final`
 /// subtraction on the V-1 bar, friction mu = 1/4 with a zero normal: E by an
 /// input decision), built as its test builds it.
-fn held_operand_request() -> Value {
+pub(crate) fn held_operand_request() -> Value {
     const PROV: &str = "op_mf";
     let (od, wall, k, length) = (0.12_f64, 0.01_f64, 1_048_576.0_f64, 4.0_f64);
     let inner = od - 2.0 * wall;

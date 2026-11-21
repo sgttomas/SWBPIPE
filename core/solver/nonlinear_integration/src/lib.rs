@@ -6,7 +6,7 @@
 //! standards content, public support defaults, catalog values, or professional
 //! approval claims.
 
-pub mod confirmation;
+pub mod confirmation; mod stage_evidence; // the confirmation's inverse-norm evidence (carrier revision 4 §2), re-exported by `confirmation`; on this line so that no line moves
 pub mod product_equilibrium;
 #[cfg(test)]
 mod dense_memory_guard_tests;
@@ -2057,12 +2057,12 @@ pub fn solve_held_status_iteration(
             confirm.frame_members,
             linear_solve_mode,
         )
-        .unwrap_or_else(|error| confirmation::Confirmation::NotEstablished {
-            reason: format!("confirmation attempt: {error}"),
+        .unwrap_or_else(|error| {
+            confirmation::Confirmation::not_determined(format!("confirmation attempt: {error}"))
         }),
-        _ => confirmation::Confirmation::NotEstablished {
-            reason: "confirmation attempt: not run".to_string(),
-        },
+        _ => confirmation::Confirmation::not_run(
+            "confirmation attempt: not run",
+        ),
     };
     Ok(HeldStatusSolve {
         input: held_input,

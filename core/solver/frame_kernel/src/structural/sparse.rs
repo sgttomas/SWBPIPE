@@ -2176,8 +2176,8 @@ impl SparseConfirmationAttempt<'_, '_, '_> {
         &self,
         system: &FormationCheckedSparseSystem<'_>,
         u: &[f64],
-        judged: bool,
-    ) -> Result<(Option<FormationCheck>, Option<MemberBoundInputs>), StructuralError> {
+        judged: bool, binding: &EvaluationBinding,
+    ) -> Result<FormationEvaluation, StructuralError> { // carrier revision 4 §1.3: every return carries `binding`
         let gate = self.factor.prepared.source;
         let s = &system.system;
         let same_contributions = match (s.contributions, gate.contributions) {
@@ -2204,7 +2204,7 @@ impl SparseConfirmationAttempt<'_, '_, '_> {
             contribution_groups: s.contribution_groups,
             symmetry: None,
         };
-        Ok(formation_check::check_at(
+        Ok(FormationEvaluation::from_check(Some(binding.clone()), formation_check::check_at(
             &view,
             system.source,
             system.force,
@@ -2216,7 +2216,7 @@ impl SparseConfirmationAttempt<'_, '_, '_> {
             &|rhs: &[f64]| self.factor.factor.solve(rhs),
             judged,
             Some(&self.epsilon),
-        ))
+        )))
     }
 }
 
@@ -2433,3 +2433,20 @@ fn pair_energy(
 
 #[cfg(test)]
 mod tests;
+
+impl SparseConfirmationAttempt<'_, '_, '_> {
+    /// The attempt's matrix fingerprint (carrier revision 4 §1.5, diagnostic):
+    /// the prepared pattern's logical lower triangle and scale exponents, the
+    /// same stream as the dense attempt's. Appended here so that no line moves.
+    pub fn matrix_digest(&self) -> u64 {
+        let prepared = self.factor.prepared;
+        super::inverse_bound::matrix_digest_rows(&prepared.scale_exponents, |r, emit| {
+            for k in prepared.row_range(r) {
+                let c = prepared.columns[k];
+                if c <= r {
+                    emit(c, prepared.values[k]);
+                }
+            }
+        })
+    }
+}

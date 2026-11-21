@@ -2362,7 +2362,7 @@ fn i51_c0_envelope(mut mode:ResultItem)->MechanicsEnvelope {
             curved_bend_macro_element_count:0,spring_hanger_user_input_count:0,
             max_displacement:None,max_open_formula_stress:None,max_open_formula_stress_nominal_section:None,
             max_open_formula_stress_reduced_section:None},results:vec![mode],diagnostics:Vec::new(),
-        professional_boundary:professional_boundary(),accepted_model_state_mutated:false}
+        professional_boundary:professional_boundary(),accepted_model_state_mutated:false,inverse_norm:Default::default()}
 }
 /// B2-P (T-2′): the early hook (`case_source`) refuses a combination D1.4 does not admit by
 /// itself (here h = 4), on a capture whose normalization saw none, so the late hook is not the

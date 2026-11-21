@@ -126,7 +126,7 @@ fn static_state_solve(prepared: &Prepared, mode: PreviewSolverMode) -> (LoadCase
         None,
         &mut SourceRecoveryBudget::default(),
         prepared.state_resolution.as_ref(),
-        &mut diagnostics,
+        &mut diagnostics, &mut crate::integrity::InverseNormSink::default(),
         None,
         crate::held_status::CaseRole::Own(None),
     )
