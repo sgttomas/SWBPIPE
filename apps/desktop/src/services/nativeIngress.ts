@@ -155,6 +155,6 @@ export async function invokeWithIngress<T>(
 /** The text a feature shows for a failed native request: a resource refusal
  * reads as the plain-language refusal sentence, anything else as before. */
 export function nativeFailureText(error: unknown): string {
-  if (error instanceof ResourceUnavailableError) return `Refused by the native memory pool: ${describeResourceRefusal(error.refusal)}`;
+  if (error instanceof ResourceUnavailableError) return `Refused by the memory pool: ${describeResourceRefusal(error.refusal)}`;
   return String(error);
 }

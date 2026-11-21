@@ -317,7 +317,7 @@ describe("stepping the native results navigator", () => {
     const { result } = await nativeResult("fixture");
     render(<Harness result={result} model={pair.model} />);
     fireEvent.change(screen.getByTestId("result-filter-input"), { target: { value: "\ud800" } });
-    expect(await screen.findByTestId("result-query-refused")).toHaveTextContent(/could not be read: Refused by the native memory pool: .*lone leading surrogate/);
+    expect(await screen.findByTestId("result-query-refused")).toHaveTextContent(/could not be read: Refused by the memory pool: .*lone leading surrogate/);
     await waitFor(() => expect(position("entity")).toMatch(/could not be read: .*(surrogate|refused)/i));
     expect(screen.queryByTestId("result-filter-empty")).toBeNull();
     await act(async () => { await disposeDeliveredMechanicsResult(result); });

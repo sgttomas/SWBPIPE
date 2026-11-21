@@ -1638,7 +1638,7 @@ export function useWorkspaceSession() {
               : current
           );
           timeline.end("refused");
-          return failed("resource_refused", lastMessage(refusedSolveJob(startedJob ?? initialSolveJob(), refusal), "Refused by the native memory pool."));
+          return failed("resource_refused", lastMessage(refusedSolveJob(startedJob ?? initialSolveJob(), refusal), "Refused by the memory pool."));
         }
         // Refused natively for its size: the result was discarded unread and is never taken.
         if (terminal.state === "refused" && terminal.result_too_large) {

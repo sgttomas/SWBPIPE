@@ -4,6 +4,7 @@ import type { PoolStatus } from "../../types";
 import {
   configureMemoryPool,
   describeResourceRefusal,
+  poolRefusalReading,
   formatBytes,
   getMemoryPoolStatus,
   GIB,
@@ -75,7 +76,7 @@ export function MemoryPoolPanel({ active }: { active: boolean }) {
       <section className="memory-pool-panel" aria-label="Memory pool" data-testid="memory-pool-panel">
         <div className="panel-subtitle">Memory</div>
         <p role="status" data-testid="memory-pool-unavailable">
-          Memory pool unavailable: the browser preview has no native memory pool, so no budget, pool or available-memory figures are shown.
+          Memory pool unavailable: the browser preview has no memory pool, so no budget, pool or available-memory figures are shown.
         </p>
       </section>
     );
@@ -119,7 +120,7 @@ export function MemoryPoolPanel({ active }: { active: boolean }) {
       if (!mounted.current) return;
       if (error instanceof ResourceUnavailableError) {
         if (error.pool && ticket === readSequence.current) publish(error.pool);
-        setOutcome({ tone: "refused", text: `Refused by the native memory pool: ${describeResourceRefusal(error.refusal)}` });
+        setOutcome({ tone: "refused", text: `Refused${poolRefusalReading(error.refusal)}` });
       } else {
         setOutcome({ tone: "error", text: `The request did not reach a verdict: ${errorText(error)}` });
       }

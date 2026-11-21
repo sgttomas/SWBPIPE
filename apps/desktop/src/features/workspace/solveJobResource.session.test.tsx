@@ -175,10 +175,10 @@ it("records a refused terminal job as a typed refusal with its budget, takes not
   expect(commands()).not.toContain("take_preview_mechanics_job_result");
   const view = renderSolvePanel(result.current);
   expect(within(view.container).getByTestId("solve-job-resource-refusal")).toHaveTextContent(
-    "Refused by the native memory pool: The memory pool is fully reserved: this request needs 12 GiB, and 40 GiB of the 48 GiB pool is already reserved. No result was published."
+    "Refused by the memory pool: the memory pool is fully reserved: this request needs 12 GiB, and 40 GiB of the 48 GiB pool is already reserved. No result was published."
   );
   expect(within(view.container).queryByTestId("solve-job-error")).toBeNull();
-  expect(within(view.container).getByTestId("readiness-mechanics")).toHaveTextContent("refused by the native memory pool");
+  expect(within(view.container).getByTestId("readiness-mechanics")).toHaveTextContent("refused by the memory pool");
   // A refused run makes no analysis record; its typed refusal and budget are recoverable from the solve-job export.
   expect(result.current.results.analysisRun).toBeNull();
   view.unmount();
@@ -218,7 +218,7 @@ it("records a solve refused while its worker grew: the typed refusal with its ne
   delete (window as unknown as Record<string, unknown>).__TAURI_INTERNALS__;
   const panel = renderSolvePanel(result.current);
   const sentence = "The solve needed more memory (5 GiB) than could be reserved while it ran: The memory pool is fully reserved: this request needs 2 GiB, and 11 GiB of the 12 GiB pool is already reserved. The memory the solve needs most likely comes from the volume of per-station result detail for this model and its load cases. A solve covers every load case and combination in the model, so to need less: remove the load cases and combinations this review does not need (Load Cases section); or solve the cases in smaller groups, each in its own copy of the model document (File > Save Model Document…), with the combinations in a copy holding only the cases they use; or split a large model into parts.";
-  expect(within(panel.container).getByTestId("solve-job-resource-refusal")).toHaveTextContent(`Refused by the native memory pool: ${sentence} No result was published.`);
+  expect(within(panel.container).getByTestId("solve-job-resource-refusal")).toHaveTextContent(`Refused by the memory pool: ${sentence.charAt(0).toLowerCase()}${sentence.slice(1)} No result was published.`);
   expect(within(panel.container).queryByTestId("solve-job-worker-failure")).toBeNull();
   expect(within(panel.container).getByTestId("solve-job-resource").querySelector("strong")).toHaveTextContent("worker grant=none held; peak=3 GiB; peak footprint=3.25 GiB; refusal=worker_growth_refused");
   fireEvent.click(within(panel.container).getByTestId("solve-job-export-link-local-private-intent"));
@@ -247,7 +247,7 @@ it.each([
   expect(within(view.container).getByTestId("solve-job-error")).toHaveTextContent(message);
   expect(within(view.container).getByTestId("solve-job-worker-failure")).toHaveTextContent(sentence);
   expect(within(view.container).queryByTestId("solve-job-resource-refusal")).toBeNull();
-  expect(within(view.container).getByTestId("readiness-mechanics")).not.toHaveTextContent("refused by the native memory pool");
+  expect(within(view.container).getByTestId("readiness-mechanics")).not.toHaveTextContent("refused by the memory pool");
 });
 
 // A hand-edited model document with a misspelled nested key (Agent 0, 2026-10-25: nested records
@@ -350,11 +350,11 @@ it("records a native read refused for headroom as a session-step refusal, with i
   expect(transport.nativeHeld()).toEqual([]);
   const view = renderSolvePanel(result.current);
   expect(within(view.container).getByTestId("solve-job-summary")).toHaveTextContent("state=refused; events=2; result_rows=0");
-  expect(within(view.container).getByTestId("solve-job-resource-refusal")).toHaveTextContent(`Refused by the native memory pool: ${SMOKE_HEADROOM_SENTENCE} No result was published.`);
+  expect(within(view.container).getByTestId("solve-job-resource-refusal")).toHaveTextContent(`Refused: the memory pool had too little free at that moment. ${SMOKE_HEADROOM_SENTENCE} No result was published.`);
   expect(within(view.container).getByTestId("solve-job-refusal-retry")).toHaveTextContent(
     `Refused at a native read or other native command of this solve's session steps; the session does not retry it and releases any held result. Available memory was re-sampled for up to 2 s before this refusal stood. You can run the solve again when more memory is available. Refusal code: ${SMOKE_HEADROOM_CODE}`);
   expect(within(view.container).getByTestId("solve-job-resource").querySelector("strong")).toHaveTextContent("refusal=headroom_insufficient");
-  expect(within(view.container).getByTestId("readiness-mechanics")).toHaveTextContent("refused by the native memory pool");
+  expect(within(view.container).getByTestId("readiness-mechanics")).toHaveTextContent("refused: the memory pool had too little free at that moment");
   expect(within(view.container).getByTestId("solve-job-binding")).toHaveTextContent("not generated; result rows=0; hashes=0");
 });
 
@@ -372,7 +372,7 @@ it("records a solve refused at the result hand-off (its result lease) as refused
   expect(commands()).not.toContain("take_preview_mechanics_job_result");
   const view = renderSolvePanel(result.current);
   expect(within(view.container).getByTestId("solve-job-summary")).toHaveTextContent("state=refused; events=2; result_rows=0");
-  expect(within(view.container).getByTestId("solve-job-resource-refusal")).toHaveTextContent(`Refused by the native memory pool: ${SMOKE_HEADROOM_SENTENCE} No result was published.`);
+  expect(within(view.container).getByTestId("solve-job-resource-refusal")).toHaveTextContent(`Refused: the memory pool had too little free at that moment. ${SMOKE_HEADROOM_SENTENCE} No result was published.`);
   expect(within(view.container).getByTestId("solve-job-refusal-retry")).toHaveTextContent(
     `Refused at the result hand-off after the solve finished; the finished result was dropped. Available memory was re-sampled for up to 2 s before this refusal stood. You can run the solve again when more memory is available. Refusal code: ${SMOKE_HEADROOM_CODE}`);
 });
@@ -392,7 +392,7 @@ it("shows a worker growth refusal as before, now with its exact code and retry p
   expect(within(view.container).getByTestId("solve-job-summary")).toHaveTextContent("state=refused; events=2; result_rows=0");
   // The panel's refusal text is unchanged.
   expect(within(view.container).getByTestId("solve-job-resource-refusal").textContent).toBe(
-    "Refused by the native memory pool: The solve needed more memory (69.23 MiB) than could be reserved while it ran: Not enough available memory on this Mac right now (free plus reclaimable file cache and purgeable memory, less the kernel's reserve): needs 64 MiB, 0 MiB available. The memory the solve needs most likely comes from the volume of per-station result detail for this model and its load cases. A solve covers every load case and combination in the model, so to need less: remove the load cases and combinations this review does not need (Load Cases section); or solve the cases in smaller groups, each in its own copy of the model document (File > Save Model Document…), with the combinations in a copy holding only the cases they use; or split a large model into parts. No result was published.");
+    "Refused by the memory pool: the solve needed more memory (69.23 MiB) than could be reserved while it ran: Not enough available memory on this Mac right now (free plus reclaimable file cache and purgeable memory, less the kernel's reserve): needs 64 MiB, 0 MiB available. The memory the solve needs most likely comes from the volume of per-station result detail for this model and its load cases. A solve covers every load case and combination in the model, so to need less: remove the load cases and combinations this review does not need (Load Cases section); or solve the cases in smaller groups, each in its own copy of the model document (File > Save Model Document…), with the combinations in a copy holding only the cases they use; or split a large model into parts. No result was published.");
   expect(within(view.container).getByTestId("solve-job-resource").querySelector("strong")).toHaveTextContent("refusal=worker_growth_refused");
   expect(within(view.container).getByTestId("solve-job-refusal-retry")).toHaveTextContent(
     "Refused while the solve ran: its worker process was stopped, with no fallback to another solver mode or route. Available memory was re-sampled for up to 2 s before this refusal stood. You can run the solve again when more memory is available. Refusal code: worker_growth_refused (granted_bytes=68157440, requested_bytes=72598008); cause headroom_insufficient (required_bytes=67108864, available_bytes=0)");

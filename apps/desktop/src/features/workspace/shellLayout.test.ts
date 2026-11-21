@@ -227,7 +227,7 @@ describe("the rail's states (§2.3, §2.6)", () => {
     expect(row("review", FAILED)).toEqual({ enabled: false, reason: "No solved run", caption: null, tooltip: "No solved run" });
   });
 
-  it("after a run the native memory pool refused: Results captioned Refused, Review No solved run", () => {
+  it("after a run the memory pool refused: Results captioned Refused, Review No solved run", () => {
     const refused: RunPresence = { ...NO_RUN, solveJobState: "refused" };
     expect(row("results", refused)).toEqual({ enabled: true, reason: null, caption: "Refused", tooltip: "Refused · Results" });
     expect(row("review", refused)).toEqual({ enabled: false, reason: "No solved run", caption: null, tooltip: "No solved run" });

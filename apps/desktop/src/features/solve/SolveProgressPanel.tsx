@@ -1,7 +1,7 @@
 import { ArrowRight, ChevronRight, Flag, ListChecks, Square, X } from "lucide-react";
 import { useEffect, useId, useReducer, useRef, useState, type RefObject } from "react";
 import type { ResourceRefusal, SolveJobAuditState, SolveJobEvent } from "../../types";
-import { describeResourceRefusal, describeSolveWorkerFailure, formatBytes, resourceRefusalCode, solveWorkerFailureCode } from "../../services/memoryPool";
+import { describeResourceRefusalAfterColon, describeSolveWorkerFailure, formatBytes, poolRefusalReading, resourceRefusalCode, solveWorkerFailureCode } from "../../services/memoryPool";
 import { registeredStatusLabel, statusDisplayWithToken } from "../workspace/statusLabels";
 import { describeSolveRefusalRetry, isResultTooLargeSolveJob, solveRefusalPoint } from "../workspace/solveJobAudit";
 
@@ -318,10 +318,10 @@ export function SolveProgressPanel({
             </span>
           ) : null}
           {queueReason && (state === "queued" || state === "cancelling") ? (
-            <span data-testid="solve-progress-queue-reason"> Waiting in the queue: {describeResourceRefusal(queueReason)}</span>
+            <span data-testid="solve-progress-queue-reason"> Waiting in the queue: {describeResourceRefusalAfterColon(queueReason)}</span>
           ) : null}
           {poolRefusal ? (
-            <span data-testid="solve-progress-refusal"> by the native memory pool: {describeResourceRefusal(refusal)} No result was published.</span>
+            <span data-testid="solve-progress-refusal">{poolRefusalReading(refusal)} No result was published.</span>
           ) : null}
           {poolRefusal && refusalPoint ? <span data-testid="solve-progress-retry"> {describeSolveRefusalRetry(refusal, refusalPoint)}</span> : null}
           {poolRefusal ? (
@@ -496,7 +496,7 @@ export function SolveIssueItem({ solveJob }: { solveJob: SolveJobAuditState }) {
         {tooLarge ? <p>{solveJob.error_message}</p> : null}
         {solveJob.state === "refused" && refusal ? (
           <>
-            <p>Refused by the native memory pool: {describeResourceRefusal(refusal)} No result was published.</p>
+            <p>Refused{poolRefusalReading(refusal)} No result was published.</p>
             {refusalPoint ? <p>{describeSolveRefusalRetry(refusal, refusalPoint)}</p> : null}
             <p>
               Refusal code: <code>{resourceRefusalCode(refusal)}</code>

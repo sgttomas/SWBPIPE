@@ -6,7 +6,7 @@ import { LoadReferenceStatesBlock } from "./LoadReferenceStatesBlock";
 import type { AnalysisRunEnvelope, Diagnostic, MechanicsResult, PreviewModel, SolveJobAuditState } from "../../types";
 import type { PreviewSolverMode } from "../../services/previewService";
 import { hasRecordedUnsolvedModelStatus, professionalStatusToken, ruleCheckStatusToken, solverDisplayWithToken, statusDisplayWithToken } from "../workspace/statusLabels";
-import { describeResourceRefusal, describeSolveWorkerFailure, formatBytes, resourceRefusalCode } from "../../services/memoryPool";
+import { describeResourceRefusal, describeResourceRefusalAfterColon, describeSolveWorkerFailure, formatBytes, poolRefusalReading, resourceRefusalCode } from "../../services/memoryPool";
 import { describeSolveRefusalRetry, isResultTooLargeSolveJob, solveRefusalPoint } from "../workspace/solveJobAudit";
 import { MemoryPoolPanel } from "./MemoryPoolPanel";
 import type { NumericalHealthView } from "../results/numericalHealth";
@@ -107,7 +107,7 @@ export function SolvePanel({
       ) : null}
       {solveJob.resource.refusal ? (
         <p role="status" className="memory-pool-message warning" data-testid="solve-job-resource-refusal">
-          Refused by the native memory pool: {describeResourceRefusal(solveJob.resource.refusal)} No result was published.
+          Refused{poolRefusalReading(solveJob.resource.refusal)} No result was published.
         </p>
       ) : null}
       {refusalPoint && solveJob.resource.refusal ? (
@@ -117,7 +117,7 @@ export function SolvePanel({
       ) : null}
       {solveJob.resource.queue_reason && (solveJob.state === "queued" || solveJob.state === "cancelling") ? (
         <p role="status" className="memory-pool-message info" data-testid="solve-job-queue-reason">
-          Waiting in the queue: {describeResourceRefusal(solveJob.resource.queue_reason)} The queue retries by itself and starts
+          Waiting in the queue: {describeResourceRefusalAfterColon(solveJob.resource.queue_reason)} The queue retries by itself and starts
           the solve once the pool admits it; Stop on the status line stops the wait.
         </p>
       ) : null}
@@ -227,7 +227,7 @@ function readinessSummary({
         ? `${resultRowCount(result)} computed result rows; ${solverDisplayWithToken(mechanicsStatus)}`
         : solveJob.state === "failed" ? `Solve job state: ${solveJob.state}; ${solverDisplayWithToken(solveJob.state)}`
         : isResultTooLargeSolveJob(solveJob) ? "Solve job state: refused; the result is too large for the desktop to display, so no result was kept"
-        : solveJob.state === "refused" ? "Solve job state: refused by the native memory pool; no result was published"
+        : solveJob.state === "refused" ? `Solve job state: ${solveJob.resource.refusal?.kind === "headroom_insufficient" ? "refused: the memory pool had too little free at that moment" : "refused by the memory pool"}; no result was published`
         : `preview run not started; ${hasRecordedUnsolvedModelStatus(mechanicsStatus) ? solverDisplayWithToken(mechanicsStatus) : statusDisplayWithToken(mechanicsStatus)}`,
       tone: result ? "ok" : "info"
     },

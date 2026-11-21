@@ -141,7 +141,7 @@ describe("the memory pool panel", () => {
     fireEvent.click(apply);
     const outcome = await screen.findByTestId("memory-pool-outcome");
     expect(invokeMock).toHaveBeenCalledWith("configure_memory_pool", { poolBytes: 56 * GiB, invocationBudgetBytes: 12 * GiB, acknowledgeAboveRecommended: true });
-    expect(outcome).toHaveTextContent("Refused by the native memory pool: Not enough available memory on this Mac right now (free plus reclaimable file cache and purgeable memory, less the kernel's reserve): needs 56 GiB, 20 GiB available.");
+    expect(outcome).toHaveTextContent("Refused: the memory pool had too little free at that moment. Not enough available memory on this Mac right now (free plus reclaimable file cache and purgeable memory, less the kernel's reserve): needs 56 GiB, 20 GiB available.");
     expect(outcome).not.toHaveTextContent("Applied");
     expect(line("memory-pool-last-refusal")).toBe("Not enough available memory on this Mac right now (free plus reclaimable file cache and purgeable memory, less the kernel's reserve): needs 56 GiB, 20 GiB available.");
     // Changing the request withdraws the acknowledgement.
@@ -226,7 +226,7 @@ describe("the memory pool panel", () => {
   });
 
   it.each([
-    [{ kind: "pool_above_capacity", pool_bytes: 80 * GiB, capacity_bytes: 64 * GiB }, "12", "80", "A pool of 80 GiB is larger than this Mac's physical memory (64 GiB)."]
+    [{ kind: "pool_above_capacity", pool_bytes: 80 * GiB, capacity_bytes: 64 * GiB }, "12", "80", "a pool of 80 GiB is larger than this Mac's physical memory (64 GiB)."]
   ])("shows the native %s refusal in plain language", async (refusal, budget, pool, text) => {
     nativeRuntime();
     invokeMock.mockImplementation(async (command: string) => {
@@ -241,7 +241,7 @@ describe("the memory pool panel", () => {
     const ack = screen.queryByRole("checkbox", { name: /I acknowledge/ });
     if (ack) fireEvent.click(ack);
     fireEvent.click(screen.getByTestId("memory-pool-apply"));
-    expect(await screen.findByTestId("memory-pool-outcome")).toHaveTextContent(`Refused by the native memory pool: ${text}`);
+    expect(await screen.findByTestId("memory-pool-outcome")).toHaveTextContent(`Refused by the memory pool: ${text}`);
   });
 
   it.each([

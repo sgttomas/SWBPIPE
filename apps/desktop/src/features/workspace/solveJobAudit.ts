@@ -344,7 +344,7 @@ export function refusedSolveJob(
       {
         event_id: at === "take" ? REFUSED_AT_TAKE_EVENT : at === "session_step" ? REFUSED_AT_SESSION_STEP_EVENT : REFUSED_EVENT,
         state: "refused",
-        message: `Refused by the native memory pool (${refusal.kind}): ${describeResourceRefusal(refusal)} No result was published. ${describeSolveRefusalRetry(refusal, point)} Refusal code: ${resourceRefusalCode(refusal)}.`,
+        message: `Refused by the memory pool (${refusal.kind}): ${describeResourceRefusal(refusal)} No result was published. ${describeSolveRefusalRetry(refusal, point)} Refusal code: ${resourceRefusalCode(refusal)}.`,
         result_available: false,
         diagnostic_count: 0,
         result_row_count: 0,

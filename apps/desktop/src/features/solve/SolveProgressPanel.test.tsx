@@ -192,9 +192,9 @@ describe("solve progress panel", () => {
     view.rerender(panel(refused, false));
     expect(screen.getByTestId("solve-progress-state")).toHaveTextContent(/^Refused/);
     expect(screen.getByTestId("solve-progress-refusal")).toHaveTextContent(
-      "by the native memory pool: Not enough available memory on this Mac right now (free plus reclaimable file cache and purgeable memory, less the kernel's reserve): needs 65.01 MiB, 50.2 MiB available. No result was published."
+      ": the memory pool had too little free at that moment. Not enough available memory on this Mac right now (free plus reclaimable file cache and purgeable memory, less the kernel's reserve): needs 65.01 MiB, 50.2 MiB available. No result was published."
     );
-    expect(screen.getByTestId("solve-progress-state")).toHaveTextContent(/^Refused by the native memory pool: Not enough available memory/);
+    expect(screen.getByTestId("solve-progress-state")).toHaveTextContent(/^Refused: the memory pool had too little free at that moment\. Not enough available memory/);
     expect(screen.getByTestId("solve-progress-retry")).toHaveTextContent(
       "Refused at the result hand-off after the solve finished; the finished result was dropped. Available memory was re-sampled for up to 2 s before this refusal stood. You can run the solve again when more memory is available."
     );
@@ -655,7 +655,7 @@ describe("the Issues drawer's Last solve item", () => {
     render(<SolveIssueItem solveJob={refusedSolveJob(started(), { kind: "headroom_insufficient", required_bytes: 68165632, available_bytes: 52641792 })} />);
     const item = screen.getByTestId("issues-solve-item");
     expect(item).toHaveTextContent("The solve was refused");
-    expect(item).toHaveTextContent("Refused by the native memory pool: Not enough available memory on this Mac right now (free plus reclaimable file cache and purgeable memory, less the kernel's reserve): needs 65.01 MiB, 50.2 MiB available. No result was published.");
+    expect(item).toHaveTextContent("Refused: the memory pool had too little free at that moment. Not enough available memory on this Mac right now (free plus reclaimable file cache and purgeable memory, less the kernel's reserve): needs 65.01 MiB, 50.2 MiB available. No result was published.");
     expect(item).toHaveTextContent("You can run the solve again when more memory is available.");
     expect(item).toHaveTextContent("Refusal code: headroom_insufficient (required_bytes=68165632, available_bytes=52641792)");
     expect(screen.queryByTestId("issues-solve-failure-code")).toBeNull();
@@ -668,6 +668,6 @@ describe("the Issues drawer's Last solve item", () => {
     expect(item).toHaveTextContent("The solve was refused");
     expect(item).toHaveTextContent(tooLarge.error_message!);
     expect(item).toHaveTextContent("Code: PREVIEW-SOLVE-RESULT-TOO-LARGE (result_bytes=147000000, limit_bytes=67108864)");
-    expect(item).not.toHaveTextContent("native memory pool");
+    expect(item).not.toHaveTextContent("memory pool");
   });
 });

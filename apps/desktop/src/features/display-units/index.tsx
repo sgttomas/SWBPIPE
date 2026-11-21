@@ -31,7 +31,7 @@ function makeBatcher(converter: Converter) {
         }
         catch (error) {
           results = [];
-          if (error instanceof ResourceUnavailableError) unavailable = `conversion refused by the native memory pool: ${describeResourceRefusal(error.refusal)}`;
+          if (error instanceof ResourceUnavailableError) unavailable = `conversion refused by the memory pool: ${describeResourceRefusal(error.refusal)}`;
         }
         for (const { request, resolve: finish } of batch) {
           const matches = results.filter((result) => result && result.id === request.id);

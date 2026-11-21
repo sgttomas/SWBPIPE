@@ -69,7 +69,7 @@ describe("the engine's checks say whether they did not run or did not complete, 
     invokeMock.mockRejectedValue({ code: "RESOURCE_UNAVAILABLE", refusal: { kind: "worker_footprint_exceeded", grant_bytes: 2, footprint_bytes: 3 }, pool: null });
     const run = await runModelChecks(model);
     expect(run.solve).toMatchObject({ kind: "unavailable", started: true });
-    expect((await drawer(run)).message).toMatch(/^The model checks did not complete: Refused by the native memory pool/);
+    expect((await drawer(run)).message).toMatch(/^The model checks did not complete: Refused by the memory pool/);
   });
 
   it("the pool's refusal to admit the check, before its start, did not run", async () => {
@@ -79,7 +79,7 @@ describe("the engine's checks say whether they did not run or did not complete, 
     const run = await runModelChecks(model);
     expect(run.solve).toEqual({ kind: "unavailable", reason: expect.stringContaining("Model checks could not start because all worker slots are occupied") });
     const { message, labels } = await drawer(run);
-    expect(message).toMatch(/^The model checks did not run: Refused by the native memory pool: Model checks could not start/);
+    expect(message).toMatch(/^The model checks did not run: Refused by the memory pool: Model checks could not start/);
     expect(labels).toEqual(["not run", "not run", "not run"]);
   });
 

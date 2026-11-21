@@ -77,6 +77,23 @@ export function describeResourceRefusal(refusal: ResourceRefusal): string {
   }
 }
 
+/** `describeResourceRefusal`'s sentence where a line places it after a colon, so the line reads as
+ * one sentence: its first letter in lower case ("…: the memory pool is fully reserved: …"). A
+ * sentence that begins with "macOS" or a figure is unchanged. */
+export function describeResourceRefusalAfterColon(refusal: ResourceRefusal): string {
+  const sentence = describeResourceRefusal(refusal);
+  return sentence.charAt(0).toLowerCase() + sentence.slice(1);
+}
+
+/** What follows "Refused" in a reading of a pool refusal: " by the memory pool: " and the reason; or,
+ * where too little memory was free at that moment (`headroom_insufficient`), ": the memory pool had
+ * too little free at that moment." and the reason as its own sentence. */
+export function poolRefusalReading(refusal: ResourceRefusal): string {
+  return refusal.kind === "headroom_insufficient"
+    ? `: the memory pool had too little free at that moment. ${describeResourceRefusal(refusal)}`
+    : ` by the memory pool: ${describeResourceRefusalAfterColon(refusal)}`;
+}
+
 /** The typed refusal exactly as the native host reported it: its code and each
  * of its fields (bytes unrounded), then a growth refusal's cause the same way.
  * For example `headroom_insufficient (required_bytes=68165632, available_bytes=52641792)`. */
