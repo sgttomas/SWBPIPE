@@ -396,8 +396,9 @@ for (const { drawerId, toggleId, contentId, contentText } of [
     await expect(page.getByTestId("menu-view")).toHaveAttribute("aria-expanded", "true");
     await expect(menu).toHaveCSS("z-index", "50");
     await measure("active-view-command");
-    await page.getByTestId("menu-item-view.section.operations").click();
-    await expect(page.getByTestId("workspace-section-operations")).toBeVisible();
+    // A View-menu section command (Review changes is no longer listed: the rail and its tab reach it).
+    await page.getByTestId("menu-item-view.section.libraries").click();
+    await expect(page.getByTestId("workspace-section-libraries")).toBeVisible();
     await expect(page.getByTestId("menu-dropdown-view")).toHaveCount(0);
     await expect(drawer).toBeVisible();
     await page.getByTestId("menu-view").click();
