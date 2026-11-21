@@ -425,7 +425,7 @@ export function RenderedReportPanel({
 
   async function onNativeRoute(kind: "save" | "print") {
     const open = kind === "save" ? routeOpen : printOpen;
-    if (routeInFlight.current || !open || routeControl === null || routeHtml === null || routeContext === null || renderState === null) return;
+    if (routeInFlight.current || !open || routeControl === null || routeHtml === null || outcome === null || routeContext === null || renderState === null) return;
     routeInFlight.current = true;
     const generation = renderGeneration.current;
     const stillCurrent = () => renderGeneration.current === generation;
@@ -464,6 +464,9 @@ export function RenderedReportPanel({
         return;
       }
       const request = {
+        // The render is named by its hash; the desktop holds its document.
+        // The HTML stays here: the service checks the controlled export against it.
+        sha256Hex: outcome.sha256_hex,
         html: routeHtml,
         context: routeContext,
         explicitLocalPrivateIntent: routeContext === "local_private" && localPrivateIntent,

@@ -5,10 +5,11 @@
 //! shell replaces `window.print` only in the main frame (tauri 2.11.1
 //! `src/webview/scripts/print.js`, installed for the main frame only at
 //! `src/plugin.rs` 370-374), and the main frame's print is of the whole
-//! application window. So the desktop admits the canonical HTML against its
-//! render custody, derives the print view from those bytes itself
-//! (`derived_print_view`: the canonical document with a banner naming its
-//! hash), and loads that view into a window of its own, whose webview runs no
+//! application window. So the desktop admits the request, which names the
+//! render by its SHA-256 and carries no document, against its render custody,
+//! derives the print view itself from the canonical HTML that custody holds for
+//! the current render (`derived_print_view`: the canonical document with a
+//! banner naming its hash), and loads that view into a window of its own, whose webview runs no
 //! script (`disable_javascript`), keeps no data (`incognito`), navigates
 //! nowhere but its one address and is served the document over the
 //! [`SCHEME`] protocol with a content security policy that admits no load
@@ -49,6 +50,7 @@
 //! the native print path; it does not show that a dialog appeared, what the
 //! system's print preview composed, or how a print job ended.
 use crate::command_ingress::{self, respond, ArgsDecoding, CommandError};
+use crate::memory_pool::Lease;
 use crate::rendered_report_routes::{self as routes, RenderCustody, RouteError, RouteRequest};
 use crate::solve_jobs::SolveJobRegistry;
 use serde::Serialize;
@@ -67,6 +69,33 @@ pub(crate) const PRINT_ALREADY_OPEN: &str = "REPORT-PRINT-ALREADY-OPEN";
 pub(crate) const PRINT_PLATFORM_UNSUPPORTED: &str = "REPORT-PRINT-PLATFORM-UNSUPPORTED";
 /// The print window could not be created.
 pub(crate) const PRINT_WINDOW_FAILED: &str = "REPORT-PRINT-WINDOW-FAILED";
+/// The print command's lease could not grow to cover deriving the print view:
+/// nothing was derived and no window was opened.
+pub(crate) const PRINT_DERIVATION_UNAVAILABLE: &str = "REPORT-PRINT-DERIVATION-UNAVAILABLE";
+
+/// An upper bound on the print view's banner (`derived_print_view`): its
+/// fixed markup and text (about 140 bytes in UTF-8) and the canonical hash,
+/// which here is always the 64 lowercase hexadecimal characters this desktop
+/// computed, which `escape_html` leaves unchanged. Checked by
+/// `the_print_derivation_bound_covers_the_derived_view`.
+pub(crate) const PRINT_BANNER_MAX_BYTES: usize = 256;
+
+/// The bytes the print command's lease grows by before it derives the print
+/// view of a canonical document of `canonical_len` bytes. `derived_print_view`
+/// builds the banner (`format!` of the escaped hash: the hash's escaped copy
+/// and the banner, each at most [`PRINT_BANNER_MAX_BYTES`], a growing buffer
+/// holding at most two blocks at once) and one string of exactly
+/// `canonical_len` plus the banner's length: allocated at that capacity when the
+/// document has its `<body>` line, otherwise grown by `format!`, again with at
+/// most two blocks alive at once. So three banner envelopes and two envelopes
+/// of the whole view bound what it allocates (`ingress::allocation_envelope`);
+/// the print view's SHA-256 adds 64 bytes, inside the banner allowance.
+pub(crate) fn print_derivation_bytes(canonical_len: usize) -> u64 {
+    let envelope = |size: usize| crate::ingress::allocation_envelope(size as u64).unwrap_or(u64::MAX);
+    let banner = envelope(PRINT_BANNER_MAX_BYTES);
+    let view = envelope(canonical_len.saturating_add(PRINT_BANNER_MAX_BYTES));
+    banner.saturating_mul(3).saturating_add(view.saturating_mul(2))
+}
 
 const LABEL_PREFIX: &str = "report-print-";
 
@@ -108,11 +137,36 @@ pub(crate) struct PrintReceipt {
     pub(crate) print_sha256_hex: String,
 }
 
-/// Admits the request against `custody` and derives the print view from the
-/// admitted canonical HTML.
-pub(crate) fn admit_print_in(custody: &RenderCustody, request: &RouteRequest) -> Result<PrintDocument, RouteError> {
+/// Admits the request against `custody`, grows the print command's `lease`
+/// by the derivation's bound ([`print_derivation_bytes`]; refused
+/// [`PRINT_DERIVATION_UNAVAILABLE`] with nothing derived), then takes the held
+/// canonical HTML of the admitted render only to derive the print view from
+/// it (refused [`routes::NOT_CURRENT`] if that render is no longer current).
+pub(crate) fn print_document_in(custody: &RenderCustody, request: &RouteRequest, lease: &mut Lease) -> Result<PrintDocument, RouteError> {
+    print_document_between(custody, request, lease, || {})
+}
+
+/// [`print_document_in`], running `before_take` after the lease has grown and
+/// before the document is taken (a seam for tests at that boundary).
+fn print_document_between(custody: &RenderCustody, request: &RouteRequest, lease: &mut Lease, before_take: impl FnOnce()) -> Result<PrintDocument, RouteError> {
     let admitted = custody.admit(request)?;
-    let print_html = open_pipe_stress_report_renderer::derived_print_view(&request.html, &admitted.sha256_hex).into_bytes();
+    lease.grow_to(lease.bytes().saturating_add(print_derivation_bytes(admitted.byte_count))).map_err(|refusal| {
+        RouteError::at(
+            PRINT_DERIVATION_UNAVAILABLE,
+            "print",
+            format!(
+                "The desktop could not reserve memory to derive the print view ({}); nothing was printed. Try again when more memory is free.",
+                serde_json::to_string(&refusal).unwrap_or_default()
+            ),
+        )
+    })?;
+    before_take();
+    // Bound to the render the request named: the same generation and hash.
+    let document = custody.document_if_current(admitted.generation, &admitted.sha256_hex).ok_or_else(|| {
+        RouteError::at(routes::NOT_CURRENT, "print", "The report was retired, rendered again or its source changed before its print view was derived; nothing was printed. Render the report again.")
+    })?;
+    let print_html = open_pipe_stress_report_renderer::derived_print_view(document.html(), &admitted.sha256_hex).into_bytes();
+    drop(document);
     let print_sha256_hex = routes::sha256_hex(&print_html);
     Ok(PrintDocument {
         generation: admitted.generation,
@@ -121,6 +175,15 @@ pub(crate) fn admit_print_in(custody: &RenderCustody, request: &RouteRequest) ->
         print_html,
         print_sha256_hex,
     })
+}
+
+/// Tests' admission and derivation, under an interactive lease of an ample
+/// pool of its own that the derivation's bound can grow.
+#[cfg(test)]
+pub(crate) fn admit_print_in(custody: &RenderCustody, request: &RouteRequest) -> Result<PrintDocument, RouteError> {
+    let pool = routes::test_pool();
+    let mut lease = pool.acquire_interactive(1).expect("an ample pool admits the command's lease");
+    print_document_in(custody, request, &mut lease)
 }
 
 /// The document the open print window may be served: only to that window's
@@ -340,17 +403,19 @@ fn destroy_window(label: &str) {
 }
 
 /// Print… (route `DREP-HTML-SAVE-005`): admission and derivation under the
-/// ingress lease, then the print window.
+/// ingress lease, grown first by the derivation's bound, then the print
+/// window. The window's record keeps the derived view after the command
+/// returns, outside the lease.
 #[tauri::command]
 pub(crate) async fn print_rendered_report(
     app: AppHandle,
     invoke: tauri::ipc::Request<'_>,
     registry: tauri::State<'_, SolveJobRegistry>,
 ) -> Result<tauri::ipc::Response, CommandError<RouteError>> {
-    let (mut args, lease) = command_ingress::admit(&registry, &invoke, "print_rendered_report", ArgsDecoding::Moved)?;
+    let (mut args, mut lease) = command_ingress::admit(&registry, &invoke, "print_rendered_report", ArgsDecoding::Moved)?;
     let request = routes::route_request_args(&mut args)?;
     drop(args);
-    let document = admit_print_in(&routes::CUSTODY, &request);
+    let document = print_document_in(&routes::CUSTODY, &request, &mut lease);
     drop(request);
     let outcome = document.and_then(|document| open_print_window(&app, document));
     let response = respond(outcome.map_err(CommandError::Command));
@@ -485,9 +550,10 @@ mod tests {
 
     const HTML: &str = "<!DOCTYPE html>\n<html lang=\"en\">\n<head>\n<meta charset=\"utf-8\">\n<title>Invented</title>\n</head>\n<body>\n<p>Invented report</p>\n</body>\n</html>\n";
 
+    /// A request naming the render of `html` by its SHA-256; it carries no document.
     fn request(html: &str, context: &str, intent: bool) -> RouteRequest {
         RouteRequest {
-            html: html.to_string(),
+            sha256_hex: sha256_hex(html.as_bytes()),
             export_context: context.to_string(),
             explicit_local_private_intent: intent,
             evidence: RouteEvidence { route_id: ROUTE_ID.to_string(), export_context: context.to_string(), explicit_local_private_intent: intent, blocked: false, blocking_count: 0 },
@@ -518,6 +584,97 @@ mod tests {
             assert_eq!(document.print_sha256_hex, sha256_hex(text.as_bytes()));
             assert_eq!(document.export_context, context);
         }
+    }
+
+    /// The request names the render and carries no document: the view the protocol serves to
+    /// the print window is the one derived from the document custody holds for that render.
+    #[test]
+    fn the_served_print_view_is_derived_from_the_held_document() {
+        let custody = rendered(PUBLIC_REPORT);
+        let held = custody.held_document().expect("an unblocked render holds its document");
+        let named = request(HTML, PUBLIC_REPORT, false);
+        assert_eq!(named.sha256_hex, sha256_hex(held.html().as_bytes()));
+        let document = admit_print_in(&custody, &named).unwrap();
+        let path = format!("/{}", document.print_sha256_hex);
+        let open = open_for(document);
+        let served = respond_in(&open, &custody, "report-print-7", &path);
+        assert_eq!(served.status(), 200);
+        let expected = open_pipe_stress_report_renderer::derived_print_view(held.html(), &named.sha256_hex);
+        assert_eq!(served.body(), expected.as_bytes());
+    }
+
+    /// A blocked, withheld or hash-mismatched render holds no document, and a print naming it is
+    /// refused before any view is derived.
+    #[test]
+    fn a_print_naming_a_render_that_holds_no_document_is_refused() {
+        let sha = sha256_hex(HTML.as_bytes());
+        for (blocked, withheld, named) in [(true, false, sha.clone()), (false, true, sha.clone()), (false, false, "0".repeat(64))] {
+            let custody = RenderCustody::new();
+            custody.record(Some(PUBLIC_REPORT), HTML, &named, blocked, withheld);
+            assert!(custody.held_document().is_none());
+            assert_eq!(admit_print_in(&custody, &request(HTML, PUBLIC_REPORT, false)).unwrap_err().code, BLOCKED);
+        }
+    }
+
+    /// The bound the print command's lease grows by covers what the derivation allocates: the
+    /// banner fits its allowance, the view is the canonical document plus the banner exactly
+    /// (with and without a `<body>` line), and two envelopes of the view and three of the
+    /// banner allowance are reserved.
+    #[test]
+    fn the_print_derivation_bound_covers_the_derived_view() {
+        let hash = sha256_hex(HTML.as_bytes());
+        let banner = open_pipe_stress_report_renderer::derived_print_view("", &hash).len();
+        assert!(banner <= PRINT_BANNER_MAX_BYTES, "banner {banner}");
+        for canonical in [HTML.to_string(), HTML.replace("<body>\n", "<body>"), "x".repeat(3 << 20)] {
+            let view = open_pipe_stress_report_renderer::derived_print_view(&canonical, &hash).len();
+            assert_eq!(view, canonical.len() + banner);
+            let envelope = |size: usize| crate::ingress::allocation_envelope(size as u64).unwrap();
+            assert!(print_derivation_bytes(canonical.len()) >= 2 * envelope(view) + 3 * envelope(banner));
+        }
+    }
+
+    /// A print whose lease cannot grow by the derivation's bound is refused by name: nothing is
+    /// derived (the document is never taken), the lease is as it was, and the command opens no
+    /// window (it opens one only from a derived document).
+    #[test]
+    fn a_print_whose_lease_cannot_grow_derives_nothing() {
+        use crate::memory_pool::{test_host::ScriptedHost, MemoryPool, PressureLevel};
+        let custody = rendered(PUBLIC_REPORT);
+        let held = Arc::downgrade(&custody.held_document().unwrap());
+        let host = ScriptedHost::with(Some(16 << 30), Some(64 << 30), PressureLevel::Normal);
+        let pool = MemoryPool::new(host.clone());
+        let mut lease = pool.acquire_interactive(1).unwrap();
+        host.set(|script| script.headroom_bytes = Some(16));
+        let mut taken = false;
+        let refusal = print_document_between(&custody, &request(HTML, PUBLIC_REPORT, false), &mut lease, || taken = true).unwrap_err();
+        assert_eq!((refusal.code.as_str(), refusal.stage.as_str()), (PRINT_DERIVATION_UNAVAILABLE, "print"));
+        assert!(refusal.message.contains("\"kind\":\"headroom_insufficient\""), "{}", refusal.message);
+        assert!(!taken, "refused before the document is taken");
+        assert_eq!((lease.bytes(), held.strong_count()), (1, 1), "nothing grew and nothing holds the document but its record");
+    }
+
+    /// The print's take is bound to the render the request named: a different render (another
+    /// document and hash) recorded after admission and before the take is not derived in its
+    /// place. The print is refused as not current, nothing is derived, and the pool holds the
+    /// replacing render's document alone.
+    #[test]
+    fn a_print_never_derives_a_render_that_replaced_the_named_one() {
+        const OTHER: &str = "<!DOCTYPE html>\n<html><body>\n<p>Invented replacing report</p>\n</body></html>\n";
+        let pool = routes::test_pool();
+        let custody = RenderCustody::new();
+        custody.record_in(&pool, Some(PUBLIC_REPORT), HTML, &sha256_hex(HTML.as_bytes()), false, false);
+        let lease_pool = routes::test_pool();
+        let mut lease = lease_pool.acquire_interactive(1).unwrap();
+        let refusal = print_document_between(&custody, &request(HTML, PUBLIC_REPORT, false), &mut lease, || {
+            custody.record_in(&pool, Some(PUBLIC_REPORT), OTHER, &sha256_hex(OTHER.as_bytes()), false, false);
+        })
+        .unwrap_err();
+        assert_eq!((refusal.code.as_str(), refusal.stage.as_str()), (NOT_CURRENT, "print"));
+        let held = custody.held_document().unwrap();
+        assert_eq!(held.html(), OTHER);
+        assert_eq!(Arc::strong_count(&held), 2, "the record and this test: the refused print kept no share");
+        let bytes = crate::rendered_report_routes::held_document_bytes(OTHER.len());
+        assert_eq!((pool.reserved(crate::memory_pool::LeasePurpose::Custody), pool.reserved_total()), (bytes, bytes));
     }
 
     #[test]
