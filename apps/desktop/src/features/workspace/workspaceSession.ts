@@ -705,6 +705,9 @@ export function useWorkspaceSession() {
   } | null>(null);
   /** C1 slice 6: the project whose stored run the open refused (not admitted into native custody). */
   const unopenedStoredRun = useRef<string | null>(null);
+  /** The stored run the native host refused when its project was opened, with the host's sentence
+   * (`stored_run.message`), shown until a new solve replaces the run or another project opens. */
+  const [refusedStoredRun, setRefusedStoredRun] = useState<{ projectId: string; message: string } | null>(null);
   /** C1 slice 6: the restored runs this session holds natively (the shown historical run, and one a
    * reference inspection retains for its restore). Each is released once nothing references it. */
   const ownedRestoredRuns = useRef<Set<RestoredRun>>(new Set());
@@ -3238,6 +3241,7 @@ export function useWorkspaceSession() {
       }
       if (!stillCurrent()) { void disposeRestoredRun(restoredRun); return; }
       unopenedStoredRun.current = refusedRun ? opened.model.project.id : null;
+      setRefusedStoredRun(refusedRun ? { projectId: opened.model.project.id, message: refusedRun.message } : null);
       // The open commits here. An open that finds nothing, fails or is
       // superseded leaves the open project's rule revision gate and integrity
       // cells as they were.
@@ -3290,7 +3294,8 @@ export function useWorkspaceSession() {
       const withheldRun = opened.stored_result_withheld ? ` ${describeStoredResultWithheld(opened.stored_result_withheld)}` : refusedRun ? ` ${refusedRun.message}` : "";
       setProjectMessage(`${opened.summary.message}${withheldRun}${modelFileWarningSuffix(modelDocumentSlotValidation(opened.model).warnings)}`);
       setProjectOperation(projectId ? "open_by_id" : "open");
-      setActiveSection(restoredHistory ? "results" : null);
+      // A stored run the native host refused is stated on the Results stage, where the person lands.
+      setActiveSection(restoredHistory || refusedRun ? "results" : null);
       const libraryWarnings = await libraryReferenceWarnings(opened.model);
       if (libraryWarnings && stillCurrent()) setProjectMessage((message) => `${message}${libraryWarnings}`);
       const recomputedHash = await computeModelHash(opened.model);
@@ -3389,6 +3394,7 @@ export function useWorkspaceSession() {
       commitModel(document);
       storedBaseRef.current = null;
       unopenedStoredRun.current = null;
+      setRefusedStoredRun(null);
       const generation = projectSessionGenerationRef.current;
       const revision = uiModelRevisionRef.current;
       const sequence = ++savedBasisSequence.current;
@@ -3965,7 +3971,8 @@ export function useWorkspaceSession() {
           pendingObservation.ordinal, false, requestModel.project.id);
       }
       if (!stillCurrent()) return;
-      setProjectMessage(`Save failed: ${nativeFailureText(error)}`);
+      // A refusal raised here by name (the unopened stored run) is shown once, without "Error: ".
+      setProjectMessage(`Save failed: ${error instanceof Error && error.message.startsWith(`${STORED_RESULT_RESTORE_REFUSED}:`) ? error.message : nativeFailureText(error)}`);
       setProjectOperation("save_failed");
     } finally {
       releaseProjectOperation(owner);
@@ -5222,6 +5229,7 @@ export function useWorkspaceSession() {
       numericalHealth,
       numericalHealthHold,
       historicalRun,
+      refusedStoredRun,
       analysisRun,
       inputManifest,
       ruleCheckAggregate,

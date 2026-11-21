@@ -121,7 +121,7 @@ import { RenderedReportPanel } from "./features/report/RenderedReportPanel";
 import { ReportOutputStatus } from "./features/report/ReportOutputStatus";
 import { ResultExportPanel } from "./features/result-export/ResultExportPanel";
 import { ResultsPanel, type ResultsStageContext, type ResultsStageTab } from "./features/results/ResultsPanel";
-import { RESULTS_NO_RUN_TEXT } from "./features/results/ResultsStageNotices";
+import { RESULTS_NO_RUN_TEXT, StoredRunRefusedNotice } from "./features/results/ResultsStageNotices";
 import { GoverningValuesFor, type GoverningRequest, type GoverningRequestInput } from "./features/results/GoverningValuesPanel";
 import { SupportLoadSummaryPanel } from "./features/results/SupportLoadSummaryPanel";
 import { StressRatioTablePanel } from "./features/results/StressRatioTablePanel";
@@ -229,6 +229,7 @@ function AppSession() {
     numericalHealth,
     numericalHealthHold,
     historicalRun,
+    refusedStoredRun,
     analysisRun,
     inputManifest,
     ruleCheckAggregate,
@@ -971,7 +972,9 @@ function AppSession() {
                           governing: result ? governing(context) : null,
                           tabs: result ? [...resultTabs, ...comparisonTabs] : [...resultTabs.filter((tab) => tab.id === "weight"), ...comparisonTabs.filter((tab) => tab.id === "design")]
                         }),
-                        emptyLine: <p className="results-no-run" role="status" data-testid="results-no-run">{RESULTS_NO_RUN_TEXT}</p>
+                        emptyLine: refusedStoredRun && model.project.id === refusedStoredRun.projectId
+                          ? <StoredRunRefusedNotice message={refusedStoredRun.message} />
+                          : <p className="results-no-run" role="status" data-testid="results-no-run">{RESULTS_NO_RUN_TEXT}</p>
                       }}
                     />;
               })()}

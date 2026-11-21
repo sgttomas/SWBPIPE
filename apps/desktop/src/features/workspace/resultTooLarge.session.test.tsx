@@ -19,6 +19,7 @@ import { SolvePanel } from "../solve/SolvePanel";
 import { SolveProgressPanel } from "../solve/SolveProgressPanel";
 import { initialSolveJob } from "./solveJobAudit";
 import { useWorkspaceSession, type WorkspaceSession } from "./workspaceSession";
+import { StoredRunRefusedNotice, STORED_RUN_REFUSED_LEAD } from "../results/ResultsStageNotices";
 import type { LocalProjectEnvelope } from "../../types";
 
 type Json = any; // eslint-disable-line @typescript-eslint/no-explicit-any
@@ -168,12 +169,21 @@ describe("a solve refused because its result is too large to display (RT-U4)", (
     expect(state().results.historicalRun).toBeNull();
     expect(reply.stored_run.message).toMatch(/^STORED-RESULT-RESTORE-REFUSED: project `[^`]+`'s stored run \(result \d+ bytes/);
     expect(state().project.projectMessage).toBe(`${reply.summary.message} ${reply.stored_run.message}`);
+    // The person lands on Results, which states the refusal: its own short line, then the host's
+    // sentence as the host returned it, until a new solve replaces the run.
+    expect(state().chrome.activeSection).toBe("results");
+    expect(state().results.refusedStoredRun).toEqual({ projectId: reply.model.project.id, message: reply.stored_run.message });
+    render(<StoredRunRefusedNotice message={state().results.refusedStoredRun!.message} />);
+    expect(screen.getByTestId("results-stored-run-refused")).toHaveTextContent(STORED_RUN_REFUSED_LEAD);
+    expect(screen.getByTestId("results-stored-run-refused-message").textContent).toBe(reply.stored_run.message);
     // The refused run is not hashed as if the project held no run.
     await waitFor(() => expect(state().project.projectEnvelopeHashIntegrity?.integrity_status).toBe("hash_recompute_unavailable"));
     // A save in place would replace the stored run with none: refused by the session, nothing sent.
     await act(async () => { await state().project.handleSaveProject(); });
     expect(saved).toHaveLength(0);
-    expect(state().project.projectMessage).toContain("STORED-RESULT-RESTORE-REFUSED: Not saved.");
+    // The refusal is stated once, by its own name: no "Error: " before it.
+    expect(state().project.projectMessage.startsWith("Save failed: STORED-RESULT-RESTORE-REFUSED: Not saved.")).toBe(true);
+    expect(state().project.projectMessage).not.toContain("Error:");
     expect(state().project.projectMessage).toContain("The stored run is kept unchanged.");
   });
 
