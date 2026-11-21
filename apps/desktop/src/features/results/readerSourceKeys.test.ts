@@ -56,9 +56,8 @@ describe("the reader's cache keys", () => {
 
   it("keeps two raw texts of equal values apart", () => {
     const { text } = statement("raw-forms");
-    expect(text).toContain("-0.0");
-    // The number tokens -0.0 only (the text also says -0.0 inside strings).
-    const other = text.replace(/([:[,]\s*)-0\.0(?![0-9eE.])/g, "$1-0");
+    // The same statement in another layout: another raw text of an equal value.
+    const other = JSON.stringify(JSON.parse(text), null, 1);
     expect(other).not.toBe(text);
     const a = JSON.parse(text) as Json, b = JSON.parse(other) as Json;
     expect(jsonTextKeepingNegativeZero(a)).toBe(jsonTextKeepingNegativeZero(b));
@@ -66,12 +65,14 @@ describe("the reader's cache keys", () => {
     rememberReceivedText(b, other);
     expect(readerSourceRead(a).key).not.toBe(readerSourceRead(b).key);
     expect(dispatched(() => { readerDispatch(a); readerDispatch(b); })).toEqual([text, other]);
-    // 1.0 and 1: a number's form in the text is its own statement too.
-    const one = '{"n":1.0}', plain = '{"n":1}';
-    const c = JSON.parse(one), d = JSON.parse(plain);
-    rememberReceivedText(c, one); rememberReceivedText(d, plain);
-    expect([readerSourceText(c), readerSourceText(d)]).toEqual([one, plain]);
-    expect(readerSourceRead(c).key).not.toBe(readerSourceRead(d).key);
+    // 1.0 and 1, -0.0 and -0: a number's form in the text is its own statement too.
+    for (const [first, second] of [['{"n":1.0}', '{"n":1}'], ['{"z":[-0.0]}', '{"z":[-0]}']]) {
+      const c = JSON.parse(first), d = JSON.parse(second);
+      expect(jsonTextKeepingNegativeZero(c)).toBe(jsonTextKeepingNegativeZero(d));
+      rememberReceivedText(c, first); rememberReceivedText(d, second);
+      expect([readerSourceText(c), readerSourceText(d)]).toEqual([first, second]);
+      expect(readerSourceRead(c).key).not.toBe(readerSourceRead(d).key);
+    }
   });
 
   it("starts afresh at each receipt, also of the same value", () => {
