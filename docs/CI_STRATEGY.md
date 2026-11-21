@@ -455,6 +455,52 @@ all belong to the keyed input set and the key must still match. The main-only
 true`, so other PRs can read main-scoped engine outputs without running tests
 or installing browsers in the warmer.
 
+## Retained pricing audit
+
+The retained-memory pricing audit (D3, DEL-04-08 REQ-004) is a named
+selection, not part of every pull request's Python selection. It holds every
+test file under `tools/retained_pricing/tests` that runs the pricing tool's
+models on the checkout's own priced source. Those tests stop wherever that
+source differs from what the tool's pins and the registered profile were
+reviewed against, so they report drift between the solver core and its
+registration rather than a fault of the change under test.
+`python_ci.retained_pricing_audit` lists the files: all but the two that
+`python_ci.RETAINED_PRICING_SOURCE_INDEPENDENT` names, which read only the
+tool's own files or a fixture repository.
+
+- **Pull requests and the merge queue** leave the audit out
+  (`python_ci.audit_deferred`) unless the change touches a
+  `python_ci.RETAINED_PRICING_REGISTRATION` path: `tools/retained_pricing/`,
+  `tools/repository_history.py`, which the tool imports, or
+  `core/product_physics/src/retained_memory.rs`, which holds the generated
+  profile block and `REGISTERED_PROFILES`. Such a change runs the whole audit.
+  The source-independent tool tests, `tests/test_retained_pricing_tool.py` and
+  the Rust tests of the `Stale` fallback stay where their reads and rules
+  select them.
+- **Scheduled and dispatched runs** keep it. They select full coverage, so the
+  nightly full run of `main` and a dispatched `governance-harness` or
+  `nightly-full-ci` run on any branch run the audit. A failure in the nightly
+  run opens a `nightly` issue, and that issue is the audit's drift signal.
+  Re-registration and re-pinning are done when the solver core freezes before
+  a release candidate, and again on the candidate's exact revision if anything
+  priced has moved, not after each day's merges. While `main` carries unaudited
+  priced source, a pull request that touches a registration path fails the
+  audit until the re-pricing lands.
+- **Locally**, run `python3 tools/ci/python_ci.py --audit` (`--dry-run` lists
+  the files), or the registered `retained-pricing-audit` check, within the
+  host's job wrapper. The registered `retained-pricing-tool-tests` check runs
+  the whole directory and is selected by the registration paths.
+
+The build does not bind the profile to the source: the build identity and
+reviewed inputs (`core/product_physics/src/build_identity.rs`,
+`retained_memory.rs`'s `REGISTERED_PROFILES`) name the toolchain, target,
+profile, package version, lock file, schemas and fixtures, not the priced
+source. Between audits, therefore, a debug build of unaudited source on the
+registration host reports `Registered` and may be granted a retained permit
+against the old coefficients. Hosted and release builds report `Stale` and
+take the ordinary route. No local debug run of an unaudited revision is cited
+as retained-route evidence.
+
 ## Known costs
 
 Measured on main at `bfc649fd7` (2026-11-13) over 14 pull requests. None is

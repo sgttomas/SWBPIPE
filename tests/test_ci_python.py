@@ -30,10 +30,22 @@ def by_rules(path):
     return set(selected(path)) - readers(path)
 
 
-def readers(path):
+def all_readers(path):
     """The derived tests whose own reads include `path`."""
     return {test for test, roots in ci.derived_tests(PROJECT).items()
             if any(ci.python_test_reads.root_matches(path, root) for root in roots)}
+
+
+def readers(path):
+    """The derived tests whose own reads include `path`, less the retained pricing audit a pull request changing only
+    `path` leaves out."""
+    return all_readers(path) - ci.audit_deferred(PROJECT, {'event': 'pull_request', 'paths': [ci.PREFIX + path]})
+
+
+def routed(test, path):
+    """`test` follows `path`: a pull request changing `path` selects it, or it is an audit test whose reads include
+    `path`, which the audit runs."""
+    return test in selected(path) or (test in ci.retained_pricing_audit(PROJECT) and test in all_readers(path))
 
 
 def test_unrelated_security_change_does_not_expand_to_full_suite():
@@ -310,7 +322,7 @@ def test_every_maintained_test_runs_when_a_path_it_reads_changes():
         assert derived[test], test
         assert test in named or test in dispatch, test
         path = probe(derived[test])
-        assert test in selected(path), (test, path)
+        assert routed(test, path), (test, path)
         assert test in selected(test), test
 
 
@@ -416,7 +428,7 @@ def test_formerly_never_run_guards_follow_their_roots():
         'tests/test_release_notarize_script.py': 'tools/release/notarize_app.py',
     }
     for test, path in cases.items():
-        assert test in selected(path), (test, path)
+        assert routed(test, path), (test, path)
         assert test not in by_rules('core/units/schema_vocabulary.py'), test
     assert 'core/solver/performance_harness/runner/test_k6_runner.py' not in selected(
         'core/solver/performance_harness/runner/k6_runner.py')
@@ -455,6 +467,10 @@ def test_repository_check_tests_are_the_governance_step_s():
 # Repository checks job's `ROUTING_INVARIANT_TESTS`). No, it tests the selector's own algorithm: it stays scoped to
 # tools/ci/ changes (`SELECTOR_ONLY`). A new test joins one of the two.
 EVERY_PULL_REQUEST = frozenset((
+    'test_the_audit_is_every_tool_test_but_the_source_independent_ones',
+    'test_a_solver_core_pull_request_leaves_the_audit_out',
+    'test_a_pull_request_changing_the_tool_or_the_registration_runs_the_whole_audit',
+    'test_schedule_dispatch_and_queue_runs_keep_the_audit_as_their_selection_gives_it',
     'test_repository_numerical_routing_checks_are_not_duplicated_in_product_job',
     'test_merge_group_selects_python_tests_as_a_pull_request',
     'test_sensitive_families_follow_their_inputs',
@@ -576,8 +592,8 @@ def test_an_unknown_f_string_slot_may_span_directories():
 
 def test_a_path_under_an_unresolved_base_keeps_its_known_suffix():
     """Finding 3: `snap / "core/.../section_basis.rs"` (a copy of the project) and the b7a census's owner sources."""
-    assert 'tools/retained_pricing/tests/test_w15_rigid_scaling.py' in selected('core/reporting/result_export/src/section_basis.rs')
-    assert 'tools/retained_pricing/tests/test_b7a_scoped_text_model.py' in selected('core/solver/frame_kernel/src/load_ledger.rs')
+    assert routed('tools/retained_pricing/tests/test_w15_rigid_scaling.py', 'core/reporting/result_export/src/section_basis.rs')
+    assert routed('tools/retained_pricing/tests/test_b7a_scoped_text_model.py', 'core/solver/frame_kernel/src/load_ledger.rs')
     reads = ci.python_test_reads
     assert reads.to_roots(reads.OUTSIDE + '/core/x.rs') == {'**/core/x.rs'}
     assert reads.to_roots(reads.OUTSIDE + '/' + reads.SLOT) == set()
@@ -819,3 +835,50 @@ def test_tests_that_build_offline_have_their_locked_dependencies_fetched_before_
     assert 'PATH' in kwargs['env'], 'the rest of the environment is kept'
     ci.fetch_locked(PROJECT, [], run=lambda *args, **kwargs: calls.append(None))
     assert len(calls) == 1, 'nothing is fetched for a selection without such a test'
+
+
+# The retained pricing audit (DEL-04-08 REQ-004; docs/CI_STRATEGY.md, "Retained pricing audit").
+
+PRICING_TESTS = PROJECT / 'tools/retained_pricing/tests'
+
+
+def test_the_audit_is_every_tool_test_but_the_source_independent_ones():
+    files = {path.relative_to(PROJECT).as_posix() for path in PRICING_TESTS.glob('test_*.py')}
+    independent = set(ci.RETAINED_PRICING_SOURCE_INDEPENDENT)
+    assert independent <= files
+    assert set(ci.retained_pricing_audit(PROJECT)) == files - independent
+    # A source-independent file names no path of the checkout outside the tool: it resolves nothing from the
+    # repository root, so the checkout's priced source cannot reach it.
+    for test in independent:
+        text = (PROJECT / test).read_text()
+        assert 'PRICING.parents' not in text and 'parents[2]' not in text and 'parents[3]' not in text, test
+
+
+def test_a_solver_core_pull_request_leaves_the_audit_out():
+    for path in ('core/product_physics/src/lib.rs', 'core/solver/frame_kernel/src/load_ledger.rs',
+                 'core/loads/primitive_loads/src/lib.rs', 'README.md', 'tools/ci/python_ci.py'):
+        chosen = set(selected(path))
+        assert not chosen & set(ci.retained_pricing_audit(PROJECT)), path
+    # The source-independent tool tests and the maintained tool test stay where their reads or rules reach.
+    assert set(ci.RETAINED_PRICING_SOURCE_INDEPENDENT) <= set(selected('core/product_physics/src/lib.rs'))
+    assert 'tests/test_retained_pricing_tool.py' in selected('tools/retained_pricing/price.py')
+
+
+def test_a_pull_request_changing_the_tool_or_the_registration_runs_the_whole_audit():
+    for path in ('tools/retained_pricing/base/kd5_text_model.py', 'tools/retained_pricing/tests/test_w1_reductions.py',
+                 'tools/repository_history.py', 'core/product_physics/src/retained_memory.rs'):
+        assert ci.audit_deferred(PROJECT, {'event': 'pull_request', 'paths': [path]}) == frozenset(), path
+        assert set(ci.retained_pricing_audit(PROJECT)) | all_readers(path) <= set(selected(path)), path
+    # With another change beside it, the registration still runs the audit.
+    both = ci.select(PROJECT, {'event': 'pull_request',
+                               'paths': ['core/product_physics/src/lib.rs', 'core/product_physics/src/retained_memory.rs']})
+    assert set(ci.retained_pricing_audit(PROJECT)) <= set(both)
+
+
+def test_schedule_dispatch_and_queue_runs_keep_the_audit_as_their_selection_gives_it():
+    audit = set(ci.retained_pricing_audit(PROJECT))
+    for event in ('schedule', 'workflow_dispatch', 'push'):
+        assert ci.audit_deferred(PROJECT, {'event': event, 'paths': ['core/product_physics/src/lib.rs']}) == frozenset()
+        assert audit <= set(ci.select(PROJECT, {'event': event})), event
+    # The merge queue verifies a candidate as a pull request.
+    assert ci.audit_deferred(PROJECT, {'event': 'merge_group', 'paths': ['core/product_physics/src/lib.rs']}) == audit

@@ -74,6 +74,10 @@ ROUTING_INVARIANT_TESTS = tuple(f"tests/test_ci_python.py::{name}" for name in (
     "test_the_python_job_leaves_out_only_the_declarative_specifications",
     "test_actual_full_selection_is_partitioned_without_losing_paths",
     "test_tests_that_build_offline_have_their_locked_dependencies_fetched_before_pytest",
+    "test_the_audit_is_every_tool_test_but_the_source_independent_ones",
+    "test_a_solver_core_pull_request_leaves_the_audit_out",
+    "test_a_pull_request_changing_the_tool_or_the_registration_runs_the_whole_audit",
+    "test_schedule_dispatch_and_queue_runs_keep_the_audit_as_their_selection_gives_it",
 ))
 STEP_NAMES = ("Select repository regressions",
               "Bounded shared-tool and routing regressions",
