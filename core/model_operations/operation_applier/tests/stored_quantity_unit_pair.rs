@@ -14,7 +14,9 @@
 //! result with a closed form computed here from the entered numbers and the
 //! exact unit definitions, sharing no code with the product. All data are
 //! invented.
-use open_pipe_stress_operation_applier::{apply_operation, OperationOutcome};
+use open_pipe_stress_operation_applier::{
+    apply_operation, apply_operation_batch, canonical_json, sha256_hex, validate_operation, validate_operation_batch, OperationOutcome,
+};
 use open_pipe_stress_product_physics::{run_linear_static_preview_value_with_mode, PreviewSolverMode};
 use serde_json::{json, Value};
 use std::f64::consts::PI;
@@ -674,4 +676,94 @@ fn a_primitive_magnitude_entered_in_kilonewtons_is_consumed_in_kilonewtons() {
     let (growth, _) = tip_result(&entered, THERMAL_CASE, "global_nodal_displacement_x");
     // The inboard span keeps its 100 K rise; the outboard span rises 90 degF, which is 50 K.
     assert_close(growth, 1000.0 * EXPANSION * (TEMPERATURE_RISE + 90.0 * 5.0 / 9.0) * SPAN, "thermal growth");
+}
+
+// The rule at the engine's other entries: the validate-only entry, and the
+// atomic batch, where each step is judged against the document the earlier
+// steps produced.
+
+const MISMATCH: &str = "OP-UNIT-MISMATCH-CONVERSION-UNAVAILABLE";
+
+/// The current-model hash claim an atomic batch requires.
+fn claim(model: &Value) -> Value {
+    json!({"algorithm": "sha256", "canonicalization": "rfc8785_jcs", "payload_scope": "model_payload",
+        "value": format!("sha256:{}", sha256_hex(&canonical_json(model)))})
+}
+
+/// An intent with its own identifiers, so that several can share a batch.
+fn step(member: &Member, token: &str, before: &str, after: &str, unit: &str) -> Value {
+    let mut operation = intent(member, before, after, unit, member.dimension);
+    operation["operation_id"] = json!(format!("op:{token}"));
+    operation["change"]["change_id"] = json!(format!("change:{token}"));
+    operation
+}
+
+/// The batch is refused at step `index` with `code`, and publishes no model.
+fn assert_batch_rolled_back(outcome: &Value, index: usize, code: &str, what: &str) {
+    assert_eq!(outcome["simulation_disposition"], "rolled_back_no_model_published", "{what}");
+    assert!(outcome["applied_model"].is_null(), "{what}: a refused batch published a model");
+    assert!(outcome["applied_model_backend_hash"].is_null(), "{what}");
+    assert!(outcome["acceptance"].is_null(), "{what}");
+    let steps = outcome["operation_outcomes"].as_array().unwrap();
+    assert_eq!(steps.len(), index + 1, "{what}: the batch stops at its first refusal");
+    assert_eq!(steps[index]["simulation_status"], "blocked", "{what}");
+    assert!(steps[index]["diagnostics"].as_array().unwrap().iter().any(|d| d["code"] == code && d["severity"] == "blocking"),
+        "{what}: expected {code}, got {}", steps[index]["diagnostics"]);
+}
+
+#[test]
+fn validating_a_bare_number_naming_another_unit_refuses_it_and_returns_no_model() {
+    let model = matrix_model();
+    for member in family() {
+        let operation = intent(&member, &member.stored_value.to_string(), &replacement(&member).to_string(), member.other_unit, member.dimension);
+        let outcome = validate_operation(&model, &operation, None);
+        assert!(blocking(&outcome).contains(&MISMATCH), "{}: {:?}", member.name, outcome.diagnostics);
+        assert!(outcome.applied_model.is_none(), "{}", member.name);
+        assert_eq!(outcome.validation.unit_validation, "blocked", "{}", member.name);
+        assert_names_stored_unit_and_pair(&outcome, &member);
+    }
+}
+
+#[test]
+fn a_batch_whose_step_is_a_bare_number_naming_another_unit_is_rolled_back_whole() {
+    let model = matrix_model();
+    let original = model.clone();
+    for member in family() {
+        let before = member.stored_value.to_string();
+        let batch = json!({"batch_id": "batch:bare-other-unit",
+            "operations": [step(&member, "bare-other-unit", &before, &replacement(&member).to_string(), member.other_unit)]});
+        for outcome in [validate_operation_batch(&model, &batch, Some(&claim(&model))), apply_operation_batch(&model, &batch, Some(&claim(&model)))] {
+            assert_batch_rolled_back(&outcome, 0, MISMATCH, member.name);
+        }
+    }
+    assert_eq!(model, original);
+}
+
+#[test]
+fn a_later_bare_number_is_judged_against_the_unit_an_earlier_step_of_the_batch_stored() {
+    let model = matrix_model();
+    let original = model.clone();
+    for member in family() {
+        let before = member.stored_value.to_string();
+        let (in_stored_unit, in_other_unit) = member.replacement;
+        // Step 1 stores the member in its other unit, as an explicit pair.
+        let first = step(&member, "pair", &before, &pair(in_other_unit, member.other_unit), member.other_unit);
+        // Step 2 is a bare number naming the unit the document held before step 1.
+        let stale_unit = step(&member, "bare-first-unit", &in_other_unit.to_string(), &in_stored_unit.to_string(), member.stored_unit);
+        let batch = json!({"batch_id": "batch:unit-then-bare", "operations": [first.clone(), stale_unit]});
+        for outcome in [validate_operation_batch(&model, &batch, Some(&claim(&model))), apply_operation_batch(&model, &batch, Some(&claim(&model)))] {
+            assert_batch_rolled_back(&outcome, 1, MISMATCH, member.name);
+            let finding = outcome["operation_outcomes"][1]["diagnostics"].as_array().unwrap().iter().find(|d| d["code"] == MISMATCH).unwrap();
+            assert!(finding["message"].as_str().unwrap().contains(&format!("stored unit `{}`", member.other_unit)),
+                "{}: the refusal names the unit step 1 stored: {}", member.name, finding["message"]);
+        }
+        // The control: the same second step naming the unit step 1 stored is applied,
+        // and the batch stores that number beside that unit.
+        let second = step(&member, "bare-new-unit", &in_other_unit.to_string(), &in_other_unit.to_string(), member.other_unit);
+        let batch = json!({"batch_id": "batch:unit-then-bare-control", "operations": [first, second]});
+        let outcome = apply_operation_batch(&model, &batch, Some(&claim(&model)));
+        assert_eq!(outcome["simulation_disposition"], "committed_as_one_batch", "{}: {}", member.name, outcome["diagnostics"]);
+        assert_eq!(stored(&outcome["applied_model"], &member), json!({"value": in_other_unit, "unit": member.other_unit}), "{}", member.name);
+    }
+    assert_eq!(model, original);
 }
