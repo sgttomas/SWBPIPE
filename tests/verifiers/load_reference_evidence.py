@@ -22,7 +22,7 @@ from pathlib import Path
 from collections.abc import Mapping
 from typing import Any
 
-TRANSPORT_SCHEMA_SHA256 = "b95947ea4b62406ea050ba46e8b7d32d3fe8cc9d4f4892f53ab0c9f6df1189b9"
+TRANSPORT_SCHEMA_SHA256 = "736769f842d3ba3b3ded9069a83b7087ae3a21f6510897d8596e7ec190cc4ac9"
 TRANSPORT_SCHEMA_PATH = Path(__file__).resolve().parents[2] / "schemas" / "load_reference_state.schema.json"
 
 RECORD_CONTRACT = "openpipestress.load_reference_state/1.0.0"
@@ -63,6 +63,9 @@ STORED_KEYS = ["source_id", "owner_kind", "classification", "factor", "category"
 MEMBER_STATE_KEYS = ["source_id", "owner_kind", "classification", "consumed_input_refs", "value"]
 SUPPORT_STATE_KEYS = ["source_id", "owner_kind", "classification", "value"]
 PRESSURE_REGION_KEYS = ["source_id", "owner_kind", "classification", "factor"]
+# DEL-04-07 REQ-011: a generated static-equivalent load source, once at factor 1.
+GENERATED_KEYS = ["source_id", "owner_kind", "classification", "factor", "generation_kind"]
+GENERATION_KINDS = ("seismic", "wind")
 EXCLUDED_KEYS = ["source_id", "owner_kind", "classification", "category", "reason"]
 REGION_KEYS = ["profile_version", "profile_mode", "load_case_id", "region_id", "member_pipe_ids", "pressure_basis", "p_pa", "external_pressure_increment_pa", "approximation", "geometry_representation_guard", "geometry", "materials", "applied_loads", "terminals", "provenance", "result_ids", "pressure_elongation"]
 REGION_MATERIAL_KEYS = ["pipe_id", "material_id", "E_pa", "nu", "G_pa", "constitutive_basis", "thermal_consumed", "alpha_per_kelvin", "provenance", "temperature_basis"]
@@ -270,7 +273,10 @@ def _prepass(source: Mapping[str, Any], raw: bool, method: str) -> None:
     cases: list[tuple[str, Mapping[str, Any]]] = []
     case_keys = CASE_KEYS + (["recovery_method"] if joined else [])
     for case in exact:
-        _require(_keys(case, case_keys), "CASE_SHAPE")
+        # DEL-05-01 REQ-008: a generating case adds its `equivalent_static`
+        # record (checked by the physics pass).
+        generating = isinstance(case, Mapping) and "equivalent_static" in case
+        _require(_keys(case, case_keys + (["equivalent_static"] if generating else [])), "CASE_SHAPE")
         case_id = _text(case["load_case_id"])
         _require(all(known != case_id for known, _ in cases), "CASE_DUPLICATE")
         _require(_eq(case["material_basis"], MATERIAL_BASIS), "MATERIAL_BASIS")
@@ -487,6 +493,15 @@ def _validate_record(record: Mapping[str, Any], cases: list[tuple[str, Mapping[s
         if _eq(_get(region, "load_case_id"), case_id):
             expected_regions.add(f"pressure_region:{_text(_get(region, 'region_id'))}")
     _require(of_kind("pressure_region") == expected_regions, "PRESSURE_CONTRIBUTION_COVERAGE")
+    # DEL-04-07 REQ-011: each generated source once, in the order and with the
+    # identities of the exact case's generation record; none without one.
+    generated = [c["source_id"] for c in contributions if _eq(_get(c, "owner_kind"), "generated_equivalent_static") and isinstance(_get(c, "source_id"), str)]
+    generation_record = _get(case, "equivalent_static")
+    expected_generated = _get(generation_record, "generated_load_ids") if isinstance(generation_record, Mapping) else []
+    _require(isinstance(expected_generated, list) and generated == expected_generated, "GENERATED_CONTRIBUTION_COVERAGE")
+    for source_id in generated:
+        contribution = find(source_id)
+        _require(source_id.startswith(f"{case_id}:generated:{_get(contribution, 'generation_kind')}:"), "GENERATED_CONTRIBUTION_BINDING")
 
 
 def _validate_member(member: Any) -> None:
@@ -662,6 +677,7 @@ def _validate_contribution(contribution: Any) -> None:
         "resolved_member_state": (MEMBER_STATE_KEYS, "eigenstrain"),
         "support_state": (SUPPORT_STATE_KEYS, "prescribed_boundary"),
         "pressure_region": (PRESSURE_REGION_KEYS, "pressure_eigen_and_closure"),
+        "generated_equivalent_static": (GENERATED_KEYS, "generated_applied"),
     }
     if not (isinstance(kind, str) and kind in shapes):
         raise _fail("CONTRIBUTION_KIND")
@@ -687,5 +703,9 @@ def _validate_contribution(contribution: Any) -> None:
         _number(contribution["value"])
     elif kind == "support_state":
         _number(contribution["value"])
+    elif kind == "generated_equivalent_static":
+        factor = _as_f64(contribution["factor"])
+        _require(factor == 1.0, "CONTRIBUTION_FACTOR")
+        _require(any(_eq(contribution["generation_kind"], k) for k in GENERATION_KINDS), "CONTRIBUTION_GENERATION_KIND")
     else:
         _require(contribution["factor"] is None, "CONTRIBUTION_FACTOR")

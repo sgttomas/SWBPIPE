@@ -4614,13 +4614,27 @@ fn load_state_pipe_materials(state: &case_state::resolve::ResolvedCase) -> serde
 
 /// The published `load_reference_states` record of one case. Only a selected
 /// retained-source response is joined; every other case states the ordinary
-/// route it actually published.
+/// route it actually published. `loads` are the case's formed primitive
+/// loads: each generated static-equivalent load among them enters the record
+/// of load sources once, after the resolved sources, in generation order,
+/// with its identity and factor 1 (DEL-04-07 REQ-011). A case without
+/// generation adds nothing, so its record keeps its bytes.
 fn load_state_case_record(
     state: &case_state::resolve::ResolvedCase,
     solver_mode: PreviewSolverMode,
     source_selected: bool,
+    loads: &[PrimitiveLoad],
 ) -> serde_json::Value {
     let mut evidence = state.evidence.clone();
+    let effective = &state.effective_case;
+    if effective.equivalent_static.is_some() {
+        let contributions = evidence["contributions"].as_array_mut().expect("resolved contributions");
+        for load in loads.iter().filter(|load| is_generated_equivalent_static_load(effective, &load.load_id, None)) {
+            let kind = if is_generated_equivalent_static_load(effective, &load.load_id, Some("seismic")) { "seismic" } else { "wind" };
+            contributions.push(serde_json::json!({"source_id": load.load_id, "owner_kind": "generated_equivalent_static",
+                "classification": "generated_applied", "factor": 1.0, "generation_kind": kind}));
+        }
+    }
     evidence["solve"] = serde_json::json!({
         "requested_mode": solver_mode.as_str(),
         "recovery_method": if source_selected { "retained_source_blocks_exact_v1" } else if solver_mode == PreviewSolverMode::DenseScrutiny { "ordinary_dense_structural_v1" } else { "ordinary_sparse_structural_v1" },
@@ -7614,7 +7628,7 @@ fn solve_prepared_load_case(
     });
     let source_selected = selected_source.is_some();
     let load_state_evidence = load_state.map(|state| {
-        let mut record = load_state_case_record(state, solver_mode, source_selected);
+        let mut record = load_state_case_record(state, solver_mode, source_selected, &loads);
         // T4-U3 (S21, RV6 C-2): the replaced span's resolved member record and
         // eigenstrain contribution are not published (it is still resolved).
         joint::exclude_replaced_spans(&mut record, &replaced_span_ids_of(built));

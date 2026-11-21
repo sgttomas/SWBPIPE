@@ -249,6 +249,19 @@ pub fn physics_model_checks(source: &Value, model: &Value) -> Result<(), String>
         if !same_set(&case_ids, &ids(&model["load_cases"], "id")) {
             return Err("SOURCE_PHYSICS_MODEL_CASE_COVERAGE".into());
         }
+        // DEL-05-01 REQ-008 (issue 452 decision 6): a solved case whose model
+        // case generates static-equivalent loads carries its generation
+        // record, and only such a case does; an absent record never reads as
+        // "generated nothing". The record's content is rederived by the
+        // producer's companion binding; this reader binds its presence.
+        for case in cases {
+            let generates = model["load_cases"].as_array().into_iter().flatten().any(|authored| {
+                authored["id"] == case["load_case_id"] && authored.get("equivalent_static").is_some_and(|v| !v.is_null())
+            });
+            if case.get("equivalent_static").is_some() != generates {
+                return Err("SOURCE_PHYSICS_MODEL_GENERATION_RECORD".into());
+            }
+        }
     }
     if model.get("pipe_segments").is_some_and(|v| !v.is_null()) {
         let replaced = ids(&evidence["connector"], "replaced_pipe_id");

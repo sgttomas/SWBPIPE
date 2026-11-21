@@ -42,6 +42,7 @@ const SUMS: &str = include_str!("../../../validation/references/w16_exact_equiva
 const W16T_REFERENCES: &str = include_str!("../../../validation/references/w16_timoshenko_partial_wind/references.json");
 const ARC_SKETCHES: &str = include_str!("../../../validation/references/t4_i7/u2_document_sketches.json");
 const SOURCE_MIXED: &str = include_str!("../../../fixtures/product_preview/pressure_source/physics_source/mixed.request.json");
+const LOAD_STATE_SOURCE_MIXED: &str = include_str!("../../../fixtures/product_preview/pressure_source/load_reference_source/mixed.request.json");
 const MODES: [PreviewSolverMode; 2] = [PreviewSolverMode::SparseInteractive, PreviewSolverMode::DenseScrutiny];
 const RELATIVE: f64 = 1.0e-9;
 const PROV: &str = "w16c invented benchmark input; not library, component, material-catalog or code data";
@@ -984,6 +985,110 @@ fn a_hydrostatic_test_case_does_not_put_its_contents_into_a_seismic_case() {
             assert!(blocking.iter().any(|d| d["code"] == PENDING[0]), "{mode:?}");
         }
     }
+}
+
+/// DEL-04-07 REQ-011 and issue 452 decisions 3 and 6: on a
+/// load/reference-state document each generated source enters the case's
+/// record of load sources (`load_reference_states[].contributions`) once, as
+/// the fifth kind of contribution, with its identity and factor 1, in the
+/// order of the exact case's generation record. The pressure reader admits
+/// the producer's record and refuses each tamper by name; the model-bound
+/// checks refuse a generating case whose generation record is missing, and a
+/// generation record on a case the model does not generate. A case without
+/// generation adds no such entry.
+#[test]
+fn the_readers_bind_the_load_state_record_of_generated_sources() {
+    use open_pipe_stress_result_export::{reader_verdict, semantic_contract};
+    let (_, plain) = reference_request(&case_ref("W16C-WIND-PARTIAL-EX-EB"));
+    let mut wire = load_state_document_of(&plain);
+    let mut quiet = wire["model"]["load_cases"][0].clone();
+    quiet["id"] = json!("case:quiet");
+    quiet.as_object_mut().unwrap().remove("equivalent_static");
+    quiet["primitive_loads"] = json!([distributed("load:quiet", "pipe:a-b", "global_z", 10.0)]);
+    quiet["analysis_state"]["load_sources"] = json!([{"source_ref": "load:quiet", "factor": 1.0}]);
+    wire["model"]["load_cases"].as_array_mut().unwrap().push(quiet);
+    for mode in MODES {
+        let out = solved(&wire, Route::Exact, mode, "record base");
+        semantic_contract::validate_pressure_evidence(&out).expect("the pressure reader admits the producer's record");
+        reader_verdict::physics_model_checks(&out, &wire["model"]).expect("the model-bound checks admit it");
+        let records = out["contract_evidence"]["load_reference_states"].as_array().unwrap();
+        let generating = records.iter().position(|r| r["load_case_id"] == CASE).unwrap();
+        let generated = records[generating]["contributions"].as_array().unwrap().iter()
+            .filter(|c| c["owner_kind"] == "generated_equivalent_static").cloned().collect::<Vec<_>>();
+        let ids = exact_case(&out, CASE)["equivalent_static"]["generated_load_ids"].clone();
+        assert_eq!(json!(generated.iter().map(|c| c["source_id"].clone()).collect::<Vec<_>>()), ids, "{mode:?}: once each, in generation order");
+        assert_eq!(generated.len(), 1);
+        assert_eq!(generated[0], json!({"source_id": ids[0], "owner_kind": "generated_equivalent_static", "classification": "generated_applied",
+            "factor": 1.0, "generation_kind": "wind"}));
+        let quiet = records.iter().find(|r| r["load_case_id"] == "case:quiet").unwrap();
+        assert!(!quiet["contributions"].as_array().unwrap().iter().any(|c| c["owner_kind"] == "generated_equivalent_static"), "no entry without generation");
+        let last = records[generating]["contributions"].as_array().unwrap().len() - 1;
+        let tamper = |edit: &dyn Fn(&mut Value)| {
+            let mut forged = out.clone();
+            edit(&mut forged["contract_evidence"]["load_reference_states"][generating]["contributions"]);
+            semantic_contract::validate_pressure_evidence(&forged).expect_err("a tampered record is refused")
+        };
+        for (what, code, edit) in [
+            ("omitted", "GENERATED_CONTRIBUTION_COVERAGE", &(|c: &mut Value| { c.as_array_mut().unwrap().pop(); }) as &dyn Fn(&mut Value)),
+            ("doubled", "CONTRIBUTION_DUPLICATE", &|c: &mut Value| { let entry = c[last].clone(); c.as_array_mut().unwrap().push(entry); }),
+            ("factor 2", "CONTRIBUTION_FACTOR", &|c: &mut Value| c[last]["factor"] = json!(2.0)),
+            ("unknown kind", "CONTRIBUTION_GENERATION_KIND", &|c: &mut Value| c[last]["generation_kind"] = json!("snow")),
+            ("other kind", "GENERATED_CONTRIBUTION_BINDING", &|c: &mut Value| c[last]["generation_kind"] = json!("seismic")),
+            ("foreign identity", "GENERATED_CONTRIBUTION_COVERAGE", &|c: &mut Value| c[last]["source_id"] = json!(format!("{CASE}:generated:wind:global-z:element-7"))),
+            ("extra key", "CONTRIBUTION_SHAPE", &|c: &mut Value| c[last]["extra"] = json!(1)),
+        ] {
+            let error = tamper(edit);
+            assert!(error.contains(code), "{mode:?} {what}: {error}");
+        }
+        // An entry on the case without generation is refused.
+        let mut forged = out.clone();
+        let quiet_index = records.iter().position(|r| r["load_case_id"] == "case:quiet").unwrap();
+        forged["contract_evidence"]["load_reference_states"][quiet_index]["contributions"].as_array_mut().unwrap().push(generated[0].clone());
+        let error = semantic_contract::validate_pressure_evidence(&forged).expect_err("an entry without generation");
+        assert!(error.contains("GENERATED_CONTRIBUTION"), "{mode:?}: {error}");
+        // Decision 6: absence never reads as "generated nothing".
+        let mut stripped = out.clone();
+        let exact_index = out["contract_evidence"]["exact_cases"].as_array().unwrap().iter().position(|c| c["load_case_id"] == CASE).unwrap();
+        stripped["contract_evidence"]["exact_cases"][exact_index].as_object_mut().unwrap().remove("equivalent_static");
+        stripped["contract_evidence"]["load_reference_states"][generating]["contributions"].as_array_mut().unwrap().pop();
+        assert_eq!(reader_verdict::physics_model_checks(&stripped, &wire["model"]), Err("SOURCE_PHYSICS_MODEL_GENERATION_RECORD".to_string()), "{mode:?}");
+        let mut extra = wire["model"].clone();
+        extra["load_cases"][0].as_object_mut().unwrap().remove("equivalent_static");
+        assert_eq!(reader_verdict::physics_model_checks(&out, &extra), Err("SOURCE_PHYSICS_MODEL_GENERATION_RECORD".to_string()), "{mode:?}");
+    }
+}
+
+/// DEL-04-07 REQ-011 on pressure-source-1: a generating case beside a
+/// source-selected case of a load/reference-state document is an ordinary
+/// companion; its record of load sources, generated entries included, is
+/// re-formed from the captured model by the companion binding, and the
+/// source reader admits the envelope. A forged generated entry is refused.
+#[test]
+#[ignore = "waits on the equivalent_static member of physics_source_recovery.schema.json pressure_source_resolved_exact_case, which the seismic component force branch's schema commit adds (issue 450); until then the source reader refuses this envelope with PHYSICS_SOURCE_PHYSICAL_SHAPE"]
+fn the_companion_binding_reforms_the_generated_sources_of_a_load_state_case() {
+    use open_pipe_stress_result_export::physics_source;
+    let mut source: Value = serde_json::from_str(LOAD_STATE_SOURCE_MIXED).unwrap();
+    let pipe = source["model"]["pipe_segments"][0]["id"].clone();
+    source["model"]["pipe_segments"][0]["section"]["material_density"] = qv(7850.0, "kg/m^3");
+    let mut seismic_case = source["model"]["load_cases"][1].clone();
+    seismic_case["id"] = json!("case:seismic");
+    seismic_case["pressure_regions"] = json!([]);
+    seismic_case["primitive_loads"] = json!([]);
+    seismic_case["analysis_state"]["load_sources"] = json!([]);
+    seismic_case["equivalent_static"] = seismic();
+    source["model"]["load_cases"].as_array_mut().unwrap().push(seismic_case);
+    let envelope = run(&source, PreviewSolverMode::SparseInteractive);
+    assert_eq!(envelope["status"]["mechanics"], "MECHANICS_SOLVED", "{:?}", blocking(&envelope));
+    assert_eq!(envelope["producer"]["semantic_contract_id"], SOURCE_SEMANTICS);
+    let records = envelope["contract_evidence"]["load_reference_states"].as_array().unwrap();
+    let index = records.iter().position(|r| r["load_case_id"] == "case:seismic").unwrap();
+    let generated = records[index]["contributions"].as_array().unwrap().iter().filter(|c| c["owner_kind"] == "generated_equivalent_static").count();
+    assert_eq!(generated, 1, "one seismic load on {pipe}");
+    physics_source::validate(&envelope, None).expect("the source reader admits the generating companion");
+    let mut forged = envelope.clone();
+    let at = records[index]["contributions"].as_array().unwrap().iter().position(|c| c["owner_kind"] == "generated_equivalent_static").unwrap();
+    forged["contract_evidence"]["load_reference_states"][index]["contributions"][at]["factor"] = json!(2.0);
+    assert!(physics_source::validate(&forged, None).is_err(), "a forged factor is refused");
 }
 
 /// the retained sub-route keeps declining generation; the ordinary

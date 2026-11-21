@@ -348,7 +348,8 @@ export type LoadReferenceContribution =
   | { source_id: string; owner_kind: "stored_primitive"; classification: "ordinary_applied"; factor: number; category: string; dimension: string; authored_normalized_magnitude: number; applied_magnitude: number }
   | { source_id: string; owner_kind: "resolved_member_state"; classification: "eigenstrain"; consumed_input_refs: string[]; value: number }
   | { source_id: string; owner_kind: "support_state"; classification: "prescribed_boundary" | "nonlinear_ground_motion" | "spring_base_motion"; value: number }
-  | { source_id: string; owner_kind: "pressure_region"; classification: "pressure_eigen_and_closure"; factor: null };
+  | { source_id: string; owner_kind: "pressure_region"; classification: "pressure_eigen_and_closure"; factor: null }
+  | { source_id: string; owner_kind: "generated_equivalent_static"; classification: "generated_applied"; factor: 1; generation_kind: "seismic" | "wind" };
 export type LoadReferenceExcludedSource = { source_id: string; owner_kind: "stored_primitive"; classification: "excluded"; category: string; reason: string };
 export type LoadReferenceStateRecord = {
   load_case_id: string;

@@ -1701,6 +1701,8 @@ LS_STORED_KEYS = ["source_id", "owner_kind", "classification", "factor", "catego
 LS_MEMBER_STATE_KEYS = ["source_id", "owner_kind", "classification", "consumed_input_refs", "value"]
 LS_SUPPORT_STATE_KEYS = ["source_id", "owner_kind", "classification", "value"]
 LS_PRESSURE_REGION_KEYS = ["source_id", "owner_kind", "classification", "factor"]
+LS_GENERATED_KEYS = ["source_id", "owner_kind", "classification", "factor", "generation_kind"]
+LS_GENERATION_KINDS = ("seismic", "wind")
 LS_EXCLUDED_KEYS = ["source_id", "owner_kind", "classification", "category", "reason"]
 LS_REGION_KEYS = ["profile_version", "profile_mode", "load_case_id", "region_id", "member_pipe_ids", "pressure_basis", "p_pa", "external_pressure_increment_pa", "approximation", "geometry_representation_guard", "geometry", "materials", "applied_loads", "terminals", "provenance", "result_ids", "pressure_elongation"]
 LS_REGION_MATERIAL_KEYS = ["pipe_id", "material_id", "E_pa", "nu", "G_pa", "constitutive_basis", "thermal_consumed", "alpha_per_kelvin", "provenance", "temperature_basis"]
@@ -1889,7 +1891,9 @@ def _ls_prepass(source: Mapping[str, Any]) -> None:
     cases: list[tuple[str, Mapping[str, Any]]] = []
     for case in exact:
         # T4-U4b (§2.6): a case with a directional arc adds intensified_measures (checked by the physics pass).
-        _ls_require(_ls_keys(case, LS_CASE_KEYS + (["intensified_measures"] if isinstance(case, Mapping) and "intensified_measures" in case else [])), "CASE_SHAPE")
+        # DEL-05-01 REQ-008: a generating case adds its equivalent_static record (checked by the physics pass).
+        _ls_require(_ls_keys(case, LS_CASE_KEYS + (["intensified_measures"] if isinstance(case, Mapping) and "intensified_measures" in case else [])
+                             + (["equivalent_static"] if isinstance(case, Mapping) and "equivalent_static" in case else [])), "CASE_SHAPE")
         case_id = _ls_text(case["load_case_id"])
         _ls_require(all(known != case_id for known, _ in cases), "CASE_DUPLICATE")
         _ls_require(_ls_eq(case["material_basis"], MATERIAL_BASIS), "MATERIAL_BASIS")
@@ -2102,6 +2106,15 @@ def _ls_record(record: Mapping[str, Any], cases: list[tuple[str, Mapping[str, An
         if _ls_eq(_ls_get(region, "load_case_id"), case_id):
             expected_regions.add(f"pressure_region:{_ls_text(_ls_get(region, 'region_id'))}")
     _ls_require(of_kind("pressure_region") == expected_regions, "PRESSURE_CONTRIBUTION_COVERAGE")
+    # DEL-04-07 REQ-011: each generated source once, in the order and with the
+    # identities of the exact case's generation record; none without one.
+    generated = [c["source_id"] for c in contributions if _ls_eq(_ls_get(c, "owner_kind"), "generated_equivalent_static") and isinstance(_ls_get(c, "source_id"), str)]
+    generation_record = _ls_get(case, "equivalent_static")
+    expected_generated = _ls_get(generation_record, "generated_load_ids") if isinstance(generation_record, Mapping) else []
+    _ls_require(isinstance(expected_generated, list) and generated == expected_generated, "GENERATED_CONTRIBUTION_COVERAGE")
+    for source_id in generated:
+        contribution = find(source_id)
+        _ls_require(source_id.startswith(f"{case_id}:generated:{_ls_get(contribution, 'generation_kind')}:"), "GENERATED_CONTRIBUTION_BINDING")
 
 
 # R-4 §3.7 S6: a support component's (law, source) pair and its contribution
@@ -2276,6 +2289,7 @@ def _ls_contribution(contribution: Any) -> None:
         "resolved_member_state": (LS_MEMBER_STATE_KEYS, "eigenstrain"),
         "support_state": (LS_SUPPORT_STATE_KEYS, "prescribed_boundary"),
         "pressure_region": (LS_PRESSURE_REGION_KEYS, "pressure_eigen_and_closure"),
+        "generated_equivalent_static": (LS_GENERATED_KEYS, "generated_applied"),
     }
     if not (isinstance(kind, str) and kind in shapes):
         raise _ls_fail("CONTRIBUTION_KIND")
@@ -2301,5 +2315,8 @@ def _ls_contribution(contribution: Any) -> None:
         _ls_number(contribution["value"])
     elif kind == "support_state":
         _ls_number(contribution["value"])
+    elif kind == "generated_equivalent_static":
+        _ls_require(_ls_as_f64(contribution["factor"]) == 1.0, "CONTRIBUTION_FACTOR")
+        _ls_require(any(_ls_eq(contribution["generation_kind"], k) for k in LS_GENERATION_KINDS), "CONTRIBUTION_GENERATION_KIND")
     else:
         _ls_require(contribution["factor"] is None, "CONTRIBUTION_FACTOR")
