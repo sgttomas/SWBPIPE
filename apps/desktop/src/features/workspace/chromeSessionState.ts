@@ -88,7 +88,6 @@ export function useChromeSessionState() {
     ...INITIAL_R3_JOURNEY_STATE
   }));
   const [reviewDetailsOpen, setReviewDetailsOpen] = useState(false);
-  const [auditDrawerOpen, setAuditDrawerOpen] = useState(false);
   const [issuesDrawerOpen, setIssuesDrawerOpen] = useState(false);
   // The shell's presentation cells (slice B3); their rules are in `shellLayout.ts`.
   // `activeSection` stays the one navigation cell. `stageSurface` follows it: the
@@ -123,7 +122,6 @@ export function useChromeSessionState() {
     operationTab, setOperationTab,
     r3JourneyState, setR3JourneyState,
     reviewDetailsOpen, setReviewDetailsOpen,
-    auditDrawerOpen, setAuditDrawerOpen,
     issuesDrawerOpen, setIssuesDrawerOpen,
     stageSurface, setStageSurface,
     stageViewMemory, setStageViewMemory

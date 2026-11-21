@@ -343,10 +343,11 @@ export async function expectResolvedStyleAndTargets(page: Page): Promise<void> {
     // Inspector toggle is then the enabled panel toggle on screen.
     const treeToggleEnabled = document.querySelector('[data-testid="toggle-tree"]')?.getAttribute("aria-disabled") !== "true";
     return {
-      // The command witness is an enabled toolbar command with a control boundary, on screen in every
-      // stage (Review changes became a borderless tab of the Model stage's strip; the toolbar's
-      // Issues button was removed as a duplicate of the rail's).
-      command: measure('[data-testid="toggle-agent"]'),
+      // The command witness is an enabled command on screen in every stage: the agent strip's Agent
+      // control, the one Agent control since the toolbar's Agent button was removed (Review changes
+      // became a borderless tab of the Model stage's strip; the toolbar's Issues button was removed
+      // as a duplicate of the rail's).
+      command: measure('[data-testid="agent-strip-open"]'),
       focus: measure('[data-testid="workspace-select"]'),
       treeToggle: measure(treeToggleEnabled ? '[data-testid="toggle-tree"]' : '[data-testid="toggle-inspector"]'),
       disabled: measure('[data-testid="workspace-undo"]'),

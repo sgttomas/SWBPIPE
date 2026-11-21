@@ -144,9 +144,6 @@ export function tableDrawerState(view: ShellView, narrowWindow: boolean, collaps
   return { collapsible: true, expanded: !collapsed, reason: null };
 }
 
-/** The agent strip's control: the column is a later slice. The toolbar's Agent button opens the embedded agent on Review changes' Agent tab. */
-export const AGENT_UNAVAILABLE_REASON = "Agent: not available yet";
-
 // ---------------------------------------------------------------------------
 // The home of each of today's sections (the cut of B3, section 3)
 

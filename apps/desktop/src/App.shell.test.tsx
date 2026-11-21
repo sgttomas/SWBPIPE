@@ -470,19 +470,15 @@ describe("the toolbar band", () => {
     expect(toggle).toHaveAttribute("aria-expanded", "true");
     expect(reason()).toBe("The inspector is always docked in Model view");
     expect(screen.queryByTestId("inspector-close")).not.toBeInTheDocument();
-
-    const strip = screen.getByTestId("agent-strip-open");
-    expect(strip).toHaveAttribute("aria-disabled", "true");
-    expect(strip).not.toBeDisabled();
-    strip.focus();
-    expect(strip).toHaveFocus();
-    expect(document.getElementById(strip.getAttribute("aria-describedby")!)).toHaveTextContent("Agent: not available yet");
-    expect(strip).toHaveAttribute("title", "Agent: not available yet");
   });
 
-  it("opens the embedded agent on Review changes' Agent tab from the toolbar's Agent button, pressed while it is shown", async () => {
+  it("opens the embedded agent on Review changes' Agent tab from the agent strip, its one Agent control, pressed while it is shown", async () => {
     await renderShell();
-    const agent = screen.getByTestId("toggle-agent");
+    // The toolbar has no Agent button: the strip's control is the one.
+    expect(screen.queryByTestId("toggle-agent")).not.toBeInTheDocument();
+    expect(within(screen.getByTestId("workspace-toolbar")).queryByRole("button", { name: "Agent" })).not.toBeInTheDocument();
+    const agent = screen.getByTestId("agent-strip-open");
+    expect(agent).not.toBeDisabled();
     expect(agent).not.toHaveAttribute("aria-disabled");
     expect(agent).not.toHaveAttribute("aria-describedby");
     expect(agent).toHaveAttribute("title", "Agent");
