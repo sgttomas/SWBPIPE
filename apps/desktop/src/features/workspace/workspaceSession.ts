@@ -476,7 +476,6 @@ export function useWorkspaceSession() {
     operationTab, setOperationTab,
     setR3JourneyState,
     reviewDetailsOpen, setReviewDetailsOpen,
-    auditDrawerOpen, setAuditDrawerOpen,
     issuesDrawerOpen, setIssuesDrawerOpen,
     stageSurface, setStageSurface,
     stageViewMemory, setStageViewMemory
@@ -3158,7 +3157,6 @@ export function useWorkspaceSession() {
       setTreeCollapsed(window.innerWidth < 1280);
       setInspectorCollapsed(true);
       setReviewDetailsOpen(false);
-      setAuditDrawerOpen(false);
       setIssuesDrawerOpen(false);
       setOperationTab("review");
       commitModel(created.model);
@@ -4579,9 +4577,6 @@ export function useWorkspaceSession() {
       case "view.issues":
         setIssuesDrawerOpen((open) => !open);
         break;
-      case "view.audit":
-        setAuditDrawerOpen((open) => !open);
-        break;
       case "view.close-panels":
         closeShellPage();
         break;
@@ -4823,7 +4818,6 @@ export function useWorkspaceSession() {
       setArmedCreationTool(null);
       // ⎋ accelerates the open page's close control. It never leaves a stage.
       setActiveSection((current) => isStageSurface(current) ? current : sectionAfterPageClose(shellNowRef.current.stageSurface));
-      setAuditDrawerOpen(false);
       setIssuesDrawerOpen(false);
       shell.querySelector<HTMLButtonElement>('[data-testid="workspace-select"]')?.focus();
     }
@@ -5364,7 +5358,6 @@ export function useWorkspaceSession() {
       inspectorToggleRef,
       operationTab, setOperationTab,
       reviewDetailsOpen, setReviewDetailsOpen,
-      auditDrawerOpen, setAuditDrawerOpen,
       issuesDrawerOpen, setIssuesDrawerOpen,
       modelCheckRun,
       modelCheckBusy,
