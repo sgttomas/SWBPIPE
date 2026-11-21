@@ -35,7 +35,7 @@
 //! pre-solve model checks alike: [`capture`] reads what the findings print as
 //! entered and the plan's fresh primitives before normalization, and
 //! [`append`] raises them after it.
-use super::{diag, normalize_quantity, stable_suffix, Diagnostic, LoadTargetInput, PreviewLoadCase, PreviewModel, PreviewPrimitiveLoad, Quantity};
+use super::{diag, normalize_quantity, Diagnostic, LoadTargetInput, PreviewLoadCase, PreviewModel, PreviewPrimitiveLoad, Quantity};
 use crate::self_weight::{inspect_applied_self_weight, AppliedSelfWeightState, COMPONENT_WEIGHT_METHOD};
 use open_pipe_stress_primitive_loads::PrimitiveLoadCategory;
 use open_pipe_stress_units::Dimension;
@@ -136,6 +136,20 @@ fn magnitude(q: &Quantity) -> Option<f64> {
     (scratch.is_empty() && converted.value.is_finite()).then_some(converted.value)
 }
 
+/// A finding's id: the case's id as entered and the finding's own `part`
+/// (for a load, its position in the case, as the self-weight plan's own
+/// findings name a primitive). Case ids are unique in a document and the
+/// position is unique in a case, and the case id ends where the fixed tail
+/// `:seismic:model-check:` + `part` begins (each `part` ends in a digit or is
+/// `gravity`), so two findings never share an id. Every other
+/// `diagnostic:equivalent-static:` id is a fixed pattern of colon-free parts
+/// with no `model-check` where these have it, so none equals one of these.
+/// (`stable_suffix` would map `load:a` and `load-a`, or `case:s` and
+/// `case-s`, to one id.)
+fn id(case: &str, part: &str) -> String {
+    format!("diagnostic:equivalent-static:{case}:seismic:model-check:{part}")
+}
+
 /// Raise the findings on the normalized `model`, from what [`capture`] read
 /// before normalization.
 pub(crate) fn append(model: &PreviewModel, entered: &Entered, diagnostics: &mut Vec<Diagnostic>) {
@@ -151,7 +165,7 @@ pub(crate) fn append(model: &PreviewModel, entered: &Entered, diagnostics: &mut 
             }
             if let Some(pipe) = condition_added(case, load) {
                 diagnostics.push(diag(
-                    &format!("diagnostic:equivalent-static:{}:seismic:condition-weight:{}", stable_suffix(&case.id), stable_suffix(&load.id)),
+                    &id(&case.id, &format!("condition-weight:{index}")),
                     CONDITION_WEIGHT_ADDED,
                     "warning",
                     format!(
@@ -162,7 +176,7 @@ pub(crate) fn append(model: &PreviewModel, entered: &Entered, diagnostics: &mut 
                 ));
             } else if !entered.fresh.contains(&(*case_index, index)) {
                 diagnostics.push(diag(
-                    &format!("diagnostic:equivalent-static:{}:seismic:weight-load:{}", stable_suffix(&case.id), stable_suffix(&load.id)),
+                    &id(&case.id, &format!("weight-load:{index}")),
                     WEIGHT_LOAD_ENTERED,
                     "warning",
                     format!(
@@ -234,7 +248,7 @@ fn gravity_finding(model: &PreviewModel, entered: &Entered, case_index: usize, g
     refs.extend(components.iter().map(|c| c.to_string()));
     refs.extend(differing.iter().map(|(_, w)| w.load_id.clone()));
     Some(diag(
-        &format!("diagnostic:equivalent-static:{}:seismic:gravity", stable_suffix(&case.id)),
+        &id(&case.id, "gravity"),
         GRAVITY_DIFFERS,
         "warning",
         format!(

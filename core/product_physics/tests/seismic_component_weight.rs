@@ -1490,6 +1490,63 @@ fn the_gravity_finding_names_every_differing_component_and_each_magnitude_once()
     }
 }
 
+/// Each finding's id is its own (first reviewer of PR 536, finding 1): two
+/// entered weight loads `load:a` and `load-a` in one seismic case, and a
+/// second seismic case, each case at 10 m/s^2 beside the plan's weight case
+/// at 9.79 m/s^2 with a gravity finding, give four findings with four ids.
+/// On the pressure-free route the second case is `case-s`, beside `case:s`;
+/// the exact route refuses that pair of case ids itself
+/// (`EXACT_PRESSURE_RESULT_ID_COLLISION`), so there it is `case:t`. The
+/// gravity finding's id is not that of the generator's own refusal of a
+/// missing gravity for the same case. Every diagnostic id of the solved result is distinct, the
+/// condition under which a reader reads it
+/// (`report_standing::reader_readability::duplicated_evidence` refuses a
+/// result with a duplicated diagnostic id as `NUMERICAL_DIAGNOSTIC_ID_DUPLICATED`),
+/// and so are the model checks'. Both routes and both solver modes.
+#[test]
+fn every_finding_has_its_own_id() {
+    for route in [Route::Pf, Route::Ex] {
+        let id = format!("SCW-CANT-{}-SEISMIC-XYZ-G10", route_tag(route));
+        let mut first = case_of(reference(&id), "case:s");
+        first["primitive_loads"] = json!([entered_load("load:a", "weight", "AB"), entered_load("load-a", "weight", "AB")]);
+        let other = if route == Route::Pf { "case-s" } else { "case:t" };
+        let second = case_of(reference(&id), other);
+        let alone = document(route, Model::Cant, ONE_MAPPED, vec![case_of(reference(&id), "case:s")]);
+        let wire = document(route, Model::Cant, ONE_MAPPED, vec![applied_weight_case(&alone["model"], 9.79), first, second]);
+        let checks = model_checks(&wire);
+        let distinct = |diagnostics: &Value, what: &str| {
+            let ids: Vec<&str> = diagnostics.as_array().unwrap().iter().map(|d| d["id"].as_str().unwrap()).collect();
+            let set: std::collections::BTreeSet<&str> = ids.iter().copied().collect();
+            assert_eq!(set.len(), ids.len(), "{id} {what}: a diagnostic id is duplicated: {ids:?}");
+        };
+        distinct(&checks, "the model checks");
+        // The generator's own refusal of a missing gravity for the same case
+        // (the id a gravity finding once shared): its id is not the finding's.
+        let mut no_gravity = wire.clone();
+        no_gravity["model"]["load_cases"][2]["equivalent_static"]["seismic"].as_object_mut().unwrap().remove("gravity_acceleration");
+        let refusal: Vec<String> = run(&no_gravity, MODES[0])["diagnostics"].as_array().unwrap().iter()
+            .filter(|d| d["code"] == "EQUIVALENT_STATIC_INPUT_MISSING" && d["affected_refs"] == json!([other, "gravity_acceleration"]))
+            .map(|d| d["id"].as_str().unwrap().to_string()).collect();
+        assert_eq!(refusal, [format!("diagnostic:equivalent-static:{}:seismic:gravity", other.replace(':', "-"))], "{id}: the generator's missing-gravity refusal");
+        for mode in MODES {
+            let out = solved(&wire, mode, &id);
+            distinct(&out["diagnostics"], &format!("{mode:?}"));
+            assert_ne!(findings(&out["diagnostics"], GRAVITY_DIFFERS, other)[0]["id"], refusal[0].as_str(), "{id} {mode:?}");
+            assert_ne!(findings(&checks, GRAVITY_DIFFERS, other)[0]["id"], refusal[0].as_str(), "{id}: the model checks");
+            for diagnostics in [&out["diagnostics"], &checks] {
+                let loads: Vec<&str> = findings(diagnostics, WEIGHT_LOAD_ENTERED, "case:s").iter().map(|f| f["affected_refs"][1].as_str().unwrap()).collect();
+                assert_eq!(loads, ["load:a", "load-a"], "{id} {mode:?}");
+                for case in ["case:s", other] {
+                    assert_eq!(findings(diagnostics, GRAVITY_DIFFERS, case).len(), 1, "{id} {mode:?}: {case}");
+                }
+                let ours: std::collections::BTreeSet<&str> = diagnostics.as_array().unwrap().iter()
+                    .filter(|d| d["code"] == WEIGHT_LOAD_ENTERED || d["code"] == GRAVITY_DIFFERS).map(|d| d["id"].as_str().unwrap()).collect();
+                assert_eq!(ours.len(), 4, "{id} {mode:?}: {ours:?}");
+            }
+        }
+    }
+}
+
 /// A stale or modified self-weight plan is refused before the warning is
 /// considered: with the G10 case beside the plan's weight case, changing the
 /// valve's entered weight after generation (stale) or the applied valve
