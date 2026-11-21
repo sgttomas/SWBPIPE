@@ -313,8 +313,10 @@ def canonical(model: Mapping[str, Any], names: Mapping[str, str], case_kinds: Ma
     if model.get("pressure_contract") is not None:
         contract = model["pressure_contract"]
         out.sets[("pressure_contract",)] = (contract["version"], contract["mode"], contract["shear_model"])
-    else:  # a pressure-free model's shear model: its own selection, a model that states none being Euler-Bernoulli
-        out.sets[("shear_model",)] = (model.get("model_settings") or {}).get("shear_model") or "euler_bernoulli"
+    else:  # a pressure-free model's shear model: its own selection (any value, null included), a model whose settings
+        # have no shear_model key being Euler-Bernoulli
+        settings = model.get("model_settings") or {}
+        out.sets[("shear_model",)] = settings["shear_model"] if "shear_model" in settings else "euler_bernoulli"
     sums: dict[tuple, Fraction] = {}
     for case in model.get("load_cases") or []:
         kind = case_kinds[case["id"]]

@@ -1323,16 +1323,14 @@ impl<'m> Writer<'m> {
 
     /// A pressure-free document's `model_settings.shear_model` travels in the sidecar's pressure_map, as the exact
     /// contract's does: the MBF has no field for it. A selection beside a pressure contract is the document's own
-    /// refusal (MODEL_SETTING_SHEAR_MODEL_WITH_PRESSURE_CONTRACT), and an unknown value is not exported.
+    /// refusal (MODEL_SETTING_SHEAR_MODEL_WITH_PRESSURE_CONTRACT), and an unknown value is not exported. A present
+    /// null is a value the solve refuses, not an absent selection: the key's presence decides.
     pub fn read_free_shear_model(&mut self, has_contract: bool) -> R<()> {
         let settings = self.model.get_or_null("model_settings");
-        let selected = match settings {
-            Value::Dict(_) => settings.get_or_null("shear_model"),
-            _ => &Value::Null,
-        };
-        if selected.is_null() {
+        let Some(selected) = settings.as_dict().and_then(|dict| dict.get(&"shear_model".to_string())) else {
             return Ok(());
-        }
+        };
+        let selected = &selected.clone();
         if has_contract {
             self.refuse(
                 "MBF-SI-SHEAR-MODEL-UNSUPPORTED",

@@ -707,12 +707,16 @@ impl SidecarParser {
         if entry.is_bad() || !complete || Self::any_bad(&entry) {
             return entry;
         }
-        // Without a contract the shear model is the document's own timoshenko_annulus_energy_v1 selection, else the
-        // route's euler_bernoulli, and there is no region.
+        // Without a contract there is no region, and the shear model is the route's euler_bernoulli, and from format 6
+        // also the document's own timoshenko_annulus_energy_v1 selection, which no earlier writer recorded.
         let none = entry.get("contract").and_then(Value::as_str) == Some("none");
         let regions = entry.get("regions").map(Value::truthy).unwrap_or(false);
         if none && regions {
             return self.fail(path, "without a contract there is no region");
+        }
+        let euler = entry.get("shear_model").and_then(Value::as_str) == Some("euler_bernoulli");
+        if none && !euler && self.format_number != Some(SIDECAR_FORMAT) {
+            return self.fail(path, format!("without a contract the shear model is the route's euler_bernoulli before sidecar_format {SIDECAR_FORMAT}"));
         }
         entry
     }

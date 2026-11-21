@@ -466,3 +466,43 @@ fn the_loss_report_names_every_identity_set_entity_the_export_does_not_carry() {
         assert!(!carried.contains(&format!("\"{identity}\"")), "{name}");
     }
 }
+
+/// A contract-only pair (a pressure contract and no region in any case) edited to contract "none", its self-digest
+/// recomputed, imports bound as the contract-free document stating the same shear model. The pair agrees with a genuine
+/// export of that document in every field a bound import can regenerate: the MBF is the same file (a contract without
+/// regions writes no pressure load) and so is the pressure map. They differ only in the derivation (the source model's
+/// digest) and the self-digest, which regeneration sets aside by design (Design §14: the guard proves consistency, not
+/// authorship). The bound import therefore cannot tell this pair from the genuine one, and the designated-source check
+/// is what detects it: the original document, designated, reproduces the genuine identity file and not this one. The
+/// edit changes the solve route (exact to pressure-free) and keeps the straight members' theory. The Python twin is
+/// `test_a_contract_only_pair_edited_to_no_contract_imports_as_the_contract_free_document`.
+#[test]
+fn a_contract_only_pair_edited_to_no_contract_imports_as_that_document_and_the_designated_source_refuses_it() {
+    const TIMOSHENKO: &str = "timoshenko_annulus_energy_v1";
+    let mut source = parse(PRESSURE_L_ZERO);
+    set(&mut source, &["pressure_contract"], "shear_model", Value::str(TIMOSHENKO));
+    let Value::List(cases) = member(&mut source, &["load_cases"]) else { panic!("load_cases") };
+    for case in cases {
+        case.as_dict_mut().expect("a case").insert("pressure_regions".into(), Value::List(Vec::new()));
+    }
+    let (writer, data, sidecar) = written(&source, &celsius());
+    let mut edited = sidecar.clone();
+    set(&mut edited, &["pressure_map"], "contract", Value::str("none"));
+    let edited = redigested(edited);
+    let result = import_with(&data, Some(edited.clone()), false, true);
+    assert_eq!(result.status, "imported", "{:?}", result.diagnostics);
+    let model = result.model.as_ref().expect("a model");
+    assert!(model.get("pressure_contract").is_none());
+    assert!(mbf::py_eq(model.get("model_settings").expect("model settings"), &parse(r#"{"shear_model":"timoshenko_annulus_energy_v1"}"#)));
+    // A genuine export of the contract-free document: the same MBF and pressure map, another derivation.
+    let (_, again_data, again) = written(model, &celsius());
+    assert_eq!(again_data, data);
+    assert!(mbf::py_eq(again.get("pressure_map").expect("a pressure map"), edited.get("pressure_map").expect("a pressure map")));
+    assert!(!mbf::py_eq(again.get("derivation").expect("a derivation"), edited.get("derivation").expect("a derivation")));
+    // The original document, designated: it reproduces the genuine identity file, and not the edited one.
+    let source_bytes = mbf::ports::dumps_sorted(&source).expect("a canonical model").into_bytes();
+    let genuine = writer.sidecar_bytes(&common::sha(&data)).expect("the genuine identity file");
+    assert_eq!(mbf::evaluate_designated_source(&source_bytes, &data, Some(&genuine)).reasons, Vec::<&str>::new());
+    let edited_bytes = mbf::ports::dumps_sorted(&edited).expect("a canonical identity file").into_bytes();
+    assert_eq!(mbf::evaluate_designated_source(&source_bytes, &data, Some(&edited_bytes)).reasons, ["rerender_identity_file_differs"]);
+}

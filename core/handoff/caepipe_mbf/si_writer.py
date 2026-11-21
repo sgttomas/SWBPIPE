@@ -1530,11 +1530,12 @@ class _Writer:
     def read_free_shear_model(self, contract: Any) -> None:
         """A pressure-free document's `model_settings.shear_model` travels in the sidecar's pressure_map, as the
         exact contract's does: the MBF has no field for it. A selection beside a pressure contract is the document's
-        own refusal (MODEL_SETTING_SHEAR_MODEL_WITH_PRESSURE_CONTRACT), and an unknown value is not exported."""
+        own refusal (MODEL_SETTING_SHEAR_MODEL_WITH_PRESSURE_CONTRACT), and an unknown value is not exported. A present
+        null is a value the solve refuses, not an absent selection: the key's presence decides."""
         settings = self.model.get("model_settings")
-        selected = settings.get("shear_model") if isinstance(settings, Mapping) else None
-        if selected is None:
+        if not isinstance(settings, Mapping) or "shear_model" not in settings:
             return
+        selected = settings["shear_model"]
         if contract is not None:
             self.refuse("MBF-SI-SHEAR-MODEL-UNSUPPORTED", "model.model_settings.shear_model",
                         "a model_settings.shear_model beside a pressure_contract is refused by the solve "

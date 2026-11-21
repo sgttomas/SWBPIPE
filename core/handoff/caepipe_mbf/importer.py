@@ -1207,9 +1207,9 @@ class _SidecarParser:
 
     def pressure(self, value: Any, path: str) -> Any:
         """Format 2: the effective pressure state of every model: `contract` (the exact contract, or "none"), the
-        effective `shear_model` (without a contract, the document's own timoshenko_annulus_energy_v1 selection, else
-        the route's euler_bernoulli) and the regions (none without a contract). A legacy sidecar has none: main's
-        writer exported no pressure."""
+        effective `shear_model` and the regions (none without a contract). Without a contract the shear model is the
+        route's euler_bernoulli, and from format 6 also the document's own timoshenko_annulus_energy_v1 selection,
+        which no earlier writer recorded. A legacy sidecar has none: main's writer exported no pressure."""
         if not self.current:
             return self.fail(path, "is not a field main's tranche-1 writer records; a sidecar with pressure has "
                              f"sidecar_format {' or '.join(map(str, SIDECAR_FORMATS))}")
@@ -1219,6 +1219,10 @@ class _SidecarParser:
             return entry
         if entry["contract"] == "none" and entry["regions"]:
             return self.fail(path, "without a contract there is no region")
+        if entry["contract"] == "none" and entry["shear_model"] != "euler_bernoulli" \
+                and self.format_number != SIDECAR_FORMAT:
+            return self.fail(path, "without a contract the shear model is the route's euler_bernoulli before "
+                             f"sidecar_format {SIDECAR_FORMAT}")
         return entry
 
     def title_line(self, value: Any, path: str) -> Any:
