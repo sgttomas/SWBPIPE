@@ -814,7 +814,7 @@ fn the_derivation_and_the_producer_refuse_a_record_version_by_name() {
     let mut legacy = x.record.clone();
     legacy.record_version = USER_RELEASE_RECORD_VERSION.into();
     let error = x.derived(&legacy).unwrap_err();
-    assert!(!error.starts_with(RECORD_VERSION_RETIRED) && !error.starts_with(RECORD_VERSION_NOT_OF_ROUTE), "{error}");
+    assert!(error.starts_with(&format!("{EXACT_ROUTE_NOT_ADMITTED}:")), "{error}");
     refused_with(x.assemble(request, &legacy), EXACT_ROUTE_NOT_ADMITTED);
 
     let case = case();
