@@ -21,7 +21,7 @@ import {
   type RunComparisonStatusFilter
 } from "./runComparisonCsv";
 import { heldStatusQuotedNotice, suppliedDiagnosticMessage } from "../results/suppliedDiagnostics";
-import { needsSolverReportNote, SOLVER_REPORT_NOTE, standingStatusText } from "../results/integrityStatus";
+import { integrityBoundText, needsSolverReportNote, SOLVER_REPORT_NOTE, standingStatusText } from "../results/integrityStatus";
 
 /** RT-A5: a held-status notice (`HELD_STATUS_QUOTED_CODES`) is quoted whole as supplied text here too (`suppliedDiagnosticMessage`). */
 const NO_COMBINATIONS: ReadonlySet<string> = new Set();
@@ -75,9 +75,10 @@ function SideText({ name, side }: { name: string; side: RunComparisonSide }) {
     <p className="muted" data-testid={`run-comparison-side-${name.toLowerCase()}`}>
       {name}: {side.description}
       {side.createdAt ? <>, recorded {side.createdAt}</> : null}
-      {side.state ? <>, against saved state {side.state}</> : null}. Its result reads <strong>{standingStatusText(standing.status)}</strong> (route {standing.contract})
+      {side.state ? <>, against saved state {side.state}</> : null}. Its result {standing.status === "solver_checks_passed" ? "is " : ""}<strong>{standingStatusText(standing.status)}</strong> (route {standing.contract})
       {side.recordedTableRead ? <> <span data-testid={`run-comparison-side-${name.toLowerCase()}-recorded-table`}>({recordedTableLabel(side.recordedTableRead)})</span></> : null}
-      {standing.findings.length ? <>: {standing.findings.join(", ")}</> : null}.
+      {standing.findings.length ? <>: {standing.findings.join(", ")}</> : null}
+      {integrityBoundText(standing.integrity_bound) ? <>; {integrityBoundText(standing.integrity_bound)}</> : null}.
     </p>
   );
 }
@@ -124,15 +125,16 @@ export function RunComparisonView({ result, onClose }: { result: RunComparisonRe
       <p className="muted" data-testid="run-comparison-basis">
         Rows are mapped automatically when their result id, family, entity, basis, dimension, component, location, metadata
         basis, coordinate system and sign convention are all equal; there is no manual mapping. A delta is right − left in
-        the rows' own unit. It is computed only when both runs' results read solver checks passed, not verified, both carry the same result
-        semantic identity, and the two units are equal; nothing is converted. This lists differences between two runs only
+        the rows' own unit. It is computed only when both runs' results are numerically eligible, both carry the same result
+        semantic identity, and the two units are equal; nothing is converted. Numerically eligible is an admission standing: it
+        asserts no verified error bound. This lists differences between two runs only
         and establishes nothing about either; human review is still required.
       </p>
       {comparison.run_gate.length ? (
         <p className="muted" role="note" data-testid="run-comparison-gate">
           No row pair is compared: {comparison.run_gate.map((reason) => NOT_COMPARED_LABELS[reason]).join("; ")}.
           {recordedNeedsRecompute
-            ? " A recorded run is read from its stored result and saved snapshot only. Its live solve registration is not kept with the record, so a run on the pressure-source or retained route reads needs_recompute."
+            ? " A recorded run is read from its stored result and saved snapshot only. Its live solve registration is not kept with the record, so a run on the pressure-source or retained route reads needs recompute."
             : null}
         </p>
       ) : null}
