@@ -603,19 +603,19 @@ export function useWorkspaceSession() {
     selectedPipeRefs
   } = useSelectionSessionState();
   const {
-    result, setResult,
+    result, setResult: setResultCell,
     fullResultCopy, setFullResultCopy,
-    historicalRun, setHistoricalRun,
+    historicalRun, setHistoricalRun: setHistoricalRunCell,
     currentSolvedResult,
     renderableSolvedResult,
     numericallyEligible,
     numericalHealth,
     numericalHealthHold,
-    analysisRun, setAnalysisRun,
+    analysisRun, setAnalysisRun: setAnalysisRunCell,
     resultBasisRef,
     analysisBasisRef,
-    inputManifest, setInputManifest,
-    ruleCheckAggregate, setRuleCheckAggregate,
+    inputManifest, setInputManifest: setInputManifestCell,
+    ruleCheckAggregate, setRuleCheckAggregate: setRuleCheckAggregateCell,
     ruleCheckReportRun, heldRuleCheckRun, setRuleCheckReportRun,
     ruleCheckAggregateRef, ruleCheckReportRunRef,
     proposal, setProposal,
@@ -645,6 +645,21 @@ export function useWorkspaceSession() {
     setHeldWithinRunSelection,
     setDroppedWithinRunBases
   } = useResultsSessionState(reportSource.owner.advance);
+  // DEL-16-03, Commit (P6): the held values an editor commit reads at publication, written synchronously at each of
+  // their setters (not at the last render), so a value published in the same batch as the commit is seen. The cells
+  // are written only through these setters; a functional update resolves against the same latest value the cell does.
+  type EditorHeld = { result: typeof result; historicalRun: typeof historicalRun; analysisRun: typeof analysisRun; inputManifest: typeof inputManifest; ruleCheckAggregate: typeof ruleCheckAggregate };
+  const editorHeld = useRef<EditorHeld>({ result, historicalRun, analysisRun, inputManifest, ruleCheckAggregate });
+  const [{ setResult, setHistoricalRun, setAnalysisRun, setInputManifest, setRuleCheckAggregate }] = useState(() => {
+    const held = <K extends keyof EditorHeld>(key: K, write: React.Dispatch<React.SetStateAction<EditorHeld[K]>>): React.Dispatch<React.SetStateAction<EditorHeld[K]>> =>
+      (action) => {
+        const next = typeof action === "function" ? (action as (previous: EditorHeld[K]) => EditorHeld[K])(editorHeld.current[key]) : action;
+        editorHeld.current[key] = next;
+        write(next);
+      };
+    return { setResult: held("result", setResultCell), setHistoricalRun: held("historicalRun", setHistoricalRunCell), setAnalysisRun: held("analysisRun", setAnalysisRunCell),
+      setInputManifest: held("inputManifest", setInputManifestCell), setRuleCheckAggregate: held("ruleCheckAggregate", setRuleCheckAggregateCell) };
+  });
   // C2 interim (DEL-04-05 `c1-native-custody-plan.md` slice 4): the inputs each native record was
   // built with, so a C2 consumer's full record is the same record, built on the full copy.
   const nativeRunInputs = useRef(new WeakMap<object, { inputManifest: CurrentSessionInputManifestEvidence; ruleCheckAggregate: RuleCheckStatus | null; rulePackExclusions: readonly ExcludedRulePackRef[] }>());
@@ -2649,9 +2664,6 @@ export function useWorkspaceSession() {
   const editorPreviews = useRef(new WeakMap<object, EditorPreviewRecord>());
   const editorBuildSequence = useRef(0);
   const editorCommitSequence = useRef(0);
-  // Whether a result is held, read live at publication (A8): render-assigned, as the session's other live refs are.
-  const editorHeldRef = useRef({ result, analysisRun, inputManifest, ruleCheckAggregate, historicalRun });
-  editorHeldRef.current = { result, analysisRun, inputManifest, ruleCheckAggregate, historicalRun };
   const EDITOR_SUPERSEDED = "The model or the project changed while this edit was checked, so nothing was applied. Enter it again.";
   const editorFindings = (findings: readonly EngineFinding[]) =>
     findings.map((item) => ({ code: String(item.code), severity: String(item.severity), message: String(item.message), affected_refs: [...(item.affected_refs ?? [])].map(String) }));
@@ -2820,7 +2832,8 @@ export function useWorkspaceSession() {
     } catch (error) {
       return editorRefusal(`A view of the session could not take this change, so nothing was applied: ${nativeFailureText(error)}`);
     }
-    const held = editorHeldRef.current;
+    // P6: read from the held values' own refs, written where each is set.
+    const held = editorHeld.current;
     const resultsCleared = [held.result, held.analysisRun, held.inputManifest, held.ruleCheckAggregate, held.historicalRun].some((value) => value !== null);
 
     // Publish: one synchronous block of state setters and session-owned ref writes. P5: once the history is

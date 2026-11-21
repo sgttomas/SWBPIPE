@@ -700,6 +700,23 @@ describe("live values at publication", () => {
     expect(result.current.selection.selection).toEqual({ type: "node", id: "node:D" });
   });
 
+  it("a result published in the same render batch as the commit's completion is seen: the commit clears it and reports resultsCleared (P6)", async () => {
+    const result = await session();
+    const held = hold("applyOperationBatch");
+    let outcome!: EditorCommitResult;
+    // One act: React renders nothing until it ends, so a value read from the last render would miss the result.
+    await act(async () => {
+      const pending = bindCommit(result, gridCell)({ nodeId: "node:C", axis: "y", value: "2.5" });
+      await held.arrived;
+      await result.current.results.handleInspectBundledReference();
+      held.release();
+      outcome = await pending;
+    });
+    expect(committed(outcome).resultsCleared).toBe(true);
+    expect(result.current.results.historicalRun).toBeNull();
+    expect(result.current.model.model!.nodes[2].position.y).toBe(2.5);
+  });
+
   it("a listener's failure after publication is a notice on a committed result, and the session's own clears complete", async () => {
     const result = await session();
     await act(async () => { await result.current.results.handleInspectBundledReference(); });
