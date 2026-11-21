@@ -504,6 +504,19 @@ export function emptyAttendedOutput(out) {
 const lstatOrNull = (file) => { try { return fs.lstatSync(file); } catch { return null; } };
 
 /**
+ * An admitted attended launch's output folder: what it replaces goes (the index and an earlier part 90, after the
+ * refusals of emptyAttendedOutput) and its captures folder is made. Returns that folder's identity (device and inode).
+ * Called only from the launch's beforeStart, which judgedPhase calls only once its marks check has admitted the start.
+ */
+export function prepareAttendedOutput(out) {
+  emptyNativeOutput(out, []);
+  emptyAttendedOutput(out);
+  const captures = path.join(out, ATTENDED.captures);
+  mkdirSync(captures);
+  return (({ dev, ino }) => ({ dev, ino }))(lstatSync(captures));
+}
+
+/**
  * The handover: the lines the command prints once the driver's start checkpoint says the start was made (ok: true,
  * with this launch's nonce) and the census has found the process running this launch's private copy,
  * `attended.<key>=<value>`, the last `attended.ready=yes`. What it says of the window is what the driver observed at
@@ -554,40 +567,54 @@ export function appPidOf(pids, table, self = process.pid) {
 /**
  * The attended launch's watcher. It owns the AbortController whose signal judgedPhase hands to runUnderLock, the
  * owner of the started child; no process or group is ever signalled here. start({ nonce }) is called directly before
- * the start. From then on, every `pollMs`, it looks for the app's pid (the census of the run's private copy, for the
- * printed line only), the driver's `start` checkpoint carrying `nonce` and the finish file. The handover, `onReady`,
- * is called once, only when the checkpoint says the start was made (ok: true) and the pid is known; a checkpoint that
- * says the start failed is never handed over, and the watcher aborts the launch ("start-failed") in case the driver's
- * own ending does not come. When the finish file appears, or `limitMs` passes, it aborts once: runUnderLock then sends
+ * the start. From then on, every `pollMs`, it looks for the driver's `start` checkpoint carrying `nonce`, the finish
+ * file and, until the handover, the processes running the run's private copy (the census, read afresh each time). The
+ * handover, `onReady`, is called once, only while the application is running: the checkpoint says the start was made
+ * (ok: true), the census of that same poll still finds the pid first found, and the application has not been seen to
+ * exit (once the private copy that ran is no longer running, nothing is ever handed over, so a start checkpoint read
+ * late, while the run censuses an application that has already quit, prints nothing). With `requireVisible` (a launch
+ * without --hidden) the checkpoint must also say the window was shown and its page visible; otherwise the attendant is
+ * not directed to the window and the watcher aborts the launch ("window-not-shown"). A checkpoint that says the start
+ * failed is never handed over, and the watcher aborts the launch ("start-failed") in case the driver's own ending does
+ * not come. When the finish file appears, or `limitMs` passes, it aborts once: runUnderLock then sends
  * SIGKILL to the child it started if that child
  * is still running, and its receipt (the phase's `abort`) says what was sent. The first poll comes after the start,
  * when the child already exists, so a finish file that is there before the pid is known is acted on, not lost; one
  * that appears after the application has exited signals nothing. stop() returns { pid, start, ready_printed,
- * handed_over_at, stop }, where `stop` is null or { by: "finish-file" | "limit" | "start-failed", at }.
+ * handed_over_at, exited_at, stop }, where `stop` is null or { by: "finish-file" | "limit" | "start-failed" |
+ * "window-not-shown" | "output-not-prepared", at }; halt(by) aborts the launch from outside, once.
  */
-export function attendedWatch({ executable, finishFile, startReport, census, limitMs, onReady = () => {}, pollMs = 250, processTable = readProcessTable, self = process.pid }) {
+export function attendedWatch({ executable, finishFile, startReport, census, limitMs, onReady = () => {}, pollMs = 250, processTable = readProcessTable, self = process.pid, requireVisible = false }) {
   const controller = new AbortController();
-  const seen = { pid: null, start: null, printed: false, handedOverAt: null, stop: null };
+  const seen = { pid: null, start: null, printed: false, handedOverAt: null, stop: null, exitedAt: null };
   let nonce = null;
   let poll = null;
   let limit = null;
-  const halt = (by) => {
+  const halt = (by, detail = {}) => {
     if (seen.stop !== null) return;
-    seen.stop = { by, at: Date.now() };
+    seen.stop = { by, at: Date.now(), ...detail };
     controller.abort();
   };
   const tick = () => {
     if (seen.stop === null && lstatOrNull(finishFile) !== null) halt("finish-file");
-    if (seen.pid === null) {
+    // Until the handover, the processes running the private copy now: the pid first found, and whether it still runs.
+    let running = null;
+    if (!seen.printed && seen.exitedAt === null) {
       const result = census(executable);
-      if (result?.ok && result.pids.length > 0) seen.pid = appPidOf(result.pids, processTable(), self);
+      if (result?.ok) {
+        running = result.pids;
+        if (seen.pid === null && running.length > 0) seen.pid = appPidOf(running, processTable(), self);
+        else if (seen.pid !== null && !running.includes(seen.pid)) seen.exitedAt = Date.now();
+      }
     }
     if (seen.start === null) {
       const read = readReport(startReport).report;
       if (read && read.nonce === nonce) seen.start = read;
     }
     if (seen.start !== null && seen.start.ok !== true) halt("start-failed");
-    if (seen.start?.ok === true && seen.stop === null && !seen.printed && seen.pid !== null) {
+    const shown = seen.start?.window_shown === true && seen.start?.page_visibility === "visible";
+    if (requireVisible && seen.start?.ok === true && !shown) halt("window-not-shown");
+    if (seen.start?.ok === true && seen.stop === null && !seen.printed && seen.exitedAt === null && seen.pid !== null && running?.includes(seen.pid) && (!requireVisible || shown)) {
       seen.printed = true;
       seen.handedOverAt = Date.now();
       onReady({ pid: seen.pid, start: seen.start });
@@ -600,10 +627,11 @@ export function attendedWatch({ executable, finishFile, startReport, census, lim
       poll = setInterval(() => { try { tick(); } catch { /* the next poll tries again */ } }, pollMs);
       limit = setTimeout(() => halt("limit"), limitMs);
     },
+    halt,
     stop() {
       clearInterval(poll);
       clearTimeout(limit);
-      return { pid: seen.pid, start: seen.start, ready_printed: seen.printed, handed_over_at: seen.handedOverAt, stop: seen.stop };
+      return { pid: seen.pid, start: seen.start, ready_printed: seen.printed, handed_over_at: seen.handedOverAt, exited_at: seen.exitedAt, stop: seen.stop };
     }
   };
 }
@@ -623,6 +651,10 @@ export function attendedEnding({ outcome, receipt = null, stop = null, start = n
   let ending;
   if (thisStart && start.ok !== true) {
     ending = { by: "start-failed", ok: false, what: `the start failed and the launch was ended without a handover: ${String(start.error ?? "no reason recorded").split("\n")[0]}` };
+  } else if (stop?.by === "window-not-shown") {
+    ending = { by: "window-not-shown", ok: false, what: `the window was not observed shown with its page visible (window shown: ${start?.window_shown === true ? "yes" : "no"}, page ${start?.page_visibility ?? "not reported"}), so the attendant was not directed to it and the launch was ended without a handover${killed ? " (SIGKILL delivered to its child)" : ""}` };
+  } else if (stop?.by === "output-not-prepared") {
+    ending = { by: "output-not-prepared", ok: false, what: `the output folder could not be prepared once the launch was admitted (${stop.why ?? "no reason recorded"}), so the launch was ended at once without a handover${killed ? " (SIGKILL delivered to its child)" : ""}` };
   } else if (killed && stop?.by === "finish-file") {
     ending = { by: "finish-file", ok: true, what: "the finish file appeared; runUnderLock, which started the application, ended it (SIGKILL delivered to its child)" };
   } else if (killed && stop?.by === "limit") {
@@ -1043,9 +1075,10 @@ async function main() {
       }
       attended.marksAtCheck = marks;
     }
+    // A journey's run empties what it replaces here. An attended launch changes nothing in --out until judgedPhase's own
+    // marks check, directly before the start, has admitted it (walkAttended, beforeStart).
     try {
-      emptyNativeOutput(out, selected);
-      if (attended) emptyAttendedOutput(out);
+      if (!attended) emptyNativeOutput(out, selected);
     } catch (error) {
       refuseLine(error.message);
       await exitAfterSignals(2);
@@ -1345,6 +1378,8 @@ async function main() {
 
   // The attended launch (--attended): launch() as every journey's, the start only, then the attendant's; its record and
   // the attendant's captures after the census and the home's removal.
+  // Set when an attended launch could not prepare --out once admitted: nothing is then written there.
+  let outputUntouched = false;
   async function walkAttended({ start, limitMinutes, hidden, attendantOnScreen = null, marksAtCheck = null }) {
     const name = ATTENDED.name;
     if (buildLock.inherited) {
@@ -1354,9 +1389,10 @@ async function main() {
     const where = journeyRoot(name);
     const finishFile = path.join(RUN_ROOT, ATTENDED.finish_file);
     const captures = path.join(out, ATTENDED.captures);
-    mkdirSync(captures);
-    // The captures folder is this launch's own: read at the end only if it is still this folder.
-    const capturesIdentity = (({ dev, ino }) => ({ dev, ino }))(lstatSync(captures));
+    // The captures folder is this launch's own, made once the launch is admitted, and read at the end only if it is
+    // still that folder.
+    let capturesIdentity = null;
+    let prepared = false;
     const plan = { journey: name, number: ATTENDED.number, attended: true, start, bundled_project_id: demo.project.id, show_window: !hidden };
     const spec = start ? JOURNEYS[start] : null;
     // The start's prepared files, exactly as walk() places a journey's.
@@ -1379,7 +1415,7 @@ async function main() {
     let startedAt = null;
     let marksBeforeStart = null;
     const watch = attendedWatch({
-      executable: binary, finishFile, startReport, census: censusOf, limitMs: limitMinutes * 60_000,
+      executable: binary, finishFile, startReport, census: censusOf, limitMs: limitMinutes * 60_000, requireVisible: !hidden,
       onReady: ({ pid, start: observed }) => {
         const onScreen = attendantOnScreen ? { stated_by: attendantOnScreen, marks: markNames(marksBeforeStart) } : null;
         for (const line of attendedStartLines({ pid, boundApp: app.binary, launchCopy: binary, finishFile, captures, limitMinutes, endsAt: new Date(startedAt + limitMinutes * 60_000).toISOString(), observed, start, attendantOnScreen: onScreen })) console.log(line);
@@ -1393,7 +1429,20 @@ async function main() {
         reportPath: startReport,
         check: (checkName, ok, detail) => judged.push({ name: checkName, ok, detail }),
         abort: watch.signal,
-        beforeStart: ({ nonce, marks }) => { startedAt = Date.now(); marksBeforeStart = marks ?? null; watch.start({ nonce }); },
+        beforeStart: ({ nonce, marks }) => {
+          startedAt = Date.now();
+          marksBeforeStart = marks ?? null;
+          watch.start({ nonce });
+          // Only now, the launch admitted by judgedPhase's marks check, is --out changed: what this launch replaces goes
+          // (the index, an earlier part 90) and the captures folder is made. A late mark refuses before this point and
+          // leaves the folder, with any completed journeys' screens and index, exactly as it was.
+          try {
+            capturesIdentity = prepareAttendedOutput(out);
+            prepared = true;
+          } catch (error) {
+            watch.halt("output-not-prepared", { why: String(error?.message ?? error) });
+          }
+        },
         ...(attendantOnScreen ? { attendant: { stated_by: attendantOnScreen } } : {})
       }
     });
@@ -1405,6 +1454,12 @@ async function main() {
     check(`the attended launch ended in one of its ways (${ending.by})`, ending.ok, ending.what);
     if (removeHome(where.home) !== null) check("its throwaway home was removed", false, leftHomes.get(where.home));
     else check("its throwaway home was removed", true);
+    if (!prepared) {
+      // Nothing of this launch is written into a folder it could not prepare, and the index is not recomposed.
+      outputUntouched = true;
+      writeFileSync(path.join(where.root, "summary.json"), JSON.stringify({ journey: name, attended: true, source_revision: revision, launches: { [name]: launches[phase] }, ending, checks: checks.filter((item) => item.journey === name) }, null, 2));
+      return;
+    }
     const nativeMenu = nativeMenuRecord(readReport(`${report}.menu.json`), { journey: name, number: ATTENDED.number });
     const windowRecord = readReport(`${report}.window.json`).report ?? null;
     const shown = hidden
@@ -1473,6 +1528,12 @@ async function main() {
     const changes = tripwireChanges(state.watchedBefore, statWatched(WATCHED));
     state.tripwireDone = true;
     check(`the real user's Library: none of the ${WATCHED.length} product-named paths appeared, disappeared or changed`, changes.length === 0, changes);
+  }
+  if (outputUntouched) {
+    const failed = checks.filter((item) => !item.ok);
+    console.log(`${NAME}: --out was left as it was; ${checks.length - failed.length}/${checks.length} confinement and launch checks passed; evidence in ${RUN_ROOT}`);
+    buildLock.release();
+    await exitAfterSignals(1);
   }
   const index = composeIndex(out);
   console.log(`${NAME}: the index now holds ${index.screens} screens over ${index.journeys} journeys; open ${path.join(out, "index.html")}`);

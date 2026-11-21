@@ -363,7 +363,7 @@ import { ATTENDED, ATTENDED_SURFACE, CAPTURE_BASIS, UNEXPLAINED_BASIS, attendedE
 import { judgedPhase } from "../../native-smoke/judged-launch.mjs";
 import { censusOf } from "../../native-smoke/launch-env.mjs";
 import { readReport } from "../../native-smoke/launch-outcome.mjs";
-import { acquireBuildLock } from "../../scripts/worktreeBuildLock.mjs";
+import { BUILD_LOCK_TOKEN_ENV, acquireBuildLock } from "../../scripts/worktreeBuildLock.mjs";
 import { deflateSync } from "node:zlib";
 
 /** An attended capture's sidecar as the attendant writes it, with the required members the claims leave out. */
@@ -855,12 +855,21 @@ test("a refused attended launch changes nothing: the completed output folder is 
   assert.equal(outputRefusals(out), null);
 });
 
-test("the command itself refuses an attended launch into a completed attended folder and leaves it intact", (t) => {
+test("the command itself refuses an attended launch into a completed attended folder, by that refusal alone, and leaves it intact", { skip: process.platform !== "darwin" && "the command is macOS only" }, (t) => {
   const out = completedAttendedFolder(t);
   const before = folderBytes(out);
-  const run = spawnChild(process.execPath, [new URL("./run.mjs", import.meta.url).pathname, "--attended", "--hidden", "--out", out], { encoding: "utf8", timeout: 120_000 });
-  assert.equal(run.status, 2, run.stderr);
-  if (process.platform === "darwin") assert.match(run.stderr, /earlier attended launch's captures|build lock/);
+  // The test holds this worktree's build lock and hands it to the command, so that the command reaches the output
+  // folder's refusal; a build lock it could not take would be another refusal, and fails this test.
+  const lock = acquireBuildLock({ purpose: "attended refusal test" });
+  let run;
+  try {
+    run = spawnChild(process.execPath, [new URL("./run.mjs", import.meta.url).pathname, "--attended", "--hidden", "--out", out], { encoding: "utf8", timeout: 120_000, env: { ...process.env, [BUILD_LOCK_TOKEN_ENV]: lock.token } });
+  } finally {
+    lock.release();
+  }
+  assert.equal(run.stderr, `native walkthrough: ${path.join(out, "captures")} holds an earlier attended launch's captures; choose another --out (nothing in it was changed)\n`);
+  assert.equal(run.stdout, "");
+  assert.equal(run.status, 2);
   assert.deepEqual(folderBytes(out), before);
 });
 
@@ -1198,7 +1207,7 @@ import { markRefusalLine as markRefusalLineFn } from "./run.mjs";
 const markRefusalLineOf = (marks, attendant = null) => markRefusalLineFn(marks, { attendant });
 
 /** One judgedPhase start of a stand-in app, with the marks answered as `marks` gives them. */
-async function standInPhase(t, { marks, attendant }) {
+async function standInPhase(t, { marks, attendant, beforeStart = null }) {
   const dir = scratch(t);
   const executable = path.join(dir, "stand-in-app");
   copyFileSync(process.execPath, executable, fsConstants.COPYFILE_FICLONE);
@@ -1217,7 +1226,7 @@ async function standInPhase(t, { marks, attendant }) {
     phase: "attended/walk", checkName: "c", launches, check: () => {}, summaryPath: path.join(dir, "summary.json"),
     executable, command: executable, commandArgs: [script], cwd: dir, stdio: ["ignore", "ignore", "ignore"],
     env: { ...process.env, SWBPIPE_NATIVE_SMOKE_REPORT: reportPath }, timeoutMs: 30_000, reportPath, nonce: "n", censusBoundMs: 2_000,
-    marksRun, beforeStart: (...args) => seen.push(args), ...(attendant ? { attendant } : {})
+    marksRun, beforeStart: (...args) => { seen.push(args); beforeStart?.(...args); }, ...(attendant ? { attendant } : {})
   });
   return { result, launches, seen, started: lstatSync(`${reportPath}.started`, { throwIfNoEntry: false }) !== undefined, dir };
 }
@@ -1445,4 +1454,30 @@ test("a tool-setup failure, or an unresolved reason, is missing evidence, never 
   // A concrete account of the system's obstacle still counts.
   const concrete = surfacesIndex(t, { sidecars: [{ prevented: { ...setup, observed: "the menu bar was drawn blank in the picture", cause: "the system hides the menu bar of a window in full-screen mode" } }] });
   assert.equal(concrete.entry("menu_bar").evidence, "unseen");
+});
+
+test("a late mark leaves a completed folder untouched: the attended output is prepared only once judgedPhase admits the start", { skip: !["darwin", "linux"].includes(process.platform) && "the census runs on macOS and Linux" }, async (t) => {
+  const { prepareAttendedOutput } = await import("./run.mjs");
+  // A folder holding a completed scripted journey and its index, as a walkthrough leaves it.
+  const folderWithJourney = () => {
+    const out = scratch(t);
+    writePart(out, { number: 22, name: "exports", title: "E", use_case: "u", revision: { commit: "abc", uncommitted_paths: 0 }, build: { kind: "k" }, screens: screensFromRecords([{ number: 2201, step: "s", note: "n", window: "1440x920" }], { journey: "exports", number: 22 }), launch: { ended_cleanly: true } });
+    composeIndex(out);
+    return out;
+  };
+  const late = folderWithJourney();
+  const before = folderBytes(late);
+  const refused = await standInPhase(t, { marks: { sky: true }, beforeStart: () => prepareAttendedOutput(late) });
+  assert.deepEqual([refused.result.stop, refused.started], [MARK_PRESENT, false]);
+  assert.deepEqual(folderBytes(late), before, "a refusal for a mark directly before the start changes nothing in --out");
+  // Admitted, the index goes and the captures folder is made; the journey's own part stays.
+  const admitted = folderWithJourney();
+  const run = await standInPhase(t, { marks: {}, beforeStart: () => prepareAttendedOutput(admitted) });
+  assert.equal(run.started, true);
+  assert.deepEqual(readdirSync(admitted).sort(), ["captures", "part-22-exports.json"]);
+  // In the command, nothing else empties --out for an attended launch before the start.
+  const runner = readFileSync(new URL("./run.mjs", import.meta.url), "utf8");
+  assert.equal(runner.match(/= prepareAttendedOutput\(out\);/g)?.length, 1);
+  assert.match(runner, /if \(!attended\) emptyNativeOutput\(out, selected\);/);
+  assert.equal(runner.match(/^\s+emptyAttendedOutput\(out\);$/gm)?.length, 1, "called only inside prepareAttendedOutput");
 });
