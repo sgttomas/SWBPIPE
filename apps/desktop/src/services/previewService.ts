@@ -26,7 +26,8 @@ import {
 } from "./inputManifestService";
 import { buildAnalysisRunV03, modelLoadBasisRefs } from "./analysisRunCompatibility";
 import type { ExcludedRulePackRef } from "./rulePackRefDiagnostics";
-import { canonicalSha256HexCheckedV1, checkedJsonText } from "./hashService";
+import { canonicalSha256HexCheckedV1, checkedJsonText, checkJsonProfile } from "./hashService";
+import { EqualityDigest } from "./equalityDigest";
 import { formatBytes, nativeInvokeError, parseResourceRefusal, parseSolveResourceGrant, ResourceUnavailableError, SOLVE_RESULT_REDUCTION_OPTIONS } from "./memoryPool";
 import { errorCode, isSolveJob, markSolveStage, noteSolveHandle, noteSolveResult, timedSolvePass } from "./solveTimeline";
 import { jsonTextKeepingNegativeZero } from "./jsonText";
@@ -173,6 +174,76 @@ function nativeContentFingerprintOf(value: unknown): string {
   };
   visit(value, "");
   return `${canonicalJson(JSON.parse(checked))}\nnegative_zero_paths=${JSON.stringify(negativeZeros.sort())}`;
+}
+/** The checked profile's canonical part of `nativeContentFingerprintOf`'s text,
+ * `canonicalJson(JSON.parse(checkedJsonText(value)))`, handed to `put` in pieces without
+ * the checked copy, its text or the parsed copy. It runs the checked profile's checks first
+ * (`checkJsonProfile`: the same checks, in the same order, throwing the same errors as
+ * `checkedJsonText`), so it writes only values the profile admits: numbers as
+ * `JSON.stringify` writes them (-0 as 0), and each object's members in `sortJson`'s order,
+ * sorted by `localeCompare` with any array-index keys first in ascending order, as the
+ * object `Object.fromEntries` makes from them orders them. Exported for the values test. */
+export function writeCheckedCanonicalJson(value: unknown, put: (piece: string) => void): void {
+  checkJsonProfile(value);
+  writeCanonical(value, put);
+}
+function writeCanonical(value: unknown, put: (piece: string) => void): void {
+  if (Array.isArray(value)) {
+    put("[");
+    for (let index = 0; index < value.length; index += 1) {
+      if (index > 0) put(",");
+      writeCanonical(value[index], put);
+    }
+    put("]");
+    return;
+  }
+  if (value !== null && typeof value === "object") {
+    let keys = Object.keys(value).sort((left, right) => left.localeCompare(right));
+    // A key that starts with a digit may be an array index, which an object lists first
+    // whatever its insertion order: the engine's own object gives the order.
+    if (keys.some((key) => key.charCodeAt(0) >= 48 && key.charCodeAt(0) <= 57)) keys = Object.keys(Object.fromEntries(keys.map((key) => [key, true])));
+    put("{");
+    let first = true;
+    for (const key of keys) {
+      if (!first) put(",");
+      first = false;
+      put(JSON.stringify(key));
+      put(":");
+      writeCanonical((value as Record<string, unknown>)[key], put);
+    }
+    put("}");
+    return;
+  }
+  put(JSON.stringify(value));
+}
+/** The tail of `nativeContentFingerprintOf`'s text: the sorted JSON Pointer paths of the
+ * negative zeros, which the canonical part writes as 0. */
+function negativeZeroTail(value: unknown): string {
+  const negativeZeros: string[] = [];
+  const visit = (item: unknown, path: string) => {
+    if (typeof item === "number" && Object.is(item, -0)) negativeZeros.push(path);
+    else if (item && typeof item === "object") {
+      for (const [key, child] of Object.entries(item)) visit(child, `${path}/${key.replaceAll("~", "~0").replaceAll("/", "~1")}`);
+    }
+  };
+  visit(value, "");
+  return `\nnegative_zero_paths=${JSON.stringify(negativeZeros.sort())}`;
+}
+/** `nativeContentFingerprintOf`'s text handed to `put` in pieces. Exported for the values test. */
+export function writeNativeContentFingerprint(value: unknown, put: (piece: string) => void): void {
+  writeCheckedCanonicalJson(value, put);
+  put(negativeZeroTail(value));
+}
+/** The equality digest (`equalityDigest.ts`) of `nativeContentFingerprintOf`'s text, without
+ * building the text: the witness kept for a received result and compared with a fresh one
+ * at each later check. Throws where the fingerprint throws. */
+export function nativeContentDigest(value: unknown): string {
+  // RT-U4: timed for the latest solve's timeline as the text it digests.
+  const digest = new EqualityDigest();
+  return timedSolvePass("native_fingerprint", () => {
+    writeNativeContentFingerprint(value, (piece) => digest.put(piece));
+    return digest.hex();
+  }, () => digest.chars);
 }
 function captureNativeInvocation(model: PreviewModel | null | undefined, solverMode: PreviewSolverMode): CapturedNativeInvocation | null {
   if (!model || typeof window === "undefined" || !("__TAURI_INTERNALS__" in window)) return null;
