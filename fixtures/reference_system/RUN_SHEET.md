@@ -494,9 +494,9 @@ leave the **Operating minus sustained difference** template unticked (its
 `difference_basis` is refused on a document with a pressure contract,
 `LOAD_COMBINATION_DIFFERENCE_BASIS_EXACT_UNSUPPORTED`); **Subtraction minuend** and
 **Subtraction subtrahend**; **Provenance** ⟨P⟩. Leave Rationale as the form shows it; the
-record does not keep it. **Queue combo**, Apply. For the second, the form keeps the basis, the
+record does not keep it. **Queue combination**, Apply. For the second, the form keeps the basis, the
 subtrahend, the provenance and the rationale: enter ID, Label and **Subtraction minuend**.
-**Queue combo**, Apply.
+**Queue combination**, Apply.
 
 | ID | Label | Minuend | Subtrahend |
 |---|---|---|---|
