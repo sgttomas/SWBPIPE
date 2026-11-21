@@ -283,7 +283,9 @@
       await scrollTo(group, "start");
       acting(toggle, "issue-group-members-toggle").click();
       await sleep(200);
-      return group.getAttribute("data-testid");
+      const itemClass = group.querySelector('[data-testid="issue-class"]')?.textContent?.trim() ?? "?";
+      const memberClasses = [...group.querySelectorAll('[data-testid="issue-member-class"]')].map((node) => node.textContent.trim());
+      return `${group.getAttribute("data-testid")}; item ${itemClass}; reports ${memberClasses.join(" | ")}`;
     });
   }
 
