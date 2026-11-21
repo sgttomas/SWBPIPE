@@ -43,6 +43,7 @@ const SUMS: &str = include_str!("../../../validation/references/w16_exact_equiva
 const W16T_REFERENCES: &str = include_str!("../../../validation/references/w16_timoshenko_partial_wind/references.json");
 const ARC_SKETCHES: &str = include_str!("../../../validation/references/t4_i7/u2_document_sketches.json");
 const SOURCE_MIXED: &str = include_str!("../../../fixtures/product_preview/pressure_source/physics_source/mixed.request.json");
+const IDENTITIES: &str = include_str!("../../reporting/result_export/tests/fixtures/generated_identities.json");
 const LOAD_STATE_SOURCE_MIXED: &str = include_str!("../../../fixtures/product_preview/pressure_source/load_reference_source/mixed.request.json");
 const MODES: [PreviewSolverMode; 2] = [PreviewSolverMode::SparseInteractive, PreviewSolverMode::DenseScrutiny];
 const RELATIVE: f64 = 1.0e-9;
@@ -1104,6 +1105,58 @@ fn a_generating_case_without_its_analysis_state_is_refused_by_name() {
             let out = run(&mixed, mode);
             assert!(out["contract_evidence"]["load_reference_states"].as_array().is_none_or(Vec::is_empty), "{what} {mode:?}: no record");
             assert!(out["contract_evidence"]["exact_cases"].as_array().is_none_or(Vec::is_empty), "{what} {mode:?}: no generation record");
+        }
+    }
+}
+
+/// Item 1 of issue 452's first review round: the model-bound reader
+/// rederives from the model which generated loads a solved case has (kind,
+/// axis, member and extent, in order), and compares them with the case's
+/// record; it does not rederive magnitudes. The shared fixture
+/// (`generated_identities.json`) states each case's identities, written from
+/// the generator's grammar. They cover:
+/// - each seismic axis;
+/// - a connector-replaced member;
+/// - component-replaced members with zero, one and two moments;
+/// - whole-span wind in marking order;
+/// - partial extents whose fractions are whole numbers, short decimals and
+///   long ones.
+/// The generator forms exactly those identities in both modes, the Rust
+/// reader rederives them, and the reader admits the solved envelope and
+/// refuses it with two identities swapped or one missing. Rust's Display of
+/// each fixture fraction is the string the Python reader must reproduce
+/// (`tests/test_generated_identity_reader.py`).
+#[test]
+fn the_reader_rederives_the_generated_identities_the_generator_forms() {
+    use open_pipe_stress_result_export::{expected_generated_load_ids, reader_verdict};
+    let doc: Value = serde_json::from_str(IDENTITIES).unwrap();
+    for fraction in doc["fractions"].as_array().unwrap() {
+        assert_eq!(format!("{}", fraction["value"].as_f64().unwrap()), fraction["display"].as_str().unwrap(), "{fraction}");
+    }
+    let cases = doc["cases"].as_array().unwrap();
+    assert_eq!(cases.len(), 5);
+    for item in cases {
+        let model = &doc["models"][item["model"].as_str().unwrap()];
+        let id = item["load_case_id"].as_str().unwrap();
+        let what = format!("{} {id}", item["model"]);
+        let case = model["load_cases"].as_array().unwrap().iter().find(|c| c["id"] == id).unwrap();
+        let expected = &item["generated_load_ids"];
+        assert!(!expected.as_array().unwrap().is_empty());
+        assert_eq!(&json!(expected_generated_load_ids(model, case)), expected, "{what}: the reader's identities");
+        for mode in MODES {
+            let out = solved(&json!({"model": model, "materials": []}), Route::Exact, mode, &what);
+            let record = &exact_case(&out, id)["equivalent_static"];
+            assert_eq!(&record["generated_load_ids"], expected, "{what} {mode:?}: the generator's identities");
+            reader_verdict::physics_model_checks(&out, model).unwrap_or_else(|e| panic!("{what} {mode:?}: the reader admits it: {e}"));
+            let index = out["contract_evidence"]["exact_cases"].as_array().unwrap().iter().position(|c| c["load_case_id"] == id).unwrap();
+            for (how, edit) in [
+                ("two swapped", &(|ids: &mut Vec<Value>| ids.swap(0, 1)) as &dyn Fn(&mut Vec<Value>)),
+                ("one missing", &|ids: &mut Vec<Value>| { ids.pop(); }),
+            ] {
+                let mut forged = out.clone();
+                edit(forged["contract_evidence"]["exact_cases"][index]["equivalent_static"]["generated_load_ids"].as_array_mut().unwrap());
+                assert_eq!(reader_verdict::physics_model_checks(&forged, model), Err("SOURCE_PHYSICS_EQUIVALENT_STATIC_GENERATED_MODEL_MISMATCH".to_string()), "{what} {mode:?}: {how}");
+            }
         }
     }
 }

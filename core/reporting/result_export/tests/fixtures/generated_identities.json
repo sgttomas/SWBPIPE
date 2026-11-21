@@ -1,0 +1,1182 @@
+{
+ "description": "Shared binding of generated-load identities (DEL-05-01 REQ-008, issue 452). Each case names a model and a load case, and lists, written from the generator's identity grammar, the identities of the loads the case generates, in order. The product test (core/product_physics/tests/w16_exact_equivalent_static.rs) checks that the generator forms exactly these and that the Rust model-bound reader rederives them; the Python verifier test (tests/test_generated_identity_reader.py) checks the Python reader. `fractions` pairs a binary64 with Rust's Display of it, which the Rust test checks and the Python formatter must reproduce. Invented inputs.",
+ "models": {
+  "frame": {
+   "schema_version": "0.9.0",
+   "document_kind": "openpipestress.product_preview.model",
+   "project": {
+    "id": "project:generated-identity-frame",
+    "units": {
+     "length": "m",
+     "force": "N",
+     "angle": "rad",
+     "pressure": "Pa",
+     "stress": "Pa",
+     "temperature": "degC"
+    }
+   },
+   "analysis_status": {
+    "mechanics": "ready_for_preview_diagnostics",
+    "rule_check": "not_performed_user_rule_inputs_missing",
+    "professional_acceptance": "not_provided"
+   },
+   "pressure_contract": {
+    "version": "3.0.0",
+    "mode": "exact_pressure_v3",
+    "shear_model": "euler_bernoulli"
+   },
+   "nodes": [
+    {
+     "id": "node:a",
+     "position": {
+      "x": 0.0,
+      "y": 0.0,
+      "z": 0.0
+     },
+     "provenance": "invented generated-identity binding input; not library, catalogue or code data"
+    },
+    {
+     "id": "node:b",
+     "position": {
+      "x": 3.0,
+      "y": 0.0,
+      "z": 0.0
+     },
+     "provenance": "invented generated-identity binding input; not library, catalogue or code data"
+    },
+    {
+     "id": "node:c",
+     "position": {
+      "x": 3.0,
+      "y": 2.0,
+      "z": 0.0
+     },
+     "provenance": "invented generated-identity binding input; not library, catalogue or code data"
+    },
+    {
+     "id": "node:d",
+     "position": {
+      "x": 3.0,
+      "y": 2.0,
+      "z": -1.5
+     },
+     "provenance": "invented generated-identity binding input; not library, catalogue or code data"
+    }
+   ],
+   "pipe_segments": [
+    {
+     "id": "pipe:a-b",
+     "from": "node:a",
+     "to": "node:b",
+     "material": "material:id",
+     "y_reference": {
+      "x": 0.0,
+      "y": 1.0,
+      "z": 0.0
+     },
+     "section": {
+      "outside_diameter": {
+       "value": 0.2191,
+       "unit": "m"
+      },
+      "wall_thickness": {
+       "value": 0.00818,
+       "unit": "m"
+      },
+      "mill_tolerance": {
+       "value": 0.0,
+       "unit": "m"
+      },
+      "corrosion_allowance": {
+       "value": 0.0015,
+       "unit": "m"
+      },
+      "material_density": {
+       "value": 7850.0,
+       "unit": "kg/m^3"
+      },
+      "contents_density": {
+       "value": 1000.0,
+       "unit": "kg/m^3"
+      }
+     },
+     "provenance": "invented generated-identity binding input; not library, catalogue or code data"
+    },
+    {
+     "id": "pipe:b-c",
+     "from": "node:b",
+     "to": "node:c",
+     "material": "material:id",
+     "y_reference": {
+      "x": 1.0,
+      "y": 0.0,
+      "z": 0.0
+     },
+     "section": {
+      "outside_diameter": {
+       "value": 0.2191,
+       "unit": "m"
+      },
+      "wall_thickness": {
+       "value": 0.00818,
+       "unit": "m"
+      },
+      "mill_tolerance": {
+       "value": 0.0,
+       "unit": "m"
+      },
+      "corrosion_allowance": {
+       "value": 0.0015,
+       "unit": "m"
+      },
+      "material_density": {
+       "value": 7850.0,
+       "unit": "kg/m^3"
+      },
+      "contents_density": {
+       "value": 1000.0,
+       "unit": "kg/m^3"
+      }
+     },
+     "provenance": "invented generated-identity binding input; not library, catalogue or code data"
+    },
+    {
+     "id": "pipe:c-d",
+     "from": "node:c",
+     "to": "node:d",
+     "material": "material:id",
+     "y_reference": {
+      "x": 0.0,
+      "y": 1.0,
+      "z": 0.0
+     },
+     "section": {
+      "outside_diameter": {
+       "value": 0.2191,
+       "unit": "m"
+      },
+      "wall_thickness": {
+       "value": 0.00818,
+       "unit": "m"
+      },
+      "mill_tolerance": {
+       "value": 0.0,
+       "unit": "m"
+      },
+      "corrosion_allowance": {
+       "value": 0.0015,
+       "unit": "m"
+      },
+      "material_density": {
+       "value": 7850.0,
+       "unit": "kg/m^3"
+      },
+      "contents_density": {
+       "value": 1000.0,
+       "unit": "kg/m^3"
+      }
+     },
+     "provenance": "invented generated-identity binding input; not library, catalogue or code data"
+    }
+   ],
+   "supports": [
+    {
+     "id": "support:a",
+     "node": "node:a",
+     "family": "anchor",
+     "restraints": [
+      "UX",
+      "UY",
+      "UZ",
+      "RX",
+      "RY",
+      "RZ"
+     ],
+     "provenance": "invented generated-identity binding input; not library, catalogue or code data"
+    }
+   ],
+   "components": [],
+   "materials": [
+    {
+     "id": "material:id",
+     "constitutive_basis": "homogeneous_isotropic_E_nu_v1",
+     "elastic_modulus": {
+      "value": 200000000000.0,
+      "unit": "Pa"
+     },
+     "poisson_ratio": {
+      "value": 0.3,
+      "unit": "1"
+     },
+     "provenance": "invented generated-identity binding input; not library, catalogue or code data"
+    }
+   ],
+   "load_cases": [
+    {
+     "id": "SEISMIC-XYZ",
+     "primitive_loads": [],
+     "pressure_regions": [],
+     "provenance": "invented generated-identity binding input; not library, catalogue or code data",
+     "equivalent_static": {
+      "seismic": {
+       "gravity_acceleration": {
+        "value": 9.80665,
+        "unit": "m/s^2"
+       },
+       "g_factor_x": {
+        "value": 0.2,
+        "unit": "1"
+       },
+       "g_factor_y": {
+        "value": 0.3,
+        "unit": "1"
+       },
+       "g_factor_z": {
+        "value": 0.1,
+        "unit": "1"
+       }
+      },
+      "provenance": "invented generated-identity binding input; not library, catalogue or code data"
+     }
+    },
+    {
+     "id": "SEISMIC-Y-WIND",
+     "primitive_loads": [],
+     "pressure_regions": [],
+     "provenance": "invented generated-identity binding input; not library, catalogue or code data",
+     "equivalent_static": {
+      "seismic": {
+       "gravity_acceleration": {
+        "value": 9.80665,
+        "unit": "m/s^2"
+       },
+       "g_factor_y": {
+        "value": 0.3,
+        "unit": "1"
+       }
+      },
+      "wind": {
+       "pressure": {
+        "value": 850.0,
+        "unit": "Pa"
+       },
+       "shape_factor": {
+        "value": 0.7,
+        "unit": "1"
+       },
+       "direction": "global_z",
+       "exposed_pipe_refs": [
+        "pipe:c-d",
+        "pipe:a-b"
+       ],
+       "exposed_spans": [
+        {
+         "pipe_ref": "pipe:b-c",
+         "start_fraction": {
+          "value": 0.5,
+          "unit": "1"
+         },
+         "end_fraction": {
+          "value": 1.0,
+          "unit": "1"
+         }
+        },
+        {
+         "pipe_ref": "pipe:b-c",
+         "start_fraction": {
+          "value": 0.0,
+          "unit": "1"
+         },
+         "end_fraction": {
+          "value": 0.25,
+          "unit": "1"
+         }
+        },
+        {
+         "pipe_ref": "pipe:b-c",
+         "start_fraction": {
+          "value": 0.30000000000000004,
+          "unit": "1"
+         },
+         "end_fraction": {
+          "value": 0.3333333333333333,
+          "unit": "1"
+         }
+        }
+       ]
+      },
+      "provenance": "invented generated-identity binding input; not library, catalogue or code data"
+     }
+    }
+   ],
+   "combinations": []
+  },
+  "connector": {
+   "schema_version": "0.9.0",
+   "document_kind": "openpipestress.product_preview.model",
+   "project": {
+    "id": "project:generated-identity-connector",
+    "units": {
+     "length": "m",
+     "force": "N",
+     "angle": "rad",
+     "pressure": "Pa",
+     "stress": "Pa",
+     "temperature": "degC"
+    }
+   },
+   "analysis_status": {
+    "mechanics": "ready_for_preview_diagnostics",
+    "rule_check": "not_performed_user_rule_inputs_missing",
+    "professional_acceptance": "not_provided"
+   },
+   "pressure_contract": {
+    "version": "3.0.0",
+    "mode": "exact_pressure_v3",
+    "shear_model": "euler_bernoulli"
+   },
+   "nodes": [
+    {
+     "id": "node:a",
+     "position": {
+      "x": 0.0,
+      "y": 0.0,
+      "z": 0.0
+     },
+     "provenance": "invented generated-identity binding input; not library, catalogue or code data"
+    },
+    {
+     "id": "node:b",
+     "position": {
+      "x": 2.5,
+      "y": 0.0,
+      "z": 0.0
+     },
+     "provenance": "invented generated-identity binding input; not library, catalogue or code data"
+    },
+    {
+     "id": "node:c",
+     "position": {
+      "x": 3.5,
+      "y": 0.0,
+      "z": 0.0
+     },
+     "provenance": "invented generated-identity binding input; not library, catalogue or code data"
+    }
+   ],
+   "pipe_segments": [
+    {
+     "id": "pipe:a-b",
+     "from": "node:a",
+     "to": "node:b",
+     "material": "material:id",
+     "y_reference": {
+      "x": 0.0,
+      "y": 1.0,
+      "z": 0.0
+     },
+     "section": {
+      "outside_diameter": {
+       "value": 0.2191,
+       "unit": "m"
+      },
+      "wall_thickness": {
+       "value": 0.00818,
+       "unit": "m"
+      },
+      "mill_tolerance": {
+       "value": 0.0,
+       "unit": "m"
+      },
+      "corrosion_allowance": {
+       "value": 0.0015,
+       "unit": "m"
+      },
+      "material_density": {
+       "value": 7850.0,
+       "unit": "kg/m^3"
+      },
+      "contents_density": {
+       "value": 1000.0,
+       "unit": "kg/m^3"
+      }
+     },
+     "provenance": "invented generated-identity binding input; not library, catalogue or code data"
+    },
+    {
+     "id": "pipe:b-c",
+     "from": "node:b",
+     "to": "node:c",
+     "material": "material:id",
+     "y_reference": {
+      "x": 0.0,
+      "y": 1.0,
+      "z": 0.0
+     },
+     "section": {
+      "outside_diameter": {
+       "value": 0.2191,
+       "unit": "m"
+      },
+      "wall_thickness": {
+       "value": 0.00818,
+       "unit": "m"
+      },
+      "mill_tolerance": {
+       "value": 0.0,
+       "unit": "m"
+      },
+      "corrosion_allowance": {
+       "value": 0.0015,
+       "unit": "m"
+      },
+      "material_density": {
+       "value": 7850.0,
+       "unit": "kg/m^3"
+      },
+      "contents_density": {
+       "value": 1000.0,
+       "unit": "kg/m^3"
+      }
+     },
+     "provenance": "invented generated-identity binding input; not library, catalogue or code data"
+    }
+   ],
+   "supports": [
+    {
+     "id": "support:a",
+     "node": "node:a",
+     "family": "anchor",
+     "restraints": [
+      "UX",
+      "UY",
+      "UZ",
+      "RX",
+      "RY",
+      "RZ"
+     ],
+     "provenance": "invented generated-identity binding input; not library, catalogue or code data"
+    }
+   ],
+   "components": [
+    {
+     "id": "component:joint",
+     "label": "Invented expansion joint (objective connector)",
+     "kind": "expansion_joint",
+     "node": "node:c",
+     "provenance": "invented generated-identity binding input; not library, catalogue or code data",
+     "objective_connector": {
+      "version": "1.0.0",
+      "motion_basis": "symmetric_midpoint_small_rotation_v1",
+      "end_i": {
+       "node_ref": "node:b",
+       "initial_node_axes_global": [
+        [
+         1,
+         0,
+         0
+        ],
+        [
+         0,
+         1,
+         0
+        ],
+        [
+         0,
+         0,
+         1
+        ]
+       ],
+       "offset_local": {
+        "x": 0,
+        "y": 0,
+        "z": 0,
+        "unit": "m"
+       }
+      },
+      "end_j": {
+       "node_ref": "node:c",
+       "initial_node_axes_global": [
+        [
+         1,
+         0,
+         0
+        ],
+        [
+         0,
+         1,
+         0
+        ],
+        [
+         0,
+         0,
+         1
+        ]
+       ],
+       "offset_local": {
+        "x": 0,
+        "y": 0,
+        "z": 0,
+        "unit": "m"
+       }
+      },
+      "connector_axes_global": [
+       [
+        1,
+        0,
+        0
+       ],
+       [
+        0,
+        1,
+        0
+       ],
+       [
+        0,
+        0,
+        1
+       ]
+      ],
+      "installed_reference_temperature": {
+       "value": 20,
+       "unit": "degC"
+      },
+      "temperature_applicability": "fixed_installed_parameters_v1",
+      "reference_state": "stress_free",
+      "q_ref": {
+       "translation": {
+        "x": 0,
+        "y": 0,
+        "z": 0,
+        "unit": "m"
+       },
+       "rotation": {
+        "x": 0,
+        "y": 0,
+        "z": 0,
+        "unit": "rad"
+       }
+      },
+      "stiffness": {
+       "version": "1.0.0",
+       "representation": "scaled_work_coefficients_v1",
+       "translation_scale": {
+        "value": 0.5,
+        "unit": "m"
+       },
+       "rotation_scale": {
+        "value": 1,
+        "unit": "rad"
+       },
+       "coefficient_unit": "N*m",
+       "upper_triangle": [
+        800000,
+        0,
+        0,
+        0,
+        0,
+        0,
+        225000,
+        0,
+        0,
+        0,
+        0,
+        225000,
+        0,
+        0,
+        0,
+        620000,
+        0,
+        0,
+        480000,
+        0,
+        480000
+       ],
+       "coordinate_order": [
+        "tx",
+        "ty",
+        "tz",
+        "rx",
+        "ry",
+        "rz"
+       ],
+       "provenance": {
+        "source_reference": "invented generated-identity binding input; not library, catalogue or code data",
+        "measurement_restraints": "invented",
+        "basis_transform_reference": "none"
+       }
+      },
+      "topology": {
+       "type": "replaces_span",
+       "span_ref": "pipe:b-c"
+      },
+      "calibration": {
+       "kind": "constant_structural_elasticity_v1",
+       "includes_pressure_dependent_tangent": false,
+       "installed_geometry": "authored model geometry"
+      },
+      "hardware": {
+       "kind": "untied"
+      },
+      "pressure_model": {
+       "kind": "unpressurized"
+      },
+      "provenance": {
+       "source_reference": "invented generated-identity binding input; not library, catalogue or code data",
+       "measurement_restraints": "invented",
+       "basis_transform_reference": "none",
+       "validity_statement": "invented analytical control; no applicability claim"
+      }
+     }
+    }
+   ],
+   "materials": [
+    {
+     "id": "material:id",
+     "constitutive_basis": "homogeneous_isotropic_E_nu_v1",
+     "elastic_modulus": {
+      "value": 200000000000.0,
+      "unit": "Pa"
+     },
+     "poisson_ratio": {
+      "value": 0.3,
+      "unit": "1"
+     },
+     "provenance": "invented generated-identity binding input; not library, catalogue or code data"
+    }
+   ],
+   "load_cases": [
+    {
+     "id": "SEISMIC-XZ-WIND",
+     "primitive_loads": [],
+     "pressure_regions": [],
+     "provenance": "invented generated-identity binding input; not library, catalogue or code data",
+     "equivalent_static": {
+      "seismic": {
+       "gravity_acceleration": {
+        "value": 9.80665,
+        "unit": "m/s^2"
+       },
+       "g_factor_x": {
+        "value": 0.2,
+        "unit": "1"
+       },
+       "g_factor_z": {
+        "value": 0.15,
+        "unit": "1"
+       }
+      },
+      "wind": {
+       "pressure": {
+        "value": 850.0,
+        "unit": "Pa"
+       },
+       "shape_factor": {
+        "value": 0.7,
+        "unit": "1"
+       },
+       "direction": "global_y",
+       "exposed_pipe_refs": [
+        "pipe:a-b"
+       ],
+       "exposed_spans": []
+      },
+      "provenance": "invented generated-identity binding input; not library, catalogue or code data"
+     }
+    }
+   ],
+   "combinations": []
+  },
+  "components": {
+   "schema_version": "0.9.0",
+   "document_kind": "openpipestress.product_preview.model",
+   "project": {
+    "id": "project:generated-identity-components",
+    "units": {
+     "length": "m",
+     "force": "N",
+     "angle": "rad",
+     "pressure": "Pa",
+     "stress": "Pa",
+     "temperature": "degC"
+    }
+   },
+   "analysis_status": {
+    "mechanics": "ready_for_preview_diagnostics",
+    "rule_check": "not_performed_user_rule_inputs_missing",
+    "professional_acceptance": "not_provided"
+   },
+   "pressure_contract": {
+    "version": "3.0.0",
+    "mode": "exact_pressure_v3",
+    "shear_model": "euler_bernoulli"
+   },
+   "nodes": [
+    {
+     "id": "node:a",
+     "position": {
+      "x": 0.0,
+      "y": 0.0,
+      "z": 0.0
+     },
+     "provenance": "invented generated-identity binding input; not library, catalogue or code data"
+    },
+    {
+     "id": "node:b",
+     "position": {
+      "x": 2.0,
+      "y": 0.0,
+      "z": 0.0
+     },
+     "provenance": "invented generated-identity binding input; not library, catalogue or code data"
+    },
+    {
+     "id": "node:c",
+     "position": {
+      "x": 2.5,
+      "y": 0.0,
+      "z": 0.0
+     },
+     "provenance": "invented generated-identity binding input; not library, catalogue or code data"
+    },
+    {
+     "id": "node:d",
+     "position": {
+      "x": 3.0,
+      "y": 0.0,
+      "z": 0.0
+     },
+     "provenance": "invented generated-identity binding input; not library, catalogue or code data"
+    },
+    {
+     "id": "node:e",
+     "position": {
+      "x": 3.5,
+      "y": 0.0,
+      "z": 0.0
+     },
+     "provenance": "invented generated-identity binding input; not library, catalogue or code data"
+    }
+   ],
+   "pipe_segments": [
+    {
+     "id": "pipe:a-b",
+     "from": "node:a",
+     "to": "node:b",
+     "material": "material:id",
+     "y_reference": {
+      "x": 0.0,
+      "y": 1.0,
+      "z": 0.0
+     },
+     "section": {
+      "outside_diameter": {
+       "value": 0.2191,
+       "unit": "m"
+      },
+      "wall_thickness": {
+       "value": 0.00818,
+       "unit": "m"
+      },
+      "mill_tolerance": {
+       "value": 0.0,
+       "unit": "m"
+      },
+      "corrosion_allowance": {
+       "value": 0.0015,
+       "unit": "m"
+      },
+      "material_density": {
+       "value": 7850.0,
+       "unit": "kg/m^3"
+      },
+      "contents_density": {
+       "value": 1000.0,
+       "unit": "kg/m^3"
+      }
+     },
+     "provenance": "invented generated-identity binding input; not library, catalogue or code data"
+    },
+    {
+     "id": "pipe:b-c",
+     "from": "node:b",
+     "to": "node:c",
+     "material": "material:id",
+     "y_reference": {
+      "x": 0.0,
+      "y": 1.0,
+      "z": 0.0
+     },
+     "section": {
+      "outside_diameter": {
+       "value": 0.2191,
+       "unit": "m"
+      },
+      "wall_thickness": {
+       "value": 0.00818,
+       "unit": "m"
+      },
+      "mill_tolerance": {
+       "value": 0.0,
+       "unit": "m"
+      },
+      "corrosion_allowance": {
+       "value": 0.0015,
+       "unit": "m"
+      },
+      "material_density": {
+       "value": 7850.0,
+       "unit": "kg/m^3"
+      },
+      "contents_density": {
+       "value": 1000.0,
+       "unit": "kg/m^3"
+      }
+     },
+     "provenance": "invented generated-identity binding input; not library, catalogue or code data"
+    },
+    {
+     "id": "pipe:c-d",
+     "from": "node:c",
+     "to": "node:d",
+     "material": "material:id",
+     "y_reference": {
+      "x": 0.0,
+      "y": 1.0,
+      "z": 0.0
+     },
+     "section": {
+      "outside_diameter": {
+       "value": 0.2191,
+       "unit": "m"
+      },
+      "wall_thickness": {
+       "value": 0.00818,
+       "unit": "m"
+      },
+      "mill_tolerance": {
+       "value": 0.0,
+       "unit": "m"
+      },
+      "corrosion_allowance": {
+       "value": 0.0015,
+       "unit": "m"
+      },
+      "material_density": {
+       "value": 7850.0,
+       "unit": "kg/m^3"
+      },
+      "contents_density": {
+       "value": 1000.0,
+       "unit": "kg/m^3"
+      }
+     },
+     "provenance": "invented generated-identity binding input; not library, catalogue or code data"
+    },
+    {
+     "id": "pipe:d-e",
+     "from": "node:d",
+     "to": "node:e",
+     "material": "material:id",
+     "y_reference": {
+      "x": 0.0,
+      "y": 1.0,
+      "z": 0.0
+     },
+     "section": {
+      "outside_diameter": {
+       "value": 0.2191,
+       "unit": "m"
+      },
+      "wall_thickness": {
+       "value": 0.00818,
+       "unit": "m"
+      },
+      "mill_tolerance": {
+       "value": 0.0,
+       "unit": "m"
+      },
+      "corrosion_allowance": {
+       "value": 0.0015,
+       "unit": "m"
+      },
+      "material_density": {
+       "value": 7850.0,
+       "unit": "kg/m^3"
+      },
+      "contents_density": {
+       "value": 1000.0,
+       "unit": "kg/m^3"
+      }
+     },
+     "provenance": "invented generated-identity binding input; not library, catalogue or code data"
+    }
+   ],
+   "supports": [
+    {
+     "id": "support:a",
+     "node": "node:a",
+     "family": "anchor",
+     "restraints": [
+      "UX",
+      "UY",
+      "UZ",
+      "RX",
+      "RY",
+      "RZ"
+     ],
+     "provenance": "invented generated-identity binding input; not library, catalogue or code data"
+    }
+   ],
+   "components": [
+    {
+     "id": "component:v0",
+     "kind": "valve",
+     "node": "node:c",
+     "provenance": "invented generated-identity binding input; not library, catalogue or code data",
+     "geometry": {
+      "rigid_pipe_ref": "pipe:b-c",
+      "weight": {
+       "value": 2350.0,
+       "unit": "N"
+      },
+      "center_of_gravity": {
+       "x": 0.0,
+       "y": 0.15,
+       "z": 0.0,
+       "unit": "m"
+      }
+     },
+     "mechanics_interface": {
+      "solver_consumption": "mechanics_geometry_only"
+     }
+    },
+    {
+     "id": "component:v1",
+     "kind": "valve",
+     "node": "node:d",
+     "provenance": "invented generated-identity binding input; not library, catalogue or code data",
+     "geometry": {
+      "rigid_pipe_ref": "pipe:c-d",
+      "weight": {
+       "value": 2350.0,
+       "unit": "N"
+      },
+      "center_of_gravity": {
+       "x": 0.12,
+       "y": 0.0,
+       "z": 0.0,
+       "unit": "m"
+      }
+     },
+     "mechanics_interface": {
+      "solver_consumption": "mechanics_geometry_only"
+     }
+    },
+    {
+     "id": "component:v2",
+     "kind": "valve",
+     "node": "node:e",
+     "provenance": "invented generated-identity binding input; not library, catalogue or code data",
+     "geometry": {
+      "rigid_pipe_ref": "pipe:d-e",
+      "weight": {
+       "value": 2350.0,
+       "unit": "N"
+      },
+      "center_of_gravity": {
+       "x": 0.12,
+       "y": 0.3,
+       "z": -0.05,
+       "unit": "m"
+      }
+     },
+     "mechanics_interface": {
+      "solver_consumption": "mechanics_geometry_only"
+     }
+    }
+   ],
+   "materials": [
+    {
+     "id": "material:id",
+     "constitutive_basis": "homogeneous_isotropic_E_nu_v1",
+     "elastic_modulus": {
+      "value": 200000000000.0,
+      "unit": "Pa"
+     },
+     "poisson_ratio": {
+      "value": 0.3,
+      "unit": "1"
+     },
+     "provenance": "invented generated-identity binding input; not library, catalogue or code data"
+    }
+   ],
+   "load_cases": [
+    {
+     "id": "SEISMIC-Y",
+     "primitive_loads": [],
+     "pressure_regions": [],
+     "provenance": "invented generated-identity binding input; not library, catalogue or code data",
+     "equivalent_static": {
+      "seismic": {
+       "gravity_acceleration": {
+        "value": 9.80665,
+        "unit": "m/s^2"
+       },
+       "g_factor_y": {
+        "value": 0.25,
+        "unit": "1"
+       }
+      },
+      "provenance": "invented generated-identity binding input; not library, catalogue or code data"
+     }
+    },
+    {
+     "id": "SEISMIC-X",
+     "primitive_loads": [],
+     "pressure_regions": [],
+     "provenance": "invented generated-identity binding input; not library, catalogue or code data",
+     "equivalent_static": {
+      "seismic": {
+       "gravity_acceleration": {
+        "value": 9.80665,
+        "unit": "m/s^2"
+       },
+       "g_factor_x": {
+        "value": 0.25,
+        "unit": "1"
+       }
+      },
+      "provenance": "invented generated-identity binding input; not library, catalogue or code data"
+     }
+    }
+   ],
+   "combinations": []
+  }
+ },
+ "cases": [
+  {
+   "model": "frame",
+   "load_case_id": "SEISMIC-XYZ",
+   "what": "each seismic axis, members in model order",
+   "generated_load_ids": [
+    "SEISMIC-XYZ:generated:seismic:global-x:element-0",
+    "SEISMIC-XYZ:generated:seismic:global-x:element-1",
+    "SEISMIC-XYZ:generated:seismic:global-x:element-2",
+    "SEISMIC-XYZ:generated:seismic:global-y:element-0",
+    "SEISMIC-XYZ:generated:seismic:global-y:element-1",
+    "SEISMIC-XYZ:generated:seismic:global-y:element-2",
+    "SEISMIC-XYZ:generated:seismic:global-z:element-0",
+    "SEISMIC-XYZ:generated:seismic:global-z:element-1",
+    "SEISMIC-XYZ:generated:seismic:global-z:element-2"
+   ]
+  },
+  {
+   "model": "frame",
+   "load_case_id": "SEISMIC-Y-WIND",
+   "what": "seismic before wind; wind whole spans in marking order, then extents in marking order (whole numbers, short and long decimals)",
+   "generated_load_ids": [
+    "SEISMIC-Y-WIND:generated:seismic:global-y:element-0",
+    "SEISMIC-Y-WIND:generated:seismic:global-y:element-1",
+    "SEISMIC-Y-WIND:generated:seismic:global-y:element-2",
+    "SEISMIC-Y-WIND:generated:wind:global-z:element-2",
+    "SEISMIC-Y-WIND:generated:wind:global-z:element-0",
+    "SEISMIC-Y-WIND:generated:wind:global-z:element-1:extent-0.5-1",
+    "SEISMIC-Y-WIND:generated:wind:global-z:element-1:extent-0-0.25",
+    "SEISMIC-Y-WIND:generated:wind:global-z:element-1:extent-0.30000000000000004-0.3333333333333333"
+   ]
+  },
+  {
+   "model": "connector",
+   "load_case_id": "SEISMIC-XZ-WIND",
+   "what": "a connector-replaced member carries no generated load; the survivor keeps its model index",
+   "generated_load_ids": [
+    "SEISMIC-XZ-WIND:generated:seismic:global-x:element-0",
+    "SEISMIC-XZ-WIND:generated:seismic:global-z:element-0",
+    "SEISMIC-XZ-WIND:generated:wind:global-y:element-0"
+   ]
+  },
+  {
+   "model": "components",
+   "load_case_id": "SEISMIC-Y",
+   "what": "component-replaced members with zero, one and two moments",
+   "generated_load_ids": [
+    "SEISMIC-Y:generated:seismic:global-y:element-0",
+    "SEISMIC-Y:generated:seismic:global-y:component:12:component:v0:force",
+    "SEISMIC-Y:generated:seismic:global-y:component:12:component:v1:force",
+    "SEISMIC-Y:generated:seismic:global-y:component:12:component:v1:moment:z",
+    "SEISMIC-Y:generated:seismic:global-y:component:12:component:v2:force",
+    "SEISMIC-Y:generated:seismic:global-y:component:12:component:v2:moment:x",
+    "SEISMIC-Y:generated:seismic:global-y:component:12:component:v2:moment:z"
+   ]
+  },
+  {
+   "model": "components",
+   "load_case_id": "SEISMIC-X",
+   "what": "the same components along x: levers (0, r_z, -r_y)",
+   "generated_load_ids": [
+    "SEISMIC-X:generated:seismic:global-x:element-0",
+    "SEISMIC-X:generated:seismic:global-x:component:12:component:v0:force",
+    "SEISMIC-X:generated:seismic:global-x:component:12:component:v0:moment:z",
+    "SEISMIC-X:generated:seismic:global-x:component:12:component:v1:force",
+    "SEISMIC-X:generated:seismic:global-x:component:12:component:v2:force",
+    "SEISMIC-X:generated:seismic:global-x:component:12:component:v2:moment:y",
+    "SEISMIC-X:generated:seismic:global-x:component:12:component:v2:moment:z"
+   ]
+  }
+ ],
+ "fractions": [
+  {
+   "value": 0.0,
+   "display": "0"
+  },
+  {
+   "value": 1.0,
+   "display": "1"
+  },
+  {
+   "value": 0.5,
+   "display": "0.5"
+  },
+  {
+   "value": 0.25,
+   "display": "0.25"
+  },
+  {
+   "value": 0.2,
+   "display": "0.2"
+  },
+  {
+   "value": 0.7,
+   "display": "0.7"
+  },
+  {
+   "value": 0.1,
+   "display": "0.1"
+  },
+  {
+   "value": 0.30000000000000004,
+   "display": "0.30000000000000004"
+  },
+  {
+   "value": 0.3333333333333333,
+   "display": "0.3333333333333333"
+  },
+  {
+   "value": 0.9999999999999999,
+   "display": "0.9999999999999999"
+  },
+  {
+   "value": 1e-07,
+   "display": "0.0000001"
+  },
+  {
+   "value": 9.313225746154785e-10,
+   "display": "0.0000000009313225746154785"
+  },
+  {
+   "value": 5e-324,
+   "display": "0.000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000005"
+  }
+ ]
+}

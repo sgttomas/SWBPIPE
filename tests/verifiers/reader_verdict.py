@@ -290,6 +290,150 @@ def _model_section_bound(section: Any, segments: list[Any]) -> bool:
                for key, model in expected)
 
 
+def rust_f64_display(value: float) -> str:
+    """Rust's `Display` of a binary64: the shortest decimal that reads back to the same value, written without an
+    exponent; a whole number without a point, and a negative zero as "-0"."""
+    from decimal import Decimal
+    if value == 0:
+        return "-0" if math.copysign(1.0, value) < 0 else "0"
+    text = format(Decimal(repr(float(value))), "f")
+    return text.rstrip("0").rstrip(".") if "." in text else text
+
+
+_AXIS_KEYS = ("global_x", "global_y", "global_z")
+_AXIS_LABELS = ("global-x", "global-y", "global-z")
+_AXIS_LETTERS = ("x", "y", "z")
+_RIGID_KINDS = {"valve", "flange", "reducer", "rigid", "specialty"}
+
+
+def _model_quantity(quantity: Any, dimension: str) -> float | None:
+    """Rust `physics_evidence::model_quantity`: a model quantity in SI, a dimensionless "none" read as "1"."""
+    from .units import to_canonical
+    if not isinstance(quantity, Mapping):
+        return None
+    value, unit = quantity.get("value"), quantity.get("unit")
+    unit = "1" if unit == "none" else unit
+    if type(value) not in (int, float) or not isinstance(unit, str):
+        return None
+    try:
+        return to_canonical(value, unit, dimension)
+    except (ValueError, OverflowError, KeyError):
+        return None
+
+
+def _items(value: Any) -> list:
+    return value if isinstance(value, list) else []
+
+
+def _connector_replaced(model: Mapping[str, Any]) -> set:
+    replaced = set()
+    for component in _items(model.get("components")):
+        topology = ((component.get("objective_connector") or {}).get("topology") or {}) if isinstance(component, Mapping) else {}
+        if isinstance(topology, Mapping) and topology.get("type") == "replaces_span" and isinstance(topology.get("span_ref"), str):
+            replaced.add(topology["span_ref"])
+    return replaced
+
+
+def _eligible_components(model: Mapping[str, Any]) -> list:
+    """Rust `physics_evidence::eligible_components`: REQ-015's eligible rigid-family components, in model order,
+    with their weight and centre of gravity in SI."""
+    from .units import to_canonical
+    components = [c for c in _items(model.get("components")) if isinstance(c, Mapping)]
+    pipes = [p for p in _items(model.get("pipe_segments")) if isinstance(p, Mapping)]
+    replaced = _connector_replaced(model)
+    rigid = [c for c in components if c.get("kind") in _RIGID_KINDS]
+
+    def mapped(component):
+        ref = (component.get("geometry") or {}).get("rigid_pipe_ref") if isinstance(component.get("geometry"), Mapping) else None
+        return ref if isinstance(ref, str) and ref.strip() else None
+
+    selected = lambda ref: ref not in replaced and any(pipe.get("id") == ref for pipe in pipes)
+    mappings: dict = {}
+    for component in rigid:
+        ref = mapped(component)
+        if ref is not None and selected(ref):
+            mappings[ref] = mappings.get(ref, 0) + 1
+    eligible = []
+    for component in rigid:
+        ref = mapped(component)
+        if ref is None or not selected(ref) or mappings[ref] > 1:
+            continue
+        interface = component.get("mechanics_interface")
+        if not isinstance(interface, Mapping) or interface.get("solver_consumption") != "mechanics_geometry_only":
+            continue
+        node = component.get("node")
+        pipe = next(p for p in pipes if p.get("id") == ref)
+        if pipe.get("from") != node and pipe.get("to") != node:
+            continue
+        geometry = component["geometry"]
+        weight = _model_quantity(geometry.get("weight"), "force")
+        cog = geometry.get("center_of_gravity") if isinstance(geometry.get("center_of_gravity"), Mapping) else {}
+        entered = [cog.get(key) for key in _AXIS_LETTERS]
+        if weight is None or not math.isfinite(weight) or weight <= 0:
+            continue
+        if not all(type(e) in (int, float) and math.isfinite(e) for e in entered):
+            continue
+        try:
+            r = [to_canonical(e, cog.get("unit"), "length") for e in entered]
+        except (ValueError, OverflowError, KeyError, TypeError):
+            continue
+        if not all(math.isfinite(n) for n in r) or any(e != 0 and n == 0 for e, n in zip(entered, r)):
+            continue
+        if not any(isinstance(n, Mapping) and n.get("id") == node for n in _items(model.get("nodes"))):
+            continue
+        eligible.append((component, weight, r))
+    return eligible
+
+
+def expected_generated_load_ids(model: Mapping[str, Any], case: Mapping[str, Any]) -> list:
+    """Rust `physics_evidence::expected_generated_load_ids` (DEL-05-01 REQ-008, issue 452): the identities of the
+    loads a case's static-equivalent generation forms, from the model alone, in the generator's order (seismic per
+    entered axis over the members neither a connector nor an eligible component replaces, then each component's
+    force and moments; then wind's whole spans and extents in their marking order). Identities, kinds, members and
+    extents, never magnitudes."""
+    case_id = case.get("id")
+    if not isinstance(case_id, str):
+        return []
+    generation = case.get("equivalent_static") if isinstance(case.get("equivalent_static"), Mapping) else {}
+    pipes = _items(model.get("pipe_segments"))
+    index_of = lambda ref: next((i for i, p in enumerate(pipes) if isinstance(p, Mapping) and p.get("id") == ref), None)
+    ids: list = []
+    seismic = generation.get("seismic")
+    if isinstance(seismic, Mapping):
+        axes = [a for a in range(3) if _model_quantity(seismic.get(f"g_factor_{_AXIS_LETTERS[a]}"), "dimensionless") is not None]
+        connector = _connector_replaced(model)
+        eligible = _eligible_components(model)
+        component_replaced = {c["geometry"]["rigid_pipe_ref"] for c, _, _ in eligible}
+        for axis in axes:
+            for index, pipe in enumerate(pipes):
+                pid = pipe.get("id") if isinstance(pipe, Mapping) else None
+                if pid not in connector and pid not in component_replaced:
+                    ids.append(f"{case_id}:generated:seismic:{_AXIS_LABELS[axis]}:element-{index}")
+        for axis in axes:
+            for component, _, r in eligible:
+                cid = component.get("id") if isinstance(component.get("id"), str) else ""
+                prefix = f"{case_id}:generated:seismic:{_AXIS_LABELS[axis]}:component:{len(cid.encode())}:{cid}"
+                ids.append(f"{prefix}:force")
+                levers = ([0.0, r[2], -r[1]], [-r[2], 0.0, r[0]], [r[1], -r[0], 0.0])[axis]
+                ids.extend(f"{prefix}:moment:{_AXIS_LETTERS[i]}" for i in range(3) if i != axis and levers[i] != 0)
+    wind = generation.get("wind")
+    if isinstance(wind, Mapping) and wind.get("direction") in _AXIS_KEYS:
+        label = _AXIS_LABELS[_AXIS_KEYS.index(wind["direction"])]
+        for ref in _items(wind.get("exposed_pipe_refs")):
+            index = index_of(ref)
+            if index is not None:
+                ids.append(f"{case_id}:generated:wind:{label}:element-{index}")
+        for span in _items(wind.get("exposed_spans")):
+            if not isinstance(span, Mapping):
+                continue
+            index = index_of(span.get("pipe_ref"))
+            start = _model_quantity(span.get("start_fraction"), "dimensionless")
+            end = _model_quantity(span.get("end_fraction"), "dimensionless")
+            if index is not None and start is not None and end is not None:
+                ids.append(f"{case_id}:generated:wind:{label}:element-{index}:extent-{rust_f64_display(start)}-{rust_f64_display(end)}")
+    return ids
+
+
 def physics_model_checks(source: Mapping[str, Any], model: Mapping[str, Any]) -> None:
     """G2: TS `validateKnownPhysicsEvidence`'s model checks, after the unchanged reader admitted the evidence."""
     same = lambda a, b: len(a) == len(b) and all(item in b for item in a)
@@ -299,6 +443,13 @@ def physics_model_checks(source: Mapping[str, Any], model: Mapping[str, Any]) ->
     if (source.get("status") or {}).get("mechanics") == "MECHANICS_SOLVED":
         if not same([case.get("load_case_id") for case in cases], ids(model.get("load_cases"), "id")):
             raise Refused("SOURCE_PHYSICS_MODEL_CASE_COVERAGE")
+        # DEL-05-01 REQ-008 (issue 452 decision 6): a solved case whose model case generates carries its generation
+        # record, and only such a case does; an absent record never reads as "generated nothing".
+        for case in cases:
+            generates = any(isinstance(authored, Mapping) and authored.get("id") == case.get("load_case_id")
+                            and authored.get("equivalent_static") is not None for authored in _items(model.get("load_cases")))
+            if ("equivalent_static" in case) != generates:
+                raise Refused("SOURCE_PHYSICS_MODEL_GENERATION_RECORD")
     if model.get("pipe_segments") is not None:
         replaced = ids(evidence.get("connector"), "replaced_pipe_id")
         pipes = [pipe for pipe in ids(model["pipe_segments"], "id") if pipe not in replaced]
@@ -320,6 +471,17 @@ def physics_model_checks(source: Mapping[str, Any], model: Mapping[str, Any]) ->
             sb.bind_shear_model(evidence, model)
         except sb.BasisError as error:
             raise Refused(str(error)) from error
+    # DEL-05-01 REQ-008 (issue 452): which generated loads each solved case has, rederived from the model, in order.
+    if model.get("load_cases") is not None and (source.get("status") or {}).get("mechanics") == "MECHANICS_SOLVED":
+        for authored in _items(model["load_cases"]):
+            if not isinstance(authored, Mapping) or not isinstance(authored.get("equivalent_static"), Mapping):
+                continue
+            case = next((c for c in cases if isinstance(c, Mapping) and c.get("load_case_id") == authored.get("id")), None)
+            if case is None:
+                continue
+            record = case.get("equivalent_static")
+            if not isinstance(record, Mapping) or record.get("generated_load_ids") != expected_generated_load_ids(model, authored):
+                raise Refused("SOURCE_PHYSICS_EQUIVALENT_STATIC_GENERATED_MODEL_MISMATCH")
     if model.get("supports") is not None:
         supports = ids(model["supports"], "id")
         for row in source.get("results") or []:

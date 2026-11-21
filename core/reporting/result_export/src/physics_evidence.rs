@@ -223,6 +223,16 @@ pub(crate) fn equivalent_static_model_binding(source: &Value, model: &Value) -> 
         return Ok(());
     }
     let cases = source["contract_evidence"]["exact_cases"].as_array().map(Vec::as_slice).unwrap_or(&[]);
+    // DEL-05-01 REQ-008 (issue 452): which generated loads each solved case
+    // has, rederived from the model, in order (`expected_generated_load_ids`).
+    for case in model["load_cases"].as_array().map(Vec::as_slice).unwrap_or(&[]) {
+        if !case["equivalent_static"].is_object() {
+            continue;
+        }
+        let Some(evidence) = cases.iter().find(|c| c["load_case_id"] == case["id"]) else { continue };
+        let expected = expected_generated_load_ids(model, case).into_iter().map(Value::String).collect::<Vec<_>>();
+        require(evidence["equivalent_static"]["generated_load_ids"] == Value::Array(expected), "EQUIVALENT_STATIC_GENERATED_MODEL_MISMATCH")?;
+    }
     for case in model["load_cases"].as_array().map(Vec::as_slice).unwrap_or(&[]) {
         let Some(seismic) = case["equivalent_static"]["seismic"].as_object() else { continue };
         let Some(evidence) = cases.iter().find(|c| c["load_case_id"] == case["id"]) else { continue };
@@ -238,27 +248,112 @@ pub(crate) fn equivalent_static_model_binding(source: &Value, model: &Value) -> 
     Ok(())
 }
 
-fn expected_component_forces(model: &Value, case_id: &str, seismic: &serde_json::Map<String, Value>) -> Vec<Value> {
-    use open_pipe_stress_units::Dimension;
-    const AXES: [&str; 3] = ["global_x", "global_y", "global_z"];
-    const LABELS: [&str; 3] = ["global-x", "global-y", "global-z"];
-    const LETTERS: [&str; 3] = ["x", "y", "z"];
-    let bits = |v: f64| format!("{:016x}", v.to_bits());
-    let quantity = |q: &Value, dimension| {
-        let mut q = q.clone();
-        if q["unit"] == "none" {
-            q["unit"] = json!("1");
-        }
-        crate::physics_source::normalized_quantity(&q, dimension).ok()
-    };
-    let empty = Vec::new();
-    let components = model["components"].as_array().unwrap_or(&empty);
-    let pipes = model["pipe_segments"].as_array().unwrap_or(&empty);
-    let replaced: HashSet<&str> = components
+const SEISMIC_AXES: [&str; 3] = ["global_x", "global_y", "global_z"];
+const AXIS_LABELS: [&str; 3] = ["global-x", "global-y", "global-z"];
+const AXIS_LETTERS: [&str; 3] = ["x", "y", "z"];
+
+/// A model quantity in SI by the units authority the producer normalizes
+/// with (a dimensionless "none" read as "1").
+fn model_quantity(q: &Value, dimension: open_pipe_stress_units::Dimension) -> Option<f64> {
+    let mut q = q.clone();
+    if q["unit"] == "none" {
+        q["unit"] = json!("1");
+    }
+    crate::physics_source::normalized_quantity(&q, dimension).ok()
+}
+
+/// The members an objective connector replaces.
+fn connector_replaced(model: &Value) -> HashSet<&str> {
+    model["components"]
+        .as_array()
+        .map(Vec::as_slice)
+        .unwrap_or(&[])
         .iter()
         .filter(|c| c["objective_connector"]["topology"]["type"] == "replaces_span")
         .filter_map(|c| c["objective_connector"]["topology"]["span_ref"].as_str())
-        .collect();
+        .collect()
+}
+
+/// DEL-05-01 REQ-008 (issue 452): the identities of the loads a case's
+/// static-equivalent generation forms, from the model alone and in the
+/// generator's order: for seismic, per entered axis (x, y, z) the distributed
+/// load of every member in model order that neither an objective connector
+/// nor an eligible rigid-family component replaces
+/// (`<case>:generated:seismic:<axis>:element-<index>`, the index the member's
+/// position in the model), then per entered axis each eligible component's
+/// force and its moment about each axis with a nonzero lever, in model order
+/// (`…:component:<length>:<component>:force | moment:<axis>`); then, for
+/// wind, each whole span in its marking order
+/// (`<case>:generated:wind:<axis>:element-<index>`) and each marked extent in
+/// its order (`…:element-<index>:extent-<start>-<end>`, the fractions written
+/// as binary64 shortest decimals). It states identities, kinds, members and
+/// extents, never magnitudes: no record carries one.
+pub fn expected_generated_load_ids(model: &Value, case: &Value) -> Vec<String> {
+    use open_pipe_stress_units::Dimension;
+    let Some(case_id) = case["id"].as_str() else { return Vec::new() };
+    let generation = &case["equivalent_static"];
+    let pipes = model["pipe_segments"].as_array().map(Vec::as_slice).unwrap_or(&[]);
+    let index_of = |pipe: &Value| pipes.iter().position(|p| p["id"] == *pipe);
+    let mut ids = Vec::new();
+    if let Some(seismic) = generation["seismic"].as_object() {
+        let axes: Vec<usize> = (0..3)
+            .filter(|&axis| seismic.get(&format!("g_factor_{}", AXIS_LETTERS[axis])).and_then(|q| model_quantity(q, Dimension::Dimensionless)).is_some())
+            .collect();
+        let connector = connector_replaced(model);
+        let eligible = eligible_components(model);
+        let component_replaced: HashSet<&str> = eligible.iter().filter_map(|(c, _, _)| c["geometry"]["rigid_pipe_ref"].as_str()).collect();
+        for &axis in &axes {
+            for (index, pipe) in pipes.iter().enumerate() {
+                let id = pipe["id"].as_str().unwrap_or_default();
+                if !connector.contains(id) && !component_replaced.contains(id) {
+                    ids.push(format!("{case_id}:generated:seismic:{}:element-{index}", AXIS_LABELS[axis]));
+                }
+            }
+        }
+        for &axis in &axes {
+            for (c, _, r) in &eligible {
+                let component = c["id"].as_str().unwrap_or_default();
+                let prefix = format!("{case_id}:generated:seismic:{}:component:{}:{component}", AXIS_LABELS[axis], component.len());
+                ids.push(format!("{prefix}:force"));
+                let levers = match axis {
+                    0 => [0.0, r[2], -r[1]],
+                    1 => [-r[2], 0.0, r[0]],
+                    _ => [r[1], -r[0], 0.0],
+                };
+                for i in (0..3).filter(|&i| i != axis && levers[i] != 0.0) {
+                    ids.push(format!("{prefix}:moment:{}", AXIS_LETTERS[i]));
+                }
+            }
+        }
+    }
+    if let Some(wind) = generation["wind"].as_object() {
+        let label = SEISMIC_AXES.iter().position(|a| wind.get("direction").and_then(Value::as_str) == Some(*a)).map(|a| AXIS_LABELS[a]);
+        if let Some(label) = label {
+            for pipe in wind.get("exposed_pipe_refs").and_then(Value::as_array).map(Vec::as_slice).unwrap_or(&[]) {
+                if let Some(index) = index_of(pipe) {
+                    ids.push(format!("{case_id}:generated:wind:{label}:element-{index}"));
+                }
+            }
+            for span in wind.get("exposed_spans").and_then(Value::as_array).map(Vec::as_slice).unwrap_or(&[]) {
+                let fraction = |key: &str| model_quantity(&span[key], Dimension::Dimensionless);
+                if let (Some(index), Some(start), Some(end)) = (index_of(&span["pipe_ref"]), fraction("start_fraction"), fraction("end_fraction")) {
+                    ids.push(format!("{case_id}:generated:wind:{label}:element-{index}:extent-{start}-{end}"));
+                }
+            }
+        }
+    }
+    ids
+}
+
+/// REQ-015's eligible rigid-family components with their weight and centre
+/// of gravity in SI, in model order (the dispositions of
+/// `equivalent_static_model_binding`'s documentation).
+fn eligible_components(model: &Value) -> Vec<(&Value, f64, [f64; 3])> {
+    use open_pipe_stress_units::Dimension;
+    let quantity = model_quantity;
+    let components = model["components"].as_array().map(Vec::as_slice).unwrap_or(&[]);
+    let pipes = model["pipe_segments"].as_array().map(Vec::as_slice).unwrap_or(&[]);
+    let replaced = connector_replaced(model);
     let rigid = |c: &Value| matches!(c["kind"].as_str(), Some("valve" | "flange" | "reducer" | "rigid" | "specialty"));
     fn mapped(c: &Value) -> Option<&str> {
         c["geometry"]["rigid_pipe_ref"].as_str().filter(|p| !p.trim().is_empty())
@@ -300,12 +395,20 @@ fn expected_component_forces(model: &Value, case_id: &str, seismic: &serde_json:
         }
         eligible.push((c, weight, [r[0], r[1], r[2]]));
     }
+    eligible
+}
+
+fn expected_component_forces(model: &Value, case_id: &str, seismic: &serde_json::Map<String, Value>) -> Vec<Value> {
+    use open_pipe_stress_units::Dimension;
+    let (axes_names, labels, letters) = (SEISMIC_AXES, AXIS_LABELS, AXIS_LETTERS);
+    let bits = |v: f64| format!("{:016x}", v.to_bits());
+    let eligible = eligible_components(model);
     let mut entries = Vec::new();
     for axis in 0..3 {
-        let Some(k) = seismic.get(&format!("g_factor_{}", LETTERS[axis])).and_then(|q| quantity(q, Dimension::Dimensionless)) else { continue };
+        let Some(k) = seismic.get(&format!("g_factor_{}", letters[axis])).and_then(|q| model_quantity(q, Dimension::Dimensionless)) else { continue };
         for &(c, w, r) in &eligible {
             let id = c["id"].as_str().unwrap_or_default();
-            let prefix = format!("{case_id}:generated:seismic:{}:component:{}:{id}", LABELS[axis], id.len());
+            let prefix = format!("{case_id}:generated:seismic:{}:component:{}:{id}", labels[axis], id.len());
             let force = k * w;
             let levers = match axis {
                 0 => [0.0, r[2], -r[1]],
@@ -314,9 +417,9 @@ fn expected_component_forces(model: &Value, case_id: &str, seismic: &serde_json:
             };
             let moments: Vec<Value> = (0..3)
                 .filter(|&i| i != axis && levers[i] != 0.0)
-                .map(|i| json!({"load_id": format!("{prefix}:moment:{}", LETTERS[i]), "axis": AXES[i], "value_N_m": bits(levers[i] * force)}))
+                .map(|i| json!({"load_id": format!("{prefix}:moment:{}", letters[i]), "axis": axes_names[i], "value_N_m": bits(levers[i] * force)}))
                 .collect();
-            entries.push(json!({"component_ref": id, "node_ref": c["node"], "axis": AXES[axis], "g_factor": bits(k), "weight_N": bits(w),
+            entries.push(json!({"component_ref": id, "node_ref": c["node"], "axis": axes_names[axis], "g_factor": bits(k), "weight_N": bits(w),
                 "center_of_gravity_m": r.map(bits), "force": {"load_id": format!("{prefix}:force"), "value_N": bits(force)}, "moments": moments}));
         }
     }
