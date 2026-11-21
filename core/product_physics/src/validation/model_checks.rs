@@ -26,6 +26,13 @@
 //!   So a missing solve input (a pipe's density for a seismic case, say) is
 //!   reported, on each entity that lacks it, without a solve.
 //!
+//! Where a finding blocks, the findings are those the solve's blocked envelope
+//! publishes: on the preview route (a model neither exact nor load-state)
+//! `blocked_envelope` strips every `result:` ref, which can no longer resolve
+//! in a document with no rows, and drops a non-blocking diagnostic that named
+//! one ([`crate::preview_physics::sanitize_blocked_diagnostics`]); the checks
+//! apply the same step on the same lowered model.
+//!
 //! No diagnostic is built here: each finding is one the solve's own code
 //! states. The retained-memory observer, the dense-scrutiny size guard, the
 //! modulus-basis resolution and the pressure preparation of each case, and the
@@ -75,7 +82,11 @@ impl LinearStaticPreviewRequest {
     pub fn pre_formation_checks_value(actual_request: serde_json::Value) -> Result<Vec<Diagnostic>, String> {
         let request = checked_request(actual_request)?;
         Ok(match run_pre_formation(request) {
-            PreFormation::Blocked(_, diagnostics) | PreFormation::Formable(_, diagnostics) => diagnostics,
+            PreFormation::Blocked(model, mut diagnostics) => {
+                as_blocked_envelope_publishes(&model, &mut diagnostics);
+                diagnostics
+            }
+            PreFormation::Formable(_, diagnostics) => diagnostics,
         })
     }
 
@@ -85,9 +96,21 @@ impl LinearStaticPreviewRequest {
     pub fn solve_input_checks_value(actual_request: serde_json::Value) -> Result<SolveInputChecks, String> {
         let request = checked_request(actual_request)?;
         Ok(match run_pre_formation(request) {
-            PreFormation::Blocked(_, before_formation) => SolveInputChecks { before_formation, load_generation: Vec::new() },
-            PreFormation::Formable(formable, before_formation) => {
-                SolveInputChecks { before_formation, load_generation: load_generation_findings(&formable) }
+            PreFormation::Blocked(model, mut before_formation) => {
+                as_blocked_envelope_publishes(&model, &mut before_formation);
+                SolveInputChecks { before_formation, load_generation: Vec::new() }
+            }
+            PreFormation::Formable(formable, mut before_formation) => {
+                let mut load_generation = load_generation_findings(&formable);
+                if !load_generation.is_empty() {
+                    // The solve stops at the first refusing case and publishes
+                    // its blocked envelope over both parts. The step keeps or
+                    // drops, and strips, each diagnostic by itself, so applying
+                    // it to each part gives that one list, split where it was.
+                    as_blocked_envelope_publishes(&formable.model, &mut before_formation);
+                    as_blocked_envelope_publishes(&formable.model, &mut load_generation);
+                }
+                SolveInputChecks { before_formation, load_generation }
             }
         })
     }
@@ -111,6 +134,15 @@ fn run_pre_formation(request: LinearStaticPreviewRequest) -> PreFormation {
     let request_materials_supplied = !request.materials.is_empty();
     let materials = if request.materials.is_empty() { model.materials.clone() } else { request.materials };
     pre_formation(model, materials, request_materials_supplied, &mut |_, _| {})
+}
+
+/// The step `blocked_envelope` applies to a blocked document's diagnostics on
+/// the preview route, decided on the same lowered model; on the exact and
+/// load-state routes the diagnostics stand as they are.
+fn as_blocked_envelope_publishes(model: &PreviewModel, diagnostics: &mut Vec<Diagnostic>) {
+    if !(crate::pressure_runtime::is_exact(model) || crate::case_state::is_load_state(model)) {
+        crate::preview_physics::sanitize_blocked_diagnostics(diagnostics);
+    }
 }
 
 /// The solve's load generation for every case, its loads dropped, and its refusals kept.

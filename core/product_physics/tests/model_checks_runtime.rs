@@ -455,3 +455,112 @@ fn the_missing_input_codes_are_the_tables_missing_input_errors() {
         }
     }
 }
+
+// ---------------------------------------------------------------------------
+// The blocked envelope's findings (PR 579 review): where a finding blocks, the
+// checks carry exactly what the blocked solve publishes, field by field, and
+// the load generation's refusals are listed for every case in case order.
+// ---------------------------------------------------------------------------
+
+const LOAD_STATE_BASE: &str = include_str!("fixtures/model_checks/load_state_fan_out_base.json");
+const FIELDS: [&str; 6] = ["id", "code", "severity", "message", "affected_refs", "source"];
+
+fn same_fields(context: &str, checks: &[Value], solve: &[Value]) {
+    assert_eq!(checks.len(), solve.len(), "{context}: counts differ\nchecks {checks:#?}\nsolve {solve:#?}");
+    for (finding, diagnostic) in checks.iter().zip(solve) {
+        for key in FIELDS {
+            assert_eq!(finding.get(key), diagnostic.get(key), "{context}: {key} differs\ncheck {finding:#}\nsolve {diagnostic:#}");
+        }
+    }
+}
+
+/// On the preview route the blocked solve strips a `result:` ref it can no
+/// longer resolve; so do both checks, and the finding is otherwise the solve's.
+#[test]
+fn a_blocking_finding_naming_a_result_ref_is_published_as_the_blocked_solve_publishes_it() {
+    let mut wire = missing_data(0);
+    assert!(wire["model"].get("pressure_contract").is_none(), "the start model is pressure-free");
+    wire["model"]["pipe_segments"][0]["from"] = json!("result:missing-node");
+    let pre = checked(&wire);
+    let (before, generation) = solve_inputs(&wire);
+    assert!(generation.is_empty(), "{generation:#?}");
+    let endpoint: Vec<&Value> = pre.iter().filter(|d| d["code"] == "PIPE_ENDPOINT_UNKNOWN").collect();
+    assert_eq!(endpoint.len(), 1, "{pre:#?}");
+    assert!(is_blocking(endpoint[0]), "{:#}", endpoint[0]);
+    for finding in pre.iter().chain(&before) {
+        assert!(!finding["affected_refs"].as_array().unwrap().iter().any(|r| r.as_str().unwrap().starts_with("result:")), "{finding:#}");
+    }
+    same_fields("pre-formation and solve-input checks", &pre, &before);
+    for mode in MODES {
+        same_fields(&format!("checks and the blocked solve ({mode:?})"), &pre, &solved(&wire, mode));
+    }
+}
+
+/// Two cases refuse in the load generation, each on its own; the checks list
+/// every refusal, in case order, and the solve, stopping at the first refusing
+/// case after solving the case before it, publishes that case's refusals.
+#[test]
+fn every_refusing_case_is_reported_in_case_order() {
+    let mut wire = missing_data(0);
+    let seismic = wire["model"]["load_cases"][0].clone();
+    let mut second = seismic.clone();
+    second["id"] = json!("case:md-seismic-x");
+    second["equivalent_static"]["seismic"]["g_factor_x"]["value"] = json!(0.3);
+    second["equivalent_static"]["seismic"]["g_factor_y"]["value"] = json!(0);
+    let mut force = seismic.clone();
+    force["id"] = json!("case:md-force");
+    force.as_object_mut().unwrap().remove("equivalent_static");
+    force["primitive_loads"] = json!([{"id": "load:md-tip", "category": "concentrated_force", "target": {"type": "node", "node": "node:md-3"},
+        "direction": "global_y", "magnitude": {"value": -500.0, "unit": "N"}, "dimension": "force", "provenance": "checks"}]);
+    wire["model"]["load_cases"] = json!([force, seismic, second]);
+    let (before, generation) = solve_inputs(&wire);
+    assert!(!before.iter().any(is_blocking), "{before:#?}");
+    let refs = generation.iter().map(|d| d["affected_refs"].clone()).collect::<Vec<_>>();
+    assert_eq!(refs, [
+        json!(["pipe:md-inboard", "material_density", "case:md-seismic"]),
+        json!(["pipe:md-outboard", "material_density", "case:md-seismic"]),
+        json!(["pipe:md-inboard", "material_density", "case:md-seismic-x"]),
+        json!(["pipe:md-outboard", "material_density", "case:md-seismic-x"]),
+    ]);
+    assert!(generation.iter().all(|d| d["code"] == "EQUIVALENT_STATIC_INPUT_MISSING"), "{generation:#?}");
+    let first_case: Vec<Value> = generation.iter().filter(|d| d["affected_refs"][2] == "case:md-seismic").cloned().collect();
+    for mode in MODES {
+        let solve = envelope(&wire, mode);
+        assert_eq!(solve["status"]["mechanics"], "MODEL_INCOMPLETE", "{mode:?}");
+        let refused: Vec<Value> = solve["diagnostics"].as_array().unwrap().iter().filter(|d| is_blocking(d)).cloned().collect();
+        same_fields(&format!("the first refusing case ({mode:?})"), &first_case, &refused);
+    }
+}
+
+/// A load-state case's loads are its effective case's: a stored load listed in
+/// the case's sources, aimed at a node the model does not have, is refused by
+/// the generation on the resolved case, as the solve refuses it; unlisted, it is
+/// not in the effective case, nothing is generated for it and the case solves.
+#[test]
+fn a_load_state_case_is_generated_on_its_effective_case() {
+    let mut model: Value = serde_json::from_str(LOAD_STATE_BASE).unwrap();
+    let case = &mut model["load_cases"][0];
+    case["primitive_loads"] = json!([{"id": "load:stray", "category": "concentrated_force", "target": {"type": "node", "node": "node:missing"},
+        "direction": "global_x", "magnitude": {"value": 10.0, "unit": "N"}, "dimension": "force", "provenance": "checks"}]);
+    case["analysis_state"]["load_sources"] = json!([{"source_ref": "load:stray", "factor": 2.0}]);
+    let wire = json!({"model": model, "materials": []});
+    let (before, generation) = solve_inputs(&wire);
+    assert!(!before.iter().any(is_blocking), "{before:#?}");
+    assert_eq!(generation.iter().map(|d| d["code"].as_str().unwrap()).collect::<Vec<_>>(), ["LOAD_NODE_UNKNOWN"], "{generation:#?}");
+    assert_eq!(generation[0]["affected_refs"], json!(["load:stray", "node:missing", "case:kelvin-interval"]));
+    for mode in MODES {
+        let solve = envelope(&wire, mode);
+        assert_eq!(solve["status"]["mechanics"], "MODEL_INCOMPLETE", "{mode:?}");
+        let refused: Vec<Value> = solve["diagnostics"].as_array().unwrap().iter().filter(|d| is_blocking(d)).cloned().collect();
+        same_fields(&format!("the load-state solve ({mode:?})"), &generation, &refused);
+    }
+    let mut unlisted = wire.clone();
+    unlisted["model"]["load_cases"][0]["analysis_state"]["load_sources"] = json!([]);
+    let (before, generation) = solve_inputs(&unlisted);
+    assert!(!before.iter().any(is_blocking), "{before:#?}");
+    assert!(generation.is_empty(), "{generation:#?}");
+    for mode in MODES {
+        assert_eq!(envelope(&unlisted, mode)["status"]["mechanics"], "MECHANICS_SOLVED", "{mode:?}");
+    }
+}
+
