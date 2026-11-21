@@ -24,13 +24,22 @@ type WorkspaceSectionId =
   | "exports"
   | "evidence";
 
+/** The sections whose route is a rail stage and its tab (the View menu does not list them). */
+const STAGE_ROUTES: Partial<Record<WorkspaceSectionId, { stage: "model" | "loads"; tab: string }>> = {
+  operations: { stage: "model", tab: "workspace-review" },
+  loads: { stage: "loads", tab: "stage-tab-load-cases" }
+};
+
 export async function openWorkspaceSection(page: Page, sectionId: WorkspaceSectionId): Promise<Locator> {
   const section = page.getByTestId(`workspace-section-${sectionId}`);
   if (!await section.isVisible()) {
-    // Review changes is a tab of the Model stage's strip; from another stage it is summoned by the
-    // section command, as every other section is.
-    if (sectionId === "operations" && await page.getByTestId("workspace-review").isVisible()) {
-      await page.getByTestId("workspace-review").click();
+    // Review changes and Load Cases are reached as a person reaches them, by the rail and the
+    // stage tab; the View menu lists only the sections the rail does not reach in every state.
+    const route = STAGE_ROUTES[sectionId];
+    if (route) {
+      await page.getByTestId(`rail-stage-${route.stage}`).click();
+      const tab = page.getByTestId(route.tab);
+      if (await tab.getAttribute("aria-pressed") !== "true") await tab.click();
     } else {
       await page.getByTestId("menu-view").click();
       await page.getByTestId(`menu-item-view.section.${sectionId}`).click();
@@ -216,6 +225,19 @@ export async function chooseVirtualMultiTarget(
 
 export async function expectVirtualTarget(scope: Page | Locator, testId: string, value: string): Promise<void> {
   await expect(scope.getByTestId(testId).locator(".virtual-target-picker-current")).toContainText(value);
+}
+
+/** Opens a Loads page form by its command (New case, New combination, Add load, Add term), as a
+ * person does; a form already open is left open. */
+export async function openLoadsForm(scope: Page | Locator, command: string): Promise<void> {
+  const button = scope.getByTestId(command);
+  if ((await button.getAttribute("aria-expanded")) !== "true") await button.click();
+}
+
+/** Opens a closed disclosure on the Loads page (a form's "More", a case section) by its summary. */
+export async function openLoadsDisclosure(scope: Page | Locator, testId: string): Promise<void> {
+  const details = scope.getByTestId(testId);
+  if (!(await details.evaluate((element) => (element as HTMLDetailsElement).open))) await details.locator(":scope > summary").click();
 }
 
 function escapeRegExp(value: string): string {

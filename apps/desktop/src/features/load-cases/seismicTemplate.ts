@@ -112,14 +112,5 @@ export function seismicTemplateIntents(model: PreviewModel, draft: SeismicTempla
   );
 }
 
-export const SEISMIC_TEMPLATE_EXPLANATION = [
-  "Base case: the actions every state shares (as authored; the template does not read or change them). Axis-state case: an explicit, complete case holding the base's actions plus one axis's static excitation, entered by you.",
-  "Each difference is the axis state minus the base, a result-state subtraction of two load cases; each case has fixed-load count κ = 1, so each difference has κ = 0 (§5.1). It is the static seismic response about the base state, not \"base case + EQ-only case\", which would carry the fixed load twice.",
-  "The unsigned combination takes the three differences as typed combination operands, each with the factor you enter; its rows are unsigned bounds and claim no equilibrium state."
-] as const;
-
 export const SEISMIC_TEMPLATE_APPLY_TEXT =
   "Apply them together with 'Review all queued changes as one batch' to apply all four or none (it moves every change you have queued); applied singly, each applies on its own, and one already applied stays applied if a later one is refused.";
-
-export const SEISMIC_TEMPLATE_BOUNDARY =
-  "Only a three-axis static combination is offered: no load composition, no gravity or excitation value, no code, response-spectrum or modal-response claim. The excitation stays in your axis-state cases.";
