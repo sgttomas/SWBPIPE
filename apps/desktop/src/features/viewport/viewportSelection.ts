@@ -1093,26 +1093,7 @@ function segmentIntersectsClosedRect(a: ScreenPoint, b: ScreenPoint, rect: BoxSe
 }
 
 /** Fits every envelope corner with 10% frame margin, retaining the legacy pose when sufficient. */
-/**
- * The share of the canvas a fit may fill on each axis: 90 % at most (the original fit), and less on a
- * small canvas so that a margin of FIT_MARGIN_PX stays on every side for the labels set off their
- * entities and the canvas's furniture. Never below half.
- */
-export const FIT_MARGIN_PX = 48;
-export function viewportFitFill(width: number, height: number): Readonly<{ x: number; y: number }> {
-  const share = (size: number) => Number.isFinite(size) && size > 0
-    ? Math.min(0.9, Math.max(0.5, 1 - (2 * FIT_MARGIN_PX) / size))
-    : 0.9;
-  return { x: share(width), y: share(height) };
-}
-
-export function fittedViewportDistance(
-  bounds: Bounds3 | null,
-  preset: "front" | "top" | "side" | "iso",
-  fovDegrees: number,
-  aspect: number,
-  fill: Readonly<{ x: number; y: number }> = { x: 0.9, y: 0.9 }
-): number {
+export function fittedViewportDistance(bounds: Bounds3 | null, preset: "front" | "top" | "side" | "iso", fovDegrees: number, aspect: number): number {
   const extent = bounds ? Math.max(bounds.max.x - bounds.min.x, bounds.max.y - bounds.min.y, bounds.max.z - bounds.min.z, 1) : 4;
   let distance = Math.max(4, extent * 1.8);
   if (!bounds) return distance;
@@ -1121,9 +1102,28 @@ export function fittedViewportDistance(
   orientation.lookAt(0, 0, 0);
   const inverseRotation = orientation.quaternion.clone().invert();
   const center = new THREE.Vector3(bounds.min.x / 2 + bounds.max.x / 2, bounds.min.y / 2 + bounds.max.y / 2, bounds.min.z / 2 + bounds.max.z / 2);
-  const halfSlope = Math.tan(THREE.MathUtils.degToRad(fovDegrees) / 2);
-  const verticalSlope = halfSlope * fill.y;
-  const horizontalSlope = halfSlope * aspect * fill.x;
+  const verticalSlope = Math.tan(THREE.MathUtils.degToRad(fovDegrees) / 2) * 0.9;
+  const horizontalSlope = verticalSlope * aspect;
+  for (const x of [bounds.min.x, bounds.max.x]) for (const y of [bounds.min.y, bounds.max.y]) for (const z of [bounds.min.z, bounds.max.z]) {
+    const corner = new THREE.Vector3(x, y, z).sub(center).applyQuaternion(inverseRotation);
+    distance = Math.max(distance, corner.z + Math.abs(corner.x) / horizontalSlope, corner.z + Math.abs(corner.y) / verticalSlope);
+  }
+  return distance;
+}
+
+/**
+ * The same fit as fittedViewportDistance (every envelope corner inside 90 % of the frame), seen from
+ * the direction the camera looks from now: `orientation` is the camera's quaternion. Fit uses it
+ * once the person has moved the camera off a standard view, so that it reframes without turning.
+ */
+export function fittedViewportDistanceAlong(bounds: Bounds3 | null, orientation: THREE.Quaternion, fovDegrees: number, aspect: number): number {
+  const extent = bounds ? Math.max(bounds.max.x - bounds.min.x, bounds.max.y - bounds.min.y, bounds.max.z - bounds.min.z, 1) : 4;
+  let distance = Math.max(4, extent * 1.8);
+  if (!bounds) return distance;
+  const inverseRotation = orientation.clone().invert();
+  const center = new THREE.Vector3(bounds.min.x / 2 + bounds.max.x / 2, bounds.min.y / 2 + bounds.max.y / 2, bounds.min.z / 2 + bounds.max.z / 2);
+  const verticalSlope = Math.tan(THREE.MathUtils.degToRad(fovDegrees) / 2) * 0.9;
+  const horizontalSlope = verticalSlope * aspect;
   for (const x of [bounds.min.x, bounds.max.x]) for (const y of [bounds.min.y, bounds.max.y]) for (const z of [bounds.min.z, bounds.max.z]) {
     const corner = new THREE.Vector3(x, y, z).sub(center).applyQuaternion(inverseRotation);
     distance = Math.max(distance, corner.z + Math.abs(corner.x) / horizontalSlope, corner.z + Math.abs(corner.y) / verticalSlope);

@@ -90,7 +90,6 @@ import {
   displayedBoundsForEntityKeys,
   formatMeasurementDisplayValue,
   fittedViewportDistance,
-  viewportFitFill,
   hideSelectionVisibility,
   pointPickPrimitives,
   prioritizedLabelKeys,
@@ -114,6 +113,7 @@ import { createFigureMaterial, figureEdgeOutlineFor } from "./viewportFigureMate
 import { buildDeformationOverlay, buildRotationOverlay, deformationAtPhase, rotationGlyphAnchors } from "./deformationOverlay";
 import { DEFLECTION_PHASE_STEPS, DeflectedShapeControls, deflectionLabel, deflectionSummaryScale } from "./DeflectedShapeControls";
 import { ViewportOverflowBar } from "./ViewportOverflowBar";
+import { alongViewPose, fitApplied, fitDirection, initialCameraRuleState, personMovedCamera, refitForCanvas, standardViewApplied, standardViewPose, type CameraPose, type CameraRuleState, type FitCommandKind } from "./viewportCameraRule";
 import { layoutLabels, type LabelBox, type LabelCandidate, type LabelKind } from "./viewportLabelLayout";
 import { buildElementAxesView, type ElementAxesFrame, type ElementAxesView } from "./elementAxes";
 import { elementAxisDisplayLength, instancedElementAxisMeshes, type ElementAxisPlacement } from "./viewportElementAxes";
@@ -280,7 +280,6 @@ export type CreationTool = "node" | "pipe" | "support" | "component" | "load";
 export type ViewportExposureInteraction = "measurement" | "box-selection";
 type ViewportCommandType = "create_node" | "connect_pipe_run" | "insert_component_symbol";
 type ViewPreset = "iso" | "front" | "top" | "side";
-type ViewportFitKind = "preset" | "fit-model" | "fit-visible" | "fit-selection";
 const VIEWPORT_DIMENSIONLESS_UNIT_VALIDATION_STATUS = "not_required_dimensionless";
 /** One full undeformed-deformed-undeformed animation cycle, and the step between drawn phases. */
 const DEFLECTION_CYCLE_MS = 2400;
@@ -498,13 +497,12 @@ export function PipeViewport({
     position: [number, number, number];
     target: [number, number, number];
   } | null>(null);
-  const lastPresetRef = useRef<ViewPreset | null>(null);
   const fittedSessionGenerationRef = useRef<number | null>(null);
   // The model stays in view: the last fit is remembered with the canvas size it was made for, and
   // while the person has not orbited, panned or zoomed since, a new canvas size (a panel opened or
   // closed, the window resized, Table, Model and Both switched) fits again the same way.
-  const lastFitRef = useRef<{ kind: ViewportFitKind; width: number; height: number } | null>(null);
-  const cameraMovedSinceFitRef = useRef(false);
+  // The camera rule (viewportCameraRule.ts): the current standard view, and what was last fitted.
+  const cameraRuleRef = useRef<CameraRuleState>(initialCameraRuleState("iso"));
   const refitForSizeRef = useRef<((width: number, height: number) => void) | null>(null);
   // Where each label was drawn last (its place beside the anchor), kept across hover and selection.
   const labelPlaceRef = useRef(new Map<EntityKey, number>());
@@ -552,7 +550,8 @@ export function PipeViewport({
   const [placementMessage, setPlacementMessage] = useState<string | null>(null);
   const [webglAvailable, setWebglAvailable] = useState<boolean | null>(null);
   const [viewportContextStatus, setViewportContextStatus] = useState<ViewportContextStatus>("ready");
-  const [viewPreset, setViewPreset] = useState<ViewPreset>("iso");
+  // The standard view shown pressed: null once the person has moved the camera off it.
+  const [viewPreset, setViewPreset] = useState<ViewPreset | null>("iso");
   const [showLabels, setShowLabels] = useState(true);
   const [showLoads, setShowLoads] = useState(true);
   const [showGrid, setShowGrid] = useState(true);
@@ -1119,7 +1118,10 @@ export function PipeViewport({
       resource = new ViewportResource(host, {
         onContextStatus: setViewportContextStatus,
         onRestore: () => viewportResourceRef.current?.invalidate(),
-        onNavigationStart: () => { cameraMovedSinceFitRef.current = true; },
+        onCameraMovedByPerson: () => {
+          cameraRuleRef.current = personMovedCamera(cameraRuleRef.current);
+          setViewPreset(null);
+        },
         onResize: (_current, width, height) => refitForSizeRef.current?.(width, height),
         onCameraChange: (current) => {
           cameraStateRef.current = {
@@ -1181,10 +1183,8 @@ export function PipeViewport({
     // bounded refs; diagnostics materialization happens on an explicit pull.
     publishViewportDiagnostics(resource);
     resource.setOrigin(renderTransform.origin);
-    fitViewportCamera(resource, viewPreset, renderTransform.localBounds);
-    recordFit(resource, "preset");
+    applyStandardView(resource, cameraRuleRef.current.standardView ?? cameraRuleRef.current.lastStandardView);
     fittedSessionGenerationRef.current = activeModelIndex.sessionGeneration;
-    lastPresetRef.current = viewPreset;
     draftProjectorRef.current = (event, plane) => resource.projectToAuthoredPlane(
       event,
       plane.normal,
@@ -1777,21 +1777,30 @@ export function PipeViewport({
   useEffect(() => {
     const resource = viewportResourceRef.current;
     if (!resource || fittedSessionGenerationRef.current === activeModelIndex.sessionGeneration) return;
-    fitViewportCamera(resource, viewPreset, renderTransform.localBounds);
-    recordFit(resource, "preset");
+    // A model opened or replaced: the current standard view, or the last one applied when the
+    // person had moved the camera, fitted to the new model.
+    applyStandardView(resource, cameraRuleRef.current.standardView ?? cameraRuleRef.current.lastStandardView);
     fittedSessionGenerationRef.current = activeModelIndex.sessionGeneration;
-    lastPresetRef.current = viewPreset;
     resource.invalidate();
-  }, [activeModelIndex.sessionGeneration, renderTransform.localBounds, viewPreset]);
+  }, [activeModelIndex.sessionGeneration, renderTransform.localBounds]);
 
-  useEffect(() => {
+  /** A standard view, applied every time: the model fitted from that direction, the view current. */
+  function applyStandardView(resource: ViewportResource, view: ViewPreset) {
+    fitViewportCamera(resource, view, renderTransform.localBounds);
+    const size = viewportCanvasSize(resource);
+    cameraRuleRef.current = standardViewApplied(cameraRuleRef.current, view, size.width, size.height);
+    setViewPreset(view);
+  }
+
+  function pressStandardView(view: ViewPreset) {
     const resource = viewportResourceRef.current;
-    if (!resource || lastPresetRef.current === viewPreset) return;
-    fitViewportCamera(resource, viewPreset, renderTransform.localBounds);
-    recordFit(resource, "preset");
-    lastPresetRef.current = viewPreset;
-    resource.invalidate();
-  }, [renderTransform.localBounds, viewPreset]);
+    if (resource) {
+      applyStandardView(resource, view);
+      resource.invalidate();
+    } else {
+      setViewPreset(view);
+    }
+  }
 
   function addIntent(commandType: ViewportCommandType) {
     const intent = buildIntent(
@@ -2465,16 +2474,11 @@ export function PipeViewport({
     geometryMode === "actual-od" ? actualOd.radii : new Map()
   );
 
-  function recordFit(resource: ViewportResource, kind: ViewportFitKind) {
-    const size = viewportCanvasSize(resource);
-    lastFitRef.current = { kind, width: size.width, height: size.height };
-    cameraMovedSinceFitRef.current = false;
-  }
-
-  /** The authored envelope a fit command frames: the selection, the shown geometry or the model. */
-  function fitCommandBounds(kind: "fit-model" | "fit-visible" | "fit-selection"): Bounds3 | null {
+  /** The authored envelope a fit command frames: the selection (or the entities a Fit Selection
+   * fitted, when refitting it), the shown geometry or the model. */
+  function fitCommandBounds(kind: FitCommandKind, fittedKeys?: readonly EntityKey[]): Bounds3 | null {
     const radii = geometryMode === "actual-od" ? actualOd.radii : new Map<EntityKey, number>();
-    const keys = kind === "fit-selection" ? orderedSelectionKeys : activeModelIndex.visibilityEligibleKeys;
+    const keys = kind === "fit-selection" ? (fittedKeys ?? orderedSelectionKeys) : activeModelIndex.visibilityEligibleKeys;
     const mask = kind === "fit-model" ? new Set<EntityKey>() : hiddenKeys;
     return displayedBoundsForEntityKeys(activeModelIndex, keys, mask, radii);
   }
@@ -2484,14 +2488,19 @@ export function PipeViewport({
       min: authoredToLocal(authoredBounds.min, renderTransform.origin),
       max: authoredToLocal(authoredBounds.max, renderTransform.origin)
     } : null;
-    fitViewportCamera(resource, viewPreset, localBounds);
+    // On a standard view the person has not moved, the view's original fit; otherwise along the
+    // direction they look from.
+    const direction = fitDirection(cameraRuleRef.current);
+    if (direction.kind === "standard-view") fitViewportCamera(resource, direction.view, localBounds);
+    else fitViewportCameraAlong(resource, localBounds);
   }
 
-  function fitDisplayedBounds(label: string, kind: "fit-model" | "fit-visible" | "fit-selection", authoredBounds: Bounds3 | null) {
+  function fitDisplayedBounds(label: string, kind: FitCommandKind, authoredBounds: Bounds3 | null) {
     const resource = viewportResourceRef.current;
     if (resource) {
       fitAuthoredBounds(resource, authoredBounds);
-      recordFit(resource, kind);
+      const size = viewportCanvasSize(resource);
+      cameraRuleRef.current = fitApplied(cameraRuleRef.current, kind, size.width, size.height, kind === "fit-selection" ? orderedSelectionKeys : undefined);
       resource.invalidate();
     }
     setViewCommandStatus(resource
@@ -2589,12 +2598,15 @@ export function PipeViewport({
   useLayoutEffect(() => {
     refitForSizeRef.current = (width, height) => {
       const resource = viewportResourceRef.current;
-      const last = lastFitRef.current;
-      if (!resource || !last || cameraMovedSinceFitRef.current || width < 2 || height < 2) return;
-      if (Math.abs(last.width - width) < 1 && Math.abs(last.height - height) < 1) return;
-      if (last.kind === "preset") fitViewportCamera(resource, viewPreset, renderTransform.localBounds);
-      else fitAuthoredBounds(resource, fitCommandBounds(last.kind) ?? fitCommandBounds("fit-model"));
-      lastFitRef.current = { kind: last.kind, width, height };
+      if (!resource) return;
+      const last = refitForCanvas(cameraRuleRef.current, width, height);
+      if (!last) return;
+      const view = cameraRuleRef.current.standardView;
+      if (last.kind === "standard-view" && view) fitViewportCamera(resource, view, renderTransform.localBounds);
+      else if (last.kind !== "standard-view") {
+        fitAuthoredBounds(resource, fitCommandBounds(last.kind, last.keys as readonly EntityKey[] | undefined) ?? fitCommandBounds("fit-model"));
+      }
+      cameraRuleRef.current = { ...cameraRuleRef.current, fitted: { ...last, width, height } };
       resource.invalidate();
     };
   });
@@ -2977,10 +2989,10 @@ export function PipeViewport({
               title={canvasFitCommand === "fit-selection" ? "Fit the selection in the view" : "Fit the whole model in the view"}
             >{canvasFitCommand === "fit-selection" ? "Fit Selection" : "Fit Model"}</button>
             <span className="viewport-view-presets">
-              <button type="button" data-testid="viewport-view-front" aria-pressed={viewPreset === "front"} onClick={() => setViewPreset("front")} title="Look along −Z at the X–Y plane">Front</button>
-              <button type="button" data-testid="viewport-view-top" aria-pressed={viewPreset === "top"} onClick={() => setViewPreset("top")} title="Look down −Y at the X–Z plane">Top</button>
-              <button type="button" data-testid="viewport-view-side" aria-pressed={viewPreset === "side"} onClick={() => setViewPreset("side")} title="Look along −X at the Z–Y plane">Side</button>
-              <button type="button" data-testid="viewport-view-isometric" aria-pressed={viewPreset === "iso"} onClick={() => setViewPreset("iso")} title="Isometric view">Isometric</button>
+              <button type="button" data-testid="viewport-view-front" aria-pressed={viewPreset === "front"} onClick={() => pressStandardView("front")} title="Look along −Z at the X–Y plane">Front</button>
+              <button type="button" data-testid="viewport-view-top" aria-pressed={viewPreset === "top"} onClick={() => pressStandardView("top")} title="Look down −Y at the X–Z plane">Top</button>
+              <button type="button" data-testid="viewport-view-side" aria-pressed={viewPreset === "side"} onClick={() => pressStandardView("side")} title="Look along −X at the Z–Y plane">Side</button>
+              <button type="button" data-testid="viewport-view-isometric" aria-pressed={viewPreset === "iso"} onClick={() => pressStandardView("iso")} title="Isometric view">Isometric</button>
             </span>
           </div>
           {result && (colourOverlay || reactionOverlay) ? (
@@ -3748,32 +3760,21 @@ function fitViewportCamera(resource: ViewportResource, preset: ViewPreset, bound
   // Programmatic camera commands establish a new pose; retained user-input
   // damping must not be applied on top of it.
   resource.cancelNavigation();
-  const center = bounds
-    ? {
-        x: bounds.min.x / 2 + bounds.max.x / 2,
-        y: bounds.min.y / 2 + bounds.max.y / 2,
-        z: bounds.min.z / 2 + bounds.max.z / 2
-      }
-    : { x: 0, y: 0, z: 0 };
-  const extent = bounds
-    ? Math.max(bounds.max.x - bounds.min.x, bounds.max.y - bounds.min.y, bounds.max.z - bounds.min.z, 1)
-    : 4;
-  const size = viewportCanvasSize(resource);
-  const distance = fittedViewportDistance(bounds, preset, resource.camera.fov, resource.camera.aspect, viewportFitFill(size.width, size.height));
-  if (preset === "front") {
-    resource.camera.position.set(center.x, center.y, center.z + distance);
-  } else if (preset === "top") {
-    resource.camera.position.set(center.x, center.y + distance, center.z);
-  } else if (preset === "side") {
-    resource.camera.position.set(center.x + distance, center.y, center.z);
-  } else {
-    const diagonal = distance / Math.sqrt(3);
-    resource.camera.position.set(center.x + diagonal, center.y + diagonal, center.z + diagonal);
-  }
-  resource.controls.target.set(center.x, center.y, center.z);
-  resource.camera.near = Math.max(0.001, distance / 100_000);
-  resource.camera.far = Math.max(1_000, distance + extent * 8);
-  resource.camera.lookAt(center.x, center.y, center.z);
+  applyCameraPose(resource, standardViewPose(preset, bounds, resource.camera.fov, resource.camera.aspect));
+}
+
+/** Fit along the direction the camera looks from now: the person's direction kept, reframed. */
+function fitViewportCameraAlong(resource: ViewportResource, bounds: Bounds3 | null) {
+  resource.cancelNavigation();
+  applyCameraPose(resource, alongViewPose(resource.camera.quaternion.clone(), bounds, resource.camera.fov, resource.camera.aspect));
+}
+
+function applyCameraPose(resource: ViewportResource, pose: CameraPose) {
+  resource.camera.position.set(pose.position.x, pose.position.y, pose.position.z);
+  resource.controls.target.set(pose.target.x, pose.target.y, pose.target.z);
+  resource.camera.near = pose.near;
+  resource.camera.far = pose.far;
+  resource.camera.lookAt(pose.target.x, pose.target.y, pose.target.z);
   resource.camera.updateProjectionMatrix();
   resource.markCameraProjectionChanged();
 }

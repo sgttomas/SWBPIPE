@@ -1,6 +1,6 @@
 import { selectCompactOption, viewportControl } from "./workspace-driver";
 import { buildModelIndex } from "../src/features/workspace/modelIndex";
-import { displayedBoundsForEntityKeys, fittedViewportDistance, viewportFitFill } from "../src/features/viewport/viewportSelection";
+import { displayedBoundsForEntityKeys, fittedViewportDistance } from "../src/features/viewport/viewportSelection";
 import { expect, test, type Locator, type Page } from "@playwright/test";
 import {
   activateWithKeyboard,
@@ -1735,10 +1735,7 @@ for (const size of [1000, 10000]) {
     const bounds = displayedBoundsForEntityKeys(index, index.visibilityEligibleKeys, new Set(), new Map())!;
     const extent = Math.max(bounds.max.x - bounds.min.x, bounds.max.y - bounds.min.y, bounds.max.z - bounds.min.z, 1);
     const legacyDistance = Math.max(4, extent * 1.8);
-    // The fit keeps a margin for labels and the canvas's furniture: its share of the canvas is set
-    // by the canvas's CSS size (viewportFitFill), 90 % at most.
-    const successorDistance = fittedViewportDistance(bounds, "iso", actual.camera.fovDegrees, actual.camera.aspect,
-      viewportFitFill(actual.canvasRect.cssWidth, actual.canvasRect.cssHeight));
+    const successorDistance = fittedViewportDistance(bounds, "iso", actual.camera.fovDegrees, actual.camera.aspect);
     const center = [bounds.min.x / 2 + bounds.max.x / 2, bounds.min.y / 2 + bounds.max.y / 2, bounds.min.z / 2 + bounds.max.z / 2];
     const legacyPosition = center.map((value) => value + legacyDistance / Math.sqrt(3));
     const successorPosition = center.map((value) => value + successorDistance / Math.sqrt(3));
