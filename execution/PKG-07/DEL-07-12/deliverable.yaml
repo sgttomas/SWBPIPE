@@ -133,6 +133,12 @@ needs:
     The workspace shell mounts the panels, routes the File menu's commands, gives each save dialog
     its suggested file name, and guards every command that replaces the working model.
   gating: true
+- from: DEL-08-02
+  condition: >-
+    Canonical JSON has one implementation of RFC 8785 with SHA-256 hashing, so that a checksum
+    shown with a packet names the exact content it was computed on.
+  when: Presenting a computed checksum with a packet
+  gating: true
 code_paths:
 # The native JSON package panel. The package is DEL-17-03's.
 - apps/desktop/src/features/native-package/**
