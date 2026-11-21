@@ -340,9 +340,13 @@ impl<'a> DocumentSource<'a> {
             return Err(refusal);
         }
 
+        // The row lists replace whatever the base states under their names.
+        let mut set = set;
+        set.remove(RowList::Values.name());
         let mut set_members = owned(set);
-        for list in [RowList::Values] {
-            set_members.push((list.name().into(), Slot::List(list)));
+        set_members.push((RowList::Values.name().into(), Slot::List(RowList::Values)));
+        for list in RowList::ALL.into_iter().filter(|list| *list != RowList::Values) {
+            envelope.remove(list.name());
         }
         let mut envelope_members = owned(envelope);
         envelope_members.extend(borrowed);

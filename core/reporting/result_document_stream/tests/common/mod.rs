@@ -92,7 +92,19 @@ pub fn compare(input: &Input) -> Outcome {
     };
     let text = canonical_json(&document);
     let hash = document["result_envelope"]["reproducibility"]["derivative_hash"]["value"].as_str().unwrap();
-    assert_eq!(stream.derivative_sha256(), hash, "{name}: derivative hash");
+    if stream.derivative_sha256() != hash {
+        let mut written = Vec::new();
+        let _ = stream.write_to(&mut written);
+        let strip = |mut v: Value| {
+            v["result_envelope"]["reproducibility"].as_object_mut().unwrap().remove("derivative_hash");
+            canonical_json(&v)
+        };
+        let ours = strip(serde_json::from_slice(&written).unwrap());
+        let theirs = strip(document.clone());
+        let at = ours.bytes().zip(theirs.bytes()).position(|(a, b)| a != b).unwrap_or(ours.len().min(theirs.len()));
+        let from = at.saturating_sub(200);
+        panic!("{name}: payloads differ at {at} (lengths {} {}):\n ours:   {}\n theirs: {}", ours.len(), theirs.len(), &ours[from..(at + 200).min(ours.len())], &theirs[from..(at + 200).min(theirs.len())]);
+    }
 
     // The second emission, written whole.
     let mut written = Vec::new();

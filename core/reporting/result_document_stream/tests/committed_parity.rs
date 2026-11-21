@@ -12,88 +12,88 @@ mod common;
 use common::{compare, parse, Input, Outcome};
 use serde_json::Value;
 
-macro_rules! fixture {
-    ($path:literal) => {
-        ($path, include_str!(concat!("../../../../", $path)))
-    };
-}
+// Each fixture is named once as its path and once as a literal compile read (the CI read
+// scan resolves only a read written as one literal).
 
 /// Whole-file sources.
 const RAW: &[(&str, &str)] = &[
-    fixture!("fixtures/results/preview_physics_invented_sparse.json"),
-    fixture!("fixtures/results/preview_physics_invented_dense.json"),
-    fixture!("fixtures/results/preview_physics_connected_sparse.json"),
-    fixture!("fixtures/results/preview_physics_connected_dense.json"),
-    fixture!("fixtures/product_preview/invented_demo_result_preview_physics_1_sparse.json"),
-    fixture!("fixtures/results/preview_physics_timoshenko_arc_sparse.json"),
-    fixture!("fixtures/results/preview_physics_timoshenko_straight_sparse.json"),
-    fixture!("fixtures/results/preview_physics_timoshenko_partial_span_blocked_sparse.json"),
-    fixture!("fixtures/results/pressure_connected_mechanics_sparse.json"),
-    fixture!("fixtures/results/pressure_connected_mechanics_dense.json"),
-    fixture!("fixtures/results/pressure_thermal_ui_mechanics_sparse.json"),
-    fixture!("fixtures/results/pressure_thermal_ui_mechanics_dense.json"),
-    fixture!("fixtures/results/pressure_u4b_arc_sparse.json"),
-    fixture!("fixtures/product_preview/pressure/load_reference/connected-sparse_interactive.raw.json"),
-    fixture!("fixtures/product_preview/pressure/load_reference/connected-dense_scrutiny.raw.json"),
-    fixture!("fixtures/product_preview/pressure/load_reference/pressure-sparse_interactive.raw.json"),
-    fixture!("fixtures/product_preview/pressure/load_reference/pressure-dense_scrutiny.raw.json"),
-    fixture!("fixtures/reports/invented/report_standing_witnesses/pressure_3_coupled_friction_sensitive-sparse_interactive.raw.json"),
-    fixture!("fixtures/reports/invented/report_standing_witnesses/pressure_3_gap_unresolved-sparse_interactive.raw.json"),
+    ("fixtures/results/preview_physics_invented_sparse.json", include_str!("../../../../fixtures/results/preview_physics_invented_sparse.json")),
+    ("fixtures/results/preview_physics_invented_dense.json", include_str!("../../../../fixtures/results/preview_physics_invented_dense.json")),
+    ("fixtures/results/preview_physics_connected_sparse.json", include_str!("../../../../fixtures/results/preview_physics_connected_sparse.json")),
+    ("fixtures/results/preview_physics_connected_dense.json", include_str!("../../../../fixtures/results/preview_physics_connected_dense.json")),
+    ("fixtures/product_preview/invented_demo_result_preview_physics_1_sparse.json", include_str!("../../../../fixtures/product_preview/invented_demo_result_preview_physics_1_sparse.json")),
+    ("fixtures/results/preview_physics_timoshenko_arc_sparse.json", include_str!("../../../../fixtures/results/preview_physics_timoshenko_arc_sparse.json")),
+    ("fixtures/results/preview_physics_timoshenko_straight_sparse.json", include_str!("../../../../fixtures/results/preview_physics_timoshenko_straight_sparse.json")),
+    ("fixtures/results/preview_physics_timoshenko_partial_span_blocked_sparse.json", include_str!("../../../../fixtures/results/preview_physics_timoshenko_partial_span_blocked_sparse.json")),
+    ("fixtures/results/pressure_connected_mechanics_sparse.json", include_str!("../../../../fixtures/results/pressure_connected_mechanics_sparse.json")),
+    ("fixtures/results/pressure_connected_mechanics_dense.json", include_str!("../../../../fixtures/results/pressure_connected_mechanics_dense.json")),
+    ("fixtures/results/pressure_thermal_ui_mechanics_sparse.json", include_str!("../../../../fixtures/results/pressure_thermal_ui_mechanics_sparse.json")),
+    ("fixtures/results/pressure_thermal_ui_mechanics_dense.json", include_str!("../../../../fixtures/results/pressure_thermal_ui_mechanics_dense.json")),
+    ("fixtures/results/pressure_u4b_arc_sparse.json", include_str!("../../../../fixtures/results/pressure_u4b_arc_sparse.json")),
+    ("fixtures/product_preview/pressure/load_reference/connected-sparse_interactive.raw.json", include_str!("../../../../fixtures/product_preview/pressure/load_reference/connected-sparse_interactive.raw.json")),
+    ("fixtures/product_preview/pressure/load_reference/connected-dense_scrutiny.raw.json", include_str!("../../../../fixtures/product_preview/pressure/load_reference/connected-dense_scrutiny.raw.json")),
+    ("fixtures/product_preview/pressure/load_reference/pressure-sparse_interactive.raw.json", include_str!("../../../../fixtures/product_preview/pressure/load_reference/pressure-sparse_interactive.raw.json")),
+    ("fixtures/product_preview/pressure/load_reference/pressure-dense_scrutiny.raw.json", include_str!("../../../../fixtures/product_preview/pressure/load_reference/pressure-dense_scrutiny.raw.json")),
+    ("fixtures/reports/invented/report_standing_witnesses/pressure_3_coupled_friction_sensitive-sparse_interactive.raw.json", include_str!("../../../../fixtures/reports/invented/report_standing_witnesses/pressure_3_coupled_friction_sensitive-sparse_interactive.raw.json")),
+    ("fixtures/reports/invented/report_standing_witnesses/pressure_3_gap_unresolved-sparse_interactive.raw.json", include_str!("../../../../fixtures/reports/invented/report_standing_witnesses/pressure_3_gap_unresolved-sparse_interactive.raw.json")),
 ];
 
 const PRESSURE_SOURCE: &[(&str, &str)] = &[
-    fixture!("fixtures/product_preview/pressure_source/load_reference_source/n05-sparse_interactive.raw.json"),
-    fixture!("fixtures/product_preview/pressure_source/load_reference_source/n05-dense_scrutiny.raw.json"),
-    fixture!("fixtures/product_preview/pressure_source/load_reference_source/n06-sparse_interactive.raw.json"),
-    fixture!("fixtures/product_preview/pressure_source/load_reference_source/n06-dense_scrutiny.raw.json"),
-    fixture!("fixtures/product_preview/pressure_source/load_reference_source/mixed-sparse_interactive.raw.json"),
-    fixture!("fixtures/product_preview/pressure_source/load_reference_source/mixed-dense_scrutiny.raw.json"),
-    fixture!("fixtures/product_preview/pressure_source/load_reference_source/fields-sparse_interactive.raw.json"),
-    fixture!("fixtures/product_preview/pressure_source/load_reference_source/fields-dense_scrutiny.raw.json"),
-    fixture!("fixtures/product_preview/pressure_source/load_reference_source/eigen_motion-sparse_interactive.raw.json"),
-    fixture!("fixtures/product_preview/pressure_source/load_reference_source/eigen_motion-dense_scrutiny.raw.json"),
-    fixture!("fixtures/product_preview/pressure_source/physics_source/n05-sparse_interactive.raw.json"),
-    fixture!("fixtures/product_preview/pressure_source/physics_source/n05-dense_scrutiny.raw.json"),
-    fixture!("fixtures/product_preview/pressure_source/physics_source/n06-sparse_interactive.raw.json"),
-    fixture!("fixtures/product_preview/pressure_source/physics_source/n06-dense_scrutiny.raw.json"),
-    fixture!("fixtures/product_preview/pressure_source/physics_source/mixed-sparse_interactive.raw.json"),
-    fixture!("fixtures/product_preview/pressure_source/physics_source/mixed-dense_scrutiny.raw.json"),
-    fixture!("fixtures/product_preview/pressure_source/physics_source/fields-sparse_interactive.raw.json"),
-    fixture!("fixtures/product_preview/pressure_source/physics_source/fields-dense_scrutiny.raw.json"),
+    ("fixtures/product_preview/pressure_source/load_reference_source/n05-sparse_interactive.raw.json", include_str!("../../../../fixtures/product_preview/pressure_source/load_reference_source/n05-sparse_interactive.raw.json")),
+    ("fixtures/product_preview/pressure_source/load_reference_source/n05-dense_scrutiny.raw.json", include_str!("../../../../fixtures/product_preview/pressure_source/load_reference_source/n05-dense_scrutiny.raw.json")),
+    ("fixtures/product_preview/pressure_source/load_reference_source/n06-sparse_interactive.raw.json", include_str!("../../../../fixtures/product_preview/pressure_source/load_reference_source/n06-sparse_interactive.raw.json")),
+    ("fixtures/product_preview/pressure_source/load_reference_source/n06-dense_scrutiny.raw.json", include_str!("../../../../fixtures/product_preview/pressure_source/load_reference_source/n06-dense_scrutiny.raw.json")),
+    ("fixtures/product_preview/pressure_source/load_reference_source/mixed-sparse_interactive.raw.json", include_str!("../../../../fixtures/product_preview/pressure_source/load_reference_source/mixed-sparse_interactive.raw.json")),
+    ("fixtures/product_preview/pressure_source/load_reference_source/mixed-dense_scrutiny.raw.json", include_str!("../../../../fixtures/product_preview/pressure_source/load_reference_source/mixed-dense_scrutiny.raw.json")),
+    ("fixtures/product_preview/pressure_source/load_reference_source/fields-sparse_interactive.raw.json", include_str!("../../../../fixtures/product_preview/pressure_source/load_reference_source/fields-sparse_interactive.raw.json")),
+    ("fixtures/product_preview/pressure_source/load_reference_source/fields-dense_scrutiny.raw.json", include_str!("../../../../fixtures/product_preview/pressure_source/load_reference_source/fields-dense_scrutiny.raw.json")),
+    ("fixtures/product_preview/pressure_source/load_reference_source/eigen_motion-sparse_interactive.raw.json", include_str!("../../../../fixtures/product_preview/pressure_source/load_reference_source/eigen_motion-sparse_interactive.raw.json")),
+    ("fixtures/product_preview/pressure_source/load_reference_source/eigen_motion-dense_scrutiny.raw.json", include_str!("../../../../fixtures/product_preview/pressure_source/load_reference_source/eigen_motion-dense_scrutiny.raw.json")),
+    ("fixtures/product_preview/pressure_source/physics_source/n05-sparse_interactive.raw.json", include_str!("../../../../fixtures/product_preview/pressure_source/physics_source/n05-sparse_interactive.raw.json")),
+    ("fixtures/product_preview/pressure_source/physics_source/n05-dense_scrutiny.raw.json", include_str!("../../../../fixtures/product_preview/pressure_source/physics_source/n05-dense_scrutiny.raw.json")),
+    ("fixtures/product_preview/pressure_source/physics_source/n06-sparse_interactive.raw.json", include_str!("../../../../fixtures/product_preview/pressure_source/physics_source/n06-sparse_interactive.raw.json")),
+    ("fixtures/product_preview/pressure_source/physics_source/n06-dense_scrutiny.raw.json", include_str!("../../../../fixtures/product_preview/pressure_source/physics_source/n06-dense_scrutiny.raw.json")),
+    ("fixtures/product_preview/pressure_source/physics_source/mixed-sparse_interactive.raw.json", include_str!("../../../../fixtures/product_preview/pressure_source/physics_source/mixed-sparse_interactive.raw.json")),
+    ("fixtures/product_preview/pressure_source/physics_source/mixed-dense_scrutiny.raw.json", include_str!("../../../../fixtures/product_preview/pressure_source/physics_source/mixed-dense_scrutiny.raw.json")),
+    ("fixtures/product_preview/pressure_source/physics_source/fields-sparse_interactive.raw.json", include_str!("../../../../fixtures/product_preview/pressure_source/physics_source/fields-sparse_interactive.raw.json")),
+    ("fixtures/product_preview/pressure_source/physics_source/fields-dense_scrutiny.raw.json", include_str!("../../../../fixtures/product_preview/pressure_source/physics_source/fields-dense_scrutiny.raw.json")),
 ];
 
 /// Successor statements: `source`, with the request's model.
 const SUCCESSORS: &[(&str, &str)] = &[
-    fixture!("fixtures/results/retained_precision_milestone_successor_sparse_interactive.json"),
-    fixture!("fixtures/results/retained_precision_milestone_successor_dense_scrutiny.json"),
-    fixture!("fixtures/results/retained_precision_exact_successor_sparse_interactive.json"),
-    fixture!("fixtures/results/retained_precision_exact_successor_dense_scrutiny.json"),
-    fixture!("fixtures/results/retained_precision_combination_successor_sparse_interactive.json"),
-    fixture!("fixtures/results/retained_precision_combination_successor_dense_scrutiny.json"),
-    fixture!("fixtures/results/retained_precision_l0_successor_sparse_interactive.json"),
-    fixture!("fixtures/results/retained_precision_l0_successor_dense_scrutiny.json"),
-    fixture!("fixtures/results/retained_precision_w_c2_successor_sparse_interactive.json"),
-    fixture!("fixtures/results/retained_precision_w_c2_successor_dense_scrutiny.json"),
+    ("fixtures/results/retained_precision_milestone_successor_sparse_interactive.json", include_str!("../../../../fixtures/results/retained_precision_milestone_successor_sparse_interactive.json")),
+    ("fixtures/results/retained_precision_milestone_successor_dense_scrutiny.json", include_str!("../../../../fixtures/results/retained_precision_milestone_successor_dense_scrutiny.json")),
+    ("fixtures/results/retained_precision_exact_successor_sparse_interactive.json", include_str!("../../../../fixtures/results/retained_precision_exact_successor_sparse_interactive.json")),
+    ("fixtures/results/retained_precision_exact_successor_dense_scrutiny.json", include_str!("../../../../fixtures/results/retained_precision_exact_successor_dense_scrutiny.json")),
+    ("fixtures/results/retained_precision_combination_successor_sparse_interactive.json", include_str!("../../../../fixtures/results/retained_precision_combination_successor_sparse_interactive.json")),
+    ("fixtures/results/retained_precision_combination_successor_dense_scrutiny.json", include_str!("../../../../fixtures/results/retained_precision_combination_successor_dense_scrutiny.json")),
+    ("fixtures/results/retained_precision_l0_successor_sparse_interactive.json", include_str!("../../../../fixtures/results/retained_precision_l0_successor_sparse_interactive.json")),
+    ("fixtures/results/retained_precision_l0_successor_dense_scrutiny.json", include_str!("../../../../fixtures/results/retained_precision_l0_successor_dense_scrutiny.json")),
+    ("fixtures/results/retained_precision_w_c2_successor_sparse_interactive.json", include_str!("../../../../fixtures/results/retained_precision_w_c2_successor_sparse_interactive.json")),
+    ("fixtures/results/retained_precision_w_c2_successor_dense_scrutiny.json", include_str!("../../../../fixtures/results/retained_precision_w_c2_successor_dense_scrutiny.json")),
 ];
 
 /// The report inputs of `report_members_parity.rs` whose fixture carries its source: the
-/// five exact witness requests (`request.source_results[0]`) and the two exact user-release
+/// six exact witness requests (`request.source_results[0]`, the sixth added with the
+/// combined connector rows of issue 441) and the two exact user-release
 /// fixtures (`source`); the four pressure-free vectors' two sources and the two standing
 /// witnesses' raw results are in `RAW`.
 const WITNESS_REQUESTS: &[(&str, &str)] = &[
-    fixture!("fixtures/reports/invented/exact_report_package_requests/pressure_2_straight.json"),
-    fixture!("fixtures/reports/invented/exact_report_package_requests/pressure_2_load_reference_states.json"),
-    fixture!("fixtures/reports/invented/exact_report_package_requests/pressure_2_connector.json"),
-    fixture!("fixtures/reports/invented/exact_report_package_requests/pressure_2_realized_bend.json"),
-    fixture!("fixtures/reports/invented/exact_report_package_requests/pressure_source_1.json"),
+    ("fixtures/reports/invented/exact_report_package_requests/pressure_2_straight.json", include_str!("../../../../fixtures/reports/invented/exact_report_package_requests/pressure_2_straight.json")),
+    ("fixtures/reports/invented/exact_report_package_requests/pressure_2_load_reference_states.json", include_str!("../../../../fixtures/reports/invented/exact_report_package_requests/pressure_2_load_reference_states.json")),
+    ("fixtures/reports/invented/exact_report_package_requests/pressure_2_connector.json", include_str!("../../../../fixtures/reports/invented/exact_report_package_requests/pressure_2_connector.json")),
+    // Combined connector rows of a combination (issue 441), exported with the reader's metadata.
+    ("fixtures/reports/invented/exact_report_package_requests/pressure_2_connector_combinations.json", include_str!("../../../../fixtures/reports/invented/exact_report_package_requests/pressure_2_connector_combinations.json")),
+    ("fixtures/reports/invented/exact_report_package_requests/pressure_2_realized_bend.json", include_str!("../../../../fixtures/reports/invented/exact_report_package_requests/pressure_2_realized_bend.json")),
+    ("fixtures/reports/invented/exact_report_package_requests/pressure_source_1.json", include_str!("../../../../fixtures/reports/invented/exact_report_package_requests/pressure_source_1.json")),
 ];
 const USER_RELEASE_EXACT: &[(&str, &str)] = &[
-    fixture!("fixtures/reports/invented/user_release_exact/pressure_2_straight.json"),
-    fixture!("fixtures/reports/invented/user_release_exact/pressure_source_1.json"),
+    ("fixtures/reports/invented/user_release_exact/pressure_2_straight.json", include_str!("../../../../fixtures/reports/invented/user_release_exact/pressure_2_straight.json")),
+    ("fixtures/reports/invented/user_release_exact/pressure_source_1.json", include_str!("../../../../fixtures/reports/invented/user_release_exact/pressure_source_1.json")),
 ];
 
-const COMBINATION_CORPUS: (&str, &str) = fixture!("fixtures/results/pressure_v3_combination_reader_corpus.json");
-const DIFFERENCE_CORPUS: (&str, &str) = fixture!("fixtures/results/preview_physics_difference_basis_corpus.json");
+const COMBINATION_CORPUS: (&str, &str) = ("fixtures/results/pressure_v3_combination_reader_corpus.json", include_str!("../../../../fixtures/results/pressure_v3_combination_reader_corpus.json"));
+const DIFFERENCE_CORPUS: (&str, &str) = ("fixtures/results/preview_physics_difference_basis_corpus.json", include_str!("../../../../fixtures/results/preview_physics_difference_basis_corpus.json"));
 
 /// Derives `source` with both origins; returns how many derived.
 fn both(name: &str, source: Value, model: Option<Value>) -> usize {

@@ -30,7 +30,7 @@ pub(crate) struct HeaderDecisions {
 ///
 /// Restates `derivative.rs` lines 158 to 168 (the identities that carry
 /// `contract_evidence`), `is_successor` (lines 17 to 22), the pressure-source test of
-/// lines 173 and 405, and `refuse_declared_dimensions` (lines 110 to 117), all private
+/// lines 173 and 426, and `refuse_declared_dimensions` (lines 110 to 117), all private
 /// there. `carrier_scope` is the origin's carrier scope, when it states one.
 pub(crate) fn header_decisions(source: &Value, carrier_scope: Option<&str>) -> HeaderDecisions {
     let identity = source["producer"]["semantic_contract_id"].as_str();
@@ -70,20 +70,20 @@ pub(crate) struct DerivedHeader<'h> {
     pub(crate) source_digest: &'h str,
 }
 
-/// The header comparisons `validate_document` makes, in its order (`derivative.rs` lines 405
-/// to 511), of a document `derive_document` built. A comparison of a member the derivation
+/// The header comparisons `validate_document` makes, in its order (`derivative.rs` lines 426
+/// to 532), of a document `derive_document` built. A comparison of a member the derivation
 /// copied from the source, or computed itself, holds by construction and is named, not
 /// repeated; the ones a base or an origin can still fail are made.
 pub(crate) fn validate_header(header: &DerivedHeader, source: &Value, decisions: &HeaderDecisions) -> Result<(), String> {
     let e = header.envelope;
-    // 405 to 414: the source-block receipt is the source's, copied whole; on another identity
+    // 426 to 435: the source-block receipt is the source's, copied whole; on another identity
     // a base that carries one was refused by the derivation.
-    // 417 to 423: the successor's receipt is the source's, copied whole.
+    // 438 to 444: the successor's receipt is the source's, copied whole.
     if !decisions.is_successor && e.contains_key("retained_precision") {
         return Err(RETAINED_PRECISION_DOWNGRADE_FORBIDDEN.into());
     }
-    // 425 to 429: producer, numerical_quality and formulation_basis are copied whole.
-    // 430 to 436: contract evidence.
+    // 446 to 450: producer, numerical_quality and formulation_basis are copied whole.
+    // 451 to 457: contract evidence.
     let evidence = source.get("contract_evidence").filter(|v| !v.is_null());
     if !match (header.contract_evidence, evidence) {
         (Some(copied), Some(evidence)) => json_value_eq(copied, evidence),
@@ -91,8 +91,8 @@ pub(crate) fn validate_header(header: &DerivedHeader, source: &Value, decisions:
     } {
         return Err("SOURCE_CONTRACT_EVIDENCE_BINDING_MISMATCH".into());
     }
-    // 437 to 448: the semantic contract reference and both versions are the derivation's own.
-    // 449 to 477: the lists and the one origin are the derivation's; the envelope id, the
+    // 458 to 469: the semantic contract reference and both versions are the derivation's own.
+    // 470 to 498: the lists and the one origin are the derivation's; the envelope id, the
     // origin id and the model reference were read by it.
     let origin = header.origin;
     let model_ref = source["model_ref"].as_str().ok_or("MODEL_REF_MISSING")?;
@@ -115,13 +115,13 @@ pub(crate) fn validate_header(header: &DerivedHeader, source: &Value, decisions:
     if origin["received_carrier_checksum"] != carrier {
         return Err("SOURCE_CARRIER_HASH_MISMATCH".into());
     }
-    // 504: the declared-dimension refusal is the derivation's, made already.
+    // 525: the declared-dimension refusal is the derivation's, made already.
     if authentic {
         if origin["original_producer_checksum"] != origin["received_carrier_checksum"] {
             return Err("ORIGINAL_PRODUCER_BINDING_MISMATCH".into());
         }
     }
-    // 509 to 511: an unavailable producer's hash was refused by the derivation.
-    // 512 to 521: the cardinalities hold by construction; the row loop follows.
+    // 530 to 532: an unavailable producer's hash was refused by the derivation.
+    // 533 to 541: the cardinalities hold by construction; the row loop follows.
     Ok(())
 }

@@ -89,8 +89,8 @@ pub(crate) struct Effective {
 /// instead when a review row's metadata is incomplete, when a quantity of a mandatory family
 /// has no canonical metadata, or when its validated class is disclosed.
 ///
-/// Restates `derivative.rs` lines 246 to 258 (`derive_document`) and its copy at lines 547
-/// to 567 (`validate_document`).
+/// Restates `derivative.rs` lines 246 to 258 (`derive_document`) and its copy at lines 569
+/// to 589 (`validate_document`'s checks).
 fn effective_disposition(
     declared: Disposition,
     family: &Value,
@@ -139,7 +139,7 @@ fn disclosure_reason(
 /// `assembled_load_review` for that category and `user_input_review` for any other.
 ///
 /// Restates `derivative.rs` lines 281 to 291 and line 311 (`derive_document`), and their
-/// copies at lines 663 to 673 and 686 to 691 (`validate_document`).
+/// copies at lines 685 to 695 and 708 to 713 (`validate_document`'s checks).
 fn target_basis_and_evidence_kind(
     row: &Value,
     disposition: Disposition,
@@ -352,7 +352,7 @@ impl<'a> RowBasis<'a> {
 
     /// The comparisons `validate_document`'s row loop makes of row `i`'s accounting entry,
     /// annotation and target, with its refusal codes and in its order (`derivative.rs` lines
-    /// 525 to 742). `place` is the target's index in its list, where the entry is written,
+    /// 546 to 765). `place` is the target's index in its list, where the entry is written,
     /// and `class` the row's validated class. Every value is recomputed from the source row
     /// through the public functions and (a) and (c), not taken from the derivation.
     pub(crate) fn check_row(&self, i: usize, row: &Value, class: Option<&AccuracyClass>, a: &Value, ann: &Value, target: &Value, place: usize) -> Result<(), String> {
@@ -487,7 +487,7 @@ impl<'a> RowBasis<'a> {
     }
 
     /// The comparisons `validate_document` makes of row `i`'s witness (`derivative.rs` lines
-    /// 744 to 779): a non-disclosed row has exactly one, equal to what its source row and
+    /// 767 to 804): a non-disclosed row has exactly one, equal to what its source row and
     /// target give; a disclosed row has none.
     pub(crate) fn check_witness(&self, i: usize, row: &Value, a: &Value, target: &Value, disposition: Disposition, witness: Option<&Value>) -> Result<(), String> {
         let w = match (disposition, witness) {
