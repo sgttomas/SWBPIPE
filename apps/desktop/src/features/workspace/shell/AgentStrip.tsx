@@ -1,13 +1,14 @@
 import { Bot } from "lucide-react";
-import { AGENT_UNAVAILABLE_REASON } from "../shellLayout";
-import { DisabledReason } from "./DisabledReason";
+import { useSessionChrome } from "../WorkspaceSessionContext";
 
 /**
- * The agent strip: 44 px on the right in every stage. The column is a later
- * slice, so the strip's one control is disabled with its reason. The working
- * embedded agent is Review changes' Agent tab, which the toolbar's Agent button opens.
+ * The agent strip: 44 px on the right in every stage, and the one Agent control.
+ * The embedded agent is Review changes' Agent tab; the strip's control opens it
+ * and is pressed while that tab is shown.
  */
 export function AgentStrip() {
+  const { activeSection, operationTab, setActiveSection, setOperationTab } = useSessionChrome();
+  const agentShown = activeSection === "operations" && operationTab === "agent";
   return (
     <aside className="shell-agent-strip" aria-label="Agent" data-testid="agent-strip">
       <span className="shell-reason-anchor">
@@ -16,11 +17,10 @@ export function AgentStrip() {
           className="shell-rail-item"
           data-testid="agent-strip-open"
           aria-label="Agent"
-          aria-disabled="true"
-          aria-describedby="agent-strip-reason"
-          title={AGENT_UNAVAILABLE_REASON}
+          aria-pressed={agentShown}
+          title="Agent"
+          onClick={() => { setActiveSection("operations"); setOperationTab("agent"); }}
         ><Bot size={20} aria-hidden="true" /><span className="shell-rail-label">Agent</span></button>
-        <DisabledReason id="agent-strip-reason" text={AGENT_UNAVAILABLE_REASON} />
       </span>
     </aside>
   );

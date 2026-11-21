@@ -1,6 +1,5 @@
 import type { ReactNode } from "react";
 import {
-  Bot,
   Columns2,
   MousePointer2,
   PanelRight,
@@ -32,8 +31,8 @@ const VIEW_ICONS: Record<ShellView, typeof Table2> = { table: Table2, model: Box
 /**
  * The toolbar band: wordmark, project name, Undo and Redo
  * with the alert of a failed undo or redo,
- * the view switch, Run, the Inspector toggle and the Agent button, the display
- * units and the palette field. Every control here maps to a session handler;
+ * the view switch, Run, the Inspector toggle, the display units and the
+ * palette field. The one Agent control is the agent strip's (AgentStrip.tsx). Every control here maps to a session handler;
  * none mutates the model by itself. `children` is the one palette surface.
  * The Issues count is the rail's and the status bar's.
  */
@@ -54,9 +53,6 @@ export function ShellToolbar({ children }: { children: ReactNode }) {
     toggleWorkspaceRail,
     armedCreationTool,
     handleArmCreationTool,
-    operationTab,
-    setOperationTab,
-    setActiveSection,
     uiPreferences,
     setUiPreferences
   } = useSessionChrome();
@@ -64,8 +60,6 @@ export function ShellToolbar({ children }: { children: ReactNode }) {
   const segments = viewSwitchItems(location.stage, stageViewMemory);
   const view = segments.find((segment) => segment.pressed)?.view ?? "both";
   const inspector = inspectorToggleState(view, !inspectorCollapsed);
-  // The embedded agent is Review changes' Agent tab; the button opens it and is pressed while it is shown.
-  const agentShown = activeSection === "operations" && operationTab === "agent";
   const canUndo = undoStack.length > 0 && !operationBusy;
   const canRedo = redoStack.length > 0 && !operationBusy;
   // The save state is not shown: the session holds no cell that says whether the
@@ -142,15 +136,6 @@ export function ShellToolbar({ children }: { children: ReactNode }) {
           ><PanelRight size={16} aria-hidden="true" /><span className="shell-toolbar-label">Inspector</span></button>
           {inspector.enabled ? null : <DisabledReason id="toggle-inspector-reason" text={inspector.reason ?? ""} />}
         </span>
-        <button
-          type="button"
-          className="shell-panel-toggle"
-          data-testid="toggle-agent"
-          aria-label="Agent"
-          aria-pressed={agentShown}
-          title="Agent"
-          onClick={() => { setActiveSection("operations"); setOperationTab("agent"); }}
-        ><Bot size={16} aria-hidden="true" /><span className="shell-toolbar-label">Agent</span></button>
       </div>
       <div className="shell-toolbar-units" title="Display units"><DisplayUnitSelector compact /></div>
       <details className="shell-appearance" data-testid="toolbar-appearance">

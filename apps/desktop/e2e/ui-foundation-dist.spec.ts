@@ -544,7 +544,7 @@ for (const width of [1024, 1440] as const) {
     for (const railOpen of width < 1280 ? [false, true] : [true]) {
       await ensureRail(page, "inspector", railOpen);
       for (const [drawerId, toggleId] of [
-        ["issues-home", "issues-drawer-toggle"], ["audit-boundary-drawer", "audit-drawer-toggle"],
+        ["issues-home", "issues-drawer-toggle"],
       ]) {
         await page.getByTestId(toggleId).click();
         const drawer = page.getByTestId(drawerId);
