@@ -824,7 +824,9 @@ fn a_component_record_on_a_case_that_generates_none_is_refused() {
     let bound = reader_verdict::validate("pressure", &forged, Some(model), None);
     assert_eq!(bound["ok"], false, "{bound}");
     assert!(bound.to_string().contains("EQUIVALENT_STATIC_COMPONENT_MODEL_MISMATCH"), "{bound}");
-    // The same on the case without generation, given a record of its own.
+    // The same on the case without generation, given a record of its own:
+    // refused by the record's presence (issue 452 decision 6, a record on a
+    // case whose model case does not generate), before its contents are read.
     let mut forged = out.clone();
     let entry = entry_for("case:p");
     let mut ids = vec![json!("case:p:generated:seismic:global-x:element-0")];
@@ -833,7 +835,7 @@ fn a_component_record_on_a_case_that_generates_none_is_refused() {
         "generated_load_ids": ids, "component_forces": [entry]});
     let bound = reader_verdict::validate("pressure", &forged, Some(model), None);
     assert_eq!(bound["ok"], false, "{bound}");
-    assert_eq!(bound["error"]["code"], "SOURCE_PHYSICS_EQUIVALENT_STATIC_COMPONENT_MODEL_MISMATCH", "{bound}");
+    assert_eq!(bound["error"]["code"], "SOURCE_PHYSICS_MODEL_GENERATION_RECORD", "{bound}");
     // A model whose required force rounds to zero (k = 0.3, W the smallest positive binary64 in N).
     let mut range = model.clone();
     range["components"][0]["geometry"]["weight"] = qv(f64::from_bits(1), "N");
