@@ -4,17 +4,25 @@
 //! document that is not a load and reference-state document, three findings
 //! at warning severity, which refuse nothing and change no load:
 //!
-//! - [`WEIGHT_LOAD_ENTERED`]: one per load of the case in the solver's weight
-//!   category (authored `weight` or `distributed_force`, an entered
+//! - [`WEIGHT_LOAD_ENTERED`]: one per case that has any load in the solver's
+//!   weight category (authored `weight` or `distributed_force`, an entered
 //!   distributed member load included) that is not a fresh product of the
 //!   self-weight plan. Applied generated self-weight, which
-//!   `self_weight::validate_applied_self_weight` admits as fresh, is not
-//!   named; a manual override of generated self-weight is named. A stale or
+//!   `self_weight::validate_applied_self_weight` admits as fresh, is exempt;
+//!   a manual override of generated self-weight is covered. A stale or
 //!   modified plan primitive is refused before this check runs.
-//! - [`CONDITION_WEIGHT_ADDED`]: one per added weight the case takes from an
-//!   operating condition: exactly the primitives `operating_conditions::lower`
-//!   reports it appended, which only the pressure-free route admits. An
-//!   authored load is an entered weight load whatever its id or provenance.
+//! - [`CONDITION_WEIGHT_ADDED`]: one per case that takes any added weight from
+//!   an operating condition: exactly the primitives
+//!   `operating_conditions::lower` reports it appended, which only the
+//!   pressure-free route admits. An authored load is an entered weight load
+//!   whatever its id or provenance.
+//!
+//!   Each of these two states how many loads it covers and names them in the
+//!   case's load order, at most [`MAX_NAMED_LOADS`] (10) of them, reporting
+//!   the remainder as "and N more". Its affected references are the case and
+//!   the named loads (for an added weight, each named load and then its
+//!   member, each once), so a case with thousands of entered loads raises one
+//!   finding of bounded size.
 //! - [`GRAVITY_DIFFERS`]: one per case whose seismic gravity differs from the
 //!   gravity at which a fresh applied component-weight primitive of a
 //!   component whose force the case generates was formed. The comparison is
@@ -45,6 +53,9 @@ use std::collections::HashSet;
 pub(crate) const WEIGHT_LOAD_ENTERED: &str = "EQUIVALENT_STATIC_SEISMIC_WEIGHT_LOAD_ENTERED";
 pub(crate) const CONDITION_WEIGHT_ADDED: &str = "EQUIVALENT_STATIC_SEISMIC_CONDITION_WEIGHT_ADDED";
 pub(crate) const GRAVITY_DIFFERS: &str = "EQUIVALENT_STATIC_SEISMIC_GRAVITY_DIFFERS";
+
+/// The most loads a weight or condition finding names; the rest are counted.
+pub(crate) const MAX_NAMED_LOADS: usize = 10;
 
 /// One fresh applied component-weight primitive: its case and index, its
 /// component and the gravity request it was formed with, as entered.
@@ -139,17 +150,30 @@ fn magnitude(q: &Quantity) -> Option<f64> {
 }
 
 /// A finding's id: the case's id as entered and the finding's own `part`
-/// (for a load, its position in the case, as the self-weight plan's own
-/// findings name a primitive). Case ids are unique in a document and the
-/// position is unique in a case, and the case id ends where the fixed tail
-/// `:seismic:model-check:` + `part` begins (each `part` ends in a digit or is
-/// `gravity`), so two findings never share an id. Every other
+/// (`weight-load`, `condition-weight` or `gravity`; each finding is raised at
+/// most once per case). Case ids are unique in a document, and the case id
+/// ends where the fixed tail `:seismic:model-check:` + `part` begins, so two
+/// findings never share an id. Every other
 /// `diagnostic:equivalent-static:` id is a fixed pattern of colon-free parts
 /// with no `model-check` where these have it, so none equals one of these.
-/// (`stable_suffix` would map `load:a` and `load-a`, or `case:s` and
-/// `case-s`, to one id.)
+/// (`stable_suffix` would map `case:s` and `case-s` to one id.)
 fn id(case: &str, part: &str) -> String {
     format!("diagnostic:equivalent-static:{case}:seismic:model-check:{part}")
+}
+
+fn plural(n: usize) -> &'static str {
+    if n == 1 { "" } else { "s" }
+}
+fn verb(n: usize) -> &'static str {
+    if n == 1 { "s" } else { "" }
+}
+/// The named loads, then the count of those beyond [`MAX_NAMED_LOADS`].
+fn listed(named: Vec<String>, total: usize) -> String {
+    let mut text = named.join(", ");
+    if total > MAX_NAMED_LOADS {
+        text.push_str(&format!(" and {} more", total - MAX_NAMED_LOADS));
+    }
+    text
 }
 
 /// Raise the findings on the normalized `model`, from what [`capture`] read
@@ -161,33 +185,61 @@ pub(crate) fn append(model: &PreviewModel, entered: &Entered, diagnostics: &mut 
         // the generator refuses generates no seismic load, so none of them is
         // raised for it.
         let Some(plan) = admitted(model, case) else { continue };
+        let mut weights: Vec<&str> = Vec::new();
+        let mut conditions: Vec<(&str, String)> = Vec::new();
         for (index, load) in case.primitive_loads.iter().enumerate() {
             if !matches!(crate::parse_category(&load.category), Ok(PrimitiveLoadCategory::Weight)) {
                 continue;
             }
             if let Some(pipe) = condition_added(entered, *case_index, load) {
-                diagnostics.push(diag(
-                    &id(&case.id, &format!("condition-weight:{index}")),
-                    CONDITION_WEIGHT_ADDED,
-                    "warning",
-                    format!(
-                        "seismic case {}: the added weight {} that its operating condition gives member {pipe} acts in the case; static-equivalent seismic generation forms its loads from the model's own mass and geometry and is not extended to a condition's added weight",
-                        case.id, load.id
-                    ),
-                    vec![case.id.clone(), load.id.clone(), pipe],
-                ));
+                conditions.push((&load.id, pipe));
             } else if !entered.fresh.contains(&(*case_index, index)) {
-                diagnostics.push(diag(
-                    &id(&case.id, &format!("weight-load:{index}")),
-                    WEIGHT_LOAD_ENTERED,
-                    "warning",
-                    format!(
-                        "seismic case {}: the entered weight load {} acts in the case as authored; static-equivalent seismic generation forms its loads from the model's own mass and geometry and is not extended to entered weight loads",
-                        case.id, load.id
-                    ),
-                    vec![case.id.clone(), load.id.clone()],
-                ));
+                weights.push(&load.id);
             }
+        }
+        if !conditions.is_empty() {
+            let named: Vec<String> = conditions.iter().take(MAX_NAMED_LOADS).map(|(load, pipe)| format!("{load} (member {pipe})")).collect();
+            let mut refs = vec![case.id.clone()];
+            for (load, pipe) in conditions.iter().take(MAX_NAMED_LOADS) {
+                for r in [load.to_string(), pipe.clone()] {
+                    if !refs.contains(&r) {
+                        refs.push(r);
+                    }
+                }
+            }
+            diagnostics.push(diag(
+                &id(&case.id, "condition-weight"),
+                CONDITION_WEIGHT_ADDED,
+                "warning",
+                format!(
+                    "seismic case {}: {} added weight{} that its operating condition gives act{} in the case: {}; static-equivalent seismic generation forms its loads from the model's own mass and geometry and is not extended to a condition's added weight",
+                    case.id,
+                    conditions.len(),
+                    plural(conditions.len()),
+                    verb(conditions.len()),
+                    listed(named, conditions.len())
+                ),
+                refs,
+            ));
+        }
+        if !weights.is_empty() {
+            let named: Vec<String> = weights.iter().take(MAX_NAMED_LOADS).map(|load| load.to_string()).collect();
+            let mut refs = vec![case.id.clone()];
+            refs.extend(named.iter().cloned());
+            diagnostics.push(diag(
+                &id(&case.id, "weight-load"),
+                WEIGHT_LOAD_ENTERED,
+                "warning",
+                format!(
+                    "seismic case {}: {} entered weight load{} act{} in the case as authored: {}; static-equivalent seismic generation forms its loads from the model's own mass and geometry and is not extended to entered weight loads",
+                    case.id,
+                    weights.len(),
+                    plural(weights.len()),
+                    verb(weights.len()),
+                    listed(named, weights.len())
+                ),
+                refs,
+            ));
         }
         if let Some(finding) = gravity_finding(model, entered, *case_index, gravity.as_ref(), &plan) {
             diagnostics.push(finding);

@@ -1187,8 +1187,12 @@ fn overridden(load: &Value) -> Value {
 fn is_component_weight(load: &Value) -> bool {
     load["target"]["type"] == "node"
 }
+/// The loads the case's findings of `code` name: their affected references
+/// after the case's own.
 fn named(diagnostics: &Value, code: &str, case: &str) -> Vec<String> {
-    findings(diagnostics, code, case).iter().map(|f| f["affected_refs"][1].as_str().unwrap().to_string()).collect()
+    findings(diagnostics, code, case).iter()
+        .flat_map(|f| f["affected_refs"].as_array().unwrap()[1..].iter().map(|r| r.as_str().unwrap().to_string()).collect::<Vec<_>>())
+        .collect()
 }
 fn entered_load(id: &str, category: &str, pipe: &str) -> Value {
     json!({"id": id, "category": category, "target": {"type": "element", "pipe": pipe}, "direction": "global_z",
@@ -1230,10 +1234,10 @@ fn entered_weight_loads_and_manual_overrides_are_named() {
         for mode in MODES {
             let out = solved(&wire, mode, &id);
             assert_eq!(named(&out["diagnostics"], WEIGHT_LOAD_ENTERED, &case_id), expected, "{id} {mode:?}");
-            for f in findings(&out["diagnostics"], WEIGHT_LOAD_ENTERED, &case_id) {
-                assert_eq!(f["severity"], "warning");
-                assert_eq!(f["affected_refs"].as_array().unwrap().len(), 2, "{f}");
-            }
+            let found = findings(&out["diagnostics"], WEIGHT_LOAD_ENTERED, &case_id);
+            assert_eq!(found.len(), 1, "{id} {mode:?}: one finding for the case: {found:?}");
+            assert_eq!(found[0]["severity"], "warning");
+            assert!(found[0]["message"].as_str().unwrap().contains(": 3 entered weight loads act in the case as authored: "), "{}", found[0]["message"]);
             assert!(codes(&out).iter().any(|c| c == "SELF_WEIGHT_MANUAL_OVERRIDE"), "{id} {mode:?}: the override is the plan's own warning too");
             assert!(findings(&out["diagnostics"], GRAVITY_DIFFERS, &case_id).is_empty(), "{id} {mode:?}: equal gravities");
             assert!(findings(&out["diagnostics"], CONDITION_WEIGHT_ADDED, &case_id).is_empty(), "{id} {mode:?}");
@@ -1606,9 +1610,10 @@ fn the_gravity_finding_names_every_differing_component_and_each_magnitude_once()
 }
 
 /// Each finding's id is its own (first reviewer of PR 536, finding 1): two
-/// entered weight loads `load:a` and `load-a` in one seismic case, and a
-/// second seismic case, each case at 10 m/s^2 beside the plan's weight case
-/// at 9.79 m/s^2 with a gravity finding, give four findings with four ids.
+/// entered weight loads `load:a` and `load-a` in one seismic case (one
+/// weight finding naming both), and a second seismic case, each case at
+/// 10 m/s^2 beside the plan's weight case at 9.79 m/s^2 with a gravity
+/// finding, give three findings with three ids.
 /// On the pressure-free route the second case is `case-s`, beside `case:s`;
 /// the exact route refuses that pair of case ids itself
 /// (`EXACT_PRESSURE_RESULT_ID_COLLISION`), so there it is `case:t`. The
@@ -1649,15 +1654,147 @@ fn every_finding_has_its_own_id() {
             assert_ne!(findings(&out["diagnostics"], GRAVITY_DIFFERS, other)[0]["id"], refusal[0].as_str(), "{id} {mode:?}");
             assert_ne!(findings(&checks, GRAVITY_DIFFERS, other)[0]["id"], refusal[0].as_str(), "{id}: the model checks");
             for diagnostics in [&out["diagnostics"], &checks] {
-                let loads: Vec<&str> = findings(diagnostics, WEIGHT_LOAD_ENTERED, "case:s").iter().map(|f| f["affected_refs"][1].as_str().unwrap()).collect();
-                assert_eq!(loads, ["load:a", "load-a"], "{id} {mode:?}");
+                assert_eq!(findings(diagnostics, WEIGHT_LOAD_ENTERED, "case:s").len(), 1, "{id} {mode:?}");
+                assert_eq!(named(diagnostics, WEIGHT_LOAD_ENTERED, "case:s"), ["load:a", "load-a"], "{id} {mode:?}");
                 for case in ["case:s", other] {
                     assert_eq!(findings(diagnostics, GRAVITY_DIFFERS, case).len(), 1, "{id} {mode:?}: {case}");
                 }
                 let ours: std::collections::BTreeSet<&str> = diagnostics.as_array().unwrap().iter()
                     .filter(|d| d["code"] == WEIGHT_LOAD_ENTERED || d["code"] == GRAVITY_DIFFERS).map(|d| d["id"].as_str().unwrap()).collect();
-                assert_eq!(ours.len(), 4, "{id} {mode:?}: {ours:?}");
+                assert_eq!(ours.len(), 3, "{id} {mode:?}: {ours:?}");
             }
+        }
+    }
+}
+
+/// The bound on the loads a weight or condition finding names
+/// (`seismic_warning::MAX_NAMED_LOADS`).
+const MAX_NAMED: usize = 10;
+
+/// The cantilever extended beyond D by `extra` members E1, E2, ... like CD,
+/// so that it has 3 + `extra` members.
+fn long_cantilever(route: Route, extra: usize, cases: Vec<Value>) -> Value {
+    let mut wire = document(route, Model::Cant, ONE_MAPPED, cases);
+    let model = &mut wire["model"];
+    let mut x = model["nodes"][3]["position"]["x"].as_f64().unwrap();
+    let mut from = "D".to_string();
+    for i in 1..=extra {
+        x += input("L_cd");
+        let node = format!("E{i}");
+        model["nodes"].as_array_mut().unwrap().push(json!({"id": node, "position": {"x": x, "y": 0.0, "z": 0.0}, "provenance": PROV}));
+        let mut pipe = model["pipe_segments"][2].clone();
+        pipe["id"] = json!(format!("P{i}"));
+        pipe["from"] = json!(from);
+        pipe["to"] = json!(node);
+        model["pipe_segments"].as_array_mut().unwrap().push(pipe);
+        from = node;
+    }
+    wire
+}
+
+/// What a bounded finding must say of `total` loads, of which `expected`
+/// lists the names in case load order: the count, the first
+/// `MAX_NAMED` names, and "and N more" exactly when the total exceeds it.
+fn assert_bounded(f: &Value, total: usize, names: &[String], what: &str) {
+    let message = f["message"].as_str().unwrap();
+    let shown = &names[..total.min(MAX_NAMED)];
+    let more = format!(" and {} more;", total.saturating_sub(MAX_NAMED));
+    assert_eq!(message.contains(&more), total > MAX_NAMED, "{what}: {message}");
+    assert!(!message.contains(" more;") || total > MAX_NAMED, "{what}: {message}");
+    let at = names.len().min(MAX_NAMED);
+    for (i, name) in names.iter().enumerate() {
+        assert_eq!(message.contains(name.as_str()), i < at, "{what}: {name} named iff among the first {MAX_NAMED}: {message}");
+    }
+    let positions: Vec<usize> = shown.iter().map(|n| message.find(n.as_str()).unwrap()).collect();
+    assert!(positions.windows(2).all(|w| w[0] < w[1]), "{what}: in case load order: {message}");
+}
+
+/// One weight finding per case, bounded (DEL-05-01 REQ-008: "one model-check
+/// finding ... reports the entered weight-category loads ...; each states how
+/// many loads it covers and names them in case load order up to a fixed
+/// bound"). A seismic case with 1, 2, 10 and 12 entered weight loads raises
+/// exactly one finding, which states the count, names the first ten in case
+/// load order, says "and 2 more" for 12 only, and whose affected references
+/// are the case and the named loads. Both routes, both solver modes; the model
+/// checks raise the same finding, field for field.
+#[test]
+fn the_weight_finding_is_one_per_case_and_names_at_most_ten_loads() {
+    for route in [Route::Pf, Route::Ex] {
+        let id = format!("SCW-CANT-{}-SEISMIC-XYZ", route_tag(route));
+        let case_id = format!("case:{id}");
+        for total in [1, 2, MAX_NAMED, 12] {
+            let ids: Vec<String> = (1..=total).map(|i| format!("load:entered-{i:02}")).collect();
+            let mut case = case_of(reference(&id), &case_id);
+            case["primitive_loads"] = ids.iter().map(|l| entered_load(l, "weight", if total % 2 == 0 { "AB" } else { "CD" })).collect::<Vec<_>>().into();
+            let wire = document(route, Model::Cant, ONE_MAPPED, vec![case]);
+            let checks = model_checks(&wire);
+            for mode in MODES {
+                let out = solved(&wire, mode, &id);
+                let found = findings(&out["diagnostics"], WEIGHT_LOAD_ENTERED, &case_id);
+                let what = format!("{id} {total} loads {mode:?}");
+                assert_eq!(found.len(), 1, "{what}: {found:?}");
+                assert_eq!(found[0]["id"], format!("diagnostic:equivalent-static:{case_id}:seismic:model-check:weight-load"), "{what}");
+                let count = if total == 1 { "1 entered weight load acts".to_string() } else { format!("{total} entered weight loads act") };
+                assert!(found[0]["message"].as_str().unwrap().contains(&format!(": {count} in the case as authored: ")), "{what}: {}", found[0]["message"]);
+                assert_bounded(found[0], total, &ids, &what);
+                let mut refs = vec![case_id.clone()];
+                refs.extend(ids.iter().take(MAX_NAMED).cloned());
+                assert_eq!(found[0]["affected_refs"], json!(refs), "{what}: the case and the named loads");
+                assert_eq!(findings(&checks, WEIGHT_LOAD_ENTERED, &case_id), found, "{what}: the model checks raise the same finding");
+            }
+        }
+    }
+}
+
+/// One condition finding per case, bounded, on the pressure-free route (DEL-05-01
+/// REQ-008). On a cantilever of twelve members, a seismic case that takes
+/// added weight from its operating condition on the first 1, 2, 10 and 12
+/// members raises exactly one condition finding, which states the count,
+/// names the first ten added weights with their members in case load order
+/// (the lowering's order, read from the condition preview), says "and 2 more"
+/// for 12 only, and whose affected references are the case and each named
+/// load followed by its member. Both solver modes; the model checks raise the
+/// same finding, field for field.
+#[test]
+fn the_condition_finding_is_one_per_case_and_names_at_most_ten_loads() {
+    let id = "SCW-CANT-PF-SEISMIC-XYZ";
+    let case_id = format!("case:{id}");
+    for total in [1, 2, MAX_NAMED, 12] {
+        let mut case = case_of(reference(id), &case_id);
+        case["condition_use"] = json!({"added_weight": true});
+        let mut wire = long_cantilever(Route::Pf, 9, vec![case]);
+        wire["model"]["condition_sets"] = json!([{"id": "cs:bare", "provenance": PROV},
+            {"id": "cs:insulated", "provenance": PROV, "added_weight": {"magnitude": qv(-50.0, "N/m"), "direction": "global_z"}}]);
+        let pipes = wire["model"]["pipe_segments"].as_array().unwrap().len();
+        assert_eq!(pipes, 12);
+        for p in 0..pipes {
+            wire["model"]["pipe_segments"][p]["condition_set_ref"] = json!(if p < total { "cs:insulated" } else { "cs:bare" });
+        }
+        let preview = open_pipe_stress_product_physics::operating_conditions::preview_operating_conditions(&wire["model"]);
+        assert_eq!(preview["resolved"], true, "{preview}");
+        let added: Vec<(String, String)> = preview["cases"][0]["generated_primitive_loads"].as_array().unwrap().iter()
+            .filter(|l| l["category"] == "weight")
+            .map(|l| (l["id"].as_str().unwrap().to_string(), l["target"]["pipe"].as_str().unwrap().to_string())).collect();
+        assert_eq!(added.len(), total, "{preview}");
+        let names: Vec<String> = added.iter().map(|(l, p)| format!("{l} (member {p})")).collect();
+        let checks = model_checks(&wire);
+        for mode in MODES {
+            let out = solved(&wire, mode, id);
+            let what = format!("{total} added weights {mode:?}");
+            let found = findings(&out["diagnostics"], CONDITION_WEIGHT_ADDED, &case_id);
+            assert_eq!(found.len(), 1, "{what}: {found:?}");
+            assert_eq!(found[0]["id"], format!("diagnostic:equivalent-static:{case_id}:seismic:model-check:condition-weight"), "{what}");
+            let count = if total == 1 { "1 added weight that its operating condition gives acts".to_string() } else { format!("{total} added weights that its operating condition gives act") };
+            assert!(found[0]["message"].as_str().unwrap().contains(&format!(": {count} in the case: ")), "{what}: {}", found[0]["message"]);
+            assert_bounded(found[0], total, &names, &what);
+            let mut refs = vec![case_id.clone()];
+            for (load, pipe) in added.iter().take(MAX_NAMED) {
+                refs.push(load.clone());
+                refs.push(pipe.clone());
+            }
+            assert_eq!(found[0]["affected_refs"], json!(refs), "{what}: the case, then each named load and its member");
+            assert!(findings(&out["diagnostics"], WEIGHT_LOAD_ENTERED, &case_id).is_empty(), "{what}: not also entered weight loads");
+            assert_eq!(findings(&checks, CONDITION_WEIGHT_ADDED, &case_id), found, "{what}: the model checks raise the same finding");
         }
     }
 }
