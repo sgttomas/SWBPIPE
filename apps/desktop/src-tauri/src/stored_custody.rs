@@ -15,7 +15,7 @@
 //!   than its run, exactly as `open_local_project` returns them, plus
 //!   `stored_run` (`none`, `restored` or `refused`); the run reply is the
 //!   verified summaries, the stored manifest's canonical text and `restored`.
-//! - **Origin.** A restored handle (`restored-stored-result-N`) is registered
+//! - **Origin.** A restored handle (`restored-stored-result-<tag>-<n>`) is registered
 //!   with [`ResultOrigin::Restored`] and the stored row it came from, with the
 //!   SHA-256 of the exact texts held. It has no intake or publication digest,
 //!   attestation, worker grant, timestamp or job id of a solve; nothing here
@@ -221,7 +221,8 @@ fn record_header(memory: &NativeLeaseMemory<'_>, record: &Value) -> Result<(Valu
 /// What a reopened run tells the webview, besides its findings.
 #[derive(Debug, Serialize)]
 pub(crate) struct RestoredRun {
-    /// The handle the native result commands read (`restored-stored-result-N`).
+    /// The handle the native result commands read (`restored-stored-result-<tag>-<n>`, under the
+    /// registry's issue tag).
     pub(crate) handle: String,
     /// `restored_saved_run` or `restored_recorded_run`: never a solve.
     pub(crate) origin: &'static str,

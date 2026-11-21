@@ -843,7 +843,7 @@ mod tests {
         }
     }
     fn registry() -> SolveJobRegistry {
-        SolveJobRegistry::new(MemoryPool::new(ScriptedHost::normal()))
+        SolveJobRegistry::new(MemoryPool::new(ScriptedHost::normal())).expect("the registry is constructed")
     }
     fn setup() -> (Dispatcher, Protocol) {
         let mut d = Dispatcher::new(registry(), TOKEN, "main", &basis(2), 16).unwrap();
@@ -905,7 +905,7 @@ mod tests {
         );
         let host = ScriptedHost::normal();
         host.set(|s| s.headroom_bytes = Some(0));
-        let r = SolveJobRegistry::new(MemoryPool::new(host));
+        let r = SolveJobRegistry::new(MemoryPool::new(host)).expect("the registry is constructed");
         assert_eq!(
             Dispatcher::new(r, TOKEN, "main", &basis(2), 16).unwrap_err(),
             Refusal::Admission
@@ -1275,7 +1275,7 @@ mod tests {
     #[test]
     fn admission_reserves_completion_before_work_and_later_pressure_cannot_lose_it() {
         let host = ScriptedHost::normal();
-        let registry = SolveJobRegistry::new(MemoryPool::new(host.clone()));
+        let registry = SolveJobRegistry::new(MemoryPool::new(host.clone())).expect("the registry is constructed");
         let (_, mut p) = setup();
         let mut d = Dispatcher::new(registry, TOKEN, "main", &basis(2), 16).unwrap();
         d.observe(&Event::ThreadStarted {

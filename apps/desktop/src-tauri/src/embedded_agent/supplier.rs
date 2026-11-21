@@ -163,7 +163,7 @@ mod tests {
         }
     }
     fn backing() -> Arc<Lease> {
-        let registry = SolveJobRegistry::new(MemoryPool::new(ScriptedHost::normal()));
+        let registry = SolveJobRegistry::new(MemoryPool::new(ScriptedHost::normal())).expect("the registry is constructed");
         Arc::new(registry.acquire_interactive_ingress(STARTUP_BYTES).unwrap())
     }
     #[test]
@@ -189,7 +189,7 @@ mod tests {
     }
     #[test]
     fn admission_precedes_resource_io() {
-        let registry = SolveJobRegistry::new(MemoryPool::new(ScriptedHost::normal()));
+        let registry = SolveJobRegistry::new(MemoryPool::new(ScriptedHost::normal())).expect("the registry is constructed");
         let small = Arc::new(registry.acquire_interactive_ingress(1).unwrap());
         assert!(matches!(
             BundledSupplier::open(Path::new("/tmp/invented-unopened-home"), small),

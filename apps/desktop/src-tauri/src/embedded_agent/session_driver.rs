@@ -673,7 +673,7 @@ mod tests {
     }
     impl Harness {
         fn new() -> Self {
-            let registry = SolveJobRegistry::new(MemoryPool::new(ScriptedHost::normal()));
+            let registry = SolveJobRegistry::new(MemoryPool::new(ScriptedHost::normal())).expect("the registry is constructed");
             let input = Arc::new(Input::default());
             let output = Arc::new(Output::default());
             let driver = SessionDriver::start(
@@ -1393,7 +1393,7 @@ mod tests {
     }
     #[test]
     fn invalid_configuration_has_no_started_custody() {
-        let registry = SolveJobRegistry::new(MemoryPool::new(ScriptedHost::normal()));
+        let registry = SolveJobRegistry::new(MemoryPool::new(ScriptedHost::normal())).expect("the registry is constructed");
         let result = SessionDriver::start(
             io::empty(),
             io::sink(),
@@ -1426,7 +1426,7 @@ mod tests {
     }
     #[test]
     fn constructor_catalog_heap_fits_the_admitted_session_allowance() {
-        let registry = SolveJobRegistry::new(MemoryPool::new(ScriptedHost::normal()));
+        let registry = SolveJobRegistry::new(MemoryPool::new(ScriptedHost::normal())).expect("the registry is constructed");
         let input = Arc::new(Input::default());
         let output = Arc::new(Output::default());
         let current_basis = basis();

@@ -2838,8 +2838,8 @@ async fn read_restored_result_record_all(
 }
 
 /// C1 interim (slice 4): a native-custody result's exact bytes, copied
-/// whole for a C2 consumer (reports, comparisons, rule checks, derivative
-/// exports, handoffs) only at or under 64 MiB
+/// whole for a C2 consumer (reports, comparisons, derivative exports,
+/// handoffs; a rule check reads the held result by handle) only at or under 64 MiB
 /// (`solve_jobs::MAX_DISPLAYABLE_RESULT_BYTES`); above it refused by name
 /// (`RESULT-DETAIL-WEBVIEW-LIMIT`). The copy's lease is held as custody
 /// until `release_preview_mechanics_job_full_copy` or disposal. The copy runs
@@ -3886,7 +3886,8 @@ async fn run_rule_checks(
     let (mut args, lease) = command_ingress::admit(&registry, &invoke, "run_rule_checks", ArgsDecoding::Moved)?;
     let registry = registry.inner().clone();
     tauri::async_runtime::spawn_blocking(move || {
-        let response = respond(run_rule_checks_args(&mut args, &|| app_store_path(&app), &registry));
+        // The reply's text is made, and custody rechecked, before it is handed over.
+        let response = run_rule_checks_args(&mut args, &|| app_store_path(&app), &registry).map(tauri::ipc::Response::new);
         drop(lease);
         response
     })
@@ -3899,21 +3900,17 @@ const RULE_CHECK_SOLVED_ENVELOPE_RETIRED: &str = "RULE_CHECK_SOLVED_ENVELOPE_RET
 /// The refusal of a handle that selects no result this session holds natively.
 const RULE_CHECK_RESULT_NOT_HELD: &str = "RULE_CHECK_RESULT_NOT_HELD";
 
-/// The solved result a rule check reads: the one this session's native custody
-/// holds under `job_id`, parsed from its exact held bytes under a result-parse
-/// lease priced by the prescan, as the native readers parse it. Refused by name,
-/// before anything is evaluated, for a handle the registry does not know (never
+/// The custody a rule check reads under: this session's native custody of the
+/// result `job_id` names, taken as a share of its exact held bytes. Refused by
+/// name, before any byte is read, for a handle the registry does not know (never
 /// issued by this registry, or pruned after disposal), one whose result was
 /// disposed or taken into the web view, one held in web view custody rather than
-/// natively, and a restored (saved or recorded) run, which has historical standing
-/// only: the web view refused that last one as `RULE_NATIVE_INVOCATION_REQUIRED`,
-/// and so does this. `allow_restored` admits a restored run for display-only
-/// readers. A result holding a number outside the checked JSON profile is refused
-/// as the web view's registration refused it ([`outside_checked_json_profile`]).
-/// The lease is returned with the value and must outlive it; the share is
-/// returned so that the caller can establish, before it answers, that custody
-/// still holds these bytes ([`still_held`]).
-fn held_rule_check_source(registry: &SolveJobRegistry, job_id: &str, allow_restored: bool) -> Result<(Value, memory_pool::Lease, Arc<solve_jobs::HeldResult>), CommandError> {
+/// natively, and a restored (saved or recorded) run, which has historical
+/// standing only: the web view refused that last one as
+/// `RULE_NATIVE_INVOCATION_REQUIRED`, and so does this. `allow_restored` admits
+/// a restored run for display-only readers. Every outcome reached after this
+/// share is taken, a refusal included, is answered through [`answer_while_held`].
+fn acquire_rule_check_source(registry: &SolveJobRegistry, job_id: &str, allow_restored: bool) -> Result<Arc<solve_jobs::HeldResult>, CommandError> {
     let not_held = |reason: String| CommandError::Command(format!("{RULE_CHECK_RESULT_NOT_HELD}: {reason}"));
     match registry.result_origin(job_id) {
         None => return Err(not_held(format!("{} is not a result held in this session", stored_read::shown(job_id)))),
@@ -3927,21 +3924,30 @@ fn held_rule_check_source(registry: &SolveJobRegistry, job_id: &str, allow_resto
     if registry.result_custody(job_id) != Some(solve_jobs::ResultCustody::Native) {
         return Err(not_held(format!("{} is not held natively", stored_read::shown(job_id))));
     }
-    let held = registry.held_result(job_id).map_err(|error| match error {
-        solve_jobs::SolveJobError::InvalidRequest { message } => not_held(message),
-        other => CommandError::Ingress(other),
-    })?;
+    registry.held_result(job_id).map_err(|_| not_held(format!("{} is not a result held in this session", stored_read::shown(job_id))))
+}
+
+/// The held result `held` parsed from its exact bytes under a result-parse lease
+/// priced by the prescan, as the native readers parse it. The lease is returned
+/// with the value and must outlive it. A result holding a number outside the
+/// checked JSON profile is refused as the web view's registration refused it
+/// ([`outside_checked_json_profile`]). Called under the share it reads; its
+/// refusals are answered through [`answer_while_held`].
+fn read_rule_check_source(registry: &SolveJobRegistry, held: &solve_jobs::HeldResult) -> Result<(Value, memory_pool::Lease), CommandError> {
+    #[cfg(test)]
+    crate::native_verdict::tests::gate::pass(crate::native_verdict::tests::gate::key(registry, "rule-check-read"));
     let bounds = native_verdict::prescan_in_order(registry, &[("source", Some(held.text()))])?;
     let (bound, _) = bounds[0].expect("the held source is prescanned");
     let lease = registry.acquire_result_parse(bound.materialization_bytes)?;
-    let value = serde_json::from_str::<Value>(held.text())
-        .map_err(|error| not_held(format!("the held result is not readable JSON: {error}")))?;
+    let value = serde_json::from_str::<Value>(held.text()).map_err(|error| {
+        CommandError::Command(format!("{RULE_CHECK_RESULT_NOT_HELD}: the held result is not readable JSON: {}", stored_read::shown(&error.to_string())))
+    })?;
     if outside_checked_json_profile(&value) {
         return Err(CommandError::Command(format!(
-            "RULE_NATIVE_INVOCATION_REQUIRED: {CHECKED_JSON_NUMBER_OUTSIDE_PROFILE}: the held result holds an integral number beyond ±(2^53 − 1), which the checked JSON profile refuses; it is not checked"
+            "RULE_NATIVE_INVOCATION_REQUIRED: {CHECKED_JSON_NUMBER_OUTSIDE_PROFILE}: the held result holds an integral number beyond ±(2^53 − 1), or a number binary64 cannot represent, which the checked JSON profile refuses; it is not checked"
         )));
     }
-    Ok((value, lease, held))
+    Ok((value, lease))
 }
 
 /// `checkedJsonText`'s number refusal (`hashService.ts`), which the web view's
@@ -3950,8 +3956,8 @@ const CHECKED_JSON_NUMBER_OUTSIDE_PROFILE: &str = "CHECKED-JSON-NUMBER-OUTSIDE-P
 
 /// Whether `value` holds a number the checked JSON profile refuses: an integral
 /// value outside the safe integer range ±(2^53 − 1), whether written as an
-/// integer or with a fraction or exponent. (Non-finite numbers cannot be written
-/// in JSON, and a lone surrogate escape does not parse.)
+/// integer or with a fraction or exponent. It fails closed: a number with no
+/// finite binary64 reading is refused too (the parser admits none today).
 fn outside_checked_json_profile(value: &Value) -> bool {
     const SAFE: u64 = 9_007_199_254_740_991;
     match value {
@@ -3961,8 +3967,10 @@ fn outside_checked_json_profile(value: &Value) -> bool {
             } else if let Some(signed) = number.as_i64() {
                 signed.unsigned_abs() > SAFE
             } else {
-                let float = number.as_f64().unwrap_or(f64::NAN);
-                float.fract() == 0.0 && float.abs() > SAFE as f64
+                match number.as_f64() {
+                    Some(float) if float.is_finite() => float.fract() == 0.0 && float.abs() > SAFE as f64,
+                    _ => true,
+                }
             }
         }
         Value::Array(items) => items.iter().any(outside_checked_json_profile),
@@ -3971,24 +3979,31 @@ fn outside_checked_json_profile(value: &Value) -> bool {
     }
 }
 
-/// DEL-07-07 REQ-015: a reader answers only while custody still holds the bytes
-/// it read. Refused, with nothing that was read, when the handle's result was
-/// disposed (or replaced) between its acquisition and the answer.
-fn still_held(registry: &SolveJobRegistry, job_id: &str, read: &Arc<solve_jobs::HeldResult>) -> Result<(), CommandError> {
+/// DEL-07-07 REQ-015: a rule-check reader answers only while custody still holds
+/// the bytes it read. `outcome` is the reader's complete answer, its reply text
+/// made or its refusal formed, under the share `held` it was read from; it is
+/// returned only if the handle still names that same share. Otherwise the answer
+/// is the refusal, and nothing that was read is returned, not even a refusal
+/// that quotes it. The share is dropped after the check.
+fn answer_while_held<T>(registry: &SolveJobRegistry, job_id: &str, held: Arc<solve_jobs::HeldResult>, outcome: Result<T, CommandError>) -> Result<T, CommandError> {
     #[cfg(test)]
     crate::native_verdict::tests::gate::pass(crate::native_verdict::tests::gate::key(registry, "rule-check-answer"));
-    match registry.held_result(job_id) {
-        Ok(now) if Arc::ptr_eq(&now, read) => Ok(()),
-        _ => Err(CommandError::Command(format!(
+    let still = matches!(registry.held_result(job_id), Ok(now) if Arc::ptr_eq(&now, &held));
+    drop(held);
+    if still {
+        outcome
+    } else {
+        drop(outcome);
+        Err(CommandError::Command(format!(
             "{RULE_CHECK_RESULT_NOT_HELD}: {} was released while it was read; nothing it read is returned",
             stored_read::shown(job_id)
-        ))),
+        )))
     }
 }
 
 /// Display only: which rows of the held result each `solver_result` input's
 /// selector names on its bases, with the run's own row index and row gate
-/// ([`rule_solver_selection::preview_solver_rows`]), for the rule-check
+/// ([`rule_solver_selection::parse_preview_queries`], [`preview_rule_solver_rows_reply`]), for the rule-check
 /// panel's selector preview and binding pre-check. Raw args body
 /// `{jobId, queries: [{input_id, selector, bases}]}`. It reads a restored run
 /// too (it binds and evaluates nothing); the handle is otherwise refused as
@@ -3998,7 +4013,8 @@ async fn preview_rule_solver_rows(
     invoke: tauri::ipc::Request<'_>,
     registry: tauri::State<'_, SolveJobRegistry>,
 ) -> Result<tauri::ipc::Response, CommandError> {
-    let (mut args, lease) = command_ingress::admit(&registry, &invoke, "preview_rule_solver_rows", ArgsDecoding::Moved)?;
+    // Bounded before the prescan and parse of the arguments: see `MAX_PREVIEW_ARGS_BYTES`.
+    let (mut args, lease) = command_ingress::admit_within(&registry, &invoke, "preview_rule_solver_rows", ArgsDecoding::Moved, rule_solver_selection::MAX_PREVIEW_ARGS_BYTES)?;
     let registry = registry.inner().clone();
     tauri::async_runtime::spawn_blocking(move || {
         // The reply's text is built under its own lease, held until it is handed over.
@@ -4014,12 +4030,14 @@ async fn preview_rule_solver_rows(
     .unwrap_or_else(|_| Err(CommandError::Command("RULE-CHECK-WORKER-FAILED: the selector preview's worker did not complete.".to_string())))
 }
 
-/// The selector preview's reply text and its lease. The request is bounded
-/// before the result is read ([`rule_solver_selection::check_preview_queries`]),
-/// each basis returns at most the rows the display shows, and the reply is
-/// refused by name above [`rule_solver_selection::MAX_PREVIEW_REPLY_BYTES`]; its
-/// exact length is leased before its text is made, as the detail readers lease
-/// theirs.
+/// The selector preview's reply text and its lease. The arguments were admitted
+/// within [`rule_solver_selection::MAX_PREVIEW_ARGS_BYTES`]; the queries are read
+/// and bounded before the result is ([`rule_solver_selection::parse_preview_queries`]).
+/// The reply is counted as it would be written and refused by name as soon as its
+/// running length passes [`rule_solver_selection::MAX_PREVIEW_REPLY_BYTES`]; its
+/// exact length is then leased and its text written, as the detail readers lease
+/// theirs. The whole answer is made under the held share and returned through
+/// [`answer_while_held`].
 fn preview_rule_solver_rows_reply(args: &mut Args, registry: &SolveJobRegistry) -> Result<(String, memory_pool::Lease), CommandError> {
     preview_rule_solver_rows_reply_within(args, registry, rule_solver_selection::MAX_PREVIEW_REPLY_BYTES)
 }
@@ -4027,38 +4045,38 @@ fn preview_rule_solver_rows_reply(args: &mut Args, registry: &SolveJobRegistry) 
 /// [`preview_rule_solver_rows_reply`] under a reply limit of `limit` bytes.
 fn preview_rule_solver_rows_reply_within(args: &mut Args, registry: &SolveJobRegistry, limit: u64) -> Result<(String, memory_pool::Lease), CommandError> {
     let job_id: String = args.decode("jobId")?;
-    let queries: Vec<Value> = args.decode("queries")?;
-    rule_solver_selection::check_preview_queries(&queries).map_err(CommandError::Command)?;
-    let (envelope, parse, held) = held_rule_check_source(registry, &job_id, true)?;
-    let mut preview = rule_solver_selection::preview_solver_rows(&envelope, &queries);
-    drop(envelope);
-    drop(parse);
-    preview["job_id"] = json!(job_id);
-    still_held(registry, &job_id, &held)?;
-    drop(held);
-    let length = rule_solver_selection::json_length(&preview);
-    if length > limit {
-        return Err(CommandError::Command(format!(
-            "{}: the preview needs a reply of {length} bytes, more than its {limit}-byte limit; preview fewer inputs or load cases",
-            rule_solver_selection::RULE_SOLVER_PREVIEW_RESPONSE_LIMIT
-        )));
-    }
-    let reply_lease = registry.acquire_result_parse(length)?;
-    let text = serde_json::to_string(&preview).map_err(|error| CommandError::Response(error.to_string()))?;
-    Ok((text, reply_lease))
+    let queries = rule_solver_selection::parse_preview_queries(args.value("queries")?).map_err(CommandError::Command)?;
+    let held = acquire_rule_check_source(registry, &job_id, true)?;
+    let outcome = (|| {
+        let (envelope, parse) = read_rule_check_source(registry, &held)?;
+        let length = rule_solver_selection::preview_reply_length(&envelope, &queries, &job_id, limit).map_err(CommandError::Command)?;
+        #[cfg(test)]
+        crate::native_verdict::tests::gate::pass(crate::native_verdict::tests::gate::key(registry, "rule-check-reply-lease"));
+        let reply_lease = registry.acquire_result_parse(length)?;
+        #[cfg(test)]
+        crate::native_verdict::tests::gate::pass(crate::native_verdict::tests::gate::key(registry, "rule-check-serialize"));
+        let text = rule_solver_selection::write_preview_reply(&envelope, &queries, &job_id);
+        debug_assert_eq!(text.len() as u64, length);
+        drop(envelope);
+        drop(parse);
+        Ok((text, reply_lease))
+    })();
+    answer_while_held(registry, &job_id, held, outcome)
 }
 
 /// `{rulePackDocument, jobId, model?, solverResultBindings?,
 /// suppliedValueBindings?, projectId?, sourceBlockInvocation?}`.
 /// `jobId` names the solved result in this session's native custody
-/// ([`held_rule_check_source`]); a `solvedEnvelope` copy is refused by name
+/// ([`acquire_rule_check_source`]); a `solvedEnvelope` copy is refused by name
 /// (`RULE_CHECK_SOLVED_ENVELOPE_RETIRED`). The model is checked first, as
 /// before, so a run without a model is refused without reading the result.
 /// `solverResultBindings` is retired for a 0.5.0 pack and refused by name
 /// (`RULE_CALLER_SOLVER_BINDING_RETIRED`; DEL-06-01 Design
 /// `rule-pack-0.5.0.md` §2.5); it is still read so that it is refused rather
 /// than silently ignored.
-fn run_rule_checks_args(args: &mut Args, store: &dyn Fn() -> Result<PathBuf, String>, registry: &SolveJobRegistry) -> Result<Value, CommandError> {
+/// The answer is the reply's text, made under the held share and returned through
+/// [`answer_while_held`].
+fn run_rule_checks_args(args: &mut Args, store: &dyn Fn() -> Result<PathBuf, String>, registry: &SolveJobRegistry) -> Result<String, CommandError> {
     if args.keys().any(|key| key == "solvedEnvelope") {
         return Err(CommandError::Command(format!(
             "{RULE_CHECK_SOLVED_ENVELOPE_RETIRED}: a rule check reads the solved result held natively; send its jobId, not a copy of the result"
@@ -4079,21 +4097,27 @@ fn run_rule_checks_args(args: &mut Args, store: &dyn Fn() -> Result<PathBuf, Str
     let job_id = job_id.ok_or_else(|| CommandError::Command(
         "RULE_CHECK_SOLVED_ENVELOPE_REQUIRED: run the solve job and supply its jobId".to_string(),
     ))?;
-    let (envelope, parse, held) = held_rule_check_source(registry, &job_id, false)?;
-    let outcome = run_rule_checks_value(
-        store,
-        rule_pack_document,
-        model,
-        Some(envelope),
-        solver_result_bindings,
-        supplied_value_bindings,
-        project_id,
-        source_block_invocation,
-    );
-    drop(parse);
+    let held = acquire_rule_check_source(registry, &job_id, false)?;
+    let outcome = (|| {
+        let (envelope, parse) = read_rule_check_source(registry, &held)?;
+        let answer = run_rule_checks_value(
+            store,
+            rule_pack_document,
+            model,
+            Some(envelope),
+            solver_result_bindings,
+            supplied_value_bindings,
+            project_id,
+            source_block_invocation,
+        )
+        .map_err(CommandError::Command)?;
+        drop(parse);
+        #[cfg(test)]
+        crate::native_verdict::tests::gate::pass(crate::native_verdict::tests::gate::key(registry, "rule-check-serialize"));
+        serde_json::to_string(&answer).map_err(|error| CommandError::Response(error.to_string()))
+    })();
     // A result disposed while it was checked answers with the refusal, never with findings.
-    still_held(registry, &job_id, &held)?;
-    outcome.map_err(CommandError::Command)
+    answer_while_held(registry, &job_id, held, outcome)
 }
 
 #[allow(clippy::too_many_arguments)]
@@ -6550,7 +6574,9 @@ macro_rules! app_invoke_handler {
 }
 
 pub fn run() {
-    let registry = SolveJobRegistry::new(memory_pool::MemoryPool::new(Arc::new(host_memory::MacHostMemory)));
+    // Without an issue tag no handle can be issued: the app does not start, and says why.
+    let registry = SolveJobRegistry::new(memory_pool::MemoryPool::new(Arc::new(host_memory::MacHostMemory)))
+        .unwrap_or_else(|error| panic!("{error}"));
     let builder = tauri::Builder::default()
         .plugin(tauri_plugin_dialog::init())
         .register_uri_scheme_protocol(rendered_report_print::SCHEME, rendered_report_print::serve)

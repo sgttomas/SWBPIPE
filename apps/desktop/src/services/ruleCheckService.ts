@@ -258,6 +258,9 @@ async function checkSolvedSource(
   }
   if (args.projectId) invokeArgs.projectId = args.projectId;
   const result = await invokeWithIngress<RuleCheckRunResult>("run_rule_checks", invokeArgs);
+  // A reply that arrives after local custody of that handle ended is discarded: the result it
+  // speaks for is no longer the session's.
+  if (nativeHeldMechanicsResultJob(source) !== jobId) throw new Error(NOT_HELD_MESSAGE);
   return { route: "tauri_backend", result, loadReferenceDisclosure: disclosure };
 }
 
@@ -789,7 +792,7 @@ export async function previewSolverRowsByHandle(source: NativeResult, queries: r
   if (!isTauriRuntime()) throw new Error(RULE_CHECK_BACKEND_DIAGNOSTIC);
   const { jobId } = nativeCustody(source);
   if (!isNativeJobLive(jobId)) throw new Error(NOT_HELD_MESSAGE);
-  return invokeWithIngress<NativeSolverRowsPreview>("preview_rule_solver_rows", {
+  const preview = await invokeWithIngress<NativeSolverRowsPreview>("preview_rule_solver_rows", {
     jobId,
     queries: queries.map((query) => ({
       input_id: query.input_id,
@@ -798,6 +801,9 @@ export async function previewSolverRowsByHandle(source: NativeResult, queries: r
       bases: query.bases.flatMap((loadCase, index) => (loadCase.basis_ref && query.bases.findIndex((other) => sameBasis(other.basis_ref, loadCase.basis_ref!)) === index ? [loadCase.basis_ref] : []))
     }))
   });
+  // A reply that arrives after local custody of that handle ended is discarded.
+  if (!isNativeJobLive(jobId)) throw new Error(NOT_HELD_MESSAGE);
+  return preview;
 }
 
 /** `resolveSolverSelector`'s reading of one input from the native preview. */

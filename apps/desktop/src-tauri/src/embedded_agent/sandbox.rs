@@ -169,7 +169,7 @@ mod tests {
             memory_pool::{test_host::ScriptedHost, MemoryPool},
             solve_jobs::SolveJobRegistry,
         };
-        let registry = SolveJobRegistry::new(MemoryPool::new(ScriptedHost::normal()));
+        let registry = SolveJobRegistry::new(MemoryPool::new(ScriptedHost::normal())).expect("the registry is constructed");
         let relay = Loopback::bind(&registry).unwrap();
         for invented in [
             "/private/tmp/neutral-person-runtime",
@@ -249,7 +249,7 @@ mod tests {
         let executable = root.join("probe");
         fs::copy(probe, &executable).unwrap();
         fs::set_permissions(&executable, fs::Permissions::from_mode(0o500)).unwrap();
-        let registry = SolveJobRegistry::new(MemoryPool::new(ScriptedHost::normal()));
+        let registry = SolveJobRegistry::new(MemoryPool::new(ScriptedHost::normal())).expect("the registry is constructed");
         let relay = Loopback::bind(&registry).unwrap();
         let policy = profile(
             &root,

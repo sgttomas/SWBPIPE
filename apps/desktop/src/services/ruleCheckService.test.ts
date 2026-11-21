@@ -1,6 +1,7 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { createNativeMechanicsReplay, nativeMechanicsReplayPair } from "../test/nativeMechanicsReplay";
-import { loadBundledMechanicsReference, loadPreviewModel, runPreviewMechanics } from "./previewService";
+import { awaitPreviewMechanicsJob, disposeDeliveredMechanicsResult, loadBundledMechanicsReference, loadPreviewModel, readNativeFreshResult, resetSessionResultCustodyForTests, runPreviewMechanics, startPreviewMechanicsJob } from "./previewService";
+import { resetNativeResultsForTests, type NativeResult } from "./nativeResult";
 import {
   deriveRuleCheckBindingPlan,
   loadDemoRuleCheckPack,
@@ -16,6 +17,8 @@ import {
   solverSelectorForRow,
   RULE_CHECK_BACKEND_DIAGNOSTIC,
   N_RULE_CHECK_NOT_NUMERICALLY_ELIGIBLE,
+  RULE_CHECK_RESULT_NOT_HELD,
+  previewSolverRowsByHandle,
   type RuleCheckBasisRef,
   type SolverResultRef
 } from "./ruleCheckService";
@@ -803,5 +806,94 @@ describe("epoch 8: the exact routes reach the rule backend only at Rust's eligib
     const edited = structuredClone(exact.model); edited.nodes[0].position.x += 1;
     await expect(runRuleChecks({ rulePackDocument: exactRulePack, model: edited, solvedEnvelope: source })).rejects.toThrow("RULE_NATIVE_INVOCATION_REQUIRED");
     expect(invokeMock).not.toHaveBeenCalled();
+  });
+});
+
+/* ----------------------------------------------------------------------------
+ * C1 custody while a rule check or a preview is in flight, and the transient
+ * solve's failure paths. Unit transport replay of the captured preview pair;
+ * the rule and preview replies are unit simulations.
+ * -------------------------------------------------------------------------- */
+describe("custody that ends while a reply is awaited, and the transient solve's failures", () => {
+  const pack = { metadata: { rule_pack_id: "invented-test-only" } };
+  const answer = { document_kind: "openpipestress.rule_check.run", rule_pack_id: "invented-test-only", grammar_version: "1.0.0", aggregate_status: "RULE_INPUTS_INCOMPLETE", checks: [], professional_boundary_notice: "notice" };
+  const pair = nativeMechanicsReplayPair("sparse_interactive", { profile: "preview" });
+  beforeEach(() => { resetSessionResultCustodyForTests(); resetNativeResultsForTests(); });
+  /** A native handle held as the session holds its own; `reply` answers the rule and preview commands. */
+  async function heldHandle(reply: (command: string, args: unknown) => Promise<unknown> = () => Promise.reject(new Error("UNEXPECTED"))): Promise<NativeResult> {
+    const replay = createNativeMechanicsReplay({ profile: "preview" });
+    invokeMock.mockImplementation((command: string, args?: unknown, options?: unknown) =>
+      command === "run_rule_checks" || command === "preview_rule_solver_rows" ? reply(command, args) : replay.invoke(command, args, options));
+    (window as unknown as Record<string, unknown>).__TAURI_INTERNALS__ = {};
+    const started = await startPreviewMechanicsJob(pair.model, "sparse_interactive", { custody: "native" });
+    if (started.mode !== "backend_job") throw new Error("not a backend job");
+    const terminal = await awaitPreviewMechanicsJob(started.job_id);
+    return (await readNativeFreshResult(started.job_id, terminal.result_bytes ?? 0, { standingModel: pair.model, summaryModel: pair.model })).result;
+  }
+  const sent = (command: string) => invokeMock.mock.calls.filter(([name]) => name === command);
+
+  it("refuses a disposed native handle as not held, and sends nothing for it", async () => {
+    const result = await heldHandle();
+    await disposeDeliveredMechanicsResult(result);
+    invokeMock.mockClear();
+    await expect(runRuleChecks({ rulePackDocument: pack, model: pair.model, solvedEnvelope: result })).rejects.toThrow(`${RULE_CHECK_RESULT_NOT_HELD}: the solved result is no longer held.`);
+    expect(invokeMock).not.toHaveBeenCalled();
+  });
+
+  it("discards a run reply that arrives after the handle's custody ended", async () => {
+    let held: NativeResult | null = null;
+    const result = await heldHandle(async (command) => {
+      // The session releases the result while the check is in flight; the reply then arrives.
+      await disposeDeliveredMechanicsResult(held);
+      return command === "run_rule_checks" ? structuredClone(answer) : null;
+    });
+    held = result;
+    await expect(runRuleChecks({ rulePackDocument: pack, model: pair.model, solvedEnvelope: result })).rejects.toThrow(`${RULE_CHECK_RESULT_NOT_HELD}: the solved result is no longer held.`);
+    expect(sent("run_rule_checks")).toHaveLength(1);
+  });
+
+  it("discards a preview reply that arrives after the handle's custody ended", async () => {
+    let held: NativeResult | null = null;
+    const result = await heldHandle(async () => {
+      await disposeDeliveredMechanicsResult(held);
+      return { document_kind: "swbpipe.desktop.rule_solver_rows_preview", version: 1, row_count: pair.source.results.length, inputs: [] };
+    });
+    held = result;
+    await expect(previewSolverRowsByHandle(result, [])).rejects.toThrow(`${RULE_CHECK_RESULT_NOT_HELD}: the solved result is no longer held.`);
+    expect(sent("preview_rule_solver_rows")).toHaveLength(1);
+  });
+
+  /** The transient solve's transport, with `fail` failing one command and releases answered late. */
+  function transient(fail: string) {
+    const replay = createNativeMechanicsReplay({ profile: "preview" });
+    const released: string[] = [];
+    invokeMock.mockImplementation(async (command: string, args?: unknown, options?: unknown) => {
+      if (command === fail) throw new Error(`simulated ${command} failure`);
+      if (command === "cancel_preview_mechanics_job" || command === "dispose_preview_mechanics_result") {
+        await new Promise((resolve) => setTimeout(resolve, 30));
+        const reply = await replay.invoke(command, args, options);
+        released.push(command);
+        return reply;
+      }
+      return replay.invoke(command, args, options);
+    });
+    (window as unknown as Record<string, unknown>).__TAURI_INTERNALS__ = {};
+    return released;
+  }
+
+  it("a transient solve whose poll fails is abandoned, and its release completes before the run rejects", async () => {
+    const released = transient("poll_preview_mechanics_job");
+    let seenAtRejection: string[] | null = null;
+    await runRuleChecks({ rulePackDocument: pack, model: pair.model }).catch(() => { seenAtRejection = [...released]; });
+    expect(seenAtRejection).toEqual(["cancel_preview_mechanics_job", "dispose_preview_mechanics_result"]);
+    expect(sent("run_rule_checks")).toHaveLength(0);
+  });
+
+  it("a transient solve whose native read fails is released, and its release completes before the run rejects", async () => {
+    const released = transient("read_preview_mechanics_job_verdict");
+    let seenAtRejection: string[] | null = null;
+    await runRuleChecks({ rulePackDocument: pack, model: pair.model }).catch(() => { seenAtRejection = [...released]; });
+    expect(seenAtRejection).toEqual(["dispose_preview_mechanics_result"]);
+    expect(sent("run_rule_checks")).toHaveLength(0);
   });
 });

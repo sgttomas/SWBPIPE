@@ -91,8 +91,8 @@ impl SolveAttestation {
     }
 }
 
-/// One attested solve: its job number (the job id is `backend-solve-job-<n>`, with the
-/// registry's issue tag before `<n>` in the app),
+/// One attested solve: its job number (the job id is `backend-solve-job-<tag>-<n>`, `<tag>`
+/// the issuing registry's issue tag; a test registry's is empty, `backend-solve-job-<n>`),
 /// the admitted solver mode and its attestation.
 #[derive(Clone, Copy, Debug, PartialEq, Eq)]
 struct AttestedSolve {

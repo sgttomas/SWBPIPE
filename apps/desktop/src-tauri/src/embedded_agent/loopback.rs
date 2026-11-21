@@ -134,7 +134,7 @@ mod tests {
     use super::*;
     use crate::memory_pool::{test_host::ScriptedHost, MemoryPool};
     fn registry() -> SolveJobRegistry {
-        SolveJobRegistry::new(MemoryPool::new(ScriptedHost::normal()))
+        SolveJobRegistry::new(MemoryPool::new(ScriptedHost::normal())).expect("the registry is constructed")
     }
     #[test]
     fn owns_both_families_on_one_runtime_selected_port_without_workers() {
@@ -187,7 +187,7 @@ mod tests {
     fn resource_refusal_precedes_any_endpoint_or_capability() {
         let host = ScriptedHost::normal();
         host.set(|s| s.headroom_bytes = Some(0));
-        let registry = SolveJobRegistry::new(MemoryPool::new(host));
+        let registry = SolveJobRegistry::new(MemoryPool::new(host)).expect("the registry is constructed");
         assert_eq!(Loopback::bind(&registry).unwrap_err(), Error::Admission);
     }
 }

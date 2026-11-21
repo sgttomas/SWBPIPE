@@ -1193,7 +1193,7 @@ mod reader_probe_tests {
             memory_pool::{test_host::ScriptedHost, MemoryPool},
             solve_jobs::SolveJobRegistry,
         };
-        let registry = SolveJobRegistry::new(MemoryPool::new(ScriptedHost::normal()));
+        let registry = SolveJobRegistry::new(MemoryPool::new(ScriptedHost::normal())).expect("the registry is constructed");
         let raw = br#"{"jobId":"not-a-held-job"}"#.to_vec();
         let lease = registry
             .acquire_interactive_ingress_capped(

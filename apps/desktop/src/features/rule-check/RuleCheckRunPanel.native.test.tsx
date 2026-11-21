@@ -135,3 +135,23 @@ it("refuses a preview once the result's custody has ended, and sends nothing for
   await waitFor(() => expect(screen.getByTestId("rule-check-run-status").textContent).toContain("RULE_CHECK_RESULT_NOT_HELD"));
   expect(commands()).not.toContain("preview_rule_solver_rows");
 });
+
+it("discards a preview reply that arrives after the result's custody ended, and shows no rows from it", async () => {
+  const result = await nativeResult();
+  const row = full.results.find((candidate) => candidate.basis_ref && candidate.kind && candidate.entity_ref && solverSelectorForRow(full, candidate))!;
+  render(<RuleCheckRunPanel model={pair.model} result={result} />);
+  fireEvent.change(screen.getByTestId("rule-check-pack-json"), { target: { value: JSON.stringify(packFor(row)) } });
+  await waitFor(() => expect(invokeMock.mock.calls.some(([command]) => command === "preview_rule_solver_rows")).toBe(true));
+  // From here, the preview's reply arrives only after the session released the result.
+  const answer = invokeMock.getMockImplementation()!;
+  invokeMock.mockImplementation(async (command: string, args?: unknown, options?: unknown) => {
+    if (command !== "preview_rule_solver_rows") return answer(command, args, options);
+    const reply = await answer(command, args, options);
+    await disposeDeliveredMechanicsResult(result);
+    return reply;
+  });
+  fireEvent.click(screen.getByTestId("rule-check-solver-preview-demo_actual_quantity"));
+  await waitFor(() => expect(screen.getByTestId("rule-check-run-status").textContent).toContain("RULE_CHECK_RESULT_NOT_HELD"));
+  const basis = row.basis_ref as RuleCheckBasisRef;
+  expect(screen.queryByTestId(`rule-check-solver-basis-demo_actual_quantity--${basis.ref_type}--${basis.ref_id}`)).toBeNull();
+});

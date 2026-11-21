@@ -11,8 +11,8 @@
  * it saves, and reopens as historical evidence, never Current.
  * C1: the session holds the fresh result natively
  * (a `NativeResult` and its record header). The record compared with Python's, the saved bytes
- * and the C2 surfaces (exports, rule check, native package) read the result's C2 full copy and full
- * record, built on that copy and checked against the native record, through the session's
+ * and the C2 surfaces (exports, native package) read the result's C2 full copy and full record (a
+ * rule check given that copy sends the handle of the job that holds its bytes), built on that copy and checked against the native record, through the session's
  * `loadC2Full`, as the app's C2 consumers do. C1 slice 5: the session creates the project from the
  * job handle; the unit fake (`nativePersistenceFake.ts`) stores the forms today's submitted path
  * writes (which the native writer stores byte for byte) in the browser adapter, and the saved run is
@@ -280,7 +280,7 @@ describe("a saved exact session", () => {
     const { model, bytes } = pair();
     const { result: hook } = await session(model, bytes, "sparse_interactive");
     const { result, analysisRun: solved } = held(hook.current);
-    // The rule check (a C2 consumer) on the Current result's full copy reaches the (mocked) backend.
+    // A rule check given the Current result's full copy sends the holding job's handle to the (mocked) backend.
     const copy = (await c2Full(hook.current)).result;
     invokeMock.mockClear();
     const route = await runRuleChecks({ rulePackDocument: RULE_PACK, model: hook.current.model.model!, solvedEnvelope: copy });
@@ -359,7 +359,7 @@ describe("a saved exact session: pressure-source-1 (epoch 8, §4.4)", () => {
     expect(inputManifest).not.toBeNull();
     expect(currentSolvedResult).toBe(result);
 
-    // The rule check on the Current result's full copy reaches the (mocked) backend with its registered invocation.
+    // A rule check given the Current result's full copy sends the holding job's handle and its registered invocation.
     const copy = (await c2Full(hook.current)).result;
     expect(hasNativeMechanicsInvocation(copy, held, "sparse_interactive")).toBe(true);
     invokeMock.mockClear();
@@ -457,7 +457,7 @@ describe("the held pressure-2 result: admitted on the opened surfaces, refused b
     expect(screen.queryByTestId("native-package-link")).toBeNull();
     // The panel alone: the session (its native custody and registration) stays held.
     nativePackage.unmount();
-    // Rule check: the Current result's full copy reaches the (mocked) rule backend, unchanged.
+    // Rule check given the Current result's full copy: the holding job's handle reaches the (mocked) rule backend.
     const copyText = JSON.stringify(full.result);
     invokeMock.mockClear();
     await expect(runRuleChecks({ rulePackDocument: RULE_PACK, model, solvedEnvelope: full.result })).resolves.toStrictEqual({ route: "tauri_backend", result: RULE_ANSWER, loadReferenceDisclosure: null });

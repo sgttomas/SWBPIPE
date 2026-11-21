@@ -345,7 +345,7 @@ mod tests {
     use std::io::Cursor;
 
     fn registry() -> SolveJobRegistry {
-        SolveJobRegistry::new(MemoryPool::new(ScriptedHost::normal()))
+        SolveJobRegistry::new(MemoryPool::new(ScriptedHost::normal())).expect("the registry is constructed")
     }
     fn limits() -> Limits {
         super::super::catalog::Catalog::load().unwrap().limits()

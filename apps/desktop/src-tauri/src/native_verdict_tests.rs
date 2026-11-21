@@ -614,7 +614,7 @@ fn the_parse_lease_is_capped_at_the_12_gib_default() {
     use crate::memory_pool::DEFAULT_INVOCATION_BUDGET_BYTES;
     assert_eq!(DEFAULT_INVOCATION_BUDGET_BYTES, 12 * GIB);
     let host = ScriptedHost::with(Some(256 * GIB), Some(1024 * GIB), PressureLevel::Normal);
-    let registry = SolveJobRegistry::new(MemoryPool::with_timing(host, Duration::from_millis(5), Duration::from_millis(40), Duration::from_millis(5)));
+    let registry = SolveJobRegistry::new(MemoryPool::with_timing(host, Duration::from_millis(5), Duration::from_millis(40), Duration::from_millis(5))).expect("the registry is constructed");
     let cap = |registry: &SolveJobRegistry, bytes: u64| match registry.acquire_result_parse(bytes) {
         Ok(lease) => Ok(lease.bytes()),
         Err(SolveJobError::ResourceUnavailable { refusal, .. }) => Err(refusal),
@@ -684,7 +684,7 @@ fn diagnostics_are_admitted_before_they_allocate() {
 fn the_args_lease_is_capped_at_the_12_gib_default() {
     use crate::memory_pool::test_host::GIB;
     let host = ScriptedHost::with(Some(256 * GIB), Some(1024 * GIB), PressureLevel::Normal);
-    let registry = SolveJobRegistry::new(MemoryPool::with_timing(host, Duration::from_millis(5), Duration::from_millis(40), Duration::from_millis(5)));
+    let registry = SolveJobRegistry::new(MemoryPool::with_timing(host, Duration::from_millis(5), Duration::from_millis(40), Duration::from_millis(5))).expect("the registry is constructed");
     let admitted = |bytes: u64| match registry.acquire_interactive_ingress_capped(bytes) {
         Ok(lease) => Ok(lease.bytes()),
         Err(SolveJobError::ResourceUnavailable { refusal, .. }) => Err(refusal),

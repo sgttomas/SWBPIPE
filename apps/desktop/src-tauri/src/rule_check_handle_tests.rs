@@ -50,10 +50,12 @@ fn restored_holding(registry: &SolveJobRegistry, text: &str) -> String {
 /// The command's argument path, through its admission.
 fn run_by_handle(registry: &SolveJobRegistry, args: Value) -> Result<Value, String> {
     let (mut args, _lease) = admit_json(registry, "run_rule_checks", ArgsDecoding::Moved, &args).expect("admitted");
-    run_rule_checks_args(&mut args, &no_store, registry).map_err(|error| match error {
-        CommandError::Command(message) => message,
-        other => format!("{other:?}"),
-    })
+    run_rule_checks_args(&mut args, &no_store, registry)
+        .map(|text| serde_json::from_str(&text).unwrap())
+        .map_err(|error| match error {
+            CommandError::Command(message) => message,
+            other => format!("{other:?}"),
+        })
 }
 
 fn preview_by_handle(registry: &SolveJobRegistry, args: Value) -> Result<Value, String> {
@@ -99,11 +101,20 @@ fn pack_for(model: &Value, envelope: &Value, row: &Value) -> Value {
     restamp(pack)
 }
 
-/// Supplied values under which the demo ratio (the row's value over the supplied
-/// limit, against a ratio limit of 1) passes, or, when `failing`, is 2 and fails.
-fn supplied_for(row: &Value, failing: bool) -> Value {
+/// Supplied values under which the demo ratio (the bound row's value over the
+/// supplied limit, against a ratio limit of 1) passes on every load case the pack
+/// binds (the limit exceeds every value of the row's unit in `envelope`), or,
+/// when `failing`, is 2 for the row and fails.
+fn supplied_for(envelope: &Value, row: &Value, failing: bool) -> Value {
     let value = row["value"].as_f64().unwrap();
-    let limit = if failing { value / 2.0 } else { value.abs() * 2.0 + 1.0 };
+    let largest = envelope["results"]
+        .as_array()
+        .unwrap()
+        .iter()
+        .filter(|candidate| candidate["unit"] == row["unit"])
+        .filter_map(|candidate| candidate["value"].as_f64())
+        .fold(0.0f64, |most, x| most.max(x.abs()));
+    let limit = if failing { value / 2.0 } else { largest * 2.0 + 1.0 };
     json!([
         {"ref_id": "demo_limit_quantity", "value": limit, "unit": row["unit"], "dimension": "stress"},
         {"ref_id": "demo_limit_slot", "value": 1.0, "unit": "ratio", "dimension": "dimensionless"}
@@ -146,8 +157,9 @@ fn chosen_row_where(envelope: &Value, also: impl Fn(&Value) -> bool) -> Value {
     rows.iter().filter(usable).find(|row| row["unit"] == "Pa").or_else(|| rows.iter().find(usable)).cloned().expect("a bindable row")
 }
 
-/// What a parity case binds: an admitted row with a passing or failing ratio, an
-/// admitted zero row whose zero is written negative, or a row the binding gate refuses.
+/// What a parity case binds: an admitted row with a passing or failing ratio, a
+/// row the producer published holding negative zero, or a row the binding gate
+/// refuses. The result bytes are the committed ones in every case.
 #[derive(Clone, Copy, PartialEq, Debug)]
 enum Bound {
     Passing,
@@ -156,75 +168,87 @@ enum Bound {
     Refused,
 }
 
-/// The case's result text, row and supplied values for `bound`.
-fn bound_case(text: &str, bound: Bound) -> (String, Value, Value, Value) {
-    let mut parsed: Value = serde_json::from_str(text).unwrap();
+/// The case's row and supplied values for `bound`, from the committed result.
+fn bound_case(text: &str, bound: Bound) -> (Value, Value, Value) {
+    let parsed: Value = serde_json::from_str(text).unwrap();
     let refusal = |envelope: &Value, row: &Value| open_pipe_stress_result_export::semantic_contract::rule_binding_refusal(envelope, row);
     let row = match bound {
         Bound::Passing => chosen_row(&parsed),
-        // A row holding zero, whose sign alone is flipped: the result keeps its meaning and standing.
-        Bound::NegativeZero => chosen_row_where(&parsed, |row| refusal(&parsed, row).is_none() && row["value"].as_f64() == Some(0.0)),
+        // A stress row, which the demo pack's stress-dimension limit binds.
+        Bound::NegativeZero => chosen_row_where(&parsed, |row| refusal(&parsed, row).is_none() && is_negative_zero(&row["value"]) && (row["unit"] == "MPa" || row["unit"] == "Pa")),
         Bound::Failing => chosen_row_where(&parsed, |row| refusal(&parsed, row).is_none() && row["value"].as_f64() != Some(0.0)),
         Bound::Refused => chosen_row_where(&parsed, |row| refusal(&parsed, row).is_some()),
     };
-    if bound == Bound::Refused {
-        assert!(refusal(&parsed, &row).is_some());
+    match bound {
+        Bound::Refused => assert!(refusal(&parsed, &row).is_some()),
+        Bound::NegativeZero => assert!(is_negative_zero(&row["value"]), "{}", row["id"]),
+        _ => {}
     }
-    if bound != Bound::NegativeZero {
-        let supplied = supplied_for(&row, bound == Bound::Failing);
-        return (text.to_string(), parsed, row, supplied);
-    }
-    let supplied = supplied_for(&row, false);
-    let held = parsed["results"].as_array_mut().unwrap().iter_mut().find(|candidate| candidate["id"] == row["id"]).unwrap();
-    held["value"] = json!(-0.0);
-    let row = held.clone();
-    let text = serde_json::to_string(&parsed).unwrap();
-    assert!(row_value(&text, &row["id"]).is_sign_negative());
-    (text, parsed, row, supplied)
+    let supplied = supplied_for(&parsed, &row, bound == Bound::Failing);
+    (parsed, row, supplied)
 }
 
-/// The value of the row `id` in the result `text`.
-fn row_value(text: &str, id: &Value) -> f64 {
-    let parsed: Value = serde_json::from_str(text).unwrap();
-    parsed["results"].as_array().unwrap().iter().find(|row| &row["id"] == id).unwrap()["value"].as_f64().unwrap()
+fn is_negative_zero(value: &Value) -> bool {
+    value.as_f64().is_some_and(|x| x == 0.0 && x.is_sign_negative())
 }
 
-/// `value` with each negative zero written as zero: the one difference the retired route made.
+/// `value` with each negative zero written as zero: what the retired route's
+/// `JSON.stringify` made of it.
 fn zero_sign_blind(value: &Value) -> Value {
     match value {
-        Value::Number(number) if number.as_f64() == Some(0.0) && number.is_f64() => json!(0.0),
+        Value::Number(number) if number.is_f64() && number.as_f64() == Some(0.0) => json!(0.0),
         Value::Array(items) => Value::Array(items.iter().map(zero_sign_blind).collect()),
         Value::Object(map) => Value::Object(map.iter().map(|(key, item)| (key.clone(), zero_sign_blind(item))).collect()),
         other => other.clone(),
     }
 }
 
+/// Every place `value` holds a negative zero, as JSON pointers.
+fn negative_zeros(value: &Value, at: String, found: &mut Vec<String>) {
+    match value {
+        Value::Array(items) => items.iter().enumerate().for_each(|(index, item)| negative_zeros(item, format!("{at}/{index}"), found)),
+        Value::Object(map) => map.iter().for_each(|(key, item)| negative_zeros(item, format!("{at}/{key}"), found)),
+        other if is_negative_zero(other) => found.push(at),
+        _ => {}
+    }
+}
+
+/// The desktop solve's committed result that publishes negative zeros among its
+/// row values (preview-physics-2), and the model it was solved for.
+const NEGATIVE_ZERO_RESULT: &str = "fixtures/product_preview/rf_skew_t_cant_off_122_r1e-04.desktop_result_sparse_interactive.json";
+const NEGATIVE_ZERO_MODEL: &str = "fixtures/product_preview/rf_skew_t_cant_off_122_r1e-04.desktop_model.json";
+
 /// The committed fixtures the parity covers: model, result text and the
 /// registered invocation each route sends (none, or the captured one).
-fn parity_cases() -> Vec<(String, Value, String, Option<Value>, Bound)> {
-    let mut cases = Vec::new();
+/// Each case's label, model, result text, invocation, bound row and the outcome
+/// it reaches by both routes (an aggregate status, or a refusal's code).
+type ParityCase = (String, Value, String, Option<Value>, Bound, &'static str);
+
+fn parity_cases() -> Vec<ParityCase> {
+    let mut cases: Vec<ParityCase> = Vec::new();
     let request = project_file("core/product_physics/tests/fixtures/exact_pressure_connected_request.json");
     for mode in ["sparse", "dense"] {
         let label = format!("pressure_connected_mechanics_{mode}");
         let text = project_text(&format!("fixtures/results/{label}.json"));
-        cases.push((label.clone(), request["model"].clone(), text.clone(), None, Bound::Passing));
-        cases.push((format!("{label} failing"), request["model"].clone(), text.clone(), None, Bound::Failing));
-        if mode == "sparse" {
-            cases.push((format!("{label} negative zero"), request["model"].clone(), text, None, Bound::NegativeZero));
-        }
+        cases.push((label.clone(), request["model"].clone(), text.clone(), None, Bound::Passing, "USER_RULE_CHECKED"));
+        cases.push((format!("{label} failing"), request["model"].clone(), text, None, Bound::Failing, "USER_RULE_FAILED"));
     }
+    // A row the desktop solve published holding negative zero, in its committed bytes. The result
+    // is numerically sensitive, so both routes refuse it at standing before any row is bound: no
+    // committed result that is numerically eligible publishes a bindable negative zero.
+    cases.push(("rf_skew desktop result, negative zero row".to_string(), project_file(NEGATIVE_ZERO_MODEL), project_text(NEGATIVE_ZERO_RESULT), None, Bound::NegativeZero, "RULE_NUMERICAL_NEEDS_RECOMPUTE"));
     for name in ["connected", "pressure"] {
         let request = project_file(&format!("fixtures/product_preview/pressure/load_reference/{name}.request.json"));
         for mode in ["sparse_interactive", "dense_scrutiny"] {
             let label = format!("pressure/load_reference/{name}-{mode}");
-            cases.push((label.clone(), request["model"].clone(), project_text(&format!("fixtures/product_preview/{label}.raw.json")), None, Bound::Passing));
+            cases.push((label.clone(), request["model"].clone(), project_text(&format!("fixtures/product_preview/{label}.raw.json")), None, Bound::Passing, "USER_RULE_CHECKED"));
         }
     }
     // A component body's row, which the binding gate refuses (its reference section's stress), in
     // an eligible preview-physics-2 result: the run binds the row and reports it incomplete.
     let model = project_file("core/product_physics/tests/fixtures/preview_physics_invented_model.json");
     let label = "preview_physics_invented_sparse";
-    cases.push((format!("{label} refused row"), model, project_text(&format!("fixtures/results/{label}.json")), None, Bound::Refused));
+    cases.push((format!("{label} refused row"), model, project_text(&format!("fixtures/results/{label}.json")), None, Bound::Refused, "RULE_INPUTS_INCOMPLETE"));
     for (group, names) in [
         ("physics_source", &["fields", "mixed", "n05", "n06"][..]),
         ("load_reference_source", &["fields", "n05"][..]),
@@ -235,9 +259,11 @@ fn parity_cases() -> Vec<(String, Value, String, Option<Value>, Bound)> {
                 let label = format!("pressure_source/{group}/{name}-{mode}");
                 let text = project_text(&format!("fixtures/product_preview/{label}.raw.json"));
                 let invocation = json!({"request": request, "solver_mode": mode});
-                cases.push((label.clone(), request["model"].clone(), text.clone(), Some(invocation), Bound::Passing));
+                // A load/reference-source result is not numerically eligible, invocation or not.
+                let with_invocation = if group == "physics_source" { "USER_RULE_CHECKED" } else { "RULE_NUMERICAL_NEEDS_RECOMPUTE" };
+                cases.push((label.clone(), request["model"].clone(), text.clone(), Some(invocation), Bound::Passing, with_invocation));
                 // Without its registered invocation: refused by both routes alike.
-                cases.push((format!("{label} without invocation"), request["model"].clone(), text, None, Bound::Passing));
+                cases.push((format!("{label} without invocation"), request["model"].clone(), text, None, Bound::Passing, "RULE_NUMERICAL_NEEDS_RECOMPUTE"));
             }
         }
     }
@@ -249,20 +275,20 @@ fn parity_cases() -> Vec<(String, Value, String, Option<Value>, Bound)> {
 /// values and invocation give the same outcome, bound rows, findings and
 /// refusals by the retired envelope route (the engine's value path on the
 /// result as the web view sent it) and by handle (the command's argument path
-/// on the exact held bytes), byte for byte in canonical form. The one exception
-/// is a held negative zero, which the retired route rewrote as `0` and the
-/// handle route's reader refuses (see the case).
+/// on the exact held bytes), byte for byte in canonical form, and each case
+/// reaches its stated outcome. A published negative zero is read as published by
+/// handle and erased to `0` by the retired route's `JSON.stringify`; the one
+/// committed result that publishes one in a stress row the pack can name is
+/// refused at standing by both routes alike, so no bound sign differs here.
 #[test]
 fn a_rule_check_by_handle_answers_as_the_envelope_route_did() {
     let (registry, gate) = registry();
-    let mut outcomes = std::collections::BTreeSet::new();
     let mut files = std::collections::BTreeSet::new();
     let cases = parity_cases();
-    for (label, model, text, invocation, bound) in &cases {
-        let (label, model, invocation) = (label.clone(), model.clone(), invocation.clone());
+    for (label, model, text, invocation, bound, expected) in &cases {
         files.insert(label.split(' ').next().unwrap().to_string());
-        let (text, parsed, row, supplied) = bound_case(text, *bound);
-        let pack = pack_for(&model, &parsed, &row);
+        let (parsed, row, supplied) = bound_case(text, *bound);
+        let pack = pack_for(model, &parsed, &row);
         let by_envelope = run_rule_checks_value(
             &no_store,
             pack.clone(),
@@ -273,58 +299,32 @@ fn a_rule_check_by_handle_answers_as_the_envelope_route_did() {
             None,
             invocation.clone(),
         );
-        let job = solve_holding(&registry, &gate, &text, ResultCustody::Native);
+        let job = solve_holding(&registry, &gate, text, ResultCustody::Native);
         let mut args = json!({"rulePackDocument": pack, "jobId": job, "model": model, "suppliedValueBindings": supplied});
-        if let Some(invocation) = &invocation {
+        if let Some(invocation) = invocation {
             args["sourceBlockInvocation"] = invocation.clone();
         }
         let by_handle = run_by_handle(&registry, args);
         let canonical = |outcome: &Result<Value, String>| outcome.as_ref().map(|value| serde_json::to_string(value).unwrap()).map_err(Clone::clone);
-        if *bound == Bound::NegativeZero {
-            // The one difference. The retired route sent the negative zero as `0` and checked the
-            // result; the handle route reads the held bytes, and the result reader's scientific
-            // ingress refuses negative-zero input (`core/serialization/canonical_json`), so the
-            // held result is unsupported, as every native reader of it finds. The same text with
-            // the zero's sign alone restored answers as the envelope route did.
-            assert!(by_envelope.is_ok(), "{label}: {by_envelope:?}");
-            assert_eq!(by_handle.as_ref().unwrap_err(), "RULE_NUMERICAL_SOURCE_UNSUPPORTED: recompute with a supported producer and semantic contract", "{label}");
-            let restored = serde_json::to_string(&zero_sign_blind(&serde_json::from_str::<Value>(&text).unwrap())).unwrap();
-            assert!(row_value(&restored, &row["id"]).is_sign_positive());
-            let control = solve_holding(&registry, &gate, &restored, ResultCustody::Native);
-            let mut args = json!({"rulePackDocument": pack, "jobId": control, "model": model, "suppliedValueBindings": supplied});
-            if let Some(invocation) = &invocation {
-                args["sourceBlockInvocation"] = invocation.clone();
-            }
-            assert_eq!(canonical(&run_by_handle(&registry, args)), canonical(&by_envelope), "{label}: control");
-            registry.dispose_result(&control).unwrap();
-        } else {
-            assert_eq!(canonical(&by_handle), canonical(&by_envelope), "{label}");
-        }
+        assert_eq!(canonical(&by_handle), canonical(&by_envelope), "{label}");
+        let reached = match &by_handle {
+            Ok(value) => value["aggregate_status"].as_str().unwrap().to_string(),
+            Err(error) => error.split(':').next().unwrap().to_string(),
+        };
+        assert_eq!(reached, *expected, "{label}: {by_handle:?}");
         if *bound == Bound::Refused {
             let answer = serde_json::to_string(by_handle.as_ref().unwrap()).unwrap();
             assert!(answer.contains(open_pipe_stress_result_export::component_body::BODY_REFERENCE_SECTION), "{label}: {answer}");
         }
-        outcomes.insert(match &by_handle {
-            Ok(value) => {
-                let checks = value["checks"].as_array().unwrap();
-                format!("{} {:?}", value["aggregate_status"].as_str().unwrap(), checks.iter().map(|check| check["status"].as_str().unwrap_or("")).collect::<std::collections::BTreeSet<_>>())
-            }
-            Err(error) => error.split(':').next().unwrap().to_string(),
-        });
+        if *bound == Bound::Failing {
+            let checks = by_handle.as_ref().unwrap()["checks"].as_array().unwrap();
+            assert!(checks.iter().any(|check| check["status"] == "USER_RULE_FAILED"), "{label}");
+        }
         registry.dispose_result(&job).unwrap();
     }
-    assert_eq!((cases.len(), files.len()), (34, 19), "the case and file counts the description states");
-    eprintln!("parity outcomes: {outcomes:#?}");
-    // The cases reach a checked outcome and the standing refusals, not only one of them.
-    assert!(outcomes.iter().any(|outcome| outcome.starts_with("USER_RULE_CHECKED")), "{outcomes:?}");
-    assert!(outcomes.iter().any(|outcome| outcome.starts_with("USER_RULE_FAILED")), "{outcomes:?}");
-    assert!(outcomes.iter().any(|outcome| outcome.starts_with("RULE_INPUTS_INCOMPLETE")), "{outcomes:?}");
-    assert!(outcomes.iter().any(|outcome| outcome.starts_with("RULE_NUMERICAL_NEEDS_RECOMPUTE") || outcome.starts_with("RULE_NUMERICAL_SOURCE_UNSUPPORTED")), "{outcomes:?}");
+    assert_eq!((cases.len(), files.len()), (34, 20), "the case and file counts the description states");
 }
 
-/// A handle selects only a result this session holds natively from a fresh
-/// solve. Every other handle is refused by name, and nothing is evaluated: the
-/// refusal is the whole answer.
 #[test]
 fn a_handle_outside_the_sessions_native_custody_is_refused_by_name() {
     let (registry, gate) = registry();
@@ -429,7 +429,7 @@ fn a_result_above_the_web_view_limit_is_checked_by_handle() {
     let mut source = project_file("fixtures/results/pressure_connected_mechanics_sparse.json");
     let row = chosen_row(&source);
     let pack = pack_for(&model, &source, &row);
-    let supplied = supplied_for(&row, false);
+    let supplied = supplied_for(&source, &row, false);
     let small = run_rule_checks_value(&no_store, pack.clone(), Some(model.clone()), Some(source.clone()), None, Some(supplied.clone()), None, None).unwrap();
     let template = source["diagnostics"][0].clone();
     let each = serde_json::to_string(&template).unwrap().len();
@@ -488,11 +488,17 @@ fn a_handle_issued_by_another_registry_is_refused_by_name() {
     second.dispose_result(&held_second).unwrap();
 }
 
-/// DEL-07-07 REQ-015: a result disposed after the rule check or the preview
-/// acquired it, and before either answered, gives the refusal and nothing read.
-#[test]
-fn a_result_disposed_while_it_is_read_is_refused_and_nothing_is_returned() {
-    let (registry, gate) = registry();
+/// The pressure fixture, its demo pack and a one-query preview on its chosen row.
+struct Probe {
+    model: Value,
+    text: String,
+    parsed: Value,
+    row: Value,
+    pack: Value,
+    queries: Value,
+}
+
+fn probe() -> Probe {
     let request = project_file("core/product_physics/tests/fixtures/exact_pressure_connected_request.json");
     let text = project_text("fixtures/results/pressure_connected_mechanics_sparse.json");
     let parsed: Value = serde_json::from_str(&text).unwrap();
@@ -500,24 +506,213 @@ fn a_result_disposed_while_it_is_read_is_refused_and_nothing_is_returned() {
     let pack = pack_for(&request["model"], &parsed, &row);
     let selector = serde_json::to_value(rule_solver_selection::selector_for_row(&parsed, &row).unwrap()).unwrap();
     let queries = json!([{"input_id": "actual", "selector": selector, "bases": [row["basis_ref"]]}]);
-    for command in ["run_rule_checks", "preview_rule_solver_rows"] {
-        let job = solve_holding(&registry, &gate, &text, ResultCustody::Native);
-        let held = crate::native_verdict::tests::gate::hold(&registry, "rule-check-answer", false);
-        let (reader, reading) = (registry.clone(), job.clone());
-        let args = match command {
-            "run_rule_checks" => json!({"rulePackDocument": pack, "jobId": job, "model": request["model"]}),
-            _ => json!({"jobId": job, "queries": queries}),
+    Probe { model: request["model"].clone(), text, parsed, row, pack, queries }
+}
+
+/// `command`'s arguments for `job` in `probe`.
+fn command_args(probe: &Probe, command: &str, job: &str) -> Value {
+    match command {
+        "run_rule_checks" => json!({"rulePackDocument": probe.pack, "jobId": job, "model": probe.model}),
+        _ => json!({"jobId": job, "queries": probe.queries}),
+    }
+}
+
+/// `command` through its argument path on another thread, held at the test gate
+/// `stage` (closed); the job is disposed while the command waits there, then the
+/// gate opens. Returns the command's answer.
+fn disposed_at(registry: &SolveJobRegistry, command: &'static str, stage: &str, job: &str, args: Value) -> Result<Value, String> {
+    held_at(registry, command, stage, args, || {
+        registry.dispose_result(job).unwrap();
+    })
+}
+
+/// `command` through its argument path on another thread, held at the test gate
+/// `stage` (closed) while `meanwhile` runs, then released. Returns its answer.
+fn held_at(registry: &SolveJobRegistry, command: &'static str, stage: &str, args: Value, meanwhile: impl FnOnce()) -> Result<Value, String> {
+    let held = crate::native_verdict::tests::gate::hold(registry, stage, false);
+    let reader = registry.clone();
+    let answer = std::thread::spawn(move || match command {
+        "run_rule_checks" => run_by_handle(&reader, args),
+        _ => preview_by_handle(&reader, args),
+    });
+    assert!(held.0.wait_entered(1, std::time::Duration::from_secs(60)), "{command}: the read did not reach {stage}");
+    meanwhile();
+    held.0.open();
+    let outcome = answer.join().unwrap();
+    drop(held);
+    outcome
+}
+
+fn released(job: &str) -> String {
+    format!("RULE_CHECK_RESULT_NOT_HELD: {job} was released while it was read; nothing it read is returned")
+}
+
+/// DEL-07-07 REQ-015: a result disposed at any point after the rule check or the
+/// preview took its share, and before the answer is returned, gives the refusal
+/// and nothing read: while its bytes are read, while the preview waits for its
+/// reply's lease, while either serializes its answer, and at the final check.
+#[test]
+fn a_result_disposed_while_it_is_read_is_refused_and_nothing_is_returned() {
+    let (registry, gate) = registry();
+    let probe = probe();
+    for (command, stage) in [
+        ("run_rule_checks", "rule-check-read"),
+        ("run_rule_checks", "rule-check-serialize"),
+        ("run_rule_checks", "rule-check-answer"),
+        ("preview_rule_solver_rows", "rule-check-read"),
+        ("preview_rule_solver_rows", "rule-check-reply-lease"),
+        ("preview_rule_solver_rows", "rule-check-serialize"),
+        ("preview_rule_solver_rows", "rule-check-answer"),
+    ] {
+        let job = solve_holding(&registry, &gate, &probe.text, ResultCustody::Native);
+        // Undisturbed, the command answers.
+        let undisturbed = match command {
+            "run_rule_checks" => run_by_handle(&registry, command_args(&probe, command, &job)),
+            _ => preview_by_handle(&registry, command_args(&probe, command, &job)),
         };
-        let answer = std::thread::spawn(move || match command {
-            "run_rule_checks" => run_by_handle(&reader, args),
-            _ => preview_by_handle(&reader, args),
-        });
-        assert!(held.0.wait_entered(1, std::time::Duration::from_secs(60)), "{command}: the read did not reach its answer");
-        registry.dispose_result(&reading).unwrap();
-        held.0.open();
-        let error = answer.join().unwrap().unwrap_err();
-        assert_eq!(error, format!("RULE_CHECK_RESULT_NOT_HELD: {job} was released while it was read; nothing it read is returned"), "{command}");
-        drop(held);
+        assert!(undisturbed.is_ok(), "{command}: {undisturbed:?}");
+        let error = disposed_at(&registry, command, stage, &job, command_args(&probe, command, &job)).unwrap_err();
+        assert_eq!(error, released(&job), "{command} at {stage}");
+    }
+}
+
+/// A refusal formed after the share was taken is an answer read from the result:
+/// once the result is released it is not returned, and the not-held refusal is.
+/// Each early refusal is reached undisturbed, then with the result disposed while
+/// its bytes are read: a number outside the checked JSON profile (both commands),
+/// a parse lease the memory pool refuses (both), the engine's own refusal of the
+/// result (the run), and a held result that is not JSON (the preview, on a
+/// restored result, which it reads).
+#[test]
+fn an_early_refusal_is_not_returned_once_the_result_is_released() {
+    let host = crate::memory_pool::test_host::ScriptedHost::normal();
+    let gate = Gate::new("rule-check-early");
+    let pool = crate::memory_pool::MemoryPool::with_timing(host.clone(), std::time::Duration::from_millis(5), std::time::Duration::from_millis(40), std::time::Duration::from_millis(5));
+    pool.set_max_running_workers(4);
+    let registry = SolveJobRegistry::with_hooks(pool, gate.launcher(), Arc::new(|job: Box<dyn FnOnce() + Send + 'static>| std::thread::Builder::new().spawn(job).map(drop)));
+    let probe = probe();
+    let unsafe_text = {
+        let mut source = probe.parsed.clone();
+        let other = source["results"].as_array().unwrap().iter().position(|candidate| candidate["id"] != probe.row["id"]).unwrap();
+        source["results"][other]["value"] = json!("PLACEHOLDER");
+        serde_json::to_string(&source).unwrap().replace("\"PLACEHOLDER\"", "9007199254740992")
+    };
+    let pressure_source = project_file("fixtures/product_preview/pressure_source/physics_source/n05.request.json");
+    let pressure_source_text = project_text("fixtures/product_preview/pressure_source/physics_source/n05-sparse_interactive.raw.json");
+    let pressure_source_parsed: Value = serde_json::from_str(&pressure_source_text).unwrap();
+    let pressure_source_pack = pack_for(&pressure_source["model"], &pressure_source_parsed, &chosen_row(&pressure_source_parsed));
+    let restored = |text: &str| restored_holding(&registry, text);
+    let run = |job: &str| run_by_handle(&registry, command_args(&probe, "run_rule_checks", job));
+    let preview = |job: &str| preview_by_handle(&registry, command_args(&probe, "preview_rule_solver_rows", job));
+
+    // Outside the profile.
+    for command in ["run_rule_checks", "preview_rule_solver_rows"] {
+        let job = solve_holding(&registry, &gate, &unsafe_text, ResultCustody::Native);
+        let error = if command == "run_rule_checks" { run(&job) } else { preview(&job) }.unwrap_err();
+        assert!(error.starts_with("RULE_NATIVE_INVOCATION_REQUIRED: CHECKED-JSON-NUMBER-OUTSIDE-PROFILE"), "{command}: {error}");
+        assert_eq!(disposed_at(&registry, command, "rule-check-read", &job, command_args(&probe, command, &job)).unwrap_err(), released(&job), "{command}");
+    }
+    // The parse lease refused: once the command is admitted and holds its share, the pool
+    // has too little headroom for the parse.
+    let scarce = || host.set(|script| script.headroom_bytes = Some(1024));
+    let ample = || host.set(|script| script.headroom_bytes = Some(64 * crate::memory_pool::test_host::GIB));
+    for command in ["run_rule_checks", "preview_rule_solver_rows"] {
+        let job = solve_holding(&registry, &gate, &probe.text, ResultCustody::Native);
+        let error = held_at(&registry, command, "rule-check-read", command_args(&probe, command, &job), scarce).unwrap_err();
+        ample();
+        assert!(error.contains("Headroom") || error.contains("headroom") || error.contains("RESOURCE"), "{command}: {error}");
+        let error = held_at(&registry, command, "rule-check-read", command_args(&probe, command, &job), || {
+            scarce();
+            registry.dispose_result(&job).unwrap();
+        })
+        .unwrap_err();
+        ample();
+        assert_eq!(error, released(&job), "{command}");
+    }
+    // The engine's refusal: a pressure-source-1 result without its registered invocation.
+    let job = solve_holding(&registry, &gate, &pressure_source_text, ResultCustody::Native);
+    let args = json!({"rulePackDocument": pressure_source_pack, "jobId": job, "model": pressure_source["model"]});
+    assert!(run_by_handle(&registry, args.clone()).unwrap_err().starts_with("RULE_NUMERICAL_NEEDS_RECOMPUTE"));
+    assert_eq!(disposed_at(&registry, "run_rule_checks", "rule-check-read", &job, args).unwrap_err(), released(&job));
+    // A held text that is not JSON, read by the preview (a restored result).
+    let job = restored("{\"results\": [");
+    let error = preview(&job).unwrap_err();
+    assert!(!error.starts_with("RULE_CHECK_RESULT_NOT_HELD"), "{error}");
+    assert_eq!(disposed_at(&registry, "preview_rule_solver_rows", "rule-check-read", &job, command_args(&probe, "preview_rule_solver_rows", &job)).unwrap_err(), released(&job));
+}
+
+/// A scripted host that, once armed, reports the next sample the pool takes: with headroom made
+/// scarce, that is the pool sampling for a lease it cannot yet grant, so the command is waiting.
+/// It also keeps the headroom of the last sample taken.
+struct LeaseWaitHost {
+    script: Arc<crate::memory_pool::test_host::ScriptedHost>,
+    armed: std::sync::Mutex<Option<std::sync::mpsc::Sender<()>>>,
+    last_headroom: std::sync::Mutex<Option<u64>>,
+}
+
+impl crate::memory_pool::HostMemory for LeaseWaitHost {
+    fn sample(&self) -> crate::memory_pool::HostSample {
+        let sample = crate::memory_pool::HostMemory::sample(&*self.script);
+        *self.last_headroom.lock().unwrap() = sample.headroom_bytes;
+        if let Some(waiting) = self.armed.lock().unwrap().take() {
+            let _ = waiting.send(());
+        }
+        sample
+    }
+}
+
+/// DEL-07-07 REQ-015, while a lease is awaited: the result is disposed while the command waits
+/// in the memory pool for its parse lease (both commands) or for the preview's reply lease. The
+/// headroom is made scarce at the stage before the lease, so the pool refuses its first attempt
+/// and waits; the disposal is made only once the pool has sampled for that lease, and headroom is
+/// freed only after the disposal, so the lease cannot be granted before it. Each wait ends in a
+/// grant (the last sample saw the freed headroom). Undisturbed, the command then answers;
+/// disposed, it gives the not-held refusal and nothing read.
+#[test]
+fn a_result_disposed_while_its_lease_is_awaited_is_refused() {
+    use crate::memory_pool::test_host::{ScriptedHost, GIB};
+    let script = ScriptedHost::normal();
+    let host = Arc::new(LeaseWaitHost { script: script.clone(), armed: std::sync::Mutex::new(None), last_headroom: std::sync::Mutex::new(None) });
+    let gate = Gate::new("rule-check-lease-wait");
+    let tick = std::time::Duration::from_millis(5);
+    let pool = crate::memory_pool::MemoryPool::with_timing(host.clone(), tick, std::time::Duration::from_secs(30), tick);
+    pool.set_max_running_workers(4);
+    let registry = SolveJobRegistry::with_hooks(pool, gate.launcher(), Arc::new(|job: Box<dyn FnOnce() + Send + 'static>| std::thread::Builder::new().spawn(job).map(drop)));
+    let probe = probe();
+    let scarce = || script.set(|s| s.headroom_bytes = Some(1024));
+    let ample = || script.set(|s| s.headroom_bytes = Some(64 * GIB));
+    for (command, stage) in [
+        ("run_rule_checks", "rule-check-read"),
+        ("preview_rule_solver_rows", "rule-check-read"),
+        ("preview_rule_solver_rows", "rule-check-reply-lease"),
+    ] {
+        for dispose in [false, true] {
+            let job = solve_holding(&registry, &gate, &probe.text, ResultCustody::Native);
+            let (waiting, wait_began) = std::sync::mpsc::channel();
+            let outcome = std::thread::scope(|scope| {
+                let (disposer, held_job, free) = (&registry, &job, &ample);
+                let freer = scope.spawn(move || {
+                    wait_began.recv_timeout(std::time::Duration::from_secs(60)).unwrap_or_else(|_| panic!("{command} at {stage}: the command did not wait for its lease"));
+                    if dispose {
+                        disposer.dispose_result(held_job).unwrap();
+                    }
+                    free();
+                });
+                let outcome = held_at(&registry, command, stage, command_args(&probe, command, &job), || {
+                    scarce();
+                    *host.armed.lock().unwrap() = Some(waiting);
+                });
+                freer.join().unwrap();
+                outcome
+            });
+            assert_eq!(*host.last_headroom.lock().unwrap(), Some(64 * GIB), "{command} at {stage}: the wait ended in a grant");
+            if dispose {
+                assert_eq!(outcome.unwrap_err(), released(&job), "{command} at {stage}");
+            } else {
+                outcome.unwrap_or_else(|error| panic!("{command} at {stage}, undisturbed: {error}"));
+                registry.dispose_result(&job).unwrap();
+            }
+        }
     }
 }
 
@@ -528,21 +723,15 @@ fn a_result_disposed_while_it_is_read_is_refused_and_nothing_is_returned() {
 #[test]
 fn a_held_result_outside_the_checked_json_profile_is_refused() {
     let (registry, gate) = registry();
-    let request = project_file("core/product_physics/tests/fixtures/exact_pressure_connected_request.json");
-    let text = project_text("fixtures/results/pressure_connected_mechanics_sparse.json");
-    let parsed: Value = serde_json::from_str(&text).unwrap();
-    let row = chosen_row(&parsed);
-    let pack = pack_for(&request["model"], &parsed, &row);
-    let selector = serde_json::to_value(rule_solver_selection::selector_for_row(&parsed, &row).unwrap()).unwrap();
-    let queries = json!([{"input_id": "actual", "selector": selector, "bases": [row["basis_ref"]]}]);
-    let other = parsed["results"].as_array().unwrap().iter().position(|candidate| candidate["id"] != row["id"]).unwrap();
+    let probe = probe();
+    let other = probe.parsed["results"].as_array().unwrap().iter().position(|candidate| candidate["id"] != probe.row["id"]).unwrap();
     for (written, refused) in [("9007199254740992", true), ("-9007199254740992", true), ("1.8e19", true), ("9007199254740993.0", true), ("9007199254740991", false), ("1.5e300", true)] {
-        let mut source = parsed.clone();
+        let mut source = probe.parsed.clone();
         source["results"][other]["value"] = json!("PLACEHOLDER");
         let held_text = serde_json::to_string(&source).unwrap().replace("\"PLACEHOLDER\"", written);
         let job = solve_holding(&registry, &gate, &held_text, ResultCustody::Native);
-        let run = run_by_handle(&registry, json!({"rulePackDocument": pack, "jobId": job, "model": request["model"]}));
-        let preview = preview_by_handle(&registry, json!({"jobId": job, "queries": queries}));
+        let run = run_by_handle(&registry, command_args(&probe, "run_rule_checks", &job));
+        let preview = preview_by_handle(&registry, command_args(&probe, "preview_rule_solver_rows", &job));
         for outcome in [run.map(drop), preview.map(drop)] {
             match outcome {
                 Err(error) if refused => assert!(error.starts_with("RULE_NATIVE_INVOCATION_REQUIRED: CHECKED-JSON-NUMBER-OUTSIDE-PROFILE"), "{written}: {error}"),
@@ -554,37 +743,98 @@ fn a_held_result_outside_the_checked_json_profile_is_refused() {
     }
 }
 
-/// The selector preview's request is bounded before the result is read, and its
-/// reply returns at most the row the display shows on each basis and is refused
-/// by name above its byte limit.
+/// The profile walk fails closed: a number with no finite binary64 reading is
+/// outside it. (The JSON parser admits no such number today; the walk is checked
+/// on values built directly.)
+#[test]
+fn the_profile_walk_refuses_numbers_it_cannot_read_as_finite() {
+    assert!(!outside_checked_json_profile(&json!([0.5, -0.0, 9007199254740991u64, {"a": -9007199254740991i64}])));
+    assert!(outside_checked_json_profile(&json!({"a": [9007199254740992u64]})));
+    // serde_json builds no non-finite Number; the walk's f64 branch is reached for every float.
+    assert!(serde_json::Number::from_f64(f64::INFINITY).is_none());
+    assert!(outside_checked_json_profile(&json!(1.0e300)));
+}
+
+/// A raw body above the preview's argument cap is refused at admission, before
+/// any prescan or parse: a body that is not JSON at all is refused the same way.
+#[test]
+fn the_selector_preview_refuses_an_oversized_body_before_it_is_parsed() {
+    let (registry, _gate) = registry();
+    let headers = crate::command_ingress::test_support::headers(Some(crate::command_ingress::INGRESS_ARGS_JSON_V1));
+    let cap = rule_solver_selection::MAX_PREVIEW_ARGS_BYTES;
+    assert_eq!(cap, 5_049_241, "the cap the description derives");
+    for body in [vec![b'['; cap + 1], {
+        let mut body = br#"{"jobId":"j","queries":[],"pad":""#.to_vec();
+        body.resize(cap, b'x');
+        body.extend_from_slice(br#""}"#);
+        body
+    }] {
+        let error = crate::command_ingress::admit_body_within(&registry, &tauri::ipc::InvokeBody::Raw(body.clone()), &headers, "preview_rule_solver_rows", ArgsDecoding::Moved, cap).unwrap_err();
+        assert_eq!(format!("{error:?}"), format!("{:?}", crate::solve_jobs::SolveJobError::InvalidRequest { message: format!("INGRESS-ARGS-TOO-LARGE: `preview_rule_solver_rows` takes at most {cap} bytes of arguments; {} were sent.", body.len()) }));
+    }
+    // At the cap, a body is admitted to its prescan and parse.
+    let mut body = br#"{"jobId":"j","queries":[],"pad":""#.to_vec();
+    body.resize(cap - 2, b'x');
+    body.extend_from_slice(br#""}"#);
+    assert_eq!(body.len(), cap);
+    assert!(crate::command_ingress::admit_body_within(&registry, &tauri::ipc::InvokeBody::Raw(body), &headers, "preview_rule_solver_rows", ArgsDecoding::Moved, cap).is_ok());
+}
+
+/// The selector preview's queries are read and bounded before the result is
+/// read, every refusal names positions and echoes no identifier, a basis is one
+/// by its parsed identity, and the reply is refused as soon as its running
+/// length passes the limit, before the rest of it is built.
 #[test]
 fn the_selector_preview_is_bounded_and_refuses_by_name() {
     let (registry, gate) = registry();
-    let text = project_text("fixtures/results/pressure_connected_mechanics_sparse.json");
-    let parsed: Value = serde_json::from_str(&text).unwrap();
-    let row = chosen_row(&parsed);
-    let selector = serde_json::to_value(rule_solver_selection::selector_for_row(&parsed, &row).unwrap()).unwrap();
-    let job = solve_holding(&registry, &gate, &text, ResultCustody::Native);
+    let probe = probe();
+    let row = &probe.row;
+    let selector = probe.queries[0]["selector"].clone();
+    let job = solve_holding(&registry, &gate, &probe.text, ResultCustody::Native);
     let invalid = |queries: Value| {
         let error = preview_by_handle(&registry, json!({"jobId": job, "queries": queries})).unwrap_err();
         assert!(error.starts_with("RULE_SOLVER_PREVIEW_REQUEST_INVALID: "), "{error}");
+        assert!(error.len() < 200, "a bounded refusal: {error}");
         error
     };
     let query = |input: usize, bases: Vec<Value>| json!({"input_id": format!("input-{input}"), "selector": selector, "bases": bases});
-    // Too many queries; too many bases; one input twice; one basis twice.
+    let case = |n: usize| json!({"ref_type": "load_case", "ref_id": format!("case:{n}")});
+    // Shapes.
+    invalid(json!({"not": "an array"}));
+    invalid(json!(["not an object"]));
+    invalid(json!([{"input_id": 7, "selector": selector, "bases": []}]));
+    invalid(json!([{"input_id": "", "selector": selector, "bases": []}]));
+    invalid(json!([{"input_id": "a", "selector": selector, "bases": {}}]));
+    invalid(json!([query(0, vec![json!({"ref_type": "elsewhere", "ref_id": "x"})])]));
+    // Counts: more than 128 queries, or 128 bases in one query, refused; exactly 128 admitted.
     invalid(Value::Array((0..=rule_solver_selection::MAX_PREVIEW_QUERIES).map(|input| query(input, vec![row["basis_ref"].clone()])).collect()));
-    invalid(json!([query(0, (0..=rule_solver_selection::MAX_PREVIEW_BASES_PER_QUERY).map(|case| json!({"ref_type": "load_case", "ref_id": format!("case:{case}")})).collect())]));
-    invalid(json!([query(0, vec![row["basis_ref"].clone()]), query(0, vec![row["basis_ref"].clone()])]));
-    let error = invalid(json!([query(0, vec![row["basis_ref"].clone(), row["basis_ref"].clone()])]));
-    assert!(error.contains("more than once"), "{error}");
-    // At the bounds the request is admitted.
+    invalid(json!([query(0, (0..=rule_solver_selection::MAX_PREVIEW_BASES_PER_QUERY).map(case).collect())]));
+    let full = preview_by_handle(&registry, json!({"jobId": job, "queries": [query(0, (0..rule_solver_selection::MAX_PREVIEW_BASES_PER_QUERY).map(case).collect())]})).unwrap();
+    assert_eq!(full["inputs"][0]["bases"].as_array().unwrap().len(), rule_solver_selection::MAX_PREVIEW_BASES_PER_QUERY);
     let most = Value::Array((0..rule_solver_selection::MAX_PREVIEW_QUERIES).map(|input| query(input, vec![row["basis_ref"].clone()])).collect());
-    let preview = preview_by_handle(&registry, json!({"jobId": job, "queries": most})).unwrap();
-    assert_eq!(preview["inputs"].as_array().unwrap().len(), rule_solver_selection::MAX_PREVIEW_QUERIES);
-
+    assert_eq!(preview_by_handle(&registry, json!({"jobId": job, "queries": most})).unwrap()["inputs"].as_array().unwrap().len(), rule_solver_selection::MAX_PREVIEW_QUERIES);
+    // Repeats: one input twice; one basis twice; the extra-key alias of a basis is the same
+    // basis by its parsed identity, refused as a repeat; a lone extra key is refused by shape.
+    invalid(json!([query(0, vec![row["basis_ref"].clone()]), query(0, vec![row["basis_ref"].clone()])]));
+    let twice = invalid(json!([query(0, vec![row["basis_ref"].clone(), row["basis_ref"].clone()])]));
+    assert_eq!(twice, "RULE_SOLVER_PREVIEW_REQUEST_INVALID: query 0's basis 1 names a basis the query already names");
+    let mut alias = row["basis_ref"].clone();
+    alias["note"] = json!("an alias");
+    assert_eq!(invalid(json!([query(0, vec![row["basis_ref"].clone(), alias.clone()])])), twice);
+    assert_eq!(invalid(json!([query(0, vec![alias])])), "RULE_SOLVER_PREVIEW_REQUEST_INVALID: query 0's basis 0 must carry only ref_type and ref_id");
+    // Long identifiers are refused without being echoed.
+    let long = "x".repeat(10_000);
+    for queries in [
+        json!([{"input_id": long, "selector": selector, "bases": []}]),
+        json!([{"input_id": "a", "selector": {"result_kind": long, "entity_ref": "e"}, "bases": []}]),
+        json!([query(0, vec![json!({"ref_type": "load_case", "ref_id": long})])]),
+    ] {
+        let error = invalid(queries);
+        assert!(!error.contains(&"x".repeat(rule_solver_selection::MAX_PREVIEW_IDENTIFIER_BYTES / 4)), "{error}");
+    }
     // A selector naming more than one row on a basis returns none of them, only
     // that it names more than one; here the result holds the row twice.
-    let mut doubled = parsed.clone();
+    let mut doubled = probe.parsed.clone();
     let mut copy = row.clone();
     copy["id"] = json!(format!("{}:copy", row["id"].as_str().unwrap()));
     doubled["results"].as_array_mut().unwrap().push(copy);
@@ -594,9 +844,106 @@ fn the_selector_preview_is_bounded_and_refuses_by_name() {
     assert_eq!((&basis["matched"], &basis["rows"]), (&json!(2), &json!([])));
     registry.dispose_result(&ambiguous).unwrap();
 
-    // Above the reply limit: refused by name, with the size and the limit.
-    let one = json!([query(0, vec![row["basis_ref"].clone()])]);
-    let error = preview_within(&registry, json!({"jobId": job, "queries": one}), 64).unwrap_err();
-    assert!(error.starts_with("RULE_SOLVER_PREVIEW_RESPONSE_LIMIT: the preview needs a reply of ") && error.contains("more than its 64-byte limit"), "{error}");
+    // The running limit: 128 queries, each binding one row. Unbounded, the count
+    // and the write build each row once (256); under a limit a few rows long, the
+    // count stops at the limit, having built only the rows before it.
+    let rows_built = || rule_solver_selection::PREVIEW_ROWS_BUILT.with(std::cell::Cell::get);
+    let reset = || rule_solver_selection::PREVIEW_ROWS_BUILT.with(|count| count.set(0));
+    let most = Value::Array((0..rule_solver_selection::MAX_PREVIEW_QUERIES).map(|input| query(input, vec![row["basis_ref"].clone()])).collect());
+    reset();
+    let answer = preview_within(&registry, json!({"jobId": job, "queries": most}), rule_solver_selection::MAX_PREVIEW_REPLY_BYTES).unwrap();
+    assert_eq!(rows_built(), 2 * rule_solver_selection::MAX_PREVIEW_QUERIES);
+    let whole = serde_json::to_string(&answer).unwrap().len() as u64;
+    reset();
+    let limit = whole / 16;
+    let error = preview_within(&registry, json!({"jobId": job, "queries": most}), limit).unwrap_err();
+    assert_eq!(error, format!("RULE_SOLVER_PREVIEW_RESPONSE_LIMIT: the preview's reply passes its {limit}-byte limit; preview fewer inputs or load cases"));
+    assert!(rows_built() <= rule_solver_selection::MAX_PREVIEW_QUERIES / 16 + 1, "{} rows built before the refusal", rows_built());
+    // The reply is the exact text the count measured: the limit at its length admits it.
+    reset();
+    assert_eq!(preview_within(&registry, json!({"jobId": job, "queries": most}), whole).unwrap(), answer);
     registry.dispose_result(&job).unwrap();
 }
+
+/// A published negative zero, which the desktop solve writes, is read as it was
+/// published: the desktop's committed result holding negative zeros among its
+/// row values is admitted unchanged by the result reader and read by handle,
+/// reaching its own standing (the parity case on one of its -0.0 rows). A result whose reduced-section row differs from its nominal twin
+/// in that one field, -0.0 against 0.0, is refused by the result reader's own
+/// twin check ([`TWIN_MISMATCH_READER_CODE`]), by handle; the retired route's
+/// `JSON.stringify` erased the sign and so masked the mismatch.
+#[test]
+fn a_published_negative_zero_is_read_as_published() {
+    let (registry, gate) = registry();
+    // The unchanged producer result: admitted.
+    let model = project_file(NEGATIVE_ZERO_MODEL);
+    let text = project_text(NEGATIVE_ZERO_RESULT);
+    let parsed: Value = serde_json::from_str(&text).unwrap();
+    let mut zeros = Vec::new();
+    negative_zeros(&parsed["results"], String::new(), &mut zeros);
+    assert!(zeros.len() >= 5, "{zeros:?}");
+    let verdict: Value = serde_json::from_str(&open_pipe_stress_operation_applier::reader_dispatch_json(&text, Some(&serde_json::to_string(&model).unwrap()), None).unwrap()).unwrap();
+    assert!(verdict["error"].is_null(), "{verdict}");
+    // By handle the held bytes are read as published, -0.0 and all: the run reaches the result's
+    // standing, which is not numerically eligible (the result is numerically sensitive), and
+    // refuses it there exactly as the retired route did on its sign-erased copy.
+    let row = chosen_row(&parsed);
+    let (pack, supplied) = (pack_for(&model, &parsed, &row), supplied_for(&parsed, &row, false));
+    let job = solve_holding(&registry, &gate, &text, ResultCustody::Native);
+    let by_handle = run_by_handle(&registry, json!({"rulePackDocument": pack, "jobId": job, "model": model, "suppliedValueBindings": supplied}));
+    let by_envelope = run_rule_checks_value(&no_store, pack, Some(model.clone()), Some(as_web_view_sent(&parsed)), None, Some(supplied), None, None);
+    assert_eq!(by_handle.unwrap_err(), "RULE_NUMERICAL_NEEDS_RECOMPUTE: complete passing or source-qualified numerical evidence is required for every current load case");
+    assert_eq!(by_envelope.unwrap_err(), "RULE_NUMERICAL_NEEDS_RECOMPUTE: complete passing or source-qualified numerical evidence is required for every current load case");
+    registry.dispose_result(&job).unwrap();
+
+    // The one-field twin mismatch: a reduced-section row whose nominal twin holds 0.0.
+    let request = project_file("core/product_physics/tests/fixtures/exact_pressure_connected_request.json");
+    let text = project_text("fixtures/results/pressure_connected_mechanics_sparse.json");
+    let mut parsed: Value = serde_json::from_str(&text).unwrap();
+    let pack = pack_for(&request["model"], &parsed, &chosen_row(&parsed));
+    let reduced = open_pipe_stress_result_export::section_basis::REDUCED;
+    let rows = parsed["results"].as_array().unwrap();
+    let at = rows
+        .iter()
+        .position(|row| {
+            let id = row["id"].as_str().unwrap_or_default();
+            open_pipe_stress_result_export::section_basis::id_basis(id) == Some(reduced)
+                && row["value"].as_f64() == Some(0.0)
+                && open_pipe_stress_result_export::section_basis::twin_id(id)
+                    .and_then(|twin| rows.iter().find(|candidate| candidate["id"] == twin.as_str()))
+                    .is_some_and(|twin| twin["value"].as_f64() == Some(0.0) && !is_negative_zero(&twin["value"]))
+        })
+        .expect("a reduced-section zero row with a zero nominal twin");
+    let twin_at = {
+        let twin = open_pipe_stress_result_export::section_basis::twin_id(rows[at]["id"].as_str().unwrap()).unwrap();
+        rows.iter().position(|candidate| candidate["id"] == twin.as_str()).unwrap()
+    };
+    let model_text = serde_json::to_string(&request["model"]).unwrap();
+    let standing = |text: &str| -> Value {
+        let verdict: Value = serde_json::from_str(&open_pipe_stress_operation_applier::reader_dispatch_json(text, Some(&model_text), None).unwrap()).unwrap();
+        assert!(verdict["error"].is_null(), "{verdict}");
+        verdict["standing"].clone()
+    };
+    assert_eq!(standing(&text)["eligible"], json!(true), "the committed result");
+    parsed["results"][at]["value"] = json!(-0.0);
+    let mismatched = serde_json::to_string(&parsed).unwrap();
+    let found = standing(&mismatched);
+    assert_eq!((&found["eligible"], &found["findings"]), (&json!(false), &json!([TWIN_MISMATCH_READER_CODE])), "{found}");
+    // Both twins written -0.0: they agree again, and the reader's finding is gone.
+    let mut both = parsed.clone();
+    both["results"][twin_at]["value"] = json!(-0.0);
+    assert!(!standing(&serde_json::to_string(&both).unwrap())["findings"].as_array().unwrap().contains(&json!(TWIN_MISMATCH_READER_CODE)));
+    let job = solve_holding(&registry, &gate, &mismatched, ResultCustody::Native);
+    let error = run_by_handle(&registry, json!({"rulePackDocument": pack, "jobId": job, "model": request["model"]})).unwrap_err();
+    assert_eq!(error, "RULE_NUMERICAL_SOURCE_UNSUPPORTED: recompute with a supported producer and semantic contract");
+    registry.dispose_result(&job).unwrap();
+    // The same bytes with the sign erased, as the retired route's `JSON.stringify` erased it: the
+    // twins are equal again, and the mismatch is masked.
+    let erased = serde_json::to_string(&zero_sign_blind(&parsed)).unwrap();
+    assert_eq!(standing(&erased)["eligible"], json!(true), "the sign erased");
+}
+
+/// The result reader's standing finding for a reduced-section row that differs from its nominal
+/// twin where the two sections coincide: `section_basis::twin_values` requires the twins to be
+/// bit-equal there ("a signed zero is not its twin's zero").
+const TWIN_MISMATCH_READER_CODE: &str = "SOURCE_PHYSICS_ROW_BASIS_SECTION";

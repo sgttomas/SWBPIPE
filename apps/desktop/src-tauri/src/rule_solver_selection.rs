@@ -472,6 +472,8 @@ pub(crate) fn resolve_rule_pack_solver_inputs(
 
 /// The display facts of one matched row: what the rule-check panel shows of it.
 fn preview_row(envelope: &Value, row: &Value) -> Value {
+    #[cfg(test)]
+    PREVIEW_ROWS_BUILT.with(|count| count.set(count.get() + 1));
     let mut shown = serde_json::json!({
         "id": row.get("id").cloned().unwrap_or(Value::Null),
         "value": row.get("value").cloned().unwrap_or(Value::Null),
@@ -488,118 +490,181 @@ fn preview_row(envelope: &Value, row: &Value) -> Value {
     shown
 }
 
+#[cfg(test)]
+thread_local! {
+    /// Test support: how many matched rows the preview has built on this thread.
+    pub(crate) static PREVIEW_ROWS_BUILT: std::cell::Cell<usize> = const { std::cell::Cell::new(0) };
+}
+
 /// The most queries one selector preview may carry: one per solver input of a pack.
 pub(crate) const MAX_PREVIEW_QUERIES: usize = 128;
 /// The most bases one query may name: one per load case the input is bound on.
 pub(crate) const MAX_PREVIEW_BASES_PER_QUERY: usize = 128;
-/// The largest selector-preview reply. With the request bounds and at most one
-/// row returned per basis, a reply of a real pack is far smaller.
+/// The longest identifier a query may carry, in UTF-8 bytes: its `input_id`,
+/// each selector member and each basis's `ref_id`.
+pub(crate) const MAX_PREVIEW_IDENTIFIER_BYTES: usize = 256;
+/// The largest arguments body the preview admits, before any prescan or parse:
+/// the compact JSON of a request at every bound above, with plain identifiers
+/// ([`preview_args_bound`], about 4.8 MiB). An identifier written with escapes
+/// can make an otherwise admissible request longer; such a body is refused by
+/// the cap (`INGRESS-ARGS-TOO-LARGE`) rather than parsed.
+pub(crate) const MAX_PREVIEW_ARGS_BYTES: usize = preview_args_bound();
+/// The largest selector-preview reply.
 pub(crate) const MAX_PREVIEW_REPLY_BYTES: u64 = 8 * 1024 * 1024;
 /// A selector-preview request outside its bounds, refused before the result is read.
 pub(crate) const RULE_SOLVER_PREVIEW_REQUEST_INVALID: &str = "RULE_SOLVER_PREVIEW_REQUEST_INVALID";
 /// A selector-preview reply above [`MAX_PREVIEW_REPLY_BYTES`].
 pub(crate) const RULE_SOLVER_PREVIEW_RESPONSE_LIMIT: &str = "RULE_SOLVER_PREVIEW_RESPONSE_LIMIT";
 
-/// Refuses, by name, a selector-preview request with more than
-/// [`MAX_PREVIEW_QUERIES`] queries, a query with more than
-/// [`MAX_PREVIEW_BASES_PER_QUERY`] bases, two queries for the same input, or a
-/// query naming one basis twice (the same selector and basis pair asked again).
-pub(crate) fn check_preview_queries(queries: &[Value]) -> Result<(), String> {
+/// The compact JSON length of the largest admissible request: `{"jobId":<id>,
+/// "queries":[q,…]}` with 128 queries, each `{"input_id":<id>,"selector":{…},
+/// "bases":[b,…]}` with every selector member present and 128 bases
+/// `{"ref_type":"combination","ref_id":<id>}`, every identifier (the handle
+/// included) at [`MAX_PREVIEW_IDENTIFIER_BYTES`].
+const fn preview_args_bound() -> usize {
+    let id = MAX_PREVIEW_IDENTIFIER_BYTES + 2; // quoted
+    let basis = r#"{"ref_type":"combination","ref_id":}"#.len() + id;
+    let selector = r#"{"result_kind":,"entity_ref":,"location":,"component":,"section_basis":"reduced_section","tie_rod":}"#.len() + 5 * id;
+    let query = r#"{"input_id":,"selector":,"bases":[]}"#.len() + id + selector + MAX_PREVIEW_BASES_PER_QUERY * (basis + 1);
+    r#"{"jobId":,"queries":[]}"#.len() + id + MAX_PREVIEW_QUERIES * (query + 1)
+}
+
+/// One selector-preview query, read and bounded: its input, its selector
+/// (`None` when it does not parse: reported unreadable, matching nothing), and
+/// its bases, each once.
+#[derive(Debug)]
+pub(crate) struct PreviewQuery {
+    input_id: String,
+    selector: Option<SolverResultSelector>,
+    bases: Vec<BasisRef>,
+}
+
+/// Reads the preview's `queries` argument, moved, before the result is read.
+/// Refused by name: not an array, more than [`MAX_PREVIEW_QUERIES`] queries, a
+/// query that is not an object, an `input_id` that is not a non-empty string of
+/// at most [`MAX_PREVIEW_IDENTIFIER_BYTES`], an input queried twice, a selector
+/// member longer than that, `bases` not an array or longer than
+/// [`MAX_PREVIEW_BASES_PER_QUERY`], a basis that [`BasisRef::from_value`] does
+/// not accept or whose `ref_id` is longer than the bound, a basis that names one
+/// already named in the query (by its parsed identity), and a basis object
+/// carrying any member other than `ref_type` and `ref_id`. A refusal names the
+/// query and basis by position and echoes no identifier.
+pub(crate) fn parse_preview_queries(queries: Value) -> Result<Vec<PreviewQuery>, String> {
     let refuse = |reason: String| Err(format!("{RULE_SOLVER_PREVIEW_REQUEST_INVALID}: {reason}"));
+    let Value::Array(queries) = queries else { return refuse("queries must be an array".into()) };
     if queries.len() > MAX_PREVIEW_QUERIES {
         return refuse(format!("{} queries, more than the {MAX_PREVIEW_QUERIES} one preview may carry", queries.len()));
     }
-    let mut inputs = std::collections::BTreeSet::new();
-    for query in queries {
-        let input_id = query.get("input_id").map(Value::to_string).unwrap_or_default();
+    let bounded = |text: &str| !text.is_empty() && text.len() <= MAX_PREVIEW_IDENTIFIER_BYTES;
+    let mut inputs = HashSet::new();
+    let mut read = Vec::with_capacity(queries.len());
+    for (at, query) in queries.into_iter().enumerate() {
+        let Value::Object(mut query) = query else { return refuse(format!("query {at} must be an object")) };
+        let input_id = match query.remove("input_id") {
+            Some(Value::String(text)) if bounded(&text) => text,
+            _ => return refuse(format!("query {at}'s input_id must be a non-empty string of at most {MAX_PREVIEW_IDENTIFIER_BYTES} bytes")),
+        };
         if !inputs.insert(input_id.clone()) {
-            return refuse(format!("input {input_id} is queried more than once"));
+            return refuse(format!("query {at} names an input an earlier query names"));
         }
-        let bases = query.get("bases").and_then(Value::as_array).map(Vec::as_slice).unwrap_or(&[]);
-        if bases.len() > MAX_PREVIEW_BASES_PER_QUERY {
-            return refuse(format!("input {input_id} names {} bases, more than the {MAX_PREVIEW_BASES_PER_QUERY} one query may name", bases.len()));
-        }
-        let mut named = std::collections::BTreeSet::new();
-        for basis in bases {
-            if !named.insert(basis.to_string()) {
-                return refuse(format!("input {input_id} names basis {basis} more than once"));
+        let selector_value = query.remove("selector").unwrap_or(Value::Null);
+        if let Value::Object(members) = &selector_value {
+            if members.values().any(|member| member.as_str().is_some_and(|text| text.len() > MAX_PREVIEW_IDENTIFIER_BYTES)) {
+                return refuse(format!("query {at}'s selector has a member longer than {MAX_PREVIEW_IDENTIFIER_BYTES} bytes"));
             }
         }
+        let selector = parse_solver_result_ref(&selector_value).ok();
+        let Some(Value::Array(bases)) = query.remove("bases") else { return refuse(format!("query {at}'s bases must be an array")) };
+        if bases.len() > MAX_PREVIEW_BASES_PER_QUERY {
+            return refuse(format!("query {at} names {} bases, more than the {MAX_PREVIEW_BASES_PER_QUERY} one query may name", bases.len()));
+        }
+        let mut named = HashSet::new();
+        let mut parsed = Vec::with_capacity(bases.len());
+        for (index, basis) in bases.iter().enumerate() {
+            let Some(reference) = BasisRef::from_value(basis).filter(|reference| reference.ref_id.len() <= MAX_PREVIEW_IDENTIFIER_BYTES) else {
+                return refuse(format!("query {at}'s basis {index} must be {{ref_type: load_case or combination, ref_id: a non-empty string of at most {MAX_PREVIEW_IDENTIFIER_BYTES} bytes}}"));
+            };
+            if !named.insert(reference.clone()) {
+                return refuse(format!("query {at}'s basis {index} names a basis the query already names"));
+            }
+            if basis.as_object().is_some_and(|members| members.len() != 2) {
+                return refuse(format!("query {at}'s basis {index} must carry only ref_type and ref_id"));
+            }
+            parsed.push(reference);
+        }
+        read.push(PreviewQuery { input_id, selector, bases: parsed });
     }
-    Ok(())
+    Ok(read)
 }
 
-/// The length in bytes of `value`'s compact JSON text, counted without making it.
-pub(crate) fn json_length(value: &Value) -> u64 {
-    struct Count(u64);
-    impl std::io::Write for Count {
-        fn write(&mut self, bytes: &[u8]) -> std::io::Result<usize> {
-            self.0 += bytes.len() as u64;
-            Ok(bytes.len())
-        }
-        fn flush(&mut self) -> std::io::Result<()> {
-            Ok(())
-        }
-    }
-    let mut count = Count(0);
-    serde_json::to_writer(&mut count, value).expect("a JSON value serializes");
-    count.0
-}
-
-/// Display only (the rule-check panel's selector preview and binding
-/// pre-check, read from a held result): for each query `{input_id, selector,
-/// bases}`, which rows the selector names on each basis, with the run's own
-/// index ([`RowIndex`]) and row gate (`rule_binding_refusal`), and whether the
-/// result publishes any row on the basis. The display distinguishes no row,
-/// one row and more than one, so `matched` is 0, 1 or 2 (two or more) and
-/// `rows` holds the row only when it is the one the run would bind. A selector
-/// or basis that does not parse is reported unreadable and matches nothing.
-/// Nothing here binds a value; the run decides on its own terms. Requests are
-/// bounded by [`check_preview_queries`].
-pub(crate) fn preview_solver_rows(envelope: &Value, queries: &[Value]) -> Value {
+/// Writes the preview reply's compact JSON through `sink`, piece by piece, one
+/// basis entry at a time: a sink that refuses stops it there, before any further
+/// row is built. Display only: for each query, which rows the selector names on
+/// each basis, with the run's own index ([`RowIndex`]) and row gate
+/// (`rule_binding_refusal`), and whether the result publishes any row on the
+/// basis. The display distinguishes no row, one row and more than one, so
+/// `matched` is 0, 1 or 2 (two or more) and `rows` holds the row only when it is
+/// the one the run would bind. Nothing here binds a value.
+fn emit_preview(envelope: &Value, queries: &[PreviewQuery], job_id: &str, sink: &mut dyn FnMut(&str) -> Result<(), String>) -> Result<(), String> {
+    let text = |value: &Value| serde_json::to_string(value).expect("a JSON value serializes");
     let index = RowIndex::new(envelope);
     let row_count = envelope.get("results").and_then(Value::as_array).map_or(0, Vec::len);
-    let inputs: Vec<Value> = queries
-        .iter()
-        .map(|query| {
-            let input_id = query.get("input_id").cloned().unwrap_or(Value::Null);
-            let Some(selector) = query
-                .get("selector")
-                .and_then(|reference| parse_solver_result_ref(reference).ok())
-            else {
-                return serde_json::json!({"input_id": input_id, "selector_readable": false, "bases": []});
+    sink(&format!(
+        r#"{{"document_kind":"swbpipe.desktop.rule_solver_rows_preview","version":1,"row_count":{row_count},"job_id":{},"inputs":["#,
+        text(&Value::String(job_id.to_string()))
+    ))?;
+    for (at, query) in queries.iter().enumerate() {
+        sink(if at == 0 { "" } else { "," })?;
+        let Some(selector) = &query.selector else {
+            sink(&format!(r#"{{"input_id":{},"selector_readable":false,"bases":[]}}"#, text(&Value::String(query.input_id.clone()))))?;
+            continue;
+        };
+        sink(&format!(r#"{{"input_id":{},"selector_readable":true,"bases":["#, text(&Value::String(query.input_id.clone()))))?;
+        for (number, basis) in query.bases.iter().enumerate() {
+            let selected = index.select(selector, basis);
+            let rows: Vec<Value> = match selected.as_slice() {
+                [row] => vec![preview_row(envelope, row)],
+                _ => Vec::new(),
             };
-            let bases: Vec<Value> = query
-                .get("bases")
-                .and_then(Value::as_array)
-                .map(Vec::as_slice)
-                .unwrap_or(&[])
-                .iter()
-                .filter_map(BasisRef::from_value)
-                .map(|basis| {
-                    let selected = index.select(&selector, &basis);
-                    let rows: Vec<Value> = match selected.as_slice() {
-                        [row] => vec![preview_row(envelope, row)],
-                        _ => Vec::new(),
-                    };
-                    let solved = index.is_solved(&basis);
-                    serde_json::json!({
-                        "basis_ref": {"ref_type": basis.ref_type, "ref_id": basis.ref_id},
-                        "solved": solved,
-                        "matched": selected.len().min(2),
-                        "rows": rows,
-                    })
-                })
-                .collect();
-            serde_json::json!({"input_id": input_id, "selector_readable": true, "bases": bases})
-        })
-        .collect();
-    serde_json::json!({
-        "document_kind": "swbpipe.desktop.rule_solver_rows_preview",
-        "version": 1,
-        "row_count": row_count,
-        "inputs": inputs,
+            let entry = serde_json::json!({
+                "basis_ref": {"ref_type": basis.ref_type, "ref_id": basis.ref_id},
+                "solved": index.is_solved(basis),
+                "matched": selected.len().min(2),
+                "rows": rows,
+            });
+            sink(if number == 0 { "" } else { "," })?;
+            sink(&text(&entry))?;
+        }
+        sink("]}")?;
+    }
+    sink("]}")
+}
+
+/// The exact length of the preview reply, counted as it would be written and
+/// refused by name as soon as the running count passes `limit`.
+pub(crate) fn preview_reply_length(envelope: &Value, queries: &[PreviewQuery], job_id: &str, limit: u64) -> Result<u64, String> {
+    let mut length = 0u64;
+    emit_preview(envelope, queries, job_id, &mut |piece| {
+        length += piece.len() as u64;
+        if length > limit {
+            return Err(format!(
+                "{RULE_SOLVER_PREVIEW_RESPONSE_LIMIT}: the preview's reply passes its {limit}-byte limit; preview fewer inputs or load cases"
+            ));
+        }
+        Ok(())
+    })?;
+    Ok(length)
+}
+
+/// The preview reply's text ([`emit_preview`]), written once its length is leased.
+pub(crate) fn write_preview_reply(envelope: &Value, queries: &[PreviewQuery], job_id: &str) -> String {
+    let mut text = String::new();
+    emit_preview(envelope, queries, job_id, &mut |piece| {
+        text.push_str(piece);
+        Ok(())
     })
+    .expect("writing to a string does not refuse");
+    text
 }
 
 /// The selector that names `row` (test support): its kind, entity, location,

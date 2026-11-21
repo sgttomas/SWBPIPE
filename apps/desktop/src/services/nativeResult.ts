@@ -11,8 +11,8 @@
  *   `NATIVE-RESULT-ROWS-GUARDED` rather than read a header as a result. Reader text
  *   (`readerSourceText`) refuses it too.
  * - **Access.** Rows come by bounded native page (`query`/`lookup`/`semantics`/`recovery`,
- *   `resultDetail.ts`), never as the envelope. A C2 consumer (reports, comparisons, rule checks,
- *   derivative exports, handoffs) may load the full result lazily through `loadFullResult`, only
+ *   `resultDetail.ts`), never as the envelope. A C2 consumer (reports, comparisons, derivative
+ *   exports, handoffs; a rule check reads the held result natively, by handle) may load the full result lazily through `loadFullResult`, only
  *   at or under 64 MiB; above it the native host refuses `RESULT-DETAIL-WEBVIEW-LIMIT` and
  *   `FullResultRefused` carries the sizes and the advice. No C1 surface calls it.
  * - **Delivery kinds.** The verdict command returns JSON through Tauri, so the webview receives an
@@ -87,7 +87,8 @@ export type NativeOrigin = "fresh_job" | "restored_saved_run" | "restored_record
 
 /** Native custody of one result: a fresh solve's, or a restored stored run's. */
 export type NativeCustody = Readonly<{
-  /** The native handle: a solve job's id, or a restored result's (`restored-stored-result-N`). */
+  /** The native handle: a solve job's id, or a restored result's (`restored-stored-result-<tag>-<n>`;
+ * the issue tag is the issuing registry's, `SolveJobRegistry::issue_tag`). */
   jobId: string;
   origin: NativeOrigin;
   /** The held result's exact length in bytes (the job's status). */
@@ -543,7 +544,8 @@ export function setFullCopyTransportForTests(next: FullCopyInvoke | null): void 
   fullCopyTransport = next ?? ((command, args) => invoke<unknown>(command, args));
 }
 
-/** C2 only (reports, comparisons, rule checks, derivative exports, handoffs): the full result,
+/** C2 only (reports, comparisons, derivative exports, handoffs; not rule checks, which read the
+ * held result natively by handle): the full result,
  * copied once per job at or under 64 MiB and registered by `register` (the legacy reader path on
  * the exact copied bytes). Above the limit, rejects with `FullResultRefused`. The copy's custody
  * lease is released with the job's disposal, or at once when the delivered copy is not kept. */
