@@ -24,9 +24,10 @@ export const S5 = "invented user value, DEL-09-01";
 
 // ---------------------------------------------------------------------------------------------
 // Reaching the Loads page's controls. Every step by which the two tests reach a load-case control
-// (selecting the project or a case, opening a section, opening a create form) is here and not in
-// the tests, so that a change in how the page shows its controls is one edit here. Each `open…`
-// takes the reach and returns a getter for the control's scope, queried afresh at each use.
+// is here and not in the tests, so that a change in how the page shows its controls is one edit
+// here. Today each reach is a selection of the project or a case, or none; a section or create
+// form the page comes to need opened is opened here too. Each `open…` takes the reach and returns
+// a getter for the control's scope, queried afresh at each use.
 // ---------------------------------------------------------------------------------------------
 
 type Scope = ReturnType<typeof within>;

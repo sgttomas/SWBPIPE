@@ -765,7 +765,7 @@ describe("the reference system entered from blank through the desktop's authorin
     await applyQueuedIntent("step states: RS-SAM");
     // RS-OPE-REF: copied from RS-OPE; its element states entered again on the 20 degC point and
     // filled; then each element state's analysis-basis override typed, RS-P180's excepted (fill and
-    // copy never carry the override).
+    // copy never carry the override, as `load-cases/analysisBasisOverride.engine.test.tsx` shows).
     state = page.openCaseAnalysisState("load:RS-OPE-REF");
     change(state(), "Copy analysis state from case", "load:RS-OPE");
     click(state(), "Replace this draft's analysis state with the copy");
