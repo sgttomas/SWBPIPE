@@ -1,9 +1,8 @@
 // DEL-07-05 numerical health §3, §5 and §7: every literal of numericalHealthText.ts
 // pinned to the design's wording, and the module's vocabulary fence.
-import { readFileSync } from "node:fs";
-import path from "node:path";
 import { describe, expect, it } from "vitest";
 import * as text from "./numericalHealthText";
+import * as status from "./integrityStatus";
 
 describe("numerical health text pins", () => {
   it("pins the label, states, headlines and prefix", () => {
@@ -104,15 +103,89 @@ describe("numerical health text pins", () => {
 });
 
 describe("numerical health vocabulary", () => {
-  // Release exit criterion 18 (LIM-026): the text may deny a verified bound, in exactly
-  // these phrases, and never claim one. Every other use of a fenced word still fails.
-  const DENIALS = ["has not verified an error bound", "not verified"];
-  const fenced = ["verified", "certified", "bound", "guaranteed", "valid", "approved", "compliant", "correct", "reliable"];
-  it("never uses a fenced word anywhere in the text module, but in the stated denials", () => {
-    let source = readFileSync(path.resolve(__dirname, "numericalHealthText.ts"), "utf8");
-    for (const denial of DENIALS) source = source.split(denial).join("");
-    for (const word of fenced) {
-      expect(source, word).not.toMatch(new RegExp(`\\b${word}\\b`, "i"));
-    }
+  // DEL-07-05 REQ-023 and AC-008, as changed for release exit criterion 18 (LIM-026): no text of the
+  // indicator uses certified, guaranteed, valid, approved, compliant, correct or reliable; it uses
+  // verified and bound only to deny them, in the phrases "not verified" and "has not verified an error
+  // bound". Each permitted denial is taken out only as a whole phrase at word boundaries, so "a knot
+  // verified" or "unbound" keeps its word. The note ("Reported by the solver; not verified by
+  // SWBPIPE.") denies by the first phrase.
+  const DENIALS = [/\bhas not verified an error bound\b/gi, /\bnot verified\b/gi];
+  const FENCED = ["verified", "bound", "certified", "guaranteed", "valid", "approved", "compliant", "correct", "reliable"];
+  function fencedWords(value: string): string[] {
+    const rest = DENIALS.reduce((left, denial) => left.replace(denial, " "), value);
+    return FENCED.filter((word) => new RegExp(`\\b${word}\\b`, "i").test(rest));
+  }
+  const STATES = Object.keys(text.NUMERICAL_HEALTH_STATE_TEXT) as text.NumericalHealthState[];
+  const OUTCOMES = Object.keys(status.CONFIRMATION_STATEMENTS);
+  const shown = (value: unknown): string[] => typeof value === "string" ? [value] : value && typeof value === "object" ? Object.values(value).flatMap(shown) : [];
+  /** Every string each export of the indicator's two text modules can show, by export: a constant
+   * as it is, a record's values, a function called over every state, outcome and form it takes. */
+  const INDICATOR: Record<string, () => string[]> = {
+    // numericalHealthText.ts: every export is indicator text.
+    ...Object.fromEntries(Object.entries(text).filter(([, value]) => typeof value !== "function").map(([name, value]) => [`text.${name}`, () => shown(value)])),
+    "text.numericalHealthHeadline": () => STATES.flatMap((state) => [text.numericalHealthHeadline(state), text.numericalHealthHeadline(state, true)]),
+    "text.numericalHealthCountHeadline": () => [true, false].flatMap((prefix) => [text.numericalHealthCountHeadline(STATES.map((state) => [state, 1] as const), prefix), text.numericalHealthCountHeadline([["checks_passed", 2]], prefix)]),
+    "text.outputSentence": () => [text.outputSentence(2)],
+    "text.checksPassedText": () => [text.checksPassedText("LC1")],
+    "text.sensitiveLeadText": () => [text.sensitiveLeadText("LC1")],
+    "text.loadFidelityCauseText": () => [text.loadFidelityCauseText(""), text.loadFidelityCauseText("load:a")],
+    "text.formationCauseText": () => [text.formationCauseText(""), text.formationCauseText("node N1, UX")],
+    "text.formationRecoveryCauseText": () => [text.formationRecoveryCauseText(""), text.formationRecoveryCauseText("member forces")],
+    "text.qualityUnresolvedLeadText": () => [text.qualityUnresolvedLeadText("LC1")],
+    "text.solveFailedLeadText": () => [text.solveFailedLeadText("LC1")],
+    "text.notAssessedText": () => [text.notAssessedText("LC1")],
+    "text.combinationText": () => [text.combinationText(STATES.map((state) => ["LC1", state] as const))],
+    "text.conditioningDetailText": () => [text.conditioningDetailText("10.5")],
+    "text.nodeDofLocationText": () => [text.nodeDofLocationText("N1", "UX")],
+    "text.reportLineText": () => STATES.map(text.reportLineText),
+    // integrityStatus.ts: the indicator's note, support-state lines and results-line leads.
+    "status.SOLVER_REPORT_NOTE": () => [status.SOLVER_REPORT_NOTE],
+    "status.CONFIRMATION_STATEMENTS": () => shown(status.CONFIRMATION_STATEMENTS),
+    "status.SUPPORT_STATES_LEAD": () => [status.SUPPORT_STATES_LEAD],
+    "status.DETAIL_NOT_CARRIED_TEXT": () => [status.DETAIL_NOT_CARRIED_TEXT],
+    "status.supportStatesText": () => OUTCOMES.flatMap((outcome) => shown(status.supportStatesText(outcome))),
+    "status.supportStatesLine": () => OUTCOMES.flatMap((outcome) => [null, "x"].flatMap((detail) => { const line = status.supportStatesLine(outcome, detail); return line ? [line.text, ...shown(line.detailNote)] : []; })),
+    "status.numericalQualityStatusText": () => [...STATES, "checks_passed", "unresolved", "failed"].map(status.numericalQualityStatusText),
+    "status.numericalHealthLead": () => ["checks_passed", "sensitive"].map((value) => status.numericalHealthLead({ numerical_quality: { status: value } } as never)),
+    "status.ordinarySolveLead": () => ["checks_passed", "sensitive"].map((value) => status.ordinarySolveLead({ numerical_quality: { status: value } } as never))
+  };
+  /** The exports of integrityStatus.ts that are not indicator text, with what they are. */
+  const NOT_INDICATOR: Record<string, string> = {
+    CHECKS_PASSED_CODE: "the solver's code, matched, never shown as the desktop's words",
+    SUPPORT_STATE_ESTABLISHED_TEXT: "the solver's own sentence, matched in its text",
+    SOLVER_CLAIM_PHRASES: "the solver's own phrases, matched in its text",
+    solverTextClaim: "the classification of a code",
+    needsSolverReportNote: "the predicate",
+    limitationsWithNotes: "the solver's limitation texts with the note",
+    withLimitationsNote: "the solver's limitation texts with the note",
+    standingStatusText: "the reader's standing status words, outside the indicator",
+    INTEGRITY_BOUND_NOT_VERIFIED_TEXT: "the reader verdict's bound member in words, outside the indicator",
+    integrityBoundText: "the reader verdict's bound member in words, outside the indicator",
+    supportStatesByCase: "reads records into supportStatesLine",
+    SOURCE_RECOVERY_METHOD: "a method token, matched",
+    recoveredCaseIds: "reads a result's recorded methods"
+  };
+
+  it("classifies every export of both modules, so a new string comes with a check", () => {
+    const named = new Set([...Object.keys(INDICATOR), ...Object.keys(NOT_INDICATOR).map((name) => `status.${name}`)]);
+    const exported = [...Object.keys(text).map((name) => `text.${name}`), ...Object.keys(status).map((name) => `status.${name}`)];
+    expect(exported.filter((name) => !named.has(name)), "unclassified exports").toEqual([]);
+    expect([...named].filter((name) => !exported.includes(name)), "classified names that are not exports").toEqual([]);
+  });
+
+  it.each(Object.keys(INDICATOR))("%s uses no fenced word but in the two denials", (name) => {
+    const strings = INDICATOR[name]();
+    expect(strings.length, name).toBeGreaterThan(0);
+    for (const value of strings) expect(fencedWords(value), `${name}: ${value}`).toEqual([]);
+  });
+
+  it("finds a fenced word that only looks like a denial", () => {
+    expect(fencedWords("a knot verified")).toEqual(["verified"]);
+    expect(fencedWords("not verifiedly bound")).toEqual(["bound"]);
+    expect(fencedWords("an error bound is verified")).toEqual(["verified", "bound"]);
+    expect(fencedWords("checks passed and verified")).toEqual(["verified"]);
+    expect(fencedWords("it is correct")).toEqual(["correct"]);
+    expect(fencedWords("Reported by the solver; not verified by SWBPIPE.")).toEqual([]);
+    expect(fencedWords("SWBPIPE has not verified an error bound for its values.")).toEqual([]);
   });
 });
