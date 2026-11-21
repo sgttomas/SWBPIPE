@@ -99,6 +99,9 @@ describe("StressRatioTablePanel: emitted stresses", () => {
     expect(screen.getByTestId("stress-ratio-value-s:P-2:i").textContent).toBe("-2345.68");
     expect(screen.getByTestId("stress-ratio-value-s:P-1:i").textContent).toBe("1234.57");
     expect(screen.getByTestId("stress-ratio-value-s:P-1:i").querySelector("span")!.getAttribute("title")).toBe("1234.57 MPa (s:P-1:i)");
+    // The case reads by its id, so the stress column keeps its width; the full label is its hover text.
+    expect(screen.getByTestId("stress-ratio-case-s:P-1:i").textContent).toBe("load:L-1");
+    expect(screen.getByTestId("stress-ratio-case-s:P-1:i").getAttribute("title")).toBe("Invented one (load:L-1)");
     const ratio = screen.getByTestId("stress-ratio-mode-ratio") as HTMLInputElement;
     expect(ratio.disabled).toBe(true);
     expect(screen.getByTestId("stress-ratio-mode-reason").textContent).toBe(RATIO_DISABLED_NO_RUN);

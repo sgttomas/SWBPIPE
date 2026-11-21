@@ -53,11 +53,11 @@ describe("displacement extremes panel: display rule", () => {
     expect(screen.getByTestId("displacement-extremes-column-ux").textContent).toBe("ux (mm)");
     expect(screen.getByTestId("displacement-extremes-column-rz").textContent).toBe("rz (rad)");
     const max = screen.getByTestId("displacement-extremes-cell-node:A-ux-max");
-    expect(max.textContent).toBe("1234.57Invented one (load:L-1)");
+    expect(max.textContent).toBe("1234.57load:L-1");
     expect(max.querySelector("span[title]")?.getAttribute("title")).toBe("1234.57 mm, Invented one (load:L-1) (ux:A:1)");
-    expect(screen.getByTestId("displacement-extremes-cell-node:A-ux-min").textContent).toBe("-2345.68Invented two (load:L-2)");
-    expect(screen.getByTestId("displacement-extremes-cell-node:B-uy-max").textContent).toBe("0.000123457Invented one (load:L-1)");
-    expect(screen.getByTestId("displacement-extremes-cell-node:C-rz-max").textContent).toBe("0.0123457Invented one (load:L-1)");
+    expect(screen.getByTestId("displacement-extremes-cell-node:A-ux-min").textContent).toBe("-2345.68load:L-2");
+    expect(screen.getByTestId("displacement-extremes-cell-node:B-uy-max").textContent).toBe("0.000123457load:L-1");
+    expect(screen.getByTestId("displacement-extremes-cell-node:C-rz-max").textContent).toBe("0.0123457load:L-1");
     expect(screen.getByTestId("displacement-extremes-cell-node:D-ux-max").textContent).toBe("—none");
     const markup = view.container.innerHTML;
     for (const stored of ["1234.5678", "2345.6789", "0.000123456789", "0.0123456789"]) expect(markup).not.toContain(stored);
@@ -68,7 +68,7 @@ describe("displacement extremes panel: display rule", () => {
   it("puts the unit in each cell when a column's units differ, and states a node's mixed units", () => {
     render(<DisplacementExtremesPanel model={model()} result={overlayResult([...rows(), move("ux:B:m", "x", "node:B", 0.5, "m"), move("ux:C:mm", "x", "node:C", 3), move("ux:A:m", "x", "node:A", 2, "m", L2)].filter((item) => item.id !== "ux:A:2"))} standing={PASSING} />);
     expect(screen.getByTestId("displacement-extremes-column-ux").textContent).toBe("ux");
-    expect(screen.getByTestId("displacement-extremes-cell-node:B-ux-max").textContent).toBe("0.5 mInvented one (load:L-1)");
+    expect(screen.getByTestId("displacement-extremes-cell-node:B-ux-max").textContent).toBe("0.5 mload:L-1");
     expect(screen.getByTestId("displacement-extremes-cell-node:A-ux-max").textContent).toBe("Units differ (m, mm); no extreme is formed");
   });
 });
@@ -87,7 +87,7 @@ describe("displacement extremes panel: cases, standing and filter", () => {
     // The envelope combination has no combination state in this standing, so it is withheld first.
     expect((screen.getByTestId("displacement-extremes-case-combination:combination:ENV") as HTMLInputElement).disabled).toBe(true);
     expect(screen.getByTestId("displacement-extremes-exclusions").textContent).toBe("Maximum and minimum over 1 of 3 cases; not included: 2 withheld by numerical standing (3 rows).");
-    expect(screen.getByTestId("displacement-extremes-cell-node:A-ux-min").textContent).toBe("1234.57Invented one (load:L-1)");
+    expect(screen.getByTestId("displacement-extremes-cell-node:A-ux-min").textContent).toBe("1234.57load:L-1");
     const l1 = screen.getByTestId("displacement-extremes-case-load_case:load:L-1") as HTMLInputElement;
     fireEvent.click(l1);
     expect(screen.getByTestId("displacement-extremes-no-case").textContent).toBe(DISPLACEMENT_EXTREMES_NO_CASE);
@@ -103,7 +103,7 @@ describe("displacement extremes panel: cases, standing and filter", () => {
     expect(screen.getByTestId("displacement-extremes-case-reason-combination:combination:ENV").textContent).toBe(` ${DISPLACEMENT_ENVELOPE_REASON}`);
     expect(screen.getByTestId("displacement-extremes-envelope-note")).toBeTruthy();
     expect(screen.getByTestId("displacement-extremes-exclusions").textContent).toBe("Maximum and minimum over 2 of 3 cases; not included: 1 range envelope.");
-    expect(screen.getByTestId("displacement-extremes-cell-node:A-ux-max").textContent).toBe("1234.57Invented one (load:L-1)");
+    expect(screen.getByTestId("displacement-extremes-cell-node:A-ux-max").textContent).toBe("1234.57load:L-1");
   });
 
   it("withholds everything for an ineligible result and says no case is admitted", () => {

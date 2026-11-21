@@ -39,6 +39,7 @@ import {
   type SupportLoadSummary,
   type SupportLoadValue
 } from "./supportLoadSummary";
+import { CaseRef } from "./CaseRef";
 
 export const SUPPORT_LOAD_SUMMARY_TITLE = "Support Load Summary";
 export const SUPPORT_LOAD_BOUNDARY_TEXT =
@@ -256,7 +257,7 @@ function SupportLoadTable({ summary, tid, markCaseKey = null }: { summary: Suppo
           {rows.map((row) => (
             <tr key={row.case.key} data-testid={tid(`row-${row.case.key}`)} data-standing={row.standing}
               aria-current={markCaseKey === row.case.key ? "true" : undefined} className={markCaseKey === row.case.key ? "selected-result-row" : undefined}>
-              <th scope="row">{row.case.label}{row.case.envelope ? <small> {row.case.note ?? "range envelope"}</small> : null}</th>
+              <th scope="row"><CaseRef basis={row.case.basis} label={row.case.label} testId={tid(`case-${row.case.key}`)} />{row.case.envelope ? <small> {row.case.note ?? "range envelope"}</small> : null}</th>
               {row.standing === "withheld" ? (
                 <td colSpan={SUPPORT_LOAD_COLUMNS.length} data-testid={tid(`withheld-${row.case.key}`)}>{row.withheldReason}</td>
               ) : (
@@ -283,7 +284,7 @@ function SupportLoadTable({ summary, tid, markCaseKey = null }: { summary: Suppo
                 const value = extreme?.[which] ?? null;
                 return (
                   <td key={item.id} data-testid={tid(`extreme-${which}-${item.id}`)}>
-                    {value ? <><ValueText value={value} shareUnit={false} /><br /><small>{value.caseLabel}</small></> : extreme?.note ? <small>{extreme.note}</small> : <Dash label={SUPPORT_LOAD_NO_EXTREME} />}
+                    {value ? <><ValueText value={value} shareUnit={false} /><br /><small><CaseRef caseKey={value.caseKey} label={value.caseLabel} /></small></> : extreme?.note ? <small>{extreme.note}</small> : <Dash label={SUPPORT_LOAD_NO_EXTREME} />}
                   </td>
                 );
               })}

@@ -52,6 +52,7 @@ import {
   type StressRatioValue,
   type StressRatioView
 } from "./stressRatioTable";
+import { CaseRef } from "./CaseRef";
 
 export const STRESS_RATIO_TITLE = "Stress and Ratio Table";
 export const STRESS_RATIO_PAGE = 50;
@@ -408,7 +409,7 @@ function PinnedRow({ row, valueColumns, selectedResultId, onSelectLocation, tid 
     <tr {...rowAttributes(row, "pinned", selectedResultId, tid)}>
       <th scope="row"><Dash label={STRESS_RATIO_NOT_RANKED} /></th>
       <LocationCell row={row} onSelectLocation={onSelectLocation} />
-      <td>{row.caseLabel}</td>
+      <td><CaseRef basis={row.case?.basis} label={row.caseLabel} ownLabel={row.case?.label} testId={tid(`case-${row.key}`)} /></td>
       <td>{outcome.checkId}</td>
       <td data-testid={tid(`status-${row.key}`)}>{incomplete ? STATUS_TEXT.RULE_INPUTS_INCOMPLETE : STRESS_RATIO_WITHHELD}</td>
       <td colSpan={valueColumns} data-testid={tid(`reason-${row.key}`)}>
@@ -436,7 +437,7 @@ function Row({ row, rank, part, mode, rule, units, selectedResultId, onSelectLoc
     <tr {...rowAttributes(row, part, selectedResultId, tid)}>
       <th scope="row">{rank === null ? <Dash label={STRESS_RATIO_NOT_RANKED} /> : rank}</th>
       <LocationCell row={row} onSelectLocation={onSelectLocation} />
-      <td>{row.caseLabel}</td>
+      <td><CaseRef basis={row.case?.basis} label={row.caseLabel} ownLabel={row.case?.label} testId={tid(`case-${row.key}`)} /></td>
       {rule && outcome ? <><td>{outcome.checkId}</td><td data-testid={tid(`status-${row.key}`)}>{STATUS_TEXT[outcome.status] ?? outcome.status}</td></> : null}
       {!rule && row.stress ? (
         <td data-testid={tid(`value-${row.key}`)}><ValueText value={row.stress} id={row.stress.resultId} shareUnit={units.stress !== null} /></td>

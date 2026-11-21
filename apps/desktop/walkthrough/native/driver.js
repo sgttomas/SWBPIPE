@@ -283,7 +283,17 @@
         // The tab bar brought up under the stage's header, so the tab's own table is what is in view.
         const bar = document.querySelector(".results-stage-tabbar");
         if (bar) await scrollTo(bar, "start");
-        return panel ? `${panel.querySelectorAll("tbody tr").length} table rows shown` : "";
+        if (!panel) return "";
+        // Which column headers a person can read without scrolling the table sideways.
+        const scroller = panel.querySelector('[class*="table-scroll"]');
+        let columns = "";
+        if (scroller) {
+          const box = scroller.getBoundingClientRect();
+          const heads = [...scroller.querySelectorAll("thead th")];
+          const hidden = heads.filter((th) => { const r = th.getBoundingClientRect(); return r.left < box.left - 1 || r.right > box.right + 1; }).map((th) => th.textContent.replace(/\s+/g, " ").trim());
+          columns = `; ${heads.length - hidden.length} of ${heads.length} column headers in view${hidden.length ? ` (not in view: ${hidden.join(", ")})` : ""}`;
+        }
+        return `${panel.querySelectorAll("tbody tr").length} table rows shown${columns}`;
       });
     }
     await journey.step("rows-sort", "All rows: its sort, where the table can order every matching row", async () => {

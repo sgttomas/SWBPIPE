@@ -36,6 +36,7 @@ import {
   type DisplacementNodeExtremes,
   type DisplacementSort
 } from "./displacementExtremes";
+import { CaseRef } from "./CaseRef";
 
 export const DISPLACEMENT_EXTREMES_TITLE = "Displacement Extremes";
 export const DISPLACEMENT_EXTREMES_PAGE = 50;
@@ -308,7 +309,7 @@ function ExtremesTable({ view, rows, selectedNodeId, onSelectNode, tid, sort, on
                     const value = extreme[which];
                     return (
                       <td key={`${item.id}-${which}`} data-testid={tid(`cell-${row.nodeId}-${item.id}-${which}`)}>
-                        {value ? <><ValueText value={value} shareUnit={shareUnit} /><br /><small>{value.caseLabel}</small></>
+                        {value ? <><ValueText value={value} shareUnit={shareUnit} /><br /><small><CaseRef caseKey={value.caseKey} label={value.caseLabel} /></small></>
                           : extreme.note ? <small>{extreme.note}</small> : <Dash label={DISPLACEMENT_NO_EXTREME} />}
                       </td>
                     );
