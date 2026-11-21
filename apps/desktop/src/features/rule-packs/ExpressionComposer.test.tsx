@@ -297,7 +297,7 @@ describe("ExpressionComposer component", () => {
   it("shows a labeled read-only expression text preview and no expression text input", () => {
     render(<Harness initial={buildDraftRulePackDocument()} />);
     const preview = screen.getByTestId("rule-pack-expression-text-preview");
-    expect(preview.textContent).toContain("Read-only AST-to-text preview");
+    expect(preview.textContent).toContain("Reads as");
     expect(preview.textContent).toContain("user_required_input_1");
     expect(preview.querySelector("textarea")).toBeNull();
     expect(preview.querySelector("input")).toBeNull();

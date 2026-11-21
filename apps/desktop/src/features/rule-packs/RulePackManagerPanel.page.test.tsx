@@ -1,0 +1,450 @@
+import { cleanup, fireEvent, render, screen, waitFor, within } from "@testing-library/react";
+import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
+import type { PreviewModel } from "../../types";
+import {
+  buildDraftRulePackDocument,
+  type LocalRulePackIndexEntry,
+  type RulePackDocument,
+  type RulePackDocumentValidation,
+  type RulePackValidationFinding
+} from "../../services/rulePackService";
+import { RulePackManagerPanel, partOfSubject } from "./RulePackManagerPanel";
+import { COMPLETENESS_STATUSES, LIBRARY_KINDS, REQUIRED_FOR_TARGETS, SLOT_KINDS, SOURCE_KINDS, VALUE_STATUSES } from "./DeclarationsEditor";
+import {
+  ACCEPTABILITY_BASES,
+  ACCEPTABILITY_RELATIONS,
+  ANALYSIS_STATUSES,
+  DIAGNOSTIC_CODES,
+  DIAGNOSTIC_POLICY_FIELDS
+} from "./CheckDefinitionsEditor";
+import {
+  AGGREGATE_FUNCTIONS,
+  BINARY_OPERATORS,
+  COMPARE_OPERATORS,
+  DIMENSIONS,
+  EDITABLE_NODE_TYPES,
+  LOGICAL_OPERATORS,
+  LOOKUP_MODES,
+  UNARY_OPERATORS
+} from "./ExpressionComposer";
+import {
+  ACCEPTABILITY_BASIS_WORDS,
+  ACCEPTABILITY_RELATION_WORDS,
+  ANALYSIS_STATUS_WORDS,
+  COMPLETENESS_WORDS,
+  DIAGNOSTIC_CODE_WORDS,
+  DIAGNOSTIC_POLICY_FIELD_WORDS,
+  DIMENSION_WORDS,
+  LIBRARY_KIND_WORDS,
+  NODE_KIND_WORDS,
+  OPERATOR_WORDS,
+  PAGE_WORDS,
+  PART_WORDS,
+  REQUIRED_FOR_WORDS,
+  SLOT_KIND_WORDS,
+  SOURCE_KIND_WORDS,
+  VALUE_STATUS_WORDS,
+  fieldWord,
+  type Words
+} from "./rulePackWords";
+
+// The Rules page as a person meets it: the project's packs read when the page
+// opens, one button to start a pack, an open pack's parts as closed lines with
+// their summaries and any fault's words, and every label and option in the
+// product's words, read from the one words module (rulePackWords.ts). The
+// store and backend routes are stubbed with backend-shaped responses; every id
+// and text below is invented.
+
+const backend = vi.hoisted(() => ({
+  entries: [] as LocalRulePackIndexEntry[],
+  listCalls: 0,
+  validation: null as unknown as RulePackDocumentValidation,
+  checksumDocuments: [] as unknown[]
+}));
+
+vi.mock("../../services/rulePackService", async (importOriginal) => {
+  const actual = await importOriginal<typeof import("../../services/rulePackService")>();
+  return {
+    ...actual,
+    listLocalRulePacks: vi.fn(async () => {
+      backend.listCalls += 1;
+      return { route: "tauri_backend", entries: backend.entries };
+    }),
+    validateRulePack: vi.fn(async () => ({ route: "tauri_backend", validation: backend.validation })),
+    computeRulePackChecksum: vi.fn(async (document: unknown) => {
+      backend.checksumDocuments.push(document);
+      return {
+        route: "tauri_backend",
+        computed: {
+          algorithm: "sha256",
+          canonicalization: "JCS",
+          payload_scope: "rule_pack_payload",
+          payload_ref: "private_draft_rule_pack",
+          payload_excludes: ["checksums"],
+          basis: "invented_basis",
+          grammar_version: "1.0.0",
+          grammar_version_bound: true,
+          value: "0".repeat(64)
+        }
+      };
+    })
+  };
+});
+
+const modelStub = {
+  project: { id: "project:invented-page", name: "Invented Page Project" },
+  rule_pack_refs: []
+} as unknown as PreviewModel;
+
+const savedEntry: LocalRulePackIndexEntry = {
+  project_id: "project:invented-page",
+  rule_pack_id: "invented_saved_pack",
+  rule_pack_name: "Invented saved pack",
+  rule_pack_version: "0.2.0",
+  lifecycle_status: "review_pending",
+  privacy_class: "private_user_data",
+  storage_mode: "local_sqlite",
+  created_at_unix: 1,
+  updated_at_unix: 1
+};
+
+function validationWith(findings: RulePackValidationFinding[]): RulePackDocumentValidation {
+  return {
+    document_kind: "openpipestress.rule_pack.document_validation",
+    rule_pack_id: "private_draft_rule_pack",
+    rule_pack_name: "Private Draft Rule Pack",
+    rule_pack_version: "0.1.0",
+    schema_version: "0.5.0",
+    grammar_version: "1.0.0",
+    grammar_version_supported: true,
+    supported_grammar_versions: ["1.0.0"],
+    evaluator_grammar_version: "1.0.0",
+    document_findings: findings,
+    lifecycle_findings: [],
+    lifecycle_blocked: false,
+    formulas: [],
+    unit_check: { status: "consistent", checks: [], declaration_findings: [] },
+    checksum: { declared_value: null, computed: null, match_status: "not_computable" },
+    publicly_exportable: false,
+    professional_boundary_notice: "notice",
+    has_blocking_findings: findings.some((finding) => finding.blocking)
+  };
+}
+
+const PART_KEYS = ["loadCases", "categories", "inputs", "formula", "checks"] as const;
+
+function part(key: (typeof PART_KEYS)[number]): HTMLDetailsElement {
+  return screen.getByTestId(`rule-pack-part-${key}`) as HTMLDetailsElement;
+}
+
+function openPart(key: (typeof PART_KEYS)[number]): HTMLDetailsElement {
+  const element = part(key);
+  element.open = true;
+  return element;
+}
+
+function optionTexts(testId: string, scope: HTMLElement | Document = document): string[] {
+  const select = within(scope as HTMLElement).getAllByTestId(testId)[0] as HTMLSelectElement;
+  return Array.from(select.options).map((option) => option.textContent ?? "");
+}
+
+function words(tokens: readonly string[], table: Words): string[] {
+  return tokens.map((token) => table[token]);
+}
+
+beforeEach(() => {
+  backend.entries = [savedEntry];
+  backend.listCalls = 0;
+  backend.validation = validationWith([]);
+  backend.checksumDocuments = [];
+});
+
+afterEach(cleanup);
+
+describe("the Rules page with no pack open", () => {
+  it("reads the project's packs without a press and shows the list, the start button and no editor field", async () => {
+    render(<RulePackManagerPanel model={modelStub} />);
+    const row = await screen.findByTestId("rule-pack-entry-invented_saved_pack");
+    expect(backend.listCalls).toBe(1);
+    expect(screen.queryByTestId("rule-pack-refresh-list")).toBeNull();
+    expect(row.textContent).toContain("Invented saved pack");
+    expect(row.textContent).toContain("version 0.2.0");
+    expect(row.textContent).toContain("awaiting review");
+    expect(row.textContent).not.toContain("invented_saved_pack");
+    expect(screen.getByTestId("rule-pack-open-invented_saved_pack").textContent).toBe(PAGE_WORDS.open);
+    expect(screen.getByTestId("rule-pack-delete-invented_saved_pack").textContent).toBe(PAGE_WORDS.delete);
+    expect(screen.getByTestId("rule-pack-new-draft").textContent).toBe(PAGE_WORDS.newPack);
+    expect(screen.getByTestId("rule-pack-scope-status").textContent).toBe(PAGE_WORDS.scope);
+
+    const panel = screen.getByTestId("rule-pack-manager-panel");
+    expect(panel.querySelectorAll("input, select, textarea")).toHaveLength(0);
+    expect(screen.queryByTestId("rule-pack-validate")).toBeNull();
+    expect(screen.queryByTestId("rule-pack-parts")).toBeNull();
+  });
+
+  it("says in one line when the project has no saved pack", async () => {
+    backend.entries = [];
+    render(<RulePackManagerPanel model={modelStub} />);
+    expect((await screen.findByTestId("rule-pack-list-status")).textContent).toBe(PAGE_WORDS.listEmpty);
+  });
+});
+
+describe("an open pack", () => {
+  it("shows its name and version, the save controls in order, and its parts closed with their summaries", () => {
+    render(<RulePackManagerPanel model={modelStub} />);
+    fireEvent.click(screen.getByTestId("rule-pack-new-draft"));
+
+    const header = screen.getByTestId("rule-pack-header");
+    expect(header.textContent).toContain("Private Draft Rule Pack");
+    expect(header.textContent).toContain("version 0.1.0");
+    expect(screen.getByTestId("rule-pack-save-state").textContent).toBe(PAGE_WORDS.notSaved);
+
+    const controls = ["rule-pack-validate", "rule-pack-compute-checksum", "rule-pack-save", "rule-pack-discard-draft"].map(
+      (testId) => screen.getByTestId(testId)
+    );
+    expect(controls.map((control) => control.textContent)).toEqual([
+      PAGE_WORDS.validate,
+      PAGE_WORDS.checksum,
+      PAGE_WORDS.save,
+      PAGE_WORDS.discard
+    ]);
+    // The controls come straight after the name, before the parts.
+    expect(header.compareDocumentPosition(controls[0]) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
+    expect(controls[3].compareDocumentPosition(part("loadCases")) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
+
+    for (const key of PART_KEYS) expect(part(key).open).toBe(false);
+    const summary = (key: (typeof PART_KEYS)[number]) => screen.getByTestId(`rule-pack-part-summary-${key}`).textContent;
+    expect(part("loadCases").querySelector("summary")?.textContent).toContain(PART_WORDS.loadCases);
+    expect(summary("loadCases")).toBe("1");
+    expect(summary("categories")).toBe("1");
+    // One input and one limit, both stated incomplete by the template.
+    expect(summary("inputs")).toBe(`2, 2 ${PART_WORDS.markedIncomplete}`);
+    expect(summary("formula")).toBe("user_required_input_1");
+    expect(summary("checks")).toBe("1");
+
+    // The document and the codes are closed disclosures.
+    expect((screen.getByTestId("rule-pack-document") as HTMLDetailsElement).open).toBe(false);
+    expect((screen.getByTestId("rule-pack-details") as HTMLDetailsElement).open).toBe(false);
+  });
+
+  it("shows a fault's words on its part's closed line, and only while the pack reads as it was checked", async () => {
+    backend.validation = validationWith([
+      { code: "RULE_PACK_FIELD_REQUIRED", subject: "required_inputs[0].name", message: "the input needs a name", blocking: true },
+      { code: "RULE_PACK_FIELD_REQUIRED", subject: "value_slots[0]", message: "the limit needs a kind", blocking: true },
+      { code: "RULE_PACK_REFERENCE_UNRESOLVED", subject: "user_check_1", message: "the check names no formula", blocking: true },
+      { code: "RULE_PACK_NOTE", subject: "required_load_cases[0]", message: "a warning only", blocking: false }
+    ]);
+    render(<RulePackManagerPanel model={modelStub} />);
+    fireEvent.click(screen.getByTestId("rule-pack-new-draft"));
+    fireEvent.click(screen.getByTestId("rule-pack-validate"));
+
+    const inputsFault = await screen.findByTestId("rule-pack-part-fault-inputs");
+    expect(part("inputs").open).toBe(false);
+    expect(inputsFault.textContent).toBe("the input needs a name (and 1 more)");
+    expect(screen.getByTestId("rule-pack-part-fault-checks").textContent).toBe("the check names no formula");
+    // A non-blocking finding is not a fault on the line.
+    expect(screen.queryByTestId("rule-pack-part-fault-loadCases")).toBeNull();
+    // Beside the save controls, in words.
+    expect(screen.getByTestId("rule-pack-validation-words").textContent).toContain("3 things to fix");
+    expect(screen.getByTestId("rule-pack-validation-words").textContent).toContain("the limit needs a kind");
+
+    // An edit after the check: the closed lines no longer claim its faults.
+    fireEvent.click(screen.getByTestId("rule-pack-input-add"));
+    expect(screen.queryByTestId("rule-pack-part-fault-inputs")).toBeNull();
+    expect(screen.getByTestId("rule-pack-validation-words").textContent).toContain(PAGE_WORDS.staleFindings);
+  });
+
+  it("reaches every existing control by its test id once its part is opened", () => {
+    render(<RulePackManagerPanel model={modelStub} />);
+    fireEvent.click(screen.getByTestId("rule-pack-new-draft"));
+    const controlsByPart: Record<(typeof PART_KEYS)[number], string[]> = {
+      loadCases: [
+        "rule-pack-load-case-name", "rule-pack-load-case-description", "rule-pack-load-case-basis-type",
+        "rule-pack-load-case-basis-id", "rule-pack-load-case-id", "rule-pack-load-case-remove", "rule-pack-load-case-add"
+      ],
+      categories: [
+        "rule-pack-category-name", "rule-pack-category-description", "rule-pack-category-mapping-user_required_load_case_1",
+        "rule-pack-category-id", "rule-pack-category-remove", "rule-pack-category-add"
+      ],
+      inputs: [
+        "rule-pack-input-name", "rule-pack-input-source-kind", "rule-pack-input-dimension", "rule-pack-input-unit",
+        "rule-pack-input-id", "rule-pack-input-required-for", "rule-pack-input-completeness", "rule-pack-input-remove",
+        "rule-pack-input-add", "rule-pack-slot-id", "rule-pack-slot-kind", "rule-pack-slot-dimension", "rule-pack-slot-unit",
+        "rule-pack-slot-value-status", "rule-pack-slot-required-for", "rule-pack-slot-completeness", "rule-pack-slot-remove",
+        "rule-pack-slot-add", "rule-pack-declarations-unit-policy"
+      ],
+      formula: [
+        "rule-pack-formula-select", "rule-pack-node-type", "rule-pack-variable-ref", "rule-pack-expression-text-preview",
+        "rule-pack-variable-browser", "rule-pack-expression-unit-policy"
+      ],
+      checks: [
+        "rule-pack-check-name", "rule-pack-check-description", "rule-pack-check-category-ref", "rule-pack-check-formula-ref",
+        "rule-pack-check-input-ref", "rule-pack-check-input-ref-remove", "rule-pack-check-input-ref-add",
+        "rule-pack-check-slot-ref", "rule-pack-check-slot-ref-remove", "rule-pack-check-slot-ref-add",
+        "rule-pack-check-acceptability-relation", "rule-pack-check-id", "rule-pack-check-acceptability-basis",
+        ...["MODEL_INCOMPLETE", "MECHANICS_SOLVED", "RULE_INPUTS_INCOMPLETE", "USER_RULE_CHECKED", "USER_RULE_FAILED", "HUMAN_REVIEW_REQUIRED"].map(
+          (status) => `rule-pack-check-status-${status}`
+        ),
+        ...DIAGNOSTIC_POLICY_FIELDS.map((field) => `rule-pack-check-policy-${field}`),
+        "rule-pack-check-remove", "rule-pack-check-add"
+      ]
+    };
+    for (const key of PART_KEYS) {
+      const element = openPart(key);
+      for (const testId of controlsByPart[key]) {
+        expect(within(element).getAllByTestId(testId).length, `${testId} in ${key}`).toBeGreaterThan(0);
+      }
+    }
+    // The document and the save controls keep theirs too.
+    for (const testId of ["rule-pack-draft-json", "rule-pack-validate", "rule-pack-compute-checksum", "rule-pack-save", "rule-pack-discard-draft", "rule-pack-boundary-note"]) {
+      expect(screen.getByTestId(testId)).toBeTruthy();
+    }
+  });
+
+  it("places each finding in the part its subject names", () => {
+    const document = buildDraftRulePackDocument();
+    expect(partOfSubject("required_load_cases[1].basis_ref", document)).toBe("loadCases");
+    expect(partOfSubject("load_case_mappings[0].category_ref", document)).toBe("categories");
+    expect(partOfSubject("required_inputs[0] (actual)", document)).toBe("inputs");
+    expect(partOfSubject("user_limit_slot_1", document)).toBe("inputs");
+    expect(partOfSubject("formula_declarations[0].expression_ast", document)).toBe("formula");
+    expect(partOfSubject("user_check_1", document)).toBe("checks");
+    expect(partOfSubject("grammar_version", document)).toBeNull();
+  });
+});
+
+describe("the words of the page, read from the one words module", () => {
+  it("has a word for every token of every vocabulary the editors offer", () => {
+    const vocabularies: Array<[readonly string[], Words]> = [
+      [SOURCE_KINDS, SOURCE_KIND_WORDS],
+      [REQUIRED_FOR_TARGETS, REQUIRED_FOR_WORDS],
+      [COMPLETENESS_STATUSES, COMPLETENESS_WORDS],
+      [SLOT_KINDS, SLOT_KIND_WORDS],
+      [VALUE_STATUSES, VALUE_STATUS_WORDS],
+      [LIBRARY_KINDS, LIBRARY_KIND_WORDS],
+      [ACCEPTABILITY_BASES, ACCEPTABILITY_BASIS_WORDS],
+      [ACCEPTABILITY_RELATIONS, ACCEPTABILITY_RELATION_WORDS],
+      [ANALYSIS_STATUSES, ANALYSIS_STATUS_WORDS],
+      [DIAGNOSTIC_CODES, DIAGNOSTIC_CODE_WORDS],
+      [DIAGNOSTIC_POLICY_FIELDS, DIAGNOSTIC_POLICY_FIELD_WORDS],
+      [DIMENSIONS, DIMENSION_WORDS],
+      [EDITABLE_NODE_TYPES, NODE_KIND_WORDS],
+      [[...UNARY_OPERATORS, ...BINARY_OPERATORS, ...COMPARE_OPERATORS, ...LOGICAL_OPERATORS, ...AGGREGATE_FUNCTIONS, ...LOOKUP_MODES], OPERATOR_WORDS]
+    ];
+    for (const [tokens, table] of vocabularies) {
+      for (const token of tokens) {
+        const word = table[token];
+        expect(word, token).toBeTruthy();
+        // A word is not the format's token: no underscores, no code in capitals.
+        expect(word, token).not.toMatch(/_|^[A-Z0-9_]{4,}$/);
+      }
+    }
+  });
+
+  it("labels and offers each control in those words, keeping the format name and token as titles", () => {
+    render(<RulePackManagerPanel model={modelStub} />);
+    fireEvent.click(screen.getByTestId("rule-pack-new-draft"));
+
+    const inputs = openPart("inputs");
+    expect(optionTexts("rule-pack-input-source-kind", inputs)).toEqual(words(SOURCE_KINDS, SOURCE_KIND_WORDS));
+    expect(optionTexts("rule-pack-input-required-for", inputs)).toEqual(words(REQUIRED_FOR_TARGETS, REQUIRED_FOR_WORDS));
+    expect(optionTexts("rule-pack-input-completeness", inputs)).toEqual(words(COMPLETENESS_STATUSES, COMPLETENESS_WORDS));
+    expect(optionTexts("rule-pack-input-dimension", inputs)).toEqual(words(DIMENSIONS, DIMENSION_WORDS));
+    expect(optionTexts("rule-pack-slot-kind", inputs)).toEqual(words(SLOT_KINDS, SLOT_KIND_WORDS));
+    expect(optionTexts("rule-pack-slot-value-status", inputs)).toEqual(words(VALUE_STATUSES, VALUE_STATUS_WORDS));
+    const sourceKind = within(inputs).getByTestId("rule-pack-input-source-kind");
+    const sourceLabel = sourceKind.closest("label") as HTMLLabelElement;
+    expect(sourceLabel.querySelector("span")?.textContent).toBe(fieldWord("source_kind"));
+    expect(sourceLabel.title).toBe("Format name: source_kind");
+    expect(Array.from((sourceKind as HTMLSelectElement).options).map((option) => option.title)).toEqual([...SOURCE_KINDS]);
+    // The name leads the row; the identifier is under "More".
+    const row = within(inputs).getAllByTestId("rule-pack-required-input-row")[0];
+    expect(row.querySelector("input")?.getAttribute("data-testid")).toBe("rule-pack-input-name");
+    expect(within(row).getByTestId("rule-pack-input-id").closest("details")?.getAttribute("data-testid")).toBe("rule-pack-input-more");
+
+    const checks = openPart("checks");
+    expect(optionTexts("rule-pack-check-acceptability-relation", checks)).toEqual(
+      words(ACCEPTABILITY_RELATIONS, ACCEPTABILITY_RELATION_WORDS)
+    );
+    expect(optionTexts("rule-pack-check-acceptability-basis", checks)).toEqual(words(ACCEPTABILITY_BASES, ACCEPTABILITY_BASIS_WORDS));
+    expect(optionTexts("rule-pack-check-policy-missing_input", checks)).toEqual(words(DIAGNOSTIC_CODES, DIAGNOSTIC_CODE_WORDS));
+    const status = within(checks).getByTestId("rule-pack-check-status-USER_RULE_CHECKED").closest("label") as HTMLLabelElement;
+    expect(status.textContent).toBe(ANALYSIS_STATUS_WORDS.USER_RULE_CHECKED);
+    // A reference to an input shows its name, not its identifier.
+    expect(optionTexts("rule-pack-check-input-ref", checks)).toEqual(["User-defined required input (placeholder)"]);
+
+    const formula = openPart("formula");
+    expect(optionTexts("rule-pack-node-type", formula)).toEqual(words(EDITABLE_NODE_TYPES, NODE_KIND_WORDS));
+    expect(within(formula).getAllByTestId("rule-pack-node-kind")[0].textContent).toBe(NODE_KIND_WORDS.variable_ref);
+
+    // No field label on any opened part is a field name with an underscore.
+    for (const key of PART_KEYS) {
+      for (const label of Array.from(openPart(key).querySelectorAll('label[title^="Format name"] > span, .rule-pack-node-label'))) {
+        expect(label.textContent ?? "", key).not.toMatch(/[a-z]_[a-z]/);
+      }
+    }
+  });
+});
+
+describe("the document a set of entries produces", () => {
+  it("is byte for byte the document the format's own members give, and is what the checksum is computed over", async () => {
+    render(<RulePackManagerPanel model={modelStub} />);
+    fireEvent.click(screen.getByTestId("rule-pack-new-draft"));
+
+    const loadCases = openPart("loadCases");
+    fireEvent.change(within(loadCases).getByTestId("rule-pack-load-case-name"), { target: { value: "Invented sustained case" } });
+    fireEvent.change(within(loadCases).getByTestId("rule-pack-load-case-basis-type"), { target: { value: "load_case" } });
+    fireEvent.change(within(loadCases).getByTestId("rule-pack-load-case-basis-id"), { target: { value: "L-100" } });
+    const categories = openPart("categories");
+    fireEvent.change(within(categories).getByTestId("rule-pack-category-name"), { target: { value: "Invented category" } });
+    const inputs = openPart("inputs");
+    fireEvent.change(within(inputs).getByTestId("rule-pack-input-name"), { target: { value: "Invented stress" } });
+    fireEvent.change(within(inputs).getByTestId("rule-pack-input-dimension"), { target: { value: "stress" } });
+    fireEvent.change(within(inputs).getByTestId("rule-pack-input-unit"), { target: { value: "MPa" } });
+    fireEvent.change(within(inputs).getByTestId("rule-pack-input-completeness"), { target: { value: "complete" } });
+    fireEvent.change(within(inputs).getByTestId("rule-pack-slot-kind"), { target: { value: "stress_limit" } });
+    fireEvent.change(within(inputs).getByTestId("rule-pack-slot-dimension"), { target: { value: "stress" } });
+    fireEvent.change(within(inputs).getByTestId("rule-pack-slot-unit"), { target: { value: "MPa" } });
+    const checks = openPart("checks");
+    fireEvent.change(within(checks).getByTestId("rule-pack-check-acceptability-relation"), { target: { value: "less_than" } });
+    fireEvent.click(within(checks).getByTestId("rule-pack-check-status-HUMAN_REVIEW_REQUIRED"));
+
+    // The same entries made on the format's own members.
+    const expected = buildDraftRulePackDocument() as Record<string, any>;
+    expected.required_load_cases[0] = { ...expected.required_load_cases[0], name: "Invented sustained case" };
+    expected.required_load_cases[0] = { ...expected.required_load_cases[0], basis_ref: { ref_type: "load_case", ref_id: "" } };
+    expected.required_load_cases[0] = { ...expected.required_load_cases[0], basis_ref: { ref_type: "load_case", ref_id: "L-100" } };
+    expected.stress_categories[0] = { ...expected.stress_categories[0], name: "Invented category" };
+    const input = expected.required_inputs[0];
+    expected.required_inputs[0] = { ...input, name: "Invented stress" };
+    expected.required_inputs[0] = {
+      ...expected.required_inputs[0],
+      quantity_intent: { ...expected.required_inputs[0].quantity_intent, dimension: "stress" }
+    };
+    expected.required_inputs[0] = {
+      ...expected.required_inputs[0],
+      quantity_intent: { ...expected.required_inputs[0].quantity_intent, unit_ref: "MPa" }
+    };
+    expected.required_inputs[0] = { ...expected.required_inputs[0], completeness_status: "complete" };
+    expected.value_slots[0] = { ...expected.value_slots[0], slot_kind: "stress_limit" };
+    expected.value_slots[0] = { ...expected.value_slots[0], quantity_intent: { ...expected.value_slots[0].quantity_intent, dimension: "stress" } };
+    expected.value_slots[0] = { ...expected.value_slots[0], quantity_intent: { ...expected.value_slots[0].quantity_intent, unit_ref: "MPa" } };
+    expected.check_definitions[0] = { ...expected.check_definitions[0], acceptability_relation: "less_than" };
+    expected.check_definitions[0] = {
+      ...expected.check_definitions[0],
+      result_statuses: expected.check_definitions[0].result_statuses.includes("HUMAN_REVIEW_REQUIRED")
+        ? expected.check_definitions[0].result_statuses.filter((status: string) => status !== "HUMAN_REVIEW_REQUIRED")
+        : [...expected.check_definitions[0].result_statuses, "HUMAN_REVIEW_REQUIRED"]
+    };
+
+    const textarea = screen.getByTestId("rule-pack-draft-json") as HTMLTextAreaElement;
+    expect(textarea.value).toBe(JSON.stringify(expected, null, 2));
+    // No field was prefilled with an engineering value: the limit's number is not in the pack.
+    expect(JSON.stringify(expected.value_slots)).not.toMatch(/"value":/);
+
+    // The checksum is computed over exactly that document.
+    fireEvent.click(screen.getByTestId("rule-pack-compute-checksum"));
+    await waitFor(() => expect(backend.checksumDocuments).toHaveLength(1));
+    expect(JSON.stringify(backend.checksumDocuments[0] as RulePackDocument, null, 2)).toBe(JSON.stringify(expected, null, 2));
+  });
+});

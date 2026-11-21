@@ -134,13 +134,12 @@ describe("RulePackManagerPanel format 0.5.0 validation", () => {
       message: "Opened invented_legacy_pack."
     };
     render(<RulePackManagerPanel model={modelStub} />);
-    fireEvent.click(screen.getByTestId("rule-pack-refresh-list"));
-    // A stored 0.4.0 pack stays listed.
+    // The list is read when the page opens. A stored 0.4.0 pack stays listed.
     await screen.findByTestId("rule-pack-entry-invented_legacy_pack");
     fireEvent.click(screen.getByTestId("rule-pack-open-invented_legacy_pack"));
 
     const refusal = await screen.findByTestId("rule-pack-version-refusal");
-    expect(refusal.textContent).toContain("RULE_PACK_SCHEMA_VERSION_UNSUPPORTED");
+    expect(refusal.querySelector("[title]")?.getAttribute("title")).toBe("RULE_PACK_SCHEMA_VERSION_UNSUPPORTED");
     expect(refusal.textContent).toContain("format '0.4.0'");
     expect(refusal.textContent).toContain("reads rule-pack format 0.5.0 only");
     expect(refusal.textContent).toContain("can only be deleted");
@@ -155,9 +154,9 @@ describe("RulePackManagerPanel format 0.5.0 validation", () => {
     fireEvent.click(screen.getByTestId("rule-pack-refused-delete"));
     await waitFor(() => expect(backend.deleted).toEqual(["invented_legacy_pack"]));
     await waitFor(() => expect(screen.queryByTestId("rule-pack-version-refusal")).toBeNull());
-    expect((screen.getByTestId("rule-pack-draft-json") as HTMLTextAreaElement).value).toBe("");
+    expect(screen.queryByTestId("rule-pack-draft-json")).toBeNull();
     expect(screen.queryByTestId("rule-pack-entry-invented_legacy_pack")).toBeNull();
-    expect(screen.getByTestId("rule-pack-action-status").textContent).toContain("Deleted invented_legacy_pack.");
+    expect(screen.getByTestId("rule-pack-action-status").textContent).toContain("Deleted Invented legacy pack.");
   });
 
   it("returns to authoring when a new draft replaces the refused stored pack", async () => {
@@ -165,7 +164,6 @@ describe("RulePackManagerPanel format 0.5.0 validation", () => {
     backend.validation = validationWith([finding("RULE_PACK_SCHEMA_VERSION_UNSUPPORTED", "schema_version", "format '0.4.0' is not supported")], "0.4.0");
     backend.envelope = { ...backend.envelope, validation: backend.validation };
     render(<RulePackManagerPanel model={modelStub} />);
-    fireEvent.click(screen.getByTestId("rule-pack-refresh-list"));
     fireEvent.click(await screen.findByTestId("rule-pack-open-invented_legacy_pack"));
     await screen.findByTestId("rule-pack-version-refusal");
     fireEvent.click(screen.getByTestId("rule-pack-new-draft"));

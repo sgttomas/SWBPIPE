@@ -1,6 +1,6 @@
 import { C2ResultGate } from "../results/C2ResultGate";
 import type { SessionAnalysisRun, SessionResult } from "../../services/nativeResult";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState, type ReactNode } from "react";
 import { FileText, ShieldAlert } from "lucide-react";
 import type { EditorOperationIntent, MechanicsResult, PreviewModel } from "../../types";
 import { RulePackModelReferences } from "../model-data/RulePackModelReferences";
@@ -23,52 +23,57 @@ import {
   type RulePackUnitCheckOperand,
   type RulePackValidationFinding
 } from "../../services/rulePackService";
-import { ExpressionComposer, parseRulePackDocument } from "./ExpressionComposer";
+import { ExpressionComposer, parseRulePackDocument, readFormulaDeclarations, renderExpressionText } from "./ExpressionComposer";
 import { DeclarationsEditor, LoadCaseCategoriesEditor } from "./DeclarationsEditor";
 import { CheckDefinitionsEditor } from "./CheckDefinitionsEditor";
+import { LIFECYCLE_WORDS, PAGE_WORDS, PART_WORDS, countLine, thingsToFix, wordFor } from "./rulePackWords";
 
 // Rule-Pack Manager (PRD §14.5 / §14.1 "Rule-pack manager"). Pack management
 // and document authoring against the local-only store: list/create/open/
 // save/delete, validation findings, and checksum generation/stamping.
 //
-// Slice 1 (TP-C2-EDITOR-001) authored the whole document as raw canonical
-// JSON. Slice 2 (TP-C2-COMPOSER-001) added the structured AST expression
-// composer (PRD §14.5 "Expression editor"); slice 3 (TP-C2-TABLENODE-001)
-// extends it to the table-backed nodes, so the full grammar v1.0.0 node set
-// (DEC-022) is built through form/tree controls rather than hand-written JSON.
-// Slice 4 (TP-C2-DECLEDITOR-001) adds the variable-declarations editor for the
-// `required_inputs` and `value_slots` the composer's variable picker binds to.
-// Slice 5 (TP-C2-CHECKDEF-001) adds the check-definitions editor, which binds
-// those declarations and a formula into each acceptability check — the last
-// document-structure member that had no form builder. The raw document JSON
-// stays as the canonical/fallback surface for the remaining metadata members
-// (diagnostics, classification, checksums, provenance, professional_boundary,
-// open_decisions). DEC-037 permits a labeled read-only one-way AST-to-text
-// preview, but no writable expression text syntax or parser is provided.
+// The page reads top to bottom as a person uses it: the project's packs as a
+// short list (read when the page opens), one button to start a pack, and,
+// only once a pack is open, its name and version, the save controls in the
+// order they are pressed with the findings in words beside them, and the
+// pack's parts as closed lines. Each closed line carries a summary a person
+// can read without opening it, and the words of any fault the last check
+// found in it. Every label and option is the product's word for the format's
+// field or token (rulePackWords.ts); the format name stays findable as the
+// control's title. Codes, key=value lines and the document itself sit in
+// closed "Details" and "Document (JSON)" disclosures.
 //
-// Format 0.5.0 (W-17): a new draft
-// writes 0.5.0; the load-case/category editor authors required load cases
-// (chosen from the current model's load cases and combinations), stress
-// categories and their mappings; solver inputs author a row selector, offered
-// from the session's current solved result when there is one. A stored pack
-// in any other format opens with the refusal shown and offers delete only:
-// there is no migration.
+// The editors compose the whole document through structured controls:
+// required load cases, stress categories and mappings; required inputs and
+// value slots; the formula's expression AST (DEC-022 grammar, no writable text
+// syntax: DEC-037 permits only the read-only preview); and the check
+// definitions. The raw document JSON stays the canonical surface for the
+// remaining metadata members. A stored pack in a format other than 0.5.0
+// opens with its refusal shown and offers delete only: there is no migration.
 
-const NO_DRAFT_REASON = "No draft rule-pack document; create a new draft or open a stored pack first.";
-const NO_PROJECT_REASON = "Local rule packs are project-scoped; create or open a local project first.";
+const NO_DRAFT_REASON = "No rule pack is open; start a new one or open a saved one first.";
 const BUSY_REASON =
-  "A rule-pack backend request is in progress; wait for it to finish before editing or running another action.";
+  "A rule-pack request is in progress; wait for it to finish before editing or running another action.";
 
 type DraftState = {
   text: string;
   origin: string;
 };
 
+/** One line under the save controls: words, with any code kept as its title. */
+type ActionStatus = { text: string; code?: string };
+
 type RulePackR3JourneyEvent =
   | "rule_pack_draft_created"
   | "rule_pack_validate_requested"
   | "rule_pack_checksum_requested"
   | "rule_pack_save_requested";
+
+/** The parts of an open pack, in the order the page shows them. */
+type PartKey = "loadCases" | "categories" | "inputs" | "formula" | "checks";
+
+const BACKEND_UNAVAILABLE_WORDS =
+  "Checking, stamping and saving run in the desktop app; this browser build keeps the pack in memory only.";
 
 export function RulePackManagerPanel({
   model,
@@ -88,13 +93,17 @@ export function RulePackManagerPanel({
   operationBusy?: boolean;
 }) {
   const [draft, setDraft] = useState<DraftState | null>(null);
-  const [actionStatus, setActionStatus] = useState<string>(
-    "No rule-pack action has run in this session."
-  );
-  const [listStatus, setListStatus] = useState<string>("Local rule-pack list not refreshed yet.");
+  const [actionStatus, setActionStatus] = useState<ActionStatus | null>(null);
+  // The list's own line: shown only when the list cannot be read or is empty.
+  const [listStatus, setListStatus] = useState<ActionStatus | null>(null);
   const [entries, setEntries] = useState<LocalRulePackIndexEntry[]>([]);
   const [listRefreshed, setListRefreshed] = useState(false);
   const [validation, setValidation] = useState<RulePackDocumentValidation | null>(null);
+  // The draft text the validation above was made of: its findings apply only
+  // while the draft still reads the same.
+  const [validatedText, setValidatedText] = useState<string | null>(null);
+  // The draft text as last opened or saved: anything else is "not saved".
+  const [savedText, setSavedText] = useState<string | null>(null);
   const [checksum, setChecksum] = useState<RulePackComputedChecksum | null>(null);
   // The stored entry the current draft was opened from, while it is unedited.
   const [openedEntry, setOpenedEntry] = useState<LocalRulePackIndexEntry | null>(null);
@@ -104,6 +113,8 @@ export function RulePackManagerPanel({
   // open) cannot clobber a mid-request edit. Routed here from the slice-1
   // residual ("a mid-request textarea edit can be clobbered").
   const [inFlight, setInFlight] = useState(false);
+  // Reading the list never blocks editing; a newer read supersedes an older one.
+  const listRequest = useRef(0);
 
   const projectId = model?.project.id ?? null;
   // A stored pack in another format: shown with its refusal,
@@ -118,24 +129,56 @@ export function RulePackManagerPanel({
         ? REFUSED_STORED_PACK_REASON
         : undefined;
   const parsedDraft = draft ? parseRulePackDocument(draft.text) : null;
+  const validationCurrent = validation !== null && draft !== null && validatedText === draft.text;
+  const modelReferences = model?.rule_pack_refs ?? [];
 
-  // The stored-pack list is project-scoped. When the active project changes
-  // (open/create/switch), the previously-listed packs belong to the old
-  // project and would contradict the scope banner, so clear them; the
-  // session draft is intentionally preserved (it is authored, not bound to a
-  // project until saved).
+  // The stored-pack list is project-scoped and read when the page opens and
+  // whenever the active project changes. Reading lists the local store only;
+  // it writes nothing. The session draft is intentionally preserved across a
+  // project change (it is authored, not bound to a project until saved).
   useEffect(() => {
     setEntries([]);
     setListRefreshed(false);
-    setListStatus("Local rule-pack list not refreshed for this project yet.");
+    void readList();
+    // readList reads projectId through this render's closure.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [projectId]);
+
+  async function readList() {
+    const request = ++listRequest.current;
+    try {
+      const route = await listLocalRulePacks(projectId);
+      if (request !== listRequest.current) return;
+      if (route.route === "unavailable_browser_preview") {
+        setEntries([]);
+        setListStatus({ text: PAGE_WORDS.listUnavailable, code: route.diagnostic });
+        return;
+      }
+      setEntries(route.entries);
+      setListRefreshed(true);
+      setListStatus(route.entries.length === 0 ? { text: PAGE_WORDS.listEmpty } : null);
+    } catch (error) {
+      if (request !== listRequest.current) return;
+      setEntries([]);
+      setListStatus({ text: `The saved rule packs could not be read: ${String(error)}`, code: "RULE-PACK-BACKEND-ERROR (list)" });
+    }
+  }
 
   // Backend (Tauri) commands can reject in desktop mode. Browser preview
   // never reaches them (the services short-circuit to an explicit
   // unavailable route), but a desktop backend error must surface honestly
   // rather than become a silent unhandled rejection.
   function reportBackendError(action: string, error: unknown): void {
-    setActionStatus(`RULE-PACK-BACKEND-ERROR (${action}): ${String(error)}`);
+    setActionStatus({ text: `Could not ${actionWord(action)}: ${String(error)}`, code: `RULE-PACK-BACKEND-ERROR (${action})` });
+  }
+
+  function reportUnavailable(diagnostic: string): void {
+    setActionStatus({ text: BACKEND_UNAVAILABLE_WORDS, code: diagnostic });
+  }
+
+  function acceptValidation(next: RulePackDocumentValidation | null, text: string | null) {
+    setValidation(next);
+    setValidatedText(next ? text : null);
   }
 
   function parseDraft(): RulePackDocument | null {
@@ -143,12 +186,12 @@ export function RulePackManagerPanel({
     try {
       const parsed: unknown = JSON.parse(draft.text);
       if (typeof parsed !== "object" || parsed === null || Array.isArray(parsed)) {
-        setActionStatus("RULE-PACK-DRAFT-JSON-INVALID: the draft must be a JSON object.");
+        setActionStatus({ text: "The document must be a JSON object.", code: "RULE-PACK-DRAFT-JSON-INVALID" });
         return null;
       }
       return parsed as RulePackDocument;
     } catch (error) {
-      setActionStatus(`RULE-PACK-DRAFT-JSON-INVALID: ${String(error)}`);
+      setActionStatus({ text: `The document is not valid JSON: ${String(error)}`, code: "RULE-PACK-DRAFT-JSON-INVALID" });
       return null;
     }
   }
@@ -159,64 +202,47 @@ export function RulePackManagerPanel({
       text: JSON.stringify(document, null, 2),
       origin: "new_draft_private_by_default"
     });
-    setValidation(null);
+    acceptValidation(null, null);
+    setSavedText(null);
     setChecksum(null);
     setOpenedEntry(null);
     onR3JourneyEvent?.("rule_pack_draft_created");
-    setActionStatus(
-      "New private draft created in memory (privacy_class=private_user_data, " +
-        "redistribution_status=private_only). Nothing is stored until you save."
-    );
+    setActionStatus({
+      text: "New rule pack, private to you. Nothing is stored until you save.",
+      code: "privacy_class=private_user_data; redistribution_status=private_only"
+    });
   }
 
   function handleDiscardDraft() {
     setDraft(null);
-    setValidation(null);
+    acceptValidation(null, null);
+    setSavedText(null);
     setChecksum(null);
     setOpenedEntry(null);
-    setActionStatus("Draft discarded from session memory; the local store was not touched.");
-  }
-
-  async function handleRefreshList() {
-    setInFlight(true);
-    try {
-      const route = await listLocalRulePacks(projectId);
-      if (route.route === "unavailable_browser_preview") {
-        setListStatus(route.diagnostic);
-        setEntries([]);
-        return;
-      }
-      setEntries(route.entries);
-      setListRefreshed(true);
-      setListStatus(
-        `Local store listed ${route.entries.length} rule pack(s)` +
-          (projectId ? ` for ${projectId}.` : " across all local projects.")
-      );
-    } catch (error) {
-      setEntries([]);
-      setListStatus(`RULE-PACK-BACKEND-ERROR (list): ${String(error)}`);
-    } finally {
-      setInFlight(false);
-    }
+    setActionStatus({ text: "Draft discarded; nothing saved was changed." });
   }
 
   async function handleValidate() {
     const document = parseDraft();
-    if (!document) return;
+    if (!document || !draft) return;
+    const text = draft.text;
     onR3JourneyEvent?.("rule_pack_validate_requested");
     setInFlight(true);
     try {
       const route = await validateRulePack(document);
       if (route.route === "unavailable_browser_preview") {
-        setActionStatus(route.diagnostic);
+        reportUnavailable(route.diagnostic);
         return;
       }
-      setValidation(route.validation);
-      setActionStatus(
-        `Validation completed: blocking_findings=${String(route.validation.has_blocking_findings)}; ` +
+      acceptValidation(route.validation, text);
+      const blocking = blockingFindings(route.validation).length;
+      setActionStatus({
+        text: blocking === 0 ? `Checked: ${PAGE_WORDS.noFaults}` : `Checked: ${thingsToFix(blocking)}.`,
+        code:
+          `blocking_findings=${String(route.validation.has_blocking_findings)}; ` +
           `checksum=${route.validation.checksum.match_status}; ` +
-          `grammar_supported=${String(route.validation.grammar_version_supported)}.`
-      );
+          `grammar_supported=${String(route.validation.grammar_version_supported)}`
+      });
     } catch (error) {
       reportBackendError("validate", error);
     } finally {
@@ -232,16 +258,16 @@ export function RulePackManagerPanel({
     try {
       const route = await computeRulePackChecksum(document);
       if (route.route === "unavailable_browser_preview") {
-        setActionStatus(route.diagnostic);
+        reportUnavailable(route.diagnostic);
         return;
       }
       setChecksum(route.computed);
       const stamped = stampChecksumIntoDocument(document, route.computed);
       setDraft({ text: JSON.stringify(stamped, null, 2), origin: "checksum_stamped" });
-      setActionStatus(
-        `Checksum computed and stamped into the draft (${route.computed.basis}; ` +
-          `payload_excludes=${route.computed.payload_excludes.join(",")}).`
-      );
+      setActionStatus({
+        text: "Checksum stamped into the pack.",
+        code: `${route.computed.basis}; payload_excludes=${route.computed.payload_excludes.join(",")}`
+      });
     } catch (error) {
       reportBackendError("compute_checksum", error);
     } finally {
@@ -251,25 +277,28 @@ export function RulePackManagerPanel({
 
   async function handleSave() {
     if (!projectId) {
-      setActionStatus(NO_PROJECT_REASON);
+      setActionStatus({ text: PAGE_WORDS.noProject });
       return;
     }
     const document = parseDraft();
-    if (!document) return;
+    if (!document || !draft) return;
+    const text = draft.text;
     onR3JourneyEvent?.("rule_pack_save_requested");
     setInFlight(true);
     try {
       const route = await saveLocalRulePack(projectId, document);
       if (route.route === "unavailable_browser_preview") {
-        setActionStatus(route.diagnostic);
+        reportUnavailable(route.diagnostic);
         return;
       }
-      setValidation(route.envelope.validation);
-      setActionStatus(
-        `${route.envelope.message} (rule_pack_id=${route.envelope.rule_pack_id}, ` +
-          `storage=${route.envelope.storage_mode}).`
-      );
-      await handleRefreshList();
+      acceptValidation(route.envelope.validation, text);
+      setSavedText(text);
+      const blocking = blockingFindings(route.envelope.validation).length;
+      setActionStatus({
+        text: blocking === 0 ? "Saved on this computer." : `Saved on this computer, with ${thingsToFix(blocking)}.`,
+        code: `${route.envelope.message} (rule_pack_id=${route.envelope.rule_pack_id}, storage=${route.envelope.storage_mode})`
+      });
+      await readList();
     } catch (error) {
       reportBackendError("save", error);
     } finally {
@@ -282,23 +311,21 @@ export function RulePackManagerPanel({
     try {
       const route = await openLocalRulePack(entry.project_id, entry.rule_pack_id);
       if (route.route === "unavailable_browser_preview") {
-        setActionStatus(route.diagnostic);
+        reportUnavailable(route.diagnostic);
         return;
       }
       if (!route.envelope) {
-        setActionStatus(
-          `No stored rule pack matched ${entry.rule_pack_id}; refresh the list and retry.`
-        );
+        setActionStatus({ text: `${packName(entry)} is no longer saved here.`, code: entry.rule_pack_id });
+        await readList();
         return;
       }
-      setDraft({
-        text: JSON.stringify(route.envelope.document, null, 2),
-        origin: `opened_from_local_store:${entry.rule_pack_id}`
-      });
-      setValidation(route.envelope.validation);
+      const text = JSON.stringify(route.envelope.document, null, 2);
+      setDraft({ text, origin: `opened_from_local_store:${entry.rule_pack_id}` });
+      acceptValidation(route.envelope.validation, text);
+      setSavedText(text);
       setChecksum(null);
       setOpenedEntry(entry);
-      setActionStatus(`${route.envelope.message} (rule_pack_id=${route.envelope.rule_pack_id}).`);
+      setActionStatus({ text: `Opened ${packName(entry)}.`, code: `${route.envelope.message} (rule_pack_id=${route.envelope.rule_pack_id})` });
     } catch (error) {
       reportBackendError("open", error);
     } finally {
@@ -311,10 +338,13 @@ export function RulePackManagerPanel({
     try {
       const route = await deleteLocalRulePack(entry.project_id, entry.rule_pack_id);
       if (route.route === "unavailable_browser_preview") {
-        setActionStatus(route.diagnostic);
+        reportUnavailable(route.diagnostic);
         return;
       }
-      setActionStatus(route.receipt.message);
+      setActionStatus({
+        text: route.receipt.deleted ? `Deleted ${packName(entry)}.` : `${packName(entry)} was not saved here; nothing was deleted.`,
+        code: route.receipt.message
+      });
       // A deleted pack's open draft goes with it.
       if (
         openedEntry &&
@@ -323,11 +353,12 @@ export function RulePackManagerPanel({
         route.receipt.deleted
       ) {
         setDraft(null);
-        setValidation(null);
+        acceptValidation(null, null);
+        setSavedText(null);
         setChecksum(null);
         setOpenedEntry(null);
       }
-      await handleRefreshList();
+      await readList();
     } catch (error) {
       reportBackendError("delete", error);
     } finally {
@@ -356,6 +387,12 @@ export function RulePackManagerPanel({
     setDraft({ text: JSON.stringify(nextDocument, null, 2), origin: "load_case_categories_edit" });
   }
 
+  const editorDisabled = inFlight;
+  const editorReason = inFlight ? BUSY_REASON : undefined;
+  const actionDisabled = !draft || inFlight || refusedStoredPack !== null;
+  const document = parsedDraft && parsedDraft.ok ? parsedDraft.document : null;
+  const partFaults = validationCurrent && validation && document ? faultsByPart(validation, document) : emptyFaults();
+
   return (
     <section
       className="panel rule-pack-manager-panel"
@@ -364,77 +401,77 @@ export function RulePackManagerPanel({
     >
       <div className="panel-title">
         <FileText size={16} aria-hidden="true" />
-        Rule-Pack Manager (private, local-only)
+        {PAGE_WORDS.title}
       </div>
 
-      <div className="report-list">
-        <small data-testid="rule-pack-scope-status">
-          {projectId
-            ? `Project scope: ${projectId}; storage: local SQLite only.`
-            : NO_PROJECT_REASON}
-        </small>
-      </div>
+      <small className="rule-pack-scope" data-testid="rule-pack-scope-status">
+        {projectId ? PAGE_WORDS.scope : PAGE_WORDS.noProject}
+      </small>
 
-      <div className="report-actions">
+      <div className="rule-pack-actions">
         <button
           type="button"
+          className="rule-pack-primary"
           data-testid="rule-pack-new-draft"
           disabled={inFlight}
           title={inFlight ? BUSY_REASON : undefined}
           onClick={handleNewDraft}
         >
-          New draft rule pack
-        </button>
-        <button
-          type="button"
-          data-testid="rule-pack-refresh-list"
-          disabled={inFlight}
-          title={inFlight ? BUSY_REASON : undefined}
-          onClick={() => void handleRefreshList()}
-        >
-          Refresh local list
+          {PAGE_WORDS.newPack}
         </button>
       </div>
 
-      <div className="report-list" data-testid="rule-pack-list">
-        <small data-testid="rule-pack-list-status">{listStatus}</small>
-        {entries.map((entry) => (
-          <article
-            className="operation-record"
-            data-testid={`rule-pack-entry-${entry.rule_pack_id}`}
-            key={`${entry.project_id}:${entry.rule_pack_id}`}
-          >
-            <strong>
-              {entry.rule_pack_name} ({entry.rule_pack_id} v{entry.rule_pack_version})
-            </strong>
-            <small>
-              lifecycle={entry.lifecycle_status}; privacy={entry.privacy_class}; storage=
-              {entry.storage_mode}
-            </small>
-            <div className="report-actions">
-              <button
-                type="button"
-                data-testid={`rule-pack-open-${entry.rule_pack_id}`}
-                disabled={inFlight}
-                title={inFlight ? BUSY_REASON : undefined}
-                onClick={() => void handleOpen(entry)}
-              >
-                Open
-              </button>
-              <button
-                type="button"
-                data-testid={`rule-pack-delete-${entry.rule_pack_id}`}
-                disabled={inFlight}
-                title={inFlight ? BUSY_REASON : undefined}
-                onClick={() => void handleDelete(entry)}
-              >
-                Delete
-              </button>
-            </div>
-          </article>
-        ))}
+      <div className="rule-pack-list" data-testid="rule-pack-list">
+        {listStatus ? (
+          <small data-testid="rule-pack-list-status" title={listStatus.code}>
+            {listStatus.text}
+          </small>
+        ) : null}
+        {entries.map((entry) => {
+          const used = modelReferences.some((reference) => reference.rule_pack_id === entry.rule_pack_id);
+          const isOpen = openedEntry?.project_id === entry.project_id && openedEntry.rule_pack_id === entry.rule_pack_id;
+          return (
+            <article
+              className="rule-pack-list-row"
+              data-testid={`rule-pack-entry-${entry.rule_pack_id}`}
+              key={`${entry.project_id}:${entry.rule_pack_id}`}
+              title={`Format name: ${entry.rule_pack_id}; lifecycle=${entry.lifecycle_status}; privacy=${entry.privacy_class}; storage=${entry.storage_mode}`}
+            >
+              <strong>{packName(entry)}</strong>
+              <span>version {entry.rule_pack_version || "not stated"}</span>
+              <span className="rule-pack-row-state">
+                {[
+                  isOpen && validationCurrent && validation ? findingsInWords(validation) : wordFor(LIFECYCLE_WORDS, entry.lifecycle_status),
+                  used ? PAGE_WORDS.usedByModel : null
+                ]
+                  .filter(Boolean)
+                  .join(" · ")}
+              </span>
+              <span className="rule-pack-row-actions">
+                <button
+                  type="button"
+                  data-testid={`rule-pack-open-${entry.rule_pack_id}`}
+                  disabled={inFlight}
+                  title={inFlight ? BUSY_REASON : undefined}
+                  onClick={() => void handleOpen(entry)}
+                >
+                  {PAGE_WORDS.open}
+                </button>
+                <button
+                  type="button"
+                  data-testid={`rule-pack-delete-${entry.rule_pack_id}`}
+                  disabled={inFlight}
+                  title={inFlight ? BUSY_REASON : undefined}
+                  onClick={() => void handleDelete(entry)}
+                >
+                  {PAGE_WORDS.delete}
+                </button>
+              </span>
+            </article>
+          );
+        })}
       </div>
-      {model && onQueueIntent ? (
+      {model && onQueueIntent && (entries.length > 0 || modelReferences.length > 0) ? (
         <RulePackModelReferences
           model={model}
           entries={entries}
@@ -446,235 +483,458 @@ export function RulePackManagerPanel({
         />
       ) : null}
 
-      {refusedStoredPack && validation ? (
-        <div className="report-list" data-testid="rule-pack-version-refusal" role="status">
-          <strong>{RULE_PACK_SCHEMA_VERSION_UNSUPPORTED}</strong>
-          <small>
-            Stored pack {refusedStoredPack.rule_pack_id} is refused: {versionRefusal(validation)?.message} This
-            version reads rule-pack format {RULE_PACK_SCHEMA_VERSION} only. Its checks do not run;
-            re-author it as a new pack. The stored pack can only be deleted.
-          </small>
-          <div className="report-actions">
+      {draft ? (
+        <div className="rule-pack-open" data-testid="rule-pack-open-pack">
+          <div className="rule-pack-header" data-testid="rule-pack-header">
+            <strong>{document ? documentName(document) : PAGE_WORDS.document}</strong>
+            {document ? <span>version {documentVersion(document)}</span> : null}
+            <span className="rule-pack-row-state" data-testid="rule-pack-save-state">
+              {savedText === null ? PAGE_WORDS.notSaved : savedText !== draft.text ? PAGE_WORDS.unsavedChanges : null}
+            </span>
+          </div>
+
+          <div className="rule-pack-save-controls">
             <button
               type="button"
-              data-testid="rule-pack-refused-delete"
-              disabled={inFlight}
-              title={inFlight ? BUSY_REASON : undefined}
-              onClick={() => void handleDelete(refusedStoredPack)}
+              data-testid="rule-pack-validate"
+              disabled={actionDisabled}
+              title={draftReason}
+              onClick={() => void handleValidate()}
             >
-              Delete stored pack
+              {PAGE_WORDS.validate}
+            </button>
+            <button
+              type="button"
+              data-testid="rule-pack-compute-checksum"
+              disabled={actionDisabled}
+              title={draftReason}
+              onClick={() => void handleComputeChecksum()}
+            >
+              {PAGE_WORDS.checksum}
+            </button>
+            <button
+              type="button"
+              className="rule-pack-primary"
+              data-testid="rule-pack-save"
+              disabled={actionDisabled}
+              title={draftReason}
+              onClick={() => void handleSave()}
+            >
+              {PAGE_WORDS.save}
+            </button>
+            <button
+              type="button"
+              data-testid="rule-pack-discard-draft"
+              disabled={!draft || inFlight}
+              title={draftReason}
+              onClick={handleDiscardDraft}
+            >
+              {PAGE_WORDS.discard}
             </button>
           </div>
-        </div>
-      ) : null}
+          {validation ? (
+            <div className="rule-pack-findings-words" data-testid="rule-pack-validation-words" role="status">
+              {!validationCurrent ? <small>{PAGE_WORDS.staleFindings} </small> : null}
+              <small>{findingsInWords(validation)}</small>
+              {blockingFindings(validation).length > 0 ? (
+                <ul>
+                  {blockingFindings(validation).map((finding, index) => (
+                    <li key={`${finding.code}:${finding.subject}:${index}`} title={`${finding.code}; ${finding.subject}`}>
+                      {finding.message}
+                    </li>
+                  ))}
+                </ul>
+              ) : null}
+            </div>
+          ) : null}
+          {actionStatus ? (
+            <small data-testid="rule-pack-action-status" title={actionStatus.code}>
+              {actionStatus.text}
+            </small>
+          ) : null}
 
-      {draft && refusedStoredPack ? null : draft ? (
-        parsedDraft && parsedDraft.ok ? (
-          <>
-            <LoadCaseCategoriesEditor
-              document={parsedDraft.document}
-              onChange={handleLoadCaseCategoriesChange}
-              disabled={inFlight}
-              disabledReason={inFlight ? BUSY_REASON : undefined}
-              model={model}
-            />
+          {refusedStoredPack && validation ? (
+            <div className="rule-pack-refusal" data-testid="rule-pack-version-refusal" role="status">
+              <small title={RULE_PACK_SCHEMA_VERSION_UNSUPPORTED}>
+                {packName(refusedStoredPack)} cannot be opened: {versionRefusal(validation)?.message} This version
+                reads rule-pack format {RULE_PACK_SCHEMA_VERSION} only, so its checks do not run; re-author it as a
+                new pack. The saved pack can only be deleted.
+              </small>
+              <div className="rule-pack-actions">
+                <button
+                  type="button"
+                  data-testid="rule-pack-refused-delete"
+                  disabled={inFlight}
+                  title={inFlight ? BUSY_REASON : undefined}
+                  onClick={() => void handleDelete(refusedStoredPack)}
+                >
+                  Delete saved pack
+                </button>
+              </div>
+            </div>
+          ) : null}
+
+          {refusedStoredPack ? null : document ? (
+            <div className="rule-pack-parts" data-testid="rule-pack-parts">
+              <RulePackPart
+                part="loadCases"
+                title={PART_WORDS.loadCases}
+                summary={String(arrayLength(document.required_load_cases))}
+                fault={partFaults.loadCases}
+              >
+                <LoadCaseCategoriesEditor
+                  document={document}
+                  onChange={handleLoadCaseCategoriesChange}
+                  disabled={editorDisabled}
+                  disabledReason={editorReason}
+                  model={model}
+                  show="load-cases"
+                />
+              </RulePackPart>
+              <RulePackPart
+                part="categories"
+                title={PART_WORDS.categories}
+                summary={String(arrayLength(document.stress_categories))}
+                fault={partFaults.categories}
+              >
+                <LoadCaseCategoriesEditor
+                  document={document}
+                  onChange={handleLoadCaseCategoriesChange}
+                  disabled={editorDisabled}
+                  disabledReason={editorReason}
+                  model={model}
+                  show="categories"
+                />
+              </RulePackPart>
+              <RulePackPart
+                part="inputs"
+                title={PART_WORDS.inputs}
+                summary={inputsSummary(document)}
+                fault={partFaults.inputs}
+              >
             {/* The selector offers read every row (a rule-check consumer, C2): a native result's
                 bounded full copy, loaded when the person asks. */}
             <C2ResultGate result={result ?? null} analysisRun={null} feature="the solved-result selector offers" explicit>
               {(full) => (
                 <DeclarationsEditor
-                  document={parsedDraft.document}
+                  document={document}
                   onChange={handleDeclarationsChange}
-                  disabled={inFlight}
-                  disabledReason={inFlight ? BUSY_REASON : undefined}
+                  disabled={editorDisabled}
+                  disabledReason={editorReason}
                   result={full.result}
                 />
               )}
             </C2ResultGate>
-            <ExpressionComposer
-              document={parsedDraft.document}
-              onChange={handleComposerChange}
-              disabled={inFlight}
-              disabledReason={inFlight ? BUSY_REASON : undefined}
-            />
-            <CheckDefinitionsEditor
-              document={parsedDraft.document}
-              onChange={handleCheckDefinitionsChange}
-              disabled={inFlight}
-              disabledReason={inFlight ? BUSY_REASON : undefined}
-            />
-          </>
-        ) : (
-          <div className="report-list">
-            <small data-testid="rule-pack-composer-unavailable">
-              The document JSON below is not valid, so the structured expression composer cannot
-              read it. Fix the JSON to compose expressions structurally.
-            </small>
-          </div>
-        )
-      ) : (
-        <div className="report-list">
-          <small data-testid="rule-pack-composer-no-draft">
-            Create a new draft or open a stored rule pack to compose its expressions.
-          </small>
-        </div>
-      )}
-
-      <div className="report-list">
-        <label htmlFor="rule-pack-draft-json-input">
-          Rule-pack document JSON (native canonical form; the editors above author the
-          required-input/value-slot declarations, the selected formula&apos;s full expression AST
-          — declarative-AST per DEC-022, including table-backed nodes — and the acceptability
-          check definitions. Edit the remaining metadata members here — diagnostics,
-          classification, checksums, provenance, and professional-boundary controls.)
-        </label>
-        <textarea
-          id="rule-pack-draft-json-input"
-          data-testid="rule-pack-draft-json"
-          rows={14}
-          value={draft?.text ?? ""}
-          placeholder="No draft document. Create a new draft or open a stored rule pack."
-          disabled={!draft || inFlight || refusedStoredPack !== null}
-          title={draftReason}
-          onChange={(event) =>
-            setDraft((current) =>
-              current ? { ...current, text: event.target.value } : current
-            )
-          }
-        />
-        <div className="report-actions">
-          <button
-            type="button"
-            data-testid="rule-pack-validate"
-            disabled={!draft || inFlight || refusedStoredPack !== null}
-            title={draftReason}
-            onClick={() => void handleValidate()}
-          >
-            Validate document
-          </button>
-          <button
-            type="button"
-            data-testid="rule-pack-compute-checksum"
-            disabled={!draft || inFlight || refusedStoredPack !== null}
-            title={draftReason}
-            onClick={() => void handleComputeChecksum()}
-          >
-            Compute &amp; stamp checksum
-          </button>
-          <button
-            type="button"
-            data-testid="rule-pack-save"
-            disabled={!draft || inFlight || refusedStoredPack !== null}
-            title={draftReason}
-            onClick={() => void handleSave()}
-          >
-            Save to local store
-          </button>
-          <button
-            type="button"
-            data-testid="rule-pack-discard-draft"
-            disabled={!draft || inFlight}
-            title={draftReason}
-            onClick={handleDiscardDraft}
-          >
-            Discard draft
-          </button>
-        </div>
-        <small data-testid="rule-pack-action-status">{actionStatus}</small>
-      </div>
-
-      {checksum ? (
-        <div className="report-list" data-testid="rule-pack-checksum">
-          <strong>Computed checksum</strong>
-          <small>
-            {checksum.algorithm}; canonicalization={checksum.canonicalization}; basis=
-            {checksum.basis}; grammar_version={checksum.grammar_version} (bound=
-            {String(checksum.grammar_version_bound)})
-          </small>
-          <small data-testid="rule-pack-checksum-value">{checksum.value}</small>
-        </div>
-      ) : null}
-
-      {validation ? (
-        <div className="report-list" data-testid="rule-pack-validation">
-          <strong>Document validation</strong>
-          <small data-testid="rule-pack-validation-summary">
-            blocking_findings={String(validation.has_blocking_findings)}; lifecycle_blocked=
-            {String(validation.lifecycle_blocked)}; checksum={validation.checksum.match_status};
-            grammar={validation.grammar_version} supported=
-            {String(validation.grammar_version_supported)}; publicly_exportable=
-            {String(validation.publicly_exportable)}
-            {validation.unit_check ? `; unit_check=${validation.unit_check.status}` : null}
-          </small>
-          <div className="operation-record-list" data-testid="rule-pack-validation-findings">
-            {collectFindings(validation).map((finding, index) => (
-              <article
-                className="operation-record"
-                key={`${finding.code}:${finding.subject}:${index}`}
+              </RulePackPart>
+              <RulePackPart
+                part="formula"
+                title={PART_WORDS.formula}
+                summary={formulaSummary(document)}
+                fault={partFaults.formula}
               >
-                <strong>{finding.code}</strong>
-                <small>
-                  subject={finding.subject}; blocking={String(finding.blocking)}
-                </small>
-                <p>{finding.message}</p>
-              </article>
-            ))}
-          </div>
-          {validation.unit_check ? (
-            <div className="report-list" data-testid="rule-pack-unit-check">
-              <strong>Unit consistency</strong>
-              <small data-testid="rule-pack-unit-check-note">
-                Units of solver results and entered values are checked when the check runs.
-              </small>
-              <div className="operation-record-list">
-                {validation.unit_check.checks.map((check, checkIndex) => (
-                  <article
-                    className="operation-record"
-                    data-testid={`rule-pack-unit-check-${check.check_id}`}
-                    key={`${check.check_id}:${checkIndex}`}
-                  >
-                    <strong>
-                      {check.check_id} (formula {check.formula_id || "none"})
-                    </strong>
-                    <small data-testid={`rule-pack-unit-check-status-${check.check_id}`}>
-                      status={check.status}
-                    </small>
-                    {check.findings.map((finding, index) => (
-                      <UnitCheckFindingRow
-                        finding={finding}
-                        key={`${finding.code}:${finding.path}:${index}`}
-                      />
-                    ))}
-                  </article>
-                ))}
-                {validation.unit_check.declaration_findings.length > 0 ? (
-                  <article
-                    className="operation-record"
-                    data-testid="rule-pack-unit-check-declarations"
-                  >
-                    <strong>Declared units</strong>
-                    {validation.unit_check.declaration_findings.map((finding, index) => (
-                      <UnitCheckFindingRow
-                        finding={finding}
-                        key={`${finding.code}:${finding.path}:${index}`}
-                      />
-                    ))}
-                  </article>
-                ) : null}
-              </div>
+                <ExpressionComposer
+                  document={document}
+                  onChange={handleComposerChange}
+                  disabled={editorDisabled}
+                  disabledReason={editorReason}
+                />
+              </RulePackPart>
+              <RulePackPart
+                part="checks"
+                title={PART_WORDS.checks}
+                summary={String(arrayLength(document.check_definitions))}
+                fault={partFaults.checks}
+              >
+                <CheckDefinitionsEditor
+                  document={document}
+                  onChange={handleCheckDefinitionsChange}
+                  disabled={editorDisabled}
+                  disabledReason={editorReason}
+                />
+              </RulePackPart>
             </div>
-          ) : null}
+          ) : (
+            <small className="rule-pack-part-fault" data-testid="rule-pack-composer-unavailable">
+              {PAGE_WORDS.jsonInvalid}
+            </small>
+          )}
+
+          <details className="rule-pack-disclosure" data-testid="rule-pack-document">
+            <summary>{PAGE_WORDS.document}</summary>
+            <label htmlFor="rule-pack-draft-json-input" className="rule-pack-node-note">
+              The whole pack as it is stored; the forms above write the same document.
+            </label>
+            <textarea
+              id="rule-pack-draft-json-input"
+              data-testid="rule-pack-draft-json"
+              rows={14}
+              value={draft.text}
+              disabled={inFlight || refusedStoredPack !== null}
+              title={draftReason}
+              onChange={(event) =>
+                setDraft((current) =>
+                  current ? { ...current, text: event.target.value } : current
+                )
+              }
+            />
+          </details>
         </div>
       ) : null}
 
-      <small className="report-note" data-testid="rule-pack-boundary-note">
-        <ShieldAlert size={12} aria-hidden="true" /> Private rule packs stay in local project
-        storage only — never committed to the repository, transmitted, or bundled into public
-        artifacts. Expressions are composed as a structured AST (DEC-022 grammar v1.0.0); the
-        text preview is read-only per DEC-037 and no expression text parser is provided. Rule-check output is a
-        software computation over user-supplied data.
-      </small>
+      <details className="rule-pack-disclosure" data-testid="rule-pack-details">
+        <summary>{PAGE_WORDS.details}</summary>
+        {checksum ? (
+          <div className="report-list" data-testid="rule-pack-checksum">
+            <strong>{PAGE_WORDS.checksumHeading}</strong>
+            <small>
+              {checksum.algorithm}; canonicalization={checksum.canonicalization}; basis=
+              {checksum.basis}; grammar_version={checksum.grammar_version} (bound=
+              {String(checksum.grammar_version_bound)})
+            </small>
+            <small data-testid="rule-pack-checksum-value">{checksum.value}</small>
+          </div>
+        ) : null}
+
+        {validation ? (
+          <div className="report-list" data-testid="rule-pack-validation">
+            <strong>Document validation</strong>
+            <small data-testid="rule-pack-validation-summary">
+              blocking_findings={String(validation.has_blocking_findings)}; lifecycle_blocked=
+              {String(validation.lifecycle_blocked)}; checksum={validation.checksum.match_status};
+              grammar={validation.grammar_version} supported=
+              {String(validation.grammar_version_supported)}; publicly_exportable=
+              {String(validation.publicly_exportable)}
+              {validation.unit_check ? `; unit_check=${validation.unit_check.status}` : null}
+            </small>
+            <div className="operation-record-list" data-testid="rule-pack-validation-findings">
+              {collectFindings(validation).map((finding, index) => (
+                <article
+                  className="operation-record"
+                  key={`${finding.code}:${finding.subject}:${index}`}
+                >
+                  <strong>{finding.code}</strong>
+                  <small>
+                    subject={finding.subject}; blocking={String(finding.blocking)}
+                  </small>
+                  <p>{finding.message}</p>
+                </article>
+              ))}
+            </div>
+            {validation.unit_check ? (
+              <div className="report-list" data-testid="rule-pack-unit-check">
+                <strong>Unit consistency</strong>
+                <small data-testid="rule-pack-unit-check-note">
+                  Units of solver results and entered values are checked when the check runs.
+                </small>
+                <div className="operation-record-list">
+                  {validation.unit_check.checks.map((check, checkIndex) => (
+                    <article
+                      className="operation-record"
+                      data-testid={`rule-pack-unit-check-${check.check_id}`}
+                      key={`${check.check_id}:${checkIndex}`}
+                    >
+                      <strong>
+                        {check.check_id} (formula {check.formula_id || "none"})
+                      </strong>
+                      <small data-testid={`rule-pack-unit-check-status-${check.check_id}`}>
+                        status={check.status}
+                      </small>
+                      {check.findings.map((finding, index) => (
+                        <UnitCheckFindingRow
+                          finding={finding}
+                          key={`${finding.code}:${finding.path}:${index}`}
+                        />
+                      ))}
+                    </article>
+                  ))}
+                  {validation.unit_check.declaration_findings.length > 0 ? (
+                    <article
+                      className="operation-record"
+                      data-testid="rule-pack-unit-check-declarations"
+                    >
+                      <strong>Declared units</strong>
+                      {validation.unit_check.declaration_findings.map((finding, index) => (
+                        <UnitCheckFindingRow
+                          finding={finding}
+                          key={`${finding.code}:${finding.path}:${index}`}
+                        />
+                      ))}
+                    </article>
+                  ) : null}
+                </div>
+              </div>
+            ) : null}
+          </div>
+        ) : null}
+
+        <small className="report-note" data-testid="rule-pack-boundary-note">
+          <ShieldAlert size={12} aria-hidden="true" /> Private rule packs stay in local project
+          storage only — never committed to the repository, transmitted, or bundled into public
+          artifacts. Expressions are composed as a structured AST (DEC-022 grammar v1.0.0); the
+          text preview is read-only per DEC-037 and no expression text parser is provided. Rule-check output is a
+          software computation over user-supplied data.
+        </small>
+      </details>
     </section>
+  );
+}
+
+/**
+ * One part of an open pack: a closed line that opens in place. Closed, it
+ * reads its title and summary, and the words of the first fault the last
+ * check found in it (with how many more).
+ */
+function RulePackPart({
+  part,
+  title,
+  summary,
+  fault,
+  children
+}: {
+  part: PartKey;
+  title: string;
+  summary: string;
+  fault: PartFault | null;
+  children: ReactNode;
+}) {
+  return (
+    <details className="rule-pack-part" data-testid={`rule-pack-part-${part}`}>
+      <summary>
+        <span className="rule-pack-part-title">{title}</span>
+        <span className="rule-pack-part-summary" data-testid={`rule-pack-part-summary-${part}`}>
+          {summary}
+        </span>
+        {fault ? (
+          <span className="rule-pack-part-fault" data-testid={`rule-pack-part-fault-${part}`} title={fault.code}>
+            {fault.message}
+            {fault.more > 0 ? ` (and ${fault.more} more)` : ""}
+          </span>
+        ) : null}
+      </summary>
+      <div className="rule-pack-part-body">{children}</div>
+    </details>
+  );
+}
+
+type PartFault = { message: string; code: string; more: number };
+type PartFaults = Record<PartKey, PartFault | null>;
+
+function emptyFaults(): PartFaults {
+  return { loadCases: null, categories: null, inputs: null, formula: null, checks: null };
+}
+
+function asRecord(value: unknown): Record<string, unknown> | null {
+  return typeof value === "object" && value !== null && !Array.isArray(value) ? (value as Record<string, unknown>) : null;
+}
+
+function arrayLength(value: unknown): number {
+  return Array.isArray(value) ? value.length : 0;
+}
+
+function idsOf(document: RulePackDocument, member: string, idKey: string): string[] {
+  return (Array.isArray(document[member]) ? (document[member] as unknown[]) : [])
+    .map((entry) => asRecord(entry)?.[idKey])
+    .filter((id): id is string => typeof id === "string");
+}
+
+/**
+ * The part a finding belongs to, read from its subject: a document path
+ * (`required_inputs[0].name`) or a declared identifier. A finding of the whole
+ * document belongs to no part and is shown beside the save controls only.
+ */
+export function partOfSubject(subject: string, document: RulePackDocument): PartKey | null {
+  const head = subject.trim().split(/[[.\s(]/, 1)[0];
+  const byMember: Record<string, PartKey> = {
+    required_load_cases: "loadCases",
+    stress_categories: "categories",
+    load_case_mappings: "categories",
+    required_inputs: "inputs",
+    value_slots: "inputs",
+    formula_declarations: "formula",
+    check_definitions: "checks"
+  };
+  if (byMember[head]) return byMember[head];
+  const byId: Array<[PartKey, string[]]> = [
+    ["loadCases", idsOf(document, "required_load_cases", "required_load_case_id")],
+    ["categories", idsOf(document, "stress_categories", "category_id")],
+    ["inputs", [...idsOf(document, "required_inputs", "input_id"), ...idsOf(document, "value_slots", "slot_id")]],
+    ["formula", idsOf(document, "formula_declarations", "formula_id")],
+    ["checks", idsOf(document, "check_definitions", "check_id")]
+  ];
+  for (const [part, ids] of byId) if (ids.includes(head)) return part;
+  return null;
+}
+
+/** The blocking findings of the last check, by the part they belong to. */
+function faultsByPart(validation: RulePackDocumentValidation, document: RulePackDocument): PartFaults {
+  const faults = emptyFaults();
+  const add = (part: PartKey | null, message: string, code: string) => {
+    if (!part) return;
+    const current = faults[part];
+    faults[part] = current ? { ...current, more: current.more + 1 } : { message, code, more: 0 };
+  };
+  for (const finding of blockingFindings(validation)) add(partOfSubject(finding.subject, document), finding.message, finding.code);
+  for (const check of validation.unit_check?.checks ?? []) {
+    for (const finding of check.findings) if (finding.severity === "blocking") add("checks", finding.message, finding.code);
+  }
+  for (const finding of validation.unit_check?.declaration_findings ?? []) {
+    if (finding.severity === "blocking") add(partOfSubject(finding.path, document) ?? "inputs", finding.message, finding.code);
+  }
+  return faults;
+}
+
+function blockingFindings(validation: RulePackDocumentValidation): RulePackValidationFinding[] {
+  return collectFindings(validation).filter((finding) => finding.blocking);
+}
+
+/** The last check in words: "No faults found." or "N things to fix". */
+function findingsInWords(validation: RulePackDocumentValidation): string {
+  const blocking = blockingFindings(validation).length;
+  return blocking === 0 ? PAGE_WORDS.noFaults : thingsToFix(blocking);
+}
+
+function inputsSummary(document: RulePackDocument): string {
+  const entries = [
+    ...(Array.isArray(document.required_inputs) ? document.required_inputs : []),
+    ...(Array.isArray(document.value_slots) ? document.value_slots : [])
+  ];
+  const incomplete = entries.filter((entry) => {
+    const status = asRecord(entry)?.completeness_status;
+    return typeof status === "string" && status !== "complete";
+  }).length;
+  return incomplete > 0 ? `${entries.length}, ${incomplete} ${PART_WORDS.markedIncomplete}` : String(entries.length);
+}
+
+function formulaSummary(document: RulePackDocument): string {
+  const formulas = readFormulaDeclarations(document);
+  if (formulas.length === 0) return "none";
+  if (formulas.length > 1) return countLine("formulas", formulas.length);
+  return renderExpressionText(formulas[0].expression);
+}
+
+function documentName(document: RulePackDocument): string {
+  const name = asRecord(document.metadata)?.name;
+  return typeof name === "string" && name.trim() ? name : "Unnamed rule pack";
+}
+
+function documentVersion(document: RulePackDocument): string {
+  const version = asRecord(document.metadata)?.rule_pack_version;
+  return typeof version === "string" && version.trim() ? version : "not stated";
+}
+
+function packName(entry: LocalRulePackIndexEntry): string {
+  return entry.rule_pack_name?.trim() || entry.rule_pack_id;
+}
+
+function actionWord(action: string): string {
+  return (
+    {
+      validate: "check the pack",
+      compute_checksum: "stamp the checksum",
+      save: "save",
+      open: "open the pack",
+      delete: "delete the pack"
+    }[action] ?? action
   );
 }
 
@@ -698,7 +958,7 @@ function UnitCheckFindingRow({ finding }: { finding: RulePackUnitCheckFinding })
 }
 
 const REFUSED_STORED_PACK_REASON =
-  "This stored pack declares a rule-pack format this version does not read; it can only be deleted.";
+  "This saved pack is in a rule-pack format this version does not read; it can only be deleted.";
 
 function versionRefusal(validation: RulePackDocumentValidation): RulePackValidationFinding | null {
   return validation.document_findings.find((finding) => finding.code === RULE_PACK_SCHEMA_VERSION_UNSUPPORTED) ?? null;

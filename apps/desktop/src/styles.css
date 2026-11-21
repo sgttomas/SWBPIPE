@@ -3406,6 +3406,117 @@ tbody tr:hover { background-image: linear-gradient(var(--hover-wash), var(--hove
   border-left: 2px solid #eef1ef;
 }
 
+/* The Rules page: the project's packs as a short list, one button to start a
+   pack, and an open pack's parts as closed lines that open in place. */
+.rule-pack-manager-panel {
+  gap: 8px;
+}
+
+.rule-pack-scope,
+.rule-pack-node-note,
+.rule-pack-row-state,
+.rule-pack-part-summary {
+  color: var(--ui-muted);
+}
+
+.rule-pack-actions,
+.rule-pack-save-controls,
+.rule-pack-row-actions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 6px;
+}
+
+.rule-pack-primary {
+  color: var(--ui-accent-text);
+  background: var(--ui-accent);
+  border-color: var(--ui-accent);
+}
+
+.rule-pack-list {
+  display: grid;
+  gap: 4px;
+}
+
+.rule-pack-list-row,
+.rule-pack-header {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 4px 10px;
+}
+
+.rule-pack-list-row {
+  padding: 4px 0;
+  border-bottom: 1px solid var(--ui-divider);
+}
+
+.rule-pack-list-row .rule-pack-row-actions {
+  margin-left: auto;
+}
+
+.rule-pack-open {
+  display: grid;
+  gap: 6px;
+  padding-top: 6px;
+  border-top: 1px solid var(--ui-divider);
+}
+
+.rule-pack-findings-words ul {
+  margin: 2px 0 0;
+  padding-left: 18px;
+  color: var(--ui-error-text);
+  font-size: 12px;
+}
+
+.rule-pack-part {
+  border-bottom: 1px solid var(--ui-divider);
+}
+
+.rule-pack-part > summary {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 4px 10px;
+  padding: 6px 0;
+  cursor: pointer;
+}
+
+.rule-pack-part-title {
+  font-weight: 600;
+}
+
+.rule-pack-part-fault,
+.rule-pack-refusal {
+  color: var(--ui-error-text);
+}
+
+.rule-pack-part-body {
+  display: grid;
+  gap: 8px;
+  padding: 0 0 8px 12px;
+}
+
+.rule-pack-subheading {
+  font-size: 12px;
+}
+
+.rule-pack-disclosure > summary {
+  color: var(--ui-muted);
+  font-size: 12px;
+  cursor: pointer;
+}
+
+.rule-pack-disclosure[open] {
+  display: grid;
+  gap: 4px;
+}
+
+.rule-pack-reads-as {
+  font-size: 12px;
+}
+
 /* Accepted vocabulary navigation; forms continue to own draft and operation state. */
 .toolkit-palette { position: relative; padding: 0.45rem 0.7rem; border-bottom: 1px solid var(--border, #344152); }
 .toolkit-commands { padding: 0.7rem 0; max-height: min(60vh, 36rem); overflow: auto; }
