@@ -77,6 +77,7 @@ renumbering the others. Fields not mentioned are left as the form shows them.
 | [reference](#step-reference) | Loads › Load Cases, Reference configurations | rows |
 | [weight](#step-weight) | Model › Review changes, Self weight | rs050, joint, tee, reducer, spring, ce |
 | [regions](#step-regions) | Loads › Load Cases, Pressure regions | weight |
+| [elongation](#step-elongation) | Model › Model, inspector, Model settings | weight |
 | [states](#step-states) | Loads › Load Cases, Analysis state | reference, weight |
 | [combinations](#step-combinations) | Loads › Load Cases, Create combination | weight |
 | [solve](#step-solve) | Analyze page; Results › Results | every step above |
@@ -427,6 +428,14 @@ pressure regions with the copy**, which re-derives the ids (`region:RS-OPE-RG-1`
 RS-OPE-REF (`region:RS-OPE-REF-RG-1`, `region:RS-OPE-REF-RG-2`, `region:RS-OPE-REF-RG-3`,
 `region:RS-OPE-REF-RG-R`, `region:RS-OPE-REF-RG-4`).
 
+### Step elongation
+
+On the Model stage's Model tab, select the project in the model tree. Inspector, **Model
+settings**, **Pressure elongation (Bourdon)**: switch on **Include pressure elongation**; under
+**Operating load cases** tick RS-SUS, RS-OPE, RS-SAM and RS-OPE-REF (none is ticked when the
+switch comes on, since no case's kind is operating). **Queue pressure elongation**, Apply. The
+fixture includes pressure elongation in every pressurised case, these four.
+
 ### Step states
 
 *Loads* stage, *Load Cases* tab, select the case; panel **Analysis state — ⟨case⟩**.
@@ -573,7 +582,7 @@ entry and every press at about 5.5 s, the rates of the earlier estimate of this 
 practised person pasting ⟨P⟩ and ⟨S5⟩). Each step's time is rounded to the nearest quarter
 minute, halves up. Step solve's press is entry; the solve itself is given a waiting allowance
 of 2 minutes, for the solve to run and its key results to show, which is waiting, not entry.
-The estimate does not count moving between stages and pages, the 33 cycles or waiting for a
+The estimate does not count moving between stages and pages, the 34 cycles or waiting for a
 batch's validation. It is not a measurement. A timed entry records the entry time and the
 solve waiting time separately; their sum is compared with the threshold.
 
@@ -593,18 +602,19 @@ solve waiting time separately; their sum is compared with the threshold.
 | reference | 12 | 3 | 1 | 15 × 5.5 s = 82.5 s | 1.5 |
 | weight | 40 | 4 | 4 | 44 × 5.5 s = 242 s | 4 |
 | regions | 88 | 8 | 4 | 96 × 5.5 s = 528 s | 8.75 |
+| elongation | 6 | 0 | 1 | 6 × 5.5 s = 33 s | 0.5 |
 | states | 117 | 19 | 4 | 136 × 5.5 s = 748 s | 12.5 |
 | combinations | 9 | 0 | 2 | 9 × 5.5 s = 49.5 s | 0.75 |
 | solve | 0 | 1 | 0 | 1 × 5.5 s = 5.5 s entry; 2 min solve waiting | 0 entry + 2 waiting |
-| **Total** | **709** | **105** | **33** | | **about 72.5 entry + 2 waiting = about 74.5** |
+| **Total** | **715** | **105** | **34** | | **about 73 entry + 2 waiting = about 75** |
 
-Two subtotals, both estimates: **entry** about 72.5 minutes (the grid cells, form entries and
+Two subtotals, both estimates: **entry** about 73 minutes (the grid cells, form entries and
 presses, each step rounded), and **solve waiting** 2 minutes (an allowance, not entry). Their
-sum is about 74.5 minutes.
+sum is about 75 minutes.
 
-Unrounded, by direct arithmetic, the entry is 224 × 8/98 min + (485 form entries + 105
-presses) × 5.5/60 min = 18.286 + 54.083 = 72.37 minutes, and with the 2 minutes of solve
-waiting the sum is 74.37 minutes.
+Unrounded, by direct arithmetic, the entry is 224 × 8/98 min + (491 form entries + 105
+presses) × 5.5/60 min = 18.286 + 54.633 = 72.92 minutes, and with the 2 minutes of solve
+waiting the sum is 74.92 minutes.
 
 How the larger counts arise:
 
@@ -645,6 +655,7 @@ How the larger counts arise:
   pressure value and unit, six terminal fields, provenance) for five regions; 26 picker
   choices (25 member pipes and the connector); two entries for each of three copies. The
   presses are Add pressure region five times and Replace once per copy.
+- **elongation, 6 entries.** The project's selection, the switch and the four case boxes.
 - **states, 117 entries and 19 presses.** RS-SUS 19: its selection, a typed element row of 6
   fields, the element fill's two choices, one RS-P180 edit and 9 shared entries (contract,
   reference, the typed support state's two fields, the support fill's two choices, factor,
@@ -660,6 +671,6 @@ How the larger counts arise:
 - **combinations, 9.** The first: ID, label, basis, minuend, subtrahend, provenance; the
   second: ID, label, minuend.
 
-The estimate of about 74.5 minutes (72.5 entry and 2 solve waiting) is about 2.5 times the
+The estimate of about 75 minutes (73 entry and 2 solve waiting) is about 2.5 times the
 provisional 30. The four largest steps are rows (22), states (12.5), regions (8.75) and
 material (5.75).

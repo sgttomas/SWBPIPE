@@ -5,7 +5,8 @@
 // valve/flange rows through the real grid cells and the other rows through the sheet's own
 // commit functions, in table order. `loadsPage`, `renderCaseLoadStateInputs` and
 // `renderCasePressureRegions` hold every step by which the entry journey and the fills test
-// (`load-cases/referenceSystemFills.engine.test.tsx`) reach a Loads page control. Test support
+// (`load-cases/referenceSystemFills.engine.test.tsx`) reach a Loads page control, and
+// `openPressureElongation` the journey's reach of the inspector's pressure elongation. Test support
 // only: no product behaviour lives here.
 import { createElement } from "react";
 import { act, fireEvent, render, screen, within } from "@testing-library/react";
@@ -52,6 +53,18 @@ export function loadsPage(root: () => HTMLElement, select: (entity: EntityRef) =
     },
     /** Step combinations: the project selected; the create-combination form. */
     openCreateCombination: (projectId: string) => { select({ type: "project", id: projectId }); return page; },
+  };
+}
+
+/** Step elongation: the project selected; in the property inspector rendered inside `root`, Model settings,
+ * opened, and its Pressure elongation (Bourdon). */
+export function openPressureElongation(root: () => HTMLElement, select: (entity: EntityRef) => void, projectId: string) {
+  select({ type: "project", id: projectId });
+  return (): Scope => {
+    const details = within(root()).getByTestId("model-settings-details") as HTMLDetailsElement;
+    if (!details.open) fireEvent.click(details.querySelector(":scope > summary")!);
+    expect(details.open, "Model settings open").toBe(true);
+    return within(within(details).getByTestId("model-settings-pressure-elongation"));
   };
 }
 

@@ -28,7 +28,7 @@ import { computeModelHash } from "../../services/hashService";
 import type { EntityRef, PreviewModel } from "../../types";
 import { useModelledVisibility } from "../../test-support/modelledVisibility";
 import { chooseCompactOption, chooseVirtualTarget, chooseVirtualMultiTarget } from "../../test-support/workspaceTestControls";
-import { enterReferenceHeader, enterReferenceRows, loadsPage, P, S5, type Cells } from "../../test-support/referenceRunSheetEntry";
+import { enterReferenceHeader, enterReferenceRows, loadsPage, openPressureElongation, P, S5, type Cells } from "../../test-support/referenceRunSheetEntry";
 import { ProjectUnitsDialog } from "../project-units/ProjectUnitsDialog";
 import { PropertyInspector } from "../model-tree/PropertyInspector";
 import { RunSheet, RUN_SHEET_TIMING } from "../model-tree/runSheet/RunSheet";
@@ -86,13 +86,6 @@ const ALLOWED_DIFFERENCES = [
  * records; the test asserts each is exactly the blank's, so the list cannot grow silently.
  */
 const DOCUMENT_DIFFERENCES_NOT_IN_3_14 = ["analysis_status", "data_boundary", "diagnostics"] as const;
-
-/**
- * The fixture's pressure-elongation setting (DEL-04-07): its producer names every pressurised case,
- * today's mechanics. The run sheet has no step that switches it on, so the journey's document states
- * no `model_settings`; the test asserts both sides exactly, so the difference cannot grow silently.
- */
-const FIXTURE_ONLY_SETTING = { pressure_elongation: { operating_load_cases: ["load:RS-SUS", "load:RS-OPE", "load:RS-SAM", "load:RS-OPE-REF"] } };
 
 /** Row labels the person types in the Label cell (step rows, its Labels table). */
 const ROW_NODES: Record<number, string> = {
@@ -207,9 +200,7 @@ function compareWithFixture(model: PreviewModel, where: string): number {
   const document = model as unknown as AnyRecord, fixtureDocument = reference as unknown as AnyRecord;
   const members = [...new Set([...Object.keys(document), ...Object.keys(fixtureDocument)])].filter((key) => !(COLLECTIONS as readonly string[]).includes(key)).sort();
   expect(members, `${where}: document members`).toEqual(["analysis_status", "data_boundary", "diagnostics", "document_kind", "model_settings", "pressure_contract", "project", "schema_version"]);
-  for (const key of members.filter((key) => key !== "project" && key !== "model_settings" && !(DOCUMENT_DIFFERENCES_NOT_IN_3_14 as readonly string[]).includes(key))) expect(document[key], `${where}: ${key}`).toEqual(fixtureDocument[key]);
-  expect(document.model_settings, `${where}: model_settings (the run sheet authors no setting)`).toBeUndefined();
-  expect(fixtureDocument.model_settings, "fixture: model_settings (its producer's setting)").toEqual(FIXTURE_ONLY_SETTING);
+  for (const key of members.filter((key) => key !== "project" && !(DOCUMENT_DIFFERENCES_NOT_IN_3_14 as readonly string[]).includes(key))) expect(document[key], `${where}: ${key}`).toEqual(fixtureDocument[key]);
   const { id, name, description, ...project } = model.project;
   expect([id, name, description], `${where}: project (run sheet §4)`).toEqual([expect.stringMatching(/^project:blank-local-/), expect.stringMatching(/^Blank Local Load\/reference Model/), BLANK.project.description]);
   expect(project, `${where}: project.units`).toEqual({ units: reference.project.units });
@@ -689,6 +680,19 @@ describe("the reference system entered from blank through the desktop's authorin
       await applyQueuedIntent(`step regions: ${caseId}`);
     }
 
+    // Step elongation: Pressure elongation (typed UI): switched on, the four cases ticked (none is
+    // ticked when the switch comes on, since no case's kind is operating).
+    const elongation = openPressureElongation(() => screen.getByTestId("journey-inspector"), select, model().project.id);
+    fireEvent.click(elongation().getByTestId("model-settings-pressure-elongation-switch"));
+    for (const caseId of ["load:RS-SUS", "load:RS-OPE", "load:RS-SAM", "load:RS-OPE-REF"]) {
+      const box = elongation().getByTestId(`model-settings-pressure-elongation-case-${caseId}`);
+      expect(box, `step elongation: ${caseId} before the tick`).not.toBeChecked();
+      fireEvent.click(box);
+    }
+    click(elongation(), "Queue pressure elongation");
+    await applyQueuedIntent("step elongation");
+    expect(model().model_settings, "step elongation").toEqual(reference.model_settings);
+
     // Step states: Analysis states (typed UI, with the fills; RS-SAM from "Copy analysis state from another case";
     // RS-OPE-REF copied from RS-OPE, its element states entered again and its overrides typed).
     // Queries are scoped to the case's analysis-state editor (`LoadReferenceStateInputs`), which the load manager shows for the selected case.
@@ -816,8 +820,8 @@ describe("the reference system entered from blank through the desktop's authorin
     expect(BLOCKED).toEqual([]);
     expect(ALLOWED_DIFFERENCES).toHaveLength(15);
     expect(DOCUMENT_DIFFERENCES_NOT_IN_3_14).toEqual(["analysis_status", "data_boundary", "diagnostics"]);
-    // 33 queue/apply cycles: the run sheet's §6 count of 33 cycles. The Undo/Redo labels below keep their earlier section numbers, which the expected list asserts.
-    expect(cycles).toHaveLength(33);
+    // 34 queue/apply cycles: the run sheet's §6 count of 34 cycles. The Undo/Redo labels below keep their earlier section numbers, which the expected list asserts.
+    expect(cycles).toHaveLength(34);
     expect(undoRedone).toEqual([
       "geometry and supports: the run sheet's batch (§3.4)", "component: the tee RS-T1 (§3.6)",
       "support: the variable spring RS-VS1 (§3.7)", "load/reference state: RS-INSTALLED (§3.8)", "combination: RS-dSAM (§3.12)",
