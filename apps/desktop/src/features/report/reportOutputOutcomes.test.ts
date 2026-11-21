@@ -5,7 +5,17 @@
 import { describe, expect, it } from "vitest";
 import { ResourceUnavailableError } from "../../services/memoryPool";
 import type { RenderedReportHtmlSaveReceipt, RenderedReportRouteError } from "../../services/renderedReportRoutes";
-import { printSettlement, ReportOutputOutcomes, reportOutputText, saveSettlement, type ReportOutputEntry } from "./reportOutputOutcomes";
+import type { ReportPackageSaveReceipt } from "../../services/reportPackageSaveService";
+import {
+  packageFailureSettlement,
+  packageNotSentSettlement,
+  packageReceiptSettlement,
+  printSettlement,
+  ReportOutputOutcomes,
+  reportOutputText,
+  saveSettlement,
+  type ReportOutputEntry
+} from "./reportOutputOutcomes";
 
 const basis = { sequence: 4, model: "project:invented", run: "run:invented-1" };
 const receipt = (durability: RenderedReportHtmlSaveReceipt["durability"], outcome: "saved" | "cancelled" = "saved"): RenderedReportHtmlSaveReceipt => ({
@@ -72,5 +82,63 @@ describe("report output outcomes", () => {
     expect(outcomes.snapshot()[0].state).toBe("saved");
     outcomes.dismiss(id);
     expect(outcomes.snapshot()).toEqual([]);
+  });
+
+  it("keeps an HTML save's and a print's entries as they were beside the package kinds (issue 508)", () => {
+    const outcomes = new ReportOutputOutcomes();
+    const save = outcomes.begin("save", basis);
+    const print = outcomes.begin("print", basis);
+    const pkg = outcomes.begin("report_package", basis);
+    // A package settlement settles a save's entry with the common members only.
+    outcomes.settle(save, packageReceiptSettlement(packageReceipt("durable")));
+    outcomes.settle(print, printSettlement({ kind: "failed", message: "lost", failure: new Error("lost") }));
+    const [saved, printed, packaged] = outcomes.snapshot();
+    expect(Object.keys(saved).sort()).toEqual(["basename", "basis", "code", "detail", "id", "kind", "state"]);
+    expect(Object.keys(printed).sort()).toEqual(["basename", "basis", "code", "detail", "id", "kind", "state"]);
+    expect(packaged).toMatchObject({ id: pkg, kind: "report_package", state: "pending", package: { sent: true, warnings: [], receipt: null, listEntry: null } });
+  });
+});
+
+const packageReceipt = (durability: ReportPackageSaveReceipt["durability"], outcome: "saved" | "cancelled" = "saved"): ReportPackageSaveReceipt => ({
+  outcome, stage: "complete", code: "REPORT-PACKAGE-SAVED", container_file_name: "invented-suggested.opsproj", byte_count: 7,
+  package_identity_sha256_hex: "a".repeat(64), container_sha256_hex: "b".repeat(64), members: [], replaced_existing: false, durability,
+  redaction_route_id: "DREP-PACKAGE-SAVE-009", redaction_decision_count: 0, redaction_finding_count: 0, redaction_blocking_count: 0,
+  local_first_route_id: "DREP-PACKAGE-SAVE-009", local_first_export_context: "local_private", local_first_storage_context: "local_private",
+  local_first_action: "include_metadata_only", local_first_reason_code: "PRIVATE_LOCAL_METADATA_ALLOWED", local_first_blocked: false,
+  local_first_metadata_only: true, local_first_explicit_local_private_intent: true, selected_basename: "invented.opsproj",
+  path_containment: "best_effort_non_adversarial", limitation: "Invented limitation."
+});
+const commandError = (code: string, stage: string, members: Record<string, unknown> = {}) =>
+  ({ code, stage, message: `${code}: invented.`, cleanup_code: null, selected_basename: "invented.opsproj", ...members });
+
+describe("report package outcomes (issue 508)", () => {
+  const line = (settlement: ReturnType<typeof packageReceiptSettlement>, current = basis.sequence, kind: "report_package" | "shareable_report_package" = "report_package") =>
+    reportOutputText({ id: 1, kind, basis, ...settlement }, current);
+
+  it("classifies the native reply: refusal stages, writer stages, the worker's failure and an unreadable rejection", () => {
+    const state = (failure: unknown) => packageFailureSettlement(failure).state;
+    for (const stage of ["admit", "assemble", "validate"]) expect(state(commandError("REPORT-PACKAGE-INVENTED", stage))).toBe("refused");
+    for (const stage of ["create_temp", "write", "flush", "temp_sync", "rename"]) expect(state(commandError("REPORT-PACKAGE-INVENTED", stage))).toBe("failed");
+    expect(state(commandError("REPORT-PACKAGE-SAVE-WORKER-FAILED", "assemble"))).toBe("unknown");
+    expect(state(commandError("REPORT-PACKAGE-INVENTED", "invented_later_stage"))).toBe("unknown");
+    expect(state(new Error("invented lost reply"))).toBe("unknown");
+    expect(state({ unreadable: true })).toBe("unknown");
+    expect(state(new Error("INVALID_REQUEST: invented"))).toBe("refused");
+    expect(state(new ResourceUnavailableError({ kind: "headroom_insufficient", required_bytes: 1, available_bytes: 0 } as never, null))).toBe("refused");
+  });
+
+  it("words the line: outcome first, the file, the code, and a changed workspace with the model and run", () => {
+    expect(line(packageReceiptSettlement(packageReceipt("durable")))).toBe("Report package saved: invented.opsproj");
+    expect(line(packageReceiptSettlement(packageReceipt("durable")), 5, "shareable_report_package"))
+      .toBe("Shareable report package saved: invented.opsproj. It is of an earlier run: project:invented, run run:invented-1. The model or its results have changed since.");
+    expect(line(packageReceiptSettlement(packageReceipt("saved_durability_uncertain"))))
+      .toBe("Report package saved: invented.opsproj; the system did not confirm the file is safely on disk.");
+    expect(line(packageReceiptSettlement(packageReceipt("not_applicable", "cancelled")))).toBe("Report package not saved: cancelled.");
+    expect(line(packageFailureSettlement(commandError("REPORT-PACKAGE-INVENTED", "admit")))).toBe("Report package not saved: invented (REPORT-PACKAGE-INVENTED).");
+    expect(line(packageNotSentSettlement("REPORT-PACKAGE-INVENTED-BLOCKED: invented block.")))
+      .toBe("Report package not saved: invented block (REPORT-PACKAGE-INVENTED-BLOCKED). Nothing was sent.");
+    const unknown = line(packageFailureSettlement(new Error("invented lost reply")));
+    expect(unknown).toBe("Report package: outcome unknown. Check the file you selected.");
+    expect(unknown).not.toMatch(/not saved|nothing was/i);
   });
 });
