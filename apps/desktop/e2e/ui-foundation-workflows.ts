@@ -210,10 +210,13 @@ export async function setAppearance(
 export async function openWorkspaceSection(page: Page, id: string): Promise<Locator> {
   const section = page.getByTestId(`workspace-section-${id}`);
   if (!await section.isVisible()) {
-    // Review changes is a tab of the Model stage's strip; from another stage it is summoned by the
-    // section command, as every other section is.
-    if (id === "operations" && await page.getByTestId("workspace-review").isVisible()) {
-      await activateWithKeyboard(page, page.getByTestId("workspace-review"));
+    // Review changes and Load Cases are reached as a person reaches them, by the rail and the
+    // stage tab; the View menu lists only the sections the rail does not reach in every state.
+    const route = ({ operations: { stage: "model", tab: "workspace-review" }, loads: { stage: "loads", tab: "stage-tab-load-cases" } } as Record<string, { stage: string; tab: string }>)[id];
+    if (route) {
+      await activateWithKeyboard(page, page.getByTestId(`rail-stage-${route.stage}`));
+      const tab = page.getByTestId(route.tab);
+      if (await tab.getAttribute("aria-pressed") !== "true") await activateWithKeyboard(page, tab);
     } else {
       await activateWithKeyboard(page, page.getByTestId("menu-view"));
       await activateWithKeyboard(page, page.getByTestId(`menu-item-view.section.${id}`));
@@ -340,9 +343,11 @@ export async function expectResolvedStyleAndTargets(page: Page): Promise<void> {
     // Inspector toggle is then the enabled panel toggle on screen.
     const treeToggleEnabled = document.querySelector('[data-testid="toggle-tree"]')?.getAttribute("aria-disabled") !== "true";
     return {
-      // The command witness is a toolbar command with a control boundary, on screen in every stage
-      // (Review changes became a borderless tab of the Model stage's strip).
-      command: measure('[data-testid="toolbar-issues"]'),
+      // The command witness is an enabled command on screen in every stage: the agent strip's Agent
+      // control, the one Agent control since the toolbar's Agent button was removed (Review changes
+      // became a borderless tab of the Model stage's strip; the toolbar's Issues button was removed
+      // as a duplicate of the rail's).
+      command: measure('[data-testid="agent-strip-open"]'),
       focus: measure('[data-testid="workspace-select"]'),
       treeToggle: measure(treeToggleEnabled ? '[data-testid="toggle-tree"]' : '[data-testid="toggle-inspector"]'),
       disabled: measure('[data-testid="workspace-undo"]'),

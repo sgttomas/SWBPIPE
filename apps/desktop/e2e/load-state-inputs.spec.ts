@@ -1,5 +1,7 @@
 import { expect, test, type Page } from "@playwright/test";
 import {
+  openLoadsDisclosure,
+  openLoadsForm,
   chooseVirtualTarget,
   closeWorkspacePanels,
   confirmProjectUnits,
@@ -117,6 +119,8 @@ test("blank load/reference model: author support motion, a thermal state and a m
   await applyQueued(page);
 
   await openWorkspaceSection(page, "loads");
+  await openLoadsForm(page, "load-manager-new-case");
+  await openLoadsDisclosure(page, "load-manager-create-load-more");
   await page.getByTestId("load-manager-create-load-id").fill("load:WP3");
   await page.getByTestId("load-manager-create-load-label").fill("Invented case");
   await page.getByTestId("load-manager-create-load-kind").fill("primitive_user_load");
@@ -125,6 +129,9 @@ test("blank load/reference model: author support motion, a thermal state and a m
   await page.getByTestId("queue-create-load-case-intent").click();
   await applyQueued(page);
   await openWorkspaceSection(page, "loads");
+  await page.getByTestId("load-manager-case-load:WP3").click();
+  await openLoadsForm(page, "load-manager-add-load");
+  await openLoadsDisclosure(page, "load-manager-create-primitive-more");
   await chooseVirtualTarget(page, "load-manager-create-primitive-load-case", "load:WP3");
   await page.getByTestId("load-manager-create-primitive-category").selectOption("concentrated_force");
   await page.getByTestId("load-manager-create-primitive-id").fill("load:WP3-FY");
@@ -137,6 +144,7 @@ test("blank load/reference model: author support motion, a thermal state and a m
 
   // Reference configuration through the plain fields.
   const loads = await openWorkspaceSection(page, "loads");
+  await openLoadsDisclosure(loads, "load-case-section-reference-state");
   const inputs = loads.getByTestId("load-state-inputs");
   await expect(inputs).toBeVisible();
   const field = (label: string) => inputs.getByLabel(label, { exact: true });
@@ -253,7 +261,9 @@ test("blank load/reference model: author support motion, a thermal state and a m
   await constitutive.getByLabel("Constitutive provenance", { exact: true }).fill(P);
   await constitutive.getByRole("button", { name: "Queue constitutive properties", exact: true }).click();
   await applyQueued(page);
-  const regions =(await openWorkspaceSection(page, "loads")).getByRole("region", { name: "Case pressure regions", exact: true });
+  const loadsPage = await openWorkspaceSection(page, "loads");
+  await openLoadsDisclosure(loadsPage, "load-case-section-pressure");
+  const regions = loadsPage.getByRole("region", { name: "Case pressure regions", exact: true });
   await expect(regions).toContainText("No pressure-region declaration has been applied.");
   await regions.getByRole("button", { name: "Queue explicit empty pressure regions", exact: true }).click();
   await applyQueued(page);

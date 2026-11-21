@@ -649,11 +649,13 @@ fn pressure_source_1_is_never_emitted_with_a_connector_or_a_realized_bend() {
 }
 
 /// W-11 slice (b) witness inputs (DEL-08-01 Design
-/// `exact-route-report-sections.md` §5.5): the two `pressure-2` shapes whose
+/// `exact-route-report-sections.md` §5.5): the `pressure-2` shapes whose
 /// corpora commit no request model a desktop session can solve, the objective
 /// connector (T4-U5b AS-F, the connector corpus's pressurized tied joint, the
 /// smallest of its connector inputs) and the realized bend (U2-L-ANCH-PTW-K2
-/// 0.3.0, the arc corpus's input), each as its re-authored request (`{model,
+/// 0.3.0, the arc corpus's input), and an objective connector in a
+/// result-state subtraction and a sum (`connector_combinations_request`), each
+/// as its re-authored request (`{model,
 /// materials: []}`, the desktop worker's native request) and the bytes the
 /// desktop's solve worker writes for it (`serde_json::to_string` of the public
 /// producer's envelope, `lib.rs` `run_preview_mechanics_worker` form). The
@@ -661,7 +663,7 @@ fn pressure_source_1_is_never_emitted_with_a_connector_or_a_realized_bend() {
 /// assembles their witness requests below the output gate. Stale fails;
 /// `OPENPIPESTRESS_WRITE_EXACT_REPORT_WITNESS_INPUTS=<dir>` writes them.
 const WITNESS_INPUTS_ENV: &str = "OPENPIPESTRESS_WRITE_EXACT_REPORT_WITNESS_INPUTS";
-const WITNESS_INPUTS: [(&str, &str, &str); 2] = [
+const WITNESS_INPUTS: [(&str, &str, &str); 3] = [
     (
         "pressure_2_connector",
         include_str!("../../../fixtures/reports/invented/exact_report_witness_inputs/pressure_2_connector.request.json"),
@@ -672,7 +674,37 @@ const WITNESS_INPUTS: [(&str, &str, &str); 2] = [
         include_str!("../../../fixtures/reports/invented/exact_report_witness_inputs/pressure_2_realized_bend.request.json"),
         include_str!("../../../fixtures/reports/invented/exact_report_witness_inputs/pressure_2_realized_bend-sparse_interactive.raw.json"),
     ),
+    (
+        "pressure_2_connector_combinations",
+        include_str!("../../../fixtures/reports/invented/exact_report_witness_inputs/pressure_2_connector_combinations.request.json"),
+        include_str!("../../../fixtures/reports/invented/exact_report_witness_inputs/pressure_2_connector_combinations-sparse_interactive.raw.json"),
+    ),
 ];
+
+/// The stress-free objective connector of the W-16 combination tests
+/// (`fixtures/silent_zero/stress_free_connector_empty.request.json`) in two load
+/// cases, with a result-state subtraction of them and their sum, so that the
+/// connector publishes rows in a combination of each kind (issue 441: the
+/// export gives such a row the metadata the reader gives it).
+const CONNECTOR_REQUEST: &str = include_str!("fixtures/silent_zero/stress_free_connector_empty.request.json");
+fn connector_combinations_request() -> Value {
+    let mut wire: Value = serde_json::from_str(CONNECTOR_REQUEST).unwrap();
+    let model = &mut wire["model"];
+    let force = |id: &str, value: f64| {
+        json!({"id": id, "category": "concentrated_force", "target": {"type": "node", "node": "node:b"},
+            "direction": "global_y", "magnitude": {"value": value, "unit": "N"}, "dimension": "force", "provenance": PROVENANCE})
+    };
+    model["project"]["id"] = json!("project:invented-connector-combinations");
+    model["load_cases"] = json!([
+        {"id": "case:1", "primitive_loads": [force("load:1", 1000.0)], "pressure_regions": [], "provenance": PROVENANCE},
+        {"id": "case:2", "primitive_loads": [force("load:2", -400.0)], "pressure_regions": [], "provenance": PROVENANCE},
+    ]);
+    model["combinations"] = json!([
+        {"id": "comb:1-minus-2", "basis": "result_state_subtraction", "minuend_id": "case:1", "subtrahend_id": "case:2", "provenance": PROVENANCE},
+        {"id": "comb:1-plus-2", "basis": "mechanics", "terms": [{"load_case": "case:1", "factor": 1.0}, {"load_case": "case:2", "factor": 1.0}], "provenance": PROVENANCE},
+    ]);
+    wire
+}
 
 #[test]
 fn exact_report_witness_inputs_are_current() {
@@ -680,6 +712,7 @@ fn exact_report_witness_inputs_are_current() {
         ("pressure_2_connector", t4_u5b::request("AS-F", &t4_u5b::oracle()["cases"]["AS-F"]), (PRESSURE_3.to_string(), false, true, false)),
         // The arc corpus's input, its pressurised case including pressure elongation (RT-L2).
         ("pressure_2_realized_bend", pressure_elongation::with_elongation_if_pressurised(&i7("U2-L-ANCH-PTW-K2", "0.3.0")), (PRESSURE_3.to_string(), false, false, true)),
+        ("pressure_2_connector_combinations", connector_combinations_request(), (PRESSURE_3.to_string(), false, true, false)),
     ];
     let target = std::env::var(WITNESS_INPUTS_ENV).ok();
     for ((name, request, shape), (committed_name, committed_request, committed_raw)) in requests.into_iter().zip(WITNESS_INPUTS) {
