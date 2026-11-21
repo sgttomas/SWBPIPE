@@ -501,7 +501,7 @@ describe("the run comparison view", () => {
     );
     render(<RunComparisonView result={shown} onClose={() => {}} />);
     expect(screen.getByTestId("run-comparison-side-left")).toHaveTextContent('Left: "left" (runrec:left), recorded 2026-10-25T10:00:00.000Z, against saved state "After solve"');
-    expect(screen.getByTestId("run-comparison-side-left")).toHaveTextContent("Its result is numerically eligible (route preview_physics); the ordinary solve's error bound is not verified.");
+    expect(screen.getByTestId("run-comparison-side-left")).toHaveTextContent("Its result is numerically eligible (route preview_physics).");
     for (const [id, count] of [["mapped", 2], ["compared", 1], ["changed", 1], ["not-compared", 1], ["left-only", 2], ["right-only", 2], ["context", 2], ["diagnostics-added", 1], ["diagnostics-removed", 1]] as const) {
       expect(screen.getByTestId(`run-comparison-count-${id}`), id).toHaveTextContent(String(count));
     }

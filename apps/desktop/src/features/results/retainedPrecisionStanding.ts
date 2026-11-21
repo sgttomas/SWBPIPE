@@ -6,7 +6,6 @@ import { retainedPrecisionSemantics, validateRetainedPrecision, validateRetained
 import { RetainedPrecisionError, type RetainedPrecisionValidation, type RowClassification } from "./retainedPrecisionTypes";
 import { checkedJsonText } from "../../services/hashService";
 import type { MechanicsResult, PreviewModel } from "../../types";
-import { withLimitationsNote } from "./integrityStatus";
 
 /** No completed reader validation is registered for these exact bytes. */
 export const RETAINED_PRECISION_VALIDATION_REQUIRED = "RETAINED_PRECISION_VALIDATION_REQUIRED";
@@ -153,7 +152,7 @@ export function classificationSummary(source: MechanicsResult | null | undefined
 export function retainedPrecisionStandingText(source: MechanicsResult): string {
   const outcome = retainedPrecisionRegistration(source);
   // D-U7-6: eligibility is a property of the supplied statement and its invocation.
-  const tail = `${withLimitationsNote(source.formulation_basis!.limitations)} Current use is checked separately against the actual invocation and the requested cases. The reader checks these bytes and their invocation; it does not establish which producer made them. Numerical checks do not establish engineering correctness.`;
+  const tail = `${source.formulation_basis!.limitations.join(" ")} Current use is checked separately against the actual invocation and the requested cases. The reader checks these bytes and their invocation; it does not establish which producer made them. Numerical checks do not establish engineering correctness.`;
   if (!outcome) return `Retained precision: receipt not validated for these exact bytes in this session (saved, reference or copied data never register); needs recompute. ${tail}`;
   if (outcome.error !== null) return `Retained precision: receipt refused by the retained-precision reader (${outcome.error}); unsupported, values shown for inspection only. ${tail}`;
   const cases = receiptCases(source);

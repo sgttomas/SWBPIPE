@@ -202,7 +202,7 @@ it("keeps admission as the full conjunction and reads the indicator beside it", 
   act(() => { result.current.setResult(source); result.current.setInputManifest(manifest); result.current.setAnalysisRun(analysis); });
   expect(currentRequirementsExceptNumericalEligibility({ result: source, analysisRun: analysis, inputManifest: manifest })).toBe(true);
   expect(result.current.currentSolvedResult).toBe(source);
-  expect(result.current.numericalHealth?.headline).toBe("Numerical health: not verified");
+  expect(result.current.numericalHealth?.headline).toBe("Numerical health: solver checks found no problem");
   expect(result.current.numericalHealthHold).toBeNull();
 
   // Even an indicator claiming a verdict-only red case changes neither Current nor the hold.

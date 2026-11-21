@@ -10,7 +10,6 @@ import { agentDetailFilter } from './resultDetail';
 import type { OperationBatch } from './operationBatchService';
 import { validateOperationBatch } from './operationBatchService';
 import { overlayMayShowRow, type ResultOverlayStanding } from '../features/results/numericalHealth';
-import { needsSolverReportNote, SOLVER_REPORT_NOTE } from '../features/results/integrityStatus';
 import type { IntegrityBound } from '../features/results/resultReader';
 import { rowCaseKey } from '../features/results/resultsNavigator';
 import { canonicalJsonString } from './hashService';
@@ -157,27 +156,23 @@ function boundedIds(ids:readonly unknown[]):{count:number;ids:string[]}{
  }
  return {count:ids.length,ids:listed};
 }
-/** A refusal's findings in the catalog's bounds: code, severity, message and affected
- * references, at most 16 and within an encoded-byte budget; listing stops at the first that
- * would not fit, and every finding not listed is counted. A finding that cannot be stated
- * exactly (a code or severity outside the catalog) is counted among those not listed, never
- * altered. Messages are cut at 500 characters, references at eight. */
 /** Release exit criterion 18: a results read's standing carries the reader verdict's
  * `integrity_bound` as one of its checks, `integrity_bound:{status}:{reason}`, in the catalog's
  * existing `checks` strings. None when no reader verdict was read (the values are then withheld). */
 export function integrityBoundChecks(bound:IntegrityBound|null|undefined):string[]{
  return bound?[`integrity_bound:${bound.status}:${bound.reason}`]:[];
 }
+/** A refusal's findings in the catalog's bounds: code, severity, message and affected
+ * references, at most 16 and within an encoded-byte budget; listing stops at the first that
+ * would not fit, and every finding not listed is counted. A finding that cannot be stated
+ * exactly (a code or severity outside the catalog) is counted among those not listed, never
+ * altered. Messages are cut at 500 characters, references at eight. */
 export function boundedFindings(diagnostics:readonly Diagnostic[],notListed:number):{diagnostics:{code:string;severity:string;message:string;affectedRefs:string[]}[];notListed:number}{
  const listed:{code:string;severity:string;message:string;affectedRefs:string[]}[]=[];let entries=0;
  for(const diagnostic of diagnostics){
   if(listed.length>=FINDINGS)break;
   if(!isShortId(diagnostic?.code)||!SEVERITIES.includes(diagnostic.severity))continue;
-  // Release exit criterion 18: the solver's text that reports a check passed or a state established
-  // reaches the agent with the note people read beside it, never alone (`needsSolverReportNote`).
-  const noted=needsSolverReportNote(diagnostic);
-  const stated=typeof diagnostic.message==='string'&&diagnostic.message?clip(diagnostic.message,noted?FINDING_TEXT-SOLVER_REPORT_NOTE.length-1:FINDING_TEXT):'No message stated.';
-  const message=noted?`${stated} ${SOLVER_REPORT_NOTE}`:stated;
+  const message=typeof diagnostic.message==='string'&&diagnostic.message?clip(diagnostic.message,FINDING_TEXT):'No message stated.';
   const affectedRefs:string[]=[];
   for(const ref of Array.isArray(diagnostic.affected_refs)?diagnostic.affected_refs:[]){if(affectedRefs.length>=FINDING_REFS)break;if(isShortId(ref))affectedRefs.push(ref);}
   const finding={code:diagnostic.code,severity:diagnostic.severity,message,affectedRefs};

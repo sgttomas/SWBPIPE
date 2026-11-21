@@ -21,7 +21,7 @@ import {
   type RunComparisonStatusFilter
 } from "./runComparisonCsv";
 import { heldStatusQuotedNotice, suppliedDiagnosticMessage } from "../results/suppliedDiagnostics";
-import { integrityBoundText, needsSolverReportNote, SOLVER_REPORT_NOTE, standingStatusText } from "../results/integrityStatus";
+import { SOLVER_MESSAGES_HEADING, standingStatusText } from "../results/integrityStatus";
 
 /** RT-A5: a held-status notice (`HELD_STATUS_QUOTED_CODES`) is quoted whole as supplied text here too (`suppliedDiagnosticMessage`). */
 const NO_COMBINATIONS: ReadonlySet<string> = new Set();
@@ -77,8 +77,7 @@ function SideText({ name, side }: { name: string; side: RunComparisonSide }) {
       {side.createdAt ? <>, recorded {side.createdAt}</> : null}
       {side.state ? <>, against saved state {side.state}</> : null}. Its result {standing.status === "solver_checks_passed" ? "is " : ""}<strong>{standingStatusText(standing.status)}</strong> (route {standing.contract})
       {side.recordedTableRead ? <> <span data-testid={`run-comparison-side-${name.toLowerCase()}-recorded-table`}>({recordedTableLabel(side.recordedTableRead)})</span></> : null}
-      {standing.findings.length ? <>: {standing.findings.join(", ")}</> : null}
-      {integrityBoundText(standing.integrity_bound) ? <>; {integrityBoundText(standing.integrity_bound)}</> : null}.
+      {standing.findings.length ? <>: {standing.findings.join(", ")}</> : null}.
     </p>
   );
 }
@@ -161,6 +160,7 @@ export function RunComparisonView({ result, onClose }: { result: RunComparisonRe
       </div>
       <div data-testid="run-comparison-diagnostics">
         <strong>Solve diagnostics</strong>
+        {comparison.diagnostics.length ? <p className="muted" data-testid="run-comparison-solver-messages-heading">{SOLVER_MESSAGES_HEADING}</p> : null}
         {comparison.diagnostics.length ? (
           <ul className="state-comparison-fields">
             {comparison.diagnostics.map((diagnostic, index) => (
@@ -168,7 +168,6 @@ export function RunComparisonView({ result, onClose }: { result: RunComparisonRe
                 <span className="muted">{diagnostic.change === "added" ? "Only in the right run" : "Only in the left run"}:</span> <code>{diagnostic.code}</code>
                 {diagnostic.affected_refs.length ? <> on {diagnostic.affected_refs.join(", ")}</> : null}
                 {diagnostic.message ? <span className="muted"> ({heldStatusQuotedNotice(diagnostic) ? suppliedDiagnosticMessage({ code: diagnostic.code, message: diagnostic.message }, NO_COMBINATIONS, false) : storedValueText(diagnostic.message)})</span> : null}
-                {needsSolverReportNote(diagnostic) ? <span className="muted" data-testid="run-comparison-diagnostic-solver-report-note"> {SOLVER_REPORT_NOTE}</span> : null}
               </li>
             ))}
           </ul>

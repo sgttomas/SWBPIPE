@@ -100,7 +100,7 @@ describe("a run recorded before RT-A4 reopens through the native commands (C1, R
     await waitFor(() => expect(panel.textContent).not.toContain("Reading"));
     for (const marker of CURRENT_ONLY) expect(panel.textContent!.includes(marker), marker).toBe(false);
     // Review F2: the run shows its own numerical health, read natively with its recorded standing's findings.
-    expect(within(panel).getByTestId("numerical-health-header-line").textContent).toBe("Numerical health: not verified");
+    expect(within(panel).getByTestId("numerical-health-header-line").textContent).toBe("Numerical health: solver checks found no problem");
     // The notices are the table's, exactly as the webview's reader gives them for the whole recorded
     // statement under it: its stress headline (it has no intensified row and no combination gate).
     const whole = JSON.parse(readFileSync(resolve(__dirname, "../../../../../fixtures/persistence/recorded_pre_rt_a4_pf/preview_physics_2/preview_physics_connected_sparse.json"), "utf8"));

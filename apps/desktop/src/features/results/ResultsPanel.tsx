@@ -25,7 +25,7 @@ import type { EntityRef } from "../../types";
 import { numericalResultStanding, recordedResultStanding, reportStanding } from "./resultStanding";
 import { badgeOf, locationText, numericalHealthView, readNumericalHealth, rowHealthState, type NumericalHealthBadge, type NumericalHealthLocation, type NumericalHealthView } from "./numericalHealth";
 import { BOUNDARY_SENTENCE, DETAIL_SECTION_LABEL, LOCATED_CAUSES_LABEL, NUMERICAL_HEALTH_STATE_TEXT, SHOW_SOLVER_DIAGNOSTIC } from "./numericalHealthText";
-import { limitationsWithNotes, numericalHealthLead, ordinarySolveLead, recoveredCaseIds, supportStatesFor } from "./integrityStatus";
+import { numericalHealthLead, ordinarySolveLead, recoveredCaseIds, supportStatesFor } from "./integrityStatus";
 import { SECTION_BASIS_HEADLINES, WITHHELD_SECTION_BASIS_HEADLINE } from "../report/exactReportSections";
 import { canSurfaceRevealNow } from "../workspace/surfaceReveal";
 import {
@@ -1202,8 +1202,10 @@ export function NumericalHealthBadgeText({ badge, text, testId }: { badge: Numer
 
 export function RowHealthBadge({ health, item }: { health: NumericalHealthView | null; item: MechanicsResult["results"][number] }) {
   // No row badge on the pressure-source route: those rows' values are the producer's recovery.
+  // No mark on a row whose case the solver's checks found no problem with; a row whose case is
+  // sensitive, unresolved, failed or not assessed keeps its mark.
   const state = rowHealthState(health, item);
-  if (!state) return null;
+  if (!state || state === "checks_passed") return null;
   return <small> <NumericalHealthBadgeText badge={badgeOf(state)} text={NUMERICAL_HEALTH_STATE_TEXT[state]} testId={`result-row-health-${item.id}`} /></small>;
 }
 
@@ -1226,7 +1228,7 @@ export function NumericalHealthDetail({ health, resolveCauseLocation, onSelectCa
           {c.conditioning ? <p data-testid={`numerical-health-case-conditioning-${c.caseId}`}>{c.conditioning}</p> : null}
           {c.supportStates ? <p data-testid={`numerical-health-case-support-states-${c.caseId}`}>{c.supportStates.text}</p> : null}
           {/* The solver's quoted reason, directly beneath the statement that says it is quoted below. */}
-          {c.supportStates?.detail ? <blockquote data-testid={`numerical-health-case-support-states-detail-${c.caseId}`}>{c.supportStates.detail}{c.supportStates.detailNote ? <span data-testid={`numerical-health-case-support-states-detail-note-${c.caseId}`}> {c.supportStates.detailNote}</span> : null}</blockquote> : null}
+          {c.supportStates?.detail ? <blockquote data-testid={`numerical-health-case-support-states-detail-${c.caseId}`}>{c.supportStates.detail}</blockquote> : null}
           {c.locations.length > 0 ? (
             <div data-testid={`numerical-health-case-locations-${c.caseId}`}>
               <span>{LOCATED_CAUSES_LABEL}: </span>
@@ -1268,10 +1270,8 @@ function StandingStatement({ lead, limitations, close }: { lead: string; limitat
   return (
     <>
       <span className="result-standing-lead">{lead}</span>{" "}
-      {/* Release exit criterion 18: each limitation is whole and in order; one that states a claim on
-          the ordinary solve's unverified bound has the note directly after it. */}
-      {limitations.length === 0 ? " " : limitationsWithNotes(limitations).map(({ text, note }, index) => (
-        <span key={index} className="result-standing-limitation">{text}{" "}{note ? <span className="result-standing-note" data-testid="result-standing-solver-report-note">{note}{" "}</span> : null}</span>
+      {limitations.length === 0 ? " " : limitations.map((text, index) => (
+        <span key={index} className="result-standing-limitation">{text}{" "}</span>
       ))}
       <span className="result-standing-close">{close}</span>
     </>

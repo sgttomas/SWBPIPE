@@ -208,8 +208,8 @@ export function readNumericalHealth(result: MechanicsResult, readerFindings?: re
 /* -------------------------------------------------------------------------- *
  * Presentation
  * -------------------------------------------------------------------------- */
-/** Release exit criterion 18: no state is styled as success. A case the solver reports checks passed for
- * (shown "not verified") takes the neutral grey style a not-assessed case has; there is no green badge. */
+/** Release exit criterion 18: no state is styled as success. A case the solver's checks found no problem
+ * with takes the neutral grey style a not-assessed case has; there is no green badge. */
 export type NumericalHealthBadge = "red" | "grey";
 /** The header's count order, which is also the order of the worst state. */
 export const NUMERICAL_HEALTH_ORDER: readonly NumericalHealthState[] = ["solve_failed", "quality_unresolved", "sensitive", "not_assessed", "checks_passed"];
@@ -217,7 +217,7 @@ export const NUMERICAL_HEALTH_ORDER: readonly NumericalHealthState[] = ["solve_f
 export function badgeOf(state: NumericalHealthState): NumericalHealthBadge {
   return state === "checks_passed" || state === "not_assessed" ? "grey" : "red";
 }
-/** Red if any case is red, otherwise grey (no case, or every case not verified or not assessed). */
+/** Red if any case is red, otherwise grey (no case, or every case found no problem or not assessed). */
 export function headerBadge(cases: readonly Pick<NumericalHealthCase, "state">[]): NumericalHealthBadge {
   return cases.some((c) => badgeOf(c.state) === "red") ? "red" : "grey";
 }
@@ -297,7 +297,7 @@ export type NumericalHealthCaseView = Readonly<{
   conditioning: string | null;
   locations: readonly NumericalHealthLocation[];
   integrityDiagnosticId: string | null;
-  /** "Support states: not confirmed" and the reviewed statement of the case's confirmation outcome,
+  /** The support-state line of the case's confirmation outcome,
    * with the solver's quoted reason where the outcome carries one, for a case with nonlinear supports
    * (`integrityStatus.ts` `supportStatesLine`), or the could-not-be-read line where no outcome could be
    * read for the case; null only where the record gives the case an outcome that takes no line or the
@@ -408,7 +408,7 @@ export type ResultOverlayStanding = Readonly<{ eligible: boolean; health: Numeri
  * results surface already applies: the reader's numerical standing admits the result (when it does
  * not, the header says which outputs do not use the run and which carry each case's standing), the
  * numerical health indicator exists for the result's route, and the row's state is the solver's
- * checks passed (shown "not verified"; it asserts no bound). Anything missing fails closed.
+ * checks passed. Anything missing fails closed.
  * Presentation only.
  */
 export function overlayMayShowRow(standing: ResultOverlayStanding | null | undefined, row: Readonly<{ basis_ref?: ResultBasisRef }>): boolean {

@@ -28,12 +28,11 @@ it("labels joined cases needs recompute even against an eligible standing report
     expect(screen.getByTestId(`load-reference-state-standing-${id}`)).toHaveTextContent(`Numerical standing: ${NEEDS_RECOMPUTE_NOT_CURRENT}`);
     expect(screen.getByTestId(`load-reference-state-standing-${id}`)).not.toHaveTextContent(SOLVER_CHECKS_PASSED_LABEL);
   }
-  // The stubbed route standing is shown as an admission standing (release exit criterion 18; the stub
-  // carries no reader verdict's bound member, so none is worded); no text of the block carries the
-  // eligible case label.
+  // The stubbed route standing is shown as an admission standing (release exit criterion 18); no other
+  // text of the block carries the eligible case label.
   const block = screen.getByTestId("load-reference-states-block").textContent ?? "";
   const route = screen.getByTestId("load-reference-states-standing").textContent ?? "";
   expect(route).toBe("Result standing: numerically eligible");
-  expect(SOLVER_CHECKS_PASSED_LABEL).toBe("numerically eligible; not verified");
-  expect(block).not.toContain(SOLVER_CHECKS_PASSED_LABEL);
+  expect(SOLVER_CHECKS_PASSED_LABEL).toBe("numerically eligible");
+  expect(block.replace(route, "")).not.toContain(SOLVER_CHECKS_PASSED_LABEL);
 });

@@ -1,4 +1,4 @@
-// Release exit criterion 18 (LIM-026): the desktop's words for the solver's integrity verdict.
+// Release exit criterion 18 (LIM-026): the desktop's words for what the solver's checks found.
 import { readFileSync } from "node:fs";
 import { resolve } from "node:path";
 import { describe, expect, it } from "vitest";
@@ -7,41 +7,40 @@ import * as status from "./integrityStatus";
 const STANDING_RS = resolve(__dirname, "../../../../../core/reporting/report_renderer/src/standing.rs");
 
 describe("standing and results-line words", () => {
-  it("states the reader's status and the solver's tag as not verified, and every other status as before", () => {
+  it("states the reader's status as an admission standing and the solver's tag as what its checks found", () => {
     expect(status.standingStatusText("solver_checks_passed")).toBe("numerically eligible");
     expect(status.standingStatusText("needs_recompute")).toBe("needs recompute");
-    expect(status.integrityBoundText({ status: "not_verified", reason: "inverse_norm_bound_not_verified" })).toBe("the ordinary solve's error bound is not verified");
-    expect(status.integrityBoundText(null)).toBeNull();
-    expect(status.numericalQualityStatusText("checks_passed")).toBe("not verified");
+    expect(status.numericalQualityStatusText("checks_passed")).toBe("solver checks found no problem");
     for (const other of ["sensitive", "unresolved", "failed", "not_assessed"]) expect(status.numericalQualityStatusText(other)).toBe(other);
-    expect(status.numericalHealthLead({ numerical_quality: { status: "checks_passed" } } as never)).toBe("Numerical health: not verified.");
+    expect(status.numericalHealthLead({ numerical_quality: { status: "checks_passed" } } as never)).toBe("Numerical health: solver checks found no problem.");
     expect(status.numericalHealthLead({ numerical_quality: { status: "sensitive" } } as never)).toBe("Numerical health: sensitive.");
-    expect(status.ordinarySolveLead({ numerical_quality: { status: "checks_passed" } } as never)).toBe("Ordinary solve: not verified.");
+    expect(status.ordinarySolveLead({ numerical_quality: { status: "checks_passed" } } as never)).toBe("Ordinary solve: solver checks found no problem.");
+  });
+
+  it("pins the heading above the solver's own messages", () => {
+    expect(status.SOLVER_MESSAGES_HEADING).toBe("These are the solver's own messages. SWBPIPE has not independently checked the error bound they rest on.");
   });
 });
 
 describe("the support-state line", () => {
-  it("is the report renderer's reviewed statement, with the desktop's words for the inverse-norm condition", () => {
+  it("has one line for each of the report renderer's confirmation outcomes", () => {
     const rust = readFileSync(STANDING_RS, "utf8");
     const body = rust.slice(rust.indexOf("pub fn confirmation_statement"), rust.indexOf("/// One support's statement"));
-    const arm = (variant: string) => {
-      const match = new RegExp(`HistoricalConfirmation::${variant} => \\{?\\s*"([^"]+)"`).exec(body);
-      expect(match, variant).not.toBeNull();
-      return match![1];
-    };
-    const desktop = (text: string) => text.replace("conditional on the solver's inverse-norm step", "reported by the solver; not verified by SWBPIPE");
+    for (const variant of ["SolverReportedEstablished", "NotAttemptedReasonNotRecorded", "NotEstablishedDetailQuoted", "NoConfirmationRecord"]) {
+      expect(body, variant).toMatch(new RegExp(`HistoricalConfirmation::${variant} =>`));
+    }
     expect(status.CONFIRMATION_STATEMENTS).toEqual({
-      solver_reported_established: desktop(arm("SolverReportedEstablished")),
-      not_attempted_reason_not_recorded: arm("NotAttemptedReasonNotRecorded"),
-      not_established_detail_quoted: arm("NotEstablishedDetailQuoted"),
-      no_confirmation_record: arm("NoConfirmationRecord")
+      solver_reported_established:
+        "Support states: reported established by the solver. Its confirmation rests on the solver's own error estimate, which SWBPIPE has not independently checked. This result does not publish the deciding quantities or their intervals.",
+      not_attempted_reason_not_recorded: "Support states: not confirmed. No confirmation was attempted for this load case; the result does not record why.",
+      not_established_detail_quoted:
+        "Support states: not confirmed. The solver's confirmation did not establish the support states of this load case. The result publishes one reason only, quoted below; it does not show that any other support's state was established.",
+      no_confirmation_record: "Support states: not confirmed. The result records no support-state confirmation for this load case."
     });
-    for (const text of Object.values(status.CONFIRMATION_STATEMENTS)) expect(text).not.toMatch(/inverse-norm/i);
-    expect(status.supportStatesText("solver_reported_established")).toBe(`Support states: not confirmed. ${status.CONFIRMATION_STATEMENTS.solver_reported_established}`);
+    expect(status.supportStatesText("solver_reported_established")).toBe(status.CONFIRMATION_STATEMENTS.solver_reported_established);
     // The quoted reason is carried and shown beneath; where it is not carried the statement points to where it is.
-    expect(status.supportStatesLine("not_established_detail_quoted", "formation check: stage B: x")).toEqual({ text: `Support states: not confirmed. ${status.CONFIRMATION_STATEMENTS.not_established_detail_quoted}`, detail: "formation check: stage B: x", detailNote: null });
-    expect(status.supportStatesLine("not_established_detail_quoted", null)!.text).toBe(`Support states: not confirmed. ${status.CONFIRMATION_STATEMENTS.not_established_detail_quoted.replace("quoted below", "stated in this load case's solver diagnostic")}`);
-    expect(status.supportStatesLine("not_established_detail_quoted", "separate zero count/cap/contact/sliding checks passed")!.detailNote).toBe(status.SOLVER_REPORT_NOTE);
+    expect(status.supportStatesLine("not_established_detail_quoted", "formation check: stage B: x")).toEqual({ text: status.CONFIRMATION_STATEMENTS.not_established_detail_quoted, detail: "formation check: stage B: x" });
+    expect(status.supportStatesLine("not_established_detail_quoted", null)!.text).toBe(status.CONFIRMATION_STATEMENTS.not_established_detail_quoted.replace("quoted below", "stated in this load case's solver diagnostic"));
     expect(status.supportStatesText("not_applicable")).toBeNull();
     expect(status.supportStatesText("invented")).toBeNull();
   });
@@ -53,7 +52,7 @@ describe("the support-state line", () => {
     // A case the record does not name, and an outcome outside the vocabulary, could not be read.
     expect(status.supportStatesOf(read, "L9")).toEqual(status.SUPPORT_STATES_UNREAD_LINE);
     expect(status.supportStatesOf(status.supportStatesByCase([{ case_id: "L5", outcome: "invented" }]), "L5")).toEqual(status.SUPPORT_STATES_UNREAD_LINE);
-    expect(status.supportStatesOf(status.supportStatesByCase([{ case_id: "L3", outcome: "no_confirmation_record", detail: null }]), "L3")).toEqual({ text: `Support states: not confirmed. ${status.CONFIRMATION_STATEMENTS.no_confirmation_record}`, detail: null, detailNote: null });
+    expect(status.supportStatesOf(status.supportStatesByCase([{ case_id: "L3", outcome: "no_confirmation_record", detail: null }]), "L3")).toEqual({ text: status.CONFIRMATION_STATEMENTS.no_confirmation_record, detail: null });
     expect(status.supportStatesOf(status.supportStatesByCase({ cases: [{ case_id: "L4", confirmation: { outcome: "not_established_detail_quoted", detail: "why" } }] }), "L4")!.detail).toBe("why");
     // Nothing read: every case says so.
     expect(status.supportStatesByCase(null)).toBe(status.SUPPORT_STATES_UNREAD);

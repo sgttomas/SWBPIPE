@@ -1,5 +1,4 @@
-// Release exit criterion 18 (LIM-026), fail closed: a load case's "Support states: not confirmed"
-// line is hidden only where the desktop has positively established that there is nothing to confirm:
+// Release exit criterion 18 (LIM-026), fail closed: a load case's support-state line is hidden only where the desktop has positively established that there is nothing to confirm:
 // the model the result is read with is known and has no nonlinear support, or the reader's record
 // gives the case an outcome that takes no line. Everywhere else every load case the indicator lists
 // says its confirmation record could not be read: the confirmation read refused or failed, not made,
@@ -44,7 +43,7 @@ import { resetNativeReopenEmulation } from "../../test/nativeReopenEmulation";
 import { buildHistoricalRunContext, buildNativeHistoricalRunContext, buildRecordedRunContext, HistoricalRunPanel, type HistoricalRunContext } from "./HistoricalRunContext";
 import { standaloneNumericalHealth } from "./ResultsPanel";
 import { reportStanding } from "./resultStanding";
-import { CONFIRMATION_RECORD_UNREAD_STATEMENT, CONFIRMATION_STATEMENTS, SUPPORT_STATES_LEAD, SUPPORT_STATES_UNREAD_LINE, supportStatesText } from "./integrityStatus";
+import { CONFIRMATION_STATEMENTS, SUPPORT_STATES_UNREAD_LINE, supportStatesText } from "./integrityStatus";
 
 const root = resolve(__dirname, "../../../../../");
 const json = <T,>(path: string) => JSON.parse(readFileSync(resolve(root, path), "utf8")) as T;
@@ -55,7 +54,7 @@ const DEMO_PRE_RT_A4 = "fixtures/persistence/recorded_pre_rt_a4_pf/preview_physi
 const PRE_RT_A4_TABLE = { id: "openpipestress.result_semantics/0.3.0/preview-physics-2", sha256: "1ccc9561cb4ce59d047f3dab7927a927c44a707efb3acb90e7b07a21b3bad0a2" };
 const LINEAR_RESULT = "fixtures/results/preview_physics_connected_sparse.json";
 const LINEAR_MODEL = "fixtures/model_operations/precision_connected_ui_model.json";
-const UNREAD = `${SUPPORT_STATES_LEAD}. ${CONFIRMATION_RECORD_UNREAD_STATEMENT}`;
+const UNREAD = SUPPORT_STATES_UNREAD_LINE.text;
 const SUMMARY = "read_preview_mechanics_job_summary";
 
 let envelope: Json = null;
@@ -95,9 +94,8 @@ const caseIdsOf = (result: MechanicsResult) => (result.numerical_quality!.cases 
 
 describe("the could-not-be-read statement", () => {
   it("is the desktop's own, apart from the reader's outcomes", () => {
-    expect(CONFIRMATION_RECORD_UNREAD_STATEMENT).toBe("Not confirmed: this result's support-state confirmation record could not be read here, so what the solver reported for this load case is not shown.");
-    expect(Object.values(CONFIRMATION_STATEMENTS)).not.toContain(CONFIRMATION_RECORD_UNREAD_STATEMENT);
-    expect(SUPPORT_STATES_UNREAD_LINE).toEqual({ text: UNREAD, detail: null, detailNote: null });
+    expect(SUPPORT_STATES_UNREAD_LINE).toEqual({ text: "Support states: not read here. This result's record of what the solver reported about this load case's support states could not be read.", detail: null });
+    expect(Object.values(CONFIRMATION_STATEMENTS)).not.toContain(UNREAD);
   });
 });
 
