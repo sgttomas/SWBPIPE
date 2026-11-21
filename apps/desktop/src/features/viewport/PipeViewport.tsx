@@ -2617,8 +2617,6 @@ export function PipeViewport({
   const viewportStatusShown = Boolean(elementAxes) || hiddenCount > 0 || selectedHiddenCount > 0 || actualOdStatusShown ||
     viewportContextStatus !== "ready" || activeModelIndex.invalidGeometry.size > 0 || Boolean(renderTransformResolution.issue);
 
-  // The canvas's one Fit: the visible selection when there is one, the whole model otherwise.
-  const canvasFitCommand: "fit-selection" | "fit-model" = fitSelectionBounds ? "fit-selection" : "fit-model";
 
   const entityCommandEnvironment: EntityCommandEnvironment = {
     model,
@@ -2788,11 +2786,11 @@ export function PipeViewport({
               )
             }] : []),
             {
-              key: "selection",
-              heading: "Selection",
+              key: "select",
+              heading: "Select",
               label: "Viewport selection tools",
               onCount: (boxSelectActive ? 1 : 0) + (boxSelectionFilter !== "all" ? 1 : 0),
-              signature: "selection",
+              signature: "select",
               content: (
                 <>
                   <button
@@ -2815,10 +2813,6 @@ export function PipeViewport({
                       <option value="supports">Supports</option><option value="components">Components</option>
                     </select>
                   </label>
-                  <button onClick={() => dispatchViewportViewCommand({ type: "hide-selection" })} disabled={Boolean(visibilitySelectionReason)} title={visibilitySelectionReason ?? "Hide selected geometry (H). Hidden geometry is removed from canvas picking."} type="button">Hide</button>
-                  <button aria-describedby="viewport-visibility-help" onClick={() => dispatchViewportViewCommand({ type: "isolate-selection" })} disabled={Boolean(visibilitySelectionReason)} title={visibilitySelectionReason ?? "Isolate selected geometry (I): dim other shown geometry to 20%. Dimmed geometry remains selectable; Hide wins."} type="button">Isolate</button>
-                  <button onClick={() => dispatchViewportViewCommand({ type: "show-all" })} disabled={explicitHiddenKeys.size === 0 && !isolationActive} title={explicitHiddenKeys.size === 0 && !isolationActive ? "All eligible entities are already shown." : "Clear Hide and isolation; show every eligible entity at its normal opacity."} type="button">Show All</button>
-                  <span className="visually-hidden" id="viewport-visibility-help">Isolate captures the selected geometry. Other shown geometry is dimmed to 20% and remains available to click, hover and box selection; nearer dimmed geometry can be picked before farther undimmed geometry. Selection does not change the snapshot. Hide takes precedence. Show All clears both. I and H apply while focus is in the viewport.</span>
                 </>
               )
             },
@@ -2832,6 +2826,21 @@ export function PipeViewport({
                 <>
                   <button aria-pressed={geometryMode === "schematic"} data-testid="viewport-geometry-schematic" onClick={() => dispatchViewportViewCommand({ type: "set-geometry-mode", mode: "schematic" })} title="Draw each pipe as its centreline" type="button">Schematic</button>
                   <button aria-pressed={geometryMode === "actual-od"} data-testid="viewport-geometry-actual-od" onClick={() => dispatchViewportViewCommand({ type: "set-geometry-mode", mode: "actual-od" })} title="Draw each straight pipe at its entered outside diameter" type="button">Actual OD</button>
+                </>
+              )
+            },
+            {
+              key: "visibility",
+              heading: "Visibility",
+              label: "Viewport visibility",
+              onCount: 0,
+              signature: "visibility",
+              content: (
+                <>
+                  <button onClick={() => dispatchViewportViewCommand({ type: "hide-selection" })} disabled={Boolean(visibilitySelectionReason)} title={visibilitySelectionReason ?? "Hide selected geometry (H). Hidden geometry is removed from canvas picking."} type="button">Hide</button>
+                  <button aria-describedby="viewport-visibility-help" onClick={() => dispatchViewportViewCommand({ type: "isolate-selection" })} disabled={Boolean(visibilitySelectionReason)} title={visibilitySelectionReason ?? "Isolate selected geometry (I): dim other shown geometry to 20%. Dimmed geometry remains selectable; Hide wins."} type="button">Isolate</button>
+                  <button onClick={() => dispatchViewportViewCommand({ type: "show-all" })} disabled={explicitHiddenKeys.size === 0 && !isolationActive} title={explicitHiddenKeys.size === 0 && !isolationActive ? "All eligible entities are already shown." : "Clear Hide and isolation; show every eligible entity at its normal opacity."} type="button">Show All</button>
+                  <span className="visually-hidden" id="viewport-visibility-help">Isolate captures the selected geometry. Other shown geometry is dimmed to 20% and remains available to click, hover and box selection; nearer dimmed geometry can be picked before farther undimmed geometry. Selection does not change the snapshot. Hide takes precedence. Show All clears both. I and H apply while focus is in the viewport.</span>
                 </>
               )
             },
@@ -2878,12 +2887,7 @@ export function PipeViewport({
               onCount: 0,
               signature: "fit",
               content: (
-                <>
-                  {canvasFitCommand === "fit-selection"
-                    ? <button data-testid="viewport-fit-model" onClick={() => dispatchViewportViewCommand({ type: "fit-model" })} title="Fit the whole model in the view" type="button">Fit Model</button>
-                    : <button data-testid="viewport-fit-selection" onClick={() => dispatchViewportViewCommand({ type: "fit-selection" })} disabled={!fitSelectionBounds} title={fitSelectionBounds ? "Fit currently visible selected geometry." : "No visible valid selected geometry can be fitted."} type="button">Fit Selection</button>}
-                  <button data-testid="viewport-fit-visible" onClick={() => dispatchViewportViewCommand({ type: "fit-visible" })} title="Fit the geometry that is not hidden" type="button">Fit Visible</button>
-                </>
+                <button data-testid="viewport-fit-visible" onClick={() => dispatchViewportViewCommand({ type: "fit-visible" })} title="Fit the geometry that is not hidden" type="button">Fit Visible</button>
               )
             }
           ]}
@@ -2981,13 +2985,13 @@ export function PipeViewport({
             and the scale bar along the foot, between the axis triad and the right edge. */}
         <div className="viewport-canvas-right" data-testid="viewport-canvas-right">
           <div className="viewport-view-cube" role="group" aria-label="View controls" data-testid="viewport-view-cube" title="Drag to orbit · scroll to zoom · right-drag to pan">
-            <button
-              type="button"
-              className="viewport-fit"
-              data-testid={canvasFitCommand === "fit-selection" ? "viewport-fit-selection" : "viewport-fit-model"}
-              onClick={() => dispatchViewportViewCommand({ type: canvasFitCommand })}
-              title={canvasFitCommand === "fit-selection" ? "Fit the selection in the view" : "Fit the whole model in the view"}
-            >{canvasFitCommand === "fit-selection" ? "Fit Selection" : "Fit Model"}</button>
+            {/* Fit Model is always here; Fit Selection stands beside it while a selection is shown. */}
+            <span className="viewport-fit-commands">
+              {fitSelectionBounds ? (
+                <button type="button" className="viewport-fit" data-testid="viewport-fit-selection" onClick={() => dispatchViewportViewCommand({ type: "fit-selection" })} title="Fit the shown selection in the view">Fit Selection</button>
+              ) : null}
+              <button type="button" className="viewport-fit" data-testid="viewport-fit-model" onClick={() => dispatchViewportViewCommand({ type: "fit-model" })} title="Fit the whole model in the view">Fit Model</button>
+            </span>
             <span className="viewport-view-presets">
               <button type="button" data-testid="viewport-view-front" aria-pressed={viewPreset === "front"} onClick={() => pressStandardView("front")} title="Look along −Z at the X–Y plane">Front</button>
               <button type="button" data-testid="viewport-view-top" aria-pressed={viewPreset === "top"} onClick={() => pressStandardView("top")} title="Look down −Y at the X–Z plane">Top</button>

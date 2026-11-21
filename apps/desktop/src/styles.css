@@ -4855,6 +4855,7 @@ body { min-width: 760px; min-height: 540px; }
 .app-shell .viewport-view-cube button {
   min-height: 24px; height: 24px; padding: 0 var(--space-3); font-size: var(--type-size-caption); box-shadow: var(--elevation-1);
 }
+.viewport-fit-commands { display: inline-flex; gap: var(--space-2); }
 .viewport-view-presets { display: inline-flex; }
 .viewport-view-presets > button { border-radius: 0; }
 .viewport-view-presets > button + button { margin-inline-start: -1px; }
