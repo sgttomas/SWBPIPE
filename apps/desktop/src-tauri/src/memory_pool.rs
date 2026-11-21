@@ -43,9 +43,10 @@
 //! aggregate pool reservation, a known capacity, a fresh known headroom
 //! covering the request plus the outstanding unrealized reservations (the same
 //! rule as every other lease), and their lease must fit the per-invocation
-//! budget. One interactive reservation outlives its command: the document of
-//! the current rendered report, which the desktop keeps so that a save or a
-//! print names it (`crate::rendered_report_routes`). It is the render
+//! budget. The document of the current rendered report, which the desktop
+//! keeps so that a save or a print names it (`crate::rendered_report_routes`),
+//! is an interactive reservation that outlives its command, as the embedded
+//! agent's leases do. It is the render
 //! command's product and is admitted in this class when the render is
 //! recorded ([`MemoryPool::acquire_interactive_resampling`]), counted as
 //! custody, for the current render's document only, and released when the
@@ -230,6 +231,9 @@ pub(crate) enum LeasePurpose {
     /// A published native result not yet taken.
     Result = 1,
     /// A delivered result: the handoff copy overlap and the webview's copy until disposed.
+    /// Also the document of the current rendered report the desktop keeps
+    /// (`crate::rendered_report_routes`), admitted as the render command's own
+    /// interactive lease ([`MemoryPool::acquire_interactive_resampling`]).
     Custody = 2,
     /// A running solve worker's grant (its whole process, capped).
     Worker = 3,
@@ -627,19 +631,28 @@ impl MemoryPool {
     /// window has not elapsed, as [`Self::acquire_resampling`] does. Any other
     /// refusal stands at once.
     pub(crate) fn acquire_interactive_resampling(self: &Arc<Self>, bytes: u64) -> Result<Lease, ResourceRefusal> {
+        let cap = |budget: u64| budget;
         let deadline = Instant::now().checked_add(self.resample_window);
+        // One critical section per attempt: the verdict and its recording run
+        // under the pool lock, the wait releases it only inside the condition
+        // variable, and the deadline is checked once it is held again, so no
+        // attempt starts after the window. Only a refusal that stands is
+        // recorded as the pool's last refusal.
+        let mut state = self.lock();
         loop {
-            let refusal = match self.acquire_interactive(bytes) {
-                Ok(lease) => return Ok(lease),
+            let refusal = match self.interactive_verdict_locked(&mut state, bytes, &cap) {
+                Ok(()) => return Ok(self.record_interactive_locked(&mut state, bytes, &cap)),
                 Err(refusal) => refusal,
             };
             let remaining = deadline.map_or(Duration::ZERO, |deadline| deadline.saturating_duration_since(Instant::now()));
             if !matches!(refusal, ResourceRefusal::HeadroomInsufficient { .. }) || remaining.is_zero() {
+                state.last_refusal = Some(refusal.clone());
                 return Err(refusal);
             }
-            // A release wakes the wait early; the lock is not held across it.
-            drop(self.changed.wait_timeout(self.lock(), self.resample_tick.min(remaining)).unwrap_or_else(PoisonError::into_inner));
+            // A release (`notify`) wakes the wait early.
+            state = self.changed.wait_timeout(state, self.resample_tick.min(remaining)).unwrap_or_else(PoisonError::into_inner).0;
             if deadline.is_none_or(|deadline| Instant::now() >= deadline) {
+                state.last_refusal = Some(refusal.clone());
                 return Err(refusal);
             }
         }
@@ -664,33 +677,44 @@ impl MemoryPool {
     /// as the budget it was admitted under.
     fn acquire_interactive_under(self: &Arc<Self>, bytes: u64, cap: impl Fn(u64) -> u64) -> Result<Lease, ResourceRefusal> {
         let mut state = self.lock();
-        let verdict = (|| {
-            let sample = self.host.sample();
-            state.observe(&sample);
-            if sample.capacity_bytes.is_none() {
-                return Err(ResourceRefusal::CapacityUnknown);
-            }
-            let budget_bytes = cap(state.invocation_budget_bytes);
-            if bytes > budget_bytes {
-                return Err(ResourceRefusal::IngressExceedsBudget { required_bytes: bytes, budget_bytes });
-            }
-            self.admit_bytes_locked(&mut state, bytes, AdmissionClass::Interactive)
-        })();
-        if let Err(refusal) = verdict {
+        if let Err(refusal) = self.interactive_verdict_locked(&mut state, bytes, &cap) {
             state.last_refusal = Some(refusal.clone());
             return Err(refusal);
         }
+        Ok(self.record_interactive_locked(&mut state, bytes, &cap))
+    }
+
+    /// The interactive verdict for `bytes` on a fresh sample, under the pool
+    /// lock ([`AdmissionClass::Interactive`]): a known capacity, `bytes`
+    /// within `cap(budget)` (`ingress_exceeds_budget`), then the pool and
+    /// headroom ([`Self::admit_bytes_locked`]). It records nothing.
+    fn interactive_verdict_locked(&self, state: &mut PoolState, bytes: u64, cap: &dyn Fn(u64) -> u64) -> Result<(), ResourceRefusal> {
+        let sample = self.host.sample();
+        state.observe(&sample);
+        if sample.capacity_bytes.is_none() {
+            return Err(ResourceRefusal::CapacityUnknown);
+        }
+        let budget_bytes = cap(state.invocation_budget_bytes);
+        if bytes > budget_bytes {
+            return Err(ResourceRefusal::IngressExceedsBudget { required_bytes: bytes, budget_bytes });
+        }
+        self.admit_bytes_locked(state, bytes, AdmissionClass::Interactive)
+    }
+
+    /// Records an admitted interactive ingress lease of `bytes`, under the
+    /// pool lock that gave its verdict.
+    fn record_interactive_locked(self: &Arc<Self>, state: &mut PoolState, bytes: u64, cap: &dyn Fn(u64) -> u64) -> Lease {
         state.reserved[LeasePurpose::Ingress as usize] += bytes;
         #[cfg(test)]
         ledger_probe::pool_admitted(bytes);
-        Ok(Lease {
+        Lease {
             pool: Arc::clone(self),
             bytes,
             purpose: LeasePurpose::Ingress,
             class: AdmissionClass::Interactive,
             worker_id: None,
             admitted_budget_bytes: cap(state.invocation_budget_bytes),
-        })
+        }
     }
 
     /// Releases `bytes` of `purpose`; a worker lease's entry is updated to
@@ -1457,6 +1481,43 @@ pub(crate) mod test_host {
                 pressure: script.pressure,
                 taken_at: now.checked_sub(script.age).unwrap_or(now),
             }
+        }
+    }
+
+    /// A scripted host that counts its samples, so a test can act once an
+    /// admission has sampled it (and so been given that sample's verdict).
+    #[derive(Debug)]
+    pub(crate) struct CountingHost {
+        pub(crate) script: Arc<ScriptedHost>,
+        samples: Mutex<usize>,
+        sampled: Condvar,
+    }
+
+    impl CountingHost {
+        pub(crate) fn new(script: Arc<ScriptedHost>) -> Arc<Self> {
+            Arc::new(Self { script, samples: Mutex::new(0), sampled: Condvar::new() })
+        }
+
+        /// The samples taken so far.
+        pub(crate) fn samples(&self) -> usize {
+            *self.samples.lock().unwrap()
+        }
+
+        /// Waits until at least `count` samples have been taken.
+        pub(crate) fn wait_for(&self, count: usize) {
+            let mut samples = self.samples.lock().unwrap();
+            while *samples < count {
+                samples = self.sampled.wait(samples).unwrap();
+            }
+        }
+    }
+
+    impl HostMemory for CountingHost {
+        fn sample(&self) -> HostSample {
+            let sample = self.script.sample();
+            *self.samples.lock().unwrap() += 1;
+            self.sampled.notify_all();
+            sample
         }
     }
 }
@@ -3116,5 +3177,82 @@ mod ledger_tests {
         assert_eq!(ledger.total_bytes(), 10 * MIB);
         drop(at);
         assert_eq!((ledger.total_bytes(), pool.reserved_total(), pool.reserved(LeasePurpose::Worker)), before);
+    }
+}
+
+/// [`MemoryPool::acquire_interactive_resampling`]: the interactive verdict,
+/// taken again on fresh samples only while refused for headroom within the
+/// re-sampling window, with only a refusal that stands recorded.
+#[cfg(test)]
+mod interactive_resampling_tests {
+    use super::test_host::{CountingHost, ScriptedHost, GIB};
+    use super::*;
+
+    fn last_refusal(pool: &MemoryPool) -> Option<ResourceRefusal> {
+        pool.status(JobCounts::default()).last_refusal
+    }
+
+    /// A refusal other than headroom (here an unknown capacity, then the per-invocation
+    /// budget) stands at once: no wait for the window, one sample per attempt.
+    #[test]
+    fn a_refusal_other_than_headroom_returns_at_once() {
+        let host = CountingHost::new(ScriptedHost::with(None, Some(64 * GIB), PressureLevel::Normal));
+        let pool = MemoryPool::with_timing(host.clone(), Duration::from_millis(5), Duration::from_secs(30), Duration::from_millis(5));
+        let before = host.samples();
+        let started = Instant::now();
+        assert_eq!(pool.acquire_interactive_resampling(1024).unwrap_err(), ResourceRefusal::CapacityUnknown);
+        assert!(started.elapsed() < Duration::from_secs(5), "no wait for the 30 s window");
+        assert_eq!(host.samples(), before + 1, "one attempt");
+        assert_eq!(last_refusal(&pool), Some(ResourceRefusal::CapacityUnknown));
+
+        host.script.set(|script| script.capacity_bytes = Some(16 * GIB));
+        let over = 13 * GIB;
+        let refusal = pool.acquire_interactive_resampling(over).unwrap_err();
+        assert!(matches!(refusal, ResourceRefusal::IngressExceedsBudget { required_bytes, .. } if required_bytes == over), "{refusal:?}");
+        assert!(started.elapsed() < Duration::from_secs(5));
+        assert_eq!(pool.reserved_total(), 0);
+    }
+
+    /// Headroom that stays short is refused when the window ends, not before, and that
+    /// refusal stands as the pool's last.
+    #[test]
+    fn headroom_that_stays_short_refuses_when_the_window_ends() {
+        let host = ScriptedHost::with(Some(16 * GIB), Some(8), PressureLevel::Normal);
+        let window = Duration::from_millis(60);
+        let pool = MemoryPool::with_timing(host, Duration::from_millis(5), window, Duration::from_millis(5));
+        let started = Instant::now();
+        let refusal = pool.acquire_interactive_resampling(1024).unwrap_err();
+        let elapsed = started.elapsed();
+        assert!(matches!(refusal, ResourceRefusal::HeadroomInsufficient { .. }), "{refusal:?}");
+        assert!(elapsed >= window, "refused only once the window ended ({elapsed:?})");
+        assert!(elapsed < Duration::from_secs(10), "{elapsed:?}");
+        assert_eq!(last_refusal(&pool), Some(refusal));
+        assert_eq!(pool.reserved_total(), 0);
+    }
+
+    /// An attempt refused for headroom and overcome by a later one within the window leaves
+    /// no refusal recorded: the admitted lease is the interactive ingress lease it would be at
+    /// once.
+    #[test]
+    fn an_attempt_overcome_within_the_window_records_no_refusal() {
+        let host = CountingHost::new(ScriptedHost::with(Some(16 * GIB), Some(8), PressureLevel::Normal));
+        let pool = MemoryPool::with_timing(host.clone(), Duration::from_millis(5), Duration::from_secs(30), Duration::from_millis(5));
+        let first_attempt = host.samples() + 1;
+        let refill = {
+            let host = Arc::clone(&host);
+            std::thread::spawn(move || {
+                // The first attempt has sampled the short headroom (and so been refused).
+                host.wait_for(first_attempt);
+                host.script.set(|script| script.headroom_bytes = Some(64 * GIB));
+            })
+        };
+        let lease = pool.acquire_interactive_resampling(1024).expect("admitted once the headroom returns");
+        refill.join().unwrap();
+        assert!(host.samples() > first_attempt, "admitted on a later attempt");
+        assert_eq!((lease.bytes(), lease.purpose()), (1024, LeasePurpose::Ingress));
+        assert_eq!(pool.reserved(LeasePurpose::Ingress), 1024);
+        assert_eq!(last_refusal(&pool), None, "the overcome refusal is not recorded");
+        drop(lease);
+        assert_eq!(pool.reserved_total(), 0);
     }
 }

@@ -290,13 +290,18 @@ describe("native runtime", () => {
   // record, and a publication gate at the rename. The session's sequenced setters are stood in for by calling
   // `advance()` beside each source replacement. Expected values come from REQ-022, not the model.
   type Mark = { incarnation: number; sequence: number };
+  /** The native refusal of a request naming a render other than the one held, exactly as
+   * `rendered_report_routes.rs` writes it. */
+  const UNBOUND_MESSAGE =
+    "The render the request names is not the current one: the SHA-256 it names is not the one the desktop recorded for the current render. Render the report again.";
+  const unbound = () => ({ code: "REPORT-ROUTE-HTML-UNBOUND", stage: "admission", message: UNBOUND_MESSAGE, destination: "untouched", cleanup_code: null, selected_basename: null });
   function modelledNative() {
     const native = {
       incarnation: 0, registered: 0, ticket: 0, record: null as null | Mark,
       active: null as null | { source: Mark; request: number }, watermark: 0,
       retirements: [] as Array<{ source: Mark; request: number }>, holdRetires: false, heldRetires: [] as Array<() => void>,
       entered: [] as number[],
-      held: null as null | string, published: [] as string[], advancesSent: 0, retiresSent: 0, holdAdvances: false, failAdvances: false,
+      held: null as null | { html: string; sha256Hex: string }, published: [] as string[], advancesSent: 0, retiresSent: 0, holdAdvances: false, failAdvances: false,
       heldAdvances: [] as Array<() => void>, pendingSaves: [] as Array<() => void>, heldRenders: [] as Array<() => void>, holdRenders: false
     };
     const register = (mark: Mark): Mark => {
@@ -304,6 +309,7 @@ describe("native runtime", () => {
       if (mark.sequence > native.registered) {
         native.registered = mark.sequence;
         native.record = null;
+        native.held = null;
         native.ticket += 1;
         native.active = null;
       }
@@ -317,6 +323,7 @@ describe("native runtime", () => {
         native.incarnation += 1;
         native.registered = 0;
         native.record = null;
+        native.held = null;
         native.ticket += 1;
         native.active = null;
         native.watermark = 0;
@@ -340,13 +347,15 @@ describe("native runtime", () => {
         native.entered.push(request);
         native.ticket += 1;
         native.record = null;
+        native.held = null;
         native.active = { source, request };
         const ticket = native.ticket;
         nativeRender.pending = () => {
           if (ticket !== native.ticket || !current(source)) throw new Error("REPORT-RENDER-SUPERSEDED: not recorded.");
           native.record = source;
-          // The desktop keeps the recorded render's canonical HTML; a save publishes exactly it.
-          native.held = (outcomeRef.current?.html as string | undefined) ?? null;
+          // The desktop keeps the recorded render's canonical HTML and its hash; a save
+          // publishes exactly it.
+          native.held = outcomeRef.current ? { html: outcomeRef.current.html as string, sha256Hex: outcomeRef.current.sha256_hex as string } : null;
         };
       },
       completion: async () => {
@@ -367,6 +376,7 @@ describe("native runtime", () => {
           const active = native.active;
           if (active && active.request === named.request && active.source.incarnation === named.source.incarnation && active.source.sequence === named.source.sequence) {
             native.record = null;
+            native.held = null;
             native.ticket += 1;
             native.active = null;
           } else if (named.request > native.watermark) {
@@ -379,23 +389,24 @@ describe("native runtime", () => {
       }
       if (command === "print_rendered_report") {
         // Admission against the current record; the window and its hand-off are native.
-        const { source } = ingressArgs([command, args, options]) as { source: Mark };
+        const named = ingressArgs([command, args, options]) as { sha256Hex: string; source: Mark };
+        const { source } = named;
+        if ("html" in named) return Promise.reject(new Error("the print request carries no document"));
         if (!current(source) || native.record?.sequence !== source.sequence) {
           return Promise.reject({ code: "REPORT-ROUTE-NOT-CURRENT", stage: "admission", message: "No rendered report is current.", destination: "untouched", cleanup_code: null, selected_basename: null });
         }
+        if (named.sha256Hex !== native.held?.sha256Hex) return Promise.reject(unbound());
         return Promise.resolve({ outcome: "print_window_opened", route_id: "DREP-HTML-SAVE-005", export_context: "public_report", canonical_sha256_hex: SHA, print_sha256_hex: "c".repeat(64) });
       }
       if (command === "save_rendered_report_html") {
         const named = ingressArgs([command, args, options]) as { sha256Hex: string; source: Mark };
         const { source } = named;
-        if ("html" in named) throw new Error("the save request carries no document");
+        if ("html" in named) return Promise.reject(new Error("the save request carries no document"));
         if (!current(source) || native.record?.sequence !== source.sequence) {
           return Promise.reject({ code: "REPORT-SOURCE-RETIRED", stage: "source", message: "The report's source changed.", destination: "untouched", cleanup_code: null, selected_basename: null });
         }
-        if (named.sha256Hex !== SHA) {
-          return Promise.reject({ code: "REPORT-ROUTE-HTML-UNBOUND", stage: "admission", message: "The render the request names is not the current one.", destination: "untouched", cleanup_code: null, selected_basename: null });
-        }
-        const html = native.held as string;
+        if (named.sha256Hex !== native.held?.sha256Hex) return Promise.reject(unbound());
+        const html = native.held.html;
         const admittedTicket = native.ticket;
         return new Promise((resolve, reject) => native.pendingSaves.push(() => {
           // The publication gate at the rename: the render and its source must still be current.
@@ -483,6 +494,30 @@ describe("native runtime", () => {
     expect(text).toContain("Not saved (REPORT-HTML-SAVE-RETIRED)");
     expect(text).toContain("The destination was left as it was.");
     expect(text).not.toContain("Saved the selected report");
+  });
+
+  it("refuses a save and a print naming a render the desktop no longer holds, and says so", async () => {
+    const context = modelledNative();
+    await renderedLocalPrivate(context);
+    // Without the panel knowing, the native record now holds another document under the same
+    // source and incarnation.
+    const held = context.native.record;
+    context.native.held = { html: "<!DOCTYPE html>\n<html><body>another invented render</body></html>", sha256Hex: "d".repeat(64) };
+    expect(context.native.record).toBe(held);
+    fireEvent.click(screen.getByTestId("rendered-report-save-local-private"));
+    await waitFor(() => expect(screen.getByTestId("rendered-report-save-status")).toHaveTextContent(`Not saved (REPORT-ROUTE-HTML-UNBOUND): ${UNBOUND_MESSAGE}`));
+    expect(screen.getByTestId("rendered-report-save-status")).not.toHaveTextContent("left as it was");
+    await waitFor(() => expect(screen.getByTestId("rendered-report-print")).toBeEnabled());
+    fireEvent.click(screen.getByTestId("rendered-report-print"));
+    await waitFor(() => expect(screen.getByTestId("rendered-report-print-status")).toHaveTextContent(`Not printed (REPORT-ROUTE-HTML-UNBOUND): ${UNBOUND_MESSAGE}`));
+    expect(context.native.published).toEqual([]);
+    expect(context.native.pendingSaves).toEqual([]);
+    expect(routeCalls("save_rendered_report_html").map((args) => args.sha256Hex)).toEqual([SHA]);
+    expect(routeCalls("print_rendered_report").map((args) => args.sha256Hex)).toEqual([SHA]);
+    expect(context.outcomes.snapshot().map((entry) => [entry.kind, entry.state, entry.code])).toEqual([
+      ["save", "refused", "REPORT-ROUTE-HTML-UNBOUND"],
+      ["print", "refused", "REPORT-ROUTE-HTML-UNBOUND"]
+    ]);
   });
 
   it("lets an in-transit source change leave the earlier selected report saved, and says so truthfully", async () => {

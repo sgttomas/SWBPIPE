@@ -7,8 +7,9 @@
  * from which the native render composes the standing line (shown by the Rust
  * connecting-path test `a_readable_solved_result_that_is_not_checks_passed_renders_with_its_standing`
  * on the render input this build step makes). The rendered document is shown and its print
- * reached: in the desktop runtime Print sends the shown canonical HTML to the native print route
- * (DEL-08-01 REQ-022, `renderedReportRoutes.ts`) and mounts no print frame. The report package stays refused (the panel's save buttons are disabled with
+ * reached: in the desktop runtime Print names the shown render by its SHA-256 to the native print
+ * route, which holds the document (DEL-08-01 REQ-022, `renderedReportRoutes.ts`), and mounts no
+ * print frame. The report package stays refused (the panel's save buttons are disabled with
  * the reason stated, and the native menu commands are refused with a reason), and so do the result JSON
  * export and the rule check. A replacement (a fresh solve) retires the shown report. A second
  * test opens Report while the run is going, so that completion arrives with Report visible: the

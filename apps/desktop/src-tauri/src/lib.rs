@@ -7236,8 +7236,8 @@ mod tests {
         );
     }
 
-    #[test]
-    fn render_calculation_report_command_renders_fixture_unblocked() {
+    /// The invented calculation report fixture's render input, unblocked.
+    fn invented_render_input() -> Value {
         let fixture_path = std::path::Path::new(env!("CARGO_MANIFEST_DIR"))
             .join("../../../fixtures/reports/invented/calculation_report_fixture.json");
         let fixture: Value =
@@ -7317,6 +7317,12 @@ mod tests {
                 }
             ]
         });
+        input
+    }
+
+    #[test]
+    fn render_calculation_report_command_renders_fixture_unblocked() {
+        let input = invented_render_input();
 
         let outcome = render_calculation_report_value(input).expect("command renders");
 
@@ -7340,6 +7346,25 @@ mod tests {
         assert!(rejected
             .expect_err("invalid input")
             .starts_with("RENDER-INPUT-INVALID"));
+    }
+
+    /// DEL-08-01 REQ-022: the render command keeps the document of the render it records. When
+    /// the pool refuses that reservation the command refuses by name, records no render and
+    /// builds no reply carrying the document.
+    #[test]
+    fn render_calculation_report_refuses_a_document_it_cannot_keep() {
+        use crate::memory_pool::{test_host::ScriptedHost, MemoryPool, PressureLevel};
+        let custody = &rendered_report_routes::CUSTODY;
+        let mark = custody.activate_if(custody.observe().incarnation).expect("no other activation in this test");
+        let ticket = custody.begin_render(rendered_report_routes::RenderRequest { source: mark, ordinal: 1 }).expect("the registered source admits a render");
+        let pool = MemoryPool::new(ScriptedHost::with(None, Some(64 << 30), PressureLevel::Normal));
+        let refused = rendered_report_routes::with_render_ticket(ticket, std::sync::Arc::clone(&pool), || render_calculation_report_value(invented_render_input()))
+            .expect_err("the document cannot be kept");
+        assert!(refused.starts_with(&format!("{}: ", rendered_report_routes::RENDER_CUSTODY_UNAVAILABLE)), "{refused}");
+        assert!(refused.contains("\"kind\":\"capacity_unknown\""), "{refused}");
+        assert!(!refused.contains("<!DOCTYPE") && !refused.contains("DERIVED VIEW") && !refused.contains("Invented Calculation Report"), "the refusal carries nothing of the document");
+        assert!(custody.held_document().is_none(), "no render is recorded");
+        assert_eq!(pool.reserved_total(), 0);
     }
 
     fn rehearsal_step_text<'a>(step: &'a Value, key: &str) -> &'a str {
