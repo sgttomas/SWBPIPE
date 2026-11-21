@@ -92,17 +92,18 @@ pub fn check_runner_profile(export_profile_id: &str, document: &Value) -> Result
     Ok(())
 }
 
-/// The user-released profile's exact-route refusal (W-18b, DEL-08-01 Design
-/// `report-user-release.md` §0, §2.8): under scope R a shareable package
-/// carries pressure-free results only. Of the same form as
-/// [`check_runner_profile`]: it reads only the profile it is given and the
-/// document's producer identity, so it refuses whatever the report carries.
-/// The admitting entry's preflight calls it with the profile constant; the
-/// producer runs it again after the general entries' marker refusal.
+/// The user-released profile's exact-route refusal for the pressure-free
+/// record version (W-18b, DEL-08-01 Design `report-user-release.md` §0, §2.8,
+/// §11): a record of version 1.0.0 covers a pressure-free result only, and an
+/// exact-route result is shared with a record of version 1.2.0. Of the same
+/// form as [`check_runner_profile`]: it reads only the profile it is given and
+/// the document's producer identity. Its callers (the admitting entry, the
+/// producer and the reader) run it only where the record is not of version
+/// 1.2.0.
 pub fn check_user_released_profile(export_profile_id: &str, document: &Value) -> Result<(), String> {
     if export_profile_id == crate::user_release::USER_RELEASED_DESKTOP_PROFILE && producer_contract_id(document).is_some_and(is_exact_identity) {
         return Err(format!(
-            "{}: a shareable report package carries pressure-free (preview-physics-2) results only; this exact-route result can be saved in a local private package.",
+            "{}: a user-release record of version 1.0.0 covers a pressure-free (preview-physics-2) result only; this exact-route result is shared with a record of version 1.2.0, or can be saved in a local private package.",
             crate::user_release::EXACT_ROUTE_NOT_ADMITTED
         ));
     }
