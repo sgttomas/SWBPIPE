@@ -2955,6 +2955,8 @@ export function useWorkspaceSession() {
   }
 
   // The binder, stable for the session's life; its callbacks reach this render's entries through a ref.
+  // No editor is bound to this until the first wiring slice's independent readers have cleared the round 3 repairs
+  // to the binding and the Undo and Redo repair (issue 575) is on main.
   const editorEntries = useRef({ commitEditorInput, previewEditorInput, commitEditorPreview });
   editorEntries.current = { commitEditorInput, previewEditorInput, commitEditorPreview };
   const editorBinding = useRef<null | Readonly<{
@@ -5545,7 +5547,9 @@ export function useWorkspaceSession() {
   return {
     agent: agentSessionRef.current,
     // DEL-16-03, Commit: the binder of the desktop's editors. Only the application root takes it, and it is stripped
-    // from what the context provider is given; this slice binds no editor to it.
+    // from what the context provider is given; this slice binds no editor to it. No editor is bound to this until the
+    // first wiring slice's independent readers have cleared the round 3 repairs to the binding and the Undo and Redo
+    // repair (issue 575) is on main.
     editorBinding: editorBinding.current!,
     model: {
       model,
