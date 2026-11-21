@@ -89,9 +89,9 @@ describe("typed model display integration", () => {
     const distance = await waitFor(() => {
       const readout = screen.getByTestId("viewport-measurement-readout").querySelector<HTMLElement>('[data-measurement-label="Distance"]');
       expect(readout).not.toBeNull();
+      expect(readout).toHaveAttribute("data-display-status", "converted");
       return readout!;
     });
-    expect(distance).toHaveAttribute("data-display-status", "converted");
     expect(distance).toHaveAttribute("data-raw-unit", "in");
     expect(distance).toHaveTextContent(/ in$/);
     expect(buildDeformationOverlay(model, null)).toEqual(before);
