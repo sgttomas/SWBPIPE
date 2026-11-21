@@ -12383,7 +12383,6 @@ describe("persistent modeling workspace", () => {
     fireEvent(window, new MouseEvent("pointermove", { bubbles: true, clientX: 100, clientY: 360 }));
     fireEvent(window, new MouseEvent("pointerup", { bubbles: true, clientX: 100, clientY: 360 }));
     expect(drawerSplitter).toHaveAttribute("aria-valuenow", String(Math.min(600, initialDrawer + 16 + 40)));
-    expect(await screen.findByTestId("accessibility-current-workspace-target")).toHaveTextContent("WCAG 2.2 Level AA");
     Object.defineProperty(window, "innerWidth", { configurable: true, value: 1024 });
   });
 
@@ -14708,6 +14707,7 @@ describe("review-packet panels kept off the v1.0 interface", () => {
     const { model } = await firstOpenInputs();
     render(<DisplayUnitsProvider><AccessibilityBaselinePanel model={model} /></DisplayUnitsProvider>);
       const accessibilityBaseline = await screen.findByLabelText("Accessibility and usability baseline");
+    expect(within(accessibilityBaseline).getByTestId("accessibility-current-workspace-target")).toHaveTextContent("WCAG 2.2 Level AA");
       expect(
         within(accessibilityBaseline).getByTestId(
           "accessibility-baseline-summary",
