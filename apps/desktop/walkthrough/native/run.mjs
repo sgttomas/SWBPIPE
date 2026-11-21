@@ -25,6 +25,12 @@
 //                          Report.
 //   prepared-project   24  A model document placed in the throwaway home before launch (the journey's `place`),
 //                          opened by File > Open Model Document…: the start other journeys build on.
+//   missing-data       32  AC-007 Missing data: the committed missing-data model opened, Run and its answer, Issues,
+//                          Analyze, Results, each missing value reached from its finding and entered with the person's
+//                          committed value (`entries_from`), the first undone and redone, Run again, the results.
+//
+// Every edit a use-case journey makes goes through one driver helper (driver.js editValue), so that a change in how a
+// person commits an edit changes one place.
 //
 // Each launch reads the menu the app built once (`native_smoke_menu_items`, a command of the scripted-run build), and
 // the index records it (`native_menus`). --show-window, off by default, has the app bring its own window to the front
@@ -104,6 +110,13 @@ export const JOURNEYS = Object.freeze({
     use_case: "none of its own: shows that a journey can start from a prepared project, the start of the use cases that open one",
     place: [{ key: "model", at: "chooser/models/exact_pressure_authoring_model.json", from: "fixtures/model_operations/exact_pressure_authoring_model.json" }],
     open: { by: "model-document", file: "model" }
+  },
+  "missing-data": {
+    number: 32, title: "Missing data (launched app): a model lacking two pipe densities opened, Run refused, each value found from its finding and entered, undone and redone, solved",
+    use_case: "DEL-07-06 AC-007 Missing data: from the committed missing-data model opened by File > Open Model Document… to the solve after the person's two densities (person_entered.json) are entered in the inspector",
+    place: [{ key: "model", at: "chooser/models/start_model.json", from: "fixtures/embedded_agent/use_cases/missing-data/start_model.json" }],
+    open: { by: "model-document", file: "model" },
+    entries_from: "fixtures/embedded_agent/use_cases/missing-data/person_entered.json"
   }
 });
 export const DEFAULT_JOURNEYS = Object.freeze(["solve-and-results", "report", "exports"]);
@@ -172,6 +185,26 @@ export function placementsFor(place = [], { home, identifier, projectRoot, lstat
     seen.add(to);
     return { key: entry.key, from, to };
   });
+}
+
+/**
+ * The values a person enters in a journey, from a committed file under `fixtures/` that states them (`entries_from`,
+ * such as a use case's person_entered.json): its `entries`, each an entity, a field, a value and a unit. They reach the
+ * driver as `plan.entries` and are typed into the window by its own controls. Throws, naming the file, when the path
+ * is not under `fixtures/`, is not a regular file, or holds no entries.
+ */
+export function entriesFrom(file, { projectRoot, lstat = fs.lstatSync, read = (target) => readFileSync(target, "utf8") }) {
+  if (typeof file !== "string" || !file.startsWith("fixtures/") || file.split("/").some((part) => part === ".." || part === "." || part === "")) {
+    throw new Error(`entries_from ${file}: must be a committed path under fixtures/`);
+  }
+  const from = path.join(projectRoot, file);
+  let stat;
+  try { stat = lstat(from); } catch { throw new Error(`entries_from ${file}: does not exist`); }
+  if (!stat.isFile()) throw new Error(`entries_from ${file}: is not a regular file`);
+  const entries = JSON.parse(read(from)).entries;
+  const usable = (entry) => entry && typeof entry.entity_ref === "string" && typeof entry.field_path === "string" && (typeof entry.value === "number" || typeof entry.value === "string");
+  if (!Array.isArray(entries) || entries.length === 0 || !entries.every(usable)) throw new Error(`entries_from ${file}: holds no entries of entity, field and value`);
+  return entries.map(({ entity_ref, field_path, value, unit = null }) => ({ entity_ref, field_path, value, unit }));
 }
 
 /** Copies each placement into the home (never over an existing file) and returns { key: path }. */
@@ -526,6 +559,7 @@ async function main() {
     // The prepared files, in the home before the app starts; refused by name when a declaration is wrong.
     try {
       const placements = placementsFor(spec.place, { home: where.home, identifier: IDENTIFIER, projectRoot: project });
+      if (spec.entries_from) plan.entries = entriesFrom(spec.entries_from, { projectRoot: project });
       plan.placed = placeFiles(placements);
       if (spec.open) {
         plan.open = { ...spec.open, ...(spec.open.file ? { file: plan.placed[spec.open.file] } : {}) };

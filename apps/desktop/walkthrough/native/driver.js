@@ -474,7 +474,222 @@
     await journey.scrolled("report", "The Report tab", 4);
   }
 
+  // ------------------------------------------------------------ the use cases of DEL-07-06 AC-007 (journeys 32 to 36)
+
+  const said = (element) => element?.textContent?.replace(/\s+/g, " ").trim() ?? "";
+  const shown = (id) => { const item = byTestId(id); return visible(item) ? said(item) : null; };
+  // A native menu command, as a person chooses it: only an item the built menu shows enabled (read from the menu the
+  // app built), then delivered through the menu's own dispatch (marked as substituted on the step).
+  function menuEntry(items, commandId) {
+    for (const item of items ?? []) {
+      if (item.kind === "item" && item.command_id === commandId) return item;
+      if (item.kind === "submenu") { const found = menuEntry(item.items, commandId); if (found) return found; }
+    }
+    return null;
+  }
+  async function menuCommand(commandId) {
+    const item = menuEntry(await call("native_smoke_menu_items"), commandId);
+    if (!item) throw new Error(`the menu bar has no item ${commandId}`);
+    if (item.enabled === false) throw new Error(`the menu item "${item.label}" is disabled`);
+    await menu(commandId);
+    return item.label;
+  }
+  // A choice in the product's compact selector: the selector pressed, then the option a person reads in its list.
+  async function choose(id, value, { root } = {}) {
+    const selector = await control(id, { root });
+    if (selector.getAttribute("data-value") === value) return said(selector);
+    selector.click();
+    const list = await waitFor(`the list of ${id}`, () => { const listId = selector.getAttribute("aria-controls"); const found = listId && document.getElementById(listId); return visible(found) ? found : null; }, T.ui);
+    const option = [...list.querySelectorAll('[role="option"]')].find((item) => item.getAttribute("data-value") === value);
+    if (!option) throw new Error(`the list of ${id} offers no ${value}: it offers ${[...list.querySelectorAll('[role="option"]')].map(said).join(", ").slice(0, 300)}`);
+    if (option.getAttribute("aria-disabled") === "true") throw new Error(`the option ${said(option)} of ${id} is disabled`);
+    acting(option, `${id} option ${value}`).click();
+    await waitFor(`${id} set to ${value}`, () => selector.getAttribute("data-value") === value, T.ui);
+    return said(option);
+  }
+  // Typing into a field: focused, its value replaced, the input event a keystroke sends.
+  async function type(id, value, { root } = {}) {
+    const field = await control(id, { root });
+    field.focus();
+    setValue(field, String(value));
+    await settle();
+    return field;
+  }
+  // The model tree, as a person opens it: any page over it closed, the Model stage, its Tree tab, the tree rail open.
+  async function showTree() {
+    await closeOverlays();
+    if (visible(byTestId("workspace-dock-close"))) await press("workspace-dock-close");
+    if (!visible(byTestId("shell-tree-host"))) {
+      if (byTestId("rail-stage-model")?.getAttribute("aria-current") !== "page") await press("rail-stage-model");
+      const tab = byTestId("stage-tab-model-tree");
+      if (tab && tab.getAttribute("aria-pressed") !== "true") await press("stage-tab-model-tree");
+      if (byTestId("toggle-tree")?.getAttribute("aria-expanded") !== "true") await press("toggle-tree");
+    }
+    await waitFor("the model tree", () => visible(byTestId("shell-tree-host")), T.ui);
+  }
+  // An entity chosen in the model tree, found by typing its id into the tree's filter.
+  async function selectInTree(type_, id) {
+    await showTree();
+    await type("model-tree-filter-input", id);
+    await press(`tree-row-${encodeURIComponent(type_)}-${encodeURIComponent(id)}`);
+    return shown("status-selection") ?? "";
+  }
+  async function openInspector() {
+    const toggle = byTestId("toggle-inspector");
+    if (toggle?.getAttribute("aria-disabled") === "true" && toggle.getAttribute("aria-expanded") !== "true") await press("view-switch-both");
+    if (byTestId("toggle-inspector")?.getAttribute("aria-expanded") !== "true") await press("toggle-inspector");
+    return waitFor("the property inspector", () => (visible(byTestId("property-inspector")) ? byTestId("property-inspector") : null), T.ui);
+  }
+
+  // THE edit: every change these journeys make to the model goes through this one helper, so that when the way a
+  // person commits an edit changes, only this changes. Today (the inspector's Task tab, on the selected entity): the
+  // Task tab, "Start task from current selection", the Property chosen, the new value typed (and its unit chosen where
+  // the field takes one), then Apply (`apply-editor-intent-inline`), which applies that exact change at once. Three
+  // pictures: the empty form, the form filled, and the window once Apply has answered. Returns nothing; a refused
+  // Apply stops the journey with the window's words.
+  async function editValue(journey, name, what, { fieldPath, value, unit = null }) {
+    await journey.step(`${name}-form`, `The inspector's Task form for ${what}, the property chosen, nothing entered yet`, async () => {
+      await closeOverlays();
+      const inspector = await openInspector();
+      const tab = [...inspector.querySelectorAll('[role="tab"]')].find((item) => said(item) === "Task");
+      if (!tab) throw new Error("the inspector shows no Task tab");
+      if (tab.getAttribute("aria-selected") !== "true") { acting(tab, "inspector Task tab").click(); await settle(); }
+      if (visible(byTestId("inspector-frozen-task-target"))) await press("cancel-editor-intent", { root: inspector });
+      await press("inspector-start-task", { root: inspector });
+      const property = await choose("editor-intent-field", fieldPath, { root: inspector });
+      return `${shown("inspector-frozen-task-target") ?? ""}; Property: ${property}`;
+    });
+    await journey.step(`${name}-entered`, `The value entered for ${what}`, async () => {
+      const inspector = byTestId("property-inspector");
+      await type("editor-intent-value", value, { root: inspector });
+      if (unit !== null) {
+        const unitControl = byTestId("editor-intent-unit", inspector);
+        if (!visible(unitControl)) throw new Error("the form shows no unit control for this property");
+        if (unitControl.getAttribute("role") === "combobox") await choose("editor-intent-unit", unit, { root: inspector });
+        else await type("editor-intent-unit", unit, { root: inspector });
+      }
+      await sleep(300);
+      return [shown("editor-intent-missing-project-unit"), shown("editor-intent-inline-validation-status")].filter(Boolean).join("; ");
+    });
+    await journey.step(`${name}-applied`, `Apply pressed for ${what}`, async () => {
+      const inspector = byTestId("property-inspector");
+      await press("apply-editor-intent-inline", { root: inspector });
+      const outcome = await waitFor("the Apply's outcome", () => {
+        if (visible(byTestId("inspector-task-empty"))) return { applied: true };
+        const refusal = [...inspector.querySelectorAll('[role="alert"]')].filter(visible).map(said).filter(Boolean);
+        return refusal.length ? { refusal: refusal.join(" ") } : null;
+      }, T.step).catch(() => ({ refusal: `nothing in the inspector answered Apply: ${[shown("editor-intent-inline-validation-status"), shown("operation-apply-summary")].filter(Boolean).join("; ") || "no message shown"}` }));
+      if (outcome.refusal) throw new Error(`Apply was not taken: ${outcome.refusal.slice(0, 300)}`);
+      return [shown("operation-apply-summary"), shown("toolbar-project-name")].filter(Boolean).join("; ");
+    });
+  }
+
+  // What the window shows once Run was pressed: the solve's own outcome, or Run withheld with its reason. Recorded,
+  // not judged: a refusal here is what the use case starts from.
+  async function runAnswer() {
+    const answer = await waitFor("the window's answer to Run", () => {
+      for (const id of ["solve-progress-failure", "solve-progress-refusal", "solve-progress-cancellation", "solve-progress-result-too-large", "solve-progress-completed"]) {
+        const found = shown(id);
+        if (found) return `${id.replace("solve-progress-", "")}: ${found}`;
+      }
+      const run = byTestId("toolbar-run");
+      if (run?.getAttribute("aria-disabled") === "true") return `Run withheld: ${disabledReason(run)}`;
+      return null;
+    }, T.solve);
+    return `${answer.slice(0, 400)}; the status bar: ${shown("status-chips") ?? "no status chips"}`;
+  }
+  // Each finding a person can choose in the Issues drawer (the drawer opened from the status bar), with its words.
+  const FINDING_SELECTOR = '[data-testid^="diagnostic-"], [data-testid^="model-check-"]';
+  const findingButtons = () => [...(byTestId("issues-home")?.querySelectorAll(FINDING_SELECTOR) ?? [])]
+    .filter((item) => (item.tagName === "BUTTON" || item.getAttribute("role") === "button") && visible(item));
+  async function openIssues() {
+    await closeOverlays();
+    if (visible(byTestId("workspace-dock-close"))) await press("workspace-dock-close");
+    if (!visible(byTestId("issues-home"))) await press("issues-drawer-toggle");
+    await waitFor("the Issues drawer", () => visible(byTestId("issues-home")), T.ui);
+    const findings = findingButtons().map(said);
+    const missing = shown("missing-data-summary");
+    return `${findings.length} finding(s) to choose${findings.length ? `: ${findings.join(" | ").slice(0, 600)}` : ""}${missing ? `; ${missing}` : ""}`;
+  }
+  // From a finding that names `entityId`, to its entity. A finding's row in the Issues drawer shows its code and message;
+  // the entity it concerns is read in the Diagnostic Detail once it is chosen. So, as a person does, the findings are
+  // chosen in turn (the row's own text first, where it names the entity) until the detail names `entityId`; the note
+  // lists each one chosen and what its detail named. Then what the window selected. Where the finding selects nothing,
+  // or another entity, the note says so and the journey goes on from the model tree, as a person would.
+  // The finding (its test id, which carries its code) that last led to an entity.
+  let lastFindingCode = null;
+  const names = (text_, entityId) => text_.includes(entityId) || text_.includes(entityId.replace(/^[a-z]+:/, ""));
+  async function followFinding(journey, name, entityType, entityId) {
+    await journey.step(`${name}-finding`, `The finding that names ${entityId}, chosen in the Issues drawer`, async () => {
+      await openIssues();
+      const tried = [];
+      const rows = findingButtons();
+      const ordered = [...rows.filter((item) => names(said(item), entityId)), ...rows.filter((item) => !names(said(item), entityId))];
+      for (const finding of ordered) {
+        if (!finding.isConnected || !visible(finding)) continue;
+        await scrollTo(finding, "center");
+        acting(finding, finding.getAttribute("data-testid")).click();
+        await sleep(500);
+        const refs = shown("selected-diagnostic-affected-refs") ?? "";
+        tried.push(`${said(finding).slice(0, 60)} (its detail: ${refs || "no affected refs shown"})`);
+        if (names(said(finding), entityId) || names(refs, entityId)) {
+          lastFindingCode = finding.getAttribute("data-testid");
+          await scrollTo(byTestId("diagnostic-detail-panel") ?? finding, "center");
+          return `chosen in turn: ${tried.join("; ")}; the status bar's selection: ${shown("status-selection") || "none"}`;
+        }
+      }
+      throw new Error(`no finding in the Issues drawer names ${entityId} in its row or its detail; chosen in turn: ${tried.join("; ").slice(0, 300) || "the drawer lists none"}`);
+    });
+    await journey.step(`${name}-entity`, `${entityId}, the entity the finding names`, async () => {
+      await closeOverlays();
+      const now = shown("status-selection") ?? "";
+      if (names(now, entityId)) return `selected by the finding: ${now}`;
+      return `the finding did not select it (the status bar's selection: ${now || "none"}); chosen in the model tree: ${await selectInTree(entityType, entityId)}`;
+    });
+  }
+
+  // 32. Missing data: a committed model that lacks values a solve requires, opened; Run refused; each value found
+  // from its finding and entered; the solve completes.
+  async function missingData(journey, plan) {
+    await journey.step("first-open", "The application as first opened");
+    await openPrepared(journey, plan, "the missing-data model");
+    await journey.step("model-tree", "The opened model in the model tree", async () => { await showTree(); });
+    await journey.step("run", "Run pressed on the opened model", pressRun);
+    await journey.step("run-answer", "What the window says after Run", runAnswer);
+    await journey.step("issues", "The Issues drawer, from the status bar", openIssues);
+    await journey.scrolled("issues", "The Issues drawer", 2, '[data-testid="issues-home"]');
+    await journey.step("analyze-page", "The Analyze page after the refused Run", async () => { await closeOverlays(); await showSection("solve"); return shown("solve-progress-state") ?? ""; });
+    await journey.step("results-stage", "The Results stage after the refused Run", async () => { await openStage("results"); return shown("result-filter-summary") ?? ""; });
+    for (const [index, entry] of (plan.entries ?? []).entries()) {
+      const name = `value-${index + 1}`;
+      const [entityType] = entry.entity_ref.split(":");
+      // Where the Issues drawer no longer lists any finding of the code that led to the last value (an edit clears
+      // the refused solve's findings), a person runs again to see what is still missing.
+      if (index > 0 && lastFindingCode && !findingButtons().some((item) => item.getAttribute("data-testid") === lastFindingCode)) {
+        await journey.step(`${name}-run`, "Run pressed again to see what is still missing", pressRun);
+        await journey.step(`${name}-run-answer`, "What the window says after that Run", runAnswer);
+      }
+      await followFinding(journey, name, entityType, entry.entity_ref);
+      await editValue(journey, name, `${entry.field_path} of ${entry.entity_ref}`, { fieldPath: `${entry.field_path}.value`, value: entry.value, unit: entry.unit });
+      if (index === 0) {
+        await journey.step(`${name}-undone`, "Edit > Undo Model Edit", async () => menuCommand("edit.undo"));
+        await journey.step(`${name}-undone-issues`, "The Issues drawer after the undo", openIssues);
+        await journey.step(`${name}-redone`, "Edit > Redo Model Edit", async () => { await closeOverlays(); return menuCommand("edit.redo"); });
+      }
+      await journey.step(`${name}-issues`, `The Issues drawer once ${entry.entity_ref} has its value`, openIssues);
+    }
+    await journey.step("run-again", "Run pressed again", pressRun);
+    await journey.step("run-again-answer", "What the window says after the second Run", runAnswer);
+    await journey.step("results", "The Results stage", async () => {
+      await openStage("results");
+      await waitFor("the results table's rows", () => document.querySelector('[data-testid^="result-row-"]'), T.step).catch(() => null);
+      return shown("result-filter-summary") ?? "";
+    });
+    await journey.step("issues-after", "The Issues drawer after the solve", openIssues);
+  }
+
   const JOURNEYS = { "solve-and-results": solveAndResults, report, exports: exportsPage, "reference-system": referenceSystem, "prepared-project": preparedProject };
+  Object.assign(JOURNEYS, { "missing-data": missingData });
 
   (async () => {
     const result = { nonce: null, ok: false, journey: null, user_agent: navigator.userAgent };

@@ -10,7 +10,7 @@ import vm from "node:vm";
 import { composeIndex } from "../compose-index.mjs";
 import { MENU_SURFACE, NATIVE_SURFACE, NATIVE_SURFACES, PICTURE_BASIS, VIEW_3D_SURFACE, nativeSurfacesFor, readStepRecords, renderScreens, screensFromRecords, writePart } from "./render.mjs";
 import { mkdirSync, symlinkSync } from "node:fs";
-import { DEFAULT_JOURNEYS, JOURNEYS, composeDriver, emptyNativeOutput, nativeMenuRecord, parseArguments, placeFiles, placementsFor, screenLockState, windowShownRecord } from "./run.mjs";
+import { DEFAULT_JOURNEYS, JOURNEYS, composeDriver, emptyNativeOutput, entriesFrom, nativeMenuRecord, parseArguments, placeFiles, placementsFor, screenLockState, windowShownRecord } from "./run.mjs";
 
 function scratch(t) {
   const folder = mkdtempSync(path.join(os.tmpdir(), "native-walkthrough-test-"));
@@ -181,7 +181,7 @@ test("the driver acts only through what a person can reach: every click goes thr
   const driver = readFileSync(new URL("./driver.js", import.meta.url), "utf8");
   // control() and acting() refuse a control that is not shown or lies in a closed section, and record it on the step.
   const receivers = [...driver.matchAll(/([\w$.)\]]+)\.click\(\)/g)].map((match) => match[1]);
-  const fromControl = new Set(["intent", "render"]);
+  const fromControl = new Set(["intent", "render", "selector"]);
   for (const receiver of receivers) assert.ok(receiver.endsWith(")") || fromControl.has(receiver), `a click on ${receiver} bypasses control() and acting()`);
   for (const name of fromControl) assert.match(driver, new RegExp(`const ${name} = await control\\(`));
   assert.match(driver, /details:not\(\[open\]\)/);
@@ -337,5 +337,27 @@ test("every declared journey placement names a committed fixture and an open the
     assert.ok(placements.length > 0, name);
     assert.ok(["model-document", "local-project"].includes(spec.open?.by), name);
     if (spec.open.file) assert.ok(placements.some((item) => item.key === spec.open.file), name);
+  }
+});
+
+test("a person's values: read from a committed file under fixtures/, and refused by name otherwise", (t) => {
+  const root = scratch(t);
+  mkdirSync(path.join(root, "fixtures", "case"), { recursive: true });
+  writeFileSync(path.join(root, "fixtures", "case", "entered.json"), JSON.stringify({ entries: [{ entity_ref: "pipe:a", field_path: "section.material_density", value: 7850, unit: "kg/m^3", note: "x" }] }));
+  writeFileSync(path.join(root, "fixtures", "case", "empty.json"), JSON.stringify({ entries: [] }));
+  writeFileSync(path.join(root, "outside.json"), JSON.stringify({ entries: [{ entity_ref: "pipe:a", field_path: "f", value: 1 }] }));
+  symlinkSync(path.join(root, "outside.json"), path.join(root, "fixtures", "case", "link.json"));
+  assert.deepEqual(entriesFrom("fixtures/case/entered.json", { projectRoot: root }), [{ entity_ref: "pipe:a", field_path: "section.material_density", value: 7850, unit: "kg/m^3" }]);
+  for (const file of ["outside.json", "fixtures/../outside.json", "fixtures/case/link.json", "fixtures/case/missing.json", "fixtures/case/empty.json"]) {
+    assert.throws(() => entriesFrom(file, { projectRoot: root }), /entries_from/, file);
+  }
+});
+
+test("every journey's declared values are committed and usable, and the driver names every journey", () => {
+  const projectRoot = path.resolve(import.meta.dirname, "..", "..", "..", "..");
+  const driver = readFileSync(new URL("./driver.js", import.meta.url), "utf8");
+  for (const [name, spec] of Object.entries(JOURNEYS)) {
+    assert.match(driver, new RegExp(`"${name}"|\\b${name}:`), name);
+    if (spec.entries_from) assert.ok(entriesFrom(spec.entries_from, { projectRoot }).length > 0, name);
   }
 });
