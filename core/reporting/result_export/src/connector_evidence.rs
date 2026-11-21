@@ -138,10 +138,22 @@ pub(crate) fn canonical_metadata(row: &Value) -> Option<Value> {
                 "location": md["location"], "basis": md["basis"], "sign_convention": md["sign_convention"]})
         });
     }
+    // A case row has the connector row basis. A combination row has its
+    // expression's basis (the pressure-3 table's `combination_policy`: every
+    // non-stress combined row takes the expression's basis): the engine writes
+    // it, keeping the operand row's component, location and frame, and the
+    // reader re-derives every combined row from its operands and refuses any
+    // difference, so on a source `for_source` admits the basis is that
+    // combination's own. A combined tie-rod row is withheld by name.
+    let basis = if row["basis_ref"]["ref_type"] == "combination" {
+        md["basis"].as_str().is_some_and(|b| COMBINATION_BASES.contains(&b))
+    } else {
+        md["basis"] == ROW_BASIS
+    };
     let ok = md["component"].as_str().is_some_and(|c| components.contains(&c))
         && md["location"].as_str().is_some_and(|l| locations.contains(&l))
         && matches!(md["coordinate_system"].as_str(), Some(LOCAL_FRAME | "global"))
-        && md["basis"] == ROW_BASIS
+        && basis
         && md["sign_convention"].as_str().is_some_and(|s| !s.is_empty());
     ok.then(|| {
         serde_json::json!({"component": md["component"], "coordinate_system": md["coordinate_system"],
@@ -154,10 +166,21 @@ pub(crate) fn is_connector_kind(kind: &str) -> bool {
     kind.starts_with("connector_")
 }
 
-/// The row basis of every connector row: one stable string (T4-U2, the
-/// export vocabulary). The replaced span is bound through the record named by
-/// the row's `entity_ref`, never through the basis text.
+/// The row basis of a load case's connector row other than a tie-rod force
+/// row: one stable string (T4-U2, the export vocabulary). A tie-rod force row
+/// has `TIE_ROD_BASIS`, and a combination's connector row its expression's
+/// basis (`COMBINATION_BASES`). The replaced span is bound through the record
+/// named by the row's `entity_ref`, never through the basis text.
 pub const ROW_BASIS: &str = "objective_connector_v1;symmetric_midpoint_small_rotation_v1";
+/// The bases a combined row's expression gives it, one per expression kind,
+/// as the reader re-derives them (`exact_combination_evidence`).
+const COMBINATION_BASES: [&str; 5] = [
+    crate::exact_combination_evidence::LINEAR_BASIS,
+    crate::combination_graph::ABSOLUTE_SUM_BASIS,
+    crate::combination_graph::SRSS_BASIS,
+    crate::exact_combination_evidence::SUBTRACTION_BASIS,
+    crate::exact_combination_evidence::RANGE_BASIS,
+];
 
 /// One validated `tie_rods` entry (§3.3): its ID and published axial share.
 struct TieRod<'v> {
