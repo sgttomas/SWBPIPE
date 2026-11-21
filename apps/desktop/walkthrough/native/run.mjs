@@ -61,11 +61,12 @@
 // record keeps runUnderLock's receipt (its own time limit, two minutes later, is the backstop). The index gets one part
 // (number 90) recording the launch, and one screen for each picture the attendant put in <out>/captures/, marked as a
 // capture of the actual window, not redrawn and not scripted; the runner takes no capture and alters none.
-import { randomBytes } from "node:crypto";
+import { createHash, randomBytes } from "node:crypto";
 import { execFileSync, spawnSync } from "node:child_process";
 import * as fs from "node:fs";
 import { lstatSync, mkdirSync, mkdtempSync, readFileSync, realpathSync, rmSync, writeFileSync, writeSync } from "node:fs";
 import os from "node:os";
+import zlib from "node:zlib";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 import { emptyOutput, outputRefusal } from "../run.mjs";
@@ -536,30 +537,104 @@ export function readSidecar(file) {
   return { step: value.step.trim(), note: value.note, acted: value.acted, ...claims, raw: value };
 }
 
-function pngFacts(file) {
-  const handle = fs.openSync(file, "r");
-  try {
-    const head = Buffer.alloc(24);
-    const read = fs.readSync(handle, head, 0, 24, 0);
-    if (read < 24 || !head.subarray(0, 8).equals(PNG_SIGNATURE) || head.toString("latin1", 12, 16) !== "IHDR") return null;
-    return { width: head.readUInt32BE(16), height: head.readUInt32BE(20), bytes: fs.fstatSync(handle).size };
-  } finally {
-    fs.closeSync(handle);
+const CRC_TABLE = (() => {
+  const table = new Int32Array(256);
+  for (let n = 0; n < 256; n += 1) {
+    let c = n;
+    for (let k = 0; k < 8; k += 1) c = c & 1 ? 0xedb88320 ^ (c >>> 1) : c >>> 1;
+    table[n] = c;
   }
+  return table;
+})();
+const crc32 = (bytes) => {
+  let c = -1;
+  for (let i = 0; i < bytes.length; i += 1) c = CRC_TABLE[(c ^ bytes[i]) & 0xff] ^ (c >>> 8);
+  return (c ^ -1) >>> 0;
+};
+const PNG_CHANNELS = { 0: 1, 2: 3, 3: 1, 4: 2, 6: 4 };
+const PNG_MAX_SIDE = 16384;
+
+/**
+ * Whether `bytes` decode as a PNG picture with a nonzero size: the signature, every chunk whole with its checksum,
+ * IHDR first with a known colour type, IDAT data that inflates to exactly the rows its size and interlacing need,
+ * and IEND. { width, height } or { why }. The pixels are not interpreted further.
+ */
+export function pngDecode(bytes) {
+  if (bytes.length < 8 || !bytes.subarray(0, 8).equals(PNG_SIGNATURE)) return { why: "it is not a PNG file by its signature" };
+  let offset = 8;
+  let header = null;
+  const data = [];
+  let ended = false;
+  while (offset + 12 <= bytes.length) {
+    const length = bytes.readUInt32BE(offset);
+    const type = bytes.toString("latin1", offset + 4, offset + 8);
+    if (offset + 12 + length > bytes.length) return { why: `its ${type} chunk runs past the end of the file` };
+    if (crc32(bytes.subarray(offset + 4, offset + 8 + length)) !== bytes.readUInt32BE(offset + 8 + length)) return { why: `its ${type} chunk's checksum is wrong` };
+    const body = bytes.subarray(offset + 8, offset + 8 + length);
+    if (header === null && type !== "IHDR") return { why: "its first chunk is not IHDR" };
+    if (type === "IHDR") {
+      if (header !== null || length !== 13) return { why: "its IHDR chunk is not one of 13 bytes" };
+      header = { width: body.readUInt32BE(0), height: body.readUInt32BE(4), depth: body[8], colour: body[9], interlace: body[12] };
+    } else if (type === "IDAT") data.push(body);
+    else if (type === "IEND") { ended = true; break; }
+    offset += 12 + length;
+  }
+  if (header === null) return { why: "it has no IHDR chunk" };
+  const { width, height, depth, colour, interlace } = header;
+  if (width === 0 || height === 0) return { why: "its size is zero" };
+  if (width > PNG_MAX_SIDE || height > PNG_MAX_SIDE) return { why: `it is larger than ${PNG_MAX_SIDE} pixels on a side` };
+  if (!Object.hasOwn(PNG_CHANNELS, colour) || ![1, 2, 4, 8, 16].includes(depth) || interlace > 1) return { why: "its colour type, bit depth or interlacing is not one PNG defines" };
+  if (data.length === 0) return { why: "it has no image data" };
+  if (!ended) return { why: "it has no IEND chunk" };
+  const bits = depth * PNG_CHANNELS[colour];
+  const rows = (w, h) => (w === 0 || h === 0 ? 0 : h * (1 + Math.ceil((w * bits) / 8)));
+  const passes = [[0, 0, 8, 8], [4, 0, 8, 8], [0, 4, 4, 8], [2, 0, 4, 4], [0, 2, 2, 4], [1, 0, 2, 2], [0, 1, 1, 2]];
+  const expected = interlace === 0 ? rows(width, height)
+    : passes.reduce((sum, [x, y, dx, dy]) => sum + rows(Math.ceil((width - x) / dx), Math.ceil((height - y) / dy)), 0);
+  let inflated;
+  try { inflated = zlib.inflateSync(Buffer.concat(data), { maxOutputLength: expected + 1 }); } catch { return { why: "its image data does not inflate to the rows its size needs" }; }
+  if (inflated.length !== expected) return { why: "its image data does not inflate to the rows its size needs" };
+  return { width, height };
+}
+
+const sha256Of = (bytes) => `sha256:${createHash("sha256").update(bytes).digest("hex")}`;
+const readBounded = (file, limit) => {
+  const stat = fs.lstatSync(file);
+  if (!stat.isFile()) throw new Error("not a regular file");
+  if (stat.size > limit) throw new Error(`larger than ${limit} bytes`);
+  return fs.readFileSync(file);
+};
+const PICTURE_LIMIT = 64 * 1024 * 1024;
+
+/** The words a scorer reads for each thing in an attended launch's captures that supplies nothing. */
+export function unexplainedOf(captures) {
+  return [
+    ...(captures.error ? [{ file: `${ATTENDED.captures}/`, why: `the captures folder was not read at the end of the launch: ${captures.error}` }] : []),
+    ...captures.screens.filter((screen) => screen.unexplained).map((screen) => ({ file: screen.file, why: `a picture that is unexplained, because ${screen.unexplained}` })),
+    ...captures.records_without_picture.map((record) => ({ file: record.file, why: "a sidecar with no picture of the same name" })),
+    ...captures.other.map((item) => ({ file: item.file, why: item.why }))
+  ];
 }
 
 /**
- * The attendant's captures in `folder` (<out>/captures), read, never changed: { screens, records_without_picture,
- * other }. Each `.png` that is a regular file becomes a screen: with a sidecar `<same name>.json` of the form
- * { step, note, acted }, a capture of the actual window; without one, or with one that is not of that form, or when
- * the file is not a PNG by its signature, an unexplained entry that says why. A sidecar with no picture is listed in
- * records_without_picture, and anything else (a link, a folder, another kind of file) in other; nothing is dropped
- * and nothing is followed.
+ * The attendant's captures in `folder` (<out>/captures), read once at the end of the launch and never changed:
+ * { screens, records_without_picture, other, error? }. The folder must still be the one the runner created for this
+ * launch (`identity`, its device and inode; not a link); otherwise, or when it cannot be read, `error` says why and
+ * nothing in it is taken. Each `.png` that is a regular file becomes a screen. With a sidecar `<same name>.json` of the
+ * form { step, note, acted } and a picture that decodes (pngDecode), it is a capture of the actual window, bound to
+ * this launch: `binding` holds the SHA-256 of the picture and of the sidecar, the decoded width and height, and the
+ * launch's revision and build (`bindTo`). Without a sidecar, with one of another form, or with a picture that does not
+ * decode, it is unexplained and says why. A sidecar with no picture is listed in records_without_picture, anything
+ * else (a link, a folder, another kind of file) in other; nothing is dropped and nothing is followed.
  */
-export function readCaptures(folder, { number = ATTENDED.number, journey = ATTENDED.name } = {}) {
+export function readCaptures(folder, { number = ATTENDED.number, journey = ATTENDED.name, identity = null, bindTo = {} } = {}) {
   const found = { screens: [], records_without_picture: [], other: [] };
+  const stat = lstatOrNull(folder);
+  if (stat === null) return { ...found, error: "it is not there" };
+  if (stat.isSymbolicLink() || !stat.isDirectory()) return { ...found, error: "it is no longer a folder (a link or a file stands in its place)" };
+  if (identity && (stat.dev !== identity.dev || stat.ino !== identity.ino)) return { ...found, error: "it is not the folder the runner created for this launch (another stands in its place)" };
   let entries;
-  try { entries = fs.readdirSync(folder, { withFileTypes: true }).map((entry) => entry.name).sort(); } catch { return found; }
+  try { entries = fs.readdirSync(folder, { withFileTypes: true }).map((entry) => entry.name).sort(); } catch (error) { return { ...found, error: `it could not be read (${error.code ?? error.message})` }; }
   const regular = (name) => lstatOrNull(path.join(folder, name))?.isFile() === true;
   const pictures = entries.filter((name) => /\.png$/i.test(name) && regular(name));
   const pictureBases = new Set(pictures.map((name) => name.replace(/\.png$/i, "")));
@@ -569,16 +644,25 @@ export function readCaptures(folder, { number = ATTENDED.number, journey = ATTEN
     const base = name.replace(/\.png$/i, "");
     const file = `${ATTENDED.captures}/${name}`;
     const entry = { number: number * 100 + count, journey, file, redrawn: false, scripted: false };
-    let facts = null;
-    try { facts = pngFacts(path.join(folder, name)); } catch { facts = null; }
-    const sidecar = entries.includes(`${base}.json`) ? readSidecar(path.join(folder, `${base}.json`)) : { why: "it has no sidecar of the same name" };
-    const why = facts === null ? "it is not a PNG file by its signature" : sidecar.why;
+    let bytes = null;
+    let decoded;
+    try { bytes = readBounded(path.join(folder, name), PICTURE_LIMIT); decoded = pngDecode(bytes); } catch (error) { decoded = { why: `it could not be read (${error.code ?? error.message})` }; }
+    const sidecarFile = path.join(folder, `${base}.json`);
+    const sidecar = entries.includes(`${base}.json`) ? readSidecar(sidecarFile) : { why: "it has no sidecar of the same name" };
+    const why = decoded.why ?? sidecar.why;
     if (why) {
-      found.screens.push({ ...entry, step: `unexplained-${base}`.slice(0, 120), note: `${name}: unexplained, because ${why}`, capture: "unexplained", unexplained: why, picture: UNEXPLAINED_BASIS, ...(facts ? { png: facts } : {}) });
+      found.screens.push({ ...entry, step: `unexplained-${base}`.slice(0, 120), note: `${name}: unexplained, because ${why}`, capture: "unexplained", unexplained: why, picture: UNEXPLAINED_BASIS });
       continue;
     }
+    let sidecarBytes;
+    try { sidecarBytes = readBounded(sidecarFile, SIDECAR_LIMIT); } catch (error) { sidecarBytes = null; }
+    if (sidecarBytes === null) {
+      found.screens.push({ ...entry, step: `unexplained-${base}`.slice(0, 120), note: `${name}: unexplained, because its sidecar changed while it was read`, capture: "unexplained", unexplained: "its sidecar changed while it was read", picture: UNEXPLAINED_BASIS });
+      continue;
+    }
+    const binding = { picture_sha256: sha256Of(bytes), sidecar_sha256: sha256Of(sidecarBytes), width: decoded.width, height: decoded.height, bytes: bytes.length, revision: bindTo.revision ?? null, build_app_sha256: bindTo.build_app_sha256 ?? null };
     const { surfaces, surfaces_unexplained, prevented, prevented_unexplained } = sidecar;
-    found.screens.push({ ...entry, step: sidecar.step, note: sidecar.note, acted: sidecar.acted, capture: "the actual window", driven_by: "an attendant, through the window", picture: CAPTURE_BASIS, png: facts, surfaces, surfaces_unexplained, prevented, prevented_unexplained });
+    found.screens.push({ ...entry, step: sidecar.step, note: sidecar.note, acted: sidecar.acted, capture: "the actual window", driven_by: "an attendant, through the window", picture: CAPTURE_BASIS, binding, surfaces, surfaces_unexplained, prevented, prevented_unexplained });
   }
   for (const name of entries) {
     if (pictures.includes(name)) continue;
@@ -588,8 +672,8 @@ export function readCaptures(folder, { number = ATTENDED.number, journey = ATTEN
       found.records_without_picture.push({ file: `${ATTENDED.captures}/${name}`, ...(({ raw, ...claims }) => claims)(readSidecar(path.join(folder, name))) });
       continue;
     }
-    const stat = lstatOrNull(path.join(folder, name));
-    found.other.push({ file: `${ATTENDED.captures}/${name}`, why: stat?.isSymbolicLink() ? "a link, not followed" : stat?.isDirectory() ? "a folder, not entered" : "neither a PNG picture nor a sidecar" });
+    const kind = lstatOrNull(path.join(folder, name));
+    found.other.push({ file: `${ATTENDED.captures}/${name}`, why: kind?.isSymbolicLink() ? "a link, not followed" : kind?.isDirectory() ? "a folder, not entered" : "neither a PNG picture nor a sidecar" });
   }
   return found;
 }
@@ -603,7 +687,7 @@ export function writeAttendedPart(out, { title, revision, build, launch, native_
     ...(native_menu ? { native_menu } : {}),
     ...(window_shown ? { window_shown } : {}),
     launch,
-    captures: { folder: ATTENDED.captures, records_without_picture: captures.records_without_picture, other: captures.other },
+    captures: { folder: ATTENDED.captures, records_without_picture: captures.records_without_picture, other: captures.other, ...(captures.error ? { error: captures.error } : {}), unexplained: unexplainedOf(captures) },
     screens: captures.screens
   };
   const file = path.join(out, `part-${ATTENDED.number}-${ATTENDED.name}.json`);
@@ -965,6 +1049,8 @@ async function main() {
     const finishFile = path.join(RUN_ROOT, ATTENDED.finish_file);
     const captures = path.join(out, ATTENDED.captures);
     mkdirSync(captures);
+    // The captures folder is this launch's own: read at the end only if it is still this folder.
+    const capturesIdentity = (({ dev, ino }) => ({ dev, ino }))(lstatSync(captures));
     const plan = { journey: name, number: ATTENDED.number, attended: true, start, bundled_project_id: demo.project.id, show_window: !hidden };
     const spec = start ? JOURNEYS[start] : null;
     // The start's prepared files, exactly as walk() places a journey's.
@@ -1017,7 +1103,8 @@ async function main() {
       : windowShownRecord(true, windowRecord, { before: lockedBefore, after: readScreenLock() });
     check("the menu the app built was read", nativeMenu.read, nativeMenu.read ? `${nativeMenu.menus.length} menus` : nativeMenu.error);
     if (!hidden) check("the window was brought to the front", shown.shown, shown);
-    const found = readCaptures(captures);
+    const found = readCaptures(captures, { identity: capturesIdentity, bindTo: { revision: { commit: revision, uncommitted_paths: uncommitted }, build_app_sha256: app.identity.sha256 } });
+    if (found.error) check("the captures folder was read at the end of the launch", false, found.error);
     const startRecord = watched.start ?? readReport(startReport).report;
     writeAttendedPart(out, {
       title: `Attended launch (launched app): the actual window, driven by an attendant, from ${start ? `the start of ${start}` : "the application as first opened"}`,

@@ -3,7 +3,8 @@
 // browser walkthrough (run.mjs) and the native one (native/run.mjs) write part
 // files of the same form into one folder; each journey states its surface: the
 // browser build, or the launched app redrawn by Chromium.
-import { readFileSync, readdirSync, writeFileSync } from "node:fs";
+import { createHash } from "node:crypto";
+import { lstatSync, readFileSync, readdirSync, writeFileSync } from "node:fs";
 import path from "node:path";
 import { ATTENDED_ONLY_SURFACES, NATIVE_SURFACES, NOT_SUPPLIED, SURFACE_KEYS } from "./native/render.mjs";
 
@@ -24,6 +25,57 @@ export function readParts(out) {
 const surfaceOf = (journey) => journey.surface ?? "browser build";
 
 const SURFACE_ORDER = Object.keys(SURFACE_KEYS);
+const sha256File = (file) => {
+  try {
+    const stat = lstatSync(file);
+    return stat.isFile() ? `sha256:${createHash("sha256").update(readFileSync(file)).digest("hex")}` : null;
+  } catch {
+    return null;
+  }
+};
+const sidecarOf = (file) => file.replace(/\.png$/i, ".json");
+
+/**
+ * Whether each attended capture is still the one its launch recorded (native/run.mjs readCaptures `binding`): its
+ * binding names its part's revision and build, and the picture and sidecar on disk have the recorded SHA-256. Returns
+ * { checks: Map file -> null (intact) | why, unbound: [{ file, why }] }, where `unbound` lists every file in the
+ * folder's captures/ that no attended launch recorded: added after its launch ended, it supplies nothing.
+ */
+export function attendedBindings(out, journeys) {
+  const checks = new Map();
+  const recorded = new Set();
+  for (const part of journeys.filter(attendedJourney)) {
+    for (const screen of part.screens ?? []) {
+      recorded.add(screen.file);
+      recorded.add(sidecarOf(screen.file));
+      if (screen.capture !== "the actual window") continue;
+      const binding = screen.binding;
+      let why = null;
+      if (!binding) why = "it is not bound to its launch: no hashes were recorded when the launch ended";
+      else if (binding.revision?.commit !== part.revision?.commit || binding.build_app_sha256 !== (part.build?.app_sha256 ?? null)) why = "its binding does not name its launch's revision and build";
+      else if (out) {
+        const picture = sha256File(path.join(out, screen.file));
+        const sidecar = sha256File(path.join(out, sidecarOf(screen.file)));
+        if (picture === null) why = "the picture was removed after its launch ended";
+        else if (picture !== binding.picture_sha256) why = "the picture on disk is not the one its launch recorded: it was replaced after the launch ended";
+        else if (sidecar === null) why = "its sidecar was removed after its launch ended";
+        else if (sidecar !== binding.sidecar_sha256) why = "its sidecar on disk is not the one its launch recorded: it was edited after the launch ended";
+      }
+      checks.set(screen.file, why);
+    }
+    for (const item of [...(part.captures?.records_without_picture ?? []), ...(part.captures?.other ?? [])]) recorded.add(item.file);
+  }
+  const unbound = [];
+  const folder = out ? path.join(out, "captures") : null;
+  const stat = folder ? (() => { try { return lstatSync(folder); } catch { return null; } })() : null;
+  if (stat?.isDirectory() && !stat.isSymbolicLink() && journeys.some(attendedJourney)) {
+    for (const name of readdirSync(folder).sort()) {
+      const file = `captures/${name}`;
+      if (!recorded.has(file)) unbound.push({ file, why: "added to captures/ after its launch ended: bound to no launch, it supplies nothing" });
+    }
+  }
+  return { checks, unbound };
+}
 const keyOf = (item) => item.key ?? SURFACE_ORDER.find((key) => SURFACE_KEYS[key] === item.surface) ?? null;
 const shortCommit = (commit) => (typeof commit === "string" ? commit.slice(0, 12) : "unrecorded");
 
@@ -31,9 +83,11 @@ const shortCommit = (commit) => (typeof commit === "string" ? commit.slice(0, 12
  * The index's native surfaces. Each launch's parts name the surfaces it met (render.mjs nativeSurfacesFor); where the
  * launches differ, the first entry that leaves evidence missing is kept. Then the attended launches' parts in the same
  * folder decide each surface of the fixed set (render.mjs SURFACE_KEYS):
- * - supplied, when an attended capture of the actual window at the revision of the walkthrough's screens declares it
- *   in its sidecar's `surfaces`; the entry lists those captures with their revision and build. A capture at another
- *   revision, or a sidecar with no picture, supplies nothing and is listed in `not_supplying` with why;
+ * - supplied, when an attended capture of the actual window declares it in its sidecar's `surfaces`, its launch is at
+ *   the revision AND build of the walkthrough's screens, and the capture is still the one its launch recorded
+ *   (attendedBindings); the entry lists those captures with their revision and build. A capture at another revision
+ *   or build, one replaced, removed or edited since, or a sidecar with no picture, supplies nothing and is listed in
+ *   `not_supplying` with why;
  * - otherwise unseen, when a capture's sidecar, a sidecar with no picture, or the attended launch's own record says
  *   an attempt was made and what prevented it (`prevented`), at that revision; nothing else makes a surface unseen;
  * - otherwise, for the window, the menu bar, the file chooser and the print dialog (and another native dialog once
@@ -42,7 +96,7 @@ const shortCommit = (commit) => (typeof commit === "string" ? commit.slice(0, 12
  * The walkthrough's screens are the scripted native journeys' (or, with none, the attended launches'). A surface name
  * a sidecar gives outside the set is listed in `unexplained`, not dropped. A browser-only index lists no surface.
  */
-export function nativeSurfacesOf(journeys) {
+export function nativeSurfacesOf(journeys, { bindings = { checks: new Map(), unbound: [] } } = {}) {
   const bySurface = new Map();
   for (const item of journeys.flatMap((journey) => journey.native_surfaces ?? [])) {
     const id = keyOf(item) ?? item.surface;
@@ -53,12 +107,21 @@ export function nativeSurfacesOf(journeys) {
   if (native.length === 0) return { surfaces: [...bySurface.values()], unexplained: [] };
   const attendedParts = native.filter(attendedJourney);
   const scripted = native.filter((journey) => !attendedJourney(journey));
-  const commits = [...new Set((scripted.length > 0 ? scripted : attendedParts).map((journey) => journey.revision?.commit ?? null))];
-  const sameRevision = (revision) => commits.length === 1 && commits[0] !== null && revision?.commit === commits[0];
-  const whyNot = (revision) => (typeof revision?.commit !== "string" ? "its revision is not recorded"
-    : commits.length !== 1 ? `the walkthrough's screens are at ${commits.length} revisions`
-      : commits[0] === null ? "the walkthrough's screens record no revision"
-        : `it is at revision ${shortCommit(revision.commit)}, not the walkthrough's ${shortCommit(commits[0])}`);
+  const basis = scripted.length > 0 ? scripted : attendedParts;
+  const commits = [...new Set(basis.map((journey) => journey.revision?.commit ?? null))];
+  const builds = [...new Set(basis.map((journey) => journey.build?.app_sha256 ?? null))];
+  const whyNotPart = (part) => {
+    const revision = part.revision;
+    if (typeof revision?.commit !== "string") return "its revision is not recorded";
+    if (commits.length !== 1) return `the walkthrough's screens are at ${commits.length} revisions`;
+    if (commits[0] === null) return "the walkthrough's screens record no revision";
+    if (revision.commit !== commits[0]) return `it is at revision ${shortCommit(revision.commit)}, not the walkthrough's ${shortCommit(commits[0])}`;
+    const build = part.build?.app_sha256 ?? null;
+    if (build === null) return "its build is not recorded";
+    if (builds.length !== 1 || builds[0] === null) return "the walkthrough's screens record no single build";
+    if (build !== builds[0]) return `it is of another build (app ${shortCommit(String(build).replace(/^sha256:/, ""))}, not the walkthrough's ${shortCommit(String(builds[0]).replace(/^sha256:/, ""))})`;
+    return null;
+  };
   const supplies = new Map();
   const attempts = new Map();
   const notSupplying = new Map();
@@ -66,12 +129,13 @@ export function nativeSurfacesOf(journeys) {
   const add = (map, key, value) => map.set(key, [...(map.get(key) ?? []), value]);
   for (const part of attendedParts) {
     const at = { revision: part.revision ?? null, build: part.build ?? null };
-    const counted = sameRevision(at.revision);
-    const claim = (key, ref, map, kind) => (counted ? add(map, key, ref) : add(notSupplying, key, { ...ref, kind, why: whyNot(at.revision) }));
+    const partWhy = whyNotPart(part);
+    const claim = (key, ref, map, kind, why = partWhy) => (why === null ? add(map, key, ref) : add(notSupplying, key, { ...ref, kind, why }));
     for (const screen of part.screens ?? []) {
       if (screen.capture !== "the actual window") continue;
       const ref = { file: screen.file, number: screen.number, step: screen.step, ...at };
-      for (const key of screen.surfaces ?? []) claim(key, ref, supplies, "capture");
+      const bound = bindings.checks.get(screen.file) ?? null;
+      for (const key of screen.surfaces ?? []) claim(key, ref, supplies, "capture", partWhy ?? bound);
       for (const record of screen.prevented ?? []) claim(record.surface, { ...ref, what: record.what }, attempts, "attempt");
       for (const name of screen.surfaces_unexplained ?? []) unexplained.push({ name, file: screen.file, member: "surfaces" });
       for (const record of screen.prevented_unexplained ?? []) unexplained.push({ name: record.surface, file: screen.file, member: "prevented", what: record.what });
@@ -120,10 +184,12 @@ export function composeIndex(out, { size = null } = {}) {
     revision: journey.revision ?? null,
     build: journey.build ?? null,
     use_case: journey.use_case ?? journey.title,
-    ...(screen.file && !screen.redrawn ? { redrawn: false } : {})
+    ...(screen.file && !screen.redrawn ? { redrawn: false } : {}),
+    ...(bindings.checks.has(screen.file) ? { binding_check: bindings.checks.get(screen.file) ?? "intact: the picture and its sidecar are the ones its launch recorded" } : {})
   })));
   // The native surfaces, each named once: supplied, unseen with what prevented it, or missing evidence (nativeSurfacesOf).
-  const { surfaces: nativeSurfaces, unexplained: unexplainedSurfaces } = nativeSurfacesOf(journeys);
+  const bindings = attendedBindings(out, journeys);
+  const { surfaces: nativeSurfaces, unexplained: unexplainedSurfaces } = nativeSurfacesOf(journeys, { bindings });
   // Each launch's reading of the menu the app built (native/run.mjs nativeMenuRecord).
   const nativeMenus = journeys.filter((journey) => journey.native_menu).map((journey) => ({ ...journey.native_menu, build: journey.build ?? null }));
   const stops = screens.filter((screen) => screen.failed).map((screen) => ({ journey: screen.journey, step: screen.step, reason: screen.failed }));
@@ -164,7 +230,8 @@ export function composeIndex(out, { size = null } = {}) {
       ...(journey.window_shown ? { window_shown: journey.window_shown } : {}),
       screens: journey.screens.filter((screen) => screen.file && !screen.failed).length,
       stopped_at: journey.screens.find((screen) => screen.failed)?.step ?? null,
-      not_reached: journey.screens.filter((screen) => screen.not_reached).map((screen) => screen.step)
+      not_reached: journey.screens.filter((screen) => screen.not_reached).map((screen) => screen.step),
+      ...(attendedJourney(journey) ? { unexplained: [...(journey.captures?.unexplained ?? []), ...[...bindings.checks].filter(([, why]) => why).map(([file, why]) => ({ file, why: `a capture that supplies nothing: ${why}` })), ...bindings.unbound] } : {})
     })),
     screens
   };
@@ -189,9 +256,10 @@ function renderScreen(screen) {
   const stop = screen.failed ? `<p class="stop">A person stops here: ${escapeHtml(screen.failed)}</p>` : "";
   const basis = screen.picture ? `<p class="basis">${escapeHtml(screen.picture)}${screen.view_3d === "not captured" ? " The 3D view was not captured at this step: a labelled placeholder stands in its place." : ""}</p>` : "";
   const substituted = screen.substitutions?.length ? `<p class="substituted">Substituted (scripted-run build): ${screen.substitutions.map((item) => `${escapeHtml(item.kind)}: ${escapeHtml(item.what)}`).join("; ")}.</p>` : "";
+  const unbound = screen.binding_check && !screen.binding_check.startsWith("intact") ? `<p class="stop">Not counted as evidence: ${escapeHtml(screen.binding_check)}.</p>` : "";
   const unpictured = screen.picture_error ? `<p class="stop">No picture: the redraw failed (${escapeHtml(screen.picture_error)}).</p>` : "";
   const picture = screen.file ? `<a href="${escapeHtml(screen.file)}"><img loading="lazy" src="${escapeHtml(screen.file)}" alt="${escapeHtml(screen.note)}"></a>` : "";
-  return `<li class="screen${screen.failed ? " stopped" : ""}" id="s${screen.number}"><h3>${screen.number} · ${escapeHtml(screen.step)}</h3><p>${escapeHtml(screen.note)}</p>${stop}${substituted}${picture}${basis}${unpictured}${counts}${controls}</li>`;
+  return `<li class="screen${screen.failed ? " stopped" : ""}" id="s${screen.number}"><h3>${screen.number} · ${escapeHtml(screen.step)}</h3><p>${escapeHtml(screen.note)}</p>${stop}${substituted}${picture}${basis}${unbound}${unpictured}${counts}${controls}</li>`;
 }
 
 // One native surface: supplied (with the captures that show it), unseen (what prevented it), or missing evidence.
@@ -229,7 +297,8 @@ function renderHtml(index) {
     const revision = journey.revision?.commit ? `${journey.revision.commit.slice(0, 12)}${journey.revision.uncommitted_paths ? ` with ${journey.revision.uncommitted_paths} uncommitted path(s)` : ""}` : "not recorded";
     const build = journey.build ? (typeof journey.build === "string" ? journey.build : `${journey.build.kind}${journey.build.app_sha256 ? `, app ${journey.build.app_sha256.replace(/^sha256:/, "").slice(0, 12)}` : ""}`) : "not recorded";
     const facts = `<p class="surface">Use case: ${escapeHtml(journey.use_case)}. Revision: ${escapeHtml(revision)}. Build: ${escapeHtml(build)}.</p>`;
-    return `<section id="j${journey.number}"><h2>${journey.number}. ${escapeHtml(journey.title)}</h2>${facts}${surface}${stopped}<ol class="screens">${screens.map(renderScreen).join("")}</ol></section>`;
+    const unexplained = journey.unexplained?.length ? `<p class="stop">In this launch's captures, supplying nothing:</p><ul class="unexplained">${journey.unexplained.map((item) => `<li>${escapeHtml(item.file)}: ${escapeHtml(item.why)}</li>`).join("")}</ul>` : "";
+    return `<section id="j${journey.number}"><h2>${journey.number}. ${escapeHtml(journey.title)}</h2>${facts}${surface}${stopped}${unexplained}<ol class="screens">${screens.map(renderScreen).join("")}</ol></section>`;
   }).join("");
   const rows = index.screens.filter((screen) => screen.words_on_screen !== undefined).map((screen) =>
     `<tr><td><a href="#s${screen.number}">${screen.number}</a></td><td>${escapeHtml(screen.journey)}</td><td>${escapeHtml(screen.step)}</td><td>${[screen.redrawn ? "redrawn" : "", screen.substitutions?.length ? "substituted" : "", screen.window_shown ? "window shown" : ""].filter(Boolean).join(", ")}</td><td class="n">${screen.words_on_screen}</td><td class="n">${screen.words_in_page}</td><td class="n">${screen.buttons_on_screen}</td><td class="n">${screen.inputs_on_screen}</td><td class="n">${screen.longest_scroll_screens}</td></tr>`).join("");

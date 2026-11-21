@@ -347,12 +347,23 @@ test("every declared journey placement names a committed fixture and an open the
 
 // ---------------------------------------------------------------- the attended launch (--attended)
 
-import { constants as fsConstants, copyFileSync, lstatSync } from "node:fs";
+import { constants as fsConstants, copyFileSync, lstatSync, renameSync } from "node:fs";
 import { ATTENDED, ATTENDED_SURFACE, CAPTURE_BASIS, UNEXPLAINED_BASIS, attendedEnding, attendedStartLines, attendedWatch, emptyAttendedOutput, parseCommandLine, readCaptures, readProcessTable, writeAttendedPart } from "./run.mjs";
 import { judgedPhase } from "../../native-smoke/judged-launch.mjs";
 import { censusOf } from "../../native-smoke/launch-env.mjs";
 import { readReport } from "../../native-smoke/launch-outcome.mjs";
 import { acquireBuildLock } from "../../scripts/worktreeBuildLock.mjs";
+import { deflateSync } from "node:zlib";
+
+/** A real PNG, `width` x `height`, RGBA 8-bit, all `value`: small, decodable and with correct checksums. */
+function makePng(width, height, value = 0) {
+  const table = Array.from({ length: 256 }, (_, n) => { let c = n; for (let k = 0; k < 8; k += 1) c = c & 1 ? 0xedb88320 ^ (c >>> 1) : c >>> 1; return c >>> 0; });
+  const crc = (bytes) => { let c = 0xffffffff; for (const byte of bytes) c = table[(c ^ byte) & 0xff] ^ (c >>> 8); return (c ^ 0xffffffff) >>> 0; };
+  const chunk = (type, body) => { const head = Buffer.alloc(8); head.writeUInt32BE(body.length, 0); head.write(type, 4, "latin1"); const tail = Buffer.alloc(4); tail.writeUInt32BE(crc(Buffer.concat([head.subarray(4), body])), 0); return Buffer.concat([head, body, tail]); };
+  const ihdr = Buffer.alloc(13); ihdr.writeUInt32BE(width, 0); ihdr.writeUInt32BE(height, 4); ihdr[8] = 8; ihdr[9] = 6;
+  const rows = Buffer.alloc(height * (1 + width * 4), value); for (let y = 0; y < height; y += 1) rows[y * (1 + width * 4)] = 0;
+  return Buffer.concat([Buffer.from([0x89, 0x50, 0x4e, 0x47, 0x0d, 0x0a, 0x1a, 0x0a]), chunk("IHDR", ihdr), chunk("IDAT", deflateSync(rows)), chunk("IEND", Buffer.alloc(0))]);
+}
 
 test("attended arguments: the option, its defaults, and every refusal by name", () => {
   assert.deepEqual(parseCommandLine(["--attended", "--out", "/o"]), { buildOnly: false, journeys: [], out: "/o", showWindow: true, attended: { start: null, limitMinutes: 20, hidden: false } });
@@ -443,10 +454,10 @@ test("captures: each PNG with its sidecar is a capture of the actual window; wit
   const root = scratch(t);
   const folder = path.join(root, "captures");
   mkdirSync(folder);
-  const png = (width, height) => { const head = Buffer.alloc(33); Buffer.from([0x89, 0x50, 0x4e, 0x47, 0x0d, 0x0a, 0x1a, 0x0a]).copy(head); head.writeUInt32BE(13, 8); head.write("IHDR", 12, "latin1"); head.writeUInt32BE(width, 16); head.writeUInt32BE(height, 20); return head; };
-  writeFileSync(path.join(folder, "01-menu.png"), png(1440, 920));
+  const png = (width, height) => makePng(width, height);
+  writeFileSync(path.join(folder, "01-menu.png"), png(48, 30));
   writeFileSync(path.join(folder, "01-menu.json"), JSON.stringify({ step: "file-menu-open", note: "The File menu, opened from the menu bar", acted: ["clicked File in the menu bar"] }));
-  writeFileSync(path.join(folder, "02-bare.png"), png(800, 600));
+  writeFileSync(path.join(folder, "02-bare.png"), png(8, 6));
   writeFileSync(path.join(folder, "03-bad.png"), png(10, 10));
   writeFileSync(path.join(folder, "03-bad.json"), JSON.stringify({ step: "", note: "n", acted: [] }));
   writeFileSync(path.join(folder, "04-fake.png"), "not a png");
@@ -455,12 +466,17 @@ test("captures: each PNG with its sidecar is a capture of the actual window; wit
   writeFileSync(path.join(folder, "notes.txt"), "x");
   symlinkSync(path.join(folder, "01-menu.png"), path.join(folder, "06-link.png"));
   const before = readdirSync(folder).map((name) => [name, lstatSync(path.join(folder, name)).mtimeMs]);
-  const found = readCaptures(folder);
+  const found = readCaptures(folder, { identity: lstatSync(folder), bindTo: { revision: { commit: "abc", uncommitted_paths: 0 }, build_app_sha256: "sha256:feed" } });
+  assert.equal(found.error, undefined);
   assert.deepEqual(found.screens.map((screen) => [screen.number, screen.file, screen.capture]), [
     [9001, "captures/01-menu.png", "the actual window"], [9002, "captures/02-bare.png", "unexplained"], [9003, "captures/03-bad.png", "unexplained"], [9004, "captures/04-fake.png", "unexplained"]
   ]);
   const [capture, bare, bad, fake] = found.screens;
-  assert.deepEqual([capture.step, capture.note, capture.acted, capture.redrawn, capture.scripted, capture.picture, capture.png.width, capture.png.height], ["file-menu-open", "The File menu, opened from the menu bar", ["clicked File in the menu bar"], false, false, CAPTURE_BASIS, 1440, 920]);
+  assert.deepEqual([capture.step, capture.note, capture.acted, capture.redrawn, capture.scripted, capture.picture, capture.binding.width, capture.binding.height], ["file-menu-open", "The File menu, opened from the menu bar", ["clicked File in the menu bar"], false, false, CAPTURE_BASIS, 48, 30]);
+  // Bound to its launch: the hashes of the picture and the sidecar, the launch's revision and build.
+  assert.match(capture.binding.picture_sha256, /^sha256:[0-9a-f]{64}$/);
+  assert.match(capture.binding.sidecar_sha256, /^sha256:[0-9a-f]{64}$/);
+  assert.deepEqual([capture.binding.revision.commit, capture.binding.build_app_sha256], ["abc", "sha256:feed"]);
   assert.match(bare.unexplained, /no sidecar/);
   assert.match(bad.unexplained, /names no step/);
   assert.match(fake.unexplained, /not a PNG/);
@@ -469,7 +485,7 @@ test("captures: each PNG with its sidecar is a capture of the actual window; wit
   assert.deepEqual(found.other.map((item) => [item.file, item.why]), [["captures/06-link.png", "a link, not followed"], ["captures/notes.txt", "neither a PNG picture nor a sidecar"]]);
   // The runner neither takes nor alters a capture.
   assert.deepEqual(readdirSync(folder).map((name) => [name, lstatSync(path.join(folder, name)).mtimeMs]), before);
-  assert.deepEqual(readCaptures(path.join(root, "none")), { screens: [], records_without_picture: [], other: [] });
+  assert.deepEqual(readCaptures(path.join(root, "none")), { screens: [], records_without_picture: [], other: [], error: "it is not there" });
 });
 
 test("the attended part joins the index beside the journeys, marked as captures of the actual window, the journeys' entries unchanged", (t) => {
@@ -640,22 +656,21 @@ test("the ways an attended launch ends, each through runUnderLock's abort and ea
 import { NOT_SUPPLIED, SURFACE_KEYS } from "./render.mjs";
 
 /** A folder with one journey's part at `journeyRevision` and an attended part at `captureRevision` whose captures carry `sidecars`. */
-function surfacesIndex(t, { journeyRevision = "abc", captureRevision = "abc", sidecars = [], launch = {} } = {}) {
+function surfacesIndex(t, { journeyRevision = "abc", captureRevision = "abc", journeyBuild = "sha256:feed", captureBuild = "sha256:feed", sidecars = [], launch = {}, after = null } = {}) {
   const out = scratch(t);
-  writePart(out, { number: 22, name: "exports", title: "E", use_case: "u", revision: { commit: journeyRevision, uncommitted_paths: 0 }, build: { kind: "k", app_sha256: "sha256:feed" }, screens: [], native_menu: { read: true, read_when: "once", menus: [], journey: "exports", number: 22 }, launch: { ended_cleanly: true } });
+  writePart(out, { number: 22, name: "exports", title: "E", use_case: "u", revision: { commit: journeyRevision, uncommitted_paths: 0 }, build: { kind: "k", app_sha256: journeyBuild }, screens: [], native_menu: { read: true, read_when: "once", menus: [], journey: "exports", number: 22 }, launch: { ended_cleanly: true } });
   const folder = path.join(out, "captures");
   mkdirSync(folder);
-  const png = Buffer.alloc(33);
-  Buffer.from([0x89, 0x50, 0x4e, 0x47, 0x0d, 0x0a, 0x1a, 0x0a]).copy(png);
-  png.write("IHDR", 12, "latin1");
+  const png = makePng(4, 3);
   sidecars.forEach((sidecar, index) => {
     const base = `${String(index + 1).padStart(2, "0")}-capture`;
     if (sidecar.picture !== false) writeFileSync(path.join(folder, `${base}.png`), png);
     const { picture, ...claims } = sidecar;
     writeFileSync(path.join(folder, `${base}.json`), JSON.stringify({ step: `step-${index + 1}`, note: "n", acted: ["looked"], ...claims }));
   });
-  const captures = readCaptures(folder);
-  writeAttendedPart(out, { title: "Attended", revision: { commit: captureRevision, uncommitted_paths: 0 }, build: { kind: "k", app_sha256: "sha256:beef" }, launch: { attended: true, prevented: [], ...launch }, captures });
+  const captures = readCaptures(folder, { identity: lstatSync(folder), bindTo: { revision: { commit: captureRevision, uncommitted_paths: 0 }, build_app_sha256: captureBuild } });
+  writeAttendedPart(out, { title: "Attended", revision: { commit: captureRevision, uncommitted_paths: 0 }, build: { kind: "k", app_sha256: captureBuild }, launch: { attended: true, prevented: [], ...launch }, captures });
+  if (after) after(folder);
   composeIndex(out);
   const index = JSON.parse(readFileSync(path.join(out, "INDEX.json"), "utf8"));
   return { index, html: readFileSync(path.join(out, "index.html"), "utf8"), captures, entry: (key) => index.native_surfaces.find((item) => item.key === key) };
@@ -677,9 +692,9 @@ test("native surfaces: a capture declaring menu_bar at the walkthrough's revisio
   const { entry, html } = surfacesIndex(t, { sidecars: [{ surfaces: ["menu_bar"] }] });
   const menuBar = entry("menu_bar");
   assert.deepEqual([menuBar.evidence, menuBar.missing_evidence, menuBar.captured], ["supplied", false, true]);
-  assert.deepEqual(menuBar.captures.map((ref) => [ref.file, ref.step, ref.revision.commit, ref.build.app_sha256]), [["captures/01-capture.png", "step-1", "abc", "sha256:beef"]]);
+  assert.deepEqual(menuBar.captures.map((ref) => [ref.file, ref.step, ref.revision.commit, ref.build.app_sha256]), [["captures/01-capture.png", "step-1", "abc", "sha256:feed"]]);
   assert.equal(entry("window").missing_evidence, true);
-  assert.match(html, /supplied by attended capture <a href="captures\/01-capture\.png">step-1<\/a> \(revision abc, app beef\)/);
+  assert.match(html, /supplied by attended capture <a href="captures\/01-capture\.png">step-1<\/a> \(revision abc, app feed\)/);
 });
 
 test("native surfaces: a capture at another revision than the walkthrough's screens supplies nothing, and says why", (t) => {
@@ -787,4 +802,77 @@ test("the command itself refuses an attended launch into a completed attended fo
   assert.equal(run.status, 2, run.stderr);
   if (process.platform === "darwin") assert.match(run.stderr, /earlier attended launch's captures|build lock/);
   assert.deepEqual(folderBytes(out), before);
+});
+
+test("a capture supplies a surface only while it is its launch's own: another build, a replaced, removed or edited file, or an image that does not decode supplies nothing", (t) => {
+  const claim = [{ surfaces: ["menu_bar"] }];
+  const missing = (result, pattern) => {
+    assert.deepEqual([result.entry("menu_bar").evidence, result.entry("menu_bar").missing_evidence], ["missing", true]);
+    assert.match(result.entry("menu_bar").not_supplying?.[0]?.why ?? "", pattern);
+  };
+  missing(surfacesIndex(t, { captureBuild: "sha256:beef", sidecars: claim }), /another build \(app beef, not the walkthrough's feed\)/);
+  const replaced = surfacesIndex(t, { sidecars: claim, after: (folder) => writeFileSync(path.join(folder, "01-capture.png"), makePng(4, 3, 255)) });
+  missing(replaced, /replaced after the launch ended/);
+  assert.match(replaced.index.screens.find((screen) => screen.journey === "attended").binding_check, /replaced/);
+  assert.match(replaced.html, /Not counted as evidence: the picture on disk is not the one its launch recorded/);
+  missing(surfacesIndex(t, { sidecars: claim, after: (folder) => rmSync(path.join(folder, "01-capture.png")) }), /removed after its launch ended/);
+  missing(surfacesIndex(t, { sidecars: claim, after: (folder) => writeFileSync(path.join(folder, "01-capture.json"), JSON.stringify({ step: "step-1", note: "changed", acted: ["looked"], surfaces: ["menu_bar"] })) }), /edited after the launch ended/);
+  const intact = surfacesIndex(t, { sidecars: claim });
+  assert.match(intact.index.screens.find((screen) => screen.journey === "attended").binding_check, /^intact/);
+  // A file that is not an image is unexplained at the launch's end and supplies nothing.
+  const fake = scratch(t);
+  mkdirSync(path.join(fake, "captures"));
+  writeFileSync(path.join(fake, "captures", "01.png"), "not an image");
+  writeFileSync(path.join(fake, "captures", "01.json"), JSON.stringify({ step: "s", note: "n", acted: ["looked"], surfaces: ["menu_bar"] }));
+  const read = readCaptures(path.join(fake, "captures"), { bindTo: { revision: { commit: "abc" }, build_app_sha256: "sha256:feed" } });
+  assert.deepEqual([read.screens[0].capture, read.screens[0].binding], ["unexplained", undefined]);
+  assert.match(read.screens[0].unexplained, /not a PNG/);
+  const empty = Buffer.concat([makePng(1, 1).subarray(0, 8)]);
+  writeFileSync(path.join(fake, "captures", "01.png"), empty);
+  assert.match(readCaptures(path.join(fake, "captures")).screens[0].unexplained, /no IHDR chunk/);
+});
+
+test("a capture added after its launch ended is unbound, and every unexplained entry reaches both indexes under the launch", (t) => {
+  const result = surfacesIndex(t, { sidecars: [{ surfaces: ["menu_bar"] }, { surfaces: "window" }], after: (folder) => {
+    writeFileSync(path.join(folder, "09-late.png"), makePng(2, 2));
+    writeFileSync(path.join(folder, "09-late.json"), JSON.stringify({ step: "late", note: "n", acted: ["looked"], surfaces: ["window"] }));
+  } });
+  assert.equal(result.entry("window").evidence, "missing");
+  const attended = result.index.journeys.find((journey) => journey.name === "attended");
+  const files = attended.unexplained.map((item) => item.file);
+  assert.ok(files.includes("captures/09-late.png") && files.includes("captures/09-late.json"), JSON.stringify(attended.unexplained));
+  assert.match(attended.unexplained.find((item) => item.file === "captures/09-late.png").why, /after its launch ended: bound to no launch/);
+  assert.match(attended.unexplained.find((item) => item.file === "captures/02-capture.png").why, /surfaces is not a list/);
+  assert.match(result.html, /In this launch's captures, supplying nothing:/);
+  assert.match(result.html, /captures\/09-late\.png: added to captures\/ after its launch ended/);
+});
+
+test("the captures folder is the launch's own: replaced, a link or gone, it is a finding, never an empty inventory", (t) => {
+  const root = scratch(t);
+  const folder = path.join(root, "captures");
+  mkdirSync(folder);
+  const identity = lstatSync(folder);
+  writeFileSync(path.join(folder, "01.png"), makePng(2, 2));
+  assert.equal(readCaptures(folder, { identity }).error, undefined);
+  renameSync(folder, path.join(root, "kept"));
+  mkdirSync(path.join(root, "elsewhere"));
+  writeFileSync(path.join(root, "elsewhere", "01.png"), makePng(2, 2));
+  symlinkSync(path.join(root, "elsewhere"), folder);
+  assert.match(readCaptures(folder, { identity }).error, /no longer a folder/);
+  rmSync(folder);
+  // Another folder in its place (made while the first still existed, so it cannot reuse its inode).
+  mkdirSync(path.join(root, "other"));
+  renameSync(path.join(root, "other"), folder);
+  const replaced = readCaptures(folder, { identity });
+  assert.match(replaced.error ?? "", /not the folder the runner created/);
+  assert.deepEqual(replaced.screens, []);
+  rmSync(folder, { recursive: true });
+  assert.match(readCaptures(folder, { identity }).error, /not there/);
+  // The finding is the launch's record, in both indexes.
+  const out = scratch(t);
+  writeAttendedPart(out, { title: "Attended", revision: { commit: "abc" }, build: { kind: "k" }, launch: { attended: true }, captures: { ...readCaptures(folder, { identity }) } });
+  composeIndex(out);
+  const index = JSON.parse(readFileSync(path.join(out, "INDEX.json"), "utf8"));
+  assert.match(index.journeys[0].unexplained[0].why, /the captures folder was not read at the end of the launch: it is not there/);
+  assert.match(readFileSync(path.join(out, "index.html"), "utf8"), /the captures folder was not read at the end of the launch/);
 });
