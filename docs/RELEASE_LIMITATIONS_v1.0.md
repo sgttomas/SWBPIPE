@@ -123,7 +123,7 @@ Entries are added in the same PR that makes the refusal standing. A previously u
 ### LIM-004 — The held-status subtrahend on the exact route
 
 - **Id:** LIM-004
-- **Exit criteria:** 1 (expansion with its basis).
+- **Exit criteria:** 1 (expansion; its declared basis on the exact route follows after v1.0, LIM-038).
 - **Requirement affected:** DEL-05-02/REQ-013, a Should: on request the sustained operand of the operating minus sustained difference is solved again with every nonlinear support held in the state the operating case ended in.
 - **Code:** today `LOAD_COMBINATION_DIFFERENCE_BASIS_EXACT_UNSUPPORTED`, which refuses every declared difference basis on the exact route and this request with it. When the declared basis is admitted on the exact route, this request keeps a named refusal of its own and the code is recorded here.
 - **What is refused:** a subtraction declaring `difference_basis: operating_minus_sustained` that sets `subtrahend_support_state` to `minuend_final`, in a model with a pressure contract. (Without the declared basis that member is refused as misplaced on either route, `LOAD_COMBINATION_SUBTRAHEND_SUPPORT_STATE_MISPLACED`.)
@@ -646,7 +646,7 @@ Entries are added in the same PR that makes the refusal standing. A previously u
 ### LIM-038 — A declared difference basis is refused on the exact route
 
 - **Id:** LIM-038
-- **Exit criteria:** 1 (expansion with its basis). Listing this refusal, or declaring it acceptable, does not make exit criterion 1 met.
+- **Exit criteria:** 1 (expansion). Until PR #475 the criterion read "expansion with its basis"; Agent 0 revised it in that pull request to "expansion as the operating minus sustained difference", with the declared basis on the exact route after v1.0. Listing this refusal, or declaring it acceptable, does not make DEL-05-02 AC-012 met.
 - **Requirement affected:** DEL-05-02/REQ-012, that on both routes a subtraction declared `operating_minus_sustained` is published only when the subtrahend's primitive loads are contained in the minuend's (G-1) and the two cases have the same modulus basis (G-2); AC-003 on the exact route; and AC-012, that the reference system's operating-minus-sustained difference with its declared basis is published on the exact route in the desktop, which is unmet. No PRD section states a declared difference basis; PRD §12.6 and FR-SOL-009, combination and range cases from solved cases, are not narrowed.
 - **Code:** `LOAD_COMBINATION_DIFFERENCE_BASIS_EXACT_UNSUPPORTED`, blocking (`core/product_physics/src/document_members.rs`, `interim_exact_combination_refusals`).
 - **What is refused:** on a model with a pressure contract, every combination that declares a `difference_basis`. The finding names the combination.
@@ -654,4 +654,4 @@ Entries are added in the same PR that makes the refusal standing. A previously u
 - **Why:** the declared-difference gate on the exact route (issue #451) is not built and its design is not final. Agent 0 decided on 2026-11-20 that it follows after v1.0.
 - **What the user does instead:** a plain subtraction, with neither `difference_basis` nor `subtrahend_support_state`, of two cases the user's engineer has checked.
 - **Basis:** DEL-05-02 [scope](../execution/PKG-05/DEL-05-02/ScopeOfWork.md), REQ-012, AC-003, AC-012 and "Withheld in v1.0"; issue #451, with its draft observer #444; LIM-004. The refusal was standing before this entry; this entry is added by PR #475.
-- **Status:** declared acceptable by Agent 0 (PR #475). The declaration is a limitation decision: exit criterion 1's expansion with its basis stays unmet on the exact route, and DEL-05-02 AC-012 stays unmet.
+- **Status:** declared acceptable by Agent 0 (PR #475). The declaration is a limitation decision: the declared basis is not demonstrated on the exact route, and DEL-05-02 AC-012 stays unmet.

@@ -228,10 +228,12 @@ target remains adequate. A failure alone does not justify relaxing one.
    - linear restraints, a gap, lift-off, friction, a variable spring and a
      constant-effort support.
 
-   The analyses are: sustained, operating, expansion with its basis,
-   hydrotest, wind, three-axis static seismic with SRSS and absolute-sum
-   combination, seismic anchor movement and hanger sizing. Modal and
-   response-spectrum analysis follow after v1.0 (Direction, "Seismic").
+   The analyses are: sustained, operating, expansion as the operating minus
+   sustained difference, hydrotest, wind, three-axis static seismic with SRSS
+   and absolute-sum combination, seismic anchor movement and hanger sizing.
+   The declared basis of the expansion difference on EX follows after v1.0
+   (LIM-038), as do modal and response-spectrum analysis (Direction,
+   "Seismic").
 
    *Owning deliverables:* DEL-04-07 (one route); DEL-03-03 to DEL-03-06 (components); DEL-04-03 and DEL-04-04 (supports); DEL-05-01 and DEL-05-02 (loads, cases, combinations); DEL-04-11 (hanger sizing).
 2. **Benchmarks.** Each analysis in criterion 1 passes closed-form or
