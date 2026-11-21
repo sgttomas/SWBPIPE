@@ -43,6 +43,8 @@ It serves SOW-071 under OBJ-016 (`execution/_Decomposition/SOFTWARE_DECOMP.md`, 
 - **CLM-002** — Run records are DEL-14-02's and the comparison of two states is DEL-14-03's. The History panel and the interaction of saving, opening and labelling a state in the desktop are DEL-07-08's. The state sections of a report are DEL-08-06's, and the classification of what an export may expose is DEL-12-02's.
 - **CLM-003** — Outside the product: a formal prover-status lifecycle, an automatic record of professional acceptance, and comprehensive ingestion of a commercial prover's outputs.
 
+**Not provided in v1.0.** A project's saved states do not travel in a portable package. The second sentence of REQ-015, and AC-010 with VER-008, are unmet in v1.0. No package writer carries a saved state and no command reads a package into a project store. SWBPIPE's Agent 0 decided on 2026-11-21 that this is not built for v1.0 (issue #509). No PRD section states it; its source is SOW-071 and the decomposition's rulings DEC-028 and DEC-057, which stand and are unmet for v1.0. `docs/RELEASE_LIMITATIONS_v1.0.md`, LIM-045, states what that means for a user and what the user does instead.
+
 ## Completion and Reliance Basis — Epistemology
 
 A state's hash establishes that the content read is the content saved. It says nothing about whether the design is right, and a record that validates against the schema establishes the record's shape, not that anything was stored.
