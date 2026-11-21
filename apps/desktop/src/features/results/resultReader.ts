@@ -18,8 +18,11 @@
  * - A value that is not JSON (a non-finite number, a lone surrogate) is refused at the
  *   text boundary with JSON_PARSE_REJECTED, as the native corpus states such texts.
  *
- * Verdicts are cached by the exact texts read. */
-import { jsonTextKeepingNegativeZero } from "../../services/jsonText";
+ * Verdicts are cached by the text read: a received text by its receipt (a token fresh for each
+ * `rememberReceivedText`), a written text by its equality digest (`equalityDigest.ts`), so no
+ * cache keeps a whole text. */
+import { jsonTextKeepingNegativeZero, writeJsonTextKeepingNegativeZero } from "../../services/jsonText";
+import { EqualityDigest, equalityDigestOf } from "../../services/equalityDigest";
 import { loadedWasmEngine, type WasmOperationEngine } from "../../services/wasmEngine/loadWasmEngine";
 import { timedSolvePass } from "../../services/solveTimeline";
 import type { SourceContract } from "./numericalResultQuality";
@@ -70,7 +73,10 @@ function freeze<T>(value: T): T {
 /* -------------------------------------------------------------------------- *
  * Text
  * -------------------------------------------------------------------------- */
-const received = new WeakMap<object, { text: string; written: string }>();
+/** A received text, the equality digest of the value's written text when it was received (in
+ * place of that text), and the receipt's cache key. */
+const received = new WeakMap<object, { text: string; writtenDigest: string; key: string }>();
+let receipts = 0;
 class NotJson extends Error {}
 function assertFinite(value: unknown): void {
   if (typeof value === "number") { if (!Number.isFinite(value)) throw new NotJson(); return; }
@@ -86,21 +92,49 @@ function writtenText(value: unknown): string {
     return jsonTextKeepingNegativeZero(value);
   }, (text) => text.length);
 }
+/** The equality digest of `writtenText`'s text for a value, from the same checks and the same
+ * pieces (`writeJsonTextKeepingNegativeZero`), without building the text. */
+function writtenDigest(value: unknown): string {
+  const digest = new EqualityDigest();
+  // RT-U4: timed for the latest solve's timeline as the text it digests.
+  return timedSolvePass("reader_written_text", () => {
+    assertFinite(value);
+    writeJsonTextKeepingNegativeZero(value, (piece) => digest.put(piece));
+    return digest.hex();
+  }, () => digest.chars);
+}
 /** b7-plan R2 (as R1's "Exact bytes to the desktop"): `text` is the received JSON text
- * `source` was read from. The readers read it while `source` is unchanged. */
+ * `source` was read from. The readers read it while `source` is unchanged. Each call is a
+ * new receipt with a new cache key, also for a value received before. */
 export function rememberReceivedText(source: object, text: string): void {
-  try { received.set(source, { text, written: writtenText(source) }); } catch { /* not JSON: nothing is kept */ }
+  try { received.set(source, { text, writtenDigest: writtenDigest(source), key: `r:${++receipts}` }); } catch { /* not JSON: nothing is kept */ }
+}
+/** The text a reader reads for this value and its cache key. The value is written again at
+ * every read: its received text while that writing is the one made when it was received (the
+ * value is unchanged since), otherwise the value written as JSON text, keyed by that text's
+ * digest. Throws for a value that has no JSON text. */
+function sourceRead(source: unknown): { text: string; key: string } {
+  // A native handle has no text in the webview: its readers run natively.
+  if (isNativeResult(source)) throw new NativeResultRowsGuarded("reader text");
+  const kept = source && typeof source === "object" ? received.get(source) : undefined;
+  if (kept) {
+    let digest: string;
+    try { digest = writtenDigest(source); } catch { throw new ResultReaderError(JSON_PARSE_REJECTED); }
+    if (digest === kept.writtenDigest) return { text: kept.text, key: kept.key };
+  }
+  let written: string;
+  try { written = writtenText(source); } catch { throw new ResultReaderError(JSON_PARSE_REJECTED); }
+  return { text: written, key: `w:${equalityDigestOf(written)}` };
 }
 /** The text a reader reads for this value (a statement, a model or an invocation): its
  * received text while the value is unchanged since it was read from it, otherwise the
  * value written as JSON text. Throws for a value that has no JSON text. */
 export function readerSourceText(source: unknown): string {
-  // A native handle has no text in the webview: its readers run natively.
-  if (isNativeResult(source)) throw new NativeResultRowsGuarded("reader text");
-  let written: string;
-  try { written = writtenText(source); } catch { throw new ResultReaderError(JSON_PARSE_REJECTED); }
-  const kept = source && typeof source === "object" ? received.get(source) : undefined;
-  return kept && kept.written === written ? kept.text : written;
+  return sourceRead(source).text;
+}
+/** `readerSourceText` with the key its verdicts are cached by (numerical health's cache too). */
+export function readerSourceRead(source: unknown): Readonly<{ text: string; key: string }> {
+  return sourceRead(source);
 }
 function optionalText(value: unknown): string | undefined {
   return value === undefined || value === null ? undefined : readerSourceText(value);
@@ -111,12 +145,13 @@ function optionalText(value: unknown): string | undefined {
  * -------------------------------------------------------------------------- */
 const CACHE_TEXTS = 24;
 const cache = new Map<string, Map<string, unknown>>();
-function cached<T>(sourceJson: string, key: string, read: () => T): T {
-  let entries = cache.get(sourceJson);
-  if (entries) { cache.delete(sourceJson); cache.set(sourceJson, entries); }
+/** `sourceKey`: the read source's key (`sourceRead`), or "" for no source. */
+function cached<T>(sourceKey: string, key: string, read: () => T): T {
+  let entries = cache.get(sourceKey);
+  if (entries) { cache.delete(sourceKey); cache.set(sourceKey, entries); }
   else {
     entries = new Map();
-    cache.set(sourceJson, entries);
+    cache.set(sourceKey, entries);
     while (cache.size > CACHE_TEXTS) cache.delete(cache.keys().next().value!);
   }
   if (!entries.has(key)) entries.set(key, read());
@@ -163,12 +198,12 @@ export type ReportStandingReading = Readonly<{
 export function readerReportStanding(source: unknown, model: unknown, invocation?: unknown): ReportStandingReading {
   if (isNativeResult(source)) throw new ResultReaderError("REPORT-STANDING-NATIVE-HANDLE");
   unavailable();
-  const sourceJson = readerSourceText(source);
+  const { text: sourceJson, key: sourceKey } = sourceRead(source);
   const modelJson = optionalText(model);
   const invocationJson = optionalText(invocation);
   if (modelJson === undefined) throw new ResultReaderError("REPORT-STANDING-MODEL-REQUIRED");
   const e = engine()!;
-  return cached(sourceJson, `report_standing\u0000${modelJson}\u0000${invocationJson ?? ""}`, () =>
+  return cached(sourceKey, `report_standing\u0000${modelJson}\u0000${invocationJson ?? ""}`, () =>
     freeze(JSON.parse(e.readerReportStandingJson(sourceJson, modelJson, invocationJson)) as ReportStandingReading));
 }
 
@@ -177,13 +212,13 @@ export function readerReportStanding(source: unknown, model: unknown, invocation
  * invocation it was captured with. */
 export function readerDispatch(source: unknown, model?: unknown, invocation?: unknown): ReaderDispatch {
   if (isNativeResult(source)) return nativeDispatch(source, model, invocation);
-  let sourceJson: string, modelJson: string | undefined, invocationJson: string | undefined;
-  try { sourceJson = readerSourceText(source); modelJson = optionalText(model); invocationJson = optionalText(invocation); }
+  let sourceJson: string, sourceKey: string, modelJson: string | undefined, invocationJson: string | undefined;
+  try { ({ text: sourceJson, key: sourceKey } = sourceRead(source)); modelJson = optionalText(model); invocationJson = optionalText(invocation); }
   catch (error) { if (error instanceof ResultReaderError) return unsupportedDispatch(error.code); throw error; }
   const e = engine();
   // Nothing is read, and nothing is cached, without the engine.
   if (!e) return unsupportedDispatch(RESULT_READER_UNAVAILABLE);
-  return cached(sourceJson, `dispatch\u0000${modelJson ?? ""}\u0000${invocationJson ?? ""}`, () => {
+  return cached(sourceKey, `dispatch\u0000${modelJson ?? ""}\u0000${invocationJson ?? ""}`, () => {
     try {
       const verdict = timedSolvePass("reader_wasm_dispatch", () => e.readerDispatchJson(sourceJson, modelJson, invocationJson), () => sourceJson.length);
       return freeze(JSON.parse(verdict) as ReaderDispatch);
@@ -209,9 +244,9 @@ function nativeDispatch(source: NativeResult, model?: unknown, invocation?: unkn
 /** One reader's validation of this statement (G2: with the current model; the source
  * readers with their captured invocation). Throws the reader's refusal. */
 export function readerValidate(reader: ReaderName, source: unknown, model?: unknown, invocation?: unknown): ReaderValidation {
-  const sourceJson = readerSourceText(source), modelJson = optionalText(model), invocationJson = optionalText(invocation);
+  const { text: sourceJson, key: sourceKey } = sourceRead(source), modelJson = optionalText(model), invocationJson = optionalText(invocation);
   unavailable();
-  const outcome = cached(sourceJson, `validate\u0000${reader}\u0000${modelJson ?? ""}\u0000${invocationJson ?? ""}`,
+  const outcome = cached(sourceKey, `validate\u0000${reader}\u0000${modelJson ?? ""}\u0000${invocationJson ?? ""}`,
     () => call<{ eligible?: boolean; findings?: string[] }>(e => timedSolvePass("reader_wasm_validate", () => e.readerValidateJson(reader, sourceJson, modelJson, invocationJson), () => sourceJson.length)));
   if (!outcome.ok) refuse(outcome);
   const { ok: _, ...validation } = outcome;
@@ -224,13 +259,13 @@ export function readerValidate(reader: ReaderName, source: unknown, model?: unkn
  * anything else refused by name (SOURCE_RECORDED_BINDING_UNKNOWN or _IDENTITY). Only the
  * recorded-run read and compare paths call these; no current admission path does. */
 export function recordedReaderDispatch(source: unknown, binding: ContractBinding, model?: unknown): ReaderDispatch {
-  let sourceJson: string, modelJson: string | undefined;
-  try { sourceJson = readerSourceText(source); modelJson = optionalText(model); }
+  let sourceJson: string, sourceKey: string, modelJson: string | undefined;
+  try { ({ text: sourceJson, key: sourceKey } = sourceRead(source)); modelJson = optionalText(model); }
   catch (error) { if (error instanceof ResultReaderError) return unsupportedDispatch(error.code); throw error; }
   const e = engine();
   if (!e) return unsupportedDispatch(RESULT_READER_UNAVAILABLE);
   const bindingJson = writtenText(binding);
-  return cached(sourceJson, `recorded-dispatch\u0000${bindingJson}\u0000${modelJson ?? ""}`, () => {
+  return cached(sourceKey, `recorded-dispatch\u0000${bindingJson}\u0000${modelJson ?? ""}`, () => {
     try { return freeze(JSON.parse(e.readerRecordedJson("dispatch", bindingJson, sourceJson, modelJson)) as ReaderDispatch); }
     catch (error) {
       if (error instanceof Error && error.message.startsWith("WASM-ENGINE-INPUT-JSON-INVALID")) return unsupportedDispatch(JSON_PARSE_REJECTED);
@@ -241,9 +276,9 @@ export function recordedReaderDispatch(source: unknown, binding: ContractBinding
 /** The preview-physics reader's validation of a recorded statement under its record's binding
  * (the record validator's recorded read). Throws the reader's refusal. */
 export function recordedReaderValidate(source: unknown, binding: ContractBinding, model?: unknown): ReaderValidation {
-  const sourceJson = readerSourceText(source), modelJson = optionalText(model), bindingJson = writtenText(binding);
+  const { text: sourceJson, key: sourceKey } = sourceRead(source), modelJson = optionalText(model), bindingJson = writtenText(binding);
   unavailable();
-  const outcome = cached(sourceJson, `recorded-validate\u0000${bindingJson}\u0000${modelJson ?? ""}`,
+  const outcome = cached(sourceKey, `recorded-validate\u0000${bindingJson}\u0000${modelJson ?? ""}`,
     () => call<object>(e => e.readerRecordedJson("preview-physics", bindingJson, sourceJson, modelJson)));
   if (!outcome.ok) refuse(outcome);
   const { ok: _, ...validation } = outcome;
@@ -252,9 +287,9 @@ export function recordedReaderValidate(source: unknown, binding: ContractBinding
 /** One reader's transport (metadata-only) checks of a transported statement; never
  * eligible. Throws the reader's refusal. */
 export function readerTransport(reader: TransportReaderName, source: unknown): void {
-  const sourceJson = readerSourceText(source);
+  const { text: sourceJson, key: sourceKey } = sourceRead(source);
   unavailable();
-  const outcome = cached(sourceJson, `transport\u0000${reader}`, () => call<object>(e => timedSolvePass("reader_wasm_transport", () => e.readerTransportJson(reader, sourceJson), () => sourceJson.length)));
+  const outcome = cached(sourceKey, `transport\u0000${reader}`, () => call<object>(e => timedSolvePass("reader_wasm_transport", () => e.readerTransportJson(reader, sourceJson), () => sourceJson.length)));
   if (!outcome.ok) refuse(outcome);
 }
 /** A row's semantics read only its kind, unit and the five metadata members
@@ -272,8 +307,8 @@ function rowText(row: SourceRow): string {
  * once (the outcomes a call per row returns), once per source text. Anything that
  * call does not read (a source that is not JSON, a row outside the source) is
  * left to the call per row. */
-function readSourceRows(source: MechanicsResult, sourceJson: string): void {
-  cached(sourceJson, "rows\u0000", () => {
+function readSourceRows(source: MechanicsResult, sourceJson: string, sourceKey: string): void {
+  cached(sourceKey, "rows\u0000", () => {
     const texts = new Set<string>();
     for (const row of Array.isArray(source.results) ? source.results : []) {
       try { texts.add(rowText(row)); } catch { /* read per row, as before */ }
@@ -282,7 +317,7 @@ function readSourceRows(source: MechanicsResult, sourceJson: string): void {
     let outcomes: unknown;
     try { outcomes = JSON.parse(engine()!.readerRowSemanticsEachJson(`[${rows.join(",")}]`, sourceJson)); } catch { return true; }
     const read = Array.isArray(outcomes) && outcomes.length === rows.length ? outcomes : null;
-    read?.forEach((outcome, i) => cached(sourceJson, `row\u0000${rows[i]}`, () => freeze(outcome) as Outcome<RowSemantics>));
+    read?.forEach((outcome, i) => cached(sourceKey, `row\u0000${rows[i]}`, () => freeze(outcome) as Outcome<RowSemantics>));
     return true;
   });
 }
@@ -292,16 +327,16 @@ function readSourceRows(source: MechanicsResult, sourceJson: string): void {
  * (SOURCE_SEMANTIC_CONTRACT_UNSUPPORTED), or a contradictory row. Call it once per
  * source and read every row through it. */
 export function readerRowSemantics(source?: MechanicsResult | null): (row: SourceRow) => RowSemantics {
-  let sourceJson: string | undefined, failure: ResultReaderError | null = null;
-  try { sourceJson = source == null ? undefined : readerSourceText(source); }
+  let sourceJson: string | undefined, sourceKey = "", failure: ResultReaderError | null = null;
+  try { if (source != null) ({ text: sourceJson, key: sourceKey } = sourceRead(source)); }
   catch (error) { if (!(error instanceof ResultReaderError)) throw error; failure = new ResultReaderError("SOURCE_SEMANTIC_CONTRACT_UNSUPPORTED"); }
   return row => {
     if (failure) throw failure;
     let text: string;
     try { text = rowText(row); } catch { throw new ResultReaderError(JSON_PARSE_REJECTED); }
     unavailable();
-    if (source != null && sourceJson !== undefined) readSourceRows(source, sourceJson);
-    const outcome = cached(sourceJson ?? "", `row\u0000${text}`,
+    if (source != null && sourceJson !== undefined) readSourceRows(source, sourceJson, sourceKey);
+    const outcome = cached(sourceKey, `row\u0000${text}`,
       () => call<RowSemantics>(e => timedSolvePass("reader_wasm_row", () => e.readerRowSemanticsJson(text, sourceJson), () => sourceJson?.length ?? 0)));
     if (!outcome.ok) refuse(outcome);
     return { signature: outcome.signature, complete_metadata: outcome.complete_metadata, canonical_metadata: outcome.canonical_metadata };
@@ -313,9 +348,9 @@ export function readerRowSemantics(source?: MechanicsResult | null): (row: Sourc
  * For the recorded-run display and compare paths only; no current path calls it. It throws
  * the reader's refusal (a refused binding refuses every row). */
 export function recordedReaderRowSemantics(source: MechanicsResult, binding: ContractBinding): (row: SourceRow) => RowSemantics {
-  let sourceJson: string, failure: ResultReaderError | null = null;
-  try { sourceJson = readerSourceText(source); }
-  catch (error) { if (!(error instanceof ResultReaderError)) throw error; failure = new ResultReaderError("SOURCE_SEMANTIC_CONTRACT_UNSUPPORTED"); sourceJson = ""; }
+  let sourceJson: string, sourceKey: string, failure: ResultReaderError | null = null;
+  try { ({ text: sourceJson, key: sourceKey } = sourceRead(source)); }
+  catch (error) { if (!(error instanceof ResultReaderError)) throw error; failure = new ResultReaderError("SOURCE_SEMANTIC_CONTRACT_UNSUPPORTED"); sourceJson = ""; sourceKey = ""; }
   const bindingJson = writtenText(binding);
   const read = (texts: string[]): unknown => {
     unavailable();
@@ -324,10 +359,10 @@ export function recordedReaderRowSemantics(source: MechanicsResult, binding: Con
   const key = (text: string) => `recorded-row\u0000${bindingJson}\u0000${text}`;
   const store = (texts: string[], outcomes: unknown): void => {
     // A refused binding is one refusal object, not an array: every row takes it.
-    texts.forEach((text, i) => cached(sourceJson, key(text), () => freeze(Array.isArray(outcomes) ? outcomes[i] : outcomes) as Outcome<RowSemantics>));
+    texts.forEach((text, i) => cached(sourceKey, key(text), () => freeze(Array.isArray(outcomes) ? outcomes[i] : outcomes) as Outcome<RowSemantics>));
   };
   if (!failure) {
-    cached(sourceJson, `recorded-rows\u0000${bindingJson}`, () => {
+    cached(sourceKey, `recorded-rows\u0000${bindingJson}`, () => {
       const texts = new Set<string>();
       for (const row of Array.isArray(source.results) ? source.results : []) {
         try { texts.add(rowText(row)); } catch { /* read per row */ }
@@ -341,7 +376,7 @@ export function recordedReaderRowSemantics(source: MechanicsResult, binding: Con
     if (failure) throw failure;
     let text: string;
     try { text = rowText(row); } catch { throw new ResultReaderError(JSON_PARSE_REJECTED); }
-    const outcome = cached(sourceJson, key(text), () => {
+    const outcome = cached(sourceKey, key(text), () => {
       const outcomes = read([text]);
       return freeze(Array.isArray(outcomes) ? outcomes[0] : outcomes) as Outcome<RowSemantics>;
     });

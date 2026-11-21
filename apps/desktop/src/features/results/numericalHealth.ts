@@ -9,7 +9,7 @@
  * then only arranges and formats. It never takes part in admission, standing or an
  * output gate. */
 import { loadedWasmEngine } from "../../services/wasmEngine/loadWasmEngine";
-import { readerSourceText } from "./resultReader";
+import { readerSourceRead } from "./resultReader";
 import {
   CONDITIONING_CAUSE_TEXT,
   DIGITS_BELOW_FIRST_DECIMAL,
@@ -173,8 +173,8 @@ export function parseNumericalHealth(value: unknown): NumericalHealth | null {
 }
 
 const CACHE_LIMIT = 8;
-/** Readings by source text, then by the findings' text: a lookup keys on the source
- * text itself, never on a copy of it joined to the findings. */
+/** Readings by the source text's key (`readerSourceRead`: its receipt, or its digest), then by
+ * the findings' text, so the cache keeps no source text. */
 const cache = new Map<string, Map<string, NumericalHealth | null>>();
 let cacheOwner: unknown = null;
 
@@ -186,18 +186,18 @@ export function readNumericalHealth(result: MechanicsResult, readerFindings?: re
   if (!engine?.numericalHealthJson) return null;
   // Readings are kept per engine binding: another binding reads afresh.
   if (cacheOwner !== engine.numericalHealthJson) { cache.clear(); cacheOwner = engine.numericalHealthJson; }
-  let sourceJson: string;
-  try { sourceJson = readerSourceText(result); } catch { return null; }
+  let sourceJson: string, sourceKey: string;
+  try { ({ text: sourceJson, key: sourceKey } = readerSourceRead(result)); } catch { return null; }
   const findingsJson = readerFindings ? JSON.stringify([...readerFindings]) : undefined;
   const key = findingsJson ?? "";
-  let readings = cache.get(sourceJson);
-  if (readings) { cache.delete(sourceJson); cache.set(sourceJson, readings); }
+  let readings = cache.get(sourceKey);
+  if (readings) { cache.delete(sourceKey); cache.set(sourceKey, readings); }
   if (readings?.has(key)) return readings.get(key)!;
   let health: NumericalHealth | null;
   try { health = parseNumericalHealth(JSON.parse(engine.numericalHealthJson(sourceJson, findingsJson))); } catch { health = null; }
   if (!readings) {
     readings = new Map();
-    cache.set(sourceJson, readings);
+    cache.set(sourceKey, readings);
     while (cache.size > CACHE_LIMIT) cache.delete(cache.keys().next().value!);
   }
   readings.set(key, health);
