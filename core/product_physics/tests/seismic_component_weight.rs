@@ -1056,9 +1056,13 @@ fn applied_weight_case(model: &Value, gravity: f64) -> Value {
 }
 /// The same plan, selecting only `pipes`.
 fn applied_weight_case_on(model: &Value, gravity: f64, pipes: &[&str]) -> Value {
+    applied_weight_case_as(model, "case:weight", gravity, pipes)
+}
+/// The same plan, into `case_id`.
+fn applied_weight_case_as(model: &Value, case_id: &str, gravity: f64, pipes: &[&str]) -> Value {
     use open_pipe_stress_product_physics::self_weight::generate_self_weight_operations;
     let typed: open_pipe_stress_product_physics::PreviewModel = serde_json::from_value(model.clone()).unwrap();
-    let request = serde_json::from_value(json!({"case_id": "case:weight", "label": "invented", "pipe_refs": pipes,
+    let request = serde_json::from_value(json!({"case_id": case_id, "label": "invented", "pipe_refs": pipes,
         "gravity": {"value": -gravity, "unit": "m/s^2", "axis": "global_z"}, "provenance": PROV,
         "source_model_hash": format!("sha256:{}", "a".repeat(64))})).unwrap();
     let plan = generate_self_weight_operations(&typed, &request).expect("the plan");
@@ -1415,6 +1419,73 @@ fn no_finding_is_raised_for_a_case_whose_generation_is_refused() {
             let out = serde_json::to_value(run_linear_static_preview_with_mode(typed(&control, true), mode)).unwrap();
             assert_eq!(out["status"]["mechanics"], "MODEL_INCOMPLETE", "{id} nonfinite g-factor {mode:?}: {:?}", codes(&out));
             assert!(all(&out["diagnostics"], &case_id).is_empty(), "{id} nonfinite g-factor {mode:?}: {:?}", all(&out["diagnostics"], &case_id));
+        }
+    }
+}
+
+/// The cantilever extended by a member DE (E beyond D by CD's length), with
+/// four solver-consumed components, whose weights the self-weight plan forms:
+/// the valve on BC, and three more on AB, CD and DE.
+fn four_components(route: Route, cases: Vec<Value>) -> Value {
+    let mut wire = document(route, Model::Cant, ONE_MAPPED, cases);
+    let model = &mut wire["model"];
+    let x = model["nodes"][3]["position"]["x"].as_f64().unwrap() + input("L_cd");
+    model["nodes"].as_array_mut().unwrap().push(json!({"id": "E", "position": {"x": x, "y": 0.0, "z": 0.0}, "provenance": PROV}));
+    let mut de = model["pipe_segments"][2].clone();
+    de["id"] = json!("DE");
+    de["from"] = json!("D");
+    de["to"] = json!("E");
+    model["pipe_segments"].as_array_mut().unwrap().push(de);
+    let parts = model["components"].as_array_mut().unwrap();
+    parts.push(component("component:first", "valve", "B", "AB", 1500.0, [0.0, 0.0, 0.1], true, None));
+    parts.push(component("component:third", "valve", "D", "CD", 1200.0, [0.0, 0.0, 0.1], true, None));
+    parts.push(component("component:fourth", "valve", "E", "DE", 900.0, [0.0, 0.0, 0.1], true, None));
+    wire
+}
+
+/// The gravity finding names every generated component whose fresh applied
+/// weight differs and each such load, and shows each distinct differing
+/// magnitude once (second reviewer of PR 536, B3; DEL-04-06 VER-004's case
+/// with several differing applied gravity magnitudes). Three components
+/// (on AB, BC and CD) formed at 9.80665 m/s^2 in one weight case and the
+/// fourth (on DE) at 9.79 m/s^2 in another, beside the G10 case at 10 m/s^2:
+/// one finding, naming the four components and every one of their weight
+/// primitives (a force, and a moment for each offset axis), and showing
+/// 9.80665 and 9.79 m/s^2 once each. Both routes and both solver modes; the
+/// model checks raise the same finding, field for field.
+#[test]
+fn the_gravity_finding_names_every_differing_component_and_each_magnitude_once() {
+    for route in [Route::Pf, Route::Ex] {
+        let id = format!("SCW-CANT-{}-SEISMIC-XYZ-G10", route_tag(route));
+        let case_id = format!("case:{id}");
+        let alone = four_components(route, vec![case_of(reference(&id), &case_id)]);
+        let first = applied_weight_case_as(&alone["model"], "case:weight", 9.80665, &["AB", "BC", "CD"]);
+        let second = applied_weight_case_as(&alone["model"], "case:weight-2", 9.79, &["DE"]);
+        let weights = |case: &Value| case["primitive_loads"].as_array().unwrap().iter().filter(|l| is_component_weight(l))
+            .map(|l| (l["id"].as_str().unwrap().to_string(),
+                serde_json::from_str::<Value>(l["provenance"].as_str().unwrap()).unwrap()["component_id"].as_str().unwrap().to_string()))
+            .collect::<Vec<_>>();
+        let (at_first, at_second) = (weights(&first), weights(&second));
+        let components = |w: &[(String, String)]| w.iter().map(|(_, c)| c.clone()).collect::<std::collections::BTreeSet<_>>().len();
+        assert_eq!((components(&at_first), components(&at_second)), (3, 1), "{id}: three components at one gravity and one at another");
+        let loads: Vec<String> = at_first.iter().chain(&at_second).map(|(l, _)| l.clone()).collect();
+        let wire = four_components(route, vec![first, second, case_of(reference(&id), &case_id)]);
+        let checks = model_checks(&wire);
+        let expected_components: std::collections::BTreeSet<&str> = ["component:first", "component:valve", "component:third", "component:fourth"].into();
+        for mode in MODES {
+            let out = solved(&wire, mode, &id);
+            let found = findings(&out["diagnostics"], GRAVITY_DIFFERS, &case_id);
+            assert_eq!(found.len(), 1, "{id} {mode:?}: {found:?}");
+            let refs: Vec<&str> = found[0]["affected_refs"].as_array().unwrap().iter().map(|r| r.as_str().unwrap()).collect();
+            assert_eq!(refs.len(), 1 + 4 + loads.len(), "{id} {mode:?}: the case, four components and every weight primitive: {refs:?}");
+            assert_eq!(refs[1..5].iter().copied().collect::<std::collections::BTreeSet<_>>(), expected_components, "{id} {mode:?}");
+            assert_eq!(refs[5..].to_vec(), loads, "{id} {mode:?}: every differing load, in document order");
+            let message = found[0]["message"].as_str().unwrap();
+            assert!(message.contains("states gravity 10 m/s^2") && message.contains("of components ") && message.contains("formed at 9.80665 m/s^2, 9.79 m/s^2;"), "{id} {mode:?}: {message}");
+            for c in &expected_components {
+                assert_eq!(message.matches(c).count(), 1, "{id} {mode:?}: {c} once: {message}");
+            }
+            assert_eq!(findings(&checks, GRAVITY_DIFFERS, &case_id), found, "{id} {mode:?}: the model checks raise the same finding");
         }
     }
 }

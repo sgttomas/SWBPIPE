@@ -207,10 +207,12 @@ fn gravity_finding(model: &PreviewModel, entered: &Entered, case_index: usize, g
     let applies = |w: &&ComponentWeight| generated.contains(w.component.as_str());
     let own: Vec<&ComponentWeight> = entered.component_weights.iter().filter(|w| w.case == case_index).filter(applies).collect();
     let read = if own.is_empty() { entered.component_weights.iter().filter(applies).collect() } else { own };
+    // Every differing weight is named, with its component and load; only the
+    // magnitudes shown are distinct (each as first entered).
     let mut differing: Vec<(f64, &ComponentWeight)> = Vec::new();
     for w in read {
         let Some(applied) = magnitude(&w.gravity) else { continue };
-        if applied != seismic && !differing.iter().any(|(m, _)| *m == applied) {
+        if applied != seismic {
             differing.push((applied, w));
         }
     }
@@ -218,12 +220,16 @@ fn gravity_finding(model: &PreviewModel, entered: &Entered, case_index: usize, g
         return None;
     }
     let mut components: Vec<&str> = Vec::new();
-    for (_, w) in &differing {
+    let mut magnitudes: Vec<(f64, String)> = Vec::new();
+    for (applied, w) in &differing {
         if !components.contains(&w.component.as_str()) {
             components.push(&w.component);
         }
+        if !magnitudes.iter().any(|(m, _)| m == applied) {
+            magnitudes.push((*applied, shown_applied(&w.gravity)));
+        }
     }
-    let applied: Vec<String> = differing.iter().map(|(_, w)| shown_applied(&w.gravity)).collect();
+    let applied: Vec<String> = magnitudes.into_iter().map(|(_, shown)| shown).collect();
     let mut refs = vec![case.id.clone()];
     refs.extend(components.iter().map(|c| c.to_string()));
     refs.extend(differing.iter().map(|(_, w)| w.load_id.clone()));
