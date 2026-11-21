@@ -897,6 +897,52 @@ fn a_coordinate_that_converts_to_zero_forms_no_moment_and_the_reader_agrees() {
     assert!(!refused.is_empty() && refused.iter().all(|d| d.code == "SELF_WEIGHT_RANGE_INVALID"), "{refused:?}");
 }
 
+// ------------------------------------------------------------------ the shared record corpus
+const RECORD_CORPUS_PATH: &str = concat!(env!("CARGO_MANIFEST_DIR"), "/../../fixtures/results/seismic_component_record_corpus.json");
+
+/// The shared component record corpus (issue 450 round 2 item 2): solved
+/// exact-route envelopes with their models, read by
+/// `tests/test_seismic_component_record_reader.py`, which runs the same
+/// forgeries through the Rust model-bound reader (the runner's `read
+/// pressure`) and its Python mirror (`tests/verifiers/reader_verdict.py`).
+/// The first holds a seismic case, a wind-only case and a case without
+/// generation; the second a centre-of-gravity coordinate that converts to
+/// zero metres. Regenerate with `SCW_WRITE_CORPUS=1`; otherwise the committed
+/// bytes must be current.
+#[test]
+fn shared_component_record_corpus_is_current() {
+    let id = "SCW-CANT-EX-SEISMIC-XYZ";
+    let wind = json!({"id": "case:w", "primitive_loads": [], "provenance": PROV, "equivalent_static": {"wind": {
+        "pressure": qv(500.0, "Pa"), "shape_factor": qv(0.7, "1"), "direction": "global_z", "exposed_pipe_refs": ["AB"]},
+        "provenance": PROV}});
+    let plain = json!({"id": "case:p", "provenance": PROV, "primitive_loads": [{"id": "load:p", "category": "concentrated_force",
+        "target": {"type": "node", "node": "C"}, "direction": "global_z", "magnitude": qv(-10.0, "N"), "dimension": "force", "provenance": PROV}]});
+    let three = document(Route::Ex, Model::Cant, ONE_MAPPED, vec![case_of(reference(id), "case:s"), wind, plain]);
+    let mut tiny = document(Route::Ex, Model::Cant, ONE_MAPPED, vec![case_of(reference(id), "case:s")]);
+    tiny["model"]["components"][0]["geometry"]["center_of_gravity"] = json!({"x": -175.0, "y": 1.0e-321, "z": 125.0, "unit": "mm"});
+    let mut cases = Vec::new();
+    for (label, wire) in [
+        ("seismic, wind-only and plain cases", three),
+        ("a centre-of-gravity coordinate that converts to zero metres", tiny),
+    ] {
+        let envelope = solved(&wire, PreviewSolverMode::SparseInteractive, label);
+        cases.push(json!({"label": label, "model": wire["model"], "envelope": envelope}));
+    }
+    let corpus = json!({
+        "corpus": "DEL-05-01 seismic component record reader corpus",
+        "generator": "core/product_physics/tests/seismic_component_weight.rs::shared_component_record_corpus_is_current",
+        "cases": cases,
+    });
+    let bytes = serde_json::to_string_pretty(&corpus).unwrap() + "\n";
+    if std::env::var_os("SCW_WRITE_CORPUS").is_some() {
+        std::fs::write(RECORD_CORPUS_PATH, &bytes).unwrap();
+        return;
+    }
+    // Read at compile time, so the numerical CI's read index binds it to this test.
+    let committed = include_str!("../../../fixtures/results/seismic_component_record_corpus.json");
+    assert!(committed == bytes, "the shared component record corpus is stale; regenerate it with SCW_WRITE_CORPUS=1");
+}
+
 // ------------------------------------------------------------------ the rule's value
 fn witness_nodal(id: &str, dof: &str, value: f64) -> Value {
     let (category, unit, dimension) = if dof.starts_with("rotation") { ("concentrated_moment", "N*m", "moment") } else { ("concentrated_force", "N", "force") };
