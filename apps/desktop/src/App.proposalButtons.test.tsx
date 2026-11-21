@@ -13,7 +13,8 @@ vi.mock("@tauri-apps/api/core", async () => ({ invoke: (await import("./test/nat
 
 import { App } from "./App";
 import { getLocalStorageCapability } from "./services/projectService";
-import { RESULT_DETAIL_WEBVIEW_LIMIT_BYTES } from "./services/nativeResult";
+import { describeFullResultRefused, FullResultRefused, RESULT_DETAIL_WEBVIEW_LIMIT, RESULT_DETAIL_WEBVIEW_LIMIT_BYTES } from "./services/nativeResult";
+import { PROPOSAL_FEATURE } from "./features/agent-proposals/useProposalPress";
 import { loadDesignKnowledge } from "./services/previewService";
 import { createNativeMechanicsReplay, REPLAY_COMMANDS } from "./test/nativeMechanicsReplay";
 
@@ -77,13 +78,16 @@ const proposeButton = () => within(screen.getByTestId("agent-workbench-panel")).
 const panelLine = () => within(screen.getByTestId("agent-proposal-panel")).findByTestId("generate-review-proposal-outcome", undefined, { timeout: 15_000 });
 const workbenchLine = () => within(screen.getByTestId("agent-workbench-panel")).findByTestId("agent-generate-proposal-outcome", undefined, { timeout: 15_000 });
 
-/** The gates' sentence for this result: its size and the limit, as the Report and Exports gates show them. */
+/** The words the result gates' own source gives for this refusal (the result's size and the limit),
+ * read from that source rather than restated, with no error class name and no key=value form. */
 function expectGateRefusal(line: HTMLElement) {
+  const refusal = new FullResultRefused(RESULT_DETAIL_WEBVIEW_LIMIT, ABOVE, RESULT_DETAIL_WEBVIEW_LIMIT_BYTES, "refused");
   expect(line).toHaveAttribute("role", "status");
-  expect(line).toHaveTextContent(`RESULT-DETAIL-WEBVIEW-LIMIT: This result is ${ABOVE} bytes (64 MiB), above the ${RESULT_DETAIL_WEBVIEW_LIMIT_BYTES} bytes (64 MiB) the webview can hold whole, so the review proposal cannot read it until its native path lands.`);
-  expect(line).toHaveTextContent("To use the review proposal now: remove the load cases and combinations this review does not need");
+  expect(line.textContent).toBe(describeFullResultRefused(refusal, PROPOSAL_FEATURE));
+  expect(line.textContent).toContain(String(ABOVE));
+  expect(line.textContent).toContain(String(RESULT_DETAIL_WEBVIEW_LIMIT_BYTES));
   expect(line.textContent).not.toContain("FullResultRefused");
-  expect(line.textContent).not.toContain("result_bytes=");
+  expect(line.textContent).not.toMatch(/\w+=\S/);
 }
 
 describe("the sample proposal buttons", () => {
