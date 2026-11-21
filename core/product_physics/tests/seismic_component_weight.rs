@@ -1052,9 +1052,13 @@ const CONDITION_WEIGHT_ADDED: &str = "EQUIVALENT_STATIC_SEISMIC_CONDITION_WEIGHT
 /// The self-weight plan's own weight case for `model` (pipes AB, BC and CD,
 /// along global z at `gravity` m/s^2), applied unmodified.
 fn applied_weight_case(model: &Value, gravity: f64) -> Value {
+    applied_weight_case_on(model, gravity, &["AB", "BC", "CD"])
+}
+/// The same plan, selecting only `pipes`.
+fn applied_weight_case_on(model: &Value, gravity: f64, pipes: &[&str]) -> Value {
     use open_pipe_stress_product_physics::self_weight::generate_self_weight_operations;
     let typed: open_pipe_stress_product_physics::PreviewModel = serde_json::from_value(model.clone()).unwrap();
-    let request = serde_json::from_value(json!({"case_id": "case:weight", "label": "invented", "pipe_refs": ["AB", "BC", "CD"],
+    let request = serde_json::from_value(json!({"case_id": "case:weight", "label": "invented", "pipe_refs": pipes,
         "gravity": {"value": -gravity, "unit": "m/s^2", "axis": "global_z"}, "provenance": PROV,
         "source_model_hash": format!("sha256:{}", "a".repeat(64))})).unwrap();
     let plan = generate_self_weight_operations(&typed, &request).expect("the plan");
@@ -1325,6 +1329,92 @@ fn a_refused_case_has_no_gravity_finding() {
             let out = run(&wire, mode);
             assert!(codes(&out).iter().any(|c| c == "EQUIVALENT_STATIC_COMPONENT_RANGE_INVALID"), "{id} {mode:?}: {:?}", codes(&out));
             assert!(findings(&out["diagnostics"], GRAVITY_DIFFERS, &case_id).is_empty(), "{id} {mode:?}");
+        }
+    }
+}
+
+/// One gate for the three findings, the generator's own admission (review of
+/// PR 536, round 1: first reviewer's finding 2, second reviewer's B1): a case
+/// whose seismic generation the generator refuses generates no seismic load,
+/// so none of the three findings is raised for it, though the component plan
+/// alone may admit it. Each refused document carries an entered weight load
+/// in the seismic case and the plan's weight case at 9.79 m/s^2, and each has
+/// a control, the same document admitted, that raises both the weight finding
+/// for that load and the gravity finding. The refusals: the G10 case's seismic
+/// gravity entered as zero, and as -10 m/s^2 (the generator requires a finite,
+/// strictly positive gravity); `equivalent_static.seismic` with no input; the
+/// valve's weight at 4e-323 N (the component plan's range refusal); and AB's
+/// material density removed after the plan's weight case was formed on BC
+/// alone (AB is not replaced, so its missing mass refuses generation). Both
+/// routes, both solver modes and the model checks. A nonfinite g-factor beside
+/// finite ones cannot cross the request's JSON boundary, so it is put through
+/// the typed solve entry, in both solver modes.
+#[test]
+fn no_finding_is_raised_for_a_case_whose_generation_is_refused() {
+    use open_pipe_stress_product_physics::{run_linear_static_preview_with_mode, LinearStaticPreviewRequest, Quantity};
+    let tiny = Components { valve_weight: 4.0e-323, valve_consumed: true, flange: false };
+    let all = |diagnostics: &Value, case_id: &str| -> Vec<String> {
+        [WEIGHT_LOAD_ENTERED, CONDITION_WEIGHT_ADDED, GRAVITY_DIFFERS].iter()
+            .flat_map(|code| findings(diagnostics, code, case_id).into_iter().map(move |d| format!("{code} {}", d["affected_refs"])))
+            .collect()
+    };
+    let raised = |diagnostics: &Value, case_id: &str| {
+        named(diagnostics, WEIGHT_LOAD_ENTERED, case_id) == ["load:entered".to_string()].into() && findings(diagnostics, GRAVITY_DIFFERS, case_id).len() == 1
+    };
+    for route in [Route::Pf, Route::Ex] {
+        let id = format!("SCW-CANT-{}-SEISMIC-XYZ-G10", route_tag(route));
+        let case_id = format!("case:{id}");
+        let mut seismic = case_of(reference(&id), &case_id);
+        seismic["primitive_loads"] = json!([entered_load("load:entered", "weight", "AB")]);
+        let alone = document(route, Model::Cant, ONE_MAPPED, vec![case_of(reference(&id), &case_id)]);
+        let control = document(route, Model::Cant, ONE_MAPPED, vec![applied_weight_case(&alone["model"], 9.79), seismic.clone()]);
+        let gravity = |value: f64| {
+            let mut wire = control.clone();
+            wire["model"]["load_cases"][1]["equivalent_static"]["seismic"]["gravity_acceleration"]["value"] = json!(value);
+            wire
+        };
+        let mut no_input = control.clone();
+        no_input["model"]["load_cases"][1]["equivalent_static"]["seismic"] = json!({});
+        // The seismic case first, so that it is formed before the weight case
+        // (whose tiny weight leaves its own standing unresolved) is solved.
+        let tiny_alone = document(route, Model::Cant, tiny, vec![case_of(reference(&id), &case_id)]);
+        let tiny_control = document(route, Model::Cant, ONE_MAPPED, vec![seismic.clone(), applied_weight_case(&alone["model"], 9.79)]);
+        let tiny_wire = document(route, Model::Cant, tiny, vec![seismic.clone(), applied_weight_case(&tiny_alone["model"], 9.79)]);
+        let bc_control = document(route, Model::Cant, ONE_MAPPED, vec![applied_weight_case_on(&alone["model"], 9.79, &["BC"]), seismic.clone()]);
+        let mut missing_mass = bc_control.clone();
+        missing_mass["model"]["pipe_segments"][0]["section"].as_object_mut().unwrap().remove("material_density");
+        for (what, admitted, refused) in [
+            ("zero gravity", control.clone(), gravity(0.0)),
+            ("negative gravity", control.clone(), gravity(-10.0)),
+            ("no seismic input", control.clone(), no_input),
+            ("component range refusal", tiny_control, tiny_wire),
+            ("missing mass on AB", bc_control, missing_mass),
+        ] {
+            assert!(raised(&model_checks(&admitted), &case_id), "{id} {what}: the control's model checks: {}", model_checks(&admitted));
+            assert!(all(&model_checks(&refused), &case_id).is_empty(), "{id} {what}: the model checks: {:?}", all(&model_checks(&refused), &case_id));
+            for mode in MODES {
+                let out = run(&admitted, mode);
+                assert!(raised(&out["diagnostics"], &case_id), "{id} {what} {mode:?}: the control: {:?}", codes(&out));
+                let out = run(&refused, mode);
+                assert_eq!(out["status"]["mechanics"], "MODEL_INCOMPLETE", "{id} {what} {mode:?}: {:?}", codes(&out));
+                assert!(all(&out["diagnostics"], &case_id).is_empty(), "{id} {what} {mode:?}: {:?}", all(&out["diagnostics"], &case_id));
+            }
+        }
+        // A nonfinite g-factor beside finite ones, through the typed entry.
+        let typed = |wire: &Value, nonfinite: bool| {
+            let mut request = LinearStaticPreviewRequest { model: serde_json::from_value(wire["model"].clone()).unwrap(), materials: vec![] };
+            if nonfinite {
+                let case = request.model.load_cases.iter_mut().find(|c| c.id == case_id).unwrap();
+                case.equivalent_static.as_mut().unwrap().seismic.as_mut().unwrap().g_factor_y = Some(Quantity { value: f64::NAN, unit: "1".into() });
+            }
+            request
+        };
+        for mode in MODES {
+            let out = serde_json::to_value(run_linear_static_preview_with_mode(typed(&control, false), mode)).unwrap();
+            assert!(raised(&out["diagnostics"], &case_id), "{id} {mode:?}: the typed control: {:?}", codes(&out));
+            let out = serde_json::to_value(run_linear_static_preview_with_mode(typed(&control, true), mode)).unwrap();
+            assert_eq!(out["status"]["mechanics"], "MODEL_INCOMPLETE", "{id} nonfinite g-factor {mode:?}: {:?}", codes(&out));
+            assert!(all(&out["diagnostics"], &case_id).is_empty(), "{id} nonfinite g-factor {mode:?}: {:?}", all(&out["diagnostics"], &case_id));
         }
     }
 }

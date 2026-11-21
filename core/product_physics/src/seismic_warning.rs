@@ -21,10 +21,12 @@
 //!   conversion; the finding prints both as entered. Only fresh
 //!   component-weight primitives are read: an overridden component weight
 //!   gives no known gravity, and a case whose component weights are all
-//!   overridden has no gravity finding, which is not agreement. A case that
-//!   the component plan refuses (a range refusal) has no gravity finding.
-//!   The primitives read are the case's own when it has any, otherwise those
-//!   of every case of the document.
+//!   overridden has no gravity finding, which is not agreement. The
+//!   primitives read are the case's own when it has any, otherwise those of
+//!   every case of the document.
+//!
+//! None of the three is raised for a case whose seismic generation the
+//! generator refuses ([`admitted`]): such a case generates no seismic load.
 //!
 //! Generation is not extended to entered weight loads or to a condition's
 //! added weight, and the texts do not assert that the engineer failed to
@@ -33,7 +35,7 @@
 //! pre-solve model checks alike: [`capture`] reads what the findings print as
 //! entered and the plan's fresh primitives before normalization, and
 //! [`append`] raises them after it.
-use super::{diag, has_blocking, normalize_quantity, stable_suffix, Diagnostic, LoadTargetInput, PreviewLoadCase, PreviewModel, PreviewPrimitiveLoad, Quantity};
+use super::{diag, normalize_quantity, stable_suffix, Diagnostic, LoadTargetInput, PreviewLoadCase, PreviewModel, PreviewPrimitiveLoad, Quantity};
 use crate::self_weight::{inspect_applied_self_weight, AppliedSelfWeightState, COMPONENT_WEIGHT_METHOD};
 use open_pipe_stress_primitive_loads::PrimitiveLoadCategory;
 use open_pipe_stress_units::Dimension;
@@ -114,13 +116,19 @@ fn condition_added(case: &PreviewLoadCase, load: &PreviewPrimitiveLoad) -> Optio
     (provenance["method"] == "operating_condition_set_v1" && provenance["quantity"] == "added_weight").then(|| pipe.clone())
 }
 
-/// A magnitude as entered, with its unit.
+/// A value as entered, with its unit.
 fn shown(q: &Quantity) -> String {
+    format!("{} {}", q.value, q.unit)
+}
+
+/// The magnitude of a self-weight gravity request (signed along its axis), as
+/// entered, with its unit.
+fn shown_applied(q: &Quantity) -> String {
     format!("{} {}", q.value.abs(), q.unit)
 }
 
-/// A magnitude in m/s² by the document's ordinary conversion, or `None` when
-/// it does not convert to a finite value.
+/// The magnitude of a self-weight gravity request in m/s² by the document's
+/// ordinary conversion, or `None` when it does not convert to a finite value.
 fn magnitude(q: &Quantity) -> Option<f64> {
     let mut converted = Quantity { value: q.value.abs(), unit: q.unit.clone() };
     let mut scratch = Vec::new();
@@ -133,6 +141,10 @@ fn magnitude(q: &Quantity) -> Option<f64> {
 pub(crate) fn append(model: &PreviewModel, entered: &Entered, diagnostics: &mut Vec<Diagnostic>) {
     for (case_index, gravity) in &entered.seismic {
         let case = &model.load_cases[*case_index];
+        // One gate for all three findings: a case whose seismic generation
+        // the generator refuses generates no seismic load, so none of them is
+        // raised for it.
+        let Some(plan) = admitted(model, case) else { continue };
         for (index, load) in case.primitive_loads.iter().enumerate() {
             if !matches!(crate::parse_category(&load.category), Ok(PrimitiveLoadCategory::Weight)) {
                 continue;
@@ -161,26 +173,36 @@ pub(crate) fn append(model: &PreviewModel, entered: &Entered, diagnostics: &mut 
                 ));
             }
         }
-        if let Some(finding) = gravity_finding(model, entered, *case_index, gravity.as_ref()) {
+        if let Some(finding) = gravity_finding(model, entered, *case_index, gravity.as_ref(), &plan) {
             diagnostics.push(finding);
         }
     }
 }
 
-fn gravity_finding(model: &PreviewModel, entered: &Entered, case_index: usize, gravity: Option<&Quantity>) -> Option<Diagnostic> {
+/// The generator's own admission of the case's seismic generation: the
+/// component plan when [`crate::append_seismic_generated_loads`] generates
+/// the case's seismic loads with no refusal (a present, finite, strictly
+/// positive gravity; at least one entered g-factor, every entered one finite;
+/// no component-plan refusal; every unreplaced member's mass; the
+/// generator's own checks) and no generated id collides with an authored one
+/// (`refuse_generated_id_collisions`); otherwise `None`. The generator is
+/// asked, so the gate cannot drift from it.
+fn admitted<'a>(model: &'a PreviewModel, case: &PreviewLoadCase) -> Option<crate::seismic_component::Plan<'a>> {
+    let seismic = case.equivalent_static.as_ref()?.seismic.as_ref()?;
+    let mut loads = Vec::new();
+    let mut refusals = Vec::new();
+    let plan = crate::append_seismic_generated_loads(model, case, seismic, &mut loads, &mut refusals)?;
+    crate::refuse_generated_id_collisions(case, &loads, &mut refusals);
+    refusals.is_empty().then_some(plan)
+}
+
+fn gravity_finding(model: &PreviewModel, entered: &Entered, case_index: usize, gravity: Option<&Quantity>, plan: &crate::seismic_component::Plan) -> Option<Diagnostic> {
     let case = &model.load_cases[case_index];
     let entered_gravity = gravity?;
-    // The normalized seismic gravity (normalize_model_units converted it).
-    let seismic = case.equivalent_static.as_ref()?.seismic.as_ref()?.gravity_acceleration.as_ref()?.value.abs();
-    if !seismic.is_finite() {
-        return None;
-    }
-    let mut refusals = Vec::new();
-    let replaced = crate::joint::replaced_span_ids(model);
-    let plan = crate::seismic_component::plan(model, &case.id, &replaced, &crate::seismic_component::entered_factors(case), &mut refusals);
-    if has_blocking(&refusals) {
-        return None;
-    }
+    // The normalized seismic gravity (normalize_model_units converted it),
+    // finite and strictly positive since the case is admitted; it is not a
+    // signed request, so no magnitude is taken.
+    let seismic = case.equivalent_static.as_ref()?.seismic.as_ref()?.gravity_acceleration.as_ref()?.value;
     let generated: HashSet<&str> = plan.items.iter().map(|item| item.component.id.as_str()).collect();
     let applies = |w: &&ComponentWeight| generated.contains(w.component.as_str());
     let own: Vec<&ComponentWeight> = entered.component_weights.iter().filter(|w| w.case == case_index).filter(applies).collect();
@@ -201,7 +223,7 @@ fn gravity_finding(model: &PreviewModel, entered: &Entered, case_index: usize, g
             components.push(&w.component);
         }
     }
-    let applied: Vec<String> = differing.iter().map(|(_, w)| shown(&w.gravity)).collect();
+    let applied: Vec<String> = differing.iter().map(|(_, w)| shown_applied(&w.gravity)).collect();
     let mut refs = vec![case.id.clone()];
     refs.extend(components.iter().map(|c| c.to_string()));
     refs.extend(differing.iter().map(|(_, w)| w.load_id.clone()));
