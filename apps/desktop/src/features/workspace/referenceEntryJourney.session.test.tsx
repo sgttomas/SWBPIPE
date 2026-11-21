@@ -2,10 +2,8 @@
 // entered from a blank load/reference model, following the
 // DEL-09-01 run sheet's steps in order, units to combinations, through the desktop's own surfaces
 // (the units dialog, the pressure, material, section, component and support forms, the run
-// sheet's grid, the load manager with its fills and copies, the self-weight plan, the
-// imported-proposal panel, batch review and Review/Apply) and one workspace session running the
-// real wasm operation engine. RS-OPE-REF's analysis state is the exception: it is not entered field
-// by field but pasted from the fixture as an operation batch (step states says why). At the end
+// sheet's grid, the load manager with its fills and copies, the self-weight plan, batch review
+// and Review/Apply) and one workspace session running the real wasm operation engine. At the end
 // the document is compared with `fixtures/reference_system/reference_system.json` record by
 // record, keyed by id, with only the run sheet's §4 differences allowed, each by member path;
 // then it is saved in the browser store, reopened, and compared again.
@@ -30,7 +28,7 @@ import { computeModelHash } from "../../services/hashService";
 import type { EntityRef, PreviewModel } from "../../types";
 import { useModelledVisibility } from "../../test-support/modelledVisibility";
 import { chooseCompactOption, chooseVirtualTarget, chooseVirtualMultiTarget } from "../../test-support/workspaceTestControls";
-import { enterReferenceHeader, enterReferenceRows, P, rsOpeRefStateBatchText, S5, type Cells } from "../../test-support/referenceRunSheetEntry";
+import { enterReferenceHeader, enterReferenceRows, P, S5, type Cells } from "../../test-support/referenceRunSheetEntry";
 import { ProjectUnitsDialog } from "../project-units/ProjectUnitsDialog";
 import { PropertyInspector } from "../model-tree/PropertyInspector";
 import { RunSheet, RUN_SHEET_TIMING } from "../model-tree/runSheet/RunSheet";
@@ -40,7 +38,6 @@ import { LoadCaseManagerPanel } from "../load-cases/LoadCaseManagerPanel";
 import { SelfWeightPlanPanel } from "../self-weight-authoring/SelfWeightPlanPanel";
 import { BatchReviewPanel } from "../toolkit/BatchReviewPanel";
 import { OperationApplyPanel } from "../operations/OperationApplyPanel";
-import { OfflineProposalIntakePanel } from "../offline-proposal-intake/OfflineProposalIntakePanel";
 import { useWorkspaceSession } from "./workspaceSession";
 import { unitCatalogFixture } from "../../test-support/unitCatalogFixture";
 
@@ -230,7 +227,7 @@ function compareWithFixture(model: PreviewModel, where: string): number {
 // The journey
 // ---------------------------------------------------------------------------------------------
 
-describe("the reference system entered from blank through the desktop's surfaces, RS-OPE-REF's analysis state as a pasted operation batch", () => {
+describe("the reference system entered from blank through the desktop's authoring surfaces", () => {
   it("follows the run sheet's steps units to combinations through one session and the wasm engine, and equals the fixture by record; Undo/Redo per family; browser save and reopen", async () => {
     // The session opens on an unrelated blank; step units then creates the load/reference blank through the units dialog.
     vi.spyOn(previewService, "loadPreviewModel").mockResolvedValue(buildBlankLocalModelDocument(new Date("2026-11-04T00:00:00Z")));
@@ -258,9 +255,6 @@ describe("the reference system entered from blank through the desktop's surfaces
           </div>
           <div data-testid="journey-self-weight">
             <SelfWeightPlanPanel model={model} selection={selection} selectedPipeRefs={session.selection.selectedPipeRefs} onQueueBatch={ops.handleQueueOperationBatch} busy={ops.operationBusy} requestEpoch={ops.requestEpoch} />
-          </div>
-          <div data-testid="journey-intake">
-            <OfflineProposalIntakePanel model={model} selection={selection} onQueueBatch={ops.handleQueueOperationBatch} busy={ops.operationBusy} requestEpoch={ops.requestEpoch} />
           </div>
           <BatchReviewPanel onClear={ops.handleClearReviewQueue} batches={ops.queuedBatches} outcomes={ops.batchOutcomes} receipts={ops.batchReceipts}
             revision={session.model.modelRevision.current} busy={ops.operationBusy} message={ops.batchMessage}
@@ -695,7 +689,7 @@ describe("the reference system entered from blank through the desktop's surfaces
     }
 
     // Step states: Analysis states (typed UI, with the fills; RS-SAM from "Copy analysis state from another case";
-    // RS-OPE-REF by an imported operation batch, below).
+    // RS-OPE-REF copied from RS-OPE, its element states entered again and its overrides typed).
     // Queries are scoped to the case's analysis-state editor (`LoadReferenceStateInputs`), which the load manager shows for the selected case.
     const state = () => within(screen.getByTestId("load-state-analysis-state"));
     const p180 = model().pipe_segments.findIndex((pipe) => pipe.id === "pipe:RS-P180") + 1;
@@ -769,19 +763,36 @@ describe("the reference system entered from blank through the desktop's surfaces
     }
     click(state(), "Queue analysis state");
     await applyQueuedIntent("step states: RS-SAM");
-    // RS-OPE-REF. The desktop's load-state editor cannot yet enter an element state's analysis-basis
-    // override, which every element state of this case but RS-P180's carries. So this case's analysis
-    // state is entered by the operation route, as the run sheet has the person do it: the run
-    // sheet's one-operation batch (update_load, analysis_state, from not present), its value the
-    // fixture's own, pasted into "Review an imported proposal", queued, validated and applied. For
-    // this case the equality with the fixture below shows that the route stores the submitted state,
-    // not that a person entered it field by field. Issue 408 returns this block to the editor.
-    const intake = within(screen.getByTestId("journey-intake"));
-    const rsOpeRefState = reference.load_cases.find((item) => item.id === "load:RS-OPE-REF")!.analysis_state;
-    change(intake, "Proposal batch JSON", rsOpeRefStateBatchText(rsOpeRefState));
-    click(intake, "Queue imported batch for review");
-    await applyQueuedBatch("step states: RS-OPE-REF (imported batch)");
-    expect(model().load_cases.find((item) => item.id === "load:RS-OPE-REF")!.analysis_state, "step states: RS-OPE-REF").toEqual(rsOpeRefState);
+    // RS-OPE-REF: copied from RS-OPE; its element states entered again on the 20 degC point and
+    // filled; then each element state's analysis-basis override typed, RS-P180's excepted (fill and
+    // copy never carry the override).
+    select({ type: "load", id: "load:RS-OPE-REF" });
+    change(state(), "Copy analysis state from case", "load:RS-OPE");
+    click(state(), "Replace this draft's analysis state with the copy");
+    expect(state().getByText(/29 load sources name primitives this case does not hold/)).toBeTruthy();
+    click(state(), "Mark element_states absent");
+    click(state(), "Add element state");
+    change(state(), "Element state 1 pipe", "pipe:RS-P010");
+    change(state(), "Element state 1 operating temperature value", "210"); change(state(), "Element state 1 operating temperature unit", "degC");
+    change(state(), "Element state 1 material selection", "exact_point");
+    change(state(), "Element state 1 material", "material:RS-M1");
+    change(state(), "Element state 1 material point", "point:RS-M1-T020");
+    change(state(), "Element state 1 thermal state", "free_length_state");
+    change(state(), "Element state 1 expansion law", "law:RS-M1-SECANT");
+    fill("Element state");
+    change(state(), `Element state ${p180} operating temperature value`, ""); change(state(), `Element state ${p180} operating temperature unit`, "");
+    change(state(), `Element state ${p180} thermal state`, "unchanged_reference");
+    change(state(), `Element state ${p180} thermal provenance`, replacedSpan);
+    const basisReason = "Modulus at 20 degC so that RS-EXP compares two states on one material basis (spec §8.1)";
+    for (let e = 1; e <= model().pipe_segments.length; e++) {
+      if (e === p180) continue;
+      change(state(), `Element state ${e} analysis-basis reason`, basisReason);
+      change(state(), `Element state ${e} analysis-basis provenance`, P);
+    }
+    change(state(), "Factor for every primitive (dimensionless)", "1");
+    click(state(), "Add every primitive of this case");
+    click(state(), "Queue analysis state");
+    await applyQueuedIntent("step states: RS-OPE-REF");
 
     // Step combinations: Combinations (typed UI): Create combination, result_state_subtraction.
     select({ type: "project", id: model().project.id });
@@ -805,7 +816,7 @@ describe("the reference system entered from blank through the desktop's surfaces
     expect(BLOCKED).toEqual([]);
     expect(ALLOWED_DIFFERENCES).toHaveLength(15);
     expect(DOCUMENT_DIFFERENCES_NOT_IN_3_14).toEqual(["analysis_status", "data_boundary", "diagnostics"]);
-    // 33 queue/apply cycles: the run sheet's §6 count of 33 cycles, RS-OPE-REF's imported batch among them. The Undo/Redo labels below keep their earlier section numbers, which the expected list asserts.
+    // 33 queue/apply cycles: the run sheet's §6 count of 33 cycles. The Undo/Redo labels below keep their earlier section numbers, which the expected list asserts.
     expect(cycles).toHaveLength(33);
     expect(undoRedone).toEqual([
       "geometry and supports: the run sheet's batch (§3.4)", "component: the tee RS-T1 (§3.6)",

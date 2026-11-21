@@ -94,31 +94,12 @@ needs:
   condition: >-
     The load manager, the pressure and material forms, the component creation forms and the
     self-weight plan create materials, sections, components, load cases, pressure regions,
-    reference configurations, the analysis states of RS-SUS, RS-OPE and RS-SAM, and
-    combinations through the operation route, with the controls, labels, fills and copies that
-    the reference system's run sheet names. For RS-OPE-REF's analysis state the run sheet does
-    not use those controls until the load-state editor can enter an element state's
-    analysis-basis override (issue 408).
+    reference configurations, analysis states and combinations through the operation route,
+    with the controls, labels, fills and copies that the reference system's run sheet names.
+    The analysis-state editor enters an element state's analysis-basis override, reason and
+    provenance, row by row; fill and copy do not carry it.
   gating: false
   when: Maintaining the reference system's run sheet.
-- from: DEL-16-03
-  condition: >-
-    Offline intake stamps each imported operation agent, with a host-set source, whatever the
-    file claims, and keeps a claimed author only as display context. Before queueing, it
-    refuses an imported operation for a person-entered member (a component's modifiers, a bend
-    realization or a curved bend interface) or for an after text, entry count or depth beyond
-    the check's bounds (33,554,432 characters, 131,072 entries, 32 levels); RS-OPE-REF's
-    analysis state has no such member and is within those bounds. A batch reaches application
-    only on the person's Apply after its validation passed and its preview was generated on the
-    current model hash. This deliverable does not commit that intake reads pasted text as a
-    batch and queues it, nor that batch review validates and applies an agent-stamped
-    update_load of a case's analysis_state; those belong to DEL-16-01, DEL-07-08, DEL-16-02 and
-    DEL-16-06, and no need on them is declared here.
-  gating: false
-  when: >-
-    Maintaining the reference system's run sheet while the load-state editor cannot enter an
-    element state's analysis-basis override (issue 408), so that RS-OPE-REF's analysis state is
-    applied as one imported operation.
 code_paths:
 # The suite and its hand calculations. Other scopes cite individual notes here as their outside
 # source (DEL-05-01 lists tp_pmm_p3_subspan_wind_exposure.md; DEL-05-05 cites the tp_phys notes);

@@ -1,9 +1,8 @@
 // G7/G8 (DEL-07-03 design §3; DEL-09-01 run sheet §3.8, §3.10, §3.11):
-// the reference system's reference-configuration members, three of its four analysis
-// states (RS-SUS, RS-SAM, RS-OPE) and its copied pressure regions, entered with the fill
-// and copy controls, then queued and applied through the wasm operation engine, equal the
-// fixture's. The fourth analysis state, RS-OPE-REF's, is not entered with the controls: it
-// is applied by the operation route, its value the fixture's own (see that block).
+// the reference system's reference-configuration members, its four analysis states
+// (RS-OPE-REF's analysis-basis overrides typed row by row, since fill and copy never
+// carry them) and its copied pressure regions, entered with the fill and copy controls,
+// then queued and applied through the wasm operation engine, equal the fixture's.
 import { readFileSync } from "node:fs";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
@@ -14,9 +13,6 @@ import { computeModelHash } from "../../services/hashService";
 import { applyModelOperation, warmupOperationEngine } from "../../services/operationService";
 import { PressureAuthoringPanel } from "../pressure-authoring/PressureAuthoringPanel";
 import { LoadReferenceStateInputs } from "./LoadReferenceStateInputs";
-import { stampImportedBatch } from "../../services/operationAuthorship";
-import { parseOfflineBatch } from "../offline-proposal-intake/OfflineProposalIntakePanel";
-import { rsOpeRefStateBatchText } from "../../test-support/referenceRunSheetEntry";
 
 const projectRoot = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "../../../../..");
 const fixture = JSON.parse(readFileSync(path.join(projectRoot, "fixtures/reference_system/reference_system.json"), "utf8")) as PreviewModel;
@@ -60,7 +56,7 @@ function enterCommon() {
   change("Analysis state provenance", P);
 }
 
-it("enters the reference configuration, three analysis states and three cases' copied pressure regions with fills and copies, and applies RS-OPE-REF's analysis state as one operation", async () => {
+it("enters the reference system's load/reference state with fills and copies, RS-OPE-REF's overrides typed per row", async () => {
   // The run sheet's model at §3.8: geometry, supports, self-weight cases and RG regions of
   // RS-SUS only (entered once, §3.10); the reference configuration without members; no states.
   let model = structuredClone(fixture);
@@ -143,21 +139,35 @@ it("enters the reference configuration, three analysis states and three cases' c
   model = await queuedAndApplied(model, queue);
   expect(caseOf(model, "load:RS-OPE").analysis_state).toEqual(caseOf(fixture, "load:RS-OPE").analysis_state);
 
-  // RS-OPE-REF. The desktop's load-state editor cannot yet enter an element state's analysis-basis
-  // override, which every element state of this case but RS-P180's carries. So this case's analysis
-  // state is entered by the operation route: the run sheet's one operation (modify Load
-  // load:RS-OPE-REF, update_load, analysis_state, from not present), its value the fixture's own,
-  // read and stamped as the imported-proposal panel does and applied through the same engine. For
-  // this case the equality with the fixture below shows that the route stores the submitted state,
-  // not that a person entered it field by field. Issue 408 returns this block to the editor.
-  const { batch } = stampImportedBatch(parseOfflineBatch(rsOpeRefStateBatchText(caseOf(fixture, "load:RS-OPE-REF").analysis_state)));
-  expect(batch.operations).toHaveLength(1);
-  const [operation] = batch.operations;
-  expect([operation.operation_kind, operation.target, operation.change.change_kind, operation.change.field_path, operation.change.before])
-    .toEqual(["modify", { object_type: "Load", ref: "load:RS-OPE-REF" }, "update_load", "analysis_state", "not_present"]);
-  const outcome = await applyModelOperation(model, operation, await computeModelHash(model));
-  expect(outcome.diagnostics.filter(d => d.severity === "blocking")).toEqual([]);
-  model = outcome.applied_model as PreviewModel;
+  // RS-OPE-REF: copied from RS-OPE, its element states entered again on the 20 degC point and
+  // filled, then each element state's analysis-basis override typed, RS-P180's excepted.
+  queue = renderState(model, "load:RS-OPE-REF");
+  change("Copy analysis state from case", "load:RS-OPE");
+  click("Replace this draft's analysis state with the copy");
+  expect(screen.getByText(/29 load sources name primitives this case does not hold/)).toBeTruthy();
+  click("Mark element_states absent");
+  click("Add element state");
+  change("Element state 1 pipe", "pipe:RS-P010");
+  change("Element state 1 operating temperature value", "210"); change("Element state 1 operating temperature unit", "degC");
+  change("Element state 1 material selection", "exact_point");
+  change("Element state 1 material", "material:RS-M1");
+  change("Element state 1 material point", "point:RS-M1-T020");
+  change("Element state 1 thermal state", "free_length_state");
+  change("Element state 1 expansion law", "law:RS-M1-SECANT");
+  fill("Element state");
+  change(`Element state ${p180} operating temperature value`, ""); change(`Element state ${p180} operating temperature unit`, "");
+  change(`Element state ${p180} thermal state`, "unchanged_reference");
+  change(`Element state ${p180} thermal provenance`, replacedSpan);
+  const reason = "Modulus at 20 degC so that RS-EXP compares two states on one material basis (spec §8.1)";
+  for (let e = 1; e <= model.pipe_segments.length; e++) {
+    if (e === p180) continue;
+    change(`Element state ${e} analysis-basis reason`, reason);
+    change(`Element state ${e} analysis-basis provenance`, P);
+  }
+  change("Factor for every primitive (dimensionless)", "1");
+  click("Add every primitive of this case");
+  click("Queue analysis state");
+  model = await queuedAndApplied(model, queue);
   expect(caseOf(model, "load:RS-OPE-REF").analysis_state).toEqual(caseOf(fixture, "load:RS-OPE-REF").analysis_state);
 
   // RS-SUS's five regions copied to RS-OPE, RS-SAM and RS-OPE-REF with their own ids.

@@ -17,8 +17,7 @@ product (F-PIP-2, F-PIP-3).
 The route up to the solve is entered by script in
 [`referenceEntryJourney.session.test.tsx`](../../apps/desktop/src/features/workspace/referenceEntryJourney.session.test.tsx),
 which compares the entered model with the fixture record by record and allows only the
-differences of §4. That test runs no solve. One case's analysis state, RS-OPE-REF's, is pasted
-from the fixture as an operation batch rather than entered field by field; §4 states that limit.
+differences of §4. That test runs no solve.
 
 ## 1. Conventions
 
@@ -78,7 +77,7 @@ renumbering the others. Fields not mentioned are left as the form shows them.
 | [reference](#step-reference) | Loads › Load Cases, Reference configurations | rows |
 | [weight](#step-weight) | Model › Review changes, Self weight | rs050, joint, tee, reducer, spring, ce |
 | [regions](#step-regions) | Loads › Load Cases, Pressure regions | weight |
-| [states](#step-states) | Loads › Load Cases, Analysis state; Model › Review changes, Agent, Review an imported proposal (RS-OPE-REF) | reference, weight |
+| [states](#step-states) | Loads › Load Cases, Analysis state | reference, weight |
 | [combinations](#step-combinations) | Loads › Load Cases, Create combination | weight |
 | [solve](#step-solve) | Analyze page; Results › Results | every step above |
 
@@ -438,7 +437,7 @@ state 1 and **Add support state** creates support state 1; after typing the row,
 element states from a template** or **Fill support states from a template**, with the typed
 row as template and targets every pipe or support without one. Then **Factor for every
 primitive (dimensionless)** 1 and **Add every primitive of this case**. **Queue analysis
-state**, Apply, per case. RS-OPE-REF is the exception: it is entered as an imported batch, below.
+state**, Apply, per case.
 
 - **RS-SUS.** **Add element state**. Element state 1: pipe RS-P010; material selection exact_point; material
   `material:RS-M1`; material point `point:RS-M1-T020`; thermal state unchanged_reference;
@@ -464,63 +463,19 @@ state**, Apply, per case. RS-OPE-REF is the exception: it is entered as an impor
   the panel says so. Factor 1, **Add every primitive of this case**. On RS-C's support state,
   **Add … boundary motion** twice: UX 15 mm and UY -10 mm, each with meaning
   absolute_reference_displacement.
-- **RS-OPE-REF.** The analysis-state editor cannot yet enter an element state's analysis-basis
-  override, which every element state of this case but RS-P180's carries
-  ([issue 408](https://github.com/sgttomas/SWBPIPE/issues/408)). Until it can, this case's
-  analysis state is not entered field by field: it is entered as one operation batch, its value
-  taken from the fixture. *Model* stage, *Review changes* tab, tool tab **Agent**, **Review an
-  imported proposal**. In **Proposal batch JSON** paste the batch below, with `"⟨state⟩"`
-  replaced by the JSON text of `load:RS-OPE-REF`'s `analysis_state` in
-  [`reference_system.json`](reference_system.json), written as one JSON string (its quotes
-  escaped). **Queue imported batch for review**, then Validate batch and Apply entire batch. The
-  review shows the operation as agent-proposed; the applied document does not record that.
-
-  ```json
-  {
-    "batch_id": "batch:RS-OPE-REF-analysis-state",
-    "operations": [
-      {
-        "operation_id": "op:RS-OPE-REF-analysis-state",
-        "operation_kind": "modify",
-        "operation_status": "proposed",
-        "target": { "object_type": "Load", "ref": "load:RS-OPE-REF" },
-        "change": {
-          "change_id": "change:RS-OPE-REF-analysis-state",
-          "change_kind": "update_load",
-          "field_label": "Analysis state",
-          "field_path": "analysis_state",
-          "before": "not_present",
-          "after": "⟨state⟩",
-          "unit": "none",
-          "dimension": "dimensionless",
-          "source_note": "the fixture's analysis state of load:RS-OPE-REF"
-        },
-        "rationale": "Enter RS-OPE-REF's analysis state, which the analysis-state editor cannot yet enter (issue 408).",
-        "validation": {
-          "schema_validation": "not_run",
-          "constraint_validation": "not_run",
-          "unit_validation": "not_run",
-          "diff_preview_status": "not_generated",
-          "application_status": "not_applied"
-        },
-        "audit_boundary": {
-          "mutation_route": "structured_operations_only",
-          "direct_model_mutation_allowed": false,
-          "requires_user_acceptance": true,
-          "mutates_accepted_model_state": false
-        },
-        "professional_boundary": {
-          "human_review_required": true,
-          "software_makes_compliance_claim": false,
-          "software_makes_certification_claim": false,
-          "software_makes_sealing_claim": false,
-          "software_makes_approval_claim": false,
-          "software_makes_authentication_claim": false
-        }
-      }
-    ]
-  }
-  ```
+- **RS-OPE-REF.** **Copy analysis state from case** RS-OPE, **Replace this draft's analysis
+  state with the copy**: as for RS-OPE, the copy keeps the contract, reference configuration,
+  support states, history and provenance, and leaves out RS-OPE's load sources. **Mark
+  element_states absent**, then **Add element state**. Element state 1: pipe RS-P010; operating
+  temperature 210 degC; material selection exact_point; material `material:RS-M1`; material
+  point `point:RS-M1-T020`; thermal state free_length_state; expansion law
+  `law:RS-M1-SECANT`. Fill. Then on RS-P180's row clear the operating temperature (value and
+  unit), set thermal state unchanged_reference and **Thermal provenance** ⟨P⟩`; replaced span
+  RS-P180: zero eigenstrain (spec §5.1)`. On every element state but RS-P180's, enter the
+  **analysis-basis reason** `Modulus at 20 degC so that RS-EXP compares two states on one
+  material basis (spec §8.1)` and the **analysis-basis provenance** ⟨P⟩; fill and copy never
+  carry these two fields, so each row takes its own. Factor 1, **Add every primitive of this
+  case**.
 
 ### Step combinations
 
@@ -583,13 +538,6 @@ differences remain; none is in criterion 6's identity set or a numerical value:
 - **Order.** Records are created in step order, so collections and per-member lists are in a
   different order from the fixture's; records are compared by id.
 
-One limit is not a difference in the document. RS-OPE-REF's analysis state is not entered
-field by field: step states pastes the fixture's own value as an operation batch, because the
-analysis-state editor cannot yet enter the analysis-basis override its element states carry
-([issue 408](https://github.com/sgttomas/SWBPIPE/issues/408)). For that case the comparison with
-the fixture shows that the batch route stores the state it is given, not that a person can enter
-it field by field; this sheet does not meet exit criterion 7 for that case.
-
 ## 5. Pending families
 
 When a family of the specification's §10 ledger enters the fixture, this sheet gains the
@@ -645,18 +593,18 @@ solve waiting time separately; their sum is compared with the threshold.
 | reference | 12 | 3 | 1 | 15 × 5.5 s = 82.5 s | 1.5 |
 | weight | 40 | 4 | 4 | 44 × 5.5 s = 242 s | 4 |
 | regions | 88 | 8 | 4 | 96 × 5.5 s = 528 s | 8.75 |
-| states | 51 | 14 | 4 | 65 × 5.5 s = 357.5 s | 6 |
+| states | 117 | 19 | 4 | 136 × 5.5 s = 748 s | 12.5 |
 | combinations | 9 | 0 | 2 | 9 × 5.5 s = 49.5 s | 0.75 |
 | solve | 0 | 1 | 0 | 1 × 5.5 s = 5.5 s entry; 2 min solve waiting | 0 entry + 2 waiting |
-| **Total** | **643** | **100** | **33** | | **about 66 entry + 2 waiting = about 68** |
+| **Total** | **709** | **105** | **33** | | **about 72.5 entry + 2 waiting = about 74.5** |
 
-Two subtotals, both estimates: **entry** about 66 minutes (the grid cells, form entries and
+Two subtotals, both estimates: **entry** about 72.5 minutes (the grid cells, form entries and
 presses, each step rounded), and **solve waiting** 2 minutes (an allowance, not entry). Their
-sum is about 68 minutes.
+sum is about 74.5 minutes.
 
-Unrounded, by direct arithmetic, the entry is 224 × 8/98 min + (419 form entries + 100
-presses) × 5.5/60 min = 18.286 + 47.575 = 65.86 minutes, and with the 2 minutes of solve
-waiting the sum is 67.86 minutes.
+Unrounded, by direct arithmetic, the entry is 224 × 8/98 min + (485 form entries + 105
+presses) × 5.5/60 min = 18.286 + 54.083 = 72.37 minutes, and with the 2 minutes of solve
+waiting the sum is 74.37 minutes.
 
 How the larger counts arise:
 
@@ -697,21 +645,21 @@ How the larger counts arise:
   pressure value and unit, six terminal fields, provenance) for five regions; 26 picker
   choices (25 member pipes and the connector); two entries for each of three copies. The
   presses are Add pressure region five times and Replace once per copy.
-- **states, 51 entries and 14 presses.** RS-SUS 19: its selection, a typed element row of 6
+- **states, 117 entries and 19 presses.** RS-SUS 19: its selection, a typed element row of 6
   fields, the element fill's two choices, one RS-P180 edit and 9 shared entries (contract,
   reference, the typed support state's two fields, the support fill's two choices, factor,
   history, provenance). RS-OPE 20: its selection, the copy's source, 11 element fields, two
   fill choices, four RS-P180 edits and the factor. RS-SAM 11: its selection, the copy's
-  source, the factor and two motions of four fields. RS-OPE-REF 1: the batch, pasted once;
-  its queue, validation and apply are not presses. Writing the batch, the fixture's state as
-  one JSON string, is preparation, not entry, and is not counted. The presses: for RS-SUS, Add
-  element state, Fill element states, Add support state, Fill support states and Add every
-  primitive; for RS-OPE, Replace, Mark element_states absent, Add element state, Fill element
+  source, the factor and two motions of four fields. RS-OPE-REF 67: its selection, the copy's
+  source, 8 element fields, two fill choices, four RS-P180 edits, the analysis-basis reason and
+  provenance on 25 rows and the factor. The presses: for RS-SUS, Add element state, Fill
+  element states, Add support state, Fill support states and Add every primitive; for RS-OPE
+  and for RS-OPE-REF, Replace, Mark element_states absent, Add element state, Fill element
   states and Add every primitive; for RS-SAM, Replace, Add every primitive and Add boundary
   motion twice.
 - **combinations, 9.** The first: ID, label, basis, minuend, subtrahend, provenance; the
   second: ID, label, minuend.
 
-The estimate of about 68 minutes (66 entry and 2 solve waiting) is about 2.3 times the
-provisional 30. The four largest steps are rows (22), regions (8.75), states (6) and
+The estimate of about 74.5 minutes (72.5 entry and 2 solve waiting) is about 2.5 times the
+provisional 30. The four largest steps are rows (22), states (12.5), regions (8.75) and
 material (5.75).
