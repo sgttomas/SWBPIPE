@@ -26,6 +26,8 @@ function mount(model = inventedModel()) {
   const queue = vi.fn<(intent: EditorOperationIntent) => void>();
   const props: ComponentProps<typeof PropertyInspector> = { model, selection: { type: "node", id: "node:A" }, onQueueIntent: queue };
   render(<DisplayUnitsProvider initialPreference="SI"><PropertyInspector {...props} /></DisplayUnitsProvider>);
+  // The source starts empty; the person types it.
+  fireEvent.change(screen.getByTestId("create-support-provenance"), { target: { value: "invented support source" } });
   return { model, queue };
 }
 

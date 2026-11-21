@@ -86,6 +86,10 @@ async function emit(): Promise<Array<{ path: string; document: PreviewModel }>> 
   const entries: Array<{ path: string; document: PreviewModel }> = [];
   const record = (name: string, document: PreviewModel) => entries.push({ path: name, document: structuredClone(document) });
 
+  // The person types every record's source; the forms start it empty. These are the
+  // texts the committed golden records, entered as a person would enter them.
+  const typedSource = "user_entered_local_preview";
+  const typedGeometrySource = "user_entered_component_form";
   let model = buildBlankLocalModelDocument(FIXED_CLOCK);
   record("blank_project", model);
   record("blank_load_reference_project", buildBlankLoadStateModelDocument(FIXED_CLOCK));
@@ -99,10 +103,10 @@ async function emit(): Promise<Array<{ path: string; document: PreviewModel }>> 
 
   // Material and section (inspector creation).
   const { defaultMaterialDraft, buildCreateMaterialIntent, defaultSectionDraft, buildCreateSectionIntent, defaultSupportDraft, buildCreateSupportIntent } = inspectorAuthoringPaths;
-  const material = { ...defaultMaterialDraft(model, []), elasticModulus: "200000000000", shearModulus: "77000000000", thermalExpansion: "0.000012" };
+  const material = { ...defaultMaterialDraft(model, []), elasticModulus: "200000000000", shearModulus: "77000000000", thermalExpansion: "0.000012", provenance: typedSource };
   model = await apply(model, buildCreateMaterialIntent(material, model, null));
   record("material_creation", model);
-  const section = { ...defaultSectionDraft(model, []), outsideDiameter: "0.168", wallThickness: "0.007" };
+  const section = { ...defaultSectionDraft(model, []), outsideDiameter: "0.168", wallThickness: "0.007", provenance: typedSource };
   model = await apply(model, buildCreateSectionIntent(section, model, null));
   record("section_creation", model);
 
@@ -119,17 +123,17 @@ async function emit(): Promise<Array<{ path: string; document: PreviewModel }>> 
   record("pipe_creation", model);
 
   // Support (inspector creation).
-  const support = defaultSupportDraft(model, { type: "node", id: "node:N-1" }, []);
+  const support = { ...defaultSupportDraft(model, { type: "node", id: "node:N-1" }, []), provenance: typedSource };
   model = await apply(model, buildCreateSupportIntent(support, model, null));
   record("support_creation", model);
 
   // Load case and a primitive load, then a combination (Load Case Manager).
   const { defaultLoadCaseDraft, buildCreateLoadCaseIntent, defaultPrimitiveLoadDraft, buildCreatePrimitiveLoadIntent, defaultCombinationDraft, buildCreateCombinationIntent } = loadCaseAuthoringPaths;
-  model = await apply(model, buildCreateLoadCaseIntent({ model, draft: defaultLoadCaseDraft("load:L-1") }));
-  model = await apply(model, buildCreatePrimitiveLoadIntent({ model, draft: { ...defaultPrimitiveLoadDraft(model, "load:L-1"), targetNode: "node:N-2" }, unitCatalogRoute: null }));
+  model = await apply(model, buildCreateLoadCaseIntent({ model, draft: { ...defaultLoadCaseDraft("load:L-1"), provenance: typedSource } }));
+  model = await apply(model, buildCreatePrimitiveLoadIntent({ model, draft: { ...defaultPrimitiveLoadDraft(model, "load:L-1"), targetNode: "node:N-2", provenance: typedSource }, unitCatalogRoute: null }));
   record("load_creation", model);
   // The person enters the term: the draft proposes no case and no factor.
-  model = await apply(model, buildCreateCombinationIntent({ model, draft: { ...defaultCombinationDraft(model, "combination:C-1"), terms: [{ kind: "load_case", ref: "load:L-1", factor: "1" }] } }));
+  model = await apply(model, buildCreateCombinationIntent({ model, draft: { ...defaultCombinationDraft(model, "combination:C-1"), terms: [{ kind: "load_case", ref: "load:L-1", factor: "1" }], provenance: typedSource } }));
   record("combination_creation", model);
 
   // Every model-data slot, through the intents the model-data UI queues.
@@ -181,7 +185,8 @@ async function emit(): Promise<Array<{ path: string; document: PreviewModel }>> 
     primaryPipeRef: "pipe:P-1", rigidBodyLength: "0.12", endASize: "0.168", endBSize: "0.114", weight: "500",
     centerOfGravityX: "0", centerOfGravityY: "0", centerOfGravityZ: "0",
     connectionEndAReference: "invented end A", connectionEndBReference: "invented end B",
-    stiffnessBehaviorReference: "invented rigid behaviour"
+    stiffnessBehaviorReference: "invented rigid behaviour",
+    geometrySourceReference: typedGeometrySource, provenance: typedSource
   };
   model = await apply(model, buildCreateComponentIntent({ draft: reducer, model, sourceRef: "desktopEmission.golden.test.ts", sourceRole: "gui_editor", unitValidation: "not_run" }));
   model = await apply(model, inspectorAuthoringPaths.buildOperationIntent({

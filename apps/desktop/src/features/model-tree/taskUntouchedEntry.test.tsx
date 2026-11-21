@@ -137,7 +137,7 @@ describe("an unedited quantity offers nothing, whatever its stored unit normaliz
     const queue = vi.fn<(intent: EditorOperationIntent) => void>();
     render(
       <DisplayUnitsProvider initialPreference="SI">
-        <PropertyInspector model={demo({ value: 200000000000, unit: " Pa " })} selection={steel} onQueueIntent={queue} onApplyIntent={async () => true} projectSessionGeneration={1} />
+        <PropertyInspector model={demo({ value: 200000000000, unit: " Pa " })} selection={steel} onQueueIntent={queue} onValidateIntent={vi.fn()} onApplyIntent={async () => true} projectSessionGeneration={1} />
       </DisplayUnitsProvider>
     );
     await waitFor(() => expect(screen.getByTestId("property-unit-catalog-status")).not.toHaveTextContent("loading"));

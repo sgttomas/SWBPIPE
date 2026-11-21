@@ -12,6 +12,7 @@ import { buildAnalysisRunV03, modelLoadBasisRefs } from "./services/analysisRunC
 import { createNativeMechanicsReplay, nativeMechanicsReplayPair, REPLAY_COMMANDS } from "./test/nativeMechanicsReplay";
 import type { LocalProjectEnvelope, PreviewModel } from "./types";
 import { confirmProjectUnits } from "./test-support/workspaceTestControls";
+import { unitCatalogFixture } from "./test-support/unitCatalogFixture";
 
 // Slice B3: the shell through the product. The rules themselves are unit-tested
 // in features/workspace/shellLayout.test.ts; these tests hold that the shell's
@@ -794,6 +795,9 @@ describe("New Blank starts a fresh shell context", () => {
     const requestedHashes: { model: LocalProjectEnvelope["model_hash"]; envelope: LocalProjectEnvelope["project_envelope_hash"] } = { model: null, envelope: null };
     setTauriRuntime(true);
     invokeMock.mockImplementation((command: string, payload: { model?: PreviewModel; modelHash?: LocalProjectEnvelope["model_hash"]; projectEnvelopeHash?: LocalProjectEnvelope["project_envelope_hash"] } = {}) => {
+      // The native command returns a catalog, never null: panels keyed on the
+      // project session reload it when the created project opens.
+      if (command === "get_unit_catalog") return Promise.resolve(unitCatalogFixture());
       if (command === "create_local_project") {
         requestedBlank = payload.model;
         requestedHashes.model = payload.modelHash ?? null;

@@ -23,6 +23,8 @@ function mount(withExistingPrimitive = false) {
   }];
   const queue = vi.fn();
   render(<LoadCaseManagerPanel model={model} onQueueIntent={queue} onSelect={vi.fn()} selection={{ type: "project", id: model.project.id }} />);
+  // The source starts empty; the person types it.
+  fireEvent.change(screen.getByTestId("load-manager-create-primitive-provenance"), { target: { value: "invented source" } });
   return queue;
 }
 
@@ -72,6 +74,10 @@ describe("primitive unit readiness", () => {
     expect(screen.getByTestId("load-manager-create-primitive-preview")).toHaveTextContent("Rejected interval");
     expect(screen.getByTestId("queue-create-primitive-intent")).toBeDisabled();
     fireEvent.change(screen.getByTestId("load-manager-create-primitive-category"), { target: { value: "concentrated_force" } });
+    // Each category change moved the unit beside the magnitude, so it was cleared
+    // (DEL-02-02 REQ-022); the person enters it for the force.
+    expect(screen.getByTestId("load-manager-create-primitive-magnitude")).toHaveValue("");
+    fireEvent.change(screen.getByTestId("load-manager-create-primitive-magnitude"), { target: { value: "250" } });
     await act(async () => pending[2]([{ id: "primitive-unit", status: "converted", value: 1, unit: "N" }]));
     expect(screen.getByTestId("queue-create-primitive-intent")).toBeEnabled();
     fireEvent.click(screen.getByTestId("queue-create-primitive-intent"));

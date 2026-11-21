@@ -191,6 +191,13 @@ async function loadCaseManager() {
   return within(openWorkspaceSection("loads")).getByTestId("load-case-manager");
 }
 
+// The Load Cases forms' sources start empty; the person types them (PRD §5.5; DEL-07-03 AC-001).
+function typeLoadSources(manager: HTMLElement) {
+  for (const testId of ["load-manager-create-load-provenance", "load-manager-create-primitive-provenance", "load-manager-create-combination-provenance"]) {
+    fireEvent.change(within(manager).getByTestId(testId), { target: { value: "user_entered_local_preview" } });
+  }
+}
+
 // Explicit preserved reference bytes; this never starts a solve or grants Current.
 async function referenceMechanicsSource() {
   return (await loadBundledMechanicsReference()).source;
@@ -5273,6 +5280,7 @@ describe("SWBPIPE desktop preview", () => {
     render(<App />);
 
     const manager = await loadCaseManager();
+    typeLoadSources(manager);
     expect(
       within(manager).getByTestId("load-manager-create-load-id"),
     ).toHaveValue("load:L-300");
@@ -5344,6 +5352,7 @@ describe("SWBPIPE desktop preview", () => {
     render(<App />);
 
     const manager = await loadCaseManager();
+    typeLoadSources(manager);
     fireEvent.change(
       within(manager).getByTestId("load-manager-create-load-label"),
       {
@@ -5471,6 +5480,7 @@ describe("SWBPIPE desktop preview", () => {
     render(<App />);
 
     const manager = await loadCaseManager();
+    typeLoadSources(manager);
     expect(
       within(manager).getByTestId("load-manager-create-primitive-id"),
     ).toHaveValue("load:L-100-F300");
@@ -5555,12 +5565,16 @@ describe("SWBPIPE desktop preview", () => {
     render(<App />);
 
     const manager = await loadCaseManager();
+    typeLoadSources(manager);
     fireEvent.change(
       within(manager).getByTestId("load-manager-create-primitive-category"),
       {
         target: { value: "distributed_force" },
       },
     );
+    // The unit beside the magnitude moved with the category or direction, so the
+    // magnitude was cleared (DEL-02-02 REQ-022); the person enters one.
+    fireEvent.change(within(manager).getByTestId("load-manager-create-primitive-magnitude"), { target: { value: "250" } });
     expect(
       within(manager).getByTestId("load-manager-create-primitive-id"),
     ).toHaveValue("load:L-100-D300");
@@ -5641,12 +5655,16 @@ describe("SWBPIPE desktop preview", () => {
     render(<App />);
 
     const manager = await loadCaseManager();
+    typeLoadSources(manager);
     fireEvent.change(
       within(manager).getByTestId("load-manager-create-primitive-category"),
       {
         target: { value: "concentrated_moment" },
       },
     );
+    // The unit beside the magnitude moved with the category or direction, so the
+    // magnitude was cleared (DEL-02-02 REQ-022); the person enters one.
+    fireEvent.change(within(manager).getByTestId("load-manager-create-primitive-magnitude"), { target: { value: "250" } });
     expect(
       within(manager).getByTestId("load-manager-create-primitive-id"),
     ).toHaveValue("load:L-100-M300");
@@ -5748,12 +5766,16 @@ describe("SWBPIPE desktop preview", () => {
     render(<App />);
 
     const manager = await loadCaseManager();
+    typeLoadSources(manager);
     fireEvent.change(
       within(manager).getByTestId("load-manager-create-primitive-category"),
       {
         target: { value: "thermal" },
       },
     );
+    // The unit beside the magnitude moved with the category or direction, so the
+    // magnitude was cleared (DEL-02-02 REQ-022); the person enters one.
+    fireEvent.change(within(manager).getByTestId("load-manager-create-primitive-magnitude"), { target: { value: "250" } });
     expect(
       within(manager).getByTestId("load-manager-create-primitive-id"),
     ).toHaveValue("load:L-100-T300");
@@ -5841,12 +5863,16 @@ describe("SWBPIPE desktop preview", () => {
     render(<App />);
 
     const manager = await loadCaseManager();
+    typeLoadSources(manager);
     fireEvent.change(
       within(manager).getByTestId("load-manager-create-primitive-category"),
       {
         target: { value: "imposed_displacement" },
       },
     );
+    // The unit beside the magnitude moved with the category or direction, so the
+    // magnitude was cleared (DEL-02-02 REQ-022); the person enters one.
+    fireEvent.change(within(manager).getByTestId("load-manager-create-primitive-magnitude"), { target: { value: "250" } });
     expect(
       within(manager).getByTestId("load-manager-create-primitive-id"),
     ).toHaveValue("load:L-100-I300");
@@ -6296,6 +6322,7 @@ describe("SWBPIPE desktop preview", () => {
     render(<App />);
 
     const manager = await loadCaseManager();
+    typeLoadSources(manager);
     fireEvent.change(
       within(manager).getByTestId("load-manager-create-load-label"),
       {
@@ -6406,6 +6433,7 @@ describe("SWBPIPE desktop preview", () => {
     render(<App />);
 
     const manager = await loadCaseManager();
+    typeLoadSources(manager);
     expect(
       within(manager).getByTestId("load-manager-create-combination-heading")
         .textContent,
@@ -6498,6 +6526,7 @@ describe("SWBPIPE desktop preview", () => {
     render(<App />);
 
     const manager = await loadCaseManager();
+    typeLoadSources(manager);
     fireEvent.change(
       within(manager).getByTestId("load-manager-create-combination-basis"),
       {
@@ -6605,6 +6634,7 @@ describe("SWBPIPE desktop preview", () => {
     render(<App />);
 
     const manager = await loadCaseManager();
+    typeLoadSources(manager);
     fireEvent.change(
       within(manager).getByTestId("load-manager-create-combination-basis"),
       {
@@ -11216,6 +11246,8 @@ describe("SWBPIPE desktop preview", () => {
     const createMaterialPanel = within(inspector).getByLabelText(
       "Create material intent",
     );
+    // The source starts empty; the person types it.
+    fireEvent.change(within(createMaterialPanel).getByTestId("create-material-provenance"), { target: { value: "user_entered_local_preview" } });
     await waitFor(() =>
       expect(
         screen.getByTestId("property-unit-catalog-status").textContent,
@@ -11346,6 +11378,8 @@ describe("SWBPIPE desktop preview", () => {
     const createSectionPanel = within(inspector).getByLabelText(
       "Create section intent",
     );
+    // The source starts empty; the person types it.
+    fireEvent.change(within(createSectionPanel).getByTestId("create-section-provenance"), { target: { value: "user_entered_local_preview" } });
     await waitFor(() =>
       expect(
         screen.getByTestId("property-unit-catalog-status").textContent,
@@ -11461,6 +11495,8 @@ describe("SWBPIPE desktop preview", () => {
     const createSupportPanel = within(inspector).getByLabelText(
       "Create support intent",
     );
+    // The source starts empty; the person types it.
+    fireEvent.change(within(createSupportPanel).getByTestId("create-support-provenance"), { target: { value: "user_entered_local_preview" } });
 
     fireEvent.change(
       within(createSupportPanel).getByTestId("create-support-id"),
@@ -11965,12 +12001,16 @@ describe("SWBPIPE desktop preview", () => {
     render(<App />);
 
     const manager = await loadCaseManager();
+    typeLoadSources(manager);
     fireEvent.change(
       within(manager).getByTestId("load-manager-create-primitive-category"),
       {
         target: { value: "imposed_displacement" },
       },
     );
+    // The unit beside the magnitude moved with the category or direction, so the
+    // magnitude was cleared (DEL-02-02 REQ-022); the person enters one.
+    fireEvent.change(within(manager).getByTestId("load-manager-create-primitive-magnitude"), { target: { value: "250" } });
     fireEvent.change(
       within(manager).getByTestId("load-manager-create-primitive-magnitude"),
       {
@@ -12562,8 +12602,15 @@ describe("SWBPIPE desktop preview", () => {
     setControlValue(panel, testId, value);
   }
 
+  // Sources start empty; the person types them (PRD §5.5; DEL-07-03 AC-001).
+  function typeComponentSources(panel: HTMLElement, prefix: "create" | "viewport-create") {
+    setComponentField(panel, `${prefix}-component-source`, "user_entered_component_form");
+    setComponentField(panel, `${prefix}-component-provenance`, "user_entered_local_preview");
+  }
+
   function fillComponentForm(panel: HTMLElement, prefix: "create" | "viewport-create", kind: string) {
     setComponentField(panel, `${prefix}-component-kind`, kind);
+    typeComponentSources(panel, prefix);
     if (kind === "tee") {
       setComponentField(panel, `${prefix}-component-node`, "node:N-110");
       setComponentField(panel, `${prefix}-component-pipe`, "pipe:P-100");
@@ -12624,6 +12671,7 @@ describe("SWBPIPE desktop preview", () => {
     prefix: "create" | "viewport-create",
     kind: "bend" | "valve",
   ) {
+    typeComponentSources(panel, prefix);
     if (kind === "bend") {
       setComponentField(panel, `${prefix}-component-radius`, "0.45");
       setComponentField(panel, `${prefix}-component-angle`, "1.5708");
@@ -12648,8 +12696,9 @@ describe("SWBPIPE desktop preview", () => {
       expect(queueButton).toBeDisabled();
 
       setComponentField(panel, "create-component-kind", kind);
-      expect(within(panel).getByTestId("create-component-source")).toHaveValue("user_entered_component_form");
-      expect(within(panel).getByTestId("create-component-provenance")).toHaveValue("user_entered_local_preview");
+      // Leaving the joint supplies no source: the person types it.
+      expect(within(panel).getByTestId("create-component-source")).toHaveValue("");
+      expect(within(panel).getByTestId("create-component-provenance")).toHaveValue("");
       if (kind === "bend") {
         expectVirtualTargetValue(panel, "create-component-pipe", "pipe:P-100");
       } else {
@@ -12686,8 +12735,9 @@ describe("SWBPIPE desktop preview", () => {
       expect(queueButton).toBeDisabled();
 
       setComponentField(panel, "viewport-create-component-kind", kind);
-      expect(within(panel).getByTestId("viewport-create-component-source")).toHaveValue("user_entered_component_form");
-      expect(within(panel).getByTestId("viewport-create-component-provenance")).toHaveValue("user_entered_local_preview");
+      // Leaving the joint supplies no source: the person types it.
+      expect(within(panel).getByTestId("viewport-create-component-source")).toHaveValue("");
+      expect(within(panel).getByTestId("viewport-create-component-provenance")).toHaveValue("");
       if (kind === "bend") {
         expectVirtualTargetValue(panel, "viewport-create-component-pipe", "pipe:P-100");
       } else {
@@ -12715,6 +12765,7 @@ describe("SWBPIPE desktop preview", () => {
 
       const inspector = await screen.findByLabelText("Property inspector");
       const panel = within(inspector).getByLabelText("Create component intent");
+      typeComponentSources(panel, "create");
       const queueButton = within(panel).getByTestId("queue-create-component-intent");
       setComponentField(panel, "create-component-kind", kind);
       expectVirtualTargetEmpty(panel, "create-component-pipe");
@@ -12749,6 +12800,7 @@ describe("SWBPIPE desktop preview", () => {
       const commandBar = screen.getByTestId("command-bar");
       fireEvent.click(within(commandBar).getByRole("button", { name: /Component/i }));
       const panel = screen.getByTestId("viewport-create-component-form");
+      typeComponentSources(panel, "viewport-create");
       const queueButton = within(panel).getByTestId("queue-explicit-component-intent");
       setComponentField(panel, "viewport-create-component-kind", kind);
       expectVirtualTargetEmpty(panel, "viewport-create-component-pipe");
@@ -12960,6 +13012,7 @@ describe("SWBPIPE desktop preview", () => {
 
     const inspector = screen.getByLabelText("Property inspector");
     const componentPanel = within(inspector).getByLabelText("Create component intent");
+    typeComponentSources(componentPanel, "create");
     setComponentField(componentPanel, "create-component-kind", "tee");
     setComponentField(componentPanel, "create-component-node", "node:N-110");
     fillComponentDetailsWithoutPipes(componentPanel, "create", "tee");
@@ -13682,6 +13735,21 @@ describe("native straight-route Add and Apply", () => {
     intentPanel = startPropertyTask("load", model.load_cases[0].id);
     changeFormControl(within(intentPanel).getByTestId("editor-intent-field"), { target: { value: "primitive_loads.0.magnitude.value" } });
     expect(within(intentPanel).getByTestId("editor-intent-value")).toHaveValue("500");
+  });
+
+  it("starts the Load Cases forms' sources empty in the next project: the user's text never crosses projects", async () => {
+    render(<App />);
+    await screen.findByTestId("desktop-preview-shell");
+    let manager = await loadCaseManager();
+    const fields = ["load-manager-create-load-provenance", "load-manager-create-primitive-provenance", "load-manager-create-combination-provenance"];
+    typeLoadSources(manager);
+    for (const field of fields) expect(within(manager).getByTestId(field)).toHaveValue("user_entered_local_preview");
+    const controls = screen.getByLabelText("Local project controls");
+    fireEvent.click(within(controls).getByRole("button", { name: /New blank/i }));
+    confirmProjectUnits();
+    await waitFor(() => expect(screen.getByTestId("local-project-message")).toHaveTextContent("Created blank local model"));
+    manager = await loadCaseManager();
+    for (const field of fields) expect(within(manager).getByTestId(field)).toHaveValue("");
   });
 
   it("saves and reopens an incomplete node-only model without inventing prerequisites", async () => {

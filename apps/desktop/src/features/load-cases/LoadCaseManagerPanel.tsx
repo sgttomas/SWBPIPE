@@ -32,6 +32,7 @@ import {
   type UnitCatalogRoute
 } from "../../services/unitCatalogService";
 import { convertDisplayQuantities } from "../../services/displayQuantityService";
+import { supersedeMoves, unitMoveNotice, useClearOnUnitMove, type UnitMove } from "../workspace/entryRules";
 import { VirtualMultiTargetPicker, VirtualTargetPicker } from "../workspace/VirtualTargetPicker";
 import { VirtualList } from "../workspace/VirtualList";
 import { combinationTermOperand, combinationTermsText, type Combination, type CombinationTerm } from "./combinationOperands";
@@ -249,6 +250,18 @@ export function LoadCaseManagerPanel({
   const primitiveLoadDraft: PrimitiveLoadDraft = primitiveLoadDraftState.unitSource === "default"
     ? { ...primitiveLoadDraftState, unit: primitiveLoadDefaultUnit(model, primitiveLoadDraftState.category, primitiveLoadDraftState.direction, unitCatalogRoute) }
     : primitiveLoadDraftState;
+  // One rule (DEL-02-02 REQ-022): a magnitude beside a unit that moves by anything other than
+  // the person's own choice of that unit (the unit control's `chose`) is cleared and the
+  // form says so: the project units, the catalog, and another category or direction alike
+  // (a force of 250 must not become a moment of 250). No baseline: the panel is remounted
+  // per project session.
+  const [primitiveUnitClearNotice, setPrimitiveUnitClearNotice] = useState<UnitMove[] | null>(null);
+  const primitiveGuard = useClearOnUnitMove({
+    magnitude: { label: "magnitude", unit: primitiveLoadDraft.unit, values: [primitiveLoadDraft.magnitude] }
+  }, "", (moves) => {
+    setPrimitiveLoadDraft((current) => ({ ...current, magnitude: "" }));
+    setPrimitiveUnitClearNotice(moves);
+  }, (moves) => setPrimitiveUnitClearNotice((current) => supersedeMoves(current, moves)));
   const primitiveUnitSymbol = primitiveLoadDraft.unit.trim();
   const primitiveDimensionId = primitiveLoadDraftDimension(primitiveLoadDraft.category, primitiveLoadDraft.direction);
   // Request identity also changes for A → B → A, so an earlier success for A
@@ -541,12 +554,15 @@ export function LoadCaseManagerPanel({
   }
 
   function updatePrimitiveLoadDraft(field: keyof PrimitiveLoadDraft, value: string) {
+    setPrimitiveUnitClearNotice(null);
     setPrimitiveLoadDraft((draft) => {
       const nextDraft = { ...draft, [field]: value } as PrimitiveLoadDraft;
       if (field === "unit") nextDraft.unitSource = "user";
       if (field === "category") nextDraft.category = primitiveLoadCategoryFromValue(value);
+      // Choosing another case changes only the identifier: the direction, and so the unit,
+      // stay as the person chose them (a case is not a direction; DEL-02-02 REQ-022).
+      if (field === "category") nextDraft.direction = defaultPrimitiveLoadDirection(nextDraft.category);
       if (field === "loadCaseId" || field === "category") {
-        nextDraft.direction = defaultPrimitiveLoadDirection(nextDraft.category);
         nextDraft.id = nextPrimitiveLoadIdentifier(model, nextDraft.loadCaseId, nextDraft.category);
       }
       if (field === "category" || field === "direction") {
@@ -793,7 +809,7 @@ export function LoadCaseManagerPanel({
             <select
               aria-label="Primitive load unit"
               data-testid="load-manager-create-primitive-unit"
-              onChange={(event) => updatePrimitiveLoadDraft("unit", event.target.value)}
+              onChange={(event) => { primitiveGuard.chose("magnitude"); updatePrimitiveLoadDraft("unit", event.target.value); }}
               value={primitiveLoadDraft.unit}
             >
               {primitiveDraftUnitOptions.map((option) => (
@@ -822,10 +838,11 @@ export function LoadCaseManagerPanel({
               value={primitiveLoadDraft.provenance}
             />
           </label>
+          {primitiveUnitClearNotice ? <p role="status" data-testid="load-manager-create-primitive-unit-cleared">{unitMoveNotice(primitiveUnitClearNotice)}</p> : null}
           <button
             data-testid="queue-create-primitive-intent"
             disabled={!createPrimitiveLoadIntent}
-            onClick={() => createPrimitiveLoadIntent && onQueueIntent(createPrimitiveLoadIntent)}
+            onClick={() => { if (!createPrimitiveLoadIntent) return; onQueueIntent(createPrimitiveLoadIntent); setPrimitiveUnitClearNotice(null); }}
             title="Queue primitive load operation"
             type="button"
           >
@@ -1663,7 +1680,8 @@ function defaultLoadCaseDraft(id: string): LoadCaseDraft {
     label: "User load case",
     kind: "primitive_user_load",
     status: "draft",
-    provenance: "user_entered_local_preview"
+    // The source is the user's own statement: it starts empty (PRD §5.5; DEL-07-03 AC-001).
+    provenance: ""
   };
 }
 
@@ -1681,7 +1699,8 @@ function defaultPrimitiveLoadDraft(model: PreviewModel, loadCaseId: string): Pri
     magnitude: "250",
     unit: primitiveLoadDefaultUnit(model, category, direction),
     unitSource: "default",
-    provenance: "user_entered_local_preview"
+    // The source is the user's own statement: it starts empty (PRD §5.5; DEL-07-03 AC-001).
+    provenance: ""
   };
 }
 
@@ -1709,7 +1728,8 @@ function defaultCombinationDraft(model: PreviewModel, id: string): CombinationDr
     subtrahendId: "",
     operandIds: [],
     mode: "",
-    provenance: "user_entered_local_preview",
+    // The source is the user's own statement: it starts empty (PRD §5.5; DEL-07-03 AC-001).
+    provenance: "",
     rationale: "user_entered_combination_create_preview_change",
     operatingDifference: false
   };

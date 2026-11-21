@@ -30,13 +30,20 @@ import { EntityContextMenu, type EntityCommandEnvironment } from "../workspace/c
 import {
   buildCreateComponentIntent,
   componentDraftForKind,
+  componentDraftClearingBeside,
   componentDraftForNode,
+  componentDraftWithField,
+  componentDraftWithProjectUnits,
+  componentGuardedEntries,
+  componentSourceFields,
   creatableComponentKinds,
   defaultComponentDraft,
+  keepComponentSources,
   isComponentDraftValid,
   type ComponentDraft,
   type CreatableComponentKind
 } from "../component-creation/componentIntent";
+import { missingSourceReason, supersedeMoves, unitMoveNotice, useClearOnUnitMove, useIdentifiedDraft, type UnitMove } from "../workspace/entryRules";
 import {
   buildNodeCreationSubmission,
   buildRouteSubmission,
@@ -308,6 +315,8 @@ type NodeDraft = {
   id: string;
   label: string;
   coordinateUnit: string;
+  /** "user" once the user changes the node form's unit; otherwise it follows the project units (DEL-02-02 REQ-022). */
+  coordinateUnitSource?: "user";
   x: string;
   y: string;
   z: string;
@@ -520,7 +529,13 @@ export function PipeViewport({
   const defaultLengthUnit = model.project.units.length ?? "TBD";
   const [localIntents, setLocalIntents] = useState<EditorOperationIntent[]>([]);
   const [unitCatalogRoute, setUnitCatalogRoute] = useState<UnitCatalogRoute | null>(null);
-  const [nodeDraft, setNodeDraft] = useState<NodeDraft>(() => emptyNodeDraft(defaultLengthUnit));
+  // Each hook-registered draft carries its own identity: replacing it takes a new one in the
+  // same update, and its clearing baseline is that identity (DEL-02-02 REQ-022).
+  const [nodeDraftState, nodeDraftIdentity, setNodeDraft] = useIdentifiedDraft<NodeDraft>(() => emptyNodeDraft(defaultLengthUnit));
+  // A node unit the user did not change follows the project's length unit (DEL-02-02 REQ-022).
+  const nodeDraft: NodeDraft = nodeDraftState.coordinateUnitSource === "user"
+    ? nodeDraftState
+    : { ...nodeDraftState, coordinateUnit: defaultLengthUnit };
   const [continuePipe, setContinuePipe] = useState(false);
   const [pipeDraft, setPipeDraft] = useState<PipeDraft>(() => emptyPipeDraft(defaultLengthUnit));
   const [routeEndMode, setRouteEndMode] = useState<RouteEndMode>("existing");
@@ -530,9 +545,15 @@ export function PipeViewport({
   const [draftReviewMessage, setDraftReviewMessage] = useState<string | null>(null);
   const draftReviewGate = useRef(new DraftReviewGate());
   const pendingAppliedRoute = useRef<AppliedRouteContinuation | null>(null);
-  const [componentDraft, setComponentDraft] = useState<ComponentDraft>(() =>
+  const [componentDraftState, componentDraftIdentity, setComponentDraft] = useIdentifiedDraft<ComponentDraft>(() =>
     defaultComponentDraft(model, selection, queuedIntents)
   );
+  const componentDraft = componentDraftWithProjectUnits(model, componentDraftState);
+  const [nodeUnitClearNotice, setNodeUnitClearNotice] = useState<UnitMove[] | null>(null);
+  const [componentUnitClearNotice, setComponentUnitClearNotice] = useState<UnitMove[] | null>(null);
+  // Remounts the route's direction-entry aid on a new project session and on Cancel route.
+  const [directionEntryEpoch, setDirectionEntryEpoch] = useState(0);
+  const [routeUnitClearNotice, setRouteUnitClearNotice] = useState<UnitMove[] | null>(null);
   const [pipeEndpointPickMode, setPipeEndpointPickMode] = useState<PipeEndpointPickMode>(null);
   const [routingPlane, setRoutingPlane] = useState<RoutingPlane>("XZ");
   const [routingAxis, setRoutingAxis] = useState<RoutingAxisConstraint>("Free");
@@ -595,6 +616,7 @@ export function PipeViewport({
     () => modelIndex ?? modelIndexFor(model, 0, 0),
     [model, modelIndex]
   );
+  const routeUnitRef = useRef({ unit: defaultLengthUnit, session: activeModelIndex.sessionGeneration });
   const renderTransformResolution = useMemo(() => {
     try {
       return { transform: createRenderTransform(activeModelIndex.geometryBounds), issue: null as string | null };
@@ -892,6 +914,39 @@ export function PipeViewport({
   );
   const nodeDraftValid = nodeBuild.ok;
   const pipeDraftValid = routeBuild.ok;
+  // A number typed beside a unit is cleared when the unit shown moves by anything other than
+  // the person's own choice of it; the form says which unit changed (DEL-02-02 REQ-022, AC-011).
+  // One rule (DEL-02-02 REQ-022): a unit shown beside typed digits that moves by anything other
+  // than the person's own choice of it (`…Guard.chose`, called only from its unit control)
+  // clears the digits and says so. Each guard's baseline is its draft's own identity.
+  const nodeGuard = useClearOnUnitMove({
+    coordinates: { label: "coordinate", unit: nodeDraft.coordinateUnit, values: [nodeDraft.x, nodeDraft.y, nodeDraft.z] }
+  }, nodeDraftIdentity, (moves) => {
+    setNodeDraft((current) => ({ ...current, x: "", y: "", z: "" }));
+    setNodeUnitClearNotice(moves);
+  }, (moves) => setNodeUnitClearNotice((current) => supersedeMoves(current, moves)));
+  const componentGuard = useClearOnUnitMove(componentGuardedEntries(componentDraft), componentDraftIdentity, (moves) => {
+    setComponentDraft((current) => componentDraftClearingBeside(current, moves.map((move) => move.key)));
+    setComponentUnitClearNotice(moves);
+  }, (moves) => setComponentUnitClearNotice((current) => supersedeMoves(current, moves)));
+  // A new project session replaces the node, route and component drafts in the render that
+  // first sees it, not in an effect after it: React discards this render and renders again
+  // with the replaced drafts before anything is committed, so no committed render, and no
+  // clearing, pairs the new session with an old draft or baseline (DEL-02-02 REQ-022).
+  const [draftsSession, setDraftsSession] = useState(activeModelIndex.sessionGeneration);
+  if (draftsSession !== activeModelIndex.sessionGeneration) {
+    setDraftsSession(activeModelIndex.sessionGeneration);
+    setNodeDraft(emptyNodeDraft(defaultLengthUnit));
+    setContinuePipe(false);
+    setPipeDraft(emptyPipeDraft(defaultLengthUnit));
+    setRouteEndMode("existing");
+    setNewEndDraft(emptyNodeDraft(defaultLengthUnit));
+    setComponentDraft(defaultComponentDraft(model, selection, queuedIntents));
+    setNodeUnitClearNotice(null);
+    setComponentUnitClearNotice(null);
+    setRouteUnitClearNotice(null);
+  }
+  const componentSourceReason = missingSourceReason("component", componentSourceFields(componentDraft));
   const componentDraftValid = isComponentDraftValid(model, componentDraft, [
     ...queuedIntents,
     ...localIntents
@@ -1072,7 +1127,25 @@ export function PipeViewport({
 
   useEffect(() => {
     clearPointerPlacement();
+    const previousRouteSession = routeUnitRef.current.session;
+    routeUnitRef.current = { unit: defaultLengthUnit, session: activeModelIndex.sessionGeneration };
     const continuation = pendingAppliedRoute.current;
+    // Any model change other than this route's own continuation discards the route drafts
+    // whole. Where the discard moves the unit shown beside typed digits (the project's or one
+    // the person chose) to the reset unit, the form names it (DEL-02-02 REQ-022 and AC-011).
+    // A new project session is not compared: its own reset replaced the drafts.
+    if (!(continuation && modelCommitToken === continuation.commitToken) && previousRouteSession === activeModelIndex.sessionGeneration) {
+      const typed = (values: string[]) => values.some((value) => value.trim() !== "");
+      const shown = [
+        { key: "pipe", label: "pipe length", unit: pipeDraft.lengthUnit, typed: typed([pipeDraft.outsideDiameter, pipeDraft.wallThickness]) },
+        { key: "end", label: "route end coordinate", unit: newEndDraft.coordinateUnit, typed: typed([newEndDraft.x, newEndDraft.y, newEndDraft.z]) }
+      ].filter((entry) => entry.unit !== defaultLengthUnit);
+      const asMove = (entry: { key: string; label: string; unit: string }) => ({ key: entry.key, label: entry.label, from: entry.unit || "none", to: defaultLengthUnit || "none" });
+      const cleared = shown.filter((entry) => entry.typed).map(asMove);
+      const superseded = shown.filter((entry) => !entry.typed).map(asMove);
+      if (cleared.length > 0) setRouteUnitClearNotice(cleared);
+      else if (superseded.length > 0) setRouteUnitClearNotice((current) => supersedeMoves(current, superseded));
+    }
     if (continuation && modelCommitToken === continuation.commitToken) {
       pendingAppliedRoute.current = null;
       invalidateDraftReview("Applied once through the structured operation service.");
@@ -1676,6 +1749,18 @@ export function PipeViewport({
     cancelBoxSelection();
   }, [activeModelIndex.sessionGeneration]);
 
+  // The user's text never crosses projects: a new project session starts the node, route
+  // and component forms afresh, their sources empty (PRD §5.5; DEL-07-03 AC-001). A model
+  // change already clears the route drafts; within one session the node draft is kept.
+  // The drafts are replaced in the render that first sees the new session (above); the
+  // pointer placement in flight is released here.
+  const creationSessionRef = useRef(activeModelIndex.sessionGeneration);
+  useLayoutEffect(() => {
+    if (creationSessionRef.current === activeModelIndex.sessionGeneration) return;
+    creationSessionRef.current = activeModelIndex.sessionGeneration;
+    clearPointerPlacement();
+  }, [activeModelIndex.sessionGeneration]);
+
   useEffect(() => {
     setMeasurementSource(null);
     setMeasurementActive(false);
@@ -1738,7 +1823,7 @@ export function PipeViewport({
     if (!nodeBuild.ok) return;
     if (!onAddDraft) {
       queueIntent(nodeBuild.submission.kind === "single" ? nodeBuild.submission.intent : nodeBuild.submission.batch.operations[0]);
-      setNodeDraft(emptyNodeDraft(nodeDraft.coordinateUnit || defaultLengthUnit));
+      setNodeDraft(nextNodeDraft());
       return;
     }
     await addDraftReview(nodeBuild.submission);
@@ -1760,6 +1845,8 @@ export function PipeViewport({
 
   function cancelPipeDraft() {
     clearPointerPlacement();
+    setDirectionEntryEpoch((current) => current + 1);
+    setRouteUnitClearNotice(null);
     invalidateDraftReview("Route canceled. No reviewed operation can be applied.");
     setContinuePipe(false);
     setPipeDraft(emptyPipeDraft(defaultLengthUnit));
@@ -1823,7 +1910,7 @@ export function PipeViewport({
       setDraftReview(null);
       draftReviewGate.current.invalidate();
       setDraftReviewMessage("Applied once through the structured operation service.");
-      if (!routeContinuation) setNodeDraft(emptyNodeDraft(nodeDraft.coordinateUnit || defaultLengthUnit));
+      if (!routeContinuation) setNodeDraft(nextNodeDraft());
     } finally {
       setDraftReviewBusy(false);
     }
@@ -1870,8 +1957,9 @@ export function PipeViewport({
     });
     queueIntent(intent);
     setComponentDraft(
-      defaultComponentDraft(model, selection, [...queuedIntents, ...localIntents, intent], componentDraft.kind)
+      keepComponentSources(defaultComponentDraft(model, selection, [...queuedIntents, ...localIntents, intent], componentDraft.kind), componentDraft)
     );
+    setComponentUnitClearNotice(null);
   }
 
   function queueIntent(intent: EditorOperationIntent) {
@@ -1889,10 +1977,20 @@ export function PipeViewport({
       placementGenerationRef.current.invalidate();
     }
     invalidateDraftReview();
-    setNodeDraft((current) => ({ ...current, [field]: value }));
+    setNodeUnitClearNotice(null);
+    setNodeDraft((current) => ({ ...current, [field]: value, ...(field === "coordinateUnit" ? { coordinateUnitSource: "user" as const } : {}) }));
+  }
+
+  /** The next node starts empty; a unit the user changed is kept, shown and editable, and an unchanged one follows the project units. */
+  function nextNodeDraft(): NodeDraft {
+    setNodeUnitClearNotice(null);
+    return nodeDraft.coordinateUnitSource === "user"
+      ? { ...emptyNodeDraft(nodeDraft.coordinateUnit), coordinateUnitSource: "user" }
+      : emptyNodeDraft(defaultLengthUnit);
   }
 
   function updatePipeDraft(field: keyof PipeDraft, value: string) {
+    setRouteUnitClearNotice(null);
     if (field === "from" || field === "to") clearPointerPlacement();
     invalidateDraftReview();
     setPipeDraft((current) => ({ ...current, [field]: value }));
@@ -1902,6 +2000,7 @@ export function PipeViewport({
   }
 
   function updateNewEndDraft(field: keyof NodeDraft, value: string) {
+    setRouteUnitClearNotice(null);
     if (field === "x" || field === "y" || field === "z" || field === "coordinateUnit") {
       clearPointerPlacement();
     } else {
@@ -1915,12 +2014,14 @@ export function PipeViewport({
   // in the project length unit, so the create_node conversion is the identity.
   function useDirectionEndPoint(position: EntryVec3, unit: string) {
     clearPointerPlacement();
+    setRouteUnitClearNotice(null);
     invalidateDraftReview();
     setNewEndDraft((current) => ({ ...current, coordinateUnit: unit, x: exactCoordinateText(position.x), y: exactCoordinateText(position.y), z: exactCoordinateText(position.z) }));
   }
 
   function updateComponentDraft<K extends keyof ComponentDraft>(field: K, value: ComponentDraft[K]) {
-    setComponentDraft((current) => ({ ...current, [field]: value }));
+    setComponentUnitClearNotice(null);
+    setComponentDraft((current) => componentDraftWithField(current, field, value));
   }
 
   function armPipeEndpointPick(mode: Exclude<PipeEndpointPickMode, null>) {
@@ -2318,14 +2419,17 @@ export function PipeViewport({
       }
       invalidateDraftReview();
       if (target === "node") {
-        setNodeDraft(buildDraftNodeFromViewportPoint(
+        const captured = buildDraftNodeFromViewportPoint(
           model,
           [...queuedIntents, ...localIntents],
           converted,
           coordinateUnit
-        ));
+        );
+        setNodeDraft((current) => (current.coordinateUnitSource === "user" ? { ...captured, coordinateUnitSource: "user" } : captured));
+        setNodeUnitClearNotice(null);
       } else {
         const identity = nextViewportNodeIdentity(model, [...queuedIntents, ...localIntents]);
+        setRouteUnitClearNotice(null);
         setNewEndDraft({
           id: identity.id,
           label: identity.label,
@@ -3018,7 +3122,7 @@ export function PipeViewport({
               <CompactSelect
                 aria-label="New node coordinate unit"
                 data-testid="viewport-create-node-unit"
-                onValueChange={(value) => updateNodeDraft("coordinateUnit", value)}
+                onValueChange={(value) => { nodeGuard.chose("coordinates"); updateNodeDraft("coordinateUnit", value); }}
                 value={nodeDraft.coordinateUnit}
                 options={nodeLengthUnitOptions.map((option) => ({ value: option.symbol, label: option.symbol }))}
               />
@@ -3036,6 +3140,7 @@ export function PipeViewport({
                 value={nodeDraft.provenance}
               />
             </label>
+            {nodeUnitClearNotice ? <p role="status" data-testid="viewport-create-node-unit-cleared">{unitMoveNotice(nodeUnitClearNotice)}</p> : null}
             <button
               data-testid="queue-explicit-node-intent"
               disabled={!nodeDraftValid || draftReviewBusy}
@@ -3088,7 +3193,7 @@ export function PipeViewport({
                   Pick
                 </button>
               </div>
-              <VirtualTargetPicker label="New pipe from node" testId="viewport-create-pipe-from" options={nodeTargetOptions} value={pipeDraft.from} onChange={(value) => updatePipeDraft("from", value)} />
+              <VirtualTargetPicker key={`viewport-create-pipe-from:${activeModelIndex.sessionGeneration}`} label="New pipe from node" testId="viewport-create-pipe-from" options={nodeTargetOptions} value={pipeDraft.from} onChange={(value) => updatePipeDraft("from", value)} />
             </div>
             <fieldset className="viewport-end-mode" data-testid="viewport-route-end-mode">
               <legend>End mode</legend>
@@ -3116,7 +3221,7 @@ export function PipeViewport({
                   Pick
                 </button>
               </div>
-              <VirtualTargetPicker label="New pipe to node" testId="viewport-create-pipe-to" options={nodeTargetOptions} value={pipeDraft.to} onChange={(value) => updatePipeDraft("to", value)} />
+              <VirtualTargetPicker key={`viewport-create-pipe-to:${activeModelIndex.sessionGeneration}`} label="New pipe to node" testId="viewport-create-pipe-to" options={nodeTargetOptions} value={pipeDraft.to} onChange={(value) => updatePipeDraft("to", value)} />
             </div>
             <div className="viewport-new-endpoint" hidden={routeEndMode !== "new"} data-testid="viewport-route-new-endpoint">
               <strong>New endpoint</strong>
@@ -3177,6 +3282,7 @@ export function PipeViewport({
               /></label>
               <label><span>Provenance</span><input aria-label="Route end provenance" data-testid="viewport-route-end-provenance" value={newEndDraft.provenance} onChange={(event) => updateNewEndDraft("provenance", event.target.value)} /></label>
               <DirectionEntry
+                key={`direction-entry:${activeModelIndex.sessionGeneration}:${directionEntryEpoch}`}
                 context="Route end"
                 projectLengthUnit={model.project.units.length}
                 start={routeStartNode ? { id: routeStartNode.id, position: routeStartNode.position } : null}
@@ -3185,7 +3291,7 @@ export function PipeViewport({
                 onUse={useDirectionEndPoint}
               />
             </div>
-            <VirtualTargetPicker label="New pipe material" testId="viewport-create-pipe-material" options={materialTargetOptions} value={pipeDraft.material} onChange={(value) => updatePipeDraft("material", value)} />
+            <VirtualTargetPicker key={`viewport-create-pipe-material:${activeModelIndex.sessionGeneration}`} label="New pipe material" testId="viewport-create-pipe-material" options={materialTargetOptions} value={pipeDraft.material} onChange={(value) => updatePipeDraft("material", value)} />
             <label>
               <span>OD</span>
               <input
@@ -3283,6 +3389,7 @@ export function PipeViewport({
             >
               Cancel pipe draft
             </button>
+            {routeUnitClearNotice ? <p role="status" data-testid="viewport-create-pipe-unit-cleared">{unitMoveNotice(routeUnitClearNotice)}</p> : null}
             <button
               data-testid="queue-explicit-pipe-intent"
               disabled={!pipeDraftValid || draftReviewBusy}
@@ -3325,34 +3432,36 @@ export function PipeViewport({
                 aria-label="New component kind"
                 data-testid="viewport-create-component-kind"
                 value={componentDraft.kind}
-                onValueChange={(value) =>
+                onValueChange={(value) => {
+                  // Another kind replaces the entries a clearing notice spoke of (third reading, finding 4).
+                  setComponentUnitClearNotice(null);
                   setComponentDraft((current) =>
                     componentDraftForKind(model, current, value as CreatableComponentKind)
-                  )
-                }
+                  );
+                }}
                 options={creatableComponentKinds.map((kind) => ({ value: kind, label: kind }))}
               />
             </label>
-            <VirtualTargetPicker label="New component node" testId="viewport-create-component-node" options={nodeTargetOptions} value={componentDraft.node} onChange={(value) => setComponentDraft((current) => componentDraftForNode(model, current, value))} />
-            <VirtualTargetPicker label={componentDraft.kind === "tee" ? "New tee header pipe" : "New component realized pipe"} testId="viewport-create-component-pipe" options={connectedPipeTargetOptions} value={componentDraft.primaryPipeRef} onChange={(value) => updateComponentDraft("primaryPipeRef", value)} />
+            <VirtualTargetPicker key={`viewport-create-component-node:${activeModelIndex.sessionGeneration}`} label="New component node" testId="viewport-create-component-node" options={nodeTargetOptions} value={componentDraft.node} onChange={(value) => setComponentDraft((current) => componentDraftForNode(model, current, value))} />
+            <VirtualTargetPicker key={`viewport-create-component-pipe:${activeModelIndex.sessionGeneration}`} label={componentDraft.kind === "tee" ? "New tee header pipe" : "New component realized pipe"} testId="viewport-create-component-pipe" options={connectedPipeTargetOptions} value={componentDraft.primaryPipeRef} onChange={(value) => updateComponentDraft("primaryPipeRef", value)} />
             {componentDraft.kind === "tee" ? (
-              <VirtualTargetPicker label="New tee branch pipe" testId="viewport-create-component-secondary-pipe" options={connectedPipeTargetOptions} value={componentDraft.secondaryPipeRef} onChange={(value) => updateComponentDraft("secondaryPipeRef", value)} />
+              <VirtualTargetPicker key={`viewport-create-component-secondary-pipe:${activeModelIndex.sessionGeneration}`} label="New tee branch pipe" testId="viewport-create-component-secondary-pipe" options={connectedPipeTargetOptions} value={componentDraft.secondaryPipeRef} onChange={(value) => updateComponentDraft("secondaryPipeRef", value)} />
             ) : null}
             {componentDraft.kind === "bend" ? (
               <>
                 <ViewportComponentTextInput label="Radius" testId="viewport-create-component-radius" value={componentDraft.bendRadius} onChange={(value) => updateComponentDraft("bendRadius", value)} />
-                <ViewportComponentUnitSelect label="Radius unit" testId="viewport-create-component-radius-unit" value={componentDraft.lengthUnit} options={componentLengthUnitOptions} onChange={(value) => updateComponentDraft("lengthUnit", value)} />
+                <ViewportComponentUnitSelect label="Radius unit" testId="viewport-create-component-radius-unit" value={componentDraft.lengthUnit} options={componentLengthUnitOptions} onChange={(value) => { componentGuard.chose("lengthUnit"); updateComponentDraft("lengthUnit", value); }} />
                 <ViewportComponentTextInput label="Angle" testId="viewport-create-component-angle" value={componentDraft.bendAngle} onChange={(value) => updateComponentDraft("bendAngle", value)} />
-                <ViewportComponentUnitSelect label="Angle unit" testId="viewport-create-component-angle-unit" value={componentDraft.angleUnit} options={componentAngleUnitOptions} onChange={(value) => updateComponentDraft("angleUnit", value)} />
+                <ViewportComponentUnitSelect label="Angle unit" testId="viewport-create-component-angle-unit" value={componentDraft.angleUnit} options={componentAngleUnitOptions} onChange={(value) => { componentGuard.chose("angleUnit"); updateComponentDraft("angleUnit", value); }} />
               </>
             ) : null}
             {componentDraft.kind === "tee" ? (
               <>
                 <ViewportComponentTextInput label="Run size" testId="viewport-create-component-run-size" value={componentDraft.branchRunSize} onChange={(value) => updateComponentDraft("branchRunSize", value)} />
                 <ViewportComponentTextInput label="Header size" testId="viewport-create-component-header-size" value={componentDraft.branchHeaderSize} onChange={(value) => updateComponentDraft("branchHeaderSize", value)} />
-                <ViewportComponentUnitSelect label="Size unit" testId="viewport-create-component-length-unit" value={componentDraft.lengthUnit} options={componentLengthUnitOptions} onChange={(value) => updateComponentDraft("lengthUnit", value)} />
+                <ViewportComponentUnitSelect label="Size unit" testId="viewport-create-component-length-unit" value={componentDraft.lengthUnit} options={componentLengthUnitOptions} onChange={(value) => { componentGuard.chose("lengthUnit"); updateComponentDraft("lengthUnit", value); }} />
                 <ViewportComponentTextInput label="Connection angle" testId="viewport-create-component-connection-angle" value={componentDraft.branchConnectionAngle} onChange={(value) => updateComponentDraft("branchConnectionAngle", value)} />
-                <ViewportComponentUnitSelect label="Angle unit" testId="viewport-create-component-angle-unit" value={componentDraft.angleUnit} options={componentAngleUnitOptions} onChange={(value) => updateComponentDraft("angleUnit", value)} />
+                <ViewportComponentUnitSelect label="Angle unit" testId="viewport-create-component-angle-unit" value={componentDraft.angleUnit} options={componentAngleUnitOptions} onChange={(value) => { componentGuard.chose("angleUnit"); updateComponentDraft("angleUnit", value); }} />
                 <ViewportComponentTextInput label="Connection type" testId="viewport-create-component-connection-type" value={componentDraft.branchConnectionType} onChange={(value) => updateComponentDraft("branchConnectionType", value)} />
                 <ViewportComponentTextInput label="Reinforcement reference" testId="viewport-create-component-reinforcement" value={componentDraft.branchReinforcementReference} onChange={(value) => updateComponentDraft("branchReinforcementReference", value)} />
               </>
@@ -3363,17 +3472,17 @@ export function PipeViewport({
             {componentDraft.kind !== "bend" && componentDraft.kind !== "tee" && componentDraft.kind !== "expansion_joint" ? (
               <>
                 <ViewportComponentTextInput label="Body length" testId="viewport-create-component-body-length" value={componentDraft.rigidBodyLength} onChange={(value) => updateComponentDraft("rigidBodyLength", value)} />
-                <ViewportComponentUnitSelect label="Body length unit" testId="viewport-create-component-length-unit" value={componentDraft.lengthUnit} options={componentLengthUnitOptions} onChange={(value) => updateComponentDraft("lengthUnit", value)} />
+                <ViewportComponentUnitSelect label="Body length unit" testId="viewport-create-component-length-unit" value={componentDraft.lengthUnit} options={componentLengthUnitOptions} onChange={(value) => { componentGuard.chose("lengthUnit"); updateComponentDraft("lengthUnit", value); }} />
                 <ViewportComponentTextInput label="End A size" testId="viewport-create-component-end-a-size" value={componentDraft.endASize} onChange={(value) => updateComponentDraft("endASize", value)} />
-                <ViewportComponentUnitSelect label="End A size unit" testId="viewport-create-component-end-a-size-unit" value={componentDraft.endASizeUnit} options={componentLengthUnitOptions} onChange={(value) => updateComponentDraft("endASizeUnit", value)} />
+                <ViewportComponentUnitSelect label="End A size unit" testId="viewport-create-component-end-a-size-unit" value={componentDraft.endASizeUnit} options={componentLengthUnitOptions} onChange={(value) => { componentGuard.chose("endASizeUnit"); updateComponentDraft("endASizeUnit", value); }} />
                 <ViewportComponentTextInput label="End B size" testId="viewport-create-component-end-b-size" value={componentDraft.endBSize} onChange={(value) => updateComponentDraft("endBSize", value)} />
-                <ViewportComponentUnitSelect label="End B size unit" testId="viewport-create-component-end-b-size-unit" value={componentDraft.endBSizeUnit} options={componentLengthUnitOptions} onChange={(value) => updateComponentDraft("endBSizeUnit", value)} />
+                <ViewportComponentUnitSelect label="End B size unit" testId="viewport-create-component-end-b-size-unit" value={componentDraft.endBSizeUnit} options={componentLengthUnitOptions} onChange={(value) => { componentGuard.chose("endBSizeUnit"); updateComponentDraft("endBSizeUnit", value); }} />
                 <ViewportComponentTextInput label="Weight" testId="viewport-create-component-weight" value={componentDraft.weight} onChange={(value) => updateComponentDraft("weight", value)} />
-                <ViewportComponentUnitSelect label="Weight unit" testId="viewport-create-component-force-unit" value={componentDraft.forceUnit} options={componentForceUnitOptions} onChange={(value) => updateComponentDraft("forceUnit", value)} />
+                <ViewportComponentUnitSelect label="Weight unit" testId="viewport-create-component-force-unit" value={componentDraft.forceUnit} options={componentForceUnitOptions} onChange={(value) => { componentGuard.chose("forceUnit"); updateComponentDraft("forceUnit", value); }} />
                 <ViewportComponentTextInput label="COG X" testId="viewport-create-component-cog-x" value={componentDraft.centerOfGravityX} onChange={(value) => updateComponentDraft("centerOfGravityX", value)} />
                 <ViewportComponentTextInput label="COG Y" testId="viewport-create-component-cog-y" value={componentDraft.centerOfGravityY} onChange={(value) => updateComponentDraft("centerOfGravityY", value)} />
                 <ViewportComponentTextInput label="COG Z" testId="viewport-create-component-cog-z" value={componentDraft.centerOfGravityZ} onChange={(value) => updateComponentDraft("centerOfGravityZ", value)} />
-                <ViewportComponentUnitSelect label="COG unit" testId="viewport-create-component-cog-unit" value={componentDraft.centerOfGravityUnit} options={componentLengthUnitOptions} onChange={(value) => updateComponentDraft("centerOfGravityUnit", value)} />
+                <ViewportComponentUnitSelect label="COG unit" testId="viewport-create-component-cog-unit" value={componentDraft.centerOfGravityUnit} options={componentLengthUnitOptions} onChange={(value) => { componentGuard.chose("centerOfGravityUnit"); updateComponentDraft("centerOfGravityUnit", value); }} />
                 <ViewportComponentTextInput label="End A reference" testId="viewport-create-component-end-a-ref" value={componentDraft.connectionEndAReference} onChange={(value) => updateComponentDraft("connectionEndAReference", value)} />
                 <ViewportComponentTextInput label="End B reference" testId="viewport-create-component-end-b-ref" value={componentDraft.connectionEndBReference} onChange={(value) => updateComponentDraft("connectionEndBReference", value)} />
                 <ViewportComponentTextInput label="Stiffness behavior reference" testId="viewport-create-component-stiffness-ref" value={componentDraft.stiffnessBehaviorReference} onChange={(value) => updateComponentDraft("stiffnessBehaviorReference", value)} />
@@ -3401,7 +3510,10 @@ export function PipeViewport({
             {componentUnitNotices.map(({ key, text }) => (
               <p key={key} role="status" data-testid={`viewport-create-component-missing-project-unit-${key}`}>{text}</p>
             ))}
+            {componentUnitClearNotice ? <p role="status" data-testid="viewport-create-component-unit-cleared">{unitMoveNotice(componentUnitClearNotice)}</p> : null}
+            {componentSourceReason ? <small id="viewport-create-component-source-reason" data-testid="viewport-create-component-source-reason">{componentSourceReason}</small> : null}
             <button
+              aria-describedby={componentSourceReason ? "viewport-create-component-source-reason" : undefined}
               data-testid="queue-explicit-component-intent"
               disabled={!componentDraftValid}
               onClick={addExplicitComponentIntent}
@@ -3955,73 +4067,6 @@ function buildIntent(
       software_makes_authentication_claim: false
     },
     rationale: `${commandType} viewport gesture requires application-service validation before any durable model change.`
-  };
-}
-
-function buildExplicitNodeIntent(
-  _model: PreviewModel,
-  draft: NodeDraft,
-  unitCatalogRoute: UnitCatalogRoute | null,
-  sequence: number
-): EditorOperationIntent {
-  const nodeId = draft.id.trim();
-  const label = draft.label.trim();
-  const lengthUnit = draft.coordinateUnit.trim() || "TBD";
-  const payload = {
-    id: nodeId,
-    label,
-    position: {
-      x: Number(draft.x),
-      y: Number(draft.y),
-      z: Number(draft.z)
-    },
-    provenance: "user_entered_local_preview"
-  };
-
-  return {
-    operation_id: `op:viewport-create-node-${safeToken(nodeId)}-${sequence.toString().padStart(3, "0")}`,
-    operation_kind: "create",
-    operation_status: "proposed",
-    author_type: "user",
-    source: {
-      source_ref: "apps/desktop/src/features/viewport/PipeViewport.tsx",
-      source_channel: "local_desktop_preview",
-      source_role: "viewport_editor"
-    },
-    target: { object_type: "Node", ref: nodeId },
-    change: {
-      change_id: `change:viewport:create-node:${safeToken(nodeId)}`,
-      change_kind: "create_node",
-      field_label: "Explicit node geometry",
-      field_path: "nodes",
-      before: "not_present",
-      after: JSON.stringify(payload),
-      unit: lengthUnit,
-      dimension: "length",
-      source_note: "explicit user-entered viewport node geometry"
-    },
-    validation: {
-      schema_validation: "not_run",
-      constraint_validation: "not_run",
-      unit_validation: `length=${unitDimensionValidationStatus(unitCatalogRoute, lengthUnit, "length")}`,
-      diff_preview_status: "not_generated",
-      application_status: "not_applied"
-    },
-    audit_boundary: {
-      mutation_route: "structured_operations_only",
-      direct_model_mutation_allowed: false,
-      requires_user_acceptance: true,
-      mutates_accepted_model_state: false
-    },
-    professional_boundary: {
-      human_review_required: true,
-      software_makes_compliance_claim: false,
-      software_makes_certification_claim: false,
-      software_makes_sealing_claim: false,
-      software_makes_approval_claim: false,
-      software_makes_authentication_claim: false
-    },
-    rationale: "explicit user-entered node geometry; requires service validation before durable model change."
   };
 }
 
