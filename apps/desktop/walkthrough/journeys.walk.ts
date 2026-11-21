@@ -327,3 +327,187 @@ test("08 save, close and resume (DEL-07-06 AC-007)", async ({ page }) => {
   await journey.step("open-local", "File > Open Local Project", async () => { await menu(page, "file", "file.open-local"); });
   journey.finish();
 });
+
+const PROJECT = "project:invented-demo-loop-01";
+
+/** Applies the first queued change or batch from Review changes, and returns to the model. */
+async function applyFirstQueued(page: Page): Promise<void> {
+  await openWorkspaceSection(page, "operations");
+  const apply = page.locator('[data-testid^="apply-intent-"], [data-testid^="apply-batch-"]').first();
+  await expect(apply).toBeEnabled();
+  await apply.click();
+  await showModelTree(page);
+}
+
+async function clearTreeFilter(page: Page): Promise<void> {
+  const filter = page.getByTestId("model-tree-filter-input");
+  if (await filter.isVisible() && await filter.inputValue()) await filter.fill("");
+}
+
+/** Selects an entity in the 3D view by its own label there, as a person clicks it. */
+async function selectInView(page: Page, id: string): Promise<string | void> {
+  await showCanvas(page);
+  const target = page.getByTestId(`viewport-select-${id}`);
+  if (await target.isVisible()) { await target.click(); return; }
+  // A label the view hides where labels overlap is still the entity's target; it is pressed by its event.
+  await target.dispatchEvent("click");
+  return "the entity's label in the view was hidden by an overlapping label, so it was pressed by its event";
+}
+
+/** A selection, and the inspector scrolled to its end. */
+async function pictureSelection(journey: Journey, step: string, note: string, select: () => Promise<void | string>): Promise<void> {
+  await journey.step(step, note, select);
+  await journey.scrolled(step, note, 6, INSPECTOR);
+}
+
+test("09 inspector: what the inspector shows for each kind of selection", async ({ page }) => {
+  const journey = new Journey(page, 9, "inspector", "Inspector: each kind of selection on the demonstration model, the inspector to its end, and the tree after a selection in the view");
+  await open(page);
+  await showModelTree(page);
+  await ensureInspectorExpanded(page);
+  const pick = (type: Parameters<typeof selectTreeEntity>[1], id: string) => async () => { await selectTreeEntity(page, type, id); };
+  await pictureSelection(journey, "project", "The project selected in the tree", pick("project", PROJECT));
+  await pictureSelection(journey, "node-corner", "A node at a corner (node:N-120, two pipes at a right angle, supports on it)", pick("node", "node:N-120"));
+  await pictureSelection(journey, "node-corner-bend-marker", "A node at a corner with a bend marker (node:N-110)", pick("node", "node:N-110"));
+  await pictureSelection(journey, "node-end", "A node at the end of the run (node:N-100, one pipe: not a corner)", pick("node", "node:N-100"));
+  await pictureSelection(journey, "pipe", "A pipe selected (pipe:P-110)", pick("pipe", "pipe:P-110"));
+  await pictureSelection(journey, "support", "A support selected (support:S-120, a guide)", pick("support", "support:S-120"));
+  await pictureSelection(journey, "component", "A component selected (component:C-130, a valve)", pick("component", "component:C-130"));
+  await pictureSelection(journey, "component-bend", "A bend marker selected (component:C-110)", pick("component", "component:C-110"));
+  await pictureSelection(journey, "load", "A load case selected (load:L-100)", pick("load", "load:L-100"));
+  await pictureSelection(journey, "material", "A material selected", pick("material", "material:invented-carbon-steel"));
+  await pictureSelection(journey, "several", "Several things selected: two nodes and a support, by Ctrl or Cmd and a click in the tree", async () => {
+    await clearTreeFilter(page);
+    await page.getByTestId("tree-row-node-node%3AN-100").click();
+    await page.getByTestId("tree-row-node-node%3AN-110").click({ modifiers: ["ControlOrMeta"] });
+    await page.getByTestId("tree-row-support-support%3AS-120").click({ modifiers: ["ControlOrMeta"] });
+  });
+  await journey.step("tree-after-view-selection", "The tree after a selection in the 3D view: node:N-100 chosen in the tree, then support:S-130 clicked in the view", async () => {
+    await clearTreeFilter(page);
+    await page.getByTestId("tree-row-node-node%3AN-100").click();
+    return selectInView(page, "support:S-130");
+  });
+  journey.finish();
+});
+
+test("10 inspector actions: creation forms, the bend at a corner, settings, the tree following the view, the panes", async ({ page }) => {
+  const journey = new Journey(page, 10, "inspector-actions", "Inspector actions: a creation form from its command, the bend at a corner, settings, the tree following the view, the inspector closed, the dark theme");
+  await open(page);
+  await showModelTree(page);
+  await ensureInspectorExpanded(page);
+  await journey.step("insert-support", "Insert > Support with node:N-130 selected: the support form", async () => {
+    await selectTreeEntity(page, "node", "node:N-130");
+    await menu(page, "insert", "insert.support");
+    await expect(page.getByTestId("create-support-id")).toBeVisible();
+  });
+  await journey.scrolled("insert-support", "The support form", 3, INSPECTOR);
+  await journey.step("palette-section", "Create section, chosen from the toolbar's command box", async () => {
+    await page.getByTestId("toolkit-entry").click();
+    await page.getByTestId("toolkit-properties.section").click();
+    await expect(page.getByTestId("create-section-id")).toBeVisible();
+  });
+  await journey.step("palette-material", "Create material, chosen from the toolbar's command box", async () => {
+    await page.getByTestId("toolkit-entry").click();
+    await page.getByTestId("toolkit-properties.material").click();
+    await expect(page.getByTestId("create-material-id")).toBeVisible();
+  });
+  await journey.step("palette-component", "Components, chosen from the toolbar's command box", async () => {
+    await page.getByTestId("toolkit-entry").click();
+    await page.getByTestId("toolkit-build.component").click();
+    await expect(page.getByTestId("create-component-kind")).toBeVisible();
+  });
+  await journey.step("bend-on-corner", "node:N-110, a corner: its bend line opened", async () => {
+    await showModelTree(page);
+    await selectTreeEntity(page, "node", "node:N-110");
+    const line = page.getByTestId("insert-bend-at-corner-details");
+    if (await line.count() === 0) return "there is no closed line for the bend; the form stands open";
+    if (!(await line.evaluate((element) => (element as HTMLDetailsElement).open))) await line.locator(":scope > summary").click();
+    await page.getByTestId("insert-bend-at-corner-form").scrollIntoViewIfNeeded();
+  });
+  await journey.scrolled("bend-on-corner", "The bend at a corner", 2, INSPECTOR);
+  await journey.step("bend-absent-end", "node:N-100, the end of the run: no bend offered", async () => {
+    await selectTreeEntity(page, "node", "node:N-100");
+  });
+  await journey.step("settings-closed", "The project selected: its settings lines closed", async () => {
+    await selectTreeEntity(page, "project", PROJECT);
+    for (const id of ["model-settings-details", "project-units-details"]) {
+      const details = page.getByTestId(id);
+      if (await details.evaluate((element) => (element as HTMLDetailsElement).open)) await details.locator(":scope > summary").click();
+    }
+  });
+  await journey.step("settings-open", "The project's Model settings line opened", async () => {
+    const details = page.getByTestId("model-settings-details");
+    if (!(await details.evaluate((element) => (element as HTMLDetailsElement).open))) await details.locator(":scope > summary").click();
+    await details.scrollIntoViewIfNeeded();
+  });
+  await journey.scrolled("settings-open", "Model settings", 2, INSPECTOR);
+  await journey.step("tree-group-closed-view-selection", "The Supports group closed in the tree, then support:S-130 clicked in the view", async () => {
+    await clearTreeFilter(page);
+    const group = page.getByTestId("tree-group-Supports");
+    if (await group.getAttribute("aria-expanded") === "true") await group.click();
+    return selectInView(page, "support:S-130");
+  });
+  await journey.step("tree-filtered-view-selection", "The tree filtered to pipes, then support:S-120 clicked in the view", async () => {
+    await page.getByTestId("model-tree-filter-input").fill("pipe");
+    return selectInView(page, "support:S-120");
+  });
+  await journey.step("inspector-closed-model-view", "The Model view, then the toolbar's Inspector control pressed", async () => {
+    await clearTreeFilter(page);
+    await page.getByTestId("view-switch-model").click();
+    const toggle = page.getByTestId("toggle-inspector");
+    if (await toggle.isDisabled() || await toggle.getAttribute("aria-disabled") === "true") {
+      return `the Inspector control is disabled, "${(await toggle.getAttribute("title")) ?? "no reason given"}"`;
+    }
+    await toggle.click();
+  });
+  await journey.step("both-view-tree", "The Both view, with the way to the tree and table", async () => {
+    await page.getByTestId("view-switch-both").click();
+    const toggle = page.getByTestId("toggle-inspector");
+    if (await toggle.getAttribute("aria-expanded") !== "true" && !(await toggle.isDisabled())) await toggle.click();
+  });
+  await journey.step("dark-theme", "A pipe selected in the dark theme", async () => {
+    await page.emulateMedia({ colorScheme: "dark" });
+    await menu(page, "view", "view.theme.dark");
+    await showModelTree(page);
+    await ensureInspectorExpanded(page);
+    await selectTreeEntity(page, "pipe", "pipe:P-120");
+  });
+  await menu(page, "view", "view.theme.system");
+  await page.emulateMedia({ colorScheme: null });
+  await journey.step("split-straight", "pipe:P-120 split in two from its menu in the tree, and applied: a node on a straight run", async () => {
+    await clearTreeFilter(page);
+    const row = page.getByTestId("tree-row-pipe-pipe%3AP-120");
+    await row.click({ button: "right" });
+    await page.getByRole("menuitem", { name: "Split into N…" }).click();
+    const panel = page.getByTestId("split-into-parts");
+    await expect(panel).toBeVisible();
+    for (const [label, value] of [["Number of equal parts", "2"], ["New node ID pattern", "node:N-125"], ["New node label pattern", "Mid run"],
+      ["New pipe ID pattern", "pipe:P-125"], ["New pipe label pattern", "Second half"], ["First number", "1"], ["Number step", "1"], ["Provenance", INVENTED]] as const) {
+      const field = panel.getByLabel(label, { exact: true });
+      if (await field.count()) await field.fill(value);
+    }
+    await panel.getByTestId("split-parts-queue").click();
+    await applyFirstQueued(page);
+  });
+  await pictureSelection(journey, "node-straight", "The new node on the straight run selected: no bend offered", async () => {
+    await showModelTree(page);
+    await ensureInspectorExpanded(page);
+    const filter = page.getByTestId("model-tree-filter-input");
+    await filter.fill("node:N-125");
+    const row = page.locator('[data-testid^="tree-row-node-node%3AN-125"]').first();
+    await row.click();
+  });
+  await pictureSelection(journey, "section", "A section created from Create section and applied, then selected", async () => {
+    await page.getByTestId("toolkit-entry").click();
+    await page.getByTestId("toolkit-properties.section").click();
+    await page.getByTestId("create-section-id").fill("section:WALK-1");
+    await page.getByTestId("create-section-name").fill("Walkthrough section");
+    await page.getByTestId("create-section-od").fill("0.168");
+    await page.getByTestId("create-section-wall").fill("0.0071");
+    await page.getByTestId("create-section-provenance").fill(INVENTED);
+    await page.getByTestId("queue-create-section-intent").click();
+    await applyFirstQueued(page);
+    await selectTreeEntity(page, "section", "section:WALK-1");
+  });
+  journey.finish();
+});
