@@ -19,6 +19,14 @@ needs:
     dimension and a missing unit each give a named finding and no value; and the dimension
     identifiers are one set.
   gating: true
+- from: DEL-05-01
+  when: Validating an in-place edit of a stored primitive load's magnitude
+  condition: >-
+    A primitive load's category, target and direction give the one dimension its magnitude carries:
+    a force or a moment at a node, a force per length along a member, a temperature interval, and a
+    displacement or a rotation on a support's degree of freedom. A magnitude of another dimension,
+    or of a retired one, is rejected.
+  gating: true
 - from: DEL-08-02
   condition: >-
     The model hash is SHA-256 over the RFC 8785 canonical form of the model document, and the same
@@ -61,5 +69,37 @@ checks:
 # Examines the Python module the product does not call, and no acceptance criterion of this scope.
 - tests/test_operation_validation_preview.py
 - core/model_operations/operation_applier/tests/document_validation_apply.rs
+# Issue 380: the material shear modulus field rule (absent G created from an explicit stress unit;
+# unit, dimension, positivity and staleness refusals; E and alpha keep the existing-only rule).
+- core/model_operations/operation_applier/tests/material_shear_modulus_entry.rs
+# Issue 382 (REQ-010, AC-006): the one rule for an edit of the number of a quantity stored as a
+# value beside its unit. Twenty family members, two optional quantity slots among them (the base
+# shear modulus and the inline material density), against each
+# admission and refusal at the single-operation apply entry (a bare number must name the stored
+# unit; an explicit pair writes value and unit together; the dimension is the field's, never the
+# intent's); the mismatched bare number also at the validate entry and in an atomic batch, alone
+# and after an earlier step of the batch changed the field's unit.
+# Edits of the material moduli and expansion coefficient, the inline diameter and wall, a nodal
+# force and a thermal magnitude are carried from the operation to the stored document to the solve
+# against closed forms; a shared section, the other optional slots and the other primitive shapes
+# have no solve witness. A stored unit outside the field's dimension is refused when repeated.
+# Every optional quantity slot of the engine's field table (thirty-six) refuses a bare number
+# naming another unit, at the apply and validate entries.
+- core/model_operations/operation_applier/tests/stored_quantity_unit_pair.rs
+# Issue 382, the imported-proposal surface: ten family members, two primitive shapes among them,
+# through the offline intake panel, the workspace session's Review Apply and the Wasm engine, read
+# back from the saved project, and requeue of a retained record for the elastic modulus. Shared
+# with DEL-16-03, whose intake it drives.
+- apps/desktop/src/features/offline-proposal-intake/unitPairFamily.import.test.tsx
+# Issue 382, the session's single-operation route: the same ten members validated and applied
+# through the Wasm engine's single-operation exports, a refusal leaving the document and both
+# history stacks unchanged; for the elastic modulus alone, undo and redo restoring whole pairs,
+# with a refused edit between them leaving the redo stack as it was.
+- apps/desktop/src/features/workspace/unitPairSingleOperation.test.tsx
+# Issue 382, the native desktop's four operation commands (single and batch, validate and apply):
+# each refuses the witness's bare edit of the elastic modulus and returns no model, and the two
+# apply commands store its explicit pair (the test
+# model_operation_commands_refuse_a_bare_number_naming_another_unit in this file).
+- apps/desktop/src-tauri/src/lib.rs
 - apps/desktop/src/services/operationService.test.ts
 - apps/desktop/src/services/operationBatchService.test.ts
