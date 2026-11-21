@@ -26,33 +26,70 @@ export const S5 = "invented user value, DEL-09-01";
 // ---------------------------------------------------------------------------------------------
 // Reaching the Loads page's controls. Every step by which the two tests reach a load-case control
 // is here and not in the tests, so that a change in how the page shows its controls is one edit
-// here. Today each reach is a selection of the project or a case, or none; a section or create
-// form the page comes to need opened is opened here too. Each `open…` takes the reach and returns
-// a getter for the control's scope, queried afresh at each use.
+// here. Each reach selects the project or chooses a case in the page's list, and opens by its own
+// control each closed section, create form or "More" it looks inside, checking that it opened
+// first. Each `open…` takes the reach and returns a getter for the control's scope, queried afresh
+// at each use.
 // ---------------------------------------------------------------------------------------------
 
 type Scope = ReturnType<typeof within>;
 
-/** The load manager (`LoadCaseManagerPanel`) rendered inside `root`, with the session's `select`. */
+/** Opens a closed disclosure (a case section, a form's "More", Analysis settings) by its summary, as
+ * a person does; the journey fails here, not at a later query, if it stays closed. */
+function disclose(details: HTMLElement): HTMLElement {
+  if (!(details as HTMLDetailsElement).open) fireEvent.click(details.querySelector(":scope > summary")!);
+  expect((details as HTMLDetailsElement).open, `${details.dataset.testid} open`).toBe(true);
+  return details;
+}
+
+/** The load manager (`LoadCaseManagerPanel`) rendered inside `root`, with the session's `select`.
+ * The page lists cases and combinations on the left and shows the chosen item's editor; a case's
+ * Pressure and Reference state are closed sections when the case has nothing in them, creation
+ * forms open from their command, and less-used fields sit under a closed "More". Each getter
+ * opens what is closed before it is queried, so a step that comes back to a control after an
+ * Apply finds it as a person would, reopened if the page closed it. */
 export function loadsPage(root: () => HTMLElement, select: (entity: EntityRef) => void) {
   const page = (): Scope => within(root());
+  /** A case's editor: its row in the case list, clicked. */
+  const chooseCase = (caseId: string) => {
+    const row = page().getByTestId(`load-manager-case-${caseId}`);
+    if (row.getAttribute("aria-current") !== "true") fireEvent.click(row);
+    expect(row.getAttribute("aria-current"), `${caseId} chosen`).toBe("true");
+  };
+  const caseSection = (caseId: string, section: "pressure" | "reference-state") => {
+    const editor = page().getByTestId("load-manager-selected-case");
+    expect(editor.dataset.entityId, `${caseId}'s editor`).toBe(caseId);
+    return disclose(within(editor).getByTestId(`load-case-section-${section}`));
+  };
   return {
-    /** Steps profile and material: the pressure-profile and explicit-material forms, as the page first shows. */
-    openProjectForms: () => page,
-    /** Step reference: the project selected; the reference-configuration editor. */
-    openReferenceConfigurations: (projectId: string) => { select({ type: "project", id: projectId }); return page; },
-    /** Step regions: the case selected; its pressure regions. */
+    /** Steps profile and material: Analysis settings, opened; the pressure-profile and explicit-material forms. */
+    openProjectForms: () => (): Scope => within(disclose(page().getByTestId("load-manager-analysis-settings"))),
+    /** Step reference: the project selected; with no case yet, the editor's Reference state, opened. */
+    openReferenceConfigurations: (projectId: string) => {
+      select({ type: "project", id: projectId });
+      return (): Scope => within(disclose(page().getByTestId("load-case-section-reference-state")));
+    },
+    /** Step regions: the case chosen in the list; its Pressure section, opened; its pressure regions. */
     openCasePressureRegions: (caseId: string) => {
-      select({ type: "load", id: caseId });
-      return (): Scope => within(page().getByRole("region", { name: "Case pressure regions" }));
+      chooseCase(caseId);
+      return (): Scope => within(within(caseSection(caseId, "pressure")).getByRole("region", { name: "Case pressure regions" }));
     },
-    /** Step states: the case selected; its analysis-state editor (`LoadReferenceStateInputs`). */
+    /** Step states: the case chosen in the list; its Reference state section, opened; its analysis-state editor. */
     openCaseAnalysisState: (caseId: string) => {
-      select({ type: "load", id: caseId });
-      return (): Scope => within(page().getByTestId("load-state-analysis-state"));
+      chooseCase(caseId);
+      return (): Scope => within(within(caseSection(caseId, "reference-state")).getByTestId("load-state-analysis-state"));
     },
-    /** Step combinations: the project selected; the create-combination form. */
-    openCreateCombination: (projectId: string) => { select({ type: "project", id: projectId }); return page; },
+    /** Step combinations: New combination, opened, with its "More" (ID, provenance, rationale) opened. */
+    openCreateCombination: (projectId: string) => {
+      select({ type: "project", id: projectId });
+      return (): Scope => {
+        const command = page().getByTestId("load-manager-new-combination");
+        if (command.getAttribute("aria-expanded") !== "true") fireEvent.click(command);
+        const form = disclose(page().getByTestId("load-manager-create-combination-form"));
+        disclose(within(form).getByTestId("load-manager-create-combination-more"));
+        return within(form);
+      };
+    },
   };
 }
 
