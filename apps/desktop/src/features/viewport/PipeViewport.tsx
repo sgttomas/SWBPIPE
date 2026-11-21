@@ -2779,7 +2779,7 @@ export function PipeViewport({
                     aria-pressed={showLabels}
                     className={showLabels ? "active" : ""}
                     onClick={() => setShowLabels((value) => !value)}
-                    title="Show or hide entity labels. A hidden label appears when its entity is hovered or selected."
+                    title="Show or hide entity labels. Where labels would collide, some are not drawn; select an entity to see its label."
                   >
                     Labels<span data-testid="viewport-labels-count" ref={labelsCountRef}>{labelsCountTextRef.current}</span>
                   </button>

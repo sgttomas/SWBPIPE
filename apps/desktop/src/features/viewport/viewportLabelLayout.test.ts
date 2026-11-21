@@ -72,6 +72,23 @@ describe("emphasised labels and a label's own entity", () => {
     expect(overlap(labelTargetBox(boxOf(placement, primary)), cluster)).toBe(false);
   });
 
+  it("with no free place, draws the primary's label where the furniture leaves its target exposed, not under the legend", () => {
+    // A tall result legend down the right, the view cluster above it and the quiet line along the
+    // foot; the primary's anchor is behind the legend, so every one of its places is under it.
+    const legend: LabelBox = { left: 380, top: 40, right: 600, bottom: 360 };
+    const cluster: LabelBox = { left: 300, top: 0, right: 600, bottom: 36 };
+    const quietLine: LabelBox = { left: 40, top: 370, right: 600, bottom: 400 };
+    const primary = label("node:p", "node", 490, 210, { emphasised: true, emphasisRank: 0 });
+    const [placement] = layoutLabels([primary], CANVAS, [legend, cluster, quietLine]);
+    expect(placement.drawn).toBe(true);
+    const target = labelTargetBox(boxOf(placement, primary));
+    for (const furniture of [legend, cluster, quietLine]) expect(overlap(target, furniture)).toBe(false);
+    expect(target.left).toBeGreaterThanOrEqual(0);
+    expect(target.top).toBeGreaterThanOrEqual(0);
+    expect(target.right).toBeLessThanOrEqual(CANVAS.width);
+    expect(target.bottom).toBeLessThanOrEqual(CANVAS.height);
+  });
+
   it("never covers its own anchor or its own entity's line, so a press beside the label reaches the entity", () => {
     // A pipe rising to the right through its anchor: the above-right place would cover it.
     const pipe = label("pipe:p", "pipe", 300, 200, { avoid: [{ x1: 260, y1: 240, x2: 340, y2: 160 }] });

@@ -4,9 +4,8 @@
 // least LABEL_TARGET_PX square, centred on the drawn plate (DEL-07-06 REQ-014, Target Size
 // (Minimum) 2.5.8), and it is the target, not only the plate, that is kept apart: no drawn label's
 // target overlaps another's, the canvas furniture (the view cluster, the legend, the status line,
-// the scale bar, the axis triad) or the canvas's edges. Candidates are placed in priority order and a label that has no
-// free place is not drawn; it is drawn when its entity is hovered or selected, because those are
-// placed first and always drawn.
+// the axis triad) or the canvas's edges. Candidates are placed in priority order and a label that
+// has no free place is not drawn, except the primary selection's, which always is.
 //
 // Priority: the selected entities (primary first, then the others in selection order), the hovered
 // one, then the nodes that bound the system (a node that carries a support or ends a line: anchors,
@@ -15,8 +14,9 @@
 // ordinary node nearby is named.
 //
 // Emphasised labels never overlap either: the primary selection's label is placed first and is
-// always drawn (at its first free place, near or a little farther out, or else moved inside the
-// canvas); every other label, selected and hovered ones included, takes a free place or is not drawn.
+// always drawn (at its first free place, near or a little farther out, or else at the nearest place
+// inside the canvas that the furniture leaves exposed); every other label, selected and hovered ones
+// included, takes a free place or is not drawn.
 //
 // A label stands off its own entity: its target never covers its anchor, nor the lines of its own
 // entity (a pipe's centreline, a node's pipes), so a press on the entity beside its label reaches the
@@ -180,11 +180,42 @@ function clampInside(box: LabelBox, width: number, height: number): LabelBox {
 }
 
 /**
+ * The primary label's last resort: its first place moved inside the canvas and then, if its target
+ * is under the canvas furniture (the legend, the view cluster, the status line, the axis triad),
+ * moved off it: beside each piece of furniture in turn, and once more from there, the nearest
+ * exposed place winning. Only when no such place exists (the furniture covers the canvas) does it
+ * stay where it was clamped.
+ */
+function exposedPlace(box: LabelBox, canvas: { width: number; height: number }, obstacles: readonly LabelBox[]): LabelBox {
+  const start = clampInside(box, canvas.width, canvas.height);
+  const exposed = (candidate: LabelBox) => inside(candidate, canvas.width, canvas.height) &&
+    !obstacles.some((other) => crowds(labelTargetBox(candidate), other));
+  if (exposed(start)) return start;
+  const w = start.right - start.left;
+  const h = start.bottom - start.top;
+  const { dx, dy } = targetReach({ width: w, height: h });
+  const g = LABEL_TARGET_GAP_PX + 0.5;
+  const at = (left: number, top: number) => clampInside({ left, top, right: left + w, bottom: top + h }, canvas.width, canvas.height);
+  const besides = (from: LabelBox) => obstacles.flatMap((other) => [
+    at(other.left - g - dx - w, from.top),
+    at(other.right + g + dx, from.top),
+    at(from.left, other.top - g - dy - h),
+    at(from.left, other.bottom + g + dy)
+  ]);
+  const first = besides(start);
+  const tried = [...first, ...first.flatMap(besides)];
+  const distance = (candidate: LabelBox) => Math.hypot(candidate.left - start.left, candidate.top - start.top);
+  const nearest = tried.filter(exposed).sort((a, b) => distance(a) - distance(b))[0];
+  return nearest ?? start;
+}
+
+/**
  * Places the labels. Each candidate takes the first of its places whose plate lies inside the
  * canvas and whose target (labelTargetBox) keeps LABEL_TARGET_GAP_PX from its own anchor, from every
  * target already placed and from every obstacle, and covers none of its own entity's lines. The
- * primary selection's label, with no free place, takes its first place moved inside the canvas: it
- * is always drawn. Any other label with no free place is not drawn. Candidates past
+ * primary selection's label, with no free place, takes its first place moved inside the canvas and
+ * off the furniture (exposedPlace): it is always drawn. Any other label with no free place is not
+ * drawn. Candidates past
  * LABEL_LAYOUT_BOUND are not drawn.
  */
 export function layoutLabels<K extends string>(
@@ -222,7 +253,7 @@ export function layoutLabels<K extends string>(
       output.push({ key: candidate.key, left: 0, top: 0, drawn: false, place: -1 });
       continue;
     }
-    const box = free !== undefined ? options[place] : clampInside(options[place], canvas.width, canvas.height);
+    const box = free !== undefined ? options[place] : exposedPlace(options[place], canvas, obstacles);
     placed.push(labelTargetBox(box));
     output.push({ key: candidate.key, left: box.left, top: box.top, drawn: true, place });
   }
