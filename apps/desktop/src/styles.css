@@ -4665,14 +4665,15 @@ body { min-width: 760px; min-height: 540px; }
 .solve-status-line.done { background: var(--ui-raised); border-bottom-color: var(--ui-divider); }
 .solve-status-line.error { color: var(--ui-error-text); background: var(--ui-error-surface); border-bottom-color: var(--ui-error-border); }
 .solve-status-line.stopped { background: var(--ui-raised); border-bottom-color: var(--ui-divider); }
-/* One row: the words, then Details, then the actions; open Details takes the rows below. */
+/* One row in the order it is read and tabbed: the words, the actions, then Details;
+   open Details takes the full width beneath. No CSS reordering. */
 .solve-status-main { display: contents; }
-.solve-status-text { order: 0; flex: 1 1 320px; margin: 0; min-width: 0; overflow-wrap: anywhere; font-size: var(--type-size-body, 13px); }
+.solve-status-text { flex: 1 1 320px; margin: 0; min-width: 0; overflow-wrap: anywhere; font-size: var(--type-size-body, 13px); }
 .solve-status-text:focus { outline: none; }
 .solve-status-text:focus-visible { outline: 2px solid var(--ui-focus); outline-offset: 2px; }
-.solve-status-details { order: 1; flex: 0 0 auto; }
-.solve-status-details[open] { order: 3; flex: 1 0 100%; }
-.solve-status-actions { order: 2; flex: 0 0 auto; display: flex; flex-wrap: nowrap; align-items: center; gap: var(--space-3); }
+.solve-status-details { flex: 0 0 auto; }
+.solve-status-details[open] { flex: 1 0 100%; }
+.solve-status-actions { flex: 0 0 auto; display: flex; flex-wrap: nowrap; align-items: center; gap: var(--space-3); }
 .solve-status-actions [aria-disabled="true"] { opacity: 0.6; cursor: default; }
 .solve-status-actions button { display: inline-flex; align-items: center; gap: var(--space-2); width: auto; white-space: nowrap; }
 .solve-status-dismiss { padding: 2px 6px; }

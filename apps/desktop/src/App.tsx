@@ -501,7 +501,6 @@ function AppSession() {
         onCancel={handleCancelRun}
         onOpenResults={() => runMenuCommand("view.stage.results")}
         onShowIssue={() => setIssuesDrawerOpen(true)}
-        subject={{ name: model.project.name, loadCases: model.load_cases.length, combinations: model.combinations?.length ?? 0 }}
       />
 
       <div className="shell-body">

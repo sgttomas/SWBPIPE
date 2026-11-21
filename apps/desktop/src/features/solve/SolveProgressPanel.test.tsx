@@ -41,14 +41,13 @@ function status(overrides: Partial<BackendSolveJobStatus>): BackendSolveJobStatu
   };
 }
 
-/** Opens the line's Details as a person does, and checks it is open before anything inside is read. */
+/** Opens the line's Details by a press on its summary, as a person does, and fails loudly if
+ * the press did not open it; nothing inside is read while it is closed. Already open (a
+ * person's choice kept between the reports of one run), it is left as it is. */
 function openDetails() {
   const details = screen.getByTestId("solve-progress-details") as HTMLDetailsElement;
-  if (!details.open) {
-    fireEvent.click(screen.getByTestId("solve-progress-details-toggle"));
-    if (!details.open) details.open = true;
-  }
-  expect(details.open).toBe(true);
+  if (!details.open) fireEvent.click(screen.getByTestId("solve-progress-details-toggle"));
+  if (!details.open) throw new Error("the line's Details did not open on a press of its summary");
   return details;
 }
 
@@ -93,6 +92,7 @@ describe("solve progress panel", () => {
     );
     expect(screen.getByTestId("solve-progress-queue-reason").closest("details")).toBeNull();
     openDetails();
+    expect(screen.getByTestId("solve-progress-stage")).toHaveTextContent(waiting.events[waiting.events.length - 1].message);
     expect(screen.getByTestId("solve-progress-queue-code")).toHaveTextContent(
       "Queue reason code: pool_exhausted (requested_bytes=12884901888, reserved_bytes=42949672960, pool_bytes=51539607552)"
     );
@@ -102,6 +102,7 @@ describe("solve progress panel", () => {
     expect(screen.getByTestId("solve-progress-state")).toHaveTextContent(/^Running/);
     expect(screen.queryByTestId("solve-progress-queue-reason")).toBeNull();
     openDetails();
+    expect(screen.getByTestId("solve-progress-stage")).toHaveTextContent(running.events[running.events.length - 1].message);
     expect(screen.getByTestId("solve-progress-worker")).toHaveTextContent("Worker memory: grant 64 MiB; peak grant 96 MiB; peak footprint 70 MiB; budget 12 GiB");
     const events = within(screen.getByRole("list", { name: "Solve job events" })).getAllByRole("listitem");
     expect(events.map((item) => item.getAttribute("data-event-id"))).toEqual(["solve-preview-queued", "solve-preview-queued-waiting", "solve-preview-running"]);
@@ -112,6 +113,15 @@ describe("solve progress panel", () => {
     );
     expect(screen.getByTestId("solve-progress-panel").textContent).not.toMatch(/\d\s*%|\bETA\b|elapsed|remaining/i);
     expect(screen.queryByRole("progressbar")).toBeNull();
+
+    const result = { results: [{}], diagnostics: [] } as unknown as MechanicsResult;
+    const run = { analysis_run: { run_id: "analysis-run:invented-sequence", analysis_status: [] } } as unknown as AnalysisRunEnvelope;
+    const done = completeSolveJob(running, result, run);
+    view.rerender(panel(done, false));
+    expect(screen.getByTestId("solve-progress-state")).toHaveTextContent(/^Completed/);
+    openDetails();
+    expect(screen.getByTestId("solve-progress-stage")).toHaveTextContent(done.events[done.events.length - 1].message);
+    expect(screen.getByTestId("solve-progress-panel").textContent).not.toMatch(/\d\s*%|\bETA\b|elapsed|remaining/i);
   });
 
   it("offers Cancel as a focusable button; once requested it stays in place, aria-disabled, and keyboard focus moves to the state", () => {
@@ -143,7 +153,8 @@ describe("solve progress panel", () => {
     const cancelled = cancelledSolveJob(cancelling, status({ state: "cancelled", cancellation_requested: true, cancellation_status: "worker_terminated" }));
     view.rerender(panel(cancelled, false, onCancel));
     expect(screen.getByTestId("solve-progress-state")).toHaveTextContent(/^Cancelled/);
-    expect(screen.getByTestId("solve-progress-state")).toHaveTextContent("The solve was stopped before it finished; no result was published.");
+    // Only what the job reports: a cancelled job may have finished and had its result discarded.
+    expect(screen.getByTestId("solve-progress-state")).toHaveTextContent(/^Cancelled No result was published\.$/);
     expect(screen.queryByTestId("solve-progress-cancel")).toBeNull();
     openDetails();
     expect(screen.getByTestId("solve-progress-cancellation")).toHaveTextContent("Cancellation requested: worker_terminated");
@@ -161,10 +172,12 @@ describe("solve progress panel", () => {
     expect(screen.getByTestId("solve-progress-retry")).toHaveTextContent(
       "Refused at the result hand-off after the solve finished; the finished result was dropped. Available memory was re-sampled for up to 2 s before this refusal stood. You can run the solve again when more memory is available."
     );
-    // The reading and the way to retry are on the line; the exact code is in Details.
-    expect(screen.getByTestId("solve-progress-refusal").closest("details")).toBeNull();
-    expect(screen.getByTestId("solve-progress-retry").closest("details")).toBeNull();
-    openDetails();
+    // The reading, the way to retry and the exact code are on the line, in its polite live region.
+    const state = screen.getByTestId("solve-progress-state");
+    for (const id of ["solve-progress-refusal", "solve-progress-retry", "solve-progress-refusal-code"]) {
+      expect(screen.getByTestId(id).closest("details")).toBeNull();
+      expect(state).toContainElement(screen.getByTestId(id));
+    }
     expect(screen.getByTestId("solve-progress-refusal-code")).toHaveTextContent("headroom_insufficient (required_bytes=68165632, available_bytes=52641792)");
     expect(screen.queryByTestId("solve-progress-completed")).toBeNull();
   });
@@ -176,6 +189,9 @@ describe("solve progress panel", () => {
     expect(screen.getByTestId("solve-progress-failure")).toHaveTextContent(
       "The solve's worker process ended without returning a result. The solve failed; this is not a memory-pool refusal."
     );
+    // The reading drops the code from the message, so the line states it beside the reading.
+    expect(screen.getByTestId("solve-progress-state")).toContainElement(screen.getByTestId("solve-progress-failure-code"));
+    expect(screen.getByTestId("solve-progress-failure-code")).toHaveTextContent(/^SOLVE_WORKER_EXITED$/);
   });
 
   it("shows completion with the rows and diagnostics the completed event carries; Close dismisses it until the next run", () => {
@@ -187,7 +203,12 @@ describe("solve progress panel", () => {
     view.rerender(panel(completed, false));
     expect(screen.getByTestId("solve-progress-state")).toHaveTextContent(/^Completed/);
     expect(screen.getByTestId("solve-progress-completed")).toHaveTextContent("3 result rows.");
-    // The job's own count of findings is behind Details, not beside the Issues count.
+    // The job's own count of findings is behind Details, not beside the Issues count: it is
+    // read only once Details has been opened by a press on its summary.
+    const details = screen.getByTestId("solve-progress-details") as HTMLDetailsElement;
+    expect(details.open).toBe(false);
+    fireEvent.click(screen.getByTestId("solve-progress-details-toggle"));
+    expect(details.open).toBe(true);
     expect(screen.getByTestId("solve-progress-completed-counts")).toHaveTextContent("The job reported 3 result rows and 1 diagnostic;");
     fireEvent.click(screen.getByRole("button", { name: "Dismiss" }));
     expect(screen.queryByTestId("solve-progress-panel")).toBeNull();
@@ -279,23 +300,23 @@ describe("solve progress panel", () => {
 });
 
 describe("the status line's outcome and its one action", () => {
-  const subject = { name: "Invented Loop", loadCases: 4, combinations: 2 };
   const line = (job: SolveJobAuditState, running: boolean, actions: { onOpenResults?: () => void; onShowIssue?: () => void }) => (
-    <SolveProgressPanel solveJob={job} running={running} onCancel={() => {}} subject={subject} {...actions} />
+    <SolveProgressPanel solveJob={job} running={running} onCancel={() => {}} {...actions} />
   );
+  const runningJob = () => progressSolveJob(startSolveJob(model, receipt), status({ state: "running" }));
+  const completedWith = (statuses: string[]) => completeSolveJob(runningJob(),
+    { results: [{}, {}], diagnostics: [{}, {}] } as unknown as MechanicsResult,
+    { analysis_run: { run_id: "analysis-run:invented-solved", analysis_status: statuses } } as unknown as AnalysisRunEnvelope);
 
-  it("names what is solving, and on completion says Solved with the counts and offers Open results", () => {
+  it("says Running and nothing the job did not report, and on completion the state, the outcome in its registered form and the rows, with Open results", () => {
     const onOpenResults = vi.fn();
-    const running = progressSolveJob(startSolveJob(model, receipt), status({ state: "running" }));
     const view = render(line(initialSolveJob(), false, { onOpenResults }));
     view.rerender(line(initialSolveJob(), true, { onOpenResults }));
-    view.rerender(line(running, true, { onOpenResults }));
-    expect(screen.getByTestId("solve-progress-state")).toHaveTextContent("Running Invented Loop (4 load cases, 2 combinations).");
+    view.rerender(line(runningJob(), true, { onOpenResults }));
+    expect(screen.getByTestId("solve-progress-state")).toHaveTextContent(/^Running$/);
     expect(screen.queryByTestId("solve-progress-open-results")).toBeNull();
-    const result = { results: [{}, {}], diagnostics: [{}, {}] } as unknown as MechanicsResult;
-    const run = { analysis_run: { run_id: "analysis-run:invented-solved", analysis_status: ["MECHANICS_SOLVED"] } } as unknown as AnalysisRunEnvelope;
-    view.rerender(line(completeSolveJob(running, result, run), false, { onOpenResults }));
-    expect(screen.getByTestId("solve-progress-state")).toHaveTextContent("Solved Invented Loop (4 load cases, 2 combinations): 2 result rows.");
+    view.rerender(line(completedWith(["MECHANICS_SOLVED", "RULE_INPUTS_INCOMPLETE"]), false, { onOpenResults }));
+    expect(screen.getByTestId("solve-progress-state")).toHaveTextContent(/^Completed Solver · Mechanics solved \(MECHANICS_SOLVED\); 2 result rows\.$/);
     // Details stays closed until the person opens it.
     expect((screen.getByTestId("solve-progress-details") as HTMLDetailsElement).open).toBe(false);
     fireEvent.click(screen.getByRole("button", { name: /Open results/ }));
@@ -303,16 +324,55 @@ describe("the status line's outcome and its one action", () => {
     expect(screen.queryByTestId("solve-progress-show-issue")).toBeNull();
   });
 
-  it("on a failure says so with the job's reason and offers Show in Issues, not Open results", () => {
+  it("on completion without MECHANICS_SOLVED states the registered statuses the job does report", () => {
+    const view = render(line(initialSolveJob(), false, {}));
+    view.rerender(line(initialSolveJob(), true, {}));
+    view.rerender(line(completedWith(["MODEL_INCOMPLETE", "HUMAN_REVIEW_REQUIRED"]), false, {}));
+    expect(screen.getByTestId("solve-progress-state")).toHaveTextContent(
+      /^Completed Solver · Model incomplete \(MODEL_INCOMPLETE\); Human · Human review required \(HUMAN_REVIEW_REQUIRED\); 2 result rows\.$/
+    );
+  });
+
+  it("on a failure says so with the job's reason and code and offers Show in Issues, not Open results", () => {
     const onShowIssue = vi.fn();
     const started = startSolveJob(model, receipt);
     const view = render(line(initialSolveJob(), false, { onShowIssue, onOpenResults: () => {} }));
     view.rerender(line(initialSolveJob(), true, { onShowIssue, onOpenResults: () => {} }));
     view.rerender(line(started, true, { onShowIssue, onOpenResults: () => {} }));
-    view.rerender(line(failSolveJob(started, new Error("SOLVE_WORKER_EXITED: invented exit")), false, { onShowIssue, onOpenResults: () => {} }));
-    expect(screen.getByTestId("solve-progress-state")).toHaveTextContent(/^Failed The solve's worker process ended without returning a result/);
+    view.rerender(line(failSolveJob(started, new Error("SOLVE_WORKER_PROTOCOL: invented reply")), false, { onShowIssue, onOpenResults: () => {} }));
+    expect(screen.getByTestId("solve-progress-state")).toHaveTextContent(/^Failed The solve's worker process returned a reply the app could not read\..* Code: SOLVE_WORKER_PROTOCOL$/);
     expect(screen.queryByTestId("solve-progress-open-results")).toBeNull();
     fireEvent.click(screen.getByRole("button", { name: /Show in Issues/ }));
     expect(onShowIssue).toHaveBeenCalledTimes(1);
+  });
+
+  it("closes Details at the start of each run, and keeps the person's choice between the reports of one run", () => {
+    const view = render(line(initialSolveJob(), false, {}));
+    view.rerender(line(initialSolveJob(), true, {}));
+    const first = startSolveJob(model, receipt);
+    view.rerender(line(first, true, {}));
+    fireEvent.click(screen.getByTestId("solve-progress-details-toggle"));
+    expect((screen.getByTestId("solve-progress-details") as HTMLDetailsElement).open).toBe(true);
+    // A later report of the same run: still open.
+    const running = progressSolveJob(first, status({ state: "running" }));
+    view.rerender(line(running, true, {}));
+    expect((screen.getByTestId("solve-progress-details") as HTMLDetailsElement).open).toBe(true);
+    const done = completedWith([]);
+    view.rerender(line(done, false, {}));
+    expect((screen.getByTestId("solve-progress-details") as HTMLDetailsElement).open).toBe(true);
+    // The next run starts closed.
+    view.rerender(line(done, true, {}));
+    expect((screen.getByTestId("solve-progress-details") as HTMLDetailsElement).open).toBe(false);
+    view.rerender(line(startSolveJob(model, { ...receipt, job_id: "backend-solve-job-33" }), true, {}));
+    expect((screen.getByTestId("solve-progress-details") as HTMLDetailsElement).open).toBe(false);
+  });
+
+  it("puts the words, the actions and Details in the order a person reads and tabs them", () => {
+    const view = render(line(initialSolveJob(), false, { onOpenResults: () => {} }));
+    view.rerender(line(initialSolveJob(), true, { onOpenResults: () => {} }));
+    view.rerender(line(completedWith(["MECHANICS_SOLVED"]), false, { onOpenResults: () => {} }));
+    const order = [...screen.getByTestId("solve-progress-panel").querySelectorAll('[data-testid="solve-progress-state"], button, summary')]
+      .map((element) => element.getAttribute("data-testid"));
+    expect(order).toEqual(["solve-progress-state", "solve-progress-open-results", "solve-progress-close", "solve-progress-details-toggle"]);
   });
 });

@@ -1,7 +1,8 @@
 import { ArrowRight, Flag, Square, X } from "lucide-react";
 import { useEffect, useReducer, useRef, type RefObject } from "react";
 import type { SolveJobAuditState, SolveJobEvent } from "../../types";
-import { describeResourceRefusal, describeSolveWorkerFailure, formatBytes, resourceRefusalCode } from "../../services/memoryPool";
+import { describeResourceRefusal, describeSolveWorkerFailure, formatBytes, resourceRefusalCode, solveWorkerFailureCode } from "../../services/memoryPool";
+import { registeredStatusLabel, statusDisplayWithToken } from "../workspace/statusLabels";
 import { describeSolveRefusalRetry, isResultTooLargeSolveJob, solveRefusalPoint } from "../workspace/solveJobAudit";
 
 /** The words for each job state the solve-job record carries. */
@@ -22,9 +23,6 @@ export function solveJobStateLabel(state: SolveJobEvent["state"]): string {
   return STATE_LABELS[state];
 }
 
-/** What is being solved, as the line names it: the model's name and its load cases and combinations. */
-export type SolveSubject = Readonly<{ name: string; loadCases: number; combinations: number }>;
-
 /** What the line shows: nothing, the current run before its job has reported,
  * or the current run's job record. `earlier` is the record the session held
  * when the run started; none of its events belong to this run. */
@@ -43,6 +41,8 @@ type RunTracker = {
   /** The job id of the last record the current (or last) run produced. */
   runJobId: string | null;
   closed: boolean;
+  /** Counts runs, so the line's Details closes at the start of each run. */
+  serial: number;
 };
 
 /**
@@ -59,6 +59,7 @@ function runView(solveJob: SolveJobAuditState, running: boolean, tracker: RunTra
     tracker.startedFrom = tracker.idle;
     tracker.runJobId = null;
     tracker.closed = false;
+    tracker.serial += 1;
   }
   if (tracker.startedFrom !== null && solveJob !== tracker.startedFrom && (running || tracker.wasRunning)) {
     tracker.runJobId = solveJob.job_id;
@@ -79,28 +80,27 @@ function runView(solveJob: SolveJobAuditState, running: boolean, tracker: RunTra
   return tracker.runJobId !== null && solveJob.job_id === tracker.runJobId ? { kind: "job", job: solveJob, earlier } : { kind: "hidden" };
 }
 
-function plural(count: number, one: string, many: string): string {
-  return `${count} ${count === 1 ? one : many}`;
-}
-
-function subjectText(subject: SolveSubject | null | undefined): string {
-  if (!subject) return "the model";
-  const parts = [plural(subject.loadCases, "load case", "load cases")];
-  if (subject.combinations > 0) parts.push(plural(subject.combinations, "combination", "combinations"));
-  return `${subject.name} (${parts.join(", ")})`;
+/** What a completed job reports of its outcome, in the claims registry's display forms
+ * (docs/claims_registry.md §2.1, through statusLabels.ts): Mechanics solved where the job
+ * reports MECHANICS_SOLVED, otherwise the statuses it does report. */
+function completedOutcome(statuses: readonly string[]): string | null {
+  if (statuses.some((status) => status.trim().toUpperCase() === "MECHANICS_SOLVED")) return statusDisplayWithToken("MECHANICS_SOLVED");
+  const reported = statuses.filter((status) => registeredStatusLabel(status) !== null);
+  return reported.length > 0 ? reported.map(statusDisplayWithToken).join("; ") : null;
 }
 
 /**
  * The solve status line (DEL-07-07 REQ-014): one line in the band under the
  * toolbar, from the moment a solve starts until the user dismisses it or the
- * model changes. It says what is being solved and the state the job reports,
- * with Stop while the job can be stopped; when the job completes, the result's
- * rows and diagnostics and "Open results"; when it fails or is refused, the
- * reason the job gives, the way to retry, and "Show in Issues". Everything
- * else the job reports (its identifier, its stage and events in order, the
- * progress basis, the queue reason's exact code, the worker's memory, the
- * cancellation status, a refusal's exact code) is behind the line's one closed
- * "Details" disclosure, complete. It shows no percentage, time estimate or
+ * model changes. It says the state the job reports and nothing the job did not
+ * report (no model facts: DEL-07-07 REQ-003), with Stop while the job can be
+ * stopped; when the job completes, the outcome it reports in the registry's
+ * display form and its result rows, with "Open results"; when it fails or is
+ * refused, the reason the job gives, the way to retry and the exact code, with
+ * "Show in Issues". Everything else the job reports (its identifier, its stage
+ * and events in order, the progress basis, the queue reason's exact code, the
+ * worker's memory, the cancellation status) is behind the line's one closed
+ * "Details" disclosure, complete; Details closes at the start of each run. It shows no percentage, time estimate or
  * elapsed time: the job reports states only (`percentages_synthesized=false`)
  * and its events carry no timestamps. It is part of the page's layout, never
  * laid over the model, the Key results panel or the Insert controls.
@@ -110,8 +110,7 @@ export function SolveProgressPanel({
   running,
   onCancel,
   onOpenResults,
-  onShowIssue,
-  subject = null
+  onShowIssue
 }: {
   solveJob: SolveJobAuditState;
   running: boolean;
@@ -120,12 +119,11 @@ export function SolveProgressPanel({
   onOpenResults?: () => void;
   /** Opens the Issues drawer at the solve's failure or refusal. */
   onShowIssue?: () => void;
-  subject?: SolveSubject | null;
 }) {
   const stateRef = useRef<HTMLParagraphElement>(null);
   const lineRef = useRef<HTMLElement>(null);
   const [, rerender] = useReducer((count: number) => count + 1, 0);
-  const tracker = useRef<RunTracker>({ wasRunning: false, idle: solveJob, startedFrom: null, runJobId: null, closed: false });
+  const tracker = useRef<RunTracker>({ wasRunning: false, idle: solveJob, startedFrom: null, runJobId: null, closed: false, serial: 0 });
   const view = runView(solveJob, running, tracker.current);
   const shown = view.kind !== "hidden";
   useLineHeight(lineRef, shown);
@@ -143,12 +141,13 @@ export function SolveProgressPanel({
   const refusalPoint = job ? solveRefusalPoint(job) : null;
   const queueReason = job?.resource.queue_reason ?? null;
   const workerFailure = job && state === "failed" ? describeSolveWorkerFailure(job.error_message) : null;
+  const workerFailureCode = job && state === "failed" ? solveWorkerFailureCode(job.error_message) : null;
   const completed = state === "completed" ? [...events].reverse().find((event) => event.state === "completed") ?? null : null;
   const tooLarge = job !== null && isResultTooLargeSolveJob(job);
   const resource = job?.resource ?? null;
   const basis = job ?? solveJob;
-  const solved = completed?.analysis_status.includes("MECHANICS_SOLVED") ?? false;
-  const label = state === null ? "Starting" : state === "completed" && solved ? "Solved" : solveJobStateLabel(state);
+  const outcome = completed ? completedOutcome(completed.analysis_status) : null;
+  const label = state === null ? "Starting" : solveJobStateLabel(state);
   const tone = state === "failed" || state === "refused" ? "error" : state === "completed" ? "done" : state === "cancelled" ? "stopped" : "active";
   const issue = state === "failed" || state === "refused" || tooLarge;
 
@@ -182,28 +181,28 @@ export function SolveProgressPanel({
           role="status"
           tabIndex={-1}
         >
-          <strong>{label}</strong>{" "}
-          {state === null ? <span>Solving {subjectText(subject)}; the solve was requested and its job has not reported a state yet.</span> : null}
-          {state === "queued" ? <span>{subjectText(subject)} waits for a solve worker.</span> : null}
-          {state === "running" ? <span>{subjectText(subject)}.</span> : null}
-          {state === "cancelling" ? <span>Stop was requested; the line waits for the job&apos;s final state.</span> : null}
-          {state === "cancelled" ? <span>The solve was stopped before it finished; no result was published.</span> : null}
+          <strong>{label}</strong>
+          {state === "cancelled" ? <span> No result was published.</span> : null}
           {completed ? (
             <span>
-              {subjectText(subject)}: <span data-testid="solve-progress-completed">{completed.result_row_count} result {completed.result_row_count === 1 ? "row" : "rows"}.</span>
+              {outcome ? <> {outcome};</> : null} <span data-testid="solve-progress-completed">{completed.result_row_count} result {completed.result_row_count === 1 ? "row" : "rows"}.</span>
             </span>
           ) : null}
           {queueReason && (state === "queued" || state === "cancelling") ? (
             <span data-testid="solve-progress-queue-reason"> Waiting in the queue: {describeResourceRefusal(queueReason)}</span>
           ) : null}
           {state === "refused" && refusal ? (
-            <span data-testid="solve-progress-refusal">Refused by the native memory pool: {describeResourceRefusal(refusal)} No result was published.</span>
+            <span data-testid="solve-progress-refusal"> Refused by the native memory pool: {describeResourceRefusal(refusal)} No result was published.</span>
           ) : null}
           {state === "refused" && refusal && refusalPoint ? <span data-testid="solve-progress-retry"> {describeSolveRefusalRetry(refusal, refusalPoint)}</span> : null}
-          {tooLarge ? <span data-testid="solve-progress-result-too-large">{job?.error_message}</span> : null}
-          {state === "failed" ? (
-            <span data-testid="solve-progress-failure">{workerFailure ?? job?.error_message ?? "The solve failed."}</span>
+          {state === "refused" && refusal ? (
+            <span> Code: <code data-testid="solve-progress-refusal-code">{resourceRefusalCode(refusal)}</code></span>
           ) : null}
+          {tooLarge ? <span data-testid="solve-progress-result-too-large"> {job?.error_message}</span> : null}
+          {state === "failed" ? (
+            <span data-testid="solve-progress-failure"> {workerFailure ?? job?.error_message ?? "The solve failed."}</span>
+          ) : null}
+          {workerFailureCode ? <span> Code: <code data-testid="solve-progress-failure-code">{workerFailureCode}</code></span> : null}
         </p>
         <div className="solve-status-actions">
           {active ? (
@@ -238,7 +237,9 @@ export function SolveProgressPanel({
           )}
         </div>
       </div>
-      <details className="solve-status-details" data-testid="solve-progress-details">
+      {/* Keyed by run: Details opens closed at the start of each run and keeps the
+          person's choice between the reports of one run. */}
+      <details className="solve-status-details" data-testid="solve-progress-details" key={tracker.current.serial}>
         <summary data-testid="solve-progress-details-toggle">Details</summary>
         <div className="solve-status-details-body">
           {job ? <p>Job: <code data-testid="solve-progress-job">{job.job_id}</code></p> : null}
@@ -269,11 +270,6 @@ export function SolveProgressPanel({
           {job?.cancellation_requested ? (
             <p className="solve-progress-line" data-testid="solve-progress-cancellation">
               Cancellation requested: <code>{job.cancellation_status}</code>
-            </p>
-          ) : null}
-          {state === "refused" && refusal ? (
-            <p>
-              Refusal code: <code data-testid="solve-progress-refusal-code">{resourceRefusalCode(refusal)}</code>
             </p>
           ) : null}
           <ol aria-label="Solve job events" className="solve-progress-events" data-testid="solve-progress-events">
@@ -329,6 +325,9 @@ export function SolveIssueItem({ solveJob }: { solveJob: SolveJobAuditState }) {
       <article className="issue-row error">
         <strong>{solveJob.state === "failed" ? "The solve failed" : "The solve was refused"}</strong>
         {solveJob.state === "failed" ? <p>{describeSolveWorkerFailure(solveJob.error_message) ?? solveJob.error_message ?? "The solve failed."}</p> : null}
+        {solveJob.state === "failed" && solveWorkerFailureCode(solveJob.error_message) ? (
+          <p>Code: <code data-testid="issues-solve-failure-code">{solveWorkerFailureCode(solveJob.error_message)}</code></p>
+        ) : null}
         {tooLarge ? <p>{solveJob.error_message}</p> : null}
         {solveJob.state === "refused" && refusal ? (
           <>

@@ -17,13 +17,11 @@ afterEach(() => {
   delete (window as unknown as Record<string, unknown>).__TAURI_INTERNALS__;
 });
 
+/** Opens the line's Details by a press on its summary and fails loudly if the press did not open it. */
 function openDetails(region: HTMLElement) {
   const details = within(region).getByTestId("solve-progress-details") as HTMLDetailsElement;
-  if (!details.open) {
-    fireEvent.click(within(region).getByTestId("solve-progress-details-toggle"));
-    if (!details.open) details.open = true;
-  }
-  expect(details.open).toBe(true);
+  if (!details.open) fireEvent.click(within(region).getByTestId("solve-progress-details-toggle"));
+  if (!details.open) throw new Error("the line's Details did not open on a press of its summary");
 }
 
 function nativeMenuCommand(command: string) {
