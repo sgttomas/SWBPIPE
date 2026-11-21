@@ -111,10 +111,10 @@ code_paths:
 - fixtures/persistence/transient_run_input_rule_packs.json
 - fixtures/persistence/recorded_run_witness_rule_packs.json
 - fixtures/persistence/s2_unresolved_rule_pack_run.json
-# A local project store whose saved run's record binds its result rules at a revision this version
+# A local project store, as SQL text, whose saved run's record binds its result rules at a revision this version
 # does not read; stored_custody_tests.rs writes it and checks that it opens to the guard's refusal.
 # The native walkthrough's refused-stored-run journey (DEL-07-06) opens it.
-- fixtures/persistence/refused_stored_run/openpipestress-projects.sqlite3
+- fixtures/persistence/refused_stored_run/openpipestress-projects.sql
 checks:
 - tests/test_analysis_run_compatibility.py
 - tests/test_analysis_run_schema.py

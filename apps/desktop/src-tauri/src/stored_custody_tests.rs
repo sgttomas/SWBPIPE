@@ -1448,10 +1448,12 @@ fn a_saved_run_bound_to_an_unread_table_revision_is_refused_and_the_store_untouc
     assert_eq!(seen, ["SOURCE_RECORDED_BINDING_UNKNOWN", "SOURCE_RECORDED_BINDING_UNKNOWN", "SOURCE_RECORDED_BINDING_IDENTITY", "ANALYSIS_ROW_SOURCE_BINDING_MISMATCH", "ANALYSIS_ROW_ACCOUNTING_MISMATCH", "ANALYSIS_ROW_SOURCE_BINDING_MISMATCH", "ANALYSIS_ROW_SOURCE_BINDING_MISMATCH", "ANALYSIS_ROW_ACCOUNTING_MISMATCH"]);
 }
 
-/// The native walkthrough's `refused-stored-run` store (`apps/desktop/walkthrough/native/run.mjs`): the
-/// app's own `openpipestress-projects.sqlite3`, placed in the launch's throwaway home and opened by File >
-/// Open Local Project….
-const REFUSED_STORED_RUN_STORE: &str = "fixtures/persistence/refused_stored_run/openpipestress-projects.sqlite3";
+/// The native walkthrough's `refused-stored-run` store (`apps/desktop/walkthrough/native/run.mjs`), as SQL
+/// text: `/usr/bin/sqlite3 <store>` reads it on standard input and writes the app's own
+/// `openpipestress-projects.sqlite3` in the launch's throwaway home, which File > Open Local Project… opens.
+/// It is text because a committed binary ships only from the owner's reviewed list
+/// (`tools/release/reviewed_binaries.json`).
+const REFUSED_STORED_RUN_SQL: &str = "fixtures/persistence/refused_stored_run/openpipestress-projects.sql";
 const REFUSED_STORED_RUN_WRITE: &str = "NATIVE_WALKTHROUGH_STORE_WRITE";
 /// The digest the store's record binds the result's rules at: no table this version installs or
 /// keeps in its registry has it.
@@ -1505,8 +1507,7 @@ fn refused_stored_run_store(path: &Path) -> (String, String) {
     (project_id, identity)
 }
 
-/// What a store holds, compared in place of its bytes: its version, its journal mode, its schema and
-/// every row of every table.
+/// What a store holds: its version, its journal mode, its schema and every row of every table.
 fn store_content(path: &Path) -> Vec<(String, String)> {
     let connection = Connection::open(path).unwrap();
     let mut content = vec![
@@ -1526,49 +1527,92 @@ fn store_content(path: &Path) -> Vec<(String, String)> {
     content
 }
 
-/// The committed store of the `refused-stored-run` walkthrough is current: what this build's
-/// writers make now ([`refused_stored_run_store`]), compared by content, not bytes (SQLite's file
-/// layout is its own), and it opens, as File > Open Local Project… opens it (the most recent
-/// project), to the guard's refusal of the unread revision with the project's model open, nothing
-/// held and no stored file changed. `NATIVE_WALKTHROUGH_STORE_WRITE=1` rewrites it after a store
-/// schema change or a table revision has made it stale.
+/// The store at `path` as SQL text, written by SQLite from what the product's writers stored: its
+/// version and journal mode, each table's own `CREATE` statement, each row as an `INSERT` of its
+/// values as SQLite's `quote()` writes them (in table and rowid order), then the indexes and the
+/// triggers (after the rows, so the store's own triggers do not see them as new writes), in one
+/// transaction. Deterministic for a deterministic store.
+fn store_sql(path: &Path) -> String {
+    let connection = Connection::open(path).unwrap();
+    let identifier = |name: &str| {
+        assert!(!name.is_empty() && name.bytes().all(|byte| byte.is_ascii_lowercase() || byte.is_ascii_digit() || byte == b'_'), "an identifier of the store: {name}");
+        format!("\"{name}\"")
+    };
+    let version: i64 = connection.query_row("PRAGMA user_version", [], |row| row.get(0)).unwrap();
+    let mut text = format!(
+        "-- {REFUSED_STORED_RUN_SQL}: written by stored_custody_tests.rs from the store the product's writers make \
+         ({REFUSED_STORED_RUN_WRITE}=1 rewrites it). Invented data. Build: /usr/bin/sqlite3 <store> < this file.\n\
+         PRAGMA journal_mode = WAL;\nPRAGMA user_version = {version};\nBEGIN TRANSACTION;\n"
+    );
+    let objects = |kind: &str| -> Vec<(String, String)> {
+        let mut statement = connection.prepare("SELECT name, sql FROM sqlite_master WHERE type = ?1 AND sql IS NOT NULL ORDER BY rowid").unwrap();
+        let rows = statement.query_map([kind], |row| Ok((row.get(0)?, row.get(1)?))).unwrap().map(Result::unwrap).collect();
+        rows
+    };
+    for (table, create) in objects("table") {
+        assert!(!table.starts_with("sqlite_"), "an internal table: {table}");
+        text.push_str(&format!("{create};\n"));
+        let mut columns = connection.prepare("SELECT name FROM pragma_table_info(?1) ORDER BY cid").unwrap();
+        let columns: Vec<String> = columns.query_map([&table], |row| row.get::<_, String>(0)).unwrap().map(Result::unwrap).collect();
+        let values = columns.iter().map(|column| format!("quote({})", identifier(column))).collect::<Vec<_>>().join(" || ',' || ");
+        let select = format!("SELECT 'INSERT INTO {} VALUES(' || {values} || ');' FROM {} ORDER BY rowid", identifier(&table), identifier(&table));
+        let mut rows = connection.prepare(&select).unwrap();
+        for row in rows.query_map([], |row| row.get::<_, String>(0)).unwrap() {
+            text.push_str(&row.unwrap());
+            text.push('\n');
+        }
+    }
+    for kind in ["index", "trigger", "view"] {
+        for (_, create) in objects(kind) {
+            text.push_str(&format!("{create};\n"));
+        }
+    }
+    text.push_str("COMMIT;\n");
+    text
+}
+
+/// The committed SQL text of the `refused-stored-run` walkthrough is current and builds a store that
+/// this build's reader refuses. The text must be exactly what [`store_sql`] writes from the store this
+/// build's writers make now ([`refused_stored_run_store`]); the store it builds, executed here through
+/// the crate's own SQLite binding as `/usr/bin/sqlite3` executes it for the walkthrough, must hold the
+/// same content as that store; and it must open, as File > Open Local Project… opens it (the most
+/// recent project), to the guard's refusal of the unread revision, with the project's model open,
+/// nothing held and the stored run unchanged. `NATIVE_WALKTHROUGH_STORE_WRITE=1` rewrites the text
+/// after a store schema change or a table revision has made it stale.
 #[test]
 fn the_walkthrough_store_opens_to_the_unread_revision_refusal() {
     let dir = scratch("refused-stored-run");
     let fresh = dir.join("fresh.sqlite3");
     let (project_id, identity) = refused_stored_run_store(&fresh);
-    let committed = root().join(REFUSED_STORED_RUN_STORE);
+    let written = store_sql(&fresh);
+    let committed = root().join(REFUSED_STORED_RUN_SQL);
     if std::env::var_os(REFUSED_STORED_RUN_WRITE).is_some() {
         std::fs::create_dir_all(committed.parent().unwrap()).unwrap();
-        std::fs::copy(&fresh, &committed).unwrap();
+        std::fs::write(&committed, &written).unwrap();
     }
-    let stale = format!("{REFUSED_STORED_RUN_STORE} is stale: rewrite it with {REFUSED_STORED_RUN_WRITE}=1 cargo test --manifest-path apps/desktop/src-tauri/Cargo.toml --lib the_walkthrough_store_opens_to_the_unread_revision_refusal");
-    let bytes = std::fs::read(&committed).unwrap_or_else(|error| panic!("{stale} ({error})"));
-    // One file, in WAL mode with nothing left in a journal: the walkthrough places only this file.
-    assert!(bytes.len() > 100 && bytes.starts_with(b"SQLite format 3\0") && bytes[18] == 2 && bytes[19] == 2, "{stale}: not a WAL-mode SQLite store");
-    for suffix in ["-wal", "-shm", "-journal"] {
-        assert!(!root().join(format!("{REFUSED_STORED_RUN_STORE}{suffix}")).exists(), "{REFUSED_STORED_RUN_STORE}{suffix} must not be committed");
-    }
-    // Read from copies: opening the committed file in place would write SQLite's sidecars beside it.
-    let copy = dir.join("committed.sqlite3");
-    std::fs::write(&copy, &bytes).unwrap();
-    let (expected, found) = (store_content(&fresh), store_content(&copy));
+    let stale = format!("{REFUSED_STORED_RUN_SQL} is stale: rewrite it with {REFUSED_STORED_RUN_WRITE}=1 cargo test --manifest-path apps/desktop/src-tauri/Cargo.toml --lib the_walkthrough_store_opens_to_the_unread_revision_refusal");
+    let text = std::fs::read_to_string(&committed).unwrap_or_else(|error| panic!("{stale} ({error})"));
+    assert!(text == written, "{stale}: the text is not what the product's writers make now");
+    // The store the walkthrough places: the committed text, executed.
+    let built = dir.join("built.sqlite3");
+    Connection::open(&built).unwrap().execute_batch(&text).unwrap();
+    let bytes = std::fs::read(&built).unwrap();
+    assert!(bytes.starts_with(b"SQLite format 3\0") && bytes[18] == 2 && bytes[19] == 2, "the built store is in WAL mode");
+    let (expected, found) = (store_content(&fresh), store_content(&built));
     assert_eq!(found.iter().map(|(name, _)| name).collect::<Vec<_>>(), expected.iter().map(|(name, _)| name).collect::<Vec<_>>(), "{stale}");
     for ((name, want), (_, have)) in expected.iter().zip(&found) {
-        assert!(want == have, "{stale}: {name} differs");
+        assert!(want == have, "the store built from the text differs from the product's store: {name}");
     }
     assert_eq!(found[0].1, crate::STORE_SCHEMA_TARGET_VERSION.to_string(), "{stale}: the store is at this build's store schema");
-    assert_eq!(column_text(&copy, "SELECT COUNT(*) || '/' || (SELECT COUNT(*) FROM model_states) FROM local_projects"), "1/1", "one project and one saved state");
-    let open = dir.join("open.sqlite3");
-    std::fs::write(&open, &bytes).unwrap();
+    assert_eq!(column_text(&built, "SELECT COUNT(*) || '/' || (SELECT COUNT(*) FROM model_states) FROM local_projects"), "1/1", "one project and one saved state");
     let run_texts = || -> (String, String) {
-        let connection = Connection::open(&open).unwrap();
+        let connection = Connection::open(&built).unwrap();
         connection.query_row("SELECT mechanics_result_json, analysis_run_json FROM local_projects", [], |row| Ok((row.get(0)?, row.get(1)?))).unwrap()
     };
     let before = run_texts();
     let host = ScriptedHost::normal();
     let (registry, _gate) = gated(&host);
-    let opened = native_open(&registry, &open, None).unwrap();
+    let opened = native_open(&registry, &built, None).unwrap();
     let run = &opened["stored_run"];
     assert_eq!(run["state"], "refused", "{run}");
     assert_eq!(run["code"], RESTORE_REFUSED);
