@@ -604,12 +604,13 @@ def thermal_problems(text: str, model: dict, differences: str) -> list[str]:
     """Each element state's thermal provenance against what step states has the person enter for that
     case and that member: a sentence naming a member binds its value to that member, the case's other
     value is its template for every member; a case copied from another without marking its element
-    states absent keeps that case's values. Each bullet is read with its whitespace normalised, as
-    `instructed` reads a literal, so that a line break inside a phrase or a backticked value reads as the
-    space it renders as."""
+    states absent keeps that case's values. Each bullet is read with every line continuation (a newline
+    and the indentation after it) folded to one space, so that a line break inside a phrase or a
+    backticked value reads as the space it renders as; every character within a line is kept, so a
+    doubled space or a no-break space inside a value is read as typed."""
     body = step(text, "states")
     parts = re.split(r"(?m)^- \*\*(RS-[A-Z]+(?:-[A-Z]+)*)\.\*\*", body)
-    bullets = {case: re.sub(r"\s+", " ", bullet) for case, bullet in zip(parts[1::2], parts[2::2])}
+    bullets = {case: re.sub(r"\n[ \t]*", " ", bullet) for case, bullet in zip(parts[1::2], parts[2::2])}
     texts = pasted_texts(text)
     expected: dict[str, dict[str, str | None]] = {}
     for case, bullet in bullets.items():
@@ -1322,18 +1323,24 @@ def test_a_stale_source_or_a_changed_fixture_field_is_caught():
     problems = field_problems(RUN_SHEET, model)
     assert reports(problems, "step states, load:RS-SUS pipe:RS-P010: thermal provenance")
     assert reports(problems, "step states, load:RS-SUS pipe:RS-P180: thermal provenance")
-    # RS-OPE-REF's instructions: a changed analysis-basis reason, a changed analysis-basis provenance and the
-    # replaced span's thermal provenance moved to another member are each reported with the case and member.
+    # RS-OPE-REF's instructions: a changed analysis-basis reason, a changed analysis-basis provenance, the
+    # replaced span's thermal provenance moved to another member, and a doubled space or a no-break space inside
+    # that thermal provenance are each reported with the case and member.
     _rs_ope_ref_mutations_are_caught(RUN_SHEET)
 
 
-# Three of RS-OPE-REF's instructions, changed, and what each must report.
+# RS-OPE-REF's instructions, changed, and what each must report.
 RS_OPE_REF_MUTATIONS = (
     ("material basis (spec §8.1)`", "material basis (spec §8.2)`",
      ("step states, analysis-basis reason: load:RS-OPE-REF pipe:RS-P010 holds",)),
     ("**analysis-basis provenance** ⟨P⟩", "**analysis-basis provenance** ⟨S5⟩",
      ("step states, analysis-basis provenance: load:RS-OPE-REF pipe:RS-P010 holds",)),
     ("Then on RS-P180's row clear", "Then on RS-P170's row clear",
+     ("step states, load:RS-OPE-REF pipe:RS-P180: thermal provenance",)),
+    # Same-line characters inside the backticked value are read as typed: only a line continuation folds.
+    ("zero eigenstrain (spec §5.1)`", "zero eigenstrain  (spec §5.1)`",
+     ("step states, load:RS-OPE-REF pipe:RS-P180: thermal provenance",)),
+    ("zero eigenstrain (spec §5.1)`", "zero eigenstrain\u00a0(spec §5.1)`",
      ("step states, load:RS-OPE-REF pipe:RS-P180: thermal provenance",)),
 )
 
@@ -1356,8 +1363,8 @@ def _rs_ope_ref_mutations_are_caught(sheet: str) -> None:
 
 def test_a_rewrap_of_rs_ope_ref_s_instructions_changes_no_reading():
     """A line break inside "Mark element_states absent" or inside the replaced span's backticked thermal provenance
-    changes nothing: the sheet still matches the fixture, and the three RS-OPE-REF mutations are still caught (in round
-    1 such a break hid the moved replaced span)."""
+    changes nothing: the sheet still matches the fixture, and the RS-OPE-REF mutations are still caught (in round 1
+    such a break hid the moved replaced span)."""
     bullet = _rs_ope_ref_bullet(RUN_SHEET)
     rewrapped = bullet
     for phrase, wrapped in (("**Mark element_states absent**", "**Mark\n  element_states absent**"),
