@@ -837,8 +837,9 @@ fn pressure_schema_is_the_only_nonresident_binding() {
     // B7b A5: the result schema takes v3 only. T4-U6 (462b777b22): it carries the D-5
     // geometry, per-basis records and limitations (reviewed input #10, re-bound at D3). RT-L2: the
     // cancellation-screen exception record (its renamed ratio member, basis token and description; then its
-    // remainder_force_n member; then its description).
-    assert_eq!(schema_hash, "4e1e877b05b2fb3a11d934d2854a37de2de61b3dfb1d9613cec136aeca5da4d7");
+    // remainder_force_n member; then its description). DEL-05-01: the generation record's seismic component force
+    // entries.
+    assert_eq!(schema_hash, "fc5699e012f7877f5a6fc1b7d9086ebc7fbfcca0ecd7e84873d88f187de8b848");
     let compiled = COMPILED_REVIEWED_INPUTS.expect("build.rs sets all current inputs");
     let tokens: Vec<_> = compiled.split(';').collect();
     assert_eq!(tokens.len(), build_identity::REVIEWED_INPUT_COUNT + 1);
