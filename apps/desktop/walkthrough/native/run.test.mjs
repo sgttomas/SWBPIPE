@@ -1183,7 +1183,13 @@ test("the statement covers the marks of an agent on the screen only: never a che
   assert.deepEqual(marksDecision({ ...sky, check_failures: ["lsappinfo list: exit 1"] }, stated), { refuse: true, exempted: [] });
   assert.deepEqual(marksDecision({ ...NO_MARKS, check_failures: ["launchctl list: exit 5"] }, stated), { refuse: true, exempted: [] });
   assert.deepEqual(marksDecision({ ...sky, app_v4_candidate_bundle: true }, stated), { refuse: true, exempted: [] });
-  assert.deepEqual(marksDecision(sky, { stated_by: " " }), { refuse: true, exempted: [] });
+  // A statement given must name who makes it, before and whatever the marks (pin check iv); none given is an ordinary start.
+  const invalid = { refuse: true, exempted: [], invalid: "the attendant's statement names no one who makes it (stated_by is blank)" };
+  assert.deepEqual(marksDecision(sky, { stated_by: " " }), invalid);
+  assert.deepEqual(marksDecision(NO_MARKS, { stated_by: " " }), invalid);
+  assert.deepEqual(marksDecision(NO_MARKS, { stated_by: "" }), invalid);
+  assert.deepEqual(marksDecision(NO_MARKS, {}), invalid);
+  assert.deepEqual(marksDecision(NO_MARKS, undefined), { refuse: false, exempted: [] });
   // The refusal's line names the mark, and says what the statement does not cover.
   assert.match(markRefusalLineOf(sky), /^NATIVE-SMOKE-MARK-PRESENT: SkyComputerUseService under launchd; a SkyComputerUseService process: .*nothing in --out was changed\..*--attendant-on-screen <who states it>$/);
   assert.match(markRefusalLineOf({ ...sky, app_v4_candidate_bundle: true }, stated), /a running App v4 candidate bundle: .*covers the screen service and the app-server only, never a check that could not be made or another application's candidate bundle$/);
@@ -1238,6 +1244,10 @@ test("without the statement, or with it and a check not made or another applicat
     assert.deepEqual([run.result.stop, run.result.exitCode, run.started, run.seen.length], [MARK_PRESENT, 2, false, 0], label);
     assert.equal(run.launches["attended/walk"].launched, false, label);
   }
+  // A blank statement given directly to judgedPhase, with every mark clear, refuses the start and records why.
+  const blank = await standInPhase(t, { marks: {}, attendant: { stated_by: "  " } });
+  assert.deepEqual([blank.result.stop, blank.started, blank.seen.length], [MARK_PRESENT, false, 0]);
+  assert.match(blank.launches["attended/walk"].attendant.invalid, /stated_by is blank/);
   // Without the statement the record is exactly as before: no attendant member, and beforeStart is called with nothing.
   const plain = await standInPhase(t, { marks: {} });
   assert.equal(plain.launches["attended/walk"].attendant, undefined);

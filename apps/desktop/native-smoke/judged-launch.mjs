@@ -23,12 +23,16 @@ export const ATTENDANT_STATEMENT = "the agent operating the screen is this launc
  * Whether `marks` (marksCheck) refuse a start: as marksRefuse, except that with `attendant`, the statement of an
  * attended start (walkthrough/native/run.mjs --attended --attendant-on-screen <who>), the marks of an agent operating
  * the screen do not; a check that could not be made, or another application's candidate bundle, refuses as always.
- * { refuse, exempted }: `exempted` names each mark present that the statement covered.
+ * { refuse, exempted, invalid? }: `exempted` names each mark present that the statement covered; a statement given
+ * whose stated_by is blank refuses the start, with `invalid`, even with no mark present.
  */
 export function marksDecision(marks, attendant = null) {
+  // A statement given is valid or the start is refused, whatever the marks: it is checked before they are.
+  if (attendant !== null && attendant !== undefined && !(typeof attendant.stated_by === "string" && attendant.stated_by.trim() !== "")) {
+    return { refuse: true, exempted: [], invalid: "the attendant's statement names no one who makes it (stated_by is blank)" };
+  }
   if (!marksRefuse(marks)) return { refuse: false, exempted: [] };
-  const stated = typeof attendant?.stated_by === "string" && attendant.stated_by.trim() !== "";
-  if (!stated || marks.check_failures.length > 0 || marks.app_v4_candidate_bundle) return { refuse: true, exempted: [] };
+  if (!attendant || marks.check_failures.length > 0 || marks.app_v4_candidate_bundle) return { refuse: true, exempted: [] };
   return { refuse: false, exempted: ATTENDANT_EXEMPT_MARKS.filter((key) => marks[key] === true) };
 }
 
@@ -55,7 +59,7 @@ export async function judgedPhase({
 }) {
   const marks = marksRun ? marksCheck(marksRun) : marksCheck();
   const decision = attendant ? marksDecision(marks, attendant) : { refuse: marksRefuse(marks), exempted: [] };
-  const stated = attendant ? { attendant: { stated_by: attendant.stated_by ?? null, statement: ATTENDANT_STATEMENT, exempted: decision.exempted } } : {};
+  const stated = attendant ? { attendant: { stated_by: attendant.stated_by ?? null, statement: ATTENDANT_STATEMENT, exempted: decision.exempted, ...(decision.invalid ? { invalid: decision.invalid } : {}) } } : {};
   if (decision.refuse) {
     launches[phase] = { marks, launched: false, ...stated };
     writeFileSync(summaryPath, JSON.stringify({ ...summary(), launches, refused: MARK_PRESENT }, null, 2));
