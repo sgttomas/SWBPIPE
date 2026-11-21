@@ -594,7 +594,8 @@ export function PipeViewport({
     reason: string;
   }>({ status: "idle", values: new Map(), reason: "Choose two authored nodes or one authored pipe." });
   const [geometryMode, setGeometryMode] = useState<"schematic" | "actual-od">("schematic");
-  const [viewCommandStatus, setViewCommandStatus] = useState("No view command dispatched.");
+  // Empty at rest: the live status speaks only of a view command it ran.
+  const [viewCommandStatus, setViewCommandStatus] = useState("");
   const [odGeneration, setOdGeneration] = useState(0);
   const odGenerationRef = useRef(0);
   const odRequestGateRef = useRef(0);
