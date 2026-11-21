@@ -34,6 +34,9 @@ export type ScreenRecord = {
 
 /** The surface every browser journey's part file names (compose-index.mjs). */
 export const SURFACE = "browser build";
+/** The build every browser journey runs: the desktop's interface served by the development server, no native host. */
+export const BUILD = "browser build: the desktop's interface from the development server, without the native host";
+const REVISION = (() => { try { return JSON.parse(process.env.SWBPIPE_WALKTHROUGH_REVISION ?? "null"); } catch { return null; } })();
 
 export const outputRoot = path.resolve(process.env.SWBPIPE_WALKTHROUGH_OUT || path.join(import.meta.dirname, "output"));
 
@@ -114,7 +117,7 @@ export class Journey {
     const window = size ? `${size.width}x${size.height}` : null;
     writeFileSync(
       path.join(outputRoot, `part-${String(this.journeyNumber).padStart(2, "0")}-${this.name}.json`),
-      `${JSON.stringify({ number: this.journeyNumber, name: this.name, title: this.title, surface: SURFACE, window, screens: this.records }, null, 2)}\n`
+      `${JSON.stringify({ number: this.journeyNumber, name: this.name, title: this.title, use_case: this.title, revision: REVISION, build: BUILD, surface: SURFACE, window, screens: this.records }, null, 2)}\n`
     );
   }
 

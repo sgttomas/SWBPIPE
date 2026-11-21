@@ -11,7 +11,18 @@
 // person stops, with the reason the window gives, and the journey's later steps as not reached. It judges nothing.
 (() => {
   const ipc = window.__TAURI_INTERNALS__;
-  const call = (command, args) => ipc.invoke(command, args ?? {});
+  // The scripted-run build's substitutions for a person's act (DEL-07-11 REQ-010). Each one a step uses is recorded
+  // on that step, so the index can mark it: the file a chooser returns, a native menu command, the print dialog.
+  let substitutions = null;
+  const SUBSTITUTED = {
+    native_smoke_choose: (args) => ({ kind: "file chooser", what: `the next file chooser returns ${String(args.path).split("/").pop()}, named by the harness; no chooser is shown` }),
+    native_smoke_menu: (args) => ({ kind: "native menu command", what: `${args.commandId} delivered through the menu's own dispatch, not by a click in the menu bar` }),
+    native_smoke_take_report_prints: () => ({ kind: "report print dialog", what: "the print document recorded in place of the system print dialog" })
+  };
+  const call = (command, args) => {
+    if (substitutions && SUBSTITUTED[command]) substitutions.push(SUBSTITUTED[command](args ?? {}));
+    return ipc.invoke(command, args ?? {});
+  };
   const log = (line) => call("native_smoke_log", { line: String(line) }).catch(() => {});
   let nonce = null;
   let T = { ui: 60000, step: 300000, solve: 900000, save: 900000 };
@@ -105,6 +116,7 @@
         return;
       }
       await act(`${this.name}: ${step}`);
+      substitutions = [];
       try {
         const found = action ? await action() : undefined;
         if (typeof found === "string" && found) record.note = `${note}: ${found}`;
@@ -116,6 +128,8 @@
         record.failed = String(error?.message ?? error).split("\n")[0].slice(0, 400);
         Object.assign(record, await this.capture());
       }
+      record.substitutions = substitutions;
+      substitutions = null;
       await this.write(record);
     }
 

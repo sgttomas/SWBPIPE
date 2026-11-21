@@ -8,7 +8,7 @@ import path from "node:path";
 import test from "node:test";
 import vm from "node:vm";
 import { composeIndex } from "../compose-index.mjs";
-import { NATIVE_SURFACE, PICTURE_BASIS, readStepRecords, renderScreens, screensFromRecords, writePart } from "./render.mjs";
+import { NATIVE_SURFACE, NATIVE_SURFACES, PICTURE_BASIS, readStepRecords, renderScreens, screensFromRecords, writePart } from "./render.mjs";
 import { mkdirSync, symlinkSync } from "node:fs";
 import { DEFAULT_JOURNEYS, JOURNEYS, composeDriver, emptyNativeOutput, parseArguments, placeFiles, placementsFor } from "./run.mjs";
 
@@ -124,7 +124,7 @@ test("pictures: each snapshot rendered at its recorded size with nothing loaded,
     close: async () => calls.push(["browser-close"])
   };
   const records = [
-    { number: 2201, step: "solved", note: "Solved", snapshot: { html: "<p>a</p>", width: 1440, height: 900, media: { color_scheme: "dark", reduced_motion: "no-preference", forced_colors: "none" } } },
+    { number: 2201, step: "solved", note: "Solved", substitutions: [{ kind: "native menu command", what: "analyze.run delivered through the menu's own dispatch" }], snapshot: { html: "<p>a</p>", width: 1440, height: 900, media: { color_scheme: "dark", reduced_motion: "no-preference", forced_colors: "none" } } },
     { number: 2202, step: "exports-page", note: "Exports", failed: "x", snapshot: { html: "<p>b</p>", width: 1440, height: 900 } },
     { number: 2203, step: "later", note: "Later", not_reached: true }
   ];
@@ -136,7 +136,7 @@ test("pictures: each snapshot rendered at its recorded size with nothing loaded,
   assert.ok(calls.some(([kind, pattern]) => kind === "route" && pattern === "**/*"));
   assert.deepEqual(screens.map((screen) => screen.file), ["2201-exports-solved.png", "2202-exports-exports-page-FAILED.png", undefined]);
   assert.ok(screens.slice(0, 2).every((screen) => screen.picture === PICTURE_BASIS));
-  writePart(out, { number: 22, name: "exports", title: "Exports & more", screens, launch: { ended_cleanly: true } });
+  writePart(out, { number: 22, name: "exports", title: "Exports & more", use_case: "AC-007 Review and export results, in part", revision: { commit: "abc123", uncommitted_paths: 0 }, build: { kind: "scripted-run build", app_sha256: "sha256:feed" }, screens, launch: { ended_cleanly: true } });
   writeFileSync(path.join(out, "part-01-first.json"), JSON.stringify({ number: 1, name: "first", title: "First", surface: "browser build", window: "1440x920", screens: [] }));
   const summary = composeIndex(out);
   assert.equal(summary.journeys, 2);
@@ -144,9 +144,21 @@ test("pictures: each snapshot rendered at its recorded size with nothing loaded,
   assert.deepEqual(index.journeys.map((journey) => journey.surface), ["browser build", NATIVE_SURFACE]);
   assert.equal(index.journeys[1].window, "1440x900");
   assert.equal(index.journeys[1].stopped_at, "exports-page");
+  // Every screen: its revision, build and use case; the redrawn and substituted marks; the native surfaces named once.
+  const native = index.screens.filter((screen) => screen.journey === "exports");
+  assert.ok(native.every((screen) => screen.revision.commit === "abc123" && screen.build.app_sha256 === "sha256:feed" && screen.use_case === "AC-007 Review and export results, in part"));
+  assert.deepEqual(native.map((screen) => screen.redrawn ?? null), [true, true, null]);
+  assert.equal(native[0].substitutions[0].kind, "native menu command");
+  assert.equal(native[1].substitutions, undefined);
+  assert.deepEqual(index.native_surfaces.map((item) => item.surface), NATIVE_SURFACES.map((item) => item.surface));
+  assert.ok(index.native_surfaces.every((item) => item.prevented_by && typeof item.missing_evidence === "boolean"));
+  assert.ok(index.native_surfaces.some((item) => /menu bar/.test(item.surface) && /Accessibility permission/.test(item.prevented_by)));
+  assert.ok(index.native_surfaces.some((item) => /window/.test(item.surface) && /Screen Recording permission/.test(item.prevented_by)));
   const html = readFileSync(path.join(out, "index.html"), "utf8");
   assert.match(html, /redrawn by Chromium/);
   assert.match(html, /not a capture of the window/);
+  assert.match(html, /Substituted \(scripted-run build\): native menu command/);
+  assert.match(html, /Native surfaces not pictured/);
   // Once for the journey and once for each of its two pictures.
   assert.equal(html.split(PICTURE_BASIS).length - 1, 3);
 });

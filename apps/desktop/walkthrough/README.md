@@ -59,6 +59,18 @@ are stable, so the same step in both is the same moment of the journey.
 | `longest_scroll_screens` | How many window-heights the tallest scrolling region on screen runs to. |
 | `controls` | Each control on screen as `kind: name`, marked `(disabled)` where it cannot act. |
 
+Every screen also carries its journey's `revision` (the commit, and how many
+paths differed from it), `build` (the browser build, or the scripted-run build
+with the launched app's SHA-256), `use_case` (the DEL-07-06 AC-007 use case it
+shows, and how much of it), its `step` and its picture. Two marks, as DEL-07-06
+VER-007 asks: `redrawn` is true where the picture is the app's document
+redrawn outside its window, and `substitutions` lists each act of the
+scripted-run build the step used in place of a person's (the file a chooser
+returns, a native menu command, the report print dialog). The index's
+`native_surfaces` names each native surface not pictured, what prevents it (a
+permission prompt, or a substitution), and whether that leaves evidence
+missing; `index.html` lists them under "Native surfaces not pictured".
+
 ## When a journey stops
 
 A step whose control is missing, hidden or disabled is recorded with the reason
@@ -139,7 +151,12 @@ pressed. The embedded agent is never started: no provider, model, key, network
 or sign-in. The run's folder (reports, step records, snapshots) is kept in the
 system's temporary folder; the command prints where.
 
-**What it cannot show.** The 3D view, as a rule: on this host the launched
+**What it cannot show.** The native menu bar: no command of the
+scripted-run build returns the menu the app builds, and reading it from
+outside the app needs the Accessibility permission, so its items' names and
+order are recorded as missing evidence in `native_surfaces`. A native-harness
+command that returns the built menu would supply it; that is a change to the
+app, not made here. The 3D view, as a rule: on this host the launched
 web view reports its page as hidden (the window is not the one in front), so
 it gives no animation frame and the viewport, which pauses while its page is
 hidden, draws nothing to read. Each such step says so in its `snapshot_notes`,

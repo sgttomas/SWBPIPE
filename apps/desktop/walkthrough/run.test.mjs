@@ -72,7 +72,10 @@ test("the index carries each screen's counts, and names where a journey stopped"
   assert.deepEqual(summary, { screens: 2, journeys: 1, stops: [{ journey: "first", step: "solve", reason: "the control is disabled: No run yet" }] });
   const index = JSON.parse(readFileSync(path.join(out, "INDEX.json"), "utf8"));
   assert.equal(index.screens[0].words_on_screen, 12);
-  assert.deepEqual(index.journeys[0], { number: 1, name: "first", title: "First & only", surface: "browser build", window: "1440x920", screens: 1, stopped_at: "solve", not_reached: ["results"] });
+  assert.deepEqual(index.journeys[0], { number: 1, name: "first", title: "First & only", use_case: "First & only", revision: null, build: null, surface: "browser build", window: "1440x920", screens: 1, stopped_at: "solve", not_reached: ["results"] });
+  // A browser screenshot is a capture of the browser's window, not a redraw.
+  assert.equal(index.screens[0].redrawn, false);
+  assert.deepEqual(index.native_surfaces, []);
   assert.equal(index.surface, "browser build");
   const html = readFileSync(path.join(out, "index.html"), "utf8");
   assert.match(html, /First &amp; only/);

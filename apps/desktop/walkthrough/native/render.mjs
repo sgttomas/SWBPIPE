@@ -8,6 +8,50 @@ import path from "node:path";
 export const NATIVE_SURFACE = "launched app, redrawn by Chromium";
 export const PICTURE_BASIS = "This picture is the launched app's document, recorded in its own web view at this step and redrawn by Chromium; it is not a capture of the window. Fonts and form controls may differ in detail, and hover and focus rings are not shown.";
 
+/**
+ * The native surfaces a person meets that this walkthrough does not picture, each with what stands in for it and the
+ * permission prompt or missing means that prevents evidence of it (DEL-07-06 VER-007: an uncaptured surface without
+ * such a record is missing evidence). `missing_evidence` is true where evidence could be produced without a
+ * permission prompt but is not produced by this walkthrough.
+ */
+export const NATIVE_SURFACES = Object.freeze([
+  {
+    surface: "the application window itself (its frame, title bar, and how the document is drawn in it)",
+    captured: false,
+    prevented_by: "a capture of the window from outside the app needs the Screen Recording permission (a permission prompt); a snapshot of the web view from inside needs unsafe native calls this build does not offer",
+    instead: "each picture is the app's document recorded in its own web view and redrawn by Chromium",
+    missing_evidence: false
+  },
+  {
+    surface: "the native menu bar: its menus, their items' names and order",
+    captured: false,
+    prevented_by: "reading the menu bar from outside the app needs the Accessibility permission (a permission prompt); the scripted-run build has no command that returns the menu the app builds, and adding one is a change to the app's native harness that this walkthrough does not make",
+    instead: "menu commands are delivered through the menu's own dispatch and marked on each step that uses one",
+    missing_evidence: true
+  },
+  {
+    surface: "the file chooser (open and save panels)",
+    captured: false,
+    prevented_by: "substituted in the scripted-run build: the harness names the file the next chooser returns, and no panel is shown",
+    instead: "each step that uses it is marked",
+    missing_evidence: false
+  },
+  {
+    surface: "the system print dialog",
+    captured: false,
+    prevented_by: "substituted in the scripted-run build: the print document is recorded in place of the dialog; these journeys do not press Print",
+    instead: "none: no journey here reaches it",
+    missing_evidence: false
+  },
+  {
+    surface: "the 3D view's drawing, where a step says it was not captured",
+    captured: false,
+    prevented_by: "the web view reports its page hidden (the window is not the one in front) and gives no animation frame, so the viewport draws nothing; bringing the window to the front is not done by this walkthrough",
+    instead: "a labelled placeholder in the picture, and the step's view_3d and snapshot_notes",
+    missing_evidence: true
+  }
+]);
+
 /** The step records the driver wrote beside `report` (`<report>.step-<number>.json`), in step order. */
 export function readStepRecords(report) {
   const folder = path.dirname(report);
@@ -31,6 +75,8 @@ export function screensFromRecords(records, { journey, number, launchFailure = n
     if (record.not_reached) return { ...screen, not_reached: true };
     if (record.failed) screen.failed = record.failed;
     for (const key of COUNT_KEYS) if (record[key] !== undefined) screen[key] = record[key];
+    if (record.substitutions?.length) screen.substitutions = record.substitutions;
+    if (record.acted_on?.length) screen.acted_on = record.acted_on;
     if (record.counts_error) screen.counts_error = record.counts_error;
     if (record.snapshot_error) screen.snapshot_error = record.snapshot_error;
     if (record.snapshot) {
@@ -90,6 +136,7 @@ export async function renderScreens(records, screens, { out, snapshots, launchBr
         const file = fileName(screen);
         await page.screenshot({ path: path.join(out, file), animations: "disabled" });
         screen.file = file;
+        screen.redrawn = true;
         screen.picture = PICTURE_BASIS;
       } catch (error) {
         screen.picture_error = String(error?.message ?? error).split("\n")[0];
@@ -122,9 +169,12 @@ function restoreDrawnState() {
 }
 
 /** Writes the journey's part file in the browser walkthrough's form, with its surface. */
-export function writePart(out, { number, name, title, screens, launch }) {
+export function writePart(out, { number, name, title, use_case, revision, build, screens, launch }) {
   const windows = [...new Set(screens.map((screen) => screen.window).filter(Boolean))];
-  const part = { number, name, title, surface: NATIVE_SURFACE, picture_basis: PICTURE_BASIS, window: windows.join(", ") || null, launch, screens };
+  const part = {
+    number, name, title, use_case, revision, build, surface: NATIVE_SURFACE, picture_basis: PICTURE_BASIS,
+    window: windows.join(", ") || null, native_surfaces: NATIVE_SURFACES, launch, screens
+  };
   const file = path.join(out, `part-${String(number).padStart(2, "0")}-${name}.json`);
   writeFileSync(file, `${JSON.stringify(part, null, 2)}\n`);
   return file;

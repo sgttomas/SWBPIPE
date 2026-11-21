@@ -9,7 +9,7 @@
 // would have met on the way: a journey that stops is a finding in the index,
 // not a failure of this command. It is 1 when the walkthrough itself could not
 // run, or wrote no screens.
-import { spawnSync } from "node:child_process";
+import { execFileSync, spawnSync } from "node:child_process";
 import { existsSync, mkdirSync, readdirSync, rmSync } from "node:fs";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
@@ -57,10 +57,22 @@ export function emptyOutput(out, removes = BROWSER_JOURNEYS) {
   }
 }
 
+// The revision the walkthrough ran at, for the index: the commit and how many paths differ from it.
+function sourceRevision() {
+  try {
+    const project = path.resolve(desktopRoot, "..", "..");
+    const commit = execFileSync("git", ["-C", project, "rev-parse", "HEAD"], { encoding: "utf8" }).trim();
+    const uncommitted = execFileSync("git", ["-C", project, "status", "--porcelain"], { encoding: "utf8" }).trim().split("\n").filter(Boolean).length;
+    return { commit, uncommitted_paths: uncommitted };
+  } catch {
+    return { commit: null, uncommitted_paths: null };
+  }
+}
+
 function main() {
   const options = parseArguments(process.argv.slice(2));
   emptyOutput(options.out);
-  const env = { ...process.env, SWBPIPE_WALKTHROUGH_OUT: options.out };
+  const env = { ...process.env, SWBPIPE_WALKTHROUGH_OUT: options.out, SWBPIPE_WALKTHROUGH_REVISION: JSON.stringify(sourceRevision()) };
   if (options.size) env.SWBPIPE_WALKTHROUGH_SIZE = options.size;
   const playwright = ["playwright", "test", "--config", path.join(here, "playwright.walkthrough.config.ts")];
   if (options.grep) playwright.push("--grep", options.grep);

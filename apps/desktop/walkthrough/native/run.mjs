@@ -75,17 +75,28 @@ const NAME = "native walkthrough";
  * openPrepared).
  */
 export const JOURNEYS = Object.freeze({
-  "solve-and-results": { number: 20, title: "Solve and read results (launched app): Run, the progress, Results and its panels, a support's rows, Key results, Evidence, Analyze and Issues" },
-  report: { number: 21, title: "Report (launched app): the Review stage, the Report tab, the composer, Render, the preview, the release dialog and a saved package" },
-  exports: { number: 22, title: "Exports (launched app): the Exports page after the solve, top to foot" },
+  "solve-and-results": {
+    number: 20, title: "Solve and read results (launched app): Run, the progress, Results and its panels, a support's rows, Key results, Evidence, Analyze and Issues",
+    use_case: "DEL-07-06 AC-007 Review and export results, in part: on the bundled demonstration model, not the reference system; no CSV export"
+  },
+  report: {
+    number: 21, title: "Report (launched app): the Review stage, the Report tab, the composer, Render, the preview, the release dialog and a saved package",
+    use_case: "DEL-07-06 AC-007 Blank to released report, in part: from the solve of the demonstration model to a saved local-private package; the release is cancelled and Print is not pressed"
+  },
+  exports: {
+    number: 22, title: "Exports (launched app): the Exports page after the solve, top to foot",
+    use_case: "DEL-07-06 AC-007 Review and export results, in part: the Exports page as a person meets it; nothing is exported"
+  },
   "reference-system": {
     number: 23, title: "Reference system (launched app): opened as a model document, solved, its standing, health line, Results and Report",
+    use_case: "DEL-07-06 AC-007 Review and export results, in part: the reference system opened, solved and its results and report met; no sorting to the largest values and no CSV export",
     place: [{ key: "model", at: "chooser/models/reference_system.json", from: "fixtures/reference_system/reference_system.json" }],
     open: { by: "model-document", file: "model" },
     timeouts: { solve: 45 * 60 * 1000 }, launch_ms: 75 * 60 * 1000
   },
   "prepared-project": {
     number: 24, title: "Prepared project (launched app): a model document placed in the throwaway home before launch, opened by File > Open Model Document…",
+    use_case: "none of its own: shows that a journey can start from a prepared project, the start of the use cases that open one",
     place: [{ key: "model", at: "chooser/models/exact_pressure_authoring_model.json", from: "fixtures/model_operations/exact_pressure_authoring_model.json" }],
     open: { by: "model-document", file: "model" }
   }
@@ -338,7 +349,11 @@ async function main() {
   const checks = [];
   let journey = null;
   let revision = null;
-  try { revision = execFileSync("git", ["-C", project, "rev-parse", "HEAD"], { encoding: "utf8" }).trim(); } catch { /* recorded as unknown */ }
+  let uncommitted = null;
+  try {
+    revision = execFileSync("git", ["-C", project, "rev-parse", "HEAD"], { encoding: "utf8" }).trim();
+    uncommitted = execFileSync("git", ["-C", project, "status", "--porcelain"], { encoding: "utf8" }).trim().split("\n").filter(Boolean).length;
+  } catch { /* recorded as unknown */ }
 
   // The run's folder, kept as its evidence (reports, step records, snapshots); its homes are removed.
   const RUN_ROOT = realpathSync(mkdtempSync(path.join(os.tmpdir(), "swbpipe-native-walkthrough-")));
@@ -482,7 +497,10 @@ async function main() {
     const { chromium } = await import("@playwright/test");
     const executablePath = process.env.PLAYWRIGHT_CHROMIUM_EXECUTABLE_PATH || undefined;
     await renderScreens(records, screens, { out, snapshots: path.join(where.root, "snapshots"), launchBrowser: () => chromium.launch({ executablePath }) });
-    writePart(out, { number: spec.number, name, title: spec.title, screens, launch: { ended_cleanly: failures.length === 0, failures, driver_finished: seen?.ok === true } });
+    writePart(out, {
+      number: spec.number, name, title: spec.title, use_case: spec.use_case, screens,
+      revision: { commit: revision, uncommitted_paths: uncommitted },
+      build: { kind: "scripted-run build (native-smoke feature), launched as a private copy", app_sha256: app.identity.sha256, app_bytes: app.identity.size, binding_record_sha256: bindingSha }, launch: { ended_cleanly: failures.length === 0, failures, driver_finished: seen?.ok === true } });
     const pictured = screens.filter((screen) => screen.file).length;
     const stop = screens.find((screen) => screen.failed);
     console.log(`${NAME}: ${name}: ${pictured} screens${stop ? `; stopped at "${stop.step}": ${stop.failed}` : ""}`);
