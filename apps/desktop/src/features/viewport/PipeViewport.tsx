@@ -2464,8 +2464,8 @@ export function PipeViewport({
   );
 
   function recordFit(resource: ViewportResource, kind: ViewportFitKind) {
-    const size = resource.renderer.getSize(new THREE.Vector2());
-    lastFitRef.current = { kind, width: size.x, height: size.y };
+    const size = viewportCanvasSize(resource);
+    lastFitRef.current = { kind, width: size.width, height: size.height };
     cameraMovedSinceFitRef.current = false;
   }
 
@@ -3734,6 +3734,14 @@ function creationToolStatusLabel(tool: CreationTool | null): string {
   return "Model focus";
 }
 
+/** The drawing surface's CSS size, as the renderer was last sized; none when it cannot say. */
+function viewportCanvasSize(resource: ViewportResource): { width: number; height: number } {
+  const renderer = resource.renderer as Partial<Pick<THREE.WebGLRenderer, "getSize">>;
+  if (typeof renderer.getSize !== "function") return { width: 0, height: 0 };
+  const size = renderer.getSize(new THREE.Vector2());
+  return { width: size.x, height: size.y };
+}
+
 function fitViewportCamera(resource: ViewportResource, preset: ViewPreset, bounds: Bounds3 | null) {
   // Programmatic camera commands establish a new pose; retained user-input
   // damping must not be applied on top of it.
@@ -3748,8 +3756,8 @@ function fitViewportCamera(resource: ViewportResource, preset: ViewPreset, bound
   const extent = bounds
     ? Math.max(bounds.max.x - bounds.min.x, bounds.max.y - bounds.min.y, bounds.max.z - bounds.min.z, 1)
     : 4;
-  const size = resource.renderer.getSize(new THREE.Vector2());
-  const distance = fittedViewportDistance(bounds, preset, resource.camera.fov, resource.camera.aspect, viewportFitFill(size.x, size.y));
+  const size = viewportCanvasSize(resource);
+  const distance = fittedViewportDistance(bounds, preset, resource.camera.fov, resource.camera.aspect, viewportFitFill(size.width, size.height));
   if (preset === "front") {
     resource.camera.position.set(center.x, center.y, center.z + distance);
   } else if (preset === "top") {

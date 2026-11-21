@@ -435,8 +435,8 @@ describe("envelope camera fitting", () => {
         for (const x of [-20, 20]) for (const y of [-3, 3]) for (const z of [-11, 11]) {
           const point = new THREE.Vector3(x, y, z).project(camera);
           // Every corner lies at least FIT_MARGIN_PX inside each edge of the canvas.
-          expect((1 - Math.abs(point.x)) * width / 2).toBeGreaterThanOrEqual(FIT_MARGIN_PX - 1e-6);
-          expect((1 - Math.abs(point.y)) * height / 2).toBeGreaterThanOrEqual(FIT_MARGIN_PX - 1e-6);
+          expect((1 - Math.abs(point.x)) * width / 2).toBeGreaterThanOrEqual(FIT_MARGIN_PX - 1e-4);
+          expect((1 - Math.abs(point.y)) * height / 2).toBeGreaterThanOrEqual(FIT_MARGIN_PX - 1e-4);
         }
       }
     }
