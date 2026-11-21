@@ -41,6 +41,20 @@ const VECTOR_SOURCES: [(&str, &str); 2] = [
     ("fixtures/results/preview_physics_connected_sparse.json", include_str!("../../../../fixtures/results/preview_physics_connected_sparse.json")),
     ("fixtures/results/preview_physics_connected_dense.json", include_str!("../../../../fixtures/results/preview_physics_connected_dense.json")),
 ];
+/// The standing witnesses' render inputs (`reportStandingWitness.test.tsx`), each with the
+/// raw result it was built from.
+const STANDING_WITNESSES: [(&str, &str, &str); 2] = [
+    (
+        "standing witness pressure_3_coupled_friction_sensitive",
+        include_str!("../../../../fixtures/reports/invented/report_standing_witnesses/pressure_3_coupled_friction_sensitive.render.json"),
+        include_str!("../../../../fixtures/reports/invented/report_standing_witnesses/pressure_3_coupled_friction_sensitive-sparse_interactive.raw.json"),
+    ),
+    (
+        "standing witness pressure_3_gap_unresolved",
+        include_str!("../../../../fixtures/reports/invented/report_standing_witnesses/pressure_3_gap_unresolved.render.json"),
+        include_str!("../../../../fixtures/reports/invented/report_standing_witnesses/pressure_3_gap_unresolved-sparse_interactive.raw.json"),
+    ),
+];
 const DIAGNOSTICS_VECTORS: &str = include_str!("../../../../fixtures/reports/invented/report_diagnostics_parity.json");
 
 /// One report input the desktop's builder wrote, with the model and the
@@ -56,9 +70,9 @@ fn parse(text: &str) -> Value {
     serde_json::from_str(text).unwrap()
 }
 
-/// Every committed report input the desktop's builder wrote: five full
-/// local-private exact inputs, two minimal exact inputs and four minimal
-/// pressure-free inputs.
+/// Thirteen committed report inputs the desktop's builder wrote: five full
+/// local-private exact inputs, two minimal exact inputs, four minimal
+/// pressure-free inputs and the two standing witnesses' render inputs.
 fn built_reports() -> Vec<Built> {
     let mut built = Vec::new();
     for (name, text) in WITNESS_REQUESTS {
@@ -85,7 +99,11 @@ fn built_reports() -> Vec<Built> {
             report: vector["expected"]["report"].clone(),
         });
     }
-    assert_eq!(built.len(), 11);
+    for (name, render, raw) in STANDING_WITNESSES {
+        let fixture = parse(render);
+        built.push(Built { name: name.to_string(), model: parse(fixture["exact_intake_text"].as_str().unwrap()), source: parse(raw), report: fixture["input"].clone() });
+    }
+    assert_eq!(built.len(), 13);
     built
 }
 
@@ -290,6 +308,38 @@ fn the_seal_refuses_any_other_sections_reference() {
     let before = report.clone();
     assert!(seal_report_sections(&mut report).unwrap_err().starts_with("REPORT-PACKAGE-SOURCE-INVALID: "));
     assert_eq!(report, before);
+}
+
+/// A caller's Diagnostics entry with the code and affected object of one of the
+/// result's entries is a copy and refuses, whatever else it says; the refusal
+/// names its index and the input is unchanged. The same code on another
+/// object is not a copy. On an exact-route and on a pressure-free source.
+#[test]
+fn a_callers_copy_of_a_result_diagnostic_refuses() {
+    let all = built_reports();
+    for name in ["pressure_2_straight", "vector connected_sparse_interactive"] {
+        let built = all.iter().find(|built| built.name == name).unwrap();
+        let stripped = without_row_scale_members(built);
+        let of_the_result = built.report["report_sections"]["diagnostics"].as_array().unwrap();
+        let last = of_the_result.len() - 1;
+        let mut edited = of_the_result[last].clone();
+        edited["message"] = json!("invented edit");
+        edited["severity"] = json!("info");
+        for (what, copy) in [("a copy", of_the_result[0].clone()), ("an edited copy", edited)] {
+            let mut report = stripped.clone();
+            report["report_sections"]["diagnostics"] = json!([{"code": "INVENTED_SESSION"}, copy]);
+            let before = report.clone();
+            let error = place_members(&mut report, &built.model, &built.source).unwrap_err();
+            assert_eq!(error, format!("{MEMBERS_NOT_PLACED}: report_sections.diagnostics entry 1 copies a result diagnostic's code and affected object"), "{name}: {what}");
+            assert_eq!(report, before, "{name}: {what}");
+        }
+        let mut elsewhere = of_the_result[0].clone();
+        elsewhere["affected_object"]["ref_id"] = json!("invented:other-object");
+        let mut report = stripped.clone();
+        report["report_sections"]["diagnostics"] = json!([elsewhere]);
+        place_members(&mut report, &built.model, &built.source).unwrap_or_else(|error| panic!("{name}: {error}"));
+        assert_eq!(report["report_sections"]["diagnostics"].as_array().unwrap().len(), of_the_result.len() + 1);
+    }
 }
 
 /// A report input placed and not sealed states no sections checksum, and so

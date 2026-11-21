@@ -153,6 +153,11 @@ fn sections_checksum(report: &mut Value) -> Result<&mut serde_json::Map<String, 
         .ok_or_else(|| not_placed("the report input has no single calculation_report.report_section_refs entry with a checksum"))
 }
 
+/// A Diagnostics entry's code and affected object id, when both are text.
+fn copy_key(entry: &Value) -> Option<(&str, &str)> {
+    Some((entry.get("code")?.as_str()?, entry.get("affected_object")?.get("ref_id")?.as_str()?))
+}
+
 /// Writes the row-scale members into a report input that came without them:
 /// `result_rows`, `calculation_report.result_export_refs`, the unit display
 /// summary, `report_context.result_coordinate_systems`, and the result's
@@ -166,14 +171,16 @@ fn sections_checksum(report: &mut Value) -> Result<&mut serde_json::Map<String, 
 /// no place for a member. Every refusal is decided before anything is
 /// written, so a refused input is unchanged.
 ///
-/// The entries a caller sends in `report_sections.diagnostics` are kept as
-/// sent, after the result's: placement does not examine them, so a copy of a
-/// result diagnostic among them is placed twice. Whether they are the
-/// session's is the caller's check (the desktop host's
-/// `report_session_diagnostics`, which the exact-route and pressure-free
-/// Timoshenko bindings run; DEL-08-01's scope records that other pressure-free
-/// reports have no such check). The generic route's numerical-health lines,
-/// which the desktop appends to `result_rows`, are not placed here.
+/// An entry a caller sends in `report_sections.diagnostics` with the code and
+/// the affected object of one of the result's entries is a copy of it and
+/// refuses, naming its index only: the rule the desktop host's
+/// `report_session_diagnostics` applies to an entry after the result's. The
+/// caller's other entries are kept as sent, after the result's. Whether they
+/// are the session's is not examined here: that is the host's check, which
+/// the exact-route and pressure-free Timoshenko bindings run (DEL-08-01's
+/// scope records that other pressure-free reports have none). The generic
+/// route's numerical-health lines, which the desktop appends to
+/// `result_rows`, are not placed here.
 ///
 /// The completed sections no longer have the checksum the input stated, so
 /// its value is removed: a report input placed and not sealed
@@ -194,9 +201,15 @@ pub fn place_members(report: &mut Value, model: &Value, source: &Value) -> Resul
             return Err(not_placed(format_args!("the report input already carries {path}")));
         }
     }
-    if !report.pointer("/report_sections/diagnostics").is_some_and(Value::is_array) {
-        return Err(not_placed("the report input has no report_sections.diagnostics list"));
+    let session = report
+        .pointer("/report_sections/diagnostics")
+        .and_then(Value::as_array)
+        .ok_or_else(|| not_placed("the report input has no report_sections.diagnostics list"))?;
+    let of_the_result: std::collections::HashSet<(&str, &str)> = diagnostics.iter().filter_map(copy_key).collect();
+    if let Some(index) = session.iter().position(|entry| copy_key(entry).is_some_and(|key| of_the_result.contains(&key))) {
+        return Err(not_placed(format_args!("report_sections.diagnostics entry {index} copies a result diagnostic's code and affected object")));
     }
+    drop(of_the_result);
     sections_checksum(report)?;
     // Nothing below refuses: every place was found above.
     for ((pointer, key, _), value) in PLACED.into_iter().zip([Value::Array(rows), Value::Array(refs), units, json!(systems)]) {
