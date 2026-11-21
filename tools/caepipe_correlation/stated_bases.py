@@ -1,16 +1,18 @@
 """Stated bases of the benchmark comparison (DEL-17-05): what is being compared with what.
 
 A benchmark comparison sets SWBPIPE's solve of a model document beside the print the target program made of the MBF
-written from it. Where the two programs state a different basis for the same quantity, a difference is a difference of
-basis, not of mechanics. Each basis here names such a difference, the condition under which it applies, the reason for
-it, how SWBPIPE realizes the other basis, and the independent ground on which that realization is validated in this
-repository (a closed form or the product itself; never a value from the other program's output). Nothing of the
+written from it. A stated basis is a named alternative binding or formulation evaluated on SWBPIPE's side for
+specified quantities and cases: the condition under which it applies, the reason for it, how SWBPIPE realizes it, and
+the independent ground on which that realization is validated in this repository (a closed form or the product
+itself; never a value from the other program's output). Where the other program's convention is documented in a
+cited public source, the reason says so; otherwise the basis is a comparison hypothesis and says that. Nothing of the
 other program's output is used to choose, tune or validate a basis.
 
 The rule that governs every basis: a stated basis never replaces the plain comparison. The comparison record keeps its
 unadjusted results exactly as built (core/handoff/caepipe_external/benchmark.py) and shows each basis beside them,
-named, with its condition, reason and ground. A basis whose condition does not hold for a model is listed with the
-reason by name and compares nothing.
+named, with its condition, reason and ground. Every basis ends in a named outcome (OUTCOMES), never an exception: a
+basis whose condition does not hold, that cannot be represented, or that the product refuses is listed with the reason
+by name and compares nothing. A route writes the plain record before it attempts any basis.
 
 The bases:
 - effective_axial_force_binding (B): the binding of SWBPIPE's element end forces on pressurised members. SWBPIPE's
@@ -23,6 +25,8 @@ The bases:
   timoshenko_annulus_energy_v1.
 - finite_anchor_stiffness (D): a second solve with each anchor replaced by six linear springs of the stiffness the
   target program's public anchor page states for its rigid anchor.
+- thin_wall_elongation (E1) and straight_only_elongation (E2) are comparison hypotheses on SWBPIPE's side; no formula
+  is attributed to the other program.
 - thin_wall_elongation (E1), straight_only_elongation (E2), terminal_transfers_to_wall (E3): the pressure bases of the
   two pressure series (benchmark_models.PRESSURE_RUN_SERIES).
 - together: one solve with every solve basis that applies to the model.
@@ -34,7 +38,7 @@ import copy
 import math
 from typing import Any, Mapping
 
-from tools.caepipe_correlation.benchmark_tranche3 import K_ROTATION, K_TRANSLATION, RIGID_SUPPORT
+from tools.caepipe_correlation.benchmark_tranche3 import K_ROTATION, K_TRANSLATION, RIGID_SUPPORT, WINDOW_PRINT_WAIT
 
 EFFECTIVE_AXIAL = "effective_axial_force_binding"
 SHEAR = "timoshenko_shear"
@@ -50,12 +54,18 @@ TIMOSHENKO = "timoshenko_annulus_energy_v1"
 EULER_BERNOULLI = "euler_bernoulli"
 TRANSFERS = "transfers_to_wall"
 ELONGATION_ON = "pressure-elongation-on"
-ANALYSIS_PAGE = ("https://docs.sstcae.com/users_manual/analysis.htm (user's manual, \"Analysis\", the Bourdon effect "
-                 "option), read 2026-11-21")
 FRP_PAGE = ("https://docs.sstcae.com/tech_manual/fiber_reinforced_plastic_piping__frp_.htm (technical reference, "
             "\"Stiffness matrix\"; CQ-17-01-010 in execution/PKG-17/DEL-17-01/CAEPIPE_Question_Dossier.md)")
 BASIS_LOAD_PREFIX = "load:stated-basis:"
 SPRING_DOFS = (("UX", "N/m"), ("UY", "N/m"), ("UZ", "N/m"), ("RX", "N*m/rad"), ("RY", "N*m/rad"), ("RZ", "N*m/rad"))
+
+# The outcome of each basis, by name.
+APPLIED = "applied"
+NOT_APPLICABLE = "not_applicable"            # its condition does not hold
+NOT_REPRESENTABLE = "not_representable"      # its condition holds, but its realization cannot be formed
+REFUSED_BY_PRODUCT = "refused_by_product"    # the product refuses the basis document, or does not solve it
+NOT_COMPARED = "not_compared"                # the run is declared not screened: no basis is compared
+OUTCOMES = (APPLIED, NOT_APPLICABLE, NOT_REPRESENTABLE, REFUSED_BY_PRODUCT, NOT_COMPARED)
 
 RULE = ("a stated basis never replaces the plain comparison: the record's results are the unadjusted comparison, and "
         "each basis is shown beside them by name, with its condition, its reason and the independent ground that "
@@ -81,10 +91,13 @@ STATEMENTS: dict[str, dict[str, str]] = {
     },
     SHEAR: {
         "title": "Timoshenko straight members",
-        "condition": ("a pressure-free document (no pressure_contract) that selects no shear model, that is not a "
-                      "modal model, and that the product admits under the selection"),
-        "reason": ("the benchmark documents state no shear model, so SWBPIPE's pressure-free solve is "
-                   "Euler-Bernoulli (model_settings.shear_model absent). The target program's public FRP page forms "
+        "condition": ("a pressure-free document (no pressure_contract) that does not select Timoshenko straight members "
+                      "(it selects no shear model, or euler_bernoulli), of a run that is compared (declared screened, "
+                      "or whose declared screening waits for the window print route; a capture-only run is compared "
+                      "by no route), with no wind exposed spans; applied only where the product solves the basis "
+                      "document"),
+        "reason": ("the benchmark documents select no Timoshenko shear model, so SWBPIPE's pressure-free solve is "
+                   "Euler-Bernoulli. The target program's public FRP page forms "
                    "its pipe stiffness with a shear flexibility term, a shape factor times L/GA (" + FRP_PAGE + "); "
                    "its shape factor, and whether the term applies to steel pipe, are open (CQ-17-01-010). The basis "
                    "uses SWBPIPE's own energy-matched annular factor kappa_E, not the other program's"),
@@ -101,7 +114,7 @@ STATEMENTS: dict[str, dict[str, str]] = {
         "reason": ("SWBPIPE's anchor holds each component exactly. The target program's public anchor page states "
                    "that its rigid stiffness is set internally to a finite value: " + RIGID_SUPPORT["stated"] + ", "
                    + RIGID_SUPPORT["source"] + " (CAEPIPE-ANCHOR in "
-                   "execution/PKG-17/DEL-17-01/Source_Basis_Register.md). Short, stiff models then differ in "
+                   "execution/PKG-17/DEL-17-01/Source_Basis_Register.md). Short, stiff models can then differ in "
                    "reactions, and show small rotations at anchors where SWBPIPE has exactly zero"),
         "realization": (f"a second solve with each anchor replaced by six linear springs at its node, "
                         f"{K_TRANSLATION!r} N/m on UX, UY, UZ and {K_ROTATION!r} N*m/rad on RX, RY, RZ ("
@@ -112,16 +125,15 @@ STATEMENTS: dict[str, dict[str, str]] = {
     },
     THIN: {
         "title": "pressure elongation by the thin-wall formula at the mean diameter",
-        "condition": ("the pressure-elongation-on run of a pressure series, every member of a region in an elongation "
-                      "case a nominal section (no corrosion allowance) of a material without temperature points, and "
-                      "no thermal load already on such a member in that case"),
-        "reason": ("SWBPIPE's pressure elongation is the closed-end free strain (1 - 2 nu) p A_i/(E A_s), the "
-                   "thick-wall value. The target program's public Analysis page describes its Bourdon effect as the "
-                   "tendency of straight pipes to elongate under internal pressure, with a formula in the mean radius, "
-                   "the thickness, Poisson's ratio and the elastic modulus (" + ANALYSIS_PAGE + "); the formula "
-                   "itself is printed there as an image and is not read here. The basis is the same strain by the "
-                   "thin-wall formula at the mean diameter, (1 - 2 nu) p D_m/(4 t E), the thick-wall value times "
-                   "(D_m/D_i)^2"),
+        "condition": ("the pressure-elongation-on run of a pressure series with a pressure region in an elongation "
+                      "case; represented only where every member of such a region has a nominal section (no corrosion "
+                      "allowance or mill tolerance other than zero), a material without temperature points whose "
+                      "expansion coefficient is a nonzero finite value in 1/degC or 1/K, its other inputs in SI, and "
+                      "no thermal load already on it in that case"),
+        "reason": ("a comparison hypothesis on SWBPIPE's side. SWBPIPE's pressure elongation is the closed-end free "
+                   "strain (1 - 2 nu) p A_i/(E A_s), the thick-wall value. The basis is the classical thin-wall "
+                   "closed-end strain at the mean diameter, (1 - 2 nu) p D_m/(4 t E), the thick-wall value times "
+                   "(D_m/D_i)^2. No formula is attributed to the other program"),
         "realization": ("the run's elongation-off document (model_settings.pressure_elongation removed) with, in each "
                         "elongation case, a free strain on each member of its pressure regions placed as a uniform "
                         "temperature interval dT = eps/alpha, eps = (1 - 2 nu) p D_m/(4 t E)"),
@@ -132,11 +144,10 @@ STATEMENTS: dict[str, dict[str, str]] = {
     STRAIGHT: {
         "title": "no pressure elongation along a bend's arc",
         "condition": ("the pressure-elongation-on run of a pressure series whose regions in an elongation case hold a "
-                      "realized bend, under THIN's section, material and load conditions"),
-        "reason": ("SWBPIPE elongates a realized arc under pressure. The target program's public Analysis page "
-                   "describes its Bourdon effect for straight pipes, and its pressure correction for bends as "
-                   "different from and unaffected by it (" + ANALYSIS_PAGE + "). The basis applies the elongation "
-                   "to straight members only"),
+                      "realized bend; represented under THIN's section, material and load conditions"),
+        "reason": ("a comparison hypothesis on SWBPIPE's side. SWBPIPE elongates every member of a pressure region "
+                   "under pressure, realized arcs included. The basis applies SWBPIPE's own thick-wall elongation to "
+                   "straight members only. No convention is attributed to the other program"),
         "realization": ("the run's elongation-off document with SWBPIPE's own thick-wall free strain "
                         "(1 - 2 nu) p A_i/(E A_s) placed on each straight member of the pressure regions of each "
                         "elongation case as a uniform temperature interval, and none on a realized bend"),
@@ -148,8 +159,8 @@ STATEMENTS: dict[str, dict[str, str]] = {
         "title": "both terminals transferring to the wall",
         "condition": "a pressure region with a terminal that does not transfer to the wall (closure_transfer)",
         "reason": ("the model states that terminal as separately supported or compensated, so SWBPIPE applies the "
-                   "unbalanced thrust p A_i there. The exchanged MBF carries no such terminal condition: the written "
-                   "file has no record for it, so the other program is given a closed member"),
+                   "unbalanced thrust p A_i there. The MBF this writer writes carries no terminal condition: it has no "
+                   "record for one"),
         "realization": "a second solve with every terminal of every pressure region transferring to the wall",
         "ground": ("closed form: a closed cantilever under pressure with elongation off carries no axial reaction at "
                    "its anchor, where the plain solve carries the thrust p A_i (tests/test_caepipe_stated_bases.py)"),
@@ -170,6 +181,21 @@ def _model(entry: Mapping[str, Any]) -> Mapping[str, Any]:
     return entry.get("model") or {}
 
 
+def declared_compared(declaration: Mapping[str, Any] | None) -> tuple[bool, str]:
+    """Whether a run's manifest declaration lets a route compare it, and why not, by name. A model without declared
+    runs (None) is screened. A declared run is compared when it is declared screened, or when its declared screening
+    waits for the window print route alone (benchmark_tranche3.WINDOW_PRINT_WAIT: the hand-entry runs), which is the
+    route that compares it; any other run (a dynamics capture, which waits for a modal entry of the product) is a
+    reference and is compared by no route."""
+    if declaration is None or declaration.get("screened") is True:
+        return True, ""
+    waits = str(declaration.get("screening_waits_for") or "")
+    if waits.startswith(WINDOW_PRINT_WAIT):
+        return True, ""
+    return False, ("the run is declared not screened; its screening waits for "
+                   + (waits or "a condition the declaration does not name"))
+
+
 def _bend_pipes(model: Mapping[str, Any]) -> set[str]:
     """The pipes realized as arcs: each bend component's bend_pipe_ref."""
     return {str(component["geometry"]["bend_pipe_ref"]) for component in model.get("components") or []
@@ -188,24 +214,23 @@ def _elongation_cases(model: Mapping[str, Any]) -> list[str]:
     return list(setting.get("operating_load_cases") or [])
 
 
-def _elongation_members(model: Mapping[str, Any]) -> dict[str, list[tuple[str, float]]]:
-    """{case: [(pipe, pressure in Pa)]} for every member of a pressure region of an elongation case."""
+def _elongation_members(model: Mapping[str, Any]) -> dict[str, list[tuple[str, Any]]]:
+    """{case: [(pipe, its region's pressure quantity)]} for every member of a pressure region of an elongation case."""
     cases = set(_elongation_cases(model))
-    out: dict[str, list[tuple[str, float]]] = {}
+    out: dict[str, list[tuple[str, Any]]] = {}
     for case in model.get("load_cases") or []:
         if case.get("id") not in cases:
             continue
         for region in case.get("pressure_regions") or []:
-            pressure = region.get("pressure") or {}
-            if pressure.get("unit") != "Pa":
-                raise ValueError(f"{region.get('id')}: pressure is not in Pa")
             for pipe in region.get("member_pipe_ids") or []:
-                out.setdefault(case["id"], []).append((str(pipe), float(pressure["value"])))
+                out.setdefault(case["id"], []).append((str(pipe), region.get("pressure")))
     return out
 
 
-def condition(entry: Mapping[str, Any], name: str) -> tuple[bool, str]:
-    """Whether a solve basis applies to a benchmark document, and, when it does not, why, by name."""
+def condition(entry: Mapping[str, Any], name: str,
+              declaration: Mapping[str, Any] | None = None) -> tuple[bool, str]:
+    """Whether a solve basis applies to a benchmark document, and, when it does not, why, by name. `declaration` is
+    the run's manifest declaration, where the route has it (declared_compared)."""
     model = _model(entry)
     contract = model.get("pressure_contract")
     if name == SHEAR:
@@ -216,9 +241,11 @@ def condition(entry: Mapping[str, Any], name: str) -> tuple[bool, str]:
         selected = (model.get("model_settings") or {}).get("shear_model")
         if selected not in (None, EULER_BERNOULLI):
             return False, f"the document already selects {selected}"
-        if entry.get("run_kind") == "dynamics" or entry.get("family") == "D":
-            return False, ("a modal model: the modal route refuses a document that selects Timoshenko straight members "
-                           "(docs/RELEASE_LIMITATIONS_v1.0.md)")
+        if entry.get("capture_only"):
+            return False, "a capture-only run: no route compares it"
+        compared, why = declared_compared(declaration)
+        if not compared:
+            return False, why
         for case in model.get("load_cases") or []:
             wind = ((case.get("equivalent_static") or {}).get("wind") or {})
             if wind.get("exposed_spans"):
@@ -243,9 +270,6 @@ def condition(entry: Mapping[str, Any], name: str) -> tuple[bool, str]:
         members = _elongation_members(model)
         if not members:
             return False, "no pressure region in an elongation case"
-        problem = _strain_problem(model, members)
-        if problem:
-            return False, problem
         if name == STRAIGHT and not any(pipe in _bend_pipes(model) for items in members.values()
                                         for pipe, _ in items):
             return False, ("no realized bend in a pressure region of an elongation case: SWBPIPE elongates straight "
@@ -262,39 +286,89 @@ def condition(entry: Mapping[str, Any], name: str) -> tuple[bool, str]:
     raise ValueError(f"unknown solve basis {name!r}")
 
 
-def applicable(entry: Mapping[str, Any]) -> dict[str, tuple[bool, str]]:
-    return {name: condition(entry, name) for name in SOLVE_BASES}
+def applicable(entry: Mapping[str, Any], declaration: Mapping[str, Any] | None = None) -> dict[str, tuple[bool, str]]:
+    return {name: condition(entry, name, declaration) for name in SOLVE_BASES}
 
 
 # -- realizations ----------------------------------------------------------------------------------------------------
+class NotRepresentable(ValueError):
+    """A basis whose condition holds cannot be realized for this document; the message says why."""
+
+
+_LENGTH = {"m": 1.0, "mm": 1.0e-3}
+_PER_DEGREE = ("1/degC", "1/K")  # an interval of one kelvin is an interval of one degree Celsius
+
+
 def _section(model: Mapping[str, Any], pipe_id: str) -> tuple[Mapping[str, Any], Mapping[str, Any]]:
-    pipe = next(item for item in model.get("pipe_segments") or [] if item.get("id") == pipe_id)
-    material = next(item for item in model.get("materials") or [] if item.get("id") == pipe.get("material"))
+    pipe = next((item for item in model.get("pipe_segments") or [] if item.get("id") == pipe_id), None)
+    if pipe is None:
+        raise NotRepresentable(f"{pipe_id} is not a pipe segment of the model")
+    material = next((item for item in model.get("materials") or [] if item.get("id") == pipe.get("material")), None)
+    if material is None:
+        raise NotRepresentable(f"{pipe_id}'s material is not in the model")
     return pipe, material
 
 
-def _si(quantity: Mapping[str, Any], unit: str) -> float:
+def _si(quantity: Any, unit: str, what: str) -> float:
+    """A finite quantity in exactly `unit`, else NotRepresentable naming `what`."""
     if not isinstance(quantity, Mapping) or quantity.get("unit") != unit:
-        raise ValueError(f"expected a quantity in {unit}, got {quantity!r}")
-    return float(quantity["value"])
+        raise NotRepresentable(f"{what} is not given in {unit} ({quantity!r})")
+    value = quantity.get("value")
+    if isinstance(value, bool) or not isinstance(value, (int, float)) or not math.isfinite(value):
+        raise NotRepresentable(f"{what} is not a finite number ({quantity!r})")
+    return float(value)
 
 
-def _strain_problem(model: Mapping[str, Any], members: Mapping[str, list[tuple[str, float]]]) -> str:
-    """Why the free strain cannot be placed as a temperature interval, or ''."""
-    for case_id, items in members.items():
-        case = next(item for item in model.get("load_cases") or [] if item.get("id") == case_id)
-        heated = {str((load.get("target") or {}).get("pipe")) for load in case.get("primitive_loads") or []
-                  if load.get("category") == "thermal"}
-        for pipe_id, _ in items:
-            pipe, material = _section(model, pipe_id)
-            section = pipe.get("section") or {}
-            if _si(section.get("corrosion_allowance") or {"unit": "m", "value": 0.0}, "m") != 0.0 \
-                    or section.get("mill_tolerance") is not None:
-                return f"{pipe_id} has a corrosion allowance or mill tolerance: its bore is not the nominal one"
-            if material.get("temperature_points"):
-                return f"{material.get('id')} has temperature points: alpha is not one constant"
-            if pipe_id in heated:
-                return f"{case_id} already heats {pipe_id}"
+def _length_is_zero(quantity: Any, what: str) -> bool:
+    """Whether an optional length (corrosion allowance, mill tolerance) is absent or zero; NotRepresentable when it is
+    not a length."""
+    if quantity is None:
+        return True
+    if not isinstance(quantity, Mapping) or quantity.get("unit") not in _LENGTH:
+        raise NotRepresentable(f"{what} is not a length in m or mm ({quantity!r})")
+    value = quantity.get("value")
+    if isinstance(value, bool) or not isinstance(value, (int, float)) or not math.isfinite(value):
+        raise NotRepresentable(f"{what} is not a finite number ({quantity!r})")
+    return value == 0
+
+
+def _alpha(material: Mapping[str, Any]) -> float:
+    quantity = material.get("thermal_expansion_coefficient")
+    if not isinstance(quantity, Mapping) or quantity.get("unit") not in _PER_DEGREE:
+        raise NotRepresentable(f"{material.get('id')}'s expansion coefficient is absent or not in 1/degC or 1/K "
+                               f"({quantity!r}); the strain is placed as a temperature interval")
+    value = quantity.get("value")
+    if isinstance(value, bool) or not isinstance(value, (int, float)) or not math.isfinite(value) or value == 0:
+        raise NotRepresentable(f"{material.get('id')}'s expansion coefficient is zero or not finite ({quantity!r}); "
+                               "a strain cannot be placed as a temperature interval")
+    return float(value)
+
+
+def representation(entry: Mapping[str, Any], name: str) -> str:
+    """Why a basis whose condition holds cannot be realized for this document, or ''."""
+    if name not in (THIN, STRAIGHT):
+        return ""
+    model = _model(entry)
+    try:
+        for case_id, items in _elongation_members(model).items():
+            case = next(item for item in model.get("load_cases") or [] if item.get("id") == case_id)
+            heated = {str((load.get("target") or {}).get("pipe")) for load in case.get("primitive_loads") or []
+                      if load.get("category") == "thermal"}
+            for pipe_id, pressure in items:
+                pipe, material = _section(model, pipe_id)
+                section = pipe.get("section") or {}
+                if not (_length_is_zero(section.get("corrosion_allowance"), f"{pipe_id}'s corrosion allowance")
+                        and _length_is_zero(section.get("mill_tolerance"), f"{pipe_id}'s mill tolerance")):
+                    return f"{pipe_id} has a corrosion allowance or mill tolerance: its bore is not the nominal one"
+                if material.get("temperature_points"):
+                    return f"{material.get('id')} has temperature points: alpha is not one constant"
+                if pipe_id in heated:
+                    return f"{case_id} already heats {pipe_id}"
+                _alpha(material)
+                free_strain(model, pipe_id, _si(pressure, "Pa", f"{pipe_id}'s pressure in {case_id}"),
+                            thin_wall=name == THIN)
+    except NotRepresentable as why:
+        return str(why)
     return ""
 
 
@@ -302,17 +376,19 @@ def free_strain(model: Mapping[str, Any], pipe_id: str, pressure_pa: float, *, t
     """The closed-end free pressure strain of a member: thick-wall (1 - 2 nu) p A_i/(E A_s), or thin-wall at the mean
     diameter (1 - 2 nu) p D_m/(4 t E)."""
     pipe, material = _section(model, pipe_id)
-    od = _si(pipe["section"]["outside_diameter"], "m")
-    t = _si(pipe["section"]["wall_thickness"], "m")
-    e = _si(material["elastic_modulus"], "Pa")
-    nu = _si(material["poisson_ratio"], "1")
+    od = _si((pipe.get("section") or {}).get("outside_diameter"), "m", f"{pipe_id}'s outside diameter")
+    t = _si((pipe.get("section") or {}).get("wall_thickness"), "m", f"{pipe_id}'s wall thickness")
+    e = _si(material.get("elastic_modulus"), "Pa", f"{material.get('id')}'s elastic modulus")
+    nu = _si(material.get("poisson_ratio"), "1", f"{material.get('id')}'s Poisson's ratio")
     di = od - 2.0 * t
+    if not (0.0 < t and 0.0 < di and e > 0.0):
+        raise NotRepresentable(f"{pipe_id}'s section or modulus does not give a closed-end strain")
     if thin_wall:
         return (1.0 - 2.0 * nu) * pressure_pa * (od - t) / (4.0 * t * e)
     return (1.0 - 2.0 * nu) * pressure_pa * di * di / (e * (od * od - di * di))
 
 
-def _place_strains(model: dict[str, Any], members: Mapping[str, list[tuple[str, float]]], *, thin_wall: bool,
+def _place_strains(model: dict[str, Any], members: Mapping[str, list[tuple[str, Any]]], *, thin_wall: bool,
                    straight_only: bool) -> None:
     bends = _bend_pipes(model)
     for case in model["load_cases"]:
@@ -320,8 +396,8 @@ def _place_strains(model: dict[str, Any], members: Mapping[str, list[tuple[str, 
             if straight_only and pipe_id in bends:
                 continue
             _, material = _section(model, pipe_id)
-            alpha = _si(material["thermal_expansion_coefficient"], "1/degC")
-            strain = free_strain(model, pipe_id, pressure, thin_wall=thin_wall)
+            alpha = _alpha(material)
+            strain = free_strain(model, pipe_id, _si(pressure, "Pa", f"{pipe_id}'s pressure"), thin_wall=thin_wall)
             case.setdefault("primitive_loads", []).append({
                 "category": "thermal", "dimension": "temperature_interval", "direction": "global_x",
                 "id": f"{BASIS_LOAD_PREFIX}{'thin' if thin_wall else 'thick'}-strain:{pipe_id}",
@@ -340,14 +416,19 @@ def _without_elongation(model: dict[str, Any]) -> None:
 
 
 def realize(entry: Mapping[str, Any], names: tuple[str, ...], *, k_translation: float = K_TRANSLATION,
-            k_rotation: float = K_ROTATION) -> tuple[dict[str, Any], dict[str, str]]:
+            k_rotation: float = K_ROTATION,
+            declaration: Mapping[str, Any] | None = None) -> tuple[dict[str, Any], dict[str, str]]:
     """The document SWBPIPE solves under the named solve bases (each of which must apply), and the map from each new
     support id to the support whose node it stands for. The argument is not changed. The stiffnesses are parameters
-    only so that the mechanism can be examined on a closed form; the comparison uses the stated ones."""
+    only so that the mechanism can be examined on a closed form; the comparison uses the stated ones. Raises
+    NotRepresentable when a basis cannot be realized for this document."""
     for name in names:
-        applies, why = condition(entry, name)
+        applies, why = condition(entry, name, declaration)
         if not applies:
             raise ValueError(f"{name} does not apply: {why}")
+        problem = representation(entry, name)
+        if problem:
+            raise NotRepresentable(f"{name}: {problem}")
     out = copy.deepcopy(dict(entry))
     model = out["model"]
     aliases: dict[str, str] = {}
@@ -471,40 +552,59 @@ def _key(row: Mapping[str, Any]) -> tuple:
     return (row.get("case"), row.get("kind"), row.get("entity"), row.get("end"), row.get("component"))
 
 
-def _axial_block(entry: Mapping[str, Any], record_of, plain_rows: list[Mapping[str, Any]]) -> dict[str, Any] | None:
-    """The effective axial force binding's rows beside the wall binding's, for the pressurised members of one solve, or
-    None when no member is pressurised. `record_of(end_force_binding)` builds the record of that solve."""
+def _counts(rows: list[Mapping[str, Any]]) -> dict[str, Any]:
     from core.handoff.caepipe_external.benchmark import FINDING, UNMATCHED, WITHIN
 
+    counts: dict[str, Any] = {name: sum(1 for row in rows if row["classification"] == name)
+                              for name in (WITHIN, FINDING, UNMATCHED)}
+    counts["zero_against_zero"] = {name: sum(1 for row in rows if "zero_against_zero" in row
+                                             and row["classification"] == name) for name in (WITHIN, FINDING)}
+    return counts
+
+
+def _axial_block(entry: Mapping[str, Any], record_of, plain_rows: list[Mapping[str, Any]]) -> dict[str, Any] | None:
+    """The effective axial force binding's rows beside the wall binding's, for the members pressurised in each
+    compared case of one solve (the operating case: in any of the cases it sums), or None when no member is
+    pressurised in any case. `record_of(end_force_binding)` builds the record of that solve. The binding is applied
+    only where at least one end force was bound under it."""
     model = _model(entry)
     pressurised = pressurised_members(model)
-    members = set().union(*pressurised.values()) if pressurised else set()
-    if not members:
+    if not any(pressurised.values()):
         return None
     axes, missing = member_end_axes(model)
     record = record_of({"axes": axes, "pressurised": pressurised})
+    by_case = {str(case["case"]): set().union(*(pressurised.get(str(c)) or set() for c in case["swbpipe_cases"]))
+               for case in record.get("load_cases") or [] if case.get("swbpipe_cases")}
     plain = {_key(row): row for row in plain_rows}
     rows = []
     for row in record["results"]:
-        if row.get("kind") == "element_force" and row.get("entity") in members:
+        if row.get("kind") == "element_force" and row.get("entity") in by_case.get(str(row.get("case")), set()):
             twin = plain.get(_key(row)) or {}
             rows.append({**row, "wall_binding": {"swbpipe": (twin.get("values") or {}).get("swbpipe"),
                                                  "classification": twin.get("classification")}})
-    counts = {name: sum(1 for row in rows if row["classification"] == name) for name in (WITHIN, FINDING, UNMATCHED)}
-    return {**_statement(EFFECTIVE_AXIAL), "applied": True, "members": sorted(members),
-            "axis_not_known": {member: why for member, why in sorted(missing.items()) if member in members},
-            "counts": counts, "results": rows}
+    members = sorted(set().union(*by_case.values())) if by_case else []
+    bound = sum(1 for row in rows if (row.get("values") or {}).get("swbpipe") is not None)
+    block = {**_statement(EFFECTIVE_AXIAL), "members": members,
+             "members_by_case": {case: sorted(found) for case, found in sorted(by_case.items())},
+             "axis_not_known": {member: why for member, why in sorted(missing.items()) if member in members},
+             "counts": _counts(rows), "results": rows}
+    if not bound:
+        return {**block, "applied": False, "outcome": NOT_APPLICABLE,
+                "not_applied": "no end force of a member pressurised in a compared case was bound under it"}
+    return {**block, "applied": True, "outcome": APPLIED}
 
 
 def compare_bases(entry: Mapping[str, Any], *, plain_payload: Mapping[str, Any], plain_record: Mapping[str, Any],
                   mbf_result: Any, mbf_text: str, parsed_caepipe: Mapping[str, Any] | None,
-                  solve, record_options: Mapping[str, Any] | None = None) -> dict[str, Any]:
-    """Every stated basis beside the plain comparison of one benchmark document (the record's `stated_bases`).
+                  solve, record_options: Mapping[str, Any] | None = None,
+                  declaration: Mapping[str, Any] | None = None) -> dict[str, Any]:
+    """Every stated basis beside the plain comparison of one benchmark document, after the plain record is written.
 
     `solve(document, names)` solves SWBPIPE's side of a basis document in a solve folder of its own and returns
-    (payload or None, error, solve record). The plain record is not changed. A basis whose condition does not hold is
-    listed with its reason; a basis solve the product refuses is listed with its refusal and compares nothing.
-    `record_options` are passed to every record built here as they were to the plain one (unread_supports)."""
+    (payload or None, error, solve record). The plain record is not changed. Each basis ends in a named outcome
+    (OUTCOMES) and never raises: one whose condition does not hold, that cannot be represented, or that the product
+    refuses is listed with the reason and compares nothing. `record_options` are passed to every record built here as
+    they were to the plain one; `declaration` is the run's manifest declaration (declared_compared)."""
     from core.handoff.caepipe_external.benchmark import build_benchmark_record
 
     def record(document: Mapping[str, Any], payload: Mapping[str, Any], **extra: Any) -> dict[str, Any]:
@@ -512,44 +612,82 @@ def compare_bases(entry: Mapping[str, Any], *, plain_payload: Mapping[str, Any],
                                       mbf_text=mbf_text, parsed_caepipe=parsed_caepipe,
                                       **dict(record_options or {}), **extra)
 
+    plain = {"shear_model": shear_model_of(entry),
+             "axial_binding": ("wall: SWBPIPE's element_global_end_force_v1, whose axial part on a pressurised member "
+                               "is the wall force N_w"),
+             "anchors": "ideal: every restrained component held exactly",
+             "note": "the record's results are this comparison, unadjusted"}
+    compared, why = declared_compared(declaration)
+    if not compared:
+        return {"rule": RULE, "plain": plain,
+                "bases": [{**_statement(name), "applied": False, "outcome": NOT_COMPARED, "not_applied": why}
+                          for name in (EFFECTIVE_AXIAL, *SOLVE_BASES, TOGETHER)]}
+
+    def unrepresentable(name: str, error: BaseException, **extra: Any) -> dict[str, Any]:
+        return {**_statement(name), "applied": False, "outcome": NOT_REPRESENTABLE, **extra,
+                "not_applied": f"{type(error).__name__}: {error}"}
+
     bases: list[dict[str, Any]] = []
-    axial = _axial_block(entry, lambda binding: record(entry, plain_payload, end_force_binding=binding),
-                         plain_record["results"])
-    bases.append(axial or {**_statement(EFFECTIVE_AXIAL), "applied": False,
-                           "not_applied": "no member of a pressure region in a compared case"})
-    conditions = applicable(entry)
-    applied = [name for name in SOLVE_BASES if conditions[name][0]]
-    runs = [(name, (name,)) for name in SOLVE_BASES] + [(TOGETHER, tuple(applied))]
+    try:
+        axial = _axial_block(entry, lambda binding: record(entry, plain_payload, end_force_binding=binding),
+                             plain_record["results"])
+        bases.append(axial or {**_statement(EFFECTIVE_AXIAL), "applied": False, "outcome": NOT_APPLICABLE,
+                               "not_applied": "no member of a pressure region in a compared case"})
+    except Exception as error:  # an optional basis never costs the plain record
+        bases.append(unrepresentable(EFFECTIVE_AXIAL, error))
+    try:
+        conditions = applicable(entry, declaration)
+    except Exception as error:
+        conditions = {name: (False, f"{type(error).__name__}: {error}") for name in SOLVE_BASES}
+    problems = {name: (representation(entry, name) if conditions[name][0] else "") for name in SOLVE_BASES}
+    usable = [name for name in SOLVE_BASES if conditions[name][0] and not problems[name]]
+    runs = [(name, (name,)) for name in SOLVE_BASES] + [(TOGETHER, tuple(usable))]
     for name, names in runs:
         if name != TOGETHER and not conditions[name][0]:
-            bases.append({**_statement(name), "applied": False, "not_applied": conditions[name][1]})
+            bases.append({**_statement(name), "applied": False, "outcome": NOT_APPLICABLE,
+                          "not_applied": conditions[name][1]})
+            continue
+        if name != TOGETHER and problems[name]:
+            bases.append({**_statement(name), "applied": False, "outcome": NOT_REPRESENTABLE,
+                          "not_applied": problems[name]})
             continue
         if name == TOGETHER and len(names) < 2:
-            bases.append({**_statement(name), "applied": False,
+            bases.append({**_statement(name), "applied": False, "outcome": NOT_APPLICABLE,
                           "not_applied": f"{len(names)} solve basis applies; nothing to combine"})
             continue
-        document, aliases = realize(entry, names)
-        payload, error, solved = solve(document, names)
-        block: dict[str, Any] = {**_statement(name), "applied": True, "bases_combined": list(names),
-                                 "shear_model": shear_model_of(document), "swbpipe_solve": solved}
+        try:
+            document, aliases = realize(entry, names, declaration=declaration)
+        except Exception as error:
+            bases.append(unrepresentable(name, error, bases_combined=list(names)))
+            continue
+        block: dict[str, Any] = {**_statement(name), "bases_combined": list(names),
+                                 "shear_model": shear_model_of(document)}
+        try:
+            payload, error, solved = solve(document, names)
+        except Exception as raised:
+            payload, error, solved = None, f"{type(raised).__name__}: {raised}", {}
+        block["swbpipe_solve"] = solved
         if error or payload is None:
-            block.update(solved_by_product=False,
-                         refusal=error or "no result", note="no comparison under this basis: SWBPIPE did not solve it")
+            block.update(applied=False, outcome=REFUSED_BY_PRODUCT, solved_by_product=False,
+                         refusal=error or "no result",
+                         not_applied="no comparison under this basis: SWBPIPE did not solve it")
             bases.append(block)
             continue
-        basis_record = record(document, payload, support_aliases=aliases)
-        block.update(solved_by_product=True, summary=basis_record["summary"], results=basis_record["results"],
-                     element_binding=basis_record["element_binding"])
-        axial = _axial_block(document, lambda binding, d=document, p=payload: record(
-            d, p, support_aliases=aliases, end_force_binding=binding), basis_record["results"])
-        if axial is not None:
-            block["effective_axial_force_binding"] = {key: axial[key] for key in
-                                                      ("applied", "members", "axis_not_known", "counts", "results")}
+        try:
+            basis_record = record(document, payload, support_aliases=aliases)
+            block.update(applied=True, outcome=APPLIED, solved_by_product=True, summary=basis_record["summary"],
+                         results=basis_record["results"], element_binding=basis_record["element_binding"])
+            axial = _axial_block(document, lambda binding, d=document, p=payload: record(
+                d, p, support_aliases=aliases, end_force_binding=binding), basis_record["results"])
+            if axial is not None:
+                block["effective_axial_force_binding"] = {key: axial[key] for key in (
+                    "applied", "outcome", "members", "members_by_case", "axis_not_known", "counts", "results")
+                    if key in axial}
+        except Exception as raised:
+            block.update(applied=False, outcome=NOT_REPRESENTABLE, solved_by_product=True,
+                         not_applied=f"the basis solve's comparison could not be formed: "
+                                     f"{type(raised).__name__}: {raised}")
+            for key in ("summary", "results", "element_binding"):
+                block.pop(key, None)
         bases.append(block)
-    return {"rule": RULE,
-            "plain": {"shear_model": shear_model_of(entry),
-                      "axial_binding": ("wall: SWBPIPE's element_global_end_force_v1, whose axial part on a "
-                                        "pressurised member is the wall force N_w"),
-                      "anchors": "ideal: every restrained component held exactly",
-                      "note": "the record's results are this comparison, unadjusted"},
-            "bases": bases}
+    return {"rule": RULE, "plain": plain, "bases": bases}
