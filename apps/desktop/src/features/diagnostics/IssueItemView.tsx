@@ -1,6 +1,6 @@
 import type { ReactNode } from "react";
 import type { EntityRef } from "../../types";
-import { ISSUE_SOURCE_LABELS, type IssueItem, type IssueMember, type IssueSource } from "./issueItems";
+import { ISSUE_ORIGIN_LABELS, type IssueItem, type IssueMember } from "./issueItems";
 
 /**
  * One item of the Issues drawer. An item with one report is that report's own
@@ -26,7 +26,7 @@ export function IssueItemView({
 }) {
   const first = item.members[0];
   if (item.members.length === 1) return <>{main(<p>{first.shown.message}</p>)}</>;
-  const sources = [...new Set(item.members.map((member) => member.source))];
+  const origins = [...new Set(item.members.map((member) => member.origin))];
   return (
     <div className={`issue-group ${item.severity}`} data-testid={`issue-group-${item.code}`}>
       {main(
@@ -37,8 +37,8 @@ export function IssueItemView({
               Reported for each of: {item.differences.join("; ")}.
             </small>
           ) : null}
-          {sources.length > 1 ? (
-            <small className="issue-group-sources">Reported by {joinWords(sources.map((source) => ISSUE_SOURCE_LABELS[source]))}.</small>
+          {origins.length > 1 ? (
+            <small className="issue-group-sources">Reported by {joinWords(origins.map((origin) => ISSUE_ORIGIN_LABELS[origin]))}.</small>
           ) : null}
         </>
       )}
@@ -86,14 +86,10 @@ function MemberButton({ member, selected, onSelectDiagnostic, onSelectEntity }: 
       title={act ? undefined : "This report names nothing more to show."}
       type="button"
     >
-      <strong>{diagnostic.code}</strong> <span className="muted">{diagnostic.severity} · from {sourceLabel(source)}</span>
+      <strong>{diagnostic.code}</strong> <span className="muted">{diagnostic.severity} · from {ISSUE_ORIGIN_LABELS[member.origin]}</span>
       <p>{shown.message}</p>
     </button>
   );
-}
-
-function sourceLabel(source: IssueSource): string {
-  return ISSUE_SOURCE_LABELS[source];
 }
 
 function joinWords(words: readonly string[]): string {

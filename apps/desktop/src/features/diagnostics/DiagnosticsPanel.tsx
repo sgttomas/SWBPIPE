@@ -58,8 +58,8 @@ export function DiagnosticsPanel({
   const publishedLibraryRefs = usePublishedLibraryRefFindings();
   const ownItems = useMemo(() => {
     if (givenItems) return null;
-    const { diagnostics, shownDiagnostics } = diagnosticsListOf(model, knowledge, result, publishedLibraryRefs);
-    return groupIssues({ model, diagnostics, shownDiagnostics });
+    const { diagnostics, shownDiagnostics, solveDiagnosticCount } = diagnosticsListOf(model, knowledge, result, publishedLibraryRefs);
+    return groupIssues({ model, diagnostics, shownDiagnostics, solveDiagnosticCount });
   }, [givenItems, model, knowledge, result, publishedLibraryRefs]);
   const items = givenItems ?? ownItems ?? [];
   const diagnosticCount = items.reduce((count, item) => count + item.members.length, 0);

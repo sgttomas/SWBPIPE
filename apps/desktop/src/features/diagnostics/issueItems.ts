@@ -25,10 +25,14 @@ import type { ModelCheckFinding, ModelCheckGroupId, ModelCheckRun } from "./mode
 /** Where a member was reported. */
 export type IssueSource = "model-checks" | "operation" | "diagnostics";
 
-export const ISSUE_SOURCE_LABELS: Record<IssueSource, string> = {
-  "model-checks": "the model checks",
+/** Who reported a member, as the drawer names it. */
+export type IssueOrigin = "model checks" | "operation" | "model" | "solve";
+
+export const ISSUE_ORIGIN_LABELS: Record<IssueOrigin, string> = {
+  "model checks": "the model checks",
   operation: "an operation",
-  diagnostics: "the model and the solve"
+  model: "the model",
+  solve: "the solve"
 };
 
 /** One report that belongs to an item. */
@@ -38,6 +42,7 @@ export type IssueMember = Readonly<{
   /** The text the drawer shows for it (a solve's supplied text keeps its notice). */
   shown: Diagnostic;
   source: IssueSource;
+  origin: IssueOrigin;
   /** The model-check finding it came from, for a model-check member. */
   finding?: ModelCheckFinding;
 }>;
@@ -73,6 +78,8 @@ export type IssueInputs = Readonly<{
   /** The diagnostics list: each as given and as shown (index for index). */
   diagnostics?: readonly Diagnostic[];
   shownDiagnostics?: readonly Diagnostic[];
+  /** How many of `diagnostics`, from the end, are the result's (reported by the solve). */
+  solveDiagnosticCount?: number;
 }>;
 
 function objectOf(diagnostic: Diagnostic, model: PreviewModel | null | undefined, entity: EntityRef | null): { object: string | null; entity: EntityRef | null } {
@@ -122,10 +129,12 @@ export function groupIssues(inputs: IssueInputs): IssueItem[] {
       groups.set(key, { code: member.diagnostic.code, object: where.object, entity: where.entity, members: [member], order: groups.size });
     }
   };
-  for (const finding of inputs.modelChecks ?? []) add({ diagnostic: finding.diagnostic, shown: finding.diagnostic, source: "model-checks", finding }, finding.entity);
-  for (const diagnostic of inputs.operations ?? []) add({ diagnostic, shown: diagnostic, source: "operation" }, null);
+  for (const finding of inputs.modelChecks ?? []) add({ diagnostic: finding.diagnostic, shown: finding.diagnostic, source: "model-checks", origin: "model checks", finding }, finding.entity);
+  for (const diagnostic of inputs.operations ?? []) add({ diagnostic, shown: diagnostic, source: "operation", origin: "operation" }, null);
   const shown = inputs.shownDiagnostics ?? inputs.diagnostics ?? [];
-  (inputs.diagnostics ?? []).forEach((diagnostic, index) => add({ diagnostic, shown: shown[index] ?? diagnostic, source: "diagnostics" }, null));
+  const all = inputs.diagnostics ?? [];
+  const firstSolve = all.length - (inputs.solveDiagnosticCount ?? 0);
+  all.forEach((diagnostic, index) => add({ diagnostic, shown: shown[index] ?? diagnostic, source: "diagnostics", origin: index >= firstSolve ? "solve" : "model" }, null));
 
   return [...groups.entries()].sort((a, b) => a[1].order - b[1].order).map(([key, group]): IssueItem => {
     const home = group.members.reduce<IssueSource>((best, member) => (HOME_RANK[member.source] < HOME_RANK[best] ? member.source : best), "diagnostics");
@@ -245,9 +254,10 @@ export function useIssueSummary({
   const publishedLibraryRefs = usePublishedLibraryRefFindings();
   return useMemo(() => {
     if (!model) return issueSummary({ missingInputs: 0, solveJob });
-    const { diagnostics, shownDiagnostics } = diagnosticsListOf(model, knowledge, result, publishedLibraryRefs);
+    const { diagnostics, shownDiagnostics, solveDiagnosticCount } = diagnosticsListOf(model, knowledge, result, publishedLibraryRefs);
     return issueSummary({
       model,
+      solveDiagnosticCount,
       modelChecks: modelCheckRun?.findings ?? [],
       operations: Object.values(operationOutcomes).flatMap((outcome) => outcome.diagnostics) as Diagnostic[],
       diagnostics,
@@ -266,7 +276,7 @@ export function diagnosticsListOf(
   knowledge: DesignKnowledge | null,
   result: SessionResult | null,
   publishedLibraryRefs: Parameters<typeof currentLibraryRefFindings>[1]
-): { diagnostics: Diagnostic[]; shownDiagnostics: Diagnostic[] } {
+): { diagnostics: Diagnostic[]; shownDiagnostics: Diagnostic[]; solveDiagnosticCount: number } {
   const before = [
     ...model.diagnostics,
     ...modelDocumentDiagnostics(model),
@@ -275,5 +285,5 @@ export function diagnosticsListOf(
   ];
   const raw = result?.diagnostics ?? [];
   const shown = presentedResultDiagnostics(result);
-  return { diagnostics: [...before, ...raw], shownDiagnostics: [...before, ...shown] };
+  return { diagnostics: [...before, ...raw], shownDiagnostics: [...before, ...shown], solveDiagnosticCount: raw.length };
 }
