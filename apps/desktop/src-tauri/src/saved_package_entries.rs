@@ -79,8 +79,11 @@ pub(crate) const ENTRY_KEPT: &str = "SAVED-PACKAGE-ENTRY-KEPT";
 pub(crate) const ENTRY_NOT_APPLICABLE: &str = "SAVED-PACKAGE-ENTRY-NOT-APPLICABLE";
 /// The store does not hold the project the package was saved from.
 pub(crate) const ENTRY_PROJECT_NOT_SAVED: &str = "SAVED-PACKAGE-ENTRY-PROJECT-NOT-SAVED";
-/// The save bound no analysis run record, so the entry's basis is incomplete.
+/// The save was given no run record, so the entry's basis is incomplete.
 pub(crate) const ENTRY_NO_RUN_RECORD: &str = "SAVED-PACKAGE-ENTRY-NO-RUN-RECORD";
+/// The save was given a run record that did not verify against the package's
+/// source result and input manifest.
+pub(crate) const ENTRY_RUN_RECORD_UNVERIFIED: &str = "SAVED-PACKAGE-ENTRY-RUN-RECORD-UNVERIFIED";
 /// Keeping the entry failed, or could not be confirmed.
 pub(crate) const ENTRY_NOT_KEPT: &str = "SAVED-PACKAGE-ENTRY-NOT-KEPT";
 /// A command named an entry the project does not hold.
@@ -106,8 +109,10 @@ pub(crate) struct SavedPackageBasis {
 #[derive(Clone, Debug, PartialEq, Eq)]
 pub(crate) enum EntryBasis {
     Bound(SavedPackageBasis),
-    /// The save bound no run record (route 009 takes none today).
+    /// The save was given no run record.
     NoRunRecord,
+    /// The save was given a run record that did not verify, with the reason.
+    Unverified(String),
 }
 
 /// A published package, as the native save hands it to the store: built at
@@ -249,7 +254,16 @@ pub(crate) fn keep_entry_in_store(path: &Path, published: &PublishedPackage) -> 
         EntryBasis::NoRunRecord => {
             return SavedPackageEntryOutcome::not_kept(
                 ENTRY_NO_RUN_RECORD,
-                "The package was saved, but it is not listed in the project: the save bound no analysis run record, so the entry's basis is incomplete.",
+                "The package was saved, but it is not listed in the project: the save was given no analysis run record, so the entry's basis is incomplete.",
+            )
+        }
+        EntryBasis::Unverified(reason) => {
+            return SavedPackageEntryOutcome::not_kept(
+                ENTRY_RUN_RECORD_UNVERIFIED,
+                format!(
+                    "The package was saved, but it is not listed in the project: the analysis run record given with it did not verify ({}).",
+                    withheld(reason, &published.location)
+                ),
             )
         }
     };

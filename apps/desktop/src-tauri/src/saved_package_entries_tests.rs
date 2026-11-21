@@ -603,3 +603,147 @@ fn reading_a_report_package_adds_no_entry_and_removes_none() {
     assert!(read.members.iter().all(|member| !member.file_name.contains("saved_package") && !member.role.contains("saved_package")));
     assert_eq!(dump(&path), before);
 }
+
+// --- Route 009's run record (REQ-023 "Basis"; part 1b) -------------------------
+
+const VECTORS: &str = include_str!("../../../../fixtures/reports/invented/user_release_derivation_vectors.json");
+const VECTOR_SOURCE: &str = include_str!("../../../../fixtures/results/preview_physics_connected_sparse.json");
+
+/// A local-private save of the user-release vectors' basis: the committed
+/// model, its committed sparse solve, its input manifest and its transient
+/// run record, with the desktop request derived from them.
+struct Route009 {
+    model: serde_json::Value,
+    manifest: serde_json::Value,
+    run_record: serde_json::Value,
+    request: serde_json::Value,
+}
+
+fn route_009() -> Route009 {
+    let vector = serde_json::from_str::<serde_json::Value>(VECTORS).unwrap()["vectors"][0].clone();
+    let model = package_model();
+    let source: serde_json::Value = serde_json::from_str(VECTOR_SOURCE).unwrap();
+    let manifest = vector["input_manifest"].clone();
+    let request = crate::report_package_save::test_support::desktop_request_from(&model, &manifest, &source);
+    Route009 { model, manifest, run_record: vector["run_record"].clone(), request }
+}
+
+impl Route009 {
+    fn args(&self, run_text: Option<String>) -> crate::report_package_save::ReportPackageSaveRequest {
+        let mut args = crate::report_package_save::test_support::save_request_with(&self.request, &self.model, &self.manifest);
+        args.analysis_run_text = run_text;
+        args
+    }
+}
+
+/// Admits `args` on the command's path: the route-aware lease growth, then
+/// admission with the session (route 009 checks a record within its memory).
+fn admit_009(args: crate::report_package_save::ReportPackageSaveRequest) -> Result<AdmittedReportPackage, String> {
+    let registry = crate::command_ingress::test_support::registry(crate::memory_pool::test_host::ScriptedHost::normal());
+    let mut lease = registry.acquire_interactive_ingress(1024).unwrap();
+    let growth = crate::report_package_save::ingress_lease_bytes(&args).map_err(|error| error.code)?;
+    lease.grow_to(1024 + growth).unwrap();
+    let mut session = crate::report_package_save::UserReleaseSession { registry: &registry, lease: &mut lease };
+    crate::report_package_save::admit_report_package_session(args, &software(), &mut no_store, &no_custody, Some(&mut session)).map_err(|refusal| match refusal {
+        crate::report_package_save::SaveRefusal::Command(error) => error.code,
+        crate::report_package_save::SaveRefusal::Resource(refusal) => format!("{refusal:?}"),
+    })
+}
+
+/// Saves an admitted route-009 package into `dir`, keeping its entry in the
+/// store at `path`.
+fn save_009(admitted: AdmittedReportPackage, dir: &Path, path: &Path) -> crate::report_package_save::ReportPackageSaveReceipt {
+    let mut keep = |published: &PublishedPackage| keep_entry_in_store(path, published);
+    save_admitted_report_package_keeping(admitted, &no_custody, |name| Some(Ok(dir.join(name))), &mut keep).unwrap()
+}
+
+fn vector_project_store(label: &str) -> (PathBuf, PathBuf, Route009) {
+    let basis = route_009();
+    let dir = scratch(label);
+    let path = store_in(&dir);
+    write_project(&path, basis.model["project"]["id"].as_str().unwrap(), &basis.model);
+    (dir, path, basis)
+}
+
+#[test]
+fn a_local_private_save_with_a_verified_run_record_keeps_its_entry_with_that_basis() {
+    let _lock = crate::atomic_report_package_save::test_support::atomic_save_test_lock();
+    let (dir, path, basis) = vector_project_store("009-verified");
+    let admitted = admit_009(basis.args(Some(canonical(&basis.run_record)))).unwrap();
+    let receipt = save_009(admitted, &dir, &path);
+    assert_eq!(receipt.outcome, "saved");
+    assert_eq!((receipt.saved_package_entry.status.as_str(), receipt.saved_package_entry.code.as_str()), ("kept", ENTRY_KEPT), "{:?}", receipt.saved_package_entry);
+    let entry = &list_entries_in_store(&path, basis.model["project"]["id"].as_str().unwrap()).unwrap().entries[0];
+    let record = &basis.run_record["analysis_run"];
+    let checksum = |scope: &str| record["hashes"].as_array().unwrap().iter().find(|hash| hash["payload_scope"] == scope).unwrap()["value"].as_str().unwrap().to_string();
+    assert_eq!(entry.export_context, "local_private");
+    assert_eq!(entry.basis.model_hash, open_pipe_stress_operation_applier::sha256_hex(&canonical(&basis.model)));
+    assert_eq!(entry.basis.run_id, record["run_id"].as_str().unwrap());
+    assert_eq!(entry.basis.run_record_sha256, checksum("analysis_run_record"));
+    assert_eq!(entry.basis.received_result_sha256, checksum("received_result"));
+    assert_eq!((entry.package_identity_sha256.as_str(), entry.container_sha256.as_str()), (receipt.package_identity_sha256_hex.as_str(), receipt.container_sha256_hex.as_str()));
+}
+
+#[test]
+fn a_local_private_save_without_a_run_record_is_saved_as_today_and_keeps_no_entry() {
+    let _lock = crate::atomic_report_package_save::test_support::atomic_save_test_lock();
+    let (dir, path, basis) = vector_project_store("009-absent");
+    let before = dump(&path);
+    let receipt = save_009(admit_009(basis.args(None)).unwrap(), &dir, &path);
+    assert_eq!((receipt.outcome.as_str(), receipt.code.as_str()), ("saved", "REPORT-PACKAGE-SAVED"));
+    assert_eq!((receipt.saved_package_entry.status.as_str(), receipt.saved_package_entry.code.as_str()), ("not_kept", ENTRY_NO_RUN_RECORD));
+    assert_eq!(dump(&path), before, "nothing was written");
+}
+
+#[test]
+fn a_local_private_save_with_a_run_record_that_does_not_verify_is_saved_and_keeps_no_entry() {
+    let _lock = crate::atomic_report_package_save::test_support::atomic_save_test_lock();
+    let (dir, path, basis) = vector_project_store("009-unverified");
+    let before = dump(&path);
+    let mut altered = basis.run_record.clone();
+    altered["analysis_run"]["run_name"] = json!("an altered record, not resealed");
+    let mut other_result = basis.run_record.clone();
+    for hash in other_result["analysis_run"]["hashes"].as_array_mut().unwrap() {
+        if hash["payload_scope"] == "received_result" {
+            hash["value"] = json!("0".repeat(64));
+        }
+    }
+    let texts = [
+        ("an altered record", canonical(&altered)),
+        ("a record of another result", canonical(&other_result)),
+        ("a record that is not canonical", serde_json::to_string_pretty(&basis.run_record).unwrap()),
+        ("a text that is not JSON", "{ not json".to_string()),
+    ];
+    for (label, text) in texts {
+        let receipt = save_009(admit_009(basis.args(Some(text))).unwrap_or_else(|code| panic!("{label}: refused {code}")), &dir, &path);
+        assert_eq!(receipt.outcome, "saved", "{label}");
+        let outcome = &receipt.saved_package_entry;
+        assert_eq!((outcome.status.as_str(), outcome.code.as_str()), ("not_kept", ENTRY_RUN_RECORD_UNVERIFIED), "{label}: {outcome:?}");
+        assert!(outcome.message.contains("did not verify"), "{label}: {}", outcome.message);
+        withholds_location(&outcome.message);
+    }
+    assert_eq!(dump(&path), before, "nothing was written");
+}
+
+#[test]
+fn a_run_record_changes_neither_the_package_nor_route_009_admission() {
+    let basis = route_009();
+    let with = admit_009(basis.args(Some(canonical(&basis.run_record)))).unwrap();
+    let without = admit_009(basis.args(None)).unwrap();
+    assert_eq!(with.package.container_bytes, without.package.container_bytes, "the same package, byte for byte");
+    assert_eq!(with.package.package_identity_sha256_hex, without.package.package_identity_sha256_hex);
+    // A save refused today is refused with a record too, by the same code.
+    let mut unbound = basis.request.clone();
+    unbound["audit_manifest"]["model_hash"]["value"] = json!("0".repeat(64));
+    let refused = |run_text: Option<String>| {
+        let mut args = crate::report_package_save::test_support::save_request_with(&unbound, &basis.model, &basis.manifest);
+        args.analysis_run_text = run_text;
+        admit_009(args).map(|_| ()).unwrap_err()
+    };
+    assert_eq!(refused(None), crate::report_package_save::MODEL_UNBOUND);
+    assert_eq!(refused(Some(canonical(&basis.run_record))), crate::report_package_save::MODEL_UNBOUND);
+}
+
+fn canonical(value: &serde_json::Value) -> String {
+    open_pipe_stress_operation_applier::canonical_json(value)
+}

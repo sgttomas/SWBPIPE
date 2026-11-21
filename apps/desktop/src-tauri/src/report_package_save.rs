@@ -589,6 +589,81 @@ fn analysis_run_text_of(analysis_run_text: Option<&str>) -> Result<&str, ReportP
     Ok(text)
 }
 
+/// Route 009's provision for the run record text it checks for its
+/// saved-package entry (DEL-08-01 REQ-023 "Basis"): the text's priced parse
+/// when it is within [`MAX_ANALYSIS_RUN_TEXT_BYTES`] and is one JSON value,
+/// and nothing otherwise. Route 009 never refuses a save for its run record:
+/// a record it cannot check leaves the entry not kept, never the package.
+fn route_009_run_record_lease_bytes(analysis_run_text: Option<&str>) -> u64 {
+    match analysis_run_text {
+        Some(text) if text.len() as u64 <= MAX_ANALYSIS_RUN_TEXT_BYTES => text_parse_bytes(text, ArgsDecoding::Moved).unwrap_or(0),
+        _ => 0,
+    }
+}
+
+/// Route 009's run record, checked natively for the package's
+/// saved-package entry as route 010 checks its own (DEL-08-01 REQ-023
+/// "Basis"): bound to the project, the input manifest and its hash, and the
+/// source result the package is produced from
+/// ([`crate::analysis_runs::check_record_for_values`]). The basis is the
+/// model text's SHA-256 and the checked record's run id, recomputed record
+/// hash and received-result checksum. Nothing here refuses the save: an
+/// absent record is [`EntryBasis::NoRunRecord`], and a record that is too
+/// large, not canonical, unbound, recorded before rule-pack resolution or
+/// not checkable within the command's memory is [`EntryBasis::Unverified`]
+/// with its reason.
+fn route_009_entry_basis(
+    analysis_run_text: Option<String>,
+    project_id: &str,
+    source: &Value,
+    input_manifest: &Value,
+    input_manifest_hex: &str,
+    model_hex: &str,
+    memory: &dyn crate::stored_read::ReadMemory,
+) -> EntryBasis {
+    const REASON_BYTES: usize = 512;
+    let Some(text) = analysis_run_text else {
+        return EntryBasis::NoRunRecord;
+    };
+    let unverified = |reason: &str| EntryBasis::Unverified(elided(reason, REASON_BYTES));
+    let bytes = text.len() as u64;
+    if bytes > MAX_ANALYSIS_RUN_TEXT_BYTES {
+        return unverified(&format!("the run record text is {bytes} bytes; at most {MAX_ANALYSIS_RUN_TEXT_BYTES} are checked"));
+    }
+    let record = match parse_canonical("analysis_run", &text) {
+        Ok(record) => record,
+        Err(error) => return unverified(&error.message),
+    };
+    drop(text);
+    match crate::analysis_runs::check_record_for_values(project_id, &record, source, input_manifest, input_manifest_hex, memory) {
+        Ok(false) => {}
+        Ok(true) => return unverified("the run was recorded before rule-pack resolution"),
+        Err(error) => return unverified(&error),
+    }
+    let run_record_sha256 = match crate::analysis_runs::run_record_hash_within(&record, memory, "the run record") {
+        Ok(hash) => hash,
+        Err(error) => return unverified(&error),
+    };
+    EntryBasis::Bound(SavedPackageBasis {
+        model_hash: model_hex.to_string(),
+        received_result_sha256: received_result_checksum(&record),
+        run_id: text_at(&record, "/analysis_run/run_id").unwrap_or_default().to_string(),
+        run_record_sha256,
+    })
+}
+
+/// A checked run record's received-result checksum value.
+fn received_result_checksum(record: &Value) -> String {
+    record
+        .pointer("/analysis_run/hashes")
+        .and_then(Value::as_array)
+        .and_then(|hashes| hashes.iter().find(|hash| hash.get("payload_scope").and_then(Value::as_str) == Some("received_result")))
+        .and_then(|hash| hash.get("value"))
+        .and_then(Value::as_str)
+        .unwrap_or_default()
+        .to_string()
+}
+
 /// The command's route-aware ingress lease growth (W-18b, DEL-08-01 Design
 /// `report-user-release.md` §2.5, "The outer command"), after the evidence:
 /// - route 009: [`parse_lease_bytes_with_exact`] and the session Diagnostics
@@ -615,9 +690,6 @@ fn analysis_run_text_of(analysis_run_text: Option<&str>) -> Result<&str, ReportP
 pub fn ingress_lease_bytes(request: &ReportPackageSaveRequest) -> Result<u64, ReportPackageSaveCommandError> {
     validate_report_package_save_evidence(&request.screening, request.local_first.as_ref())?;
     if request.screening.route_id != REPORT_PACKAGE_USER_RELEASE_ROUTE_ID {
-        if request.analysis_run_text.is_some() {
-            return Err(refuse(REQUEST_INVALID, "/analysis_run", "Only route DREP-PACKAGE-USER-RELEASE-010 carries a run record text."));
-        }
         return Ok(parse_lease_bytes_with_exact(
             &request.request_text,
             &request.model_text,
@@ -625,7 +697,8 @@ pub fn ingress_lease_bytes(request: &ReportPackageSaveRequest) -> Result<u64, Re
             request.exact_result_text.as_deref(),
             request.exact_intake_text.as_deref(),
         )?
-        .saturating_add(session_check_lease_bytes(&request.request_text, &request.model_text)));
+        .saturating_add(session_check_lease_bytes(&request.request_text, &request.model_text))
+        .saturating_add(route_009_run_record_lease_bytes(request.analysis_run_text.as_deref())));
     }
     let ordinary = parse_lease_bytes_with_exact(
         &request.request_text, &request.model_text, &request.input_manifest_text,
@@ -1479,10 +1552,9 @@ fn admit_both_routes(
         check_exact_text_sizes(exact_result_text.as_deref(), exact_intake_text.as_deref())?;
         analysis_run_text_of(analysis_run_text.as_deref())?;
     } else {
+        // Route 009's run record text is checked for the entry only, after
+        // the package's own admission, and never refuses the save.
         check_exact_text_sizes(exact_result_text.as_deref(), exact_intake_text.as_deref())?;
-        if analysis_run_text.is_some() {
-            return Err(refuse(REQUEST_INVALID, "/analysis_run", "Only route DREP-PACKAGE-USER-RELEASE-010 carries a run record text.").into());
-        }
     }
 
     // Canonical binding: the evidence names exactly this request text.
@@ -1563,12 +1635,15 @@ fn admit_both_routes(
     }
     check_manifest_model(&input_manifest_value, &model_value, &model_hex)?;
     let solve_packs = solve_rule_packs(&input_manifest_value)?;
-    // Route 010 keeps the input manifest for its derivation (step 9).
-    let input_manifest_value = if user_release_route {
-        Some(input_manifest_value)
+    // Route 010 keeps the input manifest for its derivation (step 9); route
+    // 009 keeps it only to check a run record it was given (REQ-023).
+    let (input_manifest_value, route_009_manifest) = if user_release_route {
+        (Some(input_manifest_value), None)
+    } else if analysis_run_text.is_some() {
+        (None, Some(input_manifest_value))
     } else {
         drop(input_manifest_value);
-        None
+        (None, None)
     };
 
     // Disposition screening of both values, then the context bindings.
@@ -1620,12 +1695,27 @@ fn admit_both_routes(
             (package, Some(model_hex.clone()), EntryBasis::Bound(basis))
         }
         _ => {
-            // Typed conversion and the shared producer (§2.3). Route 009 takes
-            // no run record, so its entry's basis is not bound (REQ-023).
+            // The entry's basis (REQ-023), from a run record checked against
+            // this request's source result; then, unchanged, the typed
+            // conversion and the shared producer (§2.3).
+            let basis = match &route_009_manifest {
+                Some(manifest) => {
+                    let source = request_value.pointer("/source_results/0").unwrap_or(&Value::Null);
+                    match session.as_deref() {
+                        Some(session) => {
+                            let memory = crate::stored_read::PoolReadMemory::new(session.registry, &*session.lease);
+                            route_009_entry_basis(analysis_run_text, &project_id, source, manifest, &input_manifest_hex, &model_hex, &memory)
+                        }
+                        None => route_009_entry_basis(analysis_run_text, &project_id, source, manifest, &input_manifest_hex, &model_hex, &crate::stored_read::UnmeteredReadMemory),
+                    }
+                }
+                None => EntryBasis::NoRunRecord,
+            };
+            drop(route_009_manifest);
             (
                 report_package_bridge::assemble_request(typed_request(request_value)?).map_err(ReportPackageSaveCommandError::bridge)?,
                 None,
-                EntryBasis::NoRunRecord,
+                basis,
             )
         }
     };
@@ -1772,14 +1862,7 @@ fn admit_user_released(
         // which the check found equal to the source result's checked SHA-256.
         let run_record_sha256 = crate::analysis_runs::run_record_hash_within(&run_record, &memory, "the run record")
             .map_err(|message| coded("/analysis_run", &message))?;
-        let received_result_sha256 = run_record
-            .pointer("/analysis_run/hashes")
-            .and_then(Value::as_array)
-            .and_then(|hashes| hashes.iter().find(|hash| hash.get("payload_scope").and_then(Value::as_str) == Some("received_result")))
-            .and_then(|hash| hash.get("value"))
-            .and_then(Value::as_str)
-            .unwrap_or_default()
-            .to_string();
+        let received_result_sha256 = received_result_checksum(&run_record);
         SavedPackageBasis {
             model_hash: bound.model_hex.to_string(),
             received_result_sha256,
