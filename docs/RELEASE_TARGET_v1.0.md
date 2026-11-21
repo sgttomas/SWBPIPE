@@ -212,8 +212,10 @@ The validation lane proposes the set; this section records the method only:
     then a convention series.
   - Each finding is classed as SWBPIPE's to fix, a documented convention
     difference, or unexplained.
-- **Review and publication.** Agent 0 screens every run against the profile
-  and flags anything of merit; the owner then reviews the full record.
+- **Review and publication.** Agent 0 screens against the profile each run
+  that exit criterion 11 counts as screenable, names every other run with its
+  reason, and flags anything of merit; the owner then reviews the full record,
+  unmatched results included.
   Agreement is published once the owner has checked the CAEPIPE licence for
   benchmark clauses, and `docs/IP_AND_DATA_BOUNDARY.md` §6.2 is amended to
   match. Other evaluation stays private.
@@ -327,13 +329,16 @@ target remains adequate. A failure alone does not justify relaxing one.
 10. **Autosave.** It is on by default; a crash loses at most one interval.
 
     *Owning deliverables:* DEL-02-05.
-11. **Benchmark set.** Every static case, linear and nonlinear, is screened
-    against the benchmark method's tolerance profile and its findings are
-    triaged; a static run that cannot be screened yet, because the product has
-    no counterpart for it or another named condition is unmet, is named with
-    its reason and is not counted as screened. The dynamics members are
-    captured as references and are screened when modal and response-spectrum
-    analysis are taken up after v1.0. The owner has reviewed the full record.
+11. **Benchmark set.** A run is screened against the benchmark method's
+    tolerance profile, and its findings are triaged, where the benchmark
+    manifest gives it a SWBPIPE counterpart and the conditions it names for
+    that run are met. A run without a counterpart, such as an NRL mode-sum run
+    or the member of an alternative pair that was not analysed, or one whose
+    conditions are not met, is named with its reason and is not counted as
+    screened. Dynamics runs with a counterpart are captured as references and
+    are screened when modal and response-spectrum analysis are taken up after
+    v1.0. Unmatched results stay in the full record, which the owner has
+    reviewed.
 
     *Owning deliverables:* DEL-17-05.
 12. **Reproduction.** A fresh reproduction bundle exists at the release
