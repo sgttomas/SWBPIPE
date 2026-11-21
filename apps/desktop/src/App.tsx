@@ -870,7 +870,7 @@ function AppSession() {
 
             <section
               className={dockSectionClass("evidence", activeSection)}
-              aria-label="Audit and boundaries section"
+              aria-label="Evidence section"
               data-testid="workspace-section-evidence"
             >
               {visibleSolveProof ? (
@@ -1249,7 +1249,7 @@ function AppSession() {
               {/* The exports a person takes, one row each: its name, its link and its refusal line.
                   The review-packet panels this page held are not mounted in v1.0
                   (DEL-07-12's inventory; docs/RELEASE_LIMITATIONS_v1.0.md, LIM-039). A handoff
-                  package is saved by File › Save Handoff…, which the notice below describes. */}
+                  package is saved by File › Save Handoff…. */}
               <ul className="export-list" aria-label="Exports" data-testid="export-list">
                 <li>
                   <C2ResultGate result={currentSolvedResult} analysisRun={analysisRun} feature="the result JSON export">

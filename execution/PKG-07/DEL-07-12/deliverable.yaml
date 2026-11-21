@@ -168,6 +168,8 @@ code_paths:
 # export-review and diff-preview panels outside this workspace.
 - apps/desktop/src/features/exportUnitDisclosure.ts
 checks:
+# Renders each retained family's panel on its own and reads what it shows.
+- apps/desktop/src/App.test.tsx
 - apps/desktop/src/features/native-package/NativePackagePanel.test.ts
 - apps/desktop/src/features/stress-neutral/StressNeutralExportPanel.test.tsx
 - apps/desktop/src/features/stress-neutral/nativeStressNeutralBuilder.test.tsx
