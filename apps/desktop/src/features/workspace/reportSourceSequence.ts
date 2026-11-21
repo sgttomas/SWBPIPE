@@ -131,11 +131,23 @@ export class ReportSourceSequence {
 
   /** A report-bound value changed: allocate the next number now, then send it for the live
    * lifetime. Never waits and never throws; a failed send leaves output unregistered, not
-   * editing. */
+   * editing. Subscribers are contained: one subscriber's failure stops neither the other
+   * subscribers, nor the native send, nor the write that advanced; it is reported, not
+   * swallowed (the first failure of an advance, once, on the console). A view that did not
+   * hear the advance still holds the older number, so output prepared from it is refused as
+   * a stale view. */
   readonly advance = (): number => {
     this.allocated += 1;
     const sequence = this.allocated;
-    for (const listener of this.listeners) listener(sequence);
+    let failure: { error: unknown } | null = null;
+    for (const listener of this.listeners) {
+      try {
+        listener(sequence);
+      } catch (error) {
+        failure ??= { error };
+      }
+    }
+    if (failure) console.error("A report-source subscriber failed; the others were still told and the advance was sent.", failure.error);
     const lifetime = this.lifetime;
     if (lifetime) void this.send(lifetime, sequence).catch(() => undefined);
     return sequence;
