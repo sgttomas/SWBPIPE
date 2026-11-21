@@ -10,7 +10,10 @@
 //   - its canonical SHA-256 is the rendered preview's and the one the panel shows;
 //   - the recorded document's SHA-256 recomputes to the recorded print hash;
 //   - the document is the canonical HTML with exactly the derived-view banner naming that hash, and nothing else;
-//   - the standing line read from the printed document is the canonical document's (or both have none).
+//   - the standing line, as the caller expects it: the printed document's is the canonical document's and starts
+//     with the stated lead; or, where the caller states that this report has none (`NO_STANDING_LINE`), both
+//     documents were read and neither has one. A caller that states no expectation fails: a comparison of nothing
+//     with nothing checks nothing.
 //   - the close the driver asked for afterwards confirmed that the print window it selected left the window registry
 //     (that window's label is not compared with the recorded print's).
 // It shows which document reached the native print path. It does not show that a dialog appeared, what the system's
@@ -18,6 +21,9 @@
 import { createHash } from "node:crypto";
 
 export const PRINT_WINDOW_LABEL = /^report-print-[1-9][0-9]*$/;
+/** The caller's statement that this report is rightly without a standing line (the renderer writes one only where
+ * the report input carries a numerical standing record). Passed as `expectStanding` in place of a lead. */
+export const NO_STANDING_LINE = Object.freeze({ no_standing_line: true });
 const sha256 = (text) => createHash("sha256").update(text, "utf8").digest("hex");
 
 // The renderer's derived-view banner (`report_renderer` `derived_print_view`), restated here as the judge's oracle.
@@ -34,7 +40,8 @@ export function standingLineOf(html) {
 
 /** The checks, each `{ name, ok, detail }`. `observed` is the driver's record of one Print press:
  * `{ status, events, closed }`. `canonicalHtml` is the rendered preview's document; `shownHash` the panel's
- * "Canonical HTML SHA-256: …" line. `expectStanding`, when given, is checked against the printed line's start. */
+ * "Canonical HTML SHA-256: …" line. `expectStanding` is required: the lead the printed standing line starts with, or
+ * `NO_STANDING_LINE`. */
 export function judgeReportPrint(label, observed, { canonicalHtml, shownHash, expectStanding } = {}) {
   const checks = [];
   const check = (name, ok, detail) => checks.push({ name: `${label}: ${name}`, ok: Boolean(ok), detail });
@@ -59,11 +66,16 @@ export function judgeReportPrint(label, observed, { canonicalHtml, shownHash, ex
     printHtml === null ? "no print document recorded" : { banners: banner ? printHtml.split(banner).length - 1 : null, bytes: printHtml.length });
   const printedLine = printHtml === null ? undefined : standingLineOf(printHtml);
   const canonicalLine = canonical === null ? undefined : standingLineOf(canonicalHtml);
-  const lineIsText = (line) => line === null || typeof line === "string";
-  check("the printed document's standing line is the canonical document's",
-    printedLine !== undefined && lineIsText(printedLine) && lineIsText(canonicalLine) && printedLine === canonicalLine
-      && (expectStanding === undefined || (typeof printedLine === "string" && printedLine.startsWith(expectStanding))),
-    { printed: printedLine ?? null, canonical: canonicalLine ?? null, expected_lead: expectStanding ?? null });
+  const seen = { printed: printedLine ?? null, canonical: canonicalLine ?? null, printed_read: printedLine !== undefined, canonical_read: canonicalLine !== undefined };
+  if (expectStanding === NO_STANDING_LINE) {
+    check("neither the printed nor the canonical document has a standing line, as expected of this report",
+      printedLine === null && canonicalLine === null, seen);
+  } else {
+    const lead = typeof expectStanding === "string" && expectStanding.length > 0 ? expectStanding : null;
+    check("the printed document's standing line is the canonical document's",
+      lead !== null && typeof printedLine === "string" && printedLine === canonicalLine && printedLine.startsWith(lead),
+      { ...seen, expected_lead: lead, ...(lead === null ? { expectation: "not stated: the caller must give a lead or NO_STANDING_LINE" } : {}) });
+  }
   // `native_smoke_close_report_print` answers true once the window its own close selected has left Tauri's window
   // registry. The judge does not compare that window's label with the recorded print's `window_label`, so this check
   // says only that the selected window closed, not that the window which printed did.

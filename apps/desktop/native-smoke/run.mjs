@@ -144,7 +144,7 @@ import {
 } from "./launch-env.mjs";
 import { newNonce } from "./launch-outcome.mjs";
 import { judgedPhase, phaseContinuation } from "./judged-launch.mjs";
-import { judgeReportPrint } from "./report-print-evidence.mjs";
+import { NO_STANDING_LINE, judgeReportPrint } from "./report-print-evidence.mjs";
 import { BUILD_LOCK_TOKEN_ENV, acquireBuildLock, exitAfterSignals, processStartTime, refuseCompilerWrapperEnv, refuseHostSlotCommand, runUnderLock } from "../scripts/worktreeBuildLock.mjs";
 
 const here = path.dirname(fileURLToPath(import.meta.url));
@@ -617,7 +617,9 @@ const namesMissingInputs = (rules) => Boolean(rules?.aggregate?.includes("RULE_I
   // (`report-print-evidence.mjs`). The native-smoke build substitutes the system dialog with a record of the print
   // document: no dialog appearance, preview composition or job outcome is observed or claimed.
   const printed = first.report_print;
-  for (const item of judgeReportPrint("demo local-private report print", printed, { canonicalHtml: printed?.canonical_html, shownHash: printed?.shown_hash }))
+  // The demonstration model renders on the pressure-free route, whose report input carries no numerical standing
+  // record, so its document is rightly without a standing line: stated here as the expectation, not left unsaid.
+  for (const item of judgeReportPrint("demo local-private report print", printed, { canonicalHtml: printed?.canonical_html, shownHash: printed?.shown_hash, expectStanding: NO_STANDING_LINE }))
     check(item.name, item.ok, item.detail);
   check("demo local-private report print: the document printed is the one rendered and shown", printed?.shown_hash === render?.hash, { printed: printed?.shown_hash ?? null, rendered: render?.hash ?? null });
   const rules = first.rule_checks;
