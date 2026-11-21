@@ -315,6 +315,52 @@ describe("Save Report Package…: what the entry shows and how it goes", () => {
   }, 90_000);
 });
 
+/** A run record one byte above the webview's limit, with a result that fits (the launched run's
+ * full-size reference system), read from the record's native preview header as the session reads it. */
+const RECORD_OVER = nativeResult.RESULT_DETAIL_WEBVIEW_LIMIT_BYTES + 1;
+function recordOverLimit() {
+  const preview = nativeResult.nativeRunPreview;
+  vi.spyOn(nativeResult, "nativeRunPreview").mockImplementation((run) => ({ ...preview(run), record_bytes: RECORD_OVER }));
+}
+/** The C2 gates' sentence for that record, for the report package: the words both package commands show. */
+const SIZE_SENTENCE = nativeResult.describeFullResultRefused(
+  new nativeResult.FullResultRefused("RESULT-DETAIL-WEBVIEW-LIMIT", RECORD_OVER, nativeResult.RESULT_DETAIL_WEBVIEW_LIMIT_BYTES, "", "record"), "the report package");
+const SIZE_READING = SIZE_SENTENCE.replace(/^RESULT-DETAIL-WEBVIEW-LIMIT: /, "").replace(/\.$/, "");
+const wholeResultReads = () => invokeMock.mock.calls.filter(([command]) => command === "read_preview_mechanics_job_rows_all").length;
+
+describe("a run record too large for the full copy", () => {
+  it("File > Save Shareable Report Package… asks for no statement: no dialog, the refusal shown and kept", async () => {
+    const { state } = await solvedSession(async () => receipt("shareable_report_package"));
+    recordOverLimit();
+    await act(async () => { await state().results.requestSaveShareableReportPackage(); });
+    expect(state().results.userReleaseRequest).toBeNull();
+    const section = screen.getByRole("region", { name: "Report section" });
+    expect(section.textContent).toBe(`Not saved: no shareable report package was written and no user release was made. ${SIZE_SENTENCE}`);
+    expect(outcomeLines()).toEqual([`Shareable report package not saved: ${SIZE_READING} (RESULT-DETAIL-WEBVIEW-LIMIT). Nothing was written.`]);
+    expect(wholeResultReads()).toBe(0);
+    expect(saveCalls()).toHaveLength(0);
+  }, 90_000);
+
+  it("File > Save Report Package… is refused at once, in the same sentence", async () => {
+    const { state } = await solvedSession(async () => receipt("report_package"));
+    recordOverLimit();
+    await act(async () => { await state().results.handleSaveReportPackage(); });
+    const section = screen.getByRole("region", { name: "Report section" });
+    expect(section.textContent).toBe(SIZE_SENTENCE);
+    expect(outcomeLines()).toEqual([`Report package not saved: ${SIZE_READING} (RESULT-DETAIL-WEBVIEW-LIMIT). Nothing was written.`]);
+    expect(wholeResultReads()).toBe(0);
+    expect(saveCalls()).toHaveLength(0);
+  }, 90_000);
+
+  it("with a result and a record that fit, the shareable command still opens its dialog", async () => {
+    const { state } = await solvedSession(async () => receipt("shareable_report_package"));
+    await act(async () => { await state().results.requestSaveShareableReportPackage(); });
+    expect(state().results.userReleaseRequest).not.toBeNull();
+    expect(state().results.userReleaseRequest!.refusal).toBeNull();
+    expect(outcomeStatuses()).toHaveLength(0);
+  }, 90_000);
+});
+
 describe("an entry's basis is the report the press was made on", () => {
   it("a shareable save confirmed after the workspace moved on is of the report the dialog opened on", async () => {
     const { state, basis } = await solvedSession(async () => receipt("shareable_report_package"));

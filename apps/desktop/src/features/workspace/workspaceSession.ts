@@ -47,6 +47,7 @@ import {
 import { ResourceUnavailableError } from "../../services/memoryPool";
 import {
   createNativeAnalysisRun,
+  describeFullResultRefused,
   FullResultRefused,
   isFreshNativeResult,
   isNativeAnalysisRun,
@@ -4223,14 +4224,44 @@ export function useWorkspaceSession() {
     };
   }
 
+  /** The size refusal a package save's full copy would meet, known before anything is read: the
+   * result's length from its native custody, then
+   * the record's stored length from its native preview header, under the conditions `loadC2Full`
+   * checks before its copy. Null where both fit (the save then proceeds as before). */
+  function reportPackageSizeRefusal(target: SessionResult): FullResultRefused | null {
+    if (!isNativeResult(target)) return null;
+    const limit = RESULT_DETAIL_WEBVIEW_LIMIT_BYTES;
+    const resultBytes = nativeCustody(target).resultBytes;
+    if (resultBytes > limit) {
+      return new FullResultRefused(RESULT_DETAIL_WEBVIEW_LIMIT, resultBytes, limit,
+        `${RESULT_DETAIL_WEBVIEW_LIMIT} (result_bytes=${resultBytes}, limit_bytes=${limit}): the result is above the size the webview can hold whole.`, "result");
+    }
+    const run = analysisRunRef.current;
+    if (!run || !isNativeAnalysisRun(run) || run.analysis_run.run_id !== target.run_id || !nativeRunInputs.current.get(run)) return null;
+    const recordBytes = nativeRunPreview(run).record_bytes;
+    if (recordBytes <= limit) return null;
+    return new FullResultRefused(RESULT_DETAIL_WEBVIEW_LIMIT, recordBytes, limit,
+      `${RESULT_DETAIL_WEBVIEW_LIMIT} (record_bytes=${recordBytes}, limit_bytes=${limit}): the run record is above the size the webview can hold whole.`, "record");
+  }
+  /** Both package commands' words for that refusal: the C2 gates' sentence, for the report package. */
+  const reportPackageSizeText = (refusal: FullResultRefused) => describeFullResultRefused(refusal, "the report package");
+
   async function handleSaveReportPackage() {
     const refusal = reportPackageRequestRefusal();
     if (refusal !== null) { setReportPackageRoute({ route: "not_requested", diagnostic: refusal }); return; }
     if (!model || !currentSolvedResult || !analysisRun || !inputManifest || running || reportPackageBusy) return;
-    const generation = ++reportPackageRequestGenerationRef.current;
     // The entry's basis: the committed report source this press was made on.
-    const output = reportPackageOutput("report_package",
-      reportOutputBasisOf(reportSource.sequence, model.project, projectSummary?.project_name, analysisRun.analysis_run.run_id));
+    const outputBasis = reportOutputBasisOf(reportSource.sequence, model.project, projectSummary?.project_name, analysisRun.analysis_run.run_id);
+    // A result or record too large for the full copy is refused here: nothing is read or chosen.
+    const sizeRefusal = reportPackageSizeRefusal(currentSolvedResult);
+    if (sizeRefusal) {
+      const text = reportPackageSizeText(sizeRefusal);
+      reportPackageOutput("report_package", outputBasis).notSent(text);
+      setReportPackageRoute({ route: "redaction_blocked", diagnostic: text });
+      return;
+    }
+    const generation = ++reportPackageRequestGenerationRef.current;
+    const output = reportPackageOutput("report_package", outputBasis);
     const basis = {
       projectSessionGeneration: projectSessionGenerationRef.current,
       modelRevision: uiModelRevisionRef.current,
@@ -4350,6 +4381,16 @@ export function useWorkspaceSession() {
     if (refusal !== null) { setReportPackageRoute({ route: "not_requested", diagnostic: refusal }); return; }
     if (!model || !currentSolvedResult || !analysisRun || !inputManifest || running || reportPackageBusyGenerationRef.current !== null) return;
     if (projectSessionBusy()) return;
+    // A result or record too large for the full copy is refused before the dialog: no statement is
+    // asked for a save that cannot proceed.
+    const sizeRefusal = reportPackageSizeRefusal(currentSolvedResult);
+    if (sizeRefusal) {
+      const text = reportPackageSizeText(sizeRefusal);
+      reportPackageOutput("shareable_report_package",
+        reportOutputBasisOf(reportSource.sequence, model.project, projectSummary?.project_name, analysisRun.analysis_run.run_id)).notSent(text);
+      setReportPackageRoute({ route: "redaction_blocked", diagnostic: `${SHAREABLE_SAVE_NOT_WRITTEN} ${text}` });
+      return;
+    }
     // Captured before the workspace turns inert, which drops its focus.
     const opener = document.activeElement instanceof HTMLElement ? document.activeElement : null;
     const basis: UserReleaseBasis = {

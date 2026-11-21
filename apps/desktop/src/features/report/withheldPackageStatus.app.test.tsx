@@ -1,8 +1,8 @@
 /** A report-package save says what happened even where the rendered report is withheld. With a
  * fitting result and a run record above the webview's limit, the rendered report's gate refuses
  * and its panel (which holds the package-save status) is not shown; a save started from the File
- * menu (the shareable save through its release dialog, or the local-private save) is refused for
- * the record, and its refusal is shown once in the gate's place in the Report section and kept as
+ * menu (the shareable save before its release dialog opens, or the local-private save) is refused
+ * for the record in the gates' words, and its refusal is shown once in the gate's place in the Report section and kept as
  * the session's outcome in the report output strip (issue 508), which alone announces it. With the
  * panel shown, the receipt is the panel's, and the strip keeps and announces the outcome in its own
  * words. The whole App renders; the solve is the native job transport replay of committed
@@ -27,8 +27,12 @@ afterEach(() => {
   delete (window as unknown as Record<string, unknown>).__TAURI_INTERNALS__;
 });
 
-/** The record-size refusal as the save's status shows it: its code and the record's sizes. */
-const RECORD_REFUSAL = `RESULT-DETAIL-WEBVIEW-LIMIT (record_bytes=${RESULT_DETAIL_WEBVIEW_LIMIT_BYTES + 1}, limit_bytes=${RESULT_DETAIL_WEBVIEW_LIMIT_BYTES})`;
+/** The record-size refusal as the save's status shows it: the C2 gates' sentence for the report
+ * package, with the record's size and the limit in bytes and MiB. */
+const RECORD_REFUSAL = nativeResult.describeFullResultRefused(
+  new nativeResult.FullResultRefused("RESULT-DETAIL-WEBVIEW-LIMIT", RESULT_DETAIL_WEBVIEW_LIMIT_BYTES + 1, RESULT_DETAIL_WEBVIEW_LIMIT_BYTES, "", "record"), "the report package");
+/** That refusal as the outcome strip reads it: without its leading code, which it names at the end. */
+const RECORD_READING = RECORD_REFUSAL.replace(/^RESULT-DETAIL-WEBVIEW-LIMIT: /, "").replace(/\.$/, "");
 
 /** A saved shareable package's receipt, as the native save answers it. */
 const SAVED_RECEIPT = {
@@ -91,8 +95,8 @@ async function expectWithheldRefusal(report: HTMLElement, strip: string) {
   const outcomes = screen.getByRole("region", { name: "Report output outcomes" });
   const kept = within(outcomes).getByRole("status");
   expect(kept.querySelector("p")?.textContent).toBe(strip);
-  expect(screen.getAllByText((text) => text.includes(RECORD_REFUSAL))).toHaveLength(2);
-  expect(screen.getAllByRole("status").filter((status) => status.textContent?.includes(RECORD_REFUSAL))).toEqual([kept]);
+  expect(screen.getAllByText((text) => text.includes(RECORD_READING))).toHaveLength(2);
+  expect(screen.getAllByRole("status").filter((status) => status.textContent?.includes(RECORD_READING))).toEqual([kept]);
   expect(shown).not.toHaveAttribute("role");
   expect(within(report).getByTestId("c2-result-withheld")).toContainElement(shown);
   // It stands below the rendered report's own refusal, in the panel's place.
@@ -102,17 +106,15 @@ async function expectWithheldRefusal(report: HTMLElement, strip: string) {
 }
 
 describe("a report-package save started while the rendered report is withheld for its record", () => {
-  it("File > Save Shareable Report Package…: confirmed, its refusal is shown once in the Report section", async () => {
+  it("File > Save Shareable Report Package…: no release dialog; its refusal is shown once in the Report section", async () => {
     const { report, copies, sent } = await solvedApp({ recordAboveLimit: true });
     expect(await within(report).findAllByTestId("c2-result-refused")).not.toHaveLength(0);
     expect(within(report).queryByTestId("report-package-save-status")).toBeNull();
     nativeMenuCommand("file.save-shareable-report-package");
-    await screen.findByTestId("user-release-dialog");
-    fireEvent.click(screen.getByTestId("user-release-statement"));
-    fireEvent.click(screen.getByTestId("user-release-confirm"));
     const shown = await expectWithheldRefusal(report,
-      `Shareable report package not saved: ${RECORD_REFUSAL}: the run record is above the size the webview can hold whole. Nothing was written.`);
-    expect(shown.textContent).toBe(`Not saved: no shareable report package was written and no user release was made. ${RECORD_REFUSAL}: the run record is above the size the webview can hold whole.`);
+      `Shareable report package not saved: ${RECORD_READING} (RESULT-DETAIL-WEBVIEW-LIMIT). Nothing was written.`);
+    expect(shown.textContent).toBe(`Not saved: no shareable report package was written and no user release was made. ${RECORD_REFUSAL}`);
+    expect(screen.queryByTestId("user-release-dialog")).toBeNull();
     expect(copies()).toBe(0);
     expect(sent("save_report_package")).toBe(false);
   }, 90_000);
@@ -122,8 +124,8 @@ describe("a report-package save started while the rendered report is withheld fo
     expect(await within(report).findAllByTestId("c2-result-refused")).not.toHaveLength(0);
     nativeMenuCommand("file.save-report-package");
     const shown = await expectWithheldRefusal(report,
-      `Report package not saved: ${RECORD_REFUSAL}: the run record is above the size the webview can hold whole. Nothing was written.`);
-    expect(shown.textContent).toBe(`${RECORD_REFUSAL}: the run record is above the size the webview can hold whole.`);
+      `Report package not saved: ${RECORD_READING} (RESULT-DETAIL-WEBVIEW-LIMIT). Nothing was written.`);
+    expect(shown.textContent).toBe(RECORD_REFUSAL);
     expect(copies()).toBe(0);
     expect(sent("save_report_package")).toBe(false);
   }, 90_000);
