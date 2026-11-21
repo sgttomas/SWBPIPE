@@ -10,11 +10,13 @@
 // rendered later in Chromium (render.mjs), never in the app.
 
 /**
+ * `frameTimeoutMs` is how long to wait for an animation frame before the canvases are read as they stand (1.5 s
+ * unless the driver, with the window shown, asks for longer).
  * @returns {Promise<{ html: string, width: number, height: number, device_pixel_ratio: number, media: object,
  *   canvases: Array<{ label: string, captured: boolean, reason?: string, width: number, height: number }>,
  *   view_3d: "captured" | "not captured" | "not on screen", notes: string[] }>}
  */
-export async function takeSnapshot() {
+export async function takeSnapshot({ frameTimeoutMs = 1500 } = {}) {
   const notes = [];
   const VIEW_3D = '[data-testid="viewport-canvas"]';
 
@@ -38,9 +40,9 @@ export async function takeSnapshot() {
     frame = await new Promise((resolve) => {
       let done = false;
       requestAnimationFrame(() => { if (!done) { done = true; readAll("in an animation frame after a redraw"); resolve("given"); } });
-      setTimeout(() => { if (!done) { done = true; readAll("outside an animation frame (none was given)"); resolve("not given"); } }, 1500);
+      setTimeout(() => { if (!done) { done = true; readAll("outside an animation frame (none was given)"); resolve("not given"); } }, frameTimeoutMs);
     });
-    if (frame === "not given") notes.push(`no animation frame was given within 1.5 s (page visibility ${document.visibilityState}, focus ${document.hasFocus() ? "held" : "not held"}); canvases were read as they stood`);
+    if (frame === "not given") notes.push(`no animation frame was given within ${frameTimeoutMs / 1000} s (page visibility ${document.visibilityState}, focus ${document.hasFocus() ? "held" : "not held"}); canvases were read as they stood`);
   }
   // Blank: every sampled pixel the same (a cleared buffer reads as one colour).
   const blank = (src) => new Promise((resolve) => {

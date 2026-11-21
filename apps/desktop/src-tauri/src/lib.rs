@@ -6407,6 +6407,8 @@ pub fn run() {
         native_smoke::native_smoke_choose,
         native_smoke::native_smoke_clear_choices,
         native_smoke::native_smoke_menu,
+        native_smoke::native_smoke_menu_items,
+        native_smoke::native_smoke_show_window,
         native_smoke::native_smoke_plan,
         native_smoke::native_smoke_profile_readers,
         native_smoke::native_smoke_log,
