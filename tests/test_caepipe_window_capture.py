@@ -20,7 +20,7 @@ ROOT = Path(__file__).resolve().parents[1]
 if str(ROOT) not in sys.path:
     sys.path.insert(0, str(ROOT))
 
-from core.handoff.caepipe_external.benchmark import UNMATCHED, WITHIN  # noqa: E402
+from core.handoff.caepipe_external.benchmark import SUPPORT_STATE_NOT_DECLARED, UNMATCHED, WITHIN  # noqa: E402
 from tests.test_caepipe_benchmark import csv_text, mirror_csv, solve  # noqa: E402
 from tests.test_caepipe_correlation import fake_config  # noqa: E402
 from tools.caepipe_correlation import benchmark_hand_entry, run_pilot  # noqa: E402
@@ -312,8 +312,161 @@ def test_a_capture_made_from_another_file_or_instruction_than_the_runs_now_is_re
     assert refused.value.route == "pack_file_differs" and IDENTITY["source_commit"] in refused.value.reason
 
 
-def mirror_compare(tmp_path: Path, model_id: str, monkeypatch=None, *, raising_bases: bool = False):
+def rewrite_record(target: Path, record: dict) -> None:
+    os.chmod(target / wc.WINDOW_RECORD, 0o600)
+    (target / wc.WINDOW_RECORD).write_text(json.dumps(record), encoding="utf-8")
+
+
+def test_a_run_not_declared_with_a_window_instruction_is_never_compared(tmp_path):
+    """The window route compares only a window run, whatever capture id it is handed."""
+    [batch] = run_pilot.load_benchmark(MANIFEST, ["cpb-g1-01"])
+    with pytest.raises(wc.CaptureRefused) as refused:
+        wc.compare_capture(batch, fake_config(tmp_path).exchange_root, "0" * 12, solve=never_solved,
+                           write=never_written, declaration={"screened": True})
+    assert refused.value.route == "not_a_window_run"
+
+
+def test_an_instruction_whose_text_is_not_its_declared_digest_is_refused(tmp_path):
+    """The run's declared instruction digest is checked against the run's text, not only against the record."""
+    entry = run_entry()
+    root, capture_id, _ = stored(tmp_path, entry)
+    crafted = {**entry, "window_instruction": {**entry["window_instruction"], "text": "another instruction"}}
+    for instruction in (crafted["window_instruction"], {**entry["window_instruction"], "sha256": ""}):
+        with pytest.raises(wc.CaptureRefused) as refused:
+            wc.compare_capture({**entry, "window_instruction": instruction}, root, capture_id, solve=never_solved,
+                               write=never_written, declaration=declared(entry))
+        assert refused.value.route == "instruction_differs"
+
+
+@pytest.mark.parametrize("change", ["file_not_a_mapping", "file_without_digest", "files_not_a_mapping",
+                                    "print_role", "other_file_malformed"])
+def test_a_malformed_window_record_is_refused_by_name(tmp_path, change):
+    entry = run_entry()
+    root, capture_id, record = stored(tmp_path, entry)
+    target = wc.capture_dir(root.resolve(), entry["run_id"], capture_id)
+    names = wc._names(entry)
+    if change == "file_not_a_mapping":
+        record["files"][names["print"]] = "invented"
+    elif change == "file_without_digest":
+        del record["files"][names["imported_mbf"]]["sha256"]
+    elif change == "files_not_a_mapping":
+        record["files"] = [names["print"], names["instruction"], names["imported_mbf"]]
+    elif change == "print_role":
+        record["files"][names["print"]]["role"] = wc.KEPT_NOT_EXAMINED
+    else:
+        record["files"][names["saved_model"]] = None
+    rewrite_record(target, record)
+    with pytest.raises(wc.CaptureRefused) as refused:
+        wc.compare_capture(entry, root, capture_id, solve=never_solved, write=never_written,
+                           declaration=declared(entry))
+    assert refused.value.route == "no_window_record"
+
+
+def test_a_capture_stored_under_another_id_than_its_prints_is_refused(tmp_path):
+    """Every digest in the record agrees with the stored files, but the directory's capture id is not the print's."""
+    entry = run_entry()
+    root, capture_id, record = stored(tmp_path, entry)
+    target = wc.capture_dir(root.resolve(), entry["run_id"], capture_id)
+    other = "f" * 12 if capture_id != "f" * 12 else "e" * 12
+    moved = target.parent / other
+    os.rename(target, moved)
+    rewrite_record(moved, {**record, "capture_id": other})
+    with pytest.raises(wc.CaptureRefused) as refused:
+        wc.compare_capture(entry, root, other, solve=never_solved, write=never_written, declaration=declared(entry))
+    assert refused.value.route == "print_digest_mismatch"
+
+
+@pytest.mark.parametrize("role, field", [("imported_mbf", "mbf_sha256"),
+                                         ("instruction", "window_instruction_sha256")])
+def test_a_record_whose_file_digests_disagree_with_its_own_fields_is_refused(tmp_path, role, field):
+    """A crafted record: the stored file replaced and its listed digest updated, the top-level digest left as the
+    run's. The stored bytes match the listing, and the top-level field matches the run; neither is enough."""
+    entry = run_entry()
+    root, capture_id, record = stored(tmp_path, entry)
+    target = wc.capture_dir(root.resolve(), entry["run_id"], capture_id)
+    name = wc._names(entry)[role]
+    os.chmod(target / name, 0o600)
+    (target / name).write_bytes(b"AN INVENTED OTHER FILE\r\n")
+    record["files"][name]["sha256"] = hashlib.sha256(b"AN INVENTED OTHER FILE\r\n").hexdigest()
+    assert record[field] != record["files"][name]["sha256"]
+    rewrite_record(target, record)
+    with pytest.raises(wc.CaptureRefused) as refused:
+        wc.compare_capture(entry, root, capture_id, solve=never_solved, write=never_written,
+                           declaration=declared(entry))
+    assert refused.value.route == "no_window_record"
+    # The listing and the field both rewritten to the other file: the stored bytes are then checked against the run.
+    record[field] = record["files"][name]["sha256"]
+    rewrite_record(target, record)
+    with pytest.raises(wc.CaptureRefused) as refused:
+        wc.compare_capture(entry, root, capture_id, solve=never_solved, write=never_written,
+                           declaration=declared(entry))
+    assert refused.value.route == ("pack_file_differs" if role == "imported_mbf" else "instruction_differs")
+
+
+def test_a_linked_folder_below_the_exchange_root_lists_no_capture_outside_it(tmp_path):
+    """A case folder that is a symbolic link to a directory outside the exchange folder, holding what looks like a
+    complete capture: nothing in it is listed."""
+    entry = run_entry()
+    root = fake_config(tmp_path).exchange_root.resolve()
+    outside = tmp_path / "outside"
+    capture = outside / "caepipe_out" / "window" / ("a" * 12)
+    capture.mkdir(parents=True)
+    (capture / wc.WINDOW_RECORD).write_text("{}", encoding="utf-8")
+    (root / "cases").mkdir(exist_ok=True)
+    os.symlink(outside, root / "cases" / entry["run_id"])
+    assert wc.stored_captures(root, entry["run_id"]) == []
+    # The same under a linked caepipe_out folder.
+    os.unlink(root / "cases" / entry["run_id"])
+    (root / "cases" / entry["run_id"]).mkdir()
+    os.symlink(outside / "caepipe_out", root / "cases" / entry["run_id"] / "caepipe_out")
+    assert wc.stored_captures(root, entry["run_id"]) == []
+
+
+def without_operating_class(entry: dict) -> dict:
+    static = {case: cls for case, cls in entry["screening_classes"]["static"].items() if case != "operating"}
+    return {**entry, "screening_classes": {**entry["screening_classes"], "static": static}}
+
+
+def test_a_compared_case_with_no_declared_class_is_refused_before_anything_is_solved(tmp_path):
+    entry = without_operating_class(run_entry())
+    root, capture_id, _ = stored(tmp_path, entry)
+    with pytest.raises(wc.CaptureRefused) as refused:
+        wc.compare_capture(entry, root, capture_id, solve=never_solved, write=never_written,
+                           declaration=declared(entry))
+    assert refused.value.route == "class_not_declared" and "operating" in refused.value.reason
+
+
+def test_the_record_never_screens_a_case_under_a_derived_class_in_place_of_a_missing_declared_one(tmp_path,
+                                                                                                    monkeypatch):
+    """Past the command's own check (removed here), the record itself refuses: no derived class stands in."""
+    monkeypatch.setattr(wc, "compared_cases", lambda mbf: [])
+    with pytest.raises(ValueError, match="operating"):
+        mirror_compare(tmp_path, "cpb-n-04", alter=without_operating_class)
+
+
+def test_a_nonlinear_case_with_no_declared_support_state_has_an_unmatched_row_saying_so(tmp_path):
+    def no_states(entry):
+        return {**entry, "hand_entry": {**entry["hand_entry"], "expected_status": {}}}
+    *_, comparison, _ = mirror_compare(tmp_path, "cpb-n-04", alter=no_states)
+    nonlinear = [status["case"] for status in comparison["load_cases"] if status["screening_class"] == "nonlinear"]
+    rows = [row for row in comparison["results"] if row.get("unmatched_cause") == SUPPORT_STATE_NOT_DECLARED]
+    assert nonlinear and sorted(row["case"] for row in rows) == sorted(nonlinear)
+    assert all(row["kind"] == "support_state" and row["classification"] == UNMATCHED for row in rows)
+
+
+def test_the_unread_member_text_cites_no_page_outside_its_register_boundary():
+    """The Limit Stop page is admitted for support-type semantics only; where its results are displayed is outside
+    that boundary, so the unread member is stated without it."""
+    for text in (*wc.UNREAD_MEMBER.values(), wc.UNREAD_OTHER):
+        assert "sstcae" not in text and "http" not in text
+    assert wc.UNREAD_MEMBER["nonlinear"] == ("the parser does not read the printed loads or support state of a "
+                                             "nonlinear member entered at the window")
+
+
+def mirror_compare(tmp_path: Path, model_id: str, monkeypatch=None, *, raising_bases: bool = False, alter=None):
     entry = run_entry(model_id)
+    if alter is not None:
+        entry = alter(entry)
     root = fake_config(tmp_path).exchange_root
     model = benchmark_hand_entry.hand_entry_model(entry)
     payload = solve(model)

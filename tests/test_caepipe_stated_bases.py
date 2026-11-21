@@ -546,3 +546,12 @@ def test_the_effective_binding_is_not_applied_where_no_pressurised_end_force_is_
     by_name = bases_of(entry, solve=lambda document, names: (None, "not solved here", {}))
     axial = by_name[sb.EFFECTIVE_AXIAL]
     assert axial["applied"] is False and axial["outcome"] == sb.NOT_APPLICABLE and axial["results"] == []
+
+
+def test_the_shear_basis_is_stated_as_an_open_question_with_no_unadmitted_page():
+    """The FRP page has no row in DEL-17-01's Source_Basis_Register.md: the shear basis cites no page of the other
+    program and is stated as a comparison hypothesis under CQ-17-01-010."""
+    statement = sb.STATEMENTS[sb.SHEAR]
+    assert not any("http" in text or "sstcae" in text for text in statement.values())
+    assert "CQ-17-01-010" in statement["reason"] and "comparison hypothesis" in statement["reason"]
+    assert not hasattr(sb, "FRP_PAGE")

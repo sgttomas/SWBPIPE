@@ -49,6 +49,8 @@ NONLINEAR = "nonlinear"
 SWBPIPE_UNIT_DIMENSION = "swbpipe_unit_dimension"
 # Why a row of a member entered at the program's window has no CAEPIPE value: the print's section is not read.
 PRINT_SECTION_NOT_READ = "print_section_not_read"
+# Why a nonlinear case's required support-state match has no row of a support: the run declares no support state.
+SUPPORT_STATE_NOT_DECLARED = "support_state_not_declared"
 # The screening profile of the "Benchmark method" section of docs/RELEASE_TARGET_v1.0.md, as the Screening profile
 # definition of execution/PKG-17/DEL-17-05/ScopeOfWork.md states it: a relative tolerance by class plus a
 # printed-resolution floor per result kind, and nothing else.
@@ -523,6 +525,13 @@ def _quantity_counts(rows: list[dict[str, Any]], cases: list[str], not_compared:
     return out
 
 
+def compared_cases(mbf_result: Any) -> list[str]:
+    """The cases a record compares for a written file: its mapped load cases, then the operating case."""
+    mbf = mbf_result.to_dict() if hasattr(mbf_result, "to_dict") else dict(mbf_result)
+    cases = sorted(mbf.get("load_case_map") or {})
+    return [*cases, OPERATING] if cases else []
+
+
 def build_benchmark_record(benchmark_model: Mapping[str, Any], *, swbpipe_result_payload: Mapping[str, Any],
                            mbf_result: Any, mbf_text: str, parsed_caepipe: Mapping[str, Any] | None,
                            support_aliases: Mapping[str, str] | None = None,
@@ -544,9 +553,11 @@ def build_benchmark_record(benchmark_model: Mapping[str, Any], *, swbpipe_result
     model's closed form for it, where one is declared, beside SWBPIPE's value.
 
     `declared_classes` ({case: class}) are the screening classes a run declares (a window comparison), used in place
-    of the class derived from the case's inexact inputs; a nonlinear case requires its support status to match
+    of the class derived from the case's inexact inputs; every compared case must have one (ValueError otherwise,
+    never a derived class in its place). A nonlinear case requires its support status to match
     exactly, and `expected_support_states` ({support: {case: state}}) are the states declared for it. The match is
-    recorded per case and per support, as not available where the printed state is not read, never as matching."""
+    recorded per case and per support, as not available where the printed state is not read, never as matching; a
+    nonlinear case with no declared state has one unmatched support-state row saying so (SUPPORT_STATE_NOT_DECLARED)."""
     mbf = mbf_result.to_dict() if hasattr(mbf_result, "to_dict") else dict(mbf_result)
     envelope = swbpipe_result_payload.get("mechanics_envelope", swbpipe_result_payload)
     results = list(envelope.get("results") or [])
@@ -569,6 +580,11 @@ def build_benchmark_record(benchmark_model: Mapping[str, Any], *, swbpipe_result
     closed_forms = [entry for entry in benchmark_model.get("closed_form") or [] if isinstance(entry, Mapping)]
     expected = _expected_keys(mbf)
 
+    if declared_classes is not None:
+        undeclared = [case for case, _, _ in compared if case not in declared_classes]
+        if undeclared:
+            raise ValueError(f"the run declares screening classes but none for {', '.join(undeclared)}; a declared "
+                             "comparison never screens a case under a derived class in its place")
     cases_out, rows, unbound_rows, bindings = [], [], [], {}
     not_compared: dict[str, int] = {}                 # expected quantities of a case that is not compared
     digit_witness_by_case: dict[str, dict[str, int]] = {}
@@ -612,6 +628,12 @@ def build_benchmark_record(benchmark_model: Mapping[str, Any], *, swbpipe_result
                          "classification": UNMATCHED, "unmatched_cause": PRINT_SECTION_NOT_READ,
                          "reason": "the required support-state match is not available: "
                                    + (unread_supports or {}).get(support, "no printed state is bound to it")})
+        if cls == NONLINEAR and not status["support_state"]["expected"]:
+            rows.append({"case": case_name, "kind": "support_state", "entity": None, "expected_state": None,
+                         "values": {"swbpipe": None, "caepipe": None}, "classification": UNMATCHED,
+                         "unmatched_cause": SUPPORT_STATE_NOT_DECLARED,
+                         "reason": "the case is nonlinear, so its support status must match exactly, but the run "
+                                   "declares no support state for it; the match is not available"})
         deltas = (effective_axial_deltas(results, swbpipe_cases, end_force_binding["axes"],
                                          end_force_binding["pressurised"]) if end_force_binding is not None else None)
         wrong_dimension: set[Key] = set()

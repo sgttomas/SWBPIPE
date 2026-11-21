@@ -50,8 +50,8 @@ from pathlib import Path
 from typing import Any, Callable, Mapping
 
 from core.handoff.caepipe_external import parse_caepipe_print_bytes
-from core.handoff.caepipe_external.benchmark import build_benchmark_record
-from core.handoff.caepipe_external.harness import contained, contained_dir
+from core.handoff.caepipe_external.benchmark import build_benchmark_record, compared_cases
+from core.handoff.caepipe_external.harness import ContainmentError, contained, contained_dir
 from core.handoff.caepipe_mbf import render_caepipe_mbf_si
 from tools.caepipe_correlation import benchmark_hand_entry, benchmark_models, stated_bases
 
@@ -63,6 +63,7 @@ WINDOW_ROUTE = "window_capture"
 RUN_LINE = "run_line.txt"
 INCOMING = ".incoming-"
 CAPTURE_ID = re.compile(r"[0-9a-f]{12}\Z")
+SHA256_HEX = re.compile(r"[0-9a-f]{64}\Z")
 REQUIRED = ("print", "saved_model", "run_line", "imported_mbf", "instruction")
 BINDING = ("window: the SHA-256 of the run's MBF in the capture folder, equal to the writer's file in the checkout the "
            "capture was stored and compared in, and of the instruction, the saved model and the print; not of the "
@@ -72,11 +73,9 @@ WINDOW_LIMITS = ("a window capture binds the print to its run by the digests of 
                  "instruction's, shows that the print came from an analysis of the saved model, or shows the "
                  "window's settings; the saved model and every other file kept are not examined")
 KEPT_NOT_EXAMINED = "kept, not examined"
-LIMIT_STOP_PAGE = ("https://docs.sstcae.com/tech_manual/limit_stop.htm (technical reference, \"Limit Stop\"), read "
-                   "2026-11-21: \"This friction force is displayed in results under Limit stop support loads.\"")
 UNREAD_MEMBER = {
-    "nonlinear": ("the parser does not read the print's limit stop support loads (the section the Limit Stop page "
-                  "names as where a limit stop's friction force is displayed: " + LIMIT_STOP_PAGE + ")"),
+    "nonlinear": ("the parser does not read the printed loads or support state of a nonlinear member entered at the "
+                  "window"),
     "constant_effort_support": ("the parser does not read the print's hanger loads; the input "
                                 "constant_support_load stays named"),
 }
@@ -303,7 +302,12 @@ def store_capture(entry: Mapping[str, Any], root: Path, folder: Path, *,
 def stored_captures(root: Path, run_id: str) -> list[str]:
     """The complete captures of a run: directories named by a capture id holding a window record. A directory being
     built (or left by an interrupted store) has another name and is not listed."""
-    folder = Path(root).resolve() / "cases" / run_id / "caepipe_out" / "window"
+    root = Path(root).resolve()
+    try:
+        # No link at any level below the exchange root: a linked case or caepipe_out folder lists nothing outside.
+        folder = contained(root, root / "cases" / run_id / "caepipe_out" / "window")
+    except (ContainmentError, ValueError):
+        return []
     if folder.is_symlink() or not folder.is_dir():
         return []
     return sorted(path.name for path in folder.iterdir()
@@ -374,6 +378,27 @@ def unread_members(entry: Mapping[str, Any]) -> dict[str, str]:
     return {str(member["id"]): UNREAD_MEMBER.get(str(member.get("family")), UNREAD_OTHER) for member in members}
 
 
+def _record_files(record: Mapping[str, Any], names: Mapping[str, str]) -> dict[str, dict[str, Any]]:
+    """The record's files, each a digest, a size and a role, checked to agree with the record's own fields: the
+    print, instruction and imported MBF are this run's files under their roles, and the instruction's and MBF's
+    digests are the ones the record states at its top level. Anything else is not a window record of this run."""
+    files = record.get("files")
+    if not isinstance(files, Mapping) or not all(
+            isinstance(name, str) and isinstance(item, Mapping) and isinstance(item.get("sha256"), str)
+            and SHA256_HEX.match(item["sha256"]) and isinstance(item.get("role"), str)
+            for name, item in files.items()):
+        raise CaptureRefused("no_window_record", "the window record's files are not each a digest and a role")
+    for role in ("print", "instruction", "imported_mbf"):
+        if record.get(role) != names[role] or names[role] not in files or files[names[role]]["role"] != role:
+            raise CaptureRefused("no_window_record", f"the record does not name this run's {role} file "
+                                                     f"{names[role]}")
+    for role, field in (("instruction", "window_instruction_sha256"), ("imported_mbf", "mbf_sha256")):
+        if files[names[role]]["sha256"] != record.get(field):
+            raise CaptureRefused("no_window_record", f"the record's {field} is not the digest it lists for "
+                                                     f"{names[role]}")
+    return {str(name): dict(item) for name, item in files.items()}
+
+
 def compare_capture(entry: Mapping[str, Any], root: Path, capture_id: str, *,
                     solve: Callable[[Mapping[str, Any]], tuple[Any, str, dict[str, Any]]],
                     write: Callable[[Path, Any], str], declaration: Mapping[str, Any] | None,
@@ -381,12 +406,25 @@ def compare_capture(entry: Mapping[str, Any], root: Path, capture_id: str, *,
     """Compare one stored capture of a window run with SWBPIPE's solve in this checkout; (comparison path, record).
 
     `solve(document)` solves SWBPIPE's side in a new solve folder: (payload or None, error, solve record);
-    `write(path, value)` creates a file, never replacing one. `declaration` is the run's manifest declaration. Refuses
-    (CaptureRefused), with nothing solved or written, a run the declaration does not let be compared, a capture whose
-    record is not this run's, whose stored files no longer have the record's digests, whose print does not parse (when
-    stored or now), whose instruction or run file differs from the run's now. The plain comparison is written first;
-    the stated bases are then written beside it (STATED_BASES_RECORD) and never cost it."""
+    `write(path, value)` creates a file, never replacing one. `declaration` is the run's manifest declaration.
+
+    Refuses (CaptureRefused), with nothing solved or written: a run that is not a window run, or whose instruction text
+    is not its declared digest; a run the declaration does not let be compared, or that leaves a compared case without
+    a declared class; a capture whose record is not this run's (its files each a digest and a role, agreeing with its
+    own fields); whose print is not the one its capture id names; whose stored files no longer have the record's
+    digests; whose print does not parse (when stored or now); whose stored instruction or file differs from the run's
+    now. The plain comparison is written first; the stated bases are then written beside it (STATED_BASES_RECORD) and
+    never cost it."""
     root = Path(root).resolve()
+    if not is_window_run(entry):
+        raise CaptureRefused("not_a_window_run", f"{entry.get('run_id') or entry.get('model_id')} is not declared "
+                                                 "with a window instruction")
+    instruction = entry["window_instruction"]
+    declared_instruction = instruction.get("sha256") if isinstance(instruction, Mapping) else None
+    text = instruction.get("text") if isinstance(instruction, Mapping) else None
+    if not (isinstance(declared_instruction, str) and SHA256_HEX.match(declared_instruction) and isinstance(text, str)
+            and _sha256(text.encode("utf-8")) == declared_instruction):
+        raise CaptureRefused("instruction_differs", "the manifest's instruction text does not have its declared digest")
     if declaration is None:
         raise CaptureRefused("not_declared", f"{entry['run_id']} has no run declaration in the manifest")
     compared, why = stated_bases.declared_compared(declaration)
@@ -399,31 +437,38 @@ def compare_capture(entry: Mapping[str, Any], root: Path, capture_id: str, *,
         if (record.get("parse") or {}).get("status") != "parsed":
             raise CaptureRefused("print_not_parsed", f"the print did not parse when stored: "
                                                      f"{(record.get('parse') or {}).get('reason')}")
-        for role in ("print", "instruction", "imported_mbf"):
-            if record.get(role) != names[role] or names[role] not in (record.get("files") or {}):
-                raise CaptureRefused("no_window_record", f"the record does not name this run's {role} file "
-                                                         f"{names[role]}")
+        files = _record_files(record, names)
         stored = {role: _read_regular(dir_fd, names[role], "stored_file_changed")
                   for role in ("print", "instruction", "imported_mbf")}
     finally:
         os.close(dir_fd)
-    if _sha256(stored["print"]) != record["files"][names["print"]]["sha256"]:
-        raise CaptureRefused("print_digest_mismatch", "the print's bytes do not match the window record's digest")
+    print_sha = _sha256(stored["print"])
+    if print_sha != files[names["print"]]["sha256"] or not print_sha.startswith(capture_id):
+        raise CaptureRefused("print_digest_mismatch", "the print's bytes do not match the window record's digest and "
+                                                      f"the capture id {capture_id}")
     for role in ("instruction", "imported_mbf"):
-        if _sha256(stored[role]) != record["files"][names[role]]["sha256"]:
+        if _sha256(stored[role]) != files[names[role]]["sha256"]:
             raise CaptureRefused("stored_file_changed", f"the stored {names[role]} does not match the window "
                                                         "record's digest")
-    declared_instruction = (entry.get("window_instruction") or {}).get("sha256")
-    if record.get("window_instruction_sha256") != declared_instruction:
+    # The stored bytes themselves, not only the record's account of them, are checked against the run now.
+    stored_instruction = _sha256(stored["instruction"])
+    if stored_instruction != declared_instruction:
         raise CaptureRefused("instruction_differs", f"the capture was made under the instruction of SHA-256 "
-                                                    f"{record.get('window_instruction_sha256')}; the run now declares "
+                                                    f"{stored_instruction}; the run now declares "
                                                     f"{declared_instruction}")
     mbf, mbf_text = run_mbf(entry)
     writer_sha = _sha256(mbf_text.encode("utf-8"))
-    if writer_sha != record["mbf_sha256"]:
-        raise CaptureRefused("pack_file_differs", f"the capture was made from a file of SHA-256 {record['mbf_sha256']} "
+    stored_mbf = _sha256(stored["imported_mbf"])
+    if stored_mbf != writer_sha:
+        raise CaptureRefused("pack_file_differs", f"the capture was made from a file of SHA-256 {stored_mbf} "
                                                   f"({(record.get('checkout') or {}).get('writer_file')}); the "
                                                   f"writer's file for this run now is {writer_sha}")
+    classes = declared_classes(entry)
+    undeclared = [case for case in compared_cases(mbf) if classes is not None and case not in classes]
+    if undeclared:
+        raise CaptureRefused("class_not_declared", f"the run declares screening classes but none for "
+                                                   f"{', '.join(undeclared)}; no case is screened under a derived "
+                                                   "class in its place")
     status, parsed = parse_status(stored["print"])
     if status["status"] != "parsed":
         raise CaptureRefused("print_not_parsed", f"the print does not parse with the current parser: "
@@ -433,7 +478,7 @@ def compare_capture(entry: Mapping[str, Any], root: Path, capture_id: str, *,
     if error or payload is None:
         raise CaptureRefused("not_solved", f"SWBPIPE not solved ({error or 'no result'})")
     unread = unread_members(entry)
-    options = {"unread_supports": unread, "declared_classes": declared_classes(entry),
+    options = {"unread_supports": unread, "declared_classes": classes,
                "expected_support_states": expected_support_states(entry)}
     comparison = build_benchmark_record(document, swbpipe_result_payload=payload, mbf_result=mbf, mbf_text=mbf_text,
                                         parsed_caepipe=parsed, **options)
@@ -446,7 +491,7 @@ def compare_capture(entry: Mapping[str, Any], root: Path, capture_id: str, *,
         "record": str((folder / WINDOW_RECORD).relative_to(case_root)),
         "binding": BINDING, "limits": WINDOW_LIMITS, "sections_not_read": status["sections_not_read"],
         "members_not_compared": unread,
-        "kept_not_examined": sorted(name for name, item in record["files"].items()
+        "kept_not_examined": sorted(name for name, item in files.items()
                                     if item["role"] in (KEPT_NOT_EXAMINED, "saved_model")),
         "stored_at": record.get("checkout") or record.get("stored_at"),
         "compared_at": checkout(identity or {}),

@@ -54,8 +54,6 @@ TIMOSHENKO = "timoshenko_annulus_energy_v1"
 EULER_BERNOULLI = "euler_bernoulli"
 TRANSFERS = "transfers_to_wall"
 ELONGATION_ON = "pressure-elongation-on"
-FRP_PAGE = ("https://docs.sstcae.com/tech_manual/fiber_reinforced_plastic_piping__frp_.htm (technical reference, "
-            "\"Stiffness matrix\"; CQ-17-01-010 in execution/PKG-17/DEL-17-01/CAEPIPE_Question_Dossier.md)")
 BASIS_LOAD_PREFIX = "load:stated-basis:"
 SPRING_DOFS = (("UX", "N/m"), ("UY", "N/m"), ("UZ", "N/m"), ("RX", "N*m/rad"), ("RY", "N*m/rad"), ("RZ", "N*m/rad"))
 
@@ -97,10 +95,11 @@ STATEMENTS: dict[str, dict[str, str]] = {
                       "by no route), with no wind exposed spans; applied only where the product solves the basis "
                       "document"),
         "reason": ("the benchmark documents select no Timoshenko shear model, so SWBPIPE's pressure-free solve is "
-                   "Euler-Bernoulli. The target program's public FRP page forms "
-                   "its pipe stiffness with a shear flexibility term, a shape factor times L/GA (" + FRP_PAGE + "); "
-                   "its shape factor, and whether the term applies to steel pipe, are open (CQ-17-01-010). The basis "
-                   "uses SWBPIPE's own energy-matched annular factor kappa_E, not the other program's"),
+                   "Euler-Bernoulli. Whether the other program's straight pipe carries shear flexibility, and with "
+                   "which shape factor, is an open question (CQ-17-01-010 in "
+                   "execution/PKG-17/DEL-17-01/CAEPIPE_Question_Dossier.md); this basis is a comparison hypothesis "
+                   "stated on SWBPIPE's side, not a documented convention of the other program. It uses SWBPIPE's "
+                   "own energy-matched annular factor kappa_E"),
         "realization": "a second solve of the same document with model_settings.shear_model = " + TIMOSHENKO,
         "ground": ("closed form: a cantilever's tip deflection under a tip force P is P L^3/(3 E I) + P L/(kappa_E G A), "
                    "kappa_E the annulus energy factor 6 (1 + nu)^2 (1 + m^2)^2 / ((7 + 14 nu + 8 nu^2)(1 + m^2)^2 + "
