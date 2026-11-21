@@ -86,6 +86,7 @@ import {
   openStoredProject,
   StoredProjectUnitsRefusal,
   saveLocalProject,
+  saveLocalProjectKeepingStoredProposal,
   SI_PROJECT_UNITS,
   type ProjectUnitMap
 } from "../../services/projectService";
@@ -289,6 +290,7 @@ import { createSessionEventChannel } from "./sessionEvents";
 import type { WorkspaceSectionId } from "./workspaceSections";
 import { useReportSourceSequence, useSequencedState } from "./reportSourceSequence";
 import { useReportOutputOutcomes } from "../report/reportOutputOutcomes";
+import { admitStoredProposal, storedProposalSentence, writtenStoredProposalSentence, type UnadmittedStoredProposal } from "./storedProposalAdmission";
 
 /** W-13 §3.5 / W-17 §2.7: the model's library references checked against the
  * local store at open and load. Warnings only; the recorded versions stand. */
@@ -703,6 +705,12 @@ export function useWorkspaceSession() {
   } | null>(null);
   /** C1 slice 6: the project whose stored run the open refused (not admitted into native custody). */
   const unopenedStoredRun = useRef<string | null>(null);
+  /** Issue 519: the open project's stored review proposal that was not admitted, for the project and
+   * session generation it was opened in. Only its notice (identifier and member names) is held, never
+   * the stored value, and the ref is private to the session: no view, report, export or agent read
+   * reaches it. While it is current a save in place asks the store to keep the stored proposal as
+   * stored. Set by the open, cleared by another open and by a write that does not keep it. */
+  const unadmittedStoredProposal = useRef<UnadmittedStoredProposal | null>(null);
   /** C1 slice 6: the restored runs this session holds natively (the shown historical run, and one a
    * reference inspection retains for its restore). Each is released once nothing references it. */
   const ownedRestoredRuns = useRef<Set<RestoredRun>>(new Set());
@@ -2990,7 +2998,11 @@ export function useWorkspaceSession() {
       setSelectedReviewTarget(created.selected_review_target ?? null);
       setProjectEnvelopeHash(created.project_envelope_hash ?? null);
       setModelDocumentVersion(created.model_document_version ?? null);
-      setProjectMessage(created.summary.message);
+      // Issue 519: a create never keeps a stored proposal; over the open project it replaced the whole
+      // stored project (a Replace the person chose), under another id it is a copy without it.
+      const unadmitted = unadmittedStoredProposal.current;
+      if (unadmitted?.projectId === requestModel.project.id) unadmittedStoredProposal.current = null;
+      setProjectMessage(`${created.summary.message}${writtenStoredProposalSentence(unadmitted, { projectId: requestModel.project.id, generation, kept: false, replacedWhole: true })}`);
       setProjectOperation("create");
       void autosave.afterProjectSaved(created.summary.project_id, returnedModelHash?.value ?? null);
     } catch (error) {
@@ -3235,6 +3247,8 @@ export function useWorkspaceSession() {
       }
       if (!stillCurrent()) { void disposeRestoredRun(restoredRun); return; }
       unopenedStoredRun.current = refusedRun ? opened.model.project.id : null;
+      // Issue 519: a stored proposal enters the session only if it has the members its readers read.
+      const storedProposal = opened.proposal == null ? null : admitStoredProposal(opened.proposal);
       // The open commits here. An open that finds nothing, fails or is
       // superseded leaves the open project's rule revision gate and integrity
       // cells as they were.
@@ -3273,7 +3287,9 @@ export function useWorkspaceSession() {
       // before report-package save can become ready.
       setInputManifest(null);
       setRuleCheckAggregate(null);
-      setProposal(opened.proposal ?? null);
+      setProposal(storedProposal?.admitted ? storedProposal.proposal : null);
+      unadmittedStoredProposal.current = storedProposal && !storedProposal.admitted
+        ? { projectId: opened.model.project.id, generation: openedGeneration, notice: storedProposal.notice } : null;
       setRetainedReviewContext(opened.editor_intents ?? []);
       setEditorIntents([]);
       setSelectedReviewTarget(opened.selected_review_target ?? null);
@@ -3285,7 +3301,8 @@ export function useWorkspaceSession() {
       // findings were refused by the store).
       // RT-U4: a saved run above the display limit was withheld natively; the person is told.
       const withheldRun = opened.stored_result_withheld ? ` ${describeStoredResultWithheld(opened.stored_result_withheld)}` : refusedRun ? ` ${refusedRun.message}` : "";
-      setProjectMessage(`${opened.summary.message}${withheldRun}${modelFileWarningSuffix(modelDocumentSlotValidation(opened.model).warnings)}`);
+      const unadmitted = storedProposal && !storedProposal.admitted ? ` ${storedProposalSentence(storedProposal.notice, "open")}` : "";
+      setProjectMessage(`${opened.summary.message}${withheldRun}${unadmitted}${modelFileWarningSuffix(modelDocumentSlotValidation(opened.model).warnings)}`);
       setProjectOperation(projectId ? "open_by_id" : "open");
       setActiveSection(restoredHistory ? "results" : null);
       const libraryWarnings = await libraryReferenceWarnings(opened.model);
@@ -3386,6 +3403,7 @@ export function useWorkspaceSession() {
       commitModel(document);
       storedBaseRef.current = null;
       unopenedStoredRun.current = null;
+      unadmittedStoredProposal.current = null;
       const generation = projectSessionGenerationRef.current;
       const revision = uiModelRevisionRef.current;
       const sequence = ++savedBasisSequence.current;
@@ -3827,8 +3845,14 @@ export function useWorkspaceSession() {
       const snapshotResult = requestHistoricalRun ? (restored ? null : requestHistoricalRun.rawMechanicsResult as MechanicsResult | null) : retainedRun?.result ?? (dropRun || native ? null : persisted!.result);
       const snapshotAnalysisRun = requestHistoricalRun ? (restored ? null : requestHistoricalRun.rawAnalysisRun as AnalysisRunEnvelope | null) : retainedRun?.analysisRun ?? (dropRun || native ? null : persisted!.analysisRun);
       if (!dropRun) refuseDroppingUnopenedRun(requestModel, snapshotResult, native !== null || restored !== null);
+      // Issue 519: a save in place while the open project's stored proposal was not admitted, and the
+      // session holds no proposal of its own, keeps the stored proposal as stored: the store leaves its
+      // text untouched and computes the envelope hash over it, so the session sends none for it.
+      const unadmitted = unadmittedStoredProposal.current;
+      const keepStoredProposal = !dropRun && proposal === null && unadmitted !== null &&
+        unadmitted.projectId === requestModel.project.id && unadmitted.generation === generation;
       if (!stillCurrent()) return;
-      const computedEnvelopeHash = native || restored ? null : await computeProjectEnvelopeHash({
+      const computedEnvelopeHash = native || restored || keepStoredProposal ? null : await computeProjectEnvelopeHash({
         model: requestModel,
         editor_intents: combinedContext,
         proposal,
@@ -3842,16 +3866,20 @@ export function useWorkspaceSession() {
       if (!stillCurrent()) return;
       // The session's own stored project: a save in place from the revision it last opened or wrote.
       const expectedBase = storedBaseRef.current?.projectId === requestModel.project.id ? storedBaseRef.current.value : null;
+      const keep = keepStoredProposal ? { keepStoredProposal: true as const } : {};
       const written = await writeWithReplaceConfirmation("save", requestModel, (confirmedRevision) => restored
         ? saveRestoredLocalProject(restored, restoredEnvelopeBasis(requestHistoricalRun!), {
           mode: "save", model: requestModel, editorIntents: combinedContext, proposal, selectedReviewTarget,
-          modelHash: snapshotModelHash, confirmedRevision, expectedBase
+          modelHash: snapshotModelHash, confirmedRevision, expectedBase, ...keep
         }).then((reply) => adoptNativeSave(reply, requestModel, combinedContext))
         : native
         ? saveNativeLocalProject(native, {
           mode: "save", model: requestModel, editorIntents: combinedContext, proposal, selectedReviewTarget,
-          modelHash: snapshotModelHash, confirmedRevision, expectedBase
+          modelHash: snapshotModelHash, confirmedRevision, expectedBase, ...keep
         }).then((reply) => adoptNativeSave(reply, requestModel, combinedContext))
+        : keepStoredProposal
+        ? saveLocalProjectKeepingStoredProposal(requestModel, combinedContext, selectedReviewTarget, snapshotResult,
+          snapshotAnalysisRun, snapshotModelHash, confirmedRevision, expectedBase)
         : saveLocalProject(
           requestModel,
           combinedContext,
@@ -3946,11 +3974,14 @@ export function useWorkspaceSession() {
         setHistoricalRun((current) => current === requestHistoricalRun ? returnedHistory : current);
       }
       setProjectSummary(saved.summary);
-      setProposal(saved.proposal ?? null);
+      // Issue 519: a kept stored proposal comes back as stored and stays out of the session; any other
+      // save replaced it, so the session no longer has one to keep.
+      setProposal(keepStoredProposal ? null : saved.proposal ?? null);
+      if (!keepStoredProposal && saved.summary.project_id === requestModel.project.id) unadmittedStoredProposal.current = null;
       setSelectedReviewTarget(saved.selected_review_target ?? null);
       setProjectEnvelopeHash(saved.project_envelope_hash ?? null);
       setModelDocumentVersion(saved.model_document_version ?? null);
-      setProjectMessage(saved.summary.message);
+      setProjectMessage(`${saved.summary.message}${writtenStoredProposalSentence(unadmitted, { projectId: requestModel.project.id, generation, kept: keepStoredProposal, replacedWhole: false })}`);
       projectSaveLanded.current = { projectId: saved.summary.project_id, base: saved.project_envelope_hash?.value ?? null, model: requestModel };
       setProjectOperation("save");
       void autosave.afterProjectSaved(saved.summary.project_id, returnedModelHash?.value ?? null);

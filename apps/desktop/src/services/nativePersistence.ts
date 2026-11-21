@@ -112,6 +112,9 @@ export type NativeProjectFields = {
   confirmedRevision: string | null;
   /** A save of the session's own stored project: the stored envelope hash it last opened or saved. */
   expectedBase: string | null;
+  /** Issue 519: a save in place that keeps the stored proposal as stored (sent only as true, with no
+   * proposal); absent otherwise, so every other request is unchanged. */
+  keepStoredProposal?: true;
 };
 
 /** What happened to the result in a native save. */
@@ -214,7 +217,8 @@ export async function saveNativeLocalProject(request: NativePersistenceRequest, 
     selectedReviewTarget: fields.selectedReviewTarget,
     modelHash: fields.modelHash,
     confirmedRevision: fields.confirmedRevision,
-    expectedBase: fields.expectedBase
+    expectedBase: fields.expectedBase,
+    ...(fields.keepStoredProposal ? { keepStoredProposal: true } : {})
   });
   return decodeNativeProjectSave(reply);
 }
@@ -239,7 +243,8 @@ export async function saveRestoredLocalProject(restored: RestoredRun, basis: Res
     proposal: fields.proposal,
     selectedReviewTarget: fields.selectedReviewTarget,
     confirmedRevision: fields.confirmedRevision,
-    expectedBase: fields.expectedBase
+    expectedBase: fields.expectedBase,
+    ...(fields.keepStoredProposal ? { keepStoredProposal: true } : {})
   });
   return decodeRestoredProjectSave(reply, restored);
 }

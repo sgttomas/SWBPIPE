@@ -1,0 +1,218 @@
+/** Issue 519 in the actual workspace session: a saved project's stored review proposal that lacks the
+ * members the desktop reads is kept out of the session, named in the open's message, held only as a
+ * notice in a ref private to the session, and kept as stored by a save in place (the browser
+ * preview's store, read back; the desktop's request carries the keep member and no proposal). A
+ * proposal of the session's own replaces it as any save does; a copy does not carry it and says so.
+ * A well-formed stored proposal opens and saves exactly as before. All data are invented. */
+import { act, renderHook, waitFor } from "@testing-library/react";
+import { readFileSync } from "node:fs";
+import { resolve } from "node:path";
+import { afterEach, describe, expect, it, vi } from "vitest";
+const invokeMock = vi.hoisted(() => vi.fn());
+vi.mock("@tauri-apps/api/core", async () => ({ invoke: (await import("../../test/nativeIngress")).ingressDecodingInvoke(invokeMock, { nativeReopen: "actual" }) }));
+import { useWorkspaceSession } from "./workspaceSession";
+import * as projectService from "../../services/projectService";
+import { createLocalProject, findLocalProject, getLocalStorageCapability, openLocalProject } from "../../services/projectService";
+import { computeModelHash, computeProjectEnvelopeHash } from "../../services/hashService";
+import { loadDesignKnowledge, loadSampleProposal } from "../../services/previewService";
+import { STORED_PROPOSAL_NOT_ADMITTED, admitStoredProposal, storedProposalSentence } from "./storedProposalAdmission";
+import type { AgentProposal, PreviewModel } from "../../types";
+
+type Json = any; // eslint-disable-line @typescript-eslint/no-explicit-any
+
+afterEach(() => {
+  vi.restoreAllMocks();
+  invokeMock.mockReset();
+  window.localStorage.clear();
+  delete (window as Json).__TAURI_INTERNALS__;
+});
+
+/** Carried inside the unadmitted proposal's members: it must reach no view, report, export or agent read. */
+const MARKER = "MARKER-519-UNSHOWN-PROPOSAL";
+const UNADMITTED = { proposal_id: "proposal:invented", summary: `Invented proposal ${MARKER}.`, operations: [{ note: MARKER }], prompt: MARKER };
+
+async function readySession() {
+  const hook = renderHook(() => useWorkspaceSession());
+  await waitFor(() => expect(hook.result.current.model.model).not.toBeNull());
+  await waitFor(() => expect(hook.result.current.model.modelHash).not.toBeNull());
+  return hook;
+}
+
+/** A stored project (the browser preview's store) holding `proposal`, its envelope hash over it. */
+async function storedWith(base: PreviewModel, id: string, proposal: unknown): Promise<PreviewModel> {
+  const model = structuredClone(base);
+  model.project.id = id;
+  const modelHash = await computeModelHash(model);
+  const envelopeHash = await computeProjectEnvelopeHash({ model, editor_intents: [], proposal: proposal as AgentProposal, selected_review_target: null, mechanics_result: null, analysis_run: null, model_hash: modelHash });
+  await createLocalProject(model, [], proposal as AgentProposal, null, null, null, modelHash, envelopeHash);
+  return model;
+}
+
+/** Every string reachable from `root` (functions and DOM nodes aside) that contains `needle`. */
+function reachable(root: unknown, needle: string): string[] {
+  const seen = new WeakSet<object>(), found: string[] = [];
+  const walk = (value: unknown, path: string, depth: number) => {
+    if (typeof value === "string") { if (value.includes(needle)) found.push(path); return; }
+    if (typeof value !== "object" || value === null || depth > 40 || value instanceof Node) return;
+    if (seen.has(value)) return;
+    seen.add(value);
+    const entries = value instanceof Map ? [...value.entries()].map(([key, item], index) => [`${index}`, [key, item]] as const)
+      : value instanceof Set ? [...value].map((item, index) => [`${index}`, item] as const)
+      : Object.getOwnPropertyNames(value).map((key) => { try { return [key, (value as Json)[key]] as const; } catch { return [key, undefined] as const; } });
+    for (const [key, item] of entries) walk(item, `${path}.${key}`, depth + 1);
+  };
+  walk(root, "session", 0);
+  return found;
+}
+
+const notice = admitStoredProposal(UNADMITTED);
+if (notice.admitted) throw new Error("the invented proposal must not be admitted");
+const OPEN_SENTENCE = storedProposalSentence(notice.notice, "open");
+
+describe("a stored proposal without its members, on the browser preview's store", () => {
+  it("opens without it, names it, keeps it only in the store, and a save in place keeps it as stored", async () => {
+    const { result } = await readySession();
+    const model = await storedWith(result.current.model.model!, "project:issue-519-kept", UNADMITTED);
+    await act(async () => { await result.current.project.handleOpenProject(model.project.id); });
+    expect(result.current.model.model?.project.id).toBe(model.project.id);
+    expect(result.current.results.proposal).toBeNull();
+    expect(result.current.project.projectMessage).toContain(OPEN_SENTENCE);
+    expect(result.current.project.projectEnvelopeHashIntegrity).toMatchObject({ integrity_status: "verified_match" });
+    // Nothing the session hands any consumer holds the stored proposal.
+    expect(reachable(result.current, MARKER)).toEqual([]);
+
+    await act(async () => { await result.current.project.handleSaveProject(); });
+    expect(result.current.project.projectOperation).toBe("save");
+    expect(result.current.project.projectMessage).toContain(storedProposalSentence(notice.notice, "kept"));
+    expect(result.current.results.proposal).toBeNull();
+    expect(reachable(result.current, MARKER)).toEqual([]);
+    // The store holds it as it was, and its envelope hash agrees with it.
+    const stored = await openLocalProject(model.project.id);
+    expect(stored!.proposal).toEqual(UNADMITTED);
+    expect(stored!.project_envelope_hash).toEqual(await computeProjectEnvelopeHash({
+      model: stored!.model, editor_intents: stored!.editor_intents, proposal: UNADMITTED as never, selected_review_target: null,
+      mechanics_result: null, analysis_run: null, model_hash: stored!.model_hash
+    }));
+    expect(result.current.project.projectEnvelopeHashIntegrity).toMatchObject({ integrity_status: "verified_match", verification_source: "save" });
+    // Opened again: the same sentence, the hash verified.
+    await act(async () => { await result.current.project.handleOpenProject(model.project.id); });
+    expect(result.current.project.projectMessage).toContain(OPEN_SENTENCE);
+    expect(result.current.project.projectEnvelopeHashIntegrity).toMatchObject({ integrity_status: "verified_match", verification_source: "open" });
+  });
+
+  it("is replaced by a proposal of the session's own, as any save does", async () => {
+    const { result } = await readySession();
+    const model = await storedWith(result.current.model.model!, "project:issue-519-own", UNADMITTED);
+    await act(async () => { await result.current.project.handleOpenProject(model.project.id); });
+    await act(async () => { await result.current.results.handleProposal(); });
+    const own = result.current.results.proposal!;
+    expect(own).not.toBeNull();
+    const keeping = vi.spyOn(projectService, "saveLocalProjectKeepingStoredProposal");
+    await act(async () => { await result.current.project.handleSaveProject(); });
+    expect(keeping).not.toHaveBeenCalled();
+    expect(result.current.project.projectMessage).not.toContain(STORED_PROPOSAL_NOT_ADMITTED);
+    expect((await openLocalProject(model.project.id))!.proposal).toEqual(own);
+  });
+
+  it("is not carried by a copy, and a Replace of the whole project says it is gone; each says so", async () => {
+    const { result } = await readySession();
+    const model = await storedWith(result.current.model.model!, "project:issue-519-copy", UNADMITTED);
+    await act(async () => { await result.current.project.handleOpenProject(model.project.id); });
+    // A save in place after another writer moved the stored project: Save as a new project.
+    const existing = (await findLocalProject(model.project.id))!;
+    const stored = (await openLocalProject(model.project.id))!;
+    await projectService.saveLocalProject(stored.model, [], UNADMITTED as never, null, null, null, stored.model_hash,
+      { ...stored.project_envelope_hash!, value: "sha256:moved-by-another-writer" }, existing.revision);
+    let saving!: Promise<void>;
+    act(() => { saving = result.current.project.handleSaveProject(); });
+    await waitFor(() => expect(result.current.project.replaceProjectPrompt).not.toBeNull());
+    act(() => result.current.project.replaceProjectPrompt!.choose("save-as-new"));
+    await act(async () => { await saving; });
+    const copyId = result.current.model.model!.project.id;
+    expect(copyId).toMatch(new RegExp(`^${model.project.id}:copy-`));
+    expect(result.current.project.projectMessage).toContain(storedProposalSentence(notice.notice, "not-carried"));
+    expect((await openLocalProject(copyId))!.proposal).toBeNull();
+    expect((await openLocalProject(model.project.id))!.proposal).toEqual(UNADMITTED);
+
+    // New Local Project over the opened project, Replace chosen: the whole stored project is replaced.
+    const other = await storedWith(result.current.model.model!, "project:issue-519-replace", UNADMITTED);
+    await act(async () => { await result.current.project.handleOpenProject(other.project.id); });
+    let creating!: Promise<void>;
+    act(() => { creating = result.current.project.handleCreateProject(); });
+    await waitFor(() => expect(result.current.project.replaceProjectPrompt).not.toBeNull());
+    act(() => result.current.project.replaceProjectPrompt!.choose("replace"));
+    await act(async () => { await creating; });
+    expect(result.current.project.projectMessage).toContain(storedProposalSentence(notice.notice, "replaced"));
+    expect((await openLocalProject(other.project.id))!.proposal).toBeNull();
+  });
+
+  it("opens and saves a well-formed stored proposal exactly as before", async () => {
+    const { result } = await readySession();
+    const proposal = await loadSampleProposal(null, null);
+    expect(admitStoredProposal(proposal).admitted).toBe(true);
+    const model = await storedWith(result.current.model.model!, "project:issue-519-admitted", proposal);
+    const opened = (await openLocalProject(model.project.id))!;
+    await act(async () => { await result.current.project.handleOpenProject(model.project.id); });
+    expect(result.current.results.proposal).toEqual(opened.proposal);
+    expect(result.current.project.projectMessage).not.toContain(STORED_PROPOSAL_NOT_ADMITTED);
+    const saving = vi.spyOn(projectService, "saveLocalProject");
+    const keeping = vi.spyOn(projectService, "saveLocalProjectKeepingStoredProposal");
+    await act(async () => { await result.current.project.handleSaveProject(); });
+    expect(keeping).not.toHaveBeenCalled();
+    expect(saving).toHaveBeenCalledTimes(1);
+    const envelopeHash = await computeProjectEnvelopeHash({ model: opened.model, editor_intents: [], proposal: opened.proposal, selected_review_target: null, mechanics_result: null, analysis_run: null, model_hash: opened.model_hash });
+    // The request main's session sends for this store: its proposal, the hash over it, the base it opened.
+    expect(saving.mock.calls[0]).toEqual([opened.model, [], opened.proposal, null, null, null, opened.model_hash, envelopeHash, null, opened.project_envelope_hash!.value]);
+    expect((await openLocalProject(model.project.id))!.proposal).toEqual(proposal);
+  });
+});
+
+describe("a stored proposal without its members, on the desktop store", () => {
+  /** The native open's committed reply with no stored run and `proposal`; the save's request is captured. */
+  async function openedNatively(proposal: unknown) {
+    const reply = JSON.parse(readFileSync(resolve(__dirname, "../../test-support/native-reopen/native_reopen_replies.json"), "utf8")).open_refused.reply.value;
+    reply.stored_run = { state: "none" };
+    reply.proposal = proposal;
+    const storage = await getLocalStorageCapability(), knowledge = await loadDesignKnowledge();
+    const saves: Json[] = [];
+    invokeMock.mockImplementation(async (command: string, args: Json) => {
+      switch (command) {
+        case "get_local_storage_capability": return storage;
+        case "load_design_knowledge": return knowledge;
+        case "sync_native_shell_state": return null;
+        case "check_model_library_refs": return [];
+        case "find_local_project": return null;
+        case "list_model_states": return [];
+        case "list_analysis_runs": return [];
+        case "open_local_project_in_native_custody": return structuredClone(reply);
+        case "save_local_project": saves.push(args.request); throw new Error("INVENTED-STOP: the request was captured");
+      }
+      return null;
+    });
+    const { result } = await readySession();
+    (window as Json).__TAURI_INTERNALS__ = {};
+    await act(async () => { await result.current.project.handleOpenProject(reply.model.project.id); });
+    expect(result.current.model.model?.project.id).toBe(reply.model.project.id);
+    await act(async () => { await result.current.project.handleSaveProject(); });
+    return { result, reply, saves };
+  }
+
+  it("asks the store to keep the stored proposal, sending no proposal and no envelope hash", async () => {
+    const { result, reply, saves } = await openedNatively(UNADMITTED);
+    expect(saves).toHaveLength(1);
+    expect(saves[0].keep_stored_proposal).toBe(true);
+    expect("proposal" in saves[0]).toBe(false);
+    expect("project_envelope_hash" in saves[0]).toBe(false);
+    expect(saves[0].expected_base).toBe(reply.project_envelope_hash.value);
+    expect(JSON.stringify(saves[0])).not.toContain(MARKER);
+    expect(result.current.project.projectMessage).toContain("INVENTED-STOP");
+  });
+
+  it("sends a well-formed stored proposal as before, without the keep member", async () => {
+    const proposal = await loadSampleProposal(null, null);
+    const { saves } = await openedNatively(proposal);
+    expect(saves).toHaveLength(1);
+    expect("keep_stored_proposal" in saves[0]).toBe(false);
+    expect(saves[0].proposal).toEqual(proposal);
+  });
+});

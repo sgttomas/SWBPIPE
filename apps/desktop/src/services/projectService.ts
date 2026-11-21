@@ -1,6 +1,7 @@
 import { disposeRestoredRun, openLocalProjectNative, type NativeProjectEnvelope } from "./nativeReopen";
 import { invoke } from "@tauri-apps/api/core";
 import { invokeWithIngress } from "./nativeIngress";
+import { computeProjectEnvelopeHash } from "./hashService";
 import { MODEL_SCHEMA_VERSION, RETIRED_MODEL_SCHEMA_VERSIONS, RETIRED_PROJECT_RUNS_NOTE } from "./modelSchemaVersion";
 import { loadWasmEngine } from "./wasmEngine/loadWasmEngine";
 import { modelDocumentSlotValidation, projectUnitsShapeRefusal } from "../features/model-file/modelDocumentShape";
@@ -704,6 +705,57 @@ export async function saveLocalProject(
       analysis_run: analysisRun,
       model_hash: modelHash,
       project_envelope_hash: projectEnvelopeHash,
+      confirmed_revision: confirmedRevision,
+      expected_base: expectedBase
+    }
+  });
+}
+
+/** The store's refusal of a save that asks it to keep a stored proposal it cannot keep. */
+export const STORED_PROPOSAL_KEEP_REFUSED = "STORED-PROPOSAL-KEEP-REFUSED";
+
+/** Issue 519: a save in place of a stored project whose stored review proposal the open did not admit,
+ * by a session holding no proposal of its own. The store keeps the stored proposal as stored (the
+ * desktop store leaves its text untouched) and computes the envelope hash over what it stores, so no
+ * proposal and no envelope hash are sent. The browser preview keeps the stored value itself. */
+export async function saveLocalProjectKeepingStoredProposal(
+  model: PreviewModel,
+  editorIntents: EditorOperationIntent[],
+  selectedReviewTarget: SelectedReviewTarget | null,
+  mechanicsResult: MechanicsResult | null,
+  analysisRun: AnalysisRunEnvelope | null,
+  modelHash: ModelHashEvidence | null,
+  confirmedRevision: string | null,
+  expectedBase: string | null
+): Promise<LocalProjectEnvelope> {
+  if (!hasTauriRuntime()) {
+    await loadValidatorEngine();
+    refuseUnconfirmedBrowserReplacement(model.project.id, confirmedRevision, expectedBase);
+    const existing = browserPreviewStore.get(model.project.id);
+    if (!existing) throw new Error(`${STORED_PROPOSAL_KEEP_REFUSED}: project \`${model.project.id}\` is not stored, so it has no stored proposal to keep; nothing was saved.`);
+    const kept = existing.envelope.proposal ?? null;
+    const projectEnvelopeHash = await computeProjectEnvelopeHash({
+      model, editor_intents: editorIntents, proposal: kept, selected_review_target: selectedReviewTarget,
+      mechanics_result: mechanicsResult, analysis_run: analysisRun, model_hash: modelHash
+    });
+    const next = envelope(model, editorIntents, null, selectedReviewTarget, mechanicsResult, analysisRun, modelHash, projectEnvelopeHash,
+      "Saved local browser-preview project snapshot without external file copies.");
+    // The stored value itself, not a copy of it.
+    next.proposal = kept;
+    next.summary.proposal_count = kept ? 1 : 0;
+    return storeBrowserProject(next);
+  }
+  return invokeWithIngress<LocalProjectEnvelope>("save_local_project", {
+    request: {
+      project_id: model.project.id,
+      project_name: model.project.name,
+      model,
+      editor_intents: editorIntents,
+      selected_review_target: selectedReviewTarget,
+      mechanics_result: mechanicsResult,
+      analysis_run: analysisRun,
+      model_hash: modelHash,
+      keep_stored_proposal: true,
       confirmed_revision: confirmedRevision,
       expected_base: expectedBase
     }
