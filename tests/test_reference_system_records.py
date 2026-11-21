@@ -530,6 +530,13 @@ BINDINGS = [
      lambda m: [t["provenance"] for c in _cases(m) for r in c["pressure_regions"] for t in r["terminals"]]),
     ("regions", "Region provenance", lambda m: [r["provenance"] for c in _cases(m) for r in c["pressure_regions"]]),
     ("states", "Analysis state provenance", lambda m: [c["analysis_state"]["provenance"] for c in _cases(m)]),
+    # The override's two fields, each held with its case and member so that a report names them.
+    ("states", "analysis-basis reason", lambda m: [(f"{c['id']} {s['pipe_ref']}", s["analysis_basis_override"]["reason"])
+                                                   for c in _cases(m) for s in c["analysis_state"]["element_states"]
+                                                   if "analysis_basis_override" in s]),
+    ("states", "analysis-basis provenance",
+     lambda m: [(f"{c['id']} {s['pipe_ref']}", s["analysis_basis_override"]["provenance"])
+                for c in _cases(m) for s in c["analysis_state"]["element_states"] if "analysis_basis_override" in s]),
     ("combinations", "Provenance", lambda m: [c["provenance"] for c in m["combinations"]]),
 ]
 
@@ -557,8 +564,10 @@ def field_problems(text: str, model: dict) -> list[str]:
             continue
         (value,) = entered
         for held in values(model):
+            where, held = held if isinstance(held, tuple) else (None, held)
             if held != value and not listed(differences, label, held):
-                problems.append(f"step {step_name}, {label}: a record holds {held!r}, the sheet enters {value!r}")
+                record = f"{where} holds" if where else "a record holds"
+                problems.append(f"step {step_name}, {label}: {record} {held!r}, the sheet enters {value!r}")
     # Table-bound values, each compared with its own record: the bends' sources, the valve and flanges'
     # end references, and each case's self-weight provenance.
     components = by_id(model, "components")
@@ -595,20 +604,13 @@ def thermal_problems(text: str, model: dict, differences: str) -> list[str]:
     """Each element state's thermal provenance against what step states has the person enter for that
     case and that member: a sentence naming a member binds its value to that member, the case's other
     value is its template for every member; a case copied from another without marking its element
-    states absent keeps that case's values. A case whose bullet pastes the fixture's own analysis state
-    as an imported batch types no thermal provenance, so the sheet transcribes nothing to compare for it;
-    only a bullet that names the fixture's `analysis_state` of that very case is read that way."""
+    states absent keeps that case's values."""
     body = step(text, "states")
     parts = re.split(r"(?m)^- \*\*(RS-[A-Z]+(?:-[A-Z]+)*)\.\*\*", body)
     bullets = dict(zip(parts[1::2], parts[2::2]))
     texts = pasted_texts(text)
     expected: dict[str, dict[str, str | None]] = {}
-    imported = set()
     for case, bullet in bullets.items():
-        flat = re.sub(r"\s+", " ", bullet)
-        if "**Review an imported proposal**" in flat and f"`load:{case}`'s `analysis_state`" in flat:
-            imported.add(case)
-            continue
         copied = re.search(r"Copy analysis state from case\*\* (RS-[A-Z]+(?:-[A-Z]+)*)", bullet)
         own = {"*": None}
         if copied and "Mark element_states absent" not in bullet:
@@ -630,8 +632,6 @@ def thermal_problems(text: str, model: dict, differences: str) -> list[str]:
         expected[case] = own
     problems = []
     for case in _cases(model):
-        if tag(case["id"]) in imported:
-            continue
         own = expected.get(tag(case["id"]))
         if own is None:
             problems.append(f"step states does not enter {case['id']}")
@@ -1142,6 +1142,22 @@ def test_a_change_of_the_fixture_s_coverage_of_each_family_is_caught(family):
     assert reports(coverage_problems(SPEC, model), f"{family}: the ledger says {stated}")
 
 
+def test_the_thermal_family_is_lost_by_either_operating_case():
+    """The family of RS-SUS, RS-OPE and RS-OPE-REF has two controls beside FLIP's: RS-OPE without its thermal
+    state, and RS-OPE-REF with one hot member's analysis-basis override removed."""
+    family = "RS-SUS, RS-OPE and RS-OPE-REF (thermal; modulus by temperature, or the 20 °C modulus with its stated basis)"
+    stated = "in tranche 1" if spec_ledger(SPEC)[family]["in_tranche_1"] else "pending"
+    hot = lambda m: next(s for s in _element_states(m, "load:RS-OPE-REF") if "operating_temperature" in s)
+    for control in (
+            lambda m: [s.__setitem__("thermal_state", {"kind": "unchanged_reference"})
+                       for s in _element_states(m, "load:RS-OPE")],
+            lambda m: hot(m).pop("analysis_basis_override")):
+        model = copy.deepcopy(MODEL)
+        control(model)
+        assert FAMILY_PRESENT[family](model) is False
+        assert reports(coverage_problems(SPEC, model), f"{family}: the ledger says {stated}")
+
+
 def test_a_changed_sub_feature_or_interim_record_is_caught():
     for family, (name, _holds) in SUB_FEATURES.items():
         model = copy.deepcopy(MODEL)
@@ -1304,11 +1320,23 @@ def test_a_stale_source_or_a_changed_fixture_field_is_caught():
     problems = field_problems(RUN_SHEET, model)
     assert reports(problems, "step states, load:RS-SUS pipe:RS-P010: thermal provenance")
     assert reports(problems, "step states, load:RS-SUS pipe:RS-P180: thermal provenance")
-    # RS-OPE-REF's bullet pastes the fixture's own state of that case; a bullet naming another case's state is
-    # read as typing nothing, and the member whose thermal provenance the case holds, RS-P180, is reported.
-    other = RUN_SHEET.replace("`load:RS-OPE-REF`'s `analysis_state`", "`load:RS-OPE`'s `analysis_state`", 1)
-    assert other != RUN_SHEET
-    assert reports(field_problems(other, MODEL), "step states, load:RS-OPE-REF pipe:RS-P180: thermal provenance")
+    # RS-OPE-REF's instructions: a changed analysis-basis reason, a changed analysis-basis provenance and the
+    # replaced span's thermal provenance moved to another member are each reported with the case and member.
+    bullet = re.search(r"(?ms)^- \*\*RS-OPE-REF\.\*\*.*?(?=^- \*\*|\Z)", step(RUN_SHEET, "states")).group(0)
+    for old, new, fragments in (
+            ("material basis (spec §8.1)`", "material basis (spec §8.2)`",
+             ("step states, analysis-basis reason: load:RS-OPE-REF pipe:RS-P010 holds",)),
+            ("**analysis-basis provenance** ⟨P⟩", "**analysis-basis provenance** ⟨S5⟩",
+             ("step states, analysis-basis provenance: load:RS-OPE-REF pipe:RS-P010 holds",)),
+            ("Then on RS-P180's row clear", "Then on RS-P170's row clear",
+             ("step states, load:RS-OPE-REF pipe:RS-P180: thermal provenance",),)):
+        assert bullet.count(old) == 1, old
+        problems = field_problems(RUN_SHEET.replace(bullet, bullet.replace(old, new, 1), 1), MODEL)
+        assert reports(problems, *fragments), (old, problems)
+    moved = field_problems(RUN_SHEET.replace(bullet, bullet.replace("Then on RS-P180's row clear",
+                                                                    "Then on RS-P170's row clear", 1), 1), MODEL)
+    assert reports(moved, "step states, load:RS-OPE-REF pipe:RS-P170: thermal provenance")
+    assert not reports(moved, "step states, load:RS-OPE ")
 
 
 def test_a_wrong_typed_label_is_caught():

@@ -465,13 +465,13 @@ state**, Apply, per case.
   absolute_reference_displacement.
 - **RS-OPE-REF.** **Copy analysis state from case** RS-OPE, **Replace this draft's analysis
   state with the copy**: as for RS-OPE, the copy keeps the contract, reference configuration,
-  support states, history and provenance, and leaves out RS-OPE's load sources. **Mark
-  element_states absent**, then **Add element state**. Element state 1: pipe RS-P010; operating
-  temperature 210 degC; material selection exact_point; material `material:RS-M1`; material
+  support states, history and provenance, and leaves out RS-OPE's load sources.
+  **Mark element_states absent**, then **Add element state**. Element state 1: pipe RS-P010;
+  operating temperature 210 degC; material selection exact_point; material `material:RS-M1`; material
   point `point:RS-M1-T020`; thermal state free_length_state; expansion law
   `law:RS-M1-SECANT`. Fill. Then on RS-P180's row clear the operating temperature (value and
-  unit), set thermal state unchanged_reference and **Thermal provenance** ⟨P⟩`; replaced span
-  RS-P180: zero eigenstrain (spec §5.1)`. On every element state but RS-P180's, enter the
+  unit), set thermal state unchanged_reference and **Thermal provenance**
+  ⟨P⟩`; replaced span RS-P180: zero eigenstrain (spec §5.1)`. On every element state but RS-P180's, enter the
   **analysis-basis reason** `Modulus at 20 degC so that RS-EXP compares two states on one
   material basis (spec §8.1)` and the **analysis-basis provenance** ⟨P⟩; fill and copy never
   carry these two fields, so each row takes its own. Factor 1, **Add every primitive of this
