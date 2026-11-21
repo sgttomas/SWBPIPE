@@ -494,9 +494,10 @@ fn rs_sam_moves_only_through_its_resolved_anchor_motion() {
 /// KNOWN-LIMITATION WITNESS, not a requirement. It observes the present
 /// behaviour of the combined no-gap overlay: the S6 overlay above without RS-G1,
 /// that is the fixture (which holds RS-R1 and RS-CE1) plus RS-LO1 and RS-FR1 on
-/// the interim linear RS-FR1V, with W regenerated. Every case solves with no blocking
-/// finding, its converged support state is confirmed, and the S11-G recovery
-/// guard publishes it `NUMERICAL_INTEGRITY_SENSITIVE`. What follows for the
+/// the interim linear RS-FR1V, with W regenerated. The document solves with no
+/// blocking finding, and RS-SUS, RS-OPE and RS-SAM each have their converged
+/// support state confirmed and are published `NUMERICAL_INTEGRITY_SENSITIVE` by
+/// the S11-G recovery guard. What follows for the
 /// reader's standing and the report is recorded in LIM-017 of
 /// `docs/RELEASE_LIMITATIONS_v1.0.md`, not tested here. The guard's group counts are printed,
 /// not asserted. It says nothing about which addition produces the sensitivity,

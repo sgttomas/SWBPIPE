@@ -81,8 +81,8 @@ fn metre_twin(fixture: &Value) -> Value {
     model
 }
 
-/// Each case's integrity code, after checking the envelope solved and that the
-/// diagnostic and the numerical quality agree.
+/// The integrity code of RS-SUS, RS-OPE and RS-SAM, after checking the envelope
+/// solved and that each one's diagnostic and numerical quality agree.
 fn verdicts(model: &Value, mode: PreviewSolverMode, label: &str) -> Vec<String> {
     let envelope = serde_json::to_value(
         run_linear_static_preview_value_with_mode(json!({"model": model, "materials": []}), mode).unwrap(),
