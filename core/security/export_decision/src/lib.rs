@@ -87,10 +87,9 @@
 //! No per-value decision or finding records and no controlled copy, so a route that must
 //! expose a redacted copy is not served by it; no form in which a caller feeds the rule
 //! pieces of a payload (the content is the route's whole payload, as a value or as a source
-//! the rule walks from its root, because a value's decision depends on what encloses it);
-//! no route catalogue, user-release projection, text reading, hashing or
-//! write. No I/O, logging, clock or global state. The types serialise and do not
-//! deserialise; a caller that hashes a serialised outcome canonicalises it first.
+//! the rule walks from its root); no route catalogue, user-release projection, text
+//! reading, hashing or write. No I/O, logging, clock or global state. The types serialise
+//! and do not deserialise; a caller that hashes a serialised outcome canonicalises it first.
 
 use std::borrow::Cow;
 use std::fmt;
