@@ -113,10 +113,12 @@ The members:
     empty where none is held.
 - `initial_execution` (the first execution) and `final_execution` (the last):
   `request_id`s of two different executions. Request identities, native job
-  identities and run handles are each unique across the trace. The final one must be completed,
+  identities and run handles are each unique across the trace. The first one
+  must be withheld: the Solve gate withholds Solve on the start model, so no
+  job runs on it. The final one must be completed,
   `held`, readable through its handle, matched by the host for both model and
   result, and bound to `final_model_text`.
-- `findings_shown`: the Diagnostics list after the refusal. Each finding gives
+- `findings_shown`: the Diagnostics list before any solve, while Solve is withheld. Each finding gives
   `finding_id`, `entity_ref`, `field_path` and `blocks_solve`, as the harness
   read them from the finding. The product supplies the entity and the field
   leaf in `affected_refs`.
