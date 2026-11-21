@@ -20,6 +20,9 @@ export type UserReleaseDialogRequest = {
   /** SHA-256 of the RFC 8785 bytes of the session model document (64 lowercase hex). */
   modelDocumentSha256: string;
   runId: string;
+  /** Whether the result is an exact-route one (`isExactReportSource`), recorded when the dialog
+   * opens: only its report states the result's numerical standing (DEL-08-01 REQ-024). */
+  exactRoute: boolean;
   /** DEL-08-01 REQ-024, "Package and user release": the report frame's statements on this
    * result's standing, each a line, word for word the renderer's (`reportFrameStatements`);
    * shown before the statement. Empty where the frame states none. */
@@ -127,8 +130,9 @@ function UserReleaseDialogBody({ request }: { request: UserReleaseDialogRequest 
           </li>
           <li>
             It needs a result solved in this session: a pressure-free (preview-physics-2) result, or an exact pressure
-            route (pressure-3 or pressure-source-1) result whose mechanics are solved. The report states that result's
-            numerical standing, whatever it is. A model with a library or rule-pack reference cannot be shared this way.
+            route (pressure-3 or pressure-source-1) result whose mechanics are solved.
+            {request.exactRoute ? " The report states that result's numerical standing, whatever it is." : null} A model
+            with a library or rule-pack reference cannot be shared this way.
           </li>
           <li>
             The application checks this model only for library and rule-pack marks. It cannot tell where any other value

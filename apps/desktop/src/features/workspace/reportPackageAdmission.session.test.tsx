@@ -135,3 +135,31 @@ describe("the user-release dialog where the frame's statements cannot be obtaine
     expect(saveCalls()).toHaveLength(0);
   }, 60000);
 });
+
+/** The dialog's sentence on the result's standing, which only an exact-route result's package
+ * states (its standing record); a pressure-free result's package carries none. The route is the
+ * one the session holds the result on, recorded in the request when the dialog opens. */
+const STANDING_SENTENCE = "The report states that result's numerical standing, whatever it is.";
+
+describe("the user-release dialog's sentence on the result's standing (DEL-08-01 REQ-024)", () => {
+  it.each([
+    ["an exact-route result", "pressure", true],
+    ["a pressure-free result", "preview", false]
+  ] as const)("for %s, the dialog states the sentence only on the exact route", async (_name, profile, exact) => {
+    const { model, bytes } = nativeMechanicsReplayPair("sparse_interactive", { profile });
+    const { result: hook } = await solved(model, bytes, "completed");
+    expect(hook.current.results.renderableSolvedResult).not.toBeNull();
+    await act(async () => { await hook.current.results.requestSaveShareableReportPackage(); });
+    const request = hook.current.results.userReleaseRequest!;
+    expect(request).not.toBeNull();
+    expect(request.refusal).toBeNull();
+    render(<UserReleaseDialog request={request} />);
+    const terms = screen.getByTestId("user-release-terms");
+    expect(terms).toHaveTextContent("It needs a result solved in this session: a pressure-free (preview-physics-2) result, or an exact pressure route (pressure-3 or pressure-source-1) result whose mechanics are solved.");
+    expect((terms.textContent ?? "").includes(STANDING_SENTENCE), terms.textContent ?? "").toBe(exact);
+    // The route the session holds the result on, recorded when the dialog opened.
+    expect(request.exactRoute).toBe(exact);
+    act(() => request.cancel());
+    expect(saveCalls()).toHaveLength(0);
+  }, 60000);
+});

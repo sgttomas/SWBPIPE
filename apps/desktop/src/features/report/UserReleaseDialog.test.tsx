@@ -34,6 +34,7 @@ function request(overrides: Partial<UserReleaseDialogRequest> = {}): UserRelease
     projectName: "Invented project",
     modelDocumentSha256: "0123456789abcdef".repeat(4),
     runId: "run:invented-001",
+    exactRoute: true,
     frameStatements: [],
     refusal: null,
     opener: null,
