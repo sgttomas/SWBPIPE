@@ -12392,18 +12392,43 @@ mod stored_result_limit_tests {
     }
 }
 
-/// The scripted-run build's quit and window close (`native_smoke_request_close`) take the route a person's take,
-/// through the same unsaved-changes guard, and can never exit where a person's would have been held. The command is
-/// compiled only into the scripted-run build, so it is read here as source (`syn`, with span locations) beside the
-/// menu click's handling; the guard decisions it then meets are replayed on `close_guard::CloseGuard` itself.
+/// Source reads of the scripted-run build's quit and window close (`native_smoke_request_close`) beside the menu
+/// click's Quit handling, and the close guard's own states for a quit and a window request. The command is compiled
+/// only into the scripted-run build, so it is read here as source (`syn`, with span locations); none of these tests
+/// runs the command, `request_quit`, the close-requested handler or the web view.
 #[cfg(test)]
 mod scripted_close_route_tests {
     use crate::close_guard::{CloseDecision, CloseGuard, CloseKind};
+    use std::collections::BTreeMap;
     use std::path::Path;
     use syn::visit::{self, Visit};
 
     fn source(file: &str) -> String {
         std::fs::read_to_string(Path::new(env!("CARGO_MANIFEST_DIR")).join("src").join(file)).unwrap()
+    }
+
+    /// Every `.rs` file under `src/`, at any depth: (path relative to `src/`, text).
+    fn crate_sources() -> Vec<(String, String)> {
+        let root = Path::new(env!("CARGO_MANIFEST_DIR")).join("src");
+        let mut files = Vec::new();
+        let mut dirs = vec![root.clone()];
+        while let Some(dir) = dirs.pop() {
+            for entry in std::fs::read_dir(dir).unwrap() {
+                let path = entry.unwrap().path();
+                if path.is_dir() {
+                    dirs.push(path);
+                } else if path.extension().is_some_and(|ext| ext == "rs") {
+                    let relative = path.strip_prefix(&root).unwrap().to_string_lossy().into_owned();
+                    files.push((relative, std::fs::read_to_string(&path).unwrap()));
+                }
+            }
+        }
+        assert!(files.len() > 20, "the walk reads the crate's sources");
+        files
+    }
+
+    fn normalized(text: &str) -> String {
+        text.chars().filter(|c| !c.is_whitespace()).collect()
     }
 
     /// The text between two span locations, whitespace removed.
@@ -12416,17 +12441,14 @@ mod scripted_close_route_tests {
             let to = if line == end.line { end.column } else { chars.len() };
             out.extend(chars[from..to].iter());
         }
-        out.chars().filter(|c| !c.is_whitespace()).collect()
+        normalized(&out)
     }
 
-    fn top_fn<'a>(file: &'a syn::File, name: &str) -> &'a syn::ItemFn {
-        file.items
-            .iter()
-            .find_map(|item| match item {
-                syn::Item::Fn(function) if function.sig.ident == name => Some(function),
-                _ => None,
-            })
-            .unwrap_or_else(|| panic!("no top-level fn {name}"))
+    fn top_fn<'a>(file: &'a syn::File, name: &str) -> Option<&'a syn::ItemFn> {
+        file.items.iter().find_map(|item| match item {
+            syn::Item::Fn(function) if function.sig.ident == name => Some(function),
+            _ => None,
+        })
     }
 
     fn body(text: &str, function: &syn::ItemFn) -> String {
@@ -12434,7 +12456,24 @@ mod scripted_close_route_tests {
         between(text, braces.open().start(), braces.close().end())
     }
 
-    /// Every identifier in a function's body (macro tokens included), and the menu event's Quit branch.
+    /// A function from its `fn` to its closing brace: the signature and the whole body.
+    fn signature_and_body(text: &str, function: &syn::ItemFn) -> String {
+        between(text, function.sig.fn_token.span.start(), function.block.brace_token.span.close().end())
+    }
+
+    /// The identifiers in macro tokens, inside their groups at every depth.
+    fn macro_idents(tokens: proc_macro2::TokenStream, out: &mut Vec<String>) {
+        for token in tokens {
+            match token {
+                proc_macro2::TokenTree::Ident(ident) => out.push(ident.to_string()),
+                proc_macro2::TokenTree::Group(group) => macro_idents(group.stream(), out),
+                _ => {}
+            }
+        }
+    }
+
+    /// Every identifier (macro tokens included, at every depth), the calls of `request_quit`, and the menu event's
+    /// first `if` (its Quit branch).
     #[derive(Default)]
     struct Read {
         idents: Vec<String>,
@@ -12446,11 +12485,7 @@ mod scripted_close_route_tests {
             self.idents.push(node.to_string());
         }
         fn visit_macro(&mut self, node: &'ast syn::Macro) {
-            for token in node.tokens.clone() {
-                if let proc_macro2::TokenTree::Ident(ident) = token {
-                    self.idents.push(ident.to_string());
-                }
-            }
+            macro_idents(node.tokens.clone(), &mut self.idents);
             visit::visit_macro(self, node);
         }
         fn visit_expr_call(&mut self, node: &'ast syn::ExprCall) {
@@ -12474,58 +12509,71 @@ mod scripted_close_route_tests {
         }
     }
 
-    #[test]
-    fn the_scripted_quit_is_the_menu_clicks_own_handling_and_its_window_close_the_windows_own() {
-        let lib = source("lib.rs");
-        let smoke = source("native_smoke.rs");
-        let lib_file = syn::parse_file(&lib).unwrap();
-        let smoke_file = syn::parse_file(&smoke).unwrap();
-
-        // The two lines the menu's Quit branch had, unchanged, in one function beside request_close and finish_close.
-        assert_eq!(body(&lib, top_fn(&lib_file, "request_quit")), "{ifrequest_close(app,close_guard::CloseKind::Quit){app.exit(0);}}");
-        // The menu click's Quit branch calls it and does nothing else.
-        let mut read = Read::default();
-        read.visit_file(&lib_file);
-        let (condition_start, open, close) = read.quit_branch.expect("on_menu_event begins with its Quit branch");
-        assert_eq!(between(&lib, condition_start, open), "event.id().0==QUIT_MENU_ID");
-        assert_eq!(between(&lib, open, close), "{request_quit(app);return;}");
-        // The window's own close-requested handler is unchanged: a close is held unless request_close approves it.
-        assert!(lib.contains("if window.label() == \"main\" && !request_close(window.app_handle(), close_guard::CloseKind::Window) {\n                    api.prevent_close();"));
-
-        // The command: "quit" calls that same function; "window" asks the main window to close. Nothing else.
-        let command = top_fn(&smoke_file, "native_smoke_request_close");
-        assert!(command.attrs.iter().any(|attr| attr.path().segments.iter().map(|segment| segment.ident.to_string()).collect::<Vec<_>>() == ["tauri", "command"]));
-        let text = body(&smoke, command);
-        assert!(text.contains("\"quit\"=>{crate::request_quit(&app);Ok(())}"), "{text}");
-        assert!(text.contains("\"window\"=>{letwindow=app.get_webview_window(\"main\")"), "{text}");
-        assert!(text.contains("window.close().map_err("), "{text}");
-        let mut command_read = Read::default();
-        command_read.visit_block(&command.block);
-        for refused in [
-            "exit", "process", "destroy", "eval", "finish_close", "request_close", "resolve", "resolve_close_request", "acknowledge", "acknowledge_close_request",
-            "acknowledgement_deadline", "abandon_to_proceed", "CloseGuard", "CloseDecision", "state", "try_state", "emit", "prevent_close",
-        ] {
-            assert!(!command_read.idents.iter().any(|ident| ident == refused), "the command names {refused}: it must answer no prompt, abandon no request and exit nothing of its own");
+    /// The command as reviewed, from its `fn` to its closing brace (compared with whitespace removed).
+    const COMMAND: &str = r#"fn native_smoke_request_close(app: AppHandle, kind: String) -> Result<(), String> {
+        match kind.as_str() {
+            "quit" => {
+                crate::request_quit(&app);
+                Ok(())
+            }
+            "window" => {
+                let window = app.get_webview_window("main").ok_or_else(|| "NATIVE-WINDOW-UNAVAILABLE: main webview is not installed".to_string())?;
+                window.close().map_err(|error| error.to_string())
+            }
+            other => Err(format!("NATIVE-CLOSE-KIND-UNKNOWN: {other:?}; the kind is \"quit\" or \"window\"")),
         }
-        assert_eq!(command_read.quit_calls, 1);
+    }"#;
 
-        // request_quit is called from exactly those two places.
-        let mut smoke_read = Read::default();
-        smoke_read.visit_file(&smoke_file);
-        assert_eq!((read.quit_calls, smoke_read.quit_calls), (1, 1));
+    /// Identifiers the command must not name: it answers no prompt, abandons no request and exits nothing of its own.
+    /// The denylist walks only the command's own body; a helper the command called would not be read. What closes that
+    /// is the exact comparison with [`COMMAND`]: the body can call nothing but what that text calls.
+    const REFUSED: [&str; 18] = [
+        "exit", "process", "destroy", "eval", "finish_close", "request_close", "resolve", "resolve_close_request", "acknowledge", "acknowledge_close_request",
+        "acknowledgement_deadline", "abandon_to_proceed", "CloseGuard", "CloseDecision", "state", "try_state", "emit", "prevent_close",
+    ];
+
+    /// What is wrong with the command in `native_smoke` (the text of `native_smoke.rs`): empty when it is a public
+    /// `#[tauri::command]` whose signature and body are exactly [`COMMAND`], and its body names nothing on [`REFUSED`].
+    fn command_problems(native_smoke: &str) -> Vec<String> {
+        let file = syn::parse_file(native_smoke).unwrap();
+        let Some(command) = top_fn(&file, "native_smoke_request_close") else { return vec!["no fn native_smoke_request_close".into()] };
+        let mut problems = Vec::new();
+        if !matches!(command.vis, syn::Visibility::Public(_)) {
+            problems.push("the command is not pub".into());
+        }
+        if !command.attrs.iter().any(|attr| attr.path().segments.iter().map(|segment| segment.ident.to_string()).collect::<Vec<_>>() == ["tauri", "command"]) {
+            problems.push("the command is not a #[tauri::command]".into());
+        }
+        let found = signature_and_body(native_smoke, command);
+        if found != normalized(COMMAND) {
+            problems.push(format!("the command differs from its reviewed text: {found}"));
+        }
+        let mut read = Read::default();
+        read.visit_block(&command.block);
+        problems.extend(REFUSED.iter().filter(|refused| read.idents.iter().any(|ident| ident == *refused)).map(|refused| format!("the command names {refused}")));
+        problems
     }
 
-    #[test]
-    fn the_scripted_close_is_compiled_only_into_the_scripted_run_build() {
-        let lib = source("lib.rs");
-        assert!(lib.contains("#[cfg(feature = \"native-smoke\")]\nmod native_smoke;\n"), "the module is compiled only into the scripted-run build");
-        let file = syn::parse_file(&lib).unwrap();
-        // Outside that module, the command is named once: in the invoke handler list of the `let` gated on the feature.
+    /// The files of `files` that call `request_quit`, with how many calls each makes.
+    fn request_quit_callers(files: &[(String, String)]) -> BTreeMap<String, usize> {
+        files
+            .iter()
+            .filter_map(|(name, text)| {
+                let mut read = Read::default();
+                read.visit_file(&syn::parse_file(text).unwrap_or_else(|error| panic!("{name} does not parse: {error}")));
+                (read.quit_calls > 0).then(|| (name.clone(), read.quit_calls))
+            })
+            .collect()
+    }
+
+    /// Where `lib` (the text of `lib.rs`) names the command: (inside an `app_invoke_handler!` in a `let` gated exactly
+    /// on the native-smoke feature, anywhere else in its code).
+    fn command_naming(lib: &str) -> (usize, usize) {
         #[derive(Default)]
         struct Named {
-            gated: usize,
             depth: usize,
-            ungated: usize,
+            gated: usize,
+            other: usize,
         }
         impl<'ast> Visit<'ast> for Named {
             fn visit_local(&mut self, node: &'ast syn::Local) {
@@ -12538,62 +12586,116 @@ mod scripted_close_route_tests {
             }
             fn visit_ident(&mut self, node: &'ast proc_macro2::Ident) {
                 if node == "native_smoke_request_close" {
-                    self.ungated += 1;
+                    self.other += 1;
                 }
             }
             fn visit_macro(&mut self, node: &'ast syn::Macro) {
-                let named = node.tokens.to_string().matches("native_smoke_request_close").count();
-                if self.depth > 0 { self.gated += named } else { self.ungated += named }
+                let mut idents = Vec::new();
+                macro_idents(node.tokens.clone(), &mut idents);
+                let named = idents.iter().filter(|ident| *ident == "native_smoke_request_close").count();
+                if self.depth > 0 && node.path.is_ident("app_invoke_handler") {
+                    self.gated += named;
+                } else {
+                    self.other += named;
+                }
                 visit::visit_macro(self, node);
             }
         }
         let mut named = Named::default();
-        named.visit_file(&file);
-        assert_eq!((named.gated, named.ungated), (1, 0));
-        // No other source of the crate names it but the module that defines it and this test's file.
-        let mut files = Vec::new();
-        let mut dirs = vec![Path::new(env!("CARGO_MANIFEST_DIR")).join("src")];
-        while let Some(dir) = dirs.pop() {
-            for entry in std::fs::read_dir(dir).unwrap() {
-                let path = entry.unwrap().path();
-                if path.is_dir() { dirs.push(path) } else if path.extension().is_some_and(|ext| ext == "rs") { files.push(path) }
-            }
-        }
-        let naming: Vec<String> = files
-            .iter()
-            .filter(|path| std::fs::read_to_string(path).unwrap().contains("native_smoke_request_close"))
-            .map(|path| path.file_name().unwrap().to_string_lossy().into_owned())
-            .collect::<std::collections::BTreeSet<_>>()
-            .into_iter()
-            .collect();
+        named.visit_file(&syn::parse_file(lib).unwrap());
+        (named.gated, named.other)
+    }
+
+    #[test]
+    fn the_menu_clicks_quit_branch_calls_request_quit_whose_body_is_the_two_moved_lines() {
+        let lib = source("lib.rs");
+        let file = syn::parse_file(&lib).unwrap();
+        assert_eq!(body(&lib, top_fn(&file, "request_quit").expect("fn request_quit")), "{ifrequest_close(app,close_guard::CloseKind::Quit){app.exit(0);}}");
+        let mut read = Read::default();
+        read.visit_file(&file);
+        let (condition_start, open, close) = read.quit_branch.expect("on_menu_event begins with its Quit branch");
+        assert_eq!(between(&lib, condition_start, open), "event.id().0==QUIT_MENU_ID");
+        assert_eq!(between(&lib, open, close), "{request_quit(app);return;}");
+        // The window's own close-requested handler: a close is held unless request_close approves it.
+        assert!(lib.contains("if window.label() == \"main\" && !request_close(window.app_handle(), close_guard::CloseKind::Window) {\n                    api.prevent_close();"));
+    }
+
+    #[test]
+    fn the_command_is_exactly_its_reviewed_text() {
+        let smoke = source("native_smoke.rs");
+        assert_eq!(command_problems(&smoke), Vec::<String>::new());
+        // One extra statement in the quit arm.
+        let added = smoke.replacen("crate::request_quit(&app);\n", "crate::request_quit(&app);\n            helper(&app);\n", 1);
+        assert_ne!(added, smoke);
+        assert!(command_problems(&added).iter().any(|problem| problem.starts_with("the command differs")));
+        // The other arm changed to answer the guard.
+        let other: String = smoke
+            .lines()
+            .map(|line| if line.trim_start().starts_with("other => Err(format!(\"NATIVE-CLOSE-KIND-UNKNOWN") { "        other => { crate::finish_close(&app, crate::close_guard::CloseKind::Quit); Err(other.to_string()) }" } else { line })
+            .collect::<Vec<_>>()
+            .join("\n");
+        assert_ne!(normalized(&other), normalized(&smoke));
+        let problems = command_problems(&other);
+        assert!(problems.iter().any(|problem| problem.starts_with("the command differs")) && problems.contains(&"the command names finish_close".to_string()), "{problems:?}");
+        // The signature changed.
+        let signature = smoke.replacen("pub fn native_smoke_request_close(app: AppHandle, kind: String)", "pub fn native_smoke_request_close(app: AppHandle, kind: String, proceed: bool)", 1);
+        assert_ne!(signature, smoke);
+        assert!(command_problems(&signature).iter().any(|problem| problem.starts_with("the command differs")));
+    }
+
+    #[test]
+    fn macro_tokens_are_read_inside_their_groups() {
+        let file = syn::parse_file("fn f() { m!(a, (b, [{ exit(0) }])); }").unwrap();
+        let mut read = Read::default();
+        read.visit_file(&file);
+        assert!(read.idents.iter().any(|ident| ident == "exit"), "{:?}", read.idents);
+    }
+
+    #[test]
+    fn request_quit_is_called_from_the_menu_branch_and_the_command_only() {
+        let mut files = crate_sources();
+        let expected = BTreeMap::from([("lib.rs".to_string(), 1), ("native_smoke.rs".to_string(), 1)]);
+        assert_eq!(request_quit_callers(&files), expected);
+        // A caller in a third file, at any depth of the tree, is found.
+        files.push(("embedded_agent/sample.rs".to_string(), "fn f(app: &tauri::AppHandle) { crate::request_quit(app); }".to_string()));
+        assert_eq!(request_quit_callers(&files).get("embedded_agent/sample.rs"), Some(&1));
+    }
+
+    #[test]
+    fn the_command_is_named_only_in_the_scripted_run_builds_invoke_handler_list() {
+        let lib = source("lib.rs");
+        assert!(lib.contains("#[cfg(feature = \"native-smoke\")]\nmod native_smoke;\n"), "the module is compiled only into the scripted-run build");
+        assert_eq!(command_naming(&lib), (1, 0));
+        // Gated, but in another macro; and in app_invoke_handler, but ungated.
+        assert_eq!(command_naming("fn run() { #[cfg(feature = \"native-smoke\")] let b = other!(native_smoke::native_smoke_request_close); }"), (0, 1));
+        assert_eq!(command_naming("fn run() { let b = app_invoke_handler!(native_smoke::native_smoke_request_close); }"), (0, 1));
+        // No other source of the crate names it but the module that defines it and lib.rs.
+        let naming: Vec<String> = crate_sources().into_iter().filter(|(_, text)| text.contains("native_smoke_request_close")).map(|(name, _)| name).collect::<std::collections::BTreeSet<_>>().into_iter().collect();
         assert_eq!(naming, ["lib.rs", "native_smoke.rs"]);
     }
 
-    /// The guard as the command's request meets it: request_close exits only on `Proceed`, and otherwise the request
-    /// waits for the web view's answer (`resolve_close_request`, a person's choice in the prompt).
+    /// The close guard's own states, driven directly, for a quit and a window request; the two answers are the ones
+    /// the web view gives: keep open (`resolve(.., false)`, as after Cancel in the unsaved-changes prompt) and proceed
+    /// (`resolve(.., true)`, as with no unsaved edits or after Discard). A first request is asked, never approved; an
+    /// acknowledged attempt has no deadline; a repeat is a new attempt of the held request; keeping open proceeds
+    /// nothing and the next request is asked again; proceeding returns the request's kind, after which a request
+    /// proceeds without asking.
     #[test]
-    fn with_unsaved_edits_the_scripted_quit_returns_and_the_request_waits_and_without_them_it_proceeds_as_the_menus() {
+    fn the_guard_asks_a_first_quit_or_window_request_and_proceeds_only_once_it_is_resolved_to() {
         for kind in [CloseKind::Quit, CloseKind::Window] {
-            // Unsaved edits: the command's request is asked, not approved, so request_close returns false and nothing
-            // exits; the web view acknowledges and shows its prompt, after which no deadline closes the app.
             let guard = CloseGuard::default();
-            let CloseDecision::Ask { request_id, attempt, kind: asked } = guard.request(kind) else { panic!("a first request is always asked") };
+            let CloseDecision::Ask { request_id, attempt, kind: asked } = guard.request(kind) else { panic!("a first request is asked") };
             assert_eq!(asked, kind);
             assert!(guard.acknowledge(request_id, attempt));
-            assert_eq!(guard.acknowledgement_deadline(request_id, attempt), None, "the prompt is showing: nothing closes on a timer");
-            // A repeat of the scripted request while the prompt shows is a new attempt of the pending request, still
-            // asked: the pending request is held, and the command can only ask again.
-            let CloseDecision::Ask { request_id: same, attempt: again, .. } = guard.request(CloseKind::Quit) else { panic!("the request is pending") };
+            assert_eq!(guard.acknowledgement_deadline(request_id, attempt), None, "an acknowledged attempt has no deadline");
+            let CloseDecision::Ask { request_id: same, attempt: again, .. } = guard.request(CloseKind::Quit) else { panic!("the request is held") };
             assert_eq!((same, again), (request_id, attempt + 1));
             assert!(guard.acknowledge(request_id, again));
-            // The person keeps the app open (Cancel): nothing proceeds, and the next request is asked afresh.
             assert_eq!(guard.resolve(request_id, false), None);
             assert!(matches!(guard.request(kind), CloseDecision::Ask { .. }));
 
-            // No unsaved edits: the web view answers proceed at once, and the request proceeds through finish_close,
-            // as the menu click's does; only then does a later request proceed without asking.
             let guard = CloseGuard::default();
-            let CloseDecision::Ask { request_id, attempt, .. } = guard.request(kind) else { panic!("a first request is always asked") };
+            let CloseDecision::Ask { request_id, attempt, .. } = guard.request(kind) else { panic!("a first request is asked") };
             assert!(guard.acknowledge(request_id, attempt));
             assert_eq!(guard.resolve(request_id, true), Some(kind));
             assert_eq!(guard.request(kind), CloseDecision::Proceed);
