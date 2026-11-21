@@ -100,11 +100,10 @@ needs:
     and the differences allowed between a hand-entered model and the fixture.
   gating: true
 - from: DEL-07-06
-  when: Timing the unassisted entry by a person
+  when: Asking a person to perform the timed, unassisted entry
   condition: >-
-    The interface review has passed: both reviewers give at least 4 overall on every interface
-    criterion and no use case below 3, on walkthroughs at the revision the person will use.
-  gating: false
+    DEL-07-06 AC-008 is met, on walkthroughs at the revision that person will use.
+  gating: true
 code_paths:
 - apps/desktop/src/features/model-tree/**
 - apps/desktop/src/features/workspace/table/**
