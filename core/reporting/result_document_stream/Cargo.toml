@@ -1,0 +1,15 @@
+[package]
+name = "open_pipe_stress_result_document_stream"
+version = "0.1.0"
+edition = "2021"
+description = "The result export document written in canonical order from the held source, without the document as one value"
+publish = false
+
+[lib]
+path = "src/lib.rs"
+
+[dependencies]
+open_pipe_stress_result_export = { path = "../result_export" }
+open_pipe_stress_canonical_json = { path = "../../serialization/canonical_json" }
+serde_json = { version = "1", features = ["float_roundtrip"] }
+sha2 = "0.10"
