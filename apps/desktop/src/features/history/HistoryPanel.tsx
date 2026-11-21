@@ -16,7 +16,7 @@ import { HistoricalReaderFindings, recordedRunBindingFindings } from "../results
 import { RulePackRunReferences } from "../rule-packs/RulePackRunReferences";
 import { RULE_PACKS_NOT_RESOLVED, unreadableGuidance, type UnreadableRow } from "../../services/historyListEntries";
 import { useSessionHistory, useSessionModel, useSessionProject } from "../workspace/WorkspaceSessionContext";
-import { notOpenableReason, RECORD_RUN_STATE_NOT_KNOWN, runCompareUnavailableReason, stateCompareUnavailableReason } from "./useModelStateHistory";
+import { NO_MODEL_STATES_LISTED, notOpenableReason, RECORD_RUN_STATE_NOT_KNOWN, runCompareUnavailableReason, stateCompareUnavailableReason } from "./useModelStateHistory";
 import { StateComparisonView } from "../comparison/StateComparisonView";
 import { RunComparisonView } from "../comparison/RunComparisonView";
 import { CURRENT_RUN_DESCRIPTION, CURRENT_RUN_ID } from "../comparison/runComparisonSides";
@@ -528,6 +528,8 @@ export function HistoryPanel() {
   // A readable run whose state is not a readable listed state has no row under a state.
   const orphanRuns = states ? (runs ?? []).filter((run) => !states.some((state) => state.state_id === run.state_id)) : [];
   const runsOf = (stateId: string) => (runs ?? []).filter((run) => run.state_id === stateId).sort((left, right) => left.created_at < right.created_at ? -1 : left.created_at > right.created_at ? 1 : 0);
+  // The states the list below shows: readable rows, and rows the store cannot read (by id).
+  const statesShown = Boolean(states?.length || unreadable?.states.length);
   if (!model) return null;
   return (
     <section className="panel model-history-panel" aria-label="Model history" data-testid="model-history-panel">
@@ -566,7 +568,7 @@ export function HistoryPanel() {
       {recordRunUnavailableReason && !historyBusy && !projectBusy ? <p className="muted" data-testid="record-run-unavailable">Record Run: {recordRunUnavailableReason}</p> : null}
       {saving ? <SaveStateForm onDone={() => setSaving(false)} /> : null}
       {recording ? <RecordRunForm onDone={() => setRecording(false)} /> : null}
-      <p className="muted" role="status" data-testid="model-history-message">{historyMessage}</p>
+      <p className="muted" role="status" data-testid="model-history-message">{historyMessage === NO_MODEL_STATES_LISTED && statesShown ? "" : historyMessage}</p>
       {refusedStateExport ? (
         <div className="report-actions" data-testid="model-history-refused-state-export">
           <button type="button" data-testid="model-history-export-stored-state" disabled={historyBusy || projectBusy} title={reasonFor(historyBusy || projectBusy, null)} onClick={() => exportRefusedState()}>

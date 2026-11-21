@@ -119,6 +119,10 @@ export type LandedProjectSave = { projectId: string; base: string | null; model:
 
 export type SaveModelStateForm = { labels: StateLabels; kind: ModelStateKind };
 
+/** The history message before any operation: the panel shows it only while the list it heads
+ * is empty (a successful listing leaves the message as it was). */
+export const NO_MODEL_STATES_LISTED = "No model states listed yet.";
+
 /** Record Run's line while the session does not know whether a saved state holds the solved model
  * (its hash is not computed yet, or the project's states are not listed). The store decides: a model
  * already saved keeps its one state under the name it was saved with, and a name typed here is not used. */
@@ -224,7 +228,7 @@ export function useModelStateHistory(deps: ModelStateHistoryDeps) {
   // naming the state Record Run ties the run to.
   const [solvedModelHash, setSolvedModelHash] = useState<{ manifest: unknown; hash: string | null } | null>(null);
   const [statesProjectId, setStatesProjectId] = useState<string | null>(null);
-  const [historyMessage, setHistoryMessage] = useState("No model states listed yet.");
+  const [historyMessage, setHistoryMessage] = useState(NO_MODEL_STATES_LISTED);
   const [historyOperation, setHistoryOperation] = useState("not_started");
   // W-17: the saved state the last Open State refused for lacking `project.units`,
   // which can be saved to a file as stored (`exportRefusedState`).

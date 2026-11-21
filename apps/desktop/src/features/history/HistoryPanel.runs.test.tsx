@@ -2,7 +2,7 @@
 // states, with their labels, label editing, the record check, delete and Record Run…,
 // against a fake of the session's history slice. The flows behind these controls are
 // `recordRun.session.test.tsx`; the store's checks are the Rust tests.
-import { fireEvent, render, screen, within } from "@testing-library/react";
+import { cleanup, fireEvent, render, screen, within } from "@testing-library/react";
 import { describe, expect, it, vi } from "vitest";
 import type { AnalysisRunSummary } from "../../services/analysisRunService";
 import { LABELS_DO_NOT_CHANGE_RUN, RUN_RECORD_MANIFEST_UNAVAILABLE } from "../../services/analysisRunService";
@@ -11,7 +11,7 @@ import type { HistoricalRunContext } from "../results/HistoricalRunContext";
 import { WorkspaceSessionProvider } from "../workspace/WorkspaceSessionContext";
 import type { WorkspaceSession } from "../workspace/workspaceSession";
 import { HistoryPanel } from "./HistoryPanel";
-import { RECORD_RUN_STATE_NOT_KNOWN } from "./useModelStateHistory";
+import { NO_MODEL_STATES_LISTED, RECORD_RUN_STATE_NOT_KNOWN } from "./useModelStateHistory";
 
 const PROJECT = "project:invented-history";
 const STATE: ModelStateSummary = {
@@ -153,5 +153,25 @@ describe("recorded runs in the History panel (W-12 S2)", () => {
     fireEvent.change(screen.getByTestId("record-run-name"), { target: { value: "Run C" } });
     fireEvent.click(screen.getByTestId("record-run-submit"));
     expect(slice.recordRun).toHaveBeenCalledWith({ labels: { run_name: "Run C", tags: [], notes: [], assumptions: [] }, snapshotName: null });
+  });
+});
+
+// #547: the history message before any operation says no states are listed; a listing leaves the
+// message as it was, so the panel shows it only while the list it heads is empty.
+describe("the Model History message before any operation", () => {
+  it("is not shown above a listed state, and is shown when the store lists none", () => {
+    renderPanel(history({ historyMessage: NO_MODEL_STATES_LISTED }));
+    expect(screen.getByTestId(`model-state-${STATE.state_id}`)).toBeInTheDocument();
+    expect(screen.getByTestId("model-history-message")).toHaveTextContent(/^$/);
+    expect(screen.getByTestId("model-history-panel")).not.toHaveTextContent("No model states listed yet.");
+    cleanup();
+    renderPanel(history({ historyMessage: NO_MODEL_STATES_LISTED, states: [], runs: [], unreadable: { states: [], runs: [] } }));
+    expect(screen.getByTestId("model-history-message")).toHaveTextContent("No model states listed yet.");
+    expect(screen.getByTestId("model-history-empty")).toHaveTextContent("No saved model states for this project yet.");
+  });
+
+  it("keeps an operation's message above the list", () => {
+    renderPanel(history({ historyMessage: "Labels of model state \"After solve\" saved." }));
+    expect(screen.getByTestId("model-history-message")).toHaveTextContent("Labels of model state \"After solve\" saved.");
   });
 });
