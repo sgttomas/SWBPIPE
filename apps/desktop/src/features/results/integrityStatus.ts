@@ -30,7 +30,7 @@ export type SolverTextClaim = "claim" | "quotes_claim" | "no_claim";
 const CLAIM_CODES: ReadonlySet<string> = new Set(Object.keys(solverTextClaims.claim));
 const QUOTING_CODES: ReadonlySet<string> = new Set(Object.keys(solverTextClaims.quotes_claim));
 const NO_CLAIM_CODES: ReadonlySet<string> = new Set(solverTextClaims.no_claim);
-/** The solver's fixed phrases that state such a claim. */
+/** The solver's fixed phrases that state such a claim, for a text the code does not decide. */
 export const SOLVER_CLAIM_PHRASES: readonly string[] = Object.freeze(solverTextClaims.phrases.map((phrase) => phrase.text));
 
 /** A code's class; null for a code outside the table. */
@@ -45,15 +45,18 @@ function quotesClaim(text: unknown): boolean {
 }
 
 /** Whether a solver diagnostic, or a published text with no code (a limitation, a confirmation's
- * quoted detail), needs `SOLVER_REPORT_NOTE` beside it: it states a pass, a bound or an established
- * state that rests on the ordinary solve's unverified integrity bound. Decided by its code where the
- * code is in the table (`claim`: always; `no_claim`: never, which keeps the retained-precision and
- * pressure-source recovery certificates' own texts without it), and by the solver's fixed phrases for
- * a `quotes_claim` code, a code outside the table, and a text without a code. */
+ * quoted detail), needs `SOLVER_REPORT_NOTE` beside it: it states, or may quote, a pass, a bound or an
+ * established state that rests on the ordinary solve's unverified integrity bound. Decided by its code
+ * where the code is in the table: `claim` and `quotes_claim` always, whatever the message's words (a
+ * quoting code's wording is not closed, so no list of phrases decides it); `no_claim` never, which
+ * keeps the retained-precision and pressure-source recovery certificates' own texts without it. A code
+ * outside the table and a text without a code are decided by the solver's fixed phrases, the second
+ * guard. */
 export function needsSolverReportNote(text: Readonly<{ code?: unknown; message?: unknown }> | null | undefined): boolean {
   if (!text) return false;
   switch (solverTextClaim(text.code)) {
-    case "claim": return true;
+    case "claim":
+    case "quotes_claim": return true;
     case "no_claim": return false;
     default: return quotesClaim(text.message);
   }
@@ -141,22 +144,80 @@ export function supportStatesLine(outcome: unknown, detail: unknown): SupportSta
   return { text, detail, detailNote: needsSolverReportNote({ message: detail }) ? SOLVER_REPORT_NOTE : null };
 }
 
-/** The support-state line of each case with nonlinear supports, by case id, from a standing record
- * (`numerical_standing`: `cases[].confirmation.{outcome, detail}`) or a native summary's
- * `support_confirmations` (`[{case_id, outcome, detail}]`). Anything else gives no line. */
-export function supportStatesByCase(record: unknown): ReadonlyMap<string, SupportStatesLine> {
-  const out = new Map<string, SupportStatesLine>();
+/** The desktop's own statement for a case whose confirmation outcome could not be read here: not one
+ * of the reader's outcomes (`ConfirmationOutcome`, `CONFIRMATION_STATEMENTS`) and kept apart from
+ * that vocabulary. It stands where the desktop has not positively established that a case has nothing
+ * to confirm: the confirmation read refused or failed, was not made, the record is unreadable under
+ * today's reader, or no model is available to tell whether the model has a nonlinear support. */
+export const CONFIRMATION_RECORD_UNREAD_STATEMENT =
+  "Not confirmed: this result's support-state confirmation record could not be read here, so what the solver reported for this load case is not shown.";
+/** The support-state line of a case whose confirmation outcome could not be read here. */
+export const SUPPORT_STATES_UNREAD_LINE: SupportStatesLine = Object.freeze({ text: `${SUPPORT_STATES_LEAD}. ${CONFIRMATION_RECORD_UNREAD_STATEMENT}`, detail: null, detailNote: null });
+
+/** What the desktop knows of a result's support-state confirmations, for the indicator's cases: the
+ * line (or, where the reader's record gives the case an outcome that takes none, null) of each case
+ * the record names, and the line of every other case. Fail closed: a case shows no line only where
+ * the record gives it an outcome that takes none, or the model the result is read with is known to
+ * have no nonlinear support. */
+export type SupportStates = Readonly<{ byCase: ReadonlyMap<string, SupportStatesLine | null>; otherwise: SupportStatesLine | null }>;
+/** The model the result is read with is known and has no nonlinear support: no case has a line. */
+export const SUPPORT_STATES_NONE: SupportStates = Object.freeze({ byCase: new Map<string, SupportStatesLine | null>(), otherwise: null });
+/** No confirmation outcome could be read: every case the indicator lists has the could-not-be-read line. */
+export const SUPPORT_STATES_UNREAD: SupportStates = Object.freeze({ byCase: new Map<string, SupportStatesLine | null>(), otherwise: SUPPORT_STATES_UNREAD_LINE });
+/** A case's line under what the desktop knows. */
+export function supportStatesOf(states: SupportStates, caseId: string): SupportStatesLine | null {
+  return states.byCase.has(caseId) ? states.byCase.get(caseId)! : states.otherwise;
+}
+
+/** What a model says about nonlinear supports, as the reader's standing record reads it
+ * (`supports[].nonlinear`): `"none"` only for a model whose `supports` is a list naming none;
+ * `"unknown"` for no model or one whose supports cannot be read. */
+export type NonlinearSupportKnowledge = "nonlinear" | "none" | "unknown";
+export function nonlinearSupportKnowledge(model: unknown): NonlinearSupportKnowledge {
+  if (!model || typeof model !== "object" || Array.isArray(model)) return "unknown";
+  const supports = (model as { supports?: unknown }).supports;
+  if (!Array.isArray(supports)) return "unknown";
+  return supports.some((support) => (support as { nonlinear?: unknown } | null)?.nonlinear != null) ? "nonlinear" : "none";
+}
+
+/** The support-state line of each case a standing record (`numerical_standing`:
+ * `cases[].confirmation.{outcome, detail}`) or a native summary's `support_confirmations`
+ * (`[{case_id, outcome, detail}]`) names: the reader's statement, or null where the outcome takes no
+ * line (`not_applicable`). An outcome outside the vocabulary has the could-not-be-read line, and so
+ * has every case the record does not name. Anything that is not a record is none read. */
+export function supportStatesByCase(record: unknown): SupportStates {
   const cases = Array.isArray(record) ? record : (record as { cases?: unknown } | null)?.cases;
-  if (!Array.isArray(cases)) return out;
+  if (!Array.isArray(cases)) return SUPPORT_STATES_UNREAD;
+  const byCase = new Map<string, SupportStatesLine | null>();
   for (const item of cases) {
     const caseId = (item as { case_id?: unknown })?.case_id;
     const confirmation = (item as { confirmation?: { outcome?: unknown; detail?: unknown } })?.confirmation;
     const outcome = (item as { outcome?: unknown })?.outcome ?? confirmation?.outcome;
     const detail = (item as { detail?: unknown })?.detail ?? confirmation?.detail;
-    const line = supportStatesLine(outcome, detail);
-    if (typeof caseId === "string" && line) out.set(caseId, line);
+    if (typeof caseId !== "string") continue;
+    byCase.set(caseId, outcome === "not_applicable" ? null : supportStatesLine(outcome, detail) ?? SUPPORT_STATES_UNREAD_LINE);
   }
-  return out;
+  return Object.freeze({ byCase, otherwise: SUPPORT_STATES_UNREAD_LINE });
+}
+
+/** What the desktop knows for a result read with `model` (null where none is available), where
+ * `read` gives the reader's standing record or a native summary's confirmations, or throws, or gives
+ * null where none could be read: no line only where the model is known to have no nonlinear support,
+ * or the record gives the case an outcome that takes none; otherwise the could-not-be-read line. */
+export function supportStatesFor(model: unknown, read: () => unknown): SupportStates {
+  if (nonlinearSupportKnowledge(model) === "none") return SUPPORT_STATES_NONE;
+  try { return supportStatesByCase(read()); } catch { return SUPPORT_STATES_UNREAD; }
+}
+
+/** What a native summary says of the confirmations: its `support_confirmations` (`confirmations`)
+ * and, for a restored run, how they were read (`NativeCustody.supportConfirmations`); absent for a
+ * solve, whose S is read with its own model, so its record stands, decided with `model` (null where
+ * none is available) as `supportStatesFor` decides. */
+export function nativeSupportStates(confirmations: unknown, read: "read" | "no_nonlinear_support" | "not_read" | undefined, model: unknown = null): SupportStates {
+  if (read === "no_nonlinear_support") return SUPPORT_STATES_NONE;
+  if (read === "not_read") return SUPPORT_STATES_UNREAD;
+  if (read === "read") return supportStatesByCase(confirmations);
+  return supportStatesFor(model, () => confirmations);
 }
 
 /** The method `retained_source_blocks_exact_v1` a pressure-source case's values are recovered by

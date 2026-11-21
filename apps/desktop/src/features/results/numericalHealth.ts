@@ -38,7 +38,7 @@ import {
   type NumericalHealthState
 } from "./numericalHealthText";
 import type { MechanicsResult, ResultBasisRef } from "../../types";
-import type { SupportStatesLine } from "./integrityStatus";
+import { SUPPORT_STATES_UNREAD, supportStatesOf, type SupportStates, type SupportStatesLine } from "./integrityStatus";
 
 export type { NumericalHealthState } from "./numericalHealthText";
 export type NumericalHealthRoute = "generic" | "pressure_source" | "retained" | "unsupported";
@@ -299,7 +299,9 @@ export type NumericalHealthCaseView = Readonly<{
   integrityDiagnosticId: string | null;
   /** "Support states: not confirmed" and the reviewed statement of the case's confirmation outcome,
    * with the solver's quoted reason where the outcome carries one, for a case with nonlinear supports
-   * (`integrityStatus.ts` `supportStatesLine`); null otherwise. */
+   * (`integrityStatus.ts` `supportStatesLine`), or the could-not-be-read line where no outcome could be
+   * read for the case; null only where the record gives the case an outcome that takes no line or the
+   * model is known to have no nonlinear support (`SupportStates`). */
   supportStates: SupportStatesLine | null;
 }>;
 export type NumericalHealthCombinationView = Readonly<{
@@ -329,7 +331,7 @@ export type NumericalHealthView = Readonly<{
 /** The presentation of the generic and pressure-source routes; null for the retained and
  * unsupported routes, whose texts are unchanged. `verdictHold` is `numericalHealthHold`'s
  * condition: the generic result is not Current because of its verdict alone. */
-export function numericalHealthView(health: NumericalHealth | null, options: { eligible: boolean; verdictHold: boolean; supportStates?: ReadonlyMap<string, SupportStatesLine>; recoveredCases?: ReadonlySet<string> }): NumericalHealthView | null {
+export function numericalHealthView(health: NumericalHealth | null, options: { eligible: boolean; verdictHold: boolean; supportStates?: SupportStates; recoveredCases?: ReadonlySet<string> }): NumericalHealthView | null {
   if (!health || (health.route !== "generic" && health.route !== "pressure_source")) return null;
   const route = health.route;
   const prefix = route === "pressure_source";
@@ -343,7 +345,8 @@ export function numericalHealthView(health: NumericalHealth | null, options: { e
     conditioning: c.digits !== null && (c.state === "checks_passed" || c.state === "sensitive") ? conditioningDetailText(formatDigits(c.digits)) : null,
     locations: c.causes.flatMap((x) => x.locations),
     integrityDiagnosticId: c.integrity_diagnostic_id,
-    supportStates: options.supportStates?.get(c.case_id) ?? null
+    // Fail closed: a caller that states nothing of the confirmations gives every case the could-not-be-read line.
+    supportStates: supportStatesOf(options.supportStates ?? SUPPORT_STATES_UNREAD, c.case_id)
   }));
   // A withheld combination (or one with no state) keeps its existing finding and gets
   // no badge or detail of its own.

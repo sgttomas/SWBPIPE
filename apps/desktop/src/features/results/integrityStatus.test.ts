@@ -48,10 +48,31 @@ describe("the support-state line", () => {
 
   it("reads a standing record's and a native summary's outcomes by case", () => {
     const record = { cases: [{ case_id: "L1", confirmation: { outcome: "solver_reported_established" } }, { case_id: "L2", confirmation: { outcome: "not_applicable" } }] };
-    expect([...status.supportStatesByCase(record).keys()]).toEqual(["L1"]);
-    expect([...status.supportStatesByCase([{ case_id: "L3", outcome: "no_confirmation_record", detail: null }]).entries()]).toEqual([["L3", { text: `Support states: not confirmed. ${status.CONFIRMATION_STATEMENTS.no_confirmation_record}`, detail: null, detailNote: null }]]);
-    expect(status.supportStatesByCase({ cases: [{ case_id: "L4", confirmation: { outcome: "not_established_detail_quoted", detail: "why" } }] }).get("L4")!.detail).toBe("why");
-    expect(status.supportStatesByCase(null).size).toBe(0);
+    const read = status.supportStatesByCase(record);
+    expect([...read.byCase.entries()]).toEqual([["L1", status.supportStatesLine("solver_reported_established", null)], ["L2", null]]);
+    // A case the record does not name, and an outcome outside the vocabulary, could not be read.
+    expect(status.supportStatesOf(read, "L9")).toEqual(status.SUPPORT_STATES_UNREAD_LINE);
+    expect(status.supportStatesOf(status.supportStatesByCase([{ case_id: "L5", outcome: "invented" }]), "L5")).toEqual(status.SUPPORT_STATES_UNREAD_LINE);
+    expect(status.supportStatesOf(status.supportStatesByCase([{ case_id: "L3", outcome: "no_confirmation_record", detail: null }]), "L3")).toEqual({ text: `Support states: not confirmed. ${status.CONFIRMATION_STATEMENTS.no_confirmation_record}`, detail: null, detailNote: null });
+    expect(status.supportStatesOf(status.supportStatesByCase({ cases: [{ case_id: "L4", confirmation: { outcome: "not_established_detail_quoted", detail: "why" } }] }), "L4")!.detail).toBe("why");
+    // Nothing read: every case says so.
+    expect(status.supportStatesByCase(null)).toBe(status.SUPPORT_STATES_UNREAD);
+  });
+
+  it("hides the line only where the model is known to have no nonlinear support or the record gives none", () => {
+    expect(status.nonlinearSupportKnowledge({ supports: [] })).toBe("none");
+    expect(status.nonlinearSupportKnowledge({ supports: [{ id: "s", nonlinear: { kind: "one_way" } }] })).toBe("nonlinear");
+    for (const unknown of [null, undefined, {}, { supports: null }, [], "x"]) expect(status.nonlinearSupportKnowledge(unknown)).toBe("unknown");
+    expect(status.supportStatesFor({ supports: [] }, () => { throw new Error("not read"); })).toBe(status.SUPPORT_STATES_NONE);
+    expect(status.supportStatesFor(null, () => null)).toBe(status.SUPPORT_STATES_UNREAD);
+    expect(status.supportStatesFor({ supports: [{ nonlinear: {} }] }, () => { throw new Error("refused"); })).toBe(status.SUPPORT_STATES_UNREAD);
+    expect(status.nativeSupportStates([{ case_id: "L1", outcome: "not_applicable" }], "no_nonlinear_support")).toBe(status.SUPPORT_STATES_NONE);
+    expect(status.nativeSupportStates([{ case_id: "L1", outcome: "not_applicable" }], "not_read")).toBe(status.SUPPORT_STATES_UNREAD);
+    expect(status.supportStatesOf(status.nativeSupportStates([{ case_id: "L1", outcome: "not_applicable" }], "read"), "L1")).toBeNull();
+    expect(status.nativeSupportStates(null, "read")).toBe(status.SUPPORT_STATES_UNREAD);
+    // A solve's S, read with its own model, keeps its record; with no record, a model with none still hides it.
+    expect(status.supportStatesOf(status.nativeSupportStates([{ case_id: "L1", outcome: "not_applicable" }], undefined, null), "L1")).toBeNull();
+    expect(status.nativeSupportStates(null, undefined, { supports: [] })).toBe(status.SUPPORT_STATES_NONE);
   });
 });
 

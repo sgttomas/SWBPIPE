@@ -25,7 +25,7 @@ import type { EntityRef } from "../../types";
 import { numericalResultStanding, recordedResultStanding, reportStanding } from "./resultStanding";
 import { badgeOf, locationText, numericalHealthView, readNumericalHealth, rowHealthState, type NumericalHealthBadge, type NumericalHealthLocation, type NumericalHealthView } from "./numericalHealth";
 import { BOUNDARY_SENTENCE, DETAIL_SECTION_LABEL, LOCATED_CAUSES_LABEL, NUMERICAL_HEALTH_STATE_TEXT, SHOW_SOLVER_DIAGNOSTIC } from "./numericalHealthText";
-import { limitationsWithNotes, numericalHealthLead, ordinarySolveLead, recoveredCaseIds, supportStatesByCase } from "./integrityStatus";
+import { limitationsWithNotes, numericalHealthLead, ordinarySolveLead, recoveredCaseIds, supportStatesFor } from "./integrityStatus";
 import { SECTION_BASIS_HEADLINES, WITHHELD_SECTION_BASIS_HEADLINE } from "../report/exactReportSections";
 import { canSurfaceRevealNow } from "../workspace/surfaceReveal";
 import {
@@ -1177,13 +1177,15 @@ function hasResultSemanticToken(value: string, expected: string): boolean {
 export function standaloneNumericalHealth(result: MechanicsResult, recordedTableRead: RecordedBinding | null, supportModel: PreviewModel | null = null): NumericalHealthView | null {
   let findings: readonly string[] | null = null, eligible = false;
   try { const standing = recordedTableRead ? recordedResultStanding(result, recordedTableRead) : numericalResultStanding(result); findings = standing.findings; eligible = standing.eligible; } catch { return null; }
-  let supportStates: ReturnType<typeof supportStatesByCase> | undefined;
-  if (supportModel) {
-    try {
-      const reading = reportStanding(result, supportModel);
-      if (reading.readability.readable && reading.readability.solved) supportStates = supportStatesByCase(reading.numerical_standing);
-    } catch { supportStates = undefined; }
-  }
+  // Release exit criterion 18, fail closed: no line only where the model is known to have no nonlinear
+  // support or the reader's record gives the case an outcome that takes none. Confirmations are read
+  // with today's reader, which refuses a run recorded under an older formulation; such a run, and one
+  // read with no model, shows the could-not-be-read line.
+  const supportStates = supportStatesFor(supportModel, () => {
+    if (!supportModel) return null;
+    const reading = reportStanding(result, supportModel);
+    return reading.readability.readable && reading.readability.solved ? reading.numerical_standing : null;
+  });
   return numericalHealthView(readNumericalHealth(result, findings), { eligible, verdictHold: false, supportStates, recoveredCases: recoveredCaseIds(result) });
 }
 /** The indicator only where its route agrees with the result's route; otherwise none
