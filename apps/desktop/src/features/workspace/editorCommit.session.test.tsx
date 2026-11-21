@@ -504,6 +504,31 @@ describe("the input is owned (P4)", () => {
     }
   });
 
+  it("the bounds count what is there: a shared subtree met again counts its size and its height (Q4)", async () => {
+    const result = await session();
+    const chain = (levels: number): Record<string, unknown> => { let node: Record<string, unknown> = { end: true }; for (let level = 1; level < levels; level++) node = { next: node }; return node; };
+    const shared = chain(20);
+    let wrapped: Record<string, unknown> = { inner: shared };
+    for (let level = 0; level < 19; level++) wrapped = { next: wrapped };
+    const deepReuse = { key: "k", value: { first: shared, again: wrapped } };
+    let dag: Record<string, unknown> = { leaf: 1 };
+    for (let level = 0; level < 29; level++) dag = { left: dag, right: dag };
+    const wide = { key: "k", value: dag };
+    for (const call of ["commit", "preview"] as const) {
+      const { builder, seen } = recording();
+      const send = (input: unknown) => call === "commit" ? run(() => bindCommit(result, builder)(input as never)) : run(() => bindDialog(result, builder).preview(input as never));
+      expect(refused(await send(deepReuse)).reason, call).toContain("is nested deeper than 32 levels");
+      expect(refused(await send(wide)).reason, call).toContain("is larger than 65536 entries");
+      expect(seen.checked, call).toEqual([]);
+      const small = { x: 1, list: [1, 2] };
+      expect(refused(await send({ key: "k", value: { a: small, b: small } })).reason, call).toContain("not built in this test");
+      const copy = (seen.built[0] as { value: { a: unknown; b: unknown } }).value;
+      expect(copy.a, call).toBe(copy.b);
+      expect(copy.a, call).not.toBe(small);
+      expect(copy.a, call).toEqual(small);
+    }
+  });
+
   it("a nested member called target is a typed value, and is accepted", async () => {
     const result = await session();
     type Placement = { placement: { target: string; value: string } };

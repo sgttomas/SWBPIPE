@@ -341,18 +341,38 @@ export function editorBuilderRefusal(builder: unknown): string | null {
  * guard does not name; then the guard's own check runs on the copy. A throw anywhere is a refusal. */
 export function ownEditorInput(guard: EditorInputGuard, input: unknown): { input: Readonly<Record<string, unknown>> } | { refused: string } {
   try {
-    const copies = new Map<object, unknown>();
+    // Q4: each copied object's subtree size (its entries, itself included) and height (its levels of objects), so a
+    // shared subtree met again counts what is there: its size is added to the entries and its height to the depth.
+    const copies = new Map<object, { copy: unknown; size: number; height: number }>();
     const inProgress = new Set<object>();
     let entries = 0;
+    let lastHeight = 0;
+    const tooLarge = () => new InputRefusal(`is larger than ${EDITOR_INPUT_BOUNDS.maxEntries} entries`);
+    const tooDeep = () => new InputRefusal(`is nested deeper than ${EDITOR_INPUT_BOUNDS.maxDepth} levels`);
     const own = (value: unknown, depth: number, top: boolean): unknown => {
-      if (++entries > EDITOR_INPUT_BOUNDS.maxEntries) throw new InputRefusal(`is larger than ${EDITOR_INPUT_BOUNDS.maxEntries} entries`);
+      lastHeight = 0;
+      if (++entries > EDITOR_INPUT_BOUNDS.maxEntries) throw tooLarge();
       if (value === null || typeof value === "boolean" || typeof value === "string") return value;
       if (typeof value === "number") { if (!Number.isFinite(value)) throw new InputRefusal("carries a number that is not finite"); return value; }
       if (typeof value === "function") throw new InputRefusal("carries a function, which is not a typed value");
       if (typeof value !== "object") throw new InputRefusal(`carries a ${typeof value}, which is not a typed value`);
-      if (depth > EDITOR_INPUT_BOUNDS.maxDepth) throw new InputRefusal(`is nested deeper than ${EDITOR_INPUT_BOUNDS.maxDepth} levels`);
+      if (depth > EDITOR_INPUT_BOUNDS.maxDepth) throw tooDeep();
       if (inProgress.has(value)) throw new InputRefusal("contains a cycle");
-      if (copies.has(value)) return copies.get(value);
+      const memo = copies.get(value);
+      if (memo) {
+        entries += memo.size - 1;
+        if (entries > EDITOR_INPUT_BOUNDS.maxEntries) throw tooLarge();
+        if (depth + memo.height - 1 > EDITOR_INPUT_BOUNDS.maxDepth) throw tooDeep();
+        lastHeight = memo.height;
+        return memo.copy;
+      }
+      const entriesBefore = entries - 1;
+      let childHeight = 0;
+      const child = (member: unknown) => {
+        const copied = own(member, depth + 1, false);
+        childHeight = Math.max(childHeight, lastHeight);
+        return copied;
+      };
       const prototype = Object.getPrototypeOf(value);
       const isArray = Array.isArray(value);
       if (isArray ? prototype !== Array.prototype : prototype !== Object.prototype && prototype !== null) throw new InputRefusal("carries an object that is not plain data (a Map, a Set, a class instance or another prototype)");
@@ -379,7 +399,7 @@ export function ownEditorInput(guard: EditorInputGuard, input: unknown): { input
           const descriptor = Reflect.getOwnPropertyDescriptor(value, String(index))!;
           if (!("value" in descriptor)) throw new InputRefusal("carries an accessor");
           if (!descriptor.enumerable) throw new InputRefusal("carries a non-enumerable member");
-          define(out, String(index), own(descriptor.value, depth + 1, false));
+          define(out, String(index), child(descriptor.value));
         }
         copy = Object.freeze(out);
       } else {
@@ -390,12 +410,14 @@ export function ownEditorInput(guard: EditorInputGuard, input: unknown): { input
           const descriptor = Reflect.getOwnPropertyDescriptor(value, key)!;
           if (!("value" in descriptor)) throw new InputRefusal(`carries an accessor at ${key}`);
           if (!descriptor.enumerable) throw new InputRefusal(`carries a non-enumerable member ${key}`);
-          define(out, key, own(descriptor.value, depth + 1, false));
+          define(out, key, child(descriptor.value));
         }
         copy = Object.freeze(out);
       }
       inProgress.delete(value);
-      copies.set(value, copy);
+      const height = childHeight + 1;
+      copies.set(value, { copy, size: entries - entriesBefore, height });
+      lastHeight = height;
       return copy;
     };
     if (input === null || typeof input !== "object" || Array.isArray(input)) return { refused: "This edit's input is not the editor's typed values, so nothing was built." };
