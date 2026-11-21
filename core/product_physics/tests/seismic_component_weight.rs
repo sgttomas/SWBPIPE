@@ -533,3 +533,132 @@ fn a_refusal_stops_the_case_loop_at_its_own_case() {
         }
     }
 }
+
+// ------------------------------------------------------------------ the record (issue 450 item 4)
+const EXACT_MASS_METHOD: &str = "source_od_nominal_wall_pressure_bore_areas/v1";
+
+fn exact_case<'a>(out: &'a Value, case: &str) -> &'a Value {
+    out["contract_evidence"]["exact_cases"].as_array().unwrap().iter().find(|c| c["load_case_id"] == case).unwrap()
+}
+fn from_bits(text: &Value) -> f64 {
+    f64::from_bits(u64::from_str_radix(text.as_str().unwrap(), 16).unwrap())
+}
+
+/// On the exact route every component case records, per entered axis, the
+/// component, node, axis, factor, weight, offset, force and moments; the
+/// force and moments equal the reference's `load/C/*` rows (within the
+/// criterion, the reference being exact), and every load id is generated.
+#[test]
+fn the_exact_record_carries_each_component_force_and_reproduces_the_reference_loads() {
+    let id = "SCW-CANT-EX-SEISMIC-XYZ";
+    let r = reference(id);
+    let wire = document(Route::Ex, Model::Cant, ONE_MAPPED, vec![case_of(r, "case:s")]);
+    for mode in MODES {
+        let out = solved(&wire, mode, id);
+        let record = &exact_case(&out, "case:s")["equivalent_static"];
+        assert_eq!(record["mass_method"], EXACT_MASS_METHOD);
+        let entries = record["component_forces"].as_array().unwrap();
+        assert_eq!(entries.len(), 3, "one entry per entered axis");
+        let ids: Vec<&Value> = record["generated_load_ids"].as_array().unwrap().iter().collect();
+        let row = |name: &str| r["rows"].as_array().unwrap().iter().find(|x| x["row"] == name).unwrap()["value"].as_f64().unwrap();
+        let mut moment = [0.0f64; 3];
+        for (axis, entry) in ["global_x", "global_y", "global_z"].iter().zip(entries) {
+            assert_eq!(entry["axis"], *axis);
+            assert_eq!(entry["component_ref"], "component:valve");
+            assert_eq!(entry["node_ref"], "C");
+            assert_eq!(from_bits(&entry["weight_N"]), 2350.0);
+            assert!(ids.contains(&&entry["force"]["load_id"]));
+            let letter = &axis[7..];
+            let f = from_bits(&entry["force"]["value_N"]);
+            let e = row(&format!("load/C/F{letter}"));
+            assert!((f - e).abs() <= RELATIVE * e.abs(), "{axis}: {f} vs {e}");
+            assert_eq!(entry["moments"].as_array().unwrap().len(), 2, "both transverse coordinates are nonzero");
+            for m in entry["moments"].as_array().unwrap() {
+                assert!(ids.contains(&&m["load_id"]));
+                let i = ["global_x", "global_y", "global_z"].iter().position(|a| m["axis"] == *a).unwrap();
+                moment[i] += from_bits(&m["value_N_m"]);
+            }
+        }
+        for (i, letter) in ["x", "y", "z"].iter().enumerate() {
+            let e = row(&format!("load/C/M{letter}"));
+            assert!((moment[i] - e).abs() <= RELATIVE * e.abs(), "M{letter}: {} vs {e}", moment[i]);
+        }
+    }
+}
+
+/// Every other case keeps today's record byte for byte: without a component
+/// item there is no `component_forces` (not consumed, zero weight).
+#[test]
+fn a_case_without_a_component_item_keeps_its_earlier_record() {
+    for (components, name) in [(NONE_CONSUMED, "BND-NONE-SEISMIC-XYZ-G10"), (ZERO_WEIGHT, "CTRL-ZERO-AS-NOT-APPLIED")] {
+        let id = format!("SCW-CANT-EX-{name}");
+        let wire = document(Route::Ex, Model::Cant, components, vec![case_of(reference(&id), "case:s")]);
+        let out = solved(&wire, PreviewSolverMode::SparseInteractive, &id);
+        let record = &exact_case(&out, "case:s")["equivalent_static"];
+        let keys: Vec<&String> = record.as_object().unwrap().keys().collect();
+        assert_eq!(keys, ["generated_load_ids", "mass_method"], "{id}");
+    }
+}
+
+/// The package readers check the closed shape and the inventory and claim
+/// nothing about the model; the model-bound reader recomputes the entries
+/// from the model and compares bits, refusing a changed value, a missing or
+/// extra entry and a missing record. A result saved before the unit (no
+/// `component_forces` on a case whose model forms one; issue 450 decision 3)
+/// is admitted by the package reader and refused where the model-bound check
+/// runs, and its standing says recompute.
+#[test]
+fn the_readers_bind_the_component_record() {
+    use open_pipe_stress_result_export::{reader_verdict, semantic_contract};
+    let id = "SCW-CANT-EX-SEISMIC-XYZ";
+    let wire = document(Route::Ex, Model::Cant, ONE_MAPPED, vec![case_of(reference(id), "case:s")]);
+    let model = &wire["model"];
+    let out = solved(&wire, PreviewSolverMode::SparseInteractive, id);
+    semantic_contract::validate_pressure_evidence(&out).expect("the package reader admits the producer's record");
+    assert_eq!(reader_verdict::validate("pressure", &out, Some(model), None)["ok"], true, "the model-bound reader admits it");
+    let case = out["contract_evidence"]["exact_cases"].as_array().unwrap().iter().position(|c| c["load_case_id"] == "case:s").unwrap();
+    let forge = |edit: &dyn Fn(&mut Value)| {
+        let mut forged = out.clone();
+        edit(&mut forged["contract_evidence"]["exact_cases"][case]["equivalent_static"]);
+        forged
+    };
+    // Shape and inventory: refused by the package reader itself.
+    type Edit = Box<dyn Fn(&mut Value)>;
+    let shape: Vec<(&str, Edit)> = vec![
+        ("extra entry key", Box::new(|r| r["component_forces"][0]["extra"] = json!(1))),
+        ("decimal value", Box::new(|r| r["component_forces"][0]["force"]["value_N"] = json!("705"))),
+        ("uppercase hex", Box::new(|r| { let v = r["component_forces"][0]["weight_N"].as_str().unwrap().to_uppercase(); r["component_forces"][0]["weight_N"] = json!(v) })),
+        ("moment about its own axis", Box::new(|r| r["component_forces"][0]["moments"][0]["axis"] = json!("global_x"))),
+        ("id outside the inventory", Box::new(|r| r["component_forces"][0]["force"]["load_id"] = json!("case:s:generated:seismic:global-x:other"))),
+        ("id twice", Box::new(|r| { let m = r["component_forces"][0]["moments"][0]["load_id"].clone(); r["component_forces"][0]["moments"][1]["load_id"] = m })),
+        ("empty list", Box::new(|r| r["component_forces"] = json!([]))),
+    ];
+    for (what, edit) in &shape {
+        let error = semantic_contract::validate_pressure_evidence(&forge(edit.as_ref())).expect_err(what);
+        assert!(error.contains("EQUIVALENT_STATIC"), "{what}: {error}");
+    }
+    // Values: admitted by the package reader, refused with the model.
+    let values: Vec<(&str, Edit, &str)> = vec![
+        ("force one bit off", Box::new(|r| {
+            let v = from_bits(&r["component_forces"][0]["force"]["value_N"]);
+            r["component_forces"][0]["force"]["value_N"] = json!(format!("{:016x}", v.to_bits() + 1));
+        }), "EQUIVALENT_STATIC_COMPONENT_MODEL_MISMATCH"),
+        ("entry missing", Box::new(|r| { r["component_forces"].as_array_mut().unwrap().pop(); }), "EQUIVALENT_STATIC_COMPONENT_MODEL_MISMATCH"),
+        ("entries reordered", Box::new(|r| r["component_forces"].as_array_mut().unwrap().swap(0, 1)), "EQUIVALENT_STATIC_COMPONENT_MODEL_MISMATCH"),
+        ("record saved before the unit", Box::new(|r| { r.as_object_mut().unwrap().remove("component_forces"); }), "EQUIVALENT_STATIC_COMPONENT_RECORD_MISSING"),
+    ];
+    for (what, edit, code) in &values {
+        let forged = forge(edit.as_ref());
+        semantic_contract::validate_pressure_evidence(&forged).unwrap_or_else(|e| panic!("{what}: the package reader claims nothing about the model: {e}"));
+        let bound = reader_verdict::validate("pressure", &forged, Some(model), None);
+        assert_eq!(bound["ok"], false, "{what}: {bound}");
+        assert!(bound.to_string().contains(code), "{what}: expected {code}, got {bound}");
+        let standing = &reader_verdict::dispatch(&forged, Some(model), None)["standing"];
+        assert_eq!(standing["status"], "needs_recompute", "{what}: {standing}");
+        assert_eq!(standing["eligible"], false, "{what}");
+    }
+    // An extra entry: a model whose valve does not replace (zero weight) and a record that says it does.
+    let zero = document(Route::Ex, Model::Cant, ZERO_WEIGHT, vec![case_of(reference(id), "case:s")]);
+    let bound = reader_verdict::validate("pressure", &out, Some(&zero["model"]), None);
+    assert_eq!(bound["ok"], false, "{bound}");
+}

@@ -7603,7 +7603,7 @@ fn solve_prepared_load_case(
         // W-16 slice c (§2): a generating case names its mass method and its
         // generated primitives; other cases omit the record.
         if load_case.equivalent_static.is_some() {
-            evidence["equivalent_static"] = exact_equivalent_static_record(load_case, &loads);
+            evidence["equivalent_static"] = exact_equivalent_static_record(model, load_case, &loads);
         }
         // T4-U3 (S21): no replaced span in any per-pipe evidence list.
         joint::exclude_replaced_spans(&mut evidence, &replaced_span_ids_of(built));
@@ -11229,6 +11229,7 @@ pub(crate) fn is_generated_equivalent_static_load(
 /// generator's order. The ordinary companion binding re-forms it from the
 /// captured model (`source_receipt::composite`).
 pub(crate) fn exact_equivalent_static_record(
+    model: &PreviewModel,
     load_case: &PreviewLoadCase,
     loads: &[PrimitiveLoad],
 ) -> serde_json::Value {
@@ -11237,7 +11238,10 @@ pub(crate) fn exact_equivalent_static_record(
         .filter(|load| is_generated_equivalent_static_load(load_case, &load.load_id, None))
         .map(|load| load.load_id.as_str())
         .collect::<Vec<_>>();
-    serde_json::json!({"mass_method": self_weight::EXACT_MASS_METHOD, "generated_load_ids": generated})
+    let mut record = serde_json::json!({"mass_method": self_weight::EXACT_MASS_METHOD, "generated_load_ids": generated});
+    // DEL-05-01 (issue 450 item 4): only a case that forms a component item carries the key.
+    if let Some(items) = seismic_component::record(model, load_case, &generated) { record["component_forces"] = items; }
+    record
 }
 
 fn equivalent_static_diag_id(load_case_id: &str, suffix: &str) -> String {

@@ -235,6 +235,50 @@ pub(crate) fn primitives(plan: &Plan, case_id: &str) -> Vec<PrimitiveLoad> {
     loads
 }
 
+/// The 16 hexadecimal digits of a binary64's bits.
+fn bits(value: f64) -> String {
+    format!("{:016x}", value.to_bits())
+}
+
+const RECORD_AXES: [&str; 3] = ["global_x", "global_y", "global_z"];
+
+/// The exact route's `equivalent_static.component_forces` (issue 450 item
+/// 4): one entry per component and entered axis, in generation order, each
+/// read from the model through [`plan`]: the component, its node, the axis,
+/// the factor, the weight, the three offset coordinates, the force with its
+/// load identifier, and one moment with its load identifier and axis per
+/// nonzero transverse coordinate; every binary64 as the 16 hexadecimal digits
+/// of its bits. `None` when the case forms no component item, so that its
+/// record keeps its earlier bytes. Only items whose force the case generated
+/// (`generated`) are recorded.
+pub(crate) fn record(model: &PreviewModel, case: &PreviewLoadCase, generated: &[&str]) -> Option<serde_json::Value> {
+    case.equivalent_static.as_ref()?.seismic.as_ref()?;
+    let replaced = crate::joint::replaced_span_ids(model);
+    let plan = plan(model, &case.id, &replaced, &entered_factors(case), &mut Vec::new());
+    let entries: Vec<serde_json::Value> = plan
+        .items
+        .iter()
+        .filter(|item| generated.contains(&load_id(&case.id, &item.component.id, item.axis, Part::Force).as_str()))
+        .map(|item| {
+            serde_json::json!({
+                "component_ref": item.component.id,
+                "node_ref": item.component.node,
+                "axis": RECORD_AXES[item.axis],
+                "g_factor": bits(item.factor),
+                "weight_N": bits(item.weight),
+                "center_of_gravity_m": item.cog.map(bits),
+                "force": {"load_id": load_id(&case.id, &item.component.id, item.axis, Part::Force), "value_N": bits(item.force)},
+                "moments": item.moments.iter().map(|&(i, _, value)| serde_json::json!({
+                    "load_id": load_id(&case.id, &item.component.id, item.axis, Part::Moment(i)),
+                    "axis": RECORD_AXES[i],
+                    "value_N_m": bits(value),
+                })).collect::<Vec<_>>(),
+            })
+        })
+        .collect();
+    (!entries.is_empty()).then(|| serde_json::Value::Array(entries))
+}
+
 /// Test-only replacement of one prepared component value (never of the
 /// operands the certified producer reads from the model): issue 450's first
 /// test of the nodal branch.

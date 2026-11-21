@@ -355,13 +355,54 @@ EXACT_MASS_METHOD = "source_od_nominal_wall_pressure_bore_areas/v1"
 
 def equivalent_static_record(case_id: str, record: Any) -> None:
     """Rust `physics_evidence::equivalent_static_record`: closed, the exact mass method, and at least one
-    generated primitive id, each once, each in the case's ``<case>:generated:`` namespace."""
-    _require(isinstance(record, Mapping) and set(record) == {"mass_method", "generated_load_ids"}, "equivalent_static shape")
+    generated primitive id, each once, each in the case's ``<case>:generated:`` namespace; with the optional
+    ``component_forces`` (DEL-05-01, issue 450 item 4) closed by `equivalent_static_components`."""
+    base = {"mass_method", "generated_load_ids"}
+    _require(isinstance(record, Mapping) and set(record) in (base, base | {"component_forces"}), "equivalent_static shape")
     _require(record["mass_method"] == EXACT_MASS_METHOD, "equivalent_static mass method")
     ids = record["generated_load_ids"]
     _require(isinstance(ids, list) and bool(ids), "equivalent_static shape")
     prefix = f"{case_id}:generated:"
     _require(all(isinstance(i, str) and i.startswith(prefix) for i in ids) and len(set(ids)) == len(ids), "equivalent_static load ids")
+    if "component_forces" in record:
+        equivalent_static_components(record["component_forces"], set(ids))
+
+
+_AXES = ("global_x", "global_y", "global_z")
+
+
+def _hex16(value: Any) -> bool:
+    return isinstance(value, str) and len(value) == 16 and all(c in "0123456789abcdef" for c in value)
+
+
+def equivalent_static_components(entries: Any, inventory: set) -> None:
+    """Rust `physics_evidence::equivalent_static_components`: a nonempty list of closed entries (component and
+    node references, a global axis, the factor, the weight and three offset coordinates as 16 lowercase
+    hexadecimal digits of a binary64's bits, a force and at most two moments about distinct axes other than
+    the entry's); every load identifier is in the record's inventory, once. Nothing is claimed about the model."""
+    keys = {"component_ref", "node_ref", "axis", "g_factor", "weight_N", "center_of_gravity_m", "force", "moments"}
+    _require(isinstance(entries, list) and bool(entries), "equivalent_static component shape")
+    used: set = set()
+    for entry in entries:
+        _require(isinstance(entry, Mapping) and set(entry) == keys, "equivalent_static component shape")
+        _require(all(isinstance(entry[k], str) and entry[k] for k in ("component_ref", "node_ref")), "equivalent_static component shape")
+        _require(entry["axis"] in _AXES and _hex16(entry["g_factor"]) and _hex16(entry["weight_N"]), "equivalent_static component shape")
+        offset = entry["center_of_gravity_m"]
+        _require(isinstance(offset, list) and len(offset) == 3 and all(_hex16(v) for v in offset), "equivalent_static component shape")
+        force = entry["force"]
+        _require(isinstance(force, Mapping) and set(force) == {"load_id", "value_N"} and _hex16(force["value_N"]), "equivalent_static component shape")
+        ids = [force["load_id"]]
+        moments = entry["moments"]
+        _require(isinstance(moments, list) and len(moments) <= 2, "equivalent_static component shape")
+        axes: set = set()
+        for moment in moments:
+            _require(isinstance(moment, Mapping) and set(moment) == {"load_id", "axis", "value_N_m"} and _hex16(moment["value_N_m"]), "equivalent_static component shape")
+            _require(moment["axis"] in _AXES and moment["axis"] != entry["axis"] and moment["axis"] not in axes, "equivalent_static component shape")
+            axes.add(moment["axis"])
+            ids.append(moment["load_id"])
+        for i in ids:
+            _require(isinstance(i, str) and i in inventory and i not in used, "equivalent_static component load ids")
+            used.add(i)
 
 
 def _require(condition: bool, detail: str) -> None:
@@ -1889,7 +1930,9 @@ def _ls_prepass(source: Mapping[str, Any]) -> None:
     cases: list[tuple[str, Mapping[str, Any]]] = []
     for case in exact:
         # T4-U4b (§2.6): a case with a directional arc adds intensified_measures (checked by the physics pass).
-        _ls_require(_ls_keys(case, LS_CASE_KEYS + (["intensified_measures"] if isinstance(case, Mapping) and "intensified_measures" in case else [])), "CASE_SHAPE")
+        # DEL-05-01 REQ-008: a generating case adds its equivalent_static record (checked by the physics pass).
+        _ls_require(_ls_keys(case, LS_CASE_KEYS + (["intensified_measures"] if isinstance(case, Mapping) and "intensified_measures" in case else [])
+                             + (["equivalent_static"] if isinstance(case, Mapping) and "equivalent_static" in case else [])), "CASE_SHAPE")
         case_id = _ls_text(case["load_case_id"])
         _ls_require(all(known != case_id for known, _ in cases), "CASE_DUPLICATE")
         _ls_require(_ls_eq(case["material_basis"], MATERIAL_BASIS), "MATERIAL_BASIS")
