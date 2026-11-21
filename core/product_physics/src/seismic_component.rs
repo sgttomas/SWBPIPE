@@ -589,9 +589,12 @@ mod tests {
     /// prepared value at the right degree of freedom, with the operands the
     /// certified producer reads from the model unchanged. In both solver
     /// modes, on the indeterminate model (A and D anchored), a doubled force
-    /// or moment and one a single unit in the last place high are each
-    /// refused by name (EQUIVALENT_STATIC_COMPONENT_VALUE_MISMATCH), with no
-    /// rows: the binding compares the prepared value's bits with the rule's.
+    /// or moment, one a single unit in the last place high and one so large
+    /// that assembly would overflow are each refused by name
+    /// (EQUIVALENT_STATIC_COMPONENT_VALUE_MISMATCH) as the only blocking
+    /// finding, with no rows and no SOLVER_SYSTEM_BLOCKED: the binding
+    /// compares the prepared value's bits with the rule's, and the case stops
+    /// before its ledger is finished.
     #[test]
     fn a_wrong_prepared_value_is_refused_by_name() {
         let force = load_id("case:s", "component:valve", 0, Part::Force);
@@ -606,11 +609,14 @@ mod tests {
             type Change = fn(f64) -> f64;
             let doubled: Change = |v| 2.0 * v;
             let ulp: Change = |v| f64::from_bits(v.to_bits() + 1);
+            let huge: Change = |v| f64::MAX.copysign(v);
             for (what, target, change) in [
                 ("force doubled", &force, doubled),
                 ("force one ulp high", &force, ulp),
+                ("force at the largest finite value", &force, huge),
                 ("moment doubled", &moment, doubled),
                 ("moment one ulp high", &moment, ulp),
+                ("moment at the largest finite value", &moment, huge),
             ] {
                 let id = target.clone();
                 prepared_mutant::arm(Box::new(move |load, value| (load == id).then(|| change(value))));
@@ -622,14 +628,20 @@ mod tests {
                 assert_eq!(found.len(), 1, "{what} {mode:?}");
                 assert_eq!(found[0]["severity"], "blocking");
                 assert_eq!(found[0]["affected_refs"], json!(["case:s", target]), "{what}");
+                let blocking: Vec<&Value> = out["diagnostics"].as_array().unwrap().iter()
+                    .filter(|d| d["severity"] == "blocking" || d["severity"] == "failure").collect();
+                assert_eq!(blocking.len(), 1, "{what} {mode:?}: the mismatch is the only blocking finding: {blocking:?}");
+                assert!(out["diagnostics"].as_array().unwrap().iter().all(|d| d["code"] != "SOLVER_SYSTEM_BLOCKED"), "{what} {mode:?}");
             }
         }
     }
 
     /// Where the ledger is built: the component's force and moments are exact
-    /// input terms carrying the rule's value, with no formation record, and a
-    /// one-ulp prepared value is the term pushed beside the refusal that names
-    /// it. The rule is recomputed from the plan's converted operands.
+    /// input terms carrying the rule's value at the component node's degrees of
+    /// freedom (C: the force at global X, the moments at RY and RZ), with no
+    /// formation record. A one-ulp prepared value is not pushed: the refusal
+    /// names it and the ledger holds no term of it. The rule is recomputed
+    /// from the plan's converted operands.
     #[test]
     fn the_ledger_holds_the_rule_s_value_as_an_exact_term() {
         use open_pipe_stress_frame_kernel::load_ledger::{ForceTermKind, LoadLedger};
@@ -652,24 +664,32 @@ mod tests {
         assert!(diagnostics.is_empty(), "{diagnostics:?}");
         let components = component_values(&loads);
         assert_eq!(components.len(), 3, "the force and two moments: {components:?}");
+        // Node C is the third node: its degrees of freedom are 12..18.
+        let dofs = [(force.clone(), 2 * 6), (load_id("case:s", "component:valve", 0, Part::Moment(1)), 2 * 6 + 4),
+            (load_id("case:s", "component:valve", 0, Part::Moment(2)), 2 * 6 + 5)];
         for (id, value) in &components {
             let rule = rule_value(&model, "case:s", id).expect("a component primitive");
             assert_eq!(rule.0.to_bits(), value.to_bits(), "{id}");
             let terms: Vec<_> = ledger.terms().iter().filter(|t| &t.source == id).collect();
             assert_eq!(terms.len(), 1, "{id}");
+            let dof = dofs.iter().find(|(d, _)| d == id).unwrap_or_else(|| panic!("{id}")).1;
+            assert_eq!(terms[0].dof, dof, "{id}: at node C");
             assert!(matches!(terms[0].kind, ForceTermKind::Term(v) if v.to_bits() == value.to_bits()), "{id}: {:?}", terms[0].kind);
         }
         let assembled = ledger.finish(model.nodes.len() * 6).unwrap();
         assert!(assembled.load_primitives().is_empty(), "no formed product for a component term");
         assert_eq!(rule_value(&model, "case:s", &force).unwrap().0.to_bits(), (0.3f64 * 2350.0).to_bits());
-        // A one-ulp prepared force is the term pushed, and the refusal names it.
+        // A one-ulp prepared force is not pushed, and the refusal names it; the
+        // moments, which are the rule's, are still pushed.
         let target = force.clone();
         prepared_mutant::arm(Box::new(move |load, value| (load == target).then(|| f64::from_bits(value.to_bits() + 1))));
         let (loads, _) = generated(&wire);
         prepared_mutant::disarm();
+        assert!(loads.iter().any(|l| l.load_id == force && l.magnitude.unwrap().value.to_bits() == (0.3f64 * 2350.0).to_bits() + 1),
+            "the prepared value carries the mutant");
         let (ledger, diagnostics) = ledger_of(&loads);
-        let terms: Vec<_> = ledger.terms().iter().filter(|t| t.source == force).collect();
-        assert!(matches!(terms[0].kind, ForceTermKind::Term(v) if v.to_bits() == (0.3f64 * 2350.0).to_bits() + 1));
+        assert!(ledger.terms().iter().all(|t| t.source != force), "the mismatched term is not in the ledger");
+        assert_eq!(ledger.terms().iter().filter(|t| t.source.contains(":component:")).count(), 2);
         assert_eq!(diagnostics.len(), 1, "{diagnostics:?}");
         assert_eq!((diagnostics[0].code.as_str(), diagnostics[0].severity.as_str()), (VALUE_MISMATCH, "blocking"));
         assert_eq!(diagnostics[0].affected_refs, vec!["case:s".to_string(), force.clone()]);

@@ -838,7 +838,7 @@ fn pressure_schema_is_the_only_nonresident_binding() {
     // geometry, per-basis records and limitations (reviewed input #10, re-bound at D3). RT-L2: the
     // cancellation-screen exception record (its renamed ratio member, basis token and description; then its
     // remainder_force_n member; then its description).
-    assert_eq!(schema_hash, "fc5699e012f7877f5a6fc1b7d9086ebc7fbfcca0ecd7e84873d88f187de8b848");
+    assert_eq!(schema_hash, "4e1e877b05b2fb3a11d934d2854a37de2de61b3dfb1d9613cec136aeca5da4d7");
     let compiled = COMPILED_REVIEWED_INPUTS.expect("build.rs sets all current inputs");
     let tokens: Vec<_> = compiled.split(';').collect();
     assert_eq!(tokens.len(), build_identity::REVIEWED_INPUT_COUNT + 1);
@@ -918,7 +918,7 @@ fn reviewed_inputs_bind_the_lock_and_the_reader_statics() {
     // #105B, PF1b and I3a).
     const REVIEWED: [&str; build_identity::REVIEWED_INPUT_COUNT] = [
         "b7ebb02aafa8cfe214c18bc64941381b33ab3f9295e0fc774ee0819e1e4f5653",
-        "285e544d046fdbb35313293dc3d5e684e8b57567b8ac765df0baa1384e896f7d",
+        "5866cdac7f6c537d325b70ea31542faa8f8633a8fb2e9efe043042b7e7a6bf45",
         "73bebc5fb562b7f519c7d59be8e7830f98b21ce29fa0b7c017e43426f50cfcaa",
         "a056c395e27f964c842a1347db689eb24377d0b5a79a3b954435105a2c422d08",
         "ef59ef338d4e2cafca7017e13b7a450d1094ede8068c47cf5e44416c1adc177a",
@@ -927,7 +927,7 @@ fn reviewed_inputs_bind_the_lock_and_the_reader_statics() {
         "ce61278a855e9337af18fdc7a1fd517bbe881290be7a5fba049add2491511326",
         "094e41545efdc9815af124e91ede505213a70e4425bf32c8e2138cd74ce22893",
         "84f37c63c6cc5ec7539d6ee2b39c338bd2c6ef16b25772005fe0c8f9300fddb9",
-        "fc5699e012f7877f5a6fc1b7d9086ebc7fbfcca0ecd7e84873d88f187de8b848",
+        "4e1e877b05b2fb3a11d934d2854a37de2de61b3dfb1d9613cec136aeca5da4d7",
         "757e5b18e97b5f5c5dcca235a682abfb25768d6af6c70bc81cb10813998200d9",
         "8a0abaeac93729b5d6ee6c922f2a60f0caf9332948622bb8b5896747ce41442d",
     ];
@@ -947,17 +947,41 @@ fn reviewed_inputs_bind_the_lock_and_the_reader_statics() {
         include_bytes!("../../../fixtures/results/semantic_contract_v0_3_pressure_3.json"),
         include_bytes!("../../../fixtures/results/semantic_contract_v0_3_preview_physics_timoshenko_1.json"),
     ];
+    // The test's record and the registered profile's are one record, on every host: either alone changing, or an
+    // input moving with only the registered record updated, fails here.
+    let record: [Option<[u8; 32]>; build_identity::REVIEWED_INPUT_COUNT] = std::array::from_fn(|i| {
+        let hex = REVIEWED[i].as_bytes();
+        assert_eq!(hex.len(), 64, "G4's reviewed record #{i}");
+        Some(std::array::from_fn(|j| u8::from_str_radix(std::str::from_utf8(&hex[2 * j..2 * j + 2]).unwrap(), 16).unwrap()))
+    });
+    assert_eq!(build_identity::encode_reviewed_inputs(&record), REGISTERED_PROFILES[0].reviewed_inputs,
+        "G4's reviewed record is the registered profile's");
     let compiled = COMPILED_REVIEWED_INPUTS.expect("build.rs sets the reviewed inputs");
     assert_eq!(option_env!("OPS_RETAINED_REVIEWED_INPUTS"), Some(compiled));
     let mut tokens = compiled.split(';');
     assert_eq!(tokens.next(), Some("v1"));
+    let mut moved = Vec::new();
     for (i, token) in tokens.by_ref().take(build_identity::REVIEWED_INPUT_COUNT).enumerate() {
         let (path, hex) = token.split_once('=').unwrap();
         assert_eq!(path, build_identity::REVIEWED_INPUTS[i]);
         assert_eq!(hex, format!("{:x}", Sha256::digest(files[i])), "{path}: build.rs's digest");
-        assert_eq!(hex, REVIEWED[i], "{path}: G4's reviewed record");
+        if hex != REVIEWED[i] {
+            moved.push(path);
+        }
     }
     assert_eq!(tokens.next(), None);
+    // G4's reviewed record moves only at a registration (DEL-04-08 REQ-004). Between drift checks a moved reviewed
+    // input fails the registered binding and leaves the build Stale, which this asserts; the drift check
+    // (`OPS_RETAINED_DRIFT_CHECK`) requires the record to hold (docs/CI_STRATEGY.md, "Retained registration drift
+    // check").
+    if !moved.is_empty() {
+        assert!(std::env::var_os(crate::retained_facade_tests::DRIFT_CHECK).is_none(),
+            "the retained drift check: reviewed inputs moved since G4's reviewed record: {moved:?}");
+        assert!(!bindings_hold(LAYOUT_WITNESSES, Some(compiled), REGISTERED_PROFILES[0].reviewed_inputs,
+            &READER_LAYOUTS, &READER_LAYOUTS), "moved reviewed inputs {moved:?} fail the registered binding");
+        assert_eq!(build_status(), Err(ProfileStatus::Stale), "moved reviewed inputs {moved:?} leave the build Stale");
+        println!("I65_G5_REVIEWED_INPUTS_MOVED {moved:?}: Stale until the next registration");
+    }
     println!("I65_G5_REVIEWED_INPUTS {compiled}");
     assert_reviewed_reader_input_bindings();
 }
@@ -2696,7 +2720,7 @@ fn g_c_declines_w1_when_the_ordinary_solve_was_not_attempted() {
 /// publishes, and a solve that ran but failed still reaches W1.
 #[test]
 fn registered_g_c_declines_only_unattempted_solves() {
-    if COMPILED_IDENTITY != Some(REGISTERED_PROFILES[0].identity) {
+    if !crate::retained_facade_tests::registered() {
         return;
     }
     for mode in MODES {
@@ -2732,7 +2756,7 @@ fn registered_g_c_declines_only_unattempted_solves() {
 #[test]
 fn b1_sa_d1_4_admits_one_to_c_load_cases() {
     assert_eq!(caps::LOAD_CASES, 3, "C = 3 (option S3)");
-    let registered = COMPILED_IDENTITY == Some(REGISTERED_PROFILES[0].identity);
+    let registered = crate::retained_facade_tests::registered();
     for c in 0..=caps::LOAD_CASES + 1 {
         let expected = if (1..=caps::LOAD_CASES).contains(&c) { None } else { family(D1Clause::Invocation, FamilyFact::LoadCases) };
         for mode in MODES {
@@ -2857,7 +2881,7 @@ fn b1_sa_g_b_reads_each_case_and_the_running_total() {
     assert_eq!(gate(129, 385), Err((PhaseFact::CaseLoads, 129, 128)), "table order: the case before the total");
     assert_eq!(gate(3, usize::MAX), Err((PhaseFact::CaseLoadsTotal, u64::MAX, 384)), "a saturated total refuses at G-B");
     // The actual seam, in the registered build: by G-B the capture holds the case's loads.
-    if COMPILED_IDENTITY == Some(REGISTERED_PROFILES[0].identity) {
+    if crate::retained_facade_tests::registered() {
         for mode in MODES {
             let (request, capture) = CapturedInvocation::parse(milestone(), mode).unwrap();
             let (permit, _report) = admit(&capture, &request, Entry::Direct, RETAINED_LIMIT).unwrap_or_else(|r| panic!("{mode:?}: {:?}", r.law().refusal));
@@ -2969,7 +2993,7 @@ fn b1_sa_t3_e_counts_the_requested_cases() {
     }
     // Direct, in the registered build: admitted (c = C is inside D1), G-C declines, and the
     // published bytes are exactly the value route's, with no notice and no successor.
-    if COMPILED_IDENTITY != Some(REGISTERED_PROFILES[0].identity) {
+    if !crate::retained_facade_tests::registered() {
         return;
     }
     for (label, raw, _) in blocked {
@@ -3252,7 +3276,7 @@ fn with_combinations(mut raw: Value, z: usize) -> Value {
 #[test]
 fn b2_a_d1_admits_case_equivalents_up_to_three() {
     assert_eq!((caps::COMBINATIONS, caps::CASE_EQUIVALENTS, caps::COMBINATION_TERMS, caps::RANGE_OPERANDS), (2, 3, 3, 3));
-    let registered = COMPILED_IDENTITY == Some(REGISTERED_PROFILES[0].identity);
+    let registered = crate::retained_facade_tests::registered();
     for c in 1..=caps::LOAD_CASES {
         for z in 0..=caps::CASE_EQUIVALENTS {
             let expected = if z > caps::COMBINATIONS {
@@ -3432,7 +3456,7 @@ fn b2_a_g_c_bounds_are_per_case_equivalent() {
 /// Stale (unregistered) builds refuse at D1.1 and keep the plain bytes.
 #[test]
 fn b2_a_admitted_combinations_run_w1_and_publish_the_validated_successor() {
-    let registered = COMPILED_IDENTITY == Some(REGISTERED_PROFILES[0].identity);
+    let registered = crate::retained_facade_tests::registered();
     let mut mixed = milestone_cases(2);
     mixed["model"]["combinations"] = json!([{"id": "range", "basis": "range_envelope", "operand_ids": ["case-1", "case-2"], "mode": "max_abs",
         "provenance": "invented_i103_b2_a_range"}]);
@@ -3499,7 +3523,7 @@ const N06: &str = include_str!("../../../fixtures/product_preview/pressure_sourc
 fn b3b_d1_admits_the_exact_route_with_empty_regions() {
     use D1Clause as C;
     use FamilyFact as F;
-    let registered = COMPILED_IDENTITY == Some(REGISTERED_PROFILES[0].identity);
+    let registered = crate::retained_facade_tests::registered();
     let mut mix = milestone();
     mix["model"]["load_cases"].as_array_mut().unwrap().push(json!({"id": "case:b", "label": "I99 B3-W second case (anchor)",
         "kind": "primitive_user_load", "primitive_loads": [{"id": "load:b:0", "category": "concentrated_force", "target": {"type": "node", "node": "N0"},
@@ -3624,7 +3648,7 @@ fn w16_d1_refuses_support_targeted_imposed_displacement_on_both_branches() {
 /// Stale (unregistered) builds refuse at D1.1 and keep the plain bytes.
 #[test]
 fn b3b_direct_entry_coexistence_keeps_the_exact_bytes_and_m3x_publishes_the_successor() {
-    let registered = COMPILED_IDENTITY == Some(REGISTERED_PROFILES[0].identity);
+    let registered = crate::retained_facade_tests::registered();
     let read = |text: &str| -> Value { serde_json::from_str(text).unwrap() };
     for (label, raw) in [("m3x", exact3(milestone())), ("n05", read(N05)), ("n06", read(N06))] {
         for mode in MODES {
