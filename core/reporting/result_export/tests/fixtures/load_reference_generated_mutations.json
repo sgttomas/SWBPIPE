@@ -75,6 +75,305 @@
     }
    ],
    "dispatch": "SOURCE_LOAD_REFERENCE_GENERATED_CONTRIBUTION_COVERAGE"
+  },
+  {
+   "id": "GENERATED-entry-without-record",
+   "source": "connected-sparse",
+   "ops": [
+    {
+     "op": "append",
+     "path": "/contract_evidence/load_reference_states/0/contributions",
+     "value": {
+      "source_id": "case:cold:generated:wind:global-z:element-0",
+      "owner_kind": "generated_equivalent_static",
+      "classification": "generated_applied",
+      "factor": 1.0,
+      "generation_kind": "wind"
+     }
+    }
+   ],
+   "dispatch": "SOURCE_LOAD_REFERENCE_GENERATED_CONTRIBUTION_COVERAGE"
+  },
+  {
+   "id": "GENERATED-record-without-entry",
+   "source": "connected-sparse",
+   "ops": [
+    {
+     "op": "set",
+     "path": "/contract_evidence/exact_cases/0/equivalent_static",
+     "value": {
+      "mass_method": "source_od_nominal_wall_pressure_bore_areas/v1",
+      "generated_load_ids": [
+       "case:cold:generated:wind:global-z:element-0"
+      ]
+     }
+    }
+   ],
+   "dispatch": "SOURCE_LOAD_REFERENCE_GENERATED_CONTRIBUTION_COVERAGE"
+  },
+  {
+   "id": "GENERATED-entry-doubled",
+   "source": "connected-sparse",
+   "ops": [
+    {
+     "op": "set",
+     "path": "/contract_evidence/exact_cases/0/equivalent_static",
+     "value": {
+      "mass_method": "source_od_nominal_wall_pressure_bore_areas/v1",
+      "generated_load_ids": [
+       "case:cold:generated:wind:global-z:element-0"
+      ]
+     }
+    },
+    {
+     "op": "append",
+     "path": "/contract_evidence/load_reference_states/0/contributions",
+     "value": {
+      "source_id": "case:cold:generated:wind:global-z:element-0",
+      "owner_kind": "generated_equivalent_static",
+      "classification": "generated_applied",
+      "factor": 1.0,
+      "generation_kind": "wind"
+     }
+    },
+    {
+     "op": "append",
+     "path": "/contract_evidence/load_reference_states/0/contributions",
+     "value": {
+      "source_id": "case:cold:generated:wind:global-z:element-0",
+      "owner_kind": "generated_equivalent_static",
+      "classification": "generated_applied",
+      "factor": 1.0,
+      "generation_kind": "wind"
+     }
+    }
+   ],
+   "dispatch": "SOURCE_LOAD_REFERENCE_CONTRIBUTION_DUPLICATE"
+  },
+  {
+   "id": "GENERATED-entry-factor-2",
+   "source": "connected-sparse",
+   "ops": [
+    {
+     "op": "set",
+     "path": "/contract_evidence/exact_cases/0/equivalent_static",
+     "value": {
+      "mass_method": "source_od_nominal_wall_pressure_bore_areas/v1",
+      "generated_load_ids": [
+       "case:cold:generated:wind:global-z:element-0"
+      ]
+     }
+    },
+    {
+     "op": "append",
+     "path": "/contract_evidence/load_reference_states/0/contributions",
+     "value": {
+      "source_id": "case:cold:generated:wind:global-z:element-0",
+      "owner_kind": "generated_equivalent_static",
+      "classification": "generated_applied",
+      "factor": 2.0,
+      "generation_kind": "wind"
+     }
+    }
+   ],
+   "dispatch": "SOURCE_LOAD_REFERENCE_CONTRIBUTION_FACTOR"
+  },
+  {
+   "id": "GENERATED-entry-factor-null",
+   "source": "connected-sparse",
+   "ops": [
+    {
+     "op": "set",
+     "path": "/contract_evidence/exact_cases/0/equivalent_static",
+     "value": {
+      "mass_method": "source_od_nominal_wall_pressure_bore_areas/v1",
+      "generated_load_ids": [
+       "case:cold:generated:wind:global-z:element-0"
+      ]
+     }
+    },
+    {
+     "op": "append",
+     "path": "/contract_evidence/load_reference_states/0/contributions",
+     "value": {
+      "source_id": "case:cold:generated:wind:global-z:element-0",
+      "owner_kind": "generated_equivalent_static",
+      "classification": "generated_applied",
+      "factor": null,
+      "generation_kind": "wind"
+     }
+    }
+   ],
+   "dispatch": "SOURCE_LOAD_REFERENCE_CONTRIBUTION_FACTOR"
+  },
+  {
+   "id": "GENERATED-entry-unknown-kind",
+   "source": "connected-sparse",
+   "ops": [
+    {
+     "op": "set",
+     "path": "/contract_evidence/exact_cases/0/equivalent_static",
+     "value": {
+      "mass_method": "source_od_nominal_wall_pressure_bore_areas/v1",
+      "generated_load_ids": [
+       "case:cold:generated:wind:global-z:element-0"
+      ]
+     }
+    },
+    {
+     "op": "append",
+     "path": "/contract_evidence/load_reference_states/0/contributions",
+     "value": {
+      "source_id": "case:cold:generated:wind:global-z:element-0",
+      "owner_kind": "generated_equivalent_static",
+      "classification": "generated_applied",
+      "factor": 1.0,
+      "generation_kind": "snow"
+     }
+    }
+   ],
+   "dispatch": "SOURCE_LOAD_REFERENCE_CONTRIBUTION_GENERATION_KIND"
+  },
+  {
+   "id": "GENERATED-entry-other-kind",
+   "source": "connected-sparse",
+   "ops": [
+    {
+     "op": "set",
+     "path": "/contract_evidence/exact_cases/0/equivalent_static",
+     "value": {
+      "mass_method": "source_od_nominal_wall_pressure_bore_areas/v1",
+      "generated_load_ids": [
+       "case:cold:generated:wind:global-z:element-0"
+      ]
+     }
+    },
+    {
+     "op": "append",
+     "path": "/contract_evidence/load_reference_states/0/contributions",
+     "value": {
+      "source_id": "case:cold:generated:wind:global-z:element-0",
+      "owner_kind": "generated_equivalent_static",
+      "classification": "generated_applied",
+      "factor": 1.0,
+      "generation_kind": "seismic"
+     }
+    }
+   ],
+   "dispatch": "SOURCE_LOAD_REFERENCE_GENERATED_CONTRIBUTION_BINDING"
+  },
+  {
+   "id": "GENERATED-entry-classification",
+   "source": "connected-sparse",
+   "ops": [
+    {
+     "op": "set",
+     "path": "/contract_evidence/exact_cases/0/equivalent_static",
+     "value": {
+      "mass_method": "source_od_nominal_wall_pressure_bore_areas/v1",
+      "generated_load_ids": [
+       "case:cold:generated:wind:global-z:element-0"
+      ]
+     }
+    },
+    {
+     "op": "append",
+     "path": "/contract_evidence/load_reference_states/0/contributions",
+     "value": {
+      "source_id": "case:cold:generated:wind:global-z:element-0",
+      "owner_kind": "generated_equivalent_static",
+      "classification": "stored_applied",
+      "factor": 1.0,
+      "generation_kind": "wind"
+     }
+    }
+   ],
+   "dispatch": "SOURCE_LOAD_REFERENCE_CONTRIBUTION_CLASSIFICATION"
+  },
+  {
+   "id": "GENERATED-entry-extra-key",
+   "source": "connected-sparse",
+   "ops": [
+    {
+     "op": "set",
+     "path": "/contract_evidence/exact_cases/0/equivalent_static",
+     "value": {
+      "mass_method": "source_od_nominal_wall_pressure_bore_areas/v1",
+      "generated_load_ids": [
+       "case:cold:generated:wind:global-z:element-0"
+      ]
+     }
+    },
+    {
+     "op": "append",
+     "path": "/contract_evidence/load_reference_states/0/contributions",
+     "value": {
+      "source_id": "case:cold:generated:wind:global-z:element-0",
+      "owner_kind": "generated_equivalent_static",
+      "classification": "generated_applied",
+      "factor": 1.0,
+      "generation_kind": "wind",
+      "extra": 1
+     }
+    }
+   ],
+   "dispatch": "SOURCE_LOAD_REFERENCE_CONTRIBUTION_SHAPE"
+  },
+  {
+   "id": "GENERATED-entry-foreign-identity",
+   "source": "connected-sparse",
+   "ops": [
+    {
+     "op": "set",
+     "path": "/contract_evidence/exact_cases/0/equivalent_static",
+     "value": {
+      "mass_method": "source_od_nominal_wall_pressure_bore_areas/v1",
+      "generated_load_ids": [
+       "case:cold:generated:wind:global-z:element-0"
+      ]
+     }
+    },
+    {
+     "op": "append",
+     "path": "/contract_evidence/load_reference_states/0/contributions",
+     "value": {
+      "source_id": "case:cold:generated:wind:global-z:element-7",
+      "owner_kind": "generated_equivalent_static",
+      "classification": "generated_applied",
+      "factor": 1.0,
+      "generation_kind": "wind"
+     }
+    }
+   ],
+   "dispatch": "SOURCE_LOAD_REFERENCE_GENERATED_CONTRIBUTION_COVERAGE"
+  },
+  {
+   "id": "GENERATED-entry-non-text-identity",
+   "source": "connected-sparse",
+   "ops": [
+    {
+     "op": "set",
+     "path": "/contract_evidence/exact_cases/0/equivalent_static",
+     "value": {
+      "mass_method": "source_od_nominal_wall_pressure_bore_areas/v1",
+      "generated_load_ids": [
+       "case:cold:generated:wind:global-z:element-0"
+      ]
+     }
+    },
+    {
+     "op": "append",
+     "path": "/contract_evidence/load_reference_states/0/contributions",
+     "value": {
+      "source_id": 7,
+      "owner_kind": "generated_equivalent_static",
+      "classification": "generated_applied",
+      "factor": 1.0,
+      "generation_kind": "wind"
+     }
+    }
+   ],
+   "dispatch": "SOURCE_LOAD_REFERENCE_STRING_INVALID"
   }
  ]
 }
