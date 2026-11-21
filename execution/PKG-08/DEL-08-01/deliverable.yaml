@@ -211,6 +211,7 @@ code_paths:
 - fixtures/reports/standing_statements.json
 - fixtures/reports/numerical_vocabulary.json
 - fixtures/reports/invented/report_standing_witnesses/**
+- fixtures/reports/invented/pf_timoshenko_not_eligible/**
 - core/reporting/numerical_vocabulary/**
 - core/reporting/report_renderer/tests/standing_statements.rs
 - apps/desktop/src/features/report/reportStandingWitness.test.tsx
@@ -267,6 +268,7 @@ checks:
 - apps/desktop/src/features/report/pfTimoshenkoRenderRows.test.tsx
 - apps/desktop/src/features/report/renderedReportGate.app.test.tsx
 - apps/desktop/src/features/report/timoshenkoReportAnyStanding.app.test.tsx
+- apps/desktop/src/features/report/reportPackageStandingRefusal.test.ts
 - apps/desktop/src/features/report/restoredRunReportWords.app.test.tsx
 - apps/desktop/src/features/report/withheldPackageStatus.app.test.tsx
 - apps/desktop/src/features/report/reportOutputOutcomes.test.ts

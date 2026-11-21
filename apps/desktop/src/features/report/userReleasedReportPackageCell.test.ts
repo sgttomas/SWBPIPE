@@ -19,7 +19,6 @@ import {
   REPORT_PACKAGE_ROUTE_NOT_ADMITTED,
   REPORT_USER_RELEASE_LIBRARY_REFERENCED,
   REPORT_USER_RELEASE_RULE_PACK_REFERENCED,
-  N_REPORT_PACKAGE_PRESSURE_FREE_STANDING,
   reportPackageSourceUnavailableReason,
   reportPackageUnavailableReason,
   USER_RELEASED_ADMITTED_CONTRACT_IDS,
@@ -82,7 +81,7 @@ describe("the route-010 cell (§2.2, §11)", () => {
     timoshenko.producer!.semantic_contract_id = PREVIEW_PHYSICS_TIMOSHENKO_CONTRACT_ID;
     expect(reportPackageUnavailableReason(timoshenko)).toBeNull();
     expect(userReleasedReportPackageUnavailableReason(timoshenko)).toBe(
-      `${REPORT_PACKAGE_ROUTE_NOT_ADMITTED}: a shareable report package carries pressure-free (preview-physics-2) results and exact pressure route (pressure-3, pressure-source-1) results; this result is ${PREVIEW_PHYSICS_TIMOSHENKO_CONTRACT_ID}. It can be saved in a local private package when its numerical standing is eligible.`
+      `${REPORT_PACKAGE_ROUTE_NOT_ADMITTED}: a shareable report package carries pressure-free (preview-physics-2) results and exact pressure route (pressure-3, pressure-source-1) results; this result is ${PREVIEW_PHYSICS_TIMOSHENKO_CONTRACT_ID}. A local private package can carry it when its numerical health allows.`
     );
   });
 
@@ -105,8 +104,13 @@ describe("the package controls' refusal for the rendered report's source (LIM-01
     expect(reportPackageSourceUnavailableReason(timoshenko, timoshenko)).toBeNull();
     expect(reportPackageSourceUnavailableReason(result, result)).toBeNull();
     expect(reportPackageSourceUnavailableReason(null, null)).toBeNull();
-    // A pressure-free Timoshenko source the rendered report takes that is not Current.
-    expect(reportPackageSourceUnavailableReason(timoshenko, null)).toBe(`Report package not offered: ${N_REPORT_PACKAGE_PRESSURE_FREE_STANDING}`);
+    // A pressure-free Timoshenko source the rendered report takes that is not Current, on the
+    // health ground (its case marked sensitive; the words of each ground are held in
+    // `reportPackageStandingRefusal.test.ts`).
+    const sensitive = structuredClone(timoshenko);
+    sensitive.numerical_quality!.status = "sensitive";
+    sensitive.numerical_quality!.cases[0].solve_quality = "sensitive";
+    expect(reportPackageSourceUnavailableReason(sensitive, null)).toBe("No report package for this result: its numerical health does not allow one. The report states it and can be printed or saved as HTML.");
     // An exact-route source that is not Current: its package states its standing (REQ-024).
     const exact = raw("fixtures/product_preview/pressure_source/physics_source/n05-sparse_interactive.raw.json");
     expect(reportPackageSourceUnavailableReason(exact, null)).toBeNull();
