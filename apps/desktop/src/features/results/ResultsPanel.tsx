@@ -384,6 +384,8 @@ function FullResultsPanel({
           ) : null}
           {health ? <NumericalHealthDetail health={health} resolveCauseLocation={resolveCauseLocation} onSelectCauseLocation={onSelectCauseLocation} onShowDiagnostic={onShowDiagnostic} /> : null}
           <p className="result-standing" data-testid="numerical-result-standing">{recordedTableRead ? `${recordedTableLabel(recordedTableRead)}. ` : null}{route === "unsupported" ? "Unsupported numerical contract; historical values only. Needs recompute." : isRetainedRoute(route) ? retainedPrecisionStandingText(result) : route === "pressure_source" ? <StandingStatement lead={`${ordinarySolveLead(result, gatedState(health))} Producer recovery receipt: ${(result.source_block_recovery as {body:{status:string}}).body.status}.`} limitations={result.formulation_basis!.limitations} close="Current use is checked separately against the actual invocation and complete result evidence. Numerical checks do not establish engineering correctness." /> : <StandingStatement lead={numericalHealthLead(result, gatedState(health))} limitations={result.formulation_basis!.limitations} close="Numerical checks do not establish engineering correctness." />}{hangerPreloadStanding(result) ? ` ${hangerPreloadStanding(result)}` : null}</p>
+          {/* REQ-023: where no indicator is shown, the line standing in its place carries the boundary sentence once. */}
+          {!health && route !== "unsupported" && !isRetainedRoute(route) ? <p data-testid="numerical-health-boundary">{BOUNDARY_SENTENCE}</p> : null}
           <KnownSemanticNotices result={result} testIdPrefix="results" recordedTableRead={recordedTableRead} />
           <SectionBasisHeadlines result={result} />
           <PhysicsSourceEvidencePanel result={result} />
@@ -1186,7 +1188,7 @@ export function standaloneNumericalHealth(result: MechanicsResult, recordedTable
     const reading = reportStanding(result, supportModel);
     return reading.readability.readable && reading.readability.solved ? reading.numerical_standing : null;
   });
-  return numericalHealthView(readNumericalHealth(result, findings), { eligible, verdictHold: false, supportStates, recoveredCases: recoveredCaseIds(result) });
+  return numericalHealthView(readNumericalHealth(result, findings), { eligible, verdictHold: false, supportStates, recoveredCases: recoveredCaseIds(result), documentStatus: result.numerical_quality?.status });
 }
 /** The indicator only where its route agrees with the result's route; otherwise none
  * (today's text). */

@@ -186,8 +186,8 @@ export function useResultsSessionState(advanceReportSource?: () => number) {
   // result records for each case); an ordinary companion's do not.
   const recoveredCases = useMemo(() => recoveredCaseIds(result as MechanicsResult | null), [result]);
   const numericalHealthPresentation = useMemo(
-    () => numericalHealthView(numericalHealth, { eligible: numericallyEligible, verdictHold, supportStates, recoveredCases }),
-    [numericalHealth, numericallyEligible, verdictHold, supportStates, recoveredCases]
+    () => numericalHealthView(numericalHealth, { eligible: numericallyEligible, verdictHold, supportStates, recoveredCases, documentStatus: (result as MechanicsResult | null)?.numerical_quality?.status }),
+    [numericalHealth, numericallyEligible, verdictHold, supportStates, recoveredCases, result]
   );
   const numericalHealthHoldView: NumericalHealthHold | null = verdictHold && numericalHealthPresentation
     ? { headline: numericalHealthPresentation.headline, shortHeadline: numericalHealthPresentation.shortHeadline, outputSentence: numericalHealthPresentation.outputSentence }

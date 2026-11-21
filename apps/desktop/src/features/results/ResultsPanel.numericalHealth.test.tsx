@@ -9,6 +9,7 @@ import { afterEach, describe, expect, it, vi } from "vitest";
 import { ResultsPanel } from "./ResultsPanel";
 import { numericalQualityStatusText, recoveredCaseIds } from "./integrityStatus";
 import { numericalHealthView, parseNumericalHealth, type NumericalHealthView } from "./numericalHealth";
+import { BOUNDARY_SENTENCE } from "./numericalHealthText";
 import { resolveLocatedCauseSelection } from "./resultInterpretation";
 import type { MechanicsResult, PreviewModel } from "../../types";
 import unicodeSparse from "../../../../../fixtures/results/preview_physics_unicode_ids_sparse.json";
@@ -142,6 +143,41 @@ describe("ResultsPanel numerical health", () => {
     const passed = view({ route: "generic", verdict_only: false, cases: [PASSED], combinations: [] }, { eligible: true, verdictHold: false });
     render(<ResultsPanel result={genericResult()} knowledge={null} analysisRun={null} selectedResultId={null} onSelectResult={() => {}} numericalHealth={passed} />);
     expect(screen.getByTestId("numerical-result-standing").textContent).toMatch(/^Numerical health: solver checks found no problem\. /);
+  });
+});
+
+describe("the indicator never reads better than the document's own status", () => {
+  const passedOnly = { route: "generic", verdict_only: false, cases: [PASSED], combinations: [] };
+  it("a status worse than every case: the header, its short form and its badge state the status; each case keeps its own", () => {
+    const shown = view(passedOnly, { eligible: false, verdictHold: false, documentStatus: "sensitive" } as never);
+    expect(shown.headline).toBe("Numerical health: sensitive");
+    expect(shown.shortHeadline).toBe("Numerical health: sensitive");
+    expect(shown.badge).toBe("red");
+    expect(shown.cases[0].headline).toBe("Numerical health: solver checks found no problem");
+    const pressureSource = view({ ...passedOnly, route: "pressure_source" }, { eligible: true, verdictHold: false, documentStatus: "failed" } as never);
+    expect(pressureSource.headline).toBe("Ordinary solve — Numerical health: solve failed");
+    // A token the indicator has no state for counts as not assessed: worse than checks passed.
+    expect(view(passedOnly, { eligible: false, verdictHold: false, documentStatus: "invented" } as never).headline).toBe("Numerical health: not assessed");
+  });
+  it("a status no worse than the cases changes nothing", () => {
+    expect(view(passedOnly, { eligible: false, verdictHold: false, documentStatus: "checks_passed" } as never).headline).toBe("Numerical health: solver checks found no problem");
+    const mixed = view(genericHealth(false), { eligible: false, verdictHold: false, documentStatus: "checks_passed" } as never);
+    expect(mixed.headline).toBe("Numerical health: 1 sensitive, 1 no problem found");
+    expect(mixed.shortHeadline).toBe("Numerical health: sensitive");
+  });
+});
+
+describe("the boundary sentence where no indicator is shown", () => {
+  it("is carried once by the line that stands in the indicator's place, and once by the indicator's detail where it is shown", () => {
+    render(<ResultsPanel result={genericResult()} knowledge={null} analysisRun={null} selectedResultId={null} onSelectResult={() => {}} numericalHealth={null} />);
+    expect(screen.queryByTestId("numerical-health-detail")).toBeNull();
+    expect(screen.getAllByTestId("numerical-health-boundary").map((n) => n.textContent)).toEqual([BOUNDARY_SENTENCE]);
+    expect(document.body.textContent!.split(BOUNDARY_SENTENCE).length - 1).toBe(1);
+    cleanup();
+    render(<ResultsPanel result={genericResult()} knowledge={null} analysisRun={null} selectedResultId={null} onSelectResult={() => {}}
+      numericalHealth={view(genericHealth(false), { eligible: false, verdictHold: false })} />);
+    expect(screen.getAllByTestId("numerical-health-boundary")).toHaveLength(1);
+    expect(document.body.textContent!.split(BOUNDARY_SENTENCE).length - 1).toBe(1);
   });
 });
 

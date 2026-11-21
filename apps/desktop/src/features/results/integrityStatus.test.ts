@@ -12,20 +12,28 @@ describe("standing and results-line words", () => {
     expect(status.standingStatusText("needs_recompute")).toBe("needs recompute");
     expect(status.numericalQualityStatusText("checks_passed")).toBe("solver checks found no problem");
     for (const other of ["sensitive", "unresolved", "failed", "not_assessed"]) expect(status.numericalQualityStatusText(other)).toBe(other);
-    // Where the gated state agrees with the status, the line reads as it always has.
-    expect(status.numericalHealthLead({ numerical_quality: { status: "checks_passed" } } as never, "checks_passed")).toBe("Numerical health: solver checks found no problem.");
-    expect(status.numericalHealthLead({ numerical_quality: { status: "sensitive" } } as never, "sensitive")).toBe("Numerical health: sensitive.");
-    expect(status.numericalHealthLead({ numerical_quality: { status: "unresolved" } } as never, "quality_unresolved")).toBe("Numerical health: unresolved.");
-    expect(status.ordinarySolveLead({ numerical_quality: { status: "checks_passed" } } as never, "checks_passed")).toBe("Ordinary solve: solver checks found no problem.");
   });
 
-  it("takes the gated state where the status disagrees with it, and never falls back to the status", () => {
-    // An unsolved document whose own status says checks_passed: the gate assesses nothing.
-    expect(status.numericalHealthLead({ numerical_quality: { status: "checks_passed" } } as never, "not_assessed")).toBe("Numerical health: not assessed.");
-    expect(status.ordinarySolveLead({ numerical_quality: { status: "checks_passed" } } as never, "not_assessed")).toBe("Ordinary solve: not assessed.");
-    expect(status.numericalHealthLead({ numerical_quality: { status: "checks_passed" } } as never, "sensitive")).toBe("Numerical health: sensitive.");
-    expect(status.numericalHealthLead({ numerical_quality: { status: "invented" } } as never, "checks_passed")).toBe("Numerical health: solver checks found no problem.");
-    expect(status.numericalHealthLead({} as never, "not_assessed")).toBe("Numerical health: not assessed.");
+  it("reads the worse of the document's status and the gated health, in the indicator's words, and never better", () => {
+    const P = "solver checks found no problem", N = "not assessed", S = "sensitive", Q = "quality unresolved", F = "solve failed";
+    const gated = ["checks_passed", "not_assessed", "sensitive", "quality_unresolved", "solve_failed"] as const;
+    // Each row: a document status token, then the line's words for each gated state above.
+    const table: [unknown, string[]][] = [
+      ["checks_passed", [P, N, S, Q, F]],
+      ["sensitive", [S, S, S, Q, F]],
+      ["unresolved", [Q, Q, Q, Q, F]],
+      ["failed", [F, F, F, F, F]],
+      ["not_assessed", [N, N, S, Q, F]],
+      ["invented", [N, N, S, Q, F]],
+      [undefined, [N, N, S, Q, F]]
+    ];
+    for (const [token, words] of table) {
+      const result = (token === undefined ? {} : { numerical_quality: { status: token } }) as never;
+      gated.forEach((state, i) => {
+        expect(status.numericalHealthLead(result, state), `${String(token)} / ${state}`).toBe(`Numerical health: ${words[i]}.`);
+        expect(status.ordinarySolveLead(result, state), `${String(token)} / ${state}`).toBe(`Ordinary solve: ${words[i]}.`);
+      });
+    }
   });
 
   it("reads an absent confirmations member as it reads null: every case's line not read", () => {

@@ -38,7 +38,7 @@ import {
   type NumericalHealthState
 } from "./numericalHealthText";
 import type { MechanicsResult, ResultBasisRef } from "../../types";
-import { SUPPORT_STATES_UNREAD, supportStatesOf, type SupportStates, type SupportStatesLine } from "./integrityStatus";
+import { documentStatusState, SUPPORT_STATES_UNREAD, supportStatesOf, worseState, type SupportStates, type SupportStatesLine } from "./integrityStatus";
 
 export type { NumericalHealthState } from "./numericalHealthText";
 export type NumericalHealthRoute = "generic" | "pressure_source" | "retained" | "unsupported";
@@ -336,8 +336,11 @@ export type NumericalHealthView = Readonly<{
 
 /** The presentation of the generic and pressure-source routes; null for the retained and
  * unsupported routes, whose texts are unchanged. `verdictHold` is `numericalHealthHold`'s
- * condition: the generic result is not Current because of its verdict alone. */
-export function numericalHealthView(health: NumericalHealth | null, options: { eligible: boolean; verdictHold: boolean; supportStates?: SupportStates; recoveredCases?: ReadonlySet<string> }): NumericalHealthView | null {
+ * condition: the generic result is not Current because of its verdict alone. `documentStatus` is the
+ * document's own `numerical_quality.status` (undefined where it has none): where it is worse than
+ * every case's state, the header, its short form and its badge state it, so the result's overall
+ * state never reads better than the document says; each case keeps its own record's state. */
+export function numericalHealthView(health: NumericalHealth | null, options: { eligible: boolean; verdictHold: boolean; supportStates?: SupportStates; recoveredCases?: ReadonlySet<string>; documentStatus?: unknown }): NumericalHealthView | null {
   if (!health || (health.route !== "generic" && health.route !== "pressure_source")) return null;
   const route = health.route;
   const prefix = route === "pressure_source";
@@ -365,11 +368,17 @@ export function numericalHealthView(health: NumericalHealth | null, options: { e
   }]);
   const notPassed = health.cases.filter((c) => c.state !== "checks_passed").length;
   const byCombination = new Map(combinations.map((m) => [m.combinationId, m]));
+  // The document's own status where it is worse than every case (a status the reader finds
+  // contradicting its cases, NUMERICAL_AGGREGATE_CONTRADICTION); a token with no state is not assessed.
+  const casesWorst = worstState(health.cases);
+  const status = "documentStatus" in options ? documentStatusState(options.documentStatus) : casesWorst;
+  const statusWorse = worseState(status, casesWorst) !== casesWorst;
   return Object.freeze({
     route,
-    badge: headerBadge(health.cases),
-    headline: health.cases.length === 0 ? numericalHealthHeadline("not_assessed", prefix) : numericalHealthCountHeadline(stateCounts(health.cases), prefix),
-    shortHeadline: numericalHealthHeadline(worstState(health.cases)),
+    badge: statusWorse ? badgeOf(status) : headerBadge(health.cases),
+    headline: statusWorse ? numericalHealthHeadline(status, prefix)
+      : health.cases.length === 0 ? numericalHealthHeadline("not_assessed", prefix) : numericalHealthCountHeadline(stateCounts(health.cases), prefix),
+    shortHeadline: numericalHealthHeadline(statusWorse ? status : casesWorst),
     outputSentence: route === "generic" && options.verdictHold && notPassed > 0 ? outputSentence(notPassed) : null,
     rowBadges: route === "generic",
     cases,

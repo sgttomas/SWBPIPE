@@ -25,6 +25,7 @@ import type { RunComparisonResult } from "../history/useModelStateHistory";
 import type { BundledMechanicsReference } from "../../services/previewService";
 import { computeModelHash, computeProjectEnvelopeHash } from "../../services/hashService";
 import type { DesignKnowledge, LocalProjectEnvelope, MechanicsResult, PreviewModel } from "../../types";
+import { RULE_PACK_REF_UNRESOLVED } from "../../services/rulePackRefDiagnostics";
 
 afterEach(cleanup);
 
@@ -62,6 +63,21 @@ describe("the results line takes the gated health's state", () => {
     // The panel's own reading of the same document (no health handed in) reads the same.
     panel(source, undefined);
     expect(screen.getByTestId("numerical-result-standing").textContent).toMatch(/^Numerical health: not assessed\. /);
+  });
+});
+
+describe("the results stage never reads better than the document's own status", () => {
+  it("a solved document whose status is sensitive while every case passed reads sensitive on the line and the header; each case keeps its own", () => {
+    const source = read<MechanicsResult>(DEMO.result), bound = read<PreviewModel>(DEMO.model);
+    source.numerical_quality = { ...source.numerical_quality!, status: "sensitive" };
+    expect(numericalResultStanding(source, bound).findings).toContain("NUMERICAL_AGGREGATE_CONTRADICTION");
+    // The panel's own reading (no health handed in), as a reopened or bundled result is shown.
+    panel(source, undefined);
+    expect(screen.getByTestId("numerical-result-standing").textContent).toMatch(/^Numerical health: sensitive\. /);
+    expect(screen.getByTestId("numerical-health-header").textContent).toBe("Numerical health: sensitive");
+    const caseBadges = screen.getAllByTestId(/^numerical-health-case-badge-/);
+    expect(caseBadges.length).toBeGreaterThan(0);
+    for (const badge of caseBadges) expect(badge.textContent).toBe("Numerical health: solver checks found no problem");
   });
 });
 
@@ -227,6 +243,43 @@ describe("the heading above the solver's own messages", () => {
     const list = screen.getByTestId("missing-data-warnings");
     expect(list.firstElementChild).toBe(screen.getByTestId("missing-data-solver-messages-heading"));
     expect(list.querySelectorAll("[data-testid^='missing-data-warning-nonlinear']").length).toBeGreaterThan(0);
+  });
+
+  it("the run comparison: absent where the only listed difference is the desktop's own rule-pack warning", () => {
+    const { result, model } = linear();
+    const standing = numericalResultStanding(result, model);
+    const side = (name: string, diagnostics: unknown[]) => ({
+      kind: "recorded", id: `runrec:${name}`, description: name, createdAt: null, state: null, standing, recordedTableRead: null,
+      input: { rows: [], standing, semantic_identity: { route: standing.contract, contract_id: "c", contract_sha256: "s" }, context: {}, diagnostics }
+    } as unknown as RunComparisonSide);
+    const shown = (left: RunComparisonSide, right: RunComparisonSide): RunComparisonResult => ({ projectId: "project", left, right, comparison: compareRunInputs(left.input, right.input) });
+    const desktopOwn = { code: RULE_PACK_REF_UNRESOLVED, severity: "warning", affected_refs: ["rule-pack:invented"], message: "The rule pack reference did not resolve." };
+    const { rerender } = render(<RunComparisonView result={shown(side("left", []), side("right", [desktopOwn]))} onClose={() => {}} />);
+    expect(screen.getByTestId("run-comparison-diagnostics").textContent).toContain(RULE_PACK_REF_UNRESOLVED);
+    expect(screen.queryByTestId("run-comparison-solver-messages-heading")).toBeNull();
+    const solver = result.diagnostics.map((d) => ({ code: d.code, severity: d.severity ?? null, affected_refs: d.affected_refs ?? [], message: d.message ?? null }))[0];
+    rerender(<RunComparisonView result={shown(side("left", []), side("right", [desktopOwn, solver]))} onClose={() => {}} />);
+    once("run-comparison-solver-messages-heading");
+  });
+
+  it("the Missing data panel: absent where a model warning shares its id with a result diagnostic that is not listed", () => {
+    const source = read<MechanicsResult>(DEMO.result), bound = read<PreviewModel>(DEMO.model);
+    const shared = "diagnostic:invented:shared";
+    source.diagnostics = [...source.diagnostics.filter((d) => !d.code.startsWith("NONLINEAR_")), { id: shared, code: "INVENTED_RESULT_NOTE", severity: "info", message: "A result note.", affected_refs: [] } as never];
+    const model = { ...bound, diagnostics: [...(bound.diagnostics ?? []), { id: shared, code: "NONLINEAR_INVENTED_MODEL_WARNING", severity: "warning", message: "A model warning.", affected_refs: [] }] } as PreviewModel;
+    render(<MissingDataBlockingPanel model={model} result={source} />);
+    expect(screen.getByTestId("missing-data-warnings").textContent).toContain("A model warning.");
+    expect(screen.queryByTestId("missing-data-solver-messages-heading")).toBeNull();
+  });
+
+  it("the diagnostic detail: absent where the entry it shows is the model's, though a result diagnostic shares its id", () => {
+    const { result, model: bound } = linear();
+    const id = result.diagnostics[0].id ?? result.diagnostics[0].code;
+    const own = { id, code: "MODEL_OWN_FINDING", severity: "warning", message: "A finding of the model's own.", affected_refs: [] };
+    const model = { ...bound, diagnostics: [...(bound.diagnostics ?? []), own] } as PreviewModel;
+    render(<DiagnosticsPanel model={model} knowledge={null} result={result} selectedDiagnosticId={id} onSelectDiagnostic={() => {}} />);
+    expect(screen.getByTestId("diagnostic-detail-panel").textContent).toContain("MODEL_OWN_FINDING");
+    expect(screen.queryByTestId("diagnostic-detail-solver-messages-heading")).toBeNull();
   });
 
   it("the Missing data panel: absent where no listed warning is the result's own message", () => {

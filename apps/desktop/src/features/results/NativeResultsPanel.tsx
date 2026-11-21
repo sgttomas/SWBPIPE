@@ -29,7 +29,7 @@ import { canSurfaceRevealNow } from "../workspace/surfaceReveal";
 import { useDisplayQuantityResolver, type DisplaySourceQuantity } from "../display-units";
 import { hangerPreloadStanding } from "./hangerPreload";
 import { knownSemanticNotices, PREVIEW_ALONG_DIRECTION_KIND, resultRowLabel } from "./knownSemanticLimitations";
-import { NUMERICAL_HEALTH_STATE_TEXT } from "./numericalHealthText";
+import { BOUNDARY_SENTENCE, NUMERICAL_HEALTH_STATE_TEXT } from "./numericalHealthText";
 import { nativeSupportStates, numericalHealthLead, ordinarySolveLead, recoveredCaseIds } from "./integrityStatus";
 import { gatedState, numericalHealthView, parseNumericalHealth, rowHealthState, type NumericalHealthLocation, type NumericalHealthView } from "./numericalHealth";
 import { ALL_CASES, isNavigatorExcludedTarget, navigatorKeyStep, stepIndex, type NavigatorAxis, type NavigatorCase } from "./resultsNavigator";
@@ -106,10 +106,11 @@ function labelsOf(rows: readonly DetailRow[], outcomes: readonly RowSemanticsOut
 /** A reopened run's own indicator, as `standaloneNumericalHealth` gives the whole-value panel one
  * when no health is passed (the historical panel): S's numerical health, read natively with the
  * restored run's standalone historical findings (`NativeCustody.historicalStanding`), presented
- * with its eligibility and no hold. Display only; none for a solve. */
-function standaloneNativeHealth(custody: NativeCustody): NumericalHealthView | null {
+ * with its eligibility and no hold, and the document's own status (`documentStatus`). Display only;
+ * none for a solve. */
+function standaloneNativeHealth(custody: NativeCustody, documentStatus: unknown): NumericalHealthView | null {
   const standing = custody.historicalStanding;
-  return standing ? numericalHealthView(parseNumericalHealth(custody.summary.header.numerical_health), { eligible: standing.eligible, verdictHold: false, supportStates: nativeSupportStates(custody.summary.header.support_confirmations, custody.supportConfirmations), recoveredCases: recoveredCaseIds({ contract_evidence: custody.summary.header.envelope?.contract_evidence }) }) : null;
+  return standing ? numericalHealthView(parseNumericalHealth(custody.summary.header.numerical_health), { eligible: standing.eligible, verdictHold: false, supportStates: nativeSupportStates(custody.summary.header.support_confirmations, custody.supportConfirmations), recoveredCases: recoveredCaseIds({ contract_evidence: custody.summary.header.envelope?.contract_evidence }), documentStatus }) : null;
 }
 
 /** A row read under a table other than the handle's (RT-A4 §10.4): refused, never read. */
@@ -235,7 +236,7 @@ export function NativeResultsPanel({
   // RT-A4 §10.4: a run recorded before RT-A4 is classified under its recorded table.
   const route = displayRoute(result, recordedTableRead);
   // DEL-07-05: the historical panel passes no health; a reopened run then shows its own (review F2).
-  const ownHealth = useMemo(() => (numericalHealth === undefined ? standaloneNativeHealth(custody) : null), [numericalHealth, custody]);
+  const ownHealth = useMemo(() => (numericalHealth === undefined ? standaloneNativeHealth(custody, result.numerical_quality?.status) : null), [numericalHealth, custody, result]);
   const health = routeHealth(route, numericalHealth === undefined ? ownHealth : numericalHealth);
   // The row labels apply to preview-physics-2 and its successors (a reopened successor included).
   const labelSource = ["preview_physics", "retained_preview_physics", "retained_physics"].includes(route) ? result : null;
@@ -506,6 +507,8 @@ export function NativeResultsPanel({
       ) : null}
       {health ? <NumericalHealthDetail health={health} resolveCauseLocation={resolveCauseLocation} onSelectCauseLocation={onSelectCauseLocation} onShowDiagnostic={onShowDiagnostic} /> : null}
       <p data-testid="numerical-result-standing">{standingLine}{hangerPreloadStanding(result) ? ` ${hangerPreloadStanding(result)}` : null}</p>
+      {/* REQ-023: where no indicator is shown, the line standing in its place carries the boundary sentence once. */}
+      {!health && route !== "unsupported" && !isRetainedRoute(route) ? <p data-testid="numerical-health-boundary">{BOUNDARY_SENTENCE}</p> : null}
       {notices.map((notice) => <p className="muted" key={notice.id} data-testid={`results-notice-${notice.id}`}>{notice.text}</p>)}
       <SectionBasisHeadlines result={result as never} />
       {recovery?.present ? (

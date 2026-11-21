@@ -24,20 +24,31 @@ export function numericalQualityStatusText(status: string): string {
   return status === "checks_passed" ? NUMERICAL_HEALTH_STATE_TEXT.checks_passed : status;
 }
 
-/** The health states a `numerical_quality.status` token agrees with. */
-const STATUS_STATES: Readonly<Record<string, readonly NumericalHealthState[]>> = Object.freeze({
-  checks_passed: ["checks_passed"],
-  sensitive: ["sensitive"],
-  unresolved: ["quality_unresolved", "solve_failed"],
-  not_assessed: ["not_assessed"]
-});
-/** The results line's state words, formed from the gated health's worst state (`gatedState`; "not
- * assessed" where the gate yields no health): the status token's words where the token agrees with
- * that state, as a solved result has always read, and otherwise the state's own words. Fails closed:
- * the raw status never stands in for the gated state. */
+/** The indicator's states from best to worst: no line and no headline reads better than the worse
+ * of the document's own status and the gated health. */
+export const HEALTH_STATES_BEST_FIRST: readonly NumericalHealthState[] = Object.freeze(["checks_passed", "not_assessed", "sensitive", "quality_unresolved", "solve_failed"]);
+/** The indicator's state for a document's `numerical_quality.status` token, read as the indicator
+ * reads a case's `solve_quality` (report_standing `historical_health.rs` `state_of`); a token it has
+ * no state for, or none, is not assessed. */
+export function documentStatusState(status: unknown): NumericalHealthState {
+  switch (status) {
+    case "checks_passed": return "checks_passed";
+    case "sensitive": return "sensitive";
+    case "unresolved": return "quality_unresolved";
+    case "failed": return "solve_failed";
+    default: return "not_assessed";
+  }
+}
+/** The worse of two states (`HEALTH_STATES_BEST_FIRST`). */
+export function worseState(a: NumericalHealthState, b: NumericalHealthState): NumericalHealthState {
+  return HEALTH_STATES_BEST_FIRST.indexOf(a) >= HEALTH_STATES_BEST_FIRST.indexOf(b) ? a : b;
+}
+/** The results line's state words: the worse of the document's own status and the gated health's
+ * worst state (`gatedState`; not assessed where the gate yields no health), in the indicator's
+ * words. It reads "solver checks found no problem" only where both say checks passed, and never
+ * shows a raw token. */
 function leadStateText(result: Pick<MechanicsResult, "numerical_quality">, gated: NumericalHealthState): string {
-  const status = String(result.numerical_quality?.status);
-  return STATUS_STATES[status]?.includes(gated) ? numericalQualityStatusText(status) : NUMERICAL_HEALTH_STATE_TEXT[gated];
+  return NUMERICAL_HEALTH_STATE_TEXT[worseState(documentStatusState(result.numerical_quality?.status), gated)];
 }
 /** "Numerical health: {state}." on the results line. */
 export function numericalHealthLead(result: Pick<MechanicsResult, "numerical_quality">, gated: NumericalHealthState): string {
