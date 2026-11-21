@@ -723,6 +723,39 @@
    "named_by_statement": null
   },
   {
+   "code": "COMBINATION_HYDROSTATIC_TEST_WITHHELD",
+   "crates": [
+    "core/product_physics"
+   ],
+   "severity": "blocking",
+   "first_site": {
+    "file": "core/product_physics/src/hydrostatic.rs",
+    "line": 390,
+    "via": "diag()"
+   },
+   "sites": [
+    {
+     "file": "core/product_physics/src/hydrostatic.rs",
+     "line": 390,
+     "via": "diag()",
+     "severity": "blocking",
+     "through": [
+      "const COMBINATION_HYDROSTATIC_TEST_WITHHELD (core/product_physics/src/hydrostatic.rs:51)"
+     ]
+    }
+   ],
+   "messages": [
+    "combination `{}` has hydrostatic test case {named} among its operands; v1.0 does not define what a combination with a test case means, so the combination is withheld and nothing is solved; report the test case on its own"
+   ],
+   "classification": "absent_capability",
+   "reason": "A combination with a hydrostatic test case among its operands, directly or through another combination, is withheld: v1.0 does not define what it means (DEL-05-01, DEL-05-02 \"Withheld in v1.0\").",
+   "unsure": false,
+   "candidates": null,
+   "named_by": "unnamed",
+   "named_by_coverage": null,
+   "named_by_statement": null
+  },
+  {
    "code": "COMBINATION_INSTALLED_REFERENCE_REQUIRES_SOLVE",
    "crates": [
     "core/product_physics"
@@ -6242,13 +6275,13 @@
    "severity": "blocking",
    "first_site": {
     "file": "core/model_operations/operation_applier/src/condition_set_authoring.rs",
-    "line": 228,
+    "line": 253,
     "via": "refusal()"
    },
    "sites": [
     {
      "file": "core/model_operations/operation_applier/src/condition_set_authoring.rs",
-     "line": 228,
+     "line": 253,
      "via": "refusal()",
      "severity": null,
      "through": [
@@ -6266,7 +6299,7 @@
     }
    ],
    "messages": [
-    "Load case `{case_ref}` would use condition `{key}` for contents density; the resolution of contents density is not designed yet (RT-A6), so the use is not authored.",
+    "Load case `{case_ref}` would use condition `{key}` for contents density on a pressure-free document; contents density from conditions is resolved only for a hydrostatic test case on the exact route, so the use is not authored.",
     "load case `{id}` uses condition `{key}` for contents density; the resolution of contents density is not designed yet, so nothing is solved"
    ],
    "classification": "absent_capability",
@@ -6286,13 +6319,13 @@
    "severity": "blocking",
    "first_site": {
     "file": "core/model_operations/operation_applier/src/condition_set_authoring.rs",
-    "line": 221,
+    "line": 246,
     "via": "refusal()"
    },
    "sites": [
     {
      "file": "core/model_operations/operation_applier/src/condition_set_authoring.rs",
-     "line": 221,
+     "line": 246,
      "via": "refusal()",
      "severity": null,
      "through": [
@@ -6362,26 +6395,26 @@
    "severity": "not_stated",
    "first_site": {
     "file": "core/product_physics/src/operating_conditions.rs",
-    "line": 340,
+    "line": 345,
     "via": "new()"
    },
    "sites": [
     {
      "file": "core/product_physics/src/operating_conditions.rs",
-     "line": 340,
+     "line": 345,
      "via": "new()",
      "severity": null,
      "through": [
-      "const LOAD_CASE_CONDITION_USE_EMPTY (core/product_physics/src/operating_conditions.rs:41)"
+      "const LOAD_CASE_CONDITION_USE_EMPTY (core/product_physics/src/operating_conditions.rs:42)"
      ]
     },
     {
      "file": "core/product_physics/src/operating_conditions.rs",
-     "line": 346,
+     "line": 351,
      "via": "new()",
      "severity": null,
      "through": [
-      "const LOAD_CASE_CONDITION_USE_EMPTY (core/product_physics/src/operating_conditions.rs:41)"
+      "const LOAD_CASE_CONDITION_USE_EMPTY (core/product_physics/src/operating_conditions.rs:42)"
      ]
     }
    ],
@@ -6406,32 +6439,32 @@
    "severity": "blocking",
    "first_site": {
     "file": "core/model_operations/operation_applier/src/condition_set_authoring.rs",
-    "line": 212,
+    "line": 237,
     "via": "refusal()"
    },
    "sites": [
     {
      "file": "core/model_operations/operation_applier/src/condition_set_authoring.rs",
-     "line": 212,
+     "line": 237,
      "via": "refusal()",
      "severity": null,
      "through": [
-      "const LOAD_CASE_CONDITION_USE_EXACT_UNSUPPORTED (core/product_physics/src/operating_conditions.rs:46)"
+      "const LOAD_CASE_CONDITION_USE_EXACT_UNSUPPORTED (core/product_physics/src/operating_conditions.rs:48)"
      ]
     },
     {
      "file": "core/product_physics/src/operating_conditions.rs",
-     "line": 393,
+     "line": 405,
      "via": "diag()",
      "severity": "blocking",
      "through": [
-      "const LOAD_CASE_CONDITION_USE_EXACT_UNSUPPORTED (core/product_physics/src/operating_conditions.rs:46)"
+      "const LOAD_CASE_CONDITION_USE_EXACT_UNSUPPORTED (core/product_physics/src/operating_conditions.rs:48)"
      ]
     }
    ],
    "messages": [
-    "Load case `{case_ref}` would use operating conditions on a document with a pressure contract; the exact route's condition resolution is not built yet (S4), so the use is not authored.",
-    "load case `{}` uses operating conditions on a document with a pressure contract; the exact route's condition resolution is not built yet, so nothing is solved"
+    "Load case `{case_ref}` would use operating conditions on a document with a pressure contract; the exact route resolves only a hydrostatic test case's contents_density, stated alone, so the use is not authored.",
+    "load case `{}` uses operating conditions on a document with a pressure contract; the exact route resolves only a hydrostatic test case's contents_density, so nothing is solved"
    ],
    "classification": "absent_capability",
    "reason": "Operating conditions used by a load case on a document with a pressure contract: the exact route's condition resolution is not built yet.",
@@ -6515,40 +6548,73 @@
    "named_by_statement": null
   },
   {
-   "code": "LOAD_CASE_TEST_CONDITION_UNSUPPORTED",
+   "code": "LOAD_CASE_TEST_CONDITION_PRESSURE_FREE",
    "crates": [
     "core/model_operations/operation_applier",
     "core/product_physics"
    ],
    "severity": "blocking",
    "first_site": {
-    "file": "core/model_operations/operation_applier/src/lib.rs",
-    "line": 5739,
-    "via": "refuse_interim_member()"
+    "file": "core/model_operations/operation_applier/src/condition_set_authoring.rs",
+    "line": 269,
+    "via": "refusal()"
    },
    "sites": [
     {
-     "file": "core/model_operations/operation_applier/src/lib.rs",
-     "line": 5739,
-     "via": "refuse_interim_member()",
-     "severity": "blocking",
+     "file": "core/model_operations/operation_applier/src/condition_set_authoring.rs",
+     "line": 269,
+     "via": "refusal()",
+     "severity": null,
      "through": [
-      "const LOAD_CASE_TEST_CONDITION_UNSUPPORTED (core/product_physics/src/operating_conditions.rs:48)"
+      "const LOAD_CASE_TEST_CONDITION_PRESSURE_FREE (core/product_physics/src/hydrostatic.rs:34)"
      ]
     },
     {
-     "file": "core/product_physics/src/operating_conditions.rs",
-     "line": 399,
-     "via": "diag()",
+     "file": "core/product_physics/src/hydrostatic.rs",
+     "line": 216,
+     "via": "case_diag()",
      "severity": "blocking",
      "through": [
-      "const LOAD_CASE_TEST_CONDITION_UNSUPPORTED (core/product_physics/src/operating_conditions.rs:48)"
+      "const LOAD_CASE_TEST_CONDITION_PRESSURE_FREE (core/product_physics/src/hydrostatic.rs:34)"
      ]
     }
    ],
    "messages": [
-    "A load case's hydrostatic test_condition is not authored until the hydrostatic test is built.",
-    "load case `{}` is a hydrostatic test condition; the test-case mechanics (held supports, test contents and pressure) are not built yet, so nothing is solved"
+    "Load case `{case_ref}` would be a hydrostatic test on a document without a pressure contract; the test is solved on the exact pressure route only, so the test condition is not authored.",
+    "load case `{}` is a hydrostatic test on a document without a pressure contract; the test is solved on the exact pressure route only and is never solved as an ordinary case, so nothing is solved"
+   ],
+   "classification": "absent_capability",
+   "reason": "A hydrostatic test case on the pressure-free route: the test is defined and solved on the exact pressure route only (DEL-05-01/REQ-014); it is refused, never solved as an ordinary case.",
+   "unsure": false,
+   "candidates": null,
+   "named_by": "unnamed",
+   "named_by_coverage": null,
+   "named_by_statement": null
+  },
+  {
+   "code": "LOAD_CASE_TEST_CONDITION_UNSUPPORTED",
+   "crates": [
+    "core/product_physics"
+   ],
+   "severity": "blocking",
+   "first_site": {
+    "file": "core/product_physics/src/operating_conditions.rs",
+    "line": 434,
+    "via": "diag()"
+   },
+   "sites": [
+    {
+     "file": "core/product_physics/src/operating_conditions.rs",
+     "line": 434,
+     "via": "diag()",
+     "severity": "blocking",
+     "through": [
+      "const LOAD_CASE_TEST_CONDITION_UNSUPPORTED (core/product_physics/src/operating_conditions.rs:53)"
+     ]
+    }
+   ],
+   "messages": [
+    "load case `{}` is a hydrostatic test condition; the test-case solve (held supports, test contents and pressure) is not built yet, so nothing is solved"
    ],
    "classification": "absent_capability",
    "reason": "Every hydrostatic test case is refused whole until the hydrostatic test is built (DEL-05-01/REQ-014). LIM-003 names it as today's refusal under its entry for a combination that includes a test case.",
@@ -6567,6 +6633,254 @@
      "lands_with": "the first landing after pull request 217, unless its own unit lands first"
     }
    ]
+  },
+  {
+   "code": "LOAD_CASE_TEST_CONTENTS_SELF_WEIGHT_INVALID",
+   "crates": [
+    "core/product_physics"
+   ],
+   "severity": "blocking",
+   "first_site": {
+    "file": "core/product_physics/src/hydrostatic.rs",
+    "line": 271,
+    "via": "case_diag()"
+   },
+   "sites": [
+    {
+     "file": "core/product_physics/src/hydrostatic.rs",
+     "line": 271,
+     "via": "case_diag()",
+     "severity": "blocking",
+     "through": [
+      "const LOAD_CASE_TEST_CONTENTS_SELF_WEIGHT_INVALID (core/product_physics/src/hydrostatic.rs:40)"
+     ]
+    },
+    {
+     "file": "core/product_physics/src/hydrostatic.rs",
+     "line": 284,
+     "via": "case_diag()",
+     "severity": "blocking",
+     "through": [
+      "const LOAD_CASE_TEST_CONTENTS_SELF_WEIGHT_INVALID (core/product_physics/src/hydrostatic.rs:40)"
+     ]
+    },
+    {
+     "file": "core/product_physics/src/hydrostatic.rs",
+     "line": 292,
+     "via": "case_diag()",
+     "severity": "blocking",
+     "through": [
+      "const LOAD_CASE_TEST_CONTENTS_SELF_WEIGHT_INVALID (core/product_physics/src/hydrostatic.rs:40)"
+     ]
+    },
+    {
+     "file": "core/product_physics/src/hydrostatic.rs",
+     "line": 339,
+     "via": "case_diag()",
+     "severity": "blocking",
+     "through": [
+      "const LOAD_CASE_TEST_CONTENTS_SELF_WEIGHT_INVALID (core/product_physics/src/hydrostatic.rs:40)"
+     ]
+    }
+   ],
+   "messages": [
+    "hydrostatic test case `{id}` carries self-weight load `{}` by method `{method}`, whose magnitude the test contents cannot enter; generate the case's self-weight again so that the contents enter once, so nothing is solved",
+    "hydrostatic test case `{id}` carries self-weight load `{}`, which was generated for another case or target; the test contents enter only this case's own generated self-weight, so nothing is solved",
+    "hydrostatic test case `{id}` selects contents `{key}` but carries no generated self-weight for them to enter; contents are a mass input of the self-weight calculation and are never a load of their own, so nothing is solved",
+    "hydrostatic test case `{id}`: the self-weight of pipe `{pipe_id}` with contents `{key}` cannot be formed ({reason}), so nothing is solved"
+   ],
+   "classification": "input_error",
+   "reason": "A hydrostatic test case's selected contents have no generated self-weight of the case to enter, or the case carries a self-weight load they cannot enter (a manual override, a legacy-method load, one generated for another case), or the mass with the test contents cannot be formed.",
+   "unsure": false,
+   "candidates": null,
+   "named_by": null,
+   "named_by_coverage": null,
+   "named_by_statement": null
+  },
+  {
+   "code": "LOAD_CASE_TEST_CONTENTS_UNSELECTED",
+   "crates": [
+    "core/product_physics"
+   ],
+   "severity": "blocking",
+   "first_site": {
+    "file": "core/product_physics/src/hydrostatic.rs",
+    "line": 261,
+    "via": "case_diag()"
+   },
+   "sites": [
+    {
+     "file": "core/product_physics/src/hydrostatic.rs",
+     "line": 261,
+     "via": "case_diag()",
+     "severity": "blocking",
+     "through": [
+      "const LOAD_CASE_TEST_CONTENTS_UNSELECTED (core/product_physics/src/hydrostatic.rs:36)"
+     ]
+    }
+   ],
+   "messages": [
+    "hydrostatic test case `{id}` selects no contents density; a test case takes its contents from the condition its condition_use.contents_density names and none is assumed, so nothing is solved"
+   ],
+   "classification": "input_error",
+   "reason": "A hydrostatic test case that selects no contents density (condition_use.contents_density); none is assumed.",
+   "unsure": false,
+   "candidates": null,
+   "named_by": null,
+   "named_by_coverage": null,
+   "named_by_statement": null
+  },
+  {
+   "code": "LOAD_CASE_TEST_HELD_SUPPORT_DUPLICATE",
+   "crates": [
+    "core/product_physics"
+   ],
+   "severity": "blocking",
+   "first_site": {
+    "file": "core/product_physics/src/hydrostatic.rs",
+    "line": 152,
+    "via": "case_diag()"
+   },
+   "sites": [
+    {
+     "file": "core/product_physics/src/hydrostatic.rs",
+     "line": 152,
+     "via": "case_diag()",
+     "severity": "blocking",
+     "through": [
+      "const LOAD_CASE_TEST_HELD_SUPPORT_DUPLICATE (core/product_physics/src/hydrostatic.rs:42)"
+     ]
+    }
+   ],
+   "messages": [
+    "held supports {} all act on {} at node `{node}`; as rigid restraints on one degree of freedom the split of the reaction between them is not determined, so the replacement cannot be formed"
+   ],
+   "classification": "input_error",
+   "reason": "Two supports held by a hydrostatic test case act on one degree of freedom of one node; the split of the reaction between two rigid replacements is not determined (DEL-04-07/REQ-011).",
+   "unsure": false,
+   "candidates": null,
+   "named_by": null,
+   "named_by_coverage": null,
+   "named_by_statement": null
+  },
+  {
+   "code": "LOAD_CASE_TEST_HELD_SUPPORT_MOTION",
+   "crates": [
+    "core/product_physics"
+   ],
+   "severity": "blocking",
+   "first_site": {
+    "file": "core/product_physics/src/hydrostatic.rs",
+    "line": 241,
+    "via": "case_diag()"
+   },
+   "sites": [
+    {
+     "file": "core/product_physics/src/hydrostatic.rs",
+     "line": 241,
+     "via": "case_diag()",
+     "severity": "blocking",
+     "through": [
+      "const LOAD_CASE_TEST_HELD_SUPPORT_MOTION (core/product_physics/src/hydrostatic.rs:48)"
+     ]
+    },
+    {
+     "file": "core/product_physics/src/hydrostatic.rs",
+     "line": 252,
+     "via": "case_diag()",
+     "severity": "blocking",
+     "through": [
+      "const LOAD_CASE_TEST_HELD_SUPPORT_MOTION (core/product_physics/src/hydrostatic.rs:48)"
+     ]
+    }
+   ],
+   "messages": [
+    "hydrostatic test case `{id}` prescribes movement `{}` on {dof} of held support `{support}`; a held support is a rigid restraint at zero displacement from the authored geometry, so the movement contradicts it and nothing is solved",
+    "hydrostatic test case `{id}` states boundary or base motion for held support `{}`; a held support is a rigid restraint at zero displacement from the authored geometry, so the motion contradicts it and nothing is solved"
+   ],
+   "classification": "input_error",
+   "reason": "A hydrostatic test case prescribes movement (an imposed displacement, or a load-state boundary or base motion) at a support it holds, which contradicts the rigid replacement at zero displacement from the authored geometry.",
+   "unsure": false,
+   "candidates": null,
+   "named_by": null,
+   "named_by_coverage": null,
+   "named_by_statement": null
+  },
+  {
+   "code": "LOAD_CASE_TEST_HELD_SUPPORT_RESTRAINED",
+   "crates": [
+    "core/product_physics"
+   ],
+   "severity": "blocking",
+   "first_site": {
+    "file": "core/product_physics/src/hydrostatic.rs",
+    "line": 164,
+    "via": "case_diag()"
+   },
+   "sites": [
+    {
+     "file": "core/product_physics/src/hydrostatic.rs",
+     "line": 164,
+     "via": "case_diag()",
+     "severity": "blocking",
+     "through": [
+      "const LOAD_CASE_TEST_HELD_SUPPORT_RESTRAINED (core/product_physics/src/hydrostatic.rs:44)"
+     ]
+    }
+   ],
+   "messages": [
+    "held support `{}` acts on {} at node `{}`, which support `{}` already restrains; the replacement would duplicate that restraint and its reaction under `{}` is not determined, so it cannot be formed"
+   ],
+   "classification": "input_error",
+   "reason": "A support held by a hydrostatic test case acts on a degree of freedom another support already restrains; the replacement's reaction under its own identity is not determined (DEL-04-07/REQ-011).",
+   "unsure": false,
+   "candidates": null,
+   "named_by": null,
+   "named_by_coverage": null,
+   "named_by_statement": null
+  },
+  {
+   "code": "LOAD_CASE_TEST_HELD_SUPPORT_UNFORMED",
+   "crates": [
+    "core/product_physics"
+   ],
+   "severity": "blocking",
+   "first_site": {
+    "file": "core/product_physics/src/hydrostatic.rs",
+    "line": 133,
+    "via": "case_diag()"
+   },
+   "sites": [
+    {
+     "file": "core/product_physics/src/hydrostatic.rs",
+     "line": 133,
+     "via": "case_diag()",
+     "severity": "blocking",
+     "through": [
+      "const LOAD_CASE_TEST_HELD_SUPPORT_UNFORMED (core/product_physics/src/hydrostatic.rs:46)"
+     ]
+    },
+    {
+     "file": "core/product_physics/src/hydrostatic.rs",
+     "line": 140,
+     "via": "case_diag()",
+     "severity": "blocking",
+     "through": [
+      "const LOAD_CASE_TEST_HELD_SUPPORT_UNFORMED (core/product_physics/src/hydrostatic.rs:46)"
+     ]
+    }
+   ],
+   "messages": [
+    "held support `{}` names node `{}`, which the model does not have, so its position from the authored geometry is not determined",
+    "held support `{}` cannot be replaced by a rigid restraint: {reason}"
+   ],
+   "classification": "input_error",
+   "reason": "A support held by a hydrostatic test case has no determinable acted degree of freedom or position (no stiffness DOF or restraint, not exactly one translational restraint for a constant-effort support, an unknown node, or a skewed line of action) (DEL-04-07/REQ-011).",
+   "unsure": false,
+   "candidates": null,
+   "named_by": null,
+   "named_by_coverage": null,
+   "named_by_statement": null
   },
   {
    "code": "LOAD_CATEGORY_PREVIEW_MAPPED",
@@ -13870,17 +14184,17 @@
    "severity": "not_stated",
    "first_site": {
     "file": "core/product_physics/src/operating_conditions.rs",
-    "line": 291,
+    "line": 296,
     "via": "new()"
    },
    "sites": [
     {
      "file": "core/product_physics/src/operating_conditions.rs",
-     "line": 291,
+     "line": 296,
      "via": "new()",
      "severity": null,
      "through": [
-      "const OPERATING_CONDITION_KEY_DUPLICATE (core/product_physics/src/operating_conditions.rs:30)"
+      "const OPERATING_CONDITION_KEY_DUPLICATE (core/product_physics/src/operating_conditions.rs:31)"
      ]
     }
    ],
@@ -13902,11 +14216,20 @@
    ],
    "severity": "blocking",
    "first_site": {
-    "file": "core/product_physics/src/operating_conditions/resolution.rs",
-    "line": 268,
+    "file": "core/product_physics/src/hydrostatic.rs",
+    "line": 309,
     "via": "case_diag()"
    },
    "sites": [
+    {
+     "file": "core/product_physics/src/hydrostatic.rs",
+     "line": 309,
+     "via": "case_diag()",
+     "severity": "blocking",
+     "through": [
+      "const OPERATING_CONDITION_KEY_MISSING (core/product_physics/src/operating_conditions/resolution.rs:28)"
+     ]
+    },
     {
      "file": "core/product_physics/src/operating_conditions/resolution.rs",
      "line": 268,
@@ -13918,6 +14241,7 @@
     }
    ],
    "messages": [
+    "hydrostatic test case `{id}` uses condition `{key}` for contents_density and condition set `{set_id}` of pipe `{pipe_id}` has no condition `{key}`; nothing is solved",
     "load case `{id}` uses condition `{key}` for temperature and condition set `{set_id}` of pipe `{pipe_id}` has no condition `{key}`; nothing is solved"
    ],
    "classification": "input_error",
@@ -13936,17 +14260,17 @@
    "severity": "not_stated",
    "first_site": {
     "file": "core/product_physics/src/operating_conditions.rs",
-    "line": 284,
+    "line": 289,
     "via": "new()"
    },
    "sites": [
     {
      "file": "core/product_physics/src/operating_conditions.rs",
-     "line": 284,
+     "line": 289,
      "via": "new()",
      "severity": null,
      "through": [
-      "const OPERATING_CONDITION_PROVENANCE_MISSING (core/product_physics/src/operating_conditions.rs:37)"
+      "const OPERATING_CONDITION_PROVENANCE_MISSING (core/product_physics/src/operating_conditions.rs:38)"
      ]
     }
    ],
@@ -13969,17 +14293,17 @@
    "severity": "blocking",
    "first_site": {
     "file": "core/product_physics/src/operating_conditions.rs",
-    "line": 227,
+    "line": 232,
     "via": "new()"
    },
    "sites": [
     {
      "file": "core/product_physics/src/operating_conditions.rs",
-     "line": 227,
+     "line": 232,
      "via": "new()",
      "severity": null,
      "through": [
-      "const OPERATING_CONDITION_QUANTITY_INVALID (core/product_physics/src/operating_conditions.rs:33)"
+      "const OPERATING_CONDITION_QUANTITY_INVALID (core/product_physics/src/operating_conditions.rs:34)"
      ]
     },
     {
@@ -13988,7 +14312,7 @@
      "via": "code-message pair",
      "severity": null,
      "through": [
-      "const OPERATING_CONDITION_QUANTITY_INVALID (core/product_physics/src/operating_conditions.rs:33)"
+      "const OPERATING_CONDITION_QUANTITY_INVALID (core/product_physics/src/operating_conditions.rs:34)"
      ]
     },
     {
@@ -13997,7 +14321,7 @@
      "via": "case_diag()",
      "severity": "blocking",
      "through": [
-      "const OPERATING_CONDITION_QUANTITY_INVALID (core/product_physics/src/operating_conditions.rs:33)"
+      "const OPERATING_CONDITION_QUANTITY_INVALID (core/product_physics/src/operating_conditions.rs:34)"
      ]
     }
    ],
@@ -14021,11 +14345,20 @@
    ],
    "severity": "blocking",
    "first_site": {
-    "file": "core/product_physics/src/operating_conditions/resolution.rs",
-    "line": 248,
+    "file": "core/product_physics/src/hydrostatic.rs",
+    "line": 302,
     "via": "case_diag()"
    },
    "sites": [
+    {
+     "file": "core/product_physics/src/hydrostatic.rs",
+     "line": 302,
+     "via": "case_diag()",
+     "severity": "blocking",
+     "through": [
+      "const OPERATING_CONDITION_SET_MISSING (core/product_physics/src/operating_conditions/resolution.rs:26)"
+     ]
+    },
     {
      "file": "core/product_physics/src/operating_conditions/resolution.rs",
      "line": 248,
@@ -14037,6 +14370,7 @@
     }
    ],
    "messages": [
+    "hydrostatic test case `{id}` uses contents_density from conditions and pipe `{pipe_id}` carries no condition set; no value is assumed, so nothing is solved",
     "load case `{id}` uses {quantity} from conditions and pipe `{pipe_id}` carries no condition set; no pipe is skipped and no value is assumed, so nothing is solved"
    ],
    "classification": "input_error",
@@ -14055,17 +14389,17 @@
    "severity": "blocking",
    "first_site": {
     "file": "core/product_physics/src/operating_conditions.rs",
-    "line": 323,
+    "line": 328,
     "via": "new()"
    },
    "sites": [
     {
      "file": "core/product_physics/src/operating_conditions.rs",
-     "line": 323,
+     "line": 328,
      "via": "new()",
      "severity": null,
      "through": [
-      "const OPERATING_CONDITION_SET_UNRESOLVED (core/product_physics/src/operating_conditions.rs:39)"
+      "const OPERATING_CONDITION_SET_UNRESOLVED (core/product_physics/src/operating_conditions.rs:40)"
      ]
     },
     {
@@ -14074,7 +14408,7 @@
      "via": "case_diag()",
      "severity": "blocking",
      "through": [
-      "const OPERATING_CONDITION_SET_UNRESOLVED (core/product_physics/src/operating_conditions.rs:39)"
+      "const OPERATING_CONDITION_SET_UNRESOLVED (core/product_physics/src/operating_conditions.rs:40)"
      ]
     }
    ],
@@ -14098,17 +14432,17 @@
    "severity": "blocking",
    "first_site": {
     "file": "core/product_physics/src/operating_conditions.rs",
-    "line": 240,
+    "line": 245,
     "via": "new()"
    },
    "sites": [
     {
      "file": "core/product_physics/src/operating_conditions.rs",
-     "line": 240,
+     "line": 245,
      "via": "new()",
      "severity": null,
      "through": [
-      "const OPERATING_CONDITION_TEMPERATURE_RANGE_UNSUPPORTED (core/product_physics/src/operating_conditions.rs:35)"
+      "const OPERATING_CONDITION_TEMPERATURE_RANGE_UNSUPPORTED (core/product_physics/src/operating_conditions.rs:36)"
      ]
     },
     {
@@ -14117,7 +14451,7 @@
      "via": "code-message pair",
      "severity": null,
      "through": [
-      "const OPERATING_CONDITION_TEMPERATURE_RANGE_UNSUPPORTED (core/product_physics/src/operating_conditions.rs:35)"
+      "const OPERATING_CONDITION_TEMPERATURE_RANGE_UNSUPPORTED (core/product_physics/src/operating_conditions.rs:36)"
      ]
     },
     {
@@ -14126,7 +14460,7 @@
      "via": "case_diag()",
      "severity": "blocking",
      "through": [
-      "const OPERATING_CONDITION_TEMPERATURE_RANGE_UNSUPPORTED (core/product_physics/src/operating_conditions.rs:35)"
+      "const OPERATING_CONDITION_TEMPERATURE_RANGE_UNSUPPORTED (core/product_physics/src/operating_conditions.rs:36)"
      ]
     }
    ],
@@ -14150,11 +14484,20 @@
    ],
    "severity": "blocking",
    "first_site": {
-    "file": "core/product_physics/src/operating_conditions/resolution.rs",
-    "line": 272,
+    "file": "core/product_physics/src/hydrostatic.rs",
+    "line": 315,
     "via": "case_diag()"
    },
    "sites": [
+    {
+     "file": "core/product_physics/src/hydrostatic.rs",
+     "line": 315,
+     "via": "case_diag()",
+     "severity": "blocking",
+     "through": [
+      "const OPERATING_CONDITION_VALUE_MISSING (core/product_physics/src/operating_conditions/resolution.rs:30)"
+     ]
+    },
     {
      "file": "core/product_physics/src/operating_conditions/resolution.rs",
      "line": 272,
@@ -14166,6 +14509,7 @@
     }
    ],
    "messages": [
+    "hydrostatic test case `{id}` uses condition `{key}` for contents_density and condition `{key}` of set `{set_id}` (pipe `{pipe_id}`) states no contents_density; none is assumed, so nothing is solved",
     "load case `{id}` uses condition `{key}` for temperature and condition `{key}` of set `{set_id}` (pipe `{pipe_id}`) states no temperature; no temperature is assumed, so nothing is solved"
    ],
    "classification": "input_error",
@@ -15515,7 +15859,7 @@
     },
     {
      "file": "core/product_physics/src/operating_conditions.rs",
-     "line": 487,
+     "line": 504,
      "via": "diag()",
      "severity": "blocking"
     },
@@ -15593,7 +15937,7 @@
     },
     {
      "file": "core/product_physics/src/operating_conditions.rs",
-     "line": 494,
+     "line": 511,
      "via": "diag()",
      "severity": "blocking"
     },
@@ -16933,17 +17277,17 @@
    "severity": "warning",
    "first_site": {
     "file": "core/product_physics/src/self_weight.rs",
-    "line": 613,
+    "line": 661,
     "via": "field code"
    },
    "sites": [
     {
      "file": "core/product_physics/src/self_weight.rs",
-     "line": 613,
+     "line": 661,
      "via": "field code",
      "severity": "warning",
      "through": [
-      "const COMPONENT_WEIGHT_NOT_APPLIED (core/product_physics/src/self_weight.rs:473)"
+      "const COMPONENT_WEIGHT_NOT_APPLIED (core/product_physics/src/self_weight.rs:521)"
      ]
     }
    ],
@@ -16966,13 +17310,13 @@
    "severity": "varies",
    "first_site": {
     "file": "core/product_physics/src/self_weight.rs",
-    "line": 1470,
+    "line": 1518,
     "via": "field code"
    },
    "sites": [
     {
      "file": "core/product_physics/src/self_weight.rs",
-     "line": 1470,
+     "line": 1518,
      "via": "field code",
      "severity": "varies"
     }
@@ -16996,13 +17340,13 @@
    "severity": "varies",
    "first_site": {
     "file": "core/product_physics/src/self_weight.rs",
-    "line": 1470,
+    "line": 1518,
     "via": "field code"
    },
    "sites": [
     {
      "file": "core/product_physics/src/self_weight.rs",
-     "line": 1470,
+     "line": 1518,
      "via": "field code",
      "severity": "varies"
     }
@@ -17056,13 +17400,13 @@
    "severity": "varies",
    "first_site": {
     "file": "core/product_physics/src/self_weight.rs",
-    "line": 1470,
+    "line": 1518,
     "via": "field code"
    },
    "sites": [
     {
      "file": "core/product_physics/src/self_weight.rs",
-     "line": 1470,
+     "line": 1518,
      "via": "field code",
      "severity": "varies"
     }
@@ -17086,13 +17430,13 @@
    "severity": "varies",
    "first_site": {
     "file": "core/product_physics/src/self_weight.rs",
-    "line": 1470,
+    "line": 1518,
     "via": "field code"
    },
    "sites": [
     {
      "file": "core/product_physics/src/self_weight.rs",
-     "line": 1470,
+     "line": 1518,
      "via": "field code",
      "severity": "varies"
     }
@@ -17128,31 +17472,37 @@
     },
     {
      "file": "core/product_physics/src/self_weight.rs",
-     "line": 391,
+     "line": 342,
      "via": "assignment .code",
      "severity": null
     },
     {
      "file": "core/product_physics/src/self_weight.rs",
-     "line": 597,
+     "line": 504,
      "via": "assignment .code",
      "severity": null
     },
     {
      "file": "core/product_physics/src/self_weight.rs",
-     "line": 625,
+     "line": 645,
      "via": "assignment .code",
      "severity": null
     },
     {
      "file": "core/product_physics/src/self_weight.rs",
-     "line": 640,
+     "line": 673,
      "via": "assignment .code",
      "severity": null
     },
     {
      "file": "core/product_physics/src/self_weight.rs",
-     "line": 737,
+     "line": 688,
+     "via": "assignment .code",
+     "severity": null
+    },
+    {
+     "file": "core/product_physics/src/self_weight.rs",
+     "line": 785,
      "via": "assignment .code",
      "severity": null
     }
@@ -20967,7 +21317,7 @@
   },
   {
    "file": "core/model_operations/operation_applier/src/condition_set_authoring.rs",
-   "line": 274,
+   "line": 313,
    "at": "is_staged_code()",
    "why": "call unwrap_or() returns no resolvable code",
    "expression": "&code",
@@ -20975,7 +21325,7 @@
   },
   {
    "file": "core/model_operations/operation_applier/src/condition_set_authoring.rs",
-   "line": 285,
+   "line": 324,
    "at": "field code",
    "why": "call unwrap_or() returns no resolvable code",
    "expression": "code",
@@ -20983,7 +21333,7 @@
   },
   {
    "file": "core/model_operations/operation_applier/src/condition_set_authoring.rs",
-   "line": 517,
+   "line": 566,
    "at": "is_route_or_admission()",
    "why": "the code field of finding, whose record type the scanner cannot prove is built only at code positions it reads",
    "expression": "&finding.code",
@@ -20991,7 +21341,7 @@
   },
   {
    "file": "core/model_operations/operation_applier/src/condition_set_authoring.rs",
-   "line": 549,
+   "line": 598,
    "at": "push()",
    "why": "the code field of finding, whose record type the scanner cannot prove is built only at code positions it reads",
    "expression": "&finding.code",
@@ -21111,7 +21461,7 @@
   },
   {
    "file": "core/model_operations/operation_applier/src/lib.rs",
-   "line": 5733,
+   "line": 5735,
    "at": "refuse_interim_member()",
    "why": "the code field of refusal, whose record type the scanner cannot prove is built only at code positions it reads",
    "expression": "refusal.code",
@@ -21119,7 +21469,15 @@
   },
   {
    "file": "core/model_operations/operation_applier/src/lib.rs",
-   "line": 6377,
+   "line": 5744,
+   "at": "refuse_interim_member()",
+   "why": "the code field of refusal, whose record type the scanner cannot prove is built only at code positions it reads",
+   "expression": "refusal.code",
+   "line_text": "refuse_interim_member(checker, target_ref, refusal.code, refusal.message);"
+  },
+  {
+   "file": "core/model_operations/operation_applier/src/lib.rs",
+   "line": 6388,
    "at": "refuse_interim_member()",
    "why": "a tuple source the scanner cannot follow",
    "expression": "code",
@@ -21378,7 +21736,7 @@
   {
    "literal": "LOAD_CASE_CONDITION_USE_UNSUPPORTED",
    "sites": [
-    "core/product_physics/src/operating_conditions.rs:44"
+    "core/product_physics/src/operating_conditions.rs:45"
    ]
   },
   {

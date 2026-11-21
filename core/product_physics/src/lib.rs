@@ -148,7 +148,7 @@ use std::f64::consts::PI;
 
 mod topology;
 mod validation;
-mod imposed_motion; mod held_status; mod skew; // RT-A5 `minuend_final` (DEL-05-02 `operating-case.md` §7) and R-6/R-7 S-K1 (DEL-04-03 `skew-restraints.md`), on this line so that no line moves.
+mod imposed_motion; mod held_status; mod skew; pub mod hydrostatic; // RT-A5 `minuend_final` (DEL-05-02 `operating-case.md` §7) and R-6/R-7 S-K1 (DEL-04-03 `skew-restraints.md`), on this line so that no line moves.
 use validation::validate_model_inputs;
 mod rigid_component;
 #[cfg(test)]
@@ -263,7 +263,7 @@ pub struct PreviewModel {
     /// The lowering removes them once their rules are judged.
     pub condition_sets: Vec<operating_conditions::ConditionSetInput>,
     /// Model document 0.9.0's `spectra` (`spectra`), read by no solve; the lowering removes them.
-    pub spectra: Vec<spectra::SpectrumInput>,
+    pub spectra: Vec<spectra::SpectrumInput>, #[doc(hidden)] pub(crate) test_contents: Vec<hydrostatic::ContentsResolution>, // DEL-05-01 REQ-014: the lowering's contents resolution, applied after the self-weight check.
 }
 
 /// One material record as authored: the unchanged `MaterialInput` fields
@@ -401,7 +401,7 @@ impl<'de> Deserialize<'de> for PreviewModel {
             model_settings: wire.model_settings,
             material_expansion_laws,
             request_material_expansion_laws: Vec::new(),
-            condition_sets: wire.condition_sets.unwrap_or_default(),
+            condition_sets: wire.condition_sets.unwrap_or_default(), test_contents: Vec::new(),
             spectra: wire.spectra.unwrap_or_default(),
         })
     }
