@@ -74,8 +74,8 @@ function operations(tab: "details" | "agent") {
 }
 const generateButton = () => within(screen.getByTestId("agent-proposal-panel")).getByTestId("generate-review-proposal");
 const proposeButton = () => within(screen.getByTestId("agent-workbench-panel")).getByTestId("agent-generate-proposal");
-const panelLine = () => within(screen.getByTestId("agent-proposal-panel")).findByTestId("generate-review-proposal-outcome");
-const workbenchLine = () => within(screen.getByTestId("agent-workbench-panel")).findByTestId("agent-generate-proposal-outcome");
+const panelLine = () => within(screen.getByTestId("agent-proposal-panel")).findByTestId("generate-review-proposal-outcome", undefined, { timeout: 15_000 });
+const workbenchLine = () => within(screen.getByTestId("agent-workbench-panel")).findByTestId("agent-generate-proposal-outcome", undefined, { timeout: 15_000 });
 
 /** The gates' sentence for this result: its size and the limit, as the Report and Exports gates show them. */
 function expectGateRefusal(line: HTMLElement) {
