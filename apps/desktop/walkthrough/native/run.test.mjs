@@ -1151,5 +1151,5 @@ test("a refusal for a mark names the mark found, as the record does, and says th
   assert.match(line, /^NATIVE-SMOKE-MARK-PRESENT: a SkyComputerUseService process; a "codex app-server --listen stdio:\/\/" process: /);
   assert.match(line, /not launched, and nothing in --out was changed\. Start the attended launch before the attendant's screen tool is started, and start that tool only after the handover is printed$/);
   assert.match(markRefusalLine({ ...none, check_failures: ["lsappinfo list: exit 1"] }), /a check that could not be made \(lsappinfo list: exit 1\)/);
-  assert.doesNotMatch(markRefusalLine({ ...none, app_v4_candidate_bundle: true }, { changed: true }), /nothing in --out was changed/);
+  assert.match(markRefusalLine({ ...none, app_v4_candidate_bundle: true }), /^NATIVE-SMOKE-MARK-PRESENT: a running App v4 candidate bundle: /);
 });

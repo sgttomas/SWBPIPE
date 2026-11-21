@@ -245,8 +245,9 @@ and the screen-driving tool an attendant uses starts one of them. So the
 attended launch is started first, by a party whose tools have not started that
 service, and the attendant's screen tool is started only after the handover is
 printed. The marks are checked once before anything in `--out` is touched, a
-refusal that changes nothing, and again directly before the start; the refusal
-line names each mark found.
+refusal that changes nothing whose line names each mark found, and again
+directly before the start, as for every launch, where the run's line `marks,
+directly before the launch` names them as the record does.
 
 **The handover.** Only once the driver reports the start made, with this
 launch's nonce, does the command print lines of the form
