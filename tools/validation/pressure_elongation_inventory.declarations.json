@@ -1138,6 +1138,14 @@
   },
   {
    "paths": [
+    "core/product_physics/tests/combined_connector_export.rs"
+   ],
+   "expectations": "no_response_value",
+   "cases_named": "all",
+   "detail": "the T4-U5a J3-3 free pressurized chain (untied constant-area joint) in two pressurised cases, both named, in five combinations; asserts reader admission and the export's disposition and metadata of every combined connector row, no response value"
+  },
+  {
+   "paths": [
     "core/product_physics/tests/common/frozen_rows.rs"
    ],
    "reference": "validation/references/t4_u6, validation/references/t4_i8, validation/references/t4_u8",
@@ -1845,7 +1853,9 @@
     "fixtures/product_preview/pressure_source/o4/o4_source_controls.json",
     "fixtures/product_preview/pressure_source/physics_source/fields.request.json",
     "fixtures/product_preview/pressure_source/physics_source/n0*.request.json",
+    "fixtures/reports/invented/exact_report_package_requests/pressure_2_connector_combinations.json",
     "fixtures/reports/invented/exact_report_package_requests/pressure_source_1.json",
+    "fixtures/reports/invented/exact_report_witness_inputs/pressure_2_connector_combinations.request.json",
     "fixtures/reports/invented/user_release_exact/pressure_source_1.json",
     "fixtures/results/j7_rf_census_inputs.json",
     "fixtures/results/modal_*.request.json",
