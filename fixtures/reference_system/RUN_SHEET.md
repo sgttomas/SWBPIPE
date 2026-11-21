@@ -79,7 +79,7 @@ renumbering the others. Fields not mentioned are left as the form shows them.
 | [regions](#step-regions) | Loads › Load Cases, Pressure regions | weight |
 | [elongation](#step-elongation) | Model › Model, inspector, Model settings | weight |
 | [states](#step-states) | Loads › Load Cases, Analysis state | reference, weight |
-| [combinations](#step-combinations) | Loads › Load Cases, Create combination | weight |
+| [combinations](#step-combinations) | Loads › Load Cases, New combination | weight |
 | [solve](#step-solve) | Analyze page; Results › Results | every step above |
 
 The bends are realized in step rows, before any support, load, region or reference names a
@@ -406,7 +406,7 @@ RS-P150, chosen with the others, takes no line load.
 
 ### Step regions
 
-*Loads* stage, *Load Cases* tab: select RS-SUS in **Load cases** and open its **Pressure** section; panel **Pressure regions — RS-SUS …**. For
+*Loads* stage, *Load Cases* tab: select RS-SUS in **Cases** and open its **Pressure** section; panel **Pressure regions — RS-SUS …**. For
 each region: **Add pressure region**; Region ID; member pipes (and, for RG-4, member
 connectors); pressure basis internal_differential_zero_external_v1; pressure 1600 kPa; two
 ordered terminals, each with node, closure transfer transfers_to_wall and **Terminal
