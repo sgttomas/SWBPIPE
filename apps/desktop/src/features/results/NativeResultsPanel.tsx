@@ -85,7 +85,7 @@ import { isRetainedRoute } from "./numericalResultQuality";
 import { retainedPrecisionStandingParts } from "./retainedPrecisionStanding";
 import { ResultsStageHeader } from "./ResultsStageHeader";
 import { ResultsStageTabs, withLeadIn, withRowsTab } from "./ResultsStageTabs";
-import { caseNameOf, entityNameOf, nextRowsSort, ResultRowsTable, sortRows, type RowsSort } from "./ResultRowsTable";
+import { caseNameOf, entityNameOf, nextRowsSort, NO_RECOVERED_CASES, ResultRowsTable, sortRows, type RowsSort } from "./ResultRowsTable";
 import { recordedTableLabel, type RecordedBinding } from "../../services/recordedPreRtA4";
 
 type Row = MechanicsResult["results"][number];
@@ -253,6 +253,8 @@ export function NativeResultsPanel({
   const groups = groupResults(sortDisabledReason ? items : sortRows(items, rowsSort, (row, column) => rowSortKey(row, column, entityName, caseName)), labels);
   // RT-A4 §10.4: a run recorded before RT-A4 is classified under its recorded table.
   const route = displayRoute(result, recordedTableRead);
+  // The load cases whose values come from the producer's recovery: the Case column names them.
+  const recoveredCases = useMemo(() => (route === "pressure_source" ? recoveredCaseIds({ contract_evidence: custody.summary.header.envelope?.contract_evidence }) : NO_RECOVERED_CASES), [route, custody]);
   // DEL-07-05: the historical panel passes no health; a reopened run then shows its own (review F2).
   const ownHealth = useMemo(() => (numericalHealth === undefined ? standaloneNativeHealth(custody) : null), [numericalHealth, custody]);
   const health = routeHealth(route, numericalHealth === undefined ? ownHealth : numericalHealth);
@@ -621,6 +623,7 @@ export function NativeResultsPanel({
                 <h3>{group.title}</h3>
                 <CsvExportControl tableLabel={`${group.title} results`} testId={`result-group-${group.title.toLowerCase()}-export-csv`} stream={() => exportGroup(group.title)} />
                 <ResultRowsTable
+                  recoveredCases={recoveredCases}
                   csvKind={resultGroupCsvKind(group.title)}
                   items={group.items}
                   selectedResultId={selectedResultId}

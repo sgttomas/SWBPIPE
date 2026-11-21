@@ -12,7 +12,7 @@ import { hangerPreloadStanding } from "./hangerPreload";
 import { retainedPrecisionStandingParts } from "./retainedPrecisionStanding";
 import { ResultsStageTabs, withLeadIn, withRowsTab } from "./ResultsStageTabs";
 import { EngineeringQuantity } from "./EngineeringQuantity";
-import { caseNameOf, entityNameOf, nextRowsSort, ResultRowsTable, sortRows, type RowsSort, type RowsSortColumn } from "./ResultRowsTable";
+import { caseNameOf, entityNameOf, nextRowsSort, NO_RECOVERED_CASES, ResultRowsTable, sortRows, type RowsSort, type RowsSortColumn } from "./ResultRowsTable";
 import { RESULTS_RUN_LABELS, ResultsStageHeader, type HeaderCase, type ResultsRunIdentity } from "./ResultsStageHeader";
 import type { ReactNode } from "react";
 import { QuantityReadout, useDisplayQuantityResolver, type DisplaySourceQuantity } from "../display-units";
@@ -140,7 +140,8 @@ function fullStandingParts(result: MechanicsResult, route: string, recordedTable
 export function rowSortKey(row: MechanicsResult["results"][number], column: RowsSortColumn, entityName: (ref: string) => string, caseName: (basis: MechanicsResult["results"][number]["basis_ref"]) => string): string | number {
   if (column === "value") return typeof row.value === "number" ? Math.abs(row.value) : Number.NEGATIVE_INFINITY;
   if (column === "entity") return entityName(row.entity_ref);
-  if (column === "case") return caseName(row.basis_ref);
+  // The Case column shows the id as the result states it, so it sorts by that id.
+  if (column === "case") return row.basis_ref ? row.basis_ref.ref_id : caseName(row.basis_ref);
   if (column === "component") return row.metadata?.component ?? row.kind;
   if (column === "location") return row.metadata?.location ?? "summary";
   return frameLabel(resultFrame(row));
@@ -323,6 +324,8 @@ function FullResultsPanel({
     : null;
   const ownHealth = useMemo(() => (numericalHealth === undefined && result ? standaloneNumericalHealth(result, recordedTableRead, supportModel) : null), [numericalHealth, result, recordedTableRead, supportModel]);
   const route = result ? contractOf(result) : "unsupported";
+  // The load cases whose values come from the producer's recovery: the Case column names them.
+  const recoveredCases = useMemo(() => (result && route === "pressure_source" ? recoveredCaseIds(result) : NO_RECOVERED_CASES), [result, route]);
   const health = routeHealth(route, numericalHealth === undefined ? ownHealth : numericalHealth);
   // RT-R6: what a CSV export of these tables states.
   const csvProvenance = async (): Promise<CsvProvenance> => ({
@@ -587,6 +590,7 @@ function FullResultsPanel({
                   <h3>{group.title}</h3>
                   <CsvExportControl tableLabel={`${group.title} results`} testId={`result-group-${group.title.toLowerCase()}-export-csv`} build={() => exportGroup(group.title)} />
                   <ResultRowsTable
+                    recoveredCases={recoveredCases}
                     csvKind={resultGroupCsvKind(group.title)}
                     items={group.items}
                     selectedResultId={selectedResultId}

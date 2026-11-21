@@ -1,7 +1,7 @@
 /** One group of the results table ("All rows", DEL-07-05 REQ-010): each row on one line with its
  * entity's readable name, its load case or combination, its component, its value in the display
  * unit at the report's display precision, its location, its frame and its stored value. The row's
- * raw id stays in the row's detail; the case reads by its reference, its name as the hover text. Columns sort on a click of their header (the state is shown in
+ * raw id stays in the row's detail; the case reads by its id as the result states it, the model's name as its hover text. Columns sort on a click of their header (the state is shown in
  * the header and is operable by keyboard); sorting orders rows and forms no value. */
 import type { ReactNode } from "react";
 import { ArrowDown, ArrowUp, ArrowUpDown } from "lucide-react";
@@ -34,10 +34,17 @@ export function entityNameOf(model: PreviewModel | null | undefined): (ref: stri
   };
 }
 
-/** A row's load case or combination by its name in the model, else as the navigator states it. */
+/** No recovered case: every route but the pressure-source route. */
+export const NO_RECOVERED_CASES: ReadonlySet<string> = new Set();
+/** What the Case column says of a row with no load case or combination stated. */
+export const CASE_NOT_STATED = "Not stated";
+/** The words beside the id of a load case whose published values come from the producer's recovery. */
+export const PRODUCER_RECOVERY_WORDS = "producer's recovery";
+
+/** A row's load case or combination by its name in the model, else its id as the result states it. */
 export function caseNameOf(model: PreviewModel | null | undefined): (basis: ResultBasisRef | null | undefined) => string {
   return (basis) => {
-    if (!basis) return "No case stated";
+    if (!basis) return CASE_NOT_STATED;
     const kind = basis.ref_type === "load_case" ? "load" : basis.ref_type === "combination" ? "combination" : null;
     const name = model && kind ? entityLabel(model, { type: kind, id: basis.ref_id } as never) : basis.ref_id;
     return name === basis.ref_id ? basis.ref_id : name;
@@ -78,8 +85,21 @@ export function SortHeader({ column, sort, onSort, disabledReason, className }: 
   );
 }
 
+/** The Case cell: the id as the result states it (the model's name for it, where the model has one,
+ * is the hover text, so the value columns keep their width), and the words "producer's recovery"
+ * beside a recovered load case's id. */
+function CaseCell({ basis, name, recovered, id }: { basis: ResultBasisRef | null | undefined; name: string; recovered: boolean; id: string }) {
+  if (!basis) return <td data-testid={`result-row-case-${id}`}>{CASE_NOT_STATED}</td>;
+  return (
+    <td data-testid={`result-row-case-${id}`} title={name !== basis.ref_id ? name : undefined}>
+      {basis.ref_id}
+      {recovered ? <span className="results-case-recovery" data-testid={`result-row-case-recovery-${id}`}> {PRODUCER_RECOVERY_WORDS}</span> : null}
+    </td>
+  );
+}
+
 export function ResultRowsTable({
-  csvKind, items, selectedResultId, onSelectResult, entityName, caseName, dimension, frameText, notes, sort, onSort, sortDisabledReason
+  csvKind, items, selectedResultId, onSelectResult, entityName, caseName, recoveredCases, dimension, frameText, notes, sort, onSort, sortDisabledReason
 }: {
   csvKind: string;
   items: readonly Row[];
@@ -87,6 +107,9 @@ export function ResultRowsTable({
   onSelectResult: (id: string) => void;
   entityName: (ref: string) => string;
   caseName: (basis: ResultBasisRef | null | undefined) => string;
+  /** The load cases whose published values come from the producer's recovery (`recoveredCaseIds`);
+   * empty on every other route. */
+  recoveredCases: ReadonlySet<string>;
   dimension: (row: Row) => string;
   frameText: (row: Row) => string;
   /** What else the row carries (its category, row label, numerical health, withheld reason). */
@@ -129,7 +152,7 @@ export function ResultRowsTable({
               tabIndex={0}
             >
               <th scope="row" className="results-sticky-column" title={item.entity_ref}>{entityName(item.entity_ref)}</th>
-              <td title={caseName(item.basis_ref)}>{item.basis_ref?.ref_id ?? caseName(item.basis_ref)}</td>
+              <CaseCell basis={item.basis_ref} name={caseName(item.basis_ref)} recovered={item.basis_ref?.ref_type === "load_case" && recoveredCases.has(item.basis_ref.ref_id)} id={item.id} />
               <td>{item.metadata?.component ?? item.kind}</td>
               <td className="result-value-cell"><EngineeringQuantity quantity={{ value: item.value, unit: item.unit, dimension_id: dimension(item) }} /></td>
               <td>{item.metadata?.location ?? "summary"}</td>
