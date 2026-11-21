@@ -478,7 +478,8 @@ test("real box gestures obey the visible Nodes and Pipes filters without replaci
   await expect(page.getByTestId("command-selection-readout")).toContainText("Selected pipe:");
   await activateWithKeyboard(page, (await viewportControl(page, page.getByTestId("viewport-box-select"))));
   await expect((await viewportControl(page, page.getByTestId("viewport-box-select")))).toHaveAttribute("aria-pressed", "false");
-  await expect(page.getByTestId("viewport-orbit-hint")).toContainText("Drag to orbit");
+  // The orbit hint is the title of the canvas's view cluster (Fit and the standard views).
+  await expect(page.getByTestId("viewport-view-cube")).toHaveAttribute("title", /Drag to orbit/);
 });
 
 test("Box Select keeps the camera and authored projection invariant for plain, Shift, and Control drags", async ({ page }, testInfo) => {
