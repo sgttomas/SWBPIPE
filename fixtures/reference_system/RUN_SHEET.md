@@ -106,7 +106,7 @@ before any member exists, the panel's corrosion-allowance condition holds.
 
 ### Step material
 
-1. Same panel, **Create explicit E/nu material**: **Exact material ID** `material:RS-M1`;
+1. Same panel, open **Create explicit E/nu material**: **Exact material ID** `material:RS-M1`;
    **Exact material label** `RS-M1 invented carbon-steel-like material`; **Constitutive
    basis** homogeneous_isotropic_E_nu_v1; **Elastic modulus E** 200 GPa; **Poisson ratio
    nu** 0.3, unit 1; **Thermal expansion coefficient** 1.2e-5 1/K; **Constitutive
@@ -575,7 +575,7 @@ or toggle; a unit is an entry where the person sets it. A **press** is one press
 or tab the steps name other than queue, validate and apply, and each key the steps name for
 a purpose other than committing an entry: Add …, Fill …, Replace …, Mark …, Generate …, Enter
 in a Support cell to add a row, F2 to open a grid cell's editor, Start task, Cancel, the inspector's Task and Properties tabs, Blank
-load/reference model, Create, New combination, the openers Analysis settings, Pressure, Reference state and More, and Run
+load/reference model, Create, New combination, the openers Analysis settings, Create explicit E/nu material, Pressure, Reference state and More, and Run
 mechanics preview. A **cycle** is one Apply or one Apply
 entire batch. Moving between stages and pages is not counted.
 
@@ -592,7 +592,7 @@ solve waiting time separately; their sum is compared with the threshold.
 |---|---|---|---|---|---|
 | units | 0 | 2 | 0 | 2 × 5.5 s = 11 s | 0.25 |
 | profile | 2 | 1 | 1 | 3 × 5.5 s = 16.5 s | 0.25 |
-| material | 59 | 5 | 3 | 64 × 5.5 s = 352 s | 5.75 |
+| material | 59 | 6 | 3 | 65 × 5.5 s = 357.5 s | 6 |
 | sections | 19 | 0 | 3 | 19 × 5.5 s = 104.5 s | 1.75 |
 | rows | 224 | 40 | 1 | 224 × 8/98 min = 18.29 min; 40 × 5.5 s = 220 s | 22 |
 | rs050 | 3 | 4 | 1 | 7 × 5.5 s = 38.5 s | 0.75 |
@@ -608,22 +608,23 @@ solve waiting time separately; their sum is compared with the threshold.
 | states | 117 | 23 | 4 | 140 × 5.5 s = 770 s | 12.75 |
 | combinations | 9 | 3 | 2 | 12 × 5.5 s = 66 s | 1 |
 | solve | 0 | 1 | 0 | 1 × 5.5 s = 5.5 s entry; 2 min solve waiting | 0 entry + 2 waiting |
-| **Total** | **715** | **118** | **34** | | **about 74 entry + 2 waiting = about 76** |
+| **Total** | **715** | **119** | **34** | | **about 74 entry + 2 waiting = about 76** |
 
 Two subtotals, both estimates: **entry** about 74 minutes (the grid cells, form entries and
 presses, each step rounded), and **solve waiting** 2 minutes (an allowance, not entry). Their
 sum is about 76 minutes.
 
-Unrounded, by direct arithmetic, the entry is 224 × 8/98 min + (491 form entries + 118
-presses) × 5.5/60 min = 18.286 + 55.825 = 74.11 minutes, and with the 2 minutes of solve
-waiting the sum is 76.11 minutes.
+Unrounded, by direct arithmetic, the entry is 224 × 8/98 min + (491 form entries + 119
+presses) × 5.5/60 min = 18.286 + 55.917 = 74.20 minutes, and with the 2 minutes of solve
+waiting the sum is 76.20 minutes.
 
 How the larger counts arise:
 
-- **material, 59 entries and 5 presses.** The E/nu form's 10 (ID, label, basis, three
+- **material, 59 entries and 6 presses.** The E/nu form's 10 (ID, label, basis, three
   quantities with their units, provenance); the material's selection; four temperature points
   of 10 each (ID, four quantities with their units, provenance); the expansion law's 8. The
-  presses are Add temperature point four times and Add expansion law.
+  presses are Create explicit E/nu material, Add temperature point four times and Add
+  expansion law.
 - **sections, 19.** The project's selection and 6 for each of three sections (Type is
   preset to pipe).
 - **rows, 224 entries and 40 presses.** The header's 14: Source, the two prefixes, the padding, Pipe number from,
@@ -676,4 +677,4 @@ How the larger counts arise:
 
 The estimate of about 76 minutes (74 entry and 2 solve waiting) is about 2.5 times the
 provisional 30. The four largest steps are rows (22), states (12.75), regions (9.25) and
-material (5.75).
+material (6).

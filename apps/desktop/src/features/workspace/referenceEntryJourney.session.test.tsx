@@ -365,15 +365,16 @@ describe("the reference system entered from blank through the desktop's authorin
     await applyQueuedIntent("step profile");
     expect(model().pressure_contract).toEqual(reference.pressure_contract);
 
-    // Step material, item 1: Material RS-M1 (typed UI): Create explicit E/nu material.
-    change(projectForms(), "Exact material ID", "material:RS-M1");
-    change(projectForms(), "Exact material label", "RS-M1 invented carbon-steel-like material");
-    change(projectForms(), "Constitutive basis", "homogeneous_isotropic_E_nu_v1");
-    change(projectForms(), "Elastic modulus E value", "200"); change(projectForms(), "Elastic modulus E unit", "GPa");
-    change(projectForms(), "Poisson ratio nu value", "0.3"); change(projectForms(), "Poisson ratio nu unit", "1");
-    change(projectForms(), "Thermal expansion coefficient value", "1.2e-5"); change(projectForms(), "Thermal expansion coefficient unit", "1/K");
-    change(projectForms(), "Constitutive provenance", P);
-    click(projectForms(), "Queue exact material");
+    // Step material, item 1: Material RS-M1 (typed UI): Create explicit E/nu material, opened.
+    const materialForm = page.openExplicitMaterial();
+    change(materialForm(), "Exact material ID", "material:RS-M1");
+    change(materialForm(), "Exact material label", "RS-M1 invented carbon-steel-like material");
+    change(materialForm(), "Constitutive basis", "homogeneous_isotropic_E_nu_v1");
+    change(materialForm(), "Elastic modulus E value", "200"); change(materialForm(), "Elastic modulus E unit", "GPa");
+    change(materialForm(), "Poisson ratio nu value", "0.3"); change(materialForm(), "Poisson ratio nu unit", "1");
+    change(materialForm(), "Thermal expansion coefficient value", "1.2e-5"); change(materialForm(), "Thermal expansion coefficient unit", "1/K");
+    change(materialForm(), "Constitutive provenance", P);
+    click(materialForm(), "Queue exact material");
     await applyQueuedIntent("step material");
     // Step material, item 2: Temperature points (typed UI, after selecting the material: UI function `handleSelectEntity`, the Model tree's selection).
     select({ type: "material", id: "material:RS-M1" });

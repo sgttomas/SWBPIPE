@@ -38,7 +38,8 @@ type Scope = ReturnType<typeof within>;
  * a person does; the journey fails here, not at a later query, if it stays closed. */
 function disclose(details: HTMLElement): HTMLElement {
   if (!(details as HTMLDetailsElement).open) fireEvent.click(details.querySelector(":scope > summary")!);
-  expect((details as HTMLDetailsElement).open, `${details.dataset.testid} open`).toBe(true);
+  const name = details.dataset.testid ?? details.querySelector(":scope > summary")?.textContent;
+  expect((details as HTMLDetailsElement).open, `${name} open`).toBe(true);
   return details;
 }
 
@@ -62,8 +63,13 @@ export function loadsPage(root: () => HTMLElement, select: (entity: EntityRef) =
     return disclose(within(editor).getByTestId(`load-case-section-${section}`));
   };
   return {
-    /** Steps profile and material: Analysis settings, opened; the pressure-profile and explicit-material forms. */
+    /** Step profile: Analysis settings, opened; the pressure-profile form. */
     openProjectForms: () => (): Scope => within(disclose(page().getByTestId("load-manager-analysis-settings"))),
+    /** Step material, item 1: inside Analysis settings, opened, the closed "Create explicit E/nu material", opened. */
+    openExplicitMaterial: () => (): Scope => {
+      const settings = disclose(page().getByTestId("load-manager-analysis-settings"));
+      return within(disclose(within(settings).getByText("Create explicit E/nu material", { selector: "summary" }).parentElement!));
+    },
     /** Step reference: the project selected; with no case yet, the editor's Reference state, opened. */
     openReferenceConfigurations: (projectId: string) => {
       select({ type: "project", id: projectId });
