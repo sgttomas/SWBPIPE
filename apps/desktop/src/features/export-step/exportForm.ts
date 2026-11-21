@@ -70,39 +70,39 @@ type StandingEntry = {
 export const FIXED_ENTRIES: Readonly<Record<ExportFormat, ReadonlyArray<StandingEntry>>> = Object.freeze({
   "result-export": [],
   "stress-neutral": [
-    { kind: "loss", term: "loss:desktop-preview:stress-neutral-exported", carried: true, source: "stress-neutral/StressNeutralExportPanel.tsx:311 (reason quotes the result's counts, line 571)" },
-    { kind: "loss", term: "loss:desktop-preview:comparison-semantics-tbd", source: "stress-neutral/StressNeutralExportPanel.tsx:314" },
-    { kind: "loss", term: "loss:desktop-preview:private-rule-payload-redacted", source: "stress-neutral/StressNeutralExportPanel.tsx:318" },
-    { kind: "finding", term: "SN-DESKTOP-PREVIEW-COMPARISON-TBD", source: "stress-neutral/StressNeutralExportPanel.tsx:264, 333" }
+    { kind: "loss", term: "loss:desktop-preview:stress-neutral-exported", carried: true, source: "stress-neutral/StressNeutralExportPanel.tsx:316 (reason quotes the result's counts, line 576)" },
+    { kind: "loss", term: "loss:desktop-preview:comparison-semantics-tbd", source: "stress-neutral/StressNeutralExportPanel.tsx:319" },
+    { kind: "loss", term: "loss:desktop-preview:private-rule-payload-redacted", source: "stress-neutral/StressNeutralExportPanel.tsx:323" },
+    { kind: "finding", term: "SN-DESKTOP-PREVIEW-COMPARISON-TBD", source: "stress-neutral/StressNeutralExportPanel.tsx:269, 338" }
   ],
   pcf: [
-    { kind: "loss", term: "loss:desktop-preview:pipe-segments-exported", carried: true, source: "pcf-export/PcfExportPanel.tsx:754" },
-    { kind: "loss", term: "loss:desktop-preview:supports-omitted", source: "pcf-export/PcfExportPanel.tsx:766" },
-    { kind: "loss", term: "loss:desktop-preview:components-approximated", source: "pcf-export/PcfExportPanel.tsx:778" },
-    { kind: "loss", term: "loss:desktop-preview:translator-defaults-delegated", source: "pcf-export/PcfExportPanel.tsx:790" },
-    { kind: "loss", term: "loss:desktop-preview:boundary-conditions-unsupported", source: "pcf-export/PcfExportPanel.tsx:802" },
-    { kind: "loss", term: "loss:desktop-preview:target-profile-and-nominal-size-tbd", source: "pcf-export/PcfExportPanel.tsx:814" },
-    { kind: "finding", term: "PCF-TARGET-PROFILE-TBD", source: "pcf-export/PcfExportPanel.tsx:667" },
-    { kind: "finding", term: "PCF-NOMINAL-SIZE-TBD", placed: false, source: "pcf-export/PcfExportPanel.tsx:632 (present whenever a segment exists; line 466 writes every segment's size as TBD_SOURCE_REQUIRED)" }
+    { kind: "loss", term: "loss:desktop-preview:pipe-segments-exported", carried: true, source: "pcf-export/PcfExportPanel.tsx:759" },
+    { kind: "loss", term: "loss:desktop-preview:supports-omitted", source: "pcf-export/PcfExportPanel.tsx:771" },
+    { kind: "loss", term: "loss:desktop-preview:components-approximated", source: "pcf-export/PcfExportPanel.tsx:783" },
+    { kind: "loss", term: "loss:desktop-preview:translator-defaults-delegated", source: "pcf-export/PcfExportPanel.tsx:795" },
+    { kind: "loss", term: "loss:desktop-preview:boundary-conditions-unsupported", source: "pcf-export/PcfExportPanel.tsx:807" },
+    { kind: "loss", term: "loss:desktop-preview:target-profile-and-nominal-size-tbd", source: "pcf-export/PcfExportPanel.tsx:819" },
+    { kind: "finding", term: "PCF-TARGET-PROFILE-TBD", source: "pcf-export/PcfExportPanel.tsx:672" },
+    { kind: "finding", term: "PCF-NOMINAL-SIZE-TBD", placed: false, source: "pcf-export/PcfExportPanel.tsx:637 (present whenever a segment exists; line 471 writes every segment's size as TBD_SOURCE_REQUIRED)" }
   ],
   "review-geometry": [
-    { kind: "loss", term: "loss:pipe-segments-centerline-only", source: "review-geometry/ReviewGeometryPanel.tsx:677" },
-    { kind: "loss", term: "loss:supports-point-markers", source: "review-geometry/ReviewGeometryPanel.tsx:684" },
-    { kind: "loss", term: "loss:components-point-markers", source: "review-geometry/ReviewGeometryPanel.tsx:691" },
-    { kind: "loss", term: "loss:loads-and-combinations-omitted", source: "review-geometry/ReviewGeometryPanel.tsx:698" },
-    { kind: "loss", term: "loss:glb-and-viewer-behavior-tbd", source: "review-geometry/ReviewGeometryPanel.tsx:708" },
-    { kind: "finding", term: "REVIEW-GEOMETRY-VISUAL-ONLY", source: "review-geometry/ReviewGeometryPanel.tsx:736" }
+    { kind: "loss", term: "loss:pipe-segments-centerline-only", source: "review-geometry/ReviewGeometryPanel.tsx:679" },
+    { kind: "loss", term: "loss:supports-point-markers", source: "review-geometry/ReviewGeometryPanel.tsx:686" },
+    { kind: "loss", term: "loss:components-point-markers", source: "review-geometry/ReviewGeometryPanel.tsx:693" },
+    { kind: "loss", term: "loss:loads-and-combinations-omitted", source: "review-geometry/ReviewGeometryPanel.tsx:700" },
+    { kind: "loss", term: "loss:glb-and-viewer-behavior-tbd", source: "review-geometry/ReviewGeometryPanel.tsx:710" },
+    { kind: "finding", term: "REVIEW-GEOMETRY-VISUAL-ONLY", source: "review-geometry/ReviewGeometryPanel.tsx:738" }
   ],
   "local-fea": [
-    { kind: "unsupported", term: "mesh_generation_not_performed", source: "local-fea-handoff/LocalFeaHandoffPanel.tsx:568" },
-    { kind: "unsupported", term: "target_format_not_selected", source: "local-fea-handoff/LocalFeaHandoffPanel.tsx:569" },
-    { kind: "unsupported", term: "boundary_transfer_requires_review", source: "local-fea-handoff/LocalFeaHandoffPanel.tsx:570" },
-    { kind: "unsupported", term: "local_detail_assumption_unresolved", source: "local-fea-handoff/LocalFeaHandoffPanel.tsx:571" },
-    { kind: "unsupported", term: "external_solver_not_invoked", source: "local-fea-handoff/LocalFeaHandoffPanel.tsx:572" },
-    { kind: "finding", term: "LOCAL-FEA-MESH-NOT-GENERATED", source: "local-fea-handoff/LocalFeaHandoffPanel.tsx:497" },
-    { kind: "finding", term: "LOCAL-FEA-TARGET-FORMAT-TBD", source: "local-fea-handoff/LocalFeaHandoffPanel.tsx:504" },
-    { kind: "finding", term: "LOCAL-FEA-BOUNDARY-TRANSFER-REVIEW", source: "local-fea-handoff/LocalFeaHandoffPanel.tsx:511" },
-    { kind: "finding", term: "LOCAL-FEA-EXTERNAL-SOLVER-NOT-INVOKED", source: "local-fea-handoff/LocalFeaHandoffPanel.tsx:518" }
+    { kind: "unsupported", term: "mesh_generation_not_performed", source: "local-fea-handoff/LocalFeaHandoffPanel.tsx:577" },
+    { kind: "unsupported", term: "target_format_not_selected", source: "local-fea-handoff/LocalFeaHandoffPanel.tsx:578" },
+    { kind: "unsupported", term: "boundary_transfer_requires_review", source: "local-fea-handoff/LocalFeaHandoffPanel.tsx:579" },
+    { kind: "unsupported", term: "local_detail_assumption_unresolved", source: "local-fea-handoff/LocalFeaHandoffPanel.tsx:580" },
+    { kind: "unsupported", term: "external_solver_not_invoked", source: "local-fea-handoff/LocalFeaHandoffPanel.tsx:581" },
+    { kind: "finding", term: "LOCAL-FEA-MESH-NOT-GENERATED", source: "local-fea-handoff/LocalFeaHandoffPanel.tsx:506" },
+    { kind: "finding", term: "LOCAL-FEA-TARGET-FORMAT-TBD", source: "local-fea-handoff/LocalFeaHandoffPanel.tsx:513" },
+    { kind: "finding", term: "LOCAL-FEA-BOUNDARY-TRANSFER-REVIEW", source: "local-fea-handoff/LocalFeaHandoffPanel.tsx:520" },
+    { kind: "finding", term: "LOCAL-FEA-EXTERNAL-SOLVER-NOT-INVOKED", source: "local-fea-handoff/LocalFeaHandoffPanel.tsx:527" }
   ]
 });
 
