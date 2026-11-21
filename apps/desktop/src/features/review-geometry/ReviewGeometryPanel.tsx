@@ -1,6 +1,6 @@
 import type { SessionAnalysisRun, SessionResult } from "../../services/nativeResult";
 import { Boxes, Download } from "lucide-react";
-import { ExportRow, ExportStepButton } from "../export-step/ExportStep";
+import { ExportRow, ExportSave, ExportStepButton } from "../export-step/ExportStep";
 import { AS_GIVEN, EXPORT_FORM_WORDS, type PackageRecord } from "../export-step/exportForm";
 import type { AnalysisRunEnvelope, MechanicsResult, ObjectRef, PreviewModel, Vec3 } from "../../types";
 
@@ -130,7 +130,8 @@ export function ReviewGeometryPanel({
       )}
       saves={(
         <div className="report-actions">
-        <ControlledExportLink
+        <ExportSave control="review-geometry-export-link" file="glTF JSON">
+<ControlledExportLink
           className="report-export-link"
           data-testid="review-geometry-export-link"
           download={`openpipestress-preview-review-geometry-${safeFileToken(model.project.id)}.gltf.json`}
@@ -139,6 +140,7 @@ export function ReviewGeometryPanel({
           <Download size={14} aria-hidden="true" />
           glTF JSON
         </ControlledExportLink>
+</ExportSave>
         </div>
       )}
     />

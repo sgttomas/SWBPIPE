@@ -1,5 +1,6 @@
 import { useLayoutEffect, useRef, useState, type ReactNode } from "react";
 import { createPortal } from "react-dom";
+import { rowSaveStatusText, type RowSaveState } from "./exportSave";
 import { EXPORT_FORM_WORDS, STANDING_LINE_LIMIT, chooseExportForm, shortTerm, type ControlDisposition, type ExportForm, type PackageRecord, type RecordEntry } from "./exportForm";
 
 /** One export of the Exports page (DEL-07-12): a row, and the record behind it.
@@ -247,6 +248,40 @@ export function ExportStepButton({
     >
       {children}
     </button>
+  );
+}
+
+/** One save control of a row, with the row's status line under it.
+ *
+ * Interim, until the export control reports its disposition to the row (the hook): a save control that writes
+ * nothing, rendered by the control as an element with no address (`aria-disabled`, no `href`), is not shown as a
+ * control; one line says the file is not available in its place. This reads only the rendered element, and stays
+ * outside `chooseExportForm`, because the control renders only where the row's form puts it. Remove it when the
+ * hook's disposition is the rule's input and the native saves replace these links.
+ *
+ * The status line says a save's outcome (`rowSaveStatusText`) and nothing else: empty until a save reports one,
+ * and empty after a press of a link that reports none. */
+export function ExportSave({ control, file, state = null, children }: { control: string; file: string; state?: RowSaveState; children: ReactNode }) {
+  const slot = useRef<HTMLDivElement>(null);
+  const [dead, setDead] = useState(false);
+  useLayoutEffect(() => {
+    const element = slot.current;
+    if (!element) return;
+    const read = () => {
+      const item = element.querySelector(`[data-testid="${control}"]`);
+      setDead(item !== null && item.getAttribute("aria-disabled") === "true" && !item.hasAttribute("href") && item.tagName !== "BUTTON");
+    };
+    read();
+    const observer = new MutationObserver(read);
+    observer.observe(element, { subtree: true, childList: true, attributes: true, attributeFilter: ["href", "aria-disabled"] });
+    return () => observer.disconnect();
+  }, [control]);
+  return (
+    <div ref={slot} className="export-save" data-unavailable={dead ? "true" : undefined}>
+      {children}
+      {dead ? <p className="export-save-unavailable" data-testid={`${control}-unavailable`}>{EXPORT_FORM_WORDS.unavailable(file)}</p> : null}
+      <p className="export-save-status" role="status" data-testid={`${control}-save-status`}>{rowSaveStatusText(state)}</p>
+    </div>
   );
 }
 

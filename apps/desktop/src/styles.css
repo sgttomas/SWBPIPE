@@ -4733,6 +4733,11 @@ body { min-width: 760px; min-height: 540px; }
 .app-shell .export-row .export-row-content .report-line { display: block; padding: 0; border: 0; background: none; overflow-wrap: anywhere; }
 .app-shell .export-row .export-row-content .report-line span::after { content: ": "; }
 .app-shell .export-row .export-row-content .report-line strong { font-weight: var(--type-weight-regular); }
+/* A save control that writes nothing is not shown as a control: its line stands in its place (interim). Its status
+   line, under it, is empty until a save reports an outcome. */
+.export-save[data-unavailable="true"] > .controlled-export-control { display: none; }
+.export-save > .export-save-unavailable, .export-save > .export-save-status { margin: 0; overflow-wrap: anywhere; }
+.export-save > .export-save-unavailable { color: var(--ui-muted); }
 .app-shell .export-row button.export-row-standing { justify-self: start; min-height: 0; padding: 0; border: 0; background: none; color: var(--ui-text); text-decoration: underline; text-underline-offset: 2px; cursor: pointer; }
 /* The step between an export's button and its save: a dialog over the page, scrolling inside itself. It is
    portalled outside .app-shell, so it takes the shell's text tokens from the theme here. */

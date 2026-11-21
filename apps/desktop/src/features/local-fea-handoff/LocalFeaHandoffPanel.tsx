@@ -3,7 +3,7 @@ import { LoadReferenceOutputGate } from "../results/LoadReferenceOutputGate";
 import { componentBodyNotices } from "../results/componentBody";
 import { analysisResultHashScope } from "../results/analysisResultHashScope";
 import { Download, FileJson } from "lucide-react";
-import { ExportRow, ExportStepButton, Rendered } from "../export-step/ExportStep";
+import { ExportRow, ExportSave, ExportStepButton, Rendered } from "../export-step/ExportStep";
 import { AS_GIVEN, EXPORT_FORM_WORDS, type ControlDisposition, type PackageRecord } from "../export-step/exportForm";
 import { useState } from "react";
 import type { AnalysisRunEnvelope, Diagnostic, MechanicsResult, PreviewModel } from "../../types";
@@ -166,7 +166,8 @@ export function LocalFeaHandoffPanel({
       saves={packet ? (
         <div className="report-actions">
         <LoadReferenceOutputGate result={result} testIdPrefix="local-fea">
-        <ControlledExportLink
+        <ExportSave control="local-fea-export-link" file="Handoff JSON">
+<ControlledExportLink
               className="report-export-link"
               data-testid="local-fea-export-link"
               download={`openpipestress-preview-local-fea-handoff-${safeFileToken(packet.handoff_package.handoff_id)}.json`}
@@ -175,6 +176,7 @@ export function LocalFeaHandoffPanel({
               <Download size={14} aria-hidden="true" />
               Handoff JSON
         </ControlledExportLink>
+</ExportSave>
         </LoadReferenceOutputGate>
         </div>
       ) : null}

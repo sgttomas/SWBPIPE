@@ -10,7 +10,7 @@ import { useEffect, useState } from "react";
 import { buildCurrentResultExport, type JsonObject } from "./resultExportAdapter";
 import type { CurrentSessionInputManifestEvidence } from "../../services/inputManifestService";
 import { Download, FileJson } from "lucide-react";
-import { ExportRow, ExportStepButton } from "../export-step/ExportStep";
+import { ExportRow, ExportSave, ExportStepButton } from "../export-step/ExportStep";
 import { AS_GIVEN, EXPORT_FORM_WORDS, type PackageRecord } from "../export-step/exportForm";
 import type { AnalysisRunEnvelope, Diagnostic, MechanicsResult, ObjectRef, PreviewModel } from "../../types";
 
@@ -172,7 +172,8 @@ export function ResultExportPanel({
       )}
       saves={currentPacket ? (
         <div className="report-actions" onClickCapture={stale}>
-        <ControlledExportLink
+        <ExportSave control="result-export-link" file="Local result JSON">
+<ControlledExportLink
               className="report-export-link"
               data-testid="result-export-link"
               explicitLocalPrivateIntent={OWN_LOCAL_COPY}
@@ -183,6 +184,7 @@ export function ResultExportPanel({
               <Download size={14} aria-hidden="true" />
               Local result JSON
         </ControlledExportLink>
+</ExportSave>
         </div>
       ) : null}
     />

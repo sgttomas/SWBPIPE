@@ -10,7 +10,7 @@ import { validateRetainedPrecisionTransport } from "../results/retainedPrecision
 import type { RowClassification } from "../results/retainedPrecisionTypes";
 import { verifyAnalysisRunRecord, validateAnalysisRunV03, analysisRowSemantics, sourceBasisReference, modelLoadBasisRefs } from "../../services/analysisRunCompatibility";
 import { Download, FileJson } from "lucide-react";
-import { ExportRow, ExportStepButton } from "../export-step/ExportStep";
+import { ExportRow, ExportSave, ExportStepButton } from "../export-step/ExportStep";
 import { AS_GIVEN, EXPORT_FORM_WORDS, type PackageRecord } from "../export-step/exportForm";
 import { useEffect, useState } from "react";
 import { canonicalSha256HexCheckedV1, canonicalJsonCheckedV1, checkedJsonText } from "../../services/hashService";
@@ -223,7 +223,8 @@ export function StressNeutralExportPanel({
       )}
       saves={currentPacket ? (
         <div className="report-actions" onClickCapture={stale}>
-        <ControlledExportLink
+        <ExportSave control="stress-neutral-export-link" file="Package JSON">
+<ControlledExportLink
               className="report-export-link"
               data-testid="stress-neutral-export-link"
               explicitLocalPrivateIntent={OWN_LOCAL_COPY}
@@ -235,7 +236,9 @@ export function StressNeutralExportPanel({
               <Download size={14} aria-hidden="true" />
               Package JSON
         </ControlledExportLink>
-        <ControlledExportLink
+</ExportSave>
+        <ExportSave control="stress-neutral-csv-link" file="CSV">
+<ControlledExportLink
               className="report-export-link"
               data-testid="stress-neutral-csv-link"
               download={`openpipestress-preview-stress-neutral-${safeFileToken(currentPacket.source_result_ref.ref)}.csv`}
@@ -244,6 +247,7 @@ export function StressNeutralExportPanel({
               <Download size={14} aria-hidden="true" />
               CSV
         </ControlledExportLink>
+</ExportSave>
         </div>
       ) : null}
     />

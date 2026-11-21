@@ -1,6 +1,6 @@
 import type { SessionAnalysisRun, SessionResult } from "../../services/nativeResult";
 import { Download, FileText } from "lucide-react";
-import { ExportRow, ExportStepButton, Rendered } from "../export-step/ExportStep";
+import { ExportRow, ExportSave, ExportStepButton, Rendered } from "../export-step/ExportStep";
 import { AS_GIVEN, EXPORT_FORM_WORDS, type ControlDisposition, type PackageRecord } from "../export-step/exportForm";
 import { useState } from "react";
 import { LoadReferenceOutputGate } from "../results/LoadReferenceOutputGate";
@@ -197,7 +197,8 @@ export function PcfExportPanel({
           <p className="muted" role="status" data-testid="pcf-export-step-refusal">{lengthRefusal}</p>
         ) : (
         <>
-        <ControlledExportLink
+        <ExportSave control="pcf-export-link" file="Package JSON">
+<ControlledExportLink
           className="report-export-link"
           data-testid="pcf-export-link"
           download={`openpipestress-preview-pcf-package-${safeFileToken(model.project.id)}.json`}
@@ -206,7 +207,9 @@ export function PcfExportPanel({
           <Download size={14} aria-hidden="true" />
           Package JSON
         </ControlledExportLink>
-        <ControlledExportLink
+</ExportSave>
+        <ExportSave control="pcf-text-link" file="PCF text">
+<ControlledExportLink
           className="report-export-link"
           data-testid="pcf-text-link"
           download={`openpipestress-preview-${safeFileToken(model.project.id)}.pcf`}
@@ -215,6 +218,7 @@ export function PcfExportPanel({
           <Download size={14} aria-hidden="true" />
           PCF text
         </ControlledExportLink>
+</ExportSave>
         </>
         )}
         </LoadReferenceOutputGate>

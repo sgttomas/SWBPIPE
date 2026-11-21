@@ -146,6 +146,8 @@ export const EXPORT_FORM_WORDS = Object.freeze({
   causesHeading: "First, from this model",
   /** The row line of the result export and the stress-neutral JSON, which write on the press with no tick box. */
   ownLocalCopy: "Saves your own local copy, with the project's values.",
+  /** In place of a save control that writes nothing (interim, until the native saves replace it). */
+  unavailable: (file: string) => `${file}: not available. This file is withheld.`,
   /** The label of the three exports that are not finished for this release. */
   preview: "Preview",
   /** After what a preview export does not write: what a person uses instead for exchange. */
