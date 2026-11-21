@@ -1,6 +1,6 @@
 /** DEL-08-01 REQ-024, "Package and user release": the user-release dialog's frame statements
- * come from the native host, word for word, for a result in its custody; a pressure-free
- * result has none; an exact-route result whose statements cannot be obtained is refused by
+ * come from the native host, word for word, for a result in its custody (an exact-route or a
+ * pressure-free Timoshenko result); a pressure-free Euler–Bernoulli result has none; an exact-route result whose statements cannot be obtained is refused by
  * name. The native replies here are the committed files the Rust test
  * `the_native_host_gives_the_dialog_the_frame_statements_the_package_states` holds equal to
  * the native operation on each witness. Unit transport; every id is invented. */
@@ -8,7 +8,7 @@ import { readFileSync } from "node:fs";
 import path from "node:path";
 import { afterEach, describe, expect, it, vi } from "vitest";
 import { createNativeResult, NATIVE_VERDICT_COMMAND, resetNativeResultsForTests, setNativeResultTransportForTests, type NativeCustody } from "../../services/nativeResult";
-import { PRESSURE_CONTRACT_ID, PREVIEW_PHYSICS_CONTRACT_ID } from "../results/numericalResultQuality";
+import { PRESSURE_CONTRACT_ID, PREVIEW_PHYSICS_CONTRACT_ID, PREVIEW_PHYSICS_TIMOSHENKO_CONTRACT_ID } from "../results/numericalResultQuality";
 import { REPORT_FRAME_STATEMENTS_UNAVAILABLE, reportFrameStatements } from "./reportFrameStatements";
 
 const root = path.resolve(__dirname, "../../../../..");
@@ -46,7 +46,19 @@ describe("reportFrameStatements", () => {
     expect(transport).toHaveBeenCalledWith(NATIVE_VERDICT_COMMAND, { jobId: "invented-frame-job-1", operation: "report_frame_statements", modelJson: "{\"invented\":\"model\"}" });
   });
 
-  it("gives none for a pressure-free result, and asks nothing", async () => {
+  it("asks the native host for a pressure-free Timoshenko result in its custody, whose report carries a standing record", async () => {
+    const transport = vi.fn(async (_command: string, args: Record<string, unknown>) => ({
+      document_kind: "swbpipe.desktop.report_frame_statements", version: 1, job_id: args.jobId, frame_statements: []
+    }));
+    setNativeResultTransportForTests(transport);
+    expect(await reportFrameStatements(handle("invented-frame-job-7", PREVIEW_PHYSICS_TIMOSHENKO_CONTRACT_ID))).toEqual({ ok: true, statements: [] });
+    expect(transport).toHaveBeenCalledWith(NATIVE_VERDICT_COMMAND, { jobId: "invented-frame-job-7", operation: "report_frame_statements", modelJson: "{\"invented\":\"model\"}" });
+    // Without native custody it is refused by name, as an exact-route result is.
+    const held = await reportFrameStatements({ producer: { semantic_contract_id: PREVIEW_PHYSICS_TIMOSHENKO_CONTRACT_ID } });
+    expect(held.ok === false && held.reason.startsWith(`${REPORT_FRAME_STATEMENTS_UNAVAILABLE}: `)).toBe(true);
+  });
+
+  it("gives none for a pressure-free Euler–Bernoulli result, and asks nothing", async () => {
     const transport = vi.fn();
     setNativeResultTransportForTests(transport);
     expect(await reportFrameStatements(handle("invented-frame-job-2", PREVIEW_PHYSICS_CONTRACT_ID))).toEqual({ ok: true, statements: [] });

@@ -1,8 +1,9 @@
 // W-18b desktop slice (DEL-08-01 Design `report-user-release.md` §2.2, §2.3, §2.7, §11): the
 // route-010 cell, the webview's early model check and the record's version. The cell admits a
-// pressure-free preview-physics-2 result and the exact pressure routes (pressure-2,
-// pressure-source-1) that native route 010 admits since D-6; it refuses what the package cell
-// refuses and the identities route 010 does not admit. Unit transport replay of committed
+// pressure-free preview-physics-2 result, the exact pressure routes (pressure-2,
+// pressure-source-1) that native route 010 admits since D-6, and the pressure-free Timoshenko
+// identity (record 1.3.0, DEL-08-01 REQ-024); it refuses what the package cell refuses and the
+// identities route 010 does not admit. Unit transport replay of committed
 // producer bytes; every model edit and record here is invented.
 import { readFileSync } from "node:fs";
 import { resolve } from "node:path";
@@ -19,8 +20,6 @@ import {
   REPORT_PACKAGE_ROUTE_NOT_ADMITTED,
   REPORT_USER_RELEASE_LIBRARY_REFERENCED,
   REPORT_USER_RELEASE_RULE_PACK_REFERENCED,
-  N_REPORT_PACKAGE_PRESSURE_FREE_STANDING,
-  reportPackageSourceUnavailableReason,
   reportPackageUnavailableReason,
   USER_RELEASED_ADMITTED_CONTRACT_IDS,
   userReleaseModelRefusal,
@@ -59,9 +58,10 @@ async function pressureFreeSession() {
 }
 
 describe("the route-010 cell (§2.2, §11)", () => {
-  it("admits the three identities native route 010 admits", async () => {
+  it("admits the four identities native route 010 admits", async () => {
     expect([...USER_RELEASED_ADMITTED_CONTRACT_IDS]).toEqual([
       "openpipestress.result_semantics/0.3.0/preview-physics-2",
+      "openpipestress.result_semantics/0.3.0/preview-physics-timoshenko-1",
       "openpipestress.result_semantics/0.3.0/pressure-3",
       "openpipestress.result_semantics/0.3.0/pressure-source-1"
     ]);
@@ -76,14 +76,12 @@ describe("the route-010 cell (§2.2, §11)", () => {
     }
   });
 
-  it("refuses the pressure-free Timoshenko identity, which the local-private package admits", async () => {
+  it("admits the pressure-free Timoshenko identity, which the local-private package admits too", async () => {
     const { result } = await pressureFreeSession();
     const timoshenko = structuredClone(result);
     timoshenko.producer!.semantic_contract_id = PREVIEW_PHYSICS_TIMOSHENKO_CONTRACT_ID;
     expect(reportPackageUnavailableReason(timoshenko)).toBeNull();
-    expect(userReleasedReportPackageUnavailableReason(timoshenko)).toBe(
-      `${REPORT_PACKAGE_ROUTE_NOT_ADMITTED}: a shareable report package carries pressure-free (preview-physics-2) results and exact pressure route (pressure-3, pressure-source-1) results; this result is ${PREVIEW_PHYSICS_TIMOSHENKO_CONTRACT_ID}. It can be saved in a local private package when its numerical standing is eligible.`
-    );
+    expect(userReleasedReportPackageUnavailableReason(timoshenko)).toBeNull();
   });
 
   it("refuses every other identity by name", async () => {
@@ -93,23 +91,12 @@ describe("the route-010 cell (§2.2, §11)", () => {
     expect(userReleasedReportPackageUnavailableReason(retained)).toContain(
       `${REPORT_PACKAGE_ROUTE_NOT_ADMITTED}: a shareable report package carries`
     );
-  });
-});
-
-describe("the package controls' refusal for the rendered report's source (LIM-016)", () => {
-  it("offers a package of the Current result, refuses a pressure-free source that is not Current in words, and leaves an exact-route source to the builder", async () => {
-    const { result } = await pressureFreeSession();
-    const timoshenko = structuredClone(result);
-    timoshenko.producer!.semantic_contract_id = PREVIEW_PHYSICS_TIMOSHENKO_CONTRACT_ID;
-    // Current (eligible): nothing beyond the route gate.
-    expect(reportPackageSourceUnavailableReason(timoshenko, timoshenko)).toBeNull();
-    expect(reportPackageSourceUnavailableReason(result, result)).toBeNull();
-    expect(reportPackageSourceUnavailableReason(null, null)).toBeNull();
-    // A pressure-free Timoshenko source the rendered report takes that is not Current.
-    expect(reportPackageSourceUnavailableReason(timoshenko, null)).toBe(`Report package not offered: ${N_REPORT_PACKAGE_PRESSURE_FREE_STANDING}`);
-    // An exact-route source that is not Current: its package states its standing (REQ-024).
-    const exact = raw("fixtures/product_preview/pressure_source/physics_source/n05-sparse_interactive.raw.json");
-    expect(reportPackageSourceUnavailableReason(exact, null)).toBeNull();
+    // The refusal a person reads lists the kinds a shareable package carries (DEL-08-01 REQ-024).
+    const unknown = structuredClone(result);
+    unknown.producer!.semantic_contract_id = "openpipestress.result_semantics/0.3.0/invented-unsupported-1";
+    expect(userReleasedReportPackageUnavailableReason(unknown)).toBe(
+      `${REPORT_PACKAGE_ROUTE_NOT_ADMITTED}: a shareable report package carries pressure-free Euler–Bernoulli (preview-physics-2), pressure-free Timoshenko (preview-physics-timoshenko-1) and exact pressure route (pressure-3, pressure-source-1) results; this result is openpipestress.result_semantics/0.3.0/invented-unsupported-1.`
+    );
   });
 });
 
@@ -166,7 +153,7 @@ describe("the record (§2.3, §11)", () => {
   const inputManifest = { manifest_ref: { object_type: "InputManifest", ref: "input-manifest:invented" }, manifest_sha256: "e".repeat(64) } as never;
   const model = { project: { id: "project:invented" } } as never;
 
-  it("is record 1.0.0 for a pressure-free result and 1.2.0 for an exact result, with the same items not carried", async () => {
+  it("is record 1.0.0 for a pressure-free Euler–Bernoulli result, 1.3.0 for a pressure-free Timoshenko result and 1.2.0 for an exact result, with the same items not carried", async () => {
     const pressureFree = await userReleaseRecord({ model, result: { run_id: "run:a b", producer: { semantic_contract_id: USER_RELEASED_ADMITTED_CONTRACT_IDS[0] } } as never, inputManifest, document, userReleasedAt: "2026-10-27T00:00:00Z" }) as Record<string, any>; // eslint-disable-line @typescript-eslint/no-explicit-any
     expect(pressureFree.record_version).toBe("1.0.0");
     expect(pressureFree.scope.not_carried).toEqual(["rule_pack_references", "user_rule_outcomes", "run_comparisons", "handoff_records", "library_records", "audit_assets"]);
@@ -174,7 +161,7 @@ describe("the record (§2.3, §11)", () => {
     expect(pressureFree.bound_to.result_document_derivative_sha256).toBe("d".repeat(64));
     for (const id of USER_RELEASED_ADMITTED_CONTRACT_IDS.slice(1)) {
       const exact = await userReleaseRecord({ model, result: { run_id: "run:x", producer: { semantic_contract_id: id } } as never, inputManifest, document, userReleasedAt: "2026-10-27T00:00:00Z" }) as Record<string, any>; // eslint-disable-line @typescript-eslint/no-explicit-any
-      expect(exact.record_version).toBe("1.2.0");
+      expect(exact.record_version).toBe(id === PREVIEW_PHYSICS_TIMOSHENKO_CONTRACT_ID ? "1.3.0" : "1.2.0");
       // DEL-08-01 REQ-024: no result is named as not carried on the ground of its standing.
       expect(exact.scope.not_carried).toEqual(["rule_pack_references", "user_rule_outcomes", "run_comparisons", "handoff_records", "library_records", "audit_assets"]);
     }

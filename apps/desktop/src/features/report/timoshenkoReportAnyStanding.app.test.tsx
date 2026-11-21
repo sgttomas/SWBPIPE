@@ -2,14 +2,17 @@
  * Timoshenko result (`preview-physics-timoshenko-1`) reaches the Report page's rendered report
  * whatever its numerical standing, as an exact-route result does (`renderedReportGate.app.test.tsx`).
  *
- * - For an eligible result nothing a person sees changes: the rendered report and both package
- *   saves are offered, and the render request carries the `pf_timoshenko` section and the
- *   standing record the reader derived.
- * - For a result whose standing is not eligible, the rendered report, its print and its HTML save
- *   are offered, and the render request carries that result's standing record, from which the
- *   native render composes the standing line and each load case's numerical health, integrity code
- *   and reasons. Its report package and its shareable package are not offered (LIM-016): the panel
- *   says why, and so does each File menu package command when sent.
+ * - For an eligible and for a not-eligible result, the rendered report, its print and its HTML save
+ *   are offered, and the render request carries the `pf_timoshenko` section and the standing record
+ *   the reader derived, from which the native render composes the standing line and each load
+ *   case's numerical health, integrity code and reasons.
+ * - Each of the four package commands (the panel's two save buttons, the File menu's two) offers
+ *   the save and makes its request, whose report carries the same standing record, the identity's
+ *   limitation 0 and no `pf_timoshenko` section (DEL-08-01 REQ-024, "Package and user release"); the
+ *   shareable request carries record 1.3.0, and its dialog states the report frame's statements as
+ *   the native host gives them, and that the report states the result's standing, before the
+ *   user's statement. The native save, which derives the record again and requires it equal, is
+ *   not run here (`report_session_diagnostics_tests.rs`, `user_release_package.rs`).
  *
  * The eligible result is the product's own committed Timoshenko envelope for its frozen request
  * (`core/product_physics/tests/pf_timoshenko_envelopes.rs` keeps it current). The not-eligible
@@ -33,7 +36,7 @@ import { REPORT_SOURCE_COMMANDS, reportSourceRegistration } from "../../test/rep
 import { getLocalStorageCapability } from "../../services/projectService";
 import { loadDesignKnowledge, resetSessionResultCustodyForTests } from "../../services/previewService";
 import { PREVIEW_PHYSICS_TIMOSHENKO_CONTRACT_ID } from "../results/numericalResultQuality";
-import { CURRENT_NUMERICAL_INTEGRITY_NEEDS_RECOMPUTE, N_REPORT_PACKAGE_PRESSURE_FREE_STANDING } from "./reportPackageRequest";
+import { USER_RELEASE_PF_TIMOSHENKO_RECORD_VERSION } from "./reportPackageRequest";
 import type { PreviewModel } from "../../types";
 import demoModel from "../../../../../fixtures/product_preview/invented_demo_model.json";
 
@@ -162,8 +165,49 @@ async function renderReport(app: Awaited<ReturnType<typeof mountApp>>) {
   return app.renders[0];
 }
 
-describe("the rendered report of a solved pressure-free Timoshenko result, through App's gate", () => {
-  it("for an eligible result: the rendered report and both package saves are offered, as before", async () => {
+/** The four package commands' requests, after the render whose request `sent` is: each carries
+ * `sent`'s standing record and the limitation 0 entry, and no `pf_timoshenko` section. */
+async function expectFourPackageRequests(app: Awaited<ReturnType<typeof mountApp>>, sent: Json) {
+  const panel = () => screen.getByTestId("rendered-report-panel");
+  const record = sent.input.numerical_standing;
+  const saved = async (count: number) => {
+    await waitFor(() => expect(app.packageSaves.length, app.why()).toBe(count), { timeout: 60_000 });
+    await waitFor(() => expect(within(panel()).getByTestId("report-package-save")).toBeEnabled(), { timeout: 60_000 });
+    return JSON.parse(app.packageSaves[count - 1].requestCanonicalText);
+  };
+  const expectReport = (request: Json) => {
+    expect(request.report.numerical_standing, app.why()).toEqual(record);
+    expect("pf_timoshenko" in request.report).toBe(false);
+    expect(request.report.report_sections.limitations.map((item: Json) => item.limitation_id.split(":").slice(-2).join(":"))).toEqual(["technical-preview", "pf-timoshenko:1"]);
+    expect(request.source_results[0].producer.semantic_contract_id).toBe(PREVIEW_PHYSICS_TIMOSHENKO_CONTRACT_ID);
+  };
+  fireEvent.click(within(panel()).getByTestId("report-package-private-intent"));
+  fireEvent.click(within(panel()).getByTestId("report-package-save"));
+  for (const [count, command] of [[1, null], [2, "file.save-report-package"]] as const) {
+    if (command) act(() => nativeMenuCommand(command));
+    const request = await saved(count);
+    expect(request.export_profile_id, app.why()).toBe("desktop_local_private_report_package_1");
+    expectReport(request);
+  }
+  for (const [count, open] of [[3, () => fireEvent.click(within(panel()).getByTestId("report-package-user-release"))], [4, () => act(() => nativeMenuCommand("file.save-shareable-report-package"))]] as const) {
+    open();
+    const dialog = await screen.findByTestId("user-release-dialog", undefined, { timeout: 60_000 });
+    expect(within(dialog).queryByTestId("user-release-refusal"), app.why()).toBeNull();
+    expect(within(dialog).getByTestId("user-release-terms")).toHaveTextContent("The report states that result's numerical standing, whatever it is.");
+    const statement = within(dialog).getByTestId("user-release-statement");
+    expect(within(dialog).getByTestId("user-release-confirm")).toBeDisabled();
+    fireEvent.click(statement);
+    fireEvent.click(within(dialog).getByTestId("user-release-confirm"));
+    const request = await saved(count);
+    expect(request.export_profile_id, app.why()).toBe("desktop_user_released_report_package_1");
+    expect(request.report.report_context.user_release.record_version).toBe(USER_RELEASE_PF_TIMOSHENKO_RECORD_VERSION);
+    expectReport(request);
+  }
+  expect(app.packageSaves).toHaveLength(4);
+}
+
+describe("the rendered report and the packages of a solved pressure-free Timoshenko result, through App's gate", () => {
+  it("for an eligible result: the rendered report and each of the four package commands state its standing", async () => {
     const app = await mountApp(ELIGIBLE);
     await solveAndOpenReport(app);
     const panel = screen.getByTestId("rendered-report-panel");
@@ -176,23 +220,20 @@ describe("the rendered report of a solved pressure-free Timoshenko result, throu
     expect(sent.exactResultText).toBe(app.raw);
     expect(sent.input.pf_timoshenko.semantic_contract_id).toBe(PREVIEW_PHYSICS_TIMOSHENKO_CONTRACT_ID);
     expect(sent.input.numerical_standing.cases.map((c: Json) => c.health)).toEqual(sent.input.numerical_standing.cases.map(() => "checks_passed"));
+    await expectFourPackageRequests(app, sent);
   }, 240_000);
 
-  it.skipIf(NOT_ELIGIBLE === null)("for a result that is not eligible: the rendered report, its print and its HTML save are offered with its standing record; its packages are not, and each says why", async () => {
+  it.skipIf(NOT_ELIGIBLE === null)("for a result that is not eligible: the rendered report, its print, its HTML save and each of the four package commands state its standing", async () => {
     const app = await mountApp(NOT_ELIGIBLE!);
     await solveAndOpenReport(app);
     const panel = () => screen.getByTestId("rendered-report-panel");
-    // The package controls are not offered, and the page says why in words.
-    expect(within(panel()).queryByTestId("report-package-controls")).toBeNull();
-    expect(screen.getByTestId("report-package-source-unavailable")).toHaveTextContent(`Report package not offered: ${N_REPORT_PACKAGE_PRESSURE_FREE_STANDING}`);
+    expect(screen.queryByTestId("report-package-source-unavailable")).toBeNull();
     // The result JSON export, which needs numerical eligibility, is still not offered.
     act(() => nativeMenuCommand("view.section.exports"));
     const exports = await screen.findByTestId("result-export-panel");
     expect(within(exports).queryByTestId("result-export-link")).toBeNull();
     await openReportStage();
 
-    // The render request carries the reader's standing record for this result, and the section the
-    // native render binds to the delivered result.
     const sent = await renderReport(app);
     expect(sent.exactResultText).toBe(app.raw);
     expect(sent.input.pf_timoshenko.semantic_contract_id).toBe(PREVIEW_PHYSICS_TIMOSHENKO_CONTRACT_ID);
@@ -200,24 +241,12 @@ describe("the rendered report of a solved pressure-free Timoshenko result, throu
     expect(record.record_version).toBe("historical_1");
     expect(record.cases.some((c: Json) => c.health !== "checks_passed"), JSON.stringify(record.cases)).toBe(true);
 
-    // Its print and its HTML save are offered and reach their native routes.
     fireEvent.click(within(panel()).getByTestId("rendered-report-print"));
     await waitFor(() => expect(within(panel()).getByTestId("rendered-report-print-status")).toHaveTextContent("Print window opened"));
     fireEvent.click(within(panel()).getByTestId("rendered-report-save-local-private"));
     await waitFor(() => expect(within(panel()).getByTestId("rendered-report-save-status")).toHaveTextContent("Saved invented-timoshenko-report.html"));
     expect(app.prints.map((p: Json) => p.sha256Hex)).toEqual([HTML_SHA256]);
     expect(app.htmlSaves.map((s: Json) => s.sha256Hex)).toEqual([HTML_SHA256]);
-
-    // The File menu's two package commands, which the native menu keeps selectable, each refuse in words.
-    act(() => nativeMenuCommand("file.save-report-package"));
-    await waitFor(() => expect(within(panel()).getByTestId("report-package-save-status"), app.why()).toHaveTextContent(
-      `${CURRENT_NUMERICAL_INTEGRITY_NEEDS_RECOMPUTE}: ${N_REPORT_PACKAGE_PRESSURE_FREE_STANDING}`
-    ), { timeout: 60_000 });
-    act(() => nativeMenuCommand("file.save-shareable-report-package"));
-    const dialog = await screen.findByTestId("user-release-dialog", undefined, { timeout: 60_000 });
-    expect(within(dialog).getByTestId("user-release-refusal-reason")).toHaveTextContent(
-      `this result is ${PREVIEW_PHYSICS_TIMOSHENKO_CONTRACT_ID}. It can be saved in a local private package when its numerical standing is eligible.`
-    );
-    expect(app.packageSaves).toHaveLength(0);
+    await expectFourPackageRequests(app, sent);
   }, 240_000);
 });

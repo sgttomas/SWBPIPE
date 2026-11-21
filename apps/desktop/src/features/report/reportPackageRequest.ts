@@ -30,6 +30,7 @@ import { buildCurrentResultExport, type JsonObject as ResultDocument } from "../
 import {
   admitExactReportSource,
   exactSourceSubmission,
+  takesReportAdmission,
   type ExactReportAdmission,
   type ExactReportAdmissionInputs,
   type ExactSourceSubmission
@@ -98,34 +99,16 @@ export function reportPackageUnavailableReason(result: SessionResult | null | un
   return surfaceRouteRefusal(result, "report-package");
 }
 
-/** The code of a package request whose pressure-free source is not numerically eligible (the
- * result-export builder's, `buildCurrentResultExport`; LIM-016). */
-export const CURRENT_NUMERICAL_INTEGRITY_NEEDS_RECOMPUTE = "CURRENT_NUMERICAL_INTEGRITY_NEEDS_RECOMPUTE";
-/** What a person reads where a package refuses a pressure-free Timoshenko result that the
- * rendered report takes (DEL-08-01 REQ-017) but whose numerical standing is not eligible. */
-export const N_REPORT_PACKAGE_PRESSURE_FREE_STANDING =
-  "a report package carries a pressure-free result only when its numerical standing is eligible. The rendered report states this result's standing and can be printed or saved as HTML.";
-
-/** The package controls' refusal for the rendered report's `source` (synchronous, for the menu
- * and the report panel): the route gate (`reportPackageUnavailableReason`), else, for a source
- * that is not `current` (the Current result) and is not an exact-route result, the pressure-free
- * standing refusal (LIM-016), else null. */
-export function reportPackageSourceUnavailableReason(source: SessionResult | null | undefined, current: SessionResult | null | undefined): string | null {
-  const refused = reportPackageUnavailableReason(source);
-  if (refused) return refused;
-  if (source && source !== current && !isExactReportSource(source as MechanicsResult)) return `Report package not offered: ${N_REPORT_PACKAGE_PRESSURE_FREE_STANDING}`;
-  return null;
-}
-
 /** The identities a shareable (user-released, route `DREP-PACKAGE-USER-RELEASE-010`) package
- * admits: a pressure-free `preview-physics-2` result (record 1.0.0), and, since D-6 (owner,
- * 2026-10-29; DEL-08-01 Design `report-user-release.md` §11), a `pressure-2` or
- * `pressure-source-1` result (record 1.2.0) the reader reads with its mechanics solved,
- * whatever its numerical standing (DEL-08-01 REQ-024). Native admission and the derivation
- * (`report_package::user_release`) admit the same three and refuse the pressure-free
- * Timoshenko identity, which the local-private package admits. */
+ * admits: a pressure-free Euler–Bernoulli `preview-physics-2` result (record 1.0.0); since D-6
+ * (owner, 2026-10-29; DEL-08-01 Design `report-user-release.md` §11), a `pressure-2` or
+ * `pressure-source-1` result (record 1.2.0); and a pressure-free Timoshenko result (record
+ * 1.3.0). The last two are admitted where the reader reads them with their mechanics solved,
+ * whatever their numerical standing, which the report states (DEL-08-01 REQ-024). Native
+ * admission and the derivation (`report_package::user_release`) admit the same four. */
 export const USER_RELEASED_ADMITTED_CONTRACT_IDS: readonly string[] = Object.freeze([
   PREVIEW_PHYSICS_CONTRACT_ID,
+  PREVIEW_PHYSICS_TIMOSHENKO_CONTRACT_ID,
   PRESSURE_CONTRACT_ID,
   PRESSURE_SOURCE_CONTRACT_ID
 ]);
@@ -140,7 +123,7 @@ export function userReleasedReportPackageUnavailableReason(result: SessionResult
   if (refused) return refused;
   const identity = result?.producer?.semantic_contract_id;
   if (typeof identity === "string" && !USER_RELEASED_ADMITTED_CONTRACT_IDS.includes(identity)) {
-    return `${REPORT_PACKAGE_ROUTE_NOT_ADMITTED}: a shareable report package carries pressure-free (preview-physics-2) results and exact pressure route (pressure-3, pressure-source-1) results; this result is ${identity}. It can be saved in a local private package when its numerical standing is eligible.`;
+    return `${REPORT_PACKAGE_ROUTE_NOT_ADMITTED}: a shareable report package carries pressure-free Euler–Bernoulli (preview-physics-2), pressure-free Timoshenko (preview-physics-timoshenko-1) and exact pressure route (pressure-3, pressure-source-1) results; this result is ${identity}.`;
   }
   return null;
 }
@@ -241,20 +224,6 @@ function auditRulePackRef(pack: JsonRecord) {
   };
 }
 
-/** The result document of a pressure-free source: the result-export builder's, whose standing
- * must be eligible. Its refusal of a pressure-free Timoshenko result that is not eligible (which
- * the rendered report takes) also says why, in words. */
-async function pressureFreeResultDocument(inputs: Pick<ExactReportAdmissionInputs, "model" | "result" | "analysisRun" | "inputManifest">): Promise<ResultDocument> {
-  try {
-    return await buildCurrentResultExport(inputs);
-  } catch (error) {
-    if (error instanceof Error && error.message === CURRENT_NUMERICAL_INTEGRITY_NEEDS_RECOMPUTE && isPfTimoshenkoReportSource(inputs.result)) {
-      throw new Error(`${CURRENT_NUMERICAL_INTEGRITY_NEEDS_RECOMPUTE}: ${N_REPORT_PACKAGE_PRESSURE_FREE_STANDING}`);
-    }
-    throw error;
-  }
-}
-
 /** Requests assembled from an exact source, with the admission each was built from
  * and its inputs (module-private: only the assembly records one). */
 const exactRequests = new WeakMap<object, { admission: ExactReportAdmission; inputs: ExactReportAdmissionInputs }>();
@@ -296,12 +265,13 @@ async function assembleReportPackageRequest(input: ReportPackageRequestInput, ad
     throw ruleCheckMismatch("the rule-check run's aggregate is not the session's aggregate.");
   }
 
-  // An exact source takes the Export Result JSON admission for a report (any solved result
-  // the reader reads; DEL-08-01 REQ-024); its document is the result member. A pressure-free
-  // source keeps the result-export builder's document and its eligible standing.
-  const exactInputs: ExactReportAdmissionInputs | null = isExactReportSource(result) ? { model, result, analysisRun, inputManifest, purpose: "report" } : null;
+  // An exact or pressure-free Timoshenko source takes the Export Result JSON admission for a
+  // report (any solved result the reader reads; DEL-08-01 REQ-024); its document is the result
+  // member and its standing record is the report's, which the native save re-derives. A
+  // preview-physics-2 source keeps the result-export builder's document and its eligible standing.
+  const exactInputs: ExactReportAdmissionInputs | null = takesReportAdmission(result) ? { model, result, analysisRun, inputManifest, purpose: "report" } : null;
   const admission = exactInputs ? await admitExactReportSource(exactInputs) : null;
-  const document: ResultDocument = admission ? admission.document : await pressureFreeResultDocument({ model, result, analysisRun, inputManifest });
+  const document: ResultDocument = admission ? admission.document : await buildCurrentResultExport({ model, result, analysisRun, inputManifest });
   const envelope = document.result_envelope as JsonRecord;
   const identity = envelope?.producer?.semantic_contract_id;
   if (typeof identity !== "string" || !admittedContractIds.includes(identity)) {
@@ -329,6 +299,7 @@ async function assembleReportPackageRequest(input: ReportPackageRequestInput, ad
     ruleCheckRun,
     renderContext: { exportContext: "local_private", generatedAt: null },
     exactAdmission: admission,
+    bindsDeliveredSource: false,
     libraryRefFindings: currentLibraryRefFindings(model),
     reportComposition: input.reportComposition
   });
@@ -386,7 +357,8 @@ async function assembleReportPackageRequest(input: ReportPackageRequestInput, ad
     solve_rule_check_status: result.status.rule_check
   };
   if (admission && exactInputs) {
-    exactRequests.set(request, { admission, inputs: exactInputs });
+    // Only an exact request resubmits the delivered texts; a Timoshenko request carries none.
+    if (isExactReportSource(result)) exactRequests.set(request, { admission, inputs: exactInputs });
     // After the last await: the admission still holds.
     exactSourceSubmission(admission, exactInputs);
   }
@@ -428,9 +400,9 @@ async function assembleUserReleased(
   recordFor: (document: ResultDocument) => Promise<UserReleaseRecordValue> | UserReleaseRecordValue
 ) {
   const { model, result, analysisRun, inputManifest, reportComposition = null } = input;
-  const exactInputs: ExactReportAdmissionInputs | null = isExactReportSource(result) ? { model, result, analysisRun, inputManifest, purpose: "report" } : null;
+  const exactInputs: ExactReportAdmissionInputs | null = takesReportAdmission(result) ? { model, result, analysisRun, inputManifest, purpose: "report" } : null;
   const admission = exactInputs ? await admitExactReportSource(exactInputs) : null;
-  const document: ResultDocument = admission ? admission.document : await pressureFreeResultDocument({ model, result, analysisRun, inputManifest });
+  const document: ResultDocument = admission ? admission.document : await buildCurrentResultExport({ model, result, analysisRun, inputManifest });
   const envelope = document.result_envelope as JsonRecord;
   const identity = envelope?.producer?.semantic_contract_id;
   if (!USER_RELEASED_ADMITTED_CONTRACT_IDS.includes(identity)) {
@@ -478,7 +450,7 @@ async function assembleUserReleased(
     solve_rule_check_status: result.status.rule_check
   };
   if (admission && exactInputs) {
-    exactRequests.set(request, { admission, inputs: exactInputs });
+    if (isExactReportSource(result)) exactRequests.set(request, { admission, inputs: exactInputs });
     exactSourceSubmission(admission, exactInputs);
   }
   return request;
@@ -562,10 +534,13 @@ const USER_RELEASE_STATEMENT_BASIS = "docs/IP_AND_DATA_BOUNDARY.md §6: a user i
 /** What a user-released package does not carry, on every record version. None names a result
  * as not carried on the ground of its numerical standing (DEL-08-01 REQ-024). */
 const USER_RELEASE_NOT_CARRIED = ["rule_pack_references", "user_rule_outcomes", "run_comparisons", "handoff_records", "library_records", "audit_assets"];
-/** Record 1.0.0 (pressure-free) and the exact-route record 1.2.0 (D-6, §11; widened by DEL-08-01
- * REQ-024 to every exact-route result the rendered report admits). */
+/** A record's version follows its result's route (DEL-08-01 REQ-024): 1.0.0 for a pressure-free
+ * Euler–Bernoulli result, 1.3.0 for a pressure-free Timoshenko result, and the exact-route record
+ * 1.2.0 (D-6, §11; widened by REQ-024 to every exact-route result the rendered report admits).
+ * The renderer's `USER_RELEASE_*RECORD_VERSION` constants. */
 const USER_RELEASE_RECORD_VERSION = "1.0.0";
 const USER_RELEASE_EXACT_RECORD_VERSION = "1.2.0";
+export const USER_RELEASE_PF_TIMOSHENKO_RECORD_VERSION = "1.3.0";
 
 /** The application clock's reading as the record's `user_released_at` (UTC, whole seconds). */
 export function userReleasedAtOf(date: Date): string {
@@ -573,8 +548,8 @@ export function userReleasedAtOf(date: Date): string {
 }
 
 /** The user's record U (§2.3) for one report, bound to the session's identities and the
- * result document the package carries. Record 1.2.0 for an exact-route document (§11), else
- * 1.0.0. Native admission re-derives and binds every member but `user_released_at`. */
+ * result document the package carries. Record 1.2.0 for an exact-route document (§11), 1.3.0
+ * for a pressure-free Timoshenko one, else 1.0.0. Native admission re-derives and binds every member but `user_released_at`. */
 export async function userReleaseRecord(args: {
   model: PreviewModel;
   result: MechanicsResult;
@@ -587,11 +562,13 @@ export async function userReleaseRecord(args: {
     throw new Error(`${REPORT_USER_RELEASE_RECORD_INVALID}: user_released_at is not YYYY-MM-DDTHH:MM:SSZ.`);
   }
   const envelope = document.result_envelope as JsonRecord;
-  const exact = isExactReportSource(result);
   const run = result.run_id;
+  const recordVersion = isExactReportSource(result)
+    ? USER_RELEASE_EXACT_RECORD_VERSION
+    : isPfTimoshenkoReportSource(result) ? USER_RELEASE_PF_TIMOSHENKO_RECORD_VERSION : USER_RELEASE_RECORD_VERSION;
   return {
     record_kind: "user_release_of_own_project_data",
-    record_version: exact ? USER_RELEASE_EXACT_RECORD_VERSION : USER_RELEASE_RECORD_VERSION,
+    record_version: recordVersion,
     statement: USER_RELEASE_STATEMENT,
     statement_basis: USER_RELEASE_STATEMENT_BASIS,
     standing: "user_statement_of_data_rights_only",

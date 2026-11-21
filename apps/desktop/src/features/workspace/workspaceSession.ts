@@ -176,7 +176,7 @@ import { defaultSelection } from "../model-workspace/modelView";
 import { intentKey } from "../operations/OperationApplyPanel";
 import { buildReportPackageRequest, reportPackageExactSubmission, userReleaseModelRefusal, userReleasedReportPackageUnavailableReason } from "../report/reportPackageRequest";
 import type { UserReleaseDialogRequest } from "../report/UserReleaseDialog";
-import { isExactReportSource } from "../report/exactReportSections";
+import { takesReportAdmission } from "../report/exactReportAdmission";
 import { invokeUserReleasedReportPackageSave, prepareShareableReportPackageSave, type UserReleaseConfirmation } from "../report/userReleasedReportPackageSave";
 import { controlReportPackageRequest } from "../report/reportRedactionProjector";
 import type { ControlledRouteExport } from "../redaction-controls/redactionExportControls";
@@ -4325,7 +4325,7 @@ export function useWorkspaceSession() {
       projectName: basis.model.project.name,
       modelDocumentSha256,
       runId: basis.result.run_id,
-      exactRoute: isExactReportSource(basis.result),
+      statesStanding: takesReportAdmission(basis.result),
       frameStatements: frame.ok ? frame.statements : [],
       refusal: modelRefusal
         ? { kind: "library_or_rule_pack", reason: modelRefusal }

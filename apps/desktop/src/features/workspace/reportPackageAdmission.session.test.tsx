@@ -155,10 +155,10 @@ describe("the user-release dialog's sentence on the result's standing (DEL-08-01
     expect(request.refusal).toBeNull();
     render(<UserReleaseDialog request={request} />);
     const terms = screen.getByTestId("user-release-terms");
-    expect(terms).toHaveTextContent("It needs a result solved in this session: a pressure-free (preview-physics-2) result, or an exact pressure route (pressure-3 or pressure-source-1) result whose mechanics are solved.");
+    expect(terms).toHaveTextContent("It needs a result solved in this session: a pressure-free Euler–Bernoulli (preview-physics-2) result, or a pressure-free Timoshenko (preview-physics-timoshenko-1) or exact pressure route (pressure-3 or pressure-source-1) result whose mechanics are solved.");
     expect((terms.textContent ?? "").includes(STANDING_SENTENCE), terms.textContent ?? "").toBe(exact);
     // The route the session holds the result on, recorded when the dialog opened.
-    expect(request.exactRoute).toBe(exact);
+    expect(request.statesStanding).toBe(exact);
     act(() => request.cancel());
     expect(saveCalls()).toHaveLength(0);
   }, 60000);

@@ -228,6 +228,7 @@ code_paths:
 - fixtures/reports/invented/report_diagnostics_parity.json
 - fixtures/reports/invented/user_release_derivation_vectors.json
 - fixtures/reports/invented/user_release_exact/**
+- fixtures/reports/invented/user_release_pf_timoshenko/**
 - fixtures/reports/invented/user_release_record.json
 - fixtures/reports/invented/user_release_runner_refusal_request.json
 checks:
@@ -283,6 +284,7 @@ checks:
 - apps/desktop/src/features/report/reportRowBindingAdmission.test.tsx
 - apps/desktop/src/features/report/userReleaseDerivation.parity.test.ts
 - apps/desktop/src/features/report/userReleaseExact.parity.test.ts
+- apps/desktop/src/features/report/userReleasePfTimoshenko.parity.test.ts
 - apps/desktop/src/features/report/UserReleaseDialog.test.tsx
 - apps/desktop/src/features/report/reportFrameStatements.test.ts
 - apps/desktop/src/features/report/renderableReportSource.test.ts

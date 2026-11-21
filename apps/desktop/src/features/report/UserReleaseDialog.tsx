@@ -20,9 +20,10 @@ export type UserReleaseDialogRequest = {
   /** SHA-256 of the RFC 8785 bytes of the session model document (64 lowercase hex). */
   modelDocumentSha256: string;
   runId: string;
-  /** Whether the result is an exact-route one (`isExactReportSource`), recorded when the dialog
-   * opens: only its report states the result's numerical standing (DEL-08-01 REQ-024). */
-  exactRoute: boolean;
+  /** Whether the shareable package's report states the result's numerical standing whatever
+   * it is (DEL-08-01 REQ-024): an exact-route or a pressure-free Timoshenko result
+   * (`takesReportAdmission`), recorded when the dialog opens. */
+  statesStanding: boolean;
   /** DEL-08-01 REQ-024, "Package and user release": the report frame's statements on this
    * result's standing, each a line, word for word the renderer's (`reportFrameStatements`);
    * shown before the statement. Empty where the frame states none. */
@@ -129,9 +130,10 @@ function UserReleaseDialogBody({ request }: { request: UserReleaseDialogRequest 
             outcome or run comparison.
           </li>
           <li>
-            It needs a result solved in this session: a pressure-free (preview-physics-2) result, or an exact pressure
-            route (pressure-3 or pressure-source-1) result whose mechanics are solved.
-            {request.exactRoute ? " The report states that result's numerical standing, whatever it is." : null} A model
+            It needs a result solved in this session: a pressure-free Euler–Bernoulli (preview-physics-2) result, or a
+            pressure-free Timoshenko (preview-physics-timoshenko-1) or exact pressure route (pressure-3 or pressure-source-1)
+            result whose mechanics are solved.
+            {request.statesStanding ? " The report states that result's numerical standing, whatever it is." : null} A model
             with a library or rule-pack reference cannot be shared this way.
           </li>
           <li>

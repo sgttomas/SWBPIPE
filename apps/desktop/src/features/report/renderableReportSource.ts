@@ -4,10 +4,9 @@
  * Timoshenko result (a bound route: its render binds the delivered result) whatever its
  * numerical standing, where Current's other requirements hold, its mechanics are
  * solved and the product reader reads it. The report package and the user release
- * take this same source (DEL-08-01 REQ-024, "Package and user release"); on the
- * pressure-free routes they carry only a Current result (`currentSolvedResult`, which
- * also requires numerical eligibility) and refuse any other
- * (`reportPackageSourceUnavailableReason`). Every other output keeps Current.
+ * take this same source and state its standing (DEL-08-01 REQ-024, "Package and user
+ * release"). Every other output keeps Current (`currentSolvedResult`), which also
+ * requires numerical eligibility.
  *
  * This selection is a candidate. The webview holds a native result's header and its
  * native standing, not its rows, so it judges readability from the standing's

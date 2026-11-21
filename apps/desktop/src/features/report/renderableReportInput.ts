@@ -796,6 +796,12 @@ type RenderableReportInputArgs = {
    * for an exact source and refused for any other. A pressure-free source takes none, so
    * its input is unchanged. */
   exactAdmission?: ExactReportAdmission | null;
+  /** Whether the input carries the pressure-free Timoshenko `pf_timoshenko` section, the
+   * admission binding the native render checks against the delivered result in its custody:
+   * true for the rendered report (the default). A package binds no custody, so its input
+   * (false) carries the identity's limitation 0 and the standing record, which the native save
+   * re-derives from the request's own source and the bound model (DEL-08-01 REQ-024). */
+  bindsDeliveredSource?: boolean;
   /** W-11 slice (c) (§4.2): the library store's findings that still apply to `model`; the
    * callers pass `currentLibraryRefFindings(model)`. Each becomes a provenance warning. */
   libraryRefFindings?: ReadonlyArray<LibraryRefFinding>;
@@ -858,6 +864,7 @@ async function renderableReportInput(
     ruleCheckRun = null,
     numericalHealth = null,
     exactAdmission = null,
+    bindsDeliveredSource = true,
     libraryRefFindings = [],
     reportComposition = null
   }: RenderableReportInputArgs,
@@ -871,8 +878,9 @@ async function renderableReportInput(
   }
   const exact = isExactReportSource(result);
   // DEL-05-03 `pf-timoshenko.md` §4: a pressure-free Timoshenko source carries its
-  // limitation 0 entry always, and its `pf_timoshenko` section when it took the admission
-  // (the rendered report; the package binds the entry against its source instead).
+  // limitation 0 entry always; with the admission, its standing record (DEL-08-01 REQ-024),
+  // and on the rendered report its `pf_timoshenko` section (a package binds the entry and the
+  // record against its own source instead, `bindsDeliveredSource`).
   const pfTimoshenko = isPfTimoshenkoReportSource(result);
   if (!exact && !pfTimoshenko && exactAdmission !== null) {
     throw new Error(`${REPORT_EXACT_ADMISSION_BINDING_MISMATCH}: semantic_contract_id`);
@@ -1131,7 +1139,7 @@ async function renderableReportInput(
     // the native render re-derives it from the bound result and model and requires equality.
     ...((exactInputs || pfInputs) && exactAdmission ? { numerical_standing: exactAdmission.numericalStanding } : {}),
     // DEL-05-03 `pf-timoshenko.md` §4: absent on every other source, so its input is unchanged.
-    ...(pfInputs ? { pf_timoshenko: pfTimoshenkoSection(exactAdmission!.binding) } : {}),
+    ...(pfInputs && bindsDeliveredSource && !minimal ? { pf_timoshenko: pfTimoshenkoSection(exactAdmission!.binding) } : {}),
     // W-11 slice (c) (§4.2): absent without references, so such an input is unchanged.
     ...(libraryRefs.length > 0 ? { library_references: libraryRefs } : {})
   };
