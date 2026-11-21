@@ -10,6 +10,7 @@ import { validateRetainedPrecisionTransport } from "../results/retainedPrecision
 import type { RowClassification } from "../results/retainedPrecisionTypes";
 import { verifyAnalysisRunRecord, validateAnalysisRunV03, analysisRowSemantics, sourceBasisReference, modelLoadBasisRefs } from "../../services/analysisRunCompatibility";
 import { Download, FileJson } from "lucide-react";
+import { ExportRow, ExportStepButton } from "../export-step/ExportStep";
 import { useEffect, useState } from "react";
 import { canonicalSha256HexCheckedV1, canonicalJsonCheckedV1, checkedJsonText } from "../../services/hashService";
 import type { AnalysisRunEnvelope, MechanicsResult, PreviewModel, ObjectRef } from "../../types";
@@ -105,28 +106,100 @@ export function StressNeutralExportPanel({
     }).catch(() => { if (current) { setPacket(null); setBinding(null); } });
     return () => { current = false; };
   }, [model, result, analysisRun]);
+  const stale = (event: { preventDefault(): void; stopPropagation(): void }) => {
+    // A same-object edit may not render before JSON or CSV activation.
+    if (liveStressBinding(model, result, analysisRun) !== publicationFingerprint) {
+      event.preventDefault(); event.stopPropagation();
+      setPacket(null); setBinding(null); setPublicationFingerprint(null);
+    }
+  };
   return (
-    <section
+    <ExportRow
+      testId="stress-neutral-panel"
       className="panel stress-neutral-export-panel"
-      aria-label="Stress-neutral CSV JSON export"
-      data-testid="stress-neutral-panel"
-    >
-      <div className="panel-title">
-        <FileJson size={16} aria-hidden="true" />
-        Stress-neutral CSV/JSON
-      </div>
-      <KnownSemanticNotices result={result} testIdPrefix="stress-neutral" />
-      {retainedSummary ? <p className="muted" data-testid="stress-neutral-retained-precision-summary">{retainedSummary}</p> : null}
-      <LoadReferenceDisclosure text={loadReferenceLine} surface="stress-neutral" />
-      {currentPacket ? (
+      ariaLabel="Stress-neutral CSV JSON export"
+      stepTestId="stress-neutral"
+      icon={<FileJson size={16} aria-hidden="true" />}
+      name="Stress-neutral CSV/JSON"
+      what="Writes the solved result rows as a CSV file and a JSON package that carries them with their units."
+      units={currentPacket ? (
+        <StressNeutralLine
+          label="Units"
+          value={`${unitCount(currentPacket)} explicit units; dimensions=${dimensionSummary(
+            currentPacket
+          )}; ${unitDisclosureSummary(currentPacket.unit_system_disclosure)}`}
+          testId="stress-neutral-units"
+        />
+      ) : null}
+      notices={(
         <>
-          <div className="report-actions" onClickCapture={(event) => {
-            // A same-object edit may not render before JSON or CSV activation.
-            if (liveStressBinding(model, result, analysisRun) !== publicationFingerprint) {
-              event.preventDefault(); event.stopPropagation();
-              setPacket(null); setBinding(null); setPublicationFingerprint(null);
-            }
-          }}>
+          <KnownSemanticNotices result={result} testIdPrefix="stress-neutral" />
+          {retainedSummary ? <p className="muted" data-testid="stress-neutral-retained-precision-summary">{retainedSummary}</p> : null}
+          <LoadReferenceDisclosure text={loadReferenceLine} surface="stress-neutral" />
+        </>
+      )}
+      action={(open) => currentPacket ? (
+        <ExportStepButton stepTestId="stress-neutral" open={open} />
+      ) : outputRefusal ? (
+        <>
+          <p className="muted export-row-status" role="status" id="stress-neutral-refusal" data-testid="stress-neutral-load-reference-output-unavailable">{outputRefusal}</p>
+          <ExportStepButton stepTestId="stress-neutral" open={open} disabled describedBy="stress-neutral-refusal" />
+        </>
+      ) : (
+        <>
+          <p className="muted export-row-status" id="stress-neutral-empty" data-testid="stress-neutral-empty">
+            Run mechanics with the native backend to assemble a stress-neutral CSV/JSON package. Bundled references and restored history are unavailable for qualified export.
+          </p>
+          <ExportStepButton stepTestId="stress-neutral" open={open} disabled describedBy="stress-neutral-empty" />
+        </>
+      )}
+      record={currentPacket ? (
+        <>
+          <span className="export-step-summary" data-testid="stress-neutral-summary">
+            available; rows={currentPacket.result_rows.length}; csv_columns={currentPacket.export_profile.csv_columns.length};
+            diagnostics={currentPacket.diagnostics.length}
+          </span>
+          <div className="report-list" data-testid="stress-neutral-body">
+            <StressNeutralLine
+              label="Format"
+              value={`${currentPacket.export_profile.target_family}; profile=${currentPacket.export_profile.profile_id}; schema=${currentPacket.schema_version}`}
+              testId="stress-neutral-format"
+            />
+            <StressNeutralLine
+              label="State binding"
+              value={`${currentPacket.source_model_ref.ref}; ${currentPacket.source_run_ref.ref}; ${currentPacket.source_result_ref.ref}`}
+              testId="stress-neutral-state-binding"
+            />
+            <StressNeutralLine
+              label="Unit witnesses"
+              value={`count=${currentPacket.unit_preservation_witnesses.length}; policy=preserve_source_result_units; conversion=false`}
+              testId="stress-neutral-unit-witnesses"
+            />
+            <StressNeutralLine
+              label="Package"
+              value={`members=${currentPacket.manifest.package_members.length}; stable_ids=${currentPacket.stable_id_map.length}; loss_entries=${currentPacket.loss_report.length}; validation=${currentPacket.validation_report.validation_status}; package_hash=checked`}
+              testId="stress-neutral-package"
+            />
+            <StressNeutralLine
+              label="Boundary"
+              value={`vendor_format=${String(currentPacket.professional_boundary.software_makes_external_compatibility_claim)}; solver_validation=${String(
+                currentPacket.professional_boundary.software_makes_solver_validation_claim
+              )}; code_compliance=${String(currentPacket.professional_boundary.software_makes_compliance_claim)}; professional_reliance=${String(
+                currentPacket.professional_boundary.software_creates_professional_reliance_record
+              )}`}
+              testId="stress-neutral-boundary"
+            />
+          </div>
+        </>
+      ) : null}
+      note={(
+        <small className="report-note">
+          Stress-neutral export is a local review package only; it is not a vendor format or solver input deck. Validation
+          occurs in the user's accepted professional tools; this package is screening and handoff evidence.
+        </small>
+      )}
+      saves={currentPacket ? (
+        <div className="report-actions" onClickCapture={stale}>
         <ControlledExportLink
               className="report-export-link"
               data-testid="stress-neutral-export-link"
@@ -147,62 +220,9 @@ export function StressNeutralExportPanel({
               <Download size={14} aria-hidden="true" />
               CSV
         </ControlledExportLink>
-            <span data-testid="stress-neutral-summary">
-              available; rows={currentPacket.result_rows.length}; csv_columns={currentPacket.export_profile.csv_columns.length};
-              diagnostics={currentPacket.diagnostics.length}
-            </span>
-          </div>
-          <div className="report-list" data-testid="stress-neutral-body">
-            <StressNeutralLine
-              label="Format"
-              value={`${currentPacket.export_profile.target_family}; profile=${currentPacket.export_profile.profile_id}; schema=${currentPacket.schema_version}`}
-              testId="stress-neutral-format"
-            />
-            <StressNeutralLine
-              label="State binding"
-              value={`${currentPacket.source_model_ref.ref}; ${currentPacket.source_run_ref.ref}; ${currentPacket.source_result_ref.ref}`}
-              testId="stress-neutral-state-binding"
-            />
-            <StressNeutralLine
-              label="Units"
-              value={`${unitCount(currentPacket)} explicit units; dimensions=${dimensionSummary(
-                currentPacket
-              )}; ${unitDisclosureSummary(currentPacket.unit_system_disclosure)}`}
-              testId="stress-neutral-units"
-            />
-            <StressNeutralLine
-              label="Unit witnesses"
-              value={`count=${currentPacket.unit_preservation_witnesses.length}; policy=preserve_source_result_units; conversion=false`}
-              testId="stress-neutral-unit-witnesses"
-            />
-            <StressNeutralLine
-              label="Package"
-              value={`members=${currentPacket.manifest.package_members.length}; stable_ids=${currentPacket.stable_id_map.length}; loss_entries=${currentPacket.loss_report.length}; validation=${currentPacket.validation_report.validation_status}; package_hash=checked`}
-              testId="stress-neutral-package"
-            />
-            <StressNeutralLine
-              label="Boundary"
-              value={`vendor_format=${String(packet.professional_boundary.software_makes_external_compatibility_claim)}; solver_validation=${String(
-                packet.professional_boundary.software_makes_solver_validation_claim
-              )}; code_compliance=${String(packet.professional_boundary.software_makes_compliance_claim)}; professional_reliance=${String(
-                packet.professional_boundary.software_creates_professional_reliance_record
-              )}`}
-              testId="stress-neutral-boundary"
-            />
-          </div>
-        </>
-      ) : outputRefusal ? (
-        <p className="muted" role="status" data-testid="stress-neutral-load-reference-output-unavailable">{outputRefusal}</p>
-      ) : (
-        <p className="muted" data-testid="stress-neutral-empty">
-          Run mechanics with the native backend to assemble a stress-neutral CSV/JSON package. Bundled references and restored history are unavailable for qualified export.
-        </p>
-      )}
-      <small className="report-note">
-        Stress-neutral export is a local review package only; it is not a vendor format or solver input deck. Validation
-        occurs in the user's accepted professional tools; this package is screening and handoff evidence.
-      </small>
-    </section>
+        </div>
+      ) : null}
+    />
   );
 }
 

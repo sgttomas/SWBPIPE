@@ -10,6 +10,7 @@ import { useEffect, useState } from "react";
 import { buildCurrentResultExport, type JsonObject } from "./resultExportAdapter";
 import type { CurrentSessionInputManifestEvidence } from "../../services/inputManifestService";
 import { Download, FileJson } from "lucide-react";
+import { ExportRow, ExportStepButton } from "../export-step/ExportStep";
 import type { AnalysisRunEnvelope, Diagnostic, MechanicsResult, ObjectRef, PreviewModel } from "../../types";
 
 function liveResultBinding(model: PreviewModel, result: MechanicsResult | null, analysisRun: AnalysisRunEnvelope | null, inputManifest?: CurrentSessionInputManifestEvidence | null): string | null {
@@ -53,38 +54,53 @@ export function ResultExportPanel({
     if(result&&analysisRun)buildCurrentResultExport({model,result,analysisRun,inputManifest}).then(doc=>{if(active && capturedFingerprint !== null && liveResultBinding(model,result,analysisRun,inputManifest) === capturedFingerprint){setPacket(doc);setBinding([model,result,analysisRun,inputManifest!]);setPublicationFingerprint(capturedFingerprint);}}).catch(error=>{if(active)setFinding(String(error));});
     return ()=>{active=false;};
   },[model,result,analysisRun,inputManifest]);
+  const stale = (event: { preventDefault(): void; stopPropagation(): void }) => {
+    if (liveResultBinding(model,result,analysisRun,inputManifest) !== publicationFingerprint) {
+      event.preventDefault(); event.stopPropagation();
+      setPacket(null); setBinding(null); setPublicationFingerprint(null);
+    }
+  };
   return (
-    <section className="panel result-export-panel" aria-label="Result export audit" data-testid="result-export-panel">
-      <div className="panel-title">
-        <FileJson size={16} aria-hidden="true" />
-        Result Export
-      </div>
-      <KnownSemanticNotices result={result} testIdPrefix="result-export" />
-      {retainedSummary ? <p className="muted" data-testid="result-export-retained-precision-summary">{retainedSummary}</p> : null}
-      <LoadReferenceDisclosure text={loadReferenceLine} surface="result-export" />
-      {currentPacket ? (
+    <ExportRow
+      testId="result-export-panel"
+      className="panel result-export-panel"
+      ariaLabel="Result export audit"
+      stepTestId="result-export"
+      icon={<FileJson size={16} aria-hidden="true" />}
+      name="Result Export"
+      what="Writes the solved result as one local JSON file."
+      units={currentPacket ? (
+        <ExportLine
+          label="Unit witnesses"
+          value={`count=${currentPacket.result_envelope.unit_preservation_witnesses.length}; conversion=${String(
+            currentPacket.result_envelope.unit_preservation_witnesses.some((item: JsonObject) => item.conversion_performed)
+          )}`}
+          testId="result-export-unit-witnesses"
+        />
+      ) : null}
+      notices={(
         <>
-          <div className="report-actions" onClickCapture={(event) => {
-            if (liveResultBinding(model,result,analysisRun,inputManifest) !== publicationFingerprint) {
-              event.preventDefault(); event.stopPropagation();
-              setPacket(null); setBinding(null); setPublicationFingerprint(null);
-            }
-          }}>
-        <ControlledExportLink
-              className="report-export-link"
-              data-testid="result-export-link"
-              nativeCurrentBinding={binding}
-              download={`openpipestress-preview-results-${safeFileToken(currentPacket.result_envelope.run_ref.ref_id)}.json`}
-              href={jsonDataHref(currentPacket)}
-            >
-              <Download size={14} aria-hidden="true" />
-              Local result JSON
-        </ControlledExportLink>
-            <span data-testid="result-export-summary">
-              available; rows={currentPacket.result_envelope.result_sets[0]?.values.length ?? 0}; sets=
-              {currentPacket.result_envelope.result_sets.length}; diagnostics={currentPacket.result_envelope.diagnostics.length}
-            </span>
-          </div>
+          <KnownSemanticNotices result={result} testIdPrefix="result-export" />
+          {retainedSummary ? <p className="muted" data-testid="result-export-retained-precision-summary">{retainedSummary}</p> : null}
+          <LoadReferenceDisclosure text={loadReferenceLine} surface="result-export" />
+        </>
+      )}
+      action={(open) => currentPacket ? (
+        <ExportStepButton stepTestId="result-export" open={open} />
+      ) : (
+        <>
+          <p className="muted export-row-status" id="result-export-empty" data-testid="result-export-empty">
+            {finding ?? "Run mechanics preview with valid Current input proof to assemble a local result JSON for review."}
+          </p>
+          <ExportStepButton stepTestId="result-export" open={open} disabled describedBy="result-export-empty" />
+        </>
+      )}
+      record={currentPacket ? (
+        <>
+          <span className="export-step-summary" data-testid="result-export-summary">
+            available; rows={currentPacket.result_envelope.result_sets[0]?.values.length ?? 0}; sets=
+            {currentPacket.result_envelope.result_sets.length}; diagnostics={currentPacket.result_envelope.diagnostics.length}
+          </span>
           <div className="report-list" data-testid="result-export-body">
             <ExportLine
               label="Format"
@@ -102,13 +118,6 @@ export function ResultExportPanel({
               testId="result-export-units"
             />
             <ExportLine
-              label="Unit witnesses"
-              value={`count=${currentPacket.result_envelope.unit_preservation_witnesses.length}; conversion=${String(
-                currentPacket.result_envelope.unit_preservation_witnesses.some((item: JsonObject) => item.conversion_performed)
-              )}`}
-              testId="result-export-unit-witnesses"
-            />
-            <ExportLine
               label="Reproducibility"
               value={`deterministic_ordering=${String(currentPacket.result_envelope.reproducibility.deterministic_ordering)}; run_hashes=${currentPacket.result_envelope.reproducibility.run_hashes.length}`}
               testId="result-export-reproducibility"
@@ -120,16 +129,28 @@ export function ResultExportPanel({
             />
           </div>
         </>
-      ) : (
-        <p className="muted" data-testid="result-export-empty">
-          {finding ?? "Run mechanics preview with valid Current input proof to assemble a local result JSON for review."}
-        </p>
+      ) : null}
+      note={(
+        <small className="report-note">
+          Result export is a local JSON envelope; stress-neutral CSV/JSON preview is available after a
+          mechanics run, while public transport and local FEA package formats remain TBD.
+        </small>
       )}
-      <small className="report-note">
-        Result export is a local JSON envelope; stress-neutral CSV/JSON preview is available after a
-        mechanics run, while public transport and local FEA package formats remain TBD.
-      </small>
-    </section>
+      saves={currentPacket ? (
+        <div className="report-actions" onClickCapture={stale}>
+        <ControlledExportLink
+              className="report-export-link"
+              data-testid="result-export-link"
+              nativeCurrentBinding={binding}
+              download={`openpipestress-preview-results-${safeFileToken(currentPacket.result_envelope.run_ref.ref_id)}.json`}
+              href={jsonDataHref(currentPacket)}
+            >
+              <Download size={14} aria-hidden="true" />
+              Local result JSON
+        </ControlledExportLink>
+        </div>
+      ) : null}
+    />
   );
 }
 

@@ -1,5 +1,6 @@
 import type { SessionAnalysisRun, SessionResult } from "../../services/nativeResult";
 import { Boxes, Download } from "lucide-react";
+import { ExportRow, ExportStepButton } from "../export-step/ExportStep";
 import type { AnalysisRunEnvelope, MechanicsResult, ObjectRef, PreviewModel, Vec3 } from "../../types";
 
 type GltfPositionGroup = {
@@ -62,12 +63,66 @@ export function ReviewGeometryPanel({
   const packet = buildReviewGeometryPacket({ model, result, analysisRun });
 
   return (
-    <section className="panel review-geometry-panel" aria-label="Review geometry export" data-testid="review-geometry-panel">
-      <div className="panel-title">
-        <Boxes size={16} aria-hidden="true" />
-        Review Geometry Export
-      </div>
-      <div className="report-actions">
+    <ExportRow
+      testId="review-geometry-panel"
+      className="panel review-geometry-panel"
+      ariaLabel="Review geometry export"
+      stepTestId="review-geometry"
+      icon={<Boxes size={16} aria-hidden="true" />}
+      name="Review Geometry Export"
+      what="Writes the pipe centrelines as a glTF file for visual review only."
+      units={(
+        <ReviewGeometryLine
+          label="Unit witnesses"
+          value={`count=${packet.coordinate_unit_witnesses.length}; conversion=${String(packet.unit_system_disclosure.conversion_performed)}; target=${packet.unit_system_disclosure.target_export_units.coordinates}; axis_transform=${packet.unit_system_disclosure.axis_transform_policy}`}
+          testId="review-geometry-unit-witnesses"
+        />
+      )}
+      action={(open) => <ExportStepButton stepTestId="review-geometry" open={open} />}
+      record={(
+        <>
+          <span className="export-step-summary" data-testid="review-geometry-summary">
+            available; format={packet.review_geometry_profile.target_artifact}; segments=
+            {packet.geometry_summary.pipe_segment_count}; nodes={packet.geometry_summary.node_count}; stable_ids=
+            {packet.geometry_summary.stable_id_count}
+          </span>
+          <div className="report-list" data-testid="review-geometry-body">
+            <ReviewGeometryLine
+              label="Format"
+              value={`asset=${packet.gltf_asset.asset.version}; target=${packet.review_geometry_profile.target_artifact}; units=${packet.review_geometry_profile.linear_unit}`}
+              testId="review-geometry-format"
+            />
+            <ReviewGeometryLine
+              label="State binding"
+              value={`${packet.analysis_run_ref.ref}; ${packet.model_state_ref.ref}`}
+              testId="review-geometry-state-binding"
+            />
+            <ReviewGeometryLine
+              label="Coverage"
+              value={`emitted=${packet.coverage.emitted_families.join(",")}; approximated=${packet.coverage.approximated_families.join(",")}; omitted=${packet.coverage.omitted_families.join(",")}`}
+              testId="review-geometry-coverage"
+            />
+            <ReviewGeometryLine
+              label="Stable IDs"
+              value={`map=${packet.sidecar_id_map.entries.length}; direct_metadata=${packet.review_geometry_profile.direct_metadata_policy}; sidecar=required`}
+              testId="review-geometry-stable-ids"
+            />
+            <ReviewGeometryLine
+              label="Boundary"
+              value={reviewGeometryBoundary(packet)}
+              testId="review-geometry-boundary"
+            />
+          </div>
+        </>
+      )}
+      note={(
+        <small className="report-note">
+          Review geometry is visual context only; it is not solver geometry or target compatibility evidence. Validation
+          occurs in the user's accepted professional tools.
+        </small>
+      )}
+      saves={(
+        <div className="report-actions">
         <ControlledExportLink
           className="report-export-link"
           data-testid="review-geometry-export-link"
@@ -77,49 +132,9 @@ export function ReviewGeometryPanel({
           <Download size={14} aria-hidden="true" />
           glTF JSON
         </ControlledExportLink>
-        <span data-testid="review-geometry-summary">
-          available; format={packet.review_geometry_profile.target_artifact}; segments=
-          {packet.geometry_summary.pipe_segment_count}; nodes={packet.geometry_summary.node_count}; stable_ids=
-          {packet.geometry_summary.stable_id_count}
-        </span>
-      </div>
-      <div className="report-list" data-testid="review-geometry-body">
-        <ReviewGeometryLine
-          label="Format"
-          value={`asset=${packet.gltf_asset.asset.version}; target=${packet.review_geometry_profile.target_artifact}; units=${packet.review_geometry_profile.linear_unit}`}
-          testId="review-geometry-format"
-        />
-        <ReviewGeometryLine
-          label="State binding"
-          value={`${packet.analysis_run_ref.ref}; ${packet.model_state_ref.ref}`}
-          testId="review-geometry-state-binding"
-        />
-        <ReviewGeometryLine
-          label="Coverage"
-          value={`emitted=${packet.coverage.emitted_families.join(",")}; approximated=${packet.coverage.approximated_families.join(",")}; omitted=${packet.coverage.omitted_families.join(",")}`}
-          testId="review-geometry-coverage"
-        />
-        <ReviewGeometryLine
-          label="Stable IDs"
-          value={`map=${packet.sidecar_id_map.entries.length}; direct_metadata=${packet.review_geometry_profile.direct_metadata_policy}; sidecar=required`}
-          testId="review-geometry-stable-ids"
-        />
-        <ReviewGeometryLine
-          label="Unit witnesses"
-          value={`count=${packet.coordinate_unit_witnesses.length}; conversion=${String(packet.unit_system_disclosure.conversion_performed)}; target=${packet.unit_system_disclosure.target_export_units.coordinates}; axis_transform=${packet.unit_system_disclosure.axis_transform_policy}`}
-          testId="review-geometry-unit-witnesses"
-        />
-        <ReviewGeometryLine
-          label="Boundary"
-          value={reviewGeometryBoundary(packet)}
-          testId="review-geometry-boundary"
-        />
-      </div>
-      <small className="report-note">
-        Review geometry is visual context only; it is not solver geometry or target compatibility evidence. Validation
-        occurs in the user's accepted professional tools.
-      </small>
-    </section>
+        </div>
+      )}
+    />
   );
 }
 

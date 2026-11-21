@@ -3,6 +3,8 @@ import { LoadReferenceOutputGate } from "../results/LoadReferenceOutputGate";
 import { componentBodyNotices } from "../results/componentBody";
 import { analysisResultHashScope } from "../results/analysisResultHashScope";
 import { Download, FileJson } from "lucide-react";
+import { ExportRow, ExportStepButton, Rendered } from "../export-step/ExportStep";
+import { useState } from "react";
 import type { AnalysisRunEnvelope, Diagnostic, MechanicsResult, PreviewModel } from "../../types";
 import { missingExportProjectUnits, storedExportProjectUnit, type ExportProjectUnitUse } from "../project-units/exportProjectUnits";
 
@@ -56,34 +58,53 @@ export function LocalFeaHandoffPanel({
   // project unit it writes is missing or no result family has one consistent unit.
   const refusal = result && analysisRun ? localFeaHandoffRefusal(model, result) : null;
   const packet = result && analysisRun && !refusal ? buildLocalFeaHandoffPacket({ model, result, analysisRun }) : null;
+  // Whether the output gate admits this result: read from the gate itself (`Rendered`).
+  const [admitted, setAdmitted] = useState(false);
 
   return (
-    <section className="panel local-fea-handoff-panel" aria-label="Local FEA handoff" data-testid="local-fea-panel">
-      <div className="panel-title">
-        <FileJson size={16} aria-hidden="true" />
-        Local FEA Handoff
-      </div>
-      <KnownSemanticNotices result={result} testIdPrefix="local-fea-handoff" />
-      {packet ? (
+    <ExportRow
+      testId="local-fea-panel"
+      className="panel local-fea-handoff-panel"
+      ariaLabel="Local FEA handoff"
+      stepTestId="local-fea"
+      icon={<FileJson size={16} aria-hidden="true" />}
+      name="Local FEA Handoff"
+      what="Writes a local region of the solved model and its result references as a JSON handoff package; no mesh or solver input."
+      units={packet ? (
+        <LocalFeaLine
+          label="Unit witnesses"
+          value={`count=${packet.handoff_package.unit_preservation_witnesses.length}; policy=preserve_source_result_units; conversion=false`}
+          testId="local-fea-unit-witnesses"
+        />
+      ) : null}
+      notices={<KnownSemanticNotices result={result} testIdPrefix="local-fea-handoff" />}
+      action={(open) => packet ? (
         <>
-          <div className="report-actions">
+          {/* The output gate's refusal for a gated result, in place of the save as before; the record stays. */}
+          <LoadReferenceOutputGate result={result} testIdPrefix="local-fea"><Rendered onChange={setAdmitted} /></LoadReferenceOutputGate>
+          <ExportStepButton stepTestId="local-fea" open={open}>{admitted ? "Export…" : "Review…"}</ExportStepButton>
+        </>
+      ) : refusal ? (
         <LoadReferenceOutputGate result={result} testIdPrefix="local-fea">
-        <ControlledExportLink
-              className="report-export-link"
-              data-testid="local-fea-export-link"
-              download={`openpipestress-preview-local-fea-handoff-${safeFileToken(packet.handoff_package.handoff_id)}.json`}
-              href={jsonDataHref(packet)}
-            >
-              <Download size={14} aria-hidden="true" />
-              Handoff JSON
-        </ControlledExportLink>
+          <p className="muted export-row-status" role="status" id="local-fea-refusal" data-testid={refusal.testId}>{refusal.text}</p>
+          <ExportStepButton stepTestId="local-fea" open={open} disabled describedBy="local-fea-refusal" />
         </LoadReferenceOutputGate>
-            <span data-testid="local-fea-summary">
-              available; labels={packet.handoff_package.guidance_assessment.labels.length}; flags=
-              {packet.handoff_package.unsupported_behavior_flags.length}; diagnostics=
-              {packet.handoff_package.diagnostics.length}; mesh=false; solver=false
-            </span>
-          </div>
+      ) : (
+        <>
+          <p className="muted export-row-status" id="local-fea-empty" data-testid="local-fea-empty">
+            Run mechanics preview to assemble a target-neutral local shell/solid FEA handoff package with selected region,
+            transfer-basis references, advisory labels, and explicit TBD flags.
+          </p>
+          <ExportStepButton stepTestId="local-fea" open={open} disabled describedBy="local-fea-empty" />
+        </>
+      )}
+      record={packet ? (
+        <>
+          <span className="export-step-summary" data-testid="local-fea-summary">
+            available; labels={packet.handoff_package.guidance_assessment.labels.length}; flags=
+            {packet.handoff_package.unsupported_behavior_flags.length}; diagnostics=
+            {packet.handoff_package.diagnostics.length}; mesh=false; solver=false
+          </span>
           <div className="report-list" data-testid="local-fea-body">
             <LocalFeaLine
               label="Contract"
@@ -106,11 +127,6 @@ export function LocalFeaHandoffPanel({
               testId="local-fea-transfer"
             />
             <LocalFeaLine
-              label="Unit witnesses"
-              value={`count=${packet.handoff_package.unit_preservation_witnesses.length}; policy=preserve_source_result_units; conversion=false`}
-              testId="local-fea-unit-witnesses"
-            />
-            <LocalFeaLine
               label="Unsupported"
               value={packet.handoff_package.unsupported_behavior_flags.map((item) => item.behavior_label).join("; ")}
               testId="local-fea-unsupported"
@@ -131,22 +147,30 @@ export function LocalFeaHandoffPanel({
             ) : null}
           </div>
         </>
-      ) : refusal ? (
-        <LoadReferenceOutputGate result={result} testIdPrefix="local-fea">
-          <p className="muted" role="status" data-testid={refusal.testId}>{refusal.text}</p>
-        </LoadReferenceOutputGate>
-      ) : (
-        <p className="muted" data-testid="local-fea-empty">
-          Run mechanics preview to assemble a target-neutral local shell/solid FEA handoff package with selected region,
-          transfer-basis references, advisory labels, and explicit TBD flags.
-        </p>
+      ) : null}
+      note={(
+        <small className="report-note">
+          Local FEA handoff output is target-neutral review context only; no mesh, external solver run, or target format
+          is generated. Validation occurs in the user&apos;s accepted professional tools; this package is screening and
+          handoff evidence.
+        </small>
       )}
-      <small className="report-note">
-        Local FEA handoff output is target-neutral review context only; no mesh, external solver run, or target format
-        is generated. Validation occurs in the user&apos;s accepted professional tools; this package is screening and
-        handoff evidence.
-      </small>
-    </section>
+      saves={packet ? (
+        <div className="report-actions">
+        <LoadReferenceOutputGate result={result} testIdPrefix="local-fea">
+        <ControlledExportLink
+              className="report-export-link"
+              data-testid="local-fea-export-link"
+              download={`openpipestress-preview-local-fea-handoff-${safeFileToken(packet.handoff_package.handoff_id)}.json`}
+              href={jsonDataHref(packet)}
+            >
+              <Download size={14} aria-hidden="true" />
+              Handoff JSON
+        </ControlledExportLink>
+        </LoadReferenceOutputGate>
+        </div>
+      ) : null}
+    />
   );
 }
 

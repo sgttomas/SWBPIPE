@@ -1,5 +1,7 @@
 import type { SessionAnalysisRun, SessionResult } from "../../services/nativeResult";
 import { Download, FileText } from "lucide-react";
+import { ExportRow, ExportStepButton, Rendered } from "../export-step/ExportStep";
+import { useState } from "react";
 import { LoadReferenceOutputGate } from "../results/LoadReferenceOutputGate";
 import { usePackageHash, withCanonicalPackageHash } from "../../services/usePackageHash";
 import type { AnalysisRunEnvelope, MechanicsResult, ObjectRef, PreviewModel } from "../../types";
@@ -95,18 +97,94 @@ export function PcfExportPanel({
   const projectUnitRefusal = projectUnitRefusalText("PCF", PCF_PROJECT_UNIT_MISSING, packet.diagnostics);
   const lengthRefusal = projectUnitRefusal ? null : lengthUnitRefusalText(packet.diagnostics);
 
+  const refused = Boolean(projectUnitRefusal || lengthRefusal);
+  // Whether the output gate admits this result: read from the gate itself (`Rendered`).
+  const [admitted, setAdmitted] = useState(false);
+
   return (
-    <section className="panel pcf-export-panel" aria-label="Conservative PCF export" data-testid="pcf-export-panel">
-      <div className="panel-title">
-        <FileText size={16} aria-hidden="true" />
-        Conservative PCF Export
-      </div>
-      <div className="report-actions">
+    <ExportRow
+      testId="pcf-export-panel"
+      className="panel pcf-export-panel"
+      ariaLabel="Conservative PCF export"
+      stepTestId="pcf-export"
+      icon={<FileText size={16} aria-hidden="true" />}
+      name="Conservative PCF Export"
+      what="Writes the pipe segments as PCF text, with a JSON package that lists what PCF leaves out."
+      units={(
+        <PcfLine
+          label="Units"
+          value={unitDisclosureSummary(packet.unit_system_disclosure)}
+          testId="pcf-export-units"
+        />
+      )}
+      action={(open) => (
+        <>
+        {/* The output gate's refusal for a gated result, in place of the export's save as before (§7.4's and §7.5's
+            refusals come after it, as they did inside it). */}
+        <LoadReferenceOutputGate result={result} testIdPrefix="pcf-export"><Rendered onChange={setAdmitted} /></LoadReferenceOutputGate>
+        {admitted && projectUnitRefusal ? (
+          <p className="muted export-row-status" role="status" id="pcf-export-refusal" data-testid="pcf-export-project-unit-refusal">{projectUnitRefusal}</p>
+        ) : admitted && lengthRefusal ? (
+          <p className="muted export-row-status" role="status" id="pcf-export-refusal" data-testid="pcf-export-length-unit-refused">{lengthRefusal}</p>
+        ) : null}
+        <ExportStepButton stepTestId="pcf-export" open={open} describedBy={refused ? "pcf-export-refusal" : undefined}>
+          {admitted && !refused ? "Export…" : "Review…"}
+        </ExportStepButton>
+        </>
+      )}
+      record={(
+        <>
+          <span className="export-step-summary" data-testid="pcf-export-summary">
+            {projectUnitRefusal || lengthRefusal ? "refused" : "available"}; segments={packet.pcf_payload.pipe_segments.length}; nodes={packet.pcf_payload.nodes.length};
+            validation={packet.validation_report.validation_status}; losses={packet.loss_report.length}
+          </span>
+          <div className="report-list" data-testid="pcf-export-body">
+            <PcfLine
+              label="Profile"
+              value={`${packet.export_profile.target_family}; profile=${packet.export_profile.profile_id}; target_version=${packet.export_profile.target_profile_version_basis}`}
+              testId="pcf-export-profile"
+            />
+            <PcfLine
+              label="State binding"
+              value={`${packet.source_model_ref.ref}; ${packet.model_state_ref.ref}; ${packet.analysis_run_ref.ref}`}
+              testId="pcf-export-state-binding"
+            />
+            <PcfLine
+              label="Coverage"
+              value={`emitted=pipe_segments; omitted=supports; approximated=components; tbd=nominal_size,target_profile`}
+              testId="pcf-export-coverage"
+            />
+            <PcfLine
+              label="Conversion witnesses"
+              value={`count=${packet.conversion_witnesses.length}; scope=node.coordinates,pipe_segments.outside_diameter,pipe_segments.wall_thickness; target_length=${packet.pcf_payload.units.coordinates}`}
+              testId="pcf-export-conversion-witnesses"
+            />
+            <PcfLine
+              label="Package"
+              value={`members=${packet.manifest.package_members.length}; stable_ids=${packet.stable_id_map.length}; diagnostics=${packet.diagnostics.length}; pcf_lines=${packet.manifest.pcf_artifact.line_count}; package_hash=${packet.manifest.canonical_package_hash_status}`}
+              testId="pcf-export-package"
+            />
+            <PcfLine
+              label="Boundary"
+              value={`target_compatibility=${String(packet.professional_boundary.software_makes_target_compatibility_claim)}; solver_validation=${String(packet.professional_boundary.software_makes_solver_validation_claim)}; code_compliance=${String(packet.professional_boundary.software_makes_code_compliance_claim)}; professional_reliance=${String(packet.professional_boundary.software_creates_professional_reliance_record)}`}
+              testId="pcf-export-boundary"
+            />
+          </div>
+        </>
+      )}
+      note={(
+        <small className="report-note">
+          PCF export is a conservative local review package only; unresolved target profile, nominal size, support,
+          component, and translator-default behavior remain visible in diagnostics and loss reporting.
+        </small>
+      )}
+      saves={(
+        <div className="report-actions">
         <LoadReferenceOutputGate result={result} testIdPrefix="pcf-export">
         {projectUnitRefusal ? (
-          <p className="muted" role="status" data-testid="pcf-export-project-unit-refusal">{projectUnitRefusal}</p>
+          <p className="muted" role="status" data-testid="pcf-export-step-refusal">{projectUnitRefusal}</p>
         ) : lengthRefusal ? (
-          <p className="muted" role="status" data-testid="pcf-export-length-unit-refused">{lengthRefusal}</p>
+          <p className="muted" role="status" data-testid="pcf-export-step-refusal">{lengthRefusal}</p>
         ) : (
         <>
         <ControlledExportLink
@@ -130,53 +208,9 @@ export function PcfExportPanel({
         </>
         )}
         </LoadReferenceOutputGate>
-        <span data-testid="pcf-export-summary">
-          {projectUnitRefusal || lengthRefusal ? "refused" : "available"}; segments={packet.pcf_payload.pipe_segments.length}; nodes={packet.pcf_payload.nodes.length};
-          validation={packet.validation_report.validation_status}; losses={packet.loss_report.length}
-        </span>
-      </div>
-      <div className="report-list" data-testid="pcf-export-body">
-        <PcfLine
-          label="Profile"
-          value={`${packet.export_profile.target_family}; profile=${packet.export_profile.profile_id}; target_version=${packet.export_profile.target_profile_version_basis}`}
-          testId="pcf-export-profile"
-        />
-        <PcfLine
-          label="State binding"
-          value={`${packet.source_model_ref.ref}; ${packet.model_state_ref.ref}; ${packet.analysis_run_ref.ref}`}
-          testId="pcf-export-state-binding"
-        />
-        <PcfLine
-          label="Coverage"
-          value={`emitted=pipe_segments; omitted=supports; approximated=components; tbd=nominal_size,target_profile`}
-          testId="pcf-export-coverage"
-        />
-        <PcfLine
-          label="Units"
-          value={unitDisclosureSummary(packet.unit_system_disclosure)}
-          testId="pcf-export-units"
-        />
-        <PcfLine
-          label="Conversion witnesses"
-          value={`count=${packet.conversion_witnesses.length}; scope=node.coordinates,pipe_segments.outside_diameter,pipe_segments.wall_thickness; target_length=${packet.pcf_payload.units.coordinates}`}
-          testId="pcf-export-conversion-witnesses"
-        />
-        <PcfLine
-          label="Package"
-          value={`members=${packet.manifest.package_members.length}; stable_ids=${packet.stable_id_map.length}; diagnostics=${packet.diagnostics.length}; pcf_lines=${packet.manifest.pcf_artifact.line_count}; package_hash=${packet.manifest.canonical_package_hash_status}`}
-          testId="pcf-export-package"
-        />
-        <PcfLine
-          label="Boundary"
-          value={`target_compatibility=${String(packet.professional_boundary.software_makes_target_compatibility_claim)}; solver_validation=${String(packet.professional_boundary.software_makes_solver_validation_claim)}; code_compliance=${String(packet.professional_boundary.software_makes_code_compliance_claim)}; professional_reliance=${String(packet.professional_boundary.software_creates_professional_reliance_record)}`}
-          testId="pcf-export-boundary"
-        />
-      </div>
-      <small className="report-note">
-        PCF export is a conservative local review package only; unresolved target profile, nominal size, support,
-        component, and translator-default behavior remain visible in diagnostics and loss reporting.
-      </small>
-    </section>
+        </div>
+      )}
+    />
   );
 }
 
