@@ -54,6 +54,7 @@ import type { UiDensityPreference, UiThemePreference } from "./features/workspac
 import type React from "react";
 import { Fragment, useMemo, useState } from "react";
 import { AgentProposalPanel } from "./features/agent-proposals/AgentProposalPanel";
+import { PROPOSAL_BUSY_TITLE, ProposalPressStatus, useProposalPress, type ProposalPress } from "./features/agent-proposals/useProposalPress";
 import { CaepipeMbfExportPanel } from "./features/caepipe-mbf/CaepipeMbfExportPanel";
 import { ComparisonPanel } from "./features/comparison/ComparisonPanel";
 import { ComparisonPackageNotice } from "./features/comparison/ComparisonPackageNotice";
@@ -250,6 +251,8 @@ function AppSession() {
   // checks below. The builder's own refusals (admission, rule-check binding, rule
   // packs) are shown in the report panel's status line after an attempt.
   const reportPackageUnavailable = reportPackageUnavailableReason(currentSolvedResult);
+  // The two sample proposal buttons share one press: each ends in a line at the button pressed.
+  const proposalPress = useProposalPress({ generate: handleProposal, proposal, result });
   // The viewport's result overlays read the same standing and numerical health view as the results panel.
   const viewportResultStanding = useMemo(() => ({ eligible: numericallyEligible, health: numericalHealth }), [numericallyEligible, numericalHealth]);
   const {
@@ -624,7 +627,7 @@ function AppSession() {
               selectedReviewTarget={selectedReviewTarget}
               statusText={r3ExitJourneyStatus({ result, ruleCheckAggregate, projectSummary })}
               reviewActive={activeSection === "operations" && operationTab === "review"}
-              onGenerateProposal={handleProposal}
+              proposalPress={proposalPress}
               onOpenOperations={() => { setActiveSection("operations"); setOperationTab("review"); }}
               onOpenResults={() => setActiveSection("results")}
               onRunMechanics={handleRun}
@@ -737,7 +740,7 @@ function AppSession() {
                     proposal={proposal}
                     mechanicsReady={Boolean(result)}
                     selectedReviewTarget={selectedReviewTarget}
-                    onLoad={handleProposal}
+                    press={proposalPress}
                   />
                 </div>
               </section>
@@ -1613,7 +1616,7 @@ function AgentWorkbenchPanel({
   selectedReviewTarget,
   statusText,
   reviewActive,
-  onGenerateProposal,
+  proposalPress,
   onOpenOperations,
   onOpenResults,
   onRunMechanics
@@ -1628,7 +1631,7 @@ function AgentWorkbenchPanel({
   selectedReviewTarget: SelectedReviewTarget | null;
   statusText: string;
   reviewActive: boolean;
-  onGenerateProposal: () => void;
+  proposalPress: ProposalPress;
   onOpenOperations: () => void;
   onOpenResults: () => void;
   onRunMechanics: () => void;
@@ -1665,12 +1668,13 @@ function AgentWorkbenchPanel({
         <button
           type="button"
           data-testid="agent-generate-proposal"
-          onClick={onGenerateProposal}
-          disabled={!mechanicsReady}
-          title={mechanicsReady ? undefined : "Run mechanics before generating a review proposal."}
+          onClick={() => proposalPress.press("workbench")}
+          disabled={!mechanicsReady || proposalPress.working}
+          aria-busy={proposalPress.workingAt("workbench") || undefined}
+          title={!mechanicsReady ? "Run mechanics before generating a review proposal." : proposalPress.working ? PROPOSAL_BUSY_TITLE : undefined}
         >
           <Sparkles size={15} aria-hidden="true" />
-          Propose
+          {proposalPress.workingAt("workbench") ? "Proposing…" : "Propose"}
         </button>
         <button type="button" data-testid="agent-open-operations" aria-pressed={reviewActive} onClick={onOpenOperations}>
           <ClipboardCheck size={15} aria-hidden="true" />
@@ -1681,6 +1685,7 @@ function AgentWorkbenchPanel({
           Inspect
         </button>
       </div>
+      <ProposalPressStatus line={proposalPress.lineAt("workbench")} testId="agent-generate-proposal-outcome" />
 
       <div className="agent-proposal-summary" data-testid="agent-proposal-summary">
         {proposal ? (

@@ -8957,7 +8957,7 @@ describe("SWBPIPE desktop preview", () => {
     const target = { target_type: "diagnostic" as const, id: selectedId };
     const preservedProposal = await loadSampleProposal(source, target);
     view.unmount();
-    render(<AgentProposalPanel proposal={preservedProposal} mechanicsReady={false} selectedReviewTarget={target} onLoad={vi.fn()} />);
+    render(<AgentProposalPanel proposal={preservedProposal} mechanicsReady={false} selectedReviewTarget={target} press={{ working: false, workingAt: () => false, lineAt: () => null, press: vi.fn() }} />);
     expect(screen.getByRole("button", { name: /Generate review proposal/i })).toBeDisabled();
     const proposal = await screen.findByLabelText("Agentic proposal");
     expect(
