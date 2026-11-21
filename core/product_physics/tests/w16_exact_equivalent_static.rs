@@ -1042,6 +1042,36 @@ fn generated_identities_are_refused_document_wide() {
     }
 }
 
+/// Decision 5 of issue 452: a declared operating comparison stays refused on
+/// the exact route when its operands generate. A result-state subtraction
+/// that declares `difference_basis` over two generating cases of a
+/// load/reference-state document is refused by name
+/// (LOAD_COMBINATION_DIFFERENCE_BASIS_EXACT_UNSUPPORTED), with no rows; the
+/// same subtraction without the declaration publishes its rows.
+#[test]
+fn a_declared_difference_over_generating_load_state_cases_is_refused() {
+    let (_, plain) = reference_request(&case_ref("W16C-SEISMIC-EX-EB"));
+    let mut wire = load_state_document_of(&plain);
+    let mut second = wire["model"]["load_cases"][0].clone();
+    second["id"] = json!("case:w16c-operating");
+    second["equivalent_static"]["seismic"]["g_factor_y"] = qv(2.0 * input("/seismic/g_factor_y"), "1");
+    wire["model"]["load_cases"].as_array_mut().unwrap().push(second);
+    let subtraction = json!({"id": "combination:difference", "basis": "result_state_subtraction", "minuend_id": "case:w16c-operating",
+        "subtrahend_id": CASE, "provenance": PROV});
+    let mut declared = wire.clone();
+    let mut with_basis = subtraction.clone();
+    with_basis["difference_basis"] = json!("operating_minus_sustained");
+    declared["model"]["combinations"] = json!([with_basis]);
+    let found = refused(&declared, "LOAD_COMBINATION_DIFFERENCE_BASIS_EXACT_UNSUPPORTED", "declared difference over generating cases");
+    assert_eq!(found[0]["affected_refs"], json!(["combination:difference"]));
+    let mut undeclared = wire.clone();
+    undeclared["model"]["combinations"] = json!([subtraction]);
+    for mode in MODES {
+        let out = solved(&undeclared, Route::Exact, mode, "the undeclared subtraction");
+        assert!(rows(&out).iter().any(|r| r["basis_ref"]["ref_type"] == "combination" && r["basis_ref"]["ref_id"] == "combination:difference"), "{mode:?}");
+    }
+}
+
 /// Decision 2 (vi) of issue 452: a generated case commits whole or not at
 /// all. Valid seismic inputs beside invalid wind inputs refuse the case: no
 /// row, no generated record and no load-state record is published.
