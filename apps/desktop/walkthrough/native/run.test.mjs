@@ -1586,7 +1586,9 @@ test("on recomposition the claims come from the verified sidecar bytes, never fr
   assert.equal(edited.entry("window").evidence, "missing");
   assert.match(edited.entry("window").not_supplying[0].why, /edited after the launch ended/);
   const attended = edited.index.journeys.find((journey) => journey.name === "attended");
-  assert.match(attended.unexplained.find((item) => item.file === "captures/01-capture.json").why, /^a sidecar recorded without a picture that counts for nothing: this sidecar on disk is not the one its launch recorded/);
+  const said = attended.unexplained.filter((item) => item.file === "captures/01-capture.json").map((item) => item.why);
+  assert.ok(said.includes("a sidecar with no picture of the same name"), JSON.stringify(said));
+  assert.ok(said.some((why) => /^a sidecar recorded without a picture that counts for nothing: this sidecar on disk is not the one its launch recorded/.test(why)), JSON.stringify(said));
   // Removed, or recorded without a hash, likewise.
   assert.equal(surfacesIndex(t, { sidecars: [{ picture: false, prevented: statement }], after: (folder) => rmSync(path.join(folder, "01-capture.json")) }).entry("window").evidence, "missing");
   const unhashed = surfacesIndex(t, { sidecars: [{ picture: false, prevented: statement }], afterPart: (part) => { delete part.captures.records_without_picture[0].sidecar_sha256; } });
