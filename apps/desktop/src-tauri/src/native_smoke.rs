@@ -574,6 +574,26 @@ pub fn native_smoke_menu(app: AppHandle, command_id: String) {
     crate::dispatch_native_menu_command(&app, &command_id);
 }
 
+/// A quit or a close of the main window, delivered by the route a person's takes: `"quit"` runs SWBPIPE › Quit
+/// SWBPIPE's own handling (`request_quit`, which the menu click calls), `"window"` asks the main window to close, so
+/// its close-requested handler runs. Either way the unsaved-changes guard holds the request and asks the web view,
+/// where the person answers; this answers no prompt, abandons no request and exits nothing of its own. It returns once
+/// the request is made; where the app then exits, the caller may never see the reply.
+#[tauri::command]
+pub fn native_smoke_request_close(app: AppHandle, kind: String) -> Result<(), String> {
+    match kind.as_str() {
+        "quit" => {
+            crate::request_quit(&app);
+            Ok(())
+        }
+        "window" => {
+            let window = app.get_webview_window("main").ok_or_else(|| "NATIVE-WINDOW-UNAVAILABLE: main webview is not installed".to_string())?;
+            window.close().map_err(|error| error.to_string())
+        }
+        other => Err(format!("NATIVE-CLOSE-KIND-UNKNOWN: {other:?}; the kind is \"quit\" or \"window\"")),
+    }
+}
+
 /// One entry of the menu the app built, as [`native_smoke_menu_items`] returns it. A separator carries nothing; an
 /// item its label as the menu shows it (mnemonics stripped), its command identifier where it has one (the id a click
 /// dispatches; a system item such as Copy or About has none), whether it is enabled where the menu API reports it
