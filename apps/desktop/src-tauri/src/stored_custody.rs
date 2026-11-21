@@ -479,8 +479,8 @@ pub(crate) fn open_project_in_store(memory: &NativeLeaseMemory<'_>, path: PathBu
             match registry.restore_with_basis(
                 epoch,
                 source.clone(),
-                HeldResult::restored_in_custody(run.result, run.result_lease).read_under(found.recorded),
-                Some(HeldResult::restored_in_custody(run.record, run.record_lease)),
+                HeldResult::restored_in_custody(run.result, run.result_lease).read_under(found.recorded).withheld(!found.read()),
+                Some(HeldResult::restored_in_custody(run.record, run.record_lease).withheld(!found.read())),
                 Some(basis),
             ) {
                 Ok(handle) => {
@@ -627,7 +627,7 @@ pub(crate) fn read_run_in_store(memory: &NativeLeaseMemory<'_>, path: PathBuf, p
     // The handoff: the leases backing the held texts leave the command's
     // total when the registry establishes the handle.
     let handle = registry
-        .restore(epoch, source.clone(), HeldResult::restored_in_custody(result_json, result_lease).read_under(found.recorded), Some(HeldResult::restored_in_custody(record_text, record_lease)))
+        .restore(epoch, source.clone(), HeldResult::restored_in_custody(result_json, result_lease).read_under(found.recorded).withheld(!found.read()), Some(HeldResult::restored_in_custody(record_text, record_lease).withheld(!found.read())))
         .map_err(|error| format!("{RESTORE_REFUSED}: recorded run `{}` was not opened: {}", stored_read::shown(recording_id), restore_refusal(error)))?;
     let unpublished = Unpublished::new(registry, &handle);
     Ok(NativeRunRead {

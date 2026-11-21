@@ -501,6 +501,60 @@ _PRESSURE_CONTRACT_PATH = _RESULTS_DIR / "semantic_contract_v0_3_pressure_3.json
 # follows the retired-identity rule and is refused by name (SOURCE_PRESSURE_2_RETIRED). None is current.
 # The desktop's twin is analysisRunCompatibility.ts RECORDED_RUN_TABLE_BASES.
 RECORDED_RUN_TABLE_BASES: tuple[tuple[str, str, str], ...] = ()
+# Former digests of a table, (id, sha256): the SHA-256 of that table file's bytes at a main-line revision, or the digest
+# a committed recorded run of main binds (fixtures/persistence/recorded_model_*). Read only
+# to choose the words of ANALYSIS_SEMANTIC_CONTRACT_MISMATCH; never to admit a record. Written from the repository's
+# history by tools/validation/former_table_digests.py (write; Repository checks fail when it differs); not edited by
+# hand. The twins, row for row and in order: semanticContractRefusal.ts and analysis_run_v03_validate.rs
+# KNOWN_FORMER_TABLE_DIGESTS (stored_custody_tests.rs requires the three equal).
+KNOWN_FORMER_TABLE_DIGESTS: tuple[tuple[str, str], ...] = (
+    ("openpipestress.result_semantics/0.3.0/physics-retained-1", "33cc0c4dc1d7dea07e14c16e07f4ee3f93cc2f84e4dd0494e232397d4e3861c1"),
+    ("openpipestress.result_semantics/0.3.0/physics-retained-1", "48a969580673b00d25970b472fc28d974f7edc2cc602eb5deb6627a1164e1f41"),
+    ("openpipestress.result_semantics/0.3.0/physics-retained-1", "1ba0a08bfdaebaa53514602d6e1b2d4da263580cff8fd0b2c3de85dc01910bf1"),
+    ("openpipestress.result_semantics/0.3.0/physics-retained-1", "6218734669b76d98f64e22804ca862ba43d543b7c0d22894b196724998c39be8"),
+    ("openpipestress.result_semantics/0.3.0/physics-retained-1", "cf29fd5fc5d61de0f1133e9668b05f3d62ae8f696944fe04de7470029f5357dd"),
+    ("openpipestress.result_semantics/0.3.0/physics-retained-1", "045f6f0d8ce350246b21fb712d2dd14bf3a7f7f3690e66e062cbbf77d3696a3b"),
+    ("openpipestress.result_semantics/0.3.0/physics-retained-1", "040ef9a613607cb6cb4aab6f34646481efd81e060681c364b72df4e129c8c034"),
+    ("openpipestress.result_semantics/0.3.0/physics-retained-1", "85c2678a78e794b44761c11efb73c215645c7e2560d802ac8ad6075e7804c691"),
+    ("openpipestress.result_semantics/0.3.0/physics-retained-1", "320dc3f1f75944af8b66da1287e6f8ee5e1fcd5fe005752f2c90bf8c89a9c894"),
+    ("openpipestress.result_semantics/0.3.0/physics-retained-1", "f17bd9d57ee8d1cef4b465715e4edbf030faa5aa4f5282ad7927c25e3f6668d3"),
+    ("openpipestress.result_semantics/0.3.0/pressure-2", "be61c6ea828797ad5664d06a2c835b28deffaff07cc33fec6bb4d48a8fcb0919"),
+    ("openpipestress.result_semantics/0.3.0/pressure-2", "5451fbf3e10e085c90b523baa7daf5fc723659e0d874d988d23807be7d2fefe6"),
+    ("openpipestress.result_semantics/0.3.0/pressure-2", "d46e1963d7502b8e41898805128f2807b2670a1d4c738c71876002ed727e5faf"),
+    ("openpipestress.result_semantics/0.3.0/pressure-2", "032e861fc66bf5f34a081b104ec879a39831bfd6472b186954966ea57d65f025"),
+    ("openpipestress.result_semantics/0.3.0/pressure-2", "a2db16a515d8e4e1c1bcd6607861df0e7e58cbf1cf82a0b984e2f1c0f128382e"),
+    ("openpipestress.result_semantics/0.3.0/pressure-2", "be29fabcfacb1070a51bfb56dcfe61b4e4125638e249c3c0e96d092cc8aba43f"),
+    ("openpipestress.result_semantics/0.3.0/pressure-2", "10455bf348b46efac998b6635b537c9e3149a7d1c7a29ea96c0e3783a2de9ad6"),
+    ("openpipestress.result_semantics/0.3.0/pressure-2", "2c20583d3c06e226a13bb7f9649b04aeea0f0f6948b5fa1cbd944afd07413645"),
+    ("openpipestress.result_semantics/0.3.0/pressure-2", "21b7426ec1c50ba5f74539984261554d06b9b6a26ec26f7d5765b5faa7d6bb90"),
+    ("openpipestress.result_semantics/0.3.0/pressure-2", "c5fe09a2dc82068f46ce8dd0b5873071af1ec13e62c9bacf0a009570d7e5d2ad"),
+    ("openpipestress.result_semantics/0.3.0/pressure-source-1", "609a4e92ac19de0f5a1dd067dab64b4abeb7b3b70511e2095455f1d000d28e2c"),
+    ("openpipestress.result_semantics/0.3.0/preview-physics-2", "1ccc9561cb4ce59d047f3dab7927a927c44a707efb3acb90e7b07a21b3bad0a2"),
+    ("openpipestress.result_semantics/0.3.0/preview-physics-2", "e7b93f416f700f8efdb31bf1ba26dedde52963d768d6ead5a73dbf1c645a360c"),
+    ("openpipestress.result_semantics/0.3.0/preview-physics-2", "f41b9d3ed0c1b7abaee0b98ca1a28aa1a2d109bce443b98d53a2080c1c504ce9"),
+    ("openpipestress.result_semantics/0.3.0/preview-physics-2", "563db3c7c44279face3adc60a76a512de38520357e89ea4b49ad11d20946db89"),
+    ("openpipestress.result_semantics/0.3.0/preview-physics-retained-1", "b001070e5fedeeb101522b22ce0d61bb7cf85f82e86b8d851713f8d9fc8c4c46"),
+    ("openpipestress.result_semantics/0.3.0/preview-physics-retained-1", "26dce9c21261b1ca894af05a3b6f4a94db88904894cb47f7296f892e72ecfb7e"),
+    ("openpipestress.result_semantics/0.3.0/preview-physics-retained-1", "b4377e73e8a83edb57b4f0c41dbaef384385e0f6b4810103a106a334c8edbe14"),
+    ("openpipestress.result_semantics/0.3.0/preview-physics-retained-1", "d0bab3502b4018ce0596757a933bd6306f402dc3741a10af24a094e8c66544e8"),
+    ("openpipestress.result_semantics/0.3.0/preview-physics-timoshenko-1", "a7b83c37a4af9bf70f56513f80883003a2a3860387319311ea2e967dd0cf764b"),
+    ("openpipestress.result_semantics/0.3.0/preview-physics-timoshenko-1", "ce49ebe07bc05431ea1f770c1933b5bf58f4b1c8b66fb6f36810f2ef7a58cd43"),
+    ("openpipestress.result_semantics/0.3.0/preview-physics-timoshenko-1", "6f6494907e3ead979ea27e5ff85f54617589c9195dc84d40a02752a0b006ef44"),
+    ("openpipestress.result_semantics/0.3.0/preview-physics-timoshenko-1", "f64473f5a60ac2bb34d8006b40bf044800f0c97454c570bbe88d1f1d96b7bdfc"),
+    ("openpipestress.result_semantics/0.3.0/pressure-2", "3e2aac3cbe1dd967292dc2524cc7e12a35b162f14795c13b741acaa2b964625d"),
+)
+ANALYSIS_SEMANTIC_CONTRACT_MISMATCH = "ANALYSIS_SEMANTIC_CONTRACT_MISMATCH"
+_FORMER_TABLE_TEXT = ("this run was recorded under an earlier revision of these result rules, which this version cannot interpret; "
+                      "the stored run is unchanged; run the analysis again on its saved model state to create a new result")
+_UNRECOGNISED_TABLE_TEXT = ("this run names a revision of these result rules that this version does not recognise; "
+                            "the stored run is unchanged; run the analysis again on its saved model state to create a new result")
+
+
+def semantic_contract_mismatch(recorded: Any) -> str:
+    """The refusal of a record whose table binding is not accepted, worded by whether the binding it names is a known
+    former digest of that table."""
+    former = isinstance(recorded, Mapping) and (recorded.get("id"), recorded.get("sha256")) in KNOWN_FORMER_TABLE_DIGESTS
+    return f"{ANALYSIS_SEMANTIC_CONTRACT_MISMATCH}: {_FORMER_TABLE_TEXT if former else _UNRECOGNISED_TABLE_TEXT}"
 
 
 def recorded_run_semantic_binding(recorded: Any, contract_id: str, contract_hash: str) -> dict[str, str]:
@@ -959,7 +1013,7 @@ def validate_analysis_run_v0_3(envelope: Mapping[str, Any], source: Mapping[str,
         raise ValueError("ANALYSIS_SOURCE_RUN_MISMATCH")
     semantic = recorded_run_semantic_binding(run.get("reproducibility", {}).get("semantic_contract"), contract_id, contract_hash)
     if run.get("reproducibility", {}).get("semantic_contract") != semantic:
-        raise ValueError("ANALYSIS_SEMANTIC_CONTRACT_MISMATCH")
+        raise ValueError(semantic_contract_mismatch(run.get("reproducibility", {}).get("semantic_contract")))
     hashes = [item for item in run.get("hashes", []) if item.get("payload_scope") == "received_result"]
     expected_hash = _checksum("received_result", {"object_type": "ResultEnvelope", "ref": f"result-envelope:{source.get('run_id')}"}, source, hash_fn)
     if hashes != [expected_hash]:

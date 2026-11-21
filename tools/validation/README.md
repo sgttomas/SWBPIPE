@@ -109,3 +109,16 @@ same physical numbers as today, bit for bit.
   Every other number is compared as binary64 bits, and every other string exactly. Pass
   `--examples-dir` to use prebuilt examples; otherwise they are built with `$CARGO`
   (release).
+
+## Known former table digests
+
+`former_table_digests.py` derives the known former digests of the result tables (DEL-05-02,
+DEL-14-02), which choose only the words of `ANALYSIS_SEMANTIC_CONTRACT_MISMATCH` and never admit
+a record. It reads each `fixtures/results/semantic_contract_v0_3_*.json` file's first-parent history
+up to the merge base of HEAD and the main branch, plus the recorded runs under
+`fixtures/persistence/recorded_model_*`. It then writes (`write`) or checks (`check`) the three
+copies in `core/analysis_runs/compatibility.py`, `semanticContractRefusal.ts` and
+`analysis_run_v03_validate.rs`. A unit that revises a table runs `write`. History is read locally
+only (`--no-lazy-fetch`). A shallow clone, or a partial clone missing a revision's object, is
+refused. `test_former_table_digests.py` runs in the Repository checks job, whose clone has full
+history and no blob filter; no other hosted job reads this history.

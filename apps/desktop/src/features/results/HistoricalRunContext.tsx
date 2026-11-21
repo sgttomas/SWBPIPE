@@ -1,5 +1,5 @@
 import { isRetainedRoute } from "./numericalResultQuality";
-import { recordedReaderDispatch, sourceContract } from "./resultReader";
+import { readerDispatch, recordedReaderDispatch, sourceContract, type ReaderDispatch } from "./resultReader";
 import { numericalResultStanding, recordedResultStanding } from "./resultStanding";
 import { recordedPreRtA4RecordBinding, recordedTableLabel, type RecordedBinding } from "../../services/recordedPreRtA4";
 import { validateRetainedPrecision, validateRetainedPrecisionRecorded } from "./retainedPrecisionReader";
@@ -13,6 +13,7 @@ import type { BundledMechanicsReference } from "../../services/previewService";
 import { ResultsPanel } from "./ResultsPanel";
 import type { NativeResult } from "../../services/nativeResult";
 import { restoredNativeResult, type NativeProjectEnvelope, type NativeRunRead, type RestoredRun } from "../../services/nativeReopen";
+import { bindingClaim, bindingRead, decideBinding, semanticContractMismatch, withheldCode, withheldMessage, type BindingClaim, type TableBinding } from "../../services/tableBinding";
 
 // Transient evidence only. Saved run references do not contain the historical
 // input-manifest payload, so reopening cannot establish a current solve basis.
@@ -51,6 +52,11 @@ export type HistoricalRunContext = {
    * current standing, and never merged into `findings`. A refused recorded read is a check's
    * finding instead. Empty when `recordedTableRead` is null. */
   historicalReaderFindings: string[];
+  /** The reopen's one decision (`tableBinding.ts`), made before any row is read: the rows are read
+   * under the installed table or the registry variant of the statement's own table, or withheld
+   * with its reason. Withheld, `mechanicsResult` is null and nothing reads the rows; the stored
+   * values stay held as stored for a re-save. */
+  binding: TableBinding;
   runId: string;
 };
 
@@ -65,10 +71,59 @@ function reopenFindings(initial: string[] = []) {
       checks.push(code);
       if (!(once && findings.includes(code))) findings.push(code);
     },
+    /** Where findings found later are inserted, so the list keeps main's order. */
+    slot() { return { findings: findings.length, checks: checks.length }; },
+    /** Inserts another collector's findings at `at`; slots are filled last first. */
+    insert(at: { findings: number; checks: number }, other: { findings: string[]; checks: string[]; historical: string[] }) {
+      findings.splice(at.findings, 0, ...other.findings);
+      checks.splice(at.checks, 0, ...other.checks);
+      historical.push(...other.historical);
+    },
     scoped(binding: RecordedBinding | null) {
       return { findings, checkFindings: checks, recordedTableRead: binding ? { id: binding.id, sha256: binding.sha256 } : null, historicalReaderFindings: binding ? historical : [] };
     }
   };
+}
+
+/** The statement's header classification and the record's claim, read before any row: the
+ * header dispatch's binding (the installed table it names) and the registry variant the record
+ * names. Null without a renderable statement. */
+function headerClaim(result: MechanicsResult | null, record: unknown, variant: RecordedBinding | null): { header: ReaderDispatch; claim: BindingClaim } | null {
+  if (!result) return null;
+  const header = readerDispatch(result);
+  return { header, claim: bindingClaim(record, result.producer?.semantic_contract_id, header.binding, variant) };
+}
+
+/** A withheld run's standing findings: only a refusal the header dispatch states (current, or under
+ * the record's variant), which reads no table; anything the standing reads under a table is not read. */
+function withheldStanding(result: MechanicsResult, model: Parameters<typeof numericalResultStanding>[1], header: ReaderDispatch, variant: RecordedBinding | null) {
+  const sub = reopenFindings();
+  if (variant) {
+    const dispatch = recordedReaderDispatch(result, variant);
+    if (!dispatch.ok) sub.fail(dispatch.error?.code ?? "RESULT_READER_UNAVAILABLE");
+  } else if (!header.ok) sub.findings.push(...numericalResultStanding(result, model).findings);
+  return sub;
+}
+
+/** A withheld run's record-validator finding: the validator's refusals that read no row (a refused
+ * header or recorded dispatch, a record that is not the current contract), else the binding refusal
+ * when the record names a binding that is not accepted. */
+function withheldValidatorFinding(record: AnalysisRunEnvelope, result: MechanicsResult, header: ReaderDispatch, variant: RecordedBinding | null, claim: BindingClaim): string | null {
+  if (variant) {
+    const dispatch = recordedReaderDispatch(result, variant);
+    if (!dispatch.ok) return dispatch.error?.detail ?? dispatch.error?.code ?? "RESULT_READER_UNAVAILABLE";
+  } else {
+    if (header.error?.code === "SOURCE_PRESSURE_2_RETIRED") return header.error.detail ?? header.error.code;
+    if (!header.binding) return "ANALYSIS_SOURCE_CONTRACT_VERSION_MISMATCH";
+  }
+  // As the validator reads it: a member of a missing status throws, which the reopen shows as one finding.
+  const status: unknown = record.run_contract_status;
+  if (status === null || status === undefined) return "HISTORICAL_ANALYSIS_EVIDENCE_INVALID";
+  if ((status as { record_contract?: unknown }).record_contract !== "strict_analysis_run_v0_3") return "ANALYSIS_SOURCE_CONTRACT_VERSION_MISMATCH";
+  // A record whose binding member cannot be read at all: the validator's read of it throws.
+  const reproducibility: unknown = (record.analysis_run as { reproducibility?: unknown } | null)?.reproducibility;
+  if (reproducibility === null || reproducibility === undefined) return "HISTORICAL_ANALYSIS_EVIDENCE_INVALID";
+  return claim.claim === "other" ? semanticContractMismatch(claim.recorded) : null;
 }
 
 /** The statement's standing findings in their scope. Under the current tables they are ordinary
@@ -155,6 +210,27 @@ async function sameSavedReceipt(copy: unknown, receipt: unknown): Promise<boolea
   try { return await canonicalSha256HexCheckedV1(copy) === await canonicalSha256HexCheckedV1(receipt); } catch { return false; }
 }
 
+/** Makes the decision once every check that reads no row has run, then reads (or does not read)
+ * the rows: read, the standing and the retained reader's refusal are placed where main placed them;
+ * withheld, only the refusals the header states. `model` is the standing's model (none: no standing). */
+async function readOrWithhold(found: ReturnType<typeof reopenFindings>, claimed: ReturnType<typeof headerClaim>, result: MechanicsResult | null, model: Parameters<typeof numericalResultStanding>[1] | null, variant: RecordedBinding | null, standingSlot: ReturnType<ReturnType<typeof reopenFindings>["slot"]>, retainedSlot: ReturnType<ReturnType<typeof reopenFindings>["slot"]> | null): Promise<TableBinding> {
+  const binding: TableBinding = claimed ? decideBinding(claimed.claim, found.checks) : { withheld: "unreadable_result" };
+  if (!result || !claimed) return binding;
+  if (bindingRead(binding)) {
+    if (retainedSlot) {
+      const sub = reopenFindings();
+      try { await (variant ? validateRetainedPrecisionRecorded(result, variant) : validateRetainedPrecision(result)); } catch (error) { sub.fail((error as Error).message); }
+      found.insert(retainedSlot, sub);
+    }
+    if (model) {
+      const sub = reopenFindings();
+      readStanding(sub, result, model, variant);
+      found.insert(standingSlot, sub);
+    }
+  } else if (model) found.insert(standingSlot, withheldStanding(result, model, claimed.header, variant));
+  return binding;
+}
+
 /** A context over the whole result (the browser preview's store, the legacy whole-value reads). */
 export type WholeHistoricalRunContext = HistoricalRunContext & { mechanicsResult: MechanicsResult | null };
 
@@ -173,15 +249,20 @@ export async function buildHistoricalRunContext(opened: LocalProjectEnvelope): P
   // Its standing findings are the historical reader's, displayed as recorded under that table
   // (`historicalReaderFindings`); every check's failure stays an ordinary finding.
   const recordedBinding = analysisRun?.schema_version === ANALYSIS_RUN_V03 ? recordedPreRtA4RecordBinding(analysisRun) : null;
-  if (mechanicsResult) readStanding(found, mechanicsResult, opened.model, recordedBinding);
+  // The one decision comes first (`tableBinding.ts`): the header and the record's claim are read
+  // here; the standing and the retained reader, which read rows, wait for it and are placed where
+  // main placed their findings.
+  const claimed = headerClaim(mechanicsResult, analysisRun, recordedBinding);
+  const standingSlot = found.slot();
   if (hasReceivedMechanics && !mechanicsResult) found.fail("HISTORICAL_MECHANICS_EVIDENCE_MALFORMED");
   const record = analysisRun && typeof analysisRun === "object" && analysisRun.analysis_run && typeof analysisRun.analysis_run === "object" ? analysisRun.analysis_run : null;
   if (analysisRun && (!record || !Array.isArray(record.hashes) || !Array.isArray(record.result_refs) || typeof record.run_id !== "string" || typeof record.model_state_ref?.ref !== "string")) found.fail("HISTORICAL_ANALYSIS_EVIDENCE_INVALID");
   // U6d reopen: a saved successor is revalidated by the accepted reader without an
   // invocation (its first code is a finding), and the AnalysisRun's copy must equal
   // its receipt. Nothing registers here, so standing stays needs_recompute.
+  let retainedSlot: ReturnType<typeof found.slot> | null = null;
   if (mechanicsResult && isRetainedRoute(recordedBinding ? recordedReaderDispatch(mechanicsResult, recordedBinding).route : sourceContract(mechanicsResult))) {
-    try { await (recordedBinding ? validateRetainedPrecisionRecorded(mechanicsResult, recordedBinding) : validateRetainedPrecision(mechanicsResult)); } catch (error) { found.fail((error as Error).message); }
+    retainedSlot = found.slot();
     if (record && !(await sameSavedReceipt(record.retained_precision, mechanicsResult.retained_precision))) found.fail(ANALYSIS_RETAINED_PRECISION_RECEIPT_MISMATCH);
   }
   if (evidenceResult && evidenceResult.model_ref !== opened.model.project.id) found.fail("HISTORICAL_MODEL_REF_MISMATCH");
@@ -227,17 +308,24 @@ export async function buildHistoricalRunContext(opened: LocalProjectEnvelope): P
   // source's rows and names the absent list (ANALYSIS_SOURCE_LOAD_BASIS_MISMATCH). The current
   // model is never read for it. Its refusal is a finding only: reopening displays
   // evidence and establishes nothing, so nothing here changes standing, rows or bytes.
+  const binding = await readOrWithhold(found, claimed, mechanicsResult, opened.model, recordedBinding, standingSlot, retainedSlot);
   if (currentRecord && mechanicsResult && record) {
-    try { await validateAnalysisRunV03(analysisRun!, mechanicsResult, record.load_basis_refs, undefined, { recordedRead: true }); }
-    catch (error) {
-      // A named refusal is shown as the validator states it. Anything else (a malformed
-      // record read where the validator does not guard it) is one named finding, never
-      // the runtime's own text.
-      const finding = !(error instanceof Error) ? "HISTORICAL_ANALYSIS_VALIDATION_UNAVAILABLE" : NAMED_REFUSAL.test(error.message) ? error.message : "HISTORICAL_ANALYSIS_EVIDENCE_INVALID";
-      found.fail(finding, true);
+    if (!bindingRead(binding)) {
+      const finding = withheldValidatorFinding(analysisRun!, mechanicsResult, claimed!.header, recordedBinding, claimed!.claim);
+      if (finding) found.fail(finding, true);
+    } else {
+      try { await validateAnalysisRunV03(analysisRun!, mechanicsResult, record.load_basis_refs, undefined, { recordedRead: true }); }
+      catch (error) {
+        // A named refusal is shown as the validator states it. Anything else (a malformed
+        // record read where the validator does not guard it) is one named finding, never
+        // the runtime's own text.
+        const finding = !(error instanceof Error) ? "HISTORICAL_ANALYSIS_VALIDATION_UNAVAILABLE" : NAMED_REFUSAL.test(error.message) ? error.message : "HISTORICAL_ANALYSIS_EVIDENCE_INVALID";
+        found.fail(finding, true);
+      }
     }
   }
-  return { designation: "historical_saved_run", rawMechanicsResult, rawAnalysisRun, mechanicsResult, analysisRun, modelHash, envelopeHash: opened.project_envelope_hash ?? null, envelopePayloadHash, ...found.scoped(recordedBinding), runId: evidenceResult?.run_id ?? (typeof record?.run_id === "string" ? record.run_id : "unknown saved run") };
+  const read = bindingRead(binding);
+  return { designation: "historical_saved_run", rawMechanicsResult, rawAnalysisRun, mechanicsResult: read ? mechanicsResult : null, analysisRun, modelHash, envelopeHash: opened.project_envelope_hash ?? null, envelopePayloadHash, ...found.scoped(read ? recordedBinding : null), binding, runId: evidenceResult?.run_id ?? (typeof record?.run_id === "string" ? record.run_id : "unknown saved run") };
 }
 
 /** A recorded run read from the store (W-12 S2), checked as a saved run is, with
@@ -262,11 +350,14 @@ export async function buildRecordedRunContext(read: AnalysisRunRead): Promise<Wh
   const model = manifest?.model_basis?.model_payload ?? null;
   // a run recorded before RT-A4 reads as it did when recorded (see the saved-run reader).
   const recordedBinding = analysisRun?.schema_version === ANALYSIS_RUN_V03 ? recordedPreRtA4RecordBinding(analysisRun) : null;
-  if (mechanicsResult && model) readStanding(found, mechanicsResult, model, recordedBinding);
+  // The one decision comes first, as on the saved-run path.
+  const claimed = headerClaim(mechanicsResult, analysisRun, recordedBinding);
+  const standingSlot = found.slot();
   const record = analysisRun && typeof analysisRun === "object" && analysisRun.analysis_run && typeof analysisRun.analysis_run === "object" ? analysisRun.analysis_run : null;
   if (!record || !Array.isArray(record.hashes) || !Array.isArray(record.result_refs) || typeof record.run_id !== "string" || typeof record.model_state_ref?.ref !== "string") found.fail("HISTORICAL_ANALYSIS_EVIDENCE_INVALID");
+  let retainedSlot: ReturnType<typeof found.slot> | null = null;
   if (mechanicsResult && isRetainedRoute(recordedBinding ? recordedReaderDispatch(mechanicsResult, recordedBinding).route : sourceContract(mechanicsResult))) {
-    try { await (recordedBinding ? validateRetainedPrecisionRecorded(mechanicsResult, recordedBinding) : validateRetainedPrecision(mechanicsResult)); } catch (error) { found.fail((error as Error).message); }
+    retainedSlot = found.slot();
     if (record && !(await sameSavedReceipt(record.retained_precision, mechanicsResult.retained_precision))) found.fail(ANALYSIS_RETAINED_PRECISION_RECEIPT_MISMATCH);
   }
   // The state ref names the stored state this run was read with, and nothing else.
@@ -305,16 +396,23 @@ export async function buildRecordedRunContext(read: AnalysisRunRead): Promise<Wh
   // stored manifest fixes (solver, settings, units, load basis, references), all
   // derived from the manifest. No basis is passed: the record's own list is never
   // its warrant.
+  const binding = await readOrWithhold(found, claimed, mechanicsResult, model, recordedBinding, standingSlot, retainedSlot);
   if (currentRecord && mechanicsResult && record && manifest) {
-    try { await validateAnalysisRunV03(analysisRun!, mechanicsResult, undefined, { stateId: read.state.state_id, modelHash: read.state.model_hash, inputManifest: manifest }, { recordedRead: true }); }
-    catch (error) {
-      const finding = !(error instanceof Error) ? "HISTORICAL_ANALYSIS_VALIDATION_UNAVAILABLE" : NAMED_REFUSAL.test(error.message) ? error.message : "HISTORICAL_ANALYSIS_EVIDENCE_INVALID";
-      found.fail(finding, true);
+    if (!bindingRead(binding)) {
+      const finding = withheldValidatorFinding(analysisRun!, mechanicsResult, claimed!.header, recordedBinding, claimed!.claim);
+      if (finding) found.fail(finding, true);
+    } else {
+      try { await validateAnalysisRunV03(analysisRun!, mechanicsResult, undefined, { stateId: read.state.state_id, modelHash: read.state.model_hash, inputManifest: manifest }, { recordedRead: true }); }
+      catch (error) {
+        const finding = !(error instanceof Error) ? "HISTORICAL_ANALYSIS_VALIDATION_UNAVAILABLE" : NAMED_REFUSAL.test(error.message) ? error.message : "HISTORICAL_ANALYSIS_EVIDENCE_INVALID";
+        found.fail(finding, true);
+      }
     }
   }
+  const shown = bindingRead(binding);
   return {
-    designation: "recorded_run", rawMechanicsResult, rawAnalysisRun, mechanicsResult, analysisRun, modelHash,
-    envelopeHash: null, envelopePayloadHash: null, ...found.scoped(recordedBinding),
+    designation: "recorded_run", rawMechanicsResult, rawAnalysisRun, mechanicsResult: shown ? mechanicsResult : null, analysisRun, modelHash,
+    envelopeHash: null, envelopePayloadHash: null, ...found.scoped(shown ? recordedBinding : null), binding,
     runId: evidenceResult?.run_id ?? (typeof record?.run_id === "string" ? record.run_id : "unknown recorded run")
   };
 }
@@ -358,7 +456,9 @@ async function contextOfRestored(
   modelHash: ModelHashEvidence | null
 ): Promise<HistoricalRunContext> {
   const found = restored.findings;
-  const mechanicsResult = found.renderable ? await restoredNativeResult(restored) : null;
+  // Withheld (`found.binding`), the rows are not read: the handle is held for a re-save only,
+  // and the native readers refuse it.
+  const mechanicsResult = found.renderable && bindingRead(found.binding) ? await restoredNativeResult(restored) : null;
   return {
     designation, rawMechanicsResult: null, rawAnalysisRun: null, mechanicsResult,
     analysisRun: null, restored, modelHash, envelopeHash, envelopePayloadHash,
@@ -370,13 +470,14 @@ async function contextOfRestored(
  * (`analysis_run_v03_validate.rs`) computed them on the stored texts: the displayed findings, the
  * checks' alone, the table a run recorded before RT-A4 was read under and the historical reader's
  * findings under it. */
-function restoredScopes(found: RestoredRun["findings"]): Pick<HistoricalRunContext, "findings" | "checkFindings" | "recordedTableRead" | "historicalReaderFindings"> {
+function restoredScopes(found: RestoredRun["findings"]): Pick<HistoricalRunContext, "findings" | "checkFindings" | "recordedTableRead" | "historicalReaderFindings" | "binding"> {
   const table = found.recorded_table_read;
   return {
     findings: [...found.findings],
     checkFindings: [...found.check_findings],
     recordedTableRead: table ? { id: table.id, sha256: table.sha256 } : null,
-    historicalReaderFindings: table ? [...found.historical_reader_findings] : []
+    historicalReaderFindings: table ? [...found.historical_reader_findings] : [],
+    binding: found.binding
   };
 }
 
@@ -390,24 +491,38 @@ export function buildBundledReferenceContext(reference: BundledMechanicsReferenc
     envelopeHash: null, envelopePayloadHash: null,
     findings: ["BUNDLED_REFERENCE_ONLY", "NO_CURRENT_MODEL_INVOCATION"],
     checkFindings: ["BUNDLED_REFERENCE_ONLY", "NO_CURRENT_MODEL_INVOCATION"],
-    recordedTableRead: null, historicalReaderFindings: [],
+    recordedTableRead: null, historicalReaderFindings: [], binding: { read: "installed" },
     runId: reference.source.run_id,
   };
+}
+
+/** What a person is told of a reopened run whose rows are withheld: the reason in plain words,
+ * what to do, and the bare code for support (none where the findings below are the refusal). */
+export function WithheldRunNotice({ binding, testId }: { binding: TableBinding; testId: string }) {
+  if (!("withheld" in binding)) return null;
+  const code = withheldCode(binding.withheld);
+  return <div role="note" data-testid={testId}>
+    <p data-testid={`${testId}-message`}>The results of this run are not shown: {withheldMessage(binding.withheld)}.</p>
+    {code ? <p className="muted" data-testid={`${testId}-code`}><code>{code}</code></p> : null}
+  </div>;
 }
 
 export function HistoricalRunPanel({ context }: { context: HistoricalRunContext }) {
   const [selectedResultId, setSelectedResultId] = useState<string | null>(null);
   const isReference = context.designation === "bundled_reference";
   const title = isReference ? "Bundled reference — not a solve for the current model" : "Historical saved run";
+  const read = bindingRead(context.binding);
   return <section className="panel" aria-label={title} data-testid="historical-run-context">
     <div className="panel-title">{title}</div>
+    <WithheldRunNotice binding={context.binding} testId="historical-run-withheld" />
     {isReference ? <>
       <p>{context.referenceProvenance?.notice}</p>
       <p>Reference model: {context.referenceModel?.project.id}; retained run: {context.runId}. The current model and its edit history are unchanged.</p>
-    </> : <p>Saved evidence for {context.runId}; mechanics={context.mechanicsResult?.status.mechanics ?? "missing"}. Run a fresh solve to establish current results.</p>}
+    </> : read ? <p>Saved evidence for {context.runId}; mechanics={context.mechanicsResult?.status.mechanics ?? "missing"}. Run a fresh solve to establish current results.</p>
+      : <p>Saved evidence for {context.runId}. The saved run is kept as stored.</p>}
     <p>{isReference ? "Bundled reference" : "Historical"} results cannot drive current overlays, rule checks, comparisons or report readiness.</p>
     <ul>{context.findings.map((finding) => <li key={finding}>{finding}</li>)}</ul>
     <HistoricalReaderFindings context={context} testId="historical-run-recorded-reader" />
-    <ResultsPanel result={context.mechanicsResult} knowledge={null} analysisRun={null} selectedResultId={selectedResultId} onSelectResult={setSelectedResultId} recordedTableRead={context.recordedTableRead} />
+    {read ? <ResultsPanel result={context.mechanicsResult} knowledge={null} analysisRun={null} selectedResultId={selectedResultId} onSelectResult={setSelectedResultId} recordedTableRead={context.recordedTableRead} /> : null}
   </section>;
 }

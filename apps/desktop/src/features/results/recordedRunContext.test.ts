@@ -57,7 +57,12 @@ describe("a recorded run's context", () => {
 
     const otherModel = read();
     otherModel.state = { ...otherModel.state, model_hash: `sha256:${"0".repeat(64)}` };
-    expect(recordedRunBindingFindings(await buildRecordedRunContext(otherModel))).toEqual(expect.arrayContaining(["RECORDED_RUN_MODEL_STATE_HASH_MISMATCH", "ANALYSIS_RECORDED_MODEL_STATE_HASH_MISMATCH"]));
+    // The stored state's hash is not the record's: the run is withheld (integrity), so the record
+    // validator, which first reads the rows under the installed table, adds no finding.
+    const otherModelContext = await buildRecordedRunContext(otherModel);
+    expect(otherModelContext.binding).toStrictEqual({ withheld: "integrity" });
+    expect(recordedRunBindingFindings(otherModelContext)).toEqual(expect.arrayContaining(["RECORDED_RUN_MODEL_STATE_HASH_MISMATCH"]));
+    expect(recordedRunBindingFindings(otherModelContext)).not.toContain("ANALYSIS_RECORDED_MODEL_STATE_HASH_MISMATCH");
 
     const otherManifest = read();
     const manifest = JSON.parse(otherManifest.input_manifest_canonical);

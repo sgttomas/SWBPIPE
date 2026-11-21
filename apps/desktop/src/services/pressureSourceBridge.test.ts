@@ -67,6 +67,7 @@ import {
 import { createSolveJobTransport, resultArrayBuffer } from "../test/nativeMechanicsReplay";
 import { analysisRecordProjection, buildAnalysisRunV03, validateAnalysisRunV03, verifyAnalysisRunRecord } from "./analysisRunCompatibility";
 import { canonicalSha256HexCheckedV1 } from "./hashService";
+import { UNRECOGNISED_TABLE_REFUSAL } from "../test-support/tableBindingRefusals";
 
 type Json = any; // eslint-disable-line @typescript-eslint/no-explicit-any
 const MODE = "sparse_interactive" as const;
@@ -296,7 +297,7 @@ describe("current pressure-source record wrapper", () => {
     const wrongBinding = structuredClone(record);
     wrongBinding.analysis_run.reproducibility.semantic_contract!.sha256 = "0".repeat(64);
     await resealRecord(wrongBinding);
-    await expect(validateAnalysisRunV03(wrongBinding, source)).rejects.toThrow("ANALYSIS_SEMANTIC_CONTRACT_MISMATCH");
+    await expect(validateAnalysisRunV03(wrongBinding, source)).rejects.toThrow(UNRECOGNISED_TABLE_REFUSAL);
     const wrongRow = structuredClone(record);
     wrongRow.analysis_run.result_refs[0].hash_refs[0].value = "0".repeat(64);
     await resealRecord(wrongRow);

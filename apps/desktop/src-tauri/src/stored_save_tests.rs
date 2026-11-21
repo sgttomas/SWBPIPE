@@ -159,7 +159,8 @@ pub(crate) fn resave_matches_legacy(registry: &SolveJobRegistry, path: &Path, op
     let project_id = crate::project_id_from_model(&args["model"]);
     // The legacy session's copy was of the texts the handle holds.
     let handle = args["jobId"].as_str().unwrap();
-    let (stored_result, stored_record) = (registry.held_result(handle).unwrap().text().to_string(), registry.restored_record(handle).unwrap().text().to_string());
+    // As the re-save reads them: a withheld handle refuses every reader but the re-save.
+    let (stored_result, stored_record) = (registry.held_result_to_resave(handle).unwrap().text().to_string(), registry.restored_record(handle).unwrap().text().to_string());
     let legacy_path = path.with_extension(format!("legacy-{}.sqlite", args["mode"].as_str().unwrap()));
     std::fs::copy(path, &legacy_path).unwrap();
     let legacy = legacy_resave(&legacy_path, &stored_result, &stored_record, opened, args);

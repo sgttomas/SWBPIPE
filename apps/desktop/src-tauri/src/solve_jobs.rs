@@ -448,6 +448,10 @@ pub(crate) struct HeldResult {
     lease: Lease,
     detail: Mutex<Option<Arc<crate::result_detail::DetailIndex>>>,
     recorded_table: Option<crate::analysis_run_v03_validate::RecordedTable>,
+    /// Restored bytes whose reopen withheld their rows (`HistoricalFindings::binding`): held only to
+    /// be re-saved as stored ([`SolveJobRegistry::held_result_to_resave`]); every reader of the
+    /// handle ([`SolveJobRegistry::held_result`], the C2 copy) refuses them by name.
+    withheld: bool,
     evidence: Option<ReaderEvidence>,
     /// The diagnostics presentation facts already read of these bytes
     /// (`diagnostics_presentation`): part of this immutable snapshot, so no
@@ -490,6 +494,9 @@ pub(crate) struct ReaderEvidence {
     pressure_passed: std::sync::atomic::AtomicBool,
 }
 
+/// A restored handle whose reopen withheld its rows, refused by every reader.
+pub(crate) const RESTORED_RESULT_WITHHELD: &str = "RESTORED-RESULT-WITHHELD";
+
 /// The current readers' pass, as `reader_verdict::validate` writes it.
 pub(crate) const READER_PASSED: &str = r#"{"ok":true}"#;
 
@@ -501,7 +508,7 @@ impl HeldResult {
     /// bytes by the last holder.
     pub(crate) fn restored(text: String, mut lease: Lease) -> Self {
         lease.set_purpose(LeasePurpose::Result);
-        Self { text, lease, detail: Mutex::new(None), recorded_table: None, evidence: None, presentation: Default::default(), command_charge: None }
+        Self { text, lease, detail: Mutex::new(None), recorded_table: None, withheld: false, evidence: None, presentation: Default::default(), command_charge: None }
     }
 
     /// [`Self::restored`] for bytes loaded under a C1 command's lease
@@ -526,7 +533,7 @@ impl HeldResult {
     /// A solve's published bytes under their result lease, with an empty
     /// evidence slot ([`ReaderEvidence`]).
     fn published(text: String, lease: Lease) -> Self {
-        Self { text, lease, detail: Mutex::new(None), recorded_table: None, evidence: Some(ReaderEvidence::default()), presentation: Default::default(), command_charge: None }
+        Self { text, lease, detail: Mutex::new(None), recorded_table: None, withheld: false, evidence: Some(ReaderEvidence::default()), presentation: Default::default(), command_charge: None }
     }
 
     /// RT-U4: notes `reader`'s outcome `outcome` on these bytes (the native
@@ -553,6 +560,14 @@ impl HeldResult {
     /// never from a request. Set before the bytes are held; fixed from then.
     pub(crate) fn read_under(mut self, table: Option<crate::analysis_run_v03_validate::RecordedTable>) -> Self {
         self.recorded_table = table;
+        self
+    }
+
+    /// These restored bytes' rows were withheld by their reopen's decision (established by the host
+    /// from the stored texts at restoration, never from a request). Set before the bytes are held;
+    /// fixed from then.
+    pub(crate) fn withheld(mut self, withheld: bool) -> Self {
+        self.withheld = withheld;
         self
     }
 
@@ -1637,6 +1652,16 @@ impl SolveJobRegistry {
     /// taken together under this one registry lock; a reader reads its table
     /// from the share only, never from the registry again.
     pub(crate) fn held_result(&self, job_id: &str) -> Result<Arc<HeldResult>, SolveJobError> {
+        let held = self.held_result_to_resave(job_id)?;
+        if held.withheld {
+            return Err(SolveJobError::invalid(format!("{RESTORED_RESULT_WITHHELD}: {job_id}'s stored rows are not read; it is held to be re-saved as stored")));
+        }
+        Ok(held)
+    }
+
+    /// [`Self::held_result`] for the project re-save only (`stored_save`): the held bytes whatever
+    /// their reopen decided, to be written back exactly as stored. No reader reads through it.
+    pub(crate) fn held_result_to_resave(&self, job_id: &str) -> Result<Arc<HeldResult>, SolveJobError> {
         let held = {
             let table = self.table();
             let record = table.records.get(job_id).ok_or_else(|| SolveJobError::invalid(format!("unknown solve job: {job_id}")))?;
@@ -1804,6 +1829,9 @@ impl SolveJobRegistry {
     /// the stated slice-7 residual.
     pub(crate) fn copy_restored_record_within(&self, job_id: &str, limit: u64) -> Result<(Vec<u8>, Lease), SolveJobError> {
         let held = self.restored_record(job_id)?;
+        if held.withheld {
+            return Err(SolveJobError::invalid(format!("{RESTORED_RESULT_WITHHELD}: {job_id}'s stored record is not read; nothing was copied")));
+        }
         let bytes = held.text().len() as u64;
         if bytes > limit {
             return Err(SolveJobError::invalid(format!(
@@ -1864,6 +1892,9 @@ impl SolveJobRegistry {
         let Some(held) = &record.result else {
             return Err(SolveJobError::invalid(format!("PREVIEW-SOLVE-RESULT-UNAVAILABLE: {job_id} is {}", record.state.as_str())));
         };
+        if held.withheld {
+            return Err(SolveJobError::invalid(format!("{RESTORED_RESULT_WITHHELD}: {job_id}'s stored rows are not read; nothing was copied")));
+        }
         let bytes = held.text().len() as u64;
         if bytes > limit {
             return Err(SolveJobError::invalid(format!(

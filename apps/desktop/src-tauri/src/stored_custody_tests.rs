@@ -36,6 +36,9 @@ const RECORDED_BASIS_FIXTURES: [&str; 8] = [
     "fixtures/persistence/recorded_model_0_9_0_pre_nl",
     "fixtures/persistence/recorded_model_0_9_0_pre_cert",
 ];
+/// `REVISED_TABLE_FIXTURE` of `historicalReopenCases.ts`: main's record of a pressure-3 run under a
+/// table revision this version does not hold (README there). Read, never rewritten.
+const REVISED_TABLE_FIXTURE: &str = "fixtures/persistence/recorded_table_revised";
 const PRESSURE_2_ID: &str = "openpipestress.result_semantics/0.3.0/pressure-2";
 const FIXTURE_RECORD: &str = "pressure_plain_connected_sparse.analysis_run.json";
 const FIXTURE_SOURCE: &str = "pressure_connected_mechanics_sparse.json";
@@ -183,7 +186,7 @@ fn file_value(reference: &Value) -> Value {
 }
 
 fn fixture_text(fixture: &Value, name: &str) -> String {
-    let dir = RECORDED_BASIS_FIXTURES.iter().find(|dir| fixture.as_str() == Some(**dir)).unwrap_or_else(|| panic!("{fixture} is no recorded-basis fixture"));
+    let dir = RECORDED_BASIS_FIXTURES.iter().chain([&REVISED_TABLE_FIXTURE]).find(|dir| fixture.as_str() == Some(**dir)).unwrap_or_else(|| panic!("{fixture} is no recorded-basis or revised-table fixture"));
     read_text(&format!("{dir}/{name}"))
 }
 
@@ -338,7 +341,7 @@ fn native_findings(case: &Value, builder: &std::collections::HashMap<String, Val
                 Some(mut found) => {
                     saved_run_validation(&mut found, &mut result, &record);
                     json!({"findings": found.findings, "check_findings": found.check_findings, "recorded_table_read": found.recorded_table_read, "historical_reader_findings": found.historical_reader_findings,
-                        "run_id": found.run_id, "envelope_payload_hash": found.envelope_payload_hash, "model_hash": null})
+                        "binding": found.binding, "run_id": found.run_id, "envelope_payload_hash": found.envelope_payload_hash, "model_hash": null})
                 }
             }
         }
@@ -360,7 +363,7 @@ fn native_findings(case: &Value, builder: &std::collections::HashMap<String, Val
                 recorded_run_validation(&mut found, &context, result, manifest.as_ref(), &record);
             }
             json!({"findings": found.findings, "check_findings": found.check_findings, "recorded_table_read": found.recorded_table_read, "historical_reader_findings": found.historical_reader_findings,
-                "run_id": found.run_id, "envelope_payload_hash": null, "model_hash": found.model_hash})
+                "binding": found.binding, "run_id": found.run_id, "envelope_payload_hash": null, "model_hash": found.model_hash})
         }
     }
 }
@@ -524,6 +527,65 @@ fn the_recorded_table_bases_are_the_typescript_and_python_tables() {
     assert_eq!(native.len(), 0, "{native:?}");
     assert_eq!(typescript, native, "the TypeScript table");
     assert_eq!(python, native, "the Python table");
+}
+
+/// The known former table digests that word the binding refusal (`KNOWN_FORMER_TABLE_DIGESTS`,
+/// `analysis_run_v03_validate.rs`) are the webview's (`semanticContractRefusal.ts`) and Python's
+/// (`compatibility.py`), row for row and in order. Each twin's whole literal is read; an entry
+/// that is not a recognized `(id, sha256)` row fails the test. The three are written from the
+/// repository's history by `tools/validation/former_table_digests.py`, whose test (Repository
+/// checks) holds them to that history; a unit that revises a table runs its `write`.
+#[test]
+fn the_known_former_table_digests_are_the_typescript_and_python_lists() {
+    use crate::analysis_run_v03_validate::KNOWN_FORMER_TABLE_DIGESTS;
+    let native: Vec<[String; 2]> = KNOWN_FORMER_TABLE_DIGESTS.iter().map(|(id, sha256)| [id.to_string(), sha256.to_string()]).collect();
+    // TypeScript: `Object.freeze([ { id: "…", sha256: "…" }, … ]);`.
+    let ts = read_text("apps/desktop/src/services/semanticContractRefusal.ts");
+    assert_eq!(ts.matches("const KNOWN_FORMER_TABLE_DIGESTS").count(), 1);
+    let declared = &ts[ts.find("const KNOWN_FORMER_TABLE_DIGESTS").unwrap()..];
+    let literal = &declared[declared.find("Object.freeze(").expect("the frozen TypeScript list") + "Object.freeze(".len()..];
+    let (tokens, rest) = bracketed_tokens(literal, "TypeScript");
+    assert!(rest.trim_start().starts_with(");"), "TypeScript: text after the list: {:?}", &rest[..rest.len().min(40)]);
+    let typescript: Vec<[String; 2]> = entries(&tokens, '[', ']', "TypeScript").iter().map(|row| {
+        let fields = entries(row, '{', '}', "TypeScript row");
+        let mut values = std::collections::BTreeMap::new();
+        for field in &fields {
+            match field.as_slice() {
+                [Token::Name(key), Token::Punct(':'), Token::Str(value)] if ["id", "sha256"].contains(&key.as_str()) => {
+                    assert!(values.insert(key.clone(), value.clone()).is_none(), "TypeScript: {key} twice in {fields:?}");
+                }
+                other => panic!("TypeScript: unrecognized field {other:?}"),
+            }
+        }
+        assert_eq!(values.len(), 2, "TypeScript: {fields:?}");
+        [values["id"].clone(), values["sha256"].clone()]
+    }).collect();
+    // Python: `KNOWN_FORMER_TABLE_DIGESTS: tuple[…] = ( ("…", "…"), … )`, strings only.
+    let py = read_text("core/analysis_runs/compatibility.py");
+    let head = "\nKNOWN_FORMER_TABLE_DIGESTS";
+    let declared: Vec<usize> = py.match_indices(head).map(|(at, _)| at + head.len())
+        .filter(|at| py[*at..].starts_with(" = ") || py[*at..].starts_with(": ")).collect();
+    assert_eq!(declared.len(), 1, "Python: one module-level KNOWN_FORMER_TABLE_DIGESTS");
+    let line = &py[declared[0]..py[declared[0]..].find('\n').map_or(py.len(), |end| declared[0] + end)];
+    let assign = line.find(" = ").expect("Python: KNOWN_FORMER_TABLE_DIGESTS is assigned");
+    let (tokens, _) = bracketed_tokens(&py[declared[0] + assign + 3..], "Python");
+    let python: Vec<[String; 2]> = entries(&tokens, '(', ')', "Python").iter().map(|row| {
+        let items: Vec<String> = entries(row, '(', ')', "Python row").iter().map(|item| match item.as_slice() {
+            [Token::Str(text)] => text.clone(),
+            other => panic!("Python: unrecognized item {other:?}"),
+        }).collect();
+        <[String; 2]>::try_from(items).unwrap_or_else(|items| panic!("Python: a row of {} items: {items:?}", items.len()))
+    }).collect();
+    assert!(!native.is_empty());
+    assert_eq!(typescript, native, "the TypeScript list");
+    assert_eq!(python, native, "the Python list");
+    // Every row is a table identity and a SHA-256, once.
+    let mut seen = std::collections::BTreeSet::new();
+    for [id, sha256] in &native {
+        assert!(id.starts_with("openpipestress.result_semantics/0.3.0/"), "{id}");
+        assert!(sha256.len() == 64 && sha256.bytes().all(|b| b.is_ascii_hexdigit() && !b.is_ascii_uppercase()), "{sha256}");
+        assert!(seen.insert((id.clone(), sha256.clone())), "{id} {sha256} twice");
+    }
 }
 
 /// RT-A4 §10.4: the registry the native reopen reads under (`recorded_tables::VARIANTS`, the
@@ -1518,6 +1580,98 @@ fn the_webviews_reopen_replies_are_the_commands_replies() {
         std::fs::write(&target, &written).unwrap();
     }
     assert!(std::fs::read_to_string(&target).unwrap_or_default() == written, "the committed reopen replies are the commands' replies (NATIVE_REOPEN_REPLIES_WRITE=1 rewrites them)");
+    std::fs::remove_dir_all(&dir).unwrap();
+    assert_eq!(registry.pool().reserved_total(), 0);
+}
+
+// ---------------------------------------------------------------------------
+// The reopen's table binding: a run recorded under a table revision this version does not hold
+// ---------------------------------------------------------------------------
+
+const REVISED_TABLE_CASE: &str = "saved-revised-table:recorded_table_revised";
+/// A current-digest control: main's own builder record of a pressure-3 statement.
+const CURRENT_TABLE_CASE: &str = "saved:carrier:fixtures/results/pressure_plain_connected_sparse.analysis_run.json";
+
+/// Stores `case`'s project in a real store as the app's store holds a saved project, and opens it natively.
+fn stored_and_opened(registry: &SolveJobRegistry, dir: &Path, case: &Value, builder: &std::collections::HashMap<String, Value>) -> (std::path::PathBuf, Value, (String, String)) {
+    use crate::native_persistence::tests::stringify_text;
+    let (result, record) = saved_run(case, builder);
+    let js = |value: &Value| -> Value { serde_json::from_str(&stringify_text(&serde_json::to_string(value).unwrap())).unwrap() };
+    let (result, record) = (js(&result), js(&record));
+    let project = saved_project(case);
+    let project_id = crate::project_id_from_model(&project["model"]);
+    let path = dir.join(format!("{}.sqlite", case["id"].as_str().unwrap().replace(|c: char| !c.is_ascii_alphanumeric(), "-")));
+    {
+        let (mut connection, _) = crate::open_project_store(&path).unwrap();
+        crate::upsert_project(&mut connection, &project_id, &crate::project_name_from_model(&project["model"]), &project["model"], &project["editor_intents"],
+            &project["proposal"], &project["selected_review_target"], &result, &record, &project["model_hash"], &project["project_envelope_hash"]).unwrap();
+    }
+    let stored = (column_text(&path, "SELECT mechanics_result_json FROM local_projects"), column_text(&path, "SELECT analysis_run_json FROM local_projects"));
+    let opened = native_open(registry, &path, Some(&project_id)).unwrap_or_else(|e| panic!("{}: {e}", case["id"]));
+    (path, opened, stored)
+}
+
+/// W1, W6, W7 natively: main's record of main's pressure-3 statement, made by main's own record
+/// builder under a revision of the pressure-3 table this version does not hold
+/// (`fixtures/persistence/recorded_table_revised`), stored as a saved project and opened in native
+/// custody. The open's decision withholds the rows: no native reader (S, pages, the C2 copies)
+/// reads the handle; the identity and the webview's findings are the TypeScript's; a re-save from
+/// the handle stores the same bytes as were opened. The control, a run bound to the installed
+/// table, keeps its rows.
+#[test]
+fn a_run_recorded_under_a_revised_table_reopens_withheld_and_resaves_as_stored() {
+    let host = ScriptedHost::normal();
+    let (registry, _gate) = gated(&host);
+    let dir = scratch("reopen-revised-table");
+    let builder = builder_cases();
+    let cases = reopen_cases();
+    let case = cases.iter().find(|case| case["id"] == REVISED_TABLE_CASE).expect("the witness case");
+    assert_eq!(case["expected"]["binding"], json!({"withheld": "unrecognised_digest"}));
+    let (path, opened, stored) = stored_and_opened(&registry, &dir, case, &builder);
+    let run = &opened["stored_run"];
+    assert_eq!(run["state"], "restored", "{run}");
+    for key in ["findings", "check_findings", "recorded_table_read", "historical_reader_findings", "binding", "run_id"] {
+        assert_eq!(run["findings"][key], case["expected"][key], "{key}: the webview's reopen");
+    }
+    assert_eq!(run["recorded_dispatch"], Value::Null);
+    let handle = run["handle"].as_str().unwrap().to_string();
+    // No reader reads the withheld rows.
+    let refused = |error: crate::solve_jobs::SolveJobError| serde_json::to_string(&error).unwrap();
+    assert!(refused(registry.held_result(&handle).unwrap_err()).contains(crate::solve_jobs::RESTORED_RESULT_WITHHELD));
+    assert!(refused(registry.copy_result_within(&handle, crate::solve_jobs::MAX_DISPLAYABLE_RESULT_BYTES).unwrap_err()).contains(crate::solve_jobs::RESTORED_RESULT_WITHHELD));
+    assert!(refused(registry.copy_restored_record_within(&handle, crate::solve_jobs::MAX_DISPLAYABLE_RESULT_BYTES).unwrap_err()).contains(crate::solve_jobs::RESTORED_RESULT_WITHHELD));
+    for command in [crate::result_summary::COMMAND, crate::result_detail::ROWS_COMMAND, crate::result_detail::SEMANTICS_COMMAND] {
+        let args = match command {
+            crate::result_summary::COMMAND => json!({"jobId": handle, "modelJson": "null", "standing": null}),
+            crate::result_detail::SEMANTICS_COMMAND => json!({"jobId": handle, "ordinals": [0]}),
+            _ => json!({"jobId": handle, "filter": {}, "offset": 0, "limit": 1}),
+        };
+        let refusal = reader_reply(&registry, command, &args).unwrap_err();
+        assert!(refusal.contains(crate::solve_jobs::RESTORED_RESULT_WITHHELD), "{command}: {refusal}");
+    }
+    // The re-save from the handle stores the bytes that were opened (no migration, no reseal).
+    assert_eq!(registry.held_result_to_resave(&handle).unwrap().text(), stored.0);
+    let base = opened["project_envelope_hash"]["value"].clone();
+    let args = crate::stored_save::tests::resave_args(&opened, &crate::stored_save::tests::opened_fields(&opened), "save", base, Value::Null);
+    let saved = crate::stored_save::tests::resave_matches_legacy(&registry, &path, &opened, &args, "revised table unchanged");
+    assert_eq!(saved["restored"]["findings"]["binding"], json!({"withheld": "unrecognised_digest"}), "{saved}");
+    assert_eq!(column_text(&path, "SELECT mechanics_result_json FROM local_projects"), stored.0, "the stored result is kept");
+    assert_eq!(column_text(&path, "SELECT analysis_run_json FROM local_projects"), stored.1, "the stored record is kept");
+    assert!(registry.dispose_result(&handle).unwrap().released);
+
+    // W3, natively: the same statement bound to the installed table keeps its rows.
+    let control = cases.iter().find(|case| case["id"] == CURRENT_TABLE_CASE).expect("the control case");
+    assert_eq!(control["expected"]["binding"], json!({"read": "installed"}));
+    let (_, opened, stored) = stored_and_opened(&registry, &dir, control, &builder);
+    let run = &opened["stored_run"];
+    assert_eq!(run["findings"]["binding"], json!({"read": "installed"}));
+    let handle = run["handle"].as_str().unwrap().to_string();
+    assert_eq!(registry.held_result(&handle).unwrap().text(), stored.0);
+    let rows = serde_json::from_str::<Value>(&stored.0).unwrap()["results"].as_array().map_or(0, Vec::len) as u64;
+    assert!(rows > 0);
+    assert_eq!(rows_total(&registry, &handle), rows);
+    assert_eq!(summary_rows(&registry, &handle), rows);
+    assert!(registry.dispose_result(&handle).unwrap().released);
     std::fs::remove_dir_all(&dir).unwrap();
     assert_eq!(registry.pool().reserved_total(), 0);
 }

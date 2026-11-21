@@ -62,7 +62,7 @@ const FIXTURE_REQUEST = "exact_pressure_connected_request.json";
 type Project = { model: Json; editor_intents: Json; proposal: Json; selected_review_target: Json; model_hash: Json; project_envelope_hash: Json };
 /** The contexts' findings in RT-A4 §10.4's scopes (`findings`, `checkFindings`, `recordedTableRead`,
  * `historicalReaderFindings`), with the run's name and recomputed hash. */
-type Expected = { findings: string[]; check_findings: string[]; recorded_table_read: Json; historical_reader_findings: string[]; run_id: string; envelope_payload_hash: string | null; model_hash: Json } | { absent: true };
+type Expected = { findings: string[]; check_findings: string[]; recorded_table_read: Json; historical_reader_findings: string[]; binding: Json; run_id: string; envelope_payload_hash: string | null; model_hash: Json } | { absent: true };
 /** A committed fixture file's value at a JSON pointer ("" for the whole file; a recorded case's
  * whole result is the file's exact text). Read, never copied or rewritten. */
 export type FileRef = { path: string; pointer: string };
@@ -117,7 +117,7 @@ async function savedExpected(p: Project, result: Json, record: Json): Promise<Ex
   const opened = { summary: {}, ...clone(p), mechanics_result: clone(result), analysis_run: clone(record) } as unknown as LocalProjectEnvelope;
   const context = await buildHistoricalRunContext(opened);
   if (!context) return { absent: true };
-  return { findings: context.findings, check_findings: context.checkFindings, recorded_table_read: context.recordedTableRead, historical_reader_findings: context.historicalReaderFindings, run_id: context.runId, envelope_payload_hash: context.envelopePayloadHash, model_hash: null };
+  return { findings: context.findings, check_findings: context.checkFindings, recorded_table_read: context.recordedTableRead, historical_reader_findings: context.historicalReaderFindings, binding: context.binding, run_id: context.runId, envelope_payload_hash: context.envelopePayloadHash, model_hash: null };
 }
 
 async function saved(id: string, p: Project, result: Json, record: Json, base?: string): Promise<SavedCase> {
@@ -218,7 +218,7 @@ async function savedCases(base: Array<{ c: AnalysisRunV03Case; source: Json; rec
 
 async function recordedExpected(read: RecordedRead): Promise<Expected> {
   const context = await buildRecordedRunContext({ run: clone(read.run), state: clone(read.state), record: clone(read.record), result_json: read.result_json, input_manifest_canonical: read.input_manifest_canonical } as unknown as AnalysisRunRead);
-  return { findings: context.findings, check_findings: context.checkFindings, recorded_table_read: context.recordedTableRead, historical_reader_findings: context.historicalReaderFindings, run_id: context.runId, envelope_payload_hash: null, model_hash: context.modelHash };
+  return { findings: context.findings, check_findings: context.checkFindings, recorded_table_read: context.recordedTableRead, historical_reader_findings: context.historicalReaderFindings, binding: context.binding, run_id: context.runId, envelope_payload_hash: null, model_hash: context.modelHash };
 }
 
 async function recordedCases(base: Array<{ c: AnalysisRunV03Case; source: Json; record: Json }>): Promise<RecordedCase[]> {
@@ -290,20 +290,57 @@ function toldRetired(fixture: string, expected: Json): void {
 async function recordedBasisCases(): Promise<{ saved: SavedCase[]; recorded: RecordedCase[] }> {
   const saved: SavedCase[] = [], recorded: RecordedCase[] = [];
   for (const fixture of RECORDED_BASIS_FIXTURES) {
+    const out = await recordedFixtureCases(fixture, "recorded-basis", { record: FIXTURE_RECORD, source: FIXTURE_SOURCE, request: FIXTURE_REQUEST }, (source) => {
+      // RT-L2: a pressure-2 source is refused by name, never read as a current result.
+      const refusal = readerDispatch(source).error?.code;
+      if (refusal !== "SOURCE_PRESSURE_2_RETIRED") throw new Error(`${fixture}: the pressure-2 source is not refused as retired (${refusal})`);
+    }, (expected) => {
+      if (!("findings" in expected) || expected.findings.length === 0) throw new Error(`${fixture}: a pressure-2 run reopened clean`);
+      toldRetired(fixture, expected);
+    });
+    saved.push(...out.saved);
+    recorded.push(...out.recorded);
+  }
+  return { saved, recorded };
+}
+
+/** The table-binding unit's witness (W1, `fixtures/persistence/recorded_table_revised`): main's
+ * verbatim pressure-3 statement and request, and the record main's own record builder made of it
+ * under a revision of the pressure-3 table this version does not hold (README there), as a saved
+ * project's run and as a recorded revision. */
+export const REVISED_TABLE_FIXTURE = "fixtures/persistence/recorded_table_revised";
+export const REVISED_TABLE_FILES = { record: FIXTURE_RECORD, source: FIXTURE_SOURCE, request: FIXTURE_REQUEST } as const;
+/** The witness as a project opened from the store and as a recorded run read from the store. */
+export async function revisedTableWitness(): Promise<{ opened: LocalProjectEnvelope; read: AnalysisRunRead }> {
+  const cases = await revisedTableCases();
+  return { opened: cases.opened!, read: cases.read };
+}
+async function revisedTableCases(): Promise<FixtureCases> {
+  return recordedFixtureCases(REVISED_TABLE_FIXTURE, "revised-table", REVISED_TABLE_FILES, () => undefined, (expected) => {
+    if (!("binding" in expected) || JSON.stringify(expected.binding) !== JSON.stringify({ withheld: "unrecognised_digest" })) throw new Error(`${REVISED_TABLE_FIXTURE}: the revised-table run is not withheld (${JSON.stringify(expected)})`);
+  });
+}
+
+/** One verbatim fixture (a record, its source and its request model, never rewritten) as a recorded
+ * revision built as `recordedRunModel080.test.ts` builds it and, when its model document is current,
+ * as a saved project's run. */
+type FixtureCases = { saved: SavedCase[]; recorded: RecordedCase[]; opened: LocalProjectEnvelope | null; read: AnalysisRunRead };
+async function recordedFixtureCases(fixture: string, tag: string, names: Readonly<{ record: string; source: string; request: string }>, checkSource: (source: Json) => void, checkExpected: (expected: Expected) => void): Promise<FixtureCases> {
+  const saved: SavedCase[] = [], recorded: RecordedCase[] = [];
+  let opened: LocalProjectEnvelope | null = null, stored: RecordedRead | null = null;
+  {
     const text = (name: string) => readFileSync(resolve(ROOT, fixture, name), "utf8");
     const name = fixture.slice(fixture.lastIndexOf("/") + 1);
-    const record = JSON.parse(text(FIXTURE_RECORD)), sourceText = text(FIXTURE_SOURCE), source = JSON.parse(sourceText);
-    const model = JSON.parse(text(FIXTURE_REQUEST)).model;
-    // RT-L2: a pressure-2 source is refused by name, never read as a current result.
-    const refusal = readerDispatch(source).error?.code;
-    if (refusal !== "SOURCE_PRESSURE_2_RETIRED") throw new Error(`${fixture}: the pressure-2 source is not refused as retired (${refusal})`);
+    const record = JSON.parse(text(names.record)), sourceText = text(names.source), source = JSON.parse(sourceText);
+    const model = JSON.parse(text(names.request)).model;
+    checkSource(source);
     // As a saved project (current model documents only): the request's model, the verbatim source and record.
     if (model.schema_version === MODEL_SCHEMA_VERSION) {
       const p = await project(clone(model), source, record);
       const expected = await savedExpected(p, source, record);
-      if (!("findings" in expected) || expected.findings.length === 0) throw new Error(`${fixture}: a saved pressure-2 run reopened clean`);
-      toldRetired(fixture, expected);
-      saved.push({ id: `saved-recorded-basis:${name}`, kind: "saved", project: p, fixture, expected });
+      checkExpected(expected);
+      saved.push({ id: `saved-${tag}:${name}`, kind: "saved", project: p, fixture, expected });
+      opened = { summary: {}, ...clone(p), mechanics_result: clone(source), analysis_run: clone(record) } as unknown as LocalProjectEnvelope;
     }
     // As a recorded revision of an invented state, built as the webview tests build it.
     const authored = clone(model);
@@ -326,11 +363,11 @@ async function recordedBasisCases(): Promise<{ saved: SavedCase[]; recorded: Rec
     if (await canonicalSha256Hex(patched) !== await canonicalSha256Hex(revision)) throw new Error(`${fixture}: the record patches do not give the recorded revision`);
     const { record: _record, result_json: _result, ...rest } = read;
     const expected = await recordedExpected(read);
-    if (!("findings" in expected) || expected.findings.length === 0) throw new Error(`${fixture}: a pressure-2 run reopened clean`);
-    toldRetired(fixture, expected);
-    recorded.push({ id: `recorded-basis:${name}`, kind: "recorded", read: { ...rest, fixture, record_patches }, expected });
+    checkExpected(expected);
+    recorded.push({ id: `${tag}:${name}`, kind: "recorded", read: { ...rest, fixture, record_patches }, expected });
+    stored = read;
   }
-  return { saved, recorded };
+  return { saved, recorded, opened, read: { ...clone(stored!), result_json: stored!.result_json } as unknown as AnalysisRunRead };
 }
 
 const PRE_RT_A4 = "fixtures/persistence/recorded_pre_rt_a4_pf";
@@ -431,10 +468,11 @@ export async function historicalReopenCases(): Promise<HistoricalReopenCases> {
   const builder = JSON.parse(readFileSync(resolve(ROOT, BUILDER_CASES), "utf8")) as { cases: AnalysisRunV03Case[] };
   const base = builder.cases.filter(c => "record" in c.expected).map(c => ({ c, source: JSON.parse(heldText(c.source)), record: (c.expected as { record: Json }).record }));
   const basis = await recordedBasisCases();
+  const revised = await revisedTableCases();
   const preRtA4 = await preRtA4Cases();
   const preRtA51b = await prePolicyRestatementCases();
   const preRtA5Mf = await prePolicyRestatementCases(PRE_RT_A5_MF, "pre-rt-a5-mf");
-  const cases: ReopenCase[] = [...(await savedCases(base)), ...basis.saved, ...preRtA4.saved, ...preRtA51b.saved, ...preRtA5Mf.saved, ...(await recordedCases(base)), ...basis.recorded, ...preRtA4.recorded, ...preRtA51b.recorded, ...preRtA5Mf.recorded];
+  const cases: ReopenCase[] = [...(await savedCases(base)), ...basis.saved, ...preRtA4.saved, ...preRtA51b.saved, ...preRtA5Mf.saved, ...revised.saved, ...(await recordedCases(base)), ...basis.recorded, ...preRtA4.recorded, ...preRtA51b.recorded, ...preRtA5Mf.recorded, ...revised.recorded];
   const ids = new Set(cases.map(c => c.id));
   if (ids.size !== cases.length) throw new Error("duplicate case ids");
   return {

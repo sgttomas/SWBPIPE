@@ -79,6 +79,14 @@ code_paths:
 - apps/desktop/src/services/analysisRunCompatibility.ts
 - apps/desktop/src/services/hashService.ts
 - apps/desktop/src/features/results/analysisResultHashScope.ts
+# The refusal of a record bound to a table digest this version does not read, with the known former
+# digests that word it (its twins sit in compatibility.py and analysis_run_v03_validate.rs), and the
+# reopen's one decision whether a stored run's rows are read or withheld.
+- apps/desktop/src/services/semanticContractRefusal.ts
+- apps/desktop/src/services/tableBinding.ts
+- apps/desktop/src/test-support/tableBindingRefusals.ts
+# The known former digests' copies above are written from the tables' history by this tool.
+- tools/validation/former_table_digests.py
 # The input manifest, and the resolution of a model's rule-pack references at solve time with the
 # diagnostics an unresolved reference receives. DEL-08-04, DEL-15-01 and DEL-17-06 read those
 # diagnostics and also list rulePackRefDiagnostics.ts.
@@ -111,6 +119,12 @@ code_paths:
 - fixtures/persistence/transient_run_input_rule_packs.json
 - fixtures/persistence/recorded_run_witness_rule_packs.json
 - fixtures/persistence/s2_unresolved_rule_pack_run.json
+# A run main's record builder recorded under a revision of the pressure-3 table this version does
+# not hold: the witness of a reopen that withholds its rows.
+- fixtures/persistence/recorded_table_revised/README.md
+- fixtures/persistence/recorded_table_revised/pressure_plain_connected_sparse.analysis_run.json
+- fixtures/persistence/recorded_table_revised/pressure_connected_mechanics_sparse.json
+- fixtures/persistence/recorded_table_revised/exact_pressure_connected_request.json
 checks:
 - tests/test_analysis_run_compatibility.py
 - tests/test_analysis_run_schema.py
@@ -133,6 +147,8 @@ checks:
 - apps/desktop/src-tauri/src/stored_custody_tests.rs
 - apps/desktop/src-tauri/src/stored_save_tests.rs
 - apps/desktop/src/services/historicalReopenParity.test.ts
+- apps/desktop/src/features/results/reopenTableBinding.test.tsx
+- tools/validation/test_former_table_digests.py
 - apps/desktop/src/services/recordedRunParity.test.ts
 - apps/desktop/src/features/results/recordedRunContext.test.ts
 - apps/desktop/src/features/history/recordRun.session.test.tsx
