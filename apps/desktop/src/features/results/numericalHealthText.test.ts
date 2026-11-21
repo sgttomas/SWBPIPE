@@ -1,8 +1,20 @@
 // DEL-07-05 numerical health §3, §5 and §7: every literal of numericalHealthText.ts
 // pinned to the design's wording, and the module's vocabulary fence.
-import { describe, expect, it } from "vitest";
+import { cleanup, fireEvent, render, screen } from "@testing-library/react";
+import { readFileSync } from "node:fs";
+import { resolve } from "node:path";
+import { createElement } from "react";
+import { afterEach, describe, expect, it } from "vitest";
 import * as text from "./numericalHealthText";
 import * as status from "./integrityStatus";
+import { numericalHealthView, parseNumericalHealth, type NumericalHealthView } from "./numericalHealth";
+import { ResultsPanel } from "./ResultsPanel";
+import { ShellStatusBar } from "../workspace/shell/ShellStatusBar";
+import { WorkspaceSessionProvider } from "../workspace/WorkspaceSessionContext";
+import type { WorkspaceSession } from "../workspace/workspaceSession";
+import type { MechanicsResult } from "../../types";
+
+afterEach(cleanup);
 
 describe("numerical health text pins", () => {
   it("pins the label, states, headlines and prefix", () => {
@@ -143,6 +155,8 @@ describe("numerical health vocabulary", () => {
     "status.CONFIRMATION_STATEMENTS": () => shown(status.CONFIRMATION_STATEMENTS),
     "status.SUPPORT_STATES_LEAD": () => [status.SUPPORT_STATES_LEAD],
     "status.DETAIL_NOT_CARRIED_TEXT": () => [status.DETAIL_NOT_CARRIED_TEXT],
+    "status.CONFIRMATION_RECORD_UNREAD_STATEMENT": () => [status.CONFIRMATION_RECORD_UNREAD_STATEMENT],
+    "status.SUPPORT_STATES_UNREAD_LINE": () => [status.SUPPORT_STATES_UNREAD_LINE.text],
     "status.supportStatesText": () => OUTCOMES.flatMap((outcome) => shown(status.supportStatesText(outcome))),
     "status.supportStatesLine": () => OUTCOMES.flatMap((outcome) => [null, "x"].flatMap((detail) => { const line = status.supportStatesLine(outcome, detail); return line ? [line.text, ...shown(line.detailNote)] : []; })),
     "status.numericalQualityStatusText": () => [...STATES, "checks_passed", "unresolved", "failed"].map(status.numericalQualityStatusText),
@@ -162,6 +176,12 @@ describe("numerical health vocabulary", () => {
     INTEGRITY_BOUND_NOT_VERIFIED_TEXT: "the reader verdict's bound member in words, outside the indicator",
     integrityBoundText: "the reader verdict's bound member in words, outside the indicator",
     supportStatesByCase: "reads records into supportStatesLine",
+    SUPPORT_STATES_NONE: "no line on any case: holds no text",
+    SUPPORT_STATES_UNREAD: "SUPPORT_STATES_UNREAD_LINE on every case",
+    supportStatesOf: "picks a case's line",
+    nonlinearSupportKnowledge: "reads a model's supports",
+    supportStatesFor: "decides the lines from a model and a record",
+    nativeSupportStates: "decides the lines from a native summary",
     SOURCE_RECOVERY_METHOD: "a method token, matched",
     recoveredCaseIds: "reads a result's recorded methods"
   };
@@ -187,5 +207,89 @@ describe("numerical health vocabulary", () => {
     expect(fencedWords("it is correct")).toEqual(["correct"]);
     expect(fencedWords("Reported by the solver; not verified by SWBPIPE.")).toEqual([]);
     expect(fencedWords("SWBPIPE has not verified an error bound for its values.")).toEqual([]);
+  });
+
+  // The indicator as rendered, so a sentence written inline in a component is read too: the health
+  // header and output sentence, its detail, the row badges, and the status bar's chip and popover,
+  // for each of the five states and for the pressure-source route. The solver's own quoted text
+  // (a support-state line's quoted reason) is not the indicator's and is left out.
+  const root = resolve(__dirname, "../../../../..");
+  const fixture = (path: string) => JSON.parse(readFileSync(resolve(root, path), "utf8")) as MechanicsResult;
+  const UNICODE = "fixtures/results/preview_physics_unicode_ids_sparse.json";
+  const PRESSURE_SOURCE = "fixtures/product_preview/pressure_source/physics_source/mixed-sparse_interactive.raw.json";
+  const CAUSES: Record<text.NumericalHealthState, { code: string; causes: unknown[] }[]> = {
+    checks_passed: [{ code: "NUMERICAL_INTEGRITY_CHECKS_PASSED", causes: [] }],
+    sensitive: [{ code: "NUMERICAL_INTEGRITY_SENSITIVE", causes: [{ kind: "formation", diagnostic_id: "d", locations: [{ kind: "node_dof", node: "node:α", dof: "UX" }] }, { kind: "load_fidelity", diagnostic_id: "d", locations: [{ kind: "ref", ref: "load:a" }] }, { kind: "formation_recovery", diagnostic_id: "d", locations: [{ kind: "text", text: "member end forces" }] }] }, { code: "NUMERICAL_INTEGRITY_SENSITIVE", causes: [] }],
+    quality_unresolved: [{ code: "NUMERICAL_INTEGRITY_RECOVERY_BASIS_UNQUALIFIED", causes: [] }, { code: "NUMERICAL_INTEGRITY_ASSEMBLY_UNRESOLVED", causes: [] }],
+    solve_failed: [{ code: "NUMERICAL_INTEGRITY_PHYSICAL_MECHANISM", causes: [{ kind: "mechanism", diagnostic_id: "d", locations: [] }] }, { code: "NUMERICAL_INTEGRITY_NEGATIVE_ENERGY", causes: [{ kind: "negative_energy", diagnostic_id: "d", locations: [] }] }],
+    not_assessed: [{ code: "NUMERICAL_INTEGRITY_INSPECTION_ONLY", causes: [] }, { code: "NUMERICAL_INTEGRITY_INSPECTION_ONLY", causes: [] }]
+  };
+  function stateView(route: "generic" | "pressure_source", state: text.NumericalHealthState, caseIds: readonly string[], eligible: boolean): NumericalHealthView {
+    const variants = CAUSES[state];
+    const health = parseNumericalHealth({
+      route, verdict_only: !eligible && route === "generic",
+      cases: caseIds.map((case_id, index) => ({ case_id, state, code: variants[index % variants.length].code, integrity_diagnostic_id: `diagnostic:numerical-integrity:${case_id}`, rcond: state === "checks_passed" || state === "sensitive" ? 1e-11 : null, digits: state === "checks_passed" || state === "sensitive" ? 11 : null, conditioning_sensitive: state === "sensitive", causes: variants[index % variants.length].causes })),
+      combinations: []
+    });
+    expect(health, `${route} ${state}`).not.toBeNull();
+    return numericalHealthView(health, { eligible, verdictHold: !eligible && route === "generic", recoveredCases: route === "pressure_source" ? status.recoveredCaseIds(fixture(PRESSURE_SOURCE)) : undefined })!;
+  }
+  /** An element's text, each text node read on its own (adjacent elements' text is not run together). */
+  const textOf = (element: Element): string => {
+    const parts: string[] = [];
+    const walker = document.createTreeWalker(element, NodeFilter.SHOW_TEXT);
+    for (let node = walker.nextNode(); node; node = walker.nextNode()) parts.push(node.textContent ?? "");
+    return parts.join(" ");
+  };
+  /** Every text of the rendered indicator, by where it is shown. */
+  function renderedIndicator(result: MechanicsResult, view: NumericalHealthView): Record<string, string> {
+    render(createElement(ResultsPanel, { result, knowledge: null, analysisRun: null, selectedResultId: null, onSelectResult: () => {}, numericalHealth: view }));
+    const shown: Record<string, string> = {};
+    const header = screen.getByTestId("numerical-health-header-line");
+    shown.header = textOf(header);
+    const detail = screen.getByTestId("numerical-health-detail").cloneNode(true) as HTMLElement;
+    for (const quoted of detail.querySelectorAll("blockquote")) quoted.remove();
+    shown.detail = textOf(detail);
+    shown.rows = [...document.querySelectorAll("[data-testid^='result-row-health-']")].map(textOf).join(" | ");
+    cleanup();
+    const hold = { headline: view.headline, shortHeadline: view.shortHeadline, outputSentence: view.outputSentence ?? text.outputSentence(1) };
+    const session = {
+      model: { model: { analysis_status: { mechanics: "MECHANICS_SOLVED" } } },
+      results: { result: { status: { mechanics: "MECHANICS_SOLVED", professional_acceptance: "NOT_PROVIDED" } }, currentSolvedResult: null, numericalHealthHold: hold, historicalRun: null, solveJob: { state: "completed" }, ruleCheckAggregate: null },
+      selection: { selection: null, orderedSelection: { orderedKeys: [] } },
+      chrome: { activeSection: "results", stageSurface: "results", auditDrawerOpen: false, setAuditDrawerOpen() {}, issuesDrawerOpen: false, setIssuesDrawerOpen() {} }
+    } as unknown as WorkspaceSession;
+    render(createElement(WorkspaceSessionProvider, { session, children: createElement(ShellStatusBar, { issueCount: 0 }) }));
+    const chip = screen.getByTestId("status-pill-mechanics");
+    shown.statusBar = `${textOf(chip)} ${chip.getAttribute("title")}`;
+    fireEvent.click(chip);
+    shown.statusPopover = textOf(screen.getByTestId("status-pill-mechanics-popover"));
+    cleanup();
+    return shown;
+  }
+  const RENDERED = [
+    ...STATES.map((state) => ({ name: `generic, ${state}`, result: () => fixture(UNICODE), view: () => stateView("generic", state, ["load:é", "load:𝔫"], state === "checks_passed") })),
+    { name: "pressure-source, eligible", result: () => fixture(PRESSURE_SOURCE), view: () => stateView("pressure_source", "checks_passed", ["case", "case:ordinary-pressure"], true) },
+    { name: "pressure-source, sensitive", result: () => fixture(PRESSURE_SOURCE), view: () => stateView("pressure_source", "sensitive", ["case", "case:ordinary-pressure"], false) }
+  ];
+
+  it.each(RENDERED)("the rendered indicator ($name) uses no fenced word but in the two denials", ({ result, view }) => {
+    const shown = renderedIndicator(result(), view());
+    expect(shown.header.length).toBeGreaterThan(0);
+    expect(shown.detail.length).toBeGreaterThan(0);
+    // Not vacuous: the status bar shows the indicator's headline.
+    const shownView = view();
+    expect(shown.statusPopover, "the status bar's popover").toContain(shownView.headline);
+    expect(shown.header).toContain(shownView.headline);
+    for (const [where, value] of Object.entries(shown)) expect(fencedWords(value), `${where}: ${value}`).toEqual([]);
+  });
+
+  it("finds a fenced word written into the rendered indicator", () => {
+    const view = stateView("generic", "checks_passed", ["load:é", "load:𝔫"], true);
+    const inline = { ...view, headline: "Numerical health: verified", cases: view.cases.map((c) => ({ ...c, sentences: [...c.sentences, "The bound is reliable."] })) } as NumericalHealthView;
+    const shown = renderedIndicator(fixture(UNICODE), inline);
+    expect(fencedWords(shown.header), shown.header).toEqual(["verified"]);
+    expect(fencedWords(shown.detail), shown.detail).toEqual(["bound", "reliable"]);
+    expect(fencedWords(shown.statusPopover), shown.statusPopover).toEqual(["verified"]);
   });
 });

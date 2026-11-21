@@ -22,6 +22,7 @@ import { KnownSemanticNotices } from "./KnownSemanticNotices";
 import { buildBundledReferenceContext, buildHistoricalRunContext, HistoricalRunPanel } from "./HistoricalRunContext";
 import { DiagnosticsPanel } from "../diagnostics/DiagnosticsPanel";
 import { KnowledgePanel } from "../knowledge/KnowledgePanel";
+import { presentedResultDiagnostics } from "./suppliedDiagnostics";
 import { RunComparisonView } from "../comparison/RunComparisonView";
 import { compareRunInputs } from "../comparison/runComparison";
 import type { RunComparisonSide } from "../comparison/runComparisonSides";
@@ -46,28 +47,56 @@ const DEMO = { result: "fixtures/product_preview/invented_demo_result_preview_ph
  * predicate's own phrases. A denial directly before the word ("not", "no") is not a claim. */
 const CLAIMS = [
   /checks[ _]passed/i, /(?<!(?:not|no) )\bestablished\b/i, /(?<!(?:not|no) )\bconfirmed\b/i, /(?<!(?:not|no) )\bverified\b/i,
-  /\bwithin (?:its|their) stated (?:numerical )?bound\b/i, /\bstress-free to within\b/i, /\bbounded by\b/i, /integrity[ _]checked/i
+  /\bwithin (?:its|their) stated (?:numerical )?bound\b/i, /\bstress-free to within\b/i, /\bbounded by\b/i, /integrity[ _]checked/i,
+  /\bquality: Passed\b/
 ];
-/** An element's own text, without its child elements'. */
-const ownText = (element: Element) => [...element.childNodes].filter((node) => node.nodeType === node.TEXT_NODE).map((node) => node.textContent).join("");
 /** A code shown as a code (a machine field, as the decided words keep it), not a sentence. */
 const isCode = (text: string) => /^[\sA-Z0-9_:.()=-]+$/.test(text.trim());
-/** The note, or a denial that is the statement itself: the support-state line, which begins "Support
- * states: not confirmed" (its outcome statements deny each confirmation in the reviewed words). */
-const governs = (text: string | null | undefined) => !!text && (text.includes(SOLVER_REPORT_NOTE) || /reported by the solver; not verified by SWBPIPE/i.test(text) || text.startsWith(`${SUPPORT_STATES_LEAD}.`));
-/** Every element whose own text states a claim has the note in it or in its immediate sibling. Returns
- * the claims found, so a fixture shows it has some. */
+/** The note in a text, or the support-state line's own denial of the confirmation in the reviewed words. */
+const NOTE_IN_TEXT = /reported by the solver; not verified by SWBPIPE/gi;
+/** The end of the last claim in a text; -1 where it states none. */
+function lastClaimEnd(text: string): number {
+  let end = -1;
+  for (const claim of CLAIMS) for (const match of text.matchAll(new RegExp(claim.source, claim.flags.includes("g") ? claim.flags : `${claim.flags}g`))) end = Math.max(end, match.index! + match[0].length);
+  return end;
+}
+/** A node that is the note itself: an element whose whole text is the note. */
+const isNoteElement = (node: Node | null): node is Element => !!node && node.nodeType === Node.ELEMENT_NODE && (node as Element).textContent?.trim() === SOLVER_REPORT_NOTE;
+/** The next sibling node that is not blank text or closing punctuation (a parenthesis around a quoted message). */
+function nextNode(node: Node): Node | null {
+  let next = node.nextSibling;
+  while (next && next.nodeType === Node.TEXT_NODE && /^[\s).,;:]*$/.test(next.textContent ?? "")) next = next.nextSibling;
+  return next;
+}
+/** Every text that states a claim has its own note: in the same text after its last claim, or as the
+ * node that immediately follows it and is the note itself (where the text is the last of its element,
+ * the element's next sibling). A note serves one claim-bearing text only, so a note anywhere else in
+ * the subtree, or one already used by the text before, satisfies nothing. A text that is the
+ * support-state line's denial ("Support states: not confirmed. …") governs itself. Returns the claims
+ * found, so a fixture shows it has some. */
 function expectEveryClaimNoted(container: HTMLElement, what: string): string[] {
   const text = container.textContent ?? "";
   expect(text, `${what}: inverse-norm`).not.toMatch(/inverse-norm/i);
   expect(text, `${what}: the removed phrase`).not.toMatch(/solver checks passed, not verified/i);
   const found: string[] = [];
-  for (const element of container.querySelectorAll("*")) {
-    const own = ownText(element);
-    if (!own.trim() || isCode(own) || !CLAIMS.some((claim) => claim.test(own))) continue;
+  const used = new Set<Element>();
+  const walker = document.createTreeWalker(container, NodeFilter.SHOW_TEXT);
+  for (let node = walker.nextNode(); node; node = walker.nextNode()) {
+    const own = node.textContent ?? "";
+    if (!own.trim() || isCode(own)) continue;
+    const end = lastClaimEnd(own);
+    if (end < 0) continue;
+    // The note's own text and the support-state line's denial are not claims to be noted.
+    if (node.parentElement && isNoteElement(node.parentElement)) continue;
+    if (own.trimStart().startsWith(`${SUPPORT_STATES_LEAD}.`)) continue;
     found.push(own);
-    const noted = governs(element.textContent) || governs(element.previousElementSibling?.textContent) || governs(element.nextElementSibling?.textContent);
-    expect(noted, `${what}: the note with "${own.slice(0, 120)}"`).toBe(true);
+    if ([...own.slice(end).matchAll(NOTE_IN_TEXT)].length > 0) continue;
+    let following = nextNode(node);
+    // The text ends its element: the element's own next sibling.
+    if (!following && node.parentElement && node.parentElement !== container) following = nextNode(node.parentElement);
+    const noted = isNoteElement(following) && !used.has(following);
+    if (noted) used.add(following as Element);
+    expect(noted, `${what}: its own note with "${own.slice(0, 120)}"`).toBe(true);
   }
   return found;
 }
@@ -227,6 +256,74 @@ describe("the surfaces round 1 found", () => {
     const { result } = corpus("fixtures/results/preview_physics_held_status_corpus.json", "h4_kept_explicit");
     render(<KnownSemanticNotices result={result} testIdPrefix="notices" />);
     expect(expectEveryClaimNoted(document.body, "held-status notice").some((t) => /Established within its stated numerical bound/.test(t))).toBe(true);
+  });
+});
+
+describe("a quoted structural report that passed (round 2)", () => {
+  const CAP = () => read<{ document: MechanicsResult; request: { model: PreviewModel } }>("fixtures/results/pressure_v3_cap_remainder_halfway_force.json");
+  const witnesses = () => {
+    const cap = CAP();
+    const operands = corpus("fixtures/results/preview_physics_nonlinear_operands_corpus.json", "v1_gap_closes");
+    return [
+      { name: "a sensitive case (case:P)", result: cap.document, model: cap.request.model, code: "NUMERICAL_INTEGRITY_SENSITIVE", id: "diagnostic:numerical-integrity:case:P" },
+      { name: "an unqualified recovery basis (case:S)", result: operands.result, model: operands.model, code: "NUMERICAL_INTEGRITY_RECOVERY_BASIS_UNQUALIFIED", id: "diagnostic:numerical-integrity:case:S" }
+    ];
+  };
+
+  it.each([0, 1])("witness %i: the note on the Issues list, the diagnostic detail and the Design Knowledge panel", (index) => {
+    const { result, model: bound, code, id } = witnesses()[index];
+    const model = { ...bound, diagnostics: bound.diagnostics ?? [] } as PreviewModel;
+    const diagnostic = result.diagnostics.find((d) => d.id === id)!;
+    expect(diagnostic.code).toBe(code);
+    expect(diagnostic.message).toContain("quality: Passed");
+    let selected: string | null = null;
+    const { rerender } = render(<DiagnosticsPanel model={model} knowledge={null} result={result} selectedDiagnosticId={null} onSelectDiagnostic={(value) => { selected = value; }} />);
+    const items = screen.getAllByTestId(`diagnostic-${code}`);
+    const item = items.find((element) => element.textContent?.includes(diagnostic.message))!;
+    expect(item.querySelector(`[data-testid='diagnostic-solver-report-note-${code}']`)).toHaveTextContent(SOLVER_REPORT_NOTE);
+    fireEvent.click(item);
+    expect(selected).toBe(id);
+    rerender(<DiagnosticsPanel model={model} knowledge={null} result={result} selectedDiagnosticId={selected} onSelectDiagnostic={() => {}} />);
+    expectNoteWithExplanation();
+    expect(expectEveryClaimNoted(document.body, "issues").some((t) => t.includes("quality: Passed"))).toBe(true);
+    cleanup();
+    render(<KnowledgePanel knowledge={null} result={result} />);
+    // The panel shows the presented message (a result with combinations quotes it as supplied text).
+    const presented = presentedResultDiagnostics(result).find((d) => d.id === id)!;
+    expect(presented.message).toContain("quality: Passed");
+    expect(document.body.textContent).toContain(`${presented.message} ${SOLVER_REPORT_NOTE}`);
+    expect(expectEveryClaimNoted(document.body, "design knowledge").some((t) => t.includes("quality: Passed"))).toBe(true);
+  });
+});
+
+describe("the surface walk's own guard", () => {
+  const dom = (html: string) => { const host = document.createElement("div"); host.innerHTML = html; document.body.append(host); return host; };
+  const LIMITATION = "Member actions of a load case reported NUMERICAL_INTEGRITY_CHECKS_PASSED are recovered.";
+
+  it("accepts a note in the claim's own text after it, or as the next node that is the note itself", () => {
+    expect(expectEveryClaimNoted(dom(`<p>${LIMITATION} ${SOLVER_REPORT_NOTE}</p>`), "own text")).toHaveLength(1);
+    cleanup(); document.body.innerHTML = "";
+    expect(expectEveryClaimNoted(dom(`<span class="lim">${LIMITATION} <span>${SOLVER_REPORT_NOTE} </span></span><span class="lim">${LIMITATION} <span>${SOLVER_REPORT_NOTE} </span></span>`), "two noted")).toHaveLength(2);
+    document.body.innerHTML = "";
+    expect(expectEveryClaimNoted(dom(`<button><p>quality: Passed</p><p>${SOLVER_REPORT_NOTE}</p></button>`), "sibling")).toHaveLength(1);
+    document.body.innerHTML = "";
+  });
+
+  it("fails two adjacent limitations of which only the first is noted", () => {
+    expect(() => expectEveryClaimNoted(dom(`<span class="lim">${LIMITATION} <span>${SOLVER_REPORT_NOTE} </span></span><span class="lim">${LIMITATION} </span>`), "control")).toThrow(/its own note/);
+    document.body.innerHTML = "";
+    // In one text: a marked limitation does not cover the next.
+    expect(() => expectEveryClaimNoted(dom(`<p>${LIMITATION} ${SOLVER_REPORT_NOTE} ${LIMITATION}</p>`), "control")).toThrow(/its own note/);
+    document.body.innerHTML = "";
+  });
+
+  it("fails a note in a distant descendant, or one before the claim", () => {
+    expect(() => expectEveryClaimNoted(dom(`<div>${LIMITATION}<div><p>Other words. <span>${SOLVER_REPORT_NOTE}</span></p></div></div>`), "control")).toThrow(/its own note/);
+    document.body.innerHTML = "";
+    expect(() => expectEveryClaimNoted(dom(`<div><section><p>${LIMITATION}</p></section></div><p>${SOLVER_REPORT_NOTE}</p>`), "control")).toThrow(/its own note/);
+    document.body.innerHTML = "";
+    expect(() => expectEveryClaimNoted(dom(`<p>${SOLVER_REPORT_NOTE} ${LIMITATION}</p>`), "control")).toThrow(/its own note/);
+    document.body.innerHTML = "";
   });
 });
 
