@@ -869,7 +869,7 @@ fn plain_and_load_state_documents_agree_bit_for_bit() {
 /// them. The existing combination path admits them on a load/reference-state
 /// document: each term and both combinations publish rows, and the SRSS of
 /// the cases themselves is withheld whole by the fixed-load count gate. The
-/// numbers are compared by the ignored test below.
+/// numbers are compared by the test below.
 #[test]
 fn seismic_terms_and_their_combinations_are_admitted_over_generating_cases() {
     let doc = gi();
@@ -966,12 +966,57 @@ fn gi_document_cef(doc: &Value) -> Value {
     json!({"model": model, "materials": []})
 }
 
+/// DEL-04-07 REQ-011 on model CEF: the package lists one generated source
+/// per member and one for the valve (`load_sources.generated`, labels local
+/// to the package). The product records each generated primitive once at
+/// factor 1: a member's distributed load, and the valve's force and each of
+/// its moments under their own identities. So each record entry is mapped to
+/// the package source it belongs to (a member load by its element index, a
+/// component item by its component identity). The mapped sources must be
+/// exactly the package's list, every entry must be distinct, and each
+/// component source must carry its force.
+fn assert_cef_generated_record(out: &Value, wire: &Value, case_id: &str, case: &Value, what: &str) {
+    let pipes = wire["model"]["pipe_segments"].as_array().unwrap();
+    let published = generated_sources(out, case_id);
+    let ids = published.iter().map(|c| c["source_id"].as_str().unwrap().to_string()).collect::<Vec<_>>();
+    assert_eq!(ids.iter().collect::<std::collections::BTreeSet<_>>().len(), ids.len(), "{what}: each generated primitive once; {ids:?}");
+    assert!(published.iter().all(|c| c["factor"] == 1.0 && c["generation_kind"] == "seismic"), "{what}: {published:#?}");
+    let mut sources = std::collections::BTreeSet::new();
+    let mut forces = std::collections::BTreeSet::new();
+    for id in &ids {
+        let rest = id.strip_prefix(&format!("{case_id}:generated:seismic:")).unwrap_or_else(|| panic!("{what}: {id} outside the case's namespace"));
+        let (_axis, item) = rest.split_once(':').unwrap();
+        if let Some(index) = item.strip_prefix("element-") {
+            let index: usize = index.parse().unwrap_or_else(|_| panic!("{what}: {id}"));
+            sources.insert(format!("{}/seismic", pipes[index]["id"].as_str().unwrap()));
+        } else if let Some(component) = item.strip_prefix("component:") {
+            // `component:<length>:<component id>:<force | moment:axis>`
+            let (length, tail) = component.split_once(':').unwrap();
+            let length: usize = length.parse().unwrap();
+            let (component_id, part) = tail.split_at(length);
+            sources.insert(format!("{component_id}/seismic"));
+            if part == ":force" {
+                forces.insert(format!("{component_id}/seismic"));
+            }
+        } else {
+            panic!("{what}: {id} is neither a member load nor a component item");
+        }
+    }
+    let expected = case["load_sources"]["generated"].as_array().unwrap().iter().map(|g| {
+        assert_eq!(g["factor"], 1);
+        g["source"].as_str().unwrap().to_string()
+    }).collect::<std::collections::BTreeSet<_>>();
+    assert_eq!(sources, expected, "{what}: the record's sources are the package's; {ids:?}");
+    for source in expected.iter().filter(|s| s.starts_with("component:")) {
+        assert!(forces.contains(source), "{what}: {source} carries its force");
+    }
+}
+
 /// Model CEF's rows: the four cases (the constant-effort force included),
 /// the three seismic terms and the published combinations, against the
 /// reference; each generated source recorded once at factor 1, the valve's
 /// component force included.
 #[test]
-#[ignore = "waits on issue 450 (seismic component force: the valve's k*W at its node replaces its member's distributed seismic load); un-ignore when that unit is on this branch"]
 fn constant_effort_support_seismic_terms_and_combinations() {
     let _ = ISSUE_450;
     let doc = gi();
@@ -981,7 +1026,7 @@ fn constant_effort_support_seismic_terms_and_combinations() {
         for id in ["CEF-SUS", "CEF-EQX", "CEF-EQY", "CEF-EQZ"] {
             let case = gi_case_ref(&doc, id);
             compare(&out, case_at(id), &gi_rows(case), &frozen_floors(case), &format!("CEF {id} {mode:?}"));
-            assert_eq!(generated_sources(&out, id).len(), case["load_sources"]["generated"].as_array().unwrap().len(), "{id}: one record entry per generated source");
+            assert_cef_generated_record(&out, &wire, id, case, &format!("CEF {id} {mode:?}"));
         }
         for item in doc["terms"].as_array().unwrap().iter().chain(doc["combinations"].as_array().unwrap())
             .filter(|t| t["id"].as_str().unwrap().starts_with("CEF-") && t.get("rows").is_some_and(|r| r.as_array().is_some_and(|r| !r.is_empty()))) {

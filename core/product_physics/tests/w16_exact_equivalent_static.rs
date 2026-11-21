@@ -1064,7 +1064,6 @@ fn the_readers_bind_the_load_state_record_of_generated_sources() {
 /// re-formed from the captured model by the companion binding, and the
 /// source reader admits the envelope. A forged generated entry is refused.
 #[test]
-#[ignore = "waits on the equivalent_static member of physics_source_recovery.schema.json pressure_source_resolved_exact_case, which the seismic component force branch's schema commit adds (issue 450); until then the source reader refuses this envelope with PHYSICS_SOURCE_PHYSICAL_SHAPE"]
 fn the_companion_binding_reforms_the_generated_sources_of_a_load_state_case() {
     use open_pipe_stress_result_export::physics_source;
     let mut source: Value = serde_json::from_str(LOAD_STATE_SOURCE_MIXED).unwrap();
