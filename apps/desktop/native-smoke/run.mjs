@@ -617,8 +617,9 @@ const namesMissingInputs = (rules) => Boolean(rules?.aggregate?.includes("RULE_I
   // (`report-print-evidence.mjs`). The native-smoke build substitutes the system dialog with a record of the print
   // document: no dialog appearance, preview composition or job outcome is observed or claimed.
   const printed = first.report_print;
-  // The demonstration model renders on the pressure-free route, whose report input carries no numerical standing
-  // record, so its document is rightly without a standing line: stated here as the expectation, not left unsaid.
+  // The demonstration model states no shear selection and solves as the pressure-free Euler-Bernoulli kind, whose
+  // report carries no numerical standing record, so its document is rightly without a standing line: stated here as
+  // the expectation, not left unsaid. A change that gives this report a standing line changes this to the line's lead.
   for (const item of judgeReportPrint("demo local-private report print", printed, { canonicalHtml: printed?.canonical_html, shownHash: printed?.shown_hash, expectStanding: NO_STANDING_LINE }))
     check(item.name, item.ok, item.detail);
   check("demo local-private report print: the document printed is the one rendered and shown", printed?.shown_hash === render?.hash, { printed: printed?.shown_hash ?? null, rendered: render?.hash ?? null });
