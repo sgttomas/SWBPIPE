@@ -481,11 +481,12 @@ test("10 inspector actions: creation forms, the bend at a corner, settings, the 
     await page.getByRole("menuitem", { name: "Split into N…" }).click();
     const panel = page.getByTestId("split-into-parts");
     await expect(panel).toBeVisible();
-    for (const [label, value] of [["Number of equal parts", "2"], ["New node ID pattern", "node:N-125"], ["New node label pattern", "Mid run"],
-      ["New pipe ID pattern", "pipe:P-125"], ["New pipe label pattern", "Second half"], ["First number", "1"], ["Number step", "1"], ["Provenance", INVENTED]] as const) {
+    for (const [label, value] of [["Number of equal parts", "2"], ["New node ID pattern", "node:N-S{k}"], ["New node label pattern", "Mid run {k}"],
+      ["New pipe ID pattern", "pipe:P-S{k}"], ["New pipe label pattern", "Part {k}"], ["First number", "1"], ["Number step", "1"], ["Provenance", INVENTED]] as const) {
       const field = panel.getByLabel(label, { exact: true });
       if (await field.count()) await field.fill(value);
     }
+    await expect(panel.getByTestId("split-parts-queue")).toBeEnabled();
     await panel.getByTestId("split-parts-queue").click();
     await applyFirstQueued(page);
   });
@@ -493,8 +494,8 @@ test("10 inspector actions: creation forms, the bend at a corner, settings, the 
     await showModelTree(page);
     await ensureInspectorExpanded(page);
     const filter = page.getByTestId("model-tree-filter-input");
-    await filter.fill("node:N-125");
-    const row = page.locator('[data-testid^="tree-row-node-node%3AN-125"]').first();
+    await filter.fill("node:N-S");
+    const row = page.locator('[data-testid^="tree-row-node-node%3AN-S"]').first();
     await row.click();
   });
   await pictureSelection(journey, "section", "A section created from Create section and applied, then selected", async () => {
