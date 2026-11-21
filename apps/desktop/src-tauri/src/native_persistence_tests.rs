@@ -2974,7 +2974,7 @@ pub(crate) fn fail_after_project_row_update(path: &Path) {
 /// What the webview reads of a stored text: each number as JavaScript reads it.
 pub(crate) fn webview_reading(text: &str) -> Value {
     let mut value: Value = serde_json::from_str(text).unwrap();
-    build::js_numbers(&mut value);
+    crate::analysis_run_v03_build::js_numbers(&mut value);
     value
 }
 

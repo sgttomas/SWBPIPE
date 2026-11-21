@@ -1347,7 +1347,7 @@ pub(crate) fn read_kept_proposal(transaction: &rusqlite::Transaction<'_>, projec
     let mut value = serde_json::from_str::<Value>(&text).map_err(|error| {
         format!("{STORED_PROPOSAL_KEEP_REFUSED}: project `{}`'s stored proposal is not JSON ({}). Nothing was saved.", stored_read::shown(project_id), stored_read::json_error(&error))
     })?;
-    analysis_run_v03_build::js_numbers(&mut value);
+    crate::analysis_run_v03_build::js_numbers(&mut value);
     Ok(KeptProposal { text, value, _reservations: (sqlite, held) })
 }
 
@@ -1415,7 +1415,7 @@ fn kept_proposal_envelope_hash(
     analysis_run: &Value,
     model_hash: &Value,
 ) -> Value {
-    use analysis_run_v03_build::{Sink, Style, Writer};
+    use crate::analysis_run_v03_build::{Sink, Style, Writer};
     use sha2::{Digest, Sha256};
     let mut hasher = Sha256::new();
     let members: [(&str, &Value); 7] = [
@@ -1440,7 +1440,7 @@ fn kept_proposal_envelope_hash(
         "payload_scope": "project_envelope_payload",
         "payload_excludes": "storage_summary_and_envelope_hash_carrier_fields",
         "payload_ref": model.pointer("/project/id").cloned().unwrap_or(Value::Null),
-        "value": format!("sha256:{}", analysis_run_v03_build::hex(&hasher.finalize())),
+        "value": format!("sha256:{}", crate::analysis_run_v03_build::hex(&hasher.finalize())),
         "hash_status": "computed_local_preview"
     })
 }
@@ -9703,7 +9703,7 @@ mod tests {
         assert_ne!(serde_json::to_string(&parsed).unwrap(), odd, "a re-serialisation changes this text");
         // What the webview reads of it, and so what a session would send and hash.
         let mut read = parsed.clone();
-        analysis_run_v03_build::js_numbers(&mut read);
+        crate::analysis_run_v03_build::js_numbers(&mut read);
         assert_ne!(read, parsed);
         let request = |extra: Value| {
             let mut value = json!({
