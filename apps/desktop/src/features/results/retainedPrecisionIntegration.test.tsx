@@ -85,7 +85,7 @@ import previewPhysicsSemanticContract from "../../../../../fixtures/results/sema
 import previewPhysicsRetainedSemanticContract from "../../../../../fixtures/results/semantic_contract_v0_3_preview_physics_retained_1.json";
 import { ResultsPanel } from "./ResultsPanel";
 import { buildHistoricalRunContext } from "./HistoricalRunContext";
-import { hasNativeMechanicsInvocation, pollPreviewMechanicsJob, runPreviewMechanics, startPreviewMechanicsJob, takePreviewMechanicsJobResult, type PreviewSolverMode } from "../../services/previewService";
+import { deliveredMechanicsResultJob, hasNativeMechanicsInvocation, pollPreviewMechanicsJob, runPreviewMechanics, startPreviewMechanicsJob, takePreviewMechanicsJobResult, type PreviewSolverMode } from "../../services/previewService";
 import { ruleBindingPrecheck, runRuleChecks, selectSolverRows, solverSelectorForRow, type RuleCheckBasisRef, type RuleCheckBindingPlan } from "../../services/ruleCheckService";
 
 // A binding plan whose solver inputs select the given rows by their 0.5.0
@@ -526,8 +526,9 @@ describe.each(MODES)("%s: the post-U7 path through the real carriers", (mode) =>
     invokeMock.mockImplementation(async (command: string, args: Json) => {
       expect(command).toBe("run_rule_checks");
       expect(args.sourceBlockInvocation).toStrictEqual(invocation);
-      // The envelope travels as the JSON text Tauri itself sent for it.
-      expect(args.solvedEnvelope).toStrictEqual(JSON.parse(JSON.stringify(received)));
+      // Only the handle of the job that holds the bytes travels, never a copy.
+      expect(args).not.toHaveProperty("solvedEnvelope");
+      expect(args.jobId).toBe(deliveredMechanicsResultJob(received));
       return { document_kind: "rule_check_run", rule_pack_id: "invented", grammar_version: "1.0.0", aggregate_status: "RULE_INPUTS_INCOMPLETE", checks: [], professional_boundary_notice: "unit simulation" };
     });
     const route = await runRuleChecks({ rulePackDocument: {} as RulePackDocument, model, solvedEnvelope: received });

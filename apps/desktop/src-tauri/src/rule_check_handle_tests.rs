@@ -299,3 +299,37 @@ fn the_selector_preview_reads_the_held_rows_by_handle() {
     assert!(error.starts_with("RULE_CHECK_RESULT_NOT_HELD"), "{error}");
     registry.dispose_result(&restored).unwrap();
 }
+
+/// A held result above the web view's 64 MiB full-copy limit is checked by handle. The result is a
+/// committed exact result whose diagnostics are repeated (each with its own id) until its text
+/// passes the limit: a size witness, not a solve of a larger model. The check by handle gives the
+/// same aggregate and outcomes as the uninflated result by the engine's value path.
+/// Ignored by default for its size (two parses of about 70 MB); run with `--ignored`.
+#[test]
+#[ignore = "builds and parses a result above 64 MiB; run on request"]
+fn a_result_above_the_web_view_limit_is_checked_by_handle() {
+    const WEBVIEW_LIMIT: usize = 64 * 1024 * 1024;
+    let (registry, gate) = registry();
+    let request = project_file("core/product_physics/tests/fixtures/exact_pressure_connected_request.json");
+    let model = request["model"].clone();
+    let mut source = project_file("fixtures/results/pressure_connected_mechanics_sparse.json");
+    let row = chosen_row(&source);
+    let pack = pack_for(&model, &source, &row);
+    let supplied = supplied_for(&row);
+    let small = run_rule_checks_value(&no_store, pack.clone(), Some(model.clone()), Some(source.clone()), None, Some(supplied.clone()), None, None).unwrap();
+    let template = source["diagnostics"][0].clone();
+    let each = serde_json::to_string(&template).unwrap().len();
+    let diagnostics = source["diagnostics"].as_array_mut().unwrap();
+    for copy in 0..(WEBVIEW_LIMIT / each + 1000) {
+        let mut entry = template.clone();
+        entry["id"] = json!(format!("{}:size-witness-{copy}", template["id"].as_str().unwrap()));
+        diagnostics.push(entry);
+    }
+    let text = serde_json::to_string(&source).unwrap();
+    assert!(text.len() > WEBVIEW_LIMIT, "{} bytes", text.len());
+    let job = solve_holding(&registry, &gate, &text, ResultCustody::Native);
+    let by_handle = run_by_handle(&registry, json!({"rulePackDocument": pack, "jobId": job, "model": model, "suppliedValueBindings": supplied})).unwrap();
+    assert_eq!(by_handle["aggregate_status"], small["aggregate_status"]);
+    assert_eq!(by_handle["checks"], small["checks"]);
+    registry.dispose_result(&job).unwrap();
+}

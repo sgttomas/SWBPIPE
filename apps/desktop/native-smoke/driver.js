@@ -864,11 +864,15 @@
     return observation;
   }
 
-  // The Solve section's rule checks, as a person runs them since 8f2b8c42e: Load for rule checks
-  // (the gate, for this result), Load demo rule pack, Run checks. The panel is mounted afresh for
-  // each new result, so both the demo's and the exact route's runs pass through the gate.
+  // The Solve section's rule checks, as a person runs them: Load demo rule pack, Run checks. The run
+  // reads the result native custody holds, by its handle, so no full copy is loaded for it: the
+  // panel is shown at once, and `full_copy_offered` records whether a full-copy gate for rule
+  // checks appeared in the section (it should not).
   async function runRuleChecks(label) {
-    const gate = await openC2Gate("solve", "rule checks", "rule-check-run-panel");
+    await showSection("solve");
+    await waitFor(`${label}: rule-check run panel`, () => byTestId("rule-check-run-panel"), 120000);
+    const shown = c2Gate("solve", "rule checks");
+    const gate = { full_copy_offered: Boolean(shown.load || shown.reading || shown.offered || shown.stopped) };
     click("rule-check-load-demo");
     const run = await waitFor(`${label}: rule-check run enabled`, () => {
       const status = text("rule-check-run-status") ?? "";

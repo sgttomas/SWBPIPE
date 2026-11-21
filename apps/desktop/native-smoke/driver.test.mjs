@@ -402,12 +402,11 @@ test("rule checks: through the gate, the demo pack is loaded, the run made and i
   const results = w.section("results", false);
   const status = w.element("rule-check-run-status");
   const run = w.element("rule-check-run", { disabled: true });
-  w.explicitGate(solve, "rule checks", () => {
-    w.place(solve, w.element("rule-check-run-panel"));
-    w.place(solve, status);
-    w.place(solve, run);
-    w.place(solve, w.element("rule-check-load-demo", { click: () => setTimeout(() => { status.textContent = "Loaded the bundled invented demonstration rule pack."; run.disabled = false; }, 100) }));
-  });
+  // The panel is shown with no full-copy gate: the run reads the held result by its handle.
+  w.place(solve, w.element("rule-check-run-panel"));
+  w.place(solve, status);
+  w.place(solve, run);
+  w.place(solve, w.element("rule-check-load-demo", { click: () => setTimeout(() => { status.textContent = "Loaded the bundled invented demonstration rule pack."; run.disabled = false; }, 100) }));
   run.click = () => setTimeout(() => {
     w.place(solve, w.element("rule-check-aggregate-status", { textContent: "Aggregate statusINCOMPLETE — 0 check(s) failed; 1 check(s) blocked (RULE_INPUTS_INCOMPLETE)" }));
     w.place(solve, w.element("rule-check-outcomes", { textContent: "demo_training_check: RULE_INPUTS_INCOMPLETE inputs: demo_actual_quantity=MISSING, demo_limit_quantity=MISSING" }));
@@ -419,7 +418,7 @@ test("rule checks: through the gate, the demo pack is loaded, the run made and i
   w.place(results, w.element("stress-ratio-group", { value: "rule:demo_training_check", querySelectorAll: (selector) => (selector.includes("rule:") ? [{}] : []) }));
   w.place(results, w.element("stress-ratio-mode", { getAttribute: (name) => (name === "data-mode" ? "ratio" : null) }));
   const observation = await w.hooks.runRuleChecks("demo/rule-checks");
-  assert.equal(observation.gate.loaded_on_request, true);
+  assert.equal(observation.gate.full_copy_offered, false);
   assert.match(observation.aggregate, /RULE_INPUTS_INCOMPLETE/);
   assert.match(observation.outcomes, /demo_actual_quantity=MISSING, demo_limit_quantity=MISSING/);
   assert.equal(observation.stress_ratio.rule_groups, 1);

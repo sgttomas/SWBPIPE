@@ -1,7 +1,7 @@
 import { act, cleanup, fireEvent, render, screen, waitFor } from "@testing-library/react";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { RuleCheckRunPanel } from "./RuleCheckRunPanel";
-import { hasNativeMechanicsInvocation, runPreviewMechanics, type PreviewSolverMode } from "../../services/previewService";
+import { deliveredMechanicsResultJob, hasNativeMechanicsInvocation, runPreviewMechanics, type PreviewSolverMode } from "../../services/previewService";
 import { numericalResultStanding } from "../results/resultStanding";
 import { createNativeMechanicsReplay, nativeMechanicsReplayPair } from "../../test/nativeMechanicsReplay";
 import type { MechanicsResult, PreviewModel } from "../../types";
@@ -596,7 +596,9 @@ describe("RuleCheckRunPanel", () => {
     expect(invokeMock).toHaveBeenCalledWith("run_rule_checks", expect.objectContaining({ rulePackDocument: expect.anything() }));
     // The rule backend receives the natively invoked source and its model, not a re-solve.
     expect(ruleRunCalls()).toHaveLength(1);
-    expect(ruleRunCalls()[0][1]).toMatchObject({ solvedEnvelope: native.result, model: native.model });
+    // Only the held job's handle travels with the model, never a copy of the result.
+    expect(ruleRunCalls()[0][1]).toMatchObject({ jobId: deliveredMechanicsResultJob(native.result), model: native.model });
+    expect(ruleRunCalls()[0][1]).not.toHaveProperty("solvedEnvelope");
     // One binding route: the pack's own selector; no caller selector is sent.
     expect(ruleRunCalls()[0][1]).not.toHaveProperty("solverResultBindings");
   });
@@ -890,7 +892,7 @@ describe("RuleCheckRunPanel aggregate lift (TP-C4-APPAGG-001)", () => {
     />);
     fireEvent.click(screen.getByTestId("rule-check-run"));
     await waitFor(() => expect(runCount).toBe(2));
-    expect(ruleRunCalls().map(([, args]) => (args as { solvedEnvelope: unknown }).solvedEnvelope)).toEqual([nativeA.result, nativeB.result]);
+    expect(ruleRunCalls().map(([, args]) => (args as { jobId: unknown }).jobId)).toEqual([deliveredMechanicsResultJob(nativeA.result), deliveredMechanicsResultJob(nativeB.result)]);
     expect(screen.getByTestId("rule-check-run")).toBeDisabled();
 
     await act(async () => runA.resolve({ ...passingRun, aggregate_status: "USER_RULE_CHECKED" }));
