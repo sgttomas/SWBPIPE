@@ -17,13 +17,14 @@ import { PhysicsSourceEvidencePanel } from "./PhysicsSourceEvidencePanel";
 import { buildBundledReferenceContext, buildHistoricalRunContext, HistoricalRunPanel } from "./HistoricalRunContext";
 import { DiagnosticsPanel } from "../diagnostics/DiagnosticsPanel";
 import { KnowledgePanel } from "../knowledge/KnowledgePanel";
+import { MissingDataBlockingPanel } from "../missing-data/MissingDataBlockingPanel";
 import { RunComparisonView } from "../comparison/RunComparisonView";
 import { compareRunInputs } from "../comparison/runComparison";
 import type { RunComparisonSide } from "../comparison/runComparisonSides";
 import type { RunComparisonResult } from "../history/useModelStateHistory";
 import type { BundledMechanicsReference } from "../../services/previewService";
 import { computeModelHash, computeProjectEnvelopeHash } from "../../services/hashService";
-import type { LocalProjectEnvelope, MechanicsResult, PreviewModel } from "../../types";
+import type { DesignKnowledge, LocalProjectEnvelope, MechanicsResult, PreviewModel } from "../../types";
 
 afterEach(cleanup);
 
@@ -45,6 +46,24 @@ function healthFor(result: MechanicsResult, model: PreviewModel | null, eligible
 }
 const panel = (result: MechanicsResult, health: ReturnType<typeof healthFor> | undefined) =>
   render(<ResultsPanel result={result} knowledge={null} analysisRun={null} selectedResultId={null} onSelectResult={() => {}} numericalHealth={health} />);
+
+describe("the results line takes the gated health's state", () => {
+  it("an unsolved document whose own status says checks_passed reads not assessed, never no problem", () => {
+    const source = read<MechanicsResult>(DEMO.result), bound = read<PreviewModel>(DEMO.model);
+    source.status = { ...source.status, mechanics: "MODEL_INCOMPLETE" };
+    expect(source.numerical_quality!.status).toBe("checks_passed");
+    const health = healthFor(source, bound);
+    expect(health.cases.length).toBeGreaterThan(0);
+    expect(health.cases.every((c) => c.state === "not_assessed")).toBe(true);
+    panel(source, health);
+    expect(screen.getByTestId("numerical-result-standing").textContent).toMatch(/^Numerical health: not assessed\. /);
+    expect(screen.getByTestId("numerical-result-standing").textContent).not.toContain("no problem");
+    cleanup();
+    // The panel's own reading of the same document (no health handed in) reads the same.
+    panel(source, undefined);
+    expect(screen.getByTestId("numerical-result-standing").textContent).toMatch(/^Numerical health: not assessed\. /);
+  });
+});
 
 describe.each([
   { name: "linear", ...LINEAR, nonlinear: false },
@@ -181,12 +200,40 @@ describe("the heading above the solver's own messages", () => {
     expect(screen.queryByTestId("run-comparison-solver-messages-heading")).toBeNull();
   });
 
-  it("the Design Knowledge panel: once where it shows records made from solver diagnostics, absent where none", () => {
+  it("the Design Knowledge panel: once, after the person's own records and directly before the first record made from a solver message; absent where none", () => {
     const source = read<{ envelope: MechanicsResult }>("fixtures/results/rt_a3_s6_c1_correction_unavailable.json").envelope;
-    expect(source.diagnostics.some((d) => d.severity === "warning")).toBe(true);
-    const { rerender } = render(<KnowledgePanel knowledge={null} result={source} />);
+    const knowledge = read<DesignKnowledge>("fixtures/product_preview/invented_design_knowledge.json");
+    expect(knowledge.records.length).toBeGreaterThan(0);
+    const solverMessage = source.diagnostics.find((d) => d.severity === "warning" || d.severity === "blocking")!;
+    expect(solverMessage).toBeDefined();
+    const { rerender } = render(<KnowledgePanel knowledge={knowledge} result={source} />);
     once("knowledge-solver-messages-heading");
-    rerender(<KnowledgePanel knowledge={null} result={{ ...source, diagnostics: [] }} />);
+    const heading = screen.getByTestId("knowledge-solver-messages-heading");
+    // Every record the person keeps comes before it; the next element is the first solver-made record.
+    for (const record of knowledge.records) {
+      expect(screen.getByTestId(`knowledge-record-${record.id}`).compareDocumentPosition(heading) & Node.DOCUMENT_POSITION_FOLLOWING, record.id).toBeTruthy();
+    }
+    expect(heading.nextElementSibling?.getAttribute("data-testid")).toBe(`knowledge-record-knowledge:${solverMessage.id ?? solverMessage.code}`);
+    rerender(<KnowledgePanel knowledge={knowledge} result={{ ...source, diagnostics: [] }} />);
     expect(screen.queryByTestId("knowledge-solver-messages-heading")).toBeNull();
+  });
+
+  it("the Missing data panel: once at the head of its list where a listed warning is the result's own message", () => {
+    const source = read<MechanicsResult>(DEMO.result), model = read<PreviewModel>(DEMO.model);
+    const solverMessage = source.diagnostics.find((d) => d.code.startsWith("NONLINEAR_"))!;
+    expect(solverMessage).toBeDefined();
+    render(<MissingDataBlockingPanel model={model} result={source} />);
+    once("missing-data-solver-messages-heading");
+    const list = screen.getByTestId("missing-data-warnings");
+    expect(list.firstElementChild).toBe(screen.getByTestId("missing-data-solver-messages-heading"));
+    expect(list.querySelectorAll("[data-testid^='missing-data-warning-nonlinear']").length).toBeGreaterThan(0);
+  });
+
+  it("the Missing data panel: absent where no listed warning is the result's own message", () => {
+    const source = read<MechanicsResult>(DEMO.result), model = read<PreviewModel>(DEMO.model);
+    source.diagnostics = source.diagnostics.filter((d) => !d.code.startsWith("NONLINEAR_"));
+    render(<MissingDataBlockingPanel model={model} result={source} />);
+    expect(screen.getByTestId("missing-data-warnings")).toBeTruthy();
+    expect(screen.queryByTestId("missing-data-solver-messages-heading")).toBeNull();
   });
 });

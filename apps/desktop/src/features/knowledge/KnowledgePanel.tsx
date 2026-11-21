@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { Fragment, useEffect, useState } from "react";
 import { isNativeResult, lookupNativeRows, type SessionResult } from "../../services/nativeResult";
 import { nativeFailureText } from "../../services/nativeIngress";
 import { QuantityReadout } from "../display-units";
@@ -39,8 +39,10 @@ export function useKnowledgeAxialRow(result: SessionResult | null): { row: Row |
 export function KnowledgePanel({ knowledge, result }: { knowledge: DesignKnowledge | null; result: SessionResult | null }) {
   const axial = useKnowledgeAxialRow(result);
   const computedRecords = physicsRecords(result, axial.row);
-  const showsSolverMessages = solverMessageRecords(result).length > 0;
   const records = [...(knowledge?.records ?? []), ...computedRecords];
+  // The records made from solver messages lead the computed records (`physicsRecords`); the sentence
+  // stands once, directly before the first of them, and not at all where there is none.
+  const firstSolverRecord = solverMessageRecords(result).length > 0 ? computedRecords[0] : null;
   const unitContext = computedKnowledgeUnitContext(result, axial.row);
   return (
     <section className="panel knowledge-panel" aria-label="Design knowledge" data-testid="knowledge-panel">
@@ -57,11 +59,12 @@ export function KnowledgePanel({ knowledge, result }: { knowledge: DesignKnowled
           <strong>{unitContext}</strong>
         </div>
       ) : null}
-      {showsSolverMessages ? <p className="muted" data-testid="knowledge-solver-messages-heading">{SOLVER_MESSAGES_HEADING}</p> : null}
       {records.length > 0 ? (
         <div className="record-list">
           {records.map((record) => (
-            <article key={record.id} className="record-row" data-testid={`knowledge-record-${record.id}`}>
+            <Fragment key={record.id}>
+            {record === firstSolverRecord ? <p className="muted" data-testid="knowledge-solver-messages-heading">{SOLVER_MESSAGES_HEADING}</p> : null}
+            <article className="record-row" data-testid={`knowledge-record-${record.id}`}>
               <div>
                 <strong>{record.title}</strong>
                 <small>{record.kind} · {record.status}</small>
@@ -69,6 +72,7 @@ export function KnowledgePanel({ knowledge, result }: { knowledge: DesignKnowled
               <p><KnowledgeSummary record={record} result={result} computed={computedRecords.includes(record)} axialRow={axial.row} /></p>
               <span>{record.provenance}</span>
             </article>
+            </Fragment>
           ))}
         </div>
       ) : (
