@@ -14,10 +14,9 @@ sidecar and writer's report; DEL-17-05 REQ-005 and REQ-006), never copied. Each 
 established of that file. The same inputs give the same bytes. It
 prints the pack's identity: the SHA-256 of `pack/pack_index.json`.
 
-The pack the owner runs is not what this tool writes on some machine: it is the folder committed at
-`validation/caepipe_sitting_pack/` and reviewed there, byte for byte. Regenerating that folder from the tracked inputs
-is a consistency test of the committed bytes, not what makes them trustworthy; the reading of the committed bytes is.
-Nothing here runs at the sitting, reads an exchange folder, takes results in or decodes anything returned.
+The folder committed at `validation/caepipe_sitting_pack/` is the record of what was prepared for the sitting of 21
+to 24 November 2026. It is no longer regenerated: this tool and its inputs have moved on since, and its output now
+differs from those bytes. Nothing here runs at a sitting, reads an exchange folder or takes results in.
 
 What the pack holds, in the order the owner runs it (parts are struck from the last backwards; part 1 is never struck, only shortened from its highest strike numbers):
 
@@ -27,7 +26,7 @@ What the pack holds, in the order the owner runs it (parts are struck from the l
   manifest's `dry_run` member lists, and the sacrificial duplicate its `export_trial` names, for check (v);
 - part 1, the dynamics runs: every declared pair, in the manifest's strike order, both forms as their own folders,
   window only;
-- part 2, the pressurised series: the screened runs, then the capture-only runs (sealed), batch route;
+- part 2, the pressurised series: the screened runs, then the capture-only runs, batch route;
 - part 3, the series S1, S2 and S3, batch route, each series' members together;
 - part 4, the hand-entry cases in the manifest's rank order, window only;
 - part 5, the first tranche's remaining models, batch route.
@@ -94,25 +93,21 @@ BATCH, WINDOW = "manual_batch", "manual_print"
 PART_KINDS = ("dry_run", "dynamics", "pressure", "static_series", "hand_entry", "tranche1_rest")
 PRESSURE_SCREENED = ("pressure-default", "pressure-elongation-on")
 PRESSURE_CAPTURE = "pressure-bourdon-expansion-capture"
-GATE = "checks passed"
+GATE = "numerical standing"
 
 QUALIFICATION = ("Development comparison only. In any SWBPIPE result, 'checks passed', 'established' and certified bounds "
                  "rest on a premise the product does not verify, which is false on a constructed model (DEL-04-01; exit "
                  "criterion 18, not met). They are not established engineering results. The mechanics values are "
                  "compared with CAEPIPE on that understanding.")
-QUALIFICATION_FOLLOW = ("Nothing in this pack is a SWBPIPE result. Where a case is held until the product publishes it "
-                        "as checks passed, that phrase names the product's own gate and carries this qualification.")
-# What is done with the returned folder on the Mac, as the Agent 0 settled it; one constant, which the storage
-# script's second check may yet adjust as far as is needed to match that script.
-SET_PASSAGE = ("On the Mac, the storage procedure copies the returned folder under one new name, records each file's path, "
-               "size and hash, and verifies the copied contents against the source hashes. It reads file contents as "
-               "bytes without interpreting prints or run lines, comparing models with the pack, or classifying files by "
-               "kind. This procedure checks no print sections. Your dry-run comparison checks the example print you "
-               "inspect; it does not check subsequent prints.")
-SCREEN_WAITS = ("A result from this sitting is screened only after (a) the harness's stored-results change (pull "
-                "request 262) has merged, (b) a rule for a returned file's origin is in place, and (c) the comparison "
-                "record itself carries the qualification of SWBPIPE's results as a required member (pull request 263); "
-                "no screen is run before all three.")
+QUALIFICATION_FOLLOW = ("Nothing in this pack is a SWBPIPE result. Where a case's comparison states the numerical "
+                        "standing the product published, a 'checks passed' in it names the product's own gate and "
+                        "carries this qualification.")
+# What is done with the returned folder on the Mac.
+SET_PASSAGE = ("On the Mac, the returned folder is stored whole under one new name, with each file's path, size and hash "
+               "recorded; its prints are matched to cases by folder and file name.")
+RESULT_PASSAGE = ("A print from this sitting is compared with SWBPIPE's solve of its case at a named commit, each "
+                  "comparison stating SWBPIPE's numerical standing for that solve; a capture-only run's print is parsed "
+                  "and kept until SWBPIPE has a counterpart for it.")
 ONE_SESSION = ("A window instruction may end with a paragraph offering, on a condition it states, to make a run's "
                "setting in the model of an earlier run of the same case that is still open, instead of importing the "
                "run's file. Where its condition holds and you take it, save the model and print the results under that run's name in that run's folder, as the paragraph "
@@ -403,17 +398,17 @@ def case_item(document: Mapping[str, Any], entry: Mapping[str, Any], run: Mappin
         "mbf_declared_sha256": declared,
     }
     capture_only = bool(document.get("capture_only")) or (run is not None and not run.get("screened", True))
-    item["capture"] = "sealed" if capture_only else "screened"
-    # How the index designates the case's return: held (a window case: option addition or hand entry, held until
-    # its screening's condition holds), sealed (a capture-only run), or screened (every other case).
-    item["designation"] = ("held" if (run or {}).get("kind") in ("option_addition", "hand_entry")
-                           else "sealed" if capture_only else "screened")
+    item["capture"] = "capture_only" if capture_only else "screened"
+    # How the index designates the case's return: window_run (option addition or hand entry, its print returned from
+    # the program's window), capture_only (no SWBPIPE counterpart yet), or screened (every other case).
+    item["designation"] = ("window_run" if (run or {}).get("kind") in ("option_addition", "hand_entry")
+                           else "capture_only" if capture_only else "screened")
     if run is not None and run["series"] == PRESSURE_CAPTURE:
-        item["sealed_reason"] = ("declared capture-only in the benchmark manifest: no SWBPIPE state of the model "
-                                 "equals this run")
+        item["capture_reason"] = ("declared capture-only in the benchmark manifest: no SWBPIPE state of the model "
+                                  "equals this run")
     holds: list[str] = []
     if run is not None and run.get("kind") == "hand_entry":
-        holds += sorted(set((entry.get("held") or {}).values())) or [manifest["hand_entry"]["held"]]
+        holds += sorted(set((entry.get("comparison") or {}).values())) or [manifest["hand_entry"]["comparison"]]
         description = str(document.get("description", ""))
         if "NOT held equal" in description:  # the generator's own statement of an input not held equal, verbatim
             start = description.rfind(". ", 0, description.index("NOT held equal"))
@@ -422,7 +417,7 @@ def case_item(document: Mapping[str, Any], entry: Mapping[str, Any], run: Mappin
             holds.append(document["hand_entry"]["one_way_case"])
     elif run is not None and run.get("screening_waits_for"):
         holds.append(run["screening_waits_for"])
-    item["hold"] = holds
+    item["notes"] = holds
     # The identity file binds the writer's text where a run adds whole records (that file is not the bound file);
     # otherwise the case's own file, as before.
     bound_sha = writer_sha if (run or {}).get("kind") == "option_addition" else mbf_sha
@@ -535,7 +530,7 @@ def sample_items(run_entry: Mapping[str, Any], dyn_entries: list[Mapping[str, An
         files[f"{PACK}/{folder}/{item_id}.provenance.json"] = provenance(entry, run, [], _sha256(data),
                                                                          manifest["generator"])
         item = {"item_id": item_id, "item_kind": "dry_run_sample", "part": part["id"], "folder": folder,
-                "stem": item_id, "routes": [route], "capture": "stored_only", "designation": "stored_only", "hold": [],
+                "stem": item_id, "routes": [route], "capture": "stored_only", "designation": "stored_only", "notes": [],
                 "provenance": {"file": f"{item_id}.provenance.json"},
                 "copy_of": {"run_id": run["run_id"], "model_id": entry["model_id"], "sha256": run["mbf"]["sha256"]},
                 "spectrum_table": [r["lines"] for r in run["mbf"]["added_records"] if r["heading"] == "SPCMS"][0],
@@ -674,7 +669,7 @@ def build_pack(manifest_path: Path = MANIFEST, plan_path: Path = PLAN) -> dict[s
     files[f"{PACK}/{QUALIFICATION_FILE}"] = qualification
     qualification_ref = {"file": QUALIFICATION_FILE, "sha256": _sha256(qualification)}
     for item in items:
-        if any(GATE in sentence for sentence in item["hold"]):
+        if any(GATE in sentence for sentence in item["notes"]):
             item["qualification"] = qualification_ref
     for item in items:
         files[f"{PACK}/{item['folder']}/run_line.txt"] = _crlf(run_line_text(item))
@@ -739,7 +734,7 @@ def _kind_label(item: Mapping[str, Any]) -> str:
         if item.get("export_check"):
             return "dry-run sample, export check"
         return "dry-run sample, batch" if item["routes"] == [BATCH] else "dry-run sample, window"
-    label = {"held": "held capture", "sealed": "sealed capture"}.get(item.get("designation"), "benchmark case")
+    label = {"capture_only": "capture-only run"}.get(item.get("designation"), "benchmark case")
     return label + (", window only" if item["routes"] == [WINDOW] else "")
 
 
@@ -926,7 +921,7 @@ The pack holds the cases SWBPIPE asks you to run, in the order of `{RUN_SHEET}`.
 
 **On the Mac.** {ON_THE_MAC} {SET_PASSAGE}
 
-**What a result waits on.** {SCREEN_WAITS} A sealed capture is run like any other case and brought back; nothing in this pack unseals it.
+**What happens to a result.** {RESULT_PASSAGE} A capture-only run is run like any other case and brought back.
 
 ## 1. Before you start
 
@@ -1052,15 +1047,15 @@ Use the same working folder for the rest of the sitting. At the end, copy it to 
             out += f"From the benchmark manifest: \"{manifest['option_addition']['single_form']}\"\n\n"
         if item.get("not_held_equal"):
             out += (f"From its model document (`{item['source']['file']}`): \"{item['not_held_equal']}\"\n\n")
-        for sentence in item["hold"]:
+        for sentence in item["notes"]:
             label = ("on its one-way support" if sentence == manifest["hand_entry"]["one_way_cases"]
-                     else "how this run's capture is held" if item.get("run_kind") == "hand_entry"
+                     else "how this run's print is compared" if item.get("run_kind") == "hand_entry"
                      else "what the screening of this run waits for")
             out += f"From the benchmark manifest, {label}: \"{sentence}\"\n\n"
         if item.get("qualification"):
-            out += f"Its hold names the product's gate; `{QUALIFICATION_FILE}` applies.\n\n"
-        if item.get("sealed_reason"):
-            out += f"Sealed capture: {item['sealed_reason']}.\n\n"
+            out += f"Its comparison states the product's numerical standing; `{QUALIFICATION_FILE}` applies.\n\n"
+        if item.get("capture_reason"):
+            out += f"Capture-only run: {item['capture_reason']}.\n\n"
         settings = item.get("settings")
         if settings and BATCH in item["routes"]:
             out += ("Settings to check in the window (3.2, step 2): piping code {pc}; B31J {b}; reference temperature "
