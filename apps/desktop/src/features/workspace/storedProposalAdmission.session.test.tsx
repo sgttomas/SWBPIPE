@@ -10,7 +10,8 @@ import { resolve } from "node:path";
 import { afterEach, describe, expect, it, vi } from "vitest";
 const invokeMock = vi.hoisted(() => vi.fn());
 vi.mock("@tauri-apps/api/core", async () => ({ invoke: (await import("../../test/nativeIngress")).ingressDecodingInvoke(invokeMock, { nativeReopen: "actual" }) }));
-import { GENERATED_PROPOSAL_SUPERSEDED, useWorkspaceSession } from "./workspaceSession";
+import { useWorkspaceSession } from "./workspaceSession";
+import { buildGridOperationIntent, type GridColumn } from "./table/modelTableAdapter";
 import * as projectService from "../../services/projectService";
 import { createLocalProject, findLocalProject, getLocalStorageCapability, openLocalProject, saveLocalProject, saveLocalProjectKeepingStoredProposal } from "../../services/projectService";
 import * as hashService from "../../services/hashService";
@@ -258,25 +259,49 @@ describe("a stored proposal without its members, on the browser preview's store"
     expect((await openLocalProject(model.project.id))!.proposal).toEqual(UNADMITTED);
   });
 
-  it("drops a Generate result that completes after another project was opened (issue 519 review, repair 5)", async () => {
-    const { result } = await readySession();
-    const first = await storedWith(result.current.model.model!, "project:issue-519-generate-first", null);
-    const second = await storedWith(result.current.model.model!, "project:issue-519-generate-second", UNADMITTED);
-    await act(async () => { await result.current.project.handleOpenProject(first.project.id); });
+  /** Generate paused until `release`; the late result is the sample proposal. */
+  async function pausedGenerate() {
     const sample = await loadSampleProposal(null, null);
     let release!: () => void;
     const paused = new Promise<void>((resolve) => { release = resolve; });
     vi.spyOn(previewService, "loadSampleProposal").mockImplementationOnce(async () => { await paused; return sample; });
+    return { release };
+  }
+
+  it("does not adopt a Generate result that completes after another project was opened (issue 519 review, repair 5)", async () => {
+    const { result } = await readySession();
+    const first = await storedWith(result.current.model.model!, "project:issue-519-generate-first", null);
+    const second = await storedWith(result.current.model.model!, "project:issue-519-generate-second", UNADMITTED);
+    await act(async () => { await result.current.project.handleOpenProject(first.project.id); });
+    const { release } = await pausedGenerate();
     let generating!: Promise<void>;
     act(() => { generating = result.current.results.handleProposal(); });
     await act(async () => { await result.current.project.handleOpenProject(second.project.id); });
     release();
     await act(async () => { await generating; });
     expect(result.current.results.proposal).toBeNull();
-    expect(result.current.operations.operationMessage).toBe(GENERATED_PROPOSAL_SUPERSEDED);
+    // So the second project's save keeps its stored proposal.
     await act(async () => { await result.current.project.handleSaveProject(); });
     expect(result.current.project.projectMessage).toContain(storedProposalSentence(notice.notice, "kept"));
     expect((await openLocalProject(second.project.id))!.proposal).toEqual(UNADMITTED);
+  });
+
+  it("does not adopt a Generate result that completes after a model edit", async () => {
+    const { result } = await readySession();
+    const model = await storedWith(result.current.model.model!, "project:issue-519-generate-edit", null);
+    await act(async () => { await result.current.project.handleOpenProject(model.project.id); });
+    const { release } = await pausedGenerate();
+    let generating!: Promise<void>;
+    act(() => { generating = result.current.results.handleProposal(); });
+    const opened = result.current.model.model!;
+    const target = opened.nodes[0];
+    const column: GridColumn = { key: "y", label: "Y", fieldPath: "position.y", objectType: "Node", changeKind: "set_field", dimension: "length", sourceNote: "entered coordinate", unit: () => opened.project.units.length, value: () => String(target.position.y) };
+    const edit = buildGridOperationIntent({ column, model: opened, row: { id: target.id, label: target.label, type: "node", raw: target, searchText: "" }, sequence: 1, value: String(target.position.y + 1.5), interaction: "cell" });
+    await act(async () => { expect(await result.current.operations.handleApplyIntent(edit)).toBe(true); });
+    expect(result.current.model.model).not.toBe(opened);
+    release();
+    await act(async () => { await generating; });
+    expect(result.current.results.proposal).toBeNull();
   });
 
   for (const value of [0, "", false]) {

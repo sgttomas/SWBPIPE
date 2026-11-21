@@ -309,10 +309,6 @@ async function libraryReferenceWarnings(model: PreviewModel): Promise<string> {
 // Diagnostics generations must not repeat across real same-page App remounts.
 let nextUiModelPublicationGeneration = 0;
 
-/** Generate's completion when the session moved on while it ran (issue 519 review): the proposal is
- * dropped, never shown on another project or model revision. */
-export const GENERATED_PROPOSAL_SUPERSEDED = "The generated review proposal was not shown, because the project or its model changed while it was generated. Generate it again for the model now open.";
-
 /** C1 slice 5: a native save's small reply as the session adopts a write. The model and editor
  * intents are the request's own (the store hashed the stored model natively and the reply names it
  * by that hash, which the session checks); the stored result and record are not sent back, so the
@@ -1923,17 +1919,12 @@ export function useWorkspaceSession() {
   }
 
   async function handleProposal() {
-    // A generated proposal lands only on the project session and model revision it was generated for:
-    // a later one would be saved over another project's stored proposal, or describe another model.
-    const generation = projectSessionGenerationRef.current;
-    const revision = uiModelRevisionRef.current;
     // The sample proposal reads full rows (a C2 consumer): a native result's bounded full copy.
-    const generated = await loadSampleProposal(result && isNativeResult(result) ? (await loadC2Full(result, { record: false })).result : result, selectedReviewTarget);
-    if (generation !== projectSessionGenerationRef.current || revision !== uiModelRevisionRef.current) {
-      setOperationMessage(GENERATED_PROPOSAL_SUPERSEDED);
-      return;
-    }
-    setProposal(generated);
+    // A press that outlives its result sets nothing: a new solve clears the proposal, and one made from the result it replaced is not of the result shown; nor one made for a project or a model revision the session has since left.
+    const basis = result;
+    const generation = projectSessionGenerationRef.current, revision = uiModelRevisionRef.current;
+    const made = await loadSampleProposal(basis && isNativeResult(basis) ? (await loadC2Full(basis, { record: false })).result : basis, selectedReviewTarget);
+    if (heldResultRef.current === basis && projectSessionGenerationRef.current === generation && uiModelRevisionRef.current === revision) setProposal(made);
   }
 
   function handleQueueEditorIntent(intent: EditorOperationIntent) {
