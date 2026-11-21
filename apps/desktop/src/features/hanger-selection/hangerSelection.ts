@@ -164,7 +164,8 @@ export function writesSupportHangerSelection(batch: OperationBatch): boolean {
  * direction's canonical JSON, after `not_present`). */
 export const SUPPORT_DIRECTION_FIELD_PATH = "direction";
 export const DIRECTION_REMOVAL_FIELD_LABEL = "Remove the stored direction";
-const DIRECTION_REMOVAL_REASON = "A hanger takes no direction: its load acts along the positive axis of its stiffness degree of freedom " +
+/** Why a hanger's record holds no direction; the one statement of it, shared with the support form. */
+export const DIRECTION_REMOVAL_REASON = "A hanger takes no direction: its load acts along the positive axis of its stiffness degree of freedom " +
   "(or of its single translational restraint).";
 
 /** What the person reads before applying a selection to a support that holds a stored direction: that applying it
