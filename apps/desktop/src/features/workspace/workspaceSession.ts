@@ -2711,28 +2711,61 @@ export function useWorkspaceSession() {
     return null;
   }
   const EDITOR_DIFF_FIELDS = ["entity_ref", "object_type", "field_path", "before", "after", "unit", "dimension", "change_kind"] as const;
-  /** Q2: what the person is shown for one step is the submitted operation. A one-row preview is compared as the
-   * viewport route compares its own (routeDraft.ts `diffPreviewMatchesIntent`): the same entity, object type, field,
-   * before, after, unit, dimension and change kind. A step the engine expands into several rows (a bend at a corner,
-   * a geometry edit, a library apply) derives their values itself, so those cannot equal the operation's text; it
-   * must show a row for the operation's own target with the operation's change kind, and every row must be complete. */
+  type EditorDiffRow = Record<(typeof EDITOR_DIFF_FIELDS)[number], string>;
+  /** Q2: what the person is shown for one step is the submitted operation, decided by the operation's change kind,
+   * never by how many rows the reply holds (a reply for a one-row edit that adds a row is refused).
+   * - The engine-expanded kinds, whose rows the engine derives (operation_applier: bend_authoring.rs
+   *   `insert_at_corner`, geometry_operations.rs split and transform, pipe_reconnect.rs, library_apply.rs): every row
+   *   complete with non-empty text, and the rows each kind must show (below).
+   * - Every other kind: its first row equal, field for field, to the operation, as the viewport route compares its
+   *   own (routeDraft.ts `diffPreviewMatchesIntent`). The applier adds derived rows after it in three cases only, and
+   *   only those rows are admitted after it: a Section's field edit, the Element section rows of the pipes bound to
+   *   it (lib.rs, section_bindings.rs `propagate`); an assign or detach of a section, its own Element section row
+   *   (lib.rs `section_bindings::assign`); a pipe's deletion, the Line rows of the lines that named it
+   *   (model_data_authoring.rs `remove_pipe_from_lines`). */
   function editorDiffShowsOperation(rows: readonly unknown[], operation: OperationBatch["operations"][number]): boolean {
-    const complete = rows.every((row) => row !== null && typeof row === "object" && EDITOR_DIFF_FIELDS.every((field) => typeof (row as Record<string, unknown>)[field] === "string"));
-    if (!complete) return false;
-    const typed = rows as ReadonlyArray<Record<(typeof EDITOR_DIFF_FIELDS)[number], string>>;
-    if (typed.length === 1) {
-      const row = typed[0];
-      return row.entity_ref === operation.target.ref && row.object_type === operation.target.object_type && row.field_path === operation.change.field_path
-        && row.before === operation.change.before && row.after === operation.change.after && row.unit === operation.change.unit
-        && row.dimension === operation.change.dimension && row.change_kind === operation.change.change_kind;
+    const record = (row: unknown): row is EditorDiffRow => row !== null && typeof row === "object" && !Array.isArray(row)
+      && EDITOR_DIFF_FIELDS.every((field) => typeof (row as Record<string, unknown>)[field] === "string");
+    if (rows.length === 0 || !rows.every(record)) return false;
+    const typed = rows as readonly EditorDiffRow[];
+    const { change_kind: kind } = operation.change;
+    const ownRow = (row: EditorDiffRow) => row.entity_ref === operation.target.ref && row.object_type === operation.target.object_type && row.change_kind === kind;
+    const filled = typed.every((row) => EDITOR_DIFF_FIELDS.every((field) => row[field] !== ""));
+    switch (kind) {
+      case "insert_bend_at_corner":
+      case "split_pipe_run":
+        return filled && typed.some(ownRow);
+      case "reconnect_pipe_run":
+        return filled && typed.length === 1 && ownRow(typed[0]) && typed[0].field_path === "pipe_segments" && typed[0].before === operation.change.before;
+      case "apply_library_record":
+        return filled && typed.every(ownRow);
+      case "transform_pipe_run":
+        // A translate moves only nodes and a copy creates new ids, so the target need not name a row.
+        return filled && typed.every((row) => row.change_kind === "transform_pipe_run" && (row.object_type === "Node" || row.object_type === "Element"));
     }
-    return typed.some((row) => row.entity_ref === operation.target.ref && row.object_type === operation.target.object_type && row.change_kind === operation.change.change_kind);
+    const [first, ...derived] = typed;
+    const exact = first.entity_ref === operation.target.ref && first.object_type === operation.target.object_type && first.field_path === operation.change.field_path
+      && first.before === operation.change.before && first.after === operation.change.after && first.unit === operation.change.unit
+      && first.dimension === operation.change.dimension && first.change_kind === kind;
+    if (!exact) return false;
+    return derived.every((row) => {
+      const sectionRow = row.object_type === "Element" && row.field_path === "section" && row.change_kind === "set_field";
+      if (operation.target.object_type === "Section" && kind === "set_field") return sectionRow;
+      if (kind === "assign_section" || kind === "detach_section") return sectionRow && row.entity_ref === operation.target.ref;
+      if (kind === "delete_pipe_run") return row.object_type === "Line" && row.field_path === "lines" && row.change_kind === "update_line";
+      return false;
+    });
   }
-  /** Equal JSON values, whatever their keys' order. */
+  /** Equal JSON values, whatever their keys' order, compared directly (as routeDraft.ts `jsonValuesEqual`). */
   function editorSameJson(left: unknown, right: unknown): boolean {
-    const stable = (value: unknown): unknown => Array.isArray(value) ? value.map(stable)
-      : value !== null && typeof value === "object" ? Object.fromEntries(Object.keys(value).sort().map((key) => [key, stable((value as Record<string, unknown>)[key])])) : value;
-    return JSON.stringify(stable(left)) === JSON.stringify(stable(right));
+    if (left === right) return true;
+    if (Array.isArray(left) || Array.isArray(right)) {
+      return Array.isArray(left) && Array.isArray(right) && left.length === right.length && left.every((value, index) => editorSameJson(value, right[index]));
+    }
+    const isRecord = (value: unknown): value is Record<string, unknown> => typeof value === "object" && value !== null && !Array.isArray(value);
+    if (!isRecord(left) || !isRecord(right)) return false;
+    const leftKeys = Object.keys(left).sort(), rightKeys = Object.keys(right).sort();
+    return leftKeys.length === rightKeys.length && leftKeys.every((key, index) => key === rightKeys[index] && editorSameJson(left[key], right[key]));
   }
 
   /** The session's own operation request for an editor's edit: refused at once, with nothing toggled, counted or

@@ -18,7 +18,7 @@ import { canonicalJsonString, computeModelHash } from "../../services/hashServic
 import { ownEditorInput, requeueRetainedRecord, stampImportedBatch, type EditorBuilder, type EditorCommitResult, type EditorEdit, type EditorInputGuard } from "../../services/operationAuthorship";
 import { stampAgentOperations } from "../../services/embeddedAgentSession";
 import { parseOfflineBatch } from "../offline-proposal-intake/OfflineProposalIntakePanel";
-import { buildReconnectBatch, emptyGeometryDraft } from "../geometry-tools/geometryDraft";
+import { buildGeometryBatch, buildReconnectBatch, emptyGeometryDraft } from "../geometry-tools/geometryDraft";
 import { buildBulkChangeBatch, type BulkChangeRequest } from "../bulk-change/bulkChange";
 import { makeRichIntent } from "../rich-authoring/formSupport";
 import { buildGridOperationIntent, type GridColumn } from "./table/modelTableAdapter";
@@ -723,6 +723,12 @@ describe("refusals change nothing", () => {
       ["a check reporting the change blocked while its batch passed (Q2)", () => alter("validateOperationBatch", (outcome) => { outcome.validation.application_status = "blocked"; }), "does not report the change as not applied"],
       ["a check whose schema validation did not pass (Q2)", () => alter("validateOperationBatch", (outcome) => { outcome.validation.schema_validation = "blocked"; }), "did not pass schema validation"],
       ["a check whose step shows another after value, every id and hash intact (Q2)", () => alter("validateOperationBatch", (outcome) => { outcome.operation_outcomes[0].diff_preview[0].after = "9"; }), "The change the engine shows for submitted operation 1 is not the change that would be applied"],
+      ["a set_field check with a second row appended and the first row's after spoofed (Q2)", () => alter("validateOperationBatch", (outcome) => {
+        const [row] = outcome.operation_outcomes[0].diff_preview;
+        outcome.operation_outcomes[0].diff_preview = [{ ...row, after: "9" }, { ...row, entity_ref: "node:B" }]; }), "The change the engine shows for submitted operation 1 is not the change that would be applied"],
+      ["a set_field check with only a second row appended (Q2)", () => alter("validateOperationBatch", (outcome) => {
+        const [row] = outcome.operation_outcomes[0].diff_preview;
+        outcome.operation_outcomes[0].diff_preview = [row, { ...row, entity_ref: "node:B" }]; }), "The change the engine shows for submitted operation 1 is not the change that would be applied"],
       ["a check whose step shows no change (Q2)", () => alter("validateOperationBatch", (outcome) => { outcome.operation_outcomes[0].diff_preview = []; }), "shows no change for submitted operation 1"],
       ["a check whose step validation did not pass (Q2)", () => alter("validateOperationBatch", (outcome) => { outcome.operation_outcomes[0].validation.reference_validation = "blocked"; }), "does not show submitted operation 1 as validated with its preview"],
       ["an application with a contradictory step validation (Q2)", () => alter("applyOperationBatch", (outcome) => { outcome.operation_outcomes[0].validation.schema_validation = "blocked"; }), "does not show submitted operation 1 as validated with its preview"],
@@ -759,6 +765,37 @@ describe("refusals change nothing", () => {
     vi.restoreAllMocks();
     const shown = await run(() => dialog.preview({ nodeId: "node:C", axis: "y", value: "2.5" }));
     expect(shown.status).toBe("previewed");
+  });
+
+  type GeometryInput = { action: "split" | "translate"; pipeId: string };
+  /** The geometry tools' own builder (buildGeometryBatch) for a split at the middle or an in-place translate. */
+  const geometry: EditorBuilder<GeometryInput> = {
+    name: "geometry-tools",
+    role: "gui_editor",
+    input: { members: ["action", "pipeId"], check: (input) => strings(input, "action", "pipeId") ? null : "The geometry tools take an action and a pipe." },
+    build: async (model, input, id) => ({ batch: await buildGeometryBatch(model, input.action === "split"
+      ? { ...emptyGeometryDraft(), action: "split", pipeRefs: [input.pipeId], fraction: "0.5", newNode: { id: "node:mid", label: "Middle", provenance: "invented test" }, newPipe: { id: "pipe:Q2", label: "Q second", provenance: "invented test" } }
+      : { ...emptyGeometryDraft(), action: "translate", pipeRefs: [input.pipeId], mode: "in_place", coordinateSystem: "global", vector: { x: "0", y: "0", z: "0.5", unit: model.project.units.length } }, id.batchId) })
+  };
+  type Rows = operationBatchService.OperationBatchOutcome["operation_outcomes"][number]["diff_preview"];
+  it.each([
+    ["split_pipe_run", "split" as const, (rows: Rows) => rows.filter((row) => !(row.entity_ref === "pipe:Q" && row.change_kind === "split_pipe_run")), "without its own target's row"],
+    ["split_pipe_run", "split" as const, (rows: Rows) => rows.map((row) => row.entity_ref === "pipe:Q" ? { ...row, change_kind: "set_field" } : row), "with its own row's change kind changed"],
+    ["split_pipe_run", "split" as const, (rows: Rows) => rows.map((row, index) => index === 0 ? { ...row, unit: "" } : row), "with an empty field"],
+    ["transform_pipe_run", "translate" as const, (rows: Rows) => rows.map((row, index) => index === 0 ? { ...row, change_kind: "set_field" } : row), "with a row of another change kind"],
+    ["transform_pipe_run", "translate" as const, (rows: Rows) => [...rows, { ...rows[0], object_type: "Support" }], "with a row of another object type"]
+  ])("an engine-expanded %s preview passes when valid and is refused %s (Q2)", async (kind, action, malform, _what) => {
+    const result = await session();
+    const dialog = bindDialog(result, geometry);
+    const valid = await run(() => dialog.preview({ action, pipeId: "pipe:Q" }));
+    if (valid.status !== "previewed") throw new Error(`expected a preview, got: ${JSON.stringify(valid)}`);
+    expect(valid.extent.steps.map((step) => step.changeKind)).toEqual([kind]);
+    if (kind === "transform_pipe_run") {
+      expect(valid.extent.steps[0].diff.every((row) => row.object_type === "Node")).toBe(true);
+      expect(valid.extent.steps[0].diff.some((row) => row.entity_ref === "pipe:Q")).toBe(false);
+    }
+    alter("validateOperationBatch", (outcome) => { outcome.operation_outcomes[0].diff_preview = malform(outcome.operation_outcomes[0].diff_preview); });
+    expect(refused(await run(() => dialog.preview({ action, pipeId: "pipe:Q" }))).reason).toContain("The change the engine shows for submitted operation 1 is not the change that would be applied");
   });
 
   it("while another request runs, a call is refused at once and the running one is not disturbed", async () => {
