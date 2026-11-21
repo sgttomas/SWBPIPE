@@ -44,10 +44,11 @@ A refused solve names both pipes with `material_density`
 The scenario explicitly supplies gravity and all three axis factors. The
 generator requires at least one entered axis factor; an absent axis is
 unselected, while no entered factors produces a blocking finding. Separately,
-the scalar inspector refuses an absent material `shear_modulus.value` as
-`OP-QUANTITY-OBJECT-MISSING`; that is not a refusal by the whole applier, whose
-constitutive-properties operation can supply G. Neither behavior changes this
-scenario's authored missing values.
+the scalar inspector enters an absent material `shear_modulus.value` from the
+person's value and stress unit, and supplies none itself
+(`core/model_operations/operation_applier/tests/material_shear_modulus_entry.rs`,
+`apps/desktop/src/App.materialShearModulusEntry.test.tsx`). Neither behavior
+changes this scenario's authored missing values.
 
 The desktop's on-demand model checks do not run the static-equivalent
 generation, so before the first solve they show no finding for these values.
