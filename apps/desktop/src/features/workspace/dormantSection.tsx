@@ -1,6 +1,10 @@
 import { memo, type ReactNode } from "react";
+import { PartErrorBoundary } from "./shell/PartErrorBoundary";
+import { WORKSPACE_SECTIONS, type WorkspaceSectionId } from "./workspaceSections";
 
 type DormantSectionProps = Readonly<{
+  /** The page this section is: its name is the one a failure of the page shows. */
+  page: WorkspaceSectionId;
   active: boolean;
   sessionGeneration: number;
   guardGeneration?: number;
@@ -22,6 +26,14 @@ export function dormantSectionPropsEqual(
   return !next.active;
 }
 
-export const DormantSection = memo(function DormantSection({ children }: DormantSectionProps) {
-  return <>{children}</>;
+// A render error in the page shows its message in the page's place and leaves the
+// rest of the window working; a new project session tries the page again. The way
+// back is the Model stage, except from Review changes, which is that stage's own tab.
+export const DormantSection = memo(function DormantSection({ page, sessionGeneration, children }: DormantSectionProps) {
+  const label = WORKSPACE_SECTIONS.find((section) => section.id === page)?.label ?? page;
+  return (
+    <PartErrorBoundary subject={`The ${label} page`} resetKey={sessionGeneration} back={page === "operations" ? undefined : "model-stage"}>
+      {children}
+    </PartErrorBoundary>
+  );
 }, dormantSectionPropsEqual);
