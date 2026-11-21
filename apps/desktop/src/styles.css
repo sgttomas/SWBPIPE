@@ -4703,6 +4703,51 @@ body { min-width: 760px; min-height: 540px; }
 .app-shell .export-list > li > .panel { display: grid; grid-template-columns: minmax(140px, 200px) minmax(0, 1fr); column-gap: var(--space-4); align-items: start; margin: 0; }
 .app-shell .export-list > li > .panel > * { grid-column: 2; min-width: 0; }
 .app-shell .export-list > li > .panel > .panel-title { grid-column: 1; grid-row: 1; }
+/* An export row (features/export-step/ExportStep.tsx): the name, then what it writes and the line of its units,
+   with the refusal or unavailability line below them, and the button in the same place on every row. The result
+   gate's own line, where it stands in place of a row, sits where the row's lines do. The model batch file's row
+   keeps its own panel, placed on the same columns. */
+.app-shell .export-list > li > .panel { grid-template-columns: 200px minmax(0, 1fr) 112px; padding-block: var(--space-3); }
+.app-shell .export-list > li > .panel > .report-actions { grid-column: 3; grid-row: 1; margin: 0; display: block; }
+.app-shell .export-list > li > .panel > .report-actions > button { width: 100%; }
+.app-shell .export-list > li > :not(.panel) { margin: 0; padding: var(--space-3) var(--space-4); }
+.app-shell .export-list > li > .export-row { grid-template-areas: "name body open" "name status open" "name note open"; row-gap: 0; }
+.app-shell .export-row > .panel-title { grid-area: name; margin: 0; }
+.app-shell .export-row > .export-row-body { grid-area: body; display: grid; gap: 2px; }
+.app-shell .export-row > .export-row-action { display: contents; }
+.app-shell .export-row > .export-row-action > p { grid-area: status; grid-column: 2; margin: 2px 0 0; overflow-wrap: anywhere; }
+.app-shell .export-row > .export-row-action > button { grid-area: open; grid-column: 3; grid-row: 1; width: 100%; }
+.app-shell .export-row > .export-row-note { grid-area: note; grid-column: 2; }
+.app-shell .export-row > .export-row-note > .report-note { margin-top: 2px; }
+.app-shell .export-row .export-row-what, .app-shell .export-row .export-row-label { margin: 0; }
+.app-shell .export-row .export-row-label { font-weight: var(--type-weight-semibold); }
+.app-shell .export-row .export-row-units .report-line { display: block; padding: 0; border: 0; background: none; overflow-wrap: anywhere; }
+.app-shell .export-row .export-row-units .report-line span::after { content: ": "; }
+.app-shell .export-row .export-row-units .report-line strong { font-weight: var(--type-weight-regular); }
+/* The step between an export's button and its save: a dialog over the page, scrolling inside itself. It is
+   portalled outside .app-shell, so it takes the shell's text tokens from the theme here. */
+.export-step-dialog {
+  --ui-text: var(--text-primary); --ui-muted: var(--text-secondary); --ui-raised: var(--surface-header);
+  --ui-surface: var(--surface-panel); --ui-divider: var(--border-hairline); --ui-focus: var(--focus-ring);
+  display: grid; grid-template-rows: auto auto minmax(0, 1fr) auto; gap: var(--space-3);
+  width: min(760px, calc(100vw - 48px)); max-width: none; max-height: calc(100vh - 48px); overflow: hidden;
+}
+.export-step-dialog:focus { outline: none; }
+.export-step-dialog > h2 { margin: 0; font-size: var(--type-size-heading); }
+.export-step-dialog .export-row-label { margin: 0; font-weight: var(--type-weight-semibold); }
+.export-step-dialog .export-step-record { display: grid; gap: 9px; align-content: start; min-height: 0; overflow: auto; padding-inline-end: 4px; }
+.export-step-dialog .export-step-record > p, .export-step-dialog .export-step-summary { margin: 0; overflow-wrap: anywhere; }
+.export-step-dialog .report-list { overflow: visible; }
+.export-step-dialog .report-line { color: var(--ui-text); background: var(--ui-raised); border-color: var(--ui-divider); }
+.export-step-dialog .report-line strong { color: var(--ui-text); }
+.export-step-dialog .report-line span, .export-step-dialog .report-note, .export-step-dialog .muted,
+.export-step-dialog .export-step-summary, .export-step-dialog .report-actions span { color: var(--ui-muted); }
+.export-step-dialog .report-note { margin-top: 0; }
+.export-step-dialog .export-step-saves { padding-top: var(--space-3); border-top: 1px solid var(--ui-divider); }
+.export-step-dialog .export-step-saves > .report-actions { grid-template-columns: minmax(0, 1fr); margin: 0; }
+.export-step-dialog .report-export-link { color: var(--ui-text); background: var(--surface-panel); border-color: var(--prompt-control-border); font-weight: var(--type-weight-semibold); }
+.export-step-dialog .controlled-export-control > .report-export-link, .export-step-dialog .controlled-export-control > button { justify-self: start; }
+.export-step-dialog .export-step-footer { display: flex; justify-content: flex-end; }
 
 /* Telemetry on the Evidence page: a closed disclosure whose summary is its state and reason. */
 .app-shell .telemetry-boundary-panel > summary { font-weight: var(--type-weight-semibold); }
