@@ -1083,7 +1083,7 @@ export function ResultsNavigator({
   const entityIndex = entity === null ? -1 : entities.indexOf(entity);
   const positions: Readonly<Record<NavigatorAxis, string>> = {
     kind: `${kindLabel(kind)} (${kinds.indexOf(kind) + 1} of ${kinds.length})`,
-    case: `${caseText} (${caseKey === ALL_CASES ? 1 : cases.indexOf(chosenCase!) + 2} of ${cases.length + 1})`,
+    case: navigatorCasePosition(caseText, chosenCase, cases),
     entity: entitiesReading !== null
       ? `${entity ?? "None chosen"}; ${entitiesReading}`
       : entity === null
@@ -1322,6 +1322,29 @@ export function NumericalHealthBadgeText({ badge, state, text, testId }: { badge
       <HealthLookMark look={look} />{text}
     </span>
   );
+}
+
+/** The case navigator's position, counted in what a person can choose: with every case shown, how
+ * many load cases and combinations there are; with one chosen, its place among those of its kind
+ * ("load case 1 of 2"). Rows that state no case are named as such, with no count. */
+export function navigatorCasePosition(caseText: string, chosen: NavigatorCase | null, cases: readonly NavigatorCase[]): string {
+  const kindOf = (item: NavigatorCase) => !item.basis ? null : item.basis.ref_type === "load_case" ? "load case" : item.basis.ref_type.replace(/_/g, " ");
+  const byKind = new Map<string, NavigatorCase[]>();
+  for (const item of cases) {
+    const kind = kindOf(item);
+    if (kind) byKind.set(kind, [...(byKind.get(kind) ?? []), item]);
+  }
+  if (!chosen) {
+    const parts = [...byKind].map(([kind, items]) => `${items.length} ${kind}${items.length === 1 ? "" : "s"}`);
+    if (cases.some((item) => !item.basis)) parts.push("rows with no case stated");
+    return parts.length ? `${caseText}: ${parts.join(", ")}` : caseText;
+  }
+  const kind = kindOf(chosen);
+  const peers = kind ? byKind.get(kind)! : [];
+  if (!kind) return caseText;
+  // "Load case load:é (1 of 2)" where the label names its kind; "Riser test (load case 1 of 2)" where not.
+  const named = caseText.toLowerCase().startsWith(kind);
+  return `${caseText} (${named ? "" : `${kind} `}${peers.indexOf(chosen) + 1} of ${peers.length})`;
 }
 
 /** A row's numerical-health mark, only where the row's state differs from the state the standing

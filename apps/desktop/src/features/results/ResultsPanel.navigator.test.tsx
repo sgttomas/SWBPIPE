@@ -74,7 +74,7 @@ describe("the results navigator", () => {
     // Kind: All plus each family the result has rows of, as the family buttons. Case: All plus four.
     const familyButtons = within(screen.getByRole("group", { name: "Result family filter" })).getAllByRole("button");
     expect(position("kind")).toBe(`All kinds (1 of ${familyButtons.length})`);
-    expect(position("case")).toBe("All cases (1 of 5)");
+    expect(position("case")).toBe("All cases: 2 load cases, 1 combination, rows with no case stated");
     expect(within(screen.getByTestId("results-navigator-case-select")).getAllByRole("option").map((option) => option.textContent)).toEqual([
       "All cases", "Load case load:é", "Load case load:𝔫", "Combination combination:Σ", "No case stated"
     ]);
@@ -133,14 +133,14 @@ describe("the results navigator", () => {
     expect(document.activeElement).toBe(previous);
     // "All cases" is the first case position: Previous stays there.
     fireEvent.keyDown(screen.getByTestId("results-panel"), key.case.previous);
-    expect(position("case")).toBe("All cases (1 of 5)");
+    expect(position("case")).toBe("All cases: 2 load cases, 1 combination, rows with no case stated");
     expect(screen.getByTestId("results-navigator-status")).toHaveTextContent("First load case or combination reached.");
     // Last case: the next key does not wrap to the first.
     stepUntil("case", "No case stated");
-    expect(position("case")).toBe("No case stated (5 of 5)");
+    expect(position("case")).toBe("No case stated");
     expect(button("case", "next")).toHaveAttribute("aria-disabled", "true");
     fireEvent.keyDown(screen.getByTestId("results-panel"), key.case.next);
-    expect(position("case")).toBe("No case stated (5 of 5)");
+    expect(position("case")).toBe("No case stated");
     expect(screen.getByTestId("results-navigator-status")).toHaveTextContent("Last load case or combination reached.");
     expect(onSelect).not.toHaveBeenCalled();
   });
@@ -274,13 +274,13 @@ describe("the navigator keeps results that are not checks passed, withheld or un
     const onSelect = vi.fn();
     render(<Harness result={result} onSelect={onSelect} health={health(false)} />);
     fireEvent.keyDown(screen.getByTestId("results-panel"), key.case.next);
-    expect(position("case")).toBe("Load case load:é (numerical health: sensitive) (2 of 5)");
+    expect(position("case")).toBe("Load case load:é (numerical health: sensitive) (1 of 2)");
     fireEvent.keyDown(screen.getByTestId("results-panel"), key.entity.next);
     const id = onSelect.mock.lastCall![0] as string;
     expect(screen.getByTestId(`result-row-health-${id}`)).toHaveTextContent("sensitive");
     // A passed case carries no qualifier; the health header stays.
     fireEvent.keyDown(screen.getByTestId("results-panel"), key.case.next);
-    expect(position("case")).toBe("Load case load:𝔫 (3 of 5)");
+    expect(position("case")).toBe("Load case load:𝔫 (2 of 2)");
     expect(screen.getByTestId("numerical-health-header")).toHaveTextContent("1 sensitive");
     expect(within(screen.getByTestId("results-navigator-case-select")).getByRole("option", { name: "Combination combination:Σ (numerical health: sensitive)" })).toBeInTheDocument();
   });
@@ -290,7 +290,7 @@ describe("the navigator keeps results that are not checks passed, withheld or un
     const onSelect = vi.fn();
     render(<Harness result={result} onSelect={onSelect} health={health(true)} />);
     fireEvent.change(screen.getByTestId("results-navigator-case-select"), { target: { value: "combination:combination:Σ" } });
-    expect(position("case")).toBe("Combination combination:Σ (4 of 5)");
+    expect(position("case")).toBe("Combination combination:Σ (1 of 1)");
     fireEvent.keyDown(screen.getByTestId("results-panel"), key.entity.next);
     const id = onSelect.mock.lastCall![0] as string;
     expect(result.results.find((row) => row.id === id)?.basis_ref?.ref_id).toBe("combination:Σ");
