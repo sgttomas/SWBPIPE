@@ -498,17 +498,19 @@ def _axial_block(entry: Mapping[str, Any], record_of, plain_rows: list[Mapping[s
 
 def compare_bases(entry: Mapping[str, Any], *, plain_payload: Mapping[str, Any], plain_record: Mapping[str, Any],
                   mbf_result: Any, mbf_text: str, parsed_caepipe: Mapping[str, Any] | None,
-                  solve) -> dict[str, Any]:
+                  solve, record_options: Mapping[str, Any] | None = None) -> dict[str, Any]:
     """Every stated basis beside the plain comparison of one benchmark document (the record's `stated_bases`).
 
     `solve(document, names)` solves SWBPIPE's side of a basis document in a solve folder of its own and returns
     (payload or None, error, solve record). The plain record is not changed. A basis whose condition does not hold is
-    listed with its reason; a basis solve the product refuses is listed with its refusal and compares nothing."""
+    listed with its reason; a basis solve the product refuses is listed with its refusal and compares nothing.
+    `record_options` are passed to every record built here as they were to the plain one (unread_supports)."""
     from core.handoff.caepipe_external.benchmark import build_benchmark_record
 
     def record(document: Mapping[str, Any], payload: Mapping[str, Any], **extra: Any) -> dict[str, Any]:
         return build_benchmark_record(document, swbpipe_result_payload=payload, mbf_result=mbf_result,
-                                      mbf_text=mbf_text, parsed_caepipe=parsed_caepipe, **extra)
+                                      mbf_text=mbf_text, parsed_caepipe=parsed_caepipe,
+                                      **dict(record_options or {}), **extra)
 
     bases: list[dict[str, Any]] = []
     axial = _axial_block(entry, lambda binding: record(entry, plain_payload, end_force_binding=binding),

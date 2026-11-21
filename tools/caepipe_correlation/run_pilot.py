@@ -1487,27 +1487,35 @@ def main(argv: list[str] | None = None, environ: Mapping[str, str] = os.environ)
                              "exclusive job, which holds the run")
     parser.add_argument("--pace-s", type=float, default=BENCHMARK_PACE_S, metavar="S",
                         help=f"with a live --benchmark run, seconds between models (default {BENCHMARK_PACE_S:g})")
+    parser.add_argument("--window-capture", metavar="FOLDER",
+                        help="with --benchmark, --series and one --case declared with a window instruction: store the "
+                             "folder a window run left (its print, saved model, run line and imported MBF) under the "
+                             "exchange folder, then compare its print offline (window_capture.py)")
     parser.add_argument("--collect-only", action="store_true",
                         help="with a live --benchmark run, stop each model once its CAEPIPE print is collected and "
                              "bound: nothing is solved, parsed or compared (compare it later with --offline)")
     args = parser.parse_args(argv)
     benchmark_only = (args.batch is not None or args.batch_size != BENCHMARK_BATCH_SIZE or args.freeze_file
                       or args.exclusive_file or args.pace_s != BENCHMARK_PACE_S or args.series is not None
-                      or args.collect_only)
+                      or args.collect_only or args.window_capture)
     if args.benchmark and (args.authored or args.authored_dir or args.no_export or args.export_mbf
                            or args.export_only):
         parser.error("--benchmark takes only --case, --series, --offline, --batch, --batch-size, --freeze-file, "
                      "--exclusive-file, --pace-s, --collect-only and --runner")
     if not args.benchmark and benchmark_only:
-        parser.error("--series, --batch, --batch-size, --freeze-file, --exclusive-file, --pace-s and --collect-only "
-                     "need --benchmark")
+        parser.error("--series, --batch, --batch-size, --freeze-file, --exclusive-file, --pace-s, --collect-only and "
+                     "--window-capture need --benchmark")
     if args.collect_only and args.offline:
         parser.error("--collect-only is a live run; offline there is nothing to collect")
+    if args.window_capture and (args.collect_only or args.batch is not None or args.freeze_file
+                                or args.exclusive_file or not args.series or len(args.cases or []) != 1):
+        parser.error("--window-capture takes --benchmark, --series, exactly one --case and --runner")
     if args.batch_size < 1:
         parser.error("--batch-size must be at least 1")
     if not (args.pace_s >= 0.0):
         parser.error("--pace-s must be a non-negative number")
-    if args.benchmark and not args.offline and not (args.freeze_file and args.exclusive_file):
+    if args.benchmark and not args.offline and not args.window_capture and not (args.freeze_file
+                                                                                and args.exclusive_file):
         parser.error("a live --benchmark run needs --freeze-file and --exclusive-file")
     if args.benchmark:
         return benchmark_main(args, environ)
@@ -1575,6 +1583,59 @@ def main(argv: list[str] | None = None, environ: Mapping[str, str] = os.environ)
     return 0 if all(results.values()) else 1
 
 
+def window_main(models: list[Mapping[str, Any]], config: HarnessConfig, *, runner: str, folder: Path | None,
+                emit: Callable[[str], None] = print) -> int:
+    """The window print route (window_capture.py), offline. With `folder`: store that capture of the one window run
+    selected, then compare it. Without: compare every stored capture of each selected window run. Each comparison is
+    created in a folder of its own beside its solve; a refusal names its route. The exit status: 0 when every
+    capture handled was stored and compared, else 1 (2 for a selection that is not a window run)."""
+    from tools.caepipe_correlation import window_capture
+
+    root = config.exchange_root.resolve()
+    windows = [entry for entry in models if _window_run(entry)]
+    if folder is not None and (len(models) != 1 or not windows):
+        emit("error: --window-capture needs exactly one run declared with a window instruction")
+        return 2
+    results = []
+    for entry in windows:
+        run_id = benchmark_run_id(entry)
+        paths = case_paths(config, run_id)
+
+        def solve(document: Mapping[str, Any], paths=paths) -> tuple[Any, str, dict[str, Any]]:
+            _, output, error, made = _solve_benchmark(root, paths, document, runner)
+            return (output or {}).get("payload") if output is not None else None, error, made
+
+        captures = []
+        if folder is not None:
+            try:
+                capture_id, record = window_capture.store_capture(entry, root, folder, identity=_source_identity())
+            except window_capture.CaptureRefused as refused:
+                emit(f"{run_id}: route={refused.route}; {refused.reason}; nothing stored")
+                results.append(False)
+                continue
+            emit(f"{run_id}: window capture {capture_id} stored; print {record['parse']['status']}; sections not "
+                 f"read: {', '.join(item['title'] or '?' for item in record['parse']['sections_not_read']) or 'none'}")
+            captures = [capture_id]
+        else:
+            captures = window_capture.stored_captures(root, run_id)
+            if not captures:
+                emit(f"{run_id}: route=no_window_capture; no window capture is stored for this run; nothing compared")
+                results.append(False)
+        for capture_id in captures:
+            try:
+                path, comparison = window_capture.compare_capture(
+                    entry, root, capture_id, solve=solve, write=lambda target, value: _create_private_json(
+                        root, target, value))
+            except window_capture.CaptureRefused as refused:
+                emit(f"{run_id}: capture {capture_id}: route={refused.route}; {refused.reason}; no comparison")
+                results.append(False)
+                continue
+            emit(f"{run_id}: capture {capture_id}: route={window_capture.WINDOW_ROUTE}; comparison written: "
+                 f"{path.relative_to(root)}; {_counts(comparison['summary'])}")
+            results.append(True)
+    return 0 if results and all(results) else 1
+
+
 def benchmark_main(args: argparse.Namespace, environ: Mapping[str, str]) -> int:
     try:
         models = load_benchmark(Path(args.benchmark), args.cases, args.series)
@@ -1582,6 +1643,23 @@ def benchmark_main(args: argparse.Namespace, environ: Mapping[str, str]) -> int:
         print(f"error: {error}", file=sys.stderr)
         return 2
     windows = [entry for entry in models if _window_run(entry)]
+    if args.window_capture or (args.offline and windows):
+        # The window print route: offline, nothing reaches the guest.
+        config = resolve_harness_config(environ, require_vm_tools=False)
+        if isinstance(config, HarnessSkip):
+            print(f"CAEPIPE harness skipped: {config.reason}")
+            return 0
+        runner = args.runner or environ.get(RUNNER_ENV)
+        if not runner or not Path(runner).is_file():
+            print(f"error: no runner executable (--runner or ${RUNNER_ENV})", file=sys.stderr)
+            return 2
+        status = window_main(models, config, runner=runner,
+                             folder=Path(args.window_capture) if args.window_capture else None)
+        rest = [entry for entry in models if not _window_run(entry)]
+        if args.window_capture or not rest:
+            return status
+        return max(status, run_benchmark(rest, config, runner=runner, offline=True, batch_size=args.batch_size,
+                                         batch=args.batch))
     for entry in windows:
         window_refusal(entry, print)
     if windows:

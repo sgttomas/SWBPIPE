@@ -494,13 +494,18 @@ def _quantity_counts(rows: list[dict[str, Any]], cases: list[str], not_compared:
 def build_benchmark_record(benchmark_model: Mapping[str, Any], *, swbpipe_result_payload: Mapping[str, Any],
                            mbf_result: Any, mbf_text: str, parsed_caepipe: Mapping[str, Any] | None,
                            support_aliases: Mapping[str, str] | None = None,
-                           end_force_binding: Mapping[str, Any] | None = None) -> dict[str, Any]:
+                           end_force_binding: Mapping[str, Any] | None = None,
+                           unread_supports: Mapping[str, str] | None = None) -> dict[str, Any]:
     """The two-way comparison record of one benchmark model (private).
 
     For a stated basis (tools/caepipe_correlation/stated_bases.py) only: `support_aliases` maps a support id of the
     solved document to the written support whose node it stands for (an anchor realized as springs), and
     `end_force_binding` ({"axes", "pressurised"}) takes the element end forces of pressurised members under the
-    effective axial force binding (effective_axial_deltas). Without them the record is the plain comparison."""
+    effective axial force binding (effective_axial_deltas). Without them the record is the plain comparison.
+
+    `unread_supports` ({support id: why}) names supports of the solved document that the written file does not hold
+    and whose printed loads the comparison does not read (a member entered at the program's window): each reaction
+    component SWBPIPE publishes for one is listed as an unmatched row with that reason, never dropped."""
     mbf = mbf_result.to_dict() if hasattr(mbf_result, "to_dict") else dict(mbf_result)
     envelope = swbpipe_result_payload.get("mechanics_envelope", swbpipe_result_payload)
     results = list(envelope.get("results") or [])
@@ -606,6 +611,24 @@ def build_benchmark_record(benchmark_model: Mapping[str, Any], *, swbpipe_result
                     row["classification"] = FINDING
                     row["reason"] = "SWBPIPE differs from the model's closed form"
             rows.append(row)
+    # Supports the written file does not hold and whose printed loads are not read: listed, never dropped.
+    for support, why in sorted((unread_supports or {}).items()):
+        for case_name, swbpipe_cases, _ in compared:
+            components: dict[str, list[float]] = {}
+            for row in results:
+                if (isinstance(row, Mapping) and row.get("kind") == _SWBPIPE_SUPPORT
+                        and str(row.get("entity_ref")) == support
+                        and (row.get("basis_ref") or {}).get("ref_id") in swbpipe_cases):
+                    component = str((row.get("metadata") or {}).get("component", ""))
+                    components.setdefault(component, []).append(_si(row.get("value"), row.get("unit")))
+            for component, parts in sorted(components.items()):
+                total = (math.fsum(parts) if len(parts) == len(swbpipe_cases) and all(
+                    part is not None and math.isfinite(part) for part in parts) else None)
+                rows.append({"case": case_name, "kind": "support_force" if component[:1] == "F" else "support_moment",
+                             "entity": support, "component": component[1:].lower(),
+                             "unit": "N" if component[:1] == "F" else "N*m",
+                             "values": {"swbpipe": total, "caepipe": None}, "classification": UNMATCHED,
+                             "unmatched_cause": "print_section_not_read", "reason": why})
     # A parser error (a refused section or row) is never silent: one unmatched row each, so the counts show it.
     for item in (parsed_caepipe or {}).get("diagnostics") or []:
         if isinstance(item, Mapping) and item.get("severity") == "error":
