@@ -60,7 +60,7 @@ export const WORKSPACE_SECTIONS: ReadonlyArray<{ id: WorkspaceSectionId; label: 
   {
     id: "report",
     label: "Report",
-    description: "Rendered calculation report, report packet, and report content lint"
+    description: "Rendered calculation report and report packet"
   },
   {
     id: "project",
@@ -70,12 +70,12 @@ export const WORKSPACE_SECTIONS: ReadonlyArray<{ id: WorkspaceSectionId; label: 
   {
     id: "exports",
     label: "Exports",
-    description: "Result/geometry exports, exchange adapters, handoff packages, and export review"
+    description: "Result JSON, stress-neutral, PCF, model batch file, review-geometry and local FEA handoff exports"
   },
   {
     id: "evidence",
-    label: "Audit & Boundaries",
-    description: "Run audit, validation evidence, telemetry/privacy/security boundary reviews"
+    label: "Evidence",
+    description: "Run audit and telemetry state"
   }
 ];
 

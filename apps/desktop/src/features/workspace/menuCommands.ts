@@ -25,7 +25,6 @@ export type MenuCommandId =
   | "view.tree"
   | "view.inspector"
   | "view.issues"
-  | "view.audit"
   | "view.close-panels"
   // A6 key results: the browser menu's route. The native menu has no item for it yet, so it is
   // not in NATIVE_MENU_COMMAND_IDS, and App handles it before the session's runMenuCommand.
@@ -61,7 +60,7 @@ export type MenuItemSpec =
  * listed: the Model stage's Review changes tab and the Loads stage reach them in every
  * state. Results, Evidence and Report stay, because their stages are disabled until a
  * run (or a current solved run) exists while the sections still hold what needs none:
- * the weight summary (DEL-07-05 REQ-022), the boundary panels, and a held result's
+ * the weight summary (DEL-07-05 REQ-022), the telemetry state, and a held result's
  * report (DEL-08-01 REQ-017). Their `view.section.*` commands are all still accepted.
  */
 export const VIEW_MENU_SECTIONS: ReadonlySet<WorkspaceSectionId> = new Set<WorkspaceSectionId>([
@@ -96,7 +95,6 @@ const NATIVE_MENU_COMMAND_IDS: ReadonlySet<string> = new Set([
   "view.tree",
   "view.inspector",
   "view.issues",
-  "view.audit",
   "view.close-panels",
   ...["table", "model", "both"].map((view) => `view.view.${view}`),
   ...["model", "loads", "results", "review"].map((stage) => `view.stage.${stage}`),
