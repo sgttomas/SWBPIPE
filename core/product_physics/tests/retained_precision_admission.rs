@@ -43,15 +43,15 @@ fn ordinary() -> Value {
 }
 /// G6: the registered build reports `Registered`; any other build `Stale`.
 const REGISTERED_IDENTITY: &str = "v1;rustc.release=1.97.1;rustc.commit=8bab26f4f68e0e26f0bb7960be334d5b520ea452;rustc.host=aarch64-apple-darwin;rustc.llvm=22.1.6;target=aarch64-apple-darwin;target.arch=aarch64;target.pointer_width=64;target.endian=little;target.os=macos;target.env=;panic=unwind;profile=debug;opt_level=0;debug_assertions=true;rustflags=;pkg=open_pipe_stress_product_physics@0.2.0";
-/// Between audits the registered identity reads Stale when its reviewed inputs have moved (DEL-04-08 REQ-004), and the
-/// tests then assert the Stale branch; the retained pricing audit (`OPS_RETAINED_PRICING_AUDIT`) requires the
-/// registered identity and its registration instead (docs/CI_STRATEGY.md, "Retained pricing audit").
+/// Between drift checks the registered identity reads Stale when its reviewed inputs have moved (DEL-04-08 REQ-004), and the
+/// tests then assert the Stale branch; the retained drift check (`OPS_RETAINED_DRIFT_CHECK`) requires the
+/// registered identity and its registration instead (docs/CI_STRATEGY.md, "Retained registration drift check").
 fn expected_profile() -> ProfileStatus {
     let identity = option_env!("OPS_RETAINED_BUILD_IDENTITY") == Some(REGISTERED_IDENTITY);
     let registered = identity && open_pipe_stress_product_physics::retained_profile().is_ok();
-    if std::env::var_os("OPS_RETAINED_PRICING_AUDIT").is_some() {
-        assert!(identity, "the retained pricing audit runs in the registered build identity");
-        assert!(registered, "the retained pricing audit: the registered identity reads Stale");
+    if std::env::var_os("OPS_RETAINED_DRIFT_CHECK").is_some() {
+        assert!(identity, "the retained drift check runs in the registered build identity");
+        assert!(registered, "the retained drift check: the registered identity reads Stale");
     }
     if registered {
         ProfileStatus::Registered

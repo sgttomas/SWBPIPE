@@ -33,6 +33,7 @@ jobs:
       desktop_rust_mode: ${{ steps.numeric.outputs.desktop_rust_mode }}
       browser_project: ${{ steps.numeric.outputs.browser_project }}
       browser_specs: ${{ steps.numeric.outputs.browser_specs }}
+      retained_registration: ${{ steps.numeric.outputs.retained_registration }}
     steps:
       - uses: actions/checkout@v4
         with:
@@ -74,6 +75,15 @@ jobs:
                   raise SystemExit('Invalid browser selection')
               out.write(f"browser_project={browser['project']}\nbrowser_specs={' '.join(specs)}\n")
               print(f"Browser specs ({browser['classification']}): {' '.join(specs) or 'none'}")
+              # A candidate that changes the pricing tool or the registration runs the registered build's Rust tests
+              # (docs/CI_STRATEGY.md, "Retained registration drift check"); its Python selection holds the rest.
+              import importlib.util
+              spec = importlib.util.spec_from_file_location('python_ci', 'tools/ci/python_ci.py')
+              python_ci = importlib.util.module_from_spec(spec)
+              spec.loader.exec_module(python_ci)
+              registration = plan.get('event') in ('pull_request', 'merge_group') and python_ci.changes_registration(plan)
+              out.write(f"retained_registration={'true' if registration else 'false'}\n")
+              print(f"Retained registration paths changed: {registration}")
           PYTHON
       - uses: actions/upload-artifact@v4
         with:
@@ -567,9 +577,16 @@ jobs:
           if-no-files-found: warn
           retention-days: 7
 
+  retained-registration:
+    # A pull request or queue group that changes the pricing tool or the registration: the registered build's Rust
+    # tests with the drift check's switch, as the scheduled drift check runs them.
+    needs: selection
+    if: needs.selection.outputs.retained_registration == 'true'
+    uses: ./.github/workflows/retained-registration-rust.yml
+
   desktop-e2e:
     name: Desktop E2E (source mode)
-    needs: [selection, product, desktop, desktop-rust, numerical, python-product]
+    needs: [selection, product, desktop, desktop-rust, numerical, python-product, retained-registration]
     if: always()
     runs-on: ubuntu-latest
     steps:
@@ -602,6 +619,13 @@ jobs:
           python3 tools/software_workflow/hosted_ci.py aggregate --suite piping-python --mode "$PYTHON_MODE" --selection "$SELECTION" --product "$PYTHON_PRODUCT_RESULT"
           python3 tools/software_workflow/hosted_ci.py aggregate --suite piping-desktop --mode "$DESKTOP_MODE" --selection "$SELECTION" --product "$DESKTOP"
           python3 tools/software_workflow/hosted_ci.py aggregate --suite piping-desktop-rust --mode "$DESKTOP_RUST_MODE" --selection "$SELECTION" --product "$DESKTOP_RUST"
+      - name: Require the registered build's Rust tests when a registration path changed
+        env:
+          REGISTRATION: ${{ needs.selection.outputs.retained_registration }}
+          RESULT: ${{ needs.retained-registration.result }}
+        run: |
+          echo "retained-registration: required=$REGISTRATION result=$RESULT"
+          if [ "$REGISTRATION" = true ]; then test "$RESULT" = success; else test "$REGISTRATION" = false && test "$RESULT" = skipped; fi
       - name: Download successful Python shard markers
         if: needs.selection.outputs.python_mode == 'full'
         uses: actions/download-artifact@v4

@@ -947,6 +947,15 @@ fn reviewed_inputs_bind_the_lock_and_the_reader_statics() {
         include_bytes!("../../../fixtures/results/semantic_contract_v0_3_pressure_3.json"),
         include_bytes!("../../../fixtures/results/semantic_contract_v0_3_preview_physics_timoshenko_1.json"),
     ];
+    // The test's record and the registered profile's are one record, on every host: either alone changing, or an
+    // input moving with only the registered record updated, fails here.
+    let record: [Option<[u8; 32]>; build_identity::REVIEWED_INPUT_COUNT] = std::array::from_fn(|i| {
+        let hex = REVIEWED[i].as_bytes();
+        assert_eq!(hex.len(), 64, "G4's reviewed record #{i}");
+        Some(std::array::from_fn(|j| u8::from_str_radix(std::str::from_utf8(&hex[2 * j..2 * j + 2]).unwrap(), 16).unwrap()))
+    });
+    assert_eq!(build_identity::encode_reviewed_inputs(&record), REGISTERED_PROFILES[0].reviewed_inputs,
+        "G4's reviewed record is the registered profile's");
     let compiled = COMPILED_REVIEWED_INPUTS.expect("build.rs sets the reviewed inputs");
     assert_eq!(option_env!("OPS_RETAINED_REVIEWED_INPUTS"), Some(compiled));
     let mut tokens = compiled.split(';');
@@ -961,12 +970,15 @@ fn reviewed_inputs_bind_the_lock_and_the_reader_statics() {
         }
     }
     assert_eq!(tokens.next(), None);
-    // G4's reviewed record moves only at a registration (DEL-04-08 REQ-004). Between audits a moved reviewed input
-    // leaves the build Stale, which this asserts; the retained pricing audit (`OPS_RETAINED_PRICING_AUDIT`) requires
-    // the record to hold (docs/CI_STRATEGY.md, "Retained pricing audit").
+    // G4's reviewed record moves only at a registration (DEL-04-08 REQ-004). Between drift checks a moved reviewed
+    // input fails the registered binding and leaves the build Stale, which this asserts; the drift check
+    // (`OPS_RETAINED_DRIFT_CHECK`) requires the record to hold (docs/CI_STRATEGY.md, "Retained registration drift
+    // check").
     if !moved.is_empty() {
-        assert!(std::env::var_os(crate::retained_facade_tests::PRICING_AUDIT).is_none(),
-            "the retained pricing audit: reviewed inputs moved since G4's reviewed record: {moved:?}");
+        assert!(std::env::var_os(crate::retained_facade_tests::DRIFT_CHECK).is_none(),
+            "the retained drift check: reviewed inputs moved since G4's reviewed record: {moved:?}");
+        assert!(!bindings_hold(LAYOUT_WITNESSES, Some(compiled), REGISTERED_PROFILES[0].reviewed_inputs,
+            &READER_LAYOUTS, &READER_LAYOUTS), "moved reviewed inputs {moved:?} fail the registered binding");
         assert_eq!(build_status(), Err(ProfileStatus::Stale), "moved reviewed inputs {moved:?} leave the build Stale");
         println!("I65_G5_REVIEWED_INPUTS_MOVED {moved:?}: Stale until the next registration");
     }

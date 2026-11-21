@@ -346,7 +346,9 @@ def test_python_gate_and_result_are_independent_of_cargo():
     assert aggregate['env']['PYTHON_MODE'] == '${{ needs.selection.outputs.python_mode }}'
     assert 'aggregate --suite piping-python --mode "$PYTHON_MODE"' in aggregate['run']
     # The sharded desktop job joins the aggregate (desktop suite sharding, 2026-10-22).
-    assert set(jobs['desktop-e2e']['needs']) == {'selection', 'product', 'desktop', 'desktop-rust', 'numerical', 'python-product'}
+    # The registered build's Rust tests join it for a registration-path candidate (docs/CI_STRATEGY.md).
+    assert set(jobs['desktop-e2e']['needs']) == {'selection', 'product', 'desktop', 'desktop-rust', 'numerical', 'python-product',
+                                                 'retained-registration'}
 
 
 def test_selected_desktop_rust_tests_run_on_macos_and_gate_the_aggregate(tmp_path):
@@ -661,31 +663,26 @@ def test_merge_group_missing_base_fails_closed():
     assert 'HEAD^1' not in (ROOT / ".github/workflows/governance-harness.yml").read_text()
 
 
-def test_the_retained_pricing_audit_runs_on_its_own_schedule_and_dispatch_and_keeps_one_drift_issue():
-    """docs/CI_STRATEGY.md, "Retained pricing audit": its own workflow, on a schedule and by dispatch on any ref; no
-    candidate event; only the report job writes issues, and never the `nightly` label."""
-    text = (ROOT / '.github/workflows/retained-pricing-audit.yml').read_text()
-    audit = workflow('retained-pricing-audit.yml')
-    assert set(audit['on']) == {'schedule', 'workflow_dispatch'}
-    assert audit['permissions'] == {'contents': 'read'}
-    jobs = audit['jobs']
-    assert set(jobs) == {'audit', 'rust-audit', 'report'}
-    [run] = [s for s in jobs['audit']['steps'] if 'run' in s and 'python_ci.py' in s['run']]
-    assert '--audit' in run['run'] and '--shard-count 4' in run['run']
-    assert jobs['audit']['strategy']['matrix']['shard'] == ['1', '2', '3', '4']
-    assert 'permissions' not in jobs['audit']
-    # The Rust half runs the registration tests in the registered build identity, with the audit switch set.
-    rust = jobs['rust-audit']
-    assert rust['runs-on'] == 'macos-26' and 'permissions' not in rust
-    assert any(s.get('uses') == 'dtolnay/rust-toolchain@1.97.1' for s in rust['steps'])
-    [cargo] = [s for s in rust['steps'] if 'cargo test' in s.get('run', '')]
-    assert cargo['env'] == {'OPS_RETAINED_PRICING_AUDIT': '1'}
-    assert '--manifest-path core/product_physics/Cargo.toml --lib --test retained_precision_admission' in cargo['run']
+def test_the_retained_drift_check_runs_on_its_own_schedule_and_dispatch_and_keeps_one_drift_issue():
+    """docs/CI_STRATEGY.md, "Retained registration drift check": its own workflow, on a schedule and by dispatch on any
+    ref; no candidate event; only the report job writes issues, and never with the `nightly` label."""
+    text = (ROOT / '.github/workflows/retained-drift-check.yml').read_text()
+    check = workflow('retained-drift-check.yml')
+    assert set(check['on']) == {'schedule', 'workflow_dispatch'}
+    assert check['permissions'] == {'contents': 'read'}
+    jobs = check['jobs']
+    assert set(jobs) == {'python', 'rust', 'report'}
+    [run] = [s for s in jobs['python']['steps'] if 'run' in s and 'python_ci.py' in s['run']]
+    assert '--drift-check' in run['run'] and '--shard-count 4' in run['run']
+    assert jobs['python']['strategy']['matrix']['shard'] == ['1', '2', '3', '4']
+    assert 'permissions' not in jobs['python']
+    # The Rust half is the same called job a registration-path pull request runs.
+    assert jobs['rust'] == {'uses': './.github/workflows/retained-registration-rust.yml'}
     report = jobs['report']
-    assert report['if'] == 'always()' and report['needs'] == ['audit', 'rust-audit']
-    assert report['permissions'] == {'contents': 'read', 'issues': 'write'}
+    assert report['if'] == 'always()' and report['needs'] == ['python', 'rust']
+    assert report['permissions'] == {'contents': 'read', 'actions': 'read', 'issues': 'write'}
     [step] = [s for s in report['steps'] if 'run' in s]
-    assert step['run'] == 'python3 tools/software_workflow/pricing_audit_report.py'
+    assert step['run'] == 'python3 tools/software_workflow/drift_check_report.py'
     assert step['env']['RESULTS'] == '${{ toJSON(needs) }}'
     assert text.count('write') == 1 and 'secrets.' not in text and 'nightly' not in text
     for job in jobs.values():
@@ -693,3 +690,32 @@ def test_the_retained_pricing_audit_runs_on_its_own_schedule_and_dispatch_and_ke
             assert '${{' not in entry.get('run', '')
             if str(entry.get('uses', '')).startswith('actions/checkout@'):
                 assert entry['with']['ref'] == '${{ github.sha }}'
+
+
+def test_a_registration_path_candidate_runs_the_registered_build_rust_tests():
+    """A pull request or queue group that changes the pricing tool or the registration runs the registered build's
+    Rust tests with the drift check's switch, through the called job the drift check uses; the aggregate requires its
+    success when selected and its skip otherwise."""
+    rust = workflow('retained-registration-rust.yml')
+    assert set(rust['on']) == {'workflow_call'} and rust['permissions'] == {'contents': 'read'}
+    [job] = rust['jobs'].values()
+    assert job['runs-on'] == 'macos-26' and 'permissions' not in job
+    assert any(s.get('uses') == 'dtolnay/rust-toolchain@1.97.1' for s in job['steps'])
+    [checkout] = [s for s in job['steps'] if str(s.get('uses', '')).startswith('actions/checkout@')]
+    assert checkout['with']['ref'] == HEAD_REF
+    [cargo] = [s for s in job['steps'] if 'cargo test' in s.get('run', '')]
+    assert cargo['env'] == {'OPS_RETAINED_DRIFT_CHECK': '1'}
+    assert '--manifest-path core/product_physics/Cargo.toml --lib --test retained_precision_admission' in cargo['run']
+    assert 'set -o pipefail' in cargo['run']
+    product = workflow('piping-desktop-e2e.yml')['jobs']
+    assert product['selection']['outputs']['retained_registration'] == '${{ steps.numeric.outputs.retained_registration }}'
+    [numeric] = [s for s in product['selection']['steps'] if s.get('id') == 'numeric']
+    assert 'python_ci.changes_registration(plan)' in numeric['run']
+    assert "plan.get('event') in ('pull_request', 'merge_group')" in numeric['run']
+    called = product['retained-registration']
+    assert called == {'needs': 'selection', 'if': "needs.selection.outputs.retained_registration == 'true'",
+                      'uses': './.github/workflows/retained-registration-rust.yml'}
+    [gate] = [s for s in product['desktop-e2e']['steps'] if 'retained-registration' in s.get('run', '')]
+    assert gate['env'] == {'REGISTRATION': '${{ needs.selection.outputs.retained_registration }}',
+                           'RESULT': '${{ needs.retained-registration.result }}'}
+    assert 'test "$RESULT" = success' in gate['run'] and 'test "$RESULT" = skipped' in gate['run']

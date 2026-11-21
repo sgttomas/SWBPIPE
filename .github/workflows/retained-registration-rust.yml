@@ -1,0 +1,41 @@
+name: retained-registration-rust
+# The registered build's Rust tests (docs/CI_STRATEGY.md, "Retained registration drift check"), called by the
+# scheduled drift check and by the product workflow for a pull request that changes the pricing tool or the
+# registration. The core/product_physics tests that branch on the registered build (retained_facade_tests::registered())
+# run with OPS_RETAINED_DRIFT_CHECK set, which requires the registered identity (aarch64-apple-darwin, Rust 1.97.1,
+# debug, no RUSTFLAGS) and its reviewed inputs and reader layouts. Elsewhere those tests assert the Stale branch.
+on:
+  workflow_call:
+permissions:
+  contents: read
+jobs:
+  registered-build:
+    name: Retained registration, registered build (Rust)
+    runs-on: macos-26
+    timeout-minutes: 90
+    env:
+      CARGO_INCREMENTAL: '0'
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.pull_request.head.sha || github.event.merge_group.head_sha || github.sha }}
+          filter: blob:none
+          sparse-checkout: |
+            /*
+            !/execution/
+          sparse-checkout-cone-mode: false
+      - uses: dtolnay/rust-toolchain@1.97.1
+      - name: Registration tests in the registered build identity
+        env:
+          OPS_RETAINED_DRIFT_CHECK: '1'
+        run: |
+          mkdir -p "$RUNNER_TEMP/drift-reports"
+          set -o pipefail
+          cargo test --locked --manifest-path core/product_physics/Cargo.toml --lib --test retained_precision_admission 2>&1 | tee "$RUNNER_TEMP/drift-reports/rust.cargo.log"
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: retained-drift-check-report-rust
+          path: ${{ runner.temp }}/drift-reports/
+          if-no-files-found: ignore
+          retention-days: 7

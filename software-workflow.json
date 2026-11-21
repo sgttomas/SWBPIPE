@@ -133,12 +133,12 @@
         "auto"
       ]
     },
-    "retained-pricing-audit": {
+    "retained-drift-check": {
       "cwd": ".",
       "command": [
         "python3",
         "tools/ci/python_ci.py",
-        "--audit"
+        "--drift-check"
       ]
     },
     "byte-compare-tool-tests": {

@@ -1,0 +1,88 @@
+name: retained-drift-check
+# The retained registration drift check (docs/CI_STRATEGY.md, "Retained registration drift check"; DEL-04-08
+# REQ-004). A green run shows that the checked revision still matches the committed registration pins, so the
+# registered bound holds by that registration. It runs no four-point pricing of any revision. Daily on main and by
+# dispatch on any ref; it adds no required check. On main, a failure opens or updates the one standing
+# `registration-drift` issue, and a later pass on a descendant of the failed commit closes it; a run of another ref
+# reports nothing.
+on:
+  schedule:
+    - cron: '30 8 * * *'
+  workflow_dispatch:
+permissions:
+  contents: read
+concurrency:
+  group: retained-drift-check-${{ github.ref }}
+  cancel-in-progress: false
+jobs:
+  python:
+    name: Retained drift check, pricing tool tests (${{ matrix.shard }}/4)
+    runs-on: ubuntu-latest
+    # About 3.4 worker-hours of recorded test time over four shards of four workers.
+    timeout-minutes: 60
+    strategy:
+      fail-fast: false
+      matrix:
+        shard: [1, 2, 3, 4]
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.sha }}
+          fetch-depth: 0
+          filter: blob:none
+          # As in the product Python job: declarative specifications are not product inputs.
+          sparse-checkout: |
+            /*
+            !/execution/
+          sparse-checkout-cone-mode: false
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.13"
+      - name: Install Python check dependencies
+        run: python3 -m pip install -r requirements-dev.txt
+      - name: Retained drift check shard
+        env:
+          SHARD: ${{ matrix.shard }}
+        run: python3 tools/ci/python_ci.py --drift-check --shard-index "$SHARD" --shard-count 4 --junit-xml "$RUNNER_TEMP/drift-reports/shard-$SHARD.xml"
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: retained-drift-check-report-${{ matrix.shard }}
+          path: ${{ runner.temp }}/drift-reports/
+          if-no-files-found: ignore
+          retention-days: 7
+  rust:
+    # The registration's Rust half, the same called job a registration-path pull request runs.
+    uses: ./.github/workflows/retained-registration-rust.yml
+  report:
+    name: Retained drift check report
+    needs: [python, rust]
+    if: always()
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    permissions:
+      contents: read
+      actions: read
+      issues: write
+    concurrency:
+      # Reports run in turn, so a second finds the first's standing issue.
+      group: retained-drift-check-report
+      cancel-in-progress: false
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.sha }}
+          fetch-depth: 1
+          sparse-checkout: tools/software_workflow
+      - uses: actions/download-artifact@v4
+        continue-on-error: true
+        with:
+          pattern: retained-drift-check-report-*
+          path: drift-reports
+          merge-multiple: true
+      - name: Open, update or close the standing drift issue for a run of main
+        env:
+          GH_TOKEN: ${{ github.token }}
+          RESULTS: ${{ toJSON(needs) }}
+          REPORT_DIR: drift-reports
+        run: python3 tools/software_workflow/drift_check_report.py
