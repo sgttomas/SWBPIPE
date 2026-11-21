@@ -166,12 +166,22 @@ test("native surfaces: the menu bar's reading recorded but not as the menu bar d
   assert.equal(partly.missing_evidence, true);
   assert.match(partly.prevented_by, /--show-window\), but at 1 of 3 steps that showed the 3D view it was not captured: its pixels read blank/);
   assert.match(viewEntry(nativeSurfacesFor({ windowShown: false, screens: [{ view_3d: "not captured" }] })).prevented_by, /not given --show-window/);
-  // In the index, one launch that left the evidence missing keeps the surface missing.
+  // In the index, one launch that left the evidence missing keeps the surface missing: the 3D view captured in one
+  // launch and not in another is missing, whichever launch comes first.
   const out = scratch(t);
-  writePart(out, { number: 20, name: "solve-and-results", title: "A", use_case: "u", screens: [], native_menu: { ...menu, journey: "solve-and-results", number: 20 }, window_shown: { option: true, shown: true }, launch: { ended_cleanly: true, window_shown: true } });
-  writePart(out, { number: 22, name: "exports", title: "B", use_case: "u", screens: [], native_menu: { read: false, journey: "exports", number: 22, error: "x" }, launch: { ended_cleanly: true } });
+  writePart(out, { number: 20, name: "solve-and-results", title: "A", use_case: "u", screens: [{ number: 2001, step: "a", view_3d: "captured" }], native_menu: { ...menu, journey: "solve-and-results", number: 20 }, window_shown: { option: true, shown: true }, launch: { ended_cleanly: true, window_shown: true } });
+  writePart(out, { number: 22, name: "exports", title: "B", use_case: "u", screens: [{ number: 2201, step: "b", view_3d: "not captured", canvases: [{ label: "3D view", captured: false, reason: "its pixels read blank" }] }], native_menu: { read: false, journey: "exports", number: 22, error: "x" }, window_shown: { option: true, shown: true }, launch: { ended_cleanly: true } });
+  const parts = JSON.parse(readFileSync(path.join(out, "part-20-solve-and-results.json"), "utf8"));
+  assert.equal(viewEntry(parts.native_surfaces).evidence, "supplied");
   composeIndex(out);
   const index = JSON.parse(readFileSync(path.join(out, "INDEX.json"), "utf8"));
+  assert.deepEqual([viewEntry(index.native_surfaces).evidence, viewEntry(index.native_surfaces).missing_evidence], ["missing", true]);
+  assert.match(viewEntry(index.native_surfaces).prevented_by, /at 1 of 1 steps that showed the 3D view it was not captured: its pixels read blank/);
+  const reversed = scratch(t);
+  writePart(reversed, { number: 20, name: "solve-and-results", title: "A", use_case: "u", screens: [{ number: 2001, step: "b", view_3d: "not captured" }], window_shown: { option: true, shown: true }, launch: { ended_cleanly: true } });
+  writePart(reversed, { number: 22, name: "exports", title: "B", use_case: "u", screens: [{ number: 2201, step: "a", view_3d: "captured" }], window_shown: { option: true, shown: true }, launch: { ended_cleanly: true } });
+  composeIndex(reversed);
+  assert.equal(viewEntry(JSON.parse(readFileSync(path.join(reversed, "INDEX.json"), "utf8")).native_surfaces).missing_evidence, true);
   assert.equal(menuEntry(index.native_surfaces).missing_evidence, true);
   assert.deepEqual(index.native_menus.map((reading) => [reading.journey, reading.read]), [["solve-and-results", true], ["exports", false]]);
   assert.deepEqual(index.journeys[0].window_shown, { option: true, shown: true });
