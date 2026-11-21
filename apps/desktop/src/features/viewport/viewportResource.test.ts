@@ -212,12 +212,11 @@ describe("viewport resource primitives", () => {
       const down = (x = 100, y = 100) => { fake.notePointerDown({ pointerId: 1, clientX: x, clientY: y }); fake.noteGestureStart(); fake.navigationAdvancing = true; };
       const frame = () => { fake.render(1); };
       const up = () => { fake.notePointerUp({ pointerId: 1 }); fake.noteGestureEnd(); fake.navigationAdvancing = true; fake.render(2); };
-      const orbitBy = (angle: number) => {
-        const offset = camera.position.clone().sub(controls.target).applyAxisAngle(new THREE.Vector3(0, 1, 0), angle);
-        camera.position.copy(controls.target).add(offset);
-        camera.lookAt(controls.target);
-      };
-      return { fake, camera, controls, onCameraMovedByPerson, down, frame, up, orbitBy };
+      // What the controls' pointer and wheel handlers ask of their next update.
+      const internals = controls as unknown as { _rotateLeft(angle: number): void; _dollyIn(scale: number): void };
+      const orbitBy = (angle: number) => internals._rotateLeft(angle);
+      const dollyIn = (scale: number) => internals._dollyIn(scale);
+      return { fake, camera, controls, onCameraMovedByPerson, down, frame, up, orbitBy, dollyIn };
     }
 
     for (const view of ["front", "top", "side", "iso"] as const) {
@@ -265,18 +264,20 @@ describe("viewport resource primitives", () => {
     });
 
     it("a wheel is the person's move; a programmatic pose afterwards is not", () => {
-      const { fake, camera, controls, onCameraMovedByPerson, frame } = gestureFake("front");
+      const { fake, onCameraMovedByPerson, frame, dollyIn } = gestureFake("front");
       fake.noteWheel();
       fake.noteGestureStart();
       fake.navigationAdvancing = true;
-      camera.position.lerp(controls.target, 0.1);
+      dollyIn(1.2);
       frame();
       fake.noteGestureEnd();
       expect(onCameraMovedByPerson).toHaveBeenCalledTimes(1);
+      // A programmatic pose, and the change event the controls would send for it.
       fake.cancelNavigation();
-      camera.position.lerp(controls.target, 0.1);
+      dollyIn(1.2);
       fake.navigationAdvancing = true;
       frame();
+      (fake as unknown as { noteGestureMove(): void }).noteGestureMove();
       expect(onCameraMovedByPerson).toHaveBeenCalledTimes(1);
     });
   });
