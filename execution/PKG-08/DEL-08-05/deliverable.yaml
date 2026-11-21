@@ -41,6 +41,7 @@ code_paths:
 - core/reporting/protected_content_linter/**
 - schemas/report_protected_content_linter.schema.yaml
 - fixtures/report_lint/invented/**
+# The desktop's lint view, which the v1.0 interface does not mount (LIM-039).
 - apps/desktop/src/features/report-lint/ReportLintPanel.tsx
 # The release-candidate scan runner and its member helper.
 - tools/release/run_release_candidate_scan.py
@@ -51,4 +52,5 @@ checks:
 - core/reporting/protected_content_linter/src/lib.rs
 - core/reporting/protected_content_linter/tests/cli_scope.rs
 - core/reporting/report_renderer/tests/render.rs
-- apps/desktop/e2e/r2-smoke.spec.ts
+# Renders the lint view on its own and reads its lines and its packet.
+- apps/desktop/src/App.test.tsx

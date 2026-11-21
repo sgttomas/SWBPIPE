@@ -17,7 +17,7 @@ function session(numericalHealthHold: typeof hold | null): WorkspaceSession {
     model: { model: { analysis_status: { mechanics: "MECHANICS_SOLVED" } } },
     results: { result: { status: { mechanics: "MECHANICS_SOLVED", professional_acceptance: "NOT_PROVIDED" } }, currentSolvedResult: null, numericalHealthHold, historicalRun: null, solveJob: { state: "completed" }, ruleCheckAggregate: null },
     selection: { selection: null, orderedSelection: { orderedKeys: [] } },
-    chrome: { activeSection: "results", stageSurface: "results", auditDrawerOpen: false, setAuditDrawerOpen() {}, issuesDrawerOpen: false, setIssuesDrawerOpen() {} }
+    chrome: { activeSection: "results", stageSurface: "results", issuesDrawerOpen: false, setIssuesDrawerOpen() {} }
   } as unknown as WorkspaceSession;
 }
 
