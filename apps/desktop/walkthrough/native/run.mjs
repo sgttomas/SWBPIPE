@@ -32,6 +32,8 @@
 //                          the refusal at each place it is shown, the pipe reached from its finding and corrected, solved.
 //   change-and-compare 34  AC-007 Change a support and compare: solved, state saved and run recorded, support:S-120 moved,
 //                          saved and solved again, the two states and the two runs compared and exported (CSV).
+//   rule-pack          35  AC-007 User rule pack: solved, the rule-pack editor's new draft validated and saved into the
+//                          local store, loaded for a run, applied, its outcomes and the Issues drawer.
 //
 // Every edit a use-case journey makes goes through one driver helper (driver.js editValue), so that a change in how a
 // person commits an edit changes one place.
@@ -129,6 +131,10 @@ export const JOURNEYS = Object.freeze({
   "change-and-compare": {
     number: 34, title: "Change a support and compare (launched app): solved, state saved and run recorded, support:S-120 moved, saved and solved again, the two states and the two runs compared and exported",
     use_case: "DEL-07-06 AC-007 Change a support and compare: on the solved demonstration model, support:S-120 moved from node:N-120 to node:N-110; the comparisons' Export CSV saves without a chooser"
+  },
+  "rule-pack": {
+    number: 35, title: "User rule pack (launched app): solved, a new private rule pack drafted, validated and saved into the local store, loaded for a run, applied, its outcomes and the Issues drawer",
+    use_case: "DEL-07-06 AC-007 User rule pack: the pack is the rule-pack editor's own new draft (invented, the one the browser journey 07 opens), brought into the local store by Save; nothing private"
   }
 });
 export const DEFAULT_JOURNEYS = Object.freeze(["solve-and-results", "report", "exports"]);

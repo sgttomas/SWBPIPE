@@ -858,8 +858,55 @@
     });
   }
 
+  // 35. User rule pack: after a solve, a private rule pack drafted in the rule-pack editor and saved into the local
+  // store, loaded for a run, applied, each outcome read, and the missing rule inputs looked for as findings.
+  async function rulePack(journey) {
+    await journey.step("run", "Run pressed on the demonstration model", pressRun);
+    await journey.step("solved", "The solve, once it ended", awaitSolve);
+    await journey.step("rules-page", "The Rules page, from the View menu", async () => { await closeOverlays(); await showSection("rule-packs"); return shown("rule-pack-scope-status") ?? ""; });
+    await journey.step("new-draft", "A new rule pack draft", async () => { await press("rule-pack-new-draft"); return shown("rule-pack-action-status") ?? ""; });
+    await journey.scrolled("new-draft", "The rule pack draft", 4);
+    await journey.step("validated", "Validate pressed", async () => {
+      await press("rule-pack-validate");
+      await sleep(500);
+      const summary = await waitFor("the validation", () => shown("rule-pack-validation-summary") ?? shown("rule-pack-action-status"), T.step);
+      await scrollTo(byTestId("rule-pack-validation") ?? byTestId("rule-pack-action-status"), "center");
+      return summary;
+    });
+    await journey.step("saved", "Save pressed: the draft saved into the local store", async () => {
+      const before = shown("rule-pack-action-status") ?? "";
+      await press("rule-pack-save");
+      const answer = await waitFor("the save's answer", () => { const now = shown("rule-pack-action-status") ?? ""; return now !== before ? now : null; }, T.step).catch(() => before);
+      await scrollTo(byTestId("rule-pack-list"), "center");
+      return `${answer}; ${shown("rule-pack-list-status") ?? ""}`;
+    });
+    await journey.step("rule-checks", "Analyze > Rule Checks", async () => { await closeOverlays(); await menuCommand("analyze.rule-checks"); await waitFor("the rule check panel", () => visible(byTestId("rule-check-run-panel")), T.ui); await scrollTo(byTestId("rule-check-run-panel"), "start"); return shown("rule-check-run-solve-status") ?? ""; });
+    await journey.step("pack-loaded", "The saved pack's Load for run", async () => {
+      if (visible(byTestId("rule-check-refresh-list"))) await press("rule-check-refresh-list");
+      const open = await waitFor("a saved pack's Load for run", () => [...document.querySelectorAll('[data-testid^="rule-check-open-"]')].find(visible), T.ui).catch(() => null);
+      if (!open) throw new Error(`Rule Checks lists no saved pack to load: ${shown("rule-check-run-list-status") ?? "no list status"}`);
+      await scrollTo(open, "center");
+      await press(open.getAttribute("data-testid"));
+      await sleep(500);
+      await scrollTo(byTestId("rule-check-binding-plan") ?? open, "start");
+      return shown("rule-check-binding-precheck") ?? "";
+    });
+    await journey.scrolled("pack-loaded", "The binding plan", 3);
+    await journey.step("applied", "Run rule checks pressed", async () => {
+      await scrollTo(await control("rule-check-run", { timeoutMs: T.ui }), "center");
+      await press("rule-check-run");
+      const status = await waitFor("the rule check's outcome", () => shown("rule-check-aggregate-status") ?? shown("rule-check-run-refusal"), T.step)
+        .catch(() => shown("rule-check-run-status") ?? "no outcome shown");
+      await scrollTo(byTestId("rule-check-run-result") ?? byTestId("rule-check-run-status") ?? byTestId("rule-check-run"), "start");
+      return status;
+    });
+    await journey.scrolled("applied", "The rule check outcomes", 3);
+    await journey.step("issues", "The Issues drawer after the rule check", openIssues);
+    await journey.scrolled("issues", "The Issues drawer", 2, '[data-testid="issues-home"]');
+  }
+
   const JOURNEYS = { "solve-and-results": solveAndResults, report, exports: exportsPage, "reference-system": referenceSystem, "prepared-project": preparedProject };
-  Object.assign(JOURNEYS, { "missing-data": missingData, "failed-solve": failedSolve, "change-and-compare": changeAndCompare });
+  Object.assign(JOURNEYS, { "missing-data": missingData, "failed-solve": failedSolve, "change-and-compare": changeAndCompare, "rule-pack": rulePack });
 
   (async () => {
     const result = { nonce: null, ok: false, journey: null, user_agent: navigator.userAgent };
