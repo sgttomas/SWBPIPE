@@ -5,8 +5,8 @@
  * (`fixtures/results/hydrostatic_test_*-sparse_interactive.raw.json`, written with the models by the applier's
  * journey test). Through the functions the results panel and the report take their verdict from, each is read on the
  * pressure route: the panel's standing (`numericalResultStanding`), the report's (`reportStanding`, readable and
- * solved, with a standing record) and the web view's admission of it for the rendered report
- * (`admitExactReportSource`, purpose `report-render`). No standing finding
+ * solved, with a standing record) and the web view's report admission (`admitExactReportSource`), for the
+ * exported result, which needs numerically eligible standing, and for the rendered report. No standing finding
  * concerns the test case, and the mark reaches the session unchanged.
  *
  * Unit transport replay of committed producer bytes through mocked IPC; NOT a native UI qualification witness.
@@ -75,8 +75,11 @@ describe("a solved hydrostatic test case through the desktop's readers", () => {
       expect(report.numerical_standing).not.toBeNull();
       expect(report.standing.findings.filter(ABOUT_THE_TEST)).toEqual([]);
 
-      const admission = await admitExactReportSource({ model, result, analysisRun, inputManifest, purpose: "report-render" });
-      expect(admission.binding.semantic_contract_id).toBe((result as Json).producer.semantic_contract_id);
+      expect(standing.eligible).toBe(true);
+      for (const purpose of ["result-export", "report-render"] as const) {
+        const admission = await admitExactReportSource({ model, result, analysisRun, inputManifest, purpose });
+        expect(admission.binding.semantic_contract_id).toBe((result as Json).producer.semantic_contract_id);
+      }
     });
   }
 });

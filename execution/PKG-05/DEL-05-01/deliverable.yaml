@@ -132,6 +132,9 @@ code_paths:
 # model a person opens holds no case; its journey test takes it through the admitted order.
 - core/product_physics/src/hydrostatic.rs
 - core/product_physics/tests/hydrostatic_test_case.rs
+# The certificate of a test case's generated self-weight takes the contents the model declares for
+# it, captured before the lowering clears the conditions; its mutations edit one side at a time.
+- core/product_physics/src/hydrostatic_certificate_tests.rs
 - validation/references/hydrostatic_test/**
 - tests/test_hydrostatic_test_references.py
 - fixtures/hydrostatic_test/**
@@ -170,6 +173,7 @@ checks:
 - core/model_operations/operation_applier/tests/generated_self_weight.rs
 - core/loads/self_weight_wasm/tests/applied_self_weight.rs
 - core/product_physics/tests/hydrostatic_test_case.rs
+- core/product_physics/src/hydrostatic_certificate_tests.rs
 - core/model_operations/operation_applier/tests/hydrostatic_four_span_journey.rs
 - core/model_operations/operation_applier/tests/hydrostatic_test_authoring.rs
 - tests/test_hydrostatic_four_span_model.py

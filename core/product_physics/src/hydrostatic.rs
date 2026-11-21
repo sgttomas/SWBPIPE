@@ -201,6 +201,54 @@ fn generated_id(case: &str, pipe: &str) -> String {
     format!("load:self-weight:{}:{}:{}:{}", case.len(), case, pipe.len(), pipe)
 }
 
+/// A test case's declared contents for one of its generated self-weight
+/// loads, as the model states them (see [`declared_contents`]).
+#[derive(Debug, Clone)]
+pub(crate) struct DeclaredContents {
+    pub(crate) case_id: String,
+    pub(crate) load_id: String,
+    pub(crate) contents_density: Quantity,
+}
+
+/// The contents density a test case's own generated self-weight load takes,
+/// read from the model: the case declares a test condition and selects
+/// `condition_use.contents_density`; the load is the case's own generated
+/// self-weight on a pipe (its method and its id); and the pipe's condition set
+/// states that condition's `contents_density`. None for every other load. A
+/// lookup of its own: it neither calls [`judge`] nor reads its resolution.
+fn selected_contents<'a>(model: &'a PreviewModel, case: &PreviewLoadCase, load: &crate::PreviewPrimitiveLoad) -> Option<&'a Quantity> {
+    test_condition(case)?;
+    let key = case.condition_use.as_ref()?.contents_density.as_deref()?;
+    let LoadTargetInput::Element { pipe } = &load.target else { return None };
+    if evidence(load)?["method"] != GENERATED_METHOD || load.id != generated_id(&case.id, pipe) {
+        return None;
+    }
+    let set_id = model.pipe_segments.iter().find(|segment| segment.id == *pipe)?.condition_set_ref.as_deref()?;
+    model.condition_sets.iter().find(|set| set.id == set_id)?
+        .conditions.iter().flatten().find(|condition| condition.key == key)?
+        .contents_density.as_ref()
+}
+
+/// Each test case's declared contents for each of its generated self-weight
+/// loads ([`selected_contents`]), captured from the model before the lowering
+/// removes the conditions. The certificate forms such a load's intended
+/// intensity with them (`certified_loads::intensity`), so the applied load,
+/// which the resolution forms, is checked against the model's condition and
+/// not against itself. Never published.
+pub(crate) fn declared_contents(model: &PreviewModel) -> Vec<DeclaredContents> {
+    #[cfg(test)]
+    if contents_mutant::capture_dropped() {
+        return Vec::new();
+    }
+    model.load_cases.iter().flat_map(|case| case.primitive_loads.iter().filter_map(move |load| {
+        selected_contents(model, case, load).map(|density| DeclaredContents {
+            case_id: case.id.clone(),
+            load_id: load.id.clone(),
+            contents_density: density.clone(),
+        })
+    })).collect()
+}
+
 /// Every refusal of the hydrostatic test cases of `model` (read only, before
 /// the lowering), appended to `diagnostics`, and the contents resolution of
 /// each admitted test case. On the pressure-free route each test case is
@@ -317,6 +365,10 @@ pub(crate) fn judge(model: &PreviewModel, diagnostics: &mut Vec<Diagnostic>) -> 
                     refs(&[set_id, &key, "contents_density"])));
                 continue;
             };
+            #[cfg(test)]
+            let mutated = contents_mutant::source_density(density);
+            #[cfg(test)]
+            let density = &mutated;
             let acceleration = found["normalized_acceleration_m_per_s2"].as_f64();
             let mass = self_weight::mass_with_contents(model, &pipe_id, density);
             match (mass, acceleration) {
@@ -403,6 +455,10 @@ fn combination_refusals(model: &PreviewModel, diagnostics: &mut Vec<Diagnostic>)
 /// resolved load takes the self-weight calculation's magnitude with the test
 /// contents, and its evidence names the set, the key, the density and the mass.
 pub(crate) fn apply_contents(model: &mut PreviewModel, resolved: &[ContentsResolution]) {
+    #[cfg(test)]
+    let mutated = contents_mutant::apply(model, resolved);
+    #[cfg(test)]
+    let resolved = &mutated[..];
     for item in resolved {
         let Some(case) = model.load_cases.get_mut(item.case_index).filter(|case| case.id == item.case_id) else { continue };
         let Some(load) = case.primitive_loads.iter_mut().find(|load| load.id == item.load_id) else { continue };
@@ -411,6 +467,56 @@ pub(crate) fn apply_contents(model: &mut PreviewModel, resolved: &[ContentsResol
         found["generated_payload"]["magnitude"]["value"] = json!(item.intensity_n_per_m);
         load.magnitude = Quantity { value: item.intensity_n_per_m, unit: "N/m".into() };
         load.provenance = Some(found.to_string());
+    }
+}
+
+/// Test-only mutants of the applied contents (never of the resolution the
+/// mark is built from): what the solve applies is edited, and the mark and the
+/// model keep the declared contents.
+#[cfg(test)]
+pub(crate) mod contents_mutant {
+    use super::ContentsResolution;
+    use crate::PreviewModel;
+    use std::cell::RefCell;
+
+    pub(crate) type Mutant = Box<dyn Fn(&PreviewModel, &mut Vec<ContentsResolution>)>;
+    thread_local! {
+        static MUTANT: RefCell<Option<Mutant>> = const { RefCell::new(None) };
+        static SOURCE_DENSITY: RefCell<Option<f64>> = const { RefCell::new(None) };
+        static CAPTURE_DROPPED: RefCell<bool> = const { RefCell::new(false) };
+    }
+    /// Edits what the solve applies.
+    pub(crate) fn arm(mutant: Mutant) {
+        MUTANT.with(|m| *m.borrow_mut() = Some(mutant));
+    }
+    /// Forms the resolution itself, and with it the applied load and the mark,
+    /// with this contents density (kg/m^3) in place of the selected condition's.
+    pub(crate) fn arm_source_density(value: f64) {
+        SOURCE_DENSITY.with(|d| *d.borrow_mut() = Some(value));
+    }
+    /// Captures no declared contents for the certificate.
+    pub(crate) fn arm_capture_dropped() {
+        CAPTURE_DROPPED.with(|c| *c.borrow_mut() = true);
+    }
+    pub(crate) fn disarm() {
+        MUTANT.with(|m| *m.borrow_mut() = None);
+        SOURCE_DENSITY.with(|d| *d.borrow_mut() = None);
+        CAPTURE_DROPPED.with(|c| *c.borrow_mut() = false);
+    }
+    pub(super) fn source_density(density: &crate::Quantity) -> crate::Quantity {
+        SOURCE_DENSITY.with(|d| d.borrow().map_or_else(|| density.clone(), |value| crate::Quantity { value, unit: "kg/m^3".into() }))
+    }
+    pub(super) fn capture_dropped() -> bool {
+        CAPTURE_DROPPED.with(|c| *c.borrow())
+    }
+    pub(super) fn apply(model: &PreviewModel, resolved: &[ContentsResolution]) -> Vec<ContentsResolution> {
+        let mut applied = resolved.to_vec();
+        MUTANT.with(|m| {
+            if let Some(mutant) = m.borrow().as_ref() {
+                mutant(model, &mut applied);
+            }
+        });
+        applied
     }
 }
 

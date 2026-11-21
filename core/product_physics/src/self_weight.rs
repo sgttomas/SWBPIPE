@@ -468,6 +468,18 @@ fn normalize_mass_inputs(section: &mut super::PipeSectionInput, pipe_id: &str, e
     }
 }
 
+/// A contents density as a mass operand, in SI: normalized as
+/// [`normalize_mass_inputs`] normalizes a section's `contents_density`, which
+/// is the normalization [`mass_with_contents`] gives a hydrostatic test case's
+/// contents. NaN when it does not normalize, so a check that reads it fails
+/// closed.
+pub(crate) fn contents_density_operand(contents: &Quantity) -> f64 {
+    let mut q = contents.clone();
+    let mut d = Vec::new();
+    normalize(&mut q, Dimension::Density, false, "contents_density", &mut d);
+    if d.is_empty() { q.value } else { f64::NAN }
+}
+
 /// DEL-05-01 REQ-014 (the hydrostatic test case): the mass per length the
 /// self-weight calculation gives pipe `pipe_id` of `model` when the section's
 /// own contents density is replaced by `contents` (as entered, any density unit

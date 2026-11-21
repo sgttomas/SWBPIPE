@@ -50,6 +50,8 @@ mod timoshenko_product_tests;
 #[cfg(test)]
 mod d5_mass_product_tests;
 #[cfg(test)]
+mod hydrostatic_certificate_tests;
+#[cfg(test)]
 mod kd5_nonlinear_tests;
 #[cfg(test)]
 mod u4a_tests;
@@ -263,7 +265,7 @@ pub struct PreviewModel {
     /// The lowering removes them once their rules are judged.
     pub condition_sets: Vec<operating_conditions::ConditionSetInput>,
     /// Model document 0.9.0's `spectra` (`spectra`), read by no solve; the lowering removes them.
-    pub spectra: Vec<spectra::SpectrumInput>, #[doc(hidden)] pub(crate) test_contents: Vec<hydrostatic::ContentsResolution>, // DEL-05-01 REQ-014: the lowering's contents resolution, applied after the self-weight check.
+    pub spectra: Vec<spectra::SpectrumInput>, #[doc(hidden)] pub(crate) test_contents: Vec<hydrostatic::ContentsResolution>, #[doc(hidden)] pub(crate) declared_test_contents: Vec<hydrostatic::DeclaredContents>, // DEL-05-01 REQ-014: the lowering's contents resolution, applied after the self-weight check; and each test case's declared contents, read from the model before the lowering clears its conditions, for the certificate (`certified_loads::intensity`).
 }
 
 /// One material record as authored: the unchanged `MaterialInput` fields
@@ -401,7 +403,7 @@ impl<'de> Deserialize<'de> for PreviewModel {
             model_settings: wire.model_settings,
             material_expansion_laws,
             request_material_expansion_laws: Vec::new(),
-            condition_sets: wire.condition_sets.unwrap_or_default(), test_contents: Vec::new(),
+            condition_sets: wire.condition_sets.unwrap_or_default(), test_contents: Vec::new(), declared_test_contents: Vec::new(),
             spectra: wire.spectra.unwrap_or_default(),
         })
     }
@@ -3089,6 +3091,7 @@ fn run_linear_static_preview_observed_inner(
     // lowering judges the 0.9.0 members' document-level rules and S1's interim
     // refusals, then removes the members no later stage reads. Everything after it
     // is the existing pipeline applied to the lowered model.
+    model.declared_test_contents = hydrostatic::declared_contents(&model); // DEL-05-01 REQ-014: before the lowering clears the conditions.
     operating_conditions::lower(&mut model, &mut diagnostics);
     pressure_runtime::validate_profile(&model, &mut diagnostics);
     // RT-A3 increment 1 (D-1): the junction closures' named warnings, once.

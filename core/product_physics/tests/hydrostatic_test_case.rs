@@ -714,3 +714,93 @@ fn each_refusal_is_raised_by_name_with_no_result() {
         assert_eq!(withheld.len(), 2, "both the combination and the one over it: {:?}", codes(&out));
     }
 }
+
+// ------------------------------------------------------------------ the certificate
+
+/// A case's certificate as published: its numerical-quality record and its
+/// integrity diagnostic, whose message carries the formation, factorization,
+/// residual and formation-check evidence.
+fn certificate(out: &Value, case_id: &str) -> (Value, Value) {
+    let quality = out["numerical_quality"]["cases"].as_array().unwrap().iter()
+        .find(|c| c["basis_ref"]["ref_id"] == case_id).cloned().unwrap_or_else(|| panic!("{case_id}: no quality record"));
+    let diagnostic = out["diagnostics"].as_array().unwrap().iter()
+        .find(|d| d["id"] == format!("diagnostic:numerical-integrity:{case_id}")).cloned()
+        .unwrap_or_else(|| panic!("{case_id}: no integrity diagnostic"));
+    (quality, diagnostic)
+}
+
+/// The solved four-span documents the readers' tests read: the journey's, and
+/// its load and reference-state twin with an ordinary case beside the test case.
+fn four_span_documents() -> Vec<(String, Value)> {
+    let models: Value = serde_json::from_str(include_str!("../../../fixtures/hydrostatic_test/four_span_reader_models.json")).unwrap();
+    ["journey", "load_state_twin"].iter().map(|name| (format!("four-span {name}"), models["models"][*name].clone())).collect()
+}
+
+/// The certificate forms a test case's generated self-weight with the contents
+/// of the condition the case selects, as the solve applies it. Every test case,
+/// held or not, is published checks_passed in both modes, as is every ordinary
+/// case; and an ordinary case's certificate (its quality record and its
+/// integrity diagnostic, compared as published text) is the same with and
+/// without the test cases beside it.
+#[test]
+fn every_test_case_is_certified_as_an_ordinary_case_is() {
+    let mut documents: Vec<(String, Value)> = documents().into_iter().map(|(doc, (model, _, _))| (doc, model)).collect();
+    documents.extend(four_span_documents());
+    for (doc, model) in &documents {
+        let ordinary: Vec<Value> = model["load_cases"].as_array().unwrap().iter().filter(|c| c.get("test_condition").is_none()).cloned().collect();
+        let alone = (!ordinary.is_empty()).then(|| {
+            let mut alone = model.clone();
+            alone["load_cases"] = json!(ordinary);
+            alone
+        });
+        for mode in MODES {
+            let out = solved(model, mode, doc);
+            assert_eq!(out["numerical_quality"]["status"], "checks_passed", "{doc} {mode:?}");
+            for case in model["load_cases"].as_array().unwrap() {
+                let id = case["id"].as_str().unwrap();
+                let (quality, diagnostic) = certificate(&out, id);
+                assert_eq!((quality["solve_quality"].as_str(), diagnostic["code"].as_str()),
+                    (Some("checks_passed"), Some("NUMERICAL_INTEGRITY_CHECKS_PASSED")), "{doc} {mode:?} {id}");
+            }
+            if let Some(alone) = &alone {
+                let without = solved(alone, mode, doc);
+                for case in &ordinary {
+                    let id = case["id"].as_str().unwrap();
+                    assert_eq!(serde_json::to_string(&certificate(&out, id)).unwrap(), serde_json::to_string(&certificate(&without, id)).unwrap(),
+                        "{doc} {mode:?} {id}: the ordinary case's certificate beside the test cases");
+                }
+            }
+        }
+    }
+}
+
+/// The control of the certificate repair. A test case whose test contents are
+/// its section's own contents, with nothing held, is the same computation as
+/// the same case without its test condition and contents selection: the same
+/// loads, supports and pressure. It publishes, bit for bit, the ordinary case's
+/// rows, its exact-case evidence less the mark, and its certificate.
+#[test]
+fn a_test_case_with_its_sections_contents_is_published_as_the_ordinary_case_is() {
+    let (_, journey) = four_span_documents().into_iter().next().unwrap();
+    let section = journey["pipe_segments"][0]["section"]["contents_density"]["value"].clone();
+    assert!(journey["pipe_segments"].as_array().unwrap().iter().all(|pipe| pipe["section"]["contents_density"]["value"] == section));
+    let mut test = journey.clone();
+    test["condition_sets"][0]["conditions"][0]["contents_density"]["value"] = section;
+    test["load_cases"][0]["test_condition"]["held_supports"] = json!("none");
+    let mut ordinary = test.clone();
+    let case = ordinary["load_cases"][0].as_object_mut().unwrap();
+    case.remove("test_condition");
+    case.remove("condition_use");
+    let id = test["load_cases"][0]["id"].as_str().unwrap().to_string();
+    for mode in MODES {
+        let (marked, plain) = (solved(&test, mode, "the test case"), solved(&ordinary, mode, "the ordinary case"));
+        assert_eq!(serde_json::to_string(&marked["results"]).unwrap(), serde_json::to_string(&plain["results"]).unwrap(), "{mode:?}: rows");
+        let mut evidence = marked["contract_evidence"].clone();
+        for case in evidence["exact_cases"].as_array_mut().unwrap() {
+            assert!(case.as_object_mut().unwrap().remove("test_condition").is_some(), "{mode:?}: the test case carries its mark");
+        }
+        assert_eq!(serde_json::to_string(&evidence).unwrap(), serde_json::to_string(&plain["contract_evidence"]).unwrap(), "{mode:?}: evidence");
+        assert_eq!(serde_json::to_string(&certificate(&marked, &id)).unwrap(), serde_json::to_string(&certificate(&plain, &id)).unwrap(), "{mode:?}: certificate");
+        assert_eq!(certificate(&marked, &id).0["solve_quality"], "checks_passed", "{mode:?}");
+    }
+}
