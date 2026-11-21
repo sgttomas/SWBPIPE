@@ -30,7 +30,7 @@ import { useDisplayQuantityResolver, type DisplaySourceQuantity } from "../displ
 import { hangerPreloadStanding } from "./hangerPreload";
 import { knownSemanticNotices, PREVIEW_ALONG_DIRECTION_KIND, resultRowLabel } from "./knownSemanticLimitations";
 import { NUMERICAL_HEALTH_STATE_TEXT } from "./numericalHealthText";
-import { numericalHealthLead, ordinarySolveLead, supportStatesByCase, withLimitationsNote } from "./integrityStatus";
+import { numericalHealthLead, ordinarySolveLead, recoveredCaseIds, supportStatesByCase, withLimitationsNote } from "./integrityStatus";
 import { numericalHealthView, parseNumericalHealth, rowHealthState, type NumericalHealthLocation, type NumericalHealthView } from "./numericalHealth";
 import { ALL_CASES, isNavigatorExcludedTarget, navigatorKeyStep, stepIndex, type NavigatorAxis, type NavigatorCase } from "./resultsNavigator";
 import { mechanicsGaps } from "./resultInterpretation";
@@ -109,7 +109,7 @@ function labelsOf(rows: readonly DetailRow[], outcomes: readonly RowSemanticsOut
  * with its eligibility and no hold. Display only; none for a solve. */
 function standaloneNativeHealth(custody: NativeCustody): NumericalHealthView | null {
   const standing = custody.historicalStanding;
-  return standing ? numericalHealthView(parseNumericalHealth(custody.summary.header.numerical_health), { eligible: standing.eligible, verdictHold: false, supportStates: supportStatesByCase(custody.summary.header.support_confirmations) }) : null;
+  return standing ? numericalHealthView(parseNumericalHealth(custody.summary.header.numerical_health), { eligible: standing.eligible, verdictHold: false, supportStates: supportStatesByCase(custody.summary.header.support_confirmations), recoveredCases: recoveredCaseIds({ contract_evidence: custody.summary.header.envelope?.contract_evidence }) }) : null;
 }
 
 /** A row read under a table other than the handle's (RT-A4 §10.4): refused, never read. */
