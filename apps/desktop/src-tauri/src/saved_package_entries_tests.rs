@@ -893,7 +893,7 @@ fn the_first_project_save_writes_the_held_entries_in_the_order_saved() {
     assert_eq!(all_kept(&keep_held_entries(Ok(path.clone()), &session, PROJECT, &holder)), [one.clone(), two.clone()]);
     let list = listed(&path, &session, PROJECT, Some(&holder));
     assert_eq!(list.entries.iter().map(|entry| (entry.entry_id.clone(), entry.sequence, entry.kept)).collect::<Vec<_>>(),
-        [(one, 1, "kept_with_project"), (two, 2, "kept_with_project")]);
+        [(one.clone(), 1, "kept_with_project"), (two.clone(), 2, "kept_with_project")]);
     for (stored, was_held) in list.entries.iter().zip(&held_view) {
         let mut as_held = stored.clone();
         as_held.sequence = 0;
