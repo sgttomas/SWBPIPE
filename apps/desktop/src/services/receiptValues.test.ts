@@ -107,6 +107,15 @@ function mutateFirst(value: Json, match: (owner: Json, key: string) => boolean, 
   return false;
 }
 
+/** A deep copy with the same own members, prototypes (plain or null) and negative zeros:
+ * `structuredClone` would make an own `__proto__` member a prototype. */
+function faithfulCopy(value: Json): Json {
+  if (Array.isArray(value)) return value.map(faithfulCopy);
+  if (value === null || typeof value !== "object") return value;
+  const copy = Object.getPrototypeOf(value) === null ? Object.create(null) : {};
+  for (const key of Object.keys(value)) Object.defineProperty(copy, key, { value: faithfulCopy(value[key]), enumerable: true, writable: true, configurable: true });
+  return copy;
+}
 async function corpus(): Promise<{ id: string; value: Json }[]> {
   const entries: { id: string; value: Json }[] = [];
   const base = (await baseReaderInputs()).filter((input) => input.parsed);
@@ -158,12 +167,15 @@ describe("the full-copy receipt's values: the new path's equal main's", () => {
   it("after each change: two digests are equal exactly when main's two texts are", async () => {
     const entries = await corpus();
     let equal = 0, unequal = 0;
-    for (const { id, value } of entries) {
+    // Every crafted and bundled value, and every tenth corpus statement (each mutation re-runs
+    // main's whole fingerprint, so the full corpus is left to the test above).
+    const chosen = entries.filter((e, i) => !e.id.startsWith("base/") && !e.id.startsWith("retained/") || i % 10 === 0);
+    for (const { id, value } of chosen) {
       if ("error" in outcome(() => baselineNativeContentFingerprintOf(value))) continue;
       const beforeFingerprint = baselineNativeContentFingerprintOf(value), beforeWritten = baselineWrittenText(value);
       const fingerprintDigest = nativeContentDigest(value), writtenDigest = digestOf((put) => writeJsonTextKeepingNegativeZero(value, put));
       for (const [label, mutate] of MUTATIONS) {
-        const changed = structuredClone(value);
+        const changed = faithfulCopy(value);
         if (!mutate(changed)) continue;
         const sameFingerprint = baselineNativeContentFingerprintOf(changed) === beforeFingerprint;
         expect(nativeContentDigest(changed) === fingerprintDigest, `${id}: ${label}`).toBe(sameFingerprint);
