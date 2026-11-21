@@ -9,6 +9,7 @@
 // needs a solve stops at the refusal; README.md says what that leaves unseen.
 import { expect, test, type Page } from "@playwright/test";
 import {
+  chooseVirtualMultiTarget,
   confirmProjectUnits,
   ensureInspectorExpanded,
   openWorkspaceSection,
@@ -242,6 +243,60 @@ test("05 loads: define cases and combinations (DEL-07-06 AC-007, every required 
     await loads.getByTestId("load-case-section-pressure").scrollIntoViewIfNeeded();
   });
   await journey.scrolled("pressure-and-conditions", "The Pressure and Conditions sections", 2);
+  const openSection = async (id: string) => {
+    const details = loads.getByTestId(`load-case-section-${id}`);
+    if (!(await details.evaluate((element) => (element as HTMLDetailsElement).open))) await details.locator(":scope > summary").click();
+    await details.scrollIntoViewIfNeeded();
+  };
+  await journey.step("case-sections-closed", "The first case's sections as first met: each a closed line saying what is set", async () => {
+    await caseRows.first().click();
+    await loads.getByTestId("load-case-section-wind").scrollIntoViewIfNeeded();
+  });
+  await journey.step("wind-open", "The Wind section opened on the first case", async () => { await openSection("wind"); });
+  await journey.step("wind-filled", "Wind entered: 1.2 kPa, shape factor 0.7, +X, one exposed pipe", async () => {
+    await loads.getByTestId("load-case-wind-pressure-value").fill("1.2");
+    await loads.getByTestId("load-case-wind-pressure-unit").fill("kPa");
+    await loads.getByTestId("load-case-wind-shape-factor-value").fill("0.7");
+    await loads.getByTestId("load-case-wind-direction").selectOption("global_x");
+    await chooseVirtualMultiTarget(loads, "load-case-wind-pipes", "pipe:P-100");
+    await loads.getByTestId("load-case-wind-queue").scrollIntoViewIfNeeded();
+  });
+  // Queuing takes the person to Review changes (the page's queue flow); the journey returns to Loads.
+  const queueAndReturn = async (testId: string) => {
+    await loads.getByTestId(testId).click();
+    await expect(loads.getByTestId("load-case-manager-summary")).toBeHidden();
+  };
+  await journey.step("wind-queued", "Queue wind: checked by the engine and queued; Review changes shows the four changes", async () => {
+    await queueAndReturn("load-case-wind-queue");
+  });
+  await journey.step("seismic-filled", "Back on Loads, the Seismic section opened and filled: 9.81 m/s^2, 0.3 g X, 0.3 g Y, 0.2 g Z", async () => {
+    await page.getByTestId("rail-stage-loads").click();
+    await openSection("seismic");
+    await loads.getByTestId("load-case-seismic-gravity-value").fill("9.81");
+    await loads.getByTestId("load-case-seismic-gravity-unit").fill("m/s^2");
+    await loads.getByTestId("load-case-seismic-x-value").fill("0.3");
+    await loads.getByTestId("load-case-seismic-y-value").fill("0.3");
+    await loads.getByTestId("load-case-seismic-z-value").fill("0.2");
+    await loads.getByTestId("load-case-seismic-queue").scrollIntoViewIfNeeded();
+  });
+  await journey.step("seismic-queued", "Queue seismic: checked by the engine and queued; Review changes shows them", async () => {
+    await queueAndReturn("load-case-seismic-queue");
+  });
+  await journey.step("hydrotest-on", "Back on Loads, the Hydrostatic test section: switched on, held supports chosen, the test contents offered", async () => {
+    await page.getByTestId("rail-stage-loads").click();
+    await openSection("hydrostatic-test");
+    await loads.getByTestId("load-case-hydrotest-switch").check();
+    await loads.getByTestId("load-case-hydrotest-held").selectOption("springs_and_constant_effort");
+    const contents = loads.getByTestId("load-case-hydrotest-contents");
+    const keys = await contents.locator("option").evaluateAll((options) => options.map((option) => (option as HTMLOptionElement).value).filter(Boolean));
+    if (keys.length) await contents.selectOption(keys[0]);
+    await loads.getByTestId("load-case-hydrotest-queue").scrollIntoViewIfNeeded();
+  });
+  await journey.step("hydrotest-refused", "Queue hydrostatic test on the demonstration model, which has no pressure contract: the engine's refusal by code", async () => {
+    await loads.getByTestId("load-case-hydrotest-queue").click();
+    await expect(loads.getByTestId("load-case-hydrotest-error")).toBeVisible();
+    await loads.getByTestId("load-case-hydrotest-findings").scrollIntoViewIfNeeded();
+  });
   await journey.step("combination", "A combination chosen: its terms, basis and delete", async () => {
     await loads.locator('[data-testid^="load-manager-combination-select-"]').first().click();
     await loads.getByTestId("load-manager-selected-combination").scrollIntoViewIfNeeded();
