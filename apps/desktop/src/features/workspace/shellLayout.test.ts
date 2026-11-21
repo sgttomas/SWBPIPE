@@ -1,6 +1,5 @@
 import { describe, expect, it } from "vitest";
 import {
-  AGENT_UNAVAILABLE_REASON,
   EMPTY_STAGE_VIEW_MEMORY,
   FIRST_OPEN_VIEWS,
   RAIL_FOOT_ITEMS,
@@ -102,7 +101,6 @@ describe("stages and views (§2.3)", () => {
       latched: true,
       reason: "The inspector is always docked in Model view"
     });
-    expect(AGENT_UNAVAILABLE_REASON).toBe("Agent: not available yet");
   });
 
   it("collapses the table pane only where it is a drawer, and says why elsewhere", () => {

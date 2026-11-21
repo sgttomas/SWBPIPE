@@ -191,7 +191,7 @@ describe("the rail's states through the product", () => {
     expect(screen.getByTestId("menu-item-view.stage.results")).toBeEnabled();
     expect(screen.getByTestId("menu-item-view.stage.review")).toBeEnabled();
     for (const section of ["results", "report", "evidence"]) expect(screen.queryByTestId(`menu-item-view.section.${section}`)).toBeNull();
-    expect(screen.getByTestId("menu-item-view.section.loads")).toBeEnabled();
+    expect(screen.getByTestId("menu-item-view.section.libraries")).toBeEnabled();
     fireEvent.click(screen.getByTestId("menu-view"));
     act(() => nativeMenuCommand("view.section.results"));
     expect(screen.getByTestId("workspace-section-results")).not.toHaveClass("inactive");
@@ -485,16 +485,52 @@ describe("the toolbar band", () => {
     expect(toggle).toHaveAttribute("aria-expanded", "true");
     expect(reason()).toBe("The inspector is always docked in Model view");
     expect(screen.queryByTestId("inspector-close")).not.toBeInTheDocument();
+  });
 
-    for (const testId of ["toggle-agent", "agent-strip-open"]) {
-      const control = screen.getByTestId(testId);
-      expect(control).toHaveAttribute("aria-disabled", "true");
-      expect(control).not.toBeDisabled();
-      control.focus();
-      expect(control).toHaveFocus();
-      expect(document.getElementById(control.getAttribute("aria-describedby")!)).toHaveTextContent("Agent: not available yet");
-      expect(control).toHaveAttribute("title", "Agent: not available yet");
+  it("opens the embedded agent on Review changes' Agent tab from the agent strip, its one Agent control, pressed while it is shown", async () => {
+    await renderShell();
+    // The toolbar has no Agent button: the strip's control is the one.
+    expect(screen.queryByTestId("toggle-agent")).not.toBeInTheDocument();
+    expect(within(screen.getByTestId("workspace-toolbar")).queryByRole("button", { name: "Agent" })).not.toBeInTheDocument();
+    const agent = screen.getByTestId("agent-strip-open");
+    expect(agent).not.toBeDisabled();
+    expect(agent).not.toHaveAttribute("aria-disabled");
+    expect(agent).not.toHaveAttribute("aria-describedby");
+    expect(agent).toHaveAttribute("title", "Agent");
+    expect(agent).toHaveAttribute("aria-pressed", "false");
+    fireEvent.click(rail("loads"));
+    fireEvent.click(agent);
+    expect(rail("model")).toHaveAttribute("aria-current", "page");
+    expect(screen.getByTestId("workspace-section-operations")).not.toHaveClass("inactive");
+    expect(screen.getByTestId("operation-tab-agent")).toHaveAttribute("aria-pressed", "true");
+    expect(agent).toHaveAttribute("aria-pressed", "true");
+    // Another tab of Review changes, or another stage, is not the agent: the button is released.
+    fireEvent.click(screen.getByTestId("operation-tab-review"));
+    expect(agent).toHaveAttribute("aria-pressed", "false");
+    fireEvent.click(agent);
+    expect(agent).toHaveAttribute("aria-pressed", "true");
+    fireEvent.click(rail("loads"));
+    expect(agent).toHaveAttribute("aria-pressed", "false");
+  });
+
+  it("lists in the View menu only the sections the rail and the stage tabs do not reach in every state", async () => {
+    await renderShell();
+    fireEvent.click(screen.getByTestId("menu-view"));
+    for (const id of ["view.tree", "view.section.operations", "view.section.loads", "view.section.results", "view.section.report", "view.section.evidence"]) {
+      expect(screen.queryByTestId(`menu-item-${id}`)).not.toBeInTheDocument();
     }
+    for (const id of ["libraries", "rule-packs", "solve", "project", "exports"]) {
+      expect(screen.getByTestId(`menu-item-view.section.${id}`)).toBeInTheDocument();
+    }
+    expect(screen.getByTestId("menu-item-view.close-panels")).toHaveTextContent("Close Page");
+    // The removed items' commands are still accepted from a native menu event.
+    fireEvent.click(screen.getByTestId("menu-view"));
+    act(() => nativeMenuCommand("view.section.loads"));
+    expect(rail("loads")).toHaveAttribute("aria-current", "page");
+    act(() => nativeMenuCommand("view.section.operations"));
+    expect(screen.getByTestId("workspace-section-operations")).not.toHaveClass("inactive");
+    act(() => nativeMenuCommand("view.section.evidence"));
+    expect(screen.getByTestId("workspace-section-evidence")).not.toHaveClass("inactive");
   });
 
   it("carries the pending-change count on the Model stage's Review changes tab and names the stage on the rail", async () => {

@@ -30,7 +30,7 @@ import type { EntityRef } from "../../types";
 import { numericalResultStanding, recordedResultStanding, reportStanding } from "./resultStanding";
 import { badgeOf, locationText, numericalHealthView, readNumericalHealth, rowHealthState, worstState, type NumericalHealthBadge, type NumericalHealthLocation, type NumericalHealthView } from "./numericalHealth";
 import { BOUNDARY_SENTENCE, DETAIL_SECTION_LABEL, LOCATED_CAUSES_LABEL, NUMERICAL_HEALTH_STATE_TEXT, SHOW_SOLVER_DIAGNOSTIC, type NumericalHealthState } from "./numericalHealthText";
-import { limitationsWithNotes, numericalHealthLead, ordinarySolveLead, recoveredCaseIds, supportStatesByCase } from "./integrityStatus";
+import { numericalHealthLead, ordinarySolveLead, recoveredCaseIds, supportStatesFor } from "./integrityStatus";
 import { SECTION_BASIS_HEADLINES, WITHHELD_SECTION_BASIS_HEADLINE } from "../report/exactReportSections";
 import { canSurfaceRevealNow } from "../workspace/surfaceReveal";
 import {
@@ -1296,13 +1296,15 @@ function hasResultSemanticToken(value: string, expected: string): boolean {
 export function standaloneNumericalHealth(result: MechanicsResult, recordedTableRead: RecordedBinding | null, supportModel: PreviewModel | null = null): NumericalHealthView | null {
   let findings: readonly string[] | null = null, eligible = false;
   try { const standing = recordedTableRead ? recordedResultStanding(result, recordedTableRead) : numericalResultStanding(result); findings = standing.findings; eligible = standing.eligible; } catch { return null; }
-  let supportStates: ReturnType<typeof supportStatesByCase> | undefined;
-  if (supportModel) {
-    try {
-      const reading = reportStanding(result, supportModel);
-      if (reading.readability.readable && reading.readability.solved) supportStates = supportStatesByCase(reading.numerical_standing);
-    } catch { supportStates = undefined; }
-  }
+  // Release exit criterion 18, fail closed: no line only where the model is known to have no nonlinear
+  // support or the reader's record gives the case an outcome that takes none. Confirmations are read
+  // with today's reader, which refuses a run recorded under an older formulation; such a run, and one
+  // read with no model, shows the could-not-be-read line.
+  const supportStates = supportStatesFor(supportModel, () => {
+    if (!supportModel) return null;
+    const reading = reportStanding(result, supportModel);
+    return reading.readability.readable && reading.readability.solved ? reading.numerical_standing : null;
+  });
   return numericalHealthView(readNumericalHealth(result, findings), { eligible, verdictHold: false, supportStates, recoveredCases: recoveredCaseIds(result) });
 }
 /** The indicator only where its route agrees with the result's route; otherwise none
@@ -1324,11 +1326,14 @@ export function NumericalHealthBadgeText({ badge, state, text, testId }: { badge
 
 /** A row's numerical-health mark, only where the row's state differs from the state the standing
  * line states (`lineState`): a row in the line's state carries no mark of its own, since the line
- * above the table already says it. Machine outputs (CSV) keep every row's state. */
+ * above the table already says it. A row whose case the checks found no problem with carries none
+ * either; `rowHealthState` still returns that state. Machine outputs (CSV) keep every row's state. */
 export function RowHealthBadge({ health, item, lineState }: { health: NumericalHealthView | null; item: MechanicsResult["results"][number]; lineState: NumericalHealthState | null }) {
   // No row badge on the pressure-source route: those rows' values are the producer's recovery.
+  // No mark on a row whose case the solver's checks found no problem with; a row whose case is
+  // sensitive, unresolved, failed or not assessed keeps its mark.
   const state = rowHealthState(health, item);
-  if (!state || state === lineState) return null;
+  if (!state || state === "checks_passed" || state === lineState) return null;
   return <small> <NumericalHealthBadgeText badge={badgeOf(state)} state={state} text={NUMERICAL_HEALTH_STATE_TEXT[state]} testId={`result-row-health-${item.id}`} /></small>;
 }
 
@@ -1351,7 +1356,7 @@ export function NumericalHealthDetail({ health, resolveCauseLocation, onSelectCa
           {c.conditioning ? <p data-testid={`numerical-health-case-conditioning-${c.caseId}`}>{c.conditioning}</p> : null}
           {c.supportStates ? <p data-testid={`numerical-health-case-support-states-${c.caseId}`}>{c.supportStates.text}</p> : null}
           {/* The solver's quoted reason, directly beneath the statement that says it is quoted below. */}
-          {c.supportStates?.detail ? <blockquote data-testid={`numerical-health-case-support-states-detail-${c.caseId}`}>{c.supportStates.detail}{c.supportStates.detailNote ? <span data-testid={`numerical-health-case-support-states-detail-note-${c.caseId}`}> {c.supportStates.detailNote}</span> : null}</blockquote> : null}
+          {c.supportStates?.detail ? <blockquote data-testid={`numerical-health-case-support-states-detail-${c.caseId}`}>{c.supportStates.detail}</blockquote> : null}
           {c.locations.length > 0 ? (
             <div data-testid={`numerical-health-case-locations-${c.caseId}`}>
               <span>{LOCATED_CAUSES_LABEL}: </span>
@@ -1393,10 +1398,8 @@ function StandingStatement({ lead = null, limitations, close }: { lead?: string 
   return (
     <>
       {lead ? <><span className="result-standing-lead">{lead}</span>{" "}</> : null}
-      {/* Release exit criterion 18: each limitation is whole and in order; one that states a claim on
-          the ordinary solve's unverified bound has the note directly after it. */}
-      {limitations.length === 0 ? " " : limitationsWithNotes(limitations).map(({ text, note }, index) => (
-        <span key={index} className="result-standing-limitation">{text}{" "}{note ? <span className="result-standing-note" data-testid="result-standing-solver-report-note">{note}{" "}</span> : null}</span>
+      {limitations.length === 0 ? " " : limitations.map((text, index) => (
+        <span key={index} className="result-standing-limitation">{text}{" "}</span>
       ))}
       <span className="result-standing-close">{close}</span>
     </>

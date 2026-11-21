@@ -7,7 +7,7 @@ import { railStageState, runPresenceFromCells, statusChipInputsFromCells, status
 
 const solved = { status: { mechanics: "MECHANICS_SOLVED", professional_acceptance: "NOT_PROVIDED" } };
 const hold = {
-  headline: "Numerical health: 1 sensitive, 1 not verified",
+  headline: "Numerical health: 1 sensitive, 1 no problem found",
   shortHeadline: "Numerical health: sensitive",
   outputSentence: "Rule checks, the result JSON and stress-neutral exports and the report package do not use this run while 1 load case(s) are sensitive, quality unresolved, solve failed or not assessed; results tables, CSV export and, for an exact-route result, the rendered report carry each case's standing."
 };
@@ -21,23 +21,24 @@ const cells = (extra: Record<string, unknown>) => ({
 });
 
 describe("shell chip and rail under a numerical-health hold", () => {
-  it("shows the header on the chip and the short form on the rail and Review reason", () => {
+  it("shows the header on the chip and the short form on the rail; Review stays reachable", () => {
     const run = runPresenceFromCells({ result: solved, historicalRun: null, solveJob: { state: "completed" }, hasQualifiedCurrentResult: false, numericalHealthHold: hold });
     expect(run.needsRecompute).toBe(true);
     expect(railStageState("results", run).caption).toBe("Numerical health: sensitive");
-    expect(railStageState("review", run)).toMatchObject({ enabled: false, reason: "Numerical health: sensitive" });
+    // Review is always reachable: its page says what a report needs when the run cannot be reported.
+    expect(railStageState("review", run)).toMatchObject({ enabled: true, reason: null });
     const chips = statusChips(statusChipInputsFromCells(cells({ hasQualifiedCurrentResult: false, numericalHealthHold: hold })), "results");
     expect(chips).toHaveLength(1);
-    expect(chips[0]).toMatchObject({ token: "needs_recompute", label: "Numerical health: 1 sensitive, 1 not verified", source: "Derived numerical qualification",
+    expect(chips[0]).toMatchObject({ token: "needs_recompute", label: "Numerical health: 1 sensitive, 1 no problem found", source: "Derived numerical qualification",
       numericalHealth: { headline: hold.headline, outputSentence: hold.outputSentence } });
-    expect(statusChipText(chips[0])).toBe("Solver · Numerical health: 1 sensitive, 1 not verified");
+    expect(statusChipText(chips[0])).toBe("Solver · Numerical health: 1 sensitive, 1 no problem found");
   });
 
   it("keeps Needs recompute without the hold (missing evidence, another route, or any other unmet requirement)", () => {
     for (const absent of [undefined, null]) {
       const run = runPresenceFromCells({ result: solved, historicalRun: null, solveJob: { state: "completed" }, hasQualifiedCurrentResult: false, numericalHealthHold: absent });
       expect(railStageState("results", run).caption).toBe("Needs recompute");
-      expect(railStageState("review", run).reason).toBe("Needs recompute");
+      expect(railStageState("review", run)).toMatchObject({ enabled: true, reason: null });
       const [chip] = statusChips(statusChipInputsFromCells(cells({ hasQualifiedCurrentResult: false, numericalHealthHold: absent })), "results");
       expect(chip.label).toBe("Needs recompute");
       expect(chip.numericalHealth).toBeUndefined();

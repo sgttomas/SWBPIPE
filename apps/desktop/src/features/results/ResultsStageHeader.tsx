@@ -10,7 +10,7 @@ import { ChevronRight } from "lucide-react";
 import { HealthLookMark, healthLookOf } from "./healthLook";
 import { checksPassedText, ELIGIBLE_RECOVERY_TEXT, NUMERICAL_HEALTH_STATE_TEXT, type NumericalHealthState } from "./numericalHealthText";
 import { NUMERICAL_HEALTH_ORDER, rowHealthState, type NumericalHealthView } from "./numericalHealth";
-import { needsSolverReportNote, SOLVER_REPORT_NOTE, type SupportStatesLine } from "./integrityStatus";
+import type { SupportStatesLine } from "./integrityStatus";
 import type { ResultBasisRef } from "../../types";
 
 /** Which run the page shows, in one terminology across the stage. */
@@ -49,15 +49,15 @@ export function checksPassedSentences(health: NumericalHealthView | null, scope:
 }
 
 /** The support-state line of each case in scope with nonlinear supports (`integrityStatus.ts`
- * `supportStatesLine`: its statement, and the solver's quoted reason with its note where the
- * statement says it is quoted below), one entry per distinct line with the cases it is stated for. */
+ * `supportStatesLine`: its statement, and the solver's quoted reason where the statement says it
+ * is quoted below), one entry per distinct line with the cases it is stated for. */
 export function supportStateLines(health: NumericalHealthView | null, scope: HeaderCase): Array<{ line: SupportStatesLine; cases: string[] }> {
   if (!health) return [];
   const lines = new Map<string, { line: SupportStatesLine; cases: string[] }>();
   for (const item of health.cases) {
     if (!item.supportStates) continue;
     if (scope?.basis && !(scope.basis.ref_type === "load_case" && scope.basis.ref_id === item.caseId)) continue;
-    const key = JSON.stringify([item.supportStates.text, item.supportStates.detail, item.supportStates.detailNote]);
+    const key = JSON.stringify([item.supportStates.text, item.supportStates.detail]);
     const entry = lines.get(key) ?? { line: item.supportStates, cases: [] };
     entry.cases.push(item.caseId);
     lines.set(key, entry);
@@ -136,7 +136,7 @@ export function ResultsStageHeader({
           </p>
           {line.detail ? (
             <blockquote className="results-stage-support-detail" data-testid="results-stage-support-states-detail">
-              {line.detail}{line.detailNote ? <span data-testid="results-stage-support-states-detail-note"> {line.detailNote}</span> : null}
+              {line.detail}
             </blockquote>
           ) : null}
         </div>
@@ -145,9 +145,7 @@ export function ResultsStageHeader({
         <summary><ChevronRight size={14} aria-hidden="true" className="results-method-chevron" />{METHOD_AND_LIMITS_LABEL}</summary>
         <div className="results-method-body">
           {sentences.map((text) => (
-            <p key={text} data-testid="results-method-standing-sentence">
-              {text}{needsSolverReportNote({ message: text }) ? <span data-testid="results-method-solver-report-note"> {SOLVER_REPORT_NOTE}</span> : null}
-            </p>
+            <p key={text} data-testid="results-method-standing-sentence">{text}</p>
           ))}
           {healthLine}
           {method}

@@ -88,9 +88,9 @@ describe("resolved-state block: ordinary pressure-2 with load/reference states",
       const standing = numericalResultStanding(result, model);
       expect(standing).toMatchObject({ contract: "pressure", status: "solver_checks_passed", eligible: true });
       expect(screen.getByTestId("load-reference-states-route")).toHaveTextContent("Route: ordinary pressure-3");
-      expect(screen.getByTestId("load-reference-states-standing")).toHaveTextContent("Result standing: numerically eligible; the ordinary solve's error bound is not verified");
+      expect(screen.getByTestId("load-reference-states-standing")).toHaveTextContent(/^Result standing: numerically eligible$/);
       for (const record of records(result)) {
-        expect(screen.getByTestId(`load-reference-state-standing-${record.load_case_id}`)).toHaveTextContent(`Numerical standing: ${SOLVER_CHECKS_PASSED_LABEL} (published solve quality: not verified).`);
+        expect(screen.getByTestId(`load-reference-state-standing-${record.load_case_id}`)).toHaveTextContent(`Numerical standing: ${SOLVER_CHECKS_PASSED_LABEL} (published solve quality: solver checks found no problem).`);
         expect(screen.getByTestId(`load-reference-state-${record.load_case_id}`)).toHaveTextContent(`mode ${mode}`);
       }
       expect(screen.getByTestId("load-reference-states-block")).not.toHaveTextContent(NEEDS_RECOMPUTE_NOT_CURRENT);
@@ -156,7 +156,7 @@ describe("resolved-state block: joined pressure-source-1 with load/reference sta
     const { request, model, result } = pair("load_reference_source", "mixed", "sparse_interactive");
     await registerSourceRecovery(result, { request, solver_mode: "sparse_interactive" }, model);
     renderSolve(model, result);
-    expect(screen.getByTestId("load-reference-state-standing-case:ordinary-pressure")).toHaveTextContent(`Numerical standing: ${NEEDS_RECOMPUTE_NOT_CURRENT} (published solve quality: not verified).`);
+    expect(screen.getByTestId("load-reference-state-standing-case:ordinary-pressure")).toHaveTextContent(`Numerical standing: ${NEEDS_RECOMPUTE_NOT_CURRENT} (published solve quality: solver checks found no problem).`);
   });
 
   it("a tampered joined publication is refused and shows no value", () => {

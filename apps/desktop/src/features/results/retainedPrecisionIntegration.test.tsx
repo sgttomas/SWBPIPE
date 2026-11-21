@@ -17,7 +17,6 @@
  * and gates' not-eligible branches stay exercised. With both false the wrapper
  * returns the reader's own frozen result unchanged.
  */
-import { withLimitationsNote } from "./integrityStatus";
 import { retiredMechanicsResult } from "../../test-support/retiredMechanicsResult";
 import { afterEach, beforeAll, beforeEach, describe, expect, it, vi } from "vitest";
 import { createSolveJobTransport, resultArrayBuffer, solveBytes } from "../../test/nativeMechanicsReplay";
@@ -1138,8 +1137,7 @@ describe("notices, labels and the results-panel standing text", () => {
     // DEL-07-04: validated, refused and unregistered, each shows the published limitations once, in order.
     for (const s of [received, refused, structuredClone(received)]) {
       expect(retainedPrecisionStandingText(s)).toContain("against the actual invocation and the requested cases. The reader checks these bytes and their invocation; it does not establish which producer made them. Numerical checks do not establish engineering correctness.");
-      // Release exit criterion 18: each limitation whole and in order, the note directly after each one the predicate marks.
-      expect(retainedPrecisionStandingText(s).split(withLimitationsNote(s.formulation_basis!.limitations)).length - 1).toBe(1);
+      expect(retainedPrecisionStandingText(s).split(s.formulation_basis!.limitations.join(" ")).length - 1).toBe(1);
     }
   });
   it("the case count is the validated receipt's selected cases over all its cases (RV91 N-4)", async () => {

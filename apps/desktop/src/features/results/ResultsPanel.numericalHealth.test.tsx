@@ -7,7 +7,7 @@ import { readFileSync } from "node:fs";
 import { resolve } from "node:path";
 import { afterEach, describe, expect, it, vi } from "vitest";
 import { lineHealthState, ResultsPanel } from "./ResultsPanel";
-import { numericalHealthLead, ordinarySolveLead, recoveredCaseIds, withLimitationsNote } from "./integrityStatus";
+import { numericalHealthLead, ordinarySolveLead, recoveredCaseIds } from "./integrityStatus";
 import { openMethodAndLimits, shownStandingSentence } from "./resultsStageTestSupport";
 import { METHOD_AND_LIMITS_LABEL, RESULTS_RUN_LABELS } from "./ResultsStageHeader";
 import { checksPassedText, ELIGIBLE_RECOVERY_TEXT, NUMERICAL_HEALTH_STATE_TEXT } from "./numericalHealthText";
@@ -43,24 +43,24 @@ describe("ResultsPanel numerical health", () => {
     render(<ResultsPanel result={genericResult()} knowledge={null} analysisRun={null} selectedResultId={null} onSelectResult={() => {}}
       numericalHealth={view(genericHealth(true), { eligible: false, verdictHold: true })} />);
     expect(screen.getByTestId("numerical-health-header-line").textContent).toBe(
-      "Numerical health: 1 sensitive, 1 not verified. Rule checks, the result JSON and stress-neutral exports and the report package do not use this run while 1 load case(s) are sensitive, quality unresolved, solve failed or not assessed; results tables, CSV export and, for an exact-route result, the rendered report carry each case's standing."
+      "Numerical health: 1 sensitive, 1 no problem found. Rule checks, the result JSON and stress-neutral exports and the report package do not use this run while 1 load case(s) are sensitive, quality unresolved, solve failed or not assessed; results tables, CSV export and, for an exact-route result, the rendered report carry each case's standing."
     );
-    expect(screen.getByTestId("numerical-health-header")).toHaveTextContent(/^Numerical health: 1 sensitive, 1 not verified$/);
+    expect(screen.getByTestId("numerical-health-header")).toHaveTextContent(/^Numerical health: 1 sensitive, 1 no problem found$/);
     expect(screen.getByTestId("numerical-health-header")).toHaveAttribute("data-badge", "red");
     expect(screen.getByTestId("numerical-health-case-text-load:é").textContent).toContain("Its values are kept for inspection.");
     expect(screen.getByTestId("numerical-health-case-conditioning-load:é").textContent).toContain("roughly 11.0 of the about 16 decimal digits");
-    expect(screen.getByTestId("numerical-health-case-badge-load:𝔫")).toHaveTextContent("Numerical health: not verified");
+    expect(screen.getByTestId("numerical-health-case-badge-load:𝔫")).toHaveTextContent("Numerical health: solver checks found no problem");
     expect(screen.getByTestId("numerical-health-combination-badge-combination:Σ")).toHaveTextContent("sensitive");
   });
 
   it("adds no output sentence without the verdict-only hold", () => {
     render(<ResultsPanel result={genericResult()} knowledge={null} analysisRun={null} selectedResultId={null} onSelectResult={() => {}}
       numericalHealth={view(genericHealth(false), { eligible: false, verdictHold: false })} />);
-    expect(screen.getByTestId("numerical-health-header-line").textContent).toBe("Numerical health: 1 sensitive, 1 not verified");
+    expect(screen.getByTestId("numerical-health-header-line").textContent).toBe("Numerical health: 1 sensitive, 1 no problem found");
     expect(screen.queryByTestId("numerical-health-output-sentence")).toBeNull();
   });
 
-  it("marks a generic row with its load case or combination state only where it differs from the standing line's", () => {
+  it("marks a generic row with its load case or combination state only where it differs from the standing line's, and never where the solver's checks found no problem", () => {
     const result = genericResult();
     render(<ResultsPanel result={result} knowledge={null} analysisRun={null} selectedResultId={null} onSelectResult={() => {}}
       numericalHealth={view(genericHealth(true), { eligible: false, verdictHold: true })} />);
@@ -71,7 +71,7 @@ describe("ResultsPanel numerical health", () => {
       const badge = screen.queryByTestId(`result-row-health-${row.id}`);
       if (!row.basis_ref) { expect(badge).toBeNull(); continue; }
       const state = row.basis_ref.ref_id === "load:𝔫" ? "checks_passed" : "sensitive";
-      if (state === line) { expect(badge).toBeNull(); unmarked += 1; continue; }
+      if (state === "checks_passed" || state === line) { expect(badge).toBeNull(); unmarked += 1; continue; }
       expect(badge?.textContent).toBe(NUMERICAL_HEALTH_STATE_TEXT[state]);
       marked += 1;
     }
@@ -149,12 +149,12 @@ describe("ResultsPanel numerical health", () => {
 
   it("keeps today's line when the indicator is absent or its route disagrees", () => {
     render(<ResultsPanel result={genericResult()} knowledge={null} analysisRun={null} selectedResultId={null} onSelectResult={() => {}} numericalHealth={null} />);
-    expect(shownStandingSentence()).toMatch(/^Numerical health: not verified\. /);
+    expect(shownStandingSentence()).toMatch(/^Numerical health: solver checks found no problem\. /);
     expect(screen.queryByTestId("numerical-health-detail")).toBeNull();
     cleanup();
     const pressureSource = view({ route: "pressure_source", verdict_only: false, cases: [PASSED], combinations: [] }, { eligible: true, verdictHold: false });
     render(<ResultsPanel result={genericResult()} knowledge={null} analysisRun={null} selectedResultId={null} onSelectResult={() => {}} numericalHealth={pressureSource} />);
-    expect(shownStandingSentence()).toMatch(/^Numerical health: not verified\. /);
+    expect(shownStandingSentence()).toMatch(/^Numerical health: solver checks found no problem\. /);
   });
 });
 
@@ -166,8 +166,8 @@ describe("the standing line beside the health header", () => {
   const original = (result: MechanicsResult) => sourceContractText(result);
   function sourceContractText(result: MechanicsResult): string {
     return result.source_block_recovery
-      ? `${ordinarySolveLead(result)} Producer recovery receipt: ${(result.source_block_recovery as { body: { status: string } }).body.status}. ${withLimitationsNote(result.formulation_basis!.limitations)} Current use is checked separately against the actual invocation and complete result evidence. Numerical checks do not establish engineering correctness.`
-      : `${numericalHealthLead(result)} ${withLimitationsNote(result.formulation_basis!.limitations)} Numerical checks do not establish engineering correctness.`;
+      ? `${ordinarySolveLead(result)} Producer recovery receipt: ${(result.source_block_recovery as { body: { status: string } }).body.status}. ${result.formulation_basis!.limitations.join(" ")} Current use is checked separately against the actual invocation and complete result evidence. Numerical checks do not establish engineering correctness.`
+      : `${numericalHealthLead(result)} ${result.formulation_basis!.limitations.join(" ")} Numerical checks do not establish engineering correctness.`;
   }
   it.each([
     ["generic", () => genericResult(), () => view(genericHealth(true), { eligible: false, verdictHold: true })],

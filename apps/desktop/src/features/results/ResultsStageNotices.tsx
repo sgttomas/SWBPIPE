@@ -1,5 +1,4 @@
 /** What the Results stage says when it shows no result. */
-import { needsSolverReportNote, SOLVER_REPORT_NOTE } from "./integrityStatus";
 
 /** Before any run: there is none, and Run makes one. */
 export const RESULTS_NO_RUN_TEXT = "No run yet. Run solves the model and shows its results here.";
@@ -13,7 +12,7 @@ export function StoredRunRefusedNotice({ message }: { message: string }) {
   return (
     <div className="results-stored-run-refused" role="status" data-testid="results-stored-run-refused">
       <p className="results-stored-run-refused-lead">{STORED_RUN_REFUSED_LEAD}</p>
-      <p data-testid="results-stored-run-refused-message">{message}{needsSolverReportNote({ message }) ? <span data-testid="results-stored-run-refused-note"> {SOLVER_REPORT_NOTE}</span> : null}</p>
+      <p data-testid="results-stored-run-refused-message">{message}</p>
     </div>
   );
 }

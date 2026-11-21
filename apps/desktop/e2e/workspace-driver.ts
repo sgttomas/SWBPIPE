@@ -24,25 +24,29 @@ type WorkspaceSectionId =
   | "exports"
   | "evidence";
 
-const STAGE_SECTIONS = {
-  results: { stage: "results", tab: "results" },
-  evidence: { stage: "results", tab: "evidence" },
-  report: { stage: "review", tab: "report" }
-} as const;
+/** The sections whose route is a rail stage and its tab (the View menu does not list them).
+ * Review changes and Load Cases: the tab is pressed unless it already is. Results, Evidence and
+ * Report: the tab is pressed only where the stage's first view is not already that section. */
+const STAGE_ROUTES: Partial<Record<WorkspaceSectionId, { stage: "model" | "loads" | "results" | "review"; tab: string; onlyIfHidden?: true }>> = {
+  operations: { stage: "model", tab: "workspace-review" },
+  loads: { stage: "loads", tab: "stage-tab-load-cases" },
+  results: { stage: "results", tab: "stage-tab-results", onlyIfHidden: true },
+  evidence: { stage: "results", tab: "stage-tab-evidence", onlyIfHidden: true },
+  report: { stage: "review", tab: "stage-tab-report", onlyIfHidden: true }
+};
 
 export async function openWorkspaceSection(page: Page, sectionId: WorkspaceSectionId): Promise<Locator> {
   const section = page.getByTestId(`workspace-section-${sectionId}`);
   if (!await section.isVisible()) {
-    // Review changes is a tab of the Model stage's strip; from another stage it is summoned by the
-    // section command, as every other section is.
-    if (sectionId === "operations" && await page.getByTestId("workspace-review").isVisible()) {
-      await page.getByTestId("workspace-review").click();
-    } else if (sectionId in STAGE_SECTIONS) {
-      // Results, Evidence and Report are reached through their stage (the View menu does not list
-      // them): the stage from the rail, then its tab where the stage holds more than one.
-      const { stage, tab } = STAGE_SECTIONS[sectionId as keyof typeof STAGE_SECTIONS];
-      await page.getByTestId(`rail-stage-${stage}`).click();
-      if (!await section.isVisible()) await page.getByTestId(`stage-tab-${tab}`).click();
+    // Review changes, Load Cases, Results, Evidence and Report are reached as a person reaches
+    // them, by the rail and the stage tab; the View menu lists only the other sections.
+    const route = STAGE_ROUTES[sectionId];
+    if (route) {
+      await page.getByTestId(`rail-stage-${route.stage}`).click();
+      const tab = page.getByTestId(route.tab);
+      if (route.onlyIfHidden) {
+        if (!await section.isVisible()) await tab.click();
+      } else if (await tab.getAttribute("aria-pressed") !== "true") await tab.click();
     } else {
       await page.getByTestId("menu-view").click();
       await page.getByTestId(`menu-item-view.section.${sectionId}`).click();

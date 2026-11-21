@@ -43,10 +43,10 @@ describe("numerical health over the wasm export", () => {
     expect(view.rowBadges).toBe(false);
   });
 
-  it("reads a passing generic result not verified, in the neutral grey style", () => {
+  it("reads a generic result the solver's checks found no problem with, in the neutral grey style", () => {
     const result = JSON.parse(readFileSync(resolve(__dirname, "../../../../../fixtures/results/preview_physics_unicode_ids_sparse.json"), "utf8")) as MechanicsResult;
     const view = numericalHealthView(readNumericalHealth(result, numericalResultStanding(result).findings), { eligible: false, verdictHold: false })!;
-    expect([view.badge, view.headline]).toEqual(["grey", "Numerical health: not verified"]);
+    expect([view.badge, view.headline]).toEqual(["grey", "Numerical health: solver checks found no problem"]);
     for (const c of view.cases) if (c.conditioning) expect(c.conditioning).toMatch(/roughly (below 0\.1|\d+\.\d{1,2}) of the about 16/);
   });
 

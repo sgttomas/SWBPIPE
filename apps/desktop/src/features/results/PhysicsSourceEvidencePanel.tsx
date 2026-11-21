@@ -7,7 +7,7 @@ const record = (v: unknown): RecordValue | null => v && typeof v === "object" &&
 const rows = (v: unknown): RecordValue[] => Array.isArray(v) ? v.map(record).filter((x): x is RecordValue => x !== null) : [];
 const text = (v: unknown) => typeof v === "string" && v ? v : "unavailable";
 /** An ordinary attempt's quality in the desktop's state words: the solver's `checks_passed` reads
- * "not verified" (release exit criterion 18); every other status as recorded. */
+ * "solver checks found no problem" (release exit criterion 18); every other status as recorded. */
 const quality = (v: unknown) => typeof v === "string" && v ? numericalQualityStatusText(v) : "unavailable";
 
 /** The panel's own marker for a field it cannot display: a member the row always lists that the

@@ -30,7 +30,7 @@ import { useDisplayQuantityResolver, type DisplaySourceQuantity } from "../displ
 import { hangerPreloadStanding } from "./hangerPreload";
 import { knownSemanticNotices, PREVIEW_ALONG_DIRECTION_KIND, resultRowLabel } from "./knownSemanticLimitations";
 import { NUMERICAL_HEALTH_STATE_TEXT } from "./numericalHealthText";
-import { numericalHealthLead, ordinarySolveLead, recoveredCaseIds, supportStatesByCase, withLimitationsNote } from "./integrityStatus";
+import { nativeSupportStates, numericalHealthLead, ordinarySolveLead, recoveredCaseIds } from "./integrityStatus";
 import { numericalHealthView, parseNumericalHealth, rowHealthState, type NumericalHealthLocation, type NumericalHealthView } from "./numericalHealth";
 import { ALL_CASES, isNavigatorExcludedTarget, navigatorKeyStep, stepIndex, type NavigatorAxis, type NavigatorCase } from "./resultsNavigator";
 import { mechanicsGaps } from "./resultInterpretation";
@@ -120,7 +120,7 @@ function labelsOf(rows: readonly DetailRow[], outcomes: readonly RowSemanticsOut
  * with its eligibility and no hold. Display only; none for a solve. */
 function standaloneNativeHealth(custody: NativeCustody): NumericalHealthView | null {
   const standing = custody.historicalStanding;
-  return standing ? numericalHealthView(parseNumericalHealth(custody.summary.header.numerical_health), { eligible: standing.eligible, verdictHold: false, supportStates: supportStatesByCase(custody.summary.header.support_confirmations), recoveredCases: recoveredCaseIds({ contract_evidence: custody.summary.header.envelope?.contract_evidence }) }) : null;
+  return standing ? numericalHealthView(parseNumericalHealth(custody.summary.header.numerical_health), { eligible: standing.eligible, verdictHold: false, supportStates: nativeSupportStates(custody.summary.header.support_confirmations, custody.supportConfirmations), recoveredCases: recoveredCaseIds({ contract_evidence: custody.summary.header.envelope?.contract_evidence }) }) : null;
 }
 
 /** A row read under a table other than the handle's (RT-A4 §10.4): refused, never read. */
@@ -274,8 +274,8 @@ export function NativeResultsPanel({
     // A native handle never registers a successor (a restored run's receipt is never registered).
     : retained ? { line: `${recordedPrefix}${retained.lead}`, detail: retained.tail }
     : route === "pressure_source"
-      ? { line: `${recordedPrefix}${ordinarySolveLead(result)} Producer recovery receipt: ${String(recovery?.status ?? "unavailable")}.`, detail: `${withLimitationsNote(result.formulation_basis!.limitations)} Current use is checked separately against the actual invocation and complete result evidence. Numerical checks do not establish engineering correctness.` }
-      : { line: `${recordedPrefix}${numericalHealthLead(result)}`, detail: `${withLimitationsNote(result.formulation_basis!.limitations)} Numerical checks do not establish engineering correctness.` };
+      ? { line: `${recordedPrefix}${ordinarySolveLead(result)} Producer recovery receipt: ${String(recovery?.status ?? "unavailable")}.`, detail: `${result.formulation_basis!.limitations.join(" ")} Current use is checked separately against the actual invocation and complete result evidence. Numerical checks do not establish engineering correctness.` }
+      : { line: `${recordedPrefix}${numericalHealthLead(result)}`, detail: `${result.formulation_basis!.limitations.join(" ")} Numerical checks do not establish engineering correctness.` };
   const hangerStanding = hangerPreloadStanding(result);
   const lineState = route === "unsupported" || retained ? null : lineHealthState(result.numerical_quality?.status);
   const csvRecord = isNativeAnalysisRun(exportAnalysisRun) || exportAnalysisRun === null ? exportAnalysisRun : null;

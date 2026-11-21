@@ -10,12 +10,12 @@ import { agentDetailFilter } from './resultDetail';
 import type { OperationBatch } from './operationBatchService';
 import { validateOperationBatch } from './operationBatchService';
 import { overlayMayShowRow, type ResultOverlayStanding } from '../features/results/numericalHealth';
-import { needsSolverReportNote, SOLVER_REPORT_NOTE } from '../features/results/integrityStatus';
 import type { IntegrityBound } from '../features/results/resultReader';
 import { rowCaseKey } from '../features/results/resultsNavigator';
 import { canonicalJsonString } from './hashService';
 import { applierDisplayNumber, nodeDeletionSummary, pipeDeletionSummary, supportDeletionSummary } from '../features/model-tree/removalIntents';
 import { personEnteredWriteIn } from './operationAuthorship';
+import { unitRefusalMessage } from './agentUnitRefusal';
 
 export type AgentAssumption=Readonly<{assumptionId:string;statement:string;affectedOperationIds:readonly string[]}>;
 export type AgentContext = Readonly<{requestRef:string;threadId:string;turnId:string;callId:string;basis:AgentBasis;assumptions:readonly AgentAssumption[]}>;
@@ -156,27 +156,23 @@ function boundedIds(ids:readonly unknown[]):{count:number;ids:string[]}{
  }
  return {count:ids.length,ids:listed};
 }
-/** A refusal's findings in the catalog's bounds: code, severity, message and affected
- * references, at most 16 and within an encoded-byte budget; listing stops at the first that
- * would not fit, and every finding not listed is counted. A finding that cannot be stated
- * exactly (a code or severity outside the catalog) is counted among those not listed, never
- * altered. Messages are cut at 500 characters, references at eight. */
 /** Release exit criterion 18: a results read's standing carries the reader verdict's
  * `integrity_bound` as one of its checks, `integrity_bound:{status}:{reason}`, in the catalog's
  * existing `checks` strings. None when no reader verdict was read (the values are then withheld). */
 export function integrityBoundChecks(bound:IntegrityBound|null|undefined):string[]{
  return bound?[`integrity_bound:${bound.status}:${bound.reason}`]:[];
 }
+/** A refusal's findings in the catalog's bounds: code, severity, message and affected
+ * references, at most 16 and within an encoded-byte budget; listing stops at the first that
+ * would not fit, and every finding not listed is counted. A finding that cannot be stated
+ * exactly (a code or severity outside the catalog) is counted among those not listed, never
+ * altered. Messages are cut at 500 characters, references at eight. */
 export function boundedFindings(diagnostics:readonly Diagnostic[],notListed:number):{diagnostics:{code:string;severity:string;message:string;affectedRefs:string[]}[];notListed:number}{
  const listed:{code:string;severity:string;message:string;affectedRefs:string[]}[]=[];let entries=0;
  for(const diagnostic of diagnostics){
   if(listed.length>=FINDINGS)break;
   if(!isShortId(diagnostic?.code)||!SEVERITIES.includes(diagnostic.severity))continue;
-  // Release exit criterion 18: the solver's text that reports a check passed or a state established
-  // reaches the agent with the note people read beside it, never alone (`needsSolverReportNote`).
-  const noted=needsSolverReportNote(diagnostic);
-  const stated=typeof diagnostic.message==='string'&&diagnostic.message?clip(diagnostic.message,noted?FINDING_TEXT-SOLVER_REPORT_NOTE.length-1:FINDING_TEXT):'No message stated.';
-  const message=noted?`${stated} ${SOLVER_REPORT_NOTE}`:stated;
+  const message=typeof diagnostic.message==='string'&&diagnostic.message?clip(diagnostic.message,FINDING_TEXT):'No message stated.';
   const affectedRefs:string[]=[];
   for(const ref of Array.isArray(diagnostic.affected_refs)?diagnostic.affected_refs:[]){if(affectedRefs.length>=FINDING_REFS)break;if(isShortId(ref))affectedRefs.push(ref);}
   const finding={code:diagnostic.code,severity:diagnostic.severity,message,affectedRefs};
@@ -509,7 +505,9 @@ export class EmbeddedAgentSession {
    const operations=stampAgentOperations(call.arguments.operations as Record<string,unknown>[],handle,call.requestRef);
    const batch:OperationBatch={batch_id:`agent-${handle}`,operations,source_model_hash:snap.hash!.value};
    const validation=await validateOperationBatch(model,batch,snap.hash);if(!this.current(call))return this.failure(call,'Workspace changed during proposal preparation.','stale_basis');
-   if(validation.validation.batch_validation_status!=='passed')return this.failure(call,'The operation engine refused the proposal; nothing was queued.');
+   // A unit or value/unit-pair refusal on a known quantity field is explained in a closed form;
+   // every other refusal is the generic sentence (agentUnitRefusal.ts). Its steps are bound to the operations submitted.
+   if(validation.validation.batch_validation_status!=='passed')return this.failure(call,unitRefusalMessage(validation,operations,model));
    if(this.#interrupted.has(call.turnId))return this.failure(call,'Turn interrupted before registration.');
    const key=await this.owner.register(batch,context);if(!key)return this.failure(call,'Proposal registration was not confirmed.');
    this.#proposals.set(handle,{basis:structuredClone(call.basis),key,context});

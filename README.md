@@ -36,11 +36,12 @@ remaining refusal and whether Agent 0 has declared it acceptable. Package versio
 rests on an inverse-norm bound the product does not verify, so that check
 establishes no error bound, and no nonlinear support-state confirmation
 resting on it, for any solve. The retained-precision and pressure-source
-recovery certificates are separate and are not affected. The desktop and the
-result reader's verdict state this as not verified and not confirmed; a
-result document's own tokens, the file outputs and the rendered report's
-diagnostics table do not yet carry that status. Exit criterion 18 is not met;
-[LIM-026](docs/RELEASE_LIMITATIONS_v1.0.md#lim-026--swbpipe-does-not-verify-the-ordinary-solves-error-bound-every-results-integrity-check-reads-not-verified)
+recovery certificates are separate and are not affected. The desktop says
+what the solver's checks found and that they do not measure the error, and
+the result reader's verdict carries the bound as not verified; a result
+document's own tokens, the file outputs and the rendered report's diagnostics
+table do not yet carry that status. Exit criterion 18 is not met;
+[LIM-026](docs/RELEASE_LIMITATIONS_v1.0.md#lim-026--swbpipe-does-not-verify-the-ordinary-solves-error-bound-a-result-says-what-the-solvers-checks-found-not-that-it-passed)
 names the maintained false-pass and false-state witness and what remains. The
 solver's tokens are not independent assurance.
 
