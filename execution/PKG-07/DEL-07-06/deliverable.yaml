@@ -92,6 +92,10 @@ code_paths:
 - apps/desktop/e2e/b3-accessibility.spec.ts
 - apps/desktop/e2e/workspace-layout.spec.ts
 - apps/desktop/e2e/workspace-driver.ts
+# The screenshot walkthrough: drives the browser build through the use cases by its own controls and
+# writes numbered screens with their word and control counts. It records what a person sees and where
+# a journey stops; it judges nothing and is no check of AC-007.
+- apps/desktop/walkthrough/**
 # AC-007's missing-data use case: its start model, requests and person-entered values, and the
 # offline judge of a trace of it. No driver runs it yet.
 - fixtures/embedded_agent/use_cases/missing-data/**

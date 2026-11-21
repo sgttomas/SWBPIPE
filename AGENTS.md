@@ -169,10 +169,11 @@ account. It says what it read and what it did not. Each review is a fresh
 reviewer: a view of the work as it stands at that moment. One reading is
 enough when it answers the question. When a matter takes more rounds, give
 the next reviewer the earlier findings and what was done about them. Aim to
-resolve within two rounds, continue past three only while still converging,
-and stop at six. Unresolved findings return to whoever integrates the work,
-to decide within its authority; ending the rounds waives no required check or
-reserved choice.
+resolve within two rounds and stop at three. After the third, the agent that
+initiated the reviews decides the path forward within its authority, and
+says why in the pull request; findings beyond that authority go to whoever
+integrates the work. Ending the rounds waives no required check or reserved
+choice.
 
 **The INTERLOCUTOR** advises Agent 0 on direction in a session the owner opts
 in; it is never an entry or default role. Agent 0 keeps the same one as
@@ -364,9 +365,9 @@ act it describes.
 Under every delegation, and under the posture's grant, changed commitment text
 still gets an independent review, and a change of numerical meaning gets
 targeted regression checks and independent scrutiny. Release, acceptance and
-issuance, purchases, the native-smoke `expected.json` values and the
-reservations in `docs/RELEASE_TARGET_v1.0.md` ("Reserved to the owner") stay
-with the owner. The product and data boundaries (`docs/PRD.md` §4.3,
+issuance, purchases, the native-smoke `expected.json` values (but for the
+consequent change `docs/RELEASE_TARGET_v1.0.md`, "Reserved to the owner",
+provides) and the reservations in that section stay with the owner. The product and data boundaries (`docs/PRD.md` §4.3,
 `docs/IP_AND_DATA_BOUNDARY.md`) are unchanged.
 
 When an owner instruction overrides a standing rule, note the exception in the
