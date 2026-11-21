@@ -317,6 +317,11 @@ describe("ModelTree virtual typed selection", () => {
       selection={support}
       selectionState={singletonSelection(support)}
     /></DisplayUnitsProvider>);
+    // The support's form stands behind its closed line: open it before entering anything.
+    const supportLine = screen.getByTestId("inspector-support-form-details");
+    fireEvent.click(within(supportLine).getByText("Edit this support", { selector: "summary" }));
+    expect(supportLine).toHaveAttribute("open");
+    expect(screen.getByLabelText("Support provenance")).toBeVisible();
     fireEvent.change(screen.getByLabelText("Support provenance"), { target: { value: "entered rich draft" } });
 
     view.rerender(<DisplayUnitsProvider initialPreference="SI"><PropertyInspector

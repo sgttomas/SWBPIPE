@@ -283,6 +283,13 @@ describe("the reference system entered from blank through the desktop's authorin
     const click = (scope: ReturnType<typeof within>, name: string | RegExp) => fireEvent.click(scope.getByRole("button", { name }));
     const select = (entity: EntityRef) => act(() => { current.session.selection.handleSelectEntity(entity); });
     /** Runs a command of the command box (toolkit catalogue), as a person chooses it there. */
+    /** The node's support form stands behind its closed line ("Add a support here"): open it before entering anything. */
+    const openSupportLine = () => {
+      const line = screen.getByTestId("inspector-support-form-details");
+      if (!line.hasAttribute("open")) fireEvent.click(line.querySelector(":scope > summary")!);
+      expect(line).toHaveAttribute("open");
+      expect(within(line).getByRole("region", { name: "Support configuration" })).toBeVisible();
+    };
     const openCommand = (id: string) => act(() => { current.session.chrome.handleToolkitCommand(toolkitCapabilities.find((capability) => capability.id === id)!); });
     const cycles: string[] = [];
     /** Picks `value` in a virtual picker found by its label (`VirtualTargetPicker`, `VirtualMultiTargetPicker`). */
@@ -387,6 +394,11 @@ describe("the reference system entered from blank through the desktop's authorin
     await applyQueuedIntent("step material");
     // Step material, item 2: Temperature points (typed UI, after selecting the material: UI function `handleSelectEntity`, the Model tree's selection).
     select({ type: "material", id: "material:RS-M1" });
+    // Its temperature-dependent properties stand behind a closed line: open it first.
+    const temperatureLine = screen.getByTestId("inspector-temperature-details");
+    fireEvent.click(within(temperatureLine).getByText("Temperature-dependent properties", { selector: "summary" }));
+    expect(temperatureLine).toHaveAttribute("open");
+    expect(within(temperatureLine).getByRole("button", { name: "Add temperature point" })).toBeVisible();
     const points = [["point:RS-M1-T020", "20", "200"], ["point:RS-M1-T100", "100", "195"], ["point:RS-M1-T200", "200", "189"], ["point:RS-M1-T300", "300", "182"]];
     for (const [index, [id, temperature, modulus]] of points.entries()) {
       click(inspector(), "Add temperature point");
@@ -562,6 +574,7 @@ describe("the reference system entered from blank through the desktop's authorin
     // Step spring: Variable spring RS-VS1 (typed UI): select RS-080, New support configuration, with hanger data.
     select({ type: "node", id: "node:RS-080" });
     const beforeSpring = model();
+    openSupportLine();
     const form = within(screen.getByRole("region", { name: "Support configuration" }));
     change(form, "Support ID", "support:RS-VS1");
     change(form, "Support label", "Variable spring VS1 (user stiffness)");
@@ -595,6 +608,7 @@ describe("the reference system entered from blank through the desktop's authorin
 
     // Step ce: Constant-effort support RS-CE1 (typed UI): select RS-100, New support configuration, UZ, with hanger data.
     select({ type: "node", id: "node:RS-100" });
+    openSupportLine();
     const ce = within(screen.getByRole("region", { name: "Support configuration" }));
     change(ce, "Support ID", "support:RS-CE1");
     change(ce, "Support label", "Constant-effort support CE1");
