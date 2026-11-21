@@ -439,13 +439,30 @@ describe("a \"not requested\" status (issue 508, comment)", () => {
     await act(async () => { await state().results.handleSaveReportPackage(); });
     const section = screen.getByRole("region", { name: "Report section" });
     expect(within(section).getByRole("status")).toHaveTextContent(SOLVE_RUNNING);
+    // A report input changes that is not the person's change of the report: the session's own
+    // advance of the report source, the one a project summary change and an applicable library
+    // findings publication make. It leaves the package state as it is.
     const before = state().results.reportSourceSequence;
-    act(() => state().results.setReportComposition({ composition_version: "1.0.0", sections: [] }));
+    act(() => { state().results.reportSource.advance(); });
     await waitFor(() => expect(state().results.reportSourceSequence).not.toBe(before));
     // The solve is still running, so the reason is still true and still announced.
     expect(within(section).getByRole("status")).toHaveTextContent(SOLVE_RUNNING);
     await act(async () => { held.resolve(); await solving; });
     await waitFor(() => expect(within(section).queryByText(SOLVE_RUNNING)).toBeNull());
+  }, 90_000);
+
+  it("a change of the report's composition clears it: the person changed the report", async () => {
+    const held = deferred<void>();
+    heldSolves.push(() => held.resolve());
+    const { state } = await solvedSession(async () => receipt("report_package"), () => held.promise);
+    act(() => { void state().results.handleRun(); });
+    await waitFor(() => expect(state().results.running).toBe(true));
+    await act(async () => { await state().results.handleSaveReportPackage(); });
+    const section = screen.getByRole("region", { name: "Report section" });
+    expect(within(section).getByRole("status")).toHaveTextContent(SOLVE_RUNNING);
+    act(() => state().results.setReportComposition({ composition_version: "1.0.0", sections: [] }));
+    await waitFor(() => expect(within(section).queryByText(SOLVE_RUNNING)).toBeNull());
+    expect(state().results.running).toBe(true);
   }, 90_000);
 
   it("none is set while a revised run record is read: a press then starts a save, and no reason remains after the read", async () => {
