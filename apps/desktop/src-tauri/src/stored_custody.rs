@@ -36,7 +36,10 @@
 //!   message, as before. The 64 MiB webview limit (#51) does not withhold a
 //!   run held natively; the pool's refusal of the held bytes' leases, of a
 //!   parse, or full retention does, by name (`STORED-RESULT-RESTORE-REFUSED`),
-//!   with the model opened for editing and the stored run untouched. A
+//!   with the model opened for editing and the stored run untouched. So
+//!   does a saved run whose current record binds result rules at a revision
+//!   this version does not read ([`unread_table_binding`]): its rows are not
+//!   shown under the installed table, and the model is to be solved again. A
 //!   recorded run keeps every integrity refusal of `read_analysis_run`.
 //! - **Memory** (plan §8; no new budget or rule). Every lease is admitted
 //!   before what it covers is allocated, in one running total per command
@@ -461,6 +464,7 @@ pub(crate) fn open_project_in_store(memory: &NativeLeaseMemory<'_>, path: PathBu
             let (record_header, record_header_bytes, header_lease) = header.expect("an admitted record has an admitted header");
             let mut found = validate::saved_run_findings(&project, &mut result, &record).expect("a stored run holds a result or a record");
             validate::saved_run_validation(&mut found, &mut result, &record);
+            let unread = unread_table_binding(&result, &record);
             let recorded_dispatch = recorded_dispatch_of(&found, &result);
             drop((result, result_parse, record, record_parse));
             let source = RestoredSource {
@@ -476,13 +480,19 @@ pub(crate) fn open_project_in_store(memory: &NativeLeaseMemory<'_>, path: PathBu
             let basis = RestoredBasis { model_hash: model_hash.clone(), envelopes: vec![EnvelopeBasis { payload_sha256: found.envelope_payload_hash.clone(), evidence: project_envelope_hash.clone() }] };
             // The handoff: the leases backing the held texts leave the
             // command's total when the registry establishes the handle.
-            match registry.restore_with_basis(
-                epoch,
-                source.clone(),
-                HeldResult::restored_in_custody(run.result, run.result_lease).read_under(found.recorded),
-                Some(HeldResult::restored_in_custody(run.record, run.record_lease)),
-                Some(basis),
-            ) {
+            let restored = match unread {
+                Some(why) => Err(why),
+                None => registry
+                    .restore_with_basis(
+                        epoch,
+                        source.clone(),
+                        HeldResult::restored_in_custody(run.result, run.result_lease).read_under(found.recorded),
+                        Some(HeldResult::restored_in_custody(run.record, run.record_lease)),
+                        Some(basis),
+                    )
+                    .map_err(restore_refusal),
+            };
+            match restored {
                 Ok(handle) => {
                     let unpublished = Unpublished::new(registry, &handle);
                     (
@@ -504,7 +514,7 @@ pub(crate) fn open_project_in_store(memory: &NativeLeaseMemory<'_>, path: PathBu
                         }),
                     )
                 }
-                Err(error) => (summary_of(&Value::Null, &Value::Null), refused(&id, lengths, &restore_refusal(error))),
+                Err(why) => (summary_of(&Value::Null, &Value::Null), refused(&id, lengths, &why)),
             }
         }
         (None, _) if !run_stored => (summary_of(&Value::Null, &Value::Null), StoredRun::None),
@@ -527,6 +537,69 @@ pub(crate) fn open_project_in_store(memory: &NativeLeaseMemory<'_>, path: PathBu
 /// model under the table its findings were read under ([`RestoredRun::recorded_dispatch`]).
 fn recorded_dispatch_of(found: &HistoricalFindings, result: &Value) -> Option<Value> {
     found.recorded.filter(|_| found.renderable).map(|table| validate::recorded_dispatch(result, table.variant(), None))
+}
+
+/// Why a saved run is not restored under the installed table: its 0.3.0 record's
+/// `analysis_run.reproducibility.semantic_contract` binds result rules at a revision this
+/// version does not read. The decision is the recorded read's (`recorded_tables::read_recorded`,
+/// against the installed binding of the result's identity): the current binding and a registry
+/// variant are read and restored as before; any other binding is refused by its code, in a
+/// sentence that quotes the result's installed identity and nothing from the record. So is a
+/// record whose binding is read while it does not hold one matching reference for each published
+/// row. Whether the desktop's panel would render the result is not asked: a restored handle
+/// lets its rows be read whatever the panel does. An identity this version installs no table
+/// for (a retired one, refused by name in the findings), a record with no binding and a record
+/// of another version are left to the findings, as before.
+fn unread_table_binding(result: &Value, record: &Value) -> Option<String> {
+    if record.get("schema_version").and_then(Value::as_str) != Some("0.3.0") {
+        return None;
+    }
+    let binding = record.pointer("/analysis_run/reproducibility/semantic_contract")?;
+    let id = result["producer"]["semantic_contract_id"].as_str()?;
+    let current = open_pipe_stress_result_export::reader_verdict::current_binding(id)?;
+    // Nothing of the record is quoted: `id` is the stored result's identity, which equals an
+    // identifier this version installs a table for (`current_binding` found it).
+    let (why, code) = match open_pipe_stress_result_export::recorded_tables::read_recorded(binding, result, Some((id, current)), || ()) {
+        Err(code) if code == open_pipe_stress_result_export::recorded_tables::SOURCE_RECORDED_BINDING_IDENTITY => {
+            (format!("its record binds the result rules of another kind of result, not the stored result's `{id}`"), code)
+        }
+        Err(code) => (format!("its record does not bind the stored result's rules `{id}` at a revision this version reads"), code),
+        Ok(()) => {
+            // The run's binding is read. The record must also bind every published row: one
+            // result reference for each row, in the rows' order, naming that row by its position
+            // and identifier and binding the same rules at the same revision. A row with no
+            // reference of its own (references missing, not a list, fewer or more than the rows,
+            // or one row's reference repeated for another), or a reference that names another
+            // binding, is the same unestablished meaning for that row (the record validator's
+            // row findings). A result that publishes no row (an empty `results`, or none that is
+            // a list) needs no reference and may hold none.
+            let binds = |(index, (row, reference)): (usize, (&Value, &Value))| {
+                reference["source_row_index"].as_f64() == Some(index as f64)
+                    && reference["result_ref"]["ref"] == row["id"]
+                    && ["id", "sha256"].iter().all(|key| reference["semantic_contract"][*key] == binding[*key])
+            };
+            let rows = result["results"].as_array().map_or(&[][..], Vec::as_slice);
+            let references = record.pointer("/analysis_run/result_refs");
+            // The code is the record validator's for the same condition: a count that is not the
+            // rows' (as it counts: a list's entries, a string's UTF-16 units), or a reference
+            // that is not its row's.
+            let counted = match references {
+                Some(Value::Array(references)) => Some(references.len()),
+                Some(Value::String(text)) => Some(text.encode_utf16().count()),
+                _ => None,
+            };
+            let code = if counted != Some(rows.len()) {
+                "ANALYSIS_ROW_ACCOUNTING_MISMATCH"
+            } else {
+                match references {
+                    Some(Value::Array(references)) if rows.iter().zip(references).enumerate().all(binds) => return None,
+                    _ => "ANALYSIS_ROW_SOURCE_BINDING_MISMATCH",
+                }
+            };
+            (format!("its record does not hold one matching reference for each published result row under the rules `{id}` at the revision the record binds"), code.to_string())
+        }
+    };
+    Some(format!("{why} ({code}), so its rows are not shown; solve the model again."))
 }
 
 fn restore_refusal(error: SolveJobError) -> String {

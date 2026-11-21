@@ -5,6 +5,7 @@
 import { mkdirSync, writeFileSync } from "node:fs";
 import path from "node:path";
 import type { Page } from "@playwright/test";
+import { readScreenCounts, scrollLongestRegion as scrollRegion } from "./screen-counts.mjs";
 
 export type ScreenCounts = {
   /** Words a person can read without scrolling: in the window, not clipped, not covered. */
@@ -31,119 +32,17 @@ export type ScreenRecord = {
   not_reached?: boolean;
 } & Partial<ScreenCounts>;
 
+/** The surface every browser journey's part file names (compose-index.mjs). */
+export const SURFACE = "browser build";
+/** The build every browser journey runs: the desktop's interface served by the development server, no native host. */
+export const BUILD = "browser build: the desktop's interface from the development server, without the native host";
+const REVISION = (() => { try { return JSON.parse(process.env.SWBPIPE_WALKTHROUGH_REVISION ?? "null"); } catch { return null; } })();
+
 export const outputRoot = path.resolve(process.env.SWBPIPE_WALKTHROUGH_OUT || path.join(import.meta.dirname, "output"));
 
-/** Reads the counts from the page as it is drawn now. */
+/** Reads the counts from the page as it is drawn now (screen-counts.mjs, shared with the native walkthrough). */
 export async function readCounts(page: Page): Promise<ScreenCounts> {
-  return page.evaluate(() => {
-    const viewport = { left: 0, top: 0, right: innerWidth, bottom: innerHeight };
-    type Box = { left: number; top: number; right: number; bottom: number };
-    const meet = (a: Box, b: Box): Box => ({
-      left: Math.max(a.left, b.left), top: Math.max(a.top, b.top),
-      right: Math.min(a.right, b.right), bottom: Math.min(a.bottom, b.bottom)
-    });
-    const area = (box: Box) => Math.max(0, box.right - box.left) * Math.max(0, box.bottom - box.top);
-    // The part of the window an element's content can show in: the window, cut
-    // down by every ancestor that clips its overflow.
-    const clipCache = new Map<Element, Box>();
-    const clipOf = (element: Element | null): Box => {
-      if (!element || element === document.documentElement) return viewport;
-      const cached = clipCache.get(element);
-      if (cached) return cached;
-      let box = clipOf(element.parentElement);
-      const style = getComputedStyle(element);
-      if (style.overflowX !== "visible" || style.overflowY !== "visible") box = meet(box, element.getBoundingClientRect());
-      clipCache.set(element, box);
-      return box;
-    };
-    const shown = (element: Element) =>
-      element.checkVisibility({ checkOpacity: true, checkVisibilityCSS: true });
-    // Covered: the topmost element at the middle of the visible part belongs to
-    // another part of the page (a page over the workspace, a popover, a drawer).
-    const uncovered = (element: Element, box: Box) => {
-      const top = document.elementFromPoint((box.left + box.right) / 2, (box.top + box.bottom) / 2);
-      return top !== null && (top === element || element.contains(top) || top.contains(element));
-    };
-    const onScreen = (element: Element, rects: Iterable<DOMRect>): boolean => {
-      if (!shown(element)) return false;
-      const clip = clipOf(element);
-      for (const rect of rects) {
-        const visible = meet(rect, clip);
-        if (area(visible) >= 1 && uncovered(element, visible)) return true;
-      }
-      return false;
-    };
-    const countWords = (text: string) => (text.match(/[\p{L}\p{N}][\p{L}\p{N}'’._:/+-]*/gu) ?? []).length;
-
-    let wordsOnScreen = 0;
-    const walker = document.createTreeWalker(document.body, NodeFilter.SHOW_TEXT);
-    const range = document.createRange();
-    for (let node = walker.nextNode(); node; node = walker.nextNode()) {
-      const parent = node.parentElement;
-      const text = node.nodeValue ?? "";
-      if (!parent || !text.trim() || parent.closest("script, style, noscript, option")) continue;
-      range.selectNodeContents(node);
-      if (onScreen(parent, range.getClientRects())) wordsOnScreen += countWords(text);
-    }
-
-    const kindOf = (element: Element): string => {
-      const role = element.getAttribute("role");
-      if (role) return role;
-      const tag = element.tagName.toLowerCase();
-      if (tag === "input") return (element as HTMLInputElement).type || "input";
-      if (tag === "a") return "link";
-      if (tag === "summary") return "disclosure";
-      return tag;
-    };
-    const nameOf = (element: Element): string => {
-      const labelled = element.getAttribute("aria-labelledby");
-      const fromIds = labelled ? labelled.split(/\s+/).map((id) => document.getElementById(id)?.textContent ?? "").join(" ") : "";
-      const labels = (element as HTMLInputElement).labels;
-      const fromLabels = labels && labels.length > 0 ? Array.from(labels).map((label) => label.textContent ?? "").join(" ") : "";
-      const candidates = [
-        element.getAttribute("aria-label"), fromIds, fromLabels,
-        (element as HTMLElement).innerText, element.getAttribute("title"), element.getAttribute("placeholder")
-      ];
-      const name = candidates.find((candidate) => candidate && candidate.trim()) ?? "";
-      return name.replace(/\s+/g, " ").trim().slice(0, 80);
-    };
-    const controls: string[] = [];
-    let buttons = 0;
-    let inputs = 0;
-    const selector = "button, a[href], input:not([type=hidden]), select, textarea, summary, [role=button], [role=tab], [role=menuitem], [role=combobox], [role=checkbox], [role=switch], [role=option], [role=separator][tabindex]";
-    for (const element of document.querySelectorAll(selector)) {
-      if (!onScreen(element, [element.getBoundingClientRect()])) continue;
-      const kind = kindOf(element);
-      const entry = kind === "button" || kind === "tab" || kind === "menuitem" || kind === "link" || kind === "disclosure" || kind === "separator";
-      if (entry) buttons += 1; else inputs += 1;
-      const disabled = (element as HTMLButtonElement).disabled === true || element.getAttribute("aria-disabled") === "true";
-      controls.push(`${kind}: ${nameOf(element) || "(no name)"}${disabled ? " (disabled)" : ""}`);
-    }
-
-    let proseBlocks = 0;
-    for (const element of document.querySelectorAll("p, li, dd, blockquote")) {
-      if ((element.textContent ?? "").trim() && onScreen(element, element.getClientRects())) proseBlocks += 1;
-    }
-
-    let longest = 1;
-    for (const element of document.querySelectorAll("*")) {
-      if (element.scrollHeight <= element.clientHeight + 8 || element.clientHeight < 120) continue;
-      const overflow = getComputedStyle(element).overflowY;
-      if (overflow !== "auto" && overflow !== "scroll") continue;
-      if (!onScreen(element, [element.getBoundingClientRect()])) continue;
-      longest = Math.max(longest, element.scrollHeight / innerHeight);
-    }
-
-    return {
-      words_on_screen: wordsOnScreen,
-      words_in_page: countWords(document.body.innerText),
-      prose_blocks_on_screen: proseBlocks,
-      buttons_on_screen: buttons,
-      inputs_on_screen: inputs,
-      longest_scroll_screens: Math.round(longest * 10) / 10,
-      controls
-    };
-  });
+  return page.evaluate(readScreenCounts);
 }
 
 /**
@@ -151,25 +50,7 @@ export async function readCounts(page: Page): Promise<ScreenCounts> {
  * height. Returns false when nothing on screen scrolls further.
  */
 export async function scrollLongestRegion(page: Page, screens: number, within?: string): Promise<boolean> {
-  return page.evaluate(({ count, scope }) => {
-    let best: Element | null = null;
-    const root = scope ? document.querySelector(scope) : document.body;
-    if (!root) return false;
-    for (const element of [root, ...root.querySelectorAll("*")]) {
-      if (element.scrollHeight <= element.clientHeight + 8 || element.clientHeight < 120) continue;
-      const overflow = getComputedStyle(element).overflowY;
-      if (overflow !== "auto" && overflow !== "scroll") continue;
-      if (!element.checkVisibility()) continue;
-      const rect = element.getBoundingClientRect();
-      const top = document.elementFromPoint(rect.left + rect.width / 2, rect.top + rect.height / 2);
-      if (!top || !(element === top || element.contains(top))) continue;
-      if (!best || element.scrollHeight - element.clientHeight > best.scrollHeight - best.clientHeight) best = element;
-    }
-    if (!best) return false;
-    const before = best.scrollTop;
-    best.scrollTop = before + best.clientHeight * count * 0.9;
-    return best.scrollTop > before + 4;
-  }, { count: screens, scope: within ?? null });
+  return page.evaluate(scrollRegion, { count: screens, scope: within ?? null });
 }
 
 /** One journey's screens. Numbers are `journeyNumber * 100 + step`, so they sort in the order a person meets them. */
@@ -232,9 +113,11 @@ export class Journey {
   }
 
   private write(): void {
+    const size = this.page.viewportSize();
+    const window = size ? `${size.width}x${size.height}` : null;
     writeFileSync(
       path.join(outputRoot, `part-${String(this.journeyNumber).padStart(2, "0")}-${this.name}.json`),
-      `${JSON.stringify({ number: this.journeyNumber, name: this.name, title: this.title, screens: this.records }, null, 2)}\n`
+      `${JSON.stringify({ number: this.journeyNumber, name: this.name, title: this.title, use_case: this.title, revision: REVISION, build: BUILD, surface: SURFACE, window, screens: this.records }, null, 2)}\n`
     );
   }
 
