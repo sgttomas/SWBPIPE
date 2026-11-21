@@ -1690,6 +1690,7 @@
     "core/product_physics/src/retained_memory_witness_tests.rs",
     "core/product_physics/src/source_recovery/j7_rf_census.rs",
     "core/product_physics/tests/common/b1_sq_inputs.rs",
+    "core/product_physics/tests/common/spring_preload_model.rs",
     "core/product_physics/tests/common/w15c_bench.rs",
     "core/product_physics/tests/connector_pp_paths.rs",
     "core/product_physics/tests/elastic_extrema_runtime.rs",
