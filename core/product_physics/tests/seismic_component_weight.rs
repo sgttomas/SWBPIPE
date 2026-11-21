@@ -1138,6 +1138,7 @@ fn every_frozen_warning_expectation_is_reproduced() {
                         for code in [WEIGHT_LOAD_ENTERED, CONDITION_WEIGHT_ADDED] {
                             assert!(findings(&b["diagnostics"], code, &case).is_empty(), "{id}: {code}");
                         }
+                        assert!(!rows(&a, &case).is_empty(), "{id} {mode:?}: the case publishes rows");
                         assert_eq!(rows(&b, &case), rows(&a, &case), "{id} {mode:?}: the warning changes no published number");
                         bound += 1;
                     }
@@ -1186,7 +1187,7 @@ fn overridden(load: &Value) -> Value {
 fn is_component_weight(load: &Value) -> bool {
     load["target"]["type"] == "node"
 }
-fn named(diagnostics: &Value, code: &str, case: &str) -> std::collections::BTreeSet<String> {
+fn named(diagnostics: &Value, code: &str, case: &str) -> Vec<String> {
     findings(diagnostics, code, case).iter().map(|f| f["affected_refs"][1].as_str().unwrap().to_string()).collect()
 }
 fn entered_load(id: &str, category: &str, pipe: &str) -> Value {
@@ -1222,8 +1223,8 @@ fn entered_weight_loads_and_manual_overrides_are_named() {
         let mut case = case_of(reference(&id), &case_id);
         case["primitive_loads"] = Value::Array(loads);
         let wire = document(route, Model::Cant, ONE_MAPPED, vec![case]);
-        let expected: std::collections::BTreeSet<String> =
-            [override_id.as_str(), "load:entered-weight", "load:entered-distributed"].iter().map(|s| s.to_string()).collect();
+        // In the case's load order, each once.
+        let expected: Vec<String> = [override_id.as_str(), "load:entered-weight", "load:entered-distributed"].iter().map(|s| s.to_string()).collect();
         let checks = model_checks(&wire);
         assert_eq!(named(&checks, WEIGHT_LOAD_ENTERED, &case_id), expected, "{id}: the model checks");
         for mode in MODES {
@@ -1322,13 +1323,17 @@ fn a_copied_condition_weight_is_an_entered_weight_load() {
 }
 
 /// REQ-008's gravity ground reads fresh applied component-weight primitives
-/// only (issue 452 decision 7). With the G10 case carrying the plan's own
-/// loads at 9.79 m/s^2 for itself, its fresh valve weight raises the
-/// finding; preserved as a manual override, the valve weight gives no known
-/// gravity, the case has no other, and there is no gravity finding. That is
-/// not agreement: the override is named as an entered weight load instead.
+/// only (issue 452 decision 7): an override supplies no gravity for the
+/// comparison. With the G10 case carrying the plan's own loads at 9.79 m/s^2
+/// for itself, its fresh valve weight raises the finding. Preserved as a
+/// manual override, the valve weight supplies no gravity: alone in the
+/// document there is no gravity to compare, so there is no gravity finding,
+/// which is not agreement (the override is named as an entered weight load
+/// instead). With the override beside a fresh weight case elsewhere in the
+/// document at 9.79 m/s^2, the case's own weights supply none, so the check
+/// reads the document's, and the finding is raised naming that weight.
 #[test]
-fn an_overridden_component_weight_gives_no_known_gravity() {
+fn an_override_supplies_no_gravity_for_the_comparison() {
     for route in [Route::Pf, Route::Ex] {
         let id = format!("SCW-CANT-{}-SEISMIC-XYZ-G10", route_tag(route));
         let case_id = format!("case:{id}");
@@ -1336,22 +1341,35 @@ fn an_overridden_component_weight_gives_no_known_gravity() {
         let loads = plan_loads(&alone["model"], &case_id, 9.79);
         let valve = loads.iter().filter(|l| is_component_weight(l)).map(|l| l["id"].as_str().unwrap().to_string()).collect::<Vec<_>>();
         assert!(!valve.is_empty());
-        for overriding in [false, true] {
+        let elsewhere = applied_weight_case(&alone["model"], 9.79);
+        let elsewhere_valve: Vec<String> = elsewhere["primitive_loads"].as_array().unwrap().iter().filter(|l| is_component_weight(l))
+            .map(|l| l["id"].as_str().unwrap().to_string()).collect();
+        for (overriding, beside) in [(false, false), (true, false), (true, true)] {
             let mut case = case_of(reference(&id), &case_id);
             case["primitive_loads"] = loads.iter().map(|l| if overriding && is_component_weight(l) { overridden(l) } else { l.clone() }).collect::<Vec<_>>().into();
-            let wire = document(route, Model::Cant, ONE_MAPPED, vec![case]);
+            let cases = if beside { vec![elsewhere.clone(), case] } else { vec![case] };
+            let wire = document(route, Model::Cant, ONE_MAPPED, cases);
             let checks = model_checks(&wire);
             for mode in MODES {
                 let out = solved(&wire, mode, &id);
                 for diagnostics in [&out["diagnostics"], &checks] {
                     let gravity = findings(diagnostics, GRAVITY_DIFFERS, &case_id);
                     let entered = named(diagnostics, WEIGHT_LOAD_ENTERED, &case_id);
-                    if overriding {
-                        assert!(gravity.is_empty(), "{id} {mode:?}: an overridden weight gives no known gravity: {gravity:?}");
-                        assert_eq!(entered, valve.iter().cloned().collect(), "{id} {mode:?}: the overrides are named");
-                    } else {
-                        assert_eq!(gravity.len(), 1, "{id} {mode:?}: the case's own fresh valve weight");
-                        assert!(entered.is_empty(), "{id} {mode:?}: fresh generated self-weight is not named: {entered:?}");
+                    match (overriding, beside) {
+                        (false, _) => {
+                            assert_eq!(gravity.len(), 1, "{id} {mode:?}: the case's own fresh valve weight");
+                            assert_eq!(gravity[0]["affected_refs"].as_array().unwrap()[2..].to_vec(), valve.iter().map(|v| json!(v)).collect::<Vec<_>>(), "{id} {mode:?}");
+                            assert!(entered.is_empty(), "{id} {mode:?}: fresh generated self-weight is not named: {entered:?}");
+                        }
+                        (true, false) => {
+                            assert!(gravity.is_empty(), "{id} {mode:?}: no gravity to compare: {gravity:?}");
+                            assert_eq!(entered, valve, "{id} {mode:?}: the overrides are named");
+                        }
+                        (true, true) => {
+                            assert_eq!(gravity.len(), 1, "{id} {mode:?}: the document's fresh valve weight");
+                            assert_eq!(gravity[0]["affected_refs"].as_array().unwrap()[2..].to_vec(), elsewhere_valve.iter().map(|v| json!(v)).collect::<Vec<_>>(), "{id} {mode:?}");
+                            assert_eq!(entered, valve, "{id} {mode:?}: the overrides are named");
+                        }
                     }
                 }
             }
@@ -1412,7 +1430,7 @@ fn no_finding_is_raised_for_a_case_whose_generation_is_refused() {
             .collect()
     };
     let raised = |diagnostics: &Value, case_id: &str| {
-        named(diagnostics, WEIGHT_LOAD_ENTERED, case_id) == ["load:entered".to_string()].into() && findings(diagnostics, GRAVITY_DIFFERS, case_id).len() == 1
+        named(diagnostics, WEIGHT_LOAD_ENTERED, case_id) == ["load:entered"] && findings(diagnostics, GRAVITY_DIFFERS, case_id).len() == 1
     };
     for route in [Route::Pf, Route::Ex] {
         let id = format!("SCW-CANT-{}-SEISMIC-XYZ-G10", route_tag(route));
