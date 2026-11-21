@@ -967,49 +967,65 @@ fn gi_document_cef(doc: &Value) -> Value {
 }
 
 /// DEL-04-07 REQ-011 on model CEF: the package lists one generated source
-/// per member and one for the valve (`load_sources.generated`, labels local
-/// to the package). The product records each generated primitive once at
-/// factor 1: a member's distributed load, and the valve's force and each of
-/// its moments under their own identities. So each record entry is mapped to
-/// the package source it belongs to (a member load by its element index, a
-/// component item by its component identity). The mapped sources must be
-/// exactly the package's list, every entry must be distinct, and each
-/// component source must carry its force.
+/// per unreplaced member and one for the valve (`load_sources.generated`,
+/// labels local to the package), and states each generated load
+/// (`generated_loads`): a member's whole-span load, and the valve's force and
+/// moment about its node. The product records each generated primitive once
+/// at factor 1, in the generator's order: the members' loads in model order
+/// (by their element index), then the valve's force and each nonzero moment
+/// component under its own identity
+/// (`<case>:generated:seismic:<axis>:component:<length>:<component>:<force | moment:axis>`).
+/// The expected list is formed from the package alone: the case's one
+/// nonzero g-factor gives the axis, and the package's nonzero moment
+/// components give the moments. On each seismic case of CEF that is six
+/// entries: three members, the valve force and two moments; the sustained
+/// case generates nothing and has no generation record. The record must
+/// be exactly that list, each entry `generated_applied` of kind seismic at
+/// factor 1, and it must equal the case's generation record.
 fn assert_cef_generated_record(out: &Value, wire: &Value, case_id: &str, case: &Value, what: &str) {
     let pipes = wire["model"]["pipe_segments"].as_array().unwrap();
-    let published = generated_sources(out, case_id);
-    let ids = published.iter().map(|c| c["source_id"].as_str().unwrap().to_string()).collect::<Vec<_>>();
-    assert_eq!(ids.iter().collect::<std::collections::BTreeSet<_>>().len(), ids.len(), "{what}: each generated primitive once; {ids:?}");
-    assert!(published.iter().all(|c| c["factor"] == 1.0 && c["generation_kind"] == "seismic"), "{what}: {published:#?}");
-    let mut sources = std::collections::BTreeSet::new();
-    let mut forces = std::collections::BTreeSet::new();
-    for id in &ids {
-        let rest = id.strip_prefix(&format!("{case_id}:generated:seismic:")).unwrap_or_else(|| panic!("{what}: {id} outside the case's namespace"));
-        let (_axis, item) = rest.split_once(':').unwrap();
-        if let Some(index) = item.strip_prefix("element-") {
-            let index: usize = index.parse().unwrap_or_else(|_| panic!("{what}: {id}"));
-            sources.insert(format!("{}/seismic", pipes[index]["id"].as_str().unwrap()));
-        } else if let Some(component) = item.strip_prefix("component:") {
-            // `component:<length>:<component id>:<force | moment:axis>`
-            let (length, tail) = component.split_once(':').unwrap();
-            let length: usize = length.parse().unwrap();
-            let (component_id, part) = tail.split_at(length);
-            sources.insert(format!("{component_id}/seismic"));
-            if part == ":force" {
-                forces.insert(format!("{component_id}/seismic"));
-            }
+    let exact = out["contract_evidence"]["exact_cases"].as_array().unwrap().iter().find(|c| c["load_case_id"] == case_id).unwrap();
+    if !case["seismic"].is_object() {
+        assert!(generated_sources(out, case_id).is_empty() && case["load_sources"]["generated"].as_array().is_none_or(Vec::is_empty), "{what}: nothing generated");
+        assert!(exact.get("equivalent_static").is_none(), "{what}: no generation record");
+        return;
+    }
+    let factors = case["seismic"]["g_factors"].as_array().unwrap();
+    let axes = (0..3).filter(|&a| ratio(&factors[a]) != 0.0).collect::<Vec<_>>();
+    assert_eq!(axes.len(), 1, "{what}: one seismic axis");
+    let axis = axis_token(axes[0]);
+    let listed = case["load_sources"]["generated"].as_array().unwrap().iter().map(|g| {
+        assert_eq!(g["factor"], 1, "{what}");
+        g["source"].as_str().unwrap().to_string()
+    }).collect::<Vec<_>>();
+    let stated = case["generated_loads"].as_array().unwrap();
+    assert_eq!(stated.iter().map(|g| g["source"].as_str().unwrap().to_string()).collect::<Vec<_>>(), listed, "{what}: the package states each listed source");
+    let mut expected = Vec::new();
+    for load in stated {
+        if let Some(member) = load["member"].as_str() {
+            let index = pipes.iter().position(|p| p["id"] == member).unwrap_or_else(|| panic!("{what}: {member}"));
+            expected.push(format!("{case_id}:generated:seismic:{axis}:element-{index}"));
         } else {
-            panic!("{what}: {id} is neither a member load nor a component item");
+            let component = load["component"].as_str().unwrap();
+            let item = format!("{case_id}:generated:seismic:{axis}:component:{}:{component}", component.len());
+            expected.push(format!("{item}:force"));
+            for (i, name) in ["x", "y", "z"].iter().enumerate() {
+                if value(&load["moment_about_node_N_m"][i]) != 0.0 {
+                    expected.push(format!("{item}:moment:{name}"));
+                }
+            }
         }
     }
-    let expected = case["load_sources"]["generated"].as_array().unwrap().iter().map(|g| {
-        assert_eq!(g["factor"], 1);
-        g["source"].as_str().unwrap().to_string()
-    }).collect::<std::collections::BTreeSet<_>>();
-    assert_eq!(sources, expected, "{what}: the record's sources are the package's; {ids:?}");
-    for source in expected.iter().filter(|s| s.starts_with("component:")) {
-        assert!(forces.contains(source), "{what}: {source} carries its force");
+    assert_eq!(expected.len(), 6, "{what}: three members, the valve force and two moments; {expected:#?}");
+    let published = generated_sources(out, case_id);
+    let ids = published.iter().map(|c| c["source_id"].as_str().unwrap().to_string()).collect::<Vec<_>>();
+    assert_eq!(ids, expected, "{what}: the record of generated sources");
+    for entry in &published {
+        assert_eq!(entry["factor"], json!(1.0), "{what}: {entry}");
+        assert_eq!(entry["generation_kind"], "seismic", "{what}: {entry}");
+        assert_eq!(entry["classification"], "generated_applied", "{what}: {entry}");
     }
+    assert_eq!(exact["equivalent_static"]["generated_load_ids"], json!(ids), "{what}: the record equals the generation record");
 }
 
 /// Model CEF's rows: the four cases (the constant-effort force included),
