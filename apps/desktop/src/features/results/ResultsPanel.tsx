@@ -796,7 +796,7 @@ export function ResultControls({
         </button>
         <button
           aria-pressed={selectionOnly}
-          className={selectionOnly ? "result-family-active" : undefined}
+          className={selectionOnly ? "result-selection-only result-family-active" : "result-selection-only"}
           data-testid="result-selection-only"
           disabled={!selectionEntityId && !selectionOnly}
           onClick={() => onSelectionOnlyChange(!selectionOnly)}

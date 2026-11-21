@@ -2731,6 +2731,17 @@ fieldset.viewport-intent-controls {
   cursor: pointer;
 }
 
+/* "Selected entity only" is a word control, not the clear control's square: it reads on one line
+   at its own width, and the row wraps it to the next line when the column is narrow. */
+.result-filter-row button.result-selection-only {
+  display: inline-flex;
+  flex: 0 0 auto;
+  width: auto;
+  margin-left: 0;
+  padding: 0 10px;
+  white-space: nowrap;
+}
+
 .result-page-actions {
   display: inline-flex;
   gap: 6px;
