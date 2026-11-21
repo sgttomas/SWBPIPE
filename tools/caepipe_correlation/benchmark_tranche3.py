@@ -1250,7 +1250,7 @@ def dynamics_runs(document: dict[str, Any], writer_text: str) -> list[dict[str, 
                 "expected_saved_file": f"{run_id}.mod", "expected_print_file": f"{run_id}.print.csv",
                 "screened": False,
                 "screening_waits_for": ("a headless modal and response-spectrum entry of the product, which main does "
-                                        "not have; until then the capture is held"),
+                                        "not have; until then there is no SWBPIPE result to compare the capture with"),
                 "depends_on": REQ005_DEPENDENCE,
             })
     return runs
@@ -1410,15 +1410,10 @@ def add_tranche3(seed: int, files: dict[str, str], entries: list[dict], series: 
                                         "sha256": entries[-1]["mbf_sha256"]},
                                 "swbpipe_model_hash": bm.canonical_model_hash(hand.hand_entry_model(document)),
                                 "screened": False,
-                                "screening_waits_for": (
-                                    hand.SERIES_WAIT + ", as well as SWBPIPE's own result for the case published by "
-                                    "the product as checks passed and the capture's binding to the model actually run; "
-                                    "until then the capture is held and not compared, and the series's load values are "
-                                    "never fitted to the captured result"
-                                    if hand.CONSTANT_LOAD in document["inexact_inputs"][OPERATING] else
-                                    "SWBPIPE's own result for the case published by the product as checks passed; until "
-                                    "then the capture is held")}]
-        entries[-1]["held"] = document["hand_entry"]["held"]
+                                "screening_waits_for": WINDOW_PRINT_WAIT + (
+                                    "; its comparison then names constant_support_load until " + hand.SERIES_WAIT
+                                    if hand.CONSTANT_LOAD in document["inexact_inputs"][OPERATING] else "")}]
+        entries[-1]["comparison"] = document["hand_entry"]["comparison"]
         series.setdefault("hand-entry", {"kind": "hand_entry", "description": HAND_SERIES_TEXT, "members": []})
         series["hand-entry"]["members"].append({"model_id": document["model_id"],
                                                 "run_id": document["hand_entry"]["run"]["run_id"],
@@ -1468,7 +1463,7 @@ def hand_entry_declaration() -> dict[str, Any]:
     return {"rule": ("the tracked document's model is the WRITTEN BASE; the case's SWBPIPE model is the base with the "
                      "member's support records appended (benchmark_hand_entry.hand_entry_model); no support or load "
                      "record is added to a written file"),
-            "held": hand.HELD, "held_until_series": {"cpb-h-01": hand.HELD_UNTIL_SERIES},
+            "comparison": hand.COMPARED, "comparison_naming_input": {"cpb-h-01": hand.COMPARED_NAMING_INPUT},
             "one_way_cases": hand.ONE_WAY, "skip": hand.skip_rule("hand"),
             "files": ("each run is its own case under its run id: the person imports <run_id>.mbf, enters the one "
                       "member, saves it as <run_id>.mod before analysing by the command noted at the dry run, never "
@@ -1481,9 +1476,12 @@ HAND_SERIES_TEXT = (
     "part two: each case is one SWBPIPE model holding a member the writer refuses, and its written base, the same model "
     "without that member; the person imports the base, enters the one member by the run's instruction, saves under a "
     "new name beside the base and prints. Ranked most valuable first, so that a sitting cut short strikes from the "
-    "bottom. Each capture is held until SWBPIPE's own result for that case is published as checks passed; cpb-h-01's "
-    "also until an independently justified one-parameter series supplies the evidence REQ-019 requires for its input "
-    "constant_support_load")
+    "bottom. Each capture is compared with SWBPIPE's solve of that case, each comparison stating SWBPIPE's numerical "
+    "standing; cpb-h-01's comparison also names its input constant_support_load until an independently justified "
+    "one-parameter series supplies the evidence REQ-019 requires for it")
+# What a hand-entry run's comparison waits for: the print comes back from the window, which no route yet compares.
+WINDOW_PRINT_WAIT = ("a comparison route for a print returned from the program's window: the benchmark command compares "
+                     "only prints its own batch round trip collects")
 
 
 def _emit(document: dict[str, Any], files: dict[str, str], entries: list[dict], *, runs) -> None:
