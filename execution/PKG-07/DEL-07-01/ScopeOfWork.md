@@ -66,7 +66,7 @@ The viewport is a view and an entry surface. What it draws is evidence of what t
 - **REQ-012** — *Interaction performance.* On the reference profile the workspace meets every limit below:
   - a model assigned to the session is presented on the canvas, with responsive tables, within 2,000 ms;
   - point selection to presented feedback, row selection to canvas highlight and canvas pick to row selection: 95th percentile at or under 100 ms;
-  - box selection or filtering to presented feedback, and a view or stage switch with camera, selection, label mode and legend kept: 95th percentile at or under 200 ms;
+  - box selection or filtering to presented feedback, and a view or stage switch with selection, label mode and legend kept and the camera kept where the person set it (a fitted view is refitted to the new canvas): 95th percentile at or under 200 ms;
   - the interval between presented frames while orbiting: 95th percentile at or under 16.7 ms in centreline display and 33.3 ms in Actual OD display, with result colour, edge lines and labels at their budget; while dragging the split or resizing the drawer, at or under 33.3 ms;
   - a settled viewport schedules no animation frame;
   - the resources the viewport owns return to a stable baseline after 20 model replacements and after repeated unmount and remount.
