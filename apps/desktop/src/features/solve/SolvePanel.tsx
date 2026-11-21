@@ -41,8 +41,9 @@ export function SolvePanel({
   result: SessionResult | null;
   /** DEL-07-05 numerical health: the diagnostics tile's header badge, for the held result. */
   numericalHealth?: NumericalHealthView | null;
-  /** The items the Issues drawer lists under Diagnostics. Given, the diagnostics row counts
-   * these, so the page and the drawer state one number; absent, it counts each report. */
+  /** Every item the Issues drawer lists. Given, the diagnostics row counts the items that hold
+   * a model or solve report, wherever the drawer files them, so the page and the drawer state
+   * one number; absent, it counts each report. */
   diagnosticItems?: readonly IssueItem[] | null;
   running: boolean;
   solveJob: SolveJobAuditState;
@@ -213,8 +214,14 @@ function readinessSummary({
   const mechanicsStatus = result?.status.mechanics ?? model.analysis_status.mechanics;
   const ruleStatus = result?.status.rule_check ?? model.analysis_status.rule_check;
   const professionalStatus = result?.status.professional_acceptance ?? model.analysis_status.professional_acceptance;
-  const itemCounts = diagnosticItems ? countItemsBySeverity(diagnosticItems) : null;
-  const diagnosticCount = diagnosticItems ? diagnosticItems.length : diagnostics.length;
+  // The items holding a model or solve report, at their own (worst) severity, whatever list
+  // the drawer files them under; K of them are listed under Model checks.
+  const counted = diagnosticItems
+    ? diagnosticItems.filter((item) => item.members.some((member) => member.origin === "model" || member.origin === "solve"))
+    : null;
+  const itemCounts = counted ? countItemsBySeverity(counted) : null;
+  const diagnosticCount = counted ? counted.length : diagnostics.length;
+  const underChecks = counted ? counted.filter((item) => item.home === "model-checks").length : 0;
   const warningCount = itemCounts ? itemCounts.warning : diagnostics.filter((item) => item.severity === "warning").length;
   const blockingCount = itemCounts
     ? itemCounts.blocking + itemCounts.error
@@ -242,10 +249,10 @@ function readinessSummary({
     },
     {
       id: "diagnostics",
-      // What it counts: the items the Issues drawer lists under Diagnostics (a code repeated
-      // on one object is one item), so this row and the drawer state the same number.
+      // What it counts: the Issues drawer's items that hold a model or solve report (a code
+      // repeated on one object is one item), wherever the drawer lists them.
       label: "Model and solve diagnostics",
-      value: `${diagnosticCount} ${plural("diagnostic", diagnosticCount)}; ${warningCount} ${plural(
+      value: `${diagnosticCount} ${plural("diagnostic", diagnosticCount)}${underChecks > 0 ? ` (${underChecks} listed under Model checks)` : ""}; ${warningCount} ${plural(
         "warning",
         warningCount
       )}; ${blockingCount} blocking/error`,
