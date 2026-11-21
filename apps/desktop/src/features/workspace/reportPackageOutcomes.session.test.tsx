@@ -15,6 +15,7 @@ const invokeMock = vi.hoisted(() => vi.fn());
 vi.mock("@tauri-apps/api/core", async () => ({ invoke: (await import("../../test/nativeIngress")).ingressDecodingInvoke(invokeMock) }));
 import { createSolveJobTransport, nativeMechanicsReplayPair } from "../../test/nativeMechanicsReplay";
 import { createLocalProject, getLocalStorageCapability } from "../../services/projectService";
+import * as nativeResult from "../../services/nativeResult";
 import { loadDesignKnowledge, resetSessionResultCustodyForTests } from "../../services/previewService";
 import * as requestModule from "../report/reportPackageRequest";
 import { ReportOutputStatus } from "../report/ReportOutputStatus";
@@ -23,7 +24,10 @@ import type { PreviewModel } from "../../types";
 import { buildGridOperationIntent, type GridColumn } from "./table/modelTableAdapter";
 import { useWorkspaceSession, type WorkspaceSession } from "./workspaceSession";
 
+/** Solves left mid-solve by a test, released after it. */
+const heldSolves: (() => void)[] = [];
 afterEach(() => {
+  for (const release of heldSolves.splice(0)) release();
   cleanup();
   vi.restoreAllMocks();
   invokeMock.mockReset();
@@ -60,14 +64,20 @@ function receipt(kind: Kind, members: Record<string, unknown> = {}) {
 
 let jobSequence = 0;
 /** A solved Current session, rendered with the outcome strip and the package status as App
- * shows them. `save` answers `save_report_package`; `solve` answers each solve after the first. */
+ * shows them. `save` answers `save_report_package`; `solve` is awaited by each solve after the
+ * first (by default each later solve is held until the test ends). */
 async function solvedSession(save: (args: Record<string, unknown>) => Promise<unknown>, solve?: () => Promise<void>) {
+  if (!solve) {
+    const later = deferred<void>();
+    heldSolves.push(() => later.resolve());
+    solve = () => later.promise;
+  }
   const { model, bytes } = nativeMechanicsReplayPair("sparse_interactive", { profile: "preview" });
   const storage = await getLocalStorageCapability(), knowledge = await loadDesignKnowledge();
   let solves = 0;
   const transport = createSolveJobTransport(async (request) => {
     if (!isDeepStrictEqual({ model: request.model, mode: request.mode }, { model, mode: "sparse_interactive" })) throw new Error("REPLAY_REQUEST_MISMATCH");
-    if (++solves > 1 && solve) await solve();
+    if (++solves > 1) await solve!();
     return bytes;
   }, { jobIdPrefix: `unit-report-package-outcomes:${++jobSequence}` });
   invokeMock.mockImplementation(async (command: string, args?: unknown, options?: unknown) => {
@@ -86,8 +96,9 @@ async function solvedSession(save: (args: Record<string, unknown>) => Promise<un
     const results = current.results;
     return (
       <>
-        <ReportOutputStatus outcomes={results.reportOutputs} entries={results.reportOutputEntries} currentSequence={results.reportSourceSequence} />
-        <section aria-label="Report section">{results.reportPackageRoute ? <ReportPackageSaveStatus route={results.reportPackageRoute} announce /> : null}</section>
+        <ReportOutputStatus outcomes={results.reportOutputs} entries={results.reportOutputEntries} currentSequence={results.reportSourceSequence}
+          currentProjectId={current.model.model?.project.id ?? null} />
+        <section aria-label="Report section">{results.reportPackageRoute ? <ReportPackageSaveStatus route={results.reportPackageRoute} /> : null}</section>
       </>
     );
   }
@@ -100,7 +111,11 @@ async function solvedSession(save: (args: Record<string, unknown>) => Promise<un
   expect(state().results.currentSolvedResult).not.toBeNull();
   act(() => state().results.setReportPackagePrivateIntent(true));
   // What the report was prepared from, as the session holds it (never a hardcoded handle).
-  const basis = { model: state().model.model!.project.name, run: state().results.analysisRun!.analysis_run.run_id };
+  const basis = {
+    // The model by the name the toolbar shows: the saved project's summary name, else the document's.
+    model: state().project.projectSummary?.project_name ?? state().model.model!.project.name,
+    run: state().results.analysisRun!.analysis_run.run_id
+  };
   return { state, basis };
 }
 
@@ -163,7 +178,9 @@ async function makeChange(change: Change, state: () => WorkspaceSession) {
       break;
     }
     case "a solve start":
-      await act(async () => { await state().results.handleRun(); });
+      // The solve is left running: the save's reply settles mid-solve.
+      act(() => { void state().results.handleRun(); });
+      await waitFor(() => expect(state().results.running).toBe(true));
       break;
     case "a reference inspection":
       // The inspection retires the current result at once; the bundled reference's own load is
@@ -182,6 +199,9 @@ async function makeChange(change: Change, state: () => WorkspaceSession) {
 
 const earlier = (basis: { model: string; run: string }) =>
   ` It is of an earlier run: ${basis.model}, run ${basis.run}. The model or its results have changed since.`;
+/** What a changed workspace adds to a line: another project by its name, else the earlier run. */
+const moved = (change: Change, basis: { model: string; run: string }) =>
+  change === "opening another project" ? ` It is of another project: ${basis.model}.` : earlier(basis);
 
 describe.each(KINDS)("%s: the outcome is kept whatever happens to the workspace", (kind, name) => {
   it.each(CHANGES)("published natively, then %s before the reply: the entry is there and says what was saved", async (change) => {
@@ -195,7 +215,7 @@ describe.each(KINDS)("%s: the outcome is kept whatever happens to the workspace"
     expect(within(outcomeStatuses()[0]).queryByRole("button", { name: "Dismiss" })).toBeNull();
     await makeChange(change, state);
     await act(async () => { reply.resolve(receipt(kind)); await Promise.resolve(); });
-    await waitFor(() => expect(outcomeLines()).toEqual([`${name} saved: invented.opsproj.${earlier(basis)}`]));
+    await waitFor(() => expect(outcomeLines()).toEqual([`${name} saved: invented.opsproj.${moved(change, basis)}`]));
     expect(within(outcomeStatuses()[0]).getByRole("button", { name: "Dismiss" })).toBeInTheDocument();
   }, 90_000);
 
@@ -205,7 +225,7 @@ describe.each(KINDS)("%s: the outcome is kept whatever happens to the workspace"
     await startSave(kind, state);
     await waitFor(() => expect(outcomeLines()).toEqual([`${name} saved: invented.opsproj`]));
     await makeChange(change, state);
-    expect(outcomeLines()).toEqual([`${name} saved: invented.opsproj.${earlier(basis)}`]);
+    expect(outcomeLines()).toEqual([`${name} saved: invented.opsproj.${moved(change, basis)}`]);
   }, 90_000);
 });
 
@@ -295,6 +315,23 @@ describe("Save Report Package…: what the entry shows and how it goes", () => {
   }, 90_000);
 });
 
+describe("an entry's basis is the report the press was made on", () => {
+  it("a shareable save confirmed after the workspace moved on is of the report the dialog opened on", async () => {
+    const { state, basis } = await solvedSession(async () => receipt("shareable_report_package"));
+    await act(async () => { await state().results.requestSaveShareableReportPackage(); });
+    const request = state().results.userReleaseRequest!;
+    expect(request.refusal).toBeNull();
+    act(() => state().results.setReportComposition({ composition_version: "1.0.0", sections: [] }));
+    act(() => request.save({ userReleasedAt: "2026-11-21T00:00:00Z" }));
+    await waitFor(() => expect(outcomeLines()).toEqual([
+      `Shareable report package not saved: the workspace changed before the request was sent (REPORT-REQUEST-RETIRED). Nothing was sent.${earlier(basis)}`
+    ]));
+    expect(saveCalls()).toHaveLength(0);
+  }, 90_000);
+});
+
+const SOLVE_RUNNING = "Not saved: a solve was running. Save the report package when it has finished.";
+
 describe("a \"not requested\" status (issue 508, comment)", () => {
   it("set while a solve runs, does not remain beside that solve's result", async () => {
     const held = deferred<void>();
@@ -311,5 +348,90 @@ describe("a \"not requested\" status (issue 508, comment)", () => {
     expect(state().results.currentSolvedResult).not.toBeNull();
     expect(within(section).queryByText(refusal)).toBeNull();
     expect(saveCalls()).toHaveLength(0);
+  }, 90_000);
+
+  it("refused in the same batch as the solve's end, is not shown beside that solve's result", async () => {
+    const held = deferred<void>();
+    const { state } = await solvedSession(async () => receipt("report_package"), () => held.promise);
+    let solving!: Promise<void>;
+    act(() => { solving = state().results.handleRun(); });
+    await waitFor(() => expect(state().results.running).toBe(true));
+    // A press handled from the render in which the solve was running, while its end is applied.
+    const pressedWhileRunning = state().results.handleSaveReportPackage;
+    await act(async () => { held.resolve(); await solving; await pressedWhileRunning(); });
+    await waitFor(() => expect(state().results.solveJob.state).toBe("completed"));
+    expect(state().results.currentSolvedResult).not.toBeNull();
+    const section = screen.getByRole("region", { name: "Report section" });
+    expect(within(section).queryByText(SOLVE_RUNNING)).toBeNull();
+    expect(saveCalls()).toHaveLength(0);
+  }, 90_000);
+
+  it("refused while a solve runs that then fails, is gone once no solve is running", async () => {
+    const held = deferred<void>();
+    const { state } = await solvedSession(async () => receipt("report_package"), () => held.promise);
+    let solving!: Promise<void>;
+    act(() => { solving = state().results.handleRun(); });
+    await waitFor(() => expect(state().results.running).toBe(true));
+    await act(async () => { await state().results.handleSaveReportPackage(); });
+    const section = screen.getByRole("region", { name: "Report section" });
+    expect(within(section).getByRole("status")).toHaveTextContent(SOLVE_RUNNING);
+    await act(async () => { held.reject(new Error("invented: the solve failed")); await solving.catch(() => undefined); });
+    await waitFor(() => expect(state().results.running).toBe(false));
+    expect(state().results.currentSolvedResult).toBeNull();
+    expect(within(section).queryByText(SOLVE_RUNNING)).toBeNull();
+  }, 90_000);
+
+  it("still true after an unrelated change of the report source, stays shown", async () => {
+    const held = deferred<void>();
+    const { state } = await solvedSession(async () => receipt("report_package"), () => held.promise);
+    let solving!: Promise<void>;
+    act(() => { solving = state().results.handleRun(); });
+    await waitFor(() => expect(state().results.running).toBe(true));
+    await act(async () => { await state().results.handleSaveReportPackage(); });
+    const section = screen.getByRole("region", { name: "Report section" });
+    expect(within(section).getByRole("status")).toHaveTextContent(SOLVE_RUNNING);
+    const before = state().results.reportSourceSequence;
+    act(() => state().results.setReportComposition({ composition_version: "1.0.0", sections: [] }));
+    await waitFor(() => expect(state().results.reportSourceSequence).not.toBe(before));
+    // The solve is still running, so the reason is still true and still announced.
+    expect(within(section).getByRole("status")).toHaveTextContent(SOLVE_RUNNING);
+    await act(async () => { held.resolve(); await solving; });
+    await waitFor(() => expect(within(section).queryByText(SOLVE_RUNNING)).toBeNull());
+  }, 90_000);
+
+  it("none is set while a revised run record is read: a press then starts a save, and no reason remains after the read", async () => {
+    const { state } = await solvedSession(async () => receipt("report_package"));
+    const read = deferred<void>();
+    const real = nativeResult.readNativeRunPreview;
+    const reader = vi.spyOn(nativeResult, "readNativeRunPreview").mockImplementation(async (...args) => {
+      await read.promise;
+      return real(...args);
+    });
+    const current = state();
+    let recording!: Promise<void>;
+    act(() => {
+      recording = current.results.handleRuleCheckAggregate("RULE_INPUTS_INCOMPLETE", {
+        projectSessionGeneration: current.model.projectSessionGeneration,
+        modelRevision: current.model.uiModelRevision,
+        result: current.results.currentSolvedResult,
+        inputManifest: current.results.inputManifest
+      }, null);
+    });
+    await waitFor(() => expect(reader).toHaveBeenCalled());
+    // Not refused: the record being read is no reason a request cannot proceed.
+    act(() => { void state().results.handleSaveReportPackage(); });
+    const section = screen.getByRole("region", { name: "Report section" });
+    expect(within(section).queryByRole("status")).toBeNull();
+    await act(async () => { read.resolve(); await recording; });
+    await waitFor(() => {
+      const states = outcomeStatuses().map((status) => status.getAttribute("data-state"));
+      expect(states).toHaveLength(1);
+      expect(states).not.toContain("pending");
+    });
+    expect(within(section).queryByRole("status")).toBeNull();
+    expect(within(section).queryByText(/^Not saved: /)).toBeNull();
+    // The save the press started is kept in the strip, whatever it came to.
+    expect(outcomeStatuses()).toHaveLength(1);
+    expect(outcomeLines()[0]).toMatch(/^Report package /);
   }, 90_000);
 });

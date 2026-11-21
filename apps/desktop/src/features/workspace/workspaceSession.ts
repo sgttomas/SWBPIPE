@@ -4227,8 +4227,9 @@ export function useWorkspaceSession() {
     if (refusal !== null) { setReportPackageRoute({ route: "not_requested", diagnostic: refusal }); return; }
     if (!model || !currentSolvedResult || !analysisRun || !inputManifest || running || reportPackageBusy) return;
     const generation = ++reportPackageRequestGenerationRef.current;
+    // The entry's basis: the committed report source this press was made on.
     const output = reportPackageOutput("report_package",
-      reportOutputBasisOf(reportSource.owner.sequence, model.project, analysisRun.analysis_run.run_id));
+      reportOutputBasisOf(reportSource.sequence, model.project, projectSummary?.project_name, analysisRun.analysis_run.run_id));
     const basis = {
       projectSessionGeneration: projectSessionGenerationRef.current,
       modelRevision: uiModelRevisionRef.current,
@@ -4329,6 +4330,8 @@ export function useWorkspaceSession() {
     inputManifest: CurrentSessionInputManifestEvidence;
     analysisRun: SessionAnalysisRun;
     reportComposition: ReportComposition | null;
+    /** The outcome entry's basis (issue 508): the committed report source the dialog opened on. */
+    output: ReportOutputBasis;
   };
   const userReleaseBasisCurrent = (basis: UserReleaseBasis) =>
     projectSessionGenerationRef.current === basis.projectSessionGeneration &&
@@ -4355,7 +4358,8 @@ export function useWorkspaceSession() {
       result: currentSolvedResult,
       inputManifest,
       analysisRun,
-      reportComposition
+      reportComposition,
+      output: reportOutputBasisOf(reportSource.sequence, model.project, projectSummary?.project_name, analysisRun.analysis_run.run_id)
     };
     const modelDocumentSha256 = await canonicalSha256Hex(basis.model);
     // Nothing is asked of a session that moved on.
@@ -4393,8 +4397,8 @@ export function useWorkspaceSession() {
   /** The one save the dialog's confirmation starts, on route `DREP-PACKAGE-USER-RELEASE-010`.
    * Its status and evidence use the package's status line; nothing outlives the save. */
   async function handleSaveShareableReportPackage(confirmation: UserReleaseConfirmation, basis: UserReleaseBasis) {
-    const output = reportPackageOutput("shareable_report_package",
-      reportOutputBasisOf(reportSource.owner.sequence, basis.model.project, basis.analysisRun.analysis_run.run_id));
+    // The entry's basis was taken when the dialog opened, never at this confirmation.
+    const output = reportPackageOutput("shareable_report_package", basis.output);
     if (running || reportPackageBusyGenerationRef.current !== null || !userReleaseBasisCurrent(basis)) {
       // The person confirmed this save: one that does not start says so.
       if (!userReleaseBasisCurrent(basis)) output.end();
@@ -4463,16 +4467,20 @@ export function useWorkspaceSession() {
       }
     }
   }
-  // Issue 508: a "not requested" status says why a request could not proceed in the workspace
-  // as it then stood (a solve running, a run record being revised, no current result). It is
-  // shown while the report source it was refused under is unchanged, so it never stands beside
-  // the result that then arrives. The panel's other package statuses are unchanged.
-  const [notRequestedUnder, setNotRequestedUnder] = useState<{ route: NonNullable<typeof reportPackageRoute>; sequence: number } | null>(null);
-  if (reportPackageRoute?.route === "not_requested" && notRequestedUnder?.route !== reportPackageRoute) {
-    setNotRequestedUnder({ route: reportPackageRoute, sequence: reportSource.sequence });
-  }
-  const shownReportPackageRoute = reportPackageRoute?.route === "not_requested" && notRequestedUnder?.route === reportPackageRoute
-    && notRequestedUnder.sequence !== reportSource.sequence ? null : reportPackageRoute;
+  // Issue 508: a "not requested" reason says why a request could not proceed. It is shown while it
+  // is still true: while the session, as it now is, would refuse a request for that same reason
+  // (the refusal the two package commands compute, then the shareable command's "another project
+  // operation or dialog" check). It goes, for good, once it is not: when the solve has ended
+  // however it ended, a result has arrived, the save in progress has ended, or a different reason
+  // applies. A change that leaves the same reason true leaves it shown.
+  const notRequestedNow = reportPackageRoute?.route === "not_requested"
+    ? reportPackageRequestRefusal() ?? (projectSessionBusy() ? "Not saved: another project operation or dialog was open." : null)
+    : null;
+  const notRequestedSpent = reportPackageRoute?.route === "not_requested" && reportPackageRoute.diagnostic !== notRequestedNow ? reportPackageRoute : null;
+  useEffect(() => {
+    if (notRequestedSpent) setReportPackageRoute((route) => (route === notRequestedSpent ? null : route));
+  }, [notRequestedSpent, setReportPackageRoute]);
+  const shownReportPackageRoute = notRequestedSpent ? null : reportPackageRoute;
 
   // B11 on-demand model checks (DEL-04-06 Design `on-demand-model-checks.md`):
   // the session's last run, shown in the Issues drawer. The checks read the
