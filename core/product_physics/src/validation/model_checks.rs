@@ -93,6 +93,8 @@ fn pre_formation_checks(request: LinearStaticPreviewRequest) -> Vec<Diagnostic> 
     if has_blocking(&diagnostics) {
         return diagnostics;
     }
+    // DEL-05-01 REQ-008, as in the solve.
+    let seismic_entered = crate::seismic_warning::capture(&model);
     resolve_shared_sections(&mut model, &mut diagnostics);
     if has_blocking(&diagnostics) {
         return diagnostics;
@@ -101,6 +103,7 @@ fn pre_formation_checks(request: LinearStaticPreviewRequest) -> Vec<Diagnostic> 
     if has_blocking(&diagnostics) {
         return diagnostics;
     }
+    crate::seismic_warning::append(&model, &seismic_entered, &mut diagnostics);
 
     let load_state = case_state::is_load_state(&model);
     if !load_state {

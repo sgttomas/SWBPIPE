@@ -150,7 +150,7 @@ mod topology;
 mod validation;
 mod imposed_motion; mod held_status; mod skew; // RT-A5 `minuend_final` (DEL-05-02 `operating-case.md` §7) and R-6/R-7 S-K1 (DEL-04-03 `skew-restraints.md`), on this line so that no line moves.
 use validation::validate_model_inputs;
-mod rigid_component; mod seismic_component; // DEL-05-01 static-equivalent seismic component force (LIM-028), on this line so that no line moves.
+mod rigid_component; mod seismic_component; mod seismic_warning; // DEL-05-01 static-equivalent seismic component force (LIM-028) and REQ-008's seismic model-check warning, on this line so that no line moves.
 #[cfg(test)]
 mod w15_rigid_scaling_tests;
 #[cfg(test)]
@@ -3130,6 +3130,8 @@ fn run_linear_static_preview_observed_inner(
     if has_blocking(&diagnostics) {
         return blocked_envelope(model, diagnostics);
     }
+    // DEL-05-01 REQ-008: what the seismic warning prints as entered, and the plan's fresh primitives.
+    let seismic_entered = seismic_warning::capture(&model);
 
     resolve_shared_sections(&mut model, &mut diagnostics);
     if has_blocking(&diagnostics) {
@@ -3140,6 +3142,8 @@ fn run_linear_static_preview_observed_inner(
     if has_blocking(&diagnostics) {
         return blocked_envelope(model, diagnostics);
     }
+    // DEL-05-01 REQ-008: the seismic model-check warning, before formation (warnings only).
+    seismic_warning::append(&model, &seismic_entered, &mut diagnostics);
     // W-15 slice c (DEL-03-05 Design `eccentric-reducer-offset.md` §3.2): a
     // declared eccentric offset is checked against the normalized node
     // geometry, which governs. The first pass returns before any index is

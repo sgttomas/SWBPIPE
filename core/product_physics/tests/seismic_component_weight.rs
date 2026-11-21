@@ -26,8 +26,9 @@
 //! (`generators/scw_reference.py` `family`): load per length (N/m), force
 //! (N), moment (N m), translation (m) and rotation (rad).
 //!
-//! The model-check warning of REQ-008 is not built (DEL-05-01 "Not met"); the
-//! package's `expected_model_check_warning` members are not compared here.
+//! The model-check warning of REQ-008 (issue 452 decision 7) is bound to the
+//! package's `expected_model_check_warning` member of every seismic case
+//! (`every_frozen_warning_expectation_is_reproduced`).
 use open_pipe_stress_product_physics::{run_linear_static_preview_value_with_mode, PreviewSolverMode};
 use serde_json::{json, Value};
 use sha2::{Digest, Sha256};
@@ -981,4 +982,111 @@ fn a_generated_component_load_publishes_the_rule_s_value() {
             }
         }
     }
+}
+
+// ------------------------------------------------------------------ REQ-008's warning
+const GRAVITY_DIFFERS: &str = "EQUIVALENT_STATIC_SEISMIC_GRAVITY_DIFFERS";
+const WEIGHT_LOAD_ENTERED: &str = "EQUIVALENT_STATIC_SEISMIC_WEIGHT_LOAD_ENTERED";
+const CONDITION_WEIGHT_ADDED: &str = "EQUIVALENT_STATIC_SEISMIC_CONDITION_WEIGHT_ADDED";
+
+/// The self-weight plan's own weight case for `model` (pipes AB, BC and CD,
+/// along global z at `gravity` m/s^2), applied unmodified.
+fn applied_weight_case(model: &Value, gravity: f64) -> Value {
+    use open_pipe_stress_product_physics::self_weight::generate_self_weight_operations;
+    let typed: open_pipe_stress_product_physics::PreviewModel = serde_json::from_value(model.clone()).unwrap();
+    let request = serde_json::from_value(json!({"case_id": "case:weight", "label": "invented", "pipe_refs": ["AB", "BC", "CD"],
+        "gravity": {"value": -gravity, "unit": "m/s^2", "axis": "global_z"}, "provenance": PROV,
+        "source_model_hash": format!("sha256:{}", "a".repeat(64))})).unwrap();
+    let plan = generate_self_weight_operations(&typed, &request).expect("the plan");
+    let mut case: Value = serde_json::from_str(&plan.changes[0].after).unwrap();
+    case["primitive_loads"] = plan.changes[1..].iter().map(|c| serde_json::from_str::<Value>(&c.after).unwrap()).collect::<Vec<_>>().into();
+    case
+}
+fn findings<'a>(diagnostics: &'a Value, code: &str, case: &str) -> Vec<&'a Value> {
+    diagnostics.as_array().unwrap().iter().filter(|d| d["code"] == code && d["affected_refs"][0] == case).collect()
+}
+fn model_checks(wire: &Value) -> Value {
+    serde_json::to_value(open_pipe_stress_product_physics::LinearStaticPreviewRequest::pre_formation_checks_value(wire.clone()).unwrap()).unwrap()
+}
+
+/// VER-005 for REQ-008's gravity ground (issue 452 decision 7: "The gravity
+/// comparison reads fresh applied component-weight primitives only"): every
+/// seismic case of the package that carries `expected_model_check_warning`
+/// (34), on its route and model, in both solver modes, solved beside the
+/// self-weight plan's own weight case applied unmodified at the package's
+/// applied gravity. The unequal-gravity finding is raised exactly when
+/// `expected` is true (6 cases): G10 (10 against 9.79 m/s^2) on both routes
+/// and models, and the one-ulp boundary on both routes. The two limit cases (`expected` null, `applicable` false)
+/// have no document and are not solved. The model checks raise the same
+/// findings before the solve. No other ground arises: the seismic cases carry
+/// no weight loads of their own. And the warning changes no published number:
+/// every seismic case's rows equal, bit for bit, its rows solved without the
+/// weight case, where no gravity is known.
+#[test]
+fn every_frozen_warning_expectation_is_reproduced() {
+    let rows = |out: &Value, case: &str| out["results"].as_array().unwrap().iter()
+        .filter(|r| r["basis_ref"]["ref_id"] == case)
+        // A case that is not its document's first prefixes its row ids with itself.
+        .map(|r| {
+            let id = r["id"].as_str().unwrap();
+            let id = id.strip_prefix("result:loadcase:").map_or(id.to_string(), |rest| format!("result:{}", rest.split_once(':').unwrap().1));
+            (id, r["value"].as_f64().unwrap().to_bits())
+        })
+        .collect::<Vec<_>>();
+    let (mut bound, mut warned, mut limits) = (0, 0, 0);
+    for route in [Route::Pf, Route::Ex] {
+        for model in [Model::Cant, Model::Fixed] {
+            for doc in &DOCUMENTS {
+                if doc.cant_only && model == Model::Fixed {
+                    continue;
+                }
+                let ids: Vec<String> = doc.names.iter().map(|n| format!("SCW-{}-{}-{n}", model_tag(model), route_tag(route))).collect();
+                let seismic: Vec<Value> = ids.iter().map(|id| case_of(reference(id), &format!("case:{id}"))).collect();
+                let alone = document(route, model, doc.components, seismic.clone());
+                let applied = reference(&ids[0])["expected_model_check_warning"]["applied_self_weight_gravity"]["value"].as_f64().unwrap();
+                let weight = applied_weight_case(&alone["model"], applied);
+                let beside = document(route, model, doc.components, [vec![weight], seismic].concat());
+                let checks = model_checks(&beside);
+                for mode in MODES {
+                    let (a, b) = (solved(&alone, mode, "alone"), solved(&beside, mode, "beside the applied weight"));
+                    for id in &ids {
+                        let case = format!("case:{id}");
+                        let w = &reference(id)["expected_model_check_warning"];
+                        assert!(w.is_object(), "{id}: every seismic reference case carries the member");
+                        assert_eq!(w["applied_self_weight_gravity"]["value"].as_f64(), Some(applied), "{id}: one applied gravity per document");
+                        let found = findings(&b["diagnostics"], GRAVITY_DIFFERS, &case);
+                        assert_eq!(found.len() as u64, if w["expected"] == true { 1 } else { 0 }, "{id} {mode:?}: {found:?}");
+                        assert_eq!(findings(&checks, GRAVITY_DIFFERS, &case).len(), found.len(), "{id}: the model checks raise it before the solve");
+                        if let Some(f) = found.first() {
+                            assert_eq!(w["carries_applied_component_force"], true, "{id}");
+                            assert_eq!(f["severity"], "warning");
+                            let g = w["seismic_gravity_authored"]["value"].as_f64().unwrap();
+                            let message = f["message"].as_str().unwrap();
+                            assert!(message.contains(&format!("states gravity {g} m/s^2")) && message.contains(&format!("formed at {applied} m/s^2"))
+                                && message.contains("component:valve"), "{id}: {message}");
+                            warned += 1;
+                        }
+                        assert!(findings(&a["diagnostics"], GRAVITY_DIFFERS, &case).is_empty(), "{id}: no applied gravity is known alone");
+                        for code in [WEIGHT_LOAD_ENTERED, CONDITION_WEIGHT_ADDED] {
+                            assert!(findings(&b["diagnostics"], code, &case).is_empty(), "{id}: {code}");
+                        }
+                        assert_eq!(rows(&b, &case), rows(&a, &case), "{id} {mode:?}: the warning changes no published number");
+                        bound += 1;
+                    }
+                }
+            }
+            for limit in ["BND-ZERO-SEISMIC-XYZ-G10"] {
+                let id = format!("SCW-{}-{}-{limit}", model_tag(model), route_tag(route));
+                if let Some(r) = refs()["cases"].as_array().unwrap().iter().find(|c| c["id"] == id.as_str()) {
+                    assert_eq!((r["role"].as_str(), r["expected_model_check_warning"]["expected"].is_null(), &r["expected_model_check_warning"]["applicable"]),
+                        (Some("limit"), true, &json!(false)), "{id}");
+                    limits += 1;
+                }
+            }
+        }
+    }
+    let frozen = refs()["cases"].as_array().unwrap().iter().filter(|c| c.get("expected_model_check_warning").is_some()).count();
+    // 34 = 32 solved + 2 limits; the warning is expected on 6: G10 on both
+    // routes and models, the one-ulp boundary on both routes (cantilever only).
+    assert_eq!((bound / 2 + limits, warned / 2, limits), (frozen, 6, 2), "every frozen expectation is bound (34)");
 }
