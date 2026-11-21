@@ -303,7 +303,7 @@ describe("DEL-16-06: the commit entry and the command triggers are out of reach 
       operations.handleApplyIntent, operations.handleRunOperationBatch]) expect(held).not.toContain(entry);
     // The interface the host is written against names the same five members.
     const agent = files.find((entry) => entry.file === "services/embeddedAgentSession.ts")!.text;
-    const declared = agent.slice(agent.indexOf("export interface WorkspaceExecution {"), agent.indexOf("}", agent.indexOf("export interface WorkspaceExecution {")));
+    const declared = agent.slice(agent.indexOf("export interface WorkspaceExecution {"), agent.indexOf("\n}", agent.indexOf("export interface WorkspaceExecution {")));
     expect([...declared.matchAll(/^\s*(\w+)\(/gm)].map((match) => match[1]).sort()).toEqual(["proposal", "register", "snapshot", "solve", "withdraw"]);
   });
 
