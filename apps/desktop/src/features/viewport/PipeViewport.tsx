@@ -1586,6 +1586,24 @@ export function PipeViewport({
     const sizes = new Map<EntityKey, { width: number; height: number }>();
     const written = new Map<EntityKey, string>();
     let laidOut: { cameraSequence: number; width: number; height: number } | null = null;
+    // The furniture's boxes, read once and again only when the furniture changes (a status line,
+    // a legend or the factor appears, changes or goes) or the canvas changes size: not per frame.
+    let obstacles: { width: number; height: number; boxes: LabelBox[] } | null = null;
+    const frameElement = selectionLayerRef.current?.parentElement ?? hostRef.current?.parentElement ?? null;
+    const furniture = frameElement
+      ? [...frameElement.querySelectorAll<HTMLElement>(":scope > .viewport-canvas-right, :scope > .viewport-canvas-foot")]
+      : [];
+    const furnitureChanged = () => {
+      obstacles = null;
+      laidOut = null;
+      resource.invalidate();
+    };
+    const furnitureMutations = typeof MutationObserver === "undefined" ? null : new MutationObserver(furnitureChanged);
+    const furnitureSizes = typeof ResizeObserver === "undefined" ? null : new ResizeObserver(furnitureChanged);
+    for (const element of furniture) {
+      furnitureMutations?.observe(element, { childList: true, subtree: true, characterData: true });
+      furnitureSizes?.observe(element);
+    }
     const updateLabelAnchors = () => {
       const layer = selectionLayerRef.current;
       if (!layer) {
@@ -1603,15 +1621,18 @@ export function PipeViewport({
         [...layer.querySelectorAll<HTMLElement>("[data-entity-key]")]
           .map((button) => [button.dataset.entityKey as EntityKey, button] as const)
       );
-      const origin = layer.getBoundingClientRect();
-      const frame = layer.parentElement;
-      const obstacles: LabelBox[] = frame
-        ? [...frame.querySelectorAll<HTMLElement>(".viewport-canvas-right > *, .viewport-canvas-foot > *, .viewport-axis-triad")].flatMap((element) => {
-            const box = element.getBoundingClientRect();
-            if (box.width <= 0 || box.height <= 0) return [];
-            return [{ left: box.left - origin.left, top: box.top - origin.top, right: box.right - origin.left, bottom: box.bottom - origin.top }];
-          })
-        : [];
+      if (!obstacles || obstacles.width !== width || obstacles.height !== height) {
+        const origin = layer.getBoundingClientRect();
+        const frame = layer.parentElement;
+        const boxes: LabelBox[] = frame
+          ? [...frame.querySelectorAll<HTMLElement>(".viewport-canvas-right > *, .viewport-canvas-foot > *, .viewport-axis-triad")].flatMap((element) => {
+              const box = element.getBoundingClientRect();
+              if (box.width <= 0 || box.height <= 0) return [];
+              return [{ left: box.left - origin.left, top: box.top - origin.top, right: box.right - origin.left, bottom: box.bottom - origin.top }];
+            })
+          : [];
+        obstacles = { width, height, boxes };
+      }
       const candidates: LabelCandidate<EntityKey>[] = [];
       for (const { key, kind, position } of anchors) {
         const button = buttons.get(key);
@@ -1637,7 +1658,7 @@ export function PipeViewport({
           preferredPlace: labelPlaceRef.current.get(key)
         });
       }
-      const placements = layoutLabels(candidates, { width, height }, obstacles);
+      const placements = layoutLabels(candidates, { width, height }, obstacles.boxes);
       // Then writes, only where a label changed.
       let visibleCount = 0;
       for (const placement of placements) {
@@ -1663,7 +1684,11 @@ export function PipeViewport({
     resource.setLabelUpdater(updateLabelAnchors);
     updateLabelAnchors();
     resource.invalidate();
-    return () => resource.setLabelUpdater(null);
+    return () => {
+      furnitureMutations?.disconnect();
+      furnitureSizes?.disconnect();
+      resource.setLabelUpdater(null);
+    };
   }, [activeModelIndex, hoveredEntityKey, labelKeys, orderedSelectionKeys, primarySelectionKey, renderTransform, showLabels]);
 
   useEffect(() => {
