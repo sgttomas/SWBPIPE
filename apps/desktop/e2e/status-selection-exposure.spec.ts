@@ -7,13 +7,16 @@ import { judgeStatusSelectionExposure } from "./ui-foundation/status-selection-e
 
 const expected = { type: "pipe", id: "pipe:UIF-00077" };
 
-async function fixture(page: Page, width: number, text = expected) {
+// The fixture follows the product's rules (styles.css: the type gives way first, the identifier last,
+// spaced from the type by 0.3em). `idShrink` 0 holds the identifier at its full width, so that a
+// case can clip the type alone without depending on how a fraction of a pixel rounds.
+async function fixture(page: Page, width: number, text = expected, idShrink = 1) {
   await page.setContent(`
     <style>
-      .shell-status-selection { display: flex; align-items: baseline; gap: 4px; width: ${width}px; font: 13px sans-serif; white-space: nowrap; }
-      .shell-status-selection > span { overflow: hidden; text-overflow: ellipsis; min-width: 0; }
-      .shell-status-selection-type { flex-shrink: 1000; }
-      .shell-status-selection-id { flex-shrink: 1; }
+      .shell-status-selection { display: flex; align-items: baseline; min-width: 0; width: ${width}px; font: 13px sans-serif; }
+      .shell-status-selection > span { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: pre; }
+      .shell-status-selection-type { flex: 0 1000 auto; }
+      .shell-status-selection-id { flex: 0 ${idShrink} auto; margin-inline-start: 0.3em; }
     </style>
     <span class="shell-status-selection" data-testid="status-selection"><span class="shell-status-selection-type">${text.type}:</span> <span class="shell-status-selection-id">${text.id}</span></span>
   `);
@@ -33,8 +36,8 @@ test("an identifier clipped by the ellipsis is refused", async ({ page }) => {
 });
 
 test("a type clipped while the identifier is whole is refused", async ({ page }) => {
-  // The type shrinks first: room for the identifier and a sliver of the type.
-  const result = await fixture(page, 125);
+  // The identifier held whole and a 10 px sliver left for the type.
+  const result = await fixture(page, 10 + 4 + 90, expected, 0);
   expect(result.status, JSON.stringify(result)).toBe("FAIL_STATUS_SELECTION_NOT_EXPOSED");
   expect(result.type.complete).toBe(false);
 });
