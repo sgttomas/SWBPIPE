@@ -76,7 +76,7 @@ The project's own examination, VER-006's checks among it, shows whether the use 
 - **REQ-013** — One token source generates the stylesheet. No workspace surface sets a colour, a space, a control size or a type step outside the tokens.
 - **REQ-014** — Every workspace surface follows the presentation conventions, and in either density every target of a control the accessibility target covers meets Target Size (Minimum) (2.5.8).
 - **REQ-016** — *Usability.* Each use case AC-007 lists completes in the desktop with no step outside it, and each is tested thoroughly before the owner is asked. Before the owner is asked, the embedded agent completes each use case in the desktop from its stated start to its stated result, and the interface review passes (REQ-017). The owner then uses the desktop and gives the owner's verdict (`docs/RELEASE_TARGET_v1.0.md`, exit criterion 8).
-- **REQ-017** — *Interface review.* Before the owner is asked to use the desktop, both reviewers of the interface review give an overall score of at least 4 on every interface criterion. No score is raised by narrowing what a criterion asks or by leaving out a screen a person would meet.
+- **REQ-017** — *Interface review.* Before the owner is asked to use the desktop, both reviewers of the interface review give an overall score of at least 4 on every interface criterion, and neither gives any use case a score below 3 on a criterion that applies to it. Every use case score below 4 is reported with its screens and what would raise it. No score is raised by narrowing what a criterion asks or by leaving out a screen a person would meet.
 
 ### Acceptance criteria
 
@@ -96,7 +96,7 @@ The project's own examination, VER-006's checks among it, shows whether the use 
   - *Every required analysis.* On the reference system the user sets up and solves each analysis exit criterion 1 names and reads each result, among them the hydrotest marked as a test case, the modal frequencies and mode shapes, the spectrum response and the hanger table.
   - *User rule pack.* The user brings a private rule pack into the local store through the rule-pack editor, selects it, applies it to an analysis run and reads each outcome as within or exceeding the user's limit, with each rule input the model lacks shown as a finding.
   - *Save, close and resume.* The user saves a project, quits, reopens it and finds the model and its saved states, runs and reports as they were left. After the desktop is ended without saving, reopening it recovers the work with at most one autosave interval lost.
-- **AC-008** — On a walkthrough of every use case AC-007 lists, taken at the revision the owner is asked to use, each of the two reviewers of the interface review gives an overall score of at least 4 on each of the nine interface criteria, each score with its evidence.
+- **AC-008** — On a walkthrough of every use case AC-007 lists, taken at the revision the owner is asked to use, each of the two reviewers of the interface review gives an overall score of at least 4 on each of the nine interface criteria and no use case a score below 3 on a criterion that applies to it, each overall score with its evidence and each use case score below 4 with its screens and what would raise it.
 
 ## Production and Verification Method — Praxeology
 
