@@ -27,7 +27,11 @@
 //! driver then asks for the open print window to be closed with
 //! `native_smoke_close_report_print`, which confirms that the window its own close
 //! selected left the window registry, not that it was the recorded print's), so no
-//! page reaches a printer or a print queue. Everything else, from the
+//! page reaches a printer or a print queue. A report view window
+//! (`report_view`) is opened and served as in the product; the harness records
+//! what its protocol served each window (`record_report_view`, read by
+//! `native_smoke_take_report_views`) and can close them all
+//! (`native_smoke_close_report_views`). Everything else, from the
 //! open checks to solve, persistence and export, runs on the product's code.
 //! The evidence journeys (`native-smoke/evidence-journeys.mjs`) also write
 //! checkpoints of their report, and a read-only copy of the store, while the app
@@ -567,6 +571,73 @@ async fn confirm_closed(selected: Option<String>, registered: impl Fn(&str) -> b
         }
         tokio::time::sleep(std::time::Duration::from_millis(10)).await;
     }
+}
+
+/// What one report view window (`report_view`) was served, recorded at its
+/// protocol: the identity it shows (its kind and SHA-256), its window label,
+/// whether its wrapper and its document were served, and the served
+/// document's SHA-256 and byte count. It substitutes nothing: the window
+/// opens and is served as in the product. The record shows what the protocol
+/// answered that window, not what WebKit drew.
+#[derive(Clone, Debug, Serialize)]
+pub struct ReportViewObservation {
+    pub window_label: String,
+    pub kind: String,
+    pub identity_sha256_hex: String,
+    pub wrapper_served: bool,
+    pub document_served: bool,
+    pub document_sha256_hex: Option<String>,
+    pub document_byte_count: Option<usize>,
+}
+
+static REPORT_VIEWS: Mutex<Vec<ReportViewObservation>> = Mutex::new(Vec::new());
+
+/// Records one served part of a view window: its wrapper, or its document
+/// (`body`, as served).
+pub fn record_report_view(window_label: &str, kind: &str, identity_sha256_hex: &str, document: bool, body: &[u8]) {
+    let mut views = REPORT_VIEWS.lock().unwrap_or_else(std::sync::PoisonError::into_inner);
+    let at = match views.iter().position(|view| view.window_label == window_label) {
+        Some(at) => at,
+        None => {
+            views.push(ReportViewObservation {
+                window_label: window_label.to_string(),
+                kind: kind.to_string(),
+                identity_sha256_hex: identity_sha256_hex.to_string(),
+                wrapper_served: false,
+                document_served: false,
+                document_sha256_hex: None,
+                document_byte_count: None,
+            });
+            views.len() - 1
+        }
+    };
+    let view = &mut views[at];
+    if document {
+        view.document_served = true;
+        view.document_sha256_hex = Some(crate::rendered_report_routes::sha256_hex(body));
+        view.document_byte_count = Some(body.len());
+    } else {
+        view.wrapper_served = true;
+    }
+}
+
+/// The view windows' records since the last call, by window, oldest first.
+#[tauri::command]
+pub fn native_smoke_take_report_views() -> Vec<ReportViewObservation> {
+    std::mem::take(&mut *REPORT_VIEWS.lock().unwrap_or_else(std::sync::PoisonError::into_inner))
+}
+
+/// Closes every open report view window (`report_view::close_all`) and
+/// confirms that each label the close took leaves Tauri's window registry;
+/// returns those labels. A close request alone is not evidence that a window
+/// closed.
+#[tauri::command]
+pub async fn native_smoke_close_report_views(app: AppHandle) -> Result<Vec<String>, String> {
+    let labels = crate::report_view::close_all();
+    for label in &labels {
+        confirm_closed(Some(label.clone()), |label| app.get_webview_window(label).is_some(), std::time::Duration::from_secs(2)).await?;
+    }
+    Ok(labels)
 }
 
 #[tauri::command]

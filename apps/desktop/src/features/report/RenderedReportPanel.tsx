@@ -28,14 +28,23 @@ import type { ReportPackageSaveReceipt, ReportPackageSaveRoute } from "../../ser
 import { REPORT_PACKAGE_USER_RELEASE_ROUTE_ID } from "../redaction-controls/redactionExportControls";
 import type { CurrentSessionInputManifestEvidence } from "../../services/inputManifestService";
 import {
+  closeRenderedReportViews,
   controlRenderedReportHtml,
   isNativeRenderedReportRuntime,
+  OPEN_REPORT_VIEW_LABEL,
+  openRenderedReportView,
   printOutcomeText,
   printRenderedReport,
   renderedReportRouteOpen,
+  REPORT_VIEW_CLOSED_DISMISS,
+  REPORT_VIEW_CLOSED_NOT_CURRENT,
+  REPORT_VIEW_OPENING,
+  reportViewRefusalText,
   retireRenderedReport,
   saveOutcomeText,
-  saveRenderedReportHtml
+  saveRenderedReportHtml,
+  takeReportViewClosures,
+  viewOutcomeText
 } from "../../services/renderedReportRoutes";
 import type { ReportRenderRequest, ReportSourceMark, ReportSourceSequence } from "../workspace/reportSourceSequence";
 import { currentLibraryRefFindings, NO_LIBRARY_REF_FINDINGS, type LibraryRefFindingsState } from "../library/libraryRefFindings";
@@ -91,6 +100,17 @@ import {
 // request: on unmount the panel retires the render it holds and every request it sent whose
 // answer is outstanding, and it retires at once a request whose answer arrives after the
 // panel has discarded it or whose outcome is not known. It never retires globally.
+//
+// Open in a window (DEL-08-01 REQ-022; `report_view.rs`): the shown render opens in a native
+// window that is served the desktop's held document, never this web view's copy. The window is
+// no more current than this panel's preview: every event on which the panel drops its preview
+// (a source change, the local-private selection, the composition, a new render) asks the desktop
+// to close the current render's windows (`closeRenderedReportViews`), which touches neither the
+// render nor a save of it; unmount retires the held render, which closes them natively. Nothing
+// leaves through the window, so it writes no entry in the session's output outcomes. When the
+// desktop reports that it closed such a window (`takeReportViewClosures`, read after the panel's
+// own native calls return and on mount), one line says so until the next render or a dismissal;
+// the panel never infers it.
 
 /** Whether a saved package records the user's per-report user release. Only a saved outcome
  * wrote a package, so no other outcome shows a user release, whatever its members say. The
@@ -121,6 +141,11 @@ function receiptOutcomeLine(receipt: ReportPackageSaveReceipt): string {
   }
   return `${head}; file=${receipt.selected_basename || receipt.container_file_name}`;
 }
+
+/** Whether this session has opened a report window (`Open in a window` returned a window):
+ * until then no window of the current render can exist, so the panel asks the desktop nothing
+ * about one. It says only that a window may exist, never that one closed. */
+let reportViewMayExist = false;
 
 const LOCAL_PRIVATE_REPORT_WARNING =
   "Local private report: this rendering contains private project values for your own local review. It is not for sharing or publication.";
@@ -220,8 +245,23 @@ export function RenderedReportPanel({
   const heldRequest = useRef<ReportRenderRequest | null>(null);
   const outstandingRequests = useRef(new Set<ReportRenderRequest>());
   const routeInFlight = useRef(false);
-  const [routeBusy, setRouteBusy] = useState<"save" | "print" | null>(null);
-  const [routeStatus, setRouteStatus] = useState<{ generation: number; save?: string; print?: string } | null>(null);
+  const [routeBusy, setRouteBusy] = useState<"save" | "print" | "view" | null>(null);
+  const [routeStatus, setRouteStatus] = useState<{ generation: number; save?: string; print?: string; view?: string } | null>(null);
+  // The desktop reported closing a view window of the current render (never inferred here).
+  const [viewClosed, setViewClosed] = useState(false);
+  const mounted = useRef(true);
+  /** Reads the desktop's closure notices and shows the line only for what it returns. */
+  function takeViewClosures() {
+    if (!nativeRoutes || !mounted.current || !reportViewMayExist) return;
+    void takeReportViewClosures().then((closures) => {
+      if (mounted.current && closures.some((closure) => closure.kind === "current_render")) setViewClosed(true);
+    });
+  }
+  /** The panel dropped its preview: the current render's windows close with it. */
+  function closeViews() {
+    if (!nativeRoutes || !reportViewMayExist) return;
+    void closeRenderedReportViews().then(takeViewClosures);
+  }
   // The native side retires a held render when its source advances (a registered
   // source change) or another render request enters; here, on unmount, the panel
   // retires the exact requests it holds or has outstanding.
@@ -275,9 +315,14 @@ export function RenderedReportPanel({
   // was started from. Unmounting (e.g. a project reopen replaces the panel) or
   // replacing any source invalidates it before it can reach renderer IPC or
   // write state; a source replacement also retires the shown render.
-  useEffect(() => () => {
-    renderGeneration.current += 1;
-    retireOnUnmount();
+  useEffect(() => {
+    mounted.current = true;
+    takeViewClosures();
+    return () => {
+      mounted.current = false;
+      renderGeneration.current += 1;
+      retireOnUnmount();
+    };
   }, []);
   const sourceRef = useRef({ model, result, analysisRun, projectSummary, inputManifest, ruleCheckRun, reportComposition, libraryRefFindingsKey });
   useEffect(() => {
@@ -286,6 +331,7 @@ export function RenderedReportPanel({
     sourceRef.current = next;
     if ((Object.keys(next) as Array<keyof typeof next>).every((key) => previous[key] === next[key])) return;
     renderGeneration.current += 1;
+    closeViews();
     setRenderState(null);
     setRedactionState(null);
     setPrintRequest(null);
@@ -298,6 +344,7 @@ export function RenderedReportPanel({
     renderGeneration.current += 1;
     // The export context is report-bound: its change advances the source sequence.
     reportSource?.advance();
+    closeViews();
     setLocalPrivateIntent(value);
     setRenderState(null);
     setRedactionState(null);
@@ -310,6 +357,7 @@ export function RenderedReportPanel({
     renderGeneration.current += 1;
     // The session's composition cell advances the sequence itself; the panel's own does here.
     if (!onReportCompositionChange) reportSource?.advance();
+    closeViews();
     changeComposition(value);
     setRenderState(null);
     setRedactionState(null);
@@ -345,6 +393,8 @@ export function RenderedReportPanel({
     setRouteStatus(null);
     setRenderState(null);
     setRedactionState(null);
+    setViewClosed(false);
+    closeViews();
     try {
       const assembly = await assembleRenderedReport({
         model,
@@ -395,6 +445,7 @@ export function RenderedReportPanel({
         // Discarded while it was outstanding, or never rendered: retire exactly this request.
         else retireRenderedReport(request);
       }
+      takeViewClosures();
       if (!isCurrent()) return;
       setRenderState({ context, route: next, source });
     } catch (error) {
@@ -492,6 +543,43 @@ export function RenderedReportPanel({
     }
   }
 
+  /** Open in a window: names the shown render by its hash and source; writes no output outcome. */
+  async function onOpenView() {
+    if (routeInFlight.current || !nativeRoutes || outcome === null || outcome.export_blocked || previewHtml === null || renderState === null) return;
+    routeInFlight.current = true;
+    const generation = renderGeneration.current;
+    const stillCurrent = () => renderGeneration.current === generation;
+    const renderedFor = renderState.source;
+    const viewSequence = reportSourceSequence;
+    const sha256Hex = outcome.sha256_hex;
+    const show = (text: string) => {
+      if (stillCurrent()) setRouteStatus((previous) => ({ ...(previous?.generation === generation ? previous : {}), generation, view: text }));
+    };
+    setRouteBusy("view");
+    show(REPORT_VIEW_OPENING);
+    try {
+      let source: ReportSourceMark;
+      try {
+        if (viewSequence !== renderedFor.sequence) throw new Error("REPORT-SOURCE-STALE-VIEW: the workspace changed after this report was rendered; render it again.");
+        source = reportSource ? await reportSource.registeredFor(viewSequence) : renderedFor;
+      } catch (error) {
+        const text = error instanceof Error ? error.message : String(error);
+        const at = text.indexOf(": ");
+        const coded = at > 0 && /^[A-Z0-9-]+$/.test(text.slice(0, at));
+        show(reportViewRefusalText(coded ? text.slice(at + 2) : text, coded ? text.slice(0, at) : null));
+        return;
+      }
+      const opened = await openRenderedReportView({ sha256Hex, source }, stillCurrent);
+      if (opened.kind === "done" || opened.kind === "failed") reportViewMayExist = true;
+      // The panel dropped this render while the window was opening: it closes with the preview.
+      if (!stillCurrent() && opened.kind === "done") closeViews();
+      show(viewOutcomeText(opened));
+    } finally {
+      routeInFlight.current = false;
+      setRouteBusy(null);
+    }
+  }
+
   return (
     <section
       className="panel rendered-report-panel"
@@ -537,6 +625,14 @@ export function RenderedReportPanel({
           </span>
         ) : null}
       </div>
+      {nativeRoutes && viewClosed ? (
+        <p role="status" data-testid="rendered-report-view-closed">
+          {REPORT_VIEW_CLOSED_NOT_CURRENT}{" "}
+          <button type="button" data-testid="rendered-report-view-closed-dismiss" onClick={() => setViewClosed(false)}>
+            {REPORT_VIEW_CLOSED_DISMISS}
+          </button>
+        </p>
+      ) : null}
       {onSaveReportPackage ? (
         <div className="report-actions" data-testid="report-package-controls">
           <label>
@@ -708,6 +804,16 @@ export function RenderedReportPanel({
                 <Printer size={14} aria-hidden="true" />
                 Print / PDF (derived view)
               </button>
+              {nativeRoutes ? (
+                <button
+                  type="button"
+                  data-testid="rendered-report-open-window"
+                  disabled={routeBusy !== null}
+                  onClick={() => void onOpenView()}
+                >
+                  {OPEN_REPORT_VIEW_LABEL}
+                </button>
+              ) : null}
               <p data-testid="rendered-report-list-notice">
                 HTML saves and printed reports are not listed in the project. Save a report package to keep it in the project’s report list.
               </p>
@@ -721,6 +827,7 @@ export function RenderedReportPanel({
             <div className="report-list">
               <span role="status" data-testid="rendered-report-save-status">{shownRouteStatus?.save ?? ""}</span>
               <span role="status" data-testid="rendered-report-print-status">{shownRouteStatus?.print ?? ""}</span>
+              <span role="status" data-testid="rendered-report-view-status">{shownRouteStatus?.view ?? ""}</span>
             </div>
           ) : null}
           {previewHtml !== null ? (

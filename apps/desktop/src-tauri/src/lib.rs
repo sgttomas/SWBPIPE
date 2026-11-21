@@ -73,6 +73,7 @@ mod report_session_diagnostics_tests;
 mod report_render_exact;
 mod rendered_report_print;
 mod rendered_report_routes;
+mod report_view;
 #[cfg(test)]
 mod report_render_exact_tests;
 #[cfg(test)]
@@ -6360,6 +6361,9 @@ macro_rules! app_invoke_handler {
             save_report_package,
             rendered_report_routes::save_rendered_report_html,
             rendered_report_print::print_rendered_report,
+            report_view::open_rendered_report_view,
+            report_view::close_rendered_report_views,
+            report_view::take_report_view_closures,
             rendered_report_routes::retire_rendered_report,
             rendered_report_routes::observe_report_source,
             rendered_report_routes::activate_report_source,
@@ -6378,6 +6382,7 @@ pub fn run() {
     let builder = tauri::Builder::default()
         .plugin(tauri_plugin_dialog::init())
         .register_uri_scheme_protocol(rendered_report_print::SCHEME, rendered_report_print::serve)
+        .register_uri_scheme_protocol(report_view::SCHEME, report_view::serve)
         .manage(registry.clone())
         .manage(native_result_download::SaveAdmission::default())
         .manage(Arc::new(native_csv_stream::CsvStreams::default()))
@@ -6421,6 +6426,8 @@ pub fn run() {
         native_smoke::native_smoke_read_report_package,
         native_smoke::native_smoke_take_report_prints,
         native_smoke::native_smoke_close_report_print,
+        native_smoke::native_smoke_take_report_views,
+        native_smoke::native_smoke_close_report_views,
         native_smoke::native_smoke_checkpoint,
         native_smoke::native_smoke_finish,
     ));

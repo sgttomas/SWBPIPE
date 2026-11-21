@@ -302,7 +302,16 @@ describe("native runtime", () => {
       retirements: [] as Array<{ source: Mark; request: number }>, holdRetires: false, heldRetires: [] as Array<() => void>,
       entered: [] as number[],
       held: null as null | { html: string; sha256Hex: string }, published: [] as string[], advancesSent: 0, retiresSent: 0, holdAdvances: false, failAdvances: false,
-      heldAdvances: [] as Array<() => void>, pendingSaves: [] as Array<() => void>, heldRenders: [] as Array<() => void>, holdRenders: false
+      heldAdvances: [] as Array<() => void>, pendingSaves: [] as Array<() => void>, heldRenders: [] as Array<() => void>, holdRenders: false,
+      // `report_view.rs`: the hashes of the open view windows of the current render, and the
+      // pending closure notices (kinds) its sweep and withdrawal record.
+      views: [] as string[], closures: [] as string[]
+    };
+    // The sweep beside every retirement and replacement: a view of a render no longer current closes.
+    const sweep = () => {
+      if (native.views.length === 0) return;
+      native.views = [];
+      native.closures.push("current_render");
     };
     const register = (mark: Mark): Mark => {
       if (mark.incarnation !== native.incarnation) throw { code: "REPORT-SOURCE-INCARNATION-RETIRED", stage: "source", message: "retired" };
@@ -312,6 +321,7 @@ describe("native runtime", () => {
         native.held = null;
         native.ticket += 1;
         native.active = null;
+        sweep();
       }
       return { incarnation: native.incarnation, sequence: native.registered };
     };
@@ -327,6 +337,7 @@ describe("native runtime", () => {
         native.ticket += 1;
         native.active = null;
         native.watermark = 0;
+        sweep();
         return { incarnation: native.incarnation, sequence: 0 };
       },
       advance: (mark: Mark): Promise<Mark> => {
@@ -349,6 +360,7 @@ describe("native runtime", () => {
         native.record = null;
         native.held = null;
         native.active = { source, request };
+        sweep();
         const ticket = native.ticket;
         nativeRender.pending = () => {
           if (ticket !== native.ticket || !current(source)) throw new Error("REPORT-RENDER-SUPERSEDED: not recorded.");
@@ -379,6 +391,7 @@ describe("native runtime", () => {
             native.held = null;
             native.ticket += 1;
             native.active = null;
+            sweep();
           } else if (named.request > native.watermark) {
             native.watermark = named.request;
           }
@@ -397,6 +410,25 @@ describe("native runtime", () => {
         }
         if (named.sha256Hex !== native.held?.sha256Hex) return Promise.reject(unbound());
         return Promise.resolve({ outcome: "print_window_opened", route_id: "DREP-HTML-SAVE-005", export_context: "public_report", canonical_sha256_hex: SHA, print_sha256_hex: "c".repeat(64) });
+      }
+      if (command === "open_rendered_report_view") {
+        // The view's admission (`RenderCustody::admit_view`): no context, intent or evidence.
+        const named = ingressArgs([command, args, options]) as { sha256Hex: string; source: Mark };
+        if ("html" in named) return Promise.reject(new Error("the view request carries no document"));
+        if (!current(named.source) || native.record?.sequence !== named.source.sequence) {
+          return Promise.reject({ code: "REPORT-ROUTE-NOT-CURRENT", stage: "admission", message: "No rendered report is current.", destination: "untouched", cleanup_code: null, selected_basename: null });
+        }
+        if (named.sha256Hex !== native.held?.sha256Hex) return Promise.reject(unbound());
+        const open = native.views.includes(named.sha256Hex);
+        if (!open) native.views.push(named.sha256Hex);
+        return Promise.resolve({ outcome: open ? "brought_forward" : "opened", kind: "current_render", sha256_hex: named.sha256Hex });
+      }
+      if (command === "close_rendered_report_views") {
+        sweep();
+        return Promise.resolve(null);
+      }
+      if (command === "take_report_view_closures") {
+        return Promise.resolve(native.closures.splice(0).map((kind) => ({ kind, reason: "no_longer_showable" })));
       }
       if (command === "save_rendered_report_html") {
         const named = ingressArgs([command, args, options]) as { sha256Hex: string; source: Mark };
@@ -873,7 +905,256 @@ describe("native runtime", () => {
   });
 });
 
+// Open in a window (DEL-08-01 REQ-022; `report_view.rs`), against the modelled native side.
+describe("open in a window", () => {
+  beforeEach(() => {
+    (window as unknown as Record<string, unknown>).__TAURI_INTERNALS__ = {};
+  });
+  const CLOSED_LINE = "The report window closed because the result it showed is no longer current.";
+  const flush = () => act(async () => { await new Promise((resolve) => setTimeout(resolve, 0)); });
+  type Mark = { incarnation: number; sequence: number };
+  /** The modelled native side of the currency tests above, as far as the view needs it. */
+  function modelledView() {
+    const native = {
+      incarnation: 0, registered: 0, record: null as null | Mark, held: null as null | string, active: null as null | number,
+      views: [] as string[], closures: [] as string[], holdAdvances: false, heldAdvances: [] as Array<() => void>, entered: 0
+    };
+    const sweep = () => {
+      if (native.views.length === 0) return;
+      native.views = [];
+      native.closures.push("current_render");
+    };
+    const register = (mark: Mark): Mark => {
+      if (mark.sequence > native.registered) {
+        native.registered = mark.sequence;
+        native.record = null;
+        native.held = null;
+        native.active = null;
+        sweep();
+      }
+      return { incarnation: native.incarnation, sequence: native.registered };
+    };
+    const transport = {
+      observe: async (): Promise<Mark> => ({ incarnation: native.incarnation, sequence: native.registered }),
+      activate: async (): Promise<Mark> => {
+        native.incarnation += 1;
+        native.registered = 0;
+        return { incarnation: native.incarnation, sequence: 0 };
+      },
+      advance: (mark: Mark): Promise<Mark> => {
+        if (!native.holdAdvances) return Promise.resolve().then(() => register(mark));
+        return new Promise<Mark>((resolve) => native.heldAdvances.push(() => resolve(register(mark))));
+      }
+    };
+    nativeRender.current = {
+      enter: async (source, request) => {
+        native.entered += 1;
+        native.record = null;
+        native.held = null;
+        native.active = request;
+        sweep();
+        nativeRender.pending = () => {
+          native.record = source;
+          native.held = SHA;
+        };
+      },
+      completion: async () => { nativeRender.pending?.(); }
+    };
+    invokeMock.mockImplementation((command: string, args?: unknown, options?: unknown) => {
+      if (command === "retire_rendered_report") {
+        if ((args as { request: number }).request === native.active) {
+          native.record = null;
+          native.held = null;
+          native.active = null;
+          sweep();
+        }
+        return Promise.resolve(null);
+      }
+      if (command === "open_rendered_report_view") {
+        const named = ingressArgs([command, args, options]) as { sha256Hex: string; source: Mark };
+        if ("html" in named) return Promise.reject(new Error("the view request carries no document"));
+        if (native.record === null || named.source.sequence !== native.registered) {
+          return Promise.reject({ code: "REPORT-ROUTE-NOT-CURRENT", stage: "admission", message: "No rendered report is current: it was retired or replaced. Render the report again.", destination: "untouched", cleanup_code: null, selected_basename: null });
+        }
+        if (named.sha256Hex !== native.held) {
+          return Promise.reject({ code: "REPORT-ROUTE-HTML-UNBOUND", stage: "admission", message: "The render the request names is not the current one.", destination: "untouched", cleanup_code: null, selected_basename: null });
+        }
+        const open = native.views.includes(named.sha256Hex);
+        if (!open) native.views.push(named.sha256Hex);
+        return Promise.resolve({ outcome: open ? "brought_forward" : "opened", kind: "current_render", sha256_hex: named.sha256Hex });
+      }
+      if (command === "close_rendered_report_views") {
+        sweep();
+        return Promise.resolve(null);
+      }
+      if (command === "take_report_view_closures") {
+        return Promise.resolve(native.closures.splice(0).map((kind) => ({ kind, reason: "no_longer_showable" })));
+      }
+      return Promise.resolve(undefined);
+    });
+    const source = new ReportSourceSequence(transport);
+    const outcomes = new ReportOutputOutcomes();
+    return { native, source, outcomes, deliverAdvances: () => native.heldAdvances.splice(0).forEach((deliver) => deliver()) };
+  }
+  type Context = ReturnType<typeof modelledView>;
+  const results = new Map<string, ReturnType<typeof result>>();
+  const stable = (run: string) => {
+    if (!results.has(run)) results.set(run, result(run));
+    return results.get(run)!;
+  };
+  function Harness({ context, sequence, run, showPanel = true }: { context: Context; sequence: number; run: string; showPanel?: boolean }) {
+    return showPanel ? (
+      <RenderedReportPanel model={model} result={stable(run)} analysisRun={analysisRun} projectSummary={null}
+        reportSource={context.source} reportSourceSequence={sequence} reportOutputs={context.outcomes} />
+    ) : null;
+  }
+  const harness = (context: Context, run = "run:invented-1", showPanel = true) =>
+    <Harness context={context} sequence={context.source.sequence} run={run} showPanel={showPanel} />;
+  async function rendered(context: Context) {
+    context.source.start();
+    const view = render(harness(context));
+    await flush();
+    fireEvent.click(screen.getByTestId("rendered-report-render"));
+    await waitFor(() => expect(screen.getByTestId("rendered-report-hash")).toBeInTheDocument());
+    return view;
+  }
+  async function openWindow() {
+    await waitFor(() => expect(screen.getByTestId("rendered-report-open-window")).toBeEnabled());
+    fireEvent.click(screen.getByTestId("rendered-report-open-window"));
+    await waitFor(() => expect(screen.getByTestId("rendered-report-view-status")).not.toHaveTextContent("Opening"));
+  }
+  const replaceSource = (context: Context, view: ReturnType<typeof render>, run: string, showPanel = true) => {
+    act(() => {
+      context.source.advance();
+      view.rerender(harness(context, run, showPanel));
+    });
+  };
+
+  it("opens the shown render by its hash and source, sends no document and writes no output outcome", async () => {
+    const context = modelledView();
+    await rendered(context);
+    const button = screen.getByTestId("rendered-report-open-window");
+    expect(button.tagName).toBe("BUTTON");
+    expect(button).toHaveAttribute("type", "button");
+    expect(button).toHaveTextContent(/^Open in a window$/);
+    await openWindow();
+    expect(screen.getByTestId("rendered-report-view-status").textContent).toBe("Report opened in a window.");
+    expect(screen.getByTestId("rendered-report-view-status")).toHaveAttribute("role", "status");
+    expect(routeCalls("open_rendered_report_view")).toEqual([{ sha256Hex: SHA, source: { incarnation: 1, sequence: 0 } }]);
+    expect(context.native.views).toEqual([SHA]);
+    expect(context.outcomes.snapshot()).toEqual([]);
+    await openWindow();
+    expect(screen.getByTestId("rendered-report-view-status").textContent).toBe("The report's window was brought forward.");
+    expect(context.native.views).toEqual([SHA]);
+    expect(context.outcomes.snapshot()).toEqual([]);
+  });
+
+  it("states a refusal with its message first and its code last", async () => {
+    const context = modelledView();
+    await rendered(context);
+    context.native.held = "d".repeat(64);
+    await openWindow();
+    expect(screen.getByTestId("rendered-report-view-status").textContent).toBe(
+      "The report could not be opened in a window: The render the request names is not the current one. (REPORT-ROUTE-HTML-UNBOUND)"
+    );
+    expect(context.native.views).toEqual([]);
+    expect(context.outcomes.snapshot()).toEqual([]);
+  });
+
+  // B4 (a): the window is no more current than the panel's preview. Each event on which the panel
+  // drops its preview closes the window, whether or not the native render is retired by it.
+  it.each(["registered source change", "source change in transit", "local-private selection", "new render"] as const)(
+    "closes the window when the panel drops its preview on a %s, and says so",
+    async (event) => {
+      const context = modelledView();
+      const view = await rendered(context);
+      await openWindow();
+      expect(context.native.views).toEqual([SHA]);
+      if (event === "source change in transit") context.native.holdAdvances = true;
+      if (event === "registered source change" || event === "source change in transit") replaceSource(context, view, "run:invented-2");
+      else if (event === "local-private selection") fireEvent.click(screen.getByTestId("rendered-report-local-private-intent"));
+      else fireEvent.click(screen.getByTestId("rendered-report-render"));
+      await flush();
+      await flush();
+      expect(context.native.views).toEqual([]);
+      if (event === "source change in transit") {
+        expect(context.native.record).not.toBeNull(); // the native render is still current: only the window closed
+      }
+      await waitFor(() => expect(screen.getByTestId("rendered-report-view-closed")).toHaveTextContent(CLOSED_LINE));
+      expect(screen.getByTestId("rendered-report-view-closed")).toHaveAttribute("role", "status");
+      expect(context.outcomes.snapshot()).toEqual([]);
+      context.deliverAdvances();
+      await flush();
+    }
+  );
+
+  it("closes the window with the render the panel retires on unmount, and says so when the Report page returns", async () => {
+    const context = modelledView();
+    const view = await rendered(context);
+    await openWindow();
+    view.rerender(harness(context, "run:invented-1", false));
+    await flush();
+    expect(context.native.views).toEqual([]);
+    expect(context.native.closures).toEqual(["current_render"]);
+    view.rerender(harness(context));
+    await waitFor(() => expect(screen.getByTestId("rendered-report-view-closed")).toHaveTextContent(CLOSED_LINE));
+    expect(context.native.closures).toEqual([]);
+  });
+
+  it("shows the line only on what the desktop returns, until dismissed or the next render", async () => {
+    const context = modelledView();
+    const view = await rendered(context);
+    // No window open: the panel's own close request and its preview's drop report nothing.
+    await openWindow();
+    context.native.views = [];
+    fireEvent.click(screen.getByTestId("rendered-report-local-private-intent"));
+    view.rerender(harness(context));
+    await flush();
+    await flush();
+    expect(screen.queryByTestId("rendered-report-view-closed")).not.toBeInTheDocument();
+    fireEvent.click(screen.getByTestId("rendered-report-local-private-intent"));
+    view.rerender(harness(context));
+    await flush();
+    // A notice of another kind is not the current render's: no line.
+    context.native.closures.push("saved_report");
+    fireEvent.click(screen.getByTestId("rendered-report-render"));
+    await waitFor(() => expect(screen.getByTestId("rendered-report-hash")).toBeInTheDocument());
+    await flush();
+    expect(context.native.closures).toEqual([]);
+    expect(screen.queryByTestId("rendered-report-view-closed")).not.toBeInTheDocument();
+    // A window the desktop closed: the line, until dismissed; taken once, it does not return.
+    await openWindow();
+    replaceSource(context, view, "run:invented-2");
+    await waitFor(() => expect(screen.getByTestId("rendered-report-view-closed")).toHaveTextContent(CLOSED_LINE));
+    fireEvent.click(screen.getByTestId("rendered-report-view-closed-dismiss"));
+    expect(screen.queryByTestId("rendered-report-view-closed")).not.toBeInTheDocument();
+    fireEvent.click(screen.getByTestId("rendered-report-render"));
+    await waitFor(() => expect(screen.getByTestId("rendered-report-hash")).toBeInTheDocument());
+    await flush();
+    expect(screen.queryByTestId("rendered-report-view-closed")).not.toBeInTheDocument();
+    // Shown again after another closure, the next render clears it.
+    await openWindow();
+    replaceSource(context, view, "run:invented-3");
+    await waitFor(() => expect(screen.getByTestId("rendered-report-view-closed")).toBeInTheDocument());
+    fireEvent.click(screen.getByTestId("rendered-report-render"));
+    await waitFor(() => expect(screen.getByTestId("rendered-report-hash")).toBeInTheDocument());
+    await flush();
+    expect(screen.queryByTestId("rendered-report-view-closed")).not.toBeInTheDocument();
+    expect(context.outcomes.snapshot()).toEqual([]);
+  });
+});
+
 describe("browser runtime (no native shell)", () => {
+  it("offers no window and asks the desktop nothing about one", async () => {
+    await renderShown();
+    expect(screen.queryByTestId("rendered-report-open-window")).not.toBeInTheDocument();
+    expect(screen.queryByTestId("rendered-report-view-closed")).not.toBeInTheDocument();
+    expect(invokeMock.mock.calls.map(([command]) => command)).not.toEqual(
+      expect.arrayContaining(["open_rendered_report_view", "close_rendered_report_views", "take_report_view_closures"])
+    );
+    expect(invokeMock.mock.calls.filter(([command]) => String(command).includes("view"))).toEqual([]);
+  });
+
   it("keeps the controlled download link and the print iframe and calls no native route", async () => {
     await renderShown(true);
     const save = screen.getByTestId("rendered-report-save-local-private");

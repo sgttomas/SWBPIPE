@@ -15,6 +15,9 @@
 // (`features/workspace/reportSourceSequence.ts`); the native side refuses one
 // that is retired or not yet registered.
 // Outside the native application the panel keeps its link and iframe.
+// Open in a window (`open_rendered_report_view`, `src-tauri/src/report_view.rs`)
+// shows the held document in a native window of its own, named the same way;
+// nothing leaves through it, so it carries no controlled export's evidence.
 import { invokeWithIngress, IngressRequestRetiredError } from "./nativeIngress";
 import { ResourceUnavailableError } from "./memoryPool";
 import type { ReportRenderRequest, ReportSourceMark } from "../features/workspace/reportSourceSequence";
@@ -239,4 +242,89 @@ export function printOutcomeText(outcome: RenderedReportRouteOutcome<RenderedRep
 function destinationText(error: RenderedReportRouteError): string {
   if (error.destination !== "as_it_was") return "";
   return ` The destination was left as it was${error.cleanup_code ? `; a temporary file could not be removed (${error.cleanup_code})` : ""}.`;
+}
+
+// Open in a window (DEL-08-01 REQ-022; `src-tauri/src/report_view.rs`). The words a person sees
+// are each here once.
+
+/** The panel's button. */
+export const OPEN_REPORT_VIEW_LABEL = "Open in a window";
+export const REPORT_VIEW_OPENING = "Opening the report window…";
+export const REPORT_VIEW_OPENED = "Report opened in a window.";
+export const REPORT_VIEW_BROUGHT_FORWARD = "The report's window was brought forward.";
+/** Shown on the Report page when the desktop closed a view window of the current render because
+ * the result it showed is no longer current, until the next render or until dismissed. */
+export const REPORT_VIEW_CLOSED_NOT_CURRENT = "The report window closed because the result it showed is no longer current.";
+export const REPORT_VIEW_CLOSED_DISMISS = "Dismiss";
+
+/** A refusal: the message first, the code last in brackets. */
+export function reportViewRefusalText(message: string, code: string | null): string {
+  return `The report could not be opened in a window: ${message}${code ? ` (${code})` : ""}`;
+}
+
+export type RenderedReportViewReceipt = {
+  outcome: "opened" | "brought_forward";
+  kind: string;
+  sha256_hex: string;
+};
+
+/** Opens the shown render in a window of its own: the request names the render by the SHA-256
+ * the render's reply gave and the source it was prepared for; it carries no document. */
+export async function openRenderedReportView(
+  request: { sha256Hex: string; source: ReportSourceMark },
+  stillCurrent: () => boolean
+): Promise<RenderedReportRouteOutcome<RenderedReportViewReceipt>> {
+  try {
+    const receipt = await invokeWithIngress<RenderedReportViewReceipt>(
+      "open_rendered_report_view",
+      { sha256Hex: request.sha256Hex, source: { incarnation: request.source.incarnation, sequence: request.source.sequence } },
+      { stillCurrent }
+    );
+    return { kind: "done", receipt };
+  } catch (error) {
+    if (error instanceof IngressRequestRetiredError) return { kind: "retired" };
+    if (isRouteError(error)) return { kind: "refused", error };
+    return { kind: "failed", message: error instanceof Error ? error.message : String(error), failure: error };
+  }
+}
+
+export function viewOutcomeText(outcome: RenderedReportRouteOutcome<RenderedReportViewReceipt>): string {
+  switch (outcome.kind) {
+    case "done":
+      return outcome.receipt.outcome === "brought_forward" ? REPORT_VIEW_BROUGHT_FORWARD : REPORT_VIEW_OPENED;
+    case "refused":
+      return reportViewRefusalText(outcome.error.message, outcome.error.code);
+    case "retired":
+      return reportViewRefusalText("the report is no longer current; nothing was sent.", null);
+    case "failed":
+      return refusedBeforeRunning(outcome.failure)
+        ? reportViewRefusalText(outcome.message, null)
+        : `Whether the report's window opened is not known: ${outcome.message}`;
+  }
+}
+
+/** Asks the desktop to close every window showing the current render: the panel no longer shows
+ * it as current. It closes windows only; the render, and any save of it, are untouched. */
+export function closeRenderedReportViews(): Promise<void> {
+  try {
+    return Promise.resolve(invoke("close_rendered_report_views")).then(() => undefined, () => undefined);
+  } catch {
+    return Promise.resolve();
+  }
+}
+
+export type ReportViewClosure = { kind: string; reason: string };
+
+/** The desktop's pending notices of view windows it closed because what they showed is no longer
+ * showable, taken once. Only what the desktop returns here is reported; nothing is inferred. */
+export async function takeReportViewClosures(): Promise<ReportViewClosure[]> {
+  try {
+    const taken: unknown = await invoke("take_report_view_closures");
+    if (!Array.isArray(taken)) return [];
+    return taken.filter((entry): entry is ReportViewClosure =>
+      typeof entry === "object" && entry !== null && typeof (entry as ReportViewClosure).kind === "string" && typeof (entry as ReportViewClosure).reason === "string"
+    );
+  } catch {
+    return [];
+  }
 }

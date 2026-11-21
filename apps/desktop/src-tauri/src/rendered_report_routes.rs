@@ -22,9 +22,11 @@
 //! name ([`RENDER_CUSTODY_UNAVAILABLE`]). Retiring the render, a later render
 //! request, a registered source advance and an activation drop the document
 //! with the record. So custody holds one document at a time. A save shares it
-//! only while it writes (never while its chooser is open) and a print only
-//! while it derives the print view, so a retired document outlives its
-//! retirement by at most that write or derivation, still reserved until then.
+//! only while it writes (never while its chooser is open), a print only
+//! while it derives the print view and a view window (`report_view`, which
+//! otherwise holds only a weak reference) only while it copies the document
+//! to serve it, so a retired document outlives its retirement by at most that
+//! write, derivation or copy, still reserved until then.
 //! Admission takes no share; each of those takes checks again, under the
 //! custody mutex, that the current record is the admitted render (its
 //! generation and the SHA-256 the request named), so a render that replaced
@@ -52,7 +54,8 @@
 //! request names the source number it was prepared for and is admitted only
 //! when that is the registered one: an older number is retired, a newer one is
 //! not yet registered and is refused rather than taken as authority. A
-//! registered advance retires the current render and its print window.
+//! registered advance retires the current render, its print window and every
+//! window showing it (`report_view`).
 //!
 //! A render request is identified by its source and an ordinal its source
 //! owner allocated when its preparation began ([`RenderRequest`]). It takes a
@@ -85,10 +88,10 @@
 //! published, and the workspace reports that outcome as such. No time bound
 //! is promised between the change and its registration.
 //!
-//! Lock order. `rendered_report_print`'s open-window lock may be held while
-//! this custody mutex is taken (its page load and protocol read currency);
-//! this mutex is never held while that lock, or the solve-job registry's
-//! `jobs` mutex, is taken. Work that will hold job custody across a
+//! Lock order. `rendered_report_print`'s open-window lock, and
+//! `report_view`'s, may be held while this custody mutex is taken (their page
+//! load, protocol and sweep read currency); this mutex is never held while
+//! either lock, or the solve-job registry's `jobs` mutex, is taken. Work that will hold job custody across a
 //! publication (issue 366) takes this mutex first and the registry's second.
 //! A held document dropped under this mutex (a retirement) releases its
 //! lease, which takes only the memory pool's mutex. A pool admission (the
@@ -117,7 +120,7 @@ use serde::{Deserialize, Serialize};
 use sha2::{Digest, Sha256};
 use std::io;
 use std::path::{Path, PathBuf};
-use std::sync::{Arc, Condvar, Mutex, MutexGuard, PoisonError, TryLockError};
+use std::sync::{Arc, Condvar, Mutex, MutexGuard, PoisonError, TryLockError, Weak};
 use std::thread::ThreadId;
 use tauri::AppHandle;
 use tauri_plugin_dialog::DialogExt;
@@ -259,21 +262,26 @@ pub(crate) fn custody_unavailable(refusal: &ResourceRefusal) -> RouteError {
     )
 }
 
-/// Reserves the memory for `html` from `pool` and then copies it into a held
-/// document. The reservation is the render command's own: an interactive
-/// admission (`memory_pool` module docs), which the host's pressure state does
-/// not gate, re-sampled while refused only for headroom until `stop` (called
-/// outside the pool's lock) says the completion was superseded, then counted
-/// as custody. A refusal or a stop copies nothing.
-fn hold_document(pool: &Arc<MemoryPool>, html: &str, stop: &dyn Fn() -> bool) -> Result<Arc<HeldDocument>, ResampleStop> {
-    let mut lease = pool.acquire_interactive_resampling(held_document_bytes(html.len()), stop)?;
-    // Copied while the lease is still the command's ingress lease, then counted
-    // as custody, as a held result's copy is (`solve_jobs`): the pool's
-    // interactive verdict credits half of custody as already resident, which
-    // these bytes are only once copied.
-    let html = html.to_owned();
-    lease.set_purpose(LeasePurpose::Custody);
-    Ok(Arc::new(HeldDocument { html, lease }))
+impl HeldDocument {
+    /// Reserves the memory for `html` from `pool` and then copies it into a
+    /// held document. The reservation is the render command's own: an
+    /// interactive admission (`memory_pool` module docs), which the host's
+    /// pressure state does not gate, re-sampled while refused only for
+    /// headroom until `stop` (called outside the pool's lock) says the holder
+    /// no longer wants it, then counted as custody. A refusal or a stop copies
+    /// nothing. The render's completion keeps its document this way; a holder
+    /// other than the render (a saved report shown in a view window,
+    /// `report_view`) uses the same admission, copy and count.
+    pub(crate) fn hold(pool: &Arc<MemoryPool>, html: &str, stop: &dyn Fn() -> bool) -> Result<Arc<HeldDocument>, ResampleStop> {
+        let mut lease = pool.acquire_interactive_resampling(held_document_bytes(html.len()), stop)?;
+        // Copied while the lease is still the command's ingress lease, then counted
+        // as custody, as a held result's copy is (`solve_jobs`): the pool's
+        // interactive verdict credits half of custody as already resident, which
+        // these bytes are only once copied.
+        let html = html.to_owned();
+        lease.set_purpose(LeasePurpose::Custody);
+        Ok(Arc::new(HeldDocument { html, lease }))
+    }
 }
 
 /// A render request's identity: the registered source it was prepared for and
@@ -521,7 +529,7 @@ impl RenderCustody {
             None
         } else {
             let superseded = || Self::check_ticket(&self.lock(), &ticket).is_err();
-            match hold_document(pool, html, &superseded) {
+            match HeldDocument::hold(pool, html, &superseded) {
                 Ok(document) => Some(document),
                 Err(stop) => {
                     Self::check_ticket(&self.lock(), &ticket)?;
@@ -729,41 +737,14 @@ impl RenderCustody {
     /// Admits a route request against the current record (module docs):
     /// refused by name when its source is not the registered one, when no
     /// render is current, when it is blocked, when the SHA-256 it names is not
-    /// the current render's, when its context is not admitted or differs from
-    /// the request's, when a local-private render lacks the explicit intent,
-    /// and when the evidence does not admit the route. Admission takes no
-    /// share of the held document: what it reads of the record is copied
-    /// under the custody mutex, and a save or a print takes the document only
-    /// to use it ([`Self::document_if_current`]).
+    /// the current render's ([`Self::named_record`]), when its context is not
+    /// admitted or differs from the request's, when a local-private render
+    /// lacks the explicit intent, and when the evidence does not admit the
+    /// route. Admission takes no share of the held document: what it reads of
+    /// the record is copied under the custody mutex, and a save or a print
+    /// takes the document only to use it ([`Self::document_if_current`]).
     pub(crate) fn admit(&self, request: &RouteRequest) -> Result<Admitted, RouteError> {
-        let record = {
-            let slot = self.lock();
-            Self::check_source(&slot, request.source)?;
-            slot.current.as_ref().map(|record| RecordView {
-                generation: record.generation,
-                sha256_hex: record.sha256_hex.clone(),
-                export_context: record.export_context.clone(),
-                blocked: record.blocked,
-                source: record.source,
-                byte_count: record.document.as_ref().map(|document| document.html().len()),
-            })
-        }
-        .ok_or_else(|| RouteError::refused(NOT_CURRENT, "No rendered report is current: it was retired or replaced. Render the report again."))?;
-        if record.source != request.source {
-            return Err(RouteError::refused(NOT_CURRENT, "No rendered report is current for this source. Render the report again."));
-        }
-        // A blocked render holds no document; neither does anything else, so
-        // the two are one refusal.
-        let byte_count = match (record.byte_count, record.blocked) {
-            (Some(byte_count), false) => byte_count,
-            _ => return Err(RouteError::refused(BLOCKED, "The current render is blocked by its export gates: it is neither saved nor printed.")),
-        };
-        if request.sha256_hex != record.sha256_hex {
-            return Err(RouteError::refused(
-                UNBOUND,
-                "The render the request names is not the current one: the SHA-256 it names is not the one the desktop recorded for the current render. Render the report again.",
-            ));
-        }
+        let (record, byte_count, _) = self.named_record(&request.sha256_hex, request.source, false)?;
         let context = match record.export_context.as_deref() {
             Some(context) if context == PUBLIC_REPORT || context == LOCAL_PRIVATE => context,
             found => {
@@ -795,6 +776,67 @@ impl RenderCustody {
             ));
         }
         Ok(Admitted { generation: record.generation, sha256_hex: record.sha256_hex.clone(), export_context: context.to_string(), byte_count })
+    }
+
+    /// The view window's admission of the current render (`report_view`):
+    /// the checks it shares with [`Self::admit`], by the same codes in the
+    /// same order ([`Self::named_record`]); the route's context, intent and
+    /// evidence checks do not apply, because nothing leaves through a view
+    /// window. Under the custody mutex it takes the current record's
+    /// generation, export context and a weak reference to its document, and no
+    /// share: the record stays the document's one holder, so a retirement
+    /// releases it whatever windows are open.
+    pub(crate) fn admit_view(&self, sha256_hex: &str, source: SourceMark) -> Result<ViewAdmitted, RouteError> {
+        let (record, byte_count, document) = self.named_record(sha256_hex, source, true)?;
+        // `named_record` admits only a render that holds its document.
+        let document = document.ok_or_else(Self::blocked)?;
+        Ok(ViewAdmitted { generation: record.generation, sha256_hex: record.sha256_hex, export_context: record.export_context, byte_count, document })
+    }
+
+    fn blocked() -> RouteError {
+        RouteError::refused(BLOCKED, "The current render is blocked by its export gates: it is neither saved nor printed.")
+    }
+
+    /// The checks a route request and a view request share, in this order:
+    /// the source is the registered one; a render is current, for that
+    /// source; it holds a document (a blocked render, and no other, holds
+    /// none); and the SHA-256 named is the one recorded for it. Returns what
+    /// is read of the record, copied under the custody mutex, the document's
+    /// length, and, when `weak` asks for it, a weak reference to the document
+    /// taken under the same hold (never a share).
+    fn named_record(&self, sha256_hex: &str, source: SourceMark, weak: bool) -> Result<(RecordView, usize, Option<Weak<HeldDocument>>), RouteError> {
+        let (record, document) = {
+            let slot = self.lock();
+            Self::check_source(&slot, source)?;
+            let current = slot.current.as_ref();
+            let record = current.map(|record| RecordView {
+                generation: record.generation,
+                sha256_hex: record.sha256_hex.clone(),
+                export_context: record.export_context.clone(),
+                blocked: record.blocked,
+                source: record.source,
+                byte_count: record.document.as_ref().map(|document| document.html().len()),
+            });
+            let document = if weak { current.and_then(|record| record.document.as_ref()).map(Arc::downgrade) } else { None };
+            (record, document)
+        };
+        let record = record.ok_or_else(|| RouteError::refused(NOT_CURRENT, "No rendered report is current: it was retired or replaced. Render the report again."))?;
+        if record.source != source {
+            return Err(RouteError::refused(NOT_CURRENT, "No rendered report is current for this source. Render the report again."));
+        }
+        // A blocked render holds no document; neither does anything else, so
+        // the two are one refusal.
+        let byte_count = match (record.byte_count, record.blocked) {
+            (Some(byte_count), false) => byte_count,
+            _ => return Err(Self::blocked()),
+        };
+        if sha256_hex != record.sha256_hex {
+            return Err(RouteError::refused(
+                UNBOUND,
+                "The render the request names is not the current one: the SHA-256 it names is not the one the desktop recorded for the current render. Render the report again.",
+            ));
+        }
+        Ok((record, byte_count, document))
     }
 
     /// The registered source.
@@ -885,8 +927,8 @@ pub(crate) fn with_render_ticket<T>(ticket: RenderTicket, pool: Arc<MemoryPool>,
 
 /// Records a completed render in the desktop's custody under the render
 /// command's ticket, keeping its canonical HTML unless it is blocked
-/// ([`RenderCustody::complete_in`]), and closes a print window whose render it
-/// replaces (the render's one call). A completion whose ticket or source
+/// ([`RenderCustody::complete_in`]), and closes a print window, and every view
+/// window, whose render it replaces (the render's one call). A completion whose ticket or source
 /// number is no longer current, or whose document's reservation the pool
 /// refuses, is refused by name and records nothing. A render made without a
 /// ticket (a test of the renderer itself) records nothing.
@@ -895,6 +937,7 @@ pub(crate) fn record_render(export_context: Option<&str>, html: &str, renderer_s
     match CUSTODY.complete_in(&pool, ticket, export_context, html, renderer_sha256_hex, export_blocked, content_withheld) {
         Ok(_) => {
             crate::rendered_report_print::close_retired();
+            crate::report_view::close_unshowable();
             Ok(())
         }
         Err(error) => Err(format!("{}: {}", error.code, error.message)),
@@ -902,23 +945,25 @@ pub(crate) fn record_render(export_context: Option<&str>, html: &str, renderer_s
 }
 
 /// A render request's entry (the render command's first step after its
-/// arguments): takes its ticket and closes the print window of the render it
-/// retires.
+/// arguments): takes its ticket and closes the print window, and every view
+/// window, of the render it retires.
 pub(crate) fn begin_render(request: RenderRequest) -> Result<RenderTicket, String> {
     let ticket = CUSTODY.begin_render(request).map_err(|error| format!("{}: {}", error.code, error.message))?;
     crate::rendered_report_print::close_retired();
+    crate::report_view::close_unshowable();
     Ok(ticket)
 }
 
 /// The report panel retires a render request it issued and no longer shows
 /// (it unmounted, or a render it had replaced completed): only that request,
-/// [`RenderCustody::retire_request`], then the print window of a render now
-/// retired. It runs off the main thread, as every change of custody does, so
+/// [`RenderCustody::retire_request`], then the print window and every view
+/// window of a render now retired. It runs off the main thread, as every change of custody does, so
 /// that it can wait for a print hand-off.
 #[tauri::command]
 pub(crate) async fn retire_rendered_report(source: SourceMark, request: u64) {
     CUSTODY.retire_request(RenderRequest { source, ordinal: request });
     crate::rendered_report_print::close_retired();
+    crate::report_view::close_unshowable();
 }
 
 /// The registered report source as it is now (module docs); it authorises
@@ -934,6 +979,7 @@ pub(crate) async fn observe_report_source() -> SourceMark {
 pub(crate) async fn activate_report_source(expected_incarnation: u64) -> Result<SourceMark, RouteError> {
     let mark = CUSTODY.activate_if(expected_incarnation)?;
     crate::rendered_report_print::close_retired();
+    crate::report_view::close_unshowable();
     Ok(mark)
 }
 
@@ -945,6 +991,7 @@ pub(crate) async fn advance_report_source(incarnation: u64, sequence: u64) -> Re
     // Judged against current custody whatever this advance retired, so an
     // earlier advance's delayed close is also completed here safely.
     crate::rendered_report_print::close_retired();
+    crate::report_view::close_unshowable();
     Ok(registered)
 }
 
@@ -982,6 +1029,22 @@ pub(crate) struct Admitted {
     pub(crate) export_context: String,
     /// The held document's length in bytes.
     pub(crate) byte_count: usize,
+}
+
+/// The view window's admission of the current render
+/// ([`RenderCustody::admit_view`]): no share of its document, only a weak
+/// reference to it.
+#[derive(Clone, Debug)]
+pub(crate) struct ViewAdmitted {
+    pub(crate) generation: u64,
+    pub(crate) sha256_hex: String,
+    /// The render's export context, for a provider that names it; the view reads none.
+    #[allow(dead_code)]
+    pub(crate) export_context: Option<String>,
+    /// The held document's length in bytes; the view reads none.
+    #[allow(dead_code)]
+    pub(crate) byte_count: usize,
+    pub(crate) document: Weak<HeldDocument>,
 }
 
 /// What admission reads of the current record, copied under the custody

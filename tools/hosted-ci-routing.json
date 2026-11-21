@@ -2575,6 +2575,7 @@
               "apps/desktop/src-tauri/src/report_render_pf_timoshenko_tests.rs",
               "apps/desktop/src-tauri/src/report_session_diagnostics.rs",
               "apps/desktop/src-tauri/src/report_session_diagnostics_tests.rs",
+              "apps/desktop/src-tauri/src/report_view.rs",
               "apps/desktop/src-tauri/src/result_detail.rs",
               "apps/desktop/src-tauri/src/result_detail_tests.rs",
               "apps/desktop/src-tauri/src/result_js_text.rs",
