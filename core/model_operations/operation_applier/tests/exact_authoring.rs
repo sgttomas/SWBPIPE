@@ -946,7 +946,7 @@ fn rich_intent(object: &str, reference: &str, change_kind: &str, path: &str, bef
 /// the first solve's to 1e-9; the other theory's path is measurably different.
 ///
 /// `activation_keeps_the_stated_theory_in_the_solve` stays: it isolates the activation operation. This test shows
-/// the path, and that between the first of these edits and the activation the document solves on neither route.
+/// the path, and that from the members' reassignment to the activation the document solves on neither route.
 ///
 /// The person enters nu; the panel computes none (`checkedMaterial` takes the entered number). Entered as
 /// E/(2G) - 1 from the document's own moduli, the pressure-free route's own nu (`u4b_rows::preview_poisson_ratio`),
@@ -1010,7 +1010,9 @@ fn a_pressure_free_document_reaches_the_exact_route_by_the_desktops_edits_and_ke
         create["change"]["dimension"] = json!("stress");
         create["change"]["unit"] = json!("Pa");
         document = admitted(&document, &create, 1);
-        let mut states = vec![("the E/nu material", document.clone())];
+        // Only the admission is asserted here, not the solve. Today the pressure-free solve is refused at this point
+        // for a missing shear modulus on the new material, which no member uses yet; issue 569 removes that refusal.
+        let mut states = Vec::new();
 
         // 2. Bulk change, material: one batch, an operation per member (`bulkChange.ts` `setFieldIntent`).
         let operations: Vec<Value> = document["pipe_segments"].as_array().unwrap().iter().map(|pipe| {
@@ -1049,9 +1051,9 @@ fn a_pressure_free_document_reaches_the_exact_route_by_the_desktops_edits_and_ke
         states.push(("the regions", document.clone()));
 
         // Each of steps 1 to 4 was admitted with no blocking finding, so the desktop lets a person into this state.
-        // Between the first edit and the activation the document solves on neither route: it has no contract, so
-        // it goes to the pressure-free route, which refuses each exact input by name (a material without G, then
-        // the allowance, then the regions list).
+        // From the members' reassignment to the activation the document solves on neither route: it has no
+        // contract, so it goes to the pressure-free route, which refuses each exact input by name (a material the
+        // members use without G, then the allowance, then the regions list).
         let mut expected = std::collections::BTreeSet::from(["MATERIAL_INPUT_MISSING".to_string()]);
         for (label, state) in &states {
             if *label == "the allowance" {
