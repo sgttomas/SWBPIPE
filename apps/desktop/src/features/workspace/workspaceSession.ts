@@ -1920,11 +1920,10 @@ export function useWorkspaceSession() {
 
   async function handleProposal() {
     // The sample proposal reads full rows (a C2 consumer): a native result's bounded full copy.
-    // A press that outlives its result sets nothing: a new solve clears the proposal, and one made from the result it replaced is not of the result shown; nor one made for a project or a model revision the session has since left.
-    const basis = result;
+    // Issue 519: a proposal made for a project or a model revision the session has since left is not set, so it cannot be saved over another project's stored proposal.
     const generation = projectSessionGenerationRef.current, revision = uiModelRevisionRef.current;
-    const made = await loadSampleProposal(basis && isNativeResult(basis) ? (await loadC2Full(basis, { record: false })).result : basis, selectedReviewTarget);
-    if (heldResultRef.current === basis && projectSessionGenerationRef.current === generation && uiModelRevisionRef.current === revision) setProposal(made);
+    const made = await loadSampleProposal(result && isNativeResult(result) ? (await loadC2Full(result, { record: false })).result : result, selectedReviewTarget);
+    if (projectSessionGenerationRef.current === generation && uiModelRevisionRef.current === revision) setProposal(made);
   }
 
   function handleQueueEditorIntent(intent: EditorOperationIntent) {
