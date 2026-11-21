@@ -1603,7 +1603,7 @@ fn a_user_released_save_before_the_first_project_save_is_held_until_that_save_wr
     assert_eq!(others(&store), before, "the store is unchanged while the entry is held");
     assert!(entry_rows(&store).is_empty());
 
-    let holder = outcome.holder.clone();
+    let holder = outcome.holder.clone().expect("the receipt names its holder");
     assert!(!holder.is_empty(), "the receipt names its holder");
     let held = listed(&store, &session, project_id, Some(&holder)).entries;
     assert_eq!(held.len(), 1, "the session holds the one entry");

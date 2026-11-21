@@ -216,8 +216,8 @@ pub struct SavedPackageEntryOutcome {
     pub entry_id: String,
     pub message: String,
     /// The holder token of a held entry; absent otherwise.
-    #[serde(skip_serializing_if = "String::is_empty")]
-    pub holder: String,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub holder: Option<String>,
 }
 
 impl SavedPackageEntryOutcome {
@@ -227,16 +227,16 @@ impl SavedPackageEntryOutcome {
             code: ENTRY_KEPT.to_string(),
             entry_id,
             message: "The saved package is listed in the project.".to_string(),
-            holder: String::new(),
+            holder: None,
         }
     }
 
     pub(crate) fn not_kept(code: &str, message: impl Into<String>) -> Self {
-        Self { status: "not_kept".to_string(), code: code.to_string(), entry_id: String::new(), message: message.into(), holder: String::new() }
+        Self { status: "not_kept".to_string(), code: code.to_string(), entry_id: String::new(), message: message.into(), holder: None }
     }
 
     fn held(entry_id: String, holder: String, message: &str) -> Self {
-        Self { status: "held".to_string(), code: ENTRY_HELD_BY_SESSION.to_string(), entry_id, message: message.to_string(), holder }
+        Self { status: "held".to_string(), code: ENTRY_HELD_BY_SESSION.to_string(), entry_id, message: message.to_string(), holder: Some(holder) }
     }
 
     pub(crate) fn not_applicable() -> Self {
@@ -245,7 +245,7 @@ impl SavedPackageEntryOutcome {
             code: ENTRY_NOT_APPLICABLE.to_string(),
             entry_id: String::new(),
             message: "No package was saved, so no entry was added.".to_string(),
-            holder: String::new(),
+            holder: None,
         }
     }
 }
@@ -686,7 +686,7 @@ pub(crate) fn keep_held_entries(store: Result<PathBuf, String>, session: &Sessio
                 code: problem.code.to_string(),
                 entry_id: entry.entry_id.clone(),
                 message: problem.message.to_string(),
-                holder: holder.to_string(),
+                holder: Some(holder.to_string()),
             },
         })
         .collect();

@@ -838,8 +838,9 @@ fn unsaved(label: &str) -> (PathBuf, PathBuf, PublishedPackage) {
 fn held(outcome: &SavedPackageEntryOutcome) -> (String, String) {
     assert_eq!((outcome.status.as_str(), outcome.code.as_str()), ("held", ENTRY_HELD_BY_SESSION), "{outcome:?}");
     assert!(outcome.message.contains("not yet kept with the project"), "{}", outcome.message);
-    assert!(!outcome.entry_id.is_empty() && !outcome.holder.is_empty());
-    (outcome.entry_id.clone(), outcome.holder.clone())
+    let holder = outcome.holder.clone().expect("a held outcome names its holder");
+    assert!(!outcome.entry_id.is_empty() && !holder.is_empty());
+    (outcome.entry_id.clone(), holder)
 }
 
 #[track_caller]
@@ -1359,7 +1360,7 @@ fn a_save_into_a_stored_project_with_earlier_unwritten_entries_says_so() {
     fault::arm(Some("disk I/O error".to_string()));
     let outcome = keep_or_hold(&path, &session, Some(&holder), &published(PROJECT, &dir.join("next.opsproj"), b"next", true, 2));
     fault::arm(None);
-    assert_eq!((outcome.status.as_str(), outcome.holder.as_str()), ("held", holder.as_str()));
+    assert_eq!((outcome.status.as_str(), outcome.holder.as_deref()), ("held", Some(holder.as_str())));
     assert_eq!(outcome.message, HELD_WITH_EARLIER);
     assert!(!outcome.message.contains("first saved"), "{outcome:?}");
 }
