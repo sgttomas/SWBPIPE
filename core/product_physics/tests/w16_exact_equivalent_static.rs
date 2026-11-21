@@ -1072,6 +1072,42 @@ fn a_declared_difference_over_generating_load_state_cases_is_refused() {
     }
 }
 
+/// A load/reference-state document whose generating cases mix an authored
+/// analysis_state with a missing or a null one is refused by name, whole:
+/// every case of the group states its analysis_state
+/// (LOAD_STATE_ANALYSIS_STATE_REQUIRED), and an explicit null is authored
+/// presence, not absence (LOAD_STATE_EXPLICIT_NULL_UNSUPPORTED). Generation
+/// does not stand in for the missing state, and nothing is published.
+#[test]
+fn a_generating_case_without_its_analysis_state_is_refused_by_name() {
+    let (_, plain) = reference_request(&case_ref("W16C-SEISMIC-EX-EB"));
+    let mut wire = load_state_document_of(&plain);
+    let mut second = wire["model"]["load_cases"][0].clone();
+    second["id"] = json!("case:w16c-second");
+    wire["model"]["load_cases"].as_array_mut().unwrap().push(second);
+    for mode in MODES {
+        solved(&wire, Route::Exact, mode, "both cases state their analysis_state");
+    }
+    for (what, code, edit) in [
+        ("missing", "LOAD_STATE_ANALYSIS_STATE_REQUIRED", None),
+        ("null", "LOAD_STATE_EXPLICIT_NULL_UNSUPPORTED", Some(Value::Null)),
+    ] {
+        let mut mixed = wire.clone();
+        let case = mixed["model"]["load_cases"][1].as_object_mut().unwrap();
+        match edit {
+            None => { case.remove("analysis_state"); }
+            Some(value) => { case.insert("analysis_state".into(), value); }
+        }
+        let found = refused(&mixed, code, &format!("a generating case with its analysis_state {what}"));
+        assert!(found.iter().all(|d| d["affected_refs"].to_string().contains("case:w16c-second")), "{what}: names the case; {found:?}");
+        for mode in MODES {
+            let out = run(&mixed, mode);
+            assert!(out["contract_evidence"]["load_reference_states"].as_array().is_none_or(Vec::is_empty), "{what} {mode:?}: no record");
+            assert!(out["contract_evidence"]["exact_cases"].as_array().is_none_or(Vec::is_empty), "{what} {mode:?}: no generation record");
+        }
+    }
+}
+
 /// Decision 2 (vi) of issue 452: a generated case commits whole or not at
 /// all. Valid seismic inputs beside invalid wind inputs refuse the case: no
 /// row, no generated record and no load-state record is published.
