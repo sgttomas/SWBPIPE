@@ -170,7 +170,9 @@ The validation lane proposes the set; this section records the method only:
   14 November 2026, CAEPIPE is "a trusted validator model".
 - **Inputs.** Each code-dependent input that changes mechanics is held equal on
   both sides. Where it cannot be held equal, it is named and carried by a
-  one-parameter series. SWBPIPE is never tuned to match.
+  one-parameter series. Comparisons are used to find and fix SWBPIPE's defects;
+  no factor, default or tolerance is set in SWBPIPE only to make a result
+  agree.
 - **Screening profile.** Agent 0 screens with these values, proposed by the
   validation lane. The owner's review of the full record decides, not the profile. Each
   is a relative tolerance, plus a printed-resolution floor per result kind:
@@ -210,8 +212,10 @@ The validation lane proposes the set; this section records the method only:
     then a convention series.
   - Each finding is classed as SWBPIPE's to fix, a documented convention
     difference, or unexplained.
-- **Review and publication.** Agent 0 screens every run against the profile
-  and flags anything of merit; the owner then reviews the full record.
+- **Review and publication.** Agent 0 screens against the profile each run
+  that exit criterion 11 counts as screenable, names every other run with its
+  reason, and flags anything of merit; the owner then reviews the full record,
+  unmatched results included.
   Agreement is published once the owner has checked the CAEPIPE licence for
   benchmark clauses, and `docs/IP_AND_DATA_BOUNDARY.md` §6.2 is amended to
   match. Other evaluation stays private.
@@ -294,7 +298,7 @@ target remains adequate. A failure alone does not justify relaxing one.
      combinations, which combine solved results, from criterion 6's families.
      Combination coverage is judged under criterion 1 (DEL-05-02). The other refusals in DEL-17-04
      still stand; criterion 6 remains
-     unmet, and no reference-system round-trip claim is made.
+     unmet.
 
    *Owning deliverables:* DEL-17-04, DEL-07-12.
 7. **Authoring time.** From blank, the reference system is entered by run sheet
@@ -325,9 +329,16 @@ target remains adequate. A failure alone does not justify relaxing one.
 10. **Autosave.** It is on by default; a crash loses at most one interval.
 
     *Owning deliverables:* DEL-02-05.
-11. **Benchmark set.** Every case is screened against the benchmark
-    method's tolerance profile, and the
-    findings are triaged. The owner has reviewed the full record.
+11. **Benchmark set.** A run is screened against the benchmark method's
+    tolerance profile, and its findings are triaged, where the benchmark
+    manifest gives it a SWBPIPE counterpart and the conditions it names for
+    that run are met. A run without a counterpart, such as an NRL mode-sum run
+    or the member of an alternative pair that was not analysed, or one whose
+    conditions are not met, is named with its reason and is not counted as
+    screened. Dynamics runs with a counterpart are captured as references and
+    are screened when modal and response-spectrum analysis are taken up after
+    v1.0. Unmatched results stay in the full record, which the owner has
+    reviewed.
 
     *Owning deliverables:* DEL-17-05.
 12. **Reproduction.** A fresh reproduction bundle exists at the release
@@ -395,8 +406,10 @@ target remains adequate. A failure alone does not justify relaxing one.
 - Licence, legal and professional sign-off: the content and repository scans
   of exit criteria 14 and 16, the check of the CAEPIPE licence for benchmark
   clauses, and signing the build.
-- The owner's review of the full benchmark record (exit criterion 11), and the
-  private CAEPIPE evaluation record and trial it rests on.
+- The owner's review of the full benchmark record (exit criterion 11). Agents
+  operate the owner's CAEPIPE, read its results and compare them privately; what
+  is reserved is the owner's review of the benchmark record and the licence
+  check before any agreement is published.
 - Purchases, credentials, and repository protections and settings.
 - Release authority: waiving a release gate, or accepting a risk as the act of
   releasing.
@@ -413,8 +426,8 @@ engineering judgment to keep the design implementation moving forward)"; the
 four aspects are what the application is, what it can know, what it does and
 what it values. Every other item listed above stays the owner's: acceptance,
 issuance, release and the verdict on the product; publication, including
-benchmark agreement; licence, legal and professional sign-off; the benchmark
-record's review and the private CAEPIPE evaluation record; purchases,
+benchmark agreement; licence, legal and professional sign-off; the review of the
+full benchmark record; purchases,
 credentials, and repository protections and settings; release authority; and
 amending `docs/PRD.md`. An expected value still never changes to fit the
 implementation.
