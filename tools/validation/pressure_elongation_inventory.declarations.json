@@ -1547,6 +1547,7 @@
    "paths": [
     "core/product_physics/src/case_state/resolve.rs",
     "core/product_physics/src/exact_admission.rs",
+    "core/product_physics/src/hydrostatic.rs",
     "core/product_physics/src/joint.rs",
     "core/product_physics/src/lib.rs",
     "core/product_physics/src/retained_memory.rs",
@@ -1683,6 +1684,7 @@
    "reason": "every region list it builds is empty, absent or at zero pressure, so no case carries pressure",
    "paths": [
     "core/model_operations/operation_applier/tests/condition_set_authoring.rs",
+    "core/model_operations/operation_applier/tests/hydrostatic_test_authoring.rs",
     "core/product_physics/src/d5_mass_product_tests.rs",
     "core/product_physics/src/modal/tests.rs",
     "core/product_physics/src/retained_facade_tests.rs",
@@ -1861,7 +1863,8 @@
     "validation/references/rt_a3_s6/requests/ls1_*.json",
     "validation/references/t4_i12/u3_reference_cases.json",
     "validation/references/t4_u8/requests/LOAD-STATE-PER-CASE-NU-*.request.json",
-    "validation/references/t4_u8/requests/S-*.request.json"
+    "validation/references/t4_u8/requests/S-*.request.json",
+    "fixtures/model_operations/condition_set_contract_corpus.json"
    ]
   },
   {
