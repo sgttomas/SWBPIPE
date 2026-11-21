@@ -4975,13 +4975,13 @@ body { min-width: 760px; min-height: 540px; }
 /* Entity labels: a small tag naming its entity, set off from it (the view places it by
    viewportLabelLayout.ts), on the canvas's label plate, so it names without covering. The selected
    label takes the selection colour; the hovered one its hover edge. */
-.app-shell .viewport-select-target {
-  width: auto; min-width: 0; max-width: 160px; height: 16px; padding: 0 var(--space-2); gap: 0;
+.app-shell .viewport-selection-layer .viewport-select-target {
+  width: auto; min-width: 0; max-width: 160px; height: 16px; min-height: 0; padding: 0 var(--space-2); gap: 0;
   color: var(--canvas-label); background: var(--canvas-labelBg); border: 1px solid transparent; border-radius: 2px;
   box-shadow: none; font-size: 10px; font-weight: var(--type-weight-medium); line-height: 14px;
 }
-.app-shell .viewport-select-target:hover, .app-shell .viewport-select-target.hovered { border-color: var(--canvas-hover); background-image: none; }
-.app-shell .viewport-select-target.active {
+.app-shell .viewport-selection-layer .viewport-select-target:hover, .app-shell .viewport-selection-layer .viewport-select-target.hovered { border-color: var(--canvas-hover); background-image: none; }
+.app-shell .viewport-selection-layer .viewport-select-target.active {
   color: var(--text-inverse); background: var(--canvas-selection); border-color: var(--canvas-selection); outline: none;
 }
-.app-shell .viewport-select-target:focus-visible { outline: 2px solid var(--ui-focus); outline-offset: 1px; }
+.app-shell .viewport-selection-layer .viewport-select-target:focus-visible { outline: 2px solid var(--ui-focus); outline-offset: 1px; }

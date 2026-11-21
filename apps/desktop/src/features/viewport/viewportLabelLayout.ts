@@ -28,10 +28,13 @@ export type LabelCandidate<K extends string = string> = {
   emphasised: boolean;
   /** Rank among emphasised labels: the primary selection 0, other selections, then the hover. */
   emphasisRank?: number;
+  /** The place (0 to 3) this label took in the previous layout: tried first, so that a label
+   * that becomes hovered or selected does not jump from under the pointer. */
+  preferredPlace?: number;
 };
 
 export type LabelBox = { left: number; top: number; right: number; bottom: number };
-export type LabelPlacement<K extends string = string> = { key: K; left: number; top: number; drawn: boolean };
+export type LabelPlacement<K extends string = string> = { key: K; left: number; top: number; drawn: boolean; place: number };
 
 /** The label budget's ceiling (`prioritizedLabelKeys`), and so the most labels one layout places. */
 export const LABEL_LAYOUT_BOUND = 80;
@@ -109,19 +112,24 @@ export function layoutLabels<K extends string>(
   for (let index = 0; index < ordered.length; index += 1) {
     const candidate = ordered[index];
     if (index >= LABEL_LAYOUT_BOUND || !Number.isFinite(candidate.x) || !Number.isFinite(candidate.y)) {
-      output.push({ key: candidate.key, left: 0, top: 0, drawn: false });
+      output.push({ key: candidate.key, left: 0, top: 0, drawn: false, place: -1 });
       continue;
     }
     const options = places(candidate);
-    const free = options.find((box) => inside(box, canvas.width, canvas.height) &&
-      !placed.some((other) => overlaps(box, other)) && !obstacles.some((other) => overlaps(box, other)));
-    const box = free ?? (candidate.emphasised ? clampInside(options[0], canvas.width, canvas.height) : null);
-    if (!box) {
-      output.push({ key: candidate.key, left: 0, top: 0, drawn: false });
+    const preferred = candidate.preferredPlace;
+    const order = preferred !== undefined && preferred >= 0 && preferred < options.length
+      ? [preferred, ...[0, 1, 2, 3].filter((index) => index !== preferred)]
+      : [0, 1, 2, 3];
+    const free = order.find((index) => inside(options[index], canvas.width, canvas.height) &&
+      !placed.some((other) => overlaps(options[index], other)) && !obstacles.some((other) => overlaps(options[index], other)));
+    const place = free ?? (candidate.emphasised ? order[0] : -1);
+    if (place < 0) {
+      output.push({ key: candidate.key, left: 0, top: 0, drawn: false, place: -1 });
       continue;
     }
+    const box = free !== undefined ? options[place] : clampInside(options[place], canvas.width, canvas.height);
     placed.push(box);
-    output.push({ key: candidate.key, left: box.left, top: box.top, drawn: true });
+    output.push({ key: candidate.key, left: box.left, top: box.top, drawn: true, place });
   }
   return output;
 }

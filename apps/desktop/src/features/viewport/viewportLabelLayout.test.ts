@@ -75,6 +75,19 @@ describe("label layout", () => {
     expect(box.bottom).toBeLessThanOrEqual(CANVAS.height - LABEL_EDGE_PX);
   });
 
+  it("keeps a label where it was when it becomes hovered, so it does not move from under the pointer", () => {
+    // Above right is taken by the node, so the pipe went above left (place 1).
+    const node = label("node:a", "node", 300, 200);
+    const pipe = label("pipe:p", "pipe", 300, 200);
+    const before = layoutLabels([node, pipe], CANVAS).find((placement) => placement.key === "pipe:p")!;
+    expect(before.place).toBe(1);
+    // Hovered, the pipe is placed first; with its previous place preferred it stays there.
+    const after = layoutLabels([node, { ...pipe, emphasised: true, emphasisRank: 2, preferredPlace: before.place }], CANVAS);
+    const hovered = after.find((placement) => placement.key === "pipe:p")!;
+    expect([hovered.left, hovered.top]).toEqual([before.left, before.top]);
+    expect(after.find((placement) => placement.key === "node:a")!.drawn).toBe(true);
+  });
+
   it("keeps labels inside the canvas and clear of the canvas furniture", () => {
     // The view cluster at the top right; a node just under it takes a place below its anchor.
     const cluster: LabelBox = { left: 300, top: 8, right: 592, bottom: 32 };

@@ -506,6 +506,8 @@ export function PipeViewport({
   const lastFitRef = useRef<{ kind: ViewportFitKind; width: number; height: number } | null>(null);
   const cameraMovedSinceFitRef = useRef(false);
   const refitForSizeRef = useRef<((width: number, height: number) => void) | null>(null);
+  // Where each label was drawn last (its place beside the anchor), kept across hover and selection.
+  const labelPlaceRef = useRef(new Map<EntityKey, number>());
   const pickRef = useRef<((event: { clientX: number; clientY: number }) => EntityRef | null) | null>(null);
   const pointerGestureRef = useRef<{ gesture: PointerGesture; target: Element; pointerDownAt: number } | null>(null);
   const boxGestureRef = useRef<{
@@ -1575,6 +1577,8 @@ export function PipeViewport({
       const position = authoredToLocal(indexed.anchor, renderTransform.origin);
       anchors.push({ key, kind: indexed.ref.type, position: new THREE.Vector3(position.x, position.y, position.z) });
     }
+    const labelled = new Set(anchors.map((anchor) => anchor.key));
+    for (const key of [...labelPlaceRef.current.keys()]) if (!labelled.has(key)) labelPlaceRef.current.delete(key);
     const emphasisRank = new Map<EntityKey, number>();
     if (primarySelectionKey) emphasisRank.set(primarySelectionKey, 0);
     for (const key of orderedSelectionKeys) if (!emphasisRank.has(key)) emphasisRank.set(key, 1);
@@ -1629,13 +1633,16 @@ export function PipeViewport({
           width: size.width,
           height: size.height,
           emphasised: rank !== undefined,
-          emphasisRank: rank
+          emphasisRank: rank,
+          preferredPlace: labelPlaceRef.current.get(key)
         });
       }
       const placements = layoutLabels(candidates, { width, height }, obstacles);
       // Then writes, only where a label changed.
       let visibleCount = 0;
       for (const placement of placements) {
+        if (placement.drawn) labelPlaceRef.current.set(placement.key, placement.place);
+        else labelPlaceRef.current.delete(placement.key);
         const button = buttons.get(placement.key);
         if (!button) continue;
         const next = placement.drawn ? `${Math.round(placement.left)},${Math.round(placement.top)}` : "hidden";
