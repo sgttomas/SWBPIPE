@@ -101,6 +101,9 @@ code_paths:
 - apps/desktop/src/test/nativeMechanicsReplay.ts
 - apps/desktop/e2e/r2-smoke.spec.ts
 - apps/desktop/e2e/b3a-session-status.spec.ts
+# The suggested file name of every export (REQ-009) and the rule's shared cases.
+- apps/desktop/src/features/fileNames.ts
+- fixtures/file_names/suggested_name_cases.json
 checks:
 - apps/desktop/src/App.projectHandlers.test.tsx
 - apps/desktop/src/features/model-file/modelDocumentOpen.test.tsx
@@ -135,3 +138,6 @@ checks:
 - apps/desktop/src/services/exactResultBytes.test.ts
 - apps/desktop/src/services/g10DesktopMilestoneModel.test.ts
 - apps/desktop/src/services/loadReferenceRoundTrip.test.ts
+# VER-007: the suggested name of every export, for a project whose name and identifiers are known.
+- apps/desktop/src/features/fileNames.test.ts
+- apps/desktop/src/features/fileNames.observed.test.tsx
