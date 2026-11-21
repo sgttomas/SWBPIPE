@@ -1,0 +1,13 @@
+[package]
+name = "open_pipe_stress_export_decision"
+version = "0.1.0"
+edition = "2021"
+description = "The types and the trait a native caller of the DEL-12-02 export control's content rule uses: the request, the summary outcome and the rule's refusals"
+publish = false
+
+[lib]
+path = "src/lib.rs"
+
+[dependencies]
+serde = { version = "1", features = ["derive"] }
+serde_json = { version = "1", features = ["float_roundtrip"] }
