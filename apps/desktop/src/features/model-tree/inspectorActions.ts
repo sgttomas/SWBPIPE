@@ -62,3 +62,8 @@ export function kindName(type: EntityRef["type"], count = 1): string {
   const names = KIND_NAMES[type] ?? [type, `${type}s`];
   return count === 1 ? names[0] : names[1];
 }
+
+/** A Delete control's line: what the press does today, what goes with the entity (the operation
+ * applier's own consequences), and its refusal, which the engine gives with the dependent records. */
+export const deleteLine = (consequence: string) =>
+  `Queued in Review changes; nothing is deleted until you apply it there. ${consequence} Refused while another record depends on it; the refusal names which.`;

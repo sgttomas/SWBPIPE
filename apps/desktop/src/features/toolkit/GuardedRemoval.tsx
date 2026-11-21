@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { canonicalJsonString } from "../../services/hashService";
 import type { EditorOperationIntent, EntityRef, PreviewModel } from "../../types";
+import { deleteLine } from "../model-tree/inspectorActions";
 type RemovalKind = "material" | "section" | "component";
 const removalTypes = {
   material: "Material",
@@ -125,7 +126,7 @@ export function GuardedRemoval({ model, selection, onQueueIntent, operationBusy 
       >
         Delete {selection.type}
       </button>
-      <p className="inspector-delete-note">Refused while another record names it; nothing else is removed.</p>
+      <p className="inspector-delete-note">{deleteLine(selection.type === "material" ? "Its temperature points go with it." : "Nothing else is removed.")}</p>
       {error ? <p role="alert">{error}</p> : !ready ? <p role="status">Preparing the current entity snapshot…</p> : null}
     </section>
   );

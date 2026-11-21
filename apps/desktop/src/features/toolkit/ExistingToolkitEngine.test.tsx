@@ -50,7 +50,7 @@ describe("existing toolkit shared engine", () => {
   it("blocks a referenced material removal through the actual engine without changing the model", async () => {
     const model = await loadPreviewModel(); const original = JSON.stringify(model); const queue = vi.fn();
     render(<GuardedRemoval model={model} selection={{ type: "material", id: model.materials![0].id }} onQueueIntent={queue} />);
-    const button = screen.getByRole("button", { name: /^Delete (material|section|component)$/ });
+    const button = screen.getByRole("button", { name: "Delete material" });
     await waitFor(() => expect(button).toBeEnabled()); fireEvent.click(button);
     const result = await applyModelOperation(model, queue.mock.calls[0][0], null);
     expect(result.validation.application_status).not.toBe("applied_to_session_model");

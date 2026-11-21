@@ -16,7 +16,7 @@ import { combinationTermsText } from "../load-cases/combinationOperands";
 import { ModelSettingsSection } from "../model-settings/ModelSettingsSection";
 import { ProjectUnitsSection } from "../project-units/ProjectUnitsSection";
 import { ListPlus, Pencil, PlayCircle, PlusCircle, SearchCheck, Trash2, X } from "lucide-react";
-import { kindName, offersBendAtCorner, modelSettingsValues, offersSupportForm, projectUnitValues, supportFormLine } from "./inspectorActions";
+import { deleteLine, kindName, offersBendAtCorner, modelSettingsValues, offersSupportForm, projectUnitValues, supportFormLine } from "./inspectorActions";
 import { useEffect, useLayoutEffect, useMemo, useRef, useState, type ReactNode } from "react";
 import type {
   EditorOperationIntent,
@@ -1053,7 +1053,7 @@ export function PropertyInspector({
             <Trash2 size={14} aria-hidden="true" />
             Delete node
           </button>
-          {deletionNote("Refused while a pipe, support, component or load names it; nothing else is removed.", nodeDeleteIntent)}
+          {deletionNote(deleteLine("Nothing else is removed."), nodeDeleteIntent)}
         </section>
       ) : mutationNode ? (
         <section className="inspector-delete" aria-label="Delete node intent">
@@ -1067,7 +1067,7 @@ export function PropertyInspector({
             <Trash2 size={14} aria-hidden="true" />
             Delete pipe
           </button>
-          {deletionNote("Refused while a component, load, support or pressure region names it; nothing else is removed.", pipeDeleteIntent)}
+          {deletionNote(deleteLine("It leaves its line."), pipeDeleteIntent)}
         </section>
       ) : null}
       {supportDeleteIntent ? (
@@ -1076,7 +1076,7 @@ export function PropertyInspector({
             <Trash2 size={14} aria-hidden="true" />
             Delete support
           </button>
-          {deletionNote("Refused while a load names it; nothing else is removed.", supportDeleteIntent)}
+          {deletionNote(deleteLine("Nothing else is removed."), supportDeleteIntent)}
         </section>
       ) : null}
       <GuardedRemoval model={model} selection={propertiesTarget} onQueueIntent={onQueueIntent} operationBusy={operationBusy || multiSelection} />

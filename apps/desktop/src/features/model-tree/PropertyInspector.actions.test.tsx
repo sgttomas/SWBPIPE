@@ -159,7 +159,9 @@ describe("a selection shows itself", () => {
     const remove = screen.getByRole("button", { name: "Delete support" });
     expect(remove).toBeVisible();
     expect(remove).toHaveAttribute("data-testid", "queue-delete-support-intent");
-    expect(screen.getByTestId("delete-support-intent-panel")).toHaveTextContent("Refused while a load names it; nothing else is removed.");
+    expect(screen.getByTestId("delete-support-intent-panel")).toHaveTextContent(
+      "Queued in Review changes; nothing is deleted until you apply it there. Nothing else is removed. Refused while another record depends on it; the refusal names which."
+    );
     // The operation itself stays behind its closed line until asked for.
     expect(within(screen.getByTestId("delete-support-intent-panel")).getByTestId("editor-operation-preview")).not.toBeVisible();
     fireEvent.click(remove);
