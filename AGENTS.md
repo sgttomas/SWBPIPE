@@ -388,15 +388,9 @@ reviewed head, and it triages `nightly` issues when arming. It disarms before
 any further push to the branch. `main` does not require an up-to-date branch:
 before merging or arming, Agent 0 updates the branch and waits for a fresh run
 when a PR merged since the branch's base touched the same files or the same
-deliverable. Where the only paths the two share are generated records that each
-side regenerated with its generator (the pressure elongation inventory, the
-hosted CI routing record), Agent 0 may instead build the merged tree and
-confirm that the merge is conflict-free, that each such record is current by
-its generator's own check and that the deliverables check reports no error,
-and says so on the PR. A merged tree that fails any of these, and a PR that
-changes priced sources, frozen references or numerical meaning, takes the
-update and the fresh run. Open PRs that overlap this way merge in turn: the later one stays
-unarmed until the earlier has landed and the later has been updated. Where a
+deliverable. Open PRs that overlap this way merge in turn: the later one stays
+unarmed until the earlier has landed and the later has been updated, or has
+been checked under the record-only exception below. Where a
 PR's head contains current `main` and the reviewed heads of earlier PRs, and
 the hosted `harness` result is green on that exact head, Agent 0 may instead
 merge it and so land the earlier ones without their own fresh runs. "Contains"
@@ -440,6 +434,45 @@ Agent 0 says on each PR landed this way which head carried it. Agents working un
 merge and wait for that Agent 0 to merge it. A Type 1 the owner started directly reports its PR ready to this project's Agent 0; where the owner works with it alone and no Agent 0 holds the project, it holds that perspective and merges under this grant. Explicit holds and reserved decisions
 apply. This grant excludes protection bypasses, history rewrites, force pushes,
 permission changes and releases. Use [Git conventions](#git-conventions) below.
+
+**Record-only overlap.** The update and fresh run may be omitted for one PR
+with a green hosted `harness` on its reviewed head when its overlap with
+everything merged to `main` since its base is confined to derived content of
+one or both of two records. Agent 0 never arms auto-merge under this exception.
+
+- The records are `tools/validation/pressure_elongation_inventory.json`,
+  regenerated on each side by `tools/validation/pressure_elongation_inventory.py`,
+  and `tools/hosted-ci-routing.json`, where each side's diff is confined to the
+  tree-derived entries under `piping_runtime_reads`: `source_trees` digests,
+  reader `sha256` values and `scan` `files` lists. An edit on either side to
+  `path_rules`, `checks`, `always_checks`, `piping_artifact_readers`,
+  `piping_desktop_resources`, `piping_browser_journeys` or a hand-written
+  `reads` entry is not derived content. No other generated or partly generated
+  file qualifies, whatever produced it.
+- Agent 0 compares the PR's own diff with the diff of `main` since the PR's
+  base and reads both sides' diffs of each shared record. With the two records
+  set aside, the two diffs share no path and no deliverable
+  (`python3 -m tools.deliverables --project . touches`).
+- Agent 0 builds the Git merge of the current `main` commit and the reviewed
+  head and edits nothing in it. The merge is conflict-free and each shared
+  record's merged diff holds only derived content, with no duplicate key.
+- On that tree: for a shared pressure inventory,
+  `python3 tools/validation/pressure_elongation_inventory.py --check` and
+  `tools/validation/test_pressure_elongation_inventory.py` pass; for a shared
+  routing record, `tests/test_ci_numerical.py` and
+  `tools/software_workflow/test_hosted_ci.py` pass and every `source_trees`
+  digest equals `numerical_ci.rust_tree_digest` for its manifest; and
+  `python3 -m tools.deliverables --project . check` reports no error.
+- Immediately before merging, `main` still names the checked commit and the PR
+  head still names the reviewed and tested commit; if either has moved the
+  assessment is repeated or the branch is updated. Agent 0 records on the PR
+  the `main` commit, the PR head, the merged tree, the shared records and the
+  results of the checks.
+
+A check that fails or cannot be run, any other overlap, or a change on either
+side to priced sources, frozen references or numerical meaning, or one Agent 0
+cannot establish is absent, takes the update and the fresh run. Holds, required
+reviews and the conditions for composed branches are unchanged.
 
 ## Git conventions
 
