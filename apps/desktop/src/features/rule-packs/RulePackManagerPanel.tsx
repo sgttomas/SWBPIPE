@@ -393,6 +393,14 @@ export function RulePackManagerPanel({
   const document = parsedDraft && parsedDraft.ok ? parsedDraft.document : null;
   const partFaults = validationCurrent && validation && document ? faultsByPart(validation, document) : emptyFaults();
 
+  // The outcome of the last act, in one line: under the save controls while a
+  // pack is open, under the list once it is closed (a discard or a delete).
+  const statusLine = actionStatus ? (
+    <small data-testid="rule-pack-action-status" title={actionStatus.code}>
+      {actionStatus.text}
+    </small>
+  ) : null;
+
   return (
     <section
       className="panel rule-pack-manager-panel"
@@ -483,6 +491,8 @@ export function RulePackManagerPanel({
         />
       ) : null}
 
+      {draft ? null : statusLine}
+
       {draft ? (
         <div className="rule-pack-open" data-testid="rule-pack-open-pack">
           <div className="rule-pack-header" data-testid="rule-pack-header">
@@ -547,11 +557,7 @@ export function RulePackManagerPanel({
               ) : null}
             </div>
           ) : null}
-          {actionStatus ? (
-            <small data-testid="rule-pack-action-status" title={actionStatus.code}>
-              {actionStatus.text}
-            </small>
-          ) : null}
+          {statusLine}
 
           {refusedStoredPack && validation ? (
             <div className="rule-pack-refusal" data-testid="rule-pack-version-refusal" role="status">
