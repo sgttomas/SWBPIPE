@@ -211,11 +211,11 @@ describe.each(KINDS)("%s: the outcome is kept whatever happens to the workspace"
     await startSave(kind, state);
     await waitFor(() => expect(saveCalls()).toHaveLength(1));
     // Sent: its pending line is announced, and it offers no Dismiss.
-    await waitFor(() => expect(outcomeLines()).toEqual([`Saving ${name.toLowerCase()}: choose where to save it.`]));
+    await waitFor(() => expect(outcomeLines()).toEqual([`Choose where to save the ${name.toLowerCase()}.`]));
     expect(within(outcomeStatuses()[0]).queryByRole("button", { name: "Dismiss" })).toBeNull();
     await makeChange(change, state);
     await act(async () => { reply.resolve(receipt(kind)); await Promise.resolve(); });
-    await waitFor(() => expect(outcomeLines()).toEqual([`${name} saved: invented.opsproj.${moved(change, basis)}`]));
+    await waitFor(() => expect(outcomeLines()).toEqual([`${name} saved as invented.opsproj.${moved(change, basis)}`]));
     expect(within(outcomeStatuses()[0]).getByRole("button", { name: "Dismiss" })).toBeInTheDocument();
   }, 90_000);
 
@@ -223,9 +223,9 @@ describe.each(KINDS)("%s: the outcome is kept whatever happens to the workspace"
     const { state, basis } = await solvedSession(async () => receipt(kind));
     if (change === "opening another project") await storeOtherProject(state);
     await startSave(kind, state);
-    await waitFor(() => expect(outcomeLines()).toEqual([`${name} saved: invented.opsproj`]));
+    await waitFor(() => expect(outcomeLines()).toEqual([`${name} saved as invented.opsproj.`]));
     await makeChange(change, state);
-    expect(outcomeLines()).toEqual([`${name} saved: invented.opsproj.${moved(change, basis)}`]);
+    expect(outcomeLines()).toEqual([`${name} saved as invented.opsproj.${moved(change, basis)}`]);
   }, 90_000);
 });
 
@@ -238,23 +238,23 @@ const commandError = (members: Record<string, unknown>) => ({
 describe.each(KINDS)("%s: each outcome is stated as such", (kind, name) => {
   const cases: readonly [string, () => Promise<unknown>, string][] = [
     ["durability not confirmed", async () => receipt(kind, { durability: "saved_durability_uncertain", code: "REPORT-PACKAGE-SAVED-DURABILITY-UNCERTAIN" }),
-      `${name} saved: invented.opsproj; the system did not confirm the file is safely on disk.`],
+      `${name} saved as invented.opsproj. The system did not confirm it is safely on disk.`],
     ["cancelled at the chooser", async () => receipt(kind, { outcome: "cancelled", stage: "picker", code: "REPORT-PACKAGE-SAVE-CANCELLED", selected_basename: "" }),
-      `${name} not saved: cancelled.`],
+      `${name} not saved: the save was cancelled.`],
     ["refused, with its code", () => Promise.reject(commandError({ code: "REPORT-PACKAGE-PICKER-PATH-INVALID", stage: "assemble", message: "REPORT-PACKAGE-PICKER-PATH-INVALID: the chosen path is not an invented file path" })),
       `${name} not saved: the chosen path is not an invented file path (REPORT-PACKAGE-PICKER-PATH-INVALID).`],
     ["failed, its temporary file not removed", () => Promise.reject(commandError({ code: "REPORT-PACKAGE-WRITE-FAILED", stage: "write", message: "invented: no space left on device", cleanup_code: "REPORT-PACKAGE-TEMP-CLEANUP-FAILED", selected_basename: "invented.opsproj" })),
       `${name} not saved: invented: no space left on device (REPORT-PACKAGE-WRITE-FAILED). A temporary file may remain beside invented.opsproj.`],
     ["no native answer after it was sent", () => Promise.reject(new Error("invented: the native channel closed")),
-      `${name}: outcome unknown. Check the file you selected.`],
+      `It is not known whether the ${name.toLowerCase()} was saved. Check the file you selected.`],
     ["the native save's worker did not complete", () => Promise.reject(commandError({ code: "REPORT-PACKAGE-SAVE-WORKER-FAILED", stage: "assemble", message: "REPORT-PACKAGE-SAVE-WORKER-FAILED: the save's worker did not complete; the destination may be unchanged.", selected_basename: "invented.opsproj" })),
-      `${name}: outcome unknown. Check invented.opsproj.`]
+      `It is not known whether the ${name.toLowerCase()} was saved. Check invented.opsproj.`]
   ];
   it.each(cases)("%s", async (_case, answer, line) => {
     const { state } = await solvedSession(answer);
     await startSave(kind, state);
     await waitFor(() => expect(outcomeLines()).toEqual([line]));
-    if (line.includes("outcome unknown")) {
+    if (line.startsWith("It is not known")) {
       // An unknown outcome never reads as nothing written.
       expect(outcomeStatuses()[0].textContent).not.toMatch(/not saved|nothing was (written|sent)|was not written/i);
     }
@@ -266,10 +266,10 @@ describe("Save Report Package…: what the entry shows and how it goes", () => {
     const warnings = [{ code: "MODEL-LIBRARY-REF-UNRESOLVED", path: "/model/materials/0", message: "invented: the library reference could not be resolved." }];
     const { state, basis } = await solvedSession(async () => receipt("report_package", { warnings, replaced_existing: true }));
     await startSave("report_package", state);
-    await waitFor(() => expect(outcomeLines()).toEqual(["Report package saved: invented.opsproj"]));
+    await waitFor(() => expect(outcomeLines()).toEqual(["Report package saved as invented.opsproj."]));
     const status = outcomeStatuses()[0];
     expect(within(within(status).getByRole("list", { name: "Warnings" })).getAllByRole("listitem").map((item) => item.textContent)).toEqual([
-      "Warning: MODEL-LIBRARY-REF-UNRESOLVED at /model/materials/0: invented: the library reference could not be resolved."
+      "Warning: invented: the library reference could not be resolved. (MODEL-LIBRARY-REF-UNRESOLVED, at /model/materials/0)"
     ]);
     const details = status.querySelector("details")!;
     expect(details.open).toBe(false);
@@ -278,7 +278,7 @@ describe("Save Report Package…: what the entry shows and how it goes", () => {
       `Report basis: model ${basis.model}, run ${basis.run}.`,
       `4096 bytes; container SHA-256 ${"b".repeat(64)}; package identity SHA-256 ${"a".repeat(64)}.`,
       "It replaced the file that was there.",
-      "The system confirmed the file is durable on disk.",
+      "The system confirmed the file is safely on disk.",
       "Receipt code: REPORT-PACKAGE-SAVED.",
       "Limitation: Invented limitation."
     ]);
@@ -288,11 +288,11 @@ describe("Save Report Package…: what the entry shows and how it goes", () => {
     let saves = 0;
     const { state } = await solvedSession(async () => receipt("report_package", { selected_basename: `invented-${++saves}.opsproj` }));
     await startSave("report_package", state);
-    await waitFor(() => expect(outcomeLines()).toEqual(["Report package saved: invented-1.opsproj"]));
+    await waitFor(() => expect(outcomeLines()).toEqual(["Report package saved as invented-1.opsproj."]));
     await startSave("report_package", state);
-    await waitFor(() => expect(outcomeLines()).toEqual(["Report package saved: invented-1.opsproj", "Report package saved: invented-2.opsproj"]));
+    await waitFor(() => expect(outcomeLines()).toEqual(["Report package saved as invented-1.opsproj.", "Report package saved as invented-2.opsproj."]));
     fireEvent.click(within(outcomeStatuses()[0]).getByRole("button", { name: "Dismiss" }));
-    expect(outcomeLines()).toEqual(["Report package saved: invented-2.opsproj"]);
+    expect(outcomeLines()).toEqual(["Report package saved as invented-2.opsproj."]);
   }, 90_000);
 
   it("a save whose basis changes before its request is sent is recorded as not sent", async () => {
@@ -309,7 +309,7 @@ describe("Save Report Package…: what the entry shows and how it goes", () => {
     act(() => state().results.setReportComposition({ composition_version: "1.0.0", sections: [] }));
     await act(async () => { gate.resolve(); });
     await waitFor(() => expect(outcomeLines()).toEqual([
-      `Report package not saved: the workspace changed before the request was sent (REPORT-REQUEST-RETIRED). Nothing was sent.${earlier(basis)}`
+      `Report package not saved: the workspace changed before the save began (REPORT-REQUEST-RETIRED). Nothing was written.${earlier(basis)}`
     ]));
     expect(saveCalls()).toHaveLength(0);
   }, 90_000);
@@ -324,7 +324,7 @@ describe("an entry's basis is the report the press was made on", () => {
     act(() => state().results.setReportComposition({ composition_version: "1.0.0", sections: [] }));
     act(() => request.save({ userReleasedAt: "2026-11-21T00:00:00Z" }));
     await waitFor(() => expect(outcomeLines()).toEqual([
-      `Shareable report package not saved: the workspace changed before the request was sent (REPORT-REQUEST-RETIRED). Nothing was sent.${earlier(basis)}`
+      `Shareable report package not saved: the workspace changed before the save began (REPORT-REQUEST-RETIRED). Nothing was written.${earlier(basis)}`
     ]));
     expect(saveCalls()).toHaveLength(0);
   }, 90_000);

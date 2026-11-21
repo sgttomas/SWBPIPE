@@ -67,6 +67,9 @@ export type ReportPackageWarning = { code: string; path: string; message: string
 export type ReportPackageFacts = {
   /** Whether the request was sent to the native host; false: nothing was sent. */
   sent: boolean;
+  /** Known to have written nothing: a request not sent, or one whose only sending was refused
+   * before the save chooser and before any file (the memory pool's refusal) and then retired. */
+  nothingWritten: boolean;
   /** The receipt's warnings, shown with the entry. */
   warnings: readonly ReportPackageWarning[];
   /** A saved package's figures, shown behind the entry's details; null for any other outcome. */
@@ -99,7 +102,7 @@ export function isReportPackageEntry(entry: ReportOutputEntry): entry is ReportP
   return entry.kind === "report_package" || entry.kind === "shareable_report_package";
 }
 
-const SENT_PACKAGE: ReportPackageFacts = { sent: true, warnings: [], receipt: null, temporaryFileMayRemain: false, listEntry: null };
+const SENT_PACKAGE: ReportPackageFacts = { sent: true, nothingWritten: false, warnings: [], receipt: null, temporaryFileMayRemain: false, listEntry: null };
 
 /** The session's report output outcomes (see the module comment). */
 export class ReportOutputOutcomes {
@@ -176,7 +179,7 @@ function refusedText(error: { code: string; stage: string; message: string; dest
  * side said so (a memory-pool refusal, an invalid request), otherwise unknown. */
 function failedText(failure: unknown): ReportOutputSettlement {
   if (failure instanceof ResourceUnavailableError) {
-    return { state: "refused", code: "RESOURCE_UNAVAILABLE", detail: `Refused by the native memory pool before anything ran: ${describeResourceRefusal(failure.refusal)}`, basename: null };
+    return { state: "refused", code: "RESOURCE_UNAVAILABLE", detail: `Refused by the memory pool before anything ran: ${describeResourceRefusal(failure.refusal)}`, basename: null };
   }
   const message = failure instanceof Error ? failure.message : String(failure);
   if (message.startsWith("INVALID_REQUEST:")) return { state: "refused", code: "INVALID_REQUEST", detail: message, basename: null };
@@ -250,6 +253,9 @@ export function reportOutputBasisNames(basis: ReportOutputBasis): { model: strin
 }
 
 const REQUEST_RETIRED = "REPORT-REQUEST-RETIRED";
+/** A package save's reading of the memory pool's refusal for want of free memory (the "Memory
+ * pool" panel's name for the allowance). */
+const MEMORY_POOL_SHORT = "the memory pool had too little free at that moment";
 /** The native save's own worker failure: the save's outcome is not known. */
 const PACKAGE_WORKER_FAILED = "REPORT-PACKAGE-SAVE-WORKER-FAILED";
 /** Native stages that refuse before anything is written: admission, the producer and the
@@ -303,9 +309,11 @@ export function packageReceiptSettlement(receipt: ReportPackageSaveReceipt): Rep
  * native side refused before anything was written, failed where the writer failed before its
  * rename returned, and otherwise unknown (never "nothing written"). */
 export function packageFailureSettlement(failure: unknown): ReportPackageSettlement {
-  if (failure instanceof ResourceUnavailableError || (failure instanceof Error && failure.message.startsWith("INVALID_REQUEST:"))) {
-    return packageSettlement(failedText(failure));
+  if (failure instanceof ResourceUnavailableError) {
+    const reading = failure.refusal.kind === "headroom_insufficient" ? MEMORY_POOL_SHORT : describeResourceRefusal(failure.refusal);
+    return packageSettlement({ state: "refused", code: "RESOURCE_UNAVAILABLE", detail: reading, basename: null });
   }
+  if (failure instanceof Error && failure.message.startsWith("INVALID_REQUEST:")) return packageSettlement(failedText(failure));
   if (failure instanceof Error) return packageSettlement({ state: "unknown", code: null, detail: failure.message, basename: null });
   const error = (failure && typeof failure === "object" ? failure : {}) as Record<string, unknown>;
   if (typeof error.code !== "string" || typeof error.stage !== "string" || typeof error.message !== "string") {
@@ -329,16 +337,19 @@ export function packageNotSentSettlement(reason: unknown): ReportPackageSettleme
   const reading = reason instanceof Error ? reason.message : typeof reason === "string" ? reason : String(reason);
   const own = reason && typeof reason === "object" && typeof (reason as { code?: unknown }).code === "string" ? (reason as { code: string }).code : null;
   const code = own ?? /^([A-Z][A-Z0-9]*(?:[-_][A-Z0-9]+)+)(?=[:\s(]|$)/.exec(reading)?.[1] ?? null;
-  return packageSettlement({ state: "refused", code, detail: reading, basename: null }, { sent: false });
+  return packageSettlement({ state: "refused", code, detail: reading, basename: null }, { sent: false, nothingWritten: true });
 }
 
-/** A package save whose basis changed before its request was sent (or, after the memory pool's
- * refusal for headroom, before it was sent again): nothing was written. */
+/** A package save whose basis changed before its request was sent (or, after the memory pool
+ * refused it for want of free memory, before it was sent again): nothing was written. The memory
+ * pool's refusal of the package save, on either route, comes before the save chooser and before
+ * any file is created: at the command's ingress and its lease growth (`lib.rs`,
+ * `save_report_package`) and, on the shareable route, in admission step 5
+ * (`report_package_save.rs`, `admit_user_released`), all before `save_admitted_report_package_in`
+ * opens the chooser and writes. */
 export function packageRetiredSettlement(resend = false): ReportPackageSettlement {
-  const detail = resend
-    ? "the native memory pool refused the request for want of headroom, and the workspace changed before it was sent again"
-    : "the workspace changed before the request was sent";
-  return packageSettlement({ state: "refused", code: REQUEST_RETIRED, detail, basename: null }, { sent: resend });
+  const detail = resend ? `${MEMORY_POOL_SHORT}, and the workspace changed before it could be tried again` : "the workspace changed before the save began";
+  return packageSettlement({ state: "refused", code: REQUEST_RETIRED, detail, basename: null }, { sent: resend, nothingWritten: true });
 }
 
 function packageName(kind: ReportPackageKind): string {
@@ -365,24 +376,25 @@ function packageOutputText(entry: ReportPackageOutputEntry, changed: boolean, an
     ? ` It is of another project: ${model}.`
     : changed ? ` It is of an earlier run: ${model}, run ${run}. The model or its results have changed since.` : "";
   const file = entry.basename ?? "the selected file";
+  const Name = capitalized(name);
   switch (entry.state) {
     case "pending":
-      return `Saving ${name}: choose where to save it.${earlier}`;
+      return `Choose where to save the ${name}.${earlier}`;
     case "saved":
-      return `${capitalized(name)} saved: ${file}${earlier ? `.${earlier}` : ""}`;
+      return `${Name} saved as ${file}.${earlier}`;
     case "saved_durability_unconfirmed":
-      return `${capitalized(name)} saved: ${file}; the system did not confirm the file is safely on disk.${earlier}`;
+      return `${Name} saved as ${file}. The system did not confirm it is safely on disk.${earlier}`;
     case "cancelled":
-      return `${capitalized(name)} not saved: cancelled.${earlier}`;
+      return `${Name} not saved: the save was cancelled.${earlier}`;
     case "refused":
     case "failed": {
       const temporary = entry.state === "failed" && entry.package.temporaryFileMayRemain ? ` A temporary file may remain beside ${file}.` : "";
-      const notSent = entry.package.sent ? "" : " Nothing was sent.";
-      return `${capitalized(name)} not saved${readingWithCode(entry.detail, entry.code)}.${temporary}${notSent}${earlier}`;
+      const nothing = entry.package.nothingWritten ? " Nothing was written." : "";
+      return `${Name} not saved${readingWithCode(entry.detail, entry.code)}.${temporary}${nothing}${earlier}`;
     }
     case "unknown":
     case "print_window_opened":
-      return `${capitalized(name)}: outcome unknown. Check ${entry.basename ?? "the file you selected"}.${earlier}`;
+      return `It is not known whether the ${name} was saved. Check ${entry.basename ?? "the file you selected"}.${earlier}`;
   }
 }
 
@@ -397,8 +409,8 @@ export function reportOutputDetails(entry: ReportOutputEntry): string[] {
     lines.push(`${receipt.byteCount} bytes; container SHA-256 ${receipt.containerSha256}; package identity SHA-256 ${receipt.packageIdentitySha256}.`);
     if (receipt.replacedExisting) lines.push("It replaced the file that was there.");
     lines.push(entry.state === "saved"
-      ? "The system confirmed the file is durable on disk."
-      : "The whole file was written, but the system did not confirm it is durable on disk.");
+      ? "The system confirmed the file is safely on disk."
+      : "The whole file was written, but the system did not confirm it is safely on disk.");
     if (receipt.userReleaseRecorded) lines.push("The package records the user release.");
     if (entry.code) lines.push(`Receipt code: ${entry.code}.`);
     lines.push(`Limitation: ${receipt.limitation}`);

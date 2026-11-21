@@ -29,7 +29,7 @@ function ReportPackageOutput({ outcomes, entry, currentSequence, currentProjectI
       {entry.package.warnings.length > 0 ? (
         <ul aria-label="Warnings" data-testid={`report-output-${entry.id}-warnings`}>
           {entry.package.warnings.map((warning, index) => (
-            <li key={index}>{`Warning: ${warning.code}${warning.path ? ` at ${warning.path}` : ""}: ${warning.message}`}</li>
+            <li key={index}>{`Warning: ${warning.message} (${warning.code}${warning.path ? `, at ${warning.path}` : ""})`}</li>
           ))}
         </ul>
       ) : null}

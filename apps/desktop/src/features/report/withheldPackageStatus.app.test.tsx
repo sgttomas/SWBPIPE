@@ -111,7 +111,7 @@ describe("a report-package save started while the rendered report is withheld fo
     fireEvent.click(screen.getByTestId("user-release-statement"));
     fireEvent.click(screen.getByTestId("user-release-confirm"));
     const shown = await expectWithheldRefusal(report,
-      `Shareable report package not saved: ${RECORD_REFUSAL}: the run record is above the size the webview can hold whole. Nothing was sent.`);
+      `Shareable report package not saved: ${RECORD_REFUSAL}: the run record is above the size the webview can hold whole. Nothing was written.`);
     expect(shown.textContent).toBe(`Not saved: no shareable report package was written and no user release was made. ${RECORD_REFUSAL}: the run record is above the size the webview can hold whole.`);
     expect(copies()).toBe(0);
     expect(sent("save_report_package")).toBe(false);
@@ -122,7 +122,7 @@ describe("a report-package save started while the rendered report is withheld fo
     expect(await within(report).findAllByTestId("c2-result-refused")).not.toHaveLength(0);
     nativeMenuCommand("file.save-report-package");
     const shown = await expectWithheldRefusal(report,
-      `Report package not saved: ${RECORD_REFUSAL}: the run record is above the size the webview can hold whole. Nothing was sent.`);
+      `Report package not saved: ${RECORD_REFUSAL}: the run record is above the size the webview can hold whole. Nothing was written.`);
     expect(shown.textContent).toBe(`${RECORD_REFUSAL}: the run record is above the size the webview can hold whole.`);
     expect(copies()).toBe(0);
     expect(sent("save_report_package")).toBe(false);
@@ -153,7 +153,7 @@ describe("with the rendered report shown", () => {
     // The session keeps the outcome apart from the panel, in the strip's own words, and the strip
     // alone announces it (issue 508).
     const kept = within(screen.getByRole("region", { name: "Report output outcomes" })).getByRole("status");
-    expect(kept.querySelector("p")?.textContent).toBe("Shareable report package saved: invented-shared.opsproj");
+    expect(kept.querySelector("p")?.textContent).toBe("Shareable report package saved as invented-shared.opsproj.");
     expect(screen.getAllByRole("status").filter((region) => region.textContent?.includes("invented-shared.opsproj"))).toEqual([kept]);
   }, 90_000);
 });

@@ -10,6 +10,7 @@ import {
   packageFailureSettlement,
   packageNotSentSettlement,
   packageReceiptSettlement,
+  packageRetiredSettlement,
   printSettlement,
   ReportOutputOutcomes,
   reportOutputText,
@@ -130,33 +131,33 @@ describe("report package outcomes (issue 508)", () => {
   });
 
   it("words the line: outcome first, the file, the code, and a changed workspace with the model and run", () => {
-    expect(line(packageReceiptSettlement(packageReceipt("durable")))).toBe("Report package saved: invented.opsproj");
+    expect(line(packageReceiptSettlement(packageReceipt("durable")))).toBe("Report package saved as invented.opsproj.");
     expect(line(packageReceiptSettlement(packageReceipt("durable")), 5, "shareable_report_package"))
-      .toBe("Shareable report package saved: invented.opsproj. It is of an earlier run: project:invented, run run:invented-1. The model or its results have changed since.");
+      .toBe("Shareable report package saved as invented.opsproj. It is of an earlier run: project:invented, run run:invented-1. The model or its results have changed since.");
     expect(line(packageReceiptSettlement(packageReceipt("saved_durability_uncertain"))))
-      .toBe("Report package saved: invented.opsproj; the system did not confirm the file is safely on disk.");
-    expect(line(packageReceiptSettlement(packageReceipt("not_applicable", "cancelled")))).toBe("Report package not saved: cancelled.");
+      .toBe("Report package saved as invented.opsproj. The system did not confirm it is safely on disk.");
+    expect(line(packageReceiptSettlement(packageReceipt("not_applicable", "cancelled")))).toBe("Report package not saved: the save was cancelled.");
     expect(line(packageFailureSettlement(commandError("REPORT-PACKAGE-INVENTED", "admit")))).toBe("Report package not saved: invented (REPORT-PACKAGE-INVENTED).");
     expect(line(packageNotSentSettlement("REPORT-PACKAGE-INVENTED-BLOCKED: invented block.")))
-      .toBe("Report package not saved: invented block (REPORT-PACKAGE-INVENTED-BLOCKED). Nothing was sent.");
+      .toBe("Report package not saved: invented block (REPORT-PACKAGE-INVENTED-BLOCKED). Nothing was written.");
     const unknown = line(packageFailureSettlement(new Error("invented lost reply")));
-    expect(unknown).toBe("Report package: outcome unknown. Check the file you selected.");
+    expect(unknown).toBe("It is not known whether the report package was saved. Check the file you selected.");
     expect(unknown).not.toMatch(/not saved|nothing was/i);
   });
 
   it("settles a receipt outcome it does not know as unknown, never as cancelled", () => {
     const strange = packageReceiptSettlement({ ...packageReceipt("durable"), outcome: "invented_outcome" as never });
     expect(strange.state).toBe("unknown");
-    expect(line(strange)).toBe("Report package: outcome unknown. Check invented.opsproj.");
+    expect(line(strange)).toBe("It is not known whether the report package was saved. Check invented.opsproj.");
     expect(packageReceiptSettlement(packageReceipt("not_applicable", "cancelled")).state).toBe("cancelled");
   });
 
   it("names another project by its name, the same project's earlier run by model and run, and does not guess without an identity", () => {
     const saved = packageReceiptSettlement(packageReceipt("durable"));
     expect(line(saved, 5, "report_package", "project:other"))
-      .toBe("Report package saved: invented.opsproj. It is of another project: project:invented.");
+      .toBe("Report package saved as invented.opsproj. It is of another project: project:invented.");
     expect(line(saved, 5, "report_package", "project:invented"))
-      .toBe("Report package saved: invented.opsproj. It is of an earlier run: project:invented, run run:invented-1. The model or its results have changed since.");
+      .toBe("Report package saved as invented.opsproj. It is of an earlier run: project:invented, run run:invented-1. The model or its results have changed since.");
     // An entry with no project identity, or a workspace whose identity is not known: the earlier-run sentence.
     expect(line(saved, 5, "report_package", "project:other", { ...basis, projectId: null })).toMatch(/It is of an earlier run: /);
     expect(line(saved, 5, "report_package", null)).toMatch(/It is of an earlier run: /);
@@ -164,5 +165,15 @@ describe("report package outcomes (issue 508)", () => {
     const html = reportOutputText(entry("save", saveSettlement({ kind: "done", receipt: receipt("durable") })), 5, "project:other");
     expect(html).toMatch(/^Saved the selected report\. The workspace has changed since it was prepared\. It is of another project: project:invented\. File: invented-report\.html\./);
     expect(reportOutputText(entry("save", saveSettlement({ kind: "done", receipt: receipt("durable") })), 5, "project:invented")).not.toContain("another project");
+  });
+
+  it("words the memory pool's refusal, alone and before a retirement, without naming the native side", () => {
+    const headroom = new ResourceUnavailableError({ kind: "headroom_insufficient", required_bytes: 2, available_bytes: 1 } as never, null);
+    expect(line(packageFailureSettlement(headroom))).toBe("Report package not saved: the memory pool had too little free at that moment (RESOURCE_UNAVAILABLE).");
+    expect(line(packageRetiredSettlement(true), basis.sequence, "shareable_report_package")).toBe(
+      "Shareable report package not saved: the memory pool had too little free at that moment, and the workspace changed before it could be tried again (REPORT-REQUEST-RETIRED). Nothing was written."
+    );
+    expect(line(packageRetiredSettlement())).toBe("Report package not saved: the workspace changed before the save began (REPORT-REQUEST-RETIRED). Nothing was written.");
+    for (const words of [line(packageFailureSettlement(headroom)), line(packageRetiredSettlement(true))]) expect(words).not.toMatch(/native|headroom/i);
   });
 });
