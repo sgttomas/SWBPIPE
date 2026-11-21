@@ -289,6 +289,7 @@ import { createSessionEventChannel } from "./sessionEvents";
 import type { WorkspaceSectionId } from "./workspaceSections";
 import { useReportSourceSequence, useSequencedState } from "./reportSourceSequence";
 import {
+  PROJECT_OPERATION_OPEN_REFUSAL,
   packageFailureSettlement,
   packageNotSentSettlement,
   packageReceiptSettlement,
@@ -4345,7 +4346,7 @@ export function useWorkspaceSession() {
    * check's and the route-010 cell's refusal in place of the statement. Nothing happens while
    * another project operation or modal is open, a solve runs or a package is being saved. */
   async function requestSaveShareableReportPackage() {
-    const refusal = reportPackageRequestRefusal() ?? (projectSessionBusy() ? "Not saved: another project operation or dialog was open." : null);
+    const refusal = reportPackageRequestRefusal() ?? (projectSessionBusy() ? PROJECT_OPERATION_OPEN_REFUSAL : null);
     if (refusal !== null) { setReportPackageRoute({ route: "not_requested", diagnostic: refusal }); return; }
     if (!model || !currentSolvedResult || !analysisRun || !inputManifest || running || reportPackageBusyGenerationRef.current !== null) return;
     if (projectSessionBusy()) return;
@@ -4474,7 +4475,7 @@ export function useWorkspaceSession() {
   // however it ended, a result has arrived, the save in progress has ended, or a different reason
   // applies. A change that leaves the same reason true leaves it shown.
   const notRequestedNow = reportPackageRoute?.route === "not_requested"
-    ? reportPackageRequestRefusal() ?? (projectSessionBusy() ? "Not saved: another project operation or dialog was open." : null)
+    ? reportPackageRequestRefusal() ?? (projectSessionBusy() ? PROJECT_OPERATION_OPEN_REFUSAL : null)
     : null;
   const notRequestedSpent = reportPackageRoute?.route === "not_requested" && reportPackageRoute.diagnostic !== notRequestedNow ? reportPackageRoute : null;
   useEffect(() => {

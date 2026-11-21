@@ -263,6 +263,11 @@ function packageSettlement(settlement: ReportOutputSettlement, facts: Partial<Re
   return { ...settlement, package: { ...SENT_PACKAGE, ...facts } };
 }
 
+/** The shareable command's reason when another project operation or dialog is open. One text:
+ * the session sets it and compares a shown reason with it (a "not requested" reason is shown
+ * while it is still true), so the two must not drift apart. */
+export const PROJECT_OPERATION_OPEN_REFUSAL = "Not saved: another project operation or dialog was open.";
+
 /** The settlement of a package save's native receipt (saved or cancelled at the chooser). */
 export function packageReceiptSettlement(receipt: ReportPackageSaveReceipt): ReportPackageSettlement {
   if (receipt.outcome === "cancelled") return packageSettlement({ state: "cancelled", code: null, detail: "", basename: null });
