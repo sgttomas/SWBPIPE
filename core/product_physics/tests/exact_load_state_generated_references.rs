@@ -25,12 +25,15 @@
 //! largest expected magnitude of the row's family in the same case and
 //! setting, or 1e-9 N, N*m and 1e-12 m, rad where the family is all zero.
 //!
-//! What waits on another unit: model CEF carries a valve whose seismic load
-//! is the component force k*W at its node (DEL-05-01 AC-007, issue 450). Until
-//! that unit is on this branch the CEF rows are compared by an ignored test
-//! that names the dependency; the admission of the plain subtractions and
-//! their SRSS and absolute-sum combinations over generating cases is checked
-//! now, without their numbers.
+//! Every comparison counts its rows and asserts the count, so that no filter
+//! can pass by selecting nothing. The equivalent-static package's
+//! `components` (16 load components, 864 rows) are not bound here. Each is
+//! the response to one ingredient of a combined case (thermal, wind, seismic
+//! or pressure elongation) that is not itself a case of the package. The
+//! package states that "`components` gives every component's full rows, and a
+//! cross-check confirms that one direct solve equals the sum" (README,
+//! "Superposition"), and the direct cases, whose 864 rows are bound, are what
+//! a document solves.
 use open_pipe_stress_product_physics::{run_linear_static_preview_value_with_mode, PreviewSolverMode};
 use serde_json::{json, Value};
 use sha2::{Digest, Sha256};
@@ -46,7 +49,6 @@ const PROV: &str = "invented exact load-state generated-load reference input; no
 const CONTRACT: &str = "openpipestress.load_reference_state/1.0.0";
 const MATERIAL: &str = "material:ref";
 const GENERATED_KIND: &str = "generated_equivalent_static";
-const ISSUE_450: &str = "waits on issue 450 (seismic component force: the valve's k*W at its node replaces its member's distributed seismic load); un-ignore when that unit is on this branch";
 
 // ------------------------------------------------------------------ common
 fn frozen(references: &str, sums: &str) -> Value {
@@ -456,14 +458,6 @@ fn equivalent_static_cases_reproduce_the_reference() {
                     let floors = rule_floors(&frozen_rows);
                     let (rows, n_wall) = eqs_wall_rows(&doc, name, case, frozen_rows.clone());
                     wall_moved += n_wall;
-                    if mode == PreviewSolverMode::SparseInteractive && !elongation && n_wall > 0 {
-                        for ((row_id, _, frozen), (_, _, wall)) in frozen_rows.iter().zip(&rows) {
-                            if frozen != wall {
-                                eprintln!("wall end force {id} {row_id}: package N_el {frozen:.17e}, expected N_w {wall:.17e}, observed {:.17e}",
-                                    observed(&out, case_at(id), row_id));
-                            }
-                        }
-                    }
                     let (n, w) = compare(&out, case_at(id), &rows, &floors, &format!("{what} {id}"));
                     compared += n;
                     worst = worst.max(w);
@@ -473,7 +467,8 @@ fn equivalent_static_cases_reproduce_the_reference() {
         }
     }
     assert_eq!(compared, 16 * 54 * 2 * 2, "every row in both settings and both modes");
-    eprintln!("equivalent-static rows compared {compared}, of which {wall_moved} wall end forces, largest relative error {worst:.3e}");
+    assert_eq!(wall_moved, 224, "the wall end forces of the pressurised members, in both settings and both modes");
+    assert!(worst <= RELATIVE);
 }
 
 /// The package's refusals on the load/reference-state document: a missing
@@ -674,7 +669,7 @@ fn gi_expected_generated(doc: &Value, case: &Value, model: &Value) -> Vec<(usize
     for g in case["load_sources"]["generated"].as_array().unwrap() {
         let source = g["source"].as_str().unwrap();
         let (member, rest) = source.split_once('/').unwrap();
-        let Some(index) = pipes.iter().position(|p| p["id"] == member) else { continue };
+        let index = pipes.iter().position(|p| p["id"] == member).unwrap_or_else(|| panic!("{}: generated source {source} names no member", case["id"]));
         if rest.starts_with("seismic") {
             let seismic = if case["seismic"].is_object() { &case["seismic"] } else { &case["inputs"]["seismic"] };
             for (axis, k) in seismic["g_factors"].as_array().unwrap().iter().enumerate() {
@@ -701,7 +696,11 @@ fn generated_interactions_references_are_the_frozen_bytes() {
 /// every row of the qualifying state matches, both terms formed by plain
 /// subtraction match (the lifted term is not the seated structure's response,
 /// the control the reference freezes), and each generated source is recorded
-/// once at factor 1.
+/// once at factor 1. The lift-off threshold is formed from the product's own
+/// rows as the package derives it (`lift_off_threshold.derivation`): with R0
+/// the support's reaction in LO-SUS and R(k) = R0 + k R1 while seated,
+/// R1 = (R(k_seated) - R0) / k_seated and k* = -R0 / R1, compared with the
+/// frozen k* under the comparison rule.
 #[test]
 fn lift_off_support_under_seismic_uplift() {
     let doc = gi();
@@ -712,8 +711,10 @@ fn lift_off_support_under_seismic_uplift() {
         json!({"id": t["id"], "basis": "result_state_subtraction", "minuend_id": t["minuend"], "subtrahend_id": t["subtrahend"], "provenance": PROV})
     }).collect::<Vec<_>>());
     let model = wire["model"].clone();
+    let threshold = value(&doc["lift_off_threshold"]["g_factor_z"]);
     for mode in MODES {
         let out = solved(&wire, mode, "LO");
+        let (mut compared, mut as_published) = (0, 0);
         for id in ids {
             let case = gi_case_ref(&doc, id);
             let want = if case["expected_support_status"]["support:lo-b"].as_str().unwrap().starts_with("in contact") { "active" } else { "inactive" };
@@ -721,17 +722,24 @@ fn lift_off_support_under_seismic_uplift() {
                 && r["entity_ref"] == "support:lo-b" && r["basis_ref"]["ref_id"] == id).unwrap_or_else(|| panic!("{id}: state row"));
             let token = state["metadata"]["basis"].as_str().unwrap().split("final_state=").nth(1).unwrap().split(';').next().unwrap().trim().to_string();
             assert_eq!(token, want, "{id} {mode:?}: support status");
-            compare(&out, case_at(id), &gi_rows(case), &frozen_floors(case), &format!("LO {id} {mode:?}"));
+            compared += compare(&out, case_at(id), &gi_rows(case), &frozen_floors(case), &format!("LO {id} {mode:?}")).0;
             // The same two lift-off quantities as a combination publishes
             // them, against the same expected values, so that both forms are
             // checked wherever both are published.
-            compare(&out, case_at(id), &lift_off_as_published(&doc, &gi_rows(case)), &frozen_floors(case), &format!("LO {id} {mode:?} (as published)"));
+            as_published += compare(&out, case_at(id), &lift_off_as_published(&doc, &gi_rows(case)), &frozen_floors(case), &format!("LO {id} {mode:?} (as published)")).0;
             assert_generated_record(&out, id, &gi_expected_generated(&doc, case, &model), &format!("LO {id} {mode:?}"));
         }
         for term in doc["terms"].as_array().unwrap().iter().filter(|t| t["id"].as_str().unwrap().starts_with("LO-")) {
             let id = term["id"].as_str().unwrap();
-            compare(&out, combination_at(id), &lift_off_as_published(&doc, &gi_rows(term)), &frozen_floors(term), &format!("LO term {id} {mode:?}"));
+            compared += compare(&out, combination_at(id), &lift_off_as_published(&doc, &gi_rows(term)), &frozen_floors(term), &format!("LO term {id} {mode:?}")).0;
         }
+        assert_eq!(compared, 255, "{mode:?}: the three cases' rows and the two terms' rows");
+        assert_eq!(as_published, 153, "{mode:?}: the three cases' rows, the lift-off quantities as a combination publishes them");
+        let reaction = |id: &str| observed(&out, case_at(id), "nonlinear_support/support:lo-b/reaction_Fz");
+        let r0 = reaction("LO-SUS");
+        let r1 = (reaction("LO-EQZ-SEATED") - r0) / input(&doc, "LO_k_seated");
+        let formed = -r0 / r1;
+        assert!((formed - threshold).abs() <= RELATIVE * threshold.abs(), "{mode:?}: threshold from the product's rows {formed:.17e}, frozen {threshold:.17e}");
     }
     // The threshold lies strictly between the two g-factors.
     let k = value(&doc["lift_off_threshold"]["g_factor_z"]);
@@ -773,14 +781,16 @@ fn connector_replaced_span_and_generation_only_cases() {
     let model = wire["model"].clone();
     for mode in MODES {
         let out = solved(&wire, mode, "JR");
+        let mut compared = 0;
         for id in ids {
             let case = gi_case_ref(&doc, id);
-            compare(&out, case_at(id), &gi_rows(case), &frozen_floors(case), &format!("JR {id} {mode:?}"));
+            compared += compare(&out, case_at(id), &gi_rows(case), &frozen_floors(case), &format!("JR {id} {mode:?}")).0;
             assert_generated_record(&out, id, &gi_expected_generated(&doc, case, &model), &format!("JR {id} {mode:?}"));
             assert!(!generated_sources(&out, id).iter().any(|c| c["source_id"].as_str().unwrap().ends_with(&format!("element-{}", 4))),
                 "{id}: no generated load on the replaced span (pipe index 4)");
         }
         assert!(!out["results"].as_array().unwrap().iter().any(|r| r["entity_ref"] == "pipe:b-c"), "the replaced span publishes no member result");
+        assert_eq!(compared, 324, "{mode:?}: the three cases' rows");
     }
     // JR-EQ-UNLISTED-PRIMITIVE: JR-EQ with a distinct unlisted nodal force.
     let decoy = &doc["inputs"];
@@ -795,7 +805,8 @@ fn connector_replaced_span_and_generation_only_cases() {
     for mode in MODES {
         let out = solved(&unlisted, mode, "JR-EQ-UNLISTED-PRIMITIVE");
         assert!(codes(&out).iter().any(|c| c.starts_with("LOAD_STATE_SOURCE_EXCLUDED")), "{mode:?}: the unlisted primitive is excluded by name");
-        compare(&out, case_at("JR-EQ"), &gi_rows(jr_eq), &frozen_floors(jr_eq), &format!("JR-EQ-UNLISTED-PRIMITIVE {mode:?}"));
+        let (compared, _) = compare(&out, case_at("JR-EQ"), &gi_rows(jr_eq), &frozen_floors(jr_eq), &format!("JR-EQ-UNLISTED-PRIMITIVE {mode:?}"));
+        assert_eq!(compared, 108, "{mode:?}: JR-EQ's rows");
         let excluded = &record(&out, "JR-EQ")["excluded_sources"];
         assert_eq!(excluded.as_array().unwrap().len(), 1);
         assert_eq!(excluded[0]["source_id"], "decoy:unlisted");
@@ -867,21 +878,36 @@ fn plain_and_load_state_documents_agree_bit_for_bit() {
 /// The CEF terms and combinations over generating cases are plain result
 /// state subtractions (no difference_basis) and SRSS and absolute sums of
 /// them. The existing combination path admits them on a load/reference-state
-/// document: each term and both combinations publish rows, and the SRSS of
-/// the cases themselves is withheld whole by the fixed-load count gate. The
-/// numbers are compared by the test below.
+/// document: each term and the SRSS, absolute-sum and sustained-plus-terms
+/// combinations publish rows, and the SRSS of the cases and the signed sum
+/// of the terms are withheld whole by the fixed-load count gate, each by its
+/// code. The numbers are compared by the test below.
 #[test]
 fn seismic_terms_and_their_combinations_are_admitted_over_generating_cases() {
     let doc = gi();
     let wire = cef_document(&doc);
     for mode in MODES {
         let out = solved(&wire, mode, "CEF");
+        let mut withheld_ids = 0;
         for item in doc["terms"].as_array().unwrap().iter().chain(doc["combinations"].as_array().unwrap()).filter(|t| t["id"].as_str().unwrap().starts_with("CEF-")) {
             let id = item["id"].as_str().unwrap();
             let published = out["results"].as_array().unwrap().iter().any(|r| r["basis_ref"]["ref_type"] == "combination" && r["basis_ref"]["ref_id"] == id);
             let withheld = item["expected_outcome"].as_str().unwrap_or("").starts_with("withheld");
             assert_eq!(published, !withheld, "{id} {mode:?}: expected outcome {}; diagnostics {:?}", item["expected_outcome"], codes(&out));
+            let naming = out["diagnostics"].as_array().unwrap().iter().filter(|d| d["affected_refs"].as_array().is_some_and(|r| r.contains(&json!(id))))
+                .map(|d| d["code"].as_str().unwrap().to_string()).collect::<Vec<_>>();
+            // The fixed-load count gate (DEL-05-02 REQ-011) by its code (the
+            // user guide's names): a mechanics combination whose count is not
+            // 1 needs a solve; an SRSS or absolute sum of operands whose count
+            // is not exactly 0 counts the constant-effort force once per term.
+            let gate = match item["basis"].as_str().unwrap() {
+                "mechanics" => "CONSTANT_EFFORT_COMBINATION_REQUIRES_SOLVE",
+                _ => "CONSTANT_EFFORT_UNSIGNED_COMBINATION_OPERAND",
+            };
+            assert_eq!(naming.iter().any(|code| code == gate), withheld, "{id} {mode:?}: the gate {gate} names a withheld combination and only it; {naming:?}");
+            withheld_ids += usize::from(withheld);
         }
+        assert_eq!(withheld_ids, 2, "{mode:?}: the SRSS of the cases and the signed sum of the terms are withheld");
     }
 }
 
@@ -1034,20 +1060,116 @@ fn assert_cef_generated_record(out: &Value, wire: &Value, case_id: &str, case: &
 /// component force included.
 #[test]
 fn constant_effort_support_seismic_terms_and_combinations() {
-    let _ = ISSUE_450;
     let doc = gi();
     let wire = cef_document(&doc);
     for mode in MODES {
         let out = solved(&wire, mode, "CEF");
+        let mut compared = 0;
         for id in ["CEF-SUS", "CEF-EQX", "CEF-EQY", "CEF-EQZ"] {
             let case = gi_case_ref(&doc, id);
-            compare(&out, case_at(id), &gi_rows(case), &frozen_floors(case), &format!("CEF {id} {mode:?}"));
+            compared += compare(&out, case_at(id), &gi_rows(case), &frozen_floors(case), &format!("CEF {id} {mode:?}")).0;
             assert_cef_generated_record(&out, &wire, id, case, &format!("CEF {id} {mode:?}"));
         }
+        let mut published = Vec::new();
         for item in doc["terms"].as_array().unwrap().iter().chain(doc["combinations"].as_array().unwrap())
             .filter(|t| t["id"].as_str().unwrap().starts_with("CEF-") && t.get("rows").is_some_and(|r| r.as_array().is_some_and(|r| !r.is_empty()))) {
             let id = item["id"].as_str().unwrap();
-            compare(&out, combination_at(id), &gi_rows(item), &frozen_floors(item), &format!("CEF {id} {mode:?}"));
+            compared += compare(&out, combination_at(id), &gi_rows(item), &frozen_floors(item), &format!("CEF {id} {mode:?}")).0;
+            assert_combination_arithmetic(&out, item, &format!("CEF {id} {mode:?}"));
+            published.push(id.to_string());
         }
+        assert_eq!(published, ["CEF-dEQX", "CEF-dEQY", "CEF-dEQZ", "CEF-EQ-SRSS", "CEF-EQ-ABS", "CEF-SUS-PLUS-EQ"], "{mode:?}");
+        assert_eq!(compared, 910, "{mode:?}: the four cases' rows, the three terms' and the three published combinations'");
+    }
+}
+
+/// A published row's identity within its basis: kind, entity, location and
+/// component.
+fn row_key(r: &Value) -> String {
+    format!("{}|{}|{}|{}", r["kind"], r["entity_ref"], r["metadata"]["location"], r["metadata"]["component"])
+}
+
+/// The correctly rounded square root of the exact sum of the squares of
+/// `zs` (DEL-05-02, SRSS): the binary64 c whose rounding interval holds the
+/// exact sum, judged by exact arithmetic on c and the half gaps to its
+/// neighbours (each a power of two, so each square and cross term is exact),
+/// a tie going to the even significand.
+fn exact_srss(zs: &[f64]) -> f64 {
+    use open_pipe_stress_frame_kernel::exact_sum::ExactAccumulator;
+    let mut sum = ExactAccumulator::new();
+    for z in zs {
+        sum.add_product(*z, *z).unwrap();
+    }
+    // The sign of S - (c + h)^2, h a signed power of two.
+    let against = |c: f64, h: f64| {
+        let mut d = sum.clone();
+        d.add_product(-c, c).unwrap();
+        d.add_product(-2.0 * c, h).unwrap();
+        d.add_product(-h, h).unwrap();
+        d.signum()
+    };
+    let mut c = sum.round().unwrap().sqrt();
+    if c == 0.0 {
+        return 0.0;
+    }
+    for _ in 0..8 {
+        let below = c - f64::from_bits(c.to_bits() - 1);
+        let above = f64::from_bits(c.to_bits() + 1) - c;
+        let (low, high) = (against(c, -0.5 * below), against(c, 0.5 * above));
+        let even = c.to_bits() % 2 == 0;
+        if low < 0 || (low == 0 && !even) {
+            c = f64::from_bits(c.to_bits() - 1);
+        } else if high > 0 || (high == 0 && !even) {
+            c = f64::from_bits(c.to_bits() + 1);
+        } else {
+            return c;
+        }
+    }
+    panic!("no correctly rounded square root found near {c}");
+}
+
+/// DEL-05-02's arithmetic, bit for bit, on the operands the product
+/// published: a result-state subtraction RN(a - b); a mechanics combination
+/// the exact sum of the exact products rounded once; an absolute sum
+/// RN(Σ |f·x|); an SRSS RN(√Σ RN(f·x)²). Every row of the combination of
+/// the kinds the package binds (motions, reactions, member end forces and
+/// moments, the constant-effort force) is checked, every operand publishes
+/// it, and there are at least as many as the package's rows of the item.
+fn assert_combination_arithmetic(out: &Value, item: &Value, what: &str) {
+    use open_pipe_stress_frame_kernel::exact_sum::ExactAccumulator;
+    let id = item["id"].as_str().unwrap();
+    let operands: Vec<(At<'_>, f64)> = match item["basis"].as_str().unwrap() {
+        "result_state_subtraction" => vec![(case_at(item["minuend"].as_str().unwrap()), 1.0), (case_at(item["subtrahend"].as_str().unwrap()), -1.0)],
+        _ => item["operands"].as_array().unwrap().iter().zip(item["factors"].as_array().unwrap()).map(|(operand, factor)| {
+            let operand = operand.as_str().unwrap();
+            (if operand.contains("-d") { combination_at(operand) } else { case_at(operand) }, factor.as_f64().unwrap())
+        }).collect(),
+    };
+    let rows = out["results"].as_array().unwrap();
+    let bound = |kind: &str| kind.starts_with("global_nodal_displacement_") || kind.starts_with("global_nodal_rotation_")
+        || ["support_reaction_component_v2", "element_global_end_force_v1", "element_global_end_moment_v1", "constant_effort_support_applied_load"].contains(&kind);
+    let of = |at: At<'_>| rows.iter().filter(|r| r["basis_ref"]["ref_type"] == at.ref_type && r["basis_ref"]["ref_id"] == at.ref_id && bound(r["kind"].as_str().unwrap()))
+        .map(|r| (row_key(r), r["value"].as_f64().unwrap())).collect::<BTreeMap<_, _>>();
+    let combined = of(combination_at(id));
+    let operand_rows = operands.iter().map(|(at, factor)| (of(*at), *factor)).collect::<Vec<_>>();
+    assert!(combined.len() >= item["rows"].as_array().unwrap().len(), "{what}: {} rows checked", combined.len());
+    for (key, published) in &combined {
+        let terms = operand_rows.iter().map(|(rows, factor)| (*factor, *rows.get(key).unwrap_or_else(|| panic!("{what}: an operand publishes no {key}")))).collect::<Vec<_>>();
+        let expected = match item["basis"].as_str().unwrap() {
+            "result_state_subtraction" => terms[0].1 - terms[1].1,
+            "mechanics" => {
+                let mut sum = ExactAccumulator::new();
+                terms.iter().for_each(|(f, x)| sum.add_product(*f, *x).unwrap());
+                sum.round().unwrap()
+            }
+            "absolute_sum" => {
+                let mut sum = ExactAccumulator::new();
+                terms.iter().for_each(|(f, x)| sum.add_product(f.abs(), x.abs()).unwrap());
+                sum.round().unwrap()
+            }
+            "srss" => exact_srss(&terms.iter().map(|(f, x)| f * x).collect::<Vec<_>>()),
+            other => panic!("{what}: basis {other}"),
+        };
+        assert_eq!(published.to_bits(), expected.to_bits(), "{what} {key}: published {published:e}, DEL-05-02's arithmetic on the published operands {expected:e}");
     }
 }
