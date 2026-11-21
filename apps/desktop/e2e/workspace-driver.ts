@@ -24,13 +24,22 @@ type WorkspaceSectionId =
   | "exports"
   | "evidence";
 
+/** The sections whose route is a rail stage and its tab (the View menu does not list them). */
+const STAGE_ROUTES: Partial<Record<WorkspaceSectionId, { stage: "model" | "loads"; tab: string }>> = {
+  operations: { stage: "model", tab: "workspace-review" },
+  loads: { stage: "loads", tab: "stage-tab-load-cases" }
+};
+
 export async function openWorkspaceSection(page: Page, sectionId: WorkspaceSectionId): Promise<Locator> {
   const section = page.getByTestId(`workspace-section-${sectionId}`);
   if (!await section.isVisible()) {
-    // Review changes is a tab of the Model stage's strip; from another stage it is summoned by the
-    // section command, as every other section is.
-    if (sectionId === "operations" && await page.getByTestId("workspace-review").isVisible()) {
-      await page.getByTestId("workspace-review").click();
+    // Review changes and Load Cases are reached as a person reaches them, by the rail and the
+    // stage tab; the View menu lists only the sections the rail does not reach in every state.
+    const route = STAGE_ROUTES[sectionId];
+    if (route) {
+      await page.getByTestId(`rail-stage-${route.stage}`).click();
+      const tab = page.getByTestId(route.tab);
+      if (await tab.getAttribute("aria-pressed") !== "true") await tab.click();
     } else {
       await page.getByTestId("menu-view").click();
       await page.getByTestId(`menu-item-view.section.${sectionId}`).click();
