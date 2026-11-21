@@ -12833,10 +12833,15 @@ fn add_uniform_element_loads(
         }
         let intensity_primitive = certified_loads::intensity(model, load, load_case_id);
         // S11-G section 3.2: an equivalent-static generated intensity carries
-        // gamma_4 of operand formation (a same-sign product chain).
-        let generated = load
-            .load_id
-            .starts_with(&format!("{load_case_id}:generated:"));
+        // gamma_4 of operand formation (a same-sign product chain). The origin
+        // is judged on the effective case (issue 452 decision 10), as the
+        // intensity producer judges it: a stored primitive the ledger lists
+        // under a generated-looking identity is authored and exact.
+        let generated = model
+            .load_cases
+            .iter()
+            .find(|case| case.id == load_case_id)
+            .is_some_and(|case| is_generated_in_effective_case(model, case, &load.load_id, None));
         // Curved-bend macro spans consume arc-consistent equivalent nodal
         // loads: fixed-end forces and moments from exact closed-form
         // integration of the uniform intensity along the arc, consistent with

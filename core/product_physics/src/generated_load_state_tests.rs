@@ -106,3 +106,40 @@ fn the_nodal_producer_reads_the_effective_case() {
     assert!(produced(&unlisted).is_some());
     assert!(!is_generated_equivalent_static_load(&unlisted.load_cases[0], &generated, Some("seismic")));
 }
+
+/// The certified intensity producer (`certified_loads::intensity`) and the
+/// operand bound it feeds (`add_uniform_element_loads`) judge the origin on
+/// the same effective case: a generated element load takes the generator's
+/// seismic operands, while a stored primitive under the same identity that
+/// the ledger lists, a lowering-appended one included, is authored. Unlisted,
+/// the primitive is outside the effective case and the identity is the
+/// generator's (the collision itself is refused by
+/// `refuse_load_state_generated_collisions`).
+#[test]
+fn the_intensity_producer_reads_the_effective_case() {
+    use open_pipe_stress_frame_kernel::structural::IntensityPrimitive;
+    use open_pipe_stress_primitive_loads::{ElementUniformLoadContribution, LoadDirection, LoadQuantity};
+    let load = ElementUniformLoadContribution {
+        load_id: GENERATED.to_string(),
+        element_index: 0,
+        direction: LoadDirection::GlobalY,
+        magnitude: LoadQuantity::new(12.5, LoadDimension::ForcePerLength).unwrap(),
+        extent: None,
+    };
+    let seismic = |model: &PreviewModel| matches!(certified_loads::intensity(model, &load, "case:join"),
+        IntensityPrimitive::Seismic { coefficient, gravity, direction, .. } if coefficient == 0.3 && gravity == 9.8 && direction == [0.0, 1.0, 0.0]);
+
+    assert!(seismic(&model("case:join:authored", true)), "the generated element load takes the generator's operands");
+    assert!(!seismic(&model(GENERATED, true)), "a listed authored lookalike is authored");
+
+    let mut lowered = model("case:join:authored", true);
+    let mut appended = lowered.load_cases[0].primitive_loads[0].clone();
+    appended.id = GENERATED.to_string();
+    lowered.load_cases[0].primitive_loads.push(appended);
+    if let case_state::input::Authored::Value(state) = &mut lowered.load_cases[0].analysis_state {
+        state.load_sources.push(case_state::input::LoadSourceInput { source_ref: GENERATED.to_string(), factor: 1.0 });
+    }
+    assert!(!seismic(&lowered), "a lowering-appended listed lookalike is authored");
+
+    assert!(seismic(&model(GENERATED, false)), "unlisted, the identity is the generator's on the effective case");
+}
