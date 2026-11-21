@@ -412,9 +412,10 @@ test("09 the 3D view: controls, fit, standard views, labels", async ({ page }) =
     const picked = `the click selected ${selection ?? "nothing named in the status bar"}`;
     return onCanvas ? picked : `a label lay over the node's point, so the click went to it; ${picked}`;
   });
-  await journey.step("inspector-open", "Both view with the inspector opened: the canvas narrower beside the table, the model refitted to it, still wholly in view", async () => {
+  await journey.step("inspector-open", "Both view with the inspector opened: the canvas resized to share the stage with the table, the model refitted to it, still wholly in view", async () => {
     // Model view docks the inspector already, so the change of canvas is made in Both view, where
-    // it opens; the step asserts the canvas really changed before the picture.
+    // it opens; the step asserts the canvas really changed size before the picture. Which way it
+    // changes depends on the window: narrower beside the table, or shorter above it.
     const size = async () => page.getByTestId("viewport-canvas").evaluate((element) => {
       const box = element.getBoundingClientRect();
       return { width: Math.round(box.width), height: Math.round(box.height) };
@@ -423,7 +424,10 @@ test("09 the 3D view: controls, fit, standard views, labels", async ({ page }) =
     await page.getByTestId("view-switch-both").click();
     await ensureInspectorExpanded(page);
     await expect(page.getByTestId("toggle-inspector")).toHaveAttribute("aria-expanded", "true");
-    await expect.poll(async () => (await size()).width).toBeLessThan(before.width);
+    await expect.poll(async () => {
+      const now = await size();
+      return Math.max(Math.abs(now.width - before.width), Math.abs(now.height - before.height));
+    }).toBeGreaterThanOrEqual(40);
     await expect(page.getByTestId("viewport-view-isometric")).toHaveAttribute("aria-pressed", "true");
     const after = await size();
     return `the canvas went from ${before.width} by ${before.height} to ${after.width} by ${after.height}; Isometric still pressed`;
