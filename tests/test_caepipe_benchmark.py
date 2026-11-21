@@ -945,9 +945,48 @@ def test_an_unwitnessed_or_shorter_section_leaves_its_unit_unmatched():
     rows = rows_of(shorter, "case:expansion", "displacement", DISPLACEMENT_NODES)
     assert len(rows) == 9 and all(row["resolution_cause"] == "shorter_than_format" for row in rows)
     assert "print shows at most 1 places, format expects 3" in rows[0]["reason"]
-    # The expansion case prints no nonzero rotation: every rotation is unmatched for want of a witness.
+    # The expansion case prints no nonzero rotation: no witness. Each printed zero is screened by the zero-against-zero
+    # rule (ZERO_AGAINST_ZERO) instead, marked with its cause; SWBPIPE's rotations are zero, so each is an agreement.
     rotations = rows_of(shorter, "case:expansion", "rotation", DISPLACEMENT_NODES)
-    assert len(rotations) == 9 and all(row["resolution_cause"] == "no_witness" for row in rotations)
+    assert len(rotations) == 9 and all(row["zero_against_zero"]["resolution_cause"] == "no_witness"
+                                       and row["classification"] == WITHIN for row in rotations)
+
+
+ROTATION_UNIT = math.radians(1.0e-4)  # one printed unit at the candidate places of SI deg (4), in rad
+
+
+@pytest.mark.parametrize("swbpipe_rad, expected", [
+    (0.0, WITHIN), (ROTATION_UNIT, WITHIN), (-ROTATION_UNIT * 0.999, WITHIN),
+    (ROTATION_UNIT * 1.01, FINDING), (-2.0 * ROTATION_UNIT, FINDING), (1.0e-3, FINDING)])
+def test_zero_against_zero_screens_a_printed_zero_without_a_witness_with_the_candidate_floor(swbpipe_rad, expected):
+    """Item A: CAEPIPE prints zero and its section shows no nonzero token of the unit. The row is screened with one
+    printed unit at the candidate places: an agreement when SWBPIPE's value is zero within the allowed difference
+    a + r |S|, and a finding beyond it (a nonzero SWBPIPE value stays a finding, never unmatched)."""
+    payload = payload_with(set_value("global_nodal_rotation_z", "node:M", "case:expansion", swbpipe_rad))
+    row = find(record_of(invented_print(), payload), "case:expansion", "rotation", "node:M", "z")
+    assert row["values"] == {"swbpipe": swbpipe_rad, "caepipe": 0.0}
+    assert row["screen"]["floor"] == pytest.approx(ROTATION_UNIT, rel=1e-15)
+    assert row["screen"]["allowed"] == pytest.approx(ROTATION_UNIT + 1.0e-4 * abs(swbpipe_rad), rel=1e-12)
+    assert row["classification"] == expected and "unmatched_cause" not in row
+    assert row["zero_against_zero"] == {"resolution_cause": "no_witness", "floor_basis": "candidate places"}
+
+
+def test_zero_against_zero_does_not_reach_a_blank_a_shorter_section_or_a_label_without_candidate_places():
+    """Item A's condition: a blank token is no printed zero; a section whose nonzero tokens are shorter keeps its cause;
+    an English or radian label has no candidate places. Each stays unmatched with its cause."""
+    blank = record_of(invented_print(override={"Expansion (T1)": {"displacements": {"20": ["0", "0", "0", "0", "0",
+                                                                                             ""]}}}))
+    row = find(blank, "case:expansion", "rotation", "node:M", "z")
+    assert row["classification"] == UNMATCHED and row["resolution_cause"] == "no_witness"
+    assert "zero_against_zero" not in row
+    shorter = record_of(invented_print(override={"Expansion (T1)": {"displacements": {"30": ["4.8", "0", "0", "0", "0",
+                                                                                              "0"]}}}))
+    row = find(shorter, "case:expansion", "displacement", "node:M", "y")
+    assert row["classification"] == UNMATCHED and row["resolution_cause"] == "shorter_than_format"
+    english = record_of(relabel(invented_print(), ENGLISH))
+    assert not any("zero_against_zero" in row for row in english["results"])
+    counts = record_of(invented_print())["summary"]["zero_against_zero"]
+    assert counts[WITHIN] > 0 and counts[FINDING] == 0
 
 
 @pytest.mark.parametrize("section, node, column, kind, entities, printed, cause, words", [
@@ -1163,7 +1202,7 @@ def test_the_integer_digit_count_witness_counts_and_changes_no_verdict():
 def test_the_profile_states_the_formula_and_the_record_version_moves():
     """Policy boundary: the profile's metadata, its rule as computed, and the record version."""
     assert set(SCREENING_PROFILE) == {"basis", "relative", "floor", "floor_basis", "printed_decimals",
-                                      "resolution_judgment", "resolution_causes", "limit", "rule"}
+                                      "resolution_judgment", "resolution_causes", "limit", "rule", "zero_against_zero"}
     assert SCREENING_PROFILE["relative"] == {"exact": 1e-4, "named_inexact": 5e-3}
     # Candidates exist for the SI labels only: none for an English label or for rad.
     assert SCREENING_PROFILE["printed_decimals"] == {"SI N": 0, "SI Nm": 0, "SI deg": 4, "SI mm": 3}
@@ -1179,7 +1218,7 @@ def test_the_profile_states_the_formula_and_the_record_version_moves():
         assert check["allowed"] == floor + rel * max(abs(swb), abs(cae))
         assert check["within"] == (abs(cae - swb) <= floor + rel * max(abs(swb), abs(cae)))
     record = compare(invented_print())
-    assert BENCHMARK_RECORD_VERSION == "3" and record["record_version"] == "3"
+    assert BENCHMARK_RECORD_VERSION == "4" and record["record_version"] == "4"
     assert record["screening_profile"] == SCREENING_PROFILE
 
 

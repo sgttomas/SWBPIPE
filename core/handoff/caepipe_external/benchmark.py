@@ -23,11 +23,12 @@ import math
 from typing import Any, Mapping
 
 from .correlation import canonical_model_hash
-from .print_csv import PRINTED_DECIMALS, RESOLUTION_ABSENT, RESOLUTION_CAUSES, bind_element_rows, resolve_section
+from .print_csv import (NO_WITNESS, PRINTED_DECIMALS, RESOLUTION_ABSENT, RESOLUTION_CAUSES, bind_element_rows,
+                        candidate_resolution, printed_zero, resolve_section)
 
 
 BENCHMARK_RECORD_KIND = "openpipestress.caepipe_benchmark.comparison_record"
-BENCHMARK_RECORD_VERSION = "3"
+BENCHMARK_RECORD_VERSION = "4"
 EVIDENCE_CLASSIFICATION = ("private validation evidence for review (docs/PRD.md section 22.5); not compatibility proof, "
                            "code compliance or professional acceptance")
 
@@ -81,6 +82,24 @@ SCREENING_PROFILE = {
     "rule": "|S - C| <= a + r * max(|S|, |C|); a the printed-resolution floor of the value's result kind, r the class "
             "tolerance",
 }
+# Zero against zero (the validation lane, 21 November 2026): a value the print shows as zero in a section with no
+# nonzero token of its unit has no established printed resolution (no_witness), so on the section rule alone it would be
+# unmatched. It is screened instead, with the floor one printed unit at the candidate places of its unit, and so is an
+# agreement when SWBPIPE's value is zero within the row's allowed difference, and a finding when it is not.
+ZERO_AGAINST_ZERO = {
+    "rule": ("where every printed token of CAEPIPE's value is a fixed-point zero, its section has no nonzero token of "
+             "that unit (cause no_witness), and the unit has candidate places, the value is screened by the profile's "
+             "rule with the floor a one printed unit at the candidate places: within_profile when |S| <= a + r |S|, "
+             "else a finding. A blank token, an English or radian label, an exponent token, or a section that shows "
+             "a nonzero token of the unit is not under this rule."),
+    "reason": ("a zero printed beside a zero SWBPIPE value is an agreement, and a zero beside a nonzero SWBPIPE value "
+               "is a finding to examine; neither is a value missing from one side"),
+    "limit": ("the candidate places are not established for the section, which shows no nonzero token: if the print "
+              "is coarser than the candidate, a SWBPIPE value smaller than half a coarser printed unit and larger than "
+              "the candidate floor reads as a finding that the print could not show, and a CAEPIPE value of up to half "
+              "a coarser printed unit reads as zero; each such row is marked zero_against_zero and counted apart"),
+}
+SCREENING_PROFILE["zero_against_zero"] = ZERO_AGAINST_ZERO
 # The closed form against SWBPIPE: both binary64 Euler-Bernoulli values (the pilot's analytic_vs_swbpipe scale).
 CLOSED_FORM_TOLERANCE = {"rel": 1.0e-6, "abs": {"m": 1.0e-9, "rad": 1.0e-9, "N": 1.0e-6, "N*m": 1.0e-6}}
 
@@ -204,10 +223,10 @@ def swbpipe_values(results: list[Any], case_ids: list[str], support_nodes: Mappi
 def caepipe_values(tables: Mapping[str, Any], units: Mapping[str, Any], mbf: Mapping[str, Any],
                    printed: Mapping[str, Any] | None = None
                    ) -> tuple[dict[Key, float], list[dict[str, Any]], dict[str, Any], dict[Key, float],
-                              dict[Key, tuple[str, str]], dict[str, int]]:
+                              dict[Key, tuple[str, str]], dict[str, int], dict[Key, float]]:
     """CAEPIPE's values of one load case bound to SWBPIPE ids, the rows that did not bind, the element binding, the
-    floor of each value (one printed unit in SI), why a value has no floor ({key: (cause, reason)}), and the integer
-    digit count witness.
+    floor of each value (one printed unit in SI), why a value has no floor ({key: (cause, reason)}), the integer
+    digit count witness, and the candidate floor (SI) of each value without one that ZERO_AGAINST_ZERO screens.
 
     The floor comes from the section rule (print_csv.resolve_section) applied per section of the print to the printed
     tokens (`printed`, the parse's printed_resolution of the case) of the rows that bound: a row that binds to nothing,
@@ -298,7 +317,20 @@ def caepipe_values(tables: Mapping[str, Any], units: Mapping[str, Any], mbf: Map
             floors[key] = max(floors.get(key, 0.0), floor)
     for key in unresolved:
         floors.pop(key, None)
-    return values, unbound, binding, floors, unresolved, digit_witness
+    # Zero against zero: every contribution of the value a printed zero whose section has no witness of its unit.
+    zero_floors: dict[Key, float] = {}
+    rejected: set[Key] = set()
+    for (key, unit, _, entry), outcome in zip(contributions, outcomes):
+        if key not in unresolved or key in rejected:
+            continue
+        candidate = (_si(candidate_resolution(entry.get("label"), entry.get("system")), unit)
+                     if entry is not None and outcome.get("cause") == NO_WITNESS and printed_zero(entry) else None)
+        if candidate is None or not candidate > 0:
+            rejected.add(key)
+            zero_floors.pop(key, None)
+        else:
+            zero_floors[key] = max(zero_floors.get(key, 0.0), candidate)
+    return values, unbound, binding, floors, unresolved, digit_witness, zero_floors
 
 
 def add_value(values: dict[Key, float], key: Key, value: float | None, sign: float) -> None:
@@ -446,8 +478,8 @@ def build_benchmark_record(benchmark_model: Mapping[str, Any], *, swbpipe_result
             not_compared[case_name] = len(expected)
             continue
         swb, swb_invalid = swbpipe_values(results, swbpipe_cases, support_nodes, anchor_nodes)
-        cae, unbound, binding, floors, unresolved, digit_witness = caepipe_values(parsed_cases[label], units, mbf,
-                                                                                  parsed_printed.get(label))
+        cae, unbound, binding, floors, unresolved, digit_witness, zero_floors = caepipe_values(
+            parsed_cases[label], units, mbf, parsed_printed.get(label))
         digit_witness_by_case[case_name] = digit_witness
         bindings[case_name] = {key: binding[key] for key in ("basis", "unmatched_rows", "unmatched_members", "notes")}
         unbound_rows.extend({"case": case_name, **item} for item in unbound)
@@ -464,7 +496,13 @@ def build_benchmark_record(benchmark_model: Mapping[str, Any], *, swbpipe_result
             row: dict[str, Any] = {"case": case_name, "kind": kind, "entity": entity, "component": axis, "unit": unit,
                                    **({"end": end} if end else {}),
                                    "values": {"swbpipe": swb.get(key), "caepipe": cae.get(key)}}
-            if key in swb and key in cae and key in unresolved:
+            if key in swb and key in cae and key in zero_floors:
+                # Zero against zero (ZERO_AGAINST_ZERO): screened with the candidate floor, and marked.
+                check = screen(swb[key], cae[key], zero_floors[key], cls)
+                row["screen"] = {name: check[name] for name in ("difference", "allowed", "relative", "floor")}
+                row["classification"] = WITHIN if check["within"] else FINDING
+                row["zero_against_zero"] = {"resolution_cause": unresolved[key][0], "floor_basis": "candidate places"}
+            elif key in swb and key in cae and key in unresolved:
                 # Not screened: no floor is established for CAEPIPE's value, and none is guessed or widened.
                 cause, why = unresolved[key]
                 row["classification"] = UNMATCHED
@@ -516,6 +554,8 @@ def build_benchmark_record(benchmark_model: Mapping[str, Any], *, swbpipe_result
         per_case = summary["by_case"].setdefault(row["case"], {})
         per_case[row["classification"]] = per_case.get(row["classification"], 0) + 1
     summary["unmatched_for_resolution"] = _resolution_counts(rows, [case for case, _, _ in compared])
+    summary["zero_against_zero"] = {name: sum(1 for row in rows if "zero_against_zero" in row
+                                              and row["classification"] == name) for name in (WITHIN, FINDING)}
     summary["quantities"] = _quantity_counts(rows, [case for case, _, _ in compared], not_compared)
     summary["integer_digit_count_witness"] = {
         "basis": ("for each shorter nonzero token a section's established resolution covers: whether the section has "
