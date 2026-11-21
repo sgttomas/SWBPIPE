@@ -71,7 +71,7 @@ DEFAULT_PRIVACY = {
 DEFAULT_BOUNDARY_NOTES = [
     "CAEPIPE external execution is optional and user-owned.",
     "Public tests use skipped or parser-only evidence and do not require a CAEPIPE executable.",
-    "Parsed CSV output is regression and handoff evidence only.",
+    "Parsed CSV output, compared with SWBPIPE's results, is validation evidence (PRD 22.5).",
     "Evidence does not assert CAEPIPE compatibility, solver validation, release readiness, code compliance, or professional reliance.",
 ]
 
@@ -428,7 +428,7 @@ def diagnostics_for_caepipe_external_run_package(package: Mapping[str, Any]) -> 
                 "blocking",
                 "IP_BOUNDARY_WARNING",
                 "Execution-result free metadata contains authority wording.",
-                "Keep parsed output classified as operational regression and handoff evidence only.",
+                "Remove the authority wording: parsed output is validation evidence, never acceptance or compliance.",
                 [package_ref],
                 provenance,
             )
