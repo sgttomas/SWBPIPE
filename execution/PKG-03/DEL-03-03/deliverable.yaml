@@ -74,8 +74,14 @@ code_paths:
 # Shared with DEL-02-01, which owns the document: the bend members of a component and the
 # curved_bend_macro_element consumption value in it are this deliverable's.
 - schemas/model.schema.yaml
+# The evidence for the method's application range (LIM-021): an elasticity reference of the annular bend's interior,
+# a frame solver comparing the bend's formulations, and every figure LIM-021 states, with the check that recomputes
+# them in the package's own environment (its workflow, .github/workflows/annular-bend-reference.yml).
+- validation/references/annular_bend_elasticity/**
+- .github/workflows/annular-bend-reference.yml
 checks:
 - core/solver/curved_bend/src/lib.rs
 - core/product_physics/tests/t4_u1_reference.rs
 - tests/test_component_section_schema.py
 - apps/desktop/src/features/bend-authoring/BendAuthoringForms.test.tsx
+- validation/references/annular_bend_elasticity/generators/annular_reference.py
