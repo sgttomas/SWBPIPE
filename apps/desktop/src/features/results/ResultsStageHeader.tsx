@@ -7,6 +7,7 @@
  * functions and constants. */
 import { useLayoutEffect, useRef, type ReactNode } from "react";
 import { ChevronRight } from "lucide-react";
+import { HealthLookMark, healthLookOf } from "./healthLook";
 import { checksPassedText, ELIGIBLE_RECOVERY_TEXT, NUMERICAL_HEALTH_STATE_TEXT, type NumericalHealthState } from "./numericalHealthText";
 import { NUMERICAL_HEALTH_ORDER, rowHealthState, type NumericalHealthView } from "./numericalHealth";
 import { needsSolverReportNote, SOLVER_REPORT_NOTE, type SupportStatesLine } from "./integrityStatus";
@@ -93,6 +94,8 @@ export function ResultsStageHeader({
   const differing = differingCaseCounts(health, lineState, scope);
   const support = supportStateLines(health, scope);
   const recovery = recoveryNote(health);
+  // The line's look follows the state it states (checked: a hollow ring; not checked: muted words).
+  const look = lineState ? healthLookOf(lineState) : null;
   const ref = useRef<HTMLElement>(null);
   // Table headers under the stage stick just below this header: its height is published to the
   // stage as --results-header-h whenever it changes (Method and limits opened, a line wrapping).
@@ -115,7 +118,8 @@ export function ResultsStageHeader({
         <span className="results-stage-case">{caseControl}</span>
         {actions ? <span className="results-stage-actions">{actions}</span> : null}
       </div>
-      <p className="result-standing-line" data-testid="numerical-result-standing" title={sentences.length > 0 ? sentences.join("\n") : undefined}>{standing}</p>
+      <p className={`result-standing-line${look ? ` numerical-health-look-${look}` : ""}`} data-testid="numerical-result-standing" data-look={look ?? undefined}
+        title={sentences.length > 0 ? sentences.join("\n") : undefined}><HealthLookMark look={look} />{standing}</p>
       {differing.length > 0 || health?.outputSentence ? (
         <p className="results-stage-differs" data-testid="results-stage-case-states">
           {differing.length > 0 ? <span>By load case: {differing.map(([state, count]) => `${count} ${NUMERICAL_HEALTH_STATE_TEXT[state]}`).join(", ")}.</span> : null}

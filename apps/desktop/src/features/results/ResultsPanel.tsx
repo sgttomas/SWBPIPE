@@ -22,12 +22,13 @@ import { CSV_NOT_RECORDED, type CsvProvenance } from "../result-export/csvTable"
 import { ENDPOINT_PAIR_CSV_KIND, displayConversionBasis, endpointPairCsv, resultGroupCsv, resultGroupCsvKind, type ResultRowsCsvRow } from "./resultRowsCsv";
 import { semanticDimension, semanticLabels, type RowLabels } from "./resultSemantics";
 import { ChevronLeft, ChevronRight, Search, X } from "lucide-react";
+import { HealthLookMark, healthLookOf } from "./healthLook";
 import { useEffect, useMemo, useRef, useState, type KeyboardEvent } from "react";
 import type { AnalysisRunEnvelope, DesignKnowledge, MechanicsGap, MechanicsResult, PreviewModel, ResultInterpretation } from "../../types";
 import { buildResultInterpretation, mechanicsGaps } from "./resultInterpretation";
 import type { EntityRef } from "../../types";
 import { numericalResultStanding, recordedResultStanding, reportStanding } from "./resultStanding";
-import { badgeOf, locationText, numericalHealthView, readNumericalHealth, rowHealthState, type NumericalHealthBadge, type NumericalHealthLocation, type NumericalHealthView } from "./numericalHealth";
+import { badgeOf, locationText, numericalHealthView, readNumericalHealth, rowHealthState, worstState, type NumericalHealthBadge, type NumericalHealthLocation, type NumericalHealthView } from "./numericalHealth";
 import { BOUNDARY_SENTENCE, DETAIL_SECTION_LABEL, LOCATED_CAUSES_LABEL, NUMERICAL_HEALTH_STATE_TEXT, SHOW_SOLVER_DIAGNOSTIC, type NumericalHealthState } from "./numericalHealthText";
 import { limitationsWithNotes, numericalHealthLead, ordinarySolveLead, recoveredCaseIds, supportStatesByCase } from "./integrityStatus";
 import { SECTION_BASIS_HEADLINES, WITHHELD_SECTION_BASIS_HEADLINE } from "../report/exactReportSections";
@@ -101,7 +102,7 @@ export function CaseSelect({ cases, caseKey, health, onChoose }: { cases: readon
 /** The indicator's own header line, in full: its count headline and, under a verdict-only hold,
  * its output sentence. */
 export function HealthHeaderLine({ health }: { health: NumericalHealthView }) {
-  return <p className="numerical-health-header-line" data-testid="numerical-health-header-line"><NumericalHealthBadgeText badge={health.badge} text={health.headline} testId="numerical-health-header" />{health.outputSentence ? <>. <span data-testid="numerical-health-output-sentence">{health.outputSentence}</span></> : null}</p>;
+  return <p className="numerical-health-header-line" data-testid="numerical-health-header-line"><NumericalHealthBadgeText badge={health.badge} state={worstState(health.cases)} text={health.headline} testId="numerical-health-header" />{health.outputSentence ? <>. <span data-testid="numerical-health-output-sentence">{health.outputSentence}</span></> : null}</p>;
 }
 
 /** The indicator state the solve's `numerical_quality.status` names, where it names one. */
@@ -1312,8 +1313,13 @@ export function routeHealth(route: string, health: NumericalHealthView | null | 
   return route === "preview_physics" || route === "pressure" ? health : null;
 }
 
-export function NumericalHealthBadgeText({ badge, text, testId }: { badge: NumericalHealthBadge; text: string; testId?: string }) {
-  return <span className={`numerical-health-badge numerical-health-${badge}`} data-badge={badge} data-testid={testId}>{text}</span>;
+export function NumericalHealthBadgeText({ badge, state, text, testId }: { badge: NumericalHealthBadge; state: NumericalHealthState; text: string; testId?: string }) {
+  const look = healthLookOf(state);
+  return (
+    <span className={`numerical-health-badge numerical-health-${badge} numerical-health-look-${look}`} data-badge={badge} data-look={look} data-testid={testId}>
+      <HealthLookMark look={look} />{text}
+    </span>
+  );
 }
 
 /** A row's numerical-health mark, only where the row's state differs from the state the standing
@@ -1323,7 +1329,7 @@ export function RowHealthBadge({ health, item, lineState }: { health: NumericalH
   // No row badge on the pressure-source route: those rows' values are the producer's recovery.
   const state = rowHealthState(health, item);
   if (!state || state === lineState) return null;
-  return <small> <NumericalHealthBadgeText badge={badgeOf(state)} text={NUMERICAL_HEALTH_STATE_TEXT[state]} testId={`result-row-health-${item.id}`} /></small>;
+  return <small> <NumericalHealthBadgeText badge={badgeOf(state)} state={state} text={NUMERICAL_HEALTH_STATE_TEXT[state]} testId={`result-row-health-${item.id}`} /></small>;
 }
 
 export function NumericalHealthDetail({ health, resolveCauseLocation, onSelectCauseLocation, onShowDiagnostic }: {
@@ -1340,7 +1346,7 @@ export function NumericalHealthDetail({ health, resolveCauseLocation, onSelectCa
       <p data-testid="numerical-health-boundary">{BOUNDARY_SENTENCE}</p>
       {health.cases.map((c) => (
         <article key={c.caseId} data-testid={`numerical-health-case-${c.caseId}`}>
-          <h4>{c.caseId} <NumericalHealthBadgeText badge={c.badge} text={c.headline} testId={`numerical-health-case-badge-${c.caseId}`} /></h4>
+          <h4>{c.caseId} <NumericalHealthBadgeText badge={c.badge} state={c.state} text={c.headline} testId={`numerical-health-case-badge-${c.caseId}`} /></h4>
           <p data-testid={`numerical-health-case-text-${c.caseId}`}>{c.sentences.join(" ")}</p>
           {c.conditioning ? <p data-testid={`numerical-health-case-conditioning-${c.caseId}`}>{c.conditioning}</p> : null}
           {c.supportStates ? <p data-testid={`numerical-health-case-support-states-${c.caseId}`}>{c.supportStates.text}</p> : null}
@@ -1370,7 +1376,7 @@ export function NumericalHealthDetail({ health, resolveCauseLocation, onSelectCa
       ))}
       {health.combinations.map((m) => (
         <article key={m.combinationId} data-testid={`numerical-health-combination-${m.combinationId}`}>
-          <h4>{m.combinationId} <NumericalHealthBadgeText badge={m.badge} text={NUMERICAL_HEALTH_STATE_TEXT[m.state]} testId={`numerical-health-combination-badge-${m.combinationId}`} /></h4>
+          <h4>{m.combinationId} <NumericalHealthBadgeText badge={m.badge} state={m.state} text={NUMERICAL_HEALTH_STATE_TEXT[m.state]} testId={`numerical-health-combination-badge-${m.combinationId}`} /></h4>
           <p>{m.text}</p>
         </article>
       ))}

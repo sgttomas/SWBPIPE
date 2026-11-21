@@ -4479,6 +4479,19 @@ body { min-width: 760px; min-height: 540px; }
   border-color: var(--border-strong);
   background: var(--status-solvedFill);
 }
+/* The indicator's three looks. Checked, nothing found: a hollow ring and the ordinary text colour.
+   Not checked: no mark, muted words. A check that found trouble keeps the red badge above. Each keeps
+   its own ground: it never takes the colour of a selected row or a card it sits in. */
+.numerical-health-badge.numerical-health-look-checked,
+.numerical-health-badge.numerical-health-look-unchecked {
+  display: inline-flex; align-items: center; gap: 4px;
+  padding: 0; border: 0; font-weight: 600;
+  background: var(--ui-surface, var(--surface-panel));
+}
+.numerical-health-look-checked { color: var(--ui-text); }
+.numerical-health-look-unchecked { color: var(--ui-muted); }
+.numerical-health-ring { flex: none; color: var(--ui-text); }
+.result-standing-line.numerical-health-look-checked .numerical-health-ring { margin-inline-end: 6px; vertical-align: -1px; }
 
 /* W-12 S1 History panel (features/history/HistoryPanel.tsx). */
 .model-history-fields,
