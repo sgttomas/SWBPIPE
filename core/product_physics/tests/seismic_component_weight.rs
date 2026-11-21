@@ -663,8 +663,11 @@ fn the_exact_record_carries_each_component_force_and_reproduces_the_reference_lo
     }
 }
 
-/// Every other case keeps today's record byte for byte: without a component
-/// item there is no `component_forces` (not consumed, zero weight).
+/// Every other case's record has exactly today's keys: without a component
+/// item there is no `component_forces` (not consumed, zero weight). The test
+/// compares keys, not bytes; that the rest of the record is unchanged rests on
+/// the producer's construction (`exact_equivalent_static_record` adds only
+/// that key, and only when a component item is formed).
 #[test]
 fn a_case_without_a_component_item_keeps_its_earlier_record() {
     for (components, name) in [(NONE_CONSUMED, "BND-NONE-SEISMIC-XYZ-G10"), (ZERO_WEIGHT, "CTRL-ZERO-AS-NOT-APPLIED")] {
