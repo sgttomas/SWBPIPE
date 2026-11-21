@@ -11,9 +11,11 @@ resolution tolerance. Cause hypotheses are labelled ASSUMPTION; a
 classification is never silently defaulted. `evaluate_hypothesis_series`
 evaluates a declared hypothesis across a slenderness series of cases.
 
-The record built from CAEPIPE output is private. It is regression
-and handoff evidence only, not validation, compatibility proof, code compliance
-or professional acceptance; agreement establishes nothing about acceptance.
+The record built from CAEPIPE output is private. It is validation evidence
+(docs/PRD.md §22.5) that agents read and use to find and fix SWBPIPE's defects;
+it is not compatibility proof, code compliance or professional acceptance, and
+agreement establishes nothing about acceptance. Its stored
+`evidence_classification` value is kept as written.
 """
 
 from __future__ import annotations

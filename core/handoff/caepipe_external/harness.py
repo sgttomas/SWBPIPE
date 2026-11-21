@@ -20,7 +20,8 @@ exchange folder: the host reads a completed attempt's files and stores them in
 back to MBF (`caepipe_out/exported.mbf`) for the DEL-17-04 import regression, is
 held: the guest script refuses it. Everything it writes under
 `caepipe_out/` is CAEPIPE output or derived from it and stays private.
-Its records are regression and handoff evidence only.
+Its records are private validation evidence (docs/PRD.md §22.5), never professional
+acceptance or code compliance.
 
 An optional `settings_guard` in the configuration names the guest registry key under
 which the user's tool keeps its saved settings. When it is set, no round trip starts
