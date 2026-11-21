@@ -1068,7 +1068,7 @@ fn a_pressure_free_document_reaches_the_exact_route_by_the_desktops_edits_and_ke
 
         // 5. The activation, the selector on the stated model (`PressureAuthoringPanel` `queueProfile`).
         let after = format!(r#"{{"schema_version":"0.9.0","pressure_contract":{{"version":"3.0.0","mode":"exact_pressure_v3","shear_model":"{stated}"}}}}"#);
-        document = admitted(&document, &rich_intent("Model", &id, "set_field", "pressure_profile", canonical_json(&json!({"schema_version": "0.9.0"})), after, "Exact pressure profile"), 2);
+        document = admitted(&document, &rich_intent("Model", &id, "set_field", "pressure_profile", canonical_json(&json!({"schema_version": "0.9.0"})), after, "Pressure profile"), 2);
 
         assert_eq!(document["pressure_contract"], contract(json!(stated)));
         assert!(document.get("model_settings").is_none(), "{:#}", document["model_settings"]);
