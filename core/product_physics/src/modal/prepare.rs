@@ -317,6 +317,7 @@ pub(crate) fn prepare_modal(req: &ModalPreviewRequest) -> Result<Prepared<'_>, V
         _ => None,
     };
     append_constant_effort_consumption_diagnostics(&model, &mut diagnostics);
+    crate::spring_preload::append_model_diagnostics(&model, &mut diagnostics);
     topology::append_topology_diagnostics(&model, &built, &mut diagnostics);
 
     // The restraint pre-checks, as the static entry states them (R-6/R-7: the same
