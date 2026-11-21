@@ -1,5 +1,5 @@
 /** The session's C2 loader (`loadC2Full`) gives a native result's run record only to a consumer that
- * asks for it. A consumer that does not ask (the sample proposal, the gates given no record) is
+ * asks for it. A consumer that does not ask (the gates given no record) is
  * neither refused for the record's stored length nor made to wait for the record's build; one
  * that asks (the gates given a record, both report-package saves, reference inspection's retained
  * run, the comparison with a recorded run) gets today's record, checked against the native
@@ -79,7 +79,7 @@ const failure = (promise: Promise<unknown>) => promise.then(() => null, (error: 
 
 describe("a consumer that does not ask for the run record (the change)", () => {
   it("gets the full copy and no record, unrefused by the record's length and without building it", async () => {
-    const { hook, load, copies } = await solvedSession();
+    const { load, copies } = await solvedSession();
     const builds = vi.spyOn(previewService, "buildAnalysisRunPreview");
     const previews = recordAboveLimit();
     const full = await load({ record: false });
@@ -88,11 +88,6 @@ describe("a consumer that does not ask for the run record (the change)", () => {
     expect(builds).not.toHaveBeenCalled();
     // The record's length was not read for it.
     expect(previews).not.toHaveBeenCalled();
-    expect(copies()).toBe(1);
-    // The sample proposal reads the copy alone, so the record's length does not refuse it.
-    await act(async () => { await hook.result.current.results.handleProposal(); });
-    expect(hook.result.current.results.proposal).not.toBeNull();
-    expect(builds).not.toHaveBeenCalled();
     expect(copies()).toBe(1);
   }, 60_000);
 });

@@ -27,7 +27,6 @@ import {
   List,
   Play,
   Save,
-  Sparkles,
   X
 } from "lucide-react";
 import { AgentStrip } from "./features/workspace/shell/AgentStrip";
@@ -54,7 +53,6 @@ import type { UiDensityPreference, UiThemePreference } from "./features/workspac
 import type React from "react";
 import { Fragment, useMemo, useState } from "react";
 import { AgentProposalPanel } from "./features/agent-proposals/AgentProposalPanel";
-import { PROPOSAL_BUSY_TITLE, ProposalPressStatus, useProposalPress, type ProposalPress } from "./features/agent-proposals/useProposalPress";
 import { CaepipeMbfExportPanel } from "./features/caepipe-mbf/CaepipeMbfExportPanel";
 import { ComparisonPanel } from "./features/comparison/ComparisonPanel";
 import { ComparisonPackageNotice } from "./features/comparison/ComparisonPackageNotice";
@@ -239,7 +237,6 @@ function AppSession() {
     handleInspectBundledReference,
     handleCancelRun,
     handleRuleCheckAggregate,
-    handleProposal,
     handleSelectResult,
     handleSelectDiagnostic,
     handleSaveReportPackage,
@@ -251,8 +248,6 @@ function AppSession() {
   // checks below. The builder's own refusals (admission, rule-check binding, rule
   // packs) are shown in the report panel's status line after an attempt.
   const reportPackageUnavailable = reportPackageUnavailableReason(currentSolvedResult);
-  // The two sample proposal buttons share one press: each ends in a line at the button pressed.
-  const proposalPress = useProposalPress({ generate: handleProposal, proposal, result });
   // The viewport's result overlays read the same standing and numerical health view as the results panel.
   const viewportResultStanding = useMemo(() => ({ eligible: numericallyEligible, health: numericalHealth }), [numericallyEligible, numericalHealth]);
   const {
@@ -618,7 +613,6 @@ function AppSession() {
             <EmbeddedAgentPanel session={session.agent} active={activeSection === "operations" && operationTab === "agent"} onReview={() => {setActiveSection("operations");setOperationTab("review");}} />
             <AgentWorkbenchPanel
               appliedOperationCount={appliedOperations.length}
-              mechanicsReady={Boolean(result)}
               model={model}
               proposal={proposal}
               queuedIntentCount={editorIntents.length}
@@ -627,7 +621,6 @@ function AppSession() {
               selectedReviewTarget={selectedReviewTarget}
               statusText={r3ExitJourneyStatus({ result, ruleCheckAggregate, projectSummary })}
               reviewActive={activeSection === "operations" && operationTab === "review"}
-              proposalPress={proposalPress}
               onOpenOperations={() => { setActiveSection("operations"); setOperationTab("review"); }}
               onOpenResults={() => setActiveSection("results")}
               onRunMechanics={handleRun}
@@ -738,9 +731,7 @@ function AppSession() {
                   />
                   <AgentProposalPanel
                     proposal={proposal}
-                    mechanicsReady={Boolean(result)}
                     selectedReviewTarget={selectedReviewTarget}
-                    press={proposalPress}
                   />
                 </div>
               </section>
@@ -1607,7 +1598,6 @@ function MenuBar({
 
 function AgentWorkbenchPanel({
   appliedOperationCount,
-  mechanicsReady,
   model,
   proposal,
   queuedIntentCount,
@@ -1616,13 +1606,11 @@ function AgentWorkbenchPanel({
   selectedReviewTarget,
   statusText,
   reviewActive,
-  proposalPress,
   onOpenOperations,
   onOpenResults,
   onRunMechanics
 }: {
   appliedOperationCount: number;
-  mechanicsReady: boolean;
   model: PreviewModel;
   proposal: AgentProposal | null;
   queuedIntentCount: number;
@@ -1631,7 +1619,6 @@ function AgentWorkbenchPanel({
   selectedReviewTarget: SelectedReviewTarget | null;
   statusText: string;
   reviewActive: boolean;
-  proposalPress: ProposalPress;
   onOpenOperations: () => void;
   onOpenResults: () => void;
   onRunMechanics: () => void;
@@ -1665,17 +1652,6 @@ function AgentWorkbenchPanel({
           <Play size={15} aria-hidden="true" />
           Run
         </button>
-        <button
-          type="button"
-          data-testid="agent-generate-proposal"
-          onClick={() => proposalPress.press("workbench")}
-          disabled={!mechanicsReady || proposalPress.working}
-          aria-busy={proposalPress.workingAt("workbench") || undefined}
-          title={!mechanicsReady ? "Run mechanics before generating a review proposal." : proposalPress.working ? PROPOSAL_BUSY_TITLE : undefined}
-        >
-          <Sparkles size={15} aria-hidden="true" />
-          {proposalPress.workingAt("workbench") ? "Proposing…" : "Propose"}
-        </button>
         <button type="button" data-testid="agent-open-operations" aria-pressed={reviewActive} onClick={onOpenOperations}>
           <ClipboardCheck size={15} aria-hidden="true" />
           Review
@@ -1685,7 +1661,6 @@ function AgentWorkbenchPanel({
           Inspect
         </button>
       </div>
-      <ProposalPressStatus line={proposalPress.lineAt("workbench")} testId="agent-generate-proposal-outcome" />
 
       <div className="agent-proposal-summary" data-testid="agent-proposal-summary">
         {proposal ? (

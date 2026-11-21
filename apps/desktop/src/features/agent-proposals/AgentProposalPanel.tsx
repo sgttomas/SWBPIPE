@@ -1,44 +1,19 @@
-import { CheckSquare, ClipboardList, ShieldCheck, Wand2 } from "lucide-react";
+import { CheckSquare, ClipboardList, ShieldCheck } from "lucide-react";
 import type { AgentProposal, SelectedReviewTarget } from "../../types";
-import { PROPOSAL_BUSY_TITLE, ProposalPressStatus, type ProposalPress } from "./useProposalPress";
 
+/** Shows a review proposal a project already carries (one saved by an earlier version). Nothing here makes one. */
 export function AgentProposalPanel({
   proposal,
-  mechanicsReady,
-  selectedReviewTarget,
-  press
+  selectedReviewTarget
 }: {
   proposal: AgentProposal | null;
-  mechanicsReady: boolean;
   selectedReviewTarget: SelectedReviewTarget | null;
-  /** The press of the session's proposal action, shared with the Agent tab's "Propose". */
-  press: ProposalPress;
 }) {
   const unitPolicy = proposal ? proposalUnitPolicy(proposal) : null;
-  const working = press.workingAt("panel");
 
   return (
     <section className="panel agent-panel" aria-label="Agentic proposal" data-testid="agent-proposal-panel">
       <div className="panel-title">Proposal</div>
-      <button
-        className="secondary-action"
-        data-testid="generate-review-proposal"
-        onClick={() => press.press("panel")}
-        disabled={!mechanicsReady || press.working}
-        aria-busy={working || undefined}
-        title={
-          !mechanicsReady
-            ? "Disabled: review proposals are generated against solve results. Open the Solve section and run the mechanics preview first."
-            : press.working
-              ? PROPOSAL_BUSY_TITLE
-              : undefined
-        }
-        type="button"
-      >
-        <Wand2 size={16} />
-        {working ? "Generating review proposal…" : "Generate review proposal"}
-      </button>
-      <ProposalPressStatus line={press.lineAt("panel")} testId="generate-review-proposal-outcome" />
       {selectedReviewTarget ? (
         <div className="status-pill" data-testid="selected-review-target">
           <span>Review target</span>
