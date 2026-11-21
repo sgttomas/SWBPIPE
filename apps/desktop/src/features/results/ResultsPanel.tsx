@@ -40,6 +40,7 @@ import {
   type NavigatorAxis,
   type NavigatorCase
 } from "./resultsNavigator";
+import { RotationGroupNote } from "./sectionRotationNote";
 
 export const RESULT_PAGE_SIZE_OPTIONS = [50, 100, 200] as const;
 export const DEFAULT_RESULT_PAGE_SIZE = RESULT_PAGE_SIZE_OPTIONS[0];
@@ -449,6 +450,7 @@ function FullResultsPanel({
                   data-testid={`result-group-${group.title.toLowerCase()}`}
                 >
                   <h3>{group.title}</h3>
+                  <RotationGroupNote group={group.title} result={result} />
                   <CsvExportControl tableLabel={`${group.title} results`} testId={`result-group-${group.title.toLowerCase()}-export-csv`} build={() => exportGroup(group.title)} />
                   <table data-csv-export={resultGroupCsvKind(group.title)}>
                     <thead>
