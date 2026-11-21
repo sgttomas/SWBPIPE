@@ -442,43 +442,54 @@ both of two records. Auto-merge is off before this assessment begins and
 through the merge, which Agent 0 makes by hand.
 
 - The records are `tools/validation/pressure_elongation_inventory.json`,
-  regenerated on each side by `tools/validation/pressure_elongation_inventory.py`,
-  and `tools/hosted-ci-routing.json`, in which either side may change only
-  existing digest values in `piping_runtime_reads.source_trees`, existing
-  `sha256` values on its readers, and the membership of an input's `files` list
-  where that input has an unchanged `scan`; and no reader whose `sha256`
-  changes on one side has a `files` list changed on the other. Every other edit
-  to the routing record takes the update and the fresh run. No other generated
-  or partly generated file qualifies, whatever produced it.
+  regenerated on each side by
+  `tools/validation/pressure_elongation_inventory.py`, and
+  `tools/hosted-ci-routing.json`, in which either side may change only existing
+  digest values in `piping_runtime_reads.source_trees`, existing `sha256`
+  values on its readers, and the membership of an input's `files` list where
+  that input has an unchanged `scan`; and no reader whose `sha256` changes on
+  one side has a `files` list or any declared input file changed on the other.
+  Every other edit to the routing record takes the update and the fresh run. No
+  other generated or partly generated file qualifies, whatever produced it.
 - From the merge-base of `main` and the reviewed head, Agent 0 compares the
   PR's diff with each first-parent change landed on `main` since, and reads
-  both sides' diffs of each shared record. It runs
-  `python3 -m tools.deliverables --project . touches <range>` for each range
-  on the merged tree and removes only the qualifying shared record paths from
-  the changed paths and from each deliverable's `relevant` list. No remaining
-  path, and no deliverable with a remaining match, occurs on both sides.
-- Agent 0 builds the Git merge of the current `main` commit and the reviewed
-  head in a clean checkout and edits nothing in it. The merge is conflict-free
-  and each shared record's diff against the merge-base holds only the content
-  above, with no duplicate JSON key.
-- On that tree: for a shared pressure inventory,
-  `python3 tools/validation/pressure_elongation_inventory.py --check` and
+  both sides' diffs of each shared record. On the merged tree built below, and
+  under the declarations at each range's endpoints, it runs `python3 -m
+  tools.deliverables --project . touches <range>` for each range, keeps the
+  union of the matches, and removes only the qualifying shared record paths
+  from `unmapped_paths` and from each deliverable's `relevant` list. No
+  remaining path, and no deliverable with a remaining match, occurs on both
+  sides.
+- Agent 0 builds a local Git merge commit of the current `main` commit and the
+  reviewed head in a clean checkout and edits nothing in it. The merge is
+  conflict-free, each shared record's diff against the merge-base holds only
+  the content above, and each merged record parses with no duplicate JSON key.
+- On that tree: for a shared pressure inventory, `python3
+  tools/validation/pressure_elongation_inventory.py --check` and
   `tools/validation/test_pressure_elongation_inventory.py` pass; for a shared
   routing record, `tests/test_ci_numerical.py` and
   `tools/software_workflow/test_hosted_ci.py` pass and every `source_trees` key
   is a discovered Cargo manifest whose digest equals
-  `numerical_ci.rust_tree_digest`; and
-  `python3 -m tools.deliverables --project . check` reports no error.
-- The hosted plan for the merged tree against the checked `main`
-  (`tools/software_workflow/hosted_ci.py plan`) selects the checks, manifests
-  and tests that the green run's plan selected. A different selection takes
-  the update and the fresh run.
-- Agent 0 makes no other merge to `main` between the checks and this one, and
-  binds the merge to the reviewed head. Immediately before merging, `main`
-  still names the checked commit; if either tip has moved, the assessment is
-  repeated or the branch is updated. Agent 0 records on the PR the `main`
-  commit, the PR head, the merged tree, the shared records and the results of
-  the checks.
+  `numerical_ci.rust_tree_digest`; and `python3 -m tools.deliverables --project
+  . check` reports no error.
+- The merged candidate's effective hosted selection equals the green run's.
+  From the merge commit against the checked `main` (`python3
+  tools/software_workflow/hosted_ci.py plan --event pull_request --base <main>
+  --head HEAD --suite piping --output <plan>`), the plan's `modes`, `checks`,
+  `piping_numerical_selection.manifests` and `piping_browser_selection.specs`,
+  the Python selection (`python3 tools/ci/python_ci.py --plan <plan>
+  --repository-checks-run --dry-run`) and the registration output
+  (`--registration`) match those produced the same way in a clean checkout of
+  the reviewed head against its merge-base, and the documentation mode and
+  repository regressions selected are the same. A different selection takes the
+  update and the fresh run.
+- Agent 0 binds the merge to the reviewed head and has exclusive control of
+  advances to `main` from the final tip check through the merge: no other PR
+  has auto-merge armed and Agent 0 makes no other merge. Immediately before
+  merging, `main` still names the checked commit; if either tip has moved, the
+  assessment is repeated or the branch is updated. Agent 0 records on the PR
+  the `main` commit, the PR head, the merged tree, the shared records and the
+  results of the checks.
 
 Agent 0 updates the branch and waits for a fresh run if any condition above
 fails or cannot be established, and unless it establishes that neither side
