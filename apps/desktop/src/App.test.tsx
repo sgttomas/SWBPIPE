@@ -8765,8 +8765,8 @@ describe("SWBPIPE desktop preview", () => {
   });
 
   it("reads recorded knowledge quantities from reference results without invoking a solver", async () => {
-    const reference = await loadBundledMechanicsReference(), knowledge = await loadDesignKnowledge();
-    render(<KnowledgePanel knowledge={knowledge} result={reference.source} />);
+    const reference = await loadBundledMechanicsReference(), knowledge = await loadDesignKnowledge(), model = await loadPreviewModel();
+    render(<KnowledgePanel knowledge={knowledge} model={model} result={reference.source} />);
     const panel = screen.getByLabelText("Design knowledge");
     expect(within(panel).getByTestId("knowledge-unit-context")).toHaveTextContent("computed_unit_refs=2");
     expect(within(panel).getByTestId("knowledge-unit-context")).toHaveTextContent("units=N,mm");

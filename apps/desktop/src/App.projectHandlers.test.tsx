@@ -10,6 +10,7 @@ import { loadBundledMechanicsReference, loadPreviewModel } from "./services/prev
 import * as previewService from "./services/previewService";
 import { createNativeMechanicsReplay, nativeMechanicsReplayPair, REPLAY_COMMANDS } from "./test/nativeMechanicsReplay";
 import { applyModelOperation } from "./services/operationService";
+import { designKnowledgeDiagnostics } from "./services/designKnowledge";
 import { getLocalStorageCapability } from "./services/projectService";
 import { confirmProjectUnits } from "./test-support/workspaceTestControls";
 import type {
@@ -263,7 +264,11 @@ describe("project handlers: open clears the previous project's operation diagnos
 
     expect(within(screen.getByTestId("issues-home")).queryByLabelText("Operation diagnostics")).not.toBeInTheDocument();
     expect(screen.getByTestId("issues-home")).not.toHaveTextContent("INVENTED_OPEN_CARRYOVER");
-    expect(issueCountShown()).toBe(baselineIssues);
+    // The opened project (the demo under another id) is not the model the bundled design knowledge
+    // is bound to, so the knowledge's findings, counted in the demo's baseline, are not its own (issue 529).
+    const knowledgeFindings = designKnowledgeDiagnostics(await previewService.loadDesignKnowledge(), model).length;
+    expect(knowledgeFindings).toBe(2);
+    expect(issueCountShown()).toBe(baselineIssues - knowledgeFindings);
   });
 });
 
