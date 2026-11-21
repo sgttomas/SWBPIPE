@@ -4901,7 +4901,7 @@ fn case_force_ledger(
     diagnostics: &mut Vec<Diagnostic>,
 ) -> LoadLedger {
     let mut ledger = LoadLedger::new();
-    certified_loads::nodal(&mut ledger,model,load_application,load_case_id,built.nodes.len());
+    certified_loads::nodal(&mut ledger,model,load_application,load_case_id,built.nodes.len(),diagnostics);
     add_uniform_element_loads(
         &mut ledger,
         model,
@@ -16678,7 +16678,7 @@ mod tests {
             mass:MassPrimitive {outer_diameter:0.2,wall_thickness:0.01,mill_tolerance:0.0,pipe_density:7800.0,contents_density:0.0,insulation_thickness:0.0,insulation_density:0.0,corrosion_allowance:None},coefficient:1.1,gravity:-9.81,direction:[0.0,1.0,0.0] });
         let mut ledger=LoadLedger::new();
         let mut nodal=LoadApplication {nodal_loads:vec![open_pipe_stress_primitive_loads::NodalLoadContribution {load_id:"factor:load".into(),node_index:1,global_dof:7,value:0.1*1.1}],..application};
-        certified_loads::nodal(&mut ledger,&model,&nodal,&case_id,model.nodes.len());
+        certified_loads::nodal(&mut ledger,&model,&nodal,&case_id,model.nodes.len(),&mut Vec::new());
         let force=ledger.finish(model.nodes.len()*6).unwrap();
         assert_eq!(force.values()[7],0.1*1.1);
         assert!(force.closure_records()[0].formed);
@@ -16686,7 +16686,7 @@ mod tests {
         // An un-factored authored nodal term stays an input term (without the
         // exact contract the group selects no load/reference state).
         model.pressure_contract=None;nodal.nodal_loads[0].value=0.1;
-        let mut ledger=LoadLedger::new();certified_loads::nodal(&mut ledger,&model,&nodal,&case_id,model.nodes.len());
+        let mut ledger=LoadLedger::new();certified_loads::nodal(&mut ledger,&model,&nodal,&case_id,model.nodes.len(),&mut Vec::new());
         let force=ledger.finish(model.nodes.len()*6).unwrap();assert!(!force.closure_records()[0].formed);assert!(force.load_primitives().is_empty());
     }
 

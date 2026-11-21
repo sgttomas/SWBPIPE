@@ -23,6 +23,14 @@
 //! and the exact route's generation record each read the factor, W and r
 //! from the model through [`plan`], and identify an item only by the exact
 //! identifier [`load_id`] forms; nothing is parsed out of an identifier.
+//!
+//! The certified ledger holds each component force and moment as the exact
+//! stored value the rule gives, as it holds the self-weight plan's component
+//! wrench: it forms no product of its own. Where the ledger is built, the
+//! value is bound to its operands: [`rule_value`] recomputes fl(k × W), or
+//! fl(F × ±r_j) from that rounded force, from the converted operands the
+//! generator read (W in N, r in m), and a prepared value whose bits differ
+//! refuses the case by name ([`VALUE_MISMATCH`]).
 use super::{diag, stable_suffix, Diagnostic, PreviewComponent, PreviewLoadCase, PreviewModel};
 use crate::self_weight::{component_dispositions, moment_levers, Disposition};
 use open_pipe_stress_linear_supports::FrameDof;
@@ -33,6 +41,10 @@ use std::collections::HashSet;
 /// moment out of range after rounding, or a nonzero centre-of-gravity
 /// coordinate that normalizes to zero.
 pub(crate) const RANGE_INVALID: &str = "EQUIVALENT_STATIC_COMPONENT_RANGE_INVALID";
+/// The named blocking refusal of a case whose prepared component force or
+/// moment is not, bit for bit, the rule's value recomputed from its operands
+/// where the certified ledger is built.
+pub(crate) const VALUE_MISMATCH: &str = "EQUIVALENT_STATIC_COMPONENT_VALUE_MISMATCH";
 const AXIS_LABELS: [&str; 3] = ["global-x", "global-y", "global-z"];
 const AXES: [&str; 3] = ["x", "y", "z"];
 
@@ -304,13 +316,15 @@ pub(crate) mod prepared_mutant {
     }
 }
 
-/// The certified nodal producer's generated branch (issue 450 item 3): for a
-/// load the case's generation produced (`is_generated_equivalent_static_load`,
-/// the three-condition predicate) that is a component primitive of the
-/// case's own plan, by exact identifier, the operands of its rounded
-/// product, read from the model: (W, k) for a force; (fl(k × W), ±r_j) for a
-/// moment. `None` for every other load.
-pub(crate) fn nodal_product(model: &PreviewModel, case_id: &str, load_id: &str) -> Option<(f64, f64)> {
+/// The rule's value of one generated component primitive, recomputed where
+/// the certified ledger is built: for a load the case's generation produced
+/// (`is_generated_equivalent_static_load`, the three-condition predicate)
+/// that is a component primitive of the case's own plan, by exact
+/// identifier, fl(k × W) for a force and fl(fl(k × W) × ±r_j) for a moment,
+/// from the plan's operands (the factor as entered, W normalized to N and r
+/// to m by the component's disposition), with the formula's text for a
+/// refusal. `None` for every other load.
+pub(crate) fn rule_value(model: &PreviewModel, case_id: &str, load_id: &str) -> Option<(f64, String)> {
     let case = model.load_cases.iter().find(|case| case.id == case_id)?;
     if !crate::is_generated_equivalent_static_load(case, load_id, Some("seismic")) {
         return None;
@@ -320,13 +334,33 @@ pub(crate) fn nodal_product(model: &PreviewModel, case_id: &str, load_id: &str) 
     plan.items.iter().find_map(|item| {
         item.parts(case_id).into_iter().find_map(|(id, part, _)| {
             (id == load_id).then(|| match part {
-                Part::Force => (item.weight, item.factor),
+                Part::Force => {
+                    (item.factor * item.weight, format!("fl(k*W) = fl({:e} * {:e} N)", item.factor, item.weight))
+                }
                 Part::Moment(i) => {
                     let (_, lever, _) = item.moments.iter().find(|(axis, _, _)| *axis == i).expect("a formed moment");
-                    (item.force, *lever)
+                    let force = item.factor * item.weight;
+                    (force * lever, format!("fl(F*r) = fl({force:e} N * {lever:e} m)"))
                 }
             })
         })
+    })
+}
+
+/// The binding of one prepared component value to its rule (`rule_value`):
+/// `None` when the bits agree, else the blocking refusal naming the load.
+pub(crate) fn value_mismatch(case_id: &str, load_id: &str, prepared: f64, rule: &(f64, String)) -> Option<Diagnostic> {
+    (prepared.to_bits() != rule.0.to_bits()).then(|| {
+        diag(
+            &format!("diagnostic:equivalent-static:{}:seismic:load:{}:value", stable_suffix(case_id), stable_suffix(load_id)),
+            VALUE_MISMATCH,
+            "blocking",
+            format!(
+                "the generated seismic component load {load_id} of case {case_id} is {prepared:e}, but its rule {} gives {:e}; the certified load would not be the rule's value",
+                rule.1, rule.0
+            ),
+            vec![case_id.to_string(), load_id.to_string()],
+        )
     })
 }
 
@@ -553,106 +587,95 @@ mod tests {
 
     /// Issue 450's first test of the nodal branch: a deliberately wrong
     /// prepared value at the right degree of freedom, with the operands the
-    /// certified producer reads from the model unchanged. What it shows, in
-    /// both solver modes, on the indeterminate model (A and D anchored): a
-    /// doubled force or moment demotes the case from `checks_passed` to
-    /// `sensitive` (NUMERICAL_INTEGRITY_SENSITIVE) and changes its rows; a
-    /// value one unit in the last place high leaves the standing at
-    /// `checks_passed` and every published row bit for bit unchanged, because
-    /// the publication is formed from the certified re-formation of the
-    /// load. It shows no more than that: it neither shows nor claims a
-    /// demotion for a small error.
+    /// certified producer reads from the model unchanged. In both solver
+    /// modes, on the indeterminate model (A and D anchored), a doubled force
+    /// or moment and one a single unit in the last place high are each
+    /// refused by name (EQUIVALENT_STATIC_COMPONENT_VALUE_MISMATCH), with no
+    /// rows: the binding compares the prepared value's bits with the rule's.
     #[test]
-    fn a_wrong_prepared_value_changes_the_case_standing() {
+    fn a_wrong_prepared_value_is_refused_by_name() {
         let force = load_id("case:s", "component:valve", 0, Part::Force);
         let moment = load_id("case:s", "component:valve", 0, Part::Moment(2));
         let wire = document(2350.0, [-0.175, 0.12, 0.125], [Some(0.3), None, None], true);
-        let standing = |out: &Value| (out["numerical_quality"]["status"].as_str().unwrap().to_string(),
-            out["numerical_quality"]["cases"][0]["solve_quality"].as_str().unwrap_or("").to_string());
-        let rows = |out: &Value| out["results"].as_array().unwrap().iter()
-            .map(|r| (r["id"].as_str().unwrap().to_string(), r["value"].as_f64().unwrap().to_bits())).collect::<Vec<_>>();
-        let passed = ("checks_passed".to_string(), "checks_passed".to_string());
-        let sensitive = ("sensitive".to_string(), "sensitive".to_string());
         for mode in MODES {
             prepared_mutant::disarm();
             let plain = serde_json::to_value(run_linear_static_preview_value_with_mode(wire.clone(), mode).unwrap()).unwrap();
             assert_eq!(plain["status"]["mechanics"], "MECHANICS_SOLVED");
-            assert_eq!(standing(&plain), passed, "{mode:?}");
+            assert_eq!(plain["numerical_quality"]["status"], "checks_passed", "{mode:?}");
+            assert!(plain["diagnostics"].as_array().unwrap().iter().all(|d| d["code"] != VALUE_MISMATCH));
             type Change = fn(f64) -> f64;
             let doubled: Change = |v| 2.0 * v;
             let ulp: Change = |v| f64::from_bits(v.to_bits() + 1);
-            for (what, target, change, demoted) in [
-                ("force doubled", &force, doubled, true),
-                ("force one ulp high", &force, ulp, false),
-                ("moment doubled", &moment, doubled, true),
-                ("moment one ulp high", &moment, ulp, false),
+            for (what, target, change) in [
+                ("force doubled", &force, doubled),
+                ("force one ulp high", &force, ulp),
+                ("moment doubled", &moment, doubled),
+                ("moment one ulp high", &moment, ulp),
             ] {
                 let id = target.clone();
                 prepared_mutant::arm(Box::new(move |load, value| (load == id).then(|| change(value))));
                 let out = serde_json::to_value(run_linear_static_preview_value_with_mode(wire.clone(), mode).unwrap()).unwrap();
                 prepared_mutant::disarm();
-                assert_eq!(out["status"]["mechanics"], "MECHANICS_SOLVED", "{what} {mode:?}");
-                if demoted {
-                    assert_eq!(standing(&out), sensitive, "{what} {mode:?}");
-                    assert!(out["diagnostics"].as_array().unwrap().iter().any(|d| d["code"] == "NUMERICAL_INTEGRITY_SENSITIVE"), "{what}");
-                    assert_ne!(rows(&out), rows(&plain), "{what} {mode:?}");
-                } else {
-                    assert_eq!(standing(&out), passed, "{what} {mode:?}");
-                    assert_eq!(rows(&out), rows(&plain), "{what} {mode:?}");
-                }
+                assert_eq!(out["status"]["mechanics"], "MODEL_INCOMPLETE", "{what} {mode:?}");
+                assert!(out["results"].as_array().unwrap().is_empty(), "{what} {mode:?}");
+                let found: Vec<&Value> = out["diagnostics"].as_array().unwrap().iter().filter(|d| d["code"] == VALUE_MISMATCH).collect();
+                assert_eq!(found.len(), 1, "{what} {mode:?}");
+                assert_eq!(found[0]["severity"], "blocking");
+                assert_eq!(found[0]["affected_refs"], json!(["case:s", target]), "{what}");
             }
         }
     }
 
-    /// The injected value reaches the certified producer: with the force one
-    /// ulp high, the term `certified_loads::nodal` pushes for the force's
-    /// identifier at its degree of freedom is that value, beside the operands
-    /// (W, k) it reads from the model.
+    /// Where the ledger is built: the component's force and moments are exact
+    /// input terms carrying the rule's value, with no formation record, and a
+    /// one-ulp prepared value is the term pushed beside the refusal that names
+    /// it. The rule is recomputed from the plan's converted operands.
     #[test]
-    fn the_wrong_prepared_value_is_the_ledger_term() {
+    fn the_ledger_holds_the_rule_s_value_as_an_exact_term() {
         use open_pipe_stress_frame_kernel::load_ledger::{ForceTermKind, LoadLedger};
         let force = load_id("case:s", "component:valve", 0, Part::Force);
-        let wire = document(2350.0, [-0.175, 0.12, 0.125], [Some(0.3), None, None], true);
+        // The offset entered in millimetres: the rule reads the converted
+        // lever (m), as the generator does.
+        let mut wire = document(2350.0, [-0.175, 0.12, 0.125], [Some(0.3), None, None], true);
+        wire["model"]["components"][0]["geometry"]["center_of_gravity"] = json!({"x": -175.0, "y": 120.0, "z": 125.0, "unit": "mm"});
         let model = typed(&wire);
+        let ledger_of = |loads: &[PrimitiveLoad]| {
+            let application = open_pipe_stress_primitive_loads::prepare_loads(model.nodes.len(), model.pipe_segments.len(), loads);
+            let mut ledger = LoadLedger::new();
+            let mut diagnostics = Vec::new();
+            crate::certified_loads::nodal(&mut ledger, &model, &application, "case:s", model.nodes.len(), &mut diagnostics);
+            (ledger, diagnostics)
+        };
+        let (loads, generation) = generated(&wire);
+        assert!(generation.iter().all(|d| d.severity != "blocking"), "{generation:?}");
+        let (ledger, diagnostics) = ledger_of(&loads);
+        assert!(diagnostics.is_empty(), "{diagnostics:?}");
+        let components = component_values(&loads);
+        assert_eq!(components.len(), 3, "the force and two moments: {components:?}");
+        for (id, value) in &components {
+            let rule = rule_value(&model, "case:s", id).expect("a component primitive");
+            assert_eq!(rule.0.to_bits(), value.to_bits(), "{id}");
+            let terms: Vec<_> = ledger.terms().iter().filter(|t| &t.source == id).collect();
+            assert_eq!(terms.len(), 1, "{id}");
+            assert!(matches!(terms[0].kind, ForceTermKind::Term(v) if v.to_bits() == value.to_bits()), "{id}: {:?}", terms[0].kind);
+        }
+        let assembled = ledger.finish(model.nodes.len() * 6).unwrap();
+        assert!(assembled.load_primitives().is_empty(), "no formed product for a component term");
+        assert_eq!(rule_value(&model, "case:s", &force).unwrap().0.to_bits(), (0.3f64 * 2350.0).to_bits());
+        // A one-ulp prepared force is the term pushed, and the refusal names it.
         let target = force.clone();
         prepared_mutant::arm(Box::new(move |load, value| (load == target).then(|| f64::from_bits(value.to_bits() + 1))));
         let (loads, _) = generated(&wire);
         prepared_mutant::disarm();
-        let application = open_pipe_stress_primitive_loads::prepare_loads(model.nodes.len(), model.pipe_segments.len(), &loads);
-        let mut ledger = LoadLedger::new();
-        crate::certified_loads::nodal(&mut ledger, &model, &application, "case:s", model.nodes.len());
+        let (ledger, diagnostics) = ledger_of(&loads);
         let terms: Vec<_> = ledger.terms().iter().filter(|t| t.source == force).collect();
-        assert_eq!(terms.len(), 1);
-        assert_eq!(terms[0].dof, 2 * 6, "node C's global X");
-        assert!(matches!(terms[0].kind, ForceTermKind::Term(v) if v.to_bits() == (0.3f64 * 2350.0).to_bits() + 1), "{:?}", terms[0].kind);
-        assert_eq!(nodal_product(&model, "case:s", &force), Some((2350.0, 0.3)));
-    }
-
-    /// Exploratory sweep (ignored; run by hand): the case's standing as the
-    /// prepared force deviates by 2^n units in the last place.
-    #[test]
-    #[ignore = "exploratory: prints the deviation at which the standing changes"]
-    fn sweep_the_detected_deviation() {
-        let force = load_id("case:s", "component:valve", 0, Part::Force);
-        let wire = document(2350.0, [-0.175, 0.12, 0.125], [Some(0.3), None, None], true);
-        let row_bits = |out: &Value| out["results"].as_array().unwrap().iter().map(|r| r["value"].as_f64().unwrap().to_bits()).collect::<Vec<_>>();
-        let plain = serde_json::to_value(run_linear_static_preview_value_with_mode(wire.clone(), MODES[0]).unwrap()).unwrap();
-        for n in 0..52u32 {
-            let id = force.clone();
-            prepared_mutant::arm(Box::new(move |load, value| (load == id).then(|| f64::from_bits(value.to_bits() + (1u64 << n)))));
-            let out = serde_json::to_value(run_linear_static_preview_value_with_mode(wire.clone(), MODES[0]).unwrap()).unwrap();
-            prepared_mutant::disarm();
-            let v = 705.0f64;
-            let relative = (f64::from_bits(v.to_bits() + (1u64 << n)) - v) / v;
-            // Which check demoted the case: the formation check's appended record, and any
-            // diagnostic code the unperturbed run does not have (a load-fidelity finding).
-            let codes = |o: &Value| o["diagnostics"].as_array().unwrap().iter().map(|d| d["code"].as_str().unwrap().to_string()).collect::<std::collections::BTreeSet<_>>();
-            let added: Vec<String> = codes(&out).difference(&codes(&plain)).cloned().collect();
-            let formation: Vec<String> = out["diagnostics"].as_array().unwrap().iter()
-                .filter_map(|d| d["message"].as_str().and_then(|m| m.find("formation_check:").map(|i| m[i..].chars().take(300).collect())))
-                .collect();
-            println!("SWEEP 2^{n} ulp (relative {relative:.3e}): standing {} rows-equal {} added {:?} {:?}", out["numerical_quality"]["status"], row_bits(&out) == row_bits(&plain), added, formation);
-        }
+        assert!(matches!(terms[0].kind, ForceTermKind::Term(v) if v.to_bits() == (0.3f64 * 2350.0).to_bits() + 1));
+        assert_eq!(diagnostics.len(), 1, "{diagnostics:?}");
+        assert_eq!((diagnostics[0].code.as_str(), diagnostics[0].severity.as_str()), (VALUE_MISMATCH, "blocking"));
+        assert_eq!(diagnostics[0].affected_refs, vec!["case:s".to_string(), force.clone()]);
+        // Every other load: no rule.
+        assert!(rule_value(&model, "case:s", "case:s:generated:seismic:global-x:element-0").is_none());
+        assert!(rule_value(&model, "case:other", &force).is_none());
     }
 
     #[test]

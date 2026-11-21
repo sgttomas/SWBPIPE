@@ -194,9 +194,9 @@ fn solved(wire: &Value, mode: PreviewSolverMode, what: &str) -> Value {
         .filter(|d| d["severity"] == "blocking" || d["severity"] == "failure").collect();
     assert_eq!(out["status"]["mechanics"], "MECHANICS_SOLVED", "{what}: blocking {blocking:?}");
     assert!(blocking.is_empty(), "{what}: blocking {blocking:?}");
-    // Every case passes its numerical integrity checks: the certified
-    // producer re-formed each applied load, the component's nodal terms
-    // included, from its operands.
+    // Every case passes its numerical integrity checks. The component's
+    // nodal terms enter the certified ledger as the rule's stored values,
+    // each bound to its operands where the ledger is built.
     assert_eq!(out["numerical_quality"]["status"], "checks_passed", "{what}: {:?}", codes(&out));
     out
 }
@@ -661,4 +661,90 @@ fn the_readers_bind_the_component_record() {
     let zero = document(Route::Ex, Model::Cant, ZERO_WEIGHT, vec![case_of(reference(id), "case:s")]);
     let bound = reader_verdict::validate("pressure", &out, Some(&zero["model"]), None);
     assert_eq!(bound["ok"], false, "{bound}");
+}
+
+// ------------------------------------------------------------------ the rule's value
+fn witness_nodal(id: &str, dof: &str, value: f64) -> Value {
+    let (category, unit, dimension) = if dof.starts_with("rotation") { ("concentrated_moment", "N*m", "moment") } else { ("concentrated_force", "N", "force") };
+    json!({"id": id, "category": category, "target": {"type": "node", "node": "C"}, "direction": dof,
+           "magnitude": qv(value, unit), "dimension": dimension, "provenance": PROV})
+}
+/// One member B - C anchored at B, the valve at C mapped to BC (whose
+/// distributed load it replaces, so the component's terms are the case's
+/// only seismic load), and the one case `case`.
+fn witness(route: Route, weight: f64, cog: [f64; 3], case: Value) -> Value {
+    let mut doc = document(route, Model::Cant, Components { valve_weight: weight, valve_consumed: true, flange: false }, vec![case]);
+    let m = &mut doc["model"];
+    let keep = |v: &mut Value, ids: &[&str]| v.as_array_mut().unwrap().retain(|x| ids.contains(&x["id"].as_str().unwrap()));
+    keep(&mut m["nodes"], &["B", "C"]);
+    keep(&mut m["pipe_segments"], &["BC"]);
+    m["supports"] = json!([{"id": "support:B", "node": "B", "family": "anchor", "restraints": ["UX", "UY", "UZ", "RX", "RY", "RZ"], "provenance": PROV}]);
+    m["components"][0]["geometry"]["center_of_gravity"] = json!({"x": cog[0], "y": cog[1], "z": cog[2], "unit": "m"});
+    doc
+}
+/// What the comparison reads: every published row (its id and value bits)
+/// and the published standing.
+fn published(out: &Value) -> (Vec<(String, u64)>, Value) {
+    assert_eq!(out["status"]["mechanics"], "MECHANICS_SOLVED", "{:?}", codes(out));
+    let rows = out["results"].as_array().unwrap().iter()
+        .map(|r| (r["id"].as_str().unwrap().to_string(), r["value"].as_f64().unwrap().to_bits())).collect();
+    (rows, out["numerical_quality"].clone())
+}
+
+/// The reviewer's witness of issue 450 (round 1, finding 1). The rule's
+/// value is the once-rounded product: F = fl(k W) and each moment fl(F r_j)
+/// from that rounded force. The product publishes the response to exactly
+/// that value: the generated load is an exact stored term of the certified
+/// ledger (as the self-weight plan's component wrench is), bound to its
+/// operands where the ledger is built, not a product the certificate
+/// re-forms from its operands. So, on both routes and in both solver modes,
+/// a case whose component load is generated publishes the same rows, bit for
+/// bit, and the same standing as the case with the rule's value entered as a
+/// plain primitive, with and without an entered load that cancels it
+/// exactly. Before the repair the certificate's exact product was
+/// published: with the cancelling load the force witness was demoted to
+/// `sensitive` (formation_check at C:UX against a zero scale) and the moment
+/// witness published a support moment of 2.78e-17 N*m where the rule's net
+/// is 0; without it the moment witness's support moment was -0.3, not the
+/// rule's -fl(3 * 0.1) = -0.30000000000000004.
+/// - Force: k = 0.1, W = 10 N, r = 0; fl(k W) = 1.0 (the exact product of
+///   the binary64 operands is 1 + 5.55e-17); the cancelling load is -1 N
+///   at C global_x.
+/// - Moment: k = 0.25, W = 12 N, r = (0, 0, 0.1) m; F = 3 exactly, My =
+///   fl(3 * 0.1) = 0.30000000000000004 (the exact product is
+///   0.30000000000000001665); the cancelling load is -fl(3 * 0.1) at C
+///   rotation_y.
+#[test]
+fn a_generated_component_load_publishes_the_rule_s_value() {
+    let id = "case:w";
+    let generated = |k: f64, loads: Vec<Value>| {
+        let mut case = seismic_case(id, 9.79, [k, 0.0, 0.0]);
+        case["primitive_loads"] = Value::Array(loads);
+        case
+    };
+    let entered = |loads: Vec<Value>| json!({"id": id, "primitive_loads": loads, "provenance": PROV});
+    let my = 3.0 * 0.1_f64;
+    assert_eq!(my.to_bits(), 0.30000000000000004_f64.to_bits());
+    // (what, weight, cog, k, the rule's value entered, the cancelling load)
+    let witnesses: [(&str, f64, [f64; 3], f64, Vec<(&str, f64)>, (&str, f64)); 2] = [
+        ("force", 10.0, [0.0, 0.0, 0.0], 0.1, vec![("global_x", 0.1 * 10.0)], ("global_x", -1.0)),
+        ("moment", 12.0, [0.0, 0.0, 0.1], 0.25, vec![("global_x", 3.0), ("rotation_y", my)], ("rotation_y", -my)),
+    ];
+    for (what, weight, cog, k, rule, cancel) in witnesses {
+        let rule_loads = |tag: &str| rule.iter().enumerate().map(|(i, (dof, v))| witness_nodal(&format!("load:{tag}:rule:{i}"), dof, *v)).collect::<Vec<_>>();
+        let cancelling = |tag: &str| witness_nodal(&format!("load:{tag}:cancel"), cancel.0, cancel.1);
+        for route in [Route::Pf, Route::Ex] {
+            for mode in MODES {
+                let solve = |case: Value| published(&run(&witness(route, weight, cog, case), mode));
+                let a = solve(generated(k, vec![cancelling("a")]));
+                let b = solve(generated(k, vec![]));
+                let c = solve(entered([rule_loads("c"), vec![cancelling("c")]].concat()));
+                let d = solve(entered(rule_loads("d")));
+                assert_eq!(a, c, "{what} {route:?} {mode:?}: generated and cancelled, against the rule's value entered and cancelled");
+                assert_eq!(b, d, "{what} {route:?} {mode:?}: generated, against the rule's value entered");
+                assert_eq!(a.1["status"], "checks_passed", "{what} {route:?} {mode:?}");
+                assert_eq!(b.1["status"], "checks_passed", "{what} {route:?} {mode:?}");
+            }
+        }
+    }
 }
