@@ -2,11 +2,12 @@
  * fitting result and a run record above the webview's limit, the rendered report's gate refuses
  * and its panel (which holds the package-save status) is not shown; a save started from the File
  * menu (the shareable save through its release dialog, or the local-private save) is refused for
- * the record, and its refusal is shown once in the gate's place in the Report section, and kept as
- * the session's outcome in the report output strip (issue 508). With the panel shown, the
- * receipt is the panel's, and the strip keeps the outcome in its own words. The whole App renders; the solve is the native job
- * transport replay of committed producer bytes (unit transport replay; NOT a native UI
- * qualification witness). All data are invented. */
+ * the record, and its refusal is shown once in the gate's place in the Report section and kept as
+ * the session's outcome in the report output strip (issue 508), which alone announces it. With the
+ * panel shown, the receipt is the panel's, and the strip keeps and announces the outcome in its own
+ * words. The whole App renders; the solve is the native job transport replay of committed
+ * producer bytes (unit transport replay; NOT a native UI qualification witness). All data are
+ * invented. */
 import { act, cleanup, fireEvent, render, screen, waitFor, within } from "@testing-library/react";
 import { afterEach, describe, expect, it, vi } from "vitest";
 const invokeMock = vi.hoisted(() => vi.fn());
@@ -80,9 +81,9 @@ async function settle() {
   await act(async () => { await new Promise((resolve) => setTimeout(resolve, 50)); });
 }
 
-/** The save's refusal on screen: once in the Report section, announced by its status there, and
- * once more as the session's kept outcome in the report output strip (DEL-08-01 REQ-022, issue
- * 508), announced by that entry's status. `strip` is the strip's line for it. */
+/** The save's refusal on screen: once in the Report section and once as the session's kept
+ * outcome in the report output strip (DEL-08-01 REQ-022, issue 508), announced by exactly one
+ * status region, the strip's (mounted before the outcome existed). `strip` is the strip's line. */
 async function expectWithheldRefusal(report: HTMLElement, strip: string) {
   const shown = await within(report).findByText((text) => text.includes(RECORD_REFUSAL));
   expect(within(report).getAllByText((text) => text.includes(RECORD_REFUSAL))).toEqual([shown]);
@@ -91,7 +92,8 @@ async function expectWithheldRefusal(report: HTMLElement, strip: string) {
   const kept = within(outcomes).getByRole("status");
   expect(kept.querySelector("p")?.textContent).toBe(strip);
   expect(screen.getAllByText((text) => text.includes(RECORD_REFUSAL))).toHaveLength(2);
-  expect(screen.getAllByRole("status").filter((status) => status.textContent?.includes(RECORD_REFUSAL))).toEqual([kept, shown]);
+  expect(screen.getAllByRole("status").filter((status) => status.textContent?.includes(RECORD_REFUSAL))).toEqual([kept]);
+  expect(shown).not.toHaveAttribute("role");
   expect(within(report).getByTestId("c2-result-withheld")).toContainElement(shown);
   // It stands below the rendered report's own refusal, in the panel's place.
   expect(within(report).getAllByTestId("c2-result-refused").length).toBeGreaterThan(0);
@@ -148,8 +150,10 @@ describe("with the rendered report shown", () => {
       "user_release_recorded=true"
     ]);
     expect(status).not.toHaveAttribute("role");
-    // The session keeps the outcome apart from the panel, in the strip's own words (issue 508).
+    // The session keeps the outcome apart from the panel, in the strip's own words, and the strip
+    // alone announces it (issue 508).
     const kept = within(screen.getByRole("region", { name: "Report output outcomes" })).getByRole("status");
     expect(kept.querySelector("p")?.textContent).toBe("Shareable report package saved: invented-shared.opsproj");
+    expect(screen.getAllByRole("status").filter((region) => region.textContent?.includes("invented-shared.opsproj"))).toEqual([kept]);
   }, 90_000);
 });
