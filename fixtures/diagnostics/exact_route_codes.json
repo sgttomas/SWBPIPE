@@ -2209,8 +2209,8 @@
    "messages": [
     "message"
    ],
-   "classification": null,
-   "reason": null,
+   "classification": "input_error",
+   "reason": "A seismic case's rigid-family component force or moment cannot be formed in range from its inputs (DEL-05-01 static-equivalent generation).",
    "unsure": false,
    "candidates": null,
    "named_by": null,
