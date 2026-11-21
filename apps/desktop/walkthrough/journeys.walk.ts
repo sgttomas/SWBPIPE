@@ -15,8 +15,10 @@ import {
   projectCommand,
   selectTreeEntity,
   showCanvas,
-  showModelTree
+  showModelTree,
+  viewportControl
 } from "../e2e/workspace-driver";
+import { readFileSync } from "node:fs";
 import { Journey } from "./recorder";
 
 const INVENTED = "invented_walkthrough_input";
@@ -275,5 +277,110 @@ test("08 save, close and resume (DEL-07-06 AC-007)", async ({ page }) => {
   await journey.step("list-local", "File > List Local Projects", async () => { await menu(page, "file", "file.list-local"); });
   await journey.step("reopened", "The application opened again in the same browser", async () => { await open(page); });
   await journey.step("open-local", "File > Open Local Project", async () => { await menu(page, "file", "file.open-local"); });
+  journey.finish();
+});
+
+/** Opens the application on another model in place of its demonstration model, as the e2e suite does. */
+async function openModel(page: Page, model: unknown): Promise<void> {
+  const body = `const model=${JSON.stringify(model)};\nexport { model as default };`;
+  await page.route(/(?:invented_demo_model-[^/]+\.js|fixtures\/product_preview\/invented_demo_model\.json)(?:\?.*)?$/, async (route) => {
+    await route.fulfill({ status: 200, contentType: "application/javascript", body });
+  });
+  await open(page);
+}
+
+/** Selects an entity by its label on the canvas, or by the tree when its label is not drawn. */
+async function selectInView(page: Page, type: "node" | "pipe" | "support" | "component", id: string): Promise<string | void> {
+  const label = page.getByTestId(`viewport-select-${id}`);
+  if (await label.isVisible()) {
+    await label.click();
+    return;
+  }
+  await showModelTree(page);
+  await selectTreeEntity(page, type, id);
+  await page.getByTestId("view-switch-model").click();
+  return "its label was not drawn, so it was selected in the tree";
+}
+
+test("09 the 3D view: controls, fit, standard views, labels", async ({ page }) => {
+  const journey = new Journey(page, 9, "view", "The 3D view: its controls, the model kept in view, the standard views and the labels");
+  await open(page);
+  const canvas = page.getByTestId("viewport-canvas");
+  await journey.step("first-open", "The application as first opened: the demonstration model fitted in the view");
+  await journey.step("model-view", "Model view: the canvas alone", async () => { await page.getByTestId("view-switch-model").click(); });
+  for (const view of ["front", "top", "side", "isometric"] as const) {
+    await journey.step(`view-${view}`, `The ${view} view, from the canvas's view controls`, async () => {
+      await page.getByTestId(`viewport-view-${view}`).click();
+    });
+  }
+  await journey.step("orbited", "The view orbited by a drag on the canvas", async () => {
+    const box = await canvas.boundingBox();
+    if (!box) throw new Error("the canvas has no box");
+    await page.mouse.move(box.x + box.width * 0.5, box.y + box.height * 0.6);
+    await page.mouse.down();
+    await page.mouse.move(box.x + box.width * 0.75, box.y + box.height * 0.45, { steps: 12 });
+    await page.mouse.up();
+  });
+  await journey.step("fit-after-orbit", "Fit pressed after the orbit: with nothing selected it fits the model", async () => {
+    await page.locator(".viewport-view-cube .viewport-fit").click();
+  });
+  await journey.step("inspector-open", "A node selected and the inspector open: the model still wholly in view", async () => {
+    await selectInView(page, "node", "node:N-120");
+    await ensureInspectorExpanded(page);
+  });
+  await journey.step("more-menu", "The bar's More menu open, with a control in it switched on", async () => {
+    await page.getByTestId("viewport-more").click();
+    const menuPanel = page.getByTestId("viewport-more-menu");
+    await expect(menuPanel).toBeVisible();
+    const measure = menuPanel.getByRole("button", { name: "Measure", exact: true });
+    const axes = menuPanel.getByRole("combobox", { name: "Element axes" });
+    if (await measure.count()) await measure.click();
+    else if (await axes.count()) await axes.selectOption("local");
+    else return "every group fits in the bar at this size; More holds the Fit commands";
+  });
+  // Put the switched control back, so the later pictures show the ordinary view.
+  {
+    const menuPanel = page.getByTestId("viewport-more-menu");
+    const measure = menuPanel.getByRole("button", { name: "Measure", exact: true });
+    const axes = menuPanel.getByRole("combobox", { name: "Element axes" });
+    if (await measure.count() && await measure.getAttribute("aria-pressed") === "true") await measure.click();
+    if (await axes.count()) await axes.selectOption("off");
+    await page.keyboard.press("Escape");
+  }
+  await journey.step("selection-label", "A pipe selected from its label: its label emphasised", async () => selectInView(page, "pipe", "pipe:P-120"));
+  await journey.step("isolate", "Isolate: the selection drawn, everything else dimmed", async () => {
+    await (await viewportControl(page, page.getByRole("button", { name: "Isolate", exact: true }))).click();
+  });
+  await journey.step("hidden-show-all", "Hide: the pipe hidden, and the status line's Show all", async () => {
+    await (await viewportControl(page, page.getByRole("button", { name: "Show All", exact: true }))).click();
+    await selectInView(page, "pipe", "pipe:P-120");
+    await (await viewportControl(page, page.getByRole("button", { name: "Hide", exact: true }))).click();
+    await expect(page.getByTestId("viewport-hidden-count")).toBeVisible();
+  });
+  await page.getByTestId("viewport-hidden-count").click();
+  await journey.step("dark", "The view in the dark theme (View > Dark)", async () => {
+    await page.emulateMedia({ colorScheme: "dark" });
+    await menu(page, "view", "view.theme.dark");
+  });
+  await menu(page, "view", "view.theme.system");
+  await page.emulateMedia({ colorScheme: null });
+
+  const reference = JSON.parse(readFileSync(new URL("../../../fixtures/reference_system/reference_system.json", import.meta.url), "utf8"));
+  await journey.step("reference-system", "The reference system opened: the crowded case for labels", async () => {
+    await openModel(page, reference);
+    await page.getByTestId("view-switch-model").click();
+  });
+  await journey.step("reference-system-both", "The reference system in Both view, beside the table", async () => {
+    await page.getByTestId("view-switch-both").click();
+  });
+  await journey.step("reference-system-front", "The reference system from the front", async () => {
+    await page.getByTestId("view-switch-model").click();
+    await page.getByTestId("viewport-view-front").click();
+  });
+  await journey.step("reference-system-selected", "The reference system with a node selected: its label emphasised and drawn", async () => {
+    await page.getByTestId("viewport-view-isometric").click();
+    const node = reference.nodes[Math.floor(reference.nodes.length / 2)];
+    return selectInView(page, "node", node.id);
+  });
   journey.finish();
 });
