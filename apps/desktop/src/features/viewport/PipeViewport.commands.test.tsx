@@ -1,4 +1,4 @@
-import { act, render, screen } from "@testing-library/react";
+import { act, render, screen, waitFor } from "@testing-library/react";
 import { describe, expect, it, vi } from "vitest";
 import { DisplayUnitsProvider } from "../display-units";
 import { fitRowCommand } from "../model-tree/runSheet/RunSheet";
@@ -32,5 +32,32 @@ describe("Fit row in viewport", () => {
     expect(status()).toHaveTextContent("Fit Selection requested; the 3D renderer is unavailable.");
     send(fitRowCommand(null));
     expect(status()).toHaveTextContent("Fit Selection: nothing it names is drawn; the view is unchanged.");
+  });
+});
+
+describe("Measure, armed, refusing a pick", () => {
+  const distance = () => screen.queryByTestId("viewport-measurement-readout")?.querySelector('[data-measurement-label="Distance"]') ?? null;
+  const prompt = () => screen.getByTestId("viewport-measure-prompt");
+
+  it("says why in its prompt until the next accepted pick, and clears the finished measurement it does not answer", async () => {
+    const model = await loadPreviewModel();
+    const pipe = model.pipe_segments[0];
+    const support = model.supports[0];
+    const { send } = mount(model, { type: "project", id: model.project.id });
+    send({ type: "set-measurement", active: true });
+    expect(prompt()).toHaveTextContent("Measure: pick a node or a pipe · press Measure again to end");
+    send({ type: "apply-measurement-target", ref: { type: "pipe", id: pipe.id } });
+    await waitFor(() => expect(distance()).not.toBeNull());
+    send({ type: "apply-measurement-target", ref: { type: "support", id: support.id } });
+    expect(prompt()).toHaveTextContent("Measure: a support cannot be measured · pick a node or a pipe · press Measure again to end");
+    expect(distance()).toBeNull();
+    // The next accepted pick ends the refusal.
+    send({ type: "apply-measurement-target", ref: { type: "node", id: pipe.from } });
+    expect(prompt()).toHaveTextContent("Measure: pick a second node · press Measure again to end");
+    // A refusal while a first node waits keeps that node.
+    send({ type: "apply-measurement-target", ref: { type: "support", id: support.id } });
+    expect(prompt()).toHaveTextContent("Measure: a support cannot be measured · pick a second node · press Measure again to end");
+    send({ type: "apply-measurement-target", ref: { type: "node", id: pipe.to } });
+    await waitFor(() => expect(distance()).not.toBeNull());
   });
 });

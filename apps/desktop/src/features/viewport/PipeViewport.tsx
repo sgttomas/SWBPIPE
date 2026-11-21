@@ -587,6 +587,9 @@ export function PipeViewport({
   const [boxPublication, setBoxPublication] = useState<BoxPublication | null>(null);
   const [measurementActive, setMeasurementActive] = useState(false);
   const [measurementSource, setMeasurementSource] = useState<MeasurementSource | null>(null);
+  // Why Measure refused the last pick ("a support cannot be measured"), shown in its prompt until the
+  // next accepted pick.
+  const [measureRefusal, setMeasureRefusal] = useState<string | null>(null);
   const measurementGateRef = useRef(0);
   const [measurementReadout, setMeasurementReadout] = useState<{
     status: "idle" | "pending" | "available" | "unavailable";
@@ -1826,6 +1829,7 @@ export function PipeViewport({
 
   useEffect(() => {
     setMeasurementSource(null);
+    setMeasureRefusal(null);
     setMeasurementActive(false);
     setBoxSelectActive(false);
     setBoxRect(null);
@@ -2611,16 +2615,23 @@ export function PipeViewport({
     if (command.type === "set-measurement") {
       if (command.active) onViewportInteractionStart("measurement");
       setMeasurementActive(command.active);
+      setMeasureRefusal(null);
       if (command.active) cancelBoxSelection();
       setViewCommandStatus(`Measurement ${command.active ? "enabled" : "disabled"}.`);
       return;
     }
     if (command.type === "apply-measurement-target") {
+      // Whether Measure takes the pick depends only on what was picked.
+      const verdict = applyMeasurementTargetCommand(activeModelIndex, null, command.ref);
+      setPlacementMessage(verdict.message);
+      setViewCommandStatus(verdict.message);
+      setMeasureRefusal(verdict.accepted ? null : `a ${command.ref.type} cannot be measured`);
       setMeasurementSource((current) => {
-        const result = applyMeasurementTargetCommand(activeModelIndex, current, command.ref);
-        setPlacementMessage(result.message);
-        setViewCommandStatus(result.message);
-        return result.source;
+        if (verdict.accepted) return applyMeasurementTargetCommand(activeModelIndex, current, command.ref).source;
+        // A refused pick clears a finished measurement, which would otherwise stand as if it answered
+        // this pick; a first node still waiting for its second is kept.
+        const finished = current?.kind === "pipe" || (current?.kind === "nodes" && current.keys.length === 2);
+        return finished ? null : current;
       });
       return;
     }
@@ -2696,7 +2707,7 @@ export function PipeViewport({
   const actualOdStatusShown = geometryMode === "actual-od" && actualOd.status !== "available";
   // Measure, while armed and short of its two points, says what it waits for.
   const measurePrompt = measurementActive && measurementPoints.length < 2
-    ? `Measure: pick ${measurementPoints.length === 0 ? "a node or a pipe" : "a second node"} · press Measure again to end`
+    ? `Measure: ${measureRefusal ? `${measureRefusal} · ` : ""}pick ${measurementPoints.length === 0 ? "a node or a pipe" : "a second node"} · press Measure again to end`
     : null;
   const isolatedCount = isolationActive ? isolationSelectionKeys?.size ?? 0 : 0;
   const viewportStatusShown = Boolean(elementAxes) || hiddenCount > 0 || isolationActive || Boolean(measurePrompt) || selectedHiddenCount > 0 || actualOdStatusShown ||
