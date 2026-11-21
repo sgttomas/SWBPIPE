@@ -98,7 +98,8 @@ fn assert_canonical_eq(produced: &Value, committed: &Value, what: &str) {
 
 /// The report input without the members the host derives: no result rows,
 /// references, unit display summary or coordinate systems, and only the
-/// Diagnostics entries that follow the result's.
+/// Diagnostics entries that follow the result's. Where the source has
+/// diagnostics, the sections checksum the input still states is then stale.
 fn without_row_scale_members(built: &Built) -> Value {
     let mut report = built.report.clone();
     let source_diagnostics = built.source["diagnostics"].as_array().unwrap().len();
@@ -107,7 +108,6 @@ fn without_row_scale_members(built: &Built) -> Value {
     assert!(report["calculation_report"]["model_input_summary"].as_object_mut().unwrap().remove("unit_display_summary").is_some());
     assert!(report["report_context"].as_object_mut().unwrap().remove("result_coordinate_systems").is_some());
     report["report_sections"]["diagnostics"].as_array_mut().unwrap().drain(..source_diagnostics);
-    report["calculation_report"]["report_section_refs"][0]["checksum"]["value"] = json!("TBD");
     report
 }
 
@@ -298,17 +298,24 @@ fn the_seal_refuses_any_other_sections_reference() {
 fn a_placed_input_is_not_a_renderer_input_until_it_is_sealed() {
     use open_pipe_stress_report_renderer::decode_renderable_report_input;
     let built = built_reports().into_iter().next().unwrap();
-    let mut report = without_row_scale_members(&built);
-    assert_eq!(report["calculation_report"]["report_section_refs"][0]["checksum"]["value"], "TBD");
-    place_members(&mut report, &built.model, &built.source).unwrap();
-    assert!(report["calculation_report"]["report_section_refs"][0]["checksum"].get("value").is_none());
-    assert!(decode_renderable_report_input(report.clone()).is_err());
-    seal_report_sections(&mut report).unwrap();
-    assert!(decode_renderable_report_input(report).is_ok());
+    let committed = built.report["calculation_report"]["report_section_refs"][0]["checksum"]["value"].clone();
+    // Whatever the input states is removed: the builder's own digest, stale once the
+    // result's Diagnostics are placed, and a placeholder alike.
+    for stated in [committed.clone(), json!("TBD"), json!("0".repeat(64))] {
+        let mut report = without_row_scale_members(&built);
+        report["calculation_report"]["report_section_refs"][0]["checksum"]["value"] = stated;
+        place_members(&mut report, &built.model, &built.source).unwrap();
+        assert!(report["calculation_report"]["report_section_refs"][0]["checksum"].get("value").is_none());
+        assert!(decode_renderable_report_input(report.clone()).is_err());
+        seal_report_sections(&mut report).unwrap();
+        assert_eq!(report["calculation_report"]["report_section_refs"][0]["checksum"]["value"], committed);
+        assert!(decode_renderable_report_input(report).is_ok());
+    }
+    assert_eq!(committed.as_str().unwrap().len(), 64);
 }
 
-/// A refused placement leaves the members it reached before the refusal, so
-/// the caller discards the input; nothing is derived from an unreadable source.
+/// Nothing is derived from an unreadable source, and the report input offered
+/// with it is unchanged.
 #[test]
 fn an_unreadable_source_derives_nothing() {
     let built = built_reports().into_iter().next().unwrap();
@@ -481,8 +488,24 @@ fn the_result_document_is_the_desktop_assemblys() {
 fn a_run_record_with_a_rule_pack_exclusion_has_no_native_document() {
     let fixture = parse(USER_RELEASE_EXACT[0].1);
     let manifest_ref = fixture["request"]["audit_manifest"]["manifest_id"].as_str().unwrap();
+    // The run record's diagnostic for an excluded reference, as the desktop's
+    // `rulePackRefDiagnostic` and the host's `rule_pack_ref_diagnostic` write it.
+    let identity = "invented-pack@1.0.0";
+    let exclusion = json!({"source_annotation": {
+        "id": format!("diagnostic:rule-pack-ref:{identity}"),
+        "code": "MODEL-RULE-PACK-REF-UNRESOLVED",
+        "severity": "warning",
+        "message": format!("Rule pack {identity} is referenced by the model, but the local rule-pack store held no such pack for this project at solve time; it is not among this run's rule-pack references."),
+        "source": "desktop/solve-rule-pack-resolution",
+        "affected_refs": [identity]
+    }});
     let mut run_record = fixture["run_record"].clone();
-    run_record["analysis_run"]["diagnostics"].as_array_mut().unwrap().push(json!({"source_annotation": {"code": "MODEL-RULE-PACK-REF-UNRESOLVED"}}));
+    run_record["analysis_run"]["diagnostics"].as_array_mut().unwrap().push(exclusion);
     let error = result_document(&fixture["model"], &fixture["source"], &run_record, manifest_ref, &fixture["input_manifest"]["solver_basis"]).unwrap_err();
-    assert!(error.starts_with("REPORT-USER-RELEASE-BASIS-INVALID: "), "{error}");
+    assert_eq!(
+        error,
+        "REPORT-USER-RELEASE-BASIS-INVALID: the run record carries diagnostics the source does not (a rule-pack reference exclusion is outside scope R)"
+    );
+    // The same run record without it has a document.
+    result_document(&fixture["model"], &fixture["source"], &fixture["run_record"], manifest_ref, &fixture["input_manifest"]["solver_basis"]).unwrap();
 }

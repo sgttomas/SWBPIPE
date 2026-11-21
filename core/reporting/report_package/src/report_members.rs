@@ -11,12 +11,15 @@
 //!
 //! Each producer's output equals the desktop builder's in canonical form
 //! (RFC 8785), for a result the product reader admits and a run record made
-//! for it. Outside that they differ, and fail closed: they refuse a row with
-//! no id or a unit that is not text, a diagnostic reference that is not text
-//! and a number the checked canonical form does not admit, where the builder
-//! writes a placeholder; and they write the row's digest where the builder,
-//! given a run record entry with none, writes `TBD`. The rows and the Diagnostics are the projections the request
-//! checks already apply ([`crate::bindings::expected_report_result_rows`],
+//! for it. Outside that domain the two differ, and the native side refuses:
+//! a row with no id, a unit or a diagnostic reference that is not text, and a
+//! number the checked canonical form does not admit are each written out in
+//! some form by the builder and refused here. One difference is not a
+//! refusal: given a run record entry with no row digest the builder writes
+//! `TBD`, and the producer writes the row's digest.
+//!
+//! The rows and the Diagnostics are the projections the request checks
+//! already apply ([`crate::bindings::expected_report_result_rows`],
 //! [`crate::bindings::expected_report_diagnostics`]); the references carry the
 //! row digest [`crate::bindings::check_report_result_refs`] requires. Parity:
 //! `tests/report_members_parity.rs`, on report inputs the desktop's builder
@@ -163,9 +166,13 @@ fn sections_checksum(report: &mut Value) -> Result<&mut serde_json::Map<String, 
 /// no place for a member. Every refusal is decided before anything is
 /// written, so a refused input is unchanged.
 ///
-/// The Diagnostics a caller sends cannot be told from the result's this way:
-/// the caller's own check of the session entries follows (the desktop host's
-/// `report_session_diagnostics`). The generic route's numerical-health lines,
+/// The entries a caller sends in `report_sections.diagnostics` are kept as
+/// sent, after the result's: placement does not examine them, so a copy of a
+/// result diagnostic among them is placed twice. Whether they are the
+/// session's is the caller's check (the desktop host's
+/// `report_session_diagnostics`, which the exact-route and pressure-free
+/// Timoshenko bindings run; DEL-08-01's scope records that other pressure-free
+/// reports have no such check). The generic route's numerical-health lines,
 /// which the desktop appends to `result_rows`, are not placed here.
 ///
 /// The completed sections no longer have the checksum the input stated, so
