@@ -194,7 +194,7 @@ publisher identity, CI provider, and coverage thresholds remain `TBD`.
 | Decision | Current state |
 |---|---|
 | MVP private project storage substrate | SCA-003 local SQLite-backed project store/index; canonical JSON/JCS-compatible payload bytes remain the domain and interchange truth, and SQLite is not a public contract. |
-| Operating-system roots, storage-root selection, and portable export/copy workflow | `TBD`; no OS-specific root, final application data directory, or portable project copy/export UX is selected. |
+| Operating-system roots, storage-root selection, and portable export/copy workflow | `TBD`; no OS-specific root or final application data directory is selected. A portable project export or copy is not provided in v1.0 (`docs/RELEASE_LIMITATIONS_v1.0.md`, LIM-045). |
 | Product schema and DB migration mechanics | `TBD`; migration-aware persistence remains required. |
 | Encryption for private rule packs or libraries | `TBD`; no default encryption claim is made here. |
 | Secret storage and signing-key process | `TBD`; real secrets are prohibited in public artifacts. |
