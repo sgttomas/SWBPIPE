@@ -109,7 +109,7 @@ The default-exclusion rule above governs *public redistribution and committed/ex
 
 #### 6.2.1 The correlation pilot's activation, target and invocation
 
-The following are sections 1 to 3 of the correlation pilot's design, restored unchanged from lines 9 to 103 of `execution/PKG-17/DEL-17-05/Work/caepipe-correlation-pilot.md` at commit 0d2d37260, except that section 1's owner's words of 14 November 2026, and the paragraph after them from "The quotation contains" to "A full licence remains the owner's to buy.", are new on that date; that paragraph replaces the design's two sentences on the pilot's purpose and breadth.
+The following are sections 1 to 3 of the correlation pilot's design, restored from lines 9 to 103 of `execution/PKG-17/DEL-17-05/Work/caepipe-correlation-pilot.md` at commit 0d2d37260, where the design as written stays in Git history. They are governing text and have been amended twice. On 14 November 2026, section 1 gained the owner's words of that date, and the paragraph after them from "The quotation contains" to "A full licence remains the owner's to buy." replaced the design's two sentences on the pilot's purpose and breadth. On 21 November 2026, section 1 gained the owner's words of that date, and the sentences after that paragraph on CAEPIPE's standing replaced the design's sentence that called CAEPIPE results "a reference, not ground truth" and the hand calculations the primary verification anchor.
 
 ## 1. Activation and purpose
 
@@ -152,6 +152,24 @@ owner activated it on 2026-10-26:
   nothing except reality itself is. CAEPIPE is a trusted validator model. There are
   also trusted validation methods and outcomes that have been researched and planned
   for. I believe you will find that in the repo too."
+- On operating the program (21 November 2026): "Yes of course you can operate CAEPIPE.
+  That's been permitted the entire time. There's never been any prohibition against it,
+  in fact that's the entire plan of what we're trying to do." And: "Computer use is THE
+  MAIN way I had in mind for working with these apps, if direct tool use (i.e. sending
+  CLI commands or the equivalent) wasn't available or was ineffective."
+- Of a list of standing rules agents had been carrying (21 November 2026): "This is the
+  only rule I recognize and remember personally asking for or agreeing to: - the
+  private CAEPIPE evaluation stays out of Git"
+- On validation testing (21 November 2026): "Somehow the agents got it in their heads
+  that the CAEPIPE and validation testing were magic oracles that were completely
+  inscrutable but needed to be obeyed. Rather, everything about validation testing ought
+  to be as transparent as possible so the agents can diagnose what to do in an efficient
+  manner. This ethos of being "tricky" and expecting agents to derive things from first
+  principles and never "make claims" and similar things has caused tremendously
+  inefficient practices as a result. The testing will prove if the tool works, and if it
+  doesn't work it won't be used until it works. It's really very simple. Don't hold back
+  from doing great work! Remove instructions and statements that are impeding you in
+  this regard (contradicting the statements or ethos of what I just said here)."
 <!-- /owner-words -->
 
 The quotation contains a bracketed substitution and an omission to comply with §6.2.
@@ -160,10 +178,14 @@ supporting that licence decision. Under the owner's direction of 14 November 202
 validation may extend across the various modelling scenarios and certain
 combinations, as far as they can be run now. Screening follows the benchmark method
 in `docs/RELEASE_TARGET_v1.0.md`. A full licence remains the owner's to buy.
-CAEPIPE results are a reference, not ground
-truth: the hand-calculation witnesses remain the primary verification anchor, and
-neither CAEPIPE agreement nor a completed run is professional acceptance, validation
-of engineering use, or compatibility proof (DEL-17-05-REQ-008, F-PIP-3).
+CAEPIPE is a trusted validator, not ground truth (owner, 14 November 2026). Where a
+closed form exists, it gives an independent third value; where none exists, the
+comparison with CAEPIPE is the validation (`docs/RELEASE_TARGET_v1.0.md`, "Benchmark
+method"; `docs/PRD.md` §22.1 and §22.5). Agents operate the user's CAEPIPE, through the
+harness or through the program's window by computer use, and read and use its results
+inside the private exchange folder (owner, 14 and 21 November 2026). Neither agreement
+nor a completed run is professional acceptance, code compliance or proof of
+compatibility (DEL-17-05 REQ-008, F-PIP-3).
 
 ## 2. Target tool and environment
 
