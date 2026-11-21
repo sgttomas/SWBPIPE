@@ -53,8 +53,9 @@ It serves SOW-014 under OBJ-003 and OBJ-005 (`execution/_Decomposition/SOFTWARE_
 
 - A combination that includes a hydrostatic test case is withheld by name (DEL-05-01). v1.0 does not define what such a combination means.
 - The held-status subtrahend (REQ-013) is offered on the pressure-free route only. On the exact route a subtraction that asks for it is refused by name.
+- The declared difference basis (REQ-012) is offered on the pressure-free route only. On the exact route a combination that declares one is refused by name (`LOAD_COMBINATION_DIFFERENCE_BASIS_EXACT_UNSUPPORTED`), and its gate (issue #451) follows after v1.0 (Agent 0, 2026-11-20). AC-012's declared basis therefore stays unmet for v1.0.
 
-Each is a release limitation (exit criterion 3; LIM-003 and LIM-004 in `docs/RELEASE_LIMITATIONS_v1.0.md`).
+Each is a release limitation (exit criterion 3; LIM-003, LIM-004 and LIM-038 in `docs/RELEASE_LIMITATIONS_v1.0.md`).
 
 ## Completion and Reliance Basis — Epistemology
 
