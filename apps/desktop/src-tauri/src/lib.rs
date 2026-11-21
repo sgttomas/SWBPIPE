@@ -5501,6 +5501,21 @@ const NATIVE_FILE_MENU: &[Option<(&str, &str, Option<&str>)>] = &[
     Some(("file.save-shareable-report-package", "Save Shareable Report Package…", None)),
 ];
 
+/// The workspace sections the native View menu lists, in order, with the in-DOM
+/// menu's labels: the same set as `VIEW_MENU_SECTIONS` (`menuCommands.ts`). Review
+/// changes and Load Cases are not listed, because the rail and the stage tabs reach
+/// them in every state; the webview still accepts their `view.section.*` ids.
+const NATIVE_VIEW_SECTIONS: &[(&str, &str)] = &[
+    ("view.section.libraries", "Libraries"),
+    ("view.section.rule-packs", "Rules"),
+    ("view.section.solve", "Analyze"),
+    ("view.section.results", "Results"),
+    ("view.section.report", "Report"),
+    ("view.section.project", "Project"),
+    ("view.section.exports", "Exports"),
+    ("view.section.evidence", "Evidence"),
+];
+
 // Native macOS menu bar (TP-R3UX-CADSHELL). Each custom item carries the same
 // command id the in-DOM menu uses; on click the backend injects one typed DOM
 // event into the main webview, where the React command sink dispatches it.
@@ -5591,7 +5606,7 @@ fn build_app_menu<R: tauri::Runtime>(
         .checked(false)
         .build(handle)?;
 
-    let view = SubmenuBuilder::new(handle, "View")
+    let mut view = SubmenuBuilder::new(handle, "View")
         .item(&view_table)
         .item(&view_model)
         .item(&view_both)
@@ -5601,24 +5616,14 @@ fn build_app_menu<R: tauri::Runtime>(
         .item(&stage_results)
         .item(&stage_review)
         .separator()
-        .text("view.tree", "Model Tree")
         .item(&inspector)
-        .separator()
-        .text("view.section.operations", "Operation Apply")
-        .text("view.section.loads", "Load Cases")
-        .text("view.section.libraries", "Libraries")
-        .text("view.section.rule-packs", "Rule Packs")
-        .text("view.section.solve", "Solve")
-        .text("view.section.results", "Results")
-        .text("view.section.report", "Report")
-        .text("view.section.project", "Project")
-        .text("view.section.exports", "Exports")
-        .text("view.section.evidence", "Audit & Boundaries")
+        .separator();
+    for (id, label) in NATIVE_VIEW_SECTIONS {
+        view = view.text(*id, *label);
+    }
+    let view = view
         .separator()
         .text("view.issues", "Issues")
-        .text("view.audit", "Audit & Boundaries Drawer")
-        .separator()
-        .text("view.close-panels", "Close Panel (show viewport)")
         .separator()
         .item(&theme_light)
         .item(&theme_dark)
@@ -5626,6 +5631,8 @@ fn build_app_menu<R: tauri::Runtime>(
         .separator()
         .item(&density_comfortable)
         .item(&density_compact)
+        .separator()
+        .text("view.close-panels", "Close Page")
         .build()?;
 
     let insert = SubmenuBuilder::new(handle, "Insert")
@@ -7050,6 +7057,30 @@ mod tests {
         );
         let escaped = native_menu_dispatch_script("view.section.\"report\"");
         assert!(escaped.contains("view.section.\\\"report\\\""));
+    }
+
+    /// The native View menu lists the sections the in-DOM one lists (`VIEW_MENU_SECTIONS`,
+    /// `menuCommands.ts`), under the same labels, and not the routes the rail and the
+    /// stage tabs already give (Review changes, Load Cases, the table drawer).
+    #[test]
+    fn native_view_menu_lists_the_in_dom_sections_under_their_labels() {
+        assert_eq!(
+            NATIVE_VIEW_SECTIONS,
+            &[
+                ("view.section.libraries", "Libraries"),
+                ("view.section.rule-packs", "Rules"),
+                ("view.section.solve", "Analyze"),
+                ("view.section.results", "Results"),
+                ("view.section.report", "Report"),
+                ("view.section.project", "Project"),
+                ("view.section.exports", "Exports"),
+                ("view.section.evidence", "Evidence"),
+            ]
+        );
+        for removed in ["view.tree", "view.section.operations", "view.section.loads"] {
+            assert!(NATIVE_VIEW_SECTIONS.iter().all(|(id, _)| *id != removed), "{removed} is not listed");
+            assert!(native_menu_dispatch_script(removed).contains(&format!("detail: \"{removed}\"")));
+        }
     }
 
     fn sample_native_shell_state() -> NativeShellState {

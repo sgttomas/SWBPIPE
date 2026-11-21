@@ -12,12 +12,11 @@ import { validateOperationBatch } from "../../services/operationBatchService";
 import type { EditorOperationIntent, OperationOutcomeDiagnostic, PreviewModel } from "../../types";
 import { EngineFeedback, isBlocking } from "../condition-sets/engineCheckedQueue";
 import { VirtualTargetPicker } from "../workspace/VirtualTargetPicker";
-import { NONLINEAR_MECHANICS_TEXT, UNSIGNED_GATE_TEXT, constantEffortSupportIds, nonlinearSupportIds } from "./combinationAuthoring";
+import { NONLINEAR_MECHANICS_TEXT, constantEffortSupportIds, nonlinearSupportIds } from "./combinationAuthoring";
+import { More } from "./LoadsPageParts";
 import {
   SEISMIC_AXES,
   SEISMIC_TEMPLATE_APPLY_TEXT,
-  SEISMIC_TEMPLATE_BOUNDARY,
-  SEISMIC_TEMPLATE_EXPLANATION,
   SEISMIC_TEMPLATE_LABEL,
   emptySeismicTemplateDraft,
   proposeSeismicIds,
@@ -35,7 +34,7 @@ type Props = {
   operationBusy?: boolean;
   preparationEpoch?: number;
   getPreparationEpoch?: () => number;
-  /** Reveals the existing Create load case editor and focuses its first field. */
+  /** Opens the page's New load case form and focuses its first field. */
   onCreateLoadCase?: () => void;
   /** Ids another draft in the panel proposes, so the template proposes different ones. */
   avoidIds?: readonly string[];
@@ -129,25 +128,18 @@ export function SeismicTemplateSection(props: Props) {
 
   return (
     <section className="combination-create-editor seismic-template" aria-label={`${SEISMIC_TEMPLATE_LABEL} template`} data-testid="seismic-template">
-      <div className="load-editor-heading">
-        <ListPlus size={14} aria-hidden="true" />
-        <strong>{SEISMIC_TEMPLATE_LABEL} (template)</strong>
-        <span>three axis-state differences and one unsigned combination over them</span>
-      </div>
       <p className="muted" data-testid="seismic-template-cases-note">
-        Choose explicit, complete cases: a base case, and for each axis a case holding the base's actions plus that axis's static excitation.
-        The template creates no load case. If you need the axis-state cases, create each with Create load case and enter its loads (the base's and the
-        excitation) through its own editors; the case's load/reference state offers "Copy analysis state from another case" for review.{" "}
+        Choose a base case and, for each axis, a case holding the base's loads plus that axis's static excitation; the template creates no load case.{" "}
         {props.onCreateLoadCase ? (
           <button
             type="button"
             data-testid="seismic-template-create-load-case"
             onClick={() => {
               props.onCreateLoadCase?.();
-              setCreateLoadCaseNotice("Create load case (above, in this panel) is shown with its ID field focused. Create the axis-state case there, then enter the base's loads and the excitation through the case's own editors.");
+              setCreateLoadCaseNotice("New load case is open above with its label field focused. Create the axis-state case there, then enter the base's loads and the excitation in that case's Loads.");
             }}
           >
-            Go to Create load case
+            New load case
           </button>
         ) : null}
       </p>
@@ -172,17 +164,19 @@ export function SeismicTemplateSection(props: Props) {
             <input aria-label={`${AXIS_NAME[axis]} seismic difference factor`} data-testid={`seismic-template-factor-${axis}`} inputMode="decimal" value={draft.factors[axis]} onChange={(event) => setFactor(axis, event.target.value)} />
           </label>
         ))}
-        {SEISMIC_AXES.map((axis) => (
-          <label key={axis}>
-            <span>{AXIS_NAME[axis]} difference id</span>
-            <input aria-label={`${AXIS_NAME[axis]} seismic difference id`} data-testid={`seismic-template-difference-id-${axis}`} value={draft.differenceIds[axis]} onChange={(event) => setDifferenceId(axis, event.target.value)} />
+        <More testId="seismic-template-more">
+          {SEISMIC_AXES.map((axis) => (
+            <label key={axis}>
+              <span>{AXIS_NAME[axis]} difference id</span>
+              <input aria-label={`${AXIS_NAME[axis]} seismic difference id`} data-testid={`seismic-template-difference-id-${axis}`} value={draft.differenceIds[axis]} onChange={(event) => setDifferenceId(axis, event.target.value)} />
+            </label>
+          ))}
+          <label>
+            <span>Combination id</span>
+            <input aria-label="Seismic combination id" data-testid="seismic-template-combination-id" value={draft.combinationId} onChange={(event) => setDraft((current) => ({ ...current, combinationId: event.target.value }))} />
           </label>
-        ))}
-        <label>
-          <span>Combination id</span>
-          <input aria-label="Seismic combination id" data-testid="seismic-template-combination-id" value={draft.combinationId} onChange={(event) => setDraft((current) => ({ ...current, combinationId: event.target.value }))} />
-        </label>
-        <button type="button" data-testid="seismic-template-queue" disabled={Boolean(problem) || busy || Boolean(operationBusy)} title={problem ?? "Check the four combinations with the operation engine and queue them"} aria-describedby="seismic-template-status" onClick={() => void checkAndQueue()}>
+        </More>
+        <button className="loads-primary-button" type="button" data-testid="seismic-template-queue" disabled={Boolean(problem) || busy || Boolean(operationBusy)} title={problem ?? "Check the four combinations with the operation engine and queue them"} aria-describedby="seismic-template-status" onClick={() => void checkAndQueue()}>
           <ListPlus size={14} aria-hidden="true" />
           Check and queue
         </button>
@@ -190,10 +184,7 @@ export function SeismicTemplateSection(props: Props) {
       <p className="muted" id="seismic-template-status" data-testid="seismic-template-status">
         {problem ? `Not ready: ${problem}.` : busy ? "Checking with the operation engine…" : "Ready: review the preview, then check and queue."}
       </p>
-      <div className="load-edit-preview" data-testid="seismic-template-preview" aria-label="Seismic template preview">
-        <ul>
-          {SEISMIC_TEMPLATE_EXPLANATION.map((text) => <li key={text}>{text}</li>)}
-        </ul>
+      <div className="seismic-template-preview" data-testid="seismic-template-preview" aria-label="Seismic template preview">
         {payloads ? (
           <ol data-testid="seismic-template-records">
             {payloads.map((payload, index) => (
@@ -201,22 +192,20 @@ export function SeismicTemplateSection(props: Props) {
                 {index < 3
                   ? `${payload.id}: result_state_subtraction, ${String(payload.minuend_id)} − ${String(payload.subtrahend_id)} (κ = 0; no difference_basis)`
                   : `${payload.id}: ${String(payload.basis)} over ${(payload.terms as Array<{ combination: string; factor: number }>).map((term) => `combination ${term.combination} x ${term.factor}`).join(", ")} (unsigned; not an equilibrium state)`}
-                <code>{JSON.stringify(payload)}</code>
               </li>
             ))}
           </ol>
         ) : null}
-        <p data-testid="seismic-template-gate-fixed-load">
-          {UNSIGNED_GATE_TEXT} The template's operands are κ = 0 differences, so this gate admits them.
-          {constantEffort.length ? ` This model carries constant-effort support${constantEffort.length > 1 ? "s" : ""} ${constantEffort.join(", ")}; the solve decides whether it consumes ${constantEffort.length > 1 ? "them" : "it"}.` : ""}
-        </p>
-        <p data-testid="seismic-template-gate-nonlinear">
-          §5.2: the operands are derived differences, not an equilibrium load state, and the unsigned rows read "not an equilibrium state"; in a model with
-          nonlinear supports they are formed from rows with each operand's standing.
-          {nonlinear.length ? ` This model carries nonlinear support${nonlinear.length > 1 ? "s" : ""} ${nonlinear.join(", ")}. ${NONLINEAR_MECHANICS_TEXT}` : ""}
-        </p>
-        <p data-testid="seismic-template-apply">{SEISMIC_TEMPLATE_APPLY_TEXT}</p>
-        <p data-testid="seismic-template-boundary">{SEISMIC_TEMPLATE_BOUNDARY}</p>
+        {constantEffort.length ? (
+          <p role="note" data-testid="seismic-template-gate-fixed-load">
+            This model carries constant-effort support{constantEffort.length > 1 ? "s" : ""} {constantEffort.join(", ")}; the solve decides whether it consumes {constantEffort.length > 1 ? "them" : "it"}.
+          </p>
+        ) : null}
+        {nonlinear.length ? (
+          <p role="note" data-testid="seismic-template-gate-nonlinear">
+            This model carries nonlinear support{nonlinear.length > 1 ? "s" : ""} {nonlinear.join(", ")}. {NONLINEAR_MECHANICS_TEXT}
+          </p>
+        ) : null}
       </div>
       <EngineFeedback error={error} notice={notice} diagnostics={diagnostics} testId="seismic-template-engine" />
     </section>

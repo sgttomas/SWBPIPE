@@ -23,11 +23,11 @@
 //!   `currentReceivedOrigin` and `currentResultDocumentBase`
 //!   (`resultExportAdapter.ts`), then `derive_document`, unchanged;
 //! - [`minimal_renderer_input`]: the desktop's user-released renderable input
-//!   (`userReleasedRenderableReportInput`, `renderableReportInput.ts`), with
-//!   the shared row projection ([`expected_report_result_rows`], whose value
-//!   text is `quantity_display::display_quantity`), the shared unit display
-//!   rule ([`QUANTITY_DISPLAY_POLICY`], [`source_displays_scaled_value`]) and
-//!   the shared diagnostics projection ([`expected_report_diagnostics`]);
+//!   (`userReleasedRenderableReportInput`, `renderableReportInput.ts`), its
+//!   row-scale members from the shared producers ([`crate::report_members`]):
+//!   the shared row projection, whose value text is
+//!   `quantity_display::display_quantity`, the shared unit display rule and
+//!   the shared diagnostics projection;
 //! - [`derive`]: the request as `assembleUserReleasedReportPackageRequest`
 //!   (`reportPackageRequest.ts`) writes it, self-checked with the producer's
 //!   [`check_report_result_refs`] and [`check_unit_display_summary`].
@@ -62,11 +62,8 @@
 //! implies no acceptance, issuance or lifecycle standing.
 //! Standard claim fence applies (claims taxonomy per DEC-081).
 
-use crate::bindings::{
-    check_report_result_refs, check_unit_display_summary, expected_report_diagnostics, expected_report_result_rows,
-};
+use crate::bindings::{check_report_result_refs, check_unit_display_summary};
 use crate::admitted;
-use crate::quantity_display::{source_displays_scaled_value, QUANTITY_DISPLAY_POLICY};
 use crate::wire::{decode_report_package_request, LinkedSolverIdentity};
 use open_pipe_stress_canonical_json::canonical_json;
 use open_pipe_stress_report_renderer::UserReleaseRecord;
@@ -349,7 +346,7 @@ fn trimmed(value: Option<&Value>) -> Option<&str> {
 /// form feed, U+FEFF and the Space_Separator characters) and LineTerminator
 /// (line feed, carriage return, U+2028, U+2029) code points. Unlike Rust's
 /// `trim`, it keeps U+0085.
-fn js_trim(text: &str) -> &str {
+pub(crate) fn js_trim(text: &str) -> &str {
     text.trim_matches(|c: char| {
         matches!(
             c,
@@ -368,7 +365,7 @@ fn utf16_order(left: &str, right: &str) -> Ordering {
     left.encode_utf16().cmp(right.encode_utf16())
 }
 
-fn sorted_unique(items: impl Iterator<Item = String>) -> Vec<String> {
+pub(crate) fn sorted_unique(items: impl Iterator<Item = String>) -> Vec<String> {
     let mut unique: Vec<String> = items.collect::<BTreeSet<_>>().into_iter().collect();
     unique.sort_by(|left, right| utf16_order(left, right));
     unique
@@ -675,7 +672,7 @@ fn report_checksum(payload_ref: &Value, value: Option<&str>) -> Value {
     })
 }
 
-fn report_envelope(payload_ref: Value, schema_id: &str, value: Option<&str>, provenance: &Value) -> Value {
+pub(crate) fn report_envelope(payload_ref: Value, schema_id: &str, value: Option<&str>, provenance: &Value) -> Value {
     json!({
         "ref": payload_ref,
         "schema_ref": reference("schema", schema_id),
@@ -695,13 +692,7 @@ fn report_context(source: &Value, run: &Value, input_manifest: &Value, software:
     let mut keys: Vec<&String> = settings.keys().collect();
     keys.sort_by(|left, right| utf16_order(left, right));
     let solver_settings: Vec<Value> = keys.into_iter().map(|key| json!({"key": key, "value": canonical_json(&settings[key])})).collect();
-    let coordinate_systems = sorted_unique(
-        array(source, "/results")?
-            .iter()
-            .filter_map(|row| row.pointer("/metadata/coordinate_system").and_then(Value::as_str))
-            .filter(|system| !js_trim(system).is_empty() && *system != "TBD")
-            .map(str::to_string),
-    );
+    let coordinate_systems = crate::report_members::result_coordinate_systems(source)?;
     let name = js_trim(&software.name);
     Ok(json!({
         "export_context": USER_RELEASED_CONTEXT,
@@ -721,6 +712,27 @@ fn report_context(source: &Value, run: &Value, input_manifest: &Value, software:
         "result_coordinate_systems": coordinate_systems,
         "user_release": serde_json::to_value(record).map_err(|error| invalid(format_args!("the record does not serialize ({error})")))?
     }))
+}
+
+/// The run record's `result_refs` against the report's row references, which
+/// are derived from the source rows: one per row, in order, each naming the
+/// row and carrying its digest. A run record made for another result refuses
+/// here, as the report's row checksums would.
+fn check_run_record_result_refs(run: &Value, result_export_refs: &[Value]) -> Result<(), String> {
+    let recorded = array(run, "/result_refs")?;
+    if recorded.len() != result_export_refs.len() {
+        return Err(format!("{}: report result references cover the source rows", crate::bindings::BINDING_MISMATCH));
+    }
+    for (item, entry) in recorded.iter().zip(result_export_refs) {
+        let id = entry.pointer("/ref/ref_id").and_then(Value::as_str).unwrap_or("");
+        if mapped_object_ref(&item["result_ref"], "a run record result reference")? != entry["ref"] {
+            return Err(format!("{}: report result reference {id}", crate::bindings::BINDING_MISMATCH));
+        }
+        if item.pointer("/hash_refs/0/value").and_then(Value::as_str) != entry.pointer("/checksum/value").and_then(Value::as_str) {
+            return Err(format!("{}: report row checksum {id}: value", crate::bindings::BINDING_MISMATCH));
+        }
+    }
+    Ok(())
 }
 
 /// The minimal native renderer input (§2.6): the title, the model summary,
@@ -746,13 +758,7 @@ pub fn minimal_renderer_input(
     let statuses = report_analysis_status(run)?;
     let unresolved: Vec<&Value> = array(run, "/reproducibility/unresolved_tbd")?.iter().collect();
 
-    let diagnostics = expected_report_diagnostics(source)?
-        .into_iter()
-        .map(|mut entry| {
-            entry["provenance"] = provenance.clone();
-            entry
-        })
-        .collect::<Vec<_>>();
+    let diagnostics = crate::report_members::result_diagnostics(source, &provenance)?;
     let mut disclosures: Vec<Value> = statuses
         .iter()
         .filter(|status| status.as_str() != HUMAN_REVIEW_REQUIRED)
@@ -818,10 +824,6 @@ pub fn minimal_renderer_input(
     }
     let sections_checksum = digest(&report_sections)?;
 
-    let units = model.pointer("/project/units").filter(|units| units.is_object()).ok_or_else(|| invalid("/project/units is not an object"))?;
-    let result_units = sorted_unique(
-        array(source, "/results")?.iter().filter_map(|row| row["unit"].as_str()).filter(|unit| !unit.is_empty()).map(str::to_string),
-    );
     let input_manifest_ref = run
         .pointer("/reproducibility/input_manifest_refs/0")
         .map(|item| mapped_object_ref(item, "the run record's input-manifest reference"))
@@ -842,13 +844,10 @@ pub fn minimal_renderer_input(
             Ok(Value::Object(entry))
         })
         .collect::<Result<Vec<_>, String>>()?;
-    let result_export_refs = array(run, "/result_refs")?
-        .iter()
-        .map(|item| {
-            let payload_ref = mapped_object_ref(&item["result_ref"], "a run record result reference")?;
-            Ok(report_envelope(payload_ref, "schemas/results.schema.yaml", item.pointer("/hash_refs/0/value").and_then(Value::as_str), &provenance))
-        })
-        .collect::<Result<Vec<_>, String>>()?;
+    // The references are derived from the rows (`report_members`); the run
+    // record's `result_refs` must name the same rows with the same digests.
+    let result_export_refs = crate::report_members::result_export_refs(source, &provenance)?;
+    check_run_record_result_refs(run, &result_export_refs)?;
     let unresolved_runtime: Vec<Value> = unresolved
         .iter()
         .enumerate()
@@ -869,13 +868,7 @@ pub fn minimal_renderer_input(
             "model_ref": reference("model", source_model),
             "persistence_ref": reference("project_persistence", "TBD"),
             "unit_system_ref": reference("unit_system", "unit-system:dec-018-si-dual-display"),
-            "unit_display_summary": {
-                "storage_convention": "entered_units_preserved",
-                "model_units": units,
-                "result_units": result_units,
-                "quantity_display_policy": QUANTITY_DISPLAY_POLICY,
-                "conversion_performed": source_displays_scaled_value(source)
-            },
+            "unit_display_summary": crate::report_members::unit_display_summary(model, source)?,
             "model_hash": report_checksum(&reference("model", model_id), Some(&digest(model)?)),
             "input_manifest_ref": input_manifest_ref,
             "provenance": provenance
@@ -916,7 +909,7 @@ pub fn minimal_renderer_input(
         "report_title": format!("{name} — Calculation Report"),
         "calculation_report": calculation_report,
         "report_sections": report_sections,
-        "result_rows": expected_report_result_rows(source)?,
+        "result_rows": crate::report_members::result_rows(source)?,
         "report_context": report_context(source, run, input_manifest, software, record)?
     }))
 }
