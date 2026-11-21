@@ -3454,13 +3454,10 @@ describe("SWBPIPE desktop preview", () => {
       within(manager).getByTestId("load-case-manager-summary").textContent,
     ).toContain("2 load cases; 5 primitive loads; 1 combinations");
     expect(
-      within(manager).getByTestId("load-case-manager-boundary").textContent,
-    ).toContain("structured operations");
-    expect(
       within(manager).getByTestId(
         "load-manager-combination-combination:C-OPER-ALT",
       ).textContent,
-    ).toContain("load:L-100 x 1");
+    ).toContain("L-100 × 1");
 
     fireEvent.click(
       within(manager).getByTestId("load-manager-primitive-load:L-100-T"),
@@ -3469,10 +3466,6 @@ describe("SWBPIPE desktop preview", () => {
       within(manager).getByTestId("load-manager-selected-primitive")
         .textContent,
     ).toContain("load:L-100-T");
-    expect(
-      within(manager).getByTestId("load-manager-selected-primitive")
-        .textContent,
-    ).toContain("primitive_loads.2.magnitude.value");
     expect(
       within(manager).getByTestId("load-manager-edit-preview").textContent,
     ).toContain("current=12.5 degC");
@@ -3489,17 +3482,7 @@ describe("SWBPIPE desktop preview", () => {
         target: { value: "20" },
       },
     );
-    expect(
-      within(manager).getByTestId("load-manager-edit-preview").textContent,
-    ).toContain("op:load-manager-load:L-100-load:L-100-T-magnitude");
-    expect(
-      within(manager).getByTestId("load-manager-edit-preview").textContent,
-    ).toContain('before=12.5; after={"value":20,"unit":"degC"}');
-    expect(
-      within(manager).getByTestId("load-manager-edit-preview").textContent,
-    ).toContain(
-      "unit_validation=model_metadata_unit_dimension_declared_catalog_unavailable_browser_preview",
-    );
+    expect(within(manager).getByTestId("queue-load-magnitude-intent")).toBeEnabled();
     fireEvent.click(within(manager).getByTestId("queue-load-magnitude-intent"));
 
     const applyPanel = operationApplyPanel();
@@ -3533,9 +3516,9 @@ describe("SWBPIPE desktop preview", () => {
     );
 
     expect(
-      within(manager).getByTestId("load-manager-primitive-load:L-100-T")
+      within(manager).getByTestId("load-manager-primitive-load:L-100-T").closest("tr")!
         .textContent,
-    ).toContain("thermal; 20 degC");
+    ).toContain("20degC");
     expect(
       within(applyPanel).getByTestId(
         "applied-operation-route-applied-1-editor-intent-1",
@@ -3568,18 +3551,7 @@ describe("SWBPIPE desktop preview", () => {
     expect(
       within(manager).getByTestId("load-manager-create-load-id"),
     ).toHaveValue("load:L-300");
-    expect(
-      within(manager).getByTestId("load-manager-create-load-preview")
-        .textContent,
-    ).toContain("op:load-manager-create-load:L-300");
-    expect(
-      within(manager).getByTestId("load-manager-create-load-preview")
-        .textContent,
-    ).toContain("primitive_loads=0");
-    expect(
-      within(manager).getByTestId("load-manager-create-load-preview")
-        .textContent,
-    ).toContain("unit_validation=not_required_dimensionless");
+    expect(within(manager).getByTestId("queue-create-load-case-intent")).toBeEnabled();
     fireEvent.change(
       within(manager).getByTestId("load-manager-create-load-label"),
       {
@@ -3609,7 +3581,7 @@ describe("SWBPIPE desktop preview", () => {
     ).toContain("3 load cases; 5 primitive loads; 1 combinations");
     expect(
       within(manager).getByTestId("load-manager-case-load:L-300").textContent,
-    ).toContain("load:L-300; primitive_user_load; draft; primitives=0");
+    ).toContain("primitive_user_load · 0 loads");
     expect(screen.getByLabelText("Property inspector").textContent).toContain(
       "User operating case",
     );
@@ -3659,20 +3631,7 @@ describe("SWBPIPE desktop preview", () => {
     fireEvent.click(
       within(manager).getByTestId("load-manager-case-load:L-300"),
     );
-    expect(
-      within(manager).getByTestId("load-manager-load-case-delete-preview")
-        .textContent,
-    ).toContain("op:load-manager-load:L-300-delete");
-    expect(
-      within(manager).getByTestId("load-manager-load-case-delete-preview")
-        .textContent,
-    ).toContain(
-      "before=load:L-300; Temporary user case; primitive_user_load; draft; primitives=0; after=not_present; unit=none; dimensionless",
-    );
-    expect(
-      within(manager).getByTestId("load-manager-load-case-delete-preview")
-        .textContent,
-    ).toContain("unit_validation=not_required_dimensionless");
+    expect(within(manager).getByTestId("queue-delete-load-case-intent")).toBeEnabled();
     fireEvent.click(
       within(manager).getByTestId("queue-delete-load-case-intent"),
     );
@@ -3717,16 +3676,7 @@ describe("SWBPIPE desktop preview", () => {
     fireEvent.click(
       within(manager).getByTestId("load-manager-case-load:L-100"),
     );
-    expect(
-      within(manager).getByTestId("load-manager-load-case-delete-preview")
-        .textContent,
-    ).toContain("op:load-manager-load:L-100-delete");
-    expect(
-      within(manager).getByTestId("load-manager-load-case-delete-preview")
-        .textContent,
-    ).toContain(
-      "before=load:L-100; Invented operating gravity, occasional and thermal preview; primitive_user_load; preview_only; primitives=3",
-    );
+    expect(within(manager).getByTestId("queue-delete-load-case-intent")).toBeEnabled();
     fireEvent.click(
       within(manager).getByTestId("queue-delete-load-case-intent"),
     );
@@ -3750,7 +3700,7 @@ describe("SWBPIPE desktop preview", () => {
     ).toContain("combination:C-OPER-ALT.terms.0");
     expect(
       within(manager).getByTestId("load-manager-case-load:L-100").textContent,
-    ).toContain("load:L-100; primitive_user_load; preview_only; primitives=3");
+    ).toContain("primitive_user_load · 3 loads");
     expect(
       screen.getByTestId("local-project-review-context").textContent,
     ).toContain("1 pending operation");
@@ -3768,24 +3718,7 @@ describe("SWBPIPE desktop preview", () => {
     ).toHaveValue("load:L-100-F300");
     expectVirtualTargetValue(manager, "load-manager-create-primitive-load-case", "load:L-100");
     expectVirtualTargetValue(manager, "load-manager-create-primitive-node", "node:N-100");
-    await waitFor(() =>
-      expect(
-        within(manager).getByTestId("load-manager-create-primitive-preview")
-          .textContent,
-      ).toContain("op:load-manager-load:L-100-load:L-100-F300-primitive"),
-    );
-    expect(
-      within(manager).getByTestId("load-manager-create-primitive-preview")
-        .textContent,
-    ).toContain("target=node:N-100; direction=global_y; unit=N; force");
-    await waitFor(() =>
-      expect(
-        within(manager).getByTestId("load-manager-create-primitive-preview")
-          .textContent,
-      ).toContain(
-        "unit_validation=model_metadata_unit_dimension_declared_catalog_unavailable_browser_preview",
-      ),
-    );
+    await waitFor(() => expect(within(manager).getByTestId("queue-create-primitive-intent")).toBeEnabled());
 
     fireEvent.change(
       within(manager).getByTestId("load-manager-create-primitive-magnitude"),
@@ -3818,15 +3751,14 @@ describe("SWBPIPE desktop preview", () => {
     ).toContain("2 load cases; 6 primitive loads; 1 combinations");
     expect(
       within(manager).getByTestId("load-manager-case-load:L-100").textContent,
-    ).toContain("load:L-100; primitive_user_load; preview_only; primitives=4");
+    ).toContain("primitive_user_load · 4 loads");
     expect(
-      within(manager).getByTestId("load-manager-primitive-load:L-100-F300")
+      within(manager).getByTestId("load-manager-primitive-load:L-100-F300").closest("tr")!
         .textContent,
-    ).toContain("concentrated_force; 275 N");
+    ).toContain("ForceN-100Global Y275N");
     expect(
-      within(manager).getByTestId("load-manager-primitive-load:L-100-F300")
-        .textContent,
-    ).toContain("load:L-100-F300; node:node:N-100; global_y; dimension=force");
+      within(manager).getByTestId("load-manager-primitive-load:L-100-F300"),
+    ).toHaveAttribute("title", "load:L-100-F300");
     expect(
       within(applyPanel).getByTestId(
         "applied-operation-route-applied-1-editor-intent-1",
@@ -3858,18 +3790,7 @@ describe("SWBPIPE desktop preview", () => {
     ).toHaveValue("load:L-100-D300");
     expectVirtualTargetValue(manager, "load-manager-create-primitive-load-case", "load:L-100");
     expectVirtualTargetValue(manager, "load-manager-create-primitive-pipe", "pipe:P-100");
-    await waitFor(() =>
-      expect(
-        within(manager).getByTestId("load-manager-create-primitive-preview")
-          .textContent,
-      ).toContain("op:load-manager-load:L-100-load:L-100-D300-primitive"),
-    );
-    expect(
-      within(manager).getByTestId("load-manager-create-primitive-preview")
-        .textContent,
-    ).toContain(
-      "target=pipe:P-100; direction=global_y; unit=N/m; force_per_length",
-    );
+    await waitFor(() => expect(within(manager).getByTestId("queue-create-primitive-intent")).toBeEnabled());
 
     fireEvent.change(
       within(manager).getByTestId("load-manager-create-primitive-magnitude"),
@@ -3902,17 +3823,14 @@ describe("SWBPIPE desktop preview", () => {
     ).toContain("2 load cases; 6 primitive loads; 1 combinations");
     expect(
       within(manager).getByTestId("load-manager-case-load:L-100").textContent,
-    ).toContain("load:L-100; primitive_user_load; preview_only; primitives=4");
+    ).toContain("primitive_user_load · 4 loads");
     expect(
-      within(manager).getByTestId("load-manager-primitive-load:L-100-D300")
+      within(manager).getByTestId("load-manager-primitive-load:L-100-D300").closest("tr")!
         .textContent,
-    ).toContain("distributed_force; 120 N/m");
+    ).toContain("Distributed forceP-100Global Y120N/m");
     expect(
-      within(manager).getByTestId("load-manager-primitive-load:L-100-D300")
-        .textContent,
-    ).toContain(
-      "load:L-100-D300; element:pipe:P-100; global_y; dimension=force_per_length",
-    );
+      within(manager).getByTestId("load-manager-primitive-load:L-100-D300"),
+    ).toHaveAttribute("title", "load:L-100-D300");
     expect(
       within(applyPanel).getByTestId(
         "applied-operation-route-applied-1-editor-intent-1",
@@ -3947,16 +3865,7 @@ describe("SWBPIPE desktop preview", () => {
     expect(
       within(manager).getByTestId("load-manager-create-primitive-direction"),
     ).toHaveValue("rotation_z");
-    await waitFor(() =>
-      expect(
-        within(manager).getByTestId("load-manager-create-primitive-preview")
-          .textContent,
-      ).toContain("op:load-manager-load:L-100-load:L-100-M300-primitive"),
-    );
-    expect(
-      within(manager).getByTestId("load-manager-create-primitive-preview")
-        .textContent,
-    ).toContain("target=node:N-100; direction=rotation_z; unit=N*m; moment");
+    await waitFor(() => expect(within(manager).getByTestId("queue-create-primitive-intent")).toBeEnabled());
 
     fireEvent.change(
       within(manager).getByTestId("load-manager-create-primitive-magnitude"),
@@ -3989,17 +3898,14 @@ describe("SWBPIPE desktop preview", () => {
     ).toContain("2 load cases; 6 primitive loads; 1 combinations");
     expect(
       within(manager).getByTestId("load-manager-case-load:L-100").textContent,
-    ).toContain("load:L-100; primitive_user_load; preview_only; primitives=4");
+    ).toContain("primitive_user_load · 4 loads");
     expect(
-      within(manager).getByTestId("load-manager-primitive-load:L-100-M300")
+      within(manager).getByTestId("load-manager-primitive-load:L-100-M300").closest("tr")!
         .textContent,
-    ).toContain("concentrated_moment; 80 N*m");
+    ).toContain("MomentN-100About Z80N*m");
     expect(
-      within(manager).getByTestId("load-manager-primitive-load:L-100-M300")
-        .textContent,
-    ).toContain(
-      "load:L-100-M300; node:node:N-100; rotation_z; dimension=moment",
-    );
+      within(manager).getByTestId("load-manager-primitive-load:L-100-M300"),
+    ).toHaveAttribute("title", "load:L-100-M300");
     expect(
       within(applyPanel).getByTestId(
         "applied-operation-route-applied-1-editor-intent-1",
@@ -4030,10 +3936,6 @@ describe("SWBPIPE desktop preview", () => {
       "thermal",
       "imposed_displacement",
     ]);
-    expect(
-      within(manager).getByTestId("load-manager-pressure-primitive-retired")
-        .textContent,
-    ).toContain("Legacy pressure primitives are retired");
   });
 
   it("queues and applies a thermal primitive load through the manager panel", async () => {
@@ -4060,16 +3962,7 @@ describe("SWBPIPE desktop preview", () => {
     expect(
       await within(manager).findByText("Magnitude (degC, model metadata)"),
     ).toBeInTheDocument();
-    expect(
-      within(manager).getByTestId("load-manager-create-primitive-preview")
-        .textContent,
-    ).toContain("op:load-manager-load:L-100-load:L-100-T300-primitive");
-    expect(
-      within(manager).getByTestId("load-manager-create-primitive-preview")
-        .textContent,
-    ).toContain(
-      "target=pipe:P-100; direction=global_z; unit=degC; temperature_interval",
-    );
+    expect(within(manager).getByTestId("queue-create-primitive-intent")).toBeEnabled();
 
     fireEvent.change(
       within(manager).getByTestId("load-manager-create-primitive-magnitude"),
@@ -4102,17 +3995,14 @@ describe("SWBPIPE desktop preview", () => {
     ).toContain("2 load cases; 6 primitive loads; 1 combinations");
     expect(
       within(manager).getByTestId("load-manager-case-load:L-100").textContent,
-    ).toContain("load:L-100; primitive_user_load; preview_only; primitives=4");
+    ).toContain("primitive_user_load · 4 loads");
     expect(
-      within(manager).getByTestId("load-manager-primitive-load:L-100-T300")
+      within(manager).getByTestId("load-manager-primitive-load:L-100-T300").closest("tr")!
         .textContent,
-    ).toContain("thermal; 12.5 degC");
+    ).toContain("ThermalP-100Global Z12.5degC");
     expect(
-      within(manager).getByTestId("load-manager-primitive-load:L-100-T300")
-        .textContent,
-    ).toContain(
-      "load:L-100-T300; element:pipe:P-100; global_z; dimension=temperature_interval",
-    );
+      within(manager).getByTestId("load-manager-primitive-load:L-100-T300"),
+    ).toHaveAttribute("title", "load:L-100-T300");
     expect(
       within(applyPanel).getByTestId(
         "applied-operation-route-applied-1-editor-intent-1",
@@ -4147,16 +4037,7 @@ describe("SWBPIPE desktop preview", () => {
     expect(
       within(manager).getByTestId("load-manager-create-primitive-direction"),
     ).toHaveValue("UZ");
-    await waitFor(() =>
-      expect(
-        within(manager).getByTestId("load-manager-create-primitive-preview")
-          .textContent,
-      ).toContain("op:load-manager-load:L-100-load:L-100-I300-primitive"),
-    );
-    expect(
-      within(manager).getByTestId("load-manager-create-primitive-preview")
-        .textContent,
-    ).toContain("target=support:S-100; direction=UZ; unit=m; displacement");
+    await waitFor(() => expect(within(manager).getByTestId("queue-create-primitive-intent")).toBeEnabled());
 
     fireEvent.change(
       within(manager).getByTestId("load-manager-create-primitive-magnitude"),
@@ -4189,17 +4070,14 @@ describe("SWBPIPE desktop preview", () => {
     ).toContain("2 load cases; 6 primitive loads; 1 combinations");
     expect(
       within(manager).getByTestId("load-manager-case-load:L-100").textContent,
-    ).toContain("load:L-100; primitive_user_load; preview_only; primitives=4");
+    ).toContain("primitive_user_load · 4 loads");
     expect(
-      within(manager).getByTestId("load-manager-primitive-load:L-100-I300")
+      within(manager).getByTestId("load-manager-primitive-load:L-100-I300").closest("tr")!
         .textContent,
-    ).toContain("imposed_displacement; -0.006 m");
+    ).toContain("Imposed displacementS-100UZ-0.006m");
     expect(
-      within(manager).getByTestId("load-manager-primitive-load:L-100-I300")
-        .textContent,
-    ).toContain(
-      "load:L-100-I300; support:support:S-100; UZ; dimension=displacement",
-    );
+      within(manager).getByTestId("load-manager-primitive-load:L-100-I300"),
+    ).toHaveAttribute("title", "load:L-100-I300");
     expect(
       within(applyPanel).getByTestId(
         "applied-operation-route-applied-1-editor-intent-1",
@@ -4223,28 +4101,13 @@ describe("SWBPIPE desktop preview", () => {
     const primitiveRow = within(manager).getByTestId(
       "load-manager-primitive-load:L-100-Y",
     );
-    expect(primitiveRow.textContent).toContain("occasional; 350 N");
+    expect(primitiveRow.closest("tr")!.textContent).toMatch(/^occasional.*350N$/);
     fireEvent.click(primitiveRow);
     expect(
       await within(manager).findAllByText("Magnitude (N, model metadata)"),
     ).not.toHaveLength(0);
 
-    expect(
-      within(manager).getByTestId("load-manager-primitive-delete-preview")
-        .textContent,
-    ).toContain("op:load-manager-load:L-100-load:L-100-Y-delete");
-    expect(
-      within(manager).getByTestId("load-manager-primitive-delete-preview")
-        .textContent,
-    ).toContain(
-      "before=load:L-100-Y; occasional; node:node:N-140; global_y; 350 N; force",
-    );
-    expect(
-      within(manager).getByTestId("load-manager-primitive-delete-preview")
-        .textContent,
-    ).toContain(
-      "unit_validation=model_metadata_unit_dimension_declared_catalog_unavailable_browser_preview",
-    );
+    expect(within(manager).getByTestId("queue-delete-primitive-load-intent")).toBeEnabled();
     fireEvent.click(
       within(manager).getByTestId("queue-delete-primitive-load-intent"),
     );
@@ -4288,7 +4151,7 @@ describe("SWBPIPE desktop preview", () => {
     ).toContain("2 load cases; 4 primitive loads; 1 combinations");
     expect(
       within(manager).getByTestId("load-manager-case-load:L-100").textContent,
-    ).toContain("load:L-100; primitive_user_load; preview_only; primitives=2");
+    ).toContain("primitive_user_load · 2 loads");
     expect(
       screen.getByTestId("local-project-review-context").textContent,
     ).toContain("0 pending operations");
@@ -4324,10 +4187,10 @@ describe("SWBPIPE desktop preview", () => {
     );
     expect(
       within(manager).getByTestId("load-manager-selected-case").textContent,
-    ).toContain("load:L-100");
+    ).toContain("L-100");
     expect(
-      within(manager).getByTestId("load-manager-selected-case").textContent,
-    ).toContain("field=status");
+      within(manager).getByTestId("load-manager-metadata-field"),
+    ).toHaveValue("status");
     expect(
       within(manager).getByTestId("load-manager-metadata-preview").textContent,
     ).toContain("current=preview_only");
@@ -4339,15 +4202,7 @@ describe("SWBPIPE desktop preview", () => {
         target: { value: "TBD" },
       },
     );
-    expect(
-      within(manager).getByTestId("load-manager-metadata-preview").textContent,
-    ).toContain("op:load-manager-load:L-100-status");
-    expect(
-      within(manager).getByTestId("load-manager-metadata-preview").textContent,
-    ).toContain("before=preview_only; after=TBD");
-    expect(
-      within(manager).getByTestId("load-manager-metadata-preview").textContent,
-    ).toContain("unit_validation=not_required_dimensionless");
+    expect(within(manager).getByTestId("queue-load-metadata-intent")).toBeEnabled();
     expect(queueButton).not.toBeDisabled();
     fireEvent.click(queueButton);
 
@@ -4366,8 +4221,8 @@ describe("SWBPIPE desktop preview", () => {
     );
 
     expect(
-      within(manager).getByTestId("load-manager-case-load:L-100").textContent,
-    ).toContain("load:L-100; primitive_user_load; TBD; primitives=3");
+      within(manager).getByTestId("load-manager-selected-case").textContent,
+    ).toContain("primitive_user_load · TBD");
     expect(screen.getByLabelText("Property inspector").textContent).toContain(
       "TBD",
     );
@@ -4389,8 +4244,8 @@ describe("SWBPIPE desktop preview", () => {
     );
     await waitFor(() =>
       expect(
-        within(manager).getByTestId("load-manager-selected-case").textContent,
-      ).toContain("field=kind; current=primitive_user_load"),
+        within(manager).getByTestId("load-manager-metadata-value"),
+      ).toHaveValue("primitive_user_load"),
     );
     fireEvent.change(
       within(manager).getByTestId("load-manager-metadata-value"),
@@ -4398,12 +4253,7 @@ describe("SWBPIPE desktop preview", () => {
         target: { value: "TBD" },
       },
     );
-    expect(
-      within(manager).getByTestId("load-manager-metadata-preview").textContent,
-    ).toContain("op:load-manager-load:L-100-kind");
-    expect(
-      within(manager).getByTestId("load-manager-metadata-preview").textContent,
-    ).toContain("before=primitive_user_load; after=TBD");
+    expect(within(manager).getByTestId("queue-load-metadata-intent")).toBeEnabled();
     expect(
       within(manager).getByTestId("queue-load-metadata-intent"),
     ).not.toBeDisabled();
@@ -4413,23 +4263,23 @@ describe("SWBPIPE desktop preview", () => {
     render(<App />);
 
     const manager = await loadCaseManager();
+    fireEvent.click(
+      within(manager).getByTestId(
+        "load-manager-combination-select-combination:C-OPER-ALT",
+      ),
+    );
     const termRow = within(manager).getByTestId(
       "load-manager-combination-term-combination:C-OPER-ALT-1",
     );
-    expect(termRow.textContent).toContain("load:L-200 x 0.5");
+    expect(termRow.closest("tr")!.textContent).toContain("L-2000.5");
     fireEvent.click(termRow);
 
     const queueButton = within(manager).getByTestId(
       "queue-combination-factor-intent",
     );
     expect(
-      within(manager).getByTestId("load-manager-selected-combination-term")
-        .textContent,
-    ).toContain("combination:C-OPER-ALT");
-    expect(
-      within(manager).getByTestId("load-manager-selected-combination-term")
-        .textContent,
-    ).toContain("terms.1.factor");
+      within(manager).getByTestId("load-manager-selected-combination-term"),
+    ).toBeInTheDocument();
     expect(
       within(manager).getByTestId("load-manager-combination-factor-preview")
         .textContent,
@@ -4442,18 +4292,7 @@ describe("SWBPIPE desktop preview", () => {
         target: { value: "0.75" },
       },
     );
-    expect(
-      within(manager).getByTestId("load-manager-combination-factor-preview")
-        .textContent,
-    ).toContain("op:load-manager-combination:C-OPER-ALT-term-1-factor");
-    expect(
-      within(manager).getByTestId("load-manager-combination-factor-preview")
-        .textContent,
-    ).toContain("before=0.5; after=0.75");
-    expect(
-      within(manager).getByTestId("load-manager-combination-factor-preview")
-        .textContent,
-    ).toContain("unit_validation=not_required_dimensionless");
+    expect(within(manager).getByTestId("queue-combination-factor-intent")).toBeEnabled();
     expect(queueButton).not.toBeDisabled();
     fireEvent.click(queueButton);
 
@@ -4477,7 +4316,7 @@ describe("SWBPIPE desktop preview", () => {
       within(manager).getByTestId(
         "load-manager-combination-combination:C-OPER-ALT",
       ).textContent,
-    ).toContain("load:L-200 x 0.75");
+    ).toContain("L-200 × 0.75");
     expect(screen.getByLabelText("Property inspector").textContent).toContain(
       "load:L-200 x 0.75",
     );
@@ -4511,11 +4350,7 @@ describe("SWBPIPE desktop preview", () => {
     expect(
       within(manager).getByTestId("load-manager-selected-combination")
         .textContent,
-    ).toContain("combination:C-OPER-ALT");
-    expect(
-      within(manager).getByTestId("load-manager-selected-combination")
-        .textContent,
-    ).toContain("field=basis; current=mechanics");
+    ).toContain("C-OPER-ALT");
     expect(
       within(manager).getByTestId("load-manager-combination-basis-preview")
         .textContent,
@@ -4535,18 +4370,7 @@ describe("SWBPIPE desktop preview", () => {
     fireEvent.change(basisSelect, {
       target: { value: "result_state_subtraction" },
     });
-    expect(
-      within(manager).getByTestId("load-manager-combination-basis-preview")
-        .textContent,
-    ).toContain("op:load-manager-combination:C-OPER-ALT-basis");
-    expect(
-      within(manager).getByTestId("load-manager-combination-basis-preview")
-        .textContent,
-    ).toContain("before=mechanics; after=result_state_subtraction");
-    expect(
-      within(manager).getByTestId("load-manager-combination-basis-preview")
-        .textContent,
-    ).toContain("unit_validation=not_required_dimensionless");
+    expect(within(manager).getByTestId("queue-combination-basis-intent")).toBeEnabled();
     expect(queueButton).not.toBeDisabled();
     fireEvent.click(queueButton);
 
@@ -4575,7 +4399,7 @@ describe("SWBPIPE desktop preview", () => {
       within(manager).getByTestId(
         "load-manager-combination-combination:C-OPER-ALT",
       ).textContent,
-    ).toContain("basis=mechanics");
+    ).toContain("Algebraic sum");
     expect(
       screen.getByTestId("local-project-review-context").textContent,
     ).toContain("1 pending operation");
@@ -4611,6 +4435,12 @@ describe("SWBPIPE desktop preview", () => {
     expect(
       within(manager).getByTestId("load-case-manager-summary").textContent,
     ).toContain("3 load cases; 5 primitive loads; 1 combinations");
+    fireEvent.click(
+      within(manager).getByTestId(
+        "load-manager-combination-select-combination:C-OPER-ALT",
+      ),
+    );
+    fireEvent.click(within(manager).getByTestId("load-manager-add-term"));
     chooseVirtualTarget(
       manager,
       "load-manager-create-combination-term-load-case",
@@ -4625,28 +4455,8 @@ describe("SWBPIPE desktop preview", () => {
       },
     );
 
-    expect(
-      within(manager).getByTestId(
-        "load-manager-create-combination-term-heading",
-      ).textContent,
-    ).toContain("combination:C-OPER-ALT");
-    expect(
-      within(manager).getByTestId(
-        "load-manager-create-combination-term-preview",
-      ).textContent,
-    ).toContain("op:load-manager-combination:C-OPER-ALT-term-2-create");
-    expect(
-      within(manager).getByTestId(
-        "load-manager-create-combination-term-preview",
-      ).textContent,
-    ).toContain(
-      "before=not_present; after=load:L-300 x 0.25; unit=none; dimensionless",
-    );
-    expect(
-      within(manager).getByTestId(
-        "load-manager-create-combination-term-preview",
-      ).textContent,
-    ).toContain("unit_validation=not_required_dimensionless");
+    expectVirtualTargetValue(manager, "load-manager-create-combination-term-combination", "combination:C-OPER-ALT");
+    expect(within(manager).getByTestId("queue-create-combination-term-intent")).toBeEnabled();
     fireEvent.click(
       within(manager).getByTestId("queue-create-combination-term-intent"),
     );
@@ -4674,7 +4484,7 @@ describe("SWBPIPE desktop preview", () => {
       within(manager).getByTestId(
         "load-manager-combination-combination:C-OPER-ALT",
       ).textContent,
-    ).toContain("load:L-100 x 1; load:L-200 x 0.5; load:L-300 x 0.25");
+    ).toContain("L-100 × 1 + L-200 × 0.5 + L-300 × 0.25");
     expect(screen.getByLabelText("Property inspector").textContent).toContain(
       "load:L-300 x 0.25",
     );
@@ -4699,9 +4509,8 @@ describe("SWBPIPE desktop preview", () => {
 
     const manager = await loadCaseManager();
     expect(
-      within(manager).getByTestId("load-manager-create-combination-heading")
-        .textContent,
-    ).toContain("combination:C-300");
+      within(manager).getByTestId("load-manager-create-combination-id"),
+    ).toHaveValue("combination:C-300");
     // No operand or factor is proposed: the person enters both.
     expect(
       within(manager).getByTestId("queue-create-combination-intent"),
@@ -4711,20 +4520,7 @@ describe("SWBPIPE desktop preview", () => {
       within(manager).getByTestId("load-manager-create-combination-factor"),
       { target: { value: "1" } },
     );
-    expect(
-      within(manager).getByTestId("load-manager-create-combination-preview")
-        .textContent,
-    ).toContain("op:load-manager-create-combination:C-300");
-    expect(
-      within(manager).getByTestId("load-manager-create-combination-preview")
-        .textContent,
-    ).toContain(
-      "before=not_present; after=combination:C-300; term=load:L-100 x 1; unit=none; dimensionless",
-    );
-    expect(
-      within(manager).getByTestId("load-manager-create-combination-preview")
-        .textContent,
-    ).toContain("unit_validation=not_required_dimensionless");
+    expect(within(manager).getByTestId("queue-create-combination-intent")).toBeEnabled();
     fireEvent.change(
       within(manager).getByTestId("load-manager-create-combination-label"),
       {
@@ -4760,8 +4556,8 @@ describe("SWBPIPE desktop preview", () => {
       "load-manager-combination-combination:C-300",
     );
     expect(newCombination.textContent).toContain("User operating combination");
-    expect(newCombination.textContent).toContain("basis=mechanics");
-    expect(newCombination.textContent).toContain("load:L-100 x 1");
+    expect(newCombination.textContent).toContain("Algebraic sum");
+    expect(newCombination.textContent).toContain("L-100 × 1");
     fireEvent.click(
       within(manager).getByTestId(
         "load-manager-combination-select-combination:C-300",
@@ -4805,25 +4601,12 @@ describe("SWBPIPE desktop preview", () => {
       },
     );
     expect(
-      within(manager).getByTestId("load-manager-create-combination-heading")
+      within(manager).getByTestId("load-manager-create-combination-resolved")
         .textContent,
     ).toContain(
-      "basis=result_state_subtraction; minuend=load:L-100; subtrahend=load:L-200",
+      "Minuend: load:L-100 resolves to the load case. Subtrahend: load:L-200 resolves to the load case.",
     );
-    expect(
-      within(manager).getByTestId("load-manager-create-combination-preview")
-        .textContent,
-    ).toContain("op:load-manager-create-combination:C-300");
-    expect(
-      within(manager).getByTestId("load-manager-create-combination-preview")
-        .textContent,
-    ).toContain(
-      "before=not_present; after=combination:C-300; minuend=load:L-100; subtrahend=load:L-200; unit=none; dimensionless",
-    );
-    expect(
-      within(manager).getByTestId("load-manager-create-combination-preview")
-        .textContent,
-    ).toContain("unit_validation=not_required_dimensionless");
+    expect(within(manager).getByTestId("queue-create-combination-intent")).toBeEnabled();
     fireEvent.click(
       within(manager).getByTestId("queue-create-combination-intent"),
     );
@@ -4852,12 +4635,8 @@ describe("SWBPIPE desktop preview", () => {
     const newCombination = within(manager).getByTestId(
       "load-manager-combination-combination:C-300",
     );
-    expect(newCombination.textContent).toContain(
-      "basis=result_state_subtraction",
-    );
-    expect(newCombination.textContent).toContain(
-      "minuend=load:L-100; subtrahend=load:L-200",
-    );
+    expect(newCombination.textContent).toContain("Difference");
+    expect(newCombination.textContent).toContain("L-100 − L-200");
     expect(
       within(applyPanel).getByTestId(
         "applied-operation-route-applied-1-editor-intent-1",
@@ -4921,21 +4700,15 @@ describe("SWBPIPE desktop preview", () => {
       },
     );
     expect(
-      within(manager).getByTestId("load-manager-create-combination-heading")
+      within(manager).getByTestId("load-manager-create-combination-mode"),
+    ).toHaveValue("min_abs");
+    expect(
+      within(manager).getByTestId("load-manager-create-combination-resolved")
         .textContent,
     ).toContain(
-      "basis=range_envelope; mode=min_abs; operands=load:L-100, load:L-200",
+      "Operands: load:L-100 resolves to the load case; load:L-200 resolves to the load case.",
     );
-    expect(
-      within(manager).getByTestId("load-manager-create-combination-preview")
-        .textContent,
-    ).toContain(
-      "before=not_present; after=combination:C-300; mode=min_abs; operands=load:L-100, load:L-200; unit=none; dimensionless",
-    );
-    expect(
-      within(manager).getByTestId("load-manager-create-combination-preview")
-        .textContent,
-    ).toContain("unit_validation=not_required_dimensionless");
+    expect(within(manager).getByTestId("queue-create-combination-intent")).toBeEnabled();
     fireEvent.click(
       within(manager).getByTestId("queue-create-combination-intent"),
     );
@@ -4964,10 +4737,8 @@ describe("SWBPIPE desktop preview", () => {
     const newCombination = within(manager).getByTestId(
       "load-manager-combination-combination:C-300",
     );
-    expect(newCombination.textContent).toContain("basis=range_envelope");
-    expect(newCombination.textContent).toContain(
-      "mode=min_abs; operands=load:L-100, load:L-200",
-    );
+    expect(newCombination.textContent).toContain("Range envelope");
+    expect(newCombination.textContent).toContain("min_abs of L-100, L-200");
     expect(
       screen.getByTestId("local-project-review-context").textContent,
     ).toContain("applied_operations=1");
@@ -4980,26 +4751,18 @@ describe("SWBPIPE desktop preview", () => {
     render(<App />);
 
     const manager = await loadCaseManager();
+    fireEvent.click(
+      within(manager).getByTestId(
+        "load-manager-combination-select-combination:C-OPER-ALT",
+      ),
+    );
     const termRow = within(manager).getByTestId(
       "load-manager-combination-term-combination:C-OPER-ALT-1",
     );
-    expect(termRow.textContent).toContain("load:L-200 x 0.5");
+    expect(termRow.closest("tr")!.textContent).toContain("L-2000.5");
     fireEvent.click(termRow);
 
-    expect(
-      within(manager).getByTestId("load-manager-combination-delete-preview")
-        .textContent,
-    ).toContain("op:load-manager-combination:C-OPER-ALT-term-1-delete");
-    expect(
-      within(manager).getByTestId("load-manager-combination-delete-preview")
-        .textContent,
-    ).toContain(
-      "before=load:L-200 x 0.5; after=not_present; unit=none; dimensionless",
-    );
-    expect(
-      within(manager).getByTestId("load-manager-combination-delete-preview")
-        .textContent,
-    ).toContain("unit_validation=not_required_dimensionless");
+    await waitFor(() => expect(within(manager).getByTestId("queue-delete-combination-term-intent")).toBeEnabled());
     fireEvent.click(
       within(manager).getByTestId("queue-delete-combination-term-intent"),
     );
@@ -5029,8 +4792,8 @@ describe("SWBPIPE desktop preview", () => {
     const combinationRow = within(manager).getByTestId(
       "load-manager-combination-combination:C-OPER-ALT",
     );
-    expect(combinationRow.textContent).toContain("load:L-100 x 1");
-    expect(combinationRow.textContent).not.toContain("load:L-200 x 0.5");
+    expect(combinationRow.textContent).toContain("L-100 × 1");
+    expect(combinationRow.textContent).not.toContain("L-200 × 0.5");
     const inspector = screen.getByLabelText("Property inspector");
     expect(inspector.textContent).toContain("load:L-100 x 1");
     expect(inspector.textContent).not.toContain("load:L-200 x 0.5");
@@ -5057,31 +4820,15 @@ describe("SWBPIPE desktop preview", () => {
     const combinationRow = within(manager).getByTestId(
       "load-manager-combination-combination:C-OPER-ALT",
     );
-    expect(combinationRow.textContent).toContain("load:L-100 x 1");
-    expect(combinationRow.textContent).toContain("load:L-200 x 0.5");
+    expect(combinationRow.textContent).toContain("L-100 × 1");
+    expect(combinationRow.textContent).toContain("L-200 × 0.5");
     fireEvent.click(
       within(manager).getByTestId(
         "load-manager-combination-select-combination:C-OPER-ALT",
       ),
     );
 
-    expect(
-      within(manager).getByTestId(
-        "load-manager-combination-entity-delete-preview",
-      ).textContent,
-    ).toContain("op:load-manager-combination:C-OPER-ALT-delete");
-    expect(
-      within(manager).getByTestId(
-        "load-manager-combination-entity-delete-preview",
-      ).textContent,
-    ).toContain(
-      "before=combination:C-OPER-ALT; Invented explicit operating plus alternate preview; basis=mechanics; terms=load:L-100 x 1; load:L-200 x 0.5",
-    );
-    expect(
-      within(manager).getByTestId(
-        "load-manager-combination-entity-delete-preview",
-      ).textContent,
-    ).toContain("unit_validation=not_required_dimensionless");
+    expect(within(manager).getByTestId("queue-delete-combination-intent")).toBeEnabled();
     fireEvent.click(
       within(manager).getByTestId("queue-delete-combination-intent"),
     );
@@ -13018,13 +12765,13 @@ describe("primitive case selection display", () => {
     };
     const view = render(<LoadCaseManagerPanel {...props} model={withoutCases} />);
     const manager = screen.getByTestId("load-case-manager");
-    const queue = screen.getByTestId("queue-create-primitive-intent");
-    expectVirtualTargetEmpty(manager, "load-manager-create-primitive-load-case");
-    expect(queue).toBeDisabled();
-    fireEvent.change(screen.getByTestId("load-manager-create-primitive-magnitude"), { target: { value: "350" } });
-    fireEvent.change(screen.getByTestId("load-manager-create-primitive-provenance"), { target: { value: "invented_native_case_regression" } });
+    // A load is added to a case: with no case there is no load form and nothing to queue.
+    expect(screen.queryByTestId("queue-create-primitive-intent")).toBeNull();
 
     view.rerender(<LoadCaseManagerPanel {...props} model={{ ...withoutCases, load_cases: [soleCase] }} />);
+    const queue = screen.getByTestId("queue-create-primitive-intent");
+    fireEvent.change(screen.getByTestId("load-manager-create-primitive-magnitude"), { target: { value: "350" } });
+    fireEvent.change(screen.getByTestId("load-manager-create-primitive-provenance"), { target: { value: "invented_native_case_regression" } });
     // Before any deliberate option action, the displayed selection must agree
     // with the still-empty controlled draft instead of displaying the sole case.
     expectVirtualTargetEmpty(manager, "load-manager-create-primitive-load-case");

@@ -13,6 +13,8 @@ import {
   expectTreeEntity,
   expectVirtualTarget,
   confirmProjectUnits,
+  openLoadsDisclosure,
+  openLoadsForm,
   openWorkspaceSection,
   projectCommand,
   selectTreeEntity,
@@ -439,163 +441,102 @@ test("R2 browser smoke covers authoring, explicit reference results, and qualifi
   await expect(page.getByTestId("load-case-manager-summary")).toContainText(
     "2 load cases; 5 primitive loads; 1 combinations"
   );
+  // Creation forms open on their command; the identifier, status and provenance are under More.
+  await expect(page.getByTestId("load-manager-create-load-case-form")).not.toHaveAttribute("open");
+  await openLoadsForm(page, "load-manager-new-case");
+  await openLoadsDisclosure(page, "load-manager-create-load-more");
   await expect(page.getByTestId("load-manager-create-load-id")).toHaveValue("load:L-300");
-  await expect(page.getByTestId("load-manager-create-load-preview")).toContainText(
-    "op:load-manager-create-load:L-300"
-  );
-  await expect(page.getByTestId("load-manager-create-load-preview")).toContainText("primitive_loads=0");
+  await expect(page.getByTestId("queue-create-load-case-intent")).toBeEnabled();
+  await page.getByTestId("load-manager-create-load-cancel").click();
+  await page.getByTestId("load-manager-case-load:L-100").click();
+  await openLoadsForm(page, "load-manager-add-load");
+  await openLoadsDisclosure(page, "load-manager-create-primitive-more");
   await expect(page.getByTestId("load-manager-create-primitive-id")).toHaveValue("load:L-100-F300");
   await expectVirtualTarget(page, "load-manager-create-primitive-load-case", "load:L-100");
-  await expect(page.getByTestId("load-manager-create-primitive-preview")).toContainText(
-    "op:load-manager-load:L-100-load:L-100-F300-primitive"
-  );
-  await expect(page.getByTestId("load-manager-create-primitive-preview")).toContainText(
-    "target=node:N-100; direction=global_y; unit=N; force"
-  );
-  await expect(page.getByTestId("load-manager-create-primitive-preview")).toContainText(
-    "unit_validation=model_metadata_unit_dimension_declared_catalog_unavailable_browser_preview"
-  );
+  await expectVirtualTarget(page, "load-manager-create-primitive-node", "node:N-100");
+  await expect(page.getByTestId("load-manager-create-primitive-direction")).toHaveValue("global_y");
+  await expect(page.getByTestId("load-manager-create-primitive-unit")).toHaveValue("N");
+  await expect(page.getByTestId("queue-create-primitive-intent")).toBeEnabled();
   await page.getByTestId("load-manager-create-primitive-category").selectOption("distributed_force");
   await expect(page.getByTestId("load-manager-create-primitive-id")).toHaveValue("load:L-100-D300");
   await expectVirtualTarget(page, "load-manager-create-primitive-pipe", "pipe:P-100");
-  await expect(page.getByTestId("load-manager-create-primitive-preview")).toContainText(
-    "op:load-manager-load:L-100-load:L-100-D300-primitive"
-  );
-  await expect(page.getByTestId("load-manager-create-primitive-preview")).toContainText(
-    "target=pipe:P-100; direction=global_y; unit=N/m; force_per_length"
-  );
+  await expect(page.getByTestId("load-manager-create-primitive-unit")).toHaveValue("N/m");
+  await expect(page.getByTestId("queue-create-primitive-intent")).toBeEnabled();
   await page.getByTestId("load-manager-create-primitive-category").selectOption("concentrated_moment");
   await expect(page.getByTestId("load-manager-create-primitive-id")).toHaveValue("load:L-100-M300");
   await expectVirtualTarget(page, "load-manager-create-primitive-node", "node:N-100");
   await expect(page.getByTestId("load-manager-create-primitive-direction")).toHaveValue("rotation_z");
-  await expect(page.getByTestId("load-manager-create-primitive-preview")).toContainText(
-    "op:load-manager-load:L-100-load:L-100-M300-primitive"
-  );
-  await expect(page.getByTestId("load-manager-create-primitive-preview")).toContainText(
-    "target=node:N-100; direction=rotation_z; unit=N*m; moment"
-  );
+  await expect(page.getByTestId("load-manager-create-primitive-unit")).toHaveValue("N*m");
+  await expect(page.getByTestId("queue-create-primitive-intent")).toBeEnabled();
   // U3: legacy pressure primitives are retired; pressure is authored as exact regions.
   await expect(page.getByTestId("load-manager-create-primitive-category").locator('option[value="pressure"]')).toHaveCount(0);
-  await expect(page.getByTestId("load-manager-pressure-primitive-retired")).toContainText("Legacy pressure primitives are retired");
   await page.getByTestId("load-manager-create-primitive-category").selectOption("thermal");
   await expect(page.getByTestId("load-manager-create-primitive-id")).toHaveValue("load:L-100-T300");
   await expectVirtualTarget(page, "load-manager-create-primitive-pipe", "pipe:P-100");
   await expect(page.getByTestId("load-manager-create-primitive-direction")).toHaveValue("global_z");
-  await expect(page.getByTestId("load-manager-create-primitive-preview")).toContainText(
-    "op:load-manager-load:L-100-load:L-100-T300-primitive"
-  );
-  await expect(page.getByTestId("load-manager-create-primitive-preview")).toContainText(
-    "target=pipe:P-100; direction=global_z; unit=degC; temperature_interval"
-  );
+  await expect(page.getByTestId("load-manager-create-primitive-unit")).toHaveValue("degC");
+  await expect(page.getByTestId("queue-create-primitive-intent")).toBeEnabled();
   await page.getByTestId("load-manager-create-primitive-category").selectOption("imposed_displacement");
   await expect(page.getByTestId("load-manager-create-primitive-id")).toHaveValue("load:L-100-I300");
   await expectVirtualTarget(page, "load-manager-create-primitive-support", "support:S-100");
   await expect(page.getByTestId("load-manager-create-primitive-direction")).toHaveValue("UZ");
-  await expect(page.getByTestId("load-manager-create-primitive-preview")).toContainText(
-    "op:load-manager-load:L-100-load:L-100-I300-primitive"
-  );
-  await expect(page.getByTestId("load-manager-create-primitive-preview")).toContainText(
-    "target=support:S-100; direction=UZ; unit=m; displacement"
-  );
+  await expect(page.getByTestId("load-manager-create-primitive-unit")).toHaveValue("m");
+  await expect(page.getByTestId("queue-create-primitive-intent")).toBeEnabled();
   await page.getByTestId("load-manager-create-primitive-direction").selectOption("RX");
-  await expect(page.getByTestId("load-manager-create-primitive-preview")).toContainText(
-    "target=support:S-100; direction=RX; unit=rad; rotation"
-  );
+  await expect(page.getByTestId("load-manager-create-primitive-unit")).toHaveValue("rad");
+  await expect(page.getByTestId("queue-create-primitive-intent")).toBeEnabled();
+  await page.getByTestId("load-manager-add-load-cancel").click();
+  await openLoadsForm(page, "load-manager-new-combination");
+  await openLoadsDisclosure(page, "load-manager-create-combination-more");
   await expect(page.getByTestId("load-manager-create-combination-id")).toHaveValue("combination:C-300");
   // No operand or factor is proposed (review r1 of #114): the person enters both.
   await expect(page.getByTestId("queue-create-combination-intent")).toBeDisabled();
   await expect(page.getByTestId("load-manager-create-combination-preview")).toContainText("term 1: not chosen: its load case");
   await chooseVirtualTarget(page, "load-manager-create-combination-load-case", "load:L-100");
   await page.getByTestId("load-manager-create-combination-factor").fill("1");
-  await expect(page.getByTestId("load-manager-create-combination-preview")).toContainText(
-    "op:load-manager-create-combination:C-300"
-  );
-  await expect(page.getByTestId("load-manager-create-combination-preview")).toContainText(
-    "before=not_present; after=combination:C-300; term=load:L-100 x 1; unit=none; dimensionless"
-  );
+  await expect(page.getByTestId("queue-create-combination-intent")).toBeEnabled();
   await page.getByTestId("load-manager-create-combination-factor").fill("0.5");
-  await expect(page.getByTestId("load-manager-create-combination-preview")).toContainText(
-    "before=not_present; after=combination:C-300; term=load:L-100 x 0.5; unit=none; dimensionless"
-  );
+  await expect(page.getByTestId("queue-create-combination-intent")).toBeEnabled();
+  await page.getByTestId("load-manager-create-combination-cancel").click();
   await page.getByTestId("load-manager-primitive-load:L-100-T").click();
-  await expect(page.getByTestId("load-manager-selected-primitive")).toContainText(
-    "primitive_loads.2.magnitude.value"
-  );
-  await expect(page.getByTestId("load-manager-selected-case")).toContainText("field=status");
+  await expect(page.getByTestId("load-manager-selected-primitive")).toContainText("load:L-100-T");
+  await expect(page.getByTestId("load-manager-metadata-field")).toHaveValue("status");
   await expect(page.getByTestId("load-manager-metadata-preview")).toContainText("current=preview_only");
   await page.getByTestId("load-manager-metadata-value").selectOption("TBD");
-  await expect(page.getByTestId("load-manager-metadata-preview")).toContainText(
-    "op:load-manager-load:L-100-status"
-  );
+  await expect(page.getByTestId("queue-load-metadata-intent")).toBeEnabled();
   await page.getByTestId("load-manager-metadata-field").selectOption("kind");
-  await expect(page.getByTestId("load-manager-selected-case")).toContainText(
-    "field=kind; current=primitive_user_load"
-  );
+  await expect(page.getByTestId("load-manager-metadata-value")).toHaveValue("primitive_user_load");
   await page.getByTestId("load-manager-metadata-value").selectOption("TBD");
-  await expect(page.getByTestId("load-manager-metadata-preview")).toContainText(
-    "op:load-manager-load:L-100-kind"
-  );
-  await expect(page.getByTestId("load-manager-load-case-delete-preview")).toContainText(
-    "op:load-manager-load:L-100-delete"
-  );
-  await expect(page.getByTestId("load-manager-load-case-delete-preview")).toContainText(
-    "before=load:L-100; Invented operating gravity, occasional and thermal preview; primitive_user_load; preview_only; primitives=3; after=not_present; unit=none; dimensionless"
-  );
-  await expect(page.getByTestId("load-manager-selected-combination")).toContainText(
-    "field=basis; current=mechanics"
-  );
+  await expect(page.getByTestId("queue-load-metadata-intent")).toBeEnabled();
+  await expect(page.getByTestId("queue-delete-load-case-intent")).toBeEnabled();
+  await page.getByTestId("load-manager-combination-select-combination:C-OPER-ALT").click();
+  await expect(page.getByTestId("load-manager-selected-combination")).toContainText("Invented explicit operating plus alternate preview");
   await expect(page.getByTestId("load-manager-combination-basis-preview")).toContainText("current=mechanics");
   // TP-APP-R2-COMBEXPR-001 behavior change: the basis editor is a closed-set
   // selector (mechanics | result_state_subtraction | range_envelope) instead
   // of free text; cross-shape edits stay honest proposals the engine blocks.
   await page.getByTestId("load-manager-combination-basis-value").selectOption("result_state_subtraction");
-  await expect(page.getByTestId("load-manager-combination-basis-preview")).toContainText(
-    "op:load-manager-combination:C-OPER-ALT-basis"
-  );
-  await expect(page.getByTestId("load-manager-combination-basis-preview")).toContainText(
-    "before=mechanics; after=result_state_subtraction"
-  );
-  await expect(page.getByTestId("load-manager-combination-entity-delete-preview")).toContainText(
-    "op:load-manager-combination:C-OPER-ALT-delete"
-  );
-  await expect(page.getByTestId("load-manager-combination-entity-delete-preview")).toContainText(
-    "before=combination:C-OPER-ALT; Invented explicit operating plus alternate preview; basis=mechanics; terms=load:L-100 x 1; load:L-200 x 0.5"
-  );
-  await expect(page.getByTestId("load-manager-create-combination-term-heading")).toContainText(
-    "combination:C-OPER-ALT"
-  );
+  await expect(page.getByTestId("queue-combination-basis-intent")).toBeEnabled();
+  await expect(page.getByTestId("queue-delete-combination-intent")).toBeEnabled();
+  await openLoadsForm(page, "load-manager-add-term");
+  await openLoadsDisclosure(page, "load-manager-create-term-more");
+  await expectVirtualTarget(page, "load-manager-create-combination-term-combination", "combination:C-OPER-ALT");
   // No case or factor is proposed for a new term: the person enters both.
   await expect(page.getByTestId("load-manager-create-combination-term-preview")).toContainText(
     "not chosen: the load case the new term names"
   );
   await chooseVirtualTarget(page, "load-manager-create-combination-term-load-case", "load:L-100");
   await page.getByTestId("load-manager-create-combination-term-factor").fill("1");
-  await expect(page.getByTestId("load-manager-create-combination-term-preview")).toContainText(
-    "op:load-manager-combination:C-OPER-ALT-term-2-create"
-  );
-  await expect(page.getByTestId("load-manager-create-combination-term-preview")).toContainText(
-    "before=not_present; after=load:L-100 x 1; unit=none; dimensionless"
-  );
+  await expect(page.getByTestId("queue-create-combination-term-intent")).toBeEnabled();
   await page.getByTestId("load-manager-create-combination-term-factor").fill("0.25");
-  await expect(page.getByTestId("load-manager-create-combination-term-preview")).toContainText(
-    "before=not_present; after=load:L-100 x 0.25; unit=none; dimensionless"
-  );
+  await expect(page.getByTestId("queue-create-combination-term-intent")).toBeEnabled();
+  await page.getByTestId("load-manager-add-term-cancel").click();
   await page.getByTestId("load-manager-combination-term-combination:C-OPER-ALT-1").click();
-  await expect(page.getByTestId("load-manager-selected-combination-term")).toContainText("terms.1.factor");
+  await expect(page.getByTestId("load-manager-selected-combination-term")).toBeVisible();
   await expect(page.getByTestId("load-manager-combination-factor-preview")).toContainText("current=0.5");
   await page.getByTestId("load-manager-combination-factor-value").fill("0.75");
-  await expect(page.getByTestId("load-manager-combination-factor-preview")).toContainText(
-    "op:load-manager-combination:C-OPER-ALT-term-1-factor"
-  );
-  await expect(page.getByTestId("load-manager-combination-factor-preview")).toContainText(
-    "before=0.5; after=0.75"
-  );
-  await expect(page.getByTestId("load-manager-combination-delete-preview")).toContainText(
-    "op:load-manager-combination:C-OPER-ALT-term-1-delete"
-  );
-  await expect(page.getByTestId("load-manager-combination-delete-preview")).toContainText(
-    "before=load:L-200 x 0.5; after=not_present; unit=none; dimensionless"
-  );
+  await expect(page.getByTestId("queue-combination-factor-intent")).toBeEnabled();
+  await expect(page.getByTestId("queue-delete-combination-term-intent")).toBeEnabled();
   // Delete previews belong to the explicitly started task, not a new selection.
   await startPropertyTaskFromTreeEntity(page, "node", "node:N-120");
   await expect(page.getByTestId("delete-node-intent-panel")).toContainText("delete_node");
@@ -804,13 +745,15 @@ test("R2 browser smoke covers authoring, explicit reference results, and qualifi
   // through the visible create-form controls and apply it through the wasm
   // engine in browser mode.
   await openWorkspaceSection(page, "loads");
+  await openLoadsForm(page, "load-manager-new-combination");
   await page.getByTestId("load-manager-create-combination-basis").selectOption("result_state_subtraction");
   await chooseVirtualTarget(page, "load-manager-create-combination-minuend", "load:L-100");
   await chooseVirtualTarget(page, "load-manager-create-combination-subtrahend", "load:L-200");
   await page.getByTestId("load-manager-create-combination-label").fill("Operating minus alternate subtraction");
-  await expect(page.getByTestId("load-manager-create-combination-preview")).toContainText(
-    "before=not_present; after=combination:C-300; minuend=load:L-100; subtrahend=load:L-200; unit=none; dimensionless"
+  await expect(page.getByTestId("load-manager-create-combination-resolved")).toContainText(
+    "Minuend: load:L-100 resolves to the load case. Subtrahend: load:L-200 resolves to the load case."
   );
+  await expect(page.getByTestId("queue-create-combination-intent")).toBeEnabled();
   await page.getByTestId("queue-create-combination-intent").click();
   await openWorkspaceSection(page, "operations");
   const applyPanel = page.getByTestId("operation-apply-panel");
@@ -824,12 +767,8 @@ test("R2 browser smoke covers authoring, explicit reference results, and qualifi
   await expect(page.getByTestId("load-case-manager-summary")).toContainText(
     "2 load cases; 5 primitive loads; 2 combinations"
   );
-  await expect(page.getByTestId("load-manager-combination-combination:C-300")).toContainText(
-    "basis=result_state_subtraction"
-  );
-  await expect(page.getByTestId("load-manager-combination-combination:C-300")).toContainText(
-    "minuend=load:L-100; subtrahend=load:L-200"
-  );
+  await expect(page.getByTestId("load-manager-combination-combination:C-300")).toContainText("Difference");
+  await expect(page.getByTestId("load-manager-combination-combination:C-300")).toContainText("L-100 − L-200");
 });
 
 test("viewport gesture placeholders record unit validation", async ({ page }) => {
@@ -984,6 +923,8 @@ test("R2 from-blank GUI journey authors the A12 rehearsal script", async ({ page
 
   const loadCase = stepPayload("create_load_case", "load:R2-L-100");
   await openWorkspaceSection(page, "loads");
+  await openLoadsForm(page, "load-manager-new-case");
+  await openLoadsDisclosure(page, "load-manager-create-load-more");
   await page.getByTestId("load-manager-create-load-id").fill(loadCase.id);
   await page.getByTestId("load-manager-create-load-label").fill(loadCase.label);
   await page.getByTestId("load-manager-create-load-kind").fill(loadCase.kind);
@@ -994,7 +935,10 @@ test("R2 from-blank GUI journey authors the A12 rehearsal script", async ({ page
 
   const primitive = stepPayload("create_primitive_load", "load:R2-L-100-FY");
   await openWorkspaceSection(page, "loads");
-  await chooseVirtualTarget(page, "load-manager-create-primitive-load-case", loadCase.id);
+  await page.getByTestId(`load-manager-case-${loadCase.id}`).click();
+  await openLoadsForm(page, "load-manager-add-load");
+  await openLoadsDisclosure(page, "load-manager-create-primitive-more");
+  await expectVirtualTarget(page, "load-manager-create-primitive-load-case", loadCase.id);
   await page.getByTestId("load-manager-create-primitive-category").selectOption(primitive.category);
   await page.getByTestId("load-manager-create-primitive-id").fill(primitive.id);
   await chooseVirtualTarget(page, "load-manager-create-primitive-node", primitive.target.node);
@@ -1006,6 +950,8 @@ test("R2 from-blank GUI journey authors the A12 rehearsal script", async ({ page
 
   const combination = stepPayload("create_combination", "combination:R2-C-100");
   await openWorkspaceSection(page, "loads");
+  await openLoadsForm(page, "load-manager-new-combination");
+  await openLoadsDisclosure(page, "load-manager-create-combination-more");
   await page.getByTestId("load-manager-create-combination-id").fill(combination.id);
   await page.getByTestId("load-manager-create-combination-label").fill(combination.label);
   await chooseVirtualTarget(page, "load-manager-create-combination-load-case", combination.terms[0].load_case);

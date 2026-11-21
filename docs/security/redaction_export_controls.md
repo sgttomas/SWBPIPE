@@ -144,9 +144,9 @@ The desktop technical preview binds this contract into the export workflow
   exists while a blocking finding is present, private values are retained
   locally only after the user records explicit local-private intent, and the
   offered redacted manifest carries a canonical sha256 checksum computed
-  through the same wasm hash seam the engines use, or marks the hash as
-  pending while it is computed (issue #497: after a change of context or model
-  the panel can carry the previous manifest's checksum for one render). The
+  through the same wasm hash seam the engines use, or marks the checksum as
+  pending while it is being computed (issue #497: after a change of context or
+  model the panel can carry the previous manifest's checksum for one render). The
   mounted user-facing controls are the controlled export link on each
   link-based export, the results tables' CSV export control, and the report's
   and the native saves' own routes.
