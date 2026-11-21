@@ -210,9 +210,11 @@ fn equivalent_static_components(components: &Value, inventory: &HashSet<&str>) -
 /// member's load (REQ-015's dispositions: the members not replaced by an
 /// objective connector are selected; a member mapped more than once is a
 /// conflict, which no solved result carries; `not_solver_consumed` keeps the
-/// member load; a nonzero centre-of-gravity coordinate that normalizes to zero
-/// forms nothing; the consumption `mechanics_geometry_only`, a member ending
-/// at the node, a finite positive weight and a finite offset are required),
+/// member load; the consumption `mechanics_geometry_only`, a member ending
+/// at the node, a finite positive weight and a finite offset are required;
+/// the offset is read after the document's ordinary conversion to metres, as
+/// the solve converts it before generation, so a coordinate that converts to
+/// zero forms no moment term),
 /// and each entry: the force fl(k × W) and each moment fl(F × ±r_j), one per
 /// nonzero transverse coordinate, compared by bits with the record in
 /// generation order. A missing entry, an extra one and a record without the
@@ -286,15 +288,16 @@ fn expected_component_forces(model: &Value, case_id: &str, seismic: &serde_json:
             continue;
         }
         let weight = c["geometry"].get("weight").and_then(|w| quantity(w, Dimension::Force)).filter(|w| w.is_finite() && *w > 0.0);
+        // Each coordinate after the document's ordinary conversion to metres,
+        // which the solve applies before generation reads it (the product's
+        // `normalize_model_units`): a coordinate that converts to zero is a
+        // zero coordinate there, and no moment term uses it.
         let cog = &c["geometry"]["center_of_gravity"];
-        let entered: Option<Vec<f64>> = ["x", "y", "z"].iter().map(|k| cog[*k].as_f64().filter(|v| v.is_finite())).collect();
-        let r: Option<Vec<f64>> = entered.as_ref().and_then(|e| {
-            e.iter().map(|v| quantity(&json!({"value": v, "unit": cog["unit"]}), Dimension::Length).filter(|n| n.is_finite())).collect()
-        });
-        let (Some(weight), Some(entered), Some(r)) = (weight, entered, r) else { continue };
-        if entered.iter().zip(&r).any(|(e, n)| *e != 0.0 && *n == 0.0) {
-            continue;
-        }
+        let r: Option<Vec<f64>> = ["x", "y", "z"].iter().map(|k| {
+            let v = cog[*k].as_f64().filter(|v| v.is_finite())?;
+            quantity(&json!({"value": v, "unit": cog["unit"]}), Dimension::Length).filter(|n| n.is_finite())
+        }).collect();
+        let (Some(weight), Some(r)) = (weight, r) else { continue };
         if !model["nodes"].as_array().is_some_and(|nodes| nodes.iter().any(|n| n["id"] == *node)) {
             continue;
         }

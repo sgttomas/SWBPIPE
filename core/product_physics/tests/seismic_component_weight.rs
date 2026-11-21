@@ -663,6 +663,74 @@ fn the_readers_bind_the_component_record() {
     assert_eq!(bound["ok"], false, "{bound}");
 }
 
+/// Issue 450 round 1 finding 2: at the document boundary a centre-of-gravity
+/// coordinate of 1e-321 mm converts to 0 m (it is below half the smallest
+/// positive binary64 value, about 2.5e-324 m) in the solve's ordinary unit
+/// conversion, before generation reads it. On an eligible component, on one
+/// that falls back (zero weight) and on a `not_solver_consumed` one, the case
+/// solves on both routes and in both modes; no recorded moment uses that
+/// coordinate (none is zero); and the model-bound reader, which reads the
+/// offset after the same conversion, admits the record. The self-weight
+/// plan, which reads the entered value (REQ-015's block), refuses the same
+/// document with SELF_WEIGHT_RANGE_INVALID.
+#[test]
+fn a_coordinate_that_converts_to_zero_forms_no_moment_and_the_reader_agrees() {
+    use open_pipe_stress_result_export::{reader_verdict, semantic_contract};
+    let id = "SCW-CANT-EX-SEISMIC-XYZ";
+    let tiny = 1.0e-321;
+    assert_eq!(tiny / 1000.0, 0.0, "the coordinate converts to zero metres");
+    let variants = [
+        ("eligible", ONE_MAPPED, Some([1usize, 2, 1])),
+        ("falls back", ZERO_WEIGHT, None),
+        ("not consumed", Components { valve_weight: 2350.0, valve_consumed: false, flange: false }, None),
+    ];
+    for (what, components, moments) in variants {
+        let wire = |route| {
+            let mut wire = document(route, Model::Cant, components, vec![case_of(reference(id), "case:s")]);
+            wire["model"]["components"][0]["geometry"]["center_of_gravity"] = json!({"x": -175.0, "y": tiny, "z": 125.0, "unit": "mm"});
+            wire
+        };
+        for route in [Route::Pf, Route::Ex] {
+            for mode in MODES {
+                let out = solved(&wire(route), mode, what);
+                if route == Route::Pf {
+                    continue;
+                }
+                let record = &out["contract_evidence"]["exact_cases"].as_array().unwrap().iter()
+                    .find(|c| c["load_case_id"] == "case:s").unwrap()["equivalent_static"];
+                match moments {
+                    Some(counts) => {
+                        let entries = record["component_forces"].as_array().unwrap();
+                        let got: Vec<usize> = entries.iter().map(|e| e["moments"].as_array().unwrap().len()).collect();
+                        // r_y converts to 0: the x force's moment about z and the
+                        // z force's moment about x are not formed.
+                        assert_eq!(got, counts, "{what} {mode:?}: {entries:?}");
+                        for e in entries {
+                            for m in e["moments"].as_array().unwrap() {
+                                assert_ne!(from_bits(&m["value_N_m"]), 0.0, "{what}: {m}");
+                            }
+                            assert_eq!(e["center_of_gravity_m"][1], json!("0000000000000000"), "{what}");
+                        }
+                    }
+                    None => assert!(record.get("component_forces").is_none(), "{what} {mode:?}: {record}"),
+                }
+                semantic_contract::validate_pressure_evidence(&out).unwrap_or_else(|e| panic!("{what}: {e}"));
+                let model = wire(route)["model"].clone();
+                assert_eq!(reader_verdict::validate("pressure", &out, Some(&model), None)["ok"], true, "{what} {mode:?}: the model-bound reader admits it");
+            }
+        }
+    }
+    // The self-weight plan reads the entered value, and its own block fires.
+    let mut wire = document(Route::Pf, Model::Cant, ONE_MAPPED, vec![]);
+    wire["model"]["components"][0]["geometry"]["center_of_gravity"] = json!({"x": -175.0, "y": tiny, "z": 125.0, "unit": "mm"});
+    let model: open_pipe_stress_product_physics::PreviewModel = serde_json::from_value(wire["model"].clone()).unwrap();
+    let request = serde_json::from_value(json!({"case_id": "case:weight", "label": "invented", "pipe_refs": ["AB", "BC", "CD"],
+        "gravity": {"value": -9.79, "unit": "m/s^2", "axis": "global_z"}, "provenance": PROV,
+        "source_model_hash": format!("sha256:{}", "a".repeat(64))})).unwrap();
+    let refused = open_pipe_stress_product_physics::self_weight::generate_self_weight_operations(&model, &request).expect_err("the plan's block fires");
+    assert!(!refused.is_empty() && refused.iter().all(|d| d.code == "SELF_WEIGHT_RANGE_INVALID"), "{refused:?}");
+}
+
 // ------------------------------------------------------------------ the rule's value
 fn witness_nodal(id: &str, dof: &str, value: f64) -> Value {
     let (category, unit, dimension) = if dof.starts_with("rotation") { ("concentrated_moment", "N*m", "moment") } else { ("concentrated_force", "N", "force") };
