@@ -133,8 +133,8 @@
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  min-width: 24px;
-  min-height: 24px;
+  min-width: var(--space-8);
+  min-height: var(--space-8);
   padding: 0;
 }
 
@@ -152,6 +152,16 @@
 .inspector .inspector-actions > details > summary,
 .inspector .inspector-details.inspector-line > summary {
   overflow-wrap: anywhere;
+}
+
+/* A warning that applies to the selected entity stands on its closed line, in its own words. */
+.inspector .inspector-line-warning {
+  color: var(--ui-warning-text);
+  font-weight: var(--type-weight-regular);
+}
+
+p.inspector-line-warning {
+  margin: 0;
 }
 
 /* A closed line states its current value after its name. */

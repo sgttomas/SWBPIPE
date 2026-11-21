@@ -249,3 +249,37 @@ describe("the Support tool and New support agree", () => {
     expect(screen.getByTestId("inspector-creation-support")).not.toBeVisible();
   });
 });
+
+describe("a warning that applies is on its closed line, without a press", () => {
+  it("an unresolved condition set on a pipe", () => {
+    const model = inventedModel();
+    model.pipe_segments[0].condition_set_ref = "condition-set:missing";
+    mount({ type: "pipe", id: "pipe:AC" }, {}, model);
+    const details = line("Condition set");
+    expect(details).not.toHaveAttribute("open");
+    const warning = within(details.querySelector("summary")!).getByRole("note");
+    expect(warning).toBeVisible();
+    expect(warning).toHaveTextContent("That set is not in this model (OPERATING_CONDITION_SET_UNRESOLVED).");
+  });
+
+  it("the geometry-only warning on a bend under the exact pressure contract, and on its marker", () => {
+    const model = inventedModel();
+    model.pressure_contract = { version: "3.0.0", mode: "exact_pressure_v3", shear_model: "euler_bernoulli" } as PreviewModel["pressure_contract"];
+    model.components = [{ id: "component:K", label: "Invented marker", kind: "bend", node: "node:A", provenance: "invented marker", mechanics_interface: { solver_consumption: "mechanics_geometry_only" } }] as unknown as PreviewModel["components"];
+    mount({ type: "component", id: "component:K" }, {}, model);
+    expect(screen.getByTestId("bend-geometry-only-warning")).toBeVisible();
+    // On an end node the marker says what it is, and names no line that is not there.
+    expect(screen.getByTestId("bend-realization-corner-marker")).toHaveTextContent("This bend marks a turn at node:A and names no arc span.");
+    expect(screen.getByTestId("bend-realization-corner-marker")).not.toHaveTextContent("Bend at this corner");
+  });
+
+  it("pressure elongation beside the closed Model settings line where the profile applies", () => {
+    const model = inventedModel();
+    model.pressure_contract = { version: "3.0.0", mode: "exact_pressure_v3", shear_model: "timoshenko_annulus_energy_v1" } as PreviewModel["pressure_contract"];
+    mount({ type: "project", id: model.project.id }, {}, model);
+    const summary = line("Model settings").querySelector("summary")!;
+    expect(line("Model settings")).not.toHaveAttribute("open");
+    expect(summary).toHaveTextContent("Shear deformation: Timoshenko (energy-matched annular shear factor), set by the pressure profile");
+    expect(summary).toHaveTextContent("Pressure elongation: off (default), not included in any load case");
+  });
+});

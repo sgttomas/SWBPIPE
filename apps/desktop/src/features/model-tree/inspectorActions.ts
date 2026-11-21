@@ -1,7 +1,8 @@
 // What the inspector offers for one selected entity: which action lines apply to it, chosen
 // on what a person can see. Any refusal is the operation engine's, shown by its own code.
 import type { EntityRef, PreviewModel } from "../../types";
-import { authoredShearModel, effectiveNodeProximityTolerance } from "../model-settings/modelSettingsIntents";
+import { authoredPressureElongationCases, authoredShearModel, effectiveNodeProximityTolerance, pressurisedCasesNotIncluded } from "../model-settings/modelSettingsIntents";
+import { documentShearModel, SHEAR_MODEL_CHOICES as PROFILE_SHEAR_CHOICES } from "../pressure-authoring/pressureContract";
 import { SHEAR_MODEL_CHOICES } from "../model-settings/ModelSettingsSection";
 import { PROJECT_UNIT_KEYS } from "../../services/projectService";
 
@@ -27,15 +28,30 @@ export function supportFormLine(selection: EntityRef): string {
   return "Add a support";
 }
 
-/** "Model settings" with its current values, for its closed line. */
+/** "Model settings" with its current values, for its closed line. On a pressure-profile document it
+ * names the profile's theory and says beside the setting whether pressure elongation is included
+ * (DEL-02-01: a document without it "solves without pressure elongation, and the desktop says so"). */
 export function modelSettingsValues(model: PreviewModel): string {
+  const exact = model.pressure_contract != null;
   const shear = authoredShearModel(model);
-  const shearLabel = model.pressure_contract != null
-    ? "set by the pressure profile"
+  const profileShear = PROFILE_SHEAR_CHOICES.find((choice) => choice.value === documentShearModel(model))?.label;
+  const shearLabel = exact
+    ? `${profileShear ?? "not stated"}, set by the pressure profile`
     : shear === null
       ? "Euler–Bernoulli (default)"
       : SHEAR_MODEL_CHOICES.find((choice) => choice.value === shear)?.label.replace(" (the default)", "") ?? shear;
-  return `Shear deformation: ${shearLabel} · Node proximity: ${effectiveNodeProximityTolerance(model)}`;
+  const parts = [`Shear deformation: ${shearLabel}`, `Node proximity: ${effectiveNodeProximityTolerance(model)}`];
+  if (exact) {
+    const included = authoredPressureElongationCases(model);
+    const name = (loadCase: PreviewModel["load_cases"][number]) => loadCase.label || loadCase.id;
+    if (included === null) parts.push("Pressure elongation: off (default), not included in any load case");
+    else {
+      parts.push(`Pressure elongation: ${included.length ? included.map((id) => name(model.load_cases.find((loadCase) => loadCase.id === id) ?? { id, label: "" } as PreviewModel["load_cases"][number])).join(", ") : "no operating case"}`);
+      const missing = pressurisedCasesNotIncluded(model);
+      if (missing.length) parts.push(`not included: ${missing.map(name).join(", ")}`);
+    }
+  }
+  return parts.join(" · ");
 }
 
 /** "Project units" with the stored symbols, for its closed line. */

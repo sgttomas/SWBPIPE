@@ -4,6 +4,7 @@ import { FAMILIES as SUPPORT_FAMILIES, SupportConfigurationForm } from "../suppo
 import { MaterialTemperatureForm } from "../material-temperature/MaterialTemperatureForm";
 import { BendRealizationForm, GEOMETRY_ONLY_BANNER, InsertBendAtCornerForm } from "../bend-authoring/BendAuthoringForms";
 import { isPressureV3 } from "../pressure-authoring/pressureContract";
+import { currentLibraryRefFindings, usePublishedLibraryRefFindings } from "../library/libraryRefFindings";
 import { JointPressureModelEditor } from "../pressure-authoring/JointPressureModelEditor";
 import { WindExposureForm } from "../wind-exposure/WindExposureForm";
 import { SectionAssignment } from "../toolkit/SectionAssignment";
@@ -109,6 +110,7 @@ export function PropertyInspector({
   // entity it was asked for on, or none. It shows only while that entity is the one inspected; a
   // closed or hidden form keeps its draft.
   const [creationRequest, setCreationRequest] = useState<{ kind: CreationForm; on: string } | null>(null);
+  const publishedLibraryRefs = usePublishedLibraryRefFindings();
   // The user's open/closed choice for "All properties" holds across selection changes (component state only).
   const [allPropertiesOpen, setAllPropertiesOpen] = useState(false);
   const references = useMemo(() => propertyReferences(model), [model]);
@@ -538,6 +540,14 @@ export function PropertyInspector({
   const bendGeometryOnly = Boolean(selectedBend) && selectedBend?.mechanics_interface?.solver_consumption !== "curved_bend_macro_element" && isPressureV3(model);
   const selectedMaterial = propertiesTarget.type === "material" ? model.materials?.find((material) => material.id === propertiesTarget.id) : undefined;
   const selectedLoad = propertiesTarget.type === "load" ? model.load_cases.find((load) => load.id === propertiesTarget.id) : undefined;
+  // Warnings that apply to the selected entity stand on its closed lines, in their own words.
+  const conditionSetUnresolved = Boolean(selectedPipe?.condition_set_ref) && !(model.condition_sets ?? []).some((set) => set.id === selectedPipe?.condition_set_ref);
+  const windExposure = selectedLoad?.equivalent_static?.wind;
+  const missingWindPipes = windExposure
+    ? [...new Set([...(windExposure.exposed_pipe_refs ?? []), ...(windExposure.exposed_spans ?? []).map((span) => String(span.pipe_ref ?? ""))])]
+      .filter((id) => id && !model.pipe_segments.some((pipe) => pipe.id === id))
+    : [];
+  const libraryWarnings = currentLibraryRefFindings(model, publishedLibraryRefs).filter((finding) => finding.entity_ref === propertiesTarget.id);
   const richProps = { getPreparationEpoch, model, preparationEpoch: selectionState?.preparationEpoch, selection: propertiesTarget, queuedIntents, onQueueIntent, operationBusy: operationBusy || multiSelection };
   // What a delete refuses, and its operation, shown only when asked for.
   const deletionNote = (text: string, intent: EditorOperationIntent) => <>
@@ -999,7 +1009,7 @@ export function PropertyInspector({
       ) : null}
       {selectedPipe ? (
         <details className="inspector-details inspector-line" data-testid="inspector-condition-set-details">
-          <summary><span>Condition set</span> <span className="inspector-line-value">{selectedPipe.condition_set_ref ?? "not stated"}</span></summary>
+          <summary><span>Condition set</span> <span className="inspector-line-value">{selectedPipe.condition_set_ref ?? "not stated"}</span>{conditionSetUnresolved ? <span className="inspector-line-warning" role="note"> That set is not in this model (OPERATING_CONDITION_SET_UNRESOLVED).</span> : null}</summary>
           <PipeConditionSetField key={`pipe-condition-set:${projectSessionGeneration}`} {...richProps} />
         </details>
       ) : null}
@@ -1039,12 +1049,12 @@ export function PropertyInspector({
       ) : null}
       {selectedLoad?.equivalent_static?.wind ? (
         <details className="inspector-details" data-testid="inspector-wind-exposure-details">
-          <summary>Wind exposure</summary>
+          <summary>Wind exposure{missingWindPipes.map((id) => <span key={id} className="inspector-line-warning" role="note"> Missing pipe {id}.</span>)}</summary>
           <WindExposureForm {...richProps} />
         </details>
       ) : null}
       <details className="inspector-details" data-testid="model-data-annotations-details">
-        <summary>Tags, notes and provenance</summary>
+        <summary>Tags, notes and provenance{libraryWarnings.map((finding, index) => <span key={`${finding.code}:${index}`} className="inspector-line-warning" role="note"> {finding.code} (warning): {finding.message}</span>)}</summary>
         <ModelDataAnnotations key={`model-data:${projectSessionGeneration}`} model={model} selection={propertiesTarget} queuedIntents={queuedIntents} onQueueIntent={onQueueIntent} operationBusy={operationBusy || multiSelection} />
       </details>
       {nodeDeleteIntent ? (
