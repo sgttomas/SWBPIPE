@@ -15,7 +15,7 @@ import catalog from "../../src-tauri/resources/agent-capability-catalog.json";
 import type { PreviewModel } from "../types";
 import { readFileSync } from "node:fs";
 import { resolve } from "node:path";
-import { familyRecords, RECORD_FAMILIES, recordBefore, stampAgentOperations, type RecordFamily } from "./embeddedAgentSession";
+import { familyRecords, PROPOSAL_FINDINGS_LABEL, PROPOSAL_REFUSED, RECORD_FAMILIES, recordBefore, refusedProposalMessage, stampAgentOperations, type RecordFamily } from "./embeddedAgentSession";
 import { PERSON_ENTERED_CHECK, writesUserEnteredModifier } from "./operationAuthorship";
 import { applyOperationBatch } from "./operationBatchService";
 import { canonicalJsonString, computeModelHash } from "./hashService";
@@ -210,6 +210,31 @@ describe("swbpipe_read_records before texts are the ones the engine compares", (
     expect(back.before.analysis_state).toBe(filled);
     model = await applied(model, op("modify", "Load", "load:RS-OPE", "update_load", "analysis_state", back.before.analysis_state, "not_present"));
     expect(find(model, "load_cases", "load:RS-OPE").analysis_state).toBeUndefined();
+  });
+});
+
+describe("the propose tool's message for a batch the engine refuses", () => {
+  it("lists the engine's own blocking findings in the batch's order, after the labelling sentence", async () => {
+    const model = structuredClone(referenceJson) as unknown as PreviewModel;
+    const material = await read(model, "materials", "material:RS-M1");
+    const modulus = material.record.elastic_modulus as { value: number; unit: string };
+    // Step 1 is exact and passes on the temporary state; step 2's before text is stale, so replay stops there.
+    const operations = [
+      op("modify", "Material", "material:RS-M1", "set_field", "elastic_modulus.value", String(modulus.value), json({ value: modulus.value, unit: modulus.unit }), modulus.unit, "stress"),
+      op("modify", "Material", "material:RS-M1", "set_field", "elastic_modulus.value", `${String(modulus.value)}1`, json({ value: modulus.value, unit: modulus.unit }), modulus.unit, "stress"),
+    ];
+    const hash = await computeModelHash(model);
+    const outcome = await applyOperationBatch(model, { batch_id: "agent-refused", operations: stampAgentOperations(operations, "proposal", "request"), source_model_hash: hash!.value }, hash);
+    expect(outcome.validation.batch_validation_status).toBe("blocked");
+    const blocking = outcome.diagnostics.filter((d) => d.severity === "blocking");
+    expect(blocking.length).toBeGreaterThan(0);
+    const message = refusedProposalMessage(outcome.diagnostics);
+    expect(message.startsWith(`${PROPOSAL_REFUSED} ${blocking.length} blocking finding${blocking.length === 1 ? "" : "s"}`)).toBe(true);
+    const listed = message.slice(message.indexOf(PROPOSAL_FINDINGS_LABEL) + PROPOSAL_FINDINGS_LABEL.length);
+    expect(listed.startsWith(` [1] ${blocking[0].code} ${JSON.stringify(blocking[0].message).slice(0, 40)}`)).toBe(true);
+    expect(blocking.map((d) => d.code)).toContain("OP-STALE-BEFORE-VALUE");
+    expect([...listed.matchAll(/ \[\d+\] ([A-Z0-9_.:-]+)/g)].map((m) => m[1])).toEqual(blocking.map((d) => d.code).slice(0, [...listed.matchAll(/ \[\d+\] /g)].length));
+    expect([...message].length).toBeLessThanOrEqual(1000);
   });
 });
 
