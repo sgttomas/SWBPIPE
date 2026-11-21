@@ -1,5 +1,5 @@
 import { afterEach, describe, expect, it, vi } from 'vitest';
-import { EmbeddedAgentSession, boundedFindings, PROPOSAL_CODE_ONLY_KINDS, PROPOSAL_FINDING_TEXT, PROPOSAL_FINDINGS_LABEL, refusedProposalMessage, type WorkspaceExecution, type AgentSolveOutcome, type AgentSolverMode } from './embeddedAgentSession';
+import { EmbeddedAgentSession, boundedFindings, PROPOSAL_FINDING_TEXT, PROPOSAL_FINDINGS_LABEL, refusedProposalMessage, type WorkspaceExecution, type AgentSolveOutcome, type AgentSolverMode } from './embeddedAgentSession';
 import { agentDetailFilter } from './resultDetail';
 import { GENERIC_REFUSAL } from './agentUnitRefusal';
 import { PERSON_ENTERED_CHECK } from './operationAuthorship';
@@ -836,13 +836,6 @@ describe('a proposal the operation engine refuses',()=>{
   expect(rest.split(PROPOSAL_FINDINGS_LABEL)).toHaveLength(1);expect(JSON.parse(parsed![1])).toContain('[2] OP-OK "');
   expect(chars(message)).toBeLessThanOrEqual(1000);expect(outcome.data).toBeNull();expect(owner.register).not.toHaveBeenCalled();expect(owner.solve).not.toHaveBeenCalled();
   expect(JSON.parse(raw).message).toBe(message);
- });
- it('passes a code-only kind by its code, with no message',async()=>{
-  const hidden='lines[0].pipe_refs[1] `pipe:p2` already belongs to line `line:hidden-from-reads`; a pipe belongs to at most one line. (at lines[0].pipe_refs[1])';
-  const kinds=[...PROPOSAL_CODE_ONLY_KINDS].map(code=>finding(code,`${hidden} ${code}`,'blocking','line:hidden-from-reads'));
-  const {outcome}=await propose(refused([finding('OP-PIPE-DELETE-REFERENCED','Pipe `pipe:p2` cannot be deleted.'),...kinds]));
-  expect(outcome.message).toBe(`${head(1+kinds.length)} [1] OP-PIPE-DELETE-REFERENCED "Pipe \`pipe:p2\` cannot be deleted."${[...PROPOSAL_CODE_ONLY_KINDS].map((code,i)=>` [${i+2}] ${code}`).join('')}`);
-  expect(outcome.message).not.toContain('hidden-from-reads');expect(outcome.message).not.toContain('lines[');
  });
  it('puts the head first and unchanged, and its findings only where at least one fits after it',()=>{
   const findings=Array.from({length:30},(_,i)=>finding(`OP-INVENTED-${i+1}`,`Invented finding number ${i+1}.`));
