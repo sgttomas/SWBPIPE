@@ -15,8 +15,9 @@ import catalog from "../../src-tauri/resources/agent-capability-catalog.json";
 import type { PreviewModel } from "../types";
 import { readFileSync } from "node:fs";
 import { resolve } from "node:path";
-import { familyRecords, RECORD_FAMILIES, recordBefore, stampAgentOperations, type RecordFamily } from "./embeddedAgentSession";
+import { familyRecords, PROPOSAL_FINDINGS_LABEL, RECORD_FAMILIES, recordBefore, refusedProposalMessage, stampAgentOperations, type RecordFamily } from "./embeddedAgentSession";
 import { PERSON_ENTERED_CHECK, writesUserEnteredModifier } from "./operationAuthorship";
+import { GENERIC_REFUSAL } from "./agentUnitRefusal";
 import { applyOperationBatch } from "./operationBatchService";
 import { canonicalJsonString, computeModelHash } from "./hashService";
 
@@ -210,6 +211,59 @@ describe("swbpipe_read_records before texts are the ones the engine compares", (
     expect(back.before.analysis_state).toBe(filled);
     model = await applied(model, op("modify", "Load", "load:RS-OPE", "update_load", "analysis_state", back.before.analysis_state, "not_present"));
     expect(find(model, "load_cases", "load:RS-OPE").analysis_state).toBeUndefined();
+  });
+});
+
+describe("the propose tool's message for a batch the engine refuses", () => {
+  it("lists the engine's own blocking findings in the batch's order, after the labelling sentence", async () => {
+    const model = structuredClone(referenceJson) as unknown as PreviewModel;
+    const material = await read(model, "materials", "material:RS-M1");
+    const modulus = material.record.elastic_modulus as { value: number; unit: string };
+    // Step 1 is exact and passes on the temporary state; step 2's before text is stale, so replay stops there.
+    const stale = op("modify", "Material", "material:RS-M1", "set_field", "elastic_modulus.value", `${String(modulus.value)}1`, json({ value: modulus.value, unit: modulus.unit }), modulus.unit, "stress");
+    const operations = [
+      op("modify", "Material", "material:RS-M1", "set_field", "elastic_modulus.value", String(modulus.value), json({ value: modulus.value, unit: modulus.unit }), modulus.unit, "stress"),
+      { ...stale, operation_id: `${String(stale.operation_id)}:2`, change: { ...(stale.change as AnyRecord), change_id: `${String((stale.change as AnyRecord).change_id)}:2` } },
+    ];
+    const hash = await computeModelHash(model);
+    const outcome = await applyOperationBatch(model, { batch_id: "agent-refused", operations: stampAgentOperations(operations, "proposal", "request"), source_model_hash: hash!.value }, hash);
+    expect(outcome.validation.batch_validation_status).toBe("blocked");
+    const blocking = outcome.diagnostics.filter((d) => d.severity === "blocking");
+    expect(blocking.length).toBeGreaterThan(0);
+    const message = refusedProposalMessage(GENERIC_REFUSAL, outcome.diagnostics);
+    expect(message.startsWith(`${GENERIC_REFUSAL} ${blocking.length} blocking finding${blocking.length === 1 ? "" : "s"}`)).toBe(true);
+    const listed = message.slice(message.indexOf(PROPOSAL_FINDINGS_LABEL) + PROPOSAL_FINDINGS_LABEL.length);
+    expect(listed.startsWith(` [1] ${blocking[0].code} ${JSON.stringify(blocking[0].message).slice(0, 40)}`)).toBe(true);
+    expect(blocking.map((d) => d.code)).toContain("OP-STALE-BEFORE-VALUE");
+    expect([...listed.matchAll(/ \[\d+\] ([A-Z0-9_.:-]+)/g)].map((m) => m[1])).toEqual(blocking.map((d) => d.code).slice(0, [...listed.matchAll(/ \[\d+\] /g)].length));
+    expect([...message].length).toBeLessThanOrEqual(1000);
+  });
+
+  it("names only the agent's own identifier when it collides with one held in a slot the agent cannot read", async () => {
+    // Each unread slot holds one invented identifier and some text of its own; the agent proposes a
+    // condition set with that identifier (a create whose id the engine checks against the whole document).
+    const slots: [string, AnyRecord][] = [
+      ["lines", { id: "held-a", label: "SLOT-TEXT-line", pipe_refs: [] }],
+      ["unresolved_assumptions", { assumption_id: "held-b", kind: "assumption", statement: "SLOT-TEXT-assumption", status: "unresolved" }],
+      ["constraints", { constraint_id: "held-c", name: "SLOT-TEXT-constraint", constraint_kind: "clearance", state: "proposed" }],
+      ["equipment_interfaces", { id: "held-d", label: "SLOT-TEXT-interface", node_ref: "SLOT-TEXT-node" }],
+      ["spectra", { id: "held-e", label: "SLOT-TEXT-spectrum" }],
+    ];
+    for (const [slot, record] of slots) {
+      const model = { ...structuredClone(demoJson), [slot]: [record] } as unknown as PreviewModel;
+      const held = String(record.id ?? record.assumption_id ?? record.constraint_id);
+      for (const operation of [
+        op("create", "ConditionSet", held, "create_condition_set", "condition_sets", "not_present", json({ id: held, label: "agent set" })),
+      ]) {
+        const outcome = await run(model, operation);
+        const blocking = outcome.diagnostics.filter((d) => d.severity === "blocking");
+        expect(blocking.map((d) => `${d.code}: ${d.message}`), `${slot} ${String((operation.change as AnyRecord).change_kind)}`)
+          .toEqual([`OP-DATA-ID-COLLISION: \`${held}\` is already an id in this document; ids are unique.`]);
+        const message = refusedProposalMessage(GENERIC_REFUSAL, outcome.diagnostics);
+        expect(message).toBe(`${GENERIC_REFUSAL} 1 blocking finding. ${PROPOSAL_FINDINGS_LABEL} [1] OP-DATA-ID-COLLISION ${JSON.stringify(`\`${held}\` is already an id in this document; ids are unique.`)}`);
+        for (const word of ["SLOT-TEXT", slot, "line", "assumption", "constraint", "interface", "spectr"]) expect(message, `${slot}: ${word}`).not.toContain(word);
+      }
+    }
   });
 });
 
