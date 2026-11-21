@@ -17,6 +17,7 @@ import { readFileSync } from "node:fs";
 import { resolve } from "node:path";
 import { runPreviewMechanics, buildAnalysisRunPreview, hasNativeMechanicsInvocation } from "../../services/previewService";
 import { buildCurrentSessionInputManifest } from "../../services/inputManifestService";
+import { solveHeldCopy } from "../../test/heldResultCopy";
 import { N_RULE_CHECK_NOT_NUMERICALLY_ELIGIBLE, runRuleChecks } from "../../services/ruleCheckService";
 import { N_LOAD_REFERENCE_RULE_CHECK } from "../results/loadReferenceDisclosure";
 import { numericalResultStanding } from "../results/resultStanding";
@@ -43,7 +44,9 @@ async function solve(rawPath: string, requestPath: string, mode: Mode) {
     expect(sent.model).toEqual(model);
     return originalText; // the producer's bytes, as captured
   }).invoke);
-  const source = await runPreviewMechanics(model, mode);
+  // Held natively, as the session holds its own, and read as its registered full copy: a rule
+  // check on it sends the holding job's handle.
+  const source = await solveHeldCopy(model, mode);
   const manifestFor = (m: PreviewModel) => buildCurrentSessionInputManifest({ model: m, solver: { solver_name: source.producer!.component_name, solver_version: source.producer!.component_version, solver_build_ref: "test:load-reference-unit-transport-replay", solver_mode: mode, settings: {} }, active_rule_packs: [], external_assets: [] });
   const manifest = await manifestFor(model);
   return { source, model, manifest, manifestFor };

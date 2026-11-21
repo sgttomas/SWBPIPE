@@ -14,8 +14,7 @@
 //! professional or code-compliance claim.
 
 use super::*;
-use crate::command_ingress::test_support::{admit_json, registry};
-use crate::memory_pool::test_host::ScriptedHost;
+use crate::command_ingress::test_support::admit_json;
 use serde_json::json;
 use std::path::Path;
 
@@ -258,9 +257,10 @@ fn a_positional_member_refuses_the_mechanics_qualification() {
 /// provenance refuses the run before any check, as its object form does.
 #[test]
 fn the_raw_ipc_form_refuses_positional_arguments_and_records() {
-    let pool = registry(ScriptedHost::normal());
+    let (pool, gate) = crate::native_replay_tests::registry();
     let request = project_file("core/product_physics/tests/fixtures/exact_pressure_connected_request.json");
     let source = project_file("fixtures/results/pressure_connected_mechanics_sparse.json");
+    let job = crate::native_replay_tests::held(&pool, &gate, &serde_json::to_string(&source).unwrap());
     let no_store = || -> Result<PathBuf, String> { Err("no store in this test".to_string()) };
     let positional_args = json!([pack(), request["model"], source]);
     let error = admit_json(&pool, "run_rule_checks", ArgsDecoding::Moved, &positional_args).unwrap_err();
@@ -271,9 +271,9 @@ fn the_raw_ipc_form_refuses_positional_arguments_and_records() {
         if positional_provenance {
             make_positional(&mut probe, "/provenance");
         }
-        let args = json!({"rulePackDocument": restamp(probe), "model": request["model"], "solvedEnvelope": source});
+        let args = json!({"rulePackDocument": restamp(probe), "model": request["model"], "jobId": job});
         let (mut args, _lease) = admit_json(&pool, "run_rule_checks", ArgsDecoding::Moved, &args).expect("admitted");
-        let outcome = run_rule_checks_args(&mut args, &no_store).expect("the run answers");
+        let outcome = run_rule_checks_args(&mut args, &no_store, &pool).expect("the run answers");
         assert_eq!(outcome["aggregate_status"], "RULE_INPUTS_INCOMPLETE", "{positional_provenance}");
         assert_eq!(outcome["checks"], json!([]), "{positional_provenance}");
         let expected = if positional_provenance { "MISSING_REVIEW_STATUS" } else { "PROTECTED_CONTENT_SUSPECTED" };

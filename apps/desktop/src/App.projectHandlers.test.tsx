@@ -467,8 +467,7 @@ describe("project handlers: a failed or empty open leaves the open project as it
     });
     setTauriRuntime(true);
     const solve = openWorkspaceSection("solve");
-    // Rule checks read full rows (C2): their copy loads on request, never at the solve's first paint.
-    fireEvent.click(within(solve).getByTestId("c2-result-load"));
+    // Rule checks read the held result by its handle: no full copy is loaded for them.
     fireEvent.click(await within(solve).findByTestId("rule-check-load-demo"));
     await within(solve).findByTestId("rule-check-binding-plan");
     fireEvent.click(within(solve).getByTestId("rule-check-run"));

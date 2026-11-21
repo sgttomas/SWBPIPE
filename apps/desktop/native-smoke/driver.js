@@ -124,11 +124,11 @@
 
   // C1 native custody (C2ResultGate.tsx): for a native result, a panel that reads the full result
   // rows sits behind a gate. Since 5629867e5 a gate on a shown page reads the full copy by itself
-  // ("Reading the full result for …" until it lands); since 8f2b8c42e the Solve section's rule
-  // checks read it only when the person clicks "Load for rule checks". So the driver, as a person,
-  // clicks that button when the section offers it, then waits for the panel. A gate that refused or
-  // failed ends the wait at once with its own text. Only the gate for `feature` in this section is
-  // touched: other pages hold gates of their own, and one page can hold several.
+  // ("Reading the full result for …" until it lands); a gate that offers its read on request is
+  // opened by the driver as a person would, by clicking its "Load for …" button, before it waits
+  // for the panel. A gate that refused or failed ends the wait at once with its own text. Only the
+  // gate for `feature` in this section is touched: other pages hold gates of their own, and one
+  // page can hold several.
   function c2Gate(section, feature) {
     const root = byTestId(`workspace-section-${section}`);
     const all = (id) => [...(root?.querySelectorAll(`[data-testid="${CSS.escape(id)}"]`) ?? [])];
@@ -864,11 +864,20 @@
     return observation;
   }
 
-  // The Solve section's rule checks, as a person runs them since 8f2b8c42e: Load for rule checks
-  // (the gate, for this result), Load demo rule pack, Run checks. The panel is mounted afresh for
-  // each new result, so both the demo's and the exact route's runs pass through the gate.
+  // The Solve section's rule checks, as a person runs them: Load demo rule pack, Run checks. The run
+  // reads the result native custody holds, by its handle, so no full copy is loaded for it: the
+  // panel is shown at once. A full-copy gate for rule checks appearing in the section ends the
+  // wait at once, with what it showed; `full_copy_offered` records that none did.
   async function runRuleChecks(label) {
-    const gate = await openC2Gate("solve", "rule checks", "rule-check-run-panel");
+    await showSection("solve");
+    await waitFor(`${label}: rule-check run panel`, () => {
+      const shown = c2Gate("solve", "rule checks");
+      if (shown.load || shown.reading || shown.offered || shown.stopped) {
+        throw new Error(`${label}: a full-copy gate for rule checks appeared (${JSON.stringify({ load: Boolean(shown.load), reading: shown.reading, offered: shown.offered, stopped: shown.stopped?.textContent?.trim() ?? null })})`);
+      }
+      return byTestId("rule-check-run-panel");
+    }, 120000);
+    const gate = { full_copy_offered: false };
     click("rule-check-load-demo");
     const run = await waitFor(`${label}: rule-check run enabled`, () => {
       const status = text("rule-check-run-status") ?? "";

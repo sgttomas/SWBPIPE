@@ -97,6 +97,8 @@ mod user_release_save_tests;
 mod worker_alloc;
 #[cfg(test)]
 mod rule_check_object_form_tests;
+#[cfg(test)]
+mod rule_check_handle_tests;
 
 #[cfg(all(target_os = "macos", feature = "native-smoke"))]
 pub fn run_agent_session_fixture() -> i32 { embedded_agent::session_fixture::run() }
@@ -3867,47 +3869,231 @@ fn validate_rule_pack_value(
 /// 0.5.0, DEL-06-01 Design `rule-pack-0.5.0.md` §2.7). The pack is validated
 /// first; a pack with blocking validation findings (any format other than
 /// 0.5.0 among them) is reported as `RULE_INPUTS_INCOMPLETE` without running
-/// checks. Solver values are resolved from the solved mechanics envelope
-/// supplied via `solved_envelope` (a solve-job result; this command does not
-/// solve) by each input's in-pack selector on each basis (§2.5); user values and value-slot limits come from
+/// checks. Solver values are resolved from the solved result this session's
+/// native custody holds under `jobId` (a fresh solve's handle; this command
+/// does not solve and the web view sends no copy of the result) by each
+/// input's in-pack selector on each basis (§2.5); user values and value-slot limits come from
 /// `supplied_value_bindings`. This emits only the automatic rule-check statuses
 /// and makes no professional, certification, sealing, authentication, approval,
-/// or code-compliance claim.
+/// or code-compliance claim. The held result is parsed and checked in a
+/// blocking task, off the main thread.
 #[tauri::command]
-fn run_rule_checks(
+async fn run_rule_checks(
     app: AppHandle,
     invoke: tauri::ipc::Request<'_>,
     registry: tauri::State<'_, SolveJobRegistry>,
 ) -> Result<tauri::ipc::Response, CommandError> {
-    let (mut args, _lease) = command_ingress::admit(&registry, &invoke, "run_rule_checks", ArgsDecoding::Moved)?;
-    respond(run_rule_checks_args(&mut args, &|| app_store_path(&app)))
+    let (mut args, lease) = command_ingress::admit(&registry, &invoke, "run_rule_checks", ArgsDecoding::Moved)?;
+    let registry = registry.inner().clone();
+    tauri::async_runtime::spawn_blocking(move || {
+        let response = respond(run_rule_checks_args(&mut args, &|| app_store_path(&app), &registry));
+        drop(lease);
+        response
+    })
+    .await
+    .unwrap_or_else(|_| Err(CommandError::Command("RULE-CHECK-WORKER-FAILED: the rule check's worker did not complete.".to_string())))
 }
 
-/// `{rulePackDocument, model?, solvedEnvelope?, solverResultBindings?,
+/// The refusal of a rule check sent a copy of the result instead of its handle.
+const RULE_CHECK_SOLVED_ENVELOPE_RETIRED: &str = "RULE_CHECK_SOLVED_ENVELOPE_RETIRED";
+/// The refusal of a handle that selects no result this session holds natively.
+const RULE_CHECK_RESULT_NOT_HELD: &str = "RULE_CHECK_RESULT_NOT_HELD";
+
+/// The solved result a rule check reads: the one this session's native custody
+/// holds under `job_id`, parsed from its exact held bytes under a result-parse
+/// lease priced by the prescan, as the native readers parse it. Refused by name,
+/// before anything is evaluated, for a handle the registry does not know (never
+/// issued by this registry, or pruned after disposal), one whose result was
+/// disposed or taken into the web view, one held in web view custody rather than
+/// natively, and a restored (saved or recorded) run, which has historical standing
+/// only: the web view refused that last one as `RULE_NATIVE_INVOCATION_REQUIRED`,
+/// and so does this. `allow_restored` admits a restored run for display-only
+/// readers. A result holding a number outside the checked JSON profile is refused
+/// as the web view's registration refused it ([`outside_checked_json_profile`]).
+/// The lease is returned with the value and must outlive it; the share is
+/// returned so that the caller can establish, before it answers, that custody
+/// still holds these bytes ([`still_held`]).
+fn held_rule_check_source(registry: &SolveJobRegistry, job_id: &str, allow_restored: bool) -> Result<(Value, memory_pool::Lease, Arc<solve_jobs::HeldResult>), CommandError> {
+    let not_held = |reason: String| CommandError::Command(format!("{RULE_CHECK_RESULT_NOT_HELD}: {reason}"));
+    match registry.result_origin(job_id) {
+        None => return Err(not_held(format!("{} is not a result held in this session", stored_read::shown(job_id)))),
+        Some(solve_jobs::ResultOrigin::Restored(_)) if !allow_restored => {
+            return Err(CommandError::Command(
+                "RULE_NATIVE_INVOCATION_REQUIRED: reference or saved data is not a fresh supported solve.".to_string(),
+            ))
+        }
+        Some(_) => {}
+    }
+    if registry.result_custody(job_id) != Some(solve_jobs::ResultCustody::Native) {
+        return Err(not_held(format!("{} is not held natively", stored_read::shown(job_id))));
+    }
+    let held = registry.held_result(job_id).map_err(|error| match error {
+        solve_jobs::SolveJobError::InvalidRequest { message } => not_held(message),
+        other => CommandError::Ingress(other),
+    })?;
+    let bounds = native_verdict::prescan_in_order(registry, &[("source", Some(held.text()))])?;
+    let (bound, _) = bounds[0].expect("the held source is prescanned");
+    let lease = registry.acquire_result_parse(bound.materialization_bytes)?;
+    let value = serde_json::from_str::<Value>(held.text())
+        .map_err(|error| not_held(format!("the held result is not readable JSON: {error}")))?;
+    if outside_checked_json_profile(&value) {
+        return Err(CommandError::Command(format!(
+            "RULE_NATIVE_INVOCATION_REQUIRED: {CHECKED_JSON_NUMBER_OUTSIDE_PROFILE}: the held result holds an integral number beyond ±(2^53 − 1), which the checked JSON profile refuses; it is not checked"
+        )));
+    }
+    Ok((value, lease, held))
+}
+
+/// `checkedJsonText`'s number refusal (`hashService.ts`), which the web view's
+/// registration of a received result applied to the whole result.
+const CHECKED_JSON_NUMBER_OUTSIDE_PROFILE: &str = "CHECKED-JSON-NUMBER-OUTSIDE-PROFILE";
+
+/// Whether `value` holds a number the checked JSON profile refuses: an integral
+/// value outside the safe integer range ±(2^53 − 1), whether written as an
+/// integer or with a fraction or exponent. (Non-finite numbers cannot be written
+/// in JSON, and a lone surrogate escape does not parse.)
+fn outside_checked_json_profile(value: &Value) -> bool {
+    const SAFE: u64 = 9_007_199_254_740_991;
+    match value {
+        Value::Number(number) => {
+            if let Some(unsigned) = number.as_u64() {
+                unsigned > SAFE
+            } else if let Some(signed) = number.as_i64() {
+                signed.unsigned_abs() > SAFE
+            } else {
+                let float = number.as_f64().unwrap_or(f64::NAN);
+                float.fract() == 0.0 && float.abs() > SAFE as f64
+            }
+        }
+        Value::Array(items) => items.iter().any(outside_checked_json_profile),
+        Value::Object(members) => members.values().any(outside_checked_json_profile),
+        _ => false,
+    }
+}
+
+/// DEL-07-07 REQ-015: a reader answers only while custody still holds the bytes
+/// it read. Refused, with nothing that was read, when the handle's result was
+/// disposed (or replaced) between its acquisition and the answer.
+fn still_held(registry: &SolveJobRegistry, job_id: &str, read: &Arc<solve_jobs::HeldResult>) -> Result<(), CommandError> {
+    #[cfg(test)]
+    crate::native_verdict::tests::gate::pass(crate::native_verdict::tests::gate::key(registry, "rule-check-answer"));
+    match registry.held_result(job_id) {
+        Ok(now) if Arc::ptr_eq(&now, read) => Ok(()),
+        _ => Err(CommandError::Command(format!(
+            "{RULE_CHECK_RESULT_NOT_HELD}: {} was released while it was read; nothing it read is returned",
+            stored_read::shown(job_id)
+        ))),
+    }
+}
+
+/// Display only: which rows of the held result each `solver_result` input's
+/// selector names on its bases, with the run's own row index and row gate
+/// ([`rule_solver_selection::preview_solver_rows`]), for the rule-check
+/// panel's selector preview and binding pre-check. Raw args body
+/// `{jobId, queries: [{input_id, selector, bases}]}`. It reads a restored run
+/// too (it binds and evaluates nothing); the handle is otherwise refused as
+/// the run refuses it. Parsed in a blocking task, off the main thread.
+#[tauri::command]
+async fn preview_rule_solver_rows(
+    invoke: tauri::ipc::Request<'_>,
+    registry: tauri::State<'_, SolveJobRegistry>,
+) -> Result<tauri::ipc::Response, CommandError> {
+    let (mut args, lease) = command_ingress::admit(&registry, &invoke, "preview_rule_solver_rows", ArgsDecoding::Moved)?;
+    let registry = registry.inner().clone();
+    tauri::async_runtime::spawn_blocking(move || {
+        // The reply's text is built under its own lease, held until it is handed over.
+        let response = preview_rule_solver_rows_reply(&mut args, &registry).map(|(text, reply_lease)| {
+            let response = tauri::ipc::Response::new(text);
+            drop(reply_lease);
+            response
+        });
+        drop(lease);
+        response
+    })
+    .await
+    .unwrap_or_else(|_| Err(CommandError::Command("RULE-CHECK-WORKER-FAILED: the selector preview's worker did not complete.".to_string())))
+}
+
+/// The selector preview's reply text and its lease. The request is bounded
+/// before the result is read ([`rule_solver_selection::check_preview_queries`]),
+/// each basis returns at most the rows the display shows, and the reply is
+/// refused by name above [`rule_solver_selection::MAX_PREVIEW_REPLY_BYTES`]; its
+/// exact length is leased before its text is made, as the detail readers lease
+/// theirs.
+fn preview_rule_solver_rows_reply(args: &mut Args, registry: &SolveJobRegistry) -> Result<(String, memory_pool::Lease), CommandError> {
+    preview_rule_solver_rows_reply_within(args, registry, rule_solver_selection::MAX_PREVIEW_REPLY_BYTES)
+}
+
+/// [`preview_rule_solver_rows_reply`] under a reply limit of `limit` bytes.
+fn preview_rule_solver_rows_reply_within(args: &mut Args, registry: &SolveJobRegistry, limit: u64) -> Result<(String, memory_pool::Lease), CommandError> {
+    let job_id: String = args.decode("jobId")?;
+    let queries: Vec<Value> = args.decode("queries")?;
+    rule_solver_selection::check_preview_queries(&queries).map_err(CommandError::Command)?;
+    let (envelope, parse, held) = held_rule_check_source(registry, &job_id, true)?;
+    let mut preview = rule_solver_selection::preview_solver_rows(&envelope, &queries);
+    drop(envelope);
+    drop(parse);
+    preview["job_id"] = json!(job_id);
+    still_held(registry, &job_id, &held)?;
+    drop(held);
+    let length = rule_solver_selection::json_length(&preview);
+    if length > limit {
+        return Err(CommandError::Command(format!(
+            "{}: the preview needs a reply of {length} bytes, more than its {limit}-byte limit; preview fewer inputs or load cases",
+            rule_solver_selection::RULE_SOLVER_PREVIEW_RESPONSE_LIMIT
+        )));
+    }
+    let reply_lease = registry.acquire_result_parse(length)?;
+    let text = serde_json::to_string(&preview).map_err(|error| CommandError::Response(error.to_string()))?;
+    Ok((text, reply_lease))
+}
+
+/// `{rulePackDocument, jobId, model?, solverResultBindings?,
 /// suppliedValueBindings?, projectId?, sourceBlockInvocation?}`.
+/// `jobId` names the solved result in this session's native custody
+/// ([`held_rule_check_source`]); a `solvedEnvelope` copy is refused by name
+/// (`RULE_CHECK_SOLVED_ENVELOPE_RETIRED`). The model is checked first, as
+/// before, so a run without a model is refused without reading the result.
 /// `solverResultBindings` is retired for a 0.5.0 pack and refused by name
 /// (`RULE_CALLER_SOLVER_BINDING_RETIRED`; DEL-06-01 Design
 /// `rule-pack-0.5.0.md` §2.5); it is still read so that it is refused rather
 /// than silently ignored.
-fn run_rule_checks_args(args: &mut Args, store: &dyn Fn() -> Result<PathBuf, String>) -> Result<Value, CommandError> {
+fn run_rule_checks_args(args: &mut Args, store: &dyn Fn() -> Result<PathBuf, String>, registry: &SolveJobRegistry) -> Result<Value, CommandError> {
+    if args.keys().any(|key| key == "solvedEnvelope") {
+        return Err(CommandError::Command(format!(
+            "{RULE_CHECK_SOLVED_ENVELOPE_RETIRED}: a rule check reads the solved result held natively; send its jobId, not a copy of the result"
+        )));
+    }
     let rule_pack_document = args.value("rulePackDocument")?;
+    let job_id: Option<String> = args.decode("jobId")?;
     let model = args.opt_value("model");
-    let solved_envelope = args.opt_value("solvedEnvelope");
     let solver_result_bindings = args.opt_value("solverResultBindings");
     let supplied_value_bindings = args.opt_value("suppliedValueBindings");
     let project_id = args.decode::<Option<String>>("projectId")?;
     let source_block_invocation = args.opt_value("sourceBlockInvocation");
-    run_rule_checks_value(
+    if model.is_none() {
+        return Err(CommandError::Command(
+            "RULE_NUMERICAL_CASE_COVERAGE_UNAVAILABLE: supply the current model with explicit load cases and recompute mechanics".to_string(),
+        ));
+    }
+    let job_id = job_id.ok_or_else(|| CommandError::Command(
+        "RULE_CHECK_SOLVED_ENVELOPE_REQUIRED: run the solve job and supply its jobId".to_string(),
+    ))?;
+    let (envelope, parse, held) = held_rule_check_source(registry, &job_id, false)?;
+    let outcome = run_rule_checks_value(
         store,
         rule_pack_document,
         model,
-        solved_envelope,
+        Some(envelope),
         solver_result_bindings,
         supplied_value_bindings,
         project_id,
         source_block_invocation,
-    )
-    .map_err(CommandError::Command)
+    );
+    drop(parse);
+    // A result disposed while it was checked answers with the refusal, never with findings.
+    still_held(registry, &job_id, &held)?;
+    outcome.map_err(CommandError::Command)
 }
 
 #[allow(clippy::too_many_arguments)]
@@ -6339,6 +6525,7 @@ macro_rules! app_invoke_handler {
             list_local_rule_packs,
             delete_local_rule_pack,
             run_rule_checks,
+            preview_rule_solver_rows,
             validate_library_import,
             save_local_library,
             open_local_library,
@@ -11188,12 +11375,18 @@ mod tests {
             let (mut args, _lease) = admit("save_local_rule_pack", json!({"projectId": " ", "document": document}));
             assert_eq!(command_error(save_local_rule_pack_args(&mut args, || Ok(store.clone())).unwrap_err()), "project_id must be non-empty");
 
+            let jobs = registry(ScriptedHost::normal());
+            let (mut args, _lease) =
+                admit("run_rule_checks", json!({"rulePackDocument": document, "jobId": "job-unknown", "projectId": null}));
+            let error = command_error(run_rule_checks_args(&mut args, &|| Ok(store.clone()), &jobs).unwrap_err());
+            assert!(error.starts_with("RULE_NUMERICAL_CASE_COVERAGE_UNAVAILABLE"), "{error}");
+            // A copy of the result is refused by name, whatever else is sent.
             let (mut args, _lease) =
                 admit("run_rule_checks", json!({"rulePackDocument": document, "solvedEnvelope": {}, "projectId": null}));
-            let error = command_error(run_rule_checks_args(&mut args, &|| Ok(store.clone())).unwrap_err());
-            assert!(error.starts_with("RULE_NUMERICAL_CASE_COVERAGE_UNAVAILABLE"), "{error}");
+            let error = command_error(run_rule_checks_args(&mut args, &|| Ok(store.clone()), &jobs).unwrap_err());
+            assert!(error.starts_with("RULE_CHECK_SOLVED_ENVELOPE_RETIRED"), "{error}");
             let (mut args, _lease) = admit("run_rule_checks", json!({"rulePackDocument": document, "projectId": 5}));
-            assert!(invalid_args(run_rule_checks_args(&mut args, &|| Ok(store.clone())).unwrap_err()).contains("`projectId`"));
+            assert!(invalid_args(run_rule_checks_args(&mut args, &|| Ok(store.clone()), &jobs).unwrap_err()).contains("`projectId`"));
             fs::remove_dir_all(store.parent().unwrap()).unwrap();
         }
 

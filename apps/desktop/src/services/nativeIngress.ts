@@ -29,6 +29,7 @@ export const NATIVE_INGRESS_COMMANDS = [
   "save_local_project",
   "validate_rule_pack",
   "run_rule_checks",
+  "preview_rule_solver_rows",
   "compute_rule_pack_document_checksum",
   "save_local_rule_pack",
   "validate_library_import",

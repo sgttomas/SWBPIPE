@@ -71,20 +71,21 @@ describe("a native result's first paint in the app", () => {
     expect(sent("take_preview_mechanics_job_result")).toBe(0);
     expect(sent("read_preview_mechanics_job_rows_all")).toBe(0);
     expect(fullRecordBuilds).not.toHaveBeenCalled();
-    // The Solve section is open: its rule checks offer to read the full rows, and wait.
+    // The Solve section is open: its rule checks read the held result by its handle, so they are
+    // shown at once and copy nothing.
     const solveSection = screen.getByTestId("workspace-section-solve");
-    expect(within(solveSection).queryByTestId("rule-check-load-demo")).toBeNull();
-    fireEvent.click(within(solveSection).getByTestId("c2-result-load"));
     expect(await within(solveSection).findByTestId("rule-check-load-demo")).toBeInTheDocument();
-    expect(sent("read_preview_mechanics_job_rows_all")).toBe(1);
-    expect(fullRecordBuilds).toHaveBeenCalledTimes(1);
+    expect(within(solveSection).queryByTestId("c2-result-load")).toBeNull();
+    await settle();
+    expect(sent("read_preview_mechanics_job_rows_all")).toBe(0);
+    expect(fullRecordBuilds).not.toHaveBeenCalled();
 
-    // Opening the Report section reads the same copy: none is made again for the job.
+    // Opening the Report section reads the full copy, once for the job.
     nativeMenuCommand("view.section.report");
     expect(await within(screen.getByTestId("workspace-section-report")).findByTestId("report-panel")).toBeInTheDocument();
     await settle();
     expect(sent("read_preview_mechanics_job_rows_all")).toBe(1);
-    // ... and its full record, built once on that copy, is shared.
+    // ... and its full record, built once on that copy.
     expect(fullRecordBuilds).toHaveBeenCalledTimes(1);
 
     // A second solve releases the first job; with Report dormant again, nothing is copied.
@@ -93,7 +94,8 @@ describe("a native result's first paint in the app", () => {
     expect(mechanics.nativeHeld()).toHaveLength(1);
     expect(sent("read_preview_mechanics_job_rows_all")).toBe(1);
     expect(fullRecordBuilds).toHaveBeenCalledTimes(1);
-    expect(within(screen.getByTestId("workspace-section-solve")).getByTestId("c2-result-load")).toBeInTheDocument();
+    expect(within(screen.getByTestId("workspace-section-solve")).getByTestId("rule-check-load-demo")).toBeInTheDocument();
+    expect(within(screen.getByTestId("workspace-section-solve")).queryByTestId("c2-result-load")).toBeNull();
     expect(sent("take_preview_mechanics_job_result")).toBe(0);
   }, 90_000);
 });

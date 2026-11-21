@@ -45,7 +45,16 @@ needs:
     A rule-check run yields one outcome for each check on each load case or combination its category
     maps, reports no within or exceeding outcome on a basis whose required values are not all
     present, reports a missing rule-pack input as a rule-check-blocking finding distinct from a
-    solve-blocking one, and returns an aggregate that is incomplete while any outcome is.
+    solve-blocking one, and returns an aggregate that is incomplete while any outcome is. For a
+    result held natively, the run and the rows a selector names on each basis are read by the
+    result's handle, with no copy of the result in the display.
+  gating: true
+- from: DEL-07-07
+  when: Running a rule check on a result held natively
+  condition: >-
+    A fresh solve's held result is named by a handle the display holds while the result is held;
+    the native host resolves that handle to the held bytes and refuses by name a handle it does not
+    hold natively, or one for a restored run.
   gating: true
 - from: DEL-06-04
   when: Showing the pack a run used
@@ -92,7 +101,8 @@ needs:
   gating: true
 code_paths:
 # The rule-check run surface. RuleCheckRunPanel.tsx and the service are shared with DEL-06-03,
-# which owns the runner and the row selection the service's preview repeats.
+# which owns the runner and the row selection the service's preview repeats or, for a result
+# held natively, reads by handle.
 - apps/desktop/src/features/rule-check/**
 - apps/desktop/src/services/ruleCheckService.ts
 # The missing-data panel of the Issues home, and the blocker count behind the Issues badge.

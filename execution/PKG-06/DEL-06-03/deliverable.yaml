@@ -109,9 +109,10 @@ code_paths:
 - core/rules/rule_check_runner/src/**
 - core/rules/rule_check_runner/tests/common/**
 - schemas/rule_check_run_result.schema.json
-# In the desktop host: the rule-check run command with its library-value resolution, and the
-# module that checks required load cases and selects result rows. The rest of lib.rs belongs to
-# the deliverables that own each command.
+# In the desktop host: the rule-check run command with its library-value resolution, which reads
+# the result native custody holds by its handle, and the module that checks required load cases
+# and selects result rows (with the selector preview read by handle). The rest of lib.rs belongs
+# to the deliverables that own each command.
 - apps/desktop/src-tauri/src/rule_solver_selection.rs
 - apps/desktop/src-tauri/src/lib.rs
 # The desktop's rule-check panel and service (apps/desktop/src/features/rule-check/**,
@@ -126,4 +127,5 @@ checks:
 - core/rules/rule_check_runner/tests/point_path_non_finite_run.rs
 - apps/desktop/src-tauri/src/rule_solver_selection_tests.rs
 - apps/desktop/src-tauri/src/rule_check_object_form_tests.rs
+- apps/desktop/src-tauri/src/rule_check_handle_tests.rs
 - tests/test_operation_result_schemas.py

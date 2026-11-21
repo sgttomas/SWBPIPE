@@ -12,6 +12,7 @@
  * (2026-10-26). No other line is written into a document, package, record or run result. */
 import { sourceContract } from "./resultReader";
 import type { MechanicsResult } from "../../types";
+import type { NativeResult } from "../../services/nativeResult";
 
 export type LoadReferenceDisclosureSurface = "result-export" | "stress-neutral" | "rule-check" | "rendered-report";
 
@@ -46,7 +47,9 @@ function distinct(values: unknown[]): string[] {
 /** The surface's disclosure line for an exact-route result that publishes
  * `contract_evidence.load_reference_states`, or null (no such group, another route, or
  * a group without the three identifiers). */
-export function loadReferenceDisclosure(source: MechanicsResult | null | undefined, surface: LoadReferenceDisclosureSurface): string | null {
+// A native handle carries the envelope's `contract_evidence` (S's header) and its route, so it
+// reads the same line without the full rows.
+export function loadReferenceDisclosure(source: MechanicsResult | NativeResult | null | undefined, surface: LoadReferenceDisclosureSurface): string | null {
   if (!source) return null;
   const records = (source.contract_evidence as { load_reference_states?: unknown } | null | undefined)?.load_reference_states;
   if (!Array.isArray(records) || records.length === 0) return null;

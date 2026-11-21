@@ -8,7 +8,19 @@ import { retainedPrecisionInvocation } from "../features/results/retainedPrecisi
 import { invokeWithIngress } from "./nativeIngress";
 import type { MechanicsResult, PreviewModel } from "../types";
 import type { RulePackDocument, RulePackDocumentValidation } from "./rulePackService";
-import { disposeDeliveredMechanicsResult, hasNativeMechanicsInvocation, runPreviewMechanics } from "./previewService";
+import {
+  abandonPreviewMechanicsJob,
+  awaitPreviewMechanicsJob,
+  nativeHeldMechanicsResultJob,
+  discardPreviewMechanicsJobResult,
+  disposeDeliveredMechanicsResult,
+  hasNativeMechanicsInvocation,
+  readNativeFreshResult,
+  retainedNativeMechanicsInvocation,
+  startPreviewMechanicsJob,
+  terminalJobError
+} from "./previewService";
+import { isNativeJobLive, isNativeResult, nativeCustody, type NativeResult, type SessionResult } from "./nativeResult";
 
 // Rule-check runner seam (Phase C4, TP-C4-CHECKGUI-001). Running a rule pack's
 // checks against a solved model routes through the desktop (Tauri)
@@ -139,15 +151,21 @@ function unavailable(): RuleCheckUnavailable {
   return { route: "unavailable_browser_preview", diagnostic: RULE_CHECK_BACKEND_DIAGNOSTIC };
 }
 
+/** The refusal of a solved result whose bytes no native job holds any more. */
+export const RULE_CHECK_RESULT_NOT_HELD = "RULE_CHECK_RESULT_NOT_HELD";
+const NOT_HELD_MESSAGE = `${RULE_CHECK_RESULT_NOT_HELD}: the solved result is no longer held. Solve again to run rule checks.`;
+
 export async function runRuleChecks(args: {
   rulePackDocument: RulePackDocument;
   model?: PreviewModel | null;
-  solvedEnvelope?: MechanicsResult | null;
+  /** The solved result: the session's native handle (or a copy registered to the native job
+   * that holds its bytes). Only its custody handle is sent; the backend reads the held result. */
+  solvedEnvelope?: SessionResult | null;
   suppliedValueBindings?: SuppliedValueBinding[];
   projectId?: string | null;
 }): Promise<RuleCheckRunRoute> {
   if (!isTauriRuntime()) return unavailable();
-  // Supply the model even with a solved envelope so the backend can verify
+  // Supply the model even with a solved result so the backend can verify
   // complete requested-case coverage without inferring requests from results, and
   // so it can check the pack's required load cases against the model. Empty
   // binding arrays are omitted so the backend treats those inputs as unsupplied
@@ -156,9 +174,10 @@ export async function runRuleChecks(args: {
   // solver binding is sent. `projectId` scopes the private-library lookup for
   // `private_library_value` inputs (resolved backend-side from the local store).
   if (!args.model) throw new Error("RULE_NUMERICAL_CASE_COVERAGE_UNAVAILABLE: supply the actual current model.");
-  // Without a supplied envelope this run solves for itself through the native
-  // job path; that transient result is released from native custody once used.
-  const transient = args.solvedEnvelope ? null : await runPreviewMechanics(args.model);
+  // Without a supplied result this run solves for itself through the native job
+  // path, its result held natively as the session's is; that transient result is
+  // released from native custody once used.
+  const transient = args.solvedEnvelope ? null : await solveTransientNative(args.model);
   try {
     return await checkSolvedSource(args, args.solvedEnvelope ?? transient!, args.model);
   } finally {
@@ -166,11 +185,36 @@ export async function runRuleChecks(args: {
   }
 }
 
+/** One solve held natively (C1 custody), read as the session reads its own: the caller
+ * releases it with `disposeDeliveredMechanicsResult`. A step that fails releases the job. */
+async function solveTransientNative(model: PreviewModel): Promise<NativeResult> {
+  const receipt = await startPreviewMechanicsJob(model, "sparse_interactive", { custody: "native" });
+  if (receipt.mode !== "backend_job") throw new Error("SOLVE_BACKEND_INVOCATION_REQUIRED: a reference-only receipt is not a solve.");
+  let terminal: Awaited<ReturnType<typeof awaitPreviewMechanicsJob>>;
+  try {
+    terminal = await awaitPreviewMechanicsJob(receipt.job_id);
+  } catch (error) {
+    await abandonPreviewMechanicsJob(receipt.job_id, receipt.backend_cancellation_token);
+    throw error;
+  }
+  if (terminal.state !== "completed") throw terminalJobError(terminal);
+  try {
+    return (await readNativeFreshResult(receipt.job_id, terminal.result_bytes ?? 0, { standingModel: model, summaryModel: model })).result;
+  } catch (error) {
+    await discardPreviewMechanicsJobResult(receipt.job_id);
+    throw error;
+  }
+}
+
+
 async function checkSolvedSource(
   args: Parameters<typeof runRuleChecks>[0],
-  source: MechanicsResult,
+  source: SessionResult,
   model: PreviewModel
 ): Promise<RuleCheckRunRoute> {
+  // A native handle whose custody has ended names no result: refused as not held, before the
+  // checks below read its (released) registration.
+  if (isNativeResult(source) && !isNativeJobLive(nativeCustody(source).jobId)) throw new Error(NOT_HELD_MESSAGE);
   if (!hasNativeMechanicsInvocation(source, model)) throw new Error("RULE_NATIVE_INVOCATION_REQUIRED: reference or saved data is not a fresh supported solve.");
   // T0R: only the static fresh-identity set is rule-eligible (epoch 8 adds pressure-2 and
   // pressure-source-1, as Rust's set holds them).
@@ -190,11 +234,23 @@ async function checkSolvedSource(
   if (isRetainedRoute(sourceContract(source))) {
     const standing = numericalResultStanding(source, model);
     if (!standing.eligible) throw new Error(`${standing.findings[0]}: the retained-precision result is not numerically eligible for rule checks.`);
+    // A native handle is never registered with a retained-precision invocation (a desktop solve
+    // never publishes a successor), so it has no invocation to send.
+    if (isNativeResult(source)) throw new Error("RETAINED_PRECISION_NATIVE_REGISTRATION_UNAVAILABLE: the retained-precision result is not numerically eligible for rule checks.");
   }
-  const invokeArgs: Record<string, unknown> = { rulePackDocument: args.rulePackDocument, solvedEnvelope: source };
-  if (isRetainedRoute(sourceContract(source))) invokeArgs.sourceBlockInvocation = retainedPrecisionInvocation(source, model);
+  // C1: only the custody handle of the native job holding the result's exact bytes travels; the
+  // backend reads the result its native custody holds. A result no native job holds natively
+  // (disposed, or taken into the webview) is refused by name, and nothing is sent.
+  const jobId = nativeHeldMechanicsResultJob(source);
+  if (jobId === null) throw new Error(NOT_HELD_MESSAGE);
+  const invokeArgs: Record<string, unknown> = { rulePackDocument: args.rulePackDocument, jobId };
+  if (!isNativeResult(source) && isRetainedRoute(sourceContract(source))) invokeArgs.sourceBlockInvocation = retainedPrecisionInvocation(source, model);
   // Without the registered invocation the backend's pressure-source-1 standing is never eligible.
-  if (sourceContract(source) === "pressure_source") invokeArgs.sourceBlockInvocation = retainedSourceRecoveryInvocation(source, model);
+  if (sourceContract(source) === "pressure_source") {
+    invokeArgs.sourceBlockInvocation = isNativeResult(source)
+      ? retainedNativeMechanicsInvocation(source, model)
+      : retainedSourceRecoveryInvocation(source, model);
+  }
   const disclosure = exactRoute ? loadReferenceDisclosure(source, "rule-check") : null;
   if (model) invokeArgs.model = model;
   if (args.suppliedValueBindings && args.suppliedValueBindings.length > 0) {
@@ -616,12 +672,15 @@ export function describeSolverSelector(selector: SolverResultRef): string {
 
 export type SolverSelectorBasisStatus = "resolves" | "row_missing" | "row_ambiguous" | "basis_unsolved";
 
+/** What the selector preview shows of a matched row. */
+export type SolverPreviewRow = Pick<ResultRow, "id" | "value" | "unit" | "dimension">;
+
 export type SolverSelectorBasisResolution = {
   required_load_case_id: string;
   name: string;
   basis_ref: RuleCheckBasisRef;
   status: SolverSelectorBasisStatus;
-  rows: ResultRow[];
+  rows: SolverPreviewRow[];
 };
 
 export type SolverSelectorResolution =
@@ -694,6 +753,101 @@ export function ruleBindingPrecheck(
         ? `stress of the reference pipe section of component body ${row.component_body.component_ref} (stiffness scale ${row.component_body.stiffness_scale}); not a stress of the component body`
         : retainedRowClassLabel(row, source) ?? N_RP_UNVALIDATED;
       findings.push({ input_id: input.input_id, basis_ref: basis, result_id: row.id, reason, notice });
+    }
+  }
+  return findings;
+}
+
+// --- The same readings from a held result (C1 native custody) ----------------
+// A native handle holds no rows in the webview. The selector preview and the
+// binding pre-check read them natively, by handle (`preview_rule_solver_rows`),
+// with the run command's own row index and row gate. Display only, as above.
+
+type NativeSolverRowsPreviewRow = {
+  id: string;
+  value: number;
+  unit: string;
+  dimension?: string | null;
+  binding_refusal: string | null;
+  component_body?: { component_ref: string; stiffness_scale: number };
+};
+
+export type NativeSolverRowsPreview = {
+  row_count: number;
+  inputs: {
+    input_id: string;
+    selector_readable: boolean;
+    /** `matched`: 0, 1 or 2 (two or more) rows named; `rows` holds the row only when it is the one. */
+    bases: { basis_ref: RuleCheckBasisRef; solved: boolean; matched: number; rows: NativeSolverRowsPreviewRow[] }[];
+  }[];
+};
+
+export type SolverRowsQuery = { input_id: string; selector: SolverResultRef; bases: readonly RequiredLoadCaseRequirement[] };
+
+/** The native rows each query's selector names on its bases, read from `source`'s held result. */
+export async function previewSolverRowsByHandle(source: NativeResult, queries: readonly SolverRowsQuery[]): Promise<NativeSolverRowsPreview> {
+  if (!isTauriRuntime()) throw new Error(RULE_CHECK_BACKEND_DIAGNOSTIC);
+  const { jobId } = nativeCustody(source);
+  if (!isNativeJobLive(jobId)) throw new Error(NOT_HELD_MESSAGE);
+  return invokeWithIngress<NativeSolverRowsPreview>("preview_rule_solver_rows", {
+    jobId,
+    queries: queries.map((query) => ({
+      input_id: query.input_id,
+      selector: query.selector,
+      // Each basis once: the native preview refuses a basis named twice in one query.
+      bases: query.bases.flatMap((loadCase, index) => (loadCase.basis_ref && query.bases.findIndex((other) => sameBasis(other.basis_ref, loadCase.basis_ref!)) === index ? [loadCase.basis_ref] : []))
+    }))
+  });
+}
+
+/** `resolveSolverSelector`'s reading of one input from the native preview. */
+export function solverResolutionFromPreview(
+  preview: NativeSolverRowsPreview,
+  inputId: string,
+  requiredLoadCases: readonly RequiredLoadCaseRequirement[]
+): SolverSelectorResolution {
+  if (preview.row_count === 0) return { status: "no_result_rows" };
+  const read = preview.inputs.find((entry) => entry.input_id === inputId);
+  const bases: SolverSelectorBasisResolution[] = [];
+  for (const loadCase of requiredLoadCases) {
+    const basis = loadCase.basis_ref;
+    if (!basis) continue;
+    const found = read?.bases.find((entry) => sameBasis(entry.basis_ref, basis));
+    const rows = (found?.rows ?? []).map(({ id, value, unit, dimension }) => ({ id, value, unit, dimension: dimension ?? undefined })) as SolverPreviewRow[];
+    const matched = found?.matched ?? 0;
+    const status: SolverSelectorBasisStatus = matched === 1
+      ? "resolves"
+      : matched > 1 ? "row_ambiguous" : found?.solved ? "row_missing" : "basis_unsolved";
+    bases.push({ required_load_case_id: loadCase.required_load_case_id, name: loadCase.name, basis_ref: basis, status, rows: matched === 1 ? rows : [] });
+  }
+  return { status: bases.length > 0 && bases.every((entry) => entry.status === "resolves") ? "resolves" : "incomplete", bases };
+}
+
+/** The pack's solver inputs as preview queries, each on the bases the run binds it on. */
+export function solverRowsQueries(plan: RuleCheckBindingPlan): SolverRowsQuery[] {
+  return plan.solverInputs.flatMap((input) => (input.solver_result_ref
+    ? [{ input_id: input.input_id, selector: input.solver_result_ref, bases: solverInputBases(plan, input.input_id) }]
+    : []));
+}
+
+/** `ruleBindingPrecheck`'s findings from the native preview: the one row a selector names on a
+ * basis, when the run's row gate refuses it. A native handle has no validated retained class, so a
+ * refused row other than a component body's shows the unvalidated notice, as a copy without its
+ * registration does. */
+export function bindingPrecheckFromPreview(preview: NativeSolverRowsPreview, plan: RuleCheckBindingPlan): RuleBindingPrecheckFinding[] {
+  const findings: RuleBindingPrecheckFinding[] = [];
+  for (const query of solverRowsQueries(plan)) {
+    const read = preview.inputs.find((entry) => entry.input_id === query.input_id);
+    for (const { basis_ref: basis } of query.bases) {
+      if (!basis) continue;
+      const found = read?.bases.find((entry) => sameBasis(entry.basis_ref, basis));
+      if (found?.matched !== 1 || found.rows.length !== 1) continue;
+      const row = found.rows[0];
+      if (!row.binding_refusal) continue;
+      const notice = row.binding_refusal === COMPONENT_BODY_REFERENCE_SECTION && row.component_body
+        ? `stress of the reference pipe section of component body ${row.component_body.component_ref} (stiffness scale ${row.component_body.stiffness_scale}); not a stress of the component body`
+        : N_RP_UNVALIDATED;
+      findings.push({ input_id: query.input_id, basis_ref: basis, result_id: row.id, reason: row.binding_refusal, notice });
     }
   }
   return findings;
