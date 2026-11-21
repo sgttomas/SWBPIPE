@@ -385,6 +385,10 @@ test("09 support direction and a hanger: no entry path stores a direction on a h
     await openWorkspaceSection(page, "operations");
     await expect(page.getByTestId("operation-apply-panel").locator('[data-testid^="apply-intent-"]')).toHaveCount(2);
   });
-  await journey.scrolled("review-removal-then-configuration", "Review changes with the two queued changes", 2);
+  await journey.step("review-removal-listed", "Review changes scrolled to the second queued change: the list shows the newest first, so the removal queued first is below the configuration", async () => {
+    const applies = page.getByTestId("operation-apply-panel").locator('[data-testid^="apply-intent-"]');
+    await expect(applies).toHaveCount(2);
+    await applies.nth(1).scrollIntoViewIfNeeded();
+  });
   journey.finish();
 });
