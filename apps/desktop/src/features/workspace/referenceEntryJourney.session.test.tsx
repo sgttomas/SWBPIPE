@@ -28,7 +28,7 @@ import { computeModelHash } from "../../services/hashService";
 import type { EntityRef, PreviewModel } from "../../types";
 import { useModelledVisibility } from "../../test-support/modelledVisibility";
 import { chooseCompactOption, chooseVirtualTarget, chooseVirtualMultiTarget } from "../../test-support/workspaceTestControls";
-import { enterReferenceHeader, enterReferenceRows, P, S5, type Cells } from "../../test-support/referenceRunSheetEntry";
+import { enterReferenceHeader, enterReferenceRows, loadsPage, openPressureElongation, P, S5, type Cells } from "../../test-support/referenceRunSheetEntry";
 import { ProjectUnitsDialog } from "../project-units/ProjectUnitsDialog";
 import { PropertyInspector } from "../model-tree/PropertyInspector";
 import { RunSheet, RUN_SHEET_TIMING } from "../model-tree/runSheet/RunSheet";
@@ -86,13 +86,6 @@ const ALLOWED_DIFFERENCES = [
  * records; the test asserts each is exactly the blank's, so the list cannot grow silently.
  */
 const DOCUMENT_DIFFERENCES_NOT_IN_3_14 = ["analysis_status", "data_boundary", "diagnostics"] as const;
-
-/**
- * The fixture's pressure-elongation setting (DEL-04-07): its producer names every pressurised case,
- * today's mechanics. The run sheet has no step that switches it on, so the journey's document states
- * no `model_settings`; the test asserts both sides exactly, so the difference cannot grow silently.
- */
-const FIXTURE_ONLY_SETTING = { pressure_elongation: { operating_load_cases: ["load:RS-SUS", "load:RS-OPE", "load:RS-SAM"] } };
 
 /** Row labels the person types in the Label cell (step rows, its Labels table). */
 const ROW_NODES: Record<number, string> = {
@@ -187,7 +180,7 @@ function compareWithFixture(model: PreviewModel, where: string): number {
   // and the two are equal. The record comparison below compares the whole lists as well.
   const vs1States = (document: PreviewModel, caseId: string) => ((document.load_cases.find((item) => item.id === caseId)?.analysis_state as AnyRecord | undefined)?.support_states as AnyRecord[] | undefined)?.filter((entry) => entry.support_ref === "support:RS-VS1");
   const statedCases = reference.load_cases.filter((item) => (item.analysis_state as AnyRecord | undefined)?.support_states).map((item) => item.id);
-  expect(statedCases, "fixture: cases with support states").toEqual(["load:RS-SUS", "load:RS-OPE", "load:RS-SAM"]);
+  expect(statedCases, "fixture: cases with support states").toEqual(["load:RS-SUS", "load:RS-OPE", "load:RS-SAM", "load:RS-OPE-REF"]);
   for (const caseId of statedCases) {
     expect(vs1States(reference, caseId), `fixture: ${caseId} RS-VS1 support states`).toHaveLength(1);
     expect(vs1States(model, caseId), `${where}: ${caseId} RS-VS1 support states`).toEqual(vs1States(reference, caseId));
@@ -207,9 +200,7 @@ function compareWithFixture(model: PreviewModel, where: string): number {
   const document = model as unknown as AnyRecord, fixtureDocument = reference as unknown as AnyRecord;
   const members = [...new Set([...Object.keys(document), ...Object.keys(fixtureDocument)])].filter((key) => !(COLLECTIONS as readonly string[]).includes(key)).sort();
   expect(members, `${where}: document members`).toEqual(["analysis_status", "data_boundary", "diagnostics", "document_kind", "model_settings", "pressure_contract", "project", "schema_version"]);
-  for (const key of members.filter((key) => key !== "project" && key !== "model_settings" && !(DOCUMENT_DIFFERENCES_NOT_IN_3_14 as readonly string[]).includes(key))) expect(document[key], `${where}: ${key}`).toEqual(fixtureDocument[key]);
-  expect(document.model_settings, `${where}: model_settings (the run sheet authors no setting)`).toBeUndefined();
-  expect(fixtureDocument.model_settings, "fixture: model_settings (its producer's setting)").toEqual(FIXTURE_ONLY_SETTING);
+  for (const key of members.filter((key) => key !== "project" && !(DOCUMENT_DIFFERENCES_NOT_IN_3_14 as readonly string[]).includes(key))) expect(document[key], `${where}: ${key}`).toEqual(fixtureDocument[key]);
   const { id, name, description, ...project } = model.project;
   expect([id, name, description], `${where}: project (run sheet §4)`).toEqual([expect.stringMatching(/^project:blank-local-/), expect.stringMatching(/^Blank Local Load\/reference Model/), BLANK.project.description]);
   expect(project, `${where}: project.units`).toEqual({ units: reference.project.units });
@@ -275,12 +266,13 @@ describe("the reference system entered from blank through the desktop's authorin
     const ops = () => current.session.operations;
     const model = () => current.session.model.model!;
     const inspector = () => within(screen.getByTestId("journey-inspector"));
-    const loads = () => within(screen.getByTestId("journey-loads"));
     const alerts = () => screen.queryAllByRole("alert").map((item) => item.textContent).join(" | ");
     const diagnostics = () => Object.values(ops().operationOutcomes).flatMap((outcome) => outcome.diagnostics.filter((item) => item.severity === "blocking").map((item) => `${item.code}: ${item.message}`)).join(" | ");
     const change = (scope: ReturnType<typeof within>, label: string, value: string) => fireEvent.change(scope.getByLabelText(label), { target: { value } });
     const click = (scope: ReturnType<typeof within>, name: string | RegExp) => fireEvent.click(scope.getByRole("button", { name }));
     const select = (entity: EntityRef) => act(() => { current.session.selection.handleSelectEntity(entity); });
+    // Every step that reaches a Loads page control is `loadsPage`'s (test-support/referenceRunSheetEntry.ts).
+    const page = loadsPage(() => screen.getByTestId("journey-loads"), select);
     const cycles: string[] = [];
     /** Picks `value` in a virtual picker found by its label (`VirtualTargetPicker`, `VirtualMultiTargetPicker`). */
     function pick(scope: ReturnType<typeof within>, label: string, values: readonly string[]) {
@@ -366,21 +358,22 @@ describe("the reference system entered from blank through the desktop's authorin
     expect(model().project.units).toEqual(reference.project.units);
 
     // Step profile: Pressure profile (typed UI): exact_pressure_v3, Euler–Bernoulli.
-    change(loads(), "Pressure profile", "exact_pressure_v3");
-    change(loads(), "Shear model", "euler_bernoulli");
-    click(loads(), "Queue pressure profile");
+    const projectForms = page.openProjectForms();
+    change(projectForms(), "Pressure profile", "exact_pressure_v3");
+    change(projectForms(), "Shear model", "euler_bernoulli");
+    click(projectForms(), "Queue pressure profile");
     await applyQueuedIntent("step profile");
     expect(model().pressure_contract).toEqual(reference.pressure_contract);
 
     // Step material, item 1: Material RS-M1 (typed UI): Create explicit E/nu material.
-    change(loads(), "Exact material ID", "material:RS-M1");
-    change(loads(), "Exact material label", "RS-M1 invented carbon-steel-like material");
-    change(loads(), "Constitutive basis", "homogeneous_isotropic_E_nu_v1");
-    change(loads(), "Elastic modulus E value", "200"); change(loads(), "Elastic modulus E unit", "GPa");
-    change(loads(), "Poisson ratio nu value", "0.3"); change(loads(), "Poisson ratio nu unit", "1");
-    change(loads(), "Thermal expansion coefficient value", "1.2e-5"); change(loads(), "Thermal expansion coefficient unit", "1/K");
-    change(loads(), "Constitutive provenance", P);
-    click(loads(), "Queue exact material");
+    change(projectForms(), "Exact material ID", "material:RS-M1");
+    change(projectForms(), "Exact material label", "RS-M1 invented carbon-steel-like material");
+    change(projectForms(), "Constitutive basis", "homogeneous_isotropic_E_nu_v1");
+    change(projectForms(), "Elastic modulus E value", "200"); change(projectForms(), "Elastic modulus E unit", "GPa");
+    change(projectForms(), "Poisson ratio nu value", "0.3"); change(projectForms(), "Poisson ratio nu unit", "1");
+    change(projectForms(), "Thermal expansion coefficient value", "1.2e-5"); change(projectForms(), "Thermal expansion coefficient unit", "1/K");
+    change(projectForms(), "Constitutive provenance", P);
+    click(projectForms(), "Queue exact material");
     await applyQueuedIntent("step material");
     // Step material, item 2: Temperature points (typed UI, after selecting the material: UI function `handleSelectEntity`, the Model tree's selection).
     select({ type: "material", id: "material:RS-M1" });
@@ -611,33 +604,33 @@ describe("the reference system entered from blank through the desktop's authorin
     expect(model().supports.find((item) => item.id === "support:RS-CE1")).toEqual(cePayload);
 
     // Step reference: Reference configuration (typed UI, with the member fill).
-    select({ type: "project", id: model().project.id });
+    const referenceForm = page.openReferenceConfigurations(model().project.id);
     const beforeReference = model();
-    click(loads(), "Add reference configuration");
-    change(loads(), "Reference configuration 1 ID", "reference:RS-INSTALLED");
-    change(loads(), "Reference configuration 1 label", "Installed reference (20 degC)");
-    change(loads(), "Reference configuration 1 geometry", "authored_model_geometry");
-    click(loads(), "Add member to reference configuration 1");
+    click(referenceForm(), "Add reference configuration");
+    change(referenceForm(), "Reference configuration 1 ID", "reference:RS-INSTALLED");
+    change(referenceForm(), "Reference configuration 1 label", "Installed reference (20 degC)");
+    change(referenceForm(), "Reference configuration 1 geometry", "authored_model_geometry");
+    click(referenceForm(), "Add member to reference configuration 1");
     const m1 = "Reference configuration 1 member 1";
-    change(loads(), `${m1} pipe`, "pipe:RS-P010");
-    change(loads(), `${m1} basis`, "temperature_reference");
-    change(loads(), `${m1} installation temperature value`, "20"); change(loads(), `${m1} installation temperature unit`, "degC");
-    change(loads(), `${m1} fit`, "none");
-    change(loads(), `${m1} provenance`, P);
-    change(loads(), "Reference configuration 1 member template", "0");
-    change(loads(), "Reference configuration 1 member fill targets", "missing");
-    click(loads(), "Fill reference configuration 1 members");
-    change(loads(), "Reference configuration 1 provenance", P);
-    click(loads(), "Queue reference configurations");
+    change(referenceForm(), `${m1} pipe`, "pipe:RS-P010");
+    change(referenceForm(), `${m1} basis`, "temperature_reference");
+    change(referenceForm(), `${m1} installation temperature value`, "20"); change(referenceForm(), `${m1} installation temperature unit`, "degC");
+    change(referenceForm(), `${m1} fit`, "none");
+    change(referenceForm(), `${m1} provenance`, P);
+    change(referenceForm(), "Reference configuration 1 member template", "0");
+    change(referenceForm(), "Reference configuration 1 member fill targets", "missing");
+    click(referenceForm(), "Fill reference configuration 1 members");
+    change(referenceForm(), "Reference configuration 1 provenance", P);
+    click(referenceForm(), "Queue reference configurations");
     await applyQueuedIntent("step reference");
     // Undo/Redo, load/reference state family: the reference configuration.
     await undoRedo("load/reference state: RS-INSTALLED (§3.8)", beforeReference);
 
-    // Step weight: Self-weight, which creates the three cases (typed UI): every pipe except RS-P180.
+    // Step weight: Self-weight, which creates the four cases (typed UI): every pipe except RS-P180.
     const selfWeight = within(screen.getByTestId("journey-self-weight"));
     const weighted = model().pipe_segments.map((pipe) => pipe.id).filter((id) => id !== "pipe:RS-P180");
     expect(weighted).toHaveLength(25);
-    for (const [id, label] of [["load:RS-SUS", "RS-SUS sustained: W + P (operating pressure)"], ["load:RS-OPE", "RS-OPE operating: W + P + T (210 degC, modulus at 210 degC)"], ["load:RS-SAM", "RS-SAM seismic anchor movement: W + P + anchor RS-C moved UX +15 mm, UY -10 mm"]]) {
+    for (const [id, label] of [["load:RS-SUS", "RS-SUS sustained: W + P (operating pressure)"], ["load:RS-OPE", "RS-OPE operating: W + P + T (210 degC, modulus at 210 degC)"], ["load:RS-SAM", "RS-SAM seismic anchor movement: W + P + anchor RS-C moved UX +15 mm, UY -10 mm"], ["load:RS-OPE-REF", "RS-OPE-REF operating thermal state on the 20 degC modulus: W + P + T (210 degC, modulus at 20 degC)"]]) {
       change(selfWeight, "Self-weight action", "create");
       change(selfWeight, "Self-weight case ID", id);
       change(selfWeight, "Self-weight case label", label);
@@ -645,7 +638,7 @@ describe("the reference system entered from blank through the desktop's authorin
       change(selfWeight, "Gravity unit", "m/s^2");
       change(selfWeight, "Gravity direction", "global_z");
       change(selfWeight, "Self-weight provenance", `${P}; W of ${token(id)}: self-weight of every member except RS-P180, component weights at their centres of gravity (spec §8.1)`);
-      // The panel keeps its pipe choice after a plan is queued: the 25 are picked for RS-SUS and kept for the next two cases.
+      // The panel keeps its pipe choice after a plan is queued: the 25 are picked for RS-SUS and kept for the next three cases.
       if (id === "load:RS-SUS") for (const pipe of weighted) chooseVirtualMultiTarget("self-weight-pipes", pipe);
       expect(screen.getByTestId("self-weight-pipes").querySelector(".virtual-target-picker-current")).toHaveTextContent("25 selected");
       // The generating model's hash, captured as the panel captures it: each primitive's
@@ -657,11 +650,10 @@ describe("the reference system entered from blank through the desktop's authorin
       await applyQueuedBatch(`step weight ${id}`);
     }
 
-    // Step regions: Pressure regions (typed UI for RS-SUS; "Copy pressure regions from another case" for RS-OPE and RS-SAM).
+    // Step regions: Pressure regions (typed UI for RS-SUS; "Copy pressure regions from another case" for RS-OPE, RS-SAM and RS-OPE-REF).
     const terminals = { "RG-1": ["node:RS-010", "node:RS-130"], "RG-2": ["node:RS-130", "node:RS-230"], "RG-3": ["node:RS-130", "node:RS-150"], "RG-R": ["node:RS-150", "node:RS-160"], "RG-4": ["node:RS-160", "node:RS-210"] } as const;
     const fixtureRegions = reference.load_cases.find((item) => item.id === "load:RS-SUS")!.pressure_regions!;
-    select({ type: "load", id: "load:RS-SUS" });
-    const regions = () => within(loads().getByRole("region", { name: "Case pressure regions" }));
+    let regions = page.openCasePressureRegions("load:RS-SUS");
     for (const [index, region] of fixtureRegions.entries()) {
       const n = `Region ${index + 1}`;
       click(regions(), "Add pressure region");
@@ -680,17 +672,31 @@ describe("the reference system entered from blank through the desktop's authorin
     }
     click(regions(), "Queue pressure regions");
     await applyQueuedIntent("step regions: RS-SUS");
-    for (const caseId of ["load:RS-OPE", "load:RS-SAM"]) {
-      select({ type: "load", id: caseId });
+    for (const caseId of ["load:RS-OPE", "load:RS-SAM", "load:RS-OPE-REF"]) {
+      regions = page.openCasePressureRegions(caseId);
       change(regions(), "Copy pressure regions from case", "load:RS-SUS");
       click(regions(), "Replace this draft's pressure regions with the copy");
       click(regions(), "Queue pressure regions");
       await applyQueuedIntent(`step regions: ${caseId}`);
     }
 
-    // Step states: Analysis states (typed UI, with the fills; RS-SAM from "Copy analysis state from another case").
+    // Step elongation: Pressure elongation (typed UI): switched on, the four cases ticked (none is
+    // ticked when the switch comes on, since no case's kind is operating).
+    const elongation = openPressureElongation(() => screen.getByTestId("journey-inspector"), select, model().project.id);
+    fireEvent.click(elongation().getByTestId("model-settings-pressure-elongation-switch"));
+    for (const caseId of ["load:RS-SUS", "load:RS-OPE", "load:RS-SAM", "load:RS-OPE-REF"]) {
+      const box = elongation().getByTestId(`model-settings-pressure-elongation-case-${caseId}`);
+      expect(box, `step elongation: ${caseId} before the tick`).not.toBeChecked();
+      fireEvent.click(box);
+    }
+    click(elongation(), "Queue pressure elongation");
+    await applyQueuedIntent("step elongation");
+    expect(model().model_settings, "step elongation").toEqual(reference.model_settings);
+
+    // Step states: Analysis states (typed UI, with the fills; RS-SAM from "Copy analysis state from another case";
+    // RS-OPE-REF copied from RS-OPE, its element states entered again and its overrides typed).
     // Queries are scoped to the case's analysis-state editor (`LoadReferenceStateInputs`), which the load manager shows for the selected case.
-    const state = () => within(screen.getByTestId("load-state-analysis-state"));
+    let state = page.openCaseAnalysisState("load:RS-SUS");
     const p180 = model().pipe_segments.findIndex((pipe) => pipe.id === "pipe:RS-P180") + 1;
     const rsC = model().supports.findIndex((item) => item.id === "support:RS-C") + 1;
     const replacedSpan = `${P}; replaced span RS-P180: zero eigenstrain (spec §5.1)`;
@@ -712,7 +718,6 @@ describe("the reference system entered from blank through the desktop's authorin
       change(state(), "Analysis state provenance", P);
     };
     // RS-SUS.
-    select({ type: "load", id: "load:RS-SUS" });
     click(state(), "Add element state");
     change(state(), "Element state 1 pipe", "pipe:RS-P010");
     change(state(), "Element state 1 material selection", "exact_point");
@@ -727,7 +732,7 @@ describe("the reference system entered from blank through the desktop's authorin
     click(state(), "Queue analysis state");
     await applyQueuedIntent("step states: RS-SUS");
     // RS-OPE.
-    select({ type: "load", id: "load:RS-OPE" });
+    state = page.openCaseAnalysisState("load:RS-OPE");
     click(state(), "Add element state");
     change(state(), "Element state 1 pipe", "pipe:RS-P010");
     change(state(), "Element state 1 operating temperature value", "210"); change(state(), "Element state 1 operating temperature unit", "degC");
@@ -746,7 +751,7 @@ describe("the reference system entered from blank through the desktop's authorin
     click(state(), "Queue analysis state");
     await applyQueuedIntent("step states: RS-OPE");
     // RS-SAM: copied from RS-SUS; its own primitives and RS-C's two motions.
-    select({ type: "load", id: "load:RS-SAM" });
+    state = page.openCaseAnalysisState("load:RS-SAM");
     change(state(), "Copy analysis state from case", "load:RS-SUS");
     click(state(), "Replace this draft's analysis state with the copy");
     expect(state().getByText(/29 load sources name primitives this case does not hold/)).toBeTruthy();
@@ -762,20 +767,50 @@ describe("the reference system entered from blank through the desktop's authorin
     }
     click(state(), "Queue analysis state");
     await applyQueuedIntent("step states: RS-SAM");
+    // RS-OPE-REF: copied from RS-OPE; its element states entered again on the 20 degC point and
+    // filled; then each element state's analysis-basis override typed, RS-P180's excepted (fill and
+    // copy never carry the override, as `load-cases/analysisBasisOverride.engine.test.tsx` shows).
+    state = page.openCaseAnalysisState("load:RS-OPE-REF");
+    change(state(), "Copy analysis state from case", "load:RS-OPE");
+    click(state(), "Replace this draft's analysis state with the copy");
+    expect(state().getByText(/29 load sources name primitives this case does not hold/)).toBeTruthy();
+    click(state(), "Mark element_states absent");
+    click(state(), "Add element state");
+    change(state(), "Element state 1 pipe", "pipe:RS-P010");
+    change(state(), "Element state 1 operating temperature value", "210"); change(state(), "Element state 1 operating temperature unit", "degC");
+    change(state(), "Element state 1 material selection", "exact_point");
+    change(state(), "Element state 1 material", "material:RS-M1");
+    change(state(), "Element state 1 material point", "point:RS-M1-T020");
+    change(state(), "Element state 1 thermal state", "free_length_state");
+    change(state(), "Element state 1 expansion law", "law:RS-M1-SECANT");
+    fill("Element state");
+    change(state(), `Element state ${p180} operating temperature value`, ""); change(state(), `Element state ${p180} operating temperature unit`, "");
+    change(state(), `Element state ${p180} thermal state`, "unchanged_reference");
+    change(state(), `Element state ${p180} thermal provenance`, replacedSpan);
+    const basisReason = "Modulus at 20 degC so that RS-EXP compares two states on one material basis (spec §8.1)";
+    for (let e = 1; e <= model().pipe_segments.length; e++) {
+      if (e === p180) continue;
+      change(state(), `Element state ${e} analysis-basis reason`, basisReason);
+      change(state(), `Element state ${e} analysis-basis provenance`, P);
+    }
+    change(state(), "Factor for every primitive (dimensionless)", "1");
+    click(state(), "Add every primitive of this case");
+    click(state(), "Queue analysis state");
+    await applyQueuedIntent("step states: RS-OPE-REF");
 
     // Step combinations: Combinations (typed UI): Create combination, result_state_subtraction.
-    select({ type: "project", id: model().project.id });
+    const combinationForm = page.openCreateCombination(model().project.id);
     let beforeCombination = model();
-    for (const [id, label, minuend] of [["combination:RS-EXP", "RS-EXP expansion: RS-OPE - RS-SUS", "load:RS-OPE"], ["combination:RS-dSAM", "RS-dSAM anchor movement term: RS-SAM - RS-SUS", "load:RS-SAM"]]) {
+    for (const [id, label, minuend] of [["combination:RS-EXP", "RS-EXP expansion: RS-OPE-REF - RS-SUS, the difference of two solved states on the 20 degC modulus", "load:RS-OPE-REF"], ["combination:RS-dSAM", "RS-dSAM anchor movement term: RS-SAM - RS-SUS", "load:RS-SAM"]]) {
       beforeCombination = model();
-      fireEvent.change(screen.getByTestId("load-manager-create-combination-id"), { target: { value: id } });
-      fireEvent.change(screen.getByTestId("load-manager-create-combination-label"), { target: { value: label } });
-      fireEvent.change(screen.getByTestId("load-manager-create-combination-basis"), { target: { value: "result_state_subtraction" } });
+      fireEvent.change(combinationForm().getByTestId("load-manager-create-combination-id"), { target: { value: id } });
+      fireEvent.change(combinationForm().getByTestId("load-manager-create-combination-label"), { target: { value: label } });
+      fireEvent.change(combinationForm().getByTestId("load-manager-create-combination-basis"), { target: { value: "result_state_subtraction" } });
       chooseVirtualTarget("load-manager-create-combination-minuend", minuend);
       chooseVirtualTarget("load-manager-create-combination-subtrahend", "load:RS-SUS");
-      fireEvent.change(screen.getByTestId("load-manager-create-combination-provenance"), { target: { value: P } });
-      fireEvent.change(screen.getByLabelText("New combination rationale"), { target: { value: "reference system run sheet §3.12" } });
-      fireEvent.click(screen.getByTestId("queue-create-combination-intent"));
+      fireEvent.change(combinationForm().getByTestId("load-manager-create-combination-provenance"), { target: { value: P } });
+      fireEvent.change(combinationForm().getByLabelText("New combination rationale"), { target: { value: "reference system run sheet §3.12" } });
+      fireEvent.click(combinationForm().getByTestId("queue-create-combination-intent"));
       await applyQueuedIntent(`step combinations ${id}`);
     }
     // Undo/Redo, combination family: RS-dSAM.
@@ -785,16 +820,16 @@ describe("the reference system entered from blank through the desktop's authorin
     expect(BLOCKED).toEqual([]);
     expect(ALLOWED_DIFFERENCES).toHaveLength(15);
     expect(DOCUMENT_DIFFERENCES_NOT_IN_3_14).toEqual(["analysis_status", "data_boundary", "diagnostics"]);
-    // 30 queue/apply cycles: the run sheet's §6 count of 30 cycles. The Undo/Redo labels below keep their earlier section numbers, which the expected list asserts.
-    expect(cycles).toHaveLength(30);
+    // 34 queue/apply cycles: the run sheet's §6 count of 34 cycles. The Undo/Redo labels below keep their earlier section numbers, which the expected list asserts.
+    expect(cycles).toHaveLength(34);
     expect(undoRedone).toEqual([
       "geometry and supports: the run sheet's batch (§3.4)", "component: the tee RS-T1 (§3.6)",
       "support: the variable spring RS-VS1 (§3.7)", "load/reference state: RS-INSTALLED (§3.8)", "combination: RS-dSAM (§3.12)",
     ]);
     const compared = compareWithFixture(model(), "entered");
-    // materials, sections, nodes, pipes, components, supports, cases, combinations, reference configurations: 84 of 84.
-    expect(compared).toBe(1 + 3 + 27 + 26 + 9 + 12 + 3 + 2 + 1);
-    expect(compared).toBe(84);
+    // materials, sections, nodes, pipes, components, supports, cases, combinations, reference configurations: 85 of 85.
+    expect(compared).toBe(1 + 3 + 27 + 26 + 9 + 12 + 4 + 2 + 1);
+    expect(compared).toBe(85);
 
     // Browser save and reopen through the session (`handleSaveProject`, `handleOpenProject`), compared again.
     const projectId = model().project.id;

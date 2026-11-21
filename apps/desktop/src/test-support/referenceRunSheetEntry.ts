@@ -3,10 +3,17 @@
 // journey (`workspace/referenceEntryJourney.session.test.tsx`). The rows, the header and the
 // valve/flange Component details are the run sheet's; `enterReferenceRows` types the bend and
 // valve/flange rows through the real grid cells and the other rows through the sheet's own
-// commit functions, in table order. Test support only: no product behaviour lives here.
-import { act, fireEvent, screen, within } from "@testing-library/react";
-import { expect } from "vitest";
-import type { PreviewModel } from "../types";
+// commit functions, in table order. `loadsPage`, `renderCaseLoadStateInputs` and
+// `renderCasePressureRegions` hold every step by which the entry journey and the fills test
+// (`load-cases/referenceSystemFills.engine.test.tsx`) reach a Loads page control, and
+// `openPressureElongation` the journey's reach of the inspector's pressure elongation. Test support
+// only: no product behaviour lives here.
+import { createElement } from "react";
+import { act, fireEvent, render, screen, within } from "@testing-library/react";
+import { expect, vi } from "vitest";
+import type { EntityRef, PreviewModel } from "../types";
+import { LoadReferenceStateInputs } from "../features/load-cases/LoadReferenceStateInputs";
+import { PressureAuthoringPanel } from "../features/pressure-authoring/PressureAuthoringPanel";
 import { blankRow, initialRunSheetState, type RunSheetState } from "../features/model-tree/runSheet/runSheetLedger";
 import type { useRunSheetStore } from "../features/model-tree/runSheet/runSheetStore";
 import { COMPONENT_FIELDS, componentColumn, type ComponentRowInput } from "../features/model-tree/runSheet/runSheetComponents";
@@ -15,6 +22,68 @@ import { assignIds, recordShownPipeIds, setCell, sheetView, type SheetColumnKey 
 /** ⟨P⟩ and ⟨S5⟩ of the run sheet. */
 export const P = "invented reference-system fixture input (DEL-09-01); not standard, supplier, commercial or project data";
 export const S5 = "invented user value, DEL-09-01";
+
+// ---------------------------------------------------------------------------------------------
+// Reaching the Loads page's controls. Every step by which the two tests reach a load-case control
+// is here and not in the tests, so that a change in how the page shows its controls is one edit
+// here. Today each reach is a selection of the project or a case, or none; a section or create
+// form the page comes to need opened is opened here too. Each `open…` takes the reach and returns
+// a getter for the control's scope, queried afresh at each use.
+// ---------------------------------------------------------------------------------------------
+
+type Scope = ReturnType<typeof within>;
+
+/** The load manager (`LoadCaseManagerPanel`) rendered inside `root`, with the session's `select`. */
+export function loadsPage(root: () => HTMLElement, select: (entity: EntityRef) => void) {
+  const page = (): Scope => within(root());
+  return {
+    /** Steps profile and material: the pressure-profile and explicit-material forms, as the page first shows. */
+    openProjectForms: () => page,
+    /** Step reference: the project selected; the reference-configuration editor. */
+    openReferenceConfigurations: (projectId: string) => { select({ type: "project", id: projectId }); return page; },
+    /** Step regions: the case selected; its pressure regions. */
+    openCasePressureRegions: (caseId: string) => {
+      select({ type: "load", id: caseId });
+      return (): Scope => within(page().getByRole("region", { name: "Case pressure regions" }));
+    },
+    /** Step states: the case selected; its analysis-state editor (`LoadReferenceStateInputs`). */
+    openCaseAnalysisState: (caseId: string) => {
+      select({ type: "load", id: caseId });
+      return (): Scope => within(page().getByTestId("load-state-analysis-state"));
+    },
+    /** Step combinations: the project selected; the create-combination form. */
+    openCreateCombination: (projectId: string) => { select({ type: "project", id: projectId }); return page; },
+  };
+}
+
+/** Step elongation: the project selected; in the property inspector rendered inside `root`, Model settings,
+ * opened, and its Pressure elongation (Bourdon). */
+export function openPressureElongation(root: () => HTMLElement, select: (entity: EntityRef) => void, projectId: string) {
+  select({ type: "project", id: projectId });
+  return (): Scope => {
+    const details = within(root()).getByTestId("model-settings-details") as HTMLDetailsElement;
+    if (!details.open) fireEvent.click(details.querySelector(":scope > summary")!);
+    expect(details.open, "Model settings open").toBe(true);
+    return within(within(details).getByTestId("model-settings-pressure-elongation"));
+  };
+}
+
+const caseOf = (model: PreviewModel, caseId: string) => model.load_cases.find((item) => item.id === caseId)!;
+
+/** The fills test: the case's load/reference state inputs alone (reference configurations and the
+ * analysis-state editor), the case selected. Returns its queue; the test queries the document. */
+export function renderCaseLoadStateInputs(model: PreviewModel, caseId: string) {
+  const queue = vi.fn();
+  render(createElement(LoadReferenceStateInputs, { model, selection: { type: "load", id: caseId }, onQueueIntent: queue, loadCase: caseOf(model, caseId) }));
+  return queue;
+}
+
+/** The fills test: the case's pressure form alone, the case selected. Returns its queue and its pressure regions. */
+export function renderCasePressureRegions(model: PreviewModel, caseId: string) {
+  const queue = vi.fn();
+  render(createElement(PressureAuthoringPanel, { model, selection: { type: "load", id: caseId }, loadCaseId: caseId, onQueueIntent: queue }));
+  return { queue, regions: (): Scope => within(screen.getByRole("region", { name: "Case pressure regions" })) };
+}
 
 export type Cells = Partial<Record<SheetColumnKey, string>>;
 const support = (code: string, restraints: string, id: string, label: string): Cells => ({ support: code, restraints, supportId: id, supportLabel: label });
