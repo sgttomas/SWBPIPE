@@ -654,7 +654,7 @@ How the larger counts arise:
 - **weight, 40 entries and 4 presses.** Case ID, label and provenance per case (12); the
   gravity value, unit and direction once (3); the 25 pipes, chosen once. Generate self-weight
   plan per case.
-- **regions, 88 entries and 8 presses.** RS-SUS's selection; 11 per region (ID, basis,
+- **regions, 88 entries and 12 presses.** RS-SUS's selection; 11 per region (ID, basis,
   pressure value and unit, six terminal fields, provenance) for five regions; 26 picker
   choices (25 member pipes and the connector); two entries for each of three copies. The
   presses are Pressure once per case, Add pressure region five times and Replace once per copy.
