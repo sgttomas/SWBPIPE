@@ -15,6 +15,13 @@
 //! value; nodal displacements within 1e-9 relative (an exact zero against
 //! 1e-9 of the case's largest translation or rotation); every prescribed DOF
 //! bit for bit.
+//!
+//! One frozen request carries a variable spring hanger, `c1_hanger` (1000 N cold
+//! load). Under the preload law (DEL-04-11 REQ-014) its expectations are its
+//! successor's, `validation/references/w16_nonlinear_motion_preload/`, in the
+//! frozen layout ([`bound_request`]). No other request carries a hanger (the
+//! successor's `unaffected`), so the law does not touch them and they read the
+//! frozen package.
 use super::*;
 use crate::corrected_displacement_tests::with_publication_probe;
 
@@ -22,6 +29,9 @@ const SUPPORT_SLOT: [&str; 6] = ["Fx", "Fy", "Fz", "Mx", "My", "Mz"];
 const COMPONENTS: [&str; 6] = ["ux", "uy", "uz", "rx", "ry", "rz"];
 const REFERENCES: &str = include_str!("../../../validation/references/w16_nonlinear_motion/references.json");
 const SUMS: &str = include_str!("../../../validation/references/w16_nonlinear_motion/SHA256SUMS");
+/// The successor that holds `c1_hanger` under the preload law, and its sums.
+const PRELOAD: &str = include_str!("../../../validation/references/w16_nonlinear_motion_preload/references.json");
+const PRELOAD_SUMS: &str = include_str!("../../../validation/references/w16_nonlinear_motion_preload/SHA256SUMS");
 const MODES: [PreviewSolverMode; 2] = [PreviewSolverMode::SparseInteractive, PreviewSolverMode::DenseScrutiny];
 
 pub(super) struct Request {
@@ -92,6 +102,10 @@ pub(super) fn references() -> serde_json::Value {
     serde_json::from_str(REFERENCES).unwrap()
 }
 
+fn preload_references() -> serde_json::Value {
+    serde_json::from_str(PRELOAD).unwrap()
+}
+
 fn sha256(text: &str) -> String {
     use sha2::{Digest, Sha256};
     format!("{:x}", Sha256::digest(text.as_bytes()))
@@ -132,16 +146,31 @@ pub(super) fn bound_request(request: &Request) -> (serde_json::Value, serde_json
     assert_eq!(&line[..64], digest);
     let mut wire: serde_json::Value = serde_json::from_str(request.text).unwrap();
     crate::b7b_admission_tests::reauthor_current_model(&mut wire["model"]);
-    (wire, oracle)
+    // Under the preload law a request the successor holds takes its expectations.
+    let successor = &preload_references()["requests"][request.name];
+    if successor.is_null() {
+        return (wire, oracle);
+    }
+    assert_eq!(successor["request_sha256"].as_str().unwrap(), digest, "{}: the successor binds the same request bytes", request.name);
+    assert_eq!(successor["request"].as_str().unwrap(), format!("../w16_nonlinear_motion/{}", oracle["request"].as_str().unwrap()));
+    (wire, successor.clone())
 }
 
 #[test]
 fn the_references_are_the_frozen_bytes_and_every_cross_check_agrees() {
-    let line = SUMS.lines().find(|l| l.ends_with("  references.json")).unwrap();
-    assert_eq!(&line[..64], sha256(REFERENCES));
-    let doc = references();
-    let checks = doc["crosscheck"].as_array().unwrap();
-    assert!(!checks.is_empty() && checks.iter().all(|c| c["agrees"] == true));
+    for (sums, text) in [(SUMS, REFERENCES), (PRELOAD_SUMS, PRELOAD)] {
+        let line = sums.lines().find(|l| l.ends_with("  references.json")).unwrap();
+        assert_eq!(&line[..64], sha256(text));
+        let doc: serde_json::Value = serde_json::from_str(text).unwrap();
+        let checks = doc["crosscheck"].as_array().unwrap();
+        assert!(!checks.is_empty() && checks.iter().all(|c| c["agrees"] == true));
+    }
+    // The successor is laid out as the frozen file and is formed on its section and moduli.
+    let (frozen, successor) = (references(), preload_references());
+    for key in ["normalized_section", "elastic_modulus_pa", "shear_modulus_pa"] {
+        assert_eq!(frozen[key], successor[key], "{key}");
+    }
+    assert_eq!(successor["requests"].as_object().unwrap().keys().collect::<Vec<_>>(), ["c1_hanger"]);
 }
 
 /// The actual normalized section leaves and moduli the generator was given.
@@ -1051,25 +1080,34 @@ fn r_c_references_bind_and_match_in_both_modes() {
     }
 }
 
-/// The hanger twin publishes the spring twin's displacements and spring
-/// rows bit for bit: a variable spring hanger uses the same incremental law.
+/// The hanger twin under the preload law: in every case it publishes its
+/// cold load as its applied force, exactly the successor's, and its support row
+/// exceeds the spring twin's (whose rate is the same) by the successor's row less
+/// the frozen spring twin's (F_cold/2, README "Effect"). Its other rows are judged
+/// against the successor in `r_c_references_bind_and_match_in_both_modes`.
 #[test]
-fn the_hanger_twin_is_the_spring_twin_bit_for_bit() {
+fn the_hanger_twin_applies_its_cold_load() {
     let (spring, _) = bound_request(&R_C[0]);
     let (hanger, _) = bound_request(&R_C[2]);
+    let preload = &preload_references()["preload"]["c1_hanger"];
+    let frozen = references();
     for (case, _) in C1 {
+        let (applied, own) = (&preload[case]["applied_force"]["support:K"], &preload[case]["hanger_support_force"]["support:K"]);
+        assert_eq!((&applied["dof"], &own["dof"]), (&serde_json::json!("UX"), &serde_json::json!("UX")));
+        let (lo, hi) = bound_pair(&applied["value"]);
+        assert_eq!(lo, hi, "{case}: an exact cold load");
+        let middle = |pair: &serde_json::Value| { let (a, b) = bound_pair(pair); 0.5 * a + 0.5 * b };
+        let spring_row = middle(&frozen["requests"]["c1"]["cases"][case]["strict_states"][0]["signed"]["support:K"]["components"][0]);
+        let expected = middle(&own["value"]) - spring_row;
         for mode in MODES {
             let a = run_linear_static_preview_value_with_mode(single_case(&spring, case), mode).unwrap();
             let b = run_linear_static_preview_value_with_mode(single_case(&hanger, case), mode).unwrap();
-            let rows = |o: &MechanicsEnvelope| {
-                o.results
-                    .iter()
-                    .filter(|r| r.id.starts_with("result:disp:") || (r.kind == "support_reaction_component_v2" && r.entity_ref == "support:K"))
-                    .map(|r| (r.id.clone(), r.value.to_bits()))
-                    .collect::<Vec<_>>()
-            };
-            assert!(rows(&a).iter().filter(|(id, _)| !id.starts_with("result:disp:")).count() == 6, "{case} {mode:?}");
-            assert_eq!(rows(&a), rows(&b), "{case} {mode:?}");
+            let published = b.results.iter().filter(|r| r.kind == "variable_spring_hanger_applied_load" && r.entity_ref == "support:K").collect::<Vec<_>>();
+            assert_eq!(published.len(), 1, "{case} {mode:?}");
+            assert_eq!(published[0].value, lo, "{case} {mode:?}");
+            assert!(!a.results.iter().any(|r| r.kind == "variable_spring_hanger_applied_load"), "{case} {mode:?}: a plain spring applies none");
+            let difference = component(&b, "support:K", 0) - component(&a, "support:K", 0);
+            assert!((difference - expected).abs() <= 1e-9 * middle(&own["value"]).abs(), "{case} {mode:?}: {difference:e} expected {expected:e}");
         }
     }
 }
