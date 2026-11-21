@@ -3,7 +3,7 @@ import { clone, makeRichIntent, parseQuantities, QueueFeedback, QuantityField, r
 import { setShearModelIntent, type Canonicalize } from "../model-settings/modelSettingsIntents";
 import { canonicalJsonString } from "../../services/hashService";
 import type { OperationBatch } from "../../services/operationBatchService";
-import type { PreviewModel } from "../../types";
+import type { EntityRef, PreviewModel } from "../../types";
 import { VirtualMultiTargetPicker } from "../workspace/VirtualTargetPicker";
 import { carriedShearModel, DEFAULT_SHEAR_MODEL, documentShearModel, isPressureV3, isShearModel, PRESSURE_V3, pressureProfileTarget, SHEAR_MODEL_CHOICES, shearModelClause, SHEAR_MODEL_LABEL, type ShearModel } from "./pressureContract";
 import { MODEL_SCHEMA_VERSION } from "../../services/modelSchemaVersion";
@@ -104,6 +104,24 @@ export function pressureOpenItems(model: RichFormProps["model"]): PressureOpenIt
     ...(documentShearModel(model) ? [] : [{ kind: "shear" as const, text: "whether shear deformation is included is chosen" }])
   ];
 }
+/** How many load cases carry pressure regions, by the solve's own test (a non-empty `pressure_regions`, a region at
+ * zero pressure included), on a document carrying the current profile; null where every case has some, or where the
+ * document carries no current profile. */
+export function pressureRegionsCountLine(model: RichFormProps["model"]): string | null {
+  if (!isPressureV3(model)) return null;
+  const total = model.load_cases.length;
+  const carrying = model.load_cases.filter(loadCase => (loadCase.pressure_regions?.length ?? 0) > 0).length;
+  if (carrying === total) return null;
+  return carrying === 0 ? "No load case has a pressure region yet." : `${carrying} of ${total} load cases have pressure regions.`;
+}
+/** What a case's pressure_regions states: not given, given as none, or how many. */
+export function pressureRegionsFact(loadCase: RichFormProps["model"]["load_cases"][number]): string {
+  const regions = loadCase.pressure_regions;
+  if (regions === undefined) return "This case has not been given pressure regions.";
+  if (regions.length === 0) return "This case has no pressure regions.";
+  return `${regions.length} pressure region${regions.length === 1 ? "" : "s"}.`;
+}
+export const PRESSURE_REGION_DEFINITION = "A region is one unbranched, equal-bore run of pipe (and any inline expansion-joint connector) between its two terminals, changing direction only at realized bends.";
 /** Show actual authored presence, including malformed objects. The one current
  * document format selects v3 explicitly; no retired input is reinterpreted. */
 export function pressureModeText(model: RichFormProps["model"]): string {
@@ -159,7 +177,8 @@ export async function shearChangeAndActivationBatch(model: PreviewModel, pick: S
   return { batch_id: `batch:pressure-profile-shear:${model.project.id}`, operations: [setting, profile] };
 }
 
-export function PressureAuthoringPanel(props: RichFormProps & { loadCaseId?: string; onQueueBatch?: (batch: OperationBatch) => void | Promise<void> }) {
+/** `onSelect` is the load manager's: a case the open items name is a press that selects it. */
+export function PressureAuthoringPanel(props: RichFormProps & { loadCaseId?: string; onQueueBatch?: (batch: OperationBatch) => void | Promise<void>; onSelect?: (selection: EntityRef) => void }) {
   const state = useRichQueue(props);
   const [profile, setProfile] = useState("");
   // T4-U8 (D-6/O3): null until the user changes the selector, so the queued profile
@@ -197,13 +216,19 @@ export function PressureAuthoringPanel(props: RichFormProps & { loadCaseId?: str
   const shearSelectRef = useRef<HTMLSelectElement>(null);
   const profileLine = pressureProfileLine(props.model);
   const openItems = pressureOpenItems(props.model);
-  return <section aria-label="Exact pressure authoring"><h3>Pressure mechanics profile</h3>
+  const countLine = pressureRegionsCountLine(props.model);
+  const headingId = useId();
+  const { onSelect } = props;
+  return <section aria-labelledby={headingId}><h3 id={headingId}>Pressure</h3>
     {profileLine ? <p data-testid="pressure-profile-line">{profileLine}</p>
       : <p>Current model: {props.model.schema_version}; pressure mode: {pressureModeText(props.model)}.</p>}
+    {countLine ? <p data-testid="pressure-regions-count">{countLine}</p> : null}
     {openItems.length ? <div data-testid="pressure-profile-open"><p>This model will not solve until:</p><ul>
       {openItems.map(item => <li key={`${item.kind}:${item.id ?? ""}`}>{item.kind === "shear"
         ? <button type="button" className="link-button" onClick={() => shearSelectRef.current?.focus()}>{item.text}</button>
-        : item.text}</li>)}
+        : item.kind === "regions" && item.id && onSelect
+          ? <button type="button" className="link-button" onClick={() => onSelect({ type: "load", id: item.id! })}>{item.text}</button>
+          : item.text}</li>)}
     </ul></div> : null}
     <fieldset disabled={state.busy}>
       <TextField label="Pressure profile" value={profile} choices={[PRESSURE_V3.mode]} onChange={setProfile} />
@@ -246,10 +271,12 @@ export function PressureRegionsEditor(props: RichFormProps & { loadCase: RichFor
     }
     await state.queue({ object_type: "Load", ref: props.loadCase.id }, "update_load", "pressure_regions", props.loadCase.pressure_regions, after, "Pressure regions", props.loadCase.pressure_regions === undefined);
   } catch (e) { state.setError(String(e)); } }
+  // With no rows: queue a stated "none" where the case has not been given regions; where it already states none,
+  // there is nothing to queue (the fact line says so).
+  const statedNone = Array.isArray(props.loadCase.pressure_regions) && props.loadCase.pressure_regions.length === 0;
   return <section aria-label="Case pressure regions"><h4>Pressure regions — {props.loadCase.label || props.loadCase.id}</h4>
-    <p>{props.loadCase.pressure_regions === undefined ? "No pressure-region declaration has been applied." : `${props.loadCase.pressure_regions.length} applied regions.`} Terminal order and closure transfer are user-authored. {signed
-      ? "The solver checks continuity, physical compatibility and tangency: straight runs stay collinear, direction changes happen only at realized bends, and a direction change above 1e-3 rad at a bend's end is refused as a mitre. A geometry-only bend cannot carry pressure: realize it first. Tees, valves, joints and other fittings are refused by name."
-      : "The solver checks continuity, straightness and physical compatibility."}</p>
+    <p data-testid="pressure-regions-fact">{pressureRegionsFact(props.loadCase)}</p>
+    <p>{PRESSURE_REGION_DEFINITION}</p>
     <fieldset disabled={state.busy}>
       <CopyFromCase what="pressure regions" cases={props.model.load_cases.filter(c => c.id !== props.loadCase.id && (c.pressure_regions?.length ?? 0) > 0).map(c => ({ value: c.id, label: c.label || c.id }))} onCopy={id => {
         const copied = copyPressureRegions(props.model.load_cases.find(c => c.id === id)?.pressure_regions, id, props.loadCase.id);
@@ -275,7 +302,7 @@ export function PressureRegionsEditor(props: RichFormProps & { loadCase: RichFor
       <button type="button" onClick={() => setRows(rows.filter((_, i) => i !== index))}>Remove region {index + 1}</button>
     </fieldset>)}
       <button type="button" onClick={() => setRows([...rows, { terminals: [{}, {}] }])}>Add pressure region</button>
-      <button type="button" onClick={() => void submit()}>{rows.length ? "Queue pressure regions" : "Queue explicit empty pressure regions"}</button>
+      <button type="button" disabled={!rows.length && statedNone} onClick={() => void submit()}>{rows.length ? "Queue pressure regions" : "Queue no pressure regions for this case"}</button>
     </fieldset><QueueFeedback {...state} />
   </section>;
 }

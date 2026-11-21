@@ -1,6 +1,6 @@
 import { cleanup, fireEvent, render, screen, waitFor, within } from "@testing-library/react";
 import { afterEach, expect, it, vi } from "vitest";
-import { MaterialConstitutiveForm, PressureAuthoringPanel, pressureOpenItems, pressureProfileLine } from "./PressureAuthoringPanel";
+import { MaterialConstitutiveForm, PRESSURE_REGION_DEFINITION, PressureAuthoringPanel, pressureOpenItems, pressureProfileLine, pressureRegionsCountLine, pressureRegionsFact } from "./PressureAuthoringPanel";
 import { pressureProfileTarget, SHEAR_MODEL_CHOICES, SHEAR_MODEL_LABEL } from "./pressureContract";
 import { MaterialTemperatureForm } from "../material-temperature/MaterialTemperatureForm";
 import type { PreviewModel, EditorOperationIntent } from "../../types";
@@ -108,7 +108,7 @@ it("says on a document carrying the profile that pressure is activated, with its
     expect(view.container.textContent).not.toContain(gone);
   }
   expect(screen.queryByText(/solves are refused/)).toBeNull();
-  expect(screen.getByText(/a direction change above 1e-3 rad at a bend's end is refused as a mitre/)).toBeInTheDocument();
+  expect(screen.getByText(PRESSURE_REGION_DEFINITION)).toBeInTheDocument();
   expect(screen.getByText(/signed \(a negative value is a net external differential; external-pressure stability and collapse are not assessed\)/)).toBeInTheDocument();
   cleanup();
   // A document not on the current contract (here the retired v2 label) keeps the non-negative hint.
@@ -212,7 +212,7 @@ it("retains regions and ordered terminal declarations through an edit", async ()
 it("queues explicit empty regions for an undeclared case without changing its loads", async () => {
   const input = structuredClone(model); delete input.load_cases[1].pressure_regions;
   const queue = vi.fn(); render(<PressureAuthoringPanel model={input} selection={{ type: "load", id: input.load_cases[1].id }} loadCaseId={input.load_cases[1].id} onQueueIntent={queue} />);
-  fireEvent.click(screen.getByRole("button", { name: "Queue explicit empty pressure regions" })); await waitFor(() => expect(queue).toHaveBeenCalledOnce());
+  fireEvent.click(screen.getByRole("button", { name: "Queue no pressure regions for this case" })); await waitFor(() => expect(queue).toHaveBeenCalledOnce());
   expect(queue.mock.calls[0][0].change.before).toBe("not_present"); expect(queue.mock.calls[0][0].change.after).toBe("[]");
   expect(input.load_cases[1].primitive_loads).toEqual(model.load_cases[1].primitive_loads);
 });
@@ -374,4 +374,80 @@ it("states the change of theory under the selector only where the pick differs, 
   mount(withContract(V3_EB));
   change("Shear deformation in straight members", "timoshenko_annulus_energy_v1");
   expect(line()).toBeNull();
+});
+it("is the region named by its heading, Pressure, with the profile field still Pressure profile", () => {
+  const view = render(<PressureAuthoringPanel model={model} selection={{ type: "load", id: model.load_cases[0].id }} onQueueIntent={vi.fn()} />);
+  const region = screen.getByRole("region", { name: "Pressure" });
+  expect(within(region).getByRole("heading", { level: 3 }).textContent).toBe("Pressure");
+  expect(within(region).getByLabelText("Pressure profile")).toBeInTheDocument();
+  expect(view.container.textContent).not.toContain("Pressure mechanics profile");
+  expect(screen.queryByRole("region", { name: "Exact pressure authoring" })).toBeNull();
+});
+it("counts the load cases with pressure regions by the solve's own test, and says nothing when every case has some", () => {
+  const count = () => screen.queryByTestId("pressure-regions-count")?.textContent ?? null;
+  const mount = (current: PreviewModel) => { cleanup(); render(<PressureAuthoringPanel model={current} selection={{ type: "load", id: model.load_cases[0].id }} onQueueIntent={vi.fn()} />); };
+  // One case with a region, one stating none.
+  const some = withContract(V3);
+  expect(pressureRegionsCountLine(some)).toBe("1 of 2 load cases have pressure regions.");
+  mount(some);
+  expect(count()).toBe("1 of 2 load cases have pressure regions.");
+  // None: a case not given regions and a case stating none count alike.
+  const none = withContract(V3); none.load_cases[0].pressure_regions = []; delete none.load_cases[1].pressure_regions;
+  mount(none);
+  expect(count()).toBe("No load case has a pressure region yet.");
+  // A region at zero pressure counts, as it does for the solve.
+  const all = withContract(V3);
+  all.load_cases[1].pressure_regions = [{ ...structuredClone(all.load_cases[0].pressure_regions![0]), id: "region:zero", pressure: { value: 0, unit: "kPa" } }];
+  expect(pressureRegionsCountLine(all)).toBeNull();
+  mount(all);
+  expect(count()).toBeNull();
+  // A document without the current profile says nothing.
+  expect(pressureRegionsCountLine(pressureFree())).toBeNull();
+  mount(pressureFree());
+  expect(count()).toBeNull();
+});
+it("makes each case the open items name a press that selects the case, where the load manager gives one", () => {
+  const current = withContract(V3); delete current.load_cases[1].pressure_regions;
+  const name = `${current.load_cases[1].label || current.load_cases[1].id} has not been given pressure regions`;
+  const onSelect = vi.fn();
+  render(<PressureAuthoringPanel model={current} selection={{ type: "load", id: model.load_cases[0].id }} onQueueIntent={vi.fn()} onSelect={onSelect} />);
+  fireEvent.click(screen.getByRole("button", { name }));
+  expect(onSelect).toHaveBeenCalledExactlyOnceWith({ type: "load", id: current.load_cases[1].id });
+  cleanup();
+  // Without one, the item is text.
+  render(<PressureAuthoringPanel model={current} selection={{ type: "load", id: model.load_cases[0].id }} onQueueIntent={vi.fn()} />);
+  expect(screen.queryByRole("button", { name })).toBeNull();
+  expect(screen.getByText(name)).toBeInTheDocument();
+});
+it("states under the regions heading what the case has and what a region is, and offers to state none only where it is not stated", async () => {
+  const mount = (current: PreviewModel, index: number, queue = vi.fn()) => {
+    cleanup();
+    render(<PressureAuthoringPanel model={current} selection={{ type: "load", id: current.load_cases[index].id }} loadCaseId={current.load_cases[index].id} onQueueIntent={queue} />);
+    const regions = within(screen.getByRole("region", { name: "Case pressure regions" }));
+    const paragraphs = screen.getByRole("region", { name: "Case pressure regions" }).querySelectorAll(":scope > p");
+    return { queue, regions, paragraphs: [...paragraphs].map(p => p.textContent) };
+  };
+  // Not given: the fact, the definition, and an enabled press that states none.
+  const unstated = structuredClone(model); delete unstated.load_cases[1].pressure_regions;
+  expect(pressureRegionsFact(unstated.load_cases[1])).toBe("This case has not been given pressure regions.");
+  let view = mount(unstated, 1);
+  expect(view.paragraphs).toEqual(["This case has not been given pressure regions.", PRESSURE_REGION_DEFINITION]);
+  expect(PRESSURE_REGION_DEFINITION).toBe("A region is one unbranched, equal-bore run of pipe (and any inline expansion-joint connector) between its two terminals, changing direction only at realized bends.");
+  fireEvent.click(view.regions.getByRole("button", { name: "Queue no pressure regions for this case" }));
+  await waitFor(() => expect(view.queue).toHaveBeenCalledOnce());
+  // Stated none: the fact, and nothing to press.
+  view = mount(model, 1);
+  expect(view.paragraphs[0]).toBe("This case has no pressure regions.");
+  expect(view.regions.getByRole("button", { name: "Queue no pressure regions for this case" })).toBeDisabled();
+  // Regions: the count; removing the last row offers to state none.
+  view = mount(model, 0);
+  expect(view.paragraphs[0]).toBe("1 pressure region.");
+  expect(pressureRegionsFact({ ...model.load_cases[0], pressure_regions: [model.load_cases[0].pressure_regions![0], model.load_cases[0].pressure_regions![0]] })).toBe("2 pressure regions.");
+  expect(view.regions.getByRole("button", { name: "Queue pressure regions" })).toBeEnabled();
+  fireEvent.click(view.regions.getByRole("button", { name: "Remove region 1" }));
+  expect(view.regions.getByRole("button", { name: "Queue no pressure regions for this case" })).toBeEnabled();
+  // The old rules paragraph is gone.
+  for (const gone of ["Terminal order and closure transfer are user-authored.", "The solver checks continuity", "refused as a mitre", "No pressure-region declaration has been applied.", "applied regions."]) {
+    expect(screen.getByRole("region", { name: "Case pressure regions" }).textContent).not.toContain(gone);
+  }
 });

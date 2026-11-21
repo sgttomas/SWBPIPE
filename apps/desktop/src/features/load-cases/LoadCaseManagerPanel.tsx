@@ -210,6 +210,8 @@ export function LoadCaseManagerPanel({
   const [templateOpen, setTemplateOpen] = useState(false);
   const [templatesMenuOpen, setTemplatesMenuOpen] = useState(false);
   const [addLoadOpen, setAddLoadOpen] = useState(false);
+  // The case a press in the pressure panel's open items selected: its Pressure section opens with it.
+  const [pressureOpenFor, setPressureOpenFor] = useState<string | null>(null);
   const [addTermOpen, setAddTermOpen] = useState(false);
   // The load row or term row whose edit is open in place.
   const [editingPrimitiveKey, setEditingPrimitiveKey] = useState<string | null>(null);
@@ -1121,7 +1123,7 @@ export function LoadCaseManagerPanel({
       id: "pressure",
       title: "Pressure",
       summary: pressureSummary(selectedLoadCase),
-      hasContent: (selectedLoadCase.pressure_regions?.length ?? 0) > 0,
+      hasContent: (selectedLoadCase.pressure_regions?.length ?? 0) > 0 || pressureOpenFor === selectedLoadCase.id,
       render: () => (
         <PressureRegionsEditor model={model} selection={selection} queuedIntents={queuedIntents} operationBusy={operationBusy} preparationEpoch={preparationEpoch} getPreparationEpoch={getPreparationEpoch} onQueueIntent={onQueueIntent} loadCase={selectedLoadCase} />
       )
@@ -1873,7 +1875,8 @@ export function LoadCaseManagerPanel({
 
       <details className="loads-settings" data-testid="load-manager-analysis-settings">
         <summary>Analysis settings</summary>
-        <PressureAuthoringPanel model={model} selection={selection} queuedIntents={queuedIntents} operationBusy={operationBusy} preparationEpoch={preparationEpoch} getPreparationEpoch={getPreparationEpoch} onQueueIntent={onQueueIntent} onQueueBatch={onQueueBatch} />
+        <PressureAuthoringPanel model={model} selection={selection} queuedIntents={queuedIntents} operationBusy={operationBusy} preparationEpoch={preparationEpoch} getPreparationEpoch={getPreparationEpoch} onQueueIntent={onQueueIntent} onQueueBatch={onQueueBatch}
+          onSelect={(next) => { if (next.type === "load") setPressureOpenFor(next.id); onSelect(next); }} />
       </details>
     </section>
   );
