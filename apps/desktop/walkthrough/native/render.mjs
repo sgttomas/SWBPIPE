@@ -11,7 +11,7 @@ export const VIEW_3D_SURFACE = "the 3D view's drawing, where a step says it was 
 export const PICTURE_BASIS = "This picture is the launched app's document, recorded in its own web view at this step and redrawn by Chromium; it is not a capture of the window. Fonts and form controls may differ in detail, and hover and focus rings are not shown.";
 
 /**
- * The native surfaces an attended capture may declare it shows (its sidecar's `surfaces`) or record an attempt at
+ * The native surfaces an attended capture may declare it shows (its sidecar's `surfaces`) or state it could not show
  * (`prevented`): the fixed set, each with its key and the name the index gives it.
  */
 export const SURFACE_KEYS = Object.freeze({

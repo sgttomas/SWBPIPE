@@ -76,6 +76,13 @@ export function attendedBindings(out, journeys) {
   }
   return { checks, unbound };
 }
+/** The surfaces the scripted-run build substitutes: by DEL-07-06 VER-007 each is supplied or missing, never unseen. */
+export const SUBSTITUTED_BY_BUILD = Object.freeze({
+  file_chooser: "the scripted-run build substitutes the file chooser (a queued answer, or the strict chooser's end of the application): by DEL-07-06 VER-007 it is supplied or missing, never unseen",
+  print_dialog: "the scripted-run build substitutes the print dialog (the print document is recorded and no dialog is shown): by DEL-07-06 VER-007 it is supplied or missing, never unseen"
+});
+/** An attendant's complete statement that a surface could not be shown, in words. */
+const statementOf = (record) => `at the step "${record.step}", ${SURFACE_KEYS[record.surface] ?? record.surface} was attempted and "${record.observed}" was observed; the obstacle is the ${record.obstacle === "system" ? "system's" : "application's"}`;
 const keyOf = (item) => item.key ?? SURFACE_ORDER.find((key) => SURFACE_KEYS[key] === item.surface) ?? null;
 const shortCommit = (commit) => (typeof commit === "string" ? commit.slice(0, 12) : "unrecorded");
 
@@ -88,8 +95,12 @@ const shortCommit = (commit) => (typeof commit === "string" ? commit.slice(0, 12
  *   (attendedBindings); the entry lists those captures with their revision and build. A capture at another revision
  *   or build, one replaced, removed or edited since, or a sidecar with no picture, supplies nothing and is listed in
  *   `not_supplying` with why;
- * - otherwise unseen, when a capture's sidecar, a sidecar with no picture, or the attended launch's own record says
- *   an attempt was made and what prevented it (`prevented`), at that revision; nothing else makes a surface unseen;
+ * - otherwise unseen, as the attendant states, when a capture's sidecar or a sidecar with no picture, at that revision
+ *   and build, holds a statement (`prevented`) naming the step attempted, the surface, what was observed and whether
+ *   the obstacle is the system's or the application's; the index gives the statement in full, for the reader to
+ *   accept or not. A statement lacking any of the four makes nothing unseen and is listed in `not_supplying`. The file
+ *   chooser and the print dialog are substituted by the scripted-run build, so they are supplied or missing, never
+ *   unseen, whatever a sidecar says (SUBSTITUTED_BY_BUILD). The runner writes no statement of its own;
  * - otherwise, for the window, the menu bar, the file chooser and the print dialog (and another native dialog once
  *   anything names it), missing evidence: NOT_SUPPLIED, never a permission prompt. The 3D view keeps its own logic
  *   (captured, or not and why, at each step under --show-window), and an attended capture can supply it too.
@@ -127,6 +138,14 @@ export function nativeSurfacesOf(journeys, { bindings = { checks: new Map(), unb
   const notSupplying = new Map();
   const unexplained = [];
   const add = (map, key, value) => map.set(key, [...(map.get(key) ?? []), value]);
+  // The attendant's statements that a surface could not be shown, from a capture or a sidecar with no picture.
+  const stated = (record, ref, partWhy) => {
+    const kind = "statement that it was unseen";
+    if (Object.hasOwn(SUBSTITUTED_BY_BUILD, record.surface)) return add(notSupplying, record.surface, { ...ref, kind, why: SUBSTITUTED_BY_BUILD[record.surface] });
+    if (record.lacks) return add(notSupplying, record.surface, { ...ref, kind, why: `the attendant's statement lacks ${record.lacks.join(", ")}: a statement names the step attempted, the surface, what was observed and whether the obstacle is the system's or the application's` });
+    const attempt = { ...ref, step_attempted: record.step, observed: record.observed, obstacle: record.obstacle, statement: statementOf(record) };
+    return partWhy === null ? add(attempts, record.surface, attempt) : add(notSupplying, record.surface, { ...attempt, kind, why: partWhy });
+  };
   for (const part of attendedParts) {
     const at = { revision: part.revision ?? null, build: part.build ?? null };
     const partWhy = whyNotPart(part);
@@ -136,25 +155,24 @@ export function nativeSurfacesOf(journeys, { bindings = { checks: new Map(), unb
       const ref = { file: screen.file, number: screen.number, step: screen.step, ...at };
       const bound = bindings.checks.get(screen.file) ?? null;
       for (const key of screen.surfaces ?? []) claim(key, ref, supplies, "capture", partWhy ?? bound);
-      for (const record of screen.prevented ?? []) claim(record.surface, { ...ref, what: record.what }, attempts, "attempt");
+      for (const record of [...(screen.prevented ?? []), ...(screen.prevented_incomplete ?? [])]) stated(record, ref, partWhy ?? bound);
       for (const name of screen.surfaces_unexplained ?? []) unexplained.push({ name, file: screen.file, member: "surfaces" });
-      for (const record of screen.prevented_unexplained ?? []) unexplained.push({ name: record.surface, file: screen.file, member: "prevented", what: record.what });
+      for (const record of screen.prevented_unexplained ?? []) unexplained.push({ name: record.surface, file: screen.file, member: "prevented", observed: record.observed });
     }
     for (const record of part.captures?.records_without_picture ?? []) {
       const ref = { file: record.file, step: record.step ?? null, ...at };
       for (const key of record.surfaces ?? []) add(notSupplying, key, { ...ref, kind: "capture", why: "a sidecar with no picture shows nothing" });
-      for (const item of record.prevented ?? []) claim(item.surface, { ...ref, what: item.what }, attempts, "attempt");
+      for (const item of [...(record.prevented ?? []), ...(record.prevented_incomplete ?? [])]) stated(item, ref, partWhy);
       for (const name of record.surfaces_unexplained ?? []) unexplained.push({ name, file: record.file, member: "surfaces" });
-      for (const item of record.prevented_unexplained ?? []) unexplained.push({ name: item.surface, file: record.file, member: "prevented", what: item.what });
+      for (const item of record.prevented_unexplained ?? []) unexplained.push({ name: item.surface, file: record.file, member: "prevented", observed: item.observed });
     }
-    for (const item of part.launch?.prevented ?? []) claim(item.surface, { source: "the attended launch's record", what: item.what, ...at }, attempts, "attempt");
   }
   const decide = (key, item) => {
     const base = item ?? NATIVE_SURFACES.find((entry) => entry.key === key) ?? { surface: SURFACE_KEYS[key], captured: false, instead: "none: the scripted runner does not meet it" };
     const extra = notSupplying.has(key) ? { not_supplying: notSupplying.get(key) } : {};
     if (supplies.has(key)) return { ...base, key, captured: true, evidence: "supplied", missing_evidence: false, prevented_by: "nothing: an attended capture of the actual window shows it", captures: supplies.get(key), ...extra };
     if (key === "view_3d" && base.evidence === "supplied") return { ...base, key, ...extra };
-    if (attempts.has(key)) return { ...base, key, captured: false, evidence: "unseen", unseen: true, missing_evidence: false, prevented_by: attempts.get(key).map((attempt) => attempt.what).join("; "), attempts: attempts.get(key), ...extra };
+    if (attempts.has(key)) return { ...base, key, captured: false, evidence: "unseen", unseen: true, missing_evidence: false, prevented_by: `unseen, as the attendant states: ${attempts.get(key).map((attempt) => attempt.statement).join("; ")}`, attempts: attempts.get(key), ...extra };
     if (key === "view_3d") return { ...base, key, ...extra };
     return { ...base, key, captured: false, evidence: "missing", missing_evidence: true, prevented_by: NOT_SUPPLIED, ...extra };
   };
@@ -189,7 +207,7 @@ export function composeIndex(out, { size = null } = {}) {
     ...(screen.file && !screen.redrawn ? { redrawn: false } : {}),
     ...(bindings.checks.has(screen.file) ? { binding_check: bindings.checks.get(screen.file) ?? "intact: the picture and its sidecar are the ones its launch recorded" } : {})
   })));
-  // The native surfaces, each named once: supplied, unseen with what prevented it, or missing evidence (nativeSurfacesOf).
+  // The native surfaces, each named once: supplied, unseen as the attendant states, or missing evidence (nativeSurfacesOf).
   const { surfaces: nativeSurfaces, unexplained: unexplainedSurfaces } = nativeSurfacesOf(journeys, { bindings });
   // Each launch's reading of the menu the app built (native/run.mjs nativeMenuRecord).
   const nativeMenus = journeys.filter((journey) => journey.native_menu).map((journey) => ({ ...journey.native_menu, build: journey.build ?? null }));
@@ -201,7 +219,7 @@ export function composeIndex(out, { size = null } = {}) {
     marks_explained: {
       redrawn: "true where the picture is the application's document redrawn outside its window by Chromium, not a capture of the window",
       substitutions: "each substitution of the scripted-run build the step used: the file a chooser returns, a native menu command, the report print dialog",
-      native_surfaces: "each native surface of the launched app: supplied (the attended captures of the actual window that show it, with their revision and build), unseen (an attempt was recorded and what prevented it), or missing evidence (not supplied: no attended capture of it in this walkthrough); and what the scripted runner does instead",
+      native_surfaces: "each native surface of the launched app: supplied (the attended captures of the actual window that show it, with their revision and build), unseen, as the attendant states (a statement naming the step attempted, the surface, what was observed and whether the obstacle is the system's or the application's, given in full for the reader to accept or not; never the file chooser or the print dialog, which the scripted-run build substitutes), or missing evidence (not supplied: no attended capture of it in this walkthrough); and what the scripted runner does instead",
       native_menus: "for each launch of the app, the menu it built, read from it once by the scripted-run build: each menu's items in order with label, command identifier, enabled and ticked state, and separators; names, order and state, not appearance or placement",
       window_shown: "on a native screen, whether the run brought the app's window to the front (--show-window) so its web view drew; page_visibility is what the page reported at that step",
       ...(journeys.some(attendedJourney) ? {
@@ -274,14 +292,14 @@ function renderScreen(screen) {
   return `<li class="screen${screen.failed ? " stopped" : ""}" id="s${screen.number}"><h3>${screen.number} · ${escapeHtml(screen.step)}</h3><p>${escapeHtml(screen.note)}</p>${stop}${stated}${substituted}${picture}${basis}${unbound}${unpictured}${source}${counts}${controls}</li>`;
 }
 
-// One native surface: supplied (with the captures that show it), unseen (what prevented it), or missing evidence.
+// One native surface: supplied (with the captures that show it), unseen as the attendant states, or missing evidence.
 function renderSurface(item) {
   const revision = (ref) => `revision ${escapeHtml(shortCommit(ref.revision?.commit))}${ref.build?.app_sha256 ? `, app ${escapeHtml(String(ref.build.app_sha256).replace(/^sha256:/, "").slice(0, 12))}` : ""}`;
   const elsewhere = item.not_supplying?.length ? ` Not counted: ${item.not_supplying.map((ref) => `${escapeHtml(ref.file ?? ref.source ?? "a record")} (${escapeHtml(ref.why)})`).join("; ")}.` : "";
   if (item.evidence === "supplied" && item.captures?.length) {
     return `<li><strong>${escapeHtml(item.surface)}</strong>: supplied by attended capture${item.captures.length === 1 ? "" : "s"} ${item.captures.map((ref) => `<a href="${escapeHtml(ref.file)}">${escapeHtml(ref.step ?? ref.file)}</a> (${revision(ref)})`).join(", ")}. Evidence supplied.${elsewhere}</li>`;
   }
-  if (item.evidence === "unseen") return `<li><strong>${escapeHtml(item.surface)}</strong>: unseen; an attempt was recorded and was prevented: ${escapeHtml(item.prevented_by)}.${elsewhere}</li>`;
+  if (item.evidence === "unseen") return `<li><strong>${escapeHtml(item.surface)}</strong>: ${escapeHtml(item.prevented_by)}. For the reader to accept or not: the runner does not check it.${elsewhere}</li>`;
   return `<li><strong>${escapeHtml(item.surface)}</strong>: ${escapeHtml(item.prevented_by)}. Instead: ${escapeHtml(item.instead)}.${item.missing_evidence ? ' <span class="stop">Missing evidence.</span>' : item.evidence === "supplied" ? " Evidence supplied." : ""}${elsewhere}</li>`;
 }
 

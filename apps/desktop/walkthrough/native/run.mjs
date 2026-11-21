@@ -502,22 +502,32 @@ const ISO_TIME = /^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}(:\d{2}(\.\d{1,9})?)?(Z|[+-]\d{2
 const PNG_SIGNATURE = Buffer.from([0x89, 0x50, 0x4e, 0x47, 0x0d, 0x0a, 0x1a, 0x0a]);
 
 /**
- * A sidecar's optional surface claims: `surfaces`, the native surfaces the picture shows, and `prevented`, one record
- * or a list of { surface, what } for an attempt at a surface that something prevented. Each surface is a key of
- * SURFACE_KEYS; an unknown one is kept apart as unexplained. { surfaces, surfaces_unexplained, prevented,
- * prevented_unexplained } or { why } when a member is not of that form.
+ * A sidecar's optional surface claims, the attendant's: `surfaces`, the native surfaces the picture shows, and
+ * `prevented`, one statement or a list of { step, surface, observed, obstacle } that a surface could not be shown:
+ * the step attempted, the surface, what was observed when it was attempted, and whether the obstacle is the
+ * "system" or the "application". Each surface is a key of SURFACE_KEYS; an unknown one is kept apart as unexplained.
+ * A statement lacking any of the four is kept apart as incomplete, with what it lacks, and makes nothing unseen.
+ * { surfaces, surfaces_unexplained, prevented, prevented_incomplete, prevented_unexplained } or { why } when a member
+ * is not of that form.
  */
 export function surfaceClaims(value) {
-  const claims = { surfaces: [], surfaces_unexplained: [], prevented: [], prevented_unexplained: [] };
+  const claims = { surfaces: [], surfaces_unexplained: [], prevented: [], prevented_incomplete: [], prevented_unexplained: [] };
   if (value.surfaces !== undefined) {
     if (!Array.isArray(value.surfaces) || value.surfaces.length > 20 || !value.surfaces.every((item) => typeof item === "string" && item.length > 0 && item.length <= 80)) return { why: "its sidecar's surfaces is not a list of surface names" };
     for (const item of value.surfaces) (Object.hasOwn(SURFACE_KEYS, item) ? claims.surfaces : claims.surfaces_unexplained).push(item);
   }
   if (value.prevented !== undefined) {
     const records = Array.isArray(value.prevented) ? value.prevented : [value.prevented];
-    const valid = (record) => record && typeof record === "object" && !Array.isArray(record) && typeof record.surface === "string" && record.surface.length > 0 && record.surface.length <= 80 && typeof record.what === "string" && record.what.trim() !== "" && record.what.length <= 1000;
-    if (records.length === 0 || records.length > 20 || !records.every(valid)) return { why: "its sidecar's prevented is not { surface, what } or a list of them" };
-    for (const { surface, what } of records) (Object.hasOwn(SURFACE_KEYS, surface) ? claims.prevented : claims.prevented_unexplained).push({ surface, what: what.trim() });
+    const valid = (record) => record && typeof record === "object" && !Array.isArray(record) && typeof record.surface === "string" && record.surface.length > 0 && record.surface.length <= 80;
+    if (records.length === 0 || records.length > 20 || !records.every(valid)) return { why: "its sidecar's prevented is not { step, surface, observed, obstacle } or a list of them" };
+    const text = (item, limit) => (typeof item === "string" && item.trim() !== "" && item.length <= limit ? item.trim() : null);
+    for (const record of records) {
+      const statement = { step: text(record.step, 200), surface: record.surface, observed: text(record.observed, 1000), obstacle: ["system", "application"].includes(record.obstacle) ? record.obstacle : null };
+      const lacks = ["step", "observed", "obstacle"].filter((member) => statement[member] === null);
+      if (!Object.hasOwn(SURFACE_KEYS, record.surface)) claims.prevented_unexplained.push(statement);
+      else if (lacks.length > 0) claims.prevented_incomplete.push({ ...statement, lacks });
+      else claims.prevented.push(statement);
+    }
   }
   return claims;
 }
@@ -742,9 +752,9 @@ export function readCaptures(folder, { number = ATTENDED.number, journey = ATTEN
       continue;
     }
     const binding = { picture_sha256: sha256Of(bytes), sidecar_sha256: sha256Of(sidecarBytes), width: decoded.width, height: decoded.height, bytes: bytes.length, revision: bindTo.revision ?? null, build_app_sha256: bindTo.build_app_sha256 ?? null };
-    const { surfaces, surfaces_unexplained, prevented, prevented_unexplained } = sidecar;
+    const { surfaces, surfaces_unexplained, prevented, prevented_incomplete, prevented_unexplained } = sidecar;
     const stated = { use_case: sidecar.use_case, step: sidecar.step, acted: sidecar.acted, note: sidecar.note, taken_at: sidecar.taken_at, ...(surfaces.length || surfaces_unexplained.length ? { surfaces: [...surfaces, ...surfaces_unexplained] } : {}), ...(sidecar.raw.prevented !== undefined ? { prevented: sidecar.raw.prevented } : {}) };
-    const screen = { ...entry, use_case: useCase, step: sidecar.step, note: sidecar.note, acted: sidecar.acted, taken_at: sidecar.taken_at, taken_at_check: takenAtCheck(sidecar.taken_at_ms, fileTime), stated_by_attendant: stated, capture: "the actual window", driven_by: "an attendant, through the window", picture: CAPTURE_BASIS, binding, surfaces, surfaces_unexplained, prevented, prevented_unexplained };
+    const screen = { ...entry, use_case: useCase, step: sidecar.step, note: sidecar.note, acted: sidecar.acted, taken_at: sidecar.taken_at, taken_at_check: takenAtCheck(sidecar.taken_at_ms, fileTime), stated_by_attendant: stated, capture: "the actual window", driven_by: "an attendant, through the window", picture: CAPTURE_BASIS, binding, surfaces, surfaces_unexplained, prevented, prevented_incomplete, prevented_unexplained };
     times.set(screen, sidecar.taken_at_ms);
     found.screens.push(screen);
   }
@@ -1237,7 +1247,6 @@ async function main() {
         substitutions,
         stopped_by_launch: substitutions.filter((item) => /stopped by the launch$/.test(item.kind ?? "")),
         observed: { records: observed.records.length, rejected: observed.rejected, bounds: OBSERVED_BOUNDS, what: "the application's own report of the words and controls on screen, made by the driver without pressing, focusing or changing anything" },
-        prevented: ending.by === "strict-chooser" ? [{ surface: "file_chooser", what: "the attendant opened a file chooser and the strict chooser ended the application before any panel (exit 86): this build shows no chooser without a queued answer" }] : [],
         judged: judged.map(({ name: checkName, ok, detail }) => ({ name: checkName, ok, detail: detail ?? null }))
       }
     });

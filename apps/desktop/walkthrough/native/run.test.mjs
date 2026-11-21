@@ -707,7 +707,7 @@ function surfacesIndex(t, { journeyRevision = "abc", captureRevision = "abc", jo
     writeFileSync(path.join(folder, `${base}.json`), sidecarJson({ step: `step-${index + 1}`, note: "n", acted: ["looked"], ...claims }));
   });
   const captures = readCaptures(folder, { identity: lstatSync(folder), bindTo: { revision: { commit: captureRevision, uncommitted_paths: 0 }, build_app_sha256: captureBuild } });
-  writeAttendedPart(out, { title: "Attended", revision: { commit: captureRevision, uncommitted_paths: 0 }, build: { kind: "k", app_sha256: captureBuild }, launch: { attended: true, prevented: [], ...launch }, captures });
+  writeAttendedPart(out, { title: "Attended", revision: { commit: captureRevision, uncommitted_paths: 0 }, build: { kind: "k", app_sha256: captureBuild }, launch: { attended: true, ...launch }, captures });
   if (after) after(folder);
   composeIndex(out);
   const index = JSON.parse(readFileSync(path.join(out, "INDEX.json"), "utf8"));
@@ -744,29 +744,49 @@ test("native surfaces: a capture at another revision than the walkthrough's scre
   assert.match(html, /Not counted: captures\/01-capture\.png \(it is at revision def, not the walkthrough's abc\)/);
 });
 
-test("native surfaces: a recorded attempt and what prevented it makes a surface unseen; nothing else does", (t) => {
+test("native surfaces: unseen only by the attendant's complete statement, never for the chooser or the print dialog, and the runner writes none", (t) => {
+  const full = { step: "open the window menu", surface: "window", observed: "the screen-driving tool's picture of the window came back black", obstacle: "system" };
   const { entry, html } = surfacesIndex(t, {
-    sidecars: [{ prevented: { surface: "print_dialog", what: "Print opened the print view's window; this build shows no print dialog" } }, { picture: false, prevented: [{ surface: "other_native_dialog", what: "the alert closed before it could be captured" }] }],
-    launch: { prevented: [{ surface: "file_chooser", what: "the strict chooser ended the application before any panel (exit 86)" }] }
+    sidecars: [
+      { prevented: full },
+      { picture: false, prevented: [{ step: "Help", surface: "other_native_dialog", observed: "the alert closed before it could be captured", obstacle: "application" }] },
+      { prevented: [{ step: "Print", surface: "print_dialog", observed: "the print view's window opened; no dialog", obstacle: "application" }, { step: "Open", surface: "file_chooser", observed: "the application ended", obstacle: "application" }] },
+      { prevented: { surface: "menu_bar", observed: "nothing drawn", obstacle: "system" } }
+    ],
+    launch: { ended_by: "strict-chooser", ending: "a file chooser was opened with no answer queued; the strict chooser ended the app before any panel (exit 86)" }
   });
-  assert.deepEqual([entry("print_dialog").evidence, entry("print_dialog").unseen, entry("print_dialog").missing_evidence, entry("print_dialog").prevented_by], ["unseen", true, false, "Print opened the print view's window; this build shows no print dialog"]);
-  assert.equal(entry("print_dialog").attempts[0].file, "captures/01-capture.png");
-  assert.deepEqual([entry("file_chooser").evidence, entry("file_chooser").attempts[0].source], ["unseen", "the attended launch's record"]);
+  assert.deepEqual([entry("window").evidence, entry("window").unseen, entry("window").missing_evidence], ["unseen", true, false]);
+  assert.equal(entry("window").prevented_by, `unseen, as the attendant states: at the step "open the window menu", ${SURFACE_KEYS.window} was attempted and "the screen-driving tool's picture of the window came back black" was observed; the obstacle is the system's`);
+  assert.deepEqual([entry("window").attempts[0].file, entry("window").attempts[0].obstacle], ["captures/01-capture.png", "system"]);
   assert.deepEqual([entry("other_native_dialog").evidence, entry("other_native_dialog").attempts[0].file], ["unseen", "captures/02-capture.json"]);
-  assert.equal(entry("window").evidence, "missing");
-  assert.match(html, /unseen; an attempt was recorded and was prevented: the strict chooser ended the application/);
-  // At another revision an attempt does not count.
-  const elsewhere = surfacesIndex(t, { captureRevision: "def", sidecars: [{ prevented: { surface: "print_dialog", what: "x" } }] });
-  assert.deepEqual([elsewhere.entry("print_dialog").evidence, elsewhere.entry("print_dialog").not_supplying[0].kind], ["missing", "attempt"]);
+  assert.match(entry("other_native_dialog").prevented_by, /the obstacle is the application's$/);
+  // Substituted by the build: supplied or missing, never unseen, whatever a sidecar says.
+  for (const key of ["print_dialog", "file_chooser"]) {
+    assert.deepEqual([entry(key).evidence, entry(key).missing_evidence, entry(key).not_supplying[0].kind], ["missing", true, "statement that it was unseen"], key);
+    assert.match(entry(key).not_supplying[0].why, /substitutes .* never unseen/);
+  }
+  // The strict chooser's exit is the launch's ending, never a prevention: the file chooser stays missing.
+  assert.equal(entry("file_chooser").attempts, undefined);
+  // A statement lacking the step leaves the menu bar missing, with what it lacks.
+  assert.deepEqual([entry("menu_bar").evidence, entry("menu_bar").missing_evidence], ["missing", true]);
+  assert.match(entry("menu_bar").not_supplying[0].why, /lacks step/);
+  assert.match(html, /unseen, as the attendant states: at the step &quot;open the window menu&quot;.*For the reader to accept or not/);
+  // At another revision a statement does not count.
+  const elsewhere = surfacesIndex(t, { captureRevision: "def", sidecars: [{ prevented: full }] });
+  assert.deepEqual([elsewhere.entry("window").evidence, elsewhere.entry("window").not_supplying[0].kind], ["missing", "statement that it was unseen"]);
+  // The old form, { surface, what }, is incomplete and makes nothing unseen.
+  const old = surfacesIndex(t, { sidecars: [{ prevented: { surface: "window", what: "covered" } }] });
+  assert.equal(old.entry("window").evidence, "missing");
+  assert.match(old.entry("window").not_supplying[0].why, /lacks step, observed, obstacle/);
 });
 
 test("native surfaces: an unknown surface name in a sidecar is listed as unexplained, not dropped; a malformed claim leaves the capture unexplained", (t) => {
-  const { entry, index, html, captures } = surfacesIndex(t, { sidecars: [{ surfaces: ["menu_bar", "dock"], prevented: { surface: "touch_bar", what: "none here" } }, { surfaces: "window" }, { prevented: { surface: "window" } }] });
+  const { entry, index, html, captures } = surfacesIndex(t, { sidecars: [{ surfaces: ["menu_bar", "dock"], prevented: { step: "s", surface: "touch_bar", observed: "none here", obstacle: "system" } }, { surfaces: "window" }, { prevented: { observed: "x" } }] });
   assert.deepEqual(captures.screens.map((screen) => screen.capture), ["the actual window", "unexplained", "unexplained"]);
   assert.match(captures.screens[1].unexplained, /surfaces is not a list/);
-  assert.match(captures.screens[2].unexplained, /prevented is not \{ surface, what \}/);
+  assert.match(captures.screens[2].unexplained, /prevented is not \{ step, surface, observed, obstacle \}/);
   assert.equal(entry("menu_bar").evidence, "supplied");
-  assert.deepEqual(index.native_surfaces_unexplained, [{ name: "dock", file: "captures/01-capture.png", member: "surfaces" }, { name: "touch_bar", file: "captures/01-capture.png", member: "prevented", what: "none here" }]);
+  assert.deepEqual(index.native_surfaces_unexplained, [{ name: "dock", file: "captures/01-capture.png", member: "surfaces" }, { name: "touch_bar", file: "captures/01-capture.png", member: "prevented", observed: "none here" }]);
   assert.match(html, /Unexplained surface names in sidecars: dock \(captures\/01-capture\.png, surfaces\); touch_bar/);
   // An unexplained capture's claims count for nothing.
   assert.equal(entry("window").evidence, "missing");
