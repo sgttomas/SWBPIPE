@@ -4,6 +4,7 @@ import { DisplayUnitsProvider } from "../display-units";
 import { loadBundledMechanicsReference } from "../../services/previewService";
 import type { EntityRef, MechanicsResult, PreviewModel } from "../../types";
 import { ResultsPanel } from "../results/ResultsPanel";
+import { enteredValueText } from "../results/ResultRowsTable";
 import { PipeViewport } from "./PipeViewport";
 
 // A7: the element-axis toggle (off, local, global) and its readout, and the results table's
@@ -91,7 +92,7 @@ describe("the results table states each row's frame", () => {
     expect(screen.getByTestId(`result-row-frame-${globalEnd.id}`)).toHaveTextContent("Global");
     expect(screen.queryByTestId(`result-row-${localEnd.id}`)).toBeNull();
     // The value shown is the published one.
-    expect(screen.getByTestId(`result-row-dual-${globalEnd.id}`)).toHaveTextContent(`Entered: ${globalEnd.value} ${globalEnd.unit}`);
+    expect(screen.getByTestId(`result-row-dual-${globalEnd.id}`)).toHaveTextContent(`Entered: ${enteredValueText(globalEnd.value)} ${globalEnd.unit}`);
 
     fireEvent.click(local);
     expect(screen.getByTestId("result-filter-summary")).toHaveTextContent(`${localCount} of ${source.results.length}`);

@@ -8,7 +8,7 @@ import { ArrowDown, ArrowUp, ArrowUpDown } from "lucide-react";
 import type { MechanicsResult, PreviewModel, ResultBasisRef } from "../../types";
 import { entityLabel } from "../model-workspace/modelView";
 import { resolveEntitySelection } from "./resultInterpretation";
-import { EngineeringQuantity } from "./EngineeringQuantity";
+import { EngineeringQuantity, engineeringNumberText } from "./EngineeringQuantity";
 
 type Row = MechanicsResult["results"][number];
 
@@ -157,7 +157,9 @@ export function ResultRowsTable({
               <td className="result-value-cell"><EngineeringQuantity quantity={{ value: item.value, unit: item.unit, dimension_id: dimension(item) }} /></td>
               <td>{item.metadata?.location ?? "summary"}</td>
               <td data-testid={`result-row-frame-${item.id}`}>{frameText(item)}</td>
-              <td className="dual-unit-cell" data-testid={`result-row-dual-${item.id}`}><span>Entered: {item.value} {item.unit}</span></td>
+              {/* The stored value in its entered unit, by the same display rule as the Value column; the full
+                  value is the cell's hover text and stays in the row's detail and in every CSV. */}
+              <td className="dual-unit-cell" data-testid={`result-row-dual-${item.id}`} title={`${item.value} ${item.unit}`}><span>Entered: {enteredValueText(item.value)} {item.unit}</span></td>
               <td className="results-row-notes">{notes(item)}</td>
             </tr>
           ))}
@@ -165,4 +167,10 @@ export function ResultRowsTable({
       </table>
     </div>
   );
+}
+
+/** The stored value as the Entered column prints it: the display rule's rounding step on a number
+ * (six significant digits, half away from zero); a value that is not a number is shown as stored. */
+export function enteredValueText(value: unknown): string {
+  return typeof value === "number" ? engineeringNumberText(value) : String(value);
 }

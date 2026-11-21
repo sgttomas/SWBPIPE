@@ -17,7 +17,10 @@ it('shows exact signed tiny scientific values and historical recompute qualifica
  const result={schema_version:'0.1.0',document_kind:'openpipestress.mechanics_result',run_id:'tiny',model_ref:'fixture',status:{mechanics:'MECHANICS_SOLVED',rule_check:'RULE_INPUTS_INCOMPLETE',professional_acceptance:'NOT_PROVIDED'},summary:{},diagnostics:[],results:[1e-12,-1e-12,1.0000000000000002].map((value,i)=>({id:`tiny:${i}`,kind:'global_nodal_rotation_x',value,unit:'rad',entity_ref:'node'}))} as MechanicsResult;
  const before=JSON.stringify(result);
  render(<ResultsPanel result={result} knowledge={null} analysisRun={null} selectedResultId={'tiny:1'} onSelectResult={()=>{}}/>);
- for(let i=0;i<3;i++) expect(screen.getByTestId(`result-row-tiny:${i}`).textContent).toContain(String(result.results[i].value));
+ // The table prints each value by the display rule; the exact stored value is each cell's hover text
+ // and the selected row's detail.
+ for(let i=0;i<3;i++) expect(screen.getByTestId(`result-row-dual-tiny:${i}`).getAttribute('title')).toBe(`${String(result.results[i].value)} rad`);
+ expect(screen.getByTestId('result-detail-panel').textContent).toContain(String(result.results[1].value));
  expect(screen.getAllByTestId('numerical-result-standing').at(-1)?.textContent).toContain('Needs recompute');
  expect(JSON.stringify(result)).toBe(before);
 });

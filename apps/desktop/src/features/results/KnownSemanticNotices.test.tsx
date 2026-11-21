@@ -8,6 +8,7 @@ import pressureLoadReference from "../../../../../fixtures/product_preview/press
 import pressureSourceLoadReference from "../../../../../fixtures/product_preview/pressure_source/load_reference_source/mixed-sparse_interactive.raw.json";
 import { PRESSURE_2_OUTPUT_REFUSAL, PRESSURE_SOURCE_OUTPUT_REFUSAL, surfaceRouteRefusal } from "./outputPolicy";
 import { ResultsPanel } from "./ResultsPanel";
+import { enteredValueText } from "./ResultRowsTable";
 import { KnownSemanticNotices } from "./KnownSemanticNotices";
 import { ComparisonPanel } from "../comparison/ComparisonPanel";
 import { LocalFeaHandoffPanel } from "../local-fea-handoff/LocalFeaHandoffPanel";
@@ -31,10 +32,10 @@ describe("text-only T0R UI (DESIGN §7)", () => {
     expect(screen.getByTestId("results-notice-combination-gate:combination:C-OPER-ALT").textContent).toContain(COMBINATION_GATE_REASONS.NONLINEAR_COMBINATION_REQUIRES_SOLVE);
     const support = result.results.find(r => r.kind === "support_reaction_component_v2" && r.metadata?.component === "Mz")!;
     fireEvent.change(screen.getByTestId("result-filter-input"), { target: { value: support.id } });
-    expect(screen.getByTestId(`result-row-dual-${support.id}`).textContent).toBe(`Entered: ${support.value} N*m`);
+    expect(screen.getByTestId(`result-row-dual-${support.id}`).textContent).toBe(`Entered: ${enteredValueText(support.value)} N*m`);
     const intensified = result.results.find(r => r.kind === "component_equal_factor_intensified_bending_stress_v1")!;
     fireEvent.change(screen.getByTestId("result-filter-input"), { target: { value: intensified.id } });
-    expect(screen.getByTestId(`result-row-dual-${intensified.id}`).textContent).toBe(`Entered: ${intensified.value} Pa`);
+    expect(screen.getByTestId(`result-row-dual-${intensified.id}`).textContent).toBe(`Entered: ${enteredValueText(intensified.value)} Pa`);
     expect(screen.getByTestId(`result-row-label-${intensified.id}`).textContent).toContain(N_INTENSIFIED);
     expect(JSON.stringify(result)).toBe(before);
   });

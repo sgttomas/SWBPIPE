@@ -62,6 +62,7 @@ import { SecurityThreatModelPanel } from "./features/security-threat-model/Secur
 import { initialSolveJob } from "./features/workspace/solveJobAudit";
 import { VIEW_MENU_SECTIONS } from "./features/workspace/menuCommands";
 import { RESULTS_NO_RUN_TEXT } from "./features/results/ResultsStageNotices";
+import { enteredValueText } from "./features/results/ResultRowsTable";
 import { RunAuditPanel } from "./features/run-audit/RunAuditPanel";
 import { OperationLedgerPanel } from "./features/operations/OperationLedgerPanel";
 import { ExportReviewPanel } from "./features/export-review/ExportReviewPanel";
@@ -7955,7 +7956,9 @@ describe("SWBPIPE desktop preview", () => {
     ).toHaveAttribute("data-row-id", "result:disp:node-N-140");
     const displayedDisplacement = expectedSource.results.find(row => row.id === "result:disp:node-N-140")!;
     expect(Number.isFinite(displayedDisplacement.value)).toBe(true);
-    expect(within(results).getByTestId("result-row-result:disp:node-N-140")).toHaveTextContent(`${displayedDisplacement.value} ${displayedDisplacement.unit}`);
+    // The row prints by the display rule; the stored value, whole, is the Entered cell's hover text.
+    expect(within(results).getByTestId("result-row-result:disp:node-N-140")).toHaveTextContent(`Entered: ${enteredValueText(displayedDisplacement.value)} ${displayedDisplacement.unit}`);
+    expect(within(results).getByTestId("result-row-dual-result:disp:node-N-140")).toHaveAttribute("title", `${displayedDisplacement.value} ${displayedDisplacement.unit}`);
     // C-120 fix: the demo drops the elbow-placed tee component:C-120 and its 4 intensified rows (P-120 end_i and P-110 end_j, 2 cases); no other row moved.
     expect(
       within(results).getByTestId("result-filter-summary").textContent,
