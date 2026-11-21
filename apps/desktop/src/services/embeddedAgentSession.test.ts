@@ -856,6 +856,8 @@ describe('a proposal the operation engine refuses',()=>{
   expect(refusedProposalMessage(`${fits}y`,one)).toBe(`${fits}y`);
   // Findings whose codes cannot be stated give no section either.
   expect(refusedProposalMessage(GENERIC_REFUSAL,[finding('not a code','Hidden.')])).toBe(GENERIC_REFUSAL);
+  // Every kind passes its message: a finding about a line or a spectrum is stated like any other.
+  for(const code of ['MODEL-LINE-PIPE-SHARED','SPECTRUM_RECORD_INVALID'])expect(refusedProposalMessage(GENERIC_REFUSAL,[finding(code,'Invented text.')])).toBe(`${GENERIC_REFUSAL} 1 blocking finding. ${PROPOSAL_FINDINGS_LABEL} [1] ${code} "Invented text."`);
  });
  it('leaves an accepted proposal byte for byte as it was, findings or none',async()=>{
   for(const engine of [{validation:{batch_validation_status:'passed'}},{validation:{batch_validation_status:'passed'},diagnostics:[finding('OP-MASS-NOT-SOLVE-READY','Invented warning.','warning')]}]){
