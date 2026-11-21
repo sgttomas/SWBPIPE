@@ -185,6 +185,8 @@ struct Record<'a> {
 struct Derivation<'a> {
     nonlinear: bool,
     consuming: bool,
+    /// A spring applies its cold load (the stated sibling fact).
+    springs: bool,
     records: Vec<Record<'a>>,
 }
 
@@ -207,7 +209,12 @@ fn derivation<'a>(source: &'a Value, gates: &'a [Value]) -> Result<Option<Deriva
     let Some(member) = evidence.get(DERIVATION_MEMBER) else { return Ok(None) };
     let fail = || "SOURCE_PREVIEW_PHYSICS_COMBINATION_DERIVATION_EVIDENCE".to_string();
     let check = |ok: bool| if ok { Ok(()) } else { Err(fail()) };
-    check(exact_keys(member, &DERIVATION_KEYS))?;
+    // DEL-04-11 REQ-014: the sibling fixed-load fact, stated (and `true`) only where a
+    // spring applies its cold load; a document without it reads as before.
+    let fact = crate::spring_preload::COLD_LOAD_FACT;
+    let springs = member.get(fact).is_some();
+    let with_fact = [DERIVATION_KEYS[0], DERIVATION_KEYS[1], fact, DERIVATION_KEYS[2]];
+    check(if springs { exact_keys(member, &with_fact) && member[fact] == true } else { exact_keys(member, &DERIVATION_KEYS) })?;
     let nonlinear = member["nonlinear_supports"].as_bool().ok_or_else(fail)?;
     let consuming = member["consuming_constant_effort"].as_bool().ok_or_else(fail)?;
     let list = member["combinations"].as_array().filter(|l| !l.is_empty()).ok_or_else(fail)?;
@@ -270,7 +277,7 @@ fn derivation<'a>(source: &'a Value, gates: &'a [Value]) -> Result<Option<Deriva
     }
     let shows_nonlinear = !operand_records.is_empty() || items(&source["results"]).iter().any(|r| r["kind"] == STATE_CODE);
     check(nonlinear || !shows_nonlinear)?;
-    Ok(Some(Derivation { nonlinear, consuming, records }))
+    Ok(Some(Derivation { nonlinear, consuming, springs, records }))
 }
 
 /// Whether `row` (of combination `id`) cites another combination's row.
@@ -332,7 +339,7 @@ fn free_check(source: &Value, gates: &[Value], rows: &[Value], by_id: &HashMap<&
             let oq1 = record.basis == "mechanics" && combination_graph.solved_state_plus_increments(&record.terms);
             let own = combination_graph.add(record.id, record.basis, &record.operands, &factors);
             let operand_withheld = record.operands.iter().any(|o| matches!(o, Operand::Combination(c) if withheld.contains(c)));
-            let derived = gate_before_modulus(record.basis, operand_withheld, derivation.nonlinear, oq1, derivation.consuming, &own, &operand_kappa);
+            let derived = gate_before_modulus(record.basis, operand_withheld, derivation.nonlinear, oq1, derivation.consuming || derivation.springs, &own, &operand_kappa);
             let stated = gates.iter().find(|g| g["combination_id"] == record.id).and_then(|g| g["reason"].as_str());
             require(
                 match derived {
@@ -377,7 +384,7 @@ fn free_check(source: &Value, gates: &[Value], rows: &[Value], by_id: &HashMap<&
 
 /// The `combination_derivation` the model implies (producer `combination_derivation`):
 /// `None` when no kept combination is unsigned or has a combination operand.
-fn model_derivation(kept: &[Value], order: &[usize], cases: &HashSet<&str>, nonlinear: bool, consuming: bool) -> Option<Value> {
+fn model_derivation(kept: &[Value], order: &[usize], cases: &HashSet<&str>, nonlinear: bool, consuming: bool, springs: bool) -> Option<Value> {
     let combination_operands = |c: &Value| -> Vec<String> {
         graph::model_operands(c, cases).iter().filter_map(|o| match o {
             Operand::Combination(id) => Some(id.to_string()),
@@ -404,7 +411,11 @@ fn model_derivation(kept: &[Value], order: &[usize], cases: &HashSet<&str>, nonl
         .filter(|c| c["id"].as_str().is_some_and(|id| recorded.contains(id)))
         .map(|c| serde_json::json!({"combination_id": c["id"], "basis": c["basis"], "expression": graph::evidence_expression(c)}))
         .collect();
-    Some(serde_json::json!({"nonlinear_supports": nonlinear, "consuming_constant_effort": consuming, "combinations": records}))
+    let mut member = serde_json::json!({"nonlinear_supports": nonlinear, "consuming_constant_effort": consuming, "combinations": records});
+    if springs {
+        member[crate::spring_preload::COLD_LOAD_FACT] = Value::Bool(true);
+    }
+    Some(member)
 }
 
 /// JSON equality with numbers compared as binary64 values (a model's factor `1` and a
@@ -474,6 +485,9 @@ fn model_check(source: &Value, model: &Value, gates: &[Value], rows: &[Value], b
     let nodes: HashSet<&str> = items(&model["nodes"]).iter().filter_map(|n| n["id"].as_str()).collect();
     let nonlinear = supports.iter().any(|s| s.get("nonlinear").is_some_and(|n| !n.is_null())) || rows.iter().any(|r| r["kind"] == STATE_CODE);
     let consuming = supports.iter().any(|s| consuming_constant_effort(s, &nodes));
+    // DEL-04-11 REQ-014: the sibling fixed-load source, re-derived from the model as
+    // the producer's `spring_preload::dispositions` decides it.
+    let springs = !crate::spring_preload::applying(model, crate::spring_preload::entered_value).is_empty();
     let mut keys: HashMap<&str, Option<String>> = HashMap::new();
     for case in load_cases {
         if let Some(id) = case["id"].as_str() {
@@ -481,7 +495,7 @@ fn model_check(source: &Value, model: &Value, gates: &[Value], rows: &[Value], b
         }
     }
     // §10.3: the published derivation is exactly the model's.
-    let expected = model_derivation(&kept, &order, &cases, nonlinear, consuming);
+    let expected = model_derivation(&kept, &order, &cases, nonlinear, consuming, springs);
     require(
         match (stated_derivation, &expected) {
             (None, None) => true,
@@ -512,7 +526,7 @@ fn model_check(source: &Value, model: &Value, gates: &[Value], rows: &[Value], b
         // its record states; the reader cannot solve the held system, and
         // `preview_held_status` binds the record to the document and the model.
         let declared_gate = declared_gate.or_else(|| crate::preview_held_status::minuend_final(combination).then(|| crate::preview_held_status::stated_gate(source, id)).flatten());
-        let derived: Option<&str> = declared_gate.or_else(|| gate_before_modulus(basis, operand_withheld, nonlinear, oq1, consuming, &own, &operand_kappa)).or_else(|| {
+        let derived: Option<&str> = declared_gate.or_else(|| gate_before_modulus(basis, operand_withheld, nonlinear, oq1, consuming || springs, &own, &operand_kappa)).or_else(|| {
             if operand_withheld || !graph::term_basis(basis) {
                 return None;
             }
@@ -558,7 +572,7 @@ const SUPPORT_COMPONENTS: [&str; 6] = ["Fx", "Fy", "Fz", "Mx", "My", "Mz"];
 const DISPLACEMENT_AXES: [(&str, &str); 3] = [("ux", "global_nodal_displacement_x"), ("uy", "global_nodal_displacement_y"), ("uz", "global_nodal_displacement_z")];
 /// The producer's `LINEAR_STATE_KINDS` (`preview_physics.rs`): with
 /// `displacement_magnitude`, the kinds a combination combines, except `_v2` kinds.
-const LINEAR_STATE_KINDS: [&str; 23] = [
+const LINEAR_STATE_KINDS: [&str; 24] = [
     "global_nodal_displacement_x",
     "global_nodal_displacement_y",
     "global_nodal_displacement_z",
@@ -582,6 +596,7 @@ const LINEAR_STATE_KINDS: [&str; 23] = [
     "element_global_end_force_v1",
     "element_global_end_moment_v1",
     "support_reaction_along_direction_v1",
+    "variable_spring_hanger_applied_load",
 ];
 
 fn stable_suffix(id: &str) -> String {

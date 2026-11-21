@@ -80,7 +80,7 @@ const SECTION_SEPARATOR: &str = "; section_basis=";
 
 /// The pressure-2 table's `signed_linear` kinds (its `combination_policy.linear_state_kinds`;
 /// pinned to the table's `combination_algebra` by this module's test).
-pub(crate) const SIGNED_LINEAR_KINDS: [&str; 39] = [
+pub(crate) const SIGNED_LINEAR_KINDS: [&str; 40] = [
     "global_nodal_displacement_x",
     "global_nodal_displacement_y",
     "global_nodal_displacement_z",
@@ -120,6 +120,7 @@ pub(crate) const SIGNED_LINEAR_KINDS: [&str; 39] = [
     "connector_pressure_force_v1",
     "connector_effective_axial_force_v1",
     "connector_tie_rod_force_v1",
+    "variable_spring_hanger_applied_load",
 ];
 /// The pressure-2 table's `recomputed_from_combined` kinds.
 pub(crate) const RECOMPUTED_KINDS: [&str; 3] =
@@ -413,14 +414,19 @@ fn gate_reason(
     // undefined κ withholds as CONSTANT_EFFORT_COMBINATION_OPERAND_MIXED; a
     // mechanics combination whose own κ is undefined, its operands' defined, as
     // CONSTANT_EFFORT_COMBINATION_REQUIRES_SOLVE (§5.1).
-    if constant_effort_solve_dispositions(model).iter().any(|(_, disposition)| disposition.is_ok()) {
+    // DEL-04-11 REQ-014: a variable spring's cold load is one more fixed-load
+    // source for gate 4, under its codes; the message names the actual source.
+    let constant_effort = constant_effort_solve_dispositions(model).iter().any(|(_, disposition)| disposition.is_ok());
+    let springs = crate::spring_preload::fixed_load_source(model);
+    if constant_effort || springs {
         if let Some(withholding) = fixed_load_withholding() {
             use open_pipe_stress_load_case_algebra::FixedLoadWithholding as W;
-            return gated(match withholding {
+            let code = match withholding {
                 W::UnitFactorSum => CONSTANT_EFFORT,
                 W::OperandUndefined => CONSTANT_EFFORT_OPERAND_MIXED,
                 W::UnsignedOperand => CONSTANT_EFFORT_UNSIGNED,
-            });
+            };
+            return Some((code, crate::spring_preload::fixed_load_gate_message(code, constant_effort, springs, gate_message(code))));
         }
     }
     None
@@ -437,8 +443,8 @@ fn gate_message(code: &str) -> &'static str {
         NONLINEAR => "Combination withheld: the model has nonlinear supports, so superposing case states is not a solved state.",
         MODULUS_BASIS_MIXED => "Combination withheld: its load cases were solved on different modulus bases.",
         RESOLVED_STIFFNESS_MIXED => "Combination withheld: a member's resolved stiffness (its selected E/nu, property-temperature selection, section bases or shear model) differs between its load cases, so superposing their states is not a state of one system.",
-        CONSTANT_EFFORT => "Combination withheld: a constant-effort support would be counted by the sum of factors instead of once.",
-        CONSTANT_EFFORT_UNSIGNED => "Combination withheld: a constant-effort support's force acts in every case state; an absolute sum or SRSS of operands whose fixed-load count is not exactly 0 would count it once per term with its sign discarded.",
+        CONSTANT_EFFORT => "Combination withheld: a constant-effort support would be counted by the sum of factors instead of once. The difference of two solved cases is available as a result state subtraction.",
+        CONSTANT_EFFORT_UNSIGNED => "Combination withheld: a constant-effort support's force acts in every case state; an absolute sum or SRSS of operands whose fixed-load count is not exactly 0 would count it once per term with its sign discarded. The difference of two solved cases is available as a result state subtraction.",
         CONSTANT_EFFORT_OPERAND_MIXED => "Combination withheld: an operand's fixed-load count is undefined, so the number of times this combination counts a constant-effort support's force cannot be decided.",
         INSTALLED_REFERENCE_UNSIGNED => "Combination withheld: a connector or tie rod has a nonzero installed reference, which acts in every case state; an absolute sum or SRSS of operands whose fixed-load count is not exactly 0 would count it once per term with its sign discarded.",
         _ => "Combination withheld: a connector or tie rod has a nonzero installed reference, which superposition counts by the sum of the factors instead of once, and the factors do not sum to 1 within 64 epsilon.",

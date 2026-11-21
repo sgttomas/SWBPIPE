@@ -171,7 +171,7 @@ mod u4b_rows;
 mod joint;
 use exact_admission::PRESSURE_SEMANTIC_CONTRACT_ID;
 mod pressure_runtime;
-mod preview_physics;
+mod preview_physics; mod spring_preload; // DEL-04-11 REQ-014 (the variable spring preload), on this line so that no line moves.
 mod pf_timoshenko;
 mod retained_product;
 mod retained_receipt;
@@ -2130,7 +2130,7 @@ fn force_scaling_admission(
         .iter()
         .any(|(_, disposition)| disposition.is_ok())
     {
-        Some("constant_effort_support")
+        Some("constant_effort_support") } else if spring_preload::dispositions(model, load_case).iter().any(|(_, disposition)| disposition.is_ok()) { Some(spring_preload::W2_FAMILY)
     } else if !force.terms().iter().all(term_is_authored_nodal) {
         Some("non_nodal_load_term")
     } else if force.terms().iter().any(|term| {
@@ -3197,7 +3197,7 @@ fn run_linear_static_preview_observed_inner(
         return blocked_envelope(model, diagnostics);
     }
     let built = built.expect("build_model returns Some when no blocking diagnostics were added");
-    append_constant_effort_consumption_diagnostics(&model, &mut diagnostics);
+    append_constant_effort_consumption_diagnostics(&model, &mut diagnostics); spring_preload::append_model_diagnostics(&model, &mut diagnostics);
     topology::append_topology_diagnostics(&model, &built, &mut diagnostics);
 
     let boundary = prepare_boundary(built.nodes.len(), &built.supports);
@@ -5582,7 +5582,7 @@ fn solve_prepared_load_case(
         Some(state) => load_state_spring_ground(state, spring_entries, &load_case.id, diagnostics),
         None => imposed_motion::case_spring_ground(model, load_case, spring_entries, diagnostics),
     };
-    certified_loads::spring_base_motion(&mut ledger, spring_entries, &spring_ground);
+    certified_loads::spring_base_motion(&mut ledger, spring_entries, &spring_ground); spring_preload::add_loads(&mut ledger, model, load_case);
     if let Some(observer) = product.as_deref_mut() {
         observer.case_source(model, built, materials, load_case, restrained_dofs, spring_entries,
             &load_application, &thermal_loads);
@@ -6448,11 +6448,11 @@ fn solve_prepared_load_case(
                     // a moved base publishes -k·(u - g); an unmoved one (g
                     // equal to zero, of either sign) keeps -k·u.
                     let ground = spring_ground[spring_index];
-                    vector[global % DOF_PER_NODE] = match &w2_publication {
+                    vector[global % DOF_PER_NODE] = spring_preload::with_cold_load(model, load_case, &support.id, match &w2_publication {
                         Some(publication) => publication.spring_actions[spring_index].value,
                         None if ground == 0.0 => -spring.stiffness.value * displacements[global],
                         None => -spring.stiffness.value * (displacements[global] - ground),
-                    };
+                    });
                 }
             }
             if let Some(nonlinear) = built
@@ -6483,7 +6483,7 @@ fn solve_prepared_load_case(
                 }
             }
             let mut certified_along = None; let certified_support = match (member_bound, certified_source.as_ref()) {
-                (Some(bound),Some(source)) => match certified_publication::support(model,support,built,spring_entries,&spring_ground,source,certified_force,&displacements,bound,certified_nonlinear) {
+                (Some(bound),Some(source)) => match certified_publication::support(model,load_case,support,built,spring_entries,&spring_ground,source,certified_force,&displacements,bound,certified_nonlinear) {
                     Ok((rows, along)) => { certified_along = along.as_ref().map(|row| row.published);
                         vector = rows.map(|row| row.published);
                         match certified_publication::support_record(&support.id,formation_bodies.body_of_node(index),&rows,along.as_ref()) {
@@ -6568,7 +6568,7 @@ fn solve_prepared_load_case(
         model,
         &published_displacements,
         load_case,
-    );
+    ); spring_preload::append_results(&mut results, diagnostics, model, load_case);
 
     // S11-G R-b' (section 4): (member, end, q, B) of each straight member end
     // published from the formed K_e * u, decided after the loop.
@@ -14451,8 +14451,8 @@ fn append_spring_hanger_user_input_results(
                     &format!("{} stiffness", stiffness.dof),
                     &stiffness.value,
                     &format!(
-                        "support_family=variable_spring_hanger;user_entered_dof={};source={source_reference};manufacturer={manufacturer_reference};mechanics_consumption={mechanics_consumption};dec_ref=DEC-049",
-                        stiffness.dof
+                        "{}",
+                        spring_preload::review_basis(model, support, None, source_reference, manufacturer_reference, load_side_review)
                     ),
                     "positive value is user-entered variable spring hanger stiffness consumed by the preview linear spring primitive; no catalog/default value is supplied",
                 );
@@ -14497,9 +14497,9 @@ fn append_spring_hanger_user_input_results(
                     field,
                     quantity,
                     &format!(
-                        "support_family=variable_spring_hanger;field={field};source={source_reference};manufacturer={manufacturer_reference};load_side_review={load_side_review};mechanics_consumption={mechanics_consumption};dec_ref=DEC-049"
+                        "{}", spring_preload::review_basis(model, support, Some(field), source_reference, manufacturer_reference, load_side_review)
                     ),
-                    "positive value is user-entered variable spring hanger input evidence; load-side and travel review remain human-reviewed preview metadata",
+                    &spring_preload::review_sign_convention(model, support, field),
                 );
                 appended += 1;
             }
@@ -20398,10 +20398,10 @@ mod tests {
     #[test]
     fn valid_invented_model_exposes_global_displacement_components() {
         // T0R (B-1): the fixture's nonlinear supports gate every mechanics
-        // combination; its linear companion keeps the combination algebra tested.
+        // combination; on its linear companion the demo's combination is withheld (factor sum 1.5) and its factor-sum-one twin keeps the algebra tested.
         let mut input = mechanical_fixture_for_test(request(), "tests::valid_invented_model_exposes_global_displacement_components");
         input.model.supports.retain(|support| support.nonlinear.is_none());
-        let result = run_linear_static_preview(input);
+        let (result, unit) = spring_preload::tests::c_oper_alt_withheld_and_its_unit_twin(input);
         let result_ids = result
             .results
             .iter()
@@ -20419,10 +20419,10 @@ mod tests {
                 assert!(result_ids.contains(format!("result:disp:{node}:{tail}").as_str()));
                 assert!(result_ids
                     .contains(format!("result:loadcase:load-L-200:disp:{node}:{tail}").as_str()));
-                assert!(result_ids.contains(
-                    format!("result:combination:combination-C-OPER-ALT:disp:{node}:{tail}")
-                        .as_str()
-                ));
+                let combined = format!("result:combination:combination-C-OPER-ALT:disp:{node}:{tail}");
+                assert!(!result_ids.contains(combined.as_str()), "{combined} is withheld");
+                assert!(unit.results.iter().any(|item| item.id == combined), "{combined} in the twin");
+                // (the demo's combination is withheld whole; its twin publishes every row)
             }
         }
 
@@ -20470,15 +20470,15 @@ mod tests {
         assert!(((ux * ux + uy * uy + uz * uz).sqrt() - magnitude).abs() < 5.0e-6);
 
         // Component rows join the explicit user combination algebra exactly
-        // like other supported scalar rows.
-        let default_uy = result_value(&result, "result:disp:node-N-140:uy");
-        let alternate_uy = result_value(&result, "result:loadcase:load-L-200:disp:node-N-140:uy");
-        let combined_uy = result
+        // like other supported scalar rows (in the twin: factors 0.5 and 0.5).
+        let default_uy = result_value(&unit, "result:disp:node-N-140:uy");
+        let alternate_uy = result_value(&unit, "result:loadcase:load-L-200:disp:node-N-140:uy");
+        let combined_uy = unit
             .results
             .iter()
             .find(|item| item.id == "result:combination:combination-C-OPER-ALT:disp:node-N-140:uy")
             .expect("combination displacement component row should be emitted");
-        assert_eq!(combined_uy.value, default_uy + 0.5 * alternate_uy);
+        assert_eq!(combined_uy.value, 0.5 * default_uy + 0.5 * alternate_uy);
         assert_eq!(
             combined_uy
                 .metadata
@@ -21547,10 +21547,10 @@ mod tests {
     #[test]
     fn valid_invented_model_exposes_explicit_load_combination_results() {
         // T0R (B-1): the fixture's nonlinear supports gate every mechanics
-        // combination; its linear companion keeps the combination algebra tested.
+        // combination; on its linear companion the demo's combination is withheld (factor sum 1.5) and its factor-sum-one twin, read below, keeps the algebra tested.
         let mut input = mechanical_fixture_for_test(request(), "tests::valid_invented_model_exposes_explicit_load_combination_results");
         input.model.supports.retain(|support| support.nonlinear.is_none());
-        let result = run_linear_static_preview(input);
+        let (_, result) = spring_preload::tests::c_oper_alt_withheld_and_its_unit_twin(input);
         let combination_id = "result:combination:combination-C-OPER-ALT:force:pipe-P-120:axial";
         let alternate_load_case_id = "result:loadcase:load-L-200:force:pipe-P-120:axial";
         let quarter_combination_id =
@@ -21631,14 +21631,14 @@ mod tests {
 
     #[test]
     fn combination_stress_summary_rows_are_skipped_with_diagnostics() {
-        // T0R: maxima are never combined. The fixture's mechanics combination is
-        // gated by its nonlinear supports, so drop them to reach an admitted one.
+        // T0R: maxima are never combined. The fixture's mechanics combination is gated by its nonlinear
+        // supports, so drop them; it is then withheld for its factor sum (1.5), and its factor-sum-one twin is admitted.
         let mut input = mechanical_fixture_for_test(
             request(),
             "tests::combination_stress_summary_rows_are_skipped_with_diagnostics",
         );
         input.model.supports.retain(|support| support.nonlinear.is_none());
-        let result = run_linear_static_preview(input);
+        let (_, result) = spring_preload::tests::c_oper_alt_withheld_and_its_unit_twin(input);
         assert_eq!(result.status.mechanics, "MECHANICS_SOLVED", "{:?}", result.diagnostics);
         assert!(result
             .results

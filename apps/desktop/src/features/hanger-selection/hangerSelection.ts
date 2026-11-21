@@ -105,7 +105,8 @@ export function engineHangerKind(value: unknown): EngineHangerKind {
  * operation route (core/model_operations/operation_applier): `configuration` (update_support, which replaces the
  * support's configuration) and `supports` (create_support). A support deletion also travels on `supports`, but writes no
  * hanger and is recognised by its kind (`isSupportDeletion`). The route's other Support paths (label, provenance, node,
- * restraints, tags, notes, provenance_record) cannot write a hanger or family. */
+ * restraints, tags, notes, provenance_record, and `direction`, which only removes a stored direction) cannot write a
+ * hanger or family. */
 export const SUPPORT_HANGER_FIELD_PATHS: readonly string[] = ["configuration", "supports"];
 
 /** A change's before or after as the predicate reads it: absent (`not_present`), a value, or unreadable. */
@@ -157,6 +158,52 @@ export function writesSupportHangerSelection(batch: OperationBatch): boolean {
     if (isSupportDeletion(operation as Record<string, unknown> & { target: Record<string, unknown>; change: Record<string, unknown> })) return false;
     return isHangerValue(changeValue(operation.change.after)) || isHangerValue(changeValue(operation.change.before));
   });
+}
+
+/** The field path of the explicit removal of a support's stored direction (update_support, before the stored
+ * direction's canonical JSON, after `not_present`). */
+export const SUPPORT_DIRECTION_FIELD_PATH = "direction";
+export const DIRECTION_REMOVAL_FIELD_LABEL = "Remove the stored direction";
+/** Why a hanger's record holds no direction; the one statement of it, shared with the support form. */
+export const DIRECTION_REMOVAL_REASON = "A hanger takes no direction: its load acts along the positive axis of its stiffness degree of freedom " +
+  "(or of its single translational restraint).";
+
+/** What the person reads before applying a selection to a support that holds a stored direction: that applying it
+ * removes that direction, with the stored value. */
+export function directionRemovalText(supportId: string, stored: string): string {
+  return `Applying this selection removes the stored direction ${stored} of support ${supportId}. ${DIRECTION_REMOVAL_REASON}`;
+}
+
+/** The explicit removal of support `supportId`'s stored direction, whose canonical JSON is `stored`: update_support on
+ * `SUPPORT_DIRECTION_FIELD_PATH`, after `not_present`. The one builder of it, for the selection and the support form;
+ * each passes its own rationale. */
+export function buildDirectionRemovalChange(supportId: string, stored: string, rationale: string): OperationBatch["operations"][number] {
+  return draftIntent({
+    operation_kind: "modify",
+    target: { object_type: "Support", ref: supportId },
+    change: {
+      change_id: `change:${crypto.randomUUID()}`, change_kind: "update_support",
+      field_label: DIRECTION_REMOVAL_FIELD_LABEL, field_path: SUPPORT_DIRECTION_FIELD_PATH,
+      before: stored, after: "not_present", unit: "none", dimension: "dimensionless",
+      source_note: DIRECTION_REMOVAL_REASON
+    },
+    rationale
+  });
+}
+
+/** The direction removals a batch makes, each with the text the person reads before applying it. */
+export function directionRemovals(batch: OperationBatch): { supportId: string; stored: string; text: string }[] {
+  return batch.operations
+    .filter(operation => operation.target.object_type === "Support" && operation.change.change_kind === "update_support"
+      && operation.change.field_path === SUPPORT_DIRECTION_FIELD_PATH)
+    .map(operation => ({ supportId: operation.target.ref, stored: operation.change.before,
+      text: directionRemovalText(operation.target.ref, operation.change.before) }));
+}
+
+/** The configuration a selection batch writes (the replacement, or the new support): the change a person reviews. */
+export function selectionConfigurationChange(batch: OperationBatch): OperationBatch["operations"][number] | undefined {
+  return batch.operations.find(operation => operation.target.object_type === "Support"
+    && SUPPORT_HANGER_FIELD_PATHS.includes(operation.change.field_path));
 }
 
 const FAMILY_OF = { variable_spring: "variable_spring_hanger", constant_effort: "constant_effort_support" } as const;
@@ -244,7 +291,13 @@ export async function buildHangerSelectionBatch(model: PreviewModel, document: H
   const before = old ? Object.fromEntries(["family", "restraints", "stiffness", "hanger", "nonlinear", "provenance"]
     .filter(key => (old as unknown as Record<string, unknown>)[key] !== undefined)
     .map(key => [key, (old as unknown as Record<string, unknown>)[key]])) : undefined;
-  const operations = [draftIntent({
+  // A stored direction is an entered value and a hanger takes none: its removal is its own change, ahead of the
+  // configuration, shown to the person before it is applied; never dropped as a side effect of the replacement.
+  const stored = old && Object.prototype.hasOwnProperty.call(old, "direction") && (old as { direction?: unknown }).direction !== undefined
+    ? await canonicalJsonString((old as { direction?: unknown }).direction) : null;
+  const removal = stored === null ? [] : [buildDirectionRemovalChange(target.supportId, stored,
+    `${directionRemovalText(target.supportId, stored)} The removal is applied with the selection, in the same batch.`)];
+  const operations = [...removal, draftIntent({
     operation_kind: target.newSupport ? "create" : "modify",
     target: { object_type: "Support", ref: target.supportId },
     change: {

@@ -90,11 +90,24 @@ fn validate_connected_input_contracts(model: &PreviewModel, diagnostics: &mut Ve
     }
     for support in &model.supports {
         let constant_effort = is_constant_effort_support(support);
-        if support.family.as_deref() == Some("spring") && constant_effort {
+        // A stiffness family and a hanger law each specify the record's mechanics: a spring
+        // family with a constant-effort hanger, and (DEL-04-03 REQ-014) a line stop with
+        // either hanger family, whose restraint and applied load have no one meaning.
+        let hanger_law = if constant_effort {
+            Some("constant-effort")
+        } else {
+            is_variable_spring_hanger(support).then_some("variable spring")
+        };
+        let conflict = match (support.family.as_deref(), hanger_law) {
+            (Some("spring"), Some("constant-effort")) => Some(("spring", "constant-effort")),
+            (Some("line_stop"), Some(law)) => Some(("line_stop", law)),
+            _ => None,
+        };
+        if let Some((family, law)) = conflict {
             diagnostics.push(diag(
                 &format!("diagnostic:support:{}:family-hanger", stable_suffix(&support.id)),
                 "SUPPORT_FAMILY_HANGER_CONFLICT", "blocking",
-                "spring family conflicts with constant-effort hanger type; choose one support law so stiffness and applied force cannot be silently substituted",
+                format!("{family} family conflicts with {law} hanger type; choose one support law so stiffness and applied force cannot be silently substituted"),
                 vec![support.id.clone()],
             ));
         }
@@ -268,10 +281,13 @@ fn validate_required_collections(model: &PreviewModel, diagnostics: &mut Vec<Dia
 /// support, or an objective connector with a preload — K q_ref ≠ 0, decided
 /// exactly as the kernel's `ObjectiveConnector::stress_free` decides it, or a
 /// tie rod with a nonzero reference extension. A `q_ref` in K's null space
-/// loads nothing (K may be positive semidefinite).
+/// loads nothing (K may be positive semidefinite). A variable spring hanger
+/// that applies its cold load (DEL-04-11 REQ-014, `spring_preload`) loads
+/// every case too.
 pub(crate) fn model_loads_every_case(model: &PreviewModel) -> bool {
     model.supports.iter().any(crate::is_constant_effort_support)
         || model.components.iter().any(connector_preloads)
+        || crate::spring_preload::fixed_load_source(model)
 }
 
 fn connector_preloads(component: &crate::PreviewComponent) -> bool {
@@ -1051,7 +1067,7 @@ fn validate_variable_spring_hanger(
             "hanger.installed_load,hanger.cold_load,hanger.hot_load",
             "SPRING_HANGER_LOAD_MISSING",
             "blocking",
-            "variable spring hanger requires finite positive installed, cold, and hot load metadata; no preload or operating-load default is supplied",
+            "variable spring hanger requires finite positive installed, cold, and hot loads; the solve applies the cold load, and the installed and hot loads are review data; no preload or operating-load default is supplied",
         ));
     }
     if !positive_optional_quantity(&hanger.travel_range)
@@ -1084,31 +1100,11 @@ fn validate_variable_spring_hanger(
             "info",
             "variable spring hanger carries explicit user-entered stiffness, installed/cold/hot load metadata, travel metadata, and source reference under DEC-049; no catalog/default values are supplied",
         ));
-        // §8.30 correction 3 (RT-S3): only the stiffness is consumed; each
-        // entered load is review evidence and is never applied as preload.
-        for (field, name, quantity) in [
-            ("hanger.installed_load", "installed load", &hanger.installed_load),
-            ("hanger.cold_load", "cold load", &hanger.cold_load),
-            ("hanger.hot_load", "hot load", &hanger.hot_load),
-        ] {
-            if quantity.as_ref().is_some_and(|value| value.value != 0.0) {
-                diagnostics.push(spring_hanger_diag(
-                    support_id,
-                    field,
-                    SPRING_HANGER_LOAD_NOT_APPLIED_AS_PRELOAD,
-                    "warning",
-                    &format!("variable spring hanger {support_id}: its {name} ({field}) is not applied as preload; results treat the hanger as a linear spring from zero load, whose force is its stiffness times the displacement at its DOF, and the entered load remains review evidence only"),
-                ));
-            }
-        }
+        // DEL-04-11 REQ-014: the cold load is applied by the solve
+        // (`spring_preload`); an installed load that differs from it warns
+        // there, on normalized values, and the hot load is review data.
     }
 }
-
-/// §8.30 correction 3 (RT-S3): a variable spring hanger's entered installed,
-/// cold or hot load is not applied as preload (one warning per support and
-/// field). Hanger sizing (RT-A11) and preload (RT-S3) lift it.
-pub(crate) const SPRING_HANGER_LOAD_NOT_APPLIED_AS_PRELOAD: &str =
-    "SPRING_HANGER_LOAD_NOT_APPLIED_AS_PRELOAD";
 
 fn validate_constant_effort_support(
     support_id: &str,

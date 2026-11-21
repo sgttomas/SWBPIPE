@@ -32,6 +32,7 @@ from collections.abc import Mapping
 from typing import Any
 
 from . import combination_graph as graph
+from . import spring_preload
 from .preview_held_status import GATES as HELD_GATES
 from .exact_combinations import norm3
 from .units import to_canonical
@@ -155,7 +156,11 @@ def _derivation(source: Mapping[str, Any], gates: list) -> dict | None:
     def check(ok: Any) -> None:
         _require(ok, "DERIVATION_EVIDENCE")
 
-    check(isinstance(member, Mapping) and set(member) == DERIVATION_KEYS)
+    # DEL-04-11 REQ-014: the sibling fixed-load fact, stated (and true) only where a spring applies its cold load; a
+    # document without it reads as before.
+    springs = spring_preload.COLD_LOAD_FACT in member if isinstance(member, Mapping) else False
+    check(isinstance(member, Mapping) and set(member) == (DERIVATION_KEYS | {spring_preload.COLD_LOAD_FACT} if springs else DERIVATION_KEYS))
+    check(not springs or member[spring_preload.COLD_LOAD_FACT] is True)
     nonlinear, consuming, listed = member["nonlinear_supports"], member["consuming_constant_effort"], member["combinations"]
     check(type(nonlinear) is bool and type(consuming) is bool and isinstance(listed, list) and listed)
     cases = {c.get("load_case_id") for c in _items(evidence.get("preview_cases")) if isinstance(c, Mapping)}
@@ -206,7 +211,7 @@ def _derivation(source: Mapping[str, Any], gates: list) -> dict | None:
     shows_nonlinear = bool(_items(evidence.get("combination_operands"))) or any(
         isinstance(r, Mapping) and r.get("kind") == STATE_CODE for r in _items(source.get("results")))
     check(nonlinear or not shows_nonlinear)
-    return {"nonlinear": nonlinear, "consuming": consuming, "records": records}
+    return {"nonlinear": nonlinear, "consuming": consuming, "springs": springs, "records": records}
 
 
 def _cites_combination(row: Mapping[str, Any], by_id: dict, cid: str) -> bool:
@@ -266,7 +271,7 @@ def _free_check(source: Mapping[str, Any], gates: list, rows: list, by_id: dict)
             oq1 = basis == "mechanics" and combination_graph.solved_state_plus_increments(terms)
             own = combination_graph.add(cid, basis, operands, [f for _, f in terms])
             operand_withheld = any(o[0] == "combination" and o[1] in withheld for o in operands)
-            derived = _gate_before_modulus(basis, operand_withheld, derivation["nonlinear"], oq1, derivation["consuming"], own, operand_kappa)
+            derived = _gate_before_modulus(basis, operand_withheld, derivation["nonlinear"], oq1, derivation["consuming"] or derivation["springs"], own, operand_kappa)
             reason = stated.get(cid)
             # A declared subtraction's G-1 or G-2 is the difference-basis reader's.
             _require(reason == derived if derived is not None else (reason in (None, MODULUS_MIXED) or (
@@ -295,7 +300,7 @@ def _free_check(source: Mapping[str, Any], gates: list, rows: list, by_id: dict)
             _require(cid in records or not _cites_combination(row, by_id, cid), "GATE_UNVERIFIED")
 
 
-def _model_derivation(kept: list, order: list, cases: set[str], nonlinear: bool, consuming: bool) -> dict | None:
+def _model_derivation(kept: list, order: list, cases: set[str], nonlinear: bool, consuming: bool, springs: bool = False) -> dict | None:
     """The ``combination_derivation`` the model implies; ``None`` when no kept combination is unsigned or nested."""
     def combination_operands(c: Mapping[str, Any]) -> list[str]:
         return [o[1] for o in graph.model_operands(c, cases) if o[0] == "combination"]
@@ -308,7 +313,10 @@ def _model_derivation(kept: list, order: list, cases: set[str], nonlinear: bool,
             recorded.update(combination_operands(c))
     records = [{"combination_id": c.get("id"), "basis": c.get("basis"), "expression": graph.evidence_expression(c)}
                for c in ordered if c.get("id") in recorded]
-    return {"nonlinear_supports": nonlinear, "consuming_constant_effort": consuming, "combinations": records}
+    member = {"nonlinear_supports": nonlinear, "consuming_constant_effort": consuming, "combinations": records}
+    if springs:
+        member[spring_preload.COLD_LOAD_FACT] = True
+    return member
 
 
 def _same(a: Any, b: Any) -> bool:
@@ -371,9 +379,11 @@ def _model_check(source: Mapping[str, Any], model: Mapping[str, Any], gates: lis
     nodes = {n.get("id") for n in _items(model.get("nodes")) if isinstance(n, Mapping)}
     nonlinear = any(s.get("nonlinear") is not None for s in supports) or any(r.get("kind") == STATE_CODE for r in rows)
     consuming = any(_consuming_constant_effort(s, nodes) for s in supports)
+    # DEL-04-11 REQ-014: the sibling fixed-load source, re-derived from the model.
+    springs = bool(spring_preload.applying(model))
     keys = {c["id"]: _modulus_key(c) for c in load_cases if isinstance(c.get("id"), str)}
     # Section 10.3: the published derivation is exactly the model's.
-    expected = _model_derivation(kept, order, cases, nonlinear, consuming)
+    expected = _model_derivation(kept, order, cases, nonlinear, consuming, springs)
     if DERIVATION_MEMBER in evidence:
         _require(expected is not None and _same(evidence[DERIVATION_MEMBER], expected), "DERIVATION_EVIDENCE")
     else:
@@ -394,7 +404,7 @@ def _model_check(source: Mapping[str, Any], model: Mapping[str, Any], gates: lis
         # RT-A5 (section 7.5): past G-1 and G-2, a minuend_final subtraction's held gate is its record's.
         if derived is None and held.minuend_final(combination):
             derived = held.stated_gate(source, cid)
-        derived = derived or _gate_before_modulus(basis, operand_withheld, nonlinear, oq1, consuming, own, operand_kappa)
+        derived = derived or _gate_before_modulus(basis, operand_withheld, nonlinear, oq1, consuming or springs, own, operand_kappa)
         if derived is None and not operand_withheld and basis in graph.TERM_BASES:
             reached = {keys.get(case) for case in combination_graph.reached.get(cid, []) if case in keys}
             derived = MODULUS_MIXED if len(reached) > 1 else None
@@ -432,7 +442,8 @@ LINEAR_STATE_KINDS = frozenset({
     "element_local_bending_moment_y", "element_local_bending_moment_z", "element_local_axial_normal_stress",
     "element_local_bending_normal_stress_y", "element_local_bending_normal_stress_z", "element_local_torsional_shear_stress",
     "pipe_section_pressure_hoop_stress", "pipe_section_pressure_longitudinal_stress", "support_reaction_component_v2",
-    "constant_effort_support_applied_load", "element_global_end_force_v1", "element_global_end_moment_v1",
+    "constant_effort_support_applied_load", "variable_spring_hanger_applied_load", "element_global_end_force_v1",
+    "element_global_end_moment_v1",
     # a skewed record's along-direction value.
     "support_reaction_along_direction_v1"})
 DIMENSIONS = {"mm": "displacement", "m": "displacement", "rad": "rotation", "N": "force", "N*m": "moment", "MPa": "pressure", "Pa": "pressure"}

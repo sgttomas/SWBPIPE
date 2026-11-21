@@ -44,6 +44,7 @@ import {
 } from "../project-units/projectUnitSelection";
 import { componentDraftMissingUnitNotices, isProjectUnitKey, missingProjectUnitText, projectUnitMissing, type MissingProjectUnitMode } from "../project-units/missingProjectUnit";
 import type { ProjectUnitKey } from "../../services/projectService";
+import type { OperationBatch } from "../../services/operationBatchService";
 import { entityRefFromKey, type OrderedSelectionState } from "../workspace/selectionState";
 import { VirtualTargetPicker } from "../workspace/VirtualTargetPicker";
 import { ConnectorDraftFields } from "../component-creation/ConnectorDraftFields";
@@ -66,6 +67,7 @@ export function PropertyInspector({
   getPreparationEpoch,
   model,
   onQueueIntent,
+  onQueueBatch,
   onValidateIntent,
   onApplyIntent,
   onSelectReference,
@@ -80,6 +82,9 @@ export function PropertyInspector({
   getPreparationEpoch?: () => number;
   model: PreviewModel;
   onQueueIntent: (intent: EditorOperationIntent) => void;
+  /** Queues a batch for batch review; the support configuration form queues a hanger's removal of a stored direction
+   * with its configuration as one batch. */
+  onQueueBatch?: (batch: OperationBatch) => void | Promise<void>;
   onValidateIntent?: (intent: EditorOperationIntent) => void;
   onApplyIntent?: (intent: EditorOperationIntent) => Promise<boolean>;
   /** Selects a resolved node or material reference through the host's ordinary selection route. Without it, references are text. */
@@ -649,7 +654,7 @@ export function PropertyInspector({
       {["support", "node", "project"].includes(propertiesTarget.type) ? (
         <details className="inspector-details" open={propertiesTarget.type === "support"}>
           <summary>{propertiesTarget.type === "support" ? "Support configuration" : "New support configuration"}</summary>
-          <SupportConfigurationForm getPreparationEpoch={getPreparationEpoch} key={`support-properties:${projectSessionGeneration}`} model={model} preparationEpoch={selectionState?.preparationEpoch} selection={propertiesTarget} queuedIntents={queuedIntents} onQueueIntent={onQueueIntent} operationBusy={operationBusy || multiSelection} />
+          <SupportConfigurationForm getPreparationEpoch={getPreparationEpoch} key={`support-properties:${projectSessionGeneration}`} model={model} preparationEpoch={selectionState?.preparationEpoch} selection={propertiesTarget} queuedIntents={queuedIntents} onQueueIntent={onQueueIntent} onQueueBatch={onQueueBatch} operationBusy={operationBusy || multiSelection} />
         </details>
       ) : null}
       <MaterialTemperatureForm getPreparationEpoch={getPreparationEpoch} model={model} preparationEpoch={selectionState?.preparationEpoch} selection={propertiesTarget} queuedIntents={queuedIntents} onQueueIntent={onQueueIntent} operationBusy={operationBusy || multiSelection} />

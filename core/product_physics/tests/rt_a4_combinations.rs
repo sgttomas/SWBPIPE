@@ -578,8 +578,8 @@ fn v6_gate_4_joins_the_fixed_load_count_on_the_exact_route() {
                 assert_eq!(dep[0]["message"], format!("Combination withheld: its operand combination(s) srss-cases ({CE_UNSIGNED}) are withheld, so it is withheld whole."));
                 let unsigned = with_code(&out, CE_UNSIGNED);
                 assert_eq!(unsigned.len(), 4, "{what}");
-                assert_eq!(unsigned[0]["message"], "Combination withheld: a constant-effort support's force acts in every case state; an absolute sum or SRSS of operands whose fixed-load count is not exactly 0 would count it once per term with its sign discarded.");
-                assert_eq!(with_code(&out, CE)[0]["message"], "Combination withheld: a constant-effort support would be counted by the sum of factors instead of once.");
+                assert_eq!(unsigned[0]["message"], "Combination withheld: a constant-effort support's force acts in every case state; an absolute sum or SRSS of operands whose fixed-load count is not exactly 0 would count it once per term with its sign discarded. The difference of two solved cases is available as a result state subtraction.");
+                assert_eq!(with_code(&out, CE)[0]["message"], "Combination withheld: a constant-effort support would be counted by the sum of factors instead of once. The difference of two solved cases is available as a result state subtraction.");
             }
         }
     }
@@ -618,7 +618,7 @@ fn v6_gate_4_forgeries_are_refused_on_the_exact_route() {
 /// undefined κ (`mech-env`) and a combination whose own κ is undefined although its operands'
 /// are defined (`M3`, `Q`: V-10's chain, κ(M3) = 1 + t⁴ needs more than 4,096 bits).
 const GATE_TEXTS: [(&str, &str); 3] = [
-    (CE, "Combination withheld: a constant-effort support would be counted by the sum of factors instead of once."),
+    (CE, "Combination withheld: a constant-effort support would be counted by the sum of factors instead of once. The difference of two solved cases is available as a result state subtraction."),
     (CE_MIXED, "Combination withheld: an operand's fixed-load count is undefined, so the number of times this combination counts a constant-effort support's force cannot be decided."),
     (IR, "Combination withheld: a connector or tie rod has a nonzero installed reference, which superposition counts by the sum of the factors instead of once, and the factors do not sum to 1 within 64 epsilon."),
 ];

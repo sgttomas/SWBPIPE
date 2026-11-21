@@ -9,10 +9,12 @@
 // needs a solve stops at the refusal; README.md says what that leaves unseen.
 import { expect, test, type Page } from "@playwright/test";
 import {
+  closeWorkspacePanels,
   confirmProjectUnits,
   ensureInspectorExpanded,
   openWorkspaceSection,
   projectCommand,
+  selectCompactOption,
   selectTreeEntity,
   showCanvas,
   showModelTree
@@ -325,5 +327,117 @@ test("08 save, close and resume (DEL-07-06 AC-007)", async ({ page }) => {
   await journey.step("list-local", "File > List Local Projects", async () => { await menu(page, "file", "file.list-local"); });
   await journey.step("reopened", "The application opened again in the same browser", async () => { await open(page); });
   await journey.step("open-local", "File > Open Local Project", async () => { await menu(page, "file", "file.open-local"); });
+  journey.finish();
+});
+
+test("09 support direction and a hanger: no entry path stores a direction on a hanger", async ({ page }) => {
+  const journey = new Journey(page, 9, "support-hanger-direction",
+    "Support direction and a hanger: a hanger takes no direction, and a stored direction is removed only by its own stated change");
+  await open(page);
+  const form = page.locator("#rich-support-form");
+  const hangerBox = form.getByLabel("Include hanger data");
+  const directionAxes = ["x", "y", "z"] as const;
+  await journey.step("create-form", "A node selected; the support form, creating, with the hanger box unticked and the direction fields offered", async () => {
+    await showModelTree(page);
+    await selectTreeEntity(page, "node", "node:N-110");
+    await ensureInspectorExpanded(page);
+    await page.getByTestId("property-inspector").getByRole("tab", { name: "Properties", exact: true }).click();
+    const details = page.locator("details.inspector-details", { has: page.locator("summary", { hasText: "New support configuration" }) });
+    if (!(await details.evaluate(element => (element as HTMLDetailsElement).open))) await details.locator("summary").click();
+    await expect(details).toHaveAttribute("open", "");
+    await expect(form.getByTestId("support-direction-fields")).toBeVisible();
+    await form.getByTestId("support-direction-fields").scrollIntoViewIfNeeded();
+  });
+  await journey.step("create-hanger-ticked", "Include hanger data ticked: one line in place of the direction fields", async () => {
+    await hangerBox.check();
+    await expect(form.getByTestId("support-direction-hanger")).toBeVisible();
+    await form.getByTestId("support-direction-hanger").scrollIntoViewIfNeeded();
+  });
+  await journey.step("create-hanger-cleared", "A direction typed, then the hanger box ticked: the direction is cleared, and the form says so", async () => {
+    await hangerBox.uncheck();
+    await expect(form.getByTestId("support-direction-fields")).toBeVisible();
+    for (const [axis, value] of directionAxes.map((axis, index) => [axis, ["0.6", "0.8", "0"][index]] as const)) await form.getByLabel(`Direction ${axis}`).fill(value);
+    await hangerBox.check();
+    await expect(form.getByTestId("support-direction-cleared")).toBeVisible();
+    await form.getByTestId("support-direction-hanger").scrollIntoViewIfNeeded();
+  });
+  // The demonstration model holds no support with a stored direction, so one is made here by the same form.
+  const supportId = "support:W-DIR";
+  await journey.step("directed-support-created", "A directed line stop created by the form (direction 0, 1, 0), checked by the engine and applied", async () => {
+    await hangerBox.uncheck();
+    await form.getByLabel("Support ID").fill(supportId);
+    await form.getByLabel("Support label").fill("Directed stop");
+    await form.getByLabel("Support provenance").fill(INVENTED);
+    await selectCompactOption(form.getByRole("combobox", { name: "Support family" }), "line_stop");
+    await form.getByLabel("Restrain UY").check();
+    for (const [axis, value] of directionAxes.map((axis, index) => [axis, ["0", "1", "0"][index]] as const)) await form.getByLabel(`Direction ${axis}`).fill(value);
+    await form.getByRole("button", { name: "Queue support creation" }).click();
+    await expect(form.getByTestId("support-direction-engine-notice")).toBeVisible();
+    const apply = page.getByTestId("operation-apply-panel").locator('[data-testid^="apply-intent-"]').first();
+    await expect(apply).toBeEnabled();
+    await apply.click();
+    await expect(page.getByTestId("operation-apply-panel").locator('[data-testid^="apply-intent-"]')).toHaveCount(0);
+  });
+  await journey.step("directed-support-opened", "The directed support opened: its stored direction shown", async () => {
+    await closeWorkspacePanels(page);
+    await showModelTree(page);
+    await selectTreeEntity(page, "support", supportId);
+    await ensureInspectorExpanded(page);
+    await page.getByTestId("property-inspector").getByRole("tab", { name: "Properties", exact: true }).click();
+    await expect(form.getByTestId("support-direction-stored")).toBeVisible();
+    await form.getByTestId("support-direction-stored").scrollIntoViewIfNeeded();
+  });
+  await journey.step("hanger-added-statement", "Include hanger data ticked on the directed support: the removal stated beside the stored direction", async () => {
+    await hangerBox.check();
+    await expect(form.getByTestId("support-direction-removal")).toBeVisible();
+    await form.getByTestId("support-direction-stored").scrollIntoViewIfNeeded();
+  });
+  const batchReview = page.locator("#batch-review");
+  const openSupport = async () => {
+    await closeWorkspacePanels(page);
+    await showModelTree(page);
+    await selectTreeEntity(page, "support", supportId);
+    await ensureInspectorExpanded(page);
+    await page.getByTestId("property-inspector").getByRole("tab", { name: "Properties", exact: true }).click();
+    await expect(form).toBeVisible();
+  };
+  await journey.step("review-batch", "Queued as one batch of two changes: Batch review, its submitted changes opened to the removal's rationale", async () => {
+    await form.getByRole("button", { name: "Queue the removal and the configuration as one batch" }).click();
+    await expect(form.getByTestId("support-direction-removal-engine-notice")).toBeVisible();
+    await openWorkspaceSection(page, "operations");
+    const batch = batchReview.locator('article[data-testid^="batch-"]').first();
+    await expect(batch).toBeVisible();
+    const submitted = batch.locator("details", { hasText: "Submitted changes and source metadata" });
+    await submitted.locator("summary").click();
+    await expect(submitted).toHaveAttribute("open", "");
+    await submitted.getByText("Adding the hanger removes this support", { exact: false }).first().scrollIntoViewIfNeeded();
+  });
+  await journey.step("review-batch-validated", "The batch validated: its two temporary steps, the removal first", async () => {
+    const batch = batchReview.locator('article[data-testid^="batch-"]').first();
+    await batch.locator("details summary").click();
+    await batch.locator('[data-testid^="validate-batch-"]').click();
+    await expect(batch.getByText("Temporary step 2", { exact: false })).toBeVisible();
+    await batch.getByText("Temporary step 1", { exact: false }).scrollIntoViewIfNeeded();
+  });
+  await journey.step("batch-applied", "Apply entire batch, then the support opened: its hanger included and no stored direction", async () => {
+    const apply = batchReview.locator('[data-testid^="apply-batch-"]').first();
+    await expect(apply).toBeEnabled();
+    await apply.click();
+    await expect(page.getByTestId("batch-receipt").first()).toBeAttached();
+    await openSupport();
+    await expect(form.getByTestId("support-direction-stored")).toHaveCount(0);
+    await expect(form.getByLabel("Include hanger data")).toBeChecked();
+    await form.getByLabel("Include hanger data").scrollIntoViewIfNeeded();
+  });
+  await journey.step("batch-undone", "One Undo, then the support opened: the stored direction is back and no hanger", async () => {
+    await openWorkspaceSection(page, "operations");
+    const undo = page.getByTestId("undo-session-model-edit");
+    await expect(undo).toBeEnabled();
+    await undo.click();
+    await openSupport();
+    await expect(form.getByTestId("support-direction-stored")).toBeVisible();
+    await expect(form.getByLabel("Include hanger data")).not.toBeChecked();
+    await form.getByTestId("support-direction-stored").scrollIntoViewIfNeeded();
+  });
   journey.finish();
 });

@@ -794,6 +794,8 @@ fn gate(
     evidence: &Value,
     nonlinear: bool,
     constant_effort: bool,
+    // DEL-04-11 REQ-014: a variable spring's cold load, gate 4's other fixed-load source.
+    springs: bool,
 ) -> Result<Option<(&'static str, String, Vec<String>)>, String> {
     let mut named: Vec<(&str, &str)> = Vec::new();
     for operand in operands {
@@ -860,14 +862,16 @@ fn gate(
     if installed_reference(&evidence["connector"]) && fixed_load_withholding().is_some() {
         return gated(if basis == "mechanics" { INSTALLED_REFERENCE } else { INSTALLED_REFERENCE_UNSIGNED });
     }
-    if constant_effort {
+    if constant_effort || springs {
         if let Some(withholding) = fixed_load_withholding() {
             use open_pipe_stress_load_case_algebra::FixedLoadWithholding as W;
-            return gated(match withholding {
+            let code = match withholding {
                 W::UnitFactorSum => CONSTANT_EFFORT,
                 W::OperandUndefined => CONSTANT_EFFORT_OPERAND_MIXED,
                 W::UnsignedOperand => CONSTANT_EFFORT_UNSIGNED,
-            });
+            };
+            // The text names the actual source (PP `spring_preload::fixed_load_gate_message`).
+            return Ok(Some((code, crate::spring_preload::fixed_load_gate_message(code, constant_effort, springs, gate_message(code)), vec![id.to_string()])));
         }
     }
     Ok(None)
@@ -1232,6 +1236,9 @@ pub(crate) fn validate(source: &Value) -> Check {
     // `model_checks` binds those rows, case by case, to the model's DEC-049
     // decision, so with the captured model the gate is decided by the model.
     let constant_effort = case_rows_present(&[APPLIED_LOAD]);
+    // DEL-04-11 REQ-014: an applying spring publishes its applied-load row in every
+    // solved case; `model_checks` binds those rows to the model's decision.
+    let springs = case_rows_present(&[crate::spring_preload::APPLIED_LOAD]);
 
     let mut expected_rows: Vec<Value> = Vec::new();
     // Each expected diagnostic whole (id, code, severity, message, source and
@@ -1290,7 +1297,7 @@ pub(crate) fn validate(source: &Value) -> Check {
                 "source": DIAGNOSTIC_SOURCE, "affected_refs": [id],
             }));
         }
-        let reason = gate(id, &expression, &operand_ids, &combination_graph, &modulus, &withheld_combinations, evidence, nonlinear, constant_effort)?;
+        let reason = gate(id, &expression, &operand_ids, &combination_graph, &modulus, &withheld_combinations, evidence, nonlinear, constant_effort, springs)?;
         require(bit_equal(&record["gate"], &json!({"withheld": reason.is_some(), "reason": reason.as_ref().map(|r| r.0)})), "GATE")?;
         if !graph::term_basis(expression.basis()) {
             // DEC-068 item 1: each load-case operand's solve basis, in authored order
@@ -1394,8 +1401,8 @@ fn gate_message(code: &str) -> &'static str {
         NONLINEAR => "Combination withheld: the model has nonlinear supports, so superposing case states is not a solved state.",
         MODULUS_BASIS_MIXED => "Combination withheld: its load cases were solved on different modulus bases.",
         RESOLVED_STIFFNESS_MIXED => "Combination withheld: a member's resolved stiffness (its selected E/nu, property-temperature selection, section bases or shear model) differs between its load cases, so superposing their states is not a state of one system.",
-        CONSTANT_EFFORT => "Combination withheld: a constant-effort support would be counted by the sum of factors instead of once.",
-        CONSTANT_EFFORT_UNSIGNED => "Combination withheld: a constant-effort support's force acts in every case state; an absolute sum or SRSS of operands whose fixed-load count is not exactly 0 would count it once per term with its sign discarded.",
+        CONSTANT_EFFORT => "Combination withheld: a constant-effort support would be counted by the sum of factors instead of once. The difference of two solved cases is available as a result state subtraction.",
+        CONSTANT_EFFORT_UNSIGNED => "Combination withheld: a constant-effort support's force acts in every case state; an absolute sum or SRSS of operands whose fixed-load count is not exactly 0 would count it once per term with its sign discarded. The difference of two solved cases is available as a result state subtraction.",
         CONSTANT_EFFORT_OPERAND_MIXED => "Combination withheld: an operand's fixed-load count is undefined, so the number of times this combination counts a constant-effort support's force cannot be decided.",
         INSTALLED_REFERENCE_UNSIGNED => "Combination withheld: a connector or tie rod has a nonzero installed reference, which acts in every case state; an absolute sum or SRSS of operands whose fixed-load count is not exactly 0 would count it once per term with its sign discarded.",
         _ => "Combination withheld: a connector or tie rod has a nonzero installed reference, which superposition counts by the sum of the factors instead of once, and the factors do not sum to 1 within 64 epsilon.",
@@ -1461,7 +1468,89 @@ pub(crate) fn model_checks(source: &Value, model: &Value) -> Check {
             require(bit_equal(row, &support.applied_load_row(id, position)), "MODEL_CONSTANT_EFFORT")?;
         }
     }
+    // DEL-04-11 REQ-014, the same binding for the other fixed-load source: every solved
+    // case publishes exactly the model's applying springs' applied-load rows, in model
+    // order, each the producer's whole row, and nothing else of that kind.
+    let springs = applying_springs(model)?;
+    for (position, case) in items(&source["contract_evidence"]["exact_cases"]).iter().enumerate() {
+        let id = case["load_case_id"].as_str().ok_or_else(|| fail("MODEL_SPRING_PRELOAD"))?;
+        let published: Vec<&Value> = results
+            .iter()
+            .filter(|r| r["kind"] == crate::spring_preload::APPLIED_LOAD && r["basis_ref"]["ref_type"] == "load_case" && r["basis_ref"]["ref_id"] == id)
+            .collect();
+        require(published.len() == springs.len(), "MODEL_SPRING_PRELOAD")?;
+        for (row, spring) in published.iter().zip(&springs) {
+            require(bit_equal(row, &spring_applied_load_row(spring, id, position)), "MODEL_SPRING_PRELOAD")?;
+        }
+    }
     Ok(())
+}
+
+/// The producer's applied-load sign convention for a variable spring
+/// (PP `spring_preload::APPLIED_SIGN_CONVENTION`), re-derived whole.
+const SPRING_APPLIED_SIGN_CONVENTION: &str = "positive value is the user-entered cold load of the variable spring hanger, applied as a constant force along the positive axis of its translational stiffness DOF in this load case; the spring keeps its entered rate, and its published support force is this cold load minus the rate times the displacement relative to its base; no catalog or default value is supplied";
+
+/// An applying spring with its hanger references as its applied-load row states them.
+struct SpringRow<'a> {
+    preload: crate::spring_preload::SpringPreload<'a>,
+    source: &'a str,
+    manufacturer: &'a str,
+    load_side_review: &'a str,
+}
+
+/// The model's applying springs (`crate::spring_preload::applying`, the cold load
+/// normalized to newtons by the units authority, as for a constant-effort force), in
+/// model order, with their references; a reference that is neither text nor absent
+/// is refused.
+fn applying_springs(model: &Value) -> Result<Vec<SpringRow<'_>>, String> {
+    let normalized = |cold: &Value| crate::physics_source::normalized_quantity(cold, Dimension::Force).ok();
+    let supports = items(&model["supports"]);
+    crate::spring_preload::applying(model, normalized)
+        .into_iter()
+        .map(|preload| {
+            let support = supports.iter().find(|s| s["id"] == preload.id).ok_or_else(|| fail("MODEL_SPRING_PRELOAD"))?;
+            let reference = |field: &str, missing: &'static str| -> Result<&str, String> {
+                match &support["hanger"][field] {
+                    Value::Null => Ok(missing),
+                    Value::String(text) => Ok(if text.trim().is_empty() { missing } else { text.as_str() }),
+                    _ => Err(fail("MODEL_SPRING_PRELOAD")),
+                }
+            };
+            Ok(SpringRow {
+                source: reference("source_reference", "source_reference_missing")?,
+                manufacturer: reference("manufacturer_reference", "manufacturer_reference_missing")?,
+                load_side_review: reference("load_side_review_reference", "load_side_review_reference_missing")?,
+                preload,
+            })
+        })
+        .collect()
+}
+
+/// The applied-load row the producer publishes for an applying spring in the solved
+/// case at `position` (PP `spring_preload::append_results`), every field, with the
+/// first case's id kept and every later case's qualified, as for a constant-effort row.
+fn spring_applied_load_row(spring: &SpringRow<'_>, case: &str, position: usize) -> Value {
+    let p = &spring.preload;
+    let tail = format!("spring-hanger:{}:applied-load", stable_suffix(p.id));
+    let id = if position == 0 { format!("result:{tail}") } else { format!("result:loadcase:{}:{tail}", stable_suffix(case)) };
+    json!({
+        "id": id,
+        "kind": crate::spring_preload::APPLIED_LOAD,
+        "value": p.force,
+        "unit": "N",
+        "entity_ref": p.id,
+        "basis_ref": {"ref_type": "load_case", "ref_id": case},
+        "metadata": {
+            "component": crate::spring_preload::APPLIED_LOAD,
+            "coordinate_system": "global",
+            "location": format!("{}:{} applied load", p.node, p.dof),
+            "basis": format!(
+                "support_family=variable_spring_hanger;consumed_dof={};source={};manufacturer={};load_side_review={};mechanics_consumption=assembled_solve_cold_load;dec_ref=DEC-049",
+                p.dof, spring.source, spring.manufacturer, spring.load_side_review
+            ),
+            "sign_convention": SPRING_APPLIED_SIGN_CONVENTION,
+        },
+    })
 }
 
 #[cfg(test)]

@@ -52,7 +52,7 @@ const APPLIED: &str = "constant_effort_support_applied_load";
 const NOT_CONSUMED: &str = "SUPPORT_CONSTANT_EFFORT_NOT_CONSUMED";
 const GATE_CODE: &str = "CONSTANT_EFFORT_COMBINATION_REQUIRES_SOLVE";
 /// PF's message (`preview_physics.rs` `gate_message`), on EX.
-const GATE_TEXT: &str = "Combination withheld: a constant-effort support would be counted by the sum of factors instead of once.";
+const GATE_TEXT: &str = "Combination withheld: a constant-effort support would be counted by the sum of factors instead of once. The difference of two solved cases is available as a result state subtraction.";
 const STATE_CONTRACT: &str = "openpipestress.load_reference_state/1.0.0";
 const REFERENCE_CONFIGURATION: &str = "reference:installed";
 const LAW: &str = "law:ce3";
@@ -883,6 +883,47 @@ fn ce2_withheld_envelope_fixture_is_current() {
         std::fs::write(&path, &text).unwrap();
     }
     assert!(std::fs::read_to_string(&path).unwrap() == text, "the CE-2 withheld fixture is current (RT_A3_CE2_WITHHELD_WRITE=1)");
+}
+
+/// The sentence DEL-04-11 REQ-014's stage appends to the fixed-load gate's unit
+/// factor-sum and unsigned-operand messages, after their existing sentence.
+const SUBTRACTION_SENTENCE: &str = " The difference of two solved cases is available as a result state subtraction.";
+
+/// The constant-effort-only control of the variable spring preload: CE-2 (no variable
+/// spring hanger) solved at this head equals main's committed bytes of the same
+/// envelope (`fixtures/results/rt_a3_ce2_withheld_sparse.json`, not rewritten here)
+/// once the appended sentence is removed from the one diagnostic it names
+/// (CONSTANT_EFFORT_COMBINATION_REQUIRES_SOLVE), and in nothing else.
+#[test]
+fn ce2_withheld_envelope_differs_from_main_only_by_the_appended_sentence() {
+    let references = references();
+    let (mut document, authored) = ce2_document(&references);
+    let supports = document["model"]["supports"].as_array().unwrap();
+    assert!(supports.iter().all(|s| s["family"] != "variable_spring_hanger" && s["hanger"]["hanger_type"] != "variable_spring_hanger"));
+    assert!(supports.iter().any(|s| s["family"] == "constant_effort_support"));
+    let id = combination_id(authored.iter().find(|(_, c)| c["combination"] == "2*A").unwrap().0);
+    let kept = document["model"]["combinations"].as_array().unwrap().iter().filter(|c| c["id"] == id).cloned().collect();
+    document["model"]["combinations"] = Value::Array(kept);
+    let mut envelope = solved(&document, PreviewSolverMode::SparseInteractive, "CE2 2*A");
+    let named = [GATE_CODE];
+    let mut stripped = 0;
+    for d in envelope["diagnostics"].as_array_mut().unwrap() {
+        if named.contains(&d["code"].as_str().unwrap()) {
+            let message = d["message"].as_str().unwrap();
+            let main = message.strip_suffix(SUBTRACTION_SENTENCE).unwrap_or_else(|| panic!("{message}: no appended sentence"));
+            d["message"] = json!(main);
+            stripped += 1;
+        }
+    }
+    assert_eq!(stripped, 1, "one gate diagnostic names the sentence");
+    let text = format!("{}\n", serde_json::to_string(&json!({
+        "description": "RT-A3 increment 3: CE-2's 2*A (exact factor sum 2), withheld at gate 4 (CONSTANT_EFFORT_COMBINATION_REQUIRES_SOLVE); the sparse producer envelope of rt_a3_constant_effort_references.rs ce2_withheld_envelope_fixture_is_current; invented reference inputs, test-only",
+        "combination_id": id,
+        "envelope": envelope,
+    })).unwrap());
+    let path = std::path::Path::new(env!("CARGO_MANIFEST_DIR")).join("../../fixtures/results/rt_a3_ce2_withheld_sparse.json");
+    let main = std::fs::read_to_string(&path).unwrap();
+    assert!(main == text, "the CE-2 envelope differs from main's committed bytes beyond the appended sentence");
 }
 
 fn record_index(source: &Value, id: &str) -> usize {

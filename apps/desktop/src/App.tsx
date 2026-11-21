@@ -1042,6 +1042,7 @@ function AppSession() {
               model={model}
               onSelectReference={(entity) => { handleSelectEntity(entity); }}
               onQueueIntent={handleQueueEditorIntent}
+              onQueueBatch={handleQueueOperationBatch}
               onValidateIntent={handleValidateIntent}
               onApplyIntent={handleApplyIntent}
               operationBusy={operationBusy}

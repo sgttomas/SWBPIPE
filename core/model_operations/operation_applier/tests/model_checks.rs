@@ -38,6 +38,24 @@ fn the_report_carries_the_solves_leading_diagnostics_and_leaves_the_model_alone(
     assert_eq!(report["checked"], true);
     let findings = report["diagnostics"].as_array().unwrap();
     assert!(findings.iter().any(|d| d["code"] == "MODEL_TOPOLOGY_DISCONNECTED" && d["severity"] == "warning"), "{findings:#?}");
+    // The demo's variable spring hanger enters an installed load that differs from its
+    // cold load: the solve warns of it before formation, so the checks do too.
+    assert!(findings.iter().any(|d| d["code"] == "SPRING_HANGER_INSTALLED_LOAD_DIFFERS_FROM_COLD_LOAD" && d["severity"] == "warning" && d["affected_refs"][0] == "support:SH-140"), "{findings:#?}");
+    let solved = solve_diagnostics(&model);
+    assert_eq!(&solved[..findings.len()], &findings[..], "the findings are the solve's leading diagnostics");
+
+    // The same model with the hanger's installed load equal to its cold load: no such
+    // warning, and the findings are still the solve's leading diagnostics.
+    let mut model = model;
+    let hanger = model["supports"].as_array_mut().unwrap().iter_mut().find(|s| s["id"] == "support:SH-140").unwrap();
+    hanger["hanger"]["installed_load"] = hanger["hanger"]["cold_load"].clone();
+    let before = model.to_string();
+    let report = model_checks(&model);
+    assert_eq!(model.to_string(), before, "the checks leave the model unchanged");
+    assert_eq!(report["checked"], true);
+    let findings = report["diagnostics"].as_array().unwrap();
+    assert!(findings.iter().all(|d| d["code"] != "SPRING_HANGER_INSTALLED_LOAD_DIFFERS_FROM_COLD_LOAD"), "{findings:#?}");
+    assert!(findings.iter().any(|d| d["code"] == "MODEL_TOPOLOGY_DISCONNECTED"), "{findings:#?}");
     let solved = solve_diagnostics(&model);
     assert_eq!(&solved[..findings.len()], &findings[..], "the findings are the solve's leading diagnostics");
 }

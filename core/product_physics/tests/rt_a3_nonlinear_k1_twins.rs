@@ -64,6 +64,17 @@
 //!
 //! The controls that cannot form an exact twin are listed with their reason in
 //! [`NOT_FORMABLE`] and pinned by name; none is forced.
+//!
+//! The variable spring preload law (DEL-04-11 REQ-014) applies the cold load of
+//! the frozen `u1_spring_request.json`'s hanger, so that request no longer
+//! exercises the parallel-spring control. The control reads its successor, the
+//! plain-spring twin of `validation/references/kd5_nonlinear_preload/`, whose
+//! assembled system equals the frozen request's stiffness-only system exactly
+//! (its README), so the K-1 basis (`k1_twin_bound.py`, which models the frozen
+//! request stiffness-only) and its iteration counts hold for it unchanged; its
+//! spring stiffness enters S_f only with a gap clearance, of which it has none.
+//! Every other control carries no hanger, so the law does not touch it and it
+//! reads the frozen package.
 use open_pipe_stress_product_physics::result_export::reader_verdict;
 use open_pipe_stress_product_physics::{run_linear_static_preview_value_with_mode, PreviewSolverMode, MODEL_SCHEMA_VERSION};
 use serde_json::{json, Value};
@@ -154,8 +165,8 @@ const CONTROLS: [Control; 8] = [
     },
     Control {
         label: "U-1 parallel spring",
-        request: include_str!("../../../validation/references/kd5_nonlinear/u1_spring_request.json"),
-        oracle: include_str!("../../../validation/references/kd5_nonlinear/u1_spring_oracle.json"),
+        request: include_str!("../../../validation/references/kd5_nonlinear_preload/u1_spring_twin_request.json"),
+        oracle: include_str!("../../../validation/references/kd5_nonlinear_preload/u1_spring_twin_oracle.json"),
         cases: &[("load:PRESSED", Standing::Passed), ("load:LIFTED", Standing::Passed)],
         edit: None,
     },

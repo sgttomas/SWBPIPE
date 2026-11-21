@@ -110,13 +110,16 @@ describe("a stored direction through every existing support edit path (real engi
     expect(JSON.stringify(model)).toBe(original);
   });
 
-  it("hanger selection's update_support is refused by name and never drops it", async () => {
+  it("hanger selection's update_support is refused by name without its explicit removal, and never drops it", async () => {
     const model = await skewModel(), original = JSON.stringify(model), id = model.supports[0].id;
     const doc = structuredClone(fixture) as HangerDocument;
     doc.hanger_records[0].hanger.cold_load = { magnitude: 15, unit: "N", dimension: "force", provenance: { ...doc.hanger_records[0].provenance } };
     doc.hanger_records[0].hanger.hot_load = { magnitude: 18, unit: "N", dimension: "force", provenance: { ...doc.hanger_records[0].provenance } };
     const batch = await buildHangerSelectionBatch(model, doc, doc.hanger_records[0].hanger_id, { supportId: id, restraints: ["UY"] });
-    expectRefused(await applyOperationBatch(model, batch, await computeModelHash(model)), "SUPPORT_DIRECTION_RECORD_UNSUPPORTED");
+    // The batch removes the direction by its own explicit change, ahead of the configuration; without it, refused by name.
+    expect(batch.operations[0].change).toMatchObject({ field_path: "direction", before: await canonicalJsonString(STORED), after: "not_present" });
+    expectRefused(await applyOperationBatch(model, { ...batch, operations: batch.operations.slice(1) }, await computeModelHash(model)), "SUPPORT_DIRECTION_RECORD_UNSUPPORTED");
+    expect(storedAfter(await applyOperationBatch(model, batch, await computeModelHash(model)), id)).not.toHaveProperty("direction");
     expect(JSON.stringify(model)).toBe(original);
   });
 

@@ -1019,7 +1019,12 @@ fn mm_form(p: &Parsed, request: &Value) -> S<Formed> {
         // Any present direction, null included, is admitted or refused (`deserialize_direction`).
         let direction = support.get("direction");
         // The producer's admission of a direction record (`supports_findings`), which it
-        // applies before lowering; then an exactly axis-aligned direction is lowered as the
+        // applies before lowering, in its order: a direction that is not three finite
+        // numbers, or is zero; then a record that carries a hanger (a present, non-null
+        // `hanger` member), of whatever family, since a direction is not an input of a
+        // hanger (DEL-04-03 REQ-014, DEL-04-11 REQ-014); then the family, the nonlinear
+        // member and the one translational DOF. A hanger-family record with no hanger
+        // member keeps the family refusal. Then an exactly axis-aligned direction is lowered as the
         // producer does (`lower_axis_aligned_directions`): each DOF token on another axis
         // becomes the direction's translation token.
         let mut lowered_axis = None;
@@ -1033,6 +1038,9 @@ fn mm_form(p: &Parsed, request: &Value) -> S<Formed> {
             };
             if c.iter().all(|x| *x == 0.0) {
                 return Err(refused("is zero (SUPPORT_DIRECTION_ZERO)"));
+            }
+            if support.get("hanger").is_some_and(|h| !h.is_null()) {
+                return Err(refused("is on a record that carries a hanger, and a direction is not an input of a hanger (SUPPORT_DIRECTION_RECORD_UNSUPPORTED)"));
             }
             if !matches!(family, Some("line_stop" | "spring" | "snubber")) {
                 return Err(refused("is on a family other than line_stop, spring or snubber (SUPPORT_DIRECTION_RECORD_UNSUPPORTED)"));

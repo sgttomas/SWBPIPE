@@ -167,6 +167,57 @@ fn projection(value: &Value, keys: &[&str]) -> Value {
             .collect(),
     )
 }
+/// The field path of the explicit removal of a support's stored direction.
+pub(crate) const SUPPORT_DIRECTION: &str = "direction";
+const DIRECTION_AFTER_INVALID: &str = "OP-DELETE-AFTER-VALUE-INVALID";
+const DIRECTION_BEFORE_STALE: &str = "OP-BEFORE-VALUE-MISMATCH";
+const NOTHING_TO_REMOVE: &str = "has no stored direction, so there is nothing to remove";
+
+/// The explicit removal of a support's stored direction (update_support, Support,
+/// `direction`): before is the stored direction's canonical JSON, after `not_present`,
+/// unit none, dimension dimensionless. A stored direction is an entered engineering
+/// value, so it is never dropped as a side effect of another change: this is the one
+/// operation that removes it, and setting or changing a stored direction through an
+/// operation is not provided. The configuration envelope (`CONFIG`) does not carry the
+/// direction and is unchanged. The result is judged by the document validator like
+/// every other result.
+fn support_direction_removal(model: &Value, target_ref: &str, before: &str, after: &str, unit: &str, dimension: &str) -> Result<RichEdit> {
+    if unit != "none" || dimension != "dimensionless" {
+        return Err(err("Removing a support's direction requires unit none and dimension dimensionless"));
+    }
+    if after != "not_present" {
+        return Err(RichError {
+            code: DIRECTION_AFTER_INVALID,
+            message: format!("support `{target_ref}` direction: an operation can only remove a stored direction (after-value `not_present`), not set or change it to `{after}`"),
+        });
+    }
+    let current = entity(model, "supports", target_ref)?;
+    let Some(stored) = current.get(SUPPORT_DIRECTION) else {
+        return Err(RichError {
+            code: DIRECTION_BEFORE_STALE,
+            message: format!("support `{target_ref}` {NOTHING_TO_REMOVE}"),
+        });
+    };
+    let current_display = crate::canonical_json(stored);
+    if before != current_display {
+        return Err(RichError {
+            code: DIRECTION_BEFORE_STALE,
+            message: format!("support `{target_ref}` direction: the before-value `{before}` is not the stored direction `{current_display}`"),
+        });
+    }
+    Ok(RichEdit { writes: vec![(vec![SUPPORT_DIRECTION.into()], None)], current_display, warnings: Vec::new() })
+}
+
+/// The remedy shown with a refusal of the direction removal, in plain words.
+pub(crate) fn support_direction_remedy(error: &RichError) -> &'static str {
+    match error.code {
+        DIRECTION_AFTER_INVALID => "Send after-value `not_present` to remove the stored direction; a direction is entered only when the support is created.",
+        DIRECTION_BEFORE_STALE if error.message.ends_with(NOTHING_TO_REMOVE) => "Leave this change out: the support has no direction to remove.",
+        DIRECTION_BEFORE_STALE => "Prepare the removal again from the current model: its before-value is the stored direction's canonical JSON.",
+        _ => "Correct the removal: Support, field path direction, before the stored direction, after `not_present`, unit none, dimension dimensionless.",
+    }
+}
+
 fn exposure(wind: &Value) -> Value {
     json!({"exposed_pipe_refs":wind.get("exposed_pipe_refs").cloned().unwrap_or(json!([])),"exposed_spans":wind.get("exposed_spans").cloned().unwrap_or(json!([]))})
 }
@@ -185,6 +236,9 @@ pub(crate) fn resolve(
 ) -> Result<Option<RichEdit>> {
     if object_type == "Load" && field_path == "generated_self_weight" {
         return generated_self_weight(model, target_ref, before, after, unit, dimension).map(Some);
+    }
+    if object_type == "Support" && field_path == SUPPORT_DIRECTION {
+        return support_direction_removal(model, target_ref, before, after, unit, dimension).map(Some);
     }
     let collection = match (object_type, field_path) {
         ("Support", "configuration") => "supports",

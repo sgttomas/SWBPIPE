@@ -323,7 +323,7 @@ def test_gate_four_follows_gate_three_and_uses_the_unit_factor_sum():
     # Both factor-sum gates hold: gate 3 names the reason.
     assert gate((2.0, 0.0), installed, True) == combinations.INSTALLED_REFERENCE
     assert combinations.GATE_MESSAGES[combinations.CONSTANT_EFFORT] == (
-        "Combination withheld: a constant-effort support would be counted by the sum of factors instead of once.")
+        "Combination withheld: a constant-effort support would be counted by the sum of factors instead of once. The difference of two solved cases is available as a result state subtraction.")
 
 
 def test_the_model_binding_refuses_applied_load_rows_the_model_does_not_consume():

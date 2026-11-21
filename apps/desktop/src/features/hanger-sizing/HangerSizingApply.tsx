@@ -16,6 +16,7 @@ import type { OperationBatch } from "../../services/operationBatchService";
 import type { PreviewModel } from "../../types";
 import type { HangerSizingSizedDocument } from "../results/hangerSizingResult";
 import type { BatchPrecondition } from "../workspace/workspaceSession";
+import { directionRemovals, selectionConfigurationChange } from "../hanger-selection/hangerSelection";
 import { prepareSizedApplication, type SizedApplication, type StoredHangerLibraryReader } from "./sizedApplication";
 import {
   HANGER_SIZING_APPLIED_WITH_RUN_TEXT,
@@ -200,12 +201,15 @@ export function HangerSizingApply({ document, library, currentLibrary, readStore
         <div data-testid="hanger-sizing-apply-review">
           <h5>Review the configuration replacement of {currentReview.support}</h5>
           <p>Previous top-level stiffness and nonlinear settings will be removed. Review the complete before and after configuration and the source of each sized value.</p>
+          {directionRemovals(currentReview.batch).map((removal) => (
+            <p key={removal.supportId} data-testid="hanger-sizing-apply-direction-removal">{removal.text}</p>
+          ))}
           <details open>
             <summary>Before and after</summary>
-            <pre data-testid="hanger-sizing-apply-before">{currentReview.batch.operations[0].change.before}</pre>
-            <pre data-testid="hanger-sizing-apply-after">{currentReview.batch.operations[0].change.after}</pre>
+            <pre data-testid="hanger-sizing-apply-before">{selectionConfigurationChange(currentReview.batch)?.change.before}</pre>
+            <pre data-testid="hanger-sizing-apply-after">{selectionConfigurationChange(currentReview.batch)?.change.after}</pre>
           </details>
-          <p data-testid="hanger-sizing-apply-source-note">{currentReview.batch.operations[0].change.source_note}</p>
+          <p data-testid="hanger-sizing-apply-source-note">{selectionConfigurationChange(currentReview.batch)?.change.source_note}</p>
           {currentReview.variable ? <p data-testid="hanger-sizing-apply-preload-pending">{HANGER_SIZING_PRELOAD_PENDING_TEXT}</p> : null}
           <button type="button" disabled={busy || pending} onClick={() => { onQueueBatch(currentReview.batch, { precondition: currentReview.precondition }); setReview(null); }}>
             Queue sized selection for review
@@ -245,6 +249,9 @@ export function HangerSizingApply({ document, library, currentLibrary, readStore
           {currentRunReview.changed.some((change) => change.family === "variable_spring")
             ? <p data-testid="hanger-sizing-apply-run-preload-pending">{HANGER_SIZING_PRELOAD_PENDING_TEXT}</p> : null}
           <p>Previous top-level stiffness and nonlinear settings of each changed support will be removed. Review each support's complete before and after configuration and the source of each sized value.</p>
+          {directionRemovals(currentRunReview.batch).map((removal) => (
+            <p key={removal.supportId} data-testid={`hanger-sizing-apply-run-direction-removal-${removal.supportId}`}>{removal.text}</p>
+          ))}
           {currentRunReview.batch.operations.filter((operation) => operation.change.field_path === "configuration").map((operation) => (
             <details open key={operation.change.change_id} data-testid={`hanger-sizing-apply-run-${operation.target.ref}`}>
               <summary>{operation.target.ref}: before and after</summary>
