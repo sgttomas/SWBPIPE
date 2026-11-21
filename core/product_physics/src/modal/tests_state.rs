@@ -621,11 +621,11 @@ fn a_linear_case_carries_no_evidence() {
 #[test]
 fn only_the_completed_case_construction_can_carry_evidence() {
     let lib = include_str!("../lib.rs");
-    // Eleven `LoadCaseSolve {` tokens: the struct definition, the seven
+    // Twelve `LoadCaseSolve {` tokens: the struct definition, the eight
     // blocked constructions, the completed one, and the test builder's
     // signature and construction.
     let pieces: Vec<&str> = lib.split("LoadCaseSolve {").collect();
-    assert_eq!(pieces.len() - 1, 11, "every token is counted");
+    assert_eq!(pieces.len() - 1, 12, "every token is counted");
     let mut none = 0;
     let mut captured = 0;
     // Each construction's own field list is read up to its first
@@ -642,7 +642,7 @@ fn only_the_completed_case_construction_can_carry_evidence() {
             panic!("a construction without an explicit nonlinear_state: {}", &body[..at + 40]);
         }
     }
-    assert_eq!((none, captured), (8, 1));
+    assert_eq!((none, captured), (9, 1));
     assert_eq!(lib.matches("Some(Box::new(NonlinearStateEvidence {").count(), 1);
     assert_eq!(lib.matches("let nonlinear_state = capture_nonlinear_state_evidence(").count(), 1);
     let helper = &lib[lib.find("fn capture_nonlinear_state_evidence(").unwrap()..];
