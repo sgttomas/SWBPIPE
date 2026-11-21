@@ -2,6 +2,7 @@ import { act, fireEvent, render, screen, within } from "@testing-library/react";
 import { afterEach, describe, expect, it, vi } from "vitest";
 import { type ReactNode, useState } from "react";
 import { ViewportOverflowBar, type ViewportBarGroup } from "./ViewportOverflowBar";
+import type { ObserveSize } from "./viewportSizeWatch";
 
 // jsdom has no layout. The bar's widths are given here as a browser would report them: the bar,
 // each group and More. The fitting rule is what is tested; the drawn layout is the browser run's.
@@ -32,13 +33,14 @@ function installLayout() {
   });
 }
 
-function Harness() {
+function Harness({ watchSize }: { watchSize?: ObserveSize } = {}) {
   const [measure, setMeasure] = useState(false);
   const [boxSelect, setBoxSelect] = useState(false);
   const group = (key: string, label: string, content: ReactNode, onCount = 0): ViewportBarGroup =>
     ({ key, label, heading: label, onCount, signature: key, content });
   return (
     <ViewportOverflowBar
+      watchSize={watchSize}
       label="Viewport controls"
       groups={[
         group("display", "Display", <button type="button" aria-pressed="true">Labels</button>, 1),
@@ -62,6 +64,37 @@ function barGroups(): string[] {
 afterEach(() => vi.restoreAllMocks());
 
 describe("the view's bar and its More menu", () => {
+  it("creates no ResizeObserver: it watches the bar and its shown groups through the view's watch, once each, for its lifetime", () => {
+    installLayout();
+    barWidth = 2000;
+    const constructed = vi.fn();
+    vi.stubGlobal("ResizeObserver", class { constructor() { constructed(); } observe() {} unobserve() {} disconnect() {} });
+    const callbacks = new Map<Element, () => void>();
+    const stops: Element[] = [];
+    const watchSize = vi.fn((element: Element, callback: () => void) => {
+      callbacks.set(element, callback);
+      return () => { stops.push(element); callbacks.delete(element); };
+    });
+    try {
+      const view = render(<Harness watchSize={watchSize} />);
+      expect(watchSize).toHaveBeenCalledTimes(6);
+      // Renders (a control switched on and off) watch nothing again.
+      fireEvent.click(screen.getByTestId("measure"));
+      fireEvent.click(screen.getByTestId("measure"));
+      expect(watchSize).toHaveBeenCalledTimes(6);
+      // The bar narrows: its watch refits it, and the groups that left the bar are no longer watched.
+      barWidth = 620;
+      act(() => callbacks.get(screen.getByTestId("viewport-bar"))!());
+      expect(barGroups()).toEqual(["display", "selection", "geometry"]);
+      expect(stops).toHaveLength(2);
+      view.unmount();
+      expect(callbacks.size).toBe(0);
+      expect(constructed).not.toHaveBeenCalled();
+    } finally {
+      vi.unstubAllGlobals();
+    }
+  });
+
   it("keeps every group in the bar while the bar has room", () => {
     installLayout();
     barWidth = 2000;

@@ -661,7 +661,8 @@ export class ViewportResource {
     for (const [type, listener] of this.inputListeners()) this.renderer.domElement.addEventListener(type, listener, { capture: true, passive: true });
     window.addEventListener("resize", this.resize);
     document.addEventListener("visibilitychange", this.handleVisibilityChange);
-    this.resizeObserver = typeof ResizeObserver === "undefined" ? null : new ResizeObserver(this.resize);
+    // The view's one ResizeObserver: the canvas host, and the furniture watched through observeSize.
+    this.resizeObserver = typeof ResizeObserver === "undefined" ? null : new ResizeObserver(this.handleSizes);
     this.resizeObserver?.observe(host);
     this.ownership.createLifecycle({
       controls: 1,
@@ -1032,6 +1033,7 @@ export class ViewportResource {
     this.disposed = true;
     this.scheduler.dispose();
     this.resizeObserver?.disconnect();
+    this.sizeWatchers.clear();
     window.removeEventListener("resize", this.resize);
     document.removeEventListener("visibilitychange", this.handleVisibilityChange);
     this.controls.removeEventListener("change", this.handleControlsChange);
@@ -1150,6 +1152,43 @@ export class ViewportResource {
     this.renderer.setViewport(previousViewport);
     this.renderer.setScissorTest(previousScissorTest);
   }
+
+  private readonly sizeWatchers = new Map<Element, Set<() => void>>();
+
+  /**
+   * Calls back when the element's size changes, through the view's one ResizeObserver (so the
+   * ledger's count of observers stays the view's whole count). Returns the function that stops it.
+   */
+  observeSize(element: Element, callback: () => void): () => void {
+    const observer = this.resizeObserver;
+    if (this.disposed || !observer || element === this.host) return () => {};
+    let callbacks = this.sizeWatchers.get(element);
+    if (!callbacks) {
+      callbacks = new Set();
+      this.sizeWatchers.set(element, callbacks);
+      observer.observe(element);
+    }
+    callbacks.add(callback);
+    return () => {
+      const current = this.sizeWatchers.get(element);
+      if (!current?.delete(callback) || current.size > 0) return;
+      this.sizeWatchers.delete(element);
+      if (!this.disposed) observer.unobserve(element);
+    };
+  }
+
+  private deliverSizes(entries: readonly Pick<ResizeObserverEntry, "target">[]): void {
+    let hostChanged = false;
+    const callbacks = new Set<() => void>();
+    for (const entry of entries) {
+      if (entry.target === this.host) hostChanged = true;
+      else for (const callback of this.sizeWatchers.get(entry.target) ?? []) callbacks.add(callback);
+    }
+    if (hostChanged) this.resize();
+    for (const callback of callbacks) callback();
+  }
+
+  private readonly handleSizes = (entries: ResizeObserverEntry[]): void => this.deliverSizes(entries);
 
   private resize = (): void => {
     if (this.disposed) return;

@@ -162,6 +162,34 @@ describe("viewport resource primitives", () => {
     expect(cancelNavigation).toHaveBeenCalledTimes(1);
   });
 
+  it("serves the furniture's size watches through the view's one ResizeObserver", () => {
+    const observer = { observe: vi.fn(), unobserve: vi.fn() };
+    const resize = vi.fn();
+    const host = document.createElement("div");
+    const fake = Object.assign(Object.create(ViewportResource.prototype), {
+      disposed: false, resizeObserver: observer, host, sizeWatchers: new Map(), resize
+    }) as ViewportResource & { deliverSizes(entries: { target: Element }[]): void };
+    const bar = document.createElement("div");
+    const legend = document.createElement("div");
+    const onBar = vi.fn();
+    const onLegend = vi.fn();
+    const stopBar = fake.observeSize(bar, onBar);
+    const stopBarAgain = fake.observeSize(bar, onLegend);
+    fake.observeSize(legend, onLegend);
+    expect(observer.observe).toHaveBeenCalledTimes(2);
+    fake.deliverSizes([{ target: host }, { target: bar }, { target: legend }]);
+    expect(resize).toHaveBeenCalledTimes(1);
+    expect(onBar).toHaveBeenCalledTimes(1);
+    expect(onLegend).toHaveBeenCalledTimes(1);
+    stopBar();
+    expect(observer.unobserve).not.toHaveBeenCalled();
+    stopBarAgain();
+    expect(observer.unobserve).toHaveBeenCalledWith(bar);
+    // The host is the resource's own; a watch on it is refused.
+    fake.observeSize(host, onBar);
+    expect(observer.observe).toHaveBeenCalledTimes(2);
+  });
+
   describe("the person's move is decided from their input", () => {
     type GestureFake = {
       notePointerDown(event: { pointerId: number; clientX: number; clientY: number }): void;

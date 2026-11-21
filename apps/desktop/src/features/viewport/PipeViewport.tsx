@@ -114,6 +114,7 @@ import { createFigureMaterial, figureEdgeOutlineFor } from "./viewportFigureMate
 import { buildDeformationOverlay, buildRotationOverlay, deformationAtPhase, rotationGlyphAnchors } from "./deformationOverlay";
 import { DEFLECTION_PHASE_STEPS, DeflectedShapeControls, deflectionLabel, deflectionSummaryScale } from "./DeflectedShapeControls";
 import { ViewportOverflowBar } from "./ViewportOverflowBar";
+import { ViewportSizeWatch } from "./viewportSizeWatch";
 import { alongViewPose, fitApplied, fitDirection, initialCameraRuleState, personMovedCamera, refitForCanvas, standardViewApplied, standardViewPose, type CameraPose, type CameraRuleState, type FitCommandKind } from "./viewportCameraRule";
 import { layoutLabels, type LabelBox, type LabelCandidate, type LabelKind } from "./viewportLabelLayout";
 import { buildElementAxesView, type ElementAxesFrame, type ElementAxesView } from "./elementAxes";
@@ -473,6 +474,8 @@ export function PipeViewport({
   const presentationBottomInset = normalizedPresentationInset(presentationBottomInsetPx);
   const hostRef = useRef<HTMLDivElement | null>(null);
   const viewportResourceRef = useRef<ViewportResource | null>(null);
+  // The furniture's size watches, served by the resource's one ResizeObserver for its lifetime.
+  const [sizeWatch] = useState(() => new ViewportSizeWatch());
   const selectionPresentationBindingRef = useRef(new SelectionPresentationBinding());
   const mainFrameRef = useRef({
     generation: null as number | null,
@@ -1215,6 +1218,7 @@ export function PipeViewport({
     setWebglAvailable(true);
     resource.setPresentationBottomInsetPx(presentationBottomInset);
     viewportResourceRef.current = resource;
+    sizeWatch.attach((element, callback) => resource.observeSize(element, callback));
     // Register stable lazy factories once. Product callbacks update only
     // bounded refs; diagnostics materialization happens on an explicit pull.
     publishViewportDiagnostics(resource);
@@ -1234,6 +1238,7 @@ export function PipeViewport({
       draftProjectorRef.current = null;
       routingVisualUpdaterRef.current = null;
       viewportResourceRef.current = null;
+      sizeWatch.detach();
       try {
         resource.dispose();
       } finally {
@@ -1651,11 +1656,9 @@ export function PipeViewport({
       resource.invalidate();
     };
     const furnitureMutations = typeof MutationObserver === "undefined" ? null : new MutationObserver(furnitureChanged);
-    const furnitureSizes = typeof ResizeObserver === "undefined" ? null : new ResizeObserver(furnitureChanged);
-    for (const element of furniture) {
-      furnitureMutations?.observe(element, { childList: true, subtree: true, characterData: true });
-      furnitureSizes?.observe(element);
-    }
+    // Sizes through the view's one ResizeObserver (the resource's): no observer of its own here.
+    const furnitureSizes = furniture.map((element) => sizeWatch.watch(element, furnitureChanged));
+    for (const element of furniture) furnitureMutations?.observe(element, { childList: true, subtree: true, characterData: true });
     const updateLabelAnchors = () => {
       const layer = selectionLayerRef.current;
       if (!layer) {
@@ -1753,7 +1756,7 @@ export function PipeViewport({
     resource.invalidate();
     return () => {
       furnitureMutations?.disconnect();
-      furnitureSizes?.disconnect();
+      for (const stop of furnitureSizes) stop();
       resource.setLabelUpdater(null);
     };
   }, [activeModelIndex, boundaryNodeKeys, hoveredEntityKey, labelKeys, labelableCount, orderedSelectionKeys, presentationBottomInset, primarySelectionKey, renderTransform, showLabels]);
@@ -2759,6 +2762,7 @@ export function PipeViewport({
     >
       <div className="viewport-toolbar">
         <ViewportOverflowBar
+          watchSize={sizeWatch.watch}
           label="Viewport controls"
           groups={[
             {

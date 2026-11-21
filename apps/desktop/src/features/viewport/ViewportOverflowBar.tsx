@@ -1,4 +1,5 @@
 import { type ReactNode, useEffect, useId, useLayoutEffect, useRef, useState } from "react";
+import type { ObserveSize } from "./viewportSizeWatch";
 
 /**
  * The view's one control bar: groups in priority order, and a More button at the bar's end.
@@ -30,7 +31,13 @@ export type ViewportBarGroup = {
 };
 
 
-export function ViewportOverflowBar({ label, groups, menuGroups }: { label: string; groups: readonly ViewportBarGroup[]; menuGroups: readonly ViewportBarGroup[] }) {
+export function ViewportOverflowBar({ label, groups, menuGroups, watchSize }: {
+  label: string;
+  groups: readonly ViewportBarGroup[];
+  menuGroups: readonly ViewportBarGroup[];
+  /** The view's size watch (its resource's one ResizeObserver): the bar creates no observer. */
+  watchSize?: ObserveSize;
+}) {
   const barRef = useRef<HTMLDivElement | null>(null);
   const groupsRef = useRef<HTMLDivElement | null>(null);
   const moreRef = useRef<HTMLDivElement | null>(null);
@@ -86,20 +93,40 @@ export function ViewportOverflowBar({ label, groups, menuGroups }: { label: stri
   // The bar's width (window, panels, view switch) decides what fits: a change fits again from the
   // kept widths, open menu or not. The shown groups are measured again on every pass, so a change of
   // their own width (fonts, density, a count in a label) is kept as it happens.
+  // The watches live as long as the bar: after each render the watched set is brought to the bar and
+  // its shown groups (a group that moved into More is no longer watched), and nothing is recreated.
   const lastSizesRef = useRef("");
+  const sizeChangedRef = useRef(() => {});
+  sizeChangedRef.current = () => {
+    const bar = barRef.current;
+    if (!bar) return;
+    const sizes = [bar, ...(groupsRef.current?.children ?? [])].map((element) => Math.round(element.getBoundingClientRect().width)).join(":");
+    if (sizes === lastSizesRef.current) return;
+    lastSizesRef.current = sizes;
+    setResizeTick((tick) => tick + 1);
+  };
+  const watchedRef = useRef(new Map<Element, () => void>());
   useEffect(() => {
     const bar = barRef.current;
-    if (!bar || typeof ResizeObserver === "undefined") return;
-    const observer = new ResizeObserver(() => {
-      const sizes = [bar, ...(groupsRef.current?.children ?? [])].map((element) => Math.round(element.getBoundingClientRect().width)).join(":");
-      if (sizes === lastSizesRef.current) return;
-      lastSizesRef.current = sizes;
-      setResizeTick((tick) => tick + 1);
-    });
-    observer.observe(bar);
-    for (const element of groupsRef.current?.children ?? []) observer.observe(element);
-    return () => observer.disconnect();
+    if (!bar || !watchSize) return;
+    const wanted = new Set<Element>([bar, ...(groupsRef.current?.children ?? [])]);
+    const watched = watchedRef.current;
+    for (const [element, stop] of watched) {
+      if (wanted.has(element)) continue;
+      stop();
+      watched.delete(element);
+    }
+    for (const element of wanted) {
+      if (!watched.has(element)) watched.set(element, watchSize(element, () => sizeChangedRef.current()));
+    }
   });
+  useEffect(() => {
+    const watched = watchedRef.current;
+    return () => {
+      for (const stop of watched.values()) stop();
+      watched.clear();
+    };
+  }, []);
 
   useEffect(() => {
     if (!open) return;
