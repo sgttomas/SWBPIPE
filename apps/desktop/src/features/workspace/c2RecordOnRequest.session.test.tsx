@@ -89,8 +89,8 @@ describe("a consumer that does not ask for the run record (the change)", () => {
 });
 
 describe("a consumer that asks for the run record (kept)", () => {
-  it("is refused by name when the record's stored length is above the limit", async () => {
-    const { load } = await solvedSession();
+  it("is refused by name when the record's stored length is above the limit, before the result is copied", async () => {
+    const { load, copies } = await solvedSession();
     const builds = vi.spyOn(previewService, "buildAnalysisRunPreview");
     recordAboveLimit();
     for (const request of [undefined, { record: true }]) {
@@ -99,6 +99,22 @@ describe("a consumer that asks for the run record (kept)", () => {
       expect(error).toMatchObject({ code: "RESULT-DETAIL-WEBVIEW-LIMIT", payloadKind: "record", resultBytes: RESULT_DETAIL_WEBVIEW_LIMIT_BYTES + 1, limitBytes: RESULT_DETAIL_WEBVIEW_LIMIT_BYTES });
     }
     expect(builds).not.toHaveBeenCalled();
+    // A refusal for the record costs no copy of the result.
+    expect(copies()).toBe(0);
+  }, 60_000);
+
+  it("is refused for the result, not the record, when both are above the limit", async () => {
+    const length = new TextEncoder().encode(solveBytes(sourceFixture)).byteLength;
+    const { load } = await solvedSession({ fullCopyLimitBytes: length - 1 });
+    recordAboveLimit();
+    // The held result's length, as the webview knows it without copying, above the webview's limit.
+    const custody = nativeResult.nativeCustody;
+    vi.spyOn(nativeResult, "nativeCustody").mockImplementation((result) => ({ ...custody(result), resultBytes: RESULT_DETAIL_WEBVIEW_LIMIT_BYTES + 1 }));
+    for (const request of [undefined, { record: true }]) {
+      const error = await failure(load(request));
+      expect(error).toBeInstanceOf(FullResultRefused);
+      expect(error).toMatchObject({ code: "RESULT-DETAIL-WEBVIEW-LIMIT", payloadKind: "result", resultBytes: length, limitBytes: length - 1 });
+    }
   }, 60_000);
 
   it("gets the record built on the copy with the native preview's checksums, and a mismatch fails by name", async () => {

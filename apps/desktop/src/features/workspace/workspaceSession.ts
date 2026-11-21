@@ -655,21 +655,27 @@ export function useWorkspaceSession() {
   const nativeFullRecords = useRef(new WeakMap<object, Promise<AnalysisRunEnvelope>>());
   /** C2 only: a native result's full copy (at or under 64 MiB) and, when the record is asked for,
    * the full record of its current record, built on that copy by the oracle builder and checked
-   * against the native preview's checksums (and its stored length against the same limit). A
-   * consumer that does not ask for the record gets none: its length is not read and nothing is
-   * built. A full result passes through. */
+   * against the native preview's checksums (and its stored length against the same limit; a record
+   * above it is refused before the result is copied, unless the result is itself above the limit,
+   * whose own refusal is shown). A consumer that does not ask for the record gets none: its length
+   * is not read and nothing is built. A full result passes through. */
   async function loadC2Full(target: SessionResult, { record }: { record: boolean } = { record: true }): Promise<C2FullResult> {
     const run = record ? analysisRunRef.current : null;
     if (!isNativeResult(target)) return { result: target, analysisRun: isNativeAnalysisRun(run) ? null : run };
+    const inputs = run && isNativeAnalysisRun(run) && run.analysis_run.run_id === target.run_id ? nativeRunInputs.current.get(run) : undefined;
+    const recordRefused = (bytes: number) => new FullResultRefused(RESULT_DETAIL_WEBVIEW_LIMIT, bytes, RESULT_DETAIL_WEBVIEW_LIMIT_BYTES,
+      `${RESULT_DETAIL_WEBVIEW_LIMIT} (record_bytes=${bytes}, limit_bytes=${RESULT_DETAIL_WEBVIEW_LIMIT_BYTES}): the run record is above the size the webview can hold whole.`, "record");
+    // A record that will be refused is refused before the copy, which would otherwise be paid for.
+    // A result above the limit keeps its own refusal: the copy below refuses it and copies nothing.
+    if (run && isNativeAnalysisRun(run) && inputs && nativeRunPreview(run).record_bytes > RESULT_DETAIL_WEBVIEW_LIMIT_BYTES
+      && nativeCustody(target).resultBytes <= RESULT_DETAIL_WEBVIEW_LIMIT_BYTES) {
+      throw recordRefused(nativeRunPreview(run).record_bytes);
+    }
     const copy = await loadNativeFullResult(target);
     let full: AnalysisRunEnvelope | null = null;
-    const inputs = run && isNativeAnalysisRun(run) && run.analysis_run.run_id === target.run_id ? nativeRunInputs.current.get(run) : undefined;
     if (run && isNativeAnalysisRun(run) && inputs) {
       const preview = nativeRunPreview(run);
-      if (preview.record_bytes > RESULT_DETAIL_WEBVIEW_LIMIT_BYTES) {
-        throw new FullResultRefused(RESULT_DETAIL_WEBVIEW_LIMIT, preview.record_bytes, RESULT_DETAIL_WEBVIEW_LIMIT_BYTES,
-          `${RESULT_DETAIL_WEBVIEW_LIMIT} (record_bytes=${preview.record_bytes}, limit_bytes=${RESULT_DETAIL_WEBVIEW_LIMIT_BYTES}): the run record is above the size the webview can hold whole.`, "record");
-      }
+      if (preview.record_bytes > RESULT_DETAIL_WEBVIEW_LIMIT_BYTES) throw recordRefused(preview.record_bytes);
       let building = nativeFullRecords.current.get(run);
       if (!building) {
         building = (async () => {
