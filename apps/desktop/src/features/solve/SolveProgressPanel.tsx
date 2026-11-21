@@ -49,6 +49,10 @@ type RunTracker = {
   resultHeldAtStart: boolean;
   /** The last queue reason the current (or last) run's job reported, kept after it runs. */
   queueReason: ResourceRefusal | null;
+  /** When the line saw the current (or last) run start, by the desktop's clock; null before any run. */
+  startedAt: number | null;
+  /** When that run's job reached its end (a final state, or the run ended); null while it runs. */
+  endedAt: number | null;
 };
 
 /**
@@ -68,7 +72,10 @@ function runView(solveJob: SolveJobAuditState, running: boolean, resultHeld: boo
     tracker.runJobId = null;
     tracker.closed = false;
     tracker.serial += 1;
+    tracker.startedAt = Date.now();
+    tracker.endedAt = null;
   }
+  if (!running && tracker.wasRunning && tracker.startedAt !== null && tracker.endedAt === null) tracker.endedAt = Date.now();
   if (tracker.startedFrom !== null && solveJob !== tracker.startedFrom && (running || tracker.wasRunning)) {
     tracker.runJobId = solveJob.job_id;
   }
@@ -132,6 +139,15 @@ function cancellationWords(state: SolveJobEvent["state"] | null): string {
 
 const plural = (count: number, one: string, many: string) => `${count} ${count === 1 ? one : many}`;
 
+/** A measured interval in minutes and seconds ("0:42", "12:05"), with hours when needed ("1:02:05"). */
+export function formatElapsed(milliseconds: number): string {
+  const total = Math.max(0, Math.floor(milliseconds / 1000));
+  const hours = Math.floor(total / 3600);
+  const minutes = Math.floor((total % 3600) / 60);
+  const seconds = String(total % 60).padStart(2, "0");
+  return hours > 0 ? `${hours}:${String(minutes).padStart(2, "0")}:${seconds}` : `${minutes}:${seconds}`;
+}
+
 /**
  * The solve status line (DEL-07-07 REQ-014): one line in the band under the
  * toolbar, from the moment a solve starts until the user dismisses it or the
@@ -150,11 +166,14 @@ const plural = (count: number, one: string, many: string) => `${count} ${count =
  * Everything else the job reports is behind the line's one "Details" control,
  * complete, facts first; Details closes at the start of each run, its control
  * stays where it is at the end of the line, and its body opens beneath the line.
- * Nothing of an earlier job is shown before the new job's first report. It shows
- * no percentage, time estimate or elapsed time: the job reports states only and
- * its events carry no timestamps. While the job reports queued or running a small
- * moving mark beside the state word shows the display is alive (still under
- * reduced motion). It is part of the page's layout, never laid over the model,
+ * Nothing of an earlier job is shown before the new job's first report. While
+ * the run is active the line shows the time since it started, measured by the
+ * desktop and labelled as elapsed, counting once a second outside the live region;
+ * the completed, stopped and failed lines say how long it took, and the figure
+ * stands still. It shows no percentage, progress bar or estimate of the time
+ * remaining or the time the job will take. While the job reports queued or running
+ * a small moving mark beside the state word shows the display is alive (still under
+ * reduced motion; the figure keeps counting, since it is information). It is part of the page's layout, never laid over the model,
  * the Key results panel or the Insert controls.
  */
 export function SolveProgressPanel({
@@ -190,11 +209,20 @@ export function SolveProgressPanel({
   const lineRef = useRef<HTMLElement>(null);
   const detailsId = useId();
   const [, rerender] = useReducer((count: number) => count + 1, 0);
-  const tracker = useRef<RunTracker>({ wasRunning: false, idle: solveJob, startedFrom: null, runJobId: null, closed: false, serial: 0, idleResultHeld: resultHeld, resultHeldAtStart: false, queueReason: null });
+  const tracker = useRef<RunTracker>({ wasRunning: false, idle: solveJob, startedFrom: null, runJobId: null, closed: false, serial: 0, idleResultHeld: resultHeld, resultHeldAtStart: false, queueReason: null, startedAt: null, endedAt: null });
   const [openedRun, setOpenedRun] = useState<number | null>(null);
   const view = runView(solveJob, running, resultHeld, tracker.current);
   const shown = view.kind !== "hidden";
+  // The job's end, by the desktop's clock, when its record first shows a final state.
+  if (view.kind === "job" && !ACTIVE_STATES.has(view.job.state) && tracker.current.startedAt !== null && tracker.current.endedAt === null) tracker.current.endedAt = Date.now();
+  const ticking = shown && tracker.current.startedAt !== null && tracker.current.endedAt === null;
   useLineHeight(lineRef, shown);
+  // The elapsed figure counts once a second while the run is active, and stands still at its end.
+  useEffect(() => {
+    if (!ticking) return;
+    const timer = setInterval(rerender, 1000);
+    return () => clearInterval(timer);
+  }, [ticking]);
 
   if (view.kind === "hidden") return null;
 
@@ -221,7 +249,13 @@ export function SolveProgressPanel({
   // Something left for the person to do, as a control with its count; only with an honest count.
   const ruleInputs = completed && completed.analysis_status.some((status) => registeredStatusLabel(status)?.token === "RULE_INPUTS_INCOMPLETE")
     && ruleInputsMissing !== null && ruleInputsMissing > 0 && onShowRuleInputs ? ruleInputsMissing : null;
-  const label = state === null ? "Starting" : outcome ? outcome.word : solveJobStateLabel(state);
+  const label = state === null ? "Starting" : outcome ? outcome.word : state === "cancelled" ? "Stopped" : solveJobStateLabel(state);
+  // The time since the run started, measured by the desktop: counting while active, still after.
+  const { startedAt, endedAt } = tracker.current;
+  const elapsed = startedAt === null ? null : formatElapsed((endedAt ?? Date.now()) - startedAt);
+  const took = elapsed === null || endedAt === null ? null
+    : outcome?.solved || (completed && !outcome?.unsolved) ? ` in ${elapsed}`
+      : completed || state === "cancelled" || state === "failed" ? ` after ${elapsed}` : null;
   const tone = state === "failed" || state === "refused" ? "error" : state === "completed" ? "done" : state === "cancelled" ? "stopped" : "active";
   const issue = state === "failed" || state === "refused" || tooLarge || outcome?.unsolved === true;
   const poolRefusal = state === "refused" && refusal !== null;
@@ -250,6 +284,7 @@ export function SolveProgressPanel({
       role="region"
     >
       <div className="solve-status-main">
+        <div className="solve-status-words">
         <p
           aria-live="polite"
           className="solve-status-text"
@@ -259,6 +294,7 @@ export function SolveProgressPanel({
           tabIndex={-1}
         >
           <strong>{label}</strong>
+          {took ? <span data-testid="solve-progress-took">{took}</span> : null}
           {alive ? <span aria-hidden="true" className="solve-status-alive" data-testid="solve-progress-alive" /> : null}
           {poolRefusal ? null : state === "cancelled" || completed || (queueReason && (state === "queued" || state === "cancelling")) || tooLarge || state === "failed" ? "." : null}
           {state === "cancelled" ? <span> No result was published.</span> : null}
@@ -284,6 +320,14 @@ export function SolveProgressPanel({
           ) : null}
           {workerFailureCode ? <span> Code: <code data-testid="solve-progress-failure-code">{workerFailureCode}</code></span> : null}
         </p>
+        {/* The counting figure stands outside the live region, so a screen reader is not told every
+            second; the state word in the region still is. */}
+        {active && elapsed !== null ? (
+          <span className="solve-status-elapsed" data-testid="solve-progress-elapsed">
+            · {elapsed} elapsed
+          </span>
+        ) : null}
+        </div>
         <div className="solve-status-actions">
           {active ? (
             <button

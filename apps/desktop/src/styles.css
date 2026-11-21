@@ -4550,7 +4550,10 @@ body { min-width: 760px; min-height: 540px; }
    Dismiss. Details' control stays where it is, open or closed; its body opens beneath
    the line at full width. No CSS reordering. */
 .solve-status-main { display: contents; }
-.solve-status-text { flex: 1 1 320px; margin: 0; min-width: 0; overflow-wrap: anywhere; font-size: var(--type-size-body, 13px); }
+.solve-status-words { flex: 1 1 320px; min-width: 0; font-size: var(--type-size-body, 13px); }
+.solve-status-text { display: inline; margin: 0; overflow-wrap: anywhere; }
+/* The time since the run started, beside the words and outside their live region. */
+.solve-status-elapsed { margin-inline-start: 0.35em; font-variant-numeric: tabular-nums; white-space: nowrap; }
 .solve-status-text:focus { outline: none; }
 .solve-status-text:focus-visible { outline: 2px solid var(--ui-focus); outline-offset: 2px; }
 .solve-status-actions { flex: 0 0 auto; display: flex; flex-wrap: nowrap; align-items: center; gap: var(--space-3); }
@@ -4567,7 +4570,8 @@ body { min-width: 760px; min-height: 540px; }
 .solve-status-steps > summary { cursor: pointer; width: max-content; color: var(--ui-muted); }
 .solve-status-steps[open] > summary { margin-bottom: var(--space-2); }
 /* The display is alive while the job reports queued or running: a small moving mark,
-   still under reduced motion. No percentage, estimate, count or time. */
+   still under reduced motion. The mark carries no percentage, estimate or time; the
+   elapsed figure beside the words keeps counting under reduced motion. */
 .solve-status-alive {
   display: inline-block;
   width: 8px;

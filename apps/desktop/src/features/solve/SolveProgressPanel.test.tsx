@@ -1,5 +1,5 @@
-import { fireEvent, render, screen, within } from "@testing-library/react";
-import { describe, expect, it, vi } from "vitest";
+import { act, fireEvent, render, screen, within } from "@testing-library/react";
+import { afterEach, describe, expect, it, vi } from "vitest";
 import type { BackendSolveJobStatus, SolveJobStartReceipt } from "../../services/previewService";
 import type { AnalysisRunEnvelope, MechanicsResult, PreviewModel, SolveJobAuditState, SolveResourceGrant } from "../../types";
 import {
@@ -14,7 +14,7 @@ import {
   resultTooLargeSolveJob,
   startSolveJob
 } from "../workspace/solveJobAudit";
-import { SolveIssueItem, SolveProgressPanel } from "./SolveProgressPanel";
+import { formatElapsed, SolveIssueItem, SolveProgressPanel } from "./SolveProgressPanel";
 
 // DEL-07-07 REQ-014: the solve status line shows the solve-job record the
 // session already keeps, from invented native job reports. What the line keeps
@@ -68,6 +68,9 @@ function openSteps() {
   return steps;
 }
 
+/** No percentage, progress figure or estimate of the time remaining or to come. */
+const NO_ESTIMATE = /\d\s*%|\bETA\b|remaining|estimat|expected to take|will take/i;
+
 function panel(job: SolveJobAuditState, running: boolean, onCancel = () => {}) {
   return <SolveProgressPanel solveJob={job} running={running} onCancel={onCancel} />;
 }
@@ -90,7 +93,7 @@ describe("solve progress panel", () => {
     expect(screen.queryByTestId("solve-progress-panel")).toBeNull();
   });
 
-  it("shows the live state, its latest event as the stage, every event in order, and no percentage or time", () => {
+  it("shows the live state, its latest event as the stage, every event in order, and no percentage or estimate", () => {
     const queued = startSolveJob(model, receipt);
     const view = renderRun(queued);
     const region = screen.getByRole("region", { name: "Solve progress" });
@@ -127,9 +130,9 @@ describe("solve progress panel", () => {
     const events = within(screen.getByRole("list", { name: "Solve job events" })).getAllByRole("listitem");
     expect(events.map((item) => item.getAttribute("data-event-id"))).toEqual(["solve-preview-queued", "solve-preview-queued-waiting", "solve-preview-running"]);
     expect(events.map((item) => item.getAttribute("data-state"))).toEqual(["queued", "queued", "running"]);
-    // The record reports states only: nothing reads as a fraction, an estimate or a clock.
+    // Nothing reads as a fraction or an estimate; the only time is the measured elapsed figure.
     expect(screen.queryByTestId("solve-progress-basis")).toBeNull();
-    expect(screen.getByTestId("solve-progress-panel").textContent).not.toMatch(/\d\s*%|\bETA\b|elapsed|remaining/i);
+    expect(screen.getByTestId("solve-progress-panel").textContent).not.toMatch(NO_ESTIMATE);
     expect(screen.queryByRole("progressbar")).toBeNull();
 
     const result = { results: [{}], diagnostics: [] } as unknown as MechanicsResult;
@@ -141,7 +144,7 @@ describe("solve progress panel", () => {
     openSteps();
     expect(screen.getByTestId("solve-progress-stage")).toHaveTextContent(done.events[done.events.length - 1].message);
     expect(screen.getByTestId("solve-progress-states")).toHaveTextContent(/^States reported: Queued, Running, Completed$/);
-    expect(screen.getByTestId("solve-progress-panel").textContent).not.toMatch(/\d\s*%|\bETA\b|elapsed|remaining/i);
+    expect(screen.getByTestId("solve-progress-panel").textContent).not.toMatch(NO_ESTIMATE);
   });
 
   it("offers Cancel as a focusable button; once requested it stays in place, aria-disabled, and keyboard focus moves to the state", () => {
@@ -172,9 +175,9 @@ describe("solve progress panel", () => {
 
     const cancelled = cancelledSolveJob(cancelling, status({ state: "cancelled", cancellation_requested: true, cancellation_status: "worker_terminated" }));
     view.rerender(panel(cancelled, false, onCancel));
-    expect(screen.getByTestId("solve-progress-state")).toHaveTextContent(/^Cancelled/);
+    expect(screen.getByTestId("solve-progress-state")).toHaveTextContent(/^Stopped after \d+:\d\d/);
     // Only what the job reports: a cancelled job may have finished and had its result discarded.
-    expect(screen.getByTestId("solve-progress-state")).toHaveTextContent(/^Cancelled\. No result was published\.$/);
+    expect(screen.getByTestId("solve-progress-state")).toHaveTextContent(/^Stopped after \d+:\d\d\. No result was published\.$/);
     expect(screen.queryByTestId("solve-progress-cancel")).toBeNull();
     openDetails();
     expect(screen.getByTestId("solve-progress-cancellation")).toHaveTextContent("Stopped at your request. Code: worker_terminated");
@@ -412,7 +415,7 @@ describe("the status line's outcome and its actions", () => {
     view.rerender(line(initialSolveJob(), true, { onShowIssue, onOpenResults: () => {} }));
     view.rerender(line(started, true, { onShowIssue, onOpenResults: () => {} }));
     view.rerender(line(failSolveJob(started, new Error("SOLVE_WORKER_PROTOCOL: invented reply")), false, { onShowIssue, onOpenResults: () => {} }));
-    expect(screen.getByTestId("solve-progress-state")).toHaveTextContent(/^Failed\. The solve's worker process returned a reply the app could not read\..* Code: SOLVE_WORKER_PROTOCOL$/);
+    expect(screen.getByTestId("solve-progress-state")).toHaveTextContent(/^Failed after \d+:\d\d\. The solve's worker process returned a reply the app could not read\..* Code: SOLVE_WORKER_PROTOCOL$/);
     expect(screen.queryByTestId("solve-progress-open-results")).toBeNull();
     fireEvent.click(screen.getByRole("button", { name: /Show in Issues/ }));
     expect(onShowIssue).toHaveBeenCalledTimes(1);
@@ -533,8 +536,59 @@ describe("the status line's outcome and its actions", () => {
       view.unmount();
       return text;
     };
-    expect(stoppedAfter(true)).toBe("Cancelled. No result was published. The earlier result was cleared when this run started.");
-    expect(stoppedAfter(false)).toBe("Cancelled. No result was published.");
+    expect(stoppedAfter(true)).toMatch(/^Stopped after \d+:\d\d\. No result was published\. The earlier result was cleared when this run started\.$/);
+    expect(stoppedAfter(false)).toMatch(/^Stopped after \d+:\d\d\. No result was published\.$/);
+  });
+});
+
+describe("the line's elapsed time, measured by the desktop", () => {
+  afterEach(() => { vi.useRealTimers(); });
+  const runningJob = () => progressSolveJob(startSolveJob(model, receipt), status({ state: "running" }));
+  const done = (from: SolveJobAuditState) => completeSolveJob(from,
+    { results: [{}, {}], diagnostics: [] } as unknown as MechanicsResult,
+    { analysis_run: { run_id: "analysis-run:invented-elapsed", analysis_status: ["MECHANICS_SOLVED"] } } as unknown as AnalysisRunEnvelope);
+
+  it("counts once a second from the run's start outside the live region, says how long it took, and then stands still", () => {
+    vi.useFakeTimers();
+    vi.setSystemTime(new Date("2026-01-01T00:00:00Z"));
+    const view = render(panel(initialSolveJob(), false));
+    view.rerender(panel(initialSolveJob(), true));
+    const running = runningJob();
+    view.rerender(panel(running, true));
+    const figure = () => screen.getByTestId("solve-progress-elapsed").textContent;
+    expect(figure()).toBe("· 0:00 elapsed");
+    act(() => { vi.advanceTimersByTime(42_000); });
+    expect(figure()).toBe("· 0:42 elapsed");
+    // The figure is not in the live region; the state word is.
+    expect(screen.getByTestId("solve-progress-state")).toHaveTextContent(/^Running$/);
+    expect(screen.getByTestId("solve-progress-state")).not.toContainElement(screen.getByTestId("solve-progress-elapsed"));
+    expect(screen.getByTestId("solve-progress-elapsed").closest("[aria-live]")).toBeNull();
+    act(() => { vi.advanceTimersByTime(30_000); });
+    view.rerender(panel(done(running), false));
+    expect(screen.getByTestId("solve-progress-state")).toHaveTextContent(/^Solved in 1:12\. 2 result rows\.$/);
+    expect(screen.queryByTestId("solve-progress-elapsed")).toBeNull();
+    act(() => { vi.advanceTimersByTime(60_000); });
+    expect(screen.getByTestId("solve-progress-state")).toHaveTextContent(/^Solved in 1:12\. 2 result rows\.$/);
+    expect(screen.getByTestId("solve-progress-panel").textContent).not.toMatch(NO_ESTIMATE);
+  });
+
+  it("a stopped run says how long it ran; hours appear when needed", () => {
+    vi.useFakeTimers();
+    vi.setSystemTime(new Date("2026-01-01T00:00:00Z"));
+    const view = render(panel(initialSolveJob(), false));
+    view.rerender(panel(initialSolveJob(), true));
+    const running = runningJob();
+    view.rerender(panel(running, true));
+    act(() => { vi.advanceTimersByTime(15_000); });
+    view.rerender(panel(cancelledSolveJob(requestSolveCancellation(running), status({ state: "cancelled", cancellation_requested: true, cancellation_status: "worker_terminated" })), false));
+    expect(screen.getByTestId("solve-progress-state")).toHaveTextContent(/^Stopped after 0:15\. No result was published\.$/);
+    expect(formatElapsed(3_725_000)).toBe("1:02:05");
+    expect(formatElapsed(59_999)).toBe("0:59");
+  });
+
+  it("a recorded run the line did not see start shows no interval", () => {
+    render(panel({ ...done(runningJob()) }, false));
+    expect(screen.queryByTestId("solve-progress-panel")).toBeNull();
   });
 });
 
