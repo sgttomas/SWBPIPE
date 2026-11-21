@@ -109,6 +109,21 @@ test("01 orientation: every menu, stage and page as first met", async ({ page })
       await control.click();
     });
   }
+
+  // A dialog in each theme: the units dialog of File > New Blank Project, with the theme set as a
+  // person sets it (View > Dark, View > Light) and the page's colour scheme emulated to match.
+  for (const theme of ["dark", "light"] as const) {
+    await journey.step(`dialog-${theme}`, `The units dialog of File > New Blank Project in the ${theme} theme`, async () => {
+      await page.emulateMedia({ colorScheme: theme });
+      await menu(page, "view", `view.theme.${theme}`);
+      await projectCommand(page, "new-blank");
+      await expect(page.getByTestId("project-units-dialog")).toBeVisible();
+    });
+    const cancel = page.getByTestId("project-units-cancel");
+    if (await cancel.isVisible()) await cancel.click();
+  }
+  await menu(page, "view", "view.theme.system");
+  await page.emulateMedia({ colorScheme: null });
   journey.finish();
 });
 

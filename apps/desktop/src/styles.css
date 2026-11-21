@@ -4566,11 +4566,36 @@ body { min-width: 760px; min-height: 540px; }
   place-items: center;
   background: rgba(0, 0, 0, 0.35);
 }
+/* The prompts and dialogs that share this rule are portalled outside .app-shell, so neither the
+   shell's text and control rules nor its --ui-* variables reach them. The rule gives them the
+   shell's text and control treatment from the theme tokens defined at the root, in both themes.
+   The control border and disabled text repeat the shell's own values (.app-shell --ui-border and
+   --ui-disabled-text, and their dark-theme values). */
 .replace-project-prompt {
+  --prompt-control-border: #71838d;
+  --prompt-disabled-text: #667680;
   max-width: 560px;
   padding: 16px 20px;
+  color: var(--text-primary);
   background: var(--surface-raised);
+  font-family: var(--font-ui);
+  font-size: var(--type-size-body);
+  line-height: var(--type-lineHeight-body);
 }
+:root[data-theme="dark"] .replace-project-prompt { --prompt-control-border: #70828c; --prompt-disabled-text: #9baab2; }
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme]) .replace-project-prompt { --prompt-control-border: #70828c; --prompt-disabled-text: #9baab2; }
+}
+.replace-project-prompt input, .replace-project-prompt select, .replace-project-prompt textarea, .replace-project-prompt button {
+  color: var(--text-primary); background-color: var(--surface-panel); border-color: var(--prompt-control-border);
+  border-radius: var(--radius-control); font-family: inherit;
+}
+.replace-project-prompt button:hover:not(:disabled):not([aria-disabled="true"]) { background-image: linear-gradient(var(--hover-wash), var(--hover-wash)); }
+.replace-project-prompt button[aria-pressed="true"] { color: var(--pressed-ink); background-color: var(--pressed-fill); border-color: var(--selection-bar); }
+.replace-project-prompt button:disabled, .replace-project-prompt input:disabled, .replace-project-prompt select:disabled {
+  color: var(--prompt-disabled-text); background: var(--disabled-fill);
+}
+.replace-project-prompt :focus-visible { outline: 2px solid var(--focus-ring); outline-offset: 2px; }
 
 /* DEL-07-05 numerical health badges: the state text is always shown; colour only repeats it. */
 .numerical-health-badge {
