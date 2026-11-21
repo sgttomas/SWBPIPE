@@ -37,32 +37,45 @@ PARSE_DEPTH_LIMIT = 128
 DOCUMENT_KIND = "openpipestress.hanger_sizing.result"
 SCHEMA_VERSION = "1.0.0"
 SEMANTIC_CONTRACT_ID = "openpipestress.result_semantics/hanger-sizing-1"
-ROUTE = "pressure_free"
+# The route the derived solves run on: pressure_free (a model with no pressure_contract) or
+# exact_pressure (the exact pressure route, 3.0.0/exact_pressure_v3).
+ROUTES = ("pressure_free", "exact_pressure")
 CANONICAL_PROFILE = "openpipestress_jcs_ijson_v1"
 
 LIMITATIONS = (
     "Hanger sizing selects records of the user's own library by the user's own tests on the stated cases; it judges no hanger's suitability for a service and determines no code compliance.",
     "Sized means the sizing algorithm completed. A candidate may have no fitting record, and the verification may be conditional; both are stated in the result.",
     "Loads and positions come from derived solves of the bound solve request and inherit every premise of those solves; nonlinear supports take each case's own converged state.",
-    "Hanger sizing is published on the pressure-free route only.",
+    "The stated route is the bound solve request's own, on which every derived solve runs; sizing changes only the candidates' roles and adds no mechanics of its own, so pressure enters a sized value only as those solves include it.",
 )
 BASIS_STATEMENT = (
     "Every position is measured from the drawn geometry, taken as the installed position at which each spring is set; F_cold is that setting and F_C the cold-condition load.",
     "Quantities are SI: forces in N, lengths in m, rates in N/m; variations are ratios.",
 )
-# Every refusal code the design names; its two disclosure codes and its verification warning are not refusals.
+# Every refusal code the design names; its disclosure codes and its verification warning are not refusals.
 REFUSAL_CODES = frozenset("HANGER_SIZING_" + code for code in (
     "CANDIDATES_REQUIRED", "CANDIDATE_DOF_SHARED", "CANDIDATE_DOF_UNSUPPORTED", "CANDIDATE_DUPLICATE",
     "CANDIDATE_FAMILY_UNSUPPORTED", "CANDIDATE_MOVED", "CANDIDATE_REFERENCED", "CANDIDATE_SKEW_UNSUPPORTED",
     "CANDIDATE_UNKNOWN", "CASE_ROLES_OVERLAP", "CASE_UNKNOWN", "CHECK_OPERATING_CASES_REQUIRED",
-    "DERIVED_DOCUMENT_NOT_HASHABLE", "DERIVED_SOLVE_FAILED", "DESIGN_OPERATING_CASE_REQUIRED", "EXACT_ROUTE_PENDING",
+    "DERIVED_DOCUMENT_NOT_HASHABLE", "DERIVED_SOLVE_FAILED", "DESIGN_OPERATING_CASE_REQUIRED",
     "FAMILY_POLICY_REQUIRED", "ID_COLLISION", "INPUT_NOT_ADMITTED", "INPUT_SHAPE_INVALID", "INPUT_TOO_LARGE",
     "LIBRARY_NOT_ADMITTED", "LIBRARY_RECORD_DUPLICATE", "LIBRARY_REQUIRED", "LIBRARY_UNAVAILABLE",
     "LOAD_DESIGN_REQUIRED", "LOAD_NOT_POSITIVE", "REQUEST_INVALID", "RESULT_NOT_PUBLISHABLE", "SELECTION_RULE_REQUIRED",
     "SOLVER_MODE_REQUIRED", "TEST_CASE_UNSUPPORTED", "TRAVEL_ALLOWANCE_INVALID", "TRAVEL_ALLOWANCE_REQUIRED",
     "VARIATION_LIMIT_INVALID", "VARIATION_LIMIT_REQUIRED", "VARIATION_REFERENCE_REQUIRED", "WEIGHT_CASE_REQUIRED",
     "WEIGHT_SUPPORT_STATE_REQUIRED", "WEIGHT_SUPPORT_STATE_UNSUPPORTED"))
+# The two state disclosures, each at most once in a document.
 DISCLOSURE_CODES = ("HANGER_SIZING_SUPPORT_STATE_DIFFERS", "HANGER_SIZING_COLD_REFERENCE_STATE_DIFFERS")
+# The per-solve disclosures, each at most once per solve label of the document's plan, naming exactly that label.
+SOLVE_DISCLOSURE_CODES = ("HANGER_SIZING_DERIVED_SOLVE_INTEGRITY", "DISPLACEMENT_CORRECTION_UNAVAILABLE")
+# The numerical-integrity standings other than checks_passed, and the integrity disclosure's fixed message.
+NONPASSING_STANDINGS = ("not_assessed", "sensitive", "unresolved", "failed")
+
+
+def integrity_message(token):
+    return (f"{token}: the numerical-integrity standing of this derived solve is {token}, not checks_passed; "
+            "every value sizing takes from it carries that standing")
+
 LOAD_CATEGORIES = frozenset(("weight", "distributed_force", "pressure", "thermal", "hydrotest", "wind", "seismic",
                              "occasional", "concentrated_force", "concentrated_moment", "imposed_displacement"))
 STATE_CODES = frozenset(("inactive", "active", "sticking", "sliding"))
@@ -245,11 +258,13 @@ def _operating(request):
     return [request["design_operating_case"], *request["check_operating_cases"]]
 
 
-def _identity(doc):
+def _identity(doc, sized):
+    """A sized document states its route; a refused one its request's route, or null when no model was read."""
     _constant(doc["document_kind"], "$.document_kind", DOCUMENT_KIND)
     _constant(doc["schema_version"], "$.schema_version", SCHEMA_VERSION)
     _constant(doc["semantic_contract_id"], "$.semantic_contract_id", SEMANTIC_CONTRACT_ID)
-    _constant(doc["route"], "$.route", ROUTE)
+    if sized or doc["route"] is not None:
+        _one_of(doc["route"], "$.route", ROUTES)
     for key, texts in (("limitations", LIMITATIONS), ("basis_statement", BASIS_STATEMENT)):
         items = _array(doc[key], f"$.{key}")
         if len(items) != len(texts) or any(item != text or type(item) is not str for item, text in zip(items, texts)):
@@ -258,7 +273,7 @@ def _identity(doc):
 
 def _closure_refused(doc):
     _obj(doc, "$", REFUSED_KEYS)
-    _identity(doc)
+    _identity(doc, False)
     inputs = _obj(doc["inputs"], "$.inputs", INPUT_KEYS)
     _constant(inputs["canonical_profile"], "$.inputs.canonical_profile", CANONICAL_PROFILE)
     if inputs["sizing_request"] is not None:
@@ -419,7 +434,7 @@ def _solve_plan(request):
 
 def _closure_sized(doc):
     _obj(doc, "$", SIZED_KEYS)
-    _identity(doc)
+    _identity(doc, True)
     inputs = _obj(doc["inputs"], "$.inputs", INPUT_KEYS)
     _constant(inputs["canonical_profile"], "$.inputs.canonical_profile", CANONICAL_PROFILE)
     request = _sizing_request(inputs["sizing_request"], "$.inputs.sizing_request")
@@ -489,13 +504,30 @@ def _closure_sized(doc):
             _one_of(state, f"{path}.states.{support}", STATE_CODES)
 
     disclosures = _array(result["disclosures"], "$.result.disclosures")
-    if len(disclosures) > 2:
-        raise Difference("$.result.disclosures: more than two entries")
-    codes = []
+    labels = [label for label, _ in plan]
+    codes, solve_pairs = [], []
     for i, disclosure in enumerate(disclosures):
         path = f"$.result.disclosures[{i}]"
         _obj(disclosure, path, ("code", "names", "message"))
-        code = _one_of(disclosure["code"], f"{path}.code", DISCLOSURE_CODES)
+        code = _one_of(disclosure["code"], f"{path}.code", DISCLOSURE_CODES + SOLVE_DISCLOSURE_CODES)
+        if code in SOLVE_DISCLOSURE_CODES:
+            names = _array(disclosure["names"], f"{path}.names")
+            if len(names) != 1:
+                raise Difference(f"{path}.names: not exactly one solve label")
+            label = _string(names[0], f"{path}.names[0]")
+            if label not in labels:
+                raise Difference(f"{path}.names[0]: not a solve label of this document")
+            if (code, label) in solve_pairs:
+                raise Difference(f"{path}: repeated for solve {label}")
+            solve_pairs.append((code, label))
+            message = _string(disclosure["message"], f"{path}.message")
+            if code == "HANGER_SIZING_DERIVED_SOLVE_INTEGRITY":
+                token = message.split(":", 1)[0]
+                if token not in NONPASSING_STANDINGS or message != integrity_message(token):
+                    raise Difference(f"{path}.message: not the integrity message of a standing other than checks_passed")
+            elif not message:
+                raise Difference(f"{path}.message: empty")
+            continue
         if code in codes:
             raise Difference(f"{path}.code: repeated")
         codes.append(code)
@@ -543,6 +575,15 @@ def _records_with_id(library, hanger_id):
     return [r for r in records if type(r) is dict and r.get("hanger_id") == hanger_id] if type(records) is list else []
 
 
+def _route_of(solve_request):
+    """The route a solve request's solves run on: exact_pressure when its model carries a
+    pressure_contract (a present, non-null member), pressure_free otherwise; None without a model."""
+    model = solve_request.get("model") if type(solve_request) is dict else None
+    if type(model) is not dict:
+        return None
+    return "exact_pressure" if model.get("pressure_contract") is not None else "pressure_free"
+
+
 def _binding(doc, solve_request, library, sized):
     """(standing, not_checked, library hash-matched)."""
     inputs = doc["inputs"]
@@ -588,7 +629,10 @@ def _binding(doc, solve_request, library, sized):
         not_checked.append("solve_request")
     elif inputs["solve_request"]["sha256"] is not None:
         checked = True
+        before = len(differences)
         note(_hash_matches, solve_request, inputs["solve_request"]["sha256"], "$.inputs.solve_request.sha256")
+        if len(differences) == before and doc["route"] != _route_of(solve_request):
+            differences.append("$.route: not the supplied solve request's route")
     if differences:
         standing = {"status": "failed", "difference": differences[0]}
     else:

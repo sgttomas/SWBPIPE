@@ -135,7 +135,7 @@ function BasisBlock({ basis, cases, library, tid }: { basis: BasisView; cases: r
       <h4>Basis</h4>
       <dl>
         <dt>Document</dt><dd data-testid={tid("basis-document")}>{basis.documentKind} {basis.schemaVersion} ({basis.semanticContractId})</dd>
-        <dt>Route</dt><dd data-testid={tid("basis-route")}>{basis.route}</dd>
+        <dt>Route</dt><dd data-testid={tid("basis-route")}>{orNotPublished(basis.route)}</dd>
         <dt>Canonical profile</dt><dd data-testid={tid("basis-profile")}>{basis.canonicalProfile}</dd>
         <dt>Library id</dt><dd data-testid={tid("basis-library-id")}>{orNotPublished(basis.library.libraryId)}</dd>
         <dt>Library sha256</dt><dd data-testid={tid("basis-library-sha256")}>{orNotPublished(basis.library.sha256)}</dd>

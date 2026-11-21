@@ -40,6 +40,25 @@
       }
     },
     {
+      "id": "sized-constant-unconditional",
+      "note": "Every candidate a constant selection and the verification unconditional; its applied model is solved by tests/applied_agreement.rs.",
+      "document": "hanger_sizing_result_four_span_constant.json",
+      "input": "hanger_sizing_input_four_span_constant.json",
+      "supply": [
+        "solve_request",
+        "library"
+      ],
+      "mutations": [],
+      "expected": {
+        "closure": "passed",
+        "binding": "passed",
+        "binding_not_checked": [],
+        "arithmetic_consistent_with_published_positions": "passed",
+        "derivation": "passed",
+        "reproduction": "same_build"
+      }
+    },
+    {
       "id": "refused",
       "note": "An engine refusal: only closure and binding apply.",
       "document": "hanger_sizing_result_refused.json",
@@ -437,6 +456,208 @@
       "expected": {
         "closure": "failed",
         "binding": "not_checked",
+        "binding_not_checked": [],
+        "arithmetic_consistent_with_published_positions": "not_checked",
+        "derivation": "not_checked",
+        "reproduction": "not_checked"
+      }
+    },
+    {
+      "id": "sized-exact-pressurised",
+      "note": "The exact route: a pressurised load/reference-state document with a ledger and moved supports (EXS-A, run A-HOT); a variable and a constant selection, the constant one failing its verified travel.",
+      "document": "hanger_sizing_result_ex_pressurised.json",
+      "input": "hanger_sizing_input_ex_pressurised.json",
+      "supply": [
+        "solve_request",
+        "library"
+      ],
+      "mutations": [],
+      "expected": {
+        "closure": "passed",
+        "binding": "passed",
+        "binding_not_checked": [],
+        "arithmetic_consistent_with_published_positions": "passed",
+        "derivation": "passed",
+        "reproduction": "same_build"
+      }
+    },
+    {
+      "id": "sized-exact-riser",
+      "note": "The exact route with no pressurised region (EXS-B, run B-COLD): a riser sized by least variation.",
+      "document": "hanger_sizing_result_ex_riser.json",
+      "input": "hanger_sizing_input_ex_riser.json",
+      "supply": [
+        "solve_request",
+        "library"
+      ],
+      "mutations": [],
+      "expected": {
+        "closure": "passed",
+        "binding": "passed",
+        "binding_not_checked": [],
+        "arithmetic_consistent_with_published_positions": "passed",
+        "derivation": "passed",
+        "reproduction": "same_build"
+      }
+    },
+    {
+      "id": "mutation-route-other",
+      "note": "The other route token: closed, but not the bound solve request's route, so binding fails; the derived documents do not carry the route, and reproduction fails.",
+      "document": "hanger_sizing_result_ex_pressurised.json",
+      "input": "hanger_sizing_input_ex_pressurised.json",
+      "supply": [
+        "solve_request",
+        "library"
+      ],
+      "mutations": [
+        {
+          "op": "replace",
+          "path": "/route",
+          "value": "pressure_free"
+        }
+      ],
+      "expected": {
+        "closure": "passed",
+        "binding": "failed",
+        "binding_not_checked": [],
+        "arithmetic_consistent_with_published_positions": "passed",
+        "derivation": "passed",
+        "reproduction": "failed"
+      }
+    },
+    {
+      "id": "mutation-route-unknown",
+      "note": "",
+      "document": "hanger_sizing_result_ex_pressurised.json",
+      "input": "hanger_sizing_input_ex_pressurised.json",
+      "supply": [
+        "solve_request",
+        "library"
+      ],
+      "mutations": [
+        {
+          "op": "replace",
+          "path": "/route",
+          "value": "exact_pressure_v3"
+        }
+      ],
+      "expected": {
+        "closure": "failed",
+        "binding": "not_checked",
+        "binding_not_checked": [],
+        "arithmetic_consistent_with_published_positions": "not_checked",
+        "derivation": "not_checked",
+        "reproduction": "not_checked"
+      }
+    },
+    {
+      "id": "mutation-sized-route-null",
+      "note": "Only a refused document whose request carried no model states no route.",
+      "document": "hanger_sizing_result_ex_pressurised.json",
+      "input": "hanger_sizing_input_ex_pressurised.json",
+      "supply": [
+        "solve_request",
+        "library"
+      ],
+      "mutations": [
+        {
+          "op": "replace",
+          "path": "/route",
+          "value": null
+        }
+      ],
+      "expected": {
+        "closure": "failed",
+        "binding": "not_checked",
+        "binding_not_checked": [],
+        "arithmetic_consistent_with_published_positions": "not_checked",
+        "derivation": "not_checked",
+        "reproduction": "not_checked"
+      }
+    },
+    {
+      "id": "refused-route-null-not-admitted",
+      "note": "A refused document whose input was not admitted, as the pipeline forms it: no model was read, so route is null with every input null; nothing is supplied and nothing can be bound.",
+      "document": "hanger_sizing_result_refused.json",
+      "input": "hanger_sizing_input_refused.json",
+      "supply": [],
+      "mutations": [
+        {
+          "op": "replace",
+          "path": "/route",
+          "value": null
+        },
+        {
+          "op": "replace",
+          "path": "/inputs/sizing_request",
+          "value": null
+        },
+        {
+          "op": "replace",
+          "path": "/inputs/sizing_request_sha256",
+          "value": null
+        },
+        {
+          "op": "replace",
+          "path": "/inputs/solve_request",
+          "value": {
+            "sha256": null
+          }
+        },
+        {
+          "op": "replace",
+          "path": "/inputs/library",
+          "value": {
+            "library_id": null,
+            "sha256": null
+          }
+        },
+        {
+          "op": "replace",
+          "path": "/refusals",
+          "value": [
+            {
+              "code": "HANGER_SIZING_INPUT_NOT_ADMITTED",
+              "names": [
+                "invalid_json",
+                "$"
+              ],
+              "message": "the input is outside the openpipestress_jcs_ijson_v1 profile; the finding names its kind and path"
+            }
+          ]
+        }
+      ],
+      "expected": {
+        "closure": "passed",
+        "binding": "not_checked",
+        "binding_not_checked": [
+          "library",
+          "solve_request"
+        ],
+        "arithmetic_consistent_with_published_positions": "not_checked",
+        "derivation": "not_checked",
+        "reproduction": "not_checked"
+      }
+    },
+    {
+      "id": "mutation-refused-route-null",
+      "note": "A refused document may state no route, but this one binds a solve request whose model was read: binding finds the route is not that request's.",
+      "document": "hanger_sizing_result_refused.json",
+      "input": "hanger_sizing_input_refused.json",
+      "supply": [
+        "solve_request",
+        "library"
+      ],
+      "mutations": [
+        {
+          "op": "replace",
+          "path": "/route",
+          "value": null
+        }
+      ],
+      "expected": {
+        "closure": "passed",
+        "binding": "failed",
         "binding_not_checked": [],
         "arithmetic_consistent_with_published_positions": "not_checked",
         "derivation": "not_checked",

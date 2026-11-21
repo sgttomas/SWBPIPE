@@ -23,14 +23,20 @@ use sha2::{Digest, Sha256};
 pub const DOCUMENT_KIND: &str = "openpipestress.hanger_sizing.result";
 pub const SCHEMA_VERSION: &str = "1.0.0";
 pub const SEMANTIC_CONTRACT_ID: &str = "openpipestress.result_semantics/hanger-sizing-1";
-pub const ROUTE: &str = "pressure_free";
+/// The route tokens (REQ-007): the pressure-free route, a model with no
+/// `pressure_contract`, and the exact pressure route, `3.0.0/exact_pressure_v3`.
+/// They are the tokens the product's modal result document publishes as its
+/// route (`product_physics` `modal::document`).
+pub const ROUTE_PRESSURE_FREE: &str = "pressure_free";
+pub const ROUTE_EXACT_PRESSURE: &str = "exact_pressure";
+pub const ROUTES: [&str; 2] = [ROUTE_PRESSURE_FREE, ROUTE_EXACT_PRESSURE];
 pub const CANONICAL_PROFILE: &str = "openpipestress_jcs_ijson_v1";
 
 pub const LIMITATIONS: [&str; 4] = [
     "Hanger sizing selects records of the user's own library by the user's own tests on the stated cases; it judges no hanger's suitability for a service and determines no code compliance.",
     "Sized means the sizing algorithm completed. A candidate may have no fitting record, and the verification may be conditional; both are stated in the result.",
     "Loads and positions come from derived solves of the bound solve request and inherit every premise of those solves; nonlinear supports take each case's own converged state.",
-    "Hanger sizing is published on the pressure-free route only.",
+    "The stated route is the bound solve request's own, on which every derived solve runs; sizing changes only the candidates' roles and adds no mechanics of its own, so pressure enters a sized value only as those solves include it.",
 ];
 
 pub const BASIS_STATEMENT: [&str; 2] = [
@@ -46,13 +52,16 @@ pub const INPUT_NOT_ADMITTED: &str = "HANGER_SIZING_INPUT_NOT_ADMITTED";
 pub const INPUT_SHAPE_INVALID: &str = "HANGER_SIZING_INPUT_SHAPE_INVALID";
 pub const LIBRARY_NOT_ADMITTED: &str = "HANGER_SIZING_LIBRARY_NOT_ADMITTED";
 pub const REQUEST_INVALID: &str = "HANGER_SIZING_REQUEST_INVALID";
+pub const WEIGHT_SUPPORT_STATE_REQUIRED: &str = "HANGER_SIZING_WEIGHT_SUPPORT_STATE_REQUIRED";
+pub const WEIGHT_SUPPORT_STATE_UNSUPPORTED: &str = "HANGER_SIZING_WEIGHT_SUPPORT_STATE_UNSUPPORTED";
+pub const LIBRARY_REQUIRED: &str = "HANGER_SIZING_LIBRARY_REQUIRED";
 pub const RESULT_NOT_PUBLISHABLE: &str = "HANGER_SIZING_RESULT_NOT_PUBLISHABLE";
 pub const DERIVED_DOCUMENT_NOT_HASHABLE: &str = "HANGER_SIZING_DERIVED_DOCUMENT_NOT_HASHABLE";
 
 /// The refusal codes the design names, which a refused
-/// document's `refusals[].code` takes. The design's two disclosure codes and its
+/// document's `refusals[].code` takes. The design's disclosure codes and its
 /// verification warning are not refusals and are not listed.
-pub const REFUSAL_CODES: [&str; 40] = [
+pub const REFUSAL_CODES: [&str; 39] = [
     "HANGER_SIZING_CANDIDATES_REQUIRED",
     "HANGER_SIZING_CANDIDATE_DOF_SHARED",
     "HANGER_SIZING_CANDIDATE_DOF_UNSUPPORTED",
@@ -68,7 +77,6 @@ pub const REFUSAL_CODES: [&str; 40] = [
     "HANGER_SIZING_DERIVED_DOCUMENT_NOT_HASHABLE",
     "HANGER_SIZING_DERIVED_SOLVE_FAILED",
     "HANGER_SIZING_DESIGN_OPERATING_CASE_REQUIRED",
-    "HANGER_SIZING_EXACT_ROUTE_PENDING",
     "HANGER_SIZING_FAMILY_POLICY_REQUIRED",
     "HANGER_SIZING_ID_COLLISION",
     "HANGER_SIZING_INPUT_NOT_ADMITTED",
@@ -125,6 +133,13 @@ fn refusal(code: &'static str, names: Vec<String>, message: impl Into<String>) -
     Refusal { code, names, message: message.into() }
 }
 
+/// The route a solve request's derived solves run on, or `None` when the request
+/// carries no model object to read it from.
+pub fn route_of(request_doc: &Value) -> Option<&'static str> {
+    request_doc.get("model").filter(|m| m.is_object())?;
+    Some(if derived::is_exact(request_doc) { ROUTE_EXACT_PRESSURE } else { ROUTE_PRESSURE_FREE })
+}
+
 /// The outcome of the headless pipeline: the document it formed.
 #[derive(Debug, Clone)]
 pub enum Published {
@@ -151,18 +166,20 @@ impl Published {
 /// What a refused document states of its inputs.
 #[derive(Debug, Clone, Default)]
 pub struct RefusedInputs {
+    /// The solve request's route, `None` when the input carried no readable model.
+    pub route: Option<&'static str>,
     pub sizing_request: Option<Value>,
     pub solve_request_sha256: Option<String>,
     pub library_id: Option<String>,
     pub library_sha256: Option<String>,
 }
 
-fn identity() -> Map<String, Value> {
+fn identity(route: Option<&str>) -> Map<String, Value> {
     let mut doc = Map::new();
     doc.insert("document_kind".into(), json!(DOCUMENT_KIND));
     doc.insert("schema_version".into(), json!(SCHEMA_VERSION));
     doc.insert("semantic_contract_id".into(), json!(SEMANTIC_CONTRACT_ID));
-    doc.insert("route".into(), json!(ROUTE));
+    doc.insert("route".into(), json!(route));
     doc.insert("limitations".into(), json!(LIMITATIONS));
     doc.insert("basis_statement".into(), json!(BASIS_STATEMENT));
     doc
@@ -181,7 +198,7 @@ fn inputs_member(sizing: Option<&Value>, solve_sha: Option<&str>, library_id: Op
 
 /// The refused document. Refusals keep the engine's order.
 pub fn refused_document(inputs: &RefusedInputs, refusals: &[Refusal]) -> Value {
-    let mut doc = identity();
+    let mut doc = identity(inputs.route);
     doc.insert("status".into(), json!("refused"));
     doc.insert(
         "inputs".into(),
@@ -712,7 +729,7 @@ pub fn sized_document(
         return Err(refusals);
     }
     let library_id = library_doc["hanger_library"]["library_id"].as_str();
-    let mut doc = identity();
+    let mut doc = identity(route_of(request_doc));
     doc.insert("status".into(), json!("sized"));
     doc.insert(
         "inputs".into(),
@@ -752,42 +769,142 @@ pub(crate) fn not_admitted(finding: AdmissionFinding) -> Published {
     ))
 }
 
+fn library_required() -> Refusal {
+    refusal(LIBRARY_REQUIRED, vec!["$.library".to_string()], "a hanger library is required; none is supplied or assumed")
+}
+
+/// The sizing request's required members, each with the code an absent member is
+/// refused by. `method` members are listed under `method`.
+const REQUIRED_MEMBERS: [(&str, &str, &str); 6] = [
+    ("weight_case", "HANGER_SIZING_WEIGHT_CASE_REQUIRED", "the weight case is required"),
+    ("weight_support_state", WEIGHT_SUPPORT_STATE_REQUIRED,
+        "the support state the hot-load basis is formed in is required; the only admitted value is own_solve, the weight case's own converged state"),
+    ("design_operating_case", "HANGER_SIZING_DESIGN_OPERATING_CASE_REQUIRED", "the design operating case is required"),
+    ("check_operating_cases", "HANGER_SIZING_CHECK_OPERATING_CASES_REQUIRED",
+        "the further operating cases to check are required, stated as a list even when it is empty"),
+    ("candidates", "HANGER_SIZING_CANDIDATES_REQUIRED", "at least one candidate support is required"),
+    ("solver_mode", "HANGER_SIZING_SOLVER_MODE_REQUIRED", "the solver mode of the caller's own solve is required"),
+];
+const REQUIRED_METHOD_MEMBERS: [(&str, &str, &str); 5] = [
+    ("load_design", "HANGER_SIZING_LOAD_DESIGN_REQUIRED", "the load design (hot or cold) is required"),
+    ("variation_reference", "HANGER_SIZING_VARIATION_REFERENCE_REQUIRED", "the variation reference load is required"),
+    ("variation_limit", "HANGER_SIZING_VARIATION_LIMIT_REQUIRED", "the variation limit is required"),
+    ("travel_allowance_m", "HANGER_SIZING_TRAVEL_ALLOWANCE_REQUIRED", "the travel allowance is required, stated even when it is zero"),
+    ("selection_rule", "HANGER_SIZING_SELECTION_RULE_REQUIRED", "the selection rule is required"),
+];
+
+/// The named refusals of a sizing request's members, and the paths they cover,
+/// which are not also listed as invalid members. One refusal per code, naming every
+/// path it covers, in member order. A request that is not an object has none.
+fn required_findings(sizing: &Value) -> (Vec<Refusal>, Vec<String>) {
+    let Some(map) = sizing.as_object() else { return (Vec::new(), Vec::new()) };
+    let mut found: Vec<(&'static str, Vec<String>, &'static str)> = Vec::new();
+    let mut covered = Vec::new();
+    let mut add = |code: &'static str, path: String, message: &'static str, covers: Option<String>| {
+        covered.push(covers.unwrap_or_else(|| path.clone()));
+        match found.iter_mut().find(|(c, _, _)| *c == code) {
+            Some((_, paths, _)) => paths.push(path),
+            None => found.push((code, vec![path], message)),
+        }
+    };
+    let root = "$.sizing";
+    for (key, code, message) in REQUIRED_MEMBERS {
+        let path = member_path(root, key);
+        match (key, map.get(key)) {
+            (_, None) => add(code, path, message, None),
+            ("weight_support_state", Some(value)) if value.as_str() != Some("own_solve") => add(WEIGHT_SUPPORT_STATE_UNSUPPORTED, path,
+                "the hot-load basis is formed only in the weight case's own converged support state (own_solve); another case's state cannot be held by the solve", None),
+            ("candidates", Some(Value::Array(items))) if items.is_empty() => add(code, path, message, None),
+            _ => {}
+        }
+    }
+    if let Some(Value::Array(items)) = map.get("candidates") {
+        for (i, item) in items.iter().enumerate() {
+            if item.as_object().is_some_and(|candidate| !candidate.contains_key("family_policy")) {
+                let path = member_path(&format!("{}[{i}]", member_path(root, "candidates")), "family_policy");
+                add("HANGER_SIZING_FAMILY_POLICY_REQUIRED", path, "each candidate's family policy is required", None);
+            }
+        }
+    }
+    let method_path = member_path(root, "method");
+    match map.get("method") {
+        None => {
+            for (key, code, message) in REQUIRED_METHOD_MEMBERS {
+                add(code, member_path(&method_path, key), message, Some(method_path.clone()));
+            }
+        }
+        Some(Value::Object(method)) => {
+            for (key, code, message) in REQUIRED_METHOD_MEMBERS {
+                if !method.contains_key(key) {
+                    add(code, member_path(&method_path, key), message, None);
+                }
+            }
+        }
+        Some(_) => {}
+    }
+    (found.into_iter().map(|(code, paths, message)| refusal(code, paths, message)).collect(), covered)
+}
+
 /// The pipeline after admission: shape, library import boundary, request, the
 /// engine's run, then publication. [`size_hangers`] and the desktop entry
 /// (`crate::desktop`) share it, so that an input is admitted once and published
 /// the same way by both.
 pub(crate) fn size_admitted(input: &Value) -> Published {
     let mut inputs = RefusedInputs {
+        route: input.get("request").and_then(route_of),
         sizing_request: None,
         solve_request_sha256: input.get("request").and_then(checked_sha256),
         library_id: input.get("library").and_then(|l| l["hanger_library"]["library_id"].as_str()).map(str::to_string),
         library_sha256: input.get("library").and_then(checked_sha256),
     };
-    let shape = shape_findings(input);
+    // An absent library is a missing required input (LIBRARY_REQUIRED), not a shape
+    // finding; every other shape finding refuses the input before anything is read.
+    let library_absent = input.as_object().is_some_and(|map| !map.contains_key("library"));
+    let mut shape = shape_findings(input);
+    if library_absent {
+        shape.retain(|path| path != "$.library");
+    }
     if !shape.is_empty() {
-        return Published::Refused(refused_document(&inputs, &[refusal(INPUT_SHAPE_INVALID, shape,
-            "the input must be exactly {\"request\": {\"model\", \"materials\"}, \"sizing\", \"library\"}")]));
+        let mut found = vec![refusal(INPUT_SHAPE_INVALID, shape,
+            "the input must be exactly {\"request\": {\"model\", \"materials\"}, \"sizing\", \"library\"}")];
+        if library_absent {
+            found.push(library_required());
+        }
+        return Published::Refused(refused_document(&inputs, &found));
     }
     let (request_doc, sizing, library_doc) = (&input["request"], &input["sizing"], &input["library"]);
     let mut refusals = Vec::new();
-    let import = validate_library_import(library_doc, LibraryKind::Hanger, IntendedVisibility::Private);
-    if !import.accepted {
-        let findings: Vec<String> = import.findings.iter().map(|f| format!("{} at {}", f.code, f.path)).collect();
-        refusals.push(refusal(LIBRARY_NOT_ADMITTED, Vec::new(),
-            format!("the library is not accepted at the import boundary ({}): {}", import.outcome, findings.join("; "))));
-    } else if inputs.library_id.is_none() {
-        refusals.push(refusal(LIBRARY_NOT_ADMITTED, Vec::new(), "the library carries no hanger_library.library_id string"));
+    if library_absent {
+        refusals.push(library_required());
+    } else {
+        let import = validate_library_import(library_doc, LibraryKind::Hanger, IntendedVisibility::Private);
+        if !import.accepted {
+            let findings: Vec<String> = import.findings.iter().map(|f| format!("{} at {}", f.code, f.path)).collect();
+            refusals.push(refusal(LIBRARY_NOT_ADMITTED, Vec::new(),
+                format!("the library is not accepted at the import boundary ({}): {}", import.outcome, findings.join("; "))));
+        } else if inputs.library_id.is_none() {
+            refusals.push(refusal(LIBRARY_NOT_ADMITTED, Vec::new(), "the library carries no hanger_library.library_id string"));
+        }
     }
+    // Each absent required member is refused by its own code, and a present member
+    // with its own specific code (an empty candidate list, a weight support state
+    // other than own_solve) by that code; each names the member's path. Every other
+    // finding is HANGER_SIZING_REQUEST_INVALID, naming its path (REQ-001).
+    let (named, covered) = required_findings(sizing);
     let request = match parse_sizing_request(sizing, "$.sizing") {
         Ok(request) => {
             inputs.sizing_request = Some(sizing.clone());
             Some(request)
         }
-        Err(paths) => {
-            refusals.push(refusal(REQUEST_INVALID, paths, "the sizing request does not match $defs.SizingRequest exactly"));
+        Err(mut paths) => {
+            paths.retain(|path| !covered.contains(path));
+            if !paths.is_empty() {
+                refusals.push(refusal(REQUEST_INVALID, paths, "the sizing request does not match $defs.SizingRequest exactly"));
+            }
             None
         }
     };
+    refusals.extend(named);
     if !refusals.is_empty() {
         return Published::Refused(refused_document(&inputs, &refusals));
     }

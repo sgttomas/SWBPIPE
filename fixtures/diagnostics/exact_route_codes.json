@@ -98,7 +98,7 @@
    "flows_to_callers": "RESTS ON A PREMISE NOT ESTABLISHED: that every use of a function with a text code parameter is a direct call the scanner finds, so the value is recorded at each caller's argument. A call through a function pointer or a closure object defeats it.",
    "enum_code_field": "RESTS ON A PREMISE NOT ESTABLISHED: that an enum at a code field declared with that enum has an as_str the scanner reads as an enum code producer. An enum with no as_str yields neither a code nor an unresolved site."
   },
-  "listed_unresolved": "36 code positions are listed as unresolved (listed_unresolved_sites), 2 of them marked not known; 13 are operation applier positions outside the unit.",
+  "listed_unresolved": "42 code positions are listed as unresolved (listed_unresolved_sites), 2 of them marked not known; 13 are operation applier positions outside the unit.",
   "crates": [
    "core/product_physics",
    "core/solver/*",
@@ -1935,15 +1935,25 @@
   {
    "code": "DISPLACEMENT_CORRECTION_UNAVAILABLE",
    "crates": [
+    "core/analysis/hanger_sizing",
     "core/product_physics"
    ],
    "severity": "warning",
    "first_site": {
-    "file": "core/product_physics/src/lib.rs",
-    "line": 15725,
-    "via": "diag()"
+    "file": "core/analysis/hanger_sizing/src/derived.rs",
+    "line": 640,
+    "via": "field code"
    },
    "sites": [
+    {
+     "file": "core/analysis/hanger_sizing/src/derived.rs",
+     "line": 640,
+     "via": "field code",
+     "severity": null,
+     "through": [
+      "const DISPLACEMENT_CORRECTION_UNAVAILABLE (core/analysis/hanger_sizing/src/derived.rs:582)"
+     ]
+    },
     {
      "file": "core/product_physics/src/lib.rs",
      "line": 15725,
@@ -1952,6 +1962,7 @@
     }
    ],
    "messages": [
+    "; ",
     "Load case {case_id}: {}; no published result of this case relies on the member-relative formation check."
    ],
    "classification": "numerical_standing",
@@ -3584,13 +3595,13 @@
    "severity": "not_stated",
    "first_site": {
     "file": "core/analysis/hanger_sizing/src/derived.rs",
-    "line": 219,
+    "line": 313,
     "via": "flag()"
    },
    "sites": [
     {
      "file": "core/analysis/hanger_sizing/src/derived.rs",
-     "line": 219,
+     "line": 313,
      "via": "flag()",
      "severity": null
     },
@@ -3598,6 +3609,12 @@
      "file": "core/analysis/hanger_sizing/src/lib.rs",
      "line": 488,
      "via": "refusal()",
+     "severity": null
+    },
+    {
+     "file": "core/analysis/hanger_sizing/src/publish.rs",
+     "line": 785,
+     "via": "code-message pair",
      "severity": null
     }
    ],
@@ -3620,13 +3637,13 @@
    "severity": "not_stated",
    "first_site": {
     "file": "core/analysis/hanger_sizing/src/derived.rs",
-    "line": 259,
+    "line": 348,
     "via": "flag()"
    },
    "sites": [
     {
      "file": "core/analysis/hanger_sizing/src/derived.rs",
-     "line": 259,
+     "line": 348,
      "via": "flag()",
      "severity": null
     }
@@ -3648,13 +3665,13 @@
    "severity": "not_stated",
    "first_site": {
     "file": "core/analysis/hanger_sizing/src/derived.rs",
-    "line": 249,
+    "line": 338,
     "via": "flag()"
    },
    "sites": [
     {
      "file": "core/analysis/hanger_sizing/src/derived.rs",
-     "line": 249,
+     "line": 338,
      "via": "flag()",
      "severity": null
     }
@@ -3676,13 +3693,13 @@
    "severity": "not_stated",
    "first_site": {
     "file": "core/analysis/hanger_sizing/src/derived.rs",
-    "line": 225,
+    "line": 319,
     "via": "flag()"
    },
    "sites": [
     {
      "file": "core/analysis/hanger_sizing/src/derived.rs",
-     "line": 225,
+     "line": 319,
      "via": "flag()",
      "severity": null
     },
@@ -3712,13 +3729,13 @@
    "severity": "not_stated",
    "first_site": {
     "file": "core/analysis/hanger_sizing/src/derived.rs",
-    "line": 238,
+    "line": 332,
     "via": "flag()"
    },
    "sites": [
     {
      "file": "core/analysis/hanger_sizing/src/derived.rs",
-     "line": 238,
+     "line": 332,
      "via": "flag()",
      "severity": null
     }
@@ -3733,6 +3750,40 @@
    "named_by_statement": null
   },
   {
+   "code": "HANGER_SIZING_CANDIDATE_MOVED",
+   "crates": [
+    "core/analysis/hanger_sizing"
+   ],
+   "severity": "not_stated",
+   "first_site": {
+    "file": "core/analysis/hanger_sizing/src/derived.rs",
+    "line": 353,
+    "via": "flag()"
+   },
+   "sites": [
+    {
+     "file": "core/analysis/hanger_sizing/src/derived.rs",
+     "line": 353,
+     "via": "flag()",
+     "severity": null
+    }
+   ],
+   "messages": [],
+   "classification": "absent_capability",
+   "reason": "Two uses in check_candidates/moved_candidates: sizing an attachment whose authored support state moves, is inactive or locked, or names a device is not provided; a missing or repeated support-state entry is malformed input. Classed by the absent capability, with both uses retained.",
+   "unsure": true,
+   "candidates": [
+    "absent_capability",
+    "input_error"
+   ],
+   "named_by": "LIM-008",
+   "named_by_coverage": {
+    "coverage": "partial",
+    "reason": "LIM-008 names the unsupported moving, inactive, locked or device-referenced attachment. It does not name the missing or repeated support-state input errors that the same code also reports. The entry remains not yet declared."
+   },
+   "named_by_statement": null
+  },
+  {
    "code": "HANGER_SIZING_CANDIDATE_REFERENCED",
    "crates": [
     "core/analysis/hanger_sizing"
@@ -3740,13 +3791,13 @@
    "severity": "not_stated",
    "first_site": {
     "file": "core/analysis/hanger_sizing/src/derived.rs",
-    "line": 241,
+    "line": 335,
     "via": "flag()"
    },
    "sites": [
     {
      "file": "core/analysis/hanger_sizing/src/derived.rs",
-     "line": 241,
+     "line": 335,
      "via": "flag()",
      "severity": null
     }
@@ -3771,13 +3822,13 @@
    "severity": "not_stated",
    "first_site": {
     "file": "core/analysis/hanger_sizing/src/derived.rs",
-    "line": 234,
+    "line": 328,
     "via": "flag()"
    },
    "sites": [
     {
      "file": "core/analysis/hanger_sizing/src/derived.rs",
-     "line": 234,
+     "line": 328,
      "via": "flag()",
      "severity": null
     }
@@ -3799,13 +3850,13 @@
    "severity": "not_stated",
    "first_site": {
     "file": "core/analysis/hanger_sizing/src/derived.rs",
-    "line": 229,
+    "line": 323,
     "via": "flag()"
    },
    "sites": [
     {
      "file": "core/analysis/hanger_sizing/src/derived.rs",
-     "line": 229,
+     "line": 323,
      "via": "flag()",
      "severity": null
     }
@@ -3827,13 +3878,13 @@
    "severity": "not_stated",
    "first_site": {
     "file": "core/analysis/hanger_sizing/src/derived.rs",
-    "line": 160,
+    "line": 159,
     "via": "refusal()"
    },
    "sites": [
     {
      "file": "core/analysis/hanger_sizing/src/derived.rs",
-     "line": 160,
+     "line": 159,
      "via": "refusal()",
      "severity": null
     }
@@ -3857,13 +3908,13 @@
    "severity": "not_stated",
    "first_site": {
     "file": "core/analysis/hanger_sizing/src/derived.rs",
-    "line": 146,
+    "line": 145,
     "via": "refusal()"
    },
    "sites": [
     {
      "file": "core/analysis/hanger_sizing/src/derived.rs",
-     "line": 146,
+     "line": 145,
      "via": "refusal()",
      "severity": null
     }
@@ -3880,6 +3931,36 @@
    "named_by_statement": null
   },
   {
+   "code": "HANGER_SIZING_CHECK_OPERATING_CASES_REQUIRED",
+   "crates": [
+    "core/analysis/hanger_sizing"
+   ],
+   "severity": "not_stated",
+   "first_site": {
+    "file": "core/analysis/hanger_sizing/src/publish.rs",
+    "line": 783,
+    "via": "code-message pair"
+   },
+   "sites": [
+    {
+     "file": "core/analysis/hanger_sizing/src/publish.rs",
+     "line": 783,
+     "via": "code-message pair",
+     "severity": null
+    }
+   ],
+   "messages": [
+    "the further operating cases to check are required, stated as a list even when it is empty"
+   ],
+   "classification": "input_error",
+   "reason": "required_findings refuses an absent check_operating_cases member; the user must supply the list explicitly, even when empty.",
+   "unsure": false,
+   "candidates": null,
+   "named_by": null,
+   "named_by_coverage": null,
+   "named_by_statement": null
+  },
+  {
    "code": "HANGER_SIZING_COLD_REFERENCE_STATE_DIFFERS",
    "crates": [
     "core/analysis/hanger_sizing"
@@ -3887,13 +3968,13 @@
    "severity": "not_stated",
    "first_site": {
     "file": "core/analysis/hanger_sizing/src/derived.rs",
-    "line": 575,
+    "line": 855,
     "via": "field code"
    },
    "sites": [
     {
      "file": "core/analysis/hanger_sizing/src/derived.rs",
-     "line": 575,
+     "line": 855,
      "via": "field code",
      "severity": null
     }
@@ -3917,17 +3998,17 @@
    "severity": "not_stated",
    "first_site": {
     "file": "core/analysis/hanger_sizing/src/publish.rs",
-    "line": 689,
+    "line": 706,
     "via": "refusal()"
    },
    "sites": [
     {
      "file": "core/analysis/hanger_sizing/src/publish.rs",
-     "line": 689,
+     "line": 706,
      "via": "refusal()",
      "severity": null,
      "through": [
-      "const DERIVED_DOCUMENT_NOT_HASHABLE (core/analysis/hanger_sizing/src/publish.rs:50)"
+      "const DERIVED_DOCUMENT_NOT_HASHABLE (core/analysis/hanger_sizing/src/publish.rs:59)"
      ]
     }
    ],
@@ -3950,25 +4031,31 @@
    "severity": "not_stated",
    "first_site": {
     "file": "core/analysis/hanger_sizing/src/derived.rs",
-    "line": 368,
+    "line": 573,
     "via": "refusal()"
    },
    "sites": [
     {
      "file": "core/analysis/hanger_sizing/src/derived.rs",
-     "line": 368,
+     "line": 573,
      "via": "refusal()",
      "severity": null
     },
     {
      "file": "core/analysis/hanger_sizing/src/derived.rs",
-     "line": 378,
+     "line": 623,
      "via": "refusal()",
      "severity": null
     },
     {
      "file": "core/analysis/hanger_sizing/src/derived.rs",
-     "line": 429,
+     "line": 652,
+     "via": "refusal()",
+     "severity": null
+    },
+    {
+     "file": "core/analysis/hanger_sizing/src/derived.rs",
+     "line": 704,
      "via": "refusal()",
      "severity": null
     },
@@ -3986,8 +4073,8 @@
     }
    ],
    "messages": [
-    "error",
     "; ",
+    "error",
     "the derived solve published no {what} at the named candidates",
     "a derived solve gave a non-finite reaction or displacement at a candidate"
    ],
@@ -3998,6 +4085,39 @@
     "numerical_standing",
     "input_error"
    ],
+   "named_by": null,
+   "named_by_coverage": null,
+   "named_by_statement": null
+  },
+  {
+   "code": "HANGER_SIZING_DERIVED_SOLVE_INTEGRITY",
+   "crates": [
+    "core/analysis/hanger_sizing"
+   ],
+   "severity": "not_stated",
+   "first_site": {
+    "file": "core/analysis/hanger_sizing/src/derived.rs",
+    "line": 628,
+    "via": "field code"
+   },
+   "sites": [
+    {
+     "file": "core/analysis/hanger_sizing/src/derived.rs",
+     "line": 628,
+     "via": "field code",
+     "severity": null,
+     "through": [
+      "const DERIVED_SOLVE_INTEGRITY (core/analysis/hanger_sizing/src/derived.rs:578)"
+     ]
+    }
+   ],
+   "messages": [
+    "integrity_message(standing_token(status))"
+   ],
+   "classification": "numerical_standing",
+   "reason": "solve_disclosures carries a derived solve's numerical-integrity status other than checks_passed, with its exact standing token and solve label. It qualifies the sizing quantities without itself refusing the request.",
+   "unsure": false,
+   "candidates": null,
    "named_by": null,
    "named_by_coverage": null,
    "named_by_statement": null
@@ -4019,10 +4139,17 @@
      "line": 509,
      "via": "refusal()",
      "severity": null
+    },
+    {
+     "file": "core/analysis/hanger_sizing/src/publish.rs",
+     "line": 782,
+     "via": "code-message pair",
+     "severity": null
     }
    ],
    "messages": [
-    "each candidate needs a position in the design operating case"
+    "each candidate needs a position in the design operating case",
+    "the design operating case is required"
    ],
    "classification": "input_error",
    "reason": "The document is incomplete, inconsistent or invalid here: each candidate needs a position in the design operating case",
@@ -4033,32 +4160,32 @@
    "named_by_statement": null
   },
   {
-   "code": "HANGER_SIZING_EXACT_ROUTE_PENDING",
+   "code": "HANGER_SIZING_FAMILY_POLICY_REQUIRED",
    "crates": [
     "core/analysis/hanger_sizing"
    ],
    "severity": "not_stated",
    "first_site": {
-    "file": "core/analysis/hanger_sizing/src/derived.rs",
-    "line": 136,
-    "via": "refusal()"
+    "file": "core/analysis/hanger_sizing/src/publish.rs",
+    "line": 825,
+    "via": "add()"
    },
    "sites": [
     {
-     "file": "core/analysis/hanger_sizing/src/derived.rs",
-     "line": 136,
-     "via": "refusal()",
+     "file": "core/analysis/hanger_sizing/src/publish.rs",
+     "line": 825,
+     "via": "add()",
      "severity": null
     }
    ],
    "messages": [
-    "hanger sizing on the exact pressure route arrives with increment 4 (Design §13); this slice sizes on the pressure-free route"
+    "each candidate's family policy is required"
    ],
-   "classification": "absent_capability",
-   "reason": "Hanger sizing on the exact pressure route is not built (increment 4); this slice sizes on the pressure-free route only. Being removed by another lane.",
+   "classification": "input_error",
+   "reason": "required_findings refuses a candidate object without family_policy; the user supplies its variable, constant or fallback policy.",
    "unsure": false,
    "candidates": null,
-   "named_by": "unnamed",
+   "named_by": null,
    "named_by_coverage": null,
    "named_by_statement": null
   },
@@ -4070,13 +4197,13 @@
    "severity": "not_stated",
    "first_site": {
     "file": "core/analysis/hanger_sizing/src/derived.rs",
-    "line": 483,
+    "line": 758,
     "via": "refusal()"
    },
    "sites": [
     {
      "file": "core/analysis/hanger_sizing/src/derived.rs",
-     "line": 483,
+     "line": 758,
      "via": "refusal()",
      "severity": null
     }
@@ -4100,17 +4227,17 @@
    "severity": "not_stated",
    "first_site": {
     "file": "core/analysis/hanger_sizing/src/publish.rs",
-    "line": 750,
+    "line": 767,
     "via": "refusal()"
    },
    "sites": [
     {
      "file": "core/analysis/hanger_sizing/src/publish.rs",
-     "line": 750,
+     "line": 767,
      "via": "refusal()",
      "severity": null,
      "through": [
-      "const INPUT_NOT_ADMITTED (core/analysis/hanger_sizing/src/publish.rs:45)"
+      "const INPUT_NOT_ADMITTED (core/analysis/hanger_sizing/src/publish.rs:51)"
      ]
     }
    ],
@@ -4164,17 +4291,17 @@
    "severity": "not_stated",
    "first_site": {
     "file": "core/analysis/hanger_sizing/src/publish.rs",
-    "line": 768,
+    "line": 868,
     "via": "refusal()"
    },
    "sites": [
     {
      "file": "core/analysis/hanger_sizing/src/publish.rs",
-     "line": 768,
+     "line": 868,
      "via": "refusal()",
      "severity": null,
      "through": [
-      "const INPUT_SHAPE_INVALID (core/analysis/hanger_sizing/src/publish.rs:46)"
+      "const INPUT_SHAPE_INVALID (core/analysis/hanger_sizing/src/publish.rs:52)"
      ]
     }
    ],
@@ -4207,7 +4334,7 @@
      "via": "SizeAndReadError::code() (typed producer)",
      "severity": null,
      "through": [
-      "const INPUT_TOO_LARGE (core/analysis/hanger_sizing/src/publish.rs:44)"
+      "const INPUT_TOO_LARGE (core/analysis/hanger_sizing/src/publish.rs:50)"
      ]
     }
    ],
@@ -4231,26 +4358,26 @@
    "severity": "not_stated",
    "first_site": {
     "file": "core/analysis/hanger_sizing/src/publish.rs",
-    "line": 776,
+    "line": 883,
     "via": "refusal()"
    },
    "sites": [
     {
      "file": "core/analysis/hanger_sizing/src/publish.rs",
-     "line": 776,
+     "line": 883,
      "via": "refusal()",
      "severity": null,
      "through": [
-      "const LIBRARY_NOT_ADMITTED (core/analysis/hanger_sizing/src/publish.rs:47)"
+      "const LIBRARY_NOT_ADMITTED (core/analysis/hanger_sizing/src/publish.rs:53)"
      ]
     },
     {
      "file": "core/analysis/hanger_sizing/src/publish.rs",
-     "line": 779,
+     "line": 886,
      "via": "refusal()",
      "severity": null,
      "through": [
-      "const LIBRARY_NOT_ADMITTED (core/analysis/hanger_sizing/src/publish.rs:47)"
+      "const LIBRARY_NOT_ADMITTED (core/analysis/hanger_sizing/src/publish.rs:53)"
      ]
     }
    ],
@@ -4297,6 +4424,69 @@
    "named_by_statement": null
   },
   {
+   "code": "HANGER_SIZING_LIBRARY_REQUIRED",
+   "crates": [
+    "core/analysis/hanger_sizing"
+   ],
+   "severity": "not_stated",
+   "first_site": {
+    "file": "core/analysis/hanger_sizing/src/publish.rs",
+    "line": 773,
+    "via": "refusal()"
+   },
+   "sites": [
+    {
+     "file": "core/analysis/hanger_sizing/src/publish.rs",
+     "line": 773,
+     "via": "refusal()",
+     "severity": null,
+     "through": [
+      "const LIBRARY_REQUIRED (core/analysis/hanger_sizing/src/publish.rs:57)"
+     ]
+    }
+   ],
+   "messages": [
+    "a hanger library is required; none is supplied or assumed"
+   ],
+   "classification": "input_error",
+   "reason": "library_required refuses an input without the private hanger library; no catalogue is supplied or assumed by the product.",
+   "unsure": false,
+   "candidates": null,
+   "named_by": null,
+   "named_by_coverage": null,
+   "named_by_statement": null
+  },
+  {
+   "code": "HANGER_SIZING_LOAD_DESIGN_REQUIRED",
+   "crates": [
+    "core/analysis/hanger_sizing"
+   ],
+   "severity": "not_stated",
+   "first_site": {
+    "file": "core/analysis/hanger_sizing/src/publish.rs",
+    "line": 789,
+    "via": "code-message pair"
+   },
+   "sites": [
+    {
+     "file": "core/analysis/hanger_sizing/src/publish.rs",
+     "line": 789,
+     "via": "code-message pair",
+     "severity": null
+    }
+   ],
+   "messages": [
+    "the load design (hot or cold) is required"
+   ],
+   "classification": "input_error",
+   "reason": "required_findings refuses an absent method.load_design; the user states hot or cold design rather than receiving a default.",
+   "unsure": false,
+   "candidates": null,
+   "named_by": null,
+   "named_by_coverage": null,
+   "named_by_statement": null
+  },
+  {
    "code": "HANGER_SIZING_LOAD_NOT_POSITIVE",
    "crates": [
     "core/analysis/hanger_sizing"
@@ -4304,13 +4494,13 @@
    "severity": "not_stated",
    "first_site": {
     "file": "core/analysis/hanger_sizing/src/derived.rs",
-    "line": 506,
+    "line": 786,
     "via": "refusal()"
    },
    "sites": [
     {
      "file": "core/analysis/hanger_sizing/src/derived.rs",
-     "line": 506,
+     "line": 786,
      "via": "refusal()",
      "severity": null
     },
@@ -4340,17 +4530,17 @@
    "severity": "not_stated",
    "first_site": {
     "file": "core/analysis/hanger_sizing/src/publish.rs",
-    "line": 787,
+    "line": 902,
     "via": "refusal()"
    },
    "sites": [
     {
      "file": "core/analysis/hanger_sizing/src/publish.rs",
-     "line": 787,
+     "line": 902,
      "via": "refusal()",
      "severity": null,
      "through": [
-      "const REQUEST_INVALID (core/analysis/hanger_sizing/src/publish.rs:48)"
+      "const REQUEST_INVALID (core/analysis/hanger_sizing/src/publish.rs:54)"
      ]
     }
    ],
@@ -4383,25 +4573,25 @@
      "via": "SizeAndReadError::code() (typed producer)",
      "severity": null,
      "through": [
-      "const RESULT_NOT_PUBLISHABLE (core/analysis/hanger_sizing/src/publish.rs:49)"
+      "const RESULT_NOT_PUBLISHABLE (core/analysis/hanger_sizing/src/publish.rs:58)"
      ]
     },
     {
      "file": "core/analysis/hanger_sizing/src/publish.rs",
-     "line": 464,
+     "line": 481,
      "via": "refusal()",
      "severity": null,
      "through": [
-      "const RESULT_NOT_PUBLISHABLE (core/analysis/hanger_sizing/src/publish.rs:49)"
+      "const RESULT_NOT_PUBLISHABLE (core/analysis/hanger_sizing/src/publish.rs:58)"
      ]
     },
     {
      "file": "core/analysis/hanger_sizing/src/publish.rs",
-     "line": 695,
+     "line": 712,
      "via": "refusal()",
      "severity": null,
      "through": [
-      "const RESULT_NOT_PUBLISHABLE (core/analysis/hanger_sizing/src/publish.rs:49)"
+      "const RESULT_NOT_PUBLISHABLE (core/analysis/hanger_sizing/src/publish.rs:58)"
      ]
     }
    ],
@@ -4418,6 +4608,66 @@
    "named_by_statement": null
   },
   {
+   "code": "HANGER_SIZING_SELECTION_RULE_REQUIRED",
+   "crates": [
+    "core/analysis/hanger_sizing"
+   ],
+   "severity": "not_stated",
+   "first_site": {
+    "file": "core/analysis/hanger_sizing/src/publish.rs",
+    "line": 793,
+    "via": "code-message pair"
+   },
+   "sites": [
+    {
+     "file": "core/analysis/hanger_sizing/src/publish.rs",
+     "line": 793,
+     "via": "code-message pair",
+     "severity": null
+    }
+   ],
+   "messages": [
+    "the selection rule is required"
+   ],
+   "classification": "input_error",
+   "reason": "required_findings refuses an absent method.selection_rule; the user states the record-selection rule.",
+   "unsure": false,
+   "candidates": null,
+   "named_by": null,
+   "named_by_coverage": null,
+   "named_by_statement": null
+  },
+  {
+   "code": "HANGER_SIZING_SOLVER_MODE_REQUIRED",
+   "crates": [
+    "core/analysis/hanger_sizing"
+   ],
+   "severity": "not_stated",
+   "first_site": {
+    "file": "core/analysis/hanger_sizing/src/publish.rs",
+    "line": 786,
+    "via": "code-message pair"
+   },
+   "sites": [
+    {
+     "file": "core/analysis/hanger_sizing/src/publish.rs",
+     "line": 786,
+     "via": "code-message pair",
+     "severity": null
+    }
+   ],
+   "messages": [
+    "the solver mode of the caller's own solve is required"
+   ],
+   "classification": "input_error",
+   "reason": "required_findings refuses an absent solver_mode; derived solves must use the mode the caller explicitly supplies.",
+   "unsure": false,
+   "candidates": null,
+   "named_by": null,
+   "named_by_coverage": null,
+   "named_by_statement": null
+  },
+  {
    "code": "HANGER_SIZING_SUPPORT_STATE_DIFFERS",
    "crates": [
     "core/analysis/hanger_sizing"
@@ -4425,13 +4675,13 @@
    "severity": "not_stated",
    "first_site": {
     "file": "core/analysis/hanger_sizing/src/derived.rs",
-    "line": 570,
+    "line": 850,
     "via": "field code"
    },
    "sites": [
     {
      "file": "core/analysis/hanger_sizing/src/derived.rs",
-     "line": 570,
+     "line": 850,
      "via": "field code",
      "severity": null
     }
@@ -4455,13 +4705,13 @@
    "severity": "not_stated",
    "first_site": {
     "file": "core/analysis/hanger_sizing/src/derived.rs",
-    "line": 154,
+    "line": 153,
     "via": "refusal()"
    },
    "sites": [
     {
      "file": "core/analysis/hanger_sizing/src/derived.rs",
-     "line": 154,
+     "line": 153,
      "via": "refusal()",
      "severity": null
     }
@@ -4508,6 +4758,36 @@
    "named_by_statement": null
   },
   {
+   "code": "HANGER_SIZING_TRAVEL_ALLOWANCE_REQUIRED",
+   "crates": [
+    "core/analysis/hanger_sizing"
+   ],
+   "severity": "not_stated",
+   "first_site": {
+    "file": "core/analysis/hanger_sizing/src/publish.rs",
+    "line": 792,
+    "via": "code-message pair"
+   },
+   "sites": [
+    {
+     "file": "core/analysis/hanger_sizing/src/publish.rs",
+     "line": 792,
+     "via": "code-message pair",
+     "severity": null
+    }
+   ],
+   "messages": [
+    "the travel allowance is required, stated even when it is zero"
+   ],
+   "classification": "input_error",
+   "reason": "required_findings refuses an absent method.travel_allowance_m; the user states the allowance explicitly, including zero.",
+   "unsure": false,
+   "candidates": null,
+   "named_by": null,
+   "named_by_coverage": null,
+   "named_by_statement": null
+  },
+  {
    "code": "HANGER_SIZING_VARIATION_LIMIT_INVALID",
    "crates": [
     "core/analysis/hanger_sizing"
@@ -4535,6 +4815,168 @@
    "candidates": null,
    "named_by": null,
    "named_by_coverage": null,
+   "named_by_statement": null
+  },
+  {
+   "code": "HANGER_SIZING_VARIATION_LIMIT_REQUIRED",
+   "crates": [
+    "core/analysis/hanger_sizing"
+   ],
+   "severity": "not_stated",
+   "first_site": {
+    "file": "core/analysis/hanger_sizing/src/publish.rs",
+    "line": 791,
+    "via": "code-message pair"
+   },
+   "sites": [
+    {
+     "file": "core/analysis/hanger_sizing/src/publish.rs",
+     "line": 791,
+     "via": "code-message pair",
+     "severity": null
+    }
+   ],
+   "messages": [
+    "the variation limit is required"
+   ],
+   "classification": "input_error",
+   "reason": "required_findings refuses an absent method.variation_limit; the user supplies the limit used to select records.",
+   "unsure": false,
+   "candidates": null,
+   "named_by": null,
+   "named_by_coverage": null,
+   "named_by_statement": null
+  },
+  {
+   "code": "HANGER_SIZING_VARIATION_REFERENCE_REQUIRED",
+   "crates": [
+    "core/analysis/hanger_sizing"
+   ],
+   "severity": "not_stated",
+   "first_site": {
+    "file": "core/analysis/hanger_sizing/src/publish.rs",
+    "line": 790,
+    "via": "code-message pair"
+   },
+   "sites": [
+    {
+     "file": "core/analysis/hanger_sizing/src/publish.rs",
+     "line": 790,
+     "via": "code-message pair",
+     "severity": null
+    }
+   ],
+   "messages": [
+    "the variation reference load is required"
+   ],
+   "classification": "input_error",
+   "reason": "required_findings refuses an absent method.variation_reference; the user states which load is the variation denominator.",
+   "unsure": false,
+   "candidates": null,
+   "named_by": null,
+   "named_by_coverage": null,
+   "named_by_statement": null
+  },
+  {
+   "code": "HANGER_SIZING_WEIGHT_CASE_REQUIRED",
+   "crates": [
+    "core/analysis/hanger_sizing"
+   ],
+   "severity": "not_stated",
+   "first_site": {
+    "file": "core/analysis/hanger_sizing/src/publish.rs",
+    "line": 779,
+    "via": "code-message pair"
+   },
+   "sites": [
+    {
+     "file": "core/analysis/hanger_sizing/src/publish.rs",
+     "line": 779,
+     "via": "code-message pair",
+     "severity": null
+    }
+   ],
+   "messages": [
+    "the weight case is required"
+   ],
+   "classification": "input_error",
+   "reason": "required_findings refuses an absent weight_case; the user names the case from which the rigid hot-load basis is formed.",
+   "unsure": false,
+   "candidates": null,
+   "named_by": null,
+   "named_by_coverage": null,
+   "named_by_statement": null
+  },
+  {
+   "code": "HANGER_SIZING_WEIGHT_SUPPORT_STATE_REQUIRED",
+   "crates": [
+    "core/analysis/hanger_sizing"
+   ],
+   "severity": "not_stated",
+   "first_site": {
+    "file": "core/analysis/hanger_sizing/src/publish.rs",
+    "line": 780,
+    "via": "code-message pair"
+   },
+   "sites": [
+    {
+     "file": "core/analysis/hanger_sizing/src/publish.rs",
+     "line": 780,
+     "via": "code-message pair",
+     "severity": null,
+     "through": [
+      "const WEIGHT_SUPPORT_STATE_REQUIRED (core/analysis/hanger_sizing/src/publish.rs:55)"
+     ]
+    }
+   ],
+   "messages": [
+    "the support state the hot-load basis is formed in is required; the only admitted value is own_solve, the weight case's own converged state"
+   ],
+   "classification": "input_error",
+   "reason": "required_findings refuses an absent weight_support_state; the user must explicitly request the admitted own_solve state.",
+   "unsure": false,
+   "candidates": null,
+   "named_by": null,
+   "named_by_coverage": null,
+   "named_by_statement": null
+  },
+  {
+   "code": "HANGER_SIZING_WEIGHT_SUPPORT_STATE_UNSUPPORTED",
+   "crates": [
+    "core/analysis/hanger_sizing"
+   ],
+   "severity": "not_stated",
+   "first_site": {
+    "file": "core/analysis/hanger_sizing/src/publish.rs",
+    "line": 815,
+    "via": "add()"
+   },
+   "sites": [
+    {
+     "file": "core/analysis/hanger_sizing/src/publish.rs",
+     "line": 815,
+     "via": "add()",
+     "severity": null,
+     "through": [
+      "const WEIGHT_SUPPORT_STATE_UNSUPPORTED (core/analysis/hanger_sizing/src/publish.rs:56)"
+     ]
+    }
+   ],
+   "messages": [
+    "the hot-load basis is formed only in the weight case's own converged support state (own_solve); another case's state cannot be held by the solve"
+   ],
+   "classification": "absent_capability",
+   "reason": "Two uses in required_findings: forming the hot-load basis with supports held in another case's state is not provided; arbitrary tokens and non-string values in weight_support_state are malformed input. Both take this code when the supplied value is not own_solve. Classed by the absent capability.",
+   "unsure": true,
+   "candidates": [
+    "absent_capability",
+    "input_error"
+   ],
+   "named_by": "LIM-009",
+   "named_by_coverage": {
+    "coverage": "partial",
+    "reason": "LIM-009 names the unavailable basis using another case's held nonlinear state. It does not describe arbitrary invalid tokens or non-string weight_support_state values that receive the same code. The entry remains not yet declared."
+   },
    "named_by_statement": null
   },
   {
@@ -7412,6 +7854,12 @@
     {
      "file": "core/product_physics/src/lib.rs",
      "line": 12798,
+     "via": "diag()",
+     "severity": "blocking"
+    },
+    {
+     "file": "core/product_physics/src/source_admission.rs",
+     "line": 371,
      "via": "diag()",
      "severity": "blocking"
     }
@@ -19342,6 +19790,12 @@
      "severity": "blocking"
     },
     {
+     "file": "core/product_physics/src/source_admission.rs",
+     "line": 268,
+     "via": "diag()",
+     "severity": "blocking"
+    },
+    {
      "file": "core/product_physics/src/validation/model_checks.rs",
      "line": 185,
      "via": "diag()",
@@ -20556,26 +21010,6 @@
  ],
  "listed_unresolved_sites": [
   {
-   "file": "core/analysis/hanger_sizing/src/derived.rs",
-   "line_text": ".map(|(code, names)| refusal(code, names, \"the candidate does not meet the sizing rules of Design §3\"))",
-   "at": "refusal()",
-   "expression": "code",
-   "form": "a closure pattern over a call whose returned values come from a parameter the scanner cannot type",
-   "outside_unit": false,
-   "not_known": false,
-   "relay_of": "the codes the flag(code, id) closure of check_candidates (core/analysis/hanger_sizing/src/derived.rs 216) files into refusals; each flag call passes a HANGER_SIZING_CANDIDATE_* literal, read by the scanner at that call (flag's parameter is named code)"
-  },
-  {
-   "file": "core/analysis/hanger_sizing/src/publish.rs",
-   "line_text": ".map(|d| json!({\"code\": d.code, \"names\": d.names, \"message\": d.message}))",
-   "at": "json code",
-   "expression": "d.code",
-   "form": "record code field through an unproven receiver type",
-   "outside_unit": false,
-   "not_known": false,
-   "relay_of": "the Disclosure records of run.disclosures, built at core/analysis/hanger_sizing/src/derived.rs 570 and 575 (Disclosure { code: \"HANGER_SIZING_SUPPORT_STATE_DIFFERS\" .. } and \"HANGER_SIZING_COLD_REFERENCE_STATE_DIFFERS\"), code fields the scanner reads"
-  },
-  {
    "file": "core/loads/self_weight_wasm/src/lib.rs",
    "line_text": "\"code\":d.code,\"severity\":\"blocking\",\"message\":d.message,",
    "at": "json code",
@@ -20914,24 +21348,152 @@
    "outside_unit": false,
    "not_known": false,
    "relay_of": "a SkewCode value; its text is given by product_physics skew_code() (core/product_physics/src/document_members.rs 34 to 64), whose arms the scanner reads (the SUPPORT_DIRECTION_* and SUPPORT_SKEW_* codes)"
+  },
+  {
+   "file": "core/analysis/hanger_sizing/src/derived.rs",
+   "line_text": ".map(|(code, names)| refusal(code, names, candidate_message(code)))",
+   "at": "candidate_message()",
+   "expression": "code",
+   "outside_unit": false,
+   "not_known": false,
+   "form": "closure tuple over a locally populated refusal map; the scanner does not follow the map key into the consumer",
+   "relay_of": "check_candidates inserts only the literal codes passed to its flag closure, each observed by the scanner at that call. Its final map closure relays those keys to refusal; candidate_message matches the same key only to choose message text and constructs no diagnostic or new code. The changed consumer was introduced by PR 272 commit d7a08e43e."
+  },
+  {
+   "file": "core/analysis/hanger_sizing/src/derived.rs",
+   "line_text": ".map(|(code, names)| refusal(code, names, candidate_message(code)))",
+   "at": "refusal()",
+   "expression": "code",
+   "outside_unit": false,
+   "not_known": false,
+   "form": "closure tuple over a locally populated refusal map; the scanner does not follow the map key into the consumer",
+   "relay_of": "check_candidates inserts only the literal codes passed to its flag closure, each observed by the scanner at that call. Its final map closure relays those keys to refusal; candidate_message matches the same key only to choose message text and constructs no diagnostic or new code. The changed consumer was introduced by PR 272 commit d7a08e43e."
+  },
+  {
+   "file": "core/analysis/hanger_sizing/src/publish.rs",
+   "line_text": ".map(|d| json!({\"code\": d.code, \"names\": d.names, \"message\": d.message}))",
+   "at": "json code",
+   "expression": "d.code",
+   "outside_unit": false,
+   "not_known": false,
+   "form": "record code field through an unproven receiver type",
+   "relay_of": "run.disclosures consists of the two state-difference Disclosure constructions in derived::run and the DERIVED_SOLVE_INTEGRITY and DISPLACEMENT_CORRECTION_UNAVAILABLE Disclosure constructions in derived::solve_disclosures. Each construction is observed by the scanner. sized_document serializes their code fields without choosing or changing a code."
+  },
+  {
+   "file": "core/analysis/hanger_sizing/src/publish.rs",
+   "line_text": "(_, None) => add(code, path, message, None),",
+   "at": "add()",
+   "expression": "code",
+   "outside_unit": false,
+   "not_known": false,
+   "form": "loop tuple over a closed constant table of code-message pairs",
+   "relay_of": "required_findings iterates REQUIRED_MEMBERS in publish.rs; every code in that constant table is observed as a code-message pair (the weight support state constant resolves to its literal). The add closure copies the code into found without computing a new value. The empty-candidates branch selects the candidates entry only. Introduced by PR 272 commit 8357589df."
+  },
+  {
+   "file": "core/analysis/hanger_sizing/src/publish.rs",
+   "line_text": "(\"candidates\", Some(Value::Array(items))) if items.is_empty() => add(code, path, message, None),",
+   "at": "add()",
+   "expression": "code",
+   "outside_unit": false,
+   "not_known": false,
+   "form": "loop tuple over a closed constant table of code-message pairs",
+   "relay_of": "required_findings iterates REQUIRED_MEMBERS in publish.rs; every code in that constant table is observed as a code-message pair (the weight support state constant resolves to its literal). The add closure copies the code into found without computing a new value. The empty-candidates branch selects the candidates entry only. Introduced by PR 272 commit 8357589df."
+  },
+  {
+   "file": "core/analysis/hanger_sizing/src/publish.rs",
+   "line_text": "add(code, member_path(&method_path, key), message, Some(method_path.clone()));",
+   "at": "add()",
+   "expression": "code",
+   "outside_unit": false,
+   "not_known": false,
+   "form": "loop tuple over a closed constant table of code-message pairs",
+   "relay_of": "required_findings iterates REQUIRED_METHOD_MEMBERS in publish.rs; every code in that constant table is observed as a code-message pair (the weight support state constant resolves to its literal). The add closure copies the code into found without computing a new value. The empty-candidates branch selects the candidates entry only. Introduced by PR 272 commit 8357589df."
+  },
+  {
+   "file": "core/analysis/hanger_sizing/src/publish.rs",
+   "line_text": "add(code, member_path(&method_path, key), message, None);",
+   "at": "add()",
+   "expression": "code",
+   "outside_unit": false,
+   "not_known": false,
+   "form": "loop tuple over a closed constant table of code-message pairs",
+   "relay_of": "required_findings iterates REQUIRED_METHOD_MEMBERS in publish.rs; every code in that constant table is observed as a code-message pair (the weight support state constant resolves to its literal). The add closure copies the code into found without computing a new value. The empty-candidates branch selects the candidates entry only. Introduced by PR 272 commit 8357589df."
+  },
+  {
+   "file": "core/analysis/hanger_sizing/src/publish.rs",
+   "line_text": "(found.into_iter().map(|(code, paths, message)| refusal(code, paths, message)).collect(), covered)",
+   "at": "refusal()",
+   "expression": "code",
+   "outside_unit": false,
+   "not_known": false,
+   "form": "closure tuple over a local collection filled by a code-parameter closure",
+   "relay_of": "required_findings fills found only through add: the literal or resolved-constant codes in REQUIRED_MEMBERS and REQUIRED_METHOD_MEMBERS, WEIGHT_SUPPORT_STATE_UNSUPPORTED, and HANGER_SIZING_FAMILY_POLICY_REQUIRED. All are observed at their code-message pairs or explicit add calls. The final map relays each unchanged code to refusal. Introduced by PR 272 commit 8357589df."
   }
  ],
  "unresolved_sites": [
   {
    "file": "core/analysis/hanger_sizing/src/derived.rs",
-   "line": 268,
+   "line": 360,
+   "at": "candidate_message()",
+   "why": "parameter request_doc of check_candidates(), of type &Value, turned into text",
+   "expression": "code",
+   "line_text": ".map(|(code, names)| refusal(code, names, candidate_message(code)))"
+  },
+  {
+   "file": "core/analysis/hanger_sizing/src/derived.rs",
+   "line": 360,
    "at": "refusal()",
    "why": "parameter request_doc of check_candidates(), of type &Value, turned into text",
    "expression": "code",
-   "line_text": ".map(|(code, names)| refusal(code, names, \"the candidate does not meet the sizing rules of Design §3\"))"
+   "line_text": ".map(|(code, names)| refusal(code, names, candidate_message(code)))"
   },
   {
    "file": "core/analysis/hanger_sizing/src/publish.rs",
-   "line": 706,
+   "line": 723,
    "at": "json code",
    "why": "the code field of d, whose record type the scanner cannot prove is built only at code positions it reads",
    "expression": "d.code",
    "line_text": ".map(|d| json!({\"code\": d.code, \"names\": d.names, \"message\": d.message}))"
+  },
+  {
+   "file": "core/analysis/hanger_sizing/src/publish.rs",
+   "line": 814,
+   "at": "add()",
+   "why": "a tuple source REQUIRED_MEMBERS the scanner cannot follow",
+   "expression": "code",
+   "line_text": "(_, None) => add(code, path, message, None),"
+  },
+  {
+   "file": "core/analysis/hanger_sizing/src/publish.rs",
+   "line": 817,
+   "at": "add()",
+   "why": "a tuple source REQUIRED_MEMBERS the scanner cannot follow",
+   "expression": "code",
+   "line_text": "(\"candidates\", Some(Value::Array(items))) if items.is_empty() => add(code, path, message, None),"
+  },
+  {
+   "file": "core/analysis/hanger_sizing/src/publish.rs",
+   "line": 833,
+   "at": "add()",
+   "why": "a tuple source REQUIRED_METHOD_MEMBERS the scanner cannot follow",
+   "expression": "code",
+   "line_text": "add(code, member_path(&method_path, key), message, Some(method_path.clone()));"
+  },
+  {
+   "file": "core/analysis/hanger_sizing/src/publish.rs",
+   "line": 839,
+   "at": "add()",
+   "why": "a tuple source REQUIRED_METHOD_MEMBERS the scanner cannot follow",
+   "expression": "code",
+   "line_text": "add(code, member_path(&method_path, key), message, None);"
+  },
+  {
+   "file": "core/analysis/hanger_sizing/src/publish.rs",
+   "line": 845,
+   "at": "refusal()",
+   "why": "parameter sizing of required_findings(), of type &Value, turned into text",
+   "expression": "code",
+   "line_text": "(found.into_iter().map(|(code, paths, message)| refusal(code, paths, message)).collect(), covered)"
   },
   {
    "file": "core/loads/self_weight_wasm/src/lib.rs",
@@ -21280,87 +21842,9 @@
    ]
   },
   {
-   "literal": "HANGER_SIZING_CANDIDATE_MOVED",
-   "sites": [
-    "core/analysis/hanger_sizing/src/publish.rs:61"
-   ]
-  },
-  {
-   "literal": "HANGER_SIZING_CHECK_OPERATING_CASES_REQUIRED",
-   "sites": [
-    "core/analysis/hanger_sizing/src/publish.rs:67"
-   ]
-  },
-  {
-   "literal": "HANGER_SIZING_FAMILY_POLICY_REQUIRED",
-   "sites": [
-    "core/analysis/hanger_sizing/src/publish.rs:72"
-   ]
-  },
-  {
-   "literal": "HANGER_SIZING_LIBRARY_REQUIRED",
-   "sites": [
-    "core/analysis/hanger_sizing/src/publish.rs:79"
-   ]
-  },
-  {
    "literal": "HANGER_SIZING_LIBRARY_UNAVAILABLE",
    "sites": [
-    "core/analysis/hanger_sizing/src/publish.rs:80"
-   ]
-  },
-  {
-   "literal": "HANGER_SIZING_LOAD_DESIGN_REQUIRED",
-   "sites": [
-    "core/analysis/hanger_sizing/src/publish.rs:81"
-   ]
-  },
-  {
-   "literal": "HANGER_SIZING_SELECTION_RULE_REQUIRED",
-   "sites": [
-    "core/analysis/hanger_sizing/src/publish.rs:85"
-   ]
-  },
-  {
-   "literal": "HANGER_SIZING_SOLVER_MODE_REQUIRED",
-   "sites": [
-    "core/analysis/hanger_sizing/src/publish.rs:86"
-   ]
-  },
-  {
-   "literal": "HANGER_SIZING_TRAVEL_ALLOWANCE_REQUIRED",
-   "sites": [
-    "core/analysis/hanger_sizing/src/publish.rs:89"
-   ]
-  },
-  {
-   "literal": "HANGER_SIZING_VARIATION_LIMIT_REQUIRED",
-   "sites": [
-    "core/analysis/hanger_sizing/src/publish.rs:91"
-   ]
-  },
-  {
-   "literal": "HANGER_SIZING_VARIATION_REFERENCE_REQUIRED",
-   "sites": [
-    "core/analysis/hanger_sizing/src/publish.rs:92"
-   ]
-  },
-  {
-   "literal": "HANGER_SIZING_WEIGHT_CASE_REQUIRED",
-   "sites": [
-    "core/analysis/hanger_sizing/src/publish.rs:93"
-   ]
-  },
-  {
-   "literal": "HANGER_SIZING_WEIGHT_SUPPORT_STATE_REQUIRED",
-   "sites": [
-    "core/analysis/hanger_sizing/src/publish.rs:94"
-   ]
-  },
-  {
-   "literal": "HANGER_SIZING_WEIGHT_SUPPORT_STATE_UNSUPPORTED",
-   "sites": [
-    "core/analysis/hanger_sizing/src/publish.rs:95"
+    "core/analysis/hanger_sizing/src/publish.rs:88"
    ]
   },
   {
@@ -21545,15 +22029,15 @@
   {
    "literal": "S_C",
    "sites": [
-    "core/analysis/hanger_sizing/src/derived.rs:512",
-    "core/analysis/hanger_sizing/src/derived.rs:573",
-    "core/analysis/hanger_sizing/src/publish.rs:410"
+    "core/analysis/hanger_sizing/src/derived.rs:792",
+    "core/analysis/hanger_sizing/src/derived.rs:853",
+    "core/analysis/hanger_sizing/src/publish.rs:427"
    ]
   },
   {
    "literal": "S_O1",
    "sites": [
-    "core/analysis/hanger_sizing/src/derived.rs:568"
+    "core/analysis/hanger_sizing/src/derived.rs:848"
    ]
   },
   {
@@ -21565,12 +22049,12 @@
   {
    "literal": "S_W",
    "sites": [
-    "core/analysis/hanger_sizing/src/derived.rs:495",
-    "core/analysis/hanger_sizing/src/derived.rs:496",
-    "core/analysis/hanger_sizing/src/derived.rs:500",
-    "core/analysis/hanger_sizing/src/derived.rs:568",
-    "core/analysis/hanger_sizing/src/derived.rs:573",
-    "core/analysis/hanger_sizing/src/publish.rs:410"
+    "core/analysis/hanger_sizing/src/derived.rs:775",
+    "core/analysis/hanger_sizing/src/derived.rs:776",
+    "core/analysis/hanger_sizing/src/derived.rs:780",
+    "core/analysis/hanger_sizing/src/derived.rs:848",
+    "core/analysis/hanger_sizing/src/derived.rs:853",
+    "core/analysis/hanger_sizing/src/publish.rs:427"
    ]
   },
   {
@@ -21780,8 +22264,8 @@
   {
    "literal": "V_C",
    "sites": [
-    "core/analysis/hanger_sizing/src/derived.rs:548",
-    "core/analysis/hanger_sizing/src/publish.rs:412"
+    "core/analysis/hanger_sizing/src/derived.rs:828",
+    "core/analysis/hanger_sizing/src/publish.rs:429"
    ]
   },
   {

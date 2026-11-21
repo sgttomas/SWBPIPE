@@ -6,7 +6,23 @@ needs:
     The product solve entry accepts a model document on either route with the caller's solver mode
     and settings, and publishes reactions at each restraint, nodal displacements and each nonlinear
     support's converged state. A modified copy of a stored document is admitted on the same terms
-    as the stored document.
+    as the stored document. Each solve also publishes its numerical-integrity standing as a closed
+    token in its numerical quality, the most severe of its cases', and its diagnostics with their
+    severities, including a case's `DISPLACEMENT_CORRECTION_UNAVAILABLE` warning with the message
+    that names the component and the failure kind, so that sizing can disclose them by solve.
+  gating: true
+- from: DEL-04-07
+  when: Before projecting the authored source into sizing cases
+  condition: >-
+    product_physics::source_admission::admit_source_before_assembly provides no-solve
+    admission using the ordinary product's checks. It preserves named refusals for the authored
+    settings, identifiers and references that case or combination projection could hide.
+    They examine the complete authored case set without imposing the candidate family and
+    hanger-data checks that REQ-002 deliberately replaces. It uses the complete neutralised
+    baseline and each case's effective ledger, and returns the ordinary code and affected
+    identity for an isolated fault reached by its stages. It establishes no convergence or
+    stability of an unperformed solve, and does not promise a common first error for multiple
+    faults where ordinary case preparation and solving are interleaved.
   gating: true
 - from: DEL-04-03
   condition: >-

@@ -94,28 +94,31 @@ A sizing result is a numerical statement about the discrete model under the user
   - the case-role refusals;
   - no default supplied on any entry.
 - **REQ-002** — *Candidates.*
-  - A candidate restrains exactly one translational DOF, has no skew direction, is not nonlinear, a snubber or an anchor, shares its node and DOF with no other support, and is referenced by no other model object.
-  - Its present family and hanger data are not read.
+  - A candidate acts on exactly one translational DOF: its single rigid restraint, or, for a variable spring hanger with no rigid restraint, the DOF its stiffness declares. It has no skew direction, is not nonlinear, a snubber or an anchor, shares its node and DOF with no other support, and is referenced by no other model object.
+  - Apart from that DOF, its present family and hanger data are not read.
+  - Before source admission, the eligibility checks above run against the authored document. Admission then uses a copy in which only the named candidates have `family` set to `guide`, `restraints` set to their admitted single DOF, and `hanger`, `stiffness` and `nonlinear` removed. Identifiers, nodes, direction, provenance, participation, motion and every reference are preserved. No support, state, load, case or combination is removed for admission, and no other field changes. This neutralisation precedes the admission parser so ignored candidate data cannot itself cause a refusal; it never conceals a candidate-eligibility refusal. The authored document remains unchanged and is the source the result binds.
   - On an EX load/reference-state document, it has in every named case an ordinary support state: active, with no imposed motion or device reference. That entry is the support's own declaration, not a blocking reference.
   - Its force acts along the positive axis of its DOF.
   - Each failure is refused by name, and refuses the request. A hot-load basis that is not positive also refuses the request, naming every such candidate.
-- **AC-002** — Each candidate refusal, the moved-candidate refusal on EX and the non-positive hot-load refusal are exercised by maintained tests that assert the code and the named supports. A placeholder support of each admitted family is sized.
+- **AC-002** — Each candidate refusal, the moved-candidate refusal on EX and the non-positive hot-load refusal are exercised by maintained tests that assert the code and the named supports. A placeholder support of each admitted family is sized, and so is an authored variable spring hanger with no rigid restraint. Tests show both that ignored candidate data cannot cause an admission refusal and that forbidden families, directions and references remain refused; a comparison of the admission copy with the authored document shows only the permitted neutralisation fields changed.
 
 ### Solution
 
 - **REQ-003** — *Derived solves.*
-  - Each derived solve is a modified copy of the stored model document, sent through the product solve entry the model's own cases use. It has the model's route and settings and requests no retained-precision recovery.
+  - Each derived solve is a modified copy of the stored model document, sent through the product solve entry the model's own cases use. It has the model's route and the settings applicable to its retained case and requests no retained-precision recovery. A pressure-elongation selection keeps only that case when the authored selection names it; otherwise the setting is omitted, never replaced with an empty selection. Other model settings are preserved.
   - It is never saved, never returned as a model, never in undo history and never passed through the operation route.
   - On an EX load/reference-state document, a candidate made rigid keeps its support state, and a candidate replaced by a force loses its support state with the support. Each added force is entered in its case's source ledger.
   - Nonlinear supports converge in each derived solve to the states that case produces.
   - The support state W is formed in is a required input. Only the weight case's own state is admitted.
   - The result publishes each nonlinear support's state in every derived solve. It warns by name where a state differs between the weight solve and the design operating solve, or between the weight solve and the cold reference.
+  - A derived solve whose numerical-integrity standing is other than checks passed is disclosed by `HANGER_SIZING_DERIVED_SOLVE_INTEGRITY` with that standing's exact token, and one whose product result warns `DISPLACEMENT_CORRECTION_UNAVAILABLE` is disclosed under that code with the product's message verbatim. Each names the solve by its label, occurs at most once for each code and solve, and is never dropped. Neither warning itself refuses the request.
   - A derived solve that is refused, fails to converge or publishes a blocking diagnostic refuses the request, with its own diagnostics. No partial table is published.
 - **AC-003** — Maintained tests show:
   - each kind of derived document, and that the stored model is byte-identical after a run;
   - that the solve-time lowering is applied to derived documents;
   - on EX, the support-state reconciliation for rigid, force and spring candidates, and the ledger entry, with each derived document admitted by the solve;
   - the state disclosures and warnings on a lift-off model;
+  - on the product's own diagnostics and numerical quality for a case whose displacement correction was unavailable, the integrity disclosure with its exact standing token and the correction-unavailable disclosure with the product's message verbatim, each by solve label; no integrity disclosure for a solve whose standing is checks passed; and each reader refusing an unknown code, a label that is not one of the document's solves and a repeated code and solve;
   - the refusal on a failed derived solve.
 - **REQ-004** — *Loads, fit and selection.*
   - **One origin.** Every position is measured from the drawn geometry, the installed position. A variable spring set to its cold load F_cold carries F_cold − k·u at position u, in sizing, verification, application and the solve.
@@ -203,10 +206,11 @@ A sizing result is a numerical statement about the discrete model under the user
 ### Domain, references, cost and surfaces
 
 - **REQ-009** — *Admitted and refused.*
-  - Sizing admits what the model's own solve admits, on PF and EX, plus the candidate rules of REQ-002.
-  - What the solve refuses refuses the request with the solve's code.
+  - On PF and EX, sizing checks source admission before global stiffness assembly or factorisation on the complete authored document after only REQ-002's candidate neutralisation, before removing any case or combination. It uses the ordinary product's checks and its effective-case resolution, without another solve or a second implementation of a rule. A primitive excluded by the effective ledger remains excluded.
+  - An isolated source-admission fault reached by the reused preparation stages refuses the sizing request with the ordinary product's code and affected object's identity for that same neutralised baseline. This includes a fault in a case sizing does not select. No identical first-error order is promised for a document with several faults where ordinary case preparation and solving are interleaved.
+  - This admission establishes declarations and references through the ordinary local model, boundary and case preparation, before global stiffness assembly or factorisation. The unchanged whole-document kind and schema-version checks remain at the first derived solve. Admission does not establish the computed quantities of an unselected case: its material-basis and member stiffness formation; geometric, bore or tangency comparisons; pressure-load formation, grouping and cancellation; equivalent thermal or distributed-load formation; assembled force, boundary reduction and resource estimates; or convergence and stability. The reused local helpers incidentally perform section, shear and rigid scale formation; geometry, tangency and bore comparisons; pressure value formation, grouping and cancellation; and local equivalent-load range checks. Their refusals must have the ordinary whole-document disposition. A warning or a published held-combination outcome is not promoted to a source refusal. A pass means every applicable declaration check ran for every case, including cases that reuse a selected basis; an early blocking refusal does not claim to enumerate later faults. This reused computation is not evidence for the remaining stages. Each selected derived solve retains all its ordinary product checks; its refusal refuses the request with the solve's code.
   - Each standing refusal is listed in `docs/RELEASE_LIMITATIONS_v1.0.md`.
-- **AC-009** — Each refusal and disclosure is exercised by a maintained test that asserts its code and named object, on both routes.
+- **AC-009** — Each refusal and disclosure is exercised by a maintained test that asserts its code and named object, on both routes. Isolated source faults are compared with an ordinary solve of the same neutralised complete document, including duplicate load identifiers, an unresolved load source and a support-state reference in a case sizing removes. Tests also show that a ledger-excluded primitive stays excluded. Successful admission alone is not numerical evidence for an unperformed solve.
 - **REQ-010** — *References.*
   - **Independence.** The references are frozen under `validation/references/hanger_sizing/`, each derived, with its generator, from this scope without reading product code; the generator imports none.
   - **Coverage.** They cover:
@@ -240,6 +244,7 @@ A sizing result is a numerical statement about the discrete model under the user
     - an action that applies a selection under REQ-008.
   - The rendered report gains a "Hanger sizing" section: request, basis, table, disclosures, refusals and limitations. Library-derived values in it follow the report's privacy rules for library references.
   - These surfaces follow the results viewer's and report generator's contracts.
+  - Each surface carries every disclosure the result publishes, each derived solve's integrity and correction-unavailable disclosures (REQ-003) included.
 - **AC-012** — Desktop tests cover:
   - the request form, with no pre-set choice in a new project;
   - the table and the detail view;
@@ -282,7 +287,7 @@ A sizing result is a numerical statement about the discrete model under the user
 **How each criterion is examined.**
 
 - **VER-001** — Executable check: observes each request, case-role and candidate refusal with its code and named supports, and the absence of any default, at the product entry, the headless runner and the desktop.
-- **VER-002** — Executable check: observes each kind of derived document, the solve-time lowering applied to it, the ledger entry and support-state reconciliation on EX, the state disclosures and warnings, the refusal on a failed derived solve, and the stored model byte-identical after a run.
+- **VER-002** — Executable check: observes each kind of derived document, the solve-time lowering applied to it, the ledger entry and support-state reconciliation on EX, the state disclosures and warnings, each derived solve's integrity and correction-unavailable disclosures by solve label, the refusal on a failed derived solve, and the stored model byte-identical after a run.
 - **VER-003** — Comparison with a named reference: the product against the frozen closed-form references in `validation/references/hanger_sizing`, at the verification tolerance and with selections exact, with a mutation of each method choice and repeat-run byte identity.
 - **VER-004** — Executable check: observes records with and without a working load range, in both library formats, listed and tested as AC-006 states, and the result's statement of the members not read.
 - **VER-005** — Executable check: observes the product reader and the test verifier returning the same verdicts on every committed result and mutation, the forged-positions case failing reproduction, the verifier importing no producer code, and the table's presence in the CSV coverage guard.
@@ -306,7 +311,7 @@ A sizing result is a numerical statement about the discrete model under the user
 |---|---|---|---|---|---|
 | OUT-001 | OBJ-003 SOW-083 | REQ-001 | AC-001 | VER-001 | The refusal list in REQ-001 (SOW-083; PRD §5.5 and §12.4) |
 | OUT-001 | OBJ-003 SOW-083 | REQ-002 | AC-002 | VER-001 | The refusal list in REQ-002 (SOW-083; PRD §12.4) |
-| OUT-002 | OBJ-003 SOW-083 | REQ-003 CLM-001 | AC-003 | VER-002 | The criterion states the expected derived documents and refusals. The stored model's byte identity after a run compares the product with its own earlier bytes and only guards against change |
+| OUT-002 | OBJ-003 SOW-083 | REQ-003 CLM-001 | AC-003 | VER-002 | The criterion states the expected derived documents and refusals. The stored model's byte identity after a run compares the product with its own earlier bytes and only guards against change. The correction-unavailable control uses the product's diagnostics from a test-only forced failure; no maintained sizing input is shown to reach that path |
 | OUT-003 | OBJ-003 SOW-083 | REQ-004 | AC-004 | VER-003 | Outside source: the frozen closed-form references in `validation/references/hanger_sizing` (continuous-beam reactions by three moments, free riser growth, the sizing arithmetic as exact identities), from generators that import no product code; the mutation outcomes follow the rules REQ-004 states. Repeat-run identity only guards against change |
 | OUT-003 | OBJ-003 SOW-083 | REQ-005 | AC-005 | VER-003 | Outside source: the one-spring closed form and the mixed and lift-off references in `validation/references/hanger_sizing`, from generators that import no product code |
 | OUT-004 | OBJ-003 SOW-083 | REQ-006 | AC-006 | VER-004 | The criterion states the expected listing; the range's shape is DEL-03-02's |

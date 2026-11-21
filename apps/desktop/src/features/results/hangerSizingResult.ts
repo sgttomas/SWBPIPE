@@ -18,7 +18,14 @@ export type HangerSizingStateCode = "inactive" | "active" | "sticking" | "slidin
 export type HangerSizingLoadCategory =
   | "weight" | "distributed_force" | "pressure" | "thermal" | "hydrotest" | "wind" | "seismic"
   | "occasional" | "concentrated_force" | "concentrated_moment" | "imposed_displacement";
-export type HangerSizingDisclosureCode = "HANGER_SIZING_SUPPORT_STATE_DIFFERS" | "HANGER_SIZING_COLD_REFERENCE_STATE_DIFFERS";
+/** The two state disclosures (each at most once), then the per-solve disclosures (each at most once per
+ * solve label, naming that label): a derived solve's integrity standing other than checks_passed, and the
+ * product's displacement-correction warning with its message unchanged. */
+export type HangerSizingDisclosureCode =
+  | "HANGER_SIZING_SUPPORT_STATE_DIFFERS"
+  | "HANGER_SIZING_COLD_REFERENCE_STATE_DIFFERS"
+  | "HANGER_SIZING_DERIVED_SOLVE_INTEGRITY"
+  | "DISPLACEMENT_CORRECTION_UNAVAILABLE";
 export type HangerSizingRefusalCode =
   | "HANGER_SIZING_CANDIDATES_REQUIRED"
   | "HANGER_SIZING_CANDIDATE_DOF_SHARED"
@@ -35,7 +42,6 @@ export type HangerSizingRefusalCode =
   | "HANGER_SIZING_DERIVED_DOCUMENT_NOT_HASHABLE"
   | "HANGER_SIZING_DERIVED_SOLVE_FAILED"
   | "HANGER_SIZING_DESIGN_OPERATING_CASE_REQUIRED"
-  | "HANGER_SIZING_EXACT_ROUTE_PENDING"
   | "HANGER_SIZING_FAMILY_POLICY_REQUIRED"
   | "HANGER_SIZING_ID_COLLISION"
   | "HANGER_SIZING_INPUT_NOT_ADMITTED"
@@ -67,11 +73,17 @@ export type HangerSizingPair = readonly [number, number];
 export type HangerSizingLimitations = readonly [string, string, string, string];
 export type HangerSizingBasisStatement = readonly [string, string];
 
+/** The route the derived solves run on: the pressure-free route (a model with no `pressure_contract`) or the
+ * exact pressure route (`3.0.0/exact_pressure_v3`). */
+export type HangerSizingRoute = "pressure_free" | "exact_pressure";
+
 export type HangerSizingIdentity = {
   readonly document_kind: typeof HANGER_SIZING_DOCUMENT_KIND;
   readonly schema_version: typeof HANGER_SIZING_SCHEMA_VERSION;
   readonly semantic_contract_id: typeof HANGER_SIZING_SEMANTIC_CONTRACT_ID;
-  readonly route: "pressure_free";
+  /** A sized document states the route its solves ran on; a refused one states its solve request's route, or
+   * null when no model was read (`HangerSizingRefusedDocument`). */
+  readonly route: HangerSizingRoute | null;
   readonly limitations: HangerSizingLimitations;
   readonly basis_statement: HangerSizingBasisStatement;
 };
@@ -237,6 +249,7 @@ export type HangerSizingResult = {
 };
 
 export type HangerSizingSizedDocument = HangerSizingIdentity & {
+  readonly route: HangerSizingRoute;
   readonly status: "sized";
   readonly inputs: HangerSizingSizedInputs;
   readonly result: HangerSizingResult;

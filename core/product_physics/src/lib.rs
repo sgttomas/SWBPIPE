@@ -26218,3 +26218,4 @@ fn capture_nonlinear_state_evidence(
 pub fn modal_experimental_result_document(request: &serde_json::Value) -> serde_json::Value {
     modal::modal_selected_result_document(request)
 }
+pub mod source_admission;

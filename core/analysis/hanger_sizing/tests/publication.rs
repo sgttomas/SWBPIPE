@@ -242,6 +242,21 @@ fn four_span_input() -> Value {
     })
 }
 
+/// The four-span model with B and C under the constant policy and D left a rigid
+/// support: B's W (8wL/7 ≈ 4571 N) fits CE-2 and CE-3, and CE-3 (its range in
+/// lbf, 1124 lbf ≈ 4999.8 N) is taken by the smaller maximum working load; C's
+/// (13wL/14 ≈ 3714 N) fits CE-1. Every candidate has a constant selection and the
+/// verification is unconditional. Its applied model is the one a solve must reproduce exactly
+/// (`tests/applied_agreement.rs`).
+fn four_span_constant_input() -> Value {
+    let mut input = four_span_input();
+    input["sizing"]["candidates"] = json!([
+        {"support": "support:B", "family_policy": "constant"},
+        {"support": "support:C", "family_policy": "constant"}
+    ]);
+    input
+}
+
 /// The two-span input naming an unknown candidate: refused by the engine.
 fn refused_input() -> Value {
     let mut input = two_span_input();
@@ -252,10 +267,83 @@ fn refused_input() -> Value {
     input
 }
 
-const INPUTS: [(&str, fn() -> Value); 3] = [
+const EX_REFERENCE: &str = include_str!("../../../../validation/references/hanger_sizing/ex_sizing.json");
+
+/// A library of one exact-route reference model's invented catalogue.
+fn catalogue_library(model: &Value) -> Value {
+    let records: Vec<Value> = model["catalogue"]
+        .as_array()
+        .unwrap()
+        .iter()
+        .map(|r| {
+            let id = r["hanger_id"].as_str().unwrap();
+            let range = r["working_load_range_n"].as_array().map(|p| (p[0].as_f64().unwrap(), p[1].as_f64().unwrap(), "N"));
+            let travel = (r["travel_range_m"].as_f64().unwrap(), "m");
+            if r["hanger_type"] == "variable_spring_hanger" {
+                variable(id, r["stiffness_dof"].as_str().unwrap(), (r["stiffness_n_per_m"].as_f64().unwrap(), "N/m"), range, travel)
+            } else {
+                constant(id, range.unwrap(), travel)
+            }
+        })
+        .collect();
+    json!({
+        "schema_version": "1.1.0",
+        "hanger_library": {
+            "library_id": format!("invented.hangers.{}", model["id"].as_str().unwrap().to_lowercase()),
+            "name": "Invented exact-route hanger sizing fixture only",
+            "library_scope": "private_user_library",
+            "privacy_class": "private_user_supplied",
+            "provenance": provenance()
+        },
+        "hanger_records": records
+    })
+}
+
+/// The headless input of one exact-route reference run (`ex_sizing.json`): the
+/// model built as a product document on EX (`model_builder::exs_request`), the
+/// run's request and the model's catalogue. The model carries no
+/// `model_settings`, and no sized value depends on whether pressure elongation acts.
+fn ex_input(model_index: usize, run_id: &str, solver_mode: &str) -> Value {
+    let reference: Value = serde_json::from_str(EX_REFERENCE).unwrap();
+    let model = &reference["models"][model_index];
+    let run = model["runs"].as_array().unwrap().iter().find(|r| r["id"] == run_id).unwrap();
+    let r = &run["request"];
+    json!({
+        "request": exs_request(model),
+        "sizing": {
+            "weight_case": r["weight_case"],
+            "weight_support_state": "own_solve",
+            "design_operating_case": r["design_operating_case"],
+            "check_operating_cases": r["further_operating_cases"],
+            "candidates": r["candidates"],
+            "method": {"load_design": r["load_design"], "variation_reference": r["variation_reference"],
+                       "variation_limit": r["variation_limit"], "travel_allowance_m": r["travel_allowance_m"],
+                       "selection_rule": r["selection_rule"]},
+            "solver_mode": solver_mode
+        },
+        "library": catalogue_library(model)
+    })
+}
+
+/// EXS-A, run A-HOT: a pressurised load/reference-state document with a ledger
+/// and moved supports; a variable and a constant selection, the constant one
+/// failing its verified travel.
+fn ex_pressurised_input() -> Value {
+    ex_input(0, "A-HOT", "dense_scrutiny")
+}
+
+/// EXS-B, run B-COLD: a free riser on EX with no pressurised region.
+fn ex_riser_input() -> Value {
+    ex_input(1, "B-COLD", "sparse_interactive")
+}
+
+const INPUTS: [(&str, fn() -> Value); 6] = [
     ("hanger_sizing_input_two_span.json", two_span_input),
     ("hanger_sizing_input_four_span.json", four_span_input),
+    ("hanger_sizing_input_four_span_constant.json", four_span_constant_input),
     ("hanger_sizing_input_refused.json", refused_input),
+    ("hanger_sizing_input_ex_pressurised.json", ex_pressurised_input),
+    ("hanger_sizing_input_ex_riser.json", ex_riser_input),
 ];
 
 fn run_of(input: &Value) -> SizingRun {
@@ -337,6 +425,41 @@ fn the_corpus_documents_cover_each_outcome_both_families_and_both_standings() {
     assert_eq!(refused["status"], "refused");
     assert_eq!(refused["refusals"][0]["code"], "HANGER_SIZING_CANDIDATE_UNKNOWN");
     assert!(!refused["inputs"]["sizing_request"].is_null());
+    for document in [&two, &four, &refused] {
+        assert_eq!(document["route"], "pressure_free");
+    }
+    // Every candidate a constant selection, and the verification unconditional.
+    let constant = read_json("hanger_sizing_result_four_span_constant.json");
+    assert_eq!(constant["result"]["verification_standing"], "unconditional");
+    let selected: Vec<(&str, &str)> = constant["result"]["candidates"]
+        .as_array()
+        .unwrap()
+        .iter()
+        .map(|c| (c["selected"]["family"].as_str().unwrap(), c["selected"]["hanger_id"].as_str().unwrap()))
+        .collect();
+    assert_eq!(selected, [("constant_effort", "CE-3"), ("constant_effort", "CE-1")]);
+    // The exact route: 2n + 3 solves, a variable and a constant selection, the
+    // constant one failing its verified travel; and a riser with no pressurised region.
+    let pressurised = read_json("hanger_sizing_result_ex_pressurised.json");
+    let riser = read_json("hanger_sizing_result_ex_riser.json");
+    for document in [&pressurised, &riser] {
+        assert_eq!((document["status"].as_str(), document["route"].as_str()), (Some("sized"), Some("exact_pressure")));
+        assert_eq!(document["result"]["solves"].as_array().unwrap().len(), 2 * 2 + 3);
+    }
+    let selected: Vec<(&str, Option<&str>)> = pressurised["result"]["candidates"]
+        .as_array()
+        .unwrap()
+        .iter()
+        .map(|c| (c["selected"]["family"].as_str().unwrap(), c["selected"]["hanger_id"].as_str()))
+        .collect();
+    assert_eq!(selected, [("variable_spring", Some("VS-B")), ("constant_effort", Some("CE-1"))]);
+    assert_eq!(pressurised["result"]["candidates"][1]["verification"]["failed_tests"], json!(["T"]));
+    assert_eq!(riser["result"]["candidates"][0]["selected"]["hanger_id"], "VS-R1");
+    for name in ["hanger_sizing_input_ex_pressurised.json", "hanger_sizing_input_ex_riser.json"] {
+        let input = read_json(name);
+        assert!(input["request"]["model"].get("model_settings").is_none(), "{name}");
+        assert_eq!(input["request"]["model"]["pressure_contract"]["mode"], "exact_pressure_v3", "{name}");
+    }
 }
 
 // --- the corpus ---------------------------------------------------------------
@@ -422,7 +545,7 @@ fn the_reader_returns_the_corpus_standings() {
         }
         assert_eq!(verdict["binding"]["not_checked"], expected["binding_not_checked"], "{id}");
     }
-    assert_eq!(same_build, 2, "the two genuine sized entries");
+    assert_eq!(same_build, 5, "the five genuine sized entries: three on the pressure-free route, two on the exact route");
 }
 
 // --- the headless pipeline's refusals -----------------------------------------
@@ -450,6 +573,8 @@ fn an_input_outside_the_profile_is_refused_by_kind_and_path_without_its_value() 
         assert_eq!(doc["inputs"], json!({"canonical_profile": "openpipestress_jcs_ijson_v1", "sizing_request": null,
             "sizing_request_sha256": null, "solve_request": {"sha256": null}, "library": {"library_id": null, "sha256": null}}));
         assert!(!doc.to_string().contains("1e20") && !doc.to_string().contains("0.3"));
+        // No model was read, so no route is stated.
+        assert_eq!(doc["route"], Value::Null);
     }
 }
 
@@ -471,21 +596,132 @@ fn shape_library_and_request_refusals_name_their_paths_and_keep_the_hashes_forme
     input["sizing"].as_object_mut().unwrap().remove("solver_mode");
     let doc = refused(size_hangers(&input.to_string()));
     let codes: Vec<&str> = doc["refusals"].as_array().unwrap().iter().map(|r| r["code"].as_str().unwrap()).collect();
-    assert_eq!(codes, ["HANGER_SIZING_LIBRARY_NOT_ADMITTED", "HANGER_SIZING_REQUEST_INVALID"]);
+    // The absent solver mode is refused by its own code; the present and malformed
+    // members stay HANGER_SIZING_REQUEST_INVALID.
+    assert_eq!(codes, ["HANGER_SIZING_LIBRARY_NOT_ADMITTED", "HANGER_SIZING_REQUEST_INVALID", "HANGER_SIZING_SOLVER_MODE_REQUIRED"]);
     assert!(doc["refusals"][0]["message"].as_str().unwrap().contains("hanger_records[0]"));
-    assert_eq!(doc["refusals"][1]["names"], json!(["$.sizing.solver_mode", "$.sizing.candidates[0].note", "$.sizing.method.variation_limit"]));
+    assert_eq!(doc["refusals"][1]["names"], json!(["$.sizing.candidates[0].note", "$.sizing.method.variation_limit"]));
+    assert_eq!(doc["refusals"][2]["names"], json!(["$.sizing.solver_mode"]));
     assert!(doc["inputs"]["sizing_request"].is_null() && doc["inputs"]["sizing_request_sha256"].is_null());
     assert_eq!(doc["inputs"]["library"]["sha256"].as_str(), publish::checked_sha256(&input["library"]).as_deref());
 
-    // The engine's value checks stay the engine's, with the admitted request carried.
+    // The engine's value checks stay the engine's, with the admitted request
+    // carried; a refused document states its request's route.
     let mut input = two_span_input();
     input["sizing"]["method"]["variation_limit"] = json!(-1);
     input["request"]["model"]["pressure_contract"] = json!({"version": "3.0.0", "mode": "exact_pressure_v3"});
     let doc = refused(size_hangers(&input.to_string()));
     let codes: Vec<&str> = doc["refusals"].as_array().unwrap().iter().map(|r| r["code"].as_str().unwrap()).collect();
-    assert_eq!(codes, ["HANGER_SIZING_VARIATION_LIMIT_INVALID", "HANGER_SIZING_EXACT_ROUTE_PENDING"]);
+    assert_eq!(codes, ["HANGER_SIZING_VARIATION_LIMIT_INVALID"]);
+    assert_eq!(doc["route"], "exact_pressure");
     assert_eq!(doc["inputs"]["sizing_request"], input["sizing"]);
     assert_eq!(doc["inputs"]["sizing_request_sha256"].as_str(), publish::checked_sha256(&input["sizing"]).as_deref());
+}
+
+/// Every required member of the input, with the code its absence is refused by and
+/// the path that refusal names (REQ-001): the library, each member of the sizing
+/// request and of its method, and a candidate's family policy.
+const ABSENT: [(&str, &str, &str); 13] = [
+    ("/library", "HANGER_SIZING_LIBRARY_REQUIRED", "$.library"),
+    ("/sizing/weight_case", "HANGER_SIZING_WEIGHT_CASE_REQUIRED", "$.sizing.weight_case"),
+    ("/sizing/weight_support_state", "HANGER_SIZING_WEIGHT_SUPPORT_STATE_REQUIRED", "$.sizing.weight_support_state"),
+    ("/sizing/design_operating_case", "HANGER_SIZING_DESIGN_OPERATING_CASE_REQUIRED", "$.sizing.design_operating_case"),
+    ("/sizing/check_operating_cases", "HANGER_SIZING_CHECK_OPERATING_CASES_REQUIRED", "$.sizing.check_operating_cases"),
+    ("/sizing/candidates", "HANGER_SIZING_CANDIDATES_REQUIRED", "$.sizing.candidates"),
+    ("/sizing/candidates/0/family_policy", "HANGER_SIZING_FAMILY_POLICY_REQUIRED", "$.sizing.candidates[0].family_policy"),
+    ("/sizing/method/load_design", "HANGER_SIZING_LOAD_DESIGN_REQUIRED", "$.sizing.method.load_design"),
+    ("/sizing/method/variation_reference", "HANGER_SIZING_VARIATION_REFERENCE_REQUIRED", "$.sizing.method.variation_reference"),
+    ("/sizing/method/variation_limit", "HANGER_SIZING_VARIATION_LIMIT_REQUIRED", "$.sizing.method.variation_limit"),
+    ("/sizing/method/travel_allowance_m", "HANGER_SIZING_TRAVEL_ALLOWANCE_REQUIRED", "$.sizing.method.travel_allowance_m"),
+    ("/sizing/method/selection_rule", "HANGER_SIZING_SELECTION_RULE_REQUIRED", "$.sizing.method.selection_rule"),
+    ("/sizing/solver_mode", "HANGER_SIZING_SOLVER_MODE_REQUIRED", "$.sizing.solver_mode"),
+];
+
+fn without(mut input: Value, pointer: &str) -> Value {
+    let (parent, key) = pointer_parent(&mut input, pointer);
+    parent.as_object_mut().unwrap().remove(&key).unwrap();
+    input
+}
+
+fn listed(doc: &Value) -> Vec<(String, Value)> {
+    doc["refusals"].as_array().unwrap().iter().map(|r| (r["code"].as_str().unwrap().to_string(), r["names"].clone())).collect()
+}
+
+/// REQ-001: each absent required member is refused by its own code, naming its
+/// path, and by nothing else, on both routes. An empty list of further operating
+/// cases is a stated value; an empty candidate list is refused as required.
+#[test]
+fn each_absent_required_input_is_refused_by_its_own_code_on_both_routes() {
+    for (route, build) in [("pressure_free", two_span_input as fn() -> Value), ("exact_pressure", ex_pressurised_input)] {
+        for (pointer, code, path) in ABSENT {
+            let doc = refused(size_hangers(&without(build(), pointer).to_string()));
+            assert_eq!(listed(&doc), [(code.to_string(), json!([path]))], "{route}: {pointer}");
+            assert_eq!(doc["route"], route, "{route}: {pointer}");
+        }
+        let mut empty = build();
+        empty["sizing"]["candidates"] = json!([]);
+        assert_eq!(listed(&refused(size_hangers(&empty.to_string()))),
+            [("HANGER_SIZING_CANDIDATES_REQUIRED".to_string(), json!(["$.sizing.candidates"]))], "{route}");
+        let mut none_checked = build();
+        none_checked["sizing"]["check_operating_cases"] = json!([]);
+        assert!(size_hangers(&none_checked.to_string()).is_sized(), "{route}: an empty list of further cases is admitted");
+        // Without the method, each of its members is named.
+        let doc = refused(size_hangers(&without(build(), "/sizing/method").to_string()));
+        let codes: Vec<String> = listed(&doc).into_iter().map(|(code, _)| code).collect();
+        assert_eq!(codes, ["HANGER_SIZING_LOAD_DESIGN_REQUIRED", "HANGER_SIZING_VARIATION_REFERENCE_REQUIRED",
+            "HANGER_SIZING_VARIATION_LIMIT_REQUIRED", "HANGER_SIZING_TRAVEL_ALLOWANCE_REQUIRED", "HANGER_SIZING_SELECTION_RULE_REQUIRED"], "{route}");
+    }
+}
+
+/// Several absent members of one request, beside a present and malformed one, are
+/// listed together, each under its own code, the malformed one as REQUEST_INVALID.
+#[test]
+fn several_absent_inputs_are_listed_together() {
+    let mut input = without(without(without(two_span_input(), "/library"), "/sizing/weight_case"), "/sizing/method/selection_rule");
+    input = without(input, "/sizing/candidates/0/family_policy");
+    input["sizing"]["solver_mode"] = json!("fast");
+    let doc = refused(size_hangers(&input.to_string()));
+    assert_eq!(listed(&doc), [
+        ("HANGER_SIZING_LIBRARY_REQUIRED".to_string(), json!(["$.library"])),
+        ("HANGER_SIZING_REQUEST_INVALID".to_string(), json!(["$.sizing.solver_mode"])),
+        ("HANGER_SIZING_WEIGHT_CASE_REQUIRED".to_string(), json!(["$.sizing.weight_case"])),
+        ("HANGER_SIZING_FAMILY_POLICY_REQUIRED".to_string(), json!(["$.sizing.candidates[0].family_policy"])),
+        ("HANGER_SIZING_SELECTION_RULE_REQUIRED".to_string(), json!(["$.sizing.method.selection_rule"])),
+    ]);
+    // A shape finding beside an absent library: both are listed.
+    let mut shaped = without(two_span_input(), "/library");
+    shaped["extra"] = json!(1);
+    assert_eq!(listed(&refused(size_hangers(&shaped.to_string()))), [
+        ("HANGER_SIZING_INPUT_SHAPE_INVALID".to_string(), json!(["$.extra"])),
+        ("HANGER_SIZING_LIBRARY_REQUIRED".to_string(), json!(["$.library"])),
+    ]);
+}
+
+/// The support state W is formed in: absent is refused as required, any value
+/// but `own_solve` as unsupported, each naming the member's path, on both routes.
+#[test]
+fn the_weight_support_state_is_refused_as_required_or_unsupported_on_both_routes() {
+    for (route, build) in [("pressure_free", two_span_input as fn() -> Value), ("exact_pressure", ex_pressurised_input)] {
+        let mut absent = build();
+        absent["sizing"].as_object_mut().unwrap().remove("weight_support_state");
+        let mut other = build();
+        other["sizing"]["weight_support_state"] = json!("design_operating_case");
+        for (input, code) in [(absent, "HANGER_SIZING_WEIGHT_SUPPORT_STATE_REQUIRED"), (other, "HANGER_SIZING_WEIGHT_SUPPORT_STATE_UNSUPPORTED")] {
+            let doc = refused(size_hangers(&input.to_string()));
+            assert_eq!(doc["route"], route);
+            let listed: Vec<(&str, &Value)> = doc["refusals"].as_array().unwrap().iter().map(|r| (r["code"].as_str().unwrap(), &r["names"])).collect();
+            assert_eq!(listed, [(code, &json!(["$.sizing.weight_support_state"]))], "{route}");
+            assert!(doc["inputs"]["sizing_request"].is_null(), "{route}: the request is not admitted");
+        }
+        // Beside another invalid member, each is listed under its own code.
+        let mut both = build();
+        both["sizing"].as_object_mut().unwrap().remove("weight_support_state");
+        both["sizing"]["solver_mode"] = json!("fast");
+        let doc = refused(size_hangers(&both.to_string()));
+        let listed: Vec<(&str, &Value)> = doc["refusals"].as_array().unwrap().iter().map(|r| (r["code"].as_str().unwrap(), &r["names"])).collect();
+        assert_eq!(listed, [("HANGER_SIZING_REQUEST_INVALID", &json!(["$.sizing.solver_mode"])),
+                            ("HANGER_SIZING_WEIGHT_SUPPORT_STATE_REQUIRED", &json!(["$.sizing.weight_support_state"]))], "{route}");
+    }
 }
 
 #[test]
@@ -556,7 +792,7 @@ fn the_schema_states_the_crates_fixed_members() {
     assert_eq!(defs["Identity"]["properties"]["document_kind"]["const"], publish::DOCUMENT_KIND);
     assert_eq!(defs["Identity"]["properties"]["schema_version"]["const"], publish::SCHEMA_VERSION);
     assert_eq!(defs["Identity"]["properties"]["semantic_contract_id"]["const"], publish::SEMANTIC_CONTRACT_ID);
-    assert_eq!(defs["Identity"]["properties"]["route"]["const"], publish::ROUTE);
+    assert_eq!(enumeration(&defs["Route"]), publish::ROUTES);
 }
 
 // --- §8.3.8: the existing readers' actual handling ----------------------------
