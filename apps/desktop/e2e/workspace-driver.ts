@@ -364,3 +364,17 @@ export async function selectCompactOption(control: Locator, value: string): Prom
   await expect(control).toHaveAttribute("aria-expanded", "false");
   await expect(control).toHaveAttribute("data-value", value);
 }
+
+/**
+ * A control of the 3D view's bar or its More menu. The bar moves its lowest-priority groups into
+ * More while it is too narrow, and More always holds Fit Visible and the Fit that the canvas's Fit
+ * is not; this opens More, as a person would, when the control is not in the bar.
+ */
+export async function viewportControl(page: Page, control: Locator): Promise<Locator> {
+  if (await control.isVisible()) return control;
+  const menu = page.getByTestId("viewport-more-menu");
+  if (!await menu.isVisible()) await page.getByTestId("viewport-more").click();
+  await expect(menu).toBeVisible();
+  await expect(control).toBeVisible();
+  return control;
+}

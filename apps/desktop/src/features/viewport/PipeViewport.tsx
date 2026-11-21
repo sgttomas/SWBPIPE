@@ -112,6 +112,7 @@ import {
 import { createFigureMaterial, figureEdgeOutlineFor } from "./viewportFigureMaterial";
 import { buildDeformationOverlay, buildRotationOverlay, deformationAtPhase, rotationGlyphAnchors } from "./deformationOverlay";
 import { DEFLECTION_PHASE_STEPS, DeflectedShapeControls, deflectionLabel, deflectionSummaryScale } from "./DeflectedShapeControls";
+import { ViewportOverflowBar } from "./ViewportOverflowBar";
 import { buildElementAxesView, type ElementAxesFrame, type ElementAxesView } from "./elementAxes";
 import { elementAxisDisplayLength, instancedElementAxisMeshes, type ElementAxisPlacement } from "./viewportElementAxes";
 import { instancedRotationGlyphMeshes, type RotationGlyphPlacement } from "./viewportRotationGlyph";
@@ -276,7 +277,7 @@ function normalizedPresentationInset(value: number | undefined): number {
 export type CreationTool = "node" | "pipe" | "support" | "component" | "load";
 export type ViewportExposureInteraction = "measurement" | "box-selection";
 type ViewportCommandType = "create_node" | "connect_pipe_run" | "insert_component_symbol";
-type ViewPreset = "iso" | "front" | "top";
+type ViewPreset = "iso" | "front" | "top" | "side";
 const VIEWPORT_DIMENSIONLESS_UNIT_VALIDATION_STATUS = "not_required_dimensionless";
 /** One full undeformed-deformed-undeformed animation cycle, and the step between drawn phases. */
 const DEFLECTION_CYCLE_MS = 2400;
@@ -2486,6 +2487,9 @@ export function PipeViewport({
     );
   }
 
+  // The canvas's one Fit: the visible selection when there is one, the whole model otherwise.
+  const canvasFitCommand: "fit-selection" | "fit-model" = fitSelectionBounds ? "fit-selection" : "fit-model";
+
   const entityCommandEnvironment: EntityCommandEnvironment = {
     model,
     modelIndex: activeModelIndex,
@@ -2551,139 +2555,209 @@ export function PipeViewport({
       style={{ "--viewport-presentation-bottom-inset": `${presentationBottomInset}px` } as CSSProperties}
     >
       <div className="viewport-toolbar">
-        <div className="viewport-toolbar-controls" role="group" aria-label="Viewport controls">
-        <span>3D Centerline</span>
-        <details
-          className={`viewport-deformation-status ${deformation.state}`}
-          aria-label="Viewport deformation overlay status"
-          data-testid="viewport-deformation-status"
-        >
-          <summary>{deformation.state === "available" ? `Deformation · ${deflectionSummaryScale(deformation)}` : deformation.state === "blocked" ? "Deformation · blocked" : "Deformation · unavailable"}</summary>
-          <div><strong data-testid="viewport-deformation-summary">{deformation.maximum ? <>available; nodes={deformation.nodeCount}; max=<QuantityReadout quantity={{ ...deformation.maximum, dimension_id: "length" }} /></> : deformation.summary}</strong>
-          <small data-testid="viewport-deformation-boundary">{deformation.boundary}</small>{" "}
-          <small data-testid="viewport-rotation-summary">rotation: {rotation.maximum ? <>available; nodes={rotation.nodeCount}; drawn={rotation.drawnCount}; max |component|=<QuantityReadout quantity={{ ...rotation.maximum, dimension_id: "angle" }} /></> : rotation.summary}</small>{" "}
-          <small data-testid="viewport-rotation-boundary">{rotation.boundary}</small>
-          {result ? (
-            <DeflectedShapeControls
-              cases={overlayCases}
-              caseKey={deflectionCase?.key ?? null}
-              onCaseChange={(key) => { setDeflectionCaseKey(key); setDeflectionFactor(null); setDeflectionPhase(1); }}
-              deformation={fullDeformation}
-              onFactorChange={setDeflectionFactor}
-              ghost={undeformedGhost}
-              onGhostChange={setUndeformedGhost}
-              playing={deflectionPlaying}
-              onPlayingChange={(playing) => { setDeflectionPlaying(playing); if (!playing) setDeflectionPhase(1); }}
-              phase={drawnPhase}
-              onPhaseChange={(phase) => { setDeflectionPlaying(false); setDeflectionPhase(phase); }}
-              reducedMotion={reducedMotion}
-            />
-          ) : null}</div>
-        </details>
-        <div className="viewport-display-toggles" role="group" aria-label="Viewport display toggles">
-          <button
-            type="button"
-            data-testid="toggle-viewport-labels"
-            aria-pressed={showLabels}
-            className={showLabels ? "active" : ""}
-            onClick={() => setShowLabels((value) => !value)}
-            title="Show or hide entity labels"
-          >
-            Labels
-          </button>
-          <button
-            type="button"
-            data-testid="toggle-viewport-loads"
-            aria-pressed={showLoads}
-            className={showLoads ? "active" : ""}
-            onClick={() => setShowLoads((value) => !value)}
-            title="Show or hide load arrows"
-          >
-            Loads
-          </button>
-          <button
-            type="button"
-            data-testid="toggle-viewport-grid"
-            aria-pressed={showGrid}
-            className={showGrid ? "active" : ""}
-            onClick={() => setShowGrid((value) => !value)}
-            title="Show or hide the ground grid"
-          >
-            Grid
-          </button>
-          {result ? (
-            <>
-              <button
-                type="button"
-                data-testid="toggle-viewport-result-colour"
-                aria-pressed={resultColourOn}
-                className={resultColourOn ? "active" : ""}
-                onClick={() => setResultColourOn((value) => !value)}
-                title="Colour members by the magnitude of a result quantity for one case"
-              >
-                Result colour
-              </button>
-              <button
-                type="button"
-                data-testid="toggle-viewport-reactions"
-                aria-pressed={reactionsOn}
-                className={reactionsOn ? "active" : ""}
-                onClick={() => setReactionsOn((value) => !value)}
-                title="Show support reaction arrows for one case"
-              >
-                Reactions
-              </button>
-            </>
-          ) : null}
-        </div>
-        <div className="viewport-display-toggles viewport-element-axes-toggle" role="group" aria-label="Element axes">
-          {([null, "local", "global"] as const).map((frame) => (
-            <button
-              key={frame ?? "off"}
-              type="button"
-              data-testid={`viewport-element-axes-${frame ?? "off"}`}
-              aria-pressed={elementAxesFrame === frame}
-              className={elementAxesFrame === frame ? "active" : ""}
-              onClick={() => setElementAxesFrame(frame)}
-              title={frame === "local"
-                ? "Show each member's local axes: x from its From node to its To node, y from its y_reference, z = x × y"
-                : frame === "global" ? "Show the model's global X, Y and Z axes at each member" : "Hide the element axes"}
-            >{frame === "local" ? "Local axes" : frame === "global" ? "Global axes" : "No axes"}</button>
-          ))}
-        </div>
-        <div className="viewport-selection-tools" role="group" aria-label="Viewport selection tools">
-          <button
-            aria-pressed={boxSelectActive}
-            className={boxSelectActive ? "active" : ""}
-            data-testid="viewport-box-select"
-            onClick={() => dispatchViewportViewCommand({ type: "set-box-select", active: !boxSelectActive })}
-            type="button"
-          >Box Select</button>
-          <label><span className="visually-hidden">Selection filter</span>
-            <select
-              aria-label="Selection filter"
-              data-testid="viewport-selection-filter"
-              onChange={(event) => dispatchViewportViewCommand({ type: "set-selection-filter", filter: event.target.value as BoxSelectionFilter })}
-              value={boxSelectionFilter}
-            >
-              <option value="all">All</option><option value="pipes">Pipes</option><option value="nodes">Nodes</option>
-              <option value="supports">Supports</option><option value="components">Components</option>
-            </select>
-          </label>
-          <button onClick={() => dispatchViewportViewCommand({ type: "hide-selection" })} disabled={Boolean(visibilitySelectionReason)} title={visibilitySelectionReason ?? "Hide selected geometry (H). Hidden geometry is removed from canvas picking."} type="button">Hide</button>
-          <button aria-describedby="viewport-visibility-help" onClick={() => dispatchViewportViewCommand({ type: "isolate-selection" })} disabled={Boolean(visibilitySelectionReason)} title={visibilitySelectionReason ?? "Isolate selected geometry (I): dim other shown geometry to 20%. Dimmed geometry remains selectable; Hide wins."} type="button">Isolate</button>
-          <button onClick={() => dispatchViewportViewCommand({ type: "show-all" })} disabled={explicitHiddenKeys.size === 0 && !isolationActive} title={explicitHiddenKeys.size === 0 && !isolationActive ? "All eligible entities are already shown." : "Clear Hide and isolation; show every eligible entity at its normal opacity."} type="button">Show All</button>
-          <span className="visually-hidden" id="viewport-visibility-help">Isolate captures the selected geometry. Other shown geometry is dimmed to 20% and remains available to click, hover and box selection; nearer dimmed geometry can be picked before farther undimmed geometry. Selection does not change the snapshot. Hide takes precedence. Show All clears both. I and H apply while focus is in the viewport.</span>
-          <button data-testid="viewport-fit-model" onClick={() => dispatchViewportViewCommand({ type: "fit-model" })} type="button">Fit Model</button>
-          <button onClick={() => dispatchViewportViewCommand({ type: "fit-visible" })} type="button">Fit Visible</button>
-          <button data-testid="viewport-fit-selection" onClick={() => dispatchViewportViewCommand({ type: "fit-selection" })} disabled={!fitSelectionBounds} title={fitSelectionBounds ? "Fit currently visible selected geometry." : "No visible valid selected geometry can be fitted."} type="button">Fit Selection</button>
-        </div>
-        <div className="viewport-geometry-tools" role="group" aria-label="Viewport geometry">
-          <button aria-pressed={geometryMode === "schematic"} data-testid="viewport-geometry-schematic" onClick={() => dispatchViewportViewCommand({ type: "set-geometry-mode", mode: "schematic" })} type="button">Schematic</button>
-          <button aria-pressed={geometryMode === "actual-od"} data-testid="viewport-geometry-actual-od" onClick={() => dispatchViewportViewCommand({ type: "set-geometry-mode", mode: "actual-od" })} type="button">Actual OD</button>
-          <button aria-pressed={measurementActive} onClick={() => dispatchViewportViewCommand({ type: "set-measurement", active: !measurementActive })} type="button">Measure</button>
-        </div>
-        </div>
+        <ViewportOverflowBar
+          label="Viewport controls"
+          groups={[
+            {
+              key: "display",
+              heading: "Display",
+              label: "Viewport display toggles",
+              onCount: [showLabels, showLoads, showGrid, Boolean(result) && resultColourOn, Boolean(result) && reactionsOn].filter(Boolean).length,
+              signature: result ? "result" : "model",
+              content: (
+                <>
+                  <button
+                    type="button"
+                    data-testid="toggle-viewport-labels"
+                    aria-pressed={showLabels}
+                    className={showLabels ? "active" : ""}
+                    onClick={() => setShowLabels((value) => !value)}
+                    title="Show or hide entity labels"
+                  >
+                    Labels
+                  </button>
+                  <button
+                    type="button"
+                    data-testid="toggle-viewport-loads"
+                    aria-pressed={showLoads}
+                    className={showLoads ? "active" : ""}
+                    onClick={() => setShowLoads((value) => !value)}
+                    title="Show or hide load arrows"
+                  >
+                    Loads
+                  </button>
+                  <button
+                    type="button"
+                    data-testid="toggle-viewport-grid"
+                    aria-pressed={showGrid}
+                    className={showGrid ? "active" : ""}
+                    onClick={() => setShowGrid((value) => !value)}
+                    title="Show or hide the ground grid"
+                  >
+                    Grid
+                  </button>
+                  {result ? (
+                    <>
+                      <button
+                        type="button"
+                        data-testid="toggle-viewport-result-colour"
+                        aria-pressed={resultColourOn}
+                        className={resultColourOn ? "active" : ""}
+                        onClick={() => setResultColourOn((value) => !value)}
+                        title="Colour members by the magnitude of a result quantity for one case"
+                      >
+                        Result colour
+                      </button>
+                      <button
+                        type="button"
+                        data-testid="toggle-viewport-reactions"
+                        aria-pressed={reactionsOn}
+                        className={reactionsOn ? "active" : ""}
+                        onClick={() => setReactionsOn((value) => !value)}
+                        title="Show support reaction arrows for one case"
+                      >
+                        Reactions
+                      </button>
+                    </>
+                  ) : null}
+                </>
+              )
+            },
+            ...(result ? [{
+              key: "deformation",
+              heading: "Deformation",
+              label: "Deformation",
+              onCount: deflectionPlaying ? 1 : 0,
+              signature: `${deformation.state}:${deformation.state === "available" ? deflectionSummaryScale(deformation) : ""}`,
+              content: (
+                <details
+                  className={`viewport-deformation-status ${deformation.state}`}
+                  aria-label="Viewport deformation overlay status"
+                  data-testid="viewport-deformation-status"
+                >
+                  <summary>{deformation.state === "available" ? `Deformation · ${deflectionSummaryScale(deformation)}` : deformation.state === "blocked" ? "Deformation · blocked" : "Deformation · unavailable"}</summary>
+                  <div><strong data-testid="viewport-deformation-summary">{deformation.maximum ? <>available; nodes={deformation.nodeCount}; max=<QuantityReadout quantity={{ ...deformation.maximum, dimension_id: "length" }} /></> : deformation.summary}</strong>
+                  <small data-testid="viewport-deformation-boundary">{deformation.boundary}</small>{" "}
+                  <small data-testid="viewport-rotation-summary">rotation: {rotation.maximum ? <>available; nodes={rotation.nodeCount}; drawn={rotation.drawnCount}; max |component|=<QuantityReadout quantity={{ ...rotation.maximum, dimension_id: "angle" }} /></> : rotation.summary}</small>{" "}
+                  <small data-testid="viewport-rotation-boundary">{rotation.boundary}</small>
+                  <DeflectedShapeControls
+                    cases={overlayCases}
+                    caseKey={deflectionCase?.key ?? null}
+                    onCaseChange={(key) => { setDeflectionCaseKey(key); setDeflectionFactor(null); setDeflectionPhase(1); }}
+                    deformation={fullDeformation}
+                    onFactorChange={setDeflectionFactor}
+                    ghost={undeformedGhost}
+                    onGhostChange={setUndeformedGhost}
+                    playing={deflectionPlaying}
+                    onPlayingChange={(playing) => { setDeflectionPlaying(playing); if (!playing) setDeflectionPhase(1); }}
+                    phase={drawnPhase}
+                    onPhaseChange={(phase) => { setDeflectionPlaying(false); setDeflectionPhase(phase); }}
+                    reducedMotion={reducedMotion}
+                  /></div>
+                </details>
+              )
+            }] : []),
+            {
+              key: "selection",
+              heading: "Selection",
+              label: "Viewport selection tools",
+              onCount: (boxSelectActive ? 1 : 0) + (boxSelectionFilter !== "all" ? 1 : 0),
+              signature: "selection",
+              content: (
+                <>
+                  <button
+                    aria-pressed={boxSelectActive}
+                    className={boxSelectActive ? "active" : ""}
+                    data-testid="viewport-box-select"
+                    onClick={() => dispatchViewportViewCommand({ type: "set-box-select", active: !boxSelectActive })}
+                    title="Drag a box on the canvas to select what it encloses"
+                    type="button"
+                  >Box Select</button>
+                  <label><span className="visually-hidden">Selection filter</span>
+                    <select
+                      aria-label="Selection filter"
+                      data-testid="viewport-selection-filter"
+                      onChange={(event) => dispatchViewportViewCommand({ type: "set-selection-filter", filter: event.target.value as BoxSelectionFilter })}
+                      title="What a box selection picks"
+                      value={boxSelectionFilter}
+                    >
+                      <option value="all">All</option><option value="pipes">Pipes</option><option value="nodes">Nodes</option>
+                      <option value="supports">Supports</option><option value="components">Components</option>
+                    </select>
+                  </label>
+                  <button onClick={() => dispatchViewportViewCommand({ type: "hide-selection" })} disabled={Boolean(visibilitySelectionReason)} title={visibilitySelectionReason ?? "Hide selected geometry (H). Hidden geometry is removed from canvas picking."} type="button">Hide</button>
+                  <button aria-describedby="viewport-visibility-help" onClick={() => dispatchViewportViewCommand({ type: "isolate-selection" })} disabled={Boolean(visibilitySelectionReason)} title={visibilitySelectionReason ?? "Isolate selected geometry (I): dim other shown geometry to 20%. Dimmed geometry remains selectable; Hide wins."} type="button">Isolate</button>
+                  <button onClick={() => dispatchViewportViewCommand({ type: "show-all" })} disabled={explicitHiddenKeys.size === 0 && !isolationActive} title={explicitHiddenKeys.size === 0 && !isolationActive ? "All eligible entities are already shown." : "Clear Hide and isolation; show every eligible entity at its normal opacity."} type="button">Show All</button>
+                  <span className="visually-hidden" id="viewport-visibility-help">Isolate captures the selected geometry. Other shown geometry is dimmed to 20% and remains available to click, hover and box selection; nearer dimmed geometry can be picked before farther undimmed geometry. Selection does not change the snapshot. Hide takes precedence. Show All clears both. I and H apply while focus is in the viewport.</span>
+                </>
+              )
+            },
+            {
+              key: "geometry",
+              heading: "Geometry",
+              label: "Viewport geometry",
+              onCount: geometryMode === "actual-od" ? 1 : 0,
+              signature: "geometry",
+              content: (
+                <>
+                  <button aria-pressed={geometryMode === "schematic"} data-testid="viewport-geometry-schematic" onClick={() => dispatchViewportViewCommand({ type: "set-geometry-mode", mode: "schematic" })} title="Draw each pipe as its centreline" type="button">Schematic</button>
+                  <button aria-pressed={geometryMode === "actual-od"} data-testid="viewport-geometry-actual-od" onClick={() => dispatchViewportViewCommand({ type: "set-geometry-mode", mode: "actual-od" })} title="Draw each straight pipe at its entered outside diameter" type="button">Actual OD</button>
+                </>
+              )
+            },
+            {
+              key: "axes",
+              heading: "Element axes",
+              label: "Element axes",
+              onCount: elementAxesFrame ? 1 : 0,
+              signature: "axes",
+              content: (
+                <label className="viewport-element-axes-toggle"><span className="visually-hidden">Element axes</span>
+                  <select
+                    aria-label="Element axes"
+                    data-testid="viewport-element-axes"
+                    onChange={(event) => setElementAxesFrame(event.target.value === "local" ? "local" : event.target.value === "global" ? "global" : null)}
+                    title={elementAxesFrame === "local"
+                      ? "Each member's local axes: x from its From node to its To node, y from its y_reference, z = x × y"
+                      : elementAxesFrame === "global" ? "The model's global X, Y and Z axes at each member" : "Element axes are hidden"}
+                    value={elementAxesFrame ?? "off"}
+                  >
+                    <option data-testid="viewport-element-axes-off" value="off">No axes</option>
+                    <option data-testid="viewport-element-axes-local" value="local">Local axes</option>
+                    <option data-testid="viewport-element-axes-global" value="global">Global axes</option>
+                  </select>
+                </label>
+              )
+            },
+            {
+              key: "measure",
+              heading: "Measure",
+              label: "Measurement",
+              onCount: measurementActive ? 1 : 0,
+              signature: "measure",
+              content: (
+                <button aria-pressed={measurementActive} onClick={() => dispatchViewportViewCommand({ type: "set-measurement", active: !measurementActive })} title="Measure between two authored nodes, or along one pipe" type="button">Measure</button>
+              )
+            }
+          ]}
+          menuGroups={[
+            {
+              key: "fit",
+              heading: "Fit",
+              label: "Fit",
+              onCount: 0,
+              signature: "fit",
+              content: (
+                <>
+                  {canvasFitCommand === "fit-selection"
+                    ? <button data-testid="viewport-fit-model" onClick={() => dispatchViewportViewCommand({ type: "fit-model" })} title="Fit the whole model in the view" type="button">Fit Model</button>
+                    : <button data-testid="viewport-fit-selection" onClick={() => dispatchViewportViewCommand({ type: "fit-selection" })} disabled={!fitSelectionBounds} title={fitSelectionBounds ? "Fit currently visible selected geometry." : "No visible valid selected geometry can be fitted."} type="button">Fit Selection</button>}
+                  <button data-testid="viewport-fit-visible" onClick={() => dispatchViewportViewCommand({ type: "fit-visible" })} title="Fit the geometry that is not hidden" type="button">Fit Visible</button>
+                </>
+              )
+            }
+          ]}
+        />
         <div className="viewport-toolbar-status-strip" aria-label="Viewport status">
           <span
             className="viewport-toolbar-selection-status"
@@ -2798,16 +2872,20 @@ export function PipeViewport({
         <div className="viewport-axis-triad" aria-label="Orientation gizmo showing X, Y, Z axes" data-testid="viewport-axis-triad" role="img">
           <div className="viewport-gizmo-host" ref={gizmoHostRef} aria-hidden="true" />
         </div>
-        <div className="viewport-view-cube" aria-label="View controls" data-testid="viewport-view-cube">
-          <button type="button" aria-pressed={viewPreset === "front"} onClick={() => setViewPreset("front")}>
-            Front
-          </button>
-          <button type="button" aria-pressed={viewPreset === "top"} onClick={() => setViewPreset("top")}>
-            Top
-          </button>
-          <button type="button" data-testid="viewport-view-isometric" aria-pressed={viewPreset === "iso"} onClick={() => setViewPreset("iso")}>
-            Isometric
-          </button>
+        <div className="viewport-view-cube" role="group" aria-label="View controls" data-testid="viewport-view-cube" title="Drag to orbit · scroll to zoom · right-drag to pan">
+          <button
+            type="button"
+            className="viewport-fit"
+            data-testid={canvasFitCommand === "fit-selection" ? "viewport-fit-selection" : "viewport-fit-model"}
+            onClick={() => dispatchViewportViewCommand({ type: canvasFitCommand })}
+            title={canvasFitCommand === "fit-selection" ? "Fit the selection in the view" : "Fit the whole model in the view"}
+          >{canvasFitCommand === "fit-selection" ? "Fit Selection" : "Fit Model"}</button>
+          <span className="viewport-view-presets">
+            <button type="button" data-testid="viewport-view-front" aria-pressed={viewPreset === "front"} onClick={() => setViewPreset("front")} title="Look along −Z at the X–Y plane">Front</button>
+            <button type="button" data-testid="viewport-view-top" aria-pressed={viewPreset === "top"} onClick={() => setViewPreset("top")} title="Look down −Y at the X–Z plane">Top</button>
+            <button type="button" data-testid="viewport-view-side" aria-pressed={viewPreset === "side"} onClick={() => setViewPreset("side")} title="Look along −X at the Z–Y plane">Side</button>
+            <button type="button" data-testid="viewport-view-isometric" aria-pressed={viewPreset === "iso"} onClick={() => setViewPreset("iso")} title="Isometric view">Isometric</button>
+          </span>
         </div>
         {result && (colourOverlay || reactionOverlay) ? (
           <ResultOverlayLegend
@@ -2916,27 +2994,12 @@ export function PipeViewport({
             Load
           </button>
         </div>
-        <span className="command-active-tool" data-testid="armed-creation-tool" title={creationToolStatusLabel(armedCreationTool)}>
+        <span className="visually-hidden" role="status" data-testid="armed-creation-tool" title={creationToolStatusLabel(armedCreationTool)}>
           {armedCreationTool ? `${armedCreationTool.charAt(0).toUpperCase()}${armedCreationTool.slice(1)} tool armed` : "Select"}
         </span>
-        <details className="command-context"><summary>Selection &amp; navigation</summary><div className="command-context-content">
-        <button
-          type="button"
-          className="command-preview-button"
-          data-testid="queue-armed-creation-intent"
-          disabled={draftReviewBusy || !viewportCommandTypeForCreationTool(armedCreationTool)}
-          onClick={queueArmedPreviewIntent}
-          title="Queue a review-only preview intent for the armed viewport tool"
-        >
-          Queue preview
-        </button>
-        <span aria-label="Selection summary" role="status" data-testid="command-selection-readout">
+        <span className="visually-hidden" aria-label="Selection summary" role="status" data-testid="command-selection-readout">
           Selected {selection.type}: {selection.id}; {visibleIntents.length} queued
         </span>
-        <span className="command-hint" data-testid="viewport-orbit-hint">
-          Drag to orbit · scroll to zoom · right-drag to pan
-        </span>
-        </div></details>
       </section>
       {measurementPoints.length > 0 || measurementReadout.status === "unavailable" ? (
         <div className="viewport-measurement-strip" role="status" data-testid="viewport-measurement-readout">
@@ -2958,6 +3021,18 @@ export function PipeViewport({
           data-testid="viewport-editor-intents"
         >
         <h3 className="viewport-tool-heading">{nodeToolActive ? "Create node" : pipeToolActive ? "Create pipe" : componentToolActive ? "Insert component" : "Pending changes"}</h3>
+        {viewportCommandTypeForCreationTool(armedCreationTool) ? (
+          <button
+            type="button"
+            className="command-preview-button"
+            data-testid="queue-armed-creation-intent"
+            disabled={draftReviewBusy}
+            onClick={queueArmedPreviewIntent}
+            title="Queue a review-only preview intent for the armed viewport tool"
+          >
+            Queue preview
+          </button>
+        ) : null}
         <fieldset className="viewport-intent-controls" disabled={draftReviewBusy} data-testid="viewport-draft-flight-controls">
           <div className={`viewport-node-form${nodeToolActive ? " active" : ""}`} aria-label="Explicit node geometry">
             <label>
@@ -3556,6 +3631,8 @@ function fitViewportCamera(resource: ViewportResource, preset: ViewPreset, bound
     resource.camera.position.set(center.x, center.y, center.z + distance);
   } else if (preset === "top") {
     resource.camera.position.set(center.x, center.y + distance, center.z);
+  } else if (preset === "side") {
+    resource.camera.position.set(center.x + distance, center.y, center.z);
   } else {
     const diagonal = distance / Math.sqrt(3);
     resource.camera.position.set(center.x + diagonal, center.y + diagonal, center.z + diagonal);

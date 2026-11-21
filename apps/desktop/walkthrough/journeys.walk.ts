@@ -213,8 +213,8 @@ test("04 edit a model: a node, a support and a load on the demonstration model",
   await journey.step("grid", "The model as a grid", async () => { await page.getByRole("button", { name: "Grid", exact: true }).first().click(); });
   await journey.step("table-view", "Table view", async () => { await page.getByTestId("view-switch-table").click(); });
   await journey.step("model-view", "Model view", async () => { await page.getByTestId("view-switch-model").click(); });
-  await journey.step("viewport-selection", "The viewport's selection and navigation controls opened", async () => {
-    await page.getByText("Selection & navigation", { exact: true }).click();
+  await journey.step("viewport-selection", "The view's More menu opened", async () => {
+    await page.getByTestId("viewport-more").click();
   });
   await journey.step("review-changes", "Review changes, with nothing queued", async () => {
     await page.getByTestId("view-switch-both").click();

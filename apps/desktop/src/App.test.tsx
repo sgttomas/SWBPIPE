@@ -2853,14 +2853,14 @@ describe("SWBPIPE desktop preview", () => {
       screen.getByTestId("local-project-review-context").textContent,
     ).toContain("0 pending operations");
     fireEvent.click(
-      within(commandBar).getByTestId("queue-armed-creation-intent"),
+      screen.getByTestId("queue-armed-creation-intent"),
     );
     fireEvent.click(within(commandBar).getByRole("button", { name: /Pipe/i }));
     expect(
       within(commandBar).getByTestId("armed-creation-tool"),
     ).toHaveTextContent("Pipe tool armed");
     fireEvent.click(
-      within(commandBar).getByTestId("queue-armed-creation-intent"),
+      screen.getByTestId("queue-armed-creation-intent"),
     );
     fireEvent.click(
       within(commandBar).getByRole("button", { name: /Component/i }),
@@ -2869,7 +2869,7 @@ describe("SWBPIPE desktop preview", () => {
       within(commandBar).getByTestId("armed-creation-tool"),
     ).toHaveTextContent("Component tool armed");
     fireEvent.click(
-      within(commandBar).getByTestId("queue-armed-creation-intent"),
+      screen.getByTestId("queue-armed-creation-intent"),
     );
 
     const nodeIntent = within(intentPanel).getByTestId(
@@ -10717,7 +10717,7 @@ describe("SWBPIPE desktop preview", () => {
       within(commandBar).getByTestId("armed-creation-tool"),
     ).toHaveTextContent("Node tool armed");
     fireEvent.click(
-      within(commandBar).getByTestId("queue-armed-creation-intent"),
+      screen.getByTestId("queue-armed-creation-intent"),
     );
 
     const applyPanel = operationApplyPanel();

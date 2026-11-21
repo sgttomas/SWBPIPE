@@ -3,7 +3,7 @@ import {
   activateWithKeyboard, clearTreeFilter, currentModelHashThroughVisibleExport, gotoModel,
   readFixture, selectTreeRow, setAppearance, showModelTree, typedTreeRow
 } from "./ui-foundation-workflows";
-import { confirmProjectUnits, openWorkspaceSection, projectCommand, showCanvas, startPropertyTaskFromTreeEntity } from "./workspace-driver";
+import { confirmProjectUnits, openWorkspaceSection, projectCommand, showCanvas, startPropertyTaskFromTreeEntity, viewportControl } from "./workspace-driver";
 
 // Synthetic presentation fixture derived in memory from the maintained model envelope.
 // No performance lane, new diagnostics, or stored duplicate fixture.
@@ -24,7 +24,8 @@ async function fixture(overlap = false) {
   model.supports = []; model.components = []; model.load_cases = []; model.combinations = []; model.diagnostics = [];
   return model;
 }
-const control = (page: Page, name: string) => page.getByRole("button", { name, exact: true });
+// A view control is in the bar, or in its More menu while the bar is too narrow for its group.
+const control = (page: Page, name: string) => viewportControl(page, page.getByRole("button", { name, exact: true }));
 const label = (page: Page, id: string) => page.getByTestId(`viewport-select-${id}`);
 async function ready(page: Page) {
   await expect.poll(async () => page.evaluate(() => {
@@ -83,7 +84,7 @@ test("C3 snapshot, Hide precedence, persistent hidden count, theme and Show All 
   await clearTreeFilter(page);
   await ready(page);
   const normalImage = await page.getByTestId("viewport-canvas").screenshot();
-  await control(page, "Isolate").click();
+  await (await control(page, "Isolate")).click();
   await ready(page);
   const isolatedImage = await page.getByTestId("viewport-canvas").screenshot();
   expect(isolatedImage.equals(normalImage), "Isolate changes the drawn body presentation").toBe(false);
@@ -91,7 +92,7 @@ test("C3 snapshot, Hide precedence, persistent hidden count, theme and Show All 
   await info.attach("after-isolate", { body: isolatedImage, contentType: "image/png" });
   await expect(label(page, "pipe:C3-A")).toHaveAttribute("data-dimmed", "false");
   await expect(label(page, "pipe:C3-B")).toHaveAttribute("data-dimmed", "true");
-  await expect(control(page, "Show All")).toBeEnabled();
+  await expect(await control(page, "Show All")).toBeEnabled();
   await expect(page.getByTestId("viewport-hidden-count")).toHaveCount(0);
   for (const theme of ["dark", "light"] as const) {
     await setAppearance(page, theme, "comfortable");
@@ -101,7 +102,7 @@ test("C3 snapshot, Hide precedence, persistent hidden count, theme and Show All 
   // Table selection does not rewrite the snapshot, including hidden table selections.
   await selectTreeRow(page, "pipe", "pipe:C3-B");
   await expect(label(page, "pipe:C3-B")).toHaveAttribute("data-dimmed", "true");
-  await control(page, "Hide").click();
+  await (await control(page, "Hide")).click();
   await expect(label(page, "pipe:C3-B")).toHaveCount(0);
   const hidden = page.getByTestId("viewport-hidden-count");
   await expect(hidden).toHaveText("1 hidden · Show all");
@@ -144,7 +145,7 @@ test("C3 snapshot, Hide precedence, persistent hidden count, theme and Show All 
   await hidden.click();
   await expect(hidden).toHaveCount(0);
   await expect(label(page, "pipe:C3-B")).toHaveAttribute("data-dimmed", "false");
-  await expect(control(page, "Show All")).toBeDisabled();
+  await expect(await control(page, "Show All")).toBeDisabled();
   expect(await currentModelHashThroughVisibleExport(page)).toBe(beforeHash);
   expect(await history(page)).toBe(beforeHistory);
   await info.attach("shown-after-clear", { body: await page.getByTestId("viewport-canvas").screenshot(), contentType: "image/png" });
@@ -152,10 +153,10 @@ test("C3 snapshot, Hide precedence, persistent hidden count, theme and Show All 
 
 test("C3 dimmed geometry remains available to hover, click and box selection", async ({ page }, info) => {
   await gotoModel(page, await fixture());
-  await control(page, "Front").click();
-  await page.getByTestId("viewport-fit-model").click();
+  await (await control(page, "Front")).click();
+  await (await viewportControl(page, page.getByTestId("viewport-fit-model"))).click();
   await selectTreeRow(page, "pipe", "pipe:C3-A");
-  await control(page, "Isolate").click();
+  await (await control(page, "Isolate")).click();
   await page.getByTestId("toggle-viewport-labels").click();
   const p = await point(page, { x: 0, y: 3, z: 0 });
   await expectMainCanvasPoint(page, p);
@@ -170,8 +171,8 @@ test("C3 dimmed geometry remains available to hover, click and box selection", a
   await page.getByTestId("toggle-viewport-labels").click();
   await expect(label(page, "pipe:C3-B")).toHaveAttribute("data-dimmed", "true");
   await page.getByTestId("toggle-viewport-labels").click();
-  await page.getByTestId("viewport-box-select").click();
-  await page.getByTestId("viewport-selection-filter").selectOption("pipes");
+  await (await viewportControl(page, page.getByTestId("viewport-box-select"))).click();
+  await (await viewportControl(page, page.getByTestId("viewport-selection-filter"))).selectOption("pipes");
   const left = await point(page, { x: -4, y: 3, z: 0 });
   const right = await point(page, { x: 4, y: 3, z: 0 });
   const start = { x: Math.min(left.x, right.x) - 12, y: Math.min(left.y, right.y) - 12 };
@@ -180,18 +181,18 @@ test("C3 dimmed geometry remains available to hover, click and box selection", a
   await page.mouse.move(start.x, start.y); await page.mouse.down();
   await page.mouse.move(end.x, end.y, { steps: 5 }); await page.mouse.up();
   await expect.poll(() => selected(page)).toEqual([{ type: "pipe", id: "pipe:C3-B" }]);
-  await page.getByTestId("viewport-box-select").click();
+  await (await viewportControl(page, page.getByTestId("viewport-box-select"))).click();
   await page.getByTestId("toggle-viewport-labels").click();
   await expect(label(page, "pipe:C3-B")).toHaveAttribute("data-dimmed", "true");
 });
 
 test("C3 nearer dimmed pipe wins unchanged point ordering and viewport keyboard focus is visible", async ({ page }, info) => {
   await gotoModel(page, await fixture(true));
-  await control(page, "Front").click();
-  await page.getByTestId("viewport-fit-model").click();
+  await (await control(page, "Front")).click();
+  await (await viewportControl(page, page.getByTestId("viewport-fit-model"))).click();
   const canvas = page.getByTestId("viewport-canvas");
   await narrowBothPane(page);
-  await page.getByTestId("viewport-fit-model").click();
+  await (await viewportControl(page, page.getByTestId("viewport-fit-model"))).click();
   await page.getByTestId("toggle-viewport-labels").click();
   const far = await point(page, { x: 0, y: 0, z: 0 });
   const near = await point(page, { x: 0, y: 0, z: 2 });
@@ -200,7 +201,7 @@ test("C3 nearer dimmed pipe wins unchanged point ordering and viewport keyboard 
   await expect.poll(() => selected(page)).toEqual([{ type: "pipe", id: "pipe:C3-B" }]);
   await selectTreeRow(page, "pipe", "pipe:C3-A");
   await canvas.focus(); await page.keyboard.press("i");
-  await expect(control(page, "Show All")).toBeEnabled();
+  await expect(await control(page, "Show All")).toBeEnabled();
   const focus = await canvas.evaluate(el => {
     const s = getComputedStyle(el), r = el.getBoundingClientRect();
     return { visible: el.matches(":focus-visible"), width: s.outlineWidth, offset: s.outlineOffset, color: s.outlineColor, rect: r.toJSON() };
@@ -219,9 +220,9 @@ test("C3 nearer dimmed pipe wins unchanged point ordering and viewport keyboard 
   await filter.fill("i"); await filter.press("h");
   await expect(page.getByTestId("viewport-hidden-count")).toHaveText("1 hidden · Show all");
   await filter.fill("");
-  await control(page, "Show All").click();
+  await (await control(page, "Show All")).click();
   await canvas.focus(); await page.keyboard.press("Alt+i");
-  await expect(control(page, "Show All")).toBeDisabled();
+  await expect(await control(page, "Show All")).toBeDisabled();
 });
 
 test("C3 isolation remains clearable when every drawable entity belongs to the snapshot", async ({ page }) => {
@@ -230,21 +231,21 @@ test("C3 isolation remains clearable when every drawable entity belongs to the s
   model.pipe_segments = [];
   await gotoModel(page, model);
   await selectTreeRow(page, "node", "node:C3-loose");
-  await control(page, "Isolate").click();
+  await (await control(page, "Isolate")).click();
   await expect(label(page, "node:C3-loose")).toHaveAttribute("data-dimmed", "false");
   await expect(page.locator('.viewport-select-target[data-dimmed="true"]')).toHaveCount(0);
   await expect(page.getByTestId("viewport-hidden-count")).toHaveCount(0);
   await selectTreeRow(page, "node", "node:C3-loose", { toggle: true });
   await expect.poll(() => selected(page)).toEqual([]);
-  await expect(control(page, "Show All")).toBeEnabled();
-  await activateWithKeyboard(page, control(page, "Show All"));
-  await expect(control(page, "Show All")).toBeDisabled();
+  await expect(await control(page, "Show All")).toBeEnabled();
+  await activateWithKeyboard(page, await control(page, "Show All"));
+  await expect(await control(page, "Show All")).toBeDisabled();
 });
 
 test("C3 deletion retains active empty snapshot; new geometry dims; project replacement clears it", async ({ page }) => {
   await gotoModel(page, await fixture());
   await selectTreeRow(page, "node", "node:C3-loose");
-  await control(page, "Isolate").click();
+  await (await control(page, "Isolate")).click();
   await startPropertyTaskFromTreeEntity(page, "node", "node:C3-loose");
   await page.getByTestId("property-inspector").getByRole("tab", { name: "Properties", exact: true }).click();
   await expect(page.getByTestId("queue-delete-node-intent")).toBeVisible();
@@ -255,7 +256,7 @@ test("C3 deletion retains active empty snapshot; new geometry dims; project repl
   await showModelTree(page);
   await clearTreeFilter(page);
   await expect(typedTreeRow(page, "node", "node:C3-loose")).toHaveCount(0);
-  await expect(control(page, "Show All")).toBeEnabled();
+  await expect(await control(page, "Show All")).toBeEnabled();
   await expect(label(page, "pipe:C3-A")).toHaveAttribute("data-dimmed", "true");
   await page.getByTestId("command-node").click();
   await expect(page.getByTestId("viewport-create-node-id")).toBeVisible();
@@ -269,7 +270,7 @@ test("C3 deletion retains active empty snapshot; new geometry dims; project repl
   await page.getByTestId("apply-reviewed-draft").click();
   await expect(typedTreeRow(page, "node", "node:C3-new")).toBeVisible();
   await page.getByTestId("workspace-select").click();
-  await page.getByTestId("viewport-fit-model").click();
+  await (await viewportControl(page, page.getByTestId("viewport-fit-model"))).click();
   await expect(label(page, "node:C3-new")).toHaveAttribute("data-dimmed", "true");
   // The applied edits are unsaved: New asks first (W-12 S1), and Discard replaces them.
   await projectCommand(page, "new-blank");
@@ -277,7 +278,7 @@ test("C3 deletion retains active empty snapshot; new geometry dims; project repl
   await page.getByTestId("unsaved-changes-discard").click();
   await expect(page.getByTestId("unsaved-changes-prompt")).toHaveCount(0);
   await confirmProjectUnits(page);
-  await expect(control(page, "Show All")).toBeDisabled();
+  await expect(await control(page, "Show All")).toBeDisabled();
   await expect(page.getByTestId("viewport-hidden-count")).toHaveCount(0);
 });
 
@@ -292,9 +293,9 @@ test("C3 visibility never gives bundled references a current overlay or saved-mo
   await expect(page.getByRole("region", { name: "Bundled reference — not a solve for the current model" })).toBeVisible();
   await showCanvas(page);
   await selectTreeRow(page, "pipe", "pipe:P-100");
-  await control(page, "Isolate").click();
-  await control(page, "Hide").click();
-  await control(page, "Show All").click();
+  await (await control(page, "Isolate")).click();
+  await (await control(page, "Hide")).click();
+  await (await control(page, "Show All")).click();
   await expect(page.getByTestId("viewport-deformation-summary")).toContainText("result rows=0");
   await openWorkspaceSection(page, "results");
   await expect(page.getByTestId("historical-run-context")).toBeVisible();
@@ -306,8 +307,8 @@ test("C3 visibility never gives bundled references a current overlay or saved-mo
   await expect(page.getByTestId("historical-run-context")).toHaveCount(0);
   await showCanvas(page);
   await selectTreeRow(page, "pipe", "pipe:P-100");
-  await control(page, "Isolate").click();
-  await control(page, "Show All").click();
+  await (await control(page, "Isolate")).click();
+  await (await control(page, "Show All")).click();
   await expect(page.getByTestId("viewport-deformation-summary")).toContainText("result rows=0");
   await openWorkspaceSection(page, "evidence");
   await expect(page.getByTestId("status-pill-solve-proof")).toHaveCount(0);

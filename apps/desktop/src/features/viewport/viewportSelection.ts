@@ -1093,12 +1093,12 @@ function segmentIntersectsClosedRect(a: ScreenPoint, b: ScreenPoint, rect: BoxSe
 }
 
 /** Fits every envelope corner with 10% frame margin, retaining the legacy pose when sufficient. */
-export function fittedViewportDistance(bounds: Bounds3 | null, preset: "front" | "top" | "iso", fovDegrees: number, aspect: number): number {
+export function fittedViewportDistance(bounds: Bounds3 | null, preset: "front" | "top" | "side" | "iso", fovDegrees: number, aspect: number): number {
   const extent = bounds ? Math.max(bounds.max.x - bounds.min.x, bounds.max.y - bounds.min.y, bounds.max.z - bounds.min.z, 1) : 4;
   let distance = Math.max(4, extent * 1.8);
   if (!bounds) return distance;
   const orientation = new THREE.PerspectiveCamera();
-  orientation.position.set(...(preset === "front" ? [0, 0, 1] : preset === "top" ? [0, 1, 0] : [1, 1, 1]) as [number, number, number]);
+  orientation.position.set(...(preset === "front" ? [0, 0, 1] : preset === "top" ? [0, 1, 0] : preset === "side" ? [1, 0, 0] : [1, 1, 1]) as [number, number, number]);
   orientation.lookAt(0, 0, 0);
   const inverseRotation = orientation.quaternion.clone().invert();
   const center = new THREE.Vector3(bounds.min.x / 2 + bounds.max.x / 2, bounds.min.y / 2 + bounds.max.y / 2, bounds.min.z / 2 + bounds.max.z / 2);

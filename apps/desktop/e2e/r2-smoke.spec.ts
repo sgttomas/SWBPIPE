@@ -433,9 +433,8 @@ test("R2 browser smoke covers authoring, explicit reference results, and qualifi
     "model_metadata_unit_dimension_declared_catalog_unavailable_browser_preview"
   );
   await expect(editorIntentPanel.getByTestId("queue-editor-intent")).toBeEnabled();
-  await setDisclosure(page.getByTestId("viewport-deformation-status"));
-  await expect(page.getByTestId("viewport-deformation-status")).toContainText("not started; result rows=0");
-  await setDisclosure(page.getByTestId("viewport-deformation-status"), false);
+  // No result: the view offers no Deformation control, so it claims no deformed shape.
+  await expect(page.getByTestId("viewport-deformation-status")).toHaveCount(0);
   await openWorkspaceSection(page, "loads");
   await expect(page.getByTestId("load-case-manager-summary")).toContainText(
     "2 load cases; 5 primitive loads; 1 combinations"
@@ -679,11 +678,9 @@ test("R2 browser smoke covers authoring, explicit reference results, and qualifi
   await expect(page.getByTestId("solve-job-unit-policy")).toContainText("conversion=false");
   await inspectBundledReference(page);
   await showCanvas(page);
-  await setDisclosure(page.getByTestId("viewport-deformation-status"));
-  await expect(page.getByTestId("viewport-deformation-status")).toContainText("not started; result rows=0");
   // The preserved 5-node / 7.624972 mm and signed-vector source oracles above
-  // do not grant a current-model overlay from reference inspection.
-  await setDisclosure(page.getByTestId("viewport-deformation-status"), false);
+  // do not grant a current-model overlay from reference inspection: no Deformation control.
+  await expect(page.getByTestId("viewport-deformation-status")).toHaveCount(0);
 
   // The run audit is on the Evidence page (the Audit and Boundaries drawer is not in v1.0).
   const evidence = await openWorkspaceSection(page, "evidence");
@@ -852,14 +849,12 @@ test("viewport gesture placeholders record unit validation", async ({ page }) =>
   await setDisclosure(page.getByLabel("Project summary"), false);
   await showCanvas(page);
   await expect(page.getByTestId("armed-creation-tool")).toContainText("Node tool armed");
-  await openNamedDisclosure(page.getByTestId("command-bar"), "Selection & navigation");
   await page.getByTestId("queue-armed-creation-intent").click();
   await ensureCreationToolArmed(page, "command-pipe", "Pipe tool armed");
   await page.getByTestId("queue-armed-creation-intent").click();
   await page.getByTestId("command-component").click();
   await expect(page.getByTestId("armed-creation-tool")).toContainText("Component tool armed");
   await page.getByTestId("queue-armed-creation-intent").click();
-  await setDisclosure(page.getByTestId("command-bar").locator(".command-context"), false);
   await openViewportPendingChanges(page);
   await expect(page.getByTestId("viewport-intent-unit-validation-create_node")).toContainText(
     "unit_validation=length=model_metadata_unit_dimension_declared_catalog_unavailable_browser_preview"

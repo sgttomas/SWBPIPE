@@ -1,3 +1,4 @@
+import { viewportControl } from "./workspace-driver";
 import { createHash } from "node:crypto";
 import { createReadStream } from "node:fs";
 import { readFile } from "node:fs/promises";
@@ -829,7 +830,7 @@ export async function captureElementState(locator: Locator, testInfo: TestInfo, 
 }
 
 export async function keyboardMeasureTargets(page: Page, labels: readonly string[]): Promise<Locator> {
-  const measure = page.getByRole("button", { name: "Measure", exact: true });
+  const measure = (await viewportControl(page, page.getByRole("button", { name: "Measure", exact: true })));
   await activateWithKeyboard(page, measure);
   await expect(measure).toHaveAttribute("aria-pressed", "true");
   for (const label of labels) {

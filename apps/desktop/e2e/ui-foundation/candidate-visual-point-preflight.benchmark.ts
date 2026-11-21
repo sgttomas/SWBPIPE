@@ -46,9 +46,8 @@ test("untimed candidate V4 visual point preflight on three frozen probes", async
   }, { timeout: 30_000 });
   const cameraBinding = await validateCandidateMeasuredCameraBinding(page, fixture.pointOracle);
   await ensureViewportToggle(page, "toggle-viewport-labels", false, 30_000);
-  // Open the identity disclosure after display setup; its popup covers view controls.
-  await page.getByTestId("command-bar").locator(".command-context > summary").click();
-  await page.getByTestId("command-selection-readout").waitFor({ state: "visible", timeout: 30_000 });
+  // The selection summary is a visually hidden live status: present, never covering the view.
+  await page.getByTestId("command-selection-readout").waitFor({ state: "attached", timeout: 30_000 });
   const selectionVisualOracle = fixture.pointOracle?.candidate_preflight?.selection_visual_oracle;
   if (selectionVisualOracle?.sourceSha256 !== "009b27db887e3de224f72d0df221966fbaaa0305de218ee20848050ac6a1be1b") {
     throw new Error("candidate visual preflight is not bound to VISUAL_TOKENS_V4");
@@ -69,8 +68,6 @@ test("untimed candidate V4 visual point preflight on three frozen probes", async
       selectionVisualOracle
     ));
   }
-  await page.getByTestId("command-bar").locator(".command-context > summary").click();
-  await page.getByTestId("command-selection-readout").waitFor({ state: "hidden", timeout: 30_000 });
   await ensureViewportToggle(page, "toggle-viewport-labels", true, 30_000);
   const failed = records.filter((record) => record.status !== "CANDIDATE_EXPECTED_SELECTION_AND_PROPERTY_OBSERVED_CAPTURED");
   await writeJson(path.join(outputDir, "result.json"), {

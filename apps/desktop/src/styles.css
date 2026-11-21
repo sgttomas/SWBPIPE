@@ -4896,3 +4896,52 @@ body { min-width: 760px; min-height: 540px; }
 .app-shell .quantity-field-row > label + label { flex: 1 1 6rem; }
 .app-shell .quantity-field-row > label > input { width: 100%; min-width: 0; margin-inline: 0; color: var(--ui-text); }
 .app-shell .quantity-field > .quantity-field-row + button { margin-top: var(--space-2); }
+
+/* ---- The 3D view's controls (lane 1, human controls) ----------------------------------------
+   One bar above the canvas: the view's groups in priority order, then More. Groups that do not
+   fit move whole into More (ViewportOverflowBar), so no control is ever clipped or scrolled
+   sideways. Fit and the standard views sit together at the canvas's top right. */
+.app-shell .viewport-toolbar {
+  position: relative; z-index: 3; display: grid; grid-template-rows: auto; height: auto; min-height: 0;
+  padding: var(--space-2) var(--space-4); gap: var(--space-2); font-weight: var(--type-weight-regular);
+}
+.app-shell .viewport-bar { display: flex; align-items: center; gap: var(--space-4); min-width: 0; }
+.app-shell .viewport-bar-groups { display: flex; flex: none; flex-wrap: nowrap; align-items: center; gap: var(--space-4); }
+.app-shell .viewport-bar-group { display: flex; flex: none; flex-wrap: nowrap; align-items: center; gap: var(--space-1); }
+.app-shell .viewport-bar-group + .viewport-bar-group { padding-inline-start: var(--space-4); border-inline-start: 1px solid var(--ui-divider); }
+.app-shell .viewport-bar button, .app-shell .viewport-bar select, .app-shell .viewport-more-menu button, .app-shell .viewport-more-menu select {
+  min-height: 24px; height: 24px; padding: 0 var(--space-3); font-size: var(--type-size-caption); white-space: nowrap;
+}
+.app-shell .viewport-bar label, .app-shell .viewport-more-menu label { display: inline-flex; align-items: center; margin: 0; }
+.app-shell .viewport-more { flex: none; margin-inline-start: auto; }
+.app-shell .viewport-more-button { display: inline-flex; align-items: center; gap: var(--space-2); }
+.app-shell .viewport-more-caret { font-size: 9px; color: var(--ui-muted); }
+.app-shell .viewport-more-count {
+  min-width: 16px; height: 16px; padding: 0 var(--space-2); box-sizing: border-box; border-radius: 8px;
+  color: var(--ui-accent-text); background: var(--ui-accent); font-size: 10px; line-height: 16px; text-align: center;
+}
+.app-shell .viewport-more-menu {
+  position: fixed; z-index: 60; display: grid; gap: var(--space-4); box-sizing: border-box;
+  min-width: 200px; max-width: min(420px, calc(100vw - 16px)); overflow: auto; padding: var(--space-4);
+  color: var(--ui-text); background: var(--surface-raised); border: 1px solid var(--ui-border);
+  border-radius: var(--radius-card); box-shadow: var(--elevation-2);
+}
+.app-shell .viewport-more-group { display: grid; gap: var(--space-2); }
+.app-shell .viewport-more-heading { color: var(--ui-muted); font-size: var(--type-size-caption); }
+.app-shell .viewport-more-controls { display: flex; flex-wrap: wrap; align-items: center; gap: var(--space-2); }
+.app-shell .viewport-bar .viewport-deformation-status, .app-shell .viewport-more-menu .viewport-deformation-status {
+  max-width: none; padding-left: 0; border-left: 0; font-size: var(--type-size-caption);
+}
+.app-shell .viewport-bar .viewport-deformation-status > summary { min-height: 24px; line-height: 24px; white-space: nowrap; }
+.app-shell .viewport-more-menu .viewport-deformation-status[open] > div { position: static; width: auto; box-shadow: none; }
+/* Fit and the standard views: one cluster at the canvas's top right. */
+.app-shell .viewport-view-cube { top: var(--space-4); right: var(--space-4); display: flex; align-items: center; gap: var(--space-3); }
+.app-shell .viewport-view-cube button {
+  min-height: 24px; height: 24px; padding: 0 var(--space-3); font-size: var(--type-size-caption); box-shadow: var(--elevation-1);
+}
+.app-shell .viewport-view-presets { display: inline-flex; }
+.app-shell .viewport-view-presets > button { border-radius: 0; }
+.app-shell .viewport-view-presets > button + button { margin-inline-start: -1px; }
+.app-shell .viewport-view-presets > button:first-child { border-start-start-radius: var(--radius-control); border-end-start-radius: var(--radius-control); }
+.app-shell .viewport-view-presets > button:last-child { border-start-end-radius: var(--radius-control); border-end-end-radius: var(--radius-control); }
+.app-shell .viewport-view-presets > button[aria-pressed="true"] { position: relative; z-index: 1; }
