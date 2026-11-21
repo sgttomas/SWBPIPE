@@ -1633,6 +1633,7 @@
     "core/handoff/caepipe_mbf/si_writer.py",
     "core/handoff/caepipe_mbf_engine/src/*",
     "core/handoff/caepipe_mbf_engine/tests/import_review.rs",
+    "core/handoff/caepipe_mbf_engine/tests/pressure_free_shear_model.rs",
     "core/handoff/caepipe_mbf_engine/tests/sidecar_format6.rs",
     "apps/desktop/src-tauri/src/mbf_import_tests.rs",
     "tests/caepipe_mbf_canonical.py",
