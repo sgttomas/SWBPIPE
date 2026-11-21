@@ -313,7 +313,7 @@ fn trimmed(value: Option<&Value>) -> Option<&str> {
 /// form feed, U+FEFF and the Space_Separator characters) and LineTerminator
 /// (line feed, carriage return, U+2028, U+2029) code points. Unlike Rust's
 /// `trim`, it keeps U+0085.
-fn js_trim(text: &str) -> &str {
+pub(crate) fn js_trim(text: &str) -> &str {
     text.trim_matches(|c: char| {
         matches!(
             c,
@@ -332,7 +332,7 @@ fn utf16_order(left: &str, right: &str) -> Ordering {
     left.encode_utf16().cmp(right.encode_utf16())
 }
 
-fn sorted_unique(items: impl Iterator<Item = String>) -> Vec<String> {
+pub(crate) fn sorted_unique(items: impl Iterator<Item = String>) -> Vec<String> {
     let mut unique: Vec<String> = items.collect::<BTreeSet<_>>().into_iter().collect();
     unique.sort_by(|left, right| utf16_order(left, right));
     unique
@@ -639,7 +639,7 @@ fn report_checksum(payload_ref: &Value, value: Option<&str>) -> Value {
     })
 }
 
-fn report_envelope(payload_ref: Value, schema_id: &str, value: Option<&str>, provenance: &Value) -> Value {
+pub(crate) fn report_envelope(payload_ref: Value, schema_id: &str, value: Option<&str>, provenance: &Value) -> Value {
     json!({
         "ref": payload_ref,
         "schema_ref": reference("schema", schema_id),
