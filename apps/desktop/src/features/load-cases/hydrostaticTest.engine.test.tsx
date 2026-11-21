@@ -124,6 +124,27 @@ describe("the Hydrostatic test section", () => {
   });
 });
 
+describe("a case that holds no pressure regions yet", () => {
+  it("says so in the Test pressure line before the person queues, and names the engine's refusal in plain words", async () => {
+    const base = corpusBase("hydro_21");
+    const model = { ...base, load_cases: base.load_cases.map((loadCase) => {
+      if (loadCase.id !== "HT") return loadCase;
+      const { pressure_regions: _regions, ...rest } = loadCase;
+      return rest;
+    }) } as PreviewModel;
+    const list: EditorOperationIntent[] = [];
+    render(<HydrostaticTestSection model={model} onQueueIntent={(intent) => list.push(intent)} loadCase={ht(model)} />);
+    fireEvent.click(screen.getByTestId("load-case-hydrotest-switch"));
+    expect(screen.getByTestId("load-case-hydrotest-pressure")).toHaveTextContent("not given yet: give this case its pressure regions first, in its Pressure section");
+    fireEvent.change(screen.getByTestId("load-case-hydrotest-held"), { target: { value: "springs_and_constant_effort" } });
+    fireEvent.click(screen.getByTestId("load-case-hydrotest-queue"));
+    const refusal = await screen.findByTestId("load-case-hydrotest-finding-EXACT_PRESSURE_REGIONS_REQUIRED");
+    expect(refusal).toHaveAttribute("data-severity", "blocking");
+    expect(refusal).toHaveTextContent("Refused: give this case its pressure regions first, in its Pressure section");
+    expect(list).toEqual([]);
+  });
+});
+
 describe("the Conditions control on a document with a pressure contract", () => {
   it("shows a test case's contents as chosen in the Hydrostatic test section and keeps every other member refused", () => {
     const model = corpusBase("hydro_25");

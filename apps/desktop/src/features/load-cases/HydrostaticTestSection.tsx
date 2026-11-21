@@ -33,7 +33,8 @@ export const HYDROSTATIC_FINDINGS: Readonly<Record<string, string>> = {
   LOAD_CASE_TEST_HELD_SUPPORT_MOTION: "a held support has a prescribed movement",
   COMBINATION_HYDROSTATIC_TEST_WITHHELD: "a combination uses this test case",
   LOAD_CASE_TEST_CONDITION_PRESSURE_FREE: "the model has no pressure contract",
-  LOAD_CASE_CONDITION_USE_EXACT_UNSUPPORTED: "clear the test contents first"
+  LOAD_CASE_CONDITION_USE_EXACT_UNSUPPORTED: "clear the test contents first",
+  EXACT_PRESSURE_REGIONS_REQUIRED: "give this case its pressure regions first, in its Pressure section"
 };
 
 type StoredTest = { held: string; contents: string };
@@ -63,6 +64,9 @@ export function HydrostaticTestSection(props: EngineCheckedQueueProps & { loadCa
   useReseed([loadCase.id, stored], () => setDraft(storedOf(loadCase)));
   const queue = useCheckedSectionQueue(props);
   const keys = contentsKeys(model);
+  // A case holds its pressure regions before it is made a test (the engine refuses the other
+  // order with EXACT_PRESSURE_REGIONS_REQUIRED); the line below says so before the person meets it.
+  const regionsGiven = Array.isArray(loadCase.pressure_regions);
   const regions = loadCase.pressure_regions?.length ?? 0;
   const unchanged = draft.on === stored.on && (!draft.on || (draft.held === stored.held && draft.contents === stored.contents));
 
@@ -115,7 +119,7 @@ export function HydrostaticTestSection(props: EngineCheckedQueueProps & { loadCa
           </div>
           <dl className="loads-values">
             <dt>Test pressure</dt>
-            <dd data-testid="load-case-hydrotest-pressure">{regions ? `${plural(regions, "pressure region", "pressure regions")} of this case` : "no pressure region in this case"}</dd>
+            <dd data-testid="load-case-hydrotest-pressure">{regions ? `${plural(regions, "pressure region", "pressure regions")} of this case` : regionsGiven ? "no pressure region in this case" : "not given yet: give this case its pressure regions first, in its Pressure section"}</dd>
           </dl>
           <p className="loads-status" data-testid="load-case-hydrotest-self-weight">Self-weight is taken with the selected test contents at solve.</p>
         </>
