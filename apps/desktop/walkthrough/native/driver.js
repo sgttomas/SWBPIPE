@@ -53,12 +53,34 @@
       await sleep(100);
     }
   }
-  // The control a person would press: missing, hidden or disabled is where they stop, with the window's reason.
+  // A step acts as a person does: only on what is shown, never inside a section or form left closed (a query can find
+  // a control there, a person cannot). `acted` collects, for the step's record, each control used and that it was
+  // shown and in no closed section at that moment.
+  let acted = null;
+  const closedSection = (element) => {
+    const details = element.closest("details:not([open])");
+    const summary = element.closest("summary");
+    if (details && !(summary && summary.parentElement === details)) return `the closed section "${details.querySelector(":scope > summary")?.textContent?.replace(/\s+/g, " ").trim() ?? "untitled"}"`;
+    if (element.closest("[hidden], [inert], [aria-hidden='true']")) return "a hidden or inert part of the page";
+    return null;
+  };
+  function acting(element, name) {
+    const closed = closedSection(element);
+    if (closed) throw new Error(`${name} is inside ${closed}: a person opens it first`);
+    if (!visible(element)) throw new Error(`${name} is not shown`);
+    if (acted) acted.push({ control: name, shown: true, in_closed_section: false });
+    return element;
+  }
+  // The control a person would press: missing, hidden, closed away or disabled is where they stop, with the reason.
   async function control(id, { root, timeoutMs = T.ui } = {}) {
     const found = await waitFor(`the control ${id}`, () => { const item = byTestId(id, root); return visible(item) ? item : null; }, timeoutMs).catch(() => null);
-    if (!found) throw new Error(byTestId(id, root) ? `the control ${id} is on the page but not shown` : `the window shows no control ${id}`);
+    if (!found) {
+      const present = byTestId(id, root);
+      const closed = present && closedSection(present);
+      throw new Error(closed ? `the control ${id} is inside ${closed}: a person opens it first` : present ? `the control ${id} is on the page but not shown` : `the window shows no control ${id}`);
+    }
     if (found.disabled || found.getAttribute("aria-disabled") === "true") throw new Error(`the control ${id} is disabled: "${disabledReason(found)}"`);
-    return found;
+    return acting(found, id);
   }
   async function press(id, options) {
     (await control(id, options)).click();
@@ -78,10 +100,10 @@
   }
   const slug = (value) => String(value).toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "").slice(0, 40) || "unnamed";
   const closeOverlays = async () => {
-    for (const id of ["key-results-close", "solve-progress-close"]) { const item = byTestId(id); if (visible(item)) { item.click(); await settle(); } }
+    for (const id of ["key-results-close", "solve-progress-close"]) { const item = byTestId(id); if (visible(item)) { acting(item, id).click(); await settle(); } }
     for (const drawer of ["issues-home", "audit-boundary-drawer"]) {
       const close = byTestId(drawer) && [...byTestId(drawer).querySelectorAll("button")].find((button) => button.textContent.trim() === "Close" || button.getAttribute("aria-label") === "Close");
-      if (visible(close)) { close.click(); await settle(); }
+      if (visible(close)) { acting(close, `${drawer} Close`).click(); await settle(); }
     }
   };
 
@@ -117,6 +139,7 @@
       }
       await act(`${this.name}: ${step}`);
       substitutions = [];
+      acted = [];
       try {
         const found = action ? await action() : undefined;
         if (typeof found === "string" && found) record.note = `${note}: ${found}`;
@@ -129,7 +152,9 @@
         Object.assign(record, await this.capture());
       }
       record.substitutions = substitutions;
+      record.acted_on = acted;
       substitutions = null;
+      acted = null;
       await this.write(record);
     }
 
@@ -206,7 +231,7 @@
     await journey.step("row-chosen", "A row of the filtered results chosen", async () => {
       const row = await waitFor("a result row", () => [...document.querySelectorAll('tr[data-testid^="result-row-"]')].find(visible), T.ui).catch(() => null);
       if (!row) throw new Error(`the filter shows no row: ${text("result-filter-empty") ?? text("result-filter-summary") ?? "no reason shown"}`);
-      row.click();
+      acting(row, row.getAttribute("data-testid")).click();
       await sleep(300);
       return row.getAttribute("data-testid");
     });
@@ -222,9 +247,10 @@
     for (const action of ["ratio", "deflection", "support", "contact", "results-table", "stress-ratio-table", "displacement-extremes"]) {
       await journey.step(`key-results-${action}`, `Key results: ${action.replace(/-/g, " ")}`, async () => {
         if (!visible(byTestId("key-results-panel"))) await press("key-results-open");
-        const button = await waitFor(`key-results-${action}`, () => byTestId(`key-results-${action}`), T.ui).catch(() => null);
-        if (!button) throw new Error(`Key results offers no ${action} view`);
-        button.click();
+        const button = await waitFor(`key-results-${action}`, () => { const item = byTestId(`key-results-${action}`); return visible(item) ? item : null; }, T.ui).catch(() => null);
+        if (!button) throw new Error(`Key results shows no ${action} view control`);
+        // An unavailable view is pressed too: it says why, which is what a person meets.
+        acting(button, `key-results-${action}`).click();
         await sleep(400);
         // An unavailable view says why and does nothing else: recorded, not a stop.
         return byTestId(`key-results-${action}-reason`)?.textContent?.trim() ?? text("key-results-status") ?? "";
@@ -255,7 +281,7 @@
       const load = byTestId("c2-result-load");
       if (!visible(load)) return "not offered on this screen";
       await scrollTo(load, "center");
-      load.click();
+      acting(load, "c2-result-load").click();
       await sleep(500);
       return `pressed: ${load.textContent.trim()}`;
     });

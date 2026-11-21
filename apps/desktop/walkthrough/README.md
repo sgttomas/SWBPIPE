@@ -151,6 +151,13 @@ pressed. The embedded agent is never started: no provider, model, key, network
 or sign-in. The run's folder (reports, step records, snapshots) is kept in the
 system's temporary folder; the command prints where.
 
+**Acting as a person does.** A step acts only on a control that is shown and
+lies in no closed disclosure, closed form or hidden or inert part of the page;
+otherwise the journey stops there, with that reason. Each native step records
+in `acted_on` every control it used and that it was shown and open at that
+moment. The browser journeys get the same from Playwright, whose clicks and
+fills wait for a visible control and fail on one that is not.
+
 **What it cannot show.** The native menu bar: no command of the
 scripted-run build returns the menu the app builds, and reading it from
 outside the app needs the Accessibility permission, so its items' names and
@@ -208,7 +215,7 @@ saved states and runs. To add one:
    control, `openStage("results")` for a stage, `showSection("exports")` for a
    page, and `menu("<command id>")` for a native menu command. Open a section
    or a form by its own visible control before using what is in it. A control
-   that is missing, hidden or disabled stops the
+   that is missing, hidden, inside a closed section or disabled stops the
    journey there, with the reason the window gives. Return a string to add
    what the window said to the step's note. Use
    `journey.scrolled("<name>", "<note>", <screens>)` for what lies below the

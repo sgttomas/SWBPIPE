@@ -68,6 +68,17 @@ test("the composed driver is one script: the shared counts, the snapshot, then t
   assert.doesNotMatch(driver, /rendered-report-print"|report-print|toggle-agent|embedded_agent/);
 });
 
+test("the driver acts only through what a person can reach: every click goes through control() or acting()", () => {
+  const driver = readFileSync(new URL("./driver.js", import.meta.url), "utf8");
+  // control() and acting() refuse a control that is not shown or lies in a closed section, and record it on the step.
+  const receivers = [...driver.matchAll(/([\w$.)\]]+)\.click\(\)/g)].map((match) => match[1]);
+  const fromControl = new Set(["intent", "render"]);
+  for (const receiver of receivers) assert.ok(receiver.endsWith(")") || fromControl.has(receiver), `a click on ${receiver} bypasses control() and acting()`);
+  for (const name of fromControl) assert.match(driver, new RegExp(`const ${name} = await control\\(`));
+  assert.match(driver, /details:not\(\[open\]\)/);
+  assert.match(driver, /record\.acted_on = acted/);
+});
+
 test("records become screens: counts and the snapshot's facts kept, a stop and the steps after it as recorded", () => {
   const counts = { words_on_screen: 5, words_in_page: 9, prose_blocks_on_screen: 1, buttons_on_screen: 2, inputs_on_screen: 0, longest_scroll_screens: 1, controls: ["button: Run"] };
   const snapshot = { html: "<!doctype html><p>x</p>", width: 1440, height: 920, view_3d: "not captured", canvases: [{ label: "3D view", captured: false, reason: "its pixels read blank" }], notes: [] };
