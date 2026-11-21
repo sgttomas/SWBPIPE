@@ -219,8 +219,13 @@ async fn save_report_package_decoded(
         let outcome = {
             let mut session = report_package_save::UserReleaseSession { registry: &registry, lease: &mut lease };
             // DEL-08-01 REQ-023: a published package's entry, kept in the
-            // project store from the save's own outcome.
-            let mut keep = |published: &saved_package_entries::PublishedPackage| saved_package_entries::keep_entry(|| app_store_path(&app), published);
+            // project store from the save's own outcome, or held by the
+            // session while the store does not hold the project, until the
+            // project's first save writes it.
+            let held = app.state::<saved_package_entries::SessionHeldEntries>();
+            let mut keep = |published: &saved_package_entries::PublishedPackage| {
+                saved_package_entries::keep_or_hold_in(app_store_path(&app), &held, published)
+            };
             report_package_save::save_report_package_session(
                 request,
                 &software,
@@ -2784,7 +2789,10 @@ async fn save_preview_mechanics_job_local_project(
     invoke: tauri::ipc::Request<'_>,
     registry: tauri::State<'_, SolveJobRegistry>,
 ) -> Result<tauri::ipc::Response, CommandError<String>> {
-    native_persistence::save_project(&registry, move || app_store_path(&app), invoke.body(), invoke.headers()).await
+    let store_app = app.clone();
+    let outcome = native_persistence::save_project(&registry, move || app_store_path(&store_app), invoke.body(), invoke.headers()).await;
+    saved_package_entries::write_held_entries_after_save(&app);
+    outcome
 }
 
 /// C1 slice 6: open a stored project with its saved run reopened into
@@ -2815,7 +2823,10 @@ async fn save_restored_result_local_project(
     invoke: tauri::ipc::Request<'_>,
     registry: tauri::State<'_, SolveJobRegistry>,
 ) -> Result<tauri::ipc::Response, CommandError<String>> {
-    stored_save::save_project(&registry, move || app_store_path(&app), invoke.body(), invoke.headers()).await
+    let store_app = app.clone();
+    let outcome = stored_save::save_project(&registry, move || app_store_path(&store_app), invoke.body(), invoke.headers()).await;
+    saved_package_entries::write_held_entries_after_save(&app);
+    outcome
 }
 
 /// C1 slice 6: a recorded run reopened into native custody after the store's
@@ -3372,7 +3383,11 @@ fn create_local_project(
     registry: tauri::State<'_, SolveJobRegistry>,
 ) -> Result<tauri::ipc::Response, CommandError> {
     let (mut args, _lease) = command_ingress::admit(&registry, &invoke, "create_local_project", ArgsDecoding::Moved)?;
-    respond(create_local_project_args(&mut args, || app_store_path(&app)))
+    let outcome = create_local_project_args(&mut args, || app_store_path(&app));
+    // DEL-08-01 REQ-023: entries held for a project the store now holds are
+    // written; the save's own outcome is unchanged by it.
+    saved_package_entries::write_held_entries_after_save(&app);
+    respond(outcome)
 }
 
 /// `{model, editorIntents?, proposal?, selectedReviewTarget?, mechanicsResult?,
@@ -3544,7 +3559,9 @@ fn save_local_project(
     registry: tauri::State<'_, SolveJobRegistry>,
 ) -> Result<tauri::ipc::Response, CommandError> {
     let (mut args, _lease) = command_ingress::admit(&registry, &invoke, "save_local_project", ArgsDecoding::Moved)?;
-    respond(save_local_project_args(&mut args, || app_store_path(&app)))
+    let outcome = save_local_project_args(&mut args, || app_store_path(&app));
+    saved_package_entries::write_held_entries_after_save(&app);
+    respond(outcome)
 }
 
 /// `{request}` (snake_case fields, see `SaveLocalProjectRequest`).
@@ -6394,6 +6411,7 @@ pub fn run() {
         .manage(close_guard::CloseGuard::default())
         .manage(mbf_worker::MbfRuns::default())
         .manage(mbf_import::MbfImports::default())
+        .manage(saved_package_entries::SessionHeldEntries::default())
         .menu(|handle| build_app_menu(handle))
         .on_menu_event(|app, event| {
             if event.id().0 == QUIT_MENU_ID {
