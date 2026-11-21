@@ -2,8 +2,10 @@
  * comparisons, rule checks, stress-neutral and JSON derivative exports, the handoff panels) keep
  * full rows until C2 lands. For a native result they get them only through this gate: lazily, when
  * the panel is shown (or, with `explicit`, when the person asks), copied once per result at or under
- * 64 MiB and read with the legacy readers on the exact copied bytes, with the full record built on
- * that copy and checked against the native preview's checksums. Above the limit the panel shows
+ * 64 MiB and read with the legacy readers on the exact copied bytes. A consumer given the run record
+ * also gets the full record built on that copy and checked against the native preview's checksums;
+ * one given none is neither refused for the record's size nor made to wait for its build. Above the
+ * limit (the result's, or the record's for a consumer given it) the panel shows
  * `RESULT-DETAIL-WEBVIEW-LIMIT` with the sizes, what still works and #51's advice; nothing is
  * withheld silently. A full result in the webview already (historical, browser reference) passes
  * through unchanged. No C1 surface uses this gate. */
@@ -14,8 +16,10 @@ import { useOptionalSessionResults } from "../workspace/WorkspaceSessionContext"
 import type { AnalysisRunEnvelope, MechanicsResult } from "../../types";
 
 export type C2FullResult = Readonly<{ result: MechanicsResult; analysisRun: AnalysisRunEnvelope | null }>;
-/** The session's loader of a native result's C2 full copy and full record. */
-export type C2FullResultLoader = (result: SessionResult) => Promise<C2FullResult>;
+/** The session's loader of a native result's C2 full copy and its full record. The record is asked
+ * for unless `request` is `{ record: false }` (a call without `request` asks for it); with
+ * `{ record: false }` the record is neither read nor built, and `analysisRun` is null. */
+export type C2FullResultLoader = (result: SessionResult, request?: { record: boolean }) => Promise<C2FullResult>;
 
 type GateState =
   | { status: "idle" }
@@ -30,6 +34,7 @@ export function C2ResultGate({
   feature,
   load: givenLoad,
   explicit = false,
+  withheld = null,
   children
 }: {
   result: SessionResult | null;
@@ -40,6 +45,10 @@ export function C2ResultGate({
   load?: C2FullResultLoader;
   /** Load only when the person asks (panels shown at first paint). */
   explicit?: boolean;
+  /** Shown below the refusal or failure, in the withheld consumer's place: what that consumer would
+   * itself have shown (an outcome reached without it). Nothing by default. It carries its own
+   * role: the gate adds none. */
+  withheld?: ReactNode;
   children: (full: { result: MechanicsResult | null; analysisRun: AnalysisRunEnvelope | null }) => ReactNode;
 }) {
   const sessionResults = useOptionalSessionResults();
@@ -70,7 +79,9 @@ export function C2ResultGate({
     }
     let live = true;
     setState({ status: "loading", of: result, run: analysisRun });
-    load(result).then(
+    // The record is asked for exactly when the consumer was given one: a consumer without a record
+    // is neither refused for the record's size nor made to wait for its build.
+    load(result, { record: analysisRun !== null }).then(
       (full) => { if (live) setState({ status: "ready", full, of: result, run: analysisRun }); },
       (error) => {
         if (!live) return;
@@ -85,8 +96,10 @@ export function C2ResultGate({
   if (retired) return null;
   if (!native) return <>{children({ result: result as MechanicsResult | null, analysisRun: isNativeAnalysisRun(analysisRun) ? null : analysisRun })}</>;
   if (shown?.status === "ready") return <>{children({ result: shown.full.result, analysisRun: shown.full.analysisRun })}</>;
-  if (shown?.status === "refused") return <p role="status" data-testid="c2-result-refused" className="result-refusal">{shown.text}</p>;
-  if (shown?.status === "failed") return <p role="alert" data-testid="c2-result-failed">{shown.text}</p>;
+  // The content announces itself (one status per outcome); the wrapper only places it.
+  const withheldDetail = withheld ? <div data-testid="c2-result-withheld">{withheld}</div> : null;
+  if (shown?.status === "refused") return <><p role="status" data-testid="c2-result-refused" className="result-refusal">{shown.text}</p>{withheldDetail}</>;
+  if (shown?.status === "failed") return <><p role="alert" data-testid="c2-result-failed">{shown.text}</p>{withheldDetail}</>;
   if (explicit && !requested) {
     return (
       <p data-testid="c2-result-explicit">
