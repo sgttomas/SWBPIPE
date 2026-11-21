@@ -25,11 +25,14 @@ export const UNRESOLVED_TERMINATION = "UNRESOLVED TERMINATION";
  * (exit 1, the failed launch recorded and named). Otherwise the result is `{ report, read, outcome, failures, census }`;
  * `report` is the report as read, or `{ ok: false, error }` when there is none, so that a failed launch's
  * observations stay readable. `marksRun` and `census` are internal seams for the test; the runners leave them unset.
+ * `abort`, optional, is an AbortSignal handed to runUnderLock, which owns the started child: aborting it ends the
+ * launch with SIGKILL to that child (its own group) and the phase's record keeps runUnderLock's receipt as `abort`.
+ * Absent, nothing changes.
  */
 export async function judgedPhase({
   phase, checkName, launches, check, summaryPath, summary = () => ({}),
   executable, command, commandArgs, cwd, env, stdio = ["ignore", "inherit", "inherit"], timeoutMs, reportPath, nonce,
-  censusBoundMs, beforeStart = () => {}, marksRun, census = awaitNoProcesses
+  censusBoundMs, beforeStart = () => {}, marksRun, census = awaitNoProcesses, abort
 }) {
   const marks = marksRun ? marksCheck(marksRun) : marksCheck();
   if (marksRefuse(marks)) {
@@ -39,7 +42,7 @@ export async function judgedPhase({
   }
   beforeStart();
   const started = new Date().toISOString();
-  const { status, signal, timedOut } = await runUnderLock(command, commandArgs, { cwd, env, stdio, timeoutMs });
+  const { status, signal, timedOut, abort: abortReceipt } = await runUnderLock(command, commandArgs, { cwd, env, stdio, timeoutMs, ...(abort ? { abort } : {}) });
   const ended = new Date().toISOString();
   // The census: no process may still run the private copy (a solve worker runs it in its own process group,
   // which runUnderLock does not track).
@@ -48,7 +51,7 @@ export async function judgedPhase({
   const read = readReport(reportPath);
   const failures = launchFailures({ status, signal, timedOut, census: termination, report: read.report, problem: read.problem, nonce });
   const outcome = recordedOutcome({ status, signal, timedOut, census: termination, nonce, started, ended });
-  launches[phase] = { marks, outcome, failures };
+  launches[phase] = { marks, outcome, failures, ...(abort ? { abort: abortReceipt ?? null } : {}) };
   check(checkName, failures.length === 0, failures.length === 0 ? undefined : failures);
   if (!termination?.resolved) {
     writeFileSync(summaryPath, JSON.stringify({ ...summary(), launches, stopped: UNRESOLVED_TERMINATION }, null, 2));
