@@ -89,7 +89,7 @@ export function IssueItemView({
             </button>
           </>
         ) : null}
-        {long.control}
+        {long.control ? <>{" "}·{" "}{long.control}</> : null}
       </p>
       {long.full}
       {grouped ? (
@@ -113,7 +113,8 @@ export function IssueItemView({
 }
 
 /** A message's text as its entry shows it at rest, and, where it is long, the "Show all" control
- * and, once opened, the whole text. */
+ * (its caller places it, with a separator only where something precedes it on the line) and, once
+ * opened, the whole text. */
 function useLongMessage(message: string): { text: string; control: ReactNode; full: ReactNode } {
   const [open, setOpen] = useState(false);
   const fullId = useId();
@@ -122,12 +123,9 @@ function useLongMessage(message: string): { text: string; control: ReactNode; fu
   return {
     text: `${beginning}…`,
     control: (
-      <>
-        {" "}·{" "}
-        <button aria-controls={fullId} aria-expanded={open} className="issue-inline-control" data-testid="issue-show-all" onClick={() => setOpen((value) => !value)} type="button">
-          {open ? "Show less" : `Show all (${message.length.toLocaleString("en-US")} characters)`}
-        </button>
-      </>
+      <button aria-controls={fullId} aria-expanded={open} className="issue-inline-control" data-testid="issue-show-all" onClick={() => setOpen((value) => !value)} type="button">
+        {open ? "Show less" : `Show all (${message.length.toLocaleString("en-US")} characters)`}
+      </button>
     ),
     full: open ? <div className="issue-message-full" data-testid="issue-message-full" id={fullId}>{message}</div> : null
   };
