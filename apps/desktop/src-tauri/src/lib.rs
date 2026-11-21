@@ -11500,15 +11500,24 @@ mod tests {
                         command_ingress::admit_body(&registry, &invoke_body, &current, "save_report_package", ArgsDecoding::Moved).unwrap();
                     let request = report_package_save::save_report_package_args(&mut args).unwrap();
                     drop(args);
-                    report_package_save::validate_report_package_save_evidence(&request.screening, request.local_first.as_ref()).unwrap();
-                    let growth = report_package_save::parse_lease_bytes(&request.request_text, &request.model_text, &request.input_manifest_text).unwrap();
-                    lease.grow_to(lease.bytes() + growth).unwrap();
+                    grow_report_package_save_lease(&registry, &request, &mut lease).unwrap_or_else(|error| panic!("{label}: growth refused: {error:?}"));
                     let mut picks = 0usize;
-                    let receipt = save_report_package_with_picker(request, &software(), &mut no_store, &report_package_save::no_custody, |_| {
-                        picks += 1;
-                        None
-                    })
-                    .unwrap_or_else(|error| panic!("{label}: refused: {}", error.message));
+                    let receipt = {
+                        let mut session = report_package_save::UserReleaseSession { registry: &registry, lease: &mut lease };
+                        report_package_save::save_report_package_session(
+                            request,
+                            &software(),
+                            &mut no_store,
+                            &report_package_save::no_custody,
+                            &mut session,
+                            |_| {
+                                picks += 1;
+                                None
+                            },
+                            &mut report_package_save::keep_no_entry,
+                        )
+                        .unwrap_or_else(|refusal| panic!("{label}: refused: {refusal:?}"))
+                    };
                     assert_eq!(picks, 1);
                     let code = receipt.code.clone();
                     let response = respond::<_, String>(Ok(receipt)).unwrap();
@@ -11565,6 +11574,23 @@ mod tests {
             use report_package_save::test_support::{args_body, desktop_request, model, save_request};
             let body = serde_json::to_vec(&args_body(&save_request(&desktop_request(&model()), &model()))).unwrap();
             report_package_whole_command_within_its_lease("witness", &body);
+        }
+
+        /// The whole command on route 009 with its optional run record
+        /// (DEL-08-01 REQ-023 "Basis"): the user-release vectors' basis, the
+        /// committed model and sparse solve, with the record given, so the
+        /// record's growth and check are within the measured lease.
+        #[test]
+        fn report_package_save_whole_command_with_a_run_record_is_within_its_lease() {
+            use report_package_save::test_support::{args_body, desktop_request_from, model, save_request_with};
+            let vectors: Value = serde_json::from_str(include_str!("../../../../fixtures/reports/invented/user_release_derivation_vectors.json")).unwrap();
+            let source: Value = serde_json::from_str(include_str!("../../../../fixtures/results/preview_physics_connected_sparse.json")).unwrap();
+            let vector = &vectors["vectors"][0];
+            let (model, manifest) = (model(), vector["input_manifest"].clone());
+            let request = desktop_request_from(&model, &manifest, &source);
+            let mut body = args_body(&save_request_with(&request, &model, &manifest));
+            body["analysisRunCanonicalText"] = json!(open_pipe_stress_canonical_json::canonical_json(&vector["run_record"]));
+            report_package_whole_command_within_its_lease("route 009 with a run record", &serde_json::to_vec(&body).unwrap());
         }
 
         /// The whole command on the demo's request: the bundled demo

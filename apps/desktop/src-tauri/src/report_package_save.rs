@@ -263,9 +263,11 @@ pub struct ReportPackageSaveRequest {
     /// delivered and the model text the job was sent.
     pub exact_result_text: Option<String>,
     pub exact_intake_text: Option<String>,
-    /// W-18b (§2.5 step 2): on route 010 only, the solve's DEL-14-02 0.3.0
-    /// transient run record as its canonical text; a validation input only,
-    /// never saved.
+    /// W-18b (§2.5 step 2): the solve's DEL-14-02 0.3.0 transient run
+    /// record as its canonical text; a validation input only, never saved.
+    /// Route 010 requires it. On route 009 it is optional and decides only
+    /// the saved-package entry's basis (DEL-08-01 REQ-023): it never refuses
+    /// or fails the save.
     pub analysis_run_text: Option<String>,
 }
 
@@ -589,67 +591,74 @@ fn analysis_run_text_of(analysis_run_text: Option<&str>) -> Result<&str, ReportP
     Ok(text)
 }
 
-/// Route 009's provision for the run record text it checks for its
-/// saved-package entry (DEL-08-01 REQ-023 "Basis"): the text's priced parse
-/// when it is within [`MAX_ANALYSIS_RUN_TEXT_BYTES`] and is one JSON value,
-/// and nothing otherwise. Route 009 never refuses a save for its run record:
-/// a record it cannot check leaves the entry not kept, never the package.
-fn route_009_run_record_lease_bytes(analysis_run_text: Option<&str>) -> u64 {
-    match analysis_run_text {
-        Some(text) if text.len() as u64 <= MAX_ANALYSIS_RUN_TEXT_BYTES => text_parse_bytes(text, ArgsDecoding::Moved).unwrap_or(0),
-        _ => 0,
-    }
-}
-
 /// Route 009's run record, checked natively for the package's
-/// saved-package entry as route 010 checks its own (DEL-08-01 REQ-023
-/// "Basis"): bound to the project, the input manifest and its hash, and the
-/// source result the package is produced from
-/// ([`crate::analysis_runs::check_record_for_values`]). The basis is the
-/// model text's SHA-256 and the checked record's run id, recomputed record
-/// hash and received-result checksum. Nothing here refuses the save: an
-/// absent record is [`EntryBasis::NoRunRecord`], and a record that is too
-/// large, not canonical, unbound, recorded before rule-pack resolution or
-/// not checkable within the command's memory is [`EntryBasis::Unverified`]
-/// with its reason.
+/// saved-package entry with route 010's verification
+/// ([`user_release_native::verify_run_record`], with Record Run's status
+/// rule; DEL-08-01 REQ-023 "Basis"). The record is optional to the save, so
+/// nothing here refuses or fails it:
+/// - an absent record is [`EntryBasis::NoRunRecord`];
+/// - a text above [`MAX_ANALYSIS_RUN_TEXT_BYTES`], or one the
+///   allocation-free ingress prescan refuses, is [`EntryBasis::Unverified`]
+///   and is never handed to the JSON parser;
+/// - the text's priced parse is then taken as an extra growth of the
+///   command's lease (`session`), apart from the save's own; if the pool
+///   refuses it, or refuses a reservation of the check, the record is
+///   [`EntryBasis::NotChecked`] and the package is saved exactly as without
+///   it;
+/// - a record that is not canonical or does not verify is
+///   [`EntryBasis::Unverified`].
+///
+/// The basis is the model text's SHA-256 and the verified record's run id,
+/// the record hash the verification recomputed, and its received-result
+/// checksum.
 fn route_009_entry_basis(
-    analysis_run_text: Option<String>,
+    text: String,
     project_id: &str,
     source: &Value,
     input_manifest: &Value,
     input_manifest_hex: &str,
     model_hex: &str,
-    memory: &dyn crate::stored_read::ReadMemory,
+    session: Option<&mut UserReleaseSession<'_>>,
 ) -> EntryBasis {
-    const REASON_BYTES: usize = 512;
-    let Some(text) = analysis_run_text else {
-        return EntryBasis::NoRunRecord;
-    };
-    let unverified = |reason: &str| EntryBasis::Unverified(elided(reason, REASON_BYTES));
-    let bytes = text.len() as u64;
-    if bytes > MAX_ANALYSIS_RUN_TEXT_BYTES {
-        return unverified(&format!("the run record text is {bytes} bytes; at most {MAX_ANALYSIS_RUN_TEXT_BYTES} are checked"));
+    if text.len() as u64 > MAX_ANALYSIS_RUN_TEXT_BYTES {
+        return EntryBasis::Unverified;
     }
-    let record = match parse_canonical("analysis_run", &text) {
-        Ok(record) => record,
-        Err(error) => return unverified(&error.message),
+    let Ok(priced) = text_parse_bytes(&text, ArgsDecoding::Moved) else {
+        return EntryBasis::Unverified;
     };
-    drop(text);
-    match crate::analysis_runs::check_record_for_values(project_id, &record, source, input_manifest, input_manifest_hex, memory) {
-        Ok(false) => {}
-        Ok(true) => return unverified("the run was recorded before rule-pack resolution"),
-        Err(error) => return unverified(&error),
+    let verify = |memory: &dyn crate::stored_read::ReadMemory| {
+        let Ok(record) = parse_canonical("analysis_run", &text) else {
+            return EntryBasis::Unverified;
+        };
+        match user_release_native::verify_run_record(
+            project_id,
+            &record,
+            source,
+            input_manifest,
+            input_manifest_hex,
+            user_release_native::RunRecordStatus::RecordRun,
+            memory,
+        ) {
+            Ok(run_record_sha256) => EntryBasis::Bound(SavedPackageBasis {
+                model_hash: model_hex.to_string(),
+                received_result_sha256: received_result_checksum(&record),
+                run_id: text_at(&record, "/analysis_run/run_id").unwrap_or_default().to_string(),
+                run_record_sha256,
+            }),
+            Err(error) if error.contains(crate::stored_read::STORE_READ_MEMORY_UNAVAILABLE) => EntryBasis::NotChecked,
+            Err(_) => EntryBasis::Unverified,
+        }
+    };
+    match session {
+        Some(session) => {
+            if session.lease.grow_to(session.lease.bytes().saturating_add(priced)).is_err() {
+                return EntryBasis::NotChecked;
+            }
+            let memory = crate::stored_read::PoolReadMemory::new(session.registry, &*session.lease);
+            verify(&memory as &dyn crate::stored_read::ReadMemory)
+        }
+        None => verify(&crate::stored_read::UnmeteredReadMemory),
     }
-    let run_record_sha256 = match crate::analysis_runs::run_record_hash_within(&record, memory, "the run record") {
-        Ok(hash) => hash,
-        Err(error) => return unverified(&error),
-    };
-    EntryBasis::Bound(SavedPackageBasis {
-        model_hash: model_hex.to_string(),
-        received_result_sha256: received_result_checksum(&record),
-        run_id: text_at(&record, "/analysis_run/run_id").unwrap_or_default().to_string(),
-        run_record_sha256,
-    })
 }
 
 /// A checked run record's received-result checksum value.
@@ -667,8 +676,10 @@ fn received_result_checksum(record: &Value) -> String {
 /// The command's route-aware ingress lease growth (W-18b, DEL-08-01 Design
 /// `report-user-release.md` §2.5, "The outer command"), after the evidence:
 /// - route 009: [`parse_lease_bytes_with_exact`] and the session Diagnostics
-///   check's provision ([`session_check_lease_bytes`]); a run record text is
-///   refused (it is route 010's);
+///   check's provision ([`session_check_lease_bytes`]); its optional run
+///   record is not priced here: admission takes its parse as an extra growth
+///   of its own, which the pool may refuse without refusing the save
+///   (`route_009_entry_basis`);
 /// - route 010: D-6 adds the exact texts' capped, priced parse through
 ///   [`parse_lease_bytes_with_exact`], retaining the ordinary reservation over the
 ///   request, model and input-manifest texts and the run record text's
@@ -697,8 +708,7 @@ pub fn ingress_lease_bytes(request: &ReportPackageSaveRequest) -> Result<u64, Re
             request.exact_result_text.as_deref(),
             request.exact_intake_text.as_deref(),
         )?
-        .saturating_add(session_check_lease_bytes(&request.request_text, &request.model_text))
-        .saturating_add(route_009_run_record_lease_bytes(request.analysis_run_text.as_deref())));
+        .saturating_add(session_check_lease_bytes(&request.request_text, &request.model_text)));
     }
     let ordinary = parse_lease_bytes_with_exact(
         &request.request_text, &request.model_text, &request.input_manifest_text,
@@ -1698,18 +1708,12 @@ fn admit_both_routes(
             // The entry's basis (REQ-023), from a run record checked against
             // this request's source result; then, unchanged, the typed
             // conversion and the shared producer (§2.3).
-            let basis = match &route_009_manifest {
-                Some(manifest) => {
+            let basis = match (&route_009_manifest, analysis_run_text) {
+                (Some(manifest), Some(text)) => {
                     let source = request_value.pointer("/source_results/0").unwrap_or(&Value::Null);
-                    match session.as_deref() {
-                        Some(session) => {
-                            let memory = crate::stored_read::PoolReadMemory::new(session.registry, &*session.lease);
-                            route_009_entry_basis(analysis_run_text, &project_id, source, manifest, &input_manifest_hex, &model_hex, &memory)
-                        }
-                        None => route_009_entry_basis(analysis_run_text, &project_id, source, manifest, &input_manifest_hex, &model_hex, &crate::stored_read::UnmeteredReadMemory),
-                    }
+                    route_009_entry_basis(text, &project_id, source, manifest, &input_manifest_hex, &model_hex, session)
                 }
-                None => EntryBasis::NoRunRecord,
+                _ => EntryBasis::NoRunRecord,
             };
             drop(route_009_manifest);
             (
@@ -1855,13 +1859,20 @@ fn admit_user_released(
     drop(run_text);
     let entry_basis = {
         let memory = crate::stored_read::PoolReadMemory::new(session.registry, session.lease);
-        user_release_native::check_run_record(bound.project_id, &run_record, source, &bound.input_manifest, bound.input_manifest_hex, &memory)
-            .map_err(|message| coded("/analysis_run", &message))?;
-        // DEL-08-01 REQ-023 "Basis", from the record just checked: its run id,
-        // its record hash recomputed here, and its received-result checksum,
-        // which the check found equal to the source result's checked SHA-256.
-        let run_record_sha256 = crate::analysis_runs::run_record_hash_within(&run_record, &memory, "the run record")
-            .map_err(|message| coded("/analysis_run", &message))?;
+        // DEL-08-01 REQ-023 "Basis", from the record just verified: its run
+        // id, the record hash the verification recomputed, and its
+        // received-result checksum, which the check found equal to the source
+        // result's checked SHA-256.
+        let run_record_sha256 = user_release_native::verify_run_record(
+            bound.project_id,
+            &run_record,
+            source,
+            &bound.input_manifest,
+            bound.input_manifest_hex,
+            user_release_native::RunRecordStatus::SolvesOwn,
+            &memory,
+        )
+        .map_err(|message| coded("/analysis_run", &message))?;
         let received_result_sha256 = received_result_checksum(&run_record);
         SavedPackageBasis {
             model_hash: bound.model_hex.to_string(),

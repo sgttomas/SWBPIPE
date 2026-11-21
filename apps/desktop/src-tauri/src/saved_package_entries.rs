@@ -87,8 +87,11 @@ pub(crate) const ENTRY_PROJECT_NOT_SAVED: &str = "SAVED-PACKAGE-ENTRY-PROJECT-NO
 /// The save was given no run record, so the entry's basis is incomplete.
 pub(crate) const ENTRY_NO_RUN_RECORD: &str = "SAVED-PACKAGE-ENTRY-NO-RUN-RECORD";
 /// The save was given a run record that did not verify against the package's
-/// source result and input manifest.
+/// source result, input manifest and producer.
 pub(crate) const ENTRY_RUN_RECORD_UNVERIFIED: &str = "SAVED-PACKAGE-ENTRY-RUN-RECORD-UNVERIFIED";
+/// The save was given a run record that could not be checked within the
+/// memory available to the save; the package was saved as without it.
+pub(crate) const ENTRY_RUN_RECORD_NOT_CHECKED: &str = "SAVED-PACKAGE-ENTRY-RUN-RECORD-NOT-CHECKED";
 /// The store does not yet hold the project: the session holds the entry until
 /// the project's first save writes it (REQ-023 "Before the first project save").
 pub(crate) const ENTRY_HELD_BY_SESSION: &str = "SAVED-PACKAGE-ENTRY-HELD-BY-SESSION";
@@ -119,8 +122,11 @@ pub(crate) enum EntryBasis {
     Bound(SavedPackageBasis),
     /// The save was given no run record.
     NoRunRecord,
-    /// The save was given a run record that did not verify, with the reason.
-    Unverified(String),
+    /// The save was given a run record that did not verify.
+    Unverified,
+    /// The save was given a run record that could not be checked within its
+    /// memory (its extra lease, or a reservation of its check, was refused).
+    NotChecked,
 }
 
 /// A published package, as the native save hands it to the store: built at
@@ -270,12 +276,13 @@ fn bound_basis(published: &PublishedPackage) -> Result<&SavedPackageBasis, Saved
             ENTRY_NO_RUN_RECORD,
             "The package was saved, but it is not listed in the project: the save was given no analysis run record, so the entry's basis is incomplete.",
         )),
-        EntryBasis::Unverified(reason) => Err(SavedPackageEntryOutcome::not_kept(
+        EntryBasis::Unverified => Err(SavedPackageEntryOutcome::not_kept(
             ENTRY_RUN_RECORD_UNVERIFIED,
-            format!(
-                "The package was saved, but it is not listed in the project: the analysis run record given with it did not verify ({}).",
-                withheld(reason, &published.location)
-            ),
+            "The package was saved, but it is not listed in the project: the analysis run record given with it does not verify against the package's result, input manifest and producer.",
+        )),
+        EntryBasis::NotChecked => Err(SavedPackageEntryOutcome::not_kept(
+            ENTRY_RUN_RECORD_NOT_CHECKED,
+            "The package was saved, but it is not listed in the project: the analysis run record given with it could not be checked within the memory available.",
         )),
     }
 }

@@ -721,7 +721,7 @@ fn a_local_private_save_with_a_run_record_that_does_not_verify_is_saved_and_keep
         assert_eq!(receipt.outcome, "saved", "{label}");
         let outcome = &receipt.saved_package_entry;
         assert_eq!((outcome.status.as_str(), outcome.code.as_str()), ("not_kept", ENTRY_RUN_RECORD_UNVERIFIED), "{label}: {outcome:?}");
-        assert!(outcome.message.contains("did not verify"), "{label}: {}", outcome.message);
+        assert!(outcome.message.contains("does not verify"), "{label}: {}", outcome.message);
         withholds_location(&outcome.message);
     }
     assert_eq!(dump(&path), before, "nothing was written");
@@ -929,4 +929,103 @@ fn an_entry_the_store_already_holds_is_unaffected_by_a_recovery() {
     write_project(&path, PROJECT, &json!({ "project": { "id": PROJECT, "name": "Recovered" } }));
     write_held_entries(&path, &SessionHeldEntries::default());
     assert_eq!(entry_rows(&path), rows, "the stored entry is byte for byte as it was");
+}
+
+// --- Review round 1: route 009's run record ------------------------------
+
+/// R2: a run record whose run name is changed and whose own checksum is
+/// recomputed does not verify on route 009, as on route 010.
+#[test]
+fn a_renamed_record_with_its_checksum_recomputed_does_not_verify_on_route_009() {
+    let _lock = crate::atomic_report_package_save::test_support::atomic_save_test_lock();
+    let (dir, path, basis) = vector_project_store("r2-renamed");
+    let before = dump(&path);
+    let record = rehashed(&basis.run_record, |run| run["run_name"] = json!("another run name"));
+    let receipt = save_009(admit_009(basis.args(Some(canonical(&record)))).unwrap(), &dir, &path, &SessionHeldEntries::default());
+    assert_eq!(receipt.outcome, "saved");
+    assert_eq!(receipt.saved_package_entry.code, ENTRY_RUN_RECORD_UNVERIFIED, "{:?}", receipt.saved_package_entry);
+    assert_eq!(dump(&path), before, "nothing was written");
+}
+
+/// R2: route 009 applies Record Run's status checks, not route 010's
+/// no-aggregate rule, so the record of a model with rule packs, whose status
+/// carries the rule-check aggregate the builder writes, still verifies.
+#[test]
+fn a_record_with_the_rule_check_aggregate_verifies_on_route_009() {
+    let _lock = crate::atomic_report_package_save::test_support::atomic_save_test_lock();
+    let (dir, path, basis) = vector_project_store("r2-aggregate");
+    let record = rehashed(&basis.run_record, |run| {
+        let mut statuses: Vec<String> =
+            run["analysis_status"].as_array().unwrap().iter().map(|status| status.as_str().unwrap().replace("RULE_INPUTS_INCOMPLETE", "USER_RULE_CHECKED")).collect();
+        statuses.sort();
+        run["analysis_status"] = json!(statuses);
+    });
+    let receipt = save_009(admit_009(basis.args(Some(canonical(&record)))).unwrap(), &dir, &path, &SessionHeldEntries::default());
+    assert_eq!(receipt.saved_package_entry.code, ENTRY_KEPT, "{:?}", receipt.saved_package_entry);
+}
+
+/// The record with `edit` applied to its run and its own checksum recomputed.
+fn rehashed(record: &serde_json::Value, edit: impl FnOnce(&mut serde_json::Value)) -> serde_json::Value {
+    let mut record = record.clone();
+    edit(&mut record["analysis_run"]);
+    let hash = crate::analysis_runs::run_record_hash(&record).unwrap();
+    for entry in record["analysis_run"]["hashes"].as_array_mut().unwrap() {
+        if entry["payload_scope"] == "analysis_run_record" {
+            entry["value"] = json!(hash);
+        }
+    }
+    record
+}
+
+/// R3: the record is optional to the save, so the save's own lease does not
+/// grow for it.
+#[test]
+fn the_save_lease_does_not_grow_for_the_optional_record() {
+    let basis = route_009();
+    let without = crate::report_package_save::ingress_lease_bytes(&basis.args(None)).unwrap();
+    let with = crate::report_package_save::ingress_lease_bytes(&basis.args(Some(canonical(&basis.run_record)))).unwrap();
+    assert_eq!(with, without);
+}
+
+/// R3: a run text the prescan refuses is never handed to the parser: a long
+/// valid prefix with a syntax error at its end allocates nothing for it.
+#[test]
+fn a_prescan_refused_record_is_never_parsed() {
+    let _lock = crate::atomic_report_package_save::test_support::atomic_save_test_lock();
+    let basis = route_009();
+    let mut bad = String::from("[");
+    bad.push_str(&"1,".repeat(1_000_000));
+    bad.push('x');
+    let (plain, plain_peak) = crate::ingress::counting::measure(|| admit_009(basis.args(None)).map(|admitted| admitted.entry_basis));
+    let (with_bad, bad_peak) = crate::ingress::counting::measure(|| admit_009(basis.args(Some(bad.clone()))).map(|admitted| admitted.entry_basis));
+    assert_eq!((plain, with_bad), (Ok(EntryBasis::NoRunRecord), Ok(EntryBasis::Unverified)));
+    let extra = bad_peak.peak_priced.saturating_sub(plain_peak.peak_priced);
+    assert!(extra < 4 << 20, "a prescan-refused record allocated {extra} more bytes at its peak");
+}
+
+/// R3: when the record's extra lease is refused, the package is saved exactly
+/// as without the record and the entry is not kept, with its own code.
+#[test]
+fn a_record_whose_extra_lease_is_refused_leaves_the_save_as_without_it() {
+    let _lock = crate::atomic_report_package_save::test_support::atomic_save_test_lock();
+    let (dir, path, basis) = vector_project_store("r3-lease-refused");
+    let args = basis.args(Some(canonical(&basis.run_record)));
+    let registry = crate::command_ingress::test_support::registry(crate::memory_pool::test_host::ScriptedHost::normal());
+    let growth = crate::report_package_save::ingress_lease_bytes(&args).unwrap();
+    let mut lease = registry.acquire_interactive_ingress(1024).unwrap();
+    lease.grow_to(1024 + growth).unwrap();
+    // The budget admits the save's own lease and nothing more.
+    let (pool_bytes, _) = registry.pool().settings();
+    registry.configure_pool(pool_bytes, lease.bytes(), false).unwrap();
+    let admitted = {
+        let mut session = crate::report_package_save::UserReleaseSession { registry: &registry, lease: &mut lease };
+        crate::report_package_save::admit_report_package_session(args, &software(), &mut no_store, &no_custody, Some(&mut session))
+            .unwrap_or_else(|refusal| panic!("the save is refused for its optional record: {refusal:?}"))
+    };
+    assert_eq!(admitted.entry_basis, EntryBasis::NotChecked);
+    let without = admit_009(basis.args(None)).unwrap();
+    assert_eq!(admitted.package.container_bytes, without.package.container_bytes, "the package exactly as without the record");
+    let receipt = save_009(admitted, &dir, &path, &SessionHeldEntries::default());
+    assert_eq!(receipt.outcome, "saved");
+    assert_eq!((receipt.saved_package_entry.status.as_str(), receipt.saved_package_entry.code.as_str()), ("not_kept", ENTRY_RUN_RECORD_NOT_CHECKED));
 }
