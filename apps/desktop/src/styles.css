@@ -4080,11 +4080,14 @@ body { min-width: 760px; min-height: 540px; }
 }
 .app-shell .shell-reason-anchor:hover > .shell-reason, .app-shell .shell-reason-anchor:focus-within > .shell-reason { display: block; }
 .app-shell .shell-reason-anchor > .shell-reason[data-dismissed="true"] { display: none; }
+/* A transparent bridge over the gap between a reason and its control keeps the reason hoverable
+   while the pointer crosses the gap: above a reason placed below its control, beside one placed
+   to the rail's right. */
+.app-shell .shell-reason::before { content: ""; position: absolute; bottom: 100%; left: 0; width: 100%; height: var(--space-2); }
 .app-shell .shell-rail .shell-reason { top: 0; left: calc(100% + var(--space-2)); }
-/* Place the Agent reason below its trigger, clear of the adjacent page Close.
-   The transparent bridge keeps the reason hoverable across the visual gap. */
+.app-shell .shell-rail .shell-reason::before { bottom: auto; top: 0; left: auto; right: 100%; width: var(--space-2); height: 100%; }
+/* Place the Agent reason below its trigger, clear of the adjacent page Close. */
 .app-shell .shell-agent-strip .shell-reason { top: calc(100% + var(--space-2)); left: auto; right: 0; }
-.app-shell .shell-agent-strip .shell-reason::before { content: ""; position: absolute; bottom: 100%; left: 0; width: 100%; height: var(--space-2); }
 .app-shell .shell-panel-toggles .shell-reason { left: auto; right: 0; }
 
 .app-shell .app-menu-bar { flex: 0 0 auto; }
