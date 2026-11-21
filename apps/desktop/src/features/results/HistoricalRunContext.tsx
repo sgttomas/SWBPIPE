@@ -52,7 +52,26 @@ export type HistoricalRunContext = {
    * finding instead. Empty when `recordedTableRead` is null. */
   historicalReaderFindings: string[];
   runId: string;
+  /** The identity of this run's view (issue 588): the key its panel's transient view state (page,
+   * kind filter, navigator entity, selected row) is held under. The engine publishes one fixed
+   * run id for distinct runs, so `runId` cannot be it. Deterministic for the same stored run, and
+   * distinct for distinct ones: a recorded run's recording id, else the received result's SHA-256,
+   * else the saved envelope's hashes, else a session-unique serial. */
+  viewKey: string;
 };
+
+let unidentifiedRuns = 0;
+/** The first present identity, scoped by its kind, or a session-unique one, so two runs never share a view. */
+function runViewKey(...candidates: [kind: string, value: string | null | undefined][]): string {
+  for (const [kind, value] of candidates) if (typeof value === "string" && value) return `${kind}:${value}`;
+  unidentifiedRuns += 1;
+  return `unidentified:${unidentifiedRuns}`;
+}
+
+async function receivedResultSha256(value: unknown): Promise<string | null> {
+  if (value === null || value === undefined) return null;
+  try { return await canonicalSha256HexCheckedV1(value); } catch { return null; }
+}
 
 /** A reopen's findings in their scopes. */
 function reopenFindings(initial: string[] = []) {
@@ -237,7 +256,12 @@ export async function buildHistoricalRunContext(opened: LocalProjectEnvelope): P
       found.fail(finding, true);
     }
   }
-  return { designation: "historical_saved_run", rawMechanicsResult, rawAnalysisRun, mechanicsResult, analysisRun, modelHash, envelopeHash: opened.project_envelope_hash ?? null, envelopePayloadHash, ...found.scoped(recordedBinding), runId: evidenceResult?.run_id ?? (typeof record?.run_id === "string" ? record.run_id : "unknown saved run") };
+  const viewKey = runViewKey(
+    ["saved-result-sha256", await receivedResultSha256(rawMechanicsResult)],
+    ["saved-envelope-payload-sha256", envelopePayloadHash],
+    ["saved-envelope-sha256", opened.project_envelope_hash?.value]
+  );
+  return { designation: "historical_saved_run", rawMechanicsResult, rawAnalysisRun, mechanicsResult, analysisRun, modelHash, envelopeHash: opened.project_envelope_hash ?? null, envelopePayloadHash, ...found.scoped(recordedBinding), runId: evidenceResult?.run_id ?? (typeof record?.run_id === "string" ? record.run_id : "unknown saved run"), viewKey };
 }
 
 /** A recorded run read from the store (W-12 S2), checked as a saved run is, with
@@ -315,7 +339,8 @@ export async function buildRecordedRunContext(read: AnalysisRunRead): Promise<Wh
   return {
     designation: "recorded_run", rawMechanicsResult, rawAnalysisRun, mechanicsResult, analysisRun, modelHash,
     envelopeHash: null, envelopePayloadHash: null, ...found.scoped(recordedBinding),
-    runId: evidenceResult?.run_id ?? (typeof record?.run_id === "string" ? record.run_id : "unknown recorded run")
+    runId: evidenceResult?.run_id ?? (typeof record?.run_id === "string" ? record.run_id : "unknown recorded run"),
+    viewKey: runViewKey(["recording", read.run.recording_id], ["recorded-run-record-sha256", read.run.run_record_hash], ["recorded-result-sha256", await receivedResultSha256(rawMechanicsResult)])
   };
 }
 
@@ -346,7 +371,8 @@ export function buildNativeRecordedRunContext(read: NativeRunRead): HistoricalRu
   return {
     designation: "recorded_run", rawMechanicsResult: null, rawAnalysisRun: null, mechanicsResult: null,
     analysisRun: null, restored: read.restored, modelHash: (found.model_hash ?? null) as ModelHashEvidence | null,
-    envelopeHash: null, envelopePayloadHash: null, ...restoredScopes(found), runId: found.run_id
+    envelopeHash: null, envelopePayloadHash: null, ...restoredScopes(found), runId: found.run_id,
+    viewKey: runViewKey(["recording", read.run.recording_id ?? read.restored.source.recording_id], ["recorded-run-record-sha256", read.run.run_record_hash], ["recorded-result-sha256", read.restored.source.result_sha256])
   };
 }
 
@@ -362,7 +388,13 @@ async function contextOfRestored(
   return {
     designation, rawMechanicsResult: null, rawAnalysisRun: null, mechanicsResult,
     analysisRun: null, restored, modelHash, envelopeHash, envelopePayloadHash,
-    ...restoredScopes(found), runId: found.run_id
+    ...restoredScopes(found), runId: found.run_id,
+    viewKey: runViewKey(
+      ["saved-result-sha256", restored.result_present ? restored.source.result_sha256 : null],
+      ["saved-envelope-payload-sha256", envelopePayloadHash],
+      ["saved-envelope-sha256", envelopeHash?.value],
+      ["native-handle", restored.handle]
+    )
   };
 }
 
@@ -392,6 +424,7 @@ export function buildBundledReferenceContext(reference: BundledMechanicsReferenc
     checkFindings: ["BUNDLED_REFERENCE_ONLY", "NO_CURRENT_MODEL_INVOCATION"],
     recordedTableRead: null, historicalReaderFindings: [],
     runId: reference.source.run_id,
+    viewKey: `bundled-reference:${reference.provenance.fixture_ref}`,
   };
 }
 
@@ -408,6 +441,6 @@ export function HistoricalRunPanel({ context }: { context: HistoricalRunContext 
     <p>{isReference ? "Bundled reference" : "Historical"} results cannot drive current overlays, rule checks, comparisons or report readiness.</p>
     <ul>{context.findings.map((finding) => <li key={finding}>{finding}</li>)}</ul>
     <HistoricalReaderFindings context={context} testId="historical-run-recorded-reader" />
-    <ResultsPanel result={context.mechanicsResult} knowledge={null} analysisRun={null} selectedResultId={selectedResultId} onSelectResult={setSelectedResultId} recordedTableRead={context.recordedTableRead} />
+    <ResultsPanel result={context.mechanicsResult} knowledge={null} analysisRun={null} selectedResultId={selectedResultId} onSelectResult={setSelectedResultId} recordedTableRead={context.recordedTableRead} runIdentityKey={context.viewKey} />
   </section>;
 }
