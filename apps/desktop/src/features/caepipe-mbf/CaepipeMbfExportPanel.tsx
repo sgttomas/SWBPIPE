@@ -9,7 +9,6 @@ import type { PreviewModel } from "../../types";
  * (`caepipe-mbf` is not in `OUTPUT_SURFACES` since 4b.2b's follow-up): whatever result the session holds, or none,
  * the action is offered, and the export's own admission and checks decide. */
 export function CaepipeMbfExportPanel({
-  model,
   onExportMbf
 }: {
   model: PreviewModel;
@@ -23,8 +22,7 @@ export function CaepipeMbfExportPanel({
         Model batch file (.mbf)
       </div>
       <p className="muted" data-testid="caepipe-mbf-description">
-        Writes the model of "{model.project.name}" as a model batch file and its identity file in a folder you choose,
-        after a review of what the file holds and leaves out.
+        For exchange with pipe stress programs that read and write .mbf files
       </p>
       <div className="report-actions">
         {onExportMbf ? (

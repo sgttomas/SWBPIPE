@@ -11,12 +11,15 @@ import {
 
 /**
  * A shell command the palette lists beside the catalogue: a view, a stage, the
- * theme or the density. It is presentation only and is not part of the accepted
+ * theme or the density, or one of the File menu's commands it also lists (the model batch file's export and
+ * import, found by their extension). It is presentation only and is not part of the accepted
  * capability vocabulary, so it is handed in rather than added to the catalogue.
  */
 export type PaletteShellCommand = {
   id: string;
   label: string;
+  /** Where the palette lists it: View (the default) or File (the File menu's commands it also lists). */
+  group?: "View" | "File";
   active?: boolean;
   disabled?: boolean;
   reason?: string | null;
@@ -57,7 +60,7 @@ export function ToolkitPalette({ context, onChoose, shellCommands = [] }: Props)
   );
 
   const shellMatches = groupFilter ? [] : shellCommands.filter((item) =>
-    `${item.label} view`.toLowerCase().includes(query.trim().toLowerCase())
+    `${item.label} ${(item.group ?? "View").toLowerCase()}`.toLowerCase().includes(query.trim().toLowerCase())
   );
 
   function close() {
@@ -174,10 +177,12 @@ export function ToolkitPalette({ context, onChoose, shellCommands = [] }: Props)
               );
             })}
           </div>
-          {shellMatches.length ? (
-            <section aria-label="View" className="toolkit-shell-commands">
-              <h3>View</h3>
-              {shellMatches.map((item) => (
+          {(["File", "View"] as const).map((shellGroup) => {
+            const listed = shellMatches.filter((item) => (item.group ?? "View") === shellGroup);
+            return listed.length ? (
+            <section key={shellGroup} aria-label={shellGroup} className="toolkit-shell-commands">
+              <h3>{shellGroup}</h3>
+              {listed.map((item) => (
                 <div className="toolkit-command" key={item.id}>
                   <button
                     type="button"
@@ -196,7 +201,8 @@ export function ToolkitPalette({ context, onChoose, shellCommands = [] }: Props)
                 </div>
               ))}
             </section>
-          ) : null}
+            ) : null;
+          })}
           {!matches.length && !shellMatches.length ? <p role="status">No tools match this search.</p> : null}
           <details>
             <summary>Deferred roadmap</summary>

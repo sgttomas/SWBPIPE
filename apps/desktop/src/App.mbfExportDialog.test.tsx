@@ -218,7 +218,7 @@ describe("File > Export MBF… (the mounted dialog)", () => {
     // The in-window File menu's item, after Save Handoff….
     fireEvent.click(screen.getByTestId("menu-file"));
     const item = await screen.findByTestId("menu-item-file.export-mbf");
-    expect(item).toHaveTextContent("Export MBF…");
+    expect(item).toHaveTextContent("Export model batch file (.mbf)…");
     expect(item).toBeEnabled();
     const items = [...document.querySelectorAll("[data-testid^='menu-item-file.']")].map((node) => node.getAttribute("data-testid"));
     expect(items[items.indexOf("menu-item-file.save-handoff") + 1]).toBe("menu-item-file.export-mbf");

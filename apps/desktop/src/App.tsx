@@ -464,6 +464,8 @@ function AppSession() {
               run: runPresenceFromCells({ result, historicalRun, solveJob, hasQualifiedCurrentResult: currentSolvedResult !== null, numericalHealthHold }),
               theme: uiPreferences.theme,
               density: uiPreferences.density,
+              projectBusy,
+              modelDocumentSaveReady: model !== null && !projectBusy,
               onCommand: runMenuCommand
             })}
           />
@@ -1337,19 +1339,29 @@ function AppSession() {
   );
 }
 
+/** The model batch file's two File commands, named by the file's extension so that a person finds them by what
+ * they recognise (".mbf", "mbf", "batch"); no product text names the format's program (DEL-07-12 REQ-007). */
+const MBF_IMPORT_COMMAND_LABEL = "Import model batch file (.mbf)…";
+const MBF_EXPORT_COMMAND_LABEL = "Export model batch file (.mbf)…";
+
 // The palette's View commands: the same commands, states and reasons as the
 // in-app View menu, so the native runtime (whose menu lists none of them) still
-// has a pointer home for each beside the toolbar and the rail.
-function shellPaletteCommands({ stage, pageOpen, stageViewMemory, run, theme, density, onCommand }: {
+// has a pointer home for each beside the toolbar and the rail. It also lists the
+// model batch file's export and import, with the File menu's names and states.
+function shellPaletteCommands({ stage, pageOpen, stageViewMemory, run, theme, density, projectBusy, modelDocumentSaveReady, onCommand }: {
   stage: ShellStage;
   pageOpen: boolean;
   stageViewMemory: Parameters<typeof viewSwitchItems>[1];
   run: Parameters<typeof railStageStates>[0];
   theme: UiThemePreference;
   density: UiDensityPreference;
+  projectBusy: boolean;
+  modelDocumentSaveReady: boolean;
   onCommand: (command: MenuCommandId) => void;
 }): PaletteShellCommand[] {
   return [
+    { id: "file.export-mbf", group: "File", label: MBF_EXPORT_COMMAND_LABEL, disabled: !modelDocumentSaveReady, run: () => onCommand("file.export-mbf") },
+    { id: "file.import-mbf", group: "File", label: MBF_IMPORT_COMMAND_LABEL, disabled: projectBusy, run: () => onCommand("file.import-mbf") },
     ...viewSwitchItems(stage, stageViewMemory).map((segment): PaletteShellCommand => ({
       id: `view.view.${segment.view}`, label: `${segment.label} view`, active: segment.pressed, disabled: !segment.enabled, reason: segment.reason,
       run: () => onCommand(`view.view.${segment.view}`)
@@ -1438,7 +1450,7 @@ function MenuBar({
         { kind: "command", id: "file.new-blank", label: "New Blank Project", disabled: projectBusy },
         { kind: "separator" },
         { kind: "command", id: "file.open-model", label: "Open Model Document…", disabled: projectBusy },
-        { kind: "command", id: "file.import-mbf", label: "Import MBF…", disabled: projectBusy },
+        { kind: "command", id: "file.import-mbf", label: MBF_IMPORT_COMMAND_LABEL, disabled: projectBusy },
         { kind: "command", id: "file.open-local", label: "Open Local Project…", disabled: projectBusy },
         { kind: "command", id: "file.list-local", label: "List Local Projects", disabled: projectBusy },
         { kind: "separator" },
@@ -1446,7 +1458,7 @@ function MenuBar({
         { kind: "command", id: "file.new-local", label: "Save as New Local Project", disabled: projectBusy },
         { kind: "command", id: "file.save-model-document", label: "Save Model Document…", disabled: !modelDocumentSaveReady },
         { kind: "command", id: "file.save-handoff", label: "Save Handoff…", disabled: !modelDocumentSaveReady },
-        { kind: "command", id: "file.export-mbf", label: "Export MBF…", disabled: !modelDocumentSaveReady },
+        { kind: "command", id: "file.export-mbf", label: MBF_EXPORT_COMMAND_LABEL, disabled: !modelDocumentSaveReady },
         { kind: "command", id: "file.save-report-package", label: "Save Report Package…", disabled: !reportPackageReady },
         { kind: "command", id: "file.save-shareable-report-package", label: "Save Shareable Report Package…", disabled: !reportPackageReady }
       ]
