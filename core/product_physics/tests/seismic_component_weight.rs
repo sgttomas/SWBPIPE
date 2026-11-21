@@ -632,6 +632,17 @@ fn the_readers_bind_the_component_record() {
         ("id outside the inventory", Box::new(|r| r["component_forces"][0]["force"]["load_id"] = json!("case:s:generated:seismic:global-x:other"))),
         ("id twice", Box::new(|r| { let m = r["component_forces"][0]["moments"][0]["load_id"].clone(); r["component_forces"][0]["moments"][1]["load_id"] = m })),
         ("empty list", Box::new(|r| r["component_forces"] = json!([]))),
+        // Round 1 finding 3: each id is the one the entry's own fields form.
+        ("moment id of another moment axis", Box::new(|r| {
+            let id = r["component_forces"][0]["force"]["load_id"].as_str().unwrap().replace(":force", ":moment:x");
+            r["component_forces"][0]["moments"][0]["load_id"] = json!(id);
+            r["generated_load_ids"].as_array_mut().unwrap().push(json!(id));
+        })),
+        ("force id of another component", Box::new(|r| {
+            let id = "case:s:generated:seismic:global-x:component:16:component:flange:force";
+            r["component_forces"][0]["force"]["load_id"] = json!(id);
+            r["generated_load_ids"].as_array_mut().unwrap().push(json!(id));
+        })),
     ];
     for (what, edit) in &shape {
         let error = semantic_contract::validate_pressure_evidence(&forge(edit.as_ref())).expect_err(what);
@@ -661,6 +672,81 @@ fn the_readers_bind_the_component_record() {
     let zero = document(Route::Ex, Model::Cant, ZERO_WEIGHT, vec![case_of(reference(id), "case:s")]);
     let bound = reader_verdict::validate("pressure", &out, Some(&zero["model"]), None);
     assert_eq!(bound["ok"], false, "{bound}");
+}
+
+/// Issue 450 round 1 finding 3. The model-bound check compares every solved
+/// case, so a case that generates no component force has an empty expected
+/// list: a wind-only case and a case without generation are each refused when
+/// their record carries a well-formed component entry. The package readers
+/// refuse the reviewer's forgery (a wind-only case's entry naming one of its
+/// wind primitives, with no moments) by the id's form alone. A model whose
+/// required component force rounds to zero is one the product refuses, so no
+/// solved record of it exists, and the model-bound check refuses it.
+#[test]
+fn a_component_record_on_a_case_that_generates_none_is_refused() {
+    use open_pipe_stress_result_export::{reader_verdict, semantic_contract};
+    let id = "SCW-CANT-EX-SEISMIC-XYZ";
+    let wind = json!({"id": "case:w", "primitive_loads": [], "provenance": PROV, "equivalent_static": {"wind": {
+        "pressure": qv(500.0, "Pa"), "shape_factor": qv(0.7, "1"), "direction": "global_z", "exposed_pipe_refs": ["AB"]},
+        "provenance": PROV}});
+    let plain = json!({"id": "case:p", "provenance": PROV, "primitive_loads": [{"id": "load:p", "category": "concentrated_force",
+        "target": {"type": "node", "node": "C"}, "direction": "global_z", "magnitude": qv(-10.0, "N"), "dimension": "force", "provenance": PROV}]});
+    let wire = document(Route::Ex, Model::Cant, ONE_MAPPED, vec![case_of(reference(id), "case:s"), wind, plain]);
+    let model = &wire["model"];
+    let out = solved(&wire, PreviewSolverMode::SparseInteractive, id);
+    semantic_contract::validate_pressure_evidence(&out).expect("the package reader admits the producer's records");
+    assert_eq!(reader_verdict::validate("pressure", &out, Some(model), None)["ok"], true);
+    let exact = |out: &Value, case: &str| out["contract_evidence"]["exact_cases"].as_array().unwrap().iter().position(|c| c["load_case_id"] == case).unwrap();
+    let (s, w, p) = (exact(&out, "case:s"), exact(&out, "case:w"), exact(&out, "case:p"));
+    let wind_ids = out["contract_evidence"]["exact_cases"][w]["equivalent_static"]["generated_load_ids"].clone();
+    assert!(wind_ids.as_array().is_some_and(|ids| !ids.is_empty()), "the wind case generates");
+    assert!(out["contract_evidence"]["exact_cases"][w]["equivalent_static"].get("component_forces").is_none());
+    assert!(out["contract_evidence"]["exact_cases"][p].get("equivalent_static").is_none());
+    // The seismic case's x entry, re-identified for another case.
+    let entry_for = |case: &str| {
+        let text = out["contract_evidence"]["exact_cases"][s]["equivalent_static"]["component_forces"][0].to_string();
+        serde_json::from_str::<Value>(&text.replace("case:s:generated:", &format!("{case}:generated:"))).unwrap()
+    };
+    let ids_of = |entry: &Value| {
+        let mut ids = vec![entry["force"]["load_id"].clone()];
+        ids.extend(entry["moments"].as_array().unwrap().iter().map(|m| m["load_id"].clone()));
+        ids
+    };
+    // The reviewer's forgery: refused by the package reader by the id's form.
+    let mut forged = out.clone();
+    let record = &mut forged["contract_evidence"]["exact_cases"][w]["equivalent_static"];
+    let mut entry = entry_for("case:w");
+    entry["force"]["load_id"] = wind_ids[0].clone();
+    entry["moments"] = json!([]);
+    record["component_forces"] = json!([entry]);
+    let error = semantic_contract::validate_pressure_evidence(&forged).expect_err("a wind id is not a component id");
+    assert!(error.contains("EQUIVALENT_STATIC_COMPONENT_LOAD_IDS"), "{error}");
+    // A well-formed entry on the wind-only case: the package reader admits it, the model-bound check refuses it.
+    let mut forged = out.clone();
+    let record = &mut forged["contract_evidence"]["exact_cases"][w]["equivalent_static"];
+    let entry = entry_for("case:w");
+    record["generated_load_ids"].as_array_mut().unwrap().extend(ids_of(&entry));
+    record["component_forces"] = json!([entry]);
+    semantic_contract::validate_pressure_evidence(&forged).unwrap_or_else(|e| panic!("well-formed: {e}"));
+    let bound = reader_verdict::validate("pressure", &forged, Some(model), None);
+    assert_eq!(bound["ok"], false, "{bound}");
+    assert!(bound.to_string().contains("EQUIVALENT_STATIC_COMPONENT_MODEL_MISMATCH"), "{bound}");
+    // The same on the case without generation, given a record of its own.
+    let mut forged = out.clone();
+    let entry = entry_for("case:p");
+    let mut ids = vec![json!("case:p:generated:seismic:global-x:element-0")];
+    ids.extend(ids_of(&entry));
+    forged["contract_evidence"]["exact_cases"][p]["equivalent_static"] = json!({"mass_method": "source_od_nominal_wall_pressure_bore_areas/v1",
+        "generated_load_ids": ids, "component_forces": [entry]});
+    let bound = reader_verdict::validate("pressure", &forged, Some(model), None);
+    assert_eq!(bound["ok"], false, "{bound}");
+    // A model whose required force rounds to zero (k = 0.3, W the smallest positive binary64 in N).
+    let mut range = model.clone();
+    range["components"][0]["geometry"]["weight"] = qv(f64::from_bits(1), "N");
+    assert_eq!(0.3 * f64::from_bits(1), 0.0);
+    let bound = reader_verdict::validate("pressure", &out, Some(&range), None);
+    assert_eq!(bound["ok"], false, "{bound}");
+    assert!(bound.to_string().contains("EQUIVALENT_STATIC_COMPONENT_RANGE"), "{bound}");
 }
 
 /// Issue 450 round 1 finding 2: at the document boundary a centre-of-gravity

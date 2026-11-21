@@ -78,8 +78,9 @@ DEPENDENCIES = {
     # unchanged (direct_view_tests.rs holds them against the former functions; was bc69008c...); then DEL-05-01: the
     # equivalent_static record's optional component_forces, closed by shape, and the model-bound recomputation of its
     # entries (was 75980cb5...); then the model-bound check reads the centre of gravity after the document's ordinary
-    # conversion to metres (was 23bdcae8...).
-    MODULE: '9755ee4ce595b7517b9f26ba1d418397e4a2b7c2ab3e02cf0bf315e904645de9',
+    # conversion to metres (was 23bdcae8...); then every solved case is compared, a range failure in the model is
+    # refused, and each component id is the one its entry's fields form (was 9755ee4c...).
+    MODULE: 'ba32c38d0a8cbfc0ad9583d40870f27b1e3069dd28c268d6cede24d08177577b',
     TABLE: TABLE_SHA256,
     # The units authority: then DEL-04-09 I3a's mass_length_per_rotation family (kg*m/rad, lb*in/rad, lb*ft/rad),
     # an addition only; every existing unit, dimension and conversion is unchanged (was 5a412c57...); then the
