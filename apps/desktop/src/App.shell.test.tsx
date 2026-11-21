@@ -430,7 +430,7 @@ describe("views, stages and mounted panels", () => {
 });
 
 describe("the toolbar band", () => {
-  it("runs and stops through the session's handlers, and leaves no second route", async () => {
+  it("runs through the session's handler; while the solve runs Run keeps its place, withheld with its reason, and the line's Stop is the one Stop", async () => {
     await renderShell();
     const running = new Promise<never>(() => undefined);
     invokeMock.mockImplementation((command: string) => {
@@ -441,11 +441,22 @@ describe("the toolbar band", () => {
     });
     setTauriRuntime(true);
     fireEvent.click(screen.getByTestId("toolbar-run"));
-    const stop = await screen.findByTestId("toolbar-stop");
-    expect(screen.queryByTestId("toolbar-run")).not.toBeInTheDocument();
+    const stop = await screen.findByTestId("solve-progress-cancel");
+    // Run stays where it is, withheld, with the reason the toolbar shows for any withheld control.
+    const run = screen.getByTestId("toolbar-run");
+    expect(run).toHaveAttribute("aria-disabled", "true");
+    expect(document.getElementById(run.getAttribute("aria-describedby") ?? "")?.textContent).toBe("A solve is running. Stop it on the status line.");
+    expect(screen.queryByTestId("toolbar-stop")).toBeNull();
+    // A second press starts no second job.
+    fireEvent.click(run);
     expect(invokeMock.mock.calls.filter(([command]) => command === "start_preview_mechanics_job")).toHaveLength(1);
+    // There is one visible Stop.
+    expect(screen.getAllByRole("button", { name: /^(Stop|Cancel preview)$/ })).toEqual([stop]);
     fireEvent.click(stop);
     await waitFor(() => expect(invokeMock.mock.calls.some(([command]) => command === "cancel_preview_mechanics_job")).toBe(true));
+    expect(stop).toHaveTextContent("Cancelling");
+    expect(stop).toHaveAttribute("aria-disabled", "true");
+    expect(document.activeElement).toBe(screen.getByTestId("solve-progress-state"));
   });
 
   it("disables the Inspector toggle with its reason outside Both view, and the Agent toggle and strip always", async () => {

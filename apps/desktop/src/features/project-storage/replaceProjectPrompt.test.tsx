@@ -204,6 +204,25 @@ describe("saving onto a stored project id asks first", () => {
     expect(screen.queryByTestId(`tree-row-project-${encodeURIComponent(STORED.project_id)}`)).not.toBeInTheDocument();
   });
 
+  it("Save as a new project reads as a save on the running line while its write runs", async () => {
+    let release: (value: unknown) => void = () => {};
+    await renderNativeApp((command, args) => {
+      const write = args as WriteArgs;
+      if (command === "create_local_project") {
+        if (write.model.project.id === STORED.project_id && write.confirmedRevision !== STORED.revision) throw REFUSAL;
+        return new Promise((resolve) => { release = () => resolve(stored(write, "Created local SQLite project snapshot without external file copies.")); });
+      }
+      if (command === "find_local_project") return (args as { projectId: string }).projectId === STORED.project_id ? STORED : null;
+      throw new Error(`Unexpected command ${command}`);
+    });
+    act(() => nativeMenuCommand("file.new-local"));
+    fireEvent.click(await screen.findByTestId("replace-project-save-as-new"));
+    await waitFor(() => expect(screen.getByTestId("local-project-running")).toHaveTextContent(/^Saving the project…$/));
+    await act(async () => { release(undefined); await Promise.resolve(); });
+    await waitFor(() => expect(message()).toHaveTextContent("Created local SQLite project snapshot"));
+    expect(screen.queryByTestId("local-project-running")).toBeNull();
+  });
+
   it("Save as a new project from Save Local Project saves under the unused id", async () => {
     await renderNativeApp((command, args) => {
       const request = (args as { request?: { confirmed_revision?: string | null; model: PreviewModel } }).request;

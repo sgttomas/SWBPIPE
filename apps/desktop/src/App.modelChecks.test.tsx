@@ -61,9 +61,9 @@ it("runs the checks on ⇧⌘M, lists the topology warning, selects its entity, 
   expect(within(screen.getByTestId("issues-home")).getByTestId("model-checks-panel")).toBe(panel);
   const summary = within(panel).getByTestId("model-checks-summary");
   await waitFor(() => expect(document.activeElement).toBe(summary));
-  expect(summary).toHaveTextContent(/findings?:/);
+  expect(summary).toHaveTextContent(/^\d+ items?: /);
   const finding = within(panel).getByTestId("model-check-MODEL_TOPOLOGY_DISCONNECTED");
-  expect(finding).toHaveTextContent("MODEL_TOPOLOGY_DISCONNECTED warning");
+  expect(within(finding).getByTestId("issue-meta")).toHaveTextContent(/^warning · MODEL_TOPOLOGY_DISCONNECTED · /);
   expect(finding).toHaveTextContent("(from node:checks-c; 2 nodes; supported)");
   expect(within(panel).queryByTestId("model-checks-stale")).toBeNull();
 

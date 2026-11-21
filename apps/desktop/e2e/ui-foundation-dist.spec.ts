@@ -1082,15 +1082,15 @@ for (const theme of APPEARANCE_THEMES) {
         await expectBrowserSolveRefusal(page, phase === "browser-refused"
           ? "BROWSER_SOLVE_BACKEND_REQUIRED_REFERENCE_ONLY" : "BROWSER_SOLVE_BACKEND_REQUIRED_FOR_EDITED_MODEL");
         await expect(page.getByTestId("readiness-mechanics")).toContainText("Solve job state: failed; Solver · Not solved (failed)");
-        await expect(page.getByTestId("readiness-diagnostics")).toContainText("0 blocking/error");
+        await expect(page.getByTestId("readiness-diagnostics")).toContainText("0 blocking or error");
       }
       if (phase === "diagnostics-clear") {
         await expect(page.getByTestId("readiness-diagnostics")).toHaveClass(/\bok\b/);
-        await expect(page.getByTestId("readiness-diagnostics")).toContainText("0 diagnostics; 0 warnings; 0 blocking/error");
+        await expect(page.getByTestId("readiness-diagnostics")).toContainText("0 items from the model and the solve; 0 warnings; 0 blocking or error");
       }
       if (phase === "diagnostics-blocking") {
         await expect(page.getByTestId("readiness-diagnostics")).toHaveClass(/\bblocking\b/);
-        await expect(page.getByTestId("readiness-diagnostics")).toContainText("1 blocking/error");
+        await expect(page.getByTestId("readiness-diagnostics")).toContainText("1 item from the model and the solve; 0 warnings; 1 blocking or error");
       }
       const rows = page.getByTestId("solve-readiness-summary").locator(".readiness-row");
       await expect(rows).toHaveCount(4);

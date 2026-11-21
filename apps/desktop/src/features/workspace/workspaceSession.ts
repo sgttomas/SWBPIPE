@@ -2740,11 +2740,15 @@ export function useWorkspaceSession() {
     setProjectEnvelopeHashIntegrity(deriveProjectEnvelopeHashIntegrity(envelope.project_envelope_hash ?? null, envelopeHash, payloadRef, source, observedAt, responseValid));
   }
 
-  function acquireProjectOperation(): symbol | null {
+  /** The project operation that is running, for the running line beside the Project page's message; null when none. It is its own state: never written into the message and never restoring one. */
+  const [projectRunning, setProjectRunning] = useState<"create" | "save" | null>(null);
+
+  function acquireProjectOperation(running: "create" | "save" | null = null): symbol | null {
     if (projectOperationOwner.current !== null) return null;
     const owner = Symbol("project operation");
     projectOperationOwner.current = owner;
     setProjectBusy(true);
+    setProjectRunning(running);
     return owner;
   }
 
@@ -2752,6 +2756,7 @@ export function useWorkspaceSession() {
     if (projectOperationOwner.current !== owner) return;
     projectOperationOwner.current = null;
     setProjectBusy(false);
+    setProjectRunning(null);
   }
 
   /** HELP_HUMAN rulings (2026-10-10): the app never silently replaces a stored
@@ -2832,7 +2837,6 @@ export function useWorkspaceSession() {
   }
 
   const SAVE_AS_NEW_SUPERSEDED = "Not saved: the session changed while the replace prompt was open; nothing was written.";
-  const SAVING_PROJECT_MESSAGE = "Saving the project…";
   /** A New Blank whose create landed after the model on screen changed is stored but
    * not opened; the session keeps the changed model and the stored blank is kept. */
   const NEW_BLANK_SUPERSEDED = "NEW-BLANK-SUPERSEDED";
@@ -2848,12 +2852,8 @@ export function useWorkspaceSession() {
    * identity is not written under the new one. */
   async function createProject(saveAsNew: PreviewModel | null) {
     if (!model) return;
-    const owner = acquireProjectOperation();
+    const owner = acquireProjectOperation(saveAsNew ? "save" : "create");
     if (!owner) return;
-    // Said on the Project page while the save runs; its outcome replaces it, and an exit
-    // that states no outcome puts back what the page said before.
-    const messageBefore = projectMessage;
-    setProjectMessage(SAVING_PROJECT_MESSAGE);
     const request = ++projectRequest.current;
     let epoch = requestEpochRef.current;
     // Save as a new project follows the session's own adoption of the renamed
@@ -3011,7 +3011,6 @@ export function useWorkspaceSession() {
       setProjectMessage(`Create failed: ${nativeFailureText(error)}`);
       setProjectOperation("create_failed");
     } finally {
-      setProjectMessage((current) => (current === SAVING_PROJECT_MESSAGE ? messageBefore : current));
       releaseProjectOperation(owner);
       // Save as a new project: adopt the renamed document, then write it as a
       // project of its own (an early return in the try block still reaches here).
@@ -3805,7 +3804,7 @@ export function useWorkspaceSession() {
    * identity is not written under the new one. */
   async function saveProject(saveAsNew: PreviewModel | null) {
     if (!model) return;
-    const owner = acquireProjectOperation();
+    const owner = acquireProjectOperation("save");
     if (!owner) return;
     const request = ++projectRequest.current;
     let epoch = requestEpochRef.current;
@@ -5318,6 +5317,7 @@ export function useWorkspaceSession() {
       projectMessage,
       projectOperation,
       projectBusy,
+      projectRunning,
       handleCreateProject,
       handleCreateBlankProject,
       handleCreateBlankLoadStateProject,

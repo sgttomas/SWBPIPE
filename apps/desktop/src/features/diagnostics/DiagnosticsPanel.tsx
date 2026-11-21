@@ -11,8 +11,10 @@ import type { DesignKnowledge, DiagnosticInterpretation, MechanicsResult, Previe
 import { buildDiagnosticInterpretation } from "../results/resultInterpretation";
 import { needsSolverReportNote, SOLVER_REPORT_NOTE } from "../results/integrityStatus";
 import { usePublishedLibraryRefFindings } from "../library/libraryRefFindings";
-import { countItemsBySeverity, diagnosticsListOf, groupIssues, type IssueItem } from "./issueItems";
-import { IssueItemView } from "./IssueItemView";
+import { countItemsBySeverity, diagnosticsListOf, groupIssues, type IssueItem, type IssueMember, type IssueSource } from "./issueItems";
+import { IssueItemView, NO_OWN_DETAIL_REASON } from "./IssueItemView";
+
+const HOME_LABELS: Record<IssueSource, string> = { "model-checks": "Model checks", operation: "Operation diagnostics", diagnostics: "Diagnostics" };
 
 export function DiagnosticsPanel({
   model,
@@ -22,7 +24,8 @@ export function DiagnosticsPanel({
   filterRequest = null,
   onSelectDiagnostic,
   items: givenItems,
-  allItems = null
+  allItems = null,
+  onPinnedChange
 }: {
   model: PreviewModel;
   knowledge: DesignKnowledge | null;
@@ -38,6 +41,9 @@ export function DiagnosticsPanel({
   /** Every item the drawer lists: a requested diagnostic is found among them wherever its item
    * is filed (a solve diagnostic the model checks also found is filed under Model checks). */
   allItems?: readonly IssueItem[] | null;
+  /** Told the diagnostic this list shows as requested (null when none), so the drawer shows that
+   * report's item once: here, and not again in the list that otherwise holds it. */
+  onPinnedChange?: (diagnosticId: string | null) => void;
 }) {
   const [filterText, setFilterText] = useState(filterRequest?.diagnosticId ?? "");
   // The requested id, matched exactly while the filter text is that id.
@@ -67,13 +73,17 @@ export function DiagnosticsPanel({
     return groupIssues({ model, diagnostics, shownDiagnostics, diagnosticOrigins });
   }, [givenItems, model, knowledge, result, publishedLibraryRefs]);
   const items = givenItems ?? ownItems ?? [];
-  const diagnosticCount = items.reduce((count, item) => count + item.members.length, 0);
+  const reportCount = items.reduce((count, item) => count + item.members.length, 0);
+  // A requested diagnostic: its item, wherever the drawer files it, led by that report.
+  const pinned = pinnedId !== null && filterText === pinnedId ? pinnedId : null;
+  const isRequested = (member: IssueMember) => member.source === "diagnostics" && (member.diagnostic.id ?? member.diagnostic.code) === pinned;
   const filteredItems = useMemo(
-    () => pinnedId !== null && filterText === pinnedId
-      ? (allItems ?? items).filter((item) => item.members.some((member) => member.source === "diagnostics" && (member.diagnostic.id ?? member.diagnostic.code) === pinnedId))
+    () => pinned !== null
+      ? (allItems ?? items).filter((item) => item.members.some(isRequested))
       : filterItems(items, filterText),
-    [items, allItems, filterText, pinnedId]
+    [items, allItems, filterText, pinned]
   );
+  useEffect(() => { onPinnedChange?.(pinned); }, [pinned, onPinnedChange]);
   const nativeLinked = useNativeLinkedResults(model, knowledge, result, selectedDiagnosticId);
   const axial = useKnowledgeAxialRow(result);
   const interpretation = buildDiagnosticInterpretation({ model, knowledge, result, diagnosticId: selectedDiagnosticId, nativeLinkedResults: nativeLinked.rows, knowledgeAxialRow: axial.row });
@@ -88,7 +98,8 @@ export function DiagnosticsPanel({
         filterText={filterText}
         filteredItems={filteredItems}
         totalCount={items.length}
-        diagnosticCount={diagnosticCount}
+        reportCount={reportCount}
+        requested={pinned !== null}
         onFilterChange={setFilterText}
       />
       {nativeLinked.error ? <p role="status" data-testid="diagnostic-linked-results-refused">{nativeLinked.error}</p> : null}
@@ -96,22 +107,25 @@ export function DiagnosticsPanel({
       <div className="diagnostic-list">
         {filteredItems.length > 0 ? (
           filteredItems.map((item) => {
-            const first = item.members[0].diagnostic;
+            const lead = pinned !== null ? item.members.find(isRequested) ?? item.lead : item.lead;
             const active = item.members.some((member) => member.diagnostic.id !== undefined && member.diagnostic.id === selectedDiagnosticId);
+            const opens = lead.source === "diagnostics" && lead.ownDetail;
             return (
               <IssueItemView
                 key={item.key}
                 item={item}
+                lead={lead}
                 selectedDiagnosticId={selectedDiagnosticId}
                 onSelectDiagnostic={onSelectDiagnostic}
                 main={(body) => (
                   <button
+                    aria-disabled={opens ? undefined : true}
                     className={`diagnostic ${item.severity} ${active ? "active" : ""}`}
                     data-testid={`diagnostic-${item.code}`}
-                    onClick={() => onSelectDiagnostic(first.id ?? first.code)}
+                    onClick={() => { if (opens) onSelectDiagnostic(lead.diagnostic.id ?? lead.diagnostic.code); }}
+                    title={opens ? undefined : lead.source === "diagnostics" ? NO_OWN_DETAIL_REASON : "Open the reports below to choose one."}
                     type="button"
                   >
-                    <strong>{item.code}</strong>
                     {body}
                   </button>
                 )}
@@ -132,15 +146,19 @@ function DiagnosticControls({
   filterText,
   filteredItems,
   totalCount,
-  diagnosticCount,
+  reportCount,
+  requested,
   onFilterChange
 }: {
   filterText: string;
   filteredItems: readonly IssueItem[];
   totalCount: number;
-  diagnosticCount: number;
+  reportCount: number;
+  /** The list shows one requested diagnostic's item. */
+  requested: boolean;
   onFilterChange: (value: string) => void;
 }) {
+  const elsewhere = [...new Set(filteredItems.filter((item) => item.home !== "diagnostics").map((item) => HOME_LABELS[item.home]))];
   const severityCounts = countItemsBySeverity(filteredItems);
   return (
     <section className="diagnostic-controls" aria-label="Diagnostic filtering" data-testid="diagnostic-controls">
@@ -157,8 +175,11 @@ function DiagnosticControls({
         />
       </label>
       <span data-testid="diagnostic-filter-summary">
-        {filteredItems.length} of {totalCount} {totalCount === 1 ? "item" : "items"} shown
-        {diagnosticCount !== totalCount ? ` (${diagnosticCount} diagnostics)` : ""}
+        {requested
+          ? filteredItems.length === 0
+            ? "The requested report is not in the current list."
+            : `Showing the requested report: ${filteredItems.length} ${filteredItems.length === 1 ? "item" : "items"}${elsewhere.length > 0 ? `, otherwise listed under ${elsewhere.join(" and ")}` : ""}.`
+          : `${filteredItems.length} of ${totalCount} ${totalCount === 1 ? "item" : "items"} shown${reportCount !== totalCount ? ` (${reportCount} ${reportCount === 1 ? "report" : "reports"})` : ""}`}
       </span>
       <button
         aria-label="Clear diagnostic filter"

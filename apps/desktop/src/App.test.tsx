@@ -1225,7 +1225,7 @@ describe("SWBPIPE desktop preview", () => {
     ).toContain("mechanics results remain reviewable only");
     expect(
       within(initialReadiness).getByTestId("readiness-diagnostics").textContent,
-    ).toContain("1 diagnostic");
+    ).toContain("1 item from the model and the solve");
     expect(
       within(initialReadiness).getByTestId("readiness-diagnostics").textContent,
     ).toContain("1 warning");
@@ -1285,7 +1285,8 @@ describe("SWBPIPE desktop preview", () => {
     expect(screen.getByTestId("solve-job-boundary").textContent).toContain(
       "private payload=false",
     );
-    expect(screen.getByTestId("cancel-mechanics-preview")).toBeDisabled();
+    // The status line's Stop is the one Stop control: the Analyze page offers none.
+    expect(screen.queryByTestId("cancel-mechanics-preview")).toBeNull();
     fireEvent.click(screen.getByTestId("solve-job-export-link-local-private-intent"));
     const solveJobHref =
       screen.getByTestId("solve-job-export-link").getAttribute("href") ?? "";
@@ -10680,7 +10681,7 @@ describe("SWBPIPE desktop preview", () => {
     const diagnostics = await screen.findByLabelText("Diagnostics");
     expect(
       within(diagnostics).getByTestId("diagnostic-filter-summary").textContent,
-    ).toContain(`${expectedItems} of ${expectedItems} items shown (${expectedDiagnostics.length} diagnostics)`);
+    ).toContain(`${expectedItems} of ${expectedItems} items shown (${expectedDiagnostics.length} reports)`);
     // C-120 fix: the demo drops the tee component:C-120, so BRANCH_TOPOLOGY_INVALID no longer warns.
     // §8.30 correction 3 (RT-S3): 6 -> 9, the hanger support:SH-140's three
     // SPRING_HANGER_LOAD_NOT_APPLIED_AS_PRELOAD warnings (installed, cold, hot load).
@@ -10782,7 +10783,7 @@ describe("SWBPIPE desktop preview", () => {
     fireEvent.click(within(diagnostics).getByTestId("clear-diagnostic-filter"));
     expect(
       within(diagnostics).getByTestId("diagnostic-filter-summary").textContent,
-    ).toContain(`${expectedItems} of ${expectedItems} items shown (${expectedDiagnostics.length} diagnostics)`);
+    ).toContain(`${expectedItems} of ${expectedItems} items shown (${expectedDiagnostics.length} reports)`);
     expect(
       within(diagnostics).getByTestId("diagnostic-RULE_CHECK_NOT_PERFORMED"),
     ).toBeInTheDocument();

@@ -80,8 +80,8 @@ import { LibraryManagerPanel } from "./features/library/LibraryManagerPanel";
 import { LoadCaseManagerPanel } from "./features/load-cases/LoadCaseManagerPanel";
 import { LocalFeaHandoffPanel } from "./features/local-fea-handoff/LocalFeaHandoffPanel";
 import { MissingDataBlockingPanel } from "./features/missing-data/MissingDataBlockingPanel";
-import { itemsAt, useIssueSummary, type IssueSummary } from "./features/diagnostics/issueItems";
-import { IssueItemView } from "./features/diagnostics/IssueItemView";
+import { itemsAt, useIssueSummary, type IssueItem, type IssueSummary } from "./features/diagnostics/issueItems";
+import { IssueItemView, ShownUnderDiagnostics } from "./features/diagnostics/IssueItemView";
 import { professionalStatusToken, ruleCheckStatusToken, statusDisplay } from "./features/workspace/statusLabels";
 import { entityRefFromKey, setSelectionFocus } from "./features/workspace/selectionState";
 import { solveProofStatus, type SolveProofEvidence } from "./features/workspace/solveProof";
@@ -321,6 +321,7 @@ function AppSession() {
     projectMessage,
     projectOperation,
     projectBusy,
+    projectRunning,
     handleCreateProject,
     requestBlankProject,
     blankProjectUnitsRequest,
@@ -501,6 +502,8 @@ function AppSession() {
         onCancel={handleCancelRun}
         onOpenResults={() => runMenuCommand("view.stage.results")}
         onShowIssue={() => setIssuesDrawerOpen(true)}
+        resultsShown={shell.stage === "results" && shell.page === null}
+        resultHeld={result !== null}
       />
 
       <div className="shell-body">
@@ -1142,7 +1145,17 @@ function AppSession() {
           </header>
           <div className={shell.page === "project" ? "shell-project-strip" : "shell-project-strip inactive"}>
       <details className="project-strip" aria-label="Project summary">
-        <summary><span data-testid="local-project-message" role="status">{projectMessage}</span><span className="project-details-label">Details</span></summary>
+        <summary>
+          <span data-testid="local-project-message" role="status">{projectMessage}</span>
+          {/* A running create or save is its own line beside the outcome message: it never writes into
+              the message and it is gone when the operation ends, whatever its outcome. */}
+          {projectRunning ? (
+            <span className="local-project-running" data-testid="local-project-running" role="status">
+              {projectRunning === "create" ? "Creating the local project…" : "Saving the project…"}
+            </span>
+          ) : null}
+          <span className="project-details-label">Details</span>
+        </summary>
         <span data-testid="local-project-review-context">{projectReviewContext(editorIntents, proposal, appliedOperations.length)}</span>
         {projectIndex && projectIndex.length > 0 ? (
           <div className="project-index-picker" data-testid="project-index-picker" aria-label="Open listed project by id">
@@ -1891,6 +1904,11 @@ function IssuesHome({
   const checkItems = itemsAt(issues, "model-checks");
   const operationItems = itemsAt(issues, "operation");
   const diagnosticItems = itemsAt(issues, "diagnostics");
+  // A diagnostic shown as requested in the Diagnostics list is shown there once; the list that
+  // otherwise holds its item says where it is.
+  const [requestedDiagnosticId, setRequestedDiagnosticId] = useState<string | null>(null);
+  const shownUnderDiagnostics = (item: IssueItem) => requestedDiagnosticId !== null && item.home !== "diagnostics"
+    && item.members.some((member) => member.source === "diagnostics" && (member.diagnostic.id ?? member.diagnostic.code) === requestedDiagnosticId);
   const parts: Array<[string, number, string]> = [
     ...(issues.solve ? [["Last solve", 1, "solve"] as [string, number, string]] : []),
     ["Model checks", checkItems.length, "model-checks"],
@@ -1910,27 +1928,29 @@ function IssuesHome({
         </button>
       </div>
       <ul className="issues-breakdown" aria-label="Items by list" data-testid="issues-breakdown">
+        <li className="issues-breakdown-lead">Of these, by list:</li>
         {parts.map(([label, count, id]) => (
           <li key={id} data-testid={`issues-breakdown-${id}`}>{label} <strong>{count}</strong></li>
         ))}
       </ul>
       {issues.solve && solveJob ? <SolveIssueItem solveJob={solveJob} /> : null}
-      <ModelChecksPanel model={model} run={modelCheckRun} busy={modelCheckBusy} onRun={onRunModelChecks} onSelectEntity={onSelectEntity} onSelectDiagnostic={onSelectDiagnostic} items={checkItems} />
+      <ModelChecksPanel model={model} run={modelCheckRun} busy={modelCheckBusy} onRun={onRunModelChecks} onSelectEntity={onSelectEntity} onSelectDiagnostic={onSelectDiagnostic} items={checkItems} shownElsewhere={shownUnderDiagnostics} />
       {operationItems.length > 0 ? (
         <section className="panel issues-operation-list" aria-label="Operation diagnostics">
           <div className="panel-title">
             Operation diagnostics
             <span className="issues-section-count" aria-label={`${operationItems.length} ${operationItems.length === 1 ? "item" : "items"}`}>{operationItems.length}</span>
           </div>
-          {operationItems.map((item) => (
+          {operationItems.map((item) => shownUnderDiagnostics(item) ? (
+            <ShownUnderDiagnostics item={item} key={item.key} />
+          ) : (
             <IssueItemView
               key={item.key}
               item={item}
               selectedDiagnosticId={selectedDiagnosticId}
               onSelectDiagnostic={onSelectDiagnostic}
               main={(body) => (
-                <article className={`issue-row ${item.severity}`}>
-                  <strong>{item.code}</strong>
+                <article className={`issue-row diagnostic ${item.severity}`}>
                   {body}
                 </article>
               )}
@@ -1947,6 +1967,7 @@ function IssuesHome({
         selectedDiagnosticId={selectedDiagnosticId}
         filterRequest={diagnosticFilterRequest}
         onSelectDiagnostic={onSelectDiagnostic}
+        onPinnedChange={setRequestedDiagnosticId}
       />
       <MissingDataBlockingPanel model={model} result={result} />
     </aside>

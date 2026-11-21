@@ -8,7 +8,6 @@ import {
   Play,
   Redo2,
   SlidersHorizontal,
-  Square,
   Table2,
   Undo2,
   Box
@@ -28,6 +27,9 @@ import { DisabledReason } from "./DisabledReason";
 import { solveWithheldReason } from "../solveGates";
 import { AutosaveSettingsControl, AutosaveStatus } from "../../autosave";
 
+/** Why Run is withheld while a solve runs. */
+export const RUN_WHILE_SOLVING_REASON = "A solve is running. Stop it on the status line.";
+
 const VIEW_ICONS: Record<ShellView, typeof Table2> = { table: Table2, model: Box, both: Columns2 };
 
 /**
@@ -41,9 +43,10 @@ export function ShellToolbar({ issueCount, children }: { issueCount: number; chi
   const { model } = useSessionModel();
   const { projectSummary, modelEdited, autosave } = useSessionProject();
   const { undoStack, redoStack, operationBusy, historyFailure, handleUndoSessionModelEdit, handleRedoSessionModelEdit } = useSessionOperations();
-  const { running, solveGate, handleRun, handleCancelRun } = useSessionResults();
+  const { running, solveGate, handleRun } = useSessionResults();
   // A withheld Solve stays in the tab order with its reason; pressing it names the findings in Model checks.
   const withheldReason = solveGate.kind === "withheld" ? solveWithheldReason(solveGate) : null;
+  const runReason = running ? RUN_WHILE_SOLVING_REASON : withheldReason;
   const {
     activeSection,
     stageSurface,
@@ -105,22 +108,21 @@ export function ShellToolbar({ issueCount, children }: { issueCount: number; chi
         })}
       </div>
       <div className="shell-toolbar-centre">
-        {running ? (
-          <button type="button" className="shell-run" data-testid="toolbar-stop" onClick={() => void handleCancelRun()} title="Stop"><Square size={14} aria-hidden="true" /><span>Stop</span></button>
-        ) : (
-          <span className="shell-reason-anchor">
-            <button
-              type="button"
-              className="shell-run"
-              data-testid="toolbar-run"
-              aria-disabled={withheldReason ? true : undefined}
-              aria-describedby={withheldReason ? "toolbar-run-reason" : undefined}
-              onClick={() => void handleRun()}
-              title={withheldReason ?? "Run"}
-            ><Play size={15} aria-hidden="true" /><span>{withheldReason ? "Run withheld" : "Run"}</span></button>
-            {withheldReason ? <DisabledReason id="toolbar-run-reason" text={withheldReason} /> : null}
-          </span>
-        )}
+        {/* Run stays where it is while a solve runs, withheld with its reason: the status
+            line's Stop is the one Stop control (the menu, its shortcut and the palette reach
+            the same request). */}
+        <span className="shell-reason-anchor">
+          <button
+            type="button"
+            className="shell-run"
+            data-testid="toolbar-run"
+            aria-disabled={runReason ? true : undefined}
+            aria-describedby={runReason ? "toolbar-run-reason" : undefined}
+            onClick={() => { if (!running) void handleRun(); }}
+            title={runReason ?? "Run"}
+          ><Play size={15} aria-hidden="true" /><span>{withheldReason && !running ? "Run withheld" : "Run"}</span></button>
+          {runReason ? <DisabledReason id="toolbar-run-reason" text={runReason} /> : null}
+        </span>
         <button
           type="button"
           className="shell-issues"

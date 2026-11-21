@@ -37,18 +37,18 @@ describe("the Analyze page's diagnostics row", () => {
       ["INVENTED_KNOWLEDGE", "diagnostics", "error"]
     ]);
     const row = await renderRow(items, model);
-    expect(row).toHaveTextContent("Model and solve diagnostics2 diagnostics (1 listed under Model checks); 1 warning; 1 blocking/error");
+    expect(row).toHaveTextContent("Model and solve diagnostics2 items from the model and the solve (1 listed under Model checks); 1 warning; 1 blocking or error");
     expect(row).toHaveClass("blocking");
   });
 
   it("gives no parenthesis where none is listed under Model checks, and reads clear on a clear model", async () => {
     const model = await loadPreviewModel();
     const warned = await renderRow(groupIssues({ diagnostics: [report("m1", "INVENTED_MODEL", "warning", "support:H-3")], diagnosticOrigins: ["model"] }), model);
-    expect(warned).toHaveTextContent(/1 diagnostic; 1 warning; 0 blocking\/error$/);
+    expect(warned).toHaveTextContent(/1 item from the model and the solve; 1 warning; 0 blocking or error(\. Missing data, listed apart in Issues: \d+ blocking)?$/);
     expect(warned).toHaveClass("warning");
     cleanup();
     const clear = await renderRow([], model);
-    expect(clear).toHaveTextContent(/0 diagnostics; 0 warnings; 0 blocking\/error$/);
+    expect(clear).toHaveTextContent(/0 items from the model and the solve; 0 warnings; 0 blocking or error(\. Missing data, listed apart in Issues: \d+ blocking)?$/);
     expect(clear).toHaveClass("ok");
   });
 });

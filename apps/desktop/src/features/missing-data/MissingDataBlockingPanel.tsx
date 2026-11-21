@@ -33,6 +33,9 @@ type MissingDataWarning = {
 
 export function MissingDataBlockingPanel({ model, result }: { model: PreviewModel; result: SessionResult | null }) {
   const packet = buildMissingDataBlockingPacket({ model, result });
+  // The entries that block are the ones the Issues total counts; the others are listed apart.
+  const blocking = packet.warnings.filter((warning) => warning.blocks_mechanics_solve || warning.blocks_rule_check);
+  const notBlocking = packet.warnings.filter((warning) => !warning.blocks_mechanics_solve && !warning.blocks_rule_check);
 
   return (
     <section
@@ -43,6 +46,13 @@ export function MissingDataBlockingPanel({ model, result }: { model: PreviewMode
       <div className="panel-title">
         <Ban size={16} aria-hidden="true" />
         Missing Data Blocking
+        <span
+          aria-label={`${blocking.length} blocking ${blocking.length === 1 ? "entry" : "entries"}`}
+          className="issues-section-count"
+          data-testid="missing-data-blocking-count"
+        >
+          {blocking.length}
+        </span>
       </div>
       <div className="report-actions">
         <LoadReferenceOutputGate result={result} testIdPrefix="missing-data">
@@ -97,29 +107,37 @@ export function MissingDataBlockingPanel({ model, result }: { model: PreviewMode
         />
       </div>
       <div className="operation-record-list" data-testid="missing-data-warnings">
-        {packet.warnings.map((warning) => (
-          <article
-            className="operation-record"
-            data-testid={`missing-data-warning-${safeFileToken(warning.warning_id)}`}
-            key={warning.warning_id}
-          >
-            <strong>{warning.warning_class}</strong>
-            <small>
-              {warning.severity}; solve_blocking=
-              {String(warning.blocks_mechanics_solve)}; rule_blocking=
-              {String(warning.blocks_rule_check)}
-            </small>
-            <p>
-              {warning.message} {warning.remediation}
-            </p>
-          </article>
-        ))}
+        {blocking.map((warning) => <MissingDataEntry key={warning.warning_id} warning={warning} />)}
+        {notBlocking.length > 0 ? (
+          <details className="missing-data-not-blocking" data-testid="missing-data-not-blocking">
+            <summary data-testid="missing-data-not-blocking-toggle">
+              {notBlocking.length} more {notBlocking.length === 1 ? "entry does" : "entries do"} not block; not counted in Issues
+            </summary>
+            {notBlocking.map((warning) => <MissingDataEntry key={warning.warning_id} warning={warning} />)}
+          </details>
+        ) : null}
       </div>
       <small className="report-note">
         Missing-data warnings distinguish mechanics solve readiness from user-rule checking. They do not fill missing
         engineering values.
       </small>
     </section>
+  );
+}
+
+function MissingDataEntry({ warning }: { warning: MissingDataWarning }) {
+  return (
+    <article className="operation-record" data-testid={`missing-data-warning-${safeFileToken(warning.warning_id)}`}>
+      <strong>{warning.warning_class}</strong>
+      <small>
+        {warning.severity}; solve_blocking=
+        {String(warning.blocks_mechanics_solve)}; rule_blocking=
+        {String(warning.blocks_rule_check)}
+      </small>
+      <p>
+        {warning.message} {warning.remediation}
+      </p>
+    </article>
   );
 }
 

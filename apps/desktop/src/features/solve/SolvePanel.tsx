@@ -1,5 +1,6 @@
 import { resultRowCount, resultUnits, runResultHashCount, type SessionAnalysisRun, type SessionResult } from "../../services/nativeResult";
-import { AlertTriangle, Download, Play, ShieldCheck, Square } from "lucide-react";
+import { AlertTriangle, Circle, Download, Play, ShieldCheck } from "lucide-react";
+import { countMissingDataBlockers } from "../missing-data/MissingDataBlockingPanel";
 import { LoadReferenceOutputGate } from "../results/LoadReferenceOutputGate";
 import { LoadReferenceStatesBlock } from "./LoadReferenceStatesBlock";
 import type { AnalysisRunEnvelope, Diagnostic, MechanicsResult, PreviewModel, SolveJobAuditState } from "../../types";
@@ -28,7 +29,6 @@ export function SolvePanel({
   numericalHealth = null,
   diagnosticItems = null,
   solveGate = null,
-  onCancel,
   onRun,
   onSolverModeChange,
   onSelectEntity = () => {},
@@ -48,7 +48,8 @@ export function SolvePanel({
   running: boolean;
   solveJob: SolveJobAuditState;
   solverMode: PreviewSolverMode;
-  onCancel: () => void;
+  /** Not used: the status line's Stop is the one Stop control. Kept so callers need not change. */
+  onCancel?: () => void;
   onRun: () => void;
   onSolverModeChange: (mode: PreviewSolverMode) => void;
   /** The Solve command's gate as it reads now; while withheld the Solve control
@@ -117,7 +118,7 @@ export function SolvePanel({
       {solveJob.resource.queue_reason && (solveJob.state === "queued" || solveJob.state === "cancelling") ? (
         <p role="status" className="memory-pool-message info" data-testid="solve-job-queue-reason">
           Waiting in the queue: {describeResourceRefusal(solveJob.resource.queue_reason)} The queue retries by itself and starts
-          the solve once the pool admits it; Cancel preview stops the wait.
+          the solve once the pool admits it; Stop on the status line stops the wait.
         </p>
       ) : null}
       <div className="report-list solve-job-list" data-testid="solve-job-audit">
@@ -175,17 +176,7 @@ export function SolvePanel({
           onOpenModelChecks={onOpenModelChecks}
         />
       ) : null}
-      <button
-        className="secondary-action"
-        data-testid="cancel-mechanics-preview"
-        disabled={!running}
-        title={running ? undefined : "Disabled: no mechanics preview is running, so there is nothing to cancel."}
-        onClick={onCancel}
-        type="button"
-      >
-        <Square size={15} aria-hidden="true" />
-        Cancel preview
-      </button>
+      {/* The status line's Stop is the one Stop control (DEL-07-07 REQ-014). */}
       <MemoryPoolPanel active={running} />
     </section>
   );
@@ -223,6 +214,7 @@ function readinessSummary({
   const diagnosticCount = counted ? counted.length : diagnostics.length;
   const underChecks = counted ? counted.filter((item) => item.home === "model-checks").length : 0;
   const warningCount = itemCounts ? itemCounts.warning : diagnostics.filter((item) => item.severity === "warning").length;
+  const missingBlocking = countMissingDataBlockers({ model: { ...model, diagnostics: model.diagnostics ?? [] }, result });
   const blockingCount = itemCounts
     ? itemCounts.blocking + itemCounts.error
     : diagnostics.filter((item) => item.severity === "blocking" || item.severity === "error").length;
@@ -252,10 +244,13 @@ function readinessSummary({
       // What it counts: the Issues drawer's items that hold a model or solve report (a code
       // repeated on one object is one item), wherever the drawer lists them.
       label: "Model and solve diagnostics",
-      value: `${diagnosticCount} ${plural("diagnostic", diagnosticCount)}${underChecks > 0 ? ` (${underChecks} listed under Model checks)` : ""}; ${warningCount} ${plural(
+      // Counts name their subject: Issues items from the model and the solve (a code repeated on
+      // one object is one item), or the reports themselves where no items are given. Missing data
+      // is not among them; where it blocks, the row says so in its own words.
+      value: `${counted ? `${diagnosticCount} ${plural("item", diagnosticCount)} from the model and the solve` : `${diagnosticCount} diagnostic ${plural("report", diagnosticCount)}`}${underChecks > 0 ? ` (${underChecks} listed under Model checks)` : ""}; ${warningCount} ${plural(
         "warning",
         warningCount
-      )}; ${blockingCount} blocking/error`,
+      )}; ${blockingCount} blocking or error${missingBlocking > 0 ? `. Missing data, listed apart in Issues: ${missingBlocking} blocking` : ""}`,
       tone: blockingCount > 0 ? "blocking" : warningCount > 0 ? "warning" : "ok"
     },
     {
@@ -268,7 +263,9 @@ function readinessSummary({
 }
 
 function ReadinessRow({ item, healthBadge = null }: { item: ReadinessItem; healthBadge?: NumericalHealthView | null }) {
-  const Icon = item.tone === "ok" ? ShieldCheck : AlertTriangle;
+  // A neutral mark where nothing is to be looked at (no tick, no shield: a solved result is
+  // not a verified one); a warning mark otherwise.
+  const Icon = item.tone === "ok" ? Circle : AlertTriangle;
   const row = (testId?: string) => (
     <div className={`readiness-row ${item.tone}`} data-testid={testId}>
       <Icon size={14} aria-hidden="true" />

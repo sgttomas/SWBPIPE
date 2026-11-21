@@ -39,14 +39,14 @@ describe("ModelChecksPanel", () => {
   it("lists each finding by its check with its code and text, and selects the entity it names", () => {
     const onSelectEntity = vi.fn();
     render(<ModelChecksPanel model={model} run={run} onRun={() => {}} onSelectEntity={onSelectEntity} />);
-    expect(screen.getByTestId("model-checks-summary")).toHaveTextContent("3 findings: 1 blocking or error, 2 warnings, 0 info.");
+    expect(screen.getByTestId("model-checks-summary")).toHaveTextContent(/^3 items: 1 blocking or error, 2 warnings, 0 info\.$/);
     const list = screen.getByRole("list", { name: "Model check findings" });
     const groups = within(list).getAllByRole("listitem").filter((item) => item.hasAttribute("data-group"));
     expect(groups.map((item) => item.getAttribute("data-group"))).toEqual(["solve", "slots", "library"]);
-    expect(groups[0]).toHaveTextContent("Solve input, restraint and topology checks 2 findings");
-    expect(groups[2]).toHaveTextContent("Library references 0 findings");
+    expect(groups[0]).toHaveTextContent("Solve input, restraint and topology checks 2 items");
+    expect(groups[2]).toHaveTextContent("Library references 0 items");
     const topology = screen.getByTestId("model-check-MODEL_TOPOLOGY_DISCONNECTED");
-    expect(topology).toHaveTextContent("MODEL_TOPOLOGY_DISCONNECTED warning");
+    expect(within(topology).getByTestId("issue-meta")).toHaveTextContent(/^warning · MODEL_TOPOLOGY_DISCONNECTED · /);
     expect(topology).toHaveTextContent("invented two-part text");
     fireEvent.click(topology);
     expect(onSelectEntity).toHaveBeenCalledWith({ type: "node", id: "node:a" });
@@ -103,8 +103,8 @@ describe("ModelChecksPanel", () => {
     const bounded: ModelCheckRun = { ...run, notShown: { solve: 9, slots: 3, library: 0 }, notShownBlocking: 4, findings: [{ ...run.findings[0], diagnostic: { ...run.findings[0].diagnostic, truncated: true } as typeof run.findings[0]["diagnostic"] }] };
     const onRun = vi.fn();
     const view = render(<ModelChecksPanel model={model} run={bounded} onRun={onRun} onSelectEntity={() => {}} />);
-    expect(screen.getByTestId("model-checks-not-shown")).toHaveTextContent("12 more findings are not listed: the report is bounded.");
-    expect(screen.getByTestId("model-checks-summary")).toHaveTextContent("1 finding: 0 blocking or error, 1 warning, 0 info. 12 more not listed; 4 of them blocking or error.");
+    expect(screen.getByTestId("model-checks-not-shown")).toHaveTextContent("12 more reports are not listed: the checks' list is bounded.");
+    expect(screen.getByTestId("model-checks-summary")).toHaveTextContent("1 item: 0 blocking or error, 1 warning, 0 info. 12 more reports not listed; 4 of them blocking or error.");
     expect(screen.getByTestId("model-check-truncated")).toHaveTextContent("Text shortened in the bounded report.");
     view.rerender(<ModelChecksPanel model={model} run={bounded} busy onRun={onRun} onSelectEntity={() => {}} />);
     const button = screen.getByTestId("model-checks-run");
@@ -121,7 +121,7 @@ describe("ModelChecksPanel", () => {
     const omitted: ModelCheckRun = { ...run, findings: [], notShown: { solve: 1, slots: 0, library: 0 }, notShownBlocking: 1 };
     render(<ModelChecksPanel model={model} run={omitted} onRun={() => {}} onSelectEntity={() => {}} />);
     const summary = screen.getByTestId("model-checks-summary");
-    expect(summary).toHaveTextContent("1 finding, none listed; 1 of them blocking or error.");
+    expect(summary).toHaveTextContent("1 report, none listed; 1 of them blocking or error.");
     expect(summary).not.toHaveTextContent("nothing to report");
   });
 });

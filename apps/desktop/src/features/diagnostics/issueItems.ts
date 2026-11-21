@@ -1,16 +1,20 @@
 // The Issues count and the Issues drawer's items, from one function.
 //
 // The rule: an item is one thing a person must look at, which is one finding
-// code on one object (of one class: DEL-07-04 REQ-001 keeps the six classes
-// apart, so two classes are never one item). Every report of that code on that object is a member of
-// the one item, whoever reported it (the model checks, an operation, the model
-// document, a library reference, design knowledge or the solve) and however
-// many loads, cases or sources repeat it. A spring hanger's installed, cold and
-// hot load warnings are one item for the hanger, listing the three loads. A
-// member keeps its own code, severity and message; nothing is reworded or
-// dropped, and the item's severity is its most severe member's. The number on
-// the Issues controls is `issueSummary(...).total`, which is exactly the
-// number of items the drawer lists.
+// code on one object, of one class (DEL-07-04 REQ-001 keeps the six classes
+// apart, so two classes are never one item). The object is the model entity a
+// report's references name, resolved as the model checks resolve them (materials
+// and sections included); a reference that names no entity is its own text; a
+// report that names no object is its own item. Every report of that code on that
+// object is a member of the one item, whoever reported it and however many loads,
+// cases or sources repeat it. Whether a report that states no class joins a
+// classed item is decided after every report is read: it joins only where its code
+// on its object has exactly one stated class; where two or more are stated it is
+// its own item. A member keeps its own code, severity and message; nothing is
+// reworded or dropped, and the item's severity is its most severe member's. The
+// number on the Issues controls is `issueSummary(...).total`, which is exactly the
+// number of items the drawer lists. Counts name what they count: "items" are what
+// the drawer lists, "reports" the diagnostics and findings before grouping.
 import { useMemo } from "react";
 import type { SessionResult } from "../../services/nativeResult";
 import type { DesignKnowledge, Diagnostic, EntityRef, OperationOutcome, PreviewModel, SolveJobAuditState } from "../../types";
@@ -18,9 +22,10 @@ import { isResultTooLargeSolveJob } from "../workspace/solveJobAudit";
 import { currentLibraryRefFindings, libraryRefDiagnostics, usePublishedLibraryRefFindings } from "../library/libraryRefFindings";
 import { countMissingDataBlockers } from "../missing-data/MissingDataBlockingPanel";
 import { modelDocumentDiagnostics } from "../model-data/documentDiagnostics";
-import { resolveEntitySelection } from "../results/resultInterpretation";
 import { presentedResultDiagnostics } from "../results/suppliedDiagnostics";
-import type { ModelCheckFinding, ModelCheckGroupId, ModelCheckRun } from "./modelChecks";
+import { entityLabel } from "../model-workspace/modelView";
+import { resolveModelCheckEntity, type ModelCheckFinding, type ModelCheckGroupId, type ModelCheckRun } from "./modelChecks";
+import { needsSolverReportNote } from "../results/integrityStatus";
 
 /** Where a member was reported. */
 export type IssueSource = "model-checks" | "operation" | "diagnostics";
@@ -48,6 +53,13 @@ export type IssueMember = Readonly<{
   origin: IssueOrigin;
   /** The model-check finding it came from, for a model-check member. */
   finding?: ModelCheckFinding;
+  /** The report's own references beyond its item's object, each in the application's display
+   * form where the model names it ("Label (ref)"), else as given. */
+  otherRefs: readonly string[];
+  /** Whether choosing this report can open its own detail: false for a diagnostic with no
+   * identifier whose code another diagnostic shares, since the detail is found by identifier
+   * or code and would show the other's. */
+  ownDetail: boolean;
 }>;
 
 export type IssueItem = Readonly<{
@@ -64,9 +76,14 @@ export type IssueItem = Readonly<{
   /** For an item the model checks list, the group of its first model-check member. */
   group: ModelCheckGroupId | null;
   members: readonly IssueMember[];
+  /** The member the collapsed item leads with: its most severe, first among equals one that
+   * states the class, then in arrival order. */
+  lead: IssueMember;
   /** What tells the members' messages apart (for example "installed load
-   * (hanger.installed_load)"), one per distinct message, in order; empty where
-   * the members share one message. */
+   * (hanger.installed_load)"), one per distinct message, in order, cut from the shown text.
+   * Empty where the members share one message, where any member takes the solver report note,
+   * or where a distinct message is shown only as supplied, unverified text: an excerpt is then
+   * never shown. */
   differences: readonly string[];
 }>;
 
@@ -85,29 +102,54 @@ export type IssueInputs = Readonly<{
   diagnosticOrigins?: readonly IssueOrigin[];
 }>;
 
-function objectOf(diagnostic: Diagnostic, model: PreviewModel | null | undefined, entity: EntityRef | null): { object: string | null; entity: EntityRef | null } {
-  if (entity) return { object: entity.id, entity };
-  const refs = diagnostic.affected_refs ?? [];
+/** The object a report is about: the model entity its first reference that names one resolves to
+ * (the model checks' resolver), else its first non-blank reference as text; null where it names
+ * none. `key` is what two reports must share to be one item. */
+function objectOf(diagnostic: Diagnostic, model: PreviewModel | null | undefined, entity: EntityRef | null): { object: string | null; entity: EntityRef | null; key: string | null } {
+  if (entity) return { object: entity.id, entity, key: `${entity.type}:${entity.id}` };
+  const refs = (diagnostic.affected_refs ?? []).filter((ref) => typeof ref === "string" && ref.trim() !== "");
   if (model) {
     for (const ref of refs) {
-      const resolved = resolveEntitySelection({
-        ...model,
-        nodes: model.nodes ?? [],
-        pipe_segments: model.pipe_segments ?? [],
-        supports: model.supports ?? [],
-        components: model.components ?? [],
-        load_cases: model.load_cases ?? []
-      }, ref);
-      if (resolved) return { object: ref, entity: resolved };
+      const resolved = resolveRef(model, ref);
+      if (resolved) return { object: ref, entity: resolved, key: `${resolved.type}:${resolved.id}` };
     }
   }
-  return { object: refs[0] ?? null, entity: null };
+  return refs[0] === undefined ? { object: null, entity: null, key: null } : { object: refs[0], entity: null, key: `text:${refs[0]}` };
+}
+
+function resolveRef(model: PreviewModel, ref: string): EntityRef | null {
+  return resolveModelCheckEntity({
+    ...model,
+    nodes: model.nodes ?? [],
+    pipe_segments: model.pipe_segments ?? [],
+    supports: model.supports ?? [],
+    components: model.components ?? [],
+    load_cases: model.load_cases ?? []
+  }, ref);
+}
+
+/** A report's references other than its item's object, in display form. */
+function otherRefsOf(diagnostic: Diagnostic, model: PreviewModel | null | undefined, objectKey: string | null): string[] {
+  const refs = (diagnostic.affected_refs ?? []).filter((ref) => typeof ref === "string" && ref.trim() !== "");
+  const shown: string[] = [];
+  for (const ref of refs) {
+    const resolved = model ? resolveRef(model, ref) : null;
+    const key = resolved ? `${resolved.type}:${resolved.id}` : `text:${ref}`;
+    if (key === objectKey) continue;
+    const label = resolved && model ? entityLabel(model, resolved) : null;
+    const text = label && label !== ref ? `${label} (${ref})` : ref;
+    if (!shown.includes(text)) shown.push(text);
+  }
+  return shown;
 }
 
 /** A report's class as its producer supplied it (`diagnostic_class`, else `class`); null where it
  * supplied none. Never inferred (DEL-07-04 REQ-004). */
 export function classOf(diagnostic: Diagnostic): string | null {
-  return diagnostic.diagnostic_class ?? diagnostic.class ?? null;
+  for (const value of [diagnostic.diagnostic_class, diagnostic.class]) {
+    if (typeof value === "string" && value.trim() !== "") return value;
+  }
+  return null;
 }
 
 /** How a class is shown in text: the supplied class as given, or that none was supplied. */
@@ -117,57 +159,89 @@ export function classText(diagnostic: Diagnostic): string {
 }
 
 /** An item's class: the one class its members state (the grouping never joins two), shown once
- * on the item; "class not supplied" where no member states one. */
-export function itemClassText(item: IssueItem): string {
+ * on the item; "class not supplied" where no member states one. Where the report the item leads
+ * with states none in a classed item, that is said beside the item's class. */
+export function itemClassText(item: IssueItem, lead: IssueMember = item.lead): string {
   const stated = item.members.map((member) => classOf(member.diagnostic)).find((value) => value !== null) ?? null;
-  return stated === null ? "class not supplied" : `class ${stated}`;
+  if (stated === null) return "class not supplied";
+  return classOf(lead.diagnostic) === null && item.members.length > 1 ? `class ${stated}; this report: class not supplied` : `class ${stated}`;
 }
 
-/** What tells this member's message apart from the item's other messages; null where the item's
- * members share one message. */
+/** What tells this member's message apart from the item's other messages; null where the item
+ * shows no excerpt. */
 export function memberDifference(item: IssueItem, member: IssueMember): string | null {
   if (item.differences.length === 0) return null;
   const distinct = [...new Set(item.members.map((each) => each.diagnostic.message))];
   return item.differences[distinct.indexOf(member.diagnostic.message)] ?? null;
 }
 
+type ReadMember = Omit<IssueMember, "otherRefs" | "ownDetail">;
+
 /** Groups every report into items (see the rule at the top of this file). */
 export function groupIssues(inputs: IssueInputs): IssueItem[] {
-  type Group = { code: string; object: string | null; entity: EntityRef | null; members: IssueMember[]; order: number };
-  const groups = new Map<string, Group>();
-  const add = (member: IssueMember, entity: EntityRef | null) => {
-    const where = objectOf(member.diagnostic, inputs.model, entity);
-    const base = `${member.diagnostic.code}\u0000${where.object ?? ""}\u0000`;
-    // DEL-07-04 REQ-001: reports of two classes are never one entry. A report that
-    // states no class joins the first group of its code on its object; class-less
-    // reports held so far take the first class stated for them.
-    const findingClass = classOf(member.diagnostic);
-    let key = findingClass === null ? [...groups.keys()].find((candidate) => candidate.startsWith(base)) ?? base : `${base}${findingClass}`;
-    if (findingClass !== null && !groups.has(key) && groups.has(base)) {
-      groups.set(key, groups.get(base)!);
-      groups.delete(base);
-    }
-    const group = groups.get(key);
-    if (group) {
-      group.members.push(member);
-      if (!group.entity && where.entity) group.entity = where.entity;
-    } else {
-      groups.set(key, { code: member.diagnostic.code, object: where.object, entity: where.entity, members: [member], order: groups.size });
-    }
+  type Pending = { member: ReadMember; where: ReturnType<typeof objectOf>; cls: string | null; order: number };
+  const pending: Pending[] = [];
+  const read = (member: ReadMember, entity: EntityRef | null) => {
+    pending.push({ member, where: objectOf(member.diagnostic, inputs.model, entity), cls: classOf(member.diagnostic), order: pending.length });
   };
-  for (const finding of inputs.modelChecks ?? []) add({ diagnostic: finding.diagnostic, shown: finding.diagnostic, source: "model-checks", origin: "model checks", finding }, finding.entity);
-  for (const diagnostic of inputs.operations ?? []) add({ diagnostic, shown: diagnostic, source: "operation", origin: "operation" }, null);
+  for (const finding of inputs.modelChecks ?? []) read({ diagnostic: finding.diagnostic, shown: finding.diagnostic, source: "model-checks", origin: "model checks", finding }, finding.entity);
+  for (const diagnostic of inputs.operations ?? []) read({ diagnostic, shown: diagnostic, source: "operation", origin: "operation" }, null);
   const shown = inputs.shownDiagnostics ?? inputs.diagnostics ?? [];
   const all = inputs.diagnostics ?? [];
-  all.forEach((diagnostic, index) => add({ diagnostic, shown: shown[index] ?? diagnostic, source: "diagnostics", origin: inputs.diagnosticOrigins?.[index] ?? "model" }, null));
+  all.forEach((diagnostic, index) => read({ diagnostic, shown: shown[index] ?? diagnostic, source: "diagnostics", origin: inputs.diagnosticOrigins?.[index] ?? "model" }, null));
+
+  // A diagnostic with no identifier opens its own detail only where its code is its own.
+  const codeCounts = new Map<string, number>();
+  for (const diagnostic of all) codeCounts.set(diagnostic.code, (codeCounts.get(diagnostic.code) ?? 0) + 1);
+  const ownDetail = (member: ReadMember) => member.source !== "diagnostics" || member.diagnostic.id !== undefined || (codeCounts.get(member.diagnostic.code) ?? 0) <= 1;
+
+  // The classes stated for each code on each object, after every report is read.
+  const stated = new Map<string, Set<string>>();
+  for (const entry of pending) {
+    if (entry.where.key === null || entry.cls === null) continue;
+    const base = `${entry.member.diagnostic.code}\u0000${entry.where.key}`;
+    const set = stated.get(base) ?? new Set<string>();
+    set.add(entry.cls);
+    stated.set(base, set);
+  }
+  type Group = { code: string; object: string | null; entity: EntityRef | null; objectKey: string | null; entries: Pending[]; order: number };
+  const groups = new Map<string, Group>();
+  for (const entry of pending) {
+    const base = `${entry.member.diagnostic.code}\u0000${entry.where.key ?? ""}`;
+    const classes = stated.get(base);
+    // No object: never grouped. A classless report joins its code on its object only where exactly one class is stated.
+    const key = entry.where.key === null ? `single\u0000${entry.order}`
+      : entry.cls !== null ? `${base}\u0000${entry.cls}`
+      : !classes || classes.size === 0 ? `${base}\u0000`
+      : classes.size === 1 ? `${base}\u0000${[...classes][0]}`
+      : `single\u0000${entry.order}`;
+    const group = groups.get(key);
+    if (group) {
+      group.entries.push(entry);
+      if (!group.entity && entry.where.entity) group.entity = entry.where.entity;
+    } else {
+      groups.set(key, { code: entry.member.diagnostic.code, object: entry.where.object, entity: entry.where.entity, objectKey: entry.where.key, entries: [entry], order: entry.order });
+    }
+  }
 
   return [...groups.entries()].sort((a, b) => a[1].order - b[1].order).map(([key, group]): IssueItem => {
-    const home = group.members.reduce<IssueSource>((best, member) => (HOME_RANK[member.source] < HOME_RANK[best] ? member.source : best), "diagnostics");
-    const severity = group.members.reduce<Diagnostic["severity"]>(
+    const members: IssueMember[] = group.entries.map((entry) => ({
+      ...entry.member,
+      otherRefs: otherRefsOf(entry.member.diagnostic, inputs.model, group.objectKey),
+      ownDetail: ownDetail(entry.member)
+    }));
+    const home = members.reduce<IssueSource>((best, member) => (HOME_RANK[member.source] < HOME_RANK[best] ? member.source : best), "diagnostics");
+    const severity = members.reduce<Diagnostic["severity"]>(
       (worst, member) => (rank(member.diagnostic.severity) < rank(worst) ? member.diagnostic.severity : worst),
       "info"
     );
-    const firstCheck = group.members.find((member) => member.finding)?.finding ?? null;
+    // The most severe report leads; among equals one that states the class, then arrival order.
+    const lead = members.reduce((best, member) => {
+      const byRank = rank(member.diagnostic.severity) - rank(best.diagnostic.severity);
+      if (byRank !== 0) return byRank < 0 ? member : best;
+      return classOf(best.diagnostic) === null && classOf(member.diagnostic) !== null ? member : best;
+    });
+    const firstCheck = members.find((member) => member.finding)?.finding ?? null;
     return {
       key,
       code: group.code,
@@ -176,10 +250,20 @@ export function groupIssues(inputs: IssueInputs): IssueItem[] {
       entity: group.entity,
       home,
       group: home === "model-checks" && firstCheck ? firstCheck.group : null,
-      members: group.members,
-      differences: messageDifferences(group.members.map((member) => member.diagnostic.message))
+      members,
+      lead,
+      differences: excerptsAllowed(members) ? messageDifferences(members.map((member) => member.shown.message)) : []
     };
   });
+}
+
+/** Whether an item may show excerpts of its messages: no member takes the solver report note, and
+ * every distinct message has a member shown exactly as its producer gave it, so an excerpt is cut
+ * from the producer's own text, never from supplied, unverified text. */
+function excerptsAllowed(members: readonly IssueMember[]): boolean {
+  if (members.some((member) => needsSolverReportNote(member.shown))) return false;
+  const distinct = [...new Set(members.map((member) => member.diagnostic.message))];
+  return distinct.every((message) => members.some((member) => member.diagnostic.message === message && member.shown.message === message));
 }
 
 /** The words that tell distinct messages apart: what is left of each once the

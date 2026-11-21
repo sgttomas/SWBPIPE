@@ -556,28 +556,6 @@ describe("project handlers: a failed save or create leaves the open project's in
     expect(screen.getByTestId(`tree-row-project-${encodeURIComponent(envelope.model.project.id)}`)).toBeInTheDocument();
   });
 
-  it("says Saving the project… on the Project page while Save as New Local Project runs, until its outcome replaces it", async () => {
-    const model = await loadPreviewModel();
-    render(<App />);
-    await screen.findByTestId("desktop-preview-shell");
-    await openProjectWithBothMismatchesRecorded(model);
-
-    const pendingCreate = deferred<LocalProjectEnvelope>();
-    invokeMock.mockImplementation((command: string) =>
-      command === "create_local_project" ? pendingCreate.promise : Promise.reject(new Error(`Unexpected command ${command}`)),
-    );
-    act(() => nativeMenuCommand("file.new-local"));
-    await waitFor(() => expect(invokeMock).toHaveBeenCalledWith("create_local_project", expect.any(Object)));
-    // Held pending: the line says the save is running, as a status.
-    expect(projectMessage()).toHaveTextContent(/^Saving the project…$/);
-    expect(projectMessage()).toHaveAttribute("role", "status");
-    await act(async () => {
-      pendingCreate.reject(new Error("Invented create failure"));
-      await pendingCreate.promise.catch(() => {});
-    });
-    await waitFor(() => expect(projectMessage()).toHaveTextContent("Create failed: Error: Invented create failure"));
-  });
-
   it("blocks a later Open while pending Save fails and preserves both mismatches", async () => {
     const model = await loadPreviewModel();
     render(<App />);
@@ -1512,3 +1490,98 @@ function reviewValue(cell: string): string {
   if (!input) throw new Error(`Missing review cell ${cell}`);
   return input.value;
 }
+
+// R10: a running create or save is its own line beside the Project page's message, a status;
+// it never writes into the message, never restores one, and is gone when the operation ends.
+describe("project handlers: the running line beside the Project page's message", () => {
+  const runningLine = () => screen.queryByTestId("local-project-running");
+  const pageButton = (name: string) => within(screen.getByLabelText("Local project controls")).getByRole("button", { name });
+
+  it("Create local from the page: Creating the local project… while it runs, gone when it fails", async () => {
+    const model = await loadPreviewModel();
+    render(<App />);
+    await screen.findByTestId("desktop-preview-shell");
+    const envelope = await openProjectWithBothMismatchesRecorded(model);
+    const pending = deferred<LocalProjectEnvelope>();
+    invokeMock.mockImplementation((command: string) => command === "create_local_project" ? pending.promise : Promise.reject(new Error(`Unexpected command ${command}`)));
+    fireEvent.click(pageButton("Create local"));
+    await waitFor(() => expect(invokeMock).toHaveBeenCalledWith("create_local_project", expect.any(Object)));
+    expect(runningLine()).toHaveTextContent(/^Creating the local project…$/);
+    expect(runningLine()).toHaveAttribute("role", "status");
+    // Beside the message, never in it.
+    expect(projectMessage()).not.toContainElement(runningLine());
+    expect(projectMessage()).toHaveTextContent(envelope.summary.message);
+    await act(async () => { pending.reject(new Error("Invented create failure")); await pending.promise.catch(() => {}); });
+    await waitFor(() => expect(projectMessage()).toHaveTextContent("Create failed: Error: Invented create failure"));
+    expect(runningLine()).toBeNull();
+  });
+
+  it("Save local from the page: Saving the project… while it runs, gone when it lands", async () => {
+    const model = await loadPreviewModel();
+    render(<App />);
+    await screen.findByTestId("desktop-preview-shell");
+    const envelope = await openProjectWithBothMismatchesRecorded(model);
+    const pending = deferred<LocalProjectEnvelope>();
+    let request: Record<string, unknown> | undefined;
+    invokeMock.mockImplementation((command: string, args?: { request?: Record<string, unknown> }) => {
+      if (command === "save_local_project") { request = args?.request; return pending.promise; }
+      return Promise.reject(new Error(`Unexpected command ${command}`));
+    });
+    fireEvent.click(pageButton("Save local"));
+    await waitFor(() => expect(invokeMock).toHaveBeenCalledWith("save_local_project", expect.any(Object)));
+    expect(runningLine()).toHaveTextContent(/^Saving the project…$/);
+    await act(async () => { pending.resolve(savedEnvelopeFor(envelope.model, request!, "Saved invented project from the page.")); await pending.promise; });
+    await waitFor(() => expect(projectMessage()).toHaveTextContent("Saved invented project from the page."));
+    expect(runningLine()).toBeNull();
+  });
+
+  it("Save from the File menu (the route its shortcut takes): Saving the project… while it runs, gone when it fails", async () => {
+    const model = await loadPreviewModel();
+    render(<App />);
+    await screen.findByTestId("desktop-preview-shell");
+    await openProjectWithBothMismatchesRecorded(model);
+    const pending = deferred<LocalProjectEnvelope>();
+    invokeMock.mockImplementation((command: string) => command === "save_local_project" ? pending.promise : Promise.reject(new Error(`Unexpected command ${command}`)));
+    act(() => nativeMenuCommand("file.save-local"));
+    await waitFor(() => expect(invokeMock).toHaveBeenCalledWith("save_local_project", expect.any(Object)));
+    expect(runningLine()).toHaveTextContent(/^Saving the project…$/);
+    await act(async () => { pending.reject(new Error("Invented save failure")); await pending.promise.catch(() => {}); });
+    await waitFor(() => expect(projectMessage()).toHaveTextContent("Save failed: Error: Invented save failure"));
+    expect(runningLine()).toBeNull();
+  });
+
+  it("a save whose return is superseded after its write landed leaves no running line and no stale message", async () => {
+    const model = await loadPreviewModel();
+    render(<App />);
+    await screen.findByTestId("desktop-preview-shell");
+    const envelope = await openProjectWithBothMismatchesRecorded(model);
+    const pending = deferred<LocalProjectEnvelope>();
+    let request: Record<string, unknown> | undefined;
+    invokeMock.mockImplementation((command: string, args?: { request?: Record<string, unknown> }) => {
+      if (command === "save_local_project") { request = args?.request; return pending.promise; }
+      return Promise.reject(new Error(`Unexpected command ${command}`));
+    });
+    act(() => nativeMenuCommand("file.save-local"));
+    await waitFor(() => expect(invokeMock).toHaveBeenCalledWith("save_local_project", expect.any(Object)));
+    expect(runningLine()).toHaveTextContent("Saving the project…");
+    // A model edit while the write is in flight: its return no longer describes the session.
+    await applyGridEditWhilePending();
+    await act(async () => { pending.resolve(savedEnvelopeFor(envelope.model, request!, "Saved invented project under an edit.")); await pending.promise; });
+    await flushPendingWork();
+    expect(runningLine()).toBeNull();
+    expect(projectMessage()).not.toHaveTextContent("Saving the project…");
+    expect(projectMessage()).not.toHaveTextContent(/Not saved/);
+  });
+
+  it("another project operation (List local) shows no running line", async () => {
+    render(<App />);
+    await screen.findByTestId("desktop-preview-shell");
+    setTauriRuntime(true);
+    const pending = deferred<unknown[]>();
+    invokeMock.mockImplementation((command: string) => command === "list_local_projects" ? pending.promise : Promise.reject(new Error(`Unexpected command ${command}`)));
+    fireEvent.click(pageButton("List local"));
+    await waitFor(() => expect(invokeMock.mock.calls.some(([command]) => command === "list_local_projects")).toBe(true));
+    expect(runningLine()).toBeNull();
+    await act(async () => { pending.resolve([]); await pending.promise; });
+  });
+});
