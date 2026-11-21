@@ -7,7 +7,9 @@
 //!
 //! The product solves each reference document on its route (PF and EX) and
 //! model (CANT and FIXED) in both solver modes, and is compared row by row:
-//! every nodal motion, every support reaction and every member end action.
+//! every nodal motion, every support reaction and every member end action,
+//! and every generated load and load resultant through the published rows'
+//! equilibrium (see `observed`). Every row of a reference case is compared.
 //! The admitted positive case (the valve at C, W = 2350 N, offset centre of
 //! gravity), the not-consumed flange (TWO), the unequal gravities (G10 and
 //! the one-ulp boundary), the case with both components not consumed and the
@@ -19,8 +21,10 @@
 //!
 //! Criterion (DEL-05-01 AC-001's analytic tolerance): |obs - exp| <= 1e-9
 //! |exp|; an exactly zero expectation uses 1e-9 times the case's largest
-//! reference magnitude in the same family (force, moment, translation,
-//! rotation) as its absolute floor.
+//! reference magnitude, over its compared rows, in the same row family as its
+//! absolute floor. The families are the package's own
+//! (`generators/scw_reference.py` `family`): load per length (N/m), force
+//! (N), moment (N m), translation (m) and rotation (rad).
 //!
 //! The model-check warning of REQ-008 is not built (DEL-05-01 "Not met"); the
 //! package's `expected_model_check_warning` members are not compared here.
@@ -213,11 +217,21 @@ fn refused(wire: &Value, code: &str, what: &str) -> Vec<Value> {
     found
 }
 
-fn one(out: &Value, case: &str, kind: &str, entity: &str, component: &str, location: Option<&str>) -> f64 {
-    let found: Vec<&Value> = out["results"].as_array().unwrap().iter().filter(|row| {
+/// The model's node positions along +X (the document's own, `document`).
+fn node_x(node: &str) -> f64 {
+    let x = [0.0, input("L_ab"), input("L_ab") + input("L_bc"), input("L_ab") + input("L_bc") + input("L_cd")];
+    x[["A", "B", "C", "D"].iter().position(|n| *n == node).unwrap_or_else(|| panic!("node {node}"))]
+}
+const MEMBERS: [(&str, &str, &str); 3] = [("AB", "A", "B"), ("BC", "B", "C"), ("CD", "C", "D")];
+
+fn rows_of<'a>(out: &'a Value, case: &str, kind: &str, entity: &str, component: &str, location: Option<&str>) -> Vec<&'a Value> {
+    out["results"].as_array().unwrap().iter().filter(|row| {
         row["kind"] == kind && row["entity_ref"] == entity && row["basis_ref"]["ref_id"] == case
             && row["metadata"]["component"] == component && location.is_none_or(|l| row["metadata"]["location"] == l)
-    }).collect();
+    }).collect()
+}
+fn one(out: &Value, case: &str, kind: &str, entity: &str, component: &str, location: Option<&str>) -> f64 {
+    let found = rows_of(out, case, kind, entity, component, location);
     assert_eq!(found.len(), 1, "one row {kind} {entity} {component} {location:?} on {case}");
     found[0]["value"].as_f64().unwrap()
 }
@@ -225,15 +239,38 @@ fn one(out: &Value, case: &str, kind: &str, entity: &str, component: &str, locat
 const END_COMPONENTS: [(&str, &str); 6] = [("Fx", "axial_force"), ("Fy", "shear_force_y"), ("Fz", "shear_force_z"),
     ("Mx", "torsional_moment"), ("My", "bending_moment_y"), ("Mz", "bending_moment_z")];
 
+/// The force the node exerts on `member` at `end` ("i" or "j"), component
+/// `c` (Fx … Mz): the product's local end action (local axes coincide with
+/// global here).
+fn end_action(out: &Value, case: &str, member: &str, end: &str, c: &str) -> f64 {
+    let name = END_COMPONENTS.iter().find(|(r, _)| *r == c).unwrap().1;
+    one(out, case, &format!("element_local_{name}"), member, name, Some(if end == "i" { "end_i" } else { "end_j" }))
+}
+/// The model's supports in this result: A, and D on the fixed-ended model.
+fn supports(out: &Value, case: &str) -> Vec<&'static str> {
+    ["A", "D"].into_iter().filter(|n| !rows_of(out, case, "support_reaction_component_v2", &format!("support:{n}"), "Fx", None).is_empty()).collect()
+}
+
 /// The product's value for one reference row, in the reference's SI unit and
 /// convention: `disp` in m (published in mm) and rad; `reaction` as the force
 /// the support exerts on the structure (the product's support reaction);
 /// `end` as the force the node exerts on the member, which is the product's
 /// local end action at end_i and end_j (local axes coincide with global
-/// here). `None` for the rows of the generated loads and their resultant,
-/// which the solved envelope does not publish (the reactions balance them).
+/// here). The solved envelope publishes no row of the generated loads or of
+/// their resultant, so those are read through the published rows'
+/// equilibrium, which the package's cross-checks also hold:
+/// - `load/<member>/q<a>`, the member's load per length: its own equilibrium,
+///   q = -(e_i + e_j) / L, from its two end actions;
+/// - `load/<node>/<F|M><a>`, a nodal wrench at a free node: the node's
+///   equilibrium, the sum of the end actions of the members meeting there;
+/// - `resultant/F<a>` and `resultant/M<a>` (moments about the origin):
+///   global equilibrium, minus the sum of the support reactions and, for
+///   moments, of r_s × R_s with r_s the support's position.
+/// Every row of the package has an observable: `None` is not returned.
 fn observed(out: &Value, case: &str, row: &str) -> Option<f64> {
     let parts: Vec<&str> = row.split('/').collect();
+    let axis = |c: &str| ["x", "y", "z"].iter().position(|a| c.ends_with(a)).unwrap();
+    let reaction = |node: &str, c: &str| one(out, case, "support_reaction_component_v2", &format!("support:{node}"), c, None);
     match parts[0] {
         "disp" => {
             let (node, c) = (parts[1], parts[2]);
@@ -244,49 +281,75 @@ fn observed(out: &Value, case: &str, row: &str) -> Option<f64> {
                 one(out, case, &format!("global_nodal_rotation_{axis}"), node, &format!("nodal_rotation_{axis}"), None)
             })
         }
-        "reaction" => Some(one(out, case, "support_reaction_component_v2", &format!("support:{}", parts[1]), parts[2], None)),
-        "end" => {
-            let (member, end, c) = (parts[1], parts[2], parts[3]);
-            let name = END_COMPONENTS.iter().find(|(r, _)| *r == c).unwrap().1;
-            let location = if end == "i" { "end_i" } else { "end_j" };
-            Some(one(out, case, &format!("element_local_{name}"), member, name, Some(location)))
+        "reaction" => Some(reaction(parts[1], parts[2])),
+        "end" => Some(end_action(out, case, parts[1], parts[2], parts[3])),
+        "load" if parts[2].starts_with('q') => {
+            let member = parts[1];
+            let (_, from, to) = *MEMBERS.iter().find(|(m, _, _)| *m == member).unwrap();
+            let f = format!("F{}", &parts[2][1..]);
+            Some(-(end_action(out, case, member, "i", &f) + end_action(out, case, member, "j", &f)) / (node_x(to) - node_x(from)))
         }
-        "load" | "resultant" => None,
+        "load" => {
+            let (node, c) = (parts[1], parts[2]);
+            assert!(!supports(out, case).contains(&node), "{row}: a nodal wrench at a supported node");
+            Some(MEMBERS.iter().map(|(m, from, to)| {
+                (if *from == node { end_action(out, case, m, "i", c) } else { 0.0 })
+                    + (if *to == node { end_action(out, case, m, "j", c) } else { 0.0 })
+            }).sum())
+        }
+        "resultant" => {
+            let c = parts[1];
+            let i = axis(c);
+            Some(-supports(out, case).iter().map(|s| {
+                if c.starts_with('F') {
+                    reaction(s, c)
+                } else {
+                    // r_s = (x_s, 0, 0): (r × R) = (0, -x R_z, x R_y).
+                    let x = node_x(s);
+                    reaction(s, c) + [0.0, -x * reaction(s, "Fz"), x * reaction(s, "Fy")][i]
+                }
+            }).sum::<f64>())
+        }
         other => panic!("row family {other}"),
     }
 }
 
+/// The package's row family (`generators/scw_reference.py` `family`).
 fn family(row: &str) -> &'static str {
+    let head = row.split('/').next().unwrap();
     let last = row.rsplit('/').next().unwrap();
-    match (row.split('/').next().unwrap(), last.chars().next().unwrap()) {
-        ("disp", 'u') => "translation",
-        ("disp", _) => "rotation",
-        (_, 'F') => "force",
-        _ => "moment",
+    match head {
+        "load" if last.starts_with('q') => "load per length",
+        "load" | "resultant" | "reaction" | "end" if last.starts_with('F') => "force",
+        "load" | "resultant" | "reaction" | "end" => "moment",
+        _ if last.starts_with('u') => "translation",
+        _ => "rotation",
     }
 }
 
 /// Every comparable row of `reference` against the product's case `case`:
-/// the rows outside the criterion, and the count compared.
+/// the rows outside the criterion, and the count compared. Each family's
+/// floor is built over the rows compared.
 fn measure(out: &Value, reference: &Value, case: &str) -> (usize, Vec<String>) {
+    let compared: Vec<(&str, f64, f64)> = reference["rows"].as_array().unwrap().iter()
+        .filter_map(|r| {
+            let row = r["row"].as_str().unwrap();
+            observed(out, case, row).map(|o| (row, o, r["value"].as_f64().unwrap()))
+        })
+        .collect();
     let mut floor: BTreeMap<&str, f64> = BTreeMap::new();
-    for r in reference["rows"].as_array().unwrap() {
-        let row = r["row"].as_str().unwrap();
+    for &(row, _, e) in &compared {
         let entry = floor.entry(family(row)).or_insert(0.0);
-        *entry = entry.max(r["value"].as_f64().unwrap().abs());
+        *entry = entry.max(e.abs());
     }
-    let (mut count, mut failures) = (0, Vec::new());
-    for r in reference["rows"].as_array().unwrap() {
-        let row = r["row"].as_str().unwrap();
-        let Some(o) = observed(out, case, row) else { continue };
-        let e = r["value"].as_f64().unwrap();
+    let mut failures = Vec::new();
+    for &(row, o, e) in &compared {
         let tolerance = RELATIVE * if e == 0.0 { floor[family(row)] } else { e.abs() };
         if !(o.is_finite() && (o - e).abs() <= tolerance) {
             failures.push(format!("{row}: observed {o:.17e} expected {e:.17e} tolerance {tolerance:.3e}"));
         }
-        count += 1;
     }
-    (count, failures)
+    (compared.len(), failures)
 }
 
 fn route_tag(route: Route) -> &'static str {
@@ -331,8 +394,9 @@ fn solve_all(route: Route, model: Model, mode: PreviewSolverMode) -> Vec<(String
 
 // ------------------------------------------------------------------ the oracle
 /// Every seismic reference document a person can make, on both routes, both
-/// models and both solver modes: every nodal motion, support reaction and
-/// member end action within the criterion.
+/// models and both solver modes: every nodal motion, support reaction, member
+/// end action, generated load and load resultant within the criterion (84
+/// rows a case on the cantilever, 90 on the fixed-ended model).
 #[test]
 fn every_seismic_reference_case_is_reproduced() {
     let mut worst = 0usize;
@@ -343,7 +407,7 @@ fn every_seismic_reference_case_is_reproduced() {
                     let r = reference(&id);
                     assert_eq!(r["role"], "reference", "{id}");
                     let (n, failures) = measure(&out, r, &format!("case:{id}"));
-                    assert!(n >= 66, "{id}: {n} rows compared");
+                    assert_eq!(n, r["rows"].as_array().unwrap().len(), "{id}: every row is compared");
                     assert!(failures.is_empty(), "{id} {}: {} rows outside the criterion:\n{}", mode.as_str(), failures.len(), failures.join("\n"));
                     worst = worst.max(n);
                 }
@@ -381,7 +445,8 @@ fn the_product_disagrees_with_every_control() {
                     let reference_id = format!("SCW-{}-{}-{document_case}", model_tag(model), route_tag(route));
                     let (_, out, _) = solved_cases.iter().find(|(id, _, _)| *id == reference_id).unwrap();
                     let (n, failures) = measure(out, control_ref, &format!("case:{reference_id}"));
-                    assert!(n >= 66 && !failures.is_empty(), "{control_id} {}: the product reproduces the control", mode.as_str());
+                    assert_eq!(n, control_ref["rows"].as_array().unwrap().len(), "{control_id}: every row is compared");
+                    assert!(!failures.is_empty(), "{control_id} {}: the product reproduces the control", mode.as_str());
                 }
             }
         }
@@ -402,24 +467,36 @@ fn a_zero_g_factor_keeps_the_component_replacement() {
         for mode in MODES {
             let out = solved(&wire, mode, "zero k_x");
             let (n, failures) = measure(&out, reference(&id), "case:zero-x");
-            assert!(n >= 66 && failures.is_empty(), "{id}: {failures:?}");
+            assert!(n == reference(&id)["rows"].as_array().unwrap().len() && failures.is_empty(), "{id}: {n} rows, {failures:?}");
         }
     }
 }
 
 /// VER-005: generation is the same with and without an applied weight case
 /// in the document (the selection is independent of any earlier selection
-/// or applied weight case), bit for bit.
+/// or applied weight case), bit for bit. The weight case is the self-weight
+/// plan's own, applied unmodified: the product inspects each of its
+/// primitives as a fresh application of the plan (`inspect_applied_self_weight`),
+/// the pipes' distributed weight and the valve's wrench at C.
 #[test]
 fn generation_is_independent_of_an_applied_weight_case() {
+    use open_pipe_stress_product_physics::self_weight::{generate_self_weight_operations, inspect_applied_self_weight, AppliedSelfWeightState};
     for route in [Route::Pf, Route::Ex] {
         let id = format!("SCW-CANT-{}-SEISMIC-XYZ", route_tag(route));
         let alone = document(route, Model::Cant, ONE_MAPPED, vec![case_of(reference(&id), "case:s")]);
-        let weight = json!({"id": "case:weight", "primitive_loads": [
-            {"id": "load:w-ab", "category": "weight", "target": {"type": "element", "pipe": "AB"}, "direction": "global_z", "magnitude": qv(-1000.0, "N/m"), "dimension": "force_per_length", "provenance": PROV},
-            {"id": "load:w-c", "category": "weight", "target": {"type": "node", "node": "C"}, "direction": "global_z", "magnitude": qv(-2350.0, "N"), "dimension": "force", "provenance": PROV}],
-            "provenance": PROV});
-        let beside = document(route, Model::Cant, ONE_MAPPED, vec![weight, case_of(reference(&id), "case:s")]);
+        let model: open_pipe_stress_product_physics::PreviewModel = serde_json::from_value(alone["model"].clone()).unwrap();
+        let request = serde_json::from_value(json!({"case_id": "case:weight", "label": "invented", "pipe_refs": ["AB", "BC", "CD"],
+            "gravity": {"value": -9.79, "unit": "m/s^2", "axis": "global_z"}, "provenance": PROV,
+            "source_model_hash": format!("sha256:{}", "a".repeat(64))})).unwrap();
+        let plan = generate_self_weight_operations(&model, &request).expect("the plan");
+        let mut weight: Value = serde_json::from_str(&plan.changes[0].after).unwrap();
+        weight["primitive_loads"] = plan.changes[1..].iter().map(|c| serde_json::from_str::<Value>(&c.after).unwrap()).collect::<Vec<_>>().into();
+        let beside = document(route, Model::Cant, ONE_MAPPED, vec![weight.clone(), case_of(reference(&id), "case:s")]);
+        let typed: open_pipe_stress_product_physics::PreviewModel = serde_json::from_value(beside["model"].clone()).unwrap();
+        let states = inspect_applied_self_weight(&typed, None);
+        assert_eq!(states.len(), weight["primitive_loads"].as_array().unwrap().len(), "every primitive is the plan's");
+        assert!(states.len() >= 3, "AB, CD and the valve's wrench: {}", states.len());
+        assert!(states.iter().all(|s| s.case_id == "case:weight" && s.state == AppliedSelfWeightState::Fresh), "{:?}", states.iter().map(|s| &s.state).collect::<Vec<_>>());
         for mode in MODES {
             // A document with several cases prefixes each row id with its case.
             let rows = |out: &Value| out["results"].as_array().unwrap().iter()
@@ -462,7 +539,7 @@ fn a_replaced_member_s_mass_is_not_read_and_a_fallback_member_s_is() {
         for mode in MODES {
             let out = solved(&without_density(ONE_MAPPED), mode, "replaced BC without density");
             let (n, failures) = measure(&out, reference(&id), "case:s");
-            assert!(n >= 66 && failures.is_empty(), "{id}: {failures:?}");
+            assert!(n == reference(&id)["rows"].as_array().unwrap().len() && failures.is_empty(), "{id}: {n} rows, {failures:?}");
         }
         let found = refused(&without_density(ZERO_WEIGHT), "EQUIVALENT_STATIC_INPUT_MISSING", "fallback BC without density");
         assert!(found[0]["affected_refs"].as_array().unwrap().contains(&json!("BC")), "{found:?}");
