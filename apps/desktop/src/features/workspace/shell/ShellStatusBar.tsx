@@ -1,6 +1,7 @@
 import { useId, useState } from "react";
 import { Flag } from "lucide-react";
 import { useDisplayUnits } from "../../display-units";
+import { entityRefFromKey } from "../selectionState";
 import { shellLocation, statusChipInputsFromCells, statusChipText, statusChips } from "../shellLayout";
 import type { StatusChip } from "../shellLayout";
 import type { StatusAuthorityDomain } from "../statusLabels";
@@ -30,7 +31,10 @@ const DISPLAY_UNIT_FACES = { entered: "Entered", SI: "SI", US: "US" } as const;
 export function ShellStatusBar({ issueCount }: { issueCount: number }) {
   const { model } = useSessionModel();
   const { result, currentSolvedResult, numericalHealthHold, historicalRun, solveJob, ruleCheckAggregate } = useSessionResults();
-  const { selection, orderedSelection } = useSessionSelection();
+  // The ordered selection's primary: with nothing selected the bar names nothing (never the
+  // inspector's fallback project); a project a person selected is named.
+  const { orderedSelection } = useSessionSelection();
+  const selection = orderedSelection.primaryKey ? entityRefFromKey(orderedSelection.primaryKey) : null;
   const { activeSection, stageSurface, issuesDrawerOpen, setIssuesDrawerOpen } = useSessionChrome();
   const { preference } = useDisplayUnits();
   const [openChip, setOpenChip] = useState<string | null>(null);
