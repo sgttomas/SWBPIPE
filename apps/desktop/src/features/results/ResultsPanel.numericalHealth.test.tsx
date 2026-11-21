@@ -126,35 +126,47 @@ describe("ResultsPanel numerical health", () => {
     expect(screen.getByTestId("physics-source-evidence")).toBeTruthy();
   });
 
-  it("keeps today's line when the indicator is absent or its route disagrees", () => {
+  it("reads not assessed, never the raw status, when the indicator is absent or its route disagrees", () => {
+    // The fixture's own status is checks_passed; with no gated health the line fails closed.
+    expect(genericResult().numerical_quality!.status).toBe("checks_passed");
     render(<ResultsPanel result={genericResult()} knowledge={null} analysisRun={null} selectedResultId={null} onSelectResult={() => {}} numericalHealth={null} />);
-    expect(screen.getByTestId("numerical-result-standing").textContent).toMatch(/^Numerical health: solver checks found no problem\. /);
+    expect(screen.getByTestId("numerical-result-standing").textContent).toMatch(/^Numerical health: not assessed\. /);
     expect(screen.queryByTestId("numerical-health-detail")).toBeNull();
     cleanup();
     const pressureSource = view({ route: "pressure_source", verdict_only: false, cases: [PASSED], combinations: [] }, { eligible: true, verdictHold: false });
     render(<ResultsPanel result={genericResult()} knowledge={null} analysisRun={null} selectedResultId={null} onSelectResult={() => {}} numericalHealth={pressureSource} />);
+    expect(screen.getByTestId("numerical-result-standing").textContent).toMatch(/^Numerical health: not assessed\. /);
+  });
+
+  it("reads a solved result whose gated health agrees with its status exactly as before", () => {
+    const passed = view({ route: "generic", verdict_only: false, cases: [PASSED], combinations: [] }, { eligible: true, verdictHold: false });
+    render(<ResultsPanel result={genericResult()} knowledge={null} analysisRun={null} selectedResultId={null} onSelectResult={() => {}} numericalHealth={passed} />);
     expect(screen.getByTestId("numerical-result-standing").textContent).toMatch(/^Numerical health: solver checks found no problem\. /);
   });
 });
 
 describe("the standing line beside the health header", () => {
-  // Native-smoke expected.json pins this line's prefix (owner-held G10 observation): its
-  // text is exactly today's on every route, and the header is a separate element above it.
-  const original = (result: MechanicsResult) => sourceContractText(result);
-  function sourceContractText(result: MechanicsResult): string {
+  // Native-smoke expected.json pins this line's prefix (owner-held G10 observation): its text is
+  // today's wherever the gated health agrees with the status, and the header is a separate element
+  // above it. Its state words are the gated health's: the generic fixture's status says checks_passed
+  // while its hand-written health has a sensitive case, so the line says sensitive; with no health
+  // it says not assessed.
+  const original = (result: MechanicsResult, state: string) => sourceContractText(result, state);
+  function sourceContractText(result: MechanicsResult, state: string): string {
     return result.source_block_recovery
-      ? `Ordinary solve: ${numericalQualityStatusText(result.numerical_quality!.status)}. Producer recovery receipt: ${(result.source_block_recovery as { body: { status: string } }).body.status}. ${result.formulation_basis!.limitations.join(" ")} Current use is checked separately against the actual invocation and complete result evidence. Numerical checks do not establish engineering correctness.`
-      : `Numerical health: ${numericalQualityStatusText(result.numerical_quality!.status)}. ${result.formulation_basis!.limitations.join(" ")} Numerical checks do not establish engineering correctness.`;
+      ? `Ordinary solve: ${state}. Producer recovery receipt: ${(result.source_block_recovery as { body: { status: string } }).body.status}. ${result.formulation_basis!.limitations.join(" ")} Current use is checked separately against the actual invocation and complete result evidence. Numerical checks do not establish engineering correctness.`
+      : `Numerical health: ${state}. ${result.formulation_basis!.limitations.join(" ")} Numerical checks do not establish engineering correctness.`;
   }
   it.each([
     ["generic", () => genericResult(), () => view(genericHealth(true), { eligible: false, verdictHold: true })],
     ["pressure-source", () => JSON.parse(readFileSync(resolve(__dirname, "../../../../../fixtures/product_preview/pressure_source/physics_source/n05-dense_scrutiny.raw.json"), "utf8")) as MechanicsResult,
       () => view({ route: "pressure_source", verdict_only: false, cases: [{ ...SENSITIVE, case_id: "case", causes: [] }], combinations: [] }, { eligible: true, verdictHold: false })]
-  ] as const)("keeps the %s standing text unchanged with the header above it", (_, makeResult, makeHealth) => {
+  ] as const)("keeps the %s standing text, in the gated state's words, with the header above it", (name, makeResult, makeHealth) => {
     const result = makeResult();
+    expect(numericalQualityStatusText(result.numerical_quality!.status)).toBe(name === "generic" ? "solver checks found no problem" : "sensitive");
     render(<ResultsPanel result={result} knowledge={null} analysisRun={null} selectedResultId={null} onSelectResult={() => {}} numericalHealth={makeHealth()} />);
     const standing = screen.getByTestId("numerical-result-standing");
-    expect(standing.textContent).toBe(original(result));
+    expect(standing.textContent).toBe(original(result, "sensitive"));
     const header = screen.getByTestId("numerical-health-header-line");
     expect(standing).not.toContainElement(screen.getByTestId("numerical-health-header"));
     // Header, then the per-case detail (its causes stay above the long standing text), then the unchanged standing line.
@@ -163,7 +175,7 @@ describe("the standing line beside the health header", () => {
     cleanup();
     // And the same text with no indicator at all.
     render(<ResultsPanel result={result} knowledge={null} analysisRun={null} selectedResultId={null} onSelectResult={() => {}} numericalHealth={null} />);
-    expect(screen.getByTestId("numerical-result-standing").textContent).toBe(original(result));
+    expect(screen.getByTestId("numerical-result-standing").textContent).toBe(original(result, "not assessed"));
     expect(screen.queryByTestId("numerical-health-header-line")).toBeNull();
     expect(screen.queryByTestId("numerical-health-detail")).toBeNull();
   });

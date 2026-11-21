@@ -7,10 +7,11 @@
  * nothing here reads into standing, admission or an output gate. */
 import type { MechanicsResult } from "../../types";
 import type { StandingStatus } from "./resultReader";
-import { NUMERICAL_HEALTH_STATE_TEXT } from "./numericalHealthText";
+import { NUMERICAL_HEALTH_STATE_TEXT, type NumericalHealthState } from "./numericalHealthText";
 
-/** Shown once, above the solver's own messages, wherever the desktop lists them. */
-export const SOLVER_MESSAGES_HEADING = "These are the solver's own messages. SWBPIPE has not independently checked the error bound they rest on.";
+/** Shown once where the desktop lists the solver's own messages: at the head of the list, or in
+ * Design Knowledge directly before the first record made from one. */
+export const SOLVER_MESSAGES_HEADING = "Messages from the solver are the solver's own statements. Where one rests on the solver's error estimate, SWBPIPE has not independently checked that estimate.";
 
 /** The words for the reader's standing status where the desktop shows it to a person: an admission
  * standing, which asserts no verified error bound. */
@@ -23,13 +24,28 @@ export function numericalQualityStatusText(status: string): string {
   return status === "checks_passed" ? NUMERICAL_HEALTH_STATE_TEXT.checks_passed : status;
 }
 
-/** "Numerical health: {status}." on the results line. */
-export function numericalHealthLead(result: Pick<MechanicsResult, "numerical_quality">): string {
-  return `Numerical health: ${numericalQualityStatusText(String(result.numerical_quality!.status))}.`;
+/** The health states a `numerical_quality.status` token agrees with. */
+const STATUS_STATES: Readonly<Record<string, readonly NumericalHealthState[]>> = Object.freeze({
+  checks_passed: ["checks_passed"],
+  sensitive: ["sensitive"],
+  unresolved: ["quality_unresolved", "solve_failed"],
+  not_assessed: ["not_assessed"]
+});
+/** The results line's state words, formed from the gated health's worst state (`gatedState`; "not
+ * assessed" where the gate yields no health): the status token's words where the token agrees with
+ * that state, as a solved result has always read, and otherwise the state's own words. Fails closed:
+ * the raw status never stands in for the gated state. */
+function leadStateText(result: Pick<MechanicsResult, "numerical_quality">, gated: NumericalHealthState): string {
+  const status = String(result.numerical_quality?.status);
+  return STATUS_STATES[status]?.includes(gated) ? numericalQualityStatusText(status) : NUMERICAL_HEALTH_STATE_TEXT[gated];
 }
-/** The pressure-source route's "Ordinary solve: {status}." lead. */
-export function ordinarySolveLead(result: Pick<MechanicsResult, "numerical_quality">): string {
-  return `Ordinary solve: ${numericalQualityStatusText(String(result.numerical_quality!.status))}.`;
+/** "Numerical health: {state}." on the results line. */
+export function numericalHealthLead(result: Pick<MechanicsResult, "numerical_quality">, gated: NumericalHealthState): string {
+  return `Numerical health: ${leadStateText(result, gated)}.`;
+}
+/** The pressure-source route's "Ordinary solve: {state}." lead. */
+export function ordinarySolveLead(result: Pick<MechanicsResult, "numerical_quality">, gated: NumericalHealthState): string {
+  return `Ordinary solve: ${leadStateText(result, gated)}.`;
 }
 
 /** The reader's standing record's confirmation outcomes (`cases[].confirmation.outcome`,

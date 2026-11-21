@@ -225,6 +225,12 @@ export function worstState(cases: readonly Pick<NumericalHealthCase, "state">[])
   return NUMERICAL_HEALTH_ORDER.find((s) => cases.some((c) => c.state === s)) ?? "not_assessed";
 }
 /** The header's counts, load cases each counted once. */
+/** The results line's state: the worst case state of the health the route shows, and "not
+ * assessed" where there is none or it has no case. */
+export function gatedState(health: Pick<NumericalHealthView, "cases"> | null | undefined): NumericalHealthState {
+  return health && health.cases.length > 0 ? worstState(health.cases) : "not_assessed";
+}
+
 export function stateCounts(cases: readonly Pick<NumericalHealthCase, "state">[]): [NumericalHealthState, number][] {
   return NUMERICAL_HEALTH_ORDER.map((s) => [s, cases.filter((c) => c.state === s).length]);
 }

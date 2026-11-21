@@ -31,7 +31,7 @@ import { hangerPreloadStanding } from "./hangerPreload";
 import { knownSemanticNotices, PREVIEW_ALONG_DIRECTION_KIND, resultRowLabel } from "./knownSemanticLimitations";
 import { NUMERICAL_HEALTH_STATE_TEXT } from "./numericalHealthText";
 import { nativeSupportStates, numericalHealthLead, ordinarySolveLead, recoveredCaseIds } from "./integrityStatus";
-import { numericalHealthView, parseNumericalHealth, rowHealthState, type NumericalHealthLocation, type NumericalHealthView } from "./numericalHealth";
+import { gatedState, numericalHealthView, parseNumericalHealth, rowHealthState, type NumericalHealthLocation, type NumericalHealthView } from "./numericalHealth";
 import { ALL_CASES, isNavigatorExcludedTarget, navigatorKeyStep, stepIndex, type NavigatorAxis, type NavigatorCase } from "./resultsNavigator";
 import { mechanicsGaps } from "./resultInterpretation";
 import type { ResultsViewRequest } from "./ResultsPanel";
@@ -249,8 +249,8 @@ export function NativeResultsPanel({
     // A native handle never registers a successor (a restored run's receipt is never registered).
     : isRetainedRoute(route) ? retainedPrecisionStandingText(result as never)
     : route === "pressure_source"
-      ? `${ordinarySolveLead(result)} Producer recovery receipt: ${String(recovery?.status ?? "unavailable")}. ${result.formulation_basis!.limitations.join(" ")} Current use is checked separately against the actual invocation and complete result evidence. Numerical checks do not establish engineering correctness.`
-      : `${numericalHealthLead(result)} ${result.formulation_basis!.limitations.join(" ")} Numerical checks do not establish engineering correctness.`);
+      ? `${ordinarySolveLead(result, gatedState(health))} Producer recovery receipt: ${String(recovery?.status ?? "unavailable")}. ${result.formulation_basis!.limitations.join(" ")} Current use is checked separately against the actual invocation and complete result evidence. Numerical checks do not establish engineering correctness.`
+      : `${numericalHealthLead(result, gatedState(health))} ${result.formulation_basis!.limitations.join(" ")} Numerical checks do not establish engineering correctness.`);
   const csvRecord = isNativeAnalysisRun(exportAnalysisRun) || exportAnalysisRun === null ? exportAnalysisRun : null;
   const exportGroup = async (title: string): Promise<CsvStreamExport> => {
     // Every row the filters admit in this group, across all pages, by bounded native pages, written

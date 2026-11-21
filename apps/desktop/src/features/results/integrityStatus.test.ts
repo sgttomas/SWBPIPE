@@ -12,13 +12,28 @@ describe("standing and results-line words", () => {
     expect(status.standingStatusText("needs_recompute")).toBe("needs recompute");
     expect(status.numericalQualityStatusText("checks_passed")).toBe("solver checks found no problem");
     for (const other of ["sensitive", "unresolved", "failed", "not_assessed"]) expect(status.numericalQualityStatusText(other)).toBe(other);
-    expect(status.numericalHealthLead({ numerical_quality: { status: "checks_passed" } } as never)).toBe("Numerical health: solver checks found no problem.");
-    expect(status.numericalHealthLead({ numerical_quality: { status: "sensitive" } } as never)).toBe("Numerical health: sensitive.");
-    expect(status.ordinarySolveLead({ numerical_quality: { status: "checks_passed" } } as never)).toBe("Ordinary solve: solver checks found no problem.");
+    // Where the gated state agrees with the status, the line reads as it always has.
+    expect(status.numericalHealthLead({ numerical_quality: { status: "checks_passed" } } as never, "checks_passed")).toBe("Numerical health: solver checks found no problem.");
+    expect(status.numericalHealthLead({ numerical_quality: { status: "sensitive" } } as never, "sensitive")).toBe("Numerical health: sensitive.");
+    expect(status.numericalHealthLead({ numerical_quality: { status: "unresolved" } } as never, "quality_unresolved")).toBe("Numerical health: unresolved.");
+    expect(status.ordinarySolveLead({ numerical_quality: { status: "checks_passed" } } as never, "checks_passed")).toBe("Ordinary solve: solver checks found no problem.");
+  });
+
+  it("takes the gated state where the status disagrees with it, and never falls back to the status", () => {
+    // An unsolved document whose own status says checks_passed: the gate assesses nothing.
+    expect(status.numericalHealthLead({ numerical_quality: { status: "checks_passed" } } as never, "not_assessed")).toBe("Numerical health: not assessed.");
+    expect(status.ordinarySolveLead({ numerical_quality: { status: "checks_passed" } } as never, "not_assessed")).toBe("Ordinary solve: not assessed.");
+    expect(status.numericalHealthLead({ numerical_quality: { status: "checks_passed" } } as never, "sensitive")).toBe("Numerical health: sensitive.");
+    expect(status.numericalHealthLead({ numerical_quality: { status: "invented" } } as never, "checks_passed")).toBe("Numerical health: solver checks found no problem.");
+    expect(status.numericalHealthLead({} as never, "not_assessed")).toBe("Numerical health: not assessed.");
+  });
+
+  it("reads an absent confirmations member as it reads null: every case's line not read", () => {
+    expect(status.supportStatesByCase(undefined)).toBe(status.supportStatesByCase(null));
   });
 
   it("pins the heading above the solver's own messages", () => {
-    expect(status.SOLVER_MESSAGES_HEADING).toBe("These are the solver's own messages. SWBPIPE has not independently checked the error bound they rest on.");
+    expect(status.SOLVER_MESSAGES_HEADING).toBe("Messages from the solver are the solver's own statements. Where one rests on the solver's error estimate, SWBPIPE has not independently checked that estimate.");
   });
 });
 
