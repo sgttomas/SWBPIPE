@@ -18,7 +18,9 @@
 //! - Where a route's content is text and the route decides it as one JSON string, the
 //!   digest is of the text's UTF-8 bytes, not of a JSON encoding of it.
 //! - On an admitted outcome the sink receives that buffer. An output derived from decided
-//!   content is another route's content and has its own decision.
+//!   content (a print view, an excerpt, a document rendered from a decided input) is content
+//!   of its own: it has its own buffer, its own digest and its own decision on its route,
+//!   and is not admitted by the decision of what it was derived from.
 //!
 //! The rule records the digest and cannot check it; the binding is the caller's.
 //!
