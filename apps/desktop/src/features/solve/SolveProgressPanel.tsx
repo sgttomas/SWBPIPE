@@ -1,8 +1,8 @@
-import { ArrowRight, Flag, Square, X } from "lucide-react";
-import { useEffect, useReducer, useRef, type RefObject } from "react";
-import type { SolveJobAuditState, SolveJobEvent } from "../../types";
+import { ArrowRight, ChevronRight, Flag, Square, X } from "lucide-react";
+import { useEffect, useId, useReducer, useRef, useState, type RefObject } from "react";
+import type { ResourceRefusal, SolveJobAuditState, SolveJobEvent } from "../../types";
 import { describeResourceRefusal, describeSolveWorkerFailure, formatBytes, resourceRefusalCode, solveWorkerFailureCode } from "../../services/memoryPool";
-import { registeredStatusLabel, statusDisplayWithToken } from "../workspace/statusLabels";
+import { registeredStatusLabel, statusDisplay, statusDisplayWithToken } from "../workspace/statusLabels";
 import { describeSolveRefusalRetry, isResultTooLargeSolveJob, solveRefusalPoint } from "../workspace/solveJobAudit";
 
 /** The words for each job state the solve-job record carries. */
@@ -43,6 +43,12 @@ type RunTracker = {
   closed: boolean;
   /** Counts runs, so the line's Details closes at the start of each run. */
   serial: number;
+  /** Whether a result was held at the last render while no run was active. */
+  idleResultHeld: boolean;
+  /** Whether a result was held when the current (or last) run started. */
+  resultHeldAtStart: boolean;
+  /** The last queue reason the current (or last) run's job reported, kept after it runs. */
+  queueReason: ResourceRefusal | null;
 };
 
 /**
@@ -54,9 +60,11 @@ type RunTracker = {
  * dismisses it or the session replaces it with another job's record (an edit
  * of the model replaces it with a record of no job).
  */
-function runView(solveJob: SolveJobAuditState, running: boolean, tracker: RunTracker): RunView {
+function runView(solveJob: SolveJobAuditState, running: boolean, resultHeld: boolean, tracker: RunTracker): RunView {
   if (running && !tracker.wasRunning) {
     tracker.startedFrom = tracker.idle;
+    tracker.resultHeldAtStart = tracker.idleResultHeld;
+    tracker.queueReason = null;
     tracker.runJobId = null;
     tracker.closed = false;
     tracker.serial += 1;
@@ -65,7 +73,11 @@ function runView(solveJob: SolveJobAuditState, running: boolean, tracker: RunTra
     tracker.runJobId = solveJob.job_id;
   }
   if (solveJob.state === "not_started") tracker.runJobId = null;
-  if (!running) tracker.idle = solveJob;
+  if ((running || tracker.wasRunning) && tracker.runJobId !== null && solveJob.resource.queue_reason) tracker.queueReason = solveJob.resource.queue_reason;
+  if (!running) {
+    tracker.idle = solveJob;
+    tracker.idleResultHeld = resultHeld;
+  }
   tracker.wasRunning = running;
 
   const startedFrom = tracker.startedFrom;
@@ -80,37 +92,62 @@ function runView(solveJob: SolveJobAuditState, running: boolean, tracker: RunTra
   return tracker.runJobId !== null && solveJob.job_id === tracker.runJobId ? { kind: "job", job: solveJob, earlier } : { kind: "hidden" };
 }
 
-/** What a completed job reports of its outcome, in the claims registry's display forms
- * (docs/claims_registry.md §2.1, through statusLabels.ts): Mechanics solved where the job
- * reports MECHANICS_SOLVED, otherwise the statuses it does report. */
-function completedOutcome(statuses: readonly string[]): string | null {
-  if (statuses.some((status) => status.trim().toUpperCase() === "MECHANICS_SOLVED")) return statusDisplayWithToken("MECHANICS_SOLVED");
-  const reported = statuses.filter((status) => registeredStatusLabel(status) !== null);
-  return reported.length > 0 ? reported.map(statusDisplayWithToken).join("; ") : null;
+/** The statuses a completed job reports, registered ones only, the mechanics (Solver) status first
+ * and the others in the order reported. */
+function reportedStatuses(statuses: readonly string[]): string[] {
+  const registered = statuses.filter((status) => registeredStatusLabel(status) !== null);
+  const solver = registered.filter((status) => registeredStatusLabel(status)?.domain === "Solver");
+  return [...solver, ...registered.filter((status) => !solver.includes(status))];
 }
+
+/** The states the job reported, in order, each once where it repeats. */
+function reportedStates(events: readonly SolveJobEvent[]): string[] {
+  const states: string[] = [];
+  for (const event of events) {
+    const label = solveJobStateLabel(event.state);
+    if (states[states.length - 1] !== label) states.push(label);
+  }
+  return states;
+}
+
+/** A cancellation request, in plain words, by the state the job reached after it. */
+function cancellationWords(state: SolveJobEvent["state"] | null): string {
+  if (state === "cancelling") return "Stop was requested; the line waits for the job's final state.";
+  if (state === "cancelled") return "Stopped at your request.";
+  if (state === "completed") return "Stop was requested, but the job completed first.";
+  return "Stop was requested.";
+}
+
+const plural = (count: number, one: string, many: string) => `${count} ${count === 1 ? one : many}`;
 
 /**
  * The solve status line (DEL-07-07 REQ-014): one line in the band under the
  * toolbar, from the moment a solve starts until the user dismisses it or the
  * model changes. It says the state the job reports and nothing the job did not
  * report (no model facts: DEL-07-07 REQ-003), with Stop while the job can be
- * stopped; when the job completes, the outcome it reports in the registry's
- * display form and its result rows, with "Open results"; when it fails or is
- * refused, the reason the job gives, the way to retry and the exact code, with
- * "Show in Issues". Everything else the job reports (its identifier, its stage
- * and events in order, the progress basis, the queue reason's exact code, the
- * worker's memory, the cancellation status) is behind the line's one closed
- * "Details" disclosure, complete; Details closes at the start of each run. It shows no percentage, time estimate or
- * elapsed time: the job reports states only (`percentages_synthesized=false`)
- * and its events carry no timestamps. It is part of the page's layout, never
- * laid over the model, the Key results panel or the Insert controls.
+ * stopped (the one Stop control: the toolbar keeps Run, withheld while a solve
+ * runs); when the job completes, every registered status it reports in the
+ * registry's display form and its result rows, with "Open results" unless the
+ * Results stage is the one shown; when it fails or is refused, the reason the
+ * job gives, the way to retry and the exact code, with "Show in Issues".
+ * Everything else the job reports is behind the line's one "Details" control,
+ * complete, facts first; Details closes at the start of each run, its control
+ * stays where it is at the end of the line, and its body opens beneath the line.
+ * Nothing of an earlier job is shown before the new job's first report. It shows
+ * no percentage, time estimate or elapsed time: the job reports states only and
+ * its events carry no timestamps. While the job reports queued or running a small
+ * moving mark beside the state word shows the display is alive (still under
+ * reduced motion). It is part of the page's layout, never laid over the model,
+ * the Key results panel or the Insert controls.
  */
 export function SolveProgressPanel({
   solveJob,
   running,
   onCancel,
   onOpenResults,
-  onShowIssue
+  onShowIssue,
+  resultsShown = false,
+  resultHeld = false
 }: {
   solveJob: SolveJobAuditState;
   running: boolean;
@@ -119,22 +156,32 @@ export function SolveProgressPanel({
   onOpenResults?: () => void;
   /** Opens the Issues drawer at the solve's failure or refusal. */
   onShowIssue?: () => void;
+  /** Whether the Results stage is the stage shown: "Open results" is then not offered. */
+  resultsShown?: boolean;
+  /** Whether the session holds a result; read while no run is active, so a stopped run can
+   * say that the result held before it was cleared when it started. */
+  resultHeld?: boolean;
 }) {
   const stateRef = useRef<HTMLParagraphElement>(null);
   const lineRef = useRef<HTMLElement>(null);
+  const detailsId = useId();
   const [, rerender] = useReducer((count: number) => count + 1, 0);
-  const tracker = useRef<RunTracker>({ wasRunning: false, idle: solveJob, startedFrom: null, runJobId: null, closed: false, serial: 0 });
-  const view = runView(solveJob, running, tracker.current);
+  const tracker = useRef<RunTracker>({ wasRunning: false, idle: solveJob, startedFrom: null, runJobId: null, closed: false, serial: 0, idleResultHeld: resultHeld, resultHeldAtStart: false, queueReason: null });
+  const [openedRun, setOpenedRun] = useState<number | null>(null);
+  const view = runView(solveJob, running, resultHeld, tracker.current);
   const shown = view.kind !== "hidden";
   useLineHeight(lineRef, shown);
 
   if (view.kind === "hidden") return null;
 
+  const serial = tracker.current.serial;
+  const detailsOpen = openedRun === serial;
   const job = view.kind === "job" ? view.job : null;
   const events = job ? job.events.filter((event) => !view.earlier.includes(event)) : [];
   const latest = events[events.length - 1] ?? null;
   const state = job?.state ?? null;
   const active = state === null || ACTIVE_STATES.has(state);
+  const alive = state === "queued" || state === "running";
   // Before the job reports, Stop stops the run before its start (the session's handler).
   const canCancel = running && (state === null || state === "queued" || state === "running");
   const refusal = job?.resource.refusal ?? null;
@@ -145,11 +192,13 @@ export function SolveProgressPanel({
   const completed = state === "completed" ? [...events].reverse().find((event) => event.state === "completed") ?? null : null;
   const tooLarge = job !== null && isResultTooLargeSolveJob(job);
   const resource = job?.resource ?? null;
-  const basis = job ?? solveJob;
-  const outcome = completed ? completedOutcome(completed.analysis_status) : null;
+  const statuses = completed ? reportedStatuses(completed.analysis_status) : [];
   const label = state === null ? "Starting" : solveJobStateLabel(state);
   const tone = state === "failed" || state === "refused" ? "error" : state === "completed" ? "done" : state === "cancelled" ? "stopped" : "active";
   const issue = state === "failed" || state === "refused" || tooLarge;
+  const poolRefusal = state === "refused" && refusal !== null;
+  // A run clears the result held before it when its job starts (the session's solve).
+  const earlierResultCleared = state === "cancelled" && tracker.current.resultHeldAtStart;
 
   function cancel() {
     if (!canCancel) return;
@@ -182,20 +231,24 @@ export function SolveProgressPanel({
           tabIndex={-1}
         >
           <strong>{label}</strong>
+          {alive ? <span aria-hidden="true" className="solve-status-alive" data-testid="solve-progress-alive" /> : null}
+          {poolRefusal ? null : state === "cancelled" || completed || (queueReason && (state === "queued" || state === "cancelling")) || tooLarge || state === "failed" ? "." : null}
           {state === "cancelled" ? <span> No result was published.</span> : null}
+          {earlierResultCleared ? <span data-testid="solve-progress-earlier-cleared"> The earlier result was cleared when this run started.</span> : null}
           {completed ? (
             <span>
-              {outcome ? <> {outcome};</> : null} <span data-testid="solve-progress-completed">{completed.result_row_count} result {completed.result_row_count === 1 ? "row" : "rows"}.</span>
+              {statuses.length > 0 ? <span data-testid="solve-progress-outcome"> {statuses.map(statusDisplay).join("; ")}.</span> : null}{" "}
+              <span data-testid="solve-progress-completed">{plural(completed.result_row_count, "result row", "result rows")}.</span>
             </span>
           ) : null}
           {queueReason && (state === "queued" || state === "cancelling") ? (
             <span data-testid="solve-progress-queue-reason"> Waiting in the queue: {describeResourceRefusal(queueReason)}</span>
           ) : null}
-          {state === "refused" && refusal ? (
-            <span data-testid="solve-progress-refusal"> Refused by the native memory pool: {describeResourceRefusal(refusal)} No result was published.</span>
+          {poolRefusal ? (
+            <span data-testid="solve-progress-refusal"> by the native memory pool: {describeResourceRefusal(refusal)} No result was published.</span>
           ) : null}
-          {state === "refused" && refusal && refusalPoint ? <span data-testid="solve-progress-retry"> {describeSolveRefusalRetry(refusal, refusalPoint)}</span> : null}
-          {state === "refused" && refusal ? (
+          {poolRefusal && refusalPoint ? <span data-testid="solve-progress-retry"> {describeSolveRefusalRetry(refusal, refusalPoint)}</span> : null}
+          {poolRefusal ? (
             <span> Code: <code data-testid="solve-progress-refusal-code">{resourceRefusalCode(refusal)}</code></span>
           ) : null}
           {tooLarge ? <span data-testid="solve-progress-result-too-large"> {job?.error_message}</span> : null}
@@ -218,7 +271,7 @@ export function SolveProgressPanel({
               {state === "cancelling" ? "Cancelling" : "Stop"}
             </button>
           ) : null}
-          {state === "completed" && onOpenResults ? (
+          {state === "completed" && onOpenResults && !resultsShown ? (
             <button className="primary-action" data-testid="solve-progress-open-results" onClick={onOpenResults} type="button">
               Open results
               <ArrowRight size={14} aria-hidden="true" />
@@ -230,6 +283,17 @@ export function SolveProgressPanel({
               Show in Issues
             </button>
           ) : null}
+          <button
+            aria-controls={detailsId}
+            aria-expanded={detailsOpen}
+            className="solve-status-details-toggle"
+            data-testid="solve-progress-details-toggle"
+            onClick={() => setOpenedRun(detailsOpen ? null : serial)}
+            type="button"
+          >
+            <ChevronRight className="solve-status-details-chevron" size={14} aria-hidden="true" />
+            Details
+          </button>
           {active ? null : (
             <button aria-label="Dismiss" className="solve-status-dismiss" data-testid="solve-progress-close" onClick={close} title="Dismiss" type="button">
               <X size={14} aria-hidden="true" />
@@ -237,50 +301,55 @@ export function SolveProgressPanel({
           )}
         </div>
       </div>
-      {/* Keyed by run: Details opens closed at the start of each run and keeps the
-          person's choice between the reports of one run. */}
-      <details className="solve-status-details" data-testid="solve-progress-details" key={tracker.current.serial}>
-        <summary data-testid="solve-progress-details-toggle">Details</summary>
-        <div className="solve-status-details-body">
-          {job ? <p>Job: <code data-testid="solve-progress-job">{job.job_id}</code></p> : null}
-          {latest ? <p>Stage: <span data-testid="solve-progress-stage">{latest.message}</span></p> : null}
-          {state === null ? <p>Stage: <span data-testid="solve-progress-stage">The solve was requested; its job has not reported a state yet.</span></p> : null}
-          {completed ? (
-            <p data-testid="solve-progress-completed-counts">
-              The job reported {completed.result_row_count} result {completed.result_row_count === 1 ? "row" : "rows"} and {completed.diagnostic_count}{" "}
-              {completed.diagnostic_count === 1 ? "diagnostic" : "diagnostics"}; the Issues list gathers a diagnostic repeated on one object into one item.
-            </p>
-          ) : null}
-          <p className="solve-progress-basis" data-testid="solve-progress-basis">
-            {basis.percentages_synthesized || basis.backend_percent_stream_available
-              ? `Progress basis: ${basis.progress_basis}.`
-              : `The solve job reports its state and events, not a percentage, a time estimate or a start time, so none is shown (progress basis: ${basis.progress_basis}).`}
+      {/* Opens beneath the line at full width; closed at the start of each run, and it keeps
+          the person's choice between the reports of one run. Facts first. */}
+      <div className="solve-status-details" data-open={detailsOpen} data-testid="solve-progress-details" hidden={!detailsOpen} id={detailsId}>
+        {state === null ? <p>The solve was requested; its job has not reported a state yet.</p> : null}
+        {events.length > 0 ? <p data-testid="solve-progress-states">States reported: {reportedStates(events).join(", ")}</p> : null}
+        {completed ? (
+          <p data-testid="solve-progress-statuses">
+            Statuses reported: {completed.analysis_status.length > 0 ? completed.analysis_status.map(statusDisplayWithToken).join("; ") : "none"}
           </p>
-          {queueReason && (state === "queued" || state === "cancelling") ? (
-            <p data-testid="solve-progress-queue-code">Queue reason code: <code>{resourceRefusalCode(queueReason)}</code></p>
-          ) : null}
-          {active && resource?.route_pricing === "ordinary_worker_capped" ? (
-            <p className="solve-progress-line" data-testid="solve-progress-worker">
-              Worker memory: grant {resource.worker_grant_bytes === null ? "not yet held" : formatBytes(resource.worker_grant_bytes)}; peak grant{" "}
-              {resource.worker_peak_grant_bytes === null ? "none" : formatBytes(resource.worker_peak_grant_bytes)}; peak footprint{" "}
-              {resource.worker_peak_footprint_bytes === null ? "not measured" : formatBytes(resource.worker_peak_footprint_bytes)}; budget{" "}
-              {formatBytes(resource.invocation_budget_bytes)}
-            </p>
-          ) : null}
-          {job?.cancellation_requested ? (
-            <p className="solve-progress-line" data-testid="solve-progress-cancellation">
-              Cancellation requested: <code>{job.cancellation_status}</code>
-            </p>
-          ) : null}
-          <ol aria-label="Solve job events" className="solve-progress-events" data-testid="solve-progress-events">
-            {events.map((event, index) => (
-              <li data-event-id={event.event_id} data-state={event.state} key={`${event.event_id}-${index}`}>
-                <strong>{solveJobStateLabel(event.state)}</strong> <span>{event.message}</span>
-              </li>
-            ))}
-          </ol>
-        </div>
-      </details>
+        ) : null}
+        {completed ? (
+          <p data-testid="solve-progress-completed-counts">
+            The job reported {plural(completed.result_row_count, "result row", "result rows")} and{" "}
+            {plural(completed.diagnostic_count, "diagnostic report", "diagnostic reports")}.
+          </p>
+        ) : null}
+        {resource?.route_pricing === "ordinary_worker_capped" ? (
+          <p data-testid="solve-progress-worker">
+            Worker memory: {active ? `grant ${resource.worker_grant_bytes === null ? "not yet held" : formatBytes(resource.worker_grant_bytes)}; ` : ""}peak grant{" "}
+            {resource.worker_peak_grant_bytes === null ? "none" : formatBytes(resource.worker_peak_grant_bytes)}; peak footprint{" "}
+            {resource.worker_peak_footprint_bytes === null ? "not measured" : formatBytes(resource.worker_peak_footprint_bytes)}; budget{" "}
+            {formatBytes(resource.invocation_budget_bytes)}
+          </p>
+        ) : null}
+        {job?.cancellation_requested ? (
+          <p data-testid="solve-progress-cancellation">
+            {cancellationWords(state)} Code: <code>{job.cancellation_status}</code>
+          </p>
+        ) : null}
+        {job && (queueReason ?? tracker.current.queueReason) ? (
+          <p data-testid="solve-progress-queue-code">Queue reason code: <code>{resourceRefusalCode((queueReason ?? tracker.current.queueReason)!)}</code></p>
+        ) : null}
+        {job ? <p>Job: <code data-testid="solve-progress-job">{job.job_id}</code></p> : null}
+        {events.length > 0 ? (
+          <details className="solve-status-steps" data-testid="solve-progress-steps">
+            <summary data-testid="solve-progress-steps-toggle">What the job reported at each step</summary>
+            <ol aria-label="Solve job events" className="solve-progress-events" data-testid="solve-progress-events">
+              {events.map((event, index) => (
+                <li data-event-id={event.event_id} data-state={event.state} key={`${event.event_id}-${index}`}>
+                  <strong>{solveJobStateLabel(event.state)}</strong>{" "}
+                  {event === latest ? (
+                    <span data-testid="solve-progress-stage">{event.message} <small className="muted">(the stage)</small></span>
+                  ) : <span>{event.message}</span>}
+                </li>
+              ))}
+            </ol>
+          </details>
+        ) : null}
+      </div>
     </section>
   );
 }

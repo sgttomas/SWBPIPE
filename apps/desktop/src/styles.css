@@ -4546,23 +4546,43 @@ body { min-width: 760px; min-height: 540px; }
 .solve-status-line.done { background: var(--ui-raised); border-bottom-color: var(--ui-divider); }
 .solve-status-line.error { color: var(--ui-error-text); background: var(--ui-error-surface); border-bottom-color: var(--ui-error-border); }
 .solve-status-line.stopped { background: var(--ui-raised); border-bottom-color: var(--ui-divider); }
-/* One row in the order it is read and tabbed: the words, the actions, then Details;
-   open Details takes the full width beneath. No CSS reordering. */
+/* One row in the order it is read and tabbed: the words, the actions, Details, then
+   Dismiss. Details' control stays where it is, open or closed; its body opens beneath
+   the line at full width. No CSS reordering. */
 .solve-status-main { display: contents; }
 .solve-status-text { flex: 1 1 320px; margin: 0; min-width: 0; overflow-wrap: anywhere; font-size: var(--type-size-body, 13px); }
 .solve-status-text:focus { outline: none; }
 .solve-status-text:focus-visible { outline: 2px solid var(--ui-focus); outline-offset: 2px; }
-.solve-status-details { flex: 0 0 auto; }
-.solve-status-details[open] { flex: 1 0 100%; }
 .solve-status-actions { flex: 0 0 auto; display: flex; flex-wrap: nowrap; align-items: center; gap: var(--space-3); }
 .solve-status-actions [aria-disabled="true"] { opacity: 0.6; cursor: default; }
 .solve-status-actions button { display: inline-flex; align-items: center; gap: var(--space-2); width: auto; white-space: nowrap; }
 .solve-status-dismiss { padding: 2px 6px; }
-.solve-status-details > summary { cursor: pointer; width: max-content; color: var(--ui-muted); }
-.solve-status-line.error .solve-status-details > summary { color: inherit; }
-.solve-status-details-body { display: grid; gap: var(--space-2); padding: var(--space-2) 0 var(--space-2) var(--space-5); color: var(--ui-text); }
-.solve-status-details-body p { margin: 0; overflow-wrap: anywhere; }
-.solve-progress-basis, .solve-progress-line { margin: 0; color: var(--ui-muted); overflow-wrap: anywhere; }
+.solve-status-details-toggle { color: var(--ui-muted); background: none; border: none; padding: 2px 4px; cursor: pointer; }
+.solve-status-line.error .solve-status-details-toggle { color: inherit; }
+.solve-status-details-chevron { transition: transform 120ms ease; }
+.solve-status-details-toggle[aria-expanded="true"] .solve-status-details-chevron { transform: rotate(90deg); }
+.solve-status-details { flex: 1 0 100%; display: grid; gap: var(--space-2); padding: var(--space-2) 0 var(--space-2) var(--space-5); color: var(--ui-text); }
+.solve-status-details[hidden] { display: none; }
+.solve-status-details p { margin: 0; overflow-wrap: anywhere; }
+.solve-status-steps > summary { cursor: pointer; width: max-content; color: var(--ui-muted); }
+.solve-status-steps[open] > summary { margin-bottom: var(--space-2); }
+/* The display is alive while the job reports queued or running: a small moving mark,
+   still under reduced motion. No percentage, estimate, count or time. */
+.solve-status-alive {
+  display: inline-block;
+  width: 8px;
+  height: 8px;
+  margin-left: var(--space-2);
+  border-radius: 50%;
+  background: currentColor;
+  vertical-align: middle;
+  animation: solve-status-alive 1.2s ease-in-out infinite;
+}
+@keyframes solve-status-alive { 0%, 100% { opacity: 0.25; } 50% { opacity: 1; } }
+@media (prefers-reduced-motion: reduce) {
+  .solve-status-alive { animation: none; opacity: 0.6; }
+  .solve-status-details-chevron { transition: none; }
+}
 .solve-progress-events { display: grid; gap: var(--space-2); margin: 0; padding-inline-start: var(--space-5); overflow-wrap: anywhere; }
 
 /* A project operation's line while it runs ("Recording the run…", "Checking the record…"). */
@@ -4586,15 +4606,37 @@ body { min-width: 760px; min-height: 540px; }
 .issues-breakdown strong { color: var(--ui-text); }
 .issue-group { display: grid; gap: var(--space-1); }
 .issue-group > .diagnostic small,
-.issue-group > .issue-row small { display: block; margin-top: var(--space-2); font-size: var(--type-size-caption); }
+.issue-group > .issue-row small { display: block; font-size: var(--type-size-caption); }
 .issue-group-also { color: var(--ui-text); font-weight: 600; }
-.issue-group-also .issue-solver-report-note { margin-left: 0.3em; font-weight: 400; }
 .issue-group-members { margin-inline-start: var(--space-5); font-size: var(--type-size-chip); }
 .issue-group-members > summary { cursor: pointer; padding: var(--space-1) 0; color: var(--ui-muted); }
 .issue-group-members ol { display: grid; gap: var(--space-2); margin: var(--space-2) 0 0; padding: 0; list-style: none; }
 .issue-member { font-size: var(--type-size-chip); }
 .issue-member strong { display: inline; }
 .issue-member[aria-disabled="true"] { cursor: default; }
+/* An Operation diagnostics entry is a report (class "diagnostic") but not a control. */
+article.issue-row.diagnostic { cursor: default; }
+/* S6: every Issues entry reads, top to bottom, an eyebrow (severity mark and word, code, class,
+   source) in small muted type, what the entry also names, then the message's block: the
+   solver-report note where the report takes one, then the message at body size and weight,
+   last. */
+.issue-meta { display: block; margin: 0 0 var(--space-1); font-size: var(--type-size-caption); color: var(--ui-muted); }
+.issue-severity-mark { display: inline-block; width: 8px; height: 8px; margin-inline-end: 5px; border-radius: 50%; vertical-align: 0; background: var(--ui-muted); }
+.issue-severity-mark.blocking, .issue-severity-mark.error { background: var(--ui-error-border); }
+.issue-severity-mark.warning { background: var(--ui-warning-border); }
+.issue-severity-mark.info { background: var(--ui-info-border); }
+.issue-message-block { display: block; margin-top: var(--space-1); }
+.issue-message,
+.diagnostic .issue-message,
+.issue-row .issue-message { margin: 0; font-size: 13px; font-weight: 400; line-height: 1.4; color: inherit; }
+.diagnostic .issue-member-difference { display: inline; font-size: inherit; font-weight: 700; }
+.issue-member-refs, .issue-member-fields small, .issue-selects { display: block; margin-top: var(--space-1); font-size: var(--type-size-caption); color: var(--ui-muted); }
+.issue-member-fields { display: block; }
+.issue-shown-elsewhere { margin: var(--space-2) 0; font-size: var(--type-size-chip); }
+.issue-solver-report-note { display: block; margin-bottom: 2px; font-size: var(--type-size-caption); }
+.missing-data-not-blocking { margin-top: var(--space-2); }
+.missing-data-not-blocking > summary { cursor: pointer; color: var(--ui-muted); padding: var(--space-1) 0; }
+.local-project-running { color: var(--ui-info-text); font-weight: 600; }
 .app-menu-item .app-menu-shortcut { margin-inline-start: auto; padding-inline-start: var(--space-4); color: var(--ui-muted); font: inherit; }
 
 /* B9: the entity and cell context menu (ContextMenu.tsx). It is portalled to the shell, so it

@@ -17,11 +17,16 @@ afterEach(() => {
   delete (window as unknown as Record<string, unknown>).__TAURI_INTERNALS__;
 });
 
-/** Opens the line's Details by a press on its summary and fails loudly if the press did not open it. */
+/** Opens the line's Details by a press on its control, and its steps by a press on their
+ * summary, and fails loudly if a press did not open what it controls. */
 function openDetails(region: HTMLElement) {
-  const details = within(region).getByTestId("solve-progress-details") as HTMLDetailsElement;
-  if (!details.open) fireEvent.click(within(region).getByTestId("solve-progress-details-toggle"));
-  if (!details.open) throw new Error("the line's Details did not open on a press of its summary");
+  const toggle = within(region).getByTestId("solve-progress-details-toggle");
+  const body = within(region).getByTestId("solve-progress-details");
+  if (toggle.getAttribute("aria-expanded") !== "true") fireEvent.click(toggle);
+  if (toggle.getAttribute("aria-expanded") !== "true" || body.hidden) throw new Error("the line's Details did not open on a press of its control");
+  const steps = within(region).queryByTestId("solve-progress-steps") as HTMLDetailsElement | null;
+  if (steps && !steps.open) fireEvent.click(within(region).getByTestId("solve-progress-steps-toggle"));
+  if (steps && !steps.open) throw new Error("the steps did not open on a press of their summary");
 }
 
 function nativeMenuCommand(command: string) {
@@ -69,7 +74,8 @@ it("opens on a run, shows the job's live state, and cancels it from the panel", 
   fireEvent.click(cancel);
   await waitFor(() => expect(invokeMock).toHaveBeenCalledWith("cancel_preview_mechanics_job", { jobId: "backend-solve-job-panel", cancellationToken: "cancel-token-panel" }));
   await waitFor(() => expect(region).toHaveAttribute("data-state", "cancelled"));
-  expect(within(region).getByTestId("solve-progress-cancellation")).toHaveTextContent("Cancellation requested: worker_terminated");
+  openDetails(region);
+  expect(within(region).getByTestId("solve-progress-cancellation")).toHaveTextContent("Stopped at your request. Code: worker_terminated");
   const events = within(within(region).getByRole("list", { name: "Solve job events" })).getAllByRole("listitem").map((item) => item.getAttribute("data-event-id"));
   expect(events[0]).toBe("solve-preview-queued");
   expect(events).toContain("solve-preview-running");

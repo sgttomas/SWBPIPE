@@ -207,7 +207,8 @@
     await journey.step("solve-progress", "The solve's progress, once it ended", awaitSolve);
     await journey.step("details-open", "The status line's Details, opened", async () => {
       await press("solve-progress-details-toggle");
-      return byTestId("solve-progress-details")?.open ? "open" : "did not open";
+      const opened = byTestId("solve-progress-details-toggle")?.getAttribute("aria-expanded") === "true" && visible(byTestId("solve-progress-details"));
+      return opened ? (text("solve-progress-details") ?? "open").slice(0, 400) : "did not open";
     });
     await journey.step("details-closed", "The status line's Details, closed again", async () => { await press("solve-progress-details-toggle"); });
     await journey.step("results-stage", "The Results stage as first shown, by Open results on the status line", async () => {
@@ -276,8 +277,31 @@
       return `toolbar ${text("toolbar-issues") ?? "?"}; status bar ${text("issues-drawer-toggle") ?? "?"}; drawer ${text("issues-total") ?? "?"}; ${text("issues-breakdown") ?? ""}`;
     });
     await journey.scrolled("issues-drawer", "The Issues drawer", 2, '[data-testid="issues-home"]');
+    await journey.step("missing-data-closed", "The drawer's Missing data panel, its uncounted entries closed", async () => {
+      const panel = await control("missing-data-panel");
+      await scrollTo(panel, "start");
+      return `heading count ${text("missing-data-blocking-count") ?? "?"}; ${text("missing-data-not-blocking-toggle") ?? "no uncounted entries"}`;
+    });
+    await journey.step("missing-data-open", "The drawer's Missing data panel, its uncounted entries opened", async () => {
+      if (byTestId("missing-data-not-blocking")) await press("missing-data-not-blocking-toggle");
+      return text("missing-data-not-blocking-toggle") ?? "no uncounted entries";
+    });
+    await journey.step("single-item", "A single-report item in the drawer", async () => {
+      const row = [...document.querySelectorAll('[data-testid="issues-home"] button[data-testid^="diagnostic-"], [data-testid="issues-home"] button[data-testid^="model-check-"]')]
+        .find((button) => !button.closest('[data-testid^="issue-group-"]') && visible(button));
+      if (!row) throw new Error("the Issues drawer shows no single-report item");
+      await scrollTo(row, "center");
+      return row.textContent.replace(/\s+/g, " ").trim().slice(0, 300);
+    });
+    const hangerGroup = () => document.querySelector('[data-testid="issues-home"] [data-testid="issue-group-SPRING_HANGER_LOAD_NOT_APPLIED_AS_PRELOAD"]') ?? document.querySelector('[data-testid="issues-home"] [data-testid^="issue-group-"]');
+    await journey.step("hanger-item-collapsed", "A spring hanger's grouped item, collapsed", async () => {
+      const group = await waitFor("a grouped item", hangerGroup, T.ui).catch(() => null);
+      if (!group) throw new Error("the Issues drawer shows no grouped item");
+      await scrollTo(group, "start");
+      return group.textContent.replace(/\s+/g, " ").trim().slice(0, 300);
+    });
     await journey.step("hanger-item-open", "A spring hanger's grouped item, its reports opened", async () => {
-      const group = await waitFor("a grouped item", () => document.querySelector('[data-testid="issues-home"] [data-testid="issue-group-SPRING_HANGER_LOAD_NOT_APPLIED_AS_PRELOAD"]') ?? document.querySelector('[data-testid="issues-home"] [data-testid^="issue-group-"]'), T.ui).catch(() => null);
+      const group = await waitFor("a grouped item", hangerGroup, T.ui).catch(() => null);
       if (!group) throw new Error("the Issues drawer shows no grouped item");
       const toggle = group.querySelector('[data-testid="issue-group-members-toggle"]');
       await scrollTo(group, "start");
@@ -423,6 +447,16 @@
         return state === "running" || solveOutcome() ? state : null;
       }, T.solve).catch(() => null);
       return seen === "running" ? text("solve-progress-state") ?? "" : `not seen running (${seen ?? "no line"})`;
+    });
+    await journey.step("solving-details", "The status line's Details, opened on the running job", async () => {
+      if (byTestId("solve-progress-panel")?.getAttribute("data-state") !== "running") return "the job was no longer running";
+      await press("solve-progress-details-toggle");
+      return (text("solve-progress-details") ?? "").slice(0, 400);
+    });
+    await journey.step("solving-details-closed", "The status line's Details, closed again while the job runs", async () => {
+      const toggle = byTestId("solve-progress-details-toggle");
+      if (toggle?.getAttribute("aria-expanded") === "true") await press("solve-progress-details-toggle");
+      return text("solve-progress-state") ?? "";
     });
     await journey.step("solve-progress", "The solve's progress, a minute in", async () => {
       const outcome = await waitFor("a minute of the solve, or its outcome", () => solveOutcome(), 60000).catch(() => null);

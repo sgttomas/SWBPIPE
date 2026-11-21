@@ -11,9 +11,10 @@ import {
   progressSolveJob,
   refusedSolveJob,
   requestSolveCancellation,
+  resultTooLargeSolveJob,
   startSolveJob
 } from "../workspace/solveJobAudit";
-import { SolveProgressPanel } from "./SolveProgressPanel";
+import { SolveIssueItem, SolveProgressPanel } from "./SolveProgressPanel";
 
 // DEL-07-07 REQ-014: the solve status line shows the solve-job record the
 // session already keeps, from invented native job reports. What the line keeps
@@ -41,14 +42,30 @@ function status(overrides: Partial<BackendSolveJobStatus>): BackendSolveJobStatu
   };
 }
 
-/** Opens the line's Details by a press on its summary, as a person does, and fails loudly if
+/** Whether the line's Details is open: its control says expanded and its body is shown. */
+function detailsOpen(): boolean {
+  const expanded = screen.getByTestId("solve-progress-details-toggle").getAttribute("aria-expanded") === "true";
+  const hidden = (screen.getByTestId("solve-progress-details") as HTMLElement).hidden;
+  if (expanded === hidden) throw new Error("the Details control and its body disagree");
+  return expanded;
+}
+
+/** Opens the line's Details by a press on its control, as a person does, and fails loudly if
  * the press did not open it; nothing inside is read while it is closed. Already open (a
  * person's choice kept between the reports of one run), it is left as it is. */
 function openDetails() {
-  const details = screen.getByTestId("solve-progress-details") as HTMLDetailsElement;
-  if (!details.open) fireEvent.click(screen.getByTestId("solve-progress-details-toggle"));
-  if (!details.open) throw new Error("the line's Details did not open on a press of its summary");
-  return details;
+  if (!detailsOpen()) fireEvent.click(screen.getByTestId("solve-progress-details-toggle"));
+  if (!detailsOpen()) throw new Error("the line's Details did not open on a press of its control");
+  return screen.getByTestId("solve-progress-details");
+}
+
+/** Opens Details, then its "What the job reported at each step" by a press on its summary. */
+function openSteps() {
+  openDetails();
+  const steps = screen.getByTestId("solve-progress-steps") as HTMLDetailsElement;
+  if (!steps.open) fireEvent.click(screen.getByTestId("solve-progress-steps-toggle"));
+  if (!steps.open) throw new Error("the steps did not open on a press of their summary");
+  return steps;
 }
 
 function panel(job: SolveJobAuditState, running: boolean, onCancel = () => {}) {
@@ -81,17 +98,19 @@ describe("solve progress panel", () => {
     expect(screen.getByTestId("solve-progress-state")).toHaveAttribute("role", "status");
     expect(screen.getByTestId("solve-progress-state")).toHaveAttribute("aria-live", "polite");
     expect(screen.getByTestId("solve-progress-state")).toHaveTextContent(/^Queued/);
-    openDetails();
+    expect(screen.getByTestId("solve-progress-alive")).toHaveAttribute("aria-hidden", "true");
+    openSteps();
     expect(screen.getByTestId("solve-progress-stage")).toHaveTextContent(queued.events[0].message);
     expect(screen.getByTestId("solve-progress-job")).toHaveTextContent("backend-solve-job-31");
+    expect(screen.getByTestId("solve-progress-states")).toHaveTextContent(/^States reported: Queued$/);
 
     const waiting = progressSolveJob(queued, status({ queue_reason: { kind: "pool_exhausted", requested_bytes: 12 * GiB, reserved_bytes: 40 * GiB, pool_bytes: 48 * GiB } }));
     view.rerender(panel(waiting, true));
     expect(screen.getByTestId("solve-progress-queue-reason")).toHaveTextContent(
       "Waiting in the queue: The memory pool is fully reserved: this request needs 12 GiB, and 40 GiB of the 48 GiB pool is already reserved."
     );
-    expect(screen.getByTestId("solve-progress-queue-reason").closest("details")).toBeNull();
-    openDetails();
+    expect(screen.getByTestId("solve-progress-details")).not.toContainElement(screen.getByTestId("solve-progress-queue-reason"));
+    openSteps();
     expect(screen.getByTestId("solve-progress-stage")).toHaveTextContent(waiting.events[waiting.events.length - 1].message);
     expect(screen.getByTestId("solve-progress-queue-code")).toHaveTextContent(
       "Queue reason code: pool_exhausted (requested_bytes=12884901888, reserved_bytes=42949672960, pool_bytes=51539607552)"
@@ -101,16 +120,15 @@ describe("solve progress panel", () => {
     view.rerender(panel(running, true));
     expect(screen.getByTestId("solve-progress-state")).toHaveTextContent(/^Running/);
     expect(screen.queryByTestId("solve-progress-queue-reason")).toBeNull();
-    openDetails();
+    openSteps();
     expect(screen.getByTestId("solve-progress-stage")).toHaveTextContent(running.events[running.events.length - 1].message);
+    expect(screen.getByTestId("solve-progress-states")).toHaveTextContent(/^States reported: Queued, Running$/);
     expect(screen.getByTestId("solve-progress-worker")).toHaveTextContent("Worker memory: grant 64 MiB; peak grant 96 MiB; peak footprint 70 MiB; budget 12 GiB");
     const events = within(screen.getByRole("list", { name: "Solve job events" })).getAllByRole("listitem");
     expect(events.map((item) => item.getAttribute("data-event-id"))).toEqual(["solve-preview-queued", "solve-preview-queued-waiting", "solve-preview-running"]);
     expect(events.map((item) => item.getAttribute("data-state"))).toEqual(["queued", "queued", "running"]);
     // The record reports states only: nothing reads as a fraction, an estimate or a clock.
-    expect(screen.getByTestId("solve-progress-basis")).toHaveTextContent(
-      "The solve job reports its state and events, not a percentage, a time estimate or a start time, so none is shown (progress basis: preview_service_event_state_only_no_percent_stream)."
-    );
+    expect(screen.queryByTestId("solve-progress-basis")).toBeNull();
     expect(screen.getByTestId("solve-progress-panel").textContent).not.toMatch(/\d\s*%|\bETA\b|elapsed|remaining/i);
     expect(screen.queryByRole("progressbar")).toBeNull();
 
@@ -119,8 +137,10 @@ describe("solve progress panel", () => {
     const done = completeSolveJob(running, result, run);
     view.rerender(panel(done, false));
     expect(screen.getByTestId("solve-progress-state")).toHaveTextContent(/^Completed/);
-    openDetails();
+    expect(screen.queryByTestId("solve-progress-alive")).toBeNull();
+    openSteps();
     expect(screen.getByTestId("solve-progress-stage")).toHaveTextContent(done.events[done.events.length - 1].message);
+    expect(screen.getByTestId("solve-progress-states")).toHaveTextContent(/^States reported: Queued, Running, Completed$/);
     expect(screen.getByTestId("solve-progress-panel").textContent).not.toMatch(/\d\s*%|\bETA\b|elapsed|remaining/i);
   });
 
@@ -148,16 +168,16 @@ describe("solve progress panel", () => {
     fireEvent.click(pending);
     expect(onCancel).toHaveBeenCalledTimes(1);
     openDetails();
-    expect(screen.getByTestId("solve-progress-cancellation")).toHaveTextContent("Cancellation requested: request_sent_to_backend_job_awaiting_receipt");
+    expect(screen.getByTestId("solve-progress-cancellation")).toHaveTextContent("Stop was requested; the line waits for the job's final state. Code: request_sent_to_backend_job_awaiting_receipt");
 
     const cancelled = cancelledSolveJob(cancelling, status({ state: "cancelled", cancellation_requested: true, cancellation_status: "worker_terminated" }));
     view.rerender(panel(cancelled, false, onCancel));
     expect(screen.getByTestId("solve-progress-state")).toHaveTextContent(/^Cancelled/);
     // Only what the job reports: a cancelled job may have finished and had its result discarded.
-    expect(screen.getByTestId("solve-progress-state")).toHaveTextContent(/^Cancelled No result was published\.$/);
+    expect(screen.getByTestId("solve-progress-state")).toHaveTextContent(/^Cancelled\. No result was published\.$/);
     expect(screen.queryByTestId("solve-progress-cancel")).toBeNull();
     openDetails();
-    expect(screen.getByTestId("solve-progress-cancellation")).toHaveTextContent("Cancellation requested: worker_terminated");
+    expect(screen.getByTestId("solve-progress-cancellation")).toHaveTextContent("Stopped at your request. Code: worker_terminated");
   });
 
   it("shows a memory-pool refusal with its code, exact bytes and retry path, and no result", () => {
@@ -167,15 +187,16 @@ describe("solve progress panel", () => {
     view.rerender(panel(refused, false));
     expect(screen.getByTestId("solve-progress-state")).toHaveTextContent(/^Refused/);
     expect(screen.getByTestId("solve-progress-refusal")).toHaveTextContent(
-      "Refused by the native memory pool: Not enough available memory on this Mac right now (free plus reclaimable file cache and purgeable memory, less the kernel's reserve): needs 65.01 MiB, 50.2 MiB available. No result was published."
+      "by the native memory pool: Not enough available memory on this Mac right now (free plus reclaimable file cache and purgeable memory, less the kernel's reserve): needs 65.01 MiB, 50.2 MiB available. No result was published."
     );
+    expect(screen.getByTestId("solve-progress-state")).toHaveTextContent(/^Refused by the native memory pool: Not enough available memory/);
     expect(screen.getByTestId("solve-progress-retry")).toHaveTextContent(
       "Refused at the result hand-off after the solve finished; the finished result was dropped. Available memory was re-sampled for up to 2 s before this refusal stood. You can run the solve again when more memory is available."
     );
     // The reading, the way to retry and the exact code are on the line, in its polite live region.
     const state = screen.getByTestId("solve-progress-state");
     for (const id of ["solve-progress-refusal", "solve-progress-retry", "solve-progress-refusal-code"]) {
-      expect(screen.getByTestId(id).closest("details")).toBeNull();
+      expect(screen.getByTestId("solve-progress-details")).not.toContainElement(screen.getByTestId(id));
       expect(state).toContainElement(screen.getByTestId(id));
     }
     expect(screen.getByTestId("solve-progress-refusal-code")).toHaveTextContent("headroom_insufficient (required_bytes=68165632, available_bytes=52641792)");
@@ -205,11 +226,10 @@ describe("solve progress panel", () => {
     expect(screen.getByTestId("solve-progress-completed")).toHaveTextContent("3 result rows.");
     // The job's own count of findings is behind Details, not beside the Issues count: it is
     // read only once Details has been opened by a press on its summary.
-    const details = screen.getByTestId("solve-progress-details") as HTMLDetailsElement;
-    expect(details.open).toBe(false);
+    expect(detailsOpen()).toBe(false);
     fireEvent.click(screen.getByTestId("solve-progress-details-toggle"));
-    expect(details.open).toBe(true);
-    expect(screen.getByTestId("solve-progress-completed-counts")).toHaveTextContent("The job reported 3 result rows and 1 diagnostic;");
+    expect(detailsOpen()).toBe(true);
+    expect(screen.getByTestId("solve-progress-completed-counts")).toHaveTextContent(/^The job reported 3 result rows and 1 diagnostic report\.$/);
     fireEvent.click(screen.getByRole("button", { name: "Dismiss" }));
     expect(screen.queryByTestId("solve-progress-panel")).toBeNull();
     // The next run opens it again.
@@ -249,15 +269,21 @@ describe("solve progress panel", () => {
     expect(screen.getByTestId("solve-progress-state")).toHaveTextContent("Starting");
     expect(screen.queryByTestId("solve-progress-failure")).toBeNull();
     expect(screen.queryByTestId("solve-progress-completed")).toBeNull();
+    // Before the new job's first report nothing of the earlier job is anywhere on the line or in Details.
     openDetails();
-    expect(within(screen.getByRole("list", { name: "Solve job events" })).queryAllByRole("listitem")).toHaveLength(0);
+    expect(screen.queryByTestId("solve-progress-events")).toBeNull();
+    expect(screen.queryByTestId("solve-progress-states")).toBeNull();
+    expect(screen.queryByTestId("solve-progress-worker")).toBeNull();
+    expect(screen.queryByTestId("solve-progress-cancellation")).toBeNull();
+    for (const event of previous.events) expect(screen.getByTestId("solve-progress-panel").textContent).not.toContain(event.message);
+    expect(screen.getByTestId("solve-progress-panel").textContent).not.toContain(previous.job_id);
     fireEvent.click(screen.getByRole("button", { name: "Stop" }));
     expect(onCancel).toHaveBeenCalledTimes(1);
     // A cancellation before the start receipt records a new state over the previous events; only the new event is this run's.
     const pending = { ...requestSolveCancellation(startSolveJob(model, receipt)), job_id: "job:preview-linear-static:pending-start-cancel",
       events: [...previous.events, { event_id: "solve-preview-cancel-requested-before-backend-start", state: "cancelling" as const, message: "invented pending cancel", result_available: false, diagnostic_count: 0, result_row_count: 0, analysis_status: [] }] };
     view.rerender(panel(pending, true, onCancel));
-    openDetails();
+    openSteps();
     expect(within(screen.getByRole("list", { name: "Solve job events" })).getAllByRole("listitem").map((item) => item.getAttribute("data-event-id")))
       .toEqual(["solve-preview-cancel-requested-before-backend-start"]);
     // The new job's own record replaces it.
@@ -292,33 +318,41 @@ describe("solve progress panel", () => {
     fireEvent.click(cancel);
     expect(onCancel).toHaveBeenCalledTimes(1);
     openDetails();
-    expect(within(screen.getByRole("list", { name: "Solve job events" })).queryAllByRole("listitem")).toHaveLength(0);
+    expect(screen.queryByTestId("solve-progress-events")).toBeNull();
     // A run that ends without publishing a record leaves nothing shown.
     view.rerender(panel(idle, false, onCancel));
     expect(screen.queryByTestId("solve-progress-panel")).toBeNull();
   });
 });
 
-describe("the status line's outcome and its one action", () => {
-  const line = (job: SolveJobAuditState, running: boolean, actions: { onOpenResults?: () => void; onShowIssue?: () => void }) => (
-    <SolveProgressPanel solveJob={job} running={running} onCancel={() => {}} {...actions} />
+describe("the status line's outcome and its actions", () => {
+  const line = (job: SolveJobAuditState, running: boolean, actions: { onOpenResults?: () => void; onShowIssue?: () => void; resultsShown?: boolean; resultHeld?: boolean; onCancel?: () => void }) => (
+    <SolveProgressPanel solveJob={job} running={running} onCancel={actions.onCancel ?? (() => {})} {...actions} />
   );
   const runningJob = () => progressSolveJob(startSolveJob(model, receipt), status({ state: "running" }));
-  const completedWith = (statuses: string[]) => completeSolveJob(runningJob(),
+  const completedWith = (statuses: string[], from = runningJob()) => completeSolveJob(from,
     { results: [{}, {}], diagnostics: [{}, {}] } as unknown as MechanicsResult,
     { analysis_run: { run_id: "analysis-run:invented-solved", analysis_status: statuses } } as unknown as AnalysisRunEnvelope);
 
-  it("says Running and nothing the job did not report, and on completion the state, the outcome in its registered form and the rows, with Open results", () => {
+  it("says Running and nothing the job did not report, and on completion every status it reports in the registry's display form, without tokens, then the rows", () => {
     const onOpenResults = vi.fn();
     const view = render(line(initialSolveJob(), false, { onOpenResults }));
     view.rerender(line(initialSolveJob(), true, { onOpenResults }));
     view.rerender(line(runningJob(), true, { onOpenResults }));
     expect(screen.getByTestId("solve-progress-state")).toHaveTextContent(/^Running$/);
     expect(screen.queryByTestId("solve-progress-open-results")).toBeNull();
-    view.rerender(line(completedWith(["MECHANICS_SOLVED", "RULE_INPUTS_INCOMPLETE"]), false, { onOpenResults }));
-    expect(screen.getByTestId("solve-progress-state")).toHaveTextContent(/^Completed Solver · Mechanics solved \(MECHANICS_SOLVED\); 2 result rows\.$/);
-    // Details stays closed until the person opens it.
-    expect((screen.getByTestId("solve-progress-details") as HTMLDetailsElement).open).toBe(false);
+    view.rerender(line(completedWith(["RULE_INPUTS_INCOMPLETE", "MECHANICS_SOLVED", "HUMAN_REVIEW_REQUIRED"]), false, { onOpenResults }));
+    // The mechanics status first, then the others in the order reported (AC-005's combined outcome).
+    expect(screen.getByTestId("solve-progress-state")).toHaveTextContent(
+      /^Completed\. Solver · Mechanics solved; Rule pack · Rule inputs incomplete; Human · Human review required\. 2 result rows\.$/
+    );
+    expect(screen.getByTestId("solve-progress-state").textContent).not.toMatch(/[A-Z]{2,}_[A-Z]/);
+    // Each status's token is in Details.
+    expect(detailsOpen()).toBe(false);
+    openDetails();
+    expect(screen.getByTestId("solve-progress-statuses")).toHaveTextContent(
+      "Statuses reported: Rule pack · Rule inputs incomplete (RULE_INPUTS_INCOMPLETE); Solver · Mechanics solved (MECHANICS_SOLVED); Human · Human review required (HUMAN_REVIEW_REQUIRED)"
+    );
     fireEvent.click(screen.getByRole("button", { name: /Open results/ }));
     expect(onOpenResults).toHaveBeenCalledTimes(1);
     expect(screen.queryByTestId("solve-progress-show-issue")).toBeNull();
@@ -329,8 +363,18 @@ describe("the status line's outcome and its one action", () => {
     view.rerender(line(initialSolveJob(), true, {}));
     view.rerender(line(completedWith(["MODEL_INCOMPLETE", "HUMAN_REVIEW_REQUIRED"]), false, {}));
     expect(screen.getByTestId("solve-progress-state")).toHaveTextContent(
-      /^Completed Solver · Model incomplete \(MODEL_INCOMPLETE\); Human · Human review required \(HUMAN_REVIEW_REQUIRED\); 2 result rows\.$/
+      /^Completed\. Solver · Model incomplete; Human · Human review required\. 2 result rows\.$/
     );
+  });
+
+  it("does not offer Open results while the Results stage is the one shown, and offers it again elsewhere", () => {
+    const view = render(line(initialSolveJob(), false, { onOpenResults: () => {} }));
+    view.rerender(line(initialSolveJob(), true, { onOpenResults: () => {} }));
+    const done = completedWith(["MECHANICS_SOLVED"]);
+    view.rerender(line(done, false, { onOpenResults: () => {}, resultsShown: true }));
+    expect(screen.queryByTestId("solve-progress-open-results")).toBeNull();
+    view.rerender(line(done, false, { onOpenResults: () => {}, resultsShown: false }));
+    expect(screen.getByTestId("solve-progress-open-results")).toBeInTheDocument();
   });
 
   it("on a failure says so with the job's reason and code and offers Show in Issues, not Open results", () => {
@@ -340,7 +384,7 @@ describe("the status line's outcome and its one action", () => {
     view.rerender(line(initialSolveJob(), true, { onShowIssue, onOpenResults: () => {} }));
     view.rerender(line(started, true, { onShowIssue, onOpenResults: () => {} }));
     view.rerender(line(failSolveJob(started, new Error("SOLVE_WORKER_PROTOCOL: invented reply")), false, { onShowIssue, onOpenResults: () => {} }));
-    expect(screen.getByTestId("solve-progress-state")).toHaveTextContent(/^Failed The solve's worker process returned a reply the app could not read\..* Code: SOLVE_WORKER_PROTOCOL$/);
+    expect(screen.getByTestId("solve-progress-state")).toHaveTextContent(/^Failed\. The solve's worker process returned a reply the app could not read\..* Code: SOLVE_WORKER_PROTOCOL$/);
     expect(screen.queryByTestId("solve-progress-open-results")).toBeNull();
     fireEvent.click(screen.getByRole("button", { name: /Show in Issues/ }));
     expect(onShowIssue).toHaveBeenCalledTimes(1);
@@ -352,27 +396,152 @@ describe("the status line's outcome and its one action", () => {
     const first = startSolveJob(model, receipt);
     view.rerender(line(first, true, {}));
     fireEvent.click(screen.getByTestId("solve-progress-details-toggle"));
-    expect((screen.getByTestId("solve-progress-details") as HTMLDetailsElement).open).toBe(true);
+    expect(detailsOpen()).toBe(true);
     // A later report of the same run: still open.
     const running = progressSolveJob(first, status({ state: "running" }));
     view.rerender(line(running, true, {}));
-    expect((screen.getByTestId("solve-progress-details") as HTMLDetailsElement).open).toBe(true);
-    const done = completedWith([]);
+    expect(detailsOpen()).toBe(true);
+    const done = completedWith([], running);
     view.rerender(line(done, false, {}));
-    expect((screen.getByTestId("solve-progress-details") as HTMLDetailsElement).open).toBe(true);
+    expect(detailsOpen()).toBe(true);
     // The next run starts closed.
     view.rerender(line(done, true, {}));
-    expect((screen.getByTestId("solve-progress-details") as HTMLDetailsElement).open).toBe(false);
+    expect(detailsOpen()).toBe(false);
     view.rerender(line(startSolveJob(model, { ...receipt, job_id: "backend-solve-job-33" }), true, {}));
-    expect((screen.getByTestId("solve-progress-details") as HTMLDetailsElement).open).toBe(false);
+    expect(detailsOpen()).toBe(false);
   });
 
-  it("puts the words, the actions and Details in the order a person reads and tabs them", () => {
+  it("puts the words, the actions, Details and Dismiss in the order a person reads and tabs them, and Details keeps its place when it opens", () => {
     const view = render(line(initialSolveJob(), false, { onOpenResults: () => {} }));
     view.rerender(line(initialSolveJob(), true, { onOpenResults: () => {} }));
     view.rerender(line(completedWith(["MECHANICS_SOLVED"]), false, { onOpenResults: () => {} }));
-    const order = [...screen.getByTestId("solve-progress-panel").querySelectorAll('[data-testid="solve-progress-state"], button, summary')]
+    const order = () => [...screen.getByTestId("solve-progress-panel").querySelectorAll('[data-testid="solve-progress-state"], button')]
       .map((element) => element.getAttribute("data-testid"));
-    expect(order).toEqual(["solve-progress-state", "solve-progress-open-results", "solve-progress-close", "solve-progress-details-toggle"]);
+    const closed = ["solve-progress-state", "solve-progress-open-results", "solve-progress-details-toggle", "solve-progress-close"];
+    expect(order()).toEqual(closed);
+    openDetails();
+    expect(order()).toEqual(closed);
+    // The body opens after the line's controls, beneath them.
+    const toggle = screen.getByTestId("solve-progress-details-toggle");
+    expect(toggle.compareDocumentPosition(screen.getByTestId("solve-progress-details")) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
+    expect(toggle).toHaveAttribute("aria-controls", screen.getByTestId("solve-progress-details").id);
+  });
+
+  it("Details leads with the facts, in order, and keeps every event's own message behind one closed disclosure", () => {
+    const view = render(line(initialSolveJob(), false, {}));
+    view.rerender(line(initialSolveJob(), true, {}));
+    const queued = progressSolveJob(startSolveJob(model, receipt), status({ queue_reason: { kind: "queue_full", queued: 4, limit: 4 } }));
+    const running = progressSolveJob(progressSolveJob(queued, status({ state: "running" })), status({ state: "running", resource: grant(64 * MiB, 96 * MiB, 70 * MiB) }));
+    const done = completedWith(["MECHANICS_SOLVED", "RULE_INPUTS_INCOMPLETE"], running);
+    for (const record of [queued, running]) view.rerender(line(record, true, {}));
+    view.rerender(line(done, false, {}));
+    const details = openDetails();
+    const facts = [...details.children].filter((child) => child.tagName === "P").map((child) => child.getAttribute("data-testid") ?? child.textContent?.split(":")[0]);
+    expect(facts).toEqual([
+      "solve-progress-states", "solve-progress-statuses", "solve-progress-completed-counts", "solve-progress-worker", "solve-progress-queue-code", "Job"
+    ]);
+    const steps = screen.getByTestId("solve-progress-steps") as HTMLDetailsElement;
+    expect(steps.open).toBe(false);
+    expect(screen.getByTestId("solve-progress-steps-toggle")).toHaveTextContent("What the job reported at each step");
+    openSteps();
+    const items = within(screen.getByRole("list", { name: "Solve job events" })).getAllByRole("listitem");
+    expect(items.map((item) => item.textContent)).toEqual(done.events.map((event) => expect.stringContaining(event.message)));
+    expect(items[items.length - 1]).toContainElement(screen.getByTestId("solve-progress-stage"));
+    expect(details.textContent).not.toMatch(/gathers a diagnostic repeated/);
+  });
+
+  it("shows the worker's peak footprint that first arrives with the job's final report, after completion", () => {
+    const view = render(line(initialSolveJob(), false, {}));
+    view.rerender(line(initialSolveJob(), true, {}));
+    const running = progressSolveJob(progressSolveJob(startSolveJob(model, receipt), status({ state: "running" })), status({ state: "running", resource: grant(64 * MiB, 96 * MiB, null) }));
+    view.rerender(line(running, true, {}));
+    // The terminal status carries the measured footprint; the record follows it, then completes.
+    const final = progressSolveJob(running, status({ state: "completed", result_available: true, resource: grant(null, 96 * MiB, 70 * MiB) }));
+    view.rerender(line(completedWith(["MECHANICS_SOLVED"], final), false, {}));
+    openDetails();
+    expect(screen.getByTestId("solve-progress-worker")).toHaveTextContent(/^Worker memory: peak grant 96 MiB; peak footprint 70 MiB; budget 12 GiB$/);
+  });
+
+  it("shows a small moving mark beside the state word only while the job reports queued or running", () => {
+    const view = render(line(initialSolveJob(), false, {}));
+    view.rerender(line(initialSolveJob(), true, {}));
+    expect(screen.queryByTestId("solve-progress-alive")).toBeNull();
+    const queued = startSolveJob(model, receipt);
+    view.rerender(line(queued, true, {}));
+    expect(screen.getByTestId("solve-progress-alive")).toHaveAttribute("aria-hidden", "true");
+    expect(screen.getByTestId("solve-progress-alive").textContent).toBe("");
+    view.rerender(line(requestSolveCancellation(queued), true, {}));
+    expect(screen.queryByTestId("solve-progress-alive")).toBeNull();
+  });
+
+  it("a stop requested by another route (the menu, its shortcut, the palette) reads the same on the line, without moving focus", () => {
+    const onCancel = vi.fn();
+    const view = render(line(initialSolveJob(), false, { onCancel }));
+    view.rerender(line(initialSolveJob(), true, { onCancel }));
+    const running = runningJob();
+    view.rerender(line(running, true, { onCancel }));
+    const elsewhere = document.createElement("button");
+    document.body.append(elsewhere);
+    elsewhere.focus();
+    // The session's one cancel handler records the request; the line reads the record.
+    view.rerender(line(requestSolveCancellation(running), true, { onCancel }));
+    expect(screen.getByTestId("solve-progress-state")).toHaveTextContent(/^Cancelling$/);
+    expect(screen.getByTestId("solve-progress-cancel")).toHaveTextContent("Cancelling");
+    expect(screen.getByTestId("solve-progress-cancel")).toHaveAttribute("aria-disabled", "true");
+    expect(document.activeElement).toBe(elsewhere);
+    fireEvent.click(screen.getByTestId("solve-progress-cancel"));
+    expect(onCancel).not.toHaveBeenCalled();
+    elsewhere.remove();
+  });
+
+  it("says a stopped run cleared the result held before it, and says nothing of the kind where none was held", () => {
+    const stoppedAfter = (resultHeld: boolean) => {
+      const view = render(line(initialSolveJob(), false, { resultHeld }));
+      view.rerender(line(initialSolveJob(), true, { resultHeld: false }));
+      const running = runningJob();
+      view.rerender(line(running, true, { resultHeld: false }));
+      view.rerender(line(cancelledSolveJob(requestSolveCancellation(running), status({ state: "cancelled", cancellation_requested: true, cancellation_status: "worker_terminated" })), false, { resultHeld: false }));
+      const text = screen.getByTestId("solve-progress-state").textContent;
+      view.unmount();
+      return text;
+    };
+    expect(stoppedAfter(true)).toBe("Cancelled. No result was published. The earlier result was cleared when this run started.");
+    expect(stoppedAfter(false)).toBe("Cancelled. No result was published.");
+  });
+});
+
+describe("the Issues drawer's Last solve item", () => {
+  const started = () => startSolveJob(model, receipt);
+
+  it.each([
+    ["SOLVE_WORKER_EXITED", "The solve's worker process ended without returning a result. The solve failed; this is not a memory-pool refusal."],
+    ["SOLVE_WORKER_PROTOCOL", "The solve's worker process returned a reply the app could not read. The solve failed; this is not a memory-pool refusal."]
+  ])("a worker failure %s: its reading and its exact code", (code, reading) => {
+    render(<SolveIssueItem solveJob={failSolveJob(started(), new Error(`${code}: invented detail`))} />);
+    const item = screen.getByTestId("issues-solve-item");
+    expect(item).toHaveTextContent("The solve failed");
+    expect(item).toHaveTextContent(reading);
+    expect(screen.getByTestId("issues-solve-failure-code")).toHaveTextContent(new RegExp(`^${code}$`));
+    expect(item).toHaveTextContent("Job backend-solve-job-31");
+  });
+
+  it("a memory-pool refusal: its reading, the way to retry and its exact code", () => {
+    render(<SolveIssueItem solveJob={refusedSolveJob(started(), { kind: "headroom_insufficient", required_bytes: 68165632, available_bytes: 52641792 })} />);
+    const item = screen.getByTestId("issues-solve-item");
+    expect(item).toHaveTextContent("The solve was refused");
+    expect(item).toHaveTextContent("Refused by the native memory pool: Not enough available memory on this Mac right now (free plus reclaimable file cache and purgeable memory, less the kernel's reserve): needs 65.01 MiB, 50.2 MiB available. No result was published.");
+    expect(item).toHaveTextContent("You can run the solve again when more memory is available.");
+    expect(item).toHaveTextContent("Refusal code: headroom_insufficient (required_bytes=68165632, available_bytes=52641792)");
+    expect(screen.queryByTestId("issues-solve-failure-code")).toBeNull();
+  });
+
+  it("a result too large to show: the job's own reading with its code, and no memory-pool wording", () => {
+    const tooLarge = resultTooLargeSolveJob(started(), { code: "PREVIEW-SOLVE-RESULT-TOO-LARGE", result_bytes: 147_000_000, limit_bytes: 64 * MiB });
+    render(<SolveIssueItem solveJob={tooLarge} />);
+    const item = screen.getByTestId("issues-solve-item");
+    expect(item).toHaveTextContent("The solve was refused");
+    expect(item).toHaveTextContent(tooLarge.error_message!);
+    expect(item).toHaveTextContent("Code: PREVIEW-SOLVE-RESULT-TOO-LARGE (result_bytes=147000000, limit_bytes=67108864)");
+    expect(item).not.toHaveTextContent("native memory pool");
   });
 });
