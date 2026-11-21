@@ -19,10 +19,18 @@
 //! webview's label and its window's label alone, before the handler is
 //! entered, so no command is matched, no argument decoded, no ingress
 //! admitted and no lease taken for a refused call, whichever command it
-//! names; the caller receives [`COMMAND_WEBVIEW_REFUSED`], which names no
-//! command, path or document. Plugin commands (`plugin:…`) never reach this
-//! handler: Tauri checks every one against the capabilities, of which this
-//! app has none.
+//! names; a call this gate refuses receives [`COMMAND_WEBVIEW_REFUSED`], which
+//! names no command, path or document. A call from a remote origin never
+//! reaches the gate: Tauri's own access check refuses it first, with Tauri's
+//! message, and no command of this application runs.
+//!
+//! What the gate covers is this application's commands. Plugin commands
+//! (`plugin:…`) never reach this handler: Tauri checks every one against the
+//! capabilities, of which this app has none, so each is refused to every
+//! webview. Tauri exempts one from that check, its own channel fetch
+//! (`plugin:__TAURI_CHANNEL__|fetch`, tauri 2.11.1 `src/webview/mod.rs`),
+//! which any webview can therefore call: it returns a pending framework
+//! response or an error, and reaches no command of this application.
 
 use tauri::ipc::Invoke;
 use tauri::Runtime;
@@ -241,8 +249,10 @@ mod tests {
         }
     }
 
-    /// Every `invoke_handler` call in the crate's source: its file and its
-    /// argument as written.
+    /// Every `invoke_handler` call in the crate's source: its file (with `/`
+    /// separators on every platform) and its argument as written. A path that
+    /// names `invoke_handler` without calling it as a method is recorded too,
+    /// so that form cannot install a handler unseen.
     fn invoke_handler_calls() -> Vec<(String, String)> {
         struct Calls<'a>(&'a str, Vec<(String, String)>);
         impl<'ast> Visit<'ast> for Calls<'_> {
@@ -253,6 +263,13 @@ mod tests {
                 }
                 visit::visit_expr_method_call(self, node);
             }
+
+            fn visit_expr_path(&mut self, node: &'ast syn::ExprPath) {
+                if node.path.segments.last().is_some_and(|segment| segment.ident == "invoke_handler") {
+                    self.1.push((self.0.to_string(), "invoke_handler named as a path".to_string()));
+                }
+                visit::visit_expr_path(self, node);
+            }
         }
         let root = Path::new(env!("CARGO_MANIFEST_DIR"));
         let mut files = Vec::new();
@@ -260,7 +277,7 @@ mod tests {
         assert!(files.len() > 20, "the crate's sources are read");
         let mut calls = Vec::new();
         for file in &files {
-            let relative = file.strip_prefix(root).unwrap().display().to_string();
+            let relative = file.strip_prefix(root).unwrap().components().map(|part| part.as_os_str().to_string_lossy().into_owned()).collect::<Vec<_>>().join("/");
             let text = std::fs::read_to_string(file).unwrap();
             let parsed = syn::parse_file(&text).unwrap_or_else(|error| panic!("{relative} does not parse: {error}"));
             let mut visitor = Calls(&relative, Vec::new());

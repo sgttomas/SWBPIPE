@@ -48,7 +48,7 @@ It serves SOW-078 under OBJ-006, OBJ-010 and OBJ-015 (`execution/_Decomposition/
 
 **Not decided.** What the native host's security configuration is: the webview's content policy and which native commands the main webview may call. No scope states it.
 
-**Command callers.** Only the main window's webview may call a native command. A call from any other webview the desktop opens is refused before the command runs.
+**Command callers.** Only the main window's webview may call one of the desktop's own native commands. A call to one from any other webview the desktop opens is refused before the command runs. The framework's own channel fetch is not one of the desktop's commands and is not refused; it reaches none of them.
 
 **Windows.** Windows is not a release platform for v1.0. A Windows implementation of the shell's native boundary keeps the native command names, owning services, admission rules and stale-result guards the macOS desktop has, and adds native code only at the operating-system operations. Its dispatch of menus, native dialogs, accelerators and file operations, and its security configuration, are examined in the launched Windows application; a run in a browser alone does not show them, and a Windows check of another native boundary does not meet them.
 
