@@ -5224,7 +5224,7 @@
    "sites": [
     {
      "file": "core/model_operations/operation_applier/src/lib.rs",
-     "line": 5627,
+     "line": 5628,
      "via": "push()",
      "severity": "blocking",
      "any_arm": true,
@@ -6523,13 +6523,13 @@
    "severity": "blocking",
    "first_site": {
     "file": "core/model_operations/operation_applier/src/lib.rs",
-    "line": 5739,
+    "line": 5740,
     "via": "refuse_interim_member()"
    },
    "sites": [
     {
      "file": "core/model_operations/operation_applier/src/lib.rs",
-     "line": 5739,
+     "line": 5740,
      "via": "refuse_interim_member()",
      "severity": "blocking",
      "through": [
@@ -18726,7 +18726,7 @@
    "sites": [
     {
      "file": "core/model_operations/operation_applier/src/lib.rs",
-     "line": 5627,
+     "line": 5628,
      "via": "push()",
      "severity": "blocking",
      "any_arm": true,
@@ -18782,7 +18782,7 @@
    "sites": [
     {
      "file": "core/model_operations/operation_applier/src/lib.rs",
-     "line": 5627,
+     "line": 5628,
      "via": "push()",
      "severity": "blocking",
      "any_arm": true,
@@ -18838,7 +18838,7 @@
    "sites": [
     {
      "file": "core/model_operations/operation_applier/src/lib.rs",
-     "line": 5627,
+     "line": 5628,
      "via": "push()",
      "severity": "blocking",
      "any_arm": true,
@@ -18894,7 +18894,7 @@
    "sites": [
     {
      "file": "core/model_operations/operation_applier/src/lib.rs",
-     "line": 5627,
+     "line": 5628,
      "via": "push()",
      "severity": "blocking",
      "any_arm": true,
@@ -19000,7 +19000,7 @@
     "is admitted on a snubber only with exactly one translational restraint"
    ],
    "classification": "absent_capability",
-   "reason": "A direction is admitted only on an explicit line_stop, spring or snubber with one DOF; a skewed guide, anchor or nonlinear support is not built.",
+   "reason": "A direction is admitted only on an explicit line_stop, spring or snubber with one DOF; a skewed guide, anchor or nonlinear support is not built. The code also refuses a direction on a record that carries a hanger, of either hanger family and whatever the record's family: a hanger's load acts along the positive axis of its stiffness DOF or of its single translational restraint, and an inclined hanger is not built.",
    "unsure": true,
    "candidates": [
     "absent_capability",
@@ -19055,13 +19055,13 @@
    "severity": "blocking",
    "first_site": {
     "file": "core/model_operations/operation_applier/src/lib.rs",
-    "line": 5627,
+    "line": 5628,
     "via": "push()"
    },
    "sites": [
     {
      "file": "core/model_operations/operation_applier/src/lib.rs",
-     "line": 5627,
+     "line": 5628,
      "via": "push()",
      "severity": "blocking",
      "any_arm": true,
@@ -19107,7 +19107,7 @@
    "sites": [
     {
      "file": "core/model_operations/operation_applier/src/lib.rs",
-     "line": 5627,
+     "line": 5628,
      "via": "push()",
      "severity": "blocking",
      "any_arm": true,
@@ -19163,13 +19163,13 @@
    "severity": "blocking",
    "first_site": {
     "file": "core/model_operations/operation_applier/src/lib.rs",
-    "line": 5627,
+    "line": 5628,
     "via": "push()"
    },
    "sites": [
     {
      "file": "core/model_operations/operation_applier/src/lib.rs",
-     "line": 5627,
+     "line": 5628,
      "via": "push()",
      "severity": "blocking",
      "any_arm": true,
@@ -19215,7 +19215,7 @@
    "sites": [
     {
      "file": "core/model_operations/operation_applier/src/lib.rs",
-     "line": 5627,
+     "line": 5628,
      "via": "push()",
      "severity": "blocking",
      "any_arm": true,
@@ -19519,7 +19519,7 @@
    "sites": [
     {
      "file": "core/model_operations/operation_applier/src/lib.rs",
-     "line": 5627,
+     "line": 5628,
      "via": "push()",
      "severity": "blocking",
      "any_arm": true,
@@ -19575,7 +19575,7 @@
    "sites": [
     {
      "file": "core/model_operations/operation_applier/src/lib.rs",
-     "line": 5627,
+     "line": 5628,
      "via": "push()",
      "severity": "blocking",
      "any_arm": true,
@@ -19631,7 +19631,7 @@
    "sites": [
     {
      "file": "core/model_operations/operation_applier/src/lib.rs",
-     "line": 5627,
+     "line": 5628,
      "via": "push()",
      "severity": "blocking",
      "any_arm": true,
@@ -21106,15 +21106,15 @@
   },
   {
    "file": "core/model_operations/operation_applier/src/lib.rs",
-   "line": 2088,
+   "line": 2095,
    "at": "push()",
    "why": "the code field of error, whose record type the scanner cannot prove is built only at code positions it reads",
    "expression": "error.code",
-   "line_text": "checker.push("
+   "line_text": "checker.push(error.code, \"blocking\", error.message, remedy, vec![target_ref.clone()]);"
   },
   {
    "file": "core/model_operations/operation_applier/src/lib.rs",
-   "line": 2774,
+   "line": 2775,
    "at": "push()",
    "why": "the code field of finding, whose record type the scanner cannot prove is built only at code positions it reads",
    "expression": "finding.code",
@@ -21122,7 +21122,7 @@
   },
   {
    "file": "core/model_operations/operation_applier/src/lib.rs",
-   "line": 5239,
+   "line": 5240,
    "at": "push()",
    "why": "the code field of error, whose record type the scanner cannot prove is built only at code positions it reads",
    "expression": "error.code",
@@ -21130,7 +21130,7 @@
   },
   {
    "file": "core/model_operations/operation_applier/src/lib.rs",
-   "line": 5562,
+   "line": 5563,
    "at": "push()",
    "why": "the code field of error, whose record type the scanner cannot prove is built only at code positions it reads",
    "expression": "error.code",
@@ -21138,7 +21138,7 @@
   },
   {
    "file": "core/model_operations/operation_applier/src/lib.rs",
-   "line": 5608,
+   "line": 5609,
    "at": "push()",
    "why": "the code field of error, whose record type the scanner cannot prove is built only at code positions it reads",
    "expression": "error.code",
@@ -21146,7 +21146,7 @@
   },
   {
    "file": "core/model_operations/operation_applier/src/lib.rs",
-   "line": 5733,
+   "line": 5734,
    "at": "refuse_interim_member()",
    "why": "the code field of refusal, whose record type the scanner cannot prove is built only at code positions it reads",
    "expression": "refusal.code",
@@ -21154,7 +21154,7 @@
   },
   {
    "file": "core/model_operations/operation_applier/src/lib.rs",
-   "line": 6377,
+   "line": 6378,
    "at": "refuse_interim_member()",
    "why": "a tuple source the scanner cannot follow",
    "expression": "code",
