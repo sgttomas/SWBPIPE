@@ -412,9 +412,24 @@ test("09 the 3D view: controls, fit, standard views, labels", async ({ page }) =
     const picked = `the click selected ${selection ?? "nothing named in the status bar"}`;
     return onCanvas ? picked : `a label lay over the node's point, so the click went to it; ${picked}`;
   });
-  await journey.step("inspector-open", "The inspector opened: the model refitted to the narrower canvas, still wholly in view", async () => {
+  await journey.step("inspector-open", "Both view with the inspector opened: the canvas narrower beside the table, the model refitted to it, still wholly in view", async () => {
+    // Model view docks the inspector already, so the change of canvas is made in Both view, where
+    // it opens; the step asserts the canvas really changed before the picture.
+    const size = async () => page.getByTestId("viewport-canvas").evaluate((element) => {
+      const box = element.getBoundingClientRect();
+      return { width: Math.round(box.width), height: Math.round(box.height) };
+    });
+    const before = await size();
+    await page.getByTestId("view-switch-both").click();
     await ensureInspectorExpanded(page);
+    await expect(page.getByTestId("toggle-inspector")).toHaveAttribute("aria-expanded", "true");
+    await expect.poll(async () => (await size()).width).toBeLessThan(before.width);
+    await expect(page.getByTestId("viewport-view-isometric")).toHaveAttribute("aria-pressed", "true");
+    const after = await size();
+    return `the canvas went from ${before.width} by ${before.height} to ${after.width} by ${after.height}; Isometric still pressed`;
   });
+  // Back to Model view for the pictures that follow.
+  await page.getByTestId("view-switch-model").click();
   await journey.step("more-menu", "The bar's More open as a second row, with a control in it on; Fit and the views uncovered", async () => {
     await page.getByTestId("viewport-more").click();
     const menuPanel = page.getByTestId("viewport-more-menu");
