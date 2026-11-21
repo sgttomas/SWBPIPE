@@ -24,7 +24,7 @@ Outputs:
 - **OUT-002** — Hosted verification: the workflows, check registry and selection that give the single required result `harness`.
 - **OUT-003** — Release packaging: the signed, notarized macOS artifact, its checksum and its release artifact record, with the build and release guide `docs/BUILD_AND_RELEASE.md` and the release-notes template `docs/RELEASE_NOTES_TEMPLATE.md`.
 - **OUT-004** — The public repository `sgttomas/SWBPIPE` as SWBPIPE's independent home.
-- **OUT-005** — The desktop's build and package readiness record. It is produced by the desktop's readiness builder and is not mounted in the v1.0 interface.
+- **OUT-005** — The desktop's build and package readiness panel. Its component is kept; the v1.0 interface does not mount it (LIM-039).
 
 ## Deliverable Definition — Ontology
 
@@ -86,7 +86,7 @@ Requirement numbers 001 to 008 are those of the earlier `REQ-10-04-nn` series.
 - **REQ-015** — The build produces every generated file from build inputs by a named command, and a generated file that ships is bound to its inputs by a generation record. A checkout on any platform keeps the committed bytes of sources, lockfiles, fixtures, schemas and frozen references, and no check normalizes reference text or replaces an expected hash to accommodate a checkout.
 - **REQ-016** — The application build includes the embedded agent's supplier resource, its pin manifest and its licence payloads exactly as pinned. The build verifies the input it was given and the resources in the built bundle, and does not report success otherwise.
 - **REQ-017** — Windows checks that run before Windows is a release platform are separate from `harness` and are described as covering only what they run. No Windows artifact is described as a release.
-- **REQ-018** — The build and package readiness record reports the build scripts and shell metadata that actually exist and the release decisions that are not made. It activates nothing and states no release or professional claim.
+- **REQ-018** — The build and package readiness panel reports the build scripts and shell metadata that actually exist and the release decisions that are not made. It activates nothing and states no release or professional claim.
 
 ### Acceptance criteria
 
@@ -104,7 +104,7 @@ Requirement numbers 001 to 008 are those of the earlier `REQ-10-04-nn` series.
 - **AC-012** — A build given a supplier resource that differs from the pin manifest, or lacking a licence payload, fails, and a successful build's bundle contains the pinned resource and payloads byte for byte.
 - **AC-013** — Every generated file that ships is reproduced byte for byte by its named command from the committed inputs, and its generation record matches. A checkout made with newline conversion enabled holds the committed bytes of every protected input.
 - **AC-014** — The Windows workflows are not among the checks `harness` requires, and no workflow, record or document describes a Windows build as a release or as qualifying memory, persistence or the native user interface.
-- **AC-015** — The readiness record lists the scripts of the root and desktop manifests as they are, reports whether the bundle is active, lists the undecided release decisions, and contains no statement of release, signing or professional acceptance.
+- **AC-015** — The readiness panel lists the scripts of the root and desktop manifests as they are, reports whether the bundle is active, lists the undecided release decisions, and contains no statement of release, signing or professional acceptance.
 - **AC-016** — No workflow, check or packaging step fails on a coverage, performance or timing number, builds a release for a platform outside the release matrix, or publishes to a target the owner has not named. The two-minute target of AC-005 is measured from run records and fails no check.
 
 ## Production and Verification Method — Praxeology
@@ -130,7 +130,7 @@ Requirement numbers 001 to 008 are those of the earlier `REQ-10-04-nn` series.
 - **VER-009** — Executable check (observes the public repository on its own): clones it alone, builds it and reads its `harness` result, the revision its candidate records name, and the commit each cited pre-migration identity resolves to.
 - **VER-010** — Executable check (observes the supplier resource in the build): builds with a matching, a differing and an incomplete supplier input and compares the bundle's resources with the pin manifest.
 - **VER-011** — Executable check (observes generated files and checkouts): regenerates each generated file and compares it with the committed one and its record, and compares a converted-newline checkout with the committed bytes.
-- **VER-012** — Judgment by a named role (an independent reviewer who did not write them): reads the guide, the release-notes template, the workflows with their descriptions, the check registry, the packaging steps and the readiness record against REQ-004, REQ-007, REQ-017 and REQ-018, and reports any threshold, platform or publication target enforced that REQ-004 leaves with the owner and the owner has not set, any prohibited claim, any wording a reader could take for a release or an acceptance, and any Windows statement beyond what was run.
+- **VER-012** — Judgment by a named role (an independent reviewer who did not write them): reads the guide, the release-notes template, the workflows with their descriptions, the check registry, the packaging steps and the readiness panel against REQ-004, REQ-007, REQ-017 and REQ-018, and reports any threshold, platform or publication target enforced that REQ-004 leaves with the owner and the owner has not set, any prohibited claim, any wording a reader could take for a release or an acceptance, and any Windows statement beyond what was run.
 
 ## Governing Values and Decisions — Axiology
 
@@ -157,5 +157,5 @@ Requirement numbers 001 to 008 are those of the earlier `REQ-10-04-nn` series.
 | OUT-001 | SOW-032 OBJ-008 | REQ-016 | AC-012 | VER-010 | The pin manifest, which DEL-16-06 owns, says what the bundle must contain; the bundle is compared with it |
 | OUT-001 | SOW-032 OBJ-008 | REQ-015 | AC-013 | VER-011 | The product's own earlier output, which only guards against change: a regenerated file is compared with the committed one. That the committed values are right is the criterion of the deliverable whose results they are |
 | OUT-002 | SOW-032 OBJ-008 | REQ-017 | AC-014 | VER-012 | v1.0 is macOS first and Windows is revisited after it; the reviewer compares the workflows, records and documents with REQ-017 |
-| OUT-005 | SOW-032 OBJ-009 | REQ-018 | AC-015 | VER-012 | The manifests and the not-decided list of this scope say what the record must show; the reviewer compares |
+| OUT-005 | SOW-032 OBJ-009 | REQ-018 | AC-015 | VER-012 | The manifests and the not-decided list of this scope say what the panel must show; the reviewer compares |
 | OUT-002 | SOW-032 OBJ-008 | REQ-004 | AC-016 | VER-012 | The release matrix and the not-decided list of this scope say which thresholds, platforms and publication targets are selected; the reviewer compares |

@@ -29,19 +29,19 @@ It serves SOW-079 under OBJ-006, OBJ-007 and OBJ-018 (`execution/_Decomposition/
 - *Actual current generated record.* A record the product generated in this session from the session's current model. Everything else a panel may show is an *illustrative fixture*, a *preview* (a rendering not written by the owning generator), a *reference* or a *historical record*, and is labelled as that.
 - *Loss report.* The owning exporter's list of what a target format omitted, approximated or could not represent. *Unsupported-behaviour entry.* A stated behaviour of the model the target does not carry.
 - *Explicit handoff.* Writing a record to a file the user chose in a native dialog, after the panel has shown what will be written.
-- *The inventory.* The panel families this workspace has, and no others. Mounted in the v1.0 interface:
+- *The inventory.* The panel families this workspace has, and no others. The *mounted families*, which the v1.0 interface mounts:
   - the `.mbf` model batch file: export and import;
   - the stress-neutral, PCF and review-geometry exports;
   - the local-FEA handoff.
 
-  Not mounted in the v1.0 interface; their generators, contracts and review code are kept:
+  The *retained families*, which the v1.0 interface does not mount (LIM-039); their panels, generators, contracts and review code are kept:
   - the native JSON package;
   - review of evidence from an external run of a licensed program, from files the user supplies;
   - the handoff preview and external-prover boundary panels;
   - the adapter-framework, headless-runner and export-adapter SDK review panels;
   - validation-evidence review.
 
-  A handoff package is saved by File › Save Handoff….
+  A requirement, criterion or check of this scope that speaks of a family, a panel or an export holds of every family of the inventory: for a mounted family it is observed in the workspace, and for a retained family on its panel rendered on its own. AC-004 and VER-004, which observe the native desktop, hold of the mounted families. A handoff package is saved by File › Save Handoff….
 - *Identity file.* The file saved beside an exported `.mbf` that maps each exported entity to its identifier in the model, by which an import restores the same identities.
 
 **Boundary.** The workspace inspects and hands off. The following belong elsewhere:
@@ -62,7 +62,7 @@ It serves SOW-079 under OBJ-006, OBJ-007 and OBJ-018 (`execution/_Decomposition/
 - **REQ-002** — Findings, units, provenance, the loss report and unsupported-behaviour entries pass unchanged from the owning generator through the panel to the written file. A panel drops, merges or rewords none of them.
 - **REQ-003** — An illustrative fixture, a preview, a reference and a historical record are each visibly labelled as such, and none can be mistaken for an actual current generated record.
 - **REQ-004** — A record leaves the product only by explicit handoff, under the export controls on private data. The workspace starts no licensed external program and activates no plugin, provider or destination.
-- **REQ-005** — The workspace has exactly the panel families of the inventory. It adds no exporter, schema, adapter family, private-data permission or acceptance workflow.
+- **REQ-005** — The workspace has exactly the panel families of the inventory and mounts exactly its mounted families. It adds no exporter, schema, adapter family, private-data permission or acceptance workflow.
 - **REQ-006** — *MBF in the desktop.* File › Export MBF… shows the writer's loss report before anything is saved, then saves the `.mbf` and its identity file through the native chooser. File › Import MBF… opens a `.mbf` with its identity file and adopts the imported model as the working model through the shell's guard. Closing either dialog, or a change of project, retires the export or import in progress, and a reply that is no longer current is discarded. Each dialog shows the engine's own review and acts only through the writer's and importer's native commands. The round trip of exit criterion 6 is made through these two commands.
 - **REQ-007** — No product text of this workspace names the vendor or the program of a third-party format. The MBF export and import are described only as a `.mbf` model batch file.
 - **REQ-008** — Every export panel states the unit basis of what it writes, under the export-unit contract, and shows by name the refusal an export gives when a project unit it needs is missing.
@@ -74,7 +74,7 @@ It serves SOW-079 under OBJ-006, OBJ-007 and OBJ-018 (`execution/_Decomposition/
 - **AC-002** — For each family that exports: the findings, units, provenance, loss report and unsupported-behaviour entries in the written file equal those the owning generator returned for the same model, and the panel shows each of them before the file is written.
 - **AC-003** — A fixture, a preview, a reference and a historical record each carry their label in every panel that can show one, and a record is labelled actual and current only where its model identity equals the session's current model.
 - **AC-004** — In the native desktop: every export writes only to the file the user chose; a cancelled dialog and a denied path write nothing; a payload the export controls block is not written; no external program is started by any panel; and every byte a panel writes is the owning generator's output for the session's model, so that no preview or panel-built record is written.
-- **AC-005** — The panel families the workspace mounts are exactly those the inventory lists as mounted in the v1.0 interface.
+- **AC-005** — The panel families the workspace mounts are exactly the mounted families of the inventory.
 - **AC-006** — In the native desktop, with the release target's reference system: Export MBF shows a loss report in which no family of exit criterion 1's reference system, combinations apart, is omitted or unsupported, and saves the `.mbf` with its identity file; Import MBF of that pair gives a working model whose entities carry the identities of the model exported.
 - **AC-007** — No text any panel or dialog of the workspace can show contains the vendor's or the program's name.
 - **AC-008** — For each family of the inventory, no text a panel shows for a record states or implies certification, code compliance, approval, professional acceptance or verification by an external program, and each evidence status shown equals the one in the owning record.
@@ -90,7 +90,7 @@ It serves SOW-079 under OBJ-006, OBJ-007 and OBJ-018 (`execution/_Decomposition/
 - **VER-002** — Comparison with a named reference (each owning generator's output for the same model): exports from each exporting panel, reads the written file, and compares its findings, units, provenance, loss report and unsupported-behaviour entries with the generator's output and with what the panel showed.
 - **VER-003** — Executable check (observes each panel in its fixture, preview, reference, historical and current states): reads the label shown in each state and the model identity behind a record labelled current. An image of a panel does not establish a record's identity.
 - **VER-004** — Executable check (observes the native desktop, the file system and the process list): exports to a chosen file, cancels a dialog, requests a denied path and exports a payload the export controls block, reads what was written and which processes ran, and compares the written bytes with the owning generator's output for the session's model.
-- **VER-005** — Executable check (observes the mounted workspace): lists the panel families mounted and compares them with those the inventory lists as mounted in the v1.0 interface.
+- **VER-005** — Executable check (observes the mounted workspace): lists the panel families mounted and compares them with the mounted families of the inventory.
 - **VER-006** — Executable check (observes the native desktop with the reference system): exports the reference system, reads the loss report and the saved pair, imports the pair, and compares the imported entities' identities with those of the model exported.
 - **VER-007** — Executable check (observes every text the workspace can show): scans the panels', dialogs' and messages' texts for the vendor's and the program's names.
 - **VER-008** — Comparison with a named reference (the prohibited claims of PRD §21.2 as DEL-15-04's authority-wording screen finds them, and each owning record's evidence status): reads the texts each panel shows for a record of each family and compares them with the screen and the statuses with the record.

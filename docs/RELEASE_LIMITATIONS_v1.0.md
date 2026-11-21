@@ -600,21 +600,28 @@ Entries are added in the same PR that makes the refusal standing. A previously u
 - **Basis:** DEL-05-03 [scope](../execution/PKG-05/DEL-05-03/ScopeOfWork.md), REQ-011; DEL-05-01 [scope](../execution/PKG-05/DEL-05-01/ScopeOfWork.md), AC-007, VER-005 and Agent 0's decision recorded there. The refusal was standing before this entry, from the change that added the pressure-free Timoshenko selection on 2026-10-27; `core/product_physics/tests/pf_timoshenko_runtime.rs` observes it, with the whole-member marking and the Euler–Bernoulli twin solving. The entry is added by the pull request titled "State the seismic component-force rule in DEL-05-01 and record LIM-028".
 - **Status:** not yet declared.
 
-### LIM-039 — Review-packet panels and the Audit and Boundaries drawer are not mounted in the desktop
+### LIM-039 — Review panels and the Audit and Boundaries drawer are not mounted in the desktop
 
 - **Id:** LIM-039
 - **Kind:** omission outside the exit criteria. No exit criterion requires this capability, and nothing emits a refusal for it.
-- **Exit criteria:** none. No exit criterion requires a review packet of the project's own records to be downloaded from the desktop's screen.
-- **Requirement affected:** none of the release target. DEL-07-12's inventory, with REQ-005 and AC-005, lists the panel families the v1.0 interface mounts and those it does not; DEL-10-04 OUT-005 and DEL-08-05 OUT-001 state that the readiness record and the lint of a session's report content are not mounted.
+- **Exit criteria:** none. No exit criterion requires any of these panels or the drawer on screen.
+- **Requirement affected:** none of the release target. DEL-07-12's inventory, with REQ-005 and AC-005, lists the panel families the v1.0 interface mounts and those it retains without mounting; DEL-10-04 OUT-005 and DEL-08-05 OUT-001 state that the readiness panel and the lint view of a session's report content are not mounted.
 - **Code:** none.
-- **What is refused:** nothing is refused. The v1.0 interface does not mount these panels:
-  - on the Exports page, the native JSON package; review of evidence from an external run; the handoff preview and external-prover boundary panels; the adapter-framework, headless-runner and export-adapter SDK review panels; the export safety review; and the redaction and export controls panel;
-  - on the Evidence page, validation-evidence review, the build and package readiness record, the secret and private-library review, the security threat model review and the accessibility and usability baseline;
-  - on the Report page, the lint of a session's report content.
+- **What is refused:** nothing is refused. The v1.0 interface does not mount these panels. Each showed a record on screen and offered a file of it.
+  - On the Exports page:
+    - the native JSON package panel: a review manifest of the session's native package, with its stable identifiers, unit evidence, validation, losses and hashes;
+    - the external-run evidence panel: harness JSON and parser CSV built from an invented fixture;
+    - the handoff preview: a preview summary of the session's handoff. It is not the package that File › Save Handoff… saves;
+    - the external-prover boundary panel: its metadata JSON;
+    - the adapter-framework, headless-runner and export-adapter SDK review panels: adapter, runner and registry JSON;
+    - the export safety review: a local manifest of the exports' safety decisions;
+    - the redaction and export controls panel, in which a person chose one of five export contexts for the current project, stated local-private intent for that preview, read the finding for each field and saved a redacted manifest.
+  - On the Evidence page: validation-evidence review, the build and package readiness panel, the secret and private-library review, the security threat model review and the accessibility and usability baseline panel, each with its JSON.
+  - On the Report page: the lint view, which linted the report's public preview surfaces and, where results existed, a short run summary built for it, with its JSON.
 
-  The Audit and Boundaries drawer is removed, with its View menu command and the status bar control that opened it.
-- **What it means in practice for a user:** a person cannot download those review packets from the screen, and the data-boundary policies and the local store's line that the drawer printed are not shown.
-- **Why:** these panels exist to download review packets of the project's own records, not to do an engineer's work, and their text and controls made the pages they were on hard to use.
-- **What the user does instead:** the generators, contracts and records are kept in the repository. A handoff package is saved by File › Save Handoff…. The Evidence page keeps the run's identity and hashes and the telemetry state with its reason.
-- **Basis:** DEL-07-12 [scope](../execution/PKG-07/DEL-07-12/ScopeOfWork.md), the inventory, REQ-005 and AC-005; DEL-10-04 [scope](../execution/PKG-10/DEL-10-04/ScopeOfWork.md), OUT-005; DEL-08-05 [scope](../execution/PKG-08/DEL-08-05/ScopeOfWork.md), OUT-001. The omission and this entry are made by PR pending.
-- **Status:** declared acceptable by Agent 0 (PR pending).
+  The Audit and Boundaries drawer is removed, with the View menu command and the status bar control that opened it.
+- **What it means in practice for a user:** a person cannot read those views or save those files from the screen. In particular, a person cannot preview how the redaction rules would treat the current project in each export context, and cannot save the redacted manifest; nothing else in the interface offers that preview. The redaction and export controls themselves are unchanged: each export, save and print that remains applies them on its own route and shows its own local-private choice, findings and refusal. Of what the drawer printed, the public data, protected content and private data policy lines are shown nowhere; the professional boundary remains in the Agent view, and the local store's engine, search, network, daemon and telemetry values remain on the Project page.
+- **Why:** none of these panels is a step of modelling, loading, solving, reading results or reporting. They show and save records for review of the product and its exports, some built from the session and some from fixtures, and their text and controls made the pages they were on hard to use.
+- **What the user does instead:** a handoff package is saved by File › Save Handoff…, and the model by File › Save Model Document…. The Evidence page keeps the run's identity and hashes and the telemetry state with its reason. Every panel named here is kept in the repository with its generators, contracts and records, and can be mounted again.
+- **Basis:** DEL-07-12 [scope](../execution/PKG-07/DEL-07-12/ScopeOfWork.md), the inventory, REQ-005 and AC-005; DEL-10-04 [scope](../execution/PKG-10/DEL-10-04/ScopeOfWork.md), OUT-005; DEL-08-05 [scope](../execution/PKG-08/DEL-08-05/ScopeOfWork.md), OUT-001. The other panels and the drawer are DEL-12-02's (the export safety review and the redaction and export controls panel), DEL-12-04's (the secret and private-library review), DEL-12-05's (the security threat model review), DEL-07-06's (the accessibility and usability baseline panel) and DEL-07-11's (the drawer, its command and the status bar control); no requirement of those scopes needs them on screen. Agent 0 decided the omission for v1.0 under the grant in `AGENTS.md`, and PR #492 makes it and records this entry. No PRD amendment is needed, because no PRD section requires any of these panels or the drawer in the desktop.
+- **Status:** declared acceptable by Agent 0 (PR #492).
