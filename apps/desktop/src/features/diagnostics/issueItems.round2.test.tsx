@@ -12,6 +12,7 @@ import { countItemsBySeverity, diagnosticsListOf, groupIssues, type IssueItem } 
 import { LONG_MESSAGE_CHARACTERS, NO_OWN_DETAIL_REASON } from "./IssueItemView";
 import type { ModelCheckFinding } from "./modelChecks";
 import { ModelChecksPanel } from "./ModelChecksPanel";
+import { SOLVER_MESSAGES_HEADING } from "../results/integrityStatus";
 import missingDataStartModel from "../../../../../fixtures/embedded_agent/use_cases/missing-data/start_model.json";
 
 const model = {
@@ -326,7 +327,7 @@ describe("every row names its object (the missing-data use case's model)", () =>
   });
 });
 
-describe("the solver's messages: the result's diagnostics, and only those, carry the list's one heading", () => {
+describe("the solver's messages: the result's diagnostics, and only those, bring the list's one heading", () => {
   const own: Diagnostic = { id: "own", code: "INVENTED_MODEL_OWN", severity: "warning", message: "invented model finding", affected_refs: ["support:H-1"] };
   const known: Diagnostic = { id: "known", code: "INVENTED_KNOWLEDGE", severity: "info", message: "invented knowledge finding", affected_refs: [] };
   const solved = (id: string): Diagnostic => ({ id, code: `INVENTED_SOLVE_${id.toUpperCase()}`, severity: "warning", message: `invented solve finding ${id}`, affected_refs: [] });
@@ -341,18 +342,12 @@ describe("the solver's messages: the result's diagnostics, and only those, carry
     expect(diagnostics.filter((_, index) => diagnosticOrigins[index] !== "solve").map((item) => item.id)).toEqual(expect.arrayContaining(["own", "known"]));
   });
 
-  it("stands once, directly above the first listed item that holds one, and goes when a filter hides them all", () => {
+  it("stands once, at the head of the list, while some listed item holds one, and goes when a filter hides them all", () => {
     render(<DiagnosticsPanel model={withOwn} knowledge={knowledge} result={result} selectedDiagnosticId={null} onSelectDiagnostic={() => {}} />);
     const headings = screen.getAllByTestId("diagnostic-list-solver-messages-heading");
     expect(headings).toHaveLength(1);
-    const next = headings[0].nextElementSibling as HTMLElement;
-    expect(next.querySelector('[data-testid="diagnostic-INVENTED_SOLVE_A"]')).not.toBeNull();
-    // Nothing before it in the list is the solver's.
-    let before = headings[0].previousElementSibling;
-    while (before) {
-      expect(before.querySelector('[data-testid^="diagnostic-INVENTED_SOLVE_"]')).toBeNull();
-      before = before.previousElementSibling;
-    }
+    expect(headings[0].parentElement?.firstElementChild).toBe(headings[0]);
+    expect(headings[0]).toHaveTextContent(SOLVER_MESSAGES_HEADING);
     fireEvent.change(screen.getByTestId("diagnostic-filter-input"), { target: { value: "INVENTED_MODEL_OWN" } });
     expect(screen.queryByTestId("diagnostic-list-solver-messages-heading")).toBeNull();
   });

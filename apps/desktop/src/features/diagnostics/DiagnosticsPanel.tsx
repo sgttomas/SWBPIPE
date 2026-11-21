@@ -5,7 +5,7 @@ import { useKnowledgeAxialRow } from "../knowledge/KnowledgePanel";
 import type { ReactNode } from "react";
 import { ResultQuantity } from "../toolkit/ResultQuantity";
 import { AlertTriangle, Search, X } from "lucide-react";
-import { Fragment, useEffect, useMemo, useRef, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import type { DiagnosticFilterRequest } from "./diagnosticFilterRequest";
 import type { DesignKnowledge, DiagnosticInterpretation, MechanicsResult, PreviewModel } from "../../types";
 import { buildDiagnosticInterpretation } from "../results/resultInterpretation";
@@ -87,9 +87,10 @@ export function DiagnosticsPanel({
   useEffect(() => { onPinnedChange?.(pinned); }, [pinned, onPinnedChange]);
   // The solver's own messages are the result's diagnostics: in the drawer's items, the members
   // `diagnosticsListOf` gives the origin "solve", which it gives to the result's diagnostics and to
-  // nothing else. The list carries one heading sentence directly above the first listed item that
-  // holds one, and the detail one where the selected diagnostic is one.
-  const firstSolverItem = filteredItems.find((item) => item.members.some((member) => member.origin === "solve"))?.key ?? null;
+  // nothing else. The list carries one heading sentence at its head while some listed item holds
+  // one (each row's muted line names its source), and the detail one where the selected diagnostic
+  // is one.
+  const listsSolverMessage = filteredItems.some((item) => item.members.some((member) => member.origin === "solve"));
   const resultDiagnostics = useMemo(() => presentedResultDiagnostics(result), [result]);
   const selectedIsSolverMessage = selectedDiagnosticId !== null && resultDiagnostics.some((item) => (item.id ?? item.code) === selectedDiagnosticId);
   const nativeLinked = useNativeLinkedResults(model, knowledge, result, selectedDiagnosticId);
@@ -113,15 +114,15 @@ export function DiagnosticsPanel({
       {nativeLinked.error ? <p role="status" data-testid="diagnostic-linked-results-refused">{nativeLinked.error}</p> : null}
       <DiagnosticDetail interpretation={interpretation} result={result} solverMessage={selectedIsSolverMessage} />
       <div className="diagnostic-list">
+        {listsSolverMessage ? <p className="muted" data-testid="diagnostic-list-solver-messages-heading">{SOLVER_MESSAGES_HEADING}</p> : null}
         {filteredItems.length > 0 ? (
           filteredItems.map((item) => {
             const lead = pinned !== null ? item.members.find(isRequested) ?? item.lead : item.lead;
             const active = item.members.some((member) => member.diagnostic.id !== undefined && member.diagnostic.id === selectedDiagnosticId);
             const opens = lead.source === "diagnostics" && lead.ownDetail;
             return (
-              <Fragment key={item.key}>
-              {item.key === firstSolverItem ? <p className="muted" data-testid="diagnostic-list-solver-messages-heading">{SOLVER_MESSAGES_HEADING}</p> : null}
               <IssueItemView
+                key={item.key}
                 item={item}
                 lead={lead}
                 selectedDiagnosticId={selectedDiagnosticId}
@@ -139,7 +140,6 @@ export function DiagnosticsPanel({
                   </button>
                 )}
               />
-              </Fragment>
             );
           })
         ) : (
