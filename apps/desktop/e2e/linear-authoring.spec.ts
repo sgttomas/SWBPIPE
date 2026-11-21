@@ -1,6 +1,8 @@
 import { selectCompactOption } from "./workspace-driver";
 import { expect, test, type Page } from "@playwright/test";
 import {
+  openLoadsDisclosure,
+  openLoadsForm,
   chooseVirtualTarget,
   closeWorkspacePanels,
   expectStatusChip,
@@ -208,6 +210,8 @@ test("compact blank-to-straight authoring keeps the canvas and exact Add/Apply r
   await applyQueued(page);
 
   await openWorkspaceSection(page, "loads");
+  await openLoadsForm(page, "load-manager-new-case");
+  await openLoadsDisclosure(page, "load-manager-create-load-more");
   await page.getByTestId("load-manager-create-load-id").fill("load:UI-A");
   await page.getByTestId("load-manager-create-load-label").fill("Invented Phase A force");
   await page.getByTestId("load-manager-create-load-kind").fill("primitive_user_load");
@@ -216,6 +220,9 @@ test("compact blank-to-straight authoring keeps the canvas and exact Add/Apply r
   await page.getByTestId("queue-create-load-case-intent").click();
   await applyQueued(page);
   await openWorkspaceSection(page, "loads");
+  await page.getByTestId("load-manager-case-load:UI-A").click();
+  await openLoadsForm(page, "load-manager-add-load");
+  await openLoadsDisclosure(page, "load-manager-create-primitive-more");
   await chooseVirtualTarget(page, "load-manager-create-primitive-load-case", "load:UI-A");
   await page.getByTestId("load-manager-create-primitive-category").selectOption("concentrated_force");
   await page.getByTestId("load-manager-create-primitive-id").fill("load:UI-A-FY");
