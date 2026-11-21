@@ -86,12 +86,20 @@ export function resourceRefusalCode(refusal: ResourceRefusal): string {
   return refusal.kind === "worker_growth_refused" ? `${code}; cause ${resourceRefusalCode(refusal.cause)}` : code;
 }
 
+/** The worker failure's exact code (`SOLVE_WORKER_EXITED` or `SOLVE_WORKER_PROTOCOL`) as the
+ * job's error message carries it; null for any other failure. */
+export function solveWorkerFailureCode(message: string | null | undefined): string | null {
+  const code = typeof message === "string" ? /\b(SOLVE_WORKER_(?:EXITED|PROTOCOL)):/.exec(message)?.[1] : undefined;
+  return code ?? null;
+}
+
 /** Plain-language reading of a solve that failed because its worker process
  * crashed or broke the worker protocol (native `error_message` prefixed
  * `SOLVE_WORKER_EXITED:` or `SOLVE_WORKER_PROTOCOL:`); null for any other
- * failure. Such a job failed: it is not a memory-pool refusal. */
+ * failure. Such a job failed: it is not a memory-pool refusal. Its code is
+ * `solveWorkerFailureCode`'s. */
 export function describeSolveWorkerFailure(message: string | null | undefined): string | null {
-  const code = typeof message === "string" ? /\bSOLVE_WORKER_(EXITED|PROTOCOL):/.exec(message)?.[1] : undefined;
+  const code = solveWorkerFailureCode(message)?.replace(/^SOLVE_WORKER_/, "");
   if (code === "EXITED") return "The solve's worker process ended without returning a result. The solve failed; this is not a memory-pool refusal.";
   if (code === "PROTOCOL") return "The solve's worker process returned a reply the app could not read. The solve failed; this is not a memory-pool refusal.";
   return null;
