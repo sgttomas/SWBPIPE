@@ -205,8 +205,9 @@ describe.each(FAILING_LISTENERS)("%s with a listener that throws %s on its event
     expect(listener.publishes()).toBe(1);
     expect(await modelHash(result)).toBe(await hashOf(checkpoint.model));
     expect(result.current.session.selection.selection).toEqual(selection);
-    expect(operations.undoStack).toHaveLength(undoDepth - step.toward);
-    expect(operations.redoStack).toHaveLength(redoDepth + step.toward);
+    // Undo: the undo stack one shorter and the redo stack one longer; Redo the reverse.
+    expect(operations.undoStack).toHaveLength(undoDepth + step.toward);
+    expect(operations.redoStack).toHaveLength(redoDepth - step.toward);
     expect((action === "undo" ? operations.redoStack : operations.undoStack)[0].operation_id).toBe(operationId);
     expectHeldResultCleared(result.current.session, action);
     expect(cursor(result)).toBe(ledgerCursor + step.toward);
