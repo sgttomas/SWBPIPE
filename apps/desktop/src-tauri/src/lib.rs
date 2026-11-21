@@ -239,6 +239,10 @@ async fn save_report_package_decoded(
     })
 }
 
+/// The file type the report package saves' chooser names: the file is a
+/// report package, not the project's portable package (issue 509).
+const REPORT_PACKAGE_FILE_TYPE: &str = "SWBPIPE Report Package";
+
 fn choose_report_package_save_path(app: &AppHandle, file_name: &str) -> Option<Result<PathBuf, String>> {
     #[cfg(feature = "native-smoke")]
     if let Some(path) = native_smoke::take_chosen_path(app, "choose_report_package_save_path") {
@@ -247,7 +251,7 @@ fn choose_report_package_save_path(app: &AppHandle, file_name: &str) -> Option<R
     app.dialog()
         .file()
         .set_file_name(file_name)
-        .add_filter("SWBPIPE Project Package", &["opsproj"])
+        .add_filter(REPORT_PACKAGE_FILE_TYPE, &["opsproj"])
         .blocking_save_file()
         .map(|selected| selected.into_path().map_err(|error| error.to_string()))
 }
@@ -11255,6 +11259,13 @@ mod tests {
         /// Design §2.6; it replaces slice (a)'s hold): arguments decoded from
         /// a raw body under the moved lease rule, the priced parse, admission,
         /// one save dialog and the atomic write; the saved package reads back.
+        /// The report package saves' chooser names the file a report
+        /// package (issue 509), not a project package.
+        #[test]
+        fn report_package_save_chooser_names_a_report_package() {
+            assert_eq!(REPORT_PACKAGE_FILE_TYPE, "SWBPIPE Report Package");
+        }
+
         #[test]
         fn report_package_save_admits_screened_requests_through_the_command_path() {
             use report_package_save::test_support::{args_body, desktop_request, model, no_store, sandbox, save_request, software};
