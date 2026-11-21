@@ -991,9 +991,11 @@ export class ViewportResource {
    * The exact public camera/target pose is restored before returning.
    */
   cancelNavigation(options?: Readonly<{ keepGesture?: boolean }>): void {
-    // A programmatic pose follows: nothing after this is the person's gesture. The render loop
-    // retiring a settled damping tail keeps a gesture still pressed.
-    if (!options?.keepGesture) this.clearGesture();
+    // A programmatic pose follows: nothing pending is the person's. A pointer still pressed keeps
+    // its gesture (a refit for a new canvas size can come between pointer-down and the first
+    // movement of a drag, and the drag that follows is still the person's), as does the render
+    // loop retiring a settled damping tail.
+    if (!options?.keepGesture && this.pointersDown.size === 0) this.clearGesture();
     if (this.disposed || !this.navigationAdvancing) return;
     // The local Three addon declaration intentionally exposes only the
     // controls surface used by the app. OrbitControls' runtime API includes

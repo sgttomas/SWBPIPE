@@ -154,6 +154,26 @@ test.describe("the camera: fitted views refit, a view the person set is kept", (
     });
   }
 
+  test("a resize between pointer-down and a drag's first movement: the drag is still the person's, and the next resize leaves it alone", async ({ page }) => {
+    await open(page);
+    const fitted = await pose(page);
+    const box = await canvasBox(page);
+    await page.mouse.move(box.x + box.width * 0.2, box.y + box.height * 0.8);
+    await page.mouse.down();
+    // The window changes while the button is held: the fitted view refits to the new canvas.
+    await page.setViewportSize(WIDER);
+    await expect.poll(async () => Math.round((await canvasBox(page)).height)).not.toBe(Math.round(box.height));
+    await settled(page);
+    expect(moved(await pose(page), fitted)).toBe(true);
+    const after = await canvasBox(page);
+    await page.mouse.move(after.x + after.width * 0.45, after.y + after.height * 0.7, { steps: 10 });
+    await page.mouse.up();
+    const set = await pose(page);
+    await expect(page.getByTestId("viewport-view-front")).toHaveAttribute("aria-pressed", "false");
+    await resize(page, NARROW.width, NARROW.height);
+    expectSamePose(await pose(page), set);
+  });
+
   for (const command of ["viewport-fit-model", "viewport-fit-visible", "viewport-fit-selection", "viewport-view-front", "viewport-view-top", "viewport-view-side", "viewport-view-isometric"] as const) {
     test(`${command} returns a moved view to fitted, and it refits as that command would`, async ({ page }) => {
       const model = await open(page);

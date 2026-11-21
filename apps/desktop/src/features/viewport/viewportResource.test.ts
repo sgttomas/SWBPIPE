@@ -246,6 +246,24 @@ describe("viewport resource primitives", () => {
       expect(onCameraMovedByPerson).toHaveBeenCalledTimes(1);
     });
 
+    it("a refit between pointer-down and the drag's first movement keeps the gesture: the drag is the person's", () => {
+      const { fake, camera, controls, onCameraMovedByPerson, down, frame, up, orbitBy } = gestureFake("front");
+      down();
+      // The canvas changed size: the view refits programmatically while the pointer is pressed.
+      fake.cancelNavigation();
+      camera.position.set(0, 1.5, 70);
+      controls.target.set(0, 1.5, 0);
+      camera.lookAt(controls.target);
+      fake.navigationAdvancing = true;
+      frame();
+      expect(onCameraMovedByPerson).not.toHaveBeenCalled();
+      fake.notePointerMove({ pointerId: 1, clientX: 120, clientY: 100 });
+      orbitBy(0.2);
+      frame();
+      up();
+      expect(onCameraMovedByPerson).toHaveBeenCalledTimes(1);
+    });
+
     it("a wheel is the person's move; a programmatic pose afterwards is not", () => {
       const { fake, camera, controls, onCameraMovedByPerson, frame } = gestureFake("front");
       fake.noteWheel();
