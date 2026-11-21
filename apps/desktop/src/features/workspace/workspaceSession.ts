@@ -2665,6 +2665,9 @@ export function useWorkspaceSession() {
   const editorPreviews = useRef(new WeakMap<object, EditorPreviewRecord>());
   const editorBuildSequence = useRef(0);
   const editorCommitSequence = useRef(0);
+  // P8: a value of this mount in each minted commit id, so a checkpoint id is not reused by a later mount whose
+  // counter restarted.
+  const [editorMount] = useState(() => globalThis.crypto.randomUUID());
   const EDITOR_SUPERSEDED = "The model or the project changed while this edit was checked, so nothing was applied. Enter it again.";
   const editorFindings = (findings: readonly EngineFinding[]) =>
     findings.map((item) => ({ code: String(item.code), severity: String(item.severity), message: String(item.message), affected_refs: [...(item.affected_refs ?? [])].map(String) }));
@@ -2789,7 +2792,7 @@ export function useWorkspaceSession() {
 
     // Prepare: every value the publication needs, as for an applied queued batch (`handleRunOperationBatch`),
     // computed before any state changes; the session keeps its own copies, none of them handed out.
-    const key = `editor-commit-${++editorCommitSequence.current}`;
+    const key = `editor-commit-${editorMount}-${++editorCommitSequence.current}`;
     const kept = structuredClone(outcome);
     const appliedModel = kept.applied_model!;
     const publication = prepareModelPublication(appliedModel);

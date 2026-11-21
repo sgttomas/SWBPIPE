@@ -170,7 +170,7 @@ describe("form 1: the one-step commit of an immediate edit", () => {
     expect(outcome).toEqual({ status: "committed", checkpointId: operations.undoStack[0].checkpoint_id, historyName: operationId, resultsCleared: false, notice: null });
     // The checkpoint and its event carry the session's id; the submitted id is the named member a person reads.
     expect(operations.undoStack).toHaveLength(1);
-    expect(operations.undoStack[0]).toMatchObject({ operation_id: expect.stringMatching(/^editor-commit-\d+$/), submitted_id: operationId, model: original });
+    expect(operations.undoStack[0]).toMatchObject({ operation_id: expect.stringMatching(/^editor-commit-[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}-1$/), submitted_id: operationId, model: original });
     const checkpoint = seen.find((event) => event.type === "checkpoint")!;
     expect(checkpoint).toMatchObject({ operationId: operations.undoStack[0].operation_id, submittedId: operationId });
     // One decision record (the batch receipt with the engine's acceptance) and one outcome record, as for an applied queued batch.
@@ -192,6 +192,18 @@ describe("form 1: the one-step commit of an immediate edit", () => {
     expect(await hashOf(result.current.model.model!)).toBe(committedHash);
     expect(result.current.operations.operationMessage).toContain(`Redid ${operationId} `);
     expect(result.current.operations.undoStack[0].submitted_id).toBe(operationId);
+  });
+
+  it("the session's commit id carries a value of its mount: two mounts' first commits mint different ids (P8)", async () => {
+    const first = await session();
+    committed(await run(() => bindCommit(first, gridCell)({ nodeId: "node:C", axis: "y", value: "2.5" })));
+    const second = await session();
+    committed(await run(() => bindCommit(second, gridCell)({ nodeId: "node:C", axis: "y", value: "2.5" })));
+    const [a, b] = [first.current.operations.undoStack[0], second.current.operations.undoStack[0]];
+    expect(a.operation_id).toMatch(/-1$/);
+    expect(b.operation_id).toMatch(/-1$/);
+    expect(a.operation_id).not.toBe(b.operation_id);
+    expect(a.checkpoint_id).not.toBe(b.checkpoint_id);
   });
 
   it("a batch built by the bulk change's builder commits whole as one checkpoint; one Undo reverts every change in it", async () => {
