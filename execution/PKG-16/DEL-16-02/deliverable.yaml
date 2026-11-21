@@ -83,6 +83,8 @@ checks:
 # force and a thermal magnitude are carried from the operation to the stored document to the solve
 # against closed forms; a shared section, the other optional slots and the other primitive shapes
 # have no solve witness. A stored unit outside the field's dimension is refused when repeated.
+# Every optional quantity slot of the engine's field table (thirty-six) refuses a bare number
+# naming another unit, at the apply and validate entries.
 - core/model_operations/operation_applier/tests/stored_quantity_unit_pair.rs
 # Issue 382, the imported-proposal surface: ten family members, two primitive shapes among them,
 # through the offline intake panel, the workspace session's Review Apply and the Wasm engine, read

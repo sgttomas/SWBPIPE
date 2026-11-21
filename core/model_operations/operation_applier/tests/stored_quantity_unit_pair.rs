@@ -254,6 +254,7 @@ fn stored(model: &Value, member: &Member) -> Value {
         "Material" => "materials",
         "Element" => "pipe_segments",
         "Section" => "sections",
+        "Component" => "components",
         "Load" => "load_cases",
         other => panic!("no collection for {other}"),
     };
@@ -790,4 +791,108 @@ fn a_stored_unit_outside_the_fields_dimension_is_refused_even_when_the_edit_repe
         assert!(blocking(&outcome).is_empty(), "{stored_unit}: {:?}", outcome.diagnostics);
         assert_eq!(stored(&outcome.applied_model.unwrap(), &elastic), json!({"value": 210.0, "unit": "GPa"}), "{stored_unit}");
     }
+}
+
+// Every optional quantity slot the engine's field table defines (36 at this
+// source), each stored with a value and a unit. The family matrix above holds
+// two of them; this holds them all, so that the rule is shown at every slot
+// it serves. `other` is another unit of the slot's dimension where the unit
+// catalog has one, and otherwise a unit of another dimension: either way a
+// bare number naming it is refused with the stored unit named.
+
+const COMPONENT: &str = "component:every-slot";
+
+/// (object type, target, quantity path, dimension, stored value, stored unit, other unit).
+type Slot = (&'static str, &'static str, &'static str, &'static str, f64, &'static str, &'static str);
+
+fn optional_slots() -> Vec<Slot> {
+    vec![
+        ("Material", MATERIAL, "shear_modulus", "stress", SHEAR_MODULUS, "Pa", "GPa"),
+        ("Element", INBOARD, "section.material_density", "density", 7850.0, "kg/m^3", "lb/in^3"),
+        ("Element", INBOARD, "section.contents_density", "density", 1000.0, "kg/m^3", "lb/in^3"),
+        ("Element", INBOARD, "section.insulation_thickness", "length", 0.05, "m", "mm"),
+        ("Element", INBOARD, "section.insulation_density", "density", 100.0, "kg/m^3", "lb/in^3"),
+        ("Element", INBOARD, "section.mill_tolerance", "length", 0.0005, "m", "mm"),
+        ("Element", INBOARD, "section.corrosion_allowance", "length", 0.001, "m", "mm"),
+        ("Component", COMPONENT, "geometry.bend_radius", "length", 0.45, "m", "mm"),
+        ("Component", COMPONENT, "geometry.bend_angle", "angle", 1.5, "rad", "deg"),
+        ("Component", COMPONENT, "geometry.branch_run_size", "length", 0.168, "m", "mm"),
+        ("Component", COMPONENT, "geometry.branch_header_size", "length", 0.168, "m", "mm"),
+        ("Component", COMPONENT, "geometry.branch_connection_angle", "angle", 1.5, "rad", "deg"),
+        ("Component", COMPONENT, "geometry.rigid_body_length", "length", 0.72, "m", "mm"),
+        ("Component", COMPONENT, "geometry.end_a_size", "length", 0.168, "m", "mm"),
+        ("Component", COMPONENT, "geometry.end_b_size", "length", 0.168, "m", "mm"),
+        ("Component", COMPONENT, "geometry.weight", "force", 420.0, "N", "kN"),
+        ("Component", COMPONENT, "geometry.effective_area", "area", 0.02, "m^2", "mm^2"),
+        ("Component", COMPONENT, "geometry.movement_limit", "length", 0.03, "m", "mm"),
+        ("Component", COMPONENT, "modifiers.sif_user_value", "dimensionless", 1.15, "none", "1"),
+        ("Component", COMPONENT, "modifiers.branch_header_sif_user_value", "dimensionless", 1.22, "none", "1"),
+        ("Component", COMPONENT, "modifiers.branch_branch_sif_user_value", "dimensionless", 1.31, "none", "1"),
+        ("Component", COMPONENT, "modifiers.flexibility_factor_user_value", "dimensionless", 1.08, "none", "1"),
+        ("Component", COMPONENT, "modifiers.stiffness_scaling_user_value", "dimensionless", 15.0, "none", "1"),
+        ("Component", COMPONENT, "modifiers.linear_stiffness_user_value", "linear_stiffness", 15.0e6, "N/m", "N/mm"),
+        ("Component", COMPONENT, "modifiers.rotational_stiffness_user_value", "rotational_stiffness", 2.0e5, "N*m/rad", "N/m"),
+        ("Component", COMPONENT, "modifiers.axial_stiffness_user_value", "linear_stiffness", 4.0e5, "N/m", "N/mm"),
+        ("Component", COMPONENT, "modifiers.lateral_stiffness_user_value", "linear_stiffness", 3.0e5, "N/m", "N/mm"),
+        ("Component", COMPONENT, "modifiers.angular_stiffness_user_value", "rotational_stiffness", 900.0, "N*m/rad", "N/m"),
+        ("Component", COMPONENT, "modifiers.torsional_stiffness_user_value", "rotational_stiffness", 1.2e4, "N*m/rad", "N/m"),
+        ("Load", AXIAL_CASE, "modulus_basis_temperature", "temperature", 150.0, "degC", "degF"),
+        ("Load", AXIAL_CASE, "equivalent_static.seismic.gravity_acceleration", "acceleration", 9.80665, "m/s^2", "m/s"),
+        ("Load", AXIAL_CASE, "equivalent_static.seismic.g_factor_x", "dimensionless", 0.1, "none", "1"),
+        ("Load", AXIAL_CASE, "equivalent_static.seismic.g_factor_y", "dimensionless", 0.2, "none", "1"),
+        ("Load", AXIAL_CASE, "equivalent_static.seismic.g_factor_z", "dimensionless", 0.3, "none", "1"),
+        ("Load", AXIAL_CASE, "equivalent_static.wind.pressure", "pressure", 1000.0, "Pa", "kPa"),
+        ("Load", AXIAL_CASE, "equivalent_static.wind.shape_factor", "dimensionless", 0.7, "none", "1"),
+    ]
+}
+
+/// The matrix model with every optional slot stored as its value and unit.
+fn every_slot_model() -> Value {
+    let mut model = matrix_model();
+    model["components"] = json!([{"id": COMPONENT, "label": "Invented marker holding every slot", "kind": "valve", "node": "node:2",
+        "geometry": {}, "modifiers": {}, "provenance": "invented"}]);
+    for (object_type, target, path, _, value, unit, _) in optional_slots() {
+        let collection = match object_type {
+            "Material" => "materials",
+            "Element" => "pipe_segments",
+            "Component" => "components",
+            _ => "load_cases",
+        };
+        let entity = model[collection].as_array_mut().unwrap().iter_mut().find(|entity| entity["id"] == target).unwrap();
+        let mut node = entity;
+        for segment in path.split('.') {
+            if node.get(segment).is_none() {
+                node[segment] = json!({});
+            }
+            node = &mut node[segment];
+        }
+        *node = json!({"value": value, "unit": unit});
+    }
+    model
+}
+
+#[test]
+fn every_optional_quantity_slot_refuses_a_bare_number_naming_another_unit() {
+    let model = every_slot_model();
+    let original = model.clone();
+    let slots = optional_slots();
+    assert_eq!(slots.len(), 36);
+    for (object_type, target, path, dimension, value, stored_unit, other) in slots {
+        let slot = Member { name: path, object_type, target, change_kind: "set_field", path: format!("{path}.value"), dimension,
+            stored_value: value, stored_unit, other_unit: other, foreign_unit: "", foreign_dimension: "", positive_only: false,
+            replacement: (value, value) };
+        assert_eq!(stored(&model, &slot), json!({"value": value, "unit": stored_unit}), "{path}");
+        let before = value.to_string();
+        for operation in [apply_operation, validate_operation] {
+            let outcome = operation(&model, &intent(&slot, &before, &before, other, dimension), None);
+            assert!(blocking(&outcome).contains(&MISMATCH), "{path}: {:?}", outcome.diagnostics);
+            assert!(outcome.applied_model.is_none(), "{path}: a refused edit published a model");
+            let finding = outcome.diagnostics.iter().find(|d| d.code == MISMATCH).unwrap();
+            assert!(finding.message.contains(&format!("stored unit `{stored_unit}`")), "{path}: {}", finding.message);
+        }
+        // The control: the same bare number naming the stored unit is not refused on this ground.
+        let named = apply_operation(&model, &intent(&slot, &before, &before, stored_unit, dimension), None);
+        assert!(!blocking(&named).contains(&MISMATCH), "{path}: {:?}", named.diagnostics);
+    }
+    assert_eq!(model, original);
 }
