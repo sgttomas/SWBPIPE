@@ -402,7 +402,7 @@ describe("the input is owned (P4)", () => {
     ["a Set", { key: "k", value: new Set([1]) }, "is not plain data"],
     ["a class instance", { key: "k", value: new Point() }, "is not plain data"],
     ["a Proxy over a class instance", { key: "k", value: new Proxy(new Point(), {}) }, "is not plain data"],
-    ["a Proxy whose keys cannot be read", unreadable, "could not be read as typed values (no keys)"],
+    ["a Proxy whose keys cannot be read", unreadable, "could not be read as typed values (Error: no keys)"],
     ["a cycle", cycle, "contains a cycle"],
     ["more entries than the bound", { key: "k", value: new Array(70_000).fill(0) }, "is larger than 65536 entries"],
     ["a nesting deeper than the bound", { key: "k", value: deep }, "is nested deeper than 32 levels"],
@@ -435,7 +435,7 @@ describe("the input is owned (P4)", () => {
     const throwingBuild = { ...gridCell, name: "throwing-build", build: () => { throw new Error("build broke"); } };
     const before = snapshot(result);
     const input = { nodeId: "node:C", axis: "y" as const, value: "2.5" };
-    expect(refused(await run(() => bindCommit(result, throwingCheck)(input))).reason).toContain("could not be read as typed values (check broke)");
+    expect(refused(await run(() => bindCommit(result, throwingCheck)(input))).reason).toContain("could not be read as typed values (Error: check broke)");
     expect(refused(await run(() => bindDialog(result, throwingCheck).preview(input))).reason).toContain("check broke");
     const buildRefusal = refused(await run(() => bindCommit(result, throwingBuild)(input))).reason;
     expect(buildRefusal).toContain("The editor could not build this change");
@@ -775,7 +775,9 @@ describe("refusals change nothing", () => {
     input: { members: ["action", "pipeId"], check: (input) => strings(input, "action", "pipeId") ? null : "The geometry tools take an action and a pipe." },
     build: async (model, input, id) => ({ batch: await buildGeometryBatch(model, input.action === "split"
       ? { ...emptyGeometryDraft(), action: "split", pipeRefs: [input.pipeId], fraction: "0.5", newNode: { id: "node:mid", label: "Middle", provenance: "invented test" }, newPipe: { id: "pipe:Q2", label: "Q second", provenance: "invented test" } }
-      : { ...emptyGeometryDraft(), action: "translate", pipeRefs: [input.pipeId], mode: "in_place", coordinateSystem: "global", vector: { x: "0", y: "0", z: "0.5", unit: model.project.units.length } }, id.batchId) })
+      : { ...emptyGeometryDraft(), action: "translate", pipeRefs: [input.pipeId], mode: "copy", coordinateSystem: "global", vector: { x: "0", y: "0", z: "0.5", unit: model.project.units.length },
+        copyNodes: [{ source_ref: "node:B", id: "node:B-copy", label: "B copy", provenance: "invented test" }, { source_ref: "node:D", id: "node:D-copy", label: "D copy", provenance: "invented test" }],
+        copyPipes: [{ source_ref: input.pipeId, id: `${input.pipeId}-copy`, label: "Q copy", provenance: "invented test" }] }, id.batchId) })
   };
   type Rows = operationBatchService.OperationBatchOutcome["operation_outcomes"][number]["diff_preview"];
   it.each([
@@ -791,7 +793,8 @@ describe("refusals change nothing", () => {
     if (valid.status !== "previewed") throw new Error(`expected a preview, got: ${JSON.stringify(valid)}`);
     expect(valid.extent.steps.map((step) => step.changeKind)).toEqual([kind]);
     if (kind === "transform_pipe_run") {
-      expect(valid.extent.steps[0].diff.every((row) => row.object_type === "Node")).toBe(true);
+      // A copy creates new ids, so no row names the operation's target.
+      expect(valid.extent.steps[0].diff.every((row) => row.object_type === "Node" || row.object_type === "Element")).toBe(true);
       expect(valid.extent.steps[0].diff.some((row) => row.entity_ref === "pipe:Q")).toBe(false);
     }
     alter("validateOperationBatch", (outcome) => { outcome.operation_outcomes[0].diff_preview = malform(outcome.operation_outcomes[0].diff_preview); });

@@ -2699,9 +2699,12 @@ export function useWorkspaceSession() {
       if ((step.diagnostics ?? []).some((item) => item.severity === "blocking")) return `The engine reported a blocking finding on submitted operation ${index + 1}, so nothing was applied.`;
       // Q2: the step's own validation passed and its preview, which the person is shown, is generated, not empty,
       // and is a change of the submitted operation.
+      // A check that does not apply to a change is reported "not_run" by the applier (lib.rs, the checker's initial
+      // state); any other value but "passed" (blocked, blocked_stale) is a failed check.
       const checks = step.validation;
-      if (!checks || checks.schema_validation !== "passed" || checks.reference_validation !== "passed" || checks.unit_validation !== "passed"
-        || checks.before_state_validation !== "passed" || checks.diff_preview_status !== "generated") {
+      const passedOrNotRun = (value: unknown) => value === "passed" || value === "not_run";
+      if (!checks || checks.schema_validation !== "passed" || !passedOrNotRun(checks.reference_validation) || !passedOrNotRun(checks.unit_validation)
+        || !passedOrNotRun(checks.before_state_validation) || checks.diff_preview_status !== "generated") {
         return `The engine's reply does not show submitted operation ${index + 1} as validated with its preview, so nothing was applied.`;
       }
       const rows = Array.isArray(step.diff_preview) ? step.diff_preview : [];
