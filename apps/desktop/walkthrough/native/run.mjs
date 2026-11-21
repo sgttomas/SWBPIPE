@@ -23,6 +23,8 @@
 //   reference-system   23  Named alone (its solve is long, as evidence-journeys.mjs keeps it apart): File > Open Model
 //                          Document… of the reference system fixture, Run, the standing, the health line, Results,
 //                          Report.
+//   prepared-project   24  A model document placed in the throwaway home before launch (the journey's `place`),
+//                          opened by File > Open Model Document…: the start other journeys build on.
 //
 // At each step the driver (`driver.js`, given the shared counts of `../screen-counts.mjs` and the snapshot of
 // `snapshot.mjs`) records the counts and a snapshot of the document as drawn, as the checkpoint `step-<number>`.
@@ -45,7 +47,7 @@
 import { randomBytes } from "node:crypto";
 import { execFileSync } from "node:child_process";
 import * as fs from "node:fs";
-import { copyFileSync, lstatSync, mkdirSync, mkdtempSync, readFileSync, realpathSync, rmSync, writeFileSync, writeSync } from "node:fs";
+import { lstatSync, mkdirSync, mkdtempSync, readFileSync, realpathSync, rmSync, writeFileSync, writeSync } from "node:fs";
 import os from "node:os";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
@@ -62,14 +64,34 @@ const project = path.resolve(desktop, "..", "..");
 const tauriDir = path.join(desktop, "src-tauri");
 const NAME = "native walkthrough";
 
-/** The journeys, in the order they run; numbers from 20, after the browser walkthrough's. */
+/**
+ * The journeys, numbered from 20, after the browser walkthrough's. A journey may declare `place`: files copied from
+ * the repository's fixtures into the launch's throwaway home before the app starts (placementsFor), each with a `key`
+ * the driver finds its path by (`plan.placed[key]`), `at` a path inside the home (`{app-data}/` is the app's own
+ * data folder there, where its local project store lives) and `from` a committed file under `fixtures/`. `open`
+ * says how the journey opens what was placed, by the app's own File menu: `{ by: "model-document", file: key }`
+ * (File > Open Model Document…, the chooser's answer the placed file) or `{ by: "local-project", project_id }` (File >
+ * Open Local Project…, from a placed store). The driver's journey of the same name opens it (driver.js
+ * openPrepared).
+ */
 export const JOURNEYS = Object.freeze({
   "solve-and-results": { number: 20, title: "Solve and read results (launched app): Run, the progress, Results and its panels, a support's rows, Key results, Evidence, Analyze and Issues" },
   report: { number: 21, title: "Report (launched app): the Review stage, the Report tab, the composer, Render, the preview, the release dialog and a saved package" },
   exports: { number: 22, title: "Exports (launched app): the Exports page after the solve, top to foot" },
-  "reference-system": { number: 23, title: "Reference system (launched app): opened as a model document, solved, its standing, health line, Results and Report" }
+  "reference-system": {
+    number: 23, title: "Reference system (launched app): opened as a model document, solved, its standing, health line, Results and Report",
+    place: [{ key: "model", at: "chooser/models/reference_system.json", from: "fixtures/reference_system/reference_system.json" }],
+    open: { by: "model-document", file: "model" },
+    timeouts: { solve: 45 * 60 * 1000 }, launch_ms: 75 * 60 * 1000
+  },
+  "prepared-project": {
+    number: 24, title: "Prepared project (launched app): a model document placed in the throwaway home before launch, opened by File > Open Model Document…",
+    place: [{ key: "model", at: "chooser/models/exact_pressure_authoring_model.json", from: "fixtures/model_operations/exact_pressure_authoring_model.json" }],
+    open: { by: "model-document", file: "model" }
+  }
 });
 export const DEFAULT_JOURNEYS = Object.freeze(["solve-and-results", "report", "exports"]);
+// Named alone: its solve is long, as evidence-journeys.mjs keeps it apart.
 export const SEPARATE_JOURNEYS = Object.freeze(["reference-system"]);
 
 /** The command line: { buildOnly, journeys, out } or { error }. --build-only takes nothing else. */
@@ -96,6 +118,50 @@ export function parseArguments(argv, { defaultOut = path.join(walkthrough, "outp
   if (new Set(journeys).size !== journeys.length) return { error: "a journey is named twice" };
   if (journeys.some((item) => SEPARATE_JOURNEYS.includes(item)) && journeys.length > 1) return { error: `${SEPARATE_JOURNEYS.join(", ")} runs alone: name it as the only journey` };
   return { buildOnly: false, journeys, out: path.resolve(options.out ?? defaultOut) };
+}
+
+/** The app's own data folder inside a home, where a placed local project store goes. */
+export const APP_DATA = "{app-data}";
+
+/**
+ * Where each declared file goes: [{ key, from, to }], absolute paths, `to` strictly inside `home`. Throws, naming the
+ * entry, when `at` is absolute, climbs (`..`) or is empty; when `from` is not a committed path under `fixtures/`; when
+ * the source is not a regular file (a link is refused); or when two entries share a key or a destination.
+ */
+export function placementsFor(place = [], { home, identifier, projectRoot, lstat = fs.lstatSync }) {
+  const seen = new Set();
+  return place.map((entry, index) => {
+    const name = `place[${index}] (${entry?.key ?? "no key"})`;
+    if (!entry || typeof entry.key !== "string" || !/^[a-z][a-z0-9-]*$/.test(entry.key)) throw new Error(`${name}: a key is a-z, 0-9 and -`);
+    if (typeof entry.at !== "string" || entry.at === "" || path.isAbsolute(entry.at) || entry.at.split("/").some((part) => part === ".." || part === "." || part === "")) {
+      throw new Error(`${name}: at must be a relative path inside the home without . or ..`);
+    }
+    if (typeof entry.from !== "string" || !entry.from.startsWith("fixtures/") || entry.from.split("/").some((part) => part === ".." || part === "." || part === "")) {
+      throw new Error(`${name}: from must be a committed path under fixtures/`);
+    }
+    const relative = entry.at.startsWith(`${APP_DATA}/`) ? path.join("Library", "Application Support", identifier, entry.at.slice(APP_DATA.length + 1)) : entry.at;
+    if (relative.includes("{")) throw new Error(`${name}: ${APP_DATA}/ is the only placeholder`);
+    const from = path.join(projectRoot, entry.from);
+    let stat;
+    try { stat = lstat(from); } catch { throw new Error(`${name}: ${entry.from} does not exist`); }
+    if (!stat.isFile()) throw new Error(`${name}: ${entry.from} is not a regular file`);
+    const to = path.join(home, relative);
+    if (seen.has(entry.key) || seen.has(to)) throw new Error(`${name}: a key or destination is declared twice`);
+    seen.add(entry.key);
+    seen.add(to);
+    return { key: entry.key, from, to };
+  });
+}
+
+/** Copies each placement into the home (never over an existing file) and returns { key: path }. */
+export function placeFiles(placements) {
+  const placed = {};
+  for (const { key, from, to } of placements) {
+    fs.mkdirSync(path.dirname(to), { recursive: true });
+    fs.copyFileSync(from, to, fs.constants.COPYFILE_EXCL);
+    placed[key] = to;
+  }
+  return placed;
 }
 
 /** The one script the app evaluates: the shared functions' own text, then the driver. */
@@ -145,7 +211,6 @@ async function main() {
   // The named timeouts (ms), passed to the driver, and each launch's hard limit.
   const TIMEOUTS = { ui: 60_000, step: 300_000, solve: 900_000, save: 900_000 };
   const LAUNCH_MS = 45 * 60 * 1000;
-  const REFERENCE = { fixture: "fixtures/reference_system/reference_system.json", solve_ms: 45 * 60 * 1000, launch_ms: 75 * 60 * 1000 };
   const TERMINATION_BOUND_MS = 20 * 1000;
   const CAFFEINATE = "/usr/bin/caffeinate";
   const TAURI_CONF = JSON.parse(readFileSync(path.join(tauriDir, "tauri.conf.json"), "utf8"));
@@ -390,15 +455,21 @@ async function main() {
     const spec = JOURNEYS[name];
     const where = journeyRoot(name);
     const plan = { journey: name, number: spec.number, bundled_project_id: demo.project.id, support_text: firstSupport.replace(/^support:/, "") };
-    let timeoutMs = LAUNCH_MS;
+    const timeoutMs = spec.launch_ms ?? LAUNCH_MS;
+    if (spec.timeouts) plan.timeouts = spec.timeouts;
     if (name === "report") plan.local_package = path.join(where.saved, "walkthrough-local.opsproj");
-    if (name === "reference-system") {
-      const document = JSON.parse(readFileSync(path.join(project, REFERENCE.fixture), "utf8"));
-      plan.open = path.join(where.models, path.basename(REFERENCE.fixture));
-      copyFileSync(path.join(project, REFERENCE.fixture), plan.open);
-      plan.project_id = document.project.id;
-      plan.timeouts = { solve: REFERENCE.solve_ms };
-      timeoutMs = REFERENCE.launch_ms;
+    // The prepared files, in the home before the app starts; refused by name when a declaration is wrong.
+    try {
+      const placements = placementsFor(spec.place, { home: where.home, identifier: IDENTIFIER, projectRoot: project });
+      plan.placed = placeFiles(placements);
+      if (spec.open) {
+        plan.open = { ...spec.open, ...(spec.open.file ? { file: plan.placed[spec.open.file] } : {}) };
+        if (spec.open.by === "model-document") plan.open.project_id = JSON.parse(readFileSync(plan.open.file, "utf8")).project.id;
+      }
+      check("the prepared files were placed in the throwaway home", true, placements.map(({ key, from }) => `${key}: ${path.relative(project, from)}`));
+    } catch (error) {
+      check("the prepared files were placed in the throwaway home", false, error.message);
+      return;
     }
     const { report, seen, failures } = await launch(where, plan, { timeoutMs });
     if (seen && seen.ok === false && seen.error) console.log(`${NAME}: ${name}: the driver reported ${seen.error.split("\n")[0]}`);

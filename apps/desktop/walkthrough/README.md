@@ -100,6 +100,7 @@ nothing. A launch invocation builds nothing: anything stale refuses it by name.
 | `report` | 21 | Solved, then the Review stage, the Report tab, "Load for…" where offered, the composer, Render (local private), the preview, Save Shareable Report Package… to its release dialog and Cancel, Save Report Package… with its chooser answered inside the throwaway home, the outcome list. Print is not pressed. |
 | `exports` | 22 | Solved, then the Exports page, top to foot. |
 | `reference-system` | 23 | Named alone, for its long solve: File > Open Model Document… of the reference system fixture, Run, the standing, the health line, Results, Report. |
+| `prepared-project` | 24 | A model document placed in the throwaway home before launch, opened by File > Open Model Document…: the start other journeys build on. |
 
 Without `--journey` the first three run, one launch each. Files are in
 `native/`: `run.mjs` (the command), `driver.js` (the steps, in the app),
@@ -156,6 +157,47 @@ their numbers. A step is `journey.step(name, note, action)`: the action uses the
 application's own controls, then the picture is taken. `journey.scrolled(...)`
 adds pictures of what lies below the fold. Keep step names stable so that two
 walkthroughs can be compared; add a step with a new name instead of renaming one.
-Native journeys are functions in `native/driver.js` with the same
-`journey.step` and `journey.scrolled`; a new one also needs its name and number
-in `native/run.mjs` (`JOURNEYS`).
+Native journeys: see the next section.
+
+## Adding a native journey that starts from a prepared project
+
+A native journey can begin from files placed in the launch's throwaway home
+before the app starts: a model document, or a local project store with its
+saved states and runs. To add one:
+
+1. **Commit the files** under `fixtures/` (invented data only). A model
+   document is a JSON file the app opens; a local project store is the app's
+   `openpipestress-projects.sqlite3`.
+2. **Declare the journey** in `native/run.mjs`, `JOURNEYS`: a name of
+   lower-case words joined by `-`, an unused `number` from 25 to 99, a
+   `title` that names the use case, and:
+   - `place`: one entry per file, `{ key, at, from }`. `at` is a path inside
+     the home; `chooser/models/<file>` for a document the chooser returns, or
+     `{app-data}/openpipestress-projects.sqlite3` for a store, which is the
+     app's own data folder in that home. `from` is the committed path under
+     `fixtures/`. A path outside the home, a source outside `fixtures/`, a
+     link or a missing file is refused before anything launches.
+   - `open`: `{ by: "model-document", file: "<key>" }` (File > Open Model
+     Document…, the chooser's answer the placed file), or
+     `{ by: "local-project", project_id: "<id>" }` (File > Open Local
+     Project…, from the placed store).
+   - Optionally `timeouts: { solve: <ms> }` and `launch_ms` for a long solve.
+3. **Write its steps** in `native/driver.js` as an `async function (journey,
+   plan)` and name it in the driver's `JOURNEYS` under the same name. Start
+   with `await openPrepared(journey, plan, "<what it is>")`, which records the
+   step `opened`. Then add steps:
+   `await journey.step("<stable-name>", "<what the person sees>", async () => { ... })`.
+   Inside a step, act as a person does: `press("<test id>")` for a visible
+   control, `openStage("results")` for a stage, `showSection("exports")` for a
+   page, and `menu("<command id>")` for a native menu command. Open a section
+   or a form by its own visible control before using what is in it. A control
+   that is missing, hidden or disabled stops the
+   journey there, with the reason the window gives. Return a string to add
+   what the window said to the step's note. Use
+   `journey.scrolled("<name>", "<note>", <screens>)` for what lies below the
+   fold.
+4. **Run it alone**, after a build-only run at the same revision, each under a
+   host slot:
+   `npm run walkthrough:native --workspace apps/desktop -- --journey <name> --out <folder>`.
+   Its screens join any already in that folder; only its own earlier screens
+   are replaced.

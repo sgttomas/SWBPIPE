@@ -9,7 +9,8 @@ import test from "node:test";
 import vm from "node:vm";
 import { composeIndex } from "../compose-index.mjs";
 import { NATIVE_SURFACE, PICTURE_BASIS, readStepRecords, renderScreens, screensFromRecords, writePart } from "./render.mjs";
-import { DEFAULT_JOURNEYS, JOURNEYS, composeDriver, emptyNativeOutput, parseArguments } from "./run.mjs";
+import { mkdirSync, symlinkSync } from "node:fs";
+import { DEFAULT_JOURNEYS, JOURNEYS, composeDriver, emptyNativeOutput, parseArguments, placeFiles, placementsFor } from "./run.mjs";
 
 function scratch(t) {
   const folder = mkdtempSync(path.join(os.tmpdir(), "native-walkthrough-test-"));
@@ -148,4 +149,60 @@ test("pictures: each snapshot rendered at its recorded size with nothing loaded,
   assert.match(html, /not a capture of the window/);
   // Once for the journey and once for each of its two pictures.
   assert.equal(html.split(PICTURE_BASIS).length - 1, 3);
+});
+
+test("placement: each declared fixture goes to its path inside the home, {app-data}/ to the app's own data folder", (t) => {
+  const root = scratch(t);
+  const home = path.join(root, "home");
+  mkdirSync(path.join(root, "fixtures", "models"), { recursive: true });
+  mkdirSync(home);
+  writeFileSync(path.join(root, "fixtures", "models", "a.json"), "{\"a\":1}");
+  writeFileSync(path.join(root, "fixtures", "store.sqlite3"), "store");
+  const placements = placementsFor([
+    { key: "model", at: "chooser/models/a.json", from: "fixtures/models/a.json" },
+    { key: "store", at: "{app-data}/openpipestress-projects.sqlite3", from: "fixtures/store.sqlite3" }
+  ], { home, identifier: "com.example.app", projectRoot: root });
+  const placed = placeFiles(placements);
+  assert.deepEqual(placed, {
+    model: path.join(home, "chooser", "models", "a.json"),
+    store: path.join(home, "Library", "Application Support", "com.example.app", "openpipestress-projects.sqlite3")
+  });
+  assert.equal(readFileSync(placed.model, "utf8"), "{\"a\":1}");
+  assert.equal(readFileSync(placed.store, "utf8"), "store");
+  // Never over a file already there.
+  assert.throws(() => placeFiles(placements), /EEXIST/);
+});
+
+test("placement: a path outside the home, a source outside fixtures/, a link, a missing file or a repeat is refused by name", (t) => {
+  const root = scratch(t);
+  const home = path.join(root, "home");
+  mkdirSync(path.join(root, "fixtures"), { recursive: true });
+  mkdirSync(home);
+  writeFileSync(path.join(root, "fixtures", "a.json"), "{}");
+  writeFileSync(path.join(root, "secret.json"), "{}");
+  symlinkSync(path.join(root, "secret.json"), path.join(root, "fixtures", "link.json"));
+  const options = { home, identifier: "id", projectRoot: root };
+  const refused = (entry) => assert.throws(() => placementsFor([entry], options), /place\[0\]/);
+  refused({ key: "a", at: "/etc/a.json", from: "fixtures/a.json" });
+  refused({ key: "a", at: "chooser/../../a.json", from: "fixtures/a.json" });
+  refused({ key: "a", at: "", from: "fixtures/a.json" });
+  refused({ key: "a", at: "{home}/a.json", from: "fixtures/a.json" });
+  refused({ key: "a", at: "a.json", from: "secret.json" });
+  refused({ key: "a", at: "a.json", from: "fixtures/../secret.json" });
+  refused({ key: "a", at: "a.json", from: "fixtures/link.json" });
+  refused({ key: "a", at: "a.json", from: "fixtures/missing.json" });
+  refused({ key: "A b", at: "a.json", from: "fixtures/a.json" });
+  assert.throws(() => placementsFor([{ key: "a", at: "a.json", from: "fixtures/a.json" }, { key: "a", at: "b.json", from: "fixtures/a.json" }], options), /declared twice/);
+  assert.deepEqual(readdirSync(home), []);
+});
+
+test("every declared journey placement names a committed fixture and an open the driver knows", () => {
+  const projectRoot = path.resolve(import.meta.dirname, "..", "..", "..", "..");
+  for (const [name, spec] of Object.entries(JOURNEYS)) {
+    if (!spec.place) continue;
+    const placements = placementsFor(spec.place, { home: "/nonexistent-home", identifier: "id", projectRoot });
+    assert.ok(placements.length > 0, name);
+    assert.ok(["model-document", "local-project"].includes(spec.open?.by), name);
+    if (spec.open.file) assert.ok(placements.some((item) => item.key === spec.open.file), name);
+  }
 });

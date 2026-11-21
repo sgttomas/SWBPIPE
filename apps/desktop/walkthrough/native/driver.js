@@ -305,22 +305,55 @@
     await journey.scrolled("exports-page", "The Exports page", 10);
   }
 
+  // A prepared project (run.mjs JOURNEYS `place` and `open`): the files were placed in the home before the app
+  // started; it is opened here by the File menu, as a person opens it. One step, "opened".
+  async function openPrepared(journey, plan, what) {
+    const open = plan.open;
+    if (!open) throw new Error("the journey declares nothing to open");
+    if (open.by === "model-document") {
+      const name = open.file.split("/").pop();
+      await journey.step("opened", `File > Open Model Document… of ${what} (the chooser returns the placed ${name})`, async () => {
+        const before = text("local-project-message") ?? "";
+        await call("native_smoke_choose", { path: open.file });
+        await menu("file.open-model");
+        const shown = await waitFor(`the open of ${name}`, () => {
+          const now = text("local-project-message") ?? "";
+          return now !== before && (now.includes(`Opened model document ${name} `) || now.includes(`refused (${name})`)) ? now : null;
+        }, T.step);
+        if (!shown.includes("Opened model document")) throw new Error(shown);
+        await waitFor("the opened project in the model tree", () => byTestId(`tree-row-project-${encodeURIComponent(open.project_id)}`), T.step);
+        return shown;
+      });
+    } else if (open.by === "local-project") {
+      await journey.step("opened", `File > Open Local Project… of ${what}, from the store placed in the home`, async () => {
+        const before = text("local-project-message") ?? "";
+        await menu("file.open-local");
+        const shown = await waitFor("the open's outcome", () => { const now = text("local-project-message") ?? ""; return now && now !== before ? now : null; }, T.step);
+        if (open.project_id) await waitFor("the opened project in the model tree", () => byTestId(`tree-row-project-${encodeURIComponent(open.project_id)}`), T.ui).catch(() => { throw new Error(shown); });
+        return shown;
+      });
+    } else {
+      throw new Error(`the journey declares an unknown way to open: ${open.by}`);
+    }
+  }
+
+  // E. A prepared project, opened: the proof that a journey can start from files placed before launch.
+  async function preparedProject(journey, plan) {
+    await journey.step("first-open", "The application as first opened, before the prepared project is opened");
+    await openPrepared(journey, plan, "the prepared project");
+    await journey.step("model-tree", "The opened project in the model tree", async () => {
+      await closeOverlays();
+      const row = byTestId(`tree-row-project-${encodeURIComponent(plan.open.project_id)}`);
+      if (!visible(row)) await press("rail-stage-model");
+      await scrollTo(byTestId(`tree-row-project-${encodeURIComponent(plan.open.project_id)}`), "start");
+    });
+    await journey.step("loads-stage", "The opened project's Loads stage", async () => { await openStage("loads"); });
+  }
+
   // D. The reference system, opened as a model document and solved.
   async function referenceSystem(journey, plan) {
     await journey.step("first-open", "The application as first opened");
-    await journey.step("opened", "File > Open Model Document… of the reference system", async () => {
-      const before = text("local-project-message") ?? "";
-      const name = plan.open.split("/").pop();
-      await call("native_smoke_choose", { path: plan.open });
-      await menu("file.open-model");
-      const shown = await waitFor(`the open of ${name}`, () => {
-        const now = text("local-project-message") ?? "";
-        return now !== before && (now.includes(`Opened model document ${name} `) || now.includes(`refused (${name})`)) ? now : null;
-      }, T.step);
-      if (!shown.includes("Opened model document")) throw new Error(shown);
-      await waitFor("the reference system in the model tree", () => byTestId(`tree-row-project-${encodeURIComponent(plan.project_id)}`), T.step);
-      return shown;
-    });
+    await openPrepared(journey, plan, "the reference system");
     await journey.step("run", "Run pressed on the reference system", pressRun);
     await journey.step("solve-progress", "The solve's progress, a minute in", async () => {
       const outcome = await waitFor("a minute of the solve, or its outcome", () => solveOutcome(), 60000).catch(() => null);
@@ -356,7 +389,7 @@
     await journey.scrolled("report", "The Report tab", 4);
   }
 
-  const JOURNEYS = { "solve-and-results": solveAndResults, report, exports: exportsPage, "reference-system": referenceSystem };
+  const JOURNEYS = { "solve-and-results": solveAndResults, report, exports: exportsPage, "reference-system": referenceSystem, "prepared-project": preparedProject };
 
   (async () => {
     const result = { nonce: null, ok: false, journey: null, user_agent: navigator.userAgent };
