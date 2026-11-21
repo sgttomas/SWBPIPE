@@ -33,7 +33,7 @@ jobs:
       desktop_rust_mode: ${{ steps.numeric.outputs.desktop_rust_mode }}
       browser_project: ${{ steps.numeric.outputs.browser_project }}
       browser_specs: ${{ steps.numeric.outputs.browser_specs }}
-      retained_registration: ${{ steps.numeric.outputs.retained_registration }}
+      retained_registration: ${{ steps.registration.outputs.retained_registration }}
     steps:
       - uses: actions/checkout@v4
         with:
@@ -75,16 +75,12 @@ jobs:
                   raise SystemExit('Invalid browser selection')
               out.write(f"browser_project={browser['project']}\nbrowser_specs={' '.join(specs)}\n")
               print(f"Browser specs ({browser['classification']}): {' '.join(specs) or 'none'}")
-              # A candidate that changes the pricing tool or the registration runs the registered build's Rust tests
-              # (docs/CI_STRATEGY.md, "Retained registration drift check"); its Python selection holds the rest.
-              import importlib.util
-              spec = importlib.util.spec_from_file_location('python_ci', 'tools/ci/python_ci.py')
-              python_ci = importlib.util.module_from_spec(spec)
-              spec.loader.exec_module(python_ci)
-              registration = plan.get('event') in ('pull_request', 'merge_group') and python_ci.changes_registration(plan)
-              out.write(f"retained_registration={'true' if registration else 'false'}\n")
-              print(f"Retained registration paths changed: {registration}")
           PYTHON
+      # A candidate that changes the pricing tool or the registration runs the registered build's Rust tests
+      # (docs/CI_STRATEGY.md, "Retained registration drift check"); its Python selection holds the rest.
+      - name: Read the retained registration selection
+        id: registration
+        run: python3 tools/ci/python_ci.py --registration --plan piping-ci-plan.json >> "$GITHUB_OUTPUT"
       - uses: actions/upload-artifact@v4
         with:
           name: piping-ci-selection

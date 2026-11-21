@@ -157,6 +157,14 @@ def changes_registration(plan):
     return any(path[len(PREFIX):].startswith(RETAINED_PRICING_REGISTRATION) for path in plan.get('paths', []))
 
 
+def registration_output(plan):
+    """The product workflow's `retained_registration` output: a pull request or queue group changing the pricing tool
+    or the registration runs the registered build's Rust tests (retained-registration-rust.yml) beside its Python
+    selection."""
+    registration = plan.get('event') in hosted_ci.CANDIDATE_EVENTS and changes_registration(plan)
+    return f"retained_registration={'true' if registration else 'false'}"
+
+
 def drift_check_deferred(project, plan):
     """The drift check's tests a plan's selection leaves to its workflow: none for a pull request or queue group that
     changes the tool or the registration, all of them for every other plan."""
@@ -453,6 +461,8 @@ def main():
     parser.add_argument('--drift-check', action='store_true',
                         help='Run the retained drift check selection on this checkout, without a plan')
     parser.add_argument('--plan', type=Path)
+    parser.add_argument('--registration', action='store_true',
+                        help="With --plan: print the product workflow's retained_registration output and stop")
     parser.add_argument('--junit-xml', type=Path, help='With --drift-check: write pytest\'s JUnit report here')
     parser.add_argument('--dry-run', action='store_true')
     parser.add_argument('--repository-checks-run', action='store_true',
@@ -461,6 +471,8 @@ def main():
     parser.add_argument('--shard-count', type=int)
     args = parser.parse_args()
     project = Path(__file__).resolve().parents[2]
+    if args.registration and (args.drift_check or args.plan is None or args.shard_count is not None):
+        parser.error('--registration takes --plan alone')
     if args.drift_check:
         if args.plan or args.repository_checks_run:
             parser.error('--drift-check takes no plan or repository-checks option')
@@ -477,6 +489,9 @@ def main():
     plan = json.loads(args.plan.read_text())
     root = project
     hosted_ci.validate_plan(root, plan)
+    if args.registration:
+        print(registration_output(plan))
+        return 0
     if plan.get('modes', {}).get('piping-python') != 'full':
         raise ValueError('Python runner requires explicit selected coverage')
     selected = select(project, plan, args.repository_checks_run)

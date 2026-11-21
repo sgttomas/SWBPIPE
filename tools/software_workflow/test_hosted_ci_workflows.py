@@ -708,10 +708,9 @@ def test_a_registration_path_candidate_runs_the_registered_build_rust_tests():
     assert '--manifest-path core/product_physics/Cargo.toml --lib --test retained_precision_admission' in cargo['run']
     assert 'set -o pipefail' in cargo['run']
     product = workflow('piping-desktop-e2e.yml')['jobs']
-    assert product['selection']['outputs']['retained_registration'] == '${{ steps.numeric.outputs.retained_registration }}'
-    [numeric] = [s for s in product['selection']['steps'] if s.get('id') == 'numeric']
-    assert 'python_ci.changes_registration(plan)' in numeric['run']
-    assert "plan.get('event') in ('pull_request', 'merge_group')" in numeric['run']
+    assert product['selection']['outputs']['retained_registration'] == '${{ steps.registration.outputs.retained_registration }}'
+    [read] = [s for s in product['selection']['steps'] if s.get('id') == 'registration']
+    assert read['run'] == 'python3 tools/ci/python_ci.py --registration --plan piping-ci-plan.json >> "$GITHUB_OUTPUT"'
     called = product['retained-registration']
     assert called == {'needs': 'selection', 'if': "needs.selection.outputs.retained_registration == 'true'",
                       'uses': './.github/workflows/retained-registration-rust.yml'}

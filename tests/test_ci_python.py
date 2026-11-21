@@ -510,6 +510,7 @@ EVERY_PULL_REQUEST = frozenset((
     'test_tests_that_build_offline_have_their_locked_dependencies_fetched_before_pytest',
 ))
 SELECTOR_ONLY = frozenset((
+    'test_the_registration_output_names_a_candidate_that_changes_the_tool_or_the_registration',
     'test_repeated_full_selection_does_not_mutate_the_cached_cohort',
     'test_known_helper_import_forms_are_selected_without_unrelated_tests',
     'test_test_tree_imports_are_followed_without_unrelated_tests',
@@ -886,3 +887,15 @@ def test_full_selections_and_the_queue_leave_the_drift_check_to_its_workflow():
         assert set(ci.RETAINED_PRICING_SOURCE_INDEPENDENT) <= set(ci.select(PROJECT, {'event': event})), event
     assert ci.drift_check_deferred(PROJECT, {'event': 'merge_group', 'paths': ['core/product_physics/src/lib.rs']}) == audit
     assert ci.drift_check_deferred(PROJECT, {'event': 'merge_group', 'paths': ['tools/retained_pricing/price.py']}) == frozenset()
+
+
+def test_the_registration_output_names_a_candidate_that_changes_the_tool_or_the_registration():
+    """The product workflow's `retained_registration` output: true for a pull request or queue group changing a
+    registration path, false for any other change or event."""
+    for event, path, expected in [('pull_request', 'core/product_physics/build.rs', 'true'),
+                                  ('pull_request', 'core/product_physics/src/build_identity.rs', 'true'),
+                                  ('merge_group', 'tools/retained_pricing/price.py', 'true'),
+                                  ('pull_request', 'core/product_physics/src/lib.rs', 'false'),
+                                  ('workflow_dispatch', 'tools/retained_pricing/price.py', 'false'),
+                                  ('schedule', 'core/product_physics/src/retained_memory.rs', 'false')]:
+        assert ci.registration_output({'event': event, 'paths': [path]}) == f'retained_registration={expected}', (event, path)
