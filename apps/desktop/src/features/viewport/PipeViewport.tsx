@@ -114,6 +114,7 @@ import { createFigureMaterial, figureEdgeOutlineFor } from "./viewportFigureMate
 import { buildDeformationOverlay, buildRotationOverlay, deformationAtPhase, rotationGlyphAnchors } from "./deformationOverlay";
 import { DEFLECTION_PHASE_STEPS, DeflectedShapeControls, deflectionLabel, deflectionSummaryScale } from "./DeflectedShapeControls";
 import { ViewportOverflowBar } from "./ViewportOverflowBar";
+import { layoutLabels, type LabelBox, type LabelCandidate, type LabelKind } from "./viewportLabelLayout";
 import { buildElementAxesView, type ElementAxesFrame, type ElementAxesView } from "./elementAxes";
 import { elementAxisDisplayLength, instancedElementAxisMeshes, type ElementAxisPlacement } from "./viewportElementAxes";
 import { instancedRotationGlyphMeshes, type RotationGlyphPlacement } from "./viewportRotationGlyph";
@@ -1565,59 +1566,90 @@ export function PipeViewport({
   useEffect(() => {
     const resource = viewportResourceRef.current;
     if (!resource) return;
-    const anchorPositions: Array<{
-      key: EntityKey;
-      position: THREE.Vector3;
-      offsetPct: number;
-    }> = [];
+    // Labels name without covering (viewportLabelLayout.ts): set off their anchors, never over one
+    // another or the canvas's furniture, the selected and hovered ones first and always drawn.
+    const anchors: Array<{ key: EntityKey; kind: LabelKind; position: THREE.Vector3 }> = [];
     for (const key of labelKeys) {
       const indexed = activeModelIndex.entities.get(key);
-      if (!indexed?.anchor) continue;
+      if (!indexed?.anchor || !isLabelKind(indexed.ref.type)) continue;
       const position = authoredToLocal(indexed.anchor, renderTransform.origin);
-      if (indexed.ref.type === "support") position.y -= 0.26;
-      if (indexed.ref.type === "component") position.y += 0.2;
-      anchorPositions.push({
-        key,
-        position: new THREE.Vector3(position.x, position.y, position.z),
-        offsetPct: indexed.ref.type === "support" ? 8 : indexed.ref.type === "component" ? -8 : 0
-      });
+      anchors.push({ key, kind: indexed.ref.type, position: new THREE.Vector3(position.x, position.y, position.z) });
     }
+    const emphasisRank = new Map<EntityKey, number>();
+    if (primarySelectionKey) emphasisRank.set(primarySelectionKey, 0);
+    for (const key of orderedSelectionKeys) if (!emphasisRank.has(key)) emphasisRank.set(key, 1);
+    if (hoveredEntityKey && !emphasisRank.has(hoveredEntityKey)) emphasisRank.set(hoveredEntityKey, 2);
+    const sizes = new Map<EntityKey, { width: number; height: number }>();
+    const written = new Map<EntityKey, string>();
+    let laidOut: { cameraSequence: number; width: number; height: number } | null = null;
     const updateLabelAnchors = () => {
       const layer = selectionLayerRef.current;
       if (!layer) {
         diagnosticsStateRef.current.labelCount = 0;
         return;
       }
-      const buttons = new Map(
-        [...layer.querySelectorAll<HTMLElement>("[data-entity-key]")]
-          .map((button) => [button.dataset.entityKey, button] as const)
-      );
       const width = Math.max(1, layer.clientWidth || resource.renderer.domElement.clientWidth);
       const height = Math.max(1, layer.clientHeight || resource.renderer.domElement.clientHeight);
-      const occupied: Array<{ left: number; right: number; top: number; bottom: number }> = [];
-      let visibleCount = 0;
-      for (const { key, position, offsetPct } of anchorPositions) {
+      // Only a changed camera, canvas size, model or label set lays the labels out again; this
+      // closure is rebuilt when the model or the label set changes.
+      if (laidOut && laidOut.cameraSequence === resource.cameraSequence && laidOut.width === width && laidOut.height === height) return;
+      laidOut = { cameraSequence: resource.cameraSequence, width, height };
+      // Reads first: the label buttons, their sizes and the furniture's boxes.
+      const buttons = new Map(
+        [...layer.querySelectorAll<HTMLElement>("[data-entity-key]")]
+          .map((button) => [button.dataset.entityKey as EntityKey, button] as const)
+      );
+      const origin = layer.getBoundingClientRect();
+      const frame = layer.parentElement;
+      const obstacles: LabelBox[] = frame
+        ? [...frame.querySelectorAll<HTMLElement>(".viewport-canvas-right > *, .viewport-canvas-foot > *, .viewport-axis-triad")].flatMap((element) => {
+            const box = element.getBoundingClientRect();
+            if (box.width <= 0 || box.height <= 0) return [];
+            return [{ left: box.left - origin.left, top: box.top - origin.top, right: box.right - origin.left, bottom: box.bottom - origin.top }];
+          })
+        : [];
+      const candidates: LabelCandidate<EntityKey>[] = [];
+      for (const { key, kind, position } of anchors) {
         const button = buttons.get(key);
         if (!button) continue;
+        let size = sizes.get(key);
+        if (!size || size.width <= 0) {
+          size = { width: button.offsetWidth, height: button.offsetHeight };
+          sizes.set(key, size);
+        }
         const projected = position.clone().project(resource.camera);
         const outsideFrustum = projected.x < -1 || projected.x > 1 || projected.y < -1 || projected.y > 1 ||
           projected.z < -1 || projected.z > 1;
-        if (outsideFrustum) {
-          button.style.display = "none";
+        const rank = emphasisRank.get(key);
+        candidates.push({
+          key,
+          kind,
+          x: outsideFrustum ? Number.NaN : (projected.x * 0.5 + 0.5) * width,
+          y: outsideFrustum ? Number.NaN : (-projected.y * 0.5 + 0.5) * height,
+          width: size.width,
+          height: size.height,
+          emphasised: rank !== undefined,
+          emphasisRank: rank
+        });
+      }
+      const placements = layoutLabels(candidates, { width, height }, obstacles);
+      // Then writes, only where a label changed.
+      let visibleCount = 0;
+      for (const placement of placements) {
+        const button = buttons.get(placement.key);
+        if (!button) continue;
+        const next = placement.drawn ? `${Math.round(placement.left)},${Math.round(placement.top)}` : "hidden";
+        if (placement.drawn) visibleCount += 1;
+        if (written.get(placement.key) === next) continue;
+        written.set(placement.key, next);
+        if (!placement.drawn) {
+          button.style.visibility = "hidden";
           continue;
         }
-        const x = clamp((projected.x * 0.5 + 0.5) * width, 29, Math.max(29, width - 29));
-        const y = clamp((-projected.y * 0.5 + 0.5) * height + offsetPct * height / 100, 13, Math.max(13, height - 13));
-        const box = { left: x - 31, right: x + 31, top: y - 15, bottom: y + 15 };
-        const overlaps = occupied.some((placed) =>
-          box.left < placed.right && box.right > placed.left && box.top < placed.bottom && box.bottom > placed.top
-        );
-        button.style.display = overlaps ? "none" : "";
-        if (overlaps) continue;
-        occupied.push(box);
-        visibleCount += 1;
-        button.style.left = `${x}px`;
-        button.style.top = `${y}px`;
+        button.style.visibility = "";
+        button.style.transform = "none";
+        button.style.left = `${Math.round(placement.left)}px`;
+        button.style.top = `${Math.round(placement.top)}px`;
       }
       diagnosticsStateRef.current.labelCount = visibleCount;
     };
@@ -1625,7 +1657,7 @@ export function PipeViewport({
     updateLabelAnchors();
     resource.invalidate();
     return () => resource.setLabelUpdater(null);
-  }, [activeModelIndex, labelKeys, renderTransform, showLabels]);
+  }, [activeModelIndex, hoveredEntityKey, labelKeys, orderedSelectionKeys, primarySelectionKey, renderTransform, showLabels]);
 
   useEffect(() => {
     const resource = viewportResourceRef.current;
@@ -2848,7 +2880,7 @@ export function PipeViewport({
                 <button
                   aria-label={`Select ${target.label} in viewport`}
                   aria-pressed={active}
-                  className={`viewport-select-target ${target.kind} ${active ? "active" : ""}`}
+                  className={`viewport-select-target ${target.kind} ${active ? "active" : ""}${hoveredEntityKey === entityKey(target.ref) ? " hovered" : ""}`}
                   data-entity-key={entityKey(target.ref)}
                   data-dimmed={dimmedKeys.has(entityKey(target.ref))}
                   data-testid={`viewport-select-${target.ref.id}`}
@@ -2877,7 +2909,6 @@ export function PipeViewport({
                   title={`${target.label} (${target.ref.id})${dimmedKeys.has(entityKey(target.ref)) ? " — dimmed by isolation; still selectable" : ""}`}
                   type="button"
                 >
-                  <ViewportTargetIcon kind={target.kind} />
                   <span>{shortEntityToken(target.ref.id)}</span>
                 </button>
               );
@@ -3957,12 +3988,6 @@ function eventPositionFraction(
   };
 }
 
-function ViewportTargetIcon({ kind }: { kind: ViewportSelectionTarget["kind"] }) {
-  if (kind === "node") return <CircleDot size={13} aria-hidden="true" />;
-  if (kind === "pipe") return <GitBranch size={13} aria-hidden="true" />;
-  return <Box size={13} aria-hidden="true" />;
-}
-
 function viewportSelectionTargets(index: ModelIndex, keys: readonly EntityKey[]): ViewportSelectionTarget[] {
   const rawTargets = keys.flatMap((key) => {
     const entity = index.entities.get(key);
@@ -3981,6 +4006,10 @@ function viewportSelectionTargets(index: ModelIndex, keys: readonly EntityKey[])
     ...target,
     screen: projectToViewport(position, bounds, offsetY)
   }));
+}
+
+function isLabelKind(type: string): type is LabelKind {
+  return type === "node" || type === "pipe" || type === "support" || type === "component";
 }
 
 function selectionContainsKey(keys: ReadonlySet<EntityKey>, ref: EntityRef): boolean {
