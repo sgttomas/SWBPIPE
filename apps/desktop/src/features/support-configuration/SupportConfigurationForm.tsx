@@ -3,7 +3,8 @@ import { useEffect, useId, useMemo, useState, type ReactNode } from "react";
 import { clone, makeRichIntent, parseQuantities, QueueFeedback, QuantityField, record, requireText, setMember, TextField, useRichQueue, type DraftRecord, type RichFormProps } from "../rich-authoring/formSupport";
 import { VirtualTargetPicker } from "../workspace/VirtualTargetPicker";
 import { EngineFeedback, useEngineCheckedQueue } from "../condition-sets/engineCheckedQueue";
-import { DIRECTION_AXES, EMPTY_DIRECTION_TEXT, parseDirectionEntry, STORED_DIRECTION_NOTE, storedDirectionText, type DirectionText } from "./supportDirection";
+import { DIRECTION_AXES, DIRECTION_CLEARED_TEXT, directionRemovalStatement, EMPTY_DIRECTION_TEXT, HANGER_NO_DIRECTION_TEXT, parseDirectionEntry, STORED_DIRECTION_NOTE, storedDirectionText, supportCarriesHanger, type DirectionText } from "./supportDirection";
+import { useDirectionRemovalQueue } from "./directionRemovalQueue";
 import "./supportConfiguration.css";
 const DOFS = ["UX", "UY", "UZ", "RX", "RY", "RZ"];
 /** Product labels for the stored support family enums (also shown by the property inspector). */
@@ -117,6 +118,14 @@ function DirectionFields({ value, onChange }: { value: DirectionText; onChange: 
     /></label>)}
   </fieldset>;
 }
+/** In place of the direction fields while the support being created carries a hanger: a hanger takes no direction.
+ * When the hanger cleared a direction the person had typed, the form says so where the fields were. */
+function HangerDirectionNote({ cleared }: { cleared: boolean }) {
+  return <div data-testid="support-direction-hanger">
+    <p>{HANGER_NO_DIRECTION_TEXT}</p>
+    {cleared && <p role="status" data-testid="support-direction-cleared">{DIRECTION_CLEARED_TEXT}</p>}
+  </div>;
+}
 /** A titled run of related fields inside a section. It only groups and titles controls that
  * follow one another anyway: their order, names, values and shared field layout are their own. */
 function FieldGroup({ title, children }: { title: string; children: ReactNode }) {
@@ -136,15 +145,29 @@ function SupportEditor(props: RichFormProps & {
   const [label, setLabel] = useState("");
   const [node, setNode] = useState(props.selection.type === "node" ? props.selection.id : "");
   const [directionText, setDirectionText] = useState<DirectionText>(EMPTY_DIRECTION_TEXT);
+  const [directionCleared, setDirectionCleared] = useState(false);
   const storedDirection = support && !create ? storedDirectionText(support) : null;
   useEffect(() => {
     setDraft(support && !create ? draftProjection(support) : { restraints: [] });
   }, [support, create]);
+  // A hanger takes no direction (its load acts along the positive axis of its stiffness DOF, or of its single
+  // translational restraint). A creation that carries a hanger offers no direction fields, and a direction typed
+  // before the hanger was chosen is cleared with a word, never kept and never dropped silently.
+  const carriesHanger = supportCarriesHanger(draft);
+  const directionTyped = DIRECTION_AXES.some(axis => directionText[axis] !== "");
+  useEffect(() => {
+    if (!create || !carriesHanger) { setDirectionCleared(false); return; }
+    if (directionTyped) { setDirectionText(EMPTY_DIRECTION_TEXT); setDirectionCleared(true); }
+  }, [carriesHanger, create, directionTyped]);
+  // Editing a support that holds a stored direction into one that carries a hanger: the stored direction is removed
+  // by its own change, queued ahead of the configuration, and the person reads that before anything is queued.
+  const removesDirection = !create && support !== undefined && storedDirection !== null && carriesHanger;
   const state = useRichQueue(props);
   // A creation that carries a direction is checked by the operation engine before it is
   // queued, so the document rules' and the skew admission's codes show here by name.
   const engine = useEngineCheckedQueue(props);
-  const busy = state.busy || engine.busy;
+  const removal = useDirectionRemovalQueue(props);
+  const busy = state.busy || engine.busy || removal.busy;
   const set = (key: string, value: unknown) => setDraft(d => setMember(d, key, value));
   const hanger = record(draft.hanger), nonlinear = record(draft.nonlinear);
   const setH = (key: string, value: unknown) => set("hanger", setMember(hanger, key, value));
@@ -158,6 +181,7 @@ function SupportEditor(props: RichFormProps & {
   const collisions = [props.model.nodes, props.model.pipe_segments, props.model.supports, props.model.components, props.model.materials ?? [], props.model.sections ?? [], props.model.load_cases, props.model.combinations ?? []].flat().some(e => e.id === id) || Boolean(props.queuedIntents?.some(i => i.target.ref === id && i.operation_kind === "create"));
   async function submit() {
     engine.reset();
+    removal.reset();
     try {
       const after = record(parseQuantities(draft));
       for (const key of ["stiffness"]) {
@@ -196,7 +220,7 @@ function SupportEditor(props: RichFormProps & {
         requireText(after.provenance, "Support provenance");
         if (collisions)
           throw new Error("Support ID already exists or is queued. Enter a unique ID.");
-        const direction = parseDirectionEntry(directionText);
+        const direction = carriesHanger ? null : parseDirectionEntry(directionText);
         const payload = { id, label, node, ...after, ...(direction ? { direction } : {}) };
         if (direction) {
           state.setError("");
@@ -212,6 +236,10 @@ function SupportEditor(props: RichFormProps & {
             "Support creation",
             true
           );
+      }
+      else if (support && removesDirection) {
+        state.setError("");
+        await removal.submit({ supportId: support.id, direction: (support as { direction?: unknown }).direction, storedText: storedDirection!, before: projection(support), after });
       }
       else if (support)
         await state.queue(
@@ -235,7 +263,7 @@ function SupportEditor(props: RichFormProps & {
         <input
           type="checkbox"
           checked={create}
-          onChange={e => { setCreate(e.target.checked); setDirectionText(EMPTY_DIRECTION_TEXT); engine.reset(); }}
+          onChange={e => { setCreate(e.target.checked); setDirectionText(EMPTY_DIRECTION_TEXT); setDirectionCleared(false); engine.reset(); removal.reset(); }}
         />Create a new support</label>}
       {create ? <>
         <TextField
@@ -251,7 +279,8 @@ function SupportEditor(props: RichFormProps & {
         />
         <VirtualTargetPicker label="Support node" value={node} options={nodeOptions} onChange={setNode} testId="support-node-picker" />
       </> : <p className="support-identity">{support?.label} — {support?.id}, node {support?.node}</p>}
-      {storedDirection !== null && <p data-testid="support-direction-stored">Direction (x, y, z), stored: <output aria-label="Stored direction">{storedDirection}</output> — {STORED_DIRECTION_NOTE}. Configuration edits keep it; the operation engine refuses one that would make it inadmissible.</p>}
+      {storedDirection !== null && <p data-testid="support-direction-stored">Direction (x, y, z), stored: <output aria-label="Stored direction">{storedDirection}</output>{removesDirection ? "." : <> — {STORED_DIRECTION_NOTE}. Configuration edits keep it; the operation engine refuses one that would make it inadmissible.</>}</p>}
+      {removesDirection && <p role="note" data-testid="support-direction-removal">{directionRemovalStatement(storedDirection!)}</p>}
       <FamilyField value={draft.family} onChange={value => set("family", value)} />
       <fieldset className="support-dofs">
         <legend>Restrained degrees of freedom</legend>{DOFS.map(dof => <label key={dof}>
@@ -389,10 +418,13 @@ function SupportEditor(props: RichFormProps & {
             <p>Choose a linear support’s restrained translational DOF, or a one-way or lift-off support’s own translational DOF. Clear any entered normal reaction to use this source.</p>
           </>}
       </fieldset>}
-      {create && <DirectionFields value={directionText} onChange={next => { setDirectionText(next); engine.reset(); }} />}
+      {create && (carriesHanger
+        ? <HangerDirectionNote cleared={directionCleared} />
+        : <DirectionFields value={directionText} onChange={next => { setDirectionText(next); setDirectionCleared(false); engine.reset(); }} />)}
       <button type="button" onClick={() => void submit()}>{create ? "Queue support creation" : "Queue support configuration"}</button>
     </fieldset>
     <QueueFeedback {...state} />
     <EngineFeedback error={engine.error} notice={engine.notice} diagnostics={engine.diagnostics} testId="support-direction-engine" />
+    <EngineFeedback error={removal.error} notice={removal.notice} diagnostics={removal.diagnostics} testId="support-direction-removal-engine" />
   </section>;
 }
