@@ -681,7 +681,7 @@ const signedTip = (observed) => {
   check("from blank: node, material, pipe, support, load case and force authored through the GUI", blank?.steps?.length === 8, blank?.steps);
   const solved = blank?.solve;
   check("from blank: native solve completed, its proof bound to the session's project", solved?.solve_job_summary?.includes("state=completed") && solved.proof_project === blankId && solved.solve_proof?.includes("identity=match"), solved?.solve_job_summary);
-  check("from blank: numerical health not verified", solved?.standing?.startsWith("Numerical health: not verified."), solved?.standing?.slice(0, 60));
+  check("from blank: solver checks found no problem", solved?.standing?.startsWith("Numerical health: solver checks found no problem."), solved?.standing?.slice(0, 60));
   check("from blank: the unfiltered results count every solved row", solved && solved.proof_rows > 0 && solved.all_rows_summary === `${solved.proof_rows} of ${solved.proof_rows} results match filter`, `${solved?.proof_rows}; ${solved?.all_rows_summary}`);
   check("from blank: deformation overlay available for both nodes", solved?.deformation?.startsWith("available; nodes=2;"), solved?.deformation);
   check(`from blank: tip deflection magnitude equals PL^3/3EI = ${blankTipMm} mm within 1e-9 relative`, withinCriterion(tipMm(solved)), solved?.probe_entered);
