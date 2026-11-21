@@ -242,9 +242,9 @@ PRESSURE_RUN_SERIES = {
         "screened": False,
         "description": ("the target program's alternative placement of Bourdon, in the expansion load cases. For this "
                         "run: no SWBPIPE state on these models equals it, because the models' expansion cases carry no "
-                        "pressure; so the run has nothing to be screened against today. It is declared here, and "
-                        "run_pilot refuses it by name (capture_path_unavailable) and collects nothing for it: the path "
-                        "that would collect its result is a separate change")},
+                        "pressure; so the run has no SWBPIPE counterpart today. It is declared here, and run_pilot runs "
+                        "it as a capture-only run: its print is collected, bound and parsed, and no comparison is "
+                        "written until a counterpart exists")},
 }
 # The correspondence the pressure-elongation-on run tests; stated so that it is never assumed.
 PRESSURE_HYPOTHESIS = {
@@ -1308,7 +1308,7 @@ def series_document(document: dict[str, Any], series: str) -> dict[str, Any]:
     naming its elongation_load_case. Either carries the closed forms valid in every state plus that state's, and that
     run's inexact inputs. `pressure-bourdon-expansion-capture`: the tracked model, marked `capture_only`, with no
     closed form and no inexact input, since no SWBPIPE state of these models equals that run (its declaration says
-    why); it is declared, and run_pilot refuses it by name and collects nothing for it. Every run
+    why); run_pilot collects, binds and parses its print and compares nothing. Every run
     document names its `oppres_line` (the MBF's OPPRES line, substituted by `substituted_mbf_text`) and its
     `run_id`, distinct per run."""
     if series not in PRESSURE_RUN_SERIES:
