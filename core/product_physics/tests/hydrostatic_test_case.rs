@@ -25,7 +25,9 @@
 //! product's own warning there and compares the rows the cold load cannot
 //! move (axial reaction and the Lamé stresses). Holding the variable spring
 //! removes its cold load from the system, so its held cases are compared in
-//! full.
+//! full. The skip is removed when the variable spring preload law (DEL-04-11
+//! REQ-014, DEL-04-03 REQ-014) lands, and those rows then become part of that
+//! change's evidence.
 use open_pipe_stress_product_physics::self_weight::{generate_self_weight_operations, SelfWeightGravity, SelfWeightRequest};
 use open_pipe_stress_product_physics::{run_linear_static_preview_value_with_mode, PreviewModel, PreviewSolverMode};
 use serde_json::{json, Value};
