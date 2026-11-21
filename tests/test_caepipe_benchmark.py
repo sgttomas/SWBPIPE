@@ -1295,7 +1295,8 @@ def test_the_benchmark_option_writes_a_private_record_per_model_one_at_a_time(fa
     # The comparison names the solve it compared and the print it compared with; the manifest names the same solve.
     assert record["swbpipe_solve"] == manifest["swbpipe_solve"] and record_path.parent.name == \
         record["swbpipe_solve"]["solve_id"]
-    assert record["caepipe_print"] == {"csv": "caepipe_out/model.csv", "route": "csv_from_batch"}
+    assert record["caepipe_print"] == {"csv": "caepipe_out/model.csv", "route": "csv_from_batch", "sha256": hashlib.sha256(
+        (root / "cases" / "cpb-g1-01" / "caepipe_out" / "model.csv").read_bytes()).hexdigest()}
     rendered = (root / "cases" / "cpb-g1-01" / "caepipe_in" / "model.mbf").read_text()
     assert "HGRA,B311-80,SI" in rendered
     # Standard output names the record, the solve and the comparison's counts by screening class.
@@ -1574,7 +1575,7 @@ def test_a_stop_survives_a_containment_error_on_its_write(fake_benchmark, monkey
 
 
 def test_the_batch_callable_raises_the_stop_naming_a_failed_write(fake_benchmark, monkeypatch):
-    """Through run_benchmark_model, the callable the batch wrapper uses (it records str(error)): a failed write of a
+    """Through run_benchmark_model, the per-model step (a caller records str(error)): a failed write of a
     stop's outcome raises RunStopped, never a not-run outcome, and its text names the failure."""
     state = fake_benchmark
     state["outcomes"][:] = [{"route": "batch_no_csv", "settings_guard": {"status": "unchanged"}}]
@@ -1688,7 +1689,7 @@ def test_collect_only_collects_and_binds_and_offline_then_compares(fake_benchmar
     monkeypatch.setattr(run_pilot, "resolve_harness_config", lambda environ, require_vm_tools: config)
     case = config.exchange_root / "cases" / "cpb-g1-01"
     calls = []
-    real = {name: getattr(run_pilot, name) for name in ("solve_swbpipe", "read_caepipe_print_csv",
+    real = {name: getattr(run_pilot, name) for name in ("solve_swbpipe", "parse_caepipe_print_bytes",
                                                          "build_benchmark_record")}
     for name, function in real.items():
         monkeypatch.setattr(run_pilot, name, lambda *a, _name=name, **k: calls.append(_name) or real[_name](*a, **k))
@@ -1705,7 +1706,7 @@ def test_collect_only_collects_and_binds_and_offline_then_compares(fake_benchmar
                         "--collect-only"], environ={})
     assert run_pilot.main(["--benchmark", str(state["manifest"]), "--runner", state["runner"], "--offline", "--case",
                            "cpb-g1-01"], environ={}) == 0
-    assert calls == ["solve_swbpipe", "read_caepipe_print_csv", "build_benchmark_record"]
+    assert calls == ["solve_swbpipe", "parse_caepipe_print_bytes", "build_benchmark_record"]
     assert len(comparisons(config.exchange_root, "cpb-g1-01")) == 1
 
 
@@ -1836,6 +1837,165 @@ def test_a_capture_run_is_collected_bound_and_parsed_and_never_compared(fake_ben
                                          emit=lines.append)[0] == run_pilot.CAPTURED
     assert {item.name: item.read_bytes() for item in (case / "caepipe_out").iterdir()} == kept
     assert solves == ["cpb-g1-01"] and not any((case / "comparison").iterdir())
+
+
+TOKEN = "0123456789abcdef0123456789abcdef"
+
+
+def _run_mbf_sha256(entry: dict) -> str:
+    mbf = render_caepipe_mbf_si(entry["model"], title=entry["model_id"],
+                                reference_temperature_c=entry.get("reference_temperature_c", 20.0),
+                                piping_code=entry["piping_code"])
+    return hashlib.sha256(benchmark_models.run_mbf_text(entry, mbf.text).encode("utf-8")).hexdigest()
+
+
+def _seed_print(state, entry: dict, **fields) -> tuple[Path, bytes]:
+    """An invented print stored under an attempt token, with a harness run record binding it (fields override)."""
+    paths = case_paths(state["config"], entry["model_id"])
+    data = invented_print().encode("utf-8")
+    (paths["caepipe_out"] / TOKEN).mkdir()
+    (paths["caepipe_out"] / TOKEN / "model.csv").write_bytes(data)
+    sha = _run_mbf_sha256(entry)
+    record = {"document_kind": RUN_RECORD_KIND, "route": "csv_from_batch", "mbf": {"sha256": sha},
+              "guest_mbf_sha256": sha, "input_hash_verified": True, "attempt_token": TOKEN, "exit_status": 0,
+              "start": {"state": "completed"}, "observed_csv_path": {"host": f"caepipe_out/{TOKEN}/model.csv"},
+              "guest_log": {"status": "csv_from_batch", "csv_path": f"C:\\invented-work\\{TOKEN}\\model.csv"},
+              "outputs_collected": ["model.csv"], "outputs_sha256": {"model.csv": hashlib.sha256(data).hexdigest()}}
+    record.update(fields)
+    (paths["caepipe_out"] / "run_record.json").write_text(json.dumps(record), encoding="utf-8")
+    return paths["root"], data
+
+
+class _FixedClock(run_pilot.datetime):
+    @classmethod
+    def now(cls, tz=None):
+        return run_pilot.datetime(2026, 11, 21, 12, 0, 0, tzinfo=tz)
+
+
+def test_a_new_solve_never_reuses_an_id_whose_solve_or_comparison_folder_exists(fake_benchmark, monkeypatch):
+    """An id whose comparison folder exists, or whose solve folder appears between the check and its creation, is
+    passed over for the next suffix, so no earlier comparison can be replaced."""
+    monkeypatch.setattr(run_pilot, "datetime", _FixedClock)
+    root = fake_benchmark["config"].exchange_root
+    paths = case_paths(fake_benchmark["config"], "cpb-g1-01")
+    identity = {"source_commit": "a" * 40, "source_tree_clean": True}
+    name = "20261121T120000Z-" + "a" * 12
+    (paths["comparison"] / name).mkdir()
+    assert run_pilot._new_solve_folder(root, paths["swbpipe"], identity)[0] == f"{name}-2"
+    # A folder that appears after the existence check: mkdir raises FileExistsError and the next suffix is taken.
+    (paths["swbpipe"] / f"{name}-3").mkdir()
+    real = os.path.lexists
+    monkeypatch.setattr(run_pilot.os.path, "lexists", lambda path: False if Path(path).name == f"{name}-3"
+                        else real(path))
+    assert run_pilot._new_solve_folder(root, paths["swbpipe"], identity)[0] == f"{name}-4"
+
+
+def test_a_comparison_record_is_created_and_never_replaced(fake_benchmark, monkeypatch):
+    state = fake_benchmark
+    entry = _bench_entry(state)
+    case, _ = _seed_print(state, entry)
+    seeded = case / "comparison" / "seeded" / "benchmark_comparison.json"
+    seeded.parent.mkdir()
+    seeded.write_text("EARLIER COMPARISON\n", encoding="utf-8")
+
+    def same_id(root, swbpipe_dir, identity):  # an id whose comparison already exists, its solve folder new
+        folder = swbpipe_dir / "seeded"
+        folder.mkdir()
+        return "seeded", folder
+    monkeypatch.setattr(run_pilot, "_new_solve_folder", same_id)
+    with pytest.raises(FileExistsError):
+        run_pilot.run_benchmark_model(entry, state["config"], runner=state["runner"], offline=True,
+                                      emit=lambda line: None)
+    assert seeded.read_text(encoding="utf-8") == "EARLIER COMPARISON\n"
+
+
+def test_a_comparison_binds_its_print_by_digest_and_token(fake_benchmark):
+    state = fake_benchmark
+    entry = _bench_entry(state)
+    case, data = _seed_print(state, entry)
+    assert run_pilot.run_benchmark_model(entry, state["config"], runner=state["runner"], offline=True,
+                                         emit=lambda line: None)[0] == run_pilot.RECORDED
+    [path] = comparisons(state["config"].exchange_root, "cpb-g1-01")
+    assert json.loads(path.read_text())["caepipe_print"] == {
+        "csv": f"caepipe_out/{TOKEN}/model.csv", "route": "csv_from_batch",
+        "sha256": hashlib.sha256(data).hexdigest(), "attempt_token": TOKEN}
+    # A print whose bytes differ from the run record's digest is not compared.
+    (case / "caepipe_out" / TOKEN / "model.csv").write_bytes(data.replace(b"-4.000", b"-4.001"))
+    assert run_pilot.run_benchmark_model(entry, state["config"], runner=state["runner"], offline=True,
+                                         emit=lambda line: None)[:2] == (run_pilot.NOT_RUN, "print_digest_mismatch")
+    assert len(comparisons(state["config"].exchange_root, "cpb-g1-01")) == 1
+
+
+def test_a_stored_print_refuses_every_live_attempt_and_an_odd_record_does_not_crash(fake_benchmark):
+    state = fake_benchmark
+    entry = _bench_entry(state)
+    _seed_print(state, entry)
+    for attempt in (1, 2):
+        assert run_pilot._run_benchmark_model(
+            entry, state["config"], runner=state["runner"], offline=False, emit=lambda line: None,
+            round_trip=lambda *a, **k: pytest.fail("round-tripped"), gui_fallback=False,
+            attempt=attempt)[:2] == (run_pilot.NOT_RUN, "print_stored")
+    # A run record whose observed_csv_path is not a mapping names no print: the live run proceeds.
+    other = _bench_entry(state, "cpb-g1-02")
+    _seed_print(state, other, observed_csv_path="caepipe_out/model.csv")
+    calls = []
+    run_pilot._run_benchmark_model(other, state["config"], runner=state["runner"], offline=False,
+                                   emit=lambda line: None, round_trip=lambda *a, **k: calls.append(1) or {
+                                       "route": "not_started", "start": {"state": "not_started"},
+                                       "settings_guard": {"status": "unchanged"}},
+                                   gui_fallback=False, attempt=1)
+    assert calls == [1]
+
+
+def test_a_print_collected_before_a_harness_error_is_stored_bound_and_compared(fake_benchmark):
+    """The batch exited 0 on the verified input and its print was collected under its token, but the run record ended
+    in harness_error (a settings write-back failed afterwards), so observed_csv_path.host is null. The print is still
+    the case's: a live run is refused as print_stored and --offline binds it by digest and compares it."""
+    state = fake_benchmark
+    entry = _bench_entry(state)
+    _seed_print(state, entry, route="harness_error", observed_csv_path={"guest": None, "host": None},
+                harness_error="RuntimeError: invented settings write-back failure")
+    lines: list[str] = []
+    assert run_pilot._run_benchmark_model(
+        entry, state["config"], runner=state["runner"], offline=False, emit=lines.append,
+        round_trip=lambda *a, **k: pytest.fail("round-tripped"), gui_fallback=False, attempt=1)[:2] == (
+        run_pilot.NOT_RUN, "print_stored")
+    assert "recovered from a run record that ended in harness_error" in lines[0]
+    assert run_pilot.run_benchmark_model(entry, state["config"], runner=state["runner"], offline=True,
+                                         emit=lambda line: None)[0] == run_pilot.RECORDED
+    [path] = comparisons(state["config"].exchange_root, "cpb-g1-01")
+    printed = json.loads(path.read_text())["caepipe_print"]
+    assert (printed["csv"], printed["route"], printed["run_record_route"]) == (
+        f"caepipe_out/{TOKEN}/model.csv", "csv_from_batch", "harness_error")
+
+
+def test_a_harness_error_record_that_does_not_establish_a_clean_batch_still_protects_its_folder(fake_benchmark):
+    state = fake_benchmark
+    entry = _bench_entry(state)
+    _seed_print(state, entry, route="harness_error", observed_csv_path={"guest": None, "host": None}, exit_status=1)
+    lines: list[str] = []
+    assert run_pilot._run_benchmark_model(
+        entry, state["config"], runner=state["runner"], offline=False, emit=lines.append,
+        round_trip=lambda *a, **k: pytest.fail("round-tripped"), gui_fallback=False, attempt=1)[:2] == (
+        run_pilot.NOT_RUN, "print_unestablished")
+    assert "the batch's exit status is not 0" in lines[0]
+    assert run_pilot.run_benchmark_model(entry, state["config"], runner=state["runner"], offline=True,
+                                         emit=lambda line: None)[:2] == (run_pilot.NOT_RUN, "harness_error")
+
+
+def test_a_manifest_that_is_a_link_is_refused_at_admission(fake_benchmark):
+    """A case manifest that is a symbolic link is refused before anything is solved, written or round-tripped."""
+    state = fake_benchmark
+    case = state["config"].exchange_root / "cases" / "cpb-g1-01"
+    case.mkdir(parents=True)
+    (case / "elsewhere.json").write_text("{}", encoding="utf-8")
+    os.symlink("elsewhere.json", case / "case_manifest.json")
+    before = tree_bytes(state["config"].exchange_root)
+    for offline in (False, True):
+        assert run_pilot.run_benchmark_model(_bench_entry(state), state["config"], runner=state["runner"],
+                                             offline=offline, emit=lambda line: None)[:2] == (
+            run_pilot.NOT_RUN, "manifest_link")
+    assert state["calls"] == [] and tree_bytes(state["config"].exchange_root) == before
 
 
 def test_a_window_run_is_refused_by_name_before_anything_runs(fake_benchmark, capsys):
@@ -2079,7 +2239,7 @@ def test_an_unresolved_start_stops_with_the_manifest_left_at_round_trip_started(
     assert [call[0] for call in state["calls"]] == ["cpb-g1-01"]  # never retried, and no further model ran
     out = capsys.readouterr().out
     assert "cpb-g1-01: route=start_unresolved;" in out and "retrying" not in out
-    # Through the per-model step the wrapper calls: the stop is raised, and no outcome is written.
+    # Through the per-model step (run_benchmark_model): the stop is raised, and no outcome is written.
     state["calls"].clear()
     state["outcomes"][:] = [error]
     with pytest.raises(run_pilot.RunStopped, match="start_unresolved"):

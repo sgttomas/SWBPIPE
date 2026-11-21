@@ -384,6 +384,16 @@ def test_the_prose_rules_hold_in_the_generated_documents():
         assert words in instructions
 
 
+def test_the_builder_holds_no_exchange_intake_or_git_machinery():
+    """A static guard on the builder's own source: it reads tracked inputs and writes a folder, so it holds nothing
+    that reaches the private exchange folder, runs the harness or writes to Git, and no CAEPIPE output can pass
+    through it into a tracked path."""
+    source = (ROOT / "tools" / "caepipe_correlation" / "sitting_pack_build.py").read_text()
+    for word in ("SWBPIPE_CAEPIPE_EXCHANGE", "class Guard", "class Tree", "resolve_harness_config", "subprocess",
+                 "def ingest", "def recognise", "authority", "--development", "exchange_root", "run_pilot", "git "):
+        assert word not in source, word
+
+
 def test_the_pack_folder_holds_only_what_travels_and_the_records_folder_the_rest():
     """pack/ holds the top-level documents and, per item, its model file and its provenance sidecar, its window
     instruction where there is one, and its run line; records/ holds each written model file's identity sidecar and writer's report; there is no

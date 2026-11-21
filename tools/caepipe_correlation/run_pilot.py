@@ -93,12 +93,19 @@ print fallback is used only with restore_scope "key" (Design §5). --offline bui
 from the stored, bound CSVs.
 
 The CAEPIPE side of a case is kept as collected: its print and the harness's run
-record are never replaced. A live run of a case whose stored run record already
-names a collected print is refused by name (print_stored) so that the print stays
-as it is; compare it again with --offline, or move the case folder aside to run
-the program again. SWBPIPE's side may be solved again at any revision: every
+record are never replaced. Every live attempt on a case whose stored run record
+already names a collected print is refused by name (print_stored), so that the
+print stays as it is; compare it again with --offline, or move the case folder
+aside to run the program again. A run record that ended in harness_error after a
+clean batch on the verified input still names its print (from the guest's report
+and the attempt's digested outputs); one that ended in harness_error with outputs
+collected but does not establish a clean batch refuses the live run as
+print_unestablished. Where the run record holds a digest for the print, its bytes
+must match it (print_digest_mismatch otherwise). A case manifest that is a
+symbolic link is refused (manifest_link). SWBPIPE's side may be solved again at any revision: every
 solve, live or offline, writes its request and result under
-swbpipe/<solve id>/ and its comparison under comparison/<solve id>/, where the
+swbpipe/<solve id>/ and creates its comparison under comparison/<solve id>/,
+never replacing one, where the
 solve id names the UTC time, the SWBPIPE commit and whether the tree was dirty.
 Each solve records the commit, whether its tree was clean, the runner binary's
 SHA-256, the SHA-256 of the request and result, and the numerical standing the
@@ -166,6 +173,7 @@ from core.handoff.caepipe_external import (  # noqa: E402
     build_comparison_record,
     canonical_model_hash,
     case_paths,
+    parse_caepipe_print_bytes,
     read_caepipe_print_csv,
     resolve_harness_config,
     run_caepipe_mbf_export,
@@ -173,6 +181,7 @@ from core.handoff.caepipe_external import (  # noqa: E402
 )
 from core.handoff.caepipe_external.correlation import evaluate_hypothesis_series, series_summary  # noqa: E402
 from core.handoff.caepipe_external.harness import (  # noqa: E402
+    ATTEMPT_TOKEN_PATTERN,
     CONFIG_NAME,
     check_guest_alive,
     check_no_foreign_instance,
@@ -491,9 +500,46 @@ def _now() -> str:
     return datetime.now(timezone.utc).isoformat(timespec="seconds")
 
 
+def _print_of_record(record: Mapping[str, Any]) -> tuple[str | None, str, str, bool]:
+    """(host path, route, reason, recovered): the print a harness run record names.
+
+    A record whose route is a CSV route names its print in observed_csv_path.host. A record that ended in
+    harness_error after the program ran clean (an error after the print was collected, such as a failed settings
+    write-back) still establishes its print when its own facts show a clean batch on the verified input: start
+    completed, exit status 0, input hash verified, a CSV route in the guest's report, an attempt token, and the
+    print the guest named among the attempt's collected outputs with its digest. Such a print is `recovered`."""
+    route = str(record.get("route") or "unknown_route")
+    observed = record.get("observed_csv_path")
+    host = observed.get("host") if isinstance(observed, Mapping) else None
+    if route in CSV_ROUTES and isinstance(host, str) and host.startswith("caepipe_out/"):
+        return host, route, "", False
+    if route != "harness_error":
+        return None, route, "the run record names no collected CAEPIPE CSV", False
+    guest = record.get("guest_log") if isinstance(record.get("guest_log"), Mapping) else {}
+    start = record.get("start") if isinstance(record.get("start"), Mapping) else {}
+    digests = record.get("outputs_sha256") if isinstance(record.get("outputs_sha256"), Mapping) else {}
+    token = record.get("attempt_token")
+    named = guest.get("csv_path")
+    name = named.replace("/", "\\").split("\\")[-1] if isinstance(named, str) else ""
+    failed = [reason for holds, reason in (
+        (start.get("state") == "completed", "its start is not recorded as completed"),
+        (record.get("exit_status") == 0, "the batch's exit status is not 0"),
+        (record.get("input_hash_verified") is True, "the input hash is not recorded as verified"),
+        (guest.get("status") in CSV_ROUTES, "the guest reported no print route"),
+        (isinstance(token, str) and bool(ATTEMPT_TOKEN_PATTERN.match(token)), "it names no attempt token"),
+        (name.lower().endswith(".csv") and name in digests, "the print the guest named is not among its digested "
+                                                            "outputs")) if not holds]
+    if failed:
+        return None, route, ("the run record ended in harness_error and does not establish a clean batch on the "
+                             "verified input: " + "; ".join(failed)), False
+    return f"caepipe_out/{token}/{name}", str(guest["status"]), "", True
+
+
 def bound_csv(root: Path, paths: Mapping[str, Path], record: Mapping[str, Any] | None,
               mbf_sha256: str) -> tuple[Path | None, str, str]:
-    """(CSV, route, reason): the CSV only when the run record binds it to the current MBF, else None and why."""
+    """(CSV, route, reason): the CSV only when the run record binds it to the current MBF, else None and why. Where the
+    record holds a digest for the print (outputs_sha256), the print's bytes must match it; an older record without
+    one is accepted on its two MBF hashes alone."""
     if record is None:
         return None, "unbound_output", "no valid caepipe_out/run_record.json binds a CSV to this MBF"
     if (record.get("mbf") or {}).get("sha256") != mbf_sha256:
@@ -502,12 +548,17 @@ def bound_csv(root: Path, paths: Mapping[str, Path], record: Mapping[str, Any] |
     if record.get("guest_mbf_sha256") != mbf_sha256:
         return None, (route if route == "input_hash_mismatch" else "unbound_output"), \
             "the guest did not report solving this MBF (guest MBF hash absent or different)"
-    host = (record.get("observed_csv_path") or {}).get("host")
-    if route not in CSV_ROUTES or not isinstance(host, str) or not host.startswith("caepipe_out/"):
-        return None, route, "the run record names no collected CAEPIPE CSV"
+    host, route, reason, _ = _print_of_record(record)
+    if host is None:
+        return None, route, reason
     csv_path = contained(root, paths["root"] / host)
     if not csv_path.is_file():
         return None, route, "the CAEPIPE CSV named by the run record is missing"
+    digests = record.get("outputs_sha256")
+    name = Path(host).name
+    if isinstance(digests, Mapping) and name in digests and \
+            hashlib.sha256(csv_path.read_bytes()).hexdigest() != digests[name]:
+        return None, "print_digest_mismatch", f"the print's bytes do not match the run record's digest for {name}"
     return csv_path, route, ""
 
 
@@ -1018,7 +1069,8 @@ def _swbpipe_standing(output: Mapping[str, Any] | None) -> dict[str, Any]:
 
 
 def _new_solve_folder(root: Path, swbpipe_dir: Path, identity: Mapping[str, Any]) -> tuple[str, Path]:
-    """A new folder for one SWBPIPE solve under swbpipe/, named by the UTC time, the commit and a dirty tree."""
+    """A new folder for one SWBPIPE solve under swbpipe/, named by the UTC time, the commit and a dirty tree. An id
+    whose solve folder or comparison folder already exists is never reused, so no earlier comparison is replaced."""
     commit = identity.get("source_commit")
     name = (datetime.now(timezone.utc).strftime("%Y%m%dT%H%M%SZ") + "-"
             + (commit[:12] if isinstance(commit, str) and commit else "unknown-commit")
@@ -1026,9 +1078,13 @@ def _new_solve_folder(root: Path, swbpipe_dir: Path, identity: Mapping[str, Any]
     for number in range(1, 1000):
         solve_id = name if number == 1 else f"{name}-{number}"
         folder = contained(root, swbpipe_dir / solve_id)
-        if not os.path.lexists(folder):
+        if os.path.lexists(folder) or os.path.lexists(swbpipe_dir.parent / "comparison" / solve_id):
+            continue
+        try:
             folder.mkdir()
-            return solve_id, folder
+        except FileExistsError:
+            continue
+        return solve_id, folder
     raise RuntimeError(f"no free solve folder for {name}")
 
 
@@ -1053,15 +1109,27 @@ def _solve_benchmark(root: Path, paths: Mapping[str, Path], entry: Mapping[str, 
     return body, output, error, solve
 
 
-def _stored_print(root: Path, case_root: Path) -> str | None:
-    """The print a case's stored harness run record names, when that file exists; else None."""
+def _stored_print(root: Path, case_root: Path) -> tuple[str, str] | None:
+    """(route, reason) refusing a live run of a case whose stored run record holds a print, else None. A live round
+    trip replaces the flat run record, which holds the print's attempt token and digest, so the record is protected:
+    print_stored when it establishes a print (recovered after a harness error included), and print_unestablished when
+    it ended in harness_error with outputs collected but its facts do not establish a clean batch."""
     if not os.path.isdir(case_root / "caepipe_out"):
         return None
     record = stored_run_record(root, case_root / "caepipe_out")
-    host = ((record or {}).get("observed_csv_path") or {}).get("host")
-    if not isinstance(host, str) or not host.startswith("caepipe_out/") or record.get("route") not in CSV_ROUTES:
+    if record is None:
         return None
-    return host if contained(root, case_root / host).is_file() else None
+    host, _, reason, recovered = _print_of_record(record)
+    if host is not None and contained(root, case_root / host).is_file():
+        return "print_stored", (f"this case already holds a collected print ({host}"
+                                + (", recovered from a run record that ended in harness_error" if recovered else "")
+                                + ") named by its run record, which a live run would replace; compare it again with "
+                                  "--offline, or move the case folder aside to run the program again")
+    if record.get("route") == "harness_error" and record.get("outputs_collected"):
+        return "print_unestablished", (f"this case's run record holds collected outputs, but {reason[0].lower()}"
+                                       f"{reason[1:]}; a live run would replace that record, so it is not run: "
+                                       "examine the case folder, or move it aside to run the program again")
+    return None
 
 
 def _counts(summary: Mapping[str, Any]) -> str:
@@ -1089,16 +1157,18 @@ def _run_benchmark_model(entry: Mapping[str, Any], config: HarnessConfig, *, run
         reason = "offline, this case has no stored folder"
         emit(f"{model_id}: route=no_stored_case; {reason}; no benchmark record")
         return NOT_RUN, "no_stored_case", reason
-    if not offline and attempt == 1:
-        # A live round trip replaces the harness's flat run record, so a case already holding a collected print is
-        # not run again: the print and its run record are kept as they are, and compared again offline.
+    if os.path.islink(case_root / "case_manifest.json"):
+        reason = "this case's manifest is a symbolic link; nothing is solved or written through it"
+        emit(f"{model_id}: route=manifest_link; {reason}; not run")
+        return NOT_RUN, "manifest_link", reason
+    if not offline:
+        # On every live attempt: a live round trip replaces the harness's flat run record, so a case whose record
+        # holds a print is not run again; the print and its run record are kept, and compared again offline.
         stored = _stored_print(root, case_root)
         if stored is not None:
-            reason = (f"this case already holds a collected print ({stored}) named by its run record, which a live "
-                      "run would replace; compare it again with --offline, or move the case folder aside to run the "
-                      "program again")
-            emit(f"{model_id}: route=print_stored; {reason}; not run")
-            return NOT_RUN, "print_stored", reason
+            route, reason = stored
+            emit(f"{model_id}: route={route}; {reason}; not run")
+            return NOT_RUN, route, reason
     # Only the retry (attempt 2) of a model reuses the solve its own first attempt made in this process.
     solved = _SOLVED_THIS_PROCESS.get(str(case_root)) if attempt > 1 else None
     paths = case_paths(config, model_id)
@@ -1217,12 +1287,20 @@ def _run_benchmark_model(entry: Mapping[str, Any], config: HarnessConfig, *, run
                                 csv=str(csv_path.relative_to(paths["root"])))
             emit(f"{model_id}: route={route}; collected and bound; not parsed or compared (compare it with --offline)")
             return COLLECTED, route, ""
-    parsed = read_caepipe_print_csv(csv_path)
+    print_bytes = contained(root, csv_path).read_bytes()
+    parsed = parse_caepipe_print_bytes(print_bytes)
     _write_json(root, paths["parsed"] / "caepipe_results.json", parsed)
     _write_json(root, paths["parsed"] / "parser_diagnostics.json", {
         "document_kind": PARSER_DIAGNOSTICS_KIND,
         **{key: parsed[key] for key in ("parser_version", "diagnostics", "sections_parsed", "sections_skipped")}})
     csv = str(csv_path.relative_to(paths["root"]))
+    stored_record = stored_run_record(root, paths["caepipe_out"]) or {}
+    token = stored_record.get("attempt_token")
+    caepipe_print = {"csv": csv, "route": route, "sha256": hashlib.sha256(print_bytes).hexdigest(),
+                     **({"attempt_token": token} if isinstance(token, str) and ATTEMPT_TOKEN_PATTERN.match(token)
+                        else {}),
+                     **({"run_record_route": stored_record.get("route")}
+                        if stored_record.get("route") not in (None, route) else {})}
     if capture:
         if not offline:
             _benchmark_manifest(root, paths, entry, offline=offline, outcome=CAPTURED, route=route, attempt=attempt,
@@ -1236,9 +1314,9 @@ def _run_benchmark_model(entry: Mapping[str, Any], config: HarnessConfig, *, run
     comparison = build_benchmark_record(entry, swbpipe_result_payload=output["payload"], mbf_result=mbf,
                                         mbf_text=mbf_text, parsed_caepipe=parsed)
     comparison["swbpipe_solve"] = dict(solve)
-    comparison["caepipe_print"] = {"csv": csv, "route": route}
+    comparison["caepipe_print"] = caepipe_print
     comparison_path = contained_dir(root, paths["comparison"] / solve["solve_id"]) / BENCHMARK_RECORD
-    _write_json(root, comparison_path, comparison)
+    _create_private_json(root, comparison_path, comparison)  # created, never replacing an earlier comparison
     if not offline:
         _benchmark_manifest(root, paths, entry, offline=offline, outcome="recorded", route=route, attempt=attempt,
                             solve=solve, exported_model_hash=mbf_sha256, target_tool=comparison["target_tool"],
