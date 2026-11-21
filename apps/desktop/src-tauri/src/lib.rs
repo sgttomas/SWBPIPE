@@ -11079,6 +11079,58 @@ mod tests {
             root.join(PROJECT_STORE_FILE)
         }
 
+        /// Issue 382: each native operation command refuses a bare number that names a unit
+        /// other than the stored one, and returns no model. The bundled model stores the
+        /// material's elastic modulus as 200000000000 Pa; the edit is the issue's own (bare
+        /// 210, unit GPa). The explicit pair is the control.
+        #[test]
+        fn model_operation_commands_refuse_a_bare_number_naming_another_unit() {
+            const CODE: &str = "OP-UNIT-MISMATCH-CONVERSION-UNAVAILABLE";
+            let model = load_preview_model().unwrap();
+            let stored = |model: &Value| {
+                model["materials"].as_array().unwrap().iter().find(|m| m["id"] == "material:invented-carbon-steel").unwrap()["elastic_modulus"].clone()
+            };
+            assert_eq!(stored(&model), json!({"value": 200000000000u64, "unit": "Pa"}));
+            let with_unit = |after: &str| {
+                let mut intent = fixture_inspector_intent("200000000000", after);
+                intent["change"]["unit"] = json!("GPa");
+                intent
+            };
+            let bare = with_unit("210");
+            let pair = with_unit(r#"{"value":210,"unit":"GPa"}"#);
+            // The stored number is compared as a number: the applier stores a pair's value as binary64.
+            let pair_of = |quantity: &Value| (quantity["value"].as_f64(), quantity["unit"].as_str().map(str::to_owned));
+            let refuses = |diagnostics: &Value| diagnostics.as_array().unwrap().iter().any(|d| d["code"] == CODE && d["severity"] == "blocking");
+            let claim = json!({"algorithm": "sha256", "canonicalization": "rfc8785_jcs", "payload_scope": "model_payload",
+                "value": format!("sha256:{}", open_pipe_stress_operation_applier::sha256_hex(&open_pipe_stress_operation_applier::canonical_json(&model)))});
+
+            for command in ["validate_model_operation", "apply_model_operation"] {
+                let (mut args, _lease) = admit(command, json!({"model": model, "intent": bare, "claimedModelHash": null}));
+                let outcome = if command == "apply_model_operation" { apply_model_operation_args(&mut args) } else { validate_model_operation_args(&mut args) }.unwrap();
+                assert!(refuses(&outcome["diagnostics"]), "{command}: {}", outcome["diagnostics"]);
+                assert!(outcome["applied_model"].is_null(), "{command}");
+                assert_eq!(outcome["validation"]["unit_validation"], "blocked", "{command}");
+            }
+            for apply in [false, true] {
+                let command = if apply { "apply_model_operation_batch" } else { "validate_model_operation_batch" };
+                let batch = json!({"batch_id": "batch:bare-gpa", "operations": [bare]});
+                let (mut args, _lease) = admit(command, json!({"model": model, "batch": batch, "claimedModelHash": claim}));
+                let outcome = model_operation_batch_args(&mut args, apply).unwrap();
+                assert_eq!(outcome["simulation_disposition"], "rolled_back_no_model_published", "{command}: {}", outcome["diagnostics"]);
+                assert!(refuses(&outcome["operation_outcomes"][0]["diagnostics"]), "{command}: {}", outcome["operation_outcomes"]);
+                assert!(outcome["applied_model"].is_null(), "{command}");
+            }
+
+            let (mut args, _lease) = admit("apply_model_operation", json!({"model": model, "intent": pair, "claimedModelHash": null}));
+            let applied = apply_model_operation_args(&mut args).unwrap();
+            assert_eq!(pair_of(&stored(&applied["applied_model"])), (Some(210.0), Some("GPa".to_owned())), "{}", applied["diagnostics"]);
+            let batch = json!({"batch_id": "batch:pair-gpa", "operations": [pair]});
+            let (mut args, _lease) = admit("apply_model_operation_batch", json!({"model": model, "batch": batch, "claimedModelHash": claim}));
+            let applied = model_operation_batch_args(&mut args, true).unwrap();
+            assert_eq!(applied["simulation_disposition"], "committed_as_one_batch", "{}", applied["diagnostics"]);
+            assert_eq!(pair_of(&stored(&applied["applied_model"])), (Some(210.0), Some("GPa".to_owned())));
+        }
+
         #[test]
         fn model_operation_and_quantity_commands_decode_raw_bodies() {
             let model = load_preview_model().unwrap();
