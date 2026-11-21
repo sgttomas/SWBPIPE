@@ -16,19 +16,13 @@ import {
   writeJson
 } from "./benchmark-harness";
 import { assertBoundCandidateDocumentResponse, bindCandidateDriverEntry } from "./candidate-server-response";
+import { judgeStatusSelectionExposure } from "./status-selection-exposure";
 
 const candidateDriverBinding = bindCandidateDriverEntry("candidate-visual-point-preflight");
 
-/** Whether the status bar's selection is exposed: a box at least 1 px each way, and an identifier not
- * clipped to nothing. */
-async function statusSelectionExposure(page: Page): Promise<any> {
-  return page.getByTestId("status-selection").evaluate((element) => {
-    const box = element.getBoundingClientRect();
-    const id = element.querySelector(".shell-status-selection-id");
-    const idClientWidth = id instanceof HTMLElement ? id.clientWidth : 0;
-    const exposed = box.width >= 1 && box.height >= 1 && idClientWidth > 0;
-    return { status: exposed ? "PASS_STATUS_SELECTION_EXPOSED" : "FAIL_STATUS_SELECTION_NOT_EXPOSED", width: box.width, height: box.height, idClientWidth };
-  });
+/** Whether the status bar's typed selection is legible, read in the page (judgeStatusSelectionExposure). */
+async function statusSelectionExposure(page: Page, expected: { type: string; id: string }): Promise<any> {
+  return page.getByTestId("status-selection").evaluate(judgeStatusSelectionExposure, { type: expected.type, id: expected.id });
 }
 
 test("untimed candidate V4 visual point preflight on three frozen probes", async ({ page }) => {
@@ -85,7 +79,8 @@ test("untimed candidate V4 visual point preflight on three frozen probes", async
       // The visible status, as the status bar states it: "<type>: <id>".
       { locator: page.getByTestId("status-selection"), text: `${expectedHitRef.type}: ${expectedHitRef.id}`, testId: "status-selection" }
     ));
-    exposures.push({ sample: sample.sample, ...(await statusSelectionExposure(page)) });
+    // Read as captured: the helper has just captured this element, and nothing has happened since.
+    exposures.push({ sample: sample.sample, ...(await statusSelectionExposure(page, expectedHitRef)) });
   }
   await ensureViewportToggle(page, "toggle-viewport-labels", true, 30_000);
   const failed = [
