@@ -137,13 +137,19 @@ The desktop technical preview binds this contract into the export workflow
   `apps/desktop/src/features/redaction-controls/redactionExportControls.test.ts`
   assert against; the corpus exercises every governed reason code.
 - `apps/desktop/src/features/redaction-controls/RedactionExportControlsPanel.tsx`
-  is the user-facing surface: the export context starts at `local_private`
-  (private-by-default), every warning and blocking finding is rendered before
-  any export artifact is offered, no download link exists while a blocking
-  finding is present, private values are retained locally only after the user
-  records explicit local-private intent, and the offered redacted manifest
-  carries a canonical sha256 checksum computed through the same wasm hash seam
-  the engines use.
+  is kept and is not mounted in the v1.0 interface
+  (`docs/RELEASE_LIMITATIONS_v1.0.md`, LIM-039). Rendered, its export context
+  starts at `local_private` (private-by-default), every warning and blocking
+  finding is rendered before any export artifact is offered, no download link
+  exists while a blocking finding is present, private values are retained
+  locally only after the user records explicit local-private intent, and the
+  offered redacted manifest carries a canonical sha256 checksum computed
+  through the same wasm hash seam the engines use, or marks the checksum as
+  pending while it is being computed (issue #497: after a change of context or
+  model the panel can carry the previous manifest's checksum for one render). The
+  mounted user-facing controls are the controlled export link on each
+  link-based export, the results tables' CSV export control, and the report's
+  and the native saves' own routes.
 
 The application binding classifies a metadata-only export representation of
 the user-entered model; it never mutates the source model and never transmits
