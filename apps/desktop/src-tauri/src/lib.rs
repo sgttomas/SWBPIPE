@@ -220,11 +220,12 @@ async fn save_report_package_decoded(
             let mut session = report_package_save::UserReleaseSession { registry: &registry, lease: &mut lease };
             // DEL-08-01 REQ-023: a published package's entry, kept in the
             // project store from the save's own outcome, or held by the
-            // session while the store does not hold the project, until the
-            // project's first save writes it.
+            // session under the holder the page presents while the store
+            // does not hold the project.
             let held = app.state::<saved_package_entries::SessionHeldEntries>();
+            let holder = request.saved_package_entry_holder.clone();
             let mut keep = |published: &saved_package_entries::PublishedPackage| {
-                saved_package_entries::keep_or_hold_in(app_store_path(&app), &held, published)
+                saved_package_entries::keep_or_hold_in(app_store_path(&app), &held, holder.as_deref(), published)
             };
             report_package_save::save_report_package_session(
                 request,
@@ -2793,10 +2794,7 @@ async fn save_preview_mechanics_job_local_project(
     invoke: tauri::ipc::Request<'_>,
     registry: tauri::State<'_, SolveJobRegistry>,
 ) -> Result<tauri::ipc::Response, CommandError<String>> {
-    let store_app = app.clone();
-    let outcome = native_persistence::save_project(&registry, move || app_store_path(&store_app), invoke.body(), invoke.headers()).await;
-    saved_package_entries::write_held_entries_after_save(&app);
-    outcome
+    native_persistence::save_project(&registry, move || app_store_path(&app), invoke.body(), invoke.headers()).await
 }
 
 /// C1 slice 6: open a stored project with its saved run reopened into
@@ -2827,10 +2825,7 @@ async fn save_restored_result_local_project(
     invoke: tauri::ipc::Request<'_>,
     registry: tauri::State<'_, SolveJobRegistry>,
 ) -> Result<tauri::ipc::Response, CommandError<String>> {
-    let store_app = app.clone();
-    let outcome = stored_save::save_project(&registry, move || app_store_path(&store_app), invoke.body(), invoke.headers()).await;
-    saved_package_entries::write_held_entries_after_save(&app);
-    outcome
+    stored_save::save_project(&registry, move || app_store_path(&app), invoke.body(), invoke.headers()).await
 }
 
 /// C1 slice 6: a recorded run reopened into native custody after the store's
@@ -3387,11 +3382,7 @@ fn create_local_project(
     registry: tauri::State<'_, SolveJobRegistry>,
 ) -> Result<tauri::ipc::Response, CommandError> {
     let (mut args, _lease) = command_ingress::admit(&registry, &invoke, "create_local_project", ArgsDecoding::Moved)?;
-    let outcome = create_local_project_args(&mut args, || app_store_path(&app));
-    // DEL-08-01 REQ-023: entries held for a project the store now holds are
-    // written; the save's own outcome is unchanged by it.
-    saved_package_entries::write_held_entries_after_save(&app);
-    respond(outcome)
+    respond(create_local_project_args(&mut args, || app_store_path(&app)))
 }
 
 /// `{model, editorIntents?, proposal?, selectedReviewTarget?, mechanicsResult?,
@@ -3563,9 +3554,7 @@ fn save_local_project(
     registry: tauri::State<'_, SolveJobRegistry>,
 ) -> Result<tauri::ipc::Response, CommandError> {
     let (mut args, _lease) = command_ingress::admit(&registry, &invoke, "save_local_project", ArgsDecoding::Moved)?;
-    let outcome = save_local_project_args(&mut args, || app_store_path(&app));
-    saved_package_entries::write_held_entries_after_save(&app);
-    respond(outcome)
+    respond(save_local_project_args(&mut args, || app_store_path(&app)))
 }
 
 /// `{request}` (snake_case fields, see `SaveLocalProjectRequest`).
@@ -6370,6 +6359,7 @@ macro_rules! app_invoke_handler {
             saved_package_entries::list_saved_package_entries,
             saved_package_entries::check_saved_package_entry,
             saved_package_entries::remove_saved_package_entry,
+            saved_package_entries::keep_held_saved_package_entries,
             autosave_commands::write_project_autosave,
             autosave_commands::list_project_autosaves,
             autosave_commands::read_project_autosave,

@@ -145,6 +145,15 @@ needs:
     section's dormant subtree.
   when: Ordering report output with changes of its source (REQ-022).
   gating: true
+- from: DEL-07-11
+  condition: The workspace session keeps the saved-package entry holder token that a held save's receipt
+    returns for as long as the document session lasts, presents it with each later package save, list,
+    state check and removal of that document session, and, after its own successful first store save of
+    the project, calls the native command that writes that holder's held entries with the project's id
+    and the token; a document session that replaces it presents no earlier token.
+  when: Keeping the entries made before a project's first store save (REQ-023 "Before the first project
+    save").
+  gating: true
 - from: DEL-07-03
   condition: Each publication of the store's library-reference findings is a complete, immutable set that
     replaces the previous one, and every publication notifies its subscribers synchronously before it

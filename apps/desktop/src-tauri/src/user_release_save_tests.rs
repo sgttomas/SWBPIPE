@@ -1491,7 +1491,7 @@ fn a_user_released_save_adds_one_entry_holding_nothing_of_the_package_or_its_rec
     assert!(!serde_json::to_string(&receipt).unwrap().contains(LOCATION_MARKER), "the location is in no reply");
 
     let project_id = basis.model["project"]["id"].as_str().unwrap();
-    let list = crate::saved_package_entries::list_entries_in_store(&store, project_id).unwrap();
+    let list = crate::saved_package_entries::tests::listed(&store, &crate::saved_package_entries::SessionHeldEntries::default(), project_id, None);
     assert_eq!(list.entries.len(), 1);
     let entry = &list.entries[0];
     assert_eq!(entry.entry_id, outcome.entry_id);
@@ -1574,13 +1574,14 @@ fn after_a_user_released_save_the_project_is_unchanged_but_for_its_one_entry() {
 
 /// A user-released save from a project the store does not yet hold: its one
 /// entry is held by the session, nothing is written to the store, and the
-/// project's first save writes exactly that entry (AC-010 and VER-010, "held
+/// page's call after the project's first save writes exactly that entry (AC-010 and VER-010, "held
 /// by the session until the project's first store save where applicable";
 /// REQ-023 "Before the first project save").
 #[test]
 fn a_user_released_save_before_the_first_project_save_is_held_until_that_save_writes_it() {
     use crate::saved_package_entries::tests::{entry_rows, others, scratch, store_in, write_project};
-    use crate::saved_package_entries::{list_entries_with, write_held_entries, SessionHeldEntries, ENTRY_HELD_BY_SESSION};
+    use crate::saved_package_entries::tests::listed;
+    use crate::saved_package_entries::{keep_held_entries, SessionHeldEntries, ENTRY_HELD_BY_SESSION};
     let _lock = crate::atomic_report_package_save::test_support::atomic_save_test_lock();
     let basis = basis();
     let project_id = basis.model["project"]["id"].as_str().unwrap();
@@ -1593,7 +1594,7 @@ fn a_user_released_save_before_the_first_project_save_is_held_until_that_save_wr
 
     let (registry, mut lease) = basis.session(PreviewSolverMode::SparseInteractive);
     let admitted = admit(basis.args(), &registry, &mut lease).unwrap_or_else(|refusal| panic!("{refusal:?}"));
-    let mut keep = |published: &crate::saved_package_entries::PublishedPackage| crate::saved_package_entries::keep_or_hold(&store, &session, published);
+    let mut keep = |published: &crate::saved_package_entries::PublishedPackage| crate::saved_package_entries::keep_or_hold(&store, &session, None, published);
     let receipt = crate::report_package_save::save_admitted_report_package_keeping(admitted, &crate::report_package_save::no_custody, |name| Some(Ok(dir.join(name))), &mut keep)
         .unwrap();
     assert_eq!(receipt.outcome, "saved");
@@ -1602,16 +1603,21 @@ fn a_user_released_save_before_the_first_project_save_is_held_until_that_save_wr
     assert_eq!(others(&store), before, "the store is unchanged while the entry is held");
     assert!(entry_rows(&store).is_empty());
 
-    let held = list_entries_with(&store, &session, project_id).unwrap().entries;
+    let holder = outcome.holder.clone();
+    assert!(!holder.is_empty(), "the receipt names its holder");
+    let held = listed(&store, &session, project_id, Some(&holder)).entries;
     assert_eq!(held.len(), 1, "the session holds the one entry");
     assert_eq!((held[0].entry_id.as_str(), held[0].kept, held[0].export_context.as_str()), (outcome.entry_id.as_str(), "held_by_session", "user_released_report"));
     assert_eq!(held[0].package_identity_sha256, receipt.package_identity_sha256_hex);
 
-    // The project's first store save writes exactly that entry.
+    // The project's first store save, then the page's call, writes exactly
+    // that entry.
     write_project(&store, project_id, &basis.model);
-    write_held_entries(&store, &session);
+    assert!(entry_rows(&store).is_empty(), "the project save writes no held entry");
+    let written = keep_held_entries(Ok(store.clone()), &session, project_id, &holder);
+    assert_eq!(written.entries.iter().map(|entry| (entry.entry_id.as_str(), entry.status.as_str())).collect::<Vec<_>>(), [(outcome.entry_id.as_str(), "kept")]);
     assert_eq!(entry_rows(&store).len(), 1);
-    let kept = list_entries_with(&store, &session, project_id).unwrap().entries;
+    let kept = listed(&store, &session, project_id, Some(&holder)).entries;
     assert_eq!(kept.len(), 1, "the entry is no longer held once written");
     assert_eq!((kept[0].entry_id.as_str(), kept[0].kept), (outcome.entry_id.as_str(), "kept_with_project"));
     assert_eq!(kept[0].basis, held[0].basis);

@@ -6,13 +6,57 @@
 use super::*;
 use crate::report_package_save::test_support::{desktop_request, model as package_model, no_store, sandbox, save_request, software};
 use crate::report_package_save::{admit_report_package_in, keep_no_entry, no_custody, save_admitted_report_package_keeping, AdmittedReportPackage};
+use crate::stored_read::UnmeteredReadMemory;
 use rusqlite::types::Value as SqlValue;
 use serde_json::json;
 use std::cell::{Cell, RefCell};
 use std::collections::BTreeMap;
+use std::sync::Arc;
 
-/// A fault injected into [`keep_entry_in_store`] after the insert and before
-/// the commit, carrying the location so that its withholding is shown.
+/// The list as the command builds it, unmetered.
+pub(crate) fn listed(path: &Path, session: &SessionHeldEntries, project_id: &str, holder: Option<&str>) -> SavedPackageList {
+    list_entries(Ok(path.to_path_buf()), session, project_id, holder, &UnmeteredReadMemory).unwrap().into_unreserved().unwrap()
+}
+
+/// The project's stored entries, as a caller with no holder lists them.
+pub(crate) fn stored(path: &Path, project_id: &str) -> Vec<SavedPackageEntry> {
+    listed(path, &SessionHeldEntries::default(), project_id, None).entries
+}
+
+fn checked(path: &Path, session: &SessionHeldEntries, project_id: &str, holder: Option<&str>, entry_id: &str) -> Result<SavedPackageState, String> {
+    check_entry(Ok(path.to_path_buf()), session, project_id, holder, entry_id, &UnmeteredReadMemory).map(|state| state.into_unreserved().unwrap())
+}
+
+fn removed(path: &Path, session: &SessionHeldEntries, project_id: &str, holder: Option<&str>, entry_id: &str) -> Result<SavedPackageRemoval, String> {
+    remove_entry(Ok(path.to_path_buf()), session, project_id, holder, entry_id)
+}
+
+fn ids(entries: &[SavedPackageEntry]) -> Vec<String> {
+    entries.iter().map(|entry| entry.entry_id.clone()).collect()
+}
+
+/// A hook the list runs between its read of the session and its read of the
+/// store, on this thread (review round 1, R5).
+pub(crate) mod hooks {
+    use std::cell::RefCell;
+
+    thread_local! {
+        static BETWEEN: RefCell<Option<Box<dyn FnOnce()>>> = RefCell::new(None);
+    }
+
+    pub(crate) fn arm_between_list_reads(hook: impl FnOnce() + 'static) {
+        BETWEEN.with(|between| *between.borrow_mut() = Some(Box::new(hook)));
+    }
+
+    pub(in crate::saved_package_entries) fn between_list_reads() {
+        if let Some(hook) = BETWEEN.with(|between| between.borrow_mut().take()) {
+            hook();
+        }
+    }
+}
+
+/// A fault injected into every entry write after its inserts and before its
+/// commit, carrying a location so that its withholding is shown.
 pub(crate) mod fault {
     use std::cell::RefCell;
 
@@ -242,7 +286,7 @@ fn entries_reopen_byte_identical_and_in_the_order_saved() {
     }
     let written = entry_rows(&path);
     // Reopened, as the desktop does after it is closed.
-    let listed = list_entries_in_store(&path, PROJECT).unwrap();
+    let listed = SavedPackageList { project_id: PROJECT.to_string(), entries: stored(&path, PROJECT), store_failure: None };
     assert_eq!(entry_rows(&path), written, "each stored record byte for byte as it was written");
     assert_eq!(listed.entries.iter().map(|entry| entry.entry_id.clone()).collect::<Vec<_>>(), ids, "in the order saved");
     assert_eq!(listed.entries.iter().map(|entry| entry.sequence).collect::<Vec<_>>(), [1, 2, 3]);
@@ -275,7 +319,7 @@ fn saving_the_same_package_again_adds_another_entry() {
     let first = kept(&keep_entry_in_store(&path, &package));
     let second = kept(&keep_entry_in_store(&path, &package));
     assert_ne!(first, second);
-    assert_eq!(list_entries_in_store(&path, PROJECT).unwrap().entries.len(), 2);
+    assert_eq!(stored(&path, PROJECT).len(), 2);
 }
 
 #[test]
@@ -299,7 +343,7 @@ fn each_addition_and_each_removal_leaves_every_other_record_byte_identical() {
         assert_eq!(others(&path), before, "after adding entry {n}");
     }
     let kept_rows = entry_rows(&path);
-    remove_entry_in_store(&path, project, &ids[0]).unwrap();
+    removed(&path, &SessionHeldEntries::default(), project, None, &ids[0]).unwrap();
     assert_eq!(others(&path), before, "after removing an entry");
     assert_eq!(entry_rows(&path), kept_rows[1..].to_vec(), "the other entry is unchanged");
 }
@@ -337,20 +381,21 @@ fn removing_an_entry_or_the_project_removes_the_record_and_never_the_file() {
     kept(&keep_entry_in_store(&path, &published(PROJECT, &location, b"package bytes", true, 2)));
     let other = kept(&keep_entry_in_store(&path, &published("project:other", &location, b"package bytes", true, 3)));
 
-    let removal = remove_entry_in_store(&path, PROJECT, &first).unwrap();
+    let session = SessionHeldEntries::default();
+    let removal = removed(&path, &session, PROJECT, None, &first).unwrap();
     assert!(removal.removed);
     withholds_location(&serde_json::to_string(&removal).unwrap());
     assert_eq!(std::fs::read(&location).unwrap(), b"package bytes", "the file is untouched");
-    assert_eq!(list_entries_in_store(&path, PROJECT).unwrap().entries.len(), 1);
-    let unknown = remove_entry_in_store(&path, PROJECT, &first).unwrap_err();
+    assert_eq!(stored(&path, PROJECT).len(), 1);
+    let unknown = removed(&path, &session, PROJECT, None, &first).unwrap_err();
     assert!(unknown.starts_with(ENTRY_UNKNOWN), "{unknown}");
 
     // Removing the project removes its entries (the foreign key cascades).
     let (connection, _) = crate::open_project_store(&path).unwrap();
     connection.execute("DELETE FROM local_projects WHERE project_id = ?1", params![PROJECT]).unwrap();
     drop(connection);
-    assert!(list_entries_in_store(&path, PROJECT).unwrap().entries.is_empty());
-    assert_eq!(list_entries_in_store(&path, "project:other").unwrap().entries[0].entry_id, other, "another project's entries stay");
+    assert!(stored(&path, PROJECT).is_empty());
+    assert_eq!(stored(&path, "project:other")[0].entry_id, other, "another project's entries stay");
     assert_eq!(std::fs::read(&location).unwrap(), b"package bytes", "the file is untouched");
 }
 
@@ -389,7 +434,7 @@ fn keeping_that_fails_before_its_commit_keeps_nothing_and_withholds_the_location
     fault::arm(None);
     assert_eq!((outcome.status.as_str(), outcome.code.as_str()), ("not_kept", ENTRY_NOT_KEPT));
     assert!(outcome.entry_id.is_empty(), "nothing claims the entry was kept");
-    assert!(outcome.message.contains("invented fault") && outcome.message.contains(LOCATION_WITHHELD), "{}", outcome.message);
+    assert!(!outcome.message.contains("invented fault"), "no text of the error is passed on: {}", outcome.message);
     withholds_location(&outcome.message);
     assert_eq!(dump(&path), before, "the insert was rolled back");
     assert_eq!(std::fs::read(&location).unwrap(), b"p");
@@ -400,9 +445,9 @@ fn a_store_that_cannot_be_found_keeps_no_entry() {
     let dir = scratch("no-store");
     let location = dir.join("p.opsproj");
     let session = SessionHeldEntries::default();
-    let outcome = keep_or_hold_in(Err(format!("no store near {}", location.display())), &session, &published(PROJECT, &location, b"p", true, 1));
+    let outcome = keep_or_hold_in(Err(format!("no store near {}", location.display())), &session, None, &published(PROJECT, &location, b"p", true, 1));
     assert_eq!(outcome.code, ENTRY_NOT_KEPT);
-    assert!(session.of_project(PROJECT).is_empty(), "nothing is held for a store that cannot be found");
+    assert!(session.lock().entries.is_empty(), "nothing is held for a store that cannot be found");
     withholds_location(&outcome.message);
 }
 
@@ -416,22 +461,25 @@ fn the_state_check_reads_the_file_and_names_what_it_found() {
     let id = kept(&keep_entry_in_store(&path, &published(PROJECT, &location, b"the saved package", true, 1)));
     let state = |label: &str| {
         let before = dump(&path);
-        let found = check_entry_in_store(&path, PROJECT, &id).unwrap();
+        let found = checked(&path, &SessionHeldEntries::default(), PROJECT, None, &id).unwrap();
         assert_eq!(dump(&path), before, "{label}: the check writes nothing");
         withholds_location(&serde_json::to_string(&found).unwrap());
         (found.state, found.reason)
     };
-    assert_eq!(state("untouched"), ("present_identical", String::new()));
+    assert_eq!(state("untouched"), ("present_identical", ""));
 
-    // Replaced by different bytes, and by a different valid package.
+    // Replaced by different bytes of another length, of the same length, and
+    // by a different valid package.
     std::fs::write(&location, b"other bytes").unwrap();
-    assert_eq!(state("replaced").0, "changed");
+    assert_eq!(state("replaced"), ("changed", OTHER_SIZE));
+    std::fs::write(&location, b"the saved packagX").unwrap();
+    let (found, reason) = state("same length");
+    assert_eq!(found, "changed");
+    assert!(reason.contains("SHA-256"), "{reason}");
     let request = desktop_request(&package_model());
     let other = admit_report_package_in(save_request(&request, &package_model()), &software(), &mut no_store, &no_custody).unwrap();
     std::fs::write(&location, &other.package.container_bytes).unwrap();
-    let (found, reason) = state("another package");
-    assert_eq!(found, "changed");
-    assert!(reason.contains("SHA-256"), "{reason}");
+    assert_eq!(state("another package").0, "changed");
     assert_eq!(std::fs::read(&location).unwrap(), other.package.container_bytes, "the check repairs nothing");
 
     // Moved.
@@ -454,13 +502,13 @@ fn the_state_check_reads_the_file_and_names_what_it_found() {
         if std::fs::File::open(&location).is_err() {
             let (found, reason) = state("protected");
             assert_eq!(found, "could_not_be_read");
-            assert!(reason.contains("permission"), "{reason}");
+            assert!(reason.contains("Permission"), "{reason}");
         }
         std::fs::set_permissions(&location, std::fs::Permissions::from_mode(0o600)).unwrap();
         assert_eq!(state("restored").0, "present_identical");
     }
 
-    let unknown = check_entry_in_store(&path, PROJECT, "saved-package:unknown").unwrap_err();
+    let unknown = checked(&path, &SessionHeldEntries::default(), PROJECT, None, "saved-package:unknown").unwrap_err();
     assert!(unknown.starts_with(ENTRY_UNKNOWN), "{unknown}");
 }
 
@@ -476,9 +524,9 @@ fn a_copied_store_with_its_saved_locations_unavailable_reads_not_found() {
         connection.execute("VACUUM INTO ?1", [copy.to_str().unwrap()]).unwrap();
     }
     std::fs::remove_file(&location).unwrap();
-    let found = check_entry_in_store(&copy, PROJECT, &id).unwrap();
+    let found = checked(&copy, &SessionHeldEntries::default(), PROJECT, None, &id).unwrap();
     assert_eq!(found.state, "not_found");
-    assert_eq!(list_entries_in_store(&copy, PROJECT).unwrap(), list_entries_in_store(&path, PROJECT).unwrap());
+    assert_eq!(stored(&copy, PROJECT), stored(&path, PROJECT));
 }
 
 // --- This machine (REQ-023 "This machine") -------------------------------------
@@ -491,15 +539,16 @@ fn the_location_is_in_no_reply() {
     let outcome = keep_entry_in_store(&path, &published(PROJECT, &location, b"p", false, 1));
     let id = kept(&outcome);
     withholds_location(&serde_json::to_string(&outcome).unwrap());
-    let list = list_entries_in_store(&path, PROJECT).unwrap();
+    let session = SessionHeldEntries::default();
+    let list = listed(&path, &session, PROJECT, None);
     let list_json = serde_json::to_string(&list).unwrap();
     withholds_location(&list_json);
     assert!(!list_json.contains("location"), "{list_json}");
-    withholds_location(&serde_json::to_string(&check_entry_in_store(&path, PROJECT, &id).unwrap()).unwrap());
+    withholds_location(&serde_json::to_string(&checked(&path, &session, PROJECT, None, &id).unwrap()).unwrap());
     std::fs::remove_file(&location).unwrap();
-    withholds_location(&serde_json::to_string(&check_entry_in_store(&path, PROJECT, &id).unwrap()).unwrap());
-    withholds_location(&serde_json::to_string(&remove_entry_in_store(&path, PROJECT, &id).unwrap()).unwrap());
-    withholds_location(&check_entry_in_store(&path, PROJECT, &id).unwrap_err());
+    withholds_location(&serde_json::to_string(&checked(&path, &session, PROJECT, None, &id).unwrap()).unwrap());
+    withholds_location(&serde_json::to_string(&removed(&path, &session, PROJECT, None, &id).unwrap()).unwrap());
+    withholds_location(&checked(&path, &session, PROJECT, None, &id).unwrap_err());
 }
 
 // --- The native save's outcome (REQ-023 "Entry") -------------------------------
@@ -655,7 +704,7 @@ fn admit_009(args: crate::report_package_save::ReportPackageSaveRequest) -> Resu
 /// Saves an admitted route-009 package into `dir`, keeping its entry in the
 /// store at `path` with `session`.
 fn save_009(admitted: AdmittedReportPackage, dir: &Path, path: &Path, session: &SessionHeldEntries) -> crate::report_package_save::ReportPackageSaveReceipt {
-    let mut keep = |published: &PublishedPackage| keep_or_hold(path, session, published);
+    let mut keep = |published: &PublishedPackage| keep_or_hold(path, session, None, published);
     save_admitted_report_package_keeping(admitted, &no_custody, |name| Some(Ok(dir.join(name))), &mut keep).unwrap()
 }
 
@@ -675,7 +724,7 @@ fn a_local_private_save_with_a_verified_run_record_keeps_its_entry_with_that_bas
     let receipt = save_009(admitted, &dir, &path, &SessionHeldEntries::default());
     assert_eq!(receipt.outcome, "saved");
     assert_eq!((receipt.saved_package_entry.status.as_str(), receipt.saved_package_entry.code.as_str()), ("kept", ENTRY_KEPT), "{:?}", receipt.saved_package_entry);
-    let entry = &list_entries_in_store(&path, basis.model["project"]["id"].as_str().unwrap()).unwrap().entries[0];
+    let entry = &stored(&path, basis.model["project"]["id"].as_str().unwrap())[0];
     let record = &basis.run_record["analysis_run"];
     let checksum = |scope: &str| record["hashes"].as_array().unwrap().iter().find(|hash| hash["payload_scope"] == scope).unwrap()["value"].as_str().unwrap().to_string();
     assert_eq!(entry.export_context, "local_private");
@@ -784,12 +833,21 @@ fn unsaved(label: &str) -> (PathBuf, PathBuf, PublishedPackage) {
     (dir, path, package)
 }
 
+/// A held outcome's entry id and holder token.
 #[track_caller]
-fn held(outcome: &SavedPackageEntryOutcome) -> String {
+fn held(outcome: &SavedPackageEntryOutcome) -> (String, String) {
     assert_eq!((outcome.status.as_str(), outcome.code.as_str()), ("held", ENTRY_HELD_BY_SESSION), "{outcome:?}");
     assert!(outcome.message.contains("not yet kept with the project"), "{}", outcome.message);
-    assert!(!outcome.entry_id.is_empty());
-    outcome.entry_id.clone()
+    assert!(!outcome.entry_id.is_empty() && !outcome.holder.is_empty());
+    (outcome.entry_id.clone(), outcome.holder.clone())
+}
+
+#[track_caller]
+fn all_kept(write: &HeldEntriesWrite) -> Vec<String> {
+    for outcome in &write.entries {
+        assert_eq!((outcome.status.as_str(), outcome.code.as_str()), ("kept", ENTRY_KEPT), "{outcome:?}");
+    }
+    write.entries.iter().map(|outcome| outcome.entry_id.clone()).collect()
 }
 
 #[test]
@@ -797,21 +855,25 @@ fn an_entry_made_before_the_first_save_is_held_by_the_session_and_listed_as_not_
     let (_dir, path, package) = unsaved("held");
     let before = dump(&path);
     let session = SessionHeldEntries::default();
-    let id = held(&keep_or_hold(&path, &session, &package));
+    let (id, holder) = held(&keep_or_hold(&path, &session, None, &package));
     assert_eq!(dump(&path), before, "the store holds nothing of it");
-    let list = list_entries_with(&path, &session, PROJECT).unwrap();
+    let list = listed(&path, &session, PROJECT, Some(&holder));
     assert_eq!(list.entries.len(), 1);
     let entry = &list.entries[0];
     assert_eq!((entry.entry_id.as_str(), entry.kept, entry.sequence), (id.as_str(), "held_by_session", 0));
     assert_eq!(entry.container_sha256, package.container_sha256);
     withholds_location(&serde_json::to_string(&list).unwrap());
-    // The state check and removal work on it by its entry id.
-    assert_eq!(check_entry_with(&path, &session, PROJECT, &id).unwrap().state, "present_identical");
+    // Without its holder a caller sees stored entries only.
+    assert!(listed(&path, &session, PROJECT, None).entries.is_empty());
+    assert!(checked(&path, &session, PROJECT, None, &id).unwrap_err().starts_with(ENTRY_UNKNOWN));
+    assert!(removed(&path, &session, PROJECT, None, &id).unwrap_err().starts_with(ENTRY_UNKNOWN));
+    // With it, the state check and removal work on it by its entry id.
+    assert_eq!(checked(&path, &session, PROJECT, Some(&holder), &id).unwrap().state, "present_identical");
     std::fs::write(&package.location, b"other").unwrap();
-    assert_eq!(check_entry_with(&path, &session, PROJECT, &id).unwrap().state, "changed");
-    let removal = remove_entry_with(&path, &session, PROJECT, &id).unwrap();
+    assert_eq!(checked(&path, &session, PROJECT, Some(&holder), &id).unwrap().state, "changed");
+    let removal = removed(&path, &session, PROJECT, Some(&holder), &id).unwrap();
     assert!(removal.removed);
-    assert!(list_entries_with(&path, &session, PROJECT).unwrap().entries.is_empty());
+    assert!(listed(&path, &session, PROJECT, Some(&holder)).entries.is_empty());
     assert_eq!(std::fs::read(&package.location).unwrap(), b"other", "the file is untouched");
 }
 
@@ -819,14 +881,17 @@ fn an_entry_made_before_the_first_save_is_held_by_the_session_and_listed_as_not_
 fn the_first_project_save_writes_the_held_entries_in_the_order_saved() {
     let (dir, path, first) = unsaved("first-save");
     let session = SessionHeldEntries::default();
-    let one = held(&keep_or_hold(&path, &session, &first));
+    let (one, holder) = held(&keep_or_hold(&path, &session, None, &first));
     let second = published(PROJECT, &dir.join("second.opsproj"), b"second", false, 2);
-    let two = held(&keep_or_hold(&path, &session, &second));
-    let held_view = list_entries_with(&path, &session, PROJECT).unwrap().entries;
-    // The project's first save, by the store's own create path.
+    let (two, joined) = held(&keep_or_hold(&path, &session, Some(&holder), &second));
+    assert_eq!(joined, holder, "a later held save presenting the token joins its holder");
+    let held_view = listed(&path, &session, PROJECT, Some(&holder)).entries;
+    // The project's first save, by the store's own create path, writes no
+    // entry; the page then writes its holder's.
     crate::create_project_in_store(path.clone(), current_model(), None, None, None, None, None, None, None, None).unwrap();
-    write_held_entries(&path, &session);
-    let list = list_entries_with(&path, &session, PROJECT).unwrap();
+    assert!(entry_rows(&path).is_empty(), "the project save writes no held entry");
+    assert_eq!(all_kept(&keep_held_entries(Ok(path.clone()), &session, PROJECT, &holder)), [one.clone(), two.clone()]);
+    let list = listed(&path, &session, PROJECT, Some(&holder));
     assert_eq!(list.entries.iter().map(|entry| (entry.entry_id.clone(), entry.sequence, entry.kept)).collect::<Vec<_>>(),
         [(one, 1, "kept_with_project"), (two, 2, "kept_with_project")]);
     for (stored, was_held) in list.entries.iter().zip(&held_view) {
@@ -835,49 +900,58 @@ fn the_first_project_save_writes_the_held_entries_in_the_order_saved() {
         as_held.kept = "held_by_session";
         assert_eq!(&as_held, was_held, "written as it was held");
     }
-    // A later save is kept directly, after them.
-    let third = kept(&keep_or_hold(&path, &session, &published(PROJECT, &dir.join("third.opsproj"), b"third", true, 3)));
-    assert_eq!(list_entries_with(&path, &session, PROJECT).unwrap().entries.last().map(|entry| (entry.entry_id.clone(), entry.sequence)), Some((third, 3)));
+    // Later saves, with the token and without, are kept directly, after them.
+    let third = kept(&keep_or_hold(&path, &session, Some(&holder), &published(PROJECT, &dir.join("third.opsproj"), b"third", true, 3)));
+    let fourth = kept(&keep_or_hold(&path, &session, None, &published(PROJECT, &dir.join("fourth.opsproj"), b"fourth", true, 4)));
+    let order: Vec<(String, i64)> = stored(&path, PROJECT).into_iter().map(|entry| (entry.entry_id, entry.sequence)).collect();
+    assert_eq!(order, [(one, 1), (two, 2), (third, 3), (fourth, 4)], "the order across held and later stored entries is kept");
+    // Writing again writes nothing more.
+    assert!(keep_held_entries(Ok(path.clone()), &session, PROJECT, &holder).entries.is_empty());
+    assert_eq!(entry_rows(&path).len(), 4);
 }
 
 #[test]
 fn a_held_entry_that_cannot_be_written_stays_held_with_its_reason_and_the_project_save_stands() {
     let (dir, path, package) = unsaved("first-save-fails");
     let session = SessionHeldEntries::default();
-    let id = held(&keep_or_hold(&path, &session, &package));
+    let (id, holder) = held(&keep_or_hold(&path, &session, None, &package));
     crate::create_project_in_store(path.clone(), current_model(), None, None, None, None, None, None, None, None).unwrap();
     fault::arm(Some(format!("invented fault writing {}", package.location.display())));
-    write_held_entries(&path, &session);
+    let write = keep_held_entries(Ok(path.clone()), &session, PROJECT, &holder);
     fault::arm(None);
+    assert_eq!(write.entries.len(), 1);
+    let outcome = &write.entries[0];
+    assert_eq!((outcome.status.as_str(), outcome.code.as_str(), outcome.entry_id.as_str()), ("held", ENTRY_STORE_FAILED, id.as_str()));
+    withholds_location(&serde_json::to_string(&write).unwrap());
     assert!(crate::load_project(&Connection::open(&path).unwrap(), Some(PROJECT)).unwrap().is_some(), "the project save stands");
-    assert!(list_entries_in_store(&path, PROJECT).unwrap().entries.is_empty(), "nothing was written");
-    let list = list_entries_with(&path, &session, PROJECT).unwrap();
+    assert!(stored(&path, PROJECT).is_empty(), "nothing was written");
+    let list = listed(&path, &session, PROJECT, Some(&holder));
     let entry = &list.entries[0];
     assert_eq!((entry.entry_id.as_str(), entry.kept), (id.as_str(), "held_by_session"));
-    let failure = entry.write_failure.as_deref().unwrap();
-    assert!(failure.contains("invented fault") && !failure.contains(LOCATION_MARKER), "{failure}");
-    // The next package save writes the held entry first, then its own, in order.
-    let next = keep_or_hold(&path, &session, &published(PROJECT, &dir.join("next.opsproj"), b"next", true, 2));
-    let next = kept(&next);
-    let stored: Vec<(String, i64)> = list_entries_in_store(&path, PROJECT).unwrap().entries.into_iter().map(|entry| (entry.entry_id, entry.sequence)).collect();
-    assert_eq!(stored, [(id, 1), (next, 2)]);
+    assert_eq!(entry.write_failure, Some(STORE_FAILED), "its reason is a code and a fixed sentence");
+    // The command can be called again; the next package save presenting the
+    // token also writes the held entry first, then its own, in order.
+    let next = kept(&keep_or_hold(&path, &session, Some(&holder), &published(PROJECT, &dir.join("next.opsproj"), b"next", true, 2)));
+    let order: Vec<(String, i64)> = stored(&path, PROJECT).into_iter().map(|entry| (entry.entry_id, entry.sequence)).collect();
+    assert_eq!(order, [(id, 1), (next, 2)]);
 }
 
 #[test]
 fn held_entries_stay_with_their_own_project_when_another_is_opened_or_created() {
     let (_dir, path, package) = unsaved("replaced");
     let session = SessionHeldEntries::default();
-    let id = held(&keep_or_hold(&path, &session, &package));
-    // Another project is created and saved first.
+    let (id, holder) = held(&keep_or_hold(&path, &session, None, &package));
+    // Another project is created and saved first; its page writes its own
+    // holder's entries, and this holder's only for this project.
     let other = json!({ "schema_version": open_pipe_stress_product_physics::MODEL_SCHEMA_VERSION, "project": { "id": "project:another", "name": "Another" } });
     write_project(&path, "project:another", &other);
-    write_held_entries(&path, &session);
-    assert!(list_entries_with(&path, &session, "project:another").unwrap().entries.is_empty(), "nothing is written into another project");
-    assert_eq!(list_entries_with(&path, &session, PROJECT).unwrap().entries[0].kept, "held_by_session");
-    // Returning to the project and saving it writes the entry.
+    assert!(keep_held_entries(Ok(path.clone()), &session, "project:another", &holder).entries.is_empty());
+    assert!(stored(&path, "project:another").is_empty(), "nothing is written into another project");
+    assert_eq!(listed(&path, &session, PROJECT, Some(&holder)).entries[0].kept, "held_by_session");
+    // Returning to the project and saving it, its page writes the entry.
     write_project(&path, PROJECT, &invented_model());
-    write_held_entries(&path, &session);
-    assert_eq!(list_entries_in_store(&path, PROJECT).unwrap().entries[0].entry_id, id);
+    assert_eq!(all_kept(&keep_held_entries(Ok(path.clone()), &session, PROJECT, &holder)), [id.clone()]);
+    assert_eq!(stored(&path, PROJECT)[0].entry_id, id);
 }
 
 #[test]
@@ -892,7 +966,7 @@ fn a_session_that_ends_before_the_first_save_loses_its_held_entry_and_recovery_d
     let mut package = package;
     package.project_id = project.to_string();
     let session = SessionHeldEntries::default();
-    let id = held(&keep_or_hold(&path, &session, &package));
+    let (id, holder) = held(&keep_or_hold(&path, &session, None, &package));
     // A recovery record written while the entry is held holds the document only.
     let text = canonical(&model);
     let hash = format!("sha256:{}", open_pipe_stress_operation_applier::sha256_hex(&text));
@@ -903,7 +977,7 @@ fn a_session_that_ends_before_the_first_save_loses_its_held_entry_and_recovery_d
     for record in &records {
         let bytes = std::fs::read(record).unwrap();
         let shown = String::from_utf8_lossy(&bytes);
-        for member in [id.as_str(), package.container_sha256.as_str(), package.package_identity_sha256.as_str(), "before-first-save.opsproj", LOCATION_MARKER] {
+        for member in [id.as_str(), holder.as_str(), package.container_sha256.as_str(), package.package_identity_sha256.as_str(), "before-first-save.opsproj", LOCATION_MARKER] {
             assert!(!shown.contains(member), "{}: holds {member}", record.display());
         }
     }
@@ -912,8 +986,8 @@ fn a_session_that_ends_before_the_first_save_loses_its_held_entry_and_recovery_d
     let restarted = SessionHeldEntries::default();
     // Recovery: the recovered document is saved as the project's first save.
     crate::create_project_in_store(path.clone(), model, None, None, None, None, None, None, None, None).unwrap();
-    write_held_entries(&path, &restarted);
-    assert!(list_entries_with(&path, &restarted, project).unwrap().entries.is_empty(), "nothing reconstructs the entry");
+    assert!(keep_held_entries(Ok(path.clone()), &restarted, project, &holder).entries.is_empty());
+    assert!(listed(&path, &restarted, project, Some(&holder)).entries.is_empty(), "nothing reconstructs the entry");
     assert!(package.location.exists(), "the saved file is a file the project does not list");
 }
 
@@ -923,11 +997,10 @@ fn an_entry_the_store_already_holds_is_unaffected_by_a_recovery() {
     let location = dir.join("stored.opsproj");
     std::fs::write(&location, b"stored").unwrap();
     let session = SessionHeldEntries::default();
-    kept(&keep_or_hold(&path, &session, &published(PROJECT, &location, b"stored", true, 1)));
+    kept(&keep_or_hold(&path, &session, None, &published(PROJECT, &location, b"stored", true, 1)));
     let rows = entry_rows(&path);
     // Recovery replaces the project's document by the recovered one and saves it.
     write_project(&path, PROJECT, &json!({ "project": { "id": PROJECT, "name": "Recovered" } }));
-    write_held_entries(&path, &SessionHeldEntries::default());
     assert_eq!(entry_rows(&path), rows, "the stored entry is byte for byte as it was");
 }
 
@@ -1028,4 +1101,278 @@ fn a_record_whose_extra_lease_is_refused_leaves_the_save_as_without_it() {
     let receipt = save_009(admitted, &dir, &path, &SessionHeldEntries::default());
     assert_eq!(receipt.outcome, "saved");
     assert_eq!((receipt.saved_package_entry.status.as_str(), receipt.saved_package_entry.code.as_str()), ("not_kept", ENTRY_RUN_RECORD_NOT_CHECKED));
+}
+
+// --- Review round 1 --------------------------------------------------------
+
+/// R1: a second document of the same project id, after the first, neither
+/// sees nor inherits the first one's held entries; its first save writes only
+/// its own.
+#[test]
+fn a_second_document_of_the_same_id_neither_sees_nor_inherits_the_first_ones_held_entries() {
+    let (dir, path, package) = unsaved("r1-same-id");
+    let session = SessionHeldEntries::default();
+    let (first_id, first_holder) = held(&keep_or_hold(&path, &session, None, &package));
+    // The second document saves a package with no token of its own yet.
+    let second_package = published(PROJECT, &dir.join("second.opsproj"), b"second", true, 2);
+    let (second_id, second_holder) = held(&keep_or_hold(&path, &session, None, &second_package));
+    assert_ne!(first_holder, second_holder);
+    assert_eq!(ids(&listed(&path, &session, PROJECT, Some(&second_holder)).entries), [second_id.clone()]);
+    assert!(listed(&path, &session, PROJECT, None).entries.is_empty(), "without a token a caller sees stored entries only");
+    assert!(checked(&path, &session, PROJECT, Some(&second_holder), &first_id).unwrap_err().starts_with(ENTRY_UNKNOWN));
+    assert!(removed(&path, &session, PROJECT, Some(&second_holder), &first_id).unwrap_err().starts_with(ENTRY_UNKNOWN));
+    // A token the session did not mint for the project is not joined.
+    let invented = "saved-package-holder:invented";
+    let (_, minted) = held(&keep_or_hold(&path, &session, Some(invented), &published(PROJECT, &dir.join("third.opsproj"), b"third", true, 3)));
+    assert_ne!(minted, invented);
+    // The second document's first save, then its call: only its own entry.
+    crate::create_project_in_store(path.clone(), current_model(), None, None, None, None, None, None, None, None).unwrap();
+    assert_eq!(all_kept(&keep_held_entries(Ok(path.clone()), &session, PROJECT, &second_holder)), [second_id.clone()]);
+    assert_eq!(ids(&stored(&path, PROJECT)), [second_id]);
+    let first_view = listed(&path, &session, PROJECT, Some(&first_holder)).entries;
+    assert_eq!(first_view.iter().map(|entry| (entry.entry_id.clone(), entry.kept)).last(), Some((first_id, "held_by_session")));
+}
+
+/// R1: no project save writes a held entry, whether it is refused or saves
+/// an unrelated project; another window's project of the same id is not
+/// written into without the page's call; the call writes only its own
+/// project and holder.
+#[test]
+fn no_project_save_writes_a_held_entry_and_the_call_writes_only_its_own_project_and_holder() {
+    let (_dir, path, package) = unsaved("r1-no-call");
+    let session = SessionHeldEntries::default();
+    let (id, holder) = held(&keep_or_hold(&path, &session, None, &package));
+    // Another window creates the project; this document's create is refused.
+    crate::create_project_in_store(path.clone(), current_model(), None, None, None, None, None, None, None, None).unwrap();
+    let refused = crate::create_project_in_store(path.clone(), current_model(), None, None, None, None, None, None, None, None).unwrap_err();
+    assert!(refused.starts_with("PROJECT-ID-EXISTS"), "{refused}");
+    // An unrelated project is saved.
+    write_project(&path, "project:unrelated", &json!({ "project": { "id": "project:unrelated", "name": "Unrelated" } }));
+    assert!(entry_rows(&path).is_empty(), "no project save wrote the held entry");
+    // The call for another project, or with another holder, writes nothing.
+    assert!(keep_held_entries(Ok(path.clone()), &session, "project:unrelated", &holder).entries.is_empty());
+    assert!(keep_held_entries(Ok(path.clone()), &session, PROJECT, "saved-package-holder:another").entries.is_empty());
+    assert!(entry_rows(&path).is_empty());
+    assert_eq!(ids(&listed(&path, &session, PROJECT, Some(&holder)).entries), [id]);
+}
+
+/// R4: the state check answers `changed` from the length, without reading a
+/// file far larger than the saved package.
+#[test]
+fn the_state_check_answers_changed_from_the_length_without_reading_a_larger_file() {
+    let dir = scratch("r4-large");
+    let location = dir.join("large.opsproj");
+    let file = std::fs::File::create(&location).unwrap();
+    file.set_len(16 << 30).unwrap();
+    drop(file);
+    let started = std::time::Instant::now();
+    let found = state_at(&location, &sha(b"p"), 1, &UnmeteredReadMemory).unwrap();
+    let took = started.elapsed();
+    std::fs::remove_file(&location).unwrap();
+    assert_eq!(found, ("changed", OTHER_SIZE));
+    assert!(took < std::time::Duration::from_secs(2), "the check took {took:?}");
+}
+
+/// R4: a pipe at the location is neither read nor waited on; a symbolic link
+/// answers for the file it reaches.
+#[cfg(unix)]
+#[test]
+fn a_pipe_is_not_waited_on_and_a_link_answers_for_what_it_reaches() {
+    let dir = scratch("r4-special");
+    let pipe = dir.join("pipe.opsproj");
+    assert!(std::process::Command::new("mkfifo").arg(&pipe).status().unwrap().success());
+    let (sender, receiver) = std::sync::mpsc::channel();
+    let at = pipe.clone();
+    std::thread::spawn(move || sender.send(state_at(&at, &sha(b"p"), 1, &UnmeteredReadMemory)).unwrap());
+    let found = receiver.recv_timeout(std::time::Duration::from_secs(5)).expect("the check waited on a pipe");
+    assert_eq!(found.unwrap(), ("could_not_be_read", NOT_REGULAR));
+
+    let saved = dir.join("saved.opsproj");
+    std::fs::write(&saved, b"p").unwrap();
+    let link = dir.join("link.opsproj");
+    std::os::unix::fs::symlink(&saved, &link).unwrap();
+    assert_eq!(state_at(&link, &sha(b"p"), 1, &UnmeteredReadMemory).unwrap(), ("present_identical", ""));
+    std::fs::write(&saved, b"q").unwrap();
+    assert_eq!(state_at(&link, &sha(b"p"), 1, &UnmeteredReadMemory).unwrap(), ("changed", OTHER_BYTES));
+    std::fs::remove_file(&saved).unwrap();
+    assert_eq!(state_at(&link, &sha(b"p"), 1, &UnmeteredReadMemory).unwrap(), ("not_found", NOT_FOUND));
+}
+
+/// R4: the commands take their arguments through the store's ingress and
+/// meter what they read and reply; a read the pool cannot admit is refused
+/// by name, and every reservation is released with the reply.
+#[test]
+fn the_commands_are_admitted_and_metered_like_the_stores_other_commands() {
+    use crate::command_ingress::test_support::{admit_json, registry};
+    let (_dir, path, package) = unsaved("r4-ingress");
+    let session = SessionHeldEntries::default();
+    let (id, holder) = held(&keep_or_hold(&path, &session, None, &package));
+    let registry = registry(crate::memory_pool::test_host::ScriptedHost::normal());
+    let store = || Ok(path.clone());
+    let body = json!({ "projectId": PROJECT, "holder": holder, "entryId": id });
+    {
+        let (mut args, lease) = admit_json(&registry, "list_saved_package_entries", ArgsDecoding::Moved, &body).unwrap();
+        let memory = PoolReadMemory::new(&registry, &lease);
+        let outcome = list_saved_package_entries_args(&mut args, store, &session, &memory);
+        stored_read::respond_metered(&memory, "list_saved_package_entries", outcome).unwrap();
+    }
+    {
+        let (mut args, lease) = admit_json(&registry, "check_saved_package_entry", ArgsDecoding::Moved, &body).unwrap();
+        let memory = PoolReadMemory::new(&registry, &lease);
+        let outcome = check_saved_package_entry_args(&mut args, store, &session, &memory);
+        stored_read::respond_metered(&memory, "check_saved_package_entry", outcome).unwrap();
+    }
+    assert_eq!(registry.pool().reserved_total(), 0, "every reservation is released with its reply");
+    // A budget that admits the arguments and nothing more.
+    let (mut args, lease) = admit_json(&registry, "list_saved_package_entries", ArgsDecoding::Moved, &body).unwrap();
+    let (pool_bytes, _) = registry.pool().settings();
+    registry.configure_pool(pool_bytes, lease.bytes(), false).unwrap();
+    let memory = PoolReadMemory::new(&registry, &lease);
+    match list_saved_package_entries_args(&mut args, store, &session, &memory) {
+        Err(CommandError::Command(refusal)) => assert!(refusal.starts_with(stored_read::STORE_READ_MEMORY_UNAVAILABLE), "{refusal}"),
+        other => panic!("not refused by its memory: {other:?}"),
+    }
+    // An argument body above the cap is refused before it is parsed.
+    let long = json!({ "projectId": "p".repeat(ENTRY_COMMAND_MAX_ARGS_BYTES) });
+    let body = tauri::ipc::InvokeBody::Raw(serde_json::to_vec(&long).unwrap());
+    let headers = crate::command_ingress::test_support::headers(Some(crate::command_ingress::INGRESS_ARGS_JSON_V1));
+    let refused = command_ingress::admit_body_within(&registry, &body, &headers, "list_saved_package_entries", ArgsDecoding::Moved, ENTRY_COMMAND_MAX_ARGS_BYTES);
+    assert!(refused.is_err());
+}
+
+/// R5: a list while its entry is written sees it once, held or stored, never
+/// neither.
+#[test]
+fn a_list_while_its_entry_is_written_sees_it_once() {
+    let (_dir, path, package) = unsaved("r5-between");
+    let session = Arc::new(SessionHeldEntries::default());
+    let (id, holder) = held(&keep_or_hold(&path, &session, None, &package));
+    write_project(&path, PROJECT, &invented_model());
+    {
+        let (path, session, holder) = (path.clone(), Arc::clone(&session), holder.clone());
+        hooks::arm_between_list_reads(move || {
+            all_kept(&keep_held_entries(Ok(path), &session, PROJECT, &holder));
+        });
+    }
+    let list = listed(&path, &session, PROJECT, Some(&holder));
+    assert_eq!(list.entries.iter().map(|entry| (entry.entry_id.clone(), entry.kept)).collect::<Vec<_>>(), [(id, "kept_with_project")]);
+}
+
+/// R5, as a stress run across threads: lists while a write runs never omit
+/// the entry.
+#[test]
+fn lists_during_a_concurrent_write_never_omit_the_entry() {
+    let dir = scratch("r5-stress");
+    let path = store_in(&dir);
+    drop(crate::open_project_store(&path).unwrap());
+    let location = dir.join("p.opsproj");
+    std::fs::write(&location, b"p").unwrap();
+    let session = Arc::new(SessionHeldEntries::default());
+    let mut omitted = 0usize;
+    for round in 0..200 {
+        let project = format!("project:invented-race-{round}");
+        let (id, holder) = held(&keep_or_hold(&path, &session, None, &published(&project, &location, b"p", true, 1)));
+        write_project(&path, &project, &invented_model());
+        let writer = {
+            let (path, session, project, holder) = (path.clone(), Arc::clone(&session), project.clone(), holder.clone());
+            std::thread::spawn(move || keep_held_entries(Ok(path), &session, &project, &holder))
+        };
+        loop {
+            let entries = listed(&path, &session, &project, Some(&holder)).entries;
+            match entries.iter().filter(|entry| entry.entry_id == id).count() {
+                0 => omitted += 1,
+                1 if entries.iter().any(|entry| entry.entry_id == id && entry.kept == "kept_with_project") => break,
+                1 => {}
+                _ => panic!("listed twice: {entries:?}"),
+            }
+            if writer.is_finished() {
+                break;
+            }
+        }
+        all_kept(&writer.join().unwrap());
+    }
+    assert_eq!(omitted, 0, "a list omitted the entry {omitted} times");
+}
+
+/// R6: two held entries and a write failure whose error names the first's
+/// location: no public reason holds any part of either path.
+#[test]
+fn a_shared_write_failure_withholds_every_location() {
+    let (dir, path, first) = unsaved("r6");
+    let second_location = dir.join("second.opsproj");
+    std::fs::write(&second_location, b"second").unwrap();
+    let second = published(PROJECT, &second_location, b"second", true, 2);
+    let session = SessionHeldEntries::default();
+    let (_, holder) = held(&keep_or_hold(&path, &session, None, &first));
+    held(&keep_or_hold(&path, &session, Some(&holder), &second));
+    write_project(&path, PROJECT, &invented_model());
+    fault::arm(Some(format!("disk I/O error near {}", first.location.display())));
+    let write = keep_held_entries(Ok(path.clone()), &session, PROJECT, &holder);
+    fault::arm(None);
+    let list = listed(&path, &session, PROJECT, Some(&holder));
+    assert_eq!(list.entries.len(), 2);
+    let parent = dir.to_string_lossy().into_owned();
+    for text in [serde_json::to_string(&list).unwrap(), serde_json::to_string(&write).unwrap()] {
+        assert!(!text.contains(&parent) && !text.contains(LOCATION_MARKER) && !text.contains("disk I/O"), "a path or an error's text leaked: {text}");
+    }
+}
+
+/// R7: an entry is never kept with an empty time; it has its own code.
+#[test]
+fn an_entry_is_never_kept_with_an_empty_time() {
+    let (dir, path) = store_with_project("r7-clock");
+    let before = dump(&path);
+    let mut package = published(PROJECT, &dir.join("p.opsproj"), b"p", true, 1);
+    package.saved_at = String::new();
+    for outcome in [keep_entry_in_store(&path, &package), keep_or_hold(&path, &SessionHeldEntries::default(), None, &package)] {
+        assert_eq!((outcome.status.as_str(), outcome.code.as_str()), ("not_kept", ENTRY_NO_SAVE_TIME), "{outcome:?}");
+    }
+    assert_eq!(dump(&path), before);
+}
+
+/// R7: a store that cannot be found while writing held entries is recorded
+/// as their reason; a list with the holder shows them when the store cannot
+/// be opened, and says the store's failure by code.
+#[test]
+fn a_store_failure_while_writing_or_listing_held_entries_is_stated_by_code() {
+    let (dir, path, package) = unsaved("r7-store");
+    let session = SessionHeldEntries::default();
+    let (id, holder) = held(&keep_or_hold(&path, &session, None, &package));
+    let write = keep_held_entries(Err(format!("no store near {}", dir.display())), &session, PROJECT, &holder);
+    assert_eq!(write.entries.iter().map(|outcome| (outcome.entry_id.clone(), outcome.code.clone())).collect::<Vec<_>>(), [(id.clone(), ENTRY_STORE_FAILED.to_string())]);
+    let broken = dir.join("not-a-store");
+    std::fs::create_dir_all(&broken).unwrap();
+    let list = list_entries(Ok(broken), &session, PROJECT, Some(&holder), &UnmeteredReadMemory).unwrap().into_unreserved().unwrap();
+    assert_eq!(list.store_failure, Some(STORE_FAILED));
+    assert_eq!(list.entries.iter().map(|entry| (entry.entry_id.clone(), entry.write_failure)).collect::<Vec<_>>(), [(id, Some(STORE_FAILED))]);
+    withholds_location(&serde_json::to_string(&list).unwrap());
+}
+
+/// R7 (B's NB2): a save into a stored project whose earlier held entries
+/// failed to write says so, not that it awaits the first save.
+#[test]
+fn a_save_into_a_stored_project_with_earlier_unwritten_entries_says_so() {
+    let (dir, path, package) = unsaved("r7-nb2");
+    let session = SessionHeldEntries::default();
+    let (_, holder) = held(&keep_or_hold(&path, &session, None, &package));
+    write_project(&path, PROJECT, &invented_model());
+    fault::arm(Some("disk I/O error".to_string()));
+    let outcome = keep_or_hold(&path, &session, Some(&holder), &published(PROJECT, &dir.join("next.opsproj"), b"next", true, 2));
+    fault::arm(None);
+    assert_eq!((outcome.status.as_str(), outcome.holder.as_str()), ("held", holder.as_str()));
+    assert_eq!(outcome.message, HELD_WITH_EARLIER);
+    assert!(!outcome.message.contains("first saved"), "{outcome:?}");
+}
+
+/// R7: a panic while the command writes held entries is a fixed reply.
+#[test]
+fn a_panic_while_writing_held_entries_is_a_fixed_reply() {
+    let registry = crate::command_ingress::test_support::registry(crate::memory_pool::test_host::ScriptedHost::normal());
+    let body = json!({ "projectId": PROJECT, "holder": "saved-package-holder:invented" });
+    let (mut args, _lease) = crate::command_ingress::test_support::admit_json(&registry, "keep_held_saved_package_entries", ArgsDecoding::Moved, &body).unwrap();
+    let outcome = keep_held_saved_package_entries_args(&mut args, || -> Result<PathBuf, String> { panic!("invented failure") }, &SessionHeldEntries::default());
+    match outcome {
+        Err(CommandError::Command(message)) => assert_eq!(message, KEEP_HELD_INCOMPLETE),
+        other => panic!("{other:?}"),
+    }
 }

@@ -269,6 +269,10 @@ pub struct ReportPackageSaveRequest {
     /// the saved-package entry's basis (DEL-08-01 REQ-023): it never refuses
     /// or fails the save.
     pub analysis_run_text: Option<String>,
+    /// The saved-package entry holder token the page presents
+    /// (`savedPackageEntryHolder`), from an earlier held save of the same
+    /// document session (DEL-08-01 REQ-023 "Before the first project save").
+    pub saved_package_entry_holder: Option<String>,
 }
 
 /// The custody lookup of the native source binding: the registry's
@@ -294,6 +298,7 @@ pub(crate) fn save_report_package_args(args: &mut Args) -> Result<ReportPackageS
         exact_result_text: args.decode("exactResultText")?,
         exact_intake_text: args.decode("exactIntakeText")?,
         analysis_run_text: args.decode("analysisRunCanonicalText")?,
+        saved_package_entry_holder: args.decode("savedPackageEntryHolder")?,
     })
 }
 
@@ -1553,6 +1558,7 @@ fn admit_both_routes(
         exact_result_text,
         exact_intake_text,
         analysis_run_text,
+        saved_package_entry_holder: _,
     } = request;
     validate_report_package_save_evidence(&screening, local_first.as_ref())?;
     let user_release_route = screening.route_id == REPORT_PACKAGE_USER_RELEASE_ROUTE_ID;
@@ -2225,6 +2231,7 @@ pub(crate) mod test_support {
             exact_result_text: None,
             exact_intake_text: None,
             analysis_run_text: None,
+            saved_package_entry_holder: None,
         }
     }
 
