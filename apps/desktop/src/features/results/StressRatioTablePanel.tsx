@@ -16,6 +16,7 @@ import { boundSummary, isNativeResult, nativeIdsOf, nativeOrdinalsIn, nativeRowK
 import { stressRatioTableFromSummary } from "../../services/resultSummary";
 import { useNativeRowKey } from "./useNativeRowKey";
 import { useEffect, useMemo, useState } from "react";
+import { useRevealCurrentRow } from "./revealCurrentRow";
 import type { AnalysisRunEnvelope, MechanicsResult, PreviewModel } from "../../types";
 import { rulePackReference, type SessionRuleCheckRun } from "../report/renderableReportInput";
 import { displayQuantityParts } from "../report/reportQuantityDisplay";
@@ -102,6 +103,8 @@ export type StressRatioTablePanelProps = Readonly<{
   ruleCheckRun?: SessionRuleCheckRun | null;
   /** The session's selected result row, marked in the table. */
   selectedResultId?: string | null;
+  /** Once per serial: show this group in this mode and bring the selected row into view. */
+  focus?: Readonly<{ serial: number; groupId: string; mode: StressRatioMode }> | null;
   /** Highlights a row's location: an emitted row, or else an entity. */
   onSelectLocation?: (target: StressRatioTarget) => void;
   /** A prefix for the panel's test ids, so two embeddings stay distinct. */
@@ -137,8 +140,9 @@ async function publishedGroupAndView<G, V>(result: SessionResult | null, group: 
 }
 
 export function StressRatioTablePanel({
-  model, result, fullResult = null, analysisRun = null, standing, ruleCheckRun = null, selectedResultId: selectedId = null, onSelectLocation, testIdPrefix = "stress-ratio"
+  model, result, fullResult = null, analysisRun = null, standing, ruleCheckRun = null, selectedResultId: selectedId = null, onSelectLocation, testIdPrefix = "stress-ratio", focus = null
 }: StressRatioTablePanelProps) {
+  const revealRef = useRevealCurrentRow<HTMLElement>(focus?.serial ?? null);
   // C1: a native result's table is S's (no rule-check run), its rows keyed by internal row keys;
   // with a rule-check run, the run's rows come from the result's C2 full copy.
   const summary = boundSummary(result, model);
@@ -150,6 +154,13 @@ export function StressRatioTablePanel({
   const selectedResultId = useNativeRowKey(result, selectedId);
   const [chosenId, setChosenId] = useState<string | null>(null);
   const [chosenMode, setChosenMode] = useState<StressRatioMode>("ratio");
+  // A governing value opened from the stage's summary shows its group in its mode, once per serial.
+  const [appliedFocus, setAppliedFocus] = useState<number | null>(null);
+  if (focus && focus.serial !== appliedFocus) {
+    setAppliedFocus(focus.serial);
+    setChosenId(focus.groupId);
+    setChosenMode(focus.mode);
+  }
   const [thresholds, setThresholds] = useState<Readonly<Record<StressRatioMode, string>>>({ ratio: "", stress: "" });
   const [limit, setLimit] = useState(STRESS_RATIO_PAGE);
   const group = table.groups.find((item) => item.id === chosenId) ?? table.groups[0] ?? null;
@@ -164,7 +175,7 @@ export function StressRatioTablePanel({
   const health = standing?.health ?? null;
 
   return (
-    <section className="result-detail-panel stress-ratio-table" aria-label="Stress and ratio table" data-testid={tid("panel")}>
+    <section className="result-detail-panel stress-ratio-table" aria-label="Stress and ratio table" data-testid={tid("panel")} ref={revealRef}>
       <h3>{STRESS_RATIO_TITLE}</h3>
       <p data-testid={tid("run")}>{table.run.note}</p>
       {table.state === "unavailable" || !group || !view || !page ? (

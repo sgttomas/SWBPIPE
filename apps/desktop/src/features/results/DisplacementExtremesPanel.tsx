@@ -15,6 +15,7 @@ import { boundSummary, isNativeResult, type SessionAnalysisRun, type SessionResu
 import { displacementExtremesFromSummary } from "../../services/resultSummary";
 import { ChevronLeft, ChevronRight } from "lucide-react";
 import { useMemo, useState } from "react";
+import { useRevealCurrentRow } from "./revealCurrentRow";
 import type { AnalysisRunEnvelope, MechanicsResult, PreviewModel } from "../../types";
 import { displayQuantityParts } from "../report/reportQuantityDisplay";
 import { CsvExportControl } from "../result-export/CsvExportControl";
@@ -51,6 +52,8 @@ export type DisplacementExtremesPanelProps = Readonly<{
   /** The session's selected node: its row is marked, and its page is shown once when it changes,
    * as soon as its row can be shown. */
   selectedNodeId?: string | null;
+  /** Once per value, brings the selected node's row into view (a governing value opened). */
+  revealRequest?: number | null;
   /** Selects a node through the session's selection. */
   onSelectNode?: (nodeId: string) => void;
   /** A prefix for the panel's test ids, so two embeddings stay distinct. */
@@ -130,8 +133,9 @@ function nextPaging(state: PagingState, input: {
 }
 
 export function DisplacementExtremesPanel({
-  model, result, analysisRun = null, standing, selectedNodeId = null, onSelectNode, testIdPrefix = "displacement-extremes"
+  model, result, analysisRun = null, standing, selectedNodeId = null, onSelectNode, testIdPrefix = "displacement-extremes", revealRequest = null
 }: DisplacementExtremesPanelProps) {
+  const revealRef = useRevealCurrentRow<HTMLElement>(revealRequest);
   // C1: a native result's extremes are S's table (the builder's output over the full rows).
   const summary = boundSummary(result, model);
   const data = useMemo(() => (result && isNativeResult(result)
@@ -160,7 +164,7 @@ export function DisplacementExtremesPanel({
   const unused = unusedText(data);
 
   return (
-    <section className="result-detail-panel displacement-extremes" aria-label="Displacement extremes" data-testid={tid("panel")}>
+    <section className="result-detail-panel displacement-extremes" aria-label="Displacement extremes" data-testid={tid("panel")} ref={revealRef}>
       <h3>{DISPLACEMENT_EXTREMES_TITLE}</h3>
       {data.state === "unavailable" ? (
         <p className="muted" data-testid={tid("unavailable")}>{data.reason}</p>

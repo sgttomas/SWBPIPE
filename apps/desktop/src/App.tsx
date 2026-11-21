@@ -119,7 +119,8 @@ import { ReportPanel } from "./features/report/ReportPanel";
 import { RenderedReportPanel } from "./features/report/RenderedReportPanel";
 import { ReportOutputStatus } from "./features/report/ReportOutputStatus";
 import { ResultExportPanel } from "./features/result-export/ResultExportPanel";
-import { ResultsPanel, type ResultsStageTab } from "./features/results/ResultsPanel";
+import { ResultsPanel, type ResultsStageContext, type ResultsStageTab } from "./features/results/ResultsPanel";
+import { GoverningValuesFor, type GoverningRequest, type GoverningRequestInput } from "./features/results/GoverningValuesPanel";
 import { SupportLoadSummaryPanel } from "./features/results/SupportLoadSummaryPanel";
 import { StressRatioTablePanel } from "./features/results/StressRatioTablePanel";
 import { DisplacementExtremesPanel } from "./features/results/DisplacementExtremesPanel";
@@ -387,6 +388,8 @@ function AppSession() {
     openRuleChecks: () => runMenuCommand("analyze.rule-checks")
   });
   const keyResultsRuleCheckRun = currentSolvedResult !== null && result === currentSolvedResult ? ruleCheckReportRun : null;
+  // DEL-07-05: a governing value opened from the Results stage's summary, for the table that holds its row.
+  const [governingRequest, setGoverningRequest] = useState<GoverningRequest | null>(null);
 
   // In the packaged Tauri shell the OS-level menu bar is the single menu, so the
   // in-DOM menu bar is suppressed to avoid a redundant second row. In the
@@ -836,6 +839,41 @@ function AppSession() {
                   }
                 ];
                 const shownRunRecord = currentSolvedResult !== null && result === currentSolvedResult ? analysisRun : null;
+                const selectStressLocation = (target: { resultId: string | null; entityRef: string | null }) => {
+                  if (target.resultId) handleSelectResult(target.resultId);
+                  else if (target.entityRef) {
+                    const entity = resolveEntitySelection(model, target.entityRef);
+                    if (entity) handleSelectEntity(entity);
+                  }
+                };
+                const nextServing = (request: GoverningRequestInput) => setGoverningRequest((last) => ({ ...request, serial: (last?.serial ?? 0) + 1 }) as GoverningRequest);
+                const governing = (context: ResultsStageContext) => (
+                  <GoverningValuesFor
+                    model={model}
+                    result={result}
+                    fullResult={session.results.fullResult}
+                    standing={viewportResultStanding}
+                    ruleCheckRun={currentSolvedResult !== null && result === currentSolvedResult ? ruleCheckReportRun : null}
+                    caseKey={context.caseKey}
+                    onOpenDisplacement={(item) => {
+                      context.openTab("displacements");
+                      const entity = resolveEntitySelection(model, item.nodeId);
+                      if (entity) handleSelectEntity(entity);
+                      nextServing({ kind: "displacement" });
+                    }}
+                    onOpenReaction={(item) => {
+                      context.openTab("supports");
+                      handleSelectEntity({ type: "support", id: item.supportId });
+                      nextServing({ kind: "support", supportId: item.supportId, caseKey: item.caseKey });
+                    }}
+                    onOpenStress={(item, mode) => {
+                      context.openTab("stress");
+                      selectStressLocation({ resultId: item.resultId, entityRef: item.entityRef });
+                      nextServing({ kind: "stress", groupId: item.groupId, mode });
+                    }}
+                    onOpenWeight={() => context.openTab("weight")}
+                  />
+                );
                 const resultTabs: ResultsStageTab[] = [
                   {
                     id: "supports",
@@ -848,7 +886,9 @@ function AppSession() {
                         analysisRun={shownRunRecord}
                         standing={viewportResultStanding}
                         focusSupportId={selection.type === "support" ? selection.id : null}
-                        focusRequest={keyResults.supportRequest}
+                        focusRequest={keyResults.supportRequest + (governingRequest?.kind === "support" ? governingRequest.serial * 1_000_000 : 0)}
+                        markCaseKey={governingRequest?.kind === "support" ? governingRequest.caseKey : null}
+                        revealRequest={governingRequest?.kind === "support" ? governingRequest.serial : null}
                       />
                     )
                   },
@@ -866,13 +906,8 @@ function AppSession() {
                         standing={viewportResultStanding}
                         ruleCheckRun={currentSolvedResult !== null && result === currentSolvedResult ? ruleCheckReportRun : null}
                         selectedResultId={selectedReviewTarget?.target_type === "result" ? selectedReviewTarget.id : null}
-                        onSelectLocation={(target) => {
-                          if (target.resultId) handleSelectResult(target.resultId);
-                          else if (target.entityRef) {
-                            const entity = resolveEntitySelection(model, target.entityRef);
-                            if (entity) handleSelectEntity(entity);
-                          }
-                        }}
+                        onSelectLocation={selectStressLocation}
+                        focus={governingRequest?.kind === "stress" ? governingRequest : null}
                       />
                     )
                   },
@@ -891,6 +926,7 @@ function AppSession() {
                           const entity = resolveEntitySelection(model, nodeId);
                           if (entity) handleSelectEntity(entity);
                         }}
+                        revealRequest={governingRequest?.kind === "displacement" ? governingRequest.serial : null}
                       />
                     )
                   },
@@ -928,7 +964,7 @@ function AppSession() {
                         identity: { kind: "current", runId: result?.run_id ?? null },
                         actions: resultsActions,
                         tabRequest: keyResults.tabRequest,
-                        render: () => ({ tabs: [...resultTabs, ...comparisonTabs] })
+                        render: (context) => ({ governing: result ? governing(context) : null, tabs: [...resultTabs, ...comparisonTabs] })
                       }}
                     />;
               })()}

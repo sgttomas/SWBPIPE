@@ -13,6 +13,7 @@
 import { boundSummary, isNativeResult, type SessionAnalysisRun, type SessionResult } from "../../services/nativeResult";
 import { ChevronLeft, ChevronRight } from "lucide-react";
 import { useEffect, useMemo, useRef, useState, type KeyboardEvent } from "react";
+import { useRevealCurrentRow } from "./revealCurrentRow";
 import type { AnalysisRunEnvelope, MechanicsResult, PreviewModel } from "../../types";
 import { displayQuantityParts } from "../report/reportQuantityDisplay";
 import { CsvExportControl } from "../result-export/CsvExportControl";
@@ -75,6 +76,10 @@ export type SupportLoadSummaryPanelProps = Readonly<{
   /** A request count: each new value shows `focusSupportId` again, even when it is unchanged and
    * the user has stepped to another support (A6's "Show support load summary"). */
   focusRequest?: number;
+  /** The case row to mark as current and bring into view, once per `revealRequest` (a governing
+   * reaction opened from the stage's summary). */
+  markCaseKey?: string | null;
+  revealRequest?: number | null;
   /** A prefix for the panel's test ids, so two embeddings stay distinct. */
   testIdPrefix?: string;
 }>;
@@ -117,7 +122,8 @@ function exclusionText(summary: SupportLoadSummary): string {
   return parts.length > 0 ? `${base}; not included: ${parts.join(", ")}.` : `${base}.`;
 }
 
-export function SupportLoadSummaryPanel({ model, result, analysisRun = null, standing, focusSupportId = null, focusRequest = 0, testIdPrefix = "support-load" }: SupportLoadSummaryPanelProps) {
+export function SupportLoadSummaryPanel({ model, result, analysisRun = null, standing, focusSupportId = null, focusRequest = 0, testIdPrefix = "support-load", markCaseKey = null, revealRequest = null }: SupportLoadSummaryPanelProps) {
+  const revealRef = useRevealCurrentRow<HTMLElement>(revealRequest);
   // C1: a native result's summaries are S's table (the builder's output over the full rows).
   const nativeSummary = boundSummary(result, model);
   const summaries = useMemo(() => (result && isNativeResult(result)
@@ -157,7 +163,7 @@ export function SupportLoadSummaryPanel({ model, result, analysisRun = null, sta
   });
 
   return (
-    <section className="result-detail-panel support-load-summary" aria-label="Support load summary" data-testid={tid("summary")} onKeyDown={onKeyDown}>
+    <section className="result-detail-panel support-load-summary" aria-label="Support load summary" data-testid={tid("summary")} onKeyDown={onKeyDown} ref={revealRef}>
       <h3>{SUPPORT_LOAD_SUMMARY_TITLE}</h3>
       {summaries.state === "unavailable" || !summary ? (
         <p className="muted" data-testid={tid("unavailable")}>{summaries.reason ?? "No supports"}</p>
@@ -192,7 +198,7 @@ export function SupportLoadSummaryPanel({ model, result, analysisRun = null, sta
               build={async () => supportLoadsAllCsv({ summaries, ...await csvContext() })}
             />
           </div>
-          <SupportLoadTable summary={summary} tid={tid} />
+          <SupportLoadTable summary={summary} tid={tid} markCaseKey={summary.supportId === focusSupportId ? markCaseKey : null} />
           <SupportAlongDirection summary={summary} tid={tid} />
           <p data-testid={tid("extremes-note")}>{exclusionText(summary)}</p>
           {summary.rows.some((row) => row.case.envelope && row.case.note === undefined && row.standing === "admitted") ? <small data-testid={tid("envelope-note")}>{SUPPORT_LOAD_ENVELOPE_TEXT}</small> : null}
@@ -205,7 +211,7 @@ export function SupportLoadSummaryPanel({ model, result, analysisRun = null, sta
   );
 }
 
-function SupportLoadTable({ summary, tid }: { summary: SupportLoadSummary; tid: (suffix: string) => string }) {
+function SupportLoadTable({ summary, tid, markCaseKey = null }: { summary: SupportLoadSummary; tid: (suffix: string) => string; markCaseKey?: string | null }) {
   const listed = summary.rows.filter((row) => row.standing === "admitted");
   const units = new Map(SUPPORT_LOAD_COLUMNS.map((item) => [item.id, columnUnit(listed, item)] as const));
   const header = (item: SupportLoadColumn) => {
@@ -224,7 +230,8 @@ function SupportLoadTable({ summary, tid }: { summary: SupportLoadSummary; tid: 
         </thead>
         <tbody>
           {summary.rows.map((row) => (
-            <tr key={row.case.key} data-testid={tid(`row-${row.case.key}`)} data-standing={row.standing}>
+            <tr key={row.case.key} data-testid={tid(`row-${row.case.key}`)} data-standing={row.standing}
+              aria-current={markCaseKey === row.case.key ? "true" : undefined} className={markCaseKey === row.case.key ? "selected-result-row" : undefined}>
               <th scope="row">{row.case.label}{row.case.envelope ? <small> {row.case.note ?? "range envelope"}</small> : null}</th>
               {row.standing === "withheld" ? (
                 <td colSpan={SUPPORT_LOAD_COLUMNS.length} data-testid={tid(`withheld-${row.case.key}`)}>{row.withheldReason}</td>
