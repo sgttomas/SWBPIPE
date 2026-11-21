@@ -201,7 +201,7 @@ from core.handoff.caepipe_external.harness import (  # noqa: E402
     write_private,
 )
 from core.handoff.caepipe_mbf import render_caepipe_mbf_si  # noqa: E402
-from tools.caepipe_correlation import benchmark_models  # noqa: E402
+from tools.caepipe_correlation import benchmark_models, stated_bases  # noqa: E402
 
 
 CASES_DIR = PROJECT / "validation" / "caepipe_correlation" / "cases"
@@ -1098,7 +1098,8 @@ def _solve_benchmark(root: Path, paths: Mapping[str, Path], entry: Mapping[str, 
     solve_id, folder = _new_solve_folder(root, paths["swbpipe"], identity)
     body, output, error = solve_swbpipe(resolved, {
         "case_id": benchmark_run_id(entry), "model": entry["model"],
-        "source_location": f"validation/caepipe_benchmark/models/{entry['model_id']}.json"})
+        "source_location": f"validation/caepipe_benchmark/models/{entry['model_id']}.json",
+        **({"stated_bases": list(entry["stated_bases"])} if entry.get("stated_bases") else {})})
     solve = {"solve_id": solve_id, **identity, "runner_sha256": runner_sha256, "solved": _now(),
              "request": f"swbpipe/{solve_id}/request.json",
              "request_sha256": _create_private_json(root, folder / "request.json", body),
@@ -1315,6 +1316,17 @@ def _run_benchmark_model(entry: Mapping[str, Any], config: HarnessConfig, *, run
                                         mbf_text=mbf_text, parsed_caepipe=parsed)
     comparison["swbpipe_solve"] = dict(solve)
     comparison["caepipe_print"] = caepipe_print
+
+    def basis_solve(document: Mapping[str, Any], names: tuple[str, ...]) -> tuple[Any, str, dict[str, Any]]:
+        # Each basis document is solved afresh in a solve folder of its own, beside the plain solve.
+        _, basis_output, basis_error, made = _solve_benchmark(root, paths, document, runner)
+        made["stated_bases"] = list(names)
+        return (basis_output or {}).get("payload") if basis_output is not None else None, basis_error, made
+
+    # Beside the plain comparison, never in its place (stated_bases.RULE).
+    comparison["stated_bases"] = stated_bases.compare_bases(
+        entry, plain_payload=output["payload"], plain_record=comparison, mbf_result=mbf, mbf_text=mbf_text,
+        parsed_caepipe=parsed, solve=basis_solve)
     comparison_path = contained_dir(root, paths["comparison"] / solve["solve_id"]) / BENCHMARK_RECORD
     _create_private_json(root, comparison_path, comparison)  # created, never replacing an earlier comparison
     if not offline:

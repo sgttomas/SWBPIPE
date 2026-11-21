@@ -1433,7 +1433,9 @@ def test_a_case_holding_earlier_files_is_solved_again_and_leaves_them_as_they_ar
     if manifest is not None:
         (folder.parent / "case_manifest.json").write_text(manifest, encoding="utf-8")
     assert run_pilot.main(state["argv"] + ["--case", "cpb-g1-01"], environ={}) == 0
-    assert len(solves) == 1 and [call[0] for call in state["calls"]] == ["cpb-g1-01"]
+    # One solve of the model; the stated bases' solves follow it (stated_bases.compare_bases).
+    assert len([case for case in solves if not case.get("stated_bases")]) == 1
+    assert [call[0] for call in state["calls"]] == ["cpb-g1-01"]
     assert all((folder / name).read_text(encoding="utf-8") == "INVENTED STORED FILE\n"
                for name in ("request.json", "result.json"))
     recorded = json.loads((folder.parent / "case_manifest.json").read_text())
@@ -1669,7 +1671,7 @@ def test_the_runner_hashed_is_the_runner_run(fake_benchmark, monkeypatch, tmp_pa
     run_pilot._run_benchmark_model(_bench_entry(state), state["config"], runner="invented-runner", offline=False,
                                    emit=lambda line: None, round_trip=_collecting_round_trip, gui_fallback=False,
                                    attempt=1)
-    assert given == [str(real.resolve())]
+    assert set(given) == {str(real.resolve())}  # the plain solve and each stated basis's solve
     manifest = json.loads((state["config"].exchange_root / "cases" / "cpb-g1-01" / "case_manifest.json").read_text())
     assert manifest["swbpipe_solve"]["runner_sha256"] == hashlib.sha256(real.read_bytes()).hexdigest()
 
@@ -1702,7 +1704,8 @@ def test_collect_only_offline_and_a_later_comparison_through_the_model_callable(
 def test_the_retry_reuses_its_own_solve_and_replaces_nothing(fake_benchmark, monkeypatch):
     state = fake_benchmark
     solves = []
-    monkeypatch.setattr(run_pilot, "solve_swbpipe", lambda runner, case: solves.append(case["case_id"]) or (
+    monkeypatch.setattr(run_pilot, "solve_swbpipe", lambda runner, case: (
+        None if case.get("stated_bases") else solves.append(case["case_id"])) or (
         {"invented": case["case_id"]}, {"payload": invented_payload()}, ""))
     failure = RuntimeError("invented transport failure")
     failure.settings_guard = {"status": "unchanged"}  # a clean settings check, so the model is retried
@@ -1745,7 +1748,9 @@ def test_collect_only_collects_and_binds_and_offline_then_compares(fake_benchmar
                         "--collect-only"], environ={})
     assert run_pilot.main(["--benchmark", str(state["manifest"]), "--runner", state["runner"], "--offline", "--case",
                            "cpb-g1-01"], environ={}) == 0
-    assert calls == ["solve_swbpipe", "parse_caepipe_print_bytes", "build_benchmark_record"]
+    # Solve, parse, compare; then each stated basis's own solve (stated_bases.compare_bases).
+    assert calls[:3] == ["solve_swbpipe", "parse_caepipe_print_bytes", "build_benchmark_record"]
+    assert set(calls[3:]) <= {"solve_swbpipe"}
     assert len(comparisons(config.exchange_root, "cpb-g1-01")) == 1
 
 
@@ -1854,7 +1859,8 @@ def test_a_capture_run_is_collected_bound_and_parsed_and_never_compared(fake_ben
     config = state["config"]
     root = config.exchange_root
     solves = []
-    monkeypatch.setattr(run_pilot, "solve_swbpipe", lambda runner, case: solves.append(case["case_id"]) or (
+    monkeypatch.setattr(run_pilot, "solve_swbpipe", lambda runner, case: (
+        None if case.get("stated_bases") else solves.append(case["case_id"])) or (
         {"invented": True}, {"payload": invented_payload()}, ""))
     lines: list[str] = []
     assert run_pilot.run_benchmark([plain, capture], config, runner=state["runner"], offline=False, emit=lines.append,
