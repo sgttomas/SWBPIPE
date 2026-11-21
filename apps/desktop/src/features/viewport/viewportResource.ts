@@ -541,11 +541,50 @@ export class ViewportResource {
    * that changes the camera's pose reports a move.
    */
   private gesture: "pressed" | "released" | null = null;
+  /** The pose where the person's gesture began. */
+  private gestureStart: { position: THREE.Vector3; quaternion: THREE.Quaternion; target: THREE.Vector3; zoom: number } | null = null;
+
+  private noteGestureStart(): void {
+    this.gesture = "pressed";
+    this.gestureStart = {
+      position: this.camera.position.clone(),
+      quaternion: this.camera.quaternion.clone(),
+      target: this.controls.target.clone(),
+      zoom: this.camera.zoom
+    };
+  }
+
+  /**
+   * Whether the pose has left where the gesture began. The controls recompute the pose from
+   * spherical coordinates on every update, which rounds it by a few units in the last place even
+   * when nothing was asked; a move is a change larger than one part in 10^9 of the viewing
+   * distance (or of the orientation or zoom).
+   */
+  private gestureMovedCamera(): boolean {
+    const start = this.gestureStart;
+    if (!start) return true;
+    const scale = Math.max(start.position.distanceTo(start.target), Number.MIN_VALUE);
+    const tolerance = 1e-9 * scale;
+    return start.position.distanceTo(this.camera.position) > tolerance ||
+      start.target.distanceTo(this.controls.target) > tolerance ||
+      1 - Math.abs(start.quaternion.dot(this.camera.quaternion)) > 1e-12 ||
+      Math.abs(start.zoom - this.camera.zoom) > 1e-9 * Math.abs(start.zoom);
+  }
 
   private noteGestureMove(): void {
-    if (this.gesture === null) return;
+    if (!this.gesture || !this.gestureMovedCamera()) return;
     this.gesture = null;
+    this.gestureStart = null;
     this.options.onCameraMovedByPerson?.(this);
+  }
+
+  private noteGestureEnd(): void {
+    if (this.gesture === "pressed") this.gesture = "released";
+  }
+
+  private clearGesture(): void {
+    this.gesture = null;
+    this.gestureStart = null;
   }
   private presentationBottomInsetPx = 0;
   private readonly ownership = new ViewportOwnershipLedger(this.resourceGeneration);
@@ -921,13 +960,10 @@ export class ViewportResource {
    * damping for one supported update clears its pending rotation/pan state.
    * The exact public camera/target pose is restored before returning.
    */
-  cancelNavigation(): void {
-    // A programmatic pose follows: nothing after this is the person's gesture.
-    this.gesture = null;
-    this.stopNavigation();
-  }
-
-  private stopNavigation(): void {
+  cancelNavigation(options?: Readonly<{ keepGesture?: boolean }>): void {
+    // A programmatic pose follows: nothing after this is the person's gesture. The render loop
+    // retiring a settled damping tail keeps a gesture still pressed.
+    if (!options?.keepGesture) this.clearGesture();
     if (this.disposed || !this.navigationAdvancing) return;
     // The local Three addon declaration intentionally exposes only the
     // controls surface used by the app. OrbitControls' runtime API includes
@@ -1021,14 +1057,13 @@ export class ViewportResource {
       if (cameraChanged) {
         this.markCameraProjectionChanged();
         this.noteGestureMove();
-      } else if (!navigationContinues && this.gesture === "released") {
-        // Released with nothing left to apply: a press that did not move the camera.
-        this.gesture = null;
       }
+      // Released with nothing left to apply and no move noted: a press that did not move the camera.
+      if (!navigationContinues && this.gesture === "released") this.clearGesture();
       // OrbitControls retains a sub-EPS damping tail when update() returns
       // false. Clear it now so a later presentation-only frame cannot revive
       // the old gesture. (The person's gesture, if still pressed, stays theirs.)
-      if (!navigationContinues) this.stopNavigation();
+      if (!navigationContinues) this.cancelNavigation({ keepGesture: true });
     }
     this.renderer.setScissorTest(false);
     this.renderer.setViewport(0, 0, Math.max(1, this.host.clientWidth), Math.max(1, this.host.clientHeight));
@@ -1139,7 +1174,7 @@ export class ViewportResource {
 
   private handleControlsStart = (): void => {
     this.navigationAdvancing = true;
-    this.gesture = "pressed";
+    this.noteGestureStart();
     this.invalidate();
   };
 
@@ -1147,7 +1182,7 @@ export class ViewportResource {
     // The controls apply a gesture's movement in the render loop (below), which may come after the
     // gesture ends (a wheel, a quick flick): the gesture stays pending until that loop has applied
     // it or found nothing to apply.
-    if (this.gesture === "pressed") this.gesture = "released";
+    this.noteGestureEnd();
     this.navigationAdvancing = true;
     this.invalidate();
   };

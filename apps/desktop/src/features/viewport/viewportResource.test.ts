@@ -159,6 +159,68 @@ describe("viewport resource primitives", () => {
     expect(cancelNavigation).toHaveBeenCalledTimes(1);
   });
 
+  it("reports the person's move once per gesture, and not for a press whose update only rounds the pose", () => {
+    const camera = new THREE.PerspectiveCamera();
+    camera.position.set(0.1, 0.2, 30);
+    const target = new THREE.Vector3(0.1, 0.2, 0);
+    camera.lookAt(target);
+    let step: () => void = () => {};
+    const controls = { target, update: vi.fn(() => { step(); return false; }) };
+    const onCameraMovedByPerson = vi.fn();
+    let fake!: ViewportResource;
+    fake = Object.assign(Object.create(ViewportResource.prototype), {
+      disposed: false,
+      contextStatus: "ready",
+      navigationAdvancing: false,
+      suppressControlsChange: false,
+      gesture: null,
+      gestureStart: null,
+      controls,
+      camera,
+      renderer: {
+        setScissorTest: vi.fn(), setViewport: vi.fn(), render: vi.fn(), info: { memory: {}, render: {} }
+      },
+      host: { clientWidth: 100, clientHeight: 100 },
+      scene: new THREE.Scene(),
+      frameSubmissionSequence: 0,
+      options: { onCameraMovedByPerson },
+      invalidate: vi.fn(),
+      markCameraProjectionChanged: vi.fn(),
+      cancelNavigation: vi.fn((options?: { keepGesture?: boolean }) => {
+        const state = fake as unknown as { navigationAdvancing: boolean; gesture: unknown; gestureStart: unknown };
+        state.navigationAdvancing = false;
+        if (!options?.keepGesture) { state.gesture = null; state.gestureStart = null; }
+      }),
+      renderGizmo: vi.fn(), labelUpdater: null
+    }) as ViewportResource;
+    // What the controls' start and end handlers do (they are instance fields, absent from this fake).
+    const handlers = fake as unknown as { noteGestureStart(): void; noteGestureEnd(): void; render(time: number): boolean; navigationAdvancing: boolean };
+    const press = (change: () => void) => {
+      handlers.noteGestureStart();
+      handlers.navigationAdvancing = true;
+      step = change;
+      handlers.render(1);
+      handlers.noteGestureEnd();
+      handlers.navigationAdvancing = true;
+      step = () => {};
+      handlers.render(2);
+    };
+
+    // The controls' spherical round trip: a few units in the last place, nothing asked.
+    press(() => { camera.position.x += 1e-15; camera.position.z += 4e-15; });
+    expect(onCameraMovedByPerson).not.toHaveBeenCalled();
+    expect((fake as unknown as { gesture: unknown }).gesture).toBeNull();
+
+    press(() => { camera.position.x += 0.5; });
+    expect(onCameraMovedByPerson).toHaveBeenCalledTimes(1);
+
+    // A programmatic pose after the gesture is not the person's.
+    camera.position.x += 2;
+    handlers.navigationAdvancing = true;
+    handlers.render(3);
+    expect(onCameraMovedByPerson).toHaveBeenCalledTimes(1);
+  });
+
   it("clears retained controls movement while preserving the exact public camera pose and input mapping", () => {
     const camera = new THREE.PerspectiveCamera();
     camera.position.set(4, 3, 7);
