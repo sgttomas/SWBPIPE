@@ -369,6 +369,30 @@ fn scalar_count(value: &Value) -> u64 {
     }
 }
 
+/// A producer's count of one source's walks: what its parent reads to hold the promise that
+/// a handed child was walked to its end exactly once.
+#[derive(Default)]
+struct Walks {
+    begun: Cell<u32>,
+    ended: Cell<bool>,
+}
+
+impl Walks {
+    /// A second walk of the same source stops at once.
+    fn begin(&self) -> Result<(), WalkStopped> {
+        self.begun.set(self.begun.get() + 1);
+        if self.begun.get() == 1 { Ok(()) } else { Err(WalkStopped) }
+    }
+
+    fn end(&self) {
+        self.ended.set(true);
+    }
+
+    fn exactly_once(&self) -> Result<(), WalkStopped> {
+        if self.begun.get() == 1 && self.ended.get() { Ok(()) } else { Err(WalkStopped) }
+    }
+}
+
 /// A producer over a held value. It stages the encoding of what it shows as it shows it,
 /// gives every object and list by walk except a `provenance` member, which it holds as a
 /// value, and does not return `Ok` unless every child it handed over had been walked to its
@@ -376,18 +400,12 @@ fn scalar_count(value: &Value) -> u64 {
 struct Produced<'a> {
     value: &'a Value,
     stage: &'a RefCell<String>,
-    walks: Cell<u32>,
-    ended: Cell<bool>,
+    walks: Walks,
 }
 
 impl<'a> Produced<'a> {
     fn over(value: &'a Value, stage: &'a RefCell<String>) -> Self {
-        Produced { value, stage, walks: Cell::new(0), ended: Cell::new(false) }
-    }
-
-    fn begin(&self) -> Result<(), WalkStopped> {
-        self.walks.set(self.walks.get() + 1);
-        if self.walks.get() == 1 { Ok(()) } else { Err(WalkStopped) }
+        Produced { value, stage, walks: Walks::default() }
     }
 
     fn held_as_value(name: Option<&str>, value: &Value) -> bool {
@@ -410,7 +428,8 @@ impl<'a> Produced<'a> {
         } else {
             give(Member::List(&child))?;
         }
-        if child.walks.get() == 1 && child.ended.get() { Ok(()) } else { Err(WalkStopped) }
+        // The visitor said Ok: the producer's own count decides whether it may go on.
+        child.walks.exactly_once()
     }
 
     fn object(&self) -> &'a Map<String, Value> {
@@ -435,7 +454,7 @@ impl SourceObject for Produced<'_> {
     }
 
     fn walk(&self, visit: &mut dyn FnMut(&str, Member<'_>) -> Result<(), WalkStopped>) -> Result<(), WalkStopped> {
-        self.begin()?;
+        self.walks.begin()?;
         let mut names: Vec<&String> = self.object().keys().collect();
         names.sort_by(|left, right| utf16_order(left, right));
         self.stage.borrow_mut().push('{');
@@ -451,14 +470,14 @@ impl SourceObject for Produced<'_> {
             self.hand(Some(name.as_str()), &self.object()[name], &mut |member| visit(name, member))?;
         }
         self.stage.borrow_mut().push('}');
-        self.ended.set(true);
+        self.walks.end();
         Ok(())
     }
 }
 
 impl SourceList for Produced<'_> {
     fn walk(&self, visit: &mut dyn FnMut(Member<'_>) -> Result<(), WalkStopped>) -> Result<(), WalkStopped> {
-        self.begin()?;
+        self.walks.begin()?;
         self.stage.borrow_mut().push('[');
         for (index, entry) in self.value.as_array().expect("a source list over a list").iter().enumerate() {
             if index > 0 {
@@ -467,41 +486,65 @@ impl SourceList for Produced<'_> {
             self.hand(None, entry, visit)?;
         }
         self.stage.borrow_mut().push(']');
-        self.ended.set(true);
+        self.walks.end();
         Ok(())
     }
 }
 
+/// Where a visitor's check failed, and what it found there.
+#[derive(Debug, Clone, PartialEq)]
+struct Problem {
+    path: String,
+    found: &'static str,
+}
+
+fn problem(path: impl Into<String>, found: &'static str) -> Problem {
+    Problem { path: path.into(), found }
+}
+
 /// What a visitor can check of a source object, as a rule checks it, and the value it was
-/// shown. Every read by name is made before the walk. A failed check is recorded in
-/// `problems` with its path and stops the walk.
-fn see_object(source: &dyn SourceObject, depth: usize, path: &str, problems: &mut Vec<String>) -> Result<Value, WalkStopped> {
-    let fail = |problem: &str, problems: &mut Vec<String>| {
-        problems.push(format!("{path}: {problem}"));
+/// shown. Every read by name is made before the walk. The first failed check is recorded in
+/// `problems` and stands whatever the source does or returns after it: the visitor refuses
+/// every later call, and returns `Err` although the source's walk returned `Ok`.
+fn see_object(source: &dyn SourceObject, depth: usize, path: &str, problems: &mut Vec<Problem>) -> Result<Value, WalkStopped> {
+    let already = problems.len();
+    let fail = |at: String, found: &'static str, problems: &mut Vec<Problem>| {
+        problems.push(problem(at, found));
         Err(WalkStopped)
     };
     if depth > MAX_SOURCE_NESTING {
-        return fail("nested deeper than the bound", problems);
+        return fail(path.to_string(), "nested deeper than the bound", problems);
     }
     let mut names = source.member_names();
     names.sort_by(|left, right| utf16_order(left, right));
     if names.windows(2).any(|pair| pair[0] == pair[1]) {
-        return fail("a member name is given twice", problems);
+        return fail(path.to_string(), "a member name is given twice", problems);
     }
     let peeks: Vec<Option<Peek<'_>>> = names.iter().map(|name| source.peek(name)).collect();
-    if source.peek("a name that is not a member").is_some() {
-        return fail("a name that is not a member was answered", problems);
+    if let Some(at) = peeks.iter().position(Option::is_none) {
+        return fail(format!("{path}.{}", names[at]), "a listed name is not answered by name", problems);
+    }
+    // A name the source did not list, found from the names it did list.
+    let mut unlisted = String::from("a name that is not a member");
+    while names.contains(&unlisted) {
+        unlisted.push('\'');
+    }
+    if source.peek(&unlisted).is_some() {
+        return fail(path.to_string(), "a name that is not a member was answered", problems);
     }
     if let Some(at) = names.iter().position(|name| name == "provenance") {
         if !matches!(peeks[at], Some(Peek::Value(_))) {
-            return fail("provenance is not held as a value", problems);
+            return fail(format!("{path}.provenance"), "not held as a value", problems);
         }
     }
     let mut position = 0;
     let mut shown = Map::new();
     let walked = source.walk(&mut |name, member| {
+        if problems.len() > already {
+            return Err(WalkStopped);
+        }
         if names.get(position).map(String::as_str) != Some(name) {
-            problems.push(format!("{path}: {name} is out of order, repeated or not a member"));
+            problems.push(problem(format!("{path}.{name}"), "out of order, repeated or not a member"));
             return Err(WalkStopped);
         }
         let agrees = match (&peeks[position], &member) {
@@ -510,7 +553,7 @@ fn see_object(source: &dyn SourceObject, depth: usize, path: &str, problems: &mu
             _ => false,
         };
         if !agrees {
-            problems.push(format!("{path}.{name}: its peek disagrees with its walk"));
+            problems.push(problem(format!("{path}.{name}"), "its peek disagrees with its walk"));
             return Err(WalkStopped);
         }
         position += 1;
@@ -518,40 +561,45 @@ fn see_object(source: &dyn SourceObject, depth: usize, path: &str, problems: &mu
         shown.insert(name.to_string(), value);
         Ok(())
     });
-    if walked.is_err() {
-        if problems.is_empty() {
-            problems.push(format!("{path}: the walk stopped"));
-        }
+    if problems.len() > already {
         return Err(WalkStopped);
     }
+    if walked.is_err() {
+        return fail(path.to_string(), "the walk stopped", problems);
+    }
     if position != names.len() {
-        return fail("a member was not walked", problems);
+        return fail(path.to_string(), "a member was not walked", problems);
     }
     Ok(Value::Object(shown))
 }
 
-fn see_list(list: &dyn SourceList, depth: usize, path: &str, problems: &mut Vec<String>) -> Result<Value, WalkStopped> {
+fn see_list(list: &dyn SourceList, depth: usize, path: &str, problems: &mut Vec<Problem>) -> Result<Value, WalkStopped> {
+    let already = problems.len();
     if depth > MAX_SOURCE_NESTING {
-        problems.push(format!("{path}: nested deeper than the bound"));
+        problems.push(problem(path, "nested deeper than the bound"));
         return Err(WalkStopped);
     }
     let mut entries = Vec::new();
     let walked = list.walk(&mut |entry| {
+        if problems.len() > already {
+            return Err(WalkStopped);
+        }
         let value = see(entry, depth, &format!("{path}[{}]", entries.len()), problems)?;
         entries.push(value);
         Ok(())
     });
+    if problems.len() > already {
+        return Err(WalkStopped);
+    }
     if walked.is_err() {
-        if problems.is_empty() {
-            problems.push(format!("{path}: the walk stopped"));
-        }
+        problems.push(problem(path, "the walk stopped"));
         return Err(WalkStopped);
     }
     Ok(Value::Array(entries))
 }
 
 /// A handed member, walked to its end once inside the call that handed it over.
-fn see(member: Member<'_>, depth: usize, path: &str, problems: &mut Vec<String>) -> Result<Value, WalkStopped> {
+fn see(member: Member<'_>, depth: usize, path: &str, problems: &mut Vec<Problem>) -> Result<Value, WalkStopped> {
     match member {
         Member::Value(value) => Ok(value.clone()),
         Member::Object(object) => see_object(object, depth + 1, path, problems),
@@ -579,7 +627,7 @@ fn a_producer_stages_exactly_the_encoding_of_the_root_it_shows() {
     let source = Produced::over(&held, &stage);
     let mut problems = Vec::new();
     let shown = see_object(&source, 1, "$", &mut problems).expect("a source that keeps its promises");
-    assert_eq!(problems, Vec::<String>::new());
+    assert_eq!(problems, Vec::<Problem>::new());
     assert_eq!(shown, held);
 
     // The complete staged document against text written from the held value alone: names,
@@ -600,40 +648,57 @@ fn a_producer_stages_exactly_the_encoding_of_the_root_it_shows() {
     assert_eq!(source.peek("absent"), None);
     // Reading by name staged nothing.
     assert_eq!(*stage.borrow(), staged);
+
+    // Any member name is a member name: the visitor's question about a name that is not a
+    // member is asked with a name this object does not list.
+    let odd = json!({"a name that is not a member": 1, "a name that is not a member'": 2});
+    let stage = RefCell::new(String::new());
+    assert_eq!(see_object(&Produced::over(&odd, &stage), 1, "$", &mut problems), Ok(odd.clone()));
+    assert_eq!(problems, Vec::<Problem>::new());
 }
 
 #[test]
 fn a_producer_refuses_a_visitor_that_skips_repeats_or_cuts_short_a_child() {
-    let held = json!({"list": [1, 2]});
-
-    // Returning Ok without walking the handed list: the producer's walk does not return Ok.
-    let stage = RefCell::new(String::new());
-    let source = Produced::over(&held, &stage);
-    assert_eq!(SourceObject::walk(&source, &mut |_, _| Ok(())), Err(WalkStopped));
-
-    // Walking the handed list twice: the second walk stops, and the stop is passed on.
-    let stage = RefCell::new(String::new());
-    let source = Produced::over(&held, &stage);
-    let repeated = SourceObject::walk(&source, &mut |_, member| match member {
-        Member::List(list) => {
-            list.walk(&mut |_| Ok(()))?;
-            list.walk(&mut |_| Ok(()))
+    fn walk_child(member: Member<'_>, each: Result<(), WalkStopped>) -> Result<(), WalkStopped> {
+        match member {
+            Member::List(list) => list.walk(&mut |_| each),
+            Member::Object(object) => object.walk(&mut |_, _| each),
+            Member::Value(_) => panic!("the child is given by walk"),
         }
-        _ => Ok(()),
-    });
-    assert_eq!(repeated, Err(WalkStopped));
+    }
+    // A child that is a list, and a child that is an object. In each case the visitor says
+    // Ok, and it is the producer's own count of the child's walks that refuses it.
+    for held in [json!({"child": [1, 2]}), json!({"child": {"k": 1}})] {
+        // The handed child is not walked.
+        let stage = RefCell::new(String::new());
+        let source = Produced::over(&held, &stage);
+        assert_eq!(SourceObject::walk(&source, &mut |_, _| Ok(())), Err(WalkStopped));
 
-    // Stopping the handed list's walk and returning Ok all the same: the list did not reach
-    // its end, so the producer's walk does not return Ok.
-    let stage = RefCell::new(String::new());
-    let source = Produced::over(&held, &stage);
-    let swallowed = SourceObject::walk(&source, &mut |_, member| {
-        if let Member::List(list) = member {
-            assert_eq!(list.walk(&mut |_| Err(WalkStopped)), Err(WalkStopped));
-        }
-        Ok(())
-    });
-    assert_eq!(swallowed, Err(WalkStopped));
+        // The handed child is walked twice: the second walk stops at once.
+        let stage = RefCell::new(String::new());
+        let source = Produced::over(&held, &stage);
+        let repeated = SourceObject::walk(&source, &mut |_, member| {
+            assert_eq!(walk_child(member, Ok(())), Ok(()));
+            assert_eq!(walk_child(member, Ok(())), Err(WalkStopped));
+            Ok(())
+        });
+        assert_eq!(repeated, Err(WalkStopped));
+
+        // The handed child's walk is stopped short of its end.
+        let stage = RefCell::new(String::new());
+        let source = Produced::over(&held, &stage);
+        let cut_short = SourceObject::walk(&source, &mut |_, member| {
+            assert_eq!(walk_child(member, Err(WalkStopped)), Err(WalkStopped));
+            Ok(())
+        });
+        assert_eq!(cut_short, Err(WalkStopped));
+
+        // Walked to its end once: the producer goes on to its own end.
+        let stage = RefCell::new(String::new());
+        let source = Produced::over(&held, &stage);
+        assert_eq!(SourceObject::walk(&source, &mut |_, member| walk_child(member, Ok(()))), Ok(()));
+        assert_eq!(*stage.borrow(), canonical(&held));
+    }
 
     // The root is walked once.
     let empty = json!({});
@@ -653,10 +718,12 @@ fn row(index: u64) -> Value {
 struct Rows<'a> {
     count: u64,
     stage: &'a RefCell<String>,
+    walks: Walks,
 }
 
 impl SourceList for Rows<'_> {
     fn walk(&self, visit: &mut dyn FnMut(Member<'_>) -> Result<(), WalkStopped>) -> Result<(), WalkStopped> {
+        self.walks.begin()?;
         self.stage.borrow_mut().push('[');
         for index in 0..self.count {
             let built = row(index);
@@ -670,6 +737,7 @@ impl SourceList for Rows<'_> {
             visit(Member::Value(&built))?;
         }
         self.stage.borrow_mut().push(']');
+        self.walks.end();
         Ok(())
     }
 }
@@ -678,6 +746,7 @@ impl SourceList for Rows<'_> {
 struct Set<'a> {
     rows: u64,
     stage: &'a RefCell<String>,
+    walks: Walks,
 }
 
 impl SourceObject for Set<'_> {
@@ -694,11 +763,15 @@ impl SourceObject for Set<'_> {
     }
 
     fn walk(&self, visit: &mut dyn FnMut(&str, Member<'_>) -> Result<(), WalkStopped>) -> Result<(), WalkStopped> {
+        self.walks.begin()?;
         self.stage.borrow_mut().push_str("{\"name\":\"invented\"");
         visit("name", Member::Value(&json!("invented")))?;
         self.stage.borrow_mut().push_str(",\"values\":");
-        visit("values", Member::List(&Rows { count: self.rows, stage: self.stage }))?;
+        let rows = Rows { count: self.rows, stage: self.stage, walks: Walks::default() };
+        visit("values", Member::List(&rows))?;
+        rows.walks.exactly_once()?;
         self.stage.borrow_mut().push('}');
+        self.walks.end();
         Ok(())
     }
 }
@@ -707,13 +780,18 @@ impl SourceObject for Set<'_> {
 struct Sets<'a> {
     rows: u64,
     stage: &'a RefCell<String>,
+    walks: Walks,
 }
 
 impl SourceList for Sets<'_> {
     fn walk(&self, visit: &mut dyn FnMut(Member<'_>) -> Result<(), WalkStopped>) -> Result<(), WalkStopped> {
+        self.walks.begin()?;
         self.stage.borrow_mut().push('[');
-        visit(Member::Object(&Set { rows: self.rows, stage: self.stage }))?;
+        let set = Set { rows: self.rows, stage: self.stage, walks: Walks::default() };
+        visit(Member::Object(&set))?;
+        set.walks.exactly_once()?;
         self.stage.borrow_mut().push(']');
+        self.walks.end();
         Ok(())
     }
 }
@@ -738,7 +816,9 @@ impl SourceObject for Document<'_> {
 
     fn walk(&self, visit: &mut dyn FnMut(&str, Member<'_>) -> Result<(), WalkStopped>) -> Result<(), WalkStopped> {
         self.stage.borrow_mut().push_str("{\"result_sets\":");
-        visit("result_sets", Member::List(&Sets { rows: self.rows, stage: self.stage }))?;
+        let sets = Sets { rows: self.rows, stage: self.stage, walks: Walks::default() };
+        visit("result_sets", Member::List(&sets))?;
+        sets.walks.exactly_once()?;
         self.stage.borrow_mut().push_str(",\"schema_version\":\"1.0\"");
         visit("schema_version", Member::Value(&json!("1.0")))?;
         self.stage.borrow_mut().push('}');
@@ -760,10 +840,29 @@ fn entries_built_for_their_call_are_shown_and_staged() {
         let source = Document { rows, stage: &stage };
         let mut problems = Vec::new();
         let shown = see_object(&source, 1, "$", &mut problems).expect("a source that keeps its promises");
-        assert_eq!(problems, Vec::<String>::new());
+        assert_eq!(problems, Vec::<Problem>::new());
         assert_eq!(shown, document_value(rows));
         assert_eq!(*stage.borrow(), canonical(&document_value(rows)));
     }
+}
+
+#[test]
+fn a_producer_of_built_entries_refuses_a_visitor_that_leaves_its_rows_unwalked() {
+    // Walks everything it is handed except the list named `values`, and says Ok throughout.
+    fn all_but_the_rows(member: Member<'_>) -> Result<(), WalkStopped> {
+        match member {
+            Member::Value(_) => Ok(()),
+            Member::Object(object) => {
+                object.walk(&mut |name, inner| if name == "values" { Ok(()) } else { all_but_the_rows(inner) })
+            }
+            Member::List(list) => list.walk(&mut all_but_the_rows),
+        }
+    }
+    let stage = RefCell::new(String::new());
+    let source = Document { rows: 2, stage: &stage };
+    assert_eq!(source.walk(&mut |_, member| all_but_the_rows(member)), Err(WalkStopped));
+    // The stage holds no row and no end: it is not the document.
+    assert_eq!(*stage.borrow(), "{\"result_sets\":[{\"name\":\"invented\",\"values\":");
 }
 
 #[test]
@@ -789,8 +888,8 @@ fn a_stop_inside_a_nested_list_stops_every_walk_above_it() {
     let stopped = source.walk(&mut |_, member| until_second_row(member, &mut rows));
     assert_eq!(stopped, Err(WalkStopped));
     assert_eq!(rows, 2);
-    // What was staged is not a document: it ends at the row the visitor stopped on, which
-    // is why a stopped walk's stage is discarded.
+    // What was staged is not a document: it ends at the row the visitor stopped on. The
+    // caller discards a stopped walk's stage; this crate has no stage of its own to discard.
     assert_eq!(
         *stage.borrow(),
         format!("{{\"result_sets\":[{{\"name\":\"invented\",\"values\":[{},{}", canonical(&row(0)), canonical(&row(1)))
@@ -804,13 +903,16 @@ enum Lie {
     None,
     NameTwice,
     OutOfOrder,
-    MemberNotWalked,
+    MiddleMemberNotWalked,
+    LastMemberNotWalked,
     MemberWalkedTwice,
     PeekedValueDiffers,
     PeekedKindDiffers,
+    ListedNameNotAnswered,
     AnswersForANonMember,
     ProvenanceOnlyByWalk,
     StopsItself,
+    IgnoresTheVisitorsStop,
 }
 
 /// A source over `{"a": 1, "b": 2, "provenance": {...}}` that tells one lie.
@@ -839,6 +941,7 @@ impl SourceObject for Lying {
         match (self.lie, name) {
             (Lie::PeekedValueDiffers, "a") => Some(Peek::Value(Cow::Owned(json!(9)))),
             (Lie::PeekedKindDiffers, "a") => Some(Peek::List),
+            (Lie::ListedNameNotAnswered, "b") => None,
             (Lie::ProvenanceOnlyByWalk, "provenance") => Some(Peek::Object),
             (Lie::AnswersForANonMember, name) if self.held.get(name).is_none() => Some(Peek::Value(Cow::Owned(Value::Null))),
             (_, name) => self.held.get(name).map(|value| Peek::Value(Cow::Borrowed(value))),
@@ -846,9 +949,17 @@ impl SourceObject for Lying {
     }
 
     fn walk(&self, visit: &mut dyn FnMut(&str, Member<'_>) -> Result<(), WalkStopped>) -> Result<(), WalkStopped> {
+        if self.lie == Lie::IgnoresTheVisitorsStop {
+            // Out of order, and going on to say Ok whatever the visitor answers.
+            for name in ["b", "a", "provenance"] {
+                let _ = visit(name, Member::Value(&self.held[name]));
+            }
+            return Ok(());
+        }
         let order: &[&str] = match self.lie {
             Lie::OutOfOrder => &["b", "a", "provenance"],
-            Lie::MemberNotWalked => &["a", "provenance"],
+            Lie::MiddleMemberNotWalked => &["a", "provenance"],
+            Lie::LastMemberNotWalked => &["a", "b"],
             Lie::MemberWalkedTwice => &["a", "a", "b", "provenance"],
             _ => &["a", "b", "provenance"],
         };
@@ -871,28 +982,75 @@ fn a_source_that_breaks_a_promise_is_refused_where_a_visitor_can_see_it() {
     let mut problems = Vec::new();
     let honest = Lying::telling(Lie::None);
     assert_eq!(see_object(&honest, 1, "$", &mut problems), Ok(honest.held.clone()));
-    assert_eq!(problems, Vec::<String>::new());
+    assert_eq!(problems, Vec::<Problem>::new());
 
-    for (lie, problem) in [
-        (Lie::NameTwice, "$: a member name is given twice"),
-        (Lie::OutOfOrder, "$: b is out of order, repeated or not a member"),
-        (Lie::MemberNotWalked, "$: provenance is out of order, repeated or not a member"),
-        (Lie::MemberWalkedTwice, "$: a is out of order, repeated or not a member"),
-        (Lie::PeekedValueDiffers, "$.a: its peek disagrees with its walk"),
-        (Lie::PeekedKindDiffers, "$.a: its peek disagrees with its walk"),
-        (Lie::AnswersForANonMember, "$: a name that is not a member was answered"),
-        (Lie::ProvenanceOnlyByWalk, "$: provenance is not held as a value"),
-        (Lie::StopsItself, "$: the walk stopped"),
+    for (lie, path, found) in [
+        (Lie::NameTwice, "$", "a member name is given twice"),
+        (Lie::OutOfOrder, "$.b", "out of order, repeated or not a member"),
+        (Lie::MiddleMemberNotWalked, "$.provenance", "out of order, repeated or not a member"),
+        (Lie::LastMemberNotWalked, "$", "a member was not walked"),
+        (Lie::MemberWalkedTwice, "$.a", "out of order, repeated or not a member"),
+        (Lie::PeekedValueDiffers, "$.a", "its peek disagrees with its walk"),
+        (Lie::PeekedKindDiffers, "$.a", "its peek disagrees with its walk"),
+        (Lie::ListedNameNotAnswered, "$.b", "a listed name is not answered by name"),
+        (Lie::AnswersForANonMember, "$", "a name that is not a member was answered"),
+        (Lie::ProvenanceOnlyByWalk, "$.provenance", "not held as a value"),
+        (Lie::StopsItself, "$", "the walk stopped"),
+        // The source's own walk returns Ok after the visitor refused: the visitor's first
+        // finding stands, and it is the only one.
+        (Lie::IgnoresTheVisitorsStop, "$.b", "out of order, repeated or not a member"),
     ] {
         let mut problems = Vec::new();
         assert_eq!(see_object(&Lying::telling(lie), 1, "$", &mut problems), Err(WalkStopped), "{lie:?}");
-        assert_eq!(problems, [problem], "{lie:?}");
+        assert_eq!(problems, [problem(path, found)], "{lie:?}");
+    }
+}
+
+/// A source over `{"o": {"k": 1}}` whose one member is an object by name and by walk, but
+/// answered one way by name and handed over the other way.
+struct Mispaired {
+    peeked_by_kind: bool,
+    held: Value,
+    stage: RefCell<String>,
+}
+
+impl SourceObject for Mispaired {
+    fn member_names(&self) -> Vec<String> {
+        vec!["o".to_string()]
+    }
+
+    fn peek(&self, name: &str) -> Option<Peek<'_>> {
+        (name == "o").then(|| if self.peeked_by_kind { Peek::Object } else { Peek::Value(Cow::Borrowed(&self.held["o"])) })
+    }
+
+    fn walk(&self, visit: &mut dyn FnMut(&str, Member<'_>) -> Result<(), WalkStopped>) -> Result<(), WalkStopped> {
+        if self.peeked_by_kind {
+            visit("o", Member::Value(&self.held["o"]))
+        } else {
+            visit("o", Member::Object(&Produced::over(&self.held["o"], &self.stage)))
+        }
+    }
+}
+
+#[test]
+fn an_object_answered_one_way_by_name_and_handed_over_the_other_way_is_refused() {
+    for peeked_by_kind in [true, false] {
+        let source = Mispaired { peeked_by_kind, held: json!({"o": {"k": 1}}), stage: RefCell::new(String::new()) };
+        let mut problems = Vec::new();
+        assert_eq!(see_object(&source, 1, "$", &mut problems), Err(WalkStopped), "{peeked_by_kind}");
+        assert_eq!(problems, [problem("$.o", "its peek disagrees with its walk")], "{peeked_by_kind}");
     }
 }
 
 // --- The bound on nesting, counted from the root as 1, for objects and for lists. ---
 
-/// An object holding one more of itself, `inner` levels deep below it.
+/// An ordinary value with nesting of its own, handed over whole by the innermost source.
+fn deep_value() -> Value {
+    json!({"deeper": [[{"still": [1]}]]})
+}
+
+/// An object holding one more of itself, `inner` levels deep below it, and at the innermost
+/// an ordinary value.
 struct NestedObject {
     inner: usize,
 }
@@ -903,14 +1061,14 @@ impl SourceObject for NestedObject {
     }
 
     fn peek(&self, name: &str) -> Option<Peek<'_>> {
-        (name == "inner").then(|| if self.inner > 0 { Peek::Object } else { Peek::Value(Cow::Owned(Value::Null)) })
+        (name == "inner").then(|| if self.inner > 0 { Peek::Object } else { Peek::Value(Cow::Owned(deep_value())) })
     }
 
     fn walk(&self, visit: &mut dyn FnMut(&str, Member<'_>) -> Result<(), WalkStopped>) -> Result<(), WalkStopped> {
         if self.inner > 0 {
             visit("inner", Member::Object(&NestedObject { inner: self.inner - 1 }))
         } else {
-            visit("inner", Member::Value(&Value::Null))
+            visit("inner", Member::Value(&deep_value()))
         }
     }
 }
@@ -951,24 +1109,28 @@ impl SourceObject for ListRoot {
 
 #[test]
 fn nesting_is_counted_from_the_root_for_objects_and_for_lists() {
-    // The root is 1, so a root with MAX - 1 objects inside it is at the bound.
+    // The root is 1, so a root with MAX - 1 objects inside it is at the bound. The ordinary
+    // value the innermost hands over has nesting of its own, which does not count.
     let mut problems = Vec::new();
     assert!(see_object(&NestedObject { inner: MAX_SOURCE_NESTING - 1 }, 1, "$", &mut problems).is_ok());
     assert_eq!(see_object(&NestedObject { inner: MAX_SOURCE_NESTING }, 1, "$", &mut problems), Err(WalkStopped));
     assert_eq!(problems.len(), 1);
-    assert!(problems[0].ends_with(": nested deeper than the bound"), "{problems:?}");
+    assert_eq!(problems[0].found, "nested deeper than the bound");
 
     // A root with MAX - 1 lists inside it is at the bound; one more list is beyond it.
     let mut problems = Vec::new();
     assert!(see_object(&ListRoot { lists: MAX_SOURCE_NESTING - 1 }, 1, "$", &mut problems).is_ok());
     assert_eq!(see_object(&ListRoot { lists: MAX_SOURCE_NESTING }, 1, "$", &mut problems), Err(WalkStopped));
     assert_eq!(problems.len(), 1);
-    assert!(problems[0].ends_with(": nested deeper than the bound"), "{problems:?}");
+    assert_eq!(problems[0].found, "nested deeper than the bound");
 }
 
 // --- A rule, as a caller reaches one: through the trait object, for a value and a source. ---
 
-/// A stand-in that reads the whole content and counts one decision per scalar.
+/// A stand-in that reads the whole content and counts one decision per scalar. It shows the
+/// form of the call and of the refusal; that a rule's decisions for a source equal its
+/// decisions for the value, and what a rule holds in memory while it visits, are for the
+/// rule's own tests.
 struct Counting;
 
 impl ContentRule for Counting {
@@ -987,9 +1149,11 @@ impl ContentRule for Counting {
             Content::Object(source) => {
                 let mut problems = Vec::new();
                 let seen = see_object(source, 1, "$", &mut problems);
-                match seen {
-                    Ok(value) => value,
-                    Err(WalkStopped) => return Err(RuleError::ContentSourceInconsistent { path: problems.remove(0) }),
+                // A recorded problem refuses, whatever the walk returned.
+                match (seen, problems.first()) {
+                    (Ok(value), None) => value,
+                    (_, Some(first)) => return Err(RuleError::ContentSourceInconsistent { path: first.path.clone() }),
+                    (Err(WalkStopped), None) => return Err(RuleError::ContentSourceInconsistent { path: "$".to_string() }),
                 }
             }
         };
@@ -1006,7 +1170,7 @@ impl ContentRule for Counting {
 }
 
 #[test]
-fn a_value_and_a_source_of_it_are_decided_alike_through_the_trait_object() {
+fn a_value_and_a_source_of_it_are_asked_alike_through_the_trait_object() {
     let rule: &dyn ContentRule = &Counting;
     let request = RouteRequest {
         route_id: "INVENTED-ROUTE-003",
@@ -1029,10 +1193,10 @@ fn a_value_and_a_source_of_it_are_decided_alike_through_the_trait_object() {
     let outcome = of_source.bound_to(Sha256Digest::from_bytes([3; 32]));
     assert!(outcome.may_expose());
 
-    // A source that breaks a promise is a refusal, with where it was seen, and no decision.
-    let refused = rule.decide_summary(Content::Object(&Lying::telling(Lie::OutOfOrder)), &request, 10);
-    assert_eq!(
-        refused,
-        Err(RuleError::ContentSourceInconsistent { path: "$: b is out of order, repeated or not a member".to_string() })
-    );
+    // A source that breaks a promise is a refusal, with where it was seen, and no decision:
+    // also when the source's own walk returned Ok after the visitor refused.
+    for lie in [Lie::OutOfOrder, Lie::IgnoresTheVisitorsStop] {
+        let refused = rule.decide_summary(Content::Object(&Lying::telling(lie)), &request, 10);
+        assert_eq!(refused, Err(RuleError::ContentSourceInconsistent { path: "$.b".to_string() }), "{lie:?}");
+    }
 }

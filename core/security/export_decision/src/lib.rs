@@ -38,11 +38,15 @@
 //!   root the walk shows: every member name, the nesting, the order, each empty object and
 //!   list, and the end of the document. Nothing is staged that was not shown, and nothing
 //!   shown is left out. The producer holds this; a rule sees values, never bytes.
-//! - The digest is of the complete, finalised staged bytes.
+//! - The digest is of the complete, finalised staged bytes, and those same bytes, unchanged,
+//!   are what becomes the output.
 //! - The stage is private: it is not the output file or directory, and no sink reads it.
 //!   It becomes the output only on an outcome that may expose. On a withheld outcome, a
-//!   refusal, a walk that stopped, or a write or finalisation that failed, it is discarded,
-//!   and no output file or directory exists.
+//!   refusal, a walk that stopped, or a write or finalisation that failed, the caller
+//!   discards this attempt's stage and leaves the destination as it was: nothing of the
+//!   attempt is written there, and whatever was there before is unchanged.
+//! - This crate holds no stage. Discarding it, leaving the destination as it was and
+//!   publishing the staged bytes unchanged are the caller's, held by the caller's tests.
 //!
 //! ## Derived outputs
 //!
@@ -247,8 +251,8 @@ pub struct WalkStopped;
 /// - [`member_names`](SourceObject::member_names) gives every member name, each once, and
 ///   [`peek`](SourceObject::peek) answers for exactly those names. Both write nothing, stage
 ///   nothing, and give the same answer each time they are asked.
-/// - A member the source holds as a value is peeked as [`Peek::Value`] and walked as
-///   [`Member::Value`], with an equal value. A member it gives only by walk is peeked as
+/// - A scalar member is always held as a value. A member the source holds as a value is
+///   peeked as [`Peek::Value`] and walked as [`Member::Value`], with an equal value. A member it gives only by walk is peeked as
 ///   [`Peek::Object`] and walked as [`Member::Object`], or peeked as [`Peek::List`] and
 ///   walked as [`Member::List`]. No other pairing.
 /// - A member named `provenance` is held as a value, whatever its kind. It is the one member
@@ -268,14 +272,14 @@ pub struct WalkStopped;
 ///   inside the call that handed it over, before it returns `Ok` from that call. The walk is
 ///   the visitor's act; the source checks it, as promised above.
 /// - It passes on every `Err` it receives from a walk, and visits nothing further.
-/// - It walks the root once.
+/// - It walks the root at most once, and to its end before it returns a decision.
 ///
 /// # What a rule checks of a source
 ///
 /// From what the traits give it, a rule checks that the names are distinct, that the walk
 /// hands over exactly those names in ascending order, that each member it peeked is walked
-/// in the pairing above with an equal value, that a name it asked for and was refused is
-/// not a member, that `provenance` is held as a value, and the depth of nesting. It refuses
+/// in the pairing above with an equal value, that a listed name it asks for is
+/// answered and a name that is not listed is not, that `provenance` is held as a value, and the depth of nesting. It refuses
 /// a source that fails one ([`RuleError::ContentSourceInconsistent`]). It cannot check that
 /// a list handed over every entry, or what a source staged: those rest on the producer.
 pub trait SourceObject {
