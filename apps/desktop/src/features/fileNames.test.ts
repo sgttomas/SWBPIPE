@@ -39,7 +39,7 @@ describe("the suggested file name", () => {
 });
 
 // No file under the desktop's sources composes a suggested name with the product's prefix or "preview" for itself,
-// apart from the lines named in FILE_NAME_EXCEPTIONS.
+// apart from the names in FILE_NAME_EXCEPTIONS, each as many times as its entry says.
 const SRC = path.resolve(__dirname, "..");
 
 function sources(directory: string): string[] {
@@ -50,33 +50,53 @@ function sources(directory: string): string[] {
   });
 }
 
-function excepted(relative: string, line: number, name: string): boolean {
-  return FILE_NAME_EXCEPTIONS.some((item) => item.file === relative && item.line === line && name.startsWith(item.starts));
+/** The names a source composes with the product's prefix or, in a download attribute, "preview": each literal once,
+ * however both patterns find it. */
+function composedNames(text: string): string[] {
+  const names = new Map<number, string>();
+  // A string or template literal that starts with the product's prefix and ends in a file extension.
+  for (const match of text.matchAll(/[`"'](openpipestress-[^`"'\n]*\.(?:json|csv|pcf|html|mbf|gltf\.json))[`"']/g)) names.set(match.index!, match[1]);
+  // A download attribute whose literal name holds "preview".
+  for (const match of text.matchAll(/download=\{?\s*([`"'])([^`"'\n]*)[`"']/g)) {
+    if (/preview/i.test(match[2])) names.set(match.index! + match[0].indexOf(match[1]), match[2]);
+  }
+  return [...names.values()];
+}
+
+/** What is wrong with one source: a name no exception covers, or an exception whose count the file does not hold. */
+function namesOutOfRule(file: string, text: string, exceptions: typeof FILE_NAME_EXCEPTIONS): string[] {
+  const own = exceptions.filter((item) => item.file === file);
+  const counts = new Map<(typeof own)[number], number>(own.map((item) => [item, 0]));
+  const problems: string[] = [];
+  for (const name of composedNames(text)) {
+    const covering = own.find((item) => name.startsWith(item.starts));
+    if (covering) counts.set(covering, counts.get(covering)! + 1);
+    else problems.push(`${file}: ${name}`);
+  }
+  for (const [item, count] of counts) if (count !== item.count) problems.push(`${file}: ${count} names starting ${item.starts}, the exception says ${item.count}`);
+  return problems;
 }
 
 describe("the product's prefix and \"preview\" in suggested file names", () => {
-  it("each exception names the line that holds it", () => {
-    for (const item of FILE_NAME_EXCEPTIONS) {
-      const line = readFileSync(path.join(SRC, item.file), "utf8").split("\n")[item.line - 1] ?? "";
-      expect(line, `${item.file}:${item.line}`).toContain(item.starts);
-    }
+  const invented: typeof FILE_NAME_EXCEPTIONS = [{ file: "invented.tsx", starts: "openpipestress-preview-invented-", count: 1, reason: "invented" }];
+  const source = "const x = 1;\n<a download={`openpipestress-preview-invented-${id}.json`} />\n";
+
+  it("an exception holds wherever its name sits in the file: a line added above it changes nothing", () => {
+    expect(namesOutOfRule("invented.tsx", source, invented)).toEqual([]);
+    expect(namesOutOfRule("invented.tsx", `\n\n// invented comment\n${source}`, invented)).toEqual([]);
+  });
+
+  it("a stale exception, or a second such name, fails", () => {
+    expect(namesOutOfRule("invented.tsx", "const x = 1;\n", invented)).toHaveLength(1);
+    expect(namesOutOfRule("invented.tsx", `${source}${source}`, invented)).toHaveLength(1);
+    expect(namesOutOfRule("other.tsx", source, invented)).toEqual(["other.tsx: openpipestress-preview-invented-${id}.json"]);
   });
 
   it("do not come back: no source composes such a name outside the exceptions", () => {
-    const found: string[] = [];
-    for (const file of sources(SRC)) {
-      const relative = path.relative(SRC, file).split(path.sep).join("/");
-      const text = readFileSync(file, "utf8");
-      const lineOf = (index: number) => text.slice(0, index).split("\n").length;
-      // A string or template literal that starts with the product's prefix and ends in a file extension.
-      for (const match of text.matchAll(/[`"'](openpipestress-[^`"'\n]*\.(?:json|csv|pcf|html|mbf|gltf\.json))[`"']/g)) {
-        if (!excepted(relative, lineOf(match.index!), match[1])) found.push(`${relative}:${lineOf(match.index!)}: ${match[1]}`);
-      }
-      // A download attribute whose literal name holds "preview".
-      for (const match of text.matchAll(/download=\{?\s*[`"']([^`"'\n]*)[`"']/g)) {
-        if (/preview/i.test(match[1]) && !excepted(relative, lineOf(match.index!), match[1])) found.push(`${relative}:${lineOf(match.index!)}: ${match[1]}`);
-      }
-    }
-    expect(found).toEqual([]);
+    const problems: string[] = [];
+    for (const file of sources(SRC)) problems.push(...namesOutOfRule(path.relative(SRC, file).split(path.sep).join("/"), readFileSync(file, "utf8"), FILE_NAME_EXCEPTIONS));
+    // Every exception names a file that exists, and was counted above.
+    for (const item of FILE_NAME_EXCEPTIONS) expect(statSync(path.join(SRC, item.file)).isFile(), item.file).toBe(true);
+    expect(problems).toEqual([]);
   });
 });
