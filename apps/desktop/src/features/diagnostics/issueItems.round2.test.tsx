@@ -12,6 +12,7 @@ import { countItemsBySeverity, groupIssues, type IssueItem } from "./issueItems"
 import { LONG_MESSAGE_CHARACTERS, NO_OWN_DETAIL_REASON } from "./IssueItemView";
 import type { ModelCheckFinding } from "./modelChecks";
 import { ModelChecksPanel } from "./ModelChecksPanel";
+import missingDataStartModel from "../../../../../fixtures/embedded_agent/use_cases/missing-data/start_model.json";
 
 const model = {
   project: { id: "project:invented-round-2" },
@@ -97,7 +98,7 @@ describe("R2: every opened row is that report", () => {
     let group = screen.getByTestId(`issue-group-${code}`);
     let rows = within(openReports(group)).getAllByTestId(`issue-member-${code}`);
     expect(rows.map((row) => within(row).getByTestId("issue-member-refs").textContent)).toEqual([
-      "Also about: Invented operating (load:LC1)", "Also about: Invented sustained (load:LC2)"
+      "Invented operating (load:LC1)", "Invented sustained (load:LC2)"
     ]);
     for (const row of rows) {
       expect(row).toHaveAttribute("aria-disabled", "true");
@@ -247,7 +248,7 @@ describe("the row, final: the severity's mark and the message, one muted line be
     expect([...row.children].map((child) => child.className)).toEqual(["issue-first-line"]);
     expect(row.querySelector(".issue-first-line svg")).toHaveAttribute("aria-hidden", "true");
     expect(row.querySelector(".issue-message")).toHaveTextContent(/^invented checks passed on support:H-1$/);
-    expect(meta(row)).toHaveTextContent(/^info · NUMERICAL_INTEGRITY_CHECKS_PASSED · from the model$/);
+    expect(meta(row)).toHaveTextContent(/^support:H-1 · info · NUMERICAL_INTEGRITY_CHECKS_PASSED · from the model$/);
     expect(document.querySelector('[data-testid^="diagnostic-solver-report-note-"]')).toBeNull();
   });
 
@@ -259,11 +260,11 @@ describe("the row, final: the severity's mark and the message, one muted line be
     const line = screen.getByTestId(`diagnostic-${code}`);
     expect(line.querySelector(".issue-message")).toHaveTextContent("invented check for LC1 on support:H-1");
     const muted = meta(line);
-    expect(muted).toHaveTextContent(/^warning · INVENTED_CASES · from the model · 2 reports$/);
+    expect(muted).toHaveTextContent(/^support:H-1 · warning · INVENTED_CASES · from the model · 2 reports$/);
     expect(within(muted).getByTestId("issue-group-members-toggle")).toHaveAttribute("aria-expanded", "false");
     for (const row of within(openReports(group)).getAllByTestId(`issue-member-${code}`)) {
       expect(row.firstElementChild).toHaveClass("issue-first-line");
-      expect(row.querySelector(".issue-meta")).toHaveTextContent(/^warning · INVENTED_CASES · from the model$/);
+      expect(row.querySelector(".issue-meta")).toHaveTextContent(/^support:H-1 · warning · INVENTED_CASES · from the model$/);
     }
     expect(within(muted).getByTestId("issue-group-members-toggle")).toHaveAttribute("aria-expanded", "true");
   });
@@ -301,3 +302,26 @@ describe("the row, final: the severity's mark and the message, one muted line be
     expect(screen.queryByTestId("issue-show-all")).toBeNull();
   });
 });
+
+describe("every row names its object (the missing-data use case's model)", () => {
+  it("two findings of one code and message on two pipes read differently at rest, each led by its pipe's name, and each opens its own report", () => {
+    const useCaseModel = missingDataStartModel as unknown as PreviewModel;
+    const findings = useCaseModel.pipe_segments.map((pipe): Diagnostic => ({
+      id: `invented:${pipe.id}`, code: "EQUIVALENT_STATIC_INPUT_MISSING", severity: "blocking",
+      message: "invented: seismic generation requires material_density on every pipe segment", affected_refs: [pipe.id, "case:md-seismic"]
+    }));
+    const onSelect = vi.fn();
+    render(<DiagnosticsPanel model={useCaseModel} knowledge={null} result={null} selectedDiagnosticId={null} onSelectDiagnostic={onSelect}
+      items={groupIssues({ model: useCaseModel, diagnostics: findings, diagnosticOrigins: ["solve", "solve"] })} />);
+    const rows = screen.getAllByTestId("diagnostic-EQUIVALENT_STATIC_INPUT_MISSING");
+    expect(rows).toHaveLength(2);
+    const lines = rows.map((row) => within(row.closest(".issue-entry") as HTMLElement).getByTestId("issue-meta").textContent);
+    expect(lines).toEqual([
+      expect.stringMatching(/^Inboard span \(pipe:md-inboard\); Invented seismic static-equivalent \(case:md-seismic\) · blocking · EQUIVALENT_STATIC_INPUT_MISSING · /),
+      expect.stringMatching(/^Outboard span \(pipe:md-outboard\); Invented seismic static-equivalent \(case:md-seismic\) · blocking · EQUIVALENT_STATIC_INPUT_MISSING · /)
+    ]);
+    fireEvent.click(rows[1]);
+    expect(onSelect).toHaveBeenCalledWith("invented:pipe:md-outboard");
+  });
+});
+

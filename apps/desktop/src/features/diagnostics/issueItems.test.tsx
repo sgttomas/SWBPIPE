@@ -197,9 +197,9 @@ describe("a report gathered into another list's item opens its detail there", ()
     // its code lead the muted line beneath it.
     expect(row.firstElementChild).toHaveClass("issue-first-line");
     expect(row.querySelector(".issue-message")).toHaveTextContent(hanger("installed").message);
-    expect(within(row.closest(".issue-entry") as HTMLElement).getByTestId("issue-meta")).toHaveTextContent(/^error · INVENTED_HANGER_LOAD_NOT_PRELOAD · /);
+    expect(within(row.closest(".issue-entry") as HTMLElement).getByTestId("issue-meta")).toHaveTextContent(/^support:H-1 · error · INVENTED_HANGER_LOAD_NOT_PRELOAD · /);
     const rows = memberRows(openReports(screen.getByTestId("issue-group-INVENTED_HANGER_LOAD_NOT_PRELOAD")), "INVENTED_HANGER_LOAD_NOT_PRELOAD");
-    expect(rows.map((member) => member.querySelector(".issue-meta")?.textContent)).toEqual([expect.stringMatching(/^warning · INVENTED_HANGER_LOAD_NOT_PRELOAD · from the model checks/), expect.stringMatching(/^error · INVENTED_HANGER_LOAD_NOT_PRELOAD · from the solve/)]);
+    expect(rows.map((member) => member.querySelector(".issue-meta")?.textContent)).toEqual([expect.stringMatching(/^support:H-1 · warning · INVENTED_HANGER_LOAD_NOT_PRELOAD · from the model checks/), expect.stringMatching(/^support:H-1 · error · INVENTED_HANGER_LOAD_NOT_PRELOAD · from the solve/)]);
     const solveRow = rows[1];
     expect(solveRow).toHaveAttribute("aria-disabled", "false");
     fireEvent.click(solveRow);
@@ -279,7 +279,7 @@ describe("no report that joins an item lowers it", () => {
     expect(screen.getByTestId("diagnostic-severity-info")).toHaveTextContent("0 Info");
     const rows = memberRows(openReports(screen.getByTestId("issue-group-INVENTED_JOINED")), "INVENTED_JOINED");
     expect(rows.map((row) => row.querySelector(".issue-meta")?.textContent)).toEqual([
-      expect.stringMatching(/^blocking · INVENTED_JOINED · class MISSING_INPUT · from the model$/), expect.stringMatching(/^info · INVENTED_JOINED · from the model$/)
+      expect.stringMatching(/^support:H-1 · blocking · INVENTED_JOINED · class MISSING_INPUT · from the model$/), expect.stringMatching(/^support:H-1 · info · INVENTED_JOINED · from the model$/)
     ]);
     expect(notSuppliedOf(rows)).toEqual(["Not supplied: source, remediation, provenance", "Not supplied: class, source, remediation, provenance"]);
   });

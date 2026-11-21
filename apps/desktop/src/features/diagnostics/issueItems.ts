@@ -69,6 +69,11 @@ export type IssueItem = Readonly<{
    * entity, else its first affected reference; null where the finding names none. */
   object: string | null;
   entity: EntityRef | null;
+  /** The object in the application's display form for a reference: the entity's name and its
+   * reference ("Inboard span (pipe:md-inboard)"), or the reference alone where it names no entity
+   * or the entity has no name; null where the finding names none. Every row leads its muted line
+   * with it. */
+  objectLabel: string | null;
   /** The list that shows the item: the model checks where they reported it, else an
    * operation's, else the diagnostics list. */
   home: IssueSource;
@@ -127,6 +132,14 @@ function resolveRef(model: PreviewModel, ref: string): EntityRef | null {
   }, ref);
 }
 
+/** A reference in the application's display form: the entity's name with the reference, or the
+ * reference alone. */
+function displayRef(ref: string | null, entity: EntityRef | null, model: PreviewModel | null | undefined): string | null {
+  if (ref === null) return null;
+  const label = entity && model ? entityLabel(model, entity) : null;
+  return label && label !== ref ? `${label} (${ref})` : ref;
+}
+
 /** A report's references other than its item's object, in display form. */
 function otherRefsOf(diagnostic: Diagnostic, model: PreviewModel | null | undefined, objectKey: string | null): string[] {
   const refs = (diagnostic.affected_refs ?? []).filter((ref) => typeof ref === "string" && ref.trim() !== "");
@@ -135,8 +148,7 @@ function otherRefsOf(diagnostic: Diagnostic, model: PreviewModel | null | undefi
     const resolved = model ? resolveRef(model, ref) : null;
     const key = resolved ? `${resolved.type}:${resolved.id}` : `text:${ref}`;
     if (key === objectKey) continue;
-    const label = resolved && model ? entityLabel(model, resolved) : null;
-    const text = label && label !== ref ? `${label} (${ref})` : ref;
+    const text = displayRef(ref, resolved, model) ?? ref;
     if (!shown.includes(text)) shown.push(text);
   }
   return shown;
@@ -256,6 +268,7 @@ export function groupIssues(inputs: IssueInputs): IssueItem[] {
       severity,
       object: group.object,
       entity: group.entity,
+      objectLabel: displayRef(group.object, group.entity, inputs.model),
       home,
       group: home === "model-checks" && firstCheck ? firstCheck.group : null,
       members,

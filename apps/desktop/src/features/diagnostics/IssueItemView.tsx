@@ -22,9 +22,10 @@ export function messageBeginning(message: string): string | null {
 
 /**
  * One item of the Issues drawer. Every entry reads: a first line, the severity's mark and the
- * message at body size, which is what the eye reads; beneath it one small muted line, the
- * severity's word, the code, the class where one is supplied, the source, and what else the
- * entry names (its references beyond the item's object, its shortened-text mark), with a
+ * message at body size, which is what the eye reads; beneath it one small muted line, led by
+ * the object the report is about in the application's display form (the entity's name and its
+ * reference) and any further object or load case it names, then the severity's word, the code,
+ * the class where one is supplied, the source and its shortened-text mark, with a
  * grouped item's count of reports as the control that opens them. Nothing else at rest. A
  * message longer than LONG_MESSAGE_CHARACTERS shows its beginning, cut at a word, and "Show
  * all" with its length; opened, the whole text stands beneath, selectable, unchanged.
@@ -65,12 +66,13 @@ export function IssueItemView({
     <div className={grouped ? `issue-entry issue-group ${item.severity}` : "issue-entry"} data-item-key={item.key} data-testid={grouped ? `issue-group-${item.code}` : undefined}>
       {main(<FirstLine severity={grouped ? item.severity : shown.diagnostic.severity} text={long.text} />)}
       <p className="issue-meta muted" data-testid="issue-meta">
+        <Objects object={item.objectLabel} member={grouped ? null : shown} />
         {grouped ? item.severity : shown.diagnostic.severity} · {grouped ? item.code : shown.diagnostic.code}
         {(grouped ? itemClassText(item) : classText(shown.diagnostic)) ? (
           <> · <span className="issue-class" data-testid="issue-class">{grouped ? itemClassText(item) : classText(shown.diagnostic)}</span></>
         ) : null}
         {" "}· from {joinWords(origins.map((origin) => ISSUE_ORIGIN_LABELS[origin]))}
-        {grouped ? null : <OwnRefs member={shown} single />}
+        {grouped ? null : <Truncated member={shown} single />}
         {grouped ? (
           <>
             {" "}·{" "}
@@ -95,6 +97,7 @@ export function IssueItemView({
           {item.members.map((member, index) => (
             <li key={`${member.source}-${member.diagnostic.id ?? member.diagnostic.code}-${index}`}>
               <MemberRow
+                object={item.objectLabel}
                 member={member}
                 difference={memberDifference(item, member)}
                 selected={selectedDiagnosticId !== null && member.ownDetail && (member.diagnostic.id ?? member.diagnostic.code) === selectedDiagnosticId && member.source === "diagnostics"}
@@ -152,23 +155,30 @@ function FirstLine({ severity, text, excerpt = null }: { severity: string; text:
   );
 }
 
-/** A report's references beyond its item's object, in display form, and its shortened-text mark,
- * as parts of its muted line. */
-function OwnRefs({ member, single = false }: { member: IssueMember; single?: boolean }) {
-  const truncated = (member.diagnostic as { truncated?: boolean }).truncated === true;
+/** What a row is about, leading its muted line: the item's object in display form, then the
+ * report's own further references (a second object, a load case), so two findings on two objects
+ * read differently at a glance. Nothing where the report names none. */
+function Objects({ object, member }: { object: string | null; member: IssueMember | null }) {
+  const more = member?.otherRefs ?? [];
+  if (object === null && more.length === 0) return null;
   return (
     <>
-      {member.otherRefs.length > 0 ? (
-        <> · <span className="issue-member-refs" data-testid="issue-member-refs">Also about: {member.otherRefs.join("; ")}</span></>
-      ) : null}
-      {truncated ? (
-        <> · <span data-testid={single && member.source === "model-checks" ? "model-check-truncated" : "issue-member-truncated"}>Text shortened in the bounded report.</span></>
-      ) : null}
+      {object !== null ? <span className="issue-object" data-testid="issue-object">{object}</span> : null}
+      {more.length > 0 ? <>{object !== null ? "; " : ""}<span className="issue-member-refs" data-testid="issue-member-refs">{more.join("; ")}</span></> : null}
+      {" "}·{" "}
     </>
   );
 }
 
-function MemberRow({ member, difference, selected, onSelectDiagnostic, onSelectEntity }: {
+/** A report's shortened-text mark, as part of its muted line. */
+function Truncated({ member, single = false }: { member: IssueMember; single?: boolean }) {
+  return (member.diagnostic as { truncated?: boolean }).truncated === true ? (
+    <> · <span data-testid={single && member.source === "model-checks" ? "model-check-truncated" : "issue-member-truncated"}>Text shortened in the bounded report.</span></>
+  ) : null;
+}
+
+function MemberRow({ object, member, difference, selected, onSelectDiagnostic, onSelectEntity }: {
+  object: string | null;
   member: IssueMember;
   difference: string | null;
   selected: boolean;
@@ -197,10 +207,11 @@ function MemberRow({ member, difference, selected, onSelectDiagnostic, onSelectE
       >
         <FirstLine severity={diagnostic.severity} text={long.text} excerpt={difference} />
         <small className="issue-meta muted">
+          <Objects object={object} member={member} />
           {diagnostic.severity} · {diagnostic.code}
           {classText(diagnostic) ? <> · <span data-testid="issue-member-class">{classText(diagnostic)}</span></> : null}
           {" "}· from {ISSUE_ORIGIN_LABELS[member.origin]}
-          <OwnRefs member={member} />
+          <Truncated member={member} />
         </small>
         <NotSupplied diagnostic={diagnostic} />
         {noDetail ? <NoDetailFields diagnostic={diagnostic} /> : null}
