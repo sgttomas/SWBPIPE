@@ -4,8 +4,8 @@ import { DisabledReason } from "./DisabledReason";
 
 /**
  * The agent strip: 44 px on the right in every stage. The column is a later
- * slice and its live binding is the host gap G-19, so the strip's one control
- * is disabled with the same reason as the toolbar's Agent toggle.
+ * slice, so the strip's one control is disabled with its reason. The working
+ * embedded agent is Review changes' Agent tab, which the toolbar's Agent button opens.
  */
 export function AgentStrip() {
   return (

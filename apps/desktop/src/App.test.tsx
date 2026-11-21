@@ -153,8 +153,10 @@ type AppWorkspaceSection = "operations" | "loads" | "libraries" | "rule-packs" |
 function openWorkspaceSection(sectionId: AppWorkspaceSection) {
   let section = screen.queryByTestId(`workspace-section-${sectionId}`);
   if (!section || section.classList.contains("inactive")) {
-    if (sectionId === "operations" && screen.queryByTestId("workspace-review")) {
-      fireEvent.click(screen.getByTestId("workspace-review"));
+    if (sectionId === "operations" || sectionId === "loads") {
+      // Review changes and Load Cases are reached by the rail and the stage tab, as a person does.
+      fireEvent.click(screen.getByTestId(sectionId === "operations" ? "rail-stage-model" : "rail-stage-loads"));
+      if (sectionId === "operations") fireEvent.click(screen.getByTestId("workspace-review"));
     } else if (screen.queryByTestId("menu-view")) {
       fireEvent.click(screen.getByTestId("menu-view"));
       fireEvent.click(screen.getByTestId(`menu-item-view.section.${sectionId}`));
@@ -9127,8 +9129,8 @@ describe("SWBPIPE desktop preview", () => {
     expect(screen.getByTestId("workspace-dock").className).toContain(
       "collapsed",
     );
-    fireEvent.click(screen.getByTestId("menu-view"));
-    fireEvent.click(screen.getByTestId("menu-item-view.section.loads"));
+    // Load Cases is the Loads stage, reached by the rail (the View menu does not list it).
+    fireEvent.click(screen.getByTestId("rail-stage-loads"));
     expect(screen.getByTestId("workspace-section-loads").className).toBe(
       "workspace-dock-section",
     );
