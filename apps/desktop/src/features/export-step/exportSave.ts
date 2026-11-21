@@ -6,21 +6,24 @@ import { useEffect, useRef, useState } from "react";
  * the outcome at the row, in the result JSON row's form: one status line under the save. Until the save exists for
  * a row, the row keeps its present link and says nothing it cannot know: no words after a press of the link. */
 
-/** What the row hands the save. */
+/** What the row hands the save: the control it renders (whose test id names the route), the suggested name, and
+ * the callback that receives the outcome. Never the file: the control computes the file from its own payload, as
+ * it does for its link, and performs the save itself. */
 export type ExportSaveRequest = {
   /** The save control's test id; it names the export route (`routeBindingForTestId`). */
   control: string;
   /** The suggested file name (`exportFileName`), which the person may change in the save panel. */
   suggestedName: string;
-  /** The file as the control would write it: its data address, after the control's screening. */
-  href: string;
+  /** Receives the save's one outcome object. */
+  onOutcome: (outcome: unknown) => void;
 };
 
-/** The six outcomes of a save, as the row reads them. THE ONE PLACE WHERE THE SAVE'S OWN MEMBER NAMES ARE READ is
- * `rowSaveOutcome` below: when the save's exact outcome type lands, it maps that type to this one, and nothing else
- * in the rows changes. */
+/** The function a row calls, one call per press. */
+export type SaveExport = (request: ExportSaveRequest) => void;
+
+/** The six outcomes of a save, as the row reads them. */
 export type RowSaveOutcome =
-  /** Saved: the file's name as the person confirmed it in the save panel, never its folder. */
+  /** Saved: the name of the file actually written (never its folder), which may differ from the suggestion. */
   | { kind: "saved"; name: string }
   /** Saved, with its durability not confirmed. */
   | { kind: "saved-unconfirmed"; name: string }
@@ -32,16 +35,35 @@ export type RowSaveOutcome =
   /** Not known: never worded as nothing written. */
   | { kind: "unknown" };
 
-/** The function a row calls, one call per press. */
-export type SaveExport = (request: ExportSaveRequest) => Promise<unknown>;
-
 /** The state a row's status line shows: nothing yet, a save in progress, or its outcome. */
 export type RowSaveState = null | { kind: "saving" } | RowSaveOutcome;
 
-/** Maps the save's own outcome to the row's. Placeholder until the save's type lands: it takes the row's shape. */
+/** THE ONE PLACE WHERE THE SAVE'S OWN OUTCOME MEMBERS ARE READ. As planned with the save's builder (its names may
+ * still change, here only): `kind`, one of the six; `fileName`, where a file was or may have been written;
+ * `disposition`, as written as given, written with replacements (a count and the paths replaced), or withheld (a
+ * reason code and a sentence); and the control's test id. Anything unreadable is "not known". */
 export function rowSaveOutcome(outcome: unknown): RowSaveOutcome {
-  const value = outcome as RowSaveOutcome | null;
-  return value && typeof value === "object" && typeof value.kind === "string" ? value : { kind: "unknown" };
+  const value = (outcome ?? {}) as {
+    kind?: unknown; fileName?: unknown; stage?: unknown; temporaryMayRemain?: unknown;
+    disposition?: { kind?: unknown; reasonCode?: unknown; sentence?: unknown };
+  };
+  const name = typeof value.fileName === "string" && value.fileName !== "" ? value.fileName : null;
+  switch (value.kind) {
+    case "saved": return name ? { kind: "saved", name } : { kind: "unknown" };
+    case "saved_unconfirmed":
+    case "saved-unconfirmed": return name ? { kind: "saved-unconfirmed", name } : { kind: "unknown" };
+    case "cancelled": return { kind: "cancelled" };
+    case "refused": {
+      const disposition = value.disposition ?? {};
+      return {
+        kind: "refused",
+        reason: typeof disposition.sentence === "string" ? disposition.sentence : "the save was refused.",
+        code: typeof disposition.reasonCode === "string" ? disposition.reasonCode : "UNKNOWN"
+      };
+    }
+    case "failed": return { kind: "failed", stage: typeof value.stage === "string" ? value.stage : "saving", temporaryMayRemain: value.temporaryMayRemain === true || name !== null };
+    default: return { kind: "unknown" };
+  }
 }
 
 /** The status line's words, in one place: one line for each outcome. The saved-unconfirmed, failed and unknown
@@ -60,29 +82,29 @@ export function rowSaveStatusText(state: RowSaveState): string {
 }
 
 /** A row's save: calls `save` once per press and keeps its outcome only while the file is the one it saved. An
- * outcome that arrives after the file changed (`file` is no longer the same) is ignored, and the line clears. */
-export function useRowSave(save: SaveExport | null, file: unknown): { state: RowSaveState; run: (request: ExportSaveRequest) => void } {
+ * outcome that arrives after the file changed (`file` is no longer the same) is ignored, and the line clears; the
+ * save keeps every outcome in the session's own list. */
+export function useRowSave(save: SaveExport | null, file: unknown): { state: RowSaveState; run: (request: Omit<ExportSaveRequest, "onOutcome">) => void } {
   const [state, setState] = useState<{ file: unknown; value: RowSaveState }>({ file, value: null });
   const current = useRef(file);
   current.current = file;
   const mounted = useRef(true);
   useEffect(() => () => { mounted.current = false; }, []);
-  const run = (request: ExportSaveRequest) => {
+  const run = (request: Omit<ExportSaveRequest, "onOutcome">) => {
     if (!save) return;
     const saved = file;
     setState({ file: saved, value: { kind: "saving" } });
-    save(request).then(
-      (outcome) => { if (mounted.current && current.current === saved) setState({ file: saved, value: rowSaveOutcome(outcome) }); },
-      () => { if (mounted.current && current.current === saved) setState({ file: saved, value: { kind: "unknown" } }); }
-    );
+    save({ ...request, onOutcome: (outcome) => { if (mounted.current && current.current === saved) setState({ file: saved, value: rowSaveOutcome(outcome) }); } });
   };
   return { state: state.file === file ? state.value : null, run };
 }
 
 const SLUG_LIMIT = 64;
 
-function slug(text: string | null | undefined): string {
-  return (text ?? "").toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-+|-+$/g, "").slice(0, SLUG_LIMIT).replace(/-+$/, "");
+const REGION_LIMIT = 32;
+
+function slug(text: string | null | undefined, limit = SLUG_LIMIT): string {
+  return (text ?? "").toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-+|-+$/g, "").slice(0, limit).replace(/-+$/, "");
 }
 
 /** The project's name as a file-name slug: its display name; where that leaves nothing, its id without the leading
@@ -112,9 +134,10 @@ export const EXPORT_FILE_KINDS = Object.freeze({
   localFeaHandoff: { kind: "local-fea-handoff", extension: "json" }
 });
 
-/** The local FEA handoff's name: where the handoff names a region, its slug after the kind, by the same rule. */
+/** The local FEA handoff's name: where the handoff names a region, its slug after the kind, by the same rule and
+ * at most 32 characters; the form without a region where that slug is empty. */
 export function localFeaHandoffFileName(project: { id: string; name?: string | null }, regionId: string | null): string {
-  const region = slug(regionId?.replace(/^local-region:/, ""));
+  const region = slug(regionId?.replace(/^local-region:/, ""), REGION_LIMIT);
   const file = EXPORT_FILE_KINDS.localFeaHandoff;
   return `${projectSlug(project)}-${file.kind}${region ? `-${region}` : ""}.${file.extension}`;
 }

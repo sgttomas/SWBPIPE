@@ -1,7 +1,7 @@
 import { act, render, renderHook, screen } from "@testing-library/react";
 import { describe, expect, it } from "vitest";
 import { ExportSave } from "./ExportStep";
-import { EXPORT_FILE_KINDS, exportFileName, localFeaHandoffFileName, projectSlug, rowSaveStatusText, useRowSave, type SaveExport } from "./exportSave";
+import { EXPORT_FILE_KINDS, exportFileName, localFeaHandoffFileName, projectSlug, rowSaveOutcome, rowSaveStatusText, useRowSave, type SaveExport } from "./exportSave";
 
 // DEL-07-12: an export row's save interface, its status line and the suggested file name. Invented names only.
 describe("the suggested file name", () => {
@@ -33,6 +33,9 @@ describe("the suggested file name", () => {
   it("names a local FEA handoff's region where it has one", () => {
     expect(localFeaHandoffFileName({ id: "project:x", name: "Loop" }, "local-region:pipe:P-100:node:N-140")).toBe("loop-local-fea-handoff-pipe-p-100-node-n-140.json");
     expect(localFeaHandoffFileName({ id: "project:x", name: "Loop" }, null)).toBe("loop-local-fea-handoff.json");
+    // At most 32 characters, and the form without a region where its slug is empty.
+    expect(localFeaHandoffFileName({ id: "project:x", name: "Loop" }, `local-region:${"pipe:P-1000:".repeat(6)}`)).toBe("loop-local-fea-handoff-pipe-p-1000-pipe-p-1000-pipe-p-1.json");
+    expect(localFeaHandoffFileName({ id: "project:x", name: "Loop" }, "local-region:::")).toBe("loop-local-fea-handoff.json");
   });
 });
 
@@ -51,22 +54,36 @@ describe("the status line", () => {
   });
 
   it("ignores an outcome that arrives after its file changed", async () => {
-    let finish!: (value: unknown) => void;
-    const save: SaveExport = () => new Promise((resolve) => { finish = resolve; });
+    let deliver!: (outcome: unknown) => void;
+    const save: SaveExport = ({ onOutcome }) => { deliver = onOutcome; };
     const { result, rerender } = renderHook(({ file }) => useRowSave(save, file), { initialProps: { file: "first" as unknown } });
-    act(() => result.current.run({ control: "invented-link", suggestedName: "loop-pcf.pcf", href: "data:text/plain,x" }));
+    act(() => result.current.run({ control: "invented-link", suggestedName: "loop-pcf.pcf" }));
     expect(result.current.state).toEqual({ kind: "saving" });
     rerender({ file: "second" });
     expect(result.current.state).toBeNull();
-    await act(async () => finish({ kind: "saved", name: "loop-pcf.pcf" }));
+    act(() => deliver({ kind: "saved", fileName: "loop-pcf.pcf", control: "invented-link" }));
     expect(result.current.state).toBeNull();
   });
 
-  it("keeps the outcome of the file it saved", async () => {
-    const save: SaveExport = async () => ({ kind: "saved", name: "loop-pcf.pcf" });
+  it("says the name of the file written, not the suggestion, when the person changed it in the panel", () => {
+    const requests: Array<{ control: string; suggestedName: string }> = [];
+    const save: SaveExport = ({ control, suggestedName, onOutcome }) => {
+      requests.push({ control, suggestedName });
+      onOutcome({ kind: "saved", fileName: "my-own-name.pcf", control, disposition: { kind: "written_as_given" } });
+    };
     const { result } = renderHook(() => useRowSave(save, "same"));
-    await act(async () => result.current.run({ control: "invented-link", suggestedName: "loop-pcf.pcf", href: "data:text/plain,x" }));
-    expect(result.current.state).toEqual({ kind: "saved", name: "loop-pcf.pcf" });
+    act(() => result.current.run({ control: "invented-link", suggestedName: "loop-pcf.pcf" }));
+    // The row hands the save the control and the name, never the file.
+    expect(requests).toEqual([{ control: "invented-link", suggestedName: "loop-pcf.pcf" }]);
+    expect(result.current.state).toEqual({ kind: "saved", name: "my-own-name.pcf" });
+    expect(rowSaveStatusText(result.current.state)).toBe("Saved as my-own-name.pcf.");
+  });
+
+  it("reads the save's outcome members in one place, and an unreadable outcome as not known", () => {
+    expect(rowSaveOutcome({ kind: "refused", control: "x", disposition: { kind: "withheld", reasonCode: "INVENTED", sentence: "Invented sentence." } })).toEqual({ kind: "refused", reason: "Invented sentence.", code: "INVENTED" });
+    expect(rowSaveOutcome({ kind: "saved" })).toEqual({ kind: "unknown" });
+    expect(rowSaveOutcome(null)).toEqual({ kind: "unknown" });
+    expect(rowSaveOutcome({ kind: "cancelled" })).toEqual({ kind: "cancelled" });
   });
 });
 
