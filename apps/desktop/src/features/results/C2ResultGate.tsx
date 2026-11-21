@@ -34,6 +34,7 @@ export function C2ResultGate({
   feature,
   load: givenLoad,
   explicit = false,
+  withheld = null,
   children
 }: {
   result: SessionResult | null;
@@ -44,6 +45,9 @@ export function C2ResultGate({
   load?: C2FullResultLoader;
   /** Load only when the person asks (panels shown at first paint). */
   explicit?: boolean;
+  /** Shown below the refusal or failure, in the withheld consumer's place: what that consumer would
+   * itself have shown (an outcome reached without it). Nothing by default. */
+  withheld?: ReactNode;
   children: (full: { result: MechanicsResult | null; analysisRun: AnalysisRunEnvelope | null }) => ReactNode;
 }) {
   const sessionResults = useOptionalSessionResults();
@@ -91,8 +95,9 @@ export function C2ResultGate({
   if (retired) return null;
   if (!native) return <>{children({ result: result as MechanicsResult | null, analysisRun: isNativeAnalysisRun(analysisRun) ? null : analysisRun })}</>;
   if (shown?.status === "ready") return <>{children({ result: shown.full.result, analysisRun: shown.full.analysisRun })}</>;
-  if (shown?.status === "refused") return <p role="status" data-testid="c2-result-refused" className="result-refusal">{shown.text}</p>;
-  if (shown?.status === "failed") return <p role="alert" data-testid="c2-result-failed">{shown.text}</p>;
+  const withheldDetail = withheld ? <div role="status" data-testid="c2-result-withheld">{withheld}</div> : null;
+  if (shown?.status === "refused") return <><p role="status" data-testid="c2-result-refused" className="result-refusal">{shown.text}</p>{withheldDetail}</>;
+  if (shown?.status === "failed") return <><p role="alert" data-testid="c2-result-failed">{shown.text}</p>{withheldDetail}</>;
   if (explicit && !requested) {
     return (
       <p data-testid="c2-result-explicit">

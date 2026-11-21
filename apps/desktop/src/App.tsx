@@ -116,7 +116,7 @@ import { toolkitCapabilities } from "./features/toolkit/capabilityCatalog";
 import { PropertyInspector } from "./features/model-tree/PropertyInspector";
 import { ReportLintPanel } from "./features/report-lint/ReportLintPanel";
 import { ReportPanel } from "./features/report/ReportPanel";
-import { RenderedReportPanel } from "./features/report/RenderedReportPanel";
+import { RenderedReportPanel, ReportPackageSaveStatus } from "./features/report/RenderedReportPanel";
 import { ReportOutputStatus } from "./features/report/ReportOutputStatus";
 import { ResultExportPanel } from "./features/result-export/ResultExportPanel";
 import { ResultsPanel } from "./features/results/ResultsPanel";
@@ -925,7 +925,8 @@ function AppSession() {
               <ComparisonPackageNotice packaged={packagedWithinRun} dropped={droppedWithinRunBases} testId="report-comparison-package-notice" />
               {/* DEL-08-01 REQ-017, REQ-024: the rendered report's own source (a readable exact-route
                   result whatever its standing); its package save stays on currentSolvedResult. */}
-              <C2ResultGate result={renderableSolvedResult} analysisRun={analysisRun} feature="the rendered report">
+              <C2ResultGate result={renderableSolvedResult} analysisRun={analysisRun} feature="the rendered report"
+                withheld={reportPackageRoute ? <ReportPackageSaveStatus route={reportPackageRoute} /> : null}>
                 {(full) => (
                   <RenderedReportPanel
                     model={model}

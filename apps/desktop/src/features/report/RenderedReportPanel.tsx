@@ -125,6 +125,47 @@ function receiptOutcomeLine(receipt: ReportPackageSaveReceipt): string {
 const LOCAL_PRIVATE_REPORT_WARNING =
   "Local private report: this rendering contains private project values for your own local review. It is not for sharing or publication.";
 
+/** The outcome of a report-package save (receipt, cancellation, refusal). The panel shows it; where
+ * the rendered report's gate withholds the panel, the gate shows it in the panel's place, so a save
+ * started from the File menu still says what happened. */
+export function ReportPackageSaveStatus({ route }: { route: ReportPackageSaveRoute | null }) {
+  return (
+    <>
+      {route?.route === "unavailable_browser" ? (
+        <p data-testid="report-package-save-status">{route.diagnostic}</p>
+      ) : null}
+      {route?.route === "redaction_blocked" ? (
+        <p data-testid="report-package-save-status">{route.diagnostic}</p>
+      ) : null}
+      {route?.route === "not_requested" ? (
+        <p role="status" data-testid="report-package-save-status">{route.diagnostic}</p>
+      ) : null}
+      {route?.route === "tauri_report_package_save" ? (
+        <div className="report-list" data-testid="report-package-save-status">
+          {cancelledStatement(route.receipt) ? (
+            <span data-testid="report-package-save-cancelled">{cancelledStatement(route.receipt)}</span>
+          ) : null}
+          <span>{receiptOutcomeLine(route.receipt)}</span>
+          <span>
+            bytes={route.receipt.byte_count}; container_sha256={route.receipt.container_sha256_hex}; package_identity=
+            {route.receipt.package_identity_sha256_hex}
+          </span>
+          <span>
+            replacement={String(route.receipt.replaced_existing)}; durability={route.receipt.durability}; redaction_route=
+            {route.receipt.redaction_route_id}
+          </span>
+          <span>
+            path_containment={route.receipt.path_containment}; limitation={route.receipt.limitation}
+          </span>
+          {recordsUserRelease(route.receipt) ? (
+            <span data-testid="report-package-user-release-status">user_release_recorded=true</span>
+          ) : null}
+        </div>
+      ) : null}
+    </>
+  );
+}
+
 /** A run restored from the saved project is not reported or packaged without solving again. */
 const RESTORED_RUN_RENDER = "This run was restored from the saved project and cannot be rendered. Solve the model again to render its report.";
 const RESTORED_RUN_PACKAGE = "This run was restored from the saved project and cannot be packaged. Solve the model again to save a report package.";
@@ -588,37 +629,7 @@ export function RenderedReportPanel({
           {String(packageRedaction.blocked)}
         </p>
       ) : null}
-      {packageRoute?.route === "unavailable_browser" ? (
-        <p data-testid="report-package-save-status">{packageRoute.diagnostic}</p>
-      ) : null}
-      {packageRoute?.route === "redaction_blocked" ? (
-        <p data-testid="report-package-save-status">{packageRoute.diagnostic}</p>
-      ) : null}
-      {packageRoute?.route === "not_requested" ? (
-        <p role="status" data-testid="report-package-save-status">{packageRoute.diagnostic}</p>
-      ) : null}
-      {packageRoute?.route === "tauri_report_package_save" ? (
-        <div className="report-list" data-testid="report-package-save-status">
-          {cancelledStatement(packageRoute.receipt) ? (
-            <span data-testid="report-package-save-cancelled">{cancelledStatement(packageRoute.receipt)}</span>
-          ) : null}
-          <span>{receiptOutcomeLine(packageRoute.receipt)}</span>
-          <span>
-            bytes={packageRoute.receipt.byte_count}; container_sha256={packageRoute.receipt.container_sha256_hex}; package_identity=
-            {packageRoute.receipt.package_identity_sha256_hex}
-          </span>
-          <span>
-            replacement={String(packageRoute.receipt.replaced_existing)}; durability={packageRoute.receipt.durability}; redaction_route=
-            {packageRoute.receipt.redaction_route_id}
-          </span>
-          <span>
-            path_containment={packageRoute.receipt.path_containment}; limitation={packageRoute.receipt.limitation}
-          </span>
-          {recordsUserRelease(packageRoute.receipt) ? (
-            <span data-testid="report-package-user-release-status">user_release_recorded=true</span>
-          ) : null}
-        </div>
-      ) : null}
+      <ReportPackageSaveStatus route={packageRoute} />
       {unitBasisText ? (
         <div className="report-list">
           <span data-testid="rendered-report-unit-basis">{unitBasisText}</span>
