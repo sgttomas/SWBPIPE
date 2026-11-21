@@ -556,7 +556,7 @@ test("Box Select keeps the camera and authored projection invariant for plain, S
   // fit's.
   await activateWithKeyboard(page, await viewportControl(page, page.getByTestId("viewport-fit-model")));
   const secondFit = await settledCameraProjectionWitness(page, authoredPoints);
-  expect(unitViewDirection(secondFit.camera).every((component, axis) => Math.abs(component - unitViewDirection(orbitMoved.camera)[axis]) <= 1e-9), "orbit to Fit Model keeps the orbit's viewing direction").toBe(true);
+  expectSameViewDirection(secondFit, orbitMoved, "orbit to Fit Model keeps the orbit's viewing direction");
   expect(secondFit.camera.target, "orbit to Fit Model frames the first fit's target").toEqual(firstFit.camera.target);
   expectStableCanvasRectangle(secondFit, firstFit, "orbit to Fit Model");
   expect(await page.getByTestId("command-selection-readout").innerText()).toBe(selectionReadoutAfterFit);
@@ -566,10 +566,14 @@ test("Box Select keeps the camera and authored projection invariant for plain, S
   const rightPanMoved = await settledCameraProjectionWitness(page, authoredPoints);
   expect(cameraPose(rightPanMoved.camera)).not.toEqual(cameraPose(beforeRightPan.camera));
   expect(rightPanMoved.projections.map(projectionGeometry)).not.toEqual(beforeRightPan.projections.map(projectionGeometry));
-  // A pan keeps the direction, so Fit Model after it returns to the second fit's exact endpoint.
+  // A pan keeps the direction (to the rounding of the controls' own update, some 1e-10), so Fit Model
+  // after it returns to the second fit's target, direction and distance.
   await activateWithKeyboard(page, await viewportControl(page, page.getByTestId("viewport-fit-model")));
   const panFit = await settledCameraProjectionWitness(page, authoredPoints);
-  expectStableViewportEndpoint(panFit, secondFit, "right pan to Fit Model");
+  expectSameViewDirection(panFit, secondFit, "right pan to Fit Model keeps the second fit's viewing direction");
+  expect(panFit.camera.target, "right pan to Fit Model frames the second fit's target").toEqual(secondFit.camera.target);
+  expect(Math.abs(viewDistance(panFit.camera) / viewDistance(secondFit.camera) - 1), "right pan to Fit Model keeps the second fit's distance").toBeLessThanOrEqual(1e-9);
+  expectStableCanvasRectangle(panFit, secondFit, "right pan to Fit Model");
   const front = page.getByRole("button", { name: "Front", exact: true });
   await activateWithKeyboard(page, front);
   await expect(front).toHaveAttribute("aria-pressed", "true");
@@ -1546,10 +1550,20 @@ function expectStableViewportEndpoint(actual: any, expected: any, label: string)
   expectStableCanvasRectangle(actual, expected, label);
 }
 
+function viewDistance(camera: any): number {
+  return Math.hypot(...[0, 1, 2].map((axis) => camera.position[axis] - camera.target[axis]));
+}
+
 function unitViewDirection(camera: any): number[] {
-  const offset = [0, 1, 2].map((axis) => camera.position[axis] - camera.target[axis]);
-  const norm = Math.hypot(...offset);
-  return offset.map((component) => component / norm);
+  const distance = viewDistance(camera);
+  return [0, 1, 2].map((axis) => (camera.position[axis] - camera.target[axis]) / distance);
+}
+
+/** The unit viewing direction (position less target) of `actual` equals that of `expected` within 1e-9. */
+function expectSameViewDirection(actual: any, expected: any, label: string): void {
+  const want = unitViewDirection(expected.camera);
+  const got = unitViewDirection(actual.camera);
+  expect(Math.max(...got.map((component, axis) => Math.abs(component - want[axis]))), label).toBeLessThanOrEqual(1e-9);
 }
 
 function cameraPose({ sequence: _sequence, ...pose }: any): any {
