@@ -80,6 +80,7 @@ checks:
 - tests/test_caepipe_print_csv_parser.py
 - tests/test_caepipe_correlation.py
 - tests/test_caepipe_start_reconciliation.py
+- tests/test_caepipe_live_session.py
 - tests/test_caepipe_read_script.py
 - tests/test_caepipe_write_script.py
 - tests/test_caepipe_read_script_windows.py

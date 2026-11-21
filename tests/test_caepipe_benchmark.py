@@ -52,6 +52,13 @@ BENCHMARK = ROOT / "validation" / "caepipe_benchmark"
 MANIFEST = BENCHMARK / "manifest.json"
 
 
+@pytest.fixture(autouse=True)
+def _live_session_passed_through(monkeypatch):
+    """Every live route opens its session first (liveness, then the share's letter); that opening is examined in
+    tests/test_caepipe_live_session.py, and here it passes the configuration through unchanged."""
+    monkeypatch.setattr(run_pilot, "live_session", lambda config, emit=print: config)
+
+
 def tracked_models() -> list[dict]:
     manifest = json.loads(MANIFEST.read_text(encoding="utf-8"))
     return [json.loads((BENCHMARK / entry["file"]).read_text(encoding="utf-8")) for entry in manifest["models"]]

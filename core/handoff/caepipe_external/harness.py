@@ -41,6 +41,7 @@ tool that could be changing its settings at the same time.
 
 from __future__ import annotations
 
+import dataclasses
 from dataclasses import dataclass, field
 from datetime import datetime, timezone
 import base64
@@ -159,6 +160,14 @@ TRANSPORT_LINES = ("PrlJob_GetResult: Invalid argument. An invalid argument was 
                    "PrlJob_GetRetCode: Invalid argument. An invalid argument was passed.")
 # The guest's answer to `ver`: the one line a Windows guest prints (liveness).
 VER_LINE = re.compile(r"^Microsoft Windows \[Version [0-9]+(?:\.[0-9]+)+\]\Z")
+# A live run's opening liveness (`await_guest_alive`): at most this many checks in all, this far apart. A guest
+# resumed from a long suspend can let the first short call run out its time.
+SESSION_LIVENESS_CHECKS = 4
+SESSION_LIVENESS_WAIT_S = 30.0
+# A mapping line of `net use` for a share of the host (`parse_net_use`): an optional status word, the drive letter
+# and colon, then `\\Mac\<share name>`, and the network column, if any, after two or more spaces.
+NET_USE_LINE = re.compile(r"^\s*(?:(?P<status>[A-Za-z]+)\s+)?(?P<letter>[A-Za-z]):\s+"
+                          r"(?P<remote>\\\\Mac\\(?P<share>[^\\\s](?:[^\\]*?[^\\\s])?))(?:\s{2,}.*)?\Z", re.IGNORECASE)
 # One attempt per token: a fresh, unguessable token for each dispatch of the attempt operation (lower-case hex).
 ATTEMPT_TOKEN_PATTERN = re.compile(r"^[0-9a-f]{32}\Z")
 # At most this many dispatches of the attempt operation per round trip; the second only after an established
@@ -260,6 +269,9 @@ class HarnessConfig:
     checked: tuple[str, ...] = ()
     warnings: tuple[str, ...] = field(default_factory=tuple)
     settings_guard: "SettingsGuard | None" = None
+    # Set only by `open_live_session`: the guest's own letter for the exchange share beside the configured root, which
+    # every run record states (`configuration_surface.exchange_share`). None: the configured root, unexamined.
+    exchange_share: "Mapping[str, Any] | None" = field(default=None, hash=False)
 
 
 @dataclass(frozen=True)
@@ -1691,6 +1703,112 @@ def check_guest_alive(config: HarnessConfig, *, timeout_s: float = GUARD_CALL_TI
     return {"status": "alive"}
 
 
+def await_guest_alive(config: HarnessConfig, *, checks: int = SESSION_LIVENESS_CHECKS,
+                      wait_s: float = SESSION_LIVENESS_WAIT_S,
+                      liveness: Callable[[HarnessConfig], dict[str, Any]] | None = None,
+                      sleep: Callable[[float], None] | None = None) -> dict[str, Any]:
+    """The run's opening liveness: `check_guest_alive` up to `checks` times, `wait_s` apart, until the guest answers.
+    A guest resumed from a long suspend can let the first short call run out its time; it is asked again, never more
+    than `checks` times in all. `alive` with each check's outcome, or `guest_unreachable` with the last one's reason.
+    Starts and stops nothing."""
+
+    liveness = liveness or check_guest_alive
+    sleep = sleep or _backoff
+    outcomes: list[dict[str, Any]] = []
+    for number in range(1, checks + 1):
+        if number > 1:
+            sleep(wait_s)
+        outcome = liveness(config)
+        outcomes.append({"check": number, "status": outcome.get("status")}
+                        | ({"reason": outcome["reason"]} if outcome.get("reason") else {}))
+        if outcome.get("status") == "alive":
+            return {"status": "alive", "checks": outcomes}
+    return {"status": "guest_unreachable", "checks": outcomes,
+            "reason": f"the guest did not answer {checks} liveness checks {wait_s:g} s apart "
+                      f"(last: {outcomes[-1].get('reason', outcomes[-1]['status'])}); nothing was staged"}
+
+
+def parse_net_use(text: str, share_name: str) -> list[dict[str, str]]:
+    """The guest's mappings of the host share `share_name` in `net use` output: each line of the form
+    `<status> <letter>: \\\\Mac\\<share name>` (status optional, as `net use` leaves it blank for some mappings; the
+    network column, if any, after two or more spaces), the share name compared without regard to letter case, as the
+    guest does. A drive letter is returned upper-case with its colon."""
+
+    found = []
+    wanted = share_name.casefold()
+    for line in text.splitlines():
+        match = NET_USE_LINE.match(line.rstrip())
+        if match and match.group("share").casefold() == wanted:
+            found.append({"status": match.group("status") or "", "letter": match.group("letter").upper() + ":",
+                          "remote": match.group("remote")})
+    return found
+
+
+def exchange_share_letter(config: HarnessConfig, *, timeout_s: float | None = None,
+                          runner: Callable[..., subprocess.CompletedProcess] = subprocess.run) -> dict[str, Any]:
+    """The guest's own drive letter for the exchange folder's share, read from `net use` (read only, retried like a
+    guard read on a transport answer). The share is named by the host exchange folder's name. `mapped` with the
+    letter and the configured root, or `share_unmapped` (no letter), `share_ambiguous` (more than one letter) or
+    `share_unknown` (the mapping could not be read) with the reason. Starts and stops nothing."""
+
+    if timeout_s is None:
+        timeout_s = config.settings_guard.call_timeout_s if config.settings_guard else GUARD_CALL_TIMEOUT_S
+    share = config.exchange_root.name
+    base = {"share_name": share, "remote": f"\\\\Mac\\{share}", "configured_root": config.guest_exchange_root}
+    steps: list[dict[str, Any]] = []
+    try:
+        record = _guest_read(config, runner, timeout_s, steps, "exchange_share", "net use")
+    except Exception as failure:
+        return base | {"status": "share_unknown", "reason": f"the share mapping call failed: {type(failure).__name__}"}
+    if not _answered(record):
+        return base | {"status": "share_unknown",
+                       "reason": f"the guest did not answer `net use` in its form (exit status "
+                                 f"{record['exit_status']}); nothing was staged"}
+    mappings = parse_net_use(record["stdout"], share)
+    letters = sorted({mapping["letter"] for mapping in mappings})
+    if not letters:
+        return base | {"status": "share_unmapped",
+                       "reason": f"the guest maps no drive letter to {base['remote']}; nothing was staged"}
+    if len(letters) > 1:
+        return base | {"status": "share_ambiguous", "letters": letters,
+                       "reason": f"the guest maps more than one drive letter to {base['remote']} "
+                                 f"({', '.join(letters)}); nothing was staged"}
+    return base | {"status": "mapped", "letter": letters[0], "mapping_status": mappings[0]["status"],
+                   "root": letters[0], "differs_from_configured": letters[0].casefold()
+                   != config.guest_exchange_root.casefold()}
+
+
+def open_live_session(config: HarnessConfig, *, runner: Callable[..., subprocess.CompletedProcess] = subprocess.run,
+                      liveness: Callable[[HarnessConfig], dict[str, Any]] | None = None,
+                      share: Callable[[HarnessConfig], dict[str, Any]] | None = None,
+                      sleep: Callable[[float], None] | None = None) -> tuple[HarnessConfig | None, dict[str, Any]]:
+    """Before the first guest step of a live run, and before anything is staged: the guest's liveness
+    (`await_guest_alive`), then the exchange share's drive letter (`exchange_share_letter`). Returns the configuration
+    the run uses, in memory only, with `guest_exchange_root` the guest's own letter for the share and `exchange_share`
+    stating it beside the configured root (every run record carries it), and the session record; or None and the
+    record of why the run stops (`guest_unreachable`, `share_unmapped`, `share_ambiguous`, `share_unknown`). The
+    configuration file is never read again or written."""
+
+    alive = await_guest_alive(config, liveness=liveness or (lambda c: check_guest_alive(c, runner=runner)),
+                              sleep=sleep)
+    record: dict[str, Any] = {"liveness": alive}
+    if alive["status"] != "alive":
+        return None, record | {"status": alive["status"], "reason": alive["reason"]}
+    mapped = (share or (lambda c: exchange_share_letter(c, runner=runner)))(config)
+    record["exchange_share"] = mapped
+    if mapped.get("status") != "mapped":
+        return None, record | {"status": mapped.get("status", "share_unknown"),
+                               "reason": mapped.get("reason", "the share mapping was not established")}
+    root = mapped["root"]
+    if not valid_guest_path(root + "\\", directory=True):
+        return None, record | {"status": "share_unknown", "reason": "the guest's letter for the share is not an "
+                                                                   "allow-listed drive root; nothing was staged"}
+    stated = {key: mapped[key] for key in ("share_name", "remote", "configured_root", "letter", "mapping_status",
+                                           "differs_from_configured")}
+    session = dataclasses.replace(config, guest_exchange_root=root, exchange_share=stated)
+    return session, record | {"status": "ready"}
+
+
 def _owned_processes(config: HarnessConfig, step: Callable[[str, str], dict[str, Any]], work: str,
                      guest_log: Any) -> dict[str, Any]:
     """Whether every process the guest script started has exited, and no other instance of the tool appeared.
@@ -2901,6 +3019,9 @@ def _round_trip_body(config: HarnessConfig, case_id: str, mbf_text: str, paths: 
                 "config_file": CONFIG_NAME,
                 "checked": list(config.checked),
                 "warnings": list(config.warnings),
+                # The guest's own letter for the exchange share, used for this run in place of the configured root
+                # where they differ; the configuration file is not changed (`open_live_session`).
+                **({"exchange_share": dict(config.exchange_share)} if config.exchange_share is not None else {}),
             },
             "executable_path_as_configured": config.guest_executable,
             ACKNOWLEDGEMENT_KEY: config.acknowledged,

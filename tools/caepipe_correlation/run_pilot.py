@@ -185,6 +185,8 @@ from core.handoff.caepipe_external.harness import (  # noqa: E402
     CONFIG_NAME,
     check_guest_alive,
     check_no_foreign_instance,
+    exchange_share_letter,
+    open_live_session,
     BOUNDARY_NOTE,
     SETTINGS_KEEP_GOING,
     CASE_ID_PATTERN,
@@ -1441,6 +1443,22 @@ def run_benchmark(models: list[Mapping[str, Any]], config: HarnessConfig, *, run
     return 0 if all(results) else 1
 
 
+def live_session(config: HarnessConfig, emit: Callable[[str], None] = print) -> HarnessConfig | None:
+    """Open a live run (`open_live_session`) before its first guest step and before anything is staged: the guest's
+    liveness, asked again a stated number of times, then the guest's own drive letter for the exchange share, which
+    the run uses in place of the configured one (in memory; the configuration file is not changed). The configuration
+    the run uses, or None when it stops, with the reason emitted."""
+    session, record = open_live_session(config, liveness=check_guest_alive, share=exchange_share_letter)
+    if session is None:
+        emit(f"stopped before the first guest step: {record['status']}; {record.get('reason', '')}")
+        return None
+    share = session.exchange_share
+    if share["differs_from_configured"]:
+        emit(f"exchange share {share['remote']} is at {share['letter']} in the guest, not the configured "
+             f"{share['configured_root']}; this run uses {share['letter']} (the configuration file is unchanged)")
+    return session
+
+
 def main(argv: list[str] | None = None, environ: Mapping[str, str] = os.environ) -> int:
     parser = argparse.ArgumentParser(description=__doc__.split("\n\n")[0])
     parser.add_argument("--case", action="append", dest="cases", metavar="ID", help="run only this case (repeatable)")
@@ -1530,6 +1548,9 @@ def main(argv: list[str] | None = None, environ: Mapping[str, str] = os.environ)
                 return 2
         for warning in config.warnings:
             print(f"warning: {warning}")
+        config = live_session(config)
+        if config is None:
+            return 1
         if args.authored_dir:
             # Session precondition: no instance of the tool may be running that this run did not start.
             pre = check_no_foreign_instance(config)
@@ -1550,6 +1571,9 @@ def main(argv: list[str] | None = None, environ: Mapping[str, str] = os.environ)
     if args.export_only:
         for warning in config.warnings:
             print(f"warning: {warning}")
+        config = live_session(config)
+        if config is None:
+            return 1
         return 0 if all([export_case(case, config) for case in cases]) else 1
     runner = args.runner or environ.get(RUNNER_ENV)
     if not runner or not Path(runner).is_file():
@@ -1557,6 +1581,10 @@ def main(argv: list[str] | None = None, environ: Mapping[str, str] = os.environ)
         return 2
     for warning in config.warnings:
         print(f"warning: {warning}")
+    if not args.offline:
+        config = live_session(config)
+        if config is None:
+            return 1
     hand_calcs = load_hand_calcs()
     results = run_cases(cases, config, runner=runner, offline=args.offline, hand_calcs=hand_calcs,
                         export_mbf=args.export_mbf)
@@ -1587,6 +1615,10 @@ def benchmark_main(args: argparse.Namespace, environ: Mapping[str, str]) -> int:
         return 2
     for warning in config.warnings:
         print(f"warning: {warning}")
+    if not args.offline:
+        config = live_session(config)
+        if config is None:
+            return 1
     stops = None if args.offline else BenchmarkStops(freeze=Path(args.freeze_file),
                                                      exclusive=Path(args.exclusive_file))
     return run_benchmark(models, config, runner=runner, offline=args.offline, batch_size=args.batch_size,
