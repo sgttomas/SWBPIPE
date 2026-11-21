@@ -806,7 +806,7 @@ fn f1_check_complete_reads_the_observer_route() {
                 permit
             }
             Err(report) => {
-                assert_ne!(COMPILED_IDENTITY, Some(REGISTERED_PROFILES[0].identity), "{mode:?}: the registered build admits it: {:?}", report.law());
+                assert!(!crate::retained_facade_tests::registered(), "{mode:?}: the registered build admits it: {:?}", report.law());
                 println!("F1_ROUTE_GATE_SKIP {mode:?}: Stale build, no permit");
                 return;
             }
@@ -1058,7 +1058,7 @@ per_mode! {
         let output = crate::run_linear_static_preview_value_with_retained_direct(raw, mode, RETAINED_LIMIT).unwrap();
         let report = output.admission().unwrap();
         assert_eq!(report.law().domain, None, "{mode:?}: inside D1");
-        if COMPILED_IDENTITY != Some(REGISTERED_PROFILES[0].identity) {
+        if !crate::retained_facade_tests::registered() {
             assert!(output.successor().is_none(), "{mode:?}: Stale, no W1");
             return;
         }

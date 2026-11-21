@@ -7,9 +7,10 @@
 // No browser-reachable solve exists (the solve is a native job), so the solve's κ and
 // nonlinear gates are stated by the editor and judged by the engine's Rust tests, not here.
 import { cleanup, fireEvent, render, screen, waitFor, within } from "@testing-library/react";
+import { useState } from "react";
 import { afterEach, beforeAll, describe, expect, it } from "vitest";
 import demoModel from "../../../../../fixtures/product_preview/invented_demo_model.json";
-import type { EditorOperationIntent, OperationOutcome, PreviewModel } from "../../types";
+import type { EditorOperationIntent, EntityRef, OperationOutcome, PreviewModel } from "../../types";
 import { applyModelOperation } from "../../services/operationService";
 import { computeModelHash } from "../../services/hashService";
 import { loadWasmEngine } from "../../services/wasmEngine/loadWasmEngine";
@@ -57,10 +58,27 @@ const byId = (testId: string) => screen.getByTestId(testId);
 const type = (testId: string, value: string) => fireEvent.change(byId(testId), { target: { value } });
 const combination = (model: PreviewModel, id: string) => model.combinations!.find((item) => item.id === id)!;
 
+/** The panel as the workspace mounts it: a row chosen through onSelect becomes the selection. */
+function Harness({ model, onQueueIntent }: { model: PreviewModel; onQueueIntent: (intent: EditorOperationIntent) => void }) {
+  const [selection, setSelection] = useState<EntityRef>({ type: "project", id: model.project.id });
+  return <LoadCaseManagerPanel model={model} onQueueIntent={onQueueIntent} onSelect={setSelection} selection={selection} />;
+}
+
+/** The draft's terms as "operand x factor", in the order shown; an unchosen operand or factor reads TBD. */
+function draftTerms(): string {
+  return within(byId("load-manager-create-combination-terms")).getAllByRole("group").map((group) => {
+    const current = group.querySelector(".virtual-target-picker-current span")?.textContent ?? "";
+    const ref = /\(([^()]*)\)$/.exec(current)?.[1] ?? "TBD";
+    const kind = (group.querySelector("select") as HTMLSelectElement).value;
+    const factor = (group.querySelector('input[data-testid$="factor"]') as HTMLInputElement).value.trim() || "TBD";
+    return `${kind === "combination" ? `combination ${ref}` : ref} x ${factor}`;
+  }).join("; ");
+}
+
 function mountPanel(initial: PreviewModel) {
   const queued: EditorOperationIntent[] = [];
   let model = initial;
-  const element = () => <LoadCaseManagerPanel model={model} onQueueIntent={(intent) => queued.push(intent)} onSelect={() => undefined} selection={{ type: "project", id: model.project.id }} />;
+  const element = () => <Harness model={model} onQueueIntent={(intent) => queued.push(intent)} />;
   const view = render(element());
   return {
     queued,
@@ -118,7 +136,8 @@ describe("the end-to-end path: one nested SRSS over two differences", () => {
     type("load-manager-create-combination-term-1-kind", "combination");
     chooseVirtualTarget("load-manager-create-combination-term-1-combination", "combination:C-301");
     type("load-manager-create-combination-term-1-factor", "1");
-    expect(byId("load-manager-create-combination-heading")).toHaveTextContent("basis=srss; terms=combination combination:C-300 x 1; combination combination:C-301 x 1");
+    expect(byId("load-manager-create-combination-basis")).toHaveValue("srss");
+    expect(draftTerms()).toBe("combination combination:C-300 x 1; combination combination:C-301 x 1");
     expect(byId("load-manager-create-combination-gates")).toHaveTextContent("not an equilibrium state");
     const srss = await queueAndApply(panel);
     expect(srss.change.after).toBe(JSON.stringify({
@@ -134,8 +153,9 @@ describe("the end-to-end path: one nested SRSS over two differences", () => {
     expect(Object.hasOwn(combination(stored, "combination:C-300"), "difference_basis")).toBe(false);
     // The engine's document validator adds no blocking finding; the stored rows show the nesting.
     expect(blockingSlotCodes(stored)).toEqual(slotsBefore);
-    expect(byId("load-manager-combination-combination:C-302")).toHaveTextContent("terms=combination combination:C-300 x 1; combination combination:C-301 x 1");
-    expect(byId("load-manager-combination-resolved-combination:C-300")).toHaveTextContent("load:EQ-X resolves to the load case; load:L-100 resolves to the load case");
+    expect(byId("load-manager-combination-combination:C-302")).toHaveTextContent("C-300 × 1 + C-301 × 1");
+    fireEvent.click(byId("load-manager-combination-select-combination:C-300"));
+    expect(byId("load-manager-combination-resolved-combination:C-300")).toHaveTextContent("Minuend: load:EQ-X resolves to the load case. Subtrahend: load:L-100 resolves to the load case.");
   });
 });
 
@@ -154,13 +174,13 @@ describe("typed terms", () => {
     fireEvent.click(byId("load-manager-create-combination-add-term"));
     chooseVirtualTarget("load-manager-create-combination-term-2-load-case", "load:EQ-Z");
     type("load-manager-create-combination-term-2-factor", "3");
-    expect(byId("load-manager-create-combination-heading")).toHaveTextContent("terms=load:L-100 x -2.5; combination combination:D-X x 0.5; load:EQ-Z x 3");
+    expect(draftTerms()).toBe("load:L-100 x -2.5; combination combination:D-X x 0.5; load:EQ-Z x 3");
 
     // Move the last term up twice: it becomes the first; the first term's controls keep their place.
     fireEvent.click(byId("load-manager-create-combination-term-2-up"));
     fireEvent.click(byId("load-manager-create-combination-term-1-up"));
     expect(byId("load-manager-create-combination-term-0-up")).toBeDisabled();
-    expect(byId("load-manager-create-combination-heading")).toHaveTextContent("terms=load:EQ-Z x 3; load:L-100 x -2.5; combination combination:D-X x 0.5");
+    expect(draftTerms()).toBe("load:EQ-Z x 3; load:L-100 x -2.5; combination combination:D-X x 0.5");
 
     // A repeated operand is refused in place and nothing can be queued.
     type("load-manager-create-combination-term-1-factor", "1");
@@ -228,7 +248,9 @@ describe("cycles and refused operands", () => {
     const panel = mountPanel(model);
 
     // Add a term to B: B itself is self-reference, A (which names B) would close a cycle.
-    chooseVirtualTarget("load-manager-create-combination-term-combination", "combination:B");
+    fireEvent.click(byId("load-manager-combination-select-combination:B"));
+    fireEvent.click(byId("load-manager-add-term"));
+    expect(within(byId("load-manager-create-combination-term-combination")).getByLabelText("Combination term target combination current value")).toHaveTextContent("(combination:B)");
     type("load-manager-create-combination-term-kind", "combination");
     const option = (suffix: string) => within(byId("load-manager-create-combination-term-operand-combination")).getAllByRole("option").find((item) => item.textContent?.endsWith(suffix))!;
     expect(option("combination:B")).toBeDisabled();
@@ -291,19 +313,12 @@ describe("the three-axis static seismic template", () => {
     chooseTemplate("srss");
     expect(byId("seismic-template-status")).toHaveTextContent("Ready");
 
-    // The preview: base vs axis states, κ = 0 differences, the unsigned combination and the gates.
+    // The preview: the four records to be written, and the gates this model meets.
     const preview = byId("seismic-template-preview");
-    expect(preview).toHaveTextContent("each difference has κ = 0 (§5.1)");
-    expect(preview).toHaveTextContent("not \"base case + EQ-only case\", which would carry the fixed load twice");
     expect(byId("seismic-template-record-0")).toHaveTextContent("combination:SEISMIC-X-300: result_state_subtraction, load:EQ-X − load:L-100 (κ = 0; no difference_basis)");
     expect(byId("seismic-template-record-3")).toHaveTextContent("combination:SEISMIC-300: srss over combination combination:SEISMIC-X-300 x 1, combination combination:SEISMIC-Y-300 x 1, combination combination:SEISMIC-Z-300 x 1 (unsigned; not an equilibrium state)");
-    expect(byId("seismic-template-gate-fixed-load")).toHaveTextContent("CONSTANT_EFFORT_UNSIGNED_COMBINATION_OPERAND, INSTALLED_REFERENCE_UNSIGNED_COMBINATION_OPERAND");
     expect(byId("seismic-template-gate-fixed-load")).toHaveTextContent("constant-effort support support:CE-120");
-    expect(byId("seismic-template-gate-nonlinear")).toHaveTextContent("the operands are derived differences, not an equilibrium load state");
     expect(byId("seismic-template-gate-nonlinear")).toHaveTextContent("nonlinear supports support:NL-140, support:NL-130-FRIC");
-    expect(byId("seismic-template-boundary")).toHaveTextContent("no code, response-spectrum or modal-response claim");
-    expect(byId("seismic-template-apply")).toHaveTextContent("Apply them together with 'Review all queued changes as one batch' to apply all four or none");
-    expect(byId("seismic-template-apply")).toHaveTextContent("applied singly, each applies on its own");
     expect(preview).not.toHaveTextContent("minuend_final");
 
     fireEvent.click(byId("seismic-template-queue"));
@@ -381,8 +396,9 @@ describe("editing a stored nested record", () => {
     (combination(model, "combination:S") as unknown as Record<string, unknown>).notes = "invented note kept as stored";
     const before = clone(combination(model, "combination:S"));
     const panel = mountPanel(model);
+    fireEvent.click(byId("load-manager-combination-select-combination:S"));
     fireEvent.click(byId("load-manager-combination-term-combination:S-1"));
-    expect(byId("load-manager-selected-combination-term")).toHaveTextContent("term=combination combination:D-X; path=terms.1.factor");
+    expect(byId("load-manager-combination-term-combination:S-1")).toHaveTextContent("D-X (combination)");
     expect(byId("load-manager-combination-retained")).toHaveTextContent("Retained as stored (this editor does not edit them; a basis, factor or term edit writes only its own member): notes.");
     type("load-manager-combination-factor-value", "-0.75");
     await queueAndApply(panel, "queue-combination-factor-intent");
@@ -403,7 +419,8 @@ describe("nothing is chosen for the person (review round 1)", () => {
     const panel = mountPanel(seismicModel());
     for (const basis of ["mechanics", "srss", "absolute_sum"]) {
       type("load-manager-create-combination-basis", basis);
-      expect(byId("load-manager-create-combination-heading")).toHaveTextContent(`basis=${basis}; term=TBD x TBD`);
+      expect(byId("load-manager-create-combination-basis")).toHaveValue(basis);
+      expect(draftTerms()).toBe("TBD x TBD");
       expect(byId("queue-create-combination-intent")).toBeDisabled();
       expect(byId("load-manager-create-combination-preview")).toHaveTextContent("term 1: not chosen: its load case");
       fireEvent.click(byId("queue-create-combination-intent"));
@@ -430,7 +447,9 @@ describe("nothing is chosen for the person (review round 1)", () => {
     expect(byId("queue-create-combination-intent")).toBeDisabled();
 
     // Add-term on an existing combination: no case or factor proposed.
-    expect(byId("load-manager-create-combination-term-heading")).toHaveTextContent("new term; load=TBD; factor=TBD");
+    fireEvent.click(byId("load-manager-combination-select-combination:C-OPER-ALT"));
+    fireEvent.click(byId("load-manager-add-term"));
+    expect(within(byId("load-manager-create-combination-term-load-case")).getByLabelText("Combination term load case current value")).toHaveTextContent("No target selected");
     expect(byId("load-manager-create-combination-term-factor")).toHaveValue("");
     expect(byId("queue-create-combination-term-intent")).toBeDisabled();
     expect(panel.queued).toEqual([]);
@@ -510,12 +529,15 @@ describe("operation ids (review round 1)", () => {
   });
 });
 
-describe("Go to Create load case (review round 1)", () => {
-  it("focuses Create load case's ID field and says so in a status line", () => {
+describe("New load case from the seismic template (review round 1)", () => {
+  it("opens New load case with its label field focused and says so in a status line", () => {
     mountPanel(seismicModel());
+    fireEvent.click(byId("load-manager-templates"));
+    fireEvent.click(byId("load-manager-template-seismic"));
     expect(screen.queryByTestId("seismic-template-create-load-case-status")).toBeNull();
     fireEvent.click(byId("seismic-template-create-load-case"));
-    expect(byId("load-manager-create-load-id")).toHaveFocus();
-    expect(byId("seismic-template-create-load-case-status")).toHaveTextContent("Create load case (above, in this panel) is shown with its ID field focused.");
+    expect(byId("load-manager-create-load-case-form")).toHaveAttribute("open");
+    expect(byId("load-manager-create-load-label")).toHaveFocus();
+    expect(byId("seismic-template-create-load-case-status")).toHaveTextContent("New load case is open above with its label field focused.");
   });
 });
