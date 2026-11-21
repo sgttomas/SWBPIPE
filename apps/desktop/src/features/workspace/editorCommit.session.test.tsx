@@ -441,6 +441,19 @@ describe("the input is owned (P4)", () => {
     expect(snapshot(result)).toEqual(before);
   });
 
+  it("a guard's check throwing an object with no prototype, before any request: a refusal in words, nothing changed (Q3)", async () => {
+    const result = await session();
+    const throwing = { ...gridCell, name: "throwing-null-check", input: { members: gridCell.input.members, check: () => { throw Object.create(null); } } };
+    const before = snapshot(result), request = requestState(result);
+    const input = { nodeId: "node:C", axis: "y" as const, value: "2.5" };
+    let outcome: EditorCommitResult | undefined;
+    await act(async () => { await expect(bindCommit(result, throwing)(input).then((value) => { outcome = value; })).resolves.toBeUndefined(); });
+    expect(refused(outcome!).reason).toContain("could not be read as typed values (a failure that could not be put into words)");
+    expect(refused(await run(() => bindDialog(result, throwing).preview(input))).reason).toContain("a failure that could not be put into words");
+    expect(requestState(result)).toEqual(request);
+    expect(snapshot(result)).toEqual(before);
+  });
+
   it("the guard and the builder get one fresh frozen copy; the caller mutating its object during an async build leaves the built edit unchanged", async () => {
     const result = await session();
     let release!: () => void;

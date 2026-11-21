@@ -7,6 +7,17 @@
  * `agent` here, host-side, and never passes a claimed author through. */
 import type { EditorOperationIntent, PreviewModel } from "../types";
 import type { OperationBatch } from "./operationBatchService";
+import { nativeFailureText } from "./nativeIngress";
+
+/** Q3: a thrown value in words that cannot itself throw: the native failure text, or, when even that cannot be made
+ * (a thrown object with no prototype, or one whose conversion throws), a fixed sentence. */
+export function editorFailureText(error: unknown): string {
+  try {
+    return nativeFailureText(error);
+  } catch {
+    return "a failure that could not be put into words";
+  }
+}
 
 /** Display-only record of what an imported file claimed; never part of an intent. */
 export type ImportContext = Readonly<{
@@ -431,7 +442,7 @@ export function ownEditorInput(guard: EditorInputGuard, input: unknown): { input
     return { input: owned };
   } catch (error) {
     if (error instanceof InputRefusal) return { refused: `This edit's input ${error.message}, so nothing was built.` };
-    return { refused: `This edit's input could not be read as typed values (${error instanceof Error ? error.message : String(error)}), so nothing was built.` };
+    return { refused: `This edit's input could not be read as typed values (${editorFailureText(error)}), so nothing was built.` };
   }
 }
 class InputRefusal extends Error {}

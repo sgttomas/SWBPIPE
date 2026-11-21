@@ -1,7 +1,7 @@
 import type { ReportComposition } from "../report/reportComposition";
 import { EmbeddedAgentSession, type AgentContext, type AgentRunReceipt, type AgentSolveFailure, type AgentSolveOutcome, type AgentSolverMode } from "../../services/embeddedAgentSession";
 import { presentedResultDiagnostics } from "../results/suppliedDiagnostics";
-import { requeueRetainedRecord, stampEditorCommit, editorBuilderRefusal, ownEditorInput, type ImportContext } from "../../services/operationAuthorship";
+import { requeueRetainedRecord, stampEditorCommit, editorBuilderRefusal, ownEditorInput, editorFailureText, type ImportContext } from "../../services/operationAuthorship";
 import { hasCurrentSourceContract } from "../results/resultReader";
 import type React from "react";
 import {
@@ -2734,7 +2734,7 @@ export function useWorkspaceSession() {
     try {
       built = await binding.builder.build(clonePreviewModel(basisModel), input as never, Object.freeze({ sequence, batchId: `${binding.builder.name}-${sequence}` }));
     } catch (error) {
-      return stillCurrent() ? editorRefusal(`The editor could not build this change: ${nativeFailureText(error)}. Nothing was applied.`) : editorRefusal(EDITOR_SUPERSEDED);
+      return stillCurrent() ? editorRefusal(`The editor could not build this change: ${editorFailureText(error)}. Nothing was applied.`) : editorRefusal(EDITOR_SUPERSEDED);
     }
     if (!stillCurrent()) return editorRefusal(EDITOR_SUPERSEDED);
     const stamped = stampEditorCommit(built, binding.builder.role);
@@ -2838,7 +2838,7 @@ export function useWorkspaceSession() {
       publishEvents = sessionEvents.stage({ type: "checkpoint", operationId: key, submittedId: batch.batch_id, appliedModel: clonePreviewModel(appliedModel),
         operationOutcomes: structuredClone(kept.operation_outcomes) });
     } catch (error) {
-      return editorRefusal(`A view of the session could not take this change, so nothing was applied: ${nativeFailureText(error)}`);
+      return editorRefusal(`A view of the session could not take this change, so nothing was applied: ${editorFailureText(error)}`);
     }
     // P6: read from the held values' own refs, written where each is set.
     const held = editorHeld.current;
@@ -2851,7 +2851,7 @@ export function useWorkspaceSession() {
     // write; these guards keep the commit whole whatever else a later step throws.
     const notices: string[] = [];
     const contained = (what: string, step: () => void) => {
-      try { step(); } catch (error) { notices.push(`${what}: ${nativeFailureText(error)}`); }
+      try { step(); } catch (error) { notices.push(`${what}: ${editorFailureText(error)}`); }
     };
     setUndoStack((current) => [checkpoint, ...current].slice(0, 25));
     setRedoStack([]);
@@ -2870,7 +2870,13 @@ export function useWorkspaceSession() {
     if (notices.length) notice = notices.join(" ");
 
     // Notify: the viewport's failure comes back beside the commit; the published change is not rolled back.
-    const viewportFailure = retireViewportBoxGestureAfterPublication();
+    let viewportFailure: string | null;
+    try {
+      viewportFailure = retireViewportBoxGestureAfterPublication();
+    } catch (error) {
+      // Q3: the shared helper's own wording can throw; the commit stands and says so.
+      viewportFailure = `The viewport did not retire its box gesture: ${editorFailureText(error)}`;
+    }
     if (viewportFailure) notice = `${notice ? `${notice} ` : ""}${viewportFailure}`;
     return deepFreeze({ status: "committed" as const, checkpointId: checkpoint.checkpoint_id, historyName: batch.batch_id, resultsCleared, notice });
   }
@@ -2887,7 +2893,7 @@ export function useWorkspaceSession() {
       if (!request.stillCurrent()) return editorRefusal(EDITOR_SUPERSEDED);
       return await applyAndPublishEditorBatch(checked, request.stillCurrent, () => {});
     } catch (error) {
-      return editorRefusal(request.stillCurrent() ? `The change could not be checked: ${nativeFailureText(error)}. Nothing was applied.` : EDITOR_SUPERSEDED);
+      return editorRefusal(request.stillCurrent() ? `The change could not be checked: ${editorFailureText(error)}. Nothing was applied.` : EDITOR_SUPERSEDED);
     } finally {
       request.release();
     }
@@ -2915,7 +2921,7 @@ export function useWorkspaceSession() {
       });
       return deepFreeze({ status: "previewed" as const, handle, extent });
     } catch (error) {
-      return editorRefusal(request.stillCurrent() ? `The change could not be checked: ${nativeFailureText(error)}. Nothing was applied.` : EDITOR_SUPERSEDED);
+      return editorRefusal(request.stillCurrent() ? `The change could not be checked: ${editorFailureText(error)}. Nothing was applied.` : EDITOR_SUPERSEDED);
     } finally {
       request.release();
     }
@@ -2942,7 +2948,7 @@ export function useWorkspaceSession() {
       return await applyAndPublishEditorBatch({ batch: record.batch, fingerprint: record.fingerprint, basisModel: request.basisModel, basisHash: record.basisHash, validation: record.outcome },
         request.stillCurrent, () => { record.consumed = true; });
     } catch (error) {
-      return editorRefusal(request.stillCurrent() ? `The change could not be applied: ${nativeFailureText(error)}. Nothing was applied.` : EDITOR_SUPERSEDED);
+      return editorRefusal(request.stillCurrent() ? `The change could not be applied: ${editorFailureText(error)}. Nothing was applied.` : EDITOR_SUPERSEDED);
     } finally {
       request.release();
     }

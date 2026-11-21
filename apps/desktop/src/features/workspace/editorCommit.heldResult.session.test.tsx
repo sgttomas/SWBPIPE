@@ -15,6 +15,7 @@ import { loadWasmEngine } from "../../services/wasmEngine/loadWasmEngine";
 import { buildGridOperationIntent, type GridColumn } from "./table/modelTableAdapter";
 import type { EditorBuilder } from "../../services/operationAuthorship";
 import { useWorkspaceSession } from "./workspaceSession";
+import { RuleRevisionGenerationGate } from "./solveGates";
 
 type Json = any; // eslint-disable-line @typescript-eslint/no-explicit-any
 type Session = ReturnType<typeof useWorkspaceSession>;
@@ -99,17 +100,43 @@ it("a commit with a fresh result held clears the result, its analysis run, its i
   expect(state().operations.undoStack).toHaveLength(1);
 }, 60_000);
 
-it("a listener's failure after publication, with a fresh result held: the commit is committed with a notice, and every held value is still cleared", async () => {
+/** A commit with a checkpoint listener that throws `thrown` after publication, a fresh result and a proposal held:
+ * committed with a notice, and every one of the ten clears is seen. */
+async function commitWithFailingListener(thrown: () => unknown) {
   const state = await solvedSession();
+  await act(async () => { await state().results.handleProposal(); });
+  await waitFor(() => expect(state().results.proposal).not.toBeNull());
   const held = state().results;
   expect([held.result, held.analysisRun, held.inputManifest, held.ruleCheckAggregate].map((value) => value !== null)).toEqual([true, true, true, true]);
-  state().operations.sessionEvents.listen((event) => event.type === "checkpoint" ? () => { throw new Error("invented listener failure"); } : undefined);
+  state().operations.sessionEvents.listen((event) => event.type === "checkpoint" ? () => { throw thrown(); } : undefined);
+  const ruleGate = vi.spyOn(RuleRevisionGenerationGate.prototype, "invalidate");
   const node = state().model.model!.nodes[1];
   let outcome: Json;
   await act(async () => { outcome = await state().editorBinding.bindCommit(coordinate)({ nodeId: node.id, value: String(node.position.z + 0.5) }); });
   expect(outcome).toMatchObject({ status: "committed", resultsCleared: true });
-  expect(outcome.notice).toContain("invented listener failure");
-  const cleared = state().results;
-  expect([cleared.result, cleared.analysisRun, cleared.inputManifest, cleared.ruleCheckAggregate, cleared.historicalRun]).toEqual([null, null, null, null, null]);
+  const after = state().results;
+  // The ten clears: the report package's computed state, the rule revision gate, the historical run, the result,
+  // the analysis run, the input manifest, the rule-check aggregate, the proposal, the selected review target and the
+  // solve job. The model write does not invalidate the rule revision gate, so its call here is the commit's clear.
+  // The selected review target is set only by opening or creating a project, which this harness does not do; it is
+  // asserted as left clear.
+  expect({ busy: after.reportPackageBusy, redaction: after.reportPackageRedaction, route: after.reportPackageRoute }).toEqual({ busy: false, redaction: null, route: null });
+  expect(ruleGate).toHaveBeenCalled();
+  expect([after.historicalRun, after.result, after.analysisRun, after.inputManifest, after.ruleCheckAggregate, after.proposal, after.selectedReviewTarget])
+    .toEqual([null, null, null, null, null, null, null]);
+  const batchId = state().operations.undoStack[0].submitted_id!;
+  expect(after.solveJob.job_id).toBe("job:preview-linear-static:session-batch");
+  expect(after.solveJob.events[0].message).toContain(`Applied batch local session model operation ${batchId};`);
   expect(state().model.model!.nodes[1].position.z).toBe(node.position.z + 0.5);
+  return outcome;
+}
+
+it("a listener's failure after publication, with a fresh result held: the commit is committed with a notice, and all ten clears are made", async () => {
+  const outcome = await commitWithFailingListener(() => new Error("invented listener failure"));
+  expect(outcome.notice).toContain("invented listener failure");
+}, 60_000);
+
+it("a listener throwing an object with no prototype after publication: committed with a fixed notice, and all ten clears are made (Q3)", async () => {
+  const outcome = await commitWithFailingListener(() => Object.create(null));
+  expect(outcome.notice).toContain("A view of the session did not take this change: a failure that could not be put into words");
 }, 60_000);
