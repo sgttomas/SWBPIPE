@@ -55,6 +55,8 @@ const DEMO_RESULT = "fixtures/product_preview/invented_demo_result_preview_physi
 /** The invented demo's result at main 6c3cb46d3, verbatim: recorded before RT-A4 under preview-physics-2. */
 const DEMO_PRE_RT_A4 = "fixtures/persistence/recorded_pre_rt_a4_pf/preview_physics_2/invented_demo_result_preview_physics_1_sparse.json";
 const PRE_RT_A4_TABLE = { id: "openpipestress.result_semantics/0.3.0/preview-physics-2", sha256: "1ccc9561cb4ce59d047f3dab7927a927c44a707efb3acb90e7b07a21b3bad0a2" };
+/** The registered pre-S-K1 table (`recorded_tables.rs`): the demo's bytes are unchanged since then, and today's reader reads them. */
+const PRE_SK1_TABLE = { id: "openpipestress.result_semantics/0.3.0/preview-physics-2", sha256: "563db3c7c44279face3adc60a76a512de38520357e89ea4b49ad11d20946db89" };
 const LINEAR_RESULT = "fixtures/results/preview_physics_connected_sparse.json";
 const LINEAR_MODEL = "fixtures/model_operations/precision_connected_ui_model.json";
 const UNREAD = SUPPORT_STATES_UNREAD_LINE.text;
@@ -232,6 +234,42 @@ describe("the native reopen", () => {
     for (const line of Object.values(linesShown(caseIdsOf(source)))) expect(line).toBe(UNREAD);
     // The browser path's sentence for the same run (`the standalone historical panel` above).
     for (const c of standaloneNumericalHealth(source, PRE_RT_A4_TABLE, model)!.cases) expect(c.supportStates!.text).toBe(UNREAD);
+  });
+
+  it("a run held under its pre-S-K1 table that today's reader reads: the natively opened path shows the browser path's lines", async () => {
+    // The same native open as above, of the current demo held under its registered pre-S-K1 table.
+    const sourceText = readFileSync(resolve(root, DEMO_RESULT), "utf8");
+    const source = JSON.parse(sourceText) as MechanicsResult, model = json<PreviewModel>(DEMO_MODEL);
+    const handle = "restored-stored-result-pre-sk1-demo";
+    invokeMock.mockImplementation(async (command: string, args: Json) => {
+      if (args?.jobId === handle && command !== "dispose_preview_mechanics_result") return nativeReplayReply(command, args, handle, sourceText, PRE_SK1_TABLE);
+      if (command === "dispose_preview_mechanics_result") return { job_id: handle, released: true, released_bytes: 0, delivered: false };
+      throw new Error(`UNEXPECTED_COMMAND: ${command}`);
+    });
+    (window as Json).__TAURI_INTERNALS__ = {};
+    const recorded = recordedReaderDispatch(source, PRE_SK1_TABLE);
+    const opened = {
+      model, model_hash: null, project_envelope_hash: null, editor_intents: [], proposal: null, selected_review_target: null,
+      summary: { project_id: (model as Json).project?.id ?? "", message: "Opened the invented stored project." },
+      stored_run: {
+        state: "restored", handle, origin: "restored_saved_run",
+        source: { kind: "saved_project_run", project_id: (model as Json).project?.id ?? "", recording_id: null, result_sha256: "invented", record_sha256: "invented" },
+        result_bytes: sourceText.length, record_bytes: 0, result_present: true, record_present: true,
+        findings: { findings: [], check_findings: [], recorded_table_read: PRE_SK1_TABLE, historical_reader_findings: [...((recorded.standing as Json)?.findings ?? [])], run_id: source.run_id, renderable: true, mechanics: "MECHANICS_SOLVED", envelope_payload_hash: null, model_hash: null },
+        recorded_dispatch: recorded, record_header: { record: null, rule_pack_ref_diagnostics: [], result_ref_count: null, diagnostic_count: null, carried_members: [] }, record_header_bytes: null
+      }
+    } as unknown as NativeProjectEnvelope;
+    const context = (await buildNativeHistoricalRunContext(opened))!;
+    expect(summaryReads()).toEqual([{ model: "the saved model", modelUse: "confirmations" }]);
+    expect(nativeCustody(context.mechanicsResult as never).supportConfirmations).toBe("read");
+    render(<HistoricalRunPanel context={context} />);
+    await waitFor(() => expect(screen.getAllByTestId(/^numerical-health-case-support-states-/).length).toBe(2));
+    // The browser path's lines for the same run under the same table: the reader's statements.
+    const browser = Object.fromEntries(standaloneNumericalHealth(source, PRE_SK1_TABLE, model)!.cases.map((c) => [c.caseId, c.supportStates?.text ?? null]));
+    const outcomes = (reportStanding(source, model).numerical_standing as Json).cases.map((c: Json) => [c.case_id, supportStatesText(c.confirmation.outcome)]);
+    expect(browser).toEqual(Object.fromEntries(outcomes));
+    expect(Object.values(browser)).not.toContain(UNREAD);
+    expect(linesShown(caseIdsOf(source))).toEqual(browser);
   });
 
   it("the confirmation read answered: each case shows the reader's statement, as before", async () => {

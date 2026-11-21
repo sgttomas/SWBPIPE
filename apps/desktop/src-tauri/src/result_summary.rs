@@ -276,18 +276,19 @@ fn envelope(source: &Value) -> (Value, Value, Value) {
 /// (`reader_verdict::standing`, with the confirmations model and no invocation), its
 /// readability (`reader_readability::readability`), and, only for a result that standing reads
 /// as readable and solved, the standing record derived under it
-/// (`report_standing::historical_standing_record`, `cases[].confirmation`). None (the header
-/// then has no `support_confirmations` member, which the desktop reads as null and states as not
-/// read here) for a run held under a recorded table (`recorded`: today's
-/// reader does not read it), a result today's reader does not read or whose mechanics are not
-/// solved, and a record the reader refuses; and none with no model (a null model: a restored run's
-/// plain read, whose tables are read with no model). The reader is not run for a run held under a
-/// recorded table or with no model. It reads the parsed source and model in place, inside the summary's build,
+/// (`report_standing::historical_standing_record`, `cases[].confirmation`). As on the browser path,
+/// the table a restored run is held under does not decide: today's reader does, so a run recorded
+/// under an older table that today's reader reads has its confirmations, and one it refuses (a run
+/// recorded before RT-A4) has none. None (the header then has no `support_confirmations` member,
+/// which the desktop reads as null and states as not read here) for a result today's reader does
+/// not read or whose mechanics are not solved, and a record the reader refuses; and none with no
+/// model (a null model: a restored run's plain read, whose tables are read with no model), for
+/// which the reader is not run. It reads the parsed source and model in place, inside the summary's build,
 /// under the parse lease that covers the source; its working memory is unpriced, as the
 /// numerical health's is.
-fn support_confirmations(source: &Value, model: &Value, recorded: Option<RecordedTable>) -> Option<Value> {
+fn support_confirmations(source: &Value, model: &Value) -> Option<Value> {
     use open_pipe_stress_report_standing::{reader_readability, report_standing};
-    if recorded.is_some() || model.is_null() {
+    if model.is_null() {
         return None;
     }
     let standing = rv::standing(source, Some(model), None);
@@ -396,7 +397,7 @@ pub(crate) fn build_with_models<R, E>(
     // Release exit criterion 18: present only where the reader's record gives the confirmations; absent
     // otherwise (no standing, no model, a run today's reader does not read), so a read without them is
     // byte for byte what it was before they were added. The desktop reads an absent member as null.
-    if let Some(confirmations) = standing.and_then(|_| support_confirmations(source, confirmations_model, recorded)) {
+    if let Some(confirmations) = standing.and_then(|_| support_confirmations(source, confirmations_model)) {
         header.as_object_mut().expect("S's header is an object").insert("support_confirmations".into(), confirmations);
     }
     let header = serde_json::to_vec(&header).expect("S serializes");

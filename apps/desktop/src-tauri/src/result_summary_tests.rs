@@ -974,6 +974,34 @@ fn a_run_today_s_reader_does_not_read_has_no_confirmations() {
     assert_eq!(registry.pool().reserved_total(), 0);
 }
 
+/// Release exit criterion 18: a run held under a recorded table that today's reader reads gives the
+/// confirmations exactly as the browser path does (`standaloneNumericalHealth` reads them with today's
+/// reader and the model, whatever table the run is held under): the nonlinear demo, whose bytes are
+/// unchanged since the pre-S-K1 tables, restored under its registered pre-S-K1 table, gives the same
+/// outcomes as the same bytes solved today.
+#[test]
+fn a_recorded_run_today_s_reader_reads_has_its_confirmations() {
+    let host = ScriptedHost::normal();
+    let (registry, gate) = gated(&host);
+    let text = read_text(DEMO);
+    let model = read_text(DEMO_MODEL);
+    let table = json!({"id": "openpipestress.result_semantics/0.3.0/preview-physics-2", "sha256": "563db3c7c44279face3adc60a76a512de38520357e89ea4b49ad11d20946db89"});
+    let confirmations = |job: &str| {
+        let mut request = args(job, &model, json!({"eligible": false, "findings": []}));
+        request["modelUse"] = json!("confirmations");
+        decode(&read_summary(&registry, &request).unwrap()).unwrap().header.get("support_confirmations").cloned()
+    };
+    let solve = retained(&registry, &gate, &text);
+    let today = confirmations(&solve).expect("the solved demo has its confirmations");
+    registry.dispose_result(&solve).unwrap();
+    assert!(today.as_array().unwrap().iter().any(|c| c["outcome"] == "solver_reported_established"), "{today}");
+    let restored = crate::native_replay_tests::restored(&registry, &text, &table);
+    assert!(registry.held_result(&restored).unwrap().recorded_table().is_some());
+    assert_eq!(confirmations(&restored), Some(today), "a recorded run today's reader reads");
+    registry.dispose_result(&restored).unwrap();
+    assert_eq!(registry.pool().reserved_total(), 0);
+}
+
 /// Release exit criterion 18: a solved nonlinear document today's reader does not read (here its
 /// semantic contract is one the reader does not support) has no confirmations, though the
 /// standing record could be derived from its messages and model alone; the unchanged document has
