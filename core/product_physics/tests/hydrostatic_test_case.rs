@@ -32,10 +32,12 @@ use open_pipe_stress_product_physics::self_weight::{generate_self_weight_operati
 use open_pipe_stress_product_physics::{run_linear_static_preview_value_with_mode, PreviewModel, PreviewSolverMode};
 use serde_json::{json, Value};
 use sha2::{Digest, Sha256};
-use std::collections::BTreeMap;
+use std::collections::{BTreeMap, BTreeSet};
 
 const REFERENCES: &str = include_str!("../../../validation/references/hydrostatic_test/references.json");
 const SUMS: &str = include_str!("../../../validation/references/hydrostatic_test/SHA256SUMS");
+/// The result schema the mark is published under (`PressureExactCase.test_condition`).
+const RESULT_SCHEMA: &str = include_str!("../../../schemas/results_pressure_3.v0.3.schema.json");
 const MODES: [PreviewSolverMode; 2] = [PreviewSolverMode::SparseInteractive, PreviewSolverMode::DenseScrutiny];
 const RELATIVE: f64 = 1.0e-9;
 const PROV: &str = "invented hydrostatic test reference input; not library, catalog or code data";
@@ -373,6 +375,15 @@ fn mark_and_balance(out: &Value, reference: &Value, built: &Built, cold: bool) {
             assert_eq!(item["condition_set_ref"], SET);
             assert_eq!(item["contents_density"], qv(input("rho_c_test"), "kg/m^3"));
             assert!(close(-item["applied_n_per_m"].as_f64().unwrap(), w, w), "{id}: {item}");
+        }
+        // The mark carries exactly the members its result schema declares.
+        let schema: Value = serde_json::from_str(RESULT_SCHEMA).unwrap();
+        assert_eq!(schema["$defs"]["PressureExactCase"]["properties"]["test_condition"]["$ref"], "#/$defs/PressureExactTestCondition");
+        let declared = &schema["$defs"]["PressureExactTestCondition"];
+        let members = |value: &Value| value.as_object().unwrap().keys().cloned().collect::<BTreeSet<String>>();
+        assert_eq!(members(mark), members(&declared["properties"]), "{id}");
+        for item in resolution {
+            assert_eq!(members(item), members(&declared["properties"]["contents_resolution"]["items"]["properties"]), "{id}");
         }
     } else {
         assert!(evidence.get("test_condition").is_none(), "{id}: an ordinary case carries no mark");
