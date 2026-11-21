@@ -9,7 +9,7 @@ import { describe, expect, it, vi } from "vitest";
 import type { Diagnostic, PreviewModel } from "../../types";
 import { DiagnosticsPanel } from "./DiagnosticsPanel";
 import { countItemsBySeverity, groupIssues, type IssueItem } from "./issueItems";
-import { NO_OWN_DETAIL_REASON } from "./IssueItemView";
+import { LONG_MESSAGE_CHARACTERS, NO_OWN_DETAIL_REASON } from "./IssueItemView";
 import type { ModelCheckFinding } from "./modelChecks";
 import { ModelChecksPanel } from "./ModelChecksPanel";
 
@@ -33,32 +33,15 @@ const run = (findings: ModelCheckFinding[]) => ({
 const renderList = (items: IssueItem[], onSelect = vi.fn()) =>
   render(<DiagnosticsPanel model={model} knowledge={null} result={null} selectedDiagnosticId={null} onSelectDiagnostic={onSelect} items={items} />);
 function openReports(group: HTMLElement): HTMLElement {
-  const disclosure = within(group).getByTestId("issue-group-members") as HTMLDetailsElement;
-  expect(disclosure.open).toBe(false);
-  fireEvent.click(within(disclosure).getByTestId("issue-group-members-toggle"));
-  expect(disclosure.open).toBe(true);
+  const disclosure = within(group).getByTestId("issue-group-members");
+  expect(disclosure.hidden).toBe(true);
+  fireEvent.click(within(group).getByTestId("issue-group-members-toggle"));
+  expect(disclosure.hidden).toBe(false);
   return disclosure;
 }
-const noteIds = () => screen.queryAllByTestId(/^diagnostic-solver-report-note-/);
 
-describe("R1: excerpts of messages appear only where they are the producer's text and no report takes the note", () => {
-  it("an item whose later report alone takes the note shows no excerpt anywhere, and that report its note", () => {
-    const code = "NUMERICAL_INTEGRITY_SENSITIVE";
-    const plain = report({ id: "p", code, message: "invented case LC1 on support:H-1: its prior outcome was none" });
-    const quoting = report({ id: "q", code, message: "invented case LC2 on support:H-1: its prior outcome was NUMERICAL_INTEGRITY_CHECKS_PASSED" });
-    const items = groupIssues({ model, diagnostics: [plain, quoting] });
-    expect(items).toHaveLength(1);
-    expect(items[0].differences).toEqual([]);
-    renderList(items);
-    const group = screen.getByTestId(`issue-group-${code}`);
-    expect(within(group).queryByTestId("issue-group-also")).toBeNull();
-    const rows = within(openReports(group)).getAllByTestId(`issue-member-${code}`);
-    expect(within(group).queryAllByTestId("issue-member-difference")).toHaveLength(0);
-    expect(within(rows[1]).getByText(quoting.message).previousElementSibling).toHaveAttribute("data-testid", `diagnostic-solver-report-note-${code}`);
-    expect(within(rows[0]).queryByTestId(`diagnostic-solver-report-note-${code}`)).toBeNull();
-  });
-
-  it("the hanger's six reports (three loads from the model checks and the solve) show the excerpts and no note anywhere", () => {
+describe("R1: an opened group's rows mark what tells them apart, only where it is the producer's own text", () => {
+  it("the hanger's six reports (three loads from the model checks and the solve): each opened row marks its load within its message; the collapsed item adds no excerpt line", () => {
     const code = "INVENTED_HANGER_LOAD_NOT_PRELOAD";
     const load = (name: string, id: string) => report({ id, code, message: `invented hanger support:H-1: its ${name} load (hanger.${name}_load) is not applied as preload` });
     const loads = ["installed", "cold", "hot"];
@@ -71,22 +54,18 @@ describe("R1: excerpts of messages appear only where they are the producer's tex
     expect(items).toHaveLength(1);
     render(<ModelChecksPanel model={model} run={run(loads.map((name) => checked(load(name, `check-${name}`))))} items={items} onRun={() => {}} onSelectEntity={() => {}} onSelectDiagnostic={() => {}} />);
     const group = screen.getByTestId(`issue-group-${code}`);
-    expect(within(group).getByTestId("issue-group-also")).toHaveTextContent(
-      "Reported for each of: installed load (hanger.installed_load); cold load (hanger.cold_load); hot load (hanger.hot_load)."
-    );
+    expect(within(group).queryByTestId("issue-group-also")).toBeNull();
     const rows = within(openReports(group)).getAllByTestId(`issue-member-${code}`);
     expect(rows).toHaveLength(6);
-    // S6: each opened row reads its eyebrow first and its message last, the message marking what tells it apart.
-    for (const row of rows) expect(row.firstElementChild).toHaveClass("issue-meta");
-    const messages = rows.map((row) => row.lastElementChild?.lastElementChild as HTMLElement);
-    for (const message of messages) expect(message).toHaveClass("issue-message");
+    // Each opened row: its first line is the severity's mark and its message, marking what tells it apart.
+    for (const row of rows) expect(row.firstElementChild).toHaveClass("issue-first-line");
+    const messages = rows.map((row) => row.querySelector(".issue-message") as HTMLElement);
     expect(messages.map((message) => within(message).getByTestId("issue-member-difference").textContent)).toEqual([
       "installed load (hanger.installed_load)", "cold load (hanger.cold_load)", "hot load (hanger.hot_load)",
       "installed load (hanger.installed_load)", "cold load (hanger.cold_load)", "hot load (hanger.hot_load)"
     ]);
     // The excerpt is cut from the producer's message, which is shown whole.
     expect(messages[1]).toHaveTextContent("invented hanger support:H-1: its cold load (hanger.cold_load) is not applied as preload");
-    expect(noteIds()).toHaveLength(0);
   });
 
   it("an item whose only source of one distinct message is supplied, unverified text shows no excerpt", () => {
@@ -258,40 +237,67 @@ describe("R9: Model checks count items at each item's own severity", () => {
   });
 });
 
-describe("S6: every entry reads eyebrow, what it also names, the note where it takes one, then the message last", () => {
-  const code = "NUMERICAL_INTEGRITY_CHECKS_PASSED";
-  const entryParts = (entry: HTMLElement) => {
-    const meta = entry.firstElementChild as HTMLElement;
-    const block = entry.lastElementChild as HTMLElement;
-    return { meta, block, message: block.lastElementChild as HTMLElement, note: block.firstElementChild as HTMLElement };
-  };
-  it("a single report: severity first in the eyebrow, the note directly before the message, nothing after it", () => {
-    renderList(groupIssues({ model, diagnostics: [report({ id: "one", code, severity: "info", message: "invented checks passed on support:H-1", affected_refs: ["support:H-1", "load:LC1"] })] }));
+describe("the row, final: the severity's mark and the message, one muted line beneath, nothing else at rest", () => {
+  const meta = (entry: HTMLElement) => within(entry.closest(".issue-entry") as HTMLElement).getAllByTestId("issue-meta")[0];
+
+  it("a single report: its first line is the mark and the message; beneath it the severity's word, the code and the source; no note", () => {
+    const code = "NUMERICAL_INTEGRITY_CHECKS_PASSED";
+    renderList(groupIssues({ model, diagnostics: [report({ id: "one", code, severity: "info", message: "invented checks passed on support:H-1" })] }));
     const row = screen.getByTestId(`diagnostic-${code}`);
-    const { meta, block, message, note } = entryParts(row);
-    expect(meta).toHaveTextContent(/^info · NUMERICAL_INTEGRITY_CHECKS_PASSED · from /);
-    expect(within(row).getByTestId("issue-member-refs")).toHaveTextContent("Also about: Invented operating (load:LC1)");
-    expect(within(row).getByTestId("issue-member-refs").compareDocumentPosition(block) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
-    expect(note).toHaveAttribute("data-testid", `diagnostic-solver-report-note-${code}`);
-    expect(message).toHaveTextContent(/^invented checks passed on support:H-1$/);
-    expect(message.nextElementSibling).toBeNull();
+    expect([...row.children].map((child) => child.className)).toEqual(["issue-first-line"]);
+    expect(row.querySelector(".issue-first-line svg")).toHaveAttribute("aria-hidden", "true");
+    expect(row.querySelector(".issue-message")).toHaveTextContent(/^invented checks passed on support:H-1$/);
+    expect(meta(row)).toHaveTextContent(/^info · NUMERICAL_INTEGRITY_CHECKS_PASSED · from the model$/);
+    expect(document.querySelector('[data-testid^="diagnostic-solver-report-note-"]')).toBeNull();
   });
-  it("a grouped item: its count stands in the eyebrow, the lead's note and message last; each opened row the same", () => {
-    const forCase = (id: string, lc: string) => report({ id, code, severity: "info", message: `invented checks passed for ${lc} on support:H-1` });
+
+  it("a grouped item: its count of reports is the control on its muted line; each opened row has the same form", () => {
+    const code = "INVENTED_CASES";
+    const forCase = (id: string, lc: string) => report({ id, code, message: `invented check for ${lc} on support:H-1` });
     renderList(groupIssues({ model, diagnostics: [forCase("a", "LC1"), forCase("b", "LC2")] }));
     const group = screen.getByTestId(`issue-group-${code}`);
     const line = screen.getByTestId(`diagnostic-${code}`);
-    const collapsed = entryParts(line);
-    expect(within(collapsed.meta).getByTestId("issue-group-count")).toHaveTextContent("2 reports");
-    expect(collapsed.meta).toHaveTextContent(/^info · NUMERICAL_INTEGRITY_CHECKS_PASSED · /);
-    expect(collapsed.note).toHaveAttribute("data-testid", `diagnostic-solver-report-note-${code}`);
-    expect(collapsed.message).toHaveTextContent("invented checks passed for LC1 on support:H-1");
-    expect(collapsed.message.nextElementSibling).toBeNull();
+    expect(line.querySelector(".issue-message")).toHaveTextContent("invented check for LC1 on support:H-1");
+    const muted = meta(line);
+    expect(muted).toHaveTextContent(/^warning · INVENTED_CASES · from the model · 2 reports$/);
+    expect(within(muted).getByTestId("issue-group-members-toggle")).toHaveAttribute("aria-expanded", "false");
     for (const row of within(openReports(group)).getAllByTestId(`issue-member-${code}`)) {
-      const parts = entryParts(row);
-      expect(parts.meta).toHaveTextContent(/^info · NUMERICAL_INTEGRITY_CHECKS_PASSED · from /);
-      expect(parts.note).toHaveAttribute("data-testid", `diagnostic-solver-report-note-${code}`);
-      expect(parts.message.nextElementSibling).toBeNull();
+      expect(row.firstElementChild).toHaveClass("issue-first-line");
+      expect(row.querySelector(".issue-meta")).toHaveTextContent(/^warning · INVENTED_CASES · from the model$/);
     }
+    expect(within(muted).getByTestId("issue-group-members-toggle")).toHaveAttribute("aria-expanded", "true");
+  });
+
+  it("a long message (a checks-passed entry carrying a debug dump of some 43,500 characters) shows its beginning, cut at a word, and Show all; opened, the whole text, unchanged", () => {
+    const code = "NUMERICAL_INTEGRITY_CHECKS_PASSED";
+    const words = Array.from({ length: 9000 }, (_, index) => `w${index % 997}`);
+    let dump = "invented checks passed; debug: " + words.join(" ");
+    dump = dump.slice(0, 43_500);
+    renderList(groupIssues({ model, diagnostics: [report({ id: "long", code, severity: "info", message: dump }), report({ id: "next", code: "INVENTED_NEXT", message: "invented next issue" })] }));
+    const row = screen.getByTestId(`diagnostic-${code}`);
+    const shown = row.querySelector(".issue-message")!.textContent!;
+    expect(shown.length).toBeLessThanOrEqual(LONG_MESSAGE_CHARACTERS);
+    expect(shown.endsWith("…")).toBe(true);
+    const beginning = shown.slice(0, -1);
+    expect(dump.startsWith(beginning)).toBe(true);
+    // Cut at a word: the next character of the message is a space.
+    expect(dump[beginning.length]).toMatch(/\s/);
+    const showAll = within(meta(row)).getByTestId("issue-show-all");
+    expect(showAll).toHaveTextContent("Show all (43,500 characters)");
+    expect(screen.queryByTestId("issue-message-full")).toBeNull();
+    fireEvent.click(showAll);
+    expect(screen.getByTestId("issue-message-full").textContent).toBe(dump);
+    expect(showAll).toHaveTextContent("Show less");
+    // The whole text stands in its own bounded box, outside the row's button; the next issue is still listed.
+    expect(row.contains(screen.getByTestId("issue-message-full"))).toBe(false);
+    expect(screen.getByTestId("issue-message-full")).toHaveClass("issue-message-full");
+    expect(screen.getByTestId("diagnostic-INVENTED_NEXT")).toBeInTheDocument();
+  });
+
+  it("a message at or under the limit is shown whole, with no Show all", () => {
+    const text = "x".repeat(LONG_MESSAGE_CHARACTERS);
+    renderList(groupIssues({ model, diagnostics: [report({ id: "edge", code: "INVENTED_EDGE", message: text })] }));
+    expect(screen.getByTestId("diagnostic-INVENTED_EDGE").querySelector(".issue-message")).toHaveTextContent(text);
+    expect(screen.queryByTestId("issue-show-all")).toBeNull();
   });
 });

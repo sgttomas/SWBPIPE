@@ -149,7 +149,6 @@ export function ModelChecksPanel({
                         <IssueItemView
                           item={item}
                           main={(body) => <FindingButton finding={finding} onSelectEntity={onSelectEntity} body={body} severity={item.severity} />}
-                          selects={finding.entity}
                           onSelectEntity={onSelectEntity}
                           onSelectDiagnostic={onSelectDiagnostic}
                         />
@@ -188,7 +187,7 @@ export function FindingButton({ finding, onSelectEntity, body, severity }: {
       title={entity ? `Select ${entity.id}` : "This finding names no model entity to select."}
       type="button"
     >
-      {/* An Issues row (the body) reads eyebrow, what it names and selects, then its message last. */}
+      {/* An Issues entry's first line (the body): the severity's mark and the message; its muted line is beneath the row. */}
       {body ?? (
         <>
           <strong>{diagnostic.code}</strong> <span className="muted">{shownSeverity}</span><p>{diagnostic.message}</p>{classText(diagnostic) ? <small className="issue-class" data-testid="issue-class">{classText(diagnostic)}</small> : null}

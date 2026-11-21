@@ -9,7 +9,6 @@ import { useEffect, useMemo, useRef, useState } from "react";
 import type { DiagnosticFilterRequest } from "./diagnosticFilterRequest";
 import type { DesignKnowledge, DiagnosticInterpretation, MechanicsResult, PreviewModel } from "../../types";
 import { buildDiagnosticInterpretation } from "../results/resultInterpretation";
-import { needsSolverReportNote, SOLVER_REPORT_NOTE } from "../results/integrityStatus";
 import { usePublishedLibraryRefFindings } from "../library/libraryRefFindings";
 import { countItemsBySeverity, diagnosticsListOf, groupIssues, type IssueItem, type IssueMember, type IssueSource } from "./issueItems";
 import { IssueItemView, NO_OWN_DETAIL_REASON } from "./IssueItemView";
@@ -94,6 +93,10 @@ export function DiagnosticsPanel({
         Diagnostics
         {givenItems ? <span className="issues-section-count" data-testid="diagnostics-item-count" aria-label={`${items.length} ${items.length === 1 ? "item" : "items"}`}>{items.length}</span> : null}
       </div>
+      {/* The place for the one sentence that these are the solver's own messages: once, at the head
+          of the list of them (not above the model checks or the missing data, which are not the
+          solver's), small and muted. The diagnostic's detail opens inside this list, beneath it, so it
+          takes no second copy. Nothing is rendered here until the sentence's constant is supplied. */}
       <DiagnosticControls
         filterText={filterText}
         filteredItems={filteredItems}
@@ -285,8 +288,7 @@ function DiagnosticDetail({ interpretation, result }: { interpretation: Diagnost
               : "none linked"
           }
         />
-        {/* Release exit criterion 18: the explanation repeats the solver's message, so the note stands with it. */}
-        <DetailLine label="Explanation" value={needsSolverReportNote(interpretation) ? <>{interpretation.review_explanation} <span data-testid="selected-diagnostic-solver-report-note">{SOLVER_REPORT_NOTE}</span></> : interpretation.review_explanation} testId="selected-diagnostic-explanation" />
+        <DetailLine label="Explanation" value={interpretation.review_explanation} testId="selected-diagnostic-explanation" />
         <DetailLine label="Remediation" value={interpretation.remediation} testId="selected-diagnostic-remediation" />
         <DetailLine label="Provenance" value={interpretation.provenance} testId="selected-diagnostic-provenance" />
         <DetailLine label="Boundary" value={interpretation.professional_boundary} />

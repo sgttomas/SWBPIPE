@@ -74,13 +74,12 @@ describe("the drawer's lists show items", () => {
     expect(screen.getByTestId("diagnostic-severity-warning")).toHaveTextContent("1 Warnings");
     expect(screen.getAllByTestId("diagnostic-INVENTED_HANGER_LOAD_NOT_PRELOAD")).toHaveLength(1);
     const group = screen.getByTestId("issue-group-INVENTED_HANGER_LOAD_NOT_PRELOAD");
-    expect(within(group).getByTestId("issue-group-also")).toHaveTextContent(
-      "Reported for each of: installed load (hanger.installed_load); cold load (hanger.cold_load); hot load (hanger.hot_load)."
-    );
-    const disclosure = within(group).getByTestId("issue-group-members") as HTMLDetailsElement;
-    expect(disclosure.open).toBe(false);
-    fireEvent.click(within(disclosure).getByText(/All 3 reports for support:H-1/));
-    expect(disclosure.open).toBe(true);
+    // At rest the item shows its lead's message and its muted line only; no excerpt line.
+    expect(within(group).queryByTestId("issue-group-also")).toBeNull();
+    const disclosure = within(group).getByTestId("issue-group-members");
+    expect(disclosure).not.toBeVisible();
+    fireEvent.click(within(group).getByRole("button", { name: "All 3 reports for support:H-1" }));
+    expect(disclosure).toBeVisible();
     const members = within(disclosure).getAllByTestId("issue-member-INVENTED_HANGER_LOAD_NOT_PRELOAD");
     expect(members.map((member) => member.textContent)).toEqual([
       expect.stringContaining("hanger.installed_load"), expect.stringContaining("hanger.cold_load"), expect.stringContaining("hanger.hot_load")
@@ -117,13 +116,13 @@ describe("classes stay apart (DEL-07-04 REQ-001)", () => {
   });
 });
 
-// Opens an item's disclosure of its reports by a press on its summary, as a person does, and
-// fails where the press does not open it.
-function openReports(group: HTMLElement): HTMLDetailsElement {
-  const disclosure = within(group).getByTestId("issue-group-members") as HTMLDetailsElement;
-  expect(disclosure.open).toBe(false);
-  fireEvent.click(within(disclosure).getByTestId("issue-group-members-toggle"));
-  expect(disclosure.open).toBe(true);
+// Opens an item's reports by a press on its count of reports, as a person does, and fails where
+// the press does not open them.
+function openReports(group: HTMLElement): HTMLElement {
+  const disclosure = within(group).getByTestId("issue-group-members");
+  expect(disclosure.hidden).toBe(true);
+  fireEvent.click(within(group).getByTestId("issue-group-members-toggle"));
+  expect(disclosure.hidden).toBe(false);
   return disclosure;
 }
 const memberRows = (disclosure: HTMLElement, code: string) => within(disclosure).getAllByTestId(`issue-member-${code}`);
@@ -161,7 +160,7 @@ describe("every item and every report shows its class where one is supplied, and
     expect(within(main).getAllByTestId("issue-class").map((node) => node.textContent)).toEqual(["class ASSUMPTION_WARNING"]);
     const rows = memberRows(openReports(group), "INVENTED_HANGER_LOAD_NOT_PRELOAD");
     expect(classesOf(rows)).toEqual([null, "class ASSUMPTION_WARNING", null]);
-    expect(notSuppliedOf(rows)).toEqual(["Not supplied: class, source, remediation, provenance", "Not supplied: source, remediation, provenance", "Not supplied: class, source, remediation, provenance"]);
+    expect(notSuppliedOf(rows)).toEqual(["Not supplied: class, remediation, provenance", "Not supplied: remediation, provenance", "Not supplied: class, remediation, provenance"]);
     // At rest, the item says nothing of a missing class.
     expect(main.textContent).not.toMatch(/not supplied/);
   });
@@ -194,12 +193,13 @@ describe("a report gathered into another list's item opens its detail there", ()
     render(<ModelChecksPanel model={model} run={checksRun([checked])} items={items} onRun={() => {}} onSelectEntity={() => {}} onSelectDiagnostic={onSelect} />);
     const row = screen.getByTestId("model-check-INVENTED_HANGER_LOAD_NOT_PRELOAD");
     expect(row).toHaveClass("error");
-    // The row's eyebrow leads with the item's severity and its code; the message comes last.
-    expect(row.firstElementChild).toHaveAttribute("data-testid", "issue-meta");
-    expect(within(row).getByTestId("issue-meta")).toHaveTextContent(/^error · INVENTED_HANGER_LOAD_NOT_PRELOAD · /);
-    expect(row.lastElementChild?.lastElementChild).toHaveClass("issue-message");
+    // The row's first line is the severity's mark and the message; the item's severity word and
+    // its code lead the muted line beneath it.
+    expect(row.firstElementChild).toHaveClass("issue-first-line");
+    expect(row.querySelector(".issue-message")).toHaveTextContent(hanger("installed").message);
+    expect(within(row.closest(".issue-entry") as HTMLElement).getByTestId("issue-meta")).toHaveTextContent(/^error · INVENTED_HANGER_LOAD_NOT_PRELOAD · /);
     const rows = memberRows(openReports(screen.getByTestId("issue-group-INVENTED_HANGER_LOAD_NOT_PRELOAD")), "INVENTED_HANGER_LOAD_NOT_PRELOAD");
-    expect(rows.map((member) => member.textContent)).toEqual([expect.stringMatching(/^warning · INVENTED_HANGER_LOAD_NOT_PRELOAD · from the model checks/), expect.stringMatching(/^error · INVENTED_HANGER_LOAD_NOT_PRELOAD · from the solve/)]);
+    expect(rows.map((member) => member.querySelector(".issue-meta")?.textContent)).toEqual([expect.stringMatching(/^warning · INVENTED_HANGER_LOAD_NOT_PRELOAD · from the model checks/), expect.stringMatching(/^error · INVENTED_HANGER_LOAD_NOT_PRELOAD · from the solve/)]);
     const solveRow = rows[1];
     expect(solveRow).toHaveAttribute("aria-disabled", "false");
     fireEvent.click(solveRow);
@@ -228,7 +228,7 @@ describe("an item that holds several reports keeps each one readable", () => {
     renderDiagnostics([forCase("lc1", "LC-1"), forCase("lc2", "LC-2")]);
     const group = screen.getByTestId("issue-group-INVENTED_CASE_LOAD_UNSET");
     expect(within(group).getByTestId("issue-group-count")).toHaveTextContent(/^2 reports$/);
-    expect(within(group).getByTestId("issue-group-members-toggle")).toHaveTextContent("All 2 reports for support:H-1");
+    expect(within(group).getByTestId("issue-group-members-toggle")).toHaveAccessibleName("All 2 reports for support:H-1");
     const rows = memberRows(openReports(group), "INVENTED_CASE_LOAD_UNSET");
     expect(rows).toHaveLength(2);
     expect(rows[0]).toHaveTextContent("enter the LC-1 load on the support");
@@ -278,58 +278,11 @@ describe("no report that joins an item lowers it", () => {
     expect(screen.getByTestId("diagnostic-severity-blocking")).toHaveTextContent("1 Blocking");
     expect(screen.getByTestId("diagnostic-severity-info")).toHaveTextContent("0 Info");
     const rows = memberRows(openReports(screen.getByTestId("issue-group-INVENTED_JOINED")), "INVENTED_JOINED");
-    expect(rows.map((row) => row.textContent)).toEqual([
-      expect.stringMatching(/^blocking · INVENTED_JOINED · class MISSING_INPUT · from the model/), expect.stringMatching(/^info · INVENTED_JOINED · from the modelNot supplied: class, /)
+    expect(rows.map((row) => row.querySelector(".issue-meta")?.textContent)).toEqual([
+      expect.stringMatching(/^blocking · INVENTED_JOINED · class MISSING_INPUT · from the model$/), expect.stringMatching(/^info · INVENTED_JOINED · from the model$/)
     ]);
+    expect(notSuppliedOf(rows)).toEqual(["Not supplied: source, remediation, provenance", "Not supplied: class, source, remediation, provenance"]);
   });
 });
 
-describe("a solver report's note leads each of its messages in an item", () => {
-  it("an item of two reports whose code takes the note shows it directly before the collapsed line's message and before each report's, with nothing after a message", () => {
-    const code = "NUMERICAL_INTEGRITY_CHECKS_PASSED";
-    const forCase = (id: string, lc: string) => diagnostic(id, code, "info", `invented report for load case ${lc} on support:H-1`);
-    renderDiagnostics([forCase("n1", "LC-1"), forCase("n2", "LC-2")]);
-    const group = screen.getByTestId(`issue-group-${code}`);
-    const line = screen.getByTestId(`diagnostic-${code}`);
-    const lineMessage = within(line).getByText("invented report for load case LC-1 on support:H-1");
-    expect(lineMessage.previousElementSibling).toHaveAttribute("data-testid", `diagnostic-solver-report-note-${code}`);
-    expect(lineMessage.previousElementSibling).toHaveTextContent(/^Reported by the solver; not verified by SWBPIPE\.$/);
-    expect(lineMessage.nextElementSibling).toBeNull();
-    expect(lineMessage.parentElement?.nextElementSibling).toBeNull();
-    const rows = memberRows(openReports(group), code);
-    expect(rows).toHaveLength(2);
-    for (const [row, lc] of [[rows[0], "LC-1"], [rows[1], "LC-2"]] as const) {
-      const message = within(row).getByText(`invented report for load case ${lc} on support:H-1`);
-      expect(message.previousElementSibling).toHaveAttribute("data-testid", `diagnostic-solver-report-note-${code}`);
-      expect(message.nextElementSibling).toBeNull();
-      expect(message.parentElement?.nextElementSibling).toBeNull();
-    }
-    // An item with a report that takes the note shows no excerpt of its messages.
-    expect(within(line).queryByTestId("issue-group-also")).toBeNull();
-    expect(within(group).queryAllByTestId("issue-member-difference")).toHaveLength(0);
-    expect(within(group).getAllByTestId(`diagnostic-solver-report-note-${code}`)).toHaveLength(3);
-  });
 
-  it("a mixed item: the report that quotes a claim takes the note, its neighbour does not, and the item takes none of its own", () => {
-    const code = "NUMERICAL_INTEGRITY_SENSITIVE";
-    const quoting = diagnostic("q1", code, "warning", "invented case LC-1 on support:H-1: its prior outcome was NUMERICAL_INTEGRITY_CHECKS_PASSED");
-    const plain = diagnostic("q2", code, "warning", "invented case LC-2 on support:H-1: its prior outcome was none");
-    renderDiagnostics([plain, quoting]);
-    const group = screen.getByTestId(`issue-group-${code}`);
-    const line = screen.getByTestId(`diagnostic-${code}`);
-    // The collapsed line shows the first report's message, which quotes no claim: no note before it.
-    const lineMessage = within(line).getByText(plain.message);
-    expect(lineMessage.previousElementSibling).toBeNull();
-    // No excerpt: one of its reports takes the note.
-    expect(within(line).queryByTestId("issue-group-also")).toBeNull();
-    const rows = memberRows(openReports(group), code);
-    expect(within(rows[0]).getByText(plain.message).previousElementSibling).toBeNull();
-    expect(within(rows[1]).getByText(quoting.message).previousElementSibling).toHaveAttribute("data-testid", `diagnostic-solver-report-note-${code}`);
-    expect(within(group).getAllByTestId(`diagnostic-solver-report-note-${code}`)).toHaveLength(1);
-  });
-
-  it("gives no note to a report whose code does not take one", () => {
-    renderDiagnostics([hanger("installed"), hanger("cold")]);
-    expect(screen.queryAllByTestId(/^diagnostic-solver-report-note-/)).toHaveLength(0);
-  });
-});

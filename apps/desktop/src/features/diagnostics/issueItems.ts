@@ -25,7 +25,6 @@ import { modelDocumentDiagnostics } from "../model-data/documentDiagnostics";
 import { presentedResultDiagnostics } from "../results/suppliedDiagnostics";
 import { entityLabel } from "../model-workspace/modelView";
 import { resolveModelCheckEntity, type ModelCheckFinding, type ModelCheckGroupId, type ModelCheckRun } from "./modelChecks";
-import { needsSolverReportNote } from "../results/integrityStatus";
 
 /** Where a member was reported. */
 export type IssueSource = "model-checks" | "operation" | "diagnostics";
@@ -266,11 +265,10 @@ export function groupIssues(inputs: IssueInputs): IssueItem[] {
   });
 }
 
-/** Whether an item may show excerpts of its messages: no member takes the solver report note, and
- * every distinct message has a member shown exactly as its producer gave it, so an excerpt is cut
- * from the producer's own text, never from supplied, unverified text. */
+/** Whether an item may show excerpts of its messages: every distinct message has a member shown
+ * exactly as its producer gave it, so an excerpt is cut from the producer's own text, never from
+ * supplied, unverified text. An opened row marks its excerpt within its message. */
 function excerptsAllowed(members: readonly IssueMember[]): boolean {
-  if (members.some((member) => needsSolverReportNote(member.shown))) return false;
   const distinct = [...new Set(members.map((member) => member.diagnostic.message))];
   return distinct.every((message) => members.some((member) => member.diagnostic.message === message && member.shown.message === message));
 }

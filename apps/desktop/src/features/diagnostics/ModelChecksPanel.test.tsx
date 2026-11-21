@@ -46,7 +46,7 @@ describe("ModelChecksPanel", () => {
     expect(groups[0]).toHaveTextContent("Solve input, restraint and topology checks 2 items");
     expect(groups[2]).toHaveTextContent("Library references 0 items");
     const topology = screen.getByTestId("model-check-MODEL_TOPOLOGY_DISCONNECTED");
-    expect(within(topology).getByTestId("issue-meta")).toHaveTextContent(/^warning · MODEL_TOPOLOGY_DISCONNECTED · /);
+    expect(within(topology.closest(".issue-entry") as HTMLElement).getByTestId("issue-meta")).toHaveTextContent(/^warning · MODEL_TOPOLOGY_DISCONNECTED · /);
     expect(topology).toHaveTextContent("invented two-part text");
     fireEvent.click(topology);
     expect(onSelectEntity).toHaveBeenCalledWith({ type: "node", id: "node:a" });

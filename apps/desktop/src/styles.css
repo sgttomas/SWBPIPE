@@ -4608,36 +4608,39 @@ body { min-width: 760px; min-height: 540px; }
 }
 .issues-breakdown { display: flex; flex-wrap: wrap; gap: var(--space-2) var(--space-5); margin: 0; padding: 0; list-style: none; font-size: var(--type-size-chip); color: var(--ui-muted); }
 .issues-breakdown strong { color: var(--ui-text); }
-.issue-group { display: grid; gap: var(--space-1); }
-.issue-group > .diagnostic small,
-.issue-group > .issue-row small { display: block; font-size: var(--type-size-caption); }
-.issue-group-also { color: var(--ui-text); font-weight: 600; }
-.issue-group-members { margin-inline-start: var(--space-5); font-size: var(--type-size-chip); }
-.issue-group-members > summary { cursor: pointer; padding: var(--space-1) 0; color: var(--ui-muted); }
-.issue-group-members ol { display: grid; gap: var(--space-2); margin: var(--space-2) 0 0; padding: 0; list-style: none; }
-.issue-member { font-size: var(--type-size-chip); }
-.issue-member strong { display: inline; }
-.issue-member[aria-disabled="true"] { cursor: default; }
-/* An Operation diagnostics entry is a report (class "diagnostic") but not a control. */
-article.issue-row.diagnostic { cursor: default; }
-/* S6: every Issues entry reads, top to bottom, an eyebrow (severity mark and word, code, class,
-   source) in small muted type, what the entry also names, then the message's block: the
-   solver-report note where the report takes one, then the message at body size and weight,
-   last. */
-.issue-meta { display: block; margin: 0 0 var(--space-1); font-size: var(--type-size-caption); color: var(--ui-muted); }
-.issue-severity-mark { display: inline-block; width: 8px; height: 8px; margin-inline-end: 5px; border-radius: 50%; vertical-align: 0; background: var(--ui-muted); }
-.issue-severity-mark.blocking, .issue-severity-mark.error { background: var(--ui-error-border); }
-.issue-severity-mark.warning { background: var(--ui-warning-border); }
-.issue-severity-mark.info { background: var(--ui-info-border); }
-.issue-message-block { display: block; margin-top: var(--space-1); }
+/* Every Issues entry: a first line, the severity's mark and the message at body size (what the
+   eye reads); beneath it one small muted line, the severity's word, the code, the class where
+   supplied and the source, with a grouped item's count of reports as its control and a long
+   message's "Show all". Nothing else at rest. */
+.issue-entry { display: grid; gap: 2px; }
+.issue-first-line { display: flex; align-items: baseline; gap: 6px; }
+.issue-severity-mark { flex: 0 0 auto; align-self: center; color: var(--ui-muted); }
+.issue-severity-mark.blocking, .issue-severity-mark.error { color: var(--ui-error-border); }
+.issue-severity-mark.warning { color: var(--ui-warning-border); }
+.issue-severity-mark.info { color: var(--ui-info-border); }
 .issue-message,
 .diagnostic .issue-message,
-.issue-row .issue-message { margin: 0; font-size: 13px; font-weight: 400; line-height: 1.4; color: inherit; }
+.issue-row .issue-message { display: block; min-width: 0; margin: 0; font-size: 13px; font-weight: 400; line-height: 1.4; color: inherit; overflow-wrap: anywhere; }
 .diagnostic .issue-member-difference { display: inline; font-size: inherit; font-weight: 700; }
-.issue-member-refs, .issue-member-fields small, .issue-selects { display: block; margin-top: var(--space-1); font-size: var(--type-size-caption); color: var(--ui-muted); }
+.issue-meta { display: block; margin: 0; padding-inline-start: 26px; font-size: var(--type-size-caption); line-height: 1.5; color: var(--ui-muted); }
+.issue-member .issue-meta { padding-inline-start: 20px; }
+.issue-inline-control { display: inline; width: auto; margin: 0; padding: 0; color: var(--ui-link, var(--ui-info-text)); background: none; border: none; font: inherit; text-decoration: underline; cursor: pointer; }
+.issue-inline-control[aria-expanded="true"] { font-weight: 600; }
+/* A long message, opened: the whole text, selectable, in a bounded box so the next issue stays in view. */
+.issue-message-full {
+  max-height: 14em; overflow: auto; margin: var(--space-1) 0 0 26px; padding: var(--space-2);
+  white-space: pre-wrap; overflow-wrap: anywhere; user-select: text; -webkit-user-select: text;
+  font-size: var(--type-size-chip); color: var(--ui-text); background: var(--ui-raised); border: 1px solid var(--ui-divider); border-radius: 4px;
+}
+.issue-group-members { display: grid; gap: var(--space-2); margin: var(--space-2) 0 0 var(--space-5); padding: 0; list-style: none; font-size: var(--type-size-chip); }
+.issue-group-members[hidden] { display: none; }
+.issue-member { font-size: var(--type-size-chip); }
+.issue-member[aria-disabled="true"] { cursor: default; }
+.issue-member-not-supplied, .issue-member-fields small { display: block; padding-inline-start: 20px; font-size: var(--type-size-caption); color: var(--ui-muted); }
 .issue-member-fields { display: block; }
+/* An Operation diagnostics entry is a report (class "diagnostic") but not a control. */
+article.issue-row.diagnostic { cursor: default; }
 .issue-shown-elsewhere { margin: var(--space-2) 0; font-size: var(--type-size-chip); }
-.issue-solver-report-note { display: block; margin-bottom: 2px; font-size: var(--type-size-caption); }
 .missing-data-not-blocking { margin-top: var(--space-2); }
 .missing-data-not-blocking > summary { cursor: pointer; color: var(--ui-muted); padding: var(--space-1) 0; }
 .local-project-running { color: var(--ui-info-text); font-weight: 600; }
