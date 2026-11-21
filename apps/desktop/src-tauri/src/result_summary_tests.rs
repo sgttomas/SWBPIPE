@@ -932,8 +932,9 @@ fn a_confirmations_only_model_reads_the_confirmations_and_no_table() {
     let mut confirmations_only = args(&job, &model, standing.clone());
     confirmations_only["modelUse"] = json!("confirmations");
     let restored = header(&confirmations_only);
-    assert_eq!(without_model["support_confirmations"], Value::Null);
-    assert!(with_model["support_confirmations"].as_array().is_some_and(|c| !c.is_empty()));
+    // With no model no case has a nonlinear support, so no case has a support-state line.
+    assert!(without_model["support_confirmations"].as_array().unwrap().iter().all(|c| c["outcome"] == "not_applicable"));
+    assert!(with_model["support_confirmations"].as_array().unwrap().iter().any(|c| c["outcome"] == "solver_reported_established"));
     assert_eq!(restored["support_confirmations"], with_model["support_confirmations"]);
     let mut expected = without_model.clone();
     expected["support_confirmations"] = with_model["support_confirmations"].clone();
