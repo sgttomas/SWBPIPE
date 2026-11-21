@@ -133,6 +133,12 @@ needs:
     The workspace shell mounts the panels, routes the File menu's commands, gives each save dialog
     its suggested file name, and guards every command that replaces the working model.
   gating: true
+- from: DEL-08-02
+  condition: >-
+    Canonical JSON has one implementation of RFC 8785 with SHA-256 hashing, so that a checksum
+    shown with a packet names the exact content it was computed on.
+  when: Presenting a computed checksum with a packet
+  gating: true
 code_paths:
 # The native JSON package panel. The package is DEL-17-03's.
 - apps/desktop/src/features/native-package/**
@@ -163,8 +169,12 @@ code_paths:
 # The unit disclosure every export panel calls, applying DEL-17-02's contract. Also called by the
 # export-review and diff-preview panels outside this workspace.
 - apps/desktop/src/features/exportUnitDisclosure.ts
+# The package hash the export panels show with their packets, bound to the packet it was computed
+# from. The hashing itself is hashService.ts, DEL-08-02's.
+- apps/desktop/src/services/usePackageHash.ts
 checks:
 - apps/desktop/src/features/native-package/NativePackagePanel.test.ts
+- apps/desktop/src/services/usePackageHash.test.tsx
 - apps/desktop/src/features/stress-neutral/StressNeutralExportPanel.test.tsx
 - apps/desktop/src/features/stress-neutral/nativeStressNeutralBuilder.test.tsx
 - apps/desktop/src/features/handoff/HandoffPanel.test.tsx
