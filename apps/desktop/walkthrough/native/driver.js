@@ -884,7 +884,26 @@
       await scrollTo(byTestId("rule-pack-list"), "center");
       return `${answer}; ${shown("rule-pack-list-status") ?? ""}`;
     });
-    await journey.step("rule-checks", "Analyze > Rule Checks", async () => { await closeOverlays(); await menuCommand("analyze.rule-checks"); await waitFor("the rule check panel", () => visible(byTestId("rule-check-run-panel")), T.ui); await scrollTo(byTestId("rule-check-run-panel"), "start"); return shown("rule-check-run-solve-status") ?? ""; });
+    // Rule Checks reads the full result rows only on request: where the page offers "Load for rule checks", it is
+    // pressed (a person's step) and recorded before the panel is read.
+    await journey.step("rule-checks", "Analyze > Rule Checks, its full result loaded where the page asks", async () => {
+      await closeOverlays();
+      await menuCommand("analyze.rule-checks");
+      const gate = () => [...document.querySelectorAll('[data-testid="c2-result-explicit"]')].find((p) => visible(p) && /rule checks/.test(p.textContent ?? ""));
+      await waitFor("the rule check panel or its load request", () => visible(byTestId("rule-check-run-panel")) || gate(), T.ui);
+      const asked = gate();
+      let loaded = "";
+      if (!visible(byTestId("rule-check-run-panel")) && asked) {
+        loaded = `${said(asked)}: pressed; `;
+        await scrollTo(asked, "center");
+        await press("c2-result-load", { root: asked });
+        await waitFor("the rule check panel", () => visible(byTestId("rule-check-run-panel")) || shown("c2-result-refused") || shown("c2-result-failed"), T.step);
+        const refused = shown("c2-result-refused") ?? shown("c2-result-failed");
+        if (refused && !visible(byTestId("rule-check-run-panel"))) throw new Error(`the full result was not read for rule checks: "${refused}"`);
+      }
+      await scrollTo(byTestId("rule-check-run-panel"), "start");
+      return `${loaded}${shown("rule-check-run-solve-status") ?? ""}`;
+    });
     await journey.step("pack-loaded", "The saved pack's Load for run", async () => {
       if (visible(byTestId("rule-check-refresh-list"))) await press("rule-check-refresh-list");
       const open = await waitFor("a saved pack's Load for run", () => [...document.querySelectorAll('[data-testid^="rule-check-open-"]')].find(visible), T.ui).catch(() => null);
@@ -1049,6 +1068,14 @@
     await journey.step("history", "The Project page's Model History after recovery", showHistory);
     await journey.scrolled("history", "Model History", 2);
     await journey.step("report-tab", "The Review stage's Report tab after recovery", async () => {
+      // Where the rail's Review control is disabled after recovery, that is what a person meets: its own reason is
+      // recorded and the journey goes on.
+      await closeOverlays();
+      const rail = byTestId("rail-stage-review");
+      if (visible(rail) && (rail.disabled || rail.getAttribute("aria-disabled") === "true")) {
+        if (acted) acted.push({ control: "rail-stage-review", shown: true, in_closed_section: false, disabled: true });
+        return `the rail's Review control is disabled: "${disabledReason(rail)}"`;
+      }
       await openStage("review");
       await press("stage-tab-report");
       await waitFor("the report panel", () => byTestId("rendered-report-panel") || byTestId("report-panel"), T.step);
