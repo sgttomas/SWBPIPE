@@ -707,11 +707,12 @@ impl SidecarParser {
         if entry.is_bad() || !complete || Self::any_bad(&entry) {
             return entry;
         }
+        // Without a contract the shear model is the document's own timoshenko_annulus_energy_v1 selection, else the
+        // route's euler_bernoulli, and there is no region.
         let none = entry.get("contract").and_then(Value::as_str) == Some("none");
-        let euler = entry.get("shear_model").and_then(Value::as_str) == Some("euler_bernoulli");
         let regions = entry.get("regions").map(Value::truthy).unwrap_or(false);
-        if none && (!euler || regions) {
-            return self.fail(path, "without a contract the shear model is the route's euler_bernoulli and there is no region");
+        if none && regions {
+            return self.fail(path, "without a contract there is no region");
         }
         entry
     }
@@ -781,6 +782,13 @@ impl SidecarParser {
             }
         };
         out.insert("pressure_map".into(), pressure);
+        // A pressure-free document's own Timoshenko selection; euler_bernoulli without a contract is no statement.
+        if let Some(state) = parsed.get("pressure_map") {
+            let shear = state.get("shear_model").and_then(Value::as_str);
+            if state.get("contract").and_then(Value::as_str) == Some("none") && shear.is_some_and(|model| model != "euler_bernoulli") {
+                out.insert("free_shear_model".into(), state.get("shear_model").cloned().unwrap_or(Value::Null));
+            }
+        }
         let out = Value::Dict(out);
         // each load id is its case's and unique
         let mut seen: crate::value::OMap<String, String> = crate::value::OMap::new();

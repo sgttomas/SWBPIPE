@@ -122,6 +122,7 @@ impl<'m> Writer<'m> {
         if !model.get_or_null("shear_model").is_null() {
             self.refuse("MBF-SI-SHEAR-MODEL-UNSUPPORTED", "model.shear_model", "shear_model is not exported");
         }
+        self.read_free_shear_model(!contract.is_null())?;
         if model.get_or_null("reference_configurations").truthy() {
             self.refuse(
                 "MBF-SI-REFERENCE-CONFIGURATION-UNSUPPORTED",
@@ -1320,8 +1321,47 @@ impl<'m> Writer<'m> {
         Ok(())
     }
 
+    /// A pressure-free document's `model_settings.shear_model` travels in the sidecar's pressure_map, as the exact
+    /// contract's does: the MBF has no field for it. A selection beside a pressure contract is the document's own
+    /// refusal (MODEL_SETTING_SHEAR_MODEL_WITH_PRESSURE_CONTRACT), and an unknown value is not exported.
+    pub fn read_free_shear_model(&mut self, has_contract: bool) -> R<()> {
+        let settings = self.model.get_or_null("model_settings");
+        let selected = match settings {
+            Value::Dict(_) => settings.get_or_null("shear_model"),
+            _ => &Value::Null,
+        };
+        if selected.is_null() {
+            return Ok(());
+        }
+        if has_contract {
+            self.refuse(
+                "MBF-SI-SHEAR-MODEL-UNSUPPORTED",
+                "model.model_settings.shear_model",
+                "a model_settings.shear_model beside a pressure_contract is refused by the solve \
+                 (MODEL_SETTING_SHEAR_MODEL_WITH_PRESSURE_CONTRACT) and is not exported",
+            );
+        } else if !str_in(selected, &SHEAR_MODELS) {
+            let message = format!("model_settings.shear_model {} is not one of {}", repr(selected)?, SHEAR_MODELS.join(", "));
+            self.refuse("MBF-SI-SHEAR-MODEL-UNSUPPORTED", "model.model_settings.shear_model", &message);
+        } else {
+            let selected = text(selected)?;
+            let kept = if selected != "euler_bernoulli" {
+                "the sidecar's pressure_map keeps it for a bound import"
+            } else {
+                "a bound import restores it as a document that states no choice, which reads as euler_bernoulli"
+            };
+            let message = format!("shear_model {selected} is not in the MBF; the target program applies its own beam theory, and {kept}");
+            self.omit("MBF-SI-SHEAR-MODEL-NOT-EXPORTED", "model.model_settings.shear_model", &message);
+            self.free_shear = Some(selected);
+        }
+        Ok(())
+    }
+
     pub fn read_other_members(&mut self) -> R<()> {
-        if !self.model.get_or_null("model_settings").is_null() {
+        // The shear model selection is carried by the sidecar (read_free_shear_model); every other setting is not.
+        let settings = self.model.get_or_null("model_settings");
+        let only_shear = settings.as_dict().is_some_and(|dict| dict.len() == 1 && dict.contains_key(&"shear_model".to_string()));
+        if !settings.is_null() && !only_shear {
             self.omit(
                 "MBF-SI-MODEL-SETTINGS-NOT-EXPORTED",
                 "model.model_settings",

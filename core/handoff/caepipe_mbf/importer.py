@@ -367,7 +367,7 @@ def import_caepipe_mbf(
 
     `shear_model` (optional) is the exact contract's shear model for an unbound import with pressure, one of
     SHEAR_MODELS; without it the contract's default timoshenko_annulus_energy_v1 applies. A bound import keeps the
-    sidecar's, and a different `shear_model` with it is refused."""
+    sidecar's, a pressure-free document's own selection included, and a different `shear_model` with it is refused."""
 
     return _Importer(data, sidecar, material_provenance, rebind_by_node_number, source_label,
                      pressure_closure, shear_model).run()
@@ -1207,8 +1207,9 @@ class _SidecarParser:
 
     def pressure(self, value: Any, path: str) -> Any:
         """Format 2: the effective pressure state of every model: `contract` (the exact contract, or "none"), the
-        effective `shear_model` (the route's euler_bernoulli without a contract) and the regions (none without a
-        contract). A legacy sidecar has none: main's writer exported no pressure."""
+        effective `shear_model` (without a contract, the document's own timoshenko_annulus_energy_v1 selection, else
+        the route's euler_bernoulli) and the regions (none without a contract). A legacy sidecar has none: main's
+        writer exported no pressure."""
         if not self.current:
             return self.fail(path, "is not a field main's tranche-1 writer records; a sidecar with pressure has "
                              f"sidecar_format {' or '.join(map(str, SIDECAR_FORMATS))}")
@@ -1216,9 +1217,8 @@ class _SidecarParser:
                                           "regions": self.items(self.region, nonempty=False)})
         if entry is _BAD or len(entry) != 3 or any(item is _BAD for item in entry.values()):
             return entry
-        if entry["contract"] == "none" and (entry["shear_model"] != "euler_bernoulli" or entry["regions"]):
-            return self.fail(path, "without a contract the shear model is the route's euler_bernoulli and there "
-                             "is no region")
+        if entry["contract"] == "none" and entry["regions"]:
+            return self.fail(path, "without a contract there is no region")
         return entry
 
     def title_line(self, value: Any, path: str) -> Any:
@@ -1292,6 +1292,9 @@ class _SidecarParser:
         state = parsed.get("pressure_map")
         out["pressure_map"] = None if state is None or state["contract"] == "none" else {
             "contract": {**state["contract"], "shear_model": state["shear_model"]}, "regions": state["regions"]}
+        # A pressure-free document's own Timoshenko selection; euler_bernoulli without a contract is no statement.
+        if state is not None and state["contract"] == "none" and state["shear_model"] != "euler_bernoulli":
+            out["free_shear_model"] = state["shear_model"]
         # Across entries: each load id is its case's ("<case>/<id>") and unique (DUPLICATE_ID); supports as the
         # solve admits them, together at each node.
         seen: dict[str, str] = {}
@@ -3331,6 +3334,7 @@ class _Importer:
         self.labels = {pipe["id"]: pipe["label"] for pipe in pipes}
         arcs = {component["geometry"]["bend_pipe_ref"] for component in components}
         pressure = self.assemble_pressure(pipes, pressures, arcs, point_of, id_map, claim)
+        free_shear = self.free_shear_model(pressure)
         load_cases = self.assemble_loads(node_id, support_ids, weights, thermals, length_unit, angle_unit,
                                          provenance, id_map, claim, None if pressure is None else pressure[1])
         if self.has_errors():
@@ -3387,6 +3391,7 @@ class _Importer:
             "schema_version": current_model_schema_version(),
             "document_kind": MODEL_KIND,
             **({} if pressure is None else {"pressure_contract": pressure[0]}),
+            **({} if free_shear is None else {"model_settings": {"shear_model": free_shear}}),
             "data_boundary": {**_BLANK_BOUNDARY,
                               "private_data_policy": f"imported from MBF sha256:{self.sha} ({binding}); local user "
                                                      "document not committed to repository"},
@@ -3922,6 +3927,23 @@ class _Importer:
         return load_cases
 
     # -- §9.4 pressure ----------------------------------------------------------
+    def free_shear_model(self, pressure: Any) -> str | None:
+        """A pressure-free model's `model_settings.shear_model`, or None when the import states none. A bound import
+        keeps the sidecar's: its pressure_map's timoshenko_annulus_energy_v1, or no statement for its
+        euler_bernoulli; a different `shear_model` argument with it is refused. An unbound import states none."""
+        if pressure is not None:
+            return None
+        if self.bound:
+            stored = self.maps.get("free_shear_model")
+            kept = stored or "euler_bernoulli"
+            if self.shear_model is not None and self.shear_model != kept:
+                self.refuse("MBF-IMPORT-SIDECAR-CONFLICT", 0, "shear_model",
+                            f"the shear_model argument {self.shear_model} differs from the bound sidecar's {kept}, "
+                            "which a bound import keeps")
+                raise _Refused
+            return stored
+        return None
+
     def assemble_pressure(self, pipes, pressures, arcs, point_of, id_map, claim):
         """(contract, regions) from LOADS Pressure 1, or None when the model has no pressure."""
         active = {pipe_id: number for pipe_id, (number, _) in pressures.items()
