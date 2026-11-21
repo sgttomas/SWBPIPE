@@ -277,7 +277,7 @@
     });
     await journey.scrolled("issues-drawer", "The Issues drawer", 2, '[data-testid="issues-home"]');
     await journey.step("hanger-item-open", "A spring hanger's grouped item, its reports opened", async () => {
-      const group = await waitFor("a grouped item", () => [...document.querySelectorAll('[data-testid="issues-home"] [data-testid^="issue-group-SPRING_HANGER"]')].find(visible) ?? document.querySelector('[data-testid="issues-home"] [data-testid^="issue-group-"]'), T.ui).catch(() => null);
+      const group = await waitFor("a grouped item", () => document.querySelector('[data-testid="issues-home"] [data-testid="issue-group-SPRING_HANGER_LOAD_NOT_APPLIED_AS_PRELOAD"]') ?? document.querySelector('[data-testid="issues-home"] [data-testid^="issue-group-"]'), T.ui).catch(() => null);
       if (!group) throw new Error("the Issues drawer shows no grouped item");
       const toggle = group.querySelector('[data-testid="issue-group-members-toggle"]');
       await scrollTo(group, "start");
