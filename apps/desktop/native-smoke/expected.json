@@ -21,8 +21,8 @@
       "case": "demo",
       "fixture": "fixtures/product_preview/invented_demo_model.json",
       "observations": {
-        "sparse_interactive": { "rows": 837, "standing_prefix": "Numerical integrity: checks_passed." },
-        "dense_scrutiny": { "rows": 837, "standing_prefix": "Numerical integrity: checks_passed." }
+        "sparse_interactive": { "rows": 837, "standing_prefix": "Numerical integrity: not verified." },
+        "dense_scrutiny": { "rows": 837, "standing_prefix": "Numerical integrity: not verified." }
       }
     }
   ]
