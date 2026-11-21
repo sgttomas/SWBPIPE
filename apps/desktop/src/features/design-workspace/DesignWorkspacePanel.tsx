@@ -247,7 +247,10 @@ function buildDesignWorkspacePacket({
       route_state: selectedReviewTarget ? "review_navigation_available" : "no_selected_review_target",
       result_selection_routes_to_model_context: true,
       diagnostic_selection_routes_to_model_context: true,
-      unavailable_panel_ids: analysisRun && comparison ? [] : ["state_run_browser", "comparison_tables"]
+      unavailable_panel_ids: [
+        ...(designKnowledgeFor(knowledge, model) ? [] : ["design_knowledge"]),
+        ...(analysisRun && comparison ? [] : ["state_run_browser", "comparison_tables"])
+      ]
     },
     operation_review_records: operationRecords,
     mutation_boundary: {

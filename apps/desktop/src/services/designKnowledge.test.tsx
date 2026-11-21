@@ -19,8 +19,8 @@ import { buildHandoffPackage } from "../features/handoff/HandoffPanel";
 import { ReportPanel } from "../features/report/ReportPanel";
 import { ExportReviewPanel } from "../features/export-review/ExportReviewPanel";
 import { DesignWorkspacePanel } from "../features/design-workspace/DesignWorkspacePanel";
-import { KnowledgePanel } from "../features/knowledge/KnowledgePanel";
-import { buildDiagnosticInterpretation, resolveDiagnosticEntitySelection } from "../features/results/resultInterpretation";
+import { KnowledgePanel, physicsRecords } from "../features/knowledge/KnowledgePanel";
+import { buildDiagnosticInterpretation, buildResultInterpretation, resolveDiagnosticEntitySelection } from "../features/results/resultInterpretation";
 import type { AnalysisRunEnvelope, DesignKnowledge, MechanicsResult, PreviewModel } from "../types";
 
 afterEach(() => {
@@ -80,20 +80,29 @@ function sourceFiles(directory: string): string[] {
 
 describe("one rule in one place", () => {
   it("no source file but the function's own reads a knowledge's diagnostics or records directly", () => {
-    // `knowledge?.diagnostics`, `loadedKnowledge.records`, `{ diagnostics } = knowledge`, …
-    const member = /\b\w*knowledge\w*\s*[?!]?\s*\.\s*(diagnostics|records)\b/i;
-    const destructured = /\{[^{}]*\b(diagnostics|records)\b[^{}]*\}\s*=\s*[\w.?!]*knowledge\b/i;
-    const reads = (line: string) => member.test(line) || destructured.test(line);
+    // Read against each file whole, so a read broken across lines is seen: `knowledge?.diagnostics`,
+    // `loadedKnowledge\n  .records`, `knowledge["records"]`, `{ diagnostics } = knowledge`,
+    // `{ records } = (knowledgeSet ?? …)`. A read through a variable or a parameter whose name does not
+    // hold "knowledge" is beyond a search of the text; the gatherers' own cases below are what hold those.
+    const patterns = [
+      /\b\w*knowledge\w*\s*[?!]?\s*\.\s*(?:diagnostics|records)\b/gi,
+      /\b\w*knowledge\w*\s*!?\s*(?:\?\.)?\s*\[\s*["'`](?:diagnostics|records)["'`]\s*\]/gi,
+      /\{[^{}]*\b(?:diagnostics|records)\b[^{}]*\}\s*=\s*\(?\s*[\w.?!]*knowledge\w*/gi
+    ];
+    const readsIn = (text: string) => patterns.flatMap((pattern) => Array.from(text.matchAll(pattern), (match) => match.index ?? 0));
     // the check sees what it is for
-    expect(["...(knowledge?.diagnostics ?? [])", "knowledge!.records.length", "loadedKnowledge.diagnostics", "const { diagnostics } = session.knowledge"].every(reads)).toBe(true);
-    expect(reads("current_design_knowledge_diagnostic_count: designKnowledgeDiagnostics(knowledge, model).length")).toBe(false);
+    for (const read of [
+      "...(knowledge?.diagnostics ?? [])", "knowledge!.records.length", "loadedKnowledge.diagnostics", "const { diagnostics } = session.knowledge",
+      "knowledge\n    .diagnostics", "knowledge[\"diagnostics\"]", "knowledge?.['records']", "const {\n  diagnostics\n} = knowledge",
+      "const { records } = knowledgeSet", "const { diagnostics } = (knowledge ?? fallback)"
+    ]) expect(readsIn(read), read).not.toEqual([]);
+    expect(readsIn("current_design_knowledge_diagnostic_count: designKnowledgeDiagnostics(knowledge, model).length")).toEqual([]);
     const files = sourceFiles(SOURCE_DIR);
     expect(files).toContain(OWN_FILE);
-    const offences = files.filter((file) => file !== OWN_FILE).flatMap((file) =>
-      readFileSync(file, "utf8").split("\n").flatMap((line, index) =>
-        reads(line) ? [`${path.relative(SOURCE_DIR, file)}:${index + 1}: ${line.trim()}`] : []
-      )
-    );
+    const offences = files.filter((file) => file !== OWN_FILE).flatMap((file) => {
+      const text = readFileSync(file, "utf8");
+      return readsIn(text).map((index) => `${path.relative(SOURCE_DIR, file)}:${text.slice(0, index).split("\n").length}`);
+    });
     expect(offences).toEqual([]);
   });
 });
@@ -139,6 +148,21 @@ describe.each(models)("the knowledge's findings with $name open", ({ model, carr
     expect(screen.queryByTestId("knowledge-none-for-model") !== null).toBe(!carried);
   });
 
+  it("the line that says there are none is not shown while the knowledge is loading, nor beside a computed record", () => {
+    const loading = render(<KnowledgePanel knowledge={null} model={model} result={null} />);
+    expect(screen.queryByTestId("knowledge-none-for-model")).toBeNull();
+    loading.unmount();
+    const result = structuredClone(demoResultJson) as unknown as MechanicsResult;
+    const computed = physicsRecords(result, null);
+    expect(computed.length).toBeGreaterThan(0);
+    render(<KnowledgePanel knowledge={KNOWLEDGE} model={model} result={result} />);
+    expect(screen.queryByTestId("knowledge-none-for-model")).toBeNull();
+    expect(screen.queryByTestId(`knowledge-record-${computed[0].id}`)).not.toBeNull();
+    for (const record of KNOWLEDGE.records) {
+      expect(screen.queryByTestId(`knowledge-record-${record.id}`) !== null).toBe(carried);
+    }
+  });
+
   it("are in the report, the handoff, the export review and the design workspace only when carried", async () => {
     const { result, analysisRun } = await runBasis();
     const common = { model, knowledge: KNOWLEDGE, result, analysisRun, comparison: null, editorIntents: [], proposal: null, selectedReviewTarget: null };
@@ -156,6 +180,7 @@ describe.each(models)("the knowledge's findings with $name open", ({ model, carr
     const review = render(<ExportReviewPanel {...common} projectOperation="invented" projectSummary={null} storageCapability={null} />);
     const manifest = JSON.stringify(exportedJson(review.container, "export-review-link"));
     expect(present(CODES.filter((code) => manifest.includes(code)))).toEqual(expected);
+    expect(manifest.includes(`"current_design_knowledge_record_count":${carried ? KNOWLEDGE.records.length : 0}`)).toBe(true);
     review.unmount();
 
     const withoutKnowledge = render(<DesignWorkspacePanel {...common} knowledge={null} />);
@@ -167,5 +192,24 @@ describe.each(models)("the knowledge's findings with $name open", ({ model, carr
     expect(packet.summary.current_total_diagnostic_count - baseline.summary.current_total_diagnostic_count).toBe(expected.length);
     expect(packet.summary.current_design_knowledge_record_count).toBe(carried ? KNOWLEDGE.records.length : 0);
     expect(packet.current_workspace_state.design_knowledge_panel).toBe(carried ? "available" : "unavailable_missing_input");
+    // a panel said to be unavailable is listed as unavailable
+    expect(packet.review_state_routing.unavailable_panel_ids.includes("design_knowledge")).toBe(!carried);
+    expect(baseline.review_state_routing.unavailable_panel_ids).toContain("design_knowledge");
+  });
+});
+
+describe("a result's linked knowledge", () => {
+  it("is the knowledge's records only when the result is of the model the knowledge is bound to", () => {
+    const result = structuredClone(demoResultJson) as unknown as MechanicsResult;
+    expect(result.model_ref).toBe(KNOWLEDGE.model_ref);
+    const row = result.results.find((item) => KNOWLEDGE.records.some((record) => record.affected_refs.includes(item.entity_ref)));
+    expect(row).toBeDefined();
+    const linkedIds = (of: MechanicsResult) =>
+      buildResultInterpretation({ result: of, resultId: row!.id, knowledge: KNOWLEDGE, analysisRun: null })!.linked_knowledge.map((record) => record.id);
+    const own = KNOWLEDGE.records.filter((record) => record.affected_refs.includes(row!.entity_ref)).map((record) => record.id);
+    expect(own.length).toBeGreaterThan(0);
+    expect(linkedIds(result)).toEqual(expect.arrayContaining(own));
+    const ofAnotherModel = { ...result, model_ref: MISSING_DATA.project.id } as MechanicsResult;
+    expect(linkedIds(ofAnotherModel).filter((id) => own.includes(id))).toEqual([]);
   });
 });
