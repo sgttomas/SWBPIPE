@@ -1403,9 +1403,12 @@ describe("SWBPIPE desktop preview", () => {
     const reviewGeometry = await screen.findByLabelText(
       "Review geometry export",
     );
-    // The row holds the unit line; the rest of the record and the save are in the step (DEL-07-12).
-    expect(within(reviewGeometry).queryByTestId("review-geometry-export-link")).toBeNull();
-    fireEvent.click(within(reviewGeometry).getByTestId("review-geometry-open"));
+    // DEL-07-12: the package holds only the format's standing limits, so the row holds the save and states them; the
+    // record is one press away.
+    expect(within(reviewGeometry).getByTestId("review-geometry-export-link")).toBeInTheDocument();
+    expect(within(reviewGeometry).getByTestId("review-geometry-standing")).toHaveTextContent("5 things this format does not carry");
+    expect(within(reviewGeometry).getByTestId("review-geometry-record-label")).toHaveTextContent("Preview");
+    fireEvent.click(within(reviewGeometry).getByTestId("review-geometry-record-open"));
     const reviewGeometryStep = screen.getByTestId("review-geometry-step");
     expect(reviewGeometryStep).toHaveAttribute("role", "dialog");
     expect(
@@ -1475,18 +1478,19 @@ describe("SWBPIPE desktop preview", () => {
       within(reviewGeometryStep).getByTestId("review-geometry-boundary")
         .textContent,
     ).toContain("solver_geometry_equivalence=false");
+    expect(within(reviewGeometryStep).queryByTestId("review-geometry-export-link")).toBeNull();
+    fireEvent.click(within(reviewGeometryStep).getByTestId("review-geometry-step-close"));
+    expect(screen.queryByTestId("review-geometry-step")).toBeNull();
     expect(
-      within(reviewGeometryStep)
+      within(reviewGeometry)
         .getByTestId("review-geometry-export-link")
         .getAttribute("href"),
     ).toBeNull();
     expect(
-      within(reviewGeometryStep).getByTestId(
+      within(reviewGeometry).getByTestId(
         "review-geometry-export-link-redaction-summary",
       ),
     ).toHaveTextContent("blocked=true");
-    fireEvent.click(within(reviewGeometryStep).getByTestId("review-geometry-step-close"));
-    expect(screen.queryByTestId("review-geometry-step")).toBeNull();
     const pcfExport = await screen.findByLabelText("Conservative PCF export");
     expect(within(pcfExport).queryByTestId("pcf-export-link")).toBeNull();
     fireEvent.click(within(pcfExport).getByTestId("pcf-export-open"));
@@ -8798,14 +8802,18 @@ describe("SWBPIPE desktop preview", () => {
     expect(await renderedReportButtonReady()).toBeEnabled();
     // The export panel reads the native result's C2 full copy when its section opens.
     const exportPanel = await within(openWorkspaceSection("exports")).findByLabelText("Result export audit");
-    // The record and the save are in the step between the row's button and the save (DEL-07-12).
-    await waitFor(() => expect(within(exportPanel).getByTestId("result-export-open")).toBeEnabled());
-    expect(within(exportPanel).queryByTestId("result-export-link")).toBeNull();
-    fireEvent.click(within(exportPanel).getByTestId("result-export-open"));
+    // DEL-07-12: the result export writes on the press: its save is in the row, with no box, and its record is
+    // one press away.
+    await within(exportPanel).findByTestId("result-export-record-open");
+    expect(within(exportPanel).queryByTestId("result-export-open")).toBeNull();
+    expect(within(exportPanel).queryByTestId("result-export-link-local-private-intent")).toBeNull();
+    fireEvent.click(within(exportPanel).getByTestId("result-export-record-open"));
     const exportStep = screen.getByTestId("result-export-step");
     expect(exportStep).toHaveAttribute("role", "dialog");
     await within(exportStep).findByTestId("result-export-summary");
-    expect(within(exportStep).getByTestId("result-export-link")).not.toHaveAttribute("href");
+    expect(within(exportStep).queryByTestId("result-export-link")).toBeNull();
+    fireEvent.click(within(exportStep).getByTestId("result-export-step-close"));
+    expect(within(exportPanel).getByTestId("result-export-link")).not.toHaveAttribute("href");
     // Native runtime renders a save button. Inspect the real screened request
     // sent to the mocked save seam, not a nonexistent browser download href.
     const saveRequests: NativeResultSaveRequest[] = [];
@@ -8817,8 +8825,7 @@ describe("SWBPIPE desktop preview", () => {
       }
       return pair.replay.invoke(command, args, options);
     });
-    fireEvent.click(within(exportStep).getByTestId("result-export-link-local-private-intent"));
-    const saveButton = within(exportStep).getByTestId("result-export-link");
+    const saveButton = within(exportPanel).getByTestId("result-export-link");
     expect(saveButton.tagName).toBe("BUTTON");
     fireEvent.click(saveButton);
     await waitFor(() => expect(saveRequests).toHaveLength(1));
@@ -8827,7 +8834,6 @@ describe("SWBPIPE desktop preview", () => {
     expect(packet.schema_version).toBe("0.3.0");
     expect(packet.result_envelope.row_accounting).toHaveLength(pair.source.results.length);
     expect(packet.result_envelope.producer).toEqual(pair.source.producer);
-    fireEvent.click(within(exportStep).getByTestId("result-export-step-close"));
     expect(screen.queryByTestId("result-export-step")).toBeNull();
     // Inspection first retains the native result, then loads the bundled reference and publishes it only if its
     // generation is still current. On hosted runners that path takes longer than the default 1 s query, so wait

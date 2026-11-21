@@ -394,19 +394,24 @@
     await journey.step("exports-page", "The Exports page, from the View menu", async () => { await closeOverlays(); await showSection("exports"); });
     await journey.scrolled("exports-page", "The Exports page", 10);
     for (const [prefix, name] of EXPORT_STEPS) {
-      await journey.step(`step-${prefix}`, `${name}: its step, opened from the row's button`, async () => {
-        // A result export's record is read once the section shows; its button is enabled once the record is there.
-        await waitFor(`${name}'s button enabled`, () => { const item = byTestId(`${prefix}-open`); return item && !item.disabled ? item : null; }, T.ui).catch(() => null);
-        await press(`${prefix}-open`);
-        await waitFor(`${name}'s step`, () => visible(byTestId(`${prefix}-step`)), T.ui);
+      let control = null;
+      await journey.step(`step-${prefix}`, `${name}: its record, opened from its row`, async () => {
+        // A result export's record is read once the section shows; its control is enabled once the record is there.
+        // The row's Record control where it writes on the press; otherwise its button, which opens the record first.
+        const found = await waitFor(`${name}'s control enabled`, () => { const item = byTestId(`${prefix}-record-open`) ?? byTestId(`${prefix}-open`); return item && !item.disabled ? item : null; }, T.ui).catch(() => null);
+        control = found?.dataset.testid ?? `${prefix}-open`;
+        const label = found?.textContent?.trim() ?? "";
+        await press(control);
+        await waitFor(`${name}'s record`, () => visible(byTestId(`${prefix}-step`)), T.ui);
+        return control.endsWith("-record-open") ? "writes on the press: the save is in the row" : `its record opens first: "${label}"`;
       });
-      await journey.step(`step-${prefix}-end`, `${name}: its step, scrolled to its end, with its save in view`, async () => {
+      await journey.step(`step-${prefix}-end`, `${name}: its record, scrolled to its end`, async () => {
         const record = byTestId(`${prefix}-step`)?.querySelector(".export-step-record");
-        if (!record) throw new Error(`${name}'s step shows no record`);
+        if (!record) throw new Error(`${name}'s record is not shown`);
         record.scrollTop = record.scrollHeight;
         await sleep(100);
         const saves = byTestId(`${prefix}-step-saves`);
-        return saves ? `${saves.querySelectorAll("button, a").length} save control(s) in the step` : "the step shows no save control";
+        return saves ? `${saves.querySelectorAll("button, a").length} save control(s) in the record` : "the record shows no save control";
       });
       if (journey.broken) return;
       await press(`${prefix}-step-close`);

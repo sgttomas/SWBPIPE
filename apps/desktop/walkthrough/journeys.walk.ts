@@ -330,9 +330,10 @@ test("08 save, close and resume (DEL-07-06 AC-007)", async ({ page }) => {
   journey.finish();
 });
 
-// The Exports page (DEL-07-12): each export's row at rest, and the step between its button and its save, opened
-// from the row's button and scrolled to its end. An export whose button is disabled says why in its row; it is
-// pictured there, and its step is not reached.
+// The Exports page (DEL-07-12): each export's row in its form, and its record: opened by the row's button where it
+// opens first (this model's entries at its head, the save after), or by the row's Record control where the row
+// writes on the press (the save in the row), and scrolled to its end. An export whose button is disabled says why
+// in its row; it is pictured there, and its record is not reached.
 const EXPORTS: ReadonlyArray<[string, string]> = [
   ["result-export", "Result Export"], ["stress-neutral", "Stress-neutral CSV/JSON"], ["pcf-export", "Conservative PCF Export"],
   ["review-geometry", "Review Geometry Export"], ["local-fea", "Local FEA Handoff"]
@@ -340,9 +341,10 @@ const EXPORTS: ReadonlyArray<[string, string]> = [
 
 async function exportSteps(page: Page, journey: Journey): Promise<void> {
   for (const [prefix, name] of EXPORTS) {
-    const button = page.getByTestId(`${prefix}-open`);
+    const writes = await page.getByTestId(`${prefix}-record-open`).count() > 0;
+    const button = page.getByTestId(writes ? `${prefix}-record-open` : `${prefix}-open`);
     if (await button.count() === 0) {
-      await journey.step(`row-${prefix}`, `${name}: its row`, async () => "this row has no button that opens a step");
+      await journey.step(`row-${prefix}`, `${name}: its row`, async () => "this row has no control that opens its record");
       continue;
     }
     if (await button.isDisabled()) {
@@ -353,11 +355,15 @@ async function exportSteps(page: Page, journey: Journey): Promise<void> {
       });
       continue;
     }
-    await journey.step(`step-${prefix}`, `${name}: its step, opened from the row's button`, async () => {
+    await journey.step(`row-${prefix}`, `${name}: its row`, async () => {
+      await button.scrollIntoViewIfNeeded();
+      return writes ? "writes on the press: the save is in the row" : `its record opens first: "${await button.innerText()}"`;
+    });
+    await journey.step(`step-${prefix}`, writes ? `${name}: its record, opened from the row's Record control` : `${name}: its record, opened first from the row's button`, async () => {
       await button.click();
       await expect(page.getByTestId(`${prefix}-step`)).toBeVisible();
     });
-    await journey.step(`step-${prefix}-end`, `${name}: its step, scrolled to its end`, async () => {
+    await journey.step(`step-${prefix}-end`, `${name}: its record, scrolled to its end`, async () => {
       await page.getByTestId(`${prefix}-step`).locator(".export-step-record").evaluate((element) => { element.scrollTop = element.scrollHeight; });
     });
     await page.keyboard.press("Escape");
@@ -365,8 +371,8 @@ async function exportSteps(page: Page, journey: Journey): Promise<void> {
   }
 }
 
-test("09 exports: each export's row and the step before its save (DEL-07-12)", async ({ page }) => {
-  const journey = new Journey(page, 9, "exports", "Exports: the page at rest, and each export's step between its button and its save");
+test("09 exports: each export's row in its form, and its record (DEL-07-12)", async ({ page }) => {
+  const journey = new Journey(page, 9, "exports", "Exports: the page at rest, each export's row in its form, and its record");
   await open(page);
   await journey.step("page", "The Exports page at rest, from the View menu", async () => { await openWorkspaceSection(page, "exports"); });
   await journey.scrolled("page", "The Exports page", 10);

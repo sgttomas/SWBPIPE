@@ -11,6 +11,7 @@ import { buildCurrentResultExport, type JsonObject } from "./resultExportAdapter
 import type { CurrentSessionInputManifestEvidence } from "../../services/inputManifestService";
 import { Download, FileJson } from "lucide-react";
 import { ExportRow, ExportStepButton } from "../export-step/ExportStep";
+import { AS_GIVEN, EXPORT_FORM_WORDS, type PackageRecord } from "../export-step/exportForm";
 import type { AnalysisRunEnvelope, Diagnostic, MechanicsResult, ObjectRef, PreviewModel } from "../../types";
 
 function liveResultBinding(model: PreviewModel, result: MechanicsResult | null, analysisRun: AnalysisRunEnvelope | null, inputManifest?: CurrentSessionInputManifestEvidence | null): string | null {
@@ -24,6 +25,31 @@ function liveResultBinding(model: PreviewModel, result: MechanicsResult | null, 
       || !numericalResultStanding(result, model).eligible) return null;
     return checkedJsonText({ model, result, analysisRun, inputManifest });
   } catch { return null; }
+}
+
+/** The person's own local copy: the row's press states the intent to save it, with the project's values, so the
+ * link shows no box of its own. The one place this row passes it. */
+const OWN_LOCAL_COPY = true;
+
+/** The package's record entries for the row's form. The solve's own diagnostics carried in the document are the
+ * result's content, not a loss, unsupported entry or failed validation of the export: they never open the record
+ * first. */
+export function resultExportPackageRecord(packet: JsonObject): PackageRecord {
+  return {
+    format: "result-export",
+    entries: (Array.isArray(packet.result_envelope?.diagnostics) ? packet.result_envelope.diagnostics : []).map((item: JsonObject) => ({ kind: "content" as const, term: String(item.code ?? item.id), severity: item.severity, text: item.message })),
+    validation: null
+  };
+}
+
+/** What the file holds, in the generator's terms with counts: every source row, as a quantity, a review row or a
+ * row disclosed without a value. */
+function resultExportContent(packet: JsonObject): string | null {
+  const envelope = packet.result_envelope;
+  if (![envelope?.result_sets, envelope?.review_evidence, envelope?.row_disclosures, envelope?.diagnostics].every(Array.isArray)) return null;
+  const quantities = envelope.result_sets.reduce((count: number, set: JsonObject) => count + (Array.isArray(set.values) ? set.values.length : 0), 0);
+  const reviews = envelope.review_evidence.length, disclosed = envelope.row_disclosures.length;
+  return `${quantities + reviews + disclosed} rows: ${quantities} quantities, ${reviews} review rows, ${disclosed} disclosed without a value; diagnostics=${envelope.diagnostics.length}`;
 }
 
 export function ResultExportPanel({
@@ -54,6 +80,8 @@ export function ResultExportPanel({
     if(result&&analysisRun)buildCurrentResultExport({model,result,analysisRun,inputManifest}).then(doc=>{if(active && capturedFingerprint !== null && liveResultBinding(model,result,analysisRun,inputManifest) === capturedFingerprint){setPacket(doc);setBinding([model,result,analysisRun,inputManifest!]);setPublicationFingerprint(capturedFingerprint);}}).catch(error=>{if(active)setFinding(String(error));});
     return ()=>{active=false;};
   },[model,result,analysisRun,inputManifest]);
+  // The export control's disposition for this row: as given until the control reports it.
+  const disposition = AS_GIVEN;
   const stale = (event: { preventDefault(): void; stopPropagation(): void }) => {
     if (liveResultBinding(model,result,analysisRun,inputManifest) !== publicationFingerprint) {
       event.preventDefault(); event.stopPropagation();
@@ -69,6 +97,12 @@ export function ResultExportPanel({
       icon={<FileJson size={16} aria-hidden="true" />}
       name="Result Export"
       what="Writes the solved result as one local JSON file."
+      press={EXPORT_FORM_WORDS.ownLocalCopy}
+      content={currentPacket && resultExportContent(currentPacket) !== null ? (
+        <ExportLine label="Rows" value={resultExportContent(currentPacket)!} testId="result-export-content" />
+      ) : null}
+      packageRecord={currentPacket ? resultExportPackageRecord(currentPacket) : null}
+      disposition={disposition}
       units={currentPacket ? (
         <ExportLine
           label="Unit witnesses"
@@ -85,8 +119,8 @@ export function ResultExportPanel({
           <LoadReferenceDisclosure text={loadReferenceLine} surface="result-export" />
         </>
       )}
-      action={(open) => currentPacket ? (
-        <ExportStepButton stepTestId="result-export" open={open} />
+      action={({ open, label, write }) => currentPacket ? (
+        write ?? <ExportStepButton stepTestId="result-export" open={open}>{label}</ExportStepButton>
       ) : (
         <>
           <p className="muted export-row-status" id="result-export-empty" data-testid="result-export-empty">
@@ -141,6 +175,7 @@ export function ResultExportPanel({
         <ControlledExportLink
               className="report-export-link"
               data-testid="result-export-link"
+              explicitLocalPrivateIntent={OWN_LOCAL_COPY}
               nativeCurrentBinding={binding}
               download={`openpipestress-preview-results-${safeFileToken(currentPacket.result_envelope.run_ref.ref_id)}.json`}
               href={jsonDataHref(currentPacket)}

@@ -1,11 +1,11 @@
-import {act,fireEvent,render,screen,waitFor} from '@testing-library/react';
+import {act,fireEvent,render,screen,waitFor,within} from '@testing-library/react';
 import {afterEach,it,expect,vi} from 'vitest';
 import {invoke} from '@tauri-apps/api/core';
 import {buildCurrentSessionInputManifest} from '../../services/inputManifestService';
 import {buildAnalysisRunPreview,loadBundledMechanicsReference,runPreviewMechanics} from '../../services/previewService';
 import {buildCurrentResultExport,resultDigest} from './resultExportAdapter';
 import {ResultExportPanel} from './ResultExportPanel';
-import {openExportStep} from '../export-step/openExportStep';
+import {closeExportStep,openExportStep} from '../export-step/openExportStep';
 import {createNativeMechanicsReplay,nativeMechanicsReplayPair} from '../../test/nativeMechanicsReplay';
 import {ingressArgs} from '../../test/nativeIngress';
 vi.mock('@tauri-apps/api/core',()=>({invoke:vi.fn()}));
@@ -28,11 +28,17 @@ async function currentProps(){
 
 it('only exposes invocation-bound JSON and invalidates it on same-id edit',async()=>{
  const props=await currentProps(),view=render(<ResultExportPanel {...props}/>);
- // The save control is in the page only while the step is open.
- await waitFor(()=>expect(screen.getByTestId('result-export-open')).toBeEnabled());expect(screen.queryByTestId('result-export-link')).toBeNull();
- await openExportStep('result-export');
- const button=await screen.findByTestId('result-export-link');expect(button).toBeDisabled();
- fireEvent.click(screen.getByTestId('result-export-link-local-private-intent'));expect(button).toBeEnabled();
+ // DEL-07-12: the file holds the result's content and no loss, unsupported entry or failed validation of the
+ // export, so its row holds the save, with no box: one press writes the person's own local copy, and the record is
+ // one press away.
+ const button=await screen.findByTestId('result-export-link');
+ expect(within(screen.getByTestId('result-export-panel')).getByTestId('result-export-link')).toBe(button);
+ expect(screen.getByTestId('result-export-record-open')).toBeEnabled();expect(screen.queryByTestId('result-export-open')).toBeNull();
+ expect(screen.queryByTestId('result-export-link-local-private-intent')).toBeNull();expect(button).toBeEnabled();
+ expect(screen.getByTestId('result-export-press')).toHaveTextContent("Saves your own local copy, with the project's values.");
+ expect(screen.getByTestId('result-export-content').textContent).toMatch(new RegExp(`^Rows${props.result.results.length} rows: \\d+ quantities, \\d+ review rows, \\d+ disclosed without a value; diagnostics=\\d+$`));
+ const record=await openExportStep('result-export');expect(within(record).getByTestId('result-export-summary')).toHaveTextContent(/^available;/);
+ expect(within(record).queryByTestId('result-export-link')).toBeNull();closeExportStep('result-export');
  expect(button).not.toHaveAttribute('href');
  const packet=await buildCurrentResultExport(props);expect(packet.schema_version).toBe('0.3.0');
  expect(packet.export_format_status.additional_formats).toBe('TBD');
@@ -46,7 +52,7 @@ it('only exposes invocation-bound JSON and invalidates it on same-id edit',async
 it('native save sends exact serialized bytes and suppresses a stale edit completion',async()=>{
  const props=await currentProps();const originalHref=`data:application/json;charset=utf-8,${encodeURIComponent(JSON.stringify(await buildCurrentResultExport(props)))}`;
  const view=render(<ResultExportPanel {...props}/>);
- await openExportStep('result-export');await screen.findByTestId('result-export-link');fireEvent.click(screen.getByTestId('result-export-link-local-private-intent'));
+ await screen.findByTestId('result-export-link');
  const button=screen.getByTestId('result-export-link');expect(button.tagName).toBe('BUTTON');expect(button).not.toHaveAttribute('href');expect(button).not.toHaveAttribute('download');
  let finish!:(value:unknown)=>void;vi.mocked(invoke).mockImplementation((()=>new Promise<unknown>(resolve=>{finish=resolve;})) as typeof invoke);fireEvent.click(button);
  expect(invoke).toHaveBeenCalledTimes(1);const request=ingressArgs(vi.mocked(invoke).mock.calls[0]).request as any;
@@ -57,7 +63,7 @@ it('native save sends exact serialized bytes and suppresses a stale edit complet
  await act(async()=>{finish({outcome:'saved',file_name:request.file_name,byte_count:123,replaced_existing:false,durability:'not_guaranteed',path_containment:'best_effort_non_adversarial'});});expect(screen.queryByTestId('result-export-link-native-save-status')).toBeNull();await waitFor(()=>expect(screen.getByTestId('result-export-empty')).toHaveTextContent('MISMATCH'));
 });
 it('Historical or absent Current manifest cannot expose native save or publish an earlier completion',async()=>{
- const props=await currentProps();const view=render(<ResultExportPanel {...props}/>);await openExportStep('result-export');await screen.findByTestId('result-export-link');fireEvent.click(screen.getByTestId('result-export-link-local-private-intent'));
+ const props=await currentProps();const view=render(<ResultExportPanel {...props}/>);await screen.findByTestId('result-export-link');
  let finish!:(value:unknown)=>void;vi.mocked(invoke).mockImplementation((()=>new Promise<unknown>(resolve=>{finish=resolve;})) as typeof invoke);fireEvent.click(screen.getByTestId('result-export-link'));const request=ingressArgs(vi.mocked(invoke).mock.calls[0]).request as any;
  view.rerender(<ResultExportPanel {...props} inputManifest={null}/>);expect(screen.queryByTestId('result-export-link')).toBeNull();await act(async()=>{finish({outcome:'saved',file_name:request.file_name,byte_count:123,replaced_existing:false,durability:'not_guaranteed',path_containment:'best_effort_non_adversarial'});});await waitFor(()=>expect(screen.getByTestId('result-export-empty')).toHaveTextContent('CURRENT_INPUT_MANIFEST_UNAVAILABLE'));expect(screen.queryByRole('button',{name:'Local result JSON'})).toBeNull();expect(screen.queryByTestId('result-export-link-native-save-status')).toBeNull();
 });
@@ -75,7 +81,7 @@ it('a bundled record stays unavailable even with a correctly bound reference ana
 
 it.each(['source','model','analysis','manifest','mode'] as const)('rejects an in-place %s edit at native save activation',async change=>{
  const props=await currentProps(),view=render(<ResultExportPanel {...props}/>);
- await openExportStep('result-export');await screen.findByTestId('result-export-link');fireEvent.click(screen.getByTestId('result-export-link-local-private-intent'));
+ await screen.findByTestId('result-export-link');
  const button=screen.getByTestId('result-export-link');await waitFor(()=>expect(button).toBeEnabled());
  if(change==='source')props.result.results[0].value+=1;
  else if(change==='model')props.model.project.name+=' changed';

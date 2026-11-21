@@ -11,8 +11,9 @@ import { canonicalSha256HexCheckedV1 } from "../../services/hashService";
 import { render, screen, within } from "@testing-library/react";
 import { describe, expect, it } from "vitest";
 import type { AnalysisRunEnvelope, MechanicsResult, PreviewModel } from "../../types";
-import { LocalFeaHandoffPanel, buildLocalFeaHandoffPacket } from "./LocalFeaHandoffPanel";
-import { openExportStep } from "../export-step/openExportStep";
+import { LOCAL_FEA_RESULT_ROW_UNIT_OMITTED, LocalFeaHandoffPanel, buildLocalFeaHandoffPacket, localFeaPackageRecord } from "./LocalFeaHandoffPanel";
+import { AS_GIVEN, chooseExportForm } from "../export-step/exportForm";
+import { commonTerms, fixedTerms, openExportStep } from "../export-step/openExportStep";
 
 function inventedModel(): PreviewModel {
   return {
@@ -347,5 +348,29 @@ describe("Local FEA manifest result units agree with every referenced row", () =
       `Result row ${TORSION} (MPa) is not referenced: this handoff declares stress_unit Pa, from the governing stress result, and references only stress rows in that unit; nothing is converted.`
     ]);
     expect(packet.handoff_package.unit_preservation_witnesses).toHaveLength(3);
+  });
+});
+
+// DEL-07-12: the format's fixed entries (`FIXED_ENTRIES`) are exactly what packages from two different models hold
+// in common; this model's own entries open the record first, and a package holding only the fixed ones writes on
+// the press.
+describe("Local FEA record entries and the row's form", () => {
+  it("the bundled demo and an invented model hold exactly the fixed entries in common", async () => {
+    const demo = localFeaPackageRecord(buildLocalFeaHandoffPacket(await referenceAnalysis()));
+    const invented = localFeaPackageRecord(buildLocalFeaHandoffPacket({
+      model: inventedModel(),
+      result: inventedResult({
+        max_displacement: { value: 0.004, unit: "m", location_ref: "node:N-2", result_ref: "result:disp:node-N-2" },
+        max_open_formula_stress: { value: 12500000, unit: "Pa", location_ref: "pipe:P-1", result_ref: "result:stress:pipe-P-1" }
+      }),
+      analysisRun: inventedAnalysisRun()
+    }));
+    expect(commonTerms(demo, invented)).toEqual(fixedTerms("local-fea"));
+    // The invented model's package holds only the fixed entries: its row writes on the press.
+    expect(chooseExportForm(invented, AS_GIVEN).form).toBe("write-on-press");
+    // The demo's component body and its omitted row are its own: the record opens first, with them at its head.
+    const form = chooseExportForm(demo, AS_GIVEN);
+    expect(form.form).toBe("record-first");
+    if (form.form === "record-first") expect(form.causes.map((entry) => entry.term).sort()).toEqual(["LOCAL-FEA-COMPONENT-BODY-REFERENCE-SECTION", LOCAL_FEA_RESULT_ROW_UNIT_OMITTED].sort());
   });
 });

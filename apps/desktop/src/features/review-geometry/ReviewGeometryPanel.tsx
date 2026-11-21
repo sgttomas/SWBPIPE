@@ -1,6 +1,7 @@
 import type { SessionAnalysisRun, SessionResult } from "../../services/nativeResult";
 import { Boxes, Download } from "lucide-react";
 import { ExportRow, ExportStepButton } from "../export-step/ExportStep";
+import { AS_GIVEN, EXPORT_FORM_WORDS, type PackageRecord } from "../export-step/exportForm";
 import type { AnalysisRunEnvelope, MechanicsResult, ObjectRef, PreviewModel, Vec3 } from "../../types";
 
 type GltfPositionGroup = {
@@ -61,6 +62,8 @@ export function ReviewGeometryPanel({
   analysisRun: SessionAnalysisRun | null;
 }) {
   const packet = buildReviewGeometryPacket({ model, result, analysisRun });
+  // The export control's disposition for this row: as given until the control reports it.
+  const disposition = AS_GIVEN;
 
   return (
     <ExportRow
@@ -71,6 +74,8 @@ export function ReviewGeometryPanel({
       icon={<Boxes size={16} aria-hidden="true" />}
       name="Review Geometry Export"
       what="Writes the pipe centrelines as a glTF file for visual review only."
+      label={EXPORT_FORM_WORDS.preview}
+      notWritten={reviewGeometryNotWritten(packet)}
       units={(
         <ReviewGeometryLine
           label="Unit witnesses"
@@ -78,7 +83,9 @@ export function ReviewGeometryPanel({
           testId="review-geometry-unit-witnesses"
         />
       )}
-      action={(open) => <ExportStepButton stepTestId="review-geometry" open={open} />}
+      packageRecord={reviewGeometryPackageRecord(packet)}
+      disposition={disposition}
+      action={({ open, label, write }) => write ?? <ExportStepButton stepTestId="review-geometry" open={open}>{label}</ExportStepButton>}
       record={(
         <>
           <span className="export-step-summary" data-testid="review-geometry-summary">
@@ -136,6 +143,23 @@ export function ReviewGeometryPanel({
       )}
     />
   );
+}
+
+/** The package's record entries for the row's form: its loss entries and its diagnostics, in the generator's terms. */
+export function reviewGeometryPackageRecord(packet: ReturnType<typeof buildReviewGeometryPacket>): PackageRecord {
+  return {
+    format: "review-geometry",
+    entries: [
+      ...packet.loss_report.entries.map((entry) => ({ kind: "loss" as const, term: entry.loss_id, category: entry.category, severity: entry.severity, text: entry.downstream_implication })),
+      ...packet.diagnostics.map((item) => ({ kind: "finding" as const, term: item.code, severity: item.severity, text: item.message }))
+    ],
+    validation: null
+  };
+}
+
+/** What the file does not write, in the generator's own words: its omitted and TBD loss entries. */
+function reviewGeometryNotWritten(packet: ReturnType<typeof buildReviewGeometryPacket>): string {
+  return packet.loss_report.entries.filter((entry) => entry.category === "omitted" || entry.category === "TBD").map((entry) => entry.downstream_implication).join(" ");
 }
 
 function ReviewGeometryLine({ label, value, testId }: { label: string; value: string; testId: string }) {

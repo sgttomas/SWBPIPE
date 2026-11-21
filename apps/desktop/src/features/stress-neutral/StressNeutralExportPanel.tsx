@@ -11,6 +11,7 @@ import type { RowClassification } from "../results/retainedPrecisionTypes";
 import { verifyAnalysisRunRecord, validateAnalysisRunV03, analysisRowSemantics, sourceBasisReference, modelLoadBasisRefs } from "../../services/analysisRunCompatibility";
 import { Download, FileJson } from "lucide-react";
 import { ExportRow, ExportStepButton } from "../export-step/ExportStep";
+import { AS_GIVEN, EXPORT_FORM_WORDS, type PackageRecord } from "../export-step/exportForm";
 import { useEffect, useState } from "react";
 import { canonicalSha256HexCheckedV1, canonicalJsonCheckedV1, checkedJsonText } from "../../services/hashService";
 import type { AnalysisRunEnvelope, MechanicsResult, PreviewModel, ObjectRef } from "../../types";
@@ -69,6 +70,23 @@ export function liveStressBinding(model: PreviewModel, result: MechanicsResult |
   } catch { return null; }
 }
 
+/** The person's own local copy: the row's press states the intent to save it, with the project's values, so the
+ * JSON link shows no box of its own. The one place this row passes it. */
+const OWN_LOCAL_COPY = true;
+
+/** The package's record entries for the row's form: its loss entries and its diagnostics, with its validation
+ * state, in the generator's terms. */
+export function stressNeutralPackageRecord(packet: any): PackageRecord {
+  return {
+    format: "stress-neutral",
+    entries: [
+      ...packet.loss_report.map((entry: any) => ({ kind: "loss" as const, term: entry.loss_id, category: entry.category, severity: entry.severity, text: entry.reason })),
+      ...packet.diagnostics.map((item: any) => ({ kind: "finding" as const, term: item.code, severity: item.severity, text: item.message }))
+    ],
+    validation: { status: packet.validation_report.validation_status, passed: packet.validation_report.validation_status === "passed" }
+  };
+}
+
 export function StressNeutralExportPanel({
   model,
   result,
@@ -91,6 +109,8 @@ export function StressNeutralExportPanel({
     && currentFingerprint !== null && currentFingerprint === publicationFingerprint
     ? packet
     : null;
+  // The export control's disposition for this row: as given until the control reports it.
+  const disposition = AS_GIVEN;
   useEffect(() => {
     let current = true;
     setPacket(null);
@@ -122,6 +142,9 @@ export function StressNeutralExportPanel({
       icon={<FileJson size={16} aria-hidden="true" />}
       name="Stress-neutral CSV/JSON"
       what="Writes the solved result rows as a CSV file and a JSON package that carries them with their units."
+      press={EXPORT_FORM_WORDS.ownLocalCopy}
+      packageRecord={currentPacket ? stressNeutralPackageRecord(currentPacket) : null}
+      disposition={disposition}
       units={currentPacket ? (
         <StressNeutralLine
           label="Units"
@@ -138,8 +161,8 @@ export function StressNeutralExportPanel({
           <LoadReferenceDisclosure text={loadReferenceLine} surface="stress-neutral" />
         </>
       )}
-      action={(open) => currentPacket ? (
-        <ExportStepButton stepTestId="stress-neutral" open={open} />
+      action={({ open, label, write }) => currentPacket ? (
+        write ?? <ExportStepButton stepTestId="stress-neutral" open={open}>{label}</ExportStepButton>
       ) : outputRefusal ? (
         <>
           <p className="muted export-row-status" role="status" id="stress-neutral-refusal" data-testid="stress-neutral-load-reference-output-unavailable">{outputRefusal}</p>
@@ -203,6 +226,7 @@ export function StressNeutralExportPanel({
         <ControlledExportLink
               className="report-export-link"
               data-testid="stress-neutral-export-link"
+              explicitLocalPrivateIntent={OWN_LOCAL_COPY}
               nativeCurrentBinding={binding}
               download={`openpipestress-preview-stress-neutral-${safeFileToken(currentPacket.source_result_ref.ref)}.json`}
               href={jsonDataHref(currentPacket)}

@@ -4,6 +4,7 @@ import { componentBodyNotices } from "../results/componentBody";
 import { analysisResultHashScope } from "../results/analysisResultHashScope";
 import { Download, FileJson } from "lucide-react";
 import { ExportRow, ExportStepButton, Rendered } from "../export-step/ExportStep";
+import { AS_GIVEN, EXPORT_FORM_WORDS, type ControlDisposition, type PackageRecord } from "../export-step/exportForm";
 import { useState } from "react";
 import type { AnalysisRunEnvelope, Diagnostic, MechanicsResult, PreviewModel } from "../../types";
 import { missingExportProjectUnits, storedExportProjectUnit, type ExportProjectUnitUse } from "../project-units/exportProjectUnits";
@@ -60,6 +61,9 @@ export function LocalFeaHandoffPanel({
   const packet = result && analysisRun && !refusal ? buildLocalFeaHandoffPacket({ model, result, analysisRun }) : null;
   // Whether the output gate admits this result: read from the gate itself (`Rendered`).
   const [admitted, setAdmitted] = useState(false);
+  // The export control's disposition for this row: as given until the control reports it; withheld where the
+  // output gate's refusal stands in place of the save (its words are in the row).
+  const disposition: ControlDisposition = admitted ? AS_GIVEN : { kind: "withheld", reason: "" };
 
   return (
     <ExportRow
@@ -70,6 +74,8 @@ export function LocalFeaHandoffPanel({
       icon={<FileJson size={16} aria-hidden="true" />}
       name="Local FEA Handoff"
       what="Writes a local region of the solved model and its result references as a JSON handoff package; no mesh or solver input."
+      label={EXPORT_FORM_WORDS.preview}
+      notWritten={packet ? localFeaNotWritten(packet) : null}
       units={packet ? (
         <LocalFeaLine
           label="Unit witnesses"
@@ -78,11 +84,13 @@ export function LocalFeaHandoffPanel({
         />
       ) : null}
       notices={<KnownSemanticNotices result={result} testIdPrefix="local-fea-handoff" />}
-      action={(open) => packet ? (
+      packageRecord={packet ? localFeaPackageRecord(packet) : null}
+      disposition={disposition}
+      action={({ open, label, write }) => packet ? (
         <>
           {/* The output gate's refusal for a gated result, in place of the save as before; the record stays. */}
           <LoadReferenceOutputGate result={result} testIdPrefix="local-fea"><Rendered onChange={setAdmitted} /></LoadReferenceOutputGate>
-          <ExportStepButton stepTestId="local-fea" open={open}>{admitted ? "Export…" : "Review…"}</ExportStepButton>
+          {write ?? <ExportStepButton stepTestId="local-fea" open={open}>{label}</ExportStepButton>}
         </>
       ) : refusal ? (
         <LoadReferenceOutputGate result={result} testIdPrefix="local-fea">
@@ -172,6 +180,26 @@ export function LocalFeaHandoffPanel({
       ) : null}
     />
   );
+}
+
+/** The package's record entries for the row's form: its unsupported-behaviour flags and its diagnostics, in the
+ * generator's terms. */
+export function localFeaPackageRecord(packet: ReturnType<typeof buildLocalFeaHandoffPacket>): PackageRecord {
+  return {
+    format: "local-fea",
+    entries: [
+      ...packet.handoff_package.unsupported_behavior_flags.map((item) => ({ kind: "unsupported" as const, term: item.behavior_label, category: item.status })),
+      ...packet.handoff_package.diagnostics.map((item) => ({ kind: "finding" as const, term: item.code, severity: item.severity, text: item.message }))
+    ],
+    validation: null
+  };
+}
+
+/** What the package does not write, in the generator's own words: its findings on the mesh, the target format and
+ * the external solver. */
+function localFeaNotWritten(packet: ReturnType<typeof buildLocalFeaHandoffPacket>): string {
+  const said = new Map(packet.handoff_package.diagnostics.map((item) => [item.code, item.message]));
+  return ["LOCAL-FEA-MESH-NOT-GENERATED", "LOCAL-FEA-TARGET-FORMAT-TBD", "LOCAL-FEA-EXTERNAL-SOLVER-NOT-INVOKED"].map((code) => said.get(code)).filter(Boolean).join(" ");
 }
 
 function regionBodyNotices(result: MechanicsResult, packet: ReturnType<typeof buildLocalFeaHandoffPacket>): string[] {

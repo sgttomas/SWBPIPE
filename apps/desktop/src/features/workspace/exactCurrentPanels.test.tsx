@@ -163,13 +163,14 @@ describe.each(CASES)("an eligible pressure-2 %s Current result reaches the Curre
 
     // ReviewGeometryPanel: one glTF review download, which names the result by run_id only.
     const reviewView = render(<ReviewGeometryPanel model={model!} result={result} analysisRun={analysisRun} />);
-    // The download is in the step between the row's button and the save.
-    expect(reviewView.container.querySelectorAll("[data-testid$='-export-link']")).toHaveLength(0);
-    fireEvent.click(within(reviewView.container).getByTestId("review-geometry-open"));
+    // DEL-07-12: the package holds only the format's standing limits, so the download is in the row, and the record
+    // its Record control opens holds no second one.
+    expect(reviewView.container.querySelectorAll("[data-testid$='-export-link']")).toHaveLength(1);
+    const link = within(reviewView.container).getByTestId("review-geometry-export-link");
+    fireEvent.click(within(reviewView.container).getByTestId("review-geometry-record-open"));
     const reviewStep = screen.getByTestId("review-geometry-step");
     expect(reviewStep).toHaveAttribute("role", "dialog");
-    const link = within(reviewStep).getByTestId("review-geometry-export-link");
-    expect(reviewStep.querySelectorAll("[data-testid$='-export-link']")).toHaveLength(1);
+    expect(reviewStep.querySelectorAll("[data-testid$='-export-link']")).toHaveLength(0);
     const packet = buildReviewGeometryPacket({ model: model!, result, analysisRun });
     // The link exposes its data href only after the user's explicit local intent; when
     // exposed, it is exactly this packet.

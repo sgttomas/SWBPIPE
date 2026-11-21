@@ -4711,7 +4711,7 @@ body { min-width: 760px; min-height: 540px; }
 .app-shell .export-list > li > .panel > .report-actions { grid-column: 3; grid-row: 1; margin: 0; display: block; }
 .app-shell .export-list > li > .panel > .report-actions > button { width: 100%; }
 .app-shell .export-list > li > :not(.panel) { margin: 0; padding: var(--space-3) var(--space-4); }
-.app-shell .export-list > li > .export-row { grid-template-areas: "name body open" "name status open" "name note open"; row-gap: 0; }
+.app-shell .export-list > li > .export-row { grid-template-areas: "name body open" "name status open" "name saves saves" "name note open"; row-gap: 0; }
 .app-shell .export-row > .panel-title { grid-area: name; margin: 0; }
 .app-shell .export-row > .export-row-body { grid-area: body; display: grid; gap: 2px; }
 .app-shell .export-row > .export-row-action { display: contents; }
@@ -4724,6 +4724,16 @@ body { min-width: 760px; min-height: 540px; }
 .app-shell .export-row .export-row-units .report-line { display: block; padding: 0; border: 0; background: none; overflow-wrap: anywhere; }
 .app-shell .export-row .export-row-units .report-line span::after { content: ": "; }
 .app-shell .export-row .export-row-units .report-line strong { font-weight: var(--type-weight-regular); }
+/* A row that writes on the press holds its save controls under its lines, across the body and button columns, and
+   its Record control where the button is. Its standing limits are a line, or their count as a quiet text control. */
+.app-shell .export-row > .export-row-action > .report-actions { grid-area: saves; grid-column: 2 / 4; margin: var(--space-2) 0 0; }
+.app-shell .export-row .export-row-press, .app-shell .export-row .export-row-not-written,
+.app-shell .export-row .export-row-exchange, .app-shell .export-row .export-row-standing { margin: 0; overflow-wrap: anywhere; }
+.app-shell .export-row .export-row-not-written, .app-shell .export-row .export-row-exchange { color: var(--ui-muted); }
+.app-shell .export-row .export-row-content .report-line { display: block; padding: 0; border: 0; background: none; overflow-wrap: anywhere; }
+.app-shell .export-row .export-row-content .report-line span::after { content: ": "; }
+.app-shell .export-row .export-row-content .report-line strong { font-weight: var(--type-weight-regular); }
+.app-shell .export-row button.export-row-standing { justify-self: start; min-height: 0; padding: 0; border: 0; background: none; color: var(--ui-text); text-decoration: underline; text-underline-offset: 2px; cursor: pointer; }
 /* The step between an export's button and its save: a dialog over the page, scrolling inside itself. It is
    portalled outside .app-shell, so it takes the shell's text tokens from the theme here. */
 .export-step-dialog {
@@ -4748,6 +4758,13 @@ body { min-width: 760px; min-height: 540px; }
 .export-step-dialog .report-export-link { color: var(--ui-text); background: var(--surface-panel); border-color: var(--prompt-control-border); font-weight: var(--type-weight-semibold); }
 .export-step-dialog .controlled-export-control > .report-export-link, .export-step-dialog .controlled-export-control > button { justify-self: start; }
 .export-step-dialog .export-step-footer { display: flex; justify-content: flex-end; }
+/* What stands in the way heads a record that opens before the file is written; every entry follows the record. */
+.export-step-dialog .export-step-causes { padding: var(--space-2) var(--space-3); border: 1px solid var(--ui-divider); border-inline-start: 3px solid var(--issue-warning); background: var(--ui-raised); }
+.export-step-dialog .export-step-causes > h3 { margin: 0 0 4px; font-size: var(--type-size-body); }
+.export-step-dialog .export-step-causes ul, .export-step-dialog .export-step-entries ul { margin: 0; padding-inline-start: 18px; display: grid; gap: 2px; }
+.export-step-dialog .export-step-causes li, .export-step-dialog .export-step-entries li { overflow-wrap: anywhere; }
+.export-step-dialog .export-step-entries > summary { cursor: pointer; color: var(--ui-muted); }
+.export-step-dialog .export-row-not-written, .export-step-dialog .export-row-exchange, .export-step-dialog .export-step-reason { margin: 0; }
 
 /* Telemetry on the Evidence page: a closed disclosure whose summary is its state and reason. */
 .app-shell .telemetry-boundary-panel > summary { font-weight: var(--type-weight-semibold); }

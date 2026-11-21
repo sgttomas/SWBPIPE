@@ -1,6 +1,7 @@
 import type { SessionAnalysisRun, SessionResult } from "../../services/nativeResult";
 import { Download, FileText } from "lucide-react";
 import { ExportRow, ExportStepButton, Rendered } from "../export-step/ExportStep";
+import { AS_GIVEN, EXPORT_FORM_WORDS, type ControlDisposition, type PackageRecord } from "../export-step/exportForm";
 import { useState } from "react";
 import { LoadReferenceOutputGate } from "../results/LoadReferenceOutputGate";
 import { usePackageHash, withCanonicalPackageHash } from "../../services/usePackageHash";
@@ -100,6 +101,9 @@ export function PcfExportPanel({
   const refused = Boolean(projectUnitRefusal || lengthRefusal);
   // Whether the output gate admits this result: read from the gate itself (`Rendered`).
   const [admitted, setAdmitted] = useState(false);
+  // The export control's disposition for this row: as given until the control reports it; withheld where the
+  // output gate or this panel's own unit refusal stands in place of the save (its words are in the row and record).
+  const disposition: ControlDisposition = admitted && !refused ? AS_GIVEN : { kind: "withheld", reason: "" };
 
   return (
     <ExportRow
@@ -110,6 +114,8 @@ export function PcfExportPanel({
       icon={<FileText size={16} aria-hidden="true" />}
       name="Conservative PCF Export"
       what="Writes the pipe segments as PCF text, with a JSON package that lists what PCF leaves out."
+      label={EXPORT_FORM_WORDS.preview}
+      notWritten={pcfNotWritten(packet)}
       units={(
         <PcfLine
           label="Units"
@@ -117,7 +123,9 @@ export function PcfExportPanel({
           testId="pcf-export-units"
         />
       )}
-      action={(open) => (
+      packageRecord={pcfPackageRecord(packet)}
+      disposition={disposition}
+      action={({ open, label, write }) => (
         <>
         {/* The output gate's refusal for a gated result, in place of the export's save as before (§7.4's and §7.5's
             refusals come after it, as they did inside it). */}
@@ -127,9 +135,11 @@ export function PcfExportPanel({
         ) : admitted && lengthRefusal ? (
           <p className="muted export-row-status" role="status" id="pcf-export-refusal" data-testid="pcf-export-length-unit-refused">{lengthRefusal}</p>
         ) : null}
+        {write ?? (
         <ExportStepButton stepTestId="pcf-export" open={open} describedBy={refused ? "pcf-export-refusal" : undefined}>
-          {admitted && !refused ? "Export…" : "Review…"}
+          {label}
         </ExportStepButton>
+        )}
         </>
       )}
       record={(
@@ -229,6 +239,25 @@ function PcfLine({ label, value, testId }: { label: string; value: string; testI
       <strong>{value}</strong>
     </div>
   );
+}
+
+/** The package's record entries for the row's form: its loss entries and its diagnostics, with its validation
+ * state, in the generator's terms. */
+export function pcfPackageRecord(packet: ReturnType<typeof buildPcfExportPacket>): PackageRecord {
+  return {
+    format: "pcf",
+    entries: [
+      ...packet.loss_report.map((entry) => ({ kind: "loss" as const, term: entry.loss_id, category: entry.category, severity: entry.severity, text: entry.reason })),
+      ...packet.diagnostics.map((item) => ({ kind: "finding" as const, term: item.code, severity: item.severity, text: item.message }))
+    ],
+    validation: { status: packet.validation_report.validation_status, passed: packet.validation_report.validation_status === "passed" }
+  };
+}
+
+/** What the file does not write, in the generator's own words: the profile's note naming nominal size, the target
+ * profile and supports. */
+function pcfNotWritten(packet: ReturnType<typeof buildPcfExportPacket>): string {
+  return packet.export_profile.boundary_notes[2];
 }
 
 export function buildPcfExportPacket({
