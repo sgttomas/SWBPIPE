@@ -9,7 +9,7 @@ import { act, cleanup, fireEvent, render, screen, waitFor, within } from "@testi
 import { afterEach, describe, expect, it, vi } from "vitest";
 import { SupportConfigurationForm } from "./SupportConfigurationForm";
 import { makeRichIntent } from "../rich-authoring/formSupport";
-import { DIRECTION_REMOVAL_FIELD_LABEL, DIRECTION_REMOVAL_REASON, SUPPORT_DIRECTION_FIELD_PATH } from "../hanger-selection/hangerSelection";
+import { buildDirectionRemovalChange, DIRECTION_REMOVAL_FIELD_LABEL, DIRECTION_REMOVAL_REASON, SUPPORT_DIRECTION_FIELD_PATH } from "../hanger-selection/hangerSelection";
 import { useWorkspaceSession } from "../workspace/workspaceSession";
 import { canonicalJsonString, computeModelHash } from "../../services/hashService";
 import { applyModelOperation } from "../../services/operationService";
@@ -17,7 +17,6 @@ import * as operationBatchService from "../../services/operationBatchService";
 import * as previewService from "../../services/previewService";
 import type { EditorOperationIntent, PreviewModel } from "../../types";
 import {
-  buildDirectionRemovalIntent,
   DIRECTION_CLEARED_TEXT,
   directionRemovalRefusedText,
   directionRemovalStatement,
@@ -89,7 +88,7 @@ describe("the form's words and field names for the removal are hanger selection'
   it("says the reason by hanger selection's exported constant, and names the removal by its exported field path and label", () => {
     expect(directionRemovalStatement(STORED_TEXT)).toBe(`Adding the hanger removes this support's stored direction ${STORED_TEXT}. ${DIRECTION_REMOVAL_REASON}`);
     expect(directionRemovalStatement(STORED_TEXT)).toBe(STATEMENT);
-    expect(buildDirectionRemovalIntent("support:s", "{}", "test").change).toMatchObject({
+    expect(buildDirectionRemovalChange("support:s", "{}", "test").change).toMatchObject({
       field_path: SUPPORT_DIRECTION_FIELD_PATH, field_label: DIRECTION_REMOVAL_FIELD_LABEL, source_note: DIRECTION_REMOVAL_REASON
     });
   });
@@ -302,7 +301,7 @@ describe("the engine's refusals of the pair, shown by the form's own statements"
   it("OP-BEFORE-VALUE-MISMATCH on the removal: the stored direction changed; reopen the support", async () => {
     const model = await skewModel(), support = model.supports[0];
     // The engine's own answer to a removal whose before is a direction the record no longer holds.
-    const stale = buildDirectionRemovalIntent(support.id, await canonicalJsonString({ x: 0, y: 1, z: 0 }), "stale");
+    const stale = buildDirectionRemovalChange(support.id, await canonicalJsonString({ x: 0, y: 1, z: 0 }), "stale");
     const before = projection(support);
     const configuration = makeRichIntent({ object_type: "Support", ref: support.id }, "update_support", "configuration", await canonicalJsonString(before), { ...before, hanger: {} }, "Support configuration");
     const answer = await validateOperationBatch(model, { batch_id: "batch:stale", operations: [stale, configuration] }, await computeModelHash(model));

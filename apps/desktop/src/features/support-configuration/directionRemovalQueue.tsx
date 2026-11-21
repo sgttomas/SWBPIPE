@@ -8,9 +8,9 @@ import { canonicalJsonString, computeModelHash } from "../../services/hashServic
 import { validateOperationBatch } from "../../services/operationBatchService";
 import type { EditorOperationIntent, OperationOutcomeDiagnostic } from "../../types";
 import { isBlocking } from "../condition-sets/engineCheckedQueue";
-import { SUPPORT_DIRECTION_FIELD_PATH } from "../hanger-selection/hangerSelection";
+import { buildDirectionRemovalChange, SUPPORT_DIRECTION_FIELD_PATH } from "../hanger-selection/hangerSelection";
 import { clone, makeRichIntent, type RichFormProps } from "../rich-authoring/formSupport";
-import { buildDirectionRemovalIntent, directionRemovalRefusedText, directionRemovalStatement, STORED_DIRECTION_CHANGED_TEXT } from "./supportDirection";
+import { directionRemovalRefusedText, directionRemovalStatement, STORED_DIRECTION_CHANGED_TEXT } from "./supportDirection";
 
 /** The engine's codes this pair answers with its own statement: the hanger on a record that still holds the
  * direction, and a removal whose before is no longer the stored direction. */
@@ -54,7 +54,7 @@ export function useDirectionRemovalQueue(props: RichFormProps) {
         && ([SUPPORT_DIRECTION_FIELD_PATH, "configuration"].includes(i.change.field_path) || i.change.change_kind === "create_support")))
         throw new Error("Review or remove the pending change for this record before queuing another.");
       const statement = directionRemovalStatement(request.storedText);
-      const removal = buildDirectionRemovalIntent(request.supportId, await canonicalJsonString(request.direction),
+      const removal = buildDirectionRemovalChange(request.supportId, await canonicalJsonString(request.direction),
         `${statement} Queued by the support configuration form ahead of the configuration that adds the hanger.`);
       const configuration: EditorOperationIntent = makeRichIntent({ object_type: "Support", ref: request.supportId }, "update_support", "configuration",
         await canonicalJsonString(clone(request.before)), clone(request.after), "Support configuration");

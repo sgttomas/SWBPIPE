@@ -6,9 +6,7 @@
 // admission) refuses by name, and the form shows its finding in place.
 import { parseNumber } from "../model-tree/runSheet/runSheetModel";
 import type { SupportDirection } from "../../types";
-import type { EditorOperationIntent } from "../../types";
-import { DIRECTION_REMOVAL_FIELD_LABEL, DIRECTION_REMOVAL_REASON, engineHangerKind, SUPPORT_DIRECTION_FIELD_PATH } from "../hanger-selection/hangerSelection";
-import { draftIntent } from "../offline-proposal-intake/workflowSupport";
+import { DIRECTION_REMOVAL_REASON, engineHangerKind } from "../hanger-selection/hangerSelection";
 
 export const DIRECTION_AXES = ["x", "y", "z"] as const;
 export type DirectionAxis = (typeof DIRECTION_AXES)[number];
@@ -96,19 +94,3 @@ export function directionRemovalRefusedText(stored: string): string {
 /** The removal's before no longer matches the stored direction (OP-BEFORE-VALUE-MISMATCH). */
 export const STORED_DIRECTION_CHANGED_TEXT = "The stored direction of this support changed since the form opened, so nothing was queued. Reopen the support.";
 
-/** The explicit removal of support `supportId`'s stored direction, whose canonical JSON is `stored` (the same canonical
- * JSON function the configuration's before uses): update_support on the field path hanger selection names, after
- * `not_present`, with hanger selection's label and reason. The form queues it ahead of the configuration. */
-export function buildDirectionRemovalIntent(supportId: string, stored: string, rationale: string): EditorOperationIntent {
-  return draftIntent({
-    operation_kind: "modify",
-    target: { object_type: "Support", ref: supportId },
-    change: {
-      change_id: `change:${crypto.randomUUID()}`, change_kind: "update_support",
-      field_label: DIRECTION_REMOVAL_FIELD_LABEL, field_path: SUPPORT_DIRECTION_FIELD_PATH,
-      before: stored, after: "not_present", unit: "none", dimension: "dimensionless",
-      source_note: DIRECTION_REMOVAL_REASON
-    },
-    rationale
-  });
-}

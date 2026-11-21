@@ -174,6 +174,23 @@ export function directionRemovalText(supportId: string, stored: string): string 
   return `Applying this selection removes the stored direction ${stored} of support ${supportId}. ${DIRECTION_REMOVAL_REASON}`;
 }
 
+/** The explicit removal of support `supportId`'s stored direction, whose canonical JSON is `stored`: update_support on
+ * `SUPPORT_DIRECTION_FIELD_PATH`, after `not_present`. The one builder of it, for the selection and the support form;
+ * each passes its own rationale. */
+export function buildDirectionRemovalChange(supportId: string, stored: string, rationale: string): OperationBatch["operations"][number] {
+  return draftIntent({
+    operation_kind: "modify",
+    target: { object_type: "Support", ref: supportId },
+    change: {
+      change_id: `change:${crypto.randomUUID()}`, change_kind: "update_support",
+      field_label: DIRECTION_REMOVAL_FIELD_LABEL, field_path: SUPPORT_DIRECTION_FIELD_PATH,
+      before: stored, after: "not_present", unit: "none", dimension: "dimensionless",
+      source_note: DIRECTION_REMOVAL_REASON
+    },
+    rationale
+  });
+}
+
 /** The direction removals a batch makes, each with the text the person reads before applying it. */
 export function directionRemovals(batch: OperationBatch): { supportId: string; stored: string; text: string }[] {
   return batch.operations
@@ -278,17 +295,8 @@ export async function buildHangerSelectionBatch(model: PreviewModel, document: H
   // configuration, shown to the person before it is applied; never dropped as a side effect of the replacement.
   const stored = old && Object.prototype.hasOwnProperty.call(old, "direction") && (old as { direction?: unknown }).direction !== undefined
     ? await canonicalJsonString((old as { direction?: unknown }).direction) : null;
-  const removal = stored === null ? [] : [draftIntent({
-    operation_kind: "modify",
-    target: { object_type: "Support", ref: target.supportId },
-    change: {
-      change_id: `change:${crypto.randomUUID()}`, change_kind: "update_support",
-      field_label: DIRECTION_REMOVAL_FIELD_LABEL, field_path: SUPPORT_DIRECTION_FIELD_PATH,
-      before: stored, after: "not_present", unit: "none", dimension: "dimensionless",
-      source_note: DIRECTION_REMOVAL_REASON
-    },
-    rationale: `${directionRemovalText(target.supportId, stored)} The removal is applied with the selection, in the same batch.`
-  })];
+  const removal = stored === null ? [] : [buildDirectionRemovalChange(target.supportId, stored,
+    `${directionRemovalText(target.supportId, stored)} The removal is applied with the selection, in the same batch.`)];
   const operations = [...removal, draftIntent({
     operation_kind: target.newSupport ? "create" : "modify",
     target: { object_type: "Support", ref: target.supportId },
