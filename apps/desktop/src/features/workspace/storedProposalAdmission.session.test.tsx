@@ -15,7 +15,6 @@ import * as projectService from "../../services/projectService";
 import { createLocalProject, findLocalProject, getLocalStorageCapability, openLocalProject, saveLocalProject, saveLocalProjectKeepingStoredProposal } from "../../services/projectService";
 import * as hashService from "../../services/hashService";
 import { computeModelHash, computeProjectEnvelopeHash } from "../../services/hashService";
-import * as previewService from "../../services/previewService";
 import { loadDesignKnowledge, loadSampleProposal } from "../../services/previewService";
 import { REPLACE_REMOVES_STORED_PROPOSAL, STORED_PROPOSAL_NOT_ADMITTED, admitStoredProposal, storedEditorIntentsSentence, storedProposalSentence } from "./storedProposalAdmission";
 import type { AgentProposal, PreviewModel } from "../../types";
