@@ -179,8 +179,8 @@ describe("PropertyInspector views", () => {
     expect(screen.getByRole("heading", { level: 2 })).toHaveTextContent("3 selected items");
     const aggregate = byId("aggregate-property-inspector");
     expect(within(aggregate).getByRole("button", { name: "Start property task" })).toBeDisabled();
-    expect(aggregate).toHaveTextContent("nodes2");
-    expect(aggregate).toHaveTextContent("pipe1");
+    expect(aggregate).toHaveTextContent("Nodes2");
+    expect(aggregate).toHaveTextContent("Pipe1");
     expect(aggregate).toHaveTextContent("Primarynode: node:A");
     fireEvent.click(screen.getByRole("tab", { name: "Task" }));
     expect(byId("inspector-start-task")).toBeDisabled();

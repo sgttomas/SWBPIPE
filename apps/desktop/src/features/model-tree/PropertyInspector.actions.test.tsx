@@ -88,6 +88,24 @@ describe("a selection shows itself", () => {
     expect(screen.getByText("Add a support here", { selector: "summary" })).toBeVisible();
   });
 
+  it("puts a creation form away when another entity is inspected, keeping its draft for its command", () => {
+    const model = inventedModel();
+    const props = { model, onQueueIntent: vi.fn() };
+    const nodeM: EntityRef = { type: "node", id: "node:M" };
+    const nodeA: EntityRef = { type: "node", id: "node:A" };
+    const view = render(<DisplayUnitsProvider initialPreference="SI"><PropertyInspector {...props} selection={nodeM} taskRequest={{ sequence: 1, target: nodeM, view: "properties", focusTestId: "create-support-id" }} /></DisplayUnitsProvider>);
+    const area = screen.getByTestId("inspector-creation-support");
+    expect(area).toBeVisible();
+    fireEvent.change(screen.getByTestId("create-support-id"), { target: { value: "support:kept" } });
+    view.rerender(<DisplayUnitsProvider initialPreference="SI"><PropertyInspector {...props} selection={nodeA} taskRequest={{ sequence: 1, target: nodeM, view: "properties", focusTestId: "create-support-id" }} /></DisplayUnitsProvider>);
+    expect(screen.getByTestId("inspector-creation-support")).not.toBeVisible();
+    view.rerender(<DisplayUnitsProvider initialPreference="SI"><PropertyInspector {...props} selection={nodeM} taskRequest={{ sequence: 1, target: nodeM, view: "properties", focusTestId: "create-support-id" }} /></DisplayUnitsProvider>);
+    expect(screen.getByTestId("inspector-creation-support")).not.toBeVisible();
+    view.rerender(<DisplayUnitsProvider initialPreference="SI"><PropertyInspector {...props} selection={nodeM} taskRequest={{ sequence: 2, target: nodeM, view: "properties", focusTestId: "create-support-id" }} /></DisplayUnitsProvider>);
+    expect(screen.getByTestId("inspector-creation-support")).toBeVisible();
+    expect(screen.getByTestId("create-support-id")).toHaveValue("support:kept");
+  });
+
   it("puts one Delete control at the foot of a support's actions, with what it refuses", () => {
     const { queue } = mount({ type: "support", id: "support:A" });
     const remove = screen.getByRole("button", { name: "Delete support" });
@@ -107,9 +125,13 @@ describe("a selection shows itself", () => {
     mount(refs[0], { onChangeSelected: change, selectionState: { orderedKeys: refs.map(entityKey), primaryKey: entityKey(refs[0]), rangeAnchorKey: null, focusKey: null, preparationEpoch: 0 } });
     const aggregate = screen.getByTestId("aggregate-property-inspector");
     expect(aggregate).toBeVisible();
-    expect(aggregate).toHaveTextContent("nodes2");
-    expect(aggregate).toHaveTextContent("support1");
+    expect(aggregate).toHaveTextContent("Nodes2");
+    expect(aggregate).toHaveTextContent("Support1");
     expect(aggregate).not.toHaveTextContent(/draft|typed target/i);
+    // The first entity's own actions (its support line, its Delete) are not shown for several.
+    const actions = screen.getByTestId("property-inspector").querySelector('[role="group"][aria-label="Actions"]');
+    expect(actions).not.toBeNull();
+    expect(actions).not.toBeVisible();
     fireEvent.click(within(aggregate).getByRole("button", { name: "Change selected…" }));
     expect(change).toHaveBeenCalledTimes(1);
   });

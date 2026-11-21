@@ -97,9 +97,10 @@ export function PropertyInspector({
   taskRequest?: Readonly<{ sequence: number; target: EntityRef; view: "properties" | "task"; focusTestId: string; elementId?: string }> | null;
 }) {
   const [inspectorView, setInspectorView] = useState<"properties" | "task">("properties");
-  // The creation form a command asked for (Insert, the command box, the view's insert bar), or none.
-  // A closed form keeps its draft.
-  const [creationForm, setCreationForm] = useState<CreationForm | null>(null);
+  // The creation form a command asked for (Insert, the command box, the view's insert bar), and the
+  // entity it was asked for on, or none. It shows only while that entity is the one inspected; a
+  // closed or hidden form keeps its draft.
+  const [creationRequest, setCreationRequest] = useState<{ kind: CreationForm; on: string } | null>(null);
   // The user's open/closed choice for "All properties" holds across selection changes (component state only).
   const [allPropertiesOpen, setAllPropertiesOpen] = useState(false);
   const references = useMemo(() => propertyReferences(model), [model]);
@@ -115,6 +116,7 @@ export function PropertyInspector({
   const taskGenerationRef = useRef(0);
   const [propertiesTarget, setPropertiesTarget] = useState<EntityRef>(() => ({ ...selection }));
   const [draftTarget, setDraftTarget] = useState<EntityRef>(() => ({ ...selection }));
+  const creationForm = creationRequest && creationRequest.on === targetKey(propertiesTarget) ? creationRequest.kind : null;
   const properties = selectedProperties(model, propertiesTarget);
   const [unitCatalogRoute, setUnitCatalogRoute] = useState<UnitCatalogRoute | null>(null);
   const editableFields = useMemo(() => editorFieldOptions(model, draftTarget, unitCatalogRoute), [draftTarget, model, unitCatalogRoute]);
@@ -282,17 +284,22 @@ export function PropertyInspector({
     setSectionDraft(defaultSectionDraft(model, queuedIntents));
     setInspectorView("properties");
     setTaskActive(false);
-    setCreationForm(null);
+    setCreationRequest(null);
   }, [projectSessionGeneration]);
 
   useLayoutEffect(() => {
     if (!multiSelection) setPropertiesTarget({ ...selection });
   }, [multiSelection, selection.id, selection.type]);
 
+  // Inspecting another entity puts the creation form away; its command brings it back, draft kept.
+  useLayoutEffect(() => {
+    if (creationRequest && creationRequest.on !== targetKey(propertiesTarget)) setCreationRequest(null);
+  }, [creationRequest, propertiesTarget]);
+
   useLayoutEffect(() => {
     if (!taskRequest) return;
     const requestedForm = CREATION_FORM_BY_FOCUS[taskRequest.focusTestId];
-    if (requestedForm) setCreationForm(requestedForm);
+    if (requestedForm) setCreationRequest({ kind: requestedForm, on: targetKey(multiSelection ? propertiesTarget : taskRequest.target) });
     if (taskRequest.view === "task") {
       taskGenerationRef.current += 1;
       const nextTarget = { ...taskRequest.target };
@@ -350,7 +357,7 @@ export function PropertyInspector({
 
 
   function closeCreationForm() {
-    setCreationForm(null);
+    setCreationRequest(null);
     propertiesPanelRef.current?.focus();
   }
 
@@ -913,7 +920,7 @@ export function PropertyInspector({
       </div>
       {aggregateProperties ? <div className="aggregate-inspector" data-testid="aggregate-property-inspector">
         <dl className="inspector-overview" aria-label="Selected by kind">
-          {[...aggregateCounts].map(([type, count]) => <div key={type}><dt>{kindName(type, count)}</dt><dd>{count}</dd></div>)}
+          {[...aggregateCounts].map(([type, count]) => <div key={type}><dt>{capitalized(kindName(type, count))}</dt><dd>{count}</dd></div>)}
           <div><dt>Primary</dt><dd>{selection.type}: {selection.id}</dd></div>
         </dl>
         <div className="inspector-actions" aria-label="Actions for the selection" role="group">
@@ -1194,6 +1201,8 @@ export function PropertyInspector({
 }
 
 type CreationForm = "section" | "material" | "support" | "component";
+const capitalized = (text: string) => text.charAt(0).toUpperCase() + text.slice(1);
+const targetKey = (target: EntityRef) => `${target.type}\u0000${target.id}`;
 /** The creation form each command's focus target opens (capabilityCatalog, Insert > Support). */
 const CREATION_FORM_BY_FOCUS: Readonly<Record<string, CreationForm>> = {
   "create-section-id": "section",

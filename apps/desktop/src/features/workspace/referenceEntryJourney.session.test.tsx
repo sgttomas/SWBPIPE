@@ -413,9 +413,10 @@ describe("the reference system entered from blank through the desktop's authorin
     expect(model().materials).toEqual(reference.materials);
 
     // Step sections (typed UI): Inspector, New section, opened as the command box's Create section opens it.
+    // An applied section is selected, which puts the form away; each section opens it again.
     select({ type: "project", id: model().project.id });
-    openCommand("properties.section");
     for (const [id, od, wall] of [["section:RS-S270", "270", "9.0"], ["section:RS-S220", "220", "8.0"], ["section:RS-S170", "170", "7.0"]]) {
+      openCommand("properties.section");
       change(inspector(), "New section ID", id);
       change(inspector(), "New section name", token(id));
       chooseCompactOption(screen.getByTestId("create-section-type"), "pipe");
