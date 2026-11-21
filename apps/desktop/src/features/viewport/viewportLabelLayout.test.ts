@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { LABEL_EDGE_PX, LABEL_LAYOUT_BOUND, LABEL_OFFSET_PX, layoutLabels, labelPlacementOrder, type LabelBox, type LabelCandidate } from "./viewportLabelLayout";
+import { LABEL_EDGE_PX, LABEL_LAYOUT_BOUND, LABEL_OFFSET_PX, LABEL_TARGET_GAP_PX, labelTargetBox, layoutLabels, labelPlacementOrder, type LabelBox, type LabelCandidate } from "./viewportLabelLayout";
 
 const CANVAS = { width: 600, height: 400 };
 
@@ -86,6 +86,48 @@ describe("label layout", () => {
     const hovered = after.find((placement) => placement.key === "pipe:p")!;
     expect([hovered.left, hovered.top]).toEqual([before.left, before.top]);
     expect(after.find((placement) => placement.key === "node:a")!.drawn).toBe(true);
+  });
+
+  it("keeps each drawn label's 24 px pointer target clear of every other target, the furniture and the edges", () => {
+    // A plate 16 px tall and one 14 px wide: their targets are 24 by 24 at least, centred on the plate.
+    expect(labelTargetBox({ left: 100, top: 50, right: 140, bottom: 66 })).toEqual({ left: 100, top: 46, right: 140, bottom: 70 });
+    expect(labelTargetBox({ left: 100, top: 50, right: 114, bottom: 66 })).toEqual({ left: 95, top: 46, right: 119, bottom: 70 });
+    // Two anchors 20 px apart vertically: the plates' above-right places (16 px tall, 4 px apart)
+    // would not touch, but their targets would, so the second takes another place.
+    const upper = label("node:upper", "node", 300, 180);
+    const lower = label("node:lower", "node", 300, 200);
+    const placements = layoutLabels([upper, lower], CANVAS);
+    const first = placements.find((placement) => placement.key === "node:upper")!;
+    const second = placements.find((placement) => placement.key === "node:lower")!;
+    expect(first.place).toBe(0);
+    const upperPlate = boxOf(first, upper);
+    const lowerPlateAtPlace0 = boxOf({ left: 300 + LABEL_OFFSET_PX, top: 200 - LABEL_OFFSET_PX - 16 }, lower);
+    expect(overlap(upperPlate, lowerPlateAtPlace0)).toBe(false);
+    expect(overlap(labelTargetBox(upperPlate), labelTargetBox(lowerPlateAtPlace0))).toBe(true);
+    expect(second.drawn).toBe(true);
+    expect(second.place).not.toBe(0);
+    // A crowd: every drawn target is at least 24 by 24, inside the canvas, and overlaps no other
+    // target and no obstacle.
+    const cluster: LabelBox = { left: 400, top: 8, right: 592, bottom: 32 };
+    const crowd: LabelCandidate[] = [];
+    for (let index = 0; index < 60; index += 1) {
+      crowd.push(label(`node:${index}`, "node", 30 + (index * 47) % 540, 20 + (index * 29) % 360, { width: 12 + (index % 6) * 8 }));
+    }
+    const drawn = layoutLabels(crowd, CANVAS, [cluster]).filter((placement) => placement.drawn);
+    expect(drawn.length).toBeGreaterThan(10);
+    const targets = drawn.map((placement) => labelTargetBox(boxOf(placement, crowd.find((candidate) => candidate.key === placement.key)!)));
+    for (const target of targets) {
+      expect(target.right - target.left).toBeGreaterThanOrEqual(24);
+      expect(target.bottom - target.top).toBeGreaterThanOrEqual(24);
+      expect(target.left).toBeGreaterThanOrEqual(0);
+      expect(target.top).toBeGreaterThanOrEqual(0);
+      expect(target.right).toBeLessThanOrEqual(CANVAS.width);
+      expect(target.bottom).toBeLessThanOrEqual(CANVAS.height);
+      expect(overlap(target, cluster)).toBe(false);
+    }
+    // And a pixel apart, so the view's rounding of each place to a whole pixel cannot make two meet.
+    const grown = targets.map((target) => ({ left: target.left - LABEL_TARGET_GAP_PX, top: target.top - LABEL_TARGET_GAP_PX, right: target.right + LABEL_TARGET_GAP_PX, bottom: target.bottom + LABEL_TARGET_GAP_PX }));
+    for (let i = 0; i < targets.length; i += 1) for (let j = i + 1; j < targets.length; j += 1) expect(overlap(grown[i], targets[j])).toBe(false);
   });
 
   it("keeps labels inside the canvas and clear of the canvas furniture", () => {

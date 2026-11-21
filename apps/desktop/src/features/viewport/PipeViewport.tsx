@@ -1639,7 +1639,9 @@ export function PipeViewport({
         if (!button) continue;
         let size = sizes.get(key);
         if (!size || size.width <= 0) {
-          size = { width: button.offsetWidth, height: button.offsetHeight };
+          // The drawn size, rounded up: a whole-pixel offsetWidth can be narrower than the plate.
+          const rect = button.getBoundingClientRect();
+          size = { width: Math.ceil(rect.width), height: Math.ceil(rect.height) };
           sizes.set(key, size);
         }
         const projected = position.clone().project(resource.camera);

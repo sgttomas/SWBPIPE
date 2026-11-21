@@ -20,6 +20,7 @@ import {
   currentModelHashThroughVisibleExport,
   ensureRail,
   expectCenterUnobscured,
+  expectViewportLabelTargets,
   expectPassiveOrientationFrame,
   expectClearOfClosedRailHandles,
   expectContentFits,
@@ -874,6 +875,13 @@ for (const theme of APPEARANCE_THEMES) {
         // by its pressed insert control (its "… tool armed" text is a visually hidden status), so
         // the insert controls' composited contrast is measured.
         await expect(page.getByTestId("viewport-deformation-status")).toHaveCount(0);
+        // Each drawn entity label is a target of at least 24 by 24 CSS pixels that nothing covers.
+        await expect.poll(() => page.locator(".viewport-selection-layer .viewport-select-target:visible").count()).toBeGreaterThan(0);
+        const labelTargetWitness = await expectViewportLabelTargets(page);
+        await testInfo.attach(`viewport-label-targets-${theme}-${density}-${viewport.width}x${viewport.height}`, {
+          body: JSON.stringify(labelTargetWitness, null, 2),
+          contentType: "application/json",
+        });
         const pressedInsert = page.getByTestId("command-bar").locator('.command-buttons button[aria-pressed="true"]');
         const statusContrastWitnesses = [
           ...await expectResolvedContrast([

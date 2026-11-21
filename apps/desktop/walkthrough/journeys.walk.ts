@@ -19,6 +19,7 @@ import {
   viewportControl
 } from "../e2e/workspace-driver";
 import { readFileSync } from "node:fs";
+import { expectViewportLabelTargets } from "../e2e/ui-foundation-workflows";
 import { Journey } from "./recorder";
 
 const INVENTED = "invented_walkthrough_input";
@@ -352,11 +353,19 @@ async function selectInView(page: Page, type: "node" | "pipe" | "support" | "com
   return "its label was not drawn, so it was selected in the tree";
 }
 
+/** Checks every drawn label's pointer target (at least 24 by 24, uncovered) and says so in the note. */
+async function labelTargets(page: Page, found?: string | void): Promise<string> {
+  await page.waitForTimeout(350);
+  const witness = await expectViewportLabelTargets(page);
+  const checked = `${witness.length} labels drawn, each target at least 24 by 24 CSS px and uncovered`;
+  return found ? `${found}; ${checked}` : checked;
+}
+
 test("09 the 3D view: controls, fit, standard views, labels", async ({ page }) => {
   const journey = new Journey(page, 9, "view", "The 3D view: its controls, the model kept in view, the standard views and the labels");
   await open(page);
   const canvas = page.getByTestId("viewport-canvas");
-  await journey.step("first-open", "The application as first opened: the demonstration model fitted in the view");
+  await journey.step("first-open", "The application as first opened: the demonstration model fitted in the view", async () => labelTargets(page));
   await journey.step("model-view", "Model view: the canvas alone", async () => { await page.getByTestId("view-switch-model").click(); });
   for (const view of ["front", "top", "side", "isometric"] as const) {
     await journey.step(`view-${view}`, `The ${view} view, from the canvas's view controls`, async () => {
@@ -397,7 +406,7 @@ test("09 the 3D view: controls, fit, standard views, labels", async ({ page }) =
     if (await axes.count()) await axes.selectOption("off");
     await page.keyboard.press("Escape");
   }
-  await journey.step("selection-label", "A pipe selected from its label: its label emphasised", async () => selectInView(page, "pipe", "pipe:P-120"));
+  await journey.step("selection-label", "A pipe selected from its label: its label emphasised", async () => labelTargets(page, await selectInView(page, "pipe", "pipe:P-120")));
   await journey.step("isolate", "Isolate: the selection drawn, everything else dimmed", async () => {
     await (await viewportControl(page, page.getByRole("button", { name: "Isolate", exact: true }))).click();
   });
@@ -419,9 +428,11 @@ test("09 the 3D view: controls, fit, standard views, labels", async ({ page }) =
   await journey.step("reference-system", "The reference system opened: the crowded case for labels", async () => {
     await openModel(page, reference);
     await page.getByTestId("view-switch-model").click();
+    return labelTargets(page);
   });
   await journey.step("reference-system-both", "The reference system in Both view, beside the table", async () => {
     await page.getByTestId("view-switch-both").click();
+    return labelTargets(page);
   });
   await journey.step("reference-system-front", "The reference system from the front", async () => {
     await page.getByTestId("view-switch-model").click();
@@ -430,7 +441,7 @@ test("09 the 3D view: controls, fit, standard views, labels", async ({ page }) =
   await journey.step("reference-system-selected", "The reference system with a node selected: its label emphasised and drawn", async () => {
     await page.getByTestId("viewport-view-isometric").click();
     const node = reference.nodes[Math.floor(reference.nodes.length / 2)];
-    return selectInView(page, "node", node.id);
+    return labelTargets(page, await selectInView(page, "node", node.id));
   });
   journey.finish();
 });

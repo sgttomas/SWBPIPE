@@ -4874,3 +4874,12 @@ body { min-width: 760px; min-height: 540px; }
   color: var(--text-inverse); background: var(--canvas-selection); border-color: var(--canvas-selection); outline: none;
 }
 .app-shell .viewport-selection-layer .viewport-select-target:focus-visible { outline: 2px solid var(--ui-focus); outline-offset: 1px; }
+/* The label's pointer target: a transparent area centred on the plate, at least 24 by 24 CSS
+   pixels (DEL-07-06 REQ-014, 2.5.8), so the plate stays small. The layout keeps these targets apart
+   (LABEL_TARGET_PX in viewportLabelLayout.ts). The insets are measured from the padding box, inside
+   the plate's 1 px border: each side covers the border and reaches out by half the plate's
+   shortfall from 24. */
+.viewport-selection-layer .viewport-select-target::before {
+  content: ""; position: absolute; pointer-events: auto; background: transparent;
+  inset: min(-1px, calc((100% - 24px) / 2)) min(-1px, calc((100% - 24px) / 2));
+}
