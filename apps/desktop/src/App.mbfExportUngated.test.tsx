@@ -36,6 +36,7 @@ import { getLocalStorageCapability } from "./services/projectService";
 import { loadDesignKnowledge } from "./services/previewService";
 import { createSolveJobTransport, DISPOSE_ALL_COMMAND, nativeMechanicsReplayPair, NATIVE_RESULT_COMMANDS, SOLVE_JOB_COMMANDS } from "./test/nativeMechanicsReplay";
 import type { PreviewModel } from "./types";
+import { shownStandingSentence } from "./features/results/resultsStageTestSupport";
 
 type Args = Record<string, unknown>;
 type Json = any; // eslint-disable-line @typescript-eslint/no-explicit-any
@@ -215,7 +216,7 @@ describe("Export MBF… has no result-output gate", () => {
   it("sends the same review and save beside an exact (pressure-2) result as with none", async () => {
     const { request } = await invariant(exact(), async (host) => {
       await solve(host);
-      expect(within(openSection("results")).getByTestId("numerical-result-standing")).toHaveTextContent("3.0.0/exact_pressure_v3");
+      expect(shownStandingSentence(openSection("results"))).toContain("3.0.0/exact_pressure_v3");
     });
     expect(JSON.parse(request.review.canonicalText as string).project.id).toBe(exact().model.project.id);
   }, 120000);

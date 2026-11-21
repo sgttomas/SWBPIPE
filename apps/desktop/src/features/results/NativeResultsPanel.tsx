@@ -37,12 +37,19 @@ import { mechanicsGaps } from "./resultInterpretation";
 import type { ResultsViewRequest } from "./ResultsPanel";
 import {
   ALL_FRAMES,
+  ALL_ROWS_TAB,
+  CaseSelect,
   DEFAULT_RESULT_PAGE_SIZE,
+  HealthHeaderLine,
+  headerScope,
+  lineHealthState,
+  ResultUnitPolicy,
+  useStageTab,
+  type ResultsStage,
   frameLabel,
   GoverningRatioState,
   groupResults,
   MechanicsGapLedger,
-  NumericalHealthBadgeText,
   NAVIGATOR_AXIS_NOUN,
   NumericalHealthDetail,
   RESULT_FAMILY_OPTIONS,
@@ -74,7 +81,8 @@ import type { DesignKnowledge, EntityRef, MechanicsResult, PreviewModel } from "
 import type { RowLabels } from "./resultSemantics";
 import { displayRoute, sameContractBinding, type RowSemantics } from "./resultReader";
 import { isRetainedRoute } from "./numericalResultQuality";
-import { retainedPrecisionStandingText } from "./retainedPrecisionStanding";
+import { retainedPrecisionStandingParts } from "./retainedPrecisionStanding";
+import { ResultsStageHeader } from "./ResultsStageHeader";
 import { recordedTableLabel, type RecordedBinding } from "../../services/recordedPreRtA4";
 
 type Row = MechanicsResult["results"][number];
@@ -133,9 +141,11 @@ export function NativeResultsPanel({
   viewRequest = null,
   model = null,
   exportAnalysisRun = null,
-  recordedTableRead = null
+  recordedTableRead = null,
+  stage = null
 }: {
   result: NativeResult;
+  stage?: ResultsStage | null;
   /** RT-A4 §10.4: a reopened run recorded before RT-A4 names the registry table it was read under
    * (the native reopen's, which this handle's native readers read under); the panel then classifies
    * and states it as read under that table, labelled as-recorded. A table other than the handle's is
@@ -244,13 +254,19 @@ export function NativeResultsPanel({
   const alongDirection = useNativeKindPresence(result, PREVIEW_ALONG_DIRECTION_KIND);
   const notices = useMemo(() => knownSemanticNotices(result, recordedTableRead, { hasIntensified: intensified, hasAlongDirection: alongDirection }), [result, recordedTableRead, intensified, alongDirection]);
   const recovery = custody.recovery;
-  const standingLine = (recordedTableRead ? `${recordedTableLabel(recordedTableRead)}. ` : "") + (route === "unsupported"
-    ? "Unsupported numerical contract; historical values only. Needs recompute."
+  // The standing, apart: the header's line, and the limitations and closing sentences "Method and
+  // limits" shows after it. Joined with single spaces they are the route's standing sentence.
+  const recordedPrefix = recordedTableRead ? `${recordedTableLabel(recordedTableRead)}. ` : "";
+  const retained = isRetainedRoute(route) ? retainedPrecisionStandingParts(result as never) : null;
+  const standing: { line: string; detail: string | null } = route === "unsupported"
+    ? { line: `${recordedPrefix}Unsupported numerical contract; historical values only. Needs recompute.`, detail: null }
     // A native handle never registers a successor (a restored run's receipt is never registered).
-    : isRetainedRoute(route) ? retainedPrecisionStandingText(result as never)
+    : retained ? { line: `${recordedPrefix}${retained.lead}`, detail: retained.tail }
     : route === "pressure_source"
-      ? `${ordinarySolveLead(result)} Producer recovery receipt: ${String(recovery?.status ?? "unavailable")}. ${withLimitationsNote(result.formulation_basis!.limitations)} Current use is checked separately against the actual invocation and complete result evidence. Numerical checks do not establish engineering correctness.`
-      : `${numericalHealthLead(result)} ${withLimitationsNote(result.formulation_basis!.limitations)} Numerical checks do not establish engineering correctness.`);
+      ? { line: `${recordedPrefix}${ordinarySolveLead(result)} Producer recovery receipt: ${String(recovery?.status ?? "unavailable")}.`, detail: `${withLimitationsNote(result.formulation_basis!.limitations)} Current use is checked separately against the actual invocation and complete result evidence. Numerical checks do not establish engineering correctness.` }
+      : { line: `${recordedPrefix}${numericalHealthLead(result)}`, detail: `${withLimitationsNote(result.formulation_basis!.limitations)} Numerical checks do not establish engineering correctness.` };
+  const hangerStanding = hangerPreloadStanding(result);
+  const lineState = route === "unsupported" || retained ? null : lineHealthState(result.numerical_quality?.status);
   const csvRecord = isNativeAnalysisRun(exportAnalysisRun) || exportAnalysisRun === null ? exportAnalysisRun : null;
   const exportGroup = async (title: string): Promise<CsvStreamExport> => {
     // Every row the filters admit in this group, across all pages, by bounded native pages, written
@@ -290,6 +306,7 @@ export function NativeResultsPanel({
 
   /* ---- A1: the results navigator (DEL-07-05 `results-navigator.md`), on native lists ---- */
   const panelRef = useRef<HTMLElement>(null);
+  const [stageTab, setStageTab] = useStageTab(stage?.tabRequest ?? null, stage?.defaultTab ?? ALL_ROWS_TAB);
   // RT-U4: a fresh solve's first paint is the frame showing this table's first page: its rows and
   // their row semantics read (`ready`) and committed while the table can be seen, then two frames
   // (solveTimeline.ts). Checked after every commit until marked, so a page read while Results was
@@ -498,19 +515,33 @@ export function NativeResultsPanel({
     setReveal(null);
   }, [reveal, pageState]);
 
+  const stageContent = stage?.render?.({ caseKey: activeCase, cases, openTab: setStageTab }) ?? null;
   return (
-    <section className="panel results-panel" aria-label="Results" data-testid="results-panel" data-result-custody="native" ref={panelRef} onKeyDown={handleNavigatorKeyDown}>
-      <div className="panel-title">Results</div>
-      {health ? (
-        <p className="numerical-health-header-line" data-testid="numerical-health-header-line"><NumericalHealthBadgeText badge={health.badge} text={health.headline} testId="numerical-health-header" />{health.outputSentence ? <>. <span data-testid="numerical-health-output-sentence">{health.outputSentence}</span></> : null}</p>
-      ) : null}
-      {health ? <NumericalHealthDetail health={health} resolveCauseLocation={resolveCauseLocation} onSelectCauseLocation={onSelectCauseLocation} onShowDiagnostic={onShowDiagnostic} /> : null}
-      <p data-testid="numerical-result-standing">{standingLine}{hangerPreloadStanding(result) ? ` ${hangerPreloadStanding(result)}` : null}</p>
-      {notices.map((notice) => <p className="muted" key={notice.id} data-testid={`results-notice-${notice.id}`}>{notice.text}</p>)}
+    <section className="panel results-panel" aria-label="Results" data-testid="results-panel" data-result-custody="native" ref={panelRef} onKeyDown={handleNavigatorKeyDown} data-stage-tab={stageTab}>
+      <ResultsStageHeader
+        identity={stage?.identity ?? { kind: "current", runId: result.run_id }}
+        caseControl={<CaseSelect cases={cases} caseKey={activeCase} health={health} onChoose={(caseKey) => chooseCase(caseKey)} />}
+        actions={stage?.actions}
+        standing={standing.line}
+        lineState={lineState}
+        health={health}
+        scope={headerScope(cases, activeCase)}
+        healthLine={health ? <HealthHeaderLine health={health} /> : null}
+        method={<>
+          {stage?.methodPrefix}
+          {standing.detail || hangerStanding ? <p className="result-standing" data-testid="numerical-result-standing-detail">{standing.detail}{hangerStanding ? `${standing.detail ? " " : ""}${hangerStanding}` : null}</p> : null}
+          {health ? <NumericalHealthDetail health={health} resolveCauseLocation={resolveCauseLocation} onSelectCauseLocation={onSelectCauseLocation} onShowDiagnostic={onShowDiagnostic} /> : null}
+          {notices.map((notice) => <p className="muted" key={notice.id} data-testid={`results-notice-${notice.id}`}>{notice.text}</p>)}
+          {recovery?.present ? (
+            <p data-testid="physics-source-evidence-native">Producer recovery receipt (recorded labels; they grant no eligibility): status {String(recovery.status)}; {recovery.caseCount} recorded case(s); {recovery.physicalCaseCount} physical case(s); ids distinct: {String(recovery.receiptIdsDistinct)}; coverage matches: {String(recovery.coverageMatches)}.</p>
+          ) : null}
+          <ResultUnitPolicy result={result} />
+          <GoverningRatioState ratioCount={0} />
+          <MechanicsGapLedger gaps={mechanicsGaps()} />
+        </>}
+      />
       <SectionBasisHeadlines result={result as never} />
-      {recovery?.present ? (
-        <p data-testid="physics-source-evidence-native">Producer recovery receipt (recorded labels; they grant no eligibility): status {String(recovery.status)}; {recovery.caseCount} recorded case(s); {recovery.physicalCaseCount} physical case(s); ids distinct: {String(recovery.receiptIdsDistinct)}; coverage matches: {String(recovery.coverageMatches)}.</p>
-      ) : null}
+      {stageContent?.governing}
       <ResultControls
         familyCounts={familyCounts}
         familyFilter={familyFilter as never}
@@ -572,7 +603,6 @@ export function NativeResultsPanel({
           caseOrFilter: `endpoint pair of ${selectedResultId ?? "the selected result"}`
         });
       }} />
-      <GoverningRatioState ratioCount={0} />
       {current?.status === "refused" ? <p role="alert" data-testid="result-query-refused">{current.text}</p> : null}
       {!current && !selectionOnlyWithoutEntity ? <p role="status" data-testid="result-page-reading">Reading the result rows natively…</p> : null}
       <div className="result-groups">
@@ -600,8 +630,8 @@ export function NativeResultsPanel({
             </table>
           </section>
         )) : current?.status === "ready" ? <p className="muted" data-testid="result-filter-empty">No computed preview result rows match this filter.</p> : null}
-        <MechanicsGapLedger gaps={mechanicsGaps()} />
       </div>
+      {stageContent?.tabs?.map((tab) => <div key={tab.id} className="results-stage-tab-content" data-testid={`results-stage-content-${tab.id}`}>{tab.content}</div>)}
     </section>
   );
 }

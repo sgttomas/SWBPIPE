@@ -7,7 +7,10 @@ import { readFileSync } from "node:fs";
 import { resolve } from "node:path";
 import { afterEach, describe, expect, it, vi } from "vitest";
 import { ResultsPanel } from "./ResultsPanel";
-import { numericalQualityStatusText, withLimitationsNote } from "./integrityStatus";
+import { numericalHealthLead, ordinarySolveLead, withLimitationsNote } from "./integrityStatus";
+import { openMethodAndLimits, shownStandingSentence } from "./resultsStageTestSupport";
+import { METHOD_AND_LIMITS_LABEL, RESULTS_RUN_LABELS } from "./ResultsStageHeader";
+import { checksPassedText, ELIGIBLE_RECOVERY_TEXT, NUMERICAL_HEALTH_STATE_TEXT } from "./numericalHealthText";
 import { numericalHealthView, parseNumericalHealth, type NumericalHealthView } from "./numericalHealth";
 import { resolveLocatedCauseSelection } from "./resultInterpretation";
 import type { MechanicsResult, PreviewModel } from "../../types";
@@ -115,7 +118,7 @@ describe("ResultsPanel numerical health", () => {
       { eligible: true, verdictHold: false });
     render(<ResultsPanel result={result} knowledge={null} analysisRun={null} selectedResultId={null} onSelectResult={() => {}} numericalHealth={health} />);
     expect(screen.getByTestId("numerical-health-header").textContent).toBe("Ordinary solve — Numerical health: 1 sensitive");
-    expect(screen.getByTestId("numerical-result-standing").textContent).toMatch(/^Ordinary solve: sensitive\. Producer recovery receipt: qualified\. /);
+    expect(shownStandingSentence()).toMatch(/^Ordinary solve: sensitive\. Producer recovery receipt: qualified\. /);
     expect(screen.queryByTestId("numerical-health-output-sentence")).toBeNull();
     expect(screen.getByTestId("numerical-health-case-text-case").textContent).toContain(
       "The values shown come from the producer's recovery of this case, which passed its own checks. This badge describes the ordinary solve only."
@@ -127,42 +130,48 @@ describe("ResultsPanel numerical health", () => {
 
   it("keeps today's line when the indicator is absent or its route disagrees", () => {
     render(<ResultsPanel result={genericResult()} knowledge={null} analysisRun={null} selectedResultId={null} onSelectResult={() => {}} numericalHealth={null} />);
-    expect(screen.getByTestId("numerical-result-standing").textContent).toMatch(/^Numerical health: not verified\. /);
+    expect(shownStandingSentence()).toMatch(/^Numerical health: not verified\. /);
     expect(screen.queryByTestId("numerical-health-detail")).toBeNull();
     cleanup();
     const pressureSource = view({ route: "pressure_source", verdict_only: false, cases: [PASSED], combinations: [] }, { eligible: true, verdictHold: false });
     render(<ResultsPanel result={genericResult()} knowledge={null} analysisRun={null} selectedResultId={null} onSelectResult={() => {}} numericalHealth={pressureSource} />);
-    expect(screen.getByTestId("numerical-result-standing").textContent).toMatch(/^Numerical health: not verified\. /);
+    expect(shownStandingSentence()).toMatch(/^Numerical health: not verified\. /);
   });
 });
 
 describe("the standing line beside the health header", () => {
-  // Native-smoke expected.json pins this line's prefix (owner-held G10 observation): its
-  // text is exactly today's on every route, and the header is a separate element above it.
+  // Native-smoke expected.json pins this line's prefix (owner-held G10 observation): the Results
+  // stage's header shows the standing line, which begins as today's text on every route; the rest of
+  // the sentence is the first part of "Method and limits", so line and detail joined are exactly
+  // today's text. The indicator's own header line is a separate element inside "Method and limits".
   const original = (result: MechanicsResult) => sourceContractText(result);
   function sourceContractText(result: MechanicsResult): string {
     return result.source_block_recovery
-      ? `Ordinary solve: ${numericalQualityStatusText(result.numerical_quality!.status)}. Producer recovery receipt: ${(result.source_block_recovery as { body: { status: string } }).body.status}. ${withLimitationsNote(result.formulation_basis!.limitations)} Current use is checked separately against the actual invocation and complete result evidence. Numerical checks do not establish engineering correctness.`
-      : `Numerical health: ${numericalQualityStatusText(result.numerical_quality!.status)}. ${withLimitationsNote(result.formulation_basis!.limitations)} Numerical checks do not establish engineering correctness.`;
+      ? `${ordinarySolveLead(result)} Producer recovery receipt: ${(result.source_block_recovery as { body: { status: string } }).body.status}. ${withLimitationsNote(result.formulation_basis!.limitations)} Current use is checked separately against the actual invocation and complete result evidence. Numerical checks do not establish engineering correctness.`
+      : `${numericalHealthLead(result)} ${withLimitationsNote(result.formulation_basis!.limitations)} Numerical checks do not establish engineering correctness.`;
   }
   it.each([
     ["generic", () => genericResult(), () => view(genericHealth(true), { eligible: false, verdictHold: true })],
     ["pressure-source", () => JSON.parse(readFileSync(resolve(__dirname, "../../../../../fixtures/product_preview/pressure_source/physics_source/n05-dense_scrutiny.raw.json"), "utf8")) as MechanicsResult,
       () => view({ route: "pressure_source", verdict_only: false, cases: [{ ...SENSITIVE, case_id: "case", causes: [] }], combinations: [] }, { eligible: true, verdictHold: false })]
-  ] as const)("keeps the %s standing text unchanged with the header above it", (_, makeResult, makeHealth) => {
+  ] as const)("keeps the %s standing text unchanged, its line in the header and the rest in Method and limits", (_, makeResult, makeHealth) => {
     const result = makeResult();
     render(<ResultsPanel result={result} knowledge={null} analysisRun={null} selectedResultId={null} onSelectResult={() => {}} numericalHealth={makeHealth()} />);
     const standing = screen.getByTestId("numerical-result-standing");
-    expect(standing.textContent).toBe(original(result));
-    const header = screen.getByTestId("numerical-health-header-line");
+    expect(original(result).startsWith(`${standing.textContent} `)).toBe(true);
+    expect(shownStandingSentence()).toBe(original(result));
+    const header = screen.getByTestId("results-stage-header");
+    const method = screen.getByTestId("results-method");
+    expect(header).toContainElement(standing);
+    expect(method).not.toContainElement(standing);
+    // The indicator's header line and its per-case detail are inside "Method and limits", not in the line.
     expect(standing).not.toContainElement(screen.getByTestId("numerical-health-header"));
-    // Header, then the per-case detail (its causes stay above the long standing text), then the unchanged standing line.
-    expect(header.nextElementSibling).toBe(screen.getByTestId("numerical-health-detail"));
-    expect(screen.getByTestId("numerical-health-detail").nextElementSibling).toBe(standing);
+    expect(method).toContainElement(screen.getByTestId("numerical-health-header-line"));
+    expect(method).toContainElement(screen.getByTestId("numerical-health-detail"));
     cleanup();
     // And the same text with no indicator at all.
     render(<ResultsPanel result={result} knowledge={null} analysisRun={null} selectedResultId={null} onSelectResult={() => {}} numericalHealth={null} />);
-    expect(screen.getByTestId("numerical-result-standing").textContent).toBe(original(result));
+    expect(shownStandingSentence()).toBe(original(result));
     expect(screen.queryByTestId("numerical-health-header-line")).toBeNull();
     expect(screen.queryByTestId("numerical-health-detail")).toBeNull();
   });
@@ -213,5 +222,55 @@ describe("resolveLocatedCauseSelection", () => {
     expect(resolveLocatedCauseSelection(model, { kind: "ref", ref: "L1" })).toEqual({ type: "load", id: "L1" });
     expect(resolveLocatedCauseSelection(model, { kind: "ref", ref: "unknown" })).toBeNull();
     expect(resolveLocatedCauseSelection(model, { kind: "text" })).toBeNull();
+  });
+});
+
+// The Results stage's header (DEL-07-05 REQ-011, REQ-023): the standing line with the checks-passed
+// sentence as its hover text and as the first line of "Method and limits"; the per-case states beside
+// it only where a case's state is not the line's; the pressure-source recovery sentence beside the
+// ordinary solve's standing; "Method and limits" closed until opened. Words are read from the
+// indicator's functions, never retyped here.
+describe("the Results stage header", () => {
+  it("carries the checks-passed sentence as the line's hover text and as the first line of Method and limits", () => {
+    const allPassed = view({ route: "generic", verdict_only: false, cases: [PASSED], combinations: [] }, { eligible: true, verdictHold: false });
+    render(<ResultsPanel result={genericResult()} knowledge={null} analysisRun={null} selectedResultId={null} onSelectResult={() => {}} numericalHealth={allPassed} />);
+    const line = screen.getByTestId("numerical-result-standing");
+    expect(line).toHaveAttribute("title", checksPassedText("load:𝔫"));
+    const method = screen.getByTestId("results-method") as HTMLDetailsElement;
+    expect(method.open).toBe(false);
+    expect(method.querySelector("summary")!.textContent).toBe(METHOD_AND_LIMITS_LABEL);
+    openMethodAndLimits();
+    expect(within(method).getAllByTestId("results-method-standing-sentence").map((item) => item.textContent)).toEqual([checksPassedText("load:𝔫")]);
+    expect(method.querySelector(".results-method-body")!.firstElementChild).toBe(within(method).getByTestId("results-method-standing-sentence"));
+    // Every case is in the line's state: no per-case marks beside it.
+    expect(screen.queryByTestId("results-stage-case-states")).toBeNull();
+  });
+
+  it("states beside the line only the cases whose state the line does not state, with the output sentence under a hold", () => {
+    const health = view(genericHealth(true), { eligible: false, verdictHold: true });
+    const result = genericResult();
+    render(<ResultsPanel result={result} knowledge={null} analysisRun={null} selectedResultId={null} onSelectResult={() => {}} numericalHealth={health} />);
+    const marks = screen.getByTestId("results-stage-case-states");
+    expect(screen.getByTestId("results-stage-header")).toContainElement(marks);
+    for (const state of ["sensitive", "checks_passed"] as const) expect(marks.textContent).toContain(`1 ${NUMERICAL_HEALTH_STATE_TEXT[state]}`);
+    expect(marks.textContent).toContain(health.outputSentence!);
+  });
+
+  it("keeps the pressure-source recovery sentence beside the ordinary solve's standing, outside Method and limits", () => {
+    const result = JSON.parse(readFileSync(resolve(__dirname, "../../../../../fixtures/product_preview/pressure_source/physics_source/n05-dense_scrutiny.raw.json"), "utf8")) as MechanicsResult;
+    const health = view({ route: "pressure_source", verdict_only: false, cases: [{ ...SENSITIVE, case_id: "case", integrity_diagnostic_id: null, causes: [] }], combinations: [] }, { eligible: true, verdictHold: false });
+    render(<ResultsPanel result={result} knowledge={null} analysisRun={null} selectedResultId={null} onSelectResult={() => {}} numericalHealth={health} />);
+    const note = screen.getByTestId("results-stage-recovery-note");
+    expect(note.textContent).toBe(ELIGIBLE_RECOVERY_TEXT);
+    expect(screen.getByTestId("results-stage-header")).toContainElement(note);
+    expect(screen.getByTestId("results-method")).not.toContainElement(note);
+  });
+
+  it("names the run and holds the case selector in the header", () => {
+    render(<ResultsPanel result={genericResult()} knowledge={null} analysisRun={null} selectedResultId={null} onSelectResult={() => {}} numericalHealth={null}
+      stage={{ identity: { kind: "reopened", runId: "run:r" } }} />);
+    const header = screen.getByTestId("results-stage-header");
+    expect(within(header).getByTestId("results-stage-run").textContent).toContain(RESULTS_RUN_LABELS.reopened);
+    expect(header).toContainElement(screen.getByTestId("results-navigator-case-select"));
   });
 });

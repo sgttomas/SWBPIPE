@@ -84,6 +84,7 @@ import {
 import previewPhysicsSemanticContract from "../../../../../fixtures/results/semantic_contract_v0_3_preview_physics_2.json";
 import previewPhysicsRetainedSemanticContract from "../../../../../fixtures/results/semantic_contract_v0_3_preview_physics_retained_1.json";
 import { ResultsPanel } from "./ResultsPanel";
+import { shownStandingSentence } from "./resultsStageTestSupport";
 import { buildHistoricalRunContext } from "./HistoricalRunContext";
 import { hasNativeMechanicsInvocation, pollPreviewMechanicsJob, runPreviewMechanics, startPreviewMechanicsJob, takePreviewMechanicsJobResult, type PreviewSolverMode } from "../../services/previewService";
 import { ruleBindingPrecheck, runRuleChecks, selectSolverRows, solverSelectorForRow, type RuleCheckBasisRef, type RuleCheckBindingPlan } from "../../services/ruleCheckService";
@@ -1112,7 +1113,7 @@ describe("notices, labels and the results-panel standing text", () => {
     const received = await deliverDirect(source, model, "sparse_interactive");
     expect(source.numerical_quality!.status).toBe("sensitive");
     render(<ResultsPanel result={received} knowledge={null} analysisRun={null} selectedResultId={null} onSelectResult={() => {}} />);
-    const text = screen.getByTestId("numerical-result-standing").textContent!;
+    const text = shownStandingSentence();
     expect(text).toBe(retainedPrecisionStandingText(received));
     expect(text).toContain("receipt validated by the retained-precision reader against the actual invocation");
     // The limitation text names a "sensitive" member recovery check (T4-U5b); the ordinary
@@ -1123,7 +1124,7 @@ describe("notices, labels and the results-panel standing text", () => {
     expect(screen.getByTestId("results-notice-retained-precision-absolute:case")).toBeTruthy();
     cleanup();
     render(<ResultsPanel result={structuredClone(received)} knowledge={null} analysisRun={null} selectedResultId={null} onSelectResult={() => {}} />);
-    expect(screen.getByTestId("numerical-result-standing").textContent).toContain("receipt not validated for these exact bytes");
+    expect(shownStandingSentence()).toContain("receipt not validated for these exact bytes");
     cleanup();
     const edited = structuredClone(source); edited.results[0].value = 12345;
     const refused = await deliverDirect(edited, model, "sparse_interactive");

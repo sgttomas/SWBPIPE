@@ -24,6 +24,14 @@ export const KEY_RESULTS_REVEAL_TARGETS: Readonly<Record<KeyResultsTable | "supp
   support: "support-load-summary"
 });
 
+/** The Results stage's tab that holds each panel the actions reveal. */
+export const KEY_RESULTS_REVEAL_TABS: Readonly<Record<KeyResultsTable | "support", string>> = Object.freeze({
+  results: "rows",
+  "stress-ratio": "stress",
+  "displacement-extremes": "displacements",
+  support: "supports"
+});
+
 export function useKeyResultsSession(input: {
   result: SessionResult | null;
   /** App's `viewportResultStanding`: marks the support-state rows it withholds. */
@@ -48,7 +56,7 @@ export function useKeyResultsSession(input: {
   /** Counts "Show support load summary" requests, so A2 shows the support each time, even when
    * the session's selection is unchanged and the user stepped A2 to another support meanwhile. */
   const [supportRequest, setSupportRequest] = useState(0);
-  const [reveal, setReveal] = useState<{ testId: string; serial: number } | null>(null);
+  const [reveal, setReveal] = useState<{ testId: string; serial: number; tab: string } | null>(null);
   const serial = useRef(0);
   const panelRef = useRef<HTMLElement | null>(null);
   /** The element focused when the panel was opened on demand; focus returns there on close. */
@@ -69,10 +77,10 @@ export function useKeyResultsSession(input: {
     if (canSurfaceRevealNow(host)) host.scrollIntoView?.({ block: "nearest" });
   }, [reveal]);
 
-  function revealInResults(testId: string) {
+  function revealInResults(target: KeyResultsTable | "support") {
     input.setActiveSection("results");
     serial.current += 1;
-    setReveal({ testId, serial: serial.current });
+    setReveal({ testId: KEY_RESULTS_REVEAL_TARGETS[target], serial: serial.current, tab: KEY_RESULTS_REVEAL_TABS[target] });
   }
 
   function toggle() {
@@ -103,6 +111,8 @@ export function useKeyResultsSession(input: {
     setEverySolve,
     panelRef,
     supportRequest,
+    /** For the Results stage: the tab the last action revealed, once per action. */
+    tabRequest: reveal ? { serial: reveal.serial, tab: reveal.tab } : null,
     /** For the results table: a request made for the session's current result object only. */
     resultsRequest: heldRequest !== null && heldRequest.of === result ? heldRequest.request : null,
     actions: {
@@ -111,7 +121,7 @@ export function useKeyResultsSession(input: {
       onShowSupport: (supportId: string) => {
         input.selectEntity({ type: "support", id: supportId });
         setSupportRequest((count) => count + 1);
-        revealInResults(KEY_RESULTS_REVEAL_TARGETS.support);
+        revealInResults("support");
       },
       onShowContactStatus: () => {
         if (!result) return;
@@ -119,9 +129,9 @@ export function useKeyResultsSession(input: {
         // A native result's withheld support-state rows are S's table (built with the same standing).
         const withheld = isNativeResult(result) ? nativeCustody(result).summary.header.tables.withheld_support_state_rows as ReturnType<typeof withheldSupportStateRows> : withheldSupportStateRows(result, input.standing);
         setHeldRequest({ of: result, request: { serial: serial.current, runId: result.run_id, kind: SUPPORT_STATE_ROW_KIND, withheld } });
-        revealInResults(KEY_RESULTS_REVEAL_TARGETS.results);
+        revealInResults("results");
       },
-      onOpenTable: (table: KeyResultsTable) => revealInResults(KEY_RESULTS_REVEAL_TARGETS[table]),
+      onOpenTable: (table: KeyResultsTable) => revealInResults(table),
       onBackToEditing: () => {
         input.enterModelStage();
         close("model");

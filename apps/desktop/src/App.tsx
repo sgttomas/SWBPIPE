@@ -119,7 +119,7 @@ import { ReportPanel } from "./features/report/ReportPanel";
 import { RenderedReportPanel } from "./features/report/RenderedReportPanel";
 import { ReportOutputStatus } from "./features/report/ReportOutputStatus";
 import { ResultExportPanel } from "./features/result-export/ResultExportPanel";
-import { ResultsPanel } from "./features/results/ResultsPanel";
+import { ResultsPanel, type ResultsStageTab } from "./features/results/ResultsPanel";
 import { SupportLoadSummaryPanel } from "./features/results/SupportLoadSummaryPanel";
 import { StressRatioTablePanel } from "./features/results/StressRatioTablePanel";
 import { DisplacementExtremesPanel } from "./features/results/DisplacementExtremesPanel";
@@ -787,104 +787,151 @@ function AppSession() {
               {activeSection === "results" || activatedExpensiveSections.has("results") ? (
               <DormantSection active={activeSection === "results"} sessionGeneration={projectSessionGeneration}>
               <Fragment key={`results:${dormantOutputBasis}`}>
-              <div className="results-actions" role="group" aria-label="Results actions">
-                <button type="button" onClick={() => void handleInspectBundledReference()}>
-                  Inspect bundled reference
-                </button>
-                <button type="button" data-testid="key-results-open" aria-pressed={keyResults.open} onClick={keyResults.toggle}>
-                  Key results
-                </button>
-              </div>
-              {historicalRun ? <HistoricalRunPanel key={historicalRun.runId} context={historicalRun} /> : <ResultsPanel
-                result={result}
-                model={model}
-                exportAnalysisRun={currentSolvedResult !== null && result === currentSolvedResult ? analysisRun : null}
-                knowledge={knowledge}
-                analysisRun={analysisRun}
-                selectedResultId={selectedReviewTarget?.target_type === "result" ? selectedReviewTarget.id : null}
-                onSelectResult={handleSelectResult}
-                selectedEntity={selection}
-                viewRequest={keyResults.resultsRequest}
-                numericalHealth={numericalHealth}
-                resolveCauseLocation={(location) => resolveLocatedCauseSelection(model, location)}
-                onSelectCauseLocation={(entity) => handleSelectEntity(entity)}
-                onShowDiagnostic={(diagnosticId) => {
-                  handleSelectDiagnostic(diagnosticId);
-                  requestDiagnosticFilter(diagnosticId);
-                  setIssuesDrawerOpen(true);
-                }}
-              />}
-              {historicalRun ? null : (
-                // A2: the per-support load summary reads the same standing as the viewport overlays.
-                <SupportLoadSummaryPanel
-                  model={model}
-                  result={result}
-                  analysisRun={currentSolvedResult !== null && result === currentSolvedResult ? analysisRun : null}
-                  standing={viewportResultStanding}
-                  focusSupportId={selection.type === "support" ? selection.id : null}
-                  focusRequest={keyResults.supportRequest}
-                />
-              )}
-              {historicalRun ? null : (
-                // A3: the sorted stress and ratio table reads the same standing; the session's rule-check
-                // run is passed only while the shown result is the current solved result it was run on.
-                <StressRatioTablePanel
-                  model={model}
-                  result={result}
-                  fullResult={session.results.fullResult}
-                  analysisRun={currentSolvedResult !== null && result === currentSolvedResult ? analysisRun : null}
-                  standing={viewportResultStanding}
-                  ruleCheckRun={currentSolvedResult !== null && result === currentSolvedResult ? ruleCheckReportRun : null}
-                  selectedResultId={selectedReviewTarget?.target_type === "result" ? selectedReviewTarget.id : null}
-                  onSelectLocation={(target) => {
-                    if (target.resultId) handleSelectResult(target.resultId);
-                    else if (target.entityRef) {
-                      const entity = resolveEntitySelection(model, target.entityRef);
-                      if (entity) handleSelectEntity(entity);
-                    }
-                  }}
-                />
-              )}
-              {historicalRun ? null : (
-                // A8: displacement extremes per node across the chosen cases, under the same standing.
-                <DisplacementExtremesPanel
-                  model={model}
-                  result={result}
-                  analysisRun={currentSolvedResult !== null && result === currentSolvedResult ? analysisRun : null}
-                  standing={viewportResultStanding}
-                  selectedNodeId={selection.type === "node" ? selection.id : null}
-                  onSelectNode={(nodeId) => {
-                    const entity = resolveEntitySelection(model, nodeId);
-                    if (entity) handleSelectEntity(entity);
-                  }}
-                />
-              )}
-              {historicalRun ? null : (
-                // A9: weight and centre of gravity of the model, a line or the selected pipes, from the
-                // self-weight generator's own weights; model data, so no solve is needed.
-                <WeightSummaryPanel model={model} selectedPipeRefs={selectedPipeRefs} />
-              )}
-              <C2ResultGate result={currentSolvedResult} analysisRun={null} feature="comparisons" explicit>
-                {(full) => (
-                  <ComparisonPanel
-                    comparison={withinRun.status === "ready" ? withinRun.comparison : null}
-                    result={full.result}
-                    onSelectResult={handleSelectResult}
-                    withinRun={{ view: withinRun, disabledReason: withinRunDisabledReason, onSelect: handleSelectWithinRunBases, packaged: packagedWithinRun, dropped: droppedWithinRunBases }}
-                  />
-                )}
-              </C2ResultGate>
-              <DesignWorkspacePanel
-                model={model}
-                knowledge={knowledge}
-                result={currentSolvedResult}
-                analysisRun={analysisRun}
-                comparison={comparison}
-                comparisonUnavailable={comparisonUnavailable}
-                editorIntents={editorIntents}
-                proposal={proposal}
-                selectedReviewTarget={selectedReviewTarget}
-              />
+              {(() => {
+                // DEL-07-05: the Results stage. Its header names the run, the case and the standing; the
+                // panels below are its tables, each as before, under that one header.
+                const resultsActions = (
+                  <span className="results-actions" role="group" aria-label="Results actions">
+                    <button type="button" data-testid="inspect-bundled-reference" onClick={() => void handleInspectBundledReference()}>
+                      Inspect bundled reference
+                    </button>
+                    <button type="button" data-testid="key-results-open" aria-pressed={keyResults.open} onClick={keyResults.toggle}>
+                      Key results
+                    </button>
+                  </span>
+                );
+                const comparisonTabs: ResultsStageTab[] = [
+                  {
+                    id: "compare",
+                    label: "Compare",
+                    content: (
+                      <C2ResultGate result={currentSolvedResult} analysisRun={null} feature="comparisons" explicit>
+                        {(full) => (
+                          <ComparisonPanel
+                            comparison={withinRun.status === "ready" ? withinRun.comparison : null}
+                            result={full.result}
+                            onSelectResult={handleSelectResult}
+                            withinRun={{ view: withinRun, disabledReason: withinRunDisabledReason, onSelect: handleSelectWithinRunBases, packaged: packagedWithinRun, dropped: droppedWithinRunBases }}
+                          />
+                        )}
+                      </C2ResultGate>
+                    )
+                  },
+                  {
+                    id: "design",
+                    label: "Design",
+                    content: (
+                      <DesignWorkspacePanel
+                        model={model}
+                        knowledge={knowledge}
+                        result={currentSolvedResult}
+                        analysisRun={analysisRun}
+                        comparison={comparison}
+                        comparisonUnavailable={comparisonUnavailable}
+                        editorIntents={editorIntents}
+                        proposal={proposal}
+                        selectedReviewTarget={selectedReviewTarget}
+                      />
+                    )
+                  }
+                ];
+                const shownRunRecord = currentSolvedResult !== null && result === currentSolvedResult ? analysisRun : null;
+                const resultTabs: ResultsStageTab[] = [
+                  {
+                    id: "supports",
+                    label: "Supports",
+                    content: (
+                      // A2: the per-support load summary reads the same standing as the viewport overlays.
+                      <SupportLoadSummaryPanel
+                        model={model}
+                        result={result}
+                        analysisRun={shownRunRecord}
+                        standing={viewportResultStanding}
+                        focusSupportId={selection.type === "support" ? selection.id : null}
+                        focusRequest={keyResults.supportRequest}
+                      />
+                    )
+                  },
+                  {
+                    id: "stress",
+                    label: "Stress",
+                    content: (
+                      // A3: the sorted stress and ratio table reads the same standing; the session's rule-check
+                      // run is passed only while the shown result is the current solved result it was run on.
+                      <StressRatioTablePanel
+                        model={model}
+                        result={result}
+                        fullResult={session.results.fullResult}
+                        analysisRun={shownRunRecord}
+                        standing={viewportResultStanding}
+                        ruleCheckRun={currentSolvedResult !== null && result === currentSolvedResult ? ruleCheckReportRun : null}
+                        selectedResultId={selectedReviewTarget?.target_type === "result" ? selectedReviewTarget.id : null}
+                        onSelectLocation={(target) => {
+                          if (target.resultId) handleSelectResult(target.resultId);
+                          else if (target.entityRef) {
+                            const entity = resolveEntitySelection(model, target.entityRef);
+                            if (entity) handleSelectEntity(entity);
+                          }
+                        }}
+                      />
+                    )
+                  },
+                  {
+                    id: "displacements",
+                    label: "Displacements",
+                    content: (
+                      // A8: displacement extremes per node across the chosen cases, under the same standing.
+                      <DisplacementExtremesPanel
+                        model={model}
+                        result={result}
+                        analysisRun={shownRunRecord}
+                        standing={viewportResultStanding}
+                        selectedNodeId={selection.type === "node" ? selection.id : null}
+                        onSelectNode={(nodeId) => {
+                          const entity = resolveEntitySelection(model, nodeId);
+                          if (entity) handleSelectEntity(entity);
+                        }}
+                      />
+                    )
+                  },
+                  {
+                    id: "weight",
+                    label: "Weight",
+                    content: (
+                      // A9: weight and centre of gravity of the model, a line or the selected pipes, from the
+                      // self-weight generator's own weights; model data, so no solve is needed.
+                      <WeightSummaryPanel model={model} selectedPipeRefs={selectedPipeRefs} />
+                    )
+                  }
+                ];
+                return historicalRun
+                  ? <HistoricalRunPanel key={historicalRun.runId} context={historicalRun} actions={resultsActions} stage={{ render: () => ({ tabs: comparisonTabs }) }} />
+                  : <ResultsPanel
+                      result={result}
+                      model={model}
+                      exportAnalysisRun={shownRunRecord}
+                      knowledge={knowledge}
+                      analysisRun={analysisRun}
+                      selectedResultId={selectedReviewTarget?.target_type === "result" ? selectedReviewTarget.id : null}
+                      onSelectResult={handleSelectResult}
+                      selectedEntity={selection}
+                      viewRequest={keyResults.resultsRequest}
+                      numericalHealth={numericalHealth}
+                      resolveCauseLocation={(location) => resolveLocatedCauseSelection(model, location)}
+                      onSelectCauseLocation={(entity) => handleSelectEntity(entity)}
+                      onShowDiagnostic={(diagnosticId) => {
+                        handleSelectDiagnostic(diagnosticId);
+                        requestDiagnosticFilter(diagnosticId);
+                        setIssuesDrawerOpen(true);
+                      }}
+                      stage={{
+                        identity: { kind: "current", runId: result?.run_id ?? null },
+                        actions: resultsActions,
+                        tabRequest: keyResults.tabRequest,
+                        render: () => ({ tabs: [...resultTabs, ...comparisonTabs] })
+                      }}
+                    />;
+              })()}
               </Fragment>
               </DormantSection>) : null}
             </section>

@@ -3,14 +3,14 @@ import { recordedReaderDispatch, sourceContract } from "./resultReader";
 import { numericalResultStanding, recordedResultStanding } from "./resultStanding";
 import { recordedPreRtA4RecordBinding, recordedTableLabel, type RecordedBinding } from "../../services/recordedPreRtA4";
 import { validateRetainedPrecision, validateRetainedPrecisionRecorded } from "./retainedPrecisionReader";
-import { useState } from "react";
+import { useState, type ReactNode } from "react";
 import type { AnalysisRunEnvelope, LocalProjectEnvelope, MechanicsResult, ModelHashEvidence, ProjectEnvelopeHashEvidence, PreviewModel } from "../../types";
 import { canonicalSha256Hex, canonicalSha256HexCheckedV1, computeModelHash, computeProjectEnvelopeHash } from "../../services/hashService";
 import type { AnalysisRunRead } from "../../services/analysisRunService";
 import type { CurrentSessionInputManifest } from "../../services/inputManifestService";
 import { verifyAnalysisRunRecord, validateAnalysisRunV03, ANALYSIS_RETAINED_PRECISION_RECEIPT_MISMATCH, ANALYSIS_RUN_SCHEMA_VERSION_RETIRED, ANALYSIS_RUN_V03 } from "../../services/analysisRunCompatibility";
 import type { BundledMechanicsReference } from "../../services/previewService";
-import { ResultsPanel } from "./ResultsPanel";
+import { ResultsPanel, type ResultsStage } from "./ResultsPanel";
 import type { NativeResult } from "../../services/nativeResult";
 import { restoredNativeResult, type NativeProjectEnvelope, type NativeRunRead, type RestoredRun } from "../../services/nativeReopen";
 
@@ -395,12 +395,14 @@ export function buildBundledReferenceContext(reference: BundledMechanicsReferenc
   };
 }
 
-export function HistoricalRunPanel({ context }: { context: HistoricalRunContext }) {
+export function HistoricalRunPanel({ context, actions = null, stage = null }: { context: HistoricalRunContext; actions?: ReactNode; stage?: Omit<ResultsStage, "identity" | "actions" | "methodPrefix"> | null }) {
   const [selectedResultId, setSelectedResultId] = useState<string | null>(null);
   const isReference = context.designation === "bundled_reference";
   const title = isReference ? "Bundled reference — not a solve for the current model" : "Historical saved run";
-  return <section className="panel" aria-label={title} data-testid="historical-run-context">
-    <div className="panel-title">{title}</div>
+  // The run is named in the stage's header; what the reopened run's notices say is the first part of
+  // its "Method and limits", complete.
+  const methodPrefix = <div className="historical-run-notes" data-testid="historical-run-notes">
+    <p data-testid="historical-run-title">{title}</p>
     {isReference ? <>
       <p>{context.referenceProvenance?.notice}</p>
       <p>Reference model: {context.referenceModel?.project.id}; retained run: {context.runId}. The current model and its edit history are unchanged.</p>
@@ -408,6 +410,9 @@ export function HistoricalRunPanel({ context }: { context: HistoricalRunContext 
     <p>{isReference ? "Bundled reference" : "Historical"} results cannot drive current overlays, rule checks, comparisons or report readiness.</p>
     <ul>{context.findings.map((finding) => <li key={finding}>{finding}</li>)}</ul>
     <HistoricalReaderFindings context={context} testId="historical-run-recorded-reader" />
-    <ResultsPanel result={context.mechanicsResult} knowledge={null} analysisRun={null} selectedResultId={selectedResultId} onSelectResult={setSelectedResultId} recordedTableRead={context.recordedTableRead} />
+  </div>;
+  return <section className="historical-run-context" aria-label={title} data-testid="historical-run-context">
+    <ResultsPanel result={context.mechanicsResult} knowledge={null} analysisRun={null} selectedResultId={selectedResultId} onSelectResult={setSelectedResultId} recordedTableRead={context.recordedTableRead}
+      stage={{ ...stage, identity: { kind: isReference ? "reference" : "reopened", runId: context.runId }, actions, methodPrefix }} />
   </section>;
 }

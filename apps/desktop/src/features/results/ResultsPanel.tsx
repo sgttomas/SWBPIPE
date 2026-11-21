@@ -9,7 +9,8 @@ import { KnownSemanticNotices } from "./KnownSemanticNotices";
 import { resultRowLabel } from "./knownSemanticLimitations";
 import { componentBodyNotice } from "./componentBody";
 import { hangerPreloadStanding } from "./hangerPreload";
-import { retainedPrecisionStandingText } from "./retainedPrecisionStanding";
+import { retainedPrecisionStandingParts } from "./retainedPrecisionStanding";
+import { RESULTS_RUN_LABELS, ResultsStageHeader, type HeaderCase, type ResultsRunIdentity } from "./ResultsStageHeader";
 import type { ReactNode } from "react";
 import { QuantityReadout, useDisplayQuantityResolver, type DisplaySourceQuantity } from "../display-units";
 import { CsvExportControl, type CsvExport } from "../result-export/CsvExportControl";
@@ -24,7 +25,7 @@ import { buildResultInterpretation, mechanicsGaps } from "./resultInterpretation
 import type { EntityRef } from "../../types";
 import { numericalResultStanding, recordedResultStanding } from "./resultStanding";
 import { badgeOf, locationText, numericalHealthView, readNumericalHealth, rowHealthState, type NumericalHealthBadge, type NumericalHealthLocation, type NumericalHealthView } from "./numericalHealth";
-import { BOUNDARY_SENTENCE, DETAIL_SECTION_LABEL, LOCATED_CAUSES_LABEL, NUMERICAL_HEALTH_STATE_TEXT, SHOW_SOLVER_DIAGNOSTIC } from "./numericalHealthText";
+import { BOUNDARY_SENTENCE, DETAIL_SECTION_LABEL, LOCATED_CAUSES_LABEL, NUMERICAL_HEALTH_STATE_TEXT, SHOW_SOLVER_DIAGNOSTIC, type NumericalHealthState } from "./numericalHealthText";
 import { limitationsNote, numericalHealthLead, ordinarySolveLead } from "./integrityStatus";
 import { SECTION_BASIS_HEADLINES, WITHHELD_SECTION_BASIS_HEADLINE } from "../report/exactReportSections";
 import { canSurfaceRevealNow } from "../workspace/surfaceReveal";
@@ -41,6 +42,94 @@ import {
   type NavigatorAxis,
   type NavigatorCase
 } from "./resultsNavigator";
+
+/** A tab of the Results stage under the header, with what the caller renders in it. */
+export type ResultsStageTab = Readonly<{ id: string; label: string; content: ReactNode }>;
+/** What the stage's caller is given to render its governing values and tables: the case the header
+ * reads, the result's cases, and the way to bring a tab forward. */
+export type ResultsStageContext = Readonly<{ caseKey: string; cases: readonly NavigatorCase[]; openTab: (id: string) => void }>;
+export type ResultsStageContent = Readonly<{ governing?: ReactNode; tabs?: readonly ResultsStageTab[] }>;
+/** A request to bring a tab of the stage forward, applied once per `serial`. */
+export type ResultsStageTabRequest = Readonly<{ serial: number; tab: string }>;
+export type ResultsStage = Readonly<{
+  identity?: ResultsRunIdentity;
+  actions?: ReactNode;
+  /** Lines the caller adds at the head of "Method and limits" (a reopened run's notices). */
+  methodPrefix?: ReactNode;
+  render?: (context: ResultsStageContext) => ResultsStageContent;
+  tabRequest?: ResultsStageTabRequest | null;
+  defaultTab?: string;
+}>;
+/** The tab that holds every row of the result. */
+export const ALL_ROWS_TAB = "rows";
+
+/** The stage's current tab, moved by the user and, once per serial, by a request. */
+export function useStageTab(request: ResultsStageTabRequest | null, initial: string = ALL_ROWS_TAB): [string, (tab: string) => void] {
+  const [tab, setTab] = useState(initial);
+  const [applied, setApplied] = useState<number | null>(null);
+  if (request && request.serial !== applied) {
+    setApplied(request.serial);
+    setTab(request.tab);
+  }
+  return [tab, setTab];
+}
+
+/** The header's reading of the chosen case: all cases (null) or the case's basis. */
+export function headerScope(cases: readonly NavigatorCase[], caseKey: string): HeaderCase {
+  return caseKey === ALL_CASES ? null : { basis: cases.find((item) => item.key === caseKey)?.basis ?? null };
+}
+
+/** The case or combination the stage reads, with its selector. */
+export function CaseSelect({ cases, caseKey, health, onChoose }: { cases: readonly NavigatorCase[]; caseKey: string; health: NumericalHealthView | null; onChoose: (caseKey: string) => void }) {
+  if (cases.length === 0) return <span className="muted" data-testid="results-stage-case-none">No case stated</span>;
+  return (
+    <label className="results-stage-case-select">
+      <span>Case</span>
+      <select aria-label="Load case or combination" data-testid="results-navigator-case-select" value={caseKey} onChange={(event) => onChoose(event.target.value)}>
+        <option value={ALL_CASES}>All cases</option>
+        {cases.map((item) => <option key={item.key} value={item.key}>{navigatorCaseText(item, health)}</option>)}
+      </select>
+    </label>
+  );
+}
+
+/** The indicator's own header line, in full: its count headline and, under a verdict-only hold,
+ * its output sentence. */
+export function HealthHeaderLine({ health }: { health: NumericalHealthView }) {
+  return <p className="numerical-health-header-line" data-testid="numerical-health-header-line"><NumericalHealthBadgeText badge={health.badge} text={health.headline} testId="numerical-health-header" />{health.outputSentence ? <>. <span data-testid="numerical-health-output-sentence">{health.outputSentence}</span></> : null}</p>;
+}
+
+/** The indicator state the solve's `numerical_quality.status` names, where it names one. */
+export function lineHealthState(status: unknown): NumericalHealthState | null {
+  return typeof status === "string" && Object.hasOwn(NUMERICAL_HEALTH_STATE_TEXT, status) ? status as NumericalHealthState : null;
+}
+
+/** A route's standing, apart: the line the header shows, and the limitations and closing
+ * sentences that "Method and limits" shows after it. Joined with single spaces they are the
+ * standing sentence the route states; nothing is reworded or left out. */
+function fullStandingParts(result: MechanicsResult, route: string, recordedTableRead: RecordedBinding | null): { line: string; detail: ReactNode; lineState: NumericalHealthState | null } {
+  const recorded = recordedTableRead ? `${recordedTableLabel(recordedTableRead)}. ` : "";
+  const hanger = hangerPreloadStanding(result);
+  const withHanger = (detail: ReactNode) => (hanger ? <>{detail}{detail ? " " : null}<span data-testid="result-standing-hanger-preload">{hanger}</span></> : detail);
+  if (route === "unsupported") return { line: `${recorded}Unsupported numerical contract; historical values only. Needs recompute.`, detail: withHanger(null), lineState: null };
+  if (isRetainedRoute(route)) {
+    const parts = retainedPrecisionStandingParts(result);
+    return { line: `${recorded}${parts.lead}`, detail: withHanger(parts.tail), lineState: null };
+  }
+  const lineState = lineHealthState(result.numerical_quality?.status);
+  if (route === "pressure_source") {
+    return {
+      line: `${recorded}${ordinarySolveLead(result)} Producer recovery receipt: ${(result.source_block_recovery as { body: { status: string } }).body.status}.`,
+      detail: withHanger(<StandingStatement limitations={result.formulation_basis!.limitations} close="Current use is checked separately against the actual invocation and complete result evidence. Numerical checks do not establish engineering correctness." />),
+      lineState
+    };
+  }
+  return {
+    line: `${recorded}${numericalHealthLead(result)}`,
+    detail: withHanger(<StandingStatement limitations={result.formulation_basis!.limitations} close="Numerical checks do not establish engineering correctness." />),
+    lineState
+  };
+}
 
 export const RESULT_PAGE_SIZE_OPTIONS = [50, 100, 200] as const;
 export const DEFAULT_RESULT_PAGE_SIZE = RESULT_PAGE_SIZE_OPTIONS[0];
@@ -96,9 +185,13 @@ function FullResultsPanel({
   viewRequest = null,
   model = null,
   exportAnalysisRun = null,
-  recordedTableRead = null
+  recordedTableRead = null,
+  stage = null
 }: {
   result: MechanicsResult | null;
+  /** The Results stage this panel heads: the run it names, its actions, what it adds to "Method and
+   * limits", and the governing values and tables the caller renders for the chosen case. */
+  stage?: ResultsStage | null;
   /** a reopened run recorded before RT-A4 names the registry table it was
    * read under; the panel then classifies and states it as read under that table,
    * labelled as-recorded (historical evidence only, never a current standing). Absent
@@ -292,6 +385,7 @@ function FullResultsPanel({
   const [endNotice, setEndNotice] = useState<string | null>(null);
   const [reveal, setReveal] = useState<{ rowId: string; focus: boolean } | null>(null);
   const panelRef = useRef<HTMLElement>(null);
+  const [stageTab, setStageTab] = useStageTab(stage?.tabRequest ?? null, stage?.defaultTab ?? ALL_ROWS_TAB);
 
   /** The step's target position on each axis; null where the axis cannot move. */
   function stepTarget(axis: NavigatorAxis, delta: 1 | -1): number | null {
@@ -369,19 +463,36 @@ function FullResultsPanel({
     setReveal(null);
   }, [reveal, page]);
 
+  const caseSelect = <CaseSelect cases={cases} caseKey={activeCase} health={health} onChoose={(caseKey) => chooseCase(caseKey)} />;
+  const standing = result ? fullStandingParts(result, route, recordedTableRead) : null;
+  const stageContent = stage?.render?.({ caseKey: activeCase, cases, openTab: setStageTab }) ?? null;
+
   return (
-    <section className="panel results-panel" aria-label="Results" data-testid="results-panel" ref={panelRef} onKeyDown={handleNavigatorKeyDown}>
-      <div className="panel-title">Results</div>
-      {result ? (
+    <section className="panel results-panel" aria-label="Results" data-testid="results-panel" ref={panelRef} onKeyDown={handleNavigatorKeyDown} data-stage-tab={stageTab}>
+      {result && standing ? (
         <>
-          {health ? (
-            <p className="numerical-health-header-line" data-testid="numerical-health-header-line"><NumericalHealthBadgeText badge={health.badge} text={health.headline} testId="numerical-health-header" />{health.outputSentence ? <>. <span data-testid="numerical-health-output-sentence">{health.outputSentence}</span></> : null}</p>
-          ) : null}
-          {health ? <NumericalHealthDetail health={health} resolveCauseLocation={resolveCauseLocation} onSelectCauseLocation={onSelectCauseLocation} onShowDiagnostic={onShowDiagnostic} /> : null}
-          <p className="result-standing" data-testid="numerical-result-standing">{recordedTableRead ? `${recordedTableLabel(recordedTableRead)}. ` : null}{route === "unsupported" ? "Unsupported numerical contract; historical values only. Needs recompute." : isRetainedRoute(route) ? retainedPrecisionStandingText(result) : route === "pressure_source" ? <StandingStatement lead={`${ordinarySolveLead(result)} Producer recovery receipt: ${(result.source_block_recovery as {body:{status:string}}).body.status}.`} limitations={result.formulation_basis!.limitations} close="Current use is checked separately against the actual invocation and complete result evidence. Numerical checks do not establish engineering correctness." /> : <StandingStatement lead={numericalHealthLead(result)} limitations={result.formulation_basis!.limitations} close="Numerical checks do not establish engineering correctness." />}{hangerPreloadStanding(result) ? ` ${hangerPreloadStanding(result)}` : null}</p>
-          <KnownSemanticNotices result={result} testIdPrefix="results" recordedTableRead={recordedTableRead} />
+          <ResultsStageHeader
+            identity={stage?.identity ?? { kind: "current", runId: result.run_id }}
+            caseControl={caseSelect}
+            actions={stage?.actions}
+            standing={standing.line}
+            lineState={standing.lineState}
+            health={health}
+            scope={headerScope(cases, activeCase)}
+            healthLine={health ? <HealthHeaderLine health={health} /> : null}
+            method={<>
+              {stage?.methodPrefix}
+              {standing.detail ? <div className="result-standing" data-testid="numerical-result-standing-detail">{standing.detail}</div> : null}
+              {health ? <NumericalHealthDetail health={health} resolveCauseLocation={resolveCauseLocation} onSelectCauseLocation={onSelectCauseLocation} onShowDiagnostic={onShowDiagnostic} /> : null}
+              <KnownSemanticNotices result={result} testIdPrefix="results" recordedTableRead={recordedTableRead} />
+              <PhysicsSourceEvidencePanel result={result} />
+              <ResultUnitPolicy result={result} />
+              <GoverningRatioState ratioCount={0} />
+              <MechanicsGapLedger gaps={mechanicsGaps()} />
+            </>}
+          />
           <SectionBasisHeadlines result={result} />
-          <PhysicsSourceEvidencePanel result={result} />
+          {stageContent?.governing}
           <ResultControls
             familyCounts={familyCounts}
             familyFilter={familyFilter}
@@ -439,7 +550,6 @@ function FullResultsPanel({
               caseOrFilter: `endpoint pair of ${interpretation?.result_id ?? "the selected result"}`
             });
           }} />
-          <GoverningRatioState ratioCount={0} />
           <div className="result-groups">
             {groups.length > 0 ? (
               groups.map((group) => (
@@ -499,11 +609,16 @@ function FullResultsPanel({
                 No computed preview result rows match this filter.
               </p>
             )}
-            <MechanicsGapLedger gaps={mechanicsGaps()} />
           </div>
+          {stageContent?.tabs?.map((tab) => <div key={tab.id} className="results-stage-tab-content" data-testid={`results-stage-content-${tab.id}`}>{tab.content}</div>)}
         </>
       ) : (
-        <p className="muted">Run the bounded preview mechanics path to populate result summaries.</p>
+        <>
+          {stage?.identity && stage.identity.kind !== "current" ? <p className="results-stage-run" data-testid="results-stage-run" data-run-kind={stage.identity.kind}>{RESULTS_RUN_LABELS[stage.identity.kind]}</p> : null}
+          {stage?.methodPrefix}
+          <p className="muted">Run the bounded preview mechanics path to populate result summaries.</p>
+          {stageContent?.tabs?.map((tab) => <div key={tab.id} className="results-stage-tab-content" data-testid={`results-stage-content-${tab.id}`}>{tab.content}</div>)}
+        </>
       )}
     </section>
   );
@@ -603,17 +718,8 @@ export function ResultControls({
   const visibleFamilyOptions = RESULT_FAMILY_OPTIONS.filter(
     (option) => option.id === "all" || familyCounts[option.id as ResultFamily] > 0
   );
-  const unitPolicy = buildResultUnitPolicy(result);
-
   return (
     <section className="result-controls" aria-label="Result filtering" data-testid="result-controls">
-      <div className="report-line" data-testid="result-unit-policy">
-        <span>Source result units</span>
-        <strong>
-          {unitPolicy.result_units.length > 0 ? unitPolicy.result_units.join(", ") : "none"} · {unitPolicy.result_row_count} rows ·
-          entered units preserved; displayed quantities follow the display preference where available
-        </strong>
-      </div>
       <div className="result-family-row" role="group" aria-label="Result family filter">
         {visibleFamilyOptions.map((option) => {
           const count = option.id === "all" ? familyCounts.total : familyCounts[option.id as ResultFamily];
@@ -740,6 +846,21 @@ export function ResultControls({
         </div>
       </div>
     </section>
+  );
+}
+
+/** The result's source units and row count, and that entered units are preserved: a line of
+ * "Method and limits". */
+export function ResultUnitPolicy({ result }: { result: SessionResult }) {
+  const unitPolicy = buildResultUnitPolicy(result);
+  return (
+    <div className="report-line" data-testid="result-unit-policy">
+      <span>Source result units</span>
+      <strong>
+        {unitPolicy.result_units.length > 0 ? unitPolicy.result_units.join(", ") : "none"} · {unitPolicy.result_row_count} rows ·
+        entered units preserved; displayed quantities follow the display preference where available
+      </strong>
+    </div>
   );
 }
 
@@ -1005,12 +1126,7 @@ export function ResultsNavigator({
   return (
     <section className="result-controls results-navigator" aria-label="Results navigator" data-testid="results-navigator">
       {stepper("kind")}
-      {stepper("case", cases.length > 0 ? (
-        <select aria-label="Load case or combination" data-testid="results-navigator-case-select" value={caseKey} onChange={(event) => onChooseCase(event.target.value)}>
-          <option value={ALL_CASES}>All cases</option>
-          {cases.map((item) => <option key={item.key} value={item.key}>{navigatorCaseText(item, health)}</option>)}
-        </select>
-      ) : null)}
+      {stepper("case")}
       {elongation ? <p className="muted" data-testid="results-navigator-case-pressure-elongation">{elongation}</p> : null}
       {stepper("entity")}
       <p className="muted" role="status" data-testid="results-navigator-status">{endNotice ? `${endNotice} ` : ""}{where}</p>
@@ -1246,10 +1362,10 @@ export function NumericalHealthDetail({ health, resolveCauseLocation, onSelectCa
  * exactly the joined sentence (lead, each limitation, the closing sentence, single spaces), so
  * nothing is shortened, reordered or hidden; only the layout makes each limitation readable.
  */
-function StandingStatement({ lead, limitations, close }: { lead: string; limitations: readonly string[]; close: string }) {
+function StandingStatement({ lead = null, limitations, close }: { lead?: string | null; limitations: readonly string[]; close: string }) {
   return (
     <>
-      <span className="result-standing-lead">{lead}</span>{" "}
+      {lead ? <><span className="result-standing-lead">{lead}</span>{" "}</> : null}
       {limitations.length === 0 ? " " : limitations.map((text, index) => (
         <span key={index} className="result-standing-limitation">{text}{" "}</span>
       ))}

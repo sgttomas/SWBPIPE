@@ -3,6 +3,7 @@ import {it,expect} from 'vitest';
 import {readFileSync} from 'node:fs';
 import {resolve} from 'node:path';
 import {ResultsPanel} from './ResultsPanel';
+import {shownStandingSentence} from './resultsStageTestSupport';
 import {OUTPUT_SURFACES,PRESSURE_2_OUTPUT_REFUSAL,surfaceRouteRefusal} from './outputPolicy';
 import type {MechanicsResult} from '../../types';
 import {currentCarrierHeader} from '../../test-support/currentCarrierHeader';
@@ -25,7 +26,8 @@ it('shows exact signed tiny scientific values and historical recompute qualifica
 // limitations of every route that shows rows with them (pressure-2 and pressure-source-1,
 // each with and without the load/reference-state group, preview-physics-2, and both
 // retained successors, whose statements carry the fixture's `source` member) appear in
-// the standing line once, joined in published order.
+// the standing sentence once, joined in published order: the header's line, then the rest of the
+// sentence inside "Method and limits".
 it.each([
  ['pressure-2','fixtures/results/pressure_connected_mechanics_sparse.json',null],
  ['pressure-2 with load/reference states','fixtures/product_preview/pressure/load_reference/connected-sparse_interactive.raw.json',null],
@@ -40,7 +42,7 @@ it.each([
  const limitations=result.formulation_basis!.limitations;
  expect(limitations.length).toBeGreaterThan(0);
  render(<ResultsPanel result={result} knowledge={null} analysisRun={null} selectedResultId={null} onSelectResult={()=>{}}/>);
- const standing=screen.getByTestId('numerical-result-standing').textContent??'';
+ const standing=shownStandingSentence();
  expect(standing.split(limitations.join(' ')).length-1).toBe(1);
  cleanup();
 });

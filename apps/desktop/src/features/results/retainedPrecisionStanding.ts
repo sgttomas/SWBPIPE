@@ -151,12 +151,20 @@ export function classificationSummary(source: MechanicsResult | null | undefined
  * are shown only with their limitations visible); the retained route's header check
  * admits only a non-empty list of them. Text only; it changes no standing. */
 export function retainedPrecisionStandingText(source: MechanicsResult): string {
+  const { lead, tail } = retainedPrecisionStandingParts(source);
+  return `${lead} ${tail}`;
+}
+
+/** `retainedPrecisionStandingText` in its two parts: the receipt's standing (the Results stage's
+ * standing line) and the limitations and closing sentences that follow it (its "Method and
+ * limits"). The words are the same; only where each part is shown differs. */
+export function retainedPrecisionStandingParts(source: MechanicsResult): { lead: string; tail: string } {
   const outcome = retainedPrecisionRegistration(source);
   // D-U7-6: eligibility is a property of the supplied statement and its invocation.
   const tail = `${withLimitationsNote(source.formulation_basis!.limitations)} Current use is checked separately against the actual invocation and the requested cases. The reader checks these bytes and their invocation; it does not establish which producer made them. Numerical checks do not establish engineering correctness.`;
-  if (!outcome) return `Retained precision: receipt not validated for these exact bytes in this session (saved, reference or copied data never register); needs recompute. ${tail}`;
-  if (outcome.error !== null) return `Retained precision: receipt refused by the retained-precision reader (${outcome.error}); unsupported, values shown for inspection only. ${tail}`;
+  if (!outcome) return { lead: "Retained precision: receipt not validated for these exact bytes in this session (saved, reference or copied data never register); needs recompute.", tail };
+  if (outcome.error !== null) return { lead: `Retained precision: receipt refused by the retained-precision reader (${outcome.error}); unsupported, values shown for inspection only.`, tail };
   const cases = receiptCases(source);
   const selected = cases.filter(c => c?.status === "selected").length;
-  return `Retained precision: receipt validated by the retained-precision reader ${outcome.validation.invocation_bound ? "against the actual invocation" : "without an invocation"} for these exact bytes. Selected cases: ${selected} of ${cases.length}. ${tail}`;
+  return { lead: `Retained precision: receipt validated by the retained-precision reader ${outcome.validation.invocation_bound ? "against the actual invocation" : "without an invocation"} for these exact bytes. Selected cases: ${selected} of ${cases.length}.`, tail };
 }

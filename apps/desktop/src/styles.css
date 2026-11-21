@@ -4845,3 +4845,30 @@ body { min-width: 760px; min-height: 540px; }
 .app-shell .quantity-field-row > label + label { flex: 1 1 6rem; }
 .app-shell .quantity-field-row > label > input { width: 100%; min-width: 0; margin-inline: 0; color: var(--ui-text); }
 .app-shell .quantity-field > .quantity-field-row + button { margin-top: var(--space-2); }
+
+/* The Results stage (DEL-07-05): one header that does not scroll with the tables under it. It holds
+   the run, the case with its selector, the standing line and the closed "Method and limits"; the
+   standing line stays in view while any result row is. Nothing here is styled as success. */
+.app-shell .results-panel { gap: var(--space-4); }
+.app-shell .results-stage-header {
+  position: sticky; top: 0; z-index: 3;
+  display: grid; gap: var(--space-2);
+  margin: calc(-1 * var(--space-5)) calc(-1 * var(--space-5)) 0;
+  padding: var(--space-4) var(--space-5);
+  background: var(--ui-surface); border-bottom: 1px solid var(--ui-border);
+}
+.app-shell .results-stage-identity { display: flex; flex-wrap: wrap; align-items: center; gap: var(--space-3) var(--space-5); }
+.app-shell .results-stage-run { font-weight: var(--type-weight-semibold); color: var(--ui-text); }
+.app-shell .results-stage-run code { margin-inline-start: var(--space-3); font-weight: normal; color: var(--ui-muted); font-size: var(--type-size-caption); }
+.app-shell .results-stage-case-select { display: inline-flex; align-items: center; gap: var(--space-3); }
+.app-shell .results-stage-case-select select { max-width: 28ch; }
+.app-shell .results-stage-actions { margin-inline-start: auto; }
+.app-shell .results-stage-actions .results-actions { grid-column: auto; gap: var(--space-3); }
+.app-shell .result-standing-line { margin: 0; font-weight: var(--type-weight-semibold); color: var(--ui-text); }
+.app-shell .results-stage-differs, .app-shell .results-stage-note { margin: 0; color: var(--ui-text); }
+.app-shell .results-stage-note-cases { color: var(--ui-muted); }
+.app-shell .results-method > summary { display: inline-flex; align-items: center; gap: var(--space-2); cursor: pointer; color: var(--ui-muted); list-style: none; }
+.app-shell .results-method > summary::-webkit-details-marker { display: none; }
+.app-shell .results-method[open] > summary .results-method-chevron { transform: rotate(90deg); }
+.app-shell .results-method-body { max-height: 45vh; overflow-y: auto; margin-top: var(--space-3); padding-inline-end: var(--space-4); display: grid; gap: var(--space-3); }
+.app-shell .results-method-body .result-standing { margin-block: 0; }

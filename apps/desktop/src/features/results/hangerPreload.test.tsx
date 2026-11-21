@@ -10,6 +10,7 @@ import { diagnosticsForSections } from "../report/renderableReportInput";
 import type { MechanicsResult, PreviewModel } from "../../types";
 import { HANGER_LOAD_NOT_APPLIED_AS_PRELOAD, hangerPreloadStanding } from "./hangerPreload";
 import { ResultsPanel } from "./ResultsPanel";
+import { shownStandingSentence } from "./resultsStageTestSupport";
 import { numericalQualityStatusText } from "./integrityStatus";
 
 afterEach(cleanup);
@@ -33,7 +34,7 @@ describe("hanger loads not applied as preload", () => {
     const result = demo();
     expect(hangerPreloadStanding(result)).toBe(SENTENCE);
     render(<ResultsPanel result={result} knowledge={null} analysisRun={null} selectedResultId={null} onSelectResult={() => {}} />);
-    const standing = screen.getByTestId("numerical-result-standing").textContent ?? "";
+    const standing = shownStandingSentence();
     expect(standing.startsWith(`Numerical health: ${numericalQualityStatusText(result.numerical_quality!.status)}. `)).toBe(true);
     expect(standing.endsWith(` Numerical checks do not establish engineering correctness. ${SENTENCE}`)).toBe(true);
   });
@@ -43,7 +44,7 @@ describe("hanger loads not applied as preload", () => {
     result.diagnostics = result.diagnostics.filter((item) => item.code !== HANGER_LOAD_NOT_APPLIED_AS_PRELOAD);
     expect(hangerPreloadStanding(result)).toBeNull();
     render(<ResultsPanel result={result} knowledge={null} analysisRun={null} selectedResultId={null} onSelectResult={() => {}} />);
-    expect(screen.getByTestId("numerical-result-standing").textContent).not.toContain("preload");
+    expect(shownStandingSentence()).not.toContain("preload");
   });
 
   it("names each support once with its fields in order", () => {
