@@ -2142,14 +2142,12 @@ export async function measureCanvasPointSelection(
     (causalMarkerEvidence?.active?.feedbackMarkers?.length === 1 && pointCaptureMatchesMarker(causalMarkerEvidence.active.feedbackMarkers[0], afterCueCapture, expectedHitRef))));
   if (phase === "candidate") await writeFile(`${postHighlightPath}.verdict.json`, `${JSON.stringify({ beforeCueCapture, afterCueCapture, pairedCue, markerCaptureBound }, null, 2)}\n`, { flag: "wx" });
   const postHighlightDigest = pngPixelDigest(await readFile(postHighlightPath), selectionVisualOracle);
-  // The candidate's visible selection statement is the window's status bar; the selection
-  // summary (command-selection-readout) is a visually hidden live status.
   const visibleSelectionText = phase === "baseline"
     ? `Selected: ${expectedHitRef.id}`
-    : `${expectedHitRef.type}: ${expectedHitRef.id}`;
+    : `Selected ${expectedHitRef.type}: ${expectedHitRef.id}; 0 queued`;
   const visibleSelectionLocator = phase === "baseline"
     ? page.locator(".viewport-toolbar > span").filter({ hasText: visibleSelectionText }).last()
-    : page.getByTestId("status-selection");
+    : page.getByTestId("command-selection-readout");
   const visibleSelectionEvidence = await captureVisibleLocatorEvidence(
     visibleSelectionLocator,
     visibleSelectionText,
