@@ -269,7 +269,7 @@ def test_bound_import_equals_the_source_within_the_derived_bounds(trips, name):
 
 
 def test_every_excluded_loss_and_model_is_listed():
-    assert len(canon.EXCLUDED_LOSSES) == 9
+    assert len(canon.EXCLUDED_LOSSES) == 10
     assert EXCLUDED == {}
     # Formerly excluded: the component names the far tangent node. Format 6 records it, and the bound import
     # restores it, so the model compares equal; the same pair downgraded to format 4 still loses that reference.
@@ -293,6 +293,8 @@ def test_unbound_import_under_pd1_equals_by_caepipe_name(trips, name):
                                 shear_model=shear, source_label=name)
     assert result.status == "imported", result.diagnostics
     assert any("PD-1" in note for note in result.assumptions)
+    # The comparison sets a pressure-free shear model aside unbound; the import states none.
+    assert "model_settings" not in result.model
     reference = trip.reference()
     reference_unoriented, limits = canon.unoriented(reference, trip.limits(reference))
     comparison = canon.compare(reference_unoriented, trip.imported(result, oriented=False), limits)

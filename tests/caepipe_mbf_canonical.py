@@ -32,6 +32,8 @@ EXCLUDED_LOSSES = (
     "regions are compared by their member pipes, terminals with closure transfer, and pressure)",
     "section names, section provenance and library order, and library sections no pipe references (the writer "
     "lists them as omitted); bound, each pipe's section_ref and each referenced section's OD and t are compared",
+    "a pressure-free document's shear model on unbound imports (not in the MBF; bound imports restore it from the "
+    "format-6 sidecar's pressure_map; an unbound import states none)",
 )
 __doc__ += "".join(f"\n- {item}" for item in EXCLUDED_LOSSES) + "\n"
 
@@ -313,8 +315,8 @@ def canonical(model: Mapping[str, Any], names: Mapping[str, str], case_kinds: Ma
     if model.get("pressure_contract") is not None:
         contract = model["pressure_contract"]
         out.sets[("pressure_contract",)] = (contract["version"], contract["mode"], contract["shear_model"])
-    else:  # a pressure-free model's shear model: its own selection (any value, null included), a model whose settings
-        # have no shear_model key being Euler-Bernoulli
+    elif oriented:  # bound: a pressure-free model's shear model, which only the sidecar carries; its own selection
+        # (any value, null included), a model whose settings have no shear_model key being Euler-Bernoulli
         settings = model.get("model_settings") or {}
         out.sets[("shear_model",)] = settings["shear_model"] if "shear_model" in settings else "euler_bernoulli"
     sums: dict[tuple, Fraction] = {}
@@ -553,12 +555,13 @@ def _unoriented_key(key: tuple) -> tuple:
 
 
 def unoriented(form: Canonical, limits: Mapping[tuple, float]) -> tuple[Canonical, dict[tuple, float]]:
-    """A canonical form and its bounds with pipe ends unordered and per-support and section identities dropped
-    (unbound)."""
+    """A canonical form and its bounds with pipe ends unordered, per-support and section identities dropped, and a
+    pressure-free shear model dropped (unbound), as `canonical(..., oriented=False)` forms them."""
     def unordered(key: tuple, value: Any) -> Any:
         return (frozenset(value[0]), value[1]) if key[0] == "region" else value
 
-    bound_only = ("support", "section", "section_ref")  # identities an unbound import does not restore
+    # Identities an unbound import does not restore, and the pressure-free shear model, which only the sidecar carries.
+    bound_only = ("support", "section", "section_ref", "shear_model")
     return (Canonical({_unoriented_key(key): value for key, value in form.values.items() if key[0] not in bound_only},
                       {_unoriented_key(key): unordered(key, value) for key, value in form.sets.items()
                        if key[0] not in bound_only}),
