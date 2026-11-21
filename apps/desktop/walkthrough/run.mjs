@@ -9,7 +9,7 @@
 // would have met on the way: a journey that stops is a finding in the index,
 // not a failure of this command. It is 1 when the walkthrough itself could not
 // run, or wrote no screens.
-import { spawnSync } from "node:child_process";
+import { execFileSync, spawnSync } from "node:child_process";
 import { existsSync, mkdirSync, readdirSync, rmSync } from "node:fs";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
@@ -33,31 +33,52 @@ export function parseArguments(argv) {
   return options;
 }
 
-// Only files this command wrote are removed: an output folder that holds
+// Only files a walkthrough wrote are removed: an output folder that holds
 // anything else is refused, so a mistyped --out cannot empty a folder of work.
 // Nothing below the folder is touched, and a folder inside it is foreign too.
-const OWN_FILE = /^(\d{3}-[a-z0-9-]+(-FAILED)?\.png|part-\d{2}-[a-z0-9-]+\.json|INDEX\.json|index\.html)$/;
+// The browser journeys are numbered 1 to 19 and the native ones from 20
+// (native/run.mjs), so both can sit in one folder: `removes(journeyNumber)` says
+// which journeys' screens and part files this run replaces; the others stay, and
+// INDEX.json and index.html, written again from every part, always go.
+const OWN_FILE = /^((\d{3,4})-[a-z0-9-]+(-FAILED)?\.png|part-(\d{2})-[a-z0-9-]+\.json|INDEX\.json|index\.html)$/;
+export const BROWSER_JOURNEYS = (journeyNumber) => journeyNumber < 20;
 
-export function emptyOutput(out) {
+export function emptyOutput(out, removes = BROWSER_JOURNEYS) {
   if (!existsSync(out)) { mkdirSync(out, { recursive: true }); return; }
   const entries = readdirSync(out, { withFileTypes: true });
   const foreign = entries.filter((entry) => !entry.isFile() || !OWN_FILE.test(entry.name)).map((entry) => entry.name);
   if (foreign.length > 0) {
     throw new Error(`walkthrough: ${out} holds files this command did not write (${foreign.slice(0, 5).join(", ")}); choose an empty folder with --out`);
   }
-  for (const entry of entries) rmSync(path.join(out, entry.name));
+  for (const entry of entries) {
+    const [, , screen, , part] = OWN_FILE.exec(entry.name);
+    const journeyNumber = screen ? Math.floor(Number(screen) / 100) : part ? Number(part) : null;
+    if (journeyNumber === null || removes(journeyNumber)) rmSync(path.join(out, entry.name));
+  }
+}
+
+// The revision the walkthrough ran at, for the index: the commit and how many paths differ from it.
+function sourceRevision() {
+  try {
+    const project = path.resolve(desktopRoot, "..", "..");
+    const commit = execFileSync("git", ["-C", project, "rev-parse", "HEAD"], { encoding: "utf8" }).trim();
+    const uncommitted = execFileSync("git", ["-C", project, "status", "--porcelain"], { encoding: "utf8" }).trim().split("\n").filter(Boolean).length;
+    return { commit, uncommitted_paths: uncommitted };
+  } catch {
+    return { commit: null, uncommitted_paths: null };
+  }
 }
 
 function main() {
   const options = parseArguments(process.argv.slice(2));
   emptyOutput(options.out);
-  const env = { ...process.env, SWBPIPE_WALKTHROUGH_OUT: options.out };
+  const env = { ...process.env, SWBPIPE_WALKTHROUGH_OUT: options.out, SWBPIPE_WALKTHROUGH_REVISION: JSON.stringify(sourceRevision()) };
   if (options.size) env.SWBPIPE_WALKTHROUGH_SIZE = options.size;
   const playwright = ["playwright", "test", "--config", path.join(here, "playwright.walkthrough.config.ts")];
   if (options.grep) playwright.push("--grep", options.grep);
   const run = spawnSync("npx", playwright, { cwd: desktopRoot, env, stdio: "inherit" });
   if (run.error) throw run.error;
-  const index = composeIndex(options.out, { size: options.size ?? "1440x920" });
+  const index = composeIndex(options.out);
   console.log(`walkthrough: ${index.screens} screens over ${index.journeys} journeys in ${options.out}`);
   for (const stop of index.stops) console.log(`walkthrough: ${stop.journey} stopped at "${stop.step}": ${stop.reason}`);
   console.log(`walkthrough: open ${path.join(options.out, "index.html")}`);
