@@ -48,6 +48,7 @@ import {
 } from "./features/workspace/shellLayout";
 import type { ShellStage, ShellView } from "./features/workspace/shellLayout";
 import { DormantSection } from "./features/workspace/dormantSection";
+import { PartErrorBoundary } from "./features/workspace/shell/PartErrorBoundary";
 import { BOTH_SPLIT_PCT_BOUNDS, TABLE_DRAWER_PX_BOUNDS } from "./features/workspace/uiPreferences";
 import type { UiDensityPreference, UiThemePreference } from "./features/workspace/uiPreferences";
 import type React from "react";
@@ -102,7 +103,7 @@ import { ToolkitPalette, type PaletteShellCommand } from "./features/toolkit/Too
 import { toolkitCapabilities } from "./features/toolkit/capabilityCatalog";
 import { PropertyInspector } from "./features/model-tree/PropertyInspector";
 import { ReportPanel } from "./features/report/ReportPanel";
-import { RenderedReportPanel } from "./features/report/RenderedReportPanel";
+import { RenderedReportPanel, ReportPackageSaveStatus } from "./features/report/RenderedReportPanel";
 import { ReportOutputStatus } from "./features/report/ReportOutputStatus";
 import { ResultExportPanel } from "./features/result-export/ResultExportPanel";
 import { ResultsPanel } from "./features/results/ResultsPanel";
@@ -504,7 +505,9 @@ function AppSession() {
               onToggle={() => toggleWorkspaceRail("tree")}
             />
             <div className="shell-table-body" id="shell-table-body">
+            <PartErrorBoundary subject="The table drawer" resetKey={projectSessionGeneration}>
             <div className={shell.tab === "model-tree" ? "shell-tree-host" : "shell-tree-host inactive"} data-testid="shell-tree-host">
+            <PartErrorBoundary subject="The model tree" resetKey={projectSessionGeneration}>
             <ModelTree
               boundedGrid
               compactGrid={tableDrawer.collapsible}
@@ -545,6 +548,7 @@ function AppSession() {
                 />
               }
             />
+            </PartErrorBoundary>
             </div>
           <div className={shell.tab === "model-tree" ? "workspace-dock-body shell-stage-sections inactive" : "workspace-dock-body shell-stage-sections"}>
             <section
@@ -554,7 +558,7 @@ function AppSession() {
               tabIndex={-1}
             >
               {activeSection === "operations" || activatedExpensiveSections.has("operations") ? (
-              <DormantSection active={activeSection === "operations"} guardGeneration={requestEpoch} sessionGeneration={projectSessionGeneration}>
+              <DormantSection page="operations" active={activeSection === "operations"} guardGeneration={requestEpoch} sessionGeneration={projectSessionGeneration}>
               <nav className="operation-tabs" aria-label="Editing and review tools">
                 {[["review", "Review changes"], ["bulk", "Bulk change"], ["geometry", "Geometry"], ["supports", "Supports"], ["weight", "Self weight"], ["agent", "Agent"], ["records", "Model records"], ["details", "Details"]].map(([id, label]) => (
                   <button type="button" key={id} aria-pressed={operationTab === id} data-testid={`operation-tab-${id}`} onClick={() => setOperationTab(id)}>{label}</button>
@@ -611,6 +615,7 @@ function AppSession() {
               />
               </div>
               <div className="operation-tool-page" hidden={operationTab !== "agent"}>
+              <PartErrorBoundary subject="The Agent tab" resetKey={projectSessionGeneration}>
             <EmbeddedAgentPanel session={session.agent} active={activeSection === "operations" && operationTab === "agent"} onReview={() => {setActiveSection("operations");setOperationTab("review");}} />
             <AgentWorkbenchPanel
               appliedOperationCount={appliedOperations.length}
@@ -641,6 +646,7 @@ function AppSession() {
                 }}
                 loadOperationExamples={() => operationExamples(model)}
               />
+              </PartErrorBoundary>
               </div>
               <div className="operation-tool-page" hidden={operationTab !== "geometry"}>
               <GeometryToolsPanel
@@ -749,7 +755,7 @@ function AppSession() {
               data-testid="workspace-section-loads"
             >
               {activeSection === "loads" || activatedExpensiveSections.has("loads") ? (
-              <DormantSection active={activeSection === "loads"} guardGeneration={requestEpoch} sessionGeneration={projectSessionGeneration}>
+              <DormantSection page="loads" active={activeSection === "loads"} guardGeneration={requestEpoch} sessionGeneration={projectSessionGeneration}>
               <LoadCaseManagerPanel
                 model={model}
                 queuedIntents={editorIntents}
@@ -768,7 +774,7 @@ function AppSession() {
               data-testid="workspace-section-results"
             >
               {activeSection === "results" || activatedExpensiveSections.has("results") ? (
-              <DormantSection active={activeSection === "results"} sessionGeneration={projectSessionGeneration}>
+              <DormantSection page="results" active={activeSection === "results"} sessionGeneration={projectSessionGeneration}>
               <Fragment key={`results:${dormantOutputBasis}`}>
               <div className="results-actions" role="group" aria-label="Results actions">
                 <button type="button" onClick={() => void handleInspectBundledReference()}>
@@ -886,7 +892,7 @@ function AppSession() {
                 />
               ) : null}
               {activeSection === "evidence" || activatedExpensiveSections.has("evidence") ? (
-              <DormantSection active={activeSection === "evidence"} sessionGeneration={projectSessionGeneration}>
+              <DormantSection page="evidence" active={activeSection === "evidence"} sessionGeneration={projectSessionGeneration}>
               {/* The run's identity and hashes, and telemetry's state and reason. The review-packet
                   panels this page held are not mounted in v1.0 (docs/RELEASE_LIMITATIONS_v1.0.md, LIM-039). */}
               <RunAuditPanel model={model} result={result} analysisRun={analysisRun} />
@@ -900,13 +906,14 @@ function AppSession() {
               data-testid="workspace-section-report"
             >
               {activeSection === "report" || activatedExpensiveSections.has("report") ? (
-              <DormantSection active={activeSection === "report"} sessionGeneration={projectSessionGeneration}>
+              <DormantSection page="report" active={activeSection === "report"} sessionGeneration={projectSessionGeneration}>
               <Fragment key={`report:${dormantOutputBasis}`}>
               <ComparisonPackageNotice packaged={packagedWithinRun} dropped={droppedWithinRunBases} testId="report-comparison-package-notice" />
               {/* DEL-08-01 REQ-017, REQ-024: the rendered report's own source (a readable exact-route or
                   pressure-free Timoshenko result whatever its standing), which its package save and user
                   release also take on the exact route. */}
-              <C2ResultGate result={renderableSolvedResult} analysisRun={analysisRun} feature="the rendered report">
+              <C2ResultGate result={renderableSolvedResult} analysisRun={analysisRun} feature="the rendered report"
+                withheld={reportPackageRoute ? <ReportPackageSaveStatus route={reportPackageRoute} announce /> : null}>
                 {(full) => (
                   <RenderedReportPanel
                     model={model}
@@ -923,6 +930,7 @@ function AppSession() {
                     packageRedaction={reportPackageRedaction}
                     packageRoute={reportPackageRoute}
                     onPackagePrivateIntentChange={setReportPackagePrivateIntent}
+                    restoredRun={historicalRun?.designation === "historical_saved_run" && !running}
                     onSaveReportPackage={reportPackageUnavailable ? undefined : () => void handleSaveReportPackage()}
                     onSaveShareableReportPackage={reportPackageUnavailable ? undefined : () => void requestSaveShareableReportPackage()}
                     reportSource={reportOutput.source}
@@ -956,6 +964,7 @@ function AppSession() {
               </DormantSection>) : null}
             </section>
           </div>
+            </PartErrorBoundary>
             </div>
           </div>
           <button
@@ -973,6 +982,7 @@ function AppSession() {
             type="button"
           />
           <div className="workspace-pane workspace-pane-viewport">
+            <PartErrorBoundary subject="The 3D view" resetKey={projectSessionGeneration}>
             <PipeViewport
               fullResult={session.results.fullResult}
               authoringPanelContainer={routingPanelContainer}
@@ -1014,6 +1024,7 @@ function AppSession() {
               theme={resolvedTheme}
               treePublication={treePublication}
             />
+            </PartErrorBoundary>
           </div>
           <button
             aria-label="Resize table drawer"
@@ -1041,6 +1052,7 @@ function AppSession() {
               ><X size={14} aria-hidden="true" /></button>
             ) : null}
             <div id="shell-routing-panel" className="shell-routing-panel" ref={setRoutingPanelContainer} />
+            <PartErrorBoundary subject="The inspector" resetKey={projectSessionGeneration}>
             <PropertyInspector
               getPreparationEpoch={getPreparationEpoch}
               model={model}
@@ -1056,6 +1068,7 @@ function AppSession() {
               selectionState={orderedSelection}
               taskRequest={propertyTaskRequest}
             />
+            </PartErrorBoundary>
           </div>
         </section>
 
@@ -1137,7 +1150,7 @@ function AppSession() {
               tabIndex={-1}
             >
               {activeSection === "libraries" || activatedExpensiveSections.has("libraries") ? (
-              <DormantSection active={activeSection === "libraries"} sessionGeneration={projectSessionGeneration}>
+              <DormantSection page="libraries" active={activeSection === "libraries"} sessionGeneration={projectSessionGeneration}>
               <LibraryManagerPanel model={model} onR3JourneyEvent={recordR3JourneyEvent}
                 selection={selection} onQueueBatch={handleQueueOperationBatch} operationBusy={operationBusy} />
               </DormantSection>) : null}
@@ -1149,7 +1162,7 @@ function AppSession() {
               data-testid="workspace-section-rule-packs"
             >
               {activeSection === "rule-packs" || activatedExpensiveSections.has("rule-packs") ? (
-              <DormantSection active={activeSection === "rule-packs"} sessionGeneration={projectSessionGeneration}>
+              <DormantSection page="rule-packs" active={activeSection === "rule-packs"} sessionGeneration={projectSessionGeneration}>
               <RulePackManagerPanel model={model} result={currentSolvedResult} onR3JourneyEvent={recordR3JourneyEvent}
                 queuedIntents={editorIntents} onQueueIntent={handleQueueEditorIntent} operationBusy={operationBusy} />
               </DormantSection>) : null}
@@ -1161,7 +1174,7 @@ function AppSession() {
               data-testid="workspace-section-solve"
             >
               {activeSection === "solve" || activatedExpensiveSections.has("solve") ? (
-              <DormantSection active={activeSection === "solve"} sessionGeneration={projectSessionGeneration}>
+              <DormantSection page="solve" active={activeSection === "solve"} sessionGeneration={projectSessionGeneration}>
               <SolvePanel
                 analysisRun={analysisRun}
                 inputManifest={inputManifest?.manifest ?? null}
@@ -1212,7 +1225,7 @@ function AppSession() {
               data-testid="workspace-section-project"
             >
               {activeSection === "project" || activatedExpensiveSections.has("project") ? (
-              <DormantSection active={activeSection === "project"} sessionGeneration={projectSessionGeneration}>
+              <DormantSection page="project" active={activeSection === "project"} sessionGeneration={projectSessionGeneration}>
               <ProjectStorageAuditPanel
                 model={model}
                 storageCapability={storageCapability}
@@ -1248,7 +1261,7 @@ function AppSession() {
               data-testid="workspace-section-exports"
             >
               {activeSection === "exports" || activatedExpensiveSections.has("exports") ? (
-              <DormantSection active={activeSection === "exports"} sessionGeneration={projectSessionGeneration}>
+              <DormantSection page="exports" active={activeSection === "exports"} sessionGeneration={projectSessionGeneration}>
               <Fragment key={`exports:${dormantOutputBasis}`}>
               {/* The exports a person takes, one row each: its name, its link and its refusal line.
                   The review-packet panels this page held are not mounted in v1.0
@@ -1289,8 +1302,11 @@ function AppSession() {
         <AgentStrip />
       </div>
 
+      <PartErrorBoundary subject="The Solve progress panel" className="solve-progress-panel" resetKey={projectSessionGeneration}>
       <SolveProgressPanel solveJob={solveJob} running={running} onCancel={handleCancelRun} />
+      </PartErrorBoundary>
       {keyResults.open ? (
+        <PartErrorBoundary subject="The Key results panel" className="key-results-panel" resetKey={projectSessionGeneration}>
         <KeyResultsPanel
           fullResult={session.results.fullResult}
           model={model}
@@ -1304,10 +1320,12 @@ function AppSession() {
           panelRef={keyResults.panelRef}
           {...keyResults.actions}
         />
+        </PartErrorBoundary>
       ) : null}
       <ShellStatusBar issueCount={issueCount} />
 
       {issuesDrawerOpen ? (
+        <PartErrorBoundary subject="The Issues drawer" className="workspace-drawer issues-drawer" back="close-issues" resetKey={projectSessionGeneration}>
         <IssuesHome
           model={model}
           knowledge={knowledge}
@@ -1322,6 +1340,7 @@ function AppSession() {
           onRunModelChecks={() => { void handleRunModelChecks(); }}
           onSelectEntity={(entity) => { handleSelectEntity(entity); }}
         />
+        </PartErrorBoundary>
       ) : null}
       <ReplaceProjectPrompt prompt={replaceProjectPrompt} />
       <UnsavedChangesPrompt prompt={unsavedChangesPrompt} />

@@ -35,7 +35,7 @@ It serves SOW-056 under OBJ-013 (`execution/_Decomposition/SOFTWARE_DECOMP.md`, 
 - *Solver library.* An in-repository sparse skyline (profile) direct solver, single-threaded with a fixed operation order, and no third-party numerical dependency.
 - *Schemas.* JSON Schema 2020-12 for every public schema and interchange document. Requests and results are defined schema-first.
 - *Operation engine.* The WebAssembly build of the operation applier is the only operation engine in the browser; there is no second implementation in TypeScript (ADR-0001).
-- *Packaging target.* A macOS desktop application on Apple Silicon first, signed and notarized for v1.0, with Windows taken up after it. A project travels as a multi-member archive with the extension `.opsproj`.
+- *Packaging target.* A macOS desktop application on Apple Silicon first, signed and notarized for v1.0, with Windows taken up after it. A project's portable package is to be a multi-member archive with the extension `.opsproj` (DEC-028, DEC-057); it is not provided in v1.0 (LIM-045).
 - *Persistence.* Versioned, schema-governed JSON as domain truth, with JCS-compatible canonical hashing; a local SQLite project store and index with rebuildable FTS5 retrieval sidecars; no hosted database.
 - *Test baseline.* Cargo tests, Vitest and Playwright, with validation, protected-content and provenance gates.
 
