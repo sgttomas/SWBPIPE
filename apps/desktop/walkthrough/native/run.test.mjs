@@ -10,7 +10,7 @@ import vm from "node:vm";
 import { composeIndex } from "../compose-index.mjs";
 import { MENU_SURFACE, NATIVE_SURFACE, NATIVE_SURFACES, PICTURE_BASIS, VIEW_3D_SURFACE, nativeSurfacesFor, readStepRecords, renderScreens, screensFromRecords, writePart } from "./render.mjs";
 import { mkdirSync, symlinkSync } from "node:fs";
-import { DEFAULT_JOURNEYS, JOURNEYS, composeDriver, emptyNativeOutput, entriesFrom, nativeMenuRecord, parseArguments, placeFiles, placementsFor, screenLockState, windowShownRecord } from "./run.mjs";
+import { DEFAULT_JOURNEYS, JOURNEYS, LAUNCH_ENDS, MAX_LAUNCHES, composeDriver, emptyNativeOutput, entriesFrom, launchesOf, nativeMenuRecord, parseArguments, placeFiles, placementsFor, screenLockState, windowShownRecord } from "./run.mjs";
 
 function scratch(t) {
   const folder = mkdtempSync(path.join(os.tmpdir(), "native-walkthrough-test-"));
@@ -360,4 +360,56 @@ test("every journey's declared values are committed and usable, and the driver n
     assert.match(driver, new RegExp(`"${name}"|\\b${name}:`), name);
     if (spec.entries_from) assert.ok(entriesFrom(spec.entries_from, { projectRoot }).length > 0, name);
   }
+});
+
+test("launches: one launch ended by the harness unless declared; each declared launch named once with an end this build can make", () => {
+  assert.deepEqual(launchesOf("exports", {}), [{ name: "walk", ends_by: "harness", end: LAUNCH_ENDS.harness }]);
+  assert.match(LAUNCH_ENDS.harness, /^an end without saving/);
+  assert.match(LAUNCH_ENDS.harness, /Quit was not chosen/);
+  assert.deepEqual(launchesOf("j", { launches: [{ name: "first", ends_by: "harness" }, { name: "second", ends_by: "harness" }] }).map((item) => [item.name, item.ends_by]), [["first", "harness"], ["second", "harness"]]);
+  const refused = (launches, pattern) => assert.throws(() => launchesOf("j", { launches }), pattern);
+  refused([], /1 to/);
+  refused("first", /1 to/);
+  refused(Array.from({ length: MAX_LAUNCHES + 1 }, (_, index) => ({ name: `l${index}`, ends_by: "harness" })), /1 to/);
+  refused([{ name: "Two Words", ends_by: "harness" }], /launches\[0\]: a name/);
+  refused([{ name: "same", ends_by: "harness" }, { name: "same", ends_by: "harness" }], /used twice/);
+  // The application's own Quit is a declared form this build cannot make: refused by name, never taken as the harness's end.
+  refused([{ name: "quit", ends_by: "app-quit" }], /ends_by "app-quit" is refused: this build cannot deliver the Quit command/);
+  refused([{ name: "x", ends_by: "kill" }], /not an end this runner knows/);
+  refused([{ name: "x" }], /not an end this runner knows/);
+});
+
+test("every declared journey's launches are valid; a journey of launches says why Quit is not walked", () => {
+  for (const [name, spec] of Object.entries(JOURNEYS)) {
+    const launches = launchesOf(name, spec);
+    assert.ok(launches.every((item) => item.ends_by === "harness"), name);
+    if (spec.launches) assert.match(spec.use_case, /Quit/, name);
+  }
+});
+
+test("a journey of launches: its part keeps each launch and each menu reading, and the index shows them", (t) => {
+  const out = scratch(t);
+  const screens = [
+    { number: 3601, journey: "save-and-resume", step: "first-open", note: "A", launch: "one", file: "3601-save-and-resume-first-open.png", redrawn: true },
+    { number: 3602, journey: "save-and-resume", step: "reopened", note: "B", launch: "two", file: "3602-save-and-resume-reopened.png", redrawn: true }
+  ];
+  const launches = [
+    { name: "one", ends_by: "harness", end: LAUNCH_ENDS.harness, started: true, ended_cleanly: true, failures: [] },
+    { name: "two", ends_by: "harness", end: LAUNCH_ENDS.harness, started: true, ended_cleanly: true, failures: [] }
+  ];
+  const menu = (launch) => ({ read: true, journey: "save-and-resume", number: 36, launch, read_when: "once", menus: [] });
+  writePart(out, { number: 36, name: "save-and-resume", title: "S", use_case: "u", screens, native_menu: menu("one"), native_menus: [menu("one"), menu("two")], launches, launch: { ended_cleanly: true } });
+  composeIndex(out);
+  const index = JSON.parse(readFileSync(path.join(out, "INDEX.json"), "utf8"));
+  assert.deepEqual(index.screens.map((screen) => screen.launch), ["one", "two"]);
+  assert.deepEqual(index.journeys[0].launches.map((item) => [item.name, item.ends_by]), [["one", "harness"], ["two", "harness"]]);
+  assert.deepEqual(index.native_menus.map((reading) => reading.launch), ["one", "two"]);
+  const html = readFileSync(path.join(out, "index.html"), "utf8");
+  assert.match(html, /Launches over one throwaway home: one, ended by harness: an end without saving/);
+  assert.match(html, /Launch: two/);
+});
+
+test("the driver numbers a later launch's steps on from the earlier launches", () => {
+  const driver = readFileSync(new URL("./driver.js", import.meta.url), "utf8");
+  assert.match(driver, /this\.count = plan\.step_offset \?\? 0;/);
 });

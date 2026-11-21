@@ -119,7 +119,8 @@
     constructor(plan) {
       this.number = plan.number;
       this.name = plan.journey;
-      this.count = 0;
+      // A journey of several launches numbers its steps on from the launches before this one (run.mjs launchesOf).
+      this.count = plan.step_offset ?? 0;
       this.broken = null;
     }
 
@@ -905,8 +906,167 @@
     await journey.scrolled("issues", "The Issues drawer", 2, '[data-testid="issues-home"]');
   }
 
+  // The toolbar's appearance disclosure, opened by its own summary, where the autosave interval and Recover Autosave… are.
+  async function openAppearance() {
+    const details = byTestId("toolbar-appearance");
+    if (!details) throw new Error("the toolbar shows no appearance control");
+    if (!details.open) { acting(details.querySelector(":scope > summary"), "toolbar-appearance").click(); await settle(); }
+    await waitFor("the appearance control open", () => byTestId("toolbar-appearance")?.open, T.ui);
+  }
+  // What tells a person whether their work is saved: the title, its edited mark, the autosave words, the project line.
+  const savedSigns = () => [
+    `title: ${shown("toolbar-project-name") ?? "none"}`,
+    `autosave: ${shown("autosave-status") ?? shown("autosave-off-status") ?? "no autosave words shown"}`,
+    shown("backup-status"),
+    `project: ${shown("local-project-message") ?? "no project line shown"}`
+  ].filter(Boolean).join("; ");
+  const localMessage = async (before) => waitFor("the project's answer", () => { const now = text("local-project-message") ?? ""; return now && now !== before ? now : null; }, T.step)
+    .catch(() => `the project line did not change (${before || "empty"})`);
+
+  // The report rendered (local private) and saved as a package, its chooser answered inside the throwaway home.
+  async function saveReport(journey, plan) {
+    await journey.step("report-tab", "The Review stage's Report tab", async () => {
+      await openStage("review");
+      await press("stage-tab-report");
+      await waitFor("the report panel", () => byTestId("rendered-report-panel") || byTestId("report-panel"), T.step);
+    });
+    await journey.step("report-rendered", "Render, local private", async () => {
+      const intent = await control("rendered-report-local-private-intent", { timeoutMs: T.step });
+      if (!intent.checked) { intent.click(); await waitFor("the local-private intent ticked", () => byTestId("rendered-report-local-private-intent")?.checked, T.ui); }
+      const render = await control("rendered-report-render", { timeoutMs: T.step });
+      await scrollTo(render, "center");
+      render.click();
+      await waitFor("the render's outcome", () => byTestId("rendered-report-hash") || byTestId("rendered-report-error") || byTestId("rendered-report-route"), T.save);
+      await waitFor("the render settled", () => !/Rendering/.test(byTestId("rendered-report-render")?.textContent ?? ""), T.save);
+      const error = text("rendered-report-error");
+      if (error) throw new Error(`the render was refused: ${error}`);
+      return text("rendered-report-hash") ?? "";
+    });
+    await journey.step("report-saved", "File > Save Report Package… (local private), its chooser answered inside the throwaway home", async () => {
+      const intent = await control("report-package-private-intent", { timeoutMs: T.step });
+      if (!intent.checked) { intent.click(); await waitFor("the package intent ticked", () => byTestId("report-package-private-intent")?.checked, T.ui); }
+      await control("report-package-save", { timeoutMs: T.step });
+      const prior = text("report-package-save-status");
+      await call("native_smoke_choose", { path: plan.local_package });
+      await menuCommand("file.save-report-package");
+      const saving = () => /Saving report package/.test(byTestId("report-package-save")?.textContent ?? "");
+      await waitFor("the save started", () => saving() || text("report-package-save-status") !== prior, T.step);
+      const status = await waitFor("the save's outcome", () => { const now = text("report-package-save-status"); return now && !saving() ? now : null; }, T.save);
+      const unused = await call("native_smoke_clear_choices");
+      await scrollTo(byTestId("report-package-save-status") ?? document.body, "center");
+      return `${status}${unused > 0 ? " (the queued chooser answer was not taken)" : ""}`;
+    });
+  }
+
+  // 36, first launch: the demonstration model solved, saved as a local project with a state, a run and a report; the
+  // autosave interval set to its shortest; an edit; the autosave the application makes by its own timing; then the
+  // harness ends the app without saving (run.mjs LAUNCH_ENDS.harness).
+  async function saveAndEnd(journey, plan) {
+    await journey.step("first-open", "The application as first opened, with its demonstration model");
+    await journey.step("run", "Run pressed on the demonstration model", pressRun);
+    await journey.step("solved", "The solve, once it ended", awaitSolve);
+    await journey.step("project-saved", "File > Save as New Local Project", async () => {
+      await closeOverlays();
+      const before = text("local-project-message") ?? "";
+      await menuCommand("file.new-local");
+      return localMessage(before);
+    });
+    await saveState(journey, "state", "Saved before the end");
+    await recordRun(journey, "run-record", "Solve saved before the end");
+    await saveReport(journey, plan);
+    await journey.step("autosave-setting", "The toolbar's appearance control: the autosave interval", async () => {
+      await closeOverlays();
+      await openAppearance();
+      const select = await control("autosave-interval");
+      return `the interval as shown: ${said(select.selectedOptions?.[0] ?? select) || select.value}; ${savedSigns()}`;
+    });
+    await journey.step("autosave-shortest", "The autosave interval set to its shortest choice", async () => {
+      const select = await control("autosave-interval");
+      const shortest = [...select.options].map((option) => option.value).filter((value) => Number(value) > 0).sort((a, b) => Number(a) - Number(b))[0];
+      if (!shortest) throw new Error("the interval offers no choice above off");
+      select.focus();
+      setValue(select, shortest);
+      await waitFor(`the interval ${shortest}`, () => byTestId("autosave-interval")?.value === shortest, T.step);
+      await sleep(300);
+      return `${said(byTestId("autosave-interval").selectedOptions[0])}; ${savedSigns()}`;
+    });
+    await journey.step("saved-signs", "What the window says of saving, before the edit", async () => {
+      const details = byTestId("toolbar-appearance");
+      if (details?.open) { acting(details.querySelector(":scope > summary"), "toolbar-appearance").click(); await settle(); }
+      return savedSigns();
+    });
+    await journey.step("node-chosen", "node:N-110 chosen in the model tree", async () => selectInTree("node", "node:N-110"));
+    await editValue(journey, "edit", "the y position of node:N-110 (1.25 m)", { fieldPath: "position.y", value: "1.25" });
+    await journey.step("unsaved-signs", "What the window says of saving, after the edit", async () => { await closeOverlays(); return savedSigns(); });
+    await journey.step("autosaved", "The window once the application's own autosave has run", async () => {
+      const started = Date.now();
+      const before = shown("autosave-status") ?? "";
+      const seen = await waitFor("an autosave", () => { const now = shown("autosave-status") ?? ""; return /^Autosaved at /.test(now) && now !== before ? now : null; }, T.record ?? 240000).catch(() => null);
+      const waited = Math.round((Date.now() - started) / 1000);
+      return seen ? `after ${waited} s: ${savedSigns()}` : `after ${waited} s the window shows no sign of an autosave: ${savedSigns()}`;
+    });
+    await journey.step("before-the-end", "The window as it stood when the harness ended the app without saving", async () => savedSigns());
+  }
+
+  // 36, second launch: the application opened again in the same home after the end without saving: the recovery
+  // offer and each of its choices, the work recovered, and the project's saved states, runs and report as they stand.
+  async function reopenAndRecover(journey) {
+    const offerWords = () => ["autosave-recovery-what", "autosave-recovery-unreadable", "autosave-recovery-newer", "autosave-recovery-replaces", "autosave-recovery-stored"].map(shown).filter(Boolean).join(" ");
+    await journey.step("reopened", "The application opened again in the same home", async () => {
+      const offer = await waitFor("the recovery offer", () => (visible(byTestId("autosave-recovery-prompt")) ? byTestId("autosave-recovery-prompt") : null), T.step).catch(() => null);
+      return offer ? `the recovery offer: ${offerWords()}` : `no recovery offer is shown; ${savedSigns()}`;
+    });
+    await journey.step("discard-asked", "The offer's Discard pressed: what it asks", async () => { await press("autosave-recovery-discard"); return shown("autosave-discard-detail") ?? ""; });
+    await journey.step("discard-cancelled", "Discard's question answered Cancel", async () => { await press("autosave-discard-cancel"); return visible(byTestId("autosave-recovery-prompt")) ? `the offer again: ${offerWords()}` : savedSigns(); });
+    await journey.step("kept", "The offer's Keep pressed", async () => {
+      if (!visible(byTestId("autosave-recovery-keep"))) throw new Error("the offer is not shown again after Cancel");
+      await press("autosave-recovery-keep");
+      await sleep(300);
+      return savedSigns();
+    });
+    await journey.step("recover-autosave", "Recover Autosave…, from the toolbar's appearance control", async () => {
+      await openAppearance();
+      await press("recover-autosave");
+      const offer = await waitFor("the recovery offer", () => visible(byTestId("autosave-recovery-prompt")), T.step).catch(() => false);
+      return offer ? `the recovery offer: ${offerWords()}` : `no offer: ${shown("autosave-status") ?? savedSigns()}`;
+    });
+    await journey.step("opened-autosave", "The offer's Open autosave pressed", async () => {
+      const before = text("local-project-message") ?? "";
+      await press("autosave-recovery-open");
+      if (visible(byTestId("unsaved-changes-prompt"))) return `asked about unsaved edits: ${shown("unsaved-changes-prompt")}`;
+      return `${await localMessage(before)}; ${savedSigns()}`;
+    });
+    await journey.step("model-after", "node:N-110 in the model after recovery, its properties", async () => {
+      await selectInTree("node", "node:N-110");
+      const inspector = await openInspector();
+      const tab = [...inspector.querySelectorAll('[role="tab"]')].find((item) => said(item) === "Properties");
+      if (tab && tab.getAttribute("aria-selected") !== "true") { acting(tab, "inspector Properties tab").click(); await settle(); }
+      return `${shown("status-selection") ?? ""}; ${shown("inspector-overview") ?? ""}`.slice(0, 500);
+    });
+    await journey.step("history", "The Project page's Model History after recovery", showHistory);
+    await journey.scrolled("history", "Model History", 2);
+    await journey.step("report-tab", "The Review stage's Report tab after recovery", async () => {
+      await openStage("review");
+      await press("stage-tab-report");
+      await waitFor("the report panel", () => byTestId("rendered-report-panel") || byTestId("report-panel"), T.step);
+      return [shown("report-package-save-status"), shown("report-output-status"), shown("report-package-source-unavailable")].filter(Boolean).join("; ");
+    });
+    await journey.step("open-local", "File > Open Local Project…", async () => {
+      await closeOverlays();
+      const before = text("local-project-message") ?? "";
+      await menuCommand("file.open-local");
+      return localMessage(before);
+    });
+    await journey.scrolled("open-local", "Open Local Project…", 2);
+  }
+  async function saveAndResume(journey, plan) {
+    if (plan.launch === "save-edit-end") return saveAndEnd(journey, plan);
+    if (plan.launch === "reopen-recover") return reopenAndRecover(journey, plan);
+    throw new Error(`the journey has no launch ${plan.launch}`);
+  }
+
   const JOURNEYS = { "solve-and-results": solveAndResults, report, exports: exportsPage, "reference-system": referenceSystem, "prepared-project": preparedProject };
-  Object.assign(JOURNEYS, { "missing-data": missingData, "failed-solve": failedSolve, "change-and-compare": changeAndCompare, "rule-pack": rulePack });
+  Object.assign(JOURNEYS, { "missing-data": missingData, "failed-solve": failedSolve, "change-and-compare": changeAndCompare, "rule-pack": rulePack, "save-and-resume": saveAndResume });
 
   (async () => {
     const result = { nonce: null, ok: false, journey: null, user_agent: navigator.userAgent };

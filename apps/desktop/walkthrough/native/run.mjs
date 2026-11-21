@@ -34,6 +34,14 @@
 //                          saved and solved again, the two states and the two runs compared and exported (CSV).
 //   rule-pack          35  AC-007 User rule pack: solved, the rule-pack editor's new draft validated and saved into the
 //                          local store, loaded for a run, applied, its outcomes and the Issues drawer.
+//   save-and-resume    36  AC-007 Save, close and resume, in part: two launches over one home (`launches`): saved with a
+//                          state, a run and a report, edited, autosaved by the app's own timing, ended without saving;
+//                          reopened, the recovery offer and each of its choices, the work recovered, the project.
+//
+// A journey may be several launches over one throwaway home (`launches`, launchesOf), each declaring how it ends
+// (`ends_by`). Today the harness ends every launch, an end without saving (LAUNCH_ENDS); an end by the application's
+// own Quit is refused by name until the build can deliver Quit by a person's route. Every confinement below holds for
+// each launch; the home is removed after the last.
 //
 // Every edit a use-case journey makes goes through one driver helper (driver.js editValue), so that a change in how a
 // person commits an edit changes one place.
@@ -135,11 +143,53 @@ export const JOURNEYS = Object.freeze({
   "rule-pack": {
     number: 35, title: "User rule pack (launched app): solved, a new private rule pack drafted, validated and saved into the local store, loaded for a run, applied, its outcomes and the Issues drawer",
     use_case: "DEL-07-06 AC-007 User rule pack: the pack is the rule-pack editor's own new draft (invented, the one the browser journey 07 opens), brought into the local store by Save; nothing private"
+  },
+  "save-and-resume": {
+    number: 36, title: "Save, close and resume (launched app), two launches over one home: solved and saved with a state, a run and a report, edited, autosaved, ended without saving; reopened, the recovery offer and each choice, the work recovered, the project as it stands",
+    use_case: "DEL-07-06 AC-007 Save, close and resume, in part: the recovery after an end without saving. Quit and reopen are not walked: this build cannot deliver the Quit command by the route a person's Quit takes, so each launch is ended by the harness, which is an end without saving and is recorded as one",
+    launches: [{ name: "save-edit-end", ends_by: "harness" }, { name: "reopen-recover", ends_by: "harness" }],
+    saves_report_package: true
   }
 });
 export const DEFAULT_JOURNEYS = Object.freeze(["solve-and-results", "report", "exports"]);
 // Named alone: its solve is long, as evidence-journeys.mjs keeps it apart.
 export const SEPARATE_JOURNEYS = Object.freeze(["reference-system"]);
+
+/**
+ * How a launch of a journey ends (a journey's `launches[].ends_by`), each with the words the index records for it.
+ * Today the harness ends every launch: once the driver has written its last step it hands its report to the
+ * scripted-run build (`native_smoke_finish`), which exits the app at once. That is an end without saving: the
+ * application's Quit is not chosen and its unsaved-changes guard is not asked. An end by the application's own Quit
+ * (`app-quit`) is a declared form this build cannot make, so it is refused by name until the build can deliver the Quit
+ * command by the route a person's Quit takes.
+ */
+export const LAUNCH_ENDS = Object.freeze({
+  harness: "an end without saving: after the launch's last step the harness ended the app (the scripted-run build's native_smoke_finish, which exits the app at once); the application's Quit was not chosen and its unsaved-changes guard was not asked"
+});
+const UNDELIVERABLE_ENDS = Object.freeze({
+  "app-quit": "this build cannot deliver the Quit command by the route a person's Quit takes (the scripted-run build's menu command reaches the web view, not the menu's Quit handler)"
+});
+export const MAX_LAUNCHES = 3;
+
+/**
+ * A journey's launches, in order, over one throwaway home: [{ name, ends_by, end }]. A journey that declares none is
+ * one launch, `walk`, ended by the harness. Throws, naming the journey, for an empty list, more than MAX_LAUNCHES, a
+ * name that is not a-z, 0-9 and -, a name used twice, or an end this build cannot make.
+ */
+export function launchesOf(name, spec) {
+  if (spec.launches === undefined) return [{ name: "walk", ends_by: "harness", end: LAUNCH_ENDS.harness }];
+  if (!Array.isArray(spec.launches) || spec.launches.length === 0 || spec.launches.length > MAX_LAUNCHES) throw new Error(`${name}: launches is a list of 1 to ${MAX_LAUNCHES} launches`);
+  const seen = new Set();
+  return spec.launches.map((launch, index) => {
+    const label = `${name}: launches[${index}]`;
+    if (!launch || typeof launch.name !== "string" || !/^[a-z][a-z0-9-]*$/.test(launch.name)) throw new Error(`${label}: a name is a-z, 0-9 and -`);
+    if (seen.has(launch.name)) throw new Error(`${label}: the name ${launch.name} is used twice`);
+    seen.add(launch.name);
+    if (UNDELIVERABLE_ENDS[launch.ends_by]) throw new Error(`${label}: ends_by "${launch.ends_by}" is refused: ${UNDELIVERABLE_ENDS[launch.ends_by]}`);
+    if (!Object.hasOwn(LAUNCH_ENDS, launch.ends_by)) throw new Error(`${label}: ends_by "${launch.ends_by}" is not an end this runner knows (${Object.keys(LAUNCH_ENDS).join(", ")})`);
+    return { name: launch.name, ends_by: launch.ends_by, end: LAUNCH_ENDS[launch.ends_by] };
+  });
+}
 
 /** The command line: { buildOnly, journeys, out, showWindow } or { error }. --build-only takes nothing else. */
 export function parseArguments(argv, { defaultOut = path.join(walkthrough, "output") } = {}) {
@@ -547,11 +597,11 @@ async function main() {
   const runRecord = () => ({ run_folder: RUN_ROOT, output: out, source_revision: revision, journeys: selected, checks });
 
   // One judged launch (`judged-launch.mjs`); a mark present or an unresolved census ends the run there.
-  async function launch(where, plan, { timeoutMs }) {
-    const phase = `${journey}/walk`;
-    const report = path.join(where.root, `report-${journey}.json`);
+  async function launch(where, plan, { timeoutMs, launchName = "walk" }) {
+    const phase = `${journey}/${launchName}`;
+    const report = path.join(where.root, `report-${journey}${launchName === "walk" ? "" : `-${launchName}`}.json`);
     const nonce = newNonce();
-    console.log(`\n== ${journey} (HOME=${where.home})`);
+    console.log(`\n== ${journey}${launchName === "walk" ? "" : `, launch ${launchName}`} (HOME=${where.home})`);
     const env = launchEnv(where, { ...plan, nonce, timeouts: { ...TIMEOUTS, ...(plan.timeouts ?? {}) } }, report);
     if (env === null) return exitAfterSignals(2);
     const seen = await judgedPhase({
@@ -573,7 +623,7 @@ async function main() {
     const plan = { journey: name, number: spec.number, bundled_project_id: demo.project.id, support_text: firstSupport.replace(/^support:/, ""), show_window: showWindow };
     const timeoutMs = spec.launch_ms ?? LAUNCH_MS;
     if (spec.timeouts) plan.timeouts = spec.timeouts;
-    if (name === "report") plan.local_package = path.join(where.saved, "walkthrough-local.opsproj");
+    if (name === "report" || spec.saves_report_package) plan.local_package = path.join(where.saved, "walkthrough-local.opsproj");
     // The prepared files, in the home before the app starts; refused by name when a declaration is wrong.
     try {
       const placements = placementsFor(spec.place, { home: where.home, identifier: IDENTIFIER, projectRoot: project });
@@ -588,33 +638,63 @@ async function main() {
       check("the prepared files were placed in the throwaway home", false, error.message);
       return;
     }
-    const lockedBefore = showWindow ? readScreenLock() : null;
-    const { report, seen, failures } = await launch(where, plan, { timeoutMs });
-    if (seen && seen.ok === false && seen.error) console.log(`${NAME}: ${name}: the driver reported ${seen.error.split("\n")[0]}`);
-    // The launch was censused (an unresolved census ended the run), so its home may go before anything is rendered.
-    if (removeHome(where.home) !== null) check("its throwaway home was removed", false, leftHomes.get(where.home));
-    else check("its throwaway home was removed", true);
-    const records = readStepRecords(report);
-    const nativeMenu = nativeMenuRecord(readReport(`${report}.menu.json`), { journey: name, number: spec.number });
-    const windowRecord = readReport(`${report}.window.json`).report ?? null;
-    const shown = windowShownRecord(showWindow, windowRecord, showWindow ? { before: lockedBefore, after: readScreenLock() } : null);
-    check("the menu the app built was read", nativeMenu.read, nativeMenu.read ? `${nativeMenu.menus.length} menus` : nativeMenu.error);
-    if (showWindow) check("the window was brought to the front (--show-window)", shown.shown, shown);
-    const launchFailure = failures.length > 0 ? failures.join("; ") : (seen?.ok === false ? seen.error?.split("\n")[0] ?? "the driver did not finish" : null);
-    const screens = screensFromRecords(records, { journey: name, number: spec.number, launchFailure });
+    // Each declared launch in turn over the same home (launchesOf: one launch, `walk`, unless the journey declares
+    // more), each with every confinement of a launch: the environment built from nothing, the strict chooser, the marks
+    // check directly before its start, its census after it. The step numbers run on across the launches
+    // (`step_offset`), and each screen says which launch it belongs to. A launch that stops (a step stopped or the launch
+    // did not end cleanly) is the last: the later launches are recorded as not started.
+    const launchList = launchesOf(name, spec);
+    const multiple = spec.launches !== undefined;
     const { chromium } = await import("@playwright/test");
     const executablePath = process.env.PLAYWRIGHT_CHROMIUM_EXECUTABLE_PATH || undefined;
-    await renderScreens(records, screens, { out, snapshots: path.join(where.root, "snapshots"), launchBrowser: () => chromium.launch({ executablePath }) });
+    const screens = [];
+    const launchRecords = [];
+    const menus = [];
+    let shown = null;
+    let stoppedIn = null;
+    for (const [index, declared] of launchList.entries()) {
+      if (stoppedIn !== null) {
+        launchRecords.push({ name: declared.name, ends_by: declared.ends_by, started: false, why: `not started: the launch ${stoppedIn} stopped` });
+        continue;
+      }
+      const lockedBefore = showWindow ? readScreenLock() : null;
+      const launchPlan = multiple ? { ...plan, launch: declared.name, launch_index: index, launches: launchList.map((item) => item.name), step_offset: screens.filter((screen) => !screen.synthetic).length } : plan;
+      const { report, seen, failures } = await launch(where, launchPlan, { timeoutMs, launchName: declared.name });
+      if (seen && seen.ok === false && seen.error) console.log(`${NAME}: ${name}: the driver reported ${seen.error.split("\n")[0]}`);
+      const records = readStepRecords(report);
+      const nativeMenu = nativeMenuRecord(readReport(`${report}.menu.json`), { journey: name, number: spec.number });
+      if (multiple) nativeMenu.launch = declared.name;
+      menus.push(nativeMenu);
+      const windowRecord = readReport(`${report}.window.json`).report ?? null;
+      shown = windowShownRecord(showWindow, windowRecord, showWindow ? { before: lockedBefore, after: readScreenLock() } : null);
+      check(`the menu the app built was read${multiple ? ` (launch ${declared.name})` : ""}`, nativeMenu.read, nativeMenu.read ? `${nativeMenu.menus.length} menus` : nativeMenu.error);
+      if (showWindow) check(`the window was brought to the front (--show-window)${multiple ? ` (launch ${declared.name})` : ""}`, shown.shown, shown);
+      const launchFailure = failures.length > 0 ? failures.join("; ") : (seen?.ok === false ? seen.error?.split("\n")[0] ?? "the driver did not finish" : null);
+      const launchScreens = screensFromRecords(records, { journey: name, number: spec.number, launchFailure }).map((screen) => (multiple ? { ...screen, launch: declared.name } : screen));
+      for (const screen of launchScreens) if (screen.step === "launch-ended" && !records.some((record) => record.number === screen.number)) screen.synthetic = true;
+      await renderScreens(records, launchScreens, { out, snapshots: path.join(where.root, multiple ? `snapshots-${declared.name}` : "snapshots"), launchBrowser: () => chromium.launch({ executablePath }) });
+      screens.push(...launchScreens);
+      const stopped = launchScreens.some((screen) => screen.failed);
+      launchRecords.push({ name: declared.name, ends_by: declared.ends_by, end: declared.end, started: true, ended_cleanly: failures.length === 0, failures, driver_finished: seen?.ok === true, window_shown: shown.shown, menu_read: nativeMenu.read, steps: launchScreens.filter((screen) => !screen.synthetic).length });
+      if (stopped) stoppedIn = declared.name;
+    }
+    for (const screen of screens) delete screen.synthetic;
+    // Every launch was censused (an unresolved census ended the run), so the home may go before the part is written.
+    if (removeHome(where.home) !== null) check("its throwaway home was removed", false, leftHomes.get(where.home));
+    else check("its throwaway home was removed", true);
+    const last = launchRecords.filter((item) => item.started).at(-1);
     writePart(out, {
-      number: spec.number, name, title: spec.title, use_case: spec.use_case, screens, native_menu: nativeMenu, window_shown: shown,
+      number: spec.number, name, title: spec.title, use_case: spec.use_case, screens, native_menu: menus[0], window_shown: shown,
+      ...(multiple ? { native_menus: menus, launches: launchRecords } : {}),
       revision: { commit: revision, uncommitted_paths: uncommitted },
-      build: { kind: "scripted-run build (native-smoke feature), launched as a private copy", app_sha256: app.identity.sha256, app_bytes: app.identity.size, binding_record_sha256: bindingSha }, launch: { ended_cleanly: failures.length === 0, failures, driver_finished: seen?.ok === true, window_shown: shown.shown } });
+      build: { kind: "scripted-run build (native-smoke feature), launched as a private copy", app_sha256: app.identity.sha256, app_bytes: app.identity.size, binding_record_sha256: bindingSha },
+      launch: { ended_cleanly: launchRecords.every((item) => !item.started || item.ended_cleanly), failures: launchRecords.flatMap((item) => item.failures ?? []), driver_finished: last?.driver_finished === true, window_shown: shown?.shown ?? false, ends_by: last?.ends_by, end: last?.end } });
     const pictured = screens.filter((screen) => screen.file).length;
     const stop = screens.find((screen) => screen.failed);
     const drawn = screens.filter((screen) => screen.view_3d === "captured").length;
     const blank = screens.filter((screen) => screen.view_3d === "not captured").length;
-    console.log(`${NAME}: ${name}: ${pictured} screens${stop ? `; stopped at "${stop.step}": ${stop.failed}` : ""}; window ${shown.shown ? "shown" : "not shown"}; 3D view captured at ${drawn} step(s), not captured at ${blank}`);
-    writeFileSync(path.join(where.root, "summary.json"), JSON.stringify({ journey: name, source_revision: revision, app: { binary: app.binary, identity: app.identity, binding_record_sha256: bindingSha }, launches: { [name]: launches[`${name}/walk`] }, checks: checks.filter((item) => item.journey === name) }, null, 2));
+    console.log(`${NAME}: ${name}: ${pictured} screens${multiple ? ` over ${launchRecords.filter((item) => item.started).length} of ${launchRecords.length} launches` : ""}${stop ? `; stopped at "${stop.step}": ${stop.failed}` : ""}; window ${shown?.shown ? "shown" : "not shown"}; 3D view captured at ${drawn} step(s), not captured at ${blank}`);
+    writeFileSync(path.join(where.root, "summary.json"), JSON.stringify({ journey: name, source_revision: revision, app: { binary: app.binary, identity: app.identity, binding_record_sha256: bindingSha }, launches: Object.fromEntries(launchList.map((item) => [`${name}/${item.name}`, launches[`${name}/${item.name}`] ?? null])), checks: checks.filter((item) => item.journey === name) }, null, 2));
   }
 
   for (const name of selected) {

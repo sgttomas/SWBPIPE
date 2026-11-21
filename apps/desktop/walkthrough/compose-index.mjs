@@ -41,7 +41,7 @@ export function composeIndex(out, { size = null } = {}) {
   }
   const nativeSurfaces = [...bySurface.values()];
   // Each launch's reading of the menu the app built (native/run.mjs nativeMenuRecord).
-  const nativeMenus = journeys.filter((journey) => journey.native_menu).map((journey) => ({ ...journey.native_menu, build: journey.build ?? null }));
+  const nativeMenus = journeys.flatMap((journey) => (journey.native_menus ?? (journey.native_menu ? [journey.native_menu] : [])).map((reading) => ({ ...reading, build: journey.build ?? null })));
   const stops = screens.filter((screen) => screen.failed).map((screen) => ({ journey: screen.journey, step: screen.step, reason: screen.failed }));
   const index = {
     schema: "swbpipe-walkthrough-index/v1",
@@ -52,7 +52,8 @@ export function composeIndex(out, { size = null } = {}) {
       substitutions: "each substitution of the scripted-run build the step used: the file a chooser returns, a native menu command, the report print dialog",
       native_surfaces: "each native surface not pictured, what prevents it (the permission prompt, or the substitution) and whether that leaves evidence missing",
       native_menus: "for each launch of the app, the menu it built, read from it once by the scripted-run build: each menu's items in order with label, command identifier, enabled and ticked state, and separators; names, order and state, not appearance or placement",
-      window_shown: "on a native screen, whether the run brought the app's window to the front (--show-window) so its web view drew; page_visibility is what the page reported at that step"
+      window_shown: "on a native screen, whether the run brought the app's window to the front (--show-window) so its web view drew; page_visibility is what the page reported at that step",
+      launch: "on a screen of a journey made of several launches over one throwaway home, the launch it belongs to; the journey's launches say how each launch ended (ends_by, end)"
     },
     native_surfaces: nativeSurfaces,
     native_menus: nativeMenus,
@@ -75,6 +76,7 @@ export function composeIndex(out, { size = null } = {}) {
       window: journey.window ?? size ?? null,
       ...(journey.picture_basis ? { picture_basis: journey.picture_basis } : {}),
       ...(journey.launch ? { launch: journey.launch } : {}),
+      ...(journey.launches ? { launches: journey.launches } : {}),
       ...(journey.window_shown ? { window_shown: journey.window_shown } : {}),
       screens: journey.screens.filter((screen) => screen.file && !screen.failed).length,
       stopped_at: journey.screens.find((screen) => screen.failed)?.step ?? null,
@@ -103,9 +105,10 @@ function renderScreen(screen) {
   const stop = screen.failed ? `<p class="stop">A person stops here: ${escapeHtml(screen.failed)}</p>` : "";
   const basis = screen.picture ? `<p class="basis">${escapeHtml(screen.picture)}${screen.view_3d === "not captured" ? " The 3D view was not captured at this step: a labelled placeholder stands in its place." : ""}</p>` : "";
   const substituted = screen.substitutions?.length ? `<p class="substituted">Substituted (scripted-run build): ${screen.substitutions.map((item) => `${escapeHtml(item.kind)}: ${escapeHtml(item.what)}`).join("; ")}.</p>` : "";
+  const launch = screen.launch ? `<p class="surface">Launch: ${escapeHtml(screen.launch)}</p>` : "";
   const unpictured = screen.picture_error ? `<p class="stop">No picture: the redraw failed (${escapeHtml(screen.picture_error)}).</p>` : "";
   const picture = screen.file ? `<a href="${escapeHtml(screen.file)}"><img loading="lazy" src="${escapeHtml(screen.file)}" alt="${escapeHtml(screen.note)}"></a>` : "";
-  return `<li class="screen${screen.failed ? " stopped" : ""}" id="s${screen.number}"><h3>${screen.number} · ${escapeHtml(screen.step)}</h3><p>${escapeHtml(screen.note)}</p>${stop}${substituted}${picture}${basis}${unpictured}${counts}${controls}</li>`;
+  return `<li class="screen${screen.failed ? " stopped" : ""}" id="s${screen.number}"><h3>${screen.number} · ${escapeHtml(screen.step)}</h3>${launch}<p>${escapeHtml(screen.note)}</p>${stop}${substituted}${picture}${basis}${unpictured}${counts}${controls}</li>`;
 }
 
 // The menu the app built, for reading: one launch's, the others said to match it or listed apart.
@@ -132,7 +135,8 @@ function renderHtml(index) {
     const revision = journey.revision?.commit ? `${journey.revision.commit.slice(0, 12)}${journey.revision.uncommitted_paths ? ` with ${journey.revision.uncommitted_paths} uncommitted path(s)` : ""}` : "not recorded";
     const build = journey.build ? (typeof journey.build === "string" ? journey.build : `${journey.build.kind}${journey.build.app_sha256 ? `, app ${journey.build.app_sha256.replace(/^sha256:/, "").slice(0, 12)}` : ""}`) : "not recorded";
     const facts = `<p class="surface">Use case: ${escapeHtml(journey.use_case)}. Revision: ${escapeHtml(revision)}. Build: ${escapeHtml(build)}.</p>`;
-    return `<section id="j${journey.number}"><h2>${journey.number}. ${escapeHtml(journey.title)}</h2>${facts}${surface}${stopped}<ol class="screens">${screens.map(renderScreen).join("")}</ol></section>`;
+    const launches = journey.launches ? `<p class="surface">Launches over one throwaway home: ${journey.launches.map((item) => `${escapeHtml(item.name)}, ${item.started === false ? escapeHtml(item.why ?? "not started") : `ended by ${escapeHtml(item.ends_by)}: ${escapeHtml(item.end ?? "")}`}`).join("; ")}.</p>` : "";
+    return `<section id="j${journey.number}"><h2>${journey.number}. ${escapeHtml(journey.title)}</h2>${facts}${surface}${launches}${stopped}<ol class="screens">${screens.map(renderScreen).join("")}</ol></section>`;
   }).join("");
   const rows = index.screens.filter((screen) => screen.words_on_screen !== undefined).map((screen) =>
     `<tr><td><a href="#s${screen.number}">${screen.number}</a></td><td>${escapeHtml(screen.journey)}</td><td>${escapeHtml(screen.step)}</td><td>${[screen.redrawn ? "redrawn" : "", screen.substitutions?.length ? "substituted" : "", screen.window_shown ? "window shown" : ""].filter(Boolean).join(", ")}</td><td class="n">${screen.words_on_screen}</td><td class="n">${screen.words_in_page}</td><td class="n">${screen.buttons_on_screen}</td><td class="n">${screen.inputs_on_screen}</td><td class="n">${screen.longest_scroll_screens}</td></tr>`).join("");

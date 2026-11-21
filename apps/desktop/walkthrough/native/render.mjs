@@ -215,15 +215,21 @@ function restoreDrawnState() {
 
 /**
  * Writes the journey's part file in the browser walkthrough's form, with its surface, the launch's reading of the
- * menu the app built (`native_menu`) and whether its window was shown (`window_shown`, run.mjs windowShownRecord).
+ * menu the app built (`native_menu`) and whether its window was shown (`window_shown`, run.mjs windowShownRecord). A
+ * journey of several launches also gives each launch's reading (`native_menus`) and each launch with how it ended
+ * (`launches`); each of its screens says which launch it belongs to (`launch`).
  */
-export function writePart(out, { number, name, title, use_case, revision, build, screens, launch, native_menu = null, window_shown = null }) {
+export function writePart(out, { number, name, title, use_case, revision, build, screens, launch, native_menu = null, window_shown = null, native_menus = null, launches = null }) {
   const windows = [...new Set(screens.map((screen) => screen.window).filter(Boolean))];
   const part = {
     number, name, title, use_case, revision, build, surface: NATIVE_SURFACE, picture_basis: PICTURE_BASIS,
     window: windows.join(", ") || null,
     native_surfaces: nativeSurfacesFor({ menu: native_menu, windowShown: window_shown?.shown === true, screens }),
     ...(native_menu ? { native_menu } : {}),
+    // A journey of several launches over one home (run.mjs launchesOf): each launch's reading of the menu, and each
+    // launch with how it ended.
+    ...(native_menus ? { native_menus } : {}),
+    ...(launches ? { launches } : {}),
     ...(window_shown ? { window_shown } : {}),
     launch, screens
   };

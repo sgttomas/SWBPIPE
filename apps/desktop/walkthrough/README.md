@@ -118,6 +118,7 @@ nothing. A launch invocation builds nothing: anything stale refuses it by name.
 | `failed-solve` | 33 | AC-007 Failed solve: on the demonstration model, pipe:P-100's wall set thicker than its radius in the inspector (the start), Run, the refusal in the progress panel, Issues, Analyze and Results, the pipe reached from its finding and corrected, Run again, the results. |
 | `change-and-compare` | 34 | AC-007 Change a support and compare: solved, Save Model State… and Record Run…, support:S-120 moved to node:N-110, what Results says of the held result, saved and solved again and recorded, the two states and the two runs compared, each comparison's Export CSV, the 3D view. |
 | `rule-pack` | 35 | AC-007 User rule pack: solved, the Rules page's new draft validated and saved into the local store, Analyze > Rule Checks, the saved pack loaded for a run, Run rule checks, its outcomes, the Issues drawer. |
+| `save-and-resume` | 36 | AC-007 Save, close and resume, in part: two launches over one home. The first: solved, File > Save as New Local Project, a saved state, a recorded run and a saved report package, the autosave interval at its shortest, an edit, the autosave by the app's own timing, the window's words on saving before and after; ended by the harness without saving. The second: the recovery offer, Discard's question and Cancel, Keep, Recover Autosave…, Open autosave, the model after recovery, Model History, the Report tab, File > Open Local Project…. Quit and reopen are not walked: this build cannot deliver Quit by a person's route. |
 
 Without `--journey` the first three run, one launch each. `--show-window`, off
 by default, brings each launched window to the front for its run so that the
@@ -232,6 +233,14 @@ saved states and runs. To add one:
      `{ by: "local-project", project_id: "<id>" }` (File > Open Local
      Project…, from the placed store).
    - Optionally `timeouts: { solve: <ms> }` and `launch_ms` for a long solve.
+   - Optionally `launches`: two or three launches over one throwaway home,
+     `[{ name, ends_by }]`, each with every confinement of a launch; the
+     home is removed after the last. `ends_by` is `harness` (the harness
+     ends the app after the launch's last step: an end without saving, and
+     the index records it as one). An end by the application's own Quit is
+     refused until the build can deliver Quit by a person's route. The
+     driver's journey receives `plan.launch`, and its step numbers run on
+     across launches; each screen says which launch it belongs to.
    - Optionally `entries_from`: a committed file under `fixtures/` whose
      `entries` (entity, field, value, unit) are the values the person types;
      the driver receives them as `plan.entries`.
