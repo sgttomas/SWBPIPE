@@ -28,9 +28,9 @@
    ".json",
    ".jsonl"
   ],
-  "files": 543,
+  "files": 544,
   "claimed_by": {
-   "group": 142,
+   "group": 143,
    "in_code": 65,
    "exemption": 336
   }
@@ -65,6 +65,11 @@
    "files": 1,
    "documents": 1,
    "pressurised_load_cases": 1
+  },
+  "hydrostatic_four_span_reader_models": {
+   "files": 1,
+   "documents": 2,
+   "pressurised_load_cases": 3
   },
   "reference_system": {
    "files": 1,
@@ -1498,6 +1503,46 @@
      "schema_version": "0.9.0",
      "pressurised_load_cases": [
       "load:VACUUM"
+     ]
+    }
+   ]
+  },
+  {
+   "id": "hydrostatic_four_span_reader_models",
+   "group": "hydrostatic_four_span_reader_models",
+   "path": "fixtures/hydrostatic_test/four_span_reader_models.json",
+   "producer": {
+    "kind": "rust_test",
+    "path": "core/model_operations/operation_applier/tests/hydrostatic_four_span_journey.rs",
+    "write": "OPENPIPESTRESS_WRITE_HYDROSTATIC_READER_MODELS=1 with the_reader_models_are_current",
+    "switch_plumbed": false,
+    "switch_route": "takes the committed four-span test model through the operation route; re-produce that source with the switch, then re-run this writer"
+   },
+   "pinned_by": [
+    "core/model_operations/operation_applier/tests/hydrostatic_four_span_journey.rs",
+    "core/product_physics/tests/hydrostatic_test_case.rs",
+    "core/product_physics/src/hydrostatic_certificate_tests.rs",
+    "tests/test_hydrostatic_test_readers.py",
+    "apps/desktop/src/features/results/hydrostaticTestReaders.test.tsx",
+    "apps/desktop/src-tauri/src/exact_source_binding.rs"
+   ],
+   "anchor": {
+    "kind": "baseline"
+   },
+   "documents": [
+    {
+     "pointer": "/models/journey",
+     "schema_version": "0.9.0",
+     "pressurised_load_cases": [
+      "HT-4S-TEST"
+     ]
+    },
+    {
+     "pointer": "/models/load_state_twin",
+     "schema_version": "0.9.0",
+     "pressurised_load_cases": [
+      "HT-4S-TEST",
+      "HT-4S-OPERATING"
      ]
     }
    ]
