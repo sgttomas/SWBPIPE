@@ -1364,13 +1364,15 @@ def _rs_ope_ref_mutations_are_caught(sheet: str) -> None:
 def test_a_rewrap_of_rs_ope_ref_s_instructions_changes_no_reading():
     """A line break inside "Mark element_states absent" or inside the replaced span's backticked thermal provenance
     changes nothing: the sheet still matches the fixture, and the RS-OPE-REF mutations are still caught (in round 1
-    such a break hid the moved replaced span)."""
+    such a break hid the moved replaced span). Each phrase is found whether the sheet already breaks it or not: a
+    space between its words matches a space or a line continuation."""
     bullet = _rs_ope_ref_bullet(RUN_SHEET)
     rewrapped = bullet
     for phrase, wrapped in (("**Mark element_states absent**", "**Mark\n  element_states absent**"),
                             ("replaced span RS-P180: zero eigenstrain", "replaced span\n  RS-P180: zero eigenstrain")):
-        assert rewrapped.count(phrase) == 1, phrase
-        rewrapped = rewrapped.replace(phrase, wrapped, 1)
+        pattern = r"(?: |\n[ \t]*)".join(map(re.escape, phrase.split(" ")))
+        assert len(re.findall(pattern, rewrapped)) == 1, phrase
+        rewrapped = re.sub(pattern, lambda _: wrapped, rewrapped, count=1)
     sheet = RUN_SHEET.replace(bullet, rewrapped, 1)
     assert sheet != RUN_SHEET
     assert field_problems(sheet, MODEL) == []
