@@ -125,8 +125,7 @@ export function PressureAuthoringPanel(props: RichFormProps & { loadCaseId?: str
   const currentProfile = { schema_version: props.model.schema_version, ...(Object.hasOwn(props.model, "pressure_contract") ? { pressure_contract: props.model.pressure_contract } : {}) };
   const loadCase = props.model.load_cases.find(c => c.id === props.loadCaseId);
   return <section aria-label="Exact pressure authoring"><h3>Pressure mechanics profile</h3>
-    <p>Current model: {props.model.schema_version}; pressure mode: {pressureModeText(props.model)}. Every exact-profile case needs an explicit pressure-region array, including an explicitly reviewed empty array for unpressurized cases. Existing pressure primitives must be removed explicitly before this profile can be applied. Unsupported combinations, fittings and nonlinear cases remain subject to solver diagnostics.</p>
-    <p>Pressure is uniform within each region. Structural line loads act as entered; a contents-density value does not imply hydrostatic pressure head or a coupled static-fluid pressure and weight state.</p>
+    <p>Current model: {props.model.schema_version}; pressure mode: {pressureModeText(props.model)}.</p>
     <fieldset disabled={state.busy}>
       <TextField label="Pressure profile" value={profile} choices={[PRESSURE_V3.mode]} onChange={setProfile} />
       <label className="form-field">Shear model
@@ -143,7 +142,7 @@ export function PressureAuthoringPanel(props: RichFormProps & { loadCaseId?: str
     {loadCase && <PressureRegionsEditor key={loadCase.id} {...props} loadCase={loadCase} />}
   </section>;
 }
-function PressureRegionsEditor(props: RichFormProps & { loadCase: RichFormProps["model"]["load_cases"][number] }) {
+export function PressureRegionsEditor(props: RichFormProps & { loadCase: RichFormProps["model"]["load_cases"][number] }) {
   const [rows, setRows] = useState<DraftRecord[]>(() => clone(props.loadCase.pressure_regions ?? []) as DraftRecord[]);
   useEffect(() => setRows(clone(props.loadCase.pressure_regions ?? []) as DraftRecord[]), [props.loadCase]);
   const state = useRichQueue(props);
