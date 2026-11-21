@@ -646,6 +646,11 @@ export function attendedEnding({ outcome, receipt = null, stop = null, start = n
 }
 
 const SIDECAR_LIMIT = 64 * 1024;
+/**
+ * An account of a surface not shown that does not say what in the system or the application kept it from view: one
+ * naming the attendant's own capture tool, its setup or its permission, or one that leaves the reason unresolved.
+ */
+export const UNACCOUNTED = /\b(tools?|tooling|set ?up|setup|not configured|unconfigured|(capture|recording|screen[- ]?(capture|recording)|accessibility) permission|unknown|unclear|unresolved|undetermined|not sure|no idea|could not (tell|determine|say)|for some reason)\b/i;
 /** DEL-07-06 AC-007's use cases by their names there: an attended capture's sidecar names one of them, or the launch's journey. */
 export const AC007_USE_CASES = Object.freeze(["Blank to released report", "Timed entry", "Missing data", "Failed solve", "Change a support and compare", "Review and export results", "Every required analysis", "User rule pack", "Save, close and resume"]);
 /** How far a sidecar's taken_at may lie from its picture's file time before the index says the two disagree. */
@@ -657,10 +662,12 @@ const PNG_SIGNATURE = Buffer.from([0x89, 0x50, 0x4e, 0x47, 0x0d, 0x0a, 0x1a, 0x0
 
 /**
  * A sidecar's optional surface claims, the attendant's: `surfaces`, the native surfaces the picture shows, and
- * `prevented`, one statement or a list of { step, surface, observed, obstacle } that a surface could not be shown:
- * the step attempted, the surface, what was observed when it was attempted, and whether the obstacle is the
- * "system" or the "application". Each surface is a key of SURFACE_KEYS; an unknown one is kept apart as unexplained.
- * A statement lacking any of the four is kept apart as incomplete, with what it lacks, and makes nothing unseen.
+ * `prevented`, one statement or a list of { step, surface, observed, obstacle, cause } that a surface could not be
+ * shown: the step attempted, the surface, what was observed when it was attempted, whether the obstacle is the
+ * "system" or the "application", and the cause, a concrete account of what in that system or application kept the
+ * surface from the capture. Each surface is a key of SURFACE_KEYS; an unknown one is kept apart as unexplained. A
+ * statement lacking any member, or whose account names the attendant's own tool or its setup or leaves the reason
+ * unresolved (UNACCOUNTED), is kept apart as not counted, with why, and makes nothing unseen: it is missing evidence.
  * { surfaces, surfaces_unexplained, prevented, prevented_incomplete, prevented_unexplained } or { why } when a member
  * is not of that form.
  */
@@ -673,13 +680,14 @@ export function surfaceClaims(value) {
   if (value.prevented !== undefined) {
     const records = Array.isArray(value.prevented) ? value.prevented : [value.prevented];
     const valid = (record) => record && typeof record === "object" && !Array.isArray(record) && typeof record.surface === "string" && record.surface.length > 0 && record.surface.length <= 80;
-    if (records.length === 0 || records.length > 20 || !records.every(valid)) return { why: "its sidecar's prevented is not { step, surface, observed, obstacle } or a list of them" };
+    if (records.length === 0 || records.length > 20 || !records.every(valid)) return { why: "its sidecar's prevented is not { step, surface, observed, obstacle, cause } or a list of them" };
     const text = (item, limit) => (typeof item === "string" && item.trim() !== "" && item.length <= limit ? item.trim() : null);
     for (const record of records) {
-      const statement = { step: text(record.step, 200), surface: record.surface, observed: text(record.observed, 1000), obstacle: ["system", "application"].includes(record.obstacle) ? record.obstacle : null };
-      const lacks = ["step", "observed", "obstacle"].filter((member) => statement[member] === null);
+      const statement = { step: text(record.step, 200), surface: record.surface, observed: text(record.observed, 1000), obstacle: ["system", "application"].includes(record.obstacle) ? record.obstacle : null, cause: text(record.cause, 1000) };
+      const lacks = ["step", "observed", "obstacle", "cause"].filter((member) => statement[member] === null);
       if (!Object.hasOwn(SURFACE_KEYS, record.surface)) claims.prevented_unexplained.push(statement);
-      else if (lacks.length > 0) claims.prevented_incomplete.push({ ...statement, lacks });
+      else if (lacks.length > 0) claims.prevented_incomplete.push({ ...statement, lacks, why: `it lacks ${lacks.join(", ")}: a statement names the step attempted, the surface, what was observed, whether the obstacle is the system's or the application's, and what in it kept the surface from the capture` });
+      else if (UNACCOUNTED.test(statement.cause) || UNACCOUNTED.test(statement.observed)) claims.prevented_incomplete.push({ ...statement, lacks: [], why: "its account names the attendant's own tool or its setup, or leaves the reason unresolved: that is missing evidence, not a surface the system or the application kept from view" });
       else claims.prevented.push(statement);
     }
   }

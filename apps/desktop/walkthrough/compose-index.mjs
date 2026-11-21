@@ -82,7 +82,7 @@ export const SUBSTITUTED_BY_BUILD = Object.freeze({
   print_dialog: "the scripted-run build substitutes the print dialog (the print document is recorded and no dialog is shown): by DEL-07-06 VER-007 it is supplied or missing, never unseen"
 });
 /** An attendant's complete statement that a surface could not be shown, in words. */
-const statementOf = (record) => `at the step "${record.step}", ${SURFACE_KEYS[record.surface] ?? record.surface} was attempted and "${record.observed}" was observed; the obstacle is the ${record.obstacle === "system" ? "system's" : "application's"}`;
+const statementOf = (record) => `at the step "${record.step}", ${SURFACE_KEYS[record.surface] ?? record.surface} was attempted and "${record.observed}" was observed; the obstacle is the ${record.obstacle === "system" ? "system's" : "application's"}: ${record.cause}`;
 const keyOf = (item) => item.key ?? SURFACE_ORDER.find((key) => SURFACE_KEYS[key] === item.surface) ?? null;
 const shortCommit = (commit) => (typeof commit === "string" ? commit.slice(0, 12) : "unrecorded");
 
@@ -142,8 +142,9 @@ export function nativeSurfacesOf(journeys, { bindings = { checks: new Map(), unb
   const stated = (record, ref, partWhy) => {
     const kind = "statement that it was unseen";
     if (Object.hasOwn(SUBSTITUTED_BY_BUILD, record.surface)) return add(notSupplying, record.surface, { ...ref, kind, why: SUBSTITUTED_BY_BUILD[record.surface] });
-    if (record.lacks) return add(notSupplying, record.surface, { ...ref, kind, why: `the attendant's statement lacks ${record.lacks.join(", ")}: a statement names the step attempted, the surface, what was observed and whether the obstacle is the system's or the application's` });
-    const attempt = { ...ref, step_attempted: record.step, observed: record.observed, obstacle: record.obstacle, statement: statementOf(record) };
+    // Not counted, and kept in full: the attendant's statement, and why it makes nothing unseen.
+    if (record.why) return add(notSupplying, record.surface, { ...ref, kind, statement: { step: record.step, observed: record.observed, obstacle: record.obstacle, cause: record.cause }, why: `the attendant's statement does not count: ${record.why}` });
+    const attempt = { ...ref, step_attempted: record.step, observed: record.observed, obstacle: record.obstacle, cause: record.cause, statement: statementOf(record) };
     return partWhy === null ? add(attempts, record.surface, attempt) : add(notSupplying, record.surface, { ...attempt, kind, why: partWhy });
   };
   for (const part of attendedParts) {
@@ -219,7 +220,7 @@ export function composeIndex(out, { size = null } = {}) {
     marks_explained: {
       redrawn: "true where the picture is the application's document redrawn outside its window by Chromium, not a capture of the window",
       substitutions: "each substitution of the scripted-run build the step used: the file a chooser returns, a native menu command, the report print dialog",
-      native_surfaces: "each native surface of the launched app: supplied (the attended captures of the actual window that show it, with their revision and build), unseen, as the attendant states (a statement naming the step attempted, the surface, what was observed and whether the obstacle is the system's or the application's, given in full for the reader to accept or not; never the file chooser or the print dialog, which the scripted-run build substitutes), or missing evidence (not supplied: no attended capture of it in this walkthrough); and what the scripted runner does instead",
+      native_surfaces: "each native surface of the launched app: supplied (the attended captures of the actual window that show it, with their revision and build), unseen, as the attendant states (a statement naming the step attempted, the surface, what was observed, whether the obstacle is the system's or the application's and what in it kept the surface from the capture, given in full for the reader to accept or not; never the file chooser or the print dialog, which the scripted-run build substitutes, and never an account naming the attendant's own tool or its setup or leaving the reason unresolved, which is missing evidence), or missing evidence (not supplied: no attended capture of it in this walkthrough); and what the scripted runner does instead",
       native_menus: "for each launch of the app, the menu it built, read from it once by the scripted-run build: each menu's items in order with label, command identifier, enabled and ticked state, and separators; names, order and state, not appearance or placement",
       window_shown: "on a native screen, whether the run brought the app's window to the front (--show-window) so its web view drew; page_visibility is what the page reported at that step",
       ...(journeys.some(attendedJourney) ? {

@@ -73,9 +73,11 @@ other native dialog. Each is supplied only by an attended capture of it in the
 same folder at the revision and build of the walkthrough's screens (the entry
 lists those captures with their revision and build); unseen only as the
 attendant states it, in a statement naming the step attempted, the surface,
-what was observed and whether the obstacle is the system's or the
-application's (never the file chooser or the print dialog, which the
-scripted-run build substitutes); and otherwise missing evidence ("not supplied:
+what was observed, whether the obstacle is the system's or the application's,
+and what in it kept the surface from the capture (never the file chooser or
+the print dialog, which the scripted-run build substitutes; never an account
+that names the attendant's own tool or its setup, or leaves the reason
+unresolved); and otherwise missing evidence ("not supplied:
 no attended capture of this surface in this walkthrough"), never excused by a
 permission prompt. The 3D view keeps its own record of each step under
 `--show-window` as well. `index.html` lists them under "Native surfaces not
@@ -322,8 +324,13 @@ previous capture (`["observed only"]` when nothing was); `taken_at` is an ISO
 `menu_bar`, `file_chooser`, `print_dialog`, `view_3d`, `other_native_dialog`.
 `prevented`, also optional, is a statement (or a list) that a surface could
 not be shown: `{ "step": "...", "surface": "...", "observed": "...",
-"obstacle": "system" | "application" }`. A sidecar with no picture may carry
-`prevented`, never `surfaces`.
+"obstacle": "system" | "application", "cause": "..." }`, where `cause` says
+what in the system or the application kept the surface from the capture. A
+statement that names the attendant's own capture tool, its setup or its
+permission (for example, "the capture tool was not set up"), or leaves the
+reason unknown, is kept in the index in full and counts as missing evidence,
+not as unseen. A sidecar with no picture may carry `prevented`, never
+`surfaces`.
 
 **The record.** The index gets one part, `part-90-attended.json`: the
 revision and build, the start, the handover, how and when the launch ended,

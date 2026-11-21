@@ -747,21 +747,21 @@ test("native surfaces: a capture at another revision than the walkthrough's scre
 });
 
 test("native surfaces: unseen only by the attendant's complete statement, never for the chooser or the print dialog, and the runner writes none", (t) => {
-  const full = { step: "open the window menu", surface: "window", observed: "the screen-driving tool's picture of the window came back black", obstacle: "system" };
+  const full = { step: "open the window menu", surface: "window", observed: "the picture of the window came back black", obstacle: "system", cause: "the window server withheld the window's contents from the capture" };
   const { entry, html } = surfacesIndex(t, {
     sidecars: [
       { prevented: full },
-      { picture: false, prevented: [{ step: "Help", surface: "other_native_dialog", observed: "the alert closed before it could be captured", obstacle: "application" }] },
+      { picture: false, prevented: [{ step: "Help", surface: "other_native_dialog", observed: "the alert closed before it could be captured", obstacle: "application", cause: "the application dismissed its alert after half a second" }] },
       { prevented: [{ step: "Print", surface: "print_dialog", observed: "the print view's window opened; no dialog", obstacle: "application" }, { step: "Open", surface: "file_chooser", observed: "the application ended", obstacle: "application" }] },
       { prevented: { surface: "menu_bar", observed: "nothing drawn", obstacle: "system" } }
     ],
     launch: { ended_by: "strict-chooser", ending: "a file chooser was opened with no answer queued; the strict chooser ended the app before any panel (exit 86)" }
   });
   assert.deepEqual([entry("window").evidence, entry("window").unseen, entry("window").missing_evidence], ["unseen", true, false]);
-  assert.equal(entry("window").prevented_by, `unseen, as the attendant states: at the step "open the window menu", ${SURFACE_KEYS.window} was attempted and "the screen-driving tool's picture of the window came back black" was observed; the obstacle is the system's`);
+  assert.equal(entry("window").prevented_by, `unseen, as the attendant states: at the step "open the window menu", ${SURFACE_KEYS.window} was attempted and "the picture of the window came back black" was observed; the obstacle is the system's: the window server withheld the window's contents from the capture`);
   assert.deepEqual([entry("window").attempts[0].file, entry("window").attempts[0].obstacle], ["captures/01-capture.png", "system"]);
   assert.deepEqual([entry("other_native_dialog").evidence, entry("other_native_dialog").attempts[0].file], ["unseen", "captures/02-capture.json"]);
-  assert.match(entry("other_native_dialog").prevented_by, /the obstacle is the application's$/);
+  assert.match(entry("other_native_dialog").prevented_by, /the obstacle is the application's: the application dismissed its alert after half a second$/);
   // Substituted by the build: supplied or missing, never unseen, whatever a sidecar says.
   for (const key of ["print_dialog", "file_chooser"]) {
     assert.deepEqual([entry(key).evidence, entry(key).missing_evidence, entry(key).not_supplying[0].kind], ["missing", true, "statement that it was unseen"], key);
@@ -779,14 +779,14 @@ test("native surfaces: unseen only by the attendant's complete statement, never 
   // The old form, { surface, what }, is incomplete and makes nothing unseen.
   const old = surfacesIndex(t, { sidecars: [{ prevented: { surface: "window", what: "covered" } }] });
   assert.equal(old.entry("window").evidence, "missing");
-  assert.match(old.entry("window").not_supplying[0].why, /lacks step, observed, obstacle/);
+  assert.match(old.entry("window").not_supplying[0].why, /lacks step, observed, obstacle, cause/);
 });
 
 test("native surfaces: an unknown surface name in a sidecar is listed as unexplained, not dropped; a malformed claim leaves the capture unexplained", (t) => {
-  const { entry, index, html, captures } = surfacesIndex(t, { sidecars: [{ surfaces: ["menu_bar", "dock"], prevented: { step: "s", surface: "touch_bar", observed: "none here", obstacle: "system" } }, { surfaces: "window" }, { prevented: { observed: "x" } }] });
+  const { entry, index, html, captures } = surfacesIndex(t, { sidecars: [{ surfaces: ["menu_bar", "dock"], prevented: { step: "s", surface: "touch_bar", observed: "none here", obstacle: "system", cause: "c" } }, { surfaces: "window" }, { prevented: { observed: "x" } }] });
   assert.deepEqual(captures.screens.map((screen) => screen.capture), ["the actual window", "unexplained", "unexplained"]);
   assert.match(captures.screens[1].unexplained, /surfaces is not a list/);
-  assert.match(captures.screens[2].unexplained, /prevented is not \{ step, surface, observed, obstacle \}/);
+  assert.match(captures.screens[2].unexplained, /prevented is not \{ step, surface, observed, obstacle, cause \}/);
   assert.equal(entry("menu_bar").evidence, "supplied");
   assert.deepEqual(index.native_surfaces_unexplained, [{ name: "dock", file: "captures/01-capture.png", member: "surfaces" }, { name: "touch_bar", file: "captures/01-capture.png", member: "prevented", observed: "none here" }]);
   assert.match(html, /Unexplained surface names in sidecars: dock \(captures\/01-capture\.png, surfaces\); touch_bar/);
@@ -1426,4 +1426,23 @@ test("placement sqlite3-from-sql: a WAL left with content, or any other file bes
   // An empty WAL (this platform's sqlite3 keeps one after a clean close) goes with its index.
   const placed = placeFiles(placements, { run: leaving({ "built.sqlite3-wal": "", "built.sqlite3-shm": "index" }) });
   assert.deepEqual(readdirSync(path.dirname(placed.store)), ["openpipestress-projects.sqlite3"]);
+});
+
+test("a tool-setup failure, or an unresolved reason, is missing evidence, never unseen; the attendant's statement is kept in full", (t) => {
+  const setup = { step: "open the File menu", surface: "menu_bar", observed: "the capture tool was not set up", obstacle: "system", cause: "the menu bar could not be pictured" };
+  const unknown = { step: "Help", surface: "window", observed: "nothing came back", obstacle: "application", cause: "unknown" };
+  const permission = { step: "Help", surface: "other_native_dialog", observed: "the alert was shown", obstacle: "system", cause: "the screen recording permission was not granted to the tool" };
+  const { entry, index } = surfacesIndex(t, { sidecars: [{ prevented: [setup, unknown, permission] }] });
+  for (const [key, record] of [["menu_bar", setup], ["window", unknown], ["other_native_dialog", permission]]) {
+    assert.deepEqual([entry(key).evidence, entry(key).missing_evidence, entry(key).unseen], ["missing", true, undefined], key);
+    const kept = entry(key).not_supplying.find((item) => item.kind === "statement that it was unseen");
+    assert.match(kept.why, /names the attendant's own tool or its setup, or leaves the reason unresolved/, key);
+    assert.deepEqual(kept.statement, { step: record.step, observed: record.observed, obstacle: record.obstacle, cause: record.cause }, key);
+  }
+  // The capture still records the attendant's own words, exactly as written.
+  const screen = index.screens.find((item) => item.journey === "attended");
+  assert.deepEqual(screen.stated_by_attendant.prevented, [setup, unknown, permission]);
+  // A concrete account of the system's obstacle still counts.
+  const concrete = surfacesIndex(t, { sidecars: [{ prevented: { ...setup, observed: "the menu bar was drawn blank in the picture", cause: "the system hides the menu bar of a window in full-screen mode" } }] });
+  assert.equal(concrete.entry("menu_bar").evidence, "unseen");
 });
