@@ -246,7 +246,7 @@ pub fn integrity_bound_statement(status: IntegrityBound) -> &'static str {
 /// Why the integrity bound has its status, in words a person reads.
 pub fn integrity_bound_reason_statement(reason: IntegrityBoundReason) -> &'static str {
     match reason {
-        IntegrityBoundReason::InverseNormBoundNotVerified => "SWBPIPE has not verified an error bound for this result's values.",
+        IntegrityBoundReason::InverseNormBoundNotVerified => "SWBPIPE has not verified an error bound for the ordinary solve's values.",
     }
 }
 

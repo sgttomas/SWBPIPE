@@ -263,7 +263,7 @@
       "vocabulary": "integrity_bound"
     },
     {
-      "statement": "SWBPIPE has not verified an error bound for this result's values.",
+      "statement": "SWBPIPE has not verified an error bound for the ordinary solve's values.",
       "tag": "inverse_norm_bound_not_verified",
       "vocabulary": "integrity_bound_reason"
     }
