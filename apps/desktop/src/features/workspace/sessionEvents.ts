@@ -39,7 +39,19 @@ export function createSessionEventChannel(onListenerFailure: (error: unknown, ev
       const publish = listener(event);
       if (publish) publishes.push(publish);
     }
-    return () => { for (const publish of publishes) publish(); };
+    // Every staged publish runs: one listener's throw does not leave a later listener's transition unpublished.
+    // The first failure is rethrown after all have run, so a caller sees it as before.
+    return () => {
+      let failure: { error: unknown } | null = null;
+      for (const publish of publishes) {
+        try {
+          publish();
+        } catch (error) {
+          failure ??= { error };
+        }
+      }
+      if (failure) throw failure.error;
+    };
   };
   return {
     listen(listener) {

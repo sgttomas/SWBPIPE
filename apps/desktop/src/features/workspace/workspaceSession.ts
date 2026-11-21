@@ -2814,32 +2814,39 @@ export function useWorkspaceSession() {
     let notice: string | null = null;
     let publishEvents: () => void;
     try {
-      publishEvents = sessionEvents.stage({ type: "checkpoint", operationId: key, submittedId: batch.batch_id, appliedModel, operationOutcomes: kept.operation_outcomes });
+      // P5: the event's payload is detached; no listener receives an object the session keeps.
+      publishEvents = sessionEvents.stage({ type: "checkpoint", operationId: key, submittedId: batch.batch_id, appliedModel: clonePreviewModel(appliedModel),
+        operationOutcomes: structuredClone(kept.operation_outcomes) });
     } catch (error) {
       return editorRefusal(`A view of the session could not take this change, so nothing was applied: ${nativeFailureText(error)}`);
     }
     const held = editorHeldRef.current;
     const resultsCleared = [held.result, held.analysisRun, held.inputManifest, held.ruleCheckAggregate, held.historicalRun].some((value) => value !== null);
 
-    // Publish: one synchronous block of state setters and session-owned ref writes.
+    // Publish: one synchronous block of state setters and session-owned ref writes. P5: once the history is
+    // written the change is committed; a throw from a step after it (a subscriber during the model write, the
+    // selection, a view of the session) becomes a notice, and every later step, each clear included, still runs.
+    // The report-source sequence contains its own subscribers, so a subscriber's throw does not reach the model
+    // write; these guards keep the commit whole whatever else a later step throws.
+    const notices: string[] = [];
+    const contained = (what: string, step: () => void) => {
+      try { step(); } catch (error) { notices.push(`${what}: ${nativeFailureText(error)}`); }
+    };
     setUndoStack((current) => [checkpoint, ...current].slice(0, 25));
     setRedoStack([]);
     setBatchReceipts((current) => [...current, batchReceipt]);
     setRetainedReviewContext((current) => [...current, ...reviewContext]);
     setAppliedOperations((current) => [...current, { receipt_id: `applied-${key}`, sequence: current.length + 1, ...appliedFields }]);
-    publishModel(publication);
+    contained("The workspace did not finish showing this change", () => publishModel(publication));
     onPublished();
-    try {
-      commitSelectionState(appliedSelection, appliedModel);
-    } catch (error) {
-      notice = `The selection did not follow this change: ${nativeFailureText(error)}`;
-    }
-    try {
-      publishEvents();
-    } catch (error) {
-      notice = `${notice ? `${notice} ` : ""}A view of the session did not take this change: ${nativeFailureText(error)}`;
-    }
-    clearComputedModelState(appliedSolveJob);
+    contained("The selection did not follow this change", () => commitSelectionState(appliedSelection, appliedModel));
+    contained("A view of the session did not take this change", publishEvents);
+    // The clears of `clearComputedModelState`, each contained, so one failing clear leaves none of the others undone.
+    const clears: Array<() => void> = [invalidateReportPackageComputedState, () => ruleRevisionGate.current.invalidate(), () => setHistoricalRun(null),
+      () => setResult(null), () => setAnalysisRun(null), () => setInputManifest(null), () => setRuleCheckAggregate(null), () => setProposal(null),
+      () => setSelectedReviewTarget(null), () => setSolveJob(appliedSolveJob)];
+    for (const clear of clears) contained("A held result was not cleared", clear);
+    if (notices.length) notice = notices.join(" ");
 
     // Notify: the viewport's failure comes back beside the commit; the published change is not rolled back.
     const viewportFailure = retireViewportBoxGestureAfterPublication();

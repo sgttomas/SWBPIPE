@@ -7,6 +7,7 @@
  * builder where the stamp's allowlist is under test. Every case runs through the session and the actual wasm
  * engine on an invented inline model. DEL-16-06: the binder is out of reach of the agent's host and offline intake. */
 import { act, renderHook, waitFor } from "@testing-library/react";
+import { useLayoutEffect } from "react";
 import { readdirSync, readFileSync, statSync } from "node:fs";
 import { join, relative, resolve } from "node:path";
 import { afterEach, describe, expect, it, vi } from "vitest";
@@ -22,7 +23,8 @@ import { buildBulkChangeBatch, type BulkChangeRequest } from "../bulk-change/bul
 import { makeRichIntent } from "../rich-authoring/formSupport";
 import { buildGridOperationIntent, type GridColumn } from "./table/modelTableAdapter";
 import { useWorkspaceSession } from "./workspaceSession";
-import type { SessionEvent } from "./sessionEvents";
+import type { SessionEvent, SessionEventListener } from "./sessionEvents";
+import { useRunSheetStore } from "../model-tree/runSheet/runSheetStore";
 import { reconnectModel } from "../../test-support/reconnectModel";
 import { bulkChangeModel } from "../../test-support/bulkChangeModel";
 import type { EditorOperationIntent, EntityRef, PreviewModel } from "../../types";
@@ -709,6 +711,77 @@ describe("live values at publication", () => {
     expect(result.current.results.historicalRun).toBeNull();
     expect(result.current.model.model!.nodes[2].position.y).toBe(2.5);
     expect(result.current.operations.undoStack).toHaveLength(1);
+  });
+});
+
+describe("a listener cannot split publication (P5)", () => {
+  /** The session with a listener registered before the run sheet's, and the run sheet's own store, as the application holds it. */
+  async function withSheet(first: SessionEventListener) {
+    vi.spyOn(previewService, "loadPreviewModel").mockResolvedValue(reconnectModel());
+    const hook = renderHook(() => {
+      const current = useWorkspaceSession();
+      useLayoutEffect(() => current.operations.sessionEvents.listen(first), [current.operations.sessionEvents]);
+      const sheet = useRunSheetStore(current.operations.sessionEvents, null, current.model.model?.project.id ?? null);
+      return { current, sheet };
+    });
+    await waitFor(() => expect(hook.result.current.current.model.model).not.toBeNull());
+    return { result: { get current() { return hook.result.current.current; } } as Session, sheet: () => hook.result.current.sheet };
+  }
+  const throwsOnCheckpoint: SessionEventListener = (event) => event.type === "checkpoint" ? () => { throw new Error("invented first listener failure"); } : undefined;
+  const ledgerIds = (sheet: () => ReturnType<typeof useRunSheetStore>) => sheet().current().ledger.records.map((record) => record.operationId);
+
+  it("a checkpoint listener throwing before the run sheet's: the commit is committed with a notice, and the run sheet still takes the checkpoint", async () => {
+    const { result, sheet } = await withSheet(throwsOnCheckpoint);
+    const outcome = committed(await run(() => bindCommit(result, gridCell)({ nodeId: "node:C", axis: "y", value: "2.5" })));
+    expect(outcome.notice).toContain("A view of the session did not take this change: invented first listener failure");
+    expect(ledgerIds(sheet)).toEqual([result.current.operations.undoStack[0].operation_id]);
+    expect(result.current.model.model!.nodes[2].position.y).toBe(2.5);
+  });
+
+  it("the queue's Apply with a throwing first listener behaves as before (same outcome, same message), and the later listener has run", async () => {
+    const { result, sheet } = await withSheet(throwsOnCheckpoint);
+    const model = result.current.model.model!;
+    const intent = (await gridCell.build(model, { nodeId: "node:C", axis: "y", value: "2.5" }, { sequence: 1, batchId: "unused" }) as { intent: EditorOperationIntent }).intent;
+    await act(async () => { await result.current.operations.handleQueueOperationBatch({ batch_id: "batch:queued", operations: [intent] }); });
+    const message = result.current.operations.batchMessage;
+    await act(async () => { await result.current.operations.handleRunOperationBatch(result.current.operations.queuedBatches[0], true); });
+    // As before the publish closure ran every listener: the model, the history and the queue are published, the
+    // failure leaves the batch message as it was, and the first failure still reaches the Apply path.
+    expect(result.current.model.model!.nodes[2].position.y).toBe(2.5);
+    expect(result.current.operations.undoStack).toHaveLength(1);
+    expect(result.current.operations.queuedBatches).toHaveLength(0);
+    expect(result.current.operations.batchMessage).toBe(message);
+    // And the run sheet, listening after the one that threw, took the checkpoint.
+    expect(ledgerIds(sheet)).toEqual(["batch:queued"]);
+  });
+
+  it("a report-source subscriber throwing during the model write: the commit is committed, the rendered model is the new one, and the failure is reported once", async () => {
+    const result = await session();
+    const reported = vi.spyOn(console, "error").mockImplementation(() => undefined);
+    let armed = true;
+    result.current.results.reportSource.subscribe(() => { if (armed) { armed = false; throw new Error("invented subscriber failure"); } });
+    const outcome = committed(await run(() => bindCommit(result, gridCell)({ nodeId: "node:C", axis: "y", value: "2.5" })));
+    expect(armed).toBe(false);
+    expect(outcome.notice).toBeNull();
+    expect(result.current.model.model!.nodes[2].position.y).toBe(2.5);
+    expect(result.current.results.reportSourceSequence).toBe(result.current.results.reportSource.sequence);
+    expect(reported.mock.calls.filter((call) => String(call[0]).startsWith("A report-source subscriber failed"))).toHaveLength(1);
+  });
+
+  it("the checkpoint event's payload is detached: a listener changing what it received changes nothing the session keeps", async () => {
+    const result = await session();
+    let received: Extract<SessionEvent, { type: "checkpoint" }> | null = null;
+    result.current.operations.sessionEvents.listen((event) => { if (event.type === "checkpoint") received = event as typeof received; });
+    committed(await run(() => bindCommit(result, gridCell)({ nodeId: "node:C", axis: "y", value: "2.5" })));
+    const event = received!;
+    const receipt = result.current.operations.batchReceipts[0].outcome;
+    expect(event.appliedModel).not.toBe(receipt.applied_model);
+    expect(event.appliedModel).not.toBe(result.current.model.model);
+    expect(event.operationOutcomes).not.toBe(receipt.operation_outcomes);
+    const kept = snapshot(result);
+    (event.appliedModel as PreviewModel).nodes[2].position.y = 99;
+    (event.operationOutcomes as unknown as Array<Record<string, unknown>>)[0].change_kind = "altered";
+    expect(snapshot(result)).toEqual(kept);
   });
 });
 
