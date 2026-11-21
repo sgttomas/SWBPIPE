@@ -50,7 +50,7 @@ mod timoshenko_product_tests;
 #[cfg(test)]
 mod d5_mass_product_tests;
 #[cfg(test)]
-mod kd5_nonlinear_tests;
+mod kd5_nonlinear_tests; #[cfg(test)] mod generated_load_state_tests; // on this line so that no line moves.
 #[cfg(test)]
 mod u4a_tests;
 #[cfg(test)]
@@ -5469,6 +5469,9 @@ fn solve_prepared_load_case(
     mut role: held_status::CaseRole<'_, '_>,
 ) -> Result<LoadCaseSolve, FrameKernelError> {
     let loads = build_load_case_primitive_loads(model, load_case, diagnostics);
+    if let Some(state) = load_state {
+        refuse_load_state_generated_collisions(model, load_case, state, &loads, diagnostics);
+    }
     let load_application = prepare_loads(built.nodes.len(), built.pipes.len(), &loads);
     for finding in &load_application.findings {
         diagnostics.push(diag(
@@ -11644,6 +11647,95 @@ fn refuse_generated_id_collisions(
             ));
         }
     }
+}
+
+/// DEL-05-01 REQ-008 on a load/reference-state document: a generated load's
+/// identity must name one source only. Generation runs on the effective case,
+/// so a collision with a listed stored primitive is already refused by
+/// [`refuse_generated_id_collisions`]. This check, run after formation and
+/// before the case's loads are assembled, refuses the other two: a stored
+/// primitive of the authored case that the ledger does not list (excluded,
+/// yet sharing the generated identity), and an identity the case's resolved
+/// record already synthesizes (`member_state:`, `support_state:`,
+/// `pressure_region:`). Otherwise the ordinary and certified paths, and the
+/// published record of load sources, could attribute one identity to two
+/// sources.
+fn refuse_load_state_generated_collisions(
+    model: &PreviewModel,
+    effective: &PreviewLoadCase,
+    state: &case_state::resolve::ResolvedCase,
+    loads: &[PrimitiveLoad],
+    diagnostics: &mut Vec<Diagnostic>,
+) {
+    if effective.equivalent_static.is_none() {
+        return;
+    }
+    let authored = model.load_cases.iter().find(|case| case.id == effective.id);
+    let synthesized = state.evidence["contributions"]
+        .as_array()
+        .into_iter()
+        .flatten()
+        .filter(|contribution| contribution["owner_kind"] != "stored_primitive");
+    let synthesized = synthesized.collect::<Vec<_>>();
+    for load in loads
+        .iter()
+        .filter(|load| is_generated_equivalent_static_load(effective, &load.load_id, None))
+    {
+        let id = load.load_id.as_str();
+        let unlisted = authored
+            .into_iter()
+            .flat_map(|case| &case.primitive_loads)
+            .any(|stored| stored.id == id);
+        let message = if unlisted {
+            format!(
+                "stored primitive load {id} is not listed in analysis_state.load_sources (it is excluded) and has the id of a load the case's equivalent_static generation produces; one identity cannot name two sources, so rename or remove the stored primitive (generated ids are <case>:generated:<kind>:...)"
+            )
+        } else if let Some(other) = synthesized.iter().find(|contribution| contribution["source_id"] == id) {
+            format!(
+                "the synthesized identity {id} of the case's {} source has the id of a load the case's equivalent_static generation produces; one identity cannot name two sources in the record of load sources, so rename the load case or the {} (generated ids are <case>:generated:<kind>:...)",
+                other["owner_kind"].as_str().unwrap_or("resolved"),
+                other["owner_kind"].as_str().unwrap_or("resolved").replace('_', " ")
+            )
+        } else {
+            continue;
+        };
+        diagnostics.push(diag(
+            &equivalent_static_diag_id(&effective.id, &format!("collision:{}", stable_suffix(id))),
+            "EQUIVALENT_STATIC_GENERATED_ID_COLLISION",
+            "blocking",
+            message,
+            vec![effective.id.clone(), id.to_string()],
+        ));
+    }
+}
+
+/// DEL-05-01 (#433's origin test, applied to the effective case): whether
+/// `load_id` is a load the case's generation produced, judged against the
+/// case that is solved. On a load/reference-state document that is the
+/// effective case, whose stored primitives are exactly those the ledger lists
+/// (primitives a lowering added included, as they stand in the lowered
+/// model); on every other document it is the case itself. The certificate's
+/// producers find a case in the model's list of load cases, so they call this
+/// rather than [`is_generated_equivalent_static_load`] on that case.
+pub(crate) fn is_generated_in_effective_case(
+    model: &PreviewModel,
+    load_case: &PreviewLoadCase,
+    load_id: &str,
+    kind: Option<&str>,
+) -> bool {
+    let ledger = case_state::is_load_state(model)
+        .then(|| load_case.analysis_state.value())
+        .flatten();
+    let in_effective_case = |stored: &PreviewPrimitiveLoad| {
+        stored.id == load_id
+            && ledger.is_none_or(|state| state.load_sources.iter().any(|source| source.source_ref == stored.id))
+    };
+    load_case.equivalent_static.is_some()
+        && match kind {
+            Some(kind) => load_id.starts_with(&format!("{}:generated:{kind}:", load_case.id)),
+            None => load_id.starts_with(&format!("{}:generated:", load_case.id)),
+        }
+        && !load_case.primitive_loads.iter().any(in_effective_case)
 }
 
 /// W-16 slice c (§3): a wind marking of a connector-replaced span (which
