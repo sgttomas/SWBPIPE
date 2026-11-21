@@ -6,13 +6,12 @@
 import { readFileSync } from "node:fs";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
-import { cleanup, fireEvent, render, screen, waitFor, within } from "@testing-library/react";
+import { cleanup, fireEvent, screen, waitFor } from "@testing-library/react";
 import { afterEach, beforeAll, expect, it, vi } from "vitest";
 import type { EditorOperationIntent, PreviewModel } from "../../types";
 import { computeModelHash } from "../../services/hashService";
 import { applyModelOperation, warmupOperationEngine } from "../../services/operationService";
-import { PressureAuthoringPanel } from "../pressure-authoring/PressureAuthoringPanel";
-import { LoadReferenceStateInputs } from "./LoadReferenceStateInputs";
+import { renderCaseLoadStateInputs, renderCasePressureRegions } from "../../test-support/referenceRunSheetEntry";
 
 const projectRoot = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "../../../../..");
 const fixture = JSON.parse(readFileSync(path.join(projectRoot, "fixtures/reference_system/reference_system.json"), "utf8")) as PreviewModel;
@@ -31,11 +30,6 @@ async function queuedAndApplied(model: PreviewModel, queue: ReturnType<typeof vi
   expect(outcome.diagnostics.filter(d => d.severity === "blocking")).toEqual([]);
   cleanup();
   return outcome.applied_model as PreviewModel;
-}
-function renderState(model: PreviewModel, caseId: string) {
-  const queue = vi.fn();
-  render(<LoadReferenceStateInputs model={model} selection={{ type: "load", id: caseId }} onQueueIntent={queue} loadCase={caseOf(model, caseId)} />);
-  return queue;
 }
 function fill(name: string, targets = "missing") {
   change(`${name} template`, "0");
@@ -67,7 +61,7 @@ it("enters the reference system's load/reference state with fills and copies, RS
   }
 
   // one member typed, the other 25 filled.
-  let queue = renderState(model, "load:RS-SUS");
+  let queue = renderCaseLoadStateInputs(model, "load:RS-SUS");
   click("Add member to reference configuration 1");
   const m1 = "Reference configuration 1 member 1";
   change(`${m1} pipe`, "pipe:RS-P010");
@@ -81,7 +75,7 @@ it("enters the reference system's load/reference state with fills and copies, RS
   expect(model.reference_configurations).toEqual(fixture.reference_configurations);
 
   // §3.11, RS-SUS: one element state typed, filled to every pipe.
-  queue = renderState(model, "load:RS-SUS");
+  queue = renderCaseLoadStateInputs(model, "load:RS-SUS");
   click("Add element state");
   change("Element state 1 pipe", "pipe:RS-P010");
   change("Element state 1 material selection", "exact_point");
@@ -100,7 +94,7 @@ it("enters the reference system's load/reference state with fills and copies, RS
   expect(caseOf(model, "load:RS-SUS").analysis_state).toEqual(caseOf(fixture, "load:RS-SUS").analysis_state);
 
   // RS-SAM: copied from RS-SUS; its own primitives and RS-C's motions are added.
-  queue = renderState(model, "load:RS-SAM");
+  queue = renderCaseLoadStateInputs(model, "load:RS-SAM");
   change("Copy analysis state from case", "load:RS-SUS");
   click("Replace this draft's analysis state with the copy");
   expect(screen.getByText(/29 load sources name primitives this case does not hold/)).toBeTruthy();
@@ -119,7 +113,7 @@ it("enters the reference system's load/reference state with fills and copies, RS
   expect(caseOf(model, "load:RS-SAM").analysis_state).toEqual(caseOf(fixture, "load:RS-SAM").analysis_state);
 
   // RS-OPE: one operating element state typed and filled; the replaced span RS-P180 edited.
-  queue = renderState(model, "load:RS-OPE");
+  queue = renderCaseLoadStateInputs(model, "load:RS-OPE");
   click("Add element state");
   change("Element state 1 pipe", "pipe:RS-P010");
   change("Element state 1 operating temperature value", "210"); change("Element state 1 operating temperature unit", "degC");
@@ -141,7 +135,7 @@ it("enters the reference system's load/reference state with fills and copies, RS
 
   // RS-OPE-REF: copied from RS-OPE, its element states entered again on the 20 degC point and
   // filled, then each element state's analysis-basis override typed, RS-P180's excepted.
-  queue = renderState(model, "load:RS-OPE-REF");
+  queue = renderCaseLoadStateInputs(model, "load:RS-OPE-REF");
   change("Copy analysis state from case", "load:RS-OPE");
   click("Replace this draft's analysis state with the copy");
   expect(screen.getByText(/29 load sources name primitives this case does not hold/)).toBeTruthy();
@@ -172,12 +166,11 @@ it("enters the reference system's load/reference state with fills and copies, RS
 
   // RS-SUS's five regions copied to RS-OPE, RS-SAM and RS-OPE-REF with their own ids.
   for (const caseId of ["load:RS-OPE", "load:RS-SAM", "load:RS-OPE-REF"]) {
-    queue = vi.fn();
-    render(<PressureAuthoringPanel model={model} selection={{ type: "load", id: caseId }} loadCaseId={caseId} onQueueIntent={queue} />);
-    const regions = screen.getByRole("region", { name: "Case pressure regions" });
-    fireEvent.change(within(regions).getByLabelText("Copy pressure regions from case"), { target: { value: "load:RS-SUS" } });
-    fireEvent.click(within(regions).getByRole("button", { name: "Replace this draft's pressure regions with the copy" }));
-    fireEvent.click(within(regions).getByRole("button", { name: "Queue pressure regions" }));
+    const form = renderCasePressureRegions(model, caseId);
+    queue = form.queue;
+    fireEvent.change(form.regions().getByLabelText("Copy pressure regions from case"), { target: { value: "load:RS-SUS" } });
+    fireEvent.click(form.regions().getByRole("button", { name: "Replace this draft's pressure regions with the copy" }));
+    fireEvent.click(form.regions().getByRole("button", { name: "Queue pressure regions" }));
     model = await queuedAndApplied(model, queue);
     expect(caseOf(model, caseId).pressure_regions).toEqual(caseOf(fixture, caseId).pressure_regions);
   }

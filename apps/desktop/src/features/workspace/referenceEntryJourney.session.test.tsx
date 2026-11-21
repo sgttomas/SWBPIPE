@@ -28,7 +28,7 @@ import { computeModelHash } from "../../services/hashService";
 import type { EntityRef, PreviewModel } from "../../types";
 import { useModelledVisibility } from "../../test-support/modelledVisibility";
 import { chooseCompactOption, chooseVirtualTarget, chooseVirtualMultiTarget } from "../../test-support/workspaceTestControls";
-import { enterReferenceHeader, enterReferenceRows, P, S5, type Cells } from "../../test-support/referenceRunSheetEntry";
+import { enterReferenceHeader, enterReferenceRows, loadsPage, P, S5, type Cells } from "../../test-support/referenceRunSheetEntry";
 import { ProjectUnitsDialog } from "../project-units/ProjectUnitsDialog";
 import { PropertyInspector } from "../model-tree/PropertyInspector";
 import { RunSheet, RUN_SHEET_TIMING } from "../model-tree/runSheet/RunSheet";
@@ -275,12 +275,13 @@ describe("the reference system entered from blank through the desktop's authorin
     const ops = () => current.session.operations;
     const model = () => current.session.model.model!;
     const inspector = () => within(screen.getByTestId("journey-inspector"));
-    const loads = () => within(screen.getByTestId("journey-loads"));
     const alerts = () => screen.queryAllByRole("alert").map((item) => item.textContent).join(" | ");
     const diagnostics = () => Object.values(ops().operationOutcomes).flatMap((outcome) => outcome.diagnostics.filter((item) => item.severity === "blocking").map((item) => `${item.code}: ${item.message}`)).join(" | ");
     const change = (scope: ReturnType<typeof within>, label: string, value: string) => fireEvent.change(scope.getByLabelText(label), { target: { value } });
     const click = (scope: ReturnType<typeof within>, name: string | RegExp) => fireEvent.click(scope.getByRole("button", { name }));
     const select = (entity: EntityRef) => act(() => { current.session.selection.handleSelectEntity(entity); });
+    // Every step that reaches a Loads page control is `loadsPage`'s (test-support/referenceRunSheetEntry.ts).
+    const page = loadsPage(() => screen.getByTestId("journey-loads"), select);
     const cycles: string[] = [];
     /** Picks `value` in a virtual picker found by its label (`VirtualTargetPicker`, `VirtualMultiTargetPicker`). */
     function pick(scope: ReturnType<typeof within>, label: string, values: readonly string[]) {
@@ -366,21 +367,22 @@ describe("the reference system entered from blank through the desktop's authorin
     expect(model().project.units).toEqual(reference.project.units);
 
     // Step profile: Pressure profile (typed UI): exact_pressure_v3, Euler–Bernoulli.
-    change(loads(), "Pressure profile", "exact_pressure_v3");
-    change(loads(), "Shear model", "euler_bernoulli");
-    click(loads(), "Queue pressure profile");
+    const projectForms = page.openProjectForms();
+    change(projectForms(), "Pressure profile", "exact_pressure_v3");
+    change(projectForms(), "Shear model", "euler_bernoulli");
+    click(projectForms(), "Queue pressure profile");
     await applyQueuedIntent("step profile");
     expect(model().pressure_contract).toEqual(reference.pressure_contract);
 
     // Step material, item 1: Material RS-M1 (typed UI): Create explicit E/nu material.
-    change(loads(), "Exact material ID", "material:RS-M1");
-    change(loads(), "Exact material label", "RS-M1 invented carbon-steel-like material");
-    change(loads(), "Constitutive basis", "homogeneous_isotropic_E_nu_v1");
-    change(loads(), "Elastic modulus E value", "200"); change(loads(), "Elastic modulus E unit", "GPa");
-    change(loads(), "Poisson ratio nu value", "0.3"); change(loads(), "Poisson ratio nu unit", "1");
-    change(loads(), "Thermal expansion coefficient value", "1.2e-5"); change(loads(), "Thermal expansion coefficient unit", "1/K");
-    change(loads(), "Constitutive provenance", P);
-    click(loads(), "Queue exact material");
+    change(projectForms(), "Exact material ID", "material:RS-M1");
+    change(projectForms(), "Exact material label", "RS-M1 invented carbon-steel-like material");
+    change(projectForms(), "Constitutive basis", "homogeneous_isotropic_E_nu_v1");
+    change(projectForms(), "Elastic modulus E value", "200"); change(projectForms(), "Elastic modulus E unit", "GPa");
+    change(projectForms(), "Poisson ratio nu value", "0.3"); change(projectForms(), "Poisson ratio nu unit", "1");
+    change(projectForms(), "Thermal expansion coefficient value", "1.2e-5"); change(projectForms(), "Thermal expansion coefficient unit", "1/K");
+    change(projectForms(), "Constitutive provenance", P);
+    click(projectForms(), "Queue exact material");
     await applyQueuedIntent("step material");
     // Step material, item 2: Temperature points (typed UI, after selecting the material: UI function `handleSelectEntity`, the Model tree's selection).
     select({ type: "material", id: "material:RS-M1" });
@@ -611,24 +613,24 @@ describe("the reference system entered from blank through the desktop's authorin
     expect(model().supports.find((item) => item.id === "support:RS-CE1")).toEqual(cePayload);
 
     // Step reference: Reference configuration (typed UI, with the member fill).
-    select({ type: "project", id: model().project.id });
+    const referenceForm = page.openReferenceConfigurations(model().project.id);
     const beforeReference = model();
-    click(loads(), "Add reference configuration");
-    change(loads(), "Reference configuration 1 ID", "reference:RS-INSTALLED");
-    change(loads(), "Reference configuration 1 label", "Installed reference (20 degC)");
-    change(loads(), "Reference configuration 1 geometry", "authored_model_geometry");
-    click(loads(), "Add member to reference configuration 1");
+    click(referenceForm(), "Add reference configuration");
+    change(referenceForm(), "Reference configuration 1 ID", "reference:RS-INSTALLED");
+    change(referenceForm(), "Reference configuration 1 label", "Installed reference (20 degC)");
+    change(referenceForm(), "Reference configuration 1 geometry", "authored_model_geometry");
+    click(referenceForm(), "Add member to reference configuration 1");
     const m1 = "Reference configuration 1 member 1";
-    change(loads(), `${m1} pipe`, "pipe:RS-P010");
-    change(loads(), `${m1} basis`, "temperature_reference");
-    change(loads(), `${m1} installation temperature value`, "20"); change(loads(), `${m1} installation temperature unit`, "degC");
-    change(loads(), `${m1} fit`, "none");
-    change(loads(), `${m1} provenance`, P);
-    change(loads(), "Reference configuration 1 member template", "0");
-    change(loads(), "Reference configuration 1 member fill targets", "missing");
-    click(loads(), "Fill reference configuration 1 members");
-    change(loads(), "Reference configuration 1 provenance", P);
-    click(loads(), "Queue reference configurations");
+    change(referenceForm(), `${m1} pipe`, "pipe:RS-P010");
+    change(referenceForm(), `${m1} basis`, "temperature_reference");
+    change(referenceForm(), `${m1} installation temperature value`, "20"); change(referenceForm(), `${m1} installation temperature unit`, "degC");
+    change(referenceForm(), `${m1} fit`, "none");
+    change(referenceForm(), `${m1} provenance`, P);
+    change(referenceForm(), "Reference configuration 1 member template", "0");
+    change(referenceForm(), "Reference configuration 1 member fill targets", "missing");
+    click(referenceForm(), "Fill reference configuration 1 members");
+    change(referenceForm(), "Reference configuration 1 provenance", P);
+    click(referenceForm(), "Queue reference configurations");
     await applyQueuedIntent("step reference");
     // Undo/Redo, load/reference state family: the reference configuration.
     await undoRedo("load/reference state: RS-INSTALLED (§3.8)", beforeReference);
@@ -660,8 +662,7 @@ describe("the reference system entered from blank through the desktop's authorin
     // Step regions: Pressure regions (typed UI for RS-SUS; "Copy pressure regions from another case" for RS-OPE, RS-SAM and RS-OPE-REF).
     const terminals = { "RG-1": ["node:RS-010", "node:RS-130"], "RG-2": ["node:RS-130", "node:RS-230"], "RG-3": ["node:RS-130", "node:RS-150"], "RG-R": ["node:RS-150", "node:RS-160"], "RG-4": ["node:RS-160", "node:RS-210"] } as const;
     const fixtureRegions = reference.load_cases.find((item) => item.id === "load:RS-SUS")!.pressure_regions!;
-    select({ type: "load", id: "load:RS-SUS" });
-    const regions = () => within(loads().getByRole("region", { name: "Case pressure regions" }));
+    let regions = page.openCasePressureRegions("load:RS-SUS");
     for (const [index, region] of fixtureRegions.entries()) {
       const n = `Region ${index + 1}`;
       click(regions(), "Add pressure region");
@@ -681,7 +682,7 @@ describe("the reference system entered from blank through the desktop's authorin
     click(regions(), "Queue pressure regions");
     await applyQueuedIntent("step regions: RS-SUS");
     for (const caseId of ["load:RS-OPE", "load:RS-SAM", "load:RS-OPE-REF"]) {
-      select({ type: "load", id: caseId });
+      regions = page.openCasePressureRegions(caseId);
       change(regions(), "Copy pressure regions from case", "load:RS-SUS");
       click(regions(), "Replace this draft's pressure regions with the copy");
       click(regions(), "Queue pressure regions");
@@ -691,7 +692,7 @@ describe("the reference system entered from blank through the desktop's authorin
     // Step states: Analysis states (typed UI, with the fills; RS-SAM from "Copy analysis state from another case";
     // RS-OPE-REF copied from RS-OPE, its element states entered again and its overrides typed).
     // Queries are scoped to the case's analysis-state editor (`LoadReferenceStateInputs`), which the load manager shows for the selected case.
-    const state = () => within(screen.getByTestId("load-state-analysis-state"));
+    let state = page.openCaseAnalysisState("load:RS-SUS");
     const p180 = model().pipe_segments.findIndex((pipe) => pipe.id === "pipe:RS-P180") + 1;
     const rsC = model().supports.findIndex((item) => item.id === "support:RS-C") + 1;
     const replacedSpan = `${P}; replaced span RS-P180: zero eigenstrain (spec §5.1)`;
@@ -713,7 +714,6 @@ describe("the reference system entered from blank through the desktop's authorin
       change(state(), "Analysis state provenance", P);
     };
     // RS-SUS.
-    select({ type: "load", id: "load:RS-SUS" });
     click(state(), "Add element state");
     change(state(), "Element state 1 pipe", "pipe:RS-P010");
     change(state(), "Element state 1 material selection", "exact_point");
@@ -728,7 +728,7 @@ describe("the reference system entered from blank through the desktop's authorin
     click(state(), "Queue analysis state");
     await applyQueuedIntent("step states: RS-SUS");
     // RS-OPE.
-    select({ type: "load", id: "load:RS-OPE" });
+    state = page.openCaseAnalysisState("load:RS-OPE");
     click(state(), "Add element state");
     change(state(), "Element state 1 pipe", "pipe:RS-P010");
     change(state(), "Element state 1 operating temperature value", "210"); change(state(), "Element state 1 operating temperature unit", "degC");
@@ -747,7 +747,7 @@ describe("the reference system entered from blank through the desktop's authorin
     click(state(), "Queue analysis state");
     await applyQueuedIntent("step states: RS-OPE");
     // RS-SAM: copied from RS-SUS; its own primitives and RS-C's two motions.
-    select({ type: "load", id: "load:RS-SAM" });
+    state = page.openCaseAnalysisState("load:RS-SAM");
     change(state(), "Copy analysis state from case", "load:RS-SUS");
     click(state(), "Replace this draft's analysis state with the copy");
     expect(state().getByText(/29 load sources name primitives this case does not hold/)).toBeTruthy();
@@ -766,7 +766,7 @@ describe("the reference system entered from blank through the desktop's authorin
     // RS-OPE-REF: copied from RS-OPE; its element states entered again on the 20 degC point and
     // filled; then each element state's analysis-basis override typed, RS-P180's excepted (fill and
     // copy never carry the override).
-    select({ type: "load", id: "load:RS-OPE-REF" });
+    state = page.openCaseAnalysisState("load:RS-OPE-REF");
     change(state(), "Copy analysis state from case", "load:RS-OPE");
     click(state(), "Replace this draft's analysis state with the copy");
     expect(state().getByText(/29 load sources name primitives this case does not hold/)).toBeTruthy();
@@ -795,18 +795,18 @@ describe("the reference system entered from blank through the desktop's authorin
     await applyQueuedIntent("step states: RS-OPE-REF");
 
     // Step combinations: Combinations (typed UI): Create combination, result_state_subtraction.
-    select({ type: "project", id: model().project.id });
+    const combinationForm = page.openCreateCombination(model().project.id);
     let beforeCombination = model();
     for (const [id, label, minuend] of [["combination:RS-EXP", "RS-EXP expansion: RS-OPE-REF - RS-SUS, the difference of two solved states on the 20 degC modulus", "load:RS-OPE-REF"], ["combination:RS-dSAM", "RS-dSAM anchor movement term: RS-SAM - RS-SUS", "load:RS-SAM"]]) {
       beforeCombination = model();
-      fireEvent.change(screen.getByTestId("load-manager-create-combination-id"), { target: { value: id } });
-      fireEvent.change(screen.getByTestId("load-manager-create-combination-label"), { target: { value: label } });
-      fireEvent.change(screen.getByTestId("load-manager-create-combination-basis"), { target: { value: "result_state_subtraction" } });
+      fireEvent.change(combinationForm().getByTestId("load-manager-create-combination-id"), { target: { value: id } });
+      fireEvent.change(combinationForm().getByTestId("load-manager-create-combination-label"), { target: { value: label } });
+      fireEvent.change(combinationForm().getByTestId("load-manager-create-combination-basis"), { target: { value: "result_state_subtraction" } });
       chooseVirtualTarget("load-manager-create-combination-minuend", minuend);
       chooseVirtualTarget("load-manager-create-combination-subtrahend", "load:RS-SUS");
-      fireEvent.change(screen.getByTestId("load-manager-create-combination-provenance"), { target: { value: P } });
-      fireEvent.change(screen.getByLabelText("New combination rationale"), { target: { value: "reference system run sheet §3.12" } });
-      fireEvent.click(screen.getByTestId("queue-create-combination-intent"));
+      fireEvent.change(combinationForm().getByTestId("load-manager-create-combination-provenance"), { target: { value: P } });
+      fireEvent.change(combinationForm().getByLabelText("New combination rationale"), { target: { value: "reference system run sheet §3.12" } });
+      fireEvent.click(combinationForm().getByTestId("queue-create-combination-intent"));
       await applyQueuedIntent(`step combinations ${id}`);
     }
     // Undo/Redo, combination family: RS-dSAM.
