@@ -16,7 +16,7 @@ function session(fallback: EntityRef, ordered: readonly EntityRef[]): WorkspaceS
     model: { model: null },
     results: { result: null, currentSolvedResult: null, numericalHealthHold: null, historicalRun: null, solveJob: { state: "idle" }, ruleCheckAggregate: null },
     selection: { selection: fallback, orderedSelection: { orderedKeys, primaryKey: orderedKeys.at(-1) ?? null } },
-    chrome: { activeSection: "model", stageSurface: "model", issuesDrawerOpen: false, setIssuesDrawerOpen() {} }
+    chrome: { activeSection: null, stageSurface: null, issuesDrawerOpen: false, setIssuesDrawerOpen() {} }
   } as unknown as WorkspaceSession;
 }
 
