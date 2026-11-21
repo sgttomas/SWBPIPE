@@ -111,7 +111,7 @@ export function ReportPanel({
         <ControlledExportLink
               className="report-export-link"
               data-testid="report-export-link"
-              download={`openpipestress-preview-report-${safeFileToken(result.run_id)}.json`}
+              download={suggestedFileName(model.project, "report", result.run_id)}
               href={jsonDataHref(controlledReport.payload)}
             >
               <Download size={14} aria-hidden="true" />
@@ -1070,7 +1070,5 @@ function jsonDataHref(value: unknown): string {
   return `data:application/json;charset=utf-8,${encodeURIComponent(JSON.stringify(value, null, 2))}`;
 }
 
-function safeFileToken(value: string): string {
-  return value.replace(/[^a-zA-Z0-9_-]+/g, "-").replace(/^-+|-+$/g, "") || "preview";
-}
 import { ControlledExportLink } from "../redaction-controls/ControlledExportLink";
+import { suggestedFileName } from "../fileNames";

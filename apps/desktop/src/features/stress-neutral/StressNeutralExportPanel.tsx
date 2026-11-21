@@ -141,7 +141,7 @@ export function StressNeutralExportPanel({
         <ControlledExportLink
               className="report-export-link"
               data-testid="stress-neutral-csv-link"
-              download={`openpipestress-preview-stress-neutral-${safeFileToken(currentPacket.source_result_ref.ref)}.csv`}
+              download={suggestedFileName(model.project, "stressNeutralCsv")}
               href={csvDataHref(currentPacket.csv_text)}
             >
               <Download size={14} aria-hidden="true" />
@@ -919,6 +919,7 @@ function safeFileToken(value: string): string {
   return value.replace(/[^a-z0-9-]+/gi, "-").replace(/^-+|-+$/g, "").toLowerCase();
 }
 import { ControlledExportLink } from "../redaction-controls/ControlledExportLink";
+import { suggestedFileName } from "../fileNames";
 
 /** Every route has a deliberate entry (tsc-checked); null names no table here, and
  * such a route refuses. Epoch 8 names the exact routes' tables. */

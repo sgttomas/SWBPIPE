@@ -27,7 +27,7 @@ export function ReportLintPanel({
         <ControlledExportLink
           className="report-export-link"
           data-testid="report-lint-export-link"
-          download={`openpipestress-preview-report-lint-${safeFileToken(model.project.id)}.json`}
+          download={suggestedFileName(model.project, "reportLint")}
           href={jsonDataHref(packet)}
         >
           <Download size={14} aria-hidden="true" />
@@ -835,7 +835,7 @@ function lintTargets({
     targets.push(
       target(
         "target:report-packet-preview-json",
-        `openpipestress-preview-report-${safeFileToken(result.run_id)}.json`,
+        suggestedFileName(model.project, "report", result.run_id),
         "public_report_example",
         "public_metadata",
         `${result.model_ref}; ${analysisRun.analysis_run.run_id}; ${resultRowCount(result)} result refs; private rule payloads redacted`
@@ -974,3 +974,4 @@ function safeFileToken(value: string): string {
   return value.replace(/[^a-z0-9-]+/gi, "-").replace(/^-+|-+$/g, "").toLowerCase();
 }
 import { ControlledExportLink } from "../redaction-controls/ControlledExportLink";
+import { suggestedFileName } from "../fileNames";

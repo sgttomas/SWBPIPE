@@ -32,7 +32,7 @@ export function HeadlessRunnerPanel({
         <ControlledExportLink
           className="report-export-link"
           data-testid="headless-runner-export-link"
-          download={`openpipestress-preview-headless-runner-${safeFileToken(packet.request.request_id)}.json`}
+          download={suggestedFileName(model.project, "headlessRunner", packet.request.request_id)}
           href={jsonDataHref(packet)}
         >
           <Download size={14} aria-hidden="true" />
@@ -397,3 +397,4 @@ function safeFileToken(value: string): string {
   return value.replace(/[^a-z0-9]+/gi, "-").replace(/^-+|-+$/g, "").toLowerCase() || "preview";
 }
 import { ControlledExportLink } from "../redaction-controls/ControlledExportLink";
+import { suggestedFileName } from "../fileNames";

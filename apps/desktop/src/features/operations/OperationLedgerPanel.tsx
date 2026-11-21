@@ -44,7 +44,7 @@ export function OperationLedgerPanel({
         <ControlledExportLink
               className="report-export-link"
               data-testid="operation-ledger-export-link"
-              download={`openpipestress-preview-operation-ledger-${safeFileToken(ledger.project_ref)}.json`}
+              download={suggestedFileName(model.project, "operationLedger")}
               href={jsonDataHref(ledger)}
             >
               <Download size={14} aria-hidden="true" />
@@ -450,3 +450,4 @@ function safeFileToken(value: string): string {
   return value.replace(/[^a-zA-Z0-9_-]+/g, "-").replace(/^-+|-+$/g, "") || "preview";
 }
 import { ControlledExportLink } from "../redaction-controls/ControlledExportLink";
+import { suggestedFileName } from "../fileNames";

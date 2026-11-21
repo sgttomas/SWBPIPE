@@ -30,7 +30,7 @@ export function ExternalProverBoundaryPanel({
         <ControlledExportLink
           className="report-export-link"
           data-testid="external-prover-export-link"
-          download={`openpipestress-preview-external-prover-${safeFileToken(packet.metadata_record_id)}.json`}
+          download={suggestedFileName(model.project, "externalProver", packet.metadata_record_id)}
           href={jsonDataHref(packet)}
         >
           <Download size={14} aria-hidden="true" />
@@ -454,3 +454,4 @@ function safeFileToken(value: string): string {
   return value.replace(/[^a-z0-9:_-]+/gi, "-").replace(/^-+|-+$/g, "").toLowerCase() || "preview";
 }
 import { ControlledExportLink } from "../redaction-controls/ControlledExportLink";
+import { suggestedFileName } from "../fileNames";

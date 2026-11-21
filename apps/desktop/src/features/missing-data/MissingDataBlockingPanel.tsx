@@ -49,7 +49,7 @@ export function MissingDataBlockingPanel({ model, result }: { model: PreviewMode
         <ControlledExportLink
           className="report-export-link"
           data-testid="missing-data-export-link"
-          download={`openpipestress-preview-missing-data-${safeFileToken(model.project.id)}.json`}
+          download={suggestedFileName(model.project, "missingData")}
           href={jsonDataHref(packet)}
         >
           <Download size={14} aria-hidden="true" />
@@ -568,3 +568,4 @@ function safeFileToken(value: string): string {
   return value.replace(/[^a-zA-Z0-9_-]+/g, "-").replace(/^-+|-+$/g, "") || "preview";
 }
 import { ControlledExportLink } from "../redaction-controls/ControlledExportLink";
+import { suggestedFileName } from "../fileNames";

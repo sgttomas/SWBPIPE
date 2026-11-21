@@ -63,7 +63,7 @@ export function SecretPrivateLibraryPanel({
         <ControlledExportLink
           className="report-export-link"
           data-testid="secret-private-library-export-link"
-          download={`openpipestress-preview-secret-private-library-${safeFileToken(model.project.id)}.json`}
+          download={suggestedFileName(model.project, "secretPrivateLibrary")}
           href={jsonDataHref(packet)}
         >
           <Download size={14} aria-hidden="true" />
@@ -436,3 +436,4 @@ function safeFileToken(value: string): string {
   return value.replace(/[^a-z0-9]+/gi, "-").replace(/^-+|-+$/g, "").toLowerCase();
 }
 import { ControlledExportLink } from "../redaction-controls/ControlledExportLink";
+import { suggestedFileName } from "../fileNames";

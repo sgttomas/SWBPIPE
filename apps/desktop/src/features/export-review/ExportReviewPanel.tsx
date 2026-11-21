@@ -75,7 +75,7 @@ export function ExportReviewPanel({
         <ControlledExportLink
           className="report-export-link"
           data-testid="export-review-link"
-          download={`openpipestress-preview-export-review-${safeFileToken(model.project.id)}.json`}
+          download={suggestedFileName(model.project, "exportReview")}
           href={jsonDataHref(manifest)}
         >
           <Download size={14} aria-hidden="true" />
@@ -1302,7 +1302,5 @@ function jsonDataHref(payload: unknown): string {
   return `data:application/json;charset=utf-8,${encodeURIComponent(JSON.stringify(payload, null, 2))}`;
 }
 
-function safeFileToken(value: string): string {
-  return value.replace(/[^a-z0-9-]+/gi, "-").replace(/^-+|-+$/g, "").toLowerCase();
-}
 import { ControlledExportLink } from "../redaction-controls/ControlledExportLink";
+import { suggestedFileName } from "../fileNames";

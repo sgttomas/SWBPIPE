@@ -23,6 +23,7 @@ import {
   type RedactionFinding,
   type RedactionRunResult
 } from "./redactionExportControls";
+import { suggestedFileName } from "../fileNames";
 
 const CONTEXT_LABELS: Record<RedactionExportContext, string> = {
   local_private: "Local private (default)",
@@ -154,7 +155,7 @@ export function RedactionExportControlsPanel({ model }: { model: PreviewModel })
             <a
               className="report-export-link"
               data-testid="redaction-export-link"
-              download={`openpipestress-preview-redacted-export-${safeFileToken(model.project.id)}.json`}
+              download={suggestedFileName(model.project, "redactedExport")}
               href={jsonDataHref(exportPacket)}
             >
               <Download size={14} aria-hidden="true" />
@@ -369,6 +370,3 @@ function jsonDataHref(payload: unknown): string {
   return `data:application/json;charset=utf-8,${encodeURIComponent(JSON.stringify(payload, null, 2))}`;
 }
 
-function safeFileToken(value: string): string {
-  return value.replace(/[^a-zA-Z0-9_-]+/g, "-");
-}

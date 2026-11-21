@@ -47,7 +47,7 @@ export function TelemetryBoundaryPanel({
         <ControlledExportLink
           className="report-export-link"
           data-testid="telemetry-boundary-export-link"
-          download={`openpipestress-preview-telemetry-boundary-${safeFileToken(model.project.id)}.json`}
+          download={suggestedFileName(model.project, "telemetryBoundary")}
           href={jsonDataHref(packet)}
         >
           <Download size={14} aria-hidden="true" />
@@ -302,7 +302,5 @@ function jsonDataHref(payload: unknown): string {
   return `data:application/json;charset=utf-8,${encodeURIComponent(JSON.stringify(payload, null, 2))}`;
 }
 
-function safeFileToken(value: string): string {
-  return value.replace(/[^a-z0-9]+/gi, "-").replace(/^-+|-+$/g, "").toLowerCase();
-}
 import { ControlledExportLink } from "../redaction-controls/ControlledExportLink";
+import { suggestedFileName } from "../fileNames";

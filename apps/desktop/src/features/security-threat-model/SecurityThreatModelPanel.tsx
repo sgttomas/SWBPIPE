@@ -31,7 +31,7 @@ export function SecurityThreatModelPanel({
         <ControlledExportLink
           className="report-export-link"
           data-testid="security-threat-model-export-link"
-          download={`openpipestress-preview-security-threat-model-${safeFileToken(model.project.id)}.json`}
+          download={suggestedFileName(model.project, "securityThreatModel")}
           href={jsonDataHref(packet)}
         >
           <Download size={14} aria-hidden="true" />
@@ -342,7 +342,5 @@ function jsonDataHref(payload: unknown): string {
   return `data:application/json;charset=utf-8,${encodeURIComponent(JSON.stringify(payload, null, 2))}`;
 }
 
-function safeFileToken(value: string): string {
-  return value.replace(/[^a-z0-9]+/gi, "-").replace(/^-+|-+$/g, "").toLowerCase();
-}
 import { ControlledExportLink } from "../redaction-controls/ControlledExportLink";
+import { suggestedFileName } from "../fileNames";
