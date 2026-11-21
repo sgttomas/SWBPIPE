@@ -56,7 +56,7 @@ export function EditorContractPanel({
         <ControlledExportLink
           className="report-export-link"
           data-testid="editor-contract-export-link"
-          download={suggestedFileName(model.project, "editorContract")}
+          download={suggestedFileName("editorContract")}
           href={jsonDataHref(packet)}
         >
           <Download size={14} aria-hidden="true" />

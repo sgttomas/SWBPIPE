@@ -28,7 +28,7 @@ export function BuildReadinessPanel({ model }: { model: PreviewModel }) {
         <ControlledExportLink
           className="report-export-link"
           data-testid="build-readiness-export-link"
-          download={suggestedFileName(model.project, "buildReadiness")}
+          download={suggestedFileName("buildReadiness")}
           href={jsonDataHref(packet)}
         >
           <Download size={14} aria-hidden="true" />

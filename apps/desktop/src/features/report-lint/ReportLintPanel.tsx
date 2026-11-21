@@ -27,7 +27,7 @@ export function ReportLintPanel({
         <ControlledExportLink
           className="report-export-link"
           data-testid="report-lint-export-link"
-          download={suggestedFileName(model.project, "reportLint")}
+          download={suggestedFileName("reportLint")}
           href={jsonDataHref(packet)}
         >
           <Download size={14} aria-hidden="true" />
@@ -835,7 +835,7 @@ function lintTargets({
     targets.push(
       target(
         "target:report-packet-preview-json",
-        suggestedFileName(model.project, "reportPacket", result.run_id),
+        suggestedFileName("reportPacket"),
         "public_report_example",
         "public_metadata",
         `${result.model_ref}; ${analysisRun.analysis_run.run_id}; ${resultRowCount(result)} result refs; private rule payloads redacted`

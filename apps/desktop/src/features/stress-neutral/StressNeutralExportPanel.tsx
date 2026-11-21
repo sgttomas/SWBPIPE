@@ -141,7 +141,7 @@ export function StressNeutralExportPanel({
         <ControlledExportLink
               className="report-export-link"
               data-testid="stress-neutral-csv-link"
-              download={suggestedFileName(model.project, "stressNeutralRows")}
+              download={suggestedFileName("stressNeutralRows")}
               href={csvDataHref(currentPacket.csv_text)}
             >
               <Download size={14} aria-hidden="true" />

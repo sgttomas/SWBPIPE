@@ -66,7 +66,7 @@ export function RuleCheckPanel({ model, result }: { model: PreviewModel; result:
         <ControlledExportLink
           className="report-export-link"
           data-testid="rule-check-export-link"
-          download={suggestedFileName(model.project, "ruleCompleteness")}
+          download={suggestedFileName("ruleCompleteness")}
           href={jsonDataHref(review)}
         >
           <Download size={14} aria-hidden="true" />

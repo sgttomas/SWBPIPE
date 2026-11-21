@@ -18,7 +18,7 @@ export function AccessibilityBaselinePanel({ model }: { model: PreviewModel }) {
         <ControlledExportLink
           className="report-export-link"
           data-testid="accessibility-baseline-export-link"
-          download={suggestedFileName(model.project, "accessibilityBaseline")}
+          download={suggestedFileName("accessibilityBaseline")}
           href={jsonDataHref(packet)}
         >
           <Download size={14} aria-hidden="true" />

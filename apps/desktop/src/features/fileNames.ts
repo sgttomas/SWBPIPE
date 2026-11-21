@@ -1,24 +1,20 @@
-/** The suggested name of every file the desktop offers to save or download: the project's name, then the kind of
- * file, in lower case with hyphens, no spaces and no product or brand name. A person may change it in the save
- * panel. Every kind and its extension is an entry of `FILE_KINDS`, so that no panel composes a name for itself.
+/** The suggested name of every file the desktop offers to save or download (DEL-07-11 REQ-009): a fixed word for
+ * each kind of export and, where the export covers a case, filter, run or state, a qualifier naming it, in lower-case
+ * ASCII letters and digits joined by single hyphens, with the file's extension. No suggested name contains a
+ * project name, a project or model identifier, or a path: the rule takes no project, and a qualifier is drawn only
+ * from what the export covers, never from the project's or the model's identity. A person may change the name in
+ * the save panel, and the native dialog resolves a name already taken. Every kind and its extension is an entry of
+ * `FILE_KINDS`, so that no panel composes a name for itself.
  *
- * The project's name, as a slug: its display name; where that leaves nothing, its id without the leading
- * "project:"; where that leaves nothing too, "project". Lower case; every run of characters outside a to z and 0
- * to 9 one hyphen; no hyphen at either end; at most 64 characters, cut at the limit with any trailing hyphen
- * removed. A kind that writes one file per run, request or record of the same project takes a qualifier after the
- * kind (that record's own reference, by the same rule, at most 32 characters), so that two such files are told
- * apart; where the qualifier's slug is empty, the name has none. */
+ * The qualifier's rule: lower case; every run of characters outside a to z and 0 to 9 one hyphen; no hyphen at
+ * either end; at most 32 characters, cut at the limit with any trailing hyphen removed. Where that leaves nothing,
+ * the name has no qualifier. The shared cases are fixtures/file_names/suggested_name_cases.json. */
 
-const PROJECT_LIMIT = 64;
 const QUALIFIER_LIMIT = 32;
 
-function slug(text: string | null | undefined, limit: number): string {
-  return (text ?? "").toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-+|-+$/g, "").slice(0, limit).replace(/-+$/, "");
-}
-
-/** The project's name as a file-name slug. */
-export function projectSlug(project: { id: string; name?: string | null }): string {
-  return slug(project.name, PROJECT_LIMIT) || slug(project.id.replace(/^project:/, ""), PROJECT_LIMIT) || "project";
+/** A qualifier as it stands in a suggested name; empty where the rule leaves nothing. */
+export function qualifierSlug(text: string | null | undefined): string {
+  return (text ?? "").toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-+|-+$/g, "").slice(0, QUALIFIER_LIMIT).replace(/-+$/, "");
 }
 
 /** Every kind of file the desktop suggests a name for, and its extension. */
@@ -36,6 +32,8 @@ export const FILE_KINDS = Object.freeze({
   externalRunResultsCsv: { kind: "external-run-results", extension: "csv" },
   handoff: { kind: "handoff", extension: "json" },
   headlessRunner: { kind: "headless-runner", extension: "json" },
+  // Qualified by the handoff's local region: the model's own element and node ids, as the person named them, which
+  // say what the file covers and tell two handoffs of one model apart. Not project or model identity.
   localFeaHandoff: { kind: "local-fea-handoff", extension: "json" },
   missingData: { kind: "missing-data", extension: "json" },
   nativePackage: { kind: "native-package", extension: "json" },
@@ -74,10 +72,14 @@ export const FILE_NAME_EXCEPTIONS: ReadonlyArray<{ file: string; starts: string;
 
 export type FileKind = keyof typeof FILE_KINDS;
 
-/** The suggested name: the project's slug, the kind, the qualifier where one tells such files apart, and the
- * extension. */
-export function suggestedFileName(project: { id: string; name?: string | null }, file: FileKind, qualifier?: string | null): string {
+/** A suggested name from a kind word, an extension and the qualifier where one names what the export covers. */
+export function fileNameOf(kind: string, extension: string, qualifier?: string | null): string {
+  const told = qualifierSlug(qualifier);
+  return `${kind}${told ? `-${told}` : ""}.${extension}`;
+}
+
+/** The suggested name of a kind of file in `FILE_KINDS`. */
+export function suggestedFileName(file: FileKind, qualifier?: string | null): string {
   const { kind, extension } = FILE_KINDS[file];
-  const told = slug(qualifier, QUALIFIER_LIMIT);
-  return `${projectSlug(project)}-${kind}${told ? `-${told}` : ""}.${extension}`;
+  return fileNameOf(kind, extension, qualifier);
 }

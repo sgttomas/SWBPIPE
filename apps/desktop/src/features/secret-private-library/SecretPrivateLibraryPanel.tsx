@@ -63,7 +63,7 @@ export function SecretPrivateLibraryPanel({
         <ControlledExportLink
           className="report-export-link"
           data-testid="secret-private-library-export-link"
-          download={suggestedFileName(model.project, "secretPrivateLibrary")}
+          download={suggestedFileName("secretPrivateLibrary")}
           href={jsonDataHref(packet)}
         >
           <Download size={14} aria-hidden="true" />

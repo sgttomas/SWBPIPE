@@ -50,7 +50,7 @@ export function DiffPreviewPanel({
         <ControlledExportLink
               className="report-export-link"
               data-testid="diff-preview-export-link"
-              download={suggestedFileName(model.project, "operationDiff")}
+              download={suggestedFileName("operationDiff")}
               href={jsonDataHref(packet)}
             >
               <Download size={14} aria-hidden="true" />

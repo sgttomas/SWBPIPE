@@ -1,0 +1,153 @@
+{
+  "description": "Shared invented cases for the suggested file name rule (DEL-07-11 REQ-009; apps/desktop/src/features/fileNames.ts qualifierSlug and fileNameOf), read by the desktop's test and by any native implementation of the same rule, which must give the same output for each case. A name is a fixed kind word, then, where the export covers a case, filter, run or state, a hyphen and a qualifier naming it, then a dot and the kind's extension. The qualifier's rule: lower case; every run of characters outside a to z and 0 to 9 becomes one hyphen; no hyphen at either end; at most 32 characters, cut at the limit and then any trailing hyphen removed; where that leaves nothing, the name has no qualifier. No name contains a project name, a project or model identifier, or a path. Every value is invented.",
+  "schema_version": "0.1.0",
+  "deliverable_id": "DEL-07-11",
+  "provenance": {
+    "source": "invented_for_this_fixture",
+    "redistribution_status": "invented_non_engineering_example"
+  },
+  "qualifier_cases": [
+    {
+      "case_id": "plain",
+      "note": "a qualifier already in the form, as it is",
+      "qualifier": "pipe-p-100",
+      "expected_slug": "pipe-p-100"
+    },
+    {
+      "case_id": "upper-case",
+      "note": "upper case is lowered",
+      "qualifier": "PIPE P-100",
+      "expected_slug": "pipe-p-100"
+    },
+    {
+      "case_id": "digits",
+      "note": "digits are kept",
+      "qualifier": "Node 42 Line 7",
+      "expected_slug": "node-42-line-7"
+    },
+    {
+      "case_id": "inner-runs",
+      "note": "a run of several characters becomes one hyphen",
+      "qualifier": "pipe:P-100::node:N-140",
+      "expected_slug": "pipe-p-100-node-n-140"
+    },
+    {
+      "case_id": "ends",
+      "note": "hyphens and other characters at either end are removed",
+      "qualifier": "  --pipe P-1--  ",
+      "expected_slug": "pipe-p-1"
+    },
+    {
+      "case_id": "path-separators",
+      "note": "a path separator is a character outside a to z and 0 to 9, and becomes a hyphen like any other",
+      "qualifier": "pipe/P-100\\node:N-140",
+      "expected_slug": "pipe-p-100-node-n-140"
+    },
+    {
+      "case_id": "over-32",
+      "note": "a qualifier over 32 characters: cut at 32",
+      "qualifier": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+      "expected_slug": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+    },
+    {
+      "case_id": "cut-on-hyphen",
+      "note": "a cut that lands on a hyphen: the trailing hyphen is removed, leaving 31 characters",
+      "qualifier": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa b",
+      "expected_slug": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+    },
+    {
+      "case_id": "accented-latin",
+      "note": "an accented letter is outside a to z and becomes a hyphen",
+      "qualifier": "Tubería Nº 5",
+      "expected_slug": "tuber-a-n-5"
+    },
+    {
+      "case_id": "non-ascii-cyrillic",
+      "note": "non-Latin letters fall away by the same rule",
+      "qualifier": "Трубопровод 7",
+      "expected_slug": "7"
+    },
+    {
+      "case_id": "non-ascii-only",
+      "note": "a qualifier with no Latin letter or digit leaves nothing",
+      "qualifier": "配管",
+      "expected_slug": ""
+    },
+    {
+      "case_id": "punctuation-only",
+      "note": "a qualifier of only punctuation leaves nothing",
+      "qualifier": "?!… — ***",
+      "expected_slug": ""
+    },
+    {
+      "case_id": "empty",
+      "note": "an empty qualifier leaves nothing",
+      "qualifier": "",
+      "expected_slug": ""
+    },
+    {
+      "case_id": "null",
+      "note": "no qualifier leaves nothing",
+      "qualifier": null,
+      "expected_slug": ""
+    }
+  ],
+  "name_cases": [
+    {
+      "case_id": "no-qualifier",
+      "note": "a kind with no qualifier: the kind word and the extension",
+      "kind": "pcf-package",
+      "extension": "json",
+      "qualifier": null,
+      "expected_name": "pcf-package.json"
+    },
+    {
+      "case_id": "no-qualifier-other-extension",
+      "note": "the extension is the kind's own",
+      "kind": "pcf",
+      "extension": "pcf",
+      "qualifier": null,
+      "expected_name": "pcf.pcf"
+    },
+    {
+      "case_id": "qualifier",
+      "note": "a qualifier follows the kind word after one hyphen",
+      "kind": "local-fea-handoff",
+      "extension": "json",
+      "qualifier": "pipe:P-100:node:N-140",
+      "expected_name": "local-fea-handoff-pipe-p-100-node-n-140.json"
+    },
+    {
+      "case_id": "qualifier-over-32",
+      "note": "the qualifier is cut at 32 in the name too",
+      "kind": "local-fea-handoff",
+      "extension": "json",
+      "qualifier": "pipe:P-1000:pipe:P-1000:pipe:P-1000:pipe:P-1000:pipe:P-1000:pipe:P-1000:",
+      "expected_name": "local-fea-handoff-pipe-p-1000-pipe-p-1000-pipe-p-1.json"
+    },
+    {
+      "case_id": "qualifier-empty",
+      "note": "a qualifier whose slug is empty: no qualifier and no hyphen",
+      "kind": "local-fea-handoff",
+      "extension": "json",
+      "qualifier": "::",
+      "expected_name": "local-fea-handoff.json"
+    },
+    {
+      "case_id": "qualifier-non-ascii-only",
+      "note": "a qualifier of only non-Latin letters: no qualifier",
+      "kind": "local-fea-handoff",
+      "extension": "json",
+      "qualifier": "配管",
+      "expected_name": "local-fea-handoff.json"
+    },
+    {
+      "case_id": "qualifier-empty-string",
+      "note": "an empty qualifier: no qualifier",
+      "kind": "stress-neutral-rows",
+      "extension": "csv",
+      "qualifier": "",
+      "expected_name": "stress-neutral-rows.csv"
+    }
+  ]
+}

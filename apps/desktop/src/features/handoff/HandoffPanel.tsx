@@ -107,7 +107,7 @@ export function HandoffPanel({
         <ControlledExportLink
               className="report-export-link"
               data-testid="handoff-export-link"
-              download={suggestedFileName(model.project, "handoff", handoffPackage.analysis_run_ref.ref)}
+              download={suggestedFileName("handoff")}
               href={jsonDataHref(handoffPackage)}
             >
               <Download size={14} aria-hidden="true" />

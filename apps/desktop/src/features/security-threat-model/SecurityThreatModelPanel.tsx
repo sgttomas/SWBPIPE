@@ -31,7 +31,7 @@ export function SecurityThreatModelPanel({
         <ControlledExportLink
           className="report-export-link"
           data-testid="security-threat-model-export-link"
-          download={suggestedFileName(model.project, "securityThreatModel")}
+          download={suggestedFileName("securityThreatModel")}
           href={jsonDataHref(packet)}
         >
           <Download size={14} aria-hidden="true" />

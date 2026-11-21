@@ -103,7 +103,7 @@ export function NativePackagePanel({
         <ControlledExportLink
               className="report-export-link"
               data-testid="native-package-link"
-              download={suggestedFileName(model.project, "nativePackage")}
+              download={suggestedFileName("nativePackage")}
               href={jsonDataHref}
             >
               <Download size={14} aria-hidden="true" />

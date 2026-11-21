@@ -47,7 +47,7 @@ export function TelemetryBoundaryPanel({
         <ControlledExportLink
           className="report-export-link"
           data-testid="telemetry-boundary-export-link"
-          download={suggestedFileName(model.project, "telemetryBoundary")}
+          download={suggestedFileName("telemetryBoundary")}
           href={jsonDataHref(packet)}
         >
           <Download size={14} aria-hidden="true" />

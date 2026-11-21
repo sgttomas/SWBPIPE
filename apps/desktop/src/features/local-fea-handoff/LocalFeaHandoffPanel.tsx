@@ -71,7 +71,7 @@ export function LocalFeaHandoffPanel({
         <ControlledExportLink
               className="report-export-link"
               data-testid="local-fea-export-link"
-              download={suggestedFileName(model.project, "localFeaHandoff", localFeaNamedRegion(packet))}
+              download={localFeaHandoffFileName(packet)}
               href={jsonDataHref(packet)}
             >
               <Download size={14} aria-hidden="true" />
@@ -157,10 +157,16 @@ function regionBodyNotices(result: MechanicsResult, packet: ReturnType<typeof bu
 
 /** The region the handoff names, for its file name: none where the result summary left the region's selection
  * incomplete (its LOCAL-FEA-RESULT-SUMMARY-REF-MISSING finding). */
-function localFeaNamedRegion(packet: ReturnType<typeof buildLocalFeaHandoffPacket>): string | null {
-  return packet.handoff_package.diagnostics.some((item) => item.code === "LOCAL-FEA-RESULT-SUMMARY-REF-MISSING")
-    ? null
-    : packet.handoff_package.local_region.region_id.replace(/^local-region:/, "");
+/** The handoff's suggested name, qualified by its local region: the model's own element and node ids that the
+ * region is drawn from (its id without the "local-region:" type word). With no region drawn from the result's
+ * summary, the name has no qualifier. */
+export function localFeaHandoffFileName(packet: ReturnType<typeof buildLocalFeaHandoffPacket>): string {
+  return suggestedFileName(
+    "localFeaHandoff",
+    packet.handoff_package.diagnostics.some((item) => item.code === "LOCAL-FEA-RESULT-SUMMARY-REF-MISSING")
+      ? null
+      : packet.handoff_package.local_region.region_id.replace(/^local-region:/, "")
+  );
 }
 
 function LocalFeaLine({ label, value, testId }: { label: string; value: string; testId: string }) {

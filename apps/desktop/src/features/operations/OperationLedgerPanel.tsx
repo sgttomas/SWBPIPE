@@ -44,7 +44,7 @@ export function OperationLedgerPanel({
         <ControlledExportLink
               className="report-export-link"
               data-testid="operation-ledger-export-link"
-              download={suggestedFileName(model.project, "operationLedger")}
+              download={suggestedFileName("operationLedger")}
               href={jsonDataHref(ledger)}
             >
               <Download size={14} aria-hidden="true" />

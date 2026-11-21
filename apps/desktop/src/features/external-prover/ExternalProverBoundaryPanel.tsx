@@ -30,7 +30,7 @@ export function ExternalProverBoundaryPanel({
         <ControlledExportLink
           className="report-export-link"
           data-testid="external-prover-export-link"
-          download={suggestedFileName(model.project, "externalProver", packet.metadata_record_id)}
+          download={suggestedFileName("externalProver")}
           href={jsonDataHref(packet)}
         >
           <Download size={14} aria-hidden="true" />

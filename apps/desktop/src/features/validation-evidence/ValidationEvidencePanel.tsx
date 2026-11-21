@@ -59,7 +59,7 @@ export function ValidationEvidencePanel({ model }: { model: PreviewModel }) {
         <ControlledExportLink
           className="report-export-link"
           data-testid="validation-evidence-export-link"
-          download={suggestedFileName(model.project, "validationEvidence")}
+          download={suggestedFileName("validationEvidence")}
           href={jsonDataHref(packet)}
         >
           <Download size={14} aria-hidden="true" />

@@ -1,31 +1,29 @@
 import { readdirSync, readFileSync, statSync } from "node:fs";
 import path from "node:path";
 import { describe, expect, it } from "vitest";
-import slugCases from "../../../../fixtures/file_names/project_slug_cases.json";
-import { FILE_KINDS, FILE_NAME_EXCEPTIONS, RESERVED_KINDS, projectSlug, suggestedFileName } from "./fileNames";
+import nameCases from "../../../../fixtures/file_names/suggested_name_cases.json";
+import { FILE_KINDS, FILE_NAME_EXCEPTIONS, RESERVED_KINDS, fileNameOf, qualifierSlug, suggestedFileName } from "./fileNames";
 
-// The rule for every suggested file name. The slug's cases are the shared fixture, which a native implementation
-// of the rule reads too. Invented names only.
-describe("the project's name as a slug", () => {
-  it.each(slugCases.cases.map((item) => [item.case_id, item] as const))("%s", (_id, item) => {
-    expect(projectSlug(item.project)).toBe(item.expected_slug);
+// The rule for every suggested file name (DEL-07-11 REQ-009). Its cases are the shared fixture, which a native
+// implementation of the rule reads too.
+describe("a qualifier as it stands in a suggested name", () => {
+  it.each(nameCases.qualifier_cases.map((item) => [item.case_id, item] as const))("%s", (_id, item) => {
+    expect(qualifierSlug(item.qualifier)).toBe(item.expected_slug);
   });
 });
 
-describe("the suggested file name", () => {
-  it("is the slug, then the kind and extension from the table", () => {
-    expect(suggestedFileName({ id: "project:invented-demo-loop-01", name: "Invented Utility Loop Demo" }, "pcfPackage")).toBe("invented-utility-loop-demo-pcf-package.json");
-    expect(suggestedFileName({ id: "project:x", name: "Loop" }, "pcfText")).toBe("loop-pcf.pcf");
-    expect(suggestedFileName({ id: "project:x", name: "Loop" }, "stressNeutralRows")).toBe("loop-stress-neutral-rows.csv");
-    // A name that already ends in the kind is kept as it is.
-    expect(suggestedFileName({ id: "project:x", name: "Loop PCF package" }, "pcfPackage")).toBe("loop-pcf-package-pcf-package.json");
+describe("a suggested name from its kind word, extension and qualifier", () => {
+  it.each(nameCases.name_cases.map((item) => [item.case_id, item] as const))("%s", (_id, item) => {
+    expect(fileNameOf(item.kind, item.extension, item.qualifier)).toBe(item.expected_name);
   });
+});
 
-  it("tells files of one project apart by their record's reference, at most 32 characters, and has none where it is empty", () => {
-    expect(suggestedFileName({ id: "project:x", name: "Loop" }, "reportPacket", "run:preview-linear-static-001")).toBe("loop-report-packet-run-preview-linear-static-001.json");
-    expect(suggestedFileName({ id: "project:x", name: "Loop" }, "reportPacket", `run:${"r".repeat(40)}`)).toBe(`loop-report-packet-run-${"r".repeat(28)}.json`);
-    expect(suggestedFileName({ id: "project:x", name: "Loop" }, "reportPacket", ":::")).toBe("loop-report-packet.json");
-    expect(suggestedFileName({ id: "project:x", name: "Loop" }, "reportPacket", null)).toBe("loop-report-packet.json");
+describe("the suggested file name of a kind in the table", () => {
+  it("is the kind word and extension from the table, with the qualifier where one is given", () => {
+    expect(suggestedFileName("pcfPackage")).toBe("pcf-package.json");
+    expect(suggestedFileName("pcfText")).toBe("pcf.pcf");
+    expect(suggestedFileName("stressNeutralRows")).toBe("stress-neutral-rows.csv");
+    expect(suggestedFileName("localFeaHandoff", "pipe:P-100:node:N-140")).toBe("local-fea-handoff-pipe-p-100-node-n-140.json");
   });
 
   it("has a kind and extension for every entry, with no product name, no \"preview\" and no reserved kind", () => {

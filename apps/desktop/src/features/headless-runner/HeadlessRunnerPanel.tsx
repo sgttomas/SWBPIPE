@@ -32,7 +32,7 @@ export function HeadlessRunnerPanel({
         <ControlledExportLink
           className="report-export-link"
           data-testid="headless-runner-export-link"
-          download={suggestedFileName(model.project, "headlessRunner", packet.request.request_id)}
+          download={suggestedFileName("headlessRunner")}
           href={jsonDataHref(packet)}
         >
           <Download size={14} aria-hidden="true" />

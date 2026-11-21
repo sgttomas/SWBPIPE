@@ -155,7 +155,7 @@ export function RedactionExportControlsPanel({ model }: { model: PreviewModel })
             <a
               className="report-export-link"
               data-testid="redaction-export-link"
-              download={suggestedFileName(model.project, "redactedExport")}
+              download={suggestedFileName("redactedExport")}
               href={jsonDataHref(exportPacket)}
             >
               <Download size={14} aria-hidden="true" />

@@ -49,7 +49,7 @@ export function MissingDataBlockingPanel({ model, result }: { model: PreviewMode
         <ControlledExportLink
           className="report-export-link"
           data-testid="missing-data-export-link"
-          download={suggestedFileName(model.project, "missingData")}
+          download={suggestedFileName("missingData")}
           href={jsonDataHref(packet)}
         >
           <Download size={14} aria-hidden="true" />

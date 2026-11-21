@@ -59,7 +59,7 @@ export function DesignWorkspacePanel({
         <ControlledExportLink
           className="report-export-link"
           data-testid="design-workspace-export-link"
-          download={suggestedFileName(model.project, "designWorkspace")}
+          download={suggestedFileName("designWorkspace")}
           href={jsonDataHref(packet)}
         >
           <Download size={14} aria-hidden="true" />

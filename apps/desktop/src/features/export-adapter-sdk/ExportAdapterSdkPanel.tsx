@@ -69,7 +69,7 @@ export function ExportAdapterSdkPanel({
         <ControlledExportLink
           className="report-export-link"
           data-testid="export-adapter-sdk-export-link"
-          download={suggestedFileName(model.project, "exportAdapterSdk")}
+          download={suggestedFileName("exportAdapterSdk")}
           href={jsonDataHref(packet)}
         >
           <Download size={14} aria-hidden="true" />

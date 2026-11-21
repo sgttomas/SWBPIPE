@@ -54,7 +54,7 @@ export function ProjectStorageAuditPanel({
         <ControlledExportLink
           className="report-export-link"
           data-testid="project-storage-export-link"
-          download={suggestedFileName(model.project, "storageAudit")}
+          download={suggestedFileName("storageAudit")}
           href={jsonDataHref(packet)}
         >
           <Download size={14} aria-hidden="true" />

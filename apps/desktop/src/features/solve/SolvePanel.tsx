@@ -76,7 +76,7 @@ export function SolvePanel({
         <ControlledExportLink
           className="report-export-link"
           data-testid="solve-job-export-link"
-          download={suggestedFileName(model.project, "solveJob")}
+          download={suggestedFileName("solveJob")}
           href={jsonDataHref(packet)}
         >
           <Download size={14} aria-hidden="true" />

@@ -61,7 +61,7 @@ export function CaepipeExternalHarnessPanel({
         <ControlledExportLink
           className="report-export-link"
           data-testid="caepipe-external-export-link"
-          download={suggestedFileName(model.project, "externalRunJson")}
+          download={suggestedFileName("externalRunJson")}
           href={jsonDataHref(packet)}
         >
           <Download size={14} aria-hidden="true" />
@@ -70,7 +70,7 @@ export function CaepipeExternalHarnessPanel({
         <ControlledExportLink
           className="report-export-link"
           data-testid="caepipe-external-csv-link"
-          download={suggestedFileName(model.project, "externalRunCsv")}
+          download={suggestedFileName("externalRunCsv")}
           href={textDataHref(packet.csv_text)}
         >
           <Download size={14} aria-hidden="true" />
@@ -215,8 +215,8 @@ function buildCaePipeExternalHarnessPacket({
       run_directory_ref: `fixture:desktop-caepipe-external:${safeFileToken(model.project.id)}`,
       working_directory: "apps/desktop/browser-preview",
       input_mbf_path: MBF_INPUT_NOT_AVAILABLE,
-      expected_csv_path: suggestedFileName(model.project, "externalRunResultsCsv"),
-      observed_csv_path: suggestedFileName(model.project, "externalRunResultsCsv"),
+      expected_csv_path: suggestedFileName("externalRunResultsCsv"),
+      observed_csv_path: suggestedFileName("externalRunResultsCsv"),
       output_discovery_status: "fixture_generated_browser_preview"
     },
     execution_result: {

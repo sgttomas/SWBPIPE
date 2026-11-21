@@ -75,7 +75,7 @@ export function ExportReviewPanel({
         <ControlledExportLink
           className="report-export-link"
           data-testid="export-review-link"
-          download={suggestedFileName(model.project, "exportReview")}
+          download={suggestedFileName("exportReview")}
           href={jsonDataHref(manifest)}
         >
           <Download size={14} aria-hidden="true" />

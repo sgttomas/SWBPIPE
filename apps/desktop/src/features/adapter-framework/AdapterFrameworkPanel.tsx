@@ -26,7 +26,7 @@ export function AdapterFrameworkPanel({
         <ControlledExportLink
           className="report-export-link"
           data-testid="adapter-framework-export-link"
-          download={suggestedFileName(model.project, "adapterFramework", packet.adapter_declaration.adapter_id)}
+          download={suggestedFileName("adapterFramework")}
           href={jsonDataHref(packet)}
         >
           <Download size={14} aria-hidden="true" />

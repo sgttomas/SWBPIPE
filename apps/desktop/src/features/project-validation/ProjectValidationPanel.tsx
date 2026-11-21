@@ -81,7 +81,7 @@ export function ProjectValidationPanel({
         <ControlledExportLink
           className="report-export-link"
           data-testid="project-validation-export-link"
-          download={suggestedFileName(model.project, "projectValidation")}
+          download={suggestedFileName("projectValidation")}
           href={jsonDataHref(packet)}
         >
           <Download size={14} aria-hidden="true" />

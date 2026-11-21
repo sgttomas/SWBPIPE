@@ -112,7 +112,7 @@ export function PcfExportPanel({
         <ControlledExportLink
           className="report-export-link"
           data-testid="pcf-export-link"
-          download={suggestedFileName(model.project, "pcfPackage")}
+          download={suggestedFileName("pcfPackage")}
           href={jsonDataHref(packet)}
         >
           <Download size={14} aria-hidden="true" />
@@ -121,7 +121,7 @@ export function PcfExportPanel({
         <ControlledExportLink
           className="report-export-link"
           data-testid="pcf-text-link"
-          download={suggestedFileName(model.project, "pcfText")}
+          download={suggestedFileName("pcfText")}
           href={textDataHref(packet.pcf_text)}
         >
           <Download size={14} aria-hidden="true" />
