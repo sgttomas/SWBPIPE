@@ -1,0 +1,79 @@
+/* The Issues list: one row per fact on the shared tokens (tokens.css). A row's sentence leads; the
+   entity, the word for where it stands, its act and its code follow on one line; the code is last
+   and small. The edge colour repeats the word, never replaces it. */
+
+.issues-list {
+  display: grid;
+  gap: var(--space-4);
+}
+
+.issues-count-line {
+  margin: 0;
+  font-weight: var(--type-weight-semibold);
+}
+
+.issues-rows {
+  display: grid;
+  gap: var(--space-2);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.issue-row {
+  display: grid;
+  gap: var(--space-2);
+  padding: var(--space-3) var(--space-4);
+  border: var(--border-width-hairline) solid var(--border-hairline);
+  border-left-width: var(--border-width-selectionBar);
+  border-radius: var(--radius-card);
+  background: var(--surface-panel);
+}
+
+.issue-row.fix { border-left-color: var(--issue-blocking); }
+.issue-row.warning { border-left-color: var(--issue-warning); }
+.issue-row.note { border-left-color: var(--issue-info); }
+
+.issue-sentence {
+  padding: 0;
+  border: 0;
+  background: none;
+  color: inherit;
+  font: inherit;
+  text-align: left;
+  overflow-wrap: anywhere;
+  cursor: pointer;
+}
+
+.issue-meta {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: var(--space-2) var(--space-4);
+}
+
+.issue-tier { font-weight: var(--type-weight-medium); }
+.issue-row.fix .issue-tier { color: var(--issue-blocking); }
+
+.issue-code {
+  margin-left: auto;
+  color: var(--text-secondary);
+  font-size: var(--type-size-caption);
+}
+
+.issue-detail {
+  display: grid;
+  gap: var(--space-1);
+  margin: 0;
+  font-size: var(--type-size-caption);
+}
+
+.issue-detail dd {
+  margin: 0;
+  overflow-wrap: anywhere;
+}
+
+.issue-detail ul {
+  margin: 0;
+  padding-left: var(--space-5);
+}
