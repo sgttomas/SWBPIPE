@@ -1,4 +1,4 @@
-import { resultRowCount, resultUnits, runResultHashCount, type SessionAnalysisRun, type SessionResult } from "../../services/nativeResult";
+import { isNativeResult, resultRowCount, resultUnits, runResultHashCount, type SessionAnalysisRun, type SessionResult } from "../../services/nativeResult";
 import { AlertTriangle, Download, Play, ShieldCheck, Square } from "lucide-react";
 import { LoadReferenceOutputGate } from "../results/LoadReferenceOutputGate";
 import { LoadReferenceStatesBlock } from "./LoadReferenceStatesBlock";
@@ -8,7 +8,8 @@ import { hasRecordedUnsolvedModelStatus, professionalStatusToken, registeredStat
 import { describeResourceRefusal, describeSolveWorkerFailure, formatBytes, resourceRefusalCode } from "../../services/memoryPool";
 import { describeSolveRefusalRetry, isResultTooLargeSolveJob, solveRefusalPoint } from "../workspace/solveJobAudit";
 import { MemoryPoolPanel } from "./MemoryPoolPanel";
-import type { NumericalHealthView } from "../results/numericalHealth";
+import { NUMERICAL_HEALTH_ORDER, worstState, type NumericalHealthState, type NumericalHealthView } from "../results/numericalHealth";
+import { BOUNDARY_SENTENCE, numericalHealthHeadline } from "../results/numericalHealthText";
 import type { CurrentSessionInputManifest } from "../../services/inputManifestService";
 import { RulePackRunReferences } from "../rule-packs/RulePackRunReferences";
 import { useId, type ReactNode } from "react";
@@ -70,19 +71,28 @@ export function SolvePanel({
   const packet = buildSolveJobPacket({ model, result, analysisRun, solveJob, running, solverMode });
   const refusalPoint = solveRefusalPoint(solveJob);
   const resultTooLarge = isResultTooLargeSolveJob(solveJob);
-  const statusText = solveStatusLine({ model, result, solveJob, running, withheld: withheld !== null, resultTooLarge });
+  const statusText = solveStatusLine({ model, result, solveJob, running, withheld, resultTooLarge });
+  // DEL-07-05 REQ-023: a result whose numerical health is not "checks passed" says so on the
+  // line, in the indicator's own words, with the boundary sentence beside it.
+  const health = !running && result ? statusLineHealth(result, numericalHealth) : null;
+  const healthText = health && health !== "checks_passed" ? `${numericalHealthHeadline(health, numericalHealth?.route === "pressure_source")}.` : null;
+  // DEL-07-07 REQ-007: human review needed is its own outcome, shown without a press.
+  const professional = registeredStatusLabel(professionalStatusToken(result?.status.professional_acceptance ?? model.analysis_status.professional_acceptance));
+  const humanReview = !running && professional?.domain === "Human" ? `${professional.label}.` : null;
+  const lineText = [statusText, healthText, humanReview].filter(Boolean).join(" ");
   return (
     <section className="panel solve-panel" aria-label="Solve execution" data-testid="solve-panel">
       {/* The page leads with one line in words and the solve controls. Every record of the
           run, and the memory settings, sit below in closed disclosures. */}
       <p className="solve-status-line" data-testid="solve-status-line">
-        <span data-testid="solve-status-text">{statusText}</span>
+        <span data-testid="solve-status-text">{lineText}</span>
         {issueCount > 0 ? (
           <button type="button" className="solve-status-issues" data-testid="solve-status-issues" onClick={onOpenIssues}>
             {issueCount} {plural("issue", issueCount)}
           </button>
         ) : null}
       </p>
+      {healthText ? <p className="solve-status-boundary" data-testid="solve-status-boundary">{BOUNDARY_SENTENCE}</p> : null}
       <div className="solve-controls">
         <div className="solver-mode-control" role="group" aria-label="Solver mode" data-testid="solver-mode-control">
           <button
@@ -213,6 +223,31 @@ const SPARSE_SOLVER_TITLE = "The default: a direct solve that stores and factors
 const DENSE_SOLVER_TITLE =
   "A direct solve of the full stiffness matrix, to cross-check the sparse solver. Its memory grows with the square of the model's size, and a model too large for it is refused before it starts.";
 
+/** The worse of the result's gated numerical health and its document's own quality status
+ * (worst first in NUMERICAL_HEALTH_ORDER). Gated health cannot read checks passed or
+ * sensitive unless the mechanics are solved; a native handle carries no document status,
+ * so its gated health alone stands. */
+function statusLineHealth(result: SessionResult, health: NumericalHealthView | null): NumericalHealthState {
+  const reported = health && health.cases.length > 0 ? worstState(health.cases) : "not_assessed";
+  const gated: NumericalHealthState = result.status.mechanics === "MECHANICS_SOLVED"
+    ? reported
+    : reported === "solve_failed" || reported === "quality_unresolved" ? reported : "not_assessed";
+  if (isNativeResult(result)) return gated;
+  const documented = documentHealthState(result.numerical_quality?.status);
+  return NUMERICAL_HEALTH_ORDER.indexOf(documented) < NUMERICAL_HEALTH_ORDER.indexOf(gated) ? documented : gated;
+}
+
+function documentHealthState(status: string | undefined): NumericalHealthState {
+  switch (status) {
+    case "checks_passed": return "checks_passed";
+    case "sensitive": return "sensitive";
+    case "unresolved": return "quality_unresolved";
+    case "solve_failed":
+    case "failed": return "solve_failed";
+    default: return "not_assessed";
+  }
+}
+
 /** The page's one status line, in words: what was solved or why not. No status token. */
 function solveStatusLine({
   model,
@@ -226,7 +261,7 @@ function solveStatusLine({
   result: SessionResult | null;
   solveJob: SolveJobAuditState;
   running: boolean;
-  withheld: boolean;
+  withheld: Extract<SolveGateReading, { kind: "withheld" }> | null;
   resultTooLarge: boolean;
 }): string {
   if (running) {
@@ -247,6 +282,8 @@ function solveStatusLine({
   if (solveJob.state === "refused") return "The solve was refused; no result was published.";
   if (solveJob.state === "failed") return "The solve failed; no result was published.";
   if (solveJob.state === "cancelled") return "The solve was cancelled.";
+  // Invalid input: the solve cannot read the model; the notice below gives its own text.
+  if (withheld?.refusal) return "Not solved: the solve cannot read this model.";
   if (withheld) return "Not solved: findings in the model stop the solve.";
   const recorded = registeredStatusLabel(model.analysis_status.mechanics);
   return recorded && recorded.domain === "Solver" && recorded.token !== "MECHANICS_SOLVED" ? `Not solved: ${recorded.label.toLowerCase()}.` : "Not solved yet.";

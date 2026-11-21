@@ -9,6 +9,8 @@ const invokeMock = vi.hoisted(() => vi.fn());
 vi.mock("@tauri-apps/api/core", async () => ({ invoke: (await import("../../test/nativeIngress")).ingressDecodingInvoke(invokeMock) }));
 import { loadPreviewModel } from "../../services/previewService";
 import type { MechanicsResult, PoolStatus } from "../../types";
+import { numericalHealthView, type NumericalHealthState } from "../results/numericalHealth";
+import { BOUNDARY_SENTENCE } from "../results/numericalHealthText";
 import { initialSolveJob, startSolveJob } from "../workspace/solveJobAudit";
 import { SolvePanel } from "./SolvePanel";
 
@@ -41,7 +43,9 @@ it("leads after a solve with one status line in words, the solver choice and Run
   render(<SolvePanel {...base} result={result} issueCount={30} onOpenIssues={onOpenIssues} />);
 
   const line = screen.getByTestId("solve-status-line");
-  expect(screen.getByTestId("solve-status-text")).toHaveTextContent(/^Mechanics solved: \d+ result rows?\. Rule inputs incomplete\.$/);
+  // The fixture's own quality status is sensitive: the line says so, with the boundary sentence.
+  expect(screen.getByTestId("solve-status-text")).toHaveTextContent(/^Mechanics solved: \d+ result rows?\. Rule inputs incomplete\. Numerical health: sensitive\. Human review required\.$/);
+  expect(screen.getByTestId("solve-status-boundary")).toHaveTextContent(BOUNDARY_SENTENCE);
   // No status code in capitals on the line.
   expect(line.textContent).not.toMatch(/[A-Z]{2,}_[A-Z_]+/);
   fireEvent.click(within(line).getByRole("button", { name: "30 issues" }));
@@ -149,4 +153,77 @@ it("keeps the memory inputs working as before once Memory settings is opened, ea
   fireEvent.click(screen.getByRole("button", { name: "Apply" }));
   expect(await screen.findByTestId("memory-pool-outcome")).toHaveTextContent("Applied: pool 24 GiB; per-invocation budget 8 GiB.");
   expect(invokeMock).toHaveBeenCalledWith("configure_memory_pool", { poolBytes: 24 * GiB, invocationBudgetBytes: 8 * GiB, acknowledgeAboveRecommended: false });
+});
+
+// DEL-07-07 REQ-007 / AC-005, DEL-09-05 REQ-004 and DEL-07-05 REQ-023 on the status line,
+// read without opening Run record.
+const EXCLUDED = /checks passed|verified|certified|\bbound\b|guaranteed|\bvalid\b|approved|compliant|correct|reliable/i;
+
+function health(state: NumericalHealthState) {
+  return numericalHealthView({ route: "generic", verdict_only: false, combinations: [], cases: [
+    { case_id: "case", state, code: null, integrity_diagnostic_id: null, rcond: null, digits: null, conditioning_sensitive: false, causes: [] }
+  ] }, { eligible: false, verdictHold: false });
+}
+
+function withDocument(status: string, mechanics = "MECHANICS_SOLVED"): MechanicsResult {
+  const result = solvedResult();
+  return { ...result, status: { ...result.status, mechanics }, numerical_quality: { ...result.numerical_quality!, status: status as never } };
+}
+
+function lineOf() {
+  return screen.getByTestId("solve-status-text").textContent ?? "";
+}
+
+it("on a clean solved result states the outcome, the rule status and human review, and no numerical-health verdict", async () => {
+  render(<SolvePanel {...await props()} result={withDocument("checks_passed")} numericalHealth={health("checks_passed")} />);
+  expect(lineOf()).toMatch(/^Mechanics solved: \d+ result rows?\. Rule inputs incomplete\. Human review required\.$/);
+  expect(lineOf()).not.toMatch(/Numerical health/);
+  // The line never prints "checks passed"; the unchanged badge inside the closed Run record keeps its own words.
+  expect(screen.getByTestId("solve-status-line").textContent).not.toContain("checks passed");
+  expect(screen.queryByTestId("solve-status-boundary")).toBeNull();
+  expect(screen.getByTestId("solve-status-line")).toBeVisible();
+});
+
+it.each([
+  ["sensitive", "sensitive", "Numerical health: sensitive."],
+  ["unresolved", "quality_unresolved", "Numerical health: quality unresolved."],
+  ["failed", "solve_failed", "Numerical health: solve failed."],
+  ["not_assessed", "not_assessed", "Numerical health: not assessed."],
+  ["not_assessed", null, "Numerical health: not assessed."]
+] as const)("on a solved result whose health is %s (%s) shows its verdict, the boundary sentence and human review without a press", async (document, gated, words) => {
+  render(<SolvePanel {...await props()} result={withDocument(document)} numericalHealth={gated ? health(gated) : null} />);
+  expect(lineOf()).toContain(words);
+  expect(lineOf()).toMatch(/Human review required\.$/);
+  expect(lineOf()).not.toMatch(EXCLUDED);
+  expect(screen.getByTestId("solve-status-line")).toBeVisible();
+  expect(screen.getByTestId("solve-status-boundary")).toBeVisible();
+  expect(screen.getByTestId("solve-status-boundary")).toHaveTextContent(BOUNDARY_SENTENCE);
+  expect(screen.getByTestId("solve-run-record")).not.toHaveAttribute("open");
+});
+
+it.each([
+  ["document checks passed, gated sensitive", withDocument("checks_passed"), "sensitive", "Numerical health: sensitive."],
+  ["document checks passed, no gated reading", withDocument("checks_passed"), null, "Numerical health: not assessed."],
+  ["document sensitive, gated checks passed", withDocument("sensitive"), "checks_passed", "Numerical health: sensitive."],
+  ["document unresolved, gated checks passed", withDocument("unresolved"), "checks_passed", "Numerical health: quality unresolved."],
+  ["mechanics not solved, document and gated checks passed", withDocument("checks_passed", "MODEL_INCOMPLETE"), "checks_passed", "Numerical health: not assessed."]
+] as const)("takes the worse of the gated health and the document status: %s", async (_label, result, gated, words) => {
+  render(<SolvePanel {...await props()} result={result} numericalHealth={gated ? health(gated) : null} />);
+  expect(lineOf()).toContain(words);
+  expect(lineOf()).not.toMatch(EXCLUDED);
+  expect(screen.getByTestId("solve-status-boundary")).toHaveTextContent(BOUNDARY_SENTENCE);
+});
+
+it("shows invalid input and an incomplete model as their own outcomes, each with human review, without a press", async () => {
+  const base = await props();
+  const view = render(<SolvePanel {...base} solveGate={{ kind: "withheld", model: base.model, findings: [], diagnostics: [], notListedBlocking: 0, refusal: "invented refusal text", laterCheckNotCompleted: null }} />);
+  expect(lineOf()).toBe("Not solved: the solve cannot read this model. Human review required.");
+  expect(screen.getByTestId("solve-status-line")).toBeVisible();
+  view.unmount();
+
+  const incomplete = { ...base.model, analysis_status: { ...base.model.analysis_status, mechanics: "MODEL_INCOMPLETE" } };
+  render(<SolvePanel {...base} model={incomplete} />);
+  expect(lineOf()).toBe("Not solved: model incomplete. Human review required.");
+  expect(screen.getByTestId("solve-status-line")).toBeVisible();
+  expect(screen.queryByTestId("solve-status-boundary")).toBeNull();
 });

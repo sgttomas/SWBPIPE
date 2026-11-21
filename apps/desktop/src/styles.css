@@ -2505,6 +2505,12 @@ fieldset.viewport-intent-controls {
   font-weight: var(--type-weight-semibold);
 }
 
+.solve-status-boundary {
+  margin: calc(-1 * var(--space-3)) 0 var(--space-5);
+  color: var(--ui-muted);
+  font-size: var(--type-size-caption);
+}
+
 .app-shell .solve-status-line .solve-status-issues {
   padding: 0;
   border: 0;
