@@ -70,9 +70,12 @@ returns, a native menu command, the report print dialog). For the launched
 app, the index's `native_surfaces` records each native surface: the window,
 the menu bar as drawn, the file chooser, the print dialog, the 3D view and any
 other native dialog. Each is supplied only by an attended capture of it in the
-same folder at the revision of the walkthrough's screens (the entry lists those
-captures with their revision and build); unseen only where an attempt was
-recorded with what prevented it; and otherwise missing evidence ("not supplied:
+same folder at the revision and build of the walkthrough's screens (the entry
+lists those captures with their revision and build); unseen only as the
+attendant states it, in a statement naming the step attempted, the surface,
+what was observed and whether the obstacle is the system's or the
+application's (never the file chooser or the print dialog, which the
+scripted-run build substitutes); and otherwise missing evidence ("not supplied:
 no attended capture of this surface in this walkthrough"), never excused by a
 permission prompt. The 3D view keeps its own record of each step under
 `--show-window` as well. `index.html` lists them under "Native surfaces not
@@ -212,10 +215,11 @@ npm run walkthrough:native --workspace apps/desktop -- --attended [--journey <na
 ```
 
 **What it is for.** The journeys above cannot show the actual window: the 3D
-view as drawn, the menu bar, focus and hover, a drag, a person's Quit. The
-attended launch starts the app for an attendant, an agent or a person who
-drives the actual window as a person does, and then leaves it alone. The
-runner drives nothing after the start and captures nothing.
+view as drawn, the menu bar, focus and hover, a drag, a Quit. The attended
+launch starts the app for an attendant, an agent outside the application that
+drives the actual window through its own controls, and then leaves it alone:
+after the start the runner takes no step and captures nothing. A person's use
+of the desktop waits for the interface gate (DEL-07-06 REQ-017 and AC-008).
 
 **How it is launched.** It is one launch made by the same launch function
 as every journey's, with all of the confinement under "How it is confined"
@@ -229,63 +233,98 @@ places in the home before launch, and the opening it declares by the File menu
 (`place` and `open`; a journey that places nothing is refused). None of its
 steps runs. Without `--journey`, the start is the app as first opened. The app
 brings its own window to the front, as `--show-window` does (the window's own
-API, kept above other windows; nothing captured). `--hidden` leaves the window
-where the system puts it; it exists only so that the launch's life can be
-checked without taking the screen. `--out` is required; it may already hold
-journeys' screens, but not an earlier attended launch's `captures/` folder.
+API; nothing captured). `--hidden` leaves the window where the system puts it;
+it exists only so that the launch's life can be checked without taking the
+screen. `--out` is required; it may already hold journeys' screens, but not an
+earlier attended launch's `captures/` folder. A launch refused for its `--out`
+changes nothing in it.
 
-**What it prints.** Once the start is made, lines of the form
-`attended.<key>=<value>`: `pid` (the app's process), `process_name`,
-`bound_app`, `launch_copy` (the private copy that runs), `window_title_ends_with`
-(the app titles its window `SWBPIPE`, `<project> — SWBPIPE` or `<project> ·
-Edited — SWBPIPE`), `window_shown`, `start`, `finish_file`, `captures`,
-`limit_minutes`, `ends_at`, `chooser`, and last `attended.ready=yes`.
+**The handover.** Only once the driver reports the start made, with this
+launch's nonce, does the command print lines of the form
+`attended.<key>=<value>`: `pid` (the app's process, as the launch's census
+finds it), `process_name`, `bound_app`, `launch_copy` (the private copy that
+runs), `window_title_ends_with` (the app titles its window `SWBPIPE`,
+`<project> — SWBPIPE` or `<project> · Edited — SWBPIPE`), `window_shown` and
+`page_visibility` (as the driver observed them, not as asked), `start`,
+`finish_file`, `captures`, `limit_minutes`, `ends_at`, `chooser`, and last
+`attended.ready=yes`. A start that fails prints no ready line: the launch ends
+as `start-failed`.
 
-**How it ends.** At the first of: the app exits by itself (the attendant chose
-Quit, or closed the window); the finish file appears (the runner then ends the
-app as a time limit ends any launch, with SIGKILL to the launch's process
-group); or the limit passes (`--limit-minutes`, default 20, 1 to 60). A file
-chooser opened by the attendant meets the strict chooser, which ends the app
-before any panel (exit 86); the record says so. Then the census, the home's
-removal and the tripwire, as after every launch.
+**How it ends.** At the first of: the app exits by itself (the attendant's
+Quit or closing the window, counted as the attendant's only after the
+handover); the finish file appears; or the limit passes (`--limit-minutes`,
+default 20, 1 to 60). The finish file and the limit end the launch through
+the owner of the started child (`runUnderLock`, by the AbortSignal
+`judgedPhase` passes it), which sends it SIGKILL; the record keeps its receipt.
+A finish file that appears before the child exists ends it as soon as it does;
+one that appears after the app has exited signals nothing. The launch's own
+time limit, two minutes after the limit, is the backstop. A file chooser
+opened by the attendant meets the strict chooser, which ends the app before
+any panel (exit 86): that is the launch's ending, and nothing else is recorded
+for it. Then the census, the home's removal and the tripwire, as after every
+launch.
+
+**What the launch stops and records.** Before the handover the driver stops
+every activation of the page's file fields (Operations: Supports, "Import
+hanger library"; Operations: Agent, "Proposal file"), which would open the
+system's file panel, and the embedded agent's "Start agent", for any provider:
+an attended launch has no scripted provider, so no provider, model, key,
+network or sign-in is used. Each stop is recorded with its time and the
+control's name. The driver also records, with its time, each report print the
+build substitutes for the system print dialog, and the application's own count
+of the words and controls on screen whenever the page settles after a change
+(0.8 s quiet, at least 1.5 s apart, at most 5 s after the first change, one at
+the handover; at most 1200 records of 256 KiB). Recording presses, focuses and
+changes nothing.
+
+**Captures.** The attendant puts each picture of the window in
+`<out>/captures/` as `name.png`, with a sidecar `name.json`:
+
+```json
+{
+  "use_case": "Failed solve",
+  "step": "solve-refused",
+  "acted": ["pressed Run"],
+  "note": "The solve is refused; the findings name the support.",
+  "taken_at": "2026-11-21T10:42:07.120Z",
+  "surfaces": ["window"]
+}
+```
+
+`use_case` is one of DEL-07-06 AC-007's use cases by its name there, or the
+`--journey` the launch started from; `acted` is what was done since the
+previous capture (`["observed only"]` when nothing was); `taken_at` is an ISO
+8601 time with its zone. `surfaces` is optional, names from `window`,
+`menu_bar`, `file_chooser`, `print_dialog`, `view_3d`, `other_native_dialog`.
+`prevented`, also optional, is a statement (or a list) that a surface could
+not be shown: `{ "step": "...", "surface": "...", "observed": "...",
+"obstacle": "system" | "application" }`. A sidecar with no picture may carry
+`prevented`, never `surfaces`.
 
 **The record.** The index gets one part, `part-90-attended.json`: the
-revision and build, the start, that the launch was attended and that no step
-was scripted after the start, whether the window was shown, when the launch
-started and ended and how, the menu the app built (read once, as every launch
-reads it), and the census. Then one screen for each picture the attendant put
-in `<out>/captures/`. A picture `name.png` with a sidecar `name.json` of the
-form `{ "step": "...", "note": "...", "acted": ["..."] }`, with two optional
-members, is a screen marked as
-a capture of the actual window (`capture: "the actual window"`, `redrawn:
-false`, `scripted: false`). A picture without a sidecar, with one of another
-form, or that is not a PNG is listed as unexplained, with the reason, and
-nothing is claimed for it. A sidecar with no picture, a link, a folder or any
-other file is listed, not followed. The optional members say what the picture
-shows of the native surfaces and what was tried: `"surfaces": [...]`, names
-from the set `window`, `menu_bar`, `file_chooser`, `print_dialog`, `view_3d`,
-`other_native_dialog`, which the index then counts as supplied by that capture
-when it is at the revision of the walkthrough's screens; and `"prevented":
-{ "surface": "...", "what": "..." }` (or a list of them), an attempt at a
-surface and what prevented it, which makes that surface unseen with that
-reason unless a capture supplies it. A sidecar with no picture may carry
-`prevented`, never a supplied surface. When the strict chooser ends the app,
-the launch's own record says so for `file_chooser`. A name outside the set is
-listed as unexplained in `native_surfaces_unexplained`. The runner neither takes nor alters a
-capture. A journey run into the same folder later keeps `captures/` as it is.
+revision and build, the start, the handover, how and when the launch ended,
+the menu the app built, the census, what the launch stopped, and one screen
+for each picture in `captures/`. When the launch ends, the runner reads
+`captures/` once, only if it is still the folder it created for the launch
+(not a link, the same device and inode), and binds each capture to the
+launch: the SHA-256 of the picture and of the sidecar, the picture's decoded
+size, and the launch's revision and build. Each capture also carries the
+application's own count nearest at or before its `taken_at` (labelled as the
+application's, with its time), every stop and substitution recorded since the
+previous capture, and `taken_at` checked against the picture's file time (a
+difference beyond 5 s is said). What the sidecar says is labelled as the
+attendant's. A picture without a sidecar or with one missing a required
+member, a file that does not decode as a PNG, a picture whose file time lies
+outside the launch, a sidecar with no picture, a link, a folder or any other
+file, and anything added after the launch ended: each is listed under the
+launch in both indexes, with the reason, and supplies nothing. A capture supplies a
+surface only while its revision and build are the walkthrough's and its files
+are still the ones recorded. The runner neither takes nor alters a capture. A
+journey run into the same folder later keeps `captures/` as it is.
 
-**What the attendant may do, and may not.** The attendant may accept the
-system's prompt that lets its screen-driving tool see and control the
-application under test. It enters no password, secret or licence key. It may
-raise the print dialog and must cancel it or print to a file inside the
-throwaway home, never to a printer; in the scripted-run build, Print records
-the print document and opens the print view's window instead of the system's
-dialog. It opens no folder of the machine's user outside the throwaway home:
-the app's own choosers end the app (the strict chooser), but a page field that
-asks for a file (Operations: Supports, "Import hanger library"; Operations:
-Agent, "Proposal file") opens the system's open panel, which the strict chooser
-does not govern; cancel it. It saves no provider settings and does not start
-the embedded agent; this build refuses every Keychain item in any case.
+**What the attendant may do.** It may accept the system's prompt that lets its
+screen-driving tool see and control the application under test. It enters no
+password, secret or licence key.
 
 **What a capture is evidence of.** Only what it shows, at the revision and
 build its part records: what the attendant saw in the window then. It does not
@@ -310,7 +349,7 @@ saved states and runs. To add one:
    document is a JSON file the app opens; a local project store is the app's
    `openpipestress-projects.sqlite3`.
 2. **Declare the journey** in `native/run.mjs`, `JOURNEYS`: a name of
-   lower-case words joined by `-`, an unused `number` from 25 to 99, a
+   lower-case words joined by `-`, an unused `number` from 25 to 89 (90 is the attended launch's), a
    `title` that names the use case, and:
    - `place`: one entry per file, `{ key, at, from }`. `at` is a path inside
      the home; `chooser/models/<file>` for a document the chooser returns, or

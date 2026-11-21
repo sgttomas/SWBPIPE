@@ -39,9 +39,9 @@ test("arguments: --build-only alone, journeys by name, the reference system alon
   assert.match(parseArguments(["--all"]).error, /unknown argument/);
 });
 
-test("journeys are numbered from 20, after the browser walkthrough's, each once", () => {
+test("journeys are numbered from 20, after the browser walkthrough's, each once and below the attended launch's 90", () => {
   const numbers = Object.values(JOURNEYS).map((journey) => journey.number);
-  assert.ok(numbers.every((number) => number >= 20 && number <= 99));
+  assert.ok(numbers.every((number) => number >= 20 && number <= 89));
   assert.equal(new Set(numbers).size, numbers.length);
 });
 

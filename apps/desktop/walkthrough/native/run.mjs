@@ -48,19 +48,26 @@
 // launch, the tripwire over the real user's product-named Library paths before the first launch and after the last,
 // and closeRun on every exit the runner can catch. A home is removed only as evidence-journeys.mjs removes one
 // (homeRemovalRefusal, removalIdentityRefusal, the run's token in its marker). In this build the print dialog is
-// replaced by a record, and Print is not pressed. The embedded agent is never started; no provider, model, key,
-// network or sign-in is used. Chromium renders after the app has ended, loads nothing, and is given no file of the
+// replaced by a record, and Print is not pressed. The embedded agent is never started (an attended launch stops its
+// Start agent); no provider, model, key, network or sign-in is used. Chromium renders after the app has ended, loads nothing, and is given no file of the
 // home. Evidence of what a person sees, not a test: a journey that stops is a finding in the index.
 //
 // --attended (ATTENDED below): one launch made exactly as a journey's (the same launch function, environment,
-// confinement, census, tripwire and close), for an attendant who drives the actual window. The driver makes only the
-// start (with --journey, that journey's `place` and `open`; without it, the app as first opened), shows the window
-// unless --hidden, reads the menu, writes the checkpoint `start` and then takes no step. The launch ends when the app
+// confinement, census, tripwire and close), for an attendant, an agent outside the application that drives the actual
+// window. A refusal for --out is read-only and comes before either cleanup. The driver makes only the start (with
+// --journey, that journey's `place` and `open`; without it, the app as first opened), shows the window unless
+// --hidden, reads the menu, stops the page's file fields and the agent's Start agent, writes the checkpoint `start`,
+// and then takes no step: it only records, with times, what it stopped, each report print the build substitutes and
+// the counts on screen whenever the page settles. The handover lines are printed only once that checkpoint says the
+// start was made with this launch's nonce; a failed start ends the launch without them. The launch ends when the app
 // exits by itself, when the finish file the command prints appears, or at --limit-minutes: for those two the watcher
 // aborts the AbortSignal judgedPhase hands to runUnderLock, which owns the started child and sends it SIGKILL, and the
-// record keeps runUnderLock's receipt (its own time limit, two minutes later, is the backstop). The index gets one part
-// (number 90) recording the launch, and one screen for each picture the attendant put in <out>/captures/, marked as a
-// capture of the actual window, not redrawn and not scripted; the runner takes no capture and alters none.
+// record keeps runUnderLock's receipt (its own time limit, two minutes later, is the backstop). The strict chooser's
+// exit is recorded as the ending only. The index gets one part (number 90) recording the launch, and one screen for
+// each picture the attendant put in <out>/captures/, read once at the end from the folder the runner created (its
+// device and inode), bound to the launch by the SHA-256 of the picture and sidecar, the decoded size, and the
+// revision and build, and given the application's own count nearest its stated time and the substitutions since
+// the previous capture (readCaptures). The runner takes no capture and alters none.
 import { createHash, randomBytes } from "node:crypto";
 import { execFileSync, spawnSync } from "node:child_process";
 import * as fs from "node:fs";
