@@ -926,7 +926,7 @@ function AppSession() {
               {/* DEL-08-01 REQ-017, REQ-024: the rendered report's own source (a readable exact-route
                   result whatever its standing); its package save stays on currentSolvedResult. */}
               <C2ResultGate result={renderableSolvedResult} analysisRun={analysisRun} feature="the rendered report"
-                withheld={reportPackageRoute ? <ReportPackageSaveStatus route={reportPackageRoute} /> : null}>
+                withheld={reportPackageRoute ? <ReportPackageSaveStatus route={reportPackageRoute} announce /> : null}>
                 {(full) => (
                   <RenderedReportPanel
                     model={model}

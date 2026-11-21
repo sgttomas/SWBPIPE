@@ -128,20 +128,26 @@ const LOCAL_PRIVATE_REPORT_WARNING =
 /** The outcome of a report-package save (receipt, cancellation, refusal). The panel shows it; where
  * the rendered report's gate withholds the panel, the gate shows it in the panel's place, so a save
  * started from the File menu still says what happened. */
-export function ReportPackageSaveStatus({ route }: { route: ReportPackageSaveRoute | null }) {
+export function ReportPackageSaveStatus({ route, announce = false }: {
+  route: ReportPackageSaveRoute | null;
+  /** Each outcome's element is a status (announced once), as where the gate shows it in the
+   * panel's place. The panel leaves it unset and its elements stay as they are. */
+  announce?: boolean;
+}) {
+  const role = announce ? "status" : undefined;
   return (
     <>
       {route?.route === "unavailable_browser" ? (
-        <p data-testid="report-package-save-status">{route.diagnostic}</p>
+        <p role={role} data-testid="report-package-save-status">{route.diagnostic}</p>
       ) : null}
       {route?.route === "redaction_blocked" ? (
-        <p data-testid="report-package-save-status">{route.diagnostic}</p>
+        <p role={role} data-testid="report-package-save-status">{route.diagnostic}</p>
       ) : null}
       {route?.route === "not_requested" ? (
         <p role="status" data-testid="report-package-save-status">{route.diagnostic}</p>
       ) : null}
       {route?.route === "tauri_report_package_save" ? (
-        <div className="report-list" data-testid="report-package-save-status">
+        <div className="report-list" role={role} data-testid="report-package-save-status">
           {cancelledStatement(route.receipt) ? (
             <span data-testid="report-package-save-cancelled">{cancelledStatement(route.receipt)}</span>
           ) : null}

@@ -171,9 +171,9 @@ describe("native runtime", () => {
     expect(document.activeElement).toBe(save);
     expect(save.closest("[data-route-id]")).toHaveAttribute("data-route-id", "DREP-HTML-SAVE-005");
     expect(screen.getByTestId("rendered-report-save-local-private-redaction-summary")).toHaveTextContent("blocked=false");
-    // DEL-08-01 REQ-023 Coverage: where an HTML save or a print is offered, the panel says neither is listed and
-    // that the package is what the project keeps.
-    // Exactly these words: nothing keeps or lists a saved report yet (DEL-08-01 REQ-023's list is not built).
+    // DEL-08-01 REQ-023 Coverage: where an HTML save or a print is offered, the panel says, in exactly these
+    // words, that the project keeps and lists no saved or printed report, and that an HTML save and a saved
+    // report package are each a file the person keeps (REQ-023's list is not built).
     expect(screen.getByTestId("rendered-report-list-notice").textContent).toBe(
       "The project does not keep or list saved or printed reports. An HTML save and a saved report package are each a file you keep."
     );
