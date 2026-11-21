@@ -184,9 +184,10 @@ describe("the boundary sentence where no indicator is shown", () => {
 describe("the standing line beside the health header", () => {
   // Native-smoke expected.json pins this line's prefix (owner-held G10 observation): its text is
   // today's wherever the gated health agrees with the status, and the header is a separate element
-  // above it. Its state words are the gated health's: the generic fixture's status says checks_passed
-  // while its hand-written health has a sensitive case, so the line says sensitive; with no health
-  // it says not assessed.
+  // above it. Its state words are the worse of the document's status and the gated health's: the
+  // generic fixture's status says checks_passed while its hand-written health has a sensitive case,
+  // so the line says sensitive; with no health the gated side is not assessed, so the generic line
+  // says not assessed and the pressure-source line, whose status is sensitive, says sensitive.
   const original = (result: MechanicsResult, state: string) => sourceContractText(result, state);
   function sourceContractText(result: MechanicsResult, state: string): string {
     return result.source_block_recovery
@@ -211,7 +212,7 @@ describe("the standing line beside the health header", () => {
     cleanup();
     // And the same text with no indicator at all.
     render(<ResultsPanel result={result} knowledge={null} analysisRun={null} selectedResultId={null} onSelectResult={() => {}} numericalHealth={null} />);
-    expect(screen.getByTestId("numerical-result-standing").textContent).toBe(original(result, "not assessed"));
+    expect(screen.getByTestId("numerical-result-standing").textContent).toBe(original(result, name === "generic" ? "not assessed" : "sensitive"));
     expect(screen.queryByTestId("numerical-health-header-line")).toBeNull();
     expect(screen.queryByTestId("numerical-health-detail")).toBeNull();
   });
