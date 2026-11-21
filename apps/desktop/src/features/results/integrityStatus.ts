@@ -55,9 +55,9 @@ export function numericalQualityStatusText(status: string): string {
   return status === "checks_passed" ? NUMERICAL_HEALTH_STATE_TEXT.checks_passed : status;
 }
 
-/** "Numerical integrity: {status}." on the results line. */
-export function numericalIntegrityLead(result: Pick<MechanicsResult, "numerical_quality">): string {
-  return `Numerical integrity: ${numericalQualityStatusText(String(result.numerical_quality!.status))}.`;
+/** "Numerical health: {status}." on the results line. */
+export function numericalHealthLead(result: Pick<MechanicsResult, "numerical_quality">): string {
+  return `Numerical health: ${numericalQualityStatusText(String(result.numerical_quality!.status))}.`;
 }
 /** The pressure-source route's "Ordinary solve: {status}." lead. */
 export function ordinarySolveLead(result: Pick<MechanicsResult, "numerical_quality">): string {

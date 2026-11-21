@@ -118,7 +118,7 @@ describe("ResultsPanel numerical health", () => {
     expect(screen.getByTestId("numerical-result-standing").textContent).toMatch(/^Ordinary solve: sensitive\. Producer recovery receipt: qualified\. /);
     expect(screen.queryByTestId("numerical-health-output-sentence")).toBeNull();
     expect(screen.getByTestId("numerical-health-case-text-case").textContent).toContain(
-      "The values shown come from the producer's recovery of this case, whose own checks found no problem, but SWBPIPE has not verified an error bound for its values. This badge describes the ordinary solve only."
+      "The values shown come from the producer's recovery of this case, which passed its own checks. This badge describes the ordinary solve only."
     );
     expect(screen.getByTestId("numerical-health-case-text-case").textContent).not.toContain("Its values are kept for inspection.");
     expect(screen.queryAllByTestId(/^result-row-health-/)).toHaveLength(0);
@@ -127,12 +127,12 @@ describe("ResultsPanel numerical health", () => {
 
   it("keeps today's line when the indicator is absent or its route disagrees", () => {
     render(<ResultsPanel result={genericResult()} knowledge={null} analysisRun={null} selectedResultId={null} onSelectResult={() => {}} numericalHealth={null} />);
-    expect(screen.getByTestId("numerical-result-standing").textContent).toMatch(/^Numerical integrity: not verified\. /);
+    expect(screen.getByTestId("numerical-result-standing").textContent).toMatch(/^Numerical health: not verified\. /);
     expect(screen.queryByTestId("numerical-health-detail")).toBeNull();
     cleanup();
     const pressureSource = view({ route: "pressure_source", verdict_only: false, cases: [PASSED], combinations: [] }, { eligible: true, verdictHold: false });
     render(<ResultsPanel result={genericResult()} knowledge={null} analysisRun={null} selectedResultId={null} onSelectResult={() => {}} numericalHealth={pressureSource} />);
-    expect(screen.getByTestId("numerical-result-standing").textContent).toMatch(/^Numerical integrity: not verified\. /);
+    expect(screen.getByTestId("numerical-result-standing").textContent).toMatch(/^Numerical health: not verified\. /);
   });
 });
 
@@ -143,7 +143,7 @@ describe("the standing line beside the health header", () => {
   function sourceContractText(result: MechanicsResult): string {
     return result.source_block_recovery
       ? `Ordinary solve: ${numericalQualityStatusText(result.numerical_quality!.status)}. Producer recovery receipt: ${(result.source_block_recovery as { body: { status: string } }).body.status}. ${withLimitationsNote(result.formulation_basis!.limitations)} Current use is checked separately against the actual invocation and complete result evidence. Numerical checks do not establish engineering correctness.`
-      : `Numerical integrity: ${numericalQualityStatusText(result.numerical_quality!.status)}. ${withLimitationsNote(result.formulation_basis!.limitations)} Numerical checks do not establish engineering correctness.`;
+      : `Numerical health: ${numericalQualityStatusText(result.numerical_quality!.status)}. ${withLimitationsNote(result.formulation_basis!.limitations)} Numerical checks do not establish engineering correctness.`;
   }
   it.each([
     ["generic", () => genericResult(), () => view(genericHealth(true), { eligible: false, verdictHold: true })],

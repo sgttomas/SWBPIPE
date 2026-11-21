@@ -186,7 +186,7 @@ async function expectViewable(result: NativeResult, analysisRun: WorkspaceSessio
   expect({ eligible: standing.eligible, findings: standing.findings }).toStrictEqual({ eligible: dispatch.standing.eligible, findings: [...dispatch.standing.findings] });
   // Each view is unmounted alone: the session (its native custody) stays held.
   const panel = render(<ResultsPanel result={result} knowledge={null} analysisRun={analysisRun} selectedResultId={null} onSelectResult={vi.fn()} />);
-  expect(screen.getByTestId("numerical-result-standing")).toHaveTextContent(`Numerical integrity: ${numericalQualityStatusText(result.numerical_quality!.status)}.`);
+  expect(screen.getByTestId("numerical-result-standing")).toHaveTextContent(`Numerical health: ${numericalQualityStatusText(result.numerical_quality!.status)}.`);
   expect(screen.getByTestId("numerical-result-standing")).not.toHaveTextContent("Unsupported numerical contract");
   expect(await screen.findByTestId(`result-row-${copy.results[0].id}`)).toBeInTheDocument();
   panel.unmount();

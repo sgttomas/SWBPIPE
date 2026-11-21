@@ -67,7 +67,7 @@ describe.each(FIXTURES)("no unannotated passed or established claim ($name)", ({
     expect(health.cases.every((c) => c.state === "checks_passed")).toBe(true);
     expect(health.badge).toBe("grey");
     render(<ResultsPanel result={source} knowledge={null} analysisRun={null} selectedResultId={null} onSelectResult={() => {}} numericalHealth={health} />);
-    expect(screen.getByTestId("numerical-result-standing").textContent).toMatch(/^Numerical integrity: not verified\./);
+    expect(screen.getByTestId("numerical-result-standing").textContent).toMatch(/^Numerical health: not verified\./);
     expect(screen.getByTestId("numerical-health-header")).toHaveTextContent(/^Numerical health: not verified$/);
     for (const c of health.cases) {
       expect(screen.getByTestId(`numerical-health-case-text-${c.caseId}`).textContent).toBe(

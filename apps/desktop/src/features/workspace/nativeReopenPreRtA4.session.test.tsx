@@ -94,7 +94,7 @@ describe("a run recorded before RT-A4 reopens through the native commands (C1, R
     expect(numericalResultStanding(result).eligible).toBe(false);
     render(<HistoricalRunPanel context={context} />);
     const standing = await screen.findByTestId("numerical-result-standing");
-    expect(standing.textContent!.startsWith(`As recorded under ${TABLE.id} (sha256 ${TABLE.sha256}); historical evidence only, not a current standing. Numerical integrity: `)).toBe(true);
+    expect(standing.textContent!.startsWith(`As recorded under ${TABLE.id} (sha256 ${TABLE.sha256}); historical evidence only, not a current standing. Numerical health: `)).toBe(true);
     const panel = screen.getByTestId("historical-run-context");
     await waitFor(() => expect(within(panel).getAllByTestId(/^result-row-/).length).toBeGreaterThan(0));
     await waitFor(() => expect(panel.textContent).not.toContain("Reading"));

@@ -42,7 +42,7 @@ export function numericalHealthCountHeadline(counts: ReadonlyArray<readonly [Num
 
 /** The pressure-source detail where the reader's standing is numerically eligible. */
 export const ELIGIBLE_RECOVERY_TEXT =
-  "The values shown come from the producer's recovery of this case, whose own checks found no problem, but SWBPIPE has not verified an error bound for its values. This badge describes the ordinary solve only.";
+  "The values shown come from the producer's recovery of this case, which passed its own checks. This badge describes the ordinary solve only.";
 
 /** The header's output sentence, when the generic-route result is not Current because of the verdict. */
 export function outputSentence(notPassedCount: number): string {

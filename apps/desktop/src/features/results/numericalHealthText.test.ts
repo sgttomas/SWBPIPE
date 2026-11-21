@@ -35,7 +35,7 @@ describe("numerical health text pins", () => {
 
   it("pins the pressure-source, output and boundary sentences", () => {
     expect(text.ELIGIBLE_RECOVERY_TEXT).toBe(
-      "The values shown come from the producer's recovery of this case, whose own checks found no problem, but SWBPIPE has not verified an error bound for its values. This badge describes the ordinary solve only."
+      "The values shown come from the producer's recovery of this case, which passed its own checks. This badge describes the ordinary solve only."
     );
     expect(text.outputSentence(2)).toBe(
       "Rule checks, the result JSON and stress-neutral exports and the report package do not use this run while 2 load case(s) are sensitive, quality unresolved, solve failed or not assessed; results tables, CSV export and, for an exact-route result, the rendered report carry each case's standing."
