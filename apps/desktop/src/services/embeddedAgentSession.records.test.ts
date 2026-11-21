@@ -219,9 +219,10 @@ describe("the propose tool's message for a batch the engine refuses", () => {
     const material = await read(model, "materials", "material:RS-M1");
     const modulus = material.record.elastic_modulus as { value: number; unit: string };
     // Step 1 is exact and passes on the temporary state; step 2's before text is stale, so replay stops there.
+    const stale = op("modify", "Material", "material:RS-M1", "set_field", "elastic_modulus.value", `${String(modulus.value)}1`, json({ value: modulus.value, unit: modulus.unit }), modulus.unit, "stress");
     const operations = [
       op("modify", "Material", "material:RS-M1", "set_field", "elastic_modulus.value", String(modulus.value), json({ value: modulus.value, unit: modulus.unit }), modulus.unit, "stress"),
-      op("modify", "Material", "material:RS-M1", "set_field", "elastic_modulus.value", `${String(modulus.value)}1`, json({ value: modulus.value, unit: modulus.unit }), modulus.unit, "stress"),
+      { ...stale, operation_id: `${String(stale.operation_id)}:2`, change: { ...(stale.change as AnyRecord), change_id: `${String((stale.change as AnyRecord).change_id)}:2` } },
     ];
     const hash = await computeModelHash(model);
     const outcome = await applyOperationBatch(model, { batch_id: "agent-refused", operations: stampAgentOperations(operations, "proposal", "request"), source_model_hash: hash!.value }, hash);
