@@ -113,6 +113,7 @@ checks:
 - apps/desktop/src-tauri/src/embedded_agent/keychain_native.rs
 - apps/desktop/src/features/workspace/workspaceSession.shell.test.tsx
 - apps/desktop/src/App.shell.test.tsx
+- apps/desktop/src/App.pageErrorBoundary.test.tsx
 - apps/desktop/e2e/r2-smoke.spec.ts
 - apps/desktop/src/services/projectService.test.ts
 - apps/desktop/e2e/b3a-session-status.spec.ts
