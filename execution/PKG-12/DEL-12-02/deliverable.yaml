@@ -77,8 +77,8 @@ code_paths:
 - core/security/redaction/**
 - apps/desktop/src/features/redaction-controls/**
 - core/runner/headless/src/redaction_binding.rs
-# The types and the trait a native caller of the content rule uses: the request, the summary
-# outcome and the rule's refusals.
+# The types and the traits a native caller of the content rule uses: the request, the content
+# or its source, the decision and its outcome, and the rule's refusals.
 - core/security/export_decision/**
 # Route admission. The file sits beside DEL-12-01's storage guard, which it applies. DEL-08-04
 # lists it too, for the CSV route's entry in the catalogue.

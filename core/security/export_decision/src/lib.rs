@@ -2,35 +2,54 @@
 //! uses: what it asks the rule to decide ([`RouteRequest`] and [`Content`]), what the rule
 //! returns ([`SummaryDecision`], bound to the decided bytes as a [`SummaryOutcome`]) or
 //! refuses ([`RuleError`]), and the rule itself as a trait ([`ContentRule`]). It holds no
-//! rule. The names are the texts of
+//! rule. The export contexts, reason codes, finding classes and the refusal code
+//! `USER_RELEASE_ROUTE_REQUIRED` are the texts of
 //! `docs/security/redaction_export_controls.md` and
-//! `schemas/redaction_export_controls.schema.yaml`.
+//! `schemas/redaction_export_controls.schema.yaml`. The withheld reasons and the code
+//! `EXPORT_CONTENT_SOURCE_INCONSISTENT` are this interface's own.
 //!
-//! # One buffer
+//! # The bytes a decision is bound to
 //!
-//! A caller holds the route's content as one byte buffer and binds the decision to it:
+//! A decision admits bytes, and the caller binds it to their SHA-256
+//! ([`SummaryDecision::bound_to`]). The rule cannot check that digest: the binding is the
+//! caller's, made once, to the bytes the rule was shown, and the decision, the digest and
+//! the bytes stay together until the sink has them.
 //!
-//! - The digest the decision is bound to ([`SummaryDecision::bound_to`]) is the SHA-256 of
-//!   that buffer.
-//! - The content given to the rule is read from that buffer by the route's reading. For
-//!   JSON text the reading refuses, before any decision, text in which an object repeats a
-//!   member name: a decoder keeps one of the two and the buffer holds both.
+//! ## Content held as a value ([`Content::Value`])
+//!
+//! - The caller holds the route's content as one byte buffer. The digest is of that buffer.
+//! - The value given to the rule is read from that buffer by the route's reading. JSON text
+//!   in which an object repeats a member name is refused before any decision.
 //! - Content the caller builds is serialised once, in the route's canonical form; that
 //!   buffer is the one decided, digested and written.
 //! - Where a route's content is text and the route decides it as one JSON string, the
 //!   digest is of the text's UTF-8 bytes, not of a JSON encoding of it.
-//! - On an admitted outcome the sink receives that buffer. An output derived from decided
-//!   content (a print view, an excerpt, a document rendered from a decided input) is content
-//!   of its own: it has its own buffer, its own digest and its own decision on its route,
-//!   and is not admitted by the decision of what it was derived from.
+//! - On an outcome that may expose, the sink receives that buffer.
 //!
-//! - Content too large to hold as one value is given as a source ([`Content::Object`]). Its
-//!   buffer is the bytes its producer writes as the source is walked: the rule is shown each
-//!   value in the call that writes that value's bytes, and the caller binds the decision to
-//!   the digest of the bytes written, after the walk. Bytes staged during the walk reach
-//!   their sink only on an outcome that may expose.
+//! ## Content given by a source ([`Content::Object`])
 //!
-//! The rule cannot check the digest; the binding is the caller's.
+//! Content too large to hold as one value is given by its producer as a source the rule
+//! walks ([`SourceObject`]).
+//!
+//! - A producer may emit the content more than once (once, for instance, to compute a hash
+//!   the content itself carries). The rule visits one emission only: the one whose bytes are
+//!   staged for the sink.
+//! - The staged bytes of that emission are exactly the route's canonical encoding of the one
+//!   root the walk shows: every member name, the nesting, the order, each empty object and
+//!   list, and the end of the document. Nothing is staged that was not shown, and nothing
+//!   shown is left out. The producer holds this; a rule sees values, never bytes.
+//! - The digest is of the complete, finalised staged bytes.
+//! - The stage is private: it is not the output file or directory, and no sink reads it.
+//!   It becomes the output only on an outcome that may expose. On a withheld outcome, a
+//!   refusal, a walk that stopped, or a write or finalisation that failed, it is discarded,
+//!   and no output file or directory exists.
+//!
+//! ## Derived outputs
+//!
+//! An output derived from decided content (a print view, an excerpt, a document rendered
+//! from a decided input) is content of its own: it has its own bytes, its own digest and its
+//! own decision on its route, and is not admitted by the decision of what it was derived
+//! from.
 //!
 //! # What a caller may rely on
 //!
@@ -42,9 +61,11 @@
 //!   `withheld` is true and `withheld_reason` is the first reason that applies, in the
 //!   order of [`WithheldReason::ALL`].
 //! - A caller exposes content only when the rule returned `Ok` for this content and this
-//!   request and [`SummaryOutcome::may_expose`] is true of the decision bound to the bytes
-//!   it exposes. A refusal ([`RuleError`]), or an outcome that contradicts itself, exposes
-//!   nothing.
+//!   request and [`SummaryOutcome::may_expose`] is true of that decision, bound to the bytes
+//!   it exposes. A refusal ([`RuleError`]) exposes nothing. `may_expose` reads four members
+//!   (see there) and so also refuses an outcome that says "not withheld" and contradicts it
+//!   in one of them; it does not validate the counts. A caller uses the outcome it received
+//!   from the rule for this request, and builds none of its own.
 //! - Withheld: nothing is exposed. The caller reports `withheld_reason`, the counts and
 //!   the bounded blocking findings (reason code and path, never a value).
 //! - The decision's `route_id`, `export_context` and `explicit_local_private_intent` are the
@@ -53,8 +74,8 @@
 //! - The content is borrowed and never changed. Intent comes only from the request.
 //! - The same rule revision, content, request and bound give the same decision.
 //! - The route id is recorded, not admitted: the caller establishes that its route may run
-//!   before it asks for a decision. The one exception is the user-release route, which the
-//!   rule refuses with the `user_released_report` context
+//!   before it asks for a decision. The one exception: the rule refuses the user-release
+//!   route, and it refuses the `user_released_report` context on any route
 //!   ([`RuleError::UserReleaseRouteRequired`]).
 //!
 //! # What it does not offer
@@ -181,7 +202,8 @@ named_enum! {
 /// The route a content is decided on, its fixed context and the caller's intent.
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub struct RouteRequest<'a> {
-    /// A catalogue route id; recorded, not admitted, by the rule.
+    /// A catalogue route id; recorded, not admitted, by the rule, which refuses only the
+    /// user-release route ([`RuleError::UserReleaseRouteRequired`]).
     pub route_id: &'a str,
     pub export_context: ExportContext,
     /// Supplied by the native caller, never read from content.
@@ -205,14 +227,14 @@ impl<'a> From<&'a Value> for Content<'a> {
     }
 }
 
-/// The greatest number of source objects and source lists nested inside one another that a
-/// rule walks; a source nested deeper is refused
-/// ([`RuleError::ContentSourceInconsistent`]). Ordinary values inside a source are not
-/// counted and may be of any depth.
+/// The greatest depth of source nesting a rule walks, counting the root [`Content::Object`]
+/// as 1 and each source object or source list handed over inside another as one more. A
+/// source nested deeper is refused ([`RuleError::ContentSourceInconsistent`]). An ordinary
+/// value handed over by a source does not count toward it, whatever its own depth.
 pub const MAX_SOURCE_NESTING: usize = 64;
 
-/// A walk that did not reach its end: its visitor stopped it, or its source could not go
-/// on. Nothing a stopped walk wrote is exposed.
+/// A walk that did not reach its end: its visitor stopped it, or its source or the source's
+/// writer could not go on. Nothing a stopped walk staged is exposed.
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub struct WalkStopped;
 
@@ -220,27 +242,49 @@ pub struct WalkStopped;
 /// order by a walk the source itself drives. The rule reads members by name and visits them
 /// in order; it reads nothing else of a source.
 ///
-/// A source promises:
+/// # What a source promises
 ///
-/// - [`member_names`](SourceObject::member_names) gives every member name, each once.
-/// - [`peek`](SourceObject::peek) answers for exactly those names, gives the same answer
-///   each time, and writes nothing.
+/// - [`member_names`](SourceObject::member_names) gives every member name, each once, and
+///   [`peek`](SourceObject::peek) answers for exactly those names. Both write nothing, stage
+///   nothing, and give the same answer each time they are asked.
+/// - A member the source holds as a value is peeked as [`Peek::Value`] and walked as
+///   [`Member::Value`], with an equal value. A member it gives only by walk is peeked as
+///   [`Peek::Object`] and walked as [`Member::Object`], or peeked as [`Peek::List`] and
+///   walked as [`Member::List`]. No other pairing.
+/// - A member named `provenance` is held as a value, whatever its kind. It is the one member
+///   a rule reads into before it visits an object's members.
 /// - [`walk`](SourceObject::walk) hands the visitor every member once, in ascending UTF-16
-///   code unit order of its name (the order of canonical JSON), and returns `Ok` only when
-///   it has handed over every member and the visitor stopped none. A member peeked as a
-///   value is walked as an equal value; one peeked as an object or a list is walked as one.
-/// - Every source object or list it hands the visitor has been walked to its end, once,
-///   when the visitor returns `Ok`.
-/// - Objects and lists it gives as sources nest to at most [`MAX_SOURCE_NESTING`].
+///   code unit order of its name (the order of canonical JSON). It returns `Ok` only when it
+///   has handed over every member, no call of the visitor returned `Err`, and every source
+///   object or list it handed over had been walked to its end exactly once when the
+///   visitor's call for it returned. Otherwise it stops and returns `Err`.
+/// - What it stages as it walks is what it shows, as the crate's "Content given by a source"
+///   states.
+/// - Source objects and lists nest to at most [`MAX_SOURCE_NESTING`].
 ///
-/// A rule checks what it can see of these and refuses a source that breaks one.
+/// # What a visitor owes a source
+///
+/// - It walks every [`Member::Object`] and [`Member::List`] it is handed to its end, once,
+///   inside the call that handed it over, before it returns `Ok` from that call. The walk is
+///   the visitor's act; the source checks it, as promised above.
+/// - It passes on every `Err` it receives from a walk, and visits nothing further.
+/// - It walks the root once.
+///
+/// # What a rule checks of a source
+///
+/// From what the traits give it, a rule checks that the names are distinct, that the walk
+/// hands over exactly those names in ascending order, that each member it peeked is walked
+/// in the pairing above with an equal value, that a name it asked for and was refused is
+/// not a member, that `provenance` is held as a value, and the depth of nesting. It refuses
+/// a source that fails one ([`RuleError::ContentSourceInconsistent`]). It cannot check that
+/// a list handed over every entry, or what a source staged: those rest on the producer.
 pub trait SourceObject {
     /// Every member name, each once, in any order.
     fn member_names(&self) -> Vec<String>;
 
     /// The member so named, without writing anything: its value where the source holds it
-    /// as a small value, its kind alone where the source gives it only by walk, and `None`
-    /// exactly for a name that is not a member.
+    /// as a value, its kind alone where the source gives it only by walk, and `None` exactly
+    /// for a name that is not a member.
     fn peek(&self, name: &str) -> Option<Peek<'_>>;
 
     /// Hands `visit` every member once, in order.
@@ -250,11 +294,17 @@ pub trait SourceObject {
     ) -> Result<(), WalkStopped>;
 }
 
-/// A list whose entries its source gives one at a time, by a walk the source drives. Each
-/// entry lives for its call.
+/// A list whose entries its source gives one at a time, by a walk the source drives. An
+/// entry lives for its call: a source may build it, hand it over and drop it.
+///
+/// A source promises that [`walk`](SourceList::walk) hands over every entry once, in index
+/// order, and returns `Ok` only when it has handed over every entry, no call of the visitor
+/// returned `Err`, and every source object or list it handed over had been walked to its end
+/// exactly once when the visitor's call for it returned; that what it stages as it walks is
+/// what it shows; and the bound on nesting. A visitor owes it what it owes a
+/// [`SourceObject`]. A rule cannot check a list's completeness.
 pub trait SourceList {
-    /// Hands `visit` every entry once, in index order, and returns `Ok` only when it has
-    /// handed over every entry and the visitor stopped none.
+    /// Hands `visit` every entry once, in index order.
     fn walk(
         &self,
         visit: &mut dyn FnMut(Member<'_>) -> Result<(), WalkStopped>,
@@ -351,8 +401,10 @@ pub struct BlockingFinding {
     pub path: String,
 }
 
-/// What the rule decides for one content, before it is bound to the bytes decided.
-#[derive(Debug, Clone, PartialEq, Eq)]
+/// What the rule decides for one content, before it is bound to the bytes decided. It is
+/// bound once ([`SummaryDecision::bound_to`]) and cannot be copied, so that one decision is
+/// not bound to two sets of bytes.
+#[derive(Debug, PartialEq, Eq)]
 pub struct SummaryDecision {
     pub route_id: String,
     pub export_context: ExportContext,
@@ -361,7 +413,8 @@ pub struct SummaryDecision {
     pub withheld: bool,
     /// Some exactly when `withheld` is true.
     pub withheld_reason: Option<WithheldReason>,
-    /// The number of decisions the rule made, inclusions counted.
+    /// The number of decisions the rule made, inclusions counted. A decision that includes
+    /// a value has no finding, so the finding counts do not give this number.
     pub decision_total: u64,
     /// One entry per (code, class) pair with a count of at least one, in
     /// [`FindingCount::summary_order`].
@@ -375,21 +428,35 @@ pub struct SummaryDecision {
 impl SummaryDecision {
     /// The decision as the outcome for the bytes whose SHA-256 is `text_sha256`: the one
     /// buffer the content was read from and the sink will receive, or, for a source, the
-    /// bytes written as it was walked.
+    /// complete staged bytes of the emission the rule visited.
     pub fn bound_to(self, text_sha256: Sha256Digest) -> SummaryOutcome {
+        // Every member is named: a member added to the decision does not compile until it
+        // is carried to the outcome.
+        let SummaryDecision {
+            route_id,
+            export_context,
+            explicit_local_private_intent,
+            rule_revision,
+            withheld,
+            withheld_reason,
+            decision_total,
+            finding_counts,
+            blocking_findings,
+            blocking_finding_total,
+        } = self;
         SummaryOutcome {
-            route_id: self.route_id,
-            export_context: self.export_context,
-            explicit_local_private_intent: self.explicit_local_private_intent,
-            rule_revision: self.rule_revision,
+            route_id,
+            export_context,
+            explicit_local_private_intent,
+            rule_revision,
             text_sha256,
             destination: None,
-            withheld: self.withheld,
-            withheld_reason: self.withheld_reason,
-            decision_total: self.decision_total,
-            finding_counts: self.finding_counts,
-            blocking_findings: self.blocking_findings,
-            blocking_finding_total: self.blocking_finding_total,
+            withheld,
+            withheld_reason,
+            decision_total,
+            finding_counts,
+            blocking_findings,
+            blocking_finding_total,
         }
     }
 }
@@ -422,9 +489,9 @@ pub struct SummaryOutcome {
 }
 
 impl SummaryOutcome {
-    /// Whether this outcome admits the bytes it is bound to: not withheld, with no withheld
-    /// reason and no blocking finding listed or counted. A caller asks this, not `withheld`
-    /// alone, so that an outcome that contradicts itself exposes nothing.
+    /// Whether this outcome admits the bytes it is bound to: `withheld` false, no withheld
+    /// reason, no blocking finding counted and none listed. A caller asks this, not
+    /// `withheld` alone. It reads those four members and no others.
     pub fn may_expose(&self) -> bool {
         !self.withheld
             && self.withheld_reason.is_none()
@@ -452,9 +519,10 @@ pub enum RuleError {
     /// user-release intent, and intent is never read from content. It is the refusal of the
     /// rule's entries that take that intent from their caller.
     UserReleaseIntentOutsideContext { export_context: ExportContext },
-    /// A content source that broke a promise of [`SourceObject`] or [`SourceList`], or whose
-    /// walk stopped; `path` is where the rule saw it. It is a defect of the source, never a
-    /// property of the content.
+    /// A content source broke a promise of [`SourceObject`] or [`SourceList`], or a walk
+    /// did not reach its end; `path` is where the rule saw it. It is a fault of native code
+    /// (the source, its writer or the walk), never a property of the content, and no
+    /// decision was made.
     ContentSourceInconsistent { path: String },
 }
 
@@ -483,7 +551,7 @@ impl fmt::Display for RuleError {
             ),
             RuleError::ContentSourceInconsistent { path } => write!(
                 formatter,
-                "EXPORT_CONTENT_SOURCE_INCONSISTENT: the content source did not keep its promises at {path}; nothing was decided"
+                "EXPORT_CONTENT_SOURCE_INCONSISTENT: the content source did not keep its promises, or its walk did not reach its end, at {path}; nothing was decided"
             ),
         }
     }
@@ -499,9 +567,11 @@ pub trait ContentRule {
 
     /// Decides `content`, the whole payload of the route, on the route, context and intent
     /// of `request`. Keeps counts and at most `blocking_bound` blocking findings, never one
-    /// record per value, and holds nothing that grows with the number of values: a source
-    /// is decided as it is walked. The caller binds the decision to the bytes decided
-    /// ([`SummaryDecision::bound_to`], the crate's "One buffer").
+    /// record per value. A source is decided as it is walked: what the rule holds is bounded
+    /// by the member names of the source objects open at one time, the depth, the largest
+    /// single value handed to it and `blocking_bound`, and does not grow with the length of
+    /// a source list. The caller binds the decision to the bytes decided
+    /// ([`SummaryDecision::bound_to`], the crate's "The bytes a decision is bound to").
     fn decide_summary(
         &self,
         content: Content<'_>,
