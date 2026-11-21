@@ -592,6 +592,37 @@ fn the_held_four_span_case_solves_on_a_load_state_twin() {
     }
 }
 
+// ------------------------------------------------------------------ the product reader
+
+/// Every solved reference document, and the load and reference-state twin, is
+/// admitted by the product reader the desktop, the runner and the report take
+/// their verdict from (`reader_verdict`), with and without the model, and its
+/// verdict says nothing of the test case beyond admitting the mark.
+#[test]
+fn the_product_reader_admits_every_solved_test_case() {
+    use open_pipe_stress_result_export::reader_verdict;
+    let (skeleton, built) = skeleton("M4", "euler_bernoulli");
+    let refs = refs();
+    let picked: Vec<Value> = refs["cases"].as_array().unwrap().iter().filter(|c| c["id"] == "HT-4S-TEST-HELD" || c["id"] == "HT-4S-ORDINARY").cloned().collect();
+    let mut model = skeleton.clone();
+    model["load_cases"] = json!(picked.iter().map(|r| case_record(&skeleton, &built, r)).collect::<Vec<_>>());
+    let mut documents: Vec<(String, Value)> = documents().into_iter().map(|(doc, (model, _, _))| (doc, model)).collect();
+    documents.push(("four-span twin".into(), twin(&model)));
+    for (doc, model) in &documents {
+        for mode in MODES {
+            let out = solved(model, mode, doc);
+            for given in [None, Some(model)] {
+                let verdict = reader_verdict::validate("pressure", &out, given, None);
+                assert_eq!(verdict["ok"], true, "{doc} {mode:?} model given {}: {verdict}", given.is_some());
+                let standing = &reader_verdict::dispatch(&out, given, None)["standing"];
+                let findings: Vec<&str> = standing["findings"].as_array().unwrap().iter().filter_map(Value::as_str).collect();
+                assert!(findings.iter().all(|f| !f.contains("TEST") && !f.contains("CASE_SHAPE") && !f.contains("CONSTANT_EFFORT")),
+                    "{doc} {mode:?} model given {}: {findings:?}", given.is_some());
+            }
+        }
+    }
+}
+
 // ------------------------------------------------------------------ refusals
 
 fn refused(model: &Value, code: &str, what: &str) {

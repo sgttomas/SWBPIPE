@@ -139,6 +139,12 @@ code_paths:
 - core/model_operations/operation_applier/tests/hydrostatic_four_span_journey.rs
 - core/model_operations/operation_applier/tests/hydrostatic_test_authoring.rs
 - schemas/results_pressure_3.v0.3.schema.json
+# The mark read back: the solved four-span documents (the journey's, and its load and reference-state
+# twin with an ordinary case beside the test case) through each reader that admits an exact result.
+# The readers' admission and binding of the mark are DEL-05-02's (reader_verdict.rs).
+- tests/test_hydrostatic_test_readers.py
+- fixtures/results/hydrostatic_test_*-sparse_interactive.raw.json
+- apps/desktop/src/features/results/hydrostaticTestReaders.test.tsx
 # Frozen before the engine work it judges: static seismic using the route's pipe mass basis and
 # replacing an eligible mapped pipe's load with the component's entered force times its g-factor
 # and the resulting eccentric moment. No product test reads it yet.
@@ -167,6 +173,8 @@ checks:
 - core/model_operations/operation_applier/tests/hydrostatic_four_span_journey.rs
 - core/model_operations/operation_applier/tests/hydrostatic_test_authoring.rs
 - tests/test_hydrostatic_four_span_model.py
+- tests/test_hydrostatic_test_readers.py
+- apps/desktop/src/features/results/hydrostaticTestReaders.test.tsx
 - core/product_physics/tests/reference_system_generated_weight_standing.rs
 - apps/desktop/src/features/self-weight-authoring/SelfWeightRefresh.test.tsx
 - apps/desktop/src/features/load-cases/primitiveLoadVocabulary.test.ts

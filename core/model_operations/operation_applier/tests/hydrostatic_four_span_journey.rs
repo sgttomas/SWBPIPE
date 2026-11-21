@@ -301,3 +301,104 @@ fn a_case_created_on_the_loads_page_also_takes_its_region_first() {
     let regioned = set_region(&created);
     assert!(set_test_condition(&regioned)["load_cases"][0]["test_condition"].is_object());
 }
+
+// ------------------------------------------------------------------ the reader models
+
+const READER_MODELS: &str = include_str!("../../../../fixtures/hydrostatic_test/four_span_reader_models.json");
+const READER_MODELS_PATH: &str = concat!(env!("CARGO_MANIFEST_DIR"), "/../../../fixtures/hydrostatic_test/four_span_reader_models.json");
+/// The two documents' sparse envelopes, as the producer serializes them.
+const READER_RAW_PATHS: [&str; 2] = ["fixtures/results/hydrostatic_test_journey-sparse_interactive.raw.json",
+    "fixtures/results/hydrostatic_test_load_state_twin-sparse_interactive.raw.json"];
+const READER_RAW: [&str; 2] = [include_str!("../../../../fixtures/results/hydrostatic_test_journey-sparse_interactive.raw.json"),
+    include_str!("../../../../fixtures/results/hydrostatic_test_load_state_twin-sparse_interactive.raw.json")];
+const WRITE_READER_MODELS: &str = "OPENPIPESTRESS_WRITE_HYDROSTATIC_READER_MODELS";
+const ORDINARY: &str = "HT-4S-OPERATING";
+
+/// An ordinary case beside the test case: the self-weight plan for `ORDINARY`
+/// and its own pressure region, by the same operations.
+fn add_ordinary_case(model: &Value) -> Value {
+    let typed: PreviewModel = serde_json::from_value(model.clone()).unwrap();
+    let request = SelfWeightRequest { case_id: ORDINARY.into(), label: "Operating weight".into(), ..self_weight_request(model) };
+    let plan = generate_self_weight_operations(&typed, &request).unwrap_or_else(|d| panic!("self-weight plan refused: {d:?}"));
+    let operations: Vec<Value> = plan.changes.iter().map(|draft| operation(&draft.object_type, &draft.target_ref, &draft.operation_kind,
+        &draft.change_kind, &draft.field_path, &draft.before, &draft.after, &draft.unit, &draft.dimension, &draft.source_note)).collect();
+    let batch = json!({"batch_id": "batch:hydrostatic-ordinary-weight", "source_model_hash": plan.source_model_hash, "operations": operations});
+    let weighed = apply_operation_batch(model, &batch, Some(&claim(model)))["applied_model"].clone();
+    assert!(weighed.is_object(), "the ordinary self-weight batch was refused");
+    let pipes: Vec<Value> = weighed["pipe_segments"].as_array().unwrap().iter().map(|p| p["id"].clone()).collect();
+    let terminal = |node: &str| json!({"node_ref": node, "closure_transfer": "transfers_to_wall", "provenance": PROV});
+    let regions = json!([{"id": format!("region:{ORDINARY}"), "member_pipe_ids": pipes, "pressure_basis": "internal_differential_zero_external_v1",
+        "pressure": {"value": reference()["pressure"]["value"], "unit": "Pa"}, "terminals": [terminal("node:a"), terminal("node:e")], "provenance": PROV}]);
+    let before = weighed["load_cases"].as_array().unwrap().iter().find(|c| c["id"] == ORDINARY).and_then(|c| c.get("pressure_regions"))
+        .map(canonical_json).unwrap_or_else(|| "not_present".into());
+    apply(&weighed, &operation("Load", ORDINARY, "modify", "update_load", "pressure_regions", &before, &regions.to_string(),
+        "none", "dimensionless", "invented test input"), "the ordinary case's pressure region")
+}
+
+/// The load and reference-state twin of `model`, authored inline: one
+/// installed reference configuration, and on every case an analysis state with
+/// its members unchanged from it, every support an active model device and a
+/// ledger over the case's generated self-weight at factor 1.
+fn load_state_twin(model: &Value) -> Value {
+    let mut twin = model.clone();
+    let pipes: Vec<String> = twin["pipe_segments"].as_array().unwrap().iter().map(|p| p["id"].as_str().unwrap().to_string()).collect();
+    let supports: Vec<String> = twin["supports"].as_array().unwrap().iter().map(|s| s["id"].as_str().unwrap().to_string()).collect();
+    twin["reference_configurations"] = json!([{"id": "reference:installed", "label": "Installed reference", "geometry_ref": {"kind": "authored_model_geometry"},
+        "member_references": pipes.iter().map(|pipe| json!({"pipe_ref": pipe,
+            "basis": {"kind": "temperature_reference", "installation_temperature": {"value": 20.0, "unit": "degC"}},
+            "fit": {"kind": "none"}, "provenance": PROV})).collect::<Vec<_>>(), "provenance": PROV}]);
+    for case in twin["load_cases"].as_array_mut().unwrap() {
+        let ledger: Vec<Value> = case["primitive_loads"].as_array().unwrap().iter().map(|load| json!({"source_ref": load["id"], "factor": 1.0})).collect();
+        case["analysis_state"] = json!({"contract": "openpipestress.load_reference_state/1.0.0", "reference_configuration_ref": "reference:installed",
+            "element_states": pipes.iter().map(|pipe| json!({"pipe_ref": pipe,
+                "material_selection": {"kind": "explicit_base_properties", "material_ref": "material:ht",
+                    "applicability_reference": "invented analytical basis declared applicable to this member"},
+                "thermal_state": {"kind": "unchanged_reference", "provenance": PROV}})).collect::<Vec<_>>(),
+            "support_states": supports.iter().map(|support| json!({"support_ref": support, "participation": {"kind": "active_model_device"}})).collect::<Vec<_>>(),
+            "load_sources": ledger, "history": {"kind": "independent_equilibrium"}, "provenance": PROV});
+    }
+    twin
+}
+
+/// The two solved documents the readers are tested on, committed as
+/// `fixtures/hydrostatic_test/four_span_reader_models.json`: the four-span
+/// model taken through its journey, and its load and reference-state twin with
+/// an ordinary case beside the test case; and their sparse envelopes, committed
+/// as `fixtures/results/hydrostatic_test_*-sparse_interactive.raw.json`. Both
+/// solve in both modes, and the test case reproduces the held reference rows.
+/// Regenerate both with
+/// `OPENPIPESTRESS_WRITE_HYDROSTATIC_READER_MODELS=1`; otherwise the committed
+/// bytes must be current.
+#[test]
+fn the_reader_models_are_current() {
+    let journey = [set_region, set_test_condition, select_contents].into_iter().fold(generate_self_weight(&fixture()), |model, step| step(&model));
+    let twin = load_state_twin(&add_ordinary_case(&journey));
+    assert!(!validate_model_document(&twin).iter().any(|d| d.is_blocking()), "{:?}", validate_model_document(&twin));
+    for (name, model) in [("journey", &journey), ("load and reference-state twin", &twin)] {
+        for mode in MODES {
+            assert_held_reference(&solve(model, mode), &format!("{name} {mode:?}"));
+        }
+    }
+    let models = json!({
+        "about": "The four-span hydrostatic test model (four_span_test_model.json) taken through its journey (self-weight, pressure region, held test condition, contents HYDRO), and its load and reference-state twin with an ordinary case beside the test case; the documents the product readers are tested on. Invented inputs; not library, catalog or code data.",
+        "generator": "core/model_operations/operation_applier/tests/hydrostatic_four_span_journey.rs::the_reader_models_are_current",
+        "models": {"journey": journey, "load_state_twin": twin},
+    });
+    let bytes = serde_json::to_string_pretty(&models).unwrap() + "\n";
+    // The solved envelopes, for the readers that take a result rather than solve
+    // (the desktop's web view and native host): each document in sparse mode, as
+    // the raw bytes the producer's envelope serializes to.
+    let raw: Vec<(&str, String)> = [(READER_RAW_PATHS[0], &journey), (READER_RAW_PATHS[1], &twin)].into_iter()
+        .map(|(path, model)| (path, serde_json::to_string(&solve(model, PreviewSolverMode::SparseInteractive)).unwrap())).collect();
+    if std::env::var_os(WRITE_READER_MODELS).is_some() {
+        std::fs::write(READER_MODELS_PATH, &bytes).unwrap();
+        for (path, text) in &raw {
+            std::fs::write(format!("{}/../../../{path}", env!("CARGO_MANIFEST_DIR")), text).unwrap();
+        }
+        return;
+    }
+    assert!(READER_MODELS == bytes, "fixtures/hydrostatic_test/four_span_reader_models.json is stale; regenerate it with {WRITE_READER_MODELS}=1");
+    for ((path, text), committed) in raw.iter().zip(READER_RAW) {
+        assert!(committed == text, "{path} is stale; regenerate it with {WRITE_READER_MODELS}=1");
+    }
+}
