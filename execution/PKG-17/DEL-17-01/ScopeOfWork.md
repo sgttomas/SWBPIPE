@@ -11,7 +11,7 @@ package_objective_refs: [OBJ-009, OBJ-017, OBJ-018]
 
 ## Purpose and Objective Traceability
 
-This deliverable is the admitted source basis for the export and import formats: the register of the public documents and project references the format deliverables may rely on, what each one establishes and what it does not, the findings drawn from them, and the questions about target behaviour that no admitted source answers. The result it contributes is that every statement the product or its scopes make about a target format (CAEPIPE MBF, CAEPIPE batch execution and result CSV, PCF translation, glTF) traces to a named public source or is carried as an open question, so that no target behaviour is invented and no protected or proprietary material enters the repository.
+This deliverable is the admitted source basis for the export and import formats: the register of the public documents and project references the format deliverables may rely on, what each one establishes and what it does not, the findings drawn from them, and the questions about target behaviour that no admitted source answers. The result it contributes is that every statement the product or its scopes make about a target format (CAEPIPE MBF, CAEPIPE batch execution and result CSV, PCF translation, glTF) traces to a named public source or a recorded observation of the user's licensed CAEPIPE, or is carried as an open question, so that no target behaviour is invented and no protected or proprietary material enters the repository.
 
 It serves SOW-030, SOW-074 and SOW-075 under OBJ-009, OBJ-017 and OBJ-018 (`execution/_Decomposition/SOFTWARE_DECOMP.md`, PKG-17, row DEL-17-01, and open issue OI-017), with `docs/PRD.md` §8.9, §11.7 (FR-HAND-005), §16.2, §20.1 and §21.2. No exit criterion of `docs/RELEASE_TARGET_v1.0.md` names it; its register grounds the format facts that the MBF round trip (exit criterion 6) and the benchmark set (exit criterion 11) depend on.
 
@@ -23,17 +23,17 @@ It serves SOW-030, SOW-074 and SOW-075 under OBJ-009, OBJ-017 and OBJ-018 (`exec
 
 - *Admitted source.* A public official vendor document, a public format specification or a project-owned document that the register lists with a source ID, a location (URL or path, and the section heading), the evidence it is admitted for, and its boundary: what it does not establish.
 - *Source ID.* The stable name of an admitted source, such as `CAEPIPE-IMPORT-MBF`, `CAEPIPE-BATCH`, `CAEPIPE-PCF` or `GLTF-2.0`. Schemas, export profiles, fixtures and other scopes cite sources by this name.
-- *Consultation boundary.* The subject an admitted source may be read for. Reading a source beyond its boundary establishes nothing, and a change of boundary is recorded in the register before anything relies on it.
-- *Finding.* A statement drawn from admitted sources, with an identifier `F-17-01-nnn`, the source IDs and headings it rests on, and a label saying whether it is a documented fact or an inference.
+- *Consultation boundary.* The subject an admitted source is used for. The register records what each source is used for.
+- *Finding.* A statement drawn from admitted sources or from a recorded observation of the user's licensed CAEPIPE, with an identifier `F-17-01-nnn`, the source IDs and headings or the observation it rests on, and a label saying whether it is a documented fact, observed format behaviour or an inference.
 - *Open question.* Target behaviour that no admitted source settles, with an identifier `TBD-17-01-nnn`, the deliverables it affects and the route by which it can close.
 - *Vendor question.* A question in the dossier, `CQ-17-01-nnn`, linked to an open question, with the current public basis, the deliverables affected and what it gates.
-- *Closure rule.* An open question closes only on a recorded answer: its source and date, whether it is public-citable or private to support correspondence, the questions and deliverables it affects, and the decision on whether it may be used in public artifacts. A decision of the project's human scope authority, the owner, that selects a bounded profile and is recorded with the same record is also an answer. Asking a question closes nothing.
+- *Closure rule.* An open question closes only on a recorded answer: its source and date, whether it is public-citable or private to support correspondence, the questions and deliverables it affects, and the decision on whether it may be used in public artifacts. A recorded observation of the user's licensed CAEPIPE (the version, the date, and what was run and seen; the run and its print stay private) is also an answer, as is Agent 0's recorded selection of a bounded profile. Asking a question closes nothing.
 
 **Findings in force.**
 
 - MBF is the first solver-specific target: it is a documented text model input and output path and is closer to the target's model data than PCF translation.
 - External execution of CAEPIPE is supported only as an optional harness around the user's own executable and licence.
-- CAEPIPE CSV or text results may be parsed as regression and handoff evidence, with parser coverage stated section by section.
+- CAEPIPE CSV or text results may be parsed as validation evidence (`docs/PRD.md` §22.5) and regression evidence, with parser coverage stated section by section.
 - PCF serves broader interoperability; its translation has mapping and default behaviour that makes it unsuitable as the first deterministic exchange.
 - GLB and glTF are review-geometry targets, not solver geometry.
 - An export reports what it exported, omitted, approximated, delegated or could not support, and what is undecided.
@@ -47,12 +47,12 @@ It serves SOW-030, SOW-074 and SOW-075 under OBJ-009, OBJ-017 and OBJ-018 (`exec
 - `TBD-17-01-005`: which PCF subset avoids hidden translator defaults (DEL-17-07).
 - `TBD-17-01-006`: which geometry fields and identity metadata suffice for glTF review without implying solver fidelity (DEL-17-08).
 
-The bounded pilot selections of DEL-17-04 and DEL-17-05 govern those pilots only. They close `TBD-17-01-001`, `TBD-17-01-002` and `TBD-17-01-004` only if the owner records one of them as the selection under the closure rule; until then those questions stay open.
+The bounded pilot selections of DEL-17-04 and DEL-17-05 govern those pilots only. They close `TBD-17-01-001`, `TBD-17-01-002` and `TBD-17-01-004` when Agent 0 records one of them as the selection, or an observation answers them, under the closure rule; until then those questions stay open.
 
 **Boundary.** This deliverable implements no exporter, importer, parser, harness or schema. Its own files are the register and the dossier.
 
 - What a format deliverable does with a source fact, and which bounded profile it selects, belongs to that deliverable (DEL-17-02 to DEL-17-09).
-- The rule for what public text may say about the external prover and what stays private is DEL-01-02's (`docs/IP_AND_DATA_BOUNDARY.md`). The register and dossier follow it: a fact the public manual documents is cited to it; something learned from running the tool is never a finding of the register. It may appear only as the context of an open question or vendor question, stated plainly as observed format behaviour and without evaluation; otherwise it stays in private notes.
+- The rule for what public text may say about the external prover and what stays private is DEL-01-02's (`docs/IP_AND_DATA_BOUNDARY.md`). The register and dossier follow it: a fact the public manual documents is cited to it; a fact learned from running the user's licensed CAEPIPE may be a finding, labelled observed format behaviour of the version run and stated plainly without evaluation (§6.2); evaluation stays in private notes.
 - The dossier holds the questions. No question is sent to the vendor or anyone outside the project except by the owner's decision, which also settles how and to whom.
 
 ## Completion and Reliance Basis — Epistemology
@@ -60,14 +60,14 @@ The bounded pilot selections of DEL-17-04 and DEL-17-05 govern those pilots only
 ### Requirements
 
 - **REQ-001** — Every source the register admits is a public official document, a public format specification or a project-owned document, and each has a source ID, a location, an admitted use and a boundary.
-- **REQ-002** — A CAEPIPE-specific fact is grounded in official public CAEPIPE documentation or carried as an open question.
+- **REQ-002** — A CAEPIPE-specific fact is grounded in official public CAEPIPE documentation or in a recorded observation of the user's licensed CAEPIPE, labelled as such, or is carried as an open question.
 - **REQ-003** — A PCF fact distinguishes documented translator behaviour from what SWBPIPE's exporter intends.
 - **REQ-004** — glTF and GLB facts are limited to review-geometry semantics and imply no equivalence with solver geometry.
 - **REQ-005** — Every target-format fact that a PKG-17 scope, schema, export profile or source-basis reference relies on resolves to a source ID or finding of the register, or to an open question it lists.
 - **REQ-006** — Every non-trivial claim in the register and the dossier names its source path and its section or heading, or states that the location has not been narrowed.
 - **REQ-010** — The source basis contains no CAEPIPE binary, copied commercial example, proprietary model file, reverse-engineered binary behaviour or licence-bypass instruction.
 - **REQ-011** — The source basis contains no protected standards text or table, proprietary formula, standards-derived example, material allowable, SIF or flexibility table, or owner criterion.
-- **REQ-012** — A CAEPIPE run, import, export or parsed result is described only as regression or handoff evidence and never as professional acceptance.
+- **REQ-012** — A CAEPIPE run, import, export or parsed result is never described as professional acceptance or code compliance; a comparison is validation evidence (`docs/PRD.md` §22.5; DEL-17-05 REQ-008).
 - **REQ-013** — A target solver option is described as pass-through target configuration and never as SWBPIPE code-checking logic.
 - **REQ-014** — Unknown or version-sensitive target behaviour stays an open question, and an open question gates the target claim that depends on it in each deliverable it names.
 - **REQ-015** — No vendor question asks for proprietary solver algorithms or other proprietary internals, hidden translator or binary-format internals, reverse-engineered behaviour, protected standards content, commercial or licensed example files, licence-bypass procedures, or code-compliance calculations.
@@ -75,7 +75,7 @@ The bounded pilot selections of DEL-17-04 and DEL-17-05 govern those pilots only
 ### Acceptance criteria
 
 - **AC-001** — Every row of the register's source tables has a source ID, an admitted use, a boundary and a location that resolves: a URL that answers or a path that exists. A source that no longer resolves is marked stale and nothing new relies on it. Every admitted source is of a kind REQ-001 allows.
-- **AC-002** — Every finding cites at least one source ID present in the register, with its heading, and is labelled as documented fact or inference. Read against the cited heading, each fact says no more than the source does and stays within the source's consultation boundary.
+- **AC-002** — Every finding cites at least one source ID present in the register, with its heading, or a recorded observation, and is labelled as documented fact, observed format behaviour or inference. Read against the cited heading or observation, each fact says no more than its source does and stays within the source's consultation boundary.
 - **AC-003** — Every source ID named in a PKG-17 scope, in `schemas/`, in `core/handoff/` or in the export fixtures is a source ID of the register.
 - **AC-004** — Every open question names the deliverables it affects and its closure route, and every vendor question names its open question, its public basis and what it gates. A question recorded as closed carries the closure rule's record, and none is closed without it. This carries commitment DEL-17-01:1.
 - **AC-005** — The register and the dossier contain nothing REQ-010 or REQ-011 names, describe external runs and parsed results only as REQ-012 allows, and describe target options only as REQ-013 allows. No statement in either claims compatibility with, validation by or acceptance through the target tool, and no vendor question asks for what REQ-015 excludes.
@@ -96,7 +96,7 @@ The bounded pilot selections of DEL-17-04 and DEL-17-05 govern those pilots only
 
 ## Governing Values and Decisions — Axiology
 
-- **AX-001** — *Sourced, not inferred.* Better is a larger share of the target-format statements across PKG-17 that cite an admitted source at a located heading, and fewer open questions. This is never bought by reading a source beyond its boundary, by inferring behaviour from the target's name or common practice, or by drawing a public statement from the tool's private outputs.
+- **AX-001** — *Sourced, not inferred.* Better is a larger share of the target-format statements across PKG-17 that cite an admitted source at a located heading, and fewer open questions. This is never bought by citing a source for more than it establishes, by inferring behaviour from the target's name or common practice, or by publishing evaluation of the tool (`docs/IP_AND_DATA_BOUNDARY.md` §6.2).
 - **AX-002** — *Narrow admission.* Better is a smaller and more exactly bounded admitted use for each source. No proprietary, protected or uncleared material is admitted to close a question sooner.
 - **AX-003** — *Questions stay visible.* Better is fewer places where a PKG-17 deliverable relies on target behaviour without naming the open question that governs it. A question is never softened into support language, and it is never closed by being asked.
 
@@ -107,5 +107,5 @@ The bounded pilot selections of DEL-17-04 and DEL-17-05 govern those pilots only
 | OUT-001 | SOW-030 SOW-075 OBJ-009 OBJ-018 | REQ-001 REQ-006 | AC-001 | VER-001 VER-002 | Outside source: the public pages and project files the rows name; the comparison is against those pages and paths, not against the register |
 | OUT-001 | SOW-030 SOW-074 OBJ-009 OBJ-017 | REQ-002 REQ-003 REQ-004 REQ-006 | AC-002 | VER-002 | Outside source: the cited vendor manual pages, the PCF translator document and the Khronos glTF 2.0 specification, read at the cited headings |
 | OUT-001 | SOW-030 SOW-074 OBJ-009 OBJ-017 | REQ-005 | AC-003 | VER-001 | The comparison is against the source IDs used in schemas, code, fixtures and scopes this deliverable did not write; it shows that each ID resolves, not that the fact cited under it is right, which VER-002 examines |
-| OUT-001 | SOW-075 OBJ-017 OBJ-018 | REQ-014 | AC-004 | VER-001 VER-002 | A closure is compared with the answer's own source, or with the owner's recorded selection |
+| OUT-001 | SOW-075 OBJ-017 OBJ-018 | REQ-014 | AC-004 | VER-001 VER-002 | A closure is compared with the answer's own source, the recorded observation, or Agent 0's recorded selection |
 | OUT-001 | SOW-075 OBJ-018 | REQ-010 REQ-011 REQ-012 REQ-013 REQ-015 | AC-005 | VER-003 | `docs/IP_AND_DATA_BOUNDARY.md` and `docs/PRD.md` §20.1 and §21.2 state what is excluded, and REQ-015 states what a vendor question may not ask. The scan's markers are synthetic, so the scan finds only the kinds of content it is seeded with; the reviewer's judgment covers the rest |
