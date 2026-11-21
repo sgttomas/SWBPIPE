@@ -2072,8 +2072,11 @@ async fn render_calculation_report(
     let ordinal: u64 = args.decode("request")?;
     let ticket = rendered_report_routes::begin_render(rendered_report_routes::RenderRequest { source, ordinal }).map_err(CommandError::Command)?;
     let registry = registry.inner().clone();
+    // The render's document, when it is recorded, is reserved from the native
+    // memory pool for as long as the desktop keeps it.
+    let pool = std::sync::Arc::clone(registry.pool());
     tauri::async_runtime::spawn_blocking(move || {
-        let outcome = rendered_report_routes::with_render_ticket(ticket, || render_calculation_report_args(&mut args, &registry, &mut lease));
+        let outcome = rendered_report_routes::with_render_ticket(ticket, pool, || render_calculation_report_args(&mut args, &registry, &mut lease));
         // The response is serialized while the lease is still held.
         let response = respond(outcome);
         drop(lease);
@@ -2125,10 +2128,11 @@ fn render_calculation_report_value(input: Value) -> Result<Value, String> {
     // offending value (W-11 slice (c), Codex review round 3 of #1639).
     let renderable = open_pipe_stress_report_renderer::decode_renderable_report_input(input)?;
     let outcome = open_pipe_stress_report_renderer::render_calculation_report(&renderable);
-    // The desktop's record of this render, which binds the HTML save and the
-    // print to its bytes (`rendered_report_routes`); no copy is kept. A
-    // completion superseded by a later request, a retirement or a source change
-    // is refused by name.
+    // The desktop's record of this render, which keeps its canonical HTML (one
+    // reserved copy, none for a blocked or withheld render) for the HTML save
+    // and the print, which name it (`rendered_report_routes`). A completion
+    // superseded by a later request, a retirement or a source change, or whose
+    // document's reservation is refused, is refused by name.
     rendered_report_routes::record_render(export_context.as_deref(), &outcome.html, &outcome.sha256_hex, outcome.export_blocked, outcome.content_withheld)?;
     // W-11 slice (c) (DEL-08-01 Design `exact-route-report-sections.md` §6.2):
     // a render refused for its provenance records is metadata-only, so no
@@ -7467,8 +7471,8 @@ mod tests {
         );
     }
 
-    #[test]
-    fn render_calculation_report_command_renders_fixture_unblocked() {
+    /// The invented calculation report fixture's render input, unblocked.
+    fn invented_render_input() -> Value {
         let fixture_path = std::path::Path::new(env!("CARGO_MANIFEST_DIR"))
             .join("../../../fixtures/reports/invented/calculation_report_fixture.json");
         let fixture: Value =
@@ -7548,6 +7552,12 @@ mod tests {
                 }
             ]
         });
+        input
+    }
+
+    #[test]
+    fn render_calculation_report_command_renders_fixture_unblocked() {
+        let input = invented_render_input();
 
         let outcome = render_calculation_report_value(input).expect("command renders");
 
@@ -7571,6 +7581,25 @@ mod tests {
         assert!(rejected
             .expect_err("invalid input")
             .starts_with("RENDER-INPUT-INVALID"));
+    }
+
+    /// DEL-08-01 REQ-022: the render command keeps the document of the render it records. When
+    /// the pool refuses that reservation the command refuses by name, records no render and
+    /// builds no reply carrying the document.
+    #[test]
+    fn render_calculation_report_refuses_a_document_it_cannot_keep() {
+        use crate::memory_pool::{test_host::ScriptedHost, MemoryPool, PressureLevel};
+        let custody = &rendered_report_routes::CUSTODY;
+        let mark = custody.activate_if(custody.observe().incarnation).expect("no other activation in this test");
+        let ticket = custody.begin_render(rendered_report_routes::RenderRequest { source: mark, ordinal: 1 }).expect("the registered source admits a render");
+        let pool = MemoryPool::new(ScriptedHost::with(None, Some(64 << 30), PressureLevel::Normal));
+        let refused = rendered_report_routes::with_render_ticket(ticket, std::sync::Arc::clone(&pool), || render_calculation_report_value(invented_render_input()))
+            .expect_err("the document cannot be kept");
+        assert!(refused.starts_with(&format!("{}: ", rendered_report_routes::RENDER_CUSTODY_UNAVAILABLE)), "{refused}");
+        assert!(refused.contains("\"kind\":\"capacity_unknown\""), "{refused}");
+        assert!(!refused.contains("<!DOCTYPE") && !refused.contains("DERIVED VIEW") && !refused.contains("Invented Calculation Report"), "the refusal carries nothing of the document");
+        assert!(!custody.has_record(), "no render is recorded, blocked or otherwise");
+        assert_eq!(pool.reserved_total(), 0);
     }
 
     fn rehearsal_step_text<'a>(step: &'a Value, key: &str) -> &'a str {
