@@ -14,7 +14,7 @@ import { resolveEntitySelection } from "./features/results/resultInterpretation"
 import { BoundaryAuthoringPanel } from "./features/boundary-authoring/BoundaryAuthoringPanel";
 import { DisplayUnitsProvider } from "./features/display-units";
 import { EmbeddedAgentPanel } from "./features/embedded-agent/EmbeddedAgentPanel";
-import { BatchReviewPanel } from "./features/toolkit/BatchReviewPanel";
+import { ReviewChangesTab } from "./features/toolkit/ReviewChangesTab";
 import { BulkChangePanel } from "./features/bulk-change/BulkChangePanel";
 import {
   Bot,
@@ -84,7 +84,6 @@ import {
 import { useWorkspaceSession } from "./features/workspace/workspaceSession";
 import { WorkspaceSessionProvider } from "./features/workspace/WorkspaceSessionContext";
 import { ModelTree } from "./features/model-tree/ModelTree";
-import { OperationApplyPanel } from "./features/operations/OperationApplyPanel";
 import { OperationLedgerPanel } from "./features/operations/OperationLedgerPanel";
 import { PcfExportPanel } from "./features/pcf-export/PcfExportPanel";
 import { ProjectStorageAuditPanel } from "./features/project-storage/ProjectStorageAuditPanel";
@@ -671,22 +670,19 @@ function AppSession() {
               />
               </div>
               <div className="operation-tool-page review-tool-page" hidden={operationTab !== "review"}>
-              <BatchReviewPanel
+              <ReviewChangesTab
                 onClear={handleClearReviewQueue}
-                batches={queuedBatches} outcomes={batchOutcomes} receipts={batchReceipts}
-                revision={modelRevision.current} busy={operationBusy} message={batchMessage}
-                onValidate={(entry) => void handleRunOperationBatch(entry, false)}
-                onApply={(entry) => void handleRunOperationBatch(entry, true)}
-                onDismiss={(entry) => handleDismissRetiredBatch(entry.key)}
+                batches={queuedBatches} batchOutcomes={batchOutcomes} batchReceipts={batchReceipts}
+                revision={modelRevision.current} busy={operationBusy} batchMessage={batchMessage}
+                onValidateBatch={(entry) => void handleRunOperationBatch(entry, false)}
+                onApplyBatch={(entry) => void handleRunOperationBatch(entry, true)}
+                onDismissBatch={(entry) => handleDismissRetiredBatch(entry.key)}
                 onSelectRef={(ref) => { const target = resolveEntitySelection(model, ref); if (target) handleSelectEntity(target); }}
-              />
-              <OperationApplyPanel
                 queuedIntents={editorIntents}
                 outcomes={operationOutcomes}
                 appliedOperations={appliedOperations}
                 undoCount={undoStack.length}
                 redoCount={redoStack.length}
-                busy={operationBusy}
                 message={operationMessage}
                 engineStatus={operationEngineStatus}
                 onValidate={handleValidateIntent}
