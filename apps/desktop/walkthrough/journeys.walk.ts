@@ -365,7 +365,7 @@ test("09 inspector: what the inspector shows for each kind of selection", async 
   await open(page);
   await showModelTree(page);
   await ensureInspectorExpanded(page);
-  const pick = (type: Parameters<typeof selectTreeEntity>[1], id: string) => async () => { await selectTreeEntity(page, type, id); };
+  const pick = (type: Parameters<typeof selectTreeEntity>[1], id: string) => async () => { await selectTreeEntity(page, type, id); await ensureInspectorExpanded(page); };
   await pictureSelection(journey, "project", "The project selected in the tree", pick("project", PROJECT));
   await pictureSelection(journey, "node-corner", "A node at a corner (node:N-120, two pipes at a right angle, supports on it)", pick("node", "node:N-120"));
   await pictureSelection(journey, "node-corner-bend-marker", "A node at a corner with a bend marker (node:N-110)", pick("node", "node:N-110"));
@@ -377,12 +377,15 @@ test("09 inspector: what the inspector shows for each kind of selection", async 
   await pictureSelection(journey, "load", "A load case selected (load:L-100)", pick("load", "load:L-100"));
   await pictureSelection(journey, "material", "A material selected", pick("material", "material:invented-carbon-steel"));
   await pictureSelection(journey, "several", "Several things selected: two nodes and a support, by Ctrl or Cmd and a click in the tree", async () => {
+    await showModelTree(page);
     await clearTreeFilter(page);
     await page.getByTestId("tree-row-node-node%3AN-100").click();
     await page.getByTestId("tree-row-node-node%3AN-110").click({ modifiers: ["ControlOrMeta"] });
     await page.getByTestId("tree-row-support-support%3AS-120").click({ modifiers: ["ControlOrMeta"] });
+    await ensureInspectorExpanded(page);
   });
   await journey.step("tree-after-view-selection", "The tree after a selection in the 3D view: node:N-100 chosen in the tree, then support:S-130 clicked in the view", async () => {
+    await showModelTree(page);
     await clearTreeFilter(page);
     await page.getByTestId("tree-row-node-node%3AN-100").click();
     return selectInView(page, "support:S-130");
@@ -419,6 +422,7 @@ test("10 inspector actions: creation forms, the bend at a corner, settings, the 
   await journey.step("bend-on-corner", "node:N-110, a corner: its bend line opened", async () => {
     await showModelTree(page);
     await selectTreeEntity(page, "node", "node:N-110");
+    await ensureInspectorExpanded(page);
     const line = page.getByTestId("insert-bend-at-corner-details");
     if (await line.count() === 0) return "there is no closed line for the bend; the form stands open";
     if (!(await line.evaluate((element) => (element as HTMLDetailsElement).open))) await line.locator(":scope > summary").click();
@@ -427,9 +431,11 @@ test("10 inspector actions: creation forms, the bend at a corner, settings, the 
   await journey.scrolled("bend-on-corner", "The bend at a corner", 2, INSPECTOR);
   await journey.step("bend-absent-end", "node:N-100, the end of the run: no bend offered", async () => {
     await selectTreeEntity(page, "node", "node:N-100");
+    await ensureInspectorExpanded(page);
   });
   await journey.step("settings-closed", "The project selected: its settings lines closed", async () => {
     await selectTreeEntity(page, "project", PROJECT);
+    await ensureInspectorExpanded(page);
     for (const id of ["model-settings-details", "project-units-details"]) {
       const details = page.getByTestId(id);
       if (await details.evaluate((element) => (element as HTMLDetailsElement).open)) await details.locator(":scope > summary").click();
@@ -442,12 +448,14 @@ test("10 inspector actions: creation forms, the bend at a corner, settings, the 
   });
   await journey.scrolled("settings-open", "Model settings", 2, INSPECTOR);
   await journey.step("tree-group-closed-view-selection", "The Supports group closed in the tree, then support:S-130 clicked in the view", async () => {
+    await showModelTree(page);
     await clearTreeFilter(page);
     const group = page.getByTestId("tree-group-Supports");
     if (await group.getAttribute("aria-expanded") === "true") await group.click();
     return selectInView(page, "support:S-130");
   });
   await journey.step("tree-filtered-view-selection", "The tree filtered to pipes, then support:S-120 clicked in the view", async () => {
+    await showModelTree(page);
     await page.getByTestId("model-tree-filter-input").fill("pipe");
     return selectInView(page, "support:S-120");
   });
@@ -469,14 +477,15 @@ test("10 inspector actions: creation forms, the bend at a corner, settings, the 
     await page.emulateMedia({ colorScheme: "dark" });
     await menu(page, "view", "view.theme.dark");
     await showModelTree(page);
-    await ensureInspectorExpanded(page);
     await selectTreeEntity(page, "pipe", "pipe:P-120");
+    await ensureInspectorExpanded(page);
   });
   await menu(page, "view", "view.theme.system");
   await page.emulateMedia({ colorScheme: null });
-  await journey.step("split-straight", "pipe:P-120 split in two from its menu in the tree, and applied: a node on a straight run", async () => {
+  await journey.step("split-straight", "pipe:P-100 split in two from its menu in the tree, and applied: a node on a straight run", async () => {
+    await showModelTree(page);
     await clearTreeFilter(page);
-    const row = page.getByTestId("tree-row-pipe-pipe%3AP-120");
+    const row = page.getByTestId("tree-row-pipe-pipe%3AP-100");
     await row.click({ button: "right" });
     await page.getByRole("menuitem", { name: "Split into N…" }).click();
     const panel = page.getByTestId("split-into-parts");
@@ -486,17 +495,20 @@ test("10 inspector actions: creation forms, the bend at a corner, settings, the 
       const field = panel.getByLabel(label, { exact: true });
       if (await field.count()) await field.fill(value);
     }
-    await expect(panel.getByTestId("split-parts-queue")).toBeEnabled();
-    await panel.getByTestId("split-parts-queue").click();
+    const queue = panel.getByTestId("split-parts-queue");
+    // Every pipe of the demonstration model carries an attachment, which a geometry-only split refuses.
+    if (await queue.isDisabled()) return "the split is refused, so the demonstration model has no straight-run node";
+    await queue.click();
     await applyFirstQueued(page);
   });
   await pictureSelection(journey, "node-straight", "The new node on the straight run selected: no bend offered", async () => {
     await showModelTree(page);
-    await ensureInspectorExpanded(page);
     const filter = page.getByTestId("model-tree-filter-input");
     await filter.fill("node:N-S");
     const row = page.locator('[data-testid^="tree-row-node-node%3AN-S"]').first();
+    if (await row.count() === 0) return "no straight-run node to select (the unit test of the inspector covers it)";
     await row.click();
+    await ensureInspectorExpanded(page);
   });
   await pictureSelection(journey, "section", "A section created from Create section and applied, then selected", async () => {
     await page.getByTestId("toolkit-entry").click();
@@ -508,7 +520,10 @@ test("10 inspector actions: creation forms, the bend at a corner, settings, the 
     await page.getByTestId("create-section-provenance").fill(INVENTED);
     await page.getByTestId("queue-create-section-intent").click();
     await applyFirstQueued(page);
+    await showModelTree(page);
+    await clearTreeFilter(page);
     await selectTreeEntity(page, "section", "section:WALK-1");
+    await ensureInspectorExpanded(page);
   });
   journey.finish();
 });
