@@ -167,6 +167,7 @@ fn the_connector_rule_gives_no_metadata_outside_its_conditions() {
             let rod = changed(&rod, "/metadata/location", json!("tie_rod"));
             changed(&rod, "/metadata/coordinate_system", json!("element_local"))
         }),
+        ("a combined row of a connector kind the rule does not list", changed(combined, "/kind", json!("connector_unlisted_v1"))),
     ];
     for (case, row) in refused {
         assert_eq!(s::canonical_metadata_for(&source, table, &row), None, "{case}");
@@ -214,6 +215,17 @@ fn a_row_refusal_names_the_source_row() {
     assert_eq!(
         d::validate_document_naming_row(&doc, &source).unwrap_err(),
         format!("PHYSICAL_SEMANTICS_MISMATCH: source row {index} {}", row["id"].as_str().unwrap())
+    );
+    // A refusal raised while a row's unit-preservation witness is checked names that row.
+    let mut converted = derive(&source).unwrap();
+    let witness = converted["result_envelope"]["unit_preservation_witnesses"].as_array_mut().unwrap().last_mut().unwrap();
+    let witnessed = witness["source_row_index"].as_u64().unwrap() as usize;
+    assert_ne!(witnessed, index);
+    witness["conversion_performed"] = json!(true);
+    assert_eq!(d::validate_document(&converted, &source).unwrap_err(), "WITNESS_MISMATCH");
+    assert_eq!(
+        d::validate_document_naming_row(&converted, &source).unwrap_err(),
+        format!("WITNESS_MISMATCH: source row {witnessed} {}", source["results"][witnessed]["id"].as_str().unwrap())
     );
     // A refusal after the row checks names no row.
     let mut stale = derive(&source).unwrap();

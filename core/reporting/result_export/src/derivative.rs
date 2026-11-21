@@ -408,7 +408,7 @@ pub fn validate_document(doc: &Value, source: &Value) -> Result<(), String> {
 pub fn validate_document_naming_row(doc: &Value, source: &Value) -> Result<(), String> {
     let mut at = None;
     check_document(doc, source, &mut at).map_err(|code| match at {
-        Some(index) => match source["results"][index]["id"].as_str() {
+        Some(index) => match source["results"][index]["id"].as_str().filter(|id| !id.is_empty()) {
             Some(id) => format!("{code}: source row {index} {id}"),
             None => format!("{code}: source row {index}"),
         },

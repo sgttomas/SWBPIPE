@@ -166,9 +166,11 @@ pub(crate) fn is_connector_kind(kind: &str) -> bool {
     kind.starts_with("connector_")
 }
 
-/// The row basis of every connector row: one stable string (T4-U2, the
-/// export vocabulary). The replaced span is bound through the record named by
-/// the row's `entity_ref`, never through the basis text.
+/// The row basis of a load case's connector row other than a tie-rod force
+/// row: one stable string (T4-U2, the export vocabulary). A tie-rod force row
+/// has `TIE_ROD_BASIS`, and a combination's connector row its expression's
+/// basis (`COMBINATION_BASES`). The replaced span is bound through the record
+/// named by the row's `entity_ref`, never through the basis text.
 pub const ROW_BASIS: &str = "objective_connector_v1;symmetric_midpoint_small_rotation_v1";
 /// The bases a combined row's expression gives it, one per expression kind,
 /// as the reader re-derives them (`exact_combination_evidence`).

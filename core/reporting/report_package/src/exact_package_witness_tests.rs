@@ -416,8 +416,10 @@ fn an_edited_integrity_diagnostic_refuses_at_item_9() {
 /// Issue 441: a refusal of the native check of the result document names the
 /// source row it was raised on, by index and id (never its value). The request
 /// is the connector witness's with the metadata of its first combined connector
-/// row's quantity removed and the document's own hash recomputed, so only the
-/// row's physical semantics differ.
+/// row's quantity removed and the document's own hash recomputed, so that
+/// validation reaches the row checks. The row's witness checksum is then stale
+/// too; the row's physical semantics are checked first, and theirs is the
+/// refusal asserted.
 #[test]
 fn a_result_document_row_refusal_names_the_source_row() {
     use open_pipe_stress_result_export::derivative::{checksum, reference};
