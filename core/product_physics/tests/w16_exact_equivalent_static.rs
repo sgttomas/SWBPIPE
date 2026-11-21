@@ -943,6 +943,49 @@ fn load_state_generated_case_commits_whole_or_not_at_all() {
     }
 }
 
+/// Decision 2 (v) of issue 452, named: a hydrostatic test case elsewhere in a
+/// load/reference-state document does not put its contents density into a
+/// seismic case. The document carries the seismic case and a test case that
+/// takes a test contents density (1000 kg/m^3, against the section's own) from
+/// an operating condition. Today the exact route refuses that test case whole
+/// (LOAD_CASE_TEST_CONDITION_UNSUPPORTED, and the condition use with
+/// LOAD_CASE_CONDITION_USE_EXACT_UNSUPPORTED), so the test admits only those two
+/// codes and no other blocking finding. Once the test case is admitted the
+/// document solves, and then the seismic case's every row must equal, bit for
+/// bit, the same document without the test case: the comparison branch bites
+/// from that change on without editing this test.
+#[test]
+fn a_hydrostatic_test_case_does_not_put_its_contents_into_a_seismic_case() {
+    let (_, plain) = reference_request(&case_ref("W16C-SEISMIC-EX-EB"));
+    let twin = load_state_document_of(&plain);
+    let mut with_test = twin.clone();
+    let model = &mut with_test["model"];
+    model["condition_sets"] = json!([{"id": "cs:line", "provenance": PROV,
+        "conditions": [{"key": "HYDRO", "contents_density": qv(1000.0, "kg/m^3")}]}]);
+    model["pipe_segments"][0]["condition_set_ref"] = json!("cs:line");
+    let mut test_case = model["load_cases"][0].clone();
+    test_case["id"] = json!("case:hydrotest");
+    test_case.as_object_mut().unwrap().remove("equivalent_static");
+    test_case["test_condition"] = json!({"kind": "hydrostatic", "held_supports": "none"});
+    test_case["condition_use"] = json!({"contents_density": "HYDRO"});
+    model["load_cases"].as_array_mut().unwrap().push(test_case);
+    const PENDING: [&str; 2] = ["LOAD_CASE_TEST_CONDITION_UNSUPPORTED", "LOAD_CASE_CONDITION_USE_EXACT_UNSUPPORTED"];
+    for mode in MODES {
+        let out = run(&with_test, mode);
+        if out["status"]["mechanics"] == "MECHANICS_SOLVED" {
+            let seismic = |out: &Value| row_bits(out).into_iter().filter(|(key, _)| key.contains(&format!("\"{CASE}\""))).collect::<Vec<_>>();
+            let twin_out = solved(&twin, Route::Exact, mode, "twin");
+            assert!(!seismic(&twin_out).is_empty());
+            assert_eq!(seismic(&out), seismic(&twin_out), "{mode:?}: the seismic case is independent of the test case's contents");
+        } else {
+            let blocking = out["diagnostics"].as_array().unwrap().iter().filter(|d| d["severity"] == "blocking").collect::<Vec<_>>();
+            assert!(!blocking.is_empty() && blocking.iter().all(|d| PENDING.iter().any(|code| d["code"] == *code)),
+                "{mode:?}: only the pending test-case refusals; {:?}", codes(&out));
+            assert!(blocking.iter().any(|d| d["code"] == PENDING[0]), "{mode:?}");
+        }
+    }
+}
+
 /// the retained sub-route keeps declining generation; the ordinary
 /// result is returned unchanged.
 #[test]
