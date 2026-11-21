@@ -14,6 +14,7 @@ from .print_csv import (
     PARSER_VERSION,
     PRINT_CSV_COVERAGE,
     parse_caepipe_print_csv,
+    parse_caepipe_print_bytes,
     read_caepipe_print_csv,
 )
 from .harness import (
@@ -47,6 +48,7 @@ __all__ = [
     "diagnostics_for_caepipe_external_run_package",
     "parse_caepipe_csv_text",
     "parse_caepipe_print_csv",
+    "parse_caepipe_print_bytes",
     "read_caepipe_print_csv",
     "resolve_harness_config",
     "run_caepipe_mbf_export",
