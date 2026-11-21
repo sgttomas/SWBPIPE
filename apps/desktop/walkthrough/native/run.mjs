@@ -514,6 +514,9 @@ const lstatOrNull = (file) => { try { return fs.lstatSync(file); } catch { retur
  * Called only from the launch's beforeStart, which judgedPhase calls only once its marks check has admitted the start.
  */
 export function prepareAttendedOutput(out) {
+  // Every refusal first, read-only, so that a refusal here changes nothing.
+  const refusal = outputRefusals(out, { attended: true });
+  if (refusal) throw new Error(refusal);
   emptyNativeOutput(out, []);
   emptyAttendedOutput(out);
   const captures = path.join(out, ATTENDED.captures);
@@ -1514,7 +1517,7 @@ async function main() {
   }
   if (outputUntouched) {
     const failed = checks.filter((item) => !item.ok);
-    console.log(`${NAME}: --out was left as it was; ${checks.length - failed.length}/${checks.length} confinement and launch checks passed; evidence in ${RUN_ROOT}`);
+    console.log(`${NAME}: nothing of the attended launch was written to --out and no index was composed; ${checks.length - failed.length}/${checks.length} confinement and launch checks passed; evidence in ${RUN_ROOT}`);
     buildLock.release();
     await exitAfterSignals(1);
   }

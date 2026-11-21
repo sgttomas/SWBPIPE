@@ -1483,6 +1483,12 @@ test("a late mark leaves a completed folder untouched: the attended output is pr
   const run = await standInPhase(t, { marks: {}, beforeStart: () => prepareAttendedOutput(admitted) });
   assert.equal(run.started, true);
   assert.deepEqual(readdirSync(admitted).sort(), ["captures", "part-22-exports.json"]);
+  // A folder it must refuse (a file a walkthrough did not write) is refused before anything in it is removed.
+  const foreign = folderWithJourney();
+  writeFileSync(path.join(foreign, "notes.txt"), "keep");
+  const foreignBefore = folderBytes(foreign);
+  assert.throws(() => prepareAttendedOutput(foreign), /did not write \(notes\.txt\)/);
+  assert.deepEqual(folderBytes(foreign), foreignBefore);
   // In the command, nothing else empties --out for an attended launch before the start.
   const runner = readFileSync(new URL("./run.mjs", import.meta.url), "utf8");
   assert.equal(runner.match(/= prepareAttendedOutput\(out\);/g)?.length, 1);
