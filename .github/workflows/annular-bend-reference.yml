@@ -1,0 +1,47 @@
+name: Annular bend reference
+
+# The check of validation/references/annular_bend_elasticity, the evidence for LIM-021, in the package's own
+# environment: its requirements file pins numpy and scipy, which the shared Python jobs do not install.
+#
+# Selected by the paths the check reads: the package, the invented benchmark model documents it reads as inputs (by
+# the same pattern as the generator, which fails if the documents it reads are not exactly those), LIM-021's document,
+# whose stated figures it checks, and this workflow. It reports beside the required `harness` check: `harness` does
+# not wait on it, and the repository's required-check setting is unchanged. A pull request touching these paths is
+# merged only after this workflow's result has been read (the package's README).
+on:
+  pull_request:
+    paths:
+      - validation/references/annular_bend_elasticity/**
+      - validation/caepipe_benchmark/models/cpb-g[234]-*.json
+      - docs/RELEASE_LIMITATIONS_v1.0.md
+      - .github/workflows/annular-bend-reference.yml
+  workflow_dispatch:
+
+permissions:
+  contents: read
+concurrency:
+  group: annular-bend-reference-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
+
+jobs:
+  check:
+    name: Annular bend reference check
+    runs-on: ubuntu-24.04
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
+          # Declarative specifications are not inputs of this check.
+          sparse-checkout: |
+            /*
+            !/execution/
+          sparse-checkout-cone-mode: false
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.13"
+      - name: Install the package's requirements
+        run: python3 -m pip install -r validation/references/annular_bend_elasticity/requirements.txt
+      - name: Recompute and compare every figure
+        working-directory: validation/references/annular_bend_elasticity
+        run: python3 -I -B generators/annular_reference.py
