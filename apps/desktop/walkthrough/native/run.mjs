@@ -63,10 +63,13 @@
 // the marks of that agent do not refuse the start (judged-launch.mjs marksDecision; never a check not made or another
 // application's bundle), and the marks and the statement are printed at the handover and recorded. The driver makes only the start (with
 // --journey, that journey's `place` and `open`; without it, the app as first opened), shows the window unless
-// --hidden, reads the menu, stops the page's file fields and the agent's Start agent, writes the checkpoint `start`,
-// and then takes no step: it only records, with times, what it stopped, each report print the build substitutes and
-// the counts on screen whenever the page settles. The handover lines are printed only once that checkpoint says the
-// start was made with this launch's nonce; a failed start ends the launch without them. The launch ends when the app
+// --hidden, reads the menu, writes the checkpoint `start`, and then takes no step: it only records, with times, what
+// its guards stopped (installed first, before the window is shown: the page's file fields, file drops and file field
+// changes, and the agent's Start agent) and the counts on screen whenever the page settles; the build logs each print
+// it substitutes. Nothing in --out changes until judgedPhase's marks check has admitted the start. The handover lines
+// are printed only once that checkpoint says the start was made with this launch's nonce, while the census still
+// finds the app running and, without --hidden, once the window was seen shown; a failed start ends the launch without
+// them. The launch ends when the app
 // exits by itself, when the finish file the command prints appears, or at --limit-minutes: for those two the watcher
 // aborts the AbortSignal judgedPhase hands to runUnderLock, which owns the started child and sends it SIGKILL, and the
 // record keeps runUnderLock's receipt (its own time limit, two minutes later, is the backstop). The strict chooser's
@@ -775,12 +778,24 @@ function takenAtCheck(takenAt, fileTime) {
     : `disagrees with the picture's file time (${new Date(fileTime).toISOString()}): ${Math.round(apart / 100) / 10} s apart`;
 }
 /** The application's own report of the words and controls on screen nearest at or before `at` (records sorted by time). */
-function observedFor(records, at) {
+function observedFor(records, at, pending = null) {
   let nearest = null;
-  for (const record of records) { if (record.at <= at) nearest = record; else break; }
+  let next = null;
+  for (const record of records) { if (record.at <= at) nearest = record; else { next = record; break; } }
   if (nearest === null) return { counts_source: "no report of the application's own at or before the time the attendant states: the words and controls on screen are not recorded for this capture" };
   const when = new Date(nearest.at).toISOString();
   if (nearest.counts_error) return { counts_source: `the application's own report at ${when} could not count the screen (${nearest.counts_error})`, counts_at: when };
+  // The record matches the page at the capture only if the page did not change in between: the next record's first
+  // change, or, after the last record, the pending change the driver wrote, must come after the stated time.
+  if (next && !Number.isFinite(next.covers_from)) {
+    return { counts_uncertain: true, counts_at: when, counts_source: `uncertain, so not recorded for this capture: the next report (record ${next.n}) does not say when the page first changed after the application's own report at ${when}` };
+  }
+  const changedAt = next
+    ? (next.covers_from <= at ? next.covers_from : null)
+    : (pending && pending.after === nearest.n && pending.at <= at ? pending.at : null);
+  if (changedAt !== null) {
+    return { counts_uncertain: true, counts_at: when, counts_source: `uncertain, so not recorded for this capture: the page changed at ${new Date(changedAt).toISOString()}, after the application's own report at ${when} (record ${nearest.n}) and before the time the attendant states` };
+  }
   return {
     words_on_screen: nearest.words_on_screen, words_in_page: nearest.words_in_page, prose_blocks_on_screen: nearest.prose_blocks_on_screen,
     buttons_on_screen: nearest.buttons_on_screen, inputs_on_screen: nearest.inputs_on_screen, longest_scroll_screens: nearest.longest_scroll_screens,
@@ -797,6 +812,8 @@ function observedFor(records, at) {
  * whose nonce is the launch's: { records (sorted by time), rejected }.
  */
 export function readObserved(report, nonce) {
+  const pendingRead = readReport(`${report}.pending.json`).report;
+  const pending = pendingRead && nonce && pendingRead.nonce === nonce && Number.isFinite(pendingRead.at) && Number.isInteger(pendingRead.after) ? pendingRead : null;
   const dir = path.dirname(report);
   const prefix = `${path.basename(report)}.observed-`;
   let names = [];
@@ -808,7 +825,39 @@ export function readObserved(report, nonce) {
     if (record && nonce && record.nonce === nonce && Number.isFinite(record.at) && Number.isInteger(record.n)) records.push(record);
     else rejected += 1;
   }
-  return { records: records.sort((a, b) => a.at - b.at || a.n - b.n), rejected };
+  return { records: records.sort((a, b) => a.at - b.at || a.n - b.n), rejected, pending };
+}
+
+/** What a report print the build recorded in place of its dialog is, in words. */
+export const PRINT_SUBSTITUTED = "The build recorded the report's print document in place of the system print dialog; no print dialog was shown and nothing was printed.";
+const PRINT_LOG_LIMIT = 4 * 1024 * 1024;
+
+/**
+ * The report prints the build recorded while the launch ran, from the run's print log (`<report>.prints.jsonl`,
+ * appended by native_smoke.rs record_report_print at the instant of each substitution, so nothing need take or drain
+ * the in-memory record): each a substitution { at: recorded_at_ms, kind, what, print_sha256, ... }. { prints,
+ * rejected, error? }; no log is no print.
+ */
+export function readPrintLog(report) {
+  const file = `${report}.prints.jsonl`;
+  let text;
+  try {
+    const stat = fs.lstatSync(file);
+    if (!stat.isFile()) return { prints: [], rejected: 0, error: "the print log is not a regular file" };
+    if (stat.size > PRINT_LOG_LIMIT) return { prints: [], rejected: 0, error: `the print log is larger than ${PRINT_LOG_LIMIT} bytes` };
+    text = fs.readFileSync(file, "utf8");
+  } catch (error) {
+    return error.code === "ENOENT" ? { prints: [], rejected: 0 } : { prints: [], rejected: 0, error: `the print log could not be read (${error.code ?? error.message})` };
+  }
+  const prints = [];
+  let rejected = 0;
+  for (const line of text.split("\n").filter((item) => item.trim() !== "")) {
+    let value;
+    try { value = JSON.parse(line); } catch { rejected += 1; continue; }
+    if (!value || !Number.isFinite(value.recorded_at_ms) || typeof value.print_sha256_hex !== "string") { rejected += 1; continue; }
+    prints.push({ at: value.recorded_at_ms, kind: "report print dialog", what: PRINT_SUBSTITUTED, print_sha256: value.print_sha256_hex, served_to_print_window: value.served_to_print_window ?? null, dialog_presented: value.dialog_presented ?? null });
+  }
+  return { prints: prints.sort((a, b) => a.at - b.at), rejected };
 }
 
 /** The words a scorer reads for each thing in an attended launch's captures that supplies nothing. */
@@ -835,7 +884,7 @@ export function unexplainedOf(captures) {
  * decode, it is unexplained and says why. A sidecar with no picture is listed in records_without_picture, anything
  * else (a link, a folder, another kind of file) in other; nothing is dropped and nothing is followed.
  */
-export function readCaptures(folder, { number = ATTENDED.number, journey = ATTENDED.name, identity = null, bindTo = {}, journeyUseCase = null, observed = [], substitutions = [], launchTimes = null } = {}) {
+export function readCaptures(folder, { number = ATTENDED.number, journey = ATTENDED.name, identity = null, bindTo = {}, journeyUseCase = null, observed = [], pending = null, substitutions = [], launchTimes = null } = {}) {
   const found = { screens: [], records_without_picture: [], other: [] };
   const stat = lstatOrNull(folder);
   if (stat === null) return { ...found, error: "it is not there" };
@@ -882,7 +931,7 @@ export function readCaptures(folder, { number = ATTENDED.number, journey = ATTEN
   let previous = -Infinity;
   for (const screen of [...times.keys()].sort((a, b) => times.get(a) - times.get(b) || a.number - b.number)) {
     const at = times.get(screen);
-    Object.assign(screen, observedFor(records, at));
+    Object.assign(screen, observedFor(records, at, pending));
     screen.substitutions = marks.filter((item) => item.at > previous && item.at <= at).map((item) => ({ at: new Date(item.at).toISOString(), kind: item.kind ?? "a substitution", ...(item.control ? { control: item.control } : {}), what: item.what ?? "", ...(item.print_sha256 ? { print_sha256: item.print_sha256 } : {}) }));
     screen.substitutions_since = previous === -Infinity ? "the start of the launch" : `the previous capture, stated as taken at ${new Date(previous).toISOString()}`;
     previous = at;
@@ -1398,14 +1447,20 @@ async function main() {
     // The driver's records, made while the attendant worked: what the launch stopped and what the build substituted,
     // and the application's own report of the screen whenever the page settled.
     const substitutionsRead = readReport(`${report}.substitutions.json`).report;
-    const substitutions = substitutionsRead?.nonce === outcome?.nonce && Array.isArray(substitutionsRead?.substitutions) ? substitutionsRead.substitutions : [];
+    const stops = substitutionsRead?.nonce === outcome?.nonce && Array.isArray(substitutionsRead?.substitutions) ? substitutionsRead.substitutions : [];
+    // The prints the build substituted, each at the instant it did, from the run's print log: none is lost to a capture
+    // taken before anything read it, or to a Quit straight after Print.
+    const prints = readPrintLog(report);
+    if (prints.error) check("the run's print log was read", false, prints.error);
+    const substitutions = [...stops, ...prints.prints].sort((a, b) => a.at - b.at);
     const observed = readObserved(report, outcome?.nonce);
     const found = readCaptures(captures, {
       identity: capturesIdentity,
       bindTo: { revision: { commit: revision, uncommitted_paths: uncommitted, driver_sha256: DRIVER_SHA256 }, build_app_sha256: app.identity.sha256 },
       journeyUseCase: spec ? { name: start, use_case: spec.use_case } : null,
-      observed: observed.records, substitutions,
-      launchTimes: { from: startedAt ?? Date.now(), to: Date.now() }
+      observed: observed.records, pending: observed.pending, substitutions,
+      // The captures' interval is the attendant's: from the handover to the application's exit, as runUnderLock saw it.
+      launchTimes: { from: watched.handed_over_at ?? startedAt ?? Date.now(), to: Number.isFinite(Date.parse(outcome?.ended)) ? Date.parse(outcome.ended) : Date.now() }
     });
     if (found.error) check("the captures folder was read at the end of the launch", false, found.error);
     writeAttendedPart(out, {
@@ -1434,7 +1489,8 @@ async function main() {
           : { stated: false, marks_before_start: markNames(launches[phase]?.marks) },
         substitutions,
         stopped_by_launch: substitutions.filter((item) => /stopped by the launch$/.test(item.kind ?? "")),
-        observed: { records: observed.records.length, rejected: observed.rejected, bounds: OBSERVED_BOUNDS, what: "the application's own report of the words and controls on screen, made by the driver without pressing, focusing or changing anything" },
+        prints: { recorded: prints.prints.length, rejected: prints.rejected, log: `${path.basename(report)}.prints.jsonl`, what: "each report print the build recorded in place of the system print dialog, appended by the build at that instant" },
+        observed: { records: observed.records.length, rejected: observed.rejected, pending: observed.pending, bounds: OBSERVED_BOUNDS, what: "the application's own report of the words and controls on screen, made by the driver without pressing, focusing or changing anything" },
         judged: judged.map(({ name: checkName, ok, detail }) => ({ name: checkName, ok, detail: detail ?? null }))
       }
     });

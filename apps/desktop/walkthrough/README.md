@@ -273,8 +273,14 @@ runs), `window_title_ends_with` (the app titles its window `SWBPIPE`,
 `page_visibility` (as the driver observed them, not as asked), `start`,
 `finish_file`, `captures`, `limit_minutes`, `ends_at`, `chooser`,
 `attendant_on_screen` (the statement and who made it, with the marks present
-directly before the start, or `not stated`), and last `attended.ready=yes`. A start that fails prints no ready line: the launch ends
-as `start-failed`.
+directly before the start, or `not stated`), and last `attended.ready=yes`.
+They are printed only while the application is running: the census of the
+private copy must still find the process it first found, at the moment the
+lines are printed, and an application seen to exit is never handed over.
+Without `--hidden`, the driver must also have seen the window shown with its
+page visible; otherwise the attendant is not directed to it and the launch
+ends as `window-not-shown`. A start that fails prints no ready line: the launch
+ends as `start-failed`.
 
 **How it ends.** At the first of: the app exits by itself (the attendant's
 Quit or closing the window, counted as the attendant's only after the
@@ -290,18 +296,26 @@ any panel (exit 86): that is the launch's ending, and nothing else is recorded
 for it. Then the census, the home's removal and the tripwire, as after every
 launch.
 
-**What the launch stops and records.** Before the handover the driver stops
-every activation of the page's file fields (Operations: Supports, "Import
-hanger library"; Operations: Agent, "Proposal file"), which would open the
-system's file panel, and the embedded agent's "Start agent", for any provider:
-an attended launch has no scripted provider, so no provider, model, key,
-network or sign-in is used. Each stop is recorded with its time and the
-control's name. The driver also records, with its time, each report print the
-build substitutes for the system print dialog, and the application's own count
+**What the launch stops and records.** As soon as the plan says the launch is
+attended, before the window is brought to the front and before the start, the
+driver stops, in the capture phase before the page's own handlers, every way a
+file of the machine could reach the page: an activation of the page's file
+fields (Operations: Supports, "Import hanger library"; Operations: Agent,
+"Proposal file"), which would open the system's file panel; a drag carrying
+files onto the window (the drop's default prevented, so the web view opens
+nothing); and a file field's change (the field cleared). It also stops the
+embedded agent's "Start agent", for any provider: an attended launch has no
+scripted provider, so no provider, model, key, network or sign-in is used.
+Each stop is recorded with its time and the control's name. A live drop onto a
+shown web view has not been tried; it is a condition before a person's use.
+The build appends each report print it substitutes for the system print
+dialog, with the instant it did so, to the run's print log
+(`<report>.prints.jsonl`), so a capture taken straight after Print, or a Quit
+straight after it, loses none. The driver records the application's own count
 of the words and controls on screen whenever the page settles after a change
 (0.8 s quiet, at least 1.5 s apart, at most 5 s after the first change, one at
-the handover; at most 1200 records of 256 KiB). Recording presses, focuses and
-changes nothing.
+the handover; at most 1200 records of 256 KiB), and when each change began.
+Recording presses, focuses and changes nothing.
 
 **Captures.** The attendant puts each picture of the window in
 `<out>/captures/` as `name.png`, with a sidecar `name.json`:
@@ -338,19 +352,27 @@ the menu the app built, the census, what the launch stopped, and one screen
 for each picture in `captures/`. When the launch ends, the runner reads
 `captures/` once, only if it is still the folder it created for the launch
 (not a link, the same device and inode), and binds each capture to the
-launch: the SHA-256 of the picture and of the sidecar, the picture's decoded
-size, and the launch's revision and build. Each capture also carries the
-application's own count nearest at or before its `taken_at` (labelled as the
-application's, with its time), every stop and substitution recorded since the
-previous capture, and `taken_at` checked against the picture's file time (a
-difference beyond 5 s is said). What the sidecar says is labelled as the
-attendant's. A picture without a sidecar or with one missing a required
-member, a file that does not decode as a PNG, a picture whose file time lies
-outside the launch, a sidecar with no picture, a link, a folder or any other
-file, and anything added after the launch ended: each is listed under the
-launch in both indexes, with the reason, and supplies nothing. A capture supplies a
-surface only while its revision and build are the walkthrough's and its files
-are still the ones recorded. The runner neither takes nor alters a capture. A
+launch: the SHA-256 of the picture and of the sidecar (each sidecar read once,
+and parsed from the bytes that are hashed; a sidecar with no picture is
+hashed too), the picture's decoded size, and the launch's revision (its
+commit, its uncommitted paths and the digest of the driver the app was given)
+and build. Each capture also carries the application's own count nearest at
+or before its `taken_at` (labelled as the application's, with its time) when
+the page did not change between that count and the capture, and otherwise
+says the count is uncertain and records none; every stop and substitution
+recorded since the previous capture; and `taken_at` checked against the
+picture's file time (a difference beyond 5 s is said). What the sidecar says
+is labelled as the attendant's. A picture without a sidecar or with one
+missing a required member, a file that does not decode as a PNG, a picture
+whose file time lies outside the attendant's interval (from the handover to
+the application's exit), a sidecar with no picture, a link, a folder or any
+other file, and anything added after the launch ended: each is listed under
+the launch in both indexes, with the reason, and supplies nothing. When the
+index is composed, each sidecar is read again and counted only for what its
+bytes say while they have the recorded hash; what the part saved is never
+counted. A capture supplies a surface only while its commit, its driver and
+its build are the walkthrough's, neither side had uncommitted paths, and its
+files are still the ones recorded. The runner neither takes nor alters a capture. A
 journey run into the same folder later keeps `captures/` as it is.
 
 **What the attendant may do.** It may accept the system's prompt that lets its

@@ -15,8 +15,9 @@
 // person stops, with the reason the window gives, and the journey's later steps as not reached. It judges nothing.
 // With the plan's `attended` (the runner's --attended) it makes only the start, writes the checkpoint `start` and then
 // takes no step and touches nothing until the launch ends (attendedStart): it stops the page's file fields and the
-// agent's Start (installAttendedGuards) and records, with times, what the launch stopped, what the build substituted
-// and the counts on screen whenever the page settles (observeAttended).
+// agent's Start, file drops and file field changes (installAttendedGuards) and records, with times, what the launch
+// stopped and the counts on screen whenever the page settles (observeAttended); the build itself logs each print it
+// substitutes.
 (() => {
   const ipc = window.__TAURI_INTERNALS__;
   // The scripted-run build's substitutions for a person's act (DEL-07-11 REQ-010). Each one a step uses is recorded
@@ -306,14 +307,16 @@
   // mutation anywhere in the document, a scroll or a resize of the window; a record follows once the page has been
   // quiet for quiet_ms, no sooner than min_gap_ms after the previous record and no later than max_wait_ms after the
   // first change it covers; one is taken at the handover. At most `records` records, each at most `record_bytes`
-  // (the controls list is cut to fit and says so). The report prints the build substitutes for the system print
-  // dialog are taken every print_poll_ms and recorded as substitutions with their times.
-  const OBSERVED = { quiet_ms: 800, min_gap_ms: 1500, max_wait_ms: 5000, records: 1200, record_bytes: 256 * 1024, print_poll_ms: 1000 };
-  const PRINT_SUBSTITUTED = "The build recorded the report's print document in place of the system print dialog; no print dialog was shown and nothing was printed.";
-  function observedRecord(n) {
+  // (the controls list is cut to fit and says so). Each record says when the first change it covers came
+  // (`covers_from`), and the first change after a record is written at once as the checkpoint `pending` (the record it
+  // follows and its time), so that a capture taken after a change no record yet covers is known not to match the last
+  // record. The report prints the build substitutes for the system print dialog are not taken here: the build appends
+  // each to the run's print log at the instant it is recorded (native_smoke.rs record_report_print).
+  const OBSERVED = { quiet_ms: 800, min_gap_ms: 1500, max_wait_ms: 5000, records: 1200, record_bytes: 256 * 1024 };
+  function observedRecord(n, coversFrom) {
     let counts;
     try { counts = readScreenCounts(); } catch (error) { counts = { counts_error: String(error?.message ?? error).slice(0, 400) }; }
-    const report = { nonce, n, at: Date.now(), page_visibility: document.visibilityState, ...counts };
+    const report = { nonce, n, at: Date.now(), covers_from: coversFrom, page_visibility: document.visibilityState, ...counts };
     if (n === OBSERVED.records) report.last = `the bound of ${OBSERVED.records} records was reached: no later record is made`;
     if (Array.isArray(report.controls) && JSON.stringify(report).length > OBSERVED.record_bytes) {
       const all = report.controls.length;
@@ -331,17 +334,22 @@
     let timer = null;
     const record = () => {
       timer = null;
+      const coversFrom = first;
       first = null;
       if (n >= OBSERVED.records) return;
       n += 1;
-      const report = observedRecord(n);
+      const report = observedRecord(n, coversFrom);
       last = report.at;
       call("native_smoke_checkpoint", { name: `observed-${n}`, report, storeSnapshot: false }).catch(() => {});
     };
     const changed = () => {
-      if (n >= OBSERVED.records) return;
       const now = Date.now();
-      if (first === null) first = now;
+      if (first === null) {
+        first = now;
+        // The page has changed since record n: until a record covers it, the last record may not match the page.
+        call("native_smoke_checkpoint", { name: "pending", report: { nonce, after: n, at: now }, storeSnapshot: false }).catch(() => {});
+      }
+      if (n >= OBSERVED.records) return;
       if (timer !== null) clearTimeout(timer);
       const due = Math.max(Math.min(now + OBSERVED.quiet_ms, first + OBSERVED.max_wait_ms), last + OBSERVED.min_gap_ms);
       timer = setTimeout(record, Math.max(0, due - now));
@@ -350,20 +358,6 @@
     new MutationObserver(changed).observe(document.documentElement, { subtree: true, childList: true, characterData: true, attributes: true });
     document.addEventListener("scroll", changed, { capture: true, passive: true });
     window.addEventListener("resize", changed, { passive: true });
-    let taking = false;
-    setInterval(async () => {
-      if (taking) return;
-      taking = true;
-      try {
-        for (const print of (await ipc.invoke("native_smoke_take_report_prints", {})) ?? []) {
-          substituted({ kind: "report print dialog", what: PRINT_SUBSTITUTED, print_sha256: print.print_sha256_hex ?? null, served_to_print_window: print.served_to_print_window ?? null, dialog_presented: print.dialog_presented ?? null });
-        }
-      } catch {
-        // A failed take is retried at the next poll.
-      } finally {
-        taking = false;
-      }
-    }, OBSERVED.print_poll_ms);
   }
 
   // ------------------------------------------------------------ the attended launch's start (run.mjs --attended)

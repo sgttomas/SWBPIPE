@@ -9,6 +9,8 @@
 //!   from bounded anonymous stdin, so fixture credentials need no script file;
 //! - `SWBPIPE_NATIVE_SMOKE_PLAN`: JSON handed to the driver;
 //! - `SWBPIPE_NATIVE_SMOKE_REPORT`: where `native_smoke_finish` writes the report;
+//!   each report print recorded in place of its dialog is also appended, as it
+//!   is recorded, to `<that path>.prints.jsonl` ([`record_report_print`]);
 //! - `SWBPIPE_NATIVE_SMOKE_PROVIDER_KEY=stdin` (macOS, with the driver on stdin):
 //!   stdin's first line is an agent provider key and the rest is the driver.
 //!   The key is held only in this process's memory until the embedded agent's
@@ -508,6 +510,9 @@ pub fn native_smoke_clear_choices(app: AppHandle) -> Result<usize, String> {
 /// ended.
 #[derive(Clone, Debug, Serialize)]
 pub struct ReportPrintObservation {
+    /// When the print was recorded in place of its dialog, in milliseconds since the Unix epoch: the instant of the
+    /// substitution, whatever reads the record later.
+    pub recorded_at_ms: u64,
     pub print_sha256_hex: String,
     pub canonical_sha256_hex: String,
     pub print_html: String,
@@ -518,9 +523,41 @@ pub struct ReportPrintObservation {
 
 static REPORT_PRINTS: Mutex<Vec<ReportPrintObservation>> = Mutex::new(Vec::new());
 
-/// Records a report print in place of presenting its dialog.
+/// The run's print log, beside the report the runner names: `<SWBPIPE_NATIVE_SMOKE_REPORT>.prints.jsonl`.
+fn print_log_path() -> Option<PathBuf> {
+    let mut path = std::env::var_os("SWBPIPE_NATIVE_SMOKE_REPORT")?;
+    path.push(".prints.jsonl");
+    Some(PathBuf::from(path))
+}
+
+/// Appends one line for `observation` to the print log at `path` and syncs it before returning, so that a print is
+/// on disk the moment it is substituted, whether or not anything takes the in-memory record and however soon the
+/// application quits. The line carries the time, the hashes, the window and whether the document was served; never the
+/// print document itself.
+fn append_print_log(path: &Path, observation: &ReportPrintObservation) -> io::Result<()> {
+    use std::io::Write;
+    let line = serde_json::json!({
+        "recorded_at_ms": observation.recorded_at_ms,
+        "print_sha256_hex": observation.print_sha256_hex,
+        "canonical_sha256_hex": observation.canonical_sha256_hex,
+        "served_to_print_window": observation.served_to_print_window,
+        "window_label": observation.window_label,
+        "dialog_presented": observation.dialog_presented,
+    });
+    let mut file = fs::OpenOptions::new().create(true).append(true).open(path)?;
+    file.write_all(format!("{line}\n").as_bytes())?;
+    file.sync_data()
+}
+
+fn now_ms() -> u64 {
+    std::time::SystemTime::now().duration_since(std::time::UNIX_EPOCH).map(|elapsed| u64::try_from(elapsed.as_millis()).unwrap_or(u64::MAX)).unwrap_or(0)
+}
+
+/// Records a report print in place of presenting its dialog: in memory, for `native_smoke_take_report_prints`, and
+/// appended at once to the run's print log (`print_log_path`).
 pub fn record_report_print(print_sha256_hex: &str, canonical_sha256_hex: &str, print_html: &[u8], served: bool, window_label: &str) {
     let observation = ReportPrintObservation {
+        recorded_at_ms: now_ms(),
         print_sha256_hex: print_sha256_hex.to_string(),
         canonical_sha256_hex: canonical_sha256_hex.to_string(),
         // The print view is derived from a `String`, so these bytes are UTF-8.
@@ -530,7 +567,52 @@ pub fn record_report_print(print_sha256_hex: &str, canonical_sha256_hex: &str, p
         dialog_presented: false,
     };
     eprintln!("[native-smoke] report print reached the native print; print document sha256 {print_sha256_hex}; no dialog presented");
+    if let Some(path) = print_log_path() {
+        if let Err(error) = append_print_log(&path, &observation) {
+            eprintln!("[native-smoke] the report print could not be appended to the run's print log: {error}");
+        }
+    }
     REPORT_PRINTS.lock().unwrap_or_else(std::sync::PoisonError::into_inner).push(observation);
+}
+
+#[cfg(test)]
+mod print_log_tests {
+    use super::{append_print_log, now_ms, ReportPrintObservation};
+
+    fn observation(at: u64, sha: &str) -> ReportPrintObservation {
+        ReportPrintObservation {
+            recorded_at_ms: at,
+            print_sha256_hex: sha.to_string(),
+            canonical_sha256_hex: "c".repeat(64),
+            print_html: "<html>the print document</html>".to_string(),
+            served_to_print_window: true,
+            window_label: "report-print-1".to_string(),
+            dialog_presented: false,
+        }
+    }
+
+    #[test]
+    fn each_print_is_appended_at_once_with_its_time_and_never_its_document() {
+        let dir = std::env::temp_dir().join(format!("swbpipe-print-log-{}-{}", std::process::id(), now_ms()));
+        std::fs::create_dir_all(&dir).unwrap();
+        let log = dir.join("report.json.prints.jsonl");
+        let before = now_ms();
+        append_print_log(&log, &observation(before, &"a".repeat(64))).unwrap();
+        // Readable as soon as the call returns, before anything takes the in-memory record.
+        assert_eq!(std::fs::read_to_string(&log).unwrap().lines().count(), 1);
+        append_print_log(&log, &observation(before + 5, &"b".repeat(64))).unwrap();
+        let text = std::fs::read_to_string(&log).unwrap();
+        let lines: Vec<serde_json::Value> = text.lines().map(|line| serde_json::from_str(line).unwrap()).collect();
+        assert_eq!(lines.len(), 2);
+        assert_eq!(lines[0]["recorded_at_ms"], serde_json::json!(before));
+        assert_eq!(lines[1]["recorded_at_ms"], serde_json::json!(before + 5));
+        assert_eq!(lines[1]["print_sha256_hex"], serde_json::json!("b".repeat(64)));
+        assert_eq!(lines[0]["dialog_presented"], serde_json::json!(false));
+        assert!(!text.contains("the print document"), "the print document itself is never written to the log");
+        assert!(lines[0].get("print_html").is_none());
+        std::fs::remove_dir_all(&dir).unwrap();
+    }
+
 }
 
 /// The report prints recorded since the last call, oldest first.

@@ -1065,15 +1065,15 @@ test("an attended capture carries the application's own report nearest at or bef
   side("c-before-any", t0 + 1_000);
   side("d-late-file", t0 + 40_000);
   utimesSync(path.join(folder, "d-late-file.png"), new Date(t0 + 50_000), new Date(t0 + 50_000));
-  const record = (n, at, words) => ({ nonce: "n", n, at, page_visibility: "visible", words_on_screen: words, words_in_page: words * 2, prose_blocks_on_screen: 1, buttons_on_screen: 2, inputs_on_screen: 3, longest_scroll_screens: 1, controls: ["button: Run"] });
-  const observed = [record(2, t0 + 20_000, 200), record(1, t0 + 5_000, 100), record(3, t0 + 30_001, 300)];
+  const record = (n, at, words, coversFrom) => ({ nonce: "n", n, at, covers_from: coversFrom, page_visibility: "visible", words_on_screen: words, words_in_page: words * 2, prose_blocks_on_screen: 1, buttons_on_screen: 2, inputs_on_screen: 3, longest_scroll_screens: 1, controls: ["button: Run"] });
+  const observed = [record(2, t0 + 20_000, 200, t0 + 15_000), record(1, t0 + 5_000, 100, null), record(3, t0 + 30_001, 300, t0 + 30_001)];
   const substitutions = [
     { at: t0 + 8_000, kind: "file panel stopped by the launch", control: "Import hanger library", what: "The launch stopped this control from opening the system's file panel." },
     { at: t0 + 25_000, kind: "report print dialog", what: "printed", print_sha256: "ab" },
     { at: t0 + 30_000, kind: "agent start stopped by the launch", control: "Embedded agent: Start agent", what: "stopped" },
     { at: t0 + 45_000, kind: "report print dialog", what: "late" }
   ];
-  const found = readCaptures(folder, { observed, substitutions, launchTimes: { from: t0, to: t0 + 60_000 } });
+  const found = readCaptures(folder, { observed, pending: { nonce: "n", after: 3, at: t0 + 35_000 }, substitutions, launchTimes: { from: t0, to: t0 + 60_000 } });
   const by = Object.fromEntries(found.screens.map((screen) => [screen.step, screen]));
   assert.equal(by["c-before-any"].counts_source, "no report of the application's own at or before the time the attendant states: the words and controls on screen are not recorded for this capture");
   assert.equal(by["c-before-any"].words_on_screen, undefined);
@@ -1087,6 +1087,9 @@ test("an attended capture carries the application's own report nearest at or bef
   assert.equal(by["b-second"].substitutions[0].print_sha256, "ab");
   assert.match(by["b-second"].substitutions_since, /the previous capture, stated as taken at/);
   assert.deepEqual(by["d-late-file"].substitutions, []);
+  // After the last record the page changed (pending, at t0 + 35 s) before this capture: its counts are not recorded.
+  assert.deepEqual([by["d-late-file"].counts_uncertain, by["d-late-file"].words_on_screen], [true, undefined]);
+  assert.match(by["d-late-file"].counts_source, /^uncertain, so not recorded for this capture: the page changed at .*, after the application's own report at .* \(record 3\)/);
   assert.match(by["a-first"].taken_at_check, /^agrees with the picture's file time/);
   assert.match(by["d-late-file"].taken_at_check, /^disagrees with the picture's file time .*: 10 s apart$/);
   // A picture whose file time lies outside the launch is unexplained.
@@ -1121,12 +1124,8 @@ test("the composed index labels an attended capture's parts: the attendant's sta
   assert.match(html, /attended capture; counts the application's own/);
 });
 
-test("the attended driver records the screen as the page settles and each report print, pressing nothing", async () => {
-  let prints = 0;
-  const run = await runAttendedDriver({ attended: true, show_window: false, start: null }, {
-    waitMs: 1800,
-    invoke: (command) => (command === "native_smoke_take_report_prints" ? (prints += 1) === 2 ? [{ print_sha256_hex: "cd", served_to_print_window: true, dialog_presented: false, print_html: "<html>…</html>" }] : [] : undefined)
-  });
+test("the attended driver records the screen as the page settles, with when each change came, pressing nothing and draining no print", async () => {
+  const run = await runAttendedDriver({ attended: true, show_window: false, start: null }, { waitMs: 1800 });
   const observed = () => run.checkpoints().filter((item) => /^observed-\d+$/.test(item.name));
   // One record at the handover, after the start checkpoint.
   const names = run.checkpoints().map((item) => item.name);
@@ -1142,17 +1141,23 @@ test("the attended driver records the screen as the page settles and each report
   assert.deepEqual(JSON.parse(JSON.stringify(run.observers[0].options)), { subtree: true, childList: true, characterData: true, attributes: true });
   assert.ok(run.listeners.document.some((item) => item.type === "scroll" && item.options?.capture === true && item.options?.passive === true));
   assert.ok(run.listeners.window.some((item) => item.type === "resize" && item.options?.passive === true));
-  // A burst of changes gives one record, once the page is quiet (0.8 s) and at least 1.5 s after the previous one.
+  // A burst of changes gives one record, once the page is quiet (0.8 s) and at least 1.5 s after the previous one;
+  // its first change is written at once as pending, after record 1, and the record says it covers it.
+  const burst = Date.now();
   for (let index = 0; index < 5; index += 1) run.observers[0].callback([]);
   await new Promise((resolve) => setTimeout(resolve, 400));
   assert.equal(observed().length, 1);
+  const pending = run.checkpoints().filter((item) => item.name === "pending");
+  assert.equal(pending.length, 1, "one pending checkpoint for the burst");
+  assert.deepEqual([pending[0].report.nonce, pending[0].report.after], ["n", 1]);
+  assert.ok(pending[0].report.at >= burst);
   await new Promise((resolve) => setTimeout(resolve, 1600));
   assert.equal(observed().length, 2);
   assert.equal(observed()[1].report.n, 2);
-  // The print the build recorded in place of the dialog is a substitution, with its hash and not its document.
-  const subs = run.checkpoints().filter((item) => item.name === "substitutions").at(-1)?.report.substitutions ?? [];
-  assert.deepEqual(subs.map((item) => [item.kind, item.print_sha256, item.dialog_presented]), [["report print dialog", "cd", false]]);
-  assert.equal(JSON.stringify(subs).includes("<html>"), false);
+  assert.equal(observed()[1].report.covers_from, pending[0].report.at);
+  assert.equal(first.covers_from, null);
+  // The prints the build substitutes are logged by the build itself: the driver neither takes nor drains them.
+  assert.equal(run.calls.some(([command]) => command === "native_smoke_take_report_prints"), false);
   // Nothing pressed, chosen or sent through the menu.
   assert.equal(run.calls.some(([command]) => ["native_smoke_menu", "native_smoke_choose", "native_smoke_finish"].includes(command)), false);
 });
@@ -1645,4 +1650,57 @@ test("an attended launch's guards are installed before the window is shown, and 
   // A scripted journey's page gets none of these listeners.
   const scripted = await runAttendedDriver({ journey: "probe-none", show_window: false });
   assert.deepEqual([scripted.listeners.document.length, scripted.listeners.window.length], [0, 0]);
+});
+
+import { PRINT_SUBSTITUTED, readPrintLog } from "./run.mjs";
+
+test("a print substituted just before a capture, or just before Quit, is marked on that capture in INDEX.json, from the build's own log", (t) => {
+  const out = scratch(t);
+  const folder = path.join(out, "captures");
+  mkdirSync(folder);
+  const report = path.join(scratch(t), "report-attended.json");
+  const t0 = Date.now() - 30_000;
+  // Print at t0 + 10.0 s, the capture 100 ms later (before any poll could have read it); a second print 20 ms before the
+  // last capture and the application's exit.
+  const line = (at, sha) => JSON.stringify({ recorded_at_ms: at, print_sha256_hex: sha, canonical_sha256_hex: "c", served_to_print_window: true, window_label: "w", dialog_presented: false });
+  writeFileSync(`${report}.prints.jsonl`, `${line(t0 + 10_000, "a".repeat(64))}\n${line(t0 + 20_000, "b".repeat(64))}\nnot json\n`);
+  const prints = readPrintLog(report);
+  assert.deepEqual([prints.prints.length, prints.rejected], [2, 1]);
+  assert.deepEqual(prints.prints[0], { at: t0 + 10_000, kind: "report print dialog", what: PRINT_SUBSTITUTED, print_sha256: "a".repeat(64), served_to_print_window: true, dialog_presented: false });
+  const capture = (base, at) => {
+    writeFileSync(path.join(folder, `${base}.png`), makePng(2, 2));
+    writeFileSync(path.join(folder, `${base}.json`), sidecarJson({ step: base, note: "n", acted: ["pressed Print"], taken_at: new Date(at).toISOString() }));
+    utimesSync(path.join(folder, `${base}.png`), new Date(at), new Date(at));
+  };
+  capture("01-after-print", t0 + 10_100);
+  capture("02-before-quit", t0 + 20_020);
+  const captures = readCaptures(folder, { identity: lstatSync(folder), bindTo: { revision: { commit: "abc", uncommitted_paths: 0, driver_sha256: "sha256:d" }, build_app_sha256: "sha256:feed" }, substitutions: prints.prints, launchTimes: { from: t0, to: t0 + 20_050 } });
+  writeAttendedPart(out, { title: "Attended", revision: { commit: "abc", uncommitted_paths: 0, driver_sha256: "sha256:d" }, build: { kind: "k", app_sha256: "sha256:feed" }, launch: { attended: true }, captures });
+  composeIndex(out);
+  const index = JSON.parse(readFileSync(path.join(out, "INDEX.json"), "utf8"));
+  const screen = (step) => index.screens.find((item) => item.step === step);
+  assert.deepEqual(screen("01-after-print").substitutions.map((item) => [item.kind, item.print_sha256]), [["report print dialog", "a".repeat(64)]]);
+  assert.deepEqual(screen("02-before-quit").substitutions.map((item) => [item.kind, item.print_sha256]), [["report print dialog", "b".repeat(64)]]);
+  assert.match(readFileSync(path.join(out, "index.html"), "utf8"), /stopped by the launch or substituted by the build: [^<]*report print dialog: The build recorded the report&#39;s print document|stopped by the launch or substituted by the build: [^<]*report print dialog: The build recorded the report's print document/);
+  // No log is no print, not an error.
+  assert.deepEqual(readPrintLog(path.join(scratch(t), "none.json")), { prints: [], rejected: 0 });
+});
+
+test("the scripted-run print record is confined to the native-smoke build", () => {
+  const src = new URL("../../src-tauri/src/", import.meta.url);
+  const read = (file) => readFileSync(new URL(file, src), "utf8");
+  // The module that records and logs prints exists only with the feature, which no feature implies and is not a default.
+  assert.match(read("lib.rs"), /#\[cfg\(feature = "native-smoke"\)\]\nmod native_smoke;\n/);
+  const cargo = readFileSync(new URL("../../src-tauri/Cargo.toml", import.meta.url), "utf8");
+  assert.match(cargo, /\nnative-smoke = \[\]\n/);
+  assert.doesNotMatch(cargo, /default = \[[^\]]*native-smoke/);
+  // The print path calls it only under the feature; without it the system print dialog is presented.
+  const print = read("rendered_report_print.rs");
+  assert.match(print, /#\[cfg\(feature = "native-smoke"\)\]\n\s*crate::native_smoke::record_report_print\(/);
+  assert.match(print, /#\[cfg\(not\(feature = "native-smoke"\)\)\]\n\s*\{\n\s*let _ = \(document, served\);\n\s*if let Err\(error\) = window\.print\(\)/);
+  // Nothing else names the record or its log.
+  for (const file of readdirSync(src).filter((name) => name.endsWith(".rs") && !["native_smoke.rs", "rendered_report_print.rs"].includes(name))) {
+    assert.doesNotMatch(read(file), /record_report_print|prints\.jsonl/, file);
+  }
+  assert.match(read("native_smoke.rs"), /fn append_print_log\(path: &Path, observation: &ReportPrintObservation\)/);
 });
