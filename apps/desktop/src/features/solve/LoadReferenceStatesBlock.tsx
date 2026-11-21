@@ -3,6 +3,7 @@ import { isNativeResult, nativeCustody, readNativeValidation, type SessionResult
 import type { LoadStateContractEvidence, LoadReferenceStateRecord, MechanicsResult, PreviewModel } from "../../types";
 import { readerValidate, sourceContract } from "../results/resultReader";
 import { numericalResultStanding } from "../results/resultStanding";
+import { numericalQualityStatusText, standingStatusText } from "../results/integrityStatus";
 
 /* Read-only view of the published `contract_evidence.load_reference_states`.
  * Values are shown only after the Rust reader of the route has admitted the
@@ -15,7 +16,9 @@ import { numericalResultStanding } from "../results/resultStanding";
  * load-reference-1 and load-reference-source-1 read unsupported and show no block. */
 
 export const NEEDS_RECOMPUTE_NOT_CURRENT = "needs recompute — not Current";
-export const INTEGRITY_CHECKED = "integrity checked";
+/** A case the reader admits and the solver reports checks passed for: the solver's report, not a
+ * verified bound (release exit criterion 18). */
+export const SOLVER_CHECKS_PASSED_LABEL = standingStatusText("solver_checks_passed");
 
 type Route = "pressure" | "pressure_source";
 type Admission = { state: "admitted" } | { state: "refused"; reason: string };
@@ -74,12 +77,12 @@ function AdmittedStates({ result, model, joined }: { result: SessionResult; mode
   const cases = result.numerical_quality?.cases ?? [];
   return <>
     <p data-testid="load-reference-states-standing">
-      Result standing: {standing.status}{standing.findings.length ? `; findings: ${standing.findings.join(", ")}` : ""}
+      Result standing: {standingStatusText(standing.status)}{standing.findings.length ? `; findings: ${standing.findings.join(", ")}` : ""}
     </p>
     {evidence.load_reference_states.map(record => {
       const published = cases.find(c => c.basis_ref.ref_type === "load_case" && c.basis_ref.ref_id === record.load_case_id);
-      const label = !joined && standing.eligible && published?.solve_quality === "checks_passed" ? INTEGRITY_CHECKED : NEEDS_RECOMPUTE_NOT_CURRENT;
-      return <CaseState key={record.load_case_id} record={record} label={label} quality={published?.solve_quality ?? "not published"} />;
+      const label = !joined && standing.eligible && published?.solve_quality === "checks_passed" ? SOLVER_CHECKS_PASSED_LABEL : NEEDS_RECOMPUTE_NOT_CURRENT;
+      return <CaseState key={record.load_case_id} record={record} label={label} quality={published ? numericalQualityStatusText(published.solve_quality) : "not published"} />;
     })}
   </>;
 }

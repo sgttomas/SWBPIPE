@@ -56,6 +56,8 @@ export type ResultSummaryHeader = Readonly<{
   row_count: number;
   units: readonly Json[];
   numerical_health: Json;
+  /** Each load case's support-state confirmation outcome from the reader's standing record, or null. */
+  support_confirmations?: readonly Readonly<{ case_id: string; outcome: string }>[] | null;
   standing: Readonly<{ eligible: boolean; health_view: boolean }> | null;
   tables: Readonly<Record<string, Json>>;
   display: Readonly<{ rows: number; source_refs: number }>;

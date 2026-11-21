@@ -10,6 +10,7 @@ import type { DiagnosticFilterRequest } from "./diagnosticFilterRequest";
 import type { DesignKnowledge, Diagnostic, DiagnosticInterpretation, MechanicsResult, PreviewModel } from "../../types";
 import { buildDiagnosticInterpretation } from "../results/resultInterpretation";
 import { presentedResultDiagnostics } from "../results/suppliedDiagnostics";
+import { needsSolverReportNote, SOLVER_REPORT_NOTE } from "../results/integrityStatus";
 import { modelDocumentDiagnostics } from "../model-data/documentDiagnostics";
 import { currentLibraryRefFindings, libraryRefDiagnostics, usePublishedLibraryRefFindings } from "../library/libraryRefFindings";
 
@@ -96,6 +97,7 @@ export function DiagnosticsPanel({
             >
               <strong>{item.code}</strong>
               <p>{item.message}</p>
+              {needsSolverReportNote(item) ? <p className="muted" data-testid={`diagnostic-solver-report-note-${item.code}`}>{SOLVER_REPORT_NOTE}</p> : null}
             </button>
           ))
         ) : (
@@ -210,6 +212,7 @@ function DiagnosticDetail({ interpretation, result }: { interpretation: Diagnost
       <dl>
         <DetailLine label="Diagnostic" value={interpretation.diagnostic_id} testId="selected-diagnostic-id" />
         <DetailLine label="Code" value={interpretation.code} testId="selected-diagnostic-code" />
+        {needsSolverReportNote(interpretation) ? <DetailLine label="Solver report" value={SOLVER_REPORT_NOTE} testId="selected-diagnostic-solver-report-note" /> : null}
         <DetailLine label="Class" value={interpretation.diagnostic_class} testId="selected-diagnostic-class" />
         <DetailLine label="Severity" value={interpretation.severity} />
         <DetailLine label="Source" value={interpretation.source} />

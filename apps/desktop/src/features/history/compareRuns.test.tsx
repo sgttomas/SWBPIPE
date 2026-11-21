@@ -151,8 +151,8 @@ describe("the session's Compare… of two runs", () => {
     expect(admission).toEqual({ projectId: PROJECT, recordingIds: [earlier.run.recording_id, later.run.recording_id] });
     const shown = hook.current.runComparison!;
     expect([shown.left.id, shown.right.id]).toEqual([earlier.run.recording_id, later.run.recording_id]);
-    // Both recorded runs are read from their stored result and snapshot: integrity_checked.
-    expect([shown.left.standing.status, shown.right.standing.status]).toEqual(["integrity_checked", "integrity_checked"]);
+    // Both recorded runs are read from their stored result and snapshot: solver_checks_passed.
+    expect([shown.left.standing.status, shown.right.standing.status]).toEqual(["solver_checks_passed", "solver_checks_passed"]);
     expect(shown.comparison.run_gate).toEqual([]);
     expect(shown.comparison.summary.compared_nonzero).toBeGreaterThan(0);
     // The context: the solver mode differs; the settings and load basis do not.
@@ -187,7 +187,7 @@ describe("the session's Compare… of two runs", () => {
     };
     const shown = await shownFor([later, earlier]);
     expect([shown.left.id, shown.right.id]).toEqual([earlier.run.recording_id, later.run.recording_id]);
-    expect([shown.left.standing.status, shown.right.standing.status]).toEqual(["integrity_checked", "integrity_checked"]);
+    expect([shown.left.standing.status, shown.right.standing.status]).toEqual(["solver_checks_passed", "solver_checks_passed"]);
     expect(shown.comparison.run_gate).toEqual([]);
     const current = await recordedRead({ model: MODEL, source: SPARSE, mode: "sparse_interactive" }, EARLY, "Sparse");
     const control = await shownFor([later, current]);
@@ -473,8 +473,8 @@ describe("Compare… of runs in the History panel", () => {
 function side(name: string, overrides: Partial<RunComparisonSide> = {}): RunComparisonSide {
   return {
     kind: "recorded", id: `runrec:${name}`, description: `"${name}" (runrec:${name})`, createdAt: EARLY, state: `"After solve" (${STATE_ID})`,
-    standing: { contract: "preview_physics", status: "integrity_checked", eligible: true, findings: [] }, recordedTableRead: null,
-    input: { rows: [], standing: { contract: "preview_physics", status: "integrity_checked", eligible: true, findings: [] }, semantic_identity: { route: "preview_physics", contract_id: "c", contract_sha256: "s" }, context: {}, diagnostics: [] },
+    standing: { contract: "preview_physics", status: "solver_checks_passed", eligible: true, findings: [], integrity_bound: { status: "not_verified", reason: "inverse_norm_bound_not_verified" } }, recordedTableRead: null,
+    input: { rows: [], standing: { contract: "preview_physics", status: "solver_checks_passed", eligible: true, findings: [] }, semantic_identity: { route: "preview_physics", contract_id: "c", contract_sha256: "s" }, context: {}, diagnostics: [] },
     ...overrides
   };
 }
@@ -501,7 +501,7 @@ describe("the run comparison view", () => {
     );
     render(<RunComparisonView result={shown} onClose={() => {}} />);
     expect(screen.getByTestId("run-comparison-side-left")).toHaveTextContent('Left: "left" (runrec:left), recorded 2026-10-25T10:00:00.000Z, against saved state "After solve"');
-    expect(screen.getByTestId("run-comparison-side-left")).toHaveTextContent("reads integrity_checked (route preview_physics)");
+    expect(screen.getByTestId("run-comparison-side-left")).toHaveTextContent("reads solver checks passed, not verified (route preview_physics)");
     for (const [id, count] of [["mapped", 2], ["compared", 1], ["changed", 1], ["not-compared", 1], ["left-only", 2], ["right-only", 2], ["context", 2], ["diagnostics-added", 1], ["diagnostics-removed", 1]] as const) {
       expect(screen.getByTestId(`run-comparison-count-${id}`), id).toHaveTextContent(String(count));
     }

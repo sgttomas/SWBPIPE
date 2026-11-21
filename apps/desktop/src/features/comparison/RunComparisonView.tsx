@@ -21,6 +21,7 @@ import {
   type RunComparisonStatusFilter
 } from "./runComparisonCsv";
 import { heldStatusQuotedNotice, suppliedDiagnosticMessage } from "../results/suppliedDiagnostics";
+import { needsSolverReportNote, SOLVER_REPORT_NOTE, standingStatusText } from "../results/integrityStatus";
 
 /** RT-A5: a held-status notice (`HELD_STATUS_QUOTED_CODES`) is quoted whole as supplied text here too (`suppliedDiagnosticMessage`). */
 const NO_COMBINATIONS: ReadonlySet<string> = new Set();
@@ -74,7 +75,7 @@ function SideText({ name, side }: { name: string; side: RunComparisonSide }) {
     <p className="muted" data-testid={`run-comparison-side-${name.toLowerCase()}`}>
       {name}: {side.description}
       {side.createdAt ? <>, recorded {side.createdAt}</> : null}
-      {side.state ? <>, against saved state {side.state}</> : null}. Its result reads <strong>{standing.status}</strong> (route {standing.contract})
+      {side.state ? <>, against saved state {side.state}</> : null}. Its result reads <strong>{standingStatusText(standing.status)}</strong> (route {standing.contract})
       {side.recordedTableRead ? <> <span data-testid={`run-comparison-side-${name.toLowerCase()}-recorded-table`}>({recordedTableLabel(side.recordedTableRead)})</span></> : null}
       {standing.findings.length ? <>: {standing.findings.join(", ")}</> : null}.
     </p>
@@ -123,7 +124,7 @@ export function RunComparisonView({ result, onClose }: { result: RunComparisonRe
       <p className="muted" data-testid="run-comparison-basis">
         Rows are mapped automatically when their result id, family, entity, basis, dimension, component, location, metadata
         basis, coordinate system and sign convention are all equal; there is no manual mapping. A delta is right − left in
-        the rows' own unit. It is computed only when both runs' results read integrity_checked, both carry the same result
+        the rows' own unit. It is computed only when both runs' results read solver checks passed, not verified, both carry the same result
         semantic identity, and the two units are equal; nothing is converted. This lists differences between two runs only
         and establishes nothing about either; human review is still required.
       </p>
@@ -165,6 +166,7 @@ export function RunComparisonView({ result, onClose }: { result: RunComparisonRe
                 <span className="muted">{diagnostic.change === "added" ? "Only in the right run" : "Only in the left run"}:</span> <code>{diagnostic.code}</code>
                 {diagnostic.affected_refs.length ? <> on {diagnostic.affected_refs.join(", ")}</> : null}
                 {diagnostic.message ? <span className="muted"> ({heldStatusQuotedNotice(diagnostic) ? suppliedDiagnosticMessage({ code: diagnostic.code, message: diagnostic.message }, NO_COMBINATIONS, false) : storedValueText(diagnostic.message)})</span> : null}
+                {needsSolverReportNote(diagnostic) ? <span className="muted" data-testid="run-comparison-diagnostic-solver-report-note"> {SOLVER_REPORT_NOTE}</span> : null}
               </li>
             ))}
           </ul>

@@ -30,6 +30,7 @@ import { useDisplayQuantityResolver, type DisplaySourceQuantity } from "../displ
 import { hangerPreloadStanding } from "./hangerPreload";
 import { knownSemanticNotices, PREVIEW_ALONG_DIRECTION_KIND, resultRowLabel } from "./knownSemanticLimitations";
 import { NUMERICAL_HEALTH_STATE_TEXT } from "./numericalHealthText";
+import { numericalIntegrityLead, ordinarySolveLead, supportStatesByCase, withLimitationsNote } from "./integrityStatus";
 import { numericalHealthView, parseNumericalHealth, rowHealthState, type NumericalHealthLocation, type NumericalHealthView } from "./numericalHealth";
 import { ALL_CASES, isNavigatorExcludedTarget, navigatorKeyStep, stepIndex, type NavigatorAxis, type NavigatorCase } from "./resultsNavigator";
 import { mechanicsGaps } from "./resultInterpretation";
@@ -108,7 +109,7 @@ function labelsOf(rows: readonly DetailRow[], outcomes: readonly RowSemanticsOut
  * with its eligibility and no hold. Display only; none for a solve. */
 function standaloneNativeHealth(custody: NativeCustody): NumericalHealthView | null {
   const standing = custody.historicalStanding;
-  return standing ? numericalHealthView(parseNumericalHealth(custody.summary.header.numerical_health), { eligible: standing.eligible, verdictHold: false }) : null;
+  return standing ? numericalHealthView(parseNumericalHealth(custody.summary.header.numerical_health), { eligible: standing.eligible, verdictHold: false, supportStates: supportStatesByCase(custody.summary.header.support_confirmations) }) : null;
 }
 
 /** A row read under a table other than the handle's (RT-A4 §10.4): refused, never read. */
@@ -248,8 +249,8 @@ export function NativeResultsPanel({
     // A native handle never registers a successor (a restored run's receipt is never registered).
     : isRetainedRoute(route) ? retainedPrecisionStandingText(result as never)
     : route === "pressure_source"
-      ? `Ordinary solve: ${result.numerical_quality!.status}. Producer recovery receipt: ${String(recovery?.status ?? "unavailable")}. ${result.formulation_basis!.limitations.join(" ")} Current use is checked separately against the actual invocation and complete result evidence. Numerical checks do not establish engineering correctness.`
-      : `Numerical integrity: ${result.numerical_quality!.status}. ${result.formulation_basis!.limitations.join(" ")} Numerical checks do not establish engineering correctness.`);
+      ? `${ordinarySolveLead(result)} Producer recovery receipt: ${String(recovery?.status ?? "unavailable")}. ${withLimitationsNote(result.formulation_basis!.limitations)} Current use is checked separately against the actual invocation and complete result evidence. Numerical checks do not establish engineering correctness.`
+      : `${numericalIntegrityLead(result)} ${withLimitationsNote(result.formulation_basis!.limitations)} Numerical checks do not establish engineering correctness.`);
   const csvRecord = isNativeAnalysisRun(exportAnalysisRun) || exportAnalysisRun === null ? exportAnalysisRun : null;
   const exportGroup = async (title: string): Promise<CsvStreamExport> => {
     // Every row the filters admit in this group, across all pages, by bounded native pages, written

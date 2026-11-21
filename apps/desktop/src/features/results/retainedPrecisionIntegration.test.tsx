@@ -119,6 +119,8 @@ import { StressNeutralExportPanel, liveStressBinding } from "../stress-neutral/S
 import { N_OUTPUT_NOT_NUMERICALLY_ELIGIBLE } from "./outputPolicy";
 import type { CurrentSessionInputManifestEvidence } from "../../services/inputManifestService";
 import type { RulePackDocument } from "../../services/rulePackService";
+/** Release exit criterion 18: every reader verdict states the integrity bound not verified. */
+const NOT_VERIFIED_BOUND = { status: "not_verified", reason: "inverse_norm_bound_not_verified" };
 
 type Json = any; // eslint-disable-line @typescript-eslint/no-explicit-any
 const root = resolve(__dirname, "../../../../../");
@@ -298,7 +300,7 @@ describe.each(MODES)("%s: registration through mocked IPC", (mode) => {
     expect(outcome.validation!.classifications).toHaveLength(source.results.length);
     // Synchronous standing reads only the registration: since U7 the live capture with
     // its captured model is eligible, and the rule-check route receives the invocation.
-    expect(numericalResultStanding(received, model)).toStrictEqual({ contract: "retained_preview_physics", status: "integrity_checked", eligible: true, findings: [] });
+    expect(numericalResultStanding(received, model)).toStrictEqual({ contract: "retained_preview_physics", status: "solver_checks_passed", eligible: true, findings: [], integrity_bound: NOT_VERIFIED_BOUND });
     expect(retainedPrecisionStanding(received, model).standing).toBe("numerically_eligible");
     expect(retainedPrecisionInvocation(received, model)).toStrictEqual(invocation);
     // Fresh by membership (D-U6-6), never by standing.
@@ -314,7 +316,7 @@ describe.each(MODES)("%s: registration through mocked IPC", (mode) => {
     const received = await deliverDirect(source, model, mode);
     for (const copy of [structuredClone(received), JSON.parse(JSON.stringify(received)) as MechanicsResult, source]) {
       expect(retainedPrecisionRegistration(copy)).toBeNull();
-      expect(numericalResultStanding(copy, model)).toStrictEqual({ contract: "retained_preview_physics", status: "needs_recompute", eligible: false, findings: [RETAINED_PRECISION_VALIDATION_REQUIRED] });
+      expect(numericalResultStanding(copy, model)).toStrictEqual({ contract: "retained_preview_physics", status: "needs_recompute", eligible: false, findings: [RETAINED_PRECISION_VALIDATION_REQUIRED], integrity_bound: NOT_VERIFIED_BOUND });
       expect(hasNativeMechanicsInvocation(copy, model, mode)).toBe(false);
     }
     // No model, no captured invocation: delivered bytes are kept but nothing registers.
@@ -379,7 +381,7 @@ describe.each(MODES)("%s: registration through mocked IPC", (mode) => {
     const received = await deliverDirect(edited, model, mode);
     expect(retainedPrecisionRegistration(received)).toStrictEqual({ validation: null, error: code });
     expect(retainedPrecisionStanding(received, model)).toStrictEqual({ standing: "unsupported", eligible: false, findings: [code] });
-    expect(numericalResultStanding(received, model)).toStrictEqual({ contract: "retained_preview_physics", status: "needs_recompute", eligible: false, findings: [code] });
+    expect(numericalResultStanding(received, model)).toStrictEqual({ contract: "retained_preview_physics", status: "needs_recompute", eligible: false, findings: [code], integrity_bound: NOT_VERIFIED_BOUND });
     expect(hasNativeMechanicsInvocation(received, model, mode)).toBe(false);
     expect(retainedRowClasses(received)).toBeNull();
   });
@@ -395,7 +397,7 @@ describe.each(MODES)("%s: registration through mocked IPC", (mode) => {
     expect(readerDispatch(received)).toMatchObject({ ok: false, route: "unsupported", error: { code: "RETAINED_PRECISION_RECEIPT_MISMATCH" } });
     expect(retainedPrecisionRegistration(received)).toStrictEqual({ validation: null, error: "RETAINED_PRECISION_RECEIPT_MISMATCH" });
     expect(retainedPrecisionStanding(received, model)).toStrictEqual({ standing: "unsupported", eligible: false, findings: ["RETAINED_PRECISION_RECEIPT_MISMATCH"] });
-    expect(numericalResultStanding(received, model)).toStrictEqual({ contract: "unsupported", status: "needs_recompute", eligible: false, findings: ["SOURCE_NUMERICAL_CONTRACT_UNSUPPORTED"] });
+    expect(numericalResultStanding(received, model)).toStrictEqual({ contract: "unsupported", status: "needs_recompute", eligible: false, findings: ["SOURCE_NUMERICAL_CONTRACT_UNSUPPORTED"], integrity_bound: NOT_VERIFIED_BOUND });
     expect(hasNativeMechanicsInvocation(received, model, mode)).toBe(false);
     expect(retainedRowClasses(received)).toBeNull();
   });
@@ -408,7 +410,7 @@ describe.each(MODES)("%s: registration through mocked IPC", (mode) => {
     claimed.numerical_quality.cases[0].solve_quality = "checks_passed";
     // The ordinary claim would pass the generic checks; the successor's reader refuses it at G1.
     const received = await deliverDirect(claimed, model, mode);
-    expect(numericalResultStanding(received, model)).toStrictEqual({ contract: "retained_preview_physics", status: "needs_recompute", eligible: false, findings: ["RETAINED_PRECISION_RECEIPT_MISMATCH"] });
+    expect(numericalResultStanding(received, model)).toStrictEqual({ contract: "retained_preview_physics", status: "needs_recompute", eligible: false, findings: ["RETAINED_PRECISION_RECEIPT_MISMATCH"], integrity_bound: NOT_VERIFIED_BOUND });
   });
 
   it("a registration without an invocation is never eligible, even with the post-U7 reader, and says so", async () => {
@@ -516,7 +518,7 @@ describe.each(MODES)("%s: the post-U7 path through the real carriers", (mode) =>
   it("standing becomes eligible only for the requested cases, and the rule-check gate passes the registered invocation", async () => {
     const { source, invocation, model } = milestone(mode);
     const received = await deliverDirect(source, model, mode);
-    expect(numericalResultStanding(received, model)).toStrictEqual({ contract: "retained_preview_physics", status: "integrity_checked", eligible: true, findings: [] });
+    expect(numericalResultStanding(received, model)).toStrictEqual({ contract: "retained_preview_physics", status: "solver_checks_passed", eligible: true, findings: [], integrity_bound: NOT_VERIFIED_BOUND });
     expect(numericalResultStanding(received, withLoadCases(model, ["other"])).findings).toStrictEqual([RETAINED_PRECISION_NOT_NUMERICALLY_ELIGIBLE]);
     expect(numericalResultStanding(received, null).eligible).toBe(false);
     expect(retainedPrecisionInvocation(received, model)).toStrictEqual(invocation);
@@ -638,7 +640,7 @@ describe("the downgrade guard (F-5)", () => {
     const s = structuredClone(source) as Json; edit(s);
     expect(retainedPrecisionDowngrade(s)).toBe(true);
     expect(sourceContract(s)).toBe("unsupported");
-    expect(numericalResultStanding(s, null)).toStrictEqual({ contract: "unsupported", status: "needs_recompute", eligible: false, findings: [RETAINED_PRECISION_DOWNGRADE_FORBIDDEN] });
+    expect(numericalResultStanding(s, null)).toStrictEqual({ contract: "unsupported", status: "needs_recompute", eligible: false, findings: [RETAINED_PRECISION_DOWNGRADE_FORBIDDEN], integrity_bound: NOT_VERIFIED_BOUND });
     expect(hasCurrentSourceContract(s)).toBe(false);
     expect(isFreshSemanticResult(s)).toBe(false);
     expect(ruleBindingRefusal(s, s.results[0])).toBeNull();
@@ -762,7 +764,7 @@ describe("the declared differences, with TypeScript's expectations", () => {
       expect(standing.standing).toBe(expected.standing);
       expect(standing.findings[0]).toBe(expected.finding);
       // The token is compared; TS's status follows the pinned mapping (RV92 N-8).
-      expect(numericalResultStanding(received, model)).toStrictEqual({ contract: "retained_preview_physics", status: RETAINED_STANDING_STATUS[expected.standing as keyof typeof RETAINED_STANDING_STATUS], eligible: false, findings: [expected.finding] });
+      expect(numericalResultStanding(received, model)).toStrictEqual({ contract: "retained_preview_physics", status: RETAINED_STANDING_STATUS[expected.standing as keyof typeof RETAINED_STANDING_STATUS], eligible: false, findings: [expected.finding], integrity_bound: NOT_VERIFIED_BOUND });
     } else if (form.subject === "transport") {
       // The header dispatch's transport reading (G5; RV88 and RV92 N-1).
       const dispatch = readerDispatch(received);
@@ -890,7 +892,7 @@ describe.each(MODES)("%s: standing is bound to the live native capture and the c
     expect(caseIds(other)).toStrictEqual(caseIds(model));
     expect(hasNativeMechanicsInvocation(received, other)).toBe(false);
     expect(retainedPrecisionStanding(received, other)).toStrictEqual({ standing: "needs_recompute", eligible: false, findings: [RETAINED_PRECISION_NATIVE_CAPTURE_REQUIRED] });
-    expect(numericalResultStanding(received, other)).toStrictEqual({ contract: "retained_preview_physics", status: "needs_recompute", eligible: false, findings: [RETAINED_PRECISION_NATIVE_CAPTURE_REQUIRED] });
+    expect(numericalResultStanding(received, other)).toStrictEqual({ contract: "retained_preview_physics", status: "needs_recompute", eligible: false, findings: [RETAINED_PRECISION_NATIVE_CAPTURE_REQUIRED], integrity_bound: NOT_VERIFIED_BOUND });
     expect(retainedPrecisionInvocation(received, other)).toBeNull();
     // A model carrying only the case ids (no captured model) is not the current model either.
     expect(retainedPrecisionStanding(received, { load_cases: model.load_cases } as PreviewModel).findings).toStrictEqual([RETAINED_PRECISION_NATIVE_CAPTURE_REQUIRED]);
@@ -1015,7 +1017,7 @@ describe.each(MODES)("%s: the T6 panels gate a successor by an explicit policy e
 // TS's token-to-status mapping is pinned separately here.
 describe("standing compares by the carrier token; TS's status mapping is pinned separately (U7 slice T)", () => {
   it("pins the mapping from each token to TS's status", () => {
-    expect(RETAINED_STANDING_STATUS).toStrictEqual({ numerically_eligible: "integrity_checked", needs_recompute: "needs_recompute", unsupported: "needs_recompute" });
+    expect(RETAINED_STANDING_STATUS).toStrictEqual({ numerically_eligible: "solver_checks_passed", needs_recompute: "needs_recompute", unsupported: "needs_recompute" });
     expect(Object.isFrozen(RETAINED_STANDING_STATUS)).toBe(true);
   });
   // Since U7, exactly the two capture-bound, requested-as-invoked, unedited milestone

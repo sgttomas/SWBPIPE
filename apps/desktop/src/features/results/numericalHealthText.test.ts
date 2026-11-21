@@ -9,13 +9,13 @@ describe("numerical health text pins", () => {
   it("pins the label, states, headlines and prefix", () => {
     expect(text.NUMERICAL_HEALTH_LABEL).toBe("Numerical health");
     expect(text.NUMERICAL_HEALTH_STATE_TEXT).toEqual({
-      checks_passed: "checks passed",
+      checks_passed: "not verified",
       sensitive: "sensitive",
       quality_unresolved: "quality unresolved",
       solve_failed: "solve failed",
       not_assessed: "not assessed"
     });
-    expect(text.numericalHealthHeadline("checks_passed")).toBe("Numerical health: checks passed");
+    expect(text.numericalHealthHeadline("checks_passed")).toBe("Numerical health: not verified");
     expect(text.numericalHealthHeadline("sensitive")).toBe("Numerical health: sensitive");
     expect(text.numericalHealthHeadline("quality_unresolved")).toBe("Numerical health: quality unresolved");
     expect(text.numericalHealthHeadline("solve_failed")).toBe("Numerical health: solve failed");
@@ -26,19 +26,19 @@ describe("numerical health text pins", () => {
 
   it("pins the header count form", () => {
     expect(text.numericalHealthCountHeadline([["solve_failed", 0], ["quality_unresolved", 0], ["sensitive", 2], ["not_assessed", 0], ["checks_passed", 1]]))
-      .toBe("Numerical health: 2 sensitive, 1 checks passed");
+      .toBe("Numerical health: 2 sensitive, 1 not verified");
     expect(text.numericalHealthCountHeadline([["solve_failed", 0], ["quality_unresolved", 0], ["sensitive", 0], ["not_assessed", 0], ["checks_passed", 3]]))
-      .toBe("Numerical health: checks passed");
+      .toBe("Numerical health: not verified");
     expect(text.numericalHealthCountHeadline([["solve_failed", 1], ["quality_unresolved", 1], ["sensitive", 1], ["not_assessed", 1], ["checks_passed", 1]], true))
-      .toBe("Ordinary solve — Numerical health: 1 solve failed, 1 quality unresolved, 1 sensitive, 1 not assessed, 1 checks passed");
+      .toBe("Ordinary solve — Numerical health: 1 solve failed, 1 quality unresolved, 1 sensitive, 1 not assessed, 1 not verified");
   });
 
   it("pins the pressure-source, output and boundary sentences", () => {
     expect(text.ELIGIBLE_RECOVERY_TEXT).toBe(
-      "The values shown come from the producer's recovery of this case, which passed its own checks. This badge describes the ordinary solve only."
+      "The values shown come from the producer's recovery of this case, whose own checks found no problem, but SWBPIPE has not verified an error bound for its values. This badge describes the ordinary solve only."
     );
     expect(text.outputSentence(2)).toBe(
-      "Rule checks, the result JSON and stress-neutral exports and the report package do not use this run while 2 load case(s) are not checks passed; results tables, CSV export and, for an exact-route result, the rendered report carry each case's standing."
+      "Rule checks, the result JSON and stress-neutral exports and the report package do not use this run while 2 load case(s) are sensitive, quality unresolved, solve failed or not assessed; results tables, CSV export and, for an exact-route result, the rendered report carry each case's standing."
     );
     expect(text.BOUNDARY_SENTENCE).toBe(
       "These checks look for numerical trouble; they do not measure the error, and they say nothing about whether the model, its inputs or its design are right."
@@ -46,7 +46,7 @@ describe("numerical health text pins", () => {
   });
 
   it("pins every detail text", () => {
-    expect(text.checksPassedText("LC1")).toBe("The solver's residual and conditioning checks passed for LC1.");
+    expect(text.checksPassedText("LC1")).toBe("The solver's own checks found no problem with LC1, but SWBPIPE has not verified an error bound for its values.");
     expect(text.sensitiveLeadText("LC1")).toBe("The solver's checks flagged LC1 as numerically sensitive.");
     expect(text.KEPT_FOR_INSPECTION_TEXT).toBe("Its values are kept for inspection.");
     expect(text.CONDITIONING_CAUSE_TEXT).toBe("The scaled stiffness is poorly conditioned.");
@@ -76,7 +76,7 @@ describe("numerical health text pins", () => {
     expect(text.NEGATIVE_ENERGY_TEXT).toBe("The assembled stiffness is not positive in some direction. Review element and support properties.");
     expect(text.notAssessedText("LC1")).toBe("No numerical quality is stated for LC1.");
     expect(text.combinationText([["LC1", "sensitive"], ["LC2", "checks_passed"]])).toBe(
-      "Inherited from its load cases: LC1: sensitive; LC2: checks passed."
+      "Inherited from its load cases: LC1: sensitive; LC2: not verified."
     );
     expect(text.conditioningDetailText("10.5")).toBe(
       "Estimated sensitivity of the scaled linear solve: rounding can be magnified by roughly 10.5 of the about 16 decimal digits the computer carries (the solver marks a case sensitive at about 7.8). This is an estimate; it does not estimate the error in individual results."
@@ -86,7 +86,7 @@ describe("numerical health text pins", () => {
     expect(text.SHOW_SOLVER_DIAGNOSTIC).toBe("Show solver diagnostic");
     expect(text.LOCATED_CAUSES_LABEL).toBe("Named locations");
     expect(text.DETAIL_SECTION_LABEL).toBe("Numerical health by load case");
-    expect(text.reportLineText("checks_passed")).toBe("Numerical health of the ordinary solve: checks passed.");
+    expect(text.reportLineText("checks_passed")).toBe("Numerical health of the ordinary solve: not verified.");
   });
 
   it("pins the module's exports, so a new literal comes with a pin", () => {
@@ -104,9 +104,14 @@ describe("numerical health text pins", () => {
 });
 
 describe("numerical health vocabulary", () => {
-  it("never uses a fenced word anywhere in the text module", () => {
-    const source = readFileSync(path.resolve(__dirname, "numericalHealthText.ts"), "utf8");
-    for (const word of ["verified", "certified", "bound", "guaranteed", "valid", "approved", "compliant", "correct", "reliable"]) {
+  // Release exit criterion 18 (LIM-026): the text may deny a verified bound, in exactly
+  // these phrases, and never claim one. Every other use of a fenced word still fails.
+  const DENIALS = ["has not verified an error bound", "not verified"];
+  const fenced = ["verified", "certified", "bound", "guaranteed", "valid", "approved", "compliant", "correct", "reliable"];
+  it("never uses a fenced word anywhere in the text module, but in the stated denials", () => {
+    let source = readFileSync(path.resolve(__dirname, "numericalHealthText.ts"), "utf8");
+    for (const denial of DENIALS) source = source.split(denial).join("");
+    for (const word of fenced) {
       expect(source, word).not.toMatch(new RegExp(`\\b${word}\\b`, "i"));
     }
   });

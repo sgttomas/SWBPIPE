@@ -870,3 +870,21 @@ fn along_direction_rows_are_listed_per_case_and_never_a_column() {
         assert!(support["extremes"].as_array().unwrap().iter().all(|e| e["column"] != "along_direction"));
     }
 }
+
+/// Release exit criterion 18: S's header carries each case's support-state confirmation outcome
+/// from the reader's standing record, so the desktop states a state the solver reports established
+/// as not confirmed; none without a standing.
+#[test]
+fn the_header_carries_each_cases_support_confirmation() {
+    let (source_text, model_text) = (read_text(DEMO), read_text(DEMO_MODEL));
+    let (source, model): (Value, Value) = (serde_json::from_str(&source_text).unwrap(), serde_json::from_str(&model_text).unwrap());
+    let findings = serde_json::to_string(&Vec::<String>::new()).unwrap();
+    let health: Value = serde_json::from_str(&open_pipe_stress_operation_applier::numerical_health_json(&source_text, Some(&findings)).unwrap()).unwrap();
+    let standing = Standing { eligible: true, health: tables::health_view(&health) };
+    let presentation = crate::diagnostics_presentation::facts(&source_text, &source, None, None);
+    let header = |standing: Option<&Standing>| decode(&build("demo", &source, &model, standing, &health, None, &presentation, |_| Ok::<(), ()>(())).unwrap().0).unwrap().header;
+    let confirmations = header(Some(&standing))["support_confirmations"].clone();
+    let outcomes: Vec<&str> = confirmations.as_array().unwrap().iter().map(|c| c["outcome"].as_str().unwrap()).collect();
+    assert!(outcomes.contains(&"solver_reported_established"), "{confirmations}");
+    assert_eq!(header(None)["support_confirmations"], Value::Null);
+}

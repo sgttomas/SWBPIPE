@@ -265,6 +265,22 @@ fn envelope(source: &Value) -> (Value, Value, Value) {
 /// ([`diagnostics_presentation::facts`]), carried as S's
 /// `diagnostics_presentation`.
 #[allow(clippy::too_many_arguments)]
+/// Each load case's support-state confirmation outcome, `[{case_id, outcome}]`, from the reader's
+/// standing record (`report_standing::historical_standing_record`, `cases[].confirmation.outcome`),
+/// for the desktop's support-state line (release exit criterion 18: a state the solver reports
+/// established is stated as not confirmed). Null for a result whose mechanics are not solved or
+/// whose record the reader refuses. The outcomes are read from the result's integrity messages
+/// and the model alone, so the record is derived here with no standing findings.
+fn support_confirmations(source: &Value, model: &Value) -> Option<Value> {
+    if source["status"]["mechanics"] != "MECHANICS_SOLVED" {
+        return None;
+    }
+    let record = open_pipe_stress_report_standing::report_standing::historical_standing_record(source, model, &json!({"findings": []})).ok()?;
+    Some(Value::Array(
+        record["cases"].as_array()?.iter().map(|case| json!({"case_id": case["case_id"], "outcome": case["confirmation"]["outcome"]})).collect(),
+    ))
+}
+
 pub(crate) fn build<R, E>(
     job_id: &str,
     source: &Value,
@@ -298,6 +314,7 @@ pub(crate) fn build<R, E>(
         "row_count": rows.len(),
         "units": units,
         "numerical_health": health,
+        "support_confirmations": standing.and_then(|_| support_confirmations(source, model)),
         diagnostics_presentation::MEMBER: presentation,
         "standing": standing.map(|s| json!({"eligible": s.eligible, "health_view": s.health.is_some()})),
         "tables": {

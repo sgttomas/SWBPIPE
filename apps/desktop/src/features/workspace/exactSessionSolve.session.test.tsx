@@ -42,6 +42,7 @@ import { OUTPUT_SURFACES, PRESSURE_2_OUTPUT_REFUSAL, surfaceOutputRefusal, surfa
 import { N_LOAD_REFERENCE_RULE_CHECK } from "../results/loadReferenceDisclosure";
 import { loadReferenceOutputRefusal } from "../results/loadReferenceOutputAvailability";
 import { ResultsPanel } from "../results/ResultsPanel";
+import { numericalQualityStatusText } from "../results/integrityStatus";
 import { KnownSemanticNotices } from "../results/KnownSemanticNotices";
 import { SolvePanel } from "../solve/SolvePanel";
 import { buildCurrentResultExport, resultSchemaVersion } from "../result-export/resultExportAdapter";
@@ -185,7 +186,7 @@ async function expectViewable(result: NativeResult, analysisRun: WorkspaceSessio
   expect({ eligible: standing.eligible, findings: standing.findings }).toStrictEqual({ eligible: dispatch.standing.eligible, findings: [...dispatch.standing.findings] });
   // Each view is unmounted alone: the session (its native custody) stays held.
   const panel = render(<ResultsPanel result={result} knowledge={null} analysisRun={analysisRun} selectedResultId={null} onSelectResult={vi.fn()} />);
-  expect(screen.getByTestId("numerical-result-standing")).toHaveTextContent(`Numerical integrity: ${result.numerical_quality!.status}.`);
+  expect(screen.getByTestId("numerical-result-standing")).toHaveTextContent(`Numerical integrity: ${numericalQualityStatusText(result.numerical_quality!.status)}.`);
   expect(screen.getByTestId("numerical-result-standing")).not.toHaveTextContent("Unsupported numerical contract");
   expect(await screen.findByTestId(`result-row-${copy.results[0].id}`)).toBeInTheDocument();
   panel.unmount();
