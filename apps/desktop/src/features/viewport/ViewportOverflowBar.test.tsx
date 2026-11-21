@@ -1,6 +1,6 @@
 import { act, fireEvent, render, screen, within } from "@testing-library/react";
 import { afterEach, describe, expect, it, vi } from "vitest";
-import { useState } from "react";
+import { type ReactNode, useState } from "react";
 import { ViewportOverflowBar, type ViewportBarGroup } from "./ViewportOverflowBar";
 
 // jsdom has no layout. The bar's widths are given here as a browser would report them: the bar,
@@ -35,7 +35,7 @@ function installLayout() {
 function Harness() {
   const [measure, setMeasure] = useState(false);
   const [boxSelect, setBoxSelect] = useState(false);
-  const group = (key: string, label: string, content: JSX.Element, onCount = 0): ViewportBarGroup =>
+  const group = (key: string, label: string, content: ReactNode, onCount = 0): ViewportBarGroup =>
     ({ key, label, heading: label, onCount, signature: key, content });
   return (
     <ViewportOverflowBar
