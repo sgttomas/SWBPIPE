@@ -969,11 +969,18 @@ def model_checks(source: Mapping[str, Any], model: Mapping[str, Any]) -> None:
     # location naming the support's node and normalized acting DOF, consumed-DOF basis, hanger references and sign
     # convention), and nothing else of that kind. A row whose node or DOF is not the model's is refused (review of
     # deafe7153).
-    consuming = consuming_constant_effort(model)
+    # DEL-05-01 REQ-014, DEL-04-07 REQ-011: a hydrostatic test case that holds springs and constant-effort supports
+    # applies no held support's force, so its consuming set excludes the supports it holds (Rust
+    # `reader_verdict::held_supports`, the model-bound readers' one held set); every other case's set is the whole one.
+    from .reader_verdict import held_supports
+    every = consuming_constant_effort(model)
     results = _items(source.get("results"))
     for position, case in enumerate(_items((source.get("contract_evidence") or {}).get("exact_cases"))):
         cid = case.get("load_case_id") if isinstance(case, Mapping) else None
         _require(isinstance(cid, str), "MODEL_CONSTANT_EFFORT")
+        declared = next((c for c in cases if isinstance(c, Mapping) and c.get("id") == cid), None)
+        held = held_supports(model, declared) if declared is not None else []
+        consuming = [support for support in every if support["id"] not in held]
         published = [r for r in results if isinstance(r, Mapping) and r.get("kind") == APPLIED_LOAD and isinstance(r.get("basis_ref"), Mapping)
                      and r["basis_ref"].get("ref_type") == "load_case" and r["basis_ref"].get("ref_id") == cid]
         _require(len(published) == len(consuming), "MODEL_CONSTANT_EFFORT")

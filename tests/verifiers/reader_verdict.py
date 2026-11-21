@@ -38,6 +38,7 @@ from __future__ import annotations
 
 from collections.abc import Mapping
 import json
+import struct
 import math
 import re
 from typing import Any
@@ -325,6 +326,105 @@ def physics_model_checks(source: Mapping[str, Any], model: Mapping[str, Any]) ->
         for row in source.get("results") or []:
             if row.get("kind") in _SUPPORT_KINDS and row.get("entity_ref") not in supports:
                 raise Refused("SOURCE_PHYSICS_SUPPORT_BINDING")
+    # DEL-05-01 REQ-014: each exact case's hydrostatic test mark, bound to the model's case.
+    if model.get("load_cases") is not None:
+        _test_condition_model_binding(source, model)
+
+
+# The self-weight generation method whose loads a test case's contents enter (PP self_weight::GENERATED_METHOD).
+_GENERATED_SELF_WEIGHT_METHOD = "pipe_mass_per_length_times_explicit_axis_acceleration/v2"
+
+
+def _held_family(support: Any) -> bool:
+    """Rust `reader_verdict::held_family`: a family a hydrostatic test case holds (DEL-05-01 REQ-014, DEL-04-07
+    REQ-011): linear, not a snubber, and a spring or a support whose hanger type (the hanger's non-blank hanger_type,
+    otherwise its family, trimmed) is variable_spring_hanger, spring_hanger or constant_effort_support."""
+    if not isinstance(support, Mapping):
+        return False
+    family = support.get("family") if isinstance(support.get("family"), str) else None
+    hanger = support.get("hanger") if isinstance(support.get("hanger"), Mapping) else {}
+    declared = hanger.get("hanger_type")
+    hanger_type = declared.strip() if isinstance(declared, str) and declared.strip() else (family.strip() if family is not None else None)
+    return (support.get("nonlinear") is None and family != "snubber"
+            and (family == "spring" or hanger_type in ("variable_spring_hanger", "spring_hanger", "constant_effort_support")))
+
+
+def held_supports(model: Mapping[str, Any], case: Any) -> list[str]:
+    """Rust `reader_verdict::held_supports`: the supports the model's case holds, sorted, when its test condition chooses
+    springs_and_constant_effort; otherwise none. The one statement of the held set for the model-bound readers (the mark
+    binding here and the constant-effort binding of `exact_combinations.model_checks`). It binds the model's held set;
+    it does not establish that the model was solvable as held."""
+    test = case.get("test_condition") if isinstance(case, Mapping) else None
+    if not isinstance(test, Mapping) or test.get("held_supports") != "springs_and_constant_effort":
+        return []
+    supports = model.get("supports") if isinstance(model.get("supports"), list) else []
+    return sorted(s["id"] for s in supports if _held_family(s) and isinstance(s.get("id"), str))
+
+
+def _bits(value: Any) -> int | None:
+    if type(value) not in (int, float):
+        return None
+    return struct.unpack("<Q", struct.pack("<d", float(value)))[0]
+
+
+def _test_condition_model_binding(source: Mapping[str, Any], model: Mapping[str, Any]) -> None:
+    """Rust `reader_verdict::test_condition_model_binding`, in the same order and with the same codes. It binds
+    presence, the choice, the held supports, the contents key and each item's identity, set, key and density, and that
+    the applied load equals the mass times the model's recorded gravity; it does not rederive the mass with the test
+    contents, which rests on the reference comparisons and on the join with the case's record of load sources."""
+    listed = lambda value: value if isinstance(value, list) else []
+    model_cases = listed(model.get("load_cases"))
+    cases = listed((source.get("contract_evidence") or {}).get("exact_cases"))
+    for case in cases:
+        if not isinstance(case, Mapping):
+            continue
+        declared = next((c for c in model_cases if isinstance(c, Mapping) and c.get("id") == case.get("load_case_id")), None)
+        if declared is None:
+            continue
+        test, mark = declared.get("test_condition"), case.get("test_condition")
+        if (test is None) != (mark is None):
+            raise Refused("SOURCE_PHYSICS_MODEL_TEST_CONDITION")
+        if test is None:
+            continue
+        if mark.get("kind") != test.get("kind") or mark.get("held_supports") != test.get("held_supports"):
+            raise Refused("SOURCE_PHYSICS_MODEL_TEST_CONDITION")
+        held = held_supports(model, declared)
+        if [r for r in listed(mark.get("held_support_refs")) if isinstance(r, str)] != held:
+            raise Refused("SOURCE_PHYSICS_MODEL_TEST_HELD_SUPPORTS")
+        key = (declared.get("condition_use") or {}).get("contents_density") if isinstance(declared.get("condition_use"), Mapping) else None
+        if key is None or mark.get("contents_condition") != key:
+            raise Refused("SOURCE_PHYSICS_MODEL_TEST_CONTENTS")
+        generated = []
+        for load in listed(declared.get("primitive_loads")):
+            try:
+                found = json.loads(load["provenance"]) if isinstance(load, Mapping) and isinstance(load.get("provenance"), str) else None
+            except ValueError:
+                found = None
+            if isinstance(found, Mapping) and found.get("method") == _GENERATED_SELF_WEIGHT_METHOD \
+                    and isinstance(load.get("target"), Mapping) and load["target"].get("type") == "element":
+                generated.append((load, found))
+        items = listed(mark.get("contents_resolution"))
+        if len(items) != len(generated):
+            raise Refused("SOURCE_PHYSICS_MODEL_TEST_CONTENTS")
+        for item, (load, found) in zip(items, generated):
+            pipe = load["target"].get("pipe")
+            segment = next((p for p in listed(model.get("pipe_segments")) if isinstance(p, Mapping) and p.get("id") == pipe), None)
+            set_ref = segment.get("condition_set_ref") if segment is not None else None
+            density = None
+            if set_ref is not None:
+                found_set = next((c for c in listed(model.get("condition_sets")) if isinstance(c, Mapping) and c.get("id") == set_ref), None)
+                condition = next((c for c in listed((found_set or {}).get("conditions")) if isinstance(c, Mapping) and c.get("key") == key), None)
+                density = condition.get("contents_density") if condition is not None else None
+            mass, acceleration = item.get("mass_kg_per_m"), found.get("normalized_acceleration_m_per_s2")
+            applied = _bits(float(mass) * float(acceleration)) if _bits(mass) is not None and _bits(acceleration) is not None else None
+            stated = item.get("contents_density") if isinstance(item.get("contents_density"), Mapping) else {}
+            bound = (item.get("load_id") == load.get("id") and item.get("pipe_id") == pipe
+                     and set_ref is not None and item.get("condition_set_ref") == set_ref and item.get("condition_key") == key
+                     and isinstance(density, Mapping) and _bits(density.get("value")) is not None
+                     and _bits(density.get("value")) == _bits(stated.get("value")) and density.get("unit") == stated.get("unit")
+                     and applied is not None and applied == _bits(item.get("applied_n_per_m")))
+            if not bound:
+                raise Refused("SOURCE_PHYSICS_MODEL_TEST_CONTENTS")
 
 
 def _source_validate(source: Any, invocation: Any, context=physics_source.SourceContract.PRESSURE_V3) -> bool:
