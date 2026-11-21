@@ -334,7 +334,7 @@ describe("sequenced state cells", () => {
     await settle();
     expect(model.held.map((entry) => [entry.kind, entry.argument])).toEqual([["advance", { incarnation: 1, sequence: 1 }]]);
     expect(reported).toHaveBeenCalledTimes(1);
-    expect(reported.mock.calls[0]).toEqual(["A report-source subscriber failed; the others were still told and the advance was sent.", new Error("invented subscriber failure")]);
+    expect(reported.mock.calls[0]).toEqual(["A report-source subscriber failed; the others were still told and the advance went on.", new Error("invented subscriber failure")]);
     await expect(source.registeredFor(0)).rejects.toMatchObject({ code: "REPORT-SOURCE-STALE-VIEW" });
     reported.mockRestore();
   });

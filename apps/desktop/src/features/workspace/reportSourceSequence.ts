@@ -147,7 +147,7 @@ export class ReportSourceSequence {
         failure ??= { error };
       }
     }
-    if (failure) console.error("A report-source subscriber failed; the others were still told and the advance was sent.", failure.error);
+    if (failure) console.error("A report-source subscriber failed; the others were still told and the advance went on.", failure.error);
     const lifetime = this.lifetime;
     if (lifetime) void this.send(lifetime, sequence).catch(() => undefined);
     return sequence;
