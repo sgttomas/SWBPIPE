@@ -3,7 +3,7 @@ import { currentSemanticContract } from "../results/resultReader";
 import { numericalResultStanding, type NumericalStanding } from "../results/resultStanding";
 import { numericalHealthHold, numericalHealthView, readNumericalHealth, type NumericalHealthHold } from "../results/numericalHealth";
 import { isFreshSemanticResult } from "../results/knownSemanticLimitations";
-import { isExactReportSource } from "../report/exactReportSections";
+import { takesReportAdmission } from "../report/exactReportAdmission";
 import { renderableReportSource } from "../report/renderableReportSource";
 import { useMemo, useRef, useState } from "react";
 import { useSequencedState } from "./reportSourceSequence";
@@ -132,17 +132,19 @@ export function useResultsSessionState(advanceReportSource?: () => number) {
   // other identities stay readable, never Current.
   const currentSolvedResult = result && otherCurrentRequirementsHold && numericallyEligible ? result : null;
   // DEL-08-01 REQ-017, REQ-024: the rendered report (and its print view) also takes an
-  // exact-route result that meets every other Current requirement, whose mechanics are
-  // solved and whose standing names only standing findings, whatever that standing is: a
-  // candidate, which the build step and the native host each read in full before any
-  // render (`renderableReportSource`). The report package and the user release take this
-  // same source (DEL-08-01 REQ-024, "Package and user release"), which on the pressure-free
-  // routes is `currentSolvedResult` alone; every other output keeps `currentSolvedResult`.
+  // exact-route or pressure-free Timoshenko result (the two whose render the native host
+  // binds to the delivered result, `takesReportAdmission`) that meets every other Current
+  // requirement, whose mechanics are solved and whose standing names only standing findings,
+  // whatever that standing is: a candidate, which the build step and the native host each
+  // read in full before any render (`renderableReportSource`). The report package and the
+  // user release take this same source (DEL-08-01 REQ-024, "Package and user release"); on
+  // the pressure-free routes they carry `currentSolvedResult` alone and refuse any other
+  // (`reportPackageSourceUnavailableReason`). Every other output keeps `currentSolvedResult`.
   const renderableSolvedResult = renderableReportSource({
     current: currentSolvedResult,
     result,
     otherCurrentRequirementsHold,
-    exactRoute: result !== null && isExactReportSource(result as MechanicsResult),
+    boundRoute: result !== null && takesReportAdmission(result as MechanicsResult),
     mechanicsSolved: result?.status?.mechanics === "MECHANICS_SOLVED",
     standing
   });

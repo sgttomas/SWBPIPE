@@ -35,6 +35,7 @@ import {
   type ExactSourceSubmission
 } from "./exactReportAdmission";
 import { isExactReportSource } from "./exactReportSections";
+import { isPfTimoshenkoReportSource } from "./pfTimoshenkoReport";
 import type { PreviewComparisonUnavailable } from "../comparison/withinRunComparison";
 import type {
   AnalysisRunEnvelope,
@@ -97,6 +98,25 @@ export function reportPackageUnavailableReason(result: SessionResult | null | un
   return surfaceRouteRefusal(result, "report-package");
 }
 
+/** The code of a package request whose pressure-free source is not numerically eligible (the
+ * result-export builder's, `buildCurrentResultExport`; LIM-016). */
+export const CURRENT_NUMERICAL_INTEGRITY_NEEDS_RECOMPUTE = "CURRENT_NUMERICAL_INTEGRITY_NEEDS_RECOMPUTE";
+/** What a person reads where a package refuses a pressure-free Timoshenko result that the
+ * rendered report takes (DEL-08-01 REQ-017) but whose numerical standing is not eligible. */
+export const N_REPORT_PACKAGE_PRESSURE_FREE_STANDING =
+  "a report package carries a pressure-free result only when its numerical standing is eligible. The rendered report states this result's standing and can be printed or saved as HTML.";
+
+/** The package controls' refusal for the rendered report's `source` (synchronous, for the menu
+ * and the report panel): the route gate (`reportPackageUnavailableReason`), else, for a source
+ * that is not `current` (the Current result) and is not an exact-route result, the pressure-free
+ * standing refusal (LIM-016), else null. */
+export function reportPackageSourceUnavailableReason(source: SessionResult | null | undefined, current: SessionResult | null | undefined): string | null {
+  const refused = reportPackageUnavailableReason(source);
+  if (refused) return refused;
+  if (source && source !== current && !isExactReportSource(source as MechanicsResult)) return `Report package not offered: ${N_REPORT_PACKAGE_PRESSURE_FREE_STANDING}`;
+  return null;
+}
+
 /** The identities a shareable (user-released, route `DREP-PACKAGE-USER-RELEASE-010`) package
  * admits: a pressure-free `preview-physics-2` result (record 1.0.0), and, since D-6 (owner,
  * 2026-10-29; DEL-08-01 Design `report-user-release.md` §11), a `pressure-2` or
@@ -120,7 +140,7 @@ export function userReleasedReportPackageUnavailableReason(result: SessionResult
   if (refused) return refused;
   const identity = result?.producer?.semantic_contract_id;
   if (typeof identity === "string" && !USER_RELEASED_ADMITTED_CONTRACT_IDS.includes(identity)) {
-    return `${REPORT_PACKAGE_ROUTE_NOT_ADMITTED}: a shareable report package carries pressure-free (preview-physics-2) results and exact pressure route (pressure-3, pressure-source-1) results; this result is ${identity}. It can be saved in a local private package.`;
+    return `${REPORT_PACKAGE_ROUTE_NOT_ADMITTED}: a shareable report package carries pressure-free (preview-physics-2) results and exact pressure route (pressure-3, pressure-source-1) results; this result is ${identity}. It can be saved in a local private package when its numerical standing is eligible.`;
   }
   return null;
 }
@@ -221,6 +241,20 @@ function auditRulePackRef(pack: JsonRecord) {
   };
 }
 
+/** The result document of a pressure-free source: the result-export builder's, whose standing
+ * must be eligible. Its refusal of a pressure-free Timoshenko result that is not eligible (which
+ * the rendered report takes) also says why, in words. */
+async function pressureFreeResultDocument(inputs: Pick<ExactReportAdmissionInputs, "model" | "result" | "analysisRun" | "inputManifest">): Promise<ResultDocument> {
+  try {
+    return await buildCurrentResultExport(inputs);
+  } catch (error) {
+    if (error instanceof Error && error.message === CURRENT_NUMERICAL_INTEGRITY_NEEDS_RECOMPUTE && isPfTimoshenkoReportSource(inputs.result)) {
+      throw new Error(`${CURRENT_NUMERICAL_INTEGRITY_NEEDS_RECOMPUTE}: ${N_REPORT_PACKAGE_PRESSURE_FREE_STANDING}`);
+    }
+    throw error;
+  }
+}
+
 /** Requests assembled from an exact source, with the admission each was built from
  * and its inputs (module-private: only the assembly records one). */
 const exactRequests = new WeakMap<object, { admission: ExactReportAdmission; inputs: ExactReportAdmissionInputs }>();
@@ -267,7 +301,7 @@ async function assembleReportPackageRequest(input: ReportPackageRequestInput, ad
   // source keeps the result-export builder's document and its eligible standing.
   const exactInputs: ExactReportAdmissionInputs | null = isExactReportSource(result) ? { model, result, analysisRun, inputManifest, purpose: "report" } : null;
   const admission = exactInputs ? await admitExactReportSource(exactInputs) : null;
-  const document: ResultDocument = admission ? admission.document : await buildCurrentResultExport({ model, result, analysisRun, inputManifest });
+  const document: ResultDocument = admission ? admission.document : await pressureFreeResultDocument({ model, result, analysisRun, inputManifest });
   const envelope = document.result_envelope as JsonRecord;
   const identity = envelope?.producer?.semantic_contract_id;
   if (typeof identity !== "string" || !admittedContractIds.includes(identity)) {
@@ -396,7 +430,7 @@ async function assembleUserReleased(
   const { model, result, analysisRun, inputManifest, reportComposition = null } = input;
   const exactInputs: ExactReportAdmissionInputs | null = isExactReportSource(result) ? { model, result, analysisRun, inputManifest, purpose: "report" } : null;
   const admission = exactInputs ? await admitExactReportSource(exactInputs) : null;
-  const document: ResultDocument = admission ? admission.document : await buildCurrentResultExport({ model, result, analysisRun, inputManifest });
+  const document: ResultDocument = admission ? admission.document : await pressureFreeResultDocument({ model, result, analysisRun, inputManifest });
   const envelope = document.result_envelope as JsonRecord;
   const identity = envelope?.producer?.semantic_contract_id;
   if (!USER_RELEASED_ADMITTED_CONTRACT_IDS.includes(identity)) {
