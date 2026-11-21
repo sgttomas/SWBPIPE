@@ -345,9 +345,13 @@ function ExportStepDialog({
     window.addEventListener("keydown", hold, true);
     return () => {
       window.removeEventListener("keydown", hold, true);
-      if (opener.isConnected) requestAnimationFrame(() => opener.focus());
+      // Focus returns to the control that opened the record once it is closed: not where the record is mounted
+      // again at once (React's development double mount).
+      requestAnimationFrame(() => {
+        if (opener.isConnected && document.querySelector(`[data-testid="${stepTestId}-step"]`) === null) opener.focus();
+      });
     };
-  }, [opener]);
+  }, [opener, stepTestId]);
 
   return createPortal(
     <div className="replace-project-backdrop export-step-backdrop" data-testid={`${stepTestId}-step-backdrop`}>

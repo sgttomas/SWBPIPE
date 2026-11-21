@@ -104,7 +104,7 @@ describe("a row whose record opens first", () => {
     const row = screen.getByTestId("invented-panel");
     expect(within(row).queryByTestId("invented-save")).toBeNull();
     const button = screen.getByTestId("invented-open");
-    expect(button).toHaveTextContent("Review 1 entry from this model, then export…");
+    expect(button).toHaveTextContent("Review 1 entry first…");
     expect(within(row).getByTestId("invented-standing")).toHaveTextContent("5 things this format does not carry");
     fireEvent.click(button);
     const step = screen.getByTestId("invented-step");
@@ -125,7 +125,7 @@ describe("a row whose record opens first", () => {
 
   it("for replaced values: the button gives their count", () => {
     render(<Row disposition={{ kind: "replaced", count: 3 }} />);
-    expect(screen.getByTestId("invented-open")).toHaveTextContent("Review 3 replaced values, then export…");
+    expect(screen.getByTestId("invented-open")).toHaveTextContent("Review 3 replaced values first…");
   });
 });
 

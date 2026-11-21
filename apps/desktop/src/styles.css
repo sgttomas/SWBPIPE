@@ -4707,11 +4707,11 @@ body { min-width: 760px; min-height: 540px; }
    with the refusal or unavailability line below them, and the button in the same place on every row. The result
    gate's own line, where it stands in place of a row, sits where the row's lines do. The model batch file's row
    keeps its own panel, placed on the same columns. */
-.app-shell .export-list > li > .panel { grid-template-columns: 200px minmax(0, 1fr) 112px; padding-block: var(--space-3); }
+.app-shell .export-list > li > .panel { grid-template-columns: 200px minmax(0, 1fr) 148px; padding-block: var(--space-3); }
 .app-shell .export-list > li > .panel > .report-actions { grid-column: 3; grid-row: 1; margin: 0; display: block; }
 .app-shell .export-list > li > .panel > .report-actions > button { width: 100%; }
 .app-shell .export-list > li > :not(.panel) { margin: 0; padding: var(--space-3) var(--space-4); }
-.app-shell .export-list > li > .export-row { grid-template-areas: "name body open" "name status open" "name saves saves" "name note open"; row-gap: 0; }
+.app-shell .export-list > li > .export-row { grid-template-areas: "name body open" "name status open" "name saves saves" "name note ."; row-gap: 0; }
 .app-shell .export-row > .panel-title { grid-area: name; margin: 0; }
 .app-shell .export-row > .export-row-body { grid-area: body; display: grid; gap: 2px; }
 .app-shell .export-row > .export-row-action { display: contents; }

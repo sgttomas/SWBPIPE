@@ -121,7 +121,7 @@ export function chooseExportForm(record: PackageRecord, disposition: ControlDisp
   const causes = record.entries.filter((entry) =>
     entry.kind !== "content" && !fixed.has(entry.term) && !(entry.kind === "finding" && entry.severity === "info"));
   const failed = record.validation && !record.validation.passed
-    ? [{ kind: "finding" as const, term: "validation", category: record.validation.status, text: `validation=${record.validation.status}` }]
+    ? [{ kind: "finding" as const, term: "validation", category: record.validation.status }]
     : [];
   if (disposition.kind === "replaced") return { form: "record-first", standing, why: "replaced", causes: [...failed, ...causes], replaced: disposition.count };
   if (causes.length > 0 || failed.length > 0) return { form: "record-first", standing, why: "this-model", causes: [...failed, ...causes] };
@@ -135,15 +135,15 @@ export const EXPORT_FORM_WORDS = Object.freeze({
   /** Otherwise their count, as a control that opens the record. */
   standingCount: (count: number) => `${count} ${count === 1 ? "thing" : "things"} this format does not carry`,
   /** The row's button, where the record opens first because of this model's entries. */
-  reviewThisModel: (count: number) => `Review ${count} ${count === 1 ? "entry" : "entries"} from this model, then export…`,
+  reviewThisModel: (count: number) => `Review ${count} ${count === 1 ? "entry" : "entries"} first…`,
   /** The row's button, where values would be replaced. */
-  reviewReplaced: (count: number) => `Review ${count} replaced ${count === 1 ? "value" : "values"}, then export…`,
+  reviewReplaced: (count: number) => `Review ${count} replaced ${count === 1 ? "value" : "values"} first…`,
   /** The row's button, where the export is withheld or refused. */
   reviewWithheld: "Review…",
   /** The control that opens the whole record from a row that writes on the press. */
   record: "Record",
   /** The heading of the entries that stand in the way, first in the opened record. */
-  causesHeading: "First, from this model",
+  causesHeading: "Before this file is written",
   /** The row line of the result export and the stress-neutral JSON, which write on the press with no tick box. */
   ownLocalCopy: "Saves your own local copy, with the project's values.",
   /** In place of a save control that writes nothing (interim, until the native saves replace it). */

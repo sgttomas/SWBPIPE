@@ -91,7 +91,7 @@ test("the demonstration model: review geometry writes on the press, PCF opens it
   await expect(geometry.getByTestId("review-geometry-record-label")).toHaveText("Preview");
   await expect(geometry.getByTestId("review-geometry-exchange")).toHaveText("For exchange with another pipe stress program use Model batch file (.mbf).");
   const pcf = page.getByTestId("pcf-export-panel");
-  await expect(pcf.getByTestId("pcf-export-open")).toHaveText(/^Review \d+ entr(y|ies) from this model, then export…$/);
+  await expect(pcf.getByTestId("pcf-export-open")).toHaveText(/^Review \d+ entr(y|ies) first…$/);
   await expect(pcf.getByTestId("pcf-export-not-written")).toContainText("Nominal size");
   await pcf.getByTestId("pcf-export-open").click();
   const step = page.getByTestId("pcf-export-step");
