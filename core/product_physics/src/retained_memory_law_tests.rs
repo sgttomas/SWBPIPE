@@ -951,13 +951,25 @@ fn reviewed_inputs_bind_the_lock_and_the_reader_statics() {
     assert_eq!(option_env!("OPS_RETAINED_REVIEWED_INPUTS"), Some(compiled));
     let mut tokens = compiled.split(';');
     assert_eq!(tokens.next(), Some("v1"));
+    let mut moved = Vec::new();
     for (i, token) in tokens.by_ref().take(build_identity::REVIEWED_INPUT_COUNT).enumerate() {
         let (path, hex) = token.split_once('=').unwrap();
         assert_eq!(path, build_identity::REVIEWED_INPUTS[i]);
         assert_eq!(hex, format!("{:x}", Sha256::digest(files[i])), "{path}: build.rs's digest");
-        assert_eq!(hex, REVIEWED[i], "{path}: G4's reviewed record");
+        if hex != REVIEWED[i] {
+            moved.push(path);
+        }
     }
     assert_eq!(tokens.next(), None);
+    // G4's reviewed record moves only at a registration (DEL-04-08 REQ-004). Between audits a moved reviewed input
+    // leaves the build Stale, which this asserts; the retained pricing audit (`OPS_RETAINED_PRICING_AUDIT`) requires
+    // the record to hold (docs/CI_STRATEGY.md, "Retained pricing audit").
+    if !moved.is_empty() {
+        assert!(std::env::var_os(crate::retained_facade_tests::PRICING_AUDIT).is_none(),
+            "the retained pricing audit: reviewed inputs moved since G4's reviewed record: {moved:?}");
+        assert_eq!(build_status(), Err(ProfileStatus::Stale), "moved reviewed inputs {moved:?} leave the build Stale");
+        println!("I65_G5_REVIEWED_INPUTS_MOVED {moved:?}: Stale until the next registration");
+    }
     println!("I65_G5_REVIEWED_INPUTS {compiled}");
     assert_reviewed_reader_input_bindings();
 }

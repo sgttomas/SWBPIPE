@@ -517,6 +517,10 @@ registered identity read `Stale`. Those tests then assert the `Stale` branch,
 with the unchanged ordinary route, on the registration host as on any other
 build. The reviewed-input record is not moved per pull request: moving it
 would declare the profile registered against inputs no audit has examined.
+`reviewed_inputs_bind_the_lock_and_the_reader_statics` follows the same rule.
+It always checks build.rs's digests against the files' bytes. Where an input
+has moved from the test's copy of the record, it asserts that the build reads
+`Stale`, and under the audit it fails.
 With `OPS_RETAINED_PRICING_AUDIT` set, `registered()` requires the registered
 identity and its registration, so the audit fails where the registration has
 drifted instead of passing as `Stale`.
