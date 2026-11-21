@@ -870,17 +870,14 @@ for (const theme of APPEARANCE_THEMES) {
         await activateWithKeyboard(page, issuesClose);
         await expect(issues).toHaveCount(0);
 
-        // These enabled status labels remain ordinary text even when there
-        // are no deformation results. Exercise the disclosure through its
-        // keyboard control and measure its actual composited backgrounds.
-        const deformation = page.getByTestId("viewport-deformation-status");
-        const deformationSummary = deformation.locator(":scope > summary");
-        await expect(deformation).not.toHaveAttribute("open", "");
-        await expect(deformationSummary).toBeEnabled();
+        // With no result the view offers no Deformation control. The armed creation tool is stated
+        // by its pressed insert control (its "… tool armed" text is a visually hidden status), so
+        // the insert controls' composited contrast is measured.
+        await expect(page.getByTestId("viewport-deformation-status")).toHaveCount(0);
+        const pressedInsert = page.getByTestId("command-bar").locator('.command-buttons button[aria-pressed="true"]');
         const statusContrastWitnesses = [
           ...await expectResolvedContrast([
-            { name: "Armed creation tool status", locator: page.getByTestId("armed-creation-tool"), minimum: 4.5 },
-            { name: "Closed enabled deformation summary", locator: deformationSummary, minimum: 4.5 },
+            { name: "Insert control (armed tool or Node)", locator: await pressedInsert.count() ? pressedInsert.first() : page.getByTestId("command-node"), minimum: 4.5 },
           ]),
         ];
         const menuSurfaceWitness = await page.locator(".app-menu-bar").evaluate((element) => {
@@ -907,17 +904,6 @@ for (const theme of APPEARANCE_THEMES) {
         expect(menuSurfaceWitness.border, "menubar uses the active theme divider").toBe(menuSurfaceWitness.expectedDivider);
         expect(parseFloat(menuSurfaceWitness.borderWidth)).toBeGreaterThan(0);
         expect(menuSurfaceWitness.borderStyle).toBe("solid");
-        await activateWithKeyboard(page, deformationSummary);
-        await expect(deformation).toHaveAttribute("open", "");
-        statusContrastWitnesses.push(...await expectResolvedContrast([
-          { name: "Expanded deformation strong text", locator: page.getByTestId("viewport-deformation-summary"), minimum: 4.5 },
-          { name: "Expanded deformation small text", locator: page.getByTestId("viewport-deformation-boundary"), minimum: 4.5 },
-        ]));
-        await captureState(page, testInfo, `expanded-deformation-${theme}-${density}-${viewport.width}x${viewport.height}`);
-        await activateWithKeyboard(page, deformationSummary);
-        await expect(deformation).not.toHaveAttribute("open", "");
-        await expect(deformationSummary).toBeFocused();
-        await expect(page.getByTestId("viewport-deformation-summary")).toBeHidden();
         await expect(page.getByTestId("viewport-canvas")).toBeVisible();
         await expectWorkspaceGeometry(page, viewport);
         await ensureRail(page, "inspector", true);
@@ -925,7 +911,7 @@ for (const theme of APPEARANCE_THEMES) {
         await expectCenterUnobscured(inspector.getByTestId("task-action-footer"));
         if (viewport.width < 1280) await ensureRail(page, "inspector", false);
         await testInfo.attach(`resolved-dark-status-${theme}-${density}-${viewport.width}x${viewport.height}`, {
-          body: JSON.stringify({ statusContrastWitnesses, menuSurfaceWitness, keyboardDisclosureClosed: true }, null, 2),
+          body: JSON.stringify({ statusContrastWitnesses, menuSurfaceWitness }, null, 2),
           contentType: "application/json",
         });
         await captureState(page, testInfo, `unobscured-authoring-${theme}-${density}-${viewport.width}x${viewport.height}`);
@@ -962,7 +948,8 @@ test("production browser keeps bundled reference separate through solve refusal,
   await activateWithKeyboard(page, page.getByTestId("run-mechanics-preview"));
   await expectBrowserSolveRefusal(page, "BROWSER_SOLVE_BACKEND_REQUIRED_REFERENCE_ONLY");
   await inspectBundledReference(page);
-  await expect(page.getByTestId("viewport-deformation-summary")).toContainText("result rows=0");
+  // No current result: the view offers no Deformation control, so it claims no deformed shape.
+  await expect(page.getByTestId("viewport-deformation-status")).toHaveCount(0);
   await openWorkspaceSection(page, "evidence");
   await expect(page.getByTestId("status-pill-solve-proof")).toHaveCount(0);
   // Reference/history lights no Current stage chip and cannot change the model or undo.
@@ -991,7 +978,8 @@ test("production browser keeps bundled reference separate through solve refusal,
   await expect(page.getByTestId("historical-run-context")).toHaveCount(0);
   await expect(page.getByTestId("results-panel").locator("tbody tr")).toHaveCount(0);
   await expect(page.getByTestId("comparison-summary")).toHaveCount(0);
-  await expect(page.getByTestId("viewport-deformation-summary")).toContainText("result rows=0");
+  // No current result: the view offers no Deformation control, so it claims no deformed shape.
+  await expect(page.getByTestId("viewport-deformation-status")).toHaveCount(0);
   await openWorkspaceSection(page, "evidence");
   await expect(page.getByTestId("status-pill-solve-proof")).toHaveCount(0);
   await openWorkspaceSection(page, "exports");
