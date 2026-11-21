@@ -589,7 +589,7 @@ function FullResultsPanel({
                     caseName={caseName}
                     dimension={(item) => labels!.dimension(item) ?? "unknown"}
                     frameText={(item) => frameLabel(resultFrame(item))}
-                    notes={(item) => <>{labels!.category(item)}{labelSource && resultRowLabel(item, labelSource, recordedTableRead) ? <small data-testid={`result-row-label-${item.id}`}> {resultRowLabel(item, labelSource, recordedTableRead)}</small> : null}<RowHealthBadge health={health} item={item} />{kindFilter?.withheld[item.id] ? <small data-testid={`result-row-withheld-${item.id}`}> {kindFilter.withheld[item.id]}</small> : null}{item.component_body ? <small data-testid={`result-row-component-body-${item.id}`}> reference section of component body {item.component_body.component_ref}</small> : null}</>}
+                    notes={(item) => <>{labels!.category(item)}{labelSource && resultRowLabel(item, labelSource, recordedTableRead) ? <small data-testid={`result-row-label-${item.id}`}> {resultRowLabel(item, labelSource, recordedTableRead)}</small> : null}<RowHealthBadge health={health} item={item} lineState={standing.lineState} />{kindFilter?.withheld[item.id] ? <small data-testid={`result-row-withheld-${item.id}`}> {kindFilter.withheld[item.id]}</small> : null}{item.component_body ? <small data-testid={`result-row-component-body-${item.id}`}> reference section of component body {item.component_body.component_ref}</small> : null}</>}
                     sort={rowsSort}
                     onSort={(column) => { setRowsSort(nextRowsSort(rowsSort, column)); setPageIndex(0); }}
                     sortDisabledReason={null}
@@ -1295,10 +1295,13 @@ export function NumericalHealthBadgeText({ badge, text, testId }: { badge: Numer
   return <span className={`numerical-health-badge numerical-health-${badge}`} data-badge={badge} data-testid={testId}>{text}</span>;
 }
 
-export function RowHealthBadge({ health, item }: { health: NumericalHealthView | null; item: MechanicsResult["results"][number] }) {
+/** A row's numerical-health mark, only where the row's state differs from the state the standing
+ * line states (`lineState`): a row in the line's state carries no mark of its own, since the line
+ * above the table already says it. Machine outputs (CSV) keep every row's state. */
+export function RowHealthBadge({ health, item, lineState }: { health: NumericalHealthView | null; item: MechanicsResult["results"][number]; lineState: NumericalHealthState | null }) {
   // No row badge on the pressure-source route: those rows' values are the producer's recovery.
   const state = rowHealthState(health, item);
-  if (!state) return null;
+  if (!state || state === lineState) return null;
   return <small> <NumericalHealthBadgeText badge={badgeOf(state)} text={NUMERICAL_HEALTH_STATE_TEXT[state]} testId={`result-row-health-${item.id}`} /></small>;
 }
 

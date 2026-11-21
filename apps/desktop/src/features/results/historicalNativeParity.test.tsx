@@ -31,6 +31,7 @@ import { resetNativeReopenEmulation } from "../../test/nativeReopenEmulation";
 import { DisplayUnitsProvider } from "../display-units";
 import type { DisplayQuantityRequest, DisplayQuantityResult } from "../../services/displayQuantityService";
 import { buildHistoricalRunContext, buildNativeHistoricalRunContext, HistoricalRunPanel, type HistoricalRunContext } from "./HistoricalRunContext";
+import { lineHealthState } from "./ResultsPanel";
 import { NUMERICAL_HEALTH_STATE_TEXT } from "./numericalHealthText";
 import { N_HEADLINE, N_INTENSIFIED, PREVIEW_INTENSIFIED_KIND, PREVIEW_MAXIMUM_KIND } from "./knownSemanticLimitations";
 import { isRetainedRoute } from "./numericalResultQuality";
@@ -282,7 +283,11 @@ describe("a reopened run reads alike held whole and held natively (C1 review F2,
       expect(expected.shown.health).toBeNull();
     } else {
       expect(expected.shown.health).not.toBeNull();
-      expect(expected.shown.rows.some(([, cell]) => Object.values(NUMERICAL_HEALTH_STATE_TEXT).some((state) => cell.includes(state)))).toBe(true);
+      // A row carries a state mark only where its state differs from the standing line's: no row
+      // repeats the line's state; with no state on the line, the case states reach the rows.
+      const lineState = lineHealthState(stored.source.numerical_quality?.status);
+      if (lineState) expect(expected.shown.rows.filter(([, cell]) => cell.includes(NUMERICAL_HEALTH_STATE_TEXT[lineState]))).toEqual([]);
+      else expect(expected.shown.rows.some(([, cell]) => Object.values(NUMERICAL_HEALTH_STATE_TEXT).some((state) => cell.includes(state)))).toBe(true);
       if (item.quality !== "as recorded") {
         const state = NUMERICAL_HEALTH_STATE_TEXT[STATE[item.quality]];
         expect(expected.shown.health).toContain(state);

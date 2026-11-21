@@ -630,7 +630,7 @@ export function NativeResultsPanel({
                   caseName={caseName}
                   dimension={(item) => labels.dimension(item) ?? "unknown"}
                   frameText={(item) => frameLabel(resultFrame(item))}
-                  notes={(item) => <>{labels.category(item)}{labelSource && resultRowLabel(item, labelSource as never, recordedTableRead) ? <small data-testid={`result-row-label-${item.id}`}> {resultRowLabel(item, labelSource as never, recordedTableRead)}</small> : null}<RowHealthBadge health={health} item={item} />{kindFilter?.withheld[item.id] ? <small data-testid={`result-row-withheld-${item.id}`}> {kindFilter.withheld[item.id]}</small> : null}{item.component_body ? <small data-testid={`result-row-component-body-${item.id}`}> reference section of component body {item.component_body.component_ref}</small> : null}</>}
+                  notes={(item) => <>{labels.category(item)}{labelSource && resultRowLabel(item, labelSource as never, recordedTableRead) ? <small data-testid={`result-row-label-${item.id}`}> {resultRowLabel(item, labelSource as never, recordedTableRead)}</small> : null}<RowHealthBadge health={health} item={item} lineState={lineState} />{kindFilter?.withheld[item.id] ? <small data-testid={`result-row-withheld-${item.id}`}> {kindFilter.withheld[item.id]}</small> : null}{item.component_body ? <small data-testid={`result-row-component-body-${item.id}`}> reference section of component body {item.component_body.component_ref}</small> : null}</>}
                   sort={rowsSort}
                   onSort={(column) => setRowsSort(nextRowsSort(rowsSort, column))}
                   sortDisabledReason={sortDisabledReason}
