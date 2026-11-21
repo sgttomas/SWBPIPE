@@ -402,12 +402,15 @@ test("09 the 3D view: controls, fit, standard views, labels", async ({ page }) =
   await journey.step("view-restored", "Isometric pressed again: the standard view restored and shown pressed", async () => {
     await page.getByTestId("viewport-view-isometric").click();
   });
-  await journey.step("canvas-click", "A node clicked on the canvas itself, not its label: selected, the view still fitted", async () => {
+  await journey.step("canvas-click", "A click on the canvas itself at node N-120's drawn point, not on a label: what it picks is selected, the view still fitted", async () => {
     const node = demo.nodes.find((candidate: { id: string }) => candidate.id === "node:N-120") ?? demo.nodes[0];
     const point = await canvasPointOf(page, node.position);
     const onCanvas = await page.evaluate(({ x, y }) => document.elementFromPoint(x, y)?.closest('[data-testid="viewport-canvas"]') !== null, point);
     await page.mouse.click(point.x, point.y);
-    return onCanvas ? undefined : "a label lay over the node's point, so the click went to it";
+    await page.waitForTimeout(200);
+    const selection = await page.locator(".shell-status-selection").first().getAttribute("title").catch(() => null);
+    const picked = `the click selected ${selection ?? "nothing named in the status bar"}`;
+    return onCanvas ? picked : `a label lay over the node's point, so the click went to it; ${picked}`;
   });
   await journey.step("inspector-open", "The inspector opened: the model refitted to the narrower canvas, still wholly in view", async () => {
     await ensureInspectorExpanded(page);
