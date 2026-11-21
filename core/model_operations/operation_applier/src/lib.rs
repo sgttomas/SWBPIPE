@@ -5726,19 +5726,21 @@ fn resolve_create_load_case(
     };
     // Model document 0.9.0 S3a (§11): a pressure-free use is admitted by the
     // condition-set operations' route admission and judged with them below.
+    // DEL-05-01 REQ-014: a hydrostatic test_condition is authored on the exact
+    // route only, and there admits the case's contents selection.
+    if record.contains_key("test_condition") && !condition_set_authoring::has_pressure_contract(model) {
+        refuse_interim_member(checker, target_ref, pp_hydrostatic::LOAD_CASE_TEST_CONDITION_PRESSURE_FREE,
+            condition_set_authoring::pressure_free_test_message(target_ref));
+        return None;
+    }
     if let Some(using) = record.get("condition_use") {
-        let refusals = condition_set_authoring::admit_case_use(model, target_ref, using);
+        let refusals = condition_set_authoring::admit_case_use(model, target_ref, using, record.contains_key("test_condition"));
         if !refusals.is_empty() {
             for refusal in refusals {
                 refuse_interim_member(checker, target_ref, refusal.code, refusal.message);
             }
             return None;
         }
-    }
-    if record.contains_key("test_condition") {
-        refuse_interim_member(checker, target_ref, pp_conditions::LOAD_CASE_TEST_CONDITION_UNSUPPORTED,
-            "A load case's hydrostatic test_condition is not authored until the hydrostatic test is built.".into());
-        return None;
     }
 
     let id = record
@@ -5798,6 +5800,11 @@ fn resolve_create_load_case(
     });
     if let Some(using) = record.get("condition_use") {
         created["condition_use"] = using.clone();
+    }
+    if let Some(test) = record.get("test_condition") {
+        created["test_condition"] = test.clone();
+    }
+    if created.get("condition_use").is_some() || created.get("test_condition").is_some() {
         let mut candidate = model.clone();
         if apply_created_load_case(&mut candidate, &created) {
             condition_set_authoring::report_judgement(checker, model, condition_set_authoring::CREATE_LOAD_CASE, target_ref, &candidate);
@@ -6351,6 +6358,7 @@ fn resolve_create_primitive_load(
 #[allow(clippy::too_many_arguments)]
 use open_pipe_stress_product_physics::document_members as pp_members;
 use open_pipe_stress_product_physics::operating_conditions as pp_conditions;
+use open_pipe_stress_product_physics::hydrostatic as pp_hydrostatic;
 
 /// Model document 0.9.0: authoring a member whose slice has not landed is refused by its
 /// interim code (DEL-02-01 Design `model-document-0.9.0.md` §2.2, §2.4), never dropped.
@@ -16220,7 +16228,7 @@ mod tests {
             (create("Combination", "combination:C-OP", "create_combination_term", "terms", json!({"combination": "combination:C-OP", "factor": 1.0})),
              "LOAD_COMBINATION_OPERAND_CYCLE"),
             (create("Load", "load:L-3", "create_load_case", "load_cases", json!({"id": "load:L-3", "label": "Test", "kind": "hydrotest", "status": "draft",
-                "provenance": "user", "primitive_loads": [], "test_condition": {"kind": "hydrostatic", "held_supports": "none"}})), "LOAD_CASE_TEST_CONDITION_UNSUPPORTED"),
+                "provenance": "user", "primitive_loads": [], "test_condition": {"kind": "hydrostatic", "held_supports": "none"}})), "LOAD_CASE_TEST_CONDITION_PRESSURE_FREE"),
             (create("Load", "load:L-3", "create_load_case", "load_cases", json!({"id": "load:L-3", "label": "Operating", "kind": "operating", "status": "draft",
                 "provenance": "user", "primitive_loads": [], "condition_use": {"contents_density": "OPE1"}})), "LOAD_CASE_CONDITION_CONTENTS_UNSUPPORTED"),
         ] {

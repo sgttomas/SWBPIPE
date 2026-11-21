@@ -2131,7 +2131,7 @@
             ],
             "code": "LOAD_CASE_CONDITION_USE_EXACT_UNSUPPORTED",
             "id": "diagnostic:load-case:case:condition-use",
-            "message": "load case `case` uses operating conditions on a document with a pressure contract; the exact route's condition resolution is not built yet, so nothing is solved",
+            "message": "load case `case` uses operating conditions on a document with a pressure contract; the exact route resolves only a hydrostatic test case's contents_density, so nothing is solved",
             "severity": "blocking",
             "source": "core/product_physics"
           }

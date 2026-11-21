@@ -148,7 +148,7 @@ use std::f64::consts::PI;
 
 mod topology;
 mod validation;
-mod imposed_motion; mod held_status; mod skew; // RT-A5 `minuend_final` (DEL-05-02 `operating-case.md` §7) and R-6/R-7 S-K1 (DEL-04-03 `skew-restraints.md`), on this line so that no line moves.
+mod imposed_motion; mod held_status; mod skew; pub mod hydrostatic; // RT-A5 `minuend_final` (DEL-05-02 `operating-case.md` §7) and R-6/R-7 S-K1 (DEL-04-03 `skew-restraints.md`), on this line so that no line moves.
 use validation::validate_model_inputs;
 mod rigid_component;
 #[cfg(test)]
@@ -263,7 +263,7 @@ pub struct PreviewModel {
     /// The lowering removes them once their rules are judged.
     pub condition_sets: Vec<operating_conditions::ConditionSetInput>,
     /// Model document 0.9.0's `spectra` (`spectra`), read by no solve; the lowering removes them.
-    pub spectra: Vec<spectra::SpectrumInput>,
+    pub spectra: Vec<spectra::SpectrumInput>, #[doc(hidden)] pub(crate) test_contents: Vec<hydrostatic::ContentsResolution>, // DEL-05-01 REQ-014: the lowering's contents resolution, applied after the self-weight check.
 }
 
 /// One material record as authored: the unchanged `MaterialInput` fields
@@ -401,7 +401,7 @@ impl<'de> Deserialize<'de> for PreviewModel {
             model_settings: wire.model_settings,
             material_expansion_laws,
             request_material_expansion_laws: Vec::new(),
-            condition_sets: wire.condition_sets.unwrap_or_default(),
+            condition_sets: wire.condition_sets.unwrap_or_default(), test_contents: Vec::new(),
             spectra: wire.spectra.unwrap_or_default(),
         })
     }
@@ -1462,7 +1462,7 @@ fn formulation_basis_for_model_with_source(model: &PreviewModel, source_selected
         if model.components.iter().any(is_curved_bend_macro_component) {
             basis.limitations.push(bend_pressure::BEND_LIMITATION.to_string());
         }
-        basis
+        hydrostatic::push_limitation(model, &mut basis.limitations); basis // DEL-05-01 REQ-014: only a document with a test case states the test.
     } else {
         preview_formulation_basis()
     };
@@ -3126,7 +3126,7 @@ fn run_linear_static_preview_observed_inner(
     // S1's interim withholding (§2.2, §2.4): every combination was judged above.
     document_members::withhold_interim_combinations(&mut model, &mut diagnostics);
 
-    self_weight::validate_applied_self_weight(&model, &mut diagnostics);
+    self_weight::validate_applied_self_weight(&model, &mut diagnostics); let test_contents = std::mem::take(&mut model.test_contents); if !has_blocking(&diagnostics) { hydrostatic::apply_contents(&mut model, &test_contents); } // DEL-05-01 REQ-014: a test case's contents enter its checked self-weight once.
     if has_blocking(&diagnostics) {
         return blocked_envelope(model, diagnostics);
     }
@@ -3318,9 +3318,9 @@ fn run_linear_static_preview_observed_inner(
         Option<String>,
     )> = vec![(None, materials.clone(), built, stiffness, None)];
     // RT-A5 (operating-case §7.4): this document solve's invocation context.
-    let invocation = held_status::InvocationToken::mint();
+    let invocation = held_status::InvocationToken::mint(); let test_held = if model.load_cases.iter().any(hydrostatic::holds_supports) { hydrostatic::held_set(&model, "").0 } else { Vec::new() }; // DEL-05-01 REQ-014: the supports a test case holds, for its mark.
     let mut load_case_solves = Vec::new();
-    for (case_index, load_case) in model.load_cases.iter().enumerate() {
+    for (case_index, load_case) in model.load_cases.iter().enumerate() { match hydrostatic::solve_held_case(&model, &materials, resolved_cases.as_ref().map(|cases| &cases[case_index]), &consumed_bases, load_case, solver_mode, source_budget, &mut diagnostics, invocation) { hydrostatic::HeldOutcome::NotHeld => {} hydrostatic::HeldOutcome::Solved(solve) => { load_case_solves.push(*solve); if has_blocking(&diagnostics) { return blocked_envelope(model, diagnostics); } continue; } hydrostatic::HeldOutcome::Blocked => return blocked_envelope(model, diagnostics), hydrostatic::HeldOutcome::Failed(error) => return solver_blocked(model, diagnostics, error) } // DEL-04-07 REQ-011: a held test case on its replaced system.
         if let Some(resolved_cases) = &resolved_cases {
             // Each resolved case rebuilds stiffness from its own member pairs;
             // no matrix is reused under an unchanged label when inputs differ.
@@ -3584,7 +3584,7 @@ fn run_linear_static_preview_observed_inner(
         }
         pressure_evidence.extend(solve.pressure_evidence.iter().cloned());
         load_reference_states.extend(solve.load_state_evidence.clone());
-        if let Some(mut evidence) = solve.exact_case_evidence.clone() {
+        if let Some(mut evidence) = solve.exact_case_evidence.clone() { if let Some(mark) = model.load_cases.iter().find(|case| case.id == solve.load_case_id).and_then(|case| hydrostatic::mark(case, &test_held, &test_contents)) { evidence["test_condition"] = mark; } // DEL-05-01 REQ-014: the test mark, on a test case only.
             if source_selected {
                 evidence["recovery_method"] = serde_json::json!(if solve.source_selected {
                     "retained_source_blocks_exact_v1"

@@ -347,8 +347,8 @@ describe("condition-set contract corpus — browser-mode adapter and wasm engine
   const conditionSetCorpus = JSON.parse(readFileSync(path.resolve(corpusDir, "..", "condition_set_contract_corpus.json"), "utf8")) as { cases: CorpusCase[] };
   const cases = conditionSetCorpus.cases;
 
-  it("holds S3a's twenty cases, with carried refusals reported as info", () => {
-    expect(cases).toHaveLength(20);
+  it("holds S3a's twenty cases and the hydrostatic test case's five, with carried refusals reported as info", () => {
+    expect(cases).toHaveLength(25);
     const severities = new Set(cases.flatMap((item) => item.expected?.outcome.diagnostics ?? []).map((item) => item.severity));
     expect(severities).toEqual(new Set(["blocking", "warning", "info"]));
   });
