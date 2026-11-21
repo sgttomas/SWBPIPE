@@ -6,7 +6,7 @@
 // Called only by the session
 // (`useWorkspaceSession`), which hands it the cells and handlers it needs; the
 // History panel reads the result through `useSessionHistory()`.
-import { isNativeResult } from "../../services/nativeResult";
+import { describeFullResultRefused, FullResultRefused, isNativeResult } from "../../services/nativeResult";
 import { useEffect, useRef, useState } from "react";
 import type { MutableRefObject } from "react";
 import {
@@ -866,7 +866,11 @@ export function useModelStateHistory(deps: ModelStateHistoryDeps) {
       return true;
     } catch (error) {
       if (!sameSession()) return false;
-      setHistoryMessage(`Not compared: ${error instanceof RunComparisonRefusal ? error.message : nativeFailureText(error)}`);
+      // A full copy refused for its size (C2) is said as the other C2 consumers say it.
+      const reason = error instanceof RunComparisonRefusal ? error.message
+        : error instanceof FullResultRefused ? describeFullResultRefused(error, "the comparison")
+        : nativeFailureText(error);
+      setHistoryMessage(`Not compared: ${reason}`);
       setHistoryOperation("compare_runs_failed");
       return false;
     } finally {
