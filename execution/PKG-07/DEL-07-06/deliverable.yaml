@@ -93,7 +93,7 @@ code_paths:
 # offline judge of a trace of it. No driver runs it yet.
 - fixtures/embedded_agent/use_cases/missing-data/**
 - tools/agent_missing_data_judge.py
-# A review-export panel mounted in the evidence section and the drawer, and a Python reference
+# A review-export panel the v1.0 interface does not mount (LIM-039), and a Python reference
 # module with its own contract test. No criterion of this scope covers either.
 - apps/desktop/src/features/accessibility-baseline/**
 - core/gui/accessibility/**

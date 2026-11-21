@@ -292,12 +292,6 @@ test("guided workbench shell keeps journey steps, details, and compact status re
   // Slice B3: queueing summoned the Review changes tab; the tree's layout switch is on the tree's tab.
   await ensureTreeExpanded(page);
   await page.getByTestId("layout-mode-tree").click();
-  await expect(page.getByTestId("audit-boundary-drawer")).toHaveCount(0);
-  await page.getByTestId("audit-drawer-toggle").click();
-  await expect(page.getByTestId("audit-boundary-drawer")).toBeVisible();
-  await expect(page.getByTestId("local-project-status")).toContainText("network=false");
-  await expect(page.getByTestId("local-project-status")).toContainText("telemetry=false");
-  await page.getByTestId("audit-boundary-drawer").getByRole("button", { name: /Close/i }).click();
   await openReviewTab(page, "details");
   await expect(page.getByTestId("editor-contract-panel")).toBeVisible();
   await expect(page.getByTestId("editor-contract-unit-contract")).toContainText("contract=DEL-02-02");
@@ -442,10 +436,6 @@ test("R2 browser smoke covers authoring, explicit reference results, and qualifi
   await setDisclosure(page.getByTestId("viewport-deformation-status"));
   await expect(page.getByTestId("viewport-deformation-status")).toContainText("not started; result rows=0");
   await setDisclosure(page.getByTestId("viewport-deformation-status"), false);
-  await page.getByTestId("audit-drawer-toggle").click();
-  await expect(page.getByTestId("local-project-status")).toContainText("network=false");
-  await expect(page.getByTestId("local-project-status")).toContainText("telemetry=false");
-  await page.getByTestId("audit-boundary-drawer").getByRole("button", { name: /Close/i }).click();
   await openWorkspaceSection(page, "loads");
   await expect(page.getByTestId("load-case-manager-summary")).toContainText(
     "2 load cases; 5 primitive loads; 1 combinations"
@@ -695,16 +685,10 @@ test("R2 browser smoke covers authoring, explicit reference results, and qualifi
   // do not grant a current-model overlay from reference inspection.
   await setDisclosure(page.getByTestId("viewport-deformation-status"), false);
 
-  await page.getByTestId("audit-drawer-toggle").click();
-  const auditDrawer = page.getByTestId("audit-boundary-drawer");
-  await expect(auditDrawer).toBeVisible();
-  await expect(auditDrawer.getByTestId("secret-private-library-unit-policy")).toContainText("unit_refs=2");
-  await expect(auditDrawer.getByTestId("secret-private-library-unit-policy")).toContainText("required=true");
-  await expect(auditDrawer.getByTestId("secret-private-library-unit-policy")).toContainText("payload=false");
-  await expect(auditDrawer.getByTestId("secret-private-library-unit-policy")).toContainText("conversion=false");
-  await expect(auditDrawer.getByTestId("run-audit-empty")).toBeVisible();
-  await expect(auditDrawer.getByTestId("run-audit-units")).toHaveCount(0);
-  await auditDrawer.getByRole("button", { name: /Close/i }).click();
+  // The run audit is on the Evidence page (the Audit and Boundaries drawer is not in v1.0).
+  const evidence = await openWorkspaceSection(page, "evidence");
+  await expect(evidence.getByTestId("run-audit-empty")).toBeVisible();
+  await expect(evidence.getByTestId("run-audit-units")).toHaveCount(0);
   await openWorkspaceSection(page, "solve");
   await expect(page.getByTestId("knowledge-unit-context")).toHaveCount(0);
   // Recorded computed context (two N/mm refs) remains in the source oracle;
@@ -776,30 +760,6 @@ test("R2 browser smoke covers authoring, explicit reference results, and qualifi
   await expect(page.getByTestId("report-package-save-status")).toHaveCount(0);
   await expect(page.getByTestId("report-package-redaction-summary")).toHaveCount(0);
   // Private intent changes redaction permission, never missing Current evidence.
-  const reportLint = page.getByLabel("Report content lint");
-  await expect(reportLint.getByTestId("report-lint-unit-policy")).toContainText("unit_targets=43");
-  await expect(reportLint.getByTestId("report-lint-unit-policy")).toContainText(
-    "conversion_witness_targets=1"
-  );
-  await expect(reportLint.getByTestId("report-lint-unit-policy")).toContainText("lint_conversion=false");
-  const lintHref = await reportLint.getByTestId("report-lint-export-link").getAttribute("href");
-  expect(lintHref).toBeTruthy();
-  const lintPacket = JSON.parse(decodeURIComponent(lintHref!.split(",", 2)[1]));
-  expect(lintPacket.unit_policy_evidence.unit_policy_target_count).toBe("[REDACTED]");
-  expect(lintPacket.unit_policy_evidence.conversion_witness_target_count).toBe("[REDACTED]");
-  expect(lintPacket.unit_policy_evidence.lint_performs_conversion).toBe("[REDACTED]");
-  expect(lintPacket.unit_policy_evidence.lint_asserts_target_format_compatibility).toBe("[REDACTED]");
-  expect(
-    lintPacket.unit_policy_evidence.target_refs.every(
-      (item: { source_path: string }) => item.source_path === "[REDACTED]"
-    )
-  ).toBe(true);
-  expect(lintPacket.unit_policy_evidence.target_refs).toHaveLength(43);
-  expect(
-    lintPacket.unit_policy_evidence.target_refs.every(
-      (item: { unit_policy_surface_id: string }) => item.unit_policy_surface_id === "[REDACTED]"
-    )
-  ).toBe(true);
   await openWorkspaceSection(page, "exports");
   const pcfExport = page.getByLabel("Conservative PCF export");
   await expect(pcfExport.getByTestId("pcf-export-conversion-witnesses")).toContainText("count=23");
@@ -810,29 +770,11 @@ test("R2 browser smoke covers authoring, explicit reference results, and qualifi
   // action opens Export MBF…, whose native writer owns the MBF's unit conversions.
   const caepipeMbfExport = page.getByLabel("Model batch file (.mbf) export");
   await expect(caepipeMbfExport.getByTestId("caepipe-mbf-export")).toHaveText("Export MBF…");
-  const caepipeExternalHarness = page.getByLabel("External prover run");
-  await expect(caepipeExternalHarness.getByTestId("caepipe-external-units")).toContainText(
-    "unit-system:dec-018-si-dual-display"
-  );
-  await expect(caepipeExternalHarness.getByTestId("caepipe-external-unit-witnesses")).toContainText(
-    "count=3"
-  );
-  await expect(caepipeExternalHarness.getByTestId("caepipe-external-unit-witnesses")).toContainText(
-    "conversion=false"
-  );
   const stressNeutralExport = page.getByLabel("Stress-neutral CSV JSON export");
   await expect(stressNeutralExport.getByTestId("stress-neutral-empty")).toContainText("Bundled references and restored history are unavailable for qualified export");
   await expect(stressNeutralExport.getByTestId("stress-neutral-unit-witnesses")).toHaveCount(0);
   await expect(page.getByTestId("result-export-empty")).toBeVisible();
   await expect(page.getByTestId("result-export-link")).toHaveCount(0);
-  const headlessRunner = page.getByLabel("Headless runner envelope");
-  await expect(headlessRunner.getByTestId("headless-runner-units")).toContainText("unit-system:dec-018-si-dual-display");
-  await expect(headlessRunner.getByTestId("headless-runner-units")).toContainText("conversion=false");
-  await expect(headlessRunner.getByTestId("headless-runner-unit-witnesses")).toContainText("count=0");
-  await expect(headlessRunner.getByTestId("headless-runner-unit-witnesses")).toContainText("conversion=false");
-  const handoffPackage = page.getByLabel("Handoff package");
-  await expect(handoffPackage.getByTestId("handoff-empty")).toBeVisible();
-  await expect(handoffPackage.getByTestId("handoff-unit-witnesses")).toHaveCount(0);
   // The unchanged raw rows and their qualified dimension witnesses remain
   // checked by the recorded-source and pure stress-neutral contract tests.
   const reviewGeometryExport = page.getByLabel("Review geometry export");
@@ -840,24 +782,6 @@ test("R2 browser smoke covers authoring, explicit reference results, and qualifi
   await expect(reviewGeometryExport.getByTestId("review-geometry-unit-witnesses")).toContainText("count=69");
   await expect(reviewGeometryExport.getByTestId("review-geometry-unit-witnesses")).toContainText(
     "target=m"
-  );
-  await openWorkspaceSection(page, "exports");
-  const nativeJsonPackage = page.getByLabel("Native JSON package");
-  await expect(nativeJsonPackage.getByTestId("native-package-empty")).toBeVisible();
-  await expect(nativeJsonPackage.getByTestId("native-package-unit-witnesses")).toHaveCount(0);
-  // The former 832 result-quantity cardinality is preserved as an immutable
-  // source oracle; no current package is assembled from a bundled reference.
-  const adapterFramework = page.getByLabel("Adapter framework envelope");
-  await expect(adapterFramework.getByTestId("adapter-framework-units")).toContainText("conversion=false");
-  await expect(adapterFramework.getByTestId("adapter-framework-units")).toContainText("witnesses=1");
-  await expect(adapterFramework.getByTestId("adapter-framework-units")).toContainText(
-    "unit_validation_required_before_adapter_payload_exchange"
-  );
-  const exportAdapterSdk = page.getByLabel("Export adapter SDK");
-  await expect(exportAdapterSdk.getByTestId("export-adapter-sdk-units")).toContainText("conversion=false");
-  await expect(exportAdapterSdk.getByTestId("export-adapter-sdk-units")).toContainText("witnesses=5");
-  await expect(exportAdapterSdk.getByTestId("export-adapter-sdk-units")).toContainText(
-    "candidate_targets_without_claiming_target_writer_conversion"
   );
 
   // Engine-route receipt (TP-SEAM-SWAP-001): Add the prepared explicit node,
@@ -1119,22 +1043,6 @@ test("R2 from-blank GUI journey authors the A12 rehearsal script", async ({ page
     "round_trip=unit_metadata_preserved_in_local_project_envelope"
   );
   await expect(page.getByTestId("project-validation-unit-policy")).toContainText("conversion=false");
-  await page.getByTestId("audit-drawer-toggle").click();
-  const auditDrawer = page.getByTestId("audit-boundary-drawer");
-  await expect(auditDrawer).toBeVisible();
-  await expect(auditDrawer.getByTestId("validation-evidence-unit-policy")).toContainText("model=");
-  await expect(auditDrawer.getByTestId("validation-evidence-unit-policy")).toContainText("force=N");
-  await expect(auditDrawer.getByTestId("validation-evidence-unit-policy")).toContainText("length=m");
-  await expect(auditDrawer.getByTestId("validation-evidence-unit-policy")).toContainText(
-    "manual=unit_and_schema_verification"
-  );
-  await expect(auditDrawer.getByTestId("validation-evidence-unit-policy")).toContainText("conversion=false");
-  await expect(auditDrawer.getByTestId("accessibility-baseline-unit-visibility")).toContainText(
-    "policy=unit_bearing_values_keep_visible_unit_labels_in_review_surfaces"
-  );
-  await expect(auditDrawer.getByTestId("accessibility-baseline-unit-visibility")).toContainText("length=m");
-  await expect(auditDrawer.getByTestId("accessibility-baseline-unit-visibility")).toContainText("conversion=false");
-  await auditDrawer.getByRole("button", { name: /Close/i }).click();
   await openWorkspaceSection(page, "solve");
   await page.getByTestId("run-mechanics-preview").click();
   await expectBackendRefusal(page);

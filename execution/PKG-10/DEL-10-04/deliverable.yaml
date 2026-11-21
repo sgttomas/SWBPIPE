@@ -96,7 +96,7 @@ code_paths:
 # private-term scan of the repository candidate.
 - tools/repository_history.py
 - tools/validation/validate_private_terms.py
-# The readiness panel.
+# The readiness record's builder and its panel, which the v1.0 interface does not mount.
 - apps/desktop/src/features/build-readiness/BuildReadinessPanel.tsx
 checks:
 - tests/test_ci_python.py

@@ -5622,7 +5622,6 @@ fn build_app_menu<R: tauri::Runtime>(
     let view = view
         .separator()
         .text("view.issues", "Issues")
-        .text("view.audit", "Audit & Boundaries")
         .separator()
         .item(&theme_light)
         .item(&theme_dark)

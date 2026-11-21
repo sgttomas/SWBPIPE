@@ -4568,9 +4568,6 @@ export function useWorkspaceSession() {
       case "view.issues":
         setIssuesDrawerOpen((open) => !open);
         break;
-      case "view.audit":
-        setAuditDrawerOpen((open) => !open);
-        break;
       case "view.close-panels":
         closeShellPage();
         break;

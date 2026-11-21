@@ -22,7 +22,6 @@ import { Journey } from "./recorder";
 const INVENTED = "invented_walkthrough_input";
 // The parts of the screen a person reads when they are not the tallest scrolling region.
 const ISSUES = '[data-testid="issues-home"]';
-const AUDIT = '[data-testid="audit-boundary-drawer"]';
 const INSPECTOR = "#shell-inspector";
 
 async function open(page: Page): Promise<void> {
@@ -56,7 +55,7 @@ async function clearOverlays(page: Page): Promise<void> {
     const control = page.getByTestId(testId);
     if (await control.isVisible()) await control.click();
   }
-  for (const drawer of ["issues-home", "audit-boundary-drawer"]) {
+  for (const drawer of ["issues-home"]) {
     const close = page.getByTestId(drawer).getByRole("button", { name: "Close", exact: true });
     if (await close.isVisible()) await close.click();
   }
@@ -95,8 +94,8 @@ test("01 orientation: every menu, stage and page as first met", async ({ page })
   });
   await page.keyboard.press("Escape");
 
-  await journey.step("agent-control", "The toolbar's Agent button: Review changes opened on its Agent tab", async () => {
-    await page.getByTestId("toggle-agent").click();
+  await journey.step("agent-control", "The agent strip's Agent control: Review changes opened on its Agent tab", async () => {
+    await page.getByTestId("agent-strip-open").click();
   });
 
   for (const stage of ["model", "loads", "results", "review"]) {
@@ -137,9 +136,6 @@ test("02 pages: each page of the workspace, top to bottom", async ({ page }) => 
   await showModelTree(page);
   await journey.step("drawer-issues", "The Issues drawer, from the status bar", async () => { await page.getByTestId("issues-drawer-toggle").click(); });
   await journey.scrolled("drawer-issues", "The Issues drawer", 2, ISSUES);
-  await clearOverlays(page);
-  await journey.step("drawer-audit", "The Audit and boundaries drawer, from the status bar", async () => { await page.getByTestId("audit-drawer-toggle").click(); });
-  await journey.scrolled("drawer-audit", "The Audit and boundaries drawer", 2, AUDIT);
   await clearOverlays(page);
   await journey.step("key-results", "Key results, from the View menu, before any solve", async () => { await menu(page, "view", "view.key-results"); });
   journey.finish();
