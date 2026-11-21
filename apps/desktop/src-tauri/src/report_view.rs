@@ -75,8 +75,11 @@
 //!   request URL and calls the handler (or cancels a download, there being no
 //!   download handler), and `src/wkwebview/class/wry_navigation_delegate.rs`
 //!   118-124 wraps tauri's handler with no frame test; tauri-runtime-wry
-//!   2.11.1 `src/lib.rs` 4898-4905 passes it the parsed URL. So the allowed
-//!   set is exactly the wrapper and the document address
+//!   2.11.1 `src/lib.rs` 4898-4905 passes it the parsed URL (a target the
+//!   runtime cannot parse as a URL is allowed there without the handler being
+//!   asked, `unwrap_or(true)`; what this protocol then serves is bounded by
+//!   its own whole-address check, not by the handler). So the allowed set is
+//!   exactly the wrapper and the document address
 //!   ([`navigation_allowed`]). Whether WebKit asks the delegate about a
 //!   subframe's navigation is WebKit's behaviour, not in these sources; if it
 //!   does not, the frame's load is still bounded by the wrapper's policy
@@ -335,8 +338,9 @@ impl ViewBytes {
 }
 
 /// The provider's answer to whether its document may still be shown. It is
-/// called with this module's open-windows lock held (module docs, "Lock
-/// order") and must not call back into this module.
+/// called once before an offer is examined and otherwise with this module's
+/// open-windows lock held (module docs, "Lock order"), and must not call back
+/// into this module.
 pub(crate) type Showable = Arc<dyn Fn() -> bool + Send + Sync>;
 
 /// What a provider offers [`open`] (module docs, "Interface").
@@ -500,6 +504,12 @@ pub(crate) fn reserve_with_in(
     label: impl FnOnce() -> String,
 ) -> Result<Reserved, ViewError> {
     validate(&document)?;
+    // An offer that is no longer showable opens nothing and brings nothing
+    // forward, whatever window of the same identity a later offer has open
+    // (two renders of the same content share an identity).
+    if !(document.showable)() {
+        return Err(not_showable());
+    }
     drop_if_missing(open, &document.identity, exists);
     if let Some((label, title)) = bring_forward(&mut lock(open), &document.identity, &document.title) {
         return Ok(Reserved::BroughtForward { label, title });
@@ -512,15 +522,17 @@ pub(crate) fn reserve_with_in(
         drop(lease);
         return Err(window_failed());
     }
-    if let Some((label, title)) = bring_forward(&mut records, &identity, &title) {
-        drop(records);
-        drop(lease);
-        return Ok(Reserved::BroughtForward { label, title });
-    }
+    // Under the lock, the offer's own answer first: a retired offer neither
+    // installs a record nor brings another offer's window forward.
     if !showable() || document.is_gone() {
         drop(records);
         drop(lease);
         return Err(not_showable());
+    }
+    if let Some((label, title)) = bring_forward(&mut records, &identity, &title) {
+        drop(records);
+        drop(lease);
+        return Ok(Reserved::BroughtForward { label, title });
     }
     let label = label();
     records.push(OpenView {
@@ -936,8 +948,11 @@ pub(crate) fn open(app: &AppHandle, document: ViewDocument, lease: Lease) -> Res
             }
             // A sweep, a withdrawal or the main window's shutdown may have
             // removed the record before the window existed.
+            // That window is destroyed and the opening is refused, not
+            // reported as opened.
             if !lock(&OPEN).iter().any(|record| record.label == label) {
                 destroy_window(&label);
+                return Err(not_showable());
             }
             Ok(receipt("opened"))
         }
@@ -1382,6 +1397,26 @@ mod tests {
         assert_eq!(refusal.message, "This report is no longer the current one. No window was opened.");
         assert!(lock(&open).is_empty());
         assert_eq!(lease_pool.reserved_total(), 0);
+    }
+
+    /// An offer that is no longer showable brings nothing forward: a window of
+    /// the same identity, open for another offer, keeps its title and is not
+    /// reported as brought forward.
+    #[test]
+    fn an_offer_no_longer_showable_brings_no_window_forward() {
+        let custody = rendered(&routes::test_pool());
+        let open = Mutex::new(Vec::new());
+        opened(&open, offer(&custody), &routes::test_pool(), "report-view-1");
+        let mut retired = offer(&custody);
+        retired.showable = Arc::new(|| false);
+        retired.title = "Calculation report: a retired offer".to_string();
+        let lease_pool = routes::test_pool();
+        let refusal = reserve_in(&open, retired, command_lease(&lease_pool), || panic!("no label for a refused offer")).unwrap_err();
+        assert_eq!(refusal.code, VIEW_NOT_SHOWABLE);
+        assert_eq!(lease_pool.reserved_total(), 0);
+        let records = lock(&open);
+        assert_eq!(records.len(), 1);
+        assert_eq!(records[0].title, current_render_title(None), "the open window keeps the title of the offer it was opened for");
     }
 
     /// This module builds no command that hands the document on (no save, print or copy command
