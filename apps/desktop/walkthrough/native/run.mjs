@@ -285,6 +285,22 @@ export const CAPTURE_BASIS = "This picture is a capture of the actual window of 
 export const UNEXPLAINED_BASIS = "This file was found in captures/ without a sidecar that says what it shows and how it was made: it is unexplained, and nothing is claimed for it.";
 
 /**
+ * The refusal line for the marks of an agent operating the App on the screen (native-smoke/marks-check.mjs
+ * marksCheck), naming each mark found and each check that could not be made, as the run's record does. An attended
+ * launch is started before the attendant's screen tool is up: that tool's service is one of the marks.
+ */
+export function markRefusalLine(marks, { changed = false } = {}) {
+  const found = [
+    marks?.sky_computer_use_service_launchd ? "SkyComputerUseService under launchd" : null,
+    marks?.sky_computer_use_service_process ? "a SkyComputerUseService process" : null,
+    marks?.codex_app_server_stdio ? "a \"codex app-server --listen stdio://\" process" : null,
+    marks?.app_v4_candidate_bundle ? "a running App v4 candidate bundle" : null,
+    ...(marks?.check_failures ?? []).map((failure) => `a check that could not be made (${failure})`)
+  ].filter(Boolean);
+  return `NATIVE-SMOKE-MARK-PRESENT: ${found.length ? found.join("; ") : "a mark"}: an agent may be operating the App on the screen; not launched${changed ? "" : ", and nothing in --out was changed"}. Start the attended launch before the attendant's screen tool is started, and start that tool only after the handover is printed`;
+}
+
+/**
  * The command line with --attended: { buildOnly: false, journeys: [], out, showWindow, attended: { start, limitMinutes,
  * hidden } } or { error }. --out is required; --journey names at most one journey, and it must declare `place`.
  */
@@ -820,7 +836,8 @@ async function main() {
     refusedLaunchEnv, refusedPlanPaths, refusedSmokeWindows, runMarkerRefusal, smokeWindows, statWatched, tripwireChanges, watchedLibraryPaths, writeRunMarker
   } = await import("../../native-smoke/launch-env.mjs");
   const { newNonce, readReport } = await import("../../native-smoke/launch-outcome.mjs");
-  const { judgedPhase, phaseContinuation } = await import("../../native-smoke/judged-launch.mjs");
+  const { MARK_PRESENT, judgedPhase, phaseContinuation } = await import("../../native-smoke/judged-launch.mjs");
+  const { marksCheck, marksRefuse } = await import("../../native-smoke/marks-check.mjs");
   const { HOME_MARKER, LEFT_HOME_RULE, NOTHING_ELSE_WATCHED, PROCESS_SCOPE, STRICT_CHOOSER_EXIT, TRIPWIRE_LIMITS, homeRemovalRefusal, readHomeMarker, removalIdentityRefusal, sha256Hex } = await import("../../native-smoke/evidence-checks.mjs");
 
   const refuseLine = (text) => console.error(`${NAME}: ${text}`);
@@ -874,6 +891,15 @@ async function main() {
     if (refusal) {
       refuseLine(refusal);
       await exitAfterSignals(2);
+    }
+    // An attended launch's marks, read once here, before any cleanup, so that a refusal for a mark changes nothing;
+    // judgedPhase checks them again directly before the start, as for every launch.
+    if (attended) {
+      const marks = marksCheck();
+      if (marksRefuse(marks)) {
+        refuseLine(markRefusalLine(marks));
+        await exitAfterSignals(2);
+      }
     }
     try {
       emptyNativeOutput(out, selected);
@@ -1093,7 +1119,11 @@ async function main() {
       executable: binary, command: CAFFEINATE, commandArgs: ["-di", binary], cwd: where.root, env, timeoutMs, reportPath: judge?.reportPath ?? report, nonce,
       censusBoundMs: TERMINATION_BOUND_MS, beforeStart: () => { beforeStart(where); judge?.beforeStart({ nonce }); },
       ...(judge?.abort ? { abort: judge.abort } : {})
-    }).then(phaseContinuation({ prefix: NAME, phase, state, evidenceRoot: RUN_ROOT }));
+    }).then((result) => {
+      // A mark found directly before an attended start is named, as the record names it, before the run ends.
+      if (judge && result?.stop === MARK_PRESENT) refuseLine(markRefusalLine(result.marks, { changed: true }));
+      return phaseContinuation({ prefix: NAME, phase, state, evidenceRoot: RUN_ROOT })(result);
+    });
     if (!judge && launches[phase]?.outcome?.status === STRICT_CHOOSER_EXIT) {
       const lastAct = readReport(`${report}.act.json`).report?.act ?? "unnamed (the driver recorded no act)";
       check("no chooser was asked without a queued answer inside the home", false, `the app ended with the strict chooser's exit code ${STRICT_CHOOSER_EXIT} during the act: ${lastAct}`);

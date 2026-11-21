@@ -239,6 +239,15 @@ screen. `--out` is required; it may already hold journeys' screens, but not an
 earlier attended launch's `captures/` folder. A launch refused for its `--out`
 changes nothing in it.
 
+**The order that works.** Every launch is refused while a mark of an agent
+operating the App on the screen is present (`native-smoke/marks-check.mjs`),
+and the screen-driving tool an attendant uses starts one of them. So the
+attended launch is started first, by a party whose tools have not started that
+service, and the attendant's screen tool is started only after the handover is
+printed. The marks are checked once before anything in `--out` is touched, a
+refusal that changes nothing, and again directly before the start; the refusal
+line names each mark found.
+
 **The handover.** Only once the driver reports the start made, with this
 launch's nonce, does the command print lines of the form
 `attended.<key>=<value>`: `pid` (the app's process, as the launch's census
