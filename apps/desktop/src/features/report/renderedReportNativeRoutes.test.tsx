@@ -173,8 +173,9 @@ describe("native runtime", () => {
     expect(screen.getByTestId("rendered-report-save-local-private-redaction-summary")).toHaveTextContent("blocked=false");
     // DEL-08-01 REQ-023 Coverage: where an HTML save or a print is offered, the panel says neither is listed and
     // that the package is what the project keeps.
-    expect(screen.getByTestId("rendered-report-list-notice")).toHaveTextContent(
-      "HTML saves and printed reports are not listed in the project. Save a report package to keep it in the project’s report list."
+    // Exactly these words: nothing keeps or lists a saved report yet (DEL-08-01 REQ-023's list is not built).
+    expect(screen.getByTestId("rendered-report-list-notice").textContent).toBe(
+      "The project does not keep or list saved reports. An HTML save, a printed report and a saved report package are each a file you keep."
     );
 
     fireEvent.click(save);
@@ -835,7 +836,7 @@ describe("browser runtime (no native shell)", () => {
     expect(save).toHaveAttribute("href", `data:text/html;charset=utf-8,${encodeURIComponent(HTML)}`);
     fireEvent.click(screen.getByTestId("rendered-report-print"));
     expect(screen.getByTestId("rendered-report-print-frame")).toHaveAttribute("srcdoc", outcome().derived_print_html);
-    expect(screen.getByTestId("rendered-report-list-notice")).toHaveTextContent("HTML saves and printed reports are not listed in the project.");
+    expect(screen.getByTestId("rendered-report-list-notice")).toHaveTextContent("The project does not keep or list saved reports.");
     expect(screen.queryByTestId("rendered-report-save-status")).not.toBeInTheDocument();
     expect(invokeMock).not.toHaveBeenCalled();
   });

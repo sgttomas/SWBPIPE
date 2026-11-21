@@ -125,6 +125,10 @@ function receiptOutcomeLine(receipt: ReportPackageSaveReceipt): string {
 const LOCAL_PRIVATE_REPORT_WARNING =
   "Local private report: this rendering contains private project values for your own local review. It is not for sharing or publication.";
 
+/** A run restored from the saved project is not reported or packaged without solving again. */
+const RESTORED_RUN_RENDER = "This run was restored from the saved project and cannot be rendered. Solve the model again to render its report.";
+const RESTORED_RUN_PACKAGE = "This run was restored from the saved project and cannot be packaged. Solve the model again to save a report package.";
+
 export function RenderedReportPanel({
   model,
   result,
@@ -137,6 +141,7 @@ export function RenderedReportPanel({
   packageRedaction = null,
   packageRoute = null,
   packageNeedsCurrent = false,
+  restoredRun = false,
   numericalHealth = null,
   reportComposition: sessionComposition,
   onReportCompositionChange,
@@ -177,14 +182,20 @@ export function RenderedReportPanel({
    * exact-route result that is not numerically eligible). The report package takes only a
    * Current result, so its save buttons stay disabled for it, as the File menu's are. */
   packageNeedsCurrent?: boolean;
+  /** The shown run was restored from the saved project: rendering and the package saves stay
+   * disabled, and say so instead of "Solve first". */
+  restoredRun?: boolean;
   onPackagePrivateIntentChange?: (value: boolean) => void;
   onSaveReportPackage?: () => void;
   /** W-18b (DEL-08-01 Design `report-user-release.md` §2.2): opens the user-release dialog. */
   onSaveShareableReportPackage?: () => void;
 }) {
   const [panelComposition, setPanelComposition] = useState<ReportComposition | null>(null);
-  const packageSaveTitle = !result || !analysisRun
-    ? "Solve first: report-package save needs the current mechanics result and analysis-run record."
+  const unsolved = !result || !analysisRun;
+  const packageSaveTitle = unsolved
+    ? restoredRun
+      ? RESTORED_RUN_PACKAGE
+      : "Solve first: report-package save needs the current mechanics result and analysis-run record."
     : packageNeedsCurrent
       ? "Not available for this result: report-package save needs a numerically eligible result. The rendered report states this result's numerical standing."
       : undefined;
@@ -512,7 +523,9 @@ export function RenderedReportPanel({
               ? undefined
               : rendering
                 ? "A report render is already in progress."
-                : "Disabled: rendering needs a completed mechanics preview and its analysis-run record in this session. Open the Solve section and run the mechanics preview first."
+                : unsolved && restoredRun
+                  ? RESTORED_RUN_RENDER
+                  : "Disabled: rendering needs a completed mechanics preview and its analysis-run record in this session. Open the Solve section and run the mechanics preview first."
           }
           onClick={() => void onRender()}
         >
@@ -528,9 +541,9 @@ export function RenderedReportPanel({
           />
           Include known private values in this local rendered report (your own review; not for sharing)
         </label>
-        {!result || !analysisRun ? (
+        {unsolved ? (
           <span data-testid="rendered-report-precondition">
-            Solve first: rendering needs a mechanics result and analysis-run record.
+            {restoredRun ? RESTORED_RUN_RENDER : "Solve first: rendering needs a mechanics result and analysis-run record."}
           </span>
         ) : null}
       </div>
@@ -706,7 +719,7 @@ export function RenderedReportPanel({
                 Print / PDF (derived view)
               </button>
               <p data-testid="rendered-report-list-notice">
-                HTML saves and printed reports are not listed in the project. Save a report package to keep it in the project’s report list.
+                The project does not keep or list saved reports. An HTML save, a printed report and a saved report package are each a file you keep.
               </p>
             </div>
           ) : (
