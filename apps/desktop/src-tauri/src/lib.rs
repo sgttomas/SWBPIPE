@@ -12,6 +12,7 @@ mod autosave_commands;
 mod backup;
 mod close_guard;
 mod command_ingress;
+mod command_webview;
 mod embedded_agent;
 mod exact_source_binding;
 mod export_disposition_screen;
@@ -6405,9 +6406,9 @@ pub fn run() {
     #[cfg(target_os = "macos")]
     let builder = builder.manage(embedded_agent::live_host::Host::new(registry.clone()));
     #[cfg(not(feature = "native-smoke"))]
-    let builder = builder.invoke_handler(app_invoke_handler!());
+    let builder = builder.invoke_handler(command_webview::main_webview_only(app_invoke_handler!()));
     #[cfg(feature = "native-smoke")]
-    let builder = native_smoke::install(builder).invoke_handler(app_invoke_handler!(
+    let builder = native_smoke::install(builder).invoke_handler(command_webview::main_webview_only(app_invoke_handler!(
         native_smoke::native_smoke_choose,
         native_smoke::native_smoke_clear_choices,
         native_smoke::native_smoke_menu,
@@ -6423,7 +6424,7 @@ pub fn run() {
         native_smoke::native_smoke_close_report_print,
         native_smoke::native_smoke_checkpoint,
         native_smoke::native_smoke_finish,
-    ));
+    )));
     builder
         .build(tauri::generate_context!())
         .expect("error while building SWBPIPE")
