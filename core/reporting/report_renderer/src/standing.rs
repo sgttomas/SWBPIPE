@@ -12,7 +12,8 @@
 //! decoded. Free-text detail is quoted as the solver's detail, escaped by the
 //! emission, and never interpreted.
 use open_pipe_stress_numerical_vocabulary::{
-    CaseHealth, EvidenceStatus, FrictionNormal, HistoricalCause, HistoricalConfirmation, HistoricalIntegrityCode, NoFigureReason, Premise,
+    CaseHealth, EvidenceStatus, FrictionNormal, HistoricalCause, HistoricalConfirmation, HistoricalIntegrityCode, IntegrityBound,
+    IntegrityBoundReason, NoFigureReason, Premise,
     StandingFinding, SupportBehavior, SupportState, VocabularyTag,
 };
 use serde::{Deserialize, Deserializer, Serialize, Serializer};
@@ -233,6 +234,22 @@ pub fn no_figure_statement(reason: NoFigureReason) -> String {
     )
 }
 
+/// The integrity bound's status, as stated beside a verdict or a text that is
+/// the solver's own (release exit criterion 18, LIM-026). The desktop states
+/// the same words beside the solver's verbatim text.
+pub fn integrity_bound_statement(status: IntegrityBound) -> &'static str {
+    match status {
+        IntegrityBound::NotVerified => "Reported by the solver; not verified by SWBPIPE.",
+    }
+}
+
+/// Why the integrity bound has its status, in words a person reads.
+pub fn integrity_bound_reason_statement(reason: IntegrityBoundReason) -> &'static str {
+    match reason {
+        IntegrityBoundReason::InverseNormBoundNotVerified => "SWBPIPE has not verified an error bound for the ordinary solve's values.",
+    }
+}
+
 /// The evidence status's display form (EV-FIGURE), with its premise or reason.
 pub fn status_form(status: EvidenceStatus, premises: &[Premise], reason: &str) -> String {
     match status {
@@ -408,6 +425,12 @@ pub fn statement_table() -> Vec<(&'static str, &'static str, String)> {
     }
     for r in NoFigureReason::ALL {
         out.push((NoFigureReason::VOCABULARY, r.as_str(), no_figure_statement(*r)));
+    }
+    for s in IntegrityBound::ALL {
+        out.push((IntegrityBound::VOCABULARY, s.as_str(), integrity_bound_statement(*s).to_string()));
+    }
+    for r in IntegrityBoundReason::ALL {
+        out.push((IntegrityBoundReason::VOCABULARY, r.as_str(), integrity_bound_reason_statement(*r).to_string()));
     }
     out
 }
