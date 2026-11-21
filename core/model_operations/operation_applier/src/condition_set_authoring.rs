@@ -266,11 +266,13 @@ pub(crate) fn admit_test_condition(model: &Value, case_ref: &str) -> Vec<Geometr
     if has_pressure_contract(model) {
         return Vec::new();
     }
-    vec![refusal(
-        pp_hydrostatic::LOAD_CASE_TEST_CONDITION_PRESSURE_FREE,
-        format!("Load case `{case_ref}` would be a hydrostatic test on a document without a pressure contract; the test is solved on the exact pressure route only, so the test condition is not authored."),
-        &[case_ref.to_string()],
-    )]
+    vec![refusal(pp_hydrostatic::LOAD_CASE_TEST_CONDITION_PRESSURE_FREE, pressure_free_test_message(case_ref), &[case_ref.to_string()])]
+}
+
+/// The message of `LOAD_CASE_TEST_CONDITION_PRESSURE_FREE`, for the case-level
+/// operations and for create_load_case.
+pub(crate) fn pressure_free_test_message(case_ref: &str) -> String {
+    format!("Load case `{case_ref}` would be a hydrostatic test on a document without a pressure contract; the test is solved on the exact pressure route only, so the test condition is not authored.")
 }
 
 /// One finding of the classified judgement.

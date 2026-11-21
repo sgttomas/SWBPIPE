@@ -5728,14 +5728,10 @@ fn resolve_create_load_case(
     // condition-set operations' route admission and judged with them below.
     // DEL-05-01 REQ-014: a hydrostatic test_condition is authored on the exact
     // route only, and there admits the case's contents selection.
-    if record.contains_key("test_condition") {
-        let refusals = condition_set_authoring::admit_test_condition(model, target_ref);
-        if !refusals.is_empty() {
-            for refusal in refusals {
-                refuse_interim_member(checker, target_ref, refusal.code, refusal.message);
-            }
-            return None;
-        }
+    if record.contains_key("test_condition") && !condition_set_authoring::has_pressure_contract(model) {
+        refuse_interim_member(checker, target_ref, pp_hydrostatic::LOAD_CASE_TEST_CONDITION_PRESSURE_FREE,
+            condition_set_authoring::pressure_free_test_message(target_ref));
+        return None;
     }
     if let Some(using) = record.get("condition_use") {
         let refusals = condition_set_authoring::admit_case_use(model, target_ref, using, record.contains_key("test_condition"));
@@ -6362,6 +6358,7 @@ fn resolve_create_primitive_load(
 #[allow(clippy::too_many_arguments)]
 use open_pipe_stress_product_physics::document_members as pp_members;
 use open_pipe_stress_product_physics::operating_conditions as pp_conditions;
+use open_pipe_stress_product_physics::hydrostatic as pp_hydrostatic;
 
 /// Model document 0.9.0: authoring a member whose slice has not landed is refused by its
 /// interim code (DEL-02-01 Design `model-document-0.9.0.md` §2.2, §2.4), never dropped.

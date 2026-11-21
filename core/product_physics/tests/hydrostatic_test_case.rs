@@ -25,15 +25,19 @@
 //! product's own warning there and compares the rows the cold load cannot
 //! move (axial reaction and the Lamé stresses). Holding the variable spring
 //! removes its cold load from the system, so its held cases are compared in
-//! full.
+//! full. The skip is removed when the variable spring preload law (DEL-04-11
+//! REQ-014, DEL-04-03 REQ-014) lands, and those rows then become part of that
+//! change's evidence.
 use open_pipe_stress_product_physics::self_weight::{generate_self_weight_operations, SelfWeightGravity, SelfWeightRequest};
 use open_pipe_stress_product_physics::{run_linear_static_preview_value_with_mode, PreviewModel, PreviewSolverMode};
 use serde_json::{json, Value};
 use sha2::{Digest, Sha256};
-use std::collections::BTreeMap;
+use std::collections::{BTreeMap, BTreeSet};
 
 const REFERENCES: &str = include_str!("../../../validation/references/hydrostatic_test/references.json");
 const SUMS: &str = include_str!("../../../validation/references/hydrostatic_test/SHA256SUMS");
+/// The result schema the mark is published under (`PressureExactCase.test_condition`).
+const RESULT_SCHEMA: &str = include_str!("../../../schemas/results_pressure_3.v0.3.schema.json");
 const MODES: [PreviewSolverMode; 2] = [PreviewSolverMode::SparseInteractive, PreviewSolverMode::DenseScrutiny];
 const RELATIVE: f64 = 1.0e-9;
 const PROV: &str = "invented hydrostatic test reference input; not library, catalog or code data";
@@ -372,6 +376,15 @@ fn mark_and_balance(out: &Value, reference: &Value, built: &Built, cold: bool) {
             assert_eq!(item["contents_density"], qv(input("rho_c_test"), "kg/m^3"));
             assert!(close(-item["applied_n_per_m"].as_f64().unwrap(), w, w), "{id}: {item}");
         }
+        // The mark carries exactly the members its result schema declares.
+        let schema: Value = serde_json::from_str(RESULT_SCHEMA).unwrap();
+        assert_eq!(schema["$defs"]["PressureExactCase"]["properties"]["test_condition"]["$ref"], "#/$defs/PressureExactTestCondition");
+        let declared = &schema["$defs"]["PressureExactTestCondition"];
+        let members = |value: &Value| value.as_object().unwrap().keys().cloned().collect::<BTreeSet<String>>();
+        assert_eq!(members(mark), members(&declared["properties"]), "{id}");
+        for item in resolution {
+            assert_eq!(members(item), members(&declared["properties"]["contents_resolution"]["items"]["properties"]), "{id}");
+        }
     } else {
         assert!(evidence.get("test_condition").is_none(), "{id}: an ordinary case carries no mark");
     }
@@ -448,6 +461,108 @@ fn the_same_input_gives_the_same_result_after_save_and_reopen() {
         let second = solved(&reopened, mode, "DOC-4S reopened");
         assert_eq!(first["results"], second["results"], "{mode:?}");
         assert_eq!(first["contract_evidence"]["exact_cases"], second["contract_evidence"]["exact_cases"], "{mode:?}");
+    }
+}
+
+// ------------------------------------------------------------------ load-state twin
+
+/// A load and reference-state twin of `model`: one installed reference
+/// configuration (each member at its installation temperature, no fit), and on
+/// every case an analysis state with the members unchanged from that reference,
+/// every support an active model device, and a ledger that takes each of the
+/// case's stored primitives (its generated self-weight) at factor 1. No case
+/// carries a temperature.
+fn twin(model: &Value) -> Value {
+    let mut twin = model.clone();
+    let pipes: Vec<String> = twin["pipe_segments"].as_array().unwrap().iter().map(|p| p["id"].as_str().unwrap().to_string()).collect();
+    let supports: Vec<String> = twin["supports"].as_array().unwrap().iter().map(|s| s["id"].as_str().unwrap().to_string()).collect();
+    twin["reference_configurations"] = json!([{"id": "reference:installed", "label": "Installed reference",
+        "geometry_ref": {"kind": "authored_model_geometry"},
+        "member_references": pipes.iter().map(|pipe| json!({"pipe_ref": pipe,
+            "basis": {"kind": "temperature_reference", "installation_temperature": qv(20.0, "degC")},
+            "fit": {"kind": "none"}, "provenance": PROV})).collect::<Vec<_>>(), "provenance": PROV}]);
+    for case in twin["load_cases"].as_array_mut().unwrap() {
+        let ledger: Vec<Value> = case["primitive_loads"].as_array().unwrap().iter().map(|load| json!({"source_ref": load["id"], "factor": 1.0})).collect();
+        case["analysis_state"] = json!({"contract": "openpipestress.load_reference_state/1.0.0", "reference_configuration_ref": "reference:installed",
+            "element_states": pipes.iter().map(|pipe| json!({"pipe_ref": pipe,
+                "material_selection": {"kind": "explicit_base_properties", "material_ref": "material:ht",
+                    "applicability_reference": "invented analytical basis declared applicable to this member"},
+                "thermal_state": {"kind": "unchanged_reference", "provenance": PROV}})).collect::<Vec<_>>(),
+            "support_states": supports.iter().map(|support| json!({"support_ref": support, "participation": {"kind": "active_model_device"}})).collect::<Vec<_>>(),
+            "load_sources": ledger, "history": {"kind": "independent_equilibrium"}, "provenance": PROV});
+    }
+    twin
+}
+
+/// The held four-span test case on a load and reference-state twin, beside an
+/// ordinary case of the same document. The test case reproduces every frozen
+/// held row in both modes; the ledger's stored primitives carry the test
+/// contents' weight, once, at factor 1 (contents taken into the self-weight
+/// before the ledger resolves: reversed, the ledger would carry the section's
+/// contents; twice, the weight would be wrong, and the rows with it); and the
+/// ordinary case's rows and records are bit for bit those of the same twin
+/// without the test case.
+#[test]
+fn the_held_four_span_case_solves_on_a_load_state_twin() {
+    let refs = refs();
+    let reference = |id: &str| refs["cases"].as_array().unwrap().iter().find(|c| c["id"] == id).unwrap().clone();
+    let (held, ordinary) = (reference("HT-4S-TEST-HELD"), reference("HT-4S-ORDINARY"));
+    let (skeleton, built) = skeleton("M4", "euler_bernoulli");
+    let with = |cases: &[&Value]| {
+        let mut model = skeleton.clone();
+        model["load_cases"] = json!(cases.iter().map(|r| case_record(&skeleton, &built, r)).collect::<Vec<_>>());
+        twin(&model)
+    };
+    let (both, alone) = (with(&[&held, &ordinary]), with(&[&ordinary]));
+    let id = held["id"].as_str().unwrap();
+    let w = held["weight_per_length"]["value"].as_f64().unwrap();
+    let state = |out: &Value, case_id: &str| out["contract_evidence"]["load_reference_states"].as_array().unwrap().iter()
+        .find(|s| s["load_case_id"] == case_id).unwrap_or_else(|| panic!("no load-state record for {case_id}")).clone();
+    for mode in MODES {
+        let out = solved(&both, mode, "four-span twin");
+        let mut compared = 0;
+        for row in held["rows"].as_array().unwrap() {
+            let (row_id, expected) = (row["id"].as_str().unwrap(), row["value"].as_f64().unwrap());
+            let scale = scale_of(&held, row, &built);
+            for observed in observe(&out, id, row_id) {
+                assert!(close(observed, expected, scale), "twin {mode:?} {id} {row_id}: observed {observed:e}, expected {expected:e}");
+                compared += 1;
+            }
+        }
+        assert!(compared >= held["rows"].as_array().unwrap().len(), "{mode:?}: compared {compared}");
+        for control in held["negative_controls"].as_array().unwrap() {
+            let differs = control["rows"].as_array().unwrap().iter().filter(|row| row["id"] != "weight_per_length").any(|row| {
+                let scale = scale_of(&held, row, &built);
+                observe(&out, id, row["id"].as_str().unwrap()).iter().any(|observed| !close(*observed, row["value"].as_f64().unwrap(), scale))
+            });
+            assert!(differs, "twin {id}: negative control {} is indistinguishable from the result", control["id"]);
+        }
+        mark_and_balance(&out, &held, &built, false);
+        // The ledger takes each pipe's generated self-weight once, at factor 1,
+        // with the test contents in it.
+        let record = state(&out, id);
+        let primitives: Vec<&Value> = record["contributions"].as_array().unwrap().iter().filter(|c| c["owner_kind"] == "stored_primitive").collect();
+        assert_eq!(primitives.len(), built.nodes - 1, "{mode:?}: one ledger entry per pipe's self-weight");
+        for entry in primitives {
+            assert_eq!(entry["factor"], 1.0, "{mode:?}: {entry}");
+            assert!(close(-entry["applied_magnitude"].as_f64().unwrap(), w, w), "{mode:?}: the ledger carries the test weight once: {entry}");
+        }
+        // The ordinary case is untouched by the test case beside it. A document
+        // of one case names its rows without the case prefix; the identity is
+        // compared with that prefix removed, every other member as published.
+        let without = solved(&alone, mode, "four-span twin without the test case");
+        let ordinary_id = ordinary["id"].as_str().unwrap();
+        let prefix = format!("result:loadcase:{ordinary_id}:");
+        let unscoped = |out: &Value| case_rows(out, ordinary_id).map(|row| {
+            let mut row = row.clone();
+            row["id"] = json!(row["id"].as_str().unwrap().replacen(&prefix, "result:", 1));
+            row
+        }).collect::<Vec<_>>();
+        let (beside, by_itself) = (unscoped(&out), unscoped(&without));
+        assert!(!beside.is_empty(), "{mode:?}: the ordinary case publishes rows");
+        assert_eq!(beside, by_itself, "{mode:?}");
+        assert_eq!(exact_case(&out, ordinary_id), exact_case(&without, ordinary_id), "{mode:?}");
+        assert_eq!(state(&out, ordinary_id), state(&without, ordinary_id), "{mode:?}");
     }
 }
 

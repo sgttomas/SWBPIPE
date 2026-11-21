@@ -6570,6 +6570,15 @@
      ]
     },
     {
+     "file": "core/model_operations/operation_applier/src/lib.rs",
+     "line": 5732,
+     "via": "refuse_interim_member()",
+     "severity": "blocking",
+     "through": [
+      "const LOAD_CASE_TEST_CONDITION_PRESSURE_FREE (core/product_physics/src/hydrostatic.rs:34)"
+     ]
+    },
+    {
      "file": "core/product_physics/src/hydrostatic.rs",
      "line": 216,
      "via": "case_diag()",
@@ -6580,7 +6589,8 @@
     }
    ],
    "messages": [
-    "Load case `{case_ref}` would be a hydrostatic test on a document without a pressure contract; the test is solved on the exact pressure route only, so the test condition is not authored.",
+    "pressure_free_test_message(case_ref)",
+    "condition_set_authoring::pressure_free_test_message(target_ref)",
     "load case `{}` is a hydrostatic test on a document without a pressure contract; the test is solved on the exact pressure route only and is never solved as an ordinary case, so nothing is solved"
    ],
    "classification": "absent_capability",
@@ -21280,7 +21290,7 @@
   },
   {
    "file": "core/model_operations/operation_applier/src/condition_set_authoring.rs",
-   "line": 313,
+   "line": 315,
    "at": "is_staged_code()",
    "why": "call unwrap_or() returns no resolvable code",
    "expression": "&code",
@@ -21288,7 +21298,7 @@
   },
   {
    "file": "core/model_operations/operation_applier/src/condition_set_authoring.rs",
-   "line": 324,
+   "line": 326,
    "at": "field code",
    "why": "call unwrap_or() returns no resolvable code",
    "expression": "code",
@@ -21296,7 +21306,7 @@
   },
   {
    "file": "core/model_operations/operation_applier/src/condition_set_authoring.rs",
-   "line": 566,
+   "line": 568,
    "at": "is_route_or_admission()",
    "why": "the code field of finding, whose record type the scanner cannot prove is built only at code positions it reads",
    "expression": "&finding.code",
@@ -21304,7 +21314,7 @@
   },
   {
    "file": "core/model_operations/operation_applier/src/condition_set_authoring.rs",
-   "line": 598,
+   "line": 600,
    "at": "push()",
    "why": "the code field of finding, whose record type the scanner cannot prove is built only at code positions it reads",
    "expression": "&finding.code",
@@ -21424,7 +21434,7 @@
   },
   {
    "file": "core/model_operations/operation_applier/src/lib.rs",
-   "line": 5735,
+   "line": 5740,
    "at": "refuse_interim_member()",
    "why": "the code field of refusal, whose record type the scanner cannot prove is built only at code positions it reads",
    "expression": "refusal.code",
@@ -21432,15 +21442,7 @@
   },
   {
    "file": "core/model_operations/operation_applier/src/lib.rs",
-   "line": 5744,
-   "at": "refuse_interim_member()",
-   "why": "the code field of refusal, whose record type the scanner cannot prove is built only at code positions it reads",
-   "expression": "refusal.code",
-   "line_text": "refuse_interim_member(checker, target_ref, refusal.code, refusal.message);"
-  },
-  {
-   "file": "core/model_operations/operation_applier/src/lib.rs",
-   "line": 6388,
+   "line": 6385,
    "at": "refuse_interim_member()",
    "why": "a tuple source the scanner cannot follow",
    "expression": "code",
