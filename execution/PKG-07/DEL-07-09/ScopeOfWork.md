@@ -70,7 +70,7 @@ The Review group also receives every pending change from every other group.
 - the operation taxonomy, validation and application: DEL-16-01, DEL-16-02 and DEL-16-06;
 - what each operation means for the mechanics: the engine deliverables.
 
-**Not decided.** Whether R2, snubbers, becomes NORMATIVE-NOW now that the release target makes a dynamic-only snubber restraint a Must. Until the owner promotes the row it is no coverage obligation here.
+Snubbers, R2, follow after v1.0 with response-spectrum analysis (LIM-035, LIM-036), so the row is no coverage obligation here for v1.0. Whether it becomes NORMATIVE-NOW is decided when that work is taken up.
 
 ## Completion and Reliance Basis — Epistemology
 
