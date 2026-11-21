@@ -21,7 +21,7 @@ function errorText(error: unknown): string {
 function ErrorDetails({ error }: { error: unknown }) {
   return (
     <details className="shell-part-error-details" data-testid="part-error-details">
-      <summary>Details</summary>
+      <summary>Error details</summary>
       <pre>{errorText(error)}</pre>
     </details>
   );
