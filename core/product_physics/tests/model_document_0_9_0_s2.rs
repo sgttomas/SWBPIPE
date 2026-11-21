@@ -245,7 +245,7 @@ fn e6_every_case_level_code_refuses_by_name() {
         "DUPLICATE_ID", &["primitive-load IDs must be unique"]);
     // Other members keep their refusals beside a resolvable use.
     assert_refused_by(&mutated(|d| d["load_cases"][0]["test_condition"] = json!({"kind": "hydrostatic", "held_supports": "none"})),
-        "LOAD_CASE_TEST_CONDITION_UNSUPPORTED", &["load case `OPE`"]);
+        "LOAD_CASE_TEST_CONDITION_PRESSURE_FREE", &["load case `OPE`"]);
     // a skewed spring beside a resolvable
     // condition use is admitted and solved; it keeps no interim code.
     let skewed = mutated(|d| d["supports"][2]["direction"] = json!({"x": 0.0, "y": 3.0, "z": 4.0}));

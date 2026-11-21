@@ -17,8 +17,9 @@ use serde_json::{json, Value};
 
 const PROV: &str = "invented_s3a_condition_set_test_input";
 
-/// The eight staged findings of §11, by code.
-const STAGED: [&str; 8] = [
+/// The staged findings of §11, by code, with the hydrostatic test case's two
+/// (DEL-05-01 REQ-014).
+const STAGED: [&str; 10] = [
     "OPERATING_CONDITION_SET_MISSING",
     "OPERATING_CONDITION_KEY_MISSING",
     "OPERATING_CONDITION_VALUE_MISSING",
@@ -27,6 +28,8 @@ const STAGED: [&str; 8] = [
     "LOAD_CASE_CONDITION_WIND_EXPOSURE_CONFLICT",
     "LOAD_CASE_CONDITION_WIND_INPUT_MISSING",
     "EQUIVALENT_STATIC_INPUT_MISSING",
+    "LOAD_CASE_TEST_CONTENTS_UNSELECTED",
+    "LOAD_CASE_TEST_CONTENTS_SELF_WEIGHT_INVALID",
 ];
 
 /// S-K1 (§2.2 item 4): (1, 2^-1023, 0), a skewed direction with a subnormal canonical
@@ -539,8 +542,8 @@ fn every_s1_authoring_refusal_is_preserved() {
     assert!(outcome.diagnostics.iter().any(|d| d.message.contains("condition_set_ref")));
     applied(&model, &connect(json!({})));
     // test_condition.
-    refused(&model, &create_case("HT", json!({"test_condition": {"kind": "hydrostatic", "held_supports": "none"}})), "LOAD_CASE_TEST_CONDITION_UNSUPPORTED");
-    refused(&model, &create_case("HT", json!({"condition_use": {"temperature": "OPE1"}, "test_condition": {"kind": "hydrostatic", "held_supports": "none"}})), "LOAD_CASE_TEST_CONDITION_UNSUPPORTED");
+    refused(&model, &create_case("HT", json!({"test_condition": {"kind": "hydrostatic", "held_supports": "none"}})), "LOAD_CASE_TEST_CONDITION_PRESSURE_FREE");
+    refused(&model, &create_case("HT", json!({"condition_use": {"temperature": "OPE1"}, "test_condition": {"kind": "hydrostatic", "held_supports": "none"}})), "LOAD_CASE_TEST_CONDITION_PRESSURE_FREE");
     // direction on supports.
     let support = |direction: Value| op("create", "create_support", "Support", "S-2", "supports", "not_present",
         &json!({"id": "S-2", "label": "Stop", "node": "N2", "family": "line_stop", "restraints": ["UY"], "direction": direction, "provenance": PROV}).to_string());
@@ -723,10 +726,10 @@ fn an_unrelated_carried_refusal_is_reported_and_does_not_block() {
 fn an_edit_of_the_hydrostatic_case_blocks() {
     let model = with_case(with_sets(&[set_a()]), hydrostatic(json!({})));
     assert!(!validate_model_document(&model).iter().any(|d| d.is_blocking()), "the document opens and validates");
-    let outcome = refused(&model, &set_use(&model, "HT", &json!({"temperature": "OPE1"})), "LOAD_CASE_TEST_CONDITION_UNSUPPORTED");
+    let outcome = refused(&model, &set_use(&model, "HT", &json!({"temperature": "OPE1"})), "LOAD_CASE_TEST_CONDITION_PRESSURE_FREE");
     assert!(warnings(&outcome).iter().any(|(code, _)| code == "OPERATING_CONDITION_SET_MISSING"), "staged findings still warn beside it");
     let (next, outcome) = applied(&model, &set_use(&model, "SUS", &json!({"temperature": "OPE1"})));
-    carried_info(&outcome, "LOAD_CASE_TEST_CONDITION_UNSUPPORTED", &solve(&next));
+    carried_info(&outcome, "LOAD_CASE_TEST_CONDITION_PRESSURE_FREE", &solve(&next));
 }
 
 /// HT uses conditions (temperature) and its pipes use set `cs:a`, so HT is an
@@ -741,7 +744,7 @@ fn an_edit_of_a_set_feeding_the_hydrostatic_case_blocks() {
         hydrostatic(json!({"condition_use": {"temperature": "OPE1"}})),
     );
     assert!(!validate_model_document(&model).iter().any(|d| d.is_blocking()), "the document opens and validates");
-    let code = "LOAD_CASE_TEST_CONDITION_UNSUPPORTED";
+    let code = "LOAD_CASE_TEST_CONDITION_PRESSURE_FREE";
     let mut relabelled = set_a();
     relabelled["label"] = json!("Line A, relabelled");
     refused(&model, &update_set(&model, &relabelled), code);
