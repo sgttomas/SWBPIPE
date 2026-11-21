@@ -19,6 +19,7 @@ import { resolve } from "node:path";
 import { isDeepStrictEqual } from "node:util";
 import type { PreviewModel } from "../../types";
 import { getLocalStorageCapability } from "../../services/projectService";
+import * as previewService from "../../services/previewService";
 import { loadDesignKnowledge } from "../../services/previewService";
 import { COMPARISON_BASIS_WITHOUT_ROWS } from "./withinRunComparison";
 import { canonicalJsonString } from "../../services/hashService";
@@ -41,6 +42,7 @@ afterEach(() => {
   for (const hook of liveHooks) { try { hook.unmount(); } catch { /* already unmounted */ } }
   liveHooks.clear();
   invokeMock.mockReset(); window.localStorage.clear(); delete (window as Json).__TAURI_INTERNALS__;
+  vi.restoreAllMocks();
   saves.length = 0;
 });
 
@@ -230,4 +232,58 @@ it("the same save carries a choice held from an earlier run, and a choice attemp
   expect(saves).toHaveLength(1);
   // The held choice's outcome: the unchanged builder refuses the producer's range-envelope rows.
   expect(sentComparison().unavailable).toMatchObject({ left_basis_ref: "load:L-200", right_basis_ref: RANGE, reason_code: "ANALYSIS-RUN-RESULT-DIMENSION-UNDECLARED" });
+});
+
+it("a save whose report run is refused after a concurrent comparison read dropped the held choice states the refusal and releases its controls", async () => {
+  const hook = await currentSession();
+  const results = () => hook.result.current.results;
+  await freshSolve(hook);
+  // A choice this run does not offer, held before its options are known (no full copy yet).
+  act(() => results().handleSelectWithinRunBases({ left: "load:L-999", right: RANGE }));
+  expect(results().heldWithinRunSelection).toEqual({ left: "load:L-999", right: RANGE });
+  act(() => results().setReportPackagePrivateIntent(true));
+  // The save's run record is built on the full copy; that build is held, then refused.
+  let release!: () => void;
+  const held = new Promise<void>((resolve) => { release = resolve; });
+  const real = previewService.buildAnalysisRunPreview;
+  let refusals = 0;
+  vi.spyOn(previewService, "buildAnalysisRunPreview").mockImplementation(async (...args) => {
+    if (refusals++ > 0) return real(...args);
+    await held;
+    throw new Error("INVENTED-RECORD-REFUSED: the run record was not built.");
+  });
+  let saving!: Promise<void>;
+  act(() => { saving = results().handleSaveReportPackage(); });
+  // A concurrent comparison read (without the record) loads the full copy: the session drops the
+  // held choice, which this run does not offer, before the save's record build is refused.
+  await act(async () => { await results().loadC2Full(results().currentSolvedResult!, { record: false }); });
+  await waitFor(() => expect(results().heldWithinRunSelection).toBeNull());
+  expect(results().droppedWithinRunBases).toEqual(["load:L-999"]);
+  await act(async () => { release(); await saving; });
+  expect(saves).toHaveLength(0);
+  expect(results().reportPackageRoute).toMatchObject({ route: "redaction_blocked", diagnostic: expect.stringContaining("INVENTED-RECORD-REFUSED") });
+  expect(results().reportPackageBusy).toBe(false);
+  // A retry proceeds (and sends).
+  await act(async () => { await results().handleSaveReportPackage(); });
+  expect(saves).toHaveLength(1);
+});
+
+it("a choice made in the same tick as File > Save Report Package retires that save, releases its controls, and a retry saves the choice", async () => {
+  const hook = await currentSession();
+  const results = () => hook.result.current.results;
+  act(() => results().setReportPackagePrivateIntent(true));
+  let saving!: Promise<void>;
+  // Both from one render, before React commits the choice: the save's basis holds the earlier one.
+  act(() => {
+    const current = results();
+    current.handleSelectWithinRunBases({ left: "load:L-200", right: RANGE });
+    saving = current.handleSaveReportPackage();
+  });
+  await act(async () => { await saving; });
+  expect(results().heldWithinRunSelection).toEqual({ left: "load:L-200", right: RANGE });
+  expect(saves).toHaveLength(0);
+  expect(results().reportPackageBusy).toBe(false);
+  await act(async () => { await results().handleSaveReportPackage(); });
+  expect(saves).toHaveLength(1);
+  expect(sentComparison().unavailable).toMatchObject({ left_basis_ref: "load:L-200", right_basis_ref: RANGE });
 });

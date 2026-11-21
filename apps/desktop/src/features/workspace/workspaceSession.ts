@@ -4208,8 +4208,14 @@ export function useWorkspaceSession() {
     // Whether the held choice was dropped for the report run (set once that run is read):
     // the session then drops it too, by the same rule, which leaves the save current.
     let heldDroppedForRun = false;
-    // Refs, because the awaited build and preparation outlive this render's closure.
-    const isCurrent = () =>
+    // Whether the report run was read and its comparison resolved. Before that, a concurrent
+    // comparison read of this same result may already have dropped the held choice (to null),
+    // so a refusal of the read itself is still this save's to state.
+    let resolvedReportRun = false;
+    // Refs, because the awaited build and preparation outlive this render's closure. Every
+    // send guard is strict on the held choice (null only when this save found it dropped for
+    // its run); `forError` also accepts null while the report run is unread.
+    const isCurrent = (forError = false) =>
       reportPackageRequestGenerationRef.current === generation &&
       reportPackageBusyGenerationRef.current === generation &&
       projectSessionGenerationRef.current === basis.projectSessionGeneration &&
@@ -4222,7 +4228,7 @@ export function useWorkspaceSession() {
       ruleCheckReportRunRef.current === basis.ruleCheckRun &&
       reportCompositionRef.current === basis.reportComposition &&
       (heldWithinRunSelectionRef.current === basis.heldWithinRunSelection ||
-        (heldDroppedForRun && heldWithinRunSelectionRef.current === null));
+        ((heldDroppedForRun || (forError && !resolvedReportRun)) && heldWithinRunSelectionRef.current === null));
     reportPackageBusyGenerationRef.current = generation;
     setReportPackageBusy(true);
     setReportPackageRoute(null);
@@ -4247,6 +4253,7 @@ export function useWorkspaceSession() {
         heldDroppedForRun = resolved.heldDropped;
         packagedComparison = { comparison: resolved.packaged?.comparison ?? null, comparisonUnavailable: resolved.packaged?.unavailable ?? null };
       }
+      resolvedReportRun = true;
       if (!isCurrent()) return;
       const request = await buildReportPackageRequest({
         model: basis.model,
@@ -4283,14 +4290,16 @@ export function useWorkspaceSession() {
       setReportPackageRoute(saved);
     } catch (error) {
       // A basis retired before a send: nothing was sent, and the newer basis owns the state.
-      if (error instanceof IngressRequestRetiredError || !isCurrent()) return;
+      if (error instanceof IngressRequestRetiredError || !isCurrent(true)) return;
       setReportPackageRedaction(null);
       setReportPackageRoute({
         route: "redaction_blocked",
         diagnostic: localPrivateSaveFailureText(error)
       });
     } finally {
-      if (isCurrent()) {
+      // Released whenever this save still holds the busy mark, even when its basis moved on
+      // mid-save (as the shareable save does).
+      if (reportPackageBusyGenerationRef.current === generation) {
         reportPackageBusyGenerationRef.current = null;
         setReportPackageBusy(false);
       }
