@@ -167,22 +167,25 @@ design are right."
 
 **Display forms:**
 
-- "Numerical health: checks passed", "Numerical health: sensitive",
+- "Numerical health: not verified", "Numerical health: sensitive",
   "Numerical health: quality unresolved", "Numerical health: solve failed"
-  and "Numerical health: not assessed";
+  and "Numerical health: not assessed". "Not verified" is the display form of
+  the solver's checks-passed verdict: the product verifies the bound those
+  checks rest on for no case (LIM-026);
 - the prefix "Ordinary solve —", on routes whose standing comes from other
   evidence;
 - the result header's count form, "Numerical health: {n} {state}, …".
 
 They report the solver's existing integrity verdicts (`M03-INTEGRITY-v1`) for
 each load case. They are numerical-quality indicators, not analysis statuses
-or evidence-status labels (§2.1), and they never use "verified", "certified",
-"bound", "guaranteed", "valid", "approved", "compliant", "correct" or
-"reliable".
+or evidence-status labels (§2.1), and they never use "certified",
+"guaranteed", "valid", "approved", "compliant", "correct" or "reliable"; they
+use "verified" and "bound" only to deny them, in the phrases "not verified"
+and "has not verified an error bound".
 
 **Belongs on:** the desktop's numerical-health indicator, and the
 numerical-health line of generated reports. The canonical sentence accompanies
-the checks-passed state.
+the not verified state.
 
 ### EV-FIGURE — evidence status of a numerical figure, state or comparison
 

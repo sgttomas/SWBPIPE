@@ -33,12 +33,14 @@ remaining refusal and whether Agent 0 has declared it acceptable. Package versio
 0.1.0 documentation do not change the v1.0 publication target.
 
 **Known numerical defect on development main:** the solver's integrity check
-rests on an inverse-norm bound the product does not verify, so no error bound
-and no nonlinear support state is established for any solve. The desktop and
-the result reader's verdict state this as not verified and not confirmed; a
-result document's own tokens, and the file outputs, do not yet carry that
-status. Exit criterion 18 is not met;
-[LIM-026](docs/RELEASE_LIMITATIONS_v1.0.md#lim-026--swbpipe-verifies-no-error-bound-for-a-solve-every-results-integrity-check-reads-not-verified)
+rests on an inverse-norm bound the product does not verify, so that check
+establishes no error bound, and no nonlinear support-state confirmation
+resting on it, for any solve. The retained-precision and pressure-source
+recovery certificates are separate and are not affected. The desktop and the
+result reader's verdict state this as not verified and not confirmed; a
+result document's own tokens, the file outputs and the rendered report's
+diagnostics table do not yet carry that status. Exit criterion 18 is not met;
+[LIM-026](docs/RELEASE_LIMITATIONS_v1.0.md#lim-026--swbpipe-does-not-verify-the-ordinary-solves-error-bound-every-results-integrity-check-reads-not-verified)
 names the maintained false-pass and false-state witness and what remains. The
 solver's tokens are not independent assurance.
 
