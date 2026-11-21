@@ -125,6 +125,57 @@ function receiptOutcomeLine(receipt: ReportPackageSaveReceipt): string {
 const LOCAL_PRIVATE_REPORT_WARNING =
   "Local private report: this rendering contains private project values for your own local review. It is not for sharing or publication.";
 
+/** The outcome of a report-package save (receipt, cancellation, refusal). The panel shows it; where
+ * the rendered report's gate withholds the panel, the gate shows it in the panel's place, so a save
+ * started from the File menu still says what happened. */
+export function ReportPackageSaveStatus({ route, announce = false }: {
+  route: ReportPackageSaveRoute | null;
+  /** Each outcome's element is a status (announced once), as where the gate shows it in the
+   * panel's place. The panel leaves it unset and its elements stay as they are. */
+  announce?: boolean;
+}) {
+  const role = announce ? "status" : undefined;
+  return (
+    <>
+      {route?.route === "unavailable_browser" ? (
+        <p role={role} data-testid="report-package-save-status">{route.diagnostic}</p>
+      ) : null}
+      {route?.route === "redaction_blocked" ? (
+        <p role={role} data-testid="report-package-save-status">{route.diagnostic}</p>
+      ) : null}
+      {route?.route === "not_requested" ? (
+        <p role="status" data-testid="report-package-save-status">{route.diagnostic}</p>
+      ) : null}
+      {route?.route === "tauri_report_package_save" ? (
+        <div className="report-list" role={role} data-testid="report-package-save-status">
+          {cancelledStatement(route.receipt) ? (
+            <span data-testid="report-package-save-cancelled">{cancelledStatement(route.receipt)}</span>
+          ) : null}
+          <span>{receiptOutcomeLine(route.receipt)}</span>
+          <span>
+            bytes={route.receipt.byte_count}; container_sha256={route.receipt.container_sha256_hex}; package_identity=
+            {route.receipt.package_identity_sha256_hex}
+          </span>
+          <span>
+            replacement={String(route.receipt.replaced_existing)}; durability={route.receipt.durability}; redaction_route=
+            {route.receipt.redaction_route_id}
+          </span>
+          <span>
+            path_containment={route.receipt.path_containment}; limitation={route.receipt.limitation}
+          </span>
+          {recordsUserRelease(route.receipt) ? (
+            <span data-testid="report-package-user-release-status">user_release_recorded=true</span>
+          ) : null}
+        </div>
+      ) : null}
+    </>
+  );
+}
+
+/** A run restored from the saved project is not reported or packaged without solving again. */
+const RESTORED_RUN_RENDER = "This run was restored from the saved project and cannot be rendered. Solve the model again to render its report.";
+const RESTORED_RUN_PACKAGE = "This run was restored from the saved project and cannot be packaged. Solve the model again to save a report package.";
+
 export function RenderedReportPanel({
   model,
   result,
@@ -137,6 +188,7 @@ export function RenderedReportPanel({
   packageRedaction = null,
   packageRoute = null,
   packageNeedsCurrent = false,
+  restoredRun = false,
   numericalHealth = null,
   reportComposition: sessionComposition,
   onReportCompositionChange,
@@ -177,14 +229,20 @@ export function RenderedReportPanel({
    * exact-route result that is not numerically eligible). The report package takes only a
    * Current result, so its save buttons stay disabled for it, as the File menu's are. */
   packageNeedsCurrent?: boolean;
+  /** The shown run was restored from the saved project and no solve is running: rendering and the
+   * package saves stay disabled, and say so instead of "Solve first". */
+  restoredRun?: boolean;
   onPackagePrivateIntentChange?: (value: boolean) => void;
   onSaveReportPackage?: () => void;
   /** W-18b (DEL-08-01 Design `report-user-release.md` §2.2): opens the user-release dialog. */
   onSaveShareableReportPackage?: () => void;
 }) {
   const [panelComposition, setPanelComposition] = useState<ReportComposition | null>(null);
-  const packageSaveTitle = !result || !analysisRun
-    ? "Solve first: report-package save needs the current mechanics result and analysis-run record."
+  const unsolved = !result || !analysisRun;
+  const packageSaveTitle = unsolved
+    ? restoredRun
+      ? RESTORED_RUN_PACKAGE
+      : "Solve first: report-package save needs the current mechanics result and analysis-run record."
     : packageNeedsCurrent
       ? "Not available for this result: report-package save needs a numerically eligible result. The rendered report states this result's numerical standing."
       : undefined;
@@ -515,7 +573,9 @@ export function RenderedReportPanel({
               ? undefined
               : rendering
                 ? "A report render is already in progress."
-                : "Disabled: rendering needs a completed mechanics preview and its analysis-run record in this session. Open the Solve section and run the mechanics preview first."
+                : unsolved && restoredRun
+                  ? RESTORED_RUN_RENDER
+                  : "Disabled: rendering needs a completed mechanics preview and its analysis-run record in this session. Open the Solve section and run the mechanics preview first."
           }
           onClick={() => void onRender()}
         >
@@ -531,9 +591,9 @@ export function RenderedReportPanel({
           />
           Include known private values in this local rendered report (your own review; not for sharing)
         </label>
-        {!result || !analysisRun ? (
+        {unsolved ? (
           <span data-testid="rendered-report-precondition">
-            Solve first: rendering needs a mechanics result and analysis-run record.
+            {restoredRun ? RESTORED_RUN_RENDER : "Solve first: rendering needs a mechanics result and analysis-run record."}
           </span>
         ) : null}
       </div>
@@ -578,37 +638,7 @@ export function RenderedReportPanel({
           {String(packageRedaction.blocked)}
         </p>
       ) : null}
-      {packageRoute?.route === "unavailable_browser" ? (
-        <p data-testid="report-package-save-status">{packageRoute.diagnostic}</p>
-      ) : null}
-      {packageRoute?.route === "redaction_blocked" ? (
-        <p data-testid="report-package-save-status">{packageRoute.diagnostic}</p>
-      ) : null}
-      {packageRoute?.route === "not_requested" ? (
-        <p role="status" data-testid="report-package-save-status">{packageRoute.diagnostic}</p>
-      ) : null}
-      {packageRoute?.route === "tauri_report_package_save" ? (
-        <div className="report-list" data-testid="report-package-save-status">
-          {cancelledStatement(packageRoute.receipt) ? (
-            <span data-testid="report-package-save-cancelled">{cancelledStatement(packageRoute.receipt)}</span>
-          ) : null}
-          <span>{receiptOutcomeLine(packageRoute.receipt)}</span>
-          <span>
-            bytes={packageRoute.receipt.byte_count}; container_sha256={packageRoute.receipt.container_sha256_hex}; package_identity=
-            {packageRoute.receipt.package_identity_sha256_hex}
-          </span>
-          <span>
-            replacement={String(packageRoute.receipt.replaced_existing)}; durability={packageRoute.receipt.durability}; redaction_route=
-            {packageRoute.receipt.redaction_route_id}
-          </span>
-          <span>
-            path_containment={packageRoute.receipt.path_containment}; limitation={packageRoute.receipt.limitation}
-          </span>
-          {recordsUserRelease(packageRoute.receipt) ? (
-            <span data-testid="report-package-user-release-status">user_release_recorded=true</span>
-          ) : null}
-        </div>
-      ) : null}
+      <ReportPackageSaveStatus route={packageRoute} />
       {unitBasisText ? (
         <div className="report-list">
           <span data-testid="rendered-report-unit-basis">{unitBasisText}</span>
@@ -709,7 +739,7 @@ export function RenderedReportPanel({
                 Print / PDF (derived view)
               </button>
               <p data-testid="rendered-report-list-notice">
-                HTML saves and printed reports are not listed in the project. Save a report package to keep it in the project’s report list.
+                The project does not keep or list saved or printed reports. An HTML save and a saved report package are each a file you keep.
               </p>
             </div>
           ) : (
