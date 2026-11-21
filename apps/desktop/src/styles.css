@@ -4736,9 +4736,13 @@ body { min-width: 760px; min-height: 540px; }
 /* The Results stage (DEL-07-05): one header that does not scroll with the tables under it. It holds
    the run, the case with its selector, the standing line and the closed "Method and limits"; the
    standing line stays in view while any result row is. Nothing here is styled as success. */
-.app-shell .results-panel { gap: var(--space-4); }
+/* The panel primitive's overflow: hidden would make the panel the header's scroll container, so the
+   header would scroll away with it; clip keeps the rounded border's clipping without that. */
+.app-shell .results-panel { gap: var(--space-4); overflow: clip; }
 .app-shell .results-stage-header {
-  position: sticky; top: 0; z-index: 3;
+  /* Flush with the top of the dock's scroll area (above its 8px padding), and above the tables'
+     own sticky header rows and entity column. */
+  position: sticky; top: -8px; z-index: 6;
   display: grid; gap: var(--space-2);
   margin: calc(-1 * var(--space-5)) calc(-1 * var(--space-5)) 0;
   padding: var(--space-4) var(--space-5);
