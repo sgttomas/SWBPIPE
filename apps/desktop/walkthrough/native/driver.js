@@ -688,8 +688,67 @@
     await journey.step("issues-after", "The Issues drawer after the solve", openIssues);
   }
 
+  // Each disclosure of a region opened by its own summary, as a person opens it.
+  async function openDisclosures(id) {
+    const region = byTestId(id);
+    if (!visible(region)) return 0;
+    let opened = 0;
+    for (const details of region.querySelectorAll("details:not([open])")) {
+      const summary = details.querySelector(":scope > summary");
+      if (!visible(summary)) continue;
+      acting(summary, `${id} ${said(summary).slice(0, 40)}`).click();
+      opened += 1;
+      await settle();
+    }
+    return opened;
+  }
+  // What the window says of the result it holds: the Results stage's own words about it. Where the rail's Results
+  // control is disabled, that is what a person meets: its own reason is recorded, the rail is pictured, and the
+  // journey goes on (a person cannot open the stage, but is not stuck).
+  async function heldResultWords() {
+    await closeOverlays();
+    const rail = byTestId("rail-stage-results");
+    if (visible(rail) && (rail.disabled || rail.getAttribute("aria-disabled") === "true")) {
+      if (acted) acted.push({ control: "rail-stage-results", shown: true, in_closed_section: false, disabled: true });
+      return `the rail's Results control is disabled: "${disabledReason(rail)}"`;
+    }
+    await openStage("results");
+    await sleep(500);
+    const section = byTestId("workspace-section-results");
+    const words = [...(section?.querySelectorAll('[role="status"], [role="note"], [role="alert"], [data-testid*="stale"], [data-testid*="historical"], [data-testid*="held"]') ?? [])]
+      .filter(visible).map(said).filter(Boolean);
+    return [...new Set(words)].join(" | ").slice(0, 600) || "the Results stage states nothing about the result it holds";
+  }
+
+  // 33. Failed solve: the demonstration model, a pipe's wall made thicker than its radius by the person in the
+  // window (the start: a model the solver refuses); the refusal read at each place the window shows it; the pipe
+  // reached from its finding and corrected; the solve completes.
+  async function failedSolve(journey) {
+    await journey.step("first-open", "The application as first opened, with its demonstration model");
+    await journey.step("pipe-chosen", "pipe:P-100 chosen in the model tree", async () => selectInTree("pipe", "pipe:P-100"));
+    await editValue(journey, "wall-made-thick", "the wall thickness of pipe:P-100 (0.1 m on a 0.168 m outside diameter)", { fieldPath: "section.wall_thickness.value", value: "0.1" });
+    await journey.step("run", "Run pressed on the edited model", pressRun);
+    await journey.step("run-answer", "What the window says after Run", runAnswer);
+    await journey.step("run-answer-details", "The solve's progress panel with its disclosures opened", async () => `${await openDisclosures("solve-progress-panel")} disclosure(s) opened; ${shown("solve-progress-state") ?? ""}`);
+    await journey.step("issues", "The Issues drawer, from the status bar", openIssues);
+    await journey.scrolled("issues", "The Issues drawer", 2, '[data-testid="issues-home"]');
+    await journey.step("analyze-page", "The Analyze page after the refused Run", async () => { await closeOverlays(); await showSection("solve"); return shown("solve-progress-state") ?? ""; });
+    await journey.scrolled("analyze-page", "The Analyze page", 2);
+    await journey.step("results-stage", "The Results stage after the refused Run", heldResultWords);
+    await followFinding(journey, "pipe", "pipe", "pipe:P-100");
+    await editValue(journey, "wall-corrected", "the wall thickness of pipe:P-100 (0.007 m, as the model had it)", { fieldPath: "section.wall_thickness.value", value: "0.007" });
+    await journey.step("issues-corrected", "The Issues drawer after the correction", openIssues);
+    await journey.step("run-again", "Run pressed again", pressRun);
+    await journey.step("run-again-answer", "What the window says after the second Run", runAnswer);
+    await journey.step("results", "The Results stage", async () => {
+      await openStage("results");
+      await waitFor("the results table's rows", () => document.querySelector('[data-testid^="result-row-"]'), T.step).catch(() => null);
+      return shown("result-filter-summary") ?? "";
+    });
+  }
+
   const JOURNEYS = { "solve-and-results": solveAndResults, report, exports: exportsPage, "reference-system": referenceSystem, "prepared-project": preparedProject };
-  Object.assign(JOURNEYS, { "missing-data": missingData });
+  Object.assign(JOURNEYS, { "missing-data": missingData, "failed-solve": failedSolve });
 
   (async () => {
     const result = { nonce: null, ok: false, journey: null, user_agent: navigator.userAgent };

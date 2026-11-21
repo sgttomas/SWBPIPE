@@ -28,6 +28,8 @@
 //   missing-data       32  AC-007 Missing data: the committed missing-data model opened, Run and its answer, Issues,
 //                          Analyze, Results, each missing value reached from its finding and entered with the person's
 //                          committed value (`entries_from`), the first undone and redone, Run again, the results.
+//   failed-solve       33  AC-007 Failed solve: pipe:P-100's wall made thicker than its radius in the inspector, Run,
+//                          the refusal at each place it is shown, the pipe reached from its finding and corrected, solved.
 //
 // Every edit a use-case journey makes goes through one driver helper (driver.js editValue), so that a change in how a
 // person commits an edit changes one place.
@@ -117,6 +119,10 @@ export const JOURNEYS = Object.freeze({
     place: [{ key: "model", at: "chooser/models/start_model.json", from: "fixtures/embedded_agent/use_cases/missing-data/start_model.json" }],
     open: { by: "model-document", file: "model" },
     entries_from: "fixtures/embedded_agent/use_cases/missing-data/person_entered.json"
+  },
+  "failed-solve": {
+    number: 33, title: "Failed solve (launched app): a pipe's wall made thicker than its radius in the inspector, Run refused, the refusal at each place it is shown, the pipe reached from its finding and corrected, solved",
+    use_case: "DEL-07-06 AC-007 Failed solve: the start is the demonstration model broken by the person in the window (pipe:P-100's wall thickness set to 0.1 m on a 0.168 m outside diameter, pictured), since the committed models searched include none the solver refuses; to the solve after the correction"
   }
 });
 export const DEFAULT_JOURNEYS = Object.freeze(["solve-and-results", "report", "exports"]);
