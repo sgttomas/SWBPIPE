@@ -22,7 +22,7 @@ It serves SOW-033 under OBJ-001 and OBJ-011 (`execution/_Decomposition/SOFTWARE_
 **Terms the guide implements.**
 
 - *Release described.* The guide accompanies one release of the desktop application and describes that release. For v1.0 that is the macOS build.
-- *Required analysis.* Each analysis of exit criterion 1: sustained, operating, expansion with its basis, hydrotest, wind, three-axis static seismic with SRSS and absolute-sum combination, seismic anchor movement, modal, response spectrum and hanger sizing.
+- *Required analysis.* Each analysis of exit criterion 1: sustained, operating, expansion as the operating minus sustained difference, hydrotest, wind, three-axis static seismic with SRSS and absolute-sum combination, seismic anchor movement and hanger sizing. Modal and response-spectrum analysis follow after v1.0 (LIM-035) and are not required analyses.
 - *Analysis entry.* The guide's account of one required analysis, in four parts: the inputs the user enters, where they are entered and in what units; how the analysis is run; the results it publishes and how to read them; and its limitations as the user meets them, which are its named refusals and what the release does not offer. Each entry links to the theory note that gives the method and its assumptions.
 - *Guide sections.* Product scope and authority boundary; installation and project storage; creating a project; building the centerline model; solving; running user rule checks; reviewing results; reports; limitations; troubleshooting and warnings; glossary and status vocabulary.
 - *Three authorities.* The mechanics solve, the user-rule check and human review. The guide keeps them apart wherever it describes a result.
@@ -66,7 +66,7 @@ REQ-001 to REQ-010 keep the numbers of the earlier `UG-REQ` series.
 ### Acceptance criteria
 
 - **AC-001** — Every guide section is present under a heading a reader can find from the guide's table of contents, and every link in the guide resolves.
-- **AC-002** — For each of the ten required analyses there is an analysis entry with all four parts, and its link reaches the part of a theory note that covers that analysis.
+- **AC-002** — For each required analysis there is an analysis entry with all four parts, and its link reaches the part of a theory note that covers that analysis.
 - **AC-003** — A reader who follows the guide on the release it accompanies, from installation through each required analysis on the invented reference system, obtains what each instruction says they will. Every command, menu path, file name, default and code the guide names exists in that release, nothing the guide presents as available is refused, and each thing the release does not offer is stated as not offered.
 - **AC-004** — The scope and authority section states that SWBPIPE does not determine code compliance. No passage states or implies a claim PRD §21.2 prohibits, and wherever a result is described the reader can tell which of the three authorities it belongs to.
 - **AC-005** — Every status token, display label, warning class and diagnostic code in the guide is one the product has, spelled as the product spells it.
