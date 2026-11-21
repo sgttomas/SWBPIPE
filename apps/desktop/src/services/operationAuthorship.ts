@@ -6,7 +6,7 @@
  * verify. So every route that carries agent or imported content stamps
  * `agent` here, host-side, and never passes a claimed author through. */
 import type { EditorOperationIntent } from "../types";
-import type { OperationBatch } from "./operationBatchService";
+import type { OperationBatch, OperationBatchOutcome } from "./operationBatchService";
 
 /** Display-only record of what an imported file claimed; never part of an intent. */
 export type ImportContext = Readonly<{
@@ -216,6 +216,8 @@ export function personEnteredWriteIn(operations: readonly unknown[]): (PersonEnt
   return null;
 }
 
+/** The source channels of agent and imported content: read by requeue to re-stamp a stored record, and by the
+ * commit route to refuse one. One list for both. */
 const AGENT_OR_IMPORTED_CHANNELS = ["embedded_agent", "offline_intake", "offline_user_supplied", "offline"];
 export type RequeueResult = { batch: OperationBatch } | { refused: string };
 const KEPT = "It was not queued for review; the record stays stored and nothing of yours is lost.";
@@ -257,4 +259,82 @@ export function requeueRetainedRecord(intent: unknown, index: number): RequeueRe
     return { batch: { batch_id, operations: [structuredClone(intent) as unknown as EditorOperationIntent] } };
   }
   return { refused: "This stored record does not say who proposed it, so it cannot be requeued. Prepare the change again." };
+}
+
+/** The role a desktop editor's route stamps on what it commits (DEL-16-03, Commit). */
+export type EditorCommitRole = "gui_editor" | "viewport_editor";
+/** A live desktop editor's route to the session's commit entry. The session mints one per role and recognises a
+ * route by identity only: a copy, a clone or an object of the same shape is not a route. */
+export type EditorCommitRoute = Readonly<{ role: EditorCommitRole }>;
+/** What a desktop editor built from what the person entered: one operation, or one ordered batch applied whole. */
+export type EditorEdit = Readonly<{ intent: EditorOperationIntent }> | Readonly<{ batch: OperationBatch }>;
+/** A validate-only preview of one editor batch on the model it was made on, recognised by the session by identity. */
+export type EditorCommitPreview = Readonly<{ batchId: string }>;
+/** What the commit entry returns: committed (one checkpoint, its receipts, whether a held result was cleared, and a
+ * notice of a viewport callback failure after publication), or refused (nothing changed, the reason to show at the
+ * control, and the engine's outcome when the engine refused). */
+export type EditorCommitResult =
+  | Readonly<{ status: "committed"; batchId: string; checkpointId: string; outcome: OperationBatchOutcome; resultsCleared: boolean; notice: string | null }>
+  | Readonly<{ status: "refused"; reason: string; outcome: OperationBatchOutcome | null }>;
+/** What the preview entry returns: the engine's validate-only outcome and the handle a commit presents, or refused. */
+export type EditorPreviewResult =
+  | Readonly<{ status: "previewed"; preview: EditorCommitPreview; outcome: OperationBatchOutcome }>
+  | Readonly<{ status: "refused"; reason: string; outcome: OperationBatchOutcome | null }>;
+
+/** The prefix of the source reference the commit route stamps. A payload already carrying it was committed before
+ * (a retained record), so it is refused as such. */
+const EDITOR_COMMIT_SOURCE_PREFIX = "desktop-editor:";
+const NOT_FROM_AN_EDITOR = "It did not come from a desktop editor, so nothing was applied. A proposal or an import is applied from Review changes.";
+
+/** The commit route's stamp (DEL-16-03, Commit). It takes what a desktop editor built and returns the batch the
+ * session commits, stamped as the person's by the route: `author_type` is `user` and the source is the route's own
+ * (`local_desktop_preview`, the route's role, a reference derived from the batch), whatever the payload carried. It
+ * never reads an author or a source as a grant; it reads them only to refuse a payload that carries the marks of
+ * another origin: an agent's or an import's author or source (the channels of agent and imported content, an
+ * `agent` or `imported` role, an offline-import reference), an agent's or an import's context beside the batch, a
+ * requeue (a `requeue-` batch, a `retained_requeue` channel, a `retained:` reference), or the route's own earlier
+ * stamp (a retained record). A payload with none of these marks is not thereby the person's: only the routes the
+ * session hands to its desktop editors reach this stamp. */
+export function stampEditorCommit(edit: unknown, role: EditorCommitRole): { batch: OperationBatch } | { refused: string } {
+  if (!plain(edit)) return { refused: `This is not a change from a desktop editor. ${NOT_FROM_AN_EDITOR}` };
+  const keys = Object.keys(edit);
+  if (keys.some((key) => /context|precondition/i.test(key))) return { refused: `This change carries an agent's or an import's context. ${NOT_FROM_AN_EDITOR}` };
+  if (keys.length !== 1 || !(keys[0] === "intent" || keys[0] === "batch")) return { refused: `This is not one change or one batch from a desktop editor. ${NOT_FROM_AN_EDITOR}` };
+  let batchId: unknown, operations: unknown, sourceModelHash: { source_model_hash: unknown } | null = null;
+  if (keys[0] === "intent") {
+    operations = [edit.intent];
+    batchId = plain(edit.intent) ? edit.intent.operation_id : undefined;
+  } else {
+    const batch = edit.batch;
+    if (!plain(batch)) return { refused: `This is not one change or one batch from a desktop editor. ${NOT_FROM_AN_EDITOR}` };
+    if (Object.keys(batch).some((key) => /context|precondition/i.test(key))) return { refused: `This change carries an agent's or an import's context. ${NOT_FROM_AN_EDITOR}` };
+    if (Object.keys(batch).some((key) => !["batch_id", "operations", "source_model_hash"].includes(key))) return { refused: `This batch carries members no desktop editor writes. ${NOT_FROM_AN_EDITOR}` };
+    batchId = batch.batch_id;
+    operations = batch.operations;
+    if (Object.hasOwn(batch, "source_model_hash")) sourceModelHash = { source_model_hash: batch.source_model_hash };
+  }
+  if (typeof batchId !== "string" || !batchId.trim()) return { refused: `This change has no identifier. ${NOT_FROM_AN_EDITOR}` };
+  if (batchId.startsWith("requeue-")) return { refused: `This change is a stored record requeued after reopening. ${NOT_FROM_AN_EDITOR}` };
+  if (!Array.isArray(operations) || operations.length === 0 || !operations.every(plain)) return { refused: `This batch holds no operation a desktop editor builds. ${NOT_FROM_AN_EDITOR}` };
+  for (const operation of operations as Record<string, unknown>[]) {
+    if (Object.hasOwn(operation, "author_type") && operation.author_type !== "user") return { refused: `This change carries another author than the person. ${NOT_FROM_AN_EDITOR}` };
+    if (operation.source === undefined) continue;
+    const source = plain(operation.source) ? operation.source : null;
+    if (!source) return { refused: `This change carries a source no desktop editor writes. ${NOT_FROM_AN_EDITOR}` };
+    const channel = typeof source.source_channel === "string" ? source.source_channel : "";
+    const sourceRole = typeof source.source_role === "string" ? source.source_role : "";
+    const ref = typeof source.source_ref === "string" ? source.source_ref : "";
+    if (AGENT_OR_IMPORTED_CHANNELS.includes(channel) || ["agent", "imported"].includes(sourceRole) || ref.startsWith("offline-import:")) {
+      return { refused: `This change carries an agent's or an import's source. ${NOT_FROM_AN_EDITOR}` };
+    }
+    if (channel === "retained_requeue" || ref.startsWith("retained:")) return { refused: `This change is a stored record requeued after reopening. ${NOT_FROM_AN_EDITOR}` };
+    if (ref.startsWith(EDITOR_COMMIT_SOURCE_PREFIX)) return { refused: `This change is a record already committed once. ${NOT_FROM_AN_EDITOR}` };
+  }
+  const stamped = (operations as Record<string, unknown>[]).map((operation, index) => ({
+    ...structuredClone(operation),
+    author_type: "user" as const,
+    source: { source_ref: `${EDITOR_COMMIT_SOURCE_PREFIX}${role}:${batchId}:${index + 1}`, source_channel: "local_desktop_preview", source_role: role }
+  })) as unknown as EditorOperationIntent[];
+  // The engine reads and checks a batch's own model hash claim; it is passed as the editor wrote it.
+  return { batch: { batch_id: batchId, operations: stamped, ...(sourceModelHash as { source_model_hash?: string } | null) } };
 }
