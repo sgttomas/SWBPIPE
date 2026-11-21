@@ -57,9 +57,9 @@ export const SHEAR_MODEL_CHOICES = Object.freeze([
   { value: "timoshenko_annulus_energy_v1", label: "Timoshenko (energy-matched annular factor)" }
 ] as const);
 export const SHEAR_MODEL_NOTE =
-  "Applies to every straight member, including tees' straight legs, rigid-family components and geometry-only bends. Realized arcs stay Euler–Bernoulli. Timoshenko members use Poisson's ratio E/(2G) − 1 from each case's moduli; an authored Poisson's ratio is not used.";
+  "Every straight member, tee leg, rigid component and geometry-only bend. Realized arcs stay Euler–Bernoulli. Timoshenko uses Poisson's ratio E/(2G) − 1 from each case's moduli, not an entered one.";
 export const SHEAR_MODEL_EXACT_NOTE =
-  "This document has a pressure contract, so its beam theory is the pressure contract's shear model: set it in the Pressure panel.";
+  "This model's beam theory is set with its pressure profile: Loads › Analysis settings.";
 
 export const PRESSURE_ELONGATION_OFF_NOTE =
   "Off (default). Pressure elongation is not included in any load case. Documents saved before this setting existed included it in every pressurised case; turn it on and name the operating cases to include it there.";
@@ -226,8 +226,7 @@ export function ModelSettingsSection(props: ModelSettingsSectionProps) {
           Effective: <strong>{effectiveNodeProximityTolerance(model)}</strong>
         </p>
         <p className="model-data-note">
-          Distinct nodes that no element joins and that lie no farther apart than this are reported before
-          solving as near duplicates (NODE_NEAR_DUPLICATE). The warning changes no solved value.
+          Unjoined nodes this close are reported as near duplicates before solving; no solved value changes.
         </p>
         <label>Tolerance
           <input
@@ -286,19 +285,22 @@ export function ModelSettingsSection(props: ModelSettingsSectionProps) {
           Effective: <strong>{effectiveShear}</strong>
         </p>
         <p className="model-data-note" data-testid="model-settings-shear-model-note">{SHEAR_MODEL_NOTE}</p>
-        <div role="radiogroup" aria-label="Straight-member shear deformation">
+        <div role="radiogroup" aria-label="Straight-member shear deformation" className="model-settings-choices">
           {SHEAR_MODEL_CHOICES.map((choice) => (
             <label key={choice.value}>
+              {/* The choice in effect reads as chosen; Euler–Bernoulli is in effect while none is set.
+                  Pressing a choice writes it, so the default can also be set explicitly. */}
               <input
                 type="radio"
                 name="model-settings-shear-model"
                 value={choice.value}
                 data-testid={`model-settings-shear-model-${choice.value}`}
-                checked={authoredShear === choice.value}
+                checked={!exactDocument && (authoredShear ?? SHEAR_MODEL_CHOICES[0].value) === choice.value}
                 {...disabledBy(working, [exactDocument, SHEAR_MODEL_EXACT_NOTE], [authoredShear === choice.value, "This choice is already set."])}
-                onChange={() => void submit((canon) => setShearModelIntent(canon, model, choice.value), SHEAR_MODEL_PATH)}
+                onChange={() => undefined}
+                onClick={() => { if (!working && !exactDocument && authoredShear !== choice.value) void submit((canon) => setShearModelIntent(canon, model, choice.value), SHEAR_MODEL_PATH); }}
               />
-              {choice.label}
+              <span>{choice.label}</span>
             </label>
           ))}
         </div>

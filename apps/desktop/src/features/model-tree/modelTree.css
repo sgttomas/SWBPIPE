@@ -113,3 +113,20 @@
   color: var(--ui-muted);
   font-size: var(--type-size-caption);
 }
+
+/* The shear deformation choice: each option on its own line, the chosen one visibly chosen. */
+.inspector .model-settings-choices {
+  display: grid;
+  gap: var(--space-2);
+  margin-block: var(--space-2);
+}
+
+.inspector .model-settings-choices > label {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+}
+
+.inspector .model-settings-choices > label:has(input:checked) > span {
+  font-weight: var(--type-weight-semibold);
+}

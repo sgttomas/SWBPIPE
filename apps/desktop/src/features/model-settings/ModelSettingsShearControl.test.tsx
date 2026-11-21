@@ -48,7 +48,9 @@ describe("model settings: straight-member shear deformation", () => {
     const note = byId("model-settings-shear-model-note").textContent ?? "";
     expect(note).toContain("Realized arcs stay Euler–Bernoulli");
     expect(note).toContain("Poisson's ratio E/(2G) − 1");
-    expect(byId("model-settings-shear-model-euler_bernoulli")).not.toBeChecked();
+    // The default in effect reads as chosen, though nothing is written (model_settings stays absent below).
+    expect(byId("model-settings-shear-model-euler_bernoulli")).toBeChecked();
+    expect(byId("model-settings-shear-model-timoshenko_annulus_energy_v1")).not.toBeChecked();
     expect(byId("model-settings-shear-model-euler_bernoulli")).not.toBeDisabled();
     expect(byId("model-settings-shear-model-timoshenko_annulus_energy_v1")).not.toBeDisabled();
     expect(screen.getByLabelText("Timoshenko (energy-matched annular factor)")).toBeInTheDocument();
@@ -104,12 +106,12 @@ describe("model settings: straight-member shear deformation", () => {
     expect(byId("model-settings-shear-model-reset")).not.toBeDisabled();
   });
 
-  it("is disabled on a document with a pressure contract and points to the pressure panel", () => {
+  it("is disabled on a document with a pressure contract and points to where its beam theory is set", () => {
     const exact = { ...demo(), pressure_contract: { version: "3.0.0", mode: "exact_pressure_v3", shear_model: "timoshenko_annulus_energy_v1" } } as PreviewModel;
     const list: EditorOperationIntent[] = [];
     render(<ModelSettingsSection model={exact} onQueueIntent={(intent) => list.push(intent)} />);
     expect(byId("model-settings-shear-model-exact")).toHaveTextContent(SHEAR_MODEL_EXACT_NOTE);
-    expect(SHEAR_MODEL_EXACT_NOTE).toContain("Pressure panel");
+    expect(SHEAR_MODEL_EXACT_NOTE).toContain("Loads › Analysis settings");
     for (const id of ["model-settings-shear-model-euler_bernoulli", "model-settings-shear-model-timoshenko_annulus_energy_v1", "model-settings-shear-model-reset"]) {
       expect(byId(id)).toBeDisabled();
       expect(byId(id)).toHaveAttribute("title", SHEAR_MODEL_EXACT_NOTE);

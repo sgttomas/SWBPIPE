@@ -164,8 +164,7 @@ export function ProjectUnitsSection(props: ProjectUnitsSectionProps) {
   return (
     <section className="project-units" aria-label="Project units" data-testid="project-units-section">
       <p className="model-data-note" data-testid="project-units-section-note">
-        Values are stored in the units you enter. Changing a project unit converts no stored value; it sets the
-        default unit of new fields. The length unit is fixed once the project has nodes.
+        Changing a unit converts no stored value; it sets the unit new fields start in.
       </p>
       {PROJECT_UNIT_KEYS.map((key) => {
         const row = projectUnitRow(model, key, props.unitCatalogRoute);
