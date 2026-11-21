@@ -95,8 +95,8 @@ test("01 orientation: every menu, stage and page as first met", async ({ page })
   });
   await page.keyboard.press("Escape");
 
-  await journey.step("agent-control", "The toolbar's Agent control, as offered", async () => {
-    await page.getByTestId("toggle-agent").hover();
+  await journey.step("agent-control", "The toolbar's Agent button: Review changes opened on its Agent tab", async () => {
+    await page.getByTestId("toggle-agent").click();
   });
 
   for (const stage of ["model", "loads", "results", "review"]) {
@@ -114,7 +114,7 @@ test("01 orientation: every menu, stage and page as first met", async ({ page })
 });
 
 test("02 pages: each page of the workspace, top to bottom", async ({ page }) => {
-  const journey = new Journey(page, 2, "pages", "Pages: each page reached from the View menu, with what lies below the fold");
+  const journey = new Journey(page, 2, "pages", "Pages: each page, reached from the rail or the View menu, with what lies below the fold");
   await open(page);
   const pages: ReadonlyArray<[Parameters<typeof openWorkspaceSection>[1], string]> = [
     ["operations", "Review changes"], ["loads", "Load Cases"], ["libraries", "Libraries"], ["rule-packs", "Rules"],
@@ -122,7 +122,9 @@ test("02 pages: each page of the workspace, top to bottom", async ({ page }) => 
     ["exports", "Exports"], ["evidence", "Audit & Boundaries"]
   ];
   for (const [id, label] of pages) {
-    await journey.step(`page-${id}`, `The ${label} page, opened from the View menu`, async () => { await openWorkspaceSection(page, id); });
+    // Review changes and Load Cases are reached by the rail and the stage tab; the View menu does not list them.
+    const route = id === "operations" || id === "loads" ? "the rail and its tab" : "the View menu";
+    await journey.step(`page-${id}`, `The ${label} page, opened from ${route}`, async () => { await openWorkspaceSection(page, id); });
     await journey.scrolled(`page-${id}`, `The ${label} page`);
   }
   await showModelTree(page);
@@ -214,7 +216,57 @@ test("05 loads: define cases and combinations (DEL-07-06 AC-007, every required 
   const journey = new Journey(page, 5, "loads", "Loads: the page an engineer uses to define cases, loads and combinations");
   await open(page);
   await journey.step("loads-stage", "The Loads stage on the demonstration model", async () => { await page.getByTestId("rail-stage-loads").click(); });
-  await journey.scrolled("loads-stage", "The Loads stage", 6);
+  await journey.scrolled("loads-stage", "The Loads stage", 2);
+  const loads = page.getByTestId("load-case-manager");
+  const caseRows = loads.getByTestId("load-case-manager-cases").locator('button[data-testid^="load-manager-case-"]');
+  for (const testId of await caseRows.evaluateAll((rows) => rows.map((row) => row.getAttribute("data-testid") ?? ""))) {
+    const id = testId.replace("load-manager-case-", "");
+    await journey.step(`case-${id.replace(/[^A-Za-z0-9-]+/g, "-")}`, `The case ${id} chosen in the list`, async () => {
+      await loads.getByTestId(testId).click();
+      await loads.getByTestId("load-manager-selected-case").scrollIntoViewIfNeeded();
+    });
+  }
+  await journey.step("load-edit", "A load row chosen: its magnitude edit and delete open in place", async () => {
+    await caseRows.first().click();
+    await loads.locator('[data-testid^="load-manager-primitive-"]').first().click();
+    await loads.getByTestId("load-manager-selected-primitive").scrollIntoViewIfNeeded();
+  });
+  await journey.step("add-load", "Add load, with the selected case already chosen", async () => {
+    await loads.getByTestId("load-manager-add-load").click();
+    await loads.getByTestId("load-manager-add-load-form").scrollIntoViewIfNeeded();
+  });
+  await journey.step("pressure-and-conditions", "The case's Pressure and Conditions sections opened", async () => {
+    await loads.getByTestId("load-manager-add-load-cancel").click();
+    for (const section of ["load-case-section-pressure", "load-case-section-conditions"]) {
+      const details = loads.getByTestId(section);
+      if (!(await details.evaluate((element) => (element as HTMLDetailsElement).open))) await details.locator(":scope > summary").click();
+    }
+    await loads.getByTestId("load-case-section-pressure").scrollIntoViewIfNeeded();
+  });
+  await journey.scrolled("pressure-and-conditions", "The Pressure and Conditions sections", 2);
+  await journey.step("combination", "A combination chosen: its terms, basis and delete", async () => {
+    await loads.locator('[data-testid^="load-manager-combination-select-"]').first().click();
+    await loads.getByTestId("load-manager-selected-combination").scrollIntoViewIfNeeded();
+  });
+  await journey.step("new-case", "New case", async () => { await loads.getByTestId("load-manager-new-case").click(); });
+  await journey.step("new-combination", "New combination", async () => {
+    await loads.getByTestId("load-manager-create-load-cancel").click();
+    await loads.getByTestId("load-manager-new-combination").click();
+  });
+  await journey.step("templates", "The Templates command opened", async () => {
+    await loads.getByTestId("load-manager-create-combination-cancel").click();
+    await loads.getByTestId("load-manager-templates").click();
+  });
+  await journey.step("seismic-template", "The three-axis static seismic template", async () => {
+    await loads.getByTestId("load-manager-template-seismic").click();
+  });
+  await journey.scrolled("seismic-template", "The seismic template", 2);
+  await journey.step("analysis-settings", "Analysis settings opened at the foot of the page", async () => {
+    await loads.getByTestId("load-manager-seismic-template-cancel").click();
+    const settings = loads.getByTestId("load-manager-analysis-settings");
+    await settings.locator(":scope > summary").click();
+    await settings.scrollIntoViewIfNeeded();
+  });
   journey.finish();
 });
 

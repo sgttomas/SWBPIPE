@@ -346,7 +346,9 @@ def test_python_gate_and_result_are_independent_of_cargo():
     assert aggregate['env']['PYTHON_MODE'] == '${{ needs.selection.outputs.python_mode }}'
     assert 'aggregate --suite piping-python --mode "$PYTHON_MODE"' in aggregate['run']
     # The sharded desktop job joins the aggregate (desktop suite sharding, 2026-10-22).
-    assert set(jobs['desktop-e2e']['needs']) == {'selection', 'product', 'desktop', 'desktop-rust', 'numerical', 'python-product'}
+    # The registered build's Rust tests join it for a registration-path candidate (docs/CI_STRATEGY.md).
+    assert set(jobs['desktop-e2e']['needs']) == {'selection', 'product', 'desktop', 'desktop-rust', 'numerical', 'python-product',
+                                                 'retained-registration'}
 
 
 def test_selected_desktop_rust_tests_run_on_macos_and_gate_the_aggregate(tmp_path):
@@ -659,3 +661,56 @@ def test_merge_group_missing_base_fails_closed():
     source = inspect.getsource(REPOSITORY_CHECKS.diff_base)
     assert source.index('if event == "merge_group"') < source.index('return "HEAD^1"')
     assert 'HEAD^1' not in (ROOT / ".github/workflows/governance-harness.yml").read_text()
+
+
+def test_the_retained_drift_check_runs_by_dispatch_as_a_plain_red_or_green_run():
+    """docs/CI_STRATEGY.md, "Retained registration drift check": its own workflow, by dispatch on any ref, with no
+    schedule until the solver freeze's registration and no candidate event; it reads only and reports nothing."""
+    text = (ROOT / '.github/workflows/retained-drift-check.yml').read_text()
+    check = workflow('retained-drift-check.yml')
+    assert set(check['on']) == {'workflow_dispatch'}
+    assert check['permissions'] == {'contents': 'read'}
+    jobs = check['jobs']
+    assert set(jobs) == {'python', 'rust'}
+    [run] = [s for s in jobs['python']['steps'] if 'run' in s and 'python_ci.py' in s['run']]
+    assert '--drift-check' in run['run'] and '--shard-count 4' in run['run']
+    assert jobs['python']['strategy']['matrix']['shard'] == ['1', '2', '3', '4']
+    assert 'permissions' not in jobs['python']
+    # The Rust part is the same called job a registration-path pull request runs.
+    assert jobs['rust'] == {'uses': './.github/workflows/retained-registration-rust.yml'}
+    assert 'write' not in text and 'secrets.' not in text and 'issues' not in text
+    for job in jobs.values():
+        for entry in job.get('steps', []):
+            assert '${{' not in entry.get('run', '')
+            if str(entry.get('uses', '')).startswith('actions/checkout@'):
+                assert entry['with']['ref'] == '${{ github.sha }}'
+
+
+def test_a_registration_path_candidate_runs_the_registered_build_rust_tests():
+    """A pull request or queue group that changes the pricing tool or the registration runs the registered build's
+    Rust tests with the drift check's switch, through the called job the drift check uses; the aggregate requires its
+    success when selected and its skip otherwise."""
+    rust = workflow('retained-registration-rust.yml')
+    assert set(rust['on']) == {'workflow_call'} and rust['permissions'] == {'contents': 'read'}
+    [job] = rust['jobs'].values()
+    assert job['runs-on'] == 'macos-26' and 'permissions' not in job
+    assert any(s.get('uses') == 'dtolnay/rust-toolchain@1.97.1' for s in job['steps'])
+    [checkout] = [s for s in job['steps'] if str(s.get('uses', '')).startswith('actions/checkout@')]
+    assert checkout['with']['ref'] == HEAD_REF
+    # Uncoloured output, and every test binary run whatever an earlier one does, so the red or green covers both.
+    assert job['env']['CARGO_TERM_COLOR'] == 'never'
+    [cargo] = [s for s in job['steps'] if 'cargo test' in s.get('run', '')]
+    assert cargo['env'] == {'OPS_RETAINED_DRIFT_CHECK': '1'}
+    assert cargo['run'] == ('cargo test --locked --no-fail-fast --manifest-path core/product_physics/Cargo.toml --lib '
+                            '--test retained_precision_admission')
+    product = workflow('piping-desktop-e2e.yml')['jobs']
+    assert product['selection']['outputs']['retained_registration'] == '${{ steps.registration.outputs.retained_registration }}'
+    [read] = [s for s in product['selection']['steps'] if s.get('id') == 'registration']
+    assert read['run'] == 'python3 tools/ci/python_ci.py --registration --plan piping-ci-plan.json >> "$GITHUB_OUTPUT"'
+    called = product['retained-registration']
+    assert called == {'needs': 'selection', 'if': "needs.selection.outputs.retained_registration == 'true'",
+                      'uses': './.github/workflows/retained-registration-rust.yml'}
+    [gate] = [s for s in product['desktop-e2e']['steps'] if 'retained-registration' in s.get('run', '')]
+    assert gate['env'] == {'REGISTRATION': '${{ needs.selection.outputs.retained_registration }}',
+                           'RESULT': '${{ needs.retained-registration.result }}'}
+    assert 'test "$RESULT" = success' in gate['run'] and 'test "$RESULT" = skipped' in gate['run']
