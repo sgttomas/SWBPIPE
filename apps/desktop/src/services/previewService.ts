@@ -131,9 +131,14 @@ type CapturedNativeInvocation = {
   invalidated: boolean;
   terminalClaimed: boolean;
 };
-type NativeSourceRegistration = { capture: CapturedNativeInvocation; sourceFingerprint: string };
+/** `sourceDigest`: the equality digest of the source's fingerprint when validation began (the
+ * receipt's), which validation's end found unchanged. */
+type NativeSourceRegistration = { capture: CapturedNativeInvocation; sourceDigest: string };
 const nativeSourceInvocations = new WeakMap<MechanicsResult, NativeSourceRegistration>();
-const receivedBytes = new WeakMap<MechanicsResult, { bytes: string; fingerprint: string }>();
+/** The received text, kept for its named uses (the readers, the retained reader, the exact report
+ * admission), and the equality digest of the result's fingerprint at receipt (`nativeContentDigest`),
+ * kept in place of the fingerprint's text. */
+const receivedBytes = new WeakMap<MechanicsResult, { bytes: string; digest: string }>();
 
 /** b7-plan R1, "Exact bytes to the desktop": the native solve job hands over the
  * producer's exact serialized bytes, never a re-encoded value. The result is
@@ -142,7 +147,7 @@ function receiveResultBytes(bytes: unknown, timed = false): MechanicsResult {
   if (typeof bytes !== "string") throw new Error("PREVIEW-SOLVE-RESULT-BYTES-REQUIRED: the native solve hands over the producer's serialized bytes");
   const result = JSON.parse(bytes) as MechanicsResult;
   if (timed) { markSolveStage("parse_end"); noteSolveResult(result, bytes.length); }
-  try { receivedBytes.set(result, { bytes, fingerprint: nativeContentFingerprint(result) }); } catch { /* not checked JSON: no bytes are kept for it */ }
+  try { receivedBytes.set(result, { bytes, digest: nativeContentDigest(result) }); } catch { /* not checked JSON: no bytes are kept for it */ }
   // R2: the base-route readers read these bytes too, while the result is unchanged.
   rememberReceivedText(result, bytes);
   return result;
@@ -152,7 +157,7 @@ function receiveResultBytes(bytes: unknown, timed = false): MechanicsResult {
 export function receivedResultBytes(result: MechanicsResult | null | undefined): string | null {
   const received = result ? receivedBytes.get(result) : undefined;
   if (!received) return null;
-  try { return nativeContentFingerprint(result) === received.fingerprint ? received.bytes : null; } catch { return null; }
+  try { return nativeContentDigest(result) === received.digest ? received.bytes : null; } catch { return null; }
 }
 const jobInvocations = new Map<string, CapturedNativeInvocation>();
 
@@ -164,16 +169,32 @@ function nativeContentFingerprint(value: unknown): string {
   return timedSolvePass("native_fingerprint", () => nativeContentFingerprintOf(value), (text) => text.length);
 }
 function nativeContentFingerprintOf(value: unknown): string {
-  const checked = checkedJsonText(value);
-  const negativeZeros: string[] = [];
-  const visit = (item: unknown, path: string) => {
-    if (typeof item === "number" && Object.is(item, -0)) negativeZeros.push(path);
-    else if (item && typeof item === "object") {
-      for (const [key, child] of Object.entries(item)) visit(child, `${path}/${key.replaceAll("~", "~0").replaceAll("/", "~1")}`);
-    }
-  };
-  visit(value, "");
-  return `${canonicalJson(JSON.parse(checked))}\nnegative_zero_paths=${JSON.stringify(negativeZeros.sort())}`;
+  const text = new TextBuilder();
+  writeNativeContentFingerprint(value, (piece) => text.put(piece));
+  return text.text();
+}
+/** A text built from many small pieces, joined in blocks so the pieces do not outlive their block. */
+class TextBuilder {
+  private readonly blocks: string[] = [];
+  private pieces: string[] = [];
+  put(piece: string): void {
+    this.pieces.push(piece);
+    if (this.pieces.length === 4096) { this.blocks.push(this.pieces.join("")); this.pieces = []; }
+  }
+  text(): string {
+    this.blocks.push(this.pieces.join(""));
+    this.pieces = [];
+    return this.blocks.join("");
+  }
+}
+/** The checked profile's canonical text of a value (`writeCheckedCanonicalJson`), as one text. */
+function checkedCanonicalText(value: unknown): string {
+  // RT-U4: timed for the latest solve's timeline as the checked text it replaces.
+  return timedSolvePass("checked_json_text", () => {
+    const text = new TextBuilder();
+    writeCheckedCanonicalJson(value, (piece) => text.put(piece));
+    return text.text();
+  }, (text) => text.length);
 }
 /** The checked profile's canonical part of `nativeContentFingerprintOf`'s text,
  * `canonicalJson(JSON.parse(checkedJsonText(value)))`, handed to `put` in pieces without
@@ -260,7 +281,10 @@ async function validateCapturedSource(source: MechanicsResult, capture: Captured
   if (!capture || capture.invalidated) return "CAPTURE_UNAVAILABLE";
   try {
     if (source.model_ref !== capture.invocation.request.model.project.id || nativeContentFingerprint(capture.invocation) !== capture.fingerprint || nativeContentFingerprint(capture.callerModel) !== capture.callerFingerprint) return "CAPTURE_MISMATCH";
-    const sourceFingerprint = nativeContentFingerprint(source);
+    // Validation starts from the receipt's digest: there is no await between the receipt and here
+    // (`takePreviewMechanicsJobResult`, `loadNativeFullResult`), and a tree changed since the
+    // receipt fails the end check below. A source with no receipt digest is fingerprinted here.
+    const sourceDigest = receivedBytes.get(source)?.digest ?? nativeContentDigest(source);
     // Registration is reachable only after actual direct IPC or a completed
     // known job. Method-specific source-block validation composes here when its
     // separately reviewed join is selected; none is inferred from these bytes.
@@ -275,22 +299,26 @@ async function validateCapturedSource(source: MechanicsResult, capture: Captured
         model => hasNativeMechanicsInvocation(source, model as PreviewModel, capture.invocation.solver_mode));
     }
     // A preview-physics-2 source registers only when its closed reader checks pass.
-    if (sourceContract(source) === "preview_physics") readerValidate("preview-physics", source, capture.invocation.request.model);
+    if (sourceRoute === "preview_physics") readerValidate("preview-physics", source, capture.invocation.request.model);
     // T1, on the current exact route (B7b): a pressure-2 source, with or without the
     // load/reference-state group, registers only when its reader checks pass with the
     // captured model. A joined pressure-source-1 source registered above with its
     // invocation; its standing stays needs_recompute (never numerically eligible in T1).
-    if (sourceContract(source) === "pressure") readerValidate("pressure", source, capture.invocation.request.model);
+    if (sourceRoute === "pressure") readerValidate("pressure", source, capture.invocation.request.model);
     // U6d: a preview successor registers only after the accepted reader passes with
     // this captured invocation; its outcome is recorded against the exact bytes.
     // U7 slice T: its standing is bound to this live native capture and the current model.
     // The reader reads the producer's bytes as received (b7-plan R1).
     // A successor identity the header dispatch refuses (its transport checks failed) is still read by
     // the accepted reader, so its refusal is recorded and no native registration follows.
-    if (isRetainedRoute(sourceContract(source)) || isRetainedIdentity(source.producer?.semantic_contract_id)) await registerRetainedPrecision(source, capture.invocation, model => hasNativeMechanicsInvocation(source, model as PreviewModel), receivedResultBytes(source));
-    await canonicalSha256HexCheckedV1(source);
-    if (capture.invalidated || nativeContentFingerprint(source) !== sourceFingerprint || nativeContentFingerprint(capture.invocation) !== capture.fingerprint || nativeContentFingerprint(capture.callerModel) !== capture.callerFingerprint) return "CHANGED_DURING_VALIDATION";
-    nativeSourceInvocations.set(source, { capture, sourceFingerprint });
+    if (isRetainedRoute(sourceRoute) || isRetainedIdentity(source.producer?.semantic_contract_id)) await registerRetainedPrecision(source, capture.invocation, model => hasNativeMechanicsInvocation(source, model as PreviewModel), receivedResultBytes(source));
+    // The source's checked canonical hash, of which only a refusal matters (the Rust checked
+    // profile). It reads the fingerprint's canonical part, the same values as the checked text
+    // in sorted key order, written once without the checked copy.
+    await canonicalSha256HexCheckedV1(source, checkedCanonicalText(source));
+    // Validation's end, after its last await: the tree is fingerprinted again.
+    if (capture.invalidated || nativeContentDigest(source) !== sourceDigest || nativeContentFingerprint(capture.invocation) !== capture.fingerprint || nativeContentFingerprint(capture.callerModel) !== capture.callerFingerprint) return "CHANGED_DURING_VALIDATION";
+    nativeSourceInvocations.set(source, { capture, sourceDigest });
     return null;
   } catch (error) {
     // Preserve received source for inspection, without qualified standing.
@@ -312,7 +340,7 @@ export function hasNativeMechanicsInvocation(
     return !registered.capture.invalidated
       && (solverMode === undefined || solverMode === invocation.solver_mode)
       && nativeContentFingerprint(invocation) === registered.capture.fingerprint
-      && nativeContentFingerprint(source) === registered.sourceFingerprint
+      && nativeContentDigest(source) === registered.sourceDigest
       && nativeContentFingerprint(registered.capture.callerModel) === registered.capture.callerFingerprint
       && (nativeContentFingerprint(model) === registered.capture.callerFingerprint
         || nativeContentFingerprint(model) === nativeContentFingerprint(invocation.request.model));
@@ -844,7 +872,7 @@ export function deliveredIntakeText(result: MechanicsResult | NativeResult | nul
     const capture = registered.capture;
     if (capture.invalidated
       || nativeContentFingerprint(capture.invocation) !== capture.fingerprint
-      || nativeContentFingerprint(result) !== registered.sourceFingerprint) return null;
+      || nativeContentDigest(result) !== registered.sourceDigest) return null;
     return checkedJsonText(capture.invocation.request.model);
   } catch { return null; }
 }

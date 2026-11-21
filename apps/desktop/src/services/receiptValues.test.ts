@@ -21,7 +21,6 @@ import { EqualityDigest } from "./equalityDigest";
 import { canonicalSha256HexCheckedV1 } from "./hashService";
 import { jsonTextKeepingNegativeZero, writeJsonTextKeepingNegativeZero } from "./jsonText";
 import { nativeContentDigest, writeCheckedCanonicalJson, writeNativeContentFingerprint } from "./previewService";
-import { loadWasmEngine } from "./wasmEngine/loadWasmEngine";
 
 type Json = any; // eslint-disable-line @typescript-eslint/no-explicit-any
 const ROOT = resolve(__dirname, "../../../../");
@@ -34,6 +33,13 @@ const joined = (write: (put: (piece: string) => void) => unknown): string => {
   write((piece) => pieces.push(piece));
   return pieces.join("");
 };
+/** Validation's checked hash as the new path computes it: the canonical text written once,
+ * read by `canonicalSha256HexCheckedV1` in place of the checked text. */
+async function newPathHash(value: unknown): Promise<{ value: string } | { error: string }> {
+  let text: string;
+  try { text = joined((put) => writeCheckedCanonicalJson(value, put)); } catch (error) { return { error: (error as Error).message }; }
+  return canonicalSha256HexCheckedV1(value, text).then((hex) => ({ value: hex }), (error: Error) => ({ error: error.message }));
+}
 const digestOf = (write: (put: (piece: string) => void) => unknown): string => {
   const digest = new EqualityDigest();
   write((piece) => digest.put(piece));
@@ -118,7 +124,6 @@ async function corpus(): Promise<{ id: string; value: Json }[]> {
 
 describe("the full-copy receipt's values: the new path's equal main's", () => {
   it("over the corpora: fingerprint text and digest, written text and digest, and the checked hash", async () => {
-    const engine = await loadWasmEngine();
     const entries = await corpus();
     // The corpora the desktop's reader tests read: the shared base corpus's parsed statements,
     // the shared retained corpus, the two bundled preview results, and the crafted values.
@@ -144,8 +149,7 @@ describe("the full-copy receipt's values: the new path's equal main's", () => {
         expect(digestOf((put) => writeJsonTextKeepingNegativeZero(value, put)), id).toBe(sha256(written.value));
       }
       const oldHash = await canonicalSha256HexCheckedV1(value).then((hex) => ({ value: hex }), (error: Error) => ({ error: error.message }));
-      const newHash = outcome(() => engine.canonicalSha256HexCheckedV1(joined((put) => writeCheckedCanonicalJson(value, put))));
-      expect("error" in newHash ? { error: newHash.error.replace(/^Error: /, "") } : newHash, id).toEqual(oldHash);
+      expect(await newPathHash(value), id).toEqual(oldHash);
     }
     expect(negativeZeroResults).toBeGreaterThan(3);
     expect(refused).toBeLessThan(entries.length / 10);
@@ -174,22 +178,21 @@ describe("the full-copy receipt's values: the new path's equal main's", () => {
   }, 600_000);
 
   it("refuses what main refuses, with the same error, and the checked hash throws where it threw", async () => {
-    const engine = await loadWasmEngine();
     for (const [id, value] of refusedValues()) {
       const old = outcome(() => baselineNativeContentFingerprintOf(value));
       expect("error" in old, id).toBe(true);
       expect(outcome(() => joined((put) => writeNativeContentFingerprint(value, put))), id).toEqual(old);
       expect(outcome(() => nativeContentDigest(value)), id).toEqual(old);
       const oldHash = await canonicalSha256HexCheckedV1(value).then(() => "passed", (error: Error) => error.message);
-      const newHash = outcome(() => engine.canonicalSha256HexCheckedV1(joined((put) => writeCheckedCanonicalJson(value, put))));
-      expect("error" in newHash ? newHash.error.replace(/^Error: /, "") : "passed", id).toBe(oldHash);
+      const newHash = await newPathHash(value);
+      expect("error" in newHash ? newHash.error : "passed", id).toBe(oldHash);
     }
     // A depth the Rust checked profile refuses (serde_json's recursion limit) and the page admits.
     let deep: Json = 1;
     for (let i = 0; i < 200; i += 1) deep = [deep];
     const oldDeep = await canonicalSha256HexCheckedV1(deep).then(() => "passed", (error: Error) => error.message);
     expect(oldDeep).not.toBe("passed");
-    expect(outcome(() => engine.canonicalSha256HexCheckedV1(joined((put) => writeCheckedCanonicalJson(deep, put))))).toEqual({ error: expect.stringContaining(oldDeep) });
+    expect(await newPathHash(deep)).toEqual({ error: oldDeep });
     expect(nativeContentDigest(deep)).toBe(sha256(baselineNativeContentFingerprintOf(deep)));
   });
 

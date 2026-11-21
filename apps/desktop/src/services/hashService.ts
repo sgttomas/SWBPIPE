@@ -131,8 +131,14 @@ export async function canonicalJsonCheckedV1(value: unknown): Promise<string> {
   return engine.canonicalJsonCheckedV1(jsonText);
 }
 
-export async function canonicalSha256HexCheckedV1(value: unknown): Promise<string> {
-  const jsonText = checkedJsonText(value);
+/** The checked profile's canonical SHA-256 of `value`. `checkedCanonicalText`, when given, is
+ * `value`'s text as the caller already wrote it after the checked profile's checks
+ * (previewService's `writeCheckedCanonicalJson`: the checked text's values, its members in
+ * sorted order); it is read in place of writing `value` again. The Rust checked profile reads
+ * the same values, depth and length from it, and its canonical form, so the hash, does not
+ * depend on member order. */
+export async function canonicalSha256HexCheckedV1(value: unknown, checkedCanonicalText?: string): Promise<string> {
+  const jsonText = checkedCanonicalText ?? checkedJsonText(value);
   const engine = await loadWasmEngine();
   return engine.canonicalSha256HexCheckedV1(jsonText);
 }
