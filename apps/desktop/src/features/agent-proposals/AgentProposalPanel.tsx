@@ -101,7 +101,7 @@ export function AgentProposalPanel({
           </button>
         </div>
       ) : (
-        <p className="muted">Local proposal examples are deterministic and review-only.</p>
+        <p className="muted">No saved proposal in this project.</p>
       )}
     </section>
   );
