@@ -7,6 +7,7 @@ import { createHash } from "node:crypto";
 import { lstatSync, readFileSync, readdirSync, writeFileSync } from "node:fs";
 import path from "node:path";
 import { ATTENDED_ONLY_SURFACES, NATIVE_SURFACES, NOT_SUPPLIED, SURFACE_KEYS } from "./native/render.mjs";
+import { readSidecar } from "./native/sidecar.mjs";
 
 // The surface of an attended launch's part (native/run.mjs --attended): its screens are captures of the actual window.
 export const ATTENDED_SURFACE = "launched app, its actual window driven by an attendant";
@@ -36,14 +37,28 @@ const sha256File = (file) => {
 const sidecarOf = (file) => file.replace(/\.png$/i, ".json");
 
 /**
- * Whether each attended capture is still the one its launch recorded (native/run.mjs readCaptures `binding`): its
- * binding names its part's revision and build, and the picture and sidecar on disk have the recorded SHA-256. Returns
- * { checks: Map file -> null (intact) | why, unbound: [{ file, why }] }, where `unbound` lists every file in the
- * folder's captures/ that no attended launch recorded: added after its launch ended, it supplies nothing.
+ * Whether each attended capture, and each sidecar recorded without a picture, is still the one its launch recorded
+ * (native/run.mjs readCaptures `binding`, a record's `sidecar_sha256`): a capture's binding names its part's revision
+ * (commit and driver) and build, and the picture and sidecar on disk have the recorded SHA-256. Each sidecar is read
+ * once (native/sidecar.mjs readSidecar), and when its bytes have the recorded hash its claims are parsed from those
+ * same bytes: what a capture or a record is counted for is what it says now and said when its launch ended, never the
+ * fields the part saved. Returns { checks: Map file -> null (intact) | why, claims: Map file -> the verified claims,
+ * unbound: [{ file, why }] }, where `unbound` lists every file in the folder's captures/ that no attended launch
+ * recorded: added after its launch ended, it supplies nothing.
  */
 export function attendedBindings(out, journeys) {
   const checks = new Map();
+  const claims = new Map();
   const recorded = new Set();
+  // A sidecar on disk against its recorded hash: { why } or { claims } parsed from the bytes that were hashed.
+  const verify = (file, sha256, what) => {
+    if (!out) return { why: `${what} was not read against its recorded hash` };
+    const read = readSidecar(path.join(out, file));
+    if (!read.sidecar_sha256) return { why: `${what} was removed after its launch ended (${read.why})` };
+    if (read.sidecar_sha256 !== sha256) return { why: `${what} on disk is not the one its launch recorded: it was edited after the launch ended` };
+    if (read.why) return { why: `${what} says nothing usable (${read.why})` };
+    return { claims: read };
+  };
   for (const part of journeys.filter(attendedJourney)) {
     for (const screen of part.screens ?? []) {
       recorded.add(screen.file);
@@ -52,18 +67,26 @@ export function attendedBindings(out, journeys) {
       const binding = screen.binding;
       let why = null;
       if (!binding) why = "it is not bound to its launch: no hashes were recorded when the launch ended";
-      else if (binding.revision?.commit !== part.revision?.commit || binding.build_app_sha256 !== (part.build?.app_sha256 ?? null)) why = "its binding does not name its launch's revision and build";
+      else if (binding.revision?.commit !== part.revision?.commit || (binding.revision?.driver_sha256 ?? null) !== (part.revision?.driver_sha256 ?? null) || binding.build_app_sha256 !== (part.build?.app_sha256 ?? null)) why = "its binding does not name its launch's revision, driver and build";
       else if (out) {
         const picture = sha256File(path.join(out, screen.file));
-        const sidecar = sha256File(path.join(out, sidecarOf(screen.file)));
         if (picture === null) why = "the picture was removed after its launch ended";
         else if (picture !== binding.picture_sha256) why = "the picture on disk is not the one its launch recorded: it was replaced after the launch ended";
-        else if (sidecar === null) why = "its sidecar was removed after its launch ended";
-        else if (sidecar !== binding.sidecar_sha256) why = "its sidecar on disk is not the one its launch recorded: it was edited after the launch ended";
-      }
+        else {
+          const sidecar = verify(sidecarOf(screen.file), binding.sidecar_sha256, "its sidecar");
+          if (sidecar.why) why = sidecar.why;
+          else claims.set(screen.file, sidecar.claims);
+        }
+      } else why = "it was not read against its recorded hashes";
       checks.set(screen.file, why);
     }
-    for (const item of [...(part.captures?.records_without_picture ?? []), ...(part.captures?.other ?? [])]) recorded.add(item.file);
+    for (const record of part.captures?.records_without_picture ?? []) {
+      recorded.add(record.file);
+      const sidecar = record.sidecar_sha256 ? verify(record.file, record.sidecar_sha256, "this sidecar") : { why: "this sidecar is not bound to its launch: no hash was recorded when the launch ended" };
+      if (sidecar.why) checks.set(record.file, sidecar.why);
+      else { checks.set(record.file, null); claims.set(record.file, sidecar.claims); }
+    }
+    for (const item of part.captures?.other ?? []) recorded.add(item.file);
   }
   const unbound = [];
   const folder = out ? path.join(out, "captures") : null;
@@ -74,7 +97,7 @@ export function attendedBindings(out, journeys) {
       if (!recorded.has(file)) unbound.push({ file, why: "added to captures/ after its launch ended: bound to no launch, it supplies nothing" });
     }
   }
-  return { checks, unbound };
+  return { checks, claims, unbound };
 }
 /** The surfaces the scripted-run build substitutes: by DEL-07-06 VER-007 each is supplied or missing, never unseen. */
 export const SUBSTITUTED_BY_BUILD = Object.freeze({
@@ -107,7 +130,7 @@ const shortCommit = (commit) => (typeof commit === "string" ? commit.slice(0, 12
  * The walkthrough's screens are the scripted native journeys' (or, with none, the attended launches'). A surface name
  * a sidecar gives outside the set is listed in `unexplained`, not dropped. A browser-only index lists no surface.
  */
-export function nativeSurfacesOf(journeys, { bindings = { checks: new Map(), unbound: [] } } = {}) {
+export function nativeSurfacesOf(journeys, { bindings = { checks: new Map(), claims: new Map(), unbound: [] } } = {}) {
   const bySurface = new Map();
   for (const item of journeys.flatMap((journey) => journey.native_surfaces ?? [])) {
     const id = keyOf(item) ?? item.surface;
@@ -120,17 +143,27 @@ export function nativeSurfacesOf(journeys, { bindings = { checks: new Map(), unb
   const scripted = native.filter((journey) => !attendedJourney(journey));
   const basis = scripted.length > 0 ? scripted : attendedParts;
   const commits = [...new Set(basis.map((journey) => journey.revision?.commit ?? null))];
+  const drivers = [...new Set(basis.map((journey) => journey.revision?.driver_sha256 ?? null))];
   const builds = [...new Set(basis.map((journey) => journey.build?.app_sha256 ?? null))];
+  const dirty = basis.filter((journey) => journey.revision?.uncommitted_paths !== 0);
+  const short = (digest) => shortCommit(String(digest).replace(/^sha256:/, ""));
   const whyNotPart = (part) => {
     const revision = part.revision;
     if (typeof revision?.commit !== "string") return "its revision is not recorded";
     if (commits.length !== 1) return `the walkthrough's screens are at ${commits.length} revisions`;
     if (commits[0] === null) return "the walkthrough's screens record no revision";
     if (revision.commit !== commits[0]) return `it is at revision ${shortCommit(revision.commit)}, not the walkthrough's ${shortCommit(commits[0])}`;
+    // A commit names the source only when nothing was uncommitted, and the driver given to the app is not in it.
+    if (revision.uncommitted_paths !== 0) return `its revision had ${revision.uncommitted_paths ?? "an unrecorded number of"} uncommitted path(s): the commit does not name the source it ran`;
+    if (dirty.length > 0) return `the walkthrough's screens were taken with uncommitted paths (${dirty.map((journey) => journey.name).join(", ")}): the commit does not name the source they ran`;
+    const driver = revision.driver_sha256 ?? null;
+    if (driver === null) return "its driver's digest is not recorded";
+    if (drivers.length !== 1 || drivers[0] === null) return "the walkthrough's screens record no single driver";
+    if (driver !== drivers[0]) return `it ran another driver (${short(driver)}, not the walkthrough's ${short(drivers[0])})`;
     const build = part.build?.app_sha256 ?? null;
     if (build === null) return "its build is not recorded";
     if (builds.length !== 1 || builds[0] === null) return "the walkthrough's screens record no single build";
-    if (build !== builds[0]) return `it is of another build (app ${shortCommit(String(build).replace(/^sha256:/, ""))}, not the walkthrough's ${shortCommit(String(builds[0]).replace(/^sha256:/, ""))})`;
+    if (build !== builds[0]) return `it is of another build (app ${short(build)}, not the walkthrough's ${short(builds[0])})`;
     return null;
   };
   const supplies = new Map();
@@ -151,21 +184,28 @@ export function nativeSurfacesOf(journeys, { bindings = { checks: new Map(), unb
     const at = { revision: part.revision ?? null, build: part.build ?? null };
     const partWhy = whyNotPart(part);
     const claim = (key, ref, map, kind, why = partWhy) => (why === null ? add(map, key, ref) : add(notSupplying, key, { ...ref, kind, why }));
+    // What each capture and record claims is read from its verified sidecar bytes (attendedBindings); without them,
+    // what the part saved is listed as not counted, with why, and counts for nothing.
+    const claimsOf = (file, saved) => {
+      const verified = bindings.claims?.get(file) ?? null;
+      return { from: verified ?? saved, why: verified ? null : (bindings.checks.get(file) ?? "its sidecar was not read against its recorded hash") };
+    };
     for (const screen of part.screens ?? []) {
       if (screen.capture !== "the actual window") continue;
       const ref = { file: screen.file, number: screen.number, step: screen.step, ...at };
-      const bound = bindings.checks.get(screen.file) ?? null;
-      for (const key of screen.surfaces ?? []) claim(key, ref, supplies, "capture", partWhy ?? bound);
-      for (const record of [...(screen.prevented ?? []), ...(screen.prevented_incomplete ?? [])]) stated(record, ref, partWhy ?? bound);
-      for (const name of screen.surfaces_unexplained ?? []) unexplained.push({ name, file: screen.file, member: "surfaces" });
-      for (const record of screen.prevented_unexplained ?? []) unexplained.push({ name: record.surface, file: screen.file, member: "prevented", observed: record.observed });
+      const { from, why: bound } = claimsOf(screen.file, screen);
+      for (const key of from.surfaces ?? []) claim(key, ref, supplies, "capture", partWhy ?? bound);
+      for (const record of [...(from.prevented ?? []), ...(from.prevented_incomplete ?? [])]) stated(record, ref, partWhy ?? bound);
+      for (const name of from.surfaces_unexplained ?? []) unexplained.push({ name, file: screen.file, member: "surfaces" });
+      for (const record of from.prevented_unexplained ?? []) unexplained.push({ name: record.surface, file: screen.file, member: "prevented", observed: record.observed });
     }
     for (const record of part.captures?.records_without_picture ?? []) {
       const ref = { file: record.file, step: record.step ?? null, ...at };
-      for (const key of record.surfaces ?? []) add(notSupplying, key, { ...ref, kind: "capture", why: "a sidecar with no picture shows nothing" });
-      for (const item of [...(record.prevented ?? []), ...(record.prevented_incomplete ?? [])]) stated(item, ref, partWhy);
-      for (const name of record.surfaces_unexplained ?? []) unexplained.push({ name, file: record.file, member: "surfaces" });
-      for (const item of record.prevented_unexplained ?? []) unexplained.push({ name: item.surface, file: record.file, member: "prevented", observed: item.observed });
+      const { from, why: bound } = claimsOf(record.file, record);
+      for (const key of from.surfaces ?? []) add(notSupplying, key, { ...ref, kind: "capture", why: "a sidecar with no picture shows nothing" });
+      for (const item of [...(from.prevented ?? []), ...(from.prevented_incomplete ?? [])]) stated(item, ref, partWhy ?? bound);
+      for (const name of from.surfaces_unexplained ?? []) unexplained.push({ name, file: record.file, member: "surfaces" });
+      for (const item of from.prevented_unexplained ?? []) unexplained.push({ name: item.surface, file: record.file, member: "prevented", observed: item.observed });
     }
   }
   const decide = (key, item) => {
@@ -259,7 +299,7 @@ export function composeIndex(out, { size = null } = {}) {
       stopped_at: journey.screens.find((screen) => screen.failed)?.step ?? null,
       not_reached: journey.screens.filter((screen) => screen.not_reached).map((screen) => screen.step),
       ...(attendedJourney(journey) ? { stopped_by_launch: (journey.launch?.stopped_by_launch ?? []).map((item) => ({ at: typeof item.at === "number" ? new Date(item.at).toISOString() : null, control: item.control ?? null, what: item.what ?? null })) } : {}),
-      ...(attendedJourney(journey) ? { unexplained: [...(journey.captures?.unexplained ?? []), ...[...bindings.checks].filter(([, why]) => why).map(([file, why]) => ({ file, why: `a capture that supplies nothing: ${why}` })), ...bindings.unbound] } : {})
+      ...(attendedJourney(journey) ? { unexplained: [...(journey.captures?.unexplained ?? []), ...[...bindings.checks].filter(([, why]) => why).map(([file, why]) => ({ file, why: `${/\.json$/i.test(file) ? "a sidecar recorded without a picture that counts for nothing" : "a capture that supplies nothing"}: ${why}` })), ...bindings.unbound] } : {})
     })),
     screens
   };

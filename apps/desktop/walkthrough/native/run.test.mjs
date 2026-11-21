@@ -696,9 +696,9 @@ test("the ways an attended launch ends, each through runUnderLock's abort and ea
 import { NOT_SUPPLIED, SURFACE_KEYS } from "./render.mjs";
 
 /** A folder with one journey's part at `journeyRevision` and an attended part at `captureRevision` whose captures carry `sidecars`. */
-function surfacesIndex(t, { journeyRevision = "abc", captureRevision = "abc", journeyBuild = "sha256:feed", captureBuild = "sha256:feed", sidecars = [], launch = {}, after = null } = {}) {
+function surfacesIndex(t, { journeyRevision = "abc", captureRevision = "abc", journeyBuild = "sha256:feed", captureBuild = "sha256:feed", journeyDriver = "sha256:d1", captureDriver = "sha256:d1", journeyUncommitted = 0, captureUncommitted = 0, sidecars = [], launch = {}, after = null, afterPart = null } = {}) {
   const out = scratch(t);
-  writePart(out, { number: 22, name: "exports", title: "E", use_case: "u", revision: { commit: journeyRevision, uncommitted_paths: 0 }, build: { kind: "k", app_sha256: journeyBuild }, screens: [], native_menu: { read: true, read_when: "once", menus: [], journey: "exports", number: 22 }, launch: { ended_cleanly: true } });
+  writePart(out, { number: 22, name: "exports", title: "E", use_case: "u", revision: { commit: journeyRevision, uncommitted_paths: journeyUncommitted, driver_sha256: journeyDriver }, build: { kind: "k", app_sha256: journeyBuild }, screens: [], native_menu: { read: true, read_when: "once", menus: [], journey: "exports", number: 22 }, launch: { ended_cleanly: true } });
   const folder = path.join(out, "captures");
   mkdirSync(folder);
   const png = makePng(4, 3);
@@ -708,9 +708,11 @@ function surfacesIndex(t, { journeyRevision = "abc", captureRevision = "abc", jo
     const { picture, ...claims } = sidecar;
     writeFileSync(path.join(folder, `${base}.json`), sidecarJson({ step: `step-${index + 1}`, note: "n", acted: ["looked"], ...claims }));
   });
-  const captures = readCaptures(folder, { identity: lstatSync(folder), bindTo: { revision: { commit: captureRevision, uncommitted_paths: 0 }, build_app_sha256: captureBuild } });
-  writeAttendedPart(out, { title: "Attended", revision: { commit: captureRevision, uncommitted_paths: 0 }, build: { kind: "k", app_sha256: captureBuild }, launch: { attended: true, ...launch }, captures });
+  const captureRevisionRecord = { commit: captureRevision, uncommitted_paths: captureUncommitted, driver_sha256: captureDriver };
+  const captures = readCaptures(folder, { identity: lstatSync(folder), bindTo: { revision: captureRevisionRecord, build_app_sha256: captureBuild } });
+  const partFile = writeAttendedPart(out, { title: "Attended", revision: captureRevisionRecord, build: { kind: "k", app_sha256: captureBuild }, launch: { attended: true, ...launch }, captures });
   if (after) after(folder);
+  if (afterPart) { const part = JSON.parse(readFileSync(partFile, "utf8")); afterPart(part); writeFileSync(partFile, JSON.stringify(part)); }
   composeIndex(out);
   const index = JSON.parse(readFileSync(path.join(out, "INDEX.json"), "utf8"));
   return { index, html: readFileSync(path.join(out, "index.html"), "utf8"), captures, entry: (key) => index.native_surfaces.find((item) => item.key === key) };
@@ -1532,4 +1534,66 @@ test("without --hidden the attendant is directed to the window only once the dri
   assert.match(ending.what, /window shown: no, page hidden\), so the attendant was not directed to it/);
   const unprepared = attendedEnding({ outcome: { status: null, signal: "SIGKILL", timed_out: false, nonce: "n" }, receipt: { delivered: true }, stop: { by: "output-not-prepared", why: "x" }, start: null, nonce: "n", limitMinutes: 1 });
   assert.deepEqual([unprepared.by, unprepared.ok], ["output-not-prepared", false]);
+});
+
+import { readSidecar } from "./sidecar.mjs";
+
+test("a sidecar is parsed and hashed from one read, and an orphan sidecar is bound by its hash too", (t) => {
+  const root = scratch(t);
+  const folder = path.join(root, "captures");
+  mkdirSync(folder);
+  const text = sidecarJson({ step: "s", note: "n", acted: ["looked"], surfaces: ["menu_bar"] });
+  writeFileSync(path.join(folder, "01.png"), makePng(2, 2));
+  writeFileSync(path.join(folder, "01.json"), text);
+  writeFileSync(path.join(folder, "02-orphan.json"), sidecarJson({ step: "o", note: "n", acted: ["looked"], prevented: { step: "s", surface: "window", observed: "drawn blank", obstacle: "system", cause: "the window server withheld the window's contents" } }));
+  const sha = (bytes) => `sha256:${createHash("sha256").update(bytes).digest("hex")}`;
+  assert.equal(readSidecar(path.join(folder, "01.json")).sidecar_sha256, sha(Buffer.from(text)));
+  const found = readCaptures(folder, { bindTo: { revision: { commit: "abc" }, build_app_sha256: "sha256:feed" } });
+  assert.equal(found.screens[0].binding.sidecar_sha256, sha(Buffer.from(text)));
+  assert.equal(found.records_without_picture[0].sidecar_sha256, sha(readFileSync(path.join(folder, "02-orphan.json"))));
+  // The runner no longer opens a sidecar a second time to hash it.
+  const runner = readFileSync(new URL("./run.mjs", import.meta.url), "utf8");
+  assert.doesNotMatch(runner, /readBounded\(sidecarFile/);
+  // A link standing for a sidecar is not followed.
+  symlinkSync(path.join(folder, "01.json"), path.join(folder, "03.json"));
+  assert.match(readSidecar(path.join(folder, "03.json")).why, /is a link, not followed/);
+});
+
+test("on recomposition the claims come from the verified sidecar bytes, never from the part's saved fields; an orphan's statement needs its hash", (t) => {
+  const statement = { step: "s", surface: "window", observed: "drawn blank", obstacle: "system", cause: "the window server withheld the window's contents" };
+  // The part's saved surfaces are rewritten after the launch: the sidecar on disk still says menu_bar only.
+  const rewritten = surfacesIndex(t, { sidecars: [{ surfaces: ["menu_bar"] }], afterPart: (part) => { part.screens[0].surfaces = ["menu_bar", "window"]; part.screens[0].prevented = [{ ...statement, surface: "other_native_dialog" }]; } });
+  assert.equal(rewritten.entry("menu_bar").evidence, "supplied");
+  assert.equal(rewritten.entry("window").evidence, "missing");
+  assert.equal(rewritten.entry("other_native_dialog"), undefined);
+  // An orphan sidecar's statement counts while its bytes are the recorded ones.
+  const orphan = surfacesIndex(t, { sidecars: [{ picture: false, prevented: statement }] });
+  assert.equal(orphan.entry("window").evidence, "unseen");
+  // Edited after the launch, it counts for nothing, and says why under the launch.
+  const edited = surfacesIndex(t, { sidecars: [{ picture: false, prevented: statement }], after: (folder) => writeFileSync(path.join(folder, "01-capture.json"), sidecarJson({ step: "x", note: "n", acted: ["looked"], prevented: statement })) });
+  assert.equal(edited.entry("window").evidence, "missing");
+  assert.match(edited.entry("window").not_supplying[0].why, /edited after the launch ended/);
+  const attended = edited.index.journeys.find((journey) => journey.name === "attended");
+  assert.match(attended.unexplained.find((item) => item.file === "captures/01-capture.json").why, /^a sidecar recorded without a picture that counts for nothing: this sidecar on disk is not the one its launch recorded/);
+  // Removed, or recorded without a hash, likewise.
+  assert.equal(surfacesIndex(t, { sidecars: [{ picture: false, prevented: statement }], after: (folder) => rmSync(path.join(folder, "01-capture.json")) }).entry("window").evidence, "missing");
+  const unhashed = surfacesIndex(t, { sidecars: [{ picture: false, prevented: statement }], afterPart: (part) => { delete part.captures.records_without_picture[0].sidecar_sha256; } });
+  assert.match(unhashed.entry("window").not_supplying[0].why, /no hash was recorded/);
+});
+
+test("the same commit is not the same revision when the driver differs or paths were uncommitted", (t) => {
+  const claim = [{ surfaces: ["menu_bar"] }];
+  const notSupplied = (result, pattern) => {
+    assert.equal(result.entry("menu_bar").evidence, "missing");
+    assert.match(result.entry("menu_bar").not_supplying[0].why, pattern);
+  };
+  notSupplied(surfacesIndex(t, { sidecars: claim, captureDriver: "sha256:d2" }), /it ran another driver \(d2, not the walkthrough's d1\)/);
+  notSupplied(surfacesIndex(t, { sidecars: claim, captureDriver: null }), /its driver's digest is not recorded/);
+  notSupplied(surfacesIndex(t, { sidecars: claim, captureUncommitted: 2 }), /its revision had 2 uncommitted path\(s\)/);
+  notSupplied(surfacesIndex(t, { sidecars: claim, journeyUncommitted: 1 }), /the walkthrough's screens were taken with uncommitted paths \(exports\)/);
+  notSupplied(surfacesIndex(t, { sidecars: claim, captureUncommitted: null }), /an unrecorded number of uncommitted path/);
+  assert.equal(surfacesIndex(t, { sidecars: claim }).entry("menu_bar").evidence, "supplied");
+  // The runner records the composed driver's digest in every revision it writes.
+  const runner = readFileSync(new URL("./run.mjs", import.meta.url), "utf8");
+  assert.equal(runner.match(/revision: \{ commit: revision, uncommitted_paths: uncommitted, driver_sha256: DRIVER_SHA256 \}/g)?.length, 3);
 });

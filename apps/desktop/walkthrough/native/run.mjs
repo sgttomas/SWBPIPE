@@ -89,7 +89,9 @@ import { ATTENDANT_STATEMENT, marksDecision } from "../../native-smoke/judged-la
 import { ATTENDED_SURFACE, composeIndex } from "../compose-index.mjs";
 import { readScreenCounts, scrollLongestRegion } from "../screen-counts.mjs";
 import { takeSnapshot } from "./snapshot.mjs";
-import { SURFACE_KEYS, readStepRecords, renderScreens, screensFromRecords, writePart } from "./render.mjs";
+import { readStepRecords, renderScreens, screensFromRecords, writePart } from "./render.mjs";
+import { AC007_USE_CASES, readSidecar, sha256Of } from "./sidecar.mjs";
+export { AC007_USE_CASES, UNACCOUNTED, parseSidecar, readSidecar, surfaceClaims } from "./sidecar.mjs";
 
 const here = path.dirname(fileURLToPath(import.meta.url));
 const walkthrough = path.resolve(here, "..");
@@ -677,84 +679,11 @@ export function attendedEnding({ outcome, receipt = null, stop = null, start = n
   return ending;
 }
 
-const SIDECAR_LIMIT = 64 * 1024;
-/**
- * An account of a surface not shown that does not say what in the system or the application kept it from view: one
- * naming the attendant's own capture tool, its setup or its permission, or one that leaves the reason unresolved.
- */
-export const UNACCOUNTED = /\b(tools?|tooling|set ?up|setup|not configured|unconfigured|(capture|recording|screen[- ]?(capture|recording)|accessibility) permission|unknown|unclear|unresolved|undetermined|not sure|no idea|could not (tell|determine|say)|for some reason)\b/i;
-/** DEL-07-06 AC-007's use cases by their names there: an attended capture's sidecar names one of them, or the launch's journey. */
-export const AC007_USE_CASES = Object.freeze(["Blank to released report", "Timed entry", "Missing data", "Failed solve", "Change a support and compare", "Review and export results", "Every required analysis", "User rule pack", "Save, close and resume"]);
 /** How far a sidecar's taken_at may lie from its picture's file time before the index says the two disagree. */
 export const TAKEN_AT_TOLERANCE_MS = 5000;
 /** The driver's settled-page records (driver.js OBSERVED), in words. */
 export const OBSERVED_BOUNDS = "a record when the page has been quiet for 0.8 s after a change (a mutation, a scroll or a resize), at least 1.5 s after the previous record and at most 5 s after the first change it covers, and one at the handover; at most 1200 records, each at most 256 KiB, its controls cut to fit";
-const ISO_TIME = /^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}(:\d{2}(\.\d{1,9})?)?(Z|[+-]\d{2}:\d{2})$/;
 const PNG_SIGNATURE = Buffer.from([0x89, 0x50, 0x4e, 0x47, 0x0d, 0x0a, 0x1a, 0x0a]);
-
-/**
- * A sidecar's optional surface claims, the attendant's: `surfaces`, the native surfaces the picture shows, and
- * `prevented`, one statement or a list of { step, surface, observed, obstacle, cause } that a surface could not be
- * shown: the step attempted, the surface, what was observed when it was attempted, whether the obstacle is the
- * "system" or the "application", and the cause, a concrete account of what in that system or application kept the
- * surface from the capture. Each surface is a key of SURFACE_KEYS; an unknown one is kept apart as unexplained. A
- * statement lacking any member, or whose account names the attendant's own tool or its setup or leaves the reason
- * unresolved (UNACCOUNTED), is kept apart as not counted, with why, and makes nothing unseen: it is missing evidence.
- * { surfaces, surfaces_unexplained, prevented, prevented_incomplete, prevented_unexplained } or { why } when a member
- * is not of that form.
- */
-export function surfaceClaims(value) {
-  const claims = { surfaces: [], surfaces_unexplained: [], prevented: [], prevented_incomplete: [], prevented_unexplained: [] };
-  if (value.surfaces !== undefined) {
-    if (!Array.isArray(value.surfaces) || value.surfaces.length > 20 || !value.surfaces.every((item) => typeof item === "string" && item.length > 0 && item.length <= 80)) return { why: "its sidecar's surfaces is not a list of surface names" };
-    for (const item of value.surfaces) (Object.hasOwn(SURFACE_KEYS, item) ? claims.surfaces : claims.surfaces_unexplained).push(item);
-  }
-  if (value.prevented !== undefined) {
-    const records = Array.isArray(value.prevented) ? value.prevented : [value.prevented];
-    const valid = (record) => record && typeof record === "object" && !Array.isArray(record) && typeof record.surface === "string" && record.surface.length > 0 && record.surface.length <= 80;
-    if (records.length === 0 || records.length > 20 || !records.every(valid)) return { why: "its sidecar's prevented is not { step, surface, observed, obstacle, cause } or a list of them" };
-    const text = (item, limit) => (typeof item === "string" && item.trim() !== "" && item.length <= limit ? item.trim() : null);
-    for (const record of records) {
-      const statement = { step: text(record.step, 200), surface: record.surface, observed: text(record.observed, 1000), obstacle: ["system", "application"].includes(record.obstacle) ? record.obstacle : null, cause: text(record.cause, 1000) };
-      const lacks = ["step", "observed", "obstacle", "cause"].filter((member) => statement[member] === null);
-      if (!Object.hasOwn(SURFACE_KEYS, record.surface)) claims.prevented_unexplained.push(statement);
-      else if (lacks.length > 0) claims.prevented_incomplete.push({ ...statement, lacks, why: `it lacks ${lacks.join(", ")}: a statement names the step attempted, the surface, what was observed, whether the obstacle is the system's or the application's, and what in it kept the surface from the capture` });
-      else if (UNACCOUNTED.test(statement.cause) || UNACCOUNTED.test(statement.observed)) claims.prevented_incomplete.push({ ...statement, lacks: [], why: "its account names the attendant's own tool or its setup, or leaves the reason unresolved: that is missing evidence, not a surface the system or the application kept from view" });
-      else claims.prevented.push(statement);
-    }
-  }
-  return claims;
-}
-
-/**
- * A sidecar's claims, every one the attendant's statement: { use_case, step, acted, note, taken_at, taken_at_ms,
- * ...surfaceClaims } or { why } when it is not one. use_case (one of AC007_USE_CASES by its name, or the launch's
- * journey: checked by readCaptures), step and acted (what was done since the previous capture; "observed only" when
- * nothing was) are required and not empty; note is a string; taken_at is an ISO 8601 time with its zone.
- */
-export function readSidecar(file) {
-  let text;
-  try {
-    const stat = fs.lstatSync(file);
-    if (!stat.isFile()) return { why: "its sidecar is not a regular file" };
-    if (stat.size > SIDECAR_LIMIT) return { why: `its sidecar is larger than ${SIDECAR_LIMIT} bytes` };
-    text = fs.readFileSync(file, "utf8");
-  } catch (error) {
-    return { why: `its sidecar could not be read (${error.code ?? error.message})` };
-  }
-  let value;
-  try { value = JSON.parse(text); } catch { return { why: "its sidecar is not JSON" }; }
-  if (!value || typeof value !== "object" || Array.isArray(value)) return { why: "its sidecar is not a JSON object" };
-  if (typeof value.use_case !== "string" || value.use_case.trim() === "" || value.use_case.length > 200) return { why: "its sidecar names no use case (DEL-07-06 AC-007's name for it, or the launch's journey)" };
-  if (typeof value.step !== "string" || value.step.trim() === "" || value.step.length > 200) return { why: "its sidecar names no step (a string of 1 to 200 characters)" };
-  if (!Array.isArray(value.acted) || value.acted.length === 0 || value.acted.length > 200 || !value.acted.every((item) => typeof item === "string" && item.trim() !== "" && item.length <= 1000)) return { why: "its sidecar's acted does not say what was done since the previous capture (a list of at least one non-empty string; \"observed only\" when nothing was done)" };
-  if (typeof value.note !== "string" || value.note.length > 4000) return { why: "its sidecar has no note (a string of at most 4000 characters)" };
-  const takenAt = typeof value.taken_at === "string" && ISO_TIME.test(value.taken_at) ? Date.parse(value.taken_at) : Number.NaN;
-  if (!Number.isFinite(takenAt)) return { why: "its sidecar does not say when the picture was taken (taken_at, an ISO 8601 time with its zone)" };
-  const claims = surfaceClaims(value);
-  if (claims.why) return claims;
-  return { use_case: value.use_case.trim(), step: value.step.trim(), acted: value.acted.map((item) => item.trim()), note: value.note, taken_at: value.taken_at, taken_at_ms: takenAt, ...claims, raw: value };
-}
 
 const CRC_TABLE = (() => {
   const table = new Int32Array(256);
@@ -816,7 +745,6 @@ export function pngDecode(bytes) {
   return { width, height };
 }
 
-const sha256Of = (bytes) => `sha256:${createHash("sha256").update(bytes).digest("hex")}`;
 const readBounded = (file, limit) => {
   const stat = fs.lstatSync(file);
   if (!stat.isFile()) throw new Error("not a regular file");
@@ -939,13 +867,8 @@ export function readCaptures(folder, { number = ATTENDED.number, journey = ATTEN
       found.screens.push({ ...entry, step: `unexplained-${base}`.slice(0, 120), note: `${name}: unexplained, because ${why}`, capture: "unexplained", unexplained: why, picture: UNEXPLAINED_BASIS });
       continue;
     }
-    let sidecarBytes;
-    try { sidecarBytes = readBounded(sidecarFile, SIDECAR_LIMIT); } catch (error) { sidecarBytes = null; }
-    if (sidecarBytes === null) {
-      found.screens.push({ ...entry, step: `unexplained-${base}`.slice(0, 120), note: `${name}: unexplained, because its sidecar changed while it was read`, capture: "unexplained", unexplained: "its sidecar changed while it was read", picture: UNEXPLAINED_BASIS });
-      continue;
-    }
-    const binding = { picture_sha256: sha256Of(bytes), sidecar_sha256: sha256Of(sidecarBytes), width: decoded.width, height: decoded.height, bytes: bytes.length, revision: bindTo.revision ?? null, build_app_sha256: bindTo.build_app_sha256 ?? null };
+    // The sidecar's claims and its hash come from one read of its bytes (readSidecar), never a second one.
+    const binding = { picture_sha256: sha256Of(bytes), sidecar_sha256: sidecar.sidecar_sha256, width: decoded.width, height: decoded.height, bytes: bytes.length, revision: bindTo.revision ?? null, build_app_sha256: bindTo.build_app_sha256 ?? null };
     const { surfaces, surfaces_unexplained, prevented, prevented_incomplete, prevented_unexplained } = sidecar;
     const stated = { use_case: sidecar.use_case, step: sidecar.step, acted: sidecar.acted, note: sidecar.note, taken_at: sidecar.taken_at, ...(surfaces.length || surfaces_unexplained.length ? { surfaces: [...surfaces, ...surfaces_unexplained] } : {}), ...(sidecar.raw.prevented !== undefined ? { prevented: sidecar.raw.prevented } : {}) };
     const screen = { ...entry, use_case: useCase, step: sidecar.step, note: sidecar.note, acted: sidecar.acted, taken_at: sidecar.taken_at, taken_at_check: takenAtCheck(sidecar.taken_at_ms, fileTime), stated_by_attendant: stated, capture: "the actual window", driven_by: "an attendant, through the window", picture: CAPTURE_BASIS, binding, surfaces, surfaces_unexplained, prevented, prevented_incomplete, prevented_unexplained };
@@ -1194,7 +1117,11 @@ async function main() {
   const keptHomes = new Set();
   const leftHomes = new Map();
   const DRIVER = path.join(RUN_ROOT, "driver.js");
-  writeFileSync(DRIVER, composeDriver(readFileSync(path.join(here, "driver.js"), "utf8")), { flag: "wx" });
+  const driverText = composeDriver(readFileSync(path.join(here, "driver.js"), "utf8"));
+  writeFileSync(DRIVER, driverText, { flag: "wx" });
+  // The driver the app is given is outside its build: its digest joins every revision this run records, so that a
+  // driver changed at the same commit is not the same revision.
+  const DRIVER_SHA256 = sha256Of(Buffer.from(driverText, "utf8"));
   process.on("exit", closeOnExit);
   console.log(`${NAME}: launching ${binary}, a private copy of ${app.binary} (${app.identity.sha256}); evidence in ${RUN_ROOT}; pictures in ${out}`);
 
@@ -1365,7 +1292,7 @@ async function main() {
     await renderScreens(records, screens, { out, snapshots: path.join(where.root, "snapshots"), launchBrowser: () => chromium.launch({ executablePath }) });
     writePart(out, {
       number: spec.number, name, title: spec.title, use_case: spec.use_case, screens, native_menu: nativeMenu, window_shown: shown,
-      revision: { commit: revision, uncommitted_paths: uncommitted },
+      revision: { commit: revision, uncommitted_paths: uncommitted, driver_sha256: DRIVER_SHA256 },
       build: { kind: "scripted-run build (native-smoke feature), launched as a private copy", app_sha256: app.identity.sha256, app_bytes: app.identity.size, binding_record_sha256: bindingSha }, launch: { ended_cleanly: failures.length === 0, failures, driver_finished: seen?.ok === true, window_shown: shown.shown },
       ...(built.length ? { built_placements: built } : {}), ...(storedRuns ? { stored_runs: storedRuns } : {}) });
     const pictured = screens.filter((screen) => screen.file).length;
@@ -1475,7 +1402,7 @@ async function main() {
     const observed = readObserved(report, outcome?.nonce);
     const found = readCaptures(captures, {
       identity: capturesIdentity,
-      bindTo: { revision: { commit: revision, uncommitted_paths: uncommitted }, build_app_sha256: app.identity.sha256 },
+      bindTo: { revision: { commit: revision, uncommitted_paths: uncommitted, driver_sha256: DRIVER_SHA256 }, build_app_sha256: app.identity.sha256 },
       journeyUseCase: spec ? { name: start, use_case: spec.use_case } : null,
       observed: observed.records, substitutions,
       launchTimes: { from: startedAt ?? Date.now(), to: Date.now() }
@@ -1483,7 +1410,7 @@ async function main() {
     if (found.error) check("the captures folder was read at the end of the launch", false, found.error);
     writeAttendedPart(out, {
       title: `Attended launch (launched app): the actual window, driven by an attendant, from ${start ? `the start of ${start}` : "the application as first opened"}`,
-      revision: { commit: revision, uncommitted_paths: uncommitted },
+      revision: { commit: revision, uncommitted_paths: uncommitted, driver_sha256: DRIVER_SHA256 },
       build: { kind: "scripted-run build (native-smoke feature), launched as a private copy", app_sha256: app.identity.sha256, app_bytes: app.identity.size, binding_record_sha256: bindingSha },
       native_menu: nativeMenu, window_shown: shown, captures: found,
       launch: {
