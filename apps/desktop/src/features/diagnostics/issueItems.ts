@@ -288,6 +288,12 @@ export function messageDifferences(messages: readonly string[]): string[] {
   return words.map((list) => list.slice(prefix, list.length - suffix).join(" ").replace(/[;:,]$/, "") || "(no other words)");
 }
 
+/** The items that hold a solve report and are blocking or errors: what a solve that did not solve
+ * leaves a person to do, in the order the drawer lists them. */
+export function solveBlockingItems(items: readonly IssueItem[]): IssueItem[] {
+  return items.filter((item) => (item.severity === "blocking" || item.severity === "error") && item.members.some((member) => member.origin === "solve"));
+}
+
 /** Orders items as a person meets them: most severe first, then as reported. */
 export function bySeverity(items: readonly IssueItem[]): IssueItem[] {
   return items.map((item, index) => ({ item, index }))

@@ -15,6 +15,8 @@ import {
   startSolveJob
 } from "../workspace/solveJobAudit";
 import { formatElapsed, SolveIssueItem, SolveProgressPanel } from "./SolveProgressPanel";
+import { groupIssues, solveBlockingItems } from "../diagnostics/issueItems";
+import missingDataStartModel from "../../../../../fixtures/embedded_agent/use_cases/missing-data/start_model.json";
 
 // DEL-07-07 REQ-014: the solve status line shows the solve-job record the
 // session already keeps, from invented native job reports. What the line keeps
@@ -383,12 +385,12 @@ describe("the status line's outcome and its actions", () => {
     expect(screen.queryByTestId("solve-progress-rule-inputs")).toBeNull();
   });
 
-  it("a mechanics status other than solved is the line's first word, in the registry's plain words, with the way on to the findings", () => {
+  it("a mechanics status other than solved is the line's first word, in the registry's plain words, with Show in Issues where no count is supplied", () => {
     const onShowIssue = vi.fn();
     const view = render(line(initialSolveJob(), false, { onShowIssue }));
     view.rerender(line(initialSolveJob(), true, { onShowIssue }));
     view.rerender(line(completedWith(["MODEL_INCOMPLETE", "HUMAN_REVIEW_REQUIRED"]), false, { onShowIssue }));
-    expect(screen.getByTestId("solve-progress-state")).toHaveTextContent(/^Model incomplete\. 2 result rows\.$/);
+    expect(screen.getByTestId("solve-progress-state")).toHaveTextContent(/^Model incomplete after \d+:\d\d\. Nothing was solved\.$/);
     fireEvent.click(screen.getByTestId("solve-progress-show-issue"));
     expect(onShowIssue).toHaveBeenCalledTimes(1);
     // A completed job that reports no mechanics status claims nothing: the job's own state word.
@@ -538,6 +540,47 @@ describe("the status line's outcome and its actions", () => {
     };
     expect(stoppedAfter(true)).toMatch(/^Stopped after \d+:\d\d\. No result was published\. The earlier result was cleared when this run started\.$/);
     expect(stoppedAfter(false)).toMatch(/^Stopped after \d+:\d\d\. No result was published\.$/);
+  });
+});
+
+describe("a solve that ends with the model incomplete (the missing-data use case's model)", () => {
+  // The committed use case: two pipes lacking a density and one seismic case. The job's completed
+  // event carries MODEL_INCOMPLETE, no result rows and the solve's two findings (invented here as
+  // the solve gives them: one per pipe).
+  const useCaseModel = missingDataStartModel as unknown as PreviewModel;
+  const findings = useCaseModel.pipe_segments.map((pipe) => ({
+    id: `invented:${pipe.id}`, code: "EQUIVALENT_STATIC_INPUT_MISSING", severity: "blocking" as const,
+    message: "invented: seismic generation requires material_density on every pipe segment", affected_refs: [pipe.id]
+  }));
+
+  it("reads that the model is incomplete and nothing was solved, offers the blocking findings with their count, never Completed or 0 result rows", () => {
+    const onShowBlocking = vi.fn();
+    const items = groupIssues({ model: useCaseModel, diagnostics: findings, diagnosticOrigins: ["solve", "solve"] });
+    const count = solveBlockingItems(items).length;
+    expect(count).toBe(2);
+    const props = { onCancel: () => {}, blockingFindings: count, onShowBlocking, onShowIssue: () => {} };
+    const view = render(<SolveProgressPanel solveJob={initialSolveJob()} running={false} {...props} />);
+    view.rerender(<SolveProgressPanel solveJob={initialSolveJob()} running {...props} />);
+    const running = progressSolveJob(startSolveJob(useCaseModel, receipt), status({ state: "running" }));
+    view.rerender(<SolveProgressPanel solveJob={running} running {...props} />);
+    const done = completeSolveJob(running, { results: [], diagnostics: findings } as unknown as MechanicsResult,
+      { analysis_run: { run_id: "analysis-run:invented-missing-data", analysis_status: ["MODEL_INCOMPLETE"] } } as unknown as AnalysisRunEnvelope);
+    view.rerender(<SolveProgressPanel solveJob={done} running={false} {...props} />);
+    const line = screen.getByTestId("solve-progress-state");
+    expect(line).toHaveTextContent(/^Model incomplete after \d+:\d\d\. Nothing was solved\.$/);
+    expect(screen.getByTestId("solve-progress-panel").textContent).not.toMatch(/Completed|result rows?/);
+    expect(screen.queryByTestId("solve-progress-show-issue")).toBeNull();
+    expect(screen.queryByTestId("solve-progress-open-results")).toBeNull();
+    const control = screen.getByTestId("solve-progress-blocking");
+    expect(control).toHaveTextContent(/^Blocking findings: 2$/);
+    fireEvent.click(control);
+    expect(onShowBlocking).toHaveBeenCalledTimes(1);
+    // The job's own event text is in Details, in its steps, and not on the line.
+    const last = done.events[done.events.length - 1].message;
+    expect(line.textContent).not.toContain(last);
+    openSteps();
+    expect(screen.getByTestId("solve-progress-stage")).toHaveTextContent(last);
+    expect(screen.getByTestId("solve-progress-statuses")).toHaveTextContent(/^Statuses reported: Solver · Model incomplete \(MODEL_INCOMPLETE\)$/);
   });
 });
 

@@ -80,7 +80,7 @@ import { LibraryManagerPanel } from "./features/library/LibraryManagerPanel";
 import { LoadCaseManagerPanel } from "./features/load-cases/LoadCaseManagerPanel";
 import { LocalFeaHandoffPanel } from "./features/local-fea-handoff/LocalFeaHandoffPanel";
 import { countRuleInputsMissing, MissingDataBlockingPanel } from "./features/missing-data/MissingDataBlockingPanel";
-import { itemsAt, useIssueSummary, type IssueItem, type IssueSummary } from "./features/diagnostics/issueItems";
+import { itemsAt, solveBlockingItems, useIssueSummary, type IssueItem, type IssueSummary } from "./features/diagnostics/issueItems";
 import { IssueItemView, ShownUnderDiagnostics } from "./features/diagnostics/IssueItemView";
 import { professionalStatusToken, ruleCheckStatusToken, statusDisplay } from "./features/workspace/statusLabels";
 import { entityRefFromKey, setSelectionFocus } from "./features/workspace/selectionState";
@@ -377,9 +377,10 @@ function AppSession() {
   // "Show solver diagnostic" (DEL-07-05 numerical health §3): the Issues drawer's
   // Diagnostics panel opens filtered to exactly that diagnostic, once.
   const { filterRequest: diagnosticFilterRequest, requestDiagnosticFilter } = useDiagnosticFilterRequest({ issuesDrawerOpen, result, analysisRun });
-  // A request from the status line's "Rule inputs missing" control to open the drawer at the
-  // Missing data entries; the drawer clears it once it has brought them into view.
-  const [missingDataRequest, setMissingDataRequest] = useState<number | null>(null);
+  // A request from the status line to open the drawer at the Missing data entries ("Rule inputs
+  // missing") or at an item ("Blocking findings"); the drawer clears it once it has brought that
+  // into view.
+  const [issuesTarget, setIssuesTarget] = useState<IssuesTarget | null>(null);
   // A6 (DEL-07-05 Design `key-results-panel.md`): the key-results panel's open state, auto-open
   // rule and actions, each through an existing setter. The rule-check run follows the A3 rule.
   const keyResults = useKeyResultsSession({
@@ -395,6 +396,7 @@ function AppSession() {
   const keyResultsRuleCheckRun = currentSolvedResult !== null && result === currentSolvedResult ? ruleCheckReportRun : null;
   // One count for every Issues control: the number of items the Issues drawer lists.
   const issues = useIssueSummary({ model, knowledge, result, operationOutcomes, modelCheckRun, solveJob });
+  const solveBlocking = solveBlockingItems(issues.items);
 
   // In the packaged Tauri shell the OS-level menu bar is the single menu, so the
   // in-DOM menu bar is suppressed to avoid a redundant second row. In the
@@ -508,7 +510,9 @@ function AppSession() {
         resultsShown={shell.stage === "results" && shell.page === null}
         resultHeld={result !== null}
         ruleInputsMissing={solveJob.state === "completed" ? countRuleInputsMissing({ model, result }) : null}
-        onShowRuleInputs={() => { setIssuesDrawerOpen(true); setMissingDataRequest((count) => (count ?? 0) + 1); }}
+        onShowRuleInputs={() => { setIssuesDrawerOpen(true); setIssuesTarget({ kind: "missing-data", sequence: (issuesTarget?.sequence ?? 0) + 1 }); }}
+        blockingFindings={solveJob.state === "completed" ? solveBlocking.length : null}
+        onShowBlocking={() => { if (solveBlocking[0]) { setIssuesDrawerOpen(true); setIssuesTarget({ kind: "item", key: solveBlocking[0].key, sequence: (issuesTarget?.sequence ?? 0) + 1 }); } }}
       />
 
       <div className="shell-body">
@@ -1427,8 +1431,8 @@ function AppSession() {
           modelCheckBusy={modelCheckBusy}
           onRunModelChecks={() => { void handleRunModelChecks(); }}
           onSelectEntity={(entity) => { handleSelectEntity(entity); }}
-          missingDataRequest={missingDataRequest}
-          onMissingDataShown={() => setMissingDataRequest(null)}
+          target={issuesTarget}
+          onTargetShown={() => setIssuesTarget(null)}
         />
       ) : null}
       <ReplaceProjectPrompt prompt={replaceProjectPrompt} />
@@ -1876,6 +1880,9 @@ function AuditBoundaryDrawer({
   );
 }
 
+/** Where the status line asks the Issues drawer to open: at its Missing data entries, or at one item. */
+type IssuesTarget = { kind: "missing-data"; sequence: number } | { kind: "item"; key: string; sequence: number };
+
 function IssuesHome({
   issues,
   solveJob = null,
@@ -1890,8 +1897,8 @@ function IssuesHome({
   modelCheckBusy = false,
   onRunModelChecks = () => {},
   onSelectEntity = () => {},
-  missingDataRequest = null,
-  onMissingDataShown = () => {}
+  target = null,
+  onTargetShown = () => {}
 }: {
   /** The items this drawer lists; their number is the Issues controls' count. */
   issues: IssueSummary;
@@ -1909,20 +1916,22 @@ function IssuesHome({
   modelCheckBusy?: boolean;
   onRunModelChecks?: () => void;
   onSelectEntity?: (entity: EntityRef) => void;
-  /** A request to open the drawer at the Missing data entries (the status line's "Rule inputs
-   * missing" control): it brings that panel into view, gives it focus and is then cleared. */
-  missingDataRequest?: number | null;
-  onMissingDataShown?: () => void;
+  /** A request from the status line to open the drawer at the Missing data entries or at an item:
+   * it brings that into view, gives it focus and is then cleared. */
+  target?: IssuesTarget | null;
+  onTargetShown?: () => void;
 }) {
   const checkItems = itemsAt(issues, "model-checks");
   const drawerRef = useRef<HTMLElement>(null);
   useEffect(() => {
-    if (missingDataRequest === null) return;
-    const panel = drawerRef.current?.querySelector<HTMLElement>('[data-testid="missing-data-panel"]');
-    panel?.scrollIntoView?.({ block: "start" });
-    panel?.focus();
-    onMissingDataShown();
-  }, [missingDataRequest, onMissingDataShown]);
+    if (target === null) return;
+    const found = target.kind === "missing-data"
+      ? drawerRef.current?.querySelector<HTMLElement>('[data-testid="missing-data-panel"]')
+      : [...(drawerRef.current?.querySelectorAll<HTMLElement>("[data-item-key]") ?? [])].find((entry) => entry.dataset.itemKey === target.key);
+    found?.scrollIntoView?.({ block: "start" });
+    (target.kind === "item" ? found?.querySelector<HTMLElement>("button") ?? found : found)?.focus();
+    onTargetShown();
+  }, [target, onTargetShown]);
   const operationItems = itemsAt(issues, "operation");
   const diagnosticItems = itemsAt(issues, "diagnostics");
   // A diagnostic shown as requested in the Diagnostics list is shown there once; the list that

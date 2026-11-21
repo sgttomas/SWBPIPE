@@ -158,8 +158,11 @@ export function formatElapsed(milliseconds: number): string {
  * result rows the job reported, with "Open results" unless the Results stage is
  * the one shown, and, only where something is left for the person to do and its
  * count can be read honestly, that thing as a control with its count ("Rule
- * inputs missing: N", opening the Issues drawer at those findings); a mechanics
- * status other than solved is the line's first word with "Show in Issues". Every
+ * inputs missing: N", opening the Issues drawer at those findings). A mechanics
+ * status other than solved is the line's first word in plain words, then
+ * "Nothing was solved." and no rows, with what to do as a control with its count
+ * ("Blocking findings: N", opening the Issues drawer at the first of them), or
+ * "Show in Issues" where no count can be read; never "Completed". Every
  * status the job reported stays in Details, with its token. When it fails or is
  * refused, the reason the job gives, the way to retry and the exact code, with
  * "Show in Issues".
@@ -185,7 +188,9 @@ export function SolveProgressPanel({
   resultsShown = false,
   resultHeld = false,
   ruleInputsMissing = null,
-  onShowRuleInputs
+  onShowRuleInputs,
+  blockingFindings = null,
+  onShowBlocking
 }: {
   solveJob: SolveJobAuditState;
   running: boolean;
@@ -204,6 +209,11 @@ export function SolveProgressPanel({
   ruleInputsMissing?: number | null;
   /** Opens the Issues drawer at those findings. */
   onShowRuleInputs?: () => void;
+  /** How many of the Issues drawer's items holding a solve report are blocking or errors; read
+   * when the completed job reports a mechanics status other than solved. */
+  blockingFindings?: number | null;
+  /** Opens the Issues drawer at the first of them. */
+  onShowBlocking?: () => void;
 }) {
   const stateRef = useRef<HTMLParagraphElement>(null);
   const lineRef = useRef<HTMLElement>(null);
@@ -257,7 +267,9 @@ export function SolveProgressPanel({
     : outcome?.solved || (completed && !outcome?.unsolved) ? ` in ${elapsed}`
       : completed || state === "cancelled" || state === "failed" ? ` after ${elapsed}` : null;
   const tone = state === "failed" || state === "refused" ? "error" : state === "completed" ? "done" : state === "cancelled" ? "stopped" : "active";
-  const issue = state === "failed" || state === "refused" || tooLarge || outcome?.unsolved === true;
+  // A mechanics status other than solved: what to do, as a control with its count where one can be read.
+  const blocking = outcome?.unsolved && blockingFindings !== null && blockingFindings > 0 && onShowBlocking ? blockingFindings : null;
+  const issue = state === "failed" || state === "refused" || tooLarge || (outcome?.unsolved === true && blocking === null);
   const poolRefusal = state === "refused" && refusal !== null;
   // A run clears the result held before it when its job starts (the session's solve).
   const earlierResultCleared = state === "cancelled" && tracker.current.resultHeldAtStart;
@@ -299,7 +311,8 @@ export function SolveProgressPanel({
           {poolRefusal ? null : state === "cancelled" || completed || (queueReason && (state === "queued" || state === "cancelling")) || tooLarge || state === "failed" ? "." : null}
           {state === "cancelled" ? <span> No result was published.</span> : null}
           {earlierResultCleared ? <span data-testid="solve-progress-earlier-cleared"> The earlier result was cleared when this run started.</span> : null}
-          {completed ? (
+          {completed && outcome?.unsolved ? <span data-testid="solve-progress-not-solved"> Nothing was solved.</span> : null}
+          {completed && !outcome?.unsolved ? (
             <span>
               {" "}<span data-testid="solve-progress-completed">{plural(completed.result_row_count, "result row", "result rows")}.</span>
             </span>
@@ -346,6 +359,12 @@ export function SolveProgressPanel({
             <button className="primary-action" data-testid="solve-progress-open-results" onClick={onOpenResults} type="button">
               Open results
               <ArrowRight size={14} aria-hidden="true" />
+            </button>
+          ) : null}
+          {blocking !== null ? (
+            <button className="secondary-action" data-testid="solve-progress-blocking" onClick={onShowBlocking} type="button">
+              <Flag size={14} aria-hidden="true" />
+              Blocking findings: {blocking}
             </button>
           ) : null}
           {ruleInputs !== null ? (

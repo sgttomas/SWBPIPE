@@ -62,7 +62,7 @@ export function IssueItemView({
   const long = useLongMessage(shown.shown.message);
   const origins = [...new Set(item.members.map((member) => member.origin))];
   return (
-    <div className={grouped ? `issue-entry issue-group ${item.severity}` : "issue-entry"} data-testid={grouped ? `issue-group-${item.code}` : undefined}>
+    <div className={grouped ? `issue-entry issue-group ${item.severity}` : "issue-entry"} data-item-key={item.key} data-testid={grouped ? `issue-group-${item.code}` : undefined}>
       {main(<FirstLine severity={grouped ? item.severity : shown.diagnostic.severity} text={long.text} />)}
       <p className="issue-meta muted" data-testid="issue-meta">
         {grouped ? item.severity : shown.diagnostic.severity} · {grouped ? item.code : shown.diagnostic.code}
