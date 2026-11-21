@@ -4,7 +4,7 @@
 //! acts along the positive axis of that DOF. A `direction` is not an input of a
 //! hanger: a record that carries a hanger and a direction is refused by name
 //! (`SUPPORT_DIRECTION_RECORD_UNSUPPORTED`), whatever the direction's sign or
-//! axis. A `line_stop` family record carrying either hanger family is refused
+//! axis and whatever the record's family, with the one message that corrects it. A `line_stop` family record carrying either hanger family is refused
 //! as a family and hanger conflict (`SUPPORT_FAMILY_HANGER_CONFLICT`), as a
 //! `spring` family record carrying a constant-effort hanger already is. Every
 //! refusal names the record and publishes no result row.
@@ -92,29 +92,55 @@ fn a_variable_spring_hanger_with_a_direction_is_refused_by_name() {
             });
             refused(&document, DIRECTION_REFUSED, &direction_message(HANGER_REASON), &format!("spring {d:?} {route:?}"));
         }
-        // Its own family keeps main's refusal.
-        let document = with_sh3("PA-WT", route, |sh3| direction(sh3, [0.0, 0.0, -1.0]));
-        refused(&document, DIRECTION_REFUSED, &direction_message(FAMILY_REASON), &format!("variable_spring_hanger {route:?}"));
+        // Its own family, and a family on which no direction is admitted, are told the same.
+        for family in ["variable_spring_hanger", "spring_hanger", "anchor"] {
+            let document = with_sh3("PA-WT", route, |sh3| {
+                sh3["family"] = json!(family);
+                direction(sh3, [0.0, 0.0, -1.0]);
+            });
+            refused(&document, DIRECTION_REFUSED, &direction_message(HANGER_REASON), &format!("{family} {route:?}"));
+        }
     }
 }
 
-/// Control: a constant-effort hanger of its own family with a direction keeps
-/// main's refusal; on the `spring` family it is refused as a hanger with a
-/// direction (a direction is checked before the family and hanger conflict).
+/// A constant-effort hanger with a direction is refused by the same message on
+/// its own family and on the `spring` family (a direction is checked before the
+/// family and hanger conflict).
 #[test]
-fn a_constant_effort_hanger_with_a_direction_keeps_its_refusal() {
+fn a_constant_effort_hanger_with_a_direction_is_refused_by_name() {
     for route in ROUTES {
         for d in DIRECTIONS {
             let own = with_sh3("PA-WT", route, |sh3| {
                 constant_effort(sh3, "constant_effort_support");
                 direction(sh3, d);
             });
-            refused(&own, DIRECTION_REFUSED, &direction_message(FAMILY_REASON), &format!("constant_effort_support {d:?} {route:?}"));
+            refused(&own, DIRECTION_REFUSED, &direction_message(HANGER_REASON), &format!("constant_effort_support {d:?} {route:?}"));
             let spring = with_sh3("PA-WT", route, |sh3| {
                 constant_effort(sh3, "spring");
                 direction(sh3, d);
             });
             refused(&spring, DIRECTION_REFUSED, &direction_message(HANGER_REASON), &format!("spring constant-effort {d:?} {route:?}"));
+        }
+    }
+}
+
+/// Control: a record of a hanger family that carries no hanger member (refused on
+/// its own as `SPRING_HANGER_DATA_MISSING`) has no hanger to be told about, and a
+/// direction on it keeps the family's words.
+#[test]
+fn a_hanger_family_record_without_a_hanger_keeps_the_family_refusal() {
+    for route in ROUTES {
+        for family in ["variable_spring_hanger", "constant_effort_support"] {
+            let document = with_sh3("PA-WT", route, |sh3| {
+                *sh3 = json!({"id": "SH-3", "node": "N3", "family": family, "restraints": ["UZ"], "provenance": PROV});
+                direction(sh3, [0.0, 0.0, 1.0]);
+            });
+            refused(&document, DIRECTION_REFUSED, &direction_message(FAMILY_REASON), &format!("{family} without a hanger {route:?}"));
+            for mode in MODES {
+                let envelope = solve(&document, mode);
+                assert!(envelope["diagnostics"].as_array().unwrap().iter().any(|d| d["code"] == "SPRING_HANGER_DATA_MISSING"),
+                    "{family} {route:?} {mode:?}: {:#?}", envelope["diagnostics"]);
+            }
         }
     }
 }
