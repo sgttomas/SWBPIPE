@@ -1118,6 +1118,9 @@ fn a_generating_case_without_its_analysis_state_is_refused_by_name() {
 /// - each seismic axis;
 /// - a connector-replaced member;
 /// - component-replaced members with zero, one and two moments;
+/// - a centre-of-gravity coordinate that converts to zero metres, a zero
+///   coordinate after conversion: the component is eligible and forms only
+///   the moments with a nonzero lever;
 /// - whole-span wind in marking order;
 /// - partial extents whose fractions are whole numbers, short decimals and
 ///   long ones.
@@ -1134,7 +1137,7 @@ fn the_reader_rederives_the_generated_identities_the_generator_forms() {
         assert_eq!(format!("{}", fraction["value"].as_f64().unwrap()), fraction["display"].as_str().unwrap(), "{fraction}");
     }
     let cases = doc["cases"].as_array().unwrap();
-    assert_eq!(cases.len(), 5);
+    assert_eq!(cases.len(), 6);
     for item in cases {
         let model = &doc["models"][item["model"].as_str().unwrap()];
         let id = item["load_case_id"].as_str().unwrap();

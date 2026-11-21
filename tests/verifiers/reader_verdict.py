@@ -373,11 +373,13 @@ def _eligible_components(model: Mapping[str, Any]) -> list:
             continue
         if not all(type(e) in (int, float) and math.isfinite(e) for e in entered):
             continue
+        # Each coordinate after the document's ordinary conversion to metres, which the solve applies before
+        # generation reads it: a coordinate that converts to zero is a zero coordinate, and no moment term uses it.
         try:
             r = [to_canonical(e, cog.get("unit"), "length") for e in entered]
         except (ValueError, OverflowError, KeyError, TypeError):
             continue
-        if not all(math.isfinite(n) for n in r) or any(e != 0 and n == 0 for e, n in zip(entered, r)):
+        if not all(math.isfinite(n) for n in r):
             continue
         if not any(isinstance(n, Mapping) and n.get("id") == node for n in _items(model.get("nodes"))):
             continue

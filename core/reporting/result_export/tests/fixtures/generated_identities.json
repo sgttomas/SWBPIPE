@@ -1052,6 +1052,219 @@
     }
    ],
    "combinations": []
+  },
+  "converted": {
+   "schema_version": "0.9.0",
+   "document_kind": "openpipestress.product_preview.model",
+   "project": {
+    "id": "project:generated-identity-converted-offset",
+    "units": {
+     "length": "m",
+     "force": "N",
+     "angle": "rad",
+     "pressure": "Pa",
+     "stress": "Pa",
+     "temperature": "degC"
+    }
+   },
+   "analysis_status": {
+    "mechanics": "ready_for_preview_diagnostics",
+    "rule_check": "not_performed_user_rule_inputs_missing",
+    "professional_acceptance": "not_provided"
+   },
+   "pressure_contract": {
+    "version": "3.0.0",
+    "mode": "exact_pressure_v3",
+    "shear_model": "euler_bernoulli"
+   },
+   "nodes": [
+    {
+     "id": "node:a",
+     "position": {
+      "x": 0.0,
+      "y": 0.0,
+      "z": 0.0
+     },
+     "provenance": "invented generated-identity binding input; not library, catalogue or code data"
+    },
+    {
+     "id": "node:b",
+     "position": {
+      "x": 2.0,
+      "y": 0.0,
+      "z": 0.0
+     },
+     "provenance": "invented generated-identity binding input; not library, catalogue or code data"
+    },
+    {
+     "id": "node:c",
+     "position": {
+      "x": 2.5,
+      "y": 0.0,
+      "z": 0.0
+     },
+     "provenance": "invented generated-identity binding input; not library, catalogue or code data"
+    }
+   ],
+   "pipe_segments": [
+    {
+     "id": "pipe:a-b",
+     "from": "node:a",
+     "to": "node:b",
+     "material": "material:id",
+     "y_reference": {
+      "x": 0.0,
+      "y": 1.0,
+      "z": 0.0
+     },
+     "section": {
+      "outside_diameter": {
+       "value": 0.2191,
+       "unit": "m"
+      },
+      "wall_thickness": {
+       "value": 0.00818,
+       "unit": "m"
+      },
+      "mill_tolerance": {
+       "value": 0.0,
+       "unit": "m"
+      },
+      "corrosion_allowance": {
+       "value": 0.0015,
+       "unit": "m"
+      },
+      "material_density": {
+       "value": 7850.0,
+       "unit": "kg/m^3"
+      },
+      "contents_density": {
+       "value": 1000.0,
+       "unit": "kg/m^3"
+      }
+     },
+     "provenance": "invented generated-identity binding input; not library, catalogue or code data"
+    },
+    {
+     "id": "pipe:b-c",
+     "from": "node:b",
+     "to": "node:c",
+     "material": "material:id",
+     "y_reference": {
+      "x": 0.0,
+      "y": 1.0,
+      "z": 0.0
+     },
+     "section": {
+      "outside_diameter": {
+       "value": 0.2191,
+       "unit": "m"
+      },
+      "wall_thickness": {
+       "value": 0.00818,
+       "unit": "m"
+      },
+      "mill_tolerance": {
+       "value": 0.0,
+       "unit": "m"
+      },
+      "corrosion_allowance": {
+       "value": 0.0015,
+       "unit": "m"
+      },
+      "material_density": {
+       "value": 7850.0,
+       "unit": "kg/m^3"
+      },
+      "contents_density": {
+       "value": 1000.0,
+       "unit": "kg/m^3"
+      }
+     },
+     "provenance": "invented generated-identity binding input; not library, catalogue or code data"
+    }
+   ],
+   "supports": [
+    {
+     "id": "support:a",
+     "node": "node:a",
+     "family": "anchor",
+     "restraints": [
+      "UX",
+      "UY",
+      "UZ",
+      "RX",
+      "RY",
+      "RZ"
+     ],
+     "provenance": "invented generated-identity binding input; not library, catalogue or code data"
+    }
+   ],
+   "components": [
+    {
+     "id": "component:v",
+     "kind": "valve",
+     "node": "node:c",
+     "provenance": "invented generated-identity binding input; not library, catalogue or code data",
+     "geometry": {
+      "rigid_pipe_ref": "pipe:b-c",
+      "weight": {
+       "value": 2350.0,
+       "unit": "N"
+      },
+      "center_of_gravity": {
+       "x": 120.0,
+       "y": 5e-324,
+       "z": 0.0,
+       "unit": "mm"
+      }
+     },
+     "mechanics_interface": {
+      "solver_consumption": "mechanics_geometry_only"
+     }
+    }
+   ],
+   "materials": [
+    {
+     "id": "material:id",
+     "constitutive_basis": "homogeneous_isotropic_E_nu_v1",
+     "elastic_modulus": {
+      "value": 200000000000.0,
+      "unit": "Pa"
+     },
+     "poisson_ratio": {
+      "value": 0.3,
+      "unit": "1"
+     },
+     "provenance": "invented generated-identity binding input; not library, catalogue or code data"
+    }
+   ],
+   "load_cases": [
+    {
+     "id": "SEISMIC-XY",
+     "primitive_loads": [],
+     "pressure_regions": [],
+     "provenance": "invented generated-identity binding input; not library, catalogue or code data",
+     "equivalent_static": {
+      "seismic": {
+       "gravity_acceleration": {
+        "value": 9.80665,
+        "unit": "m/s^2"
+       },
+       "g_factor_x": {
+        "value": 0.2,
+        "unit": "1"
+       },
+       "g_factor_y": {
+        "value": 0.25,
+        "unit": "1"
+       }
+      },
+      "provenance": "invented generated-identity binding input; not library, catalogue or code data"
+     }
+    }
+   ],
+   "combinations": []
   }
  },
  "cases": [
@@ -1122,6 +1335,18 @@
     "SEISMIC-X:generated:seismic:global-x:component:12:component:v2:force",
     "SEISMIC-X:generated:seismic:global-x:component:12:component:v2:moment:y",
     "SEISMIC-X:generated:seismic:global-x:component:12:component:v2:moment:z"
+   ]
+  },
+  {
+   "model": "converted",
+   "load_case_id": "SEISMIC-XY",
+   "what": "a centre-of-gravity coordinate that converts to zero metres is a zero coordinate: the component is eligible, and only the moments with a nonzero lever after conversion are formed (along x, levers (0, r_z, -r_y) are zero: the force alone; along y, (-r_z, 0, r_x): the moment about z)",
+   "generated_load_ids": [
+    "SEISMIC-XY:generated:seismic:global-x:element-0",
+    "SEISMIC-XY:generated:seismic:global-y:element-0",
+    "SEISMIC-XY:generated:seismic:global-x:component:11:component:v:force",
+    "SEISMIC-XY:generated:seismic:global-y:component:11:component:v:force",
+    "SEISMIC-XY:generated:seismic:global-y:component:11:component:v:moment:z"
    ]
   }
  ],
