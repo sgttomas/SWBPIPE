@@ -787,7 +787,8 @@ describe("refusals change nothing", () => {
     ["transform_pipe_run", "translate" as const, (rows: Rows) => rows.map((row, index) => index === 0 ? { ...row, change_kind: "set_field" } : row), "with a row of another change kind"],
     ["transform_pipe_run", "translate" as const, (rows: Rows) => [...rows, { ...rows[0], object_type: "Support" }], "with a row of another object type"]
   ])("an engine-expanded %s preview passes when valid and is refused %s (Q2)", async (kind, action, malform, _what) => {
-    const result = await session();
+    // Without supports, so a copy of pipe:Q's run is not refused for a support it would leave behind.
+    const result = await session(() => ({ ...reconnectModel(), supports: [] }));
     const dialog = bindDialog(result, geometry);
     const valid = await run(() => dialog.preview({ action, pipeId: "pipe:Q" }));
     if (valid.status !== "previewed") throw new Error(`expected a preview, got: ${JSON.stringify(valid)}`);
