@@ -10,7 +10,8 @@ re-parsed, the case is re-solved in SWBPIPE and the comparison is rebuilt, then
 the series step evaluates the hypothesis series and rebuilds the declaring
 cases, as the pilot command does. The check fails when any quantity's outcome,
 cause or cause evidence status moves from its recorded classification. Failure
-messages name case, quantity and check ids only, never values.
+messages name each moved case, quantity and check with its classification before
+and after.
 """
 
 from __future__ import annotations
@@ -84,7 +85,8 @@ def test_stored_caepipe_correlation_classifications_are_stable(tmp_path):
                             .read_text(encoding="utf-8"))
         rebuilt = json.loads((copy_root / "cases" / case_id / "comparison" / "comparison.json").read_text(encoding="utf-8"))
         before, after = classification(stored), classification(rebuilt)
-        moved.extend(f"{case_id}/{quantity}/{check}" for quantity, check in sorted(set(before) | set(after))
+        moved.extend(f"{case_id}/{quantity}/{check}: {before.get((quantity, check))} -> {after.get((quantity, check))}"
+                     for quantity, check in sorted(set(before) | set(after))
                      if before.get((quantity, check)) != after.get((quantity, check)))
     assert not failed_cases, f"cases without a rebuilt comparison record: {', '.join(failed_cases)}"
     assert not moved, f"classification moved for: {', '.join(moved)}"
