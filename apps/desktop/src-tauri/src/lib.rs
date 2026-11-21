@@ -11065,6 +11065,8 @@ mod tests {
             };
             let bare = with_unit("210");
             let pair = with_unit(r#"{"value":210,"unit":"GPa"}"#);
+            // The stored number is compared as a number: the applier stores a pair's value as binary64.
+            let pair_of = |quantity: &Value| (quantity["value"].as_f64(), quantity["unit"].as_str().map(str::to_owned));
             let refuses = |diagnostics: &Value| diagnostics.as_array().unwrap().iter().any(|d| d["code"] == CODE && d["severity"] == "blocking");
             let claim = json!({"algorithm": "sha256", "canonicalization": "rfc8785_jcs", "payload_scope": "model_payload",
                 "value": format!("sha256:{}", open_pipe_stress_operation_applier::sha256_hex(&open_pipe_stress_operation_applier::canonical_json(&model)))});
@@ -11088,12 +11090,12 @@ mod tests {
 
             let (mut args, _lease) = admit("apply_model_operation", json!({"model": model, "intent": pair, "claimedModelHash": null}));
             let applied = apply_model_operation_args(&mut args).unwrap();
-            assert_eq!(stored(&applied["applied_model"]), json!({"value": 210, "unit": "GPa"}), "{}", applied["diagnostics"]);
+            assert_eq!(pair_of(&stored(&applied["applied_model"])), (Some(210.0), Some("GPa".to_owned())), "{}", applied["diagnostics"]);
             let batch = json!({"batch_id": "batch:pair-gpa", "operations": [pair]});
             let (mut args, _lease) = admit("apply_model_operation_batch", json!({"model": model, "batch": batch, "claimedModelHash": claim}));
             let applied = model_operation_batch_args(&mut args, true).unwrap();
             assert_eq!(applied["simulation_disposition"], "committed_as_one_batch", "{}", applied["diagnostics"]);
-            assert_eq!(stored(&applied["applied_model"]), json!({"value": 210, "unit": "GPa"}));
+            assert_eq!(pair_of(&stored(&applied["applied_model"])), (Some(210.0), Some("GPa".to_owned())));
         }
 
         #[test]
