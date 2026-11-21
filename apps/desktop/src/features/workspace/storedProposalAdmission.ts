@@ -145,9 +145,13 @@ export type StoredProposalOutcome = "open" | "kept" | "not-carried" | "replaced"
 const OUTCOME_CLAUSE: Record<StoredProposalOutcome, string> = {
   open: "It is kept in the saved project as stored and is not shown or applied.",
   kept: "It was kept in the saved project as stored and is not shown or applied.",
-  "not-carried": "It was not carried into this save and stays in the saved project it came from, as stored.",
+  "not-carried": "This save made a new project, which does not carry it; this save did not read or change the saved project it came from.",
   replaced: "It was not carried into this save, and the save replaced the saved project, so it is no longer stored."
 };
+
+/** The Replace prompt's added sentence while the session holds the open project's stored proposal that
+ * was not admitted (issue 519): a Replace writes the session's own proposal, so it does not keep it. */
+export const REPLACE_REMOVES_STORED_PROPOSAL = "If the stored project still holds the review proposal this version could not open, replacing it removes that proposal; a new project would not carry it.";
 
 export const STORED_EDITOR_INTENTS_NOT_READ = "STORED-EDITOR-INTENTS-NOT-READ";
 
@@ -168,9 +172,11 @@ export function storedEditorIntentsSentence(): string {
 export type UnadmittedStoredProposal = Readonly<{ projectId: string; generation: number; notice: StoredProposalNotice }>;
 
 /** The sentence a project write adds for the open project's unadmitted stored proposal, or "": `kept`
- * when the store kept it; written under another project id (a copy), not carried; written over the
- * same project without keeping it, by a Replace of the whole project (`replaced`), or by a save carrying
- * the session's own proposal, which says nothing more than any save does. */
+ * when the store kept it (only a save in place against the revision the session opened keeps it);
+ * written under another project id (a copy), not carried, with nothing said of the project it came
+ * from, which the write did not read; written over the same project without keeping it, by a Replace
+ * (`replaced`), or by a save carrying the session's own proposal, which says nothing more than any save
+ * does. */
 export function writtenStoredProposalSentence(
   unadmitted: UnadmittedStoredProposal | null,
   write: Readonly<{ projectId: string; generation: number; kept: boolean; replacedWhole: boolean }>

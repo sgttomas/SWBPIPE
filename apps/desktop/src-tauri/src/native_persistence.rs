@@ -1003,8 +1003,9 @@ pub(crate) struct ProjectFields<'f> {
 
 impl<'f> ProjectFields<'f> {
     /// These fields with the kept stored proposal in place of the request's
-    /// (none: unchanged): its value for the envelope hash and the reply, its
-    /// stored text's length for the row's measures.
+    /// (none: unchanged): its value for the envelope hash, the findings and
+    /// the summary's count (the reply carries no stored proposal), its stored
+    /// text's length for the row's measures.
     pub(crate) fn keeping(self, kept: Option<&'f crate::KeptProposal>, small: &'f [(&'static str, u64)]) -> Self {
         match kept {
             Some(kept) => ProjectFields { proposal: &kept.value, small, kept_proposal: Some(&kept.text), ..self },
@@ -1456,7 +1457,8 @@ pub(crate) fn finish_save(
             &envelope,
             message,
         ),
-        proposal: fields.proposal.clone(),
+        // Issue 519: a kept stored proposal stays in the store; the reply carries none.
+        proposal: if fields.kept_proposal.is_some() { Value::Null } else { fields.proposal.clone() },
         selected_review_target: fields.selected_review_target.clone(),
         model_hash: fields.model_hash.clone(),
         project_envelope_hash: envelope,

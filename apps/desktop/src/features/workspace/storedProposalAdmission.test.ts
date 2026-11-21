@@ -106,6 +106,8 @@ describe("the sentence that names a stored proposal kept out", () => {
     expect(write("project:p", false, true)).toBe(` ${storedProposalSentence(unadmitted.notice, "replaced")}`);
     expect(write("project:p", false)).toBe("");
     expect(write("project:p", true, false, 4)).toBe("");
+    // A copy says only what its write established: the copy does not carry it; nothing of the original.
+    expect(storedProposalSentence(unadmitted.notice, "not-carried")).toContain("This save made a new project, which does not carry it; this save did not read or change the saved project it came from.");
     const open = storedProposalSentence(unadmitted.notice, "open");
     for (const outcome of ["kept", "not-carried", "replaced"] as const) {
       const other = storedProposalSentence(unadmitted.notice, outcome);

@@ -290,7 +290,7 @@ import { createSessionEventChannel } from "./sessionEvents";
 import type { WorkspaceSectionId } from "./workspaceSections";
 import { useReportSourceSequence, useSequencedState } from "./reportSourceSequence";
 import { useReportOutputOutcomes } from "../report/reportOutputOutcomes";
-import { admitStoredProposal, readStoredEditorIntents, storedEditorIntentsSentence, storedProposalSentence, writtenStoredProposalSentence, type UnadmittedStoredProposal } from "./storedProposalAdmission";
+import { admitStoredProposal, readStoredEditorIntents, storedEditorIntentsSentence, storedProposalSentence, writtenStoredProposalSentence, REPLACE_REMOVES_STORED_PROPOSAL, type UnadmittedStoredProposal } from "./storedProposalAdmission";
 
 /** W-13 §3.5 / W-17 §2.7: the model's library references checked against the
  * local store at open and load. Warnings only; the recorded versions stand. */
@@ -313,6 +313,10 @@ let nextUiModelPublicationGeneration = 0;
  * intents are the request's own (the store hashed the stored model natively and the reply names it
  * by that hash, which the session checks); the stored result and record are not sent back, so the
  * adopted envelope holds none. */
+/** Generate's completion when the session moved on while it ran (issue 519 review): the proposal is
+ * dropped, never shown on another project or model revision. */
+export const GENERATED_PROPOSAL_SUPERSEDED = "The generated review proposal was not shown, because the project or its model changed while it was generated. Generate it again for the model now open.";
+
 function adoptNativeSave(reply: NativeProjectSave, model: PreviewModel, editorIntents: EditorOperationIntent[]): WrittenProjectEnvelope {
   return {
     summary: reply.summary,
@@ -1919,8 +1923,17 @@ export function useWorkspaceSession() {
   }
 
   async function handleProposal() {
+    // A generated proposal lands only on the project session and model revision it was generated for:
+    // a later one would be saved over another project's stored proposal, or describe another model.
+    const generation = projectSessionGenerationRef.current;
+    const revision = uiModelRevisionRef.current;
     // The sample proposal reads full rows (a C2 consumer): a native result's bounded full copy.
-    setProposal(await loadSampleProposal(result && isNativeResult(result) ? (await loadC2Full(result, { record: false })).result : result, selectedReviewTarget));
+    const generated = await loadSampleProposal(result && isNativeResult(result) ? (await loadC2Full(result, { record: false })).result : result, selectedReviewTarget);
+    if (generation !== projectSessionGenerationRef.current || revision !== uiModelRevisionRef.current) {
+      setOperationMessage(GENERATED_PROPOSAL_SUPERSEDED);
+      return;
+    }
+    setProposal(generated);
   }
 
   function handleQueueEditorIntent(intent: EditorOperationIntent) {
@@ -2799,7 +2812,7 @@ export function useWorkspaceSession() {
         // Captured before the workspace turns inert, which drops its focus.
         const opener = document.activeElement instanceof HTMLElement ? document.activeElement : null;
         setReplaceProjectPrompt({
-          kind, existing, stale, opener,
+          kind, existing, stale, opener, note: replaceRemovesStoredProposal(requestModel),
           choose: (picked) => { release(); setReplaceProjectPrompt(null); resolve(picked); }
         });
       });
@@ -2815,6 +2828,14 @@ export function useWorkspaceSession() {
         stale = true;
       }
     }
+  }
+
+  /** Issue 519: what the Replace prompt adds while the session holds the open project's stored proposal
+   * that was not admitted: a Replace writes the session's own proposal over it. */
+  function replaceRemovesStoredProposal(requestModel: PreviewModel): string | undefined {
+    const unadmitted = unadmittedStoredProposal.current;
+    return unadmitted && unadmitted.projectId === requestModel.project.id && unadmitted.generation === projectSessionGenerationRef.current
+      ? REPLACE_REMOVES_STORED_PROPOSAL : undefined;
   }
 
   /** The same document under a project id the store does not hold. Only
@@ -3009,8 +3030,9 @@ export function useWorkspaceSession() {
       setModelDocumentVersion(created.model_document_version ?? null);
       // Issue 519: a create never keeps a stored proposal; over the open project it replaced the whole
       // stored project (a Replace the person chose), under another id it is a copy without it.
+      // The session is now the created project, which holds no stored proposal of its own.
       const unadmitted = unadmittedStoredProposal.current;
-      if (unadmitted?.projectId === requestModel.project.id) unadmittedStoredProposal.current = null;
+      if (created.summary.project_id === requestModel.project.id) unadmittedStoredProposal.current = null;
       setProjectMessage(`${created.summary.message}${writtenStoredProposalSentence(unadmitted, { projectId: requestModel.project.id, generation, kept: false, replacedWhole: true })}`);
       setProjectOperation("create");
       void autosave.afterProjectSaved(created.summary.project_id, returnedModelHash?.value ?? null);
@@ -3858,12 +3880,21 @@ export function useWorkspaceSession() {
       if (!dropRun) refuseDroppingUnopenedRun(requestModel, snapshotResult, native !== null || restored !== null);
       // Issue 519: a save in place while the open project's stored proposal was not admitted, and the
       // session holds no proposal of its own, keeps the stored proposal as stored: the store leaves its
-      // text untouched and computes the envelope hash over it, so the session sends none for it.
+      // text untouched and computes the envelope hash over it, so the session sends none for it. Only
+      // the first write, against the revision the session opened, keeps it; a Replace after a moved
+      // base, or a write after the project was removed, writes the session's own proposal (none), as
+      // any Replace does.
       const unadmitted = unadmittedStoredProposal.current;
       const keepStoredProposal = !dropRun && proposal === null && unadmitted !== null &&
         unadmitted.projectId === requestModel.project.id && unadmitted.generation === generation;
+      let writes = 0;
+      let kept = false;
+      const keeping = (confirmedRevision: string | null) => {
+        kept = keepStoredProposal && writes++ === 0 && confirmedRevision === null;
+        return kept;
+      };
       if (!stillCurrent()) return;
-      const computedEnvelopeHash = native || restored || keepStoredProposal ? null : await computeProjectEnvelopeHash({
+      const computedEnvelopeHash = native || restored ? null : await computeProjectEnvelopeHash({
         model: requestModel,
         editor_intents: combinedContext,
         proposal,
@@ -3877,18 +3908,18 @@ export function useWorkspaceSession() {
       if (!stillCurrent()) return;
       // The session's own stored project: a save in place from the revision it last opened or wrote.
       const expectedBase = storedBaseRef.current?.projectId === requestModel.project.id ? storedBaseRef.current.value : null;
-      const keep = keepStoredProposal ? { keepStoredProposal: true as const } : {};
+      const keepFor = (confirmedRevision: string | null) => keeping(confirmedRevision) ? { keepStoredProposal: true as const } : {};
       const written = await writeWithReplaceConfirmation("save", requestModel, (confirmedRevision) => restored
         ? saveRestoredLocalProject(restored, restoredEnvelopeBasis(requestHistoricalRun!), {
           mode: "save", model: requestModel, editorIntents: combinedContext, proposal, selectedReviewTarget,
-          modelHash: snapshotModelHash, confirmedRevision, expectedBase, ...keep
+          modelHash: snapshotModelHash, confirmedRevision, expectedBase, ...keepFor(confirmedRevision)
         }).then((reply) => adoptNativeSave(reply, requestModel, combinedContext))
         : native
         ? saveNativeLocalProject(native, {
           mode: "save", model: requestModel, editorIntents: combinedContext, proposal, selectedReviewTarget,
-          modelHash: snapshotModelHash, confirmedRevision, expectedBase, ...keep
+          modelHash: snapshotModelHash, confirmedRevision, expectedBase, ...keepFor(confirmedRevision)
         }).then((reply) => adoptNativeSave(reply, requestModel, combinedContext))
-        : keepStoredProposal
+        : keeping(confirmedRevision)
         ? saveLocalProjectKeepingStoredProposal(requestModel, combinedContext, selectedReviewTarget, snapshotResult,
           snapshotAnalysisRun, snapshotModelHash, confirmedRevision, expectedBase)
         : saveLocalProject(
@@ -3927,7 +3958,10 @@ export function useWorkspaceSession() {
       if (!sameProjectSession()) return;
       // A reopened saved run's re-save: the stored claim is checked against the evidence computed over
       // what was stored (as the legacy session recomputed it), which the reply names by its payload hash.
-      const recomputedReturnedEnvelopeHash = saved.native ? (saved.native.restored ? projectEnvelopeHashEvidence(requestModel, saved.native.restored.envelope_payload_hash) : saved.native.project_envelope_hash) : await computeProjectEnvelopeHash({
+      // A save that kept the stored proposal: the store computed the envelope hash over what it stores
+      // and returns no stored proposal (it stays in the store), so its evidence is the store's, as a
+      // native save's is.
+      const recomputedReturnedEnvelopeHash = saved.native ? (saved.native.restored ? projectEnvelopeHashEvidence(requestModel, saved.native.restored.envelope_payload_hash) : saved.native.project_envelope_hash) : kept ? saved.project_envelope_hash ?? null : await computeProjectEnvelopeHash({
         model: saved.model,
         editor_intents: saved.editor_intents,
         proposal: saved.proposal,
@@ -3985,14 +4019,14 @@ export function useWorkspaceSession() {
         setHistoricalRun((current) => current === requestHistoricalRun ? returnedHistory : current);
       }
       setProjectSummary(saved.summary);
-      // Issue 519: a kept stored proposal comes back as stored and stays out of the session; any other
-      // save replaced it, so the session no longer has one to keep.
-      setProposal(keepStoredProposal ? null : saved.proposal ?? null);
-      if (!keepStoredProposal && saved.summary.project_id === requestModel.project.id) unadmittedStoredProposal.current = null;
+      // Issue 519: a kept stored proposal stays in the store and out of the session; any other save
+      // replaced it or wrote a copy that never held it, so the session no longer has one to keep.
+      setProposal(kept ? null : saved.proposal ?? null);
+      if (!kept) unadmittedStoredProposal.current = null;
       setSelectedReviewTarget(saved.selected_review_target ?? null);
       setProjectEnvelopeHash(saved.project_envelope_hash ?? null);
       setModelDocumentVersion(saved.model_document_version ?? null);
-      setProjectMessage(`${saved.summary.message}${writtenStoredProposalSentence(unadmitted, { projectId: requestModel.project.id, generation, kept: keepStoredProposal, replacedWhole: false })}`);
+      setProjectMessage(`${saved.summary.message}${writtenStoredProposalSentence(unadmitted, { projectId: requestModel.project.id, generation, kept, replacedWhole: keepStoredProposal && !kept })}`);
       projectSaveLanded.current = { projectId: saved.summary.project_id, base: saved.project_envelope_hash?.value ?? null, model: requestModel };
       setProjectOperation("save");
       void autosave.afterProjectSaved(saved.summary.project_id, returnedModelHash?.value ?? null);
@@ -5127,17 +5161,25 @@ export function useWorkspaceSession() {
     // - otherwise none: the session never saw a stored revision of it, so a
     //   save of it asks, as an opened model document's does.
     const stateProject = opened.model.project.id;
+    // Issue 519: the open project's stored proposal that was not admitted goes with the base. The
+    // session is still that stored project, so a save of it keeps the stored proposal; it is bound to
+    // the new session generation. Where the session has no base of that project, it is not carried.
+    let unadmitted = unadmittedStoredProposal.current;
     if (storedBaseRef.current?.projectId !== stateProject) {
       const bound = binding.base?.projectId === stateProject;
       storedBaseRef.current = bound ? binding.base : null;
       setProjectSummary(bound ? binding.summary : null);
       setProjectEnvelopeHash(bound ? binding.envelopeHash : null);
+      unadmitted = bound ? binding.unadmittedProposal ?? null : null;
     }
+    unadmittedStoredProposal.current = unadmitted && unadmitted.projectId === stateProject && storedBaseRef.current?.projectId === stateProject
+      ? { ...unadmitted, generation: projectSessionGenerationRef.current }
+      : null;
     return libraryReferenceWarnings(opened.model);
   }
 
   function captureProjectBinding(): ProjectBinding {
-    return { base: storedBaseRef.current, summary: projectSummary, envelopeHash: projectEnvelopeHash };
+    return { base: storedBaseRef.current, summary: projectSummary, envelopeHash: projectEnvelopeHash, unadmittedProposal: unadmittedStoredProposal.current };
   }
 
   /** Save Local Project's flow, reporting whether a save landed (the

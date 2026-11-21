@@ -245,7 +245,7 @@ function envelope(
       fts_indexed: false,
       copied_external_files: false,
       editor_intent_count: editorIntents.length,
-      proposal_count: proposal ? 1 : 0,
+      proposal_count: proposalCount(proposal),
       selected_review_target_count: selectedReviewTarget ? 1 : 0,
       selected_review_target_ref: selectedReviewTargetRef(selectedReviewTarget),
       persisted_mechanics_result_count: mechanicsResult ? 1 : 0,
@@ -293,8 +293,14 @@ function cloneEditorIntents(editorIntents: EditorOperationIntent[]): EditorOpera
   return JSON.parse(JSON.stringify(editorIntents)) as EditorOperationIntent[];
 }
 
+/** The summary's proposal count, by the native store's rule: an object counts, anything else does not. */
+function proposalCount(proposal: unknown): number {
+  return typeof proposal === "object" && proposal !== null && !Array.isArray(proposal) ? 1 : 0;
+}
+
 function cloneProposal(proposal: AgentProposal | null | undefined): AgentProposal | null {
-  if (!proposal) return null;
+  // Only absence is none: a stored `0`, `""` or `false` is a value, copied as it is.
+  if (proposal == null) return null;
   return JSON.parse(JSON.stringify(proposal)) as AgentProposal;
 }
 
@@ -717,7 +723,9 @@ export const STORED_PROPOSAL_KEEP_REFUSED = "STORED-PROPOSAL-KEEP-REFUSED";
 /** Issue 519: a save in place of a stored project whose stored review proposal the open did not admit,
  * by a session holding no proposal of its own. The store keeps the stored proposal as stored (the
  * desktop store leaves its text untouched) and computes the envelope hash over what it stores, so no
- * proposal and no envelope hash are sent. The browser preview keeps the stored value itself. */
+ * proposal and no envelope hash are sent. The browser preview keeps the stored value itself. Neither
+ * returns the stored proposal: the returned envelope's `proposal` is null and its envelope hash is the
+ * store's, computed over what it stores. */
 export async function saveLocalProjectKeepingStoredProposal(
   model: PreviewModel,
   editorIntents: EditorOperationIntent[],
@@ -738,12 +746,20 @@ export async function saveLocalProjectKeepingStoredProposal(
       model, editor_intents: editorIntents, proposal: kept, selected_review_target: selectedReviewTarget,
       mechanics_result: mechanicsResult, analysis_run: analysisRun, model_hash: modelHash
     });
+    // Another write may have landed while the hash was computed: the save commits only over the entry
+    // it read, or is refused as moved, writing nothing.
+    if (browserPreviewStore.get(model.project.id) !== existing) {
+      refuseUnconfirmedBrowserReplacement(model.project.id, confirmedRevision, expectedBase);
+      throw new Error(`PROJECT-BASE-MOVED: project \`${model.project.id}\` changed while this save was prepared; nothing was saved, and replacing it needs the user's confirmation.`);
+    }
     const next = envelope(model, editorIntents, null, selectedReviewTarget, mechanicsResult, analysisRun, modelHash, projectEnvelopeHash,
       "Saved local browser-preview project snapshot without external file copies.");
     // The stored value itself, not a copy of it.
     next.proposal = kept;
-    next.summary.proposal_count = kept ? 1 : 0;
-    return storeBrowserProject(next);
+    next.summary.proposal_count = proposalCount(kept);
+    const returned = storeBrowserProject(next);
+    returned.proposal = null;
+    return returned;
   }
   return invokeWithIngress<LocalProjectEnvelope>("save_local_project", {
     request: {

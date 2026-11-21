@@ -351,7 +351,7 @@ fn container_depth(value: &Value) -> usize {
 
 /// The canonical writer's key-order scratch along `value`'s heaviest path:
 /// each object's member references, held while its members are written.
-fn sort_scratch_bytes(value: &Value) -> u64 {
+pub(crate) fn sort_scratch_bytes(value: &Value) -> u64 {
     match value {
         Value::Array(items) => items.iter().map(sort_scratch_bytes).max().unwrap_or(0),
         Value::Object(map) => {

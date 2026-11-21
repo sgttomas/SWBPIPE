@@ -10,12 +10,14 @@ import { resolve } from "node:path";
 import { afterEach, describe, expect, it, vi } from "vitest";
 const invokeMock = vi.hoisted(() => vi.fn());
 vi.mock("@tauri-apps/api/core", async () => ({ invoke: (await import("../../test/nativeIngress")).ingressDecodingInvoke(invokeMock, { nativeReopen: "actual" }) }));
-import { useWorkspaceSession } from "./workspaceSession";
+import { GENERATED_PROPOSAL_SUPERSEDED, useWorkspaceSession } from "./workspaceSession";
 import * as projectService from "../../services/projectService";
-import { createLocalProject, findLocalProject, getLocalStorageCapability, openLocalProject } from "../../services/projectService";
+import { createLocalProject, findLocalProject, getLocalStorageCapability, openLocalProject, saveLocalProject, saveLocalProjectKeepingStoredProposal } from "../../services/projectService";
+import * as hashService from "../../services/hashService";
 import { computeModelHash, computeProjectEnvelopeHash } from "../../services/hashService";
+import * as previewService from "../../services/previewService";
 import { loadDesignKnowledge, loadSampleProposal } from "../../services/previewService";
-import { STORED_PROPOSAL_NOT_ADMITTED, admitStoredProposal, storedEditorIntentsSentence, storedProposalSentence } from "./storedProposalAdmission";
+import { REPLACE_REMOVES_STORED_PROPOSAL, STORED_PROPOSAL_NOT_ADMITTED, admitStoredProposal, storedEditorIntentsSentence, storedProposalSentence } from "./storedProposalAdmission";
 import type { AgentProposal, PreviewModel } from "../../types";
 
 type Json = any; // eslint-disable-line @typescript-eslint/no-explicit-any
@@ -63,6 +65,46 @@ function reachable(root: unknown, needle: string): string[] {
   };
   walk(root, "session", 0);
   return found;
+}
+
+/** Open State of a saved state holding the open project's model, as the History panel does. Model states
+ * live in the desktop store, so the runtime is native while the state is read (served by the invoke mock). */
+async function openStateOfTheOpenProject(result: { current: ReturnType<typeof useWorkspaceSession> }) {
+  const saved = structuredClone(result.current.model.model!);
+  const project = saved.project.id;
+  const summary = {
+    project_id: project, state_id: `state:${"5".padStart(32, "0")}`, state_kind: "design_snapshot", created_at: "2026-11-21T10:00:01.000Z",
+    parent_state_id: null, model_hash: (await computeModelHash(saved))!.value, record_hash: "r", labels_updated_at: "2026-11-21T10:00:01.000Z",
+    child_state_ids: [], recorded_run_count: 0, analysis_status: ["HUMAN_REVIEW_REQUIRED"], state_name: "Invented state", tags: [], notes: [], assumptions: []
+  };
+  const wasNative = Boolean((window as Json).__TAURI_INTERNALS__);
+  const previous = invokeMock.getMockImplementation();
+  (window as Json).__TAURI_INTERNALS__ = {};
+  invokeMock.mockImplementation(async (command: string, args: Json) => {
+    switch (command) {
+      case "list_model_states": return [summary];
+      case "list_analysis_runs": return [];
+      case "check_model_library_refs": return [];
+      case "read_model_state": return { state: summary, record: {}, model: structuredClone(saved), model_document_version: { status: "current" } };
+    }
+    return previous ? previous(command, args) : null;
+  });
+  await act(async () => { await result.current.project.history.refreshStates(project); });
+  let opened!: Promise<boolean>;
+  act(() => { opened = result.current.project.history.openState(summary.state_id); });
+  await waitFor(() => expect(result.current.project.history.historyOperation).toMatch(/^open_state/));
+  await act(async () => { await opened; });
+  expect(result.current.project.history.historyOperation).toBe("open_state");
+  if (!wasNative) delete (window as Json).__TAURI_INTERNALS__;
+  if (previous) invokeMock.mockImplementation(previous);
+}
+
+/** A second writer saves the stored project (as another window would), holding `proposal`. */
+async function anotherWriterSaves(projectId: string, proposal: unknown) {
+  const existing = (await findLocalProject(projectId))!;
+  const stored = (await openLocalProject(projectId))!;
+  const envelopeHash = await computeProjectEnvelopeHash({ model: stored.model, editor_intents: [], proposal: proposal as never, selected_review_target: null, mechanics_result: null, analysis_run: null, model_hash: stored.model_hash });
+  await saveLocalProject(stored.model, [], proposal as never, null, null, null, stored.model_hash, envelopeHash, existing.revision);
 }
 
 const notice = admitStoredProposal(UNADMITTED);
@@ -146,6 +188,117 @@ describe("a stored proposal without its members, on the browser preview's store"
     expect((await openLocalProject(other.project.id))!.proposal).toBeNull();
   });
 
+  it("keeps it on the next save after Open State of the same project (issue 519 review, repair 1)", async () => {
+    const { result } = await readySession();
+    const model = await storedWith(result.current.model.model!, "project:issue-519-open-state", UNADMITTED);
+    await act(async () => { await result.current.project.handleOpenProject(model.project.id); });
+    await openStateOfTheOpenProject(result);
+    const keeping = vi.spyOn(projectService, "saveLocalProjectKeepingStoredProposal");
+    await act(async () => { await result.current.project.handleSaveProject(); });
+    expect(result.current.project.projectOperation).toBe("save");
+    expect(keeping).toHaveBeenCalledTimes(1);
+    expect(result.current.project.projectMessage).toContain(storedProposalSentence(notice.notice, "kept"));
+    expect((await openLocalProject(model.project.id))!.proposal).toEqual(UNADMITTED);
+    expect(reachable(result.current, MARKER)).toEqual([]);
+  });
+
+  for (const [what, written] of [["cleared it", null], ["wrote a different one", { ...UNADMITTED, proposal_id: "proposal:other-writer" }]] as const) {
+    it(`is not kept by a Replace after another writer ${what}: main's Replace, the replaced sentence, the notice gone`, async () => {
+      const { result } = await readySession();
+      const model = await storedWith(result.current.model.model!, `project:issue-519-replace-${written ? "other" : "cleared"}`, UNADMITTED);
+      await act(async () => { await result.current.project.handleOpenProject(model.project.id); });
+      await anotherWriterSaves(model.project.id, written);
+      const keeping = vi.spyOn(projectService, "saveLocalProjectKeepingStoredProposal");
+      const saving = vi.spyOn(projectService, "saveLocalProject");
+      let pending!: Promise<void>;
+      act(() => { pending = result.current.project.handleSaveProject(); });
+      await waitFor(() => expect(result.current.project.replaceProjectPrompt).not.toBeNull());
+      // The prompt says, before the choice, what a Replace does to the stored proposal.
+      expect(result.current.project.replaceProjectPrompt!.note).toBe(REPLACE_REMOVES_STORED_PROPOSAL);
+      act(() => result.current.project.replaceProjectPrompt!.choose("replace"));
+      await act(async () => { await pending; });
+      expect(result.current.project.projectOperation).toBe("save");
+      // The first write asked to keep it and was refused as moved; the Replace is main's save.
+      expect(keeping).toHaveBeenCalledTimes(1);
+      expect(saving).toHaveBeenCalledTimes(1);
+      const stored = (await openLocalProject(model.project.id))!;
+      expect(stored.proposal).toBeNull();
+      expect(stored.project_envelope_hash).toEqual(await computeProjectEnvelopeHash({
+        model: stored.model, editor_intents: stored.editor_intents, proposal: null, selected_review_target: null,
+        mechanics_result: null, analysis_run: null, model_hash: stored.model_hash
+      }));
+      expect(result.current.project.projectMessage).toContain(storedProposalSentence(notice.notice, "replaced"));
+      // The notice is gone: the next save says nothing of a stored proposal and keeps none.
+      await act(async () => { await result.current.project.handleSaveProject(); });
+      expect(result.current.project.projectOperation).toBe("save");
+      expect(result.current.project.projectMessage).not.toContain(STORED_PROPOSAL_NOT_ADMITTED);
+      expect(keeping).toHaveBeenCalledTimes(1);
+    });
+  }
+
+  it("is not carried by New Local Project then Save as a new project, and the copy's next save says nothing of it", async () => {
+    const { result } = await readySession();
+    const model = await storedWith(result.current.model.model!, "project:issue-519-create-copy", UNADMITTED);
+    await act(async () => { await result.current.project.handleOpenProject(model.project.id); });
+    let creating!: Promise<void>;
+    act(() => { creating = result.current.project.handleCreateProject(); });
+    await waitFor(() => expect(result.current.project.replaceProjectPrompt).not.toBeNull());
+    expect(result.current.project.replaceProjectPrompt!.note).toBe(REPLACE_REMOVES_STORED_PROPOSAL);
+    act(() => result.current.project.replaceProjectPrompt!.choose("save-as-new"));
+    await act(async () => { await creating; });
+    const copyId = result.current.model.model!.project.id;
+    expect(copyId).toMatch(new RegExp(`^${model.project.id}:copy-`));
+    expect(result.current.project.projectMessage).toContain(storedProposalSentence(notice.notice, "not-carried"));
+    const keeping = vi.spyOn(projectService, "saveLocalProjectKeepingStoredProposal");
+    await act(async () => { await result.current.project.handleSaveProject(); });
+    expect(result.current.project.projectOperation).toBe("save");
+    expect(result.current.project.projectMessage).not.toContain(STORED_PROPOSAL_NOT_ADMITTED);
+    expect(keeping).not.toHaveBeenCalled();
+    expect((await openLocalProject(copyId))!.proposal).toBeNull();
+    expect((await openLocalProject(model.project.id))!.proposal).toEqual(UNADMITTED);
+  });
+
+  it("drops a Generate result that completes after another project was opened (issue 519 review, repair 5)", async () => {
+    const { result } = await readySession();
+    const first = await storedWith(result.current.model.model!, "project:issue-519-generate-first", null);
+    const second = await storedWith(result.current.model.model!, "project:issue-519-generate-second", UNADMITTED);
+    await act(async () => { await result.current.project.handleOpenProject(first.project.id); });
+    const sample = await loadSampleProposal(null, null);
+    let release!: () => void;
+    const paused = new Promise<void>((resolve) => { release = resolve; });
+    vi.spyOn(previewService, "loadSampleProposal").mockImplementationOnce(async () => { await paused; return sample; });
+    let generating!: Promise<void>;
+    act(() => { generating = result.current.results.handleProposal(); });
+    await act(async () => { await result.current.project.handleOpenProject(second.project.id); });
+    release();
+    await act(async () => { await generating; });
+    expect(result.current.results.proposal).toBeNull();
+    expect(result.current.operations.operationMessage).toBe(GENERATED_PROPOSAL_SUPERSEDED);
+    await act(async () => { await result.current.project.handleSaveProject(); });
+    expect(result.current.project.projectMessage).toContain(storedProposalSentence(notice.notice, "kept"));
+    expect((await openLocalProject(second.project.id))!.proposal).toEqual(UNADMITTED);
+  });
+
+  for (const value of [0, "", false]) {
+    it(`keeps a stored proposal of ${JSON.stringify(value)} as stored, counts it as none, and verifies its hash`, async () => {
+      const { result } = await readySession();
+      const model = await storedWith(result.current.model.model!, `project:issue-519-falsy-${typeof value}`, value);
+      expect((await openLocalProject(model.project.id))!.proposal).toBe(value);
+      await act(async () => { await result.current.project.handleOpenProject(model.project.id); });
+      expect(result.current.results.proposal).toBeNull();
+      expect(result.current.project.projectMessage).toContain(STORED_PROPOSAL_NOT_ADMITTED);
+      expect(result.current.project.projectEnvelopeHashIntegrity).toMatchObject({ integrity_status: "verified_match" });
+      await act(async () => { await result.current.project.handleSaveProject(); });
+      expect(result.current.project.projectOperation).toBe("save");
+      expect(result.current.project.projectEnvelopeHashIntegrity).toMatchObject({ integrity_status: "verified_match", verification_source: "save" });
+      const stored = (await openLocalProject(model.project.id))!;
+      expect(stored.proposal).toBe(value);
+      expect(stored.summary.proposal_count).toBe(0);
+      await act(async () => { await result.current.project.handleOpenProject(model.project.id); });
+      expect(result.current.project.projectEnvelopeHashIntegrity).toMatchObject({ integrity_status: "verified_match", verification_source: "open" });
+    });
+  }
+
   it("opens and saves a well-formed stored proposal exactly as before", async () => {
     const { result } = await readySession();
     const proposal = await loadSampleProposal(null, null);
@@ -164,6 +317,31 @@ describe("a stored proposal without its members, on the browser preview's store"
     // The request main's session sends for this store: its proposal, the hash over it, the base it opened.
     expect(saving.mock.calls[0]).toEqual([opened.model, [], opened.proposal, null, null, null, opened.model_hash, envelopeHash, null, opened.project_envelope_hash!.value]);
     expect((await openLocalProject(model.project.id))!.proposal).toEqual(proposal);
+  });
+});
+
+describe("the browser preview store's keeping save (issue 519 review, repair 2)", () => {
+  it("is refused as moved, writing nothing, when another write lands while its hash is computed", async () => {
+    const hook = await readySession();
+    const model = await storedWith(hook.result.current.model.model!, "project:issue-519-interleaved", UNADMITTED);
+    const opened = (await openLocalProject(model.project.id))!;
+    const base = opened.project_envelope_hash!.value;
+    const other = { ...UNADMITTED, proposal_id: "proposal:second-writer" };
+    const otherHash = await computeProjectEnvelopeHash({ model: opened.model, editor_intents: [], proposal: other as never, selected_review_target: null, mechanics_result: null, analysis_run: null, model_hash: opened.model_hash });
+    const real = hashService.computeProjectEnvelopeHash;
+    let release!: () => void, entered!: () => void;
+    const paused = new Promise<void>((resolve) => { release = resolve; });
+    const hashing = new Promise<void>((resolve) => { entered = resolve; });
+    vi.spyOn(hashService, "computeProjectEnvelopeHash").mockImplementationOnce(async (payload) => { entered(); await paused; return real(payload); });
+    const keeping = saveLocalProjectKeepingStoredProposal(opened.model, [], null, null, null, opened.model_hash, null, base);
+    await hashing;
+    // The second writer saves in place from the same base while the first save's hash is paused.
+    await saveLocalProject(opened.model, [], other as never, null, null, null, opened.model_hash, otherHash, null, base);
+    release();
+    await expect(keeping).rejects.toThrow(/^PROJECT-BASE-MOVED: /);
+    const stored = (await openLocalProject(model.project.id))!;
+    expect(stored.proposal).toEqual(other);
+    expect(stored.project_envelope_hash).toEqual(otherHash);
   });
 });
 
@@ -226,6 +404,17 @@ describe("a stored proposal without its members, on the desktop store", () => {
     expect(saves[0].expected_base).toBe(reply.project_envelope_hash.value);
     expect(JSON.stringify(saves[0])).not.toContain(MARKER);
     expect(result.current.project.projectMessage).toContain("INVENTED-STOP");
+  });
+
+  it("asks the store to keep it on the save after Open State of the same project", async () => {
+    const { result, reply, saves } = await openedNatively(UNADMITTED);
+    expect(saves).toHaveLength(1);
+    await openStateOfTheOpenProject(result);
+    await act(async () => { await result.current.project.handleSaveProject(); });
+    expect(saves).toHaveLength(2);
+    expect(saves[1].keep_stored_proposal).toBe(true);
+    expect("proposal" in saves[1]).toBe(false);
+    expect(saves[1].expected_base).toBe(reply.project_envelope_hash.value);
   });
 
   it("sends a well-formed stored proposal as before, without the keep member", async () => {
