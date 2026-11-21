@@ -223,6 +223,8 @@
   // on each, at most ATTENDED_LIMITS.substitutions of them); the runner marks each on the capture that follows it.
   const ATTENDED_LIMITS = { substitutions: 2000 };
   const STOPPED_FILE_PANEL = "The launch stopped this control from opening the system's file panel.";
+  const STOPPED_FILE_DROP = "The launch stopped a file dropped on the window from reaching the page.";
+  const STOPPED_FILE_CHANGE = "The launch stopped a file given to this field from reaching the page, and cleared the field.";
   const STOPPED_AGENT_START = "The launch stopped this control from starting the embedded agent: an attended launch has no scripted provider, and no other provider is used.";
   const attendedSubstitutions = [];
   const substituted = (item) => {
@@ -242,13 +244,18 @@
   // a keyboard press reaches it too) has its default prevented in the capture phase, before anything else sees it,
   // and showPicker on a file field does nothing. The embedded agent's Start agent is stopped the same way: only the
   // agent journeys' scripted provider (a loopback stand-in their own runner starts) may be used, and an attended launch
-  // has none, so no provider, model, key, network or sign-in is reached from its pane. Nothing else on the page is
-  // changed.
+  // has none, so no provider, model, key, network or sign-in is reached from its pane. A file reaches the page by
+  // two other ways, and each is stopped in the capture phase before the page's own handlers: a drag carrying files
+  // (dragenter, dragover and drop on the window, with the drop's default prevented so the web view opens nothing), and
+  // a change of a file field (its change and input events, the field cleared). Each stop is recorded. The guards are
+  // installed as soon as the plan says the launch is attended, before the window is brought to the front and before
+  // the start; nothing else on the page is changed.
   const agentStartOf = (target) => {
     if (typeof target?.closest !== "function") return null;
     const button = target.closest('section[aria-label="Embedded agent"] button');
     return button && String(button.textContent ?? "").trim() === "Start agent" ? button : null;
   };
+  const guards = { installed: [], at: null, error: null };
   function installAttendedGuards() {
     document.addEventListener("click", (event) => {
       const input = fileInputOf(event.target);
@@ -259,6 +266,29 @@
       if (input) substituted({ kind: "file panel stopped by the launch", control: accessibleName(input), what: STOPPED_FILE_PANEL });
       else substituted({ kind: "agent start stopped by the launch", control: "Embedded agent: Start agent", what: STOPPED_AGENT_START });
     }, true);
+    const carriesFiles = (event) => {
+      const types = event.dataTransfer?.types;
+      return Boolean(types && Array.from(types).includes("Files")) || (event.dataTransfer?.files?.length ?? 0) > 0;
+    };
+    for (const type of ["dragenter", "dragover", "drop"]) {
+      window.addEventListener(type, (event) => {
+        if (!carriesFiles(event)) return;
+        event.preventDefault();
+        event.stopImmediatePropagation();
+        try { if (event.dataTransfer) event.dataTransfer.dropEffect = "none"; } catch { /* read-only in some events */ }
+        if (type === "drop") substituted({ kind: "file drop stopped by the launch", control: accessibleName(fileInputOf(event.target) ?? event.target), what: STOPPED_FILE_DROP });
+      }, true);
+    }
+    for (const type of ["change", "input"]) {
+      document.addEventListener(type, (event) => {
+        const input = typeof event.target?.matches === "function" && event.target.matches('input[type="file"]') ? event.target : null;
+        if (!input) return;
+        event.preventDefault();
+        event.stopImmediatePropagation();
+        try { input.value = ""; } catch { /* a field that cannot be cleared is still kept from the page */ }
+        if (type === "change") substituted({ kind: "file field change stopped by the launch", control: accessibleName(input), what: STOPPED_FILE_CHANGE });
+      }, true);
+    }
     const Input = typeof HTMLInputElement === "function" ? HTMLInputElement : null;
     const showPicker = Input?.prototype?.showPicker;
     if (typeof showPicker === "function") {
@@ -363,7 +393,8 @@
       record.error = String(error?.message ?? error).split("\n")[0].slice(0, 400);
     }
     if (record.ok) {
-      try { installAttendedGuards(); record.guards = ["file panels", "agent start"]; } catch (error) { record.ok = false; record.error = `the launch's guards could not be installed: ${String(error?.message ?? error).slice(0, 300)}`; }
+      if (guards.error) { record.ok = false; record.error = `the launch's guards could not be installed: ${guards.error}`; }
+      else { record.guards = guards.installed; record.guards_installed_at = guards.at; }
     }
     record.ready_at = Date.now();
     await call("native_smoke_checkpoint", { name: "start", report: record, storeSnapshot: false });
@@ -689,6 +720,10 @@
       if (plan.timeouts) T = { ...T, ...plan.timeouts };
       const run = plan.attended === true ? attendedStart : JOURNEYS[plan.journey];
       if (!run) throw new Error(`unknown journey ${plan.journey}`);
+      // An attended launch's guards, first of all: before the window is brought to the front and before the start.
+      if (plan.attended === true) {
+        try { installAttendedGuards(); guards.installed = ["file panels", "file drops", "file field changes", "agent start"]; guards.at = Date.now(); } catch (error) { guards.error = String(error?.message ?? error).slice(0, 300); }
+      }
       await waitFor("the desktop shell", () => byTestId("desktop-preview-shell") && byTestId(`tree-row-project-${encodeURIComponent(plan.bundled_project_id)}`), T.step);
       await sleep(1000);
       if (plan.show_window) await showWindow();

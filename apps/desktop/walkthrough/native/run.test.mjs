@@ -532,13 +532,13 @@ test("the attended part joins the index beside the journeys, marked as captures 
  * the listeners it adds to the document and the window, and the mutation observers it starts. `invoke` may answer
  * more commands. Waits `waitMs` after the start for the driver to settle.
  */
-async function runAttendedDriver(plan, { waitMs = 400, invoke = () => undefined } = {}) {
+async function runAttendedDriver(plan, { waitMs = 400, invoke = () => undefined, visibility = "hidden" } = {}) {
   const driver = readFileSync(new URL("./driver.js", import.meta.url), "utf8");
   const calls = [];
   const listeners = { document: [], window: [] };
   const observers = [];
   const document = {
-    visibilityState: "hidden", documentElement: {}, body: {},
+    visibilityState: visibility, documentElement: {}, body: {},
     querySelector: (selector) => (/desktop-preview-shell|tree-row-project/.test(selector) ? {} : null), querySelectorAll: () => [], hasFocus: () => false,
     addEventListener: (type, listener, options) => listeners.document.push({ type, listener, options })
   };
@@ -546,7 +546,8 @@ async function runAttendedDriver(plan, { waitMs = 400, invoke = () => undefined 
   const window = {
     __TAURI_INTERNALS__: {
       invoke: async (command, args) => {
-        calls.push([command, args]);
+        // Each call with the number of listeners the driver had added by then.
+        calls.push([command, args, listeners.document.length + listeners.window.length]);
         const answer = invoke(command, args);
         if (answer !== undefined) return answer;
         if (command === "native_smoke_plan") return { ...plan, nonce: "n", journey: plan.journey ?? "attended", timeouts: { ui: 50, step: 50 } };
@@ -994,7 +995,7 @@ test("the launch's stops reach both indexes under the attended launch", (t) => {
 
 test("an attended launch stops the embedded agent's Start agent, whatever provider is chosen, and records it", async () => {
   const run = await runAttendedDriver({ attended: true, show_window: false, start: null });
-  assert.deepEqual(run.checkpoints().find((item) => item.name === "start").report.guards, ["file panels", "agent start"]);
+  assert.deepEqual(run.checkpoints().find((item) => item.name === "start").report.guards, ["file panels", "file drops", "file field changes", "agent start"]);
   const [click] = run.listeners.document.filter((item) => item.type === "click");
   const startButton = { textContent: " Start agent ", closest: () => null, matches: () => false };
   const inPane = { matches: () => false, closest: (selector) => (selector === 'section[aria-label="Embedded agent"] button' ? startButton : null) };
@@ -1596,4 +1597,52 @@ test("the same commit is not the same revision when the driver differs or paths 
   // The runner records the composed driver's digest in every revision it writes.
   const runner = readFileSync(new URL("./run.mjs", import.meta.url), "utf8");
   assert.equal(runner.match(/revision: \{ commit: revision, uncommitted_paths: uncommitted, driver_sha256: DRIVER_SHA256 \}/g)?.length, 3);
+});
+
+test("an attended launch's guards are installed before the window is shown, and stop file drops and file field changes before the page", async () => {
+  const run = await runAttendedDriver({ attended: true, show_window: true, start: null }, { visibility: "visible", invoke: (command) => (command === "native_smoke_show_window" ? { visible: true } : undefined) });
+  const show = run.calls.find(([command]) => command === "native_smoke_show_window");
+  assert.ok(show, "the window was brought to the front");
+  // Every guard listener was in place when the window was shown: none is added after.
+  const guardTypes = ["click", "change", "input", "dragenter", "dragover", "drop"];
+  const guardCount = [...run.listeners.document, ...run.listeners.window].filter((item) => guardTypes.includes(item.type)).length;
+  assert.equal(guardCount, 6);
+  assert.ok(show[2] >= guardCount, `listeners at show: ${show[2]}`);
+  const start = run.checkpoints().find((item) => item.name === "start").report;
+  assert.ok(start.guards_installed_at <= start.at, "installed before the start");
+  for (const item of [...run.listeners.document, ...run.listeners.window].filter((entry) => guardTypes.includes(entry.type))) assert.equal(item.options, true, `${item.type} in the capture phase`);
+
+  const listener = (where, type) => run.listeners[where].find((item) => item.type === type).listener;
+  const event = (target, dataTransfer = undefined) => ({ target, dataTransfer, defaultPrevented: false, stopped: false, preventDefault() { this.defaultPrevented = true; }, stopImmediatePropagation() { this.stopped = true; } });
+  const fileField = { type: "file", value: "C:\\fakepath\\x.json", labels: [{ textContent: "Proposal file" }], matches: (selector) => selector === 'input[type="file"]', closest: () => null, getAttribute: () => null };
+  const textField = { type: "text", value: "abc", matches: () => false, closest: () => null };
+  const files = () => ({ types: ["Files"], files: [{ name: "x.json" }], dropEffect: "copy" });
+  // A drag carrying files: entering, hovering and dropping are each stopped, the drop recorded.
+  for (const type of ["dragenter", "dragover", "drop"]) {
+    const dataTransfer = files();
+    const dragged = event(fileField, dataTransfer);
+    listener("window", type)(dragged);
+    assert.deepEqual([dragged.defaultPrevented, dragged.stopped, dataTransfer.dropEffect], [true, true, "none"], type);
+  }
+  // A drag of text, or a drop with no files, reaches the page.
+  const text = event(textField, { types: ["text/plain"], files: [] });
+  listener("window", "drop")(text);
+  assert.deepEqual([text.defaultPrevented, text.stopped], [false, false]);
+  // A file field's change, synthetic or not, is stopped and the field cleared; another field's is not.
+  const changed = event(fileField);
+  listener("document", "change")(changed);
+  assert.deepEqual([changed.defaultPrevented, changed.stopped, fileField.value], [true, true, ""]);
+  const typed = event(textField);
+  listener("document", "change")(typed);
+  assert.deepEqual([typed.stopped, textField.value], [false, "abc"]);
+  const input = event({ ...fileField, value: "y" });
+  listener("document", "input")(input);
+  assert.equal(input.stopped, true);
+  await new Promise((resolve) => setTimeout(resolve, 50));
+  const recorded = run.checkpoints().filter((item) => item.name === "substitutions").at(-1).report.substitutions;
+  assert.deepEqual(recorded.map((item) => [item.kind, item.control]), [["file drop stopped by the launch", "Proposal file"], ["file field change stopped by the launch", "Proposal file"]]);
+  assert.match(recorded[0].what, /stopped a file dropped on the window/);
+  // A scripted journey's page gets none of these listeners.
+  const scripted = await runAttendedDriver({ journey: "probe-none", show_window: false });
+  assert.deepEqual([scripted.listeners.document.length, scripted.listeners.window.length], [0, 0]);
 });
