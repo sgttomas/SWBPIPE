@@ -234,6 +234,7 @@ describe("binding and input guards: no entry takes content built elsewhere", () 
     expect(() => result.current.editorBinding.bindCommit({ name: "unguarded", role: "gui_editor", build } as unknown as EditorBuilder<object>)).toThrow("EDITOR-BIND-REFUSED: The builder unguarded has no declared input guard");
     expect(() => result.current.editorBinding.bindCommit({ name: "no-check", role: "gui_editor", input: { members: ["value"] }, build } as unknown as EditorBuilder<object>)).toThrow("has no declared input guard");
     expect(() => result.current.editorBinding.bindDialog({ name: "takes-operations", role: "gui_editor", input: { members: ["value", "operations"], check: () => null }, build })).toThrow("EDITOR-BIND-REFUSED: The builder takes-operations declares operations as input");
+    expect(() => result.current.editorBinding.bindCommit({ name: "takes-target", role: "gui_editor", input: { members: ["target"], check: () => null }, build })).toThrow("EDITOR-BIND-REFUSED: The builder takes-target declares target as input");
     expect(() => result.current.editorBinding.bindCommit({ name: "no-role", role: "agent", input: { members: ["value"], check: () => null }, build } as unknown as EditorBuilder<object>)).toThrow("The builder no-role has no editor role.");
   });
 
@@ -244,16 +245,16 @@ describe("binding and input guards: no entry takes content built elsewhere", () 
     const commit = bindCommit(result, guarded);
     const dialog = bindDialog(result, guarded);
     const cases: Array<[string, unknown, string]> = [
-      ["an operations array", { key: "k", operations: [] }, "carries operations, which the editor does not take"],
+      ["an operations array", { key: "k", operations: [] }, "carries operations, a member of an operation, a batch or a stamp"],
       ["an operations array nested in a named member", { key: "k", value: { operations: [] } }, "carries operations, a member of an operation, a batch or a stamp"],
       ["an author", { key: "k", value: { author_type: "user" } }, "carries author_type, a member of an operation, a batch or a stamp"],
-      ["a source", { key: "k", value: [{ source: {} }] }, "carries source, a member of an operation, a batch or a stamp"],
+      ["a source at the top", { key: "k", source: {} }, "carries source, a member of an operation, a batch or a stamp"],
       ["a batch id", { key: "k", value: { batch_id: "b" } }, "carries batch_id"],
       ["a queue id", { key: "k", value: { queue_id: "q" } }, "carries queue_id"],
       ["a member the guard does not name", { key: "k", extra: 1 }, "carries extra, which the editor does not take"],
       ["a function", { key: "k", value: () => null }, "carries a function"],
-      ["an intent itself", { intent: { operation_id: "op" } }, "carries intent, which the editor does not take"],
-      ["a batch itself", { batch_id: "b", operations: [] }, "carries batch_id, operations, which the editor does not take"],
+      ["an intent itself", { intent: { operation_id: "op" } }, "carries intent, a member of an operation, a batch or a stamp"],
+      ["a batch itself", { batch_id: "b", operations: [] }, "carries batch_id, a member of an operation, a batch or a stamp"],
       ["not an object", [{ key: "k" }], "is not the editor's typed values"]
     ];
     const before = snapshot(result), request = requestState(result);
@@ -264,6 +265,110 @@ describe("binding and input guards: no entry takes content built elsewhere", () 
     }
     expect(through.built()).toBe(0);
     expect(snapshot(result)).toEqual(before);
+  });
+});
+
+describe("the input is owned (P4)", () => {
+  /** A builder whose guard names `key` and `value` and takes anything in them; it records the input it was given. */
+  function recording() {
+    const seen: { checked: unknown[]; built: unknown[] } = { checked: [], built: [] };
+    const builder = { name: "recording", role: "gui_editor", input: { members: ["key", "value"], check: (input: unknown) => { seen.checked.push(input); return null; } },
+      build: (_model: PreviewModel, input: unknown) => { seen.built.push(input); throw new Error("not built in this test"); } } as unknown as EditorBuilder<Record<string, unknown>>;
+    return { builder, seen };
+  }
+  class Point { x = 1; }
+  const accessor = { key: "k" } as Record<string, unknown>;
+  Object.defineProperty(accessor, "value", { get: () => 1, enumerable: true });
+  const hidden = { key: "k" } as Record<string, unknown>;
+  Object.defineProperty(hidden, "value", { value: 1, enumerable: false });
+  const symbolKey = { key: "k", [Symbol("tag")]: 1 };
+  const cycle: Record<string, unknown> = { key: "k" };
+  cycle.value = { back: cycle };
+  const extraArray = Object.assign(["a"], { more: 1 });
+  let deep: unknown = "end";
+  for (let level = 0; level < 40; level++) deep = { next: deep };
+  const unreadable = new Proxy({ key: "k" }, { ownKeys: () => { throw new Error("no keys"); } });
+  const cases: Array<[string, unknown, string]> = [
+    ["an accessor", accessor, "carries an accessor at value"],
+    ["a non-enumerable member", hidden, "carries a non-enumerable member value"],
+    ["a symbol key", symbolKey, "carries a symbol key"],
+    ["a function", { key: "k", value: { run: () => null } }, "carries a function"],
+    ["a Map", { key: "k", value: new Map([["a", 1]]) }, "is not plain data"],
+    ["a Set", { key: "k", value: new Set([1]) }, "is not plain data"],
+    ["a class instance", { key: "k", value: new Point() }, "is not plain data"],
+    ["a Proxy over a class instance", { key: "k", value: new Proxy(new Point(), {}) }, "is not plain data"],
+    ["a Proxy whose keys cannot be read", unreadable, "could not be read as typed values (no keys)"],
+    ["a cycle", cycle, "contains a cycle"],
+    ["more entries than the bound", { key: "k", value: new Array(70_000).fill(0) }, "is larger than 65536 entries"],
+    ["a nesting deeper than the bound", { key: "k", value: deep }, "is nested deeper than 32 levels"],
+    ["a number that is not finite", { key: "k", value: Number.NaN }, "carries a number that is not finite"],
+    ["an array with another member", { key: "k", value: extraArray }, "carries an array with the member more"],
+    ["an array with holes", { key: "k", value: [1, , 3] }, "carries an array with holes"], // eslint-disable-line no-sparse-arrays
+    ["a target at the top", { key: "k", target: "node:C" }, "carries target, a member of an operation"],
+    ["a change at the top", { key: "k", change: {} }, "carries change, a member of an operation"],
+    ...["source_ref", "source_channel", "source_role", "source_model_hash", "change_kind", "field_path", "precondition", "agentContext", "importContext"].map((member) =>
+      [`${member} nested`, { key: "k", value: [{ deeper: { [member]: "x" } }] }, `carries ${member}, a member of an operation`] as [string, unknown, string])
+  ];
+
+  it("each kind of input that is not data is refused by name, before the guard and the builder, with nothing toggled or counted", async () => {
+    const result = await session();
+    const { builder, seen } = recording();
+    const commit = bindCommit(result, builder), dialog = bindDialog(result, builder);
+    const before = snapshot(result), request = requestState(result);
+    for (const [name, input, words] of cases) {
+      expect(refused(await run(() => commit(input as never))).reason, name).toContain(words);
+      expect(refused(await run(() => dialog.preview(input as never))).reason, name).toContain(words);
+      expect(requestState(result), name).toEqual(request);
+    }
+    expect(seen).toEqual({ checked: [], built: [] });
+    expect(snapshot(result)).toEqual(before);
+  });
+
+  it("a throw in the guard's check or in the builder is a refusal, never a rejected promise", async () => {
+    const result = await session();
+    const throwingCheck = { ...gridCell, name: "throwing-check", input: { members: gridCell.input.members, check: () => { throw new Error("check broke"); } } };
+    const throwingBuild = { ...gridCell, name: "throwing-build", build: () => { throw new Error("build broke"); } };
+    const before = snapshot(result);
+    const input = { nodeId: "node:C", axis: "y" as const, value: "2.5" };
+    expect(refused(await run(() => bindCommit(result, throwingCheck)(input))).reason).toContain("could not be read as typed values (check broke)");
+    expect(refused(await run(() => bindDialog(result, throwingCheck).preview(input))).reason).toContain("check broke");
+    expect(refused(await run(() => bindCommit(result, throwingBuild)(input))).reason).toContain("The editor could not build this change: build broke");
+    expect(refused(await run(() => bindDialog(result, throwingBuild).preview(input))).reason).toContain("build broke");
+    expect(snapshot(result)).toEqual(before);
+  });
+
+  it("the guard and the builder get one fresh frozen copy; the caller mutating its object during an async build leaves the built edit unchanged", async () => {
+    const result = await session();
+    let release!: () => void;
+    const gate = new Promise<void>((resolve) => { release = resolve; });
+    const received: { checked?: unknown; built?: unknown } = {};
+    const slow: EditorBuilder<GridInput> = { ...gridCell, name: "slow-grid-cell",
+      input: { members: gridCell.input.members, check: (input) => { received.checked = input; return gridCell.input.check(input); } },
+      build: async (model, input, id) => { received.built = input; await gate; return gridCell.build(model, input, id); } };
+    const mine: Record<string, unknown> = { nodeId: "node:C", axis: "y", value: "2.5" };
+    let pending!: Promise<EditorCommitResult>;
+    act(() => { pending = bindCommit(result, slow)(mine as GridInput); });
+    await waitFor(() => expect(received.built).toBeDefined());
+    mine.value = "9"; mine.axis = "x"; mine.nodeId = "node:A";
+    release();
+    committed(await run(() => pending));
+    expect(received.checked).toBe(received.built);
+    expect(received.built).not.toBe(mine);
+    expect(Object.isFrozen(received.built)).toBe(true);
+    expect(received.built).toEqual({ nodeId: "node:C", axis: "y", value: "2.5" });
+    expect(result.current.model.model!.nodes[2].position.y).toBe(2.5);
+    expect(result.current.model.model!.nodes[0].position.x).not.toBe(9);
+    expect(result.current.operations.batchReceipts[0].batch.operations[0].change).toMatchObject({ field_path: "position.y" });
+  });
+
+  it("a nested member called target is a typed value, and is accepted", async () => {
+    const result = await session();
+    type Placement = { placement: { target: string; value: string } };
+    const placed: EditorBuilder<Placement> = { name: "placement", role: "gui_editor",
+      input: { members: ["placement"], check: (input) => strings(input.placement, "target", "value") ? null : "The placement takes a target node and a value." },
+      build: (model, input, id) => gridCell.build(model, { nodeId: input.placement.target, axis: "y", value: input.placement.value }, id) };
+    committed(await run(() => bindCommit(result, placed)({ placement: { target: "node:C", value: "2.5" } })));
+    expect(result.current.model.model!.nodes[2].position.y).toBe(2.5);
   });
 });
 

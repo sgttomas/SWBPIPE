@@ -304,9 +304,15 @@ export type EditorExtent = Readonly<{
 }>;
 export type EditorPreviewResult = Readonly<{ status: "previewed"; handle: EditorPreviewHandle; extent: EditorExtent }> | EditorRefusal;
 
-/** Members no editor's typed input may carry, at any depth: the members of an operation, a batch or a stamp. */
-const NOT_TYPED_INPUT = ["operations", "operation", "intent", "batch", "batch_id", "operation_id", "author_type", "source", "queue_id", "change", "target"];
-const INPUT_DEPTH = 32;
+/** Members no editor's typed input may carry: the members of an operation, a batch, a stamp or a queue's context at
+ * any depth, and the generic `target`, `source` and `change` at the top level only (a typed domain value may rightly
+ * hold a member called target). */
+const NOT_TYPED_ANYWHERE = ["operations", "intent", "batch", "batch_id", "operation_id", "author_type", "queue_id", "source_ref", "source_channel",
+  "source_role", "source_model_hash", "change_kind", "field_path", "precondition", "agentContext", "importContext"];
+const NOT_TYPED_AT_TOP = ["target", "source", "change"];
+const NOT_TYPED_INPUT = [...NOT_TYPED_ANYWHERE, ...NOT_TYPED_AT_TOP];
+/** The bounds of an editor's typed input: its depth, and its total entries (each value counted once). */
+export const EDITOR_INPUT_BOUNDS = Object.freeze({ maxDepth: 32, maxEntries: 65_536 });
 
 /** Refuses, at bind time and by name, a builder with no declared input guard, or a guard that names a member of an
  * operation, a batch or a stamp. Returns the reason, or null. */
@@ -325,28 +331,79 @@ export function editorBuilderRefusal(builder: unknown): string | null {
   return null;
 }
 
-/** The guard a bound callback runs on its input before the builder: a plain object with only the members the guard
- * names, carrying no member of an operation, a batch or a stamp at any depth, no function, then the guard's own
- * check. Returns the reason for a refusal, or null. */
-export function editorInputRefusal(guard: EditorInputGuard, input: unknown): string | null {
-  if (!plain(input)) return "This edit's input is not the editor's typed values, so nothing was built.";
-  const unnamed = Object.keys(input).filter((key) => !guard.members.includes(key));
-  if (unnamed.length) return `This edit's input carries ${unnamed.join(", ")}, which the editor does not take, so nothing was built.`;
-  const pending: [unknown, number][] = [[input, 0]];
-  while (pending.length) {
-    const [value, depth] = pending.pop()!;
-    if (typeof value === "function") return "This edit's input carries a function, which is not a typed value, so nothing was built.";
-    if (value === null || typeof value !== "object") continue;
-    if (depth > INPUT_DEPTH) return `This edit's input is nested deeper than ${INPUT_DEPTH} levels, so nothing was built.`;
-    if (Array.isArray(value)) { for (const item of value) pending.push([item, depth + 1]); continue; }
-    if (!plain(value)) return "This edit's input carries an object that is not a typed value, so nothing was built.";
-    for (const key of Object.keys(value)) {
-      if (NOT_TYPED_INPUT.includes(key)) return `This edit's input carries ${key}, a member of an operation, a batch or a stamp, so nothing was built.`;
-      pending.push([value[key], depth + 1]);
-    }
+/** P4: the input a bound callback owns. The caller's value is materialised once, synchronously, into a fresh
+ * deep-frozen copy of data only, and the guard's check and the builder get that copy, never the caller's object.
+ * Accepted: null, booleans, finite numbers, strings, arrays of accepted values with no other members, and strictly
+ * plain objects (prototype Object.prototype or null) whose own keys are all enumerable string data properties.
+ * Refused by name: an accessor, a symbol key, a non-enumerable key, a function, any other prototype (a Map, a Set, a
+ * class instance, a Proxy failing these checks), a cycle, an input deeper or larger than `EDITOR_INPUT_BOUNDS`, a
+ * forbidden member (`NOT_TYPED_ANYWHERE` at any depth, `NOT_TYPED_AT_TOP` at the top), and a top-level member the
+ * guard does not name; then the guard's own check runs on the copy. A throw anywhere is a refusal. */
+export function ownEditorInput(guard: EditorInputGuard, input: unknown): { input: Readonly<Record<string, unknown>> } | { refused: string } {
+  try {
+    const copies = new Map<object, unknown>();
+    const inProgress = new Set<object>();
+    let entries = 0;
+    const own = (value: unknown, depth: number, top: boolean): unknown => {
+      if (++entries > EDITOR_INPUT_BOUNDS.maxEntries) throw new InputRefusal(`is larger than ${EDITOR_INPUT_BOUNDS.maxEntries} entries`);
+      if (value === null || typeof value === "boolean" || typeof value === "string") return value;
+      if (typeof value === "number") { if (!Number.isFinite(value)) throw new InputRefusal("carries a number that is not finite"); return value; }
+      if (typeof value === "function") throw new InputRefusal("carries a function, which is not a typed value");
+      if (typeof value !== "object") throw new InputRefusal(`carries a ${typeof value}, which is not a typed value`);
+      if (depth > EDITOR_INPUT_BOUNDS.maxDepth) throw new InputRefusal(`is nested deeper than ${EDITOR_INPUT_BOUNDS.maxDepth} levels`);
+      if (inProgress.has(value)) throw new InputRefusal("contains a cycle");
+      if (copies.has(value)) return copies.get(value);
+      const prototype = Object.getPrototypeOf(value);
+      const isArray = Array.isArray(value);
+      if (isArray ? prototype !== Array.prototype : prototype !== Object.prototype && prototype !== null) throw new InputRefusal("carries an object that is not plain data (a Map, a Set, a class instance or another prototype)");
+      const keys = Reflect.ownKeys(value);
+      inProgress.add(value);
+      let copy: unknown;
+      if (isArray) {
+        const length = (value as unknown[]).length;
+        const out: unknown[] = [];
+        for (const key of keys) {
+          if (typeof key === "symbol") throw new InputRefusal("carries a symbol key");
+          if (key === "length") continue;
+          if (!/^(0|[1-9]\d*)$/.test(key) || Number(key) >= length) throw new InputRefusal(`carries an array with the member ${key}`);
+        }
+        if (keys.length !== length + 1) throw new InputRefusal("carries an array with holes");
+        for (let index = 0; index < length; index++) {
+          const descriptor = Reflect.getOwnPropertyDescriptor(value, String(index))!;
+          if (!("value" in descriptor)) throw new InputRefusal("carries an accessor");
+          if (!descriptor.enumerable) throw new InputRefusal("carries a non-enumerable member");
+          out.push(own(descriptor.value, depth + 1, false));
+        }
+        copy = Object.freeze(out);
+      } else {
+        const out: Record<string, unknown> = {};
+        for (const key of keys) {
+          if (typeof key === "symbol") throw new InputRefusal("carries a symbol key");
+          if (NOT_TYPED_ANYWHERE.includes(key) || (top && NOT_TYPED_AT_TOP.includes(key))) throw new InputRefusal(`carries ${key}, a member of an operation, a batch or a stamp`);
+          const descriptor = Reflect.getOwnPropertyDescriptor(value, key)!;
+          if (!("value" in descriptor)) throw new InputRefusal(`carries an accessor at ${key}`);
+          if (!descriptor.enumerable) throw new InputRefusal(`carries a non-enumerable member ${key}`);
+          out[key] = own(descriptor.value, depth + 1, false);
+        }
+        copy = Object.freeze(out);
+      }
+      inProgress.delete(value);
+      copies.set(value, copy);
+      return copy;
+    };
+    if (input === null || typeof input !== "object" || Array.isArray(input)) return { refused: "This edit's input is not the editor's typed values, so nothing was built." };
+    const owned = own(input, 0, true) as Readonly<Record<string, unknown>>;
+    const unnamed = Object.keys(owned).filter((key) => !guard.members.includes(key));
+    if (unnamed.length) return { refused: `This edit's input carries ${unnamed.join(", ")}, which the editor does not take, so nothing was built.` };
+    const checked = guard.check(owned);
+    if (checked !== null) return { refused: typeof checked === "string" ? checked : "The editor's check refused this input, so nothing was built." };
+    return { input: owned };
+  } catch (error) {
+    if (error instanceof InputRefusal) return { refused: `This edit's input ${error.message}, so nothing was built.` };
+    return { refused: `This edit's input could not be read as typed values (${error instanceof Error ? error.message : String(error)}), so nothing was built.` };
   }
-  return guard.check(input);
 }
+class InputRefusal extends Error {}
 
 /** The prefix of the source reference the binding stamps; a built operation already carrying it is refused. */
 const EDITOR_COMMIT_SOURCE_PREFIX = "desktop-editor:";

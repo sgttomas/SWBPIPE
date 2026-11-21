@@ -1,7 +1,7 @@
 import type { ReportComposition } from "../report/reportComposition";
 import { EmbeddedAgentSession, type AgentContext, type AgentRunReceipt, type AgentSolveFailure, type AgentSolveOutcome, type AgentSolverMode } from "../../services/embeddedAgentSession";
 import { presentedResultDiagnostics } from "../results/suppliedDiagnostics";
-import { requeueRetainedRecord, stampEditorCommit, editorBuilderRefusal, editorInputRefusal, type ImportContext } from "../../services/operationAuthorship";
+import { requeueRetainedRecord, stampEditorCommit, editorBuilderRefusal, ownEditorInput, type ImportContext } from "../../services/operationAuthorship";
 import { hasCurrentSourceContract } from "../results/resultReader";
 import type React from "react";
 import {
@@ -2849,12 +2849,12 @@ export function useWorkspaceSession() {
 
   /** Form 1: the one-step commit of an immediate edit. */
   async function commitEditorInput(binding: EditorBindingRecord, input: unknown): Promise<EditorCommitResult> {
-    const refused = editorInputRefusal(binding.builder.input, input);
-    if (refused) return editorRefusal(`${binding.builder.name}: ${refused}`);
+    const owned = ownEditorInput(binding.builder.input, input);
+    if ("refused" in owned) return editorRefusal(`${binding.builder.name}: ${owned.refused}`);
     const request = beginEditorRequest();
     if ("status" in request) return request;
     try {
-      const checked = await buildAndValidateEditorEdit(binding, input, request.basisModel, request.stillCurrent);
+      const checked = await buildAndValidateEditorEdit(binding, owned.input, request.basisModel, request.stillCurrent);
       if ("status" in checked) return checked;
       if (!request.stillCurrent()) return editorRefusal(EDITOR_SUPERSEDED);
       return await applyAndPublishEditorBatch(checked, request.stillCurrent, () => {});
@@ -2868,12 +2868,12 @@ export function useWorkspaceSession() {
   /** Form 2, first step: the engine's validate-only preview for a dialog to show, and the single-use handle its
    * confirm presents. Nothing is applied. */
   async function previewEditorInput(binding: EditorBindingRecord, input: unknown): Promise<EditorPreviewResult> {
-    const refused = editorInputRefusal(binding.builder.input, input);
-    if (refused) return editorRefusal(`${binding.builder.name}: ${refused}`);
+    const owned = ownEditorInput(binding.builder.input, input);
+    if ("refused" in owned) return editorRefusal(`${binding.builder.name}: ${owned.refused}`);
     const request = beginEditorRequest();
     if ("status" in request) return request;
     try {
-      const checked = await buildAndValidateEditorEdit(binding, input, request.basisModel, request.stillCurrent);
+      const checked = await buildAndValidateEditorEdit(binding, owned.input, request.basisModel, request.stillCurrent);
       if ("status" in checked) return checked;
       if (!request.stillCurrent()) return editorRefusal(EDITOR_SUPERSEDED);
       const handle: EditorPreviewHandle = Object.freeze({ handle: "editor-preview" as const });
