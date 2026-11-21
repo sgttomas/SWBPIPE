@@ -100,10 +100,10 @@ needs:
   when: Rendering a bound report or saving a report package.
   gating: false
 - from: DEL-04-07
-  condition: The desktop's memory pool admits a custody reservation for bytes the native host keeps
-    after the command that made them returns, with a fresh headroom verdict and its pressure and pool
-    checks, refusing by name otherwise, and releases it exactly once when the last holder of those bytes
-    drops it.
+  condition: The desktop's memory pool admits, as an interactive command's own reservation that the
+    host's pressure state does not gate, the bytes of one document the native host keeps after the
+    render command returns, with its pool, capacity and fresh headroom checks, refusing by name
+    otherwise, and releases it exactly once when the last holder of those bytes drops it.
   when: Keeping the current render's canonical HTML for the desktop's HTML save and print.
   gating: false
 - from: DEL-07-07

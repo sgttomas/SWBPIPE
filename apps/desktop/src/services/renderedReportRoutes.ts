@@ -100,6 +100,9 @@ export function renderedReportRouteOpen(controlled: ControlledRouteExport, html:
 type RouteRequest = {
   /** The SHA-256 the render's reply gave: it names the render; no document is sent. */
   sha256Hex: string;
+  /** The canonical HTML as the web view holds it. Used here only to check the
+   * controlled export against it; it is never part of what is sent. */
+  html: string;
   context: RenderedReportRouteContext;
   explicitLocalPrivateIntent: boolean;
   controlled: ControlledRouteExport | null;
@@ -130,16 +133,15 @@ function isRouteError(value: unknown): value is RenderedReportRouteError {
 }
 
 // The two commands take their arguments as a raw body under the ingress lease,
-// as `render_calculation_report` does. The panel has already applied the full
-// route check (`renderedReportRouteOpen`, which compares the controlled payload
-// with the canonical HTML) before it asks; with no document in the request,
-// the check here is of the controlled export's block alone.
+// as `render_calculation_report` does. The route check (`renderedReportRouteOpen`,
+// which compares the controlled payload with the canonical HTML) runs here as
+// before, on the web view's own copy; the document itself is not sent.
 async function send<T>(
   command: "save_rendered_report_html" | "print_rendered_report",
   request: RouteRequest,
   stillCurrent: () => boolean
 ): Promise<RenderedReportRouteOutcome<T>> {
-  if (request.controlled !== null && (request.controlled.blocked || request.controlled.summary.blocking_count !== 0)) {
+  if (request.controlled !== null && !renderedReportRouteOpen(request.controlled, request.html)) {
     return {
       kind: "refused",
       error: {

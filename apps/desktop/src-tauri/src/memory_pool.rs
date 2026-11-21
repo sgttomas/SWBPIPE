@@ -43,7 +43,14 @@
 //! aggregate pool reservation, a known capacity, a fresh known headroom
 //! covering the request plus the outstanding unrealized reservations (the same
 //! rule as every other lease), and their lease must fit the per-invocation
-//! budget.
+//! budget. One interactive reservation outlives its command: the document of
+//! the current rendered report, which the desktop keeps so that a save or a
+//! print names it (`crate::rendered_report_routes`). It is the render
+//! command's product and is admitted in this class when the render is
+//! recorded ([`MemoryPool::acquire_interactive_resampling`]), counted as
+//! custody, for the current render's document only, and released when the
+//! render is retired, or when a write or a print derivation already using it
+//! ends.
 //!
 //! Residency credit: a running worker's pages that are already resident were
 //! taken from the free queue when they were touched, so the headroom verdict
@@ -611,6 +618,31 @@ impl MemoryPool {
     /// the main thread (see the module docs).
     pub(crate) fn acquire_interactive(self: &Arc<Self>, bytes: u64) -> Result<Lease, ResourceRefusal> {
         self.acquire_interactive_under(bytes, |budget| budget)
+    }
+
+    /// [`Self::acquire_interactive`] for an interactive command that runs off
+    /// the main thread and reserves what it keeps (the rendered report's
+    /// document): the same verdict on a fresh sample each time, taken again
+    /// while the only refusal is `headroom_insufficient` and the re-sampling
+    /// window has not elapsed, as [`Self::acquire_resampling`] does. Any other
+    /// refusal stands at once.
+    pub(crate) fn acquire_interactive_resampling(self: &Arc<Self>, bytes: u64) -> Result<Lease, ResourceRefusal> {
+        let deadline = Instant::now().checked_add(self.resample_window);
+        loop {
+            let refusal = match self.acquire_interactive(bytes) {
+                Ok(lease) => return Ok(lease),
+                Err(refusal) => refusal,
+            };
+            let remaining = deadline.map_or(Duration::ZERO, |deadline| deadline.saturating_duration_since(Instant::now()));
+            if !matches!(refusal, ResourceRefusal::HeadroomInsufficient { .. }) || remaining.is_zero() {
+                return Err(refusal);
+            }
+            // A release wakes the wait early; the lock is not held across it.
+            drop(self.changed.wait_timeout(self.lock(), self.resample_tick.min(remaining)).unwrap_or_else(PoisonError::into_inner));
+            if deadline.is_none_or(|deadline| Instant::now() >= deadline) {
+                return Err(refusal);
+            }
+        }
     }
 
     /// [`Self::acquire_interactive`] for a native reader's arguments (C1

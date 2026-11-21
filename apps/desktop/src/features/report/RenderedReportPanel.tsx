@@ -465,7 +465,9 @@ export function RenderedReportPanel({
       }
       const request = {
         // The render is named by its hash; the desktop holds its document.
+        // The HTML stays here: the service checks the controlled export against it.
         sha256Hex: outcome.sha256_hex,
+        html: routeHtml,
         context: routeContext,
         explicitLocalPrivateIntent: routeContext === "local_private" && localPrivateIntent,
         controlled: routeControl,

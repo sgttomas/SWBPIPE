@@ -14,13 +14,17 @@
 //! the routes reading it, never copied per request. A blocked render, a
 //! metadata-only (content-withheld) render and one whose HTML does not hash to
 //! the renderer's named hash hold no document. The held document's memory is
-//! reserved from the native memory pool as custody (`memory_pool`,
-//! `LeasePurpose::Custody`, admitted as a held result's full copy is in
-//! `solve_jobs`) before it is copied, and released when its last holder drops
+//! reserved from the native memory pool before it is copied, as the render
+//! command's own interactive admission (`memory_pool` module docs: the host's
+//! pressure state does not gate it; the pool, a known capacity and fresh
+//! headroom do), counted as custody, and released when its last holder drops
 //! it; a refused reservation records nothing and the render command refuses by
 //! name ([`RENDER_CUSTODY_UNAVAILABLE`]). Retiring the render, a later render
 //! request, a registered source advance and an activation drop the document
-//! with the record.
+//! with the record. So custody holds one document at a time. A save shares it
+//! only while it writes (never while its chooser is open) and a print only
+//! while it derives the print view, so a retired document outlives its
+//! retirement by at most that write or derivation, still reserved until then.
 //!
 //! A route request carries no document: it names the render by the SHA-256
 //! the webview holds from the render's reply, and is admitted only when that
@@ -91,7 +95,7 @@
 //! the two above is refused by name.
 use crate::atomic_report_package_save::{self as atomic, AtomicSaveError, AtomicSaveFormat, AtomicSaveOutcome, GuardedSaveError};
 use crate::command_ingress::{self, respond, ArgsDecoding, CommandError};
-use crate::memory_pool::{Lease, LeasePurpose, MemoryPool, ResampleStop};
+use crate::memory_pool::{Lease, LeasePurpose, MemoryPool};
 use crate::solve_jobs::SolveJobRegistry;
 use serde::{Deserialize, Serialize};
 use sha2::{Digest, Sha256};
@@ -209,25 +213,22 @@ pub(crate) fn held_document_bytes(len: usize) -> u64 {
     envelope(len).saturating_add(envelope(2 * std::mem::size_of::<usize>() + std::mem::size_of::<HeldDocument>()))
 }
 
-/// Reserves custody for `html` from `pool` and then copies it into a held
-/// document, as a held result's full copy is reserved (`solve_jobs`
-/// `copy_result_within`: an admission that re-samples the host while refused
-/// only for headroom, then moved to custody). A refusal copies nothing.
+/// Reserves the memory for `html` from `pool` and then copies it into a held
+/// document. The reservation is the render command's own: an interactive
+/// admission (`memory_pool` module docs), which the host's pressure state does
+/// not gate, re-sampled while refused only for headroom, then counted as
+/// custody. A refusal copies nothing.
 fn hold_document(pool: &Arc<MemoryPool>, html: &str) -> Result<Arc<HeldDocument>, RouteError> {
-    let mut lease = match pool.acquire_resampling(held_document_bytes(html.len()), LeasePurpose::Ingress, &|| false) {
-        Ok(lease) => lease,
-        Err(stop) => {
-            let refusal = match stop {
-                ResampleStop::Refused(refusal) => serde_json::to_string(&refusal).unwrap_or_default(),
-                ResampleStop::Cancelled => "cancelled".to_string(),
-            };
-            return Err(RouteError::at(
-                RENDER_CUSTODY_UNAVAILABLE,
-                "render",
-                format!("The desktop could not reserve memory to keep this render's document ({refusal}); the render was not recorded and nothing can be saved or printed from it. Render the report again."),
-            ));
-        }
-    };
+    let mut lease = pool.acquire_interactive_resampling(held_document_bytes(html.len())).map_err(|refusal| {
+        RouteError::at(
+            RENDER_CUSTODY_UNAVAILABLE,
+            "render",
+            format!(
+                "The desktop could not reserve memory to keep this render's document ({}); the render was not recorded and nothing can be saved or printed from it. Render the report again.",
+                serde_json::to_string(&refusal).unwrap_or_default()
+            ),
+        )
+    })?;
     lease.set_purpose(LeasePurpose::Custody);
     Ok(Arc::new(HeldDocument { html: html.to_owned(), lease }))
 }
@@ -483,6 +484,12 @@ impl RenderCustody {
     /// Whether the render of `generation` is still the current one.
     pub(crate) fn is_current(&self, generation: u64) -> bool {
         self.lock().current.as_ref().is_some_and(|record| record.generation == generation)
+    }
+
+    /// The held document of the render of `generation`, only while that
+    /// render is current.
+    pub(crate) fn document_if_current(&self, generation: u64) -> Option<Arc<HeldDocument>> {
+        self.lock().current.as_ref().filter(|record| record.generation == generation).and_then(|record| record.document.clone())
     }
 
     /// Runs `publish` with the custody mutex held, only while the render of
@@ -875,12 +882,17 @@ pub(crate) fn save_in(
 ) -> Result<HtmlSaveReceipt, RouteError> {
     let admitted = custody.admit(&request)?;
     let suggested = suggested_file_name(&admitted);
+    // The chooser may stay open for any time: the save holds no share of the
+    // document across it, and takes the current render's again to write.
+    let Admitted { generation, sha256_hex, export_context, document } = admitted;
+    let byte_count = document.html().len();
+    drop(document);
     let receipt = |outcome: &'static str, file_name: String, replaced_existing: bool, durability: &str| HtmlSaveReceipt {
         outcome,
         route_id: ROUTE_ID,
-        export_context: admitted.export_context.clone(),
-        sha256_hex: admitted.sha256_hex.clone(),
-        byte_count: admitted.document.html().len(),
+        export_context: export_context.clone(),
+        sha256_hex: sha256_hex.clone(),
+        byte_count,
         file_name,
         replaced_existing,
         durability: durability.to_string(),
@@ -890,15 +902,15 @@ pub(crate) fn save_in(
     };
     // The chooser's own error text may name the path; it is not repeated.
     let path = chosen.map_err(|_| RouteError::at(CHOOSER_FAILED, "chooser", "The save chooser returned a destination that is not a file path; nothing was written."))?;
-    if !custody.is_current(admitted.generation) {
+    let Some(document) = custody.document_if_current(generation) else {
         return Err(RouteError::at(
             RETIRED_DURING_SAVE,
             "currency",
             "The report was retired or rendered again while the chooser was open: it is no longer the report for the current result and model, and nothing was written.",
         ));
-    }
-    let gate = PublicationGate { custody, generation: admitted.generation };
-    let outcome = write(&path, admitted.document.html().as_bytes(), gate).map_err(|error| match error {
+    };
+    let gate = PublicationGate { custody, generation };
+    let outcome = write(&path, document.html().as_bytes(), gate).map_err(|error| match error {
         GuardedSaveError::Save(error) => RouteError::write(error),
         // Retired before the rename: the destination is as it was and the owned
         // temporary file was removed, or its removal failure is named.
@@ -960,7 +972,7 @@ mod tests {
     use crate::atomic_report_package_save::{test_support::atomic_save_test_lock, AtomicSaveIo, DirectorySyncResult};
     use std::fs::{self, File};
     use std::io;
-    use std::time::{SystemTime, UNIX_EPOCH};
+    use std::time::{Duration, SystemTime, UNIX_EPOCH};
 
     const HTML: &str = "<!DOCTYPE html>\n<html lang=\"en\">\n<head>\n<meta charset=\"utf-8\">\n<title>Invented</title>\n</head>\n<body>\n<p>Invented report Ω</p>\n</body>\n</html>\n";
 
@@ -1115,8 +1127,8 @@ mod tests {
         }
     }
 
-    /// A save retired while its chooser is open writes nothing, and once it returns its share of
-    /// the document is gone and the reservation released.
+    /// A save holds no share of the document while its chooser is open: a retirement there
+    /// releases the reservation at once, and the save writes nothing.
     #[test]
     fn a_save_retired_during_the_chooser_writes_nothing_and_releases_the_document() {
         let pool = test_pool();
@@ -1124,9 +1136,9 @@ mod tests {
         custody.record_in(&pool, Some(PUBLIC_REPORT), HTML, &sha256_hex(HTML.as_bytes()), false, false);
         let dir = scratch("retired-held");
         let error = save_in(&custody, request(HTML, PUBLIC_REPORT, false), |name| {
-            assert!(custody.retire_active());
-            // The admitted save still shares the bytes, so they stay reserved while it runs.
             assert_eq!(reserved(&pool).0, held_document_bytes(HTML.len()));
+            assert!(custody.retire_active());
+            assert_eq!(reserved(&pool), (0, 0), "nothing of a retired document stays reserved behind an open chooser");
             Some(Ok(dir.join(name)))
         }, |_, _, _| panic!("no write after retirement"))
         .unwrap_err();
@@ -1137,16 +1149,17 @@ mod tests {
     }
 
     /// A refused reservation records nothing: the completion is refused by name, no render is
-    /// current, the earlier render stays retired and nothing stays reserved.
+    /// current and nothing stays reserved. The pool's remaining bytes, an unknown capacity and
+    /// insufficient headroom each refuse.
     #[test]
     fn a_refused_reservation_records_no_render() {
         use crate::memory_pool::{test_host::ScriptedHost, PressureLevel};
-        // Elevated pressure refuses the custody admission at once; so does an exhausted pool.
         for host in [
-            ScriptedHost::with(Some(16 << 30), Some(64 << 30), PressureLevel::Warning),
             ScriptedHost::with(Some(64), Some(64 << 30), PressureLevel::Normal),
+            ScriptedHost::with(None, Some(64 << 30), PressureLevel::Normal),
+            ScriptedHost::with(Some(16 << 30), Some(8), PressureLevel::Normal),
         ] {
-            let pool = MemoryPool::new(host);
+            let pool = MemoryPool::with_timing(host, Duration::from_millis(1), Duration::ZERO, Duration::from_millis(1));
             let custody = RenderCustody::new();
             custody.activate();
             let ticket = custody.begin_next(FIRST).unwrap();
@@ -1156,6 +1169,53 @@ mod tests {
             assert_eq!(refused(&custody, request(HTML, PUBLIC_REPORT, false)).code, NOT_CURRENT);
             assert_eq!(reserved(&pool), (0, 0));
         }
+    }
+
+    /// The document's reservation is the render command's own, an interactive admission: the
+    /// host's pressure state does not gate it (`memory_pool` module docs), so a render is
+    /// recorded and saved from under a pressure warning and under critical pressure alike.
+    #[test]
+    fn a_render_is_recorded_while_the_host_reports_memory_pressure() {
+        use crate::memory_pool::{test_host::ScriptedHost, PressureLevel};
+        for pressure in [PressureLevel::Warning, PressureLevel::Critical] {
+            let pool = MemoryPool::new(ScriptedHost::with(Some(16 << 30), Some(64 << 30), pressure));
+            let custody = RenderCustody::new();
+            custody.record_in(&pool, Some(PUBLIC_REPORT), HTML, &sha256_hex(HTML.as_bytes()), false, false);
+            assert_eq!(reserved(&pool).0, held_document_bytes(HTML.len()));
+            assert!(custody.admit(&request(HTML, PUBLIC_REPORT, false)).is_ok());
+        }
+    }
+
+    /// A reservation refused only for headroom is tried again on fresh samples within the
+    /// pool's re-sampling window, and admitted at the first that passes.
+    #[test]
+    fn a_reservation_short_of_headroom_is_taken_again_on_a_fresh_sample() {
+        use crate::memory_pool::{test_host::ScriptedHost, PressureLevel};
+        let host = ScriptedHost::with(Some(16 << 30), Some(8), PressureLevel::Normal);
+        let pool = MemoryPool::with_timing(host.clone(), Duration::from_millis(1), Duration::from_secs(30), Duration::from_millis(5));
+        let refill = std::thread::spawn(move || {
+            std::thread::sleep(Duration::from_millis(40));
+            host.set(|script| script.headroom_bytes = Some(64 << 30));
+        });
+        let custody = RenderCustody::new();
+        custody.record_in(&pool, Some(PUBLIC_REPORT), HTML, &sha256_hex(HTML.as_bytes()), false, false);
+        refill.join().unwrap();
+        assert_eq!(reserved(&pool).0, held_document_bytes(HTML.len()));
+    }
+
+    /// Custody holds one document at a time: each later render's reservation replaces the
+    /// earlier one's, so the pool never carries more than one document's bytes for it.
+    #[test]
+    fn custody_holds_one_document_at_a_time() {
+        let pool = test_pool();
+        let custody = RenderCustody::new();
+        for round in 0..4usize {
+            let html = format!("{HTML}{}", "x".repeat(round * 1000));
+            custody.record_in(&pool, Some(PUBLIC_REPORT), &html, &sha256_hex(html.as_bytes()), false, false);
+            assert_eq!(reserved(&pool), (held_document_bytes(html.len()), held_document_bytes(html.len())), "round {round}");
+        }
+        assert!(custody.retire_active());
+        assert_eq!(reserved(&pool), (0, 0));
     }
 
     /// A completion superseded after its document was reserved drops it.
