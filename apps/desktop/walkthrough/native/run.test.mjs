@@ -379,8 +379,8 @@ function makePng(width, height, value = 0) {
 }
 
 test("attended arguments: the option, its defaults, and every refusal by name", () => {
-  assert.deepEqual(parseCommandLine(["--attended", "--out", "/o"]), { buildOnly: false, journeys: [], out: "/o", showWindow: true, attended: { start: null, limitMinutes: 20, hidden: false } });
-  assert.deepEqual(parseCommandLine(["--attended", "--hidden", "--limit-minutes", "1", "--out", "/o"]).attended, { start: null, limitMinutes: 1, hidden: true });
+  assert.deepEqual(parseCommandLine(["--attended", "--out", "/o"]), { buildOnly: false, journeys: [], out: "/o", showWindow: true, attended: { start: null, limitMinutes: 20, hidden: false, attendantOnScreen: null } });
+  assert.deepEqual(parseCommandLine(["--attended", "--hidden", "--limit-minutes", "1", "--out", "/o"]).attended, { start: null, limitMinutes: 1, hidden: true, attendantOnScreen: null });
   assert.equal(parseCommandLine(["--attended", "--hidden", "--out", "/o"]).showWindow, false);
   assert.equal(parseCommandLine(["--attended", "--journey", "prepared-project", "--out", "/o"]).attended.start, "prepared-project");
   assert.equal(parseCommandLine(["--attended", "--journey", "reference-system", "--limit-minutes", "60", "--out", "/o"]).attended.start, "reference-system");
@@ -1152,4 +1152,124 @@ test("a refusal for a mark names the mark found, as the record does, and says th
   assert.match(line, /not launched, and nothing in --out was changed\. Start the attended launch before the attendant's screen tool is started, and start that tool only after the handover is printed$/);
   assert.match(markRefusalLine({ ...none, check_failures: ["lsappinfo list: exit 1"] }), /a check that could not be made \(lsappinfo list: exit 1\)/);
   assert.match(markRefusalLine({ ...none, app_v4_candidate_bundle: true }), /^NATIVE-SMOKE-MARK-PRESENT: a running App v4 candidate bundle: /);
+});
+
+// ---------------------------------------------------------------- the attended start's stated exemption from the marks
+
+import { ATTENDANT_STATEMENT, MARK_PRESENT, marksDecision } from "../../native-smoke/judged-launch.mjs";
+import { markNames } from "./run.mjs";
+
+const NO_MARKS = { sky_computer_use_service_launchd: false, sky_computer_use_service_process: false, codex_app_server_stdio: false, app_v4_candidate_bundle: false, check_failures: [] };
+
+test("--attendant-on-screen is an option of --attended only, naming who states it", () => {
+  assert.equal(parseCommandLine(["--attended", "--attendant-on-screen", "the lane's agent", "--out", "/o"]).attended.attendantOnScreen, "the lane's agent");
+  assert.match(parseCommandLine(["--attendant-on-screen", "x"]).error, /--attendant-on-screen is an option of --attended/);
+  assert.match(parseCommandLine(["--journey", "exports", "--attendant-on-screen", "x"]).error, /is an option of --attended/);
+  assert.match(parseCommandLine(["--attended", "--attendant-on-screen", "--out", "/o"]).error, /needs a value/);
+  assert.match(parseCommandLine(["--attended", "--attendant-on-screen", " ", "--out", "/o"]).error, /1 to 200 characters on one line/);
+  assert.match(parseCommandLine(["--attended", "--attendant-on-screen", "a\nb", "--out", "/o"]).error, /on one line/);
+  assert.match(parseCommandLine(["--attended", "--attendant-on-screen", "a", "--attendant-on-screen", "b", "--out", "/o"]).error, /given twice/);
+});
+
+test("the statement covers the marks of an agent on the screen only: never a check not made, never another application's bundle", () => {
+  const stated = { stated_by: "the lane's agent" };
+  const sky = { ...NO_MARKS, sky_computer_use_service_process: true, sky_computer_use_service_launchd: true };
+  const codex = { ...NO_MARKS, codex_app_server_stdio: true };
+  assert.deepEqual(marksDecision(NO_MARKS, null), { refuse: false, exempted: [] });
+  assert.deepEqual(marksDecision(sky, null), { refuse: true, exempted: [] });
+  assert.deepEqual(marksDecision(sky, stated), { refuse: false, exempted: ["sky_computer_use_service_launchd", "sky_computer_use_service_process"] });
+  assert.deepEqual(marksDecision(codex, stated), { refuse: false, exempted: ["codex_app_server_stdio"] });
+  assert.deepEqual(marksDecision({ ...sky, check_failures: ["lsappinfo list: exit 1"] }, stated), { refuse: true, exempted: [] });
+  assert.deepEqual(marksDecision({ ...NO_MARKS, check_failures: ["launchctl list: exit 5"] }, stated), { refuse: true, exempted: [] });
+  assert.deepEqual(marksDecision({ ...sky, app_v4_candidate_bundle: true }, stated), { refuse: true, exempted: [] });
+  assert.deepEqual(marksDecision(sky, { stated_by: " " }), { refuse: true, exempted: [] });
+  // The refusal's line names the mark, and says what the statement does not cover.
+  assert.match(markRefusalLineOf(sky), /^NATIVE-SMOKE-MARK-PRESENT: SkyComputerUseService under launchd; a SkyComputerUseService process: .*nothing in --out was changed\..*--attendant-on-screen <who states it>$/);
+  assert.match(markRefusalLineOf({ ...sky, app_v4_candidate_bundle: true }, stated), /a running App v4 candidate bundle: .*covers the screen service and the app-server only, never a check that could not be made or another application's candidate bundle$/);
+});
+import { markRefusalLine as markRefusalLineFn } from "./run.mjs";
+const markRefusalLineOf = (marks, attendant = null) => markRefusalLineFn(marks, { attendant });
+
+/** One judgedPhase start of a stand-in app, with the marks answered as `marks` gives them. */
+async function standInPhase(t, { marks, attendant }) {
+  const dir = scratch(t);
+  const executable = path.join(dir, "stand-in-app");
+  copyFileSync(process.execPath, executable, fsConstants.COPYFILE_FICLONE);
+  const script = path.join(dir, "stand-in.cjs");
+  writeFileSync(script, `require("node:fs").writeFileSync(process.env.SWBPIPE_NATIVE_SMOKE_REPORT, JSON.stringify({ ok: true, nonce: "n" })); require("node:fs").writeFileSync(process.env.SWBPIPE_NATIVE_SMOKE_REPORT + ".started", "1");`);
+  const reportPath = path.join(dir, "report.json");
+  const answer = (status, stdout = "") => ({ status, stdout, stderr: "", error: undefined });
+  const marksRun = (command, args) => {
+    if (command === "/bin/launchctl") return marks.launchctlFails ? answer(5) : answer(0, marks.skyLaunchd ? "-\t0\tapplication.SkyComputerUseService\n" : "");
+    if (command.endsWith("pgrep")) return (args[1] === "SkyComputerUseService" && marks.sky) || (args[1].startsWith("codex app-server") && marks.codex) ? answer(0, "4242\n") : answer(1);
+    return answer(0, marks.bundle ? "dev.chirality.app-v4.candidate\n" : "");
+  };
+  const launches = {};
+  const seen = [];
+  const result = await judgedPhase({
+    phase: "attended/walk", checkName: "c", launches, check: () => {}, summaryPath: path.join(dir, "summary.json"),
+    executable, command: executable, commandArgs: [script], cwd: dir, stdio: ["ignore", "ignore", "ignore"],
+    env: { ...process.env, SWBPIPE_NATIVE_SMOKE_REPORT: reportPath }, timeoutMs: 30_000, reportPath, nonce: "n", censusBoundMs: 2_000,
+    marksRun, beforeStart: (...args) => seen.push(args), ...(attendant ? { attendant } : {})
+  });
+  return { result, launches, seen, started: lstatSync(`${reportPath}.started`, { throwIfNoEntry: false }) !== undefined, dir };
+}
+
+test("an attended start with the statement and an agent's marks present starts, and records the marks and who stated it", { skip: !["darwin", "linux"].includes(process.platform) && "the census runs on macOS and Linux" }, async (t) => {
+  const run = await standInPhase(t, { marks: { sky: true, skyLaunchd: true, codex: true }, attendant: { stated_by: "the lane's agent" } });
+  assert.equal(run.result.stop, undefined);
+  assert.equal(run.started, true);
+  assert.deepEqual(run.launches["attended/walk"].attendant, { stated_by: "the lane's agent", statement: ATTENDANT_STATEMENT, exempted: ["sky_computer_use_service_launchd", "sky_computer_use_service_process", "codex_app_server_stdio"] });
+  assert.deepEqual(markNames(run.launches["attended/walk"].marks), ["SkyComputerUseService under launchd", "a SkyComputerUseService process", "a \"codex app-server --listen stdio://\" process"]);
+  // beforeStart is told the marks it started with.
+  assert.equal(run.seen.length, 1);
+  assert.deepEqual(run.seen[0][0].exempted, ["sky_computer_use_service_launchd", "sky_computer_use_service_process", "codex_app_server_stdio"]);
+});
+
+test("without the statement, or with it and a check not made or another application's bundle, the start is refused and nothing starts", { skip: !["darwin", "linux"].includes(process.platform) && "the census runs on macOS and Linux" }, async (t) => {
+  const cases = [
+    ["not stated, a mark present", { sky: true }, null],
+    ["stated, a check not made", { sky: true, launchctlFails: true }, { stated_by: "a" }],
+    ["stated, another application's bundle", { sky: true, bundle: true }, { stated_by: "a" }]
+  ];
+  for (const [label, marks, attendant] of cases) {
+    const run = await standInPhase(t, { marks, attendant });
+    assert.deepEqual([run.result.stop, run.result.exitCode, run.started, run.seen.length], [MARK_PRESENT, 2, false, 0], label);
+    assert.equal(run.launches["attended/walk"].launched, false, label);
+  }
+  // Without the statement the record is exactly as before: no attendant member, and beforeStart is called with nothing.
+  const plain = await standInPhase(t, { marks: {} });
+  assert.equal(plain.launches["attended/walk"].attendant, undefined);
+  assert.deepEqual(plain.seen, [[]]);
+});
+
+test("no unattended path can reach the statement: the other runners and the journeys' launch never pass it, and still refuse for a mark", () => {
+  const read = (file) => readFileSync(new URL(file, import.meta.url), "utf8");
+  for (const file of ["../../native-smoke/run.mjs", "../../native-smoke/mbf-journey.mjs", "../../native-smoke/report-standing-journey.mjs", "../../native-smoke/perf.mjs", "../run.mjs"]) {
+    assert.doesNotMatch(read(file), /marksDecision|ATTENDANT_|attendant:|attendant-on-screen/, file);
+  }
+  for (const file of ["../../native-smoke/run.mjs", "../../native-smoke/mbf-journey.mjs"]) assert.match(read(file), /judgedPhase\(/, file);
+  assert.match(read("../../native-smoke/perf.mjs"), /if \(marksRefuse\(record\.marks\)\)/);
+  assert.match(read("../../native-smoke/report-standing-journey.mjs"), /pgrep", \["-f", "SkyComputerUseService"\]/);
+  // In this runner the statement reaches judgedPhase only through the attended launch's judge.
+  const runner = read("./run.mjs");
+  const walk = runner.slice(runner.indexOf("  async function walk("), runner.indexOf("  // The attended launch (--attended): launch() as every journey's"));
+  assert.ok(walk.length > 100);
+  assert.doesNotMatch(walk, /attendant/);
+  assert.equal(runner.match(/attendant: judge\.attendant/g)?.length, 1);
+});
+
+test("the handover and the index say the launch started with an agent on the screen, and who stated it was the attendant", (t) => {
+  const facts = (lines) => Object.fromEntries(lines.map((line) => line.match(/^attended\.([a-z_]+)=(.*)$/).slice(1)));
+  const stated = facts(attendedStartLines({ pid: 1, observed: { ok: true }, attendantOnScreen: { stated_by: "the lane's agent", marks: ["a SkyComputerUseService process"] } }));
+  assert.equal(stated.attendant_on_screen, `stated by the lane's agent: ${ATTENDANT_STATEMENT}; marks present directly before the start: a SkyComputerUseService process`);
+  assert.equal(facts(attendedStartLines({ pid: 1, observed: { ok: true } })).attendant_on_screen, "not stated");
+  const lines = attendedStartLines({ pid: 1, observed: { ok: true } });
+  assert.equal(lines.at(-1), "attended.ready=yes");
+  const out = scratch(t);
+  writeAttendedPart(out, { title: "Attended", revision: { commit: "abc" }, build: { kind: "k" }, launch: { attended: true, attendant_on_screen: { stated: true, stated_by: "the lane's agent", statement: ATTENDANT_STATEMENT, option: "--attendant-on-screen", marks_at_runner_check: ["a SkyComputerUseService process"], marks_before_start: ["a SkyComputerUseService process"], exempted: ["sky_computer_use_service_process"] } }, captures: { screens: [], records_without_picture: [], other: [] } });
+  composeIndex(out);
+  const index = JSON.parse(readFileSync(path.join(out, "INDEX.json"), "utf8"));
+  assert.equal(index.journeys[0].launch.attendant_on_screen.stated_by, "the lane's agent");
+  assert.match(readFileSync(path.join(out, "index.html"), "utf8"), /Started with an agent on the screen: a SkyComputerUseService process\. the lane&#39;s agent stated|Started with an agent on the screen: a SkyComputerUseService process\. the lane's agent stated that the agent operating the screen is this launch's attendant \(--attendant-on-screen\)/);
 });

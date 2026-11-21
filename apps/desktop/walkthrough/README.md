@@ -211,7 +211,7 @@ might not.
 ## The attended launch
 
 ```sh
-npm run walkthrough:native --workspace apps/desktop -- --attended [--journey <name>] [--limit-minutes N] [--hidden] --out <folder>
+npm run walkthrough:native --workspace apps/desktop -- --attended [--journey <name>] [--limit-minutes N] [--hidden] [--attendant-on-screen <who>] --out <folder>
 ```
 
 **What it is for.** The journeys above cannot show the actual window: the 3D
@@ -239,15 +239,27 @@ screen. `--out` is required; it may already hold journeys' screens, but not an
 earlier attended launch's `captures/` folder. A launch refused for its `--out`
 changes nothing in it.
 
-**The order that works.** Every launch is refused while a mark of an agent
+**An agent on the screen.** Every launch is refused while a mark of an agent
 operating the App on the screen is present (`native-smoke/marks-check.mjs`),
-and the screen-driving tool an attendant uses starts one of them. So the
-attended launch is started first, by a party whose tools have not started that
-service, and the attendant's screen tool is started only after the handover is
-printed. The marks are checked once before anything in `--out` is touched, a
-refusal that changes nothing whose line names each mark found, and again
-directly before the start, as for every launch, where the run's line `marks,
-directly before the launch` names them as the record does.
+and the screen-driving tool an attendant uses raises one of them. For the
+first attended launch, starting it before the attendant's screen tool, and
+starting that tool only after the handover is printed, is enough. A walkthrough
+of every use case needs more than one launch (each ends when the app quits, and
+a use case that starts from another model needs its own start), so a later one
+comes with the attendant's tool running. Then the caller states, with
+`--attendant-on-screen <who>`, who says that the agent operating the screen is
+this launch's attendant. With the statement, the screen service
+(`SkyComputerUseService`) and the app-server (`codex app-server --listen
+stdio://`) do not refuse the start; a check that could not be made, or a
+running App v4 candidate bundle, refuses as always. Without it, an attended
+start is refused for a mark as every launch is. The option exists only with
+`--attended`. The marks are checked once before anything in `--out` is
+touched, a refusal that changes nothing and whose line names each mark found,
+and again directly before the start, as for every launch. The marks found and
+the statement, with who made it, are printed in the handover
+(`attended.attendant_on_screen`), kept in the launch's record
+(`attendant_on_screen`) and shown in the index under the launch, so that the
+reviewers of the walkthrough can see it started with an agent on the screen.
 
 **The handover.** Only once the driver reports the start made, with this
 launch's nonce, does the command print lines of the form
@@ -256,8 +268,9 @@ finds it), `process_name`, `bound_app`, `launch_copy` (the private copy that
 runs), `window_title_ends_with` (the app titles its window `SWBPIPE`,
 `<project> — SWBPIPE` or `<project> · Edited — SWBPIPE`), `window_shown` and
 `page_visibility` (as the driver observed them, not as asked), `start`,
-`finish_file`, `captures`, `limit_minutes`, `ends_at`, `chooser`, and last
-`attended.ready=yes`. A start that fails prints no ready line: the launch ends
+`finish_file`, `captures`, `limit_minutes`, `ends_at`, `chooser`,
+`attendant_on_screen` (the statement and who made it, with the marks present
+directly before the start, or `not stated`), and last `attended.ready=yes`. A start that fails prints no ready line: the launch ends
 as `start-failed`.
 
 **How it ends.** At the first of: the app exits by itself (the attendant's

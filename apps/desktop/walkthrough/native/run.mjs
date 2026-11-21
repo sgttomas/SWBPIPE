@@ -3,7 +3,7 @@
 //
 //   npm run walkthrough:native --workspace apps/desktop -- --build-only
 //   npm run walkthrough:native --workspace apps/desktop -- [--journey <names>] [--out DIR] [--show-window]
-//   npm run walkthrough:native --workspace apps/desktop -- --attended [--journey <name>] [--limit-minutes N] [--hidden] --out DIR
+//   npm run walkthrough:native --workspace apps/desktop -- --attended [--journey <name>] [--limit-minutes N] [--hidden] [--attendant-on-screen <who>] --out DIR
 //
 // Run each under a host slot, as separate jobs, as `native-smoke/evidence-journeys.mjs` says of itself; each takes
 // the worktree build lock itself. --build-only builds and binds the `native-smoke` app exactly as that runner does
@@ -54,7 +54,10 @@
 //
 // --attended (ATTENDED below): one launch made exactly as a journey's (the same launch function, environment,
 // confinement, census, tripwire and close), for an attendant, an agent outside the application that drives the actual
-// window. A refusal for --out is read-only and comes before either cleanup. The driver makes only the start (with
+// window. A refusal for --out, or for a mark, is read-only and comes before either cleanup. With
+// --attendant-on-screen <who>, the caller's statement that the agent operating the screen is this launch's attendant,
+// the marks of that agent do not refuse the start (judged-launch.mjs marksDecision; never a check not made or another
+// application's bundle), and the marks and the statement are printed at the handover and recorded. The driver makes only the start (with
 // --journey, that journey's `place` and `open`; without it, the app as first opened), shows the window unless
 // --hidden, reads the menu, stops the page's file fields and the agent's Start agent, writes the checkpoint `start`,
 // and then takes no step: it only records, with times, what it stopped, each report print the build substitutes and
@@ -78,6 +81,7 @@ import path from "node:path";
 import { fileURLToPath } from "node:url";
 import { emptyOutput, outputRefusal } from "../run.mjs";
 import { readReport } from "../../native-smoke/launch-outcome.mjs";
+import { ATTENDANT_STATEMENT, marksDecision } from "../../native-smoke/judged-launch.mjs";
 import { ATTENDED_SURFACE, composeIndex } from "../compose-index.mjs";
 import { readScreenCounts, scrollLongestRegion } from "../screen-counts.mjs";
 import { takeSnapshot } from "./snapshot.mjs";
@@ -289,23 +293,31 @@ export const UNEXPLAINED_BASIS = "This file was found in captures/ without a sid
  * marksCheck), naming each mark found and each check that could not be made, as the run's record does. An attended
  * launch is started before the attendant's screen tool is up: that tool's service is one of the marks.
  */
-export function markRefusalLine(marks) {
-  const found = [
+export function markRefusalLine(marks, { attendant = null } = {}) {
+  const found = markNames(marks);
+  const head = `NATIVE-SMOKE-MARK-PRESENT: ${found.length ? found.join("; ") : "a mark"}: an agent may be operating the App on the screen; not launched, and nothing in --out was changed.`;
+  if (attendant) return `${head} The statement that the agent on the screen is this launch's attendant (--attendant-on-screen) covers the screen service and the app-server only, never a check that could not be made or another application's candidate bundle`;
+  return `${head} Start the attended launch before the attendant's screen tool is started, and start that tool only after the handover is printed; or, when the agent on the screen is this launch's attendant, say so with --attendant-on-screen <who states it>`;
+}
+/** Each mark marksCheck found, and each check it could not make, in words. */
+export function markNames(marks) {
+  return [
     marks?.sky_computer_use_service_launchd ? "SkyComputerUseService under launchd" : null,
     marks?.sky_computer_use_service_process ? "a SkyComputerUseService process" : null,
     marks?.codex_app_server_stdio ? "a \"codex app-server --listen stdio://\" process" : null,
     marks?.app_v4_candidate_bundle ? "a running App v4 candidate bundle" : null,
     ...(marks?.check_failures ?? []).map((failure) => `a check that could not be made (${failure})`)
   ].filter(Boolean);
-  return `NATIVE-SMOKE-MARK-PRESENT: ${found.length ? found.join("; ") : "a mark"}: an agent may be operating the App on the screen; not launched, and nothing in --out was changed. Start the attended launch before the attendant's screen tool is started, and start that tool only after the handover is printed`;
 }
 
 /**
  * The command line with --attended: { buildOnly: false, journeys: [], out, showWindow, attended: { start, limitMinutes,
- * hidden } } or { error }. --out is required; --journey names at most one journey, and it must declare `place`.
+ * hidden, attendantOnScreen } } or { error }. --out is required; --journey names at most one journey, and it must
+ * declare `place`. --attendant-on-screen <who> is the caller's statement, by who makes it, that the agent operating
+ * the screen is this launch's attendant (judged-launch.mjs marksDecision); null when not given.
  */
 export function parseAttendedArguments(argv) {
-  const options = { attended: 0, journey: null, out: null, limit: null, hidden: 0 };
+  const options = { attended: 0, journey: null, out: null, limit: null, hidden: 0, attendant: null };
   for (let index = 0; index < argv.length; index += 1) {
     const name = argv[index];
     if (name === "--attended" || name === "--hidden") {
@@ -315,7 +327,7 @@ export function parseAttendedArguments(argv) {
     }
     if (name === "--build-only") return { error: "--attended launches the bound app and cannot be given with --build-only: build first, as its own job" };
     if (name === "--show-window") return { error: "--attended brings the window to the front unless --hidden; --show-window is not given with it" };
-    const key = { "--journey": "journey", "--out": "out", "--limit-minutes": "limit" }[name];
+    const key = { "--journey": "journey", "--out": "out", "--limit-minutes": "limit", "--attendant-on-screen": "attendant" }[name];
     if (!key) return { error: `unknown argument ${name}` };
     const value = argv[index + 1];
     if (value === undefined || value.startsWith("--")) return { error: `${name} needs a value` };
@@ -324,6 +336,9 @@ export function parseAttendedArguments(argv) {
     index += 1;
   }
   if (options.out === null) return { error: "--attended needs --out <folder>: the record and the captures folder go there" };
+  if (options.attendant !== null && (options.attendant.trim() === "" || options.attendant.length > 200 || /[\u0000-\u001f\u007f]/.test(options.attendant))) {
+    return { error: "--attendant-on-screen names who states that the agent on the screen is this launch's attendant: 1 to 200 characters on one line" };
+  }
   let start = null;
   if (options.journey !== null) {
     const names = options.journey.split(",").map((item) => item.trim()).filter(Boolean);
@@ -341,13 +356,13 @@ export function parseAttendedArguments(argv) {
       return { error: `--limit-minutes is a whole number of minutes from ${ATTENDED.limit.min_minutes} to ${ATTENDED.limit.max_minutes}` };
     }
   }
-  return { buildOnly: false, journeys: [], out: path.resolve(options.out), showWindow: options.hidden === 0, attended: { start, limitMinutes, hidden: options.hidden === 1 } };
+  return { buildOnly: false, journeys: [], out: path.resolve(options.out), showWindow: options.hidden === 0, attended: { start, limitMinutes, hidden: options.hidden === 1, attendantOnScreen: options.attendant === null ? null : options.attendant.trim() } };
 }
 
 /** The whole command line: the attended form when --attended is given, otherwise parseArguments. */
 export function parseCommandLine(argv, options) {
   if (argv.includes("--attended")) return parseAttendedArguments(argv);
-  const attendedOnly = argv.find((item) => item === "--hidden" || item === "--limit-minutes");
+  const attendedOnly = argv.find((item) => item === "--hidden" || item === "--limit-minutes" || item === "--attendant-on-screen");
   if (attendedOnly) return { error: `${attendedOnly} is an option of --attended` };
   return { ...parseArguments(argv, options), attended: null };
 }
@@ -379,7 +394,7 @@ const lstatOrNull = (file) => { try { return fs.lstatSync(file); } catch { retur
  * `attended.<key>=<value>`, the last `attended.ready=yes`. What it says of the window is what the driver observed at
  * the start (`observed`, the checkpoint's window_shown and page_visibility), never the option asked for.
  */
-export function attendedStartLines({ pid, boundApp, launchCopy, finishFile, captures, limitMinutes, endsAt, observed, start }) {
+export function attendedStartLines({ pid, boundApp, launchCopy, finishFile, captures, limitMinutes, endsAt, observed, start, attendantOnScreen = null }) {
   return [
     `attended.pid=${pid}`,
     `attended.process_name=${ATTENDED.process_name}`,
@@ -394,6 +409,7 @@ export function attendedStartLines({ pid, boundApp, launchCopy, finishFile, capt
     `attended.limit_minutes=${limitMinutes}`,
     `attended.ends_at=${endsAt}`,
     `attended.chooser=${ATTENDED.chooser}`,
+    `attended.attendant_on_screen=${attendantOnScreen ? `stated by ${attendantOnScreen.stated_by}: ${ATTENDANT_STATEMENT}; marks present directly before the start: ${attendantOnScreen.marks.length ? attendantOnScreen.marks.join("; ") : "none"}` : "not stated"}`,
     "attended.ready=yes"
   ];
 }
@@ -837,7 +853,7 @@ async function main() {
   } = await import("../../native-smoke/launch-env.mjs");
   const { newNonce, readReport } = await import("../../native-smoke/launch-outcome.mjs");
   const { judgedPhase, phaseContinuation } = await import("../../native-smoke/judged-launch.mjs");
-  const { marksCheck, marksRefuse } = await import("../../native-smoke/marks-check.mjs");
+  const { marksCheck } = await import("../../native-smoke/marks-check.mjs");
   const { HOME_MARKER, LEFT_HOME_RULE, NOTHING_ELSE_WATCHED, PROCESS_SCOPE, STRICT_CHOOSER_EXIT, TRIPWIRE_LIMITS, homeRemovalRefusal, readHomeMarker, removalIdentityRefusal, sha256Hex } = await import("../../native-smoke/evidence-checks.mjs");
 
   const refuseLine = (text) => console.error(`${NAME}: ${text}`);
@@ -893,13 +909,16 @@ async function main() {
       await exitAfterSignals(2);
     }
     // An attended launch's marks, read once here, before any cleanup, so that a refusal for a mark changes nothing;
-    // judgedPhase checks them again directly before the start, as for every launch.
+    // judgedPhase checks them again directly before the start, as for every launch. With --attendant-on-screen the
+    // marks of the agent operating the screen do not refuse it (marksDecision); nothing else changes.
     if (attended) {
       const marks = marksCheck();
-      if (marksRefuse(marks)) {
-        refuseLine(markRefusalLine(marks));
+      const attendant = attended.attendantOnScreen ? { stated_by: attended.attendantOnScreen } : null;
+      if (marksDecision(marks, attendant).refuse) {
+        refuseLine(markRefusalLine(marks, { attendant }));
         await exitAfterSignals(2);
       }
+      attended.marksAtCheck = marks;
     }
     try {
       emptyNativeOutput(out, selected);
@@ -1117,8 +1136,9 @@ async function main() {
       phase, checkName: "the launch ended cleanly and its report is this run's", launches, check: judge?.check ?? check,
       summaryPath: path.join(RUN_ROOT, "summary.json"), summary: runRecord,
       executable: binary, command: CAFFEINATE, commandArgs: ["-di", binary], cwd: where.root, env, timeoutMs, reportPath: judge?.reportPath ?? report, nonce,
-      censusBoundMs: TERMINATION_BOUND_MS, beforeStart: () => { beforeStart(where); judge?.beforeStart({ nonce }); },
-      ...(judge?.abort ? { abort: judge.abort } : {})
+      censusBoundMs: TERMINATION_BOUND_MS, beforeStart: (seen) => { beforeStart(where); judge?.beforeStart({ nonce, ...(seen ?? {}) }); },
+      ...(judge?.abort ? { abort: judge.abort } : {}),
+      ...(judge?.attendant ? { attendant: judge.attendant } : {})
     }).then(phaseContinuation({ prefix: NAME, phase, state, evidenceRoot: RUN_ROOT }));
     if (!judge && launches[phase]?.outcome?.status === STRICT_CHOOSER_EXIT) {
       const lastAct = readReport(`${report}.act.json`).report?.act ?? "unnamed (the driver recorded no act)";
@@ -1178,7 +1198,7 @@ async function main() {
 
   // The attended launch (--attended): launch() as every journey's, the start only, then the attendant's; its record and
   // the attendant's captures after the census and the home's removal.
-  async function walkAttended({ start, limitMinutes, hidden }) {
+  async function walkAttended({ start, limitMinutes, hidden, attendantOnScreen = null, marksAtCheck = null }) {
     const name = ATTENDED.name;
     if (buildLock.inherited) {
       check("the runner holds the worktree build lock itself, so the launch leads a process group of its own", false, "an inherited build lock leaves the launch in this runner's group, which the finish file cannot end alone; not launched");
@@ -1210,10 +1230,12 @@ async function main() {
     const startReport = `${report}.start.json`;
     const judged = [];
     let startedAt = null;
+    let marksBeforeStart = null;
     const watch = attendedWatch({
       executable: binary, finishFile, startReport, census: censusOf, limitMs: limitMinutes * 60_000,
       onReady: ({ pid, start: observed }) => {
-        for (const line of attendedStartLines({ pid, boundApp: app.binary, launchCopy: binary, finishFile, captures, limitMinutes, endsAt: new Date(startedAt + limitMinutes * 60_000).toISOString(), observed, start })) console.log(line);
+        const onScreen = attendantOnScreen ? { stated_by: attendantOnScreen, marks: markNames(marksBeforeStart) } : null;
+        for (const line of attendedStartLines({ pid, boundApp: app.binary, launchCopy: binary, finishFile, captures, limitMinutes, endsAt: new Date(startedAt + limitMinutes * 60_000).toISOString(), observed, start, attendantOnScreen: onScreen })) console.log(line);
       }
     });
     const lockedBefore = hidden ? null : readScreenLock();
@@ -1224,7 +1246,8 @@ async function main() {
         reportPath: startReport,
         check: (checkName, ok, detail) => judged.push({ name: checkName, ok, detail }),
         abort: watch.signal,
-        beforeStart: ({ nonce }) => { startedAt = Date.now(); watch.start({ nonce }); }
+        beforeStart: ({ nonce, marks }) => { startedAt = Date.now(); marksBeforeStart = marks ?? null; watch.start({ nonce }); },
+        ...(attendantOnScreen ? { attendant: { stated_by: attendantOnScreen } } : {})
       }
     });
     const watched = watch.stop();
@@ -1277,6 +1300,9 @@ async function main() {
         status: outcome?.status ?? null, signal: outcome?.signal ?? null, timed_out: outcome?.timed_out ?? null,
         census: outcome?.census ?? null,
         guards: startRecord?.guards ?? [],
+        attendant_on_screen: attendantOnScreen
+          ? { stated: true, stated_by: attendantOnScreen, statement: ATTENDANT_STATEMENT, option: "--attendant-on-screen", marks_at_runner_check: markNames(marksAtCheck), marks_before_start: markNames(launches[phase]?.marks), exempted: launches[phase]?.attendant?.exempted ?? [] }
+          : { stated: false, marks_before_start: markNames(launches[phase]?.marks) },
         substitutions,
         stopped_by_launch: substitutions.filter((item) => /stopped by the launch$/.test(item.kind ?? "")),
         observed: { records: observed.records.length, rejected: observed.rejected, bounds: OBSERVED_BOUNDS, what: "the application's own report of the words and controls on screen, made by the driver without pressing, focusing or changing anything" },
