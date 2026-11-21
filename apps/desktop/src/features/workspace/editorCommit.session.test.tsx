@@ -12,6 +12,7 @@ import { join, relative, resolve } from "node:path";
 import { afterEach, describe, expect, it, vi } from "vitest";
 import * as previewService from "../../services/previewService";
 import * as operationBatchService from "../../services/operationBatchService";
+import * as hashService from "../../services/hashService";
 import { canonicalJsonString, computeModelHash } from "../../services/hashService";
 import { requeueRetainedRecord, stampImportedBatch, type EditorBuilder, type EditorCommitResult, type EditorEdit, type EditorInputGuard } from "../../services/operationAuthorship";
 import { stampAgentOperations } from "../../services/embeddedAgentSession";
@@ -410,6 +411,65 @@ describe("refusals change nothing", () => {
     expect(committed(await run(() => first as Promise<EditorCommitResult>))).toBeTruthy();
     expect(result.current.model.model!.nodes[2].position.y).toBe(2.5);
     expect(result.current.model.model!.nodes[1].position.y).toBe(0);
+  });
+});
+
+describe("what the person previewed is what is applied (P2)", () => {
+  it("a nonempty reconnect whose preview rows are missing is refused before a handle is issued", async () => {
+    const result = await session();
+    const before = snapshot(result);
+    alter("validateOperationBatch", (outcome) => { outcome.operation_outcomes = []; });
+    const previewed = await run(() => bindDialog(result, reconnect).preview({ pipeId: "pipe:P", targetNode: "node:C" }));
+    expect(refused(previewed).reason).toMatch(/holds 0 operation steps for the [1-9]\d* submitted/);
+    expect(snapshot(result)).toEqual(before);
+  });
+
+  it("reordered rows are refused, in the preview and in the application", async () => {
+    const result = await session(bulkChangeModel);
+    const input = { scope: [{ type: "pipe" as const, id: "pipe:P2" }, { type: "pipe" as const, id: "pipe:P3" }], request: { kind: "material" as const, materialId: "material:alloy" } };
+    const before = snapshot(result);
+    alter("validateOperationBatch", (outcome) => { outcome.operation_outcomes.reverse(); });
+    expect(refused(await run(() => bindCommit(result, bulkChange)(input))).reason).toContain("does not match submitted operation 1 at its place");
+    alter("applyOperationBatch", (outcome) => { outcome.operation_outcomes.reverse(); });
+    expect(refused(await run(() => bindCommit(result, bulkChange)(input))).reason).toContain("does not match submitted operation 1 at its place");
+    expect(snapshot(result)).toEqual(before);
+  });
+
+  it("an apply reply that reports application with a blocking finding is refused", async () => {
+    const result = await session();
+    const before = snapshot(result);
+    alter("applyOperationBatch", (outcome) => { outcome.diagnostics = [...outcome.diagnostics, { id: "d", code: "INVENTED-BLOCKING", severity: "blocking", message: "Invented blocking finding.", remediation: "", affected_refs: [], source: "test" }]; });
+    const outcome = refused(await run(() => bindCommit(result, gridCell)({ nodeId: "node:C", axis: "y", value: "2.5" })));
+    expect(outcome.reason).toContain("Invented blocking finding.");
+    expect(outcome.findings.map((item) => item.code)).toContain("INVENTED-BLOCKING");
+    expect(snapshot(result)).toEqual(before);
+  });
+
+  it("an apply reply with no applied-model hash is refused", async () => {
+    const result = await session();
+    const before = snapshot(result);
+    alter("applyOperationBatch", (outcome) => { outcome.applied_model_backend_hash = null; });
+    expect(refused(await run(() => bindCommit(result, gridCell)({ nodeId: "node:C", axis: "y", value: "2.5" }))).reason).toContain("reported no hash of the applied model");
+    expect(snapshot(result)).toEqual(before);
+  });
+
+  it("an applied model whose hash cannot be computed is refused", async () => {
+    const result = await session();
+    const before = snapshot(result);
+    const real = hashService.computeModelHash;
+    vi.spyOn(hashService, "computeModelHash").mockImplementation(async (model) => model.nodes[2]?.position.y === 2.5 ? null : real(model));
+    expect(refused(await run(() => bindCommit(result, gridCell)({ nodeId: "node:C", axis: "y", value: "2.5" }))).reason).toContain("hash could not be computed");
+    expect(snapshot(result)).toEqual(before);
+  });
+
+  it("an apply reply with neither hash present is refused: an absent hash never equals another absent hash", async () => {
+    const result = await session();
+    const before = snapshot(result);
+    const real = hashService.computeModelHash;
+    vi.spyOn(hashService, "computeModelHash").mockImplementation(async (model) => model.nodes[2]?.position.y === 2.5 ? null : real(model));
+    alter("applyOperationBatch", (outcome) => { delete (outcome as { applied_model_backend_hash?: unknown }).applied_model_backend_hash; });
+    expect(refused(await run(() => bindCommit(result, gridCell)({ nodeId: "node:C", axis: "y", value: "2.5" }))).reason).toContain("reported no hash of the applied model");
+    expect(snapshot(result)).toEqual(before);
   });
 });
 

@@ -2667,6 +2667,24 @@ export function useWorkspaceSession() {
     return messages.length ? `${messages.join(" ")} Nothing was applied.` : `The engine did not apply this change (${outcome.validation.application_status}). Nothing was applied.`;
   }
 
+  /** P2: what the person previewed is what is applied. The reply holds one step per submitted operation, in order,
+   * each naming that operation (index, id, change, target, kind) with a successful disposition and no blocking
+   * finding, as the viewport route checks (routeDraft.ts `validationMatchesSubmission`). The reason, or null. */
+  function editorStepsMismatch(outcome: OperationBatchOutcome, batch: OperationBatch): string | null {
+    const steps = Array.isArray(outcome.operation_outcomes) ? outcome.operation_outcomes : [];
+    if (steps.length !== batch.operations.length) return `The engine's reply holds ${steps.length} operation steps for the ${batch.operations.length} submitted, so nothing was applied.`;
+    for (const [index, operation] of batch.operations.entries()) {
+      const step = steps[index];
+      if (!step || step.index !== index || step.operation_id !== operation.operation_id || step.change_id !== operation.change.change_id ||
+        step.target_object_type !== operation.target.object_type || step.target_ref !== operation.target.ref || step.change_kind !== operation.change.change_kind) {
+        return `The engine's reply does not match submitted operation ${index + 1} at its place, so nothing was applied.`;
+      }
+      if (step.simulation_status !== "validated_on_temporary_state") return `The engine did not validate submitted operation ${index + 1}, so nothing was applied.`;
+      if ((step.diagnostics ?? []).some((item) => item.severity === "blocking")) return `The engine reported a blocking finding on submitted operation ${index + 1}, so nothing was applied.`;
+    }
+    return null;
+  }
+
   /** The session's own operation request for an editor's edit: refused at once, with nothing toggled, counted or
    * cloned, while another request runs or no model is held (A10). The basis is captured here, at entry. */
   function beginEditorRequest(): EditorRefusal | Readonly<{ basisModel: PreviewModel; revision: number; generation: number; stillCurrent: () => boolean; release: () => void }> {
@@ -2720,6 +2738,8 @@ export function useWorkspaceSession() {
     if (validation.validation.batch_validation_status !== "passed" || blockingFindings(validation).length > 0) return editorRefusal(engineRefusalReason(validation), validation);
     if (validation.validation.diff_preview_status !== "generated") return editorRefusal("The engine generated no preview of this change, so nothing was applied.", validation);
     if (validation.simulation_disposition !== "validation_only_discarded") return editorRefusal("The engine's check did not end as a discarded validation, so nothing was applied.", validation);
+    const steps = editorStepsMismatch(validation, batch);
+    if (steps) return editorRefusal(steps, validation);
     return { batch, fingerprint, basisModel, basisHash, validation };
   }
 
@@ -2738,12 +2758,17 @@ export function useWorkspaceSession() {
     if (outcome.initial_model_hash?.value !== basisHash.value) return editorRefusal("The engine's application was made on another model, so nothing was applied.");
     if (outcome.batch_hash !== `sha256:${fingerprint}`) return editorRefusal("The engine applied other content than this change, so it was discarded and nothing was applied.");
     if (outcome.validation.application_status !== "applied_to_session_model") return editorRefusal(engineRefusalReason(outcome), outcome);
+    if (outcome.validation.batch_validation_status !== "passed" || blockingFindings(outcome).length > 0) return editorRefusal(engineRefusalReason(outcome), outcome);
     if (!outcome.applied_model || !outcome.acceptance || outcome.simulation_disposition !== "committed_as_one_batch") {
       return editorRefusal("The engine did not return a complete application receipt, so nothing was applied.", outcome);
     }
+    const appliedSteps = editorStepsMismatch(outcome, batch);
+    if (appliedSteps) return editorRefusal(appliedSteps, outcome);
+    if (typeof outcome.applied_model_backend_hash !== "string" || !outcome.applied_model_backend_hash) return editorRefusal("The engine reported no hash of the applied model, so nothing was applied.", outcome);
     const appliedHash = await computeModelHash(outcome.applied_model);
     if (!stillCurrent()) return editorRefusal(EDITOR_SUPERSEDED);
-    if (appliedHash?.value !== outcome.applied_model_backend_hash) return editorRefusal("The applied model does not match the hash the engine reported, so nothing was applied.", outcome);
+    if (!appliedHash?.value) return editorRefusal("The applied model's hash could not be computed, so nothing was applied.", outcome);
+    if (appliedHash.value !== outcome.applied_model_backend_hash) return editorRefusal("The applied model does not match the hash the engine reported, so nothing was applied.", outcome);
 
     // Prepare: every value the publication needs, as for an applied queued batch (`handleRunOperationBatch`),
     // computed before any state changes; the session keeps its own copies, none of them handed out.
