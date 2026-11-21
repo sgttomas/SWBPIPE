@@ -1377,6 +1377,54 @@ fn an_override_supplies_no_gravity_for_the_comparison() {
     }
 }
 
+/// The case's own applicable component weights take precedence over the
+/// document's when both are present (DEL-04-06 VER-004's case that
+/// distinguishes the case's own applied component-weight primitives from the
+/// document's; issue 452 decision 7). Beside a weight case elsewhere in the
+/// document at 9.79 m/s^2, the G10 case at 10 m/s^2 carrying the plan's own
+/// loads at 10 m/s^2 has no gravity finding (its own weights agree, and the
+/// document's are not read); carrying them at 9.80665 m/s^2 it has one,
+/// naming its own valve loads and 9.80665 m/s^2 only; carrying none, it has
+/// one naming the document's valve loads and 9.79 m/s^2. Both routes, both
+/// solver modes; the model checks raise the same finding, field for field.
+#[test]
+fn the_case_s_own_component_weights_take_precedence_over_the_document_s() {
+    let valve_ids = |loads: &[Value]| loads.iter().filter(|l| is_component_weight(l)).map(|l| json!(l["id"])).collect::<Vec<_>>();
+    for route in [Route::Pf, Route::Ex] {
+        let id = format!("SCW-CANT-{}-SEISMIC-XYZ-G10", route_tag(route));
+        let case_id = format!("case:{id}");
+        let alone = document(route, Model::Cant, ONE_MAPPED, vec![case_of(reference(&id), &case_id)]);
+        let elsewhere = applied_weight_case(&alone["model"], 9.79);
+        let document_valve = valve_ids(elsewhere["primitive_loads"].as_array().unwrap());
+        for own in [Some(10.0), Some(9.80665), None] {
+            let mut case = case_of(reference(&id), &case_id);
+            let own_loads = own.map(|g| plan_loads(&alone["model"], &case_id, g)).unwrap_or_default();
+            case["primitive_loads"] = Value::Array(own_loads.clone());
+            let wire = document(route, Model::Cant, ONE_MAPPED, vec![elsewhere.clone(), case]);
+            let checks = model_checks(&wire);
+            for mode in MODES {
+                let out = solved(&wire, mode, &id);
+                let found = findings(&out["diagnostics"], GRAVITY_DIFFERS, &case_id);
+                assert_eq!(findings(&checks, GRAVITY_DIFFERS, &case_id), found, "{id} {own:?} {mode:?}: the model checks raise the same");
+                match own {
+                    Some(g) if g == 10.0 => assert!(found.is_empty(), "{id} {mode:?}: the case's own weights agree: {found:?}"),
+                    Some(_) => {
+                        assert_eq!(found.len(), 1, "{id} {mode:?}");
+                        assert_eq!(found[0]["affected_refs"].as_array().unwrap()[2..].to_vec(), valve_ids(&own_loads), "{id} {mode:?}: the case's own valve loads only");
+                        let message = found[0]["message"].as_str().unwrap();
+                        assert!(message.contains("formed at 9.80665 m/s^2;") && !message.contains("9.79"), "{id} {mode:?}: {message}");
+                    }
+                    None => {
+                        assert_eq!(found.len(), 1, "{id} {mode:?}");
+                        assert_eq!(found[0]["affected_refs"].as_array().unwrap()[2..].to_vec(), document_valve, "{id} {mode:?}: the document's valve loads");
+                        assert!(found[0]["message"].as_str().unwrap().contains("formed at 9.79 m/s^2;"), "{id} {mode:?}");
+                    }
+                }
+            }
+        }
+    }
+}
+
 /// No gravity finding on a case the component plan refuses (issue 452
 /// decision 7). With the valve's weight 4e-323 N the self-weight plan forms
 /// its weight and moments, and the G10 case beside it at a different
