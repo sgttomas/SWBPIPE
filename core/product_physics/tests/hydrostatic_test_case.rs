@@ -432,11 +432,16 @@ fn out_supports(out: &Value, case_id: &str) -> Vec<(String, f64)> {
 
 /// The applied self-weight of a test case differs from the stored primitive by
 /// exactly the contents term g·(ρ_test − ρ_section)·A_bore, and the stored
-/// primitive is unchanged in the document.
+/// primitive is unchanged in the document. What is applied is read from the
+/// solve, not from the record: the supports carry the frozen test weight over
+/// the run once (ΣF_z = w_test·L), and the ordinary case beside it the
+/// section's weight.
 #[test]
 fn the_test_contents_enter_the_self_weight_once() {
     let docs = documents();
-    let (model, _, _) = &docs["DOC-1S"];
+    let (model, built, cases) = &docs["DOC-1S"];
+    let length = built.span * (built.nodes - 1) as f64;
+    let carried = |out: &Value, case_id: &str| out_supports(out, case_id).iter().map(|(support, _)| support_force(out, case_id, support, "Fz").unwrap_or(0.0)).sum::<f64>();
     let stored = model["load_cases"].as_array().unwrap().iter().find(|c| c["id"] == "HT-1S-TEST").unwrap()["primitive_loads"][0]["magnitude"]["value"].as_f64().unwrap();
     assert!(close(-stored, derived("w_ordinary"), derived("w_ordinary")), "the stored primitive carries the section's contents: {stored}");
     for mode in MODES {
@@ -445,6 +450,12 @@ fn the_test_contents_enter_the_self_weight_once() {
         let term = input("g") * (input("rho_c_test") - input("rho_c_section")) * derived("A_bore");
         assert!(close(stored - applied, term, term), "{mode:?}: applied {applied}, stored {stored}, contents term {term}");
         assert!(exact_case(&out, "HT-1S-ORDINARY").get("test_condition").is_none());
+        for reference in cases {
+            let id = reference["id"].as_str().unwrap();
+            let w = reference["weight_per_length"]["value"].as_f64().unwrap();
+            let force = carried(&out, id);
+            assert!(close(force, w * length, w * length), "{mode:?} {id}: the supports carry {force}, the frozen weight over the run is {}", w * length);
+        }
     }
 }
 
