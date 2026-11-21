@@ -119,6 +119,11 @@ export type LandedProjectSave = { projectId: string; base: string | null; model:
 
 export type SaveModelStateForm = { labels: StateLabels; kind: ModelStateKind };
 
+/** Record Run's line while the session does not know whether a saved state holds the solved model
+ * (its hash is not computed yet, or the project's states are not listed). The store decides: a model
+ * already saved keeps its one state under the name it was saved with, and a name typed here is not used. */
+export const RECORD_RUN_STATE_NOT_KNOWN = "If the solved model is already saved, the run is recorded against that saved state under its name, and the name below is not used; otherwise the run is recorded against a new post-solve snapshot of the solved model with that name.";
+
 /** Record Run's form: the run's labels and, when no saved state holds the solved
  * model, the name of the post-solve snapshot written with it. */
 export type RecordRunForm = { labels: RunLabels; snapshotName: string | null };
@@ -292,6 +297,10 @@ export function useModelStateHistory(deps: ModelStateHistoryDeps) {
   const solvedHash = recordable.run && solvedModelHash?.manifest === recordable.run.inputManifest ? solvedModelHash.hash : null;
   /** The listed state of the slot's solved model, if any: the state Record Run ties the run to. */
   const recordRunState = solvedHash ? states?.find((state) => state.model_hash === solvedHash) ?? null : null;
+  /** Whether the session knows if a listed state holds the solved model: its hash is computed and
+   * the store has listed the run's project's states. Until then the Record Run form does not say
+   * that none does; the store decides when the run is recorded. */
+  const recordRunStateKnown = Boolean(solvedHash && states && recordable.run && statesProjectId === recordable.run.result.model_ref);
 
   function begin(): symbol | null {
     const owner = depsRef.current.acquireProjectOperation();
@@ -885,6 +894,7 @@ export function useModelStateHistory(deps: ModelStateHistoryDeps) {
     /** The recordable run's transient record (its rule-pack reference diagnostics). */
     recordRunRecord: recordable.run?.analysisRun ?? null,
     recordRunState,
+    recordRunStateKnown,
     recordRun,
     editRunLabels,
     deleteRun,

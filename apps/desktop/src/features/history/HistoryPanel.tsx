@@ -16,7 +16,7 @@ import { HistoricalReaderFindings, recordedRunBindingFindings } from "../results
 import { RulePackRunReferences } from "../rule-packs/RulePackRunReferences";
 import { RULE_PACKS_NOT_RESOLVED, unreadableGuidance, type UnreadableRow } from "../../services/historyListEntries";
 import { useSessionHistory, useSessionModel, useSessionProject } from "../workspace/WorkspaceSessionContext";
-import { notOpenableReason, runCompareUnavailableReason, stateCompareUnavailableReason } from "./useModelStateHistory";
+import { notOpenableReason, RECORD_RUN_STATE_NOT_KNOWN, runCompareUnavailableReason, stateCompareUnavailableReason } from "./useModelStateHistory";
 import { StateComparisonView } from "../comparison/StateComparisonView";
 import { RunComparisonView } from "../comparison/RunComparisonView";
 import { CURRENT_RUN_DESCRIPTION, CURRENT_RUN_ID } from "../comparison/runComparisonSides";
@@ -340,7 +340,7 @@ function UnreadableRowItem({ kind, row }: { kind: "state" | "run"; row: Unreadab
 }
 
 function RecordRunForm({ onDone }: { onDone: () => void }) {
-  const { recordRun, recordRunState, recordRunUnavailableReason, recordRunManifest, recordRunRecord, historyBusy } = useSessionHistory();
+  const { recordRun, recordRunState, recordRunStateKnown, recordRunUnavailableReason, recordRunManifest, recordRunRecord, historyBusy } = useSessionHistory();
   const { projectBusy } = useSessionProject();
   const busy = historyBusy || projectBusy;
   const [draft, setDraft] = useState<LabelsDraft>(() => runDraftFrom(null));
@@ -362,7 +362,9 @@ function RecordRunForm({ onDone }: { onDone: () => void }) {
       <p className="muted" data-testid="record-run-state">
         {recordRunState
           ? <>The run is recorded against the saved state {modelStateDescription(recordRunState)}, which holds the solved model.</>
-          : <>No saved state holds the solved model. The run is recorded against a new post-solve snapshot of the solved model, written with it.</>}
+          : recordRunStateKnown
+            ? <>No saved state holds the solved model. The run is recorded against a new post-solve snapshot of the solved model, written with it.</>
+            : <>{RECORD_RUN_STATE_NOT_KNOWN}</>}
       </p>
       {needsSnapshot ? (
         <label className="memory-pool-field">

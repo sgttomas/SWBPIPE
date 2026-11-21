@@ -11,6 +11,7 @@ import type { HistoricalRunContext } from "../results/HistoricalRunContext";
 import { WorkspaceSessionProvider } from "../workspace/WorkspaceSessionContext";
 import type { WorkspaceSession } from "../workspace/workspaceSession";
 import { HistoryPanel } from "./HistoryPanel";
+import { RECORD_RUN_STATE_NOT_KNOWN } from "./useModelStateHistory";
 
 const PROJECT = "project:invented-history";
 const STATE: ModelStateSummary = {
@@ -27,7 +28,7 @@ const RUN: AnalysisRunSummary = {
 
 function history(overrides: Partial<WorkspaceSession["project"]["history"]> = {}) {
   return {
-    states: [STATE], runs: [RUN], runCheck: null, recordRunUnavailableReason: null, recordRunState: STATE, historyMessage: "", historyOperation: "", historyBusy: false,
+    states: [STATE], runs: [RUN], runCheck: null, recordRunUnavailableReason: null, recordRunState: STATE, recordRunStateKnown: true, historyMessage: "", historyOperation: "", historyBusy: false,
     basisStateId: null, refreshStates: vi.fn(), saveState: vi.fn(), openState: vi.fn(), editLabels: vi.fn(), deleteState: vi.fn(),
     recordRun: vi.fn(async () => true), editRunLabels: vi.fn(async () => true), deleteRun: vi.fn(async () => true), checkRun: vi.fn(async () => true),
     ...overrides
@@ -126,6 +127,21 @@ describe("recorded runs in the History panel (W-12 S2)", () => {
     fireEvent.change(screen.getByTestId("record-run-snapshot-name"), { target: { value: "After solve" } });
     fireEvent.click(screen.getByTestId("record-run-submit"));
     expect(slice.recordRun).toHaveBeenCalledWith({ labels: { run_name: "Run B", tags: [], notes: [], assumptions: [] }, snapshotName: "After solve" });
+  });
+
+  it("#545: does not say that no saved state holds the solved model while the session does not know, and says the typed name is then not used", () => {
+    const slice = history({ recordRunState: null, recordRunStateKnown: false });
+    renderPanel(slice);
+    fireEvent.click(screen.getByTestId("record-run-open"));
+    const line = screen.getByTestId("record-run-state");
+    expect(line).toHaveTextContent(RECORD_RUN_STATE_NOT_KNOWN);
+    expect(line).not.toHaveTextContent("No saved state holds the solved model");
+    expect(RECORD_RUN_STATE_NOT_KNOWN).toBe("If the solved model is already saved, the run is recorded against that saved state under its name, and the name below is not used; otherwise the run is recorded against a new post-solve snapshot of the solved model with that name.");
+    // The name is still asked for: the store writes the snapshot only when no state holds the solved model.
+    fireEvent.change(screen.getByTestId("record-run-name"), { target: { value: "Run B" } });
+    fireEvent.change(screen.getByTestId("record-run-snapshot-name"), { target: { value: "Second name" } });
+    fireEvent.click(screen.getByTestId("record-run-submit"));
+    expect(slice.recordRun).toHaveBeenCalledWith({ labels: { run_name: "Run B", tags: [], notes: [], assumptions: [] }, snapshotName: "Second name" });
   });
 
   it("names the listed state the run is recorded against", () => {
