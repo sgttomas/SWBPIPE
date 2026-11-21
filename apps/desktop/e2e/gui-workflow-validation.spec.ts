@@ -177,15 +177,6 @@ test("DEL-09-04 invented fixture exposes warnings, boundaries, and honest solve/
   await expect(solvedIssues.getByTestId("missing-data-boundary")).toContainText("auto_fill=false");
   await solvedIssues.getByRole("button", { name: /Close/i }).click();
 
-  await page.getByTestId("audit-drawer-toggle").click();
-  const initialAudit = page.getByTestId("audit-boundary-drawer");
-  for (const boundaryValue of Object.values(modelFixture.data_boundary)) {
-    await expect(initialAudit.getByTitle(boundaryValue)).toBeVisible();
-  }
-  await expect(initialAudit.getByTestId("local-project-status")).toContainText("network=false");
-  await expect(initialAudit.getByTestId("local-project-status")).toContainText("telemetry=false");
-  await initialAudit.getByRole("button", { name: /Close/i }).click();
-
   // Return to the full-height authoring layout, then check actual control
   // actionability and containment instead of an obsolete fixed rail width.
   // Slice B3: Results is a stage surface with no close control; the full authoring layout is the
@@ -309,20 +300,15 @@ test("DEL-09-04 invented fixture exposes warnings, boundaries, and honest solve/
   await expect(page.getByTestId("results-panel")).toContainText("Run the bounded preview mechanics path to populate result summaries.");
   await expect(page.getByTestId("historical-run-context")).toHaveCount(0);
 
-  await page.getByTestId("audit-drawer-toggle").click();
-  const finalAudit = page.getByTestId("audit-boundary-drawer");
-  await expect(finalAudit).toBeVisible();
-  for (const boundaryValue of Object.values(modelFixture.data_boundary)) {
-    await expect(finalAudit.getByTitle(boundaryValue)).toBeVisible();
-  }
-  await expect(finalAudit.getByTestId("local-project-status")).toContainText("network=false");
-  await expect(finalAudit.getByTestId("local-project-status")).toContainText("telemetry=false");
+  // Telemetry's state is on the Evidence page (the Audit and Boundaries drawer is not in v1.0).
+  // The local store's network boundary is asserted where it is produced, in App.test.tsx.
+  await openWorkspaceSection(page, "evidence");
+  await expect(page.getByTestId("telemetry-boundary-state")).toHaveText(/^Telemetry: off, /);
   expect(externalRequests).toEqual([]);
 });
 
 for (const { drawerId, toggleId, contentId, contentText } of [
-  { drawerId: "issues-home", toggleId: "issues-drawer-toggle", contentId: "missing-data-summary", contentText: "solve_blocked=false" },
-  { drawerId: "audit-boundary-drawer", toggleId: "audit-drawer-toggle", contentId: "local-project-status", contentText: "network=false" }
+  { drawerId: "issues-home", toggleId: "issues-drawer-toggle", contentId: "missing-data-summary", contentText: "solve_blocked=false" }
 ]) {
   test(`shared drawer menu overlap preserves ordinary Close and active menu priority: ${drawerId}`, async ({ page }, testInfo) => {
     await page.goto("/");
