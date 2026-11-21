@@ -1,8 +1,9 @@
-// The All rows tab's navigator, in the words a person uses: the case position counts the load cases
-// and combinations a person can choose. Committed result only.
+// The All rows tab's navigator and detail, in the words a person uses: the case position counts the
+// load cases and combinations a person can choose, and a filter that leaves the selected row out
+// leaves no stale detail on screen. Committed result only.
 import { cleanup, fireEvent, render, screen } from "@testing-library/react";
 import { afterEach, describe, expect, it } from "vitest";
-import { navigatorCasePosition, ResultsPanel } from "./ResultsPanel";
+import { navigatorCasePosition, outsideFilterText, ResultsPanel } from "./ResultsPanel";
 import type { NavigatorCase } from "./resultsNavigator";
 import type { MechanicsResult } from "../../types";
 import unicodeSparse from "../../../../../fixtures/results/preview_physics_unicode_ids_sparse.json";
@@ -34,3 +35,19 @@ describe("the case navigator's position", () => {
   });
 });
 
+describe("the row detail under a filter", () => {
+  it("says the selected row is outside the filters instead of showing it", () => {
+    const result = generic();
+    const row = result.results.find((item) => item.basis_ref?.ref_id === "load:é")!;
+    panel(result, row.id);
+    expect(screen.getByTestId("selected-result-id").textContent).toContain(row.id);
+    // A filter that matches no part of the selected row.
+    fireEvent.change(screen.getByTestId("result-filter-input"), { target: { value: "combination:Σ" } });
+    expect(screen.queryByTestId("selected-result-id")).toBeNull();
+    expect(screen.getByTestId("result-detail-outside-filter").textContent).toBe(outsideFilterText(row.id));
+    // Clearing the filter brings the detail back.
+    fireEvent.click(screen.getByTestId("clear-result-filter"));
+    expect(screen.getByTestId("selected-result-id").textContent).toContain(row.id);
+    expect(screen.queryByTestId("result-detail-outside-filter")).toBeNull();
+  });
+});

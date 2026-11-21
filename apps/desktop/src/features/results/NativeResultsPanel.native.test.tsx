@@ -27,7 +27,7 @@ import { createSolveJobTransport, nativeMechanicsReplayPair, REPLAY_COMMANDS, so
 import { rememberReceivedText } from "./resultReader";
 import { semanticLabels } from "./resultSemantics";
 import { firstRowOf, navigatorEntities, rowCaseKey } from "./resultsNavigator";
-import { ResultsPanel, rowsUnderFilters, countResultFrames, standaloneNumericalHealth } from "./ResultsPanel";
+import { outsideFilterText, ResultsPanel, rowsUnderFilters, countResultFrames, standaloneNumericalHealth } from "./ResultsPanel";
 import type { NumericalHealthView } from "./numericalHealth";
 import type { MechanicsResult, PreviewModel } from "../../types";
 
@@ -368,4 +368,25 @@ describe("a native group's CSV through the native stream", () => {
       await disposeDeliveredMechanicsResult(result);
     }, 120_000);
   }
+});
+
+describe("the native row detail under a filter", () => {
+  it("says the selected row is outside the filters instead of showing it", async () => {
+    const { result } = await nativeResult("paged");
+    const selections: string[] = [];
+    render(<Harness result={result} model={pair.model} onSelected={(id) => selections.push(id)} />);
+    await waitFor(() => expect(position("entity")).toMatch(/^None chosen; \d+ in this table$/));
+    fireEvent.click(screen.getByTestId("results-navigator-entity-next"));
+    await waitFor(() => expect(selections.length).toBe(1));
+    expect(await screen.findByTestId("result-detail-id")).toHaveTextContent(selections[0]);
+    // A filter no row matches leaves the selected row out: the detail says so, and shows no stale row.
+    fireEvent.change(screen.getByTestId("result-filter-input"), { target: { value: "no row says this" } });
+    await waitFor(() => expect(screen.getByTestId("result-detail-outside-filter")).toHaveTextContent(outsideFilterText(selections[0])));
+    expect(screen.queryByTestId("result-detail-id")).toBeNull();
+    // Clearing the filter brings the detail back.
+    fireEvent.click(screen.getByTestId("clear-result-filter"));
+    expect(await screen.findByTestId("result-detail-id")).toHaveTextContent(selections[0]);
+    expect(screen.queryByTestId("result-detail-outside-filter")).toBeNull();
+    await act(async () => { await disposeDeliveredMechanicsResult(result); });
+  }, 60_000);
 });

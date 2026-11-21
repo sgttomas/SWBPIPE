@@ -53,6 +53,7 @@ import {
   MechanicsGapLedger,
   NAVIGATOR_AXIS_NOUN,
   NumericalHealthDetail,
+  outsideFilterText,
   RESULT_FAMILY_OPTIONS,
   ResultControls,
   ResultsNavigator,
@@ -400,6 +401,10 @@ export function NativeResultsPanel({
     && (navigatorRead!.firstOrdinals[entityAt] === selectedOrdinal || (ready?.rows.some((entry) => entry.ordinal === selectedOrdinal) ?? false) || probe === true);
   const firstRowId = useNativeRowId(result, !selectedIsCurrent && entityAt >= 0 ? navigatorRead!.firstOrdinals[entityAt] : null);
   const currentRowId = selectedIsCurrent ? selectedRow!.id : firstRowId;
+  // The filters leave the selected row out where they admit none of its entity's rows, or where the
+  // probe found it outside them; the detail then says so instead of showing the row.
+  const selectedOutsideFilter = selectedRow !== null && navigatorRead !== null
+    && (!navigatorRead.entities.includes(selectedRow.entity_ref) || (probeNeeded && probe === false));
   const [endNotice, setEndNotice] = useState<string | null>(null);
   const [reveal, setReveal] = useState<{ rowId: string; focus: boolean } | null>(null);
   // A step's reply applies only while it is the latest step, on the same result and filters.
@@ -600,7 +605,7 @@ export function NativeResultsPanel({
             onChooseCase={(caseKey) => chooseCase(caseKey)}
             contractEvidence={result.contract_evidence ?? null}
           />
-          <NativeResultDetail result={result} semanticsOf={semanticsOf} selectedResultId={selectedResultId} selected={selected} analysisRun={analysisRun} exportEndpointPair={async (pair) => {
+          <NativeResultDetail result={result} semanticsOf={semanticsOf} selectedResultId={selectedResultId} selected={selected} outsideFilter={selectedOutsideFilter} analysisRun={analysisRun} exportEndpointPair={async (pair) => {
             // Each row's dimension from its row semantics under the handle's table, as the whole-value
             // export reads `semanticDimension(row, result, recordedTableRead)`.
             const pairLabels = labelsOf(pair, await semanticsOf(pair.map((entry) => entry.ordinal)));
@@ -740,7 +745,7 @@ async function readNativeEndpointPairRows(result: NativeResult, row: Row, ordina
 
 /** The selected row's detail, from the panel's bounded lookup: its members, its source rows' ids,
  * and its endpoint pair. */
-function NativeResultDetail({ result, semanticsOf, selectedResultId, selected, analysisRun, exportEndpointPair }: { result: NativeResult; semanticsOf: (ordinals: readonly number[]) => Promise<readonly RowSemanticsOutcome[]>; selectedResultId: string | null; selected: ReadRow | null; analysisRun: SessionAnalysisRun | null; exportEndpointPair: (pair: readonly DetailRow[]) => Promise<CsvExport> }) {
+function NativeResultDetail({ result, semanticsOf, selectedResultId, selected, outsideFilter, analysisRun, exportEndpointPair }: { result: NativeResult; semanticsOf: (ordinals: readonly number[]) => Promise<readonly RowSemanticsOutcome[]>; selectedResultId: string | null; selected: ReadRow | null; outsideFilter: boolean; analysisRun: SessionAnalysisRun | null; exportEndpointPair: (pair: readonly DetailRow[]) => Promise<CsvExport> }) {
   const [pairRead, setPairRead] = useState<{ of: ReadRow; pair: DetailRow[]; error?: string } | null>(null);
   useEffect(() => {
     if (!selected) return;
@@ -756,6 +761,7 @@ function NativeResultDetail({ result, semanticsOf, selectedResultId, selected, a
   const row = selected.row;
   const read = pairRead;
   if (!row) return <p className="muted" data-testid="result-detail-unavailable">The selected result id is not a row of this result.</p>;
+  if (outsideFilter) return <p className="muted" data-testid="result-detail-outside-filter">{outsideFilterText(row.id)}</p>;
   const hashes = analysisRun ? 1 : 0;
   return (
     <section className="result-detail" aria-label="Selected result" data-testid="result-detail">

@@ -566,7 +566,7 @@ function FullResultsPanel({
             onChooseCase={(caseKey) => chooseCase(caseKey)}
             contractEvidence={result?.contract_evidence ?? null}
           />
-          <ResultDetail interpretation={interpretation} result={result} recordedTableRead={recordedTableRead} exportEndpointPair={async (values) => {
+          <ResultDetail interpretation={interpretation} outsideFilter={selectedRow !== null && !filteredResults.includes(selectedRow)} result={result} recordedTableRead={recordedTableRead} exportEndpointPair={async (values) => {
             const rows = await Promise.all(values.map(async (item) => {
               const row = result?.results.find((candidate) => candidate.id === item.result_id) ?? null;
               const quantity = row ? { value: row.value, unit: row.unit, dimension_id: semanticDimension(row, result ?? undefined, recordedTableRead) ?? "unknown" } : null;
@@ -901,7 +901,21 @@ function compareResultUnits(left: string, right: string) {
 
 type EndpointPairExport = (values: NonNullable<ResultInterpretation["endpoint_pair"]>["values"]) => Promise<CsvExport>;
 
-function ResultDetail({ interpretation, result, recordedTableRead, exportEndpointPair }: { interpretation: ResultInterpretation | null; result: MechanicsResult | null; recordedTableRead: RecordedBinding | null; exportEndpointPair?: EndpointPairExport }) {
+/** What the detail says in place of a selected row the table's filters no longer show. */
+export function outsideFilterText(rowId: string): string {
+  return `The selected row ${rowId} is outside the current filters, so its detail is not shown. Clear the filters or choose a row in the table.`;
+}
+
+function ResultDetail({ interpretation, outsideFilter = false, result, recordedTableRead, exportEndpointPair }: { interpretation: ResultInterpretation | null; outsideFilter?: boolean; result: MechanicsResult | null; recordedTableRead: RecordedBinding | null; exportEndpointPair?: EndpointPairExport }) {
+  if (interpretation && outsideFilter) {
+    // A filter that leaves the selected row out leaves no stale detail on screen.
+    return (
+      <section className="result-detail-panel" aria-label="Result detail" data-testid="result-detail-panel">
+        <h3>Result Detail</h3>
+        <p className="muted" data-testid="result-detail-outside-filter">{outsideFilterText(interpretation.result_id)}</p>
+      </section>
+    );
+  }
   if (!interpretation) {
     return (
       <section className="result-detail-panel" aria-label="Result detail" data-testid="result-detail-panel">
