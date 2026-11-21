@@ -92,7 +92,7 @@ test("C3 snapshot, Hide precedence, persistent hidden count, theme and Show All 
   await info.attach("after-isolate", { body: isolatedImage, contentType: "image/png" });
   await expect(label(page, "pipe:C3-A")).toHaveAttribute("data-dimmed", "false");
   await expect(label(page, "pipe:C3-B")).toHaveAttribute("data-dimmed", "true");
-  await expect(await control(page, "Show All")).toBeEnabled();
+  await expect(await control(page, "Show all")).toBeEnabled();
   await expect(page.getByTestId("viewport-hidden-count")).toHaveCount(0);
   for (const theme of ["dark", "light"] as const) {
     await setAppearance(page, theme, "comfortable");
@@ -145,7 +145,7 @@ test("C3 snapshot, Hide precedence, persistent hidden count, theme and Show All 
   await hidden.click();
   await expect(hidden).toHaveCount(0);
   await expect(label(page, "pipe:C3-B")).toHaveAttribute("data-dimmed", "false");
-  await expect(await control(page, "Show All")).toBeDisabled();
+  await expect(await control(page, "Show all")).toBeDisabled();
   expect(await currentModelHashThroughVisibleExport(page)).toBe(beforeHash);
   expect(await history(page)).toBe(beforeHistory);
   await info.attach("shown-after-clear", { body: await page.getByTestId("viewport-canvas").screenshot(), contentType: "image/png" });
@@ -201,7 +201,7 @@ test("C3 nearer dimmed pipe wins unchanged point ordering and viewport keyboard 
   await expect.poll(() => selected(page)).toEqual([{ type: "pipe", id: "pipe:C3-B" }]);
   await selectTreeRow(page, "pipe", "pipe:C3-A");
   await canvas.focus(); await page.keyboard.press("i");
-  await expect(await control(page, "Show All")).toBeEnabled();
+  await expect(await control(page, "Show all")).toBeEnabled();
   const focus = await canvas.evaluate(el => {
     const s = getComputedStyle(el), r = el.getBoundingClientRect();
     return { visible: el.matches(":focus-visible"), width: s.outlineWidth, offset: s.outlineOffset, color: s.outlineColor, rect: r.toJSON() };
@@ -220,9 +220,9 @@ test("C3 nearer dimmed pipe wins unchanged point ordering and viewport keyboard 
   await filter.fill("i"); await filter.press("h");
   await expect(page.getByTestId("viewport-hidden-count")).toHaveText("1 hidden · Show all");
   await filter.fill("");
-  await (await control(page, "Show All")).click();
+  await (await control(page, "Show all")).click();
   await canvas.focus(); await page.keyboard.press("Alt+i");
-  await expect(await control(page, "Show All")).toBeDisabled();
+  await expect(await control(page, "Show all")).toBeDisabled();
 });
 
 test("C3 isolation remains clearable when every drawable entity belongs to the snapshot", async ({ page }) => {
@@ -237,9 +237,9 @@ test("C3 isolation remains clearable when every drawable entity belongs to the s
   await expect(page.getByTestId("viewport-hidden-count")).toHaveCount(0);
   await selectTreeRow(page, "node", "node:C3-loose", { toggle: true });
   await expect.poll(() => selected(page)).toEqual([]);
-  await expect(await control(page, "Show All")).toBeEnabled();
-  await activateWithKeyboard(page, await control(page, "Show All"));
-  await expect(await control(page, "Show All")).toBeDisabled();
+  await expect(await control(page, "Show all")).toBeEnabled();
+  await activateWithKeyboard(page, await control(page, "Show all"));
+  await expect(await control(page, "Show all")).toBeDisabled();
 });
 
 test("C3 deletion retains active empty snapshot; new geometry dims; project replacement clears it", async ({ page }) => {
@@ -256,7 +256,7 @@ test("C3 deletion retains active empty snapshot; new geometry dims; project repl
   await showModelTree(page);
   await clearTreeFilter(page);
   await expect(typedTreeRow(page, "node", "node:C3-loose")).toHaveCount(0);
-  await expect(await control(page, "Show All")).toBeEnabled();
+  await expect(await control(page, "Show all")).toBeEnabled();
   await expect(label(page, "pipe:C3-A")).toHaveAttribute("data-dimmed", "true");
   await page.getByTestId("command-node").click();
   await expect(page.getByTestId("viewport-create-node-id")).toBeVisible();
@@ -278,7 +278,7 @@ test("C3 deletion retains active empty snapshot; new geometry dims; project repl
   await page.getByTestId("unsaved-changes-discard").click();
   await expect(page.getByTestId("unsaved-changes-prompt")).toHaveCount(0);
   await confirmProjectUnits(page);
-  await expect(await control(page, "Show All")).toBeDisabled();
+  await expect(await control(page, "Show all")).toBeDisabled();
   await expect(page.getByTestId("viewport-hidden-count")).toHaveCount(0);
 });
 
@@ -295,7 +295,7 @@ test("C3 visibility never gives bundled references a current overlay or saved-mo
   await selectTreeRow(page, "pipe", "pipe:P-100");
   await (await control(page, "Isolate")).click();
   await (await control(page, "Hide")).click();
-  await (await control(page, "Show All")).click();
+  await (await control(page, "Show all")).click();
   // No current result: the view offers no Deformation control.
   await expect(page.getByTestId("viewport-deformation-status")).toHaveCount(0);
   await openWorkspaceSection(page, "results");
@@ -309,7 +309,7 @@ test("C3 visibility never gives bundled references a current overlay or saved-mo
   await showCanvas(page);
   await selectTreeRow(page, "pipe", "pipe:P-100");
   await (await control(page, "Isolate")).click();
-  await (await control(page, "Show All")).click();
+  await (await control(page, "Show all")).click();
   // No current result: the view offers no Deformation control.
   await expect(page.getByTestId("viewport-deformation-status")).toHaveCount(0);
   await openWorkspaceSection(page, "evidence");

@@ -4794,7 +4794,7 @@ body { min-width: 760px; min-height: 540px; }
   position: relative; z-index: 3; display: grid; grid-template-rows: auto; height: auto; min-height: 0;
   padding: var(--space-2) var(--space-4); gap: var(--space-2); font-weight: var(--type-weight-regular);
 }
-.viewport-bar { display: flex; align-items: center; gap: var(--space-4); min-width: 0; }
+.viewport-bar { display: flex; flex-wrap: wrap; align-items: center; gap: var(--space-2) var(--space-4); min-width: 0; }
 .viewport-bar-groups { display: flex; flex: none; flex-wrap: nowrap; align-items: center; gap: var(--space-4); }
 .viewport-bar-group { display: flex; flex: none; flex-wrap: nowrap; align-items: center; gap: var(--space-1); }
 .viewport-bar-group + .viewport-bar-group { padding-inline-start: var(--space-4); border-inline-start: 1px solid var(--ui-divider); }
@@ -4809,13 +4809,13 @@ body { min-width: 760px; min-height: 540px; }
   min-width: 16px; height: 16px; padding: 0 var(--space-2); box-sizing: border-box; border-radius: 8px;
   color: var(--ui-accent-text); background: var(--ui-accent); font-size: 10px; line-height: 16px; text-align: center;
 }
+/* More, open: a second row of the bar, in the flow, so it pushes the canvas down rather than
+   covering its Fit and view controls. Its groups sit side by side, each under its heading. */
 .viewport-more-menu {
-  position: fixed; z-index: 60; display: grid; gap: var(--space-4); box-sizing: border-box;
-  min-width: 200px; max-width: min(420px, calc(100vw - 16px)); overflow: auto; padding: var(--space-4);
-  color: var(--ui-text); background: var(--surface-raised); border: 1px solid var(--ui-border);
-  border-radius: var(--radius-card); box-shadow: var(--elevation-2);
+  flex: 1 0 100%; order: 3; display: flex; flex-wrap: wrap; align-items: flex-start; gap: var(--space-2) var(--space-6);
+  box-sizing: border-box; padding: var(--space-2) 0 var(--space-1); border-top: 1px solid var(--ui-divider); color: var(--ui-text);
 }
-.viewport-more-group { display: grid; gap: var(--space-2); }
+.viewport-more-group { display: grid; gap: var(--space-1); }
 .viewport-more-heading { color: var(--ui-muted); font-size: var(--type-size-caption); }
 .viewport-more-controls { display: flex; flex-wrap: wrap; align-items: center; gap: var(--space-2); }
 .viewport-bar .viewport-deformation-status, .viewport-more-menu .viewport-deformation-status {

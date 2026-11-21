@@ -438,6 +438,7 @@ export function PipeViewport({
   explicitHiddenKeys = hiddenKeys,
   dimmedKeys = new Set(),
   isolationActive = false,
+  isolationSelectionKeys = null,
   hiddenCount = 0,
   modelIndex,
   modelCommitToken = null,
@@ -629,9 +630,11 @@ export function PipeViewport({
     () => visibilityEligibleSelectionKeys(activeModelIndex, orderedSelectionKeys),
     [activeModelIndex, orderedSelectionKeys]
   );
-  const visibilitySelectionReason = visibilitySelectionKeys.length > 0
-    ? null
-    : "Select at least one valid drawable node, pipe, support, or component.";
+  const visibilitySelectionReason = visibilitySelectionKeys.length === 0
+    ? "Select at least one valid drawable node, pipe, support, or component."
+    : visibilitySelectionKeys.every((key) => hiddenKeys.has(key))
+      ? "The selection is hidden. Show all to see it again."
+      : null;
   const [hoveredEntityKey, setHoveredEntityKey] = useState<EntityKey | null>(null);
   // B9: the entity context menu. A right-click (or a secondary press released within 4 CSS px,
   // so that a right-drag still pans) opens it at the pointer; Shift+F10 or the ContextMenu key
@@ -2675,7 +2678,12 @@ export function PipeViewport({
   // The quiet status line over the canvas: only statements that apply now, never an empty row.
   // Actual OD states itself only while it is asked for and not wholly drawn.
   const actualOdStatusShown = geometryMode === "actual-od" && actualOd.status !== "available";
-  const viewportStatusShown = Boolean(elementAxes) || hiddenCount > 0 || selectedHiddenCount > 0 || actualOdStatusShown ||
+  // Measure, while armed and short of its two points, says what it waits for.
+  const measurePrompt = measurementActive && measurementPoints.length < 2
+    ? `Measure: pick ${measurementPoints.length === 0 ? "a node or a pipe" : "a second node"} · press Measure again to end`
+    : null;
+  const isolatedCount = isolationActive ? isolationSelectionKeys?.size ?? 0 : 0;
+  const viewportStatusShown = Boolean(elementAxes) || hiddenCount > 0 || isolationActive || Boolean(measurePrompt) || selectedHiddenCount > 0 || actualOdStatusShown ||
     viewportContextStatus !== "ready" || activeModelIndex.invalidGeometry.size > 0 || Boolean(renderTransformResolution.issue);
 
 
@@ -2816,7 +2824,7 @@ export function PipeViewport({
               key: "deformation",
               heading: "Deformation",
               label: "Deformation",
-              onCount: deflectionPlaying ? 1 : 0,
+              onCount: (deflectionPlaying ? 1 : 0) + (undeformedGhost ? 1 : 0),
               signature: `${deformation.state}:${deformation.state === "available" ? deflectionSummaryScale(deformation) : ""}`,
               content: (
                 <details
@@ -2900,8 +2908,8 @@ export function PipeViewport({
                 <>
                   <button onClick={() => dispatchViewportViewCommand({ type: "hide-selection" })} disabled={Boolean(visibilitySelectionReason)} title={visibilitySelectionReason ?? "Hide selected geometry (H). Hidden geometry is removed from canvas picking."} type="button">Hide</button>
                   <button aria-describedby="viewport-visibility-help" onClick={() => dispatchViewportViewCommand({ type: "isolate-selection" })} disabled={Boolean(visibilitySelectionReason)} title={visibilitySelectionReason ?? "Isolate selected geometry (I): dim other shown geometry to 20%. Dimmed geometry remains selectable; Hide wins."} type="button">Isolate</button>
-                  <button onClick={() => dispatchViewportViewCommand({ type: "show-all" })} disabled={explicitHiddenKeys.size === 0 && !isolationActive} title={explicitHiddenKeys.size === 0 && !isolationActive ? "All eligible entities are already shown." : "Clear Hide and isolation; show every eligible entity at its normal opacity."} type="button">Show All</button>
-                  <span className="visually-hidden" id="viewport-visibility-help">Isolate captures the selected geometry. Other shown geometry is dimmed to 20% and remains available to click, hover and box selection; nearer dimmed geometry can be picked before farther undimmed geometry. Selection does not change the snapshot. Hide takes precedence. Show All clears both. I and H apply while focus is in the viewport.</span>
+                  <button onClick={() => dispatchViewportViewCommand({ type: "show-all" })} disabled={explicitHiddenKeys.size === 0 && !isolationActive} title={explicitHiddenKeys.size === 0 && !isolationActive ? "All eligible entities are already shown." : "Clear Hide and isolation; show every eligible entity at its normal opacity."} type="button">Show all</button>
+                  <span className="visually-hidden" id="viewport-visibility-help">Isolate captures the selected geometry. Other shown geometry is dimmed to 20% and remains available to click, hover and box selection; nearer dimmed geometry can be picked before farther undimmed geometry. Selection does not change the snapshot. Hide takes precedence. Show all clears both. I and H apply while focus is in the viewport.</span>
                 </>
               )
             },
@@ -2978,6 +2986,62 @@ export function PipeViewport({
           aria-label="Three.js pipe centerline viewport"
           title={webglAvailable === false ? pointerCaptureReason : "Click a part to select it; drag to orbit, scroll to zoom"}
         />
+        {/* Before the labels, so that Tab reaches Fit and the standard views first (reading order).
+            The canvas furniture keeps to its own places so that none covers another: the view
+            cluster with the result legend under it down the right; the status line, the factor
+            and the scale bar along the foot, between the axis triad and the right edge. */}
+        <div className="viewport-canvas-right" data-testid="viewport-canvas-right">
+          <div className="viewport-view-cube" role="group" aria-label="View controls" data-testid="viewport-view-cube" title="Drag to orbit · scroll to zoom · right-drag to pan">
+            {/* Fit Model is always here; Fit Selection stands beside it while a selection is shown. */}
+            <span className="viewport-fit-commands">
+              {fitSelectionBounds ? (
+                <button type="button" className="viewport-fit" data-testid="viewport-fit-selection" onClick={() => dispatchViewportViewCommand({ type: "fit-selection" })} title="Fit the shown selection in the view">Fit Selection</button>
+              ) : null}
+              <button type="button" className="viewport-fit" data-testid="viewport-fit-model" onClick={() => dispatchViewportViewCommand({ type: "fit-model" })} title="Fit the whole model in the view">Fit Model</button>
+            </span>
+            <span className="viewport-view-presets">
+              <button type="button" data-testid="viewport-view-front" aria-pressed={viewPreset === "front"} onClick={() => pressStandardView("front")} title="Look along −Z at the X–Y plane">Front</button>
+              <button type="button" data-testid="viewport-view-top" aria-pressed={viewPreset === "top"} onClick={() => pressStandardView("top")} title="Look down −Y at the X–Z plane">Top</button>
+              <button type="button" data-testid="viewport-view-side" aria-pressed={viewPreset === "side"} onClick={() => pressStandardView("side")} title="Look along −X at the Z–Y plane">Side</button>
+              <button type="button" data-testid="viewport-view-isometric" aria-pressed={viewPreset === "iso"} onClick={() => pressStandardView("iso")} title="Isometric view">Isometric</button>
+            </span>
+          </div>
+          {result && (colourOverlay || reactionOverlay) ? (
+            <ResultOverlayLegend
+              result={sessionResult}
+              cases={overlayCases}
+              overlayCase={overlayCase}
+              onCaseChange={setOverlayCaseKey}
+              quantities={overlayQuantities}
+              quantity={overlayQuantity}
+              onQuantityChange={setOverlayQuantityId}
+              colour={colourOverlay}
+              reactions={reactionOverlay}
+              standing={resultStanding}
+              focus={overlayFocus(hoveredEntityKey, selection)}
+              contour={colourOverlay ? {
+                resolution: overlayResolution,
+                onResolutionChange: setOverlayResolution,
+                display: overlayDisplay,
+                onDisplayChange: setOverlayDisplay,
+                thresholdOn: overlayThresholdOn,
+                onThresholdOnChange: setOverlayThresholdOn,
+                thresholdText: overlayThresholdText,
+                onThresholdTextChange: setOverlayThresholdText,
+                threshold: overlayThreshold,
+                numbers: contourValues && contourValueAnchors ? { selected: contourValueAnchors.length, candidates: contourValues.candidateCount } : null
+              } : null}
+            />
+          ) : null}
+        </div>
+        {colourOverlay?.state === "available" && colourOverlay.quantity && contourValueAnchors ? (
+          <ResultValueLabels
+            anchors={contourValueAnchors}
+            unit={colourOverlay.unit ?? ""}
+            dimension={colourOverlay.quantity.dimension}
+            resourceRef={viewportResourceRef}
+          />
+        ) : null}
         {showLabels ? (
           <div
             className="viewport-selection-layer"
@@ -3041,66 +3105,20 @@ export function PipeViewport({
         <div className="viewport-axis-triad" aria-label="Orientation gizmo showing X, Y, Z axes" data-testid="viewport-axis-triad" role="img">
           <div className="viewport-gizmo-host" ref={gizmoHostRef} aria-hidden="true" />
         </div>
-        {/* The canvas furniture keeps to its own places so that none covers another: the view
-            cluster with the result legend under it down the right; the status line, the factor
-            and the scale bar along the foot, between the axis triad and the right edge. */}
-        <div className="viewport-canvas-right" data-testid="viewport-canvas-right">
-          <div className="viewport-view-cube" role="group" aria-label="View controls" data-testid="viewport-view-cube" title="Drag to orbit · scroll to zoom · right-drag to pan">
-            {/* Fit Model is always here; Fit Selection stands beside it while a selection is shown. */}
-            <span className="viewport-fit-commands">
-              {fitSelectionBounds ? (
-                <button type="button" className="viewport-fit" data-testid="viewport-fit-selection" onClick={() => dispatchViewportViewCommand({ type: "fit-selection" })} title="Fit the shown selection in the view">Fit Selection</button>
-              ) : null}
-              <button type="button" className="viewport-fit" data-testid="viewport-fit-model" onClick={() => dispatchViewportViewCommand({ type: "fit-model" })} title="Fit the whole model in the view">Fit Model</button>
-            </span>
-            <span className="viewport-view-presets">
-              <button type="button" data-testid="viewport-view-front" aria-pressed={viewPreset === "front"} onClick={() => pressStandardView("front")} title="Look along −Z at the X–Y plane">Front</button>
-              <button type="button" data-testid="viewport-view-top" aria-pressed={viewPreset === "top"} onClick={() => pressStandardView("top")} title="Look down −Y at the X–Z plane">Top</button>
-              <button type="button" data-testid="viewport-view-side" aria-pressed={viewPreset === "side"} onClick={() => pressStandardView("side")} title="Look along −X at the Z–Y plane">Side</button>
-              <button type="button" data-testid="viewport-view-isometric" aria-pressed={viewPreset === "iso"} onClick={() => pressStandardView("iso")} title="Isometric view">Isometric</button>
-            </span>
-          </div>
-          {result && (colourOverlay || reactionOverlay) ? (
-            <ResultOverlayLegend
-              result={sessionResult}
-              cases={overlayCases}
-              overlayCase={overlayCase}
-              onCaseChange={setOverlayCaseKey}
-              quantities={overlayQuantities}
-              quantity={overlayQuantity}
-              onQuantityChange={setOverlayQuantityId}
-              colour={colourOverlay}
-              reactions={reactionOverlay}
-              standing={resultStanding}
-              focus={overlayFocus(hoveredEntityKey, selection)}
-              contour={colourOverlay ? {
-                resolution: overlayResolution,
-                onResolutionChange: setOverlayResolution,
-                display: overlayDisplay,
-                onDisplayChange: setOverlayDisplay,
-                thresholdOn: overlayThresholdOn,
-                onThresholdOnChange: setOverlayThresholdOn,
-                thresholdText: overlayThresholdText,
-                onThresholdTextChange: setOverlayThresholdText,
-                threshold: overlayThreshold,
-                numbers: contourValues && contourValueAnchors ? { selected: contourValueAnchors.length, candidates: contourValues.candidateCount } : null
-              } : null}
-            />
-          ) : null}
-        </div>
-        {colourOverlay?.state === "available" && colourOverlay.quantity && contourValueAnchors ? (
-          <ResultValueLabels
-            anchors={contourValueAnchors}
-            unit={colourOverlay.unit ?? ""}
-            dimension={colourOverlay.quantity.dimension}
-            resourceRef={viewportResourceRef}
-          />
-        ) : null}
         <div className="viewport-canvas-foot">
           {viewportStatusShown ? (
             <div className="viewport-status-line" aria-label="Viewport status" data-testid="viewport-status-line">
               {elementAxes ? <ElementAxesStatus view={elementAxes} selection={selection} /> : null}
-              {hiddenCount > 0 ? <button type="button" className="viewport-hidden-count" data-testid="viewport-hidden-count" onClick={() => dispatchViewportViewCommand({ type: "show-all" })} title="Clear Hide and isolation">{hiddenCount} hidden · Show all</button> : null}
+              {measurePrompt ? <span role="status" data-testid="viewport-measure-prompt">{measurePrompt}</span> : null}
+              {hiddenCount > 0 || isolationActive ? (
+                <button
+                  type="button"
+                  className="viewport-hidden-count"
+                  data-testid={hiddenCount > 0 ? "viewport-hidden-count" : "viewport-isolated-count"}
+                  onClick={() => dispatchViewportViewCommand({ type: "show-all" })}
+                  title="Clear Hide and isolation"
+                >{[hiddenCount > 0 ? `${hiddenCount} hidden` : null, isolationActive ? `${isolatedCount} isolated` : null, "Show all"].filter(Boolean).join(" · ")}</button>
+              ) : null}
               {selectedHiddenCount > 0 ? <span role="status" title={`${selectedHiddenCount} selected item${selectedHiddenCount === 1 ? " is" : "s are"} hidden`}>{selectedHiddenCount} selected item{selectedHiddenCount === 1 ? " is" : "s are"} hidden</span> : null}
               {actualOdStatusShown ? <span role="status" data-testid="viewport-od-status" title={actualOd.reason}>{actualOd.reason}</span> : null}
               {viewportContextStatus !== "ready" ? (

@@ -11,7 +11,10 @@ import { type ReactNode, useEffect, useId, useLayoutEffect, useRef, useState } f
  * its content; the bar shows the longest prefix of groups whose kept widths fit beside the More
  * button. A group with no kept width for its current signature is measured by showing every
  * group for one layout pass (before paint). With no measurable width (no layout, as in jsdom)
- * every group stays in the bar.
+ * every group stays in the bar. A group's kept width is its own; a change of the bar's width (the
+ * window, a panel) fits again from the kept widths, so the bar rearranges while More is open too.
+ *
+ * The menu opens as a second row in the flow beneath the bar, never over the canvas.
  */
 export type ViewportBarGroup = {
   key: string;
@@ -26,8 +29,6 @@ export type ViewportBarGroup = {
   content: ReactNode;
 };
 
-const MENU_GAP_PX = 4;
-const WINDOW_MARGIN_PX = 8;
 
 export function ViewportOverflowBar({ label, groups, menuGroups }: { label: string; groups: readonly ViewportBarGroup[]; menuGroups: readonly ViewportBarGroup[] }) {
   const barRef = useRef<HTMLDivElement | null>(null);
@@ -38,7 +39,6 @@ export function ViewportOverflowBar({ label, groups, menuGroups }: { label: stri
   const widthsRef = useRef(new Map<string, { signature: string; width: number }>());
   const [shownCount, setShownCount] = useState(groups.length);
   const [open, setOpen] = useState(false);
-  const [menuPlacement, setMenuPlacement] = useState<{ top: number; right: number; maxHeight: number } | null>(null);
   const [, setResizeTick] = useState(0);
   const menuId = useId();
 
@@ -83,45 +83,23 @@ export function ViewportOverflowBar({ label, groups, menuGroups }: { label: stri
     if (fit !== shownCount) setShownCount(fit);
   });
 
-  // The bar's width (window, panels, view switch) and the groups' own width (fonts, density) both
-  // decide what fits; either change measures again.
+  // The bar's width (window, panels, view switch) decides what fits: a change fits again from the
+  // kept widths, open menu or not. The shown groups are measured again on every pass, so a change of
+  // their own width (fonts, density, a count in a label) is kept as it happens.
+  const lastSizesRef = useRef("");
   useEffect(() => {
     const bar = barRef.current;
-    const groupsElement = groupsRef.current;
-    if (!bar || !groupsElement || typeof ResizeObserver === "undefined") return;
-    let last = "";
+    if (!bar || typeof ResizeObserver === "undefined") return;
     const observer = new ResizeObserver(() => {
-      const size = `${Math.round(bar.getBoundingClientRect().width)}:${Math.round(groupsElement.getBoundingClientRect().width)}`;
-      if (size === last) return;
-      last = size;
-      widthsRef.current.clear();
+      const sizes = [bar, ...(groupsRef.current?.children ?? [])].map((element) => Math.round(element.getBoundingClientRect().width)).join(":");
+      if (sizes === lastSizesRef.current) return;
+      lastSizesRef.current = sizes;
       setResizeTick((tick) => tick + 1);
     });
     observer.observe(bar);
-    observer.observe(groupsElement);
+    for (const element of groupsRef.current?.children ?? []) observer.observe(element);
     return () => observer.disconnect();
-  }, []);
-
-  useLayoutEffect(() => {
-    if (!open) {
-      setMenuPlacement(null);
-      return;
-    }
-    const place = () => {
-      const button = buttonRef.current;
-      if (!button) return;
-      const rect = button.getBoundingClientRect();
-      const top = rect.bottom + MENU_GAP_PX;
-      setMenuPlacement({
-        top,
-        right: Math.max(WINDOW_MARGIN_PX, window.innerWidth - rect.right),
-        maxHeight: Math.max(120, window.innerHeight - top - WINDOW_MARGIN_PX)
-      });
-    };
-    place();
-    window.addEventListener("resize", place);
-    return () => window.removeEventListener("resize", place);
-  }, [open]);
+  });
 
   useEffect(() => {
     if (!open) return;
@@ -171,35 +149,32 @@ export function ViewportOverflowBar({ label, groups, menuGroups }: { label: stri
           {onInMenu > 0 ? <span className="viewport-more-count" aria-hidden="true" data-testid="viewport-more-count">{onInMenu}</span> : null}
           <span className="viewport-more-caret" aria-hidden="true">▾</span>
         </button>
-        {open ? (
-          <div
-            aria-label="More view controls"
-            className="viewport-more-menu"
-            data-testid="viewport-more-menu"
-            id={menuId}
-            ref={menuRef}
-            role="group"
-            onClick={(event) => {
-              // A command (Fit, Hide, Isolate, Show All) closes the menu; a toggle, a selector or
-              // the Deformation disclosure leaves it open so its state can be read and changed.
-              const control = event.target instanceof Element ? event.target.closest("button") : null;
-              if (!control || control.disabled || control.hasAttribute("aria-pressed") || control.closest("details")) return;
-              setOpen(false);
-              buttonRef.current?.focus();
-            }}
-            style={menuPlacement
-              ? { top: menuPlacement.top, right: menuPlacement.right, maxHeight: menuPlacement.maxHeight }
-              : { visibility: "hidden" }}
-          >
-            {[...overflowed, ...menuGroups].map((group) => (
-              <div className="viewport-more-group" data-menu-group={group.key} key={group.key} role="group" aria-label={group.label}>
-                <div className="viewport-more-heading" aria-hidden="true">{group.heading}</div>
-                <div className="viewport-more-controls">{group.content}</div>
-              </div>
-            ))}
-          </div>
-        ) : null}
       </div>
+      {open ? (
+        <div
+          aria-label="More view controls"
+          className="viewport-more-menu"
+          data-testid="viewport-more-menu"
+          id={menuId}
+          ref={menuRef}
+          role="group"
+          onClick={(event) => {
+            // A command (Fit, Hide, Isolate, Show all) closes the menu; a toggle, a selector or
+            // the Deformation disclosure leaves it open so its state can be read and changed.
+            const control = event.target instanceof Element ? event.target.closest("button") : null;
+            if (!control || control.disabled || control.hasAttribute("aria-pressed") || control.closest("details")) return;
+            setOpen(false);
+            buttonRef.current?.focus();
+          }}
+        >
+          {[...overflowed, ...menuGroups].map((group) => (
+            <div className="viewport-more-group" data-menu-group={group.key} key={group.key} role="group" aria-label={group.label}>
+              <div className="viewport-more-heading" aria-hidden="true">{group.heading}</div>
+              <div className="viewport-more-controls">{group.content}</div>
+            </div>
+          ))}
+        </div>
+      ) : null}
     </div>
   );
 }

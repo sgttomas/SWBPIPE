@@ -411,7 +411,7 @@ test("09 the 3D view: controls, fit, standard views, labels", async ({ page }) =
     await (await viewportControl(page, page.getByRole("button", { name: "Isolate", exact: true }))).click();
   });
   await journey.step("hidden-show-all", "Hide: the pipe hidden, and the status line's Show all", async () => {
-    await (await viewportControl(page, page.getByRole("button", { name: "Show All", exact: true }))).click();
+    await (await viewportControl(page, page.getByRole("button", { name: "Show all", exact: true }))).click();
     await selectInView(page, "pipe", "pipe:P-120");
     await (await viewportControl(page, page.getByRole("button", { name: "Hide", exact: true }))).click();
     await expect(page.getByTestId("viewport-hidden-count")).toBeVisible();

@@ -1604,7 +1604,7 @@ test("empty ordered selection publishes independently from project inspector", a
   await activateWithKeyboard(page, (await viewportControl(page, page.getByRole("button", { name: "Hide", exact: true }))));
   await identity([node], node, node);
   await capturePresented("hidden-selected-node-presentation");
-  await activateWithKeyboard(page, (await viewportControl(page, page.getByRole("button", { name: "Show All", exact: true }))));
+  await activateWithKeyboard(page, (await viewportControl(page, page.getByRole("button", { name: "Show all", exact: true }))));
   await identity([node], node, node);
   await selectTreeRow(page, node.type, node.id, { toggle: true });
   const empty = await identity([], null, project);
