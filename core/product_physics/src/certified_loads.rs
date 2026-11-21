@@ -477,24 +477,26 @@ pub(super) fn spring_base_motion(ledger: &mut LoadLedger, springs: &[SpringEntry
 
 /// Factored nodal values are formed products, while unscaled authored nodal
 /// loads remain exact input terms under the normalized-input contract.
-/// DEL-05-01 (issue 450 item 3): a generated seismic component force or
-/// moment is a formed product too, with its operands read from the model by
-/// the generator's own plan (`seismic_component::nodal_product`): W and k
-/// for the force, the rounded force and the signed coordinate for a moment.
+/// DEL-05-01: a generated seismic component force or moment is an exact
+/// input term too, the stored value the rule gives, as the self-weight
+/// plan's component wrench is. It is bound to its operands here: the rule
+/// recomputed from the plan's converted operands
+/// (`seismic_component::rule_value`) must equal the prepared value bit for
+/// bit, or the case is refused by name
+/// (`EQUIVALENT_STATIC_COMPONENT_VALUE_MISMATCH`).
 pub(super) fn nodal(
     ledger: &mut LoadLedger,
     model: &PreviewModel,
     application: &LoadApplication,
     case_id: &str,
     node_count: usize,
+    diagnostics: &mut Vec<crate::Diagnostic>,
 ) {
     for (ordinal, load) in application.nodal_loads.iter().enumerate() {
         if load.global_dof >= 6 * node_count {
             continue;
         }
-        if let Some((magnitude, factor)) = source_factor(model, case_id, &load.load_id)
-            .or_else(|| crate::seismic_component::nodal_product(model, case_id, &load.load_id))
-        {
+        if let Some((magnitude, factor)) = source_factor(model, case_id, &load.load_id) {
             ledger.push_formed(
                 &load.load_id,
                 load.global_dof,
@@ -522,6 +524,9 @@ pub(super) fn nodal(
                 ),
             );
         } else {
+            if let Some(rule) = crate::seismic_component::rule_value(model, case_id, &load.load_id) {
+                diagnostics.extend(crate::seismic_component::value_mismatch(case_id, &load.load_id, load.value, &rule));
+            }
             ledger.push(&load.load_id, load.global_dof, load.value);
         }
     }

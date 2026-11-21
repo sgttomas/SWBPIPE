@@ -365,21 +365,25 @@ def equivalent_static_record(case_id: str, record: Any) -> None:
     prefix = f"{case_id}:generated:"
     _require(all(isinstance(i, str) and i.startswith(prefix) for i in ids) and len(set(ids)) == len(ids), "equivalent_static load ids")
     if "component_forces" in record:
-        equivalent_static_components(record["component_forces"], set(ids))
+        equivalent_static_components(case_id, record["component_forces"], set(ids))
 
 
 _AXES = ("global_x", "global_y", "global_z")
+_AXIS_LABELS = ("global-x", "global-y", "global-z")
 
 
 def _hex16(value: Any) -> bool:
     return isinstance(value, str) and len(value) == 16 and all(c in "0123456789abcdef" for c in value)
 
 
-def equivalent_static_components(entries: Any, inventory: set) -> None:
+def equivalent_static_components(case_id: str, entries: Any, inventory: set) -> None:
     """Rust `physics_evidence::equivalent_static_components`: a nonempty list of closed entries (component and
     node references, a global axis, the factor, the weight and three offset coordinates as 16 lowercase
     hexadecimal digits of a binary64's bits, a force and at most two moments about distinct axes other than
-    the entry's); every load identifier is in the record's inventory, once. Nothing is claimed about the model."""
+    the entry's); every load identifier is in the record's inventory, once, and is the seismic component
+    identifier formed from the entry's own fields, ``<case>:generated:seismic:<global-x|y|z>:component:``
+    ``<UTF-8 byte length>:<component>:`` then ``force`` or ``moment:<x|y|z>``. Nothing is claimed about the
+    model."""
     keys = {"component_ref", "node_ref", "axis", "g_factor", "weight_N", "center_of_gravity_m", "force", "moments"}
     _require(isinstance(entries, list) and bool(entries), "equivalent_static component shape")
     used: set = set()
@@ -389,8 +393,11 @@ def equivalent_static_components(entries: Any, inventory: set) -> None:
         _require(entry["axis"] in _AXES and _hex16(entry["g_factor"]) and _hex16(entry["weight_N"]), "equivalent_static component shape")
         offset = entry["center_of_gravity_m"]
         _require(isinstance(offset, list) and len(offset) == 3 and all(_hex16(v) for v in offset), "equivalent_static component shape")
+        component = entry["component_ref"]
+        prefix = f"{case_id}:generated:seismic:{_AXIS_LABELS[_AXES.index(entry['axis'])]}:component:{len(component.encode('utf-8'))}:{component}"
         force = entry["force"]
         _require(isinstance(force, Mapping) and set(force) == {"load_id", "value_N"} and _hex16(force["value_N"]), "equivalent_static component shape")
+        _require(force["load_id"] == f"{prefix}:force", "equivalent_static component load ids")
         ids = [force["load_id"]]
         moments = entry["moments"]
         _require(isinstance(moments, list) and len(moments) <= 2, "equivalent_static component shape")
@@ -399,6 +406,7 @@ def equivalent_static_components(entries: Any, inventory: set) -> None:
             _require(isinstance(moment, Mapping) and set(moment) == {"load_id", "axis", "value_N_m"} and _hex16(moment["value_N_m"]), "equivalent_static component shape")
             _require(moment["axis"] in _AXES and moment["axis"] != entry["axis"] and moment["axis"] not in axes, "equivalent_static component shape")
             axes.add(moment["axis"])
+            _require(moment["load_id"] == f"{prefix}:moment:{moment['axis'][-1]}", "equivalent_static component load ids")
             ids.append(moment["load_id"])
         for i in ids:
             _require(isinstance(i, str) and i in inventory and i not in used, "equivalent_static component load ids")

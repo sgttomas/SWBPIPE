@@ -617,13 +617,15 @@ pub(crate) fn component_dispositions<'a>(
 }
 
 fn disposition(model: &PreviewModel, component: &PreviewComponent, pipe_ref: &str) -> Disposition {
+    // REQ-015's order: the member resolves first, then a
+    // `not_solver_consumed` component is honoured.
+    let Some(pipe) = model.pipe_segments.iter().find(|p| p.id == pipe_ref) else {
+        return Disposition::Unresolved;
+    };
     let consumption = component.mechanics_interface.as_ref().and_then(|m| m.solver_consumption.as_deref());
     if consumption == Some("not_solver_consumed") {
         return Disposition::NotConsumed;
     }
-    let Some(pipe) = model.pipe_segments.iter().find(|p| p.id == pipe_ref) else {
-        return Disposition::Unresolved;
-    };
     let geometry = component.geometry.as_ref();
     let weight = geometry.and_then(|g| g.weight.as_ref()).and_then(normalized_weight);
     let (cog, cog_underflow) = match geometry.and_then(|g| g.center_of_gravity.as_ref()) {
@@ -1682,6 +1684,17 @@ mod tests {
     }
     fn state(model: &PreviewModel) -> AppliedSelfWeightState {
         inspect_applied_self_weight(model, None)[0].state
+    }
+    /// REQ-015's order: an unresolved member is named before a
+    /// `not_solver_consumed` component is honoured.
+    #[test]
+    fn an_unresolved_member_precedes_a_not_consumed_component() {
+        let (model, _) = fixture();
+        let component: PreviewComponent = serde_json::from_value(json!({"id": "component:v", "kind": "valve", "node": "b",
+            "geometry": {"rigid_pipe_ref": "pipe:missing", "weight": {"value": 10.0, "unit": "N"}},
+            "mechanics_interface": {"solver_consumption": "not_solver_consumed"}, "provenance": "invented"})).unwrap();
+        assert!(matches!(disposition(&model, &component, "pipe:missing"), Disposition::Unresolved));
+        assert!(matches!(disposition(&model, &component, "pipe:é"), Disposition::NotConsumed));
     }
     #[test]
     fn applied_self_weight_is_pure_and_density_drift_blocks() {

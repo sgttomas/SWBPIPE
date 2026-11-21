@@ -1,7 +1,8 @@
 """DEL-05-01 (issue 450 item 4): the Python package reader of an exact case's ``equivalent_static``
 record with its optional ``component_forces`` (``tests/verifiers/pressure_3.equivalent_static_record``,
 the Rust ``physics_evidence::equivalent_static_record``). The reader checks the closed shape and that
-each load identifier is in the record's inventory once; it claims nothing about the model (the
+each load identifier is in the record's inventory once and is the seismic component identifier formed
+from the entry's own fields (case, axis, component); it claims nothing about the model (the
 model-bound check is Rust's, tested in ``core/product_physics/tests/seismic_component_weight.rs``).
 The record below has the shape the producer writes for the valve of
 ``validation/references/seismic_component_weight`` under a g-factor along global X."""
@@ -52,6 +53,23 @@ def _set(path, value):
     return edit
 
 
+def _also_in_inventory(path, value):
+    """Set an identifier and list it in the inventory, so that only its form is wrong."""
+    def edit(r):
+        _set(path, value)(r)
+        r["generated_load_ids"].append(value)
+    return edit
+
+
+def _wind_case(r):
+    """Issue 450 round 1 finding 3: a wind-only generating case whose record carries a component entry
+    naming one of its own wind primitives, with no moments. Every identifier is in the inventory."""
+    wind = f"{CASE}:generated:wind:element-0"
+    r["generated_load_ids"] = [wind]
+    r["component_forces"][0]["force"]["load_id"] = wind
+    r["component_forces"][0]["moments"] = []
+
+
 @pytest.mark.parametrize("what, edit", [
     ("extra record key", _set(["extra"], 1)),
     ("empty list", _set(["component_forces"], [])),
@@ -64,6 +82,14 @@ def _set(path, value):
     ("two moments about one axis", _set(["component_forces", 0, "moments", 1, "axis"], "global_y")),
     ("id outside the inventory", _set(["component_forces", 0, "force", "load_id"], f"{CASE}:generated:seismic:global-x:other")),
     ("id twice", _set(["component_forces", 0, "moments", 1, "load_id"], MY)),
+    ("force id of another axis", _also_in_inventory(["component_forces", 0, "force", "load_id"],
+                                                    f"{CASE}:generated:seismic:global-y:component:15:component:valve:force")),
+    ("moment id of another moment axis", _also_in_inventory(["component_forces", 0, "moments", 0, "load_id"], f"{PREFIX}:moment:x")),
+    ("component length not the byte length", _also_in_inventory(["component_forces", 0, "force", "load_id"],
+                                                                f"{CASE}:generated:seismic:global-x:component:14:component:valve:force")),
+    ("another component's id", _also_in_inventory(["component_forces", 0, "force", "load_id"],
+                                                  f"{CASE}:generated:seismic:global-x:component:16:component:flange:force")),
+    ("a wind generated id with empty moments", _wind_case),
 ])
 def test_a_malformed_component_record_is_refused(what, edit):
     forged = copy.deepcopy(record())
