@@ -169,10 +169,11 @@ account. It says what it read and what it did not. Each review is a fresh
 reviewer: a view of the work as it stands at that moment. One reading is
 enough when it answers the question. When a matter takes more rounds, give
 the next reviewer the earlier findings and what was done about them. Aim to
-resolve within two rounds, continue past three only while still converging,
-and stop at six. Unresolved findings return to whoever integrates the work,
-to decide within its authority; ending the rounds waives no required check or
-reserved choice.
+resolve within two rounds and stop at three. After the third, the agent that
+initiated the reviews decides the path forward within its authority, and
+says why in the pull request; findings beyond that authority go to whoever
+integrates the work. Ending the rounds waives no required check or reserved
+choice.
 
 **The INTERLOCUTOR** advises Agent 0 on direction in a session the owner opts
 in; it is never an entry or default role. Agent 0 keeps the same one as
