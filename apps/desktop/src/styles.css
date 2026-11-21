@@ -3483,6 +3483,20 @@ tbody tr:hover { background-image: linear-gradient(var(--hover-wash), var(--hove
   cursor: pointer;
 }
 
+.rule-pack-part > summary::-webkit-details-marker {
+  display: none;
+}
+
+/* A flex summary loses the browser's marker; the line still says it opens. */
+.rule-pack-part > summary::before {
+  content: "\25B8";
+  color: var(--ui-muted);
+}
+
+.rule-pack-part[open] > summary::before {
+  content: "\25BE";
+}
+
 .rule-pack-part-title {
   font-weight: 600;
 }
