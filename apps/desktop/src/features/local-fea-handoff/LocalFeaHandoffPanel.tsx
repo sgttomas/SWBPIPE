@@ -4,6 +4,7 @@ import { componentBodyNotices } from "../results/componentBody";
 import { analysisResultHashScope } from "../results/analysisResultHashScope";
 import { Download, FileJson } from "lucide-react";
 import { ExportRow, ExportSave, ExportStepButton, Rendered } from "../export-step/ExportStep";
+import { localFeaHandoffFileName } from "../export-step/exportSave";
 import { AS_GIVEN, EXPORT_FORM_WORDS, type ControlDisposition, type PackageRecord } from "../export-step/exportForm";
 import { useState } from "react";
 import type { AnalysisRunEnvelope, Diagnostic, MechanicsResult, PreviewModel } from "../../types";
@@ -170,7 +171,7 @@ export function LocalFeaHandoffPanel({
 <ControlledExportLink
               className="report-export-link"
               data-testid="local-fea-export-link"
-              download={`openpipestress-preview-local-fea-handoff-${safeFileToken(packet.handoff_package.handoff_id)}.json`}
+              download={localFeaHandoffFileName(model.project, localFeaNamedRegion(packet))}
               href={jsonDataHref(packet)}
             >
               <Download size={14} aria-hidden="true" />
@@ -195,6 +196,12 @@ export function localFeaPackageRecord(packet: ReturnType<typeof buildLocalFeaHan
     ],
     validation: null
   };
+}
+
+/** The region the handoff names, for its file name: none where the result summary left the region's selection
+ * incomplete (its LOCAL-FEA-RESULT-SUMMARY-REF-MISSING finding). */
+function localFeaNamedRegion(packet: ReturnType<typeof buildLocalFeaHandoffPacket>): string | null {
+  return packet.handoff_package.diagnostics.some((item) => item.code === "LOCAL-FEA-RESULT-SUMMARY-REF-MISSING") ? null : packet.handoff_package.local_region.region_id;
 }
 
 /** What the package does not write, in the generator's own words: its findings on the mesh, the target format and
@@ -774,7 +781,4 @@ function safeRefToken(value: string): string {
   return value.replace(/[^a-zA-Z0-9:_-]+/g, "-").replace(/^-+|-+$/g, "") || "ref";
 }
 
-function safeFileToken(value: string): string {
-  return value.replace(/[^a-zA-Z0-9_-]+/g, "-").replace(/^-+|-+$/g, "") || "preview";
-}
 import { ControlledExportLink } from "../redaction-controls/ControlledExportLink";

@@ -11,6 +11,7 @@ import type { RowClassification } from "../results/retainedPrecisionTypes";
 import { verifyAnalysisRunRecord, validateAnalysisRunV03, analysisRowSemantics, sourceBasisReference, modelLoadBasisRefs } from "../../services/analysisRunCompatibility";
 import { Download, FileJson } from "lucide-react";
 import { ExportRow, ExportSave, ExportStepButton } from "../export-step/ExportStep";
+import { EXPORT_FILE_KINDS, exportFileName } from "../export-step/exportSave";
 import { AS_GIVEN, EXPORT_FORM_WORDS, type PackageRecord } from "../export-step/exportForm";
 import { useEffect, useState } from "react";
 import { canonicalSha256HexCheckedV1, canonicalJsonCheckedV1, checkedJsonText } from "../../services/hashService";
@@ -241,7 +242,7 @@ export function StressNeutralExportPanel({
 <ControlledExportLink
               className="report-export-link"
               data-testid="stress-neutral-csv-link"
-              download={`openpipestress-preview-stress-neutral-${safeFileToken(currentPacket.source_result_ref.ref)}.csv`}
+              download={exportFileName(model.project, EXPORT_FILE_KINDS.stressNeutralCsv)}
               href={csvDataHref(currentPacket.csv_text)}
             >
               <Download size={14} aria-hidden="true" />

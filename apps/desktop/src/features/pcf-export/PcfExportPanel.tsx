@@ -1,6 +1,7 @@
 import type { SessionAnalysisRun, SessionResult } from "../../services/nativeResult";
 import { Download, FileText } from "lucide-react";
 import { ExportRow, ExportSave, ExportStepButton, Rendered } from "../export-step/ExportStep";
+import { EXPORT_FILE_KINDS, exportFileName } from "../export-step/exportSave";
 import { AS_GIVEN, EXPORT_FORM_WORDS, type ControlDisposition, type PackageRecord } from "../export-step/exportForm";
 import { useState } from "react";
 import { LoadReferenceOutputGate } from "../results/LoadReferenceOutputGate";
@@ -201,7 +202,7 @@ export function PcfExportPanel({
 <ControlledExportLink
           className="report-export-link"
           data-testid="pcf-export-link"
-          download={`openpipestress-preview-pcf-package-${safeFileToken(model.project.id)}.json`}
+          download={exportFileName(model.project, EXPORT_FILE_KINDS.pcfPackage)}
           href={jsonDataHref(packet)}
         >
           <Download size={14} aria-hidden="true" />
@@ -212,7 +213,7 @@ export function PcfExportPanel({
 <ControlledExportLink
           className="report-export-link"
           data-testid="pcf-text-link"
-          download={`openpipestress-preview-${safeFileToken(model.project.id)}.pcf`}
+          download={exportFileName(model.project, EXPORT_FILE_KINDS.pcfText)}
           href={textDataHref(packet.pcf_text)}
         >
           <Download size={14} aria-hidden="true" />
