@@ -141,7 +141,20 @@ test("with the table drawer closed, no drawn label's target lies under its tab s
   const strip = await page.getByTestId("stage-tab-strip").boundingBox();
   if (!strip) throw new Error("the tab strip has no box");
   // The case is engaged: the row's anchors stand within a label's reach of the strip (a label placed
-  // below its anchor reaches 28 px down: 8 px off, a 16 px plate, its 24 px target's margin).
+  // below its anchor reaches 28 px down: 8 px off, a 16 px plate, its 24 px target's margin). The fit
+  // keeps the model clear of the strip, so a pan (Shift and drag, from empty canvas above the model's
+  // labels) lowers the row to 14 px above it.
+  const lowered = await canvasPoint(page, { x: 0, y: 0, z: 0 });
+  const canvas = await page.getByTestId("viewport-canvas").boundingBox();
+  if (!canvas) throw new Error("the canvas has no box");
+  const grip = { x: canvas.x + canvas.width - 160, y: canvas.y + 60 };
+  await page.keyboard.down("Shift");
+  await page.mouse.move(grip.x, grip.y);
+  await page.mouse.down();
+  await page.mouse.move(grip.x, grip.y + (strip.y - lowered.y - 14), { steps: 8 });
+  await page.mouse.up();
+  await page.keyboard.up("Shift");
+  await settled(page);
   const foot = await canvasPoint(page, { x: 0, y: 0, z: 0 });
   expect(strip.y - foot.y, `the row is ${strip.y - foot.y} px above the strip`).toBeLessThan(28);
   expect(strip.y - foot.y).toBeGreaterThan(0);
