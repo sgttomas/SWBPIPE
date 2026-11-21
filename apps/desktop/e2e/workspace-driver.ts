@@ -227,6 +227,19 @@ export async function expectVirtualTarget(scope: Page | Locator, testId: string,
   await expect(scope.getByTestId(testId).locator(".virtual-target-picker-current")).toContainText(value);
 }
 
+/** Opens a Loads page form by its command (New case, New combination, Add load, Add term), as a
+ * person does; a form already open is left open. */
+export async function openLoadsForm(scope: Page | Locator, command: string): Promise<void> {
+  const button = scope.getByTestId(command);
+  if ((await button.getAttribute("aria-expanded")) !== "true") await button.click();
+}
+
+/** Opens a closed disclosure on the Loads page (a form's "More", a case section) by its summary. */
+export async function openLoadsDisclosure(scope: Page | Locator, testId: string): Promise<void> {
+  const details = scope.getByTestId(testId);
+  if (!(await details.evaluate((element) => (element as HTMLDetailsElement).open))) await details.locator(":scope > summary").click();
+}
+
 function escapeRegExp(value: string): string {
   return value.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
 }
