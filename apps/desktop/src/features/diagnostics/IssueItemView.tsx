@@ -1,15 +1,15 @@
 import type { ReactNode } from "react";
 import type { Diagnostic, EntityRef } from "../../types";
 import { needsSolverReportNote, SOLVER_REPORT_NOTE } from "../results/integrityStatus";
-import { classText, ISSUE_ORIGIN_LABELS, itemClassText, memberDifference, type IssueItem, type IssueMember } from "./issueItems";
+import { classText, ISSUE_ORIGIN_LABELS, itemClassText, memberDifference, notSuppliedFields, type IssueItem, type IssueMember } from "./issueItems";
 
 /** Why a report offers no detail of its own. */
 export const NO_OWN_DETAIL_REASON = "No detail of its own: another report has this code and neither has an identifier.";
 
 /**
  * One item of the Issues drawer. Every entry reads, top to bottom: an eyebrow (one
- * small muted line: the severity, its mark and word first, then the code, the class,
- * where the producer gave none "class not supplied", and the source); what the entry
+ * small muted line: the severity, its mark and word first, then the code, the class
+ * where one is supplied, and the source); what the entry
  * also names (its references beyond the item's object, its shortened-text mark, what
  * choosing it selects); then the message's own block, where the solver-report note,
  * where `needsSolverReportNote` says the report takes one (release exit criterion 18),
@@ -71,7 +71,7 @@ export function IssueItemView({
           <Eyebrow
             severity={item.severity}
             code={item.code}
-            classes={itemClassText(item, lead)}
+            classes={itemClassText(item)}
             origins={joinWords(origins.map((origin) => ISSUE_ORIGIN_LABELS[origin]))}
             count={item.members.length}
           />
@@ -107,11 +107,11 @@ export function IssueItemView({
 }
 
 /** The entry's eyebrow: severity (mark and word) first, then code, class and source, and an item's report count. */
-function Eyebrow({ severity, code, classes, origins, count }: { severity: string; code: string; classes: string; origins: string; count?: number }) {
+function Eyebrow({ severity, code, classes, origins, count }: { severity: string; code: string; classes: string | null; origins: string; count?: number }) {
   return (
     <small className="issue-meta muted" data-testid="issue-meta">
       <span aria-hidden="true" className={`issue-severity-mark ${severity}`} />
-      {severity} · {code} · <span className="issue-class" data-testid="issue-class">{classes}</span> · from {origins}
+      {severity} · {code} · {classes ? <><span className="issue-class" data-testid="issue-class">{classes}</span> · </> : null}from {origins}
       {count !== undefined ? <> · <span className="issue-group-count" data-testid="issue-group-count">{count} reports</span></> : null}
     </small>
   );
@@ -184,8 +184,9 @@ function MemberButton({ member, difference, selected, onSelectDiagnostic, onSele
     >
       <small className="issue-meta muted">
         <span aria-hidden="true" className={`issue-severity-mark ${diagnostic.severity}`} />
-        {diagnostic.severity} · {diagnostic.code} · <span data-testid="issue-member-class">{classText(diagnostic)}</span> · from {ISSUE_ORIGIN_LABELS[member.origin]}
+        {diagnostic.severity} · {diagnostic.code} · {classText(diagnostic) ? <><span data-testid="issue-member-class">{classText(diagnostic)}</span> · </> : null}from {ISSUE_ORIGIN_LABELS[member.origin]}
       </small>
+      <NotSupplied diagnostic={diagnostic} />
       <OwnRefs member={member} />
       {noDetail ? <NoDetailFields diagnostic={diagnostic} /> : null}
       <Selects entity={source === "model-checks" ? entity : null} />
@@ -194,16 +195,25 @@ function MemberButton({ member, difference, selected, onSelectDiagnostic, onSele
   );
 }
 
-/** Where a report cannot open its own detail, the fields that detail would show, on its row. */
+/** In an opened row, which fields its producer did not supply, so a person knows there is nothing
+ * more to find; nothing where every field was supplied. */
+function NotSupplied({ diagnostic }: { diagnostic: Diagnostic }) {
+  const absent = notSuppliedFields(diagnostic);
+  return absent.length > 0 ? <small className="issue-member-not-supplied" data-testid="issue-member-not-supplied">Not supplied: {absent.join(", ")}</small> : null;
+}
+
+/** Where a report cannot open its own detail, the supplied fields that detail would show, on its
+ * row; the fields not supplied are named once, on the row's "Not supplied" line. */
 function NoDetailFields({ diagnostic }: { diagnostic: Diagnostic }) {
   const provenance = typeof diagnostic.provenance === "string" ? diagnostic.provenance : diagnostic.provenance ? JSON.stringify(diagnostic.provenance) : null;
+  const affected = (diagnostic.affected_refs ?? []).join("; ");
   return (
     <span className="issue-member-fields" data-testid="issue-member-no-detail">
       <small>{NO_OWN_DETAIL_REASON}</small>
-      <small>Source: {diagnostic.source ?? "not supplied"}</small>
-      <small>Affected: {(diagnostic.affected_refs ?? []).join("; ") || "not supplied"}</small>
-      <small>Remediation: {diagnostic.remediation ?? "not supplied"}</small>
-      <small>Provenance: {provenance ?? "not supplied"}</small>
+      {diagnostic.source ? <small>Source: {diagnostic.source}</small> : null}
+      {affected ? <small>Affected: {affected}</small> : null}
+      {diagnostic.remediation ? <small>Remediation: {diagnostic.remediation}</small> : null}
+      {provenance ? <small>Provenance: {provenance}</small> : null}
     </span>
   );
 }

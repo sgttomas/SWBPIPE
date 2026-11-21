@@ -152,19 +152,28 @@ export function classOf(diagnostic: Diagnostic): string | null {
   return null;
 }
 
-/** How a class is shown in text: the supplied class as given, or that none was supplied. */
-export function classText(diagnostic: Diagnostic): string {
+/** How a supplied class is shown in text; null where none was supplied, which shows nothing at rest. */
+export function classText(diagnostic: Diagnostic): string | null {
   const supplied = classOf(diagnostic);
-  return supplied === null ? "class not supplied" : `class ${supplied}`;
+  return supplied === null ? null : `class ${supplied}`;
 }
 
 /** An item's class: the one class its members state (the grouping never joins two), shown once
- * on the item; "class not supplied" where no member states one. Where the report the item leads
- * with states none in a classed item, that is said beside the item's class. */
-export function itemClassText(item: IssueItem, lead: IssueMember = item.lead): string {
+ * on the item; null where no member states one (an item formed because its code's class on its
+ * object was ambiguous states none). Nothing is said of a member's missing class at rest. */
+export function itemClassText(item: IssueItem): string | null {
   const stated = item.members.map((member) => classOf(member.diagnostic)).find((value) => value !== null) ?? null;
-  if (stated === null) return "class not supplied";
-  return classOf(lead.diagnostic) === null && item.members.length > 1 ? `class ${stated}; this report: class not supplied` : `class ${stated}`;
+  return stated === null ? null : `class ${stated}`;
+}
+
+/** The fields a report's producer did not supply, for the one short line an opened row may show. */
+export function notSuppliedFields(diagnostic: Diagnostic): string[] {
+  const absent: string[] = [];
+  if (classOf(diagnostic) === null) absent.push("class");
+  if (!diagnostic.source) absent.push("source");
+  if (!diagnostic.remediation) absent.push("remediation");
+  if (diagnostic.provenance === undefined || diagnostic.provenance === null || diagnostic.provenance === "") absent.push("provenance");
+  return absent;
 }
 
 /** What tells this member's message apart from the item's other messages; null where the item

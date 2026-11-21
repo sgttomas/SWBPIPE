@@ -307,9 +307,9 @@
       await scrollTo(group, "start");
       acting(toggle, "issue-group-members-toggle").click();
       await sleep(200);
-      const itemClass = group.querySelector('[data-testid="issue-class"]')?.textContent?.trim() ?? "?";
-      const memberClasses = [...group.querySelectorAll('[data-testid="issue-member-class"]')].map((node) => node.textContent.trim());
-      return `${group.getAttribute("data-testid")}; item ${itemClass}; reports ${memberClasses.join(" | ")}`;
+      const itemClass = group.querySelector('[data-testid="issue-class"]')?.textContent?.trim() ?? "no class supplied";
+      const notSupplied = [...group.querySelectorAll('[data-testid="issue-member-not-supplied"]')].map((node) => node.textContent.trim());
+      return `${group.getAttribute("data-testid")}; item ${itemClass}; opened rows ${notSupplied.join(" | ") || "every field supplied"}`;
     });
   }
 

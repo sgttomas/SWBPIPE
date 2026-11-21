@@ -6,7 +6,6 @@ import type { SolveGateReading } from "../workspace/solveGates";
 
 /** How many standing findings the notice lists; the rest are in the Model checks list. */
 export const SOLVE_WITHHELD_LISTED = 5;
-const NOT_SUPPLIED = "not supplied by producer";
 
 type Withheld = Extract<SolveGateReading, { kind: "withheld" }>;
 
@@ -89,35 +88,45 @@ function FindingFields({
   onSelectEntity: (entity: EntityRef) => void;
 }) {
   const refs = diagnostic.affected_refs ?? [];
-  const provenance = diagnostic.provenance === undefined ? NOT_SUPPLIED
+  const provenance = diagnostic.provenance === undefined || diagnostic.provenance === null ? null
     : typeof diagnostic.provenance === "string" ? diagnostic.provenance : JSON.stringify(diagnostic.provenance);
+  const classValue = diagnostic.diagnostic_class ?? diagnostic.class ?? null;
+  // A field its producer did not supply shows nothing; one line names them, so a person knows
+  // there is nothing more to find.
+  const absent = [
+    classValue ? null : "class", diagnostic.source ? null : "source", diagnostic.remediation ? null : "remediation",
+    provenance ? null : "provenance", refs.length > 0 ? null : "affected objects"
+  ].filter((name): name is string => name !== null);
   return (
     <dl className="solve-withheld-fields" data-testid={`solve-withheld-fields-${diagnostic.code}`}>
-      <dt>Class</dt><dd>{diagnostic.diagnostic_class ?? diagnostic.class ?? NOT_SUPPLIED}</dd>
-      <dt>Source</dt><dd>{diagnostic.source ?? NOT_SUPPLIED}</dd>
-      <dt>Remediation</dt><dd>{diagnostic.remediation ?? NOT_SUPPLIED}</dd>
-      <dt>Provenance</dt><dd>{provenance}</dd>
-      <dt>Affected objects</dt>
-      <dd>
-        {refs.length === 0 ? NOT_SUPPLIED : (
-          <ul aria-label={`Objects ${diagnostic.code} names`}>
-            {refs.map((ref, index) => {
-              const entity = resolveModelCheckEntity(model, ref);
-              if (!entity) return <li key={`${ref}:${index}`}>{ref} (names no model entity to select)</li>;
-              if (selected && entity.type === selected.type && entity.id === selected.id) {
-                return <li key={`${ref}:${index}`}>{ref} (the finding above selects it)</li>;
-              }
-              return (
-                <li key={`${ref}:${index}`}>
-                  <button className="secondary-action" data-entity={`${entity.type}:${entity.id}`} onClick={() => onSelectEntity(entity)} type="button">
-                    Select {entity.id}
-                  </button>
-                </li>
-              );
-            })}
-          </ul>
-        )}
-      </dd>
+      {classValue ? <><dt>Class</dt><dd>{classValue}</dd></> : null}
+      {diagnostic.source ? <><dt>Source</dt><dd>{diagnostic.source}</dd></> : null}
+      {diagnostic.remediation ? <><dt>Remediation</dt><dd>{diagnostic.remediation}</dd></> : null}
+      {provenance ? <><dt>Provenance</dt><dd>{provenance}</dd></> : null}
+      {absent.length > 0 ? <><dt>Not supplied</dt><dd data-testid={`solve-withheld-not-supplied-${diagnostic.code}`}>{absent.join(", ")}</dd></> : null}
+      {refs.length === 0 ? null : (
+        <>
+          <dt>Affected objects</dt>
+          <dd>
+            <ul aria-label={`Objects ${diagnostic.code} names`}>
+              {refs.map((ref, index) => {
+                const entity = resolveModelCheckEntity(model, ref);
+                if (!entity) return <li key={`${ref}:${index}`}>{ref} (names no model entity to select)</li>;
+                if (selected && entity.type === selected.type && entity.id === selected.id) {
+                  return <li key={`${ref}:${index}`}>{ref} (the finding above selects it)</li>;
+                }
+                return (
+                  <li key={`${ref}:${index}`}>
+                    <button className="secondary-action" data-entity={`${entity.type}:${entity.id}`} onClick={() => onSelectEntity(entity)} type="button">
+                      Select {entity.id}
+                    </button>
+                  </li>
+                );
+              })}
+            </ul>
+          </dd>
+        </>
+      )}
     </dl>
   );
 }

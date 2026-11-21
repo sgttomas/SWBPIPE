@@ -67,9 +67,10 @@ it("withholds Solve, states why in the accessibility tree, and names each findin
   for (const text of ["solve_blocking", "invented source", "invented remediation", "invented provenance", `${nodeId} (the finding above selects it)`, "nodes (names no model entity to select)"]) {
     expect(fullFields).toHaveTextContent(text);
   }
-  // A field the producer did not supply reads as not supplied; nothing is composed.
+  // A field the producer did not supply shows nothing; one line names them; nothing is composed.
   const bareFields = within(notice).getByTestId("solve-withheld-fields-INVENTED_BARE");
-  expect(within(bareFields).getAllByText("not supplied by producer")).toHaveLength(5);
+  expect(within(bareFields).getByTestId("solve-withheld-not-supplied-INVENTED_BARE")).toHaveTextContent(/^class, source, remediation, provenance, affected objects$/);
+  expect(bareFields.querySelectorAll("dt")).toHaveLength(1);
   const bareButton = within(list).getByRole("button", { name: /INVENTED_BARE error/ });
   expect(bareButton).toHaveAttribute("aria-disabled", "true");
   expect(bareButton).toHaveAccessibleDescription("This finding names no model entity to select.");

@@ -123,7 +123,8 @@ describe("R2: every opened row is that report", () => {
     for (const row of rows) {
       expect(row).toHaveAttribute("aria-disabled", "true");
       expect(row).toHaveAttribute("title", NO_OWN_DETAIL_REASON);
-      expect(within(row).getByTestId("issue-member-no-detail")).toHaveTextContent("Remediation: not supplied");
+      expect(within(row).getByTestId("issue-member-no-detail")).not.toHaveTextContent(/Remediation/);
+      expect(within(row).getByTestId("issue-member-not-supplied")).toHaveTextContent(/^Not supplied: class, source, remediation, provenance$/);
     }
     document.body.innerHTML = "";
     // With identifiers: each row opens its own detail.
@@ -219,10 +220,12 @@ describe("R5: a class decided after every report is read", () => {
     expect(countItemsBySeverity(one)).toEqual(countItemsBySeverity(two));
     renderList(one);
     const own = screen.getAllByTestId("diagnostic-INVENTED_CLASSES").find((row) => row.textContent?.includes("blocking"))!;
-    expect(within(own).getByTestId("issue-class")).toHaveTextContent(/^class not supplied$/);
+    // Formed because the class was ambiguous: it shows no class, and says nothing of one at rest.
+    expect(within(own).queryByTestId("issue-class")).toBeNull();
+    expect(own.textContent).not.toMatch(/not supplied/);
   });
 
-  it("joins a classless report to its code's one stated class, leads with the most severe report, and says the lead states no class", () => {
+  it("joins a classless report to its code's one stated class and leads with the most severe report, saying nothing of the lead's missing class", () => {
     const warning = classed("w", "ASSUMPTION_WARNING", "warning");
     const error = report({ id: "e", code: "INVENTED_CLASSES", severity: "error", message: "invented error text on support:H-1" });
     const items = groupIssues({ model, diagnostics: [warning, error] });
@@ -231,14 +234,15 @@ describe("R5: a class decided after every report is read", () => {
     renderList(items);
     const row = screen.getByTestId("diagnostic-INVENTED_CLASSES");
     expect(row.querySelector(".issue-message")).toHaveTextContent("invented error text on support:H-1");
-    expect(within(row).getByTestId("issue-class")).toHaveTextContent(/^class ASSUMPTION_WARNING; this report: class not supplied$/);
+    expect(within(row).getByTestId("issue-class")).toHaveTextContent(/^class ASSUMPTION_WARNING$/);
+    expect(row.textContent).not.toMatch(/not supplied/);
   });
 
   it("a blank class is no class", () => {
     const items = groupIssues({ model, diagnostics: [report({ id: "x", code: "INVENTED_BLANK", diagnostic_class: "  " }), report({ id: "y", code: "INVENTED_BLANK", class: "" } as Diagnostic)] });
     expect(items).toHaveLength(1);
     renderList(items);
-    expect(within(screen.getByTestId("diagnostic-INVENTED_BLANK")).getByTestId("issue-class")).toHaveTextContent(/^class not supplied$/);
+    expect(within(screen.getByTestId("diagnostic-INVENTED_BLANK")).queryByTestId("issue-class")).toBeNull();
   });
 });
 
@@ -265,7 +269,7 @@ describe("S6: every entry reads eyebrow, what it also names, the note where it t
     renderList(groupIssues({ model, diagnostics: [report({ id: "one", code, severity: "info", message: "invented checks passed on support:H-1", affected_refs: ["support:H-1", "load:LC1"] })] }));
     const row = screen.getByTestId(`diagnostic-${code}`);
     const { meta, block, message, note } = entryParts(row);
-    expect(meta).toHaveTextContent(/^info · NUMERICAL_INTEGRITY_CHECKS_PASSED · class not supplied · from /);
+    expect(meta).toHaveTextContent(/^info · NUMERICAL_INTEGRITY_CHECKS_PASSED · from /);
     expect(within(row).getByTestId("issue-member-refs")).toHaveTextContent("Also about: Invented operating (load:LC1)");
     expect(within(row).getByTestId("issue-member-refs").compareDocumentPosition(block) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
     expect(note).toHaveAttribute("data-testid", `diagnostic-solver-report-note-${code}`);
@@ -285,7 +289,7 @@ describe("S6: every entry reads eyebrow, what it also names, the note where it t
     expect(collapsed.message.nextElementSibling).toBeNull();
     for (const row of within(openReports(group)).getAllByTestId(`issue-member-${code}`)) {
       const parts = entryParts(row);
-      expect(parts.meta).toHaveTextContent(/^info · NUMERICAL_INTEGRITY_CHECKS_PASSED · class not supplied · from /);
+      expect(parts.meta).toHaveTextContent(/^info · NUMERICAL_INTEGRITY_CHECKS_PASSED · from /);
       expect(parts.note).toHaveAttribute("data-testid", `diagnostic-solver-report-note-${code}`);
       expect(parts.message.nextElementSibling).toBeNull();
     }

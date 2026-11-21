@@ -127,26 +127,30 @@ function openReports(group: HTMLElement): HTMLDetailsElement {
   return disclosure;
 }
 const memberRows = (disclosure: HTMLElement, code: string) => within(disclosure).getAllByTestId(`issue-member-${code}`);
-const classesOf = (rows: HTMLElement[]) => rows.map((row) => within(row).getByTestId("issue-member-class").textContent);
+/** Each opened row's supplied class, or null where its producer gave none (nothing is shown for it). */
+const classesOf = (rows: HTMLElement[]) => rows.map((row) => within(row).queryByTestId("issue-member-class")?.textContent ?? null);
+/** Each opened row's "Not supplied" line, or null where every field was supplied. */
+const notSuppliedOf = (rows: HTMLElement[]) => rows.map((row) => within(row).queryByTestId("issue-member-not-supplied")?.textContent ?? null);
 const diagnostic = (id: string, code: string, severity: Diagnostic["severity"], message: string, cls?: string): Diagnostic => ({
   id, code, severity, message, affected_refs: ["support:H-1"], ...(cls ? { diagnostic_class: cls } : {})
 });
 const renderDiagnostics = (diagnostics: Diagnostic[], onSelect = vi.fn()) =>
   render(<DiagnosticsPanel model={{ ...model, diagnostics } as PreviewModel} knowledge={null} result={null} selectedDiagnosticId={null} onSelectDiagnostic={onSelect} />);
 
-describe("every item and every report shows its class (DEL-07-04 REQ-001, REQ-004)", () => {
-  it("shows the supplied class on a one-report item, and 'class not supplied' where its producer gave none", () => {
+describe("every item and every report shows its class where one is supplied, and nothing at rest where none is (DEL-07-04 REQ-001, REQ-004)", () => {
+  it("shows the supplied class on a one-report item, and nothing for a class its producer did not supply", () => {
     renderDiagnostics([
       diagnostic("c1", "INVENTED_CLASSED", "warning", "invented classed text", "ASSUMPTION_WARNING"),
       { ...diagnostic("c2", "INVENTED_UNCLASSED", "info", "invented unclassed text"), affected_refs: [] },
       { ...diagnostic("c3", "INVENTED_OLD_CLASS", "info", "invented class-field text"), affected_refs: [], class: "PROVENANCE_WARNING" } as Diagnostic
     ]);
     expect(within(screen.getByTestId("diagnostic-INVENTED_CLASSED")).getByTestId("issue-class")).toHaveTextContent(/^class ASSUMPTION_WARNING$/);
-    expect(within(screen.getByTestId("diagnostic-INVENTED_UNCLASSED")).getByTestId("issue-class")).toHaveTextContent(/^class not supplied$/);
+    expect(within(screen.getByTestId("diagnostic-INVENTED_UNCLASSED")).queryByTestId("issue-class")).toBeNull();
+    expect(screen.getByTestId("diagnostic-INVENTED_UNCLASSED").textContent).not.toMatch(/not supplied/);
     expect(within(screen.getByTestId("diagnostic-INVENTED_OLD_CLASS")).getByTestId("issue-class")).toHaveTextContent(/^class PROVENANCE_WARNING$/);
   });
 
-  it("shows a classed item's class once on the item, and a classless member as 'class not supplied' on its own row", () => {
+  it("shows a classed item's class once on the item; an opened classless row shows no class and names it on its Not supplied line", () => {
     renderDiagnostics([
       hanger("cold"),
       { ...hanger("installed"), id: "classed-installed", diagnostic_class: "ASSUMPTION_WARNING" },
@@ -156,7 +160,10 @@ describe("every item and every report shows its class (DEL-07-04 REQ-001, REQ-00
     const main = screen.getByTestId("diagnostic-INVENTED_HANGER_LOAD_NOT_PRELOAD");
     expect(within(main).getAllByTestId("issue-class").map((node) => node.textContent)).toEqual(["class ASSUMPTION_WARNING"]);
     const rows = memberRows(openReports(group), "INVENTED_HANGER_LOAD_NOT_PRELOAD");
-    expect(classesOf(rows)).toEqual(["class not supplied", "class ASSUMPTION_WARNING", "class not supplied"]);
+    expect(classesOf(rows)).toEqual([null, "class ASSUMPTION_WARNING", null]);
+    expect(notSuppliedOf(rows)).toEqual(["Not supplied: class, source, remediation, provenance", "Not supplied: source, remediation, provenance", "Not supplied: class, source, remediation, provenance"]);
+    // At rest, the item says nothing of a missing class.
+    expect(main.textContent).not.toMatch(/not supplied/);
   });
 
   it("shows the class on the Model checks list's rows and on an operation's item", () => {
@@ -168,7 +175,8 @@ describe("every item and every report shows its class (DEL-07-04 REQ-001, REQ-00
     expect(within(screen.getByTestId("model-check-INVENTED_HANGER_LOAD_NOT_PRELOAD")).getByTestId("issue-class")).toHaveTextContent(/^class ASSUMPTION_WARNING$/);
     const [operationItem] = groupIssues({ model, operations: [other] });
     render(<IssueItemView item={operationItem} main={(body) => <article data-testid="operation-item">{body}</article>} />);
-    expect(within(screen.getByTestId("operation-item")).getByTestId("issue-class")).toHaveTextContent(/^class not supplied$/);
+    expect(within(screen.getByTestId("operation-item")).queryByTestId("issue-class")).toBeNull();
+    expect(screen.getByTestId("operation-item").textContent).not.toMatch(/not supplied/);
   });
 });
 
@@ -191,7 +199,7 @@ describe("a report gathered into another list's item opens its detail there", ()
     expect(within(row).getByTestId("issue-meta")).toHaveTextContent(/^error · INVENTED_HANGER_LOAD_NOT_PRELOAD · /);
     expect(row.lastElementChild?.lastElementChild).toHaveClass("issue-message");
     const rows = memberRows(openReports(screen.getByTestId("issue-group-INVENTED_HANGER_LOAD_NOT_PRELOAD")), "INVENTED_HANGER_LOAD_NOT_PRELOAD");
-    expect(rows.map((member) => member.textContent)).toEqual([expect.stringMatching(/^warning · INVENTED_HANGER_LOAD_NOT_PRELOAD · class not supplied · from the model checks/), expect.stringMatching(/^error · INVENTED_HANGER_LOAD_NOT_PRELOAD · class not supplied · from the solve/)]);
+    expect(rows.map((member) => member.textContent)).toEqual([expect.stringMatching(/^warning · INVENTED_HANGER_LOAD_NOT_PRELOAD · from the model checks/), expect.stringMatching(/^error · INVENTED_HANGER_LOAD_NOT_PRELOAD · from the solve/)]);
     const solveRow = rows[1];
     expect(solveRow).toHaveAttribute("aria-disabled", "false");
     fireEvent.click(solveRow);
@@ -228,7 +236,8 @@ describe("an item that holds several reports keeps each one readable", () => {
     expect(rows.map((row) => within(row).getByTestId("issue-member-difference").textContent)).toEqual([
       "LC-1; enter the LC-1", "LC-2; enter the LC-2"
     ]);
-    expect(classesOf(rows)).toEqual(["class not supplied", "class not supplied"]);
+    expect(classesOf(rows)).toEqual([null, null]);
+    expect(notSuppliedOf(rows)).toEqual(["Not supplied: class, source, remediation, provenance", "Not supplied: class, source, remediation, provenance"]);
   });
 
   it("one code on one object for two missing fields: the closed item says two, the open one gives each field's action", () => {
@@ -257,7 +266,7 @@ describe("no report that joins an item lowers it", () => {
     expect(screen.getByTestId("diagnostic-severity-warning")).toHaveTextContent("0 Warnings");
   });
 
-  it("a blocking item joined by an info report with no class stays blocking, and shows that report as 'class not supplied'", () => {
+  it("a blocking item joined by an info report with no class stays blocking; that report's opened row shows no class and names it as not supplied", () => {
     const blocking = diagnostic("b1", "INVENTED_JOINED", "blocking", "invented blocking text on support:H-1", "MISSING_INPUT");
     const info = diagnostic("i1", "INVENTED_JOINED", "info", "invented info text on support:H-1");
     const items: IssueItem[] = groupIssues({ model, diagnostics: [blocking, info] });
@@ -270,7 +279,7 @@ describe("no report that joins an item lowers it", () => {
     expect(screen.getByTestId("diagnostic-severity-info")).toHaveTextContent("0 Info");
     const rows = memberRows(openReports(screen.getByTestId("issue-group-INVENTED_JOINED")), "INVENTED_JOINED");
     expect(rows.map((row) => row.textContent)).toEqual([
-      expect.stringMatching(/^blocking · INVENTED_JOINED · class MISSING_INPUT · from the model/), expect.stringMatching(/^info · INVENTED_JOINED · class not supplied · from the model/)
+      expect.stringMatching(/^blocking · INVENTED_JOINED · class MISSING_INPUT · from the model/), expect.stringMatching(/^info · INVENTED_JOINED · from the modelNot supplied: class, /)
     ]);
   });
 });

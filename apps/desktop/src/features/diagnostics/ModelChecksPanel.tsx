@@ -191,7 +191,7 @@ export function FindingButton({ finding, onSelectEntity, body, severity }: {
       {/* An Issues row (the body) reads eyebrow, what it names and selects, then its message last. */}
       {body ?? (
         <>
-          <strong>{diagnostic.code}</strong> <span className="muted">{shownSeverity}</span><p>{diagnostic.message}</p><small className="issue-class" data-testid="issue-class">{classText(diagnostic)}</small>
+          <strong>{diagnostic.code}</strong> <span className="muted">{shownSeverity}</span><p>{diagnostic.message}</p>{classText(diagnostic) ? <small className="issue-class" data-testid="issue-class">{classText(diagnostic)}</small> : null}
           {entity ? <small>Selects {entity.id}</small> : null}
           {(diagnostic as { truncated?: boolean }).truncated ? <small data-testid="model-check-truncated"> Text shortened in the bounded report.</small> : null}
         </>
