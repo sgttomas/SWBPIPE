@@ -747,8 +747,119 @@
     });
   }
 
+  // The Project page's Model History, where states and runs are saved and compared.
+  async function showHistory() {
+    await closeOverlays();
+    await showSection("project");
+    const panel = await waitFor("the Model History panel", () => (visible(byTestId("model-history-panel")) ? byTestId("model-history-panel") : null), T.ui);
+    await scrollTo(panel, "start");
+    return shown("model-history-message") ?? "";
+  }
+  // A history form's outcome, once the history is no longer busy: the form closed (taken), or its submit enabled again
+  // (the form still open: refused or not taken). Each message the history showed meanwhile is recorded in order.
+  async function historyAnswer(before, formId, submitId) {
+    const said_ = [];
+    await waitFor("the history's answer", () => {
+      const now = shown("model-history-message") ?? "";
+      if (now && now !== before && now !== said_.at(-1)) said_.push(now);
+      const form = byTestId(formId);
+      if (!visible(form)) return "closed";
+      const submit = byTestId(submitId);
+      return said_.length > 0 && submit && !submit.disabled ? "open" : null;
+    }, T.save).catch(() => null);
+    const form = visible(byTestId(formId)) ? "the form is still open" : "the form closed";
+    return `${said_.join(" / ") || `the history said nothing new (${before || "no message"})`}; ${form}`;
+  }
+  async function saveState(journey, name, stateName) {
+    await journey.step(`${name}-form`, "Save Model State…: its form, empty", async () => { await showHistory(); await press("model-state-save-open"); await scrollTo(await control("model-state-save-form"), "center"); });
+    await journey.step(`${name}-filled`, `The form filled: the name "${stateName}"`, async () => { await type("model-state-save-name", stateName); });
+    await journey.step(`${name}-saved`, "Save state pressed", async () => {
+      const before = shown("model-history-message") ?? "";
+      await press("model-state-save-submit");
+      return historyAnswer(before, "model-state-save-form", "model-state-save-submit");
+    });
+  }
+  async function recordRun(journey, name, runName) {
+    await journey.step(`${name}-form`, "Record Run…: its form, empty", async () => { await showHistory(); await press("record-run-open"); await scrollTo(await control("record-run-form"), "center"); return shown("record-run-state") ?? ""; });
+    await journey.step(`${name}-filled`, `The form filled: the name "${runName}"`, async () => {
+      await type("record-run-name", runName);
+      if (visible(byTestId("record-run-snapshot-name"))) await type("record-run-snapshot-name", `${runName}, solved model`);
+    });
+    await journey.step(`${name}-recorded`, "Record run pressed", async () => {
+      const before = shown("model-history-message") ?? "";
+      await press("record-run-submit");
+      return historyAnswer(before, "record-run-form", "record-run-submit");
+    });
+  }
+  // Ticks the compare box of the first two listed states (`runs` false) or runs (`runs` true), then Compare….
+  async function compareTwo(runs) {
+    await showHistory();
+    const list = byTestId("model-history-list");
+    if (!visible(list)) throw new Error(`the history lists nothing to compare: ${shown("model-history-empty") ?? shown("model-history-message") ?? "no reason shown"}`);
+    const boxes = [...list.querySelectorAll('input[type="checkbox"][data-testid$="-compare-select"]')]
+      .filter((box) => Boolean(box.closest(".model-history-runs")) === runs && box.getAttribute("data-testid") !== "current-run-compare-select");
+    if (boxes.length < 2) throw new Error(`the history offers ${boxes.length} ${runs ? "run" : "state"}(s) to tick for comparison`);
+    for (const box of boxes.slice(0, 2)) {
+      if (box.checked) continue;
+      if (box.disabled) throw new Error(`the compare box ${box.getAttribute("data-testid")} is disabled: "${disabledReason(box)}"`);
+      await scrollTo(box, "center");
+      acting(box, box.getAttribute("data-testid")).click();
+      await settle();
+    }
+    await press("model-state-compare");
+    const view = runs ? "run-comparison" : "state-comparison";
+    const shownView = await waitFor(`the ${view}`, () => (visible(byTestId(view)) ? byTestId(view) : null), T.step)
+      .catch(() => { throw new Error(`Compare… showed no comparison: ${shown("model-history-message") ?? "no message"}`); });
+    await scrollTo(shownView, "start");
+    return shown(`${view}-summary`) ?? "";
+  }
+  async function exportComparison(view) {
+    const button = [...(byTestId(view)?.querySelectorAll("button") ?? [])].find((item) => /^Export CSV/.test(item.getAttribute("aria-label") ?? ""));
+    if (!button) throw new Error(`the ${view} offers no Export CSV control`);
+    await scrollTo(button, "center");
+    const id = button.getAttribute("data-testid");
+    if (id) await press(id); else { acting(button, `${view} Export CSV`).click(); await settle(); }
+    const status = await waitFor("the export's outcome", () => { const now = said(document.querySelector(`[data-testid="${id}-status"]`)); return now && !/pending|Saving|Exporting/i.test(now) ? now : null; }, T.save)
+      .catch(() => "no outcome shown");
+    return status;
+  }
+
+  // 34. Change a support and compare: after a solve, the state saved and the run recorded; support:S-120 moved to
+  // node:N-110; the state saved, solved again, the run recorded; the two states and the two runs compared in a table
+  // and in the 3D view; the comparison exported.
+  async function changeAndCompare(journey) {
+    await journey.step("run", "Run pressed on the demonstration model", pressRun);
+    await journey.step("solved", "The solve, once it ended", awaitSolve);
+    await journey.step("history", "The Project page's Model History after the solve", showHistory);
+    await saveState(journey, "state-1", "Before the support change");
+    await recordRun(journey, "run-1", "Solve before the support change");
+    await journey.step("support-chosen", "support:S-120 chosen in the model tree", async () => selectInTree("support", "support:S-120"));
+    await editValue(journey, "support-moved", "the node of support:S-120 (node:N-110 in place of node:N-120)", { fieldPath: "node", value: "node:N-110" });
+    await journey.step("held-result", "What the Results stage says of the held result after the edit", heldResultWords);
+    await saveState(journey, "state-2", "After the support change");
+    await journey.step("run-2", "Run pressed on the changed model", pressRun);
+    await journey.step("solved-2", "The second solve, once it ended", awaitSolve);
+    await recordRun(journey, "run-2-record", "Solve after the support change");
+    await journey.step("history-2", "Model History with both states and runs", showHistory);
+    await journey.scrolled("history-2", "Model History", 2);
+    await journey.step("states-compared", "The two saved states ticked and compared", async () => compareTwo(false));
+    await journey.scrolled("states-compared", "The state comparison", 3);
+    await journey.step("states-exported", "The state comparison's Export CSV", async () => exportComparison("state-comparison"));
+    await journey.step("states-closed", "The state comparison closed", async () => { await press("state-comparison-close"); });
+    await journey.step("runs-compared", "The two recorded runs ticked and compared", async () => compareTwo(true));
+    await journey.scrolled("runs-compared", "The run comparison", 3);
+    await journey.step("runs-exported", "The run comparison's Export CSV", async () => exportComparison("run-comparison"));
+    await journey.step("viewport", "The 3D view after the comparison (Model view)", async () => {
+      await closeOverlays();
+      if (visible(byTestId("workspace-dock-close"))) await press("workspace-dock-close");
+      await press("rail-stage-model");
+      if (byTestId("view-switch-model")?.getAttribute("aria-pressed") !== "true") await press("view-switch-model");
+      return shown("status-selection") ?? "";
+    });
+  }
+
   const JOURNEYS = { "solve-and-results": solveAndResults, report, exports: exportsPage, "reference-system": referenceSystem, "prepared-project": preparedProject };
-  Object.assign(JOURNEYS, { "missing-data": missingData, "failed-solve": failedSolve });
+  Object.assign(JOURNEYS, { "missing-data": missingData, "failed-solve": failedSolve, "change-and-compare": changeAndCompare });
 
   (async () => {
     const result = { nonce: null, ok: false, journey: null, user_agent: navigator.userAgent };

@@ -116,6 +116,7 @@ nothing. A launch invocation builds nothing: anything stale refuses it by name.
 | `prepared-project` | 24 | A model document placed in the throwaway home before launch, opened by File > Open Model Document…: the start other journeys build on. |
 | `missing-data` | 32 | AC-007 Missing data: the committed missing-data model opened, Run and its answer, the Issues drawer, Analyze and Results, each missing value reached from its finding and entered (the first undone and redone), Run again, the results. |
 | `failed-solve` | 33 | AC-007 Failed solve: on the demonstration model, pipe:P-100's wall set thicker than its radius in the inspector (the start), Run, the refusal in the progress panel, Issues, Analyze and Results, the pipe reached from its finding and corrected, Run again, the results. |
+| `change-and-compare` | 34 | AC-007 Change a support and compare: solved, Save Model State… and Record Run…, support:S-120 moved to node:N-110, what Results says of the held result, saved and solved again and recorded, the two states and the two runs compared, each comparison's Export CSV, the 3D view. |
 
 Without `--journey` the first three run, one launch each. `--show-window`, off
 by default, brings each launched window to the front for its run so that the
