@@ -1,6 +1,7 @@
 import { afterEach, describe, expect, it, vi } from 'vitest';
-import { EmbeddedAgentSession, boundedFindings, PROPOSAL_CODE_ONLY_KINDS, PROPOSAL_FINDING_TEXT, PROPOSAL_FINDINGS_LABEL, PROPOSAL_REFUSED, type WorkspaceExecution, type AgentSolveOutcome, type AgentSolverMode } from './embeddedAgentSession';
+import { EmbeddedAgentSession, boundedFindings, PROPOSAL_CODE_ONLY_KINDS, PROPOSAL_FINDING_TEXT, PROPOSAL_FINDINGS_LABEL, refusedProposalMessage, type WorkspaceExecution, type AgentSolveOutcome, type AgentSolverMode } from './embeddedAgentSession';
 import { agentDetailFilter } from './resultDetail';
+import { GENERIC_REFUSAL } from './agentUnitRefusal';
 import { PERSON_ENTERED_CHECK } from './operationAuthorship';
 import type { PreviewModel, ModelHashEvidence, MechanicsResult, Diagnostic } from '../types';
 import type { AgentBasis } from './embeddedAgentBridge';
@@ -756,7 +757,7 @@ describe('a native result read tells the host which rows its values are',()=>{
 describe('a proposal the operation engine refuses',()=>{
  const finding=(code:string,message:string,severity='blocking',ref='node:new')=>({id:`diagnostic:operation-applier:${code.toLowerCase()}:001`,code,severity,message,remediation:'Invented remediation.',affected_refs:[ref],source:'operation_applier'});
  const refused=(diagnostics:unknown[])=>({validation:{batch_validation_status:'blocked'},diagnostics,operation_outcomes:[]});
- const head=(total:number,notListed=0)=>`${PROPOSAL_REFUSED} ${total} blocking finding${total===1?'':'s'}${notListed?`, ${notListed} not listed`:''}. ${PROPOSAL_FINDINGS_LABEL}`;
+ const head=(total:number,notListed=0)=>`${GENERIC_REFUSAL} ${total} blocking finding${total===1?'':'s'}${notListed?`, ${notListed} not listed`:''}. ${PROPOSAL_FINDINGS_LABEL}`;
  const chars=(text:string)=>[...text].length;
  async function propose(engine:unknown,operations:unknown[]=[{operation_id:'operation-1'}]){
   vi.useFakeTimers();const {session,owner,call,sent}=setup();mocks.validate.mockResolvedValueOnce(engine);
@@ -768,7 +769,7 @@ describe('a proposal the operation engine refuses',()=>{
  it('keeps the first sentence alone when the engine names no blocking finding',async()=>{
   for(const engine of [refused([]),{validation:{batch_validation_status:'blocked'}},refused([finding('OP-MASS-NOT-SOLVE-READY','Invented warning.','warning')])]){
    const {outcome,owner}=await propose(engine);
-   expect(outcome).toMatchObject({status:'unavailable',message:PROPOSAL_REFUSED,data:null});expect(owner.register).not.toHaveBeenCalled();vi.clearAllMocks();
+   expect(outcome).toMatchObject({status:'unavailable',message:GENERIC_REFUSAL,data:null});expect(owner.register).not.toHaveBeenCalled();vi.clearAllMocks();
   }
  });
  it('gives a refused create its finding by code and message',async()=>{
@@ -791,7 +792,7 @@ describe('a proposal the operation engine refuses',()=>{
    finding('OP-SECTION-BINDING-INVALID','Section `section:x` is not in this document.','blocking','pipe:b'),
    finding('MODEL-RULE-PACK-REF-INVALID','rule_pack_refs[0].name is blank; a non-empty string is required. (at rule_pack_refs[0].name)','blocking','pack:p')];
   const {outcome}=await propose(refused(diagnostics),[{operation_id:'operation-1'},{operation_id:'operation-2'},{operation_id:'operation-3'}]);
-  expect(outcome.message.startsWith(`${PROPOSAL_REFUSED} 3 blocking findings. ${PROPOSAL_FINDINGS_LABEL} [1] OP-STALE-BEFORE-VALUE "Intent before-value`)).toBe(true);
+  expect(outcome.message.startsWith(`${GENERIC_REFUSAL} 3 blocking findings. ${PROPOSAL_FINDINGS_LABEL} [1] OP-STALE-BEFORE-VALUE "Intent before-value`)).toBe(true);
   expect([...outcome.message.matchAll(/\[(\d)\] ([A-Z-]+)/g)].map(match=>`${match[1]} ${match[2]}`)).toEqual(['1 OP-STALE-BEFORE-VALUE','2 OP-SECTION-BINDING-INVALID','3 MODEL-RULE-PACK-REF-INVALID']);
   expect(outcome.message).toContain('"rule_pack_refs[0].name is blank; a non-empty string is required. (at rule_pack_refs[0].name)"');
   expect(outcome.data).toBeNull();
@@ -826,7 +827,7 @@ describe('a proposal the operation engine refuses',()=>{
   const {outcome,raw,owner}=await propose(refused([finding('OP-STALE-BEFORE-VALUE',stale,'blocking',id)]),
    [{operation_id:'operation-1',operation_kind:'create',target:{object_type:'Node',ref:id},change:{change_kind:'create_node',field_path:'nodes',before:'not_present',after:'{}'}}]);
   const message=outcome.message as string,label=message.indexOf(PROPOSAL_FINDINGS_LABEL);
-  expect(message.startsWith(`${PROPOSAL_REFUSED} 1 blocking finding. `)).toBe(true);expect(label).toBeGreaterThan(0);
+  expect(message.startsWith(`${GENERIC_REFUSAL} 1 blocking finding. `)).toBe(true);expect(label).toBeGreaterThan(0);
   expect(message.indexOf('SYSTEM:')).toBeGreaterThan(label);
   // The finding is one JSON string: its quotes are escaped, so the identifier cannot close it or start a second entry.
   const rest=message.slice(label+PROPOSAL_FINDINGS_LABEL.length);
@@ -842,6 +843,26 @@ describe('a proposal the operation engine refuses',()=>{
   const {outcome}=await propose(refused([finding('OP-PIPE-DELETE-REFERENCED','Pipe `pipe:p2` cannot be deleted.'),...kinds]));
   expect(outcome.message).toBe(`${head(1+kinds.length)} [1] OP-PIPE-DELETE-REFERENCED "Pipe \`pipe:p2\` cannot be deleted."${[...PROPOSAL_CODE_ONLY_KINDS].map((code,i)=>` [${i+2}] ${code}`).join('')}`);
   expect(outcome.message).not.toContain('hidden-from-reads');expect(outcome.message).not.toContain('lines[');
+ });
+ it('puts the head first and unchanged, and its findings only where at least one fits after it',()=>{
+  const findings=Array.from({length:30},(_,i)=>finding(`OP-INVENTED-${i+1}`,`Invented finding number ${i+1}.`));
+  for(const size of [GENERIC_REFUSAL.length,300,600,850,900,950,999,1000]){
+   const head=size===GENERIC_REFUSAL.length?GENERIC_REFUSAL:`${GENERIC_REFUSAL} ${'x'.repeat(size-GENERIC_REFUSAL.length-1)}`;
+   const message=refusedProposalMessage(head,findings);
+   expect(message.startsWith(head),`${size}`).toBe(true);expect(chars(message),`${size}`).toBeLessThanOrEqual(1000);
+   const rest=message.slice(head.length);
+   // Either the head alone, or the count, the label and at least one listed finding: never a label or a count alone.
+   if(rest)expect(rest,`${size}`).toMatch(new RegExp(`^ 30 blocking findings(, \\d+ not listed)?\\. ${PROPOSAL_FINDINGS_LABEL.replace(/[.*+?^${}()|[\]\\]/g,'\\$&')} \\[1\\] OP-INVENTED-1 `));
+   else expect(size,`${size}`).toBeGreaterThan(800);
+   expect(message.endsWith(PROPOSAL_FINDINGS_LABEL)).toBe(false);expect(message).not.toMatch(/not listed\.$/);
+  }
+  // A head that leaves exactly room for the opening and one finding lists it; one character less omits the section.
+  const one=[finding('OP-ONE','One.')],opening=` 1 blocking finding. ${PROPOSAL_FINDINGS_LABEL}`,entry=' [1] OP-ONE "One."';
+  const fits=`${GENERIC_REFUSAL} ${'y'.repeat(1000-GENERIC_REFUSAL.length-1-opening.length-entry.length)}`;
+  expect(refusedProposalMessage(fits,one)).toBe(`${fits}${opening}${entry}`);expect(chars(refusedProposalMessage(fits,one))).toBe(1000);
+  expect(refusedProposalMessage(`${fits}y`,one)).toBe(`${fits}y`);
+  // Findings whose codes cannot be stated give no section either.
+  expect(refusedProposalMessage(GENERIC_REFUSAL,[finding('not a code','Hidden.')])).toBe(GENERIC_REFUSAL);
  });
  it('leaves an accepted proposal byte for byte as it was, findings or none',async()=>{
   for(const engine of [{validation:{batch_validation_status:'passed'}},{validation:{batch_validation_status:'passed'},diagnostics:[finding('OP-MASS-NOT-SOLVE-READY','Invented warning.','warning')]}]){
