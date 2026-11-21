@@ -316,7 +316,7 @@ Entries are added in the same PR that makes the refusal standing. A previously u
   - So the case standing is not eligible; a report package or user release of it is refused (LIM-016), and its rendered report states that standing.
 - **Basis:**
   - the cited source: `core/solver/nonlinear_integration/src/structural_adapter.rs` and `core/product_physics/src/lib.rs`;
-  - `core/product_physics/tests/rt_a3_s6_reference_system.rs`. It asserts the unqualified recovery basis on every case of the overlay with RS-G1. Its known-limitation witness observes the overlay without RS-G1: every case confirmed and `NUMERICAL_INTEGRITY_SENSITIVE`, with the guard's counts printed, not asserted. Both are test-only overlays.
+  - `core/product_physics/tests/rt_a3_s6_reference_system.rs`. It asserts the unqualified recovery basis on RS-SUS, RS-OPE and RS-SAM of the overlay with RS-G1. Its known-limitation witness observes the overlay without RS-G1: RS-SUS, RS-OPE and RS-SAM confirmed and `NUMERICAL_INTEGRITY_SENSITIVE`, with the guard's counts printed, not asserted. Both are test-only overlays.
   - `validation/references/w16_nonlinear_motion/README.md` (about line 155): "Gap cases (R1) are never confirmed".
   - The behaviour was standing before this entry; the entry was added with PR #313.
 - **Not met by declaring it:** declaring this acceptable does not demonstrate exit criterion 1 or 4 for the reference system, and does not make either met. Criterion 1 is also not demonstrated for other reasons, assessed separately: the families and analyses pending in the reference system's ledger, and the interim linear friction-normal support.
