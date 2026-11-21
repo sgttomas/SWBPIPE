@@ -82,3 +82,11 @@ export const WORKSPACE_SECTIONS: ReadonlyArray<{ id: WorkspaceSectionId; label: 
 export const EXPENSIVE_LIFECYCLE_SECTIONS: ReadonlySet<WorkspaceSectionId> = new Set(
   WORKSPACE_SECTIONS.map((section) => section.id)
 );
+
+/** The sections the View menu lists, in the webview and in the native menu (the native table
+ * `NATIVE_VIEW_SECTIONS` in `src-tauri/src/lib.rs` lists the same ids in the same order). Results,
+ * Report and Evidence are reached through the Results and Review stages, which are always
+ * reachable, so the menu does not list them again; their commands are still accepted. */
+export const VIEW_MENU_SECTIONS: ReadonlyArray<(typeof WORKSPACE_SECTIONS)[number]> = WORKSPACE_SECTIONS.filter(
+  (section) => section.id !== "results" && section.id !== "report" && section.id !== "evidence"
+);

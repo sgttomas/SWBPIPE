@@ -12,6 +12,9 @@ import { buildAnalysisRunV03, modelLoadBasisRefs } from "./services/analysisRunC
 import { createNativeMechanicsReplay, nativeMechanicsReplayPair, REPLAY_COMMANDS } from "./test/nativeMechanicsReplay";
 import type { LocalProjectEnvelope, PreviewModel } from "./types";
 import { confirmProjectUnits } from "./test-support/workspaceTestControls";
+import { SHELL_STAGE_LABELS } from "./features/workspace/shellLayout";
+import { RESULTS_NO_RUN_TEXT } from "./features/results/ResultsStageNotices";
+import { openStageTab } from "./features/results/resultsStageTestSupport";
 
 // Slice B3: the shell through the product. The rules themselves are unit-tested
 // in features/workspace/shellLayout.test.ts; these tests hold that the shell's
@@ -164,28 +167,31 @@ async function openHistoricalRun(recordedToken?: string) {
 
 
 describe("the rail's states through the product", () => {
-  it("before a run: Results and Review are disabled with No run yet, reachable by focus, and do nothing", async () => {
+  it("before a run: Results and Review are reachable; Results says there is no run and holds the weight summary", async () => {
     await renderShell();
     for (const stage of ["results", "review"] as const) {
-      expect(railState(stage)).toEqual({ disabled: true, tooltip: "No run yet", reason: "No run yet", caption: null });
-      // aria-disabled, never disabled: the item takes focus so its reason can be read.
-      expect(rail(stage)).not.toBeDisabled();
-      rail(stage).focus();
-      expect(rail(stage)).toHaveFocus();
-      fireEvent.click(rail(stage));
-      expect(rail("model")).toHaveAttribute("aria-current", "page");
+      expect(railState(stage)).toEqual({ disabled: false, tooltip: SHELL_STAGE_LABELS[stage], reason: null, caption: null });
     }
-    expect(rail("model")).not.toHaveAttribute("aria-disabled");
-    expect(rail("loads")).not.toHaveAttribute("aria-disabled");
-    // The View menu agrees with the rail, stage for stage, with the same reason.
+    fireEvent.click(rail("results"));
+    expect(rail("results")).toHaveAttribute("aria-current", "page");
+    const results = screen.getByTestId("workspace-section-results");
+    expect(results).not.toHaveClass("inactive");
+    expect(within(results).getByTestId("results-no-run")).toHaveTextContent(RESULTS_NO_RUN_TEXT);
+    const weight = openStageTab("Weight", results);
+    expect(weight).toContainElement(within(results).getByTestId("weight-summary-panel"));
+    fireEvent.click(rail("review"));
+    expect(rail("review")).toHaveAttribute("aria-current", "page");
+    expect(screen.getByTestId("workspace-section-report")).not.toHaveClass("inactive");
+    // The View menu agrees with the rail; it lists no Results, Report or Evidence section, which
+    // the stages reach. The webview still accepts their command ids.
     fireEvent.click(screen.getByTestId("menu-view"));
-    expect(screen.getByTestId("menu-item-view.stage.results")).toBeDisabled();
-    expect(screen.getByTestId("menu-item-view.stage.results")).toHaveTextContent("No run yet");
-    expect(screen.getByTestId("menu-item-view.stage.review")).toBeDisabled();
-    expect(screen.getByTestId("menu-item-view.stage.review")).toHaveTextContent("No run yet");
-    expect(screen.getByTestId("menu-item-view.stage.loads")).toBeEnabled();
-    // The section commands stay enabled even for a stage the rail disables.
-    expect(screen.getByTestId("menu-item-view.section.results")).toBeEnabled();
+    expect(screen.getByTestId("menu-item-view.stage.results")).toBeEnabled();
+    expect(screen.getByTestId("menu-item-view.stage.review")).toBeEnabled();
+    for (const section of ["results", "report", "evidence"]) expect(screen.queryByTestId(`menu-item-view.section.${section}`)).toBeNull();
+    expect(screen.getByTestId("menu-item-view.section.loads")).toBeEnabled();
+    fireEvent.click(screen.getByTestId("menu-view"));
+    act(() => nativeMenuCommand("view.section.results"));
+    expect(screen.getByTestId("workspace-section-results")).not.toHaveClass("inactive");
   });
 
   it("after a solved run: both stages open, with no caption", async () => {
@@ -205,7 +211,7 @@ describe("the rail's states through the product", () => {
     expect(screen.getByTestId("menu-item-view.stage.review")).toHaveAttribute("aria-pressed", "true");
   });
 
-  it("after a failed run with none solved: Results is captioned Failed and Review says No solved run", async () => {
+  it("after a failed run with none solved: Results is captioned Failed and Review stays reachable", async () => {
     await renderShell();
     invokeMock.mockImplementation((command: string) =>
       Promise.reject(new Error(command === "start_preview_mechanics_job" ? "Invented solve failure" : `Unexpected command ${command}`)));
@@ -213,7 +219,7 @@ describe("the rail's states through the product", () => {
     fireEvent.click(screen.getByTestId("toolbar-run"));
     await waitFor(() => expect(railState("results").caption).toBe("Failed"));
     expect(railState("results")).toEqual({ disabled: false, tooltip: "Failed · Results", reason: null, caption: "Failed" });
-    expect(railState("review")).toEqual({ disabled: true, tooltip: "No solved run", reason: "No solved run", caption: null });
+    expect(railState("review")).toEqual({ disabled: false, tooltip: "Review", reason: null, caption: null });
     // B3A owner terminal interpretation: recorded job state is not a solver token.
     expect(chipFaces()).toEqual(["Solver · Not solved"]);
     expect(screen.getByTestId("status-pill-mechanics")).toHaveAttribute("title", "Solve job state: failed");
@@ -221,11 +227,11 @@ describe("the rail's states through the product", () => {
     expect(screen.getByTestId("solve-readiness-summary")).toHaveTextContent("Solve job state: failed");
   });
 
-  it("with a reopened Historical run: Results is captioned Historical and Review needs a current run", async () => {
+  it("with a reopened Historical run: Results is captioned Historical, and Review says how a report is made", async () => {
     await renderShell();
     await openHistoricalRun();
     expect(railState("results")).toEqual({ disabled: false, tooltip: "Historical · Results", reason: null, caption: "Historical" });
-    expect(railState("review")).toEqual({ disabled: true, tooltip: "Needs a current run", reason: "Needs a current run", caption: null });
+    expect(railState("review")).toEqual({ disabled: false, tooltip: "Review", reason: null, caption: null });
     // The reopen lands on the Results stage, where the Historical record is read.
     expect(rail("results")).toHaveAttribute("aria-current", "page");
     expect(screen.queryByText("Stale")).not.toBeInTheDocument();
@@ -318,7 +324,7 @@ describe("the status chip policy through the product (§5.4)", () => {
     fireEvent.click(screen.getByTestId("menu-item-file.new-blank"));
     confirmProjectUnits();
     await waitFor(() => expect(chipFaces()).toEqual(["Solver · Model incomplete"]));
-    expect(railState("results")).toMatchObject({ disabled: true, reason: "No run yet", caption: null });
+    expect(railState("results")).toMatchObject({ disabled: false, reason: null, caption: null });
   });
 
   it("a chip is read, never clicked to change anything: the click opens the raw token and the domain", async () => {
@@ -627,7 +633,7 @@ describe("native shell command equivalence", () => {
     act(() => nativeMenuCommand("view.view.model"));
     expect(surfaces).toHaveAttribute("data-view", "model");
     await waitFor(() => expect(invokeMock).toHaveBeenCalledWith("sync_native_shell_state", {
-      state: expect.objectContaining({ stage: "model", view: "model", inspectorOpen: true, resultsStageEnabled: false, reviewStageEnabled: false, canUndo: false, canRedo: false, canRun: true, canCancel: false })
+      state: expect.objectContaining({ stage: "model", view: "model", inspectorOpen: true, resultsStageEnabled: true, reviewStageEnabled: true, canUndo: false, canRedo: false, canRun: true, canCancel: false })
     }));
     act(() => nativeMenuCommand("view.view.both"));
     expect(surfaces).toHaveClass("inspector-collapsed");
@@ -638,8 +644,10 @@ describe("native shell command equivalence", () => {
     expect(surfaces).not.toHaveClass("inspector-collapsed");
     act(() => nativeMenuCommand("view.stage.loads"));
     expect(rail("loads")).toHaveAttribute("aria-current", "page");
+    // Review is always reachable: before a run it says what a report is made from.
     act(() => nativeMenuCommand("view.stage.review"));
-    expect(rail("loads")).toHaveAttribute("aria-current", "page");
+    expect(rail("review")).toHaveAttribute("aria-current", "page");
+    act(() => nativeMenuCommand("view.stage.loads"));
     act(() => nativeMenuCommand("view.theme.dark"));
     act(() => nativeMenuCommand("view.density.compact"));
     await waitFor(() => expect(invokeMock).toHaveBeenCalledWith("sync_native_shell_state", {
@@ -762,7 +770,7 @@ describe("New Blank starts a fresh shell context", () => {
     expect(workspace).toHaveAttribute("data-view", "both");
     expect(rail("model")).toHaveAttribute("aria-current", "page");
     expect(rail("results")).not.toHaveAttribute("aria-current");
-    expect(railState("results")).toMatchObject({ disabled: true, caption: null, reason: "No run yet" });
+    expect(railState("results")).toMatchObject({ disabled: false, caption: null, reason: null });
   });
 
   it("preserves previous shell and preferences when New Blank fails", async () => {
@@ -867,7 +875,7 @@ describe("B3A recorded solver fallback through the product", () => {
     await renderShell();
     expect(chipFaces()).toEqual(["Solver · Not solved"]);
     expect(screen.getByTestId("status-pill-mechanics")).toHaveAttribute("title", "BLOCKED_before_run");
-    expect(railState("results").reason).toBe("No run yet");
+    expect(railState("results")).toMatchObject({ disabled: false, reason: null, caption: null });
     act(() => nativeMenuCommand("view.section.solve"));
     expect(screen.getByTestId("solve-readiness-summary")).toHaveTextContent("Solver · Not solved (BLOCKED_before_run)");
   });

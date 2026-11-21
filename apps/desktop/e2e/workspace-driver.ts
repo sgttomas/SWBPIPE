@@ -24,6 +24,12 @@ type WorkspaceSectionId =
   | "exports"
   | "evidence";
 
+const STAGE_SECTIONS = {
+  results: { stage: "results", tab: "results" },
+  evidence: { stage: "results", tab: "evidence" },
+  report: { stage: "review", tab: "report" }
+} as const;
+
 export async function openWorkspaceSection(page: Page, sectionId: WorkspaceSectionId): Promise<Locator> {
   const section = page.getByTestId(`workspace-section-${sectionId}`);
   if (!await section.isVisible()) {
@@ -31,6 +37,12 @@ export async function openWorkspaceSection(page: Page, sectionId: WorkspaceSecti
     // section command, as every other section is.
     if (sectionId === "operations" && await page.getByTestId("workspace-review").isVisible()) {
       await page.getByTestId("workspace-review").click();
+    } else if (sectionId in STAGE_SECTIONS) {
+      // Results, Evidence and Report are reached through their stage (the View menu does not list
+      // them): the stage from the rail, then its tab where the stage holds more than one.
+      const { stage, tab } = STAGE_SECTIONS[sectionId as keyof typeof STAGE_SECTIONS];
+      await page.getByTestId(`rail-stage-${stage}`).click();
+      if (!await section.isVisible()) await page.getByTestId(`stage-tab-${tab}`).click();
     } else {
       await page.getByTestId("menu-view").click();
       await page.getByTestId(`menu-item-view.section.${sectionId}`).click();

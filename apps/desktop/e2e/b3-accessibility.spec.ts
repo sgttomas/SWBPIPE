@@ -26,10 +26,12 @@ async function tabTo(page: Page, testId: string) {
   throw new Error(`Tab did not reach ${testId}`);
 }
 
-test("disabled rail and Agent reasons escape clipping under keyboard focus", async ({ page }, info) => {
+// The Results and Review stages are always reachable, so the rail states no disabled reason; the
+// toolbar's Agent control and the Agent strip still do.
+test("disabled toolbar and Agent reasons escape clipping under keyboard focus", async ({ page }, info) => {
   await page.goto("/");
   await expect(page.getByTestId("workspace-toolbar")).toBeVisible();
-  for (const id of ["rail-stage-results", "rail-stage-review", "agent-strip-open"]) {
+  for (const id of ["toggle-agent", "agent-strip-open"]) {
     await tabTo(page, id);
     const reasonId = await page.getByTestId(id).getAttribute("aria-describedby");
     const reason = page.locator(`#${reasonId}`);
@@ -49,7 +51,7 @@ test("disabled rail and Agent reasons escape clipping under keyboard focus", asy
     if (process.env.B3_A11Y_EVIDENCE_DIR) await writeFile(`${process.env.B3_A11Y_EVIDENCE_DIR}/${info.project.name}-${id}.json`, JSON.stringify(witness, null, 2));
     expect.soft(witness.clips, id).toEqual([]);
     expect.soft(witness.unobscured, id).toBe(true);
-    if (process.env.B3_A11Y_EVIDENCE_DIR && id === "rail-stage-results") await reason.screenshot({ path: `${process.env.B3_A11Y_EVIDENCE_DIR}/${info.project.name}-results-reason.png` });
+    if (process.env.B3_A11Y_EVIDENCE_DIR && id === "toggle-agent") await reason.screenshot({ path: `${process.env.B3_A11Y_EVIDENCE_DIR}/${info.project.name}-toggle-agent-reason.png` });
   }
 });
 
@@ -378,7 +380,7 @@ test("disabled reasons own only visible unconsumed Escape and reset on reentry",
 test("simultaneous hovered and focused reasons dismiss before the page", async ({ page }) => {
   await page.goto("/");
   await openWorkspaceSection(page, "libraries");
-  const rail = page.getByTestId("rail-stage-results");
+  const rail = page.getByTestId("toggle-agent");
   const railReason = page.locator(`#${await rail.getAttribute("aria-describedby")}`);
   const agent = page.getByTestId("agent-strip-open");
   const reason = page.locator("#agent-strip-reason");

@@ -50,6 +50,8 @@ import { buildLocalFeaHandoffPacket } from "./features/local-fea-handoff/LocalFe
 import { buildHandoffPackage } from "./features/handoff/HandoffPanel";
 import { buildHeadlessRunnerPacket } from "./features/headless-runner/HeadlessRunnerPanel";
 import { initialSolveJob } from "./features/workspace/solveJobAudit";
+import { VIEW_MENU_SECTIONS } from "./features/workspace/workspaceSections";
+import { RESULTS_NO_RUN_TEXT } from "./features/results/ResultsStageNotices";
 import { RunAuditPanel } from "./features/run-audit/RunAuditPanel";
 import { OperationLedgerPanel } from "./features/operations/OperationLedgerPanel";
 import { ExportReviewPanel } from "./features/export-review/ExportReviewPanel";
@@ -155,7 +157,7 @@ function openWorkspaceSection(sectionId: AppWorkspaceSection) {
   if (!section || section.classList.contains("inactive")) {
     if (sectionId === "operations" && screen.queryByTestId("workspace-review")) {
       fireEvent.click(screen.getByTestId("workspace-review"));
-    } else if (screen.queryByTestId("menu-view")) {
+    } else if (screen.queryByTestId("menu-view") && VIEW_MENU_SECTIONS.some((section) => section.id === sectionId)) {
       fireEvent.click(screen.getByTestId("menu-view"));
       fireEvent.click(screen.getByTestId(`menu-item-view.section.${sectionId}`));
     } else {
@@ -3461,12 +3463,11 @@ describe("SWBPIPE desktop preview", () => {
     expect(
       within(nativePackage).getByTestId("native-package-empty").textContent,
     ).toContain("native JSON package review manifest");
-    const comparison = comparisonWorkspace();
-    expect(
-      within(comparison).getByTestId("comparison-empty").textContent,
-    ).toContain(
-      "Run mechanics preview to populate the local comparison workspace",
-    );
+    // Before a run the Results stage holds its one plain line, the weight summary and the design
+    // state; the comparison workspace is a tab once there is a run to compare.
+    const resultsBeforeRun = openWorkspaceSection("results");
+    expect(within(resultsBeforeRun).getByTestId("results-no-run")).toHaveTextContent(RESULTS_NO_RUN_TEXT);
+    expect(within(resultsBeforeRun).queryByLabelText("Comparison workspace")).not.toBeInTheDocument();
     const handoff = handoffPackage();
     expect(within(handoff).getByTestId("handoff-empty").textContent).toContain(
       "Run mechanics preview to assemble a local review handoff package",
@@ -9251,11 +9252,7 @@ describe("SWBPIPE desktop preview", () => {
     const resultsPanel = await within(
       openWorkspaceSection("results"),
     ).findByTestId("results-panel");
-    expect(
-      within(resultsPanel).getByText(
-        "Run the bounded preview mechanics path to populate result summaries.",
-      ),
-    ).toBeInTheDocument();
+    expect(within(resultsPanel).getByTestId("results-no-run")).toHaveTextContent(RESULTS_NO_RUN_TEXT);
     const reportPanel = await within(
       openWorkspaceSection("report"),
     ).findByTestId("report-panel");

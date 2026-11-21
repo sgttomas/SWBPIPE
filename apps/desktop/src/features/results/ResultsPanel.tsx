@@ -62,6 +62,8 @@ export type ResultsStage = Readonly<{
   render?: (context: ResultsStageContext) => ResultsStageContent;
   tabRequest?: ResultsStageTabRequest | null;
   defaultTab?: string;
+  /** What the stage says in place of a result when there is none (no run; a stored run refused). */
+  emptyLine?: ReactNode;
 }>;
 /** The tab that holds every row of the result. */
 export const ALL_ROWS_TAB = "rows";
@@ -611,7 +613,7 @@ function FullResultsPanel({
         <>
           {stage?.identity && stage.identity.kind !== "current" ? <p className="results-stage-run" data-testid="results-stage-run" data-run-kind={stage.identity.kind}>{RESULTS_RUN_LABELS[stage.identity.kind]}</p> : null}
           {stage?.methodPrefix}
-          <p className="muted">Run the bounded preview mechanics path to populate result summaries.</p>
+          {stage?.emptyLine ?? <p className="muted">Run the bounded preview mechanics path to populate result summaries.</p>}
           {stageContent?.tabs?.length ? <ResultsStageTabs tabs={stageContent.tabs.filter((tab) => tab.id !== ALL_ROWS_TAB)} current={stageTab} onChoose={setStageTab} /> : null}
         </>
       )}

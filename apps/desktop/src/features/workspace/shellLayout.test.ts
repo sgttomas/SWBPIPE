@@ -209,13 +209,13 @@ describe("the rail's states (§2.3, §2.6)", () => {
     }
   });
 
-  it("before a run: Results and Review disabled with No run yet", () => {
-    expect(row("results", NO_RUN)).toEqual({ enabled: false, reason: "No run yet", caption: null, tooltip: "No run yet" });
-    expect(row("review", NO_RUN)).toEqual({ enabled: false, reason: "No run yet", caption: null, tooltip: "No run yet" });
-    // While the first run is still going there is no run to show yet.
+  it("before a run: Results and Review are reachable, with no caption", () => {
+    // Results holds the weight summary, which needs no solve, and says there is no run.
+    expect(row("results", NO_RUN)).toEqual({ enabled: true, reason: null, caption: null, tooltip: "Results" });
+    expect(row("review", NO_RUN)).toEqual({ enabled: true, reason: null, caption: null, tooltip: "Review" });
     for (const solveJobState of ["queued", "running", "cancelling"] as const) {
-      expect(row("results", { ...NO_RUN, solveJobState }).enabled).toBe(false);
-      expect(row("review", { ...NO_RUN, solveJobState }).reason).toBe("No run yet");
+      expect(row("results", { ...NO_RUN, solveJobState }).enabled).toBe(true);
+      expect(row("review", { ...NO_RUN, solveJobState }).enabled).toBe(true);
     }
   });
 
@@ -224,41 +224,36 @@ describe("the rail's states (§2.3, §2.6)", () => {
     expect(row("review", SOLVED)).toEqual({ enabled: true, reason: null, caption: null, tooltip: "Review" });
   });
 
-  it("after a failed run with none solved: Results captioned Failed, Review No solved run", () => {
+  it("after a failed run with none solved: Results captioned Failed, Review reachable", () => {
     expect(row("results", FAILED)).toEqual({ enabled: true, reason: null, caption: "Failed", tooltip: "Failed · Results" });
-    expect(row("review", FAILED)).toEqual({ enabled: false, reason: "No solved run", caption: null, tooltip: "No solved run" });
+    expect(row("review", FAILED)).toEqual({ enabled: true, reason: null, caption: null, tooltip: "Review" });
   });
 
-  it("after a run the native memory pool refused: Results captioned Refused, Review No solved run", () => {
+  it("after a run the native memory pool refused: Results captioned Refused, Review reachable", () => {
     const refused: RunPresence = { ...NO_RUN, solveJobState: "refused" };
     expect(row("results", refused)).toEqual({ enabled: true, reason: null, caption: "Refused", tooltip: "Refused · Results" });
-    expect(row("review", refused)).toEqual({ enabled: false, reason: "No solved run", caption: null, tooltip: "No solved run" });
+    expect(row("review", refused)).toEqual({ enabled: true, reason: null, caption: null, tooltip: "Review" });
   });
 
-  it("after a stopped run, or a run that completed without solving: Results enabled, Review No solved run", () => {
+  it("after a stopped run, or a run that completed without solving: both reachable", () => {
     expect(row("results", STOPPED)).toMatchObject({ enabled: true, caption: null });
-    expect(row("review", STOPPED)).toMatchObject({ enabled: false, reason: "No solved run" });
+    expect(row("review", STOPPED)).toMatchObject({ enabled: true, reason: null });
     expect(row("results", UNSOLVED_RESULT)).toMatchObject({ enabled: true, caption: null });
-    expect(row("review", UNSOLVED_RESULT)).toMatchObject({ enabled: false, reason: "No solved run" });
+    expect(row("review", UNSOLVED_RESULT)).toMatchObject({ enabled: true, reason: null });
   });
 
-  it("with a reopened Historical run: Results captioned Historical, Review Needs a current run", () => {
+  it("with a reopened Historical run: Results captioned Historical, Review reachable", () => {
     expect(row("results", HISTORICAL)).toEqual({ enabled: true, reason: null, caption: "Historical", tooltip: "Historical · Results" });
-    expect(row("review", HISTORICAL)).toEqual({
-      enabled: false,
-      reason: "Needs a current run",
-      caption: null,
-      tooltip: "Needs a current run"
-    });
-    // A later run that fails leaves the Historical run on screen: it still names the caption and enables nothing.
+    expect(row("review", HISTORICAL)).toEqual({ enabled: true, reason: null, caption: null, tooltip: "Review" });
+    // A later run that fails leaves the Historical run on screen: it still names the caption.
     const historicalThenFailed: RunPresence = { ...HISTORICAL, solveJobState: "failed" };
     expect(row("results", historicalThenFailed).caption).toBe("Historical");
-    expect(row("review", historicalThenFailed).reason).toBe("Needs a current run");
+    expect(row("review", historicalThenFailed).enabled).toBe(true);
   });
 
   it("after a model change there is no run, so the rail reads as before a run; Stale is never drawn", () => {
     // The session clears the result and replaces the job record when a model commit lands.
-    expect(row("results", NO_RUN).reason).toBe("No run yet");
+    expect(row("results", NO_RUN)).toMatchObject({ enabled: true, reason: null, caption: null });
     const captions = [NO_RUN, SOLVED, FAILED, STOPPED, UNSOLVED_RESULT, HISTORICAL].flatMap((run) =>
       railStageStates(run).map((state) => state.caption)
     );
@@ -462,7 +457,8 @@ describe("derived numerical qualification", () => {
     const presence = runPresenceFromCells(cells);
     expect(presence).toMatchObject({ hasResult: true, hasCurrentSolvedResult: false, needsRecompute: true });
     expect(railStageState("results", presence)).toMatchObject({ enabled: true, caption: "Needs recompute" });
-    expect(railStageState("review", presence)).toMatchObject({ enabled: false, reason: "Needs recompute" });
+    // Review is reachable; its report panel states what a report needs.
+    expect(railStageState("review", presence)).toMatchObject({ enabled: true, reason: null });
     const inputs = statusChipInputsFromCells({ ...cells, model: null, ruleCheckAggregate: "USER_RULE_CHECKED" });
     expect(statusChips(inputs, "results")).toEqual([{ token: "needs_recompute", label: "Needs recompute", domain: "Solver", source: "Derived numerical qualification" }]);
     expect(JSON.stringify(result)).toBe(before);

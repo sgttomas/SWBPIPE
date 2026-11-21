@@ -4939,3 +4939,6 @@ button.governing-value { cursor: pointer; }
 .app-shell .results-sort-button[aria-disabled="true"] { cursor: default; }
 .app-shell .csv-export-named { display: inline-flex; align-items: center; gap: var(--space-3); color: var(--ui-muted); }
 .app-shell .result-group h3 { margin-bottom: var(--space-2); }
+
+/* What the Results and Review stages say in place of a result: plain status lines, not warnings. */
+.app-shell .results-no-run { grid-column: 1 / -1; margin: 0; color: var(--ui-text); }

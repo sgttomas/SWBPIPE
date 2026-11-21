@@ -312,25 +312,15 @@ export function railStageState(stage: ShellStage, run: RunPresence): RailStageSt
   let reason: RailStageState["reason"] = null;
   let caption: RailCaption | null = null;
   if (stage === "results") {
-    // There is a run to show once a run has completed, stopped or failed, or a saved run is reopened.
-    enabled = run.hasResult || run.historicalRunShown || runEnded(run.solveJobState);
-    if (!enabled) reason = "No run yet";
-    // What is shown names the caption: a reopened saved run stays on screen while a later run fails.
-    else if (run.historicalRunShown) caption = "Historical";
+    // Results is always reachable: before a run it holds the weight summary, which needs no solve
+    // (DEL-07-05 REQ-022), and says that there is no run. Its caption names what is shown.
+    if (run.historicalRunShown) caption = "Historical";
     else if (run.needsRecompute) caption = numericalHealthCaption(run) ?? "Needs recompute";
     else if (!run.hasResult && run.solveJobState === "failed") caption = "Failed";
     // A native memory refusal is its own outcome, not a solver failure.
     else if (!run.hasResult && run.solveJobState === "refused") caption = "Refused";
-  } else if (stage === "review") {
-    // Only a Current solved run enables Review; a Historical run enables nothing.
-    enabled = run.hasCurrentSolvedResult && !run.historicalRunShown;
-    if (!enabled) {
-      if (run.historicalRunShown) reason = "Needs a current run";
-      else if (run.needsRecompute) reason = numericalHealthCaption(run) ?? "Needs recompute";
-      else if (run.hasResult || runEnded(run.solveJobState)) reason = "No solved run";
-      else reason = "No run yet";
-    }
   }
+  // Review is always reachable: its page says what a report needs when the run shown cannot be reported.
   // A tooltip that also summarises content puts the summary first and the control last (§2.8).
   const tooltip = reason ?? (caption ? `${caption} · ${label}` : label);
   return { stage, label, enabled, reason, caption, tooltip };

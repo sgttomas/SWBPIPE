@@ -5502,6 +5502,21 @@ const NATIVE_FILE_MENU: &[Option<(&str, &str, Option<&str>)>] = &[
 // Native macOS menu bar (TP-R3UX-CADSHELL). Each custom item carries the same
 // command id the in-DOM menu uses; on click the backend injects one typed DOM
 // event into the main webview, where the React command sink dispatches it.
+
+/// The workspace sections the native View menu lists, in order: the same ids, in the same order, as
+/// the webview's View menu (`VIEW_MENU_SECTIONS` in `src/features/workspace/workspaceSections.ts`).
+/// Results, Report and Evidence are reached through the Results and Review stages, which are always
+/// reachable, so the menu does not list them again; the webview still accepts their command ids.
+const NATIVE_VIEW_SECTIONS: &[(&str, &str)] = &[
+    ("view.section.operations", "Operation Apply"),
+    ("view.section.loads", "Load Cases"),
+    ("view.section.libraries", "Libraries"),
+    ("view.section.rule-packs", "Rule Packs"),
+    ("view.section.solve", "Solve"),
+    ("view.section.project", "Project"),
+    ("view.section.exports", "Exports"),
+];
+
 fn build_app_menu<R: tauri::Runtime>(
     handle: &tauri::AppHandle<R>,
 ) -> tauri::Result<tauri::menu::Menu<R>> {
@@ -5560,12 +5575,12 @@ fn build_app_menu<R: tauri::Runtime>(
     let stage_loads = CheckMenuItemBuilder::with_id("view.stage.loads", "Loads Stage")
         .checked(false)
         .build(handle)?;
+    // Always reachable (the Results stage holds the weight summary before a run).
     let stage_results = CheckMenuItemBuilder::with_id("view.stage.results", "Results Stage")
-        .enabled(false)
         .checked(false)
         .build(handle)?;
+    // Always reachable (the Results stage holds the weight summary before a run).
     let stage_review = CheckMenuItemBuilder::with_id("view.stage.review", "Review Stage")
-        .enabled(false)
         .checked(false)
         .build(handle)?;
     let inspector = CheckMenuItemBuilder::with_id("view.inspector", "Inspector")
@@ -5589,7 +5604,7 @@ fn build_app_menu<R: tauri::Runtime>(
         .checked(false)
         .build(handle)?;
 
-    let view = SubmenuBuilder::new(handle, "View")
+    let mut view = SubmenuBuilder::new(handle, "View")
         .item(&view_table)
         .item(&view_model)
         .item(&view_both)
@@ -5601,17 +5616,11 @@ fn build_app_menu<R: tauri::Runtime>(
         .separator()
         .text("view.tree", "Model Tree")
         .item(&inspector)
-        .separator()
-        .text("view.section.operations", "Operation Apply")
-        .text("view.section.loads", "Load Cases")
-        .text("view.section.libraries", "Libraries")
-        .text("view.section.rule-packs", "Rule Packs")
-        .text("view.section.solve", "Solve")
-        .text("view.section.results", "Results")
-        .text("view.section.report", "Report")
-        .text("view.section.project", "Project")
-        .text("view.section.exports", "Exports")
-        .text("view.section.evidence", "Audit & Boundaries")
+        .separator();
+    for (id, label) in NATIVE_VIEW_SECTIONS {
+        view = view.text(*id, *label);
+    }
+    let view = view
         .separator()
         .text("view.issues", "Issues")
         .text("view.audit", "Audit & Boundaries Drawer")
@@ -7038,6 +7047,28 @@ mod tests {
             assert!(!enabled_ids.contains(&id), "{id} is not enablement-synced");
         }
         assert!(native_menu_dispatch_script("file.save-shareable-report-package").contains("detail: \"file.save-shareable-report-package\""));
+    }
+
+    #[test]
+    fn native_view_sections_are_the_webview_view_menu_sections() {
+        let ids: Vec<&str> = NATIVE_VIEW_SECTIONS.iter().map(|(id, _)| *id).collect();
+        // The webview's VIEW_MENU_SECTIONS: every workspace section but results, report and evidence,
+        // in workspace order.
+        assert_eq!(
+            ids,
+            [
+                "view.section.operations",
+                "view.section.loads",
+                "view.section.libraries",
+                "view.section.rule-packs",
+                "view.section.solve",
+                "view.section.project",
+                "view.section.exports",
+            ]
+        );
+        for removed in ["view.section.results", "view.section.report", "view.section.evidence"] {
+            assert!(!ids.contains(&removed), "{removed} is reached through its stage");
+        }
     }
 
     #[test]
