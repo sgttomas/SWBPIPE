@@ -4,7 +4,10 @@
 //! acts along the positive axis of that DOF. A `direction` is not an input of a
 //! hanger: a record that carries a hanger and a direction is refused by name
 //! (`SUPPORT_DIRECTION_RECORD_UNSUPPORTED`), whatever the direction's sign or
-//! axis. Every refusal names the record and publishes no result row.
+//! axis. A `line_stop` family record carrying either hanger family is refused
+//! as a family and hanger conflict (`SUPPORT_FAMILY_HANGER_CONFLICT`), as a
+//! `spring` family record carrying a constant-effort hanger already is. Every
+//! refusal names the record and publishes no result row.
 //!
 //! Model P-A of the frozen preload reference (`validation/references/hanger_sizing/
 //! preload.json`), with SH-3 authored in each form, on both routes and both
@@ -21,6 +24,7 @@ use model::*;
 
 const MODES: [PreviewSolverMode; 2] = [PreviewSolverMode::SparseInteractive, PreviewSolverMode::DenseScrutiny];
 const DIRECTION_REFUSED: &str = "SUPPORT_DIRECTION_RECORD_UNSUPPORTED";
+const CONFLICT: &str = "SUPPORT_FAMILY_HANGER_CONFLICT";
 const HANGER_REASON: &str = "is not an input of a hanger: a hanger's load acts along the positive axis of its stiffness DOF (or of its single translational restraint), so remove the direction.";
 const FAMILY_REASON: &str = "is admitted only on an explicit line_stop, spring or snubber family.";
 
@@ -112,6 +116,37 @@ fn a_constant_effort_hanger_with_a_direction_keeps_its_refusal() {
             });
             refused(&spring, DIRECTION_REFUSED, &direction_message(HANGER_REASON), &format!("spring constant-effort {d:?} {route:?}"));
         }
+    }
+}
+
+#[test]
+fn a_line_stop_carrying_a_variable_spring_hanger_is_a_family_and_hanger_conflict() {
+    for route in ROUTES {
+        let document = with_sh3("PA-WT", route, |sh3| sh3["family"] = json!("line_stop"));
+        refused(&document, CONFLICT,
+            "line_stop family conflicts with variable spring hanger type; choose one support law so stiffness and applied force cannot be silently substituted",
+            &format!("line_stop variable spring {route:?}"));
+        // With a direction, the direction is refused first.
+        let directed = with_sh3("PA-WT", route, |sh3| {
+            sh3["family"] = json!("line_stop");
+            direction(sh3, [0.0, 0.0, -1.0]);
+        });
+        refused(&directed, DIRECTION_REFUSED, &direction_message(HANGER_REASON), &format!("line_stop variable spring directed {route:?}"));
+    }
+}
+
+#[test]
+fn a_line_stop_carrying_a_constant_effort_hanger_is_a_family_and_hanger_conflict() {
+    for route in ROUTES {
+        let document = with_sh3("PA-WT", route, |sh3| constant_effort(sh3, "line_stop"));
+        refused(&document, CONFLICT,
+            "line_stop family conflicts with constant-effort hanger type; choose one support law so stiffness and applied force cannot be silently substituted",
+            &format!("line_stop constant-effort {route:?}"));
+        // Main's spring family conflict keeps its words.
+        let spring = with_sh3("PA-WT", route, |sh3| constant_effort(sh3, "spring"));
+        refused(&spring, CONFLICT,
+            "spring family conflicts with constant-effort hanger type; choose one support law so stiffness and applied force cannot be silently substituted",
+            &format!("spring constant-effort {route:?}"));
     }
 }
 

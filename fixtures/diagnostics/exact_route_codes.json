@@ -348,17 +348,17 @@
    "severity": "blocking",
    "first_site": {
     "file": "core/product_physics/src/validation.rs",
-    "line": 2235,
+    "line": 2248,
     "via": "diag()"
    },
    "sites": [
     {
      "file": "core/product_physics/src/validation.rs",
-     "line": 2235,
+     "line": 2248,
      "via": "diag()",
      "severity": "blocking",
      "through": [
-      "const BEND_DIRECTIONAL_SIF_INCOMPLETE (core/product_physics/src/validation.rs:2204)"
+      "const BEND_DIRECTIONAL_SIF_INCOMPLETE (core/product_physics/src/validation.rs:2217)"
      ]
     }
    ],
@@ -381,17 +381,17 @@
    "severity": "blocking",
    "first_site": {
     "file": "core/product_physics/src/validation.rs",
-    "line": 2219,
+    "line": 2232,
     "via": "diag()"
    },
    "sites": [
     {
      "file": "core/product_physics/src/validation.rs",
-     "line": 2219,
+     "line": 2232,
      "via": "diag()",
      "severity": "blocking",
      "through": [
-      "const BEND_DIRECTIONAL_SIF_NOT_REALIZED_ARC (core/product_physics/src/validation.rs:2205)"
+      "const BEND_DIRECTIONAL_SIF_NOT_REALIZED_ARC (core/product_physics/src/validation.rs:2218)"
      ]
     }
    ],
@@ -414,13 +414,13 @@
    "severity": "warning",
    "first_site": {
     "file": "core/product_physics/src/validation.rs",
-    "line": 1300,
+    "line": 1313,
     "via": "diag()"
    },
    "sites": [
     {
      "file": "core/product_physics/src/validation.rs",
-     "line": 1300,
+     "line": 1313,
      "via": "diag()",
      "severity": "warning"
     }
@@ -444,17 +444,17 @@
    "severity": "warning",
    "first_site": {
     "file": "core/product_physics/src/validation.rs",
-    "line": 1312,
+    "line": 1325,
     "via": "diag()"
    },
    "sites": [
     {
      "file": "core/product_physics/src/validation.rs",
-     "line": 1312,
+     "line": 1325,
      "via": "diag()",
      "severity": "warning",
      "through": [
-      "const BEND_GEOMETRY_ONLY_SOLVED_AS_CHORD (core/product_physics/src/validation.rs:1648)"
+      "const BEND_GEOMETRY_ONLY_SOLVED_AS_CHORD (core/product_physics/src/validation.rs:1661)"
      ]
     }
    ],
@@ -477,13 +477,13 @@
    "severity": "warning",
    "first_site": {
     "file": "core/product_physics/src/validation.rs",
-    "line": 1340,
+    "line": 1353,
     "via": "diag()"
    },
    "sites": [
     {
      "file": "core/product_physics/src/validation.rs",
-     "line": 1340,
+     "line": 1353,
      "via": "diag()",
      "severity": "warning"
     }
@@ -507,13 +507,13 @@
    "severity": "warning",
    "first_site": {
     "file": "core/product_physics/src/validation.rs",
-    "line": 1324,
+    "line": 1337,
     "via": "diag()"
    },
    "sites": [
     {
      "file": "core/product_physics/src/validation.rs",
-     "line": 1324,
+     "line": 1337,
      "via": "diag()",
      "severity": "warning"
     }
@@ -537,13 +537,13 @@
    "severity": "warning",
    "first_site": {
     "file": "core/product_physics/src/validation.rs",
-    "line": 1354,
+    "line": 1367,
     "via": "diag()"
    },
    "sites": [
     {
      "file": "core/product_physics/src/validation.rs",
-     "line": 1354,
+     "line": 1367,
      "via": "diag()",
      "severity": "warning"
     }
@@ -567,13 +567,13 @@
    "severity": "warning",
    "first_site": {
     "file": "core/product_physics/src/validation.rs",
-    "line": 1366,
+    "line": 1379,
     "via": "diag()"
    },
    "sites": [
     {
      "file": "core/product_physics/src/validation.rs",
-     "line": 1366,
+     "line": 1379,
      "via": "diag()",
      "severity": "warning"
     }
@@ -597,13 +597,13 @@
    "severity": "warning",
    "first_site": {
     "file": "core/product_physics/src/validation.rs",
-    "line": 1383,
+    "line": 1396,
     "via": "diag()"
    },
    "sites": [
     {
      "file": "core/product_physics/src/validation.rs",
-     "line": 1383,
+     "line": 1396,
      "via": "diag()",
      "severity": "warning"
     }
@@ -627,13 +627,13 @@
    "severity": "warning",
    "first_site": {
     "file": "core/product_physics/src/validation.rs",
-    "line": 1410,
+    "line": 1423,
     "via": "diag()"
    },
    "sites": [
     {
      "file": "core/product_physics/src/validation.rs",
-     "line": 1410,
+     "line": 1423,
      "via": "diag()",
      "severity": "warning"
     }
@@ -657,13 +657,13 @@
    "severity": "warning",
    "first_site": {
     "file": "core/product_physics/src/validation.rs",
-    "line": 1398,
+    "line": 1411,
     "via": "diag()"
    },
    "sites": [
     {
      "file": "core/product_physics/src/validation.rs",
-     "line": 1398,
+     "line": 1411,
      "via": "diag()",
      "severity": "warning"
     }
@@ -1193,13 +1193,13 @@
    "severity": "warning",
    "first_site": {
     "file": "core/product_physics/src/validation.rs",
-    "line": 1286,
+    "line": 1299,
     "via": "diag()"
    },
    "sites": [
     {
      "file": "core/product_physics/src/validation.rs",
-     "line": 1286,
+     "line": 1299,
      "via": "diag()",
      "severity": "warning"
     }
@@ -1223,13 +1223,13 @@
    "severity": "warning",
    "first_site": {
     "file": "core/product_physics/src/validation.rs",
-    "line": 1251,
+    "line": 1264,
     "via": "diag()"
    },
    "sites": [
     {
      "file": "core/product_physics/src/validation.rs",
-     "line": 1251,
+     "line": 1264,
      "via": "diag()",
      "severity": "warning"
     }
@@ -1481,13 +1481,13 @@
    "severity": "blocking",
    "first_site": {
     "file": "core/product_physics/src/validation.rs",
-    "line": 1117,
+    "line": 1130,
     "via": "spring_hanger_diag()"
    },
    "sites": [
     {
      "file": "core/product_physics/src/validation.rs",
-     "line": 1117,
+     "line": 1130,
      "via": "spring_hanger_diag()",
      "severity": "blocking"
     }
@@ -1544,13 +1544,13 @@
    "severity": "blocking",
    "first_site": {
     "file": "core/product_physics/src/validation.rs",
-    "line": 1139,
+    "line": 1152,
     "via": "spring_hanger_diag()"
    },
    "sites": [
     {
      "file": "core/product_physics/src/validation.rs",
-     "line": 1139,
+     "line": 1152,
      "via": "spring_hanger_diag()",
      "severity": "blocking"
     }
@@ -1574,13 +1574,13 @@
    "severity": "blocking",
    "first_site": {
     "file": "core/product_physics/src/validation.rs",
-    "line": 1129,
+    "line": 1142,
     "via": "spring_hanger_diag()"
    },
    "sites": [
     {
      "file": "core/product_physics/src/validation.rs",
-     "line": 1129,
+     "line": 1142,
      "via": "spring_hanger_diag()",
      "severity": "blocking"
     }
@@ -1664,13 +1664,13 @@
    "severity": "info",
    "first_site": {
     "file": "core/product_physics/src/validation.rs",
-    "line": 1148,
+    "line": 1161,
     "via": "spring_hanger_diag()"
    },
    "sites": [
     {
      "file": "core/product_physics/src/validation.rs",
-     "line": 1148,
+     "line": 1161,
      "via": "spring_hanger_diag()",
      "severity": "info"
     }
@@ -1982,7 +1982,7 @@
     },
     {
      "file": "core/product_physics/src/validation.rs",
-     "line": 1478,
+     "line": 1491,
      "via": "diag()",
      "severity": "blocking"
     }
@@ -2168,7 +2168,7 @@
     },
     {
      "file": "core/product_physics/src/validation.rs",
-     "line": 1458,
+     "line": 1471,
      "via": "diag()",
      "severity": "blocking"
     }
@@ -6211,13 +6211,13 @@
    "severity": "warning",
    "first_site": {
     "file": "core/product_physics/src/validation.rs",
-    "line": 255,
+    "line": 268,
     "via": "diag()"
    },
    "sites": [
     {
      "file": "core/product_physics/src/validation.rs",
-     "line": 255,
+     "line": 268,
      "via": "diag()",
      "severity": "warning"
     }
@@ -6606,13 +6606,13 @@
    "severity": "blocking",
    "first_site": {
     "file": "core/product_physics/src/validation.rs",
-    "line": 1946,
+    "line": 1959,
     "via": "diag()"
    },
    "sites": [
     {
      "file": "core/product_physics/src/validation.rs",
-     "line": 1946,
+     "line": 1959,
      "via": "diag()",
      "severity": "blocking"
     }
@@ -6778,25 +6778,25 @@
    "severity": "blocking",
    "first_site": {
     "file": "core/product_physics/src/validation.rs",
-    "line": 2055,
+    "line": 2068,
     "via": "diag()"
    },
    "sites": [
     {
      "file": "core/product_physics/src/validation.rs",
-     "line": 2055,
+     "line": 2068,
      "via": "diag()",
      "severity": "blocking"
     },
     {
      "file": "core/product_physics/src/validation.rs",
-     "line": 2114,
+     "line": 2127,
      "via": "diag()",
      "severity": "blocking"
     },
     {
      "file": "core/product_physics/src/validation.rs",
-     "line": 2180,
+     "line": 2193,
      "via": "diag()",
      "severity": "blocking"
     }
@@ -6822,13 +6822,13 @@
    "severity": "blocking",
    "first_site": {
     "file": "core/product_physics/src/validation.rs",
-    "line": 2069,
+    "line": 2082,
     "via": "diag()"
    },
    "sites": [
     {
      "file": "core/product_physics/src/validation.rs",
-     "line": 2069,
+     "line": 2082,
      "via": "diag()",
      "severity": "blocking"
     }
@@ -6852,13 +6852,13 @@
    "severity": "blocking",
    "first_site": {
     "file": "core/product_physics/src/validation.rs",
-    "line": 1981,
+    "line": 1994,
     "via": "diag()"
    },
    "sites": [
     {
      "file": "core/product_physics/src/validation.rs",
-     "line": 1981,
+     "line": 1994,
      "via": "diag()",
      "severity": "blocking"
     }
@@ -6882,13 +6882,13 @@
    "severity": "blocking",
    "first_site": {
     "file": "core/product_physics/src/validation.rs",
-    "line": 2161,
+    "line": 2174,
     "via": "diag()"
    },
    "sites": [
     {
      "file": "core/product_physics/src/validation.rs",
-     "line": 2161,
+     "line": 2174,
      "via": "diag()",
      "severity": "blocking"
     }
@@ -7053,13 +7053,13 @@
    "severity": "blocking",
    "first_site": {
     "file": "core/product_physics/src/validation.rs",
-    "line": 2144,
+    "line": 2157,
     "via": "diag()"
    },
    "sites": [
     {
      "file": "core/product_physics/src/validation.rs",
-     "line": 2144,
+     "line": 2157,
      "via": "diag()",
      "severity": "blocking"
     }
@@ -7122,13 +7122,13 @@
    "severity": "blocking",
    "first_site": {
     "file": "core/product_physics/src/validation.rs",
-    "line": 1962,
+    "line": 1975,
     "via": "diag()"
    },
    "sites": [
     {
      "file": "core/product_physics/src/validation.rs",
-     "line": 1962,
+     "line": 1975,
      "via": "diag()",
      "severity": "blocking"
     }
@@ -7261,13 +7261,13 @@
    "severity": "blocking",
    "first_site": {
     "file": "core/product_physics/src/validation.rs",
-    "line": 2011,
+    "line": 2024,
     "via": "diag()"
    },
    "sites": [
     {
      "file": "core/product_physics/src/validation.rs",
-     "line": 2011,
+     "line": 2024,
      "via": "diag()",
      "severity": "blocking"
     }
@@ -7450,7 +7450,7 @@
     },
     {
      "file": "core/product_physics/src/validation.rs",
-     "line": 242,
+     "line": 255,
      "via": "diag()",
      "severity": "blocking"
     }
@@ -9601,7 +9601,7 @@
     },
     {
      "file": "core/product_physics/src/validation.rs",
-     "line": 485,
+     "line": 498,
      "via": "diag()",
      "severity": "blocking"
     }
@@ -12079,13 +12079,13 @@
    "severity": "blocking",
    "first_site": {
     "file": "core/product_physics/src/validation.rs",
-    "line": 201,
+    "line": 214,
     "via": "diag()"
    },
    "sites": [
     {
      "file": "core/product_physics/src/validation.rs",
-     "line": 201,
+     "line": 214,
      "via": "diag()",
      "severity": "blocking"
     }
@@ -12508,13 +12508,13 @@
    "severity": "blocking",
    "first_site": {
     "file": "core/product_physics/src/validation.rs",
-    "line": 149,
+    "line": 162,
     "via": "diag()"
    },
    "sites": [
     {
      "file": "core/product_physics/src/validation.rs",
-     "line": 149,
+     "line": 162,
      "via": "diag()",
      "severity": "blocking"
     }
@@ -12538,13 +12538,13 @@
    "severity": "blocking",
    "first_site": {
     "file": "core/product_physics/src/validation.rs",
-    "line": 137,
+    "line": 150,
     "via": "diag()"
    },
    "sites": [
     {
      "file": "core/product_physics/src/validation.rs",
-     "line": 137,
+     "line": 150,
      "via": "diag()",
      "severity": "blocking"
     }
@@ -14427,13 +14427,13 @@
    "severity": "blocking",
    "first_site": {
     "file": "core/product_physics/src/validation.rs",
-    "line": 210,
+    "line": 223,
     "via": "diag()"
    },
    "sites": [
     {
      "file": "core/product_physics/src/validation.rs",
-     "line": 210,
+     "line": 223,
      "via": "diag()",
      "severity": "blocking"
     }
@@ -15713,13 +15713,13 @@
    "severity": "blocking",
    "first_site": {
     "file": "core/product_physics/src/validation.rs",
-    "line": 1505,
+    "line": 1518,
     "via": "diag()"
    },
    "sites": [
     {
      "file": "core/product_physics/src/validation.rs",
-     "line": 1505,
+     "line": 1518,
      "via": "diag()",
      "severity": "blocking"
     }
@@ -16149,13 +16149,13 @@
    "severity": "warning",
    "first_site": {
     "file": "core/product_physics/src/validation.rs",
-    "line": 1424,
+    "line": 1437,
     "via": "diag()"
    },
    "sites": [
     {
      "file": "core/product_physics/src/validation.rs",
-     "line": 1424,
+     "line": 1437,
      "via": "diag()",
      "severity": "warning"
     }
@@ -18246,13 +18246,13 @@
    "severity": "blocking",
    "first_site": {
     "file": "core/product_physics/src/validation.rs",
-    "line": 965,
+    "line": 978,
     "via": "spring_hanger_diag()"
    },
    "sites": [
     {
      "file": "core/product_physics/src/validation.rs",
-     "line": 965,
+     "line": 978,
      "via": "spring_hanger_diag()",
      "severity": "blocking"
     }
@@ -18276,13 +18276,13 @@
    "severity": "blocking",
    "first_site": {
     "file": "core/product_physics/src/validation.rs",
-    "line": 1028,
+    "line": 1041,
     "via": "spring_hanger_diag()"
    },
    "sites": [
     {
      "file": "core/product_physics/src/validation.rs",
-     "line": 1028,
+     "line": 1041,
      "via": "spring_hanger_diag()",
      "severity": "blocking"
     }
@@ -18339,13 +18339,13 @@
    "severity": "blocking",
    "first_site": {
     "file": "core/product_physics/src/validation.rs",
-    "line": 1052,
+    "line": 1065,
     "via": "spring_hanger_diag()"
    },
    "sites": [
     {
      "file": "core/product_physics/src/validation.rs",
-     "line": 1052,
+     "line": 1065,
      "via": "spring_hanger_diag()",
      "severity": "blocking"
     }
@@ -18369,13 +18369,13 @@
    "severity": "blocking",
    "first_site": {
     "file": "core/product_physics/src/validation.rs",
-    "line": 1074,
+    "line": 1087,
     "via": "spring_hanger_diag()"
    },
    "sites": [
     {
      "file": "core/product_physics/src/validation.rs",
-     "line": 1074,
+     "line": 1087,
      "via": "spring_hanger_diag()",
      "severity": "blocking"
     }
@@ -18399,13 +18399,13 @@
    "severity": "blocking",
    "first_site": {
     "file": "core/product_physics/src/validation.rs",
-    "line": 1038,
+    "line": 1051,
     "via": "spring_hanger_diag()"
    },
    "sites": [
     {
      "file": "core/product_physics/src/validation.rs",
-     "line": 1038,
+     "line": 1051,
      "via": "spring_hanger_diag()",
      "severity": "blocking"
     }
@@ -18429,13 +18429,13 @@
    "severity": "blocking",
    "first_site": {
     "file": "core/product_physics/src/validation.rs",
-    "line": 1064,
+    "line": 1077,
     "via": "spring_hanger_diag()"
    },
    "sites": [
     {
      "file": "core/product_physics/src/validation.rs",
-     "line": 1064,
+     "line": 1077,
      "via": "spring_hanger_diag()",
      "severity": "blocking"
     }
@@ -18459,19 +18459,19 @@
    "severity": "blocking",
    "first_site": {
     "file": "core/product_physics/src/validation.rs",
-    "line": 1016,
+    "line": 1029,
     "via": "spring_hanger_diag()"
    },
    "sites": [
     {
      "file": "core/product_physics/src/validation.rs",
-     "line": 1016,
+     "line": 1029,
      "via": "spring_hanger_diag()",
      "severity": "blocking"
     },
     {
      "file": "core/product_physics/src/validation.rs",
-     "line": 1107,
+     "line": 1120,
      "via": "spring_hanger_diag()",
      "severity": "blocking"
     }
@@ -18496,13 +18496,13 @@
    "severity": "blocking",
    "first_site": {
     "file": "core/product_physics/src/validation.rs",
-    "line": 980,
+    "line": 993,
     "via": "spring_hanger_diag()"
    },
    "sites": [
     {
      "file": "core/product_physics/src/validation.rs",
-     "line": 980,
+     "line": 993,
      "via": "spring_hanger_diag()",
      "severity": "blocking"
     }
@@ -18526,13 +18526,13 @@
    "severity": "info",
    "first_site": {
     "file": "core/product_physics/src/validation.rs",
-    "line": 1083,
+    "line": 1096,
     "via": "spring_hanger_diag()"
    },
    "sites": [
     {
      "file": "core/product_physics/src/validation.rs",
-     "line": 1083,
+     "line": 1096,
      "via": "spring_hanger_diag()",
      "severity": "info"
     }
@@ -19294,22 +19294,22 @@
    "severity": "blocking",
    "first_site": {
     "file": "core/product_physics/src/validation.rs",
-    "line": 94,
+    "line": 107,
     "via": "diag()"
    },
    "sites": [
     {
      "file": "core/product_physics/src/validation.rs",
-     "line": 94,
+     "line": 107,
      "via": "diag()",
      "severity": "blocking"
     }
    ],
    "messages": [
-    "spring family conflicts with constant-effort hanger type; choose one support law so stiffness and applied force cannot be silently substituted"
+    "{family} family conflicts with {law} hanger type; choose one support law so stiffness and applied force cannot be silently substituted"
    ],
    "classification": "input_error",
-   "reason": "The document is incomplete, inconsistent or invalid here: spring family conflicts with constant-effort hanger type; choose one support law so stiffness and applied force cannot be silently substitut",
+   "reason": "The document is incomplete, inconsistent or invalid here: a spring family with a constant-effort hanger, or a line_stop family with either hanger family, states two support laws; choose one.",
    "unsure": false,
    "candidates": null,
    "named_by": null,
@@ -19445,13 +19445,13 @@
    "severity": "blocking",
    "first_site": {
     "file": "core/product_physics/src/validation.rs",
-    "line": 188,
+    "line": 201,
     "via": "diag()"
    },
    "sites": [
     {
      "file": "core/product_physics/src/validation.rs",
-     "line": 188,
+     "line": 201,
      "via": "diag()",
      "severity": "blocking"
     }
@@ -19680,13 +19680,13 @@
    "severity": "blocking",
    "first_site": {
     "file": "core/product_physics/src/validation.rs",
-    "line": 120,
+    "line": 133,
     "via": "diag()"
    },
    "sites": [
     {
      "file": "core/product_physics/src/validation.rs",
-     "line": 120,
+     "line": 133,
      "via": "diag()",
      "severity": "blocking"
     }
@@ -19710,13 +19710,13 @@
    "severity": "blocking",
    "first_site": {
     "file": "core/product_physics/src/validation.rs",
-    "line": 1168,
+    "line": 1181,
     "via": "diag()"
    },
    "sites": [
     {
      "file": "core/product_physics/src/validation.rs",
-     "line": 1168,
+     "line": 1181,
      "via": "diag()",
      "severity": "blocking"
     }
@@ -19740,13 +19740,13 @@
    "severity": "blocking",
    "first_site": {
     "file": "core/product_physics/src/validation.rs",
-    "line": 109,
+    "line": 122,
     "via": "diag()"
    },
    "sites": [
     {
      "file": "core/product_physics/src/validation.rs",
-     "line": 109,
+     "line": 122,
      "via": "diag()",
      "severity": "blocking"
     }
@@ -19770,13 +19770,13 @@
    "severity": "blocking",
    "first_site": {
     "file": "core/product_physics/src/validation.rs",
-    "line": 1917,
+    "line": 1930,
     "via": "diag()"
    },
    "sites": [
     {
      "file": "core/product_physics/src/validation.rs",
-     "line": 1917,
+     "line": 1930,
      "via": "diag()",
      "severity": "blocking"
     }
@@ -19824,7 +19824,7 @@
     },
     {
      "file": "core/product_physics/src/validation.rs",
-     "line": 1904,
+     "line": 1917,
      "via": "diag()",
      "severity": "blocking"
     }
@@ -19987,7 +19987,7 @@
     },
     {
      "file": "core/product_physics/src/validation.rs",
-     "line": 1525,
+     "line": 1538,
      "via": "diag()",
      "severity": "blocking"
     }

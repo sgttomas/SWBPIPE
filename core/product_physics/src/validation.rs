@@ -90,11 +90,24 @@ fn validate_connected_input_contracts(model: &PreviewModel, diagnostics: &mut Ve
     }
     for support in &model.supports {
         let constant_effort = is_constant_effort_support(support);
-        if support.family.as_deref() == Some("spring") && constant_effort {
+        // A stiffness family and a hanger law each specify the record's mechanics: a spring
+        // family with a constant-effort hanger, and (DEL-04-03 REQ-014) a line stop with
+        // either hanger family, whose restraint and applied load have no one meaning.
+        let hanger_law = if constant_effort {
+            Some("constant-effort")
+        } else {
+            is_variable_spring_hanger(support).then_some("variable spring")
+        };
+        let conflict = match (support.family.as_deref(), hanger_law) {
+            (Some("spring"), Some("constant-effort")) => Some(("spring", "constant-effort")),
+            (Some("line_stop"), Some(law)) => Some(("line_stop", law)),
+            _ => None,
+        };
+        if let Some((family, law)) = conflict {
             diagnostics.push(diag(
                 &format!("diagnostic:support:{}:family-hanger", stable_suffix(&support.id)),
                 "SUPPORT_FAMILY_HANGER_CONFLICT", "blocking",
-                "spring family conflicts with constant-effort hanger type; choose one support law so stiffness and applied force cannot be silently substituted",
+                format!("{family} family conflicts with {law} hanger type; choose one support law so stiffness and applied force cannot be silently substituted"),
                 vec![support.id.clone()],
             ));
         }
