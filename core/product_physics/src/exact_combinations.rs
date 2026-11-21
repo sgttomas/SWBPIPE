@@ -101,7 +101,6 @@ pub(crate) const SIGNED_LINEAR_KINDS: [&str; 40] = [
     "pipe_section_pressure_longitudinal_stress",
     "support_reaction_component_v2",
     "constant_effort_support_applied_load",
-    "variable_spring_hanger_applied_load",
     "element_global_end_force_v1",
     "element_global_end_moment_v1",
     "pipe_wall_endpoint_action_v2",
@@ -121,6 +120,7 @@ pub(crate) const SIGNED_LINEAR_KINDS: [&str; 40] = [
     "connector_pressure_force_v1",
     "connector_effective_axial_force_v1",
     "connector_tie_rod_force_v1",
+    "variable_spring_hanger_applied_load",
 ];
 /// The pressure-2 table's `recomputed_from_combined` kinds.
 pub(crate) const RECOMPUTED_KINDS: [&str; 3] =

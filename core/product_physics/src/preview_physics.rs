@@ -43,13 +43,13 @@ const LINEAR_STATE_KINDS: [&str; 24] = [
     "pipe_section_pressure_longitudinal_stress",
     "support_reaction_component_v2",
     "constant_effort_support_applied_load",
-    "variable_spring_hanger_applied_load",
     // W-7 (DEL-04-01 Design `global-end-actions.md`): the global end actions.
     "element_global_end_force_v1",
     "element_global_end_moment_v1",
     // R-6/R-7 S-K1 (DEL-04-03 skew-restraints.md §7.1): a skewed record's along-direction
     // value, a signed linear state combined as any scalar of its kind.
     "support_reaction_along_direction_v1",
+    "variable_spring_hanger_applied_load",
 ];
 const ARC_STRESS_KINDS: [&str; 6] = [
     "element_local_axial_normal_stress",

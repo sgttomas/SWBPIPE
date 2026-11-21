@@ -593,10 +593,10 @@ const LINEAR_STATE_KINDS: [&str; 24] = [
     "pipe_section_pressure_longitudinal_stress",
     "support_reaction_component_v2",
     "constant_effort_support_applied_load",
-    "variable_spring_hanger_applied_load",
     "element_global_end_force_v1",
     "element_global_end_moment_v1",
     "support_reaction_along_direction_v1",
+    "variable_spring_hanger_applied_load",
 ];
 
 fn stable_suffix(id: &str) -> String {
