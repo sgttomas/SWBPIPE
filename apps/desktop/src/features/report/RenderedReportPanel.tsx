@@ -39,12 +39,15 @@ import {
   REPORT_VIEW_CLOSED_DISMISS,
   REPORT_VIEW_CLOSED_NOT_CURRENT,
   REPORT_VIEW_OPENING,
-  reportViewRefusalText,
+  REPORT_VIEW_STALE,
+  REPORT_VIEW_STALE_CODE,
+  reportViewSourceRefusalText,
   retireRenderedReport,
   saveOutcomeText,
   saveRenderedReportHtml,
   takeReportViewClosures,
-  viewOutcomeText
+  viewOutcomeText,
+  type ViewWithdrawal
 } from "../../services/renderedReportRoutes";
 import type { ReportRenderRequest, ReportSourceMark, ReportSourceSequence } from "../workspace/reportSourceSequence";
 import { currentLibraryRefFindings, NO_LIBRARY_REF_FINDINGS, type LibraryRefFindingsState } from "../library/libraryRefFindings";
@@ -109,8 +112,14 @@ import {
 // render nor a save of it; unmount retires the held render, which closes them natively. Nothing
 // leaves through the window, so it writes no entry in the session's output outcomes. When the
 // desktop reports that it closed such a window (`takeReportViewClosures`, read after the panel's
-// own native calls return and on mount), one line says so until the next render or a dismissal;
-// the panel never infers it.
+// own native calls return and on mount), one line says so until the next render, the next
+// opening or a dismissal; the panel never infers it. A line that is not true is not shown: where
+// the window closes because of the person's own act (the composition, the local-private
+// selection, a new render), the withdrawal says so before any call that would sweep the window
+// natively, the desktop then records no notice and clears one it may already have recorded, and a
+// notice taken while that withdrawal is outstanding is not shown. The line appears only when the
+// source changed (the model or result, `source_changed`) or the render was retired while the
+// Report page was away.
 
 /** Whether a saved package records the user's per-report user release. Only a saved outcome
  * wrote a package, so no other outcome shows a user release, whatever its members say. The
@@ -142,9 +151,11 @@ function receiptOutcomeLine(receipt: ReportPackageSaveReceipt): string {
   return `${head}; file=${receipt.selected_basename || receipt.container_file_name}`;
 }
 
-/** Whether this session has opened a report window (`Open in a window` returned a window):
- * until then no window of the current render can exist, so the panel asks the desktop nothing
- * about one. It says only that a window may exist, never that one closed. */
+/** Whether this session has sent an opening of a report window (`Open in a window`): until then
+ * no window of the current render can exist, so the panel asks the desktop nothing about one. It
+ * is set as the opening is sent, not when it returns, so a preview dropped while the session's
+ * first opening is outstanding is withdrawn too. It says only that a window may exist, never that
+ * one closed. */
 let reportViewMayExist = false;
 
 const LOCAL_PRIVATE_REPORT_WARNING =
@@ -308,17 +319,40 @@ export function RenderedReportPanel({
   // The desktop reported closing a view window of the current render (never inferred here).
   const [viewClosed, setViewClosed] = useState(false);
   const mounted = useRef(true);
+  // Own-act withdrawals sent and not yet answered: a notice taken meanwhile is not shown.
+  const ownActsOutstanding = useRef(0);
+  // Why the panel last dropped the preview of each render generation it left (for a late close).
+  const dropReasons = useRef(new Map<number, ViewWithdrawal>());
+  // A composition the person just chose: the source effect that follows is their own act.
+  const ownComposition = useRef<{ value: ReportComposition | null } | null>(null);
+  // Every withdrawal sent, settled: a render's entry waits for it, so a withdrawal never reaches
+  // the desktop after the render it would otherwise withdraw from view.
+  const withdrawalsSent = useRef<Promise<void>>(Promise.resolve());
   /** Reads the desktop's closure notices and shows the line only for what it returns. */
   function takeViewClosures() {
     if (!nativeRoutes || !mounted.current || !reportViewMayExist) return;
     void takeReportViewClosures().then((closures) => {
-      if (mounted.current && closures.some((closure) => closure.kind === "current_render")) setViewClosed(true);
+      if (mounted.current && ownActsOutstanding.current === 0 && closures.some((closure) => closure.kind === "current_render")) setViewClosed(true);
     });
   }
-  /** The panel dropped its preview: the current render's windows close with it. */
-  function closeViews() {
+  /** The panel dropped its preview: the current render's windows close with it, for `reason`,
+   * and, with `withdraw`, the desktop withdraws that render from view. */
+  function closeViews(reason: ViewWithdrawal, withdraw = true) {
     if (!nativeRoutes || !reportViewMayExist) return;
-    void closeRenderedReportViews().then(takeViewClosures);
+    if (reason === "own_act") ownActsOutstanding.current += 1;
+    const sent = closeRenderedReportViews(reason, withdraw).then(() => {
+      if (reason === "own_act") ownActsOutstanding.current -= 1;
+      takeViewClosures();
+    });
+    withdrawalsSent.current = Promise.all([withdrawalsSent.current, sent]).then(() => undefined);
+  }
+  /** Ends the current render generation, keeping why, and returns the new one. */
+  function dropPreview(reason: ViewWithdrawal): number {
+    const left = renderGeneration.current;
+    dropReasons.current.set(left, reason);
+    for (const generation of dropReasons.current.keys()) if (generation < left - 64) dropReasons.current.delete(generation);
+    renderGeneration.current = left + 1;
+    return renderGeneration.current;
   }
   // The native side retires a held render when its source advances (a registered
   // source change) or another render request enters; here, on unmount, the panel
@@ -387,9 +421,14 @@ export function RenderedReportPanel({
     const previous = sourceRef.current;
     const next = { model, result, analysisRun, projectSummary, inputManifest, ruleCheckRun, reportComposition, libraryRefFindingsKey };
     sourceRef.current = next;
-    if ((Object.keys(next) as Array<keyof typeof next>).every((key) => previous[key] === next[key])) return;
-    renderGeneration.current += 1;
-    closeViews();
+    const changed = (Object.keys(next) as Array<keyof typeof next>).filter((key) => previous[key] !== next[key]);
+    const chosen = ownComposition.current;
+    ownComposition.current = null;
+    if (changed.length === 0) return;
+    // Only the composition the person just chose: their own act, already withdrawn silently.
+    const ownAct = changed.length === 1 && changed[0] === "reportComposition" && chosen !== null && chosen.value === next.reportComposition;
+    dropPreview(ownAct ? "own_act" : "source_changed");
+    if (!ownAct) closeViews("source_changed");
     setRenderState(null);
     setRedactionState(null);
     setPrintRequest(null);
@@ -399,10 +438,11 @@ export function RenderedReportPanel({
   }, [model, result, analysisRun, projectSummary, inputManifest, ruleCheckRun, reportComposition, libraryRefFindingsKey]);
 
   function onLocalPrivateIntentChange(value: boolean) {
-    renderGeneration.current += 1;
+    dropPreview("own_act");
+    // The person's own act: withdrawn silently before the advance can sweep the window natively.
+    closeViews("own_act");
     // The export context is report-bound: its change advances the source sequence.
     reportSource?.advance();
-    closeViews();
     setLocalPrivateIntent(value);
     setRenderState(null);
     setRedactionState(null);
@@ -412,10 +452,12 @@ export function RenderedReportPanel({
     setRendering(false);
   }
   function onCompositionChange(value: ReportComposition | null) {
-    renderGeneration.current += 1;
+    dropPreview("own_act");
+    // The person's own act: withdrawn silently before any advance can sweep the window natively.
+    ownComposition.current = { value };
+    closeViews("own_act");
     // The session's composition cell advances the sequence itself; the panel's own does here.
     if (!onReportCompositionChange) reportSource?.advance();
-    closeViews();
     changeComposition(value);
     setRenderState(null);
     setRedactionState(null);
@@ -437,7 +479,10 @@ export function RenderedReportPanel({
 
   async function onRender() {
     if ((reportComposition && !localPrivateIntent) || !result || !analysisRun || surfaceOutputRefusal(result, model, "rendered-report")) return;
-    const generation = ++renderGeneration.current;
+    const generation = dropPreview("own_act");
+    // The person's own act: withdrawn silently before the render's entry can sweep the window.
+    setViewClosed(false);
+    closeViews("own_act");
     const intent = localPrivateIntent;
     const context: ReportExportContext = intent ? "local_private" : "public_report";
     const isCurrent = () => renderGeneration.current === generation;
@@ -451,8 +496,6 @@ export function RenderedReportPanel({
     setRouteStatus(null);
     setRenderState(null);
     setRedactionState(null);
-    setViewClosed(false);
-    closeViews();
     try {
       const assembly = await assembleRenderedReport({
         model,
@@ -485,6 +528,9 @@ export function RenderedReportPanel({
       // Output preparation waits for the native side to register this basis's number
       // and re-checks that it is still the latest; editing never waits for it.
       const source = reportSource ? await reportSource.registeredFor(viewSequence) : { incarnation: 0, sequence: viewSequence };
+      if (!isCurrent()) return;
+      // The withdrawals sent so far reach the desktop before this render can enter.
+      await withdrawalsSent.current;
       if (!isCurrent()) return;
       // The request's identity is kept before it is sent, so an unmount while it is
       // outstanding retires exactly it.
@@ -618,19 +664,24 @@ export function RenderedReportPanel({
     try {
       let source: ReportSourceMark;
       try {
-        if (viewSequence !== renderedFor.sequence) throw new Error("REPORT-SOURCE-STALE-VIEW: the workspace changed after this report was rendered; render it again.");
+        if (viewSequence !== renderedFor.sequence) throw new Error(`${REPORT_VIEW_STALE_CODE}: ${REPORT_VIEW_STALE}`);
         source = reportSource ? await reportSource.registeredFor(viewSequence) : renderedFor;
       } catch (error) {
-        const text = error instanceof Error ? error.message : String(error);
-        const at = text.indexOf(": ");
-        const coded = at > 0 && /^[A-Z0-9-]+$/.test(text.slice(0, at));
-        show(reportViewRefusalText(coded ? text.slice(at + 2) : text, coded ? text.slice(0, at) : null));
+        show(reportViewSourceRefusalText(error instanceof Error ? error.message : String(error)));
         return;
       }
+      // Set as the opening is sent: a drop from here on withdraws the render natively.
+      reportViewMayExist = true;
       const opened = await openRenderedReportView({ sha256Hex, source }, stillCurrent);
-      if (opened.kind === "done" || opened.kind === "failed") reportViewMayExist = true;
-      // The panel dropped this render while the window was opening: it closes with the preview.
-      if (!stillCurrent() && opened.kind === "done") closeViews();
+      const mayExist = opened.kind === "done" || opened.kind === "failed";
+      // A second barrier: the panel dropped this render while the window was opening (an unknown
+      // reply may have opened one too), and the drop's own withdrawal already reached the desktop;
+      // any window still open closes, for the reason of the drop that ended this render's
+      // generation, without withdrawing whatever render is current by now. A drop whose reason is
+      // not known closes silently, so no untrue line is shown. After unmount the render's
+      // retirement closes it natively.
+      if (!stillCurrent() && mayExist && mounted.current) closeViews(dropReasons.current.get(generation) ?? "own_act", false);
+      if (stillCurrent() && opened.kind === "done") setViewClosed(false);
       show(viewOutcomeText(opened));
     } finally {
       routeInFlight.current = false;

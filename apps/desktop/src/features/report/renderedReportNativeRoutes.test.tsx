@@ -19,7 +19,14 @@ const invokeMock = vi.hoisted(() => vi.fn());
 const assemblyControl = vi.hoisted(() => ({ failure: false, blocked: false, pending: null as Promise<void> | null }));
 const outcomeRef = vi.hoisted(() => ({ current: null as Record<string, unknown> | null }));
 vi.mock("@tauri-apps/api/core", () => ({ invoke: invokeMock }));
-vi.mock("./ReportComposer", () => ({ ReportComposer: () => null }));
+// The composer renders one invented control, so a test can make the person's composition change.
+vi.mock("./ReportComposer", async () => {
+  const { createElement } = await import("react");
+  return {
+    ReportComposer: ({ onChange }: { onChange: (value: unknown) => void }) =>
+      createElement("button", { type: "button", "data-testid": "invented-composition-change", onClick: () => onChange({ invented: true }) }, "compose")
+  };
+});
 vi.mock("../results/LoadReferenceOutputGate", () => ({
   LoadReferenceOutputGate: ({ children }: { children: unknown }) => children
 }));
@@ -73,6 +80,7 @@ vi.mock("../../services/reportRenderService", () => ({
 }));
 
 import { RenderedReportPanel } from "./RenderedReportPanel";
+import { reportViewSourceRefusalText } from "../../services/renderedReportRoutes";
 import { ReportSourceSequence } from "../workspace/reportSourceSequence";
 import { ReportOutputOutcomes } from "./reportOutputOutcomes";
 import { ReportOutputStatus } from "./ReportOutputStatus";
@@ -918,7 +926,15 @@ describe("open in a window", () => {
   function modelledView() {
     const native = {
       incarnation: 0, registered: 0, record: null as null | Mark, held: null as null | string, active: null as null | number,
-      views: [] as string[], closures: [] as string[], holdAdvances: false, heldAdvances: [] as Array<() => void>, entered: 0
+      views: [] as string[], closures: [] as string[], holdAdvances: false, heldAdvances: [] as Array<() => void>, entered: 0,
+      // `close_rendered_report_views`: the reasons it was called with (a late close, which withdraws
+      // nothing from view, as `late:<reason>`), and withdrawals held in transit.
+      withdrawals: [] as string[], holdWithdrawals: false, heldWithdrawals: [] as Array<() => void>,
+      // The render's generation (one per completion) and the one withdrawn from view.
+      generation: 0, withdrawnGeneration: -1,
+      // `open_rendered_report_view`: the next open's reply is lost, the opening itself made when the
+      // reply is let go ("held") or at once ("opened").
+      loseNextOpen: false as false | "held" | "opened", heldOpens: [] as Array<() => void>
     };
     const sweep = () => {
       if (native.views.length === 0) return;
@@ -957,6 +973,7 @@ describe("open in a window", () => {
         nativeRender.pending = () => {
           native.record = source;
           native.held = SHA;
+          native.generation += 1;
         };
       },
       completion: async () => { nativeRender.pending?.(); }
@@ -980,22 +997,58 @@ describe("open in a window", () => {
         if (named.sha256Hex !== native.held) {
           return Promise.reject({ code: "REPORT-ROUTE-HTML-UNBOUND", stage: "admission", message: "The render the request names is not the current one.", destination: "untouched", cleanup_code: null, selected_basename: null });
         }
+        if (native.withdrawnGeneration === native.generation) {
+          return Promise.reject({ code: "REPORT-VIEW-NOT-SHOWABLE", stage: "view", message: "This report is no longer the current one. No window was opened.", destination: "untouched", cleanup_code: null, selected_basename: null });
+        }
         const open = native.views.includes(named.sha256Hex);
         if (!open) native.views.push(named.sha256Hex);
         return Promise.resolve({ outcome: open ? "brought_forward" : "opened", kind: "current_render", sha256_hex: named.sha256Hex });
       }
       if (command === "close_rendered_report_views") {
-        sweep();
-        return Promise.resolve(null);
+        // `close_kind_in`: a withdrawal marks the current render as withdrawn from view; a source
+        // change records a notice when it closed a window; the person's own act records none and
+        // clears any pending one of the kind.
+        const { reason, withdraw } = args as { reason: string; withdraw: boolean };
+        native.withdrawals.push(withdraw ? reason : `late:${reason}`);
+        const process = () => {
+          if (withdraw && native.record !== null) native.withdrawnGeneration = native.generation;
+          if (reason === "source_changed") sweep();
+          else if (reason === "own_act") {
+            native.views = [];
+            native.closures = native.closures.filter((kind) => kind !== "current_render");
+          }
+        };
+        if (!native.holdWithdrawals) {
+          process();
+          return Promise.resolve(null);
+        }
+        return new Promise((resolve) => native.heldWithdrawals.push(() => { process(); resolve(null); }));
       }
       if (command === "take_report_view_closures") {
         return Promise.resolve(native.closures.splice(0).map((kind) => ({ kind, reason: "no_longer_showable" })));
       }
       return Promise.resolve(undefined);
     });
+    const opening = invokeMock.getMockImplementation()!;
+    invokeMock.mockImplementation((command: string, args?: unknown, options?: unknown) => {
+      if (command !== "open_rendered_report_view" || !native.loseNextOpen) return opening(command, args, options);
+      const when = native.loseNextOpen;
+      native.loseNextOpen = false;
+      // The opening is made natively (at once, or when the reply is let go), but its reply is lost.
+      const made = when === "opened" ? opening(command, args, options).catch(() => undefined) : null;
+      return new Promise((_resolve, reject) => native.heldOpens.push(() => {
+        if (made === null) void opening(command, args, options).catch(() => undefined);
+        reject(new Error("invented lost reply"));
+      }));
+    });
     const source = new ReportSourceSequence(transport);
     const outcomes = new ReportOutputOutcomes();
-    return { native, source, outcomes, deliverAdvances: () => native.heldAdvances.splice(0).forEach((deliver) => deliver()) };
+    return {
+      native, source, outcomes, sweep,
+      deliverAdvances: () => native.heldAdvances.splice(0).forEach((deliver) => deliver()),
+      deliverWithdrawals: () => native.heldWithdrawals.splice(0).forEach((deliver) => deliver()),
+      deliverOpens: () => native.heldOpens.splice(0).forEach((deliver) => deliver())
+    };
   }
   type Context = ReturnType<typeof modelledView>;
   const results = new Map<string, ReturnType<typeof result>>();
@@ -1031,6 +1084,33 @@ describe("open in a window", () => {
     });
   };
 
+  // Must stay the first test that opens a window in this file: it is the session's first open.
+  // Lane 4's gap and F4: the opening is outstanding when the source changes; the drop's
+  // withdrawal is sent (the flag is set as the opening is sent) and withdraws the render from view
+  // natively, so the opening, made after it, opens nothing; the late close follows.
+  it("withdraws the render on the session's first open when the source changes before its lost reply, so nothing opens", async () => {
+    const context = modelledView();
+    const view = await rendered(context);
+    const viewCalls = () => invokeMock.mock.calls.map(([command]) => String(command)).filter((command) => command.includes("view"));
+    expect(viewCalls()).toEqual([]); // no opening has been sent in this session: the panel asked nothing
+    context.native.loseNextOpen = "held";
+    context.native.holdAdvances = true;
+    fireEvent.click(screen.getByTestId("rendered-report-open-window"));
+    await waitFor(() => expect(context.native.heldOpens).toHaveLength(1));
+    replaceSource(context, view, "run:invented-2");
+    await flush();
+    expect(context.native.withdrawals).toEqual(["source_changed"]); // sent while the first opening is outstanding
+    expect(context.native.record).not.toBeNull(); // the advance is in transit: the render is still current natively
+    context.deliverOpens();
+    await flush();
+    await flush();
+    expect(context.native.withdrawals).toEqual(["source_changed", "late:source_changed"]);
+    expect(context.native.views).toEqual([]);
+    expect(screen.queryByTestId("rendered-report-view-closed")).not.toBeInTheDocument(); // no window closed: no line
+    context.deliverAdvances();
+    await flush();
+  });
+
   it("opens the shown render by its hash and source, sends no document and writes no output outcome", async () => {
     const context = modelledView();
     await rendered(context);
@@ -1064,20 +1144,22 @@ describe("open in a window", () => {
 
   // B4 (a): the window is no more current than the panel's preview. Each event on which the panel
   // drops its preview closes the window, whether or not the native render is retired by it.
-  it.each(["registered source change", "source change in transit", "local-private selection", "new render"] as const)(
-    "closes the window when the panel drops its preview on a %s, and says so",
+  // Case 1: the model or result changed. The line shows, whichever of the panel's withdrawal and
+  // the native sweep closed the window, including while the change is still in transit.
+  it.each(["registered source change", "source change in transit"] as const)(
+    "closes the window on a %s, and says so",
     async (event) => {
       const context = modelledView();
       const view = await rendered(context);
       await openWindow();
       expect(context.native.views).toEqual([SHA]);
+      context.native.withdrawals = []; // the setup's own Render withdrew silently before the window opened
       if (event === "source change in transit") context.native.holdAdvances = true;
-      if (event === "registered source change" || event === "source change in transit") replaceSource(context, view, "run:invented-2");
-      else if (event === "local-private selection") fireEvent.click(screen.getByTestId("rendered-report-local-private-intent"));
-      else fireEvent.click(screen.getByTestId("rendered-report-render"));
+      replaceSource(context, view, "run:invented-2");
       await flush();
       await flush();
       expect(context.native.views).toEqual([]);
+      expect(context.native.withdrawals).toEqual(["source_changed"]);
       if (event === "source change in transit") {
         expect(context.native.record).not.toBeNull(); // the native render is still current: only the window closed
       }
@@ -1088,6 +1170,142 @@ describe("open in a window", () => {
       await flush();
     }
   );
+
+  // Cases 2 to 4: the person's own act (the composition, the local-private selection, Render)
+  // closes the window and stays silent, whichever closed it, including when the desktop's sweep
+  // recorded a notice before the panel's withdrawal arrived.
+  it.each([
+    ["composition", false], ["composition", true],
+    ["local-private selection", false], ["local-private selection", true],
+    ["new render", false], ["new render", true]
+  ] as const)(
+    "closes the window on the person's own %s and shows no line (the desktop recorded a notice first: %s)",
+    async (act, noticeFirst) => {
+      const context = modelledView();
+      await rendered(context);
+      await openWindow();
+      expect(context.native.views).toEqual([SHA]);
+      context.native.withdrawals = []; // the setup's own Render withdrew silently before the window opened
+      if (noticeFirst) context.native.holdWithdrawals = true;
+      const press = act === "composition" ? "invented-composition-change" : act === "local-private selection" ? "rendered-report-local-private-intent" : "rendered-report-render";
+      fireEvent.click(screen.getByTestId(press));
+      await flush();
+      await flush();
+      if (noticeFirst) {
+        // A sweep closed the window first and the desktop recorded a notice (for the composition and
+        // the local-private selection, the act's own source advance; a render's entry waits for
+        // the withdrawal, so for Render it is a sweep for another cause); any take meanwhile shows
+        // nothing.
+        context.sweep();
+        expect(context.native.views).toEqual([]);
+        expect(screen.queryByTestId("rendered-report-view-closed")).not.toBeInTheDocument();
+        context.deliverWithdrawals();
+        await flush();
+        await flush();
+      }
+      expect(context.native.withdrawals).toEqual(["own_act"]);
+      expect(context.native.views).toEqual([]);
+      expect(context.native.closures).toEqual([]);
+      expect(screen.queryByTestId("rendered-report-view-closed")).not.toBeInTheDocument();
+    }
+  );
+
+  it("clears the line when a window is next opened", async () => {
+    const context = modelledView();
+    await rendered(context);
+    await openWindow();
+    // The desktop reports a closure while this render is shown (taken when the render returns).
+    const enter = nativeRender.current!.enter;
+    nativeRender.current!.enter = async (source, request) => {
+      await enter(source, request);
+      context.native.closures.push("current_render");
+    };
+    fireEvent.click(screen.getByTestId("rendered-report-render"));
+    await waitFor(() => expect(screen.getByTestId("rendered-report-view-closed")).toBeInTheDocument());
+    expect(screen.getByTestId("rendered-report-hash")).toBeInTheDocument();
+    await openWindow();
+    expect(screen.queryByTestId("rendered-report-view-closed")).not.toBeInTheDocument();
+  });
+
+  it("says it is not known whether a window opened when the open's reply is lost", async () => {
+    const context = modelledView();
+    await rendered(context);
+    context.native.loseNextOpen = "held";
+    fireEvent.click(screen.getByTestId("rendered-report-open-window"));
+    await waitFor(() => expect(context.native.heldOpens).toHaveLength(1));
+    expect(screen.getByTestId("rendered-report-view-status")).toHaveTextContent("Opening the report window…");
+    context.deliverOpens();
+    await waitFor(() =>
+      expect(screen.getByTestId("rendered-report-view-status")).toHaveTextContent("It is not known whether the report window opened: invented lost reply")
+    );
+    expect(context.native.views).toEqual([SHA]);
+  });
+
+  it("refuses a stale view in its own words, and any other source refusal as it came", () => {
+    expect(reportViewSourceRefusalText("REPORT-SOURCE-STALE-VIEW: the workspace changed after this report was prepared; prepare it again.")).toBe(
+      "The report could not be opened in a window: The workspace changed after this report was rendered. Render it again. (REPORT-SOURCE-STALE-VIEW)"
+    );
+    expect(reportViewSourceRefusalText("REPORT-SOURCE-UNREGISTERED: invented reason.")).toBe(
+      "The report could not be opened in a window: invented reason. (REPORT-SOURCE-UNREGISTERED)"
+    );
+    expect(reportViewSourceRefusalText("invented uncoded reason")).toBe("The report could not be opened in a window: invented uncoded reason");
+  });
+
+  // Lane 4's repair: an open whose reply is lost may have opened a window. Here it opened before the
+  // source changed: the drop's withdrawal closes it, and says so; the late close follows.
+  it("closes a window whose open reply was lost when the source changed meanwhile, and says so", async () => {
+    const context = modelledView();
+    const view = await rendered(context);
+    await openWindow();
+    fireEvent.click(screen.getByTestId("rendered-report-render")); // closes it silently
+    await waitFor(() => expect(screen.getByTestId("rendered-report-hash")).toBeInTheDocument());
+    await flush();
+    context.native.withdrawals = [];
+    context.native.loseNextOpen = "opened";
+    context.native.holdAdvances = true;
+    fireEvent.click(screen.getByTestId("rendered-report-open-window"));
+    await waitFor(() => expect(context.native.heldOpens).toHaveLength(1));
+    expect(context.native.views).toEqual([SHA]); // the window opened; its reply is outstanding
+    replaceSource(context, view, "run:invented-2");
+    await flush();
+    expect(context.native.withdrawals).toEqual(["source_changed"]);
+    expect(context.native.views).toEqual([]);
+    context.deliverOpens(); // the reply is lost
+    await flush();
+    await flush();
+    expect(context.native.withdrawals).toEqual(["source_changed", "late:source_changed"]);
+    expect(context.native.views).toEqual([]);
+    await waitFor(() => expect(screen.getByTestId("rendered-report-view-closed")).toHaveTextContent(CLOSED_LINE));
+    context.deliverAdvances();
+    await flush();
+  });
+
+  // F4, the reader's scenario: an opening is outstanding, the person presses Render, the new
+  // render's preparation fails before it enters natively (so the earlier render stays current
+  // there), and the opening's reply is lost. The Render's withdrawal was sent, so the opening opens
+  // nothing, and nothing is said.
+  it("withdraws the render when Render is pressed during an opening and the new render fails before entry", async () => {
+    const context = modelledView();
+    await rendered(context);
+    context.native.withdrawals = [];
+    context.native.loseNextOpen = "held";
+    fireEvent.click(screen.getByTestId("rendered-report-open-window"));
+    await waitFor(() => expect(context.native.heldOpens).toHaveLength(1));
+    const entered = context.native.entered;
+    assemblyControl.failure = true;
+    fireEvent.click(screen.getByTestId("rendered-report-render"));
+    await flush();
+    await flush();
+    expect(context.native.withdrawals).toEqual(["own_act"]);
+    expect(context.native.entered).toBe(entered); // the new render never entered
+    expect(context.native.record).not.toBeNull(); // the earlier render is still current natively
+    context.deliverOpens();
+    await flush();
+    await flush();
+    expect(context.native.views).toEqual([]);
+    expect(context.native.withdrawals).toEqual(["own_act", "late:own_act"]);
+    expect(screen.queryByTestId("rendered-report-view-closed")).not.toBeInTheDocument();
+  });
 
   it("closes the window with the render the panel retires on unmount, and says so when the Report page returns", async () => {
     const context = modelledView();

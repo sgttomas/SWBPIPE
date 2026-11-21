@@ -6382,7 +6382,7 @@ pub fn run() {
     let builder = tauri::Builder::default()
         .plugin(tauri_plugin_dialog::init())
         .register_uri_scheme_protocol(rendered_report_print::SCHEME, rendered_report_print::serve)
-        .register_uri_scheme_protocol(report_view::SCHEME, report_view::serve)
+        .register_asynchronous_uri_scheme_protocol(report_view::SCHEME, report_view::serve)
         .manage(registry.clone())
         .manage(native_result_download::SaveAdmission::default())
         .manage(Arc::new(native_csv_stream::CsvStreams::default()))
@@ -6435,6 +6435,11 @@ pub fn run() {
         .build(tauri::generate_context!())
         .expect("error while building SWBPIPE")
         .run(|app, event| {
+            // A report view window's destruction, and the main window's, from
+            // the callback that exists from setup (report_view, "Closing").
+            if let tauri::RunEvent::WindowEvent { label, event: tauri::WindowEvent::Destroyed, .. } = &event {
+                report_view::window_destroyed(label);
+            }
             #[cfg(target_os = "macos")]
             if let tauri::RunEvent::ExitRequested { api, .. } = event {
                 if !app.state::<embedded_agent::live_host::Host>().shutdown(app) {

@@ -111,9 +111,11 @@ needs:
 - from: DEL-04-07
   condition: The desktop's memory pool lets an interactive command's lease, grown on request within the
     per-invocation budget, the pool's remaining bytes and a fresh headroom verdict, outlive its command
-    while the record it was grown for keeps it, and releases it exactly once when that record drops it.
-  when: Opening a report in a window of its own, whose one served copy of the document is reserved from
-    the opening until the window's page has loaded or the window has closed.
+    while the record it was grown for, or a serve sharing it, keeps it, and releases it exactly once when
+    the last of them drops it.
+  when: Opening a report in a window of its own, whose two copies of the document in this process (the
+    body it serves and the runtime's own copy of that body) are reserved from the opening until the
+    window's page has loaded or the window has closed, and for no less than the serve.
   gating: false
 - from: DEL-07-07
   condition: Until a completed solve job's result is disposed of, the native host keeps with it the digests
