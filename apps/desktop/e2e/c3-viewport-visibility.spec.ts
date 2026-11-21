@@ -296,7 +296,8 @@ test("C3 visibility never gives bundled references a current overlay or saved-mo
   await (await control(page, "Isolate")).click();
   await (await control(page, "Hide")).click();
   await (await control(page, "Show All")).click();
-  await expect(page.getByTestId("viewport-deformation-summary")).toContainText("result rows=0");
+  // No current result: the view offers no Deformation control.
+  await expect(page.getByTestId("viewport-deformation-status")).toHaveCount(0);
   await openWorkspaceSection(page, "results");
   await expect(page.getByTestId("historical-run-context")).toBeVisible();
   // The separate bundled example is not persisted as this model's solved run.
@@ -309,7 +310,8 @@ test("C3 visibility never gives bundled references a current overlay or saved-mo
   await selectTreeRow(page, "pipe", "pipe:P-100");
   await (await control(page, "Isolate")).click();
   await (await control(page, "Show All")).click();
-  await expect(page.getByTestId("viewport-deformation-summary")).toContainText("result rows=0");
+  // No current result: the view offers no Deformation control.
+  await expect(page.getByTestId("viewport-deformation-status")).toHaveCount(0);
   await openWorkspaceSection(page, "evidence");
   await expect(page.getByTestId("status-pill-solve-proof")).toHaveCount(0);
 });
