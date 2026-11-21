@@ -198,6 +198,88 @@
 
   // ------------------------------------------------------------ journeys
 
+  // The Results stage's own parts, as a person reads them: Method and limits opened, each tab, a sorted table,
+  // a governing value's jump to its row, and a table scrolled inside itself with its header row and the standing
+  // line still in view. Ends on the All rows tab, unsorted, at its head.
+  const inView = (element) => {
+    if (!visible(element)) return false;
+    const box = element.getBoundingClientRect();
+    return box.bottom > 0 && box.top < window.innerHeight && box.height > 0;
+  };
+  async function chooseTab(id) {
+    const tab = byTestId(`results-stage-tab-${id}`);
+    if (tab && tab.getAttribute("aria-selected") !== "true") await press(`results-stage-tab-${id}`);
+    return tab;
+  }
+  async function resultsStage(journey) {
+    await journey.step("method-and-limits", "Results: Method and limits opened", async () => {
+      const method = await control("results-method");
+      if (!method.open) acting(method.querySelector(":scope > summary"), "results-method summary").click();
+      await sleep(200);
+      return method.open ? `open; it begins: ${method.querySelector(".results-method-body")?.textContent?.replace(/\s+/g, " ").trim().slice(0, 200) ?? ""}` : "it did not open";
+    });
+    await journey.scrolled("method-and-limits", "Results with Method and limits open", 2);
+    await journey.step("method-and-limits-closed", "Results: Method and limits closed again", async () => {
+      const method = await control("results-method");
+      if (method.open) acting(method.querySelector(":scope > summary"), "results-method summary").click();
+      await scrollTo(byTestId("results-stage-header"), "start");
+    });
+    const tabs = [...document.querySelectorAll('[data-testid^="results-stage-tab-"]')].filter(visible);
+    for (const tab of tabs) {
+      const id = tab.getAttribute("data-testid").slice("results-stage-tab-".length);
+      await journey.step(`tab-${slug(id)}`, `Results: the ${tab.textContent.trim()} tab`, async () => {
+        await press(`results-stage-tab-${id}`);
+        await sleep(200);
+        const panel = document.getElementById(tab.getAttribute("aria-controls"));
+        return panel ? `${panel.querySelectorAll("tbody tr").length} table rows shown` : "";
+      });
+    }
+    await journey.step("sorted", "All rows sorted by value (largest magnitude first)", async () => {
+      await chooseTab("rows");
+      await press("results-sort-value");
+      await sleep(300);
+      const header = byTestId("results-sort-value")?.closest("th");
+      const first = document.querySelector('[data-testid="results-stage-content-rows"] tbody tr');
+      return `aria-sort ${header?.getAttribute("aria-sort") ?? "absent"}; first row ${first?.getAttribute("data-row-id") ?? "none"}`;
+    });
+    await journey.step("unsorted", "All rows: the value sort reversed, then the stage back at its head", async () => {
+      await press("results-sort-value");
+      await scrollTo(byTestId("results-stage-header"), "start");
+      return byTestId("results-sort-value")?.closest("th")?.getAttribute("aria-sort") ?? "";
+    });
+    await journey.step("governing-jump", "A governing value pressed: its table opens with its row in view and selected", async () => {
+      const button = [...document.querySelectorAll('[data-testid="governing-values"] button.governing-value')].find((item) => visible(item) && item.getAttribute("data-testid") !== "governing-weight-open");
+      if (!button) throw new Error(`no governing value can be pressed: ${text("governing-values") ?? "the governing values are not shown"}`);
+      const name = button.getAttribute("data-testid");
+      acting(button, name).click();
+      await sleep(600);
+      const tab = document.querySelector('[data-testid^="results-stage-tab-"][aria-selected="true"]');
+      const row = document.querySelector('.results-stage-tabpanel:not([hidden]) [aria-current="true"], .results-stage-tabpanel:not([hidden]) [aria-selected="true"]');
+      return `${name} pressed; tab ${tab?.textContent?.trim() ?? "none"}; row ${row ? (inView(row) ? "in view" : "not in view") : "not marked"}; selection ${text("status-selection") ?? "none"}`;
+    });
+    await journey.step("scrolled-table", "All rows scrolled down inside its table: the header row and the standing line in view", async () => {
+      await chooseTab("rows");
+      const scroller = document.querySelector('[data-testid="results-stage-content-rows"] .results-table-scroll');
+      if (!scroller) throw new Error("the All rows tab shows no table");
+      await scrollTo(scroller, "start");
+      scroller.scrollTop = Math.round(scroller.scrollHeight / 3);
+      await sleep(300);
+      const head = scroller.querySelector("thead");
+      return `header row ${inView(head) ? "in view" : "out of view"}; standing line ${inView(byTestId("numerical-result-standing")) ? "in view" : "out of view"}`;
+    });
+    await journey.step("scrolled-stage", "The stage scrolled down past the governing values: the header stays", async () => {
+      const scroller = document.querySelector('[data-testid="results-stage-content-rows"] .results-table-scroll');
+      if (scroller) scroller.scrollTop = 0;
+      const last = [...document.querySelectorAll('[data-testid="results-stage-content-rows"] tbody tr')].at(-1);
+      if (last) await scrollTo(last, "end");
+      return `standing line ${inView(byTestId("numerical-result-standing")) ? "in view" : "out of view"}`;
+    });
+    await journey.step("stage-head", "The Results stage back at its head", async () => {
+      await scrollTo(byTestId("results-stage-header"), "start");
+    });
+  }
+
+
   // A. Solve and read results, on the bundled demonstration model.
   async function solveAndResults(journey, plan) {
     await journey.step("first-open", "The application as first opened, with its demonstration model");
@@ -207,19 +289,7 @@
       await openStage("results");
       await waitFor("the results table's rows", () => document.querySelector('[data-testid^="result-row-"]'), T.step);
     });
-    // Each table or panel in the Results section, scrolled to its foot.
-    const section = byTestId("workspace-section-results");
-    let root = section;
-    while (root && root.children.length === 1) root = root.children[0];
-    const panels = root ? [...root.children].filter((panel) => visible(panel) && panel.getBoundingClientRect().height > 0) : [];
-    const names = new Set();
-    for (const panel of panels) {
-      const heading = panel.querySelector("h2, h3, legend, caption")?.textContent?.trim();
-      let name = slug(panel.getAttribute("data-testid") || panel.getAttribute("aria-label") || heading || panel.className);
-      while (names.has(name)) name = `${name}-2`;
-      names.add(name);
-      await journey.step(`panel-${name}`, `Results: ${heading || name}, scrolled to its foot`, async () => { await scrollTo(panel, "end"); });
-    }
+    await resultsStage(journey);
     await journey.step("filter-support", `The results filter used to find the rows of ${plan.support_text}`, async () => {
       const input = await control("result-filter-input");
       await scrollTo(input, "center");
@@ -234,6 +304,12 @@
       acting(row, row.getAttribute("data-testid")).click();
       await sleep(300);
       return row.getAttribute("data-testid");
+    });
+    await journey.step("row-detail", "The chosen row's detail, with its id and full-precision value", async () => {
+      const detail = await waitFor("the row's detail", () => { const item = byTestId("result-detail-panel"); return visible(item) ? item : null; }, T.ui).catch(() => null);
+      if (!detail) throw new Error("the window shows no detail of the chosen row");
+      await scrollTo(detail, "start");
+      return text("selected-result-id") ?? "";
     });
     await journey.step("row-in-viewport", "The chosen row's location in the viewport (Both view)", async () => {
       const both = byTestId("view-switch-both");
@@ -410,17 +486,23 @@
       await scrollTo(standing, "center");
       return standing.textContent.replace(/\s+/g, " ").trim().slice(0, 300);
     });
-    await journey.step("health-line", "The numerical health line", async () => {
+    await journey.step("health-line", "The numerical health line, inside Method and limits", async () => {
+      const method = await control("results-method", { timeoutMs: T.ui });
+      if (!method.open) acting(method.querySelector(":scope > summary"), "results-method summary").click();
+      await sleep(200);
       const line = await control("numerical-health-header-line", { timeoutMs: T.ui });
       await scrollTo(line, "center");
       return line.textContent.replace(/\s+/g, " ").trim().slice(0, 300);
     });
     await journey.step("results", "The results table", async () => {
+      const method = byTestId("results-method");
+      if (method?.open) acting(method.querySelector(":scope > summary"), "results-method summary").click();
       const row = document.querySelector('[data-testid^="result-row-"]');
       if (row) await scrollTo(row, "start");
       return text("result-filter-summary") ?? "";
     });
     await journey.scrolled("results", "The Results stage", 3);
+    await resultsStage(journey);
     await journey.step("report", "The Review stage's Report tab", async () => {
       await openStage("review");
       await waitFor("the report panel", () => byTestId("rendered-report-panel") || byTestId("report-panel"), T.step);

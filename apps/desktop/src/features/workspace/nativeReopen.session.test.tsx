@@ -149,7 +149,7 @@ describe("saved and recorded runs reopen into native custody (C1 slice 6)", () =
     }
     // The first native page shows the stored result's first published rows.
     const { source } = nativeMechanicsReplayPair("sparse_interactive", { profile: "pressure" });
-    await waitFor(() => expect(results).toHaveTextContent(source.results[0].id));
+    await waitFor(() => expect(within(results).getByTestId(`result-row-${source.results[0].id}`)).toHaveAttribute("data-row-id", source.results[0].id));
     expect(called("query_preview_mechanics_job_rows").length).toBeGreaterThan(0);
     expect(called("read_preview_mechanics_job_row_semantics").length).toBeGreaterThan(0);
     // Nothing whole crossed: no legacy open, no full copy, no take.

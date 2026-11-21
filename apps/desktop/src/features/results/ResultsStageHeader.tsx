@@ -5,7 +5,7 @@
  * made. Nothing here forms a standing, a state or a word of one: the line, its hover sentence, the
  * per-case states and the support-state statements are passed in or read from the indicator's own
  * functions and constants. */
-import type { ReactNode } from "react";
+import { useLayoutEffect, useRef, type ReactNode } from "react";
 import { ChevronRight } from "lucide-react";
 import { checksPassedText, ELIGIBLE_RECOVERY_TEXT, NUMERICAL_HEALTH_STATE_TEXT, type NumericalHealthState } from "./numericalHealthText";
 import { NUMERICAL_HEALTH_ORDER, rowHealthState, type NumericalHealthView } from "./numericalHealth";
@@ -88,8 +88,21 @@ export function ResultsStageHeader({
   const differing = differingCaseCounts(health, lineState, scope);
   const support = supportStateLines(health, scope);
   const recovery = recoveryNote(health);
+  const ref = useRef<HTMLElement>(null);
+  // Table headers under the stage stick just below this header: its height is published to the
+  // stage as --results-header-h whenever it changes (Method and limits opened, a line wrapping).
+  useLayoutEffect(() => {
+    const header = ref.current;
+    const stage = header?.closest<HTMLElement>(".results-panel");
+    if (!header || !stage || typeof ResizeObserver === "undefined") return;
+    const publish = () => stage.style.setProperty("--results-header-h", `${header.offsetHeight}px`);
+    publish();
+    const observer = new ResizeObserver(publish);
+    observer.observe(header);
+    return () => observer.disconnect();
+  }, []);
   return (
-    <header className="results-stage-header" data-testid="results-stage-header">
+    <header className="results-stage-header" data-testid="results-stage-header" ref={ref}>
       <div className="results-stage-identity">
         <span className="results-stage-run" data-testid="results-stage-run" data-run-kind={identity.kind}>
           {RESULTS_RUN_LABELS[identity.kind]}{identity.runId ? <code>{identity.runId}</code> : null}

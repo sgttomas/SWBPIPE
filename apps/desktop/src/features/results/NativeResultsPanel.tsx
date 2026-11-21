@@ -39,6 +39,7 @@ import {
   ALL_FRAMES,
   ALL_ROWS_TAB,
   CaseSelect,
+  rowSortKey,
   DEFAULT_RESULT_PAGE_SIZE,
   HealthHeaderLine,
   headerScope,
@@ -83,6 +84,8 @@ import { displayRoute, sameContractBinding, type RowSemantics } from "./resultRe
 import { isRetainedRoute } from "./numericalResultQuality";
 import { retainedPrecisionStandingParts } from "./retainedPrecisionStanding";
 import { ResultsStageHeader } from "./ResultsStageHeader";
+import { ResultsStageTabs, withRowsTab } from "./ResultsStageTabs";
+import { caseNameOf, entityNameOf, nextRowsSort, ResultRowsTable, sortRows, type RowsSort } from "./ResultRowsTable";
 import { recordedTableLabel, type RecordedBinding } from "../../services/recordedPreRtA4";
 
 type Row = MechanicsResult["results"][number];
@@ -241,7 +244,13 @@ export function NativeResultsPanel({
   const items = ready && !selectionOnlyWithoutEntity ? ready.rows.map((entry) => entry.row) : [];
   const page = { items, pageIndex: safeIndex, pageCount, start: filteredCount === 0 ? 0 : safeIndex * pageSize + 1, end: Math.min(safeIndex * pageSize + items.length, filteredCount) };
   const labels = ready?.labels ?? labelsOf([], []);
-  const groups = groupResults(items, labels);
+  // Sorting orders the rows shown. The webview holds one native page of rows, never the envelope, so
+  // a sort is offered only while every row the filters admit is on the page shown.
+  const [rowsSort, setRowsSort] = useState<RowsSort | null>(null);
+  const entityName = useMemo(() => entityNameOf(model), [model]);
+  const caseName = useMemo(() => caseNameOf(model), [model]);
+  const sortDisabledReason = filteredCount > pageSize ? `Sorting needs every matching row on one page: filter to ${pageSize} rows or fewer, or show more rows per page (${filteredCount} match).` : null;
+  const groups = groupResults(sortDisabledReason ? items : sortRows(items, rowsSort, (row, column) => rowSortKey(row, column, entityName, caseName)), labels);
   // RT-A4 §10.4: a run recorded before RT-A4 is classified under its recorded table.
   const route = displayRoute(result, recordedTableRead);
   // DEL-07-05: the historical panel passes no health; a reopened run then shows its own (review F2).
@@ -542,96 +551,97 @@ export function NativeResultsPanel({
       />
       <SectionBasisHeadlines result={result as never} />
       {stageContent?.governing}
-      <ResultControls
-        familyCounts={familyCounts}
-        familyFilter={familyFilter as never}
-        filterText={filterText}
-        filteredCount={filteredCount}
-        result={result}
-        totalCount={custody.summary.header.row_count}
-        page={page}
-        pageSize={pageSize}
-        onFamilyFilterChange={(value) => { setFamilyFilter(value); setPageIndex(0); }}
-        onFilterChange={(value) => { setFilterText(value); setPageIndex(0); }}
-        onPageSizeChange={(value) => { setPageSize(value); setPageIndex(0); }}
-        onPreviousPage={() => setPageIndex((index) => Math.max(0, index - 1))}
-        onNextPage={() => setPageIndex((index) => Math.min(pageCount - 1, index + 1))}
-        selectionEntityId={selectionEntityId}
-        selectionOnly={selectionOnly}
-        onSelectionOnlyChange={(value) => { setSelectionOnly(value); setPageIndex(0); }}
-        frameCounts={frameCounts}
-        frameFilter={activeFrame}
-        onFrameFilterChange={(value) => { setFrameFilter(value); setPageIndex(0); }}
+      <ResultsStageTabs
+        tabs={withRowsTab(stageContent?.tabs ?? [], { id: ALL_ROWS_TAB, label: "All rows", content: <>
+          <ResultControls
+            familyCounts={familyCounts}
+            familyFilter={familyFilter as never}
+            filterText={filterText}
+            filteredCount={filteredCount}
+            result={result}
+            totalCount={custody.summary.header.row_count}
+            page={page}
+            pageSize={pageSize}
+            onFamilyFilterChange={(value) => { setFamilyFilter(value); setPageIndex(0); }}
+            onFilterChange={(value) => { setFilterText(value); setPageIndex(0); }}
+            onPageSizeChange={(value) => { setPageSize(value); setPageIndex(0); }}
+            onPreviousPage={() => setPageIndex((index) => Math.max(0, index - 1))}
+            onNextPage={() => setPageIndex((index) => Math.min(pageCount - 1, index + 1))}
+            selectionEntityId={selectionEntityId}
+            selectionOnly={selectionOnly}
+            onSelectionOnlyChange={(value) => { setSelectionOnly(value); setPageIndex(0); }}
+            frameCounts={frameCounts}
+            frameFilter={activeFrame}
+            onFrameFilterChange={(value) => { setFrameFilter(value); setPageIndex(0); }}
+          />
+          {kindFilter ? (
+            <p className="results-kind-filter" data-testid="results-kind-filter">
+              Showing only rows of kind <code>{kindFilter.kind}</code>.{" "}
+              <button type="button" data-testid="results-kind-filter-clear" onClick={() => { setKindFilter(null); setPageIndex(0); }}>Show all kinds</button>
+            </p>
+          ) : null}
+          <ResultsNavigator
+            kinds={kindIds}
+            kind={familyFilter as ResultFamilyFilter}
+            cases={cases}
+            caseKey={activeCase}
+            entities={entities}
+            entity={navEntity}
+            currentRowId={currentRowId}
+            rowCount={filteredCount}
+            rowsReading={!current && !selectionOnlyWithoutEntity}
+            selectionOnlyWithoutEntity={selectionOnlyWithoutEntity}
+            health={health}
+            endNotice={endNotice}
+            entitiesReading={navigatorCurrent === null ? "reading the supports and elements natively…" : "refused" in navigatorCurrent ? `the supports and elements could not be read: ${navigatorCurrent.refused}` : null}
+            canStep={(axis, delta) => stepTarget(axis, delta) !== null}
+            onStep={(axis, delta) => navigate(axis, delta)}
+            onChooseCase={(caseKey) => chooseCase(caseKey)}
+            contractEvidence={result.contract_evidence ?? null}
+          />
+          <NativeResultDetail result={result} semanticsOf={semanticsOf} selectedResultId={selectedResultId} selected={selected} analysisRun={analysisRun} exportEndpointPair={async (pair) => {
+            // Each row's dimension from its row semantics under the handle's table, as the whole-value
+            // export reads `semanticDimension(row, result, recordedTableRead)`.
+            const pairLabels = labelsOf(pair, await semanticsOf(pair.map((entry) => entry.ordinal)));
+            const rows = await Promise.all(pair.map(async ({ row: item }) => {
+              const quantity: DisplaySourceQuantity = { value: item.value, unit: item.unit, dimension_id: pairLabels.dimension(item) ?? "unknown" };
+              return { location: item.metadata?.location ?? "summary", resultId: item.id, fallback: `${item.value} ${item.unit}`, quantity, display: await displayResolver.resolve(quantity) };
+            }));
+            return endpointPairCsv({
+              rows, provenance: { modelHash: model ? await csvModelHash(model) : CSV_NOT_RECORDED, resultHash: csvResultHash(result, csvRecord), analysisRoutes: [csvAnalysisRoute(result)] },
+              softwareVersion: CSV_SOFTWARE_VERSION,
+              unitBasis: await displayConversionBasis({ preference: displayResolver.preference, rows: rows.map((row) => ({ quantity: row.quantity, display: row.display })), convertRaw: displayResolver.convertRaw }),
+              caseOrFilter: `endpoint pair of ${selectedResultId ?? "the selected result"}`
+            });
+          }} />
+          {current?.status === "refused" ? <p role="alert" data-testid="result-query-refused">{current.text}</p> : null}
+          {!current && !selectionOnlyWithoutEntity ? <p role="status" data-testid="result-page-reading">Reading the result rows natively…</p> : null}
+          <div className="result-groups" data-testid="result-groups">
+            {groups.length > 0 ? groups.map((group) => (
+              <section key={group.title} className="result-group" aria-label={`${group.title} results`} data-testid={`result-group-${group.title.toLowerCase()}`}>
+                <h3>{group.title}</h3>
+                <CsvExportControl tableLabel={`${group.title} results`} testId={`result-group-${group.title.toLowerCase()}-export-csv`} stream={() => exportGroup(group.title)} />
+                <ResultRowsTable
+                  csvKind={resultGroupCsvKind(group.title)}
+                  items={group.items}
+                  selectedResultId={selectedResultId}
+                  onSelectResult={onSelectResult}
+                  entityName={entityName}
+                  caseName={caseName}
+                  dimension={(item) => labels.dimension(item) ?? "unknown"}
+                  frameText={(item) => frameLabel(resultFrame(item))}
+                  notes={(item) => <>{labels.category(item)}{labelSource && resultRowLabel(item, labelSource as never, recordedTableRead) ? <small data-testid={`result-row-label-${item.id}`}> {resultRowLabel(item, labelSource as never, recordedTableRead)}</small> : null}<RowHealthBadge health={health} item={item} />{kindFilter?.withheld[item.id] ? <small data-testid={`result-row-withheld-${item.id}`}> {kindFilter.withheld[item.id]}</small> : null}{item.component_body ? <small data-testid={`result-row-component-body-${item.id}`}> reference section of component body {item.component_body.component_ref}</small> : null}</>}
+                  sort={rowsSort}
+                  onSort={(column) => setRowsSort(nextRowsSort(rowsSort, column))}
+                  sortDisabledReason={sortDisabledReason}
+                />
+              </section>
+            )) : current?.status === "ready" ? <p className="muted" data-testid="result-filter-empty">No computed preview result rows match this filter.</p> : null}
+          </div>
+        </> })}
+        current={stageTab}
+        onChoose={setStageTab}
       />
-      {kindFilter ? (
-        <p className="results-kind-filter" data-testid="results-kind-filter">
-          Showing only rows of kind <code>{kindFilter.kind}</code>.{" "}
-          <button type="button" data-testid="results-kind-filter-clear" onClick={() => { setKindFilter(null); setPageIndex(0); }}>Show all kinds</button>
-        </p>
-      ) : null}
-      <ResultsNavigator
-        kinds={kindIds}
-        kind={familyFilter as ResultFamilyFilter}
-        cases={cases}
-        caseKey={activeCase}
-        entities={entities}
-        entity={navEntity}
-        currentRowId={currentRowId}
-        rowCount={filteredCount}
-        rowsReading={!current && !selectionOnlyWithoutEntity}
-        selectionOnlyWithoutEntity={selectionOnlyWithoutEntity}
-        health={health}
-        endNotice={endNotice}
-        entitiesReading={navigatorCurrent === null ? "reading the supports and elements natively…" : "refused" in navigatorCurrent ? `the supports and elements could not be read: ${navigatorCurrent.refused}` : null}
-        canStep={(axis, delta) => stepTarget(axis, delta) !== null}
-        onStep={(axis, delta) => navigate(axis, delta)}
-        onChooseCase={(caseKey) => chooseCase(caseKey)}
-        contractEvidence={result.contract_evidence ?? null}
-      />
-      <NativeResultDetail result={result} semanticsOf={semanticsOf} selectedResultId={selectedResultId} selected={selected} analysisRun={analysisRun} exportEndpointPair={async (pair) => {
-        // Each row's dimension from its row semantics under the handle's table, as the whole-value
-        // export reads `semanticDimension(row, result, recordedTableRead)`.
-        const pairLabels = labelsOf(pair, await semanticsOf(pair.map((entry) => entry.ordinal)));
-        const rows = await Promise.all(pair.map(async ({ row: item }) => {
-          const quantity: DisplaySourceQuantity = { value: item.value, unit: item.unit, dimension_id: pairLabels.dimension(item) ?? "unknown" };
-          return { location: item.metadata?.location ?? "summary", resultId: item.id, fallback: `${item.value} ${item.unit}`, quantity, display: await displayResolver.resolve(quantity) };
-        }));
-        return endpointPairCsv({
-          rows, provenance: { modelHash: model ? await csvModelHash(model) : CSV_NOT_RECORDED, resultHash: csvResultHash(result, csvRecord), analysisRoutes: [csvAnalysisRoute(result)] },
-          softwareVersion: CSV_SOFTWARE_VERSION,
-          unitBasis: await displayConversionBasis({ preference: displayResolver.preference, rows: rows.map((row) => ({ quantity: row.quantity, display: row.display })), convertRaw: displayResolver.convertRaw }),
-          caseOrFilter: `endpoint pair of ${selectedResultId ?? "the selected result"}`
-        });
-      }} />
-      {current?.status === "refused" ? <p role="alert" data-testid="result-query-refused">{current.text}</p> : null}
-      {!current && !selectionOnlyWithoutEntity ? <p role="status" data-testid="result-page-reading">Reading the result rows natively…</p> : null}
-      <div className="result-groups">
-        {groups.length > 0 ? groups.map((group) => (
-          <section key={group.title} className="result-group" aria-label={`${group.title} results`} data-testid={`result-group-${group.title.toLowerCase()}`}>
-            <h3>{group.title}</h3>
-            <CsvExportControl tableLabel={`${group.title} results`} testId={`result-group-${group.title.toLowerCase()}-export-csv`} stream={() => exportGroup(group.title)} />
-            <table data-csv-export={resultGroupCsvKind(group.title)}>
-              <thead><tr><th>ID</th><th>Entity</th><th>Location</th><th title="The coordinate frame the row's value is stated in, as the row states it">Frame</th><th>Value</th><th>Entered source</th></tr></thead>
-              <tbody>
-                {group.items.map((item) => (
-                  <tr key={item.id} aria-selected={item.id === selectedResultId} className={item.id === selectedResultId ? "selected-result-row" : ""} data-testid={`result-row-${item.id}`}
-                    onClick={() => onSelectResult(item.id)}
-                    onKeyDown={(event) => { if (event.key === "Enter" || event.key === " ") { event.preventDefault(); onSelectResult(item.id); } }}
-                    tabIndex={0}>
-                    <td>{item.id}<small> {labels.category(item)}</small>{labelSource && resultRowLabel(item, labelSource as never, recordedTableRead) ? <small data-testid={`result-row-label-${item.id}`}> {resultRowLabel(item, labelSource as never, recordedTableRead)}</small> : null}<RowHealthBadge health={health} item={item} />{kindFilter?.withheld[item.id] ? <small data-testid={`result-row-withheld-${item.id}`}> {kindFilter.withheld[item.id]}</small> : null}{item.component_body ? <small data-testid={`result-row-component-body-${item.id}`}> reference section of component body {item.component_body.component_ref}</small> : null}</td>
-                    <td>{item.entity_ref}</td>
-                    <td>{item.metadata?.location ?? "summary"}</td>
-                    <td data-testid={`result-row-frame-${item.id}`}>{frameLabel(resultFrame(item))}</td>
-                    <td><QuantityReadout quantity={{ value: item.value, unit: item.unit, dimension_id: labels.dimension(item) ?? "unknown" }} /></td>
-                    <td className="dual-unit-cell" data-testid={`result-row-dual-${item.id}`}><span>Entered: {item.value} {item.unit}</span></td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </section>
-        )) : current?.status === "ready" ? <p className="muted" data-testid="result-filter-empty">No computed preview result rows match this filter.</p> : null}
-      </div>
-      {stageContent?.tabs?.map((tab) => <div key={tab.id} className="results-stage-tab-content" data-testid={`results-stage-content-${tab.id}`}>{tab.content}</div>)}
     </section>
   );
 }

@@ -128,9 +128,10 @@ describe("displacement extremes panel: cases, standing and filter", () => {
 
   it("sorts by a component's largest magnitude with aria-sort", () => {
     render(<DisplacementExtremesPanel model={model()} result={overlayResult(rows())} standing={PASSING} />);
-    fireEvent.change(screen.getByTestId("displacement-extremes-sort"), { target: { value: "uy" } });
+    fireEvent.click(screen.getByTestId("displacement-extremes-sort-uy"));
     expect(screen.getByTestId("displacement-extremes-column-uy").getAttribute("aria-sort")).toBe("descending");
-    expect(screen.getByTestId("displacement-extremes-column-ux").getAttribute("aria-sort")).toBeNull();
+    // A sortable column not sorting the table says so ("none").
+    expect(screen.getByTestId("displacement-extremes-column-ux").getAttribute("aria-sort")).toBe("none");
     const order = [...screen.getByTestId("displacement-extremes-table").querySelectorAll("tbody tr")].map((item) => item.getAttribute("data-testid"));
     expect(order).toEqual(["displacement-extremes-row-node:C", "displacement-extremes-row-node:B", "displacement-extremes-row-node:A", "displacement-extremes-row-node:D"]);
   });
@@ -165,7 +166,7 @@ describe("displacement extremes panel: paging and selection", () => {
     expect(screen.getByTestId("displacement-extremes-page").textContent).toBe(`Nodes ${DISPLACEMENT_EXTREMES_PAGE * 2 + 1}–${count} of ${count}`);
     expect((screen.getByTestId("displacement-extremes-page-next") as HTMLButtonElement).disabled).toBe(true);
     // A new sort lists from the first page again.
-    fireEvent.change(screen.getByTestId("displacement-extremes-sort"), { target: { value: "ux" } });
+    fireEvent.click(screen.getByTestId("displacement-extremes-sort-ux"));
     expect(screen.getByTestId("displacement-extremes-page").textContent).toBe(`Nodes 1–${DISPLACEMENT_EXTREMES_PAGE} of ${count}`);
     expect(screen.getByTestId("displacement-extremes-table").querySelector("tbody tr")?.getAttribute("data-testid")).toBe(`displacement-extremes-row-node:N${count - 1}`);
   });
@@ -260,8 +261,8 @@ describe("displacement extremes panel: paging and selection", () => {
     view.rerender(<DisplacementExtremesPanel model={big} result={result} standing={PASSING} selectedNodeId="node:N122" onSelectNode={() => undefined} />);
     view.rerender(<DisplacementExtremesPanel model={big} result={result} standing={PASSING} selectedNodeId="node:N122" testIdPrefix="displacement-extremes" />);
     expect(pageText()).toBe("Nodes 1–50 of 123");
-    fireEvent.change(screen.getByTestId("displacement-extremes-sort"), { target: { value: "ux" } });
-    fireEvent.change(screen.getByTestId("displacement-extremes-sort"), { target: { value: "model" } });
+    fireEvent.click(screen.getByTestId("displacement-extremes-sort-ux"));
+    fireEvent.click(screen.getByTestId("displacement-extremes-sort-model"));
     expect(pageText()).toBe("Nodes 1–50 of 123");
   });
 

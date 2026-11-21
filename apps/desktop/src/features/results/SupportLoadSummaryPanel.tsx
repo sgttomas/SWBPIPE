@@ -11,7 +11,7 @@
  * digits, half away from zero, Pa shown as MPa) in the stored units. A view only: it changes no model, result or export. */
 
 import { boundSummary, isNativeResult, type SessionAnalysisRun, type SessionResult } from "../../services/nativeResult";
-import { ChevronLeft, ChevronRight } from "lucide-react";
+import { ArrowDown, ArrowUp, ArrowUpDown, ChevronLeft, ChevronRight } from "lucide-react";
 import { useEffect, useMemo, useRef, useState, type KeyboardEvent } from "react";
 import { useRevealCurrentRow } from "./revealCurrentRow";
 import type { AnalysisRunEnvelope, MechanicsResult, PreviewModel } from "../../types";
@@ -35,6 +35,7 @@ import {
   type SupportDirection,
   type SupportLoadColumn,
   type SupportLoadRow,
+  type SupportLoadColumnId,
   type SupportLoadSummary,
   type SupportLoadValue
 } from "./supportLoadSummary";
@@ -187,16 +188,20 @@ export function SupportLoadSummaryPanel({ model, result, analysisRun = null, sta
           </p>
           {health ? <p data-testid={tid("standing")}>{health.headline}{health.outputSentence ? `. ${health.outputSentence}` : ""}</p> : null}
           <div className="csv-export-controls">
-            <CsvExportControl
-              tableLabel={`Loads and movements at support ${summary.label}`}
-              testId={tid("export-csv")}
-              build={async () => supportLoadCsv({ summary, ...await csvContext() })}
-            />
-            <CsvExportControl
-              tableLabel="Loads and movements at every support"
-              testId={tid("export-csv-all")}
-              build={async () => supportLoadsAllCsv({ summaries, ...await csvContext() })}
-            />
+            <span className="csv-export-named"><span>This support</span>
+              <CsvExportControl
+                tableLabel={`Loads and movements at support ${summary.label}`}
+                testId={tid("export-csv")}
+                build={async () => supportLoadCsv({ summary, ...await csvContext() })}
+              />
+            </span>
+            <span className="csv-export-named"><span>Every support</span>
+              <CsvExportControl
+                tableLabel="Loads and movements at every support"
+                testId={tid("export-csv-all")}
+                build={async () => supportLoadsAllCsv({ summaries, ...await csvContext() })}
+              />
+            </span>
           </div>
           <SupportLoadTable summary={summary} tid={tid} markCaseKey={summary.supportId === focusSupportId ? markCaseKey : null} />
           <SupportAlongDirection summary={summary} tid={tid} />
@@ -219,17 +224,36 @@ function SupportLoadTable({ summary, tid, markCaseKey = null }: { summary: Suppo
     return unit ? `${item.label} (${displayQuantityParts(0, unit).unit})` : item.label;
   };
   const extremes = new Map(summary.extremes.map((item) => [item.column, item] as const));
+  // A click on a column's header orders the case rows by that column's magnitude, largest first; a
+  // second click reverses; the case header returns to the published order. Values are not changed.
+  const [sort, setSort] = useState<{ column: SupportLoadColumnId; descending: boolean } | null>(null);
+  const magnitude = (row: SupportLoadRow) => {
+    const value = sort ? row.values[sort.column] : undefined;
+    return value && row.standing === "admitted" ? Math.abs(value.value) : -1;
+  };
+  const rows = sort ? summary.rows.map((row, index) => ({ row, index })).sort((a, b) => ((magnitude(b.row) - magnitude(a.row)) * (sort.descending ? 1 : -1)) || a.index - b.index).map((item) => item.row) : summary.rows;
+  const sortButton = (label: string, column: SupportLoadColumnId | null) => {
+    const active = column === null ? sort === null : sort?.column === column;
+    const Icon = !active || column === null ? ArrowUpDown : sort!.descending ? ArrowDown : ArrowUp;
+    return (
+      <button type="button" className="results-sort-button" data-testid={tid(`sort-${column ?? "case"}`)}
+        title={column === null ? "Published case order" : `Sort by |${column}|`}
+        onClick={() => setSort(column === null ? null : sort !== null && sort.column === column ? { column, descending: !sort.descending } : { column, descending: true })}>
+        {label}<Icon size={12} aria-hidden="true" />
+      </button>
+    );
+  };
   return (
     <div className="support-load-table-scroll">
       <table aria-label={`Loads and movements at support ${summary.label}`} data-testid={tid("table")} data-csv-export={`${SUPPORT_LOADS_CSV_KIND} ${SUPPORT_LOADS_ALL_CSV_KIND}`}>
         <thead>
           <tr>
-            <th scope="col">Case</th>
-            {SUPPORT_LOAD_COLUMNS.map((item) => <th key={item.id} scope="col" data-testid={tid(`column-${item.id}`)}>{header(item)}</th>)}
+            <th scope="col" aria-sort={sort === null ? "ascending" : "none"}>{sortButton("Case", null)}</th>
+            {SUPPORT_LOAD_COLUMNS.map((item) => <th key={item.id} scope="col" data-testid={tid(`column-${item.id}`)} aria-sort={sort?.column === item.id ? (sort.descending ? "descending" : "ascending") : "none"}>{sortButton(header(item), item.id)}</th>)}
           </tr>
         </thead>
         <tbody>
-          {summary.rows.map((row) => (
+          {rows.map((row) => (
             <tr key={row.case.key} data-testid={tid(`row-${row.case.key}`)} data-standing={row.standing}
               aria-current={markCaseKey === row.case.key ? "true" : undefined} className={markCaseKey === row.case.key ? "selected-result-row" : undefined}>
               <th scope="row">{row.case.label}{row.case.envelope ? <small> {row.case.note ?? "range envelope"}</small> : null}</th>
@@ -259,7 +283,7 @@ function SupportLoadTable({ summary, tid, markCaseKey = null }: { summary: Suppo
                 const value = extreme?.[which] ?? null;
                 return (
                   <td key={item.id} data-testid={tid(`extreme-${which}-${item.id}`)}>
-                    {value ? <><ValueText value={value} shareUnit={units.get(item.id) !== null} /><br /><small>{value.caseLabel}</small></> : extreme?.note ? <small>{extreme.note}</small> : <Dash label={SUPPORT_LOAD_NO_EXTREME} />}
+                    {value ? <><ValueText value={value} shareUnit={false} /><br /><small>{value.caseLabel}</small></> : extreme?.note ? <small>{extreme.note}</small> : <Dash label={SUPPORT_LOAD_NO_EXTREME} />}
                   </td>
                 );
               })}

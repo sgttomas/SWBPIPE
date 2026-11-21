@@ -158,7 +158,7 @@ function shown(panel: HTMLElement): Shown {
     notices: [...panel.querySelectorAll("[data-testid^='results-notice-']")].map((n) => [n.getAttribute("data-testid")!, n.textContent ?? ""]),
     health: text("numerical-health-header-line"),
     healthDetail: text("numerical-health-detail"),
-    rows: [...panel.querySelectorAll<HTMLElement>("tr[data-testid^='result-row-']")].map((row) => [row.dataset.testid!, row.querySelector("td")?.textContent ?? "", row.querySelector("[data-testid^='result-row-frame-']")?.textContent ?? ""]),
+    rows: [...panel.querySelectorAll<HTMLElement>("tr[data-testid^='result-row-']")].map((row) => [row.dataset.testid!, row.querySelector(".results-row-notes")?.textContent ?? "", row.querySelector("[data-testid^='result-row-frame-']")?.textContent ?? ""]),
   };
 }
 
@@ -185,11 +185,11 @@ async function read(context: HistoricalRunContext, expected: Panel | null, detai
       }
     });
   }
-  // The labelled rows (a headline or intensified row, wherever it is paged): each one's row cell.
+  // The labelled rows (a headline or intensified row, wherever it is paged): each one's notes cell.
   for (const id of labelIds) {
     await attempt(async () => {
       fireEvent.change(screen.getByTestId("result-filter-input"), { target: { value: id } });
-      const cell = async () => (await within(panel).findByTestId(`result-row-${id}`, {}, WAIT)).querySelector("td")?.textContent ?? "";
+      const cell = async () => (await within(panel).findByTestId(`result-row-${id}`, {}, WAIT)).querySelector(".results-row-notes")?.textContent ?? "";
       if (expected) await waitFor(async () => expect(await cell()).toBe(expected.labelled.get(id)), WAIT);
       out.labelled.set(id, await cell());
     });

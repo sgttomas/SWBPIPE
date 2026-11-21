@@ -44,8 +44,8 @@ describe("SupportLoadSummaryPanel", () => {
     expect(screen.getByTestId("support-load-cell-load_case:load:L-1-ux").textContent).toBe("1.23457");
     expect(screen.getByTestId("support-load-cell-load_case:load:L-2-Fx").textContent).toBe("-0.5");
     expect(screen.getByTestId("support-load-cell-load_case:load:L-2-ux").textContent).toBe("—not emitted");
-    expect(screen.getByTestId("support-load-extreme-max-Fx").textContent).toBe("1234.57Invented one (load:L-1)");
-    expect(screen.getByTestId("support-load-extreme-min-Fx").textContent).toBe("-0.5Invented two (load:L-2)");
+    expect(screen.getByTestId("support-load-extreme-max-Fx").textContent).toBe("1234.57 NInvented one (load:L-1)");
+    expect(screen.getByTestId("support-load-extreme-min-Fx").textContent).toBe("-0.5 NInvented two (load:L-2)");
     expect(screen.getByTestId("support-load-extremes-note").textContent).toBe("Maximum and minimum over 2 of 2 rows.");
     expect(screen.getByTestId("support-load-context").textContent).toContain("Frame: global. Sign convention: support-on-pipe");
     expect(screen.getByTestId("support-load-allowables").textContent).toBe(SUPPORT_LOAD_ALLOWABLES_TEXT);
@@ -81,7 +81,7 @@ describe("SupportLoadSummaryPanel", () => {
     expect(title(cell("L-1", "ux"))).toBe("1.23457 mm (uA)");
     expect(title("support-load-extreme-max-Fx")).toBe("1234.57 N (r:Fx:1)");
     expect(title("support-load-extreme-min-Fx")).toBe("-0.5 N (r:Fx:2)");
-    expect(screen.getByTestId("support-load-extreme-max-Fy").textContent).toBe("123.457Invented one (load:L-1)");
+    expect(screen.getByTestId("support-load-extreme-max-Fy").textContent).toBe("123.457 MPaInvented one (load:L-1)");
     expect(title("support-load-extreme-max-Fy")).toBe("123.457 MPa (r:Fy:1)");
     expect(title("support-load-extreme-min-Fy")).toBe("2.5 MPa (r:Fy:2)");
     expect(title("support-load-extreme-max-ux")).toBe("1.23457 mm (uA)");
@@ -95,7 +95,7 @@ describe("SupportLoadSummaryPanel", () => {
     renderPanel({ standing: healthStanding({ eligible: true, states: { "load:L-1": "checks_passed", "load:L-2": "sensitive" } }) });
     expect(screen.getByTestId("support-load-withheld-load_case:load:L-2").textContent).toBe(supportLoadWithheldStateText("sensitive"));
     expect(screen.queryByTestId("support-load-cell-load_case:load:L-2-Fx")).toBeNull();
-    expect(screen.getByTestId("support-load-extreme-min-Fx").textContent).toBe("1234.57Invented one (load:L-1)");
+    expect(screen.getByTestId("support-load-extreme-min-Fx").textContent).toBe("1234.57 NInvented one (load:L-1)");
     expect(screen.getByTestId("support-load-extremes-note").textContent).toBe("Maximum and minimum over 1 of 2 rows; not included: 1 withheld by numerical standing.");
   });
 

@@ -4890,3 +4890,52 @@ button.governing-value { cursor: pointer; }
 .app-shell .governing-value .engineering-quantity { font-variant-numeric: tabular-nums; white-space: nowrap; font-weight: var(--type-weight-semibold); }
 .app-shell .governing-entity, .app-shell .governing-case { color: var(--ui-muted); }
 .app-shell .governing-absent { color: var(--ui-muted); }
+
+/* The Results stage's tabs and tables (DEL-07-05 REQ-010). One table at a time; each table scrolls
+   inside itself where it is taller or wider than its pane, with its header row and its entity column
+   held in view. Rows read on one line. */
+.app-shell .results-stage-tabbar {
+  display: flex; flex-wrap: wrap; align-items: end; gap: var(--space-4);
+  border-bottom: 1px solid var(--ui-border); margin-top: var(--space-2);
+}
+.app-shell .results-stage-tabs { display: flex; flex-wrap: wrap; gap: 0; }
+.app-shell .results-stage-tabs [role="tab"] {
+  padding: var(--space-3) var(--space-5); border: 0; border-bottom: 2px solid transparent; border-radius: 0;
+  background: none; color: var(--ui-muted); font: inherit; cursor: pointer;
+}
+.app-shell .results-stage-tabs [role="tab"][aria-selected="true"] { color: var(--ui-text); border-bottom-color: var(--ui-accent); font-weight: var(--type-weight-semibold); }
+.app-shell .results-stage-tabpanel { padding-top: var(--space-4); min-width: 0; scroll-margin-top: var(--results-header-h, 0px); }
+.app-shell .results-stage-tabpanel[hidden] { display: none; }
+.app-shell .results-stage-tabpanel > .result-detail-panel { border: 0; padding: 0; box-shadow: none; }
+.app-shell .result-groups, .app-shell .results-table-scroll,
+.app-shell .support-load-table-scroll, .app-shell .stress-ratio-table-scroll, .app-shell .displacement-extremes-table-scroll { scroll-margin-top: var(--results-header-h, 0px); }
+.app-shell .results-table-scroll,
+.app-shell .results-stage-tabpanel .support-load-table-scroll,
+.app-shell .results-stage-tabpanel .stress-ratio-table-scroll,
+.app-shell .results-stage-tabpanel .displacement-extremes-table-scroll {
+  max-height: min(64vh, 680px); overflow: auto; max-width: 100%;
+  border: 1px solid var(--ui-border); border-radius: var(--radius-control);
+}
+.app-shell .results-stage-tabpanel table { border-collapse: separate; border-spacing: 0; }
+.app-shell .results-stage-tabpanel thead th {
+  position: sticky; top: 0; z-index: 2;
+  background: var(--surface-header); color: var(--ui-muted); text-align: start; white-space: nowrap;
+  border-bottom: 1px solid var(--ui-border);
+}
+.app-shell .results-stage-tabpanel .displacement-extremes-table-scroll thead tr + tr th { top: 2.2em; }
+.app-shell .results-stage-tabpanel tbody td, .app-shell .results-stage-tabpanel tbody th { white-space: nowrap; }
+.app-shell .results-stage-tabpanel tbody th[scope="row"]:first-child,
+.app-shell .results-stage-tabpanel thead th:first-child,
+.app-shell .results-sticky-column { position: sticky; left: 0; z-index: 1; background: var(--ui-surface); }
+.app-shell .results-stage-tabpanel thead th:first-child { z-index: 3; background: var(--surface-header); }
+.app-shell .results-stage-tabpanel .selected-result-row > th { background: var(--ui-selection); }
+.app-shell .results-rows-table td.result-value-cell { text-align: end; font-variant-numeric: tabular-nums; }
+.app-shell .results-rows-table .results-row-notes { color: var(--ui-muted); }
+.app-shell .results-rows-table .dual-unit-cell { white-space: nowrap; overflow-wrap: normal; font-family: var(--font-mono); font-size: var(--type-size-caption); }
+.app-shell .results-sort-button {
+  display: inline-flex; align-items: center; gap: var(--space-1); padding: 0; border: 0; background: none;
+  color: inherit; font: inherit; text-transform: inherit; letter-spacing: inherit; cursor: pointer;
+}
+.app-shell .results-sort-button[aria-disabled="true"] { cursor: default; }
+.app-shell .csv-export-named { display: inline-flex; align-items: center; gap: var(--space-3); color: var(--ui-muted); }
+.app-shell .result-group h3 { margin-bottom: var(--space-2); }

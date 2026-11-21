@@ -15,6 +15,7 @@ import { boundSummary, isNativeResult, type SessionAnalysisRun, type SessionResu
 import { displacementExtremesFromSummary } from "../../services/resultSummary";
 import { ChevronLeft, ChevronRight } from "lucide-react";
 import { useMemo, useState } from "react";
+import { ArrowDown, ArrowUpDown } from "lucide-react";
 import { useRevealCurrentRow } from "./revealCurrentRow";
 import type { AnalysisRunEnvelope, MechanicsResult, PreviewModel } from "../../types";
 import { displayQuantityParts } from "../report/reportQuantityDisplay";
@@ -178,13 +179,6 @@ export function DisplacementExtremesPanel({
                 {data.filters.map((item) => <option key={item.id} value={item.id}>{item.label} ({item.nodeCount})</option>)}
               </select>
             </label>
-            <label>
-              Sort{" "}
-              <select data-testid={tid("sort")} value={sort} onChange={(event) => setSort(event.target.value as DisplacementSort)}>
-                <option value="model">Node order</option>
-                {DISPLACEMENT_COMPONENTS.map((item) => <option key={item.id} value={item.id}>Largest |{item.label}|</option>)}
-              </select>
-            </label>
           </div>
           <fieldset className="displacement-extremes-cases" data-testid={tid("cases")}>
             <legend>Cases</legend>
@@ -233,7 +227,7 @@ export function DisplacementExtremesPanel({
                   unitBasis: csvUnitBasis(model, CSV_UNIT_BASIS_DISPLAY_RULE)
                 })}
               />
-              <ExtremesTable view={view} rows={rows} selectedNodeId={selectedNodeId} onSelectNode={onSelectNode} tid={tid} />
+              <ExtremesTable view={view} rows={rows} selectedNodeId={selectedNodeId} onSelectNode={onSelectNode} tid={tid} sort={sort} onSort={setSort} />
               <div className="displacement-extremes-pager" role="group" aria-label="Pages">
                 <button type="button" aria-label="Previous page" data-testid={tid("page-previous")} disabled={shownPage === 0} onClick={() => setPage(shownPage - 1)}>
                   <ChevronLeft size={14} aria-hidden="true" />
@@ -254,7 +248,9 @@ export function DisplacementExtremesPanel({
   );
 }
 
-function ExtremesTable({ view, rows, selectedNodeId, onSelectNode, tid }: {
+function ExtremesTable({ view, rows, selectedNodeId, onSelectNode, tid, sort, onSort }: {
+  sort: DisplacementSort;
+  onSort: (sort: DisplacementSort) => void;
   view: DisplacementExtremesView;
   rows: readonly DisplacementNodeExtremes[];
   selectedNodeId: string | null;
@@ -270,12 +266,16 @@ function ExtremesTable({ view, rows, selectedNodeId, onSelectNode, tid }: {
       <table aria-label={`Displacement and rotation extremes: ${view.filter.label}`} data-testid={tid("table")} data-filter={view.filter.id} data-csv-export={DISPLACEMENT_EXTREMES_CSV_KIND}>
         <thead>
           <tr>
-            <th scope="col" rowSpan={2}>Node</th>
+            <th scope="col" rowSpan={2} aria-sort={sort === "model" ? "ascending" : "none"}>
+              <button type="button" className="results-sort-button" data-testid={tid("sort-model")} title="Sort in node order" onClick={() => onSort("model")}>Node{sort === "model" ? <ArrowDown size={12} aria-hidden="true" /> : <ArrowUpDown size={12} aria-hidden="true" />}</button>
+            </th>
             <th scope="col" rowSpan={2}>Supports</th>
             {DISPLACEMENT_COMPONENTS.map((item) => (
               <th key={item.id} scope="colgroup" colSpan={2} data-testid={tid(`column-${item.id}`)}
-                aria-sort={view.sort.component === item.id ? (view.sort.sorted ? "descending" : "none") : undefined}>
-                {header(item.id, item.label)}
+                aria-sort={view.sort.component === item.id ? (view.sort.sorted ? "descending" : "none") : "none"}>
+                <button type="button" className="results-sort-button" data-testid={tid(`sort-${item.id}`)} title={`Sort by largest |${item.label}|`} onClick={() => onSort(item.id)}>
+                  {header(item.id, item.label)}{sort === item.id ? <ArrowDown size={12} aria-hidden="true" /> : <ArrowUpDown size={12} aria-hidden="true" />}
+                </button>
               </th>
             ))}
           </tr>

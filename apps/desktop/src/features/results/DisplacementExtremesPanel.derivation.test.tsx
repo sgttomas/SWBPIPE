@@ -31,7 +31,7 @@ it("derives once per input identity and not on control changes", () => {
   const view = render(<DisplacementExtremesPanel model={model} result={result} standing={standing} />);
   expect(derivations.count).toBe(1);
   fireEvent.change(screen.getByTestId("displacement-extremes-filter"), { target: { value: "supports" } });
-  fireEvent.change(screen.getByTestId("displacement-extremes-sort"), { target: { value: "uy" } });
+  fireEvent.click(screen.getByTestId("displacement-extremes-sort-uy"));
   fireEvent.click(screen.getByTestId("displacement-extremes-case-load_case:load:L-2"));
   view.rerender(<DisplacementExtremesPanel model={model} result={result} standing={standing} selectedNodeId="node:A" />);
   view.rerender(<DisplacementExtremesPanel model={model} result={result} standing={standing} selectedNodeId="node:A" testIdPrefix="displacement-extremes" />);

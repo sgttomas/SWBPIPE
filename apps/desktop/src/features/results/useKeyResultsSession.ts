@@ -16,12 +16,13 @@ import type { ResultsViewRequest } from "./ResultsPanel";
 import { KEY_RESULTS_AUTO_OPEN_START, SUPPORT_STATE_ROW_KIND, keyResultsAutoOpen, withheldSupportStateRows } from "./keyResults";
 import type { ResultOverlayStanding } from "./numericalHealth";
 
-/** The Results section's panels the actions reveal, by their default test ids. */
+/** The Results stage's tables the actions reveal, by their test ids: the table itself, so that its
+ * first rows land in view under the stage's header. */
 export const KEY_RESULTS_REVEAL_TARGETS: Readonly<Record<KeyResultsTable | "support", string>> = Object.freeze({
-  results: "results-panel",
-  "stress-ratio": "stress-ratio-panel",
-  "displacement-extremes": "displacement-extremes-panel",
-  support: "support-load-summary"
+  results: "result-groups",
+  "stress-ratio": "stress-ratio-table",
+  "displacement-extremes": "displacement-extremes-table",
+  support: "support-load-table"
 });
 
 /** The Results stage's tab that holds each panel the actions reveal. */
@@ -74,7 +75,7 @@ export function useKeyResultsSession(input: {
   useEffect(() => {
     if (!reveal) return;
     const host = document.querySelector(`[data-testid="${reveal.testId}"]`);
-    if (canSurfaceRevealNow(host)) host.scrollIntoView?.({ block: "nearest" });
+    if (canSurfaceRevealNow(host)) host.scrollIntoView?.({ block: "start" });
   }, [reveal]);
 
   function revealInResults(target: KeyResultsTable | "support") {

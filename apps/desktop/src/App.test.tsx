@@ -10028,9 +10028,10 @@ describe("SWBPIPE desktop preview", () => {
     expect(
       within(results).getByTestId("result-family-count-other").textContent,
     ).toContain("33");
+    // The row's id is its key, not a cell: the row carries it and its detail states it.
     expect(
-      within(results).getByText("result:disp:node-N-140"),
-    ).toBeInTheDocument();
+      within(results).getByTestId("result-row-result:disp:node-N-140"),
+    ).toHaveAttribute("data-row-id", "result:disp:node-N-140");
     const displayedDisplacement = expectedSource.results.find(row => row.id === "result:disp:node-N-140")!;
     expect(Number.isFinite(displayedDisplacement.value)).toBe(true);
     expect(within(results).getByTestId("result-row-result:disp:node-N-140")).toHaveTextContent(`${displayedDisplacement.value} ${displayedDisplacement.unit}`);

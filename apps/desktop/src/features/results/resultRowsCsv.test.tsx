@@ -14,6 +14,7 @@ import { CSV_NOT_RECORDED, serializeCsvTable } from "../result-export/csvTable";
 import { numericField, preambleValue, readCsv, textField } from "../../test/csvRead";
 import { displayConversionBasis, resultGroupCsv, type ResultRowsCsvRow } from "./resultRowsCsv";
 import { ResultsPanel } from "./ResultsPanel";
+import { engineeringNumberText } from "./EngineeringQuantity";
 
 const saved: Array<{ text: string; fileName: string }> = [];
 vi.mock("../result-export/csvSave", () => ({
@@ -137,7 +138,10 @@ describe("ResultsPanel row tables: the panel's own converted value, bit for bit"
         const readout = shown.querySelector("[data-display-status]")!;
         const cell = numericField(csv, line, "Value");
         if (Number.isNaN(Number(cell.field))) continue;
-        expect(readout.textContent!.startsWith(`${cell.field} ${cell.unit === "1" ? "" : cell.unit}`.trim())).toBe(true);
+        // The readout's hover text is the panel's converted value at full precision: the CSV writes it
+        // bit for bit; the readout shows it by the report's display rule (DEL-07-05 REQ-003).
+        expect(readout.getAttribute("title")!.startsWith(`${cell.field} ${cell.unit === "1" ? "" : cell.unit}`.trim())).toBe(true);
+        expect(readout.textContent!.startsWith(engineeringNumberText(Number(cell.field)))).toBe(true);
         compared += 1;
       }
     }

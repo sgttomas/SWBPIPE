@@ -10,6 +10,9 @@ import { resultRowLabel } from "./knownSemanticLimitations";
 import { componentBodyNotice } from "./componentBody";
 import { hangerPreloadStanding } from "./hangerPreload";
 import { retainedPrecisionStandingParts } from "./retainedPrecisionStanding";
+import { ResultsStageTabs, withRowsTab } from "./ResultsStageTabs";
+import { EngineeringQuantity } from "./EngineeringQuantity";
+import { caseNameOf, entityNameOf, nextRowsSort, ResultRowsTable, sortRows, type RowsSort, type RowsSortColumn } from "./ResultRowsTable";
 import { RESULTS_RUN_LABELS, ResultsStageHeader, type HeaderCase, type ResultsRunIdentity } from "./ResultsStageHeader";
 import type { ReactNode } from "react";
 import { QuantityReadout, useDisplayQuantityResolver, type DisplaySourceQuantity } from "../display-units";
@@ -129,6 +132,16 @@ function fullStandingParts(result: MechanicsResult, route: string, recordedTable
     detail: withHanger(<StandingStatement limitations={result.formulation_basis!.limitations} close="Numerical checks do not establish engineering correctness." />),
     lineState
   };
+}
+
+/** A row's key under a sort column: values by magnitude, the rest by the text the table shows. */
+export function rowSortKey(row: MechanicsResult["results"][number], column: RowsSortColumn, entityName: (ref: string) => string, caseName: (basis: MechanicsResult["results"][number]["basis_ref"]) => string): string | number {
+  if (column === "value") return typeof row.value === "number" ? Math.abs(row.value) : Number.NEGATIVE_INFINITY;
+  if (column === "entity") return entityName(row.entity_ref);
+  if (column === "case") return caseName(row.basis_ref);
+  if (column === "component") return row.metadata?.component ?? row.kind;
+  if (column === "location") return row.metadata?.location ?? "summary";
+  return frameLabel(resultFrame(row));
 }
 
 export const RESULT_PAGE_SIZE_OPTIONS = [50, 100, 200] as const;
@@ -283,9 +296,13 @@ function FullResultsPanel({
     if (selectionOnlyWithoutEntity) return [];
     return navigatorRows.filter((item) => selectionFilterId === null || item.entity_ref === selectionFilterId);
   }, [navigatorRows, selectionFilterId, selectionOnlyWithoutEntity]);
+  const [rowsSort, setRowsSort] = useState<RowsSort | null>(null);
+  const entityName = useMemo(() => entityNameOf(model), [model]);
+  const caseName = useMemo(() => caseNameOf(model), [model]);
+  const sortedResults = useMemo(() => sortRows(filteredResults, rowsSort, (row, column) => rowSortKey(row, column, entityName, caseName)), [filteredResults, rowsSort, entityName, caseName]);
   const page = useMemo(
-    () => paginateResults(filteredResults, pageIndex, pageSize),
-    [filteredResults, pageIndex, pageSize]
+    () => paginateResults(sortedResults, pageIndex, pageSize),
+    [sortedResults, pageIndex, pageSize]
   );
   const groups = result && labels ? groupResults(page.items, labels) : [];
   // Dispatch once per render; the row labels apply to preview-physics-2 and its successor only.
@@ -493,6 +510,8 @@ function FullResultsPanel({
           />
           <SectionBasisHeadlines result={result} />
           {stageContent?.governing}
+          <ResultsStageTabs
+            tabs={withRowsTab(stageContent?.tabs ?? [], { id: ALL_ROWS_TAB, label: "All rows", content: <>
           <ResultControls
             familyCounts={familyCounts}
             familyFilter={familyFilter}
@@ -550,7 +569,7 @@ function FullResultsPanel({
               caseOrFilter: `endpoint pair of ${interpretation?.result_id ?? "the selected result"}`
             });
           }} />
-          <div className="result-groups">
+          <div className="result-groups" data-testid="result-groups">
             {groups.length > 0 ? (
               groups.map((group) => (
                 <section
@@ -561,47 +580,20 @@ function FullResultsPanel({
                 >
                   <h3>{group.title}</h3>
                   <CsvExportControl tableLabel={`${group.title} results`} testId={`result-group-${group.title.toLowerCase()}-export-csv`} build={() => exportGroup(group.title)} />
-                  <table data-csv-export={resultGroupCsvKind(group.title)}>
-                    <thead>
-                      <tr>
-                        <th>ID</th>
-                        <th>Entity</th>
-                        <th>Location</th>
-                        <th title="The coordinate frame the row's value is stated in, as the row states it">Frame</th>
-                        <th>Value</th>
-                        <th>Entered source</th>
-                      </tr>
-                    </thead>
-                    <tbody>
-                      {group.items.map((item) => (
-                        <tr
-                          key={item.id}
-                          aria-selected={item.id === selectedResultId}
-                          className={item.id === selectedResultId ? "selected-result-row" : ""}
-                          data-testid={`result-row-${item.id}`}
-                          onClick={() => onSelectResult(item.id)}
-                          onKeyDown={(event) => {
-                            if (event.key === "Enter" || event.key === " ") {
-                              event.preventDefault();
-                              onSelectResult(item.id);
-                            }
-                          }}
-                          tabIndex={0}
-                        >
-                          <td>{item.id}<small> {labels!.category(item)}</small>{labelSource && resultRowLabel(item, labelSource, recordedTableRead) ? <small data-testid={`result-row-label-${item.id}`}> {resultRowLabel(item, labelSource, recordedTableRead)}</small> : null}<RowHealthBadge health={health} item={item} />{kindFilter?.withheld[item.id] ? <small data-testid={`result-row-withheld-${item.id}`}> {kindFilter.withheld[item.id]}</small> : null}{item.component_body ? <small data-testid={`result-row-component-body-${item.id}`}> reference section of component body {item.component_body.component_ref}</small> : null}</td>
-                          <td>{item.entity_ref}</td>
-                          <td>{item.metadata?.location ?? "summary"}</td>
-                          <td data-testid={`result-row-frame-${item.id}`}>{frameLabel(resultFrame(item))}</td>
-                          <td className="result-value-cell">
-                            <QuantityReadout quantity={{ value: item.value, unit: item.unit, dimension_id: labels!.dimension(item) ?? "unknown" }} />
-                          </td>
-                          <td className="dual-unit-cell" data-testid={`result-row-dual-${item.id}`}>
-                            <span>Entered: {item.value} {item.unit}</span>
-                          </td>
-                        </tr>
-                      ))}
-                    </tbody>
-                  </table>
+                  <ResultRowsTable
+                    csvKind={resultGroupCsvKind(group.title)}
+                    items={group.items}
+                    selectedResultId={selectedResultId}
+                    onSelectResult={onSelectResult}
+                    entityName={entityName}
+                    caseName={caseName}
+                    dimension={(item) => labels!.dimension(item) ?? "unknown"}
+                    frameText={(item) => frameLabel(resultFrame(item))}
+                    notes={(item) => <>{labels!.category(item)}{labelSource && resultRowLabel(item, labelSource, recordedTableRead) ? <small data-testid={`result-row-label-${item.id}`}> {resultRowLabel(item, labelSource, recordedTableRead)}</small> : null}<RowHealthBadge health={health} item={item} />{kindFilter?.withheld[item.id] ? <small data-testid={`result-row-withheld-${item.id}`}> {kindFilter.withheld[item.id]}</small> : null}{item.component_body ? <small data-testid={`result-row-component-body-${item.id}`}> reference section of component body {item.component_body.component_ref}</small> : null}</>}
+                    sort={rowsSort}
+                    onSort={(column) => { setRowsSort(nextRowsSort(rowsSort, column)); setPageIndex(0); }}
+                    sortDisabledReason={null}
+                  />
                 </section>
               ))
             ) : (
@@ -610,14 +602,17 @@ function FullResultsPanel({
               </p>
             )}
           </div>
-          {stageContent?.tabs?.map((tab) => <div key={tab.id} className="results-stage-tab-content" data-testid={`results-stage-content-${tab.id}`}>{tab.content}</div>)}
+            </> })}
+            current={stageTab}
+            onChoose={setStageTab}
+          />
         </>
       ) : (
         <>
           {stage?.identity && stage.identity.kind !== "current" ? <p className="results-stage-run" data-testid="results-stage-run" data-run-kind={stage.identity.kind}>{RESULTS_RUN_LABELS[stage.identity.kind]}</p> : null}
           {stage?.methodPrefix}
           <p className="muted">Run the bounded preview mechanics path to populate result summaries.</p>
-          {stageContent?.tabs?.map((tab) => <div key={tab.id} className="results-stage-tab-content" data-testid={`results-stage-content-${tab.id}`}>{tab.content}</div>)}
+          {stageContent?.tabs?.length ? <ResultsStageTabs tabs={stageContent.tabs.filter((tab) => tab.id !== ALL_ROWS_TAB)} current={stageTab} onChoose={setStageTab} /> : null}
         </>
       )}
     </section>
@@ -645,7 +640,7 @@ export function SectionBasisHeadlines({ result }: { result: MechanicsResult }) {
                 {quantity === null
                   ? WITHHELD_SECTION_BASIS_HEADLINE
                   : quantity && typeof quantity.value === "number" && typeof quantity.unit === "string"
-                    ? <><QuantityReadout quantity={{ value: quantity.value, unit: quantity.unit, dimension_id: "stress" }} /> at {quantity.location_ref} ({quantity.result_ref})</>
+                    ? <><EngineeringQuantity quantity={{ value: quantity.value, unit: quantity.unit, dimension_id: "stress" }} /> at {quantity.location_ref} ({quantity.result_ref})</>
                     : "not readable"}
               </dd>
             </div>

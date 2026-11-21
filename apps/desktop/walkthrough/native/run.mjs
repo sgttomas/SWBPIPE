@@ -76,7 +76,7 @@ const NAME = "native walkthrough";
  */
 export const JOURNEYS = Object.freeze({
   "solve-and-results": {
-    number: 20, title: "Solve and read results (launched app): Run, the progress, Results and its panels, a support's rows, Key results, Evidence, Analyze and Issues",
+    number: 20, title: "Solve and read results (launched app): Run, the progress, Results (Method and limits, each tab, a sort, a governing value's jump, a scrolled table), a support's rows and a row's detail, Key results, Evidence, Analyze and Issues",
     use_case: "DEL-07-06 AC-007 Review and export results, in part: on the bundled demonstration model, not the reference system; no CSV export"
   },
   report: {
@@ -88,7 +88,7 @@ export const JOURNEYS = Object.freeze({
     use_case: "DEL-07-06 AC-007 Review and export results, in part: the Exports page as a person meets it; nothing is exported"
   },
   "reference-system": {
-    number: 23, title: "Reference system (launched app): opened as a model document, solved, its standing, health line, Results and Report",
+    number: 23, title: "Reference system (launched app): opened as a model document, solved, its standing, health line, Results (Method and limits, each tab, a sort, a governing value's jump, a scrolled table) and Report",
     use_case: "DEL-07-06 AC-007 Review and export results, in part: the reference system opened, solved and its results and report met; no sorting to the largest values and no CSV export",
     place: [{ key: "model", at: "chooser/models/reference_system.json", from: "fixtures/reference_system/reference_system.json" }],
     open: { by: "model-document", file: "model" },
