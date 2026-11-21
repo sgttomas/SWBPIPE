@@ -1698,17 +1698,17 @@ test("decorative viewport overlays pass real canvas gestures while view controls
   await expect(page.getByTestId("toggle-viewport-labels")).toHaveAttribute("aria-pressed", "false");
   const canvas = page.getByTestId("viewport-canvas").locator("canvas");
   const axis = page.getByRole("img", { name: "Orientation gizmo showing X, Y, Z axes", exact: true });
-  const scale = page.getByTestId("viewport-scale-bar");
-  await expect(axis).toBeVisible(); await expect(scale).toHaveText(/1\s*m/);
+  await expect(axis).toBeVisible();
   const rect = (await canvas.boundingBox())!;
   expect({ width: rect.width, height: rect.height }).toEqual({ width: 794, height: 559 });
   const axisRect = (await axis.boundingBox())!;
-  const scaleRect = (await scale.boundingBox())!;
   // Preserve both frozen Box16 endpoints. This component-free control fixture
   // supplies an independent empty expectation; it is not a cohort replay.
   const start = { x: rect.x + rect.width * 0.29, y: rect.y + rect.height * 0.58 };
   const end = { x: rect.x + rect.width * 0.08, y: rect.y + rect.height * 0.81 };
-  const scalePoint = { x: scaleRect.x + scaleRect.width / 2, y: scaleRect.y + scaleRect.height / 2 };
+  // Where the withdrawn "1 m" box's centre stood: 67 px in from the canvas's right edge and 29 px up
+  // from its foot. The gesture there is the same; it now begins on the canvas itself.
+  const scalePoint = { x: rect.x + rect.width - 67, y: rect.y + rect.height - 29 };
   expect(end.x).toBeGreaterThan(axisRect.x); expect(end.x).toBeLessThan(axisRect.x + axisRect.width);
   expect(end.y).toBeGreaterThan(axisRect.y); expect(end.y).toBeLessThan(axisRect.y + axisRect.height);
   await page.evaluate(() => {
@@ -1730,7 +1730,7 @@ test("decorative viewport overlays pass real canvas gestures while view controls
   // so the unpatched failure includes actual pointer ownership, not CSS inspection.
   for (const point of [end, scalePoint]) { await page.mouse.move(point.x, point.y); await page.mouse.down(); await page.mouse.up(); }
   const pointerPreconditions = await page.evaluate(() => (globalThis as any).__decorativePointerWitness);
-  await testInfo.attach("decorative-pointer-preconditions", { body: JSON.stringify({ rect, axisRect, scaleRect, hits, pointerPreconditions }, null, 2), contentType: "application/json" });
+  await testInfo.attach("decorative-pointer-preconditions", { body: JSON.stringify({ rect, axisRect, scalePoint, hits, pointerPreconditions }, null, 2), contentType: "application/json" });
   expect(hits.every((hit) => hit.mainCanvas), JSON.stringify(hits)).toBe(true);
   expect(pointerPreconditions.every((event: any) => event.trusted && event.mainCanvas)).toBe(true);
   const read = async () => page.evaluate(() => {

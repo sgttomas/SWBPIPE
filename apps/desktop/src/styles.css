@@ -1197,14 +1197,12 @@ button:focus-visible {
 }
 
 .viewport-axis-triad,
-.viewport-view-cube,
-.viewport-scale-bar {
+.viewport-view-cube {
   position: absolute;
   z-index: 2;
 }
 
-.viewport-axis-triad,
-.viewport-scale-bar {
+.viewport-axis-triad {
   pointer-events: none;
 }
 
@@ -1260,18 +1258,6 @@ button:focus-visible {
   border-color: #31403d;
 }
 
-.viewport-scale-bar {
-  right: 14px;
-  bottom: calc(14px + var(--viewport-presentation-bottom-inset, 0px));
-  min-width: 90px;
-  padding: 5px 8px 7px;
-  border-bottom: 4px solid var(--canvas-label);
-  color: var(--canvas-label);
-  background: var(--canvas-labelBg);
-  font-size: 12px;
-  font-weight: 700;
-  text-align: center;
-}
 
 .command-bar {
   display: flex;
@@ -4847,7 +4833,7 @@ body { min-width: 760px; min-height: 540px; }
 }
 .viewport-canvas-foot > * { pointer-events: auto; }
 .viewport-canvas-foot-end { display: flex; flex: none; align-items: flex-end; gap: var(--space-4); margin-inline-start: auto; pointer-events: none; }
-.viewport-canvas-foot-end > .viewport-scale-bar, .viewport-canvas-foot-end > .viewport-deflection-label { position: static; }
+.viewport-canvas-foot-end > .viewport-deflection-label { position: static; }
 /* The status line: only what applies now, quiet, on the canvas's label plate. */
 .viewport-status-line {
   display: flex; flex: 0 1 auto; flex-wrap: wrap; align-items: center; gap: var(--space-1) var(--space-4); min-width: 0;

@@ -2988,8 +2988,8 @@ export function PipeViewport({
         />
         {/* Before the labels, so that Tab reaches Fit and the standard views first (reading order).
             The canvas furniture keeps to its own places so that none covers another: the view
-            cluster with the result legend under it down the right; the status line, the factor
-            and the scale bar along the foot, between the axis triad and the right edge. */}
+            cluster with the result legend under it down the right; the status line and the
+            deformation factor along the foot, between the axis triad and the right edge. */}
         <div className="viewport-canvas-right" data-testid="viewport-canvas-right">
           <div className="viewport-view-cube" role="group" aria-label="View controls" data-testid="viewport-view-cube" title="Drag to orbit · scroll to zoom · right-drag to pan">
             {/* Fit Model is always here; Fit Selection stands beside it while a selection is shown. */}
@@ -3144,9 +3144,6 @@ export function PipeViewport({
                 {deflectionLabel(deformation, deflectionCase?.label ?? null)}
               </div>
             ) : null}
-            <div className="viewport-scale-bar" data-testid="viewport-scale-bar">
-              <QuantityReadout quantity={{ value: 1, unit: defaultLengthUnit, dimension_id: "length" }} />
-            </div>
           </div>
         </div>
       </div>

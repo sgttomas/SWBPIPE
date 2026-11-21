@@ -599,7 +599,6 @@ test("R2 browser smoke covers authoring, explicit reference results, and qualifi
   expect(pngStats(before).uniqueColors).toBeGreaterThan(100);
   await expect(page.getByTestId("viewport-axis-triad")).toBeVisible();
   await expect(page.getByTestId("viewport-view-cube")).toBeVisible();
-  await expect(page.getByTestId("viewport-scale-bar")).toContainText("m");
   await expect(page.getByTestId("command-bar")).toBeVisible();
 
   await openWorkspaceSection(page, "solve");
