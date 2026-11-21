@@ -7160,7 +7160,10 @@ mod tests {
     /// beside the model's own pair. The menu names every such item itself.
     #[test]
     fn the_native_menu_leaves_no_item_for_the_system_to_name() {
-        let source = include_str!("lib.rs");
+        let source = std::fs::read_to_string(
+            std::path::Path::new(env!("CARGO_MANIFEST_DIR")).join("src/lib.rs"),
+        )
+        .expect("read src/lib.rs");
         let start = source.find("\nfn build_app_menu<").expect("the menu's builder");
         let body = &source[start + 1..];
         let body = &body[..body.find("\n}\n").expect("the builder's end")];
