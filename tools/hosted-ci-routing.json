@@ -1759,7 +1759,7 @@
         ]
       },
       "core/reporting/result_export/tests/load_reference_contract.rs": {
-        "sha256": "7843e4a294f9d2c260618c3b60a22202d3a28802fc97c142d3f22cfbfe6e1076",
+        "sha256": "c8a4d51c8ce30f8e9992cff115e3656e72b2de67f1b447c18423560710795d0d",
         "source_trees": [
           "core/reporting/result_export/Cargo.toml"
         ],
