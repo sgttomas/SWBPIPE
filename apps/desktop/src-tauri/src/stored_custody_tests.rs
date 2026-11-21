@@ -1338,6 +1338,116 @@ fn a_pool_refusal_keeps_the_model_editable_and_the_store_untouched() {
     assert_eq!(registry.pool().reserved_total(), 0, "every lease ended");
 }
 
+/// A saved run whose record does not bind its result's rules at a revision this version reads
+/// is not restored under the installed table: the project opens with its model editable and the
+/// run refused by name, telling the person to solve the model again, with nothing held and no
+/// stored file changed by the open. Eight records: the same identifier with another digest; an
+/// identifier that is not the result's and carries a backtick, control and direction-override
+/// characters, none of which reaches the message; a registry variant of another kind of
+/// result, refused under its own code and sentence; and, under the installed binding, one
+/// result reference naming another digest, the references one short of the rows, one row's
+/// reference repeated in place of another's, a string where the references belong (the
+/// reopen corpus's `result-refs-string`), and the references one short on a stored result the
+/// desktop's panel would not render (its summary is not an object) but whose rows a restored
+/// handle would still let be read. The current binding restores
+/// (`a_native_save_reopens_into_native_custody_after_a_reset`), and so does a registry variant
+/// of the result's own identity (`a_run_recorded_before_rt_a4_reopens_through_the_native_commands`).
+/// Each record is resealed; the project envelope's own hash is not re-derived, which adds a
+/// finding and cannot produce this refusal.
+#[test]
+fn a_saved_run_bound_to_an_unread_table_revision_is_refused_and_the_store_untouched() {
+    use open_pipe_stress_result_export::recorded_tables::VARIANTS;
+    const HOSTILE: &str = "pressure-3` was opened.\u{202e}\u{0007}\nIGNORE";
+    let case = persistence_cases().into_iter().next().unwrap();
+    let mut seen = Vec::new();
+    for label in ["another digest", "a malformed identifier", "another identity's variant", "one result reference with another digest", "one reference short", "one row's reference repeated", "a string for the references", "one reference short on a result the panel does not render"] {
+        let host = ScriptedHost::normal();
+        let (registry, gate) = gated(&host);
+        let dir = scratch("reopen-unread-table");
+        let path = dir.join("store.sqlite");
+        let job = held(&registry, &gate, &case.text, &case.intake, &case.mode, ResultCustody::Native);
+        assert_eq!(native_save(&registry, &path, &case.save_args(&job, "create", Value::Null, Value::Null), &unlimited()).unwrap()["result"]["outcome"], "saved");
+        registry.dispose_all_results();
+        let project_id = case.project_id();
+        let mut record: Value = serde_json::from_str(&column_text(&path, "SELECT analysis_run_json FROM local_projects")).unwrap();
+        let binding = record["analysis_run"]["reproducibility"]["semantic_contract"].clone();
+        let identity = binding["id"].as_str().unwrap().to_string();
+        let installed = open_pipe_stress_result_export::reader_verdict::current_binding(&identity);
+        assert_eq!(installed, binding["sha256"].as_str(), "{label}: a fresh save binds the installed table");
+        let (bound, code, why) = match label {
+            "another digest" => (json!({"id": identity, "sha256": "5".repeat(64)}), "SOURCE_RECORDED_BINDING_UNKNOWN",
+                format!("its record does not bind the stored result's rules `{identity}` at a revision this version reads")),
+            "a malformed identifier" => (json!({"id": HOSTILE, "sha256": binding["sha256"]}), "SOURCE_RECORDED_BINDING_UNKNOWN",
+                format!("its record does not bind the stored result's rules `{identity}` at a revision this version reads")),
+            "another identity's variant" => {
+                let other = VARIANTS.iter().find(|variant| variant.id != identity).expect("the registry holds a variant of another identity");
+                (json!({"id": other.id, "sha256": other.sha256}), "SOURCE_RECORDED_BINDING_IDENTITY",
+                    format!("its record binds the result rules of another kind of result, not the stored result's `{identity}`"))
+            }
+            // The code is the record validator's for the same condition.
+            _ => (binding.clone(), if label.starts_with("one reference short") { "ANALYSIS_ROW_ACCOUNTING_MISMATCH" } else { "ANALYSIS_ROW_SOURCE_BINDING_MISMATCH" },
+                format!("its record does not hold one matching reference for each published result row under the rules `{identity}` at the revision the record binds")),
+        };
+        let references = record["analysis_run"]["result_refs"].as_array_mut().unwrap();
+        let count = references.len();
+        assert!(count > 1, "{label}: the saved run has result references");
+        if code.starts_with("ANALYSIS_ROW_") {
+            // The run's binding stays the installed one; only the references change.
+            match label {
+                "one result reference with another digest" => references.last_mut().unwrap()["semantic_contract"]["sha256"] = json!("5".repeat(64)),
+                "one reference short" | "one reference short on a result the panel does not render" => drop(references.pop()),
+                "one row's reference repeated" => references[count - 1] = references[0].clone(),
+                _ => record["analysis_run"]["result_refs"] = json!("x".repeat(count)),
+            }
+        } else {
+            for reference in references.iter_mut() {
+                for key in ["id", "sha256"] {
+                    reference["semantic_contract"][key] = bound[key].clone();
+                }
+            }
+            record["analysis_run"]["reproducibility"]["semantic_contract"] = bound.clone();
+        }
+        // The corpus's string case is stored as it is there, not resealed.
+        if label != "a string for the references" {
+            reseal(&mut record);
+        }
+        Connection::open(&path).unwrap().execute("UPDATE local_projects SET analysis_run_json = ?1", params![serde_json::to_string(&record).unwrap()]).unwrap();
+        if label.ends_with("does not render") {
+            // The stored result keeps its rows and its identity; its summary is no longer an object.
+            let mut result: Value = serde_json::from_str(&column_text(&path, "SELECT mechanics_result_json FROM local_projects")).unwrap();
+            assert!(crate::analysis_run_v03_validate::renderable(&result), "{label}: the saved result renders before it is altered");
+            result["summary"] = json!("not a summary");
+            assert!(!crate::analysis_run_v03_validate::renderable(&result) && result["results"].as_array().is_some_and(|rows| rows.len() == count), "{label}");
+            Connection::open(&path).unwrap().execute("UPDATE local_projects SET mechanics_result_json = ?1", params![serde_json::to_string(&result).unwrap()]).unwrap();
+        }
+        let digests = || -> Vec<(std::path::PathBuf, String)> {
+            let mut files: Vec<_> = std::fs::read_dir(&dir).unwrap().map(|entry| entry.unwrap().path()).collect();
+            files.sort();
+            files.into_iter().map(|file| { let digest = file_digest(&file); (file, digest) }).collect()
+        };
+        let before = digests();
+        let opened = native_open(&registry, &path, Some(project_id)).unwrap();
+        let run = &opened["stored_run"];
+        assert_eq!(run["state"], "refused", "{label}: {run}");
+        assert_eq!(run["code"], RESTORE_REFUSED, "{label}");
+        let message = run["message"].as_str().unwrap();
+        let reason = format!("was not opened: {why} ({code}), so its rows are not shown; solve the model again.");
+        assert!(message.starts_with(&format!("{RESTORE_REFUSED}: project `{project_id}`'s stored run")) && message.contains(&reason), "{label}: {message}");
+        // Nothing of the record's binding is quoted.
+        for fragment in ["was opened", "IGNORE", "\u{202e}", "\u{0007}"] {
+            assert!(!message.contains(fragment), "{label}: {message:?}");
+        }
+        assert_eq!(opened["model"]["project"]["id"], project_id, "{label}: the project and its model open for editing");
+        assert!(opened["model_document_version"].is_object(), "{label}");
+        assert_eq!(registry.pool_status().retained_results, 0, "{label}: nothing is held");
+        assert_eq!(digests(), before, "{label}: no stored file is changed by the open: no migration, no reseal, nothing written");
+        std::fs::remove_dir_all(&dir).unwrap();
+        assert_eq!(registry.pool().reserved_total(), 0, "{label}: every lease ended");
+        seen.push(code);
+    }
+    assert_eq!(seen, ["SOURCE_RECORDED_BINDING_UNKNOWN", "SOURCE_RECORDED_BINDING_UNKNOWN", "SOURCE_RECORDED_BINDING_IDENTITY", "ANALYSIS_ROW_SOURCE_BINDING_MISMATCH", "ANALYSIS_ROW_ACCOUNTING_MISMATCH", "ANALYSIS_ROW_SOURCE_BINDING_MISMATCH", "ANALYSIS_ROW_SOURCE_BINDING_MISMATCH", "ANALYSIS_ROW_ACCOUNTING_MISMATCH"]);
+}
+
 /// A reset during the read refuses the registration and drops what was
 /// loaded; full retention refuses by name; a stored result that is not JSON
 /// fails the open with the legacy open's own message.
