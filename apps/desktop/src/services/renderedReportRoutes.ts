@@ -252,17 +252,12 @@ export const OPEN_REPORT_VIEW_LABEL = "Open in a window";
 export const REPORT_VIEW_OPENING = "Opening the report window…";
 export const REPORT_VIEW_OPENED = "Report opened in a window.";
 export const REPORT_VIEW_BROUGHT_FORWARD = "The report's window was brought forward.";
-/** Shown on the Report page when the desktop closed a view window of the current render because
- * the result it showed is no longer current, until the next render or until dismissed. */
-export const REPORT_VIEW_CLOSED_NOT_CURRENT = "The report window closed because the result it showed is no longer current.";
-export const REPORT_VIEW_CLOSED_DISMISS = "Dismiss";
 /** The refusal when the workspace changed after the shown report was rendered. */
 export const REPORT_VIEW_STALE = "The workspace changed after this report was rendered. Render it again.";
 export const REPORT_VIEW_STALE_CODE = "REPORT-SOURCE-STALE-VIEW";
 /** The words before the reason when the open's reply was lost and a window may have opened. */
 export const REPORT_VIEW_NOT_KNOWN = "It is not known whether the report window opened:";
 
-/** A refusal: the message first, the code last in brackets. */
 /** The refusal for a source that could not be named for the open: the stale view in its own
  * words, any other coded error as it came. */
 export function reportViewSourceRefusalText(text: string): string {
@@ -272,6 +267,7 @@ export function reportViewSourceRefusalText(text: string): string {
   return reportViewRefusalText(code ? text.slice(at + 2) : text, code);
 }
 
+/** A refusal: the message first, the code last in brackets. */
 export function reportViewRefusalText(message: string, code: string | null): string {
   return `The report could not be opened in a window: ${message}${code ? ` (${code})` : ""}`;
 }
@@ -314,41 +310,5 @@ export function viewOutcomeText(outcome: RenderedReportRouteOutcome<RenderedRepo
       return refusedBeforeRunning(outcome.failure)
         ? reportViewRefusalText(outcome.message, null)
         : `${REPORT_VIEW_NOT_KNOWN} ${outcome.message}`;
-  }
-}
-
-/** Why the panel withdraws the current render's windows: the report's source (its model or
- * result) changed, which the panel reports when the desktop closed a window; or the person's own
- * act (the composition, the local-private selection, a new render), which stays silent. */
-export type ViewWithdrawal = "source_changed" | "own_act";
-
-/** Asks the desktop to close every window showing the current render: the panel no longer shows
- * it as current. With `withdraw` (the panel's drop of its preview) the desktop also withdraws the
- * current render from view, so no window of it opens after this; without it (the late close of a
- * window whose opening outlived the preview, when a later render may already be current) only the
- * windows close. The render, and any save of it, are untouched. The promise always resolves. If
- * the call fails, the page can do no more: a window that is still open is then left to the native
- * sweep alone, which closes it when its render is retired or replaced. */
-export function closeRenderedReportViews(reason: ViewWithdrawal, withdraw: boolean): Promise<void> {
-  try {
-    return Promise.resolve(invoke("close_rendered_report_views", { reason, withdraw })).then(() => undefined, () => undefined);
-  } catch {
-    return Promise.resolve();
-  }
-}
-
-export type ReportViewClosure = { kind: string; reason: string };
-
-/** The desktop's pending notices of view windows it closed because what they showed is no longer
- * showable, taken once. Only what the desktop returns here is reported; nothing is inferred. */
-export async function takeReportViewClosures(): Promise<ReportViewClosure[]> {
-  try {
-    const taken: unknown = await invoke("take_report_view_closures");
-    if (!Array.isArray(taken)) return [];
-    return taken.filter((entry): entry is ReportViewClosure =>
-      typeof entry === "object" && entry !== null && typeof (entry as ReportViewClosure).kind === "string" && typeof (entry as ReportViewClosure).reason === "string"
-    );
-  } catch {
-    return [];
   }
 }

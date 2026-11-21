@@ -104,7 +104,7 @@ async function openReportStage() {
 let mountSequence = 0;
 /** The App over the replay transport. `hold`, when given, keeps the job's start pending until it
  * settles, so that a test can act while the run is going. */
-async function mountApp(hold?: Promise<void>) {
+async function mountApp(hold?: Promise<void>, opened?: unknown) {
   const model = witnessModel();
   const [storage, knowledge] = [await getLocalStorageCapability(), await loadDesignKnowledge()];
   const raw = readFileSync(resolve(root, RAW), "utf8");
@@ -112,6 +112,7 @@ async function mountApp(hold?: Promise<void>) {
   const renders: Json[] = [];
   const prints: Json[] = [];
   let retirements = 0;
+  const advances: { incarnation: number; sequence: number }[] = [];
   const reportSource = reportSourceRegistration();
   // Any command outside the job contract is refused by name, as the native-replay App tests do; the
   // App's startup chores it refuses (autosave, unit catalogue, model states) are tolerated by App, and
@@ -136,7 +137,11 @@ async function mountApp(hold?: Promise<void>) {
     if (command === "retire_rendered_report") { retirements += 1; return null; }
     // DEL-08-01 REQ-022: the report source registration, as the native process answers it
     // (observation, conditional activation, highest number of the current incarnation).
+    if (command === "advance_report_source") advances.push(structuredClone(args) as { incarnation: number; sequence: number });
     if (REPORT_SOURCE_COMMANDS.includes(command)) return reportSource(command, args);
+    // A project switch: the stored project the open answers, when the test gives one (the test
+    // setup's native reopen emulation asks for it by its whole-value command).
+    if (command === "open_local_project" && opened !== undefined) return structuredClone(opened);
     // A model edit's operation, through the maintained operation engine (as App.mbfRoundTrip.test.tsx
     // does), not a fabricated edited document: App still performs the edit, its hash checks and the
     // session commit. No actual native operation witness.
@@ -156,7 +161,7 @@ async function mountApp(hold?: Promise<void>) {
   await screen.findByTestId("workspace-toolbar");
   await screen.findByTestId(`tree-row-project-${encodeURIComponent(model.project.id)}`);
   const why = () => `refused commands: ${refused.join(", ")}; job commands: ${jobCommands().join(", ")}; status: ${screen.queryByTestId("local-project-message")?.textContent ?? ""}; alerts: ${[...document.querySelectorAll('[role="alert"], [data-testid*="error"], [data-testid*="refus"]')].map((e) => `${e.getAttribute("data-testid") ?? "alert"}=${(e.textContent ?? "").slice(0, 300)}`).join(" | ")}`;
-  return { raw, renders, prints, retirements: () => retirements, jobCommands, why };
+  return { raw, renders, prints, retirements: () => retirements, advances: () => [...advances], jobCommands, why };
 }
 
 /** The solved result has reached the shown panel through the gate (its full copy read for it). */
@@ -404,5 +409,73 @@ describe("the rendered report of a solved exact-route result that is not numeric
     ));
     expect(screen.queryByTestId("user-release-dialog")).toBeNull();
     expect(invokeMock.mock.calls.map(([command]) => command).filter((command) => /report_package|user_release/.test(String(command)))).toEqual([]);
+  }, 240_000);
+});
+
+/** DEL-08-01 REQ-022 and DEL-04-07's view window: each currency boundary the page owns sends the
+ * desktop `advance_report_source` from the session's own sequenced cell, whether or not the Report
+ * section has ever been opened. The desktop retires the native render on that advance and its
+ * sweep closes any view window of it (`report_view.rs`,
+ * `a_registered_advance_closes_an_open_window_of_a_local_private_render`). The fourth boundary,
+ * closing the project, is the main window's close: the page's answer is `resolve_close_request`
+ * (`workLossGuards.test.tsx`), and the desktop closes every view window on the main window's
+ * destruction. Report is never opened in these tests, so no panel exists to send anything. */
+describe("each currency boundary reaches the desktop with the Report section never opened", () => {
+  const reportNeverOpened = () => {
+    expect(screen.queryByTestId("rendered-report-panel")).toBeNull();
+    expect(screen.getByTestId("workspace-section-report").className).not.toBe("workspace-dock-section");
+  };
+  /** The desktop has registered a number above `before` (the advance the boundary sent). */
+  const advancedPast = async (advances: () => { sequence: number }[], before: number, why: () => string) => {
+    await waitFor(() => expect(Math.max(0, ...advances().map((a) => a.sequence)), `advance_report_source sequences: ${advances().map((a) => a.sequence).join(", ")}; ${why()}`).toBeGreaterThan(before), { timeout: 10_000 });
+  };
+  const highest = (advances: () => { sequence: number }[]) => Math.max(0, ...advances().map((a) => a.sequence));
+
+  it("a new solve sends advance_report_source", async () => {
+    const { advances, jobCommands, why } = await mountApp();
+    act(() => nativeMenuCommand("analyze.run"));
+    await waitFor(() => expect(jobCommands()).toContain("read_preview_mechanics_job_analysis_run_preview"), { timeout: 60_000 });
+    await waitFor(() => expect(advances().length, why()).toBeGreaterThan(0), { timeout: 10_000 });
+    const before = highest(advances);
+    const runRecordsRead = jobCommands().filter((c) => c === "read_preview_mechanics_job_analysis_run_preview").length;
+    act(() => nativeMenuCommand("analyze.run"));
+    await waitFor(() => expect(jobCommands().filter((c) => c === "read_preview_mechanics_job_analysis_run_preview").length).toBe(runRecordsRead + 1), { timeout: 60_000 });
+    await advancedPast(advances, before, why);
+    reportNeverOpened();
+  }, 240_000);
+
+  it("a model edit sends advance_report_source", async () => {
+    const { advances, why } = await mountApp();
+    await waitFor(() => expect(advances().length, why()).toBeGreaterThan(0), { timeout: 10_000 });
+    act(() => nativeMenuCommand("view.stage.model"));
+    await waitFor(() => expect(screen.getByTestId("layout-mode-grid")).toBeInTheDocument());
+    await act(() => new Promise((r) => setTimeout(r, 50)));
+    const before = highest(advances);
+    fireEvent.click(screen.getByTestId("layout-mode-grid"));
+    const cell = () => screen.getByTestId("table-cell-node:RS-020-y");
+    fireEvent.click(cell()); fireEvent.click(cell());
+    fireEvent.change(screen.getByRole("textbox", { name: "node:RS-020 Y [m]" }), { target: { value: "0.05" } });
+    fireEvent.click(within(screen.getByTestId("engineering-table")).getByRole("button", { name: "Apply" }));
+    await waitFor(() => expect(cell(), why()).toHaveTextContent("0.05"), { timeout: 30_000 });
+    await advancedPast(advances, before, why);
+    reportNeverOpened();
+  }, 240_000);
+
+  it("a project switch sends advance_report_source", async () => {
+    const switched = witnessModel();
+    switched.project.id = "project:invented-report-boundary-switch";
+    switched.project.name = "Invented report boundary switch";
+    const opened = {
+      summary: { project_id: switched.project.id, project_name: switched.project.name, message: "Opened invented report boundary project." },
+      model: switched, editor_intents: [], proposal: null, selected_review_target: null,
+      mechanics_result: null, analysis_run: null, model_hash: null, project_envelope_hash: null, model_document_version: null
+    };
+    const { advances, why } = await mountApp(undefined, opened);
+    await waitFor(() => expect(advances().length, why()).toBeGreaterThan(0), { timeout: 10_000 });
+    const before = highest(advances);
+    act(() => nativeMenuCommand("file.open-local"));
+    await waitFor(() => expect(screen.queryByTestId(`tree-row-project-${encodeURIComponent(switched.project.id)}`), why()).not.toBeNull(), { timeout: 30_000 });
+    await advancedPast(advances, before, why);
+    reportNeverOpened();
   }, 240_000);
 });

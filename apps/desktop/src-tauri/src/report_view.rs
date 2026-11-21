@@ -9,7 +9,8 @@
 //!
 //! - The window is served nothing but the document its provider handed it
 //!   and this module's own wrapper page; only to its own webview; only while
-//!   the provider says the document is still showable.
+//!   the provider says the document is still showable and the window is not
+//!   closing.
 //! - Script: content script is disabled in its webview; the wrapper page and
 //!   the document carry none; the wrapper's and the document's content
 //!   policies and the frame's sandbox refuse it. The runtime's own bridge
@@ -20,30 +21,34 @@
 //!   nothing and navigates nowhere but its own two addresses.
 //! - This module builds no command that hands the document on: no save,
 //!   print or copy command of its own. A person may select and copy what is
-//!   shown, as in the Report page's preview. It defines three commands, the
-//!   opening of the current render, the closing of its windows and the take
-//!   of closure notices, and none returns any part of a document.
+//!   shown, as in the Report page's preview. It defines one command, the
+//!   opening of the current render, which returns no part of a document.
 //! - It never extends the life of the current render's document: it keeps
 //!   only a weak reference to it ([`ViewBytes::Borrowed`]); the opening takes
-//!   no share, and a serve takes one only for the length of its copy.
+//!   no share, and a serve takes one only for the length of its copy. A
+//!   retirement releases the document at once, whatever a window is doing.
 //! - Its memory is reserved: every copy of the document a serve makes in this
 //!   process is reserved, in the interactive class, from the opening until
-//!   the page has loaded or the window has closed, and never for less than
-//!   the serve (below, "Memory").
+//!   the page has loaded or the window's destruction is observed, and never
+//!   for less than the serve (below, "Memory").
+//! - A window is never current for longer than the native render it shows:
+//!   the sweep beside every retirement of the render asks for its destruction
+//!   (below, "Closing").
 //!
 //! Interface. A provider hands [`open`] a [`ViewDocument`]: an identity
 //! ([`ViewIdentity`], a kind and a SHA-256), the bytes ([`ViewBytes`]), their
 //! length (`byte_count`, from the provider's own admission: the reservation is
-//! computed from it, so the opening takes no share of the bytes), a title, at most [`MAX_WORDS`] sentences and at most [`MAX_DETAILS`] label
-//! and value pairs, all plain text this module escapes, and `showable`, the
-//! provider's answer to whether the document may still be shown. One window
-//! per identity: offering an identity already open brings its window forward,
-//! sets its title to the one just offered, and changes, serves and reserves
-//! nothing else, so the words and details a provider gives must be true for
-//! every offer of an identity; only the title follows the last offer. Several
-//! identities may be open at once. The window's addresses are derived from the
-//! identity only, and no address, error, title or log line here carries a
-//! file path or a location.
+//! computed from it, so the opening takes no share of the bytes), a title, at
+//! most [`MAX_WORDS`] sentences and at most [`MAX_DETAILS`] label and value
+//! pairs, all plain text this module escapes, and `showable`, the provider's
+//! answer to whether the document may still be shown. One window per
+//! identity: offering an identity open in a window that exists brings that
+//! window forward, sets its title to the one just offered, and changes, serves
+//! and reserves nothing else, so the words and details a provider gives must
+//! be true for every offer of an identity; only the title follows the last
+//! offer. Several identities may be open at once. The window's addresses are
+//! derived from the identity only, and no address, error, title or log line
+//! here carries a file path or a location.
 //!
 //! The page. The window loads a wrapper page this module generates: the
 //! title, the provider's words and then its details (smaller, muted,
@@ -57,14 +62,13 @@
 //! `no-store`.
 //!
 //! Serving ([`respond_between`]). A request is answered only when it comes
-//! from the webview of the window whose record holds that identity, for
-//! exactly that record's wrapper or document address (the whole address:
-//! scheme, host and path, with no query or fragment), while its `showable()`
-//! is true
-//! and, for the document, while its bytes are there; otherwise 404 with no
-//! body. The document address is served at most once per window, so exactly
-//! one serve can happen: a reload, or a second frame, gets 404; so does a
-//! document request after the page has loaded without it.
+//! from the webview of a window whose record is open (not closing), for
+//! exactly that record's wrapper or document address as the request delivers
+//! it (scheme, host, path and no query), while its `showable()` is true and,
+//! for the document, while its bytes are there; otherwise 404 with no body.
+//! The document address is served at most once per window: a reload, or a
+//! second frame, gets 404; so does a document request after the page has
+//! loaded without it.
 //!
 //! Established from the pinned sources (tauri 2.11.1, tauri-runtime-wry
 //! 2.11.1, wry 0.55.1, as `apps/desktop/src-tauri/Cargo.lock` pins them):
@@ -104,14 +108,26 @@
 //!   one webview can report another's label.
 //! - The page-load `Finished` event is wry's `didFinishNavigation` (wry 0.55.1
 //!   `src/wkwebview/navigation.rs` 39-46), which WebKit sends for the main
-//!   frame's navigation.
-//!
-//! Commands. The view window's page and document carry no script; content
-//! script is disabled, and the policies and the frame's sandbox refuse it; the
-//! runtime's bridge script is present in its main frame (above). The closure
-//! notices ([`take_report_view_closures`]) are answered only to the main
-//! webview, and a withdrawal ([`close_rendered_report_views`]) is accepted
-//! only from it.
+//!   frame's navigation. It is not always delivered: tauri 2.11.1
+//!   `src/webview/mod.rs` 765 drops a page-load event that arrives before the
+//!   manager has attached the webview. A window whose page load is not
+//!   delivered keeps its reservation until its destruction is observed.
+//! - A fragment never reaches the protocol's handler: wry 0.55.1
+//!   `src/wkwebview/class/url_scheme_handler.rs` 93-102 builds the request
+//!   from the task's whole URL as an `http::Uri`, and http 1.4.0
+//!   `src/uri/path.rs` 117-119 truncates the fragment while parsing it. The
+//!   handler sees the address as that conversion delivers it
+//!   ([`request_address`]); what keeps the window to its two addresses,
+//!   fragment and all, is the navigation rule above.
+//! - A window built from a thread other than the main one is queued, not
+//!   created: tauri-runtime-wry 2.11.1 `src/lib.rs` 300-335 sends
+//!   `Message::CreateWindow` and returns at once, and 4084-4091 only logs a
+//!   creation that fails. A window getter sent after it travels the same queue
+//!   (`send_user_message`, 235-255) and is handled after it; for a window not
+//!   in the runtime's map, `Message::Window` (3372-3682) matches nothing and
+//!   drops the getter's reply channel, so the getter (`window_getter!`,
+//!   197-211) fails. So a window that answers [`Windows::acknowledge`] (its
+//!   title, `WindowMessage::Title`, 3421) exists in the runtime.
 //!
 //! Memory (DEL-04-07 "Memory budget"). A serve of the document makes two
 //! copies of it in this process, as the pinned sources show: the owned body
@@ -123,73 +139,88 @@
 //! 2454-2456 and wry 0.55.1 `src/lib.rs` 453-456 turn the `Vec<u8>` into
 //! `Cow::Owned`, and tauri-runtime-wry 2.11.1 `src/lib.rs` 5197-5205 passes
 //! it on. Both are made and dropped inside the responder wry builds
-//! (`url_scheme_handler.rs`, from 187), which runs within the scheme task's
-//! own call (322-326) and returns before [`serve`]'s `respond` does. What WebKit does
-//! with the `NSData` after `didReceiveData` is WebKit's and is not in these
-//! sources; a copy the web content process makes is in another process and is
-//! not this pool's. Both copies are reserved: the open command's own
-//! interactive lease grows by two allocation envelopes of the document
-//! ([`serve_reservation_bytes`]) before any window or record exists (refused
-//! [`VIEW_MEMORY_UNAVAILABLE`], opening nothing) and moves into the window's
-//! record, which shares it with the window's one serve. The reservation is
-//! released when both have let go of it: the record when the page has loaded,
-//! the window has closed or the record is removed, whichever is first; the
-//! serve once `respond` has returned. So a window closed or swept during a
-//! serve keeps the reservation until that serve's copies are gone, and a page
-//! that loads without its document marks the document as no longer servable,
-//! so no serve can follow the reservation's end. The wrapper page is
-//! generated per request and is not reserved: its size is bounded by the
-//! provider's title, words and details. A `Borrowed`
+//! (`url_scheme_handler.rs`, from 187), which runs within [`serve`]'s
+//! `respond` call. What WebKit does with the `NSData` after `didReceiveData`
+//! is WebKit's and is not in these sources; a copy the web content process
+//! makes is in another process and is not this pool's. Both copies are
+//! reserved: the open command's own interactive lease grows by two allocation
+//! envelopes of the document ([`serve_reservation_bytes`]) when the window's
+//! record is installed (refused [`VIEW_MEMORY_UNAVAILABLE`], opening nothing)
+//! and moves into the record, which shares it with the window's one serve.
+//! The reservation is released when both have let go of it: the record when
+//! the page has loaded, when the window's destruction is observed, when the
+//! opening fails, or when a sweep finds the window already gone, whichever is
+//! first; the serve once `respond` has returned. A sweep does not release it
+//! when it asks for the window's destruction: the record is marked closing
+//! and kept until the destruction is observed. A window whose page load is
+//! not delivered keeps the reservation until its destruction is observed; a
+//! record belongs only to a window the runtime acknowledged, so that
+//! destruction comes. A page that loads without its document marks the
+//! document as no longer servable, so no serve can follow the reservation's
+//! end. The wrapper page is generated per request and is not reserved: its
+//! size is bounded by the provider's title, words and details. A `Borrowed`
 //! window keeps a weak reference to the held document: when the document's
 //! last holder drops it, its bytes and its custody reservation are released,
 //! and only the small shared record's allocation stays until the window's
 //! record goes.
 //!
-//! Lock order. This module's open-windows lock is held while a record's
-//! `showable()` is called, so a provider's `showable` must not call back into
-//! this module; the current render's reads render custody, the established
-//! order of the print window (`rendered_report_print`): its open-window lock,
-//! then custody, and custody is never held while this lock is taken. So
-//! [`close_unshowable`] is never called with the custody mutex held. A
-//! withdrawal's mark of the current render
-//! ([`routes::RenderCustody::withdraw_current_from_view`]) runs under the
-//! open-windows lock in the same order. The
-//! closure notices' lock is taken alone (the take) or inside the open-windows
-//! lock (a sweep or a withdrawal recording or clearing a notice), never the
-//! other way. Leases and documents taken out of a
-//! record are dropped after the lock is released, and every window operation
-//! (build, focus, title, destroy) runs after it is released.
+//! Threads. The serve runs off the main thread: [`serve`] hands the request
+//! to a blocking task and responds from there, as wry 0.55.1 `src/lib.rs`
+//! 446-449 allows (its responder is `Send` so that the response can be
+//! computed on another thread) and as tauri 2.11.1's own IPC protocol does
+//! (`src/ipc/protocol.rs` 139). So the provider's `showable` (which reads
+//! render custody, and can wait there while a save publishes) and both copies
+//! run off the main thread. The opening runs on the open command's own thread,
+//! never the main one: it holds the opening gate from the record's
+//! installation to the window's acknowledgement, and the acknowledgement waits
+//! for the main thread to handle the window's messages. The main thread never
+//! takes the gate: a window's destruction ([`window_destroyed`]), a page load,
+//! the serve and the sweeps take only the records' lock, which is never held
+//! across a build, an acknowledgement or a wait.
 //!
-//! Closing. A window closes when the person closes it, when its provider's
-//! `showable()` turns false at a sweep ([`close_unshowable`], run beside every
-//! close of a retired print window), when its provider withdraws its kind
-//! ([`close_kind`]: the report page asks it when it drops its preview,
-//! [`close_rendered_report_views`]), and when the main window is destroyed.
-//! The report page's withdrawal is binding natively: under the open-windows
-//! lock it marks the current render as withdrawn from view, so its
-//! `showable()` is false from then on (an opening still in flight is refused
-//! at its installation, or its record is removed by the withdrawal, whichever
-//! comes second); a later render has a new generation and is viewable.
+//! Lock order. The opening gate, then the records' lock; under the records'
+//! lock, the provider's `showable()` (the current render's reads render
+//! custody: the records' lock, then custody, the established order of the
+//! print window, and custody is never held while the records' lock is taken,
+//! so [`close_unshowable`] is never called with the custody mutex held), the
+//! window registry's lookup ([`Windows::find`], the runtime's window map) and
+//! the memory pool's verdict on the lease's growth. Records and leases taken
+//! out are dropped after the lock is released, and every window operation
+//! (build, acknowledgement, focus, title, destroy) runs after it is released.
 //!
-//! Destruction is handled from the application's run-event callback (`run`
-//! in `lib.rs`, [`window_destroyed`]): the runtime calls it for every window's
-//! events with no listener registered on the window (tauri-runtime-wry 2.11.1
-//! `src/lib.rs` 4272-4292), whereas a listener added to a window after its
+//! Opening ([`open_in`]). Openings are serialised by one gate from the
+//! record's installation to the window's acknowledgement, so two never
+//! interleave. Under the gate and the records' lock, in one critical section:
+//! after the main window's shutdown, nothing opens; an offer whose
+//! `showable()` is false, or whose bytes are gone, opens nothing and brings
+//! nothing forward; a record of the same identity (not closing) whose window
+//! exists is brought forward, and `brought_forward` is answered only for a
+//! window found there and reached; one whose window does not exist is dropped
+//! (under the gate it cannot be one under construction); otherwise the record
+//! is installed with its grown lease. Then, the lock released, the window is
+//! built and acknowledged; a window that does not answer is a failed opening,
+//! its record and lease released ([`VIEW_WINDOW_FAILED`]). After the
+//! acknowledgement the record must still be open: a sweep may have retired it
+//! meanwhile, and then the window is destroyed and the opening refused as not
+//! showable.
+//!
+//! Closing. A window's life is the native render's currency: the sweep
+//! ([`close_unshowable`]), run beside every close of a retired print window
+//! in the routes, asks the destruction of every window whose `showable()` is
+//! false. It marks the record closing (not served, not matched: a later
+//! opening of the same identity opens a new window with a new label), and the
+//! record goes when the window's destruction is observed; a record whose
+//! window is already gone at the sweep goes at once. Destruction is observed
+//! in the application's run-event callback (`run` in `lib.rs`,
+//! [`window_destroyed`]), which the runtime calls for every window's events
+//! with no listener registered on the window (tauri-runtime-wry 2.11.1
+//! `src/lib.rs` 4272-4292); a listener added to a window after its
 //! construction is queued (1982-1989) and can miss a destruction that comes
-//! first. A view window's destruction removes its record. The main window's
-//! begins shutdown: under the open-windows lock a flag is set and every
-//! record taken, an opening installed after it is refused, and a window built
-//! across it finds no record and is destroyed. An offer of an identity whose
-//! recorded window no longer exists drops that record (and its reservation)
-//! and opens anew, so `brought_forward` is never reported for a window that is
-//! not there.
-//! Only the sweep and a withdrawal because the source changed record a
-//! closure notice, by kind and reason, which the main webview takes once
-//! ([`take_report_view_closures`]); it carries nothing of the document. A
-//! withdrawal for the person's own act records none and clears any pending
-//! notice of its kind, so the notice does not depend on whether the sweep or
-//! the withdrawal reached the window first. The window is an ordinary window: not always on top, no
-//! special level.
+//! first. The main window's destruction begins shutdown: under the records'
+//! lock a flag is set, after which nothing opens, and every view window is
+//! asked to close as at a sweep. The window is an ordinary window: not always
+//! on top, no special level. Nothing is reported to the report page when a
+//! window closes.
 //!
 //! Platform. Only macOS opens the window in this version
 //! ([`view_windows_supported`], whose one line lifts the gate); elsewhere
@@ -201,7 +232,6 @@ use crate::memory_pool::{Lease, ResourceRefusal};
 use crate::rendered_report_routes::{self as routes, HeldDocument, RouteError, SourceMark, ViewAdmitted};
 use crate::solve_jobs::SolveJobRegistry;
 use serde::Serialize;
-use std::collections::BTreeSet;
 use std::sync::atomic::{AtomicBool, AtomicU64, Ordering};
 use std::sync::{Arc, Mutex, MutexGuard, PoisonError, Weak};
 use tauri::{AppHandle, Manager, Runtime};
@@ -224,8 +254,6 @@ const LABEL_PREFIX: &str = "report-view-";
 
 /// The current render's kind.
 pub(crate) const KIND_CURRENT_RENDER: &str = "current_render";
-/// The reason a sweep gives for closing a window.
-pub(crate) const REASON_NO_LONGER_SHOWABLE: &str = "no_longer_showable";
 
 /// The document offered breaks the interface's bounds (identity form, words, details).
 pub(crate) const VIEW_DOCUMENT_REFUSED: &str = "REPORT-VIEW-DOCUMENT-REFUSED";
@@ -255,6 +283,10 @@ pub(crate) fn current_render_title(project_name: Option<&str>) -> String {
 pub(crate) const CURRENT_RENDER_WORDS: &str = "Calculation report of the current result. View only: save or print it from the Report page.";
 /// The label of the current render's one detail, the whole canonical hash.
 pub(crate) const CURRENT_RENDER_HASH_LABEL: &str = "SHA-256";
+/// The second sentence on the strip of a local private render: the product's
+/// own warning, word for word (`LOCAL_PRIVATE_REPORT_WARNING` in
+/// `RenderedReportPanel.tsx`).
+pub(crate) const LOCAL_PRIVATE_WORDS: &str = "Local private report: this rendering contains private project values for your own local review. It is not for sharing or publication.";
 /// The frame's accessible title.
 pub(crate) const FRAME_TITLE: &str = "Report document";
 
@@ -338,9 +370,8 @@ impl ViewBytes {
 }
 
 /// The provider's answer to whether its document may still be shown. It is
-/// called once before an offer is examined and otherwise with this module's
-/// open-windows lock held (module docs, "Lock order"), and must not call back
-/// into this module.
+/// called with this module's records' lock held (module docs, "Lock order"),
+/// off the main thread, and must not call back into this module.
 pub(crate) type Showable = Arc<dyn Fn() -> bool + Send + Sync>;
 
 /// What a provider offers [`open`] (module docs, "Interface").
@@ -375,17 +406,23 @@ pub(crate) struct OpenView {
     /// The document's one serve has been made, or can no longer be made (the
     /// page loaded without it).
     document_spent: bool,
-    /// The reservation of the serve's copies, until the page has loaded; the
-    /// serve holds a share of it while it runs (module docs, "Memory").
+    /// Its destruction has been asked for: it is served nothing and matched by
+    /// no offer, and goes when the destruction is observed.
+    closing: bool,
+    /// The reservation of the serve's copies, until the page has loaded or the
+    /// window's destruction is observed; the serve holds a share of it while
+    /// it runs (module docs, "Memory").
     lease: Option<Arc<Lease>>,
 }
 
+/// The records of the open view windows.
 static OPEN: Mutex<Vec<OpenView>> = Mutex::new(Vec::new());
-static CLOSED: Mutex<BTreeSet<(&'static str, &'static str)>> = Mutex::new(BTreeSet::new());
+/// The opening gate (module docs, "Opening"); never taken on the main thread.
+static OPENING: Mutex<()> = Mutex::new(());
+/// The main window's shutdown has begun: set and read under the records' lock.
+static SHUT: AtomicBool = AtomicBool::new(false);
 static APP: Mutex<Option<AppHandle>> = Mutex::new(None);
 static NEXT_LABEL: AtomicU64 = AtomicU64::new(1);
-/// The main window's shutdown has begun: set and read under the open-windows lock.
-static SHUT: AtomicBool = AtomicBool::new(false);
 
 fn lock<T>(mutex: &Mutex<T>) -> MutexGuard<'_, T> {
     mutex.lock().unwrap_or_else(PoisonError::into_inner)
@@ -462,104 +499,142 @@ fn validate(document: &ViewDocument) -> Result<(), ViewError> {
     Ok(())
 }
 
-/// How an offer was installed ([`reserve_in`]).
+/// What an opening and a sweep ask of the window system: the runtime in
+/// production ([`RuntimeWindows`]), a model of it in tests.
+pub(crate) trait Windows {
+    type Window;
+    /// The window named `label`, if the window registry holds it. Called under
+    /// the records' lock: it must not take this module's locks or wait for
+    /// the main thread.
+    fn find(&self, label: &str) -> Option<Self::Window>;
+    /// Builds the window (in production: queues its creation); `None` when
+    /// the builder refuses.
+    fn build(&self, label: &str, identity: &ViewIdentity, title: &str) -> Option<Self::Window>;
+    /// Whether the window answers something only a window the runtime holds
+    /// answers (module docs, the acknowledgement's fact).
+    fn acknowledge(&self, window: &Self::Window) -> bool;
+    /// Gives the window `title` and brings it forward; whether it answered.
+    fn bring_forward(&self, window: &Self::Window, title: &str) -> bool;
+    /// Asks for the destruction of the window named `label`, if there is one.
+    fn destroy(&self, label: &str);
+}
+
+/// How an opening ended.
 #[derive(Debug, PartialEq, Eq)]
-pub(crate) enum Reserved {
-    /// A record was installed under this label: build its window.
-    Opened { label: String, title: String },
-    /// The identity is open under this label; its record now carries `title`.
+pub(crate) enum Opened {
+    /// A new window, acknowledged, under this label.
+    New { label: String, title: String },
+    /// The window of this label, found and reached, now carrying `title`.
     BroughtForward { label: String, title: String },
 }
 
-/// Sets the open record's title for `identity`, if one is open, and returns
-/// its label and the new title.
-fn bring_forward(open: &mut [OpenView], identity: &ViewIdentity, title: &str) -> Option<(String, String)> {
-    let record = open.iter_mut().find(|record| &record.identity == identity)?;
-    record.title = title.to_string();
-    Some((record.label.clone(), record.title.clone()))
+/// The opening (module docs, "Opening"): under `gate`, installs the offer's
+/// record or finds the window to bring forward in one critical section of the
+/// records' lock, then builds and acknowledges a new window with the lock
+/// released, and checks that its record is still open.
+pub(crate) fn open_in<W: Windows>(
+    open: &Mutex<Vec<OpenView>>,
+    gate: &Mutex<()>,
+    shut: &AtomicBool,
+    windows: &W,
+    document: ViewDocument,
+    lease: Lease,
+    label: impl FnOnce() -> String,
+) -> Result<Opened, ViewError> {
+    validate(&document)?;
+    let _gate = lock(gate);
+    let identity = document.identity.clone();
+    let (label, title) = match install_in(open, shut, windows, document, lease, label)? {
+        Installed::Forward { label, title, window } => {
+            return if windows.bring_forward(&window, &title) { Ok(Opened::BroughtForward { label, title }) } else { Err(window_failed()) };
+        }
+        Installed::New { label, title } => (label, title),
+    };
+    let acknowledged = windows.build(&label, &identity, &title).is_some_and(|window| windows.acknowledge(&window));
+    if !acknowledged {
+        windows.destroy(&label);
+        drop(release_label_in(open, &label));
+        return Err(window_failed());
+    }
+    let records = lock(open);
+    if !records.iter().any(|record| record.label == label && !record.closing) {
+        // A sweep retired it, or the main window went, while it was built.
+        let refusal = if shut.load(Ordering::SeqCst) { window_failed() } else { not_showable() };
+        drop(records);
+        windows.destroy(&label);
+        return Err(refusal);
+    }
+    drop(records);
+    Ok(Opened::New { label, title })
 }
 
-/// Tests' [`reserve_with_in`] before any shutdown, every recorded window existing.
-#[cfg(test)]
-pub(crate) fn reserve_in(open: &Mutex<Vec<OpenView>>, document: ViewDocument, lease: Lease, label: impl FnOnce() -> String) -> Result<Reserved, ViewError> {
-    reserve_with_in(open, &AtomicBool::new(false), &|_| true, document, lease, label)
+enum Installed<W> {
+    New { label: String, title: String },
+    Forward { label: String, title: String, window: W },
 }
 
-/// Installs the record of an offer (module docs, "Interface", "Memory" and
-/// "Closing"): a record of the identity whose window no longer `exists` is
-/// dropped first; an identity open in a window that exists is brought forward
-/// with nothing grown; otherwise `lease` grows by the serve's reservation,
-/// computed from the offer's `byte_count` with no share of the bytes taken
-/// (refused [`VIEW_MEMORY_UNAVAILABLE`], nothing recorded), then, under the
-/// open-windows lock, an opening after the main window's shutdown (`shut`) is
-/// refused, the identity is checked again, and the record is installed only
-/// while `showable()` is true and the bytes are there, with the lease in it.
-/// No window is built here.
-pub(crate) fn reserve_with_in(
+/// The opening's one critical section under the records' lock (module docs,
+/// "Opening"). A stale record and an unneeded lease are dropped after the lock.
+fn install_in<W: Windows>(
     open: &Mutex<Vec<OpenView>>,
     shut: &AtomicBool,
-    exists: &dyn Fn(&str) -> bool,
+    windows: &W,
     document: ViewDocument,
     mut lease: Lease,
     label: impl FnOnce() -> String,
-) -> Result<Reserved, ViewError> {
-    validate(&document)?;
-    // An offer that is no longer showable opens nothing and brings nothing
-    // forward, whatever window of the same identity a later offer has open
-    // (two renders of the same content share an identity).
-    if !(document.showable)() {
-        return Err(not_showable());
-    }
-    drop_if_missing(open, &document.identity, exists);
-    if let Some((label, title)) = bring_forward(&mut lock(open), &document.identity, &document.title) {
-        return Ok(Reserved::BroughtForward { label, title });
-    }
-    lease.grow_to(lease.bytes().saturating_add(serve_reservation_bytes(document.byte_count))).map_err(|refusal| memory_unavailable(&refusal))?;
-    let ViewDocument { identity, document, byte_count: _, title, words, details, may_leave, showable } = document;
+) -> Result<Installed<W::Window>, ViewError> {
+    let ViewDocument { identity, document, byte_count, title, words, details, may_leave, showable } = document;
     let mut records = lock(open);
     if shut.load(Ordering::SeqCst) {
         drop(records);
-        drop(lease);
         return Err(window_failed());
     }
-    // Under the lock, the offer's own answer first: a retired offer neither
-    // installs a record nor brings another offer's window forward.
     if !showable() || document.is_gone() {
         drop(records);
-        drop(lease);
         return Err(not_showable());
     }
-    if let Some((label, title)) = bring_forward(&mut records, &identity, &title) {
-        drop(records);
-        drop(lease);
-        return Ok(Reserved::BroughtForward { label, title });
+    let mut stale = None;
+    if let Some(at) = records.iter().position(|record| !record.closing && record.identity == identity) {
+        match windows.find(&records[at].label) {
+            Some(window) => {
+                records[at].title = title.clone();
+                let label = records[at].label.clone();
+                drop(records);
+                return Ok(Installed::Forward { label, title, window });
+            }
+            // Under the gate no other opening is building it: it is stale.
+            None => stale = Some(records.swap_remove(at)),
+        }
     }
-    let label = label();
-    records.push(OpenView {
-        label: label.clone(),
-        identity,
-        document,
-        title: title.clone(),
-        words,
-        details,
-        may_leave,
-        showable,
-        document_spent: false,
-        lease: Some(Arc::new(lease)),
-    });
-    Ok(Reserved::Opened { label, title })
-}
-
-/// A record of `identity` whose window does not `exist` is stale (its window
-/// went before its destruction could be handled, or is still being built by
-/// another opening, whose own check then closes it): it is removed and dropped
-/// after the lock, so the offer opens anew. The test runs with the lock
-/// released.
-fn drop_if_missing(open: &Mutex<Vec<OpenView>>, identity: &ViewIdentity, exists: &dyn Fn(&str) -> bool) {
-    let Some(label) = lock(open).iter().find(|record| &record.identity == identity).map(|record| record.label.clone()) else { return };
-    if !exists(&label) {
-        drop(release_label_in(open, &label));
+    let installed = match lease.grow_to(lease.bytes().saturating_add(serve_reservation_bytes(byte_count))) {
+        Ok(()) => {
+            let label = label();
+            records.push(OpenView {
+                label: label.clone(),
+                identity,
+                document,
+                title: title.clone(),
+                words,
+                details,
+                may_leave,
+                showable,
+                document_spent: false,
+                closing: false,
+                lease: Some(Arc::new(lease)),
+            });
+            Ok(Installed::New { label, title })
+        }
+        Err(refusal) => Err(memory_unavailable(&refusal)),
+    };
+    drop(records);
+    // A second barrier: under the gate and the acknowledgement a stale record's
+    // window cannot have come into being since the lookup; if it has, it closes.
+    if let Some(record) = stale {
+        let stale_label = record.label.clone();
+        drop(record);
+        windows.destroy(&stale_label);
     }
+    installed
 }
 
 /// The window named `label` has loaded its page: the record's share of the
@@ -576,163 +651,62 @@ pub(crate) fn page_loaded_in(open: &Mutex<Vec<OpenView>>, label: &str) -> bool {
     true
 }
 
-/// Removes the record of the window named `label` (its destruction, a failed
-/// construction or a stale record), returning it for the caller to drop after
-/// the lock is released.
+/// Removes the record of the window named `label`, returning it for the
+/// caller to drop after the lock is released.
 pub(crate) fn release_label_in(open: &Mutex<Vec<OpenView>>, label: &str) -> Option<OpenView> {
     let mut records = lock(open);
     let at = records.iter().position(|record| record.label == label)?;
     Some(records.swap_remove(at))
 }
 
-/// A window a sweep closed: its label and identity.
-#[derive(Clone, Debug, PartialEq, Eq)]
-pub(crate) struct ViewClosure {
-    pub(crate) label: String,
-    pub(crate) identity: ViewIdentity,
+/// The sweep (module docs, "Closing"): every open record whose `showable()`
+/// answers false is marked closing and its window asked to be destroyed, or,
+/// if its window is already gone, removed at once. Returns the labels whose
+/// destruction it asked for.
+pub(crate) fn close_unshowable_in<W: Windows>(open: &Mutex<Vec<OpenView>>, windows: &W) -> Vec<String> {
+    close_where_in(open, windows, |record| !(record.showable)())
 }
 
-/// The sweep: for every open record, asks its `showable()` under the
-/// open-windows lock and removes those that answer false; then, with the
-/// lock released, records a closure notice per kind in `closed` and drops
-/// the removed records (their leases and any held bytes). Returns what it
-/// closed; the caller destroys those windows.
-pub(crate) fn close_unshowable_in(open: &Mutex<Vec<OpenView>>, closed: &Mutex<BTreeSet<(&'static str, &'static str)>>) -> Vec<ViewClosure> {
-    close_where_in(open, closed, || {}, |record| !(record.showable)(), Notice::Record)
-}
-
-/// Why a provider withdraws its kind ([`close_kind_in`]).
-#[derive(Clone, Copy, Debug, PartialEq, Eq)]
-pub(crate) enum Withdrawal {
-    /// What the windows showed is no longer current (the report's model or
-    /// result changed): a notice is recorded when a window closed, as the
-    /// sweep does.
-    SourceChanged,
-    /// The person's own act (a composition, the local-private selection, a new
-    /// render): no notice is recorded, and any pending notice of the kind is
-    /// cleared, because a sweep caused by the same act may have recorded one
-    /// first.
-    OwnAct,
-}
-
-impl Withdrawal {
-    /// The reason the report page names: `source_changed` or `own_act`; any other is none.
-    pub(crate) fn named(reason: &str) -> Option<Self> {
-        match reason {
-            "source_changed" => Some(Self::SourceChanged),
-            "own_act" => Some(Self::OwnAct),
-            _ => None,
-        }
-    }
-}
-
-enum Notice<'a> {
-    /// Record one for each kind closed.
-    Record,
-    /// Record none, and clear any pending notice of this kind.
-    Clear(&'a str),
-}
-
-/// The provider's withdrawal: runs `withdraw` (the provider's own mark that
-/// its document is withdrawn from view, so its `showable()` turns false), then
-/// removes every record of `kind`, whatever its `showable()` says (the report
-/// page no longer shows that document as current), and records or clears its
-/// notice by `why`. A sweep after it finds no record of the kind and records
-/// nothing; a sweep before it has recorded a notice that an own act clears. An
-/// opening installed after it finds `showable()` false; one installed before
-/// it is removed by it. All of these run under the open-windows lock, so none
-/// interleaves with another.
-pub(crate) fn close_kind_in(
-    open: &Mutex<Vec<OpenView>>,
-    closed: &Mutex<BTreeSet<(&'static str, &'static str)>>,
-    kind: &str,
-    why: Withdrawal,
-    withdraw: impl FnOnce(),
-) -> Vec<ViewClosure> {
-    let notice = match why {
-        Withdrawal::SourceChanged => Notice::Record,
-        Withdrawal::OwnAct => Notice::Clear(kind),
-    };
-    close_where_in(open, closed, withdraw, |record| record.identity.kind == kind, notice)
-}
-
-/// Under the open-windows lock: runs `first`, removes the records `select`
-/// names and, still under that lock (then the notices' lock), records the
-/// notice of each kind closed or clears the named kind's pending notice,
-/// whether or not a window closed.
-fn close_where_in(
-    open: &Mutex<Vec<OpenView>>,
-    closed: &Mutex<BTreeSet<(&'static str, &'static str)>>,
-    first: impl FnOnce(),
-    select: impl Fn(&OpenView) -> bool,
-    notice: Notice<'_>,
-) -> Vec<ViewClosure> {
-    let mut removed = Vec::new();
+fn close_where_in<W: Windows>(open: &Mutex<Vec<OpenView>>, windows: &W, select: impl Fn(&OpenView) -> bool) -> Vec<String> {
+    let mut gone = Vec::new();
+    let mut asked = Vec::new();
     let mut records = lock(open);
-    first();
     let mut at = 0;
     while at < records.len() {
-        if select(&records[at]) {
-            removed.push(records.swap_remove(at));
-        } else {
+        if records[at].closing || !select(&records[at]) {
             at += 1;
+        } else if windows.find(&records[at].label).is_some() {
+            records[at].closing = true;
+            asked.push(records[at].label.clone());
+            at += 1;
+        } else {
+            gone.push(records.swap_remove(at));
         }
-    }
-    let closures: Vec<ViewClosure> = removed.iter().map(|record| ViewClosure { label: record.label.clone(), identity: record.identity.clone() }).collect();
-    match notice {
-        Notice::Record if !closures.is_empty() => {
-            let mut notices = lock(closed);
-            for closure in &closures {
-                notices.insert((closure.identity.kind, REASON_NO_LONGER_SHOWABLE));
-            }
-        }
-        Notice::Record => {}
-        Notice::Clear(kind) => lock(closed).retain(|(pending, _)| *pending != kind),
     }
     drop(records);
-    drop(removed);
-    closures
+    drop(gone);
+    for label in &asked {
+        windows.destroy(label);
+    }
+    asked
 }
 
-/// Every open window (the scripted-run close): takes every record and
-/// returns their labels. Records no notice.
-pub(crate) fn take_all_in(open: &Mutex<Vec<OpenView>>) -> Vec<String> {
-    let removed = std::mem::take(&mut *lock(open));
-    removed.iter().map(|record| record.label.clone()).collect()
-}
-
-/// A window's destruction (module docs, "Closing"): a view window's record is
-/// removed; the main window's begins shutdown, setting `shut` and taking every
-/// record under the open-windows lock, and returns the labels of the view
-/// windows to destroy. Records no notice.
-pub(crate) fn window_destroyed_in(open: &Mutex<Vec<OpenView>>, shut: &AtomicBool, label: &str) -> Vec<String> {
+/// A window's destruction, observed (module docs, "Closing"): a view window's
+/// record goes, with its lease; the main window's begins shutdown, after which
+/// nothing opens, and asks every view window to close. Returns the labels
+/// whose destruction it asked for.
+pub(crate) fn window_destroyed_in<W: Windows>(open: &Mutex<Vec<OpenView>>, shut: &AtomicBool, windows: &W, label: &str) -> Vec<String> {
     if label == "main" {
-        let mut records = lock(open);
-        shut.store(true, Ordering::SeqCst);
-        let removed = std::mem::take(&mut *records);
-        drop(records);
-        return removed.iter().map(|record| record.label.clone()).collect();
+        {
+            let _records = lock(open);
+            shut.store(true, Ordering::SeqCst);
+        }
+        return close_where_in(open, windows, |_| true);
     }
     if label.starts_with(LABEL_PREFIX) {
         drop(release_label_in(open, label));
     }
     Vec::new()
-}
-
-/// A closure notice: a kind and a reason, nothing of the document.
-#[derive(Clone, Debug, Serialize, PartialEq, Eq)]
-pub(crate) struct ViewClosureNotice {
-    pub(crate) kind: &'static str,
-    pub(crate) reason: &'static str,
-}
-
-/// Takes the pending closure notices, once: for the main webview only; any
-/// other caller gets none and clears none.
-pub(crate) fn take_closures_in(closed: &Mutex<BTreeSet<(&'static str, &'static str)>>, webview_label: &str) -> Vec<ViewClosureNotice> {
-    if webview_label != "main" {
-        return Vec::new();
-    }
-    std::mem::take(&mut *lock(closed)).into_iter().map(|(kind, reason)| ViewClosureNotice { kind, reason }).collect()
 }
 
 /// Which part a request was answered with.
@@ -758,14 +732,14 @@ enum Selected {
     Nothing,
 }
 
-/// Under the open-windows lock: the part `webview_label` may be served at
+/// Under the records' lock: the part `webview_label` may be served at
 /// `address` (module docs, "Serving"). For the document, its share and a
 /// share of the reservation are taken here and the record marked as spent.
 fn select_in(open: &Mutex<Vec<OpenView>>, webview_label: &str, address: &str) -> Selected {
     let Ok(address) = tauri::Url::parse(address) else { return Selected::Nothing };
     let mut records = lock(open);
     let Some(record) = records.iter_mut().find(|record| record.label == webview_label) else { return Selected::Nothing };
-    if !(record.showable)() {
+    if record.closing || !(record.showable)() {
         return Selected::Nothing;
     }
     if record.identity.wrapper_address().as_ref() == Some(&address) {
@@ -877,20 +851,32 @@ pub(crate) fn respond_in(open: &Mutex<Vec<OpenView>>, webview_label: &str, addre
     respond_between(open, webview_label, address, || {}).response
 }
 
-/// The custom protocol's handler (registered in `run`, with the responder so
-/// that the serve's share of the reservation outlasts the runtime's copies):
-/// it answers by the whole request address, and drops its share once
-/// `respond` has returned.
+/// The address a request names, as the http conversion delivers it to the
+/// handler (module docs: a fragment never reaches it).
+pub(crate) fn request_address(request: &tauri::http::Request<Vec<u8>>) -> String {
+    request.uri().to_string()
+}
+
+/// The custom protocol's handler (registered in `run`, with its responder):
+/// the selection, both copies and the response run on a blocking task off the
+/// main thread, and the serve's share of the reservation is dropped once
+/// `respond` has returned (module docs, "Memory" and "Threads").
 pub(crate) fn serve<R: Runtime>(context: tauri::UriSchemeContext<'_, R>, request: tauri::http::Request<Vec<u8>>, responder: tauri::UriSchemeResponder) {
-    let Answer { response, served, reservation } = respond_between(&OPEN, context.webview_label(), &request.uri().to_string(), || {});
-    #[cfg(feature = "native-smoke")]
-    if let Some((identity, part)) = &served {
-        crate::native_smoke::record_report_view(context.webview_label(), identity.kind, &identity.sha256_hex, *part == Part::Document, response.body());
-    }
-    let _ = served;
-    responder.respond(response);
-    // Both copies of the body in this process are gone once `respond` returns.
-    drop(reservation);
+    let label = context.webview_label().to_string();
+    let address = request_address(&request);
+    drop(request);
+    tauri::async_runtime::spawn_blocking(move || {
+        let Answer { response, served, reservation } = respond_between(&OPEN, &label, &address, || {});
+        #[cfg(feature = "native-smoke")]
+        if let Some((identity, part)) = &served {
+            crate::native_smoke::record_report_view(&label, identity.kind, &identity.sha256_hex, *part == Part::Document, response.body());
+        }
+        let _ = served;
+        responder.respond(response);
+        // The copies this process's code makes of the body are made and dropped
+        // within `respond` (module docs, "Memory"); the share is held until then.
+        drop(reservation);
+    });
 }
 
 /// Whether a view window may navigate to `target`: only to its wrapper or
@@ -921,131 +907,123 @@ pub(crate) fn view_window_config(label: &str, address: tauri::Url, title: &str) 
     config
 }
 
-/// Opens a window for `document` (module docs). `lease` is the open
-/// command's own interactive lease: grown and kept by the record for an
-/// opened window, dropped otherwise.
+/// The runtime's windows ([`Windows`]).
+pub(crate) struct RuntimeWindows(Option<AppHandle>);
+
+impl RuntimeWindows {
+    fn current() -> Self {
+        Self(lock(&APP).clone())
+    }
+}
+
+impl Windows for RuntimeWindows {
+    type Window = tauri::WebviewWindow;
+
+    fn find(&self, label: &str) -> Option<Self::Window> {
+        self.0.as_ref().and_then(|app| app.get_webview_window(label))
+    }
+
+    fn build(&self, label: &str, identity: &ViewIdentity, title: &str) -> Option<Self::Window> {
+        use tauri::{webview::PageLoadEvent, WebviewWindowBuilder};
+        let app = self.0.as_ref()?;
+        let config = view_window_config(label, identity.wrapper_address()?, title);
+        let allowed = identity.clone();
+        WebviewWindowBuilder::from_config(app, &config)
+            .ok()?
+            .on_navigation(move |target| navigation_allowed(&allowed, target))
+            .on_page_load(|window, payload| {
+                if payload.event() == PageLoadEvent::Finished && !page_loaded_in(&OPEN, window.label()) {
+                    let _ = window.destroy();
+                }
+            })
+            .build()
+            .ok()
+    }
+
+    fn acknowledge(&self, window: &Self::Window) -> bool {
+        // A getter, answered only for a window in the runtime's map.
+        window.title().is_ok()
+    }
+
+    fn bring_forward(&self, window: &Self::Window, title: &str) -> bool {
+        if window.title().is_err() {
+            return false;
+        }
+        let _ = window.set_title(title);
+        let _ = window.set_focus();
+        true
+    }
+
+    fn destroy(&self, label: &str) {
+        if let Some(window) = self.find(label) {
+            if let Err(error) = window.destroy() {
+                eprintln!("report-view window close failed: {error}");
+            }
+        }
+    }
+}
+
+/// Opens a window for `document` (module docs, "Opening") on the open
+/// command's own thread. `lease` is the open command's own interactive lease:
+/// grown and kept by the record for a new window, dropped otherwise.
 pub(crate) fn open(app: &AppHandle, document: ViewDocument, lease: Lease) -> Result<ViewReceipt, ViewError> {
     if !view_windows_supported() {
         return Err(platform_unsupported());
     }
+    *lock(&APP) = Some(app.clone());
     let identity = document.identity.clone();
     let receipt = |outcome: &'static str| ViewReceipt { outcome, kind: identity.kind, sha256_hex: identity.sha256_hex.clone() };
-    *lock(&APP) = Some(app.clone());
-    let exists = |label: &str| app.get_webview_window(label).is_some();
-    let reserved = reserve_with_in(&OPEN, &SHUT, &exists, document, lease, || format!("{LABEL_PREFIX}{}", NEXT_LABEL.fetch_add(1, Ordering::Relaxed)))?;
-    match reserved {
-        Reserved::BroughtForward { label, title } => {
-            if let Some(window) = app.get_webview_window(&label) {
-                let _ = window.set_title(&title);
-                let _ = window.set_focus();
-            }
-            Ok(receipt("brought_forward"))
-        }
-        Reserved::Opened { label, title } => {
-            if build_window(app, &label, &identity, &title).is_err() {
-                drop(release_label_in(&OPEN, &label));
-                return Err(window_failed());
-            }
-            // A sweep, a withdrawal or the main window's shutdown may have
-            // removed the record before the window existed.
-            // That window is destroyed and the opening is refused, not
-            // reported as opened.
-            if !lock(&OPEN).iter().any(|record| record.label == label) {
-                destroy_window(&label);
-                return Err(not_showable());
-            }
-            Ok(receipt("opened"))
-        }
+    let windows = RuntimeWindows(Some(app.clone()));
+    match open_in(&OPEN, &OPENING, &SHUT, &windows, document, lease, || format!("{LABEL_PREFIX}{}", NEXT_LABEL.fetch_add(1, Ordering::Relaxed)))? {
+        Opened::New { .. } => Ok(receipt("opened")),
+        Opened::BroughtForward { .. } => Ok(receipt("brought_forward")),
     }
-}
-
-/// Builds the window. Its destruction is handled by the run-event callback
-/// ([`window_destroyed`]), not by a listener added here.
-fn build_window(app: &AppHandle, label: &str, identity: &ViewIdentity, title: &str) -> Result<(), ()> {
-    use tauri::{webview::PageLoadEvent, WebviewWindowBuilder};
-    let address = identity.wrapper_address().ok_or(())?;
-    let config = view_window_config(label, address, title);
-    let allowed = identity.clone();
-    WebviewWindowBuilder::from_config(app, &config)
-        .map_err(|_| ())?
-        .on_navigation(move |target| navigation_allowed(&allowed, target))
-        .on_page_load(|window, payload| {
-            if payload.event() == PageLoadEvent::Finished && !page_loaded_in(&OPEN, window.label()) {
-                let _ = window.destroy();
-            }
-        })
-        .build()
-        .map(|_| ())
-        .map_err(|_| ())
 }
 
 /// A window's destruction, from the application's run-event callback (`run`
-/// in `lib.rs`; module docs, "Closing"): a view window's record goes; the main
-/// window's begins shutdown and closes every view window, with no notice.
+/// in `lib.rs`; module docs, "Closing").
 pub(crate) fn window_destroyed(label: &str) {
-    for label in window_destroyed_in(&OPEN, &SHUT, label) {
-        destroy_window(&label);
-    }
+    let _ = window_destroyed_in(&OPEN, &SHUT, &RuntimeWindows::current(), label);
 }
 
-fn destroy_window(label: &str) {
-    let app = lock(&APP).clone();
-    if let Some(window) = app.and_then(|app| app.get_webview_window(label)) {
-        if let Err(error) = window.destroy() {
-            eprintln!("report-view window close failed: {error}");
-        }
-    }
+/// The sweep (module docs, "Closing"): asks the destruction of every view
+/// window whose provider no longer finds its document showable. Never called
+/// with the custody mutex held. Returns the labels it asked to destroy.
+pub(crate) fn close_unshowable() -> Vec<String> {
+    close_unshowable_in(&OPEN, &RuntimeWindows::current())
 }
 
-/// The sweep (module docs, "Closing"): closes every view window whose
-/// provider no longer finds its document showable, recording a notice per
-/// kind, and returns what it closed. Never called with the custody mutex
-/// held. Returning a closure does not confirm the window's destruction.
-pub(crate) fn close_unshowable() -> Vec<ViewClosure> {
-    let closures = close_unshowable_in(&OPEN, &CLOSED);
-    for closure in &closures {
-        destroy_window(&closure.label);
-    }
-    closures
-}
-
-/// Closes every view window of `kind` on its provider's withdrawal
-/// ([`close_kind_in`], with the provider's `withdraw`) and returns what it
-/// closed.
-pub(crate) fn close_kind(kind: &str, why: Withdrawal, withdraw: impl FnOnce()) -> Vec<ViewClosure> {
-    let closures = close_kind_in(&OPEN, &CLOSED, kind, why, withdraw);
-    for closure in &closures {
-        destroy_window(&closure.label);
-    }
-    closures
-}
-
-/// Closes every view window (the scripted run's close) and returns their
-/// labels. Records no notice.
+/// Asks every view window to close (the scripted run's close) and returns
+/// their labels; each record goes when its destruction is observed.
 #[cfg_attr(not(feature = "native-smoke"), allow(dead_code))]
 pub(crate) fn close_all() -> Vec<String> {
-    let labels = take_all_in(&OPEN);
-    for label in &labels {
-        destroy_window(label);
-    }
-    labels
+    close_where_in(&OPEN, &RuntimeWindows::current(), |_| true)
 }
 
 /// The current render's offer (DEL-08-01 REQ-022): named by its canonical
 /// hash, borrowed, its length from admission, showable while
-/// `is_viewable(generation)` (current, and not withdrawn from view).
-pub(crate) fn current_render_document(admitted: ViewAdmitted, is_viewable: impl Fn(u64) -> bool + Send + Sync + 'static) -> ViewDocument {
+/// `is_current(generation)`. What it says of the render's context comes from
+/// the admitted render's own: a local private render's strip carries the
+/// product's warning; a render of any context other than a public or a local
+/// private report is refused, since the window could not say what it shows.
+pub(crate) fn current_render_document(admitted: ViewAdmitted, is_current: impl Fn(u64) -> bool + Send + Sync + 'static) -> Result<ViewDocument, ViewError> {
+    let mut words = vec![CURRENT_RENDER_WORDS.to_string()];
+    match admitted.export_context.as_deref() {
+        Some(routes::PUBLIC_REPORT) => {}
+        Some(routes::LOCAL_PRIVATE) => words.push(LOCAL_PRIVATE_WORDS.to_string()),
+        _ => return Err(refused(VIEW_DOCUMENT_REFUSED, "The report's export context is not one a view window can state; no window was opened.")),
+    }
     let generation = admitted.generation;
-    ViewDocument {
+    Ok(ViewDocument {
         identity: ViewIdentity { kind: KIND_CURRENT_RENDER, sha256_hex: admitted.sha256_hex.clone() },
         document: ViewBytes::Borrowed(admitted.document),
         byte_count: admitted.byte_count,
         title: current_render_title(None),
-        words: vec![CURRENT_RENDER_WORDS.to_string()],
+        words,
         details: vec![(CURRENT_RENDER_HASH_LABEL.to_string(), admitted.sha256_hex)],
         may_leave: false,
-        showable: Arc::new(move || is_viewable(generation)),
-    }
+        showable: Arc::new(move || is_current(generation)),
+    })
 }
 
 /// Opens the current render in a window of its own (DEL-08-01 REQ-022): the
@@ -1064,54 +1042,19 @@ pub(crate) async fn open_rendered_report_view(
     drop(args);
     let outcome = routes::CUSTODY
         .admit_view(&sha256_hex, source)
-        .map(|admitted| current_render_document(admitted, |generation| routes::CUSTODY.is_viewable(generation)))
+        .and_then(|admitted| current_render_document(admitted, |generation| routes::CUSTODY.is_current(generation)))
         .and_then(|document| open(&app, document, lease));
     respond(outcome.map_err(CommandError::Command))
-}
-
-/// The report page no longer shows the current render as current (its
-/// preview was dropped): every window of the current render closes, from the
-/// main webview only, and `reason` (`source_changed` or `own_act`,
-/// [`Withdrawal`]) says whether that is reported; any other reason does
-/// nothing. The reason can only produce or suppress the one closure notice of
-/// this kind, read by that same page, and a notice is recorded only when a
-/// window actually closed. With `withdraw`, the page's drop of its preview,
-/// the current render is also withdrawn from view natively, so no window of
-/// it opens after this (module docs, "Closing"); without it (the page's late
-/// close of a window whose opening outlived the preview, when a later render
-/// may already be current) only the windows close. The render, and any save
-/// or print of it, are untouched.
-#[tauri::command]
-pub(crate) async fn close_rendered_report_views(webview: tauri::Webview, reason: String, withdraw: bool) {
-    if let Some(why) = close_rendered_report_views_for(webview.label(), &reason) {
-        let _ = if withdraw {
-            close_kind(KIND_CURRENT_RENDER, why, || routes::CUSTODY.withdraw_current_from_view())
-        } else {
-            close_kind(KIND_CURRENT_RENDER, why, || {})
-        };
-    }
-}
-
-/// The withdrawal a caller may make: the main webview only, with a named reason.
-pub(crate) fn close_rendered_report_views_for(webview_label: &str, reason: &str) -> Option<Withdrawal> {
-    if webview_label != "main" {
-        return None;
-    }
-    Withdrawal::named(reason)
-}
-
-/// The pending closure notices, taken once, for the main webview (module
-/// docs, "Closing").
-#[tauri::command]
-pub(crate) fn take_report_view_closures(webview: tauri::Webview) -> Vec<ViewClosureNotice> {
-    take_closures_in(&CLOSED, webview.label())
 }
 
 #[cfg(test)]
 mod tests {
     use super::*;
     use crate::memory_pool::{test_host::ScriptedHost, LeasePurpose, MemoryPool, PressureLevel};
-    use crate::rendered_report_routes::{held_document_bytes, sha256_hex, RenderCustody, BLOCKED, NOT_CURRENT, PUBLIC_REPORT, SOURCE_NOT_REGISTERED, SOURCE_RETIRED, UNBOUND};
+    use crate::rendered_report_routes::{held_document_bytes, sha256_hex, RenderCustody, BLOCKED, LOCAL_PRIVATE, NOT_CURRENT, PUBLIC_REPORT, SOURCE_NOT_REGISTERED, SOURCE_RETIRED, UNBOUND};
+    use std::collections::BTreeSet;
+    use std::sync::atomic::AtomicUsize;
+    use std::sync::mpsc::channel;
 
     const HTML: &str = "<!DOCTYPE html>\n<html lang=\"en\">\n<head>\n<meta charset=\"utf-8\">\n<title>Invented</title>\n</head>\n<body>\n<p>Invented report</p>\n</body>\n</html>\n";
     const FIRST: SourceMark = SourceMark { incarnation: 1, sequence: 0 };
@@ -1120,18 +1063,23 @@ mod tests {
         move || name.to_string()
     }
 
-    /// A custody holding a render of `HTML` whose document is reserved from `pool`.
-    fn rendered(pool: &Arc<MemoryPool>) -> Arc<RenderCustody> {
+    /// A custody holding a render of `HTML` in `context` whose document is reserved from `pool`.
+    fn rendered_in(pool: &Arc<MemoryPool>, context: &str) -> Arc<RenderCustody> {
         let custody = Arc::new(RenderCustody::new());
-        custody.record_in(pool, Some(PUBLIC_REPORT), HTML, &sha256_hex(HTML.as_bytes()), false, false);
+        custody.record_in(pool, Some(context), HTML, &sha256_hex(HTML.as_bytes()), false, false);
         custody
+    }
+
+    /// A custody holding a public render of `HTML`.
+    fn rendered(pool: &Arc<MemoryPool>) -> Arc<RenderCustody> {
+        rendered_in(pool, PUBLIC_REPORT)
     }
 
     /// The current render's offer against `custody`, as the command builds it.
     fn offer(custody: &Arc<RenderCustody>) -> ViewDocument {
-        let admitted = custody.admit_view(&sha256_hex(HTML.as_bytes()), FIRST).expect("the current render is admitted");
+        let admitted = custody.admit_view(&sha256_hex(HTML.as_bytes()), custody.source()).expect("the current render is admitted");
         let watched = Arc::clone(custody);
-        current_render_document(admitted, move |generation| watched.is_viewable(generation))
+        current_render_document(admitted, move |generation| watched.is_current(generation)).expect("a public or local private render is offered")
     }
 
     /// The open command's lease from an ample pool of its own.
@@ -1139,10 +1087,93 @@ mod tests {
         pool.acquire_interactive(1).expect("an ample pool admits the command's lease")
     }
 
+    /// Windows that all exist and answer.
+    struct Present;
+
+    impl Windows for Present {
+        type Window = String;
+        fn find(&self, label: &str) -> Option<String> {
+            Some(label.to_string())
+        }
+        fn build(&self, label: &str, _: &ViewIdentity, _: &str) -> Option<String> {
+            Some(label.to_string())
+        }
+        fn acknowledge(&self, _: &String) -> bool {
+            true
+        }
+        fn bring_forward(&self, _: &String, _: &str) -> bool {
+            true
+        }
+        fn destroy(&self, _: &str) {}
+    }
+
+    /// A model of the runtime: the window registry (`find`), the runtime's own window map (what
+    /// answers the acknowledgement and a bring-forward), the destructions asked for, and a hook
+    /// called at the build and at the acknowledgement.
+    #[derive(Default)]
+    struct Model {
+        registry: Mutex<BTreeSet<String>>,
+        runtime: Mutex<BTreeSet<String>>,
+        destroy_asked: Mutex<Vec<String>>,
+        /// The runtime never creates what is built (its creation is queued and fails).
+        creation_fails: AtomicBool,
+        hook: Mutex<Option<Arc<dyn Fn(&str) + Send + Sync>>>,
+    }
+
+    impl Model {
+        fn at(&self, point: &str) {
+            let hook = lock(&self.hook).clone();
+            if let Some(hook) = hook {
+                hook(point);
+            }
+        }
+        /// The window `label` is destroyed, and its destruction observed.
+        fn destroyed(&self, open: &Mutex<Vec<OpenView>>, label: &str) {
+            lock(&self.registry).remove(label);
+            lock(&self.runtime).remove(label);
+            assert!(window_destroyed_in(open, &AtomicBool::new(false), self, label).is_empty());
+        }
+    }
+
+    impl Windows for Model {
+        type Window = String;
+        fn find(&self, label: &str) -> Option<String> {
+            lock(&self.registry).contains(label).then(|| label.to_string())
+        }
+        fn build(&self, label: &str, _: &ViewIdentity, _: &str) -> Option<String> {
+            self.at("build");
+            lock(&self.registry).insert(label.to_string());
+            if !self.creation_fails.load(Ordering::SeqCst) {
+                lock(&self.runtime).insert(label.to_string());
+            }
+            Some(label.to_string())
+        }
+        fn acknowledge(&self, window: &String) -> bool {
+            self.at("acknowledge");
+            lock(&self.runtime).contains(window)
+        }
+        fn bring_forward(&self, window: &String, _: &str) -> bool {
+            lock(&self.runtime).contains(window)
+        }
+        fn destroy(&self, label: &str) {
+            lock(&self.destroy_asked).push(label.to_string());
+        }
+    }
+
+    /// An opening through [`open_in`] among windows that all exist, with a gate of its own.
+    fn reserve_in(open: &Mutex<Vec<OpenView>>, document: ViewDocument, lease: Lease, label: impl FnOnce() -> String) -> Result<Opened, ViewError> {
+        open_in(open, &Mutex::new(()), &AtomicBool::new(false), &Present, document, lease, label)
+    }
+
+    /// An opening through [`open_in`] against `model`.
+    fn open_with(open: &Mutex<Vec<OpenView>>, gate: &Mutex<()>, model: &Model, document: ViewDocument, lease: Lease, name: &'static str) -> Result<Opened, ViewError> {
+        open_in(open, gate, &AtomicBool::new(false), model, document, lease, label(name))
+    }
+
     fn opened(open: &Mutex<Vec<OpenView>>, document: ViewDocument, pool: &Arc<MemoryPool>, name: &'static str) {
         assert_eq!(
             reserve_in(open, document, command_lease(pool), label(name)).unwrap(),
-            Reserved::Opened { label: name.to_string(), title: current_render_title(None) }
+            Opened::New { label: name.to_string(), title: current_render_title(None) }
         );
     }
 
@@ -1175,8 +1206,19 @@ mod tests {
         &text[..text.find("#[cfg(test)]\nmod tests").expect("the test module")]
     }
 
-    // ---- Threat model: served only its own document and wrapper, only to its own webview,
-    // ---- only while showable.
+    /// This module builds no command that hands the document on (no save, print or copy command
+    /// of its own; a person may select and copy what is shown): it defines exactly one command,
+    /// the opening of the current render, which returns no document.
+    #[test]
+    fn the_module_builds_one_command_and_none_that_hands_the_document_on() {
+        let text = source_file("report_view.rs");
+        let production = production(&text);
+        assert_eq!(production.matches("#[tauri::command]").count(), 1);
+        assert!(production.contains("#[tauri::command]\npub(crate) async fn open_rendered_report_view("));
+        for forbidden in ["DialogExt", "blocking_save_file", ".print()", "clipboard", "std::fs", "File::create", "atomic_report_package_save"] {
+            assert!(!production.contains(forbidden), "{forbidden}");
+        }
+    }
 
     #[test]
     fn the_window_is_served_only_its_wrapper_and_document_only_to_its_own_webview() {
@@ -1202,6 +1244,7 @@ mod tests {
         assert_eq!(header(&document, "Content-Type").as_deref(), Some("text/html; charset=utf-8"));
     }
 
+
     /// The document address is served at most once per window, so one served copy can exist.
     #[test]
     fn the_document_is_served_at_most_once_per_window() {
@@ -1214,6 +1257,7 @@ mod tests {
         assert_refused(respond_at(&open, "report-view-1", &id.document_path()));
         assert_eq!(respond_at(&open, "report-view-1", &id.wrapper_path()).status(), 200, "the wrapper carries no document");
     }
+
 
     /// Once the provider says the document is not showable, neither address is served, even
     /// before a sweep removes the record.
@@ -1228,6 +1272,7 @@ mod tests {
         assert_refused(respond_at(&open, "report-view-1", &id.wrapper_path()));
         assert_refused(respond_at(&open, "report-view-1", &id.document_path()));
     }
+
 
     /// A borrowed document whose holder has dropped it serves nothing, whatever `showable` says.
     #[test]
@@ -1245,11 +1290,12 @@ mod tests {
             may_leave: false,
             showable: Arc::new(|| true),
         };
-        assert!(matches!(reserve_in(&open, document, command_lease(&routes::test_pool()), label("report-view-1")).unwrap(), Reserved::Opened { .. }));
+        assert!(matches!(reserve_in(&open, document, command_lease(&routes::test_pool()), label("report-view-1")).unwrap(), Opened::New { .. }));
         drop(held);
         assert_eq!(pool.reserved_total(), 0);
         assert_refused(respond_at(&open, "report-view-1", &identity().document_path()));
     }
+
 
     /// The wrapper admits only its own document's frame and its own inline style; the frame is
     /// sandboxed with no allowance; the page has no script and loads nothing else.
@@ -1273,6 +1319,7 @@ mod tests {
         assert!(DOCUMENT_CSP.starts_with("default-src 'none';") && !DOCUMENT_CSP.contains("script-src"));
     }
 
+
     /// The strip: the title, the words, then the details, each provider text escaped; nothing else,
     /// and nothing of the result's standing.
     #[test]
@@ -1294,6 +1341,7 @@ mod tests {
         assert!(WRAPPER_STYLE.contains("user-select:text") && WRAPPER_STYLE.contains("monospace"));
     }
 
+
     /// The current render's words and detail, as set by the wording lane: an engineer's words first,
     /// the hash after them as a detail, no hash in the title.
     #[test]
@@ -1312,6 +1360,7 @@ mod tests {
         assert!(!(document.showable)(), "the line says \"current\" only while it is");
     }
 
+
     /// The configuration handed to `WebviewWindowBuilder::from_config`: no script, no kept data, no
     /// developer tools, an ordinary window (not always on top), at its wrapper address.
     #[test]
@@ -1327,6 +1376,7 @@ mod tests {
         assert_eq!((config.label.as_str(), config.title.as_str()), ("report-view-7", "Calculation report"));
         assert!(config.label.starts_with(LABEL_PREFIX));
     }
+
 
     #[test]
     fn the_view_window_navigates_only_to_its_two_addresses() {
@@ -1348,6 +1398,7 @@ mod tests {
             assert!(!navigation_allowed(&id, &tauri::Url::parse(&target).unwrap()), "{target}");
         }
     }
+
 
     /// Addresses come from the identity only; an identity that could carry anything else, and
     /// more words or details than the bounds, refuse the open with nothing reserved or recorded.
@@ -1383,6 +1434,7 @@ mod tests {
         assert!(reserve_in(&Mutex::new(Vec::new()), at_bounds, command_lease(&routes::test_pool()), label("report-view-1")).is_ok());
     }
 
+
     /// A document that is no longer showable at the opening is refused in a person's words, and
     /// nothing is reserved or recorded.
     #[test]
@@ -1398,6 +1450,7 @@ mod tests {
         assert!(lock(&open).is_empty());
         assert_eq!(lease_pool.reserved_total(), 0);
     }
+
 
     /// An offer that is no longer showable brings nothing forward: a window of
     /// the same identity, open for another offer, keeps its title and is not
@@ -1419,22 +1472,6 @@ mod tests {
         assert_eq!(records[0].title, current_render_title(None), "the open window keeps the title of the offer it was opened for");
     }
 
-    /// This module builds no command that hands the document on (no save, print or copy command
-    /// of its own; a person may select and copy what is shown): it defines exactly three
-    /// commands, the opening of the current render, the closing of its windows and the take of
-    /// closure notices, and none returns a document.
-    #[test]
-    fn the_module_builds_no_command_that_hands_the_document_on() {
-        let text = source_file("report_view.rs");
-        let production = production(&text);
-        assert_eq!(production.matches("#[tauri::command]").count(), 3);
-        assert!(production.contains("#[tauri::command]\npub(crate) async fn open_rendered_report_view("));
-        assert!(production.contains("#[tauri::command]\npub(crate) async fn close_rendered_report_views(webview: tauri::Webview, reason: String, withdraw: bool) {"));
-        assert!(production.contains("#[tauri::command]\npub(crate) fn take_report_view_closures(webview: tauri::Webview) -> Vec<ViewClosureNotice> {"));
-        for forbidden in ["DialogExt", "blocking_save_file", ".print()", "clipboard", "std::fs", "File::create", "atomic_report_package_save"] {
-            assert!(!production.contains(forbidden), "{forbidden}");
-        }
-    }
 
     /// `may_leave` is carried and read by nothing: outside this file's tests, every occurrence in
     /// the crate's source is its definition, its moves in this file's record constructor, or a
@@ -1469,14 +1506,13 @@ mod tests {
                     assert_eq!(file, "report_view.rs", "{file}: {line}");
                     shorthand += 1;
                 }
-                "let ViewDocument { identity, document, byte_count: _, title, words, details, may_leave, showable } = document;" if file == "report_view.rs" => shorthand += 1,
+                "let ViewDocument { identity, document, byte_count, title, words, details, may_leave, showable } = document;" if file == "report_view.rs" => shorthand += 1,
                 other => panic!("{file} reads may_leave: {other}"),
             }
         }
         assert_eq!(shorthand, 2, "the record constructor's destructuring and its field, and nothing else");
     }
 
-    // ---- A4: memory.
 
     /// A refused growth opens nothing, records nothing and reserves nothing; its refusal names the
     /// pool's refusal and closes with the words for its kind.
@@ -1498,6 +1534,7 @@ mod tests {
         assert_eq!(pool.reserved_total(), held_document_bytes(HTML.len()), "the render's document alone");
     }
 
+
     #[test]
     fn a_memory_refusal_closes_with_the_words_for_its_kind() {
         let lead = "The desktop could not reserve memory to show the report in a window";
@@ -1513,6 +1550,7 @@ mod tests {
         }
     }
 
+
     /// The opening reserves the serve's two copies' envelopes in the record; a window closed before
     /// its page loads returns them.
     #[test]
@@ -1525,10 +1563,11 @@ mod tests {
         assert_eq!(serve_reservation_bytes(HTML.len()), 2 * crate::ingress::allocation_envelope(HTML.len() as u64).unwrap(), "two copies");
         assert_eq!(lease_pool.reserved_total(), 1 + serve_reservation_bytes(HTML.len()));
         assert!(lease_pool.reserved(LeasePurpose::Ingress) >= serve_reservation_bytes(HTML.len()));
-        drop(release_label_in(&open, "report-view-1"));
+        assert!(window_destroyed_in(&open, &AtomicBool::new(false), &Present, "report-view-1").is_empty());
         assert_eq!(lease_pool.reserved_total(), 0);
         assert!(!page_loaded_in(&open, "report-view-1"), "a late page load finds no record: the window is closed");
     }
+
 
     #[test]
     fn after_its_page_loads_the_reservation_is_gone_while_the_window_stays_open() {
@@ -1545,6 +1584,7 @@ mod tests {
         assert_eq!(lease_pool.reserved_total(), 0);
     }
 
+
     /// A second offer of an open identity brings it forward: it reserves nothing, serves nothing,
     /// takes the offered title and changes nothing else.
     #[test]
@@ -1558,7 +1598,7 @@ mod tests {
         again.title = "Calculation report: Invented line".to_string();
         again.words = vec!["Other words".to_string()];
         let reserved = reserve_in(&open, again, command_lease(&lease_pool), || panic!("no new record")).unwrap();
-        assert_eq!(reserved, Reserved::BroughtForward { label: "report-view-1".to_string(), title: "Calculation report: Invented line".to_string() });
+        assert_eq!(reserved, Opened::BroughtForward { label: "report-view-1".to_string(), title: "Calculation report: Invented line".to_string() });
         assert_eq!(lease_pool.reserved_total(), 0, "the command's lease was dropped ungrown");
         let records = lock(&open);
         assert_eq!(records.len(), 1);
@@ -1566,6 +1606,7 @@ mod tests {
         assert_eq!(records[0].words, vec![CURRENT_RENDER_WORDS.to_string()], "the words are as first offered");
         assert!(!records[0].document_spent, "nothing was served");
     }
+
 
     /// One window per identity; several identities at once.
     #[test]
@@ -1585,11 +1626,12 @@ mod tests {
             may_leave: true,
             showable: Arc::new(|| true),
         };
-        assert!(matches!(reserve_in(&open, other, command_lease(&routes::test_pool()), label("report-view-2")).unwrap(), Reserved::Opened { .. }));
+        assert!(matches!(reserve_in(&open, other, command_lease(&routes::test_pool()), label("report-view-2")).unwrap(), Opened::New { .. }));
         assert_eq!(lock(&open).len(), 2);
         assert_eq!(respond_at(&open, "report-view-2", &format!("/saved_report/{}/document", sha256_hex(b"<p>saved</p>"))).body(), b"<p>saved</p>");
         assert_refused(respond_at(&open, "report-view-2", &identity().document_path()));
     }
+
 
     /// A held view keeps its bytes until its record goes; then they and their reservation go.
     #[test]
@@ -1614,6 +1656,7 @@ mod tests {
         assert_eq!(pool.reserved_total(), 0);
     }
 
+
     /// The constructor for a holder other than the render reserves, copies and counts as custody
     /// exactly as the render's completion does, and a refusal copies nothing.
     #[test]
@@ -1630,7 +1673,6 @@ mod tests {
         assert_eq!(refusing.reserved_total(), 0);
     }
 
-    // ---- B1: the view's admission of the current render.
 
     /// The view's admission refuses by admission's codes, in admission's order, and admits a render
     /// whatever the route's context, intent and evidence would say; it takes no share.
@@ -1661,57 +1703,35 @@ mod tests {
         assert_eq!(custody.admit_view(&sha, FIRST).unwrap_err().code, SOURCE_RETIRED);
     }
 
-    // ---- B3: every retirement closes the current render's view, and releases its document.
 
-    #[derive(Clone, Copy, Debug)]
-    enum Retirement {
-        Retire,
-        Entry,
-        Advance,
-        Activation,
-        Completion,
-    }
-
-    const RETIREMENTS: [Retirement; 5] = [Retirement::Retire, Retirement::Entry, Retirement::Advance, Retirement::Activation, Retirement::Completion];
-
-    fn retire(custody: &RenderCustody, pool: &Arc<MemoryPool>, retirement: Retirement) {
-        match retirement {
-            Retirement::Retire => assert!(custody.retire_active()),
-            Retirement::Entry => drop(custody.begin_next(FIRST).unwrap()),
-            Retirement::Advance => assert!(custody.advance(SourceMark { incarnation: 1, sequence: 1 }).unwrap().1),
-            Retirement::Activation => {
-                let _ = custody.activate();
-            }
-            // A later render's completion, recorded after its entry.
-            Retirement::Completion => {
-                let _ = custody.record_in(pool, Some(PUBLIC_REPORT), "<p>later</p>", &sha256_hex(b"<p>later</p>"), false, false);
-            }
-        }
-    }
-
-    /// With a view of the current render open, every retirement closes it at the sweep, records
-    /// one notice of its kind, and the retired render's document is released with its reservation,
-    /// the window notwithstanding.
+    /// With a view of the current render open, every retirement releases the retired render's
+    /// document at once, the window notwithstanding; the sweep then asks the window's destruction:
+    /// the record is closing and serves nothing, and goes, with its reservation, when the
+    /// destruction is observed.
     #[test]
     fn a_view_of_the_current_render_closes_at_every_retirement() {
         for retirement in RETIREMENTS {
             let pool = routes::test_pool();
             let custody = rendered(&pool);
             let open = Mutex::new(Vec::new());
-            let closed = Mutex::new(BTreeSet::new());
-            opened(&open, offer(&custody), &routes::test_pool(), "report-view-1");
-            assert!(close_unshowable_in(&open, &closed).is_empty(), "{retirement:?}: a current view is kept");
+            let lease_pool = routes::test_pool();
+            opened(&open, offer(&custody), &lease_pool, "report-view-1");
+            assert!(close_unshowable_in(&open, &Present).is_empty(), "{retirement:?}: a current view is kept");
             retire(&custody, &pool, retirement);
             let later = match retirement {
                 Retirement::Completion => held_document_bytes(b"<p>later</p>".len()),
                 _ => 0,
             };
             assert_eq!(pool.reserved_total(), later, "{retirement:?}: the retired document is released though its window is open");
-            assert_eq!(close_unshowable_in(&open, &closed), vec![ViewClosure { label: "report-view-1".to_string(), identity: identity() }], "{retirement:?}");
+            assert_eq!(close_unshowable_in(&open, &Present), vec!["report-view-1".to_string()], "{retirement:?}");
+            assert_refused(respond_at(&open, "report-view-1", &identity().wrapper_path()));
+            assert_eq!(lease_pool.reserved_total(), 1 + serve_reservation_bytes(HTML.len()), "{retirement:?}: held until the destruction is observed");
+            assert!(window_destroyed_in(&open, &AtomicBool::new(false), &Present, "report-view-1").is_empty());
             assert!(lock(&open).is_empty());
-            assert_eq!(take_closures_in(&closed, "main"), vec![ViewClosureNotice { kind: KIND_CURRENT_RENDER, reason: REASON_NO_LONGER_SHOWABLE }]);
+            assert_eq!(lease_pool.reserved_total(), 0);
         }
     }
+
 
     /// Every close of a retired print window in the routes is followed at once by the view sweep,
     /// outside the custody mutex (the routes' functions hold no custody guard at that point).
@@ -1727,6 +1747,7 @@ mod tests {
         assert_eq!(text.matches("crate::report_view::close_unshowable();").count(), 5);
     }
 
+
     /// Agent 0's test: a retirement during a serve of the current render's document. The
     /// retirement returns at once; the served bytes are the retired document's own, answered to
     /// that window only; the sweep then closes the window; and both reservations, the document's
@@ -1738,7 +1759,6 @@ mod tests {
         let custody = rendered(&pool);
         let lease_pool = routes::test_pool();
         let open = Arc::new(Mutex::new(Vec::new()));
-        let closed = Arc::new(Mutex::new(BTreeSet::new()));
         opened(&open, offer(&custody), &lease_pool, "report-view-1");
         let held = held_document_bytes(HTML.len());
         let window = 1 + serve_reservation_bytes(HTML.len());
@@ -1765,8 +1785,10 @@ mod tests {
         assert!(custody.retire_active());
         assert!(started.elapsed() < std::time::Duration::from_secs(1), "the retirement did not wait for the serve");
         assert_eq!(balances(), (held, window), "not before: the serve's shares keep both reservations");
-        assert_eq!(close_unshowable_in(&open, &closed).len(), 1, "the sweep closes the window during the serve");
-        assert!(lock(&open).is_empty(), "the record, and its share of the reservation, are gone");
+        assert_eq!(close_unshowable_in(&open, &Present).len(), 1, "the sweep asks the window's destruction during the serve");
+        assert_eq!(balances(), (held, window), "the record keeps its share until the destruction is observed");
+        assert!(window_destroyed_in(&open, &AtomicBool::new(false), &Present, "report-view-1").is_empty());
+        assert!(lock(&open).is_empty(), "the destruction is observed: the record, and its share of the reservation, are gone");
         assert_eq!(balances(), (held, window), "still the serve's: the window's reservation is held while the serve runs");
         assert_refused(respond_at(&open, "report-view-2", &identity().document_path()));
         go_tx.send(()).unwrap();
@@ -1778,117 +1800,6 @@ mod tests {
         assert_eq!(pool.reserved_total(), 0);
     }
 
-    /// Only the sweep reports a closure: a window the person closed, and windows closed with the
-    /// main window, report nothing. A notice is taken once, by the main webview only, and carries
-    /// the kind and the reason and nothing of the document.
-    #[test]
-    fn only_the_sweep_reports_a_closure_and_the_notice_carries_nothing_of_the_document() {
-        let pool = routes::test_pool();
-        let custody = rendered(&pool);
-        let open = Mutex::new(Vec::new());
-        let closed = Mutex::new(BTreeSet::new());
-        opened(&open, offer(&custody), &routes::test_pool(), "report-view-1");
-        drop(release_label_in(&open, "report-view-1"));
-        assert!(custody.retire_active());
-        assert!(close_unshowable_in(&open, &closed).is_empty());
-        assert!(take_closures_in(&closed, "main").is_empty(), "the person's close reports nothing");
-        let custody = rendered(&pool);
-        opened(&open, offer(&custody), &routes::test_pool(), "report-view-2");
-        assert_eq!(take_all_in(&open), vec!["report-view-2".to_string()]);
-        assert!(custody.retire_active());
-        assert!(close_unshowable_in(&open, &closed).is_empty());
-        assert!(take_closures_in(&closed, "main").is_empty(), "the main window's close reports nothing");
-        let custody = rendered(&pool);
-        opened(&open, offer(&custody), &routes::test_pool(), "report-view-3");
-        assert!(custody.retire_active());
-        close_unshowable_in(&open, &closed);
-        assert!(take_closures_in(&closed, "report-view-3").is_empty(), "no other webview takes or clears the notice");
-        let notices = take_closures_in(&closed, "main");
-        assert_eq!(notices, vec![ViewClosureNotice { kind: KIND_CURRENT_RENDER, reason: REASON_NO_LONGER_SHOWABLE }]);
-        let json = serde_json::to_string(&notices).unwrap();
-        assert_eq!(json, "[{\"kind\":\"current_render\",\"reason\":\"no_longer_showable\"}]");
-        assert!(take_closures_in(&closed, "main").is_empty(), "taken once");
-    }
-
-    /// B4 (a): when the report page drops its preview it withdraws the current render's windows:
-    /// they close whatever custody says (the render may still be current while a source change is
-    /// in transit), with a notice; the render and its document are untouched; another kind stays.
-    #[test]
-    fn a_withdrawal_closes_the_current_renders_windows_and_leaves_the_render() {
-        let pool = routes::test_pool();
-        let custody = rendered(&pool);
-        let open = Mutex::new(Vec::new());
-        let closed = Mutex::new(BTreeSet::new());
-        opened(&open, offer(&custody), &routes::test_pool(), "report-view-1");
-        let saved = HeldDocument::hold(&pool, "<p>saved</p>", &|| false).unwrap();
-        let other = ViewDocument {
-            identity: ViewIdentity { kind: "saved_report", sha256_hex: sha256_hex(b"<p>saved</p>") },
-            document: ViewBytes::Held(saved),
-            byte_count: "<p>saved</p>".len(),
-            title: "Saved".to_string(),
-            words: Vec::new(),
-            details: Vec::new(),
-            may_leave: false,
-            showable: Arc::new(|| true),
-        };
-        assert!(reserve_in(&open, other, command_lease(&routes::test_pool()), label("report-view-2")).is_ok());
-        assert_eq!(close_kind_in(&open, &closed, KIND_CURRENT_RENDER, Withdrawal::SourceChanged, || {}), vec![ViewClosure { label: "report-view-1".to_string(), identity: identity() }]);
-        assert_eq!(lock(&open).iter().map(|record| record.label.clone()).collect::<Vec<_>>(), vec!["report-view-2".to_string()]);
-        assert!(custody.admit_view(&sha256_hex(HTML.as_bytes()), FIRST).is_ok(), "the render stays current");
-        assert_eq!(take_closures_in(&closed, "main"), vec![ViewClosureNotice { kind: KIND_CURRENT_RENDER, reason: REASON_NO_LONGER_SHOWABLE }]);
-        assert!(close_kind_in(&open, &closed, KIND_CURRENT_RENDER, Withdrawal::SourceChanged, || {}).is_empty());
-        assert!(take_closures_in(&closed, "main").is_empty(), "nothing closed, nothing reported");
-    }
-
-    /// The person's own act stays silent whichever closure reaches the window first: a sweep that
-    /// recorded a notice before the own-act withdrawal leaves none to take; an own-act withdrawal
-    /// before the sweep leaves the sweep nothing to close or report.
-    #[test]
-    fn an_own_act_withdrawal_leaves_no_notice_whichever_closure_comes_first() {
-        // The sweep first: it records a notice; the withdrawal then clears it.
-        let pool = routes::test_pool();
-        let custody = rendered(&pool);
-        let open = Mutex::new(Vec::new());
-        let closed = Mutex::new(BTreeSet::new());
-        opened(&open, offer(&custody), &routes::test_pool(), "report-view-1");
-        assert!(custody.retire_active());
-        assert_eq!(close_unshowable_in(&open, &closed).len(), 1);
-        assert!(close_kind_in(&open, &closed, KIND_CURRENT_RENDER, Withdrawal::OwnAct, || {}).is_empty(), "the sweep closed it");
-        assert!(take_closures_in(&closed, "main").is_empty(), "the own act's notice was cleared");
-        // The withdrawal first: it closes silently; the sweep then finds nothing.
-        let custody = rendered(&pool);
-        opened(&open, offer(&custody), &routes::test_pool(), "report-view-2");
-        assert_eq!(close_kind_in(&open, &closed, KIND_CURRENT_RENDER, Withdrawal::OwnAct, || {}).len(), 1);
-        assert!(custody.retire_active());
-        assert!(close_unshowable_in(&open, &closed).is_empty());
-        assert!(take_closures_in(&closed, "main").is_empty(), "nothing recorded for the own act");
-        // An own act clears only its own kind's notice.
-        lock(&closed).insert(("saved_report", REASON_NO_LONGER_SHOWABLE));
-        assert!(close_kind_in(&open, &closed, KIND_CURRENT_RENDER, Withdrawal::OwnAct, || {}).is_empty());
-        assert_eq!(take_closures_in(&closed, "main"), vec![ViewClosureNotice { kind: "saved_report", reason: REASON_NO_LONGER_SHOWABLE }]);
-    }
-
-    /// A source-changed withdrawal records a notice only when it closed a window; only the main
-    /// webview may withdraw, and only with a named reason.
-    #[test]
-    fn a_source_changed_withdrawal_reports_only_a_window_it_closed_and_only_the_main_webview_withdraws() {
-        let pool = routes::test_pool();
-        let custody = rendered(&pool);
-        let open = Mutex::new(Vec::new());
-        let closed = Mutex::new(BTreeSet::new());
-        assert!(close_kind_in(&open, &closed, KIND_CURRENT_RENDER, Withdrawal::SourceChanged, || {}).is_empty());
-        assert!(take_closures_in(&closed, "main").is_empty(), "no window, no notice");
-        opened(&open, offer(&custody), &routes::test_pool(), "report-view-1");
-        assert_eq!(close_kind_in(&open, &closed, KIND_CURRENT_RENDER, Withdrawal::SourceChanged, || {}).len(), 1);
-        assert_eq!(take_closures_in(&closed, "main"), vec![ViewClosureNotice { kind: KIND_CURRENT_RENDER, reason: REASON_NO_LONGER_SHOWABLE }]);
-        assert_eq!(close_rendered_report_views_for("main", "source_changed"), Some(Withdrawal::SourceChanged));
-        assert_eq!(close_rendered_report_views_for("main", "own_act"), Some(Withdrawal::OwnAct));
-        for (label, reason) in [("report-view-1", "source_changed"), ("report-view-1", "own_act"), ("main", ""), ("main", "Source_Changed"), ("main", "anything")] {
-            assert_eq!(close_rendered_report_views_for(label, reason), None, "{label} {reason}");
-        }
-    }
-
-    // ---- B4 (b): only the panel's render can be named.
 
     /// The render custody is written only by the render command: `record_render` is called only
     /// from `render_calculation_report_value`, under a ticket only `render_calculation_report`
@@ -1916,6 +1827,7 @@ mod tests {
         }
     }
 
+
     /// The render command refuses a user-released input before recording anything; its entry has
     /// retired the render before it, so no current render exists for a view to open.
     #[test]
@@ -1930,7 +1842,6 @@ mod tests {
         assert_eq!(custody.admit_view(&sha256_hex(HTML.as_bytes()), FIRST).unwrap_err().code, NOT_CURRENT);
     }
 
-    // ---- Platform.
 
     #[test]
     fn the_platform_gate_is_one_constant_and_refuses_by_name() {
@@ -1943,7 +1854,6 @@ mod tests {
         assert!(!production(&text).contains("target_os"));
     }
 
-    // ---- F3: the reservation covers every copy for as long as it exists.
 
     /// A page that loads before its document was served ends the reservation and marks the
     /// document as no longer servable: no first serve can follow with nothing reserved.
@@ -1960,6 +1870,7 @@ mod tests {
         assert_eq!(respond_at(&open, "report-view-1", &identity().wrapper_path()).status(), 200, "the wrapper is still served");
         assert_eq!(lease_pool.reserved_total(), 0);
     }
+
 
     /// The record and the serve share one reservation: the record's release (its page load, here)
     /// during a serve leaves it held until the serve lets go.
@@ -1979,98 +1890,6 @@ mod tests {
         assert_eq!(lease_pool.reserved_total(), 0);
     }
 
-    // ---- F4: the report page's withdrawal is binding natively.
-
-    /// The withdrawal marks the current render as withdrawn from view: an opening admitted for it
-    /// and installed after the withdrawal is refused and reserves nothing; the render stays current
-    /// for a save or a print; a later render opens.
-    #[test]
-    fn an_opening_installed_after_its_renders_withdrawal_is_refused_and_a_new_render_opens() {
-        let pool = routes::test_pool();
-        let custody = rendered(&pool);
-        let open = Mutex::new(Vec::new());
-        let closed = Mutex::new(BTreeSet::new());
-        let admitted = offer(&custody);
-        assert!(close_kind_in(&open, &closed, KIND_CURRENT_RENDER, Withdrawal::OwnAct, || custody.withdraw_current_from_view()).is_empty());
-        let lease_pool = routes::test_pool();
-        let refusal = reserve_in(&open, admitted, command_lease(&lease_pool), || panic!("no record for a withdrawn render")).unwrap_err();
-        assert_eq!(refusal.code, VIEW_NOT_SHOWABLE);
-        assert!(lock(&open).is_empty());
-        assert_eq!(lease_pool.reserved_total(), 0);
-        assert!(custody.is_current(custody.admit_view(&sha256_hex(HTML.as_bytes()), FIRST).unwrap().generation), "the render stays current");
-        assert!(take_closures_in(&closed, "main").is_empty());
-        // A later render has a new generation and is viewable.
-        let later = "<p>later</p>";
-        custody.record_in(&pool, Some(PUBLIC_REPORT), later, &sha256_hex(later.as_bytes()), false, false);
-        let admitted = custody.admit_view(&sha256_hex(later.as_bytes()), FIRST).unwrap();
-        let watched = Arc::clone(&custody);
-        let document = current_render_document(admitted, move |generation| watched.is_viewable(generation));
-        assert!(matches!(reserve_in(&open, document, command_lease(&routes::test_pool()), label("report-view-2")).unwrap(), Reserved::Opened { .. }));
-    }
-
-    /// A withdrawal after an opening's installation removes its record, and its window then serves
-    /// nothing.
-    #[test]
-    fn a_withdrawal_after_installation_removes_the_record() {
-        let pool = routes::test_pool();
-        let custody = rendered(&pool);
-        let open = Mutex::new(Vec::new());
-        let closed = Mutex::new(BTreeSet::new());
-        let lease_pool = routes::test_pool();
-        opened(&open, offer(&custody), &lease_pool, "report-view-1");
-        let closures = close_kind_in(&open, &closed, KIND_CURRENT_RENDER, Withdrawal::SourceChanged, || custody.withdraw_current_from_view());
-        assert_eq!(closures, vec![ViewClosure { label: "report-view-1".to_string(), identity: identity() }]);
-        assert!(lock(&open).is_empty());
-        assert_eq!(lease_pool.reserved_total(), 0);
-        assert_refused(respond_at(&open, "report-view-1", &identity().wrapper_path()));
-        assert_eq!(take_closures_in(&closed, "main"), vec![ViewClosureNotice { kind: KIND_CURRENT_RENDER, reason: REASON_NO_LONGER_SHOWABLE }]);
-    }
-
-    // ---- F5: destruction from the run-event callback; shutdown; stale records.
-
-    /// A view window's destruction removes its record and releases its reservation; another
-    /// window's destruction changes nothing; the main window's takes every record, and an opening
-    /// installed after it is refused with nothing reserved.
-    #[test]
-    fn destruction_removes_a_record_and_the_main_windows_ends_every_opening() {
-        let pool = routes::test_pool();
-        let custody = rendered(&pool);
-        let open = Mutex::new(Vec::new());
-        let shut = AtomicBool::new(false);
-        let lease_pool = routes::test_pool();
-        opened(&open, offer(&custody), &lease_pool, "report-view-1");
-        assert!(window_destroyed_in(&open, &shut, "print-window-1").is_empty());
-        assert_eq!(lock(&open).len(), 1);
-        assert!(window_destroyed_in(&open, &shut, "report-view-1").is_empty());
-        assert!(lock(&open).is_empty());
-        assert_eq!(lease_pool.reserved_total(), 0);
-        opened(&open, offer(&custody), &routes::test_pool(), "report-view-2");
-        assert_eq!(window_destroyed_in(&open, &shut, "main"), vec!["report-view-2".to_string()]);
-        assert!(lock(&open).is_empty() && shut.load(Ordering::SeqCst));
-        let lease_pool = routes::test_pool();
-        let refusal = reserve_with_in(&open, &shut, &|_| true, offer(&custody), command_lease(&lease_pool), || panic!("no record after shutdown")).unwrap_err();
-        assert_eq!((refusal.code.as_str(), refusal.message.as_str()), (VIEW_WINDOW_FAILED, "The report's window could not be opened."));
-        assert!(lock(&open).is_empty());
-        assert_eq!(lease_pool.reserved_total(), 0);
-    }
-
-    /// An offer of an identity whose recorded window no longer exists drops the stale record (and
-    /// its reservation) and opens anew; `brought_forward` only for a window that exists.
-    #[test]
-    fn a_stale_record_is_dropped_and_the_offer_opens_anew() {
-        let pool = routes::test_pool();
-        let custody = rendered(&pool);
-        let open = Mutex::new(Vec::new());
-        let shut = AtomicBool::new(false);
-        let stale_pool = routes::test_pool();
-        opened(&open, offer(&custody), &stale_pool, "report-view-1");
-        let reserved = reserve_with_in(&open, &shut, &|label| label != "report-view-1", offer(&custody), command_lease(&routes::test_pool()), label("report-view-2")).unwrap();
-        assert_eq!(reserved, Reserved::Opened { label: "report-view-2".to_string(), title: current_render_title(None) });
-        assert_eq!(stale_pool.reserved_total(), 0, "the stale record's reservation was released");
-        assert_eq!(lock(&open).iter().map(|record| record.label.clone()).collect::<Vec<_>>(), vec!["report-view-2".to_string()]);
-        let reserved = reserve_with_in(&open, &shut, &|_| true, offer(&custody), command_lease(&routes::test_pool()), || panic!("no new record")).unwrap();
-        assert!(matches!(reserved, Reserved::BroughtForward { label, .. } if label == "report-view-2"));
-    }
 
     /// The destruction is handled from the run-event callback that exists from setup, never from a
     /// listener added to a window after its construction; the protocol is registered with its
@@ -2084,9 +1903,11 @@ mod tests {
         assert!(run.contains(".register_asynchronous_uri_scheme_protocol(report_view::SCHEME, report_view::serve)"));
         let text = source_file("report_view.rs");
         assert!(!production(&text).contains(".on_window_event("));
+        // The serve's selection and copies run off the main thread.
+        let serve = &text[text.find("pub(crate) fn serve<R: Runtime>(").unwrap()..];
+        assert!(serve[..serve.find("\n}\n").unwrap()].contains("tauri::async_runtime::spawn_blocking(move || {"));
     }
 
-    // ---- F6: the opening takes no share.
 
     /// The reservation is computed from the offer's count; with the borrowed bytes already gone the
     /// open is refused as not showable with nothing reserved; a held document's count must match;
@@ -2132,12 +1953,11 @@ mod tests {
         };
         assert_eq!(reserve_in(&Mutex::new(Vec::new()), mismatched, command_lease(&routes::test_pool()), label("report-view-2")).unwrap_err().code, VIEW_DOCUMENT_REFUSED);
         let text = source_file("report_view.rs");
-        let opening = &text[text.find("pub(crate) fn reserve_with_in(").unwrap()..];
+        let opening = &text[text.find("fn install_in<W: Windows>(").unwrap()..];
         let opening = &opening[..opening.find("\n}\n").unwrap()];
         assert!(!opening.contains("share()") && !opening.contains("upgrade("), "the opening takes no share");
     }
 
-    // ---- F7: the whole address.
 
     /// A request from the right webview with the right path is refused when its authority, query or
     /// fragment differ.
@@ -2155,7 +1975,6 @@ mod tests {
                 format!("swbpipe-report-print://{HOST}{path}"),
                 format!("{SCHEME}://{HOST}{path}?q=1"),
                 format!("{SCHEME}://{HOST}{path}?"),
-                format!("{SCHEME}://{HOST}{path}#part"),
                 path.clone(),
             ] {
                 assert_refused(respond_in(&open, "report-view-1", &address));
@@ -2163,5 +1982,416 @@ mod tests {
         }
         assert_eq!(respond_in(&open, "report-view-1", &id.wrapper_address().unwrap().to_string()).status(), 200);
         assert_eq!(respond_in(&open, "report-view-1", &id.document_address().unwrap().to_string()).status(), 200);
+    }
+
+    #[derive(Clone, Copy, Debug)]
+    enum Retirement {
+        Retire,
+        Entry,
+        Advance,
+        Activation,
+        Completion,
+    }
+
+    const RETIREMENTS: [Retirement; 5] = [Retirement::Retire, Retirement::Entry, Retirement::Advance, Retirement::Activation, Retirement::Completion];
+
+    fn retire(custody: &RenderCustody, pool: &Arc<MemoryPool>, retirement: Retirement) {
+        match retirement {
+            Retirement::Retire => assert!(custody.retire_active()),
+            Retirement::Entry => drop(custody.begin_next(FIRST).unwrap()),
+            Retirement::Advance => assert!(custody.advance(SourceMark { incarnation: 1, sequence: 1 }).unwrap().1),
+            Retirement::Activation => {
+                let _ = custody.activate();
+            }
+            // A later render's completion, recorded after its entry.
+            Retirement::Completion => {
+                let _ = custody.record_in(pool, Some(PUBLIC_REPORT), "<p>later</p>", &sha256_hex(b"<p>later</p>"), false, false);
+            }
+        }
+    }
+
+
+    // ---- S2: the opening.
+
+    /// Two openings of one identity never interleave: while the first is paused at its build or
+    /// at its acknowledgement, the second waits at the gate; then it brings the first's window
+    /// forward. Exactly one window, one record, and no lease left over but the window's.
+    #[test]
+    fn two_openings_of_one_identity_never_interleave() {
+        for pause_at in ["build", "acknowledge"] {
+            let pool = routes::test_pool();
+            let custody = rendered(&pool);
+            let open = Arc::new(Mutex::new(Vec::new()));
+            let gate = Arc::new(Mutex::new(()));
+            let model = Arc::new(Model::default());
+            let lease_pool = routes::test_pool();
+            let (at_tx, at_rx) = channel::<()>();
+            let (go_tx, go_rx) = channel::<()>();
+            let go_rx = Mutex::new(go_rx);
+            let first = AtomicUsize::new(0);
+            *lock(&model.hook) = Some(Arc::new(move |point: &str| {
+                if point == pause_at && first.fetch_add(1, Ordering::SeqCst) == 0 {
+                    at_tx.send(()).unwrap();
+                    lock(&go_rx).recv().unwrap();
+                }
+            }));
+            let start = |name: &'static str| {
+                let (open, gate, model, document, lease) = (Arc::clone(&open), Arc::clone(&gate), Arc::clone(&model), offer(&custody), command_lease(&lease_pool));
+                std::thread::spawn(move || open_with(&open, &gate, &model, document, lease, name))
+            };
+            let a = start("report-view-1");
+            at_rx.recv().unwrap();
+            let b = start("report-view-2");
+            std::thread::sleep(std::time::Duration::from_millis(100));
+            assert_eq!(lock(&open).len(), 1, "{pause_at}: the second opening waits at the gate");
+            go_tx.send(()).unwrap();
+            let title = current_render_title(None);
+            assert_eq!(a.join().unwrap(), Ok(Opened::New { label: "report-view-1".to_string(), title: title.clone() }), "{pause_at}");
+            assert_eq!(b.join().unwrap(), Ok(Opened::BroughtForward { label: "report-view-1".to_string(), title }), "{pause_at}");
+            assert_eq!(lock(&open).iter().map(|record| record.label.clone()).collect::<Vec<_>>(), vec!["report-view-1".to_string()]);
+            assert_eq!(*lock(&model.registry), BTreeSet::from(["report-view-1".to_string()]), "{pause_at}: one window");
+            assert_eq!(lease_pool.reserved_total(), 1 + serve_reservation_bytes(HTML.len()), "{pause_at}: only the window's reservation");
+            model.destroyed(&open, "report-view-1");
+            assert_eq!(lease_pool.reserved_total(), 0);
+        }
+    }
+
+    /// An offer whose answer turns false while the opening waits for the records' lock matches
+    /// nothing and brings nothing forward: the answer that counts is the one under the lock.
+    #[test]
+    fn an_offer_retired_before_the_lock_matches_nothing_and_brings_nothing_forward() {
+        let pool = routes::test_pool();
+        let custody = rendered(&pool);
+        let open = Arc::new(Mutex::new(Vec::new()));
+        opened(&open, offer(&custody), &routes::test_pool(), "report-view-1");
+        let current = Arc::new(AtomicBool::new(true));
+        let mut later = offer(&custody);
+        later.title = "Calculation report: a later offer".to_string();
+        later.showable = {
+            let current = Arc::clone(&current);
+            Arc::new(move || current.load(Ordering::SeqCst))
+        };
+        let lease_pool = routes::test_pool();
+        let held = lock(&open);
+        let opening = {
+            let (open, lease) = (Arc::clone(&open), command_lease(&lease_pool));
+            std::thread::spawn(move || reserve_in(&open, later, lease, || panic!("no label for a retired offer")))
+        };
+        std::thread::sleep(std::time::Duration::from_millis(100));
+        current.store(false, Ordering::SeqCst);
+        drop(held);
+        assert_eq!(opening.join().unwrap().unwrap_err().code, VIEW_NOT_SHOWABLE);
+        assert_eq!(lease_pool.reserved_total(), 0);
+        let records = lock(&open);
+        assert_eq!(records.len(), 1);
+        assert_eq!(records[0].title, current_render_title(None), "nothing was brought forward");
+    }
+
+    /// A window that does not answer the acknowledgement (its creation was queued and failed) is a
+    /// failed opening: refused by name, no record, the pool back to where it was, and its
+    /// destruction asked in case it comes into being.
+    #[test]
+    fn a_window_that_does_not_acknowledge_is_a_failed_opening_and_leaves_nothing() {
+        let pool = routes::test_pool();
+        let custody = rendered(&pool);
+        let open = Mutex::new(Vec::new());
+        let model = Model::default();
+        model.creation_fails.store(true, Ordering::SeqCst);
+        let lease_pool = routes::test_pool();
+        let refusal = open_with(&open, &Mutex::new(()), &model, offer(&custody), command_lease(&lease_pool), "report-view-1").unwrap_err();
+        assert_eq!((refusal.code.as_str(), refusal.message.as_str()), (VIEW_WINDOW_FAILED, "The report's window could not be opened."));
+        assert!(lock(&open).is_empty());
+        assert_eq!(lease_pool.reserved_total(), 0, "no record can be left for a window that never existed");
+        assert_eq!(*lock(&model.destroy_asked), vec!["report-view-1".to_string()]);
+    }
+
+    /// `brought_forward` is answered only for a window found and reached: a record whose window
+    /// is gone (its destruction not yet observed) is dropped with its reservation and a new window
+    /// opens; a window the registry holds but the runtime does not answer for refuses the opening.
+    #[test]
+    fn brought_forward_only_for_a_window_found_and_reached() {
+        let pool = routes::test_pool();
+        let custody = rendered(&pool);
+        let open = Mutex::new(Vec::new());
+        let gate = Mutex::new(());
+        let model = Model::default();
+        let first_pool = routes::test_pool();
+        assert!(matches!(open_with(&open, &gate, &model, offer(&custody), command_lease(&first_pool), "report-view-1"), Ok(Opened::New { .. })));
+        assert!(matches!(open_with(&open, &gate, &model, offer(&custody), command_lease(&routes::test_pool()), "report-view-x"), Ok(Opened::BroughtForward { label, .. }) if label == "report-view-1"));
+        // The person closed it; its destruction is not yet observed.
+        lock(&model.registry).remove("report-view-1");
+        lock(&model.runtime).remove("report-view-1");
+        let opened = open_with(&open, &gate, &model, offer(&custody), command_lease(&routes::test_pool()), "report-view-2");
+        assert_eq!(opened, Ok(Opened::New { label: "report-view-2".to_string(), title: current_render_title(None) }));
+        assert_eq!(first_pool.reserved_total(), 0, "the stale record's reservation is released");
+        assert_eq!(lock(&open).iter().map(|record| record.label.clone()).collect::<Vec<_>>(), vec!["report-view-2".to_string()]);
+        assert!(lock(&model.destroy_asked).contains(&"report-view-1".to_string()), "the stale label's window is asked to close, a second barrier");
+        // The registry holds it, the runtime does not answer for it.
+        lock(&model.runtime).remove("report-view-2");
+        let refusal = open_with(&open, &gate, &model, offer(&custody), command_lease(&routes::test_pool()), "report-view-3").unwrap_err();
+        assert_eq!(refusal.code, VIEW_WINDOW_FAILED);
+    }
+
+    /// The bring-forward path asks the same two questions under the lock as an opening does: an
+    /// offer whose borrowed document is gone brings nothing forward, even with the window open.
+    #[test]
+    fn a_gone_document_brings_nothing_forward() {
+        let pool = routes::test_pool();
+        let held = HeldDocument::hold(&pool, HTML, &|| false).unwrap();
+        let offer_of = |document| ViewDocument {
+            identity: identity(),
+            document: ViewBytes::Borrowed(document),
+            byte_count: HTML.len(),
+            title: "Invented".to_string(),
+            words: Vec::new(),
+            details: Vec::new(),
+            may_leave: false,
+            showable: Arc::new(|| true),
+        };
+        let open = Mutex::new(Vec::new());
+        let model = Model::default();
+        let gate = Mutex::new(());
+        assert!(matches!(open_with(&open, &gate, &model, offer_of(Arc::downgrade(&held)), command_lease(&routes::test_pool()), "report-view-1"), Ok(Opened::New { .. })));
+        let gone = Arc::downgrade(&held);
+        drop(held);
+        let mut later = offer_of(gone);
+        later.title = "Invented, later".to_string();
+        let refusal = open_with(&open, &gate, &model, later, command_lease(&routes::test_pool()), "report-view-2").unwrap_err();
+        assert_eq!(refusal.code, VIEW_NOT_SHOWABLE);
+        assert_eq!(lock(&open)[0].title, "Invented", "nothing was brought forward");
+    }
+
+    /// The acknowledgement is the runtime's window getter, with its records' lock not held.
+    #[test]
+    fn the_acknowledgement_asks_the_runtime_a_getter() {
+        let text = source_file("report_view.rs");
+        let production = production(&text);
+        assert!(production.contains("    fn acknowledge(&self, window: &Self::Window) -> bool {\n        // A getter, answered only for a window in the runtime's map.\n        window.title().is_ok()\n    }"));
+    }
+
+    // ---- S3: a sweep asks the destruction, and the reservation outlives it until observed.
+
+    /// A sweep before the page has loaded keeps the two envelopes until the window's destruction
+    /// is observed; after the page has loaded nothing is held; a sweep that finds the window gone
+    /// removes the record at once.
+    #[test]
+    fn a_sweep_keeps_the_reservation_until_the_destruction_is_observed() {
+        let window = 1 + serve_reservation_bytes(HTML.len());
+        // Before the page has loaded.
+        let pool = routes::test_pool();
+        let custody = rendered(&pool);
+        let open = Mutex::new(Vec::new());
+        let model = Model::default();
+        let lease_pool = routes::test_pool();
+        open_with(&open, &Mutex::new(()), &model, offer(&custody), command_lease(&lease_pool), "report-view-1").unwrap();
+        assert!(custody.retire_active());
+        assert_eq!(close_unshowable_in(&open, &model), vec!["report-view-1".to_string()]);
+        assert_eq!(*lock(&model.destroy_asked), vec!["report-view-1".to_string()]);
+        assert_eq!(lease_pool.reserved_total(), window, "held while the window may still be serving");
+        assert_eq!(lock(&open).len(), 1);
+        model.destroyed(&open, "report-view-1");
+        assert!(lock(&open).is_empty());
+        assert_eq!(lease_pool.reserved_total(), 0);
+        // After the page has loaded.
+        let custody = rendered(&pool);
+        let lease_pool = routes::test_pool();
+        open_with(&open, &Mutex::new(()), &model, offer(&custody), command_lease(&lease_pool), "report-view-2").unwrap();
+        assert!(page_loaded_in(&open, "report-view-2"));
+        assert!(custody.retire_active());
+        assert_eq!(close_unshowable_in(&open, &model), vec!["report-view-2".to_string()]);
+        assert_eq!(lease_pool.reserved_total(), 0);
+        model.destroyed(&open, "report-view-2");
+        // The window already gone at the sweep.
+        let custody = rendered(&pool);
+        let lease_pool = routes::test_pool();
+        open_with(&open, &Mutex::new(()), &model, offer(&custody), command_lease(&lease_pool), "report-view-3").unwrap();
+        lock(&model.registry).remove("report-view-3");
+        assert!(custody.retire_active());
+        assert!(close_unshowable_in(&open, &model).is_empty());
+        assert!(lock(&open).is_empty(), "the record goes at once");
+        assert_eq!(lease_pool.reserved_total(), 0);
+    }
+
+    /// A closing record is served nothing and brought forward by no offer: a new opening of the
+    /// same identity (a later render of the same content) opens a new window under a new label.
+    #[test]
+    fn a_closing_record_is_not_served_or_brought_forward() {
+        let pool = routes::test_pool();
+        let custody = rendered(&pool);
+        let open = Mutex::new(Vec::new());
+        let gate = Mutex::new(());
+        let model = Model::default();
+        open_with(&open, &gate, &model, offer(&custody), command_lease(&routes::test_pool()), "report-view-1").unwrap();
+        // A later render of the same content retires the first and is current.
+        custody.record_in(&pool, Some(PUBLIC_REPORT), HTML, &sha256_hex(HTML.as_bytes()), false, false);
+        assert_eq!(close_unshowable_in(&open, &model), vec!["report-view-1".to_string()]);
+        assert_refused(respond_at(&open, "report-view-1", &identity().wrapper_path()));
+        assert_refused(respond_at(&open, "report-view-1", &identity().document_path()));
+        let opened = open_with(&open, &gate, &model, offer(&custody), command_lease(&routes::test_pool()), "report-view-2");
+        assert_eq!(opened, Ok(Opened::New { label: "report-view-2".to_string(), title: current_render_title(None) }));
+        assert_eq!(lock(&open).len(), 2, "the closing record stays until its destruction is observed");
+        assert_eq!(respond_at(&open, "report-view-2", &identity().wrapper_path()).status(), 200);
+        assert_refused(respond_at(&open, "report-view-1", &identity().wrapper_path()));
+    }
+
+    /// A sweep, or the main window's shutdown, while the window is built: the opening is refused
+    /// with what is true (not showable after a sweep, failed after the shutdown) and the window is
+    /// destroyed.
+    #[test]
+    fn a_record_retired_while_its_window_is_built_refuses_the_opening() {
+        for shutdown in [false, true] {
+            let pool = routes::test_pool();
+            let custody = rendered(&pool);
+            let open = Arc::new(Mutex::new(Vec::new()));
+            let shut = Arc::new(AtomicBool::new(false));
+            let model = Arc::new(Model::default());
+            {
+                let (open, shut, custody, model_ref) = (Arc::clone(&open), Arc::clone(&shut), Arc::clone(&custody), Arc::downgrade(&model));
+                *lock(&model.hook) = Some(Arc::new(move |point: &str| {
+                    if point != "acknowledge" {
+                        return;
+                    }
+                    let model = model_ref.upgrade().unwrap();
+                    if shutdown {
+                        let _ = window_destroyed_in(&open, &shut, &*model, "main");
+                    } else {
+                        assert!(custody.retire_active());
+                        let _ = close_unshowable_in(&open, &*model);
+                    }
+                }));
+            }
+            let lease_pool = routes::test_pool();
+            let refusal = open_in(&open, &Mutex::new(()), &shut, &*model, offer(&custody), command_lease(&lease_pool), label("report-view-1")).unwrap_err();
+            assert_eq!(refusal.code, if shutdown { VIEW_WINDOW_FAILED } else { VIEW_NOT_SHOWABLE }, "shutdown: {shutdown}");
+            assert!(lock(&model.destroy_asked).contains(&"report-view-1".to_string()));
+            model.destroyed(&open, "report-view-1");
+            assert_eq!(lease_pool.reserved_total(), 0);
+        }
+    }
+
+    // ---- Currency boundaries: every retirement of the native render closes its windows.
+
+    /// Lane 4's test: a registered advance retires the current render, and the sweep beside it asks
+    /// the destruction of an open window of it; here a local private render. Nothing of it is then
+    /// served, and the earlier offer brings nothing forward.
+    #[test]
+    fn a_registered_advance_closes_an_open_window_of_a_local_private_render() {
+        let pool = routes::test_pool();
+        let custody = rendered_in(&pool, LOCAL_PRIVATE);
+        let open = Mutex::new(Vec::new());
+        let model = Model::default();
+        let earlier = offer(&custody);
+        open_with(&open, &Mutex::new(()), &model, offer(&custody), command_lease(&routes::test_pool()), "report-view-1").unwrap();
+        assert!(custody.advance(SourceMark { incarnation: 1, sequence: 1 }).unwrap().1, "the advance retires the render");
+        assert_eq!(close_unshowable_in(&open, &model), vec!["report-view-1".to_string()]);
+        assert_eq!(*lock(&model.destroy_asked), vec!["report-view-1".to_string()]);
+        assert_refused(respond_at(&open, "report-view-1", &identity().wrapper_path()));
+        assert_refused(respond_at(&open, "report-view-1", &identity().document_path()));
+        assert_eq!(open_with(&open, &Mutex::new(()), &model, earlier, command_lease(&routes::test_pool()), "report-view-2").unwrap_err().code, VIEW_NOT_SHOWABLE);
+    }
+
+    /// An activation of a new incarnation (the page's report source session starting again, as
+    /// after the web view reloads) retires the earlier render, and the sweep beside it closes its
+    /// window. A project switch is an advance, not an activation.
+    #[test]
+    fn an_activation_closes_an_open_window_of_the_earlier_incarnations_render() {
+        let pool = routes::test_pool();
+        let custody = rendered(&pool);
+        let open = Mutex::new(Vec::new());
+        let model = Model::default();
+        let earlier = offer(&custody);
+        open_with(&open, &Mutex::new(()), &model, offer(&custody), command_lease(&routes::test_pool()), "report-view-1").unwrap();
+        let _ = custody.activate();
+        assert_eq!(close_unshowable_in(&open, &model), vec!["report-view-1".to_string()]);
+        assert_refused(respond_at(&open, "report-view-1", &identity().wrapper_path()));
+        assert_eq!(open_with(&open, &Mutex::new(()), &model, earlier, command_lease(&routes::test_pool()), "report-view-2").unwrap_err().code, VIEW_NOT_SHOWABLE);
+    }
+
+    /// The main window's destruction (the application quitting) closes every view window, and no
+    /// later opening succeeds.
+    #[test]
+    fn the_main_windows_destruction_closes_every_view_window_and_no_opening_follows() {
+        let pool = routes::test_pool();
+        let custody = rendered(&pool);
+        let open = Mutex::new(Vec::new());
+        let shut = AtomicBool::new(false);
+        let model = Model::default();
+        let saved = HeldDocument::hold(&pool, "<p>saved</p>", &|| false).unwrap();
+        open_in(&open, &Mutex::new(()), &shut, &model, offer(&custody), command_lease(&routes::test_pool()), label("report-view-1")).unwrap();
+        let other = ViewDocument {
+            identity: ViewIdentity { kind: "saved_report", sha256_hex: sha256_hex(b"<p>saved</p>") },
+            document: ViewBytes::Held(saved),
+            byte_count: "<p>saved</p>".len(),
+            title: "Saved".to_string(),
+            words: Vec::new(),
+            details: Vec::new(),
+            may_leave: false,
+            showable: Arc::new(|| true),
+        };
+        open_in(&open, &Mutex::new(()), &shut, &model, other, command_lease(&routes::test_pool()), label("report-view-2")).unwrap();
+        assert!(window_destroyed_in(&open, &shut, &model, "print-window-1").is_empty(), "another window's destruction changes nothing");
+        let mut asked = window_destroyed_in(&open, &shut, &model, "main");
+        asked.sort();
+        assert_eq!(asked, vec!["report-view-1".to_string(), "report-view-2".to_string()]);
+        assert!(shut.load(Ordering::SeqCst));
+        let lease_pool = routes::test_pool();
+        let refusal = open_in(&open, &Mutex::new(()), &shut, &model, offer(&custody), command_lease(&lease_pool), || panic!("nothing opens after the shutdown")).unwrap_err();
+        assert_eq!(refusal.code, VIEW_WINDOW_FAILED);
+        assert_eq!(lease_pool.reserved_total(), 0);
+    }
+
+    // ---- The window states a local private rendering, from the provider.
+
+    /// A local private render's strip carries the product's warning; a public one's does not.
+    #[test]
+    fn a_local_private_render_states_itself_in_the_window_and_a_public_one_does_not() {
+        for (context, warned) in [(LOCAL_PRIVATE, true), (PUBLIC_REPORT, false)] {
+            let pool = routes::test_pool();
+            let custody = rendered_in(&pool, context);
+            let open = Mutex::new(Vec::new());
+            opened(&open, offer(&custody), &routes::test_pool(), "report-view-1");
+            let page = String::from_utf8(respond_at(&open, "report-view-1", &identity().wrapper_path()).into_body()).unwrap();
+            assert_eq!(page.contains(&format!("<p>{}</p>", escape(LOCAL_PRIVATE_WORDS))), warned, "{context}");
+            assert!(page.contains(&format!("<p>{}</p>", escape(CURRENT_RENDER_WORDS))), "{context}");
+        }
+    }
+
+    /// An offer of a render of any other context, or none, is refused and opens nothing.
+    #[test]
+    fn an_offer_of_any_other_context_is_refused() {
+        let pool = routes::test_pool();
+        let custody = rendered(&pool);
+        let admitted = custody.admit_view(&sha256_hex(HTML.as_bytes()), FIRST).unwrap();
+        for context in [None, Some("user_released_report".to_string()), Some("invented".to_string())] {
+            let refusal = current_render_document(ViewAdmitted { export_context: context.clone(), ..admitted.clone() }, |_| true).err().unwrap();
+            assert_eq!(refusal.code, VIEW_DOCUMENT_REFUSED, "{context:?}");
+        }
+    }
+
+    /// The local private sentence is the product's warning, word for word.
+    #[test]
+    fn the_local_private_words_are_the_products_warning() {
+        let panel = std::fs::read_to_string(std::path::Path::new(env!("CARGO_MANIFEST_DIR")).join("../src/features/report/RenderedReportPanel.tsx")).unwrap();
+        assert!(panel.contains(&format!("const LOCAL_PRIVATE_REPORT_WARNING =\n  \"{LOCAL_PRIVATE_WORDS}\";")));
+        assert!(LOCAL_PRIVATE_WORDS.len() < 200 && 2 <= MAX_WORDS);
+    }
+
+    // ---- S4: what the handler sees.
+
+    /// A fragment never reaches the handler: the http conversion drops it, so a request for the
+    /// document with a fragment is the document's address; a query is kept and refused.
+    #[test]
+    fn a_fragment_never_reaches_the_handler_and_a_query_is_refused() {
+        let pool = routes::test_pool();
+        let custody = rendered(&pool);
+        let open = Mutex::new(Vec::new());
+        opened(&open, offer(&custody), &routes::test_pool(), "report-view-1");
+        let wrapper = identity().wrapper_address().unwrap().to_string();
+        let request = |uri: String| tauri::http::Request::builder().uri(uri).body(Vec::new()).unwrap();
+        assert_eq!(request_address(&request(format!("{wrapper}#part"))), wrapper, "the fragment is dropped before the handler");
+        assert_eq!(respond_in(&open, "report-view-1", &request_address(&request(format!("{wrapper}#part")))).status(), 200);
+        assert_refused(respond_in(&open, "report-view-1", &request_address(&request(format!("{wrapper}?q=1")))));
+        // What keeps the window to its two addresses, fragment and all, is the navigation rule.
+        assert!(!navigation_allowed(&identity(), &tauri::Url::parse(&format!("{wrapper}#part")).unwrap()));
     }
 }

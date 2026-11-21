@@ -318,9 +318,6 @@ struct Slot {
     entry_watermark: u64,
     /// A print hand-off is in progress ([`RenderCustody::hand_off_if_current`]).
     handoff: bool,
-    /// The generation the report page withdrew from view
-    /// ([`RenderCustody::withdraw_current_from_view`]).
-    view_withdrawn: Option<u64>,
 }
 
 /// The one current render's record and the registered report source (see the
@@ -359,7 +356,7 @@ fn source_error(code: &str, message: impl Into<String>) -> RouteError {
 impl RenderCustody {
     pub(crate) const fn new() -> Self {
         Self {
-            slot: Mutex::new(Slot { generation: 0, current: None, source: SourceMark { incarnation: 0, sequence: 0 }, last_incarnation: 0, ticket: 0, active: None, entry_watermark: 0, handoff: false, view_withdrawn: None }),
+            slot: Mutex::new(Slot { generation: 0, current: None, source: SourceMark { incarnation: 0, sequence: 0 }, last_incarnation: 0, ticket: 0, active: None, entry_watermark: 0, handoff: false }),
             handoff_done: Condvar::new(),
             reserving: Mutex::new(()),
         }
@@ -678,25 +675,6 @@ impl RenderCustody {
     /// Whether the render of `generation` is still the current one.
     pub(crate) fn is_current(&self, generation: u64) -> bool {
         self.lock().current.as_ref().is_some_and(|record| record.generation == generation)
-    }
-
-    /// The report page dropped its preview (`report_view`): the current
-    /// render, if any, is withdrawn from view, so no view window of it opens
-    /// or is served from now on. Its currency for a save or a print is
-    /// unchanged, and a later render has a new generation and is viewable. It
-    /// does not wait for a print hand-off; `report_view` calls it under its
-    /// open-windows lock (that module's lock order).
-    pub(crate) fn withdraw_current_from_view(&self) {
-        let mut slot = self.lock();
-        if let Some(generation) = slot.current.as_ref().map(|record| record.generation) {
-            slot.view_withdrawn = Some(generation);
-        }
-    }
-
-    /// Whether the render of `generation` is current and not withdrawn from view.
-    pub(crate) fn is_viewable(&self, generation: u64) -> bool {
-        let slot = self.lock();
-        slot.current.as_ref().is_some_and(|record| record.generation == generation) && slot.view_withdrawn != Some(generation)
     }
 
     /// The held document of the admitted render, only while the slot's
@@ -1060,8 +1038,7 @@ pub(crate) struct Admitted {
 pub(crate) struct ViewAdmitted {
     pub(crate) generation: u64,
     pub(crate) sha256_hex: String,
-    /// The render's export context, for a provider that names it; the view reads none.
-    #[allow(dead_code)]
+    /// The render's export context: the view states a local private render as such.
     pub(crate) export_context: Option<String>,
     /// The held document's length in bytes: the view's reservation is computed from it.
     pub(crate) byte_count: usize,

@@ -115,7 +115,8 @@ needs:
     the last of them drops it.
   when: Opening a report in a window of its own, whose two copies of the document in this process (the
     body it serves and the runtime's own copy of that body) are reserved from the opening until the
-    window's page has loaded or the window has closed, and for no less than the serve.
+    window's page has loaded, the window has been destroyed or its opening has failed, and for no less
+    than the serve.
   gating: false
 - from: DEL-07-07
   condition: Until a completed solve job's result is disposed of, the native host keeps with it the digests
