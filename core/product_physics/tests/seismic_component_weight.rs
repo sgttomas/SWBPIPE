@@ -1272,6 +1272,55 @@ fn a_condition_s_added_weight_is_named_on_the_pressure_free_route() {
     }
 }
 
+/// The condition finding names only what the lowering appended (first
+/// reviewer of PR 536, finding 4): the added-weight primitive the operating
+/// condition resolves to (read from the condition preview), copied into the
+/// seismic case as an authored load with the condition's use removed, is an
+/// entered weight load, though its id and provenance are the resolution's.
+/// On both routes (the exact route admits no operating condition, so the copy
+/// is the only way such a load reaches it), both solver modes and the model
+/// checks.
+#[test]
+fn a_copied_condition_weight_is_an_entered_weight_load() {
+    let pf = "SCW-CANT-PF-SEISMIC-XYZ";
+    let case_id = format!("case:{pf}");
+    let mut case = case_of(reference(pf), &case_id);
+    case["condition_use"] = json!({"added_weight": true});
+    let mut conditioned = document(Route::Pf, Model::Cant, ONE_MAPPED, vec![case]);
+    conditioned["model"]["condition_sets"] = json!([{"id": "cs:bare", "provenance": PROV},
+        {"id": "cs:insulated", "provenance": PROV, "added_weight": {"magnitude": qv(-50.0, "N/m"), "direction": "global_z"}}]);
+    for (pipe, set) in [(0, "cs:bare"), (1, "cs:bare"), (2, "cs:insulated")] {
+        conditioned["model"]["pipe_segments"][pipe]["condition_set_ref"] = json!(set);
+    }
+    let preview = open_pipe_stress_product_physics::operating_conditions::preview_operating_conditions(&conditioned["model"]);
+    assert_eq!(preview["resolved"], true, "{preview}");
+    let resolved = preview["cases"][0]["generated_primitive_loads"].as_array().unwrap();
+    assert_eq!(resolved.len(), 1, "{preview}");
+    let copy = resolved[0].clone();
+    let load = format!("load:condition-added-weight:{}:{case_id}:2:CD", case_id.len());
+    assert_eq!(copy["id"], load.as_str());
+    for route in [Route::Pf, Route::Ex] {
+        let id = format!("SCW-CANT-{}-SEISMIC-XYZ", route_tag(route));
+        let case_id = format!("case:{id}");
+        let mut case = case_of(reference(&id), &case_id);
+        // The copy, renamed for this route's case only where its id names the case.
+        let mut copy = copy.clone();
+        copy["id"] = json!(format!("load:condition-added-weight:{}:{case_id}:2:CD", case_id.len()));
+        case["primitive_loads"] = json!([copy.clone()]);
+        let wire = document(route, Model::Cant, ONE_MAPPED, vec![case]);
+        let checks = model_checks(&wire);
+        for mode in MODES {
+            let out = solved(&wire, mode, &id);
+            for diagnostics in [&out["diagnostics"], &checks] {
+                assert!(findings(diagnostics, CONDITION_WEIGHT_ADDED, &case_id).is_empty(), "{id} {mode:?}: not a condition's added weight");
+                let entered: Vec<&Value> = findings(diagnostics, WEIGHT_LOAD_ENTERED, &case_id);
+                assert_eq!(entered.len(), 1, "{id} {mode:?}: {entered:?}");
+                assert_eq!(entered[0]["affected_refs"], json!([case_id, copy["id"]]), "{id} {mode:?}");
+            }
+        }
+    }
+}
+
 /// REQ-008's gravity ground reads fresh applied component-weight primitives
 /// only (issue 452 decision 7). With the G10 case carrying the plan's own
 /// loads at 9.79 m/s^2 for itself, its fresh valve weight raises the

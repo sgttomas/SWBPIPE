@@ -12,8 +12,9 @@
 //!   named; a manual override of generated self-weight is named. A stale or
 //!   modified plan primitive is refused before this check runs.
 //! - [`CONDITION_WEIGHT_ADDED`]: one per added weight the case takes from an
-//!   operating condition (the primitive `operating_conditions::lower`
-//!   appends), which only the pressure-free route admits.
+//!   operating condition: exactly the primitives `operating_conditions::lower`
+//!   reports it appended, which only the pressure-free route admits. An
+//!   authored load is an entered weight load whatever its id or provenance.
 //! - [`GRAVITY_DIFFERS`]: one per case whose seismic gravity differs from the
 //!   gravity at which a fresh applied component-weight primitive of a
 //!   component whose force the case generates was formed. The comparison is
@@ -63,6 +64,8 @@ pub(crate) struct Entered {
     fresh: HashSet<(usize, usize)>,
     /// The fresh component-weight primitives, in document order.
     component_weights: Vec<ComponentWeight>,
+    /// The added weights the lowering appended, (case index, load id).
+    condition_added: HashSet<(usize, String)>,
 }
 
 fn is_seismic(case: &PreviewLoadCase) -> bool {
@@ -70,9 +73,11 @@ fn is_seismic(case: &PreviewLoadCase) -> bool {
 }
 
 /// Read, before normalization, what the findings need of the document as
-/// entered. Nothing is read when no case is seismic, or on a load and
-/// reference-state document, where seismic generation is refused.
-pub(crate) fn capture(model: &PreviewModel) -> Entered {
+/// entered, with `condition_added`, the added weights
+/// `operating_conditions::lower` appended. Nothing is read when no case is
+/// seismic, or on a load and reference-state document, where seismic
+/// generation is refused.
+pub(crate) fn capture(model: &PreviewModel, condition_added: &[(usize, String)]) -> Entered {
     let mut entered = Entered::default();
     if crate::case_state::is_load_state(model) || !model.load_cases.iter().any(is_seismic) {
         return entered;
@@ -80,6 +85,7 @@ pub(crate) fn capture(model: &PreviewModel) -> Entered {
     entered.seismic = model.load_cases.iter().enumerate().filter(|(_, case)| is_seismic(case))
         .map(|(i, case)| (i, case.equivalent_static.as_ref().and_then(|g| g.seismic.as_ref()).and_then(|s| s.gravity_acceleration.clone())))
         .collect();
+    entered.condition_added = condition_added.iter().cloned().collect();
     for status in inspect_applied_self_weight(model, None) {
         if status.state != AppliedSelfWeightState::Fresh {
             continue;
@@ -105,15 +111,11 @@ pub(crate) fn capture(model: &PreviewModel) -> Entered {
     entered
 }
 
-/// The added weight a case takes from an operating condition: the primitive
-/// `operating_conditions::lower` appends, by its identity and provenance.
-fn condition_added(case: &PreviewLoadCase, load: &PreviewPrimitiveLoad) -> Option<String> {
+/// The member of an added weight the lowering appended to the case at
+/// `case_index`, or `None` for any other load.
+fn condition_added(entered: &Entered, case_index: usize, load: &PreviewPrimitiveLoad) -> Option<String> {
     let LoadTargetInput::Element { pipe } = &load.target else { return None };
-    if load.id != crate::operating_conditions::resolution::added_weight_load_id(&case.id, pipe) {
-        return None;
-    }
-    let provenance = serde_json::from_str::<serde_json::Value>(load.provenance.as_deref()?).ok()?;
-    (provenance["method"] == "operating_condition_set_v1" && provenance["quantity"] == "added_weight").then(|| pipe.clone())
+    entered.condition_added.contains(&(case_index, load.id.clone())).then(|| pipe.clone())
 }
 
 /// A value as entered, with its unit.
@@ -163,7 +165,7 @@ pub(crate) fn append(model: &PreviewModel, entered: &Entered, diagnostics: &mut 
             if !matches!(crate::parse_category(&load.category), Ok(PrimitiveLoadCategory::Weight)) {
                 continue;
             }
-            if let Some(pipe) = condition_added(case, load) {
+            if let Some(pipe) = condition_added(entered, *case_index, load) {
                 diagnostics.push(diag(
                     &id(&case.id, &format!("condition-weight:{index}")),
                     CONDITION_WEIGHT_ADDED,

@@ -3089,7 +3089,7 @@ fn run_linear_static_preview_observed_inner(
     // lowering judges the 0.9.0 members' document-level rules and S1's interim
     // refusals, then removes the members no later stage reads. Everything after it
     // is the existing pipeline applied to the lowered model.
-    operating_conditions::lower(&mut model, &mut diagnostics);
+    let condition_added = operating_conditions::lower(&mut model, &mut diagnostics);
     pressure_runtime::validate_profile(&model, &mut diagnostics);
     // RT-A3 increment 1 (D-1): the junction closures' named warnings, once.
     pressure_runtime::junction_closure_warnings(&model, &mut diagnostics);
@@ -3131,7 +3131,7 @@ fn run_linear_static_preview_observed_inner(
         return blocked_envelope(model, diagnostics);
     }
     // DEL-05-01 REQ-008: what the seismic warning prints as entered, and the plan's fresh primitives.
-    let seismic_entered = seismic_warning::capture(&model);
+    let seismic_entered = seismic_warning::capture(&model, &condition_added);
 
     resolve_shared_sections(&mut model, &mut diagnostics);
     if has_blocking(&diagnostics) {
