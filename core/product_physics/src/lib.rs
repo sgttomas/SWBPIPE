@@ -124,7 +124,7 @@ use open_pipe_stress_nonlinear_supports::{
     SupportStateRecord,
 };
 use open_pipe_stress_primitive_loads::{
-    generate_seismic_equivalent_static_loads, generate_wind_equivalent_static_loads, prepare_loads,
+    generate_seismic_equivalent_static_loads_beside_components, generate_wind_equivalent_static_loads, prepare_loads,
     ElementExposedDiameter, ElementMassPerLength, EquivalentStaticAxisFactor, LoadApplication,
     LoadDimension, LoadDirection, LoadExtent, LoadQuantity, PrimitiveLoad, PrimitiveLoadCategory,
     SeismicEquivalentStaticBasis, WindEquivalentStaticBasis,
@@ -150,7 +150,7 @@ mod topology;
 mod validation; pub use validation::{solve_input_missing_codes, SolveInputChecks, SOLVE_INPUT_MISSING_CODES_JSON}; // DEL-04-06 REQ-013, on this line so that no line moves.
 mod imposed_motion; mod held_status; mod skew; // RT-A5 `minuend_final` (DEL-05-02 `operating-case.md` §7) and R-6/R-7 S-K1 (DEL-04-03 `skew-restraints.md`), on this line so that no line moves.
 use validation::validate_model_inputs;
-mod rigid_component;
+mod rigid_component; mod seismic_component; // DEL-05-01 static-equivalent seismic component force (LIM-028), on this line so that no line moves.
 #[cfg(test)]
 mod w15_rigid_scaling_tests;
 #[cfg(test)]
@@ -4901,7 +4901,7 @@ fn case_force_ledger(
     diagnostics: &mut Vec<Diagnostic>,
 ) -> LoadLedger {
     let mut ledger = LoadLedger::new();
-    certified_loads::nodal(&mut ledger,model,load_application,load_case_id,built.nodes.len());
+    certified_loads::nodal(&mut ledger,model,load_application,load_case_id,built.nodes.len(),diagnostics);
     add_uniform_element_loads(
         &mut ledger,
         model,
@@ -5562,6 +5562,7 @@ fn solve_prepared_load_case(
     // S11 sections 4.2 and 4.3: every producer pushes its contributions, term
     // by term, into one per-case exact ledger; the solve's force vector is
     // each DOF's correctly rounded net, and it can be built only here.
+    let ledger_before = diagnostics.len();
     let mut ledger = case_force_ledger(
         model,
         built,
@@ -5572,6 +5573,34 @@ fn solve_prepared_load_case(
         &load_case.id,
         diagnostics,
     );
+    // A generated seismic component value that is not the rule's was not
+    // pushed (`certified_loads::nodal`): the case stops here, before its
+    // ledger is finished, so it is never assembled or solved without that
+    // term. The other refusals raised while the ledger is built keep their
+    // own path.
+    if diagnostics[ledger_before..]
+        .iter()
+        .any(|d| d.code == seismic_component::VALUE_MISMATCH)
+    {
+        return Ok(LoadCaseSolve {
+            load_state_evidence: None,
+            exact_case_evidence: None,
+            pressure_evidence: Vec::new(),
+            source_case: None,
+            source_selected: false,
+            load_case_id: load_case.id.clone(),
+            results: Vec::new(),
+            max_displacement: None,
+            max_stress: None,
+            max_stress_reduced: None,
+            component_stress_modifier_count: 0,
+            preview: None,
+            withheld_summaries: Vec::new(),
+            held_status_source: None,
+            certificate_operand: None,
+            nonlinear_state: None,
+        });
+    }
     // W-16 R-c: a pressure-free case's moved spring bases, one per prepared
     // spring (0.0 when unmoved), and their formed loads k·g; refusals join
     // the motion maps' check below.
@@ -7603,7 +7632,7 @@ fn solve_prepared_load_case(
         // W-16 slice c (§2): a generating case names its mass method and its
         // generated primitives; other cases omit the record.
         if load_case.equivalent_static.is_some() {
-            evidence["equivalent_static"] = exact_equivalent_static_record(load_case, &loads);
+            evidence["equivalent_static"] = exact_equivalent_static_record(model, load_case, &loads);
         }
         // T4-U3 (S21): no replaced span in any per-pipe evidence list.
         joint::exclude_replaced_spans(&mut evidence, &replaced_span_ids_of(built));
@@ -11229,6 +11258,7 @@ pub(crate) fn is_generated_equivalent_static_load(
 /// generator's order. The ordinary companion binding re-forms it from the
 /// captured model (`source_receipt::composite`).
 pub(crate) fn exact_equivalent_static_record(
+    model: &PreviewModel,
     load_case: &PreviewLoadCase,
     loads: &[PrimitiveLoad],
 ) -> serde_json::Value {
@@ -11237,7 +11267,10 @@ pub(crate) fn exact_equivalent_static_record(
         .filter(|load| is_generated_equivalent_static_load(load_case, &load.load_id, None))
         .map(|load| load.load_id.as_str())
         .collect::<Vec<_>>();
-    serde_json::json!({"mass_method": self_weight::EXACT_MASS_METHOD, "generated_load_ids": generated})
+    let mut record = serde_json::json!({"mass_method": self_weight::EXACT_MASS_METHOD, "generated_load_ids": generated});
+    // DEL-05-01 (issue 450 item 4): only a case that forms a component item carries the key.
+    if let Some(items) = seismic_component::record(model, load_case, &generated) { record["component_forces"] = items; }
+    record
 }
 
 fn equivalent_static_diag_id(load_case_id: &str, suffix: &str) -> String {
@@ -11319,13 +11352,22 @@ fn append_equivalent_static_generated_loads(
         if inputs_missing {
             return;
         }
+        // DEL-05-01 (LIM-028): the members a rigid-family component replaces
+        // and its force items, by REQ-015's dispositions, before any mass is
+        // read; a range refusal blocks the case by name.
+        let mut refusals = Vec::new();
+        let components = seismic_component::plan(model, case_id, &replaced, &seismic_component::entered_factors(load_case), &mut refusals);
+        if !refusals.is_empty() {
+            diagnostics.extend(refusals);
+            return;
+        }
         let mut masses = Vec::new();
         let mut mass_blocked = false;
         for (pipe_index, pipe) in model.pipe_segments.iter().enumerate() {
             // §3: a connector-replaced span carries no load; it is skipped
             // before its mass is evaluated, and the surviving pipes keep
-            // their original element index.
-            if replaced.contains(pipe.id.as_str()) {
+            // their original element index. So is a component-replaced member.
+            if replaced.contains(pipe.id.as_str()) || components.replaced.contains(pipe.id.as_str()) {
                 continue;
             }
             match generation_mass_per_length(pipe, case_id, exact, diagnostics) {
@@ -11344,7 +11386,7 @@ fn append_equivalent_static_generated_loads(
             gravity_acceleration: gravity,
             axis_factors,
         };
-        let (generated, findings) = generate_seismic_equivalent_static_loads(&basis, &masses);
+        let (generated, findings) = generate_seismic_equivalent_static_loads_beside_components(&basis, &masses, seismic_component::primitives(&components, case_id));
         for finding in &findings {
             diagnostics.push(diag(
                 &equivalent_static_diag_id(
@@ -16665,7 +16707,7 @@ mod tests {
             mass:MassPrimitive {outer_diameter:0.2,wall_thickness:0.01,mill_tolerance:0.0,pipe_density:7800.0,contents_density:0.0,insulation_thickness:0.0,insulation_density:0.0,corrosion_allowance:None},coefficient:1.1,gravity:-9.81,direction:[0.0,1.0,0.0] });
         let mut ledger=LoadLedger::new();
         let mut nodal=LoadApplication {nodal_loads:vec![open_pipe_stress_primitive_loads::NodalLoadContribution {load_id:"factor:load".into(),node_index:1,global_dof:7,value:0.1*1.1}],..application};
-        certified_loads::nodal(&mut ledger,&model,&nodal,&case_id,model.nodes.len());
+        certified_loads::nodal(&mut ledger,&model,&nodal,&case_id,model.nodes.len(),&mut Vec::new());
         let force=ledger.finish(model.nodes.len()*6).unwrap();
         assert_eq!(force.values()[7],0.1*1.1);
         assert!(force.closure_records()[0].formed);
@@ -16673,7 +16715,7 @@ mod tests {
         // An un-factored authored nodal term stays an input term (without the
         // exact contract the group selects no load/reference state).
         model.pressure_contract=None;nodal.nodal_loads[0].value=0.1;
-        let mut ledger=LoadLedger::new();certified_loads::nodal(&mut ledger,&model,&nodal,&case_id,model.nodes.len());
+        let mut ledger=LoadLedger::new();certified_loads::nodal(&mut ledger,&model,&nodal,&case_id,model.nodes.len(),&mut Vec::new());
         let force=ledger.finish(model.nodes.len()*6).unwrap();assert!(!force.closure_records()[0].formed);assert!(force.load_primitives().is_empty());
     }
 

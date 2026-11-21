@@ -1874,6 +1874,21 @@ pub fn generate_seismic_equivalent_static_loads(
     basis: &SeismicEquivalentStaticBasis,
     element_masses: &[ElementMassPerLength],
 ) -> (Vec<PrimitiveLoad>, Vec<LoadFinding>) {
+    generate_seismic_equivalent_static_loads_beside_components(basis, element_masses, Vec::new())
+}
+
+/// DEL-05-01 static-equivalent seismic generation with component forces:
+/// `component_loads` are the nodal force and moment primitives the caller
+/// formed for the members a rigid-family component replaces (those members
+/// are absent from `element_masses`). They follow the member loads, in the
+/// caller's order, when the case generates; with at least one of them the
+/// mass distribution may be empty. Every input check is unchanged, and a
+/// case with a finding generates nothing.
+pub fn generate_seismic_equivalent_static_loads_beside_components(
+    basis: &SeismicEquivalentStaticBasis,
+    element_masses: &[ElementMassPerLength],
+    component_loads: Vec<PrimitiveLoad>,
+) -> (Vec<PrimitiveLoad>, Vec<LoadFinding>) {
     let mut loads = Vec::new();
     let mut findings = Vec::new();
     let case_ref = basis.load_case_ref.as_str();
@@ -1900,7 +1915,7 @@ pub fn generate_seismic_equivalent_static_loads(
             "seismic equivalent-static generation requires a finite positive user-entered gravity acceleration",
         ));
     }
-    if element_masses.is_empty() {
+    if element_masses.is_empty() && component_loads.is_empty() {
         findings.push(LoadFinding::new(
             FindingCode::MissingGenerationInput,
             case_ref,
@@ -1969,6 +1984,7 @@ pub fn generate_seismic_equivalent_static_loads(
     if !findings.is_empty() {
         return (Vec::new(), findings);
     }
+    loads.extend(component_loads);
     (loads, findings)
 }
 
