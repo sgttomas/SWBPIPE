@@ -83,11 +83,11 @@ it("names a dropped choice beside the package actions in Report and Exports", as
   fireEvent.click(await within(results).findByTestId("c2-result-load"));
   const left = await within(results).findByTestId("comparison-left-select") as HTMLSelectElement;
   fireEvent.change(left, { target: { value: "load:L-200" } });
-  await waitFor(() => expect(within(results).getByTestId("comparison-package-basis-text")).toHaveTextContent(`load:L-200 vs ${RANGE}`));
+  await waitFor(() => expect(within(results).getByTestId("comparison-package-basis-text")).toHaveTextContent("Packages omit the comparison of load case L-200 vs combination U4B-RANGE-MAX: ANALYSIS-RUN-RESULT-DIMENSION-UNDECLARED"));
 
   // Report: the packages carry the choice.
   const report = openSection("report");
-  expect(within(report).getByTestId("report-comparison-package-notice-text")).toHaveTextContent(`load:L-200 vs ${RANGE}`);
+  expect(within(report).getByTestId("report-comparison-package-notice-text")).toHaveTextContent("Packages omit the comparison of load case L-200 vs combination U4B-RANGE-MAX: ANALYSIS-RUN-RESULT-DIMENSION-UNDECLARED");
 
   // A model document that offers no L-200 replaces the model; its solve drops the choice.
   nativeMenuCommand("file.open-model");
@@ -98,9 +98,10 @@ it("names a dropped choice beside the package actions in Report and Exports", as
   const dropped = droppedNotice(["load:L-200", RANGE]);
   const reportAgain = openSection("report");
   await waitFor(() => expect(within(reportAgain).getByTestId("report-comparison-package-notice-dropped")).toHaveTextContent(dropped));
-  expect(within(reportAgain).getByTestId("report-comparison-package-notice-text")).toHaveTextContent("Packages include: load:L-100 vs combination:C-OPER-ALT.");
+  // The connected model has neither basis of the fixed pair, so neither has rows.
+  expect(within(reportAgain).getByTestId("report-comparison-package-notice-text")).toHaveTextContent("The packages carry no comparison of load case L-100 with combination C-OPER-ALT: load case L-100 and combination C-OPER-ALT have no results in this run.");
   // The Exports page says nothing of the comparison: none of the exports it offers carries it.
   const exportsSection = openSection("exports");
   expect(within(exportsSection).queryByTestId("handoff-comparison-package-notice")).toBeNull();
-  expect(exportsSection).not.toHaveTextContent("Packages include");
+  expect(exportsSection).not.toHaveTextContent("comparison of load case");
 });

@@ -29,6 +29,7 @@ import {
   previewComparisonId
 } from "../../services/previewService";
 import type { AnalysisRunEnvelope, MechanicsResult, ObjectRef, PreviewComparison, PreviewModel } from "../../types";
+import { previewCombinationGates } from "../results/knownSemanticLimitations";
 
 export type WithinRunBasisOption = { ref_id: string; label: string | null; row_count: number };
 export type WithinRunOptions = { loadCases: WithinRunBasisOption[]; combinations: WithinRunBasisOption[] };
@@ -51,11 +52,17 @@ export type PreviewComparisonUnavailable = {
   release_or_professional_claim: false;
 };
 
-/** One pair's outcome: its comparison, or the record of its refusal. */
+/** A basis of a pair with no result rows in the run, and the solve's own reason
+ * when the solve withheld it (its gate's diagnostic message), else null. */
+export type WithinRunBasisWithoutRows = { side: "left" | "right"; ref_id: string; withheld_reason: string | null; withheld: boolean };
+
+/** One pair's outcome: its comparison, or the record of its refusal, and the bases
+ * of the pair that have no result rows in the run (left, then right). */
 export type WithinRunComparisonBuild = {
   pair: WithinRunPair;
   comparison: PreviewComparison | null;
   unavailable: PreviewComparisonUnavailable | null;
+  basesWithoutRows: WithinRunBasisWithoutRows[];
 };
 
 export type WithinRunView =
@@ -149,11 +156,28 @@ export function droppedBases(held: HeldWithinRunSelection, options: WithinRunOpt
   return dropped;
 }
 
+/** The bases of `pair` with no result rows in `result`, each with the solve's own
+ * withholding text where its combination gate withheld it: the message of the gate's
+ * diagnostic (its code is the gate's reason and it names the combination first). */
+export function basesWithoutRows(result: MechanicsResult, pair: WithinRunPair): WithinRunBasisWithoutRows[] {
+  const withRows = new Set(result.results.map((row) => row.basis_ref?.ref_id));
+  const gates = previewCombinationGates(result);
+  const sides: Array<["left" | "right", string]> = [["left", pair.left], ["right", pair.right]];
+  return sides.filter(([, id]) => !withRows.has(id)).map(([side, id]) => {
+    const gate = gates.find((item) => item.combination_id === id && item.withheld);
+    const message = gate
+      ? result.diagnostics?.find((item) => item.code === gate.reason && item.affected_refs?.[0] === id)?.message
+      : undefined;
+    return { side, ref_id: id, withheld: Boolean(gate), withheld_reason: typeof message === "string" && message !== "" ? message : null };
+  });
+}
+
 /** The comparison of one pair, or, when the unchanged builder refuses it, the record
  * of that refusal with the pair and the reason. */
 export function buildWithinRunComparison(result: MechanicsResult, analysisRun: ComparedRun, pair: WithinRunPair): WithinRunComparisonBuild {
+  const withoutRows = basesWithoutRows(result, pair);
   try {
-    return { pair, comparison: buildPreviewComparison({ result, analysisRun, leftBasisRef: pair.left, rightBasisRef: pair.right }), unavailable: null };
+    return { pair, comparison: buildPreviewComparison({ result, analysisRun, leftBasisRef: pair.left, rightBasisRef: pair.right }), unavailable: null, basesWithoutRows: withoutRows };
   } catch (error) {
     const reason = error instanceof Error ? error.message : String(error);
     const code = /^([A-Z][A-Z0-9_-]*):/.exec(reason)?.[1] ?? "COMPARISON-BUILD-REFUSED";
@@ -171,7 +195,8 @@ export function buildWithinRunComparison(result: MechanicsResult, analysisRun: C
         reason_code: code,
         reason,
         release_or_professional_claim: false
-      }
+      },
+      basesWithoutRows: withoutRows
     };
   }
 }
@@ -221,13 +246,81 @@ export function packagedComparison(
   return resolved.view.status === "ready" && resolved.view.source === "selected" ? resolved.build : fixedPair;
 }
 
-/** The package notice: which comparison the packages carry, or that they omit it
+/** A basis as a person reads it, as the Loads page names its kinds: the kind in
+ * words and the id without its stored prefix ("load case L-100", "combination
+ * C-OPER-ALT"). An id without the prefix is shown as it is. */
+export function basisName(side: "left" | "right", refId: string): string {
+  const [kind, prefix] = side === "left" ? ["load case", "load:"] : ["combination", "combination:"];
+  return `${kind} ${refId.startsWith(prefix) && refId.length > prefix.length ? refId.slice(prefix.length) : refId}`;
+}
+
+/** What the packages carry for the within-run pair:
+ * - `compared`: both bases have result rows and the packages include their comparison;
+ * - `none_carried`: a basis has no result rows in this run (`withoutRows`, with the
+ *   solve's own withholding text where there is one), so no comparison is carried;
+ * - `omitted`: the builder refused the pair (`reason` is its reason). */
+export type PackageNoticeState = "compared" | "none_carried" | "omitted";
+export type PackageNoticeParts = {
+  /** The stored ids. */
+  left: string;
+  right: string;
+  /** The names a person reads (`basisName`). */
+  leftName: string;
+  rightName: string;
+  state: PackageNoticeState;
+  /** `none_carried`: the bases without rows; empty otherwise. */
+  withoutRows: WithinRunBasisWithoutRows[];
+  /** `none_carried`: the reason in words, or null when the solve gives none;
+   * `omitted`: the builder's reason; `compared`: null. */
+  reason: string | null;
+  text: string;
+};
+
+/** "withheld by the solve: <its reason>", from the gate's message without its
+ * leading "Combination withheld:" and its final full stop; "withheld by the solve"
+ * when the gate has no message; null when the solve did not withhold the basis. */
+function withheldPhrase(basis: WithinRunBasisWithoutRows): string | null {
+  if (!basis.withheld) return null;
+  if (!basis.withheld_reason) return "withheld by the solve";
+  const reason = basis.withheld_reason.replace(/^Combination withheld:\s*/, "").replace(/\.$/, "");
+  return `withheld by the solve: ${reason}`;
+}
+
+/** The package notice's members and sentence. Null when there is no Current run. */
+export function packageNoticeParts(packaged: WithinRunComparisonBuild | null): PackageNoticeParts | null {
+  if (!packaged) return null;
+  const { left, right } = packaged.pair;
+  const leftName = basisName("left", left), rightName = basisName("right", right);
+  const base = { left, right, leftName, rightName };
+  const withoutRows = packaged.basesWithoutRows ?? [];
+  if (withoutRows.length > 0) {
+    const names = withoutRows.map((basis) => basisName(basis.side, basis.ref_id));
+    const phrases = withoutRows.map((basis) => [basis, withheldPhrase(basis)] as const).filter(([, phrase]) => phrase !== null);
+    const reason = phrases.length === 0
+      ? null
+      : withoutRows.length === 1
+        ? phrases[0][1]!
+        : phrases.map(([basis, phrase]) => `${basisName(basis.side, basis.ref_id)} ${phrase}`).join("; ");
+    const subject = `${names.join(" and ")} ${names.length === 1 ? "has" : "have"} no results in this run`;
+    return {
+      ...base,
+      state: "none_carried",
+      withoutRows,
+      reason,
+      text: `The packages carry no comparison of ${leftName} with ${rightName}: ${subject}${reason ? ` (${reason})` : ""}.`
+    };
+  }
+  if (packaged.comparison) {
+    return { ...base, state: "compared", withoutRows: [], reason: null, text: `The packages include the comparison of ${leftName} with ${rightName}.` };
+  }
+  const reason = packaged.unavailable?.reason ?? "it could not be built";
+  return { ...base, state: "omitted", withoutRows: [], reason, text: `Packages omit the comparison of ${leftName} vs ${rightName}: ${reason}` };
+}
+
+/** The package notice: which comparison the packages carry, or that they carry none
  * and why. Null when there is no Current run. */
 export function packageNotice(packaged: WithinRunComparisonBuild | null): string | null {
-  if (!packaged) return null;
-  const pair = `${packaged.pair.left} vs ${packaged.pair.right}`;
-  if (packaged.comparison) return `Packages include: ${pair}.`;
-  return `Packages omit the comparison of ${pair}: ${packaged.unavailable?.reason ?? "it could not be built"}`;
+  return packageNoticeParts(packaged)?.text ?? null;
 }
 
 /** The notice of a choice dropped because a Current run did not offer its bases. It

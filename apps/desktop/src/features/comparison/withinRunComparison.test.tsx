@@ -23,7 +23,9 @@ import {
   droppedBases,
   droppedNotice,
   fixedPairComparison,
+  basisName,
   packageNotice,
+  packageNoticeParts,
   NO_COMBINATION_ROWS,
   NO_LOAD_CASE_OR_COMBINATION_ROWS,
   NO_LOAD_CASE_ROWS,
@@ -196,7 +198,8 @@ describe("the default", () => {
     expect(expected.summary.comparable_result_pairs).toBeGreaterThan(0);
     // Without a choice the packages keep the fixed-pair comparison, as before.
     expect(packaged!.comparison).toStrictEqual(buildPreviewComparison({ result: source, analysisRun: run }));
-    expect(packageNotice(packaged)).toBe(`Packages include: ${DEFAULT_COMPARISON_LEFT_BASIS_REF} vs ${DEFAULT_COMPARISON_RIGHT_BASIS_REF}.`);
+    // C-OPER-ALT is withheld by the solve, so it has no rows: the notice says no comparison is carried.
+    expect(packageNotice(packaged)).toBe("The packages carry no comparison of load case L-100 with combination C-OPER-ALT: combination C-OPER-ALT has no results in this run (withheld by the solve: the model has nonlinear supports, so superposing case states is not a solved state).");
   });
 
   it("is nothing, with the reason, when no load case or no combination has result rows", () => {
@@ -228,7 +231,7 @@ describe("the choice", () => {
     expect(comparison.summary.tolerance_status).toBe("not_tolerance_checked");
     expect(comparison.summary.tolerance_profile_ref).toBe("TBD");
     expect(comparison.unit_policy_evidence.conversion_performed).toBe(false);
-    expect(packageNotice(packaged)).toBe(`Packages include: load:L-200 vs ${RANGE}.`);
+    expect(packageNotice(packaged)).toBe("The packages include the comparison of load case L-200 with combination U4B-RANGE-MAX.");
   });
 
   it("names the bases a run does not offer; such an id is never compared", () => {
@@ -265,7 +268,7 @@ describe("the choice", () => {
       reason: expect.stringContaining("has no source dimension declaration"),
       release_or_professional_claim: false
     });
-    expect(packageNotice(packaged)).toMatch(new RegExp(`^Packages omit the comparison of load:L-200 vs ${RANGE}: ANALYSIS-RUN-RESULT-DIMENSION-UNDECLARED`));
+    expect(packageNotice(packaged)).toMatch(/^Packages omit the comparison of load case L-200 vs combination U4B-RANGE-MAX: ANALYSIS-RUN-RESULT-DIMENSION-UNDECLARED/);
     expect(buildWithinRunComparison(source, run, { left: "load:L-100", right: DEFAULT_COMPARISON_RIGHT_BASIS_REF }).unavailable).toBeNull();
   });
 });
@@ -344,7 +347,7 @@ describe("the panel", () => {
     expect(left.options[0].textContent).toMatch(/^Invented operating gravity and pressure preview \(load:L-100\); \d+ result rows$/);
     expect(screen.getByRole("group", { name: "Within this run" })).toBeTruthy();
     expect(screen.getByTestId("comparison-summary")).toHaveTextContent(`${DEFAULT_COMPARISON_LEFT_BASIS_REF};`);
-    expect(screen.getByTestId("comparison-package-basis")).toHaveTextContent(`Packages include: ${DEFAULT_COMPARISON_LEFT_BASIS_REF} vs ${DEFAULT_COMPARISON_RIGHT_BASIS_REF}.`);
+    expect(screen.getByTestId("comparison-package-basis")).toHaveTextContent("The packages include the comparison of load case L-100 with combination C-OPER-ALT.");
     fireEvent.change(left, { target: { value: "load:L-200" } });
     expect(onSelect).toHaveBeenLastCalledWith({ left: "load:L-200", right: DEFAULT_COMPARISON_RIGHT_BASIS_REF });
     // No wording of standing.
@@ -369,14 +372,14 @@ describe("the panel", () => {
     expect(screen.getByTestId("comparison-unavailable")).toHaveTextContent(NO_COMBINATION_ROWS);
     expect(screen.queryByTestId("comparison-summary")).toBeNull();
     expect(screen.queryByTestId("comparison-left-select")).toBeNull();
-    expect(screen.getByTestId("comparison-package-basis")).toHaveTextContent(`Packages include: ${DEFAULT_COMPARISON_LEFT_BASIS_REF} vs ${DEFAULT_COMPARISON_RIGHT_BASIS_REF}.`);
+    expect(screen.getByTestId("comparison-package-basis")).toHaveTextContent("The packages carry no comparison of load case L-100 with combination C-OPER-ALT: combination C-OPER-ALT has no results in this run (withheld by the solve: the model has nonlinear supports, so superposing case states is not a solved state).");
   });
 
   it("names the builder's refusal and says the packages omit the comparison, though no comparison id is shown (Codex finding 3)", () => {
     panel(resolve(producerResult(), analysisRun("run:invented"), { left: "load:L-200", right: RANGE }));
     expect(screen.getByTestId("comparison-refused")).toHaveTextContent("Not compared: ANALYSIS-RUN-RESULT-DIMENSION-UNDECLARED");
     expect(screen.queryByTestId("comparison-summary")).toBeNull();
-    expect(screen.getByTestId("comparison-package-basis")).toHaveTextContent(`Packages omit the comparison of load:L-200 vs ${RANGE}: ANALYSIS-RUN-RESULT-DIMENSION-UNDECLARED`);
+    expect(screen.getByTestId("comparison-package-basis")).toHaveTextContent("Packages omit the comparison of load case L-200 vs combination U4B-RANGE-MAX: ANALYSIS-RUN-RESULT-DIMENSION-UNDECLARED");
   });
 
   it("names a dropped choice", () => {
@@ -387,7 +390,7 @@ describe("the panel", () => {
   it("the package notice beside the package actions reads the same", () => {
     const resolved = resolve(result(), analysisRun("run:invented"), { left: "load:L-200", right: RANGE });
     render(<ComparisonPackageNotice packaged={resolved.packaged} testId="report-comparison-package-notice" />);
-    expect(screen.getByTestId("report-comparison-package-notice")).toHaveTextContent(`Packages include: load:L-200 vs ${RANGE}.`);
+    expect(screen.getByTestId("report-comparison-package-notice")).toHaveTextContent("The packages include the comparison of load case L-200 with combination U4B-RANGE-MAX.");
     const { container } = render(<ComparisonPackageNotice packaged={null} testId="none" />);
     expect(container.textContent).toBe("");
   });
@@ -401,5 +404,61 @@ describe("the panel", () => {
     render(<ComparisonPanel comparison={null} result={null} onSelectResult={() => {}} withinRun={{ view: { status: "no_result" }, disabledReason: null, onSelect: () => {}, packaged: null, dropped: null }} />);
     expect(screen.getByTestId("comparison-empty")).toBeTruthy();
     expect(screen.queryByTestId("comparison-within-run")).toBeNull();
+  });
+});
+
+describe("the package notice", () => {
+  const run = analysisRun("run:invented");
+  it("names a basis by its kind and its id without the stored prefix", () => {
+    expect(basisName("left", "load:L-100")).toBe("load case L-100");
+    expect(basisName("right", "combination:C-OPER-ALT")).toBe("combination C-OPER-ALT");
+    // An id without the prefix, or only the prefix, is shown as it is.
+    expect(basisName("left", "case:six")).toBe("load case case:six");
+    expect(basisName("right", "combination:")).toBe("combination combination:");
+  });
+
+  it("compared: both bases have rows; the members and the sentence", () => {
+    const parts = packageNoticeParts(buildWithinRunComparison(result(), run, { left: "load:L-200", right: RANGE }))!;
+    expect(parts).toEqual({
+      left: "load:L-200", right: RANGE, leftName: "load case L-200", rightName: "combination U4B-RANGE-MAX",
+      state: "compared", withoutRows: [], reason: null,
+      text: "The packages include the comparison of load case L-200 with combination U4B-RANGE-MAX."
+    });
+  });
+
+  it("none carried: a side without rows, with the solve's reason only where the solve withheld it", () => {
+    // C-OPER-ALT is withheld by the solve (its gate and diagnostic).
+    const withheld = packageNoticeParts(buildWithinRunComparison(result(), run, { left: "load:L-100", right: DEFAULT_COMPARISON_RIGHT_BASIS_REF }))!;
+    expect([withheld.state, withheld.withoutRows.map((basis) => [basis.side, basis.ref_id, basis.withheld])]).toEqual(["none_carried", [["right", DEFAULT_COMPARISON_RIGHT_BASIS_REF, true]]]);
+    expect(withheld.reason).toBe("withheld by the solve: the model has nonlinear supports, so superposing case states is not a solved state");
+    // A gate with no diagnostic message: withheld, with no text of its own.
+    const silent = result();
+    silent.diagnostics = silent.diagnostics.filter((item) => item.code !== "NONLINEAR_COMBINATION_REQUIRES_SOLVE");
+    expect(packageNoticeParts(buildWithinRunComparison(silent, run, { left: "load:L-100", right: DEFAULT_COMPARISON_RIGHT_BASIS_REF }))!.text)
+      .toBe("The packages carry no comparison of load case L-100 with combination C-OPER-ALT: combination C-OPER-ALT has no results in this run (withheld by the solve).");
+    // A basis the run has no rows for and the solve did not withhold: no reason.
+    const missing = packageNoticeParts(buildWithinRunComparison(result(), run, { left: "load:L-999", right: RANGE }))!;
+    expect([missing.state, missing.reason, missing.text]).toEqual([
+      "none_carried", null,
+      "The packages carry no comparison of load case L-999 with combination U4B-RANGE-MAX: load case L-999 has no results in this run."
+    ]);
+    // Both sides: both named; the reason names the side it belongs to.
+    const both = packageNoticeParts(buildWithinRunComparison(result(), run, { left: "load:L-999", right: DEFAULT_COMPARISON_RIGHT_BASIS_REF }))!;
+    expect(both.withoutRows.map((basis) => basis.side)).toEqual(["left", "right"]);
+    expect(both.text).toBe("The packages carry no comparison of load case L-999 with combination C-OPER-ALT: load case L-999 and combination C-OPER-ALT have no results in this run (combination C-OPER-ALT withheld by the solve: the model has nonlinear supports, so superposing case states is not a solved state).");
+    const neither = packageNoticeParts(buildWithinRunComparison(result(), run, { left: "load:L-999", right: "combination:C-999" }))!;
+    expect([neither.reason, neither.text]).toEqual([null, "The packages carry no comparison of load case L-999 with combination C-999: load case L-999 and combination C-999 have no results in this run."]);
+  });
+
+  it("omitted: the builder refused the pair; today's sentence with the bases named", () => {
+    const parts = packageNoticeParts(buildWithinRunComparison(producerResult(), run, { left: "load:L-200", right: RANGE }))!;
+    expect([parts.state, parts.withoutRows]).toEqual(["omitted", []]);
+    expect(parts.reason).toMatch(/^ANALYSIS-RUN-RESULT-DIMENSION-UNDECLARED/);
+    expect(parts.text).toBe(`Packages omit the comparison of load case L-200 vs combination U4B-RANGE-MAX: ${parts.reason}`);
+  });
+
+  it("is null without a Current run", () => {
+    expect(packageNoticeParts(null)).toBeNull();
+    expect(packageNotice(null)).toBeNull();
   });
 });

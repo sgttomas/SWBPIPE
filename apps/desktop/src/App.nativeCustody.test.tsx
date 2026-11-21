@@ -122,7 +122,7 @@ describe("a native result's first paint in the app", () => {
     // packaged basis, and no combination with result rows to compare.
     const comparison = await within(resultsSection).findByTestId("comparison-panel");
     expect(await within(comparison).findByTestId("comparison-within-run")).toBeInTheDocument();
-    expect(within(comparison).getByTestId("comparison-package-basis-text")).toHaveTextContent("Packages include: load:L-100 vs combination:C-OPER-ALT.");
+    expect(within(comparison).getByTestId("comparison-package-basis-text")).toHaveTextContent("The packages carry no comparison of load case L-100 with combination C-OPER-ALT: load case L-100 and combination C-OPER-ALT have no results in this run.");
     expect(within(comparison).getByTestId("comparison-unavailable")).toHaveTextContent("No combination in this run has result rows, so there is nothing to compare within this run.");
     expect(within(resultsSection).queryByTestId("c2-result-refused")).toBeNull();
     expect(within(resultsSection).queryByTestId("c2-result-failed")).toBeNull();

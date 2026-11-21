@@ -15,7 +15,7 @@ import { buildStateComparisonHandoffSections } from "../report/stateComparisonHa
 import { reportComparisonFields, reportComparisonLine } from "../report/ReportPanel";
 import { ExportReviewPanel } from "../export-review/ExportReviewPanel";
 import { DesignWorkspacePanel } from "../design-workspace/DesignWorkspacePanel";
-import { buildWithinRunComparison, fixedPairComparison, packagedComparison, packageNotice, resolveWithinRun, withinRunBasisOptions } from "./withinRunComparison";
+import { buildWithinRunComparison, fixedPairComparison, packagedComparison, packageNotice, packageNoticeParts, resolveWithinRun, withinRunBasisOptions } from "./withinRunComparison";
 
 afterEach(cleanup);
 const RANGE = "combination:U4B-RANGE-MAX";
@@ -97,7 +97,7 @@ describe("the demonstration model's withheld combination", () => {
     return { model, result, analysisRun, options, fixed, resolved, packaged: packagedComparison(resolved, fixed) };
   }
 
-  it("the combination has no rows, the fixed pair's build compares none and the notice says it is included", async () => {
+  it("the combination has no rows, the fixed pair's build compares none, and the notice says no comparison is carried, with the solve's reason", async () => {
     const { result, options, fixed, resolved, packaged } = await demo();
     expect(result.results.filter((row) => row.basis_ref?.ref_id === "combination:C-OPER-ALT")).toHaveLength(0);
     expect(result.diagnostics.some((item) => item.code === "NONLINEAR_COMBINATION_REQUIRES_SOLVE" && item.affected_refs?.includes("combination:C-OPER-ALT"))).toBe(true);
@@ -110,6 +110,18 @@ describe("the demonstration model's withheld combination", () => {
     expect(fixed.comparison!.summary.comparable_result_pairs).toBe(0);
     expect(fixed.comparison!.result_deltas).toEqual([]);
     expect(fixed.comparison!.diagnostics.map((item) => item.code)).toEqual(["COMPARISON_REFERENCE_ROWS_UNMATCHED"]);
-    expect(packageNotice(packaged)).toBe("Packages include: load:L-100 vs combination:C-OPER-ALT.");
+    // The solve's own withholding text: its gate's diagnostic message.
+    const solveReason = result.diagnostics.find((item) => item.code === "NONLINEAR_COMBINATION_REQUIRES_SOLVE")!.message;
+    expect(packageNoticeParts(packaged)).toEqual({
+      left: "load:L-100",
+      right: "combination:C-OPER-ALT",
+      leftName: "load case L-100",
+      rightName: "combination C-OPER-ALT",
+      state: "none_carried",
+      withoutRows: [{ side: "right", ref_id: "combination:C-OPER-ALT", withheld: true, withheld_reason: solveReason }],
+      reason: "withheld by the solve: the model has nonlinear supports, so superposing case states is not a solved state",
+      text: "The packages carry no comparison of load case L-100 with combination C-OPER-ALT: combination C-OPER-ALT has no results in this run (withheld by the solve: the model has nonlinear supports, so superposing case states is not a solved state)."
+    });
+    expect(packageNotice(packaged)).toBe(packageNoticeParts(packaged)!.text);
   });
 });
