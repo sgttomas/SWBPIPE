@@ -5,7 +5,7 @@ const defaultPreviewModel = JSON.parse(readFileSync(fileURLToPath(
   new URL("../../../fixtures/product_preview/invented_demo_model.json", import.meta.url),
 ), "utf8"));
 import { expect, test, type Page } from "@playwright/test";
-import { confirmProjectUnits, projectCommand, startPropertyTaskFromTreeEntity } from "./workspace-driver";
+import { confirmProjectUnits, openDisclosure, projectCommand, startPropertyTaskFromTreeEntity } from "./workspace-driver";
 import {
   APPEARANCE_DENSITIES,
   APPEARANCE_THEMES,
@@ -1093,6 +1093,7 @@ for (const theme of APPEARANCE_THEMES) {
         await expect(page.getByTestId("readiness-diagnostics")).toHaveClass(/\bblocking\b/);
         await expect(page.getByTestId("readiness-diagnostics")).toContainText("1 blocking/error");
       }
+      await openDisclosure(page, "solve-run-record");
       const rows = page.getByTestId("solve-readiness-summary").locator(".readiness-row");
       await expect(rows).toHaveCount(4);
       const witnesses: unknown[] = [];

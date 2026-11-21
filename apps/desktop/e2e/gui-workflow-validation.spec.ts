@@ -1,4 +1,4 @@
-import { selectCompactOption } from "./workspace-driver";
+import { openDisclosure, selectCompactOption } from "./workspace-driver";
 import { expect, test, type Page, type Locator } from "@playwright/test";
 import { readFileSync } from "node:fs";
 import { fileURLToPath } from "node:url";
@@ -238,6 +238,7 @@ test("DEL-09-04 invented fixture exposes warnings, boundaries, and honest solve/
   await page.getByTestId("menu-view").click();
   await page.getByTestId("menu-item-view.section.solve").click();
   await expect(page.getByTestId("workspace-section-solve")).toBeVisible();
+  await openDisclosure(page, "solve-run-record");
   await expect(page.getByTestId("readiness-mechanics")).toBeVisible();
   await expect(page.getByTestId("readiness-mechanics")).toContainText("preview run not started");
   // Slice B3: the Analyze page lies over the stage's surfaces; close it to read the canvas's status.

@@ -1277,7 +1277,8 @@ describe("SWBPIPE desktop preview", () => {
     expect(screen.getByTestId("solve-job-boundary").textContent).toContain(
       "private payload=false",
     );
-    expect(screen.getByTestId("cancel-mechanics-preview")).toBeDisabled();
+    // Cancel is on the page only while a solve runs.
+    expect(screen.queryByTestId("cancel-mechanics-preview")).toBeNull();
     fireEvent.click(screen.getByTestId("solve-job-export-link-local-private-intent"));
     const solveJobHref =
       screen.getByTestId("solve-job-export-link").getAttribute("href") ?? "";

@@ -84,7 +84,7 @@ it("withholds Solve on the missing value, names the finding and its entity, chan
       solverMode="sparse_interactive" onRun={() => {}} onCancel={() => {}} onSolverModeChange={() => {}}
       solveGate={result.current.results.solveGate} onSelectEntity={(entity) => { result.current.selection.handleSelectEntity(entity); }} />
   );
-  expect(screen.getByRole("button", { name: "Run mechanics preview (withheld)" })).toHaveAccessibleDescription(/1 solve-blocking finding stands/);
+  expect(screen.getByRole("button", { name: "Run withheld" })).toHaveAccessibleDescription(/1 solve-blocking finding stands/);
   const notice = screen.getByRole("region", { name: "Solve is withheld" });
   act(() => { fireEvent.click(within(notice).getByRole("button", { name: /MATERIAL_INPUT_MISSING blocking/ })); });
   await waitFor(() => expect(result.current.selection.selection).toMatchObject({ type: "pipe", id: PIPE }));

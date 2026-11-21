@@ -313,7 +313,7 @@ function solveRetryPath(refusal: ResourceRefusal): string {
     case "ingress_exceeds_budget":
     case "worker_cap_exceeded":
     case "worker_footprint_exceeded":
-      return "This solve needed more than the per-invocation budget allows; a larger budget, up to the pool, can be set under Memory pool before running the solve again.";
+      return "This solve needed more than the per-invocation budget allows; a larger budget, up to the pool, can be set under Memory settings (Memory per solve) before running the solve again.";
     case "ingress_invalid":
       return "The request itself could not be received; running it again unchanged is refused the same way.";
     case "worker_growth_refused":

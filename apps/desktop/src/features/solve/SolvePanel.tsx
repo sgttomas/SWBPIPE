@@ -4,14 +4,14 @@ import { LoadReferenceOutputGate } from "../results/LoadReferenceOutputGate";
 import { LoadReferenceStatesBlock } from "./LoadReferenceStatesBlock";
 import type { AnalysisRunEnvelope, Diagnostic, MechanicsResult, PreviewModel, SolveJobAuditState } from "../../types";
 import type { PreviewSolverMode } from "../../services/previewService";
-import { hasRecordedUnsolvedModelStatus, professionalStatusToken, ruleCheckStatusToken, solverDisplayWithToken, statusDisplayWithToken } from "../workspace/statusLabels";
+import { hasRecordedUnsolvedModelStatus, professionalStatusToken, registeredStatusLabel, ruleCheckStatusToken, SOLVER_NOT_SOLVED, solverDisplayWithToken, statusDisplayWithToken } from "../workspace/statusLabels";
 import { describeResourceRefusal, describeSolveWorkerFailure, formatBytes, resourceRefusalCode } from "../../services/memoryPool";
 import { describeSolveRefusalRetry, isResultTooLargeSolveJob, solveRefusalPoint } from "../workspace/solveJobAudit";
 import { MemoryPoolPanel } from "./MemoryPoolPanel";
 import type { NumericalHealthView } from "../results/numericalHealth";
 import type { CurrentSessionInputManifest } from "../../services/inputManifestService";
 import { RulePackRunReferences } from "../rule-packs/RulePackRunReferences";
-import { useId } from "react";
+import { useId, type ReactNode } from "react";
 import type { EntityRef } from "../../types";
 import type { SolveGateReading } from "../workspace/solveGates";
 import { SolveWithheldNotice } from "./SolveWithheldNotice";
@@ -30,7 +30,10 @@ export function SolvePanel({
   onRun,
   onSolverModeChange,
   onSelectEntity = () => {},
-  onOpenModelChecks = () => {}
+  onOpenModelChecks = () => {},
+  issueCount = 0,
+  onOpenIssues = () => {},
+  ruleChecks = null
 }: {
   analysisRun: SessionAnalysisRun | null;
   /** The current solve's input manifest: its recorded rule-pack references and their diagnostics. */
@@ -52,6 +55,12 @@ export function SolvePanel({
   onSelectEntity?: (entity: EntityRef) => void;
   /** Opens the Issues drawer on the Model checks list. */
   onOpenModelChecks?: () => void;
+  /** The number of items the Issues list holds; the status line shows it as a press when above zero. */
+  issueCount?: number;
+  /** Opens the Issues list. */
+  onOpenIssues?: () => void;
+  /** The page's rule checks, shown under the solve controls and above the disclosures. */
+  ruleChecks?: ReactNode;
 }) {
   const withheldSummaryId = useId();
   const withheld = solveGate?.kind === "withheld" ? solveGate : null;
@@ -61,38 +70,76 @@ export function SolvePanel({
   const packet = buildSolveJobPacket({ model, result, analysisRun, solveJob, running, solverMode });
   const refusalPoint = solveRefusalPoint(solveJob);
   const resultTooLarge = isResultTooLargeSolveJob(solveJob);
+  const statusText = solveStatusLine({ model, result, solveJob, running, withheld: withheld !== null, resultTooLarge });
   return (
     <section className="panel solve-panel" aria-label="Solve execution" data-testid="solve-panel">
-      <div className="panel-title">Execution</div>
-      {/* The Mechanics / Rule check / Professional pills now live in the global
-          status bar; the local status grid was removed to avoid duplication. */}
-      <section className="readiness-summary" aria-label="Solve readiness summary" data-testid="solve-readiness-summary">
-        {readinessItems.map((item) => (
-          <ReadinessRow key={item.id} item={item} healthBadge={item.id === "diagnostics" && result ? numericalHealth : null} />
-        ))}
-      </section>
-      <div className="report-actions">
-        <LoadReferenceOutputGate result={result} testIdPrefix="solve-job">
-        <ControlledExportLink
-          className="report-export-link"
-          data-testid="solve-job-export-link"
-          download={`openpipestress-preview-solve-job-${safeFileToken(model.project.id)}.json`}
-          href={jsonDataHref(packet)}
+      {/* The page leads with one line in words and the solve controls. Every record of the
+          run, and the memory settings, sit below in closed disclosures. */}
+      <p className="solve-status-line" data-testid="solve-status-line">
+        <span data-testid="solve-status-text">{statusText}</span>
+        {issueCount > 0 ? (
+          <button type="button" className="solve-status-issues" data-testid="solve-status-issues" onClick={onOpenIssues}>
+            {issueCount} {plural("issue", issueCount)}
+          </button>
+        ) : null}
+      </p>
+      <div className="solve-controls">
+        <div className="solver-mode-control" role="group" aria-label="Solver mode" data-testid="solver-mode-control">
+          <button
+            aria-pressed={solverMode === "sparse_interactive"}
+            className={solverMode === "sparse_interactive" ? "mode-button active" : "mode-button"}
+            data-testid="solver-mode-sparse"
+            disabled={running}
+            onClick={() => onSolverModeChange("sparse_interactive")}
+            title={SPARSE_SOLVER_TITLE}
+            type="button"
+          >
+            Sparse solver
+          </button>
+          <button
+            aria-pressed={solverMode === "dense_scrutiny"}
+            className={solverMode === "dense_scrutiny" ? "mode-button active" : "mode-button"}
+            data-testid="solver-mode-dense"
+            disabled={running}
+            onClick={() => onSolverModeChange("dense_scrutiny")}
+            title={DENSE_SOLVER_TITLE}
+            type="button"
+          >
+            Dense solver
+          </button>
+        </div>
+        <button
+          className="primary-action"
+          data-testid="run-mechanics-preview"
+          aria-disabled={withheld ? true : undefined}
+          aria-describedby={withheld ? withheldSummaryId : undefined}
+          onClick={onRun}
+          disabled={running}
+          type="button"
         >
-          <Download size={14} aria-hidden="true" />
-          Solve job JSON
-        </ControlledExportLink>
-        </LoadReferenceOutputGate>
-        <span data-testid="solve-job-summary">
-          state={packet.summary.job_state}; events={packet.summary.event_count}; result_rows=
-          {packet.summary.result_row_count}; cancellation_requested={String(packet.summary.cancellation_requested)}
-        </span>
+          <Play size={16} aria-hidden="true" />
+          {running ? "Running" : withheld ? "Run withheld" : "Run"}
+        </button>
+        {running ? (
+          <button className="secondary-action" data-testid="cancel-mechanics-preview" onClick={onCancel} type="button">
+            <Square size={15} aria-hidden="true" />
+            Cancel
+          </button>
+        ) : null}
       </div>
+      {withheld ? (
+        <SolveWithheldNotice
+          reading={withheld}
+          model={model}
+          summaryId={withheldSummaryId}
+          onSelectEntity={onSelectEntity}
+          onOpenModelChecks={onOpenModelChecks}
+        />
+      ) : null}
       {solveJob.error_message && !resultTooLarge ? <p role="status" data-testid="solve-job-error">{solveJob.error_message}</p> : null}
       {resultTooLarge ? (
         <p role="status" className="memory-pool-message warning" data-testid="solve-job-result-too-large">{solveJob.error_message}</p>
       ) : null}
-      <RulePackRunReferences manifest={inputManifest} record={analysisRun} testId="solve-rule-pack-refs" />
       {solveJob.state === "failed" && describeSolveWorkerFailure(solveJob.error_message) ? (
         <p role="status" className="memory-pool-message error" data-testid="solve-job-worker-failure">
           {describeSolveWorkerFailure(solveJob.error_message)}
@@ -111,78 +158,98 @@ export function SolvePanel({
       {solveJob.resource.queue_reason && (solveJob.state === "queued" || solveJob.state === "cancelling") ? (
         <p role="status" className="memory-pool-message info" data-testid="solve-job-queue-reason">
           Waiting in the queue: {describeResourceRefusal(solveJob.resource.queue_reason)} The queue retries by itself and starts
-          the solve once the pool admits it; Cancel preview stops the wait.
+          the solve once the pool admits it; Cancel stops the wait.
         </p>
       ) : null}
-      <div className="report-list solve-job-list" data-testid="solve-job-audit">
-        <SolveLine label="Solver mode" value={solverModeSummary(packet)} testId="solve-job-solver-mode" />
-        <SolveLine label="Progress" value={progressSummary(packet)} testId="solve-job-progress" />
-        <SolveLine label="Cancellation" value={cancellationSummary(packet)} testId="solve-job-cancellation" />
-        <SolveLine label="Memory" value={resourceSummary(packet)} testId="solve-job-resource" />
-        <SolveLine label="Result binding" value={resultBinding(packet)} testId="solve-job-binding" />
-        <SolveLine label="Unit policy" value={unitPolicySummary(packet)} testId="solve-job-unit-policy" />
-        <SolveLine label="Boundary" value={boundarySummary(packet)} testId="solve-job-boundary" />
-      </div>
-      <LoadReferenceStatesBlock result={result} model={model} />
-      <div className="solver-mode-control" role="group" aria-label="Solver mode" data-testid="solver-mode-control">
-        <button
-          aria-pressed={solverMode === "sparse_interactive"}
-          className={solverMode === "sparse_interactive" ? "mode-button active" : "mode-button"}
-          data-testid="solver-mode-sparse"
-          disabled={running}
-          onClick={() => onSolverModeChange("sparse_interactive")}
-          type="button"
-        >
-          <Play size={14} aria-hidden="true" />
-          Sparse interactive
-        </button>
-        <button
-          aria-pressed={solverMode === "dense_scrutiny"}
-          className={solverMode === "dense_scrutiny" ? "mode-button active" : "mode-button"}
-          data-testid="solver-mode-dense"
-          disabled={running}
-          onClick={() => onSolverModeChange("dense_scrutiny")}
-          type="button"
-        >
-          <ShieldCheck size={14} aria-hidden="true" />
-          Dense scrutiny
-        </button>
-      </div>
-      <button
-        className="primary-action"
-        data-testid="run-mechanics-preview"
-        aria-disabled={withheld ? true : undefined}
-        aria-describedby={withheld ? withheldSummaryId : undefined}
-        onClick={onRun}
-        disabled={running}
-        type="button"
-      >
-        <Play size={16} />
-        {running ? "Running preview" : withheld ? "Run mechanics preview (withheld)" : "Run mechanics preview"}
-      </button>
-      {withheld ? (
-        <SolveWithheldNotice
-          reading={withheld}
-          model={model}
-          summaryId={withheldSummaryId}
-          onSelectEntity={onSelectEntity}
-          onOpenModelChecks={onOpenModelChecks}
-        />
-      ) : null}
-      <button
-        className="secondary-action"
-        data-testid="cancel-mechanics-preview"
-        disabled={!running}
-        title={running ? undefined : "Disabled: no mechanics preview is running, so there is nothing to cancel."}
-        onClick={onCancel}
-        type="button"
-      >
-        <Square size={15} aria-hidden="true" />
-        Cancel preview
-      </button>
-      <MemoryPoolPanel active={running} />
+      {ruleChecks}
+      <details className="solve-disclosure" data-testid="solve-memory-settings">
+        <summary>Memory settings</summary>
+        <MemoryPoolPanel active={running} />
+      </details>
+      <details className="solve-disclosure" data-testid="solve-run-record">
+        <summary>Run record</summary>
+        <section className="readiness-summary" aria-label="Solve readiness summary" data-testid="solve-readiness-summary">
+          {readinessItems.map((item) => (
+            <ReadinessRow key={item.id} item={item} healthBadge={item.id === "diagnostics" && result ? numericalHealth : null} />
+          ))}
+        </section>
+        <div className="report-actions">
+          <LoadReferenceOutputGate result={result} testIdPrefix="solve-job">
+          <ControlledExportLink
+            className="report-export-link"
+            data-testid="solve-job-export-link"
+            download={`openpipestress-preview-solve-job-${safeFileToken(model.project.id)}.json`}
+            href={jsonDataHref(packet)}
+          >
+            <Download size={14} aria-hidden="true" />
+            Solve job JSON
+          </ControlledExportLink>
+          </LoadReferenceOutputGate>
+          <span data-testid="solve-job-summary">
+            state={packet.summary.job_state}; events={packet.summary.event_count}; result_rows=
+            {packet.summary.result_row_count}; cancellation_requested={String(packet.summary.cancellation_requested)}
+          </span>
+        </div>
+        <RulePackRunReferences manifest={inputManifest} record={analysisRun} testId="solve-rule-pack-refs" />
+        <div className="report-list solve-job-list" data-testid="solve-job-audit">
+          <SolveLine label="Solver mode" value={solverModeSummary(packet)} testId="solve-job-solver-mode" />
+          <SolveLine label="Progress" value={progressSummary(packet)} testId="solve-job-progress" />
+          <SolveLine label="Cancellation" value={cancellationSummary(packet)} testId="solve-job-cancellation" />
+          <SolveLine label="Memory" value={resourceSummary(packet)} testId="solve-job-resource" />
+          <SolveLine label="Result binding" value={resultBinding(packet)} testId="solve-job-binding" />
+          <SolveLine label="Unit policy" value={unitPolicySummary(packet)} testId="solve-job-unit-policy" />
+          <SolveLine label="Boundary" value={boundarySummary(packet)} testId="solve-job-boundary" />
+        </div>
+        <LoadReferenceStatesBlock result={result} model={model} />
+      </details>
     </section>
   );
+}
+
+/** What each solver option solves with (DEL-04-01: a sparse and a dense mode, sparse the
+ * default and dense its parity path; DEL-04-07: the dense path is refused above its memory
+ * ceiling before it allocates). Neither title states an accuracy. */
+const SPARSE_SOLVER_TITLE = "The default: a direct solve that stores and factors only the stiffness matrix's skyline profile.";
+const DENSE_SOLVER_TITLE =
+  "A direct solve of the full stiffness matrix, to cross-check the sparse solver. Its memory grows with the square of the model's size, and a model too large for it is refused before it starts.";
+
+/** The page's one status line, in words: what was solved or why not. No status token. */
+function solveStatusLine({
+  model,
+  result,
+  solveJob,
+  running,
+  withheld,
+  resultTooLarge
+}: {
+  model: PreviewModel;
+  result: SessionResult | null;
+  solveJob: SolveJobAuditState;
+  running: boolean;
+  withheld: boolean;
+  resultTooLarge: boolean;
+}): string {
+  if (running) {
+    if (solveJob.state === "queued") return "Waiting in the queue to solve.";
+    if (solveJob.state === "cancelling") return "Cancelling the solve.";
+    return "Solving.";
+  }
+  if (result) {
+    const recorded = registeredStatusLabel(result.status.mechanics);
+    // As the run record's mechanics line reads it: a value that is not a solver status is not solved.
+    const mechanics = recorded?.domain === "Solver" && recorded.kind === "status" ? recorded.label : SOLVER_NOT_SOLVED.label;
+    const rule = registeredStatusLabel(ruleCheckStatusToken(result.status.rule_check));
+    const rows = resultRowCount(result);
+    const solved = `${mechanics}: ${rows} result ${plural("row", rows)}.`;
+    return rule?.domain === "Rule pack" ? `${solved} ${rule.label}.` : solved;
+  }
+  if (resultTooLarge) return "Solved, but the result is too large for the desktop to show, so none was kept.";
+  if (solveJob.state === "refused") return "The solve was refused; no result was published.";
+  if (solveJob.state === "failed") return "The solve failed; no result was published.";
+  if (solveJob.state === "cancelled") return "The solve was cancelled.";
+  if (withheld) return "Not solved: findings in the model stop the solve.";
+  const recorded = registeredStatusLabel(model.analysis_status.mechanics);
+  return recorded && recorded.domain === "Solver" && recorded.token !== "MECHANICS_SOLVED" ? `Not solved: ${recorded.label.toLowerCase()}.` : "Not solved yet.";
 }
 
 type ReadinessItem = {
@@ -335,7 +402,8 @@ function buildSolveJobPacket({
       latest_event_state: solveJob.events[solveJob.events.length - 1]?.state ?? "not_started"
     },
     cancellation: {
-      request_control_visible: true,
+      // The Cancel control is on the page only while a solve runs.
+      request_control_visible: running,
       request_enabled: running,
       requested: solveJob.cancellation_requested,
       status: solveJob.cancellation_status,

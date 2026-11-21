@@ -1,4 +1,4 @@
-import { selectCompactOption } from "./workspace-driver";
+import { openDisclosure, selectCompactOption } from "./workspace-driver";
 import { expect, test, type Page, type Locator } from "@playwright/test";
 import { readFileSync } from "node:fs";
 import { inflateSync } from "node:zlib";
@@ -999,6 +999,7 @@ test("R2 from-blank GUI journey authors the A12 rehearsal script", async ({ page
   await expect(page.getByTestId("solve-job-unit-policy")).toContainText("conversion=false");
   expect(await page.getByTestId("solve-job-export-link").getAttribute("href")).toBeNull();
   await expect(page.getByTestId("solve-job-export-link-redaction-summary")).toContainText("blocked=true");
+  await openDisclosure(page, "solve-run-record");
   await page.getByTestId("solve-job-export-link-local-private-intent").setChecked(true);
   await expect(page.getByTestId("solve-job-export-link")).toHaveAttribute("href", /^data:application\/json/);
   const solveJobHref = await page.getByTestId("solve-job-export-link").getAttribute("href");

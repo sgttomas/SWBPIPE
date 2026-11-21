@@ -1171,6 +1171,9 @@ function AppSession() {
             >
               {activeSection === "solve" || activatedExpensiveSections.has("solve") ? (
               <DormantSection page="solve" active={activeSection === "solve"} sessionGeneration={projectSessionGeneration}>
+              {/* One readable column: the status line and the solve controls lead, the rule checks
+                  follow, and the records sit in closed disclosures at the panel's foot. */}
+              <div className="analyze-page" data-testid="analyze-page">
               <SolvePanel
                 analysisRun={analysisRun}
                 inputManifest={inputManifest?.manifest ?? null}
@@ -1186,32 +1189,37 @@ function AppSession() {
                 solveGate={solveGate}
                 onSelectEntity={(entity) => { handleSelectEntity(entity); }}
                 onOpenModelChecks={() => setIssuesDrawerOpen(true)}
+                issueCount={issueCount}
+                onOpenIssues={() => setIssuesDrawerOpen(true)}
+                ruleChecks={
+                  /* The Solve section is open when a solve lands: its rule checks read full rows (C2), so
+                      they load them only when the person asks, never at a solve's first paint. */
+                  <C2ResultGate result={currentSolvedResult} analysisRun={null} feature="rule checks" explicit>
+                    {(full) => (
+                      <>
+                        <RuleCheckPanel model={model} result={full.result} />
+                        <RuleCheckRunPanel
+                          basis={ruleCheckRunBasis}
+                          model={model}
+                          result={full.result}
+                          onAggregateChange={(aggregate, run) => void handleRuleCheckAggregate(aggregate, {
+                            projectSessionGeneration,
+                            modelRevision: uiModelRevision,
+                            result: currentSolvedResult,
+                            inputManifest
+                          }, run ?? null)}
+                          onR3JourneyEvent={recordR3JourneyEvent}
+                        />
+                      </>
+                    )}
+                  </C2ResultGate>
+                }
               />
               <button type="button" onClick={() => void handleInspectBundledReference()}>
                 Inspect bundled reference
               </button>
-              {/* The Solve section is open when a solve lands: its rule checks read full rows (C2), so
-                  they load them only when the person asks, never at a solve's first paint. */}
-              <C2ResultGate result={currentSolvedResult} analysisRun={null} feature="rule checks" explicit>
-                {(full) => (
-                  <>
-                    <RuleCheckPanel model={model} result={full.result} />
-                    <RuleCheckRunPanel
-                      basis={ruleCheckRunBasis}
-                      model={model}
-                      result={full.result}
-                      onAggregateChange={(aggregate, run) => void handleRuleCheckAggregate(aggregate, {
-                        projectSessionGeneration,
-                        modelRevision: uiModelRevision,
-                        result: currentSolvedResult,
-                        inputManifest
-                      }, run ?? null)}
-                      onR3JourneyEvent={recordR3JourneyEvent}
-                    />
-                  </>
-                )}
-              </C2ResultGate>
               <KnowledgePanel knowledge={knowledge} result={currentSolvedResult} />
+              </div>
               </DormantSection>) : null}
             </section>
 

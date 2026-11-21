@@ -17,8 +17,8 @@ export const MEMORY_POOL_ACTIVE_REFRESH_MS = 1000;
 type Outcome = { tone: "applied" | "refused" | "error"; text: string };
 
 /**
- * The native memory pool beside the solve controls (DEL-04-07 memory-budget
- * decision): the per-invocation budget, the aggregate pool, reservations
+ * The native memory pool, in the Analyze page's closed "Memory settings"
+ * disclosure (DEL-04-07 memory-budget decision): the per-invocation budget, the aggregate pool, reservations
  * (including running solve workers' grants), queued work, available memory and the
  * last refusal, with controls for a pool size
  * and a per-invocation budget. The native host owns every verdict; this panel
@@ -73,7 +73,6 @@ export function MemoryPoolPanel({ active }: { active: boolean }) {
   if (!native) {
     return (
       <section className="memory-pool-panel" aria-label="Memory pool" data-testid="memory-pool-panel">
-        <div className="panel-subtitle">Memory</div>
         <p role="status" data-testid="memory-pool-unavailable">
           Memory pool unavailable: the browser preview has no native memory pool, so no budget, pool or available-memory figures are shown.
         </p>
@@ -130,7 +129,92 @@ export function MemoryPoolPanel({ active }: { active: boolean }) {
 
   return (
     <section className="memory-pool-panel" aria-label="Memory pool" data-testid="memory-pool-panel">
-      <div className="panel-subtitle">Memory</div>
+      <form className="memory-pool-form" aria-label="Memory pool settings" onSubmit={(event) => void apply(event)}>
+        <div className="memory-pool-field-group">
+          <label className="memory-pool-field">
+            <span>Memory pool (GiB)</span>
+            <input
+              aria-describedby="memory-pool-input-pool-limits"
+              data-testid="memory-pool-input-pool"
+              inputMode="decimal"
+              min="0"
+              step="0.25"
+              type="number"
+              value={poolInput}
+              onChange={(event) => {
+                inputsTouched.current = true;
+                setPoolInput(event.target.value);
+                setAcknowledged(false);
+                setOutcome(null);
+              }}
+            />
+          </label>
+          <small id="memory-pool-input-pool-limits" data-testid="memory-pool-input-pool-limits">
+            The most memory all solves and the app&apos;s other work may reserve at once.
+            {status ? ` Recommended for this Mac: ${formatBytes(status.recommended_pool_bytes)}.` : null}
+          </small>
+        </div>
+        <div className="memory-pool-field-group">
+          <label className="memory-pool-field">
+            <span>Memory per solve (GiB)</span>
+            <input
+              aria-describedby="memory-pool-input-budget-limits"
+              data-testid="memory-pool-input-budget"
+              inputMode="decimal"
+              max={maxBudget === null ? undefined : gibMax(maxBudget)}
+              min="0"
+              step="0.25"
+              type="number"
+              value={budgetInput}
+              onChange={(event) => {
+                inputsTouched.current = true;
+                setBudgetInput(event.target.value);
+                setOutcome(null);
+              }}
+            />
+          </label>
+          <small id="memory-pool-input-budget-limits" data-testid="memory-pool-input-budget-limits">
+            The per-invocation budget: the most memory one solve may use; a solve that needs more is refused.
+            {status ? ` Default: ${formatBytes(status.default_invocation_budget_bytes)}.` : null}
+          </small>
+        </div>
+        {budgetAboveMax ? (
+          <p className="memory-pool-message warning" role="alert" data-testid="memory-pool-budget-above-max">
+            <AlertTriangle size={14} aria-hidden="true" /> {formatBytes(budgetBytes)} is above the largest per-invocation budget,{" "}
+            {formatBytes(maxBudget)} (the pool size). Choose a budget no larger than the pool.
+          </p>
+        ) : null}
+        {aboveRecommended ? (
+          <div className="memory-pool-message warning" role="alert" data-testid="memory-pool-recommended-warning">
+            <p>
+              <AlertTriangle size={14} aria-hidden="true" /> {formatBytes(poolBytes)} is above the recommended {formatBytes(recommended)} pool
+              for this Mac. A larger pool leaves less memory for other applications.
+            </p>
+            <label className="memory-pool-ack">
+              <input
+                data-testid="memory-pool-acknowledge"
+                type="checkbox"
+                checked={acknowledged}
+                onChange={(event) => setAcknowledged(event.target.checked)}
+              />
+              <span>
+                I acknowledge the pool is above the recommended size. The native side still refuses it when available memory
+                or capacity does not admit it.
+              </span>
+            </label>
+          </div>
+        ) : null}
+        <div className="memory-pool-actions">
+          <button className="secondary-action" data-testid="memory-pool-apply" disabled={!canApply} type="submit">
+            <SlidersHorizontal size={14} aria-hidden="true" />
+            {submitting ? "Applying" : "Apply"}
+          </button>
+          <button className="secondary-action" data-testid="memory-pool-refresh" onClick={() => void refresh()} type="button">
+            <RefreshCw size={14} aria-hidden="true" />
+            Refresh memory status
+          </button>
+        </div>
+      </form>
       {readError ? (
         <p role="status" className="memory-pool-message error" data-testid="memory-pool-read-error">
           Memory pool status could not be read: {readError}
@@ -202,78 +286,6 @@ export function MemoryPoolPanel({ active }: { active: boolean }) {
         what each solve worker may reserve and the pool caps what all work may reserve; these limits are not an assurance that a
         solve will run or finish. A 16 GiB Mac is the base design target; no statement is made for arbitrary competing workloads.
       </p>
-      <form className="memory-pool-form" aria-label="Memory pool settings" onSubmit={(event) => void apply(event)}>
-        <label className="memory-pool-field">
-          <span>Pool size (GiB)</span>
-          <input
-            data-testid="memory-pool-input-pool"
-            inputMode="decimal"
-            min="0"
-            step="0.25"
-            type="number"
-            value={poolInput}
-            onChange={(event) => {
-              inputsTouched.current = true;
-              setPoolInput(event.target.value);
-              setAcknowledged(false);
-              setOutcome(null);
-            }}
-          />
-        </label>
-        <label className="memory-pool-field">
-          <span>Per-invocation budget (GiB)</span>
-          <input
-            data-testid="memory-pool-input-budget"
-            inputMode="decimal"
-            max={maxBudget === null ? undefined : gibMax(maxBudget)}
-            min="0"
-            step="0.25"
-            type="number"
-            value={budgetInput}
-            onChange={(event) => {
-              inputsTouched.current = true;
-              setBudgetInput(event.target.value);
-              setOutcome(null);
-            }}
-          />
-        </label>
-        {budgetAboveMax ? (
-          <p className="memory-pool-message warning" role="alert" data-testid="memory-pool-budget-above-max">
-            <AlertTriangle size={14} aria-hidden="true" /> {formatBytes(budgetBytes)} is above the largest per-invocation budget,{" "}
-            {formatBytes(maxBudget)} (the pool size). Choose a budget no larger than the pool.
-          </p>
-        ) : null}
-        {aboveRecommended ? (
-          <div className="memory-pool-message warning" role="alert" data-testid="memory-pool-recommended-warning">
-            <p>
-              <AlertTriangle size={14} aria-hidden="true" /> {formatBytes(poolBytes)} is above the recommended {formatBytes(recommended)} pool
-              for this Mac. A larger pool leaves less memory for other applications.
-            </p>
-            <label className="memory-pool-ack">
-              <input
-                data-testid="memory-pool-acknowledge"
-                type="checkbox"
-                checked={acknowledged}
-                onChange={(event) => setAcknowledged(event.target.checked)}
-              />
-              <span>
-                I acknowledge the pool is above the recommended size. The native side still refuses it when available memory
-                or capacity does not admit it.
-              </span>
-            </label>
-          </div>
-        ) : null}
-        <div className="memory-pool-actions">
-          <button className="secondary-action" data-testid="memory-pool-apply" disabled={!canApply} type="submit">
-            <SlidersHorizontal size={14} aria-hidden="true" />
-            {submitting ? "Requesting" : "Request pool settings"}
-          </button>
-          <button className="secondary-action" data-testid="memory-pool-refresh" onClick={() => void refresh()} type="button">
-            <RefreshCw size={14} aria-hidden="true" />
-            Refresh memory status
-          </button>
-        </div>
-      </form>
       {outcome ? (
         <p role="status" className={`memory-pool-message ${outcome.tone === "applied" ? "info" : outcome.tone === "refused" ? "warning" : "error"}`} data-testid="memory-pool-outcome">
           {outcome.text}

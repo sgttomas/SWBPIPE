@@ -54,6 +54,17 @@ export async function openWorkspaceSection(page: Page, sectionId: WorkspaceSecti
   return section;
 }
 
+/** Opens a closed disclosure on a page (the Analyze page's "Run record" or "Memory
+ * settings") by its summary, as a person would; an open one is left open. */
+export async function openDisclosure(page: Page, testId: string): Promise<Locator> {
+  const disclosure = page.getByTestId(testId);
+  if (!await disclosure.evaluate((element) => (element as HTMLDetailsElement).open)) {
+    await disclosure.locator(":scope > summary").click();
+  }
+  await expect(disclosure).toHaveAttribute("open", "");
+  return disclosure;
+}
+
 // Slice B3: the dock is gone. A page closes onto its stage by its close control;
 // "no section on screen" is the Model stage's model tree, reached by the rail and the tab.
 export async function closeWorkspacePanels(page: Page): Promise<void> {

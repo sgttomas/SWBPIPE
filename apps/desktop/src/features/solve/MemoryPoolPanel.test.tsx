@@ -82,8 +82,8 @@ describe("the memory pool panel", () => {
     expect(screen.getByTestId("memory-pool-boundary").textContent).toMatch(/16 GiB Mac is the base design target/);
     expect(screen.getByTestId("memory-pool-boundary").textContent).not.toMatch(/guarantee[sd]? (that|to)/i);
     // Inputs start at the reported pool and budget.
-    expect(screen.getByLabelText("Pool size (GiB)")).toHaveValue(48);
-    expect(screen.getByLabelText("Per-invocation budget (GiB)")).toHaveValue(12);
+    expect(screen.getByLabelText("Memory pool (GiB)")).toHaveValue(48);
+    expect(screen.getByLabelText("Memory per solve (GiB)")).toHaveValue(12);
   });
 
   it("reports unknown capacity and headroom as unknown rather than inventing numbers", async () => {
@@ -130,7 +130,7 @@ describe("the memory pool panel", () => {
     render(<MemoryPoolPanel active={false} />);
     await screen.findByTestId("memory-pool-status");
     const apply = screen.getByTestId("memory-pool-apply");
-    fireEvent.change(screen.getByLabelText("Pool size (GiB)"), { target: { value: "56" } });
+    fireEvent.change(screen.getByLabelText("Memory pool (GiB)"), { target: { value: "56" } });
     expect(screen.getByTestId("memory-pool-recommended-warning")).toHaveTextContent("56 GiB is above the recommended 48 GiB pool for this Mac.");
     expect(apply).toBeDisabled();
     fireEvent.submit(apply.closest("form")!);
@@ -145,7 +145,7 @@ describe("the memory pool panel", () => {
     expect(outcome).not.toHaveTextContent("Applied");
     expect(line("memory-pool-last-refusal")).toBe("Not enough available memory on this Mac right now (free plus reclaimable file cache and purgeable memory, less the kernel's reserve): needs 56 GiB, 20 GiB available.");
     // Changing the request withdraws the acknowledgement.
-    fireEvent.change(screen.getByLabelText("Pool size (GiB)"), { target: { value: "60" } });
+    fireEvent.change(screen.getByLabelText("Memory pool (GiB)"), { target: { value: "60" } });
     expect(screen.getByRole("checkbox", { name: /I acknowledge/ })).not.toBeChecked();
     expect(apply).toBeDisabled();
   });
@@ -159,8 +159,8 @@ describe("the memory pool panel", () => {
     });
     render(<MemoryPoolPanel active={false} />);
     await screen.findByTestId("memory-pool-status");
-    fireEvent.change(screen.getByLabelText("Pool size (GiB)"), { target: { value: "24" } });
-    fireEvent.change(screen.getByLabelText("Per-invocation budget (GiB)"), { target: { value: "8" } });
+    fireEvent.change(screen.getByLabelText("Memory pool (GiB)"), { target: { value: "24" } });
+    fireEvent.change(screen.getByLabelText("Memory per solve (GiB)"), { target: { value: "8" } });
     expect(screen.queryByTestId("memory-pool-recommended-warning")).toBeNull();
     fireEvent.click(screen.getByTestId("memory-pool-apply"));
     expect(await screen.findByTestId("memory-pool-outcome")).toHaveTextContent("Applied: pool 24 GiB; per-invocation budget 8 GiB.");
@@ -177,7 +177,7 @@ describe("the memory pool panel", () => {
     });
     render(<MemoryPoolPanel active={false} />);
     await screen.findByTestId("memory-pool-status");
-    const budget = screen.getByLabelText("Per-invocation budget (GiB)");
+    const budget = screen.getByLabelText("Memory per solve (GiB)");
     expect(budget).toHaveAttribute("max", "48");
     const apply = screen.getByTestId("memory-pool-apply");
     fireEvent.change(budget, { target: { value: "48.5" } });
@@ -203,16 +203,16 @@ describe("the memory pool panel", () => {
     });
     render(<MemoryPoolPanel active={false} />);
     await screen.findByTestId("memory-pool-status");
-    const budget = screen.getByLabelText("Per-invocation budget (GiB)");
+    const budget = screen.getByLabelText("Memory per solve (GiB)");
     const apply = screen.getByTestId("memory-pool-apply");
-    fireEvent.change(screen.getByLabelText("Pool size (GiB)"), { target: { value: "56" } });
+    fireEvent.change(screen.getByLabelText("Memory pool (GiB)"), { target: { value: "56" } });
     fireEvent.click(screen.getByRole("checkbox", { name: /I acknowledge/ }));
     fireEvent.change(budget, { target: { value: "52" } });
     expect(screen.queryByTestId("memory-pool-budget-above-max")).toBeNull();
     expect(budget).toHaveAttribute("max", "56");
     expect(apply).toBeEnabled();
     // Lowering the pool below the budget holds the budget back before any request.
-    fireEvent.change(screen.getByLabelText("Pool size (GiB)"), { target: { value: "16" } });
+    fireEvent.change(screen.getByLabelText("Memory pool (GiB)"), { target: { value: "16" } });
     expect(screen.getByTestId("memory-pool-budget-above-max")).toBeInTheDocument();
     expect(apply).toBeDisabled();
   });
@@ -222,7 +222,7 @@ describe("the memory pool panel", () => {
     invokeMock.mockResolvedValue(poolStatus({ pool_bytes: 12 * GiB - 1, max_invocation_budget_bytes: 12 * GiB - 1 }));
     render(<MemoryPoolPanel active={false} />);
     await screen.findByTestId("memory-pool-status");
-    expect(screen.getByLabelText("Per-invocation budget (GiB)")).toHaveAttribute("max", "11.99");
+    expect(screen.getByLabelText("Memory per solve (GiB)")).toHaveAttribute("max", "11.99");
   });
 
   it.each([
@@ -236,8 +236,8 @@ describe("the memory pool panel", () => {
     });
     render(<MemoryPoolPanel active={false} />);
     await screen.findByTestId("memory-pool-status");
-    fireEvent.change(screen.getByLabelText("Per-invocation budget (GiB)"), { target: { value: budget } });
-    fireEvent.change(screen.getByLabelText("Pool size (GiB)"), { target: { value: pool } });
+    fireEvent.change(screen.getByLabelText("Memory per solve (GiB)"), { target: { value: budget } });
+    fireEvent.change(screen.getByLabelText("Memory pool (GiB)"), { target: { value: pool } });
     const ack = screen.queryByRole("checkbox", { name: /I acknowledge/ });
     if (ack) fireEvent.click(ack);
     fireEvent.click(screen.getByTestId("memory-pool-apply"));

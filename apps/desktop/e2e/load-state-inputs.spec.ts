@@ -221,7 +221,7 @@ test("blank load/reference model: author support motion, a thermal state and a m
   const run = page.getByTestId("run-mechanics-preview");
   await run.click();
   await expect(run).toHaveAttribute("aria-disabled", "true");
-  await expect(run).toHaveText("Run mechanics preview (withheld)");
+  await expect(run).toHaveText("Run withheld");
   const withheld = page.getByTestId("solve-withheld-notice");
   await expect(withheld.getByTestId("solve-withheld-summary")).toContainText("2 solve-blocking findings stand for this model.");
   await expect(withheld.getByTestId("model-check-EXACT_PRESSURE_CORROSION_ALLOWANCE_REQUIRED")).toBeVisible();

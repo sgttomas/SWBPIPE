@@ -32,7 +32,7 @@ async function renderPanel(reading: SolveGateReading | null, panelModel?: Previe
 
 it("offers Solve with no withheld reason while the gate is open or unknown", async () => {
   await renderPanel({ kind: "open" });
-  const solve = screen.getByRole("button", { name: "Run mechanics preview" });
+  const solve = screen.getByRole("button", { name: "Run" });
   expect(solve).not.toHaveAttribute("aria-disabled");
   expect(solve).not.toHaveAccessibleDescription();
   expect(screen.queryByRole("region", { name: "Solve is withheld" })).toBeNull();
@@ -51,7 +51,7 @@ it("withholds Solve, states why in the accessibility tree, and names each findin
   const reading: SolveGateReading = { kind: "withheld", model, findings, diagnostics: findings.map((item) => item.diagnostic), notListedBlocking: 0, refusal: null, laterCheckNotCompleted: null };
   const { onRun, onSelectEntity } = await renderPanel(reading);
 
-  const solve = screen.getByRole("button", { name: "Run mechanics preview (withheld)" });
+  const solve = screen.getByRole("button", { name: "Run withheld" });
   expect(solve).toHaveAttribute("aria-disabled", "true");
   expect(solve).toHaveAccessibleDescription(/2 solve-blocking findings stand for this model/);
   fireEvent.click(solve);
@@ -94,7 +94,7 @@ it("bounds the list and points to Model checks for the rest, counting unlisted f
 it("states the solve's own refusal when it cannot read the model", async () => {
   const model = await loadPreviewModel();
   await renderPanel({ kind: "withheld", model, findings: [], diagnostics: [], notListedBlocking: 0, refusal: "invented refusal text", laterCheckNotCompleted: null });
-  expect(screen.getByRole("button", { name: "Run mechanics preview (withheld)" })).toHaveAccessibleDescription(/The solve cannot read this model: invented refusal text/);
+  expect(screen.getByRole("button", { name: "Run withheld" })).toHaveAccessibleDescription(/The solve cannot read this model: invented refusal text/);
 });
 
 it("leads a real material finding to its material, in the Model checks list and in the notice, by keyboard focus and activation", async () => {
@@ -160,7 +160,7 @@ it("states plainly a refusal with no findings: the solve's own text, and no empt
   expect(within(notice).getByTestId("solve-withheld-summary")).toHaveTextContent("The solve cannot read this model: request: missing field `outside_diameter`.");
   expect(within(notice).queryByRole("list")).toBeNull();
   expect(within(notice).queryByTestId("solve-withheld-rest")).toBeNull();
-  expect(screen.getByRole("button", { name: "Run mechanics preview (withheld)" })).toHaveAccessibleDescription(/The solve cannot read this model: request: missing field `outside_diameter`/);
+  expect(screen.getByRole("button", { name: "Run withheld" })).toHaveAccessibleDescription(/The solve cannot read this model: request: missing field `outside_diameter`/);
 });
 
 it("leads a finding that names a section to that section record, in the Model checks list and in the notice", async () => {

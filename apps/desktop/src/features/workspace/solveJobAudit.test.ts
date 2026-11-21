@@ -146,7 +146,7 @@ describe("solve-job audit resource record", () => {
     expect(failSolveJob(startSolveJob(model, receipt), new Error("ordinary failure")).state).toBe("failed");
   });
 
-  const LARGER_BUDGET = "This solve needed more than the per-invocation budget allows; a larger budget, up to the pool, can be set under Memory pool before running the solve again.";
+  const LARGER_BUDGET = "This solve needed more than the per-invocation budget allows; a larger budget, up to the pool, can be set under Memory settings (Memory per solve) before running the solve again.";
   const STOPPED = "Refused while the solve ran: its worker process was stopped, with no fallback to another solver mode or route.";
   it.each([
     [{ kind: "worker_cap_exceeded" as const, cap_bytes: 12 * GiB, requested_bytes: 13 * GiB }, "The solve needed more memory than the per-invocation budget of 12 GiB allows (requested 13 GiB). The memory the solve needs most likely comes from the volume of per-station result detail for this model and its load cases. A solve covers every load case and combination in the model, so to need less: remove the load cases and combinations this review does not need (Load Cases section); or solve the cases in smaller groups, each in its own copy of the model document (File > Save Model Document…), with the combinations in a copy holding only the cases they use; or split a large model into parts.",
