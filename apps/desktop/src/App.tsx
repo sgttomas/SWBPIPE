@@ -1276,7 +1276,6 @@ function AppSession() {
                   </C2ResultGate>
                 </li>
               </ul>
-              <ComparisonPackageNotice packaged={packagedWithinRun} dropped={droppedWithinRunBases} testId="handoff-comparison-package-notice" />
               </Fragment>
               </DormantSection>) : null}
             </section>

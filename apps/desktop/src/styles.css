@@ -4816,7 +4816,6 @@ body { min-width: 760px; min-height: 540px; }
 .app-shell .export-list > li > .panel { display: grid; grid-template-columns: minmax(140px, 200px) minmax(0, 1fr); column-gap: var(--space-4); align-items: start; margin: 0; }
 .app-shell .export-list > li > .panel > * { grid-column: 2; min-width: 0; }
 .app-shell .export-list > li > .panel > .panel-title { grid-column: 1; grid-row: 1; }
-.app-shell .workspace-dock-section > [data-testid="handoff-comparison-package-notice"] { grid-column: 1 / -1; }
 
 /* Telemetry on the Evidence page: a closed disclosure whose summary is its state and reason. */
 .app-shell .telemetry-boundary-panel > summary { font-weight: var(--type-weight-semibold); }
