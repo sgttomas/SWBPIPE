@@ -193,3 +193,13 @@
 .inspector .model-settings-choices > label:has(input:checked) > span {
   font-weight: var(--type-weight-semibold);
 }
+
+/* The tree says when a filter hides the selected entity, with the one control to clear it. */
+.model-tree .model-tree-selection-filtered {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--space-2) var(--space-3);
+  margin: var(--space-2) 0;
+  color: var(--ui-muted);
+}

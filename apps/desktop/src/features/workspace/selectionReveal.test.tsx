@@ -95,7 +95,7 @@ describe("the tree reveals a selection made elsewhere", () => {
       .toHaveAttribute("aria-expanded", "true");
   });
 
-  it("leaves the tree's position alone while focus is in the tree", () => {
+  it("reveals a selection made elsewhere while focus stays in the tree list, as a click in the 3D view leaves it", () => {
     const model = nodesModel(160);
     const view = render(tree(model, { type: "node", id: "n/0" }));
     const list = screen.getByTestId("model-tree-virtual");
@@ -103,8 +103,41 @@ describe("the tree reveals a selection made elsewhere", () => {
 
     view.rerender(tree(model, { type: "node", id: "n/150" }));
 
-    expect(list.scrollTop).toBe(0);
-    expect(within(list).queryByTestId("tree-row-node-n%2F150")).toBeNull();
+    expect(list.scrollTop).toBeGreaterThan(0);
+    expect(within(list).getByTestId("tree-row-node-n%2F150")).toHaveClass("focused");
+    expect(document.activeElement).toBe(list);
+  });
+
+  it("leaves the tree alone for a selection it made itself", () => {
+    const model = nodesModel(4);
+    const view = render(tree(model, { type: "node", id: "n/0" }));
+    fireEvent.click(screen.getByTestId("tree-row-node-n%2F1"));
+    const nodesGroup = screen.getAllByRole("treeitem").find((row) => row.textContent?.includes("Nodes") && row.hasAttribute("aria-expanded"))!;
+    fireEvent.click(nodesGroup);
+    expect(nodesGroup).toHaveAttribute("aria-expanded", "false");
+
+    // The shell hands back the selection the tree's own row made.
+    view.rerender(tree(model, { type: "node", id: "n/1" }));
+
+    expect(nodesGroup).toHaveAttribute("aria-expanded", "false");
+    expect(screen.queryByTestId("tree-row-node-n%2F1")).toBeNull();
+  });
+
+  it("says when a filter hides the selected entity, and clears the filter from there", () => {
+    const model = nodesModel(4);
+    const view = render(tree(model, { type: "pipe", id: "p/0" }));
+    fireEvent.change(screen.getByTestId("model-tree-filter-input"), { target: { value: "Pipe 0" } });
+    expect(screen.queryByTestId("model-tree-selection-filtered")).toBeNull();
+
+    view.rerender(tree(model, { type: "node", id: "n/2" }));
+
+    const notice = screen.getByTestId("model-tree-selection-filtered");
+    expect(notice).toHaveTextContent("n/2 is selected but filtered out.");
+    expect(screen.getByTestId("model-tree-filter-input")).toHaveValue("Pipe 0");
+    fireEvent.click(within(notice).getByRole("button", { name: "Clear filter" }));
+    expect(screen.getByTestId("model-tree-filter-input")).toHaveValue("");
+    expect(screen.queryByTestId("model-tree-selection-filtered")).toBeNull();
+    expect(screen.getByTestId("tree-row-node-n%2F2")).toHaveClass("focused");
   });
 });
 

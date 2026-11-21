@@ -165,23 +165,31 @@ export function ModelTree({ boundedGrid = false, compactGrid = false, model, mod
     onFocusChange(fallback?.kind === "entity" ? entityKey(fallback.item) : null);
   }, [focusedTreeKey, onFocusChange, selectionState?.focusKey, treeRows]);
 
-  // A selection made outside the tree (the viewport, the grid, a result row) is
-  // revealed here: its group opens and its row becomes the tree's current row,
-  // which the list scrolls into view. Neither DOM focus nor the selection moves.
-  // A selection made while focus is in the tree list is the tree's own and is
-  // left. The request is kept while the tree list cannot show it (the Grid
-  // layout, a hidden, inert or CSS-hidden pane: `canSurfaceRevealNow`) or a
-  // filter hides the row, and done when the row can be shown.
+  // A selection made outside the tree (the viewport, the grid, a result row, a
+  // reference in the inspector) is revealed here: its group opens and its row
+  // becomes the tree's current row, which the list scrolls into view. Neither DOM
+  // focus nor the selection moves. A selection the tree made itself (a row
+  // pressed, Enter or Space on a row) is the tree's own and is left, wherever focus
+  // is: a click in the 3D view need not take focus from the tree. The request is
+  // kept while the tree list cannot show it (the Grid layout, a hidden, inert or
+  // CSS-hidden pane: `canSurfaceRevealNow`) or a filter hides the row, and done
+  // when the row can be shown.
   const treeRootRef = useRef<HTMLDivElement>(null);
   const primarySelectionKey = selectionState ? selectionState.primaryKey : entityKey(selection);
   const revealedSelectionKey = useRef(primarySelectionKey);
   const pendingTreeReveal = useRef<string | null>(null);
+  const treeOwnSelection = useRef<string | null>(null);
   const [treeRevealRequest, setTreeRevealRequest] = useState(0);
-  const focusInTreeList = () => Boolean(treeRootRef.current?.querySelector('[role="tree"]')?.contains(document.activeElement));
+  const selectFromTree: typeof onSelect = (item, modifiers, order) => {
+    treeOwnSelection.current = entityKey(item);
+    onSelect(item, modifiers, order);
+  };
   useLayoutEffect(() => {
     if (revealedSelectionKey.current === primarySelectionKey) return;
     revealedSelectionKey.current = primarySelectionKey;
-    pendingTreeReveal.current = primarySelectionKey && !focusInTreeList() ? primarySelectionKey : null;
+    const own = treeOwnSelection.current !== null && treeOwnSelection.current === primarySelectionKey;
+    treeOwnSelection.current = null;
+    pendingTreeReveal.current = primarySelectionKey && !own ? primarySelectionKey : null;
   }, [primarySelectionKey]);
   useLayoutEffect(() => {
     const key = pendingTreeReveal.current;
@@ -194,7 +202,6 @@ export function ModelTree({ boundedGrid = false, compactGrid = false, model, mod
     const projectRow = shown.project && entityKey(shown.project) === key;
     if (!group && !projectRow) return;
     pendingTreeReveal.current = null;
-    if (focusInTreeList()) return;
     if (group && filtering && filteredCollapsedGroups.has(group.title)) {
       setFilteredCollapsedGroups((current) => { const next = new Set(current); next.delete(group.title); return next; });
     } else if (group && !filtering && !expandedGroups.has(group.title)) {
@@ -227,6 +234,16 @@ export function ModelTree({ boundedGrid = false, compactGrid = false, model, mod
       publishedAt: performance.now()
     });
   }, [filterText, filteredTree.count, onFilterPublication]);
+
+  // The selected entity's name when a filter hides its row; the tree says so and offers to clear it.
+  const selectionFilteredOut = (() => {
+    if (!filterText.trim() || !primarySelectionKey) return null;
+    const inTree = (shown: TreeModel | FilteredTreeModel) =>
+      (shown.project && entityKey(shown.project) === primarySelectionKey) ? shown.project :
+        shown.groups.flatMap((group) => group.items).find((item) => entityKey(item) === primarySelectionKey) ?? null;
+    if (inTree(filteredTree)) return null;
+    return inTree(tree)?.id ?? null;
+  })();
 
   // Details is nonmodal: Tab can leave the dialog while staying in the table.
   // Own Escape after the editor/enum handlers but before the shell drawer.
@@ -276,12 +293,7 @@ export function ModelTree({ boundedGrid = false, compactGrid = false, model, mod
         filteredCount={filteredTree.count}
         totalCount={tree.count}
         windowed={layoutMode === "tree" && treeRows.length >= TREE_WINDOW_ROWS}
-        onFilterChange={(value, inputAt, inputEventTimeStamp) => {
-          filterInputTiming.current = { inputAt, inputEventTimeStamp };
-          filterActionSequence.current += 1;
-          if (value.trim().toLowerCase() !== filterText.trim().toLowerCase()) setFilteredCollapsedGroups(new Set());
-          setFilterText(value);
-        }}
+        onFilterChange={changeFilter}
       />
       <div className="model-grid-toolbar-target" ref={setToolbarTarget} />
       </OverflowRail>
@@ -313,6 +325,12 @@ export function ModelTree({ boundedGrid = false, compactGrid = false, model, mod
           viewCommand={viewCommand}
         />
       </div> : null}
+      {layoutMode !== "grid" && selectionFilteredOut ? (
+        <p className="model-tree-selection-filtered" role="status" data-testid="model-tree-selection-filtered">
+          <span>{selectionFilteredOut} is selected but filtered out.</span>
+          <button type="button" data-testid="model-tree-selection-filtered-clear" onClick={(event) => changeFilter("", performance.now(), event.nativeEvent.timeStamp)}>Clear filter</button>
+        </p>
+      ) : null}
       {layoutMode !== "grid" ? (
         treeRows.length > 0 ? (
           <VirtualList
@@ -347,8 +365,8 @@ export function ModelTree({ boundedGrid = false, compactGrid = false, model, mod
                 ) toggleExpandedGroup(row.groupKey);
                 return;
               }
-              if (event.key === "Enter") onSelect(row.item, {}, displayedEntityOrder);
-              if (event.key === " ") onSelect(row.item, {
+              if (event.key === "Enter") selectFromTree(row.item, {}, displayedEntityOrder);
+              if (event.key === " ") selectFromTree(row.item, {
                 additive: event.shiftKey,
                 range: event.shiftKey,
                 toggle: event.ctrlKey || event.metaKey
@@ -389,7 +407,7 @@ export function ModelTree({ boundedGrid = false, compactGrid = false, model, mod
                 onClick={(event) => {
                   setFocusedTreeKey(row.key);
                   onFocusChange(entityKey(row.item));
-                  onSelect(row.item, {
+                  selectFromTree(row.item, {
                     additive: event.shiftKey,
                     range: event.shiftKey,
                     toggle: event.ctrlKey || event.metaKey
@@ -402,7 +420,7 @@ export function ModelTree({ boundedGrid = false, compactGrid = false, model, mod
                   const ref: EntityRef = { type: row.item.type, id: row.item.id };
                   setFocusedTreeKey(row.key);
                   onFocusChange(entityKey(ref));
-                  if (!selectedKeys.has(entityKey(ref))) onSelect(row.item, {}, displayedEntityOrder);
+                  if (!selectedKeys.has(entityKey(ref))) selectFromTree(row.item, {}, displayedEntityOrder);
                   list?.focus();
                   openTreeMenu(ref, pointerMenuRequest(event, list));
                 }}
@@ -436,6 +454,13 @@ export function ModelTree({ boundedGrid = false, compactGrid = false, model, mod
     </TableContextMenuContext.Provider>
     </TableChromeContext.Provider>
   );
+
+  function changeFilter(value: string, inputAt: number, inputEventTimeStamp: number) {
+    filterInputTiming.current = { inputAt, inputEventTimeStamp };
+    filterActionSequence.current += 1;
+    if (value.trim().toLowerCase() !== filterText.trim().toLowerCase()) setFilteredCollapsedGroups(new Set());
+    setFilterText(value);
+  }
 
   function toggleExpandedGroup(groupKey: string) {
     if (filterText.trim()) {
