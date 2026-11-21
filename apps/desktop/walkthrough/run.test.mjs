@@ -22,6 +22,13 @@ test("an earlier walkthrough's own files are removed", (t) => {
   assert.deepEqual(readdirSync(out), []);
 });
 
+test("the native walkthrough's journeys (numbered from 20) stay when the browser walkthrough runs", (t) => {
+  const out = scratch(t);
+  for (const name of ["101-orientation-first-open.png", "part-01-orientation.json", "2001-solve-and-results-first-open.png", "part-20-solve-and-results.json", "INDEX.json"]) writeFileSync(path.join(out, name), "x");
+  emptyOutput(out);
+  assert.deepEqual(readdirSync(out).sort(), ["2001-solve-and-results-first-open.png", "part-20-solve-and-results.json"]);
+});
+
 test("a folder holding anything else is refused and nothing in it is removed", (t) => {
   for (const foreign of ["notes.txt", "101-orientation-first-open.png.bak", "Screenshot 1.png", "index.htm"]) {
     const out = scratch(t);
@@ -56,16 +63,17 @@ test("arguments: unknown names, missing values and a malformed size are refused"
 test("the index carries each screen's counts, and names where a journey stopped", (t) => {
   const out = scratch(t);
   const counted = { words_on_screen: 12, words_in_page: 40, prose_blocks_on_screen: 1, buttons_on_screen: 3, inputs_on_screen: 2, longest_scroll_screens: 1, controls: ["button: Run <now>"] };
-  writeFileSync(path.join(out, "part-01-first.json"), JSON.stringify({ number: 1, name: "first", title: "First & only", screens: [
+  writeFileSync(path.join(out, "part-01-first.json"), JSON.stringify({ number: 1, name: "first", title: "First & only", surface: "browser build", window: "1440x920", screens: [
     { number: 101, journey: "first", step: "open", note: "Opened", file: "101-first-open.png", ...counted },
     { number: 102, journey: "first", step: "solve", note: "Solve", file: "102-first-solve-FAILED.png", failed: "the control is disabled: No run yet" },
     { number: 103, journey: "first", step: "results", note: "Results", not_reached: true }
   ] }));
-  const summary = composeIndex(out, { size: "1440x920" });
+  const summary = composeIndex(out);
   assert.deepEqual(summary, { screens: 2, journeys: 1, stops: [{ journey: "first", step: "solve", reason: "the control is disabled: No run yet" }] });
   const index = JSON.parse(readFileSync(path.join(out, "INDEX.json"), "utf8"));
   assert.equal(index.screens[0].words_on_screen, 12);
-  assert.deepEqual(index.journeys[0], { number: 1, name: "first", title: "First & only", screens: 1, stopped_at: "solve", not_reached: ["results"] });
+  assert.deepEqual(index.journeys[0], { number: 1, name: "first", title: "First & only", surface: "browser build", window: "1440x920", screens: 1, stopped_at: "solve", not_reached: ["results"] });
+  assert.equal(index.surface, "browser build");
   const html = readFileSync(path.join(out, "index.html"), "utf8");
   assert.match(html, /First &amp; only/);
   assert.match(html, /button: Run &lt;now&gt;/);

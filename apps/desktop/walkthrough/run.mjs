@@ -33,19 +33,28 @@ export function parseArguments(argv) {
   return options;
 }
 
-// Only files this command wrote are removed: an output folder that holds
+// Only files a walkthrough wrote are removed: an output folder that holds
 // anything else is refused, so a mistyped --out cannot empty a folder of work.
 // Nothing below the folder is touched, and a folder inside it is foreign too.
-const OWN_FILE = /^(\d{3}-[a-z0-9-]+(-FAILED)?\.png|part-\d{2}-[a-z0-9-]+\.json|INDEX\.json|index\.html)$/;
+// The browser journeys are numbered 1 to 19 and the native ones from 20
+// (native/run.mjs), so both can sit in one folder: `removes(journeyNumber)` says
+// which journeys' screens and part files this run replaces; the others stay, and
+// INDEX.json and index.html, written again from every part, always go.
+const OWN_FILE = /^((\d{3,4})-[a-z0-9-]+(-FAILED)?\.png|part-(\d{2})-[a-z0-9-]+\.json|INDEX\.json|index\.html)$/;
+export const BROWSER_JOURNEYS = (journeyNumber) => journeyNumber < 20;
 
-export function emptyOutput(out) {
+export function emptyOutput(out, removes = BROWSER_JOURNEYS) {
   if (!existsSync(out)) { mkdirSync(out, { recursive: true }); return; }
   const entries = readdirSync(out, { withFileTypes: true });
   const foreign = entries.filter((entry) => !entry.isFile() || !OWN_FILE.test(entry.name)).map((entry) => entry.name);
   if (foreign.length > 0) {
     throw new Error(`walkthrough: ${out} holds files this command did not write (${foreign.slice(0, 5).join(", ")}); choose an empty folder with --out`);
   }
-  for (const entry of entries) rmSync(path.join(out, entry.name));
+  for (const entry of entries) {
+    const [, , screen, , part] = OWN_FILE.exec(entry.name);
+    const journeyNumber = screen ? Math.floor(Number(screen) / 100) : part ? Number(part) : null;
+    if (journeyNumber === null || removes(journeyNumber)) rmSync(path.join(out, entry.name));
+  }
 }
 
 function main() {
@@ -57,7 +66,7 @@ function main() {
   if (options.grep) playwright.push("--grep", options.grep);
   const run = spawnSync("npx", playwright, { cwd: desktopRoot, env, stdio: "inherit" });
   if (run.error) throw run.error;
-  const index = composeIndex(options.out, { size: options.size ?? "1440x920" });
+  const index = composeIndex(options.out);
   console.log(`walkthrough: ${index.screens} screens over ${index.journeys} journeys in ${options.out}`);
   for (const stop of index.stops) console.log(`walkthrough: ${stop.journey} stopped at "${stop.step}": ${stop.reason}`);
   console.log(`walkthrough: open ${path.join(options.out, "index.html")}`);
