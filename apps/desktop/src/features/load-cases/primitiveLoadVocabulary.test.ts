@@ -3,6 +3,7 @@ import { buildBlankLocalModelDocument } from "../../services/projectService";
 import type { PreviewModel } from "../../types";
 import {
   defaultPrimitiveLoadDirection,
+  loadRowDirection,
   optionalString,
   primitiveLoadCategoryFromValue,
   primitiveLoadDefaultUnit,
@@ -110,5 +111,21 @@ describe("primitive load category vocabulary", () => {
     expect(optionalString("")).toBeNull();
     expect(optionalString(5)).toBeNull();
     expect(optionalString(undefined)).toBeNull();
+  });
+});
+
+describe("a load row's Direction cell", () => {
+  it("shows the direction only for a dimension that acts along one, a dash for every other dimension of the model", () => {
+    // Every LoadDimension of the model schema.
+    const dimensions = ["force", "moment", "force_per_length", "pressure", "temperature_change", "temperature_interval", "acceleration", "displacement", "rotation"];
+    expect(Object.fromEntries(dimensions.map((dimension) => [dimension, loadRowDirection(dimension, "Global Z")]))).toEqual({
+      force: "Global Z", moment: "Global Z", force_per_length: "Global Z", displacement: "Global Z", rotation: "Global Z",
+      pressure: "—", temperature_change: "—", temperature_interval: "—", acceleration: "—"
+    });
+  });
+
+  it("leaves a record that states no dimension as it reads", () => {
+    expect(loadRowDirection(undefined, "TBD")).toBe("TBD");
+    expect(loadRowDirection(7, "global_y")).toBe("global_y");
   });
 });

@@ -425,6 +425,17 @@ describe("LoadCaseManagerPanel existing primitive editing", () => {
     });
   });
 
+  it("shows a dash, not a direction, for a temperature load, and the direction for a force", () => {
+    const model = inventedModel();
+    model.load_cases[0].primitive_loads!.push({
+      id: "load:warm", category: "thermal", target: { type: "element", pipe: "pipe:AB" },
+      direction: "global_z", magnitude: { value: 12.5, unit: "degC" }, dimension: "temperature_interval", provenance: "invented load"
+    });
+    mount(model);
+    expect([...row("load-manager-primitive-load:warm").cells].map((cell) => cell.textContent)).toEqual(["Thermal", "AB", "—", "12.5", "degC"]);
+    expect([...row("load-manager-primitive-load:existing").cells].map((cell) => cell.textContent)).toEqual(["Force", "A", "Global Y", "12", "kN"]);
+  });
+
   it("shows TBD for a primitive without magnitude, target or dimension", () => {
     const model = inventedModel();
     model.load_cases[0].primitive_loads = [{ id: "load:sparse", category: "concentrated_force" }];

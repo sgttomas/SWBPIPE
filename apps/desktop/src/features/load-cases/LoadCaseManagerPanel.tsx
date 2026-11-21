@@ -11,6 +11,7 @@ import {
 } from "./operatingDifferenceTemplate";
 import {
   defaultPrimitiveLoadDirection,
+  loadRowDirection,
   optionalString,
   primitiveLoadCategoryFromValue,
   primitiveLoadDefaultUnit,
@@ -911,7 +912,7 @@ export function LoadCaseManagerPanel({
                           </button>
                         </td>
                         <td>{primitiveTargetLabel(primitive.load)}</td>
-                        <td>{directionLabel(primitiveDirection(primitive.load))}</td>
+                        <td>{loadRowDirection(primitive.load.dimension, directionLabel(primitiveDirection(primitive.load)))}</td>
                         <td className="loads-number">{primitiveMagnitudeDisplay(primitive.load)}</td>
                         <td>{primitiveUnit(primitive.load)}</td>
                       </tr>
