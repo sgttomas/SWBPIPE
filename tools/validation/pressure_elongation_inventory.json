@@ -28,11 +28,11 @@
    ".json",
    ".jsonl"
   ],
-  "files": 540,
+  "files": 544,
   "claimed_by": {
    "group": 142,
    "in_code": 63,
-   "exemption": 335
+   "exemption": 339
   }
  },
  "counts": {
@@ -9451,6 +9451,7 @@
    "paths": [
     "core/product_physics/src/case_state/resolve.rs",
     "core/product_physics/src/exact_admission.rs",
+    "core/product_physics/src/hydrostatic.rs",
     "core/product_physics/src/joint.rs",
     "core/product_physics/src/lib.rs",
     "core/product_physics/src/retained_memory.rs",
@@ -9461,6 +9462,7 @@
    "files": [
     "core/product_physics/src/case_state/resolve.rs",
     "core/product_physics/src/exact_admission.rs",
+    "core/product_physics/src/hydrostatic.rs",
     "core/product_physics/src/joint.rs",
     "core/product_physics/src/lib.rs",
     "core/product_physics/src/retained_memory.rs",
@@ -9525,6 +9527,7 @@
    "paths": [
     "apps/desktop/src/features/caepipe-mbf/mbfImport.ts",
     "apps/desktop/src/features/geometry-tools/geometryDraft.ts",
+    "apps/desktop/src/features/load-cases/HydrostaticTestSection.tsx",
     "apps/desktop/src/features/load-cases/LoadCaseManagerPanel.tsx",
     "apps/desktop/src/features/model-settings/modelSettingsIntents.ts",
     "apps/desktop/src/features/native-package/NativePackagePanel.tsx",
@@ -9537,6 +9540,7 @@
    "files": [
     "apps/desktop/src/features/caepipe-mbf/mbfImport.ts",
     "apps/desktop/src/features/geometry-tools/geometryDraft.ts",
+    "apps/desktop/src/features/load-cases/HydrostaticTestSection.tsx",
     "apps/desktop/src/features/load-cases/LoadCaseManagerPanel.tsx",
     "apps/desktop/src/features/model-settings/modelSettingsIntents.ts",
     "apps/desktop/src/features/native-package/NativePackagePanel.tsx",
@@ -9692,6 +9696,7 @@
    "reason": "every region list it builds is empty, absent or at zero pressure, so no case carries pressure",
    "paths": [
     "core/model_operations/operation_applier/tests/condition_set_authoring.rs",
+    "core/model_operations/operation_applier/tests/hydrostatic_test_authoring.rs",
     "core/product_physics/src/d5_mass_product_tests.rs",
     "core/product_physics/src/modal/tests.rs",
     "core/product_physics/src/retained_facade_tests.rs",
@@ -9724,6 +9729,7 @@
    ],
    "files": [
     "core/model_operations/operation_applier/tests/condition_set_authoring.rs",
+    "core/model_operations/operation_applier/tests/hydrostatic_test_authoring.rs",
     "core/product_physics/src/d5_mass_product_tests.rs",
     "core/product_physics/src/modal/tests.rs",
     "core/product_physics/src/retained_facade_tests.rs",
@@ -10051,7 +10057,8 @@
     "validation/references/rt_a3_s6/requests/ls1_*.json",
     "validation/references/t4_i12/u3_reference_cases.json",
     "validation/references/t4_u8/requests/LOAD-STATE-PER-CASE-NU-*.request.json",
-    "validation/references/t4_u8/requests/S-*.request.json"
+    "validation/references/t4_u8/requests/S-*.request.json",
+    "fixtures/model_operations/condition_set_contract_corpus.json"
    ],
    "files": [
     "core/product_physics/src/source_recovery/j7_i12_request.json",
@@ -10064,6 +10071,7 @@
     "core/reporting/result_export/tests/fixtures/load_reference_fallback_uz.request.json",
     "core/runner/headless/tests/t4_u5b_requests/MO-F.request.json",
     "core/runner/headless/tests/t4_u5b_requests/MO-T.request.json",
+    "fixtures/model_operations/condition_set_contract_corpus.json",
     "fixtures/model_operations/contract_corpus/case_82_accept_insert_bend_at_corner.json",
     "fixtures/model_operations/contract_corpus/case_83_accept_set_field_bend_realization.json",
     "fixtures/model_operations/contract_corpus/case_84_block_agent_bend_flexibility.json",
