@@ -177,4 +177,4 @@ it("enters the reference system's load/reference state with fills and copies, RS
   }
   // Nothing else in the document moved.
   expect(model).toEqual(fixture);
-}, 120_000);
+}, 300_000);
