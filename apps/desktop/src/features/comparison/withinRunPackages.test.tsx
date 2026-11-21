@@ -15,7 +15,7 @@ import { buildStateComparisonHandoffSections } from "../report/stateComparisonHa
 import { reportComparisonFields, reportComparisonLine } from "../report/ReportPanel";
 import { ExportReviewPanel } from "../export-review/ExportReviewPanel";
 import { DesignWorkspacePanel } from "../design-workspace/DesignWorkspacePanel";
-import { buildWithinRunComparison, fixedPairComparison, packagedComparison, packageNotice, packageNoticeParts, resolveWithinRun, withinRunBasisOptions } from "./withinRunComparison";
+import { buildWithinRunComparison, COMPARISON_BASIS_WITHOUT_ROWS, fixedPairComparison, packagedComparison, packageNotice, packageNoticeParts, resolveWithinRun, withinRunBasisOptions } from "./withinRunComparison";
 
 afterEach(cleanup);
 const RANGE = "combination:U4B-RANGE-MAX";
@@ -84,32 +84,42 @@ describe("with an unavailable record, the documents carry it with the chosen bas
 });
 
 // The demonstration model (the invented utility loop), as the app reads its bundled
-// solved result: the solve withholds C-OPER-ALT, so it has no result rows, yet
-// without a choice the packages carry the fixed pair's comparison.
+// solved result: the solve withholds C-OPER-ALT, so it has no result rows, and
+// without a choice the packages carry the fixed pair's unavailable record, not an
+// empty comparison (Agent 0).
 describe("the demonstration model's withheld combination", () => {
   async function demo() {
     const { model, source: result } = await loadBundledMechanicsReference();
     const inputManifest = await buildCurrentSessionInputManifest({ model, solver: { solver_name: result.producer!.component_name, solver_version: result.producer!.component_version, solver_build_ref: "fixture", solver_mode: "sparse_interactive", settings: {} }, active_rule_packs: [], external_assets: [] });
     const analysisRun = await buildAnalysisRunPreview(result, { inputManifest });
     const options = withinRunBasisOptions(result, model);
-    const fixed = fixedPairComparison(result, analysisRun)!;
+    const fixed = fixedPairComparison(result, analysisRun, model)!;
     const resolved = resolveWithinRun({ result, analysisRun, options, held: null, fixedPair: fixed });
     return { model, result, analysisRun, options, fixed, resolved, packaged: packagedComparison(resolved, fixed) };
   }
 
-  it("the combination has no rows, the fixed pair's build compares none, and the notice says no comparison is carried, with the solve's reason", async () => {
-    const { result, options, fixed, resolved, packaged } = await demo();
+  it("the combination has no rows, so the fixed pair's build is the unavailable record with the solve's reason, and the notice says no comparison is carried", async () => {
+    const { result, analysisRun, options, fixed, resolved, packaged } = await demo();
     expect(result.results.filter((row) => row.basis_ref?.ref_id === "combination:C-OPER-ALT")).toHaveLength(0);
     expect(result.diagnostics.some((item) => item.code === "NONLINEAR_COMBINATION_REQUIRES_SOLVE" && item.affected_refs?.includes("combination:C-OPER-ALT"))).toBe(true);
     expect(options.combinations).toEqual([]);
     expect(resolved.view.status).toBe("unavailable");
     expect(packaged).toBe(fixed);
-    expect(fixed.unavailable).toBeNull();
-    expect(fixed.comparison!.right.result_count).toBe(0);
-    expect(fixed.comparison!.left.result_count).toBeGreaterThan(0);
-    expect(fixed.comparison!.summary.comparable_result_pairs).toBe(0);
-    expect(fixed.comparison!.result_deltas).toEqual([]);
-    expect(fixed.comparison!.diagnostics.map((item) => item.code)).toEqual(["COMPARISON_REFERENCE_ROWS_UNMATCHED"]);
+    expect(fixed.comparison).toBeNull();
+    expect(fixed.unavailable).toEqual({
+      document_kind: "openpipestress.technical_preview.comparison_unavailable",
+      comparison_id: "comparison:run:preview-linear-static-001:load-L-100-to-combination-C-OPER-ALT",
+      comparison_kind: "single_run_load_basis_review",
+      status: "unavailable",
+      left_basis_ref: "load:L-100",
+      right_basis_ref: "combination:C-OPER-ALT",
+      analysis_run_ref: { object_type: "AnalysisRun", ref: analysisRun.analysis_run.run_id },
+      reason_code: COMPARISON_BASIS_WITHOUT_ROWS,
+      reason: "COMPARISON-BASIS-WITHOUT-RESULT-ROWS: combination:C-OPER-ALT has no result rows in this run, so the pair is not compared. combination:C-OPER-ALT: Combination withheld: the model has nonlinear supports, so superposing case states is not a solved state.",
+      release_or_professional_claim: false
+    });
+    // The packages carry the record: the report's comparison members name no compared rows.
+    expect(reportComparisonFields(packaged!.comparison, packaged!.unavailable)).toEqual({ comparison_ref: fixed.unavailable!.comparison_id, comparison_unavailable: fixed.unavailable, comparison_summary: null, comparison_top_deltas: [], comparison_professional_boundary: null });
     // The solve's own withholding text: its gate's diagnostic message.
     const solveReason = result.diagnostics.find((item) => item.code === "NONLINEAR_COMBINATION_REQUIRES_SOLVE")!.message;
     expect(packageNoticeParts(packaged)).toEqual({

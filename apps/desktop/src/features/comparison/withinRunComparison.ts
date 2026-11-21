@@ -19,8 +19,14 @@
 //   (`droppedBases`); an id the run does not offer is never compared.
 // - **Packages follow the choice** (Agent 0, option A): the report, handoff and
 //   export packages carry the chosen pair's comparison, or a structured unavailable
-//   record when the builder refuses it; without a choice, the fixed-pair comparison
-//   exactly as before S3c.
+//   record when the builder refuses it; without a choice, the fixed pair's.
+// - **A basis without rows is not compared** (Agent 0): when a basis of the pair has
+//   no result rows in the run, the packages carry the unavailable record (pair, run,
+//   reason, with the solve's own withholding text where the solve withheld it), not an
+//   empty comparison. A pair whose two bases both have rows is built as before.
+// - **An absent fixed pair is omitted** (Agent 0): without a choice, when neither
+//   fixed basis is in the run's solved model, has result rows or was withheld by the
+//   solve, the packages carry no fixed-pair record and there is no package notice.
 import {
   buildPreviewComparison,
   type ComparedRun,
@@ -172,41 +178,72 @@ export function basesWithoutRows(result: MechanicsResult, pair: WithinRunPair): 
   });
 }
 
-/** The comparison of one pair, or, when the unchanged builder refuses it, the record
- * of that refusal with the pair and the reason. */
+/** The reason code of a pair with a basis that has no result rows in the run. */
+export const COMPARISON_BASIS_WITHOUT_ROWS = "COMPARISON-BASIS-WITHOUT-RESULT-ROWS";
+
+/** The record's reason for bases without rows: the code, the bases by their stored
+ * ids, and for each basis the solve withheld, the solve's own message. */
+function withoutRowsReason(withoutRows: WithinRunBasisWithoutRows[]): string {
+  const ids = withoutRows.map((basis) => basis.ref_id);
+  const subject = `${ids.join(" and ")} ${ids.length === 1 ? "has" : "have"} no result rows in this run, so the pair is not compared.`;
+  const withheld = withoutRows.filter((basis) => basis.withheld).map((basis) =>
+    basis.withheld_reason ? `${basis.ref_id}: ${basis.withheld_reason}` : `${basis.ref_id}: withheld by the solve.`);
+  return [`${COMPARISON_BASIS_WITHOUT_ROWS}: ${subject}`, ...withheld].join(" ");
+}
+
+function unavailableRecord(result: MechanicsResult, analysisRun: ComparedRun, pair: WithinRunPair, code: string, reason: string): PreviewComparisonUnavailable {
+  return {
+    document_kind: "openpipestress.technical_preview.comparison_unavailable",
+    comparison_id: previewComparisonId(result.run_id, pair.left, pair.right),
+    comparison_kind: "single_run_load_basis_review",
+    status: "unavailable",
+    left_basis_ref: pair.left,
+    right_basis_ref: pair.right,
+    analysis_run_ref: { object_type: "AnalysisRun", ref: analysisRun.analysis_run.run_id },
+    reason_code: code,
+    reason,
+    release_or_professional_claim: false
+  };
+}
+
+/** The comparison of one pair; when a basis has no result rows in the run, the
+ * unavailable record with that reason (the builder is not asked); when the unchanged
+ * builder refuses the pair, the record of that refusal with the pair and the reason. */
 export function buildWithinRunComparison(result: MechanicsResult, analysisRun: ComparedRun, pair: WithinRunPair): WithinRunComparisonBuild {
   const withoutRows = basesWithoutRows(result, pair);
+  if (withoutRows.length > 0) {
+    return { pair, comparison: null, unavailable: unavailableRecord(result, analysisRun, pair, COMPARISON_BASIS_WITHOUT_ROWS, withoutRowsReason(withoutRows)), basesWithoutRows: withoutRows };
+  }
   try {
     return { pair, comparison: buildPreviewComparison({ result, analysisRun, leftBasisRef: pair.left, rightBasisRef: pair.right }), unavailable: null, basesWithoutRows: withoutRows };
   } catch (error) {
     const reason = error instanceof Error ? error.message : String(error);
     const code = /^([A-Z][A-Z0-9_-]*):/.exec(reason)?.[1] ?? "COMPARISON-BUILD-REFUSED";
-    return {
-      pair,
-      comparison: null,
-      unavailable: {
-        document_kind: "openpipestress.technical_preview.comparison_unavailable",
-        comparison_id: previewComparisonId(result.run_id, pair.left, pair.right),
-        comparison_kind: "single_run_load_basis_review",
-        status: "unavailable",
-        left_basis_ref: pair.left,
-        right_basis_ref: pair.right,
-        analysis_run_ref: { object_type: "AnalysisRun", ref: analysisRun.analysis_run.run_id },
-        reason_code: code,
-        reason,
-        release_or_professional_claim: false
-      },
-      basesWithoutRows: withoutRows
-    };
+    return { pair, comparison: null, unavailable: unavailableRecord(result, analysisRun, pair, code, reason), basesWithoutRows: withoutRows };
   }
 }
 
 const FIXED_PAIR: WithinRunPair = { left: DEFAULT_COMPARISON_LEFT_BASIS_REF, right: DEFAULT_COMPARISON_RIGHT_BASIS_REF };
 const samePair = (left: WithinRunPair, right: WithinRunPair) => left.left === right.left && left.right === right.right;
 
-/** The fixed pair's build, as the session holds it for the packages without a choice. */
-export function fixedPairComparison(result: MechanicsResult | null, analysisRun: ComparedRun | null): WithinRunComparisonBuild | null {
-  return result && analysisRun ? buildWithinRunComparison(result, analysisRun, FIXED_PAIR) : null;
+/** Whether either fixed basis belongs to this run: it has result rows, the solve
+ * withheld it (its combination gate), or the solved model lists it (the load case as
+ * a load case, the combination as a combination). */
+function fixedPairPresent(result: MechanicsResult, model: PreviewModel | null | undefined): boolean {
+  if (result.results.some((row) => row.basis_ref?.ref_id === FIXED_PAIR.left || row.basis_ref?.ref_id === FIXED_PAIR.right)) return true;
+  if (previewCombinationGates(result).some((gate) => gate.withheld && (gate.combination_id === FIXED_PAIR.left || gate.combination_id === FIXED_PAIR.right))) return true;
+  const loadCases = Array.isArray(model?.load_cases) ? model.load_cases : [];
+  const combinations = Array.isArray(model?.combinations) ? model.combinations : [];
+  return loadCases.some((entry) => entry?.id === FIXED_PAIR.left) || combinations.some((entry) => entry?.id === FIXED_PAIR.right);
+}
+
+/** The fixed pair's build, as the session holds it for the packages without a choice;
+ * null, so the packages carry no record and there is no notice, when neither fixed
+ * basis belongs to the run (`fixedPairPresent`; Agent 0's absent-pair rule). `model`
+ * is the run's solved model. */
+export function fixedPairComparison(result: MechanicsResult | null, analysisRun: ComparedRun | null, model?: PreviewModel | null): WithinRunComparisonBuild | null {
+  if (!result || !analysisRun || !fixedPairPresent(result, model)) return null;
+  return buildWithinRunComparison(result, analysisRun, FIXED_PAIR);
 }
 
 /** "Within this run" for the session's current result: its options, the pair it
@@ -238,7 +275,8 @@ export function resolveWithinRun({
 }
 
 /** What the report, handoff and export packages carry: the choice's outcome when a
- * choice applies, else the fixed-pair build exactly as before S3c. */
+ * choice applies, else the fixed pair's build (its unavailable record when a basis
+ * has no result rows; nothing when neither fixed basis belongs to the run). */
 export function packagedComparison(
   resolved: { view: WithinRunView; build: WithinRunComparisonBuild | null },
   fixedPair: WithinRunComparisonBuild | null

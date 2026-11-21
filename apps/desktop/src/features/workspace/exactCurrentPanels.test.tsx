@@ -2,7 +2,9 @@
  * be Current, the surfaces that read the Current result receive it too. With an eligible
  * pressure-2 Current result (plain, and with the load/reference-state group), each of them
  * renders, and none carries result values to a file or a handoff:
- * - `ComparisonPanel` shows the preview comparison built from the Current result;
+ * - `ComparisonPanel` shows the session's "Within this run" view of the Current result: here
+ *   no combination has rows, so nothing to compare, and neither fixed basis is in the run, so
+ *   the packages carry no fixed-pair record and there is no package notice;
  * - `KnowledgePanel` lists computed records from the result's diagnostics;
  * - `ReviewGeometryPanel` offers a glTF review download that names the result only by
  *   `run_id` and embeds no result value;
@@ -139,7 +141,7 @@ describe.each(CASES)("an eligible pressure-2 %s Current result reaches the Curre
     await act(async () => { full = await hook.result.current.results.loadC2Full(result); });
     const copy = full!.result;
     const session = hook.result.current;
-    const { analysisRun, comparison } = session.results;
+    const { analysisRun, comparison, comparisonUnavailable, withinRun, packagedWithinRun, droppedWithinRunBases, withinRunDisabledReason } = session.results;
     expect(sourceContract(result)).toBe("pressure");
     expect(hasNativeMechanicsInvocation(result, model!, mode)).toBe(true);
     expect(numericalResultStanding(result, model).eligible).toBe(true);
@@ -147,11 +149,19 @@ describe.each(CASES)("an eligible pressure-2 %s Current result reaches the Curre
     const hasStates = Array.isArray((result.contract_evidence as Json)?.load_reference_states);
     expect(hasStates).toBe(_label !== "plain");
 
-    // ComparisonPanel: the preview comparison built from the Current result; no download.
-    expect(comparison).not.toBeNull();
-    const comparisonView = render(<ComparisonPanel comparison={comparison} result={copy} onSelectResult={() => {}} />);
+    // ComparisonPanel, as the app passes it the session's view: no combination has rows, so
+    // nothing to compare; neither fixed basis is in the run, so the packages carry no record
+    // and there is no package notice (Agent 0's absent-pair rule); no download.
+    expect(comparison).toBeNull();
+    expect(comparisonUnavailable).toBeNull();
+    expect(packagedWithinRun).toBeNull();
+    expect(withinRun.status).toBe("unavailable");
+    const comparisonView = render(<ComparisonPanel comparison={withinRun.status === "ready" ? withinRun.comparison : null} result={copy} onSelectResult={() => {}}
+      withinRun={{ view: withinRun, disabledReason: withinRunDisabledReason, onSelect: () => {}, packaged: packagedWithinRun, dropped: droppedWithinRunBases }} />);
     expect(within(comparisonView.container).getByTestId("comparison-panel")).toBeTruthy();
-    expect(within(comparisonView.container).getByTestId("comparison-summary")).toBeTruthy();
+    expect(within(comparisonView.container).getByTestId("comparison-unavailable")).toBeTruthy();
+    expect(within(comparisonView.container).queryByTestId("comparison-summary")).toBeNull();
+    expect(within(comparisonView.container).queryByTestId("comparison-package-basis")).toBeNull();
     expect(comparisonView.container.querySelectorAll("a[download], a[href^='data:']")).toHaveLength(0);
     comparisonView.unmount();
 

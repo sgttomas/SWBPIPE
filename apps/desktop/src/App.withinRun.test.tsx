@@ -98,8 +98,10 @@ it("names a dropped choice beside the package actions in Report and Exports", as
   const dropped = droppedNotice(["load:L-200", RANGE]);
   const reportAgain = openSection("report");
   await waitFor(() => expect(within(reportAgain).getByTestId("report-comparison-package-notice-dropped")).toHaveTextContent(dropped));
-  // The connected model has neither basis of the fixed pair, so neither has rows.
-  expect(within(reportAgain).getByTestId("report-comparison-package-notice-text")).toHaveTextContent("The packages carry no comparison of load case L-100 with combination C-OPER-ALT: load case L-100 and combination C-OPER-ALT have no results in this run.");
+  // The connected model has neither basis of the fixed pair (in its model, rows or withheld
+  // gates), so the packages carry no fixed-pair record and there is no package sentence;
+  // the dropped choice is still named (Agent 0's absent-pair rule).
+  expect(within(reportAgain).queryByTestId("report-comparison-package-notice-text")).toBeNull();
   // The Exports page says nothing of the comparison: none of the exports it offers carries it.
   const exportsSection = openSection("exports");
   expect(within(exportsSection).queryByTestId("handoff-comparison-package-notice")).toBeNull();

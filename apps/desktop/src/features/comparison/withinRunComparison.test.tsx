@@ -24,6 +24,7 @@ import {
   droppedNotice,
   fixedPairComparison,
   basisName,
+  COMPARISON_BASIS_WITHOUT_ROWS,
   packageNotice,
   packageNoticeParts,
   NO_COMBINATION_ROWS,
@@ -196,8 +197,10 @@ describe("the default", () => {
     const expected = buildPreviewComparison({ result: source, analysisRun: run, leftBasisRef: "load:L-100", rightBasisRef: RANGE });
     expect(view.comparison).toStrictEqual(expected);
     expect(expected.summary.comparable_result_pairs).toBeGreaterThan(0);
-    // Without a choice the packages keep the fixed-pair comparison, as before.
-    expect(packaged!.comparison).toStrictEqual(buildPreviewComparison({ result: source, analysisRun: run }));
+    // Without a choice the packages carry the fixed pair's: C-OPER-ALT has no rows, so its
+    // unavailable record, not an empty comparison.
+    expect(packaged!.comparison).toBeNull();
+    expect(packaged!.unavailable).toMatchObject({ left_basis_ref: DEFAULT_COMPARISON_LEFT_BASIS_REF, right_basis_ref: DEFAULT_COMPARISON_RIGHT_BASIS_REF, reason_code: COMPARISON_BASIS_WITHOUT_ROWS });
     // C-OPER-ALT is withheld by the solve, so it has no rows: the notice says no comparison is carried.
     expect(packageNotice(packaged)).toBe("The packages carry no comparison of load case L-100 with combination C-OPER-ALT: combination C-OPER-ALT has no results in this run (withheld by the solve: the model has nonlinear supports, so superposing case states is not a solved state).");
   });
@@ -269,7 +272,10 @@ describe("the choice", () => {
       release_or_professional_claim: false
     });
     expect(packageNotice(packaged)).toMatch(/^Packages omit the comparison of load case L-200 vs combination U4B-RANGE-MAX: ANALYSIS-RUN-RESULT-DIMENSION-UNDECLARED/);
-    expect(buildWithinRunComparison(source, run, { left: "load:L-100", right: DEFAULT_COMPARISON_RIGHT_BASIS_REF }).unavailable).toBeNull();
+    // The fixed pair: unavailable here, where the solve withheld C-OPER-ALT (no rows), not
+    // refused by the builder; with rows for both bases it is built and nothing is unavailable.
+    expect(buildWithinRunComparison(source, run, { left: "load:L-100", right: DEFAULT_COMPARISON_RIGHT_BASIS_REF }).unavailable).toMatchObject({ reason_code: COMPARISON_BASIS_WITHOUT_ROWS });
+    expect(buildWithinRunComparison(withFixedCombination(), run, { left: "load:L-100", right: DEFAULT_COMPARISON_RIGHT_BASIS_REF }).unavailable).toBeNull();
   });
 });
 
@@ -460,5 +466,65 @@ describe("the package notice", () => {
   it("is null without a Current run", () => {
     expect(packageNoticeParts(null)).toBeNull();
     expect(packageNotice(null)).toBeNull();
+  });
+});
+
+describe("the fixed pair without a choice (Agent 0's absent-pair rule)", () => {
+  const run = analysisRun("run:invented");
+  const WITHHELD = "Combination withheld: the model has nonlinear supports, so superposing case states is not a solved state.";
+  /** The range-envelope result with no row, gate or diagnostic of either fixed basis. */
+  function withoutFixedBases(): MechanicsResult {
+    const source = result();
+    source.results = source.results.filter((row) => row.basis_ref?.ref_id !== DEFAULT_COMPARISON_LEFT_BASIS_REF && row.basis_ref?.ref_id !== DEFAULT_COMPARISON_RIGHT_BASIS_REF);
+    const evidence = source.contract_evidence as { combination_gates?: Array<{ combination_id: string }> };
+    evidence.combination_gates = (evidence.combination_gates ?? []).filter((gate) => gate.combination_id !== DEFAULT_COMPARISON_RIGHT_BASIS_REF);
+    source.diagnostics = source.diagnostics.filter((item) => !item.affected_refs?.includes(DEFAULT_COMPARISON_RIGHT_BASIS_REF));
+    return source;
+  }
+  function modelWithout(): PreviewModel {
+    const solved = model();
+    solved.load_cases = solved.load_cases.filter((entry) => entry.id !== DEFAULT_COMPARISON_LEFT_BASIS_REF);
+    solved.combinations = solved.combinations!.filter((entry) => entry.id !== DEFAULT_COMPARISON_RIGHT_BASIS_REF);
+    return solved;
+  }
+
+  it("is nothing, with no notice, when neither fixed basis is in the model, has rows or was withheld", () => {
+    expect(fixedPairComparison(withoutFixedBases(), run, modelWithout())).toBeNull();
+    expect(fixedPairComparison(withoutFixedBases(), run, null)).toBeNull();
+    expect(packageNotice(null)).toBeNull();
+    // An explicit pair is unchanged: it still carries the record when a basis has no rows.
+    expect(buildWithinRunComparison(withoutFixedBases(), run, { left: DEFAULT_COMPARISON_LEFT_BASIS_REF, right: DEFAULT_COMPARISON_RIGHT_BASIS_REF }).unavailable)
+      .toMatchObject({ reason_code: COMPARISON_BASIS_WITHOUT_ROWS });
+  });
+
+  it("is the unavailable record when a fixed basis is only in the model (no rows, no withheld gate)", () => {
+    const solved = modelWithout();
+    solved.load_cases = [...solved.load_cases, { ...model().load_cases.find((entry) => entry.id === DEFAULT_COMPARISON_LEFT_BASIS_REF)! }];
+    const build = fixedPairComparison(withoutFixedBases(), run, solved)!;
+    expect(build.comparison).toBeNull();
+    expect(build.unavailable).toMatchObject({
+      left_basis_ref: DEFAULT_COMPARISON_LEFT_BASIS_REF,
+      right_basis_ref: DEFAULT_COMPARISON_RIGHT_BASIS_REF,
+      reason_code: COMPARISON_BASIS_WITHOUT_ROWS,
+      reason: `${COMPARISON_BASIS_WITHOUT_ROWS}: load:L-100 and combination:C-OPER-ALT have no result rows in this run, so the pair is not compared.`
+    });
+    // The combination only in the model: the same.
+    const withCombination = modelWithout();
+    withCombination.combinations = [...withCombination.combinations!, { ...model().combinations!.find((entry) => entry.id === DEFAULT_COMPARISON_RIGHT_BASIS_REF)! }];
+    expect(fixedPairComparison(withoutFixedBases(), run, withCombination)!.unavailable).toMatchObject({ reason_code: COMPARISON_BASIS_WITHOUT_ROWS });
+  });
+
+  it("is the unavailable record with the solve's withholding text when the solve withheld a fixed basis", () => {
+    // The range-envelope run: L-100 has rows and the solve withheld C-OPER-ALT.
+    const build = fixedPairComparison(result(), run, model())!;
+    expect(build.comparison).toBeNull();
+    expect(build.unavailable).toMatchObject({
+      reason_code: COMPARISON_BASIS_WITHOUT_ROWS,
+      reason: `${COMPARISON_BASIS_WITHOUT_ROWS}: combination:C-OPER-ALT has no result rows in this run, so the pair is not compared. combination:C-OPER-ALT: ${WITHHELD}`
+    });
+    // Withheld only (no row of either basis, not in the model): still the record.
+    const withheldOnly = withoutFixedBases();
+    (withheldOnly.contract_evidence as { combination_gates: unknown[] }).combination_gates.push({ combination_id: DEFAULT_COMPARISON_RIGHT_BASIS_REF, reason: "NONLINEAR_COMBINATION_REQUIRES_SOLVE", withheld: true });
+    expect(fixedPairComparison(withheldOnly, run, modelWithout())!.unavailable).toMatchObject({ reason_code: COMPARISON_BASIS_WITHOUT_ROWS });
   });
 });

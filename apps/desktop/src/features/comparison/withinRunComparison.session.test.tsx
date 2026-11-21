@@ -2,7 +2,8 @@
 // the choice is held with the run it was made on. A new solve, a model edit (which
 // retires the result) and a project replacement each read the default again; the
 // choice is refused while the session is busy; and without a choice the session's
-// packaged comparison is the fixed-pair comparison exactly as before. The run is the
+// packages carry the fixed pair's build: here, where the solve withheld C-OPER-ALT, its
+// unavailable record, not an empty comparison. The run is the
 // producer's range-envelope output replayed through the native solve-job transport
 // (unit transport replay; NOT a native UI qualification witness). Invented data only.
 // C1 (DEL-04-05 `c1-native-custody-plan.md` slice 4): the session holds a fresh result natively,
@@ -18,7 +19,8 @@ import { resolve } from "node:path";
 import { isDeepStrictEqual } from "node:util";
 import type { PreviewModel } from "../../types";
 import { getLocalStorageCapability } from "../../services/projectService";
-import { buildPreviewComparison, loadDesignKnowledge } from "../../services/previewService";
+import { loadDesignKnowledge } from "../../services/previewService";
+import { COMPARISON_BASIS_WITHOUT_ROWS } from "./withinRunComparison";
 import { canonicalJsonString } from "../../services/hashService";
 import { createSolveJobTransport } from "../../test/nativeMechanicsReplay";
 import { createNativePersistenceFake, isNativePersistenceCommand } from "../../test/nativePersistenceFake";
@@ -103,10 +105,10 @@ it("carries the choice across solves that offer its bases, and packages follow i
   const results = () => hook.result.current.results;
   // The default: the fixed pair is not offered (C-OPER-ALT has no rows), so the first offered.
   expect(pairOf(results())).toEqual({ left: "load:L-100", right: RANGE, source: "default" });
-  // Without a choice, the packaged comparison is the fixed-pair comparison exactly as before.
-  const today = buildPreviewComparison({ result: results().fullResult!, analysisRun: results().analysisRun! });
-  expect(JSON.stringify(results().comparison)).toBe(JSON.stringify(today));
-  expect(results().comparisonUnavailable).toBeNull();
+  // Without a choice, the packages carry the fixed pair's build: C-OPER-ALT has no rows (the
+  // solve withheld it), so its unavailable record and no comparison.
+  expect(results().comparison).toBeNull();
+  expect(results().comparisonUnavailable).toMatchObject({ status: "unavailable", left_basis_ref: "load:L-100", right_basis_ref: "combination:C-OPER-ALT", reason_code: COMPARISON_BASIS_WITHOUT_ROWS });
 
   act(() => results().handleSelectWithinRunBases({ left: "load:L-200", right: RANGE }));
   expect(pairOf(results())).toEqual({ left: "load:L-200", right: RANGE, source: "selected" });
