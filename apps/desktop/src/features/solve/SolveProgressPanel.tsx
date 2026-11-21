@@ -1,8 +1,8 @@
-import { ArrowRight, ChevronRight, Flag, Square, X } from "lucide-react";
+import { ArrowRight, ChevronRight, Flag, ListChecks, Square, X } from "lucide-react";
 import { useEffect, useId, useReducer, useRef, useState, type RefObject } from "react";
 import type { ResourceRefusal, SolveJobAuditState, SolveJobEvent } from "../../types";
 import { describeResourceRefusal, describeSolveWorkerFailure, formatBytes, resourceRefusalCode, solveWorkerFailureCode } from "../../services/memoryPool";
-import { registeredStatusLabel, statusDisplay, statusDisplayWithToken } from "../workspace/statusLabels";
+import { registeredStatusLabel, statusDisplayWithToken } from "../workspace/statusLabels";
 import { describeSolveRefusalRetry, isResultTooLargeSolveJob, solveRefusalPoint } from "../workspace/solveJobAudit";
 
 /** The words for each job state the solve-job record carries. */
@@ -92,12 +92,24 @@ function runView(solveJob: SolveJobAuditState, running: boolean, resultHeld: boo
   return tracker.runJobId !== null && solveJob.job_id === tracker.runJobId ? { kind: "job", job: solveJob, earlier } : { kind: "hidden" };
 }
 
-/** The statuses a completed job reports, registered ones only, the mechanics (Solver) status first
- * and the others in the order reported. */
+/** The registered statuses a completed job reports, the mechanics (Solver) status first and the
+ * others in the order reported, unshortened. */
 function reportedStatuses(statuses: readonly string[]): string[] {
   const registered = statuses.filter((status) => registeredStatusLabel(status) !== null);
   const solver = registered.filter((status) => registeredStatusLabel(status)?.domain === "Solver");
   return [...solver, ...registered.filter((status) => !solver.includes(status))];
+}
+
+/**
+ * The completed line's first word, from the mechanics (Solver) status the job reports: "Solved"
+ * for MECHANICS_SOLVED; the registry's own label, which is plain, for any other Solver status
+ * (MODEL_INCOMPLETE: "Model incomplete"), with the way on to the findings; the job's state word
+ * where it reports no Solver status, claiming nothing.
+ */
+export function completedWord(statuses: readonly string[]): { word: string; solved: boolean; unsolved: boolean } {
+  const solver = statuses.map(registeredStatusLabel).find((row) => row?.domain === "Solver" && row.kind === "status") ?? null;
+  if (solver === null) return { word: STATE_LABELS.completed, solved: false, unsolved: false };
+  return solver.token === "MECHANICS_SOLVED" ? { word: "Solved", solved: true, unsolved: false } : { word: solver.label, solved: false, unsolved: true };
 }
 
 /** The states the job reported, in order, each once where it repeats. */
@@ -126,10 +138,15 @@ const plural = (count: number, one: string, many: string) => `${count} ${count =
  * model changes. It says the state the job reports and nothing the job did not
  * report (no model facts: DEL-07-07 REQ-003), with Stop while the job can be
  * stopped (the one Stop control: the toolbar keeps Run, withheld while a solve
- * runs); when the job completes, every registered status it reports in the
- * registry's display form and its result rows, with "Open results" unless the
- * Results stage is the one shown; when it fails or is refused, the reason the
- * job gives, the way to retry and the exact code, with "Show in Issues".
+ * runs). When the job completes the line reads one sentence: "Solved." and the
+ * result rows the job reported, with "Open results" unless the Results stage is
+ * the one shown, and, only where something is left for the person to do and its
+ * count can be read honestly, that thing as a control with its count ("Rule
+ * inputs missing: N", opening the Issues drawer at those findings); a mechanics
+ * status other than solved is the line's first word with "Show in Issues". Every
+ * status the job reported stays in Details, with its token. When it fails or is
+ * refused, the reason the job gives, the way to retry and the exact code, with
+ * "Show in Issues".
  * Everything else the job reports is behind the line's one "Details" control,
  * complete, facts first; Details closes at the start of each run, its control
  * stays where it is at the end of the line, and its body opens beneath the line.
@@ -147,7 +164,9 @@ export function SolveProgressPanel({
   onOpenResults,
   onShowIssue,
   resultsShown = false,
-  resultHeld = false
+  resultHeld = false,
+  ruleInputsMissing = null,
+  onShowRuleInputs
 }: {
   solveJob: SolveJobAuditState;
   running: boolean;
@@ -161,6 +180,11 @@ export function SolveProgressPanel({
   /** Whether the session holds a result; read while no run is active, so a stopped run can
    * say that the result held before it was cleared when it started. */
   resultHeld?: boolean;
+  /** How many findings say a rule input is missing (the Missing data entries that block the rule
+   * check); read only when the completed job reports RULE_INPUTS_INCOMPLETE. */
+  ruleInputsMissing?: number | null;
+  /** Opens the Issues drawer at those findings. */
+  onShowRuleInputs?: () => void;
 }) {
   const stateRef = useRef<HTMLParagraphElement>(null);
   const lineRef = useRef<HTMLElement>(null);
@@ -193,9 +217,13 @@ export function SolveProgressPanel({
   const tooLarge = job !== null && isResultTooLargeSolveJob(job);
   const resource = job?.resource ?? null;
   const statuses = completed ? reportedStatuses(completed.analysis_status) : [];
-  const label = state === null ? "Starting" : solveJobStateLabel(state);
+  const outcome = completed ? completedWord(completed.analysis_status) : null;
+  // Something left for the person to do, as a control with its count; only with an honest count.
+  const ruleInputs = completed && completed.analysis_status.some((status) => registeredStatusLabel(status)?.token === "RULE_INPUTS_INCOMPLETE")
+    && ruleInputsMissing !== null && ruleInputsMissing > 0 && onShowRuleInputs ? ruleInputsMissing : null;
+  const label = state === null ? "Starting" : outcome ? outcome.word : solveJobStateLabel(state);
   const tone = state === "failed" || state === "refused" ? "error" : state === "completed" ? "done" : state === "cancelled" ? "stopped" : "active";
-  const issue = state === "failed" || state === "refused" || tooLarge;
+  const issue = state === "failed" || state === "refused" || tooLarge || outcome?.unsolved === true;
   const poolRefusal = state === "refused" && refusal !== null;
   // A run clears the result held before it when its job starts (the session's solve).
   const earlierResultCleared = state === "cancelled" && tracker.current.resultHeldAtStart;
@@ -237,8 +265,7 @@ export function SolveProgressPanel({
           {earlierResultCleared ? <span data-testid="solve-progress-earlier-cleared"> The earlier result was cleared when this run started.</span> : null}
           {completed ? (
             <span>
-              {statuses.length > 0 ? <span data-testid="solve-progress-outcome"> {statuses.map(statusDisplay).join("; ")}.</span> : null}{" "}
-              <span data-testid="solve-progress-completed">{plural(completed.result_row_count, "result row", "result rows")}.</span>
+              {" "}<span data-testid="solve-progress-completed">{plural(completed.result_row_count, "result row", "result rows")}.</span>
             </span>
           ) : null}
           {queueReason && (state === "queued" || state === "cancelling") ? (
@@ -277,6 +304,12 @@ export function SolveProgressPanel({
               <ArrowRight size={14} aria-hidden="true" />
             </button>
           ) : null}
+          {ruleInputs !== null ? (
+            <button className="secondary-action" data-testid="solve-progress-rule-inputs" onClick={onShowRuleInputs} type="button">
+              <ListChecks size={14} aria-hidden="true" />
+              Rule inputs missing: {ruleInputs}
+            </button>
+          ) : null}
           {issue && onShowIssue ? (
             <button className="secondary-action" data-testid="solve-progress-show-issue" onClick={onShowIssue} type="button">
               <Flag size={14} aria-hidden="true" />
@@ -308,7 +341,7 @@ export function SolveProgressPanel({
         {events.length > 0 ? <p data-testid="solve-progress-states">States reported: {reportedStates(events).join(", ")}</p> : null}
         {completed ? (
           <p data-testid="solve-progress-statuses">
-            Statuses reported: {completed.analysis_status.length > 0 ? completed.analysis_status.map(statusDisplayWithToken).join("; ") : "none"}
+            Statuses reported: {statuses.length > 0 ? statuses.map(statusDisplayWithToken).join("; ") : "none"}
           </p>
         ) : null}
         {completed ? (

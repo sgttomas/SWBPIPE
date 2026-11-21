@@ -42,6 +42,7 @@ export function MissingDataBlockingPanel({ model, result }: { model: PreviewMode
       className="panel missing-data-panel"
       aria-label="Missing-data blocking review"
       data-testid="missing-data-panel"
+      tabIndex={-1}
     >
       <div className="panel-title">
         <Ban size={16} aria-hidden="true" />
@@ -155,6 +156,11 @@ function MissingDataLine({ label, value, testId }: { label: string; value: strin
 // not just the raw diagnostics arrays.
 export function countMissingDataBlockers(args: { model: PreviewModel; result: SessionResult | null }): number {
   return buildMissingDataBlockingPacket(args).summary.blocking_warning_count;
+}
+
+/** How many Missing data entries say a rule input is missing: the ones that block the rule check. */
+export function countRuleInputsMissing(args: { model: PreviewModel; result: SessionResult | null }): number {
+  return buildMissingDataBlockingPacket(args).summary.rule_check_blocking_count;
 }
 
 export function buildMissingDataBlockingPacket({ model, result }: { model: PreviewModel; result: SessionResult | null }) {

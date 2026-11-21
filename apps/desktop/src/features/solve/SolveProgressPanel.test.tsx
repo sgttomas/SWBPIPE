@@ -334,37 +334,65 @@ describe("the status line's outcome and its actions", () => {
     { results: [{}, {}], diagnostics: [{}, {}] } as unknown as MechanicsResult,
     { analysis_run: { run_id: "analysis-run:invented-solved", analysis_status: statuses } } as unknown as AnalysisRunEnvelope);
 
-  it("says Running and nothing the job did not report, and on completion every status it reports in the registry's display form, without tokens, then the rows", () => {
+  it("on completion reads one sentence, Solved and the rows; every status reported stays in Details with its token, the mechanics status first", () => {
     const onOpenResults = vi.fn();
     const view = render(line(initialSolveJob(), false, { onOpenResults }));
     view.rerender(line(initialSolveJob(), true, { onOpenResults }));
     view.rerender(line(runningJob(), true, { onOpenResults }));
     expect(screen.getByTestId("solve-progress-state")).toHaveTextContent(/^Running$/);
     expect(screen.queryByTestId("solve-progress-open-results")).toBeNull();
-    view.rerender(line(completedWith(["RULE_INPUTS_INCOMPLETE", "MECHANICS_SOLVED", "HUMAN_REVIEW_REQUIRED"]), false, { onOpenResults }));
-    // The mechanics status first, then the others in the order reported (AC-005's combined outcome).
-    expect(screen.getByTestId("solve-progress-state")).toHaveTextContent(
-      /^Completed\. Solver · Mechanics solved; Rule pack · Rule inputs incomplete; Human · Human review required\. 2 result rows\.$/
-    );
-    expect(screen.getByTestId("solve-progress-state").textContent).not.toMatch(/[A-Z]{2,}_[A-Z]/);
-    // Each status's token is in Details.
+    view.rerender(line(completedWith(["RULE_INPUTS_INCOMPLETE", "MECHANICS_SOLVED", "HUMAN_REVIEW_REQUIRED", "USER_RULE_CHECKED", "INTERNALLY_VERIFIED"]), false, { onOpenResults }));
+    expect(screen.getByTestId("solve-progress-state")).toHaveTextContent(/^Solved\. 2 result rows\.$/);
+    // Human review required is on the line in no form, and no status's token or registered form is.
+    expect(screen.getByTestId("solve-progress-panel").textContent).not.toMatch(/human review|[A-Z]{2,}_[A-Z]|Solver ·|Rule pack ·|Evidence ·/i);
+    // No rule-inputs count was supplied: nothing to press for it.
+    expect(screen.queryByTestId("solve-progress-rule-inputs")).toBeNull();
     expect(detailsOpen()).toBe(false);
     openDetails();
     expect(screen.getByTestId("solve-progress-statuses")).toHaveTextContent(
-      "Statuses reported: Rule pack · Rule inputs incomplete (RULE_INPUTS_INCOMPLETE); Solver · Mechanics solved (MECHANICS_SOLVED); Human · Human review required (HUMAN_REVIEW_REQUIRED)"
+      /^Statuses reported: Solver · Mechanics solved \(MECHANICS_SOLVED\); Rule pack · Rule inputs incomplete \(RULE_INPUTS_INCOMPLETE\); Human · Human review required \(HUMAN_REVIEW_REQUIRED\); Rule pack · User-rule checked \(USER_RULE_CHECKED\); Evidence · Internally verified \(INTERNALLY_VERIFIED\)$/
     );
     fireEvent.click(screen.getByRole("button", { name: /Open results/ }));
     expect(onOpenResults).toHaveBeenCalledTimes(1);
     expect(screen.queryByTestId("solve-progress-show-issue")).toBeNull();
   });
 
-  it("on completion without MECHANICS_SOLVED states the registered statuses the job does report", () => {
-    const view = render(line(initialSolveJob(), false, {}));
-    view.rerender(line(initialSolveJob(), true, {}));
-    view.rerender(line(completedWith(["MODEL_INCOMPLETE", "HUMAN_REVIEW_REQUIRED"]), false, {}));
-    expect(screen.getByTestId("solve-progress-state")).toHaveTextContent(
-      /^Completed\. Solver · Model incomplete; Human · Human review required\. 2 result rows\.$/
-    );
+  it("offers the missing rule inputs as one control with its count, which opens the Issues drawer at them; none without the status or the count", () => {
+    const onShowRuleInputs = vi.fn();
+    const render3 = (statuses: string[], ruleInputsMissing: number | null) => {
+      const view = render(<SolveProgressPanel solveJob={initialSolveJob()} running={false} onCancel={() => {}} ruleInputsMissing={ruleInputsMissing} onShowRuleInputs={onShowRuleInputs} />);
+      view.rerender(<SolveProgressPanel solveJob={initialSolveJob()} running onCancel={() => {}} ruleInputsMissing={ruleInputsMissing} onShowRuleInputs={onShowRuleInputs} />);
+      view.rerender(<SolveProgressPanel solveJob={completedWith(statuses)} running={false} onCancel={() => {}} ruleInputsMissing={ruleInputsMissing} onShowRuleInputs={onShowRuleInputs} />);
+      return view;
+    };
+    let view = render3(["MECHANICS_SOLVED", "RULE_INPUTS_INCOMPLETE"], 4);
+    expect(screen.getByTestId("solve-progress-state")).toHaveTextContent(/^Solved\. 2 result rows\.$/);
+    const control = screen.getByTestId("solve-progress-rule-inputs");
+    expect(control).toHaveTextContent(/^Rule inputs missing: 4$/);
+    fireEvent.click(control);
+    expect(onShowRuleInputs).toHaveBeenCalledTimes(1);
+    view.unmount();
+    // The status alone, with no honest count, or a count without the status: not on the line.
+    view = render3(["MECHANICS_SOLVED", "RULE_INPUTS_INCOMPLETE"], 0);
+    expect(screen.queryByTestId("solve-progress-rule-inputs")).toBeNull();
+    view.unmount();
+    render3(["MECHANICS_SOLVED", "USER_RULE_CHECKED"], 4);
+    expect(screen.queryByTestId("solve-progress-rule-inputs")).toBeNull();
+  });
+
+  it("a mechanics status other than solved is the line's first word, in the registry's plain words, with the way on to the findings", () => {
+    const onShowIssue = vi.fn();
+    const view = render(line(initialSolveJob(), false, { onShowIssue }));
+    view.rerender(line(initialSolveJob(), true, { onShowIssue }));
+    view.rerender(line(completedWith(["MODEL_INCOMPLETE", "HUMAN_REVIEW_REQUIRED"]), false, { onShowIssue }));
+    expect(screen.getByTestId("solve-progress-state")).toHaveTextContent(/^Model incomplete\. 2 result rows\.$/);
+    fireEvent.click(screen.getByTestId("solve-progress-show-issue"));
+    expect(onShowIssue).toHaveBeenCalledTimes(1);
+    // A completed job that reports no mechanics status claims nothing: the job's own state word.
+    view.rerender(line(initialSolveJob(), true, { onShowIssue }));
+    view.rerender(line(completedWith([]), false, { onShowIssue }));
+    expect(screen.getByTestId("solve-progress-state")).toHaveTextContent(/^Completed\. 2 result rows\.$/);
+    expect(screen.queryByTestId("solve-progress-show-issue")).toBeNull();
   });
 
   it("does not offer Open results while the Results stage is the one shown, and offers it again elsewhere", () => {

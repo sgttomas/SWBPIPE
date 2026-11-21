@@ -54,7 +54,7 @@ import { DormantSection } from "./features/workspace/dormantSection";
 import { BOTH_SPLIT_PCT_BOUNDS, TABLE_DRAWER_PX_BOUNDS } from "./features/workspace/uiPreferences";
 import type { UiDensityPreference, UiThemePreference } from "./features/workspace/uiPreferences";
 import type React from "react";
-import { Fragment, useMemo, useState } from "react";
+import { Fragment, useEffect, useMemo, useRef, useState } from "react";
 import { AccessibilityBaselinePanel } from "./features/accessibility-baseline/AccessibilityBaselinePanel";
 import { AdapterFrameworkPanel } from "./features/adapter-framework/AdapterFrameworkPanel";
 import { AgentProposalPanel } from "./features/agent-proposals/AgentProposalPanel";
@@ -79,7 +79,7 @@ import { KnowledgePanel } from "./features/knowledge/KnowledgePanel";
 import { LibraryManagerPanel } from "./features/library/LibraryManagerPanel";
 import { LoadCaseManagerPanel } from "./features/load-cases/LoadCaseManagerPanel";
 import { LocalFeaHandoffPanel } from "./features/local-fea-handoff/LocalFeaHandoffPanel";
-import { MissingDataBlockingPanel } from "./features/missing-data/MissingDataBlockingPanel";
+import { countRuleInputsMissing, MissingDataBlockingPanel } from "./features/missing-data/MissingDataBlockingPanel";
 import { itemsAt, useIssueSummary, type IssueItem, type IssueSummary } from "./features/diagnostics/issueItems";
 import { IssueItemView, ShownUnderDiagnostics } from "./features/diagnostics/IssueItemView";
 import { professionalStatusToken, ruleCheckStatusToken, statusDisplay } from "./features/workspace/statusLabels";
@@ -377,6 +377,9 @@ function AppSession() {
   // "Show solver diagnostic" (DEL-07-05 numerical health §3): the Issues drawer's
   // Diagnostics panel opens filtered to exactly that diagnostic, once.
   const { filterRequest: diagnosticFilterRequest, requestDiagnosticFilter } = useDiagnosticFilterRequest({ issuesDrawerOpen, result, analysisRun });
+  // A request from the status line's "Rule inputs missing" control to open the drawer at the
+  // Missing data entries; the drawer clears it once it has brought them into view.
+  const [missingDataRequest, setMissingDataRequest] = useState<number | null>(null);
   // A6 (DEL-07-05 Design `key-results-panel.md`): the key-results panel's open state, auto-open
   // rule and actions, each through an existing setter. The rule-check run follows the A3 rule.
   const keyResults = useKeyResultsSession({
@@ -504,6 +507,8 @@ function AppSession() {
         onShowIssue={() => setIssuesDrawerOpen(true)}
         resultsShown={shell.stage === "results" && shell.page === null}
         resultHeld={result !== null}
+        ruleInputsMissing={solveJob.state === "completed" ? countRuleInputsMissing({ model, result }) : null}
+        onShowRuleInputs={() => { setIssuesDrawerOpen(true); setMissingDataRequest((count) => (count ?? 0) + 1); }}
       />
 
       <div className="shell-body">
@@ -1422,6 +1427,8 @@ function AppSession() {
           modelCheckBusy={modelCheckBusy}
           onRunModelChecks={() => { void handleRunModelChecks(); }}
           onSelectEntity={(entity) => { handleSelectEntity(entity); }}
+          missingDataRequest={missingDataRequest}
+          onMissingDataShown={() => setMissingDataRequest(null)}
         />
       ) : null}
       <ReplaceProjectPrompt prompt={replaceProjectPrompt} />
@@ -1882,7 +1889,9 @@ function IssuesHome({
   modelCheckRun = null,
   modelCheckBusy = false,
   onRunModelChecks = () => {},
-  onSelectEntity = () => {}
+  onSelectEntity = () => {},
+  missingDataRequest = null,
+  onMissingDataShown = () => {}
 }: {
   /** The items this drawer lists; their number is the Issues controls' count. */
   issues: IssueSummary;
@@ -1900,8 +1909,20 @@ function IssuesHome({
   modelCheckBusy?: boolean;
   onRunModelChecks?: () => void;
   onSelectEntity?: (entity: EntityRef) => void;
+  /** A request to open the drawer at the Missing data entries (the status line's "Rule inputs
+   * missing" control): it brings that panel into view, gives it focus and is then cleared. */
+  missingDataRequest?: number | null;
+  onMissingDataShown?: () => void;
 }) {
   const checkItems = itemsAt(issues, "model-checks");
+  const drawerRef = useRef<HTMLElement>(null);
+  useEffect(() => {
+    if (missingDataRequest === null) return;
+    const panel = drawerRef.current?.querySelector<HTMLElement>('[data-testid="missing-data-panel"]');
+    panel?.scrollIntoView?.({ block: "start" });
+    panel?.focus();
+    onMissingDataShown();
+  }, [missingDataRequest, onMissingDataShown]);
   const operationItems = itemsAt(issues, "operation");
   const diagnosticItems = itemsAt(issues, "diagnostics");
   // A diagnostic shown as requested in the Diagnostics list is shown there once; the list that
@@ -1917,7 +1938,7 @@ function IssuesHome({
     ["Missing data blocking", issues.missingInputs, "missing-data"]
   ];
   return (
-    <aside className="workspace-drawer issues-drawer" aria-label="Issues home" data-testid="issues-home">
+    <aside className="workspace-drawer issues-drawer" aria-label="Issues home" data-testid="issues-home" ref={drawerRef}>
       <div className="drawer-header">
         <div>
           <span>Issues</span>
