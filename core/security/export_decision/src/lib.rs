@@ -5,24 +5,55 @@
 //! `docs/security/redaction_export_controls.md` and
 //! `schemas/redaction_export_controls.schema.yaml`.
 //!
+//! # One buffer
+//!
+//! A caller holds the route's content as one byte buffer and binds the decision to it:
+//!
+//! - `content_sha256` is the SHA-256 of that buffer.
+//! - The `content` given to the rule is read from that buffer by the route's reading. For
+//!   JSON text the reading refuses, before any decision, text in which an object repeats a
+//!   member name: a decoder keeps one of the two and the buffer holds both.
+//! - Content the caller builds is serialised once, in the route's canonical form; that
+//!   buffer is the one decided, digested and written.
+//! - Where a route's content is text and the route decides it as one JSON string, the
+//!   digest is of the text's UTF-8 bytes, not of a JSON encoding of it.
+//! - On an admitted outcome the sink receives that buffer. An output derived from decided
+//!   content is another route's content and has its own decision.
+//!
+//! The rule records the digest and cannot check it; the binding is the caller's.
+//!
 //! # What a caller may rely on
 //!
-//! - `withheld == false` means that no decision blocks and that the controlled copy equals
-//!   the content. Only then may the caller expose the content, and it exposes the bytes it
-//!   had decided, bound by `text_sha256`.
-//! - `withheld == true`: nothing is exposed. The caller reports `withheld_reason`, the
-//!   counts and the bounded blocking findings (reason code and path, never a value).
+//! - `withheld` is false exactly when none of the three [`WithheldReason`]s applies: no
+//!   decision blocks; on a request that requires lossless materialization, no decision
+//!   redacts or omits, whether or not the controlled copy would come out equal; and the
+//!   controlled copy equals the content as decoded JSON values. Then `withheld_reason` is
+//!   `None`, `blocking_finding_total` is 0 and `blocking_findings` is empty. Otherwise
+//!   `withheld` is true and `withheld_reason` is the first reason that applies, in the
+//!   order of [`WithheldReason::ALL`].
+//! - A caller exposes content only when the rule returned `Ok` for this content and this
+//!   request and [`SummaryOutcome::may_expose`] is true of that outcome. A refusal
+//!   ([`RuleError`]), or an outcome that contradicts itself, exposes nothing.
+//! - Withheld: nothing is exposed. The caller reports `withheld_reason`, the counts and
+//!   the bounded blocking findings (reason code and path, never a value).
+//! - The outcome's `route_id`, `export_context` and `explicit_local_private_intent` are the
+//!   request's, `rule_revision` is the rule's and `text_sha256` is `content_sha256`, each
+//!   unchanged.
 //! - The content is borrowed and never changed. Intent comes only from the request.
-//! - The same content, request and rule revision give the same outcome.
+//! - The same rule revision, content, request, digest and bound give the same outcome.
 //! - The route id is recorded, not admitted: the caller establishes that its route may run
-//!   before it asks for a decision.
+//!   before it asks for a decision. The one exception is the user-release route, which the
+//!   rule refuses with the `user_released_report` context
+//!   ([`RuleError::UserReleaseRouteRequired`]).
 //!
 //! # What it does not offer
 //!
-//! No per-value decision or finding records and no controlled copy; no member-at-a-time
-//! form (the content is the route's whole payload, because a value's decision depends on
-//! its path from the payload's root); no route catalogue, user-release projection, text
-//! reading, hashing or write. No I/O, logging, clock or global state.
+//! No per-value decision or finding records and no controlled copy, so a route that must
+//! expose a redacted copy is not served by it; no member-at-a-time form (the content is
+//! the route's whole payload, because a value's decision depends on its path from the
+//! payload's root); no route catalogue, user-release projection, text reading, hashing or
+//! write. No I/O, logging, clock or global state. The types serialise and do not
+//! deserialise; a caller that hashes a serialised outcome canonicalises it first.
 
 use std::fmt;
 
@@ -193,11 +224,19 @@ impl Serialize for Sha256Digest {
 }
 
 /// The number of findings with one code and one class.
-#[derive(Debug, Clone, PartialEq, Eq, Serialize)]
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize)]
 pub struct FindingCount {
     pub code: ReasonCode,
     pub class: FindingClass,
     pub count: u64,
+}
+
+impl FindingCount {
+    /// The order of [`SummaryOutcome::finding_counts`]: by the code's text, then by the
+    /// class's text, each compared as bytes. It is not the order of the schema's lists.
+    pub fn summary_order(&self, other: &Self) -> std::cmp::Ordering {
+        (self.code.as_str(), self.class.as_str()).cmp(&(other.code.as_str(), other.class.as_str()))
+    }
 }
 
 /// A blocking finding as an outcome lists it: its reason code and its path, never a value.
@@ -222,8 +261,11 @@ pub struct SummaryOutcome {
     pub withheld: bool,
     /// Some exactly when `withheld` is true.
     pub withheld_reason: Option<WithheldReason>,
-    /// One entry per (code, class) pair with a count of at least one, ordered by code, then
-    /// class.
+    /// The number of decisions the rule made, inclusions counted. A decision that includes
+    /// a value has no finding, so the finding counts do not give this number.
+    pub decision_total: u64,
+    /// One entry per (code, class) pair with a count of at least one, in
+    /// [`FindingCount::summary_order`].
     pub finding_counts: Vec<FindingCount>,
     /// The first `blocking_bound` blocking findings, in the rule's order.
     pub blocking_findings: Vec<BlockingFinding>,
@@ -232,6 +274,16 @@ pub struct SummaryOutcome {
 }
 
 impl SummaryOutcome {
+    /// Whether this outcome admits its content: not withheld, with no withheld reason and no
+    /// blocking finding listed or counted. A caller asks this, not `withheld` alone, so that
+    /// an outcome that contradicts itself exposes nothing.
+    pub fn may_expose(&self) -> bool {
+        !self.withheld
+            && self.withheld_reason.is_none()
+            && self.blocking_finding_total == 0
+            && self.blocking_findings.is_empty()
+    }
+
     /// The same outcome, for the destination the caller chose.
     pub fn with_destination(mut self, destination: impl Into<String>) -> Self {
         self.destination = Some(destination.into());
@@ -239,13 +291,18 @@ impl SummaryOutcome {
     }
 }
 
-/// What the rule refuses to decide.
+/// What the rule refuses to decide. A caller treats every refusal, including one added
+/// later, as content withheld.
 #[derive(Debug, Clone, PartialEq, Eq)]
+#[non_exhaustive]
 pub enum RuleError {
     /// The `user_released_report` context or the user-release route, which only the
     /// user-release projection admits.
     UserReleaseRouteRequired { route_id: String, export_context: ExportContext },
     /// User-release intent with a context other than `user_released_report`.
+    /// [`ContentRule::decide_summary`] never returns it: a [`RouteRequest`] carries no
+    /// user-release intent, and intent is never read from content. It is the refusal of the
+    /// rule's entries that take that intent from their caller.
     UserReleaseIntentOutsideContext { export_context: ExportContext },
 }
 
@@ -281,9 +338,9 @@ pub trait ContentRule {
 
     /// Decides `content`, the whole payload of the route as one decoded JSON value, on the
     /// route, context and intent of `request`. `content_sha256` is the caller's SHA-256 of
-    /// the bytes the content was decoded from (or, for content the caller built, of its
-    /// canonical text); it is recorded, not checked. Keeps counts and at most
-    /// `blocking_bound` blocking findings, never one record per value.
+    /// the one buffer the content was read from and the sink will receive (the crate's
+    /// "One buffer"); it is recorded unchanged as `text_sha256`, not checked. Keeps counts
+    /// and at most `blocking_bound` blocking findings, never one record per value.
     fn decide_summary(
         &self,
         content: &serde_json::Value,

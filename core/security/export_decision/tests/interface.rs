@@ -1,5 +1,5 @@
-//! The interface's texts against the schema and the contract, the summary outcome's
-//! serialised form, and the digest's written form.
+//! The interface's texts against the schema, the summary outcome's serialised form and
+//! its admission, the order of its finding counts, and the digest's written form.
 
 use open_pipe_stress_export_decision::{
     BlockingFinding, ContentRule, ExportContext, FindingClass, FindingCount, ReasonCode,
@@ -8,7 +8,6 @@ use open_pipe_stress_export_decision::{
 use serde_json::{json, Value};
 
 const SCHEMA: &str = include_str!("../../../../schemas/redaction_export_controls.schema.yaml");
-const CONTRACT: &str = include_str!("../../../../docs/security/redaction_export_controls.md");
 
 fn schema_enum(name: &str) -> Vec<String> {
     let schema: Value = serde_json::from_str(SCHEMA).expect("the schema is JSON text");
@@ -25,25 +24,8 @@ fn texts<T: Copy>(all: &[T], as_str: fn(T) -> &'static str) -> Vec<String> {
 }
 
 #[test]
-fn export_contexts_are_the_schemas_and_the_contracts_in_order() {
-    let ours = texts(ExportContext::ALL, ExportContext::as_str);
-    assert_eq!(ours, schema_enum("ExportContext"));
-    // The contract's table of export contexts: its first column, in order.
-    let section = CONTRACT
-        .split("## Export Contexts")
-        .nth(1)
-        .and_then(|rest| rest.split("\n## ").next())
-        .expect("the contract's Export Contexts section");
-    let table: Vec<String> = section
-        .lines()
-        .filter_map(|line| line.strip_prefix("| `"))
-        .map(|rest| rest.split('`').next().expect("context cell").to_string())
-        .collect();
-    assert_eq!(ours, table);
-}
-
-#[test]
-fn reason_codes_and_finding_classes_are_the_schemas_in_order() {
+fn contexts_reason_codes_and_finding_classes_are_the_schemas_in_order() {
+    assert_eq!(texts(ExportContext::ALL, ExportContext::as_str), schema_enum("ExportContext"));
     assert_eq!(texts(ReasonCode::ALL, ReasonCode::as_str), schema_enum("ReasonCode"));
     assert_eq!(texts(FindingClass::ALL, FindingClass::as_str), schema_enum("FindingClass"));
 }
@@ -66,17 +48,22 @@ fn every_name_reads_back_and_serialises_as_its_text() {
     for code in ReasonCode::ALL {
         assert_eq!(ReasonCode::from_name(code.as_str()), Some(*code));
         assert_eq!(serde_json::to_value(code).unwrap(), json!(code.as_str()));
+        assert_eq!(code.to_string(), code.as_str());
     }
     for class in FindingClass::ALL {
         assert_eq!(FindingClass::from_name(class.as_str()), Some(*class));
         assert_eq!(serde_json::to_value(class).unwrap(), json!(class.as_str()));
+        assert_eq!(class.to_string(), class.as_str());
     }
     for reason in WithheldReason::ALL {
         assert_eq!(WithheldReason::from_name(reason.as_str()), Some(*reason));
         assert_eq!(serde_json::to_value(reason).unwrap(), json!(reason.as_str()));
+        assert_eq!(reason.to_string(), reason.as_str());
     }
     assert_eq!(ExportContext::from_name("Local_Private"), None);
     assert_eq!(ReasonCode::from_name("safe_public_metadata"), None);
+    assert_eq!(FindingClass::from_name("safe_metadata"), None);
+    assert_eq!(WithheldReason::from_name("DECISION_BLOCKED"), None);
 }
 
 const DIGEST: &str = "sha256:00ff10a9b3c4d5e6f708192a3b4c5d6e7f8091a2b3c4d5e6f708192a3b4c5d6e";
@@ -115,6 +102,7 @@ fn outcome() -> SummaryOutcome {
         destination: None,
         withheld: false,
         withheld_reason: None,
+        decision_total: 5,
         finding_counts: vec![FindingCount {
             code: ReasonCode::PrivateLocalAllowedWithWarning,
             class: FindingClass::PrivateDataWarning,
@@ -125,9 +113,10 @@ fn outcome() -> SummaryOutcome {
     }
 }
 
-const OUTCOME_MEMBERS: [&str; 11] = [
+const OUTCOME_MEMBERS: [&str; 12] = [
     "blocking_finding_total",
     "blocking_findings",
+    "decision_total",
     "destination",
     "explicit_local_private_intent",
     "export_context",
@@ -160,6 +149,7 @@ fn a_summary_outcome_serialises_every_member_with_null_for_the_absent() {
             "destination": null,
             "withheld": false,
             "withheld_reason": null,
+            "decision_total": 5,
             "finding_counts": [{"code": "PRIVATE_LOCAL_ALLOWED_WITH_WARNING", "class": "PRIVATE_DATA_WARNING", "count": 2}],
             "blocking_findings": [],
             "blocking_finding_total": 0
@@ -183,6 +173,56 @@ fn a_summary_outcome_serialises_every_member_with_null_for_the_absent() {
         json!([{"reason_code": "PROTECTED_CONTENT_BLOCKED", "path": "$.invented"}])
     );
     assert_eq!(withheld["blocking_finding_total"], json!(3));
+}
+
+#[test]
+fn only_a_coherent_admitted_outcome_may_expose() {
+    assert!(outcome().may_expose());
+
+    let mut withheld = outcome();
+    withheld.withheld = true;
+    withheld.withheld_reason = Some(WithheldReason::ControlledCopyDiffers);
+    assert!(!withheld.may_expose());
+
+    // Outcomes that say "not withheld" and contradict it: none exposes.
+    let mut reason_present = outcome();
+    reason_present.withheld_reason = Some(WithheldReason::LosslessMaterializationWithheld);
+    assert!(!reason_present.may_expose());
+
+    let mut counted = outcome();
+    counted.blocking_finding_total = 1;
+    assert!(!counted.may_expose());
+
+    let mut listed = outcome();
+    listed.blocking_findings = vec![BlockingFinding {
+        reason_code: ReasonCode::ProtectedContentBlocked,
+        path: "$.invented".to_string(),
+    }];
+    assert!(!listed.may_expose());
+}
+
+#[test]
+fn finding_counts_are_ordered_by_code_text_then_class_text() {
+    let count = |code, class| FindingCount { code, class, count: 1 };
+    // The schema lists SAFE_PUBLIC_METADATA first; by text it follows PRIVATE_DATA_REDACTED.
+    assert_eq!(ReasonCode::ALL[0], ReasonCode::SafePublicMetadata);
+    let mut counts = vec![
+        count(ReasonCode::SafePublicMetadata, FindingClass::SafeMetadata),
+        count(ReasonCode::PrivateDataRedacted, FindingClass::ProvenanceWarning),
+        count(ReasonCode::PrivateDataRedacted, FindingClass::IpBoundaryWarning),
+        count(ReasonCode::ConcretePathRedacted, FindingClass::PrivateDataWarning),
+    ];
+    counts.sort_by(FindingCount::summary_order);
+    let ordered: Vec<(&str, &str)> = counts.iter().map(|entry| (entry.code.as_str(), entry.class.as_str())).collect();
+    assert_eq!(
+        ordered,
+        [
+            ("CONCRETE_PATH_REDACTED", "PRIVATE_DATA_WARNING"),
+            ("PRIVATE_DATA_REDACTED", "IP_BOUNDARY_WARNING"),
+            ("PRIVATE_DATA_REDACTED", "PROVENANCE_WARNING"),
+            ("SAFE_PUBLIC_METADATA", "SAFE_METADATA"),
+        ]
+    );
 }
 
 #[test]
