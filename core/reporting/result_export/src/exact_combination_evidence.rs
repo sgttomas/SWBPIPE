@@ -75,9 +75,9 @@ const RECORD_KEYS: [&str; 11] = [
 ];
 const OPERAND_KEYS: [&str; 4] = ["load_case_id", "modulus_basis_ref", "modulus_basis_temperature", "numerical_quality"];
 const SECTION_SEPARATOR: &str = "; section_basis=";
-const LINEAR_BASIS: &str = "explicit_user_linear_combination";
-const SUBTRACTION_BASIS: &str = "explicit_user_result_state_subtraction";
-const RANGE_BASIS: &str = "explicit_user_range_envelope";
+pub(crate) const LINEAR_BASIS: &str = "explicit_user_linear_combination";
+pub(crate) const SUBTRACTION_BASIS: &str = "explicit_user_result_state_subtraction";
+pub(crate) const RANGE_BASIS: &str = "explicit_user_range_envelope";
 const LINEAR_SIGN: &str = "positive value follows explicit user linear combination of matching source result sign conventions";
 const SUBTRACTION_SIGN: &str = "positive value follows explicit user result-state subtraction (minuend minus subtrahend) of matching source result sign conventions; a signed difference of solved states, not an equilibrium state";
 const MODULUS_SIGN: &str = "presence record; each range operand's solve basis is recorded explicitly";

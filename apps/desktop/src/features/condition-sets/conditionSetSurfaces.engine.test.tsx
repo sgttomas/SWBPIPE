@@ -152,7 +152,8 @@ describe("the load manager's kind suggestion and difference template", () => {
     fireEvent.change(within(manager).getByTestId("load-manager-create-combination-basis"), { target: { value: "result_state_subtraction" } });
     expect(within(manager).getByTestId("load-manager-operating-difference-toggle")).toBeDisabled();
     expect(within(manager).getByTestId("load-manager-operating-difference-refused")).toHaveTextContent("LOAD_COMBINATION_DIFFERENCE_BASIS_EXACT_UNSUPPORTED");
-    expect(within(manager).getByTestId("load-manager-combination-C-DIFF")).toHaveTextContent(`difference_basis=${OPERATING_DIFFERENCE_BASIS}; subtrahend_support_state=own (retained as authored; not written by this editor)`);
     expect(within(manager).getByTestId("load-condition-use-refused-exact")).toHaveTextContent("LOAD_CASE_CONDITION_USE_EXACT_UNSUPPORTED");
+    fireEvent.click(within(manager).getByTestId("load-manager-combination-select-C-DIFF"));
+    expect(within(manager).getByTestId("load-manager-combination-declared")).toHaveTextContent(`difference_basis=${OPERATING_DIFFERENCE_BASIS}; subtrahend_support_state=own (retained as authored; not written by this editor)`);
   });
 });

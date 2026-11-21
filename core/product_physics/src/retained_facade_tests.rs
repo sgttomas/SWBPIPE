@@ -632,8 +632,32 @@ pub(super) const REGISTERED_IDENTITY: &str = "v1;rustc.release=1.97.1;rustc.comm
 /// opt-in capacity hook. Its writer and the corner-2 gating check share them.
 #[cfg(feature = "loaded-maximum-hooks")]
 const W1_EXHAUSTION_CONTROL_LIMITS: (usize, u8, usize) = (256, 64, 0);
+/// The variable the retained drift check sets for these tests (docs/CI_STRATEGY.md, "Retained registration drift check").
+pub(super) const DRIFT_CHECK: &str = "OPS_RETAINED_DRIFT_CHECK";
+/// Whether this build holds the whole registration that grants a permit: the registered identity, and its reviewed
+/// inputs and reader layouts (`retained_profile()`). Between drift checks a build of the registered identity whose reviewed
+/// inputs have moved reads `Stale` (DEL-04-08 REQ-004), and every test that branches here then asserts the `Stale`
+/// branch: the unchanged ordinary route. With `OPS_RETAINED_DRIFT_CHECK` set, the build must be the registered
+/// identity and hold its registration, so a registration that has drifted fails the drift check instead of passing as Stale.
 pub(super) fn registered() -> bool {
-    option_env!("OPS_RETAINED_BUILD_IDENTITY") == Some(REGISTERED_IDENTITY)
+    let identity = option_env!("OPS_RETAINED_BUILD_IDENTITY") == Some(REGISTERED_IDENTITY);
+    let registered = identity && crate::retained_profile().is_ok();
+    if std::env::var_os(DRIFT_CHECK).is_some() {
+        assert!(identity, "the retained drift check runs in the registered build identity, not {:?}",
+            option_env!("OPS_RETAINED_BUILD_IDENTITY"));
+        assert!(registered, "the retained drift check: the registered identity reads {:?}; its reviewed inputs or \
+            reader layouts have moved since the last registration", crate::retained_profile().err());
+    }
+    registered
+}
+/// The retained drift check's own check: with `OPS_RETAINED_DRIFT_CHECK` set, this build is the registered identity
+/// and holds its registration (`registered()`). Without it, the tests that branch on `registered()` assert the branch
+/// the build is in, and this one asserts nothing.
+#[test]
+fn the_drift_check_requires_the_registered_build() {
+    if std::env::var_os(DRIFT_CHECK).is_some() {
+        assert!(registered());
+    }
 }
 /// One actual Direct invocation, counted: its output and the runs and G-C consultations.
 fn direct(raw: &Value, mode: PreviewSolverMode) -> (RetainedPreviewOutput, Counts) {
@@ -2264,6 +2288,8 @@ fn b1_sp_r3p_7_custody_per_case_presence_parked_capture_and_native() {
 /// refusal on `CaseLoadsTotal` (observed `u64::MAX`, cap L = 384): the late capture is skipped, no
 /// capture error is recorded, and (as for any G-B refusal) the ordinary run is untouched. In the
 /// registered build: a permitted probe with the total preset to `usize::MAX`, both modes.
+/// The accumulation itself is checked in every build by
+/// `b1_sp_seam_running_total_saturates_in_every_build`.
 #[test]
 fn b1_sp_seam_overflow_is_a_typed_g_b_refusal() {
     use super::retained_memory::{admit, Entry, PhaseFact};
@@ -2287,6 +2313,23 @@ fn b1_sp_seam_overflow_is_a_typed_g_b_refusal() {
         assert_eq!(observer.late_loads_total, usize::MAX, "{mode:?}: saturated");
         assert_eq!(serde_json::to_vec(&ordinary).unwrap(), plain, "{mode:?}: the ordinary run is untouched");
     }
+}
+
+/// The seam's running total, in every build. The capture adds to `late_loads_total` only under a
+/// permit, which only the registered build has (decision 7: no test permit), so the permitted
+/// probe above runs only there. This reads the production accumulation itself: each of its two
+/// sites (the early and the late G-B) adds a case's loads with `saturating_add`, and nothing else
+/// writes the total, so a wrapping or checked addition fails on every pull request. G-B's refusal
+/// of a saturated total is `b1_sa_g_b_reads_each_case_and_the_running_total`'s, in every build.
+#[test]
+fn b1_sp_seam_running_total_saturates_in_every_build() {
+    let source = include_str!("retained_product.rs");
+    let squeezed: Vec<String> = source.lines().filter(|line| line.contains("late_loads_total"))
+        .map(|line| line.split_whitespace().collect::<String>()).collect();
+    let accumulation = "self.late_loads_total=self.late_loads_total.saturating_add(case.primitive_loads.len());";
+    assert_eq!(squeezed.iter().filter(|line| line.contains(accumulation)).count(), 2, "the early and the late G-B: {squeezed:?}");
+    assert_eq!(squeezed.iter().filter(|line| line.as_str() == "publate_loads_total:usize,").count(), 1, "the field");
+    assert_eq!(squeezed.len(), 3, "no other write of the running total: {squeezed:?}");
 }
 
 /// RV112 N-4: at c ≥ 2 the first G-B refusal stands, and no later case's late hook runs (no later

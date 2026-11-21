@@ -76,12 +76,14 @@ describe("the 0.9.0 combination operands", () => {
     act(() => nativeMenuCommand("view.section.loads"));
     const manager = within(await screen.findByTestId("workspace-section-loads")).getByTestId("load-case-manager");
     const row = (id: string) => within(manager).getByTestId(`load-manager-combination-${id}`).textContent ?? "";
-    expect(row("combination:C-EXP")).toContain("basis=result_state_subtraction; minuend=load:L-2; subtrahend=load:L-1");
-    expect(row("combination:C-EXP")).not.toContain("terms=");
-    expect(row("combination:C-ABS")).toContain("basis=absolute_sum; terms=load:L-1 x 1; combination combination:C-EXP x 1");
-    expect(row("combination:C-SRSS")).toContain("basis=srss; terms=combination combination:C-ABS x 1");
+    expect(row("combination:C-EXP")).toContain("DifferenceL-2 − L-1");
+    expect(row("combination:C-EXP")).not.toContain("×");
+    expect(row("combination:C-ABS")).toContain("Absolute sumL-1 × 1 + C-EXP × 1");
+    expect(row("combination:C-SRSS")).toContain("SRSSC-ABS × 1");
     // The term rows are the stored terms only: none for the subtraction.
-    expect(within(manager).getByTestId("load-manager-combination-term-combination:C-ABS-1")).toHaveTextContent("combination combination:C-EXP x 1");
+    fireEvent.click(within(manager).getByTestId("load-manager-combination-select-combination:C-ABS"));
+    expect(within(manager).getByTestId("load-manager-combination-term-combination:C-ABS-1")).toHaveTextContent("C-EXP (combination)");
+    fireEvent.click(within(manager).getByTestId("load-manager-combination-select-combination:C-EXP"));
     expect(within(manager).queryByTestId("load-manager-combination-term-combination:C-EXP-0")).toBeNull();
 
     const tree = screen.getByLabelText("Model tree");
