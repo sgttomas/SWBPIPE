@@ -47,6 +47,7 @@ import { componentDraftMissingUnitNotices, isProjectUnitKey, missingProjectUnitT
 import type { ProjectUnitKey } from "../../services/projectService";
 import { entityRefFromKey, type OrderedSelectionState } from "../workspace/selectionState";
 import { VirtualTargetPicker } from "../workspace/VirtualTargetPicker";
+import type { CreationTool } from "../viewport/PipeViewport";
 import { ConnectorDraftFields } from "../component-creation/ConnectorDraftFields";
 import { RigidDraftFields } from "../component-creation/RigidDraftFields";
 import { ECCENTRIC_OFFSET_CONVENTION } from "../component-creation/eccentricOffsetConvention";
@@ -77,7 +78,9 @@ export function PropertyInspector({
   projectSessionGeneration = 0,
   selection,
   selectionState,
-  taskRequest
+  taskRequest,
+  armedCreationTool = null,
+  onArmCreationTool
 }: {
   getPreparationEpoch?: () => number;
   model: PreviewModel;
@@ -95,6 +98,10 @@ export function PropertyInspector({
   selection: EntityRef;
   selectionState?: OrderedSelectionState;
   taskRequest?: Readonly<{ sequence: number; target: EntityRef; view: "properties" | "task"; focusTestId: string; elementId?: string }> | null;
+  /** The creation tool armed in the 3D view; while Support is armed, New support stays open through node picks. */
+  armedCreationTool?: CreationTool | null;
+  /** Arms or disarms a creation tool (the session's own operation, as the 3D view's insert bar uses it). */
+  onArmCreationTool?: (tool: CreationTool | null) => void;
 }) {
   const [inspectorView, setInspectorView] = useState<"properties" | "task">("properties");
   // The creation form a command asked for (Insert, the command box, the view's insert bar), and the
@@ -116,7 +123,11 @@ export function PropertyInspector({
   const taskGenerationRef = useRef(0);
   const [propertiesTarget, setPropertiesTarget] = useState<EntityRef>(() => ({ ...selection }));
   const [draftTarget, setDraftTarget] = useState<EntityRef>(() => ({ ...selection }));
-  const creationForm = creationRequest && creationRequest.on === targetKey(propertiesTarget) ? creationRequest.kind : null;
+  // While the Support tool is armed, New support follows the node picks its instruction asks for.
+  const supportToolHolds = armedCreationTool === "support" && creationRequest?.kind === "support";
+  const creationForm = creationRequest && (supportToolHolds || creationRequest.on === targetKey(propertiesTarget)) ? creationRequest.kind : null;
+  // Whether the person entered New support's node themselves; an untouched node follows the selection.
+  const supportNodeEntered = useRef(false);
   const properties = selectedProperties(model, propertiesTarget);
   const [unitCatalogRoute, setUnitCatalogRoute] = useState<UnitCatalogRoute | null>(null);
   const editableFields = useMemo(() => editorFieldOptions(model, draftTarget, unitCatalogRoute), [draftTarget, model, unitCatalogRoute]);
@@ -279,6 +290,7 @@ export function PropertyInspector({
     setChosenUnit(null);
     setRationale("user_entered_preview_change");
     setSupportDraft(defaultSupportDraft(model, selection, queuedIntents, unitCatalogRoute));
+    supportNodeEntered.current = false;
     setComponentDraft(defaultComponentDraft(model, selection, queuedIntents));
     setMaterialDraft(defaultMaterialDraft(model, queuedIntents, unitCatalogRoute));
     setSectionDraft(defaultSectionDraft(model, queuedIntents));
@@ -292,14 +304,25 @@ export function PropertyInspector({
   }, [multiSelection, selection.id, selection.type]);
 
   // Inspecting another entity puts the creation form away; its command brings it back, draft kept.
+  // While the Support tool is armed, a pick moves New support with it instead, and an untouched node
+  // field takes the picked node.
   useLayoutEffect(() => {
-    if (creationRequest && creationRequest.on !== targetKey(propertiesTarget)) setCreationRequest(null);
-  }, [creationRequest, propertiesTarget]);
+    if (!creationRequest || creationRequest.on === targetKey(propertiesTarget)) return;
+    if (!supportToolHolds) { setCreationRequest(null); return; }
+    setCreationRequest({ kind: "support", on: targetKey(propertiesTarget) });
+    if (propertiesTarget.type === "node" && !supportNodeEntered.current && model.nodes.some((node) => node.id === propertiesTarget.id)) {
+      setSupportDraft((current) => ({ ...current, node: propertiesTarget.id }));
+    }
+  }, [creationRequest, propertiesTarget, supportToolHolds]);
 
   useLayoutEffect(() => {
     if (!taskRequest) return;
     const requestedForm = CREATION_FORM_BY_FOCUS[taskRequest.focusTestId];
     if (requestedForm) setCreationRequest({ kind: requestedForm, on: targetKey(multiSelection ? propertiesTarget : taskRequest.target) });
+    // New support opened on a node starts there unless the person entered a node.
+    if (requestedForm === "support" && !supportNodeEntered.current && taskRequest.target.type === "node" && model.nodes.some((node) => node.id === taskRequest.target.id)) {
+      setSupportDraft((current) => ({ ...current, node: taskRequest.target.id }));
+    }
     if (taskRequest.view === "task") {
       taskGenerationRef.current += 1;
       const nextTarget = { ...taskRequest.target };
@@ -357,6 +380,8 @@ export function PropertyInspector({
 
 
   function closeCreationForm() {
+    // Closing New support ends the Support tool it belongs to; disarming the tool leaves the form alone.
+    if (creationRequest?.kind === "support" && armedCreationTool === "support") onArmCreationTool?.(null);
     setCreationRequest(null);
     propertiesPanelRef.current?.focus();
   }
@@ -412,6 +437,7 @@ export function PropertyInspector({
     if (multiSelection || !supportCreateIntent) return;
     onQueueIntent(supportCreateIntent);
     setSupportDraft(defaultSupportDraftWithReserved(model, propertiesTarget, [...queuedIntents, supportCreateIntent], unitCatalogRoute));
+    supportNodeEntered.current = false;
   }
 
   function handleQueueComponentIntent() {
@@ -462,6 +488,7 @@ export function PropertyInspector({
   }
 
   function updateSupportDraft<K extends keyof SupportDraft>(key: K, value: SupportDraft[K]) {
+    if (key === "node") supportNodeEntered.current = true;
     setSupportDraft((current) => ({
       ...current,
       [key]: value,

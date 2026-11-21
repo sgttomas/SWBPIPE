@@ -8,6 +8,7 @@ import { buildBlankLocalModelDocument } from "../../services/projectService";
 import type { EditorOperationIntent, EntityRef, PreviewModel } from "../../types";
 import { DisplayUnitsProvider } from "../display-units";
 import { entityKey } from "../workspace/selectionState";
+import { chooseVirtualTarget } from "../../test-support/workspaceTestControls";
 import { PropertyInspector } from "./PropertyInspector";
 import { bendAtCornerOffer } from "./inspectorActions";
 
@@ -165,5 +166,48 @@ describe("a refused bend says why, in place of its form", () => {
     const details = openLine(/^Bend at this corner/);
     expect(within(details).getByTestId("insert-bend-at-corner-refusal")).toHaveTextContent("Remove support:C from this corner first.");
     expect(screen.queryByTestId("insert-bend-at-corner-form")).toBeNull();
+  });
+});
+
+describe("the Support tool and New support agree", () => {
+  type Armed = "support" | null;
+  function harness() {
+    const model = inventedModel();
+    const arm = vi.fn<(tool: Armed) => void>();
+    const nodeM: EntityRef = { type: "node", id: "node:M" };
+    const request = { sequence: 1, target: nodeM, view: "properties" as const, focusTestId: "create-support-id" };
+    const ui = (selection: EntityRef, armed: Armed) => <DisplayUnitsProvider initialPreference="SI"><PropertyInspector model={model} onQueueIntent={vi.fn()} selection={selection} taskRequest={request} armedCreationTool={armed} onArmCreationTool={arm} /></DisplayUnitsProvider>;
+    const view = render(ui(nodeM, "support"));
+    const current = () => screen.getByTestId("create-support-node").querySelector(".virtual-target-picker-current");
+    return { arm, view, ui, current };
+  }
+
+  it("Insert > Support, then a node picked in the view: the form stays open on that node", () => {
+    const { view, ui, current } = harness();
+    expect(screen.getByTestId("inspector-creation-support")).toBeVisible();
+    expect(current()).toHaveTextContent("node:M");
+    view.rerender(ui({ type: "node", id: "node:A" }, "support"));
+    expect(screen.getByTestId("inspector-creation-support")).toBeVisible();
+    expect(current()).toHaveTextContent("node:A");
+  });
+
+  it("keeps a node the person entered through a later pick", () => {
+    const { view, ui, current } = harness();
+    chooseVirtualTarget("create-support-node", "node:B");
+    view.rerender(ui({ type: "node", id: "node:A" }, "support"));
+    expect(screen.getByTestId("inspector-creation-support")).toBeVisible();
+    expect(current()).toHaveTextContent("node:B");
+  });
+
+  it("closing New support disarms the tool; disarming the tool leaves the form as it is", () => {
+    const { arm, view, ui } = harness();
+    view.rerender(ui({ type: "node", id: "node:A" }, "support"));
+    view.rerender(ui({ type: "node", id: "node:A" }, null));
+    expect(arm).not.toHaveBeenCalled();
+    expect(screen.getByTestId("inspector-creation-support")).toBeVisible();
+    view.rerender(ui({ type: "node", id: "node:A" }, "support"));
+    fireEvent.click(screen.getByTestId("inspector-creation-close-support"));
+    expect(arm).toHaveBeenCalledWith(null);
+    expect(screen.getByTestId("inspector-creation-support")).not.toBeVisible();
   });
 });
