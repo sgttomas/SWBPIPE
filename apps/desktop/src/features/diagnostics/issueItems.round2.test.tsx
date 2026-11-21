@@ -199,7 +199,8 @@ describe("R5: a class decided after every report is read", () => {
     ]);
     expect(countItemsBySeverity(one)).toEqual(countItemsBySeverity(two));
     renderList(one);
-    const own = screen.getAllByTestId("diagnostic-INVENTED_CLASSES").find((row) => row.textContent?.includes("blocking"))!;
+    const own = screen.getAllByTestId("diagnostic-INVENTED_CLASSES").map((row) => row.closest(".issue-entry") as HTMLElement)
+      .find((entry) => within(entry).getByTestId("issue-meta").textContent?.includes("blocking"))!;
     // Formed because the class was ambiguous: it shows no class, and says nothing of one at rest.
     expect(within(own).queryByTestId("issue-class")).toBeNull();
     expect(own.textContent).not.toMatch(/not supplied/);
@@ -214,8 +215,9 @@ describe("R5: a class decided after every report is read", () => {
     renderList(items);
     const row = screen.getByTestId("diagnostic-INVENTED_CLASSES");
     expect(row.querySelector(".issue-message")).toHaveTextContent("invented error text on support:H-1");
-    expect(within(row).getByTestId("issue-class")).toHaveTextContent(/^class ASSUMPTION_WARNING$/);
-    expect(row.textContent).not.toMatch(/not supplied/);
+    const entry = row.closest(".issue-entry") as HTMLElement;
+    expect(within(entry).getAllByTestId("issue-class")[0]).toHaveTextContent(/^class ASSUMPTION_WARNING$/);
+    expect(within(entry).getAllByTestId("issue-meta")[0].textContent).not.toMatch(/not supplied/);
   });
 
   it("a blank class is no class", () => {

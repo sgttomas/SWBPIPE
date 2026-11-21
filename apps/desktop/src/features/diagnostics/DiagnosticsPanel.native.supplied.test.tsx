@@ -8,7 +8,7 @@
 // invented notes only.
 import { readFileSync } from "node:fs";
 import { resolve } from "node:path";
-import { cleanup, render, screen } from "@testing-library/react";
+import { cleanup, fireEvent, render, screen } from "@testing-library/react";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
 const invokeMock = vi.hoisted(() => vi.fn());
@@ -40,6 +40,16 @@ import { buildDiagnosticInterpretation } from "../results/resultInterpretation";
 import { diagnosticsForSections } from "../report/renderableReportInput";
 import { DiagnosticsPanel } from "./DiagnosticsPanel";
 import type { Diagnostic, MechanicsResult, PreviewModel } from "../../types";
+
+/** A listed entry's whole message as a person reads it: the row's text, or, where the row shows a
+ * long message's beginning, the whole text its "Show all" opens. */
+function listedMessage(item: HTMLElement): string {
+  const entry = item.closest(".issue-entry") as HTMLElement;
+  const more = entry.querySelector<HTMLElement>(':scope > [data-testid="issue-meta"] [data-testid="issue-show-all"]');
+  if (!more) return item.querySelector(".issue-message")!.textContent!;
+  fireEvent.click(more);
+  return entry.querySelector(':scope > [data-testid="issue-message-full"]')!.textContent!;
+}
 
 type Json = any; // eslint-disable-line @typescript-eslint/no-explicit-any
 type Entry = { name: string; document: MechanicsResult; model: PreviewModel };
@@ -98,7 +108,7 @@ function panelModel(result: { model_ref?: unknown }): PreviewModel {
 /** The panel's list entry and explanation message for `selected`. */
 function shown(result: MechanicsResult | NativeResult, selected: Diagnostic) {
   const view = render(<DiagnosticsPanel model={panelModel(result)} knowledge={null} result={result} selectedDiagnosticId={selected.id!} onSelectDiagnostic={() => {}} />);
-  const listed = screen.getAllByTestId(`diagnostic-${selected.code}`).map((item) => item.querySelector("p")!.textContent);
+  const listed = screen.getAllByTestId(`diagnostic-${selected.code}`).map(listedMessage);
   const explanation = screen.getByTestId("selected-diagnostic-explanation").querySelector("dd")!.textContent!;
   view.unmount();
   return { listed, explanation };

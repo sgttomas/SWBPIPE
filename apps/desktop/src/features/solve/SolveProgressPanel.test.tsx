@@ -347,9 +347,9 @@ describe("the status line's outcome and its actions", () => {
     expect(screen.getByTestId("solve-progress-state")).toHaveTextContent(/^Running$/);
     expect(screen.queryByTestId("solve-progress-open-results")).toBeNull();
     view.rerender(line(completedWith(["RULE_INPUTS_INCOMPLETE", "MECHANICS_SOLVED", "HUMAN_REVIEW_REQUIRED", "USER_RULE_CHECKED", "INTERNALLY_VERIFIED"]), false, { onOpenResults }));
-    expect(screen.getByTestId("solve-progress-state")).toHaveTextContent(/^Solved\. 2 result rows\.$/);
+    expect(screen.getByTestId("solve-progress-state")).toHaveTextContent(/^Solved in \d+:\d\d\. 2 result rows\.$/);
     // Human review required is on the line in no form, and no status's token or registered form is.
-    expect(screen.getByTestId("solve-progress-panel").textContent).not.toMatch(/human review|[A-Z]{2,}_[A-Z]|Solver ·|Rule pack ·|Evidence ·/i);
+    expect(screen.getByTestId("solve-progress-panel").querySelector(".solve-status-main")!.textContent).not.toMatch(/human review|[A-Z]{2,}_[A-Z]|Solver ·|Rule pack ·|Evidence ·/i);
     // No rule-inputs count was supplied: nothing to press for it.
     expect(screen.queryByTestId("solve-progress-rule-inputs")).toBeNull();
     expect(detailsOpen()).toBe(false);
@@ -371,7 +371,7 @@ describe("the status line's outcome and its actions", () => {
       return view;
     };
     let view = render3(["MECHANICS_SOLVED", "RULE_INPUTS_INCOMPLETE"], 4);
-    expect(screen.getByTestId("solve-progress-state")).toHaveTextContent(/^Solved\. 2 result rows\.$/);
+    expect(screen.getByTestId("solve-progress-state")).toHaveTextContent(/^Solved in \d+:\d\d\. 2 result rows\.$/);
     const control = screen.getByTestId("solve-progress-rule-inputs");
     expect(control).toHaveTextContent(/^Rule inputs missing: 4$/);
     fireEvent.click(control);
@@ -396,7 +396,7 @@ describe("the status line's outcome and its actions", () => {
     // A completed job that reports no mechanics status claims nothing: the job's own state word.
     view.rerender(line(initialSolveJob(), true, { onShowIssue }));
     view.rerender(line(completedWith([]), false, { onShowIssue }));
-    expect(screen.getByTestId("solve-progress-state")).toHaveTextContent(/^Completed\. 2 result rows\.$/);
+    expect(screen.getByTestId("solve-progress-state")).toHaveTextContent(/^Completed in \d+:\d\d\. 2 result rows\.$/);
     expect(screen.queryByTestId("solve-progress-show-issue")).toBeNull();
   });
 
@@ -568,7 +568,8 @@ describe("a solve that ends with the model incomplete (the missing-data use case
     view.rerender(<SolveProgressPanel solveJob={done} running={false} {...props} />);
     const line = screen.getByTestId("solve-progress-state");
     expect(line).toHaveTextContent(/^Model incomplete after \d+:\d\d\. Nothing was solved\.$/);
-    expect(screen.getByTestId("solve-progress-panel").textContent).not.toMatch(/Completed|result rows?/);
+    // The line itself (its words and its controls), not Details, which keeps the job's own report.
+    expect(screen.getByTestId("solve-progress-panel").querySelector(".solve-status-main")!.textContent).not.toMatch(/Completed|result rows?/);
     expect(screen.queryByTestId("solve-progress-show-issue")).toBeNull();
     expect(screen.queryByTestId("solve-progress-open-results")).toBeNull();
     const control = screen.getByTestId("solve-progress-blocking");

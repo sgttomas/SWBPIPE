@@ -2,7 +2,7 @@
 // findings 1–3): the Diagnostics panel lists and explains a result message outside the reader-checked
 // combination roster as supplied, unverified text, its source text quoted whole, by the classification
 // the report uses (`suppliedDiagnostics`). Nothing is read from a message's wording.
-import { render, screen } from "@testing-library/react";
+import { fireEvent, render, screen } from "@testing-library/react";
 import { describe, expect, it } from "vitest";
 import corpus from "../../../../../fixtures/results/combination_certificate_corpus.json";
 import successor from "../../../../../fixtures/results/retained_precision_combination_successor_sparse_interactive.json";
@@ -14,6 +14,16 @@ import { readerValidate, ResultReaderError } from "../results/resultReader";
 import { CAP_REMAINDER_WARNING_CODE, documentCombinationIdentities, presentedResultDiagnostics, SUPPLEMENTAL_DIAGNOSTIC_LABEL, suppliedDiagnosticMessage } from "../results/suppliedDiagnostics";
 import { diagnosticsForSections } from "../report/renderableReportInput";
 import type { Diagnostic, MechanicsResult, PreviewModel } from "../../types";
+
+/** A listed entry's whole message as a person reads it: the row's text, or, where the row shows a
+ * long message's beginning, the whole text its "Show all" opens. */
+function listedMessage(item: HTMLElement): string {
+  const entry = item.closest(".issue-entry") as HTMLElement;
+  const more = entry.querySelector<HTMLElement>(':scope > [data-testid="issue-meta"] [data-testid="issue-show-all"]');
+  if (!more) return item.querySelector(".issue-message")!.textContent!;
+  fireEvent.click(more);
+  return entry.querySelector(':scope > [data-testid="issue-message-full"]')!.textContent!;
+}
 
 const CLAIM = "combination comb:cancel: all derived rows are bounded by 1e-30.";
 const supplied = (message: string) => `${SUPPLEMENTAL_DIAGNOSTIC_LABEL}"${message}"`;
@@ -36,7 +46,7 @@ function panelModel(result: MechanicsResult): PreviewModel {
 /** The panel with `selected` chosen: its list entry's message and its explanation. */
 function shown(result: MechanicsResult, selected: Diagnostic) {
   const view = render(<DiagnosticsPanel model={panelModel(result)} knowledge={null} result={result} selectedDiagnosticId={selected.id!} onSelectDiagnostic={() => {}} />);
-  const listed = screen.getAllByTestId(`diagnostic-${selected.code}`).map((item) => item.querySelector("p")!.textContent);
+  const listed = screen.getAllByTestId(`diagnostic-${selected.code}`).map(listedMessage);
   const explanation = screen.getByTestId("selected-diagnostic-explanation").querySelector("dd")!.textContent!;
   view.unmount();
   return { listed, explanation };
@@ -181,7 +191,7 @@ describe("Diagnostics panel: the cancellation-screen exception's warning", () =>
     const shownWarning = warning(refs);
     const result = { diagnostics: [shownWarning], results: [], contract_evidence: {}, summary: {} } as unknown as MechanicsResult;
     const view = render(<DiagnosticsPanel model={panelModel(result)} knowledge={null} result={result} selectedDiagnosticId={shownWarning.id!} onSelectDiagnostic={() => {}} />);
-    const listed = screen.getAllByTestId(`diagnostic-${CAP_REMAINDER_WARNING_CODE}`).map((item) => item.querySelector("p")!.textContent);
+    const listed = screen.getAllByTestId(`diagnostic-${CAP_REMAINDER_WARNING_CODE}`).map(listedMessage);
     expect(listed).toEqual([MESSAGE]);
     for (const part of ["In case case:P,", "at node node:C1,", "where it is 2.197357159078235e-1 N;", "that force is not a bound on the resulting displacement."]) {
       expect(listed[0]).toContain(part);
