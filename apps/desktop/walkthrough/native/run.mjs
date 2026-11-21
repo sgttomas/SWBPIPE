@@ -25,6 +25,10 @@
 //                          Report.
 //   prepared-project   24  A model document placed in the throwaway home before launch (the journey's `place`),
 //                          opened by File > Open Model Document…: the start other journeys build on.
+//   refused-stored-run 25  A local project store placed before launch, its saved run's record binding the result
+//                          rules at a revision this version does not read: File > Open Local Project…, the Project
+//                          page, the Results stage, File > Save Local Project, and whether the stored run's texts
+//                          are still the placed ones in copies of the store taken after the open and the save.
 //
 // At each step the driver (`driver.js`, given the shared counts of `../screen-counts.mjs` and the snapshot of
 // `snapshot.mjs`) records the counts and a snapshot of the document as drawn, as the checkpoint `step-<number>`.
@@ -99,6 +103,15 @@ export const JOURNEYS = Object.freeze({
     use_case: "none of its own: shows that a journey can start from a prepared project, the start of the use cases that open one",
     place: [{ key: "model", at: "chooser/models/exact_pressure_authoring_model.json", from: "fixtures/model_operations/exact_pressure_authoring_model.json" }],
     open: { by: "model-document", file: "model" }
+  },
+  "refused-stored-run": {
+    number: 25, title: "Reopen a saved project whose stored run this version does not read (launched app): the refusal, the Results stage and a save in place",
+    use_case: "DEL-14-02 AX-003, refuse by name over reading leniently: a saved project whose run's record binds its result rules at a revision this version does not read, opened from the local store; the run is refused and the model opens",
+    place: [{ key: "store", at: "{app-data}/openpipestress-projects.sqlite3", from: "fixtures/persistence/refused_stored_run/openpipestress-projects.sqlite3" }],
+    open: { by: "local-project", project_id: "project:precision-connected-fixture" },
+    // Copies of the store the driver has the app write at these moments (storeCopy), read after the launch for
+    // whether the stored run's texts are still the placed ones (storedRunEvidence).
+    store_copies: ["after-open", "after-save"]
   }
 });
 export const DEFAULT_JOURNEYS = Object.freeze(["solve-and-results", "report", "exports"]);
@@ -184,6 +197,44 @@ export function composeDriver(driverText) {
     `const takeSnapshot = ${takeSnapshot.toString()};`,
     driverText
   ].join("\n");
+}
+
+const STORED_RUN_TEXTS = "SELECT project_id, mechanics_result_json AS result, analysis_run_json AS record FROM local_projects ORDER BY project_id";
+
+/**
+ * Whether a journey's placed store still holds the same stored runs at each of its `store_copies`: for every project
+ * row, the SHA-256 of its stored result and analysis-run record texts, read from the placed file (through a copy in
+ * `scratch`, so nothing is written beside the fixture) and from each copy the app wrote at that moment through a
+ * read-only connection (`<report>.store-<name>.store.sqlite3`, native_smoke_checkpoint's store snapshot). A copy the
+ * app did not write is recorded as missing, and then nothing is claimed unchanged.
+ */
+export async function storedRunEvidence({ names, report, placedStore, scratch }) {
+  const { DatabaseSync } = await import("node:sqlite");
+  const { createHash } = await import("node:crypto");
+  const digest = (text) => (text === null || text === undefined ? null : createHash("sha256").update(text, "utf8").digest("hex"));
+  const read = (file) => {
+    const db = new DatabaseSync(file, { readOnly: true });
+    try {
+      return db.prepare(STORED_RUN_TEXTS).all().map((row) => ({ project_id: row.project_id, result_sha256: digest(row.result), record_sha256: digest(row.record) }));
+    } finally {
+      db.close();
+    }
+  };
+  const placedCopy = path.join(scratch, "placed-store.sqlite3");
+  fs.copyFileSync(placedStore, placedCopy, fs.constants.COPYFILE_EXCL);
+  const placed = read(placedCopy);
+  const at = {};
+  for (const name of names) {
+    const file = `${report}.store-${name}.store.sqlite3`;
+    at[name] = fs.existsSync(file) ? read(file) : { missing: "the app wrote no copy of the store at this moment (the journey stopped before it)" };
+  }
+  const same = (rows) => Array.isArray(rows) && JSON.stringify(rows) === JSON.stringify(placed);
+  return {
+    what: "each stored run's result and analysis-run record texts, by SHA-256: as placed, and in the copies of the store the app wrote at these moments through a read-only connection",
+    placed,
+    at,
+    unchanged: names.length > 0 && names.every((name) => same(at[name]))
+  };
 }
 
 /** Removes the earlier output of the journeys this run replaces (their numbers), keeping every other journey's. */
@@ -474,8 +525,9 @@ async function main() {
     if (spec.timeouts) plan.timeouts = spec.timeouts;
     if (name === "report") plan.local_package = path.join(where.saved, "walkthrough-local.opsproj");
     // The prepared files, in the home before the app starts; refused by name when a declaration is wrong.
+    let placements = [];
     try {
-      const placements = placementsFor(spec.place, { home: where.home, identifier: IDENTIFIER, projectRoot: project });
+      placements = placementsFor(spec.place, { home: where.home, identifier: IDENTIFIER, projectRoot: project });
       plan.placed = placeFiles(placements);
       if (spec.open) {
         plan.open = { ...spec.open, ...(spec.open.file ? { file: plan.placed[spec.open.file] } : {}) };
@@ -492,6 +544,18 @@ async function main() {
     if (removeHome(where.home) !== null) check("its throwaway home was removed", false, leftHomes.get(where.home));
     else check("its throwaway home was removed", true);
     const records = readStepRecords(report);
+    let storedRuns;
+    if (spec.store_copies) {
+      const placedStore = placements.find((item) => item.to.endsWith(`${path.sep}openpipestress-projects.sqlite3`))?.from;
+      try {
+        if (!placedStore) throw new Error("the journey places no local project store");
+        storedRuns = await storedRunEvidence({ names: spec.store_copies, report, placedStore, scratch: where.root });
+        check("the placed store's stored runs are read before and at each store copy", true, { unchanged: storedRuns.unchanged });
+      } catch (error) {
+        storedRuns = { error: error.message };
+        check("the placed store's stored runs are read before and at each store copy", false, error.message);
+      }
+    }
     const launchFailure = failures.length > 0 ? failures.join("; ") : (seen?.ok === false ? seen.error?.split("\n")[0] ?? "the driver did not finish" : null);
     const screens = screensFromRecords(records, { journey: name, number: spec.number, launchFailure });
     const { chromium } = await import("@playwright/test");
@@ -500,7 +564,8 @@ async function main() {
     writePart(out, {
       number: spec.number, name, title: spec.title, use_case: spec.use_case, screens,
       revision: { commit: revision, uncommitted_paths: uncommitted },
-      build: { kind: "scripted-run build (native-smoke feature), launched as a private copy", app_sha256: app.identity.sha256, app_bytes: app.identity.size, binding_record_sha256: bindingSha }, launch: { ended_cleanly: failures.length === 0, failures, driver_finished: seen?.ok === true } });
+      build: { kind: "scripted-run build (native-smoke feature), launched as a private copy", app_sha256: app.identity.sha256, app_bytes: app.identity.size, binding_record_sha256: bindingSha }, launch: { ended_cleanly: failures.length === 0, failures, driver_finished: seen?.ok === true },
+      ...(storedRuns ? { stored_runs: storedRuns } : {}) });
     const pictured = screens.filter((screen) => screen.file).length;
     const stop = screens.find((screen) => screen.failed);
     console.log(`${NAME}: ${name}: ${pictured} screens${stop ? `; stopped at "${stop.step}": ${stop.failed}` : ""}`);

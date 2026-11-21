@@ -169,11 +169,11 @@ function restoreDrawnState() {
 }
 
 /** Writes the journey's part file in the browser walkthrough's form, with its surface. */
-export function writePart(out, { number, name, title, use_case, revision, build, screens, launch }) {
+export function writePart(out, { number, name, title, use_case, revision, build, screens, launch, stored_runs }) {
   const windows = [...new Set(screens.map((screen) => screen.window).filter(Boolean))];
   const part = {
     number, name, title, use_case, revision, build, surface: NATIVE_SURFACE, picture_basis: PICTURE_BASIS,
-    window: windows.join(", ") || null, native_surfaces: NATIVE_SURFACES, launch, screens
+    window: windows.join(", ") || null, native_surfaces: NATIVE_SURFACES, launch, ...(stored_runs ? { stored_runs } : {}), screens
   };
   const file = path.join(out, `part-${String(number).padStart(2, "0")}-${name}.json`);
   writeFileSync(file, `${JSON.stringify(part, null, 2)}\n`);

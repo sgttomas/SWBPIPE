@@ -10,7 +10,7 @@ import vm from "node:vm";
 import { composeIndex } from "../compose-index.mjs";
 import { NATIVE_SURFACE, NATIVE_SURFACES, PICTURE_BASIS, readStepRecords, renderScreens, screensFromRecords, writePart } from "./render.mjs";
 import { mkdirSync, symlinkSync } from "node:fs";
-import { DEFAULT_JOURNEYS, JOURNEYS, composeDriver, emptyNativeOutput, parseArguments, placeFiles, placementsFor } from "./run.mjs";
+import { DEFAULT_JOURNEYS, JOURNEYS, composeDriver, emptyNativeOutput, parseArguments, placeFiles, placementsFor, storedRunEvidence } from "./run.mjs";
 
 function scratch(t) {
   const folder = mkdtempSync(path.join(os.tmpdir(), "native-walkthrough-test-"));
@@ -228,4 +228,41 @@ test("every declared journey placement names a committed fixture and an open the
     assert.ok(["model-document", "local-project"].includes(spec.open?.by), name);
     if (spec.open.file) assert.ok(placements.some((item) => item.key === spec.open.file), name);
   }
+});
+
+test("stored runs: each project's stored texts by SHA-256, as placed and at each copy; a changed or missing copy is not unchanged", async (t) => {
+  const { DatabaseSync } = await import("node:sqlite");
+  const root = scratch(t);
+  const store = (file, record) => {
+    const db = new DatabaseSync(file);
+    db.exec("CREATE TABLE local_projects (project_id TEXT PRIMARY KEY, mechanics_result_json TEXT, analysis_run_json TEXT)");
+    db.prepare("INSERT INTO local_projects VALUES (?, ?, ?)").run("project:a", "{\"r\":1}", record);
+    db.close();
+  };
+  const report = path.join(root, "report-x.json");
+  store(path.join(root, "placed.sqlite3"), "{\"k\":1}");
+  store(`${report}.store-after-open.store.sqlite3`, "{\"k\":1}");
+  store(`${report}.store-after-save.store.sqlite3`, "{\"k\":2}");
+  const scratchA = path.join(root, "a");
+  mkdirSync(scratchA);
+  const same = await storedRunEvidence({ names: ["after-open"], report, placedStore: path.join(root, "placed.sqlite3"), scratch: scratchA });
+  assert.equal(same.unchanged, true);
+  assert.equal(same.placed.length, 1);
+  assert.match(same.placed[0].result_sha256, /^[0-9a-f]{64}$/);
+  assert.deepEqual(same.at["after-open"], same.placed);
+  const scratchB = path.join(root, "b");
+  mkdirSync(scratchB);
+  const changed = await storedRunEvidence({ names: ["after-open", "after-save", "never"], report, placedStore: path.join(root, "placed.sqlite3"), scratch: scratchB });
+  assert.equal(changed.unchanged, false);
+  assert.notEqual(changed.at["after-save"][0].record_sha256, changed.placed[0].record_sha256);
+  assert.match(changed.at.never.missing, /no copy/);
+});
+
+test("the refused-stored-run journey places a store at the app's own data folder and copies it after the open and the save", () => {
+  const spec = JOURNEYS["refused-stored-run"];
+  assert.equal(spec.number, 25);
+  assert.deepEqual(spec.place.map((item) => item.at), ["{app-data}/openpipestress-projects.sqlite3"]);
+  assert.equal(spec.open.by, "local-project");
+  const driver = readFileSync(new URL("./driver.js", import.meta.url), "utf8");
+  for (const name of spec.store_copies) assert.match(driver, new RegExp(`storeCopy\\("${name}"\\)`));
 });

@@ -113,6 +113,7 @@ nothing. A launch invocation builds nothing: anything stale refuses it by name.
 | `exports` | 22 | Solved, then the Exports page, top to foot. |
 | `reference-system` | 23 | Named alone, for its long solve: File > Open Model Document… of the reference system fixture, Run, the standing, the health line, Results, Report. |
 | `prepared-project` | 24 | A model document placed in the throwaway home before launch, opened by File > Open Model Document…: the start other journeys build on. |
+| `refused-stored-run` | 25 | A local project store placed before launch (`fixtures/persistence/refused_stored_run/`), whose saved run's record binds its result rules at a revision this version does not read: File > Open Local Project…, the Project page with what it says of the run, the Results stage, File > Save Local Project and what the person is told. The index's `stored_runs` says whether the stored run's texts are still the placed ones in copies of the store the app wrote after the open and after the save. |
 
 Without `--journey` the first three run, one launch each. Files are in
 `native/`: `run.mjs` (the command), `driver.js` (the steps, in the app),
@@ -206,6 +207,11 @@ saved states and runs. To add one:
      `{ by: "local-project", project_id: "<id>" }` (File > Open Local
      Project…, from the placed store).
    - Optionally `timeouts: { solve: <ms> }` and `launch_ms` for a long solve.
+   - Optionally, for a placed store, `store_copies: ["<name>", …]`: in the driver,
+     `await storeCopy("<name>")` has the app write a copy of its store through a
+     read-only connection at that moment, and after the launch the index's
+     `stored_runs` gives each project's stored result and record texts by SHA-256,
+     as placed and in each copy, and whether they are unchanged.
 3. **Write its steps** in `native/driver.js` as an `async function (journey,
    plan)` and name it in the driver's `JOURNEYS` under the same name. Start
    with `await openPrepared(journey, plan, "<what it is>")`, which records the
