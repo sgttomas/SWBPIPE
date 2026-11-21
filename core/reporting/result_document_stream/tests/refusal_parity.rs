@@ -221,7 +221,7 @@ fn a_received_origin_is_rebound_as_received() {
 #[test]
 fn a_malformed_base_is_refused_where_derive_document_panics() {
     let input = preview();
-    let cases: [(&str, Value, &str); 4] = [
+    let cases: [(&str, Value, &str); 5] = [
         ("a base that is not an object", json!([]), "DERIVATIVE_BASE_NOT_OBJECT"),
         ("an envelope that is not an object", json!({"result_envelope": 1}), "RESULT_ENVELOPE_NOT_OBJECT"),
         ("a result set that is not an object", {
@@ -234,6 +234,11 @@ fn a_malformed_base_is_refused_where_derive_document_panics() {
             base["result_envelope"].as_object_mut().unwrap().remove("envelope_id");
             base
         }, "ENVELOPE_ID_MISSING"),
+        ("a reproducibility record that is not an object", {
+            let mut base = input.base.clone();
+            base["result_envelope"]["reproducibility"] = json!([]);
+            base
+        }, "REPRODUCIBILITY_NOT_OBJECT"),
     ];
     for (name, base, code) in cases {
         let streamed = DocumentSource::new(base.clone(), &input.model, &input.source, input.origin.clone(), None).err();
