@@ -6395,13 +6395,13 @@
    "severity": "not_stated",
    "first_site": {
     "file": "core/product_physics/src/operating_conditions.rs",
-    "line": 345,
+    "line": 342,
     "via": "new()"
    },
    "sites": [
     {
      "file": "core/product_physics/src/operating_conditions.rs",
-     "line": 345,
+     "line": 342,
      "via": "new()",
      "severity": null,
      "through": [
@@ -6410,7 +6410,7 @@
     },
     {
      "file": "core/product_physics/src/operating_conditions.rs",
-     "line": 351,
+     "line": 348,
      "via": "new()",
      "severity": null,
      "through": [
@@ -6454,7 +6454,7 @@
     },
     {
      "file": "core/product_physics/src/operating_conditions.rs",
-     "line": 405,
+     "line": 402,
      "via": "diag()",
      "severity": "blocking",
      "through": [
@@ -6590,49 +6590,6 @@
    "named_by": "unnamed",
    "named_by_coverage": null,
    "named_by_statement": null
-  },
-  {
-   "code": "LOAD_CASE_TEST_CONDITION_UNSUPPORTED",
-   "crates": [
-    "core/product_physics"
-   ],
-   "severity": "blocking",
-   "first_site": {
-    "file": "core/product_physics/src/operating_conditions.rs",
-    "line": 434,
-    "via": "diag()"
-   },
-   "sites": [
-    {
-     "file": "core/product_physics/src/operating_conditions.rs",
-     "line": 434,
-     "via": "diag()",
-     "severity": "blocking",
-     "through": [
-      "const LOAD_CASE_TEST_CONDITION_UNSUPPORTED (core/product_physics/src/operating_conditions.rs:53)"
-     ]
-    }
-   ],
-   "messages": [
-    "load case `{}` is a hydrostatic test condition; the test-case solve (held supports, test contents and pressure) is not built yet, so nothing is solved"
-   ],
-   "classification": "absent_capability",
-   "reason": "Every hydrostatic test case is refused whole until the hydrostatic test is built (DEL-05-01/REQ-014). LIM-003 names it as today's refusal under its entry for a combination that includes a test case.",
-   "unsure": false,
-   "candidates": null,
-   "named_by": "LIM-003",
-   "named_by_coverage": {
-    "coverage": "partial",
-    "reason": "LIM-003 is about a combination that includes a test case and says the test case itself is not affected, while the code refuses every hydrostatic test case."
-   },
-   "named_by_statement": [
-    {
-     "status": "planned",
-     "statement": "B",
-     "subject": "hydrostatic test",
-     "lands_with": "the first landing after pull request 217, unless its own unit lands first"
-    }
-   ]
   },
   {
    "code": "LOAD_CASE_TEST_CONTENTS_SELF_WEIGHT_INVALID",
@@ -14184,13 +14141,13 @@
    "severity": "not_stated",
    "first_site": {
     "file": "core/product_physics/src/operating_conditions.rs",
-    "line": 296,
+    "line": 293,
     "via": "new()"
    },
    "sites": [
     {
      "file": "core/product_physics/src/operating_conditions.rs",
-     "line": 296,
+     "line": 293,
      "via": "new()",
      "severity": null,
      "through": [
@@ -14260,13 +14217,13 @@
    "severity": "not_stated",
    "first_site": {
     "file": "core/product_physics/src/operating_conditions.rs",
-    "line": 289,
+    "line": 286,
     "via": "new()"
    },
    "sites": [
     {
      "file": "core/product_physics/src/operating_conditions.rs",
-     "line": 289,
+     "line": 286,
      "via": "new()",
      "severity": null,
      "through": [
@@ -14293,13 +14250,13 @@
    "severity": "blocking",
    "first_site": {
     "file": "core/product_physics/src/operating_conditions.rs",
-    "line": 232,
+    "line": 229,
     "via": "new()"
    },
    "sites": [
     {
      "file": "core/product_physics/src/operating_conditions.rs",
-     "line": 232,
+     "line": 229,
      "via": "new()",
      "severity": null,
      "through": [
@@ -14389,13 +14346,13 @@
    "severity": "blocking",
    "first_site": {
     "file": "core/product_physics/src/operating_conditions.rs",
-    "line": 328,
+    "line": 325,
     "via": "new()"
    },
    "sites": [
     {
      "file": "core/product_physics/src/operating_conditions.rs",
-     "line": 328,
+     "line": 325,
      "via": "new()",
      "severity": null,
      "through": [
@@ -14432,13 +14389,13 @@
    "severity": "blocking",
    "first_site": {
     "file": "core/product_physics/src/operating_conditions.rs",
-    "line": 245,
+    "line": 242,
     "via": "new()"
    },
    "sites": [
     {
      "file": "core/product_physics/src/operating_conditions.rs",
-     "line": 245,
+     "line": 242,
      "via": "new()",
      "severity": null,
      "through": [
@@ -15859,7 +15816,7 @@
     },
     {
      "file": "core/product_physics/src/operating_conditions.rs",
-     "line": 504,
+     "line": 493,
      "via": "diag()",
      "severity": "blocking"
     },
@@ -15937,7 +15894,7 @@
     },
     {
      "file": "core/product_physics/src/operating_conditions.rs",
-     "line": 511,
+     "line": 500,
      "via": "diag()",
      "severity": "blocking"
     },
@@ -19668,11 +19625,17 @@
    ],
    "severity": "blocking",
    "first_site": {
-    "file": "core/product_physics/src/lib.rs",
-    "line": 3246,
+    "file": "core/product_physics/src/hydrostatic.rs",
+    "line": 524,
     "via": "diag()"
    },
    "sites": [
+    {
+     "file": "core/product_physics/src/hydrostatic.rs",
+     "line": 524,
+     "via": "diag()",
+     "severity": "blocking"
+    },
     {
      "file": "core/product_physics/src/lib.rs",
      "line": 3246,

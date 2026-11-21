@@ -1195,6 +1195,15 @@
   },
   {
    "paths": [
+    "core/product_physics/tests/hydrostatic_test_case.rs"
+   ],
+   "reference": "validation/references/hydrostatic_test",
+   "expectations": "reference_file",
+   "cases_named": "none",
+   "detail": "hydrostatic_test frozen references, every case under its own test pressure; unnamed by design: every row it compares is marked independent of the case's pressure elongation (the reference's conventions.pressure_elongation)"
+  },
+  {
+   "paths": [
     "core/product_physics/tests/load_reference_state_runtime_extension.rs"
    ],
    "expectations": "reference_file",
