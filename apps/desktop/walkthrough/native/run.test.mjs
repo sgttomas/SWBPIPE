@@ -706,3 +706,64 @@ test("native surfaces: the 3D view keeps its own logic, and an attended capture 
   assert.deepEqual([captured.entry("view_3d").evidence, captured.entry("view_3d").captures[0].file], ["supplied", "captures/01-capture.png"]);
   assert.deepEqual(Object.keys(SURFACE_KEYS), ["window", "menu_bar", "file_chooser", "print_dialog", "view_3d", "other_native_dialog"]);
 });
+
+// ---------------------------------------------------------------- a refused launch changes nothing
+
+import { spawnSync as spawnChild } from "node:child_process";
+import { outputRefusals } from "./run.mjs";
+
+/** Every file under `folder`, by relative path, with its bytes (hex), and every folder: what "intact" compares. */
+function folderBytes(folder) {
+  const seen = {};
+  const walk = (dir, prefix) => {
+    for (const entry of readdirSync(dir, { withFileTypes: true }).sort((a, b) => a.name.localeCompare(b.name))) {
+      const relative = `${prefix}${entry.name}`;
+      if (entry.isDirectory()) { seen[`${relative}/`] = "folder"; walk(path.join(dir, entry.name), `${relative}/`); }
+      else seen[relative] = readFileSync(path.join(dir, entry.name)).toString("hex");
+    }
+  };
+  walk(folder, "");
+  return seen;
+}
+
+/** A completed attended output folder: a journey's part and picture, the attended part, both indexes and captures. */
+function completedAttendedFolder(t) {
+  const out = scratch(t);
+  writePart(out, { number: 24, name: "prepared-project", title: "P", use_case: "u", revision: { commit: "abc", uncommitted_paths: 0 }, build: { kind: "k" }, screens: [], launch: { ended_cleanly: true } });
+  writeFileSync(path.join(out, "2401-prepared-project-first-open.png"), "picture");
+  writeAttendedPart(out, { title: "Attended", revision: { commit: "abc", uncommitted_paths: 0 }, build: { kind: "k" }, launch: { attended: true }, captures: { screens: [], records_without_picture: [], other: [] } });
+  composeIndex(out);
+  mkdirSync(path.join(out, "captures"));
+  writeFileSync(path.join(out, "captures", "01.png"), "capture");
+  writeFileSync(path.join(out, "captures", "01.json"), "{}");
+  return out;
+}
+
+test("a refused attended launch changes nothing: the completed output folder is byte for byte intact after each refusal", (t) => {
+  const out = completedAttendedFolder(t);
+  const before = folderBytes(out);
+  assert.ok(before["INDEX.json"] && before["index.html"] && before["part-90-attended.json"] && before["captures/01.png"]);
+  assert.match(outputRefusals(out, { attended: true }), /earlier attended launch's captures/);
+  assert.deepEqual(folderBytes(out), before);
+  assert.throws(() => emptyAttendedOutput(out), /earlier attended launch's captures/);
+  assert.deepEqual(folderBytes(out), before);
+  // A file a walkthrough did not write is refused first, for an attended launch and a journey's alike.
+  writeFileSync(path.join(out, "notes.txt"), "keep");
+  const withNotes = folderBytes(out);
+  assert.match(outputRefusals(out, { attended: true }), /did not write \(notes\.txt\)/);
+  assert.match(outputRefusals(out), /did not write \(notes\.txt\)/);
+  assert.throws(() => emptyNativeOutput(out, ["prepared-project"]), /did not write/);
+  assert.deepEqual(folderBytes(out), withNotes);
+  // Without --attended the captures folder is no refusal.
+  rmSync(path.join(out, "notes.txt"));
+  assert.equal(outputRefusals(out), null);
+});
+
+test("the command itself refuses an attended launch into a completed attended folder and leaves it intact", (t) => {
+  const out = completedAttendedFolder(t);
+  const before = folderBytes(out);
+  const run = spawnChild(process.execPath, [new URL("./run.mjs", import.meta.url).pathname, "--attended", "--hidden", "--out", out], { encoding: "utf8", timeout: 120_000 });
+  assert.equal(run.status, 2, run.stderr);
+  if (process.platform === "darwin") assert.match(run.stderr, /earlier attended launch's captures|build lock/);
+  assert.deepEqual(folderBytes(out), before);
+});

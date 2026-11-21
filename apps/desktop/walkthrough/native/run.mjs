@@ -67,7 +67,7 @@ import { lstatSync, mkdirSync, mkdtempSync, readFileSync, realpathSync, rmSync, 
 import os from "node:os";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
-import { emptyOutput } from "../run.mjs";
+import { emptyOutput, outputRefusal } from "../run.mjs";
 import { readReport } from "../../native-smoke/launch-outcome.mjs";
 import { ATTENDED_SURFACE, composeIndex } from "../compose-index.mjs";
 import { readScreenCounts, scrollLongestRegion } from "../screen-counts.mjs";
@@ -326,12 +326,24 @@ export function parseCommandLine(argv, options) {
   return { ...parseArguments(argv, options), attended: null };
 }
 
-/** Before anything is built or launched: an earlier attended part goes; an earlier captures folder refuses the run. */
-export function emptyAttendedOutput(out) {
-  emptyOutput(out, (journeyNumber) => journeyNumber === ATTENDED.number);
-  if (lstatOrNull(path.join(out, ATTENDED.captures)) !== null) {
-    throw new Error(`${path.join(out, ATTENDED.captures)} holds an earlier attended launch's captures; choose another --out`);
+/**
+ * The refusals of a launch's output folder, read-only and made before any cleanup: what the folder holds that a
+ * walkthrough did not write, and, for an attended launch, an earlier attended launch's captures folder. Null when none.
+ */
+export function outputRefusals(out, { attended = false } = {}) {
+  const refusal = outputRefusal(out);
+  if (refusal) return refusal;
+  if (attended && lstatOrNull(path.join(out, ATTENDED.captures)) !== null) {
+    return `${path.join(out, ATTENDED.captures)} holds an earlier attended launch's captures; choose another --out (nothing in it was changed)`;
   }
+  return null;
+}
+
+/** After outputRefusals found none: an earlier attended part goes (its captures folder would have refused the run). */
+export function emptyAttendedOutput(out) {
+  const refusal = outputRefusals(out, { attended: true });
+  if (refusal) throw new Error(refusal);
+  emptyOutput(out, (journeyNumber) => journeyNumber === ATTENDED.number);
 }
 const lstatOrNull = (file) => { try { return fs.lstatSync(file); } catch { return null; } };
 
@@ -635,14 +647,6 @@ async function main() {
       process.exit(2);
     }
   }
-  // The output folder is checked before anything is built or launched: a folder of other work is refused here.
-  if (!buildOnly) {
-    try { emptyNativeOutput(out, selected); } catch (error) { refuseLine(error.message); process.exit(2); }
-  }
-  if (attended) {
-    try { emptyAttendedOutput(out); } catch (error) { refuseLine(error.message); process.exit(2); }
-  }
-
   // ---------------------------------------------------------------- build and bind (as evidence-journeys.mjs), or check only
 
   let buildLock;
@@ -651,6 +655,22 @@ async function main() {
   } catch (error) {
     refuseLine(error.message);
     process.exit(2);
+  }
+  // The output folder, under the lock and before anything is built or launched: every refusal is read-only and made
+  // before any cleanup, so a refused run changes nothing in the folder.
+  if (!buildOnly) {
+    const refusal = outputRefusals(out, { attended: Boolean(attended) });
+    if (refusal) {
+      refuseLine(refusal);
+      await exitAfterSignals(2);
+    }
+    try {
+      emptyNativeOutput(out, selected);
+      if (attended) emptyAttendedOutput(out);
+    } catch (error) {
+      refuseLine(error.message);
+      await exitAfterSignals(2);
+    }
   }
   process.env[BUILD_LOCK_TOKEN_ENV] = buildLock.token;
   const commandFailed = (command, commandArgs, result) => new Error(`Command failed: ${command} ${commandArgs.join(" ")}${result.error ? ` (${result.error.message})` : ""}`);

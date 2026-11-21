@@ -46,13 +46,20 @@ const OWN_FILE = /^((\d{3,4})-[a-z0-9-]+(-FAILED)?\.png|part-(\d{2})-[a-z0-9-]+\
 export const BROWSER_JOURNEYS = (journeyNumber) => journeyNumber < 20;
 const KEPT_FOLDER = "captures";
 
-export function emptyOutput(out, removes = BROWSER_JOURNEYS) {
-  if (!existsSync(out)) { mkdirSync(out, { recursive: true }); return; }
+// The refusal of an output folder, read-only: null when the folder is missing or holds only what a walkthrough
+// writes (and an attended launch's `captures` folder); otherwise the reason. Nothing is created or removed.
+export function outputRefusal(out) {
+  if (!existsSync(out)) return null;
   const entries = readdirSync(out, { withFileTypes: true }).filter((entry) => !(entry.isDirectory() && entry.name === KEPT_FOLDER));
   const foreign = entries.filter((entry) => !entry.isFile() || !OWN_FILE.test(entry.name)).map((entry) => entry.name);
-  if (foreign.length > 0) {
-    throw new Error(`walkthrough: ${out} holds files this command did not write (${foreign.slice(0, 5).join(", ")}); choose an empty folder with --out`);
-  }
+  return foreign.length > 0 ? `walkthrough: ${out} holds files this command did not write (${foreign.slice(0, 5).join(", ")}); choose an empty folder with --out` : null;
+}
+
+export function emptyOutput(out, removes = BROWSER_JOURNEYS) {
+  const refusal = outputRefusal(out);
+  if (refusal) throw new Error(refusal);
+  if (!existsSync(out)) { mkdirSync(out, { recursive: true }); return; }
+  const entries = readdirSync(out, { withFileTypes: true }).filter((entry) => !(entry.isDirectory() && entry.name === KEPT_FOLDER));
   for (const entry of entries) {
     const [, , screen, , part] = OWN_FILE.exec(entry.name);
     const journeyNumber = screen ? Math.floor(Number(screen) / 100) : part ? Number(part) : null;
