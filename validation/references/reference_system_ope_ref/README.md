@@ -79,7 +79,8 @@ records, and that its weight and reaction moments follow from its first moment.
 ## EQ-3
 
 RS-EXP is a `result_state_subtraction` of RS-OPE-REF and RS-SUS (§8.2). Both operands select the 20 °C point on
-every member, so the difference is one of two states of one stiffness. The identity is the tranche-1 package's
+every member, so the two states share one material modulus on each member; a support whose state depends on its
+load can still give the two states different system stiffnesses. The identity is the tranche-1 package's
 EQ-3 on these operands: on every published signed component row RS-EXP = RS-OPE-REF − RS-SUS; magnitude rows
 (resultant displacement, reaction magnitude) are recomputed from the combined components; rows the combination
 withholds, such as tie-rod forces, are excluded and listed. RS-EXP declares no `difference_basis` (§10).

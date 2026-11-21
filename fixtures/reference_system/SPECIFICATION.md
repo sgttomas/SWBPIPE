@@ -365,10 +365,12 @@ The case labels in the fixture are `RS-SUS sustained: W + P (operating pressure)
 `RS-OPE-REF operating thermal state on the 20 degC modulus: W + P + T (210 degC, modulus at 20 degC)`.
 
 RS-OPE examines the operating loads on the stiffness the material has at the operating
-temperature. A difference of two solved states describes one structure only when both states
-were solved with the same stiffness. The expansion comparison RS-EXP (§8.2) therefore takes
-RS-OPE-REF, which carries RS-OPE's thermal state on the installation-temperature modulus, and
-RS-SUS, which uses that modulus too. RS-OPE-REF's members with an operating temperature select
+temperature. A difference of two solved states compares them on one material basis only when
+both states select the same modulus on every member. The expansion comparison RS-EXP (§8.2)
+therefore takes RS-OPE-REF, which carries RS-OPE's thermal state on the installation-temperature
+modulus, and RS-SUS, which uses that modulus too. A common material modulus does not make the
+two systems' stiffness the same: a support whose state depends on its load can still respond
+differently in the two states. RS-OPE-REF's members with an operating temperature select
 `point:RS-M1-T020` (`exact_point`), take the free-length state of `law:RS-M1-SECANT` at 210 °C,
 and each records the basis of that choice in its element state's `analysis_basis_override`: the
 reason `Modulus at 20 degC so that RS-EXP compares two states on one material basis (spec §8.1)`
