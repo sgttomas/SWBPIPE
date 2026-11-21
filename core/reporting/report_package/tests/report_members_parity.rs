@@ -10,19 +10,21 @@
 //! (`fixtures/reports/invented/report_standing_witnesses/`) and the report
 //! members vectors (`fixtures/reports/invented/report_members_vectors/`, written
 //! by `apps/desktop/src/features/report/reportMembersVectors.test.ts`), which put
-//! builder output behind the coordinate systems' order and trimming, the
-//! section-basis token's trimming and the session's Diagnostics entries.
+//! builder output behind the units' and the coordinate systems' order, the
+//! trimming of coordinate systems and section-basis tokens, a coordinate system
+//! that is not text, an empty row set and the session's Diagnostics entries.
 //!
-//! Some branches the builder reaches only on a result the product's reader
-//! refuses, so no builder output can stand behind them, and they are stated here
-//! on invented inputs from a reading of the builder: a unit outside the reader's
-//! vocabulary for its row (so the units' UTF-16 order beyond the units the
-//! product writes), an empty row set, a stress headline stored in Pa beside no
-//! row stored in Pa, and a unit that is not text.
+//! Three branches cannot be produced by the desktop, so they are stated here on
+//! constructed inputs from a reading of the builder: an exact stress headline in
+//! Pa beside no row in Pa (an exact Pa headline must bind a row of the same
+//! unit), a recognised section-basis token ending in U+0085 (the builder refuses
+//! it as an unreadable basis) and, as the reason the section-basis vectors use
+//! the solver-mode row, an edited basis on an exact stress row (it must match
+//! that row's signature). Some other constructed cases stand beside the vectors
+//! where no vector was made for them, each saying so.
 //!
 //! Equality is on canonical bytes (RFC 8785): a produced member's canonical
-//! text is the committed member's. Invented data only. Standard claim fence
-//! applies (claims taxonomy per DEC-081).
+//! text is the committed member's. Invented data only.
 
 use open_pipe_stress_canonical_json::canonical_json;
 use open_pipe_stress_report_package::bindings::{check_report_diagnostics, check_report_result_refs, check_unit_display_summary};
@@ -74,13 +76,20 @@ const STANDING_WITNESSES: [(&str, &str, &str); 2] = [
 ];
 /// The report members vectors (`reportMembersVectors.test.ts`): report inputs the desktop's
 /// builder wrote for invented edits of a committed result or its model, each with the
-/// model and the delivered result bytes it was built from.
-const MEMBERS_VECTORS: [(&str, &str); 3] = [
+/// delivered result bytes it was built from and the model, or where that model sits.
+const MEMBERS_VECTORS: [(&str, &str); 7] = [
     (
         "coordinate_systems_order_and_trim",
         include_str!("../../../../fixtures/reports/invented/report_members_vectors/coordinate_systems_order_and_trim.json"),
     ),
     ("section_basis_trim", include_str!("../../../../fixtures/reports/invented/report_members_vectors/section_basis_trim.json")),
+    ("section_basis_nel_alone", include_str!("../../../../fixtures/reports/invented/report_members_vectors/section_basis_nel_alone.json")),
+    (
+        "coordinate_system_not_text",
+        include_str!("../../../../fixtures/reports/invented/report_members_vectors/coordinate_system_not_text.json"),
+    ),
+    ("empty_rows", include_str!("../../../../fixtures/reports/invented/report_members_vectors/empty_rows.json")),
+    ("exact_unknown_kind_units", include_str!("../../../../fixtures/reports/invented/report_members_vectors/exact_unknown_kind_units.json")),
     (
         "session_diagnostics_after_results",
         include_str!("../../../../fixtures/reports/invented/report_members_vectors/session_diagnostics_after_results.json"),
@@ -135,12 +144,21 @@ fn built_reports() -> Vec<Built> {
         let fixture = parse(render);
         built.push(Built { name: name.to_string(), model: parse(fixture["exact_intake_text"].as_str().unwrap()), source: parse(raw), report: fixture["input"].clone() });
     }
+    // The one model a vector names rather than carries: the straight witness request's.
+    let straight_model = parse(WITNESS_REQUESTS[0].1)["model"].clone();
     for (name, text) in MEMBERS_VECTORS {
         let fixture = parse(text);
         assert_eq!(fixture["name"], name);
+        let model = match fixture.get("model_pointer") {
+            None => fixture["model"].clone(),
+            Some(pointer) => {
+                assert_eq!((&fixture["model_fixture"], pointer), (&json!("fixtures/reports/invented/exact_report_package_requests/pressure_2_straight.json"), &json!("/model")), "{name}");
+                straight_model.clone()
+            }
+        };
         built.push(Built {
             name: format!("members vector {name}"),
-            model: fixture["model"].clone(),
+            model,
             source: parse(fixture["source_text"].as_str().unwrap()),
             report: fixture["report"].clone(),
         });
@@ -181,7 +199,8 @@ fn each_producer_gives_the_desktop_builders_member() {
         let Built { name, model, source, report } = &built;
         let provenance = session_provenance(model).unwrap();
         let rows = source["results"].as_array().unwrap().len();
-        assert!(rows > 0, "{name}");
+        // Every input has rows but the vector made to have none.
+        assert!(rows > 0 || name == "members vector empty_rows", "{name}");
 
         assert_canonical_eq(&Value::Array(result_rows(source).unwrap()), &report["result_rows"], &format!("{name}: result_rows"));
 
@@ -242,6 +261,19 @@ fn the_sessions_diagnostics_follow_the_results() {
     assert_eq!(report["report_sections"]["diagnostics"], Value::Array(session.to_vec()));
     place_members(&mut report, &built.model, &built.source).unwrap();
     assert_canonical_eq(&report["report_sections"]["diagnostics"], &built.report["report_sections"]["diagnostics"], "the result's entries, then the session's");
+    check_report_diagnostics(&report, &built.source).unwrap();
+
+    // Constructed, as every entry the builder writes after the result's names an
+    // affected object: a caller's entries that carry a code only are kept as sent,
+    // in their own order, after the result's.
+    let sent = json!([{"code": "INVENTED_SESSION_FIRST"}, {"code": "INVENTED_SESSION_SECOND"}]);
+    let mut report = without_row_scale_members(&built);
+    report["report_sections"]["diagnostics"] = sent.clone();
+    place_members(&mut report, &built.model, &built.source).unwrap();
+    let placed = report["report_sections"]["diagnostics"].as_array().unwrap();
+    assert_eq!(placed.len(), from_result + 2);
+    assert_canonical_eq(&Value::Array(placed[..from_result].to_vec()), &Value::Array(committed[..from_result].to_vec()), "the result's entries");
+    assert_eq!(Value::Array(placed[from_result..].to_vec()), sent);
     check_report_diagnostics(&report, &built.source).unwrap();
 }
 
@@ -440,13 +472,12 @@ fn an_unreadable_source_derives_nothing() {
 /// for rows naming U+1F600 (a surrogate pair, which sorts before U+FF2E though
 /// its code point is greater), U+FF2E, a no-break space, U+FEFF (blank to
 /// JavaScript's `trim`, not to Rust's), U+0085 (blank to Rust's `trim`, not to
-/// JavaScript's), padded names and `TBD`.
+/// JavaScript's), padded names and `TBD`; and for a row naming the number 7,
+/// which is not one.
 ///
-/// The stored units follow the same order. The product's reader admits only its
-/// own unit for each row, so on every result the product gives the builder the
-/// units sort alike by code unit and by code point: that order, a name that is
-/// not text, a unit that is not text and an empty row set are stated from a
-/// reading, on invented sources.
+/// The stored units follow the same order: on the builder's input for an exact
+/// result with two rows of a kind the reader does not know, in U+1F600 and
+/// U+FF2E. An empty row set gives empty members.
 #[test]
 fn units_and_coordinate_systems_follow_the_desktops_order() {
     let built = members_vector("coordinate_systems_order_and_trim");
@@ -454,50 +485,41 @@ fn units_and_coordinate_systems_follow_the_desktops_order() {
     assert_eq!(built.report["report_context"]["result_coordinate_systems"], json!(expected));
     assert_eq!(result_coordinate_systems(&built.source).unwrap(), expected);
 
-    let row = |id: &str, unit: &str, system: Value| json!({"id": id, "kind": "k", "value": 1, "unit": unit, "metadata": {"component": "c", "coordinate_system": system}});
-    let source = json!({"producer": {}, "summary": {}, "results": [
-        row("a", "\u{1F600}", json!("global")),
-        row("b", "\u{FF2E}", json!("\u{a0} ")),
-        row("c", "N", json!("TBD")),
-        row("d", "", json!("\u{FF2E}")),
-        row("e", "N", json!("\u{1F600}")),
-        row("f", "mm", json!(7)),
-        {"id": "g", "kind": "k", "value": 1, "unit": "mm"}
-    ]});
-    let model = json!({"project": {"units": {"length": "m"}}});
-    let summary = unit_display_summary(&model, &source).unwrap();
-    // U+1F600 is the surrogate pair D83D DE00, which sorts before U+FF2E.
-    assert_eq!(summary["result_units"], json!(["N", "mm", "\u{1F600}", "\u{FF2E}"]));
-    assert_eq!(summary["model_units"], json!({"length": "m"}));
-    assert_eq!(summary["conversion_performed"], false);
-    // A coordinate system that is not text is not one.
-    assert_eq!(result_coordinate_systems(&source).unwrap(), ["global", "\u{1F600}", "\u{FF2E}"]);
-    // The check that binds the summary agrees with the producer on that order.
-    let report = json!({"calculation_report": {"model_input_summary": {"unit_display_summary": summary}}});
-    check_unit_display_summary(&report, &source).unwrap();
+    let built = members_vector("coordinate_system_not_text");
+    assert_eq!(built.source["results"][0]["metadata"]["coordinate_system"], json!(7));
+    let expected = ["element_local", "global", "pipe_section"];
+    assert_eq!(built.report["report_context"]["result_coordinate_systems"], json!(expected));
+    assert_eq!(result_coordinate_systems(&built.source).unwrap(), expected);
 
-    // A row with no unit, or a null one, adds none; a unit that is not text refuses.
-    let source = json!({"results": [{"id": "a", "unit": null}, {"id": "b"}, {"id": "c", "unit": "N"}]});
+    let built = members_vector("exact_unknown_kind_units");
+    let expected = json!(["MPa", "N", "N*m", "Pa", "mm", "mode_code", "rad", "\u{1F600}", "\u{FF2E}"]);
+    assert_eq!(built.report["calculation_report"]["model_input_summary"]["unit_display_summary"]["result_units"], expected);
+    assert_eq!(unit_display_summary(&built.model, &built.source).unwrap()["result_units"], expected);
+
+    let built = members_vector("empty_rows");
+    assert_eq!(built.source["results"], json!([]));
+    assert_eq!(built.report["result_rows"], json!([]));
+    assert_eq!(result_rows(&built.source).unwrap(), Vec::<Value>::new());
+    assert_eq!(result_export_refs(&built.source, &session_provenance(&built.model).unwrap()).unwrap(), Vec::<Value>::new());
+    assert_eq!(result_coordinate_systems(&built.source).unwrap(), Vec::<String>::new());
+    assert_eq!(unit_display_summary(&built.model, &built.source).unwrap()["result_units"], json!([]));
+
+    // Constructed, as no vector was made for them: an empty unit, a null one and a
+    // missing one add none, and a unit that is not text refuses.
+    let model = json!({"project": {"units": {"length": "m"}}});
+    let source = json!({"results": [{"id": "a", "unit": null}, {"id": "b"}, {"id": "c", "unit": "N"}, {"id": "d", "unit": ""}]});
     assert_eq!(unit_display_summary(&model, &source).unwrap()["result_units"], json!(["N"]));
     for unit in [json!(7), json!(true), json!(["N"]), json!({"unit": "N"})] {
         let error = unit_display_summary(&model, &json!({"results": [{"id": "a", "unit": unit}]})).unwrap_err();
         assert_eq!(error, "REPORT-PACKAGE-BINDING-MISMATCH: a source row's unit is not text");
     }
-
-    // No rows (the reader refuses an empty row set, so no vector): empty members, and nothing displayed scaled.
-    let empty = json!({"results": [], "diagnostics": []});
-    assert_eq!(result_rows(&empty).unwrap(), Vec::<Value>::new());
-    assert_eq!(result_export_refs(&empty, &json!({})).unwrap(), Vec::<Value>::new());
-    assert_eq!(result_coordinate_systems(&empty).unwrap(), Vec::<String>::new());
-    let summary = unit_display_summary(&model, &empty).unwrap();
-    assert_eq!((&summary["result_units"], &summary["conversion_performed"]), (&json!([]), &json!(false)));
 }
 
 /// `conversion_performed` without a row stored in Pa: on an exact-route source
 /// a stress headline stored in Pa is displayed in MPa; on any other source the
-/// summary is not read. Stated from a reading: the product's reader admits only
-/// Pa for each row the producer stores in Pa, so no result the product gives the
-/// builder has a stress headline in Pa beside no row in Pa.
+/// summary is not read. Constructed: the exact case cannot be produced by the
+/// desktop (an exact Pa headline must bind a row of the same unit), and no vector
+/// was made for the other.
 #[test]
 fn a_stress_headline_stored_in_pa_is_a_conversion_on_an_exact_source_only() {
     let built = built_reports().into_iter().next().unwrap();
@@ -520,15 +542,23 @@ fn a_stress_headline_stored_in_pa_is_a_conversion_on_an_exact_source_only() {
 /// input for a solver-mode row whose basis carries a token wrapped in U+FEFF
 /// (which JavaScript's `trim` removes and Rust's does not) and a token led by
 /// U+0085 (which Rust's `trim` removes and JavaScript's does not), the first
-/// names the nominal section and the second names none. A token that U+0085
-/// trails is unreadable: the builder refuses that result, so it has no vector,
-/// and the producer refuses it too.
+/// names the nominal section and the second names none; and a lone token led by
+/// U+0085 names none, so its row's label carries no section basis. A recognised
+/// token that U+0085 trails cannot be produced by the desktop as a report input
+/// (the builder refuses it as an unreadable basis), so it is constructed here:
+/// the producer refuses it too.
 #[test]
 fn a_section_basis_token_is_trimmed_as_the_desktop_trims() {
     let built = members_vector("section_basis_trim");
     let basis = built.source["results"][0]["metadata"]["basis"].as_str().unwrap();
     assert!(basis.ends_with(";\u{feff}section_basis=nominal_section\u{feff};\u{85}section_basis=reduced_section"), "{basis}");
     let label = "linear_solver_mode_basis (linear_solver_mode) [nominal section]";
+    assert_eq!(built.report["result_rows"][0]["label"], label);
+    assert_eq!(result_rows(&built.source).unwrap()[0]["label"], label);
+    let built = members_vector("section_basis_nel_alone");
+    let basis = built.source["results"][0]["metadata"]["basis"].as_str().unwrap();
+    assert!(basis.ends_with(";\u{85}section_basis=nominal_section"), "{basis}");
+    let label = "linear_solver_mode_basis (linear_solver_mode)";
     assert_eq!(built.report["result_rows"][0]["label"], label);
     assert_eq!(result_rows(&built.source).unwrap()[0]["label"], label);
     let row = |basis: &str| json!({"results": [{"id": "a", "kind": "k", "value": 1, "unit": "N", "metadata": {"component": "c", "basis": basis}}]});
