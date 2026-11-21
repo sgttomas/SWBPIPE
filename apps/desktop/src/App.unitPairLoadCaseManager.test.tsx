@@ -6,7 +6,7 @@
 // App, Review's Apply runs the operation applier in the Wasm engine rebuilt from the candidate
 // source; the stored document is read back from the saved and reopened project. The model and
 // values are invented; the unit catalog is supplied as the native application supplies it.
-import { act, cleanup, fireEvent, render, screen, waitFor, within } from "@testing-library/react";
+import { cleanup, fireEvent, render, screen, waitFor, within } from "@testing-library/react";
 import { afterEach, describe, expect, it, vi } from "vitest";
 import { App } from "./App";
 import * as previewService from "./services/previewService";
@@ -25,17 +25,13 @@ vi.mock("./services/unitCatalogService", async (original) => ({
 
 afterEach(() => { cleanup(); route.current = null; vi.restoreAllMocks(); });
 
-/** The native menu's view command, as App.test.tsx dispatches it. */
-const nativeMenuCommand = (command: string) => window.dispatchEvent(new CustomEvent("openpipestress-native-menu-command", { detail: command }));
-
 function openSection(id: "loads" | "operations") {
   let section = screen.queryByTestId(`workspace-section-${id}`);
   if (!section || section.classList.contains("inactive")) {
-    if (id === "operations" && screen.queryByTestId("workspace-review")) fireEvent.click(screen.getByTestId("workspace-review"));
-    else if (screen.queryByTestId("menu-view")) {
-      fireEvent.click(screen.getByTestId("menu-view"));
-      fireEvent.click(screen.getByTestId(`menu-item-view.section.${id}`));
-    } else act(() => nativeMenuCommand(`view.section.${id}`));
+    // Load Cases and Review changes are reached by the rail and the stage tab, as a person does:
+    // the View menu no longer lists them.
+    fireEvent.click(screen.getByTestId(id === "operations" ? "rail-stage-model" : "rail-stage-loads"));
+    if (id === "operations") fireEvent.click(screen.getByTestId("workspace-review"));
     section = screen.getByTestId(`workspace-section-${id}`);
   }
   expect(section).not.toHaveClass("inactive");
