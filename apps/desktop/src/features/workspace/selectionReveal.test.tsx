@@ -141,6 +141,70 @@ describe("the tree reveals a selection made elsewhere", () => {
   });
 });
 
+describe("the tree knows which selections it made", () => {
+  const nodeKey = (id: string) => entityKey({ type: "node", id });
+  const state = (keys: string[], primary: string) => ({ orderedKeys: keys.map(nodeKey), primaryKey: nodeKey(primary), rangeAnchorKey: null, focusKey: null, preparationEpoch: 0 });
+  const withState = (model: PreviewModel, keys: string[], primary: string) =>
+    <ModelTree model={model} onSelect={vi.fn()} selection={{ type: "node", id: primary }} selectionState={state(keys, primary)} />;
+  const nodesGroup = () => screen.getAllByRole("treeitem").find((row) => row.textContent?.includes("Nodes") && row.hasAttribute("aria-expanded"))!;
+
+  it("does not scroll to the new primary when a modified press in the tree removes the primary", () => {
+    const model = nodesModel(160);
+    const view = render(withState(model, ["n/150", "n/0"], "n/0"));
+    const list = screen.getByTestId("model-tree-virtual");
+    expect(list.scrollTop).toBe(0);
+    fireEvent.click(within(list).getByTestId("tree-row-node-n%2F0"), { ctrlKey: true });
+    // The shell hands back what the press made: n/0 removed, n/150 now primary.
+    view.rerender(withState(model, ["n/150"], "n/150"));
+    expect(list.scrollTop).toBe(0);
+    expect(within(list).queryByTestId("tree-row-node-n%2F150")).toBeNull();
+  });
+
+  it("leaves nothing pending after removing a non-primary row, so a later pick elsewhere is revealed", () => {
+    const model = nodesModel(4);
+    const view = render(withState(model, ["n/1", "n/0"], "n/0"));
+    fireEvent.click(screen.getByTestId("tree-row-node-n%2F1"), { ctrlKey: true });
+    view.rerender(withState(model, ["n/0"], "n/0"));
+    fireEvent.click(nodesGroup());
+    expect(nodesGroup()).toHaveAttribute("aria-expanded", "false");
+    act(() => (document.activeElement as HTMLElement | null)?.blur());
+    // n/1 picked in the 3D view.
+    view.rerender(withState(model, ["n/1"], "n/1"));
+    expect(nodesGroup()).toHaveAttribute("aria-expanded", "true");
+    expect(screen.getByTestId("tree-row-node-n%2F1")).toHaveClass("focused");
+  });
+
+  it("Clear filter reveals a selection made before filtering, and returns focus to the filter field", () => {
+    const model = nodesModel(4);
+    render(tree(model, { type: "node", id: "n/2" }));
+    const filter = screen.getByTestId("model-tree-filter-input");
+    fireEvent.change(filter, { target: { value: "Pipe 0" } });
+    const notice = screen.getByTestId("model-tree-selection-filtered");
+    expect(notice).toHaveTextContent("n/2 is selected but filtered out.");
+    fireEvent.click(within(notice).getByRole("button", { name: "Clear filter" }));
+    expect(filter).toHaveValue("");
+    expect(screen.getByTestId("tree-row-node-n%2F2")).toHaveClass("focused");
+    expect(document.activeElement).toBe(filter);
+  });
+
+  it("while a person types in the filter, a reveal scrolls only the tree's own list", () => {
+    const scrolled: Element[] = [];
+    Object.defineProperty(Element.prototype, "scrollIntoView", { configurable: true, writable: true, value: function (this: Element) { scrolled.push(this); } });
+    try {
+      const model = nodesModel(160);
+      const view = render(tree(model, { type: "node", id: "n/0" }));
+      const list = screen.getByTestId("model-tree-virtual");
+      act(() => screen.getByTestId("model-tree-filter-input").focus());
+      view.rerender(tree(model, { type: "node", id: "n/150" }));
+      expect(list.scrollTop).toBeGreaterThan(0);
+      expect(scrolled).toEqual([]);
+      expect(document.activeElement).toBe(screen.getByTestId("model-tree-filter-input"));
+    } finally {
+      delete (Element.prototype as { scrollIntoView?: unknown }).scrollIntoView;
+    }
+  });
+});
+
 describe("the grid reveals a selection made elsewhere", () => {
   it("scrolls the node table to the selected row without moving focus", () => {
     const model = nodesModel(160);

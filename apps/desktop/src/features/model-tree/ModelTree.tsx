@@ -168,29 +168,51 @@ export function ModelTree({ boundedGrid = false, compactGrid = false, model, mod
   // A selection made outside the tree (the viewport, the grid, a result row, a
   // reference in the inspector) is revealed here: its group opens and its row
   // becomes the tree's current row, which the list scrolls into view. Neither DOM
-  // focus nor the selection moves. A selection the tree made itself (a row
-  // pressed, Enter or Space on a row) is the tree's own and is left, wherever focus
-  // is: a click in the 3D view need not take focus from the tree. The request is
-  // kept while the tree list cannot show it (the Grid layout, a hidden, inert or
+  // focus nor the selection moves. A selection publication the tree made itself (a
+  // row pressed, with or without a modifier, Enter or Space on a row), including one
+  // that only changes membership, is the tree's own and is left, wherever focus is:
+  // a click in the 3D view need not take focus from the tree. The request is kept
+  // while the tree list cannot show it (the Grid layout, a hidden, inert or
   // CSS-hidden pane: `canSurfaceRevealNow`) or a filter hides the row, and done
-  // when the row can be shown.
+  // when the row can be shown. While a person types in a field (the filter, a form),
+  // only the tree's own scroller moves; no ancestor of the tree is scrolled.
   const treeRootRef = useRef<HTMLDivElement>(null);
   const primarySelectionKey = selectionState ? selectionState.primaryKey : entityKey(selection);
   const revealedSelectionKey = useRef(primarySelectionKey);
   const pendingTreeReveal = useRef<string | null>(null);
-  const treeOwnSelection = useRef<string | null>(null);
+  // The whole selection (its members and its primary), so that a press that only changes
+  // membership is recognised as the tree's own publication too.
+  const selectionSignature = selectionState
+    ? `${selectionState.orderedKeys.join("\u0001")}\u0002${selectionState.primaryKey ?? ""}`
+    : entityKey(selection);
+  // The selection as it stood when the tree pressed a row, until the selection next changes:
+  // that change is the tree's own publication, whenever the shell hands it back. A plain press
+  // on the only selected row changes nothing and leaves no mark; a mark the shell never
+  // answers lapses (TREE_PUBLICATION_LAPSE_MS) so that it cannot hold back a later reveal.
+  const treeOwnPublication = useRef<string | null>(null);
   const [treeRevealRequest, setTreeRevealRequest] = useState(0);
   const selectFromTree: typeof onSelect = (item, modifiers, order) => {
-    treeOwnSelection.current = entityKey(item);
+    const plain = !modifiers?.toggle && !modifiers?.additive && !modifiers?.range;
+    const key = entityKey(item);
+    const soleSelected = selectionState ? selectionState.orderedKeys.length === 1 && selectionState.orderedKeys[0] === key : entityKey(selection) === key;
+    if (!(plain && soleSelected)) {
+      const mark = selectionSignature;
+      treeOwnPublication.current = mark;
+      window.setTimeout(() => { if (treeOwnPublication.current === mark) treeOwnPublication.current = null; }, TREE_PUBLICATION_LAPSE_MS);
+    }
     onSelect(item, modifiers, order);
   };
   useLayoutEffect(() => {
+    if (treeOwnPublication.current !== null && treeOwnPublication.current !== selectionSignature) {
+      treeOwnPublication.current = null;
+      revealedSelectionKey.current = primarySelectionKey;
+      pendingTreeReveal.current = null;
+      return;
+    }
     if (revealedSelectionKey.current === primarySelectionKey) return;
     revealedSelectionKey.current = primarySelectionKey;
-    const own = treeOwnSelection.current !== null && treeOwnSelection.current === primarySelectionKey;
-    treeOwnSelection.current = null;
-    pendingTreeReveal.current = primarySelectionKey && !own ? primarySelectionKey : null;
-  }, [primarySelectionKey]);
+    pendingTreeReveal.current = primarySelectionKey || null;
+  }, [primarySelectionKey, selectionSignature]);
   useLayoutEffect(() => {
     const key = pendingTreeReveal.current;
     if (key === null || layoutMode !== "tree") return;
@@ -208,7 +230,8 @@ export function ModelTree({ boundedGrid = false, compactGrid = false, model, mod
       setExpandedGroups((current) => new Set(current).add(group.title));
     }
     setFocusedTreeKey(key);
-    setTreeRevealRequest((value) => value + 1);
+    // The current row moves within the tree's own scroller; its ancestors scroll only while no field is being typed in.
+    if (!typingInField()) setTreeRevealRequest((value) => value + 1);
     onFocusChange(key as EntityKey);
   });
 
@@ -328,7 +351,12 @@ export function ModelTree({ boundedGrid = false, compactGrid = false, model, mod
       {layoutMode !== "grid" && selectionFilteredOut ? (
         <p className="model-tree-selection-filtered" role="status" data-testid="model-tree-selection-filtered">
           <span>{selectionFilteredOut} is selected but filtered out.</span>
-          <button type="button" data-testid="model-tree-selection-filtered-clear" onClick={(event) => changeFilter("", performance.now(), event.nativeEvent.timeStamp)}>Clear filter</button>
+          <button type="button" data-testid="model-tree-selection-filtered-clear" onClick={(event) => {
+            changeFilter("", performance.now(), event.nativeEvent.timeStamp);
+            // The button goes with the message: focus returns to the filter field, and the selection is revealed.
+            pendingTreeReveal.current = primarySelectionKey || null;
+            treeRootRef.current?.querySelector<HTMLInputElement>('[data-testid="model-tree-filter-input"]')?.focus();
+          }}>Clear filter</button>
         </p>
       ) : null}
       {layoutMode !== "grid" ? (
@@ -2121,4 +2149,15 @@ function safeToken(value: string): string {
 
 function numericGridValue(value: string): string | number {
   return value.trim() !== "" && Number.isFinite(Number(value)) ? Number(value) : value;
+}
+
+/** How long the tree waits for the shell to publish a selection it pressed before treating the next change as another surface's. */
+const TREE_PUBLICATION_LAPSE_MS = 2000;
+
+/** Whether keyboard focus is in a field a person types in (an input, a text area, a select, an editable region). */
+function typingInField(): boolean {
+  const active = document.activeElement;
+  if (!(active instanceof HTMLElement)) return false;
+  return active.isContentEditable || active instanceof HTMLTextAreaElement || active instanceof HTMLSelectElement ||
+    (active instanceof HTMLInputElement && !["button", "checkbox", "radio", "submit", "reset"].includes(active.type));
 }
