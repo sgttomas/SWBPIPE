@@ -39,6 +39,13 @@ const STORED_TEXT = "(0.1, -0.2, 5e-300)";
 const STATEMENT = `Adding the hanger removes this support's stored direction ${STORED_TEXT}. ` +
   "A hanger takes no direction: its load acts along the positive axis of its stiffness degree of freedom (or of its single translational restraint).";
 const HANGER_FAMILIES = ["variable_spring_hanger", "spring_hanger", "constant_effort_support"];
+/** A complete invented variable spring hanger, as a stored record holds it. */
+const STORED_HANGER = {
+  hanger_type: "variable_spring_hanger", source_reference: "invented catalogue",
+  stiffness: { dof: "UY", value: { value: 35000, unit: "N/m" } },
+  installed_load: { value: 1200, unit: "N" }, cold_load: { value: 1200, unit: "N" }, hot_load: { value: 1100, unit: "N" },
+  travel_range: { value: 50, unit: "mm" }
+};
 
 /** The sample model, with its first support a skewed line stop on UY holding a stored direction. */
 async function skewModel(): Promise<PreviewModel> {
@@ -53,6 +60,30 @@ function expectApplied(outcome: { validation: { application_status: string }; di
   return outcome.applied_model!;
 }
 const intentsOf = (queue: ReturnType<typeof vi.fn>) => queue.mock.calls.map(call => call[0] as EditorOperationIntent);
+
+/** Complete invented hanger data, entered through the form's hanger fields: the engine admits a named hanger family
+ * only with a hanger object, and a typed hanger only with its required inputs. */
+function enterHanger(type: string) {
+  if (!screen.queryByRole("group", { name: "Hanger" })) fireEvent.click(screen.getByLabelText("Include hanger data"));
+  const group = screen.getByRole("group", { name: "Hanger" });
+  expect(group).toBeVisible();
+  enter("Hanger type", type);
+  const quantity = (label: string, value: string, unit: string) => { enter(`${label} value`, value); enter(`${label} unit`, unit); };
+  if (type === "constant_effort_support") quantity("Hanger constant load", "1200", "N");
+  else {
+    fireEvent.click(within(group).getByText("Add hanger stiffness"));
+    enter("Hanger stiffness DOF", "UY");
+    quantity("Hanger stiffness quantity", "35000", "N/m");
+    quantity("Hanger installed load", "1200", "N"); quantity("Hanger cold load", "1200", "N"); quantity("Hanger hot load", "1100", "N");
+  }
+  quantity("Hanger travel range", "50", "mm");
+  enter("Hanger source reference", "invented catalogue");
+}
+/** The ways a support comes to carry a hanger: the hanger box alone, or each hanger family with its hanger data. */
+const HANGER_PATHS: Array<[string, () => void]> = [
+  ["the hanger box", () => fireEvent.click(screen.getByLabelText("Include hanger data"))],
+  ...HANGER_FAMILIES.map((family): [string, () => void] => [`the family ${family}`, () => { enter("Support family", family); enterHanger(family); }])
+];
 
 describe("the form's words and field names for the removal are hanger selection's", () => {
   it("says the reason by hanger selection's exported constant, and names the removal by its exported field path and label", () => {
@@ -88,10 +119,7 @@ describe("creating a support that carries a hanger", () => {
     for (const axis of ["x", "y", "z"]) expect((screen.getByLabelText(`Direction ${axis}`) as HTMLInputElement).value).toBe("");
   });
 
-  it.each([
-    ["the hanger box", () => fireEvent.click(screen.getByLabelText("Include hanger data"))],
-    ...HANGER_FAMILIES.map(family => [`the family ${family}`, () => enter("Support family", family)] as const)
-  ])("by %s after a direction was typed: the direction is cleared with a word, and the creation the engine applies carries none", async (_path, chooseHanger) => {
+  it.each(HANGER_PATHS)("by %s after a direction was typed: the direction is cleared with a word, and the creation the engine applies carries none", async (_path, chooseHanger) => {
     const model = await previewService.loadPreviewModel(), original = JSON.stringify(model);
     const queue = renderCreate(model);
     typeDirection();
@@ -136,10 +164,7 @@ describe("editing a support that holds a stored direction into one that carries 
     return intentsOf(queue);
   }
 
-  it.each([
-    ["the hanger box", () => fireEvent.click(screen.getByLabelText("Include hanger data"))],
-    ...HANGER_FAMILIES.map(family => [`the family ${family}`, () => enter("Support family", family)] as const)
-  ])("by %s: queues the removal then the configuration; the engine applies both and the support holds the hanger and no direction", async (_path, chooseHanger) => {
+  it.each(HANGER_PATHS)("by %s: queues the removal then the configuration; the engine applies both and the support holds the hanger and no direction", async (_path, chooseHanger) => {
     const model = await skewModel(), original = JSON.stringify(model), id = model.supports[0].id;
     const [removal, configuration] = await queueHangerEdit(model, chooseHanger);
     expect(removal).toMatchObject({
@@ -166,7 +191,7 @@ describe("editing a support that holds a stored direction into one that carries 
 
   it("on a stored record that already holds both a hanger and a direction: offers the removal with the same statement, and never queues the configuration alone", async () => {
     const model = await skewModel(), id = model.supports[0].id;
-    Object.assign(model.supports[0], { hanger: { hanger_type: "variable_spring_hanger", source_reference: "invented catalogue" } });
+    Object.assign(model.supports[0], { family: "variable_spring_hanger", hanger: STORED_HANGER });
     const queue = vi.fn();
     render(<SupportConfigurationForm model={model} selection={{ type: "support", id }} onQueueIntent={queue} />);
     expect(screen.getByTestId("support-direction-removal")).toHaveTextContent(STATEMENT);
@@ -294,7 +319,7 @@ describe("the engine's refusals of the pair, shown by the form's own statements"
     const model = await skewModel();
     const queue = await submitHangerEdit(model);
     await waitFor(() => expect(queue).toHaveBeenCalledTimes(2));
-    expect(screen.getByRole("status")).toHaveTextContent("checked together by the operation engine");
+    expect(screen.getByTestId("support-direction-removal-engine-notice")).toHaveTextContent("checked together by the operation engine");
     expect(screen.queryByTestId("support-direction-removal-engine-error")).toBeNull();
   });
 });
