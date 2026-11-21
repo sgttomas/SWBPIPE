@@ -545,13 +545,13 @@ fn recorded_dispatch_of(found: &HistoricalFindings, result: &Value) -> Option<Va
 /// against the installed binding of the result's identity): the current binding and a registry
 /// variant are read and restored as before; any other binding is refused by its code, in a
 /// sentence that quotes the result's installed identity and nothing from the record. So is a
-/// record whose binding is read while its result references do not bind every published row to
-/// the same rules at the same revision. A result
-/// that does not render, an identity this version installs no table for (a retired one, refused
-/// by name in the findings), a record with no binding and a record of another version are left
-/// to the findings, as before.
+/// record whose binding is read while it does not hold one matching reference for each published
+/// row. Whether the desktop's panel would render the result is not asked: a restored handle
+/// lets its rows be read whatever the panel does. An identity this version installs no table
+/// for (a retired one, refused by name in the findings), a record with no binding and a record
+/// of another version are left to the findings, as before.
 fn unread_table_binding(result: &Value, record: &Value) -> Option<String> {
-    if record.get("schema_version").and_then(Value::as_str) != Some("0.3.0") || !validate::renderable(result) {
+    if record.get("schema_version").and_then(Value::as_str) != Some("0.3.0") {
         return None;
     }
     let binding = record.pointer("/analysis_run/reproducibility/semantic_contract")?;
@@ -571,13 +571,14 @@ fn unread_table_binding(result: &Value, record: &Value) -> Option<String> {
             // reference of its own (references missing, not a list, fewer or more than the rows,
             // or one row's reference repeated for another), or a reference that names another
             // binding, is the same unestablished meaning for that row (the record validator's
-            // row findings). A result that publishes no row needs no reference.
+            // row findings). A result that publishes no row (an empty `results`, or none that is
+            // a list) needs no reference and may hold none.
             let binds = |(index, (row, reference)): (usize, (&Value, &Value))| {
                 reference["source_row_index"].as_f64() == Some(index as f64)
                     && reference["result_ref"]["ref"] == row["id"]
                     && ["id", "sha256"].iter().all(|key| reference["semantic_contract"][*key] == binding[*key])
             };
-            let rows = crate::analysis_run_v03_build::rows_of(result).ok().map_or(0, <[Value]>::len);
+            let rows = result["results"].as_array().map_or(&[][..], Vec::as_slice);
             let references = record.pointer("/analysis_run/result_refs");
             // The code is the record validator's for the same condition: a count that is not the
             // rows' (as it counts: a list's entries, a string's UTF-16 units), or a reference
@@ -587,15 +588,15 @@ fn unread_table_binding(result: &Value, record: &Value) -> Option<String> {
                 Some(Value::String(text)) => Some(text.encode_utf16().count()),
                 _ => None,
             };
-            let code = if counted != Some(rows) {
+            let code = if counted != Some(rows.len()) {
                 "ANALYSIS_ROW_ACCOUNTING_MISMATCH"
             } else {
-                match (crate::analysis_run_v03_build::rows_of(result), references) {
-                    (Ok(rows), Some(Value::Array(references))) if rows.iter().zip(references).enumerate().all(binds) => return None,
+                match references {
+                    Some(Value::Array(references)) if rows.iter().zip(references).enumerate().all(binds) => return None,
                     _ => "ANALYSIS_ROW_SOURCE_BINDING_MISMATCH",
                 }
             };
-            (format!("its record does not bind every result row to the rules `{id}` at the revision the record binds"), code.to_string())
+            (format!("its record does not hold one matching reference for each published result row under the rules `{id}` at the revision the record binds"), code.to_string())
         }
     };
     Some(format!("{why} ({code}), so its rows are not shown; solve the model again."))

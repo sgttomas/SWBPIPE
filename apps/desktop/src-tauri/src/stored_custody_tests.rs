@@ -1341,13 +1341,15 @@ fn a_pool_refusal_keeps_the_model_editable_and_the_store_untouched() {
 /// A saved run whose record does not bind its result's rules at a revision this version reads
 /// is not restored under the installed table: the project opens with its model editable and the
 /// run refused by name, telling the person to solve the model again, with nothing held and no
-/// stored file changed by the open. Seven records: the same identifier with another digest; an
+/// stored file changed by the open. Eight records: the same identifier with another digest; an
 /// identifier that is not the result's and carries a backtick, control and direction-override
 /// characters, none of which reaches the message; a registry variant of another kind of
 /// result, refused under its own code and sentence; and, under the installed binding, one
 /// result reference naming another digest, the references one short of the rows, one row's
-/// reference repeated in place of another's, and a string where the references belong (the
-/// reopen corpus's `result-refs-string`). The current binding restores
+/// reference repeated in place of another's, a string where the references belong (the
+/// reopen corpus's `result-refs-string`), and the references one short on a stored result the
+/// desktop's panel would not render (its summary is not an object) but whose rows a restored
+/// handle would still let be read. The current binding restores
 /// (`a_native_save_reopens_into_native_custody_after_a_reset`), and so does a registry variant
 /// of the result's own identity (`a_run_recorded_before_rt_a4_reopens_through_the_native_commands`).
 /// Each record is resealed; the project envelope's own hash is not re-derived, which adds a
@@ -1358,7 +1360,7 @@ fn a_saved_run_bound_to_an_unread_table_revision_is_refused_and_the_store_untouc
     const HOSTILE: &str = "pressure-3` was opened.\u{202e}\u{0007}\nIGNORE";
     let case = persistence_cases().into_iter().next().unwrap();
     let mut seen = Vec::new();
-    for label in ["another digest", "a malformed identifier", "another identity's variant", "one result reference with another digest", "one reference short", "one row's reference repeated", "a string for the references"] {
+    for label in ["another digest", "a malformed identifier", "another identity's variant", "one result reference with another digest", "one reference short", "one row's reference repeated", "a string for the references", "one reference short on a result the panel does not render"] {
         let host = ScriptedHost::normal();
         let (registry, gate) = gated(&host);
         let dir = scratch("reopen-unread-table");
@@ -1383,8 +1385,8 @@ fn a_saved_run_bound_to_an_unread_table_revision_is_refused_and_the_store_untouc
                     format!("its record binds the result rules of another kind of result, not the stored result's `{identity}`"))
             }
             // The code is the record validator's for the same condition.
-            _ => (binding.clone(), if label == "one reference short" { "ANALYSIS_ROW_ACCOUNTING_MISMATCH" } else { "ANALYSIS_ROW_SOURCE_BINDING_MISMATCH" },
-                format!("its record does not bind every result row to the rules `{identity}` at the revision the record binds")),
+            _ => (binding.clone(), if label.starts_with("one reference short") { "ANALYSIS_ROW_ACCOUNTING_MISMATCH" } else { "ANALYSIS_ROW_SOURCE_BINDING_MISMATCH" },
+                format!("its record does not hold one matching reference for each published result row under the rules `{identity}` at the revision the record binds")),
         };
         let references = record["analysis_run"]["result_refs"].as_array_mut().unwrap();
         let count = references.len();
@@ -1393,7 +1395,7 @@ fn a_saved_run_bound_to_an_unread_table_revision_is_refused_and_the_store_untouc
             // The run's binding stays the installed one; only the references change.
             match label {
                 "one result reference with another digest" => references.last_mut().unwrap()["semantic_contract"]["sha256"] = json!("5".repeat(64)),
-                "one reference short" => drop(references.pop()),
+                "one reference short" | "one reference short on a result the panel does not render" => drop(references.pop()),
                 "one row's reference repeated" => references[count - 1] = references[0].clone(),
                 _ => record["analysis_run"]["result_refs"] = json!("x".repeat(count)),
             }
@@ -1410,6 +1412,14 @@ fn a_saved_run_bound_to_an_unread_table_revision_is_refused_and_the_store_untouc
             reseal(&mut record);
         }
         Connection::open(&path).unwrap().execute("UPDATE local_projects SET analysis_run_json = ?1", params![serde_json::to_string(&record).unwrap()]).unwrap();
+        if label.ends_with("does not render") {
+            // The stored result keeps its rows and its identity; its summary is no longer an object.
+            let mut result: Value = serde_json::from_str(&column_text(&path, "SELECT mechanics_result_json FROM local_projects")).unwrap();
+            assert!(crate::analysis_run_v03_validate::renderable(&result), "{label}: the saved result renders before it is altered");
+            result["summary"] = json!("not a summary");
+            assert!(!crate::analysis_run_v03_validate::renderable(&result) && result["results"].as_array().is_some_and(|rows| rows.len() == count), "{label}");
+            Connection::open(&path).unwrap().execute("UPDATE local_projects SET mechanics_result_json = ?1", params![serde_json::to_string(&result).unwrap()]).unwrap();
+        }
         let digests = || -> Vec<(std::path::PathBuf, String)> {
             let mut files: Vec<_> = std::fs::read_dir(&dir).unwrap().map(|entry| entry.unwrap().path()).collect();
             files.sort();
@@ -1435,7 +1445,7 @@ fn a_saved_run_bound_to_an_unread_table_revision_is_refused_and_the_store_untouc
         assert_eq!(registry.pool().reserved_total(), 0, "{label}: every lease ended");
         seen.push(code);
     }
-    assert_eq!(seen, ["SOURCE_RECORDED_BINDING_UNKNOWN", "SOURCE_RECORDED_BINDING_UNKNOWN", "SOURCE_RECORDED_BINDING_IDENTITY", "ANALYSIS_ROW_SOURCE_BINDING_MISMATCH", "ANALYSIS_ROW_ACCOUNTING_MISMATCH", "ANALYSIS_ROW_SOURCE_BINDING_MISMATCH", "ANALYSIS_ROW_SOURCE_BINDING_MISMATCH"]);
+    assert_eq!(seen, ["SOURCE_RECORDED_BINDING_UNKNOWN", "SOURCE_RECORDED_BINDING_UNKNOWN", "SOURCE_RECORDED_BINDING_IDENTITY", "ANALYSIS_ROW_SOURCE_BINDING_MISMATCH", "ANALYSIS_ROW_ACCOUNTING_MISMATCH", "ANALYSIS_ROW_SOURCE_BINDING_MISMATCH", "ANALYSIS_ROW_SOURCE_BINDING_MISMATCH", "ANALYSIS_ROW_ACCOUNTING_MISMATCH"]);
 }
 
 /// A reset during the read refuses the registration and drops what was
