@@ -223,8 +223,8 @@ export function RenderedReportPanel({
    * exact-route result that is not numerically eligible). The report package takes only a
    * Current result, so its save buttons stay disabled for it, as the File menu's are. */
   packageNeedsCurrent?: boolean;
-  /** The shown run was restored from the saved project: rendering and the package saves stay
-   * disabled, and say so instead of "Solve first". */
+  /** The shown run was restored from the saved project and no solve is running: rendering and the
+   * package saves stay disabled, and say so instead of "Solve first". */
   restoredRun?: boolean;
   onPackagePrivateIntentChange?: (value: boolean) => void;
   onSaveReportPackage?: () => void;

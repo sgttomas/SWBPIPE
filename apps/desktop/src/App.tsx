@@ -944,7 +944,7 @@ function AppSession() {
                     packageRoute={reportPackageRoute}
                     onPackagePrivateIntentChange={setReportPackagePrivateIntent}
                     packageNeedsCurrent={currentSolvedResult === null}
-                    restoredRun={historicalRun?.designation === "historical_saved_run"}
+                    restoredRun={historicalRun?.designation === "historical_saved_run" && !running}
                     onSaveReportPackage={reportPackageUnavailable ? undefined : () => void handleSaveReportPackage()}
                     onSaveShareableReportPackage={reportPackageUnavailable ? undefined : () => void requestSaveShareableReportPackage()}
                     reportSource={reportOutput.source}
