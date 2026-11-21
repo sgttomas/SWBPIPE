@@ -270,7 +270,10 @@ def _prepass(source: Mapping[str, Any], raw: bool, method: str) -> None:
     cases: list[tuple[str, Mapping[str, Any]]] = []
     case_keys = CASE_KEYS + (["recovery_method"] if joined else [])
     for case in exact:
-        _require(_keys(case, case_keys), "CASE_SHAPE")
+        # DEL-05-01 REQ-014: a hydrostatic test case adds its mark, never on the joined composite (its
+        # shape is the physics pass's).
+        test_case = not joined and isinstance(case, Mapping) and "test_condition" in case
+        _require(_keys(case, case_keys + (["test_condition"] if test_case else [])), "CASE_SHAPE")
         case_id = _text(case["load_case_id"])
         _require(all(known != case_id for known, _ in cases), "CASE_DUPLICATE")
         _require(_eq(case["material_basis"], MATERIAL_BASIS), "MATERIAL_BASIS")

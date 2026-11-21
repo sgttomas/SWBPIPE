@@ -78,8 +78,9 @@ TABLE_SHA256 = physics.TABLE_SHA256
 MODULE = 'core/reporting/result_export/src/load_reference.rs'
 # Model 0.6.0 re-pin: the reader's comments name pressure-2 (comment text only; was c0c75a5d...); T4-U4b re-pin:
 # the case shape admits `intensified_measures` (was 110bb76f...).
-# S6: the reviewed support law/source/classification join and transport schema binding.
-MODULE_SHA256 = '66470124d4226a152560f240408fc232e4fb7485669b1134cd4b5293e7cfd5ea'
+# S6: the reviewed support law/source/classification join and transport schema binding. DEL-05-01 REQ-014: the case
+# shape admits the hydrostatic test mark `test_condition`, never on the joined composite (was 66470124...).
+MODULE_SHA256 = 'c786740b48c67da93cc02cf49ee43cb2d92ac8024024838f305baa235d94ba8a'
 UNITS = physics.UNITS
 DEPENDENCIES = {
     MODULE: MODULE_SHA256,
