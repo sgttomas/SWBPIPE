@@ -6,7 +6,7 @@
  * bind real builders (the grid cell's, the bulk change's, the reconnect's) as the root will, and a pass-through
  * builder where the stamp's allowlist is under test. Every case runs through the session and the actual wasm
  * engine on an invented inline model. DEL-16-06: the binder is out of reach of the agent's host and offline intake. */
-import { act, renderHook, waitFor } from "@testing-library/react";
+import { act, fireEvent, render, renderHook, screen, waitFor } from "@testing-library/react";
 import { useLayoutEffect } from "react";
 import { readdirSync, readFileSync, statSync } from "node:fs";
 import { join, relative, resolve } from "node:path";
@@ -25,6 +25,10 @@ import { buildGridOperationIntent, type GridColumn } from "./table/modelTableAda
 import { useWorkspaceSession } from "./workspaceSession";
 import type { SessionEvent, SessionEventListener } from "./sessionEvents";
 import { useRunSheetStore } from "../model-tree/runSheet/runSheetStore";
+import { buildDeleteNodeIntent } from "../model-tree/removalIntents";
+import { InsertBendAtCornerForm } from "../bend-authoring/BendAuthoringForms";
+import { loadWasmEngine } from "../../services/wasmEngine/loadWasmEngine";
+import bendFixtureJson from "../../../../../fixtures/model_operations/run_sheet_authoring.json";
 import { reconnectModel } from "../../test-support/reconnectModel";
 import { bulkChangeModel } from "../../test-support/bulkChangeModel";
 import type { EditorOperationIntent, EntityRef, PreviewModel } from "../../types";
@@ -213,6 +217,74 @@ describe("form 1: the one-step commit of an immediate edit", () => {
     committed(await run(() => bindCommit(result, newMaterial)({ materialId: "material:new" })));
     expect(result.current.model.model!.materials!.map((material) => material.id)).toContain("material:new");
     expect(result.current.selection.selection).toEqual({ type: "material", id: "material:new" });
+  });
+
+  /** The bend fixture's basis: corner node:C (a 90 degree turn between pipe:BC and pipe:CD) admits a bend. */
+  function bendBasis(): PreviewModel {
+    const model = structuredClone((bendFixtureJson as unknown as { basis_model: PreviewModel }).basis_model);
+    const bc = model.pipe_segments.find((pipe) => pipe.id === "pipe:BC")!;
+    const cd = model.pipe_segments.find((pipe) => pipe.id === "pipe:CD")!;
+    cd.section = structuredClone(bc.section);
+    cd.material = bc.material;
+    return model;
+  }
+  type BendInput = { node: string; radius: string; k: string; kSource: string; geometrySource: string; provenance: string };
+  /** The bend dialog's own form (InsertBendAtCornerForm), filled with the typed values and queued: the intent it builds. */
+  const bendAtCorner: EditorBuilder<BendInput> = {
+    name: "insert-bend-at-corner",
+    role: "gui_editor",
+    input: { members: ["node", "radius", "k", "kSource", "geometrySource", "provenance"], check: (input) => strings(input, "node", "radius", "k", "kSource", "geometrySource", "provenance") ? null : "The bend dialog takes its six entries." },
+    build: async (model, input) => {
+      let queued: EditorOperationIntent | null = null;
+      const view = render(<InsertBendAtCornerForm model={model} node={input.node} selection={{ type: "node", id: input.node }} onQueueIntent={(intent: EditorOperationIntent) => { queued = intent; }} />);
+      const change = (label: string, value: string) => fireEvent.change(screen.getByLabelText(label), { target: { value } });
+      change("Bend radius R value", input.radius);
+      change("Corner bend flexibility factor k", input.k);
+      change("Corner bend source of k", input.kSource);
+      change("Geometry source reference", input.geometrySource);
+      change("Corner bend provenance", input.provenance);
+      fireEvent.click(screen.getByRole("button", { name: "Queue insert bend at corner" }));
+      await waitFor(() => expect(queued).not.toBeNull());
+      view.unmount();
+      return { intent: queued! };
+    }
+  };
+
+  it("a bend inserted at a corner through its dialog's form focuses nothing the engine removed: the corner node is gone, so the selection is pruned (P7)", async () => {
+    const result = await session(bendBasis);
+    act(() => { result.current.selection.handleSelectEntity({ type: "node", id: "node:C" }); });
+    const dialog = bindDialog(result, bendAtCorner);
+    const shown = await run(() => dialog.preview({ node: "node:C", radius: "0.5", k: "1.5", kSource: "invented k (user entry)", geometrySource: "invented geometry source", provenance: "invented bend provenance" }));
+    if (shown.status !== "previewed") throw new Error(`expected a preview, got: ${JSON.stringify(shown)}`);
+    expect(shown.extent.steps.map((step) => [step.changeKind, step.targetType, step.targetRef])).toEqual([["insert_bend_at_corner", "Node", "node:C"]]);
+    committed(await run(() => dialog.commit(shown.handle)));
+    expect(result.current.model.model!.nodes.some((node) => node.id === "node:C")).toBe(false);
+    expect(result.current.selection.selection).not.toEqual({ type: "node", id: "node:C" });
+    expect(result.current.selection.orderedSelection.orderedKeys).not.toContain(JSON.stringify(["node", "node:C"]));
+  });
+
+  it("a batch that creates a node and then deletes it focuses nothing it deleted: the selection is pruned (P7)", async () => {
+    await loadWasmEngine();
+    const result = await session();
+    const before = result.current.selection.selection;
+    type TempInput = { nodeId: string };
+    const createThenDelete: EditorBuilder<TempInput> = {
+      name: "create-then-delete",
+      role: "viewport_editor",
+      input: { members: ["nodeId"], check: (input) => strings(input, "nodeId") ? null : "Takes a node id." },
+      build: (model, input, id) => {
+        const node = { id: input.nodeId, label: "Temporary node", position: { x: 4.5, y: 1.25, z: 0.75 }, provenance: "user_entered_local_preview" };
+        const remove = buildDeleteNodeIntent(node as unknown as PreviewModel["nodes"][number], model)!;
+        const create: EditorOperationIntent = { ...structuredClone(remove), operation_id: `op:create-${input.nodeId}`, operation_kind: "create",
+          change: { ...remove.change, change_id: `change:create-${input.nodeId}`, change_kind: "create_node", field_label: "nodes", before: "not_present",
+            after: JSON.stringify(node), unit: model.project.units.length, dimension: "length", source_note: "invented node, created then deleted" },
+          validation: { ...remove.validation, unit_validation: "not_run" } };
+        return { batch: { batch_id: id.batchId, operations: [create, remove] } };
+      }
+    };
+    committed(await run(() => bindCommit(result, createThenDelete)({ nodeId: "node:temporary" })));
+    expect(result.current.model.model!.nodes.some((node) => node.id === "node:temporary")).toBe(false);
+    expect(result.current.selection.selection).toEqual(before);
   });
 
   it("the applied-batch path's checkpoint event carries no submitted id: the queue path's events are as they were", async () => {

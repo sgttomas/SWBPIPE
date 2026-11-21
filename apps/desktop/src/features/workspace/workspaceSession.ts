@@ -230,6 +230,7 @@ import {
   applyDisplayedRange,
   applySelection,
   emptySelection,
+  entityKey,
   primarySelection,
   pruneSelection,
   sameSelection,
@@ -2818,10 +2819,14 @@ export function useWorkspaceSession() {
       professional_boundary: kept.professional_boundary
     };
     // A12: a commit that creates, inserts or connects focuses what it created (the last such step), as the single
-    // change Apply does; any other commit keeps the selection, pruned to the applied model.
+    // change Apply does; any other commit keeps the selection, pruned to the applied model. P7: only an entity the
+    // applied model holds is focused (a bend inserted at a corner removes the corner node it names; a later step of
+    // the batch may delete what an earlier one created); otherwise the selection is pruned.
     const created = [...kept.operation_outcomes].reverse().find((step) => /^(create_|insert_|connect_)/.test(step.change_kind));
     const createdRef = created ? selectionForOperationOutcome(created as unknown as OperationOutcome) : null;
-    const appliedSelection = createdRef ? singletonSelection(createdRef, liveSelection) : prunedSelectionForPublication(appliedModel);
+    const appliedIndex = modelIndexFor(appliedModel, projectSessionGenerationRef.current, uiModelRevisionRef.current + 1);
+    const appliedSelection = createdRef && appliedIndex.entities.has(entityKey(createdRef))
+      ? singletonSelection(createdRef, liveSelection) : prunedSelectionForPublication(appliedModel);
     const appliedSolveJob = sessionHistoryChangedSolveJob("batch", batch.batch_id);
     let notice: string | null = null;
     let publishEvents: () => void;
