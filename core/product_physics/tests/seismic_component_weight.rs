@@ -1150,3 +1150,214 @@ fn every_frozen_warning_expectation_is_reproduced() {
     // routes and models, the one-ulp boundary on both routes (cantilever only).
     assert_eq!((bound / 2 + limits, warned / 2, limits), (frozen, 6, 2), "every frozen expectation is bound (34)");
 }
+
+/// The self-weight plan's loads for `case_id` (pipes AB, BC and CD, along
+/// global z at `gravity` m/s^2), as the plan writes them for `model`'s
+/// geometry; the plan is generated on the model without its load cases, so
+/// that it may write into a case the document already has.
+fn plan_loads(model: &Value, case_id: &str, gravity: f64) -> Vec<Value> {
+    use open_pipe_stress_product_physics::self_weight::generate_self_weight_operations;
+    let mut model = model.clone();
+    model["load_cases"] = json!([]);
+    let typed: open_pipe_stress_product_physics::PreviewModel = serde_json::from_value(model).unwrap();
+    let request = serde_json::from_value(json!({"case_id": case_id, "label": "invented", "pipe_refs": ["AB", "BC", "CD"],
+        "gravity": {"value": -gravity, "unit": "m/s^2", "axis": "global_z"}, "provenance": PROV,
+        "source_model_hash": format!("sha256:{}", "a".repeat(64))})).unwrap();
+    let plan = generate_self_weight_operations(&typed, &request).expect("the plan");
+    plan.changes[1..].iter().map(|c| serde_json::from_str::<Value>(&c.after).unwrap()).collect()
+}
+/// `load` preserved as a manual override of generated self-weight, its
+/// payload unchanged (`self_weight::MANUAL_OVERRIDE_METHOD`).
+fn overridden(load: &Value) -> Value {
+    let mut load = load.clone();
+    let original: Value = serde_json::from_str(load["provenance"].as_str().unwrap()).unwrap();
+    load["provenance"] = json!(json!({"method": "manual_override_of_generated_self_weight/v1", "original_generation_provenance": original,
+        "decision": "preserve_modified_generated_load", "source_model_hash": format!("sha256:{}", "a".repeat(64))}).to_string());
+    load
+}
+fn is_component_weight(load: &Value) -> bool {
+    load["target"]["type"] == "node"
+}
+fn named(diagnostics: &Value, code: &str, case: &str) -> std::collections::BTreeSet<String> {
+    findings(diagnostics, code, case).iter().map(|f| f["affected_refs"][1].as_str().unwrap().to_string()).collect()
+}
+fn entered_load(id: &str, category: &str, pipe: &str) -> Value {
+    json!({"id": id, "category": category, "target": {"type": "element", "pipe": pipe}, "direction": "global_z",
+        "magnitude": qv(-15.0, "N/m"), "dimension": "force_per_length", "provenance": PROV})
+}
+
+/// REQ-008's weight ground, issue 452 decision 7, as the reference system's
+/// warning references state it (validation/references/
+/// reference_system_generated_loads/README.md, "Seismic model-check
+/// findings"): "1. The weight finding names entered weight-category loads,
+/// including entered distributed member loads", "2. Its exemption covers
+/// fresh applied generated self-weight" and "3. Manual overrides are named."
+/// A seismic case carrying the plan's own loads for itself, one member load
+/// preserved as a manual override, an entered `weight` load and an entered
+/// `distributed_force` load names exactly the override and the two entered
+/// loads, on both routes and in both modes, and the model checks name the
+/// same before the solve. The fresh plan loads are not named. The case's
+/// gravity equals the applied gravity, so there is no gravity finding.
+#[test]
+fn entered_weight_loads_and_manual_overrides_are_named() {
+    for route in [Route::Pf, Route::Ex] {
+        let id = format!("SCW-CANT-{}-SEISMIC-XYZ", route_tag(route));
+        let case_id = format!("case:{id}");
+        let alone = document(route, Model::Cant, ONE_MAPPED, vec![case_of(reference(&id), &case_id)]);
+        let mut loads = plan_loads(&alone["model"], &case_id, 9.79);
+        let member = loads.iter().position(|l| !is_component_weight(l)).unwrap();
+        loads[member] = overridden(&loads[member]);
+        let override_id = loads[member]["id"].as_str().unwrap().to_string();
+        let fresh: Vec<String> = loads.iter().map(|l| l["id"].as_str().unwrap().to_string()).filter(|l| *l != override_id).collect();
+        assert!(fresh.len() >= 3, "{fresh:?}");
+        loads.extend([entered_load("load:entered-weight", "weight", "CD"), entered_load("load:entered-distributed", "distributed_force", "CD")]);
+        let mut case = case_of(reference(&id), &case_id);
+        case["primitive_loads"] = Value::Array(loads);
+        let wire = document(route, Model::Cant, ONE_MAPPED, vec![case]);
+        let expected: std::collections::BTreeSet<String> =
+            [override_id.as_str(), "load:entered-weight", "load:entered-distributed"].iter().map(|s| s.to_string()).collect();
+        let checks = model_checks(&wire);
+        assert_eq!(named(&checks, WEIGHT_LOAD_ENTERED, &case_id), expected, "{id}: the model checks");
+        for mode in MODES {
+            let out = solved(&wire, mode, &id);
+            assert_eq!(named(&out["diagnostics"], WEIGHT_LOAD_ENTERED, &case_id), expected, "{id} {mode:?}");
+            for f in findings(&out["diagnostics"], WEIGHT_LOAD_ENTERED, &case_id) {
+                assert_eq!(f["severity"], "warning");
+                assert_eq!(f["affected_refs"].as_array().unwrap().len(), 2, "{f}");
+            }
+            assert!(codes(&out).iter().any(|c| c == "SELF_WEIGHT_MANUAL_OVERRIDE"), "{id} {mode:?}: the override is the plan's own warning too");
+            assert!(findings(&out["diagnostics"], GRAVITY_DIFFERS, &case_id).is_empty(), "{id} {mode:?}: equal gravities");
+            assert!(findings(&out["diagnostics"], CONDITION_WEIGHT_ADDED, &case_id).is_empty(), "{id} {mode:?}");
+        }
+    }
+}
+
+/// REQ-008's condition ground (issue 452 decision 7): on the pressure-free
+/// route a seismic case that takes added weight from its operating condition
+/// names it, once, with the member it acts on, and does not also name it as
+/// an entered weight load. The model checks raise the same finding.
+#[test]
+fn a_condition_s_added_weight_is_named_on_the_pressure_free_route() {
+    let id = "SCW-CANT-PF-SEISMIC-XYZ";
+    let case_id = format!("case:{id}");
+    let mut case = case_of(reference(id), &case_id);
+    case["condition_use"] = json!({"added_weight": true});
+    let mut wire = document(Route::Pf, Model::Cant, ONE_MAPPED, vec![case]);
+    // Every member names a set (a case using added weight requires it); only
+    // CD's set has an added weight.
+    wire["model"]["condition_sets"] = json!([{"id": "cs:bare", "provenance": PROV},
+        {"id": "cs:insulated", "provenance": PROV, "added_weight": {"magnitude": qv(-50.0, "N/m"), "direction": "global_z"}}]);
+    for (pipe, set) in [(0, "cs:bare"), (1, "cs:bare"), (2, "cs:insulated")] {
+        wire["model"]["pipe_segments"][pipe]["condition_set_ref"] = json!(set);
+    }
+    let load = format!("load:condition-added-weight:{}:{case_id}:2:CD", case_id.len());
+    let checks = model_checks(&wire);
+    for mode in MODES {
+        let out = solved(&wire, mode, id);
+        for diagnostics in [&out["diagnostics"], &checks] {
+            let found = findings(diagnostics, CONDITION_WEIGHT_ADDED, &case_id);
+            assert_eq!(found.len(), 1, "{mode:?}: {found:?}");
+            assert_eq!(found[0]["severity"], "warning");
+            assert_eq!(found[0]["affected_refs"], json!([case_id, load, "CD"]));
+            assert!(findings(diagnostics, WEIGHT_LOAD_ENTERED, &case_id).is_empty(), "{mode:?}: not also an entered weight load");
+        }
+    }
+}
+
+/// REQ-008's gravity ground reads fresh applied component-weight primitives
+/// only (issue 452 decision 7). With the G10 case carrying the plan's own
+/// loads at 9.79 m/s^2 for itself, its fresh valve weight raises the
+/// finding; preserved as a manual override, the valve weight gives no known
+/// gravity, the case has no other, and there is no gravity finding. That is
+/// not agreement: the override is named as an entered weight load instead.
+#[test]
+fn an_overridden_component_weight_gives_no_known_gravity() {
+    for route in [Route::Pf, Route::Ex] {
+        let id = format!("SCW-CANT-{}-SEISMIC-XYZ-G10", route_tag(route));
+        let case_id = format!("case:{id}");
+        let alone = document(route, Model::Cant, ONE_MAPPED, vec![case_of(reference(&id), &case_id)]);
+        let loads = plan_loads(&alone["model"], &case_id, 9.79);
+        let valve = loads.iter().filter(|l| is_component_weight(l)).map(|l| l["id"].as_str().unwrap().to_string()).collect::<Vec<_>>();
+        assert!(!valve.is_empty());
+        for overriding in [false, true] {
+            let mut case = case_of(reference(&id), &case_id);
+            case["primitive_loads"] = loads.iter().map(|l| if overriding && is_component_weight(l) { overridden(l) } else { l.clone() }).collect::<Vec<_>>().into();
+            let wire = document(route, Model::Cant, ONE_MAPPED, vec![case]);
+            let checks = model_checks(&wire);
+            for mode in MODES {
+                let out = solved(&wire, mode, &id);
+                for diagnostics in [&out["diagnostics"], &checks] {
+                    let gravity = findings(diagnostics, GRAVITY_DIFFERS, &case_id);
+                    let entered = named(diagnostics, WEIGHT_LOAD_ENTERED, &case_id);
+                    if overriding {
+                        assert!(gravity.is_empty(), "{id} {mode:?}: an overridden weight gives no known gravity: {gravity:?}");
+                        assert_eq!(entered, valve.iter().cloned().collect(), "{id} {mode:?}: the overrides are named");
+                    } else {
+                        assert_eq!(gravity.len(), 1, "{id} {mode:?}: the case's own fresh valve weight");
+                        assert!(entered.is_empty(), "{id} {mode:?}: fresh generated self-weight is not named: {entered:?}");
+                    }
+                }
+            }
+        }
+    }
+}
+
+/// No gravity finding on a case the component plan refuses (issue 452
+/// decision 7). With the valve's weight 4e-323 N the self-weight plan forms
+/// its weight and moments, and the G10 case beside it at a different
+/// gravity is refused by name (EQUIVALENT_STATIC_COMPONENT_RANGE_INVALID: the
+/// x force 0.3 W is about 1e-323 N, and its moment about y, 0.125 m times
+/// that, rounds to zero); neither the model checks nor the solve raise the
+/// gravity finding for it.
+#[test]
+fn a_refused_case_has_no_gravity_finding() {
+    let tiny = Components { valve_weight: 4.0e-323, valve_consumed: true, flange: false };
+    for route in [Route::Pf, Route::Ex] {
+        let id = format!("SCW-CANT-{}-SEISMIC-XYZ-G10", route_tag(route));
+        let case_id = format!("case:{id}");
+        let alone = document(route, Model::Cant, tiny, vec![case_of(reference(&id), &case_id)]);
+        let weight = applied_weight_case(&alone["model"], 9.79);
+        // The seismic case first, so that it is formed before the weight case
+        // (whose tiny weight leaves its own standing unresolved) is solved.
+        let wire = document(route, Model::Cant, tiny, vec![case_of(reference(&id), &case_id), weight]);
+        assert!(findings(&model_checks(&wire), GRAVITY_DIFFERS, &case_id).is_empty(), "{id}: the model checks");
+        for mode in MODES {
+            let out = run(&wire, mode);
+            assert!(codes(&out).iter().any(|c| c == "EQUIVALENT_STATIC_COMPONENT_RANGE_INVALID"), "{id} {mode:?}: {:?}", codes(&out));
+            assert!(findings(&out["diagnostics"], GRAVITY_DIFFERS, &case_id).is_empty(), "{id} {mode:?}");
+        }
+    }
+}
+
+/// A stale or modified self-weight plan is refused before the warning is
+/// considered: with the G10 case beside the plan's weight case, changing the
+/// valve's entered weight after generation (stale) or the applied valve
+/// weight itself (modified) refuses the document by the plan's own code, and
+/// neither the model checks nor the solve raise any of the three findings.
+#[test]
+fn a_stale_or_modified_plan_is_refused_before_the_warning() {
+    for route in [Route::Pf, Route::Ex] {
+        let id = format!("SCW-CANT-{}-SEISMIC-XYZ-G10", route_tag(route));
+        let case_id = format!("case:{id}");
+        let alone = document(route, Model::Cant, ONE_MAPPED, vec![case_of(reference(&id), &case_id)]);
+        let weight = applied_weight_case(&alone["model"], 9.79);
+        let mut stale = document(route, Model::Cant, ONE_MAPPED, vec![weight.clone(), case_of(reference(&id), &case_id)]);
+        stale["model"]["components"][0]["geometry"]["weight"] = qv(2400.0, "N");
+        let mut modified = document(route, Model::Cant, ONE_MAPPED, vec![weight, case_of(reference(&id), &case_id)]);
+        let valve = modified["model"]["load_cases"][0]["primitive_loads"].as_array_mut().unwrap().iter_mut().find(|l| is_component_weight(l)).unwrap();
+        valve["magnitude"]["value"] = json!(valve["magnitude"]["value"].as_f64().unwrap() * 2.0);
+        for (what, wire, code) in [("stale", stale, "SELF_WEIGHT_INPUTS_STALE"), ("modified", modified, "SELF_WEIGHT_GENERATED_LOAD_MODIFIED")] {
+            let checks = model_checks(&wire);
+            for mode in MODES {
+                let out = run(&wire, mode);
+                assert_eq!(out["status"]["mechanics"], "MODEL_INCOMPLETE", "{id} {what} {mode:?}");
+                for diagnostics in [&out["diagnostics"], &checks] {
+                    assert!(diagnostics.as_array().unwrap().iter().any(|d| d["code"] == code && d["severity"] == "blocking"), "{id} {what}: {diagnostics}");
+                    for warning in [GRAVITY_DIFFERS, WEIGHT_LOAD_ENTERED, CONDITION_WEIGHT_ADDED] {
+                        assert!(diagnostics.as_array().unwrap().iter().all(|d| d["code"] != warning), "{id} {what} {mode:?}: {warning}");
+                    }
+                }
+            }
+        }
+    }
+}
