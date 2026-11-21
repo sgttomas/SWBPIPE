@@ -4,7 +4,8 @@ import { numericalResultStanding, type NumericalStanding } from "../results/resu
 import { numericalHealthHold, numericalHealthView, readNumericalHealth, type NumericalHealthHold } from "../results/numericalHealth";
 import { isFreshSemanticResult } from "../results/knownSemanticLimitations";
 import { takesReportAdmission } from "../report/exactReportAdmission";
-import { renderableReportSource } from "../report/renderableReportSource";
+import { renderableReportSource, STANDING_FINDINGS } from "../report/renderableReportSource";
+import { packageStandingGround as standingGroundOf, type PackageStandingGround } from "../report/reportPackageRequest";
 import { useMemo, useRef, useState } from "react";
 import { useSequencedState } from "./reportSourceSequence";
 import type { CurrentSessionInputManifestEvidence } from "../../services/inputManifestService";
@@ -147,6 +148,15 @@ export function useResultsSessionState(advanceReportSource?: () => number) {
     mechanicsSolved: result?.status?.mechanics === "MECHANICS_SOLVED",
     standing
   });
+  // DEL-08-01 REQ-024, LIM-016: why a solved result that meets every other Current requirement,
+  // and whose findings all state its standing, is not numerically eligible ("health" or
+  // "record", `packageStandingGround`); null for every other result, an eligible one included.
+  // The package refusals' words follow it; it admits nothing.
+  const packageStandingGround: PackageStandingGround | null = result && !numericallyEligible && otherCurrentRequirementsHold
+    && result.status?.mechanics === "MECHANICS_SOLVED" && standing !== null && standing.findings.length > 0
+    && standing.findings.every((finding) => STANDING_FINDINGS.includes(finding))
+    ? standingGroundOf(result as Pick<MechanicsResult, "numerical_quality">)
+    : null;
   // DEL-07-05 numerical health: the Rust indicator for this result with the reader's
   // findings from the standing above. Presentation only; it reads nothing back into
   // Current standing or any output gate.
@@ -260,6 +270,9 @@ export function useResultsSessionState(advanceReportSource?: () => number) {
     currentSolvedResult,
     /** The result the rendered report takes (see above); never an input to any other output. */
     renderableSolvedResult,
+    /** Why `result`, solved and current in every other respect, is not numerically eligible, for
+     * the package refusals' words; null otherwise. */
+    packageStandingGround,
     /** The reader's numerical standing of `result` (`standing.eligible`), for the viewport's
      * result overlays; it admits nothing by itself. */
     numericallyEligible,

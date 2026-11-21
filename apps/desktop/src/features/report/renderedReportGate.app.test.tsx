@@ -186,7 +186,7 @@ describe("the rendered report of a solved exact-route result that is not numeric
     expect(within(panel).getByTestId("rendered-report-precondition")).toBeInTheDocument();
     act(() => nativeMenuCommand("file.save-report-package"));
     await waitFor(() => expect(within(screen.getByTestId("rendered-report-panel")).getByTestId("report-package-save-status")).toHaveTextContent(
-      "Not saved: report-package save needs the current mechanics result and analysis-run record. Solve first."
+      "Report package not saved: the model has no current result. Solve it, then save. Nothing was written."
     ));
 
     act(() => nativeMenuCommand("analyze.run"));

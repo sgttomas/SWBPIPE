@@ -174,7 +174,7 @@ import type {
 } from "../../types";
 import { defaultSelection } from "../model-workspace/modelView";
 import { intentKey } from "../operations/OperationApplyPanel";
-import { buildReportPackageRequest, reportPackageExactSubmission, userReleaseModelRefusal, userReleasedReportPackageUnavailableReason } from "../report/reportPackageRequest";
+import { buildReportPackageRequest, REPORT_PACKAGE_NO_CURRENT_RESULT, REPORT_PACKAGE_NOT_CURRENT_ELIGIBLE, reportPackageExactSubmission, reportPackageNotSavedText, ReportPackageStandingRefusal, userReleaseModelRefusal, userReleasedReportPackageUnavailableReason } from "../report/reportPackageRequest";
 import type { UserReleaseDialogRequest } from "../report/UserReleaseDialog";
 import { takesReportAdmission } from "../report/exactReportAdmission";
 import { invokeUserReleasedReportPackageSave, prepareShareableReportPackageSave, type UserReleaseConfirmation } from "../report/userReleasedReportPackageSave";
@@ -329,6 +329,7 @@ function adoptNativeSave(reply: NativeProjectSave, model: PreviewModel, editorIn
 }
 
 function formatPackageSaveError(error: unknown): string {
+  if (error instanceof ReportPackageStandingRefusal) return reportPackageNotSavedText(error);
   if (error instanceof Error) return error.message;
   if (error && typeof error === "object") {
     try {
@@ -612,6 +613,7 @@ export function useWorkspaceSession() {
     numericallyEligible,
     numericalHealth,
     numericalHealthHold,
+    packageStandingGround,
     analysisRun, setAnalysisRun,
     resultBasisRef,
     analysisBasisRef,
@@ -4177,9 +4179,9 @@ export function useWorkspaceSession() {
     if (!model) return "Not saved: no model was open.";
     if (running) return "Not saved: a solve was running. Save the report package when it has finished.";
     if (reportPackageBusy || reportPackageBusyGenerationRef.current !== null) return "Not saved: a report package was already being saved.";
-    if (!renderableSolvedResult && result) return "Not saved: report-package save needs the current, numerically eligible mechanics result.";
+    if (!renderableSolvedResult && result) return packageStandingGround ? reportPackageNotSavedText(new ReportPackageStandingRefusal(packageStandingGround, null)) : REPORT_PACKAGE_NOT_CURRENT_ELIGIBLE;
     if (!renderableSolvedResult || !analysisRun || !inputManifest) {
-      return "Not saved: report-package save needs the current mechanics result and analysis-run record. Solve first.";
+      return REPORT_PACKAGE_NO_CURRENT_RESULT;
     }
     return null;
   }

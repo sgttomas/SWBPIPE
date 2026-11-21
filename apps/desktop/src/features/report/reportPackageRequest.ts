@@ -99,6 +99,56 @@ export function reportPackageUnavailableReason(result: SessionResult | null | un
   return surfaceRouteRefusal(result, "report-package");
 }
 
+/** The code of a package request whose pressure-free source is not numerically eligible (the
+ * result-export builder's, `buildCurrentResultExport`; LIM-016). On the desktop only a pressure-free
+ * Euler–Bernoulli result meets it: a pressure-free Timoshenko result takes the report admission. */
+export const CURRENT_NUMERICAL_INTEGRITY_NEEDS_RECOMPUTE = "CURRENT_NUMERICAL_INTEGRITY_NEEDS_RECOMPUTE";
+
+/** Why a solved result that is current in every other respect is not numerically eligible, for
+ * the package refusals' words (DEL-08-01 REQ-024; LIM-016): "health" where some load case's solve
+ * quality is not checks passed; "record" where every load case reads checks passed and a case's
+ * record is still not the eligible one (its evidence references, `reader_verdict.rs`
+ * `ordinary_case_eligible`). Read from the result's own numerical quality, so it is meaningful
+ * only for a result already known not to be eligible. */
+export type PackageStandingGround = "health" | "record";
+export function packageStandingGround(result: Pick<MechanicsResult, "numerical_quality">): PackageStandingGround {
+  const quality = result.numerical_quality;
+  const cases = quality?.cases ?? [];
+  return quality?.status !== "checks_passed" || cases.some((item) => item.solve_quality !== "checks_passed") ? "health" : "record";
+}
+
+/** What a person reads, by ground (one constant each, so that a word can change): a refusal's
+ * reading, without its lead, full stop or tail. */
+export const PACKAGE_STANDING_WORDS: Readonly<Record<PackageStandingGround, Readonly<{ reading: string }>>> = Object.freeze({
+  health: Object.freeze({ reading: "this result's numerical health does not allow one" }),
+  record: Object.freeze({ reading: "a load case's numerical record is incomplete" })
+});
+/** The File menu's package save for a solve output the rendered report does not take and whose
+ * ground is not known (not solved, not readable, an identity that is not Current, a standing not
+ * yet read). */
+export const REPORT_PACKAGE_NOT_CURRENT_ELIGIBLE = "Report package not saved: no report is available for this solve. Nothing was written.";
+/** The File menu's package save where the model has no current result. */
+export const REPORT_PACKAGE_NO_CURRENT_RESULT = "Report package not saved: the model has no current result. Solve it, then save. Nothing was written.";
+
+/** A package request refused because its pressure-free source is not numerically eligible. The
+ * refusal is data: `code` (`CURRENT_NUMERICAL_INTEGRITY_NEEDS_RECOMPUTE`), `ground`, `reading`
+ * (the reason alone) and `instead` (what the person can do, or null); `message` is for logs. A
+ * surface composes its own sentence from these (`reportPackageNotSavedText`). */
+export class ReportPackageStandingRefusal extends Error {
+  readonly code = CURRENT_NUMERICAL_INTEGRITY_NEEDS_RECOMPUTE;
+  readonly reading: string;
+  constructor(readonly ground: PackageStandingGround, readonly instead: string | null) {
+    super(`${CURRENT_NUMERICAL_INTEGRITY_NEEDS_RECOMPUTE}: ${PACKAGE_STANDING_WORDS[ground].reading}`);
+    this.name = "ReportPackageStandingRefusal";
+    this.reading = PACKAGE_STANDING_WORDS[ground].reading;
+  }
+}
+
+/** The package save status line's sentence for a standing refusal. */
+export function reportPackageNotSavedText(refusal: Pick<ReportPackageStandingRefusal, "reading" | "instead">): string {
+  return `Report package not saved: ${refusal.reading}. Nothing was written.${refusal.instead ? ` ${refusal.instead}` : ""}`;
+}
+
 /** The identities a shareable (user-released, route `DREP-PACKAGE-USER-RELEASE-010`) package
  * admits: a pressure-free Euler–Bernoulli `preview-physics-2` result (record 1.0.0); since D-6
  * (owner, 2026-10-29; DEL-08-01 Design `report-user-release.md` §11), a `pressure-2` or
