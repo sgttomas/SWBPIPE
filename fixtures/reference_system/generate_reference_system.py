@@ -282,7 +282,8 @@ LEDGER = [
      "is not a base restraint), with RS-G1 unqualified (core/product_physics/tests/rt_a3_s6_reference_system.rs)"),
     ("RS-SUS, RS-OPE and RS-OPE-REF (thermal; modulus by temperature, or the 20 °C modulus with its stated basis)",
      "in tranche 1 as linear cases (load/reference-state group)", "—", "—"),
-    ("RS-EXP", "in tranche 1 as a subtraction, RS-OPE-REF - RS-SUS; `difference_basis` pending",
+    ("RS-EXP", "in tranche 1 as a subtraction, RS-OPE-REF - RS-SUS; `difference_basis` pending; on the exact route "
+               "the declared basis follows after v1.0 (LIM-038)",
      "RT-A5 slice 1b / load-cases lane (0.9.0)", "basis not recorded"),
     ("RS-WIN, RS-EQX, RS-EQY, RS-EQZ on the document that carries temperature", "pending",
      "#1678 / load-cases lane", "`EXACT_EQUIVALENT_STATIC_LOAD_STATE_UNSUPPORTED`"),

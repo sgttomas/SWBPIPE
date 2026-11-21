@@ -1660,7 +1660,7 @@
       "family": "RS-EXP",
       "in_tranche_1": true,
       "row_lane": "RT-A5 slice 1b / load-cases lane (0.9.0)",
-      "state": "in tranche 1 as a subtraction, RS-OPE-REF - RS-SUS; `difference_basis` pending"
+      "state": "in tranche 1 as a subtraction, RS-OPE-REF - RS-SUS; `difference_basis` pending; on the exact route the declared basis follows after v1.0 (LIM-038)"
     },
     {
       "entities": [

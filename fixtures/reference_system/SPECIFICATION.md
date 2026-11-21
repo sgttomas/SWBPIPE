@@ -408,7 +408,7 @@ EX, the anchor movement is `analysis_state.support_states[].boundary_motion` wit
 
 | Combination | Basis | Operands | Analysis |
 |---|---|---|---|
-| RS-EXP | `result_state_subtraction` with a required `difference_basis`, pending in the fixture (§10) | RS-OPE-REF − RS-SUS | Expansion with its basis |
+| RS-EXP | `result_state_subtraction` with a required `difference_basis`, pending in the fixture (§10); on the exact route the declared basis follows after v1.0 (LIM-038) | RS-OPE-REF − RS-SUS | Expansion with its basis |
 | RS-dWIN | `result_state_subtraction` | RS-WIN − RS-SUS | Wind term |
 | RS-dEQX, RS-dEQY, RS-dEQZ | `result_state_subtraction` | RS-EQX, RS-EQY, RS-EQZ, each − RS-SUS | Seismic terms |
 | RS-dSAM | `result_state_subtraction` | RS-SAM − RS-SUS | Anchor movement term |
@@ -597,7 +597,7 @@ that owns it under exit criterion 1.
 | Lift-off, friction and gap (RS-LO1, RS-FR1, RS-G1) | pending | `support:RS-LO1`, `support:RS-FR1`, `support:RS-G1` | absent |
 | RS-FR1 with RS-FR1V: lift-off friction shoe pending RT-A3 S7 | pending; RS-FR1V is in tranche 1 as an interim linear `vertical_support` UZ | `support:RS-FR1V` | RS-FR1V solved as a linear vertical support; no one-way support and no friction |
 | RS-SUS, RS-OPE and RS-OPE-REF (thermal; modulus by temperature, or the 20 °C modulus with its stated basis) | in tranche 1 as linear cases (load/reference-state group) | — | solved |
-| RS-EXP | in tranche 1 as a subtraction, RS-OPE-REF - RS-SUS; `difference_basis` pending | — | solved as a subtraction of RS-OPE-REF and RS-SUS, with no `difference_basis` |
+| RS-EXP | in tranche 1 as a subtraction, RS-OPE-REF - RS-SUS; `difference_basis` pending; on the exact route the declared basis follows after v1.0 (LIM-038) | — | solved as a subtraction of RS-OPE-REF and RS-SUS, with no `difference_basis` |
 | RS-WIN, RS-EQX, RS-EQY, RS-EQZ on the document that carries temperature | pending | `load:RS-WIN`, `load:RS-EQX`, `load:RS-EQY`, `load:RS-EQZ`, `combination:RS-dWIN`, `combination:RS-dEQX`, `combination:RS-dEQY`, `combination:RS-dEQZ` | absent; on EX they would meet §8.7's refusal |
 | RS-SAM (`boundary_motion` on rigid anchor RS-C) | in tranche 1, on the load/reference-state document beside the temperature state | — | solved |
 | RS-EQ-SRSS, RS-EQ-ABS, RS-OCC-SRSS, RS-OCC-ABS | pending | `combination:RS-EQ-SRSS`, `combination:RS-EQ-ABS`, `combination:RS-OCC-SRSS`, `combination:RS-OCC-ABS` | absent |
