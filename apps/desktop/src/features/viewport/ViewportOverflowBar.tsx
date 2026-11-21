@@ -159,7 +159,6 @@ export function ViewportOverflowBar({ label, groups, menuGroups }: { label: stri
         <button
           aria-controls={open ? menuId : undefined}
           aria-expanded={open}
-          aria-haspopup="true"
           aria-label={moreName}
           className="viewport-more-button"
           data-testid="viewport-more"
