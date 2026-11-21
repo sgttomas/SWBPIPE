@@ -1593,6 +1593,7 @@
    "paths": [
     "apps/desktop/src/features/caepipe-mbf/mbfImport.ts",
     "apps/desktop/src/features/geometry-tools/geometryDraft.ts",
+    "apps/desktop/src/features/load-cases/HydrostaticTestSection.tsx",
     "apps/desktop/src/features/model-settings/modelSettingsIntents.ts",
     "apps/desktop/src/features/native-package/NativePackagePanel.tsx",
     "apps/desktop/src/features/pressure-authoring/PressureAuthoringPanel.tsx",

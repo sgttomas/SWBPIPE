@@ -1,7 +1,7 @@
 import { PressureAuthoringPanel, PressureRegionsEditor } from "../pressure-authoring/PressureAuthoringPanel";
 import { LoadReferenceStateInputs } from "./LoadReferenceStateInputs";
 import { ConditionUseControl, describeUse } from "../condition-sets/ConditionUseControl";
-import { isPressureFree } from "../condition-sets/conditionSetIntents";
+import { isPressureFree, storedTestCondition } from "../condition-sets/conditionSetIntents";
 import {
   OPERATING_DIFFERENCE_BASIS,
   OPERATING_DIFFERENCE_EXACT_REFUSAL,
@@ -59,6 +59,7 @@ import {
   type TermDraft
 } from "./combinationAuthoring";
 import { SeismicTemplateSection } from "./SeismicTemplateSection";
+import { HydrostaticTestSection, hydrostaticSummary } from "./HydrostaticTestSection";
 import { SEISMIC_TEMPLATE_LABEL, SEISMIC_TEMPLATE_PROVENANCE } from "./seismicTemplate";
 import { isLoadStateModel } from "./loadStateAuthoring";
 import { CaseSectionList, CreateForm, More, basisLabel, categoryLabel, directionLabel, plural, shortRef, type CaseSection } from "./LoadsPageParts";
@@ -1121,6 +1122,15 @@ export function LoadCaseManagerPanel({
       hasContent: (selectedLoadCase.pressure_regions?.length ?? 0) > 0,
       render: () => (
         <PressureRegionsEditor model={model} selection={selection} queuedIntents={queuedIntents} operationBusy={operationBusy} preparationEpoch={preparationEpoch} getPreparationEpoch={getPreparationEpoch} onQueueIntent={onQueueIntent} loadCase={selectedLoadCase} />
+      )
+    },
+    {
+      id: "hydrostatic-test",
+      title: "Hydrostatic test",
+      summary: hydrostaticSummary(selectedLoadCase),
+      hasContent: storedTestCondition(selectedLoadCase) !== undefined,
+      render: () => (
+        <HydrostaticTestSection model={model} queuedIntents={queuedIntents} operationBusy={operationBusy} preparationEpoch={preparationEpoch} getPreparationEpoch={getPreparationEpoch} onQueueIntent={onQueueIntent} loadCase={selectedLoadCase} />
       )
     },
     {

@@ -2169,6 +2169,24 @@ fieldset.viewport-intent-controls {
 .app-shell .load-case-manager-panel .loads-primary-button:not(:disabled) { color: var(--text-inverse); background-color: var(--accent-fill); border-color: var(--accent-fill); font-weight: var(--type-weight-semibold); }
 .app-shell .load-case-manager-panel .loads-quiet-button { border-color: var(--surface-sunken); background-color: var(--surface-sunken); color: var(--text-secondary); }
 
+/* The case's Wind, Seismic and Hydrostatic test sections: a value with its unit beside it, a
+   switch, a short list of stated values, and the engine's findings. */
+.loads-static, .loads-hydrotest { display: grid; gap: var(--space-4); min-width: 0; }
+.loads-value-entry { display: flex; align-items: center; gap: var(--space-2); min-width: 0; }
+.app-shell .loads-value-entry > input { flex: 1 1 6rem; width: auto; min-width: 0; margin: 0; }
+.app-shell .loads-value-entry > .loads-unit-input { flex: 0 1 6.5rem; }
+.loads-unit { flex: none; min-width: 1.5rem; color: var(--text-secondary); }
+.loads-switch { display: inline-flex; align-items: center; gap: var(--space-2); width: max-content; font-weight: var(--type-weight-semibold); }
+.app-shell .loads-switch > input { margin: 0; }
+.loads-values { display: grid; grid-template-columns: max-content minmax(0, 1fr); gap: var(--space-1) var(--space-4); margin: 0; }
+.loads-values dt { color: var(--text-secondary); }
+.loads-values dd { margin: 0; }
+.loads-findings { display: grid; gap: var(--space-2); margin: 0; padding: 0; list-style: none; }
+.loads-findings > li { display: grid; gap: var(--space-1); padding: var(--space-2) var(--space-4); border-left: var(--border-width-selectionBar) solid var(--border-strong); background-color: var(--surface-sunken); }
+.loads-findings > li[data-severity="blocking"], .loads-findings > li[data-severity="error"] { border-left-color: var(--status-failedInk); }
+.loads-findings code { font-size: var(--type-size-chip); color: var(--text-secondary); }
+.loads-finding-message { color: var(--text-secondary); overflow-wrap: anywhere; }
+
 .loads-more > summary { width: max-content; color: var(--text-secondary); }
 .loads-more > .loads-fields { padding-top: var(--space-3); }
 .loads-more > .loads-fields > .loads-picker { flex: 1 1 100%; }

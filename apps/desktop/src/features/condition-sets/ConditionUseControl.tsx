@@ -4,7 +4,11 @@
 //   and the `added_weight: true` and `wind_exposure: true` marks. An unticked mark and an
 //   unchosen key are absent ("not used"); `false` is never written. Pressure and contents
 //   are shown refused by name and offer no input.
-// - Documents with `pressure_contract`: the control is refused by name and offers no input.
+// - Documents with `pressure_contract`: the control is refused by name and offers no input,
+//   with one exception (DEL-05-01 REQ-014): on a hydrostatic test case the test contents
+//   (`contents_density` alone) are admitted. They are chosen in the case's Hydrostatic test
+//   section, the one place a person sets them; here the stored choice is shown and every
+//   other member stays refused by name.
 // The whole ConditionUse object is written with `set_load_case_condition_use`, or removed
 // with `clear_load_case_condition_use`, after the operation engine has checked it. The
 // per-pipe resolution shown is the engine's own (`previewOperatingConditions`); the desktop
@@ -13,7 +17,7 @@ import { useEffect, useState } from "react";
 import type { ConditionUse, PreviewModel } from "../../types";
 import { previewOperatingConditions, type OperatingConditionPreview } from "../../services/operatingConditionPreviewService";
 import { disabledBy, stableJson, useReseed } from "../model-data/modelDataIntents";
-import { NOT_USED_BY_SOLVE, conditionKeys, conditionUseIntent, isPressureFree } from "./conditionSetIntents";
+import { NOT_USED_BY_SOLVE, conditionKeys, conditionUseIntent, isPressureFree, storedTestCondition } from "./conditionSetIntents";
 import { EngineFeedback, useEngineCheckedQueue, type EngineCheckedQueueProps } from "./engineCheckedQueue";
 
 type LoadCase = PreviewModel["load_cases"][number];
@@ -21,6 +25,11 @@ type LoadCase = PreviewModel["load_cases"][number];
 export const REFUSED_EXACT = {
   code: "LOAD_CASE_CONDITION_USE_EXACT_UNSUPPORTED",
   text: "Condition use is refused on a document with a pressure contract until the exact route resolves it; no input is offered."
+} as const;
+/** On a document with a pressure contract, a hydrostatic test case admits its test contents only. */
+export const REFUSED_EXACT_TEST_CASE = {
+  code: REFUSED_EXACT.code,
+  text: "Temperature, pressure, added weight and wind exposure from conditions are refused on a document with a pressure contract; no input is offered."
 } as const;
 export const REFUSED_PRESSURE = {
   code: "LOAD_CASE_CONDITION_PRESSURE_WITHOUT_PRESSURE_CONTRACT",
@@ -79,7 +88,14 @@ export function ConditionUseControl(props: EngineCheckedQueueProps & { loadCase:
       <p data-testid="load-condition-use-current">
         {stored ? `Stored use: ${describeUse(stored)}.` : "This case uses no conditions."}
       </p>
-      {!pressureFree ? (
+      {!pressureFree && storedTestCondition(loadCase) !== undefined ? (
+        <>
+          <p data-testid="load-condition-use-test-contents">
+            Test contents: {typeof stored?.contents_density === "string" ? stored.contents_density : "not chosen"}, set in the Hydrostatic test section.
+          </p>
+          <p role="note" data-testid="load-condition-use-refused-exact"><strong>Refused: {REFUSED_EXACT_TEST_CASE.code}</strong> — {REFUSED_EXACT_TEST_CASE.text}</p>
+        </>
+      ) : !pressureFree ? (
         <p role="note" data-testid="load-condition-use-refused-exact"><strong>Refused: {REFUSED_EXACT.code}</strong> — {REFUSED_EXACT.text}</p>
       ) : (
         <>

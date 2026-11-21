@@ -12,7 +12,11 @@
 // - assign_condition_set: `Element`, `condition_set_ref`; `before` `{"condition_set_ref":id}`
 //   canonical or `not_present`; `after` `{"condition_set_ref":id}`, or `not_present` to clear;
 // - set_load_case_condition_use / clear_load_case_condition_use: `Load`, `condition_use`;
-//   `after` the whole ConditionUse object (set) or `not_present` (clear).
+//   `after` the whole ConditionUse object (set) or `not_present` (clear);
+// - set_load_case_test_condition / clear_load_case_test_condition (DEL-05-01 REQ-014):
+//   `Load`, `test_condition`; `after` `{"kind":"hydrostatic","held_supports":…}` (set) or
+//   `not_present` (clear). A test case's contents are its `condition_use` of
+//   `{"contents_density":key}` alone.
 import type {
   ConditionDirection,
   ConditionSet,
@@ -385,6 +389,41 @@ export async function conditionUseIntent(canonicalize: Canonicalize, loadCase: L
     objectType: "Load", ref: loadCase.id, changeKind: next === null ? "clear_load_case_condition_use" : "set_load_case_condition_use", fieldPath: "condition_use",
     before, after: next === null ? NOT_PRESENT : JSON.stringify(next), label: next === null ? "Clear condition use" : "Set condition use"
   }), "User-chosen condition use of this load case; absent members are not used and nothing is defaulted.");
+}
+
+/** DEL-05-01 REQ-014: a load case's hydrostatic test condition. Both members are entered;
+ * neither is defaulted. */
+export type HeldSupports = "springs_and_constant_effort" | "none";
+export type TestCondition = { kind: "hydrostatic"; held_supports: HeldSupports };
+export const HELD_SUPPORTS: readonly HeldSupports[] = ["springs_and_constant_effort", "none"];
+
+/** The case's stored test condition as stored (any value), or undefined when it has none.
+ * `types.ts` does not declare the member yet, so it is read here by name. */
+export function storedTestCondition(loadCase: LoadCase): unknown {
+  return (loadCase as LoadCase & { test_condition?: unknown }).test_condition;
+}
+
+/** Set (`next` the whole condition) or clear (`next` null) a load case's test condition, in
+ * the pattern of `conditionUseIntent`: the canonical stored condition, or `not_present`, before. */
+export async function testConditionIntent(canonicalize: Canonicalize, loadCase: LoadCase, next: TestCondition | null): Promise<EditorOperationIntent> {
+  const stored = storedTestCondition(loadCase);
+  const before = stored === undefined ? NOT_PRESENT : await canonicalize(stored);
+  return withSource(modelDataIntent({
+    objectType: "Load", ref: loadCase.id, changeKind: next === null ? "clear_load_case_test_condition" : "set_load_case_test_condition", fieldPath: "test_condition",
+    before, after: next === null ? NOT_PRESENT : JSON.stringify(next), label: next === null ? "Clear hydrostatic test" : "Set hydrostatic test"
+  }), "User-chosen hydrostatic test condition of this load case; both members are entered and nothing is defaulted.");
+}
+
+/** The condition keys whose conditions state a contents density, each with the densities stated
+ * for it (one per set that states it), in first-appearance order. */
+export function contentsKeys(model: PreviewModel): Array<{ key: string; densities: QuantityValue[] }> {
+  const found: Array<{ key: string; densities: QuantityValue[] }> = [];
+  for (const set of model.condition_sets ?? []) for (const condition of set.conditions ?? []) {
+    if (typeof condition.key !== "string" || !condition.key || !isQuantity(condition.contents_density)) continue;
+    const entry = found.find((item) => item.key === condition.key) ?? (found[found.length] = { key: condition.key, densities: [] });
+    entry.densities.push(condition.contents_density);
+  }
+  return found;
 }
 
 /** Every pipe whose `condition_set_ref` names the set, in model order. */
