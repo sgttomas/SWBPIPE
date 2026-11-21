@@ -94,8 +94,9 @@ results with".
   are out of scope: users enter their own k and SIF.
 - **Numerical claims.** For v1.0 the product makes no verified-bound claim it
   cannot support. A result states its integrity check as not verified rather
-  than as passed, as exit criterion 18 provides where the bound is not
-  established. The full proof, the verified inverse-norm bound
+  than as passed, and a converged nonlinear support state as not confirmed
+  (exit criterion 18). Such a result is still read, checked against the
+  user's rules, exported and reported, with that standing stated. The full proof, the verified inverse-norm bound
   (DEL-04-01/REQ-015), follows after v1.0. Agent 0 decided this on 2026-11-20 under the grant in
   `AGENTS.md`; LIM-026 states the present defect.
 - **Exact-route results under user release.** Route 010 admits exact-route results with exact source binding, exact sections and limitations, Diagnostics binding and producer item 9 (DEL-08-01, REQ-019).
@@ -394,6 +395,18 @@ target remains adequate. A failure alone does not justify relaxing one.
   releasing.
 - The native-smoke `expected.json` values.
 - Amending `docs/PRD.md`.
+
+Where an item listed here must change only as the direct consequence of a
+decision Agent 0 has made on the product's own grounds, Agent 0 makes the
+change and states it in the pull request. The owner, on 2026-11-20: "You can
+have my delegated authority in matters consistent with this pattern I've just
+provided. (coherent and consistency in those four aspects in support of
+engineering judgment to keep the design implementation moving forward)"; the
+four aspects are what the application is, what it can know, what it does and
+what it values. This does not reach the owner's acts: release and
+publication, licence, legal and professional sign-off, spending, credentials,
+repository protections and settings, and the verdict on the product. An
+expected value still never changes to fit the implementation.
 
 Agent 0 decides what else the target needs, under the grant in `AGENTS.md`
 ("Posture for this phase"): changing an exit criterion or its value on product
