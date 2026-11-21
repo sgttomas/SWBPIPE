@@ -48,7 +48,8 @@ function mountLoads(model: PreviewModel) {
 
 function mountInspector(model: PreviewModel) {
   const queue = vi.fn<(intent: EditorOperationIntent) => void>();
-  render(<DisplayUnitsProvider initialPreference="SI"><PropertyInspector model={model} selection={{ type: "node", id: "node:B" }} onQueueIntent={queue} /></DisplayUnitsProvider>);
+  // The New support form is opened as Insert > Support opens it.
+  render(<DisplayUnitsProvider initialPreference="SI"><PropertyInspector model={model} selection={{ type: "node", id: "node:B" }} onQueueIntent={queue} taskRequest={{ sequence: 1, target: { type: "node", id: "node:B" }, view: "properties", focusTestId: "create-support-id" }} /></DisplayUnitsProvider>);
   return queue;
 }
 

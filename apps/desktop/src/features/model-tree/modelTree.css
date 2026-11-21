@@ -114,6 +114,69 @@
   font-size: var(--type-size-caption);
 }
 
+/* A creation form a command opened (New section, material, support, component): its
+   name and a close control on one line, above the form. */
+.inspector .inspector-creation {
+  margin: 0 0 var(--space-5);
+  padding: 0 0 var(--space-4);
+  border-bottom: 1px solid var(--ui-divider);
+}
+
+.inspector .inspector-creation-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-3);
+}
+
+.inspector .inspector-creation-close {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 24px;
+  min-height: 24px;
+  padding: 0;
+}
+
+/* The selected entity's actions: closed lines, then its Delete control at the foot. */
+.inspector .inspector-actions {
+  display: grid;
+  gap: var(--space-1);
+  margin: 0 0 var(--space-4);
+}
+
+.inspector .inspector-actions > details > summary,
+.inspector .inspector-details.inspector-line > summary {
+  overflow-wrap: anywhere;
+}
+
+/* A closed line states its current value after its name. */
+.inspector .inspector-line-value {
+  color: var(--ui-muted);
+  font-weight: var(--type-weight-regular);
+}
+
+.inspector .inspector-delete {
+  display: grid;
+  justify-items: start;
+  gap: var(--space-1);
+  margin-block-start: var(--space-3);
+  padding-block-start: var(--space-3);
+  border-top: 1px solid var(--ui-divider);
+}
+
+.inspector .inspector-delete > button {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-2);
+}
+
+.inspector .inspector-delete-note {
+  margin: 0;
+  color: var(--ui-muted);
+  font-size: var(--type-size-caption);
+}
+
 /* The shear deformation choice: each option on its own line, the chosen one visibly chosen. */
 .inspector .model-settings-choices {
   display: grid;

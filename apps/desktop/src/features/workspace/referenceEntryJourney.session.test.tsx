@@ -37,6 +37,7 @@ import { useRunSheetStore } from "../model-tree/runSheet/runSheetStore";
 import { LoadCaseManagerPanel } from "../load-cases/LoadCaseManagerPanel";
 import { SelfWeightPlanPanel } from "../self-weight-authoring/SelfWeightPlanPanel";
 import { BatchReviewPanel } from "../toolkit/BatchReviewPanel";
+import { toolkitCapabilities } from "../toolkit/capabilityCatalog";
 import { OperationApplyPanel } from "../operations/OperationApplyPanel";
 import { useWorkspaceSession } from "./workspaceSession";
 import { unitCatalogFixture } from "../../test-support/unitCatalogFixture";
@@ -281,6 +282,8 @@ describe("the reference system entered from blank through the desktop's authorin
     const change = (scope: ReturnType<typeof within>, label: string, value: string) => fireEvent.change(scope.getByLabelText(label), { target: { value } });
     const click = (scope: ReturnType<typeof within>, name: string | RegExp) => fireEvent.click(scope.getByRole("button", { name }));
     const select = (entity: EntityRef) => act(() => { current.session.selection.handleSelectEntity(entity); });
+    /** Runs a command of the command box (toolkit catalogue), as a person chooses it there. */
+    const openCommand = (id: string) => act(() => { current.session.chrome.handleToolkitCommand(toolkitCapabilities.find((capability) => capability.id === id)!); });
     const cycles: string[] = [];
     /** Picks `value` in a virtual picker found by its label (`VirtualTargetPicker`, `VirtualMultiTargetPicker`). */
     function pick(scope: ReturnType<typeof within>, label: string, values: readonly string[]) {
@@ -409,8 +412,9 @@ describe("the reference system entered from blank through the desktop's authorin
     await applyQueuedIntent("step material: expansion laws");
     expect(model().materials).toEqual(reference.materials);
 
-    // Step sections (typed UI): Inspector, New section.
+    // Step sections (typed UI): Inspector, New section, opened as the command box's Create section opens it.
     select({ type: "project", id: model().project.id });
+    openCommand("properties.section");
     for (const [id, od, wall] of [["section:RS-S270", "270", "9.0"], ["section:RS-S220", "220", "8.0"], ["section:RS-S170", "170", "7.0"]]) {
       change(inspector(), "New section ID", id);
       change(inspector(), "New section name", token(id));
@@ -458,6 +462,7 @@ describe("the reference system entered from blank through the desktop's authorin
     const component = (label: string, value: string) => change(inspector(), `New component ${label.toLowerCase()}`, value);
     const componentField = (label: string, value: string) => change(inspector(), `New component ${label}`, value);
     // Kind, node and pipe first: choosing them re-proposes the draft's label (`componentDraftForKind`, `componentDraftForNode`).
+    openCommand("build.component");
     chooseCompactOption(screen.getByTestId("create-component-kind"), "expansion_joint");
     chooseVirtualTarget("create-component-node", "node:RS-190");
     chooseVirtualTarget("create-component-pipe", "pipe:RS-P180");
@@ -499,6 +504,7 @@ describe("the reference system entered from blank through the desktop's authorin
 
     // Step tee: Tee RS-T1 (typed UI): New component, kind tee; then the two SIFs and the modifier source by Task edits.
     const beforeTee = model();
+    openCommand("build.component");
     chooseCompactOption(screen.getByTestId("create-component-kind"), "tee");
     chooseVirtualTarget("create-component-node", "node:RS-130");
     chooseVirtualTarget("create-component-pipe", "pipe:RS-P120");
@@ -525,6 +531,7 @@ describe("the reference system entered from blank through the desktop's authorin
     // which the creation form does not take.
     const fixtureR1 = reference.components.find((item) => item.id === "component:RS-R1")!;
     select({ type: "project", id: model().project.id });
+    openCommand("build.component");
     chooseCompactOption(screen.getByTestId("create-component-kind"), "reducer");
     chooseVirtualTarget("create-component-node", "node:RS-160");
     chooseVirtualTarget("create-component-pipe", "pipe:RS-P150");

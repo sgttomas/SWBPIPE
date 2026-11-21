@@ -16,7 +16,7 @@ describe("guarded removal", () => {
     canonical.mockResolvedValue(before);
     const queue = vi.fn(); const unchanged = JSON.stringify(model);
     render(<GuardedRemoval model={model} selection={{ type, id: entity.id }} onQueueIntent={queue} />);
-    const button = screen.getByRole("button", { name: "Queue removal for review" });
+    const button = screen.getByRole("button", { name: /^Delete (material|section|component)$/ });
     await waitFor(() => expect(button).toBeEnabled());
     fireEvent.click(button);
     expect(queue.mock.calls[0][0]).toMatchObject({ operation_kind: "delete", target: { ref: entity.id }, change: { change_kind: `delete_${type}`, before, after: "deleted", unit: "none", dimension: "dimensionless" } });
@@ -33,8 +33,8 @@ describe("guarded removal", () => {
     view.rerender(<GuardedRemoval model={replacement} selection={selection} onQueueIntent={queue} />);
     resolve(JSON.stringify(model.materials![0]));
     await screen.findByRole("alert");
-    expect(screen.getByRole("button", { name: "Queue removal for review" })).toBeDisabled();
-    fireEvent.click(screen.getByRole("button", { name: "Queue removal for review" }));
+    expect(screen.getByRole("button", { name: /^Delete (material|section|component)$/ })).toBeDisabled();
+    fireEvent.click(screen.getByRole("button", { name: /^Delete (material|section|component)$/ }));
     expect(queue).not.toHaveBeenCalled();
   });
 });

@@ -2,7 +2,7 @@ import { CompactSelect } from "../workspace/CompactSelect";
 import { QuantityReadout } from "../display-units";
 import { FAMILIES as SUPPORT_FAMILIES, SupportConfigurationForm } from "../support-configuration/SupportConfigurationForm";
 import { MaterialTemperatureForm } from "../material-temperature/MaterialTemperatureForm";
-import { BendAuthoringForms } from "../bend-authoring/BendAuthoringForms";
+import { BendRealizationForm, InsertBendAtCornerForm } from "../bend-authoring/BendAuthoringForms";
 import { JointPressureModelEditor } from "../pressure-authoring/JointPressureModelEditor";
 import { WindExposureForm } from "../wind-exposure/WindExposureForm";
 import { SectionAssignment } from "../toolkit/SectionAssignment";
@@ -14,8 +14,9 @@ import { ModelDataAnnotations } from "../model-data/ModelDataAnnotations";
 import { combinationTermsText } from "../load-cases/combinationOperands";
 import { ModelSettingsSection } from "../model-settings/ModelSettingsSection";
 import { ProjectUnitsSection } from "../project-units/ProjectUnitsSection";
-import { ListPlus, Pencil, PlayCircle, PlusCircle, SearchCheck, Trash2 } from "lucide-react";
-import { useEffect, useLayoutEffect, useMemo, useRef, useState } from "react";
+import { ListPlus, Pencil, PlayCircle, PlusCircle, SearchCheck, Trash2, X } from "lucide-react";
+import { bendAtCornerOffer, kindName, modelSettingsValues, offersSupportForm, projectUnitValues, supportFormLine } from "./inspectorActions";
+import { useEffect, useLayoutEffect, useMemo, useRef, useState, type ReactNode } from "react";
 import type {
   EditorOperationIntent,
   EditorOperationObjectType,
@@ -69,6 +70,7 @@ export function PropertyInspector({
   onValidateIntent,
   onApplyIntent,
   onSelectReference,
+  onChangeSelected,
   operationBusy = false,
   operationOutcomes = {},
   queuedIntents = [],
@@ -84,6 +86,8 @@ export function PropertyInspector({
   onApplyIntent?: (intent: EditorOperationIntent) => Promise<boolean>;
   /** Selects a resolved node or material reference through the host's ordinary selection route. Without it, references are text. */
   onSelectReference?: (entity: EntityRef) => void;
+  /** Opens Bulk change on the selection (B2), as the context menu's Change selected… does. */
+  onChangeSelected?: () => void;
   operationBusy?: boolean;
   operationOutcomes?: Record<string, OperationOutcome>;
   queuedIntents?: EditorOperationIntent[];
@@ -93,6 +97,9 @@ export function PropertyInspector({
   taskRequest?: Readonly<{ sequence: number; target: EntityRef; view: "properties" | "task"; focusTestId: string; elementId?: string }> | null;
 }) {
   const [inspectorView, setInspectorView] = useState<"properties" | "task">("properties");
+  // The creation form a command asked for (Insert, the command box, the view's insert bar), or none.
+  // A closed form keeps its draft.
+  const [creationForm, setCreationForm] = useState<CreationForm | null>(null);
   // The user's open/closed choice for "All properties" holds across selection changes (component state only).
   const [allPropertiesOpen, setAllPropertiesOpen] = useState(false);
   const references = useMemo(() => propertyReferences(model), [model]);
@@ -275,6 +282,7 @@ export function PropertyInspector({
     setSectionDraft(defaultSectionDraft(model, queuedIntents));
     setInspectorView("properties");
     setTaskActive(false);
+    setCreationForm(null);
   }, [projectSessionGeneration]);
 
   useLayoutEffect(() => {
@@ -283,6 +291,8 @@ export function PropertyInspector({
 
   useLayoutEffect(() => {
     if (!taskRequest) return;
+    const requestedForm = CREATION_FORM_BY_FOCUS[taskRequest.focusTestId];
+    if (requestedForm) setCreationForm(requestedForm);
     if (taskRequest.view === "task") {
       taskGenerationRef.current += 1;
       const nextTarget = { ...taskRequest.target };
@@ -305,6 +315,9 @@ export function PropertyInspector({
         (!taskActive || draftTarget.type !== taskRequest.target.type || draftTarget.id !== taskRequest.target.id)) return;
     if (taskRequest.view === "properties" &&
         (propertiesTarget.type !== taskRequest.target.type || propertiesTarget.id !== taskRequest.target.id)) return;
+    // A creation form is focused once it is shown.
+    const requestedForm = CREATION_FORM_BY_FOCUS[taskRequest.focusTestId];
+    if (requestedForm && creationForm !== requestedForm) return;
     const target = taskRequest.elementId
       ? document.getElementById(taskRequest.elementId)
       : taskRequest.focusTestId
@@ -315,7 +328,7 @@ export function PropertyInspector({
     }
     target?.focus();
     target?.scrollIntoView?.({ block: "nearest" });
-  }, [draftTarget.id, draftTarget.type, inspectorView, propertiesTarget.id, propertiesTarget.type, taskActive, taskRequest?.sequence]);
+  }, [creationForm, draftTarget.id, draftTarget.type, inspectorView, propertiesTarget.id, propertiesTarget.type, taskActive, taskRequest?.sequence]);
 
   useEffect(() => {
     let active = true;
@@ -335,6 +348,11 @@ export function PropertyInspector({
     };
   }, []);
 
+
+  function closeCreationForm() {
+    setCreationForm(null);
+    propertiesPanelRef.current?.focus();
+  }
 
   function handleFieldChange(fieldPath: string) {
     taskGenerationRef.current += 1;
@@ -466,6 +484,32 @@ export function PropertyInspector({
   const inspectorTarget = inspectorView === "task" && taskActive ? draftTarget : propertiesTarget;
   const propertyRows = selectedPropertyRows(model, propertiesTarget);
 
+  const creationTitles: Record<CreationForm, string> = { section: "New section", material: "New material", support: "New support", component: "New component" };
+  const creationArea = (kind: CreationForm, form: ReactNode) => (
+    <div className="inspector-creation" data-testid={`inspector-creation-${kind}`} hidden={creationForm !== kind || multiSelection}>
+      <header className="inspector-creation-header">
+        <h3>{creationTitles[kind]}</h3>
+        <button type="button" className="inspector-creation-close" data-testid={`inspector-creation-close-${kind}`} aria-label={`Close ${creationTitles[kind]}`} title={`Close ${creationTitles[kind]}`} onClick={closeCreationForm}>
+          <X size={14} aria-hidden="true" />
+        </button>
+      </header>
+      {form}
+    </div>
+  );
+  const cornerOffer = propertiesTarget.type === "node" ? bendAtCornerOffer(model, propertiesTarget.id) : { offered: false as const };
+  const selectedComponent = propertiesTarget.type === "component" ? model.components.find((component) => component.id === propertiesTarget.id) : undefined;
+  const selectedMaterial = propertiesTarget.type === "material" ? model.materials?.find((material) => material.id === propertiesTarget.id) : undefined;
+  const selectedLoad = propertiesTarget.type === "load" ? model.load_cases.find((load) => load.id === propertiesTarget.id) : undefined;
+  const richProps = { getPreparationEpoch, model, preparationEpoch: selectionState?.preparationEpoch, selection: propertiesTarget, queuedIntents, onQueueIntent, operationBusy: operationBusy || multiSelection };
+  // What a delete refuses, and its operation, shown only when asked for.
+  const deletionNote = (text: string, intent: EditorOperationIntent) => <>
+    <p className="inspector-delete-note">{text}</p>
+    <details className="inspector-details inspector-delete-details">
+      <summary>Operation details</summary>
+      <OperationIntentPreview intent={intent} />
+    </details>
+  </>;
+
   return (
     <div className="panel inspector" data-testid="property-inspector" role="region" aria-label="Property inspector">
       <h2>{aggregateProperties ? `${aggregateRefs.length} selected items` : <>{entityLabel(model, inspectorTarget)} <span className="typed-identity">— {typedIdentityText(inspectorTarget)}</span></>}</h2>
@@ -474,14 +518,409 @@ export function PropertyInspector({
         <button aria-controls="inspector-task-view" aria-selected={inspectorView === "task"} onClick={() => setInspectorView("task")} role="tab" type="button">Task</button>
       </div>
       <div hidden={inspectorView !== "properties"} id="inspector-properties-view" ref={propertiesPanelRef} role="tabpanel" tabIndex={0}>
+      {/* A creation form shows only when its command asks for it, and keeps its draft while closed. */}
+      <div key={`creation-session:${projectSessionGeneration}`}>
+      {creationArea("section", (
+        <section className="editor-intent" aria-label="Create section intent" data-testid="create-section-intent-panel">
+        <div className="editor-intent-controls">
+          <label>
+            <span>Section ID</span>
+            <input
+              aria-label="New section ID"
+              data-testid="create-section-id"
+              onChange={(event) => updateSectionDraft("id", event.target.value)}
+              value={sectionDraft.id}
+            />
+          </label>
+          <label>
+            <span>Name</span>
+            <input
+              aria-label="New section name"
+              data-testid="create-section-name"
+              onChange={(event) => updateSectionDraft("name", event.target.value)}
+              value={sectionDraft.name}
+            />
+          </label>
+          <label>
+            <span>Type</span>
+            <CompactSelect
+              aria-label="New section type"
+              data-testid="create-section-type"
+              onValueChange={(value) => updateSectionDraft("sectionType", value)}
+              value={sectionDraft.sectionType}
+              options={[{ value: "pipe", label: "pipe" }]}
+            />
+          </label>
+          <label>
+            <span>Length unit</span>
+            <CompactSelect
+              aria-label="New section length unit"
+              data-testid="create-section-length-unit"
+              onValueChange={(value) => updateSectionDraft("lengthUnit", value)}
+              value={sectionDraft.lengthUnit}
+              options={lengthUnitOptions.map((option) => ({ value: option.symbol, label: option.label }))}
+            />
+          </label>
+          <label>
+            <span>Outside diameter ({lengthBasis.label})</span>
+            <input
+              aria-label="New section outside diameter"
+              data-testid="create-section-od"
+              inputMode="decimal"
+              onChange={(event) => updateSectionDraft("outsideDiameter", event.target.value)}
+              value={sectionDraft.outsideDiameter}
+            />
+          </label>
+          <label>
+            <span>Wall thickness ({lengthBasis.label})</span>
+            <input
+              aria-label="New section wall thickness"
+              data-testid="create-section-wall"
+              inputMode="decimal"
+              onChange={(event) => updateSectionDraft("wallThickness", event.target.value)}
+              value={sectionDraft.wallThickness}
+            />
+          </label>
+          <label>
+            <span>Provenance</span>
+            <input
+              aria-label="New section provenance"
+              data-testid="create-section-provenance"
+              onChange={(event) => updateSectionDraft("provenance", event.target.value)}
+              value={sectionDraft.provenance}
+            />
+          </label>
+          <button
+            data-testid="queue-create-section-intent"
+            disabled={multiSelection || !sectionCreateIntent}
+            onClick={handleQueueSectionIntent}
+            title="Queue section create intent"
+            type="button"
+          >
+            <PlusCircle size={14} aria-hidden="true" />
+            Queue section
+          </button>
+        </div>
+        {sectionCreateIntent ? <OperationIntentPreview intent={sectionCreateIntent} /> : null}
+      </section>
+      ))}
+      {creationArea("material", (
+        <section className="editor-intent" aria-label="Create material intent" data-testid="create-material-intent-panel">
+        <div className="editor-intent-controls">
+          <label>
+            <span>Material ID</span>
+            <input
+              aria-label="New material ID"
+              data-testid="create-material-id"
+              onChange={(event) => updateMaterialDraft("id", event.target.value)}
+              value={materialDraft.id}
+            />
+          </label>
+          <label>
+            <span>Label</span>
+            <input
+              aria-label="New material label"
+              data-testid="create-material-label"
+              onChange={(event) => updateMaterialDraft("label", event.target.value)}
+              value={materialDraft.label}
+            />
+          </label>
+          <label>
+            <span>Modulus unit</span>
+            <CompactSelect
+              aria-label="New material modulus unit"
+              data-testid="create-material-stress-unit"
+              onValueChange={(value) => updateMaterialDraft("stressUnit", value)}
+              value={materialDraft.stressUnit}
+              options={stressUnitOptions.map((option) => ({ value: option.symbol, label: option.label }))}
+            />
+          </label>
+          <label>
+            <span>Elastic modulus ({stressBasis.label})</span>
+            <input
+              aria-label="New material elastic modulus"
+              data-testid="create-material-elastic"
+              inputMode="decimal"
+              onChange={(event) => updateMaterialDraft("elasticModulus", event.target.value)}
+              value={materialDraft.elasticModulus}
+            />
+          </label>
+          <label>
+            <span>Shear modulus ({stressBasis.label})</span>
+            <input
+              aria-label="New material shear modulus"
+              data-testid="create-material-shear"
+              inputMode="decimal"
+              onChange={(event) => updateMaterialDraft("shearModulus", event.target.value)}
+              value={materialDraft.shearModulus}
+            />
+          </label>
+          <label>
+            <span>Thermal expansion unit</span>
+            <CompactSelect
+              aria-label="New material thermal expansion unit"
+              data-testid="create-material-thermal-unit"
+              onValueChange={(value) => updateMaterialDraft("thermalExpansionUnit", value)}
+              value={materialDraft.thermalExpansionUnit}
+              options={thermalExpansionUnitOptions.map((option) => ({ value: option.symbol, label: option.label }))}
+            />
+            {thermalExpansionUnitNotice ? <span className="muted" data-testid="create-material-thermal-unit-notice">{thermalExpansionUnitNotice}</span> : null}
+          </label>
+          <label>
+            <span>Thermal expansion ({thermalExpansionBasis.label})</span>
+            <input
+              aria-label="New material thermal expansion"
+              data-testid="create-material-thermal"
+              inputMode="decimal"
+              onChange={(event) => updateMaterialDraft("thermalExpansion", event.target.value)}
+              value={materialDraft.thermalExpansion}
+            />
+          </label>
+          <label>
+            <span>Provenance</span>
+            <input
+              aria-label="New material provenance"
+              data-testid="create-material-provenance"
+              onChange={(event) => updateMaterialDraft("provenance", event.target.value)}
+              value={materialDraft.provenance}
+            />
+          </label>
+          <button
+            data-testid="queue-create-material-intent"
+            disabled={multiSelection || !materialCreateIntent}
+            onClick={handleQueueMaterialIntent}
+            title="Queue material create intent"
+            type="button"
+          >
+            <PlusCircle size={14} aria-hidden="true" />
+            Queue material
+          </button>
+        </div>
+        {materialCreateIntent ? <OperationIntentPreview intent={materialCreateIntent} /> : null}
+      </section>
+      ))}
+      {creationArea("support", (
+        <section className="editor-intent" aria-label="Create support intent" data-testid="create-support-intent-panel">
+        <div className="editor-intent-controls">
+          <label>
+            <span>Support ID</span>
+            <input
+              aria-label="New support ID"
+              data-testid="create-support-id"
+              onChange={(event) => updateSupportDraft("id", event.target.value)}
+              value={supportDraft.id}
+            />
+          </label>
+          <label>
+            <span>Label</span>
+            <input
+              aria-label="New support label"
+              data-testid="create-support-label"
+              onChange={(event) => updateSupportDraft("label", event.target.value)}
+              value={supportDraft.label}
+            />
+          </label>
+          <VirtualTargetPicker label="New support node" testId="create-support-node" options={nodeTargetOptions} value={supportDraft.node} onChange={(value) => updateSupportDraft("node", value)} />
+          <div className="editor-intent-checkbox-grid" aria-label="New support restraints">
+            {RESTRAINT_OPTIONS.map((restraint) => (
+              <label key={restraint}>
+                <input
+                  checked={supportDraft.restraints.includes(restraint)}
+                  data-testid={`create-support-restraint-${restraint}`}
+                  onChange={() => toggleSupportRestraint(restraint)}
+                  type="checkbox"
+                />
+                <span>{restraint}</span>
+              </label>
+            ))}
+          </div>
+          <label>
+            <span>Support family</span>
+            <CompactSelect
+              aria-label="New support family"
+              data-testid="create-support-family"
+              onValueChange={(value) => updateSupportDraft("familyChoice", value)}
+              value={draftSupportFamily(supportDraft.familyChoice, supportFamilySuggestion)}
+              options={SUPPORT_FAMILY_OPTIONS}
+            />
+            {supportFamilySuggestion ? (
+              <span className="muted" data-testid="create-support-family-suggestion">
+                {supportFamilySuggestionText(supportFamilySuggestion)}{supportDraft.familyChoice === null ? "; you can change it" : ""}
+              </span>
+            ) : null}
+          </label>
+          <label>
+            <span>Linear stiffness unit</span>
+            <CompactSelect
+              aria-label="New support linear stiffness unit"
+              data-testid="create-support-stiffness-unit"
+              onValueChange={(value) => updateSupportDraft("linearStiffnessUnit", value)}
+              value={supportDraft.linearStiffnessUnit}
+              options={supportStiffnessUnitOptions.map((option) => ({ value: option.symbol, label: option.label }))}
+            />
+            {supportStiffnessUnitNotice ? <span className="muted" data-testid="create-support-stiffness-unit-notice">{supportStiffnessUnitNotice}</span> : null}
+          </label>
+          <label>
+            <span>Linear stiffness ({supportStiffnessBasis.label})</span>
+            <input
+              aria-label="New support linear stiffness"
+              data-testid="create-support-stiffness"
+              inputMode="decimal"
+              onChange={(event) => updateSupportDraft("linearStiffness", event.target.value)}
+              value={supportDraft.linearStiffness}
+            />
+          </label>
+          <label>
+            <span>Provenance</span>
+            <input
+              aria-label="New support provenance"
+              data-testid="create-support-provenance"
+              onChange={(event) => updateSupportDraft("provenance", event.target.value)}
+              value={supportDraft.provenance}
+            />
+          </label>
+          <button
+            data-testid="queue-create-support-intent"
+            disabled={multiSelection || !supportCreateIntent}
+            onClick={handleQueueSupportIntent}
+            title="Queue support create intent"
+            type="button"
+          >
+            <PlusCircle size={14} aria-hidden="true" />
+            Queue support
+          </button>
+        </div>
+        {supportCreateIntent ? <OperationIntentPreview intent={supportCreateIntent} /> : null}
+      </section>
+      ))}
+      {creationArea("component", (
+        <section className="editor-intent" aria-label="Create component intent" data-testid="create-component-intent-panel">
+        <div className="editor-intent-controls">
+          <label>
+            <span>Component ID</span>
+            <input
+              aria-label="New component ID"
+              data-testid="create-component-id"
+              onChange={(event) => updateComponentDraft("id", event.target.value)}
+              value={componentDraft.id}
+            />
+          </label>
+          <label>
+            <span>Label</span>
+            <input
+              aria-label="New component label"
+              data-testid="create-component-label"
+              onChange={(event) => updateComponentDraft("label", event.target.value)}
+              value={componentDraft.label}
+            />
+          </label>
+          <label>
+            <span>Kind</span>
+            <CompactSelect
+              aria-label="New component kind"
+              data-testid="create-component-kind"
+              value={componentDraft.kind}
+              onValueChange={(value) =>
+                setComponentDraft((current) =>
+                  componentDraftForKind(model, current, value as CreatableComponentKind)
+                )
+              }
+              options={creatableComponentKinds.map((kind) => ({ value: kind, label: kind }))}
+            />
+          </label>
+          <VirtualTargetPicker label="New component node" testId="create-component-node" options={nodeTargetOptions} value={componentDraft.node} onChange={(value) => setComponentDraft((current) => componentDraftForNode(model, current, value))} />
+          <VirtualTargetPicker label={componentDraft.kind === "tee" ? "New tee header pipe" : "New component realized pipe"} testId="create-component-pipe" options={connectedPipeTargetOptions} value={componentDraft.primaryPipeRef} onChange={(value) => updateComponentDraft("primaryPipeRef", value)} />
+          {componentDraft.kind === "tee" ? (
+            <VirtualTargetPicker label="New tee branch pipe" testId="create-component-secondary-pipe" options={connectedPipeTargetOptions} value={componentDraft.secondaryPipeRef} onChange={(value) => updateComponentDraft("secondaryPipeRef", value)} />
+          ) : null}
+          {componentDraft.kind === "bend" ? (
+            <>
+              <ComponentTextInput label="Radius" testId="create-component-radius" value={componentDraft.bendRadius} onChange={(value) => updateComponentDraft("bendRadius", value)} />
+              <ComponentUnitSelect label="Radius unit" testId="create-component-radius-unit" value={componentDraft.lengthUnit} options={lengthUnitOptions} onChange={(value) => updateComponentDraft("lengthUnit", value)} />
+              <ComponentTextInput label="Angle" testId="create-component-angle" value={componentDraft.bendAngle} onChange={(value) => updateComponentDraft("bendAngle", value)} />
+              <ComponentUnitSelect label="Angle unit" testId="create-component-angle-unit" value={componentDraft.angleUnit} options={componentAngleUnitOptions} onChange={(value) => updateComponentDraft("angleUnit", value)} />
+            </>
+          ) : null}
+          {componentDraft.kind === "tee" ? (
+            <>
+              <ComponentTextInput label="Run size" testId="create-component-run-size" value={componentDraft.branchRunSize} onChange={(value) => updateComponentDraft("branchRunSize", value)} />
+              <ComponentTextInput label="Header size" testId="create-component-header-size" value={componentDraft.branchHeaderSize} onChange={(value) => updateComponentDraft("branchHeaderSize", value)} />
+              <ComponentUnitSelect label="Size unit" testId="create-component-length-unit" value={componentDraft.lengthUnit} options={lengthUnitOptions} onChange={(value) => updateComponentDraft("lengthUnit", value)} />
+              <ComponentTextInput label="Connection angle" testId="create-component-connection-angle" value={componentDraft.branchConnectionAngle} onChange={(value) => updateComponentDraft("branchConnectionAngle", value)} />
+              <ComponentUnitSelect label="Angle unit" testId="create-component-angle-unit" value={componentDraft.angleUnit} options={componentAngleUnitOptions} onChange={(value) => updateComponentDraft("angleUnit", value)} />
+              <ComponentTextInput label="Connection type" testId="create-component-connection-type" value={componentDraft.branchConnectionType} onChange={(value) => updateComponentDraft("branchConnectionType", value)} />
+              <ComponentTextInput label="Reinforcement reference" testId="create-component-reinforcement" value={componentDraft.branchReinforcementReference} onChange={(value) => updateComponentDraft("branchReinforcementReference", value)} />
+            </>
+          ) : null}
+          {componentDraft.kind === "expansion_joint" ? (
+            <ConnectorDraftFields model={model} draft={componentDraft} prefix="create" TextInput={ComponentTextInput} update={(key, value) => updateComponentDraft(key, value)} />
+          ) : null}
+          {componentDraft.kind !== "bend" && componentDraft.kind !== "tee" && componentDraft.kind !== "expansion_joint" ? (
+            <>
+              <ComponentTextInput label="Body length" testId="create-component-body-length" value={componentDraft.rigidBodyLength} onChange={(value) => updateComponentDraft("rigidBodyLength", value)} />
+              <ComponentUnitSelect label="Body length unit" testId="create-component-length-unit" value={componentDraft.lengthUnit} options={lengthUnitOptions} onChange={(value) => updateComponentDraft("lengthUnit", value)} />
+              <ComponentTextInput label="End A size" testId="create-component-end-a-size" value={componentDraft.endASize} onChange={(value) => updateComponentDraft("endASize", value)} />
+              <ComponentUnitSelect label="End A size unit" testId="create-component-end-a-size-unit" value={componentDraft.endASizeUnit} options={lengthUnitOptions} onChange={(value) => updateComponentDraft("endASizeUnit", value)} />
+              <ComponentTextInput label="End B size" testId="create-component-end-b-size" value={componentDraft.endBSize} onChange={(value) => updateComponentDraft("endBSize", value)} />
+              <ComponentUnitSelect label="End B size unit" testId="create-component-end-b-size-unit" value={componentDraft.endBSizeUnit} options={lengthUnitOptions} onChange={(value) => updateComponentDraft("endBSizeUnit", value)} />
+              <ComponentTextInput label="Weight" testId="create-component-weight" value={componentDraft.weight} onChange={(value) => updateComponentDraft("weight", value)} />
+              <ComponentUnitSelect label="Weight unit" testId="create-component-force-unit" value={componentDraft.forceUnit} options={componentForceUnitOptions} onChange={(value) => updateComponentDraft("forceUnit", value)} />
+              <ComponentTextInput label="COG X" testId="create-component-cog-x" value={componentDraft.centerOfGravityX} onChange={(value) => updateComponentDraft("centerOfGravityX", value)} />
+              <ComponentTextInput label="COG Y" testId="create-component-cog-y" value={componentDraft.centerOfGravityY} onChange={(value) => updateComponentDraft("centerOfGravityY", value)} />
+              <ComponentTextInput label="COG Z" testId="create-component-cog-z" value={componentDraft.centerOfGravityZ} onChange={(value) => updateComponentDraft("centerOfGravityZ", value)} />
+              <ComponentUnitSelect label="COG unit" testId="create-component-cog-unit" value={componentDraft.centerOfGravityUnit} options={lengthUnitOptions} onChange={(value) => updateComponentDraft("centerOfGravityUnit", value)} />
+              <ComponentTextInput label="End A reference" testId="create-component-end-a-ref" value={componentDraft.connectionEndAReference} onChange={(value) => updateComponentDraft("connectionEndAReference", value)} />
+              <ComponentTextInput label="End B reference" testId="create-component-end-b-ref" value={componentDraft.connectionEndBReference} onChange={(value) => updateComponentDraft("connectionEndBReference", value)} />
+              <ComponentTextInput label="Stiffness behavior reference" testId="create-component-stiffness-ref" value={componentDraft.stiffnessBehaviorReference} onChange={(value) => updateComponentDraft("stiffnessBehaviorReference", value)} />
+              <RigidDraftFields draft={componentDraft} prefix="create" TextInput={ComponentTextInput} update={(key, value) => updateComponentDraft(key, value)} />
+            </>
+          ) : null}
+          <label>
+            <span>Geometry source</span>
+            <input
+              aria-label="New component geometry source"
+              data-testid="create-component-source"
+              onChange={(event) => updateComponentDraft("geometrySourceReference", event.target.value)}
+              value={componentDraft.geometrySourceReference}
+            />
+          </label>
+          <label>
+            <span>Provenance</span>
+            <input
+              aria-label="New component provenance"
+              data-testid="create-component-provenance"
+              onChange={(event) => updateComponentDraft("provenance", event.target.value)}
+              value={componentDraft.provenance}
+            />
+          </label>
+          {componentUnitNotices.map(({ key, text }) => (
+            <p key={key} role="status" data-testid={`create-component-missing-project-unit-${key}`}>{text}</p>
+          ))}
+          <button
+            data-testid="queue-create-component-intent"
+            disabled={multiSelection || !componentCreateIntent}
+            onClick={handleQueueComponentIntent}
+            title={`Queue explicit ${componentDraft.kind} component creation intent`}
+            type="button"
+          >
+            <PlusCircle size={14} aria-hidden="true" />
+            Queue {componentDraft.kind}
+          </button>
+        </div>
+        {componentCreateIntent ? <OperationIntentPreview intent={componentCreateIntent} /> : null}
+      </section>
+      ))}
+      </div>
       {aggregateProperties ? <div className="aggregate-inspector" data-testid="aggregate-property-inspector">
-        <p role="status">Aggregate inspection is read-only. Existing Properties drafts remain attached to their typed target.</p>
-        <button disabled type="button" aria-describedby="aggregate-property-task-reason">Start property task</button>
-        <p id="aggregate-property-task-reason">Property mutation is unavailable for multi-selection. Reduce the selection to one typed entity.</p>
-        <dl>
-          {[...aggregateCounts].map(([type, count]) => <div key={type}><dt>{type}</dt><dd>{count}</dd></div>)}
+        <dl className="inspector-overview" aria-label="Selected by kind">
+          {[...aggregateCounts].map(([type, count]) => <div key={type}><dt>{kindName(type, count)}</dt><dd>{count}</dd></div>)}
           <div><dt>Primary</dt><dd>{selection.type}: {selection.id}</dd></div>
         </dl>
+        <div className="inspector-actions" aria-label="Actions for the selection" role="group">
+          {onChangeSelected ? <button type="button" data-testid="inspector-change-selected" onClick={onChangeSelected}>Change selected…</button> : null}
+          <button disabled type="button" aria-describedby="aggregate-property-task-reason">Start property task</button>
+          <p className="inspector-delete-note" id="aggregate-property-task-reason">Select one entity to edit its properties or delete it.</p>
+        </div>
       </div> : <>
       {/* The selected entity's identity, connections, material and size stay visible;
           every property, provenance and review field remains in "All properties". */}
@@ -493,6 +932,118 @@ export function PropertyInspector({
           </div>
         ))}
       </dl>
+      {selectedPipe ? <p data-testid="pipe-section-basis">{selectedPipe.section_ref ? `Shared section: ${selectedPipe.section_ref}. Edit diameter and wall in Grid › Sections.` : "Local pipe section: diameter and wall belong to this pipe."}</p> : null}
+      {selectedPipe && Boolean(selectedPipe.section.insulation_thickness) !== Boolean(selectedPipe.section.insulation_density) ? <p role="status" data-testid="mass-input-completeness">Insulation mass is incomplete: enter both thickness and density before solving. The missing quantity has not been supplied.</p> : null}
+      {requiredFlags.length > 0 ? (
+        <section className="inspector-context-grid" aria-label="Inspector review context">
+          <RequiredFlagList flags={requiredFlags} />
+        </section>
+      ) : null}
+      </>}
+      <div key={`rich-properties-session:${projectSessionGeneration}`} className="inspector-actions" role="group" aria-label="Actions" hidden={multiSelection}>
+      {propertiesTarget.type === "project" ? (
+        <details className="inspector-details inspector-line" data-testid="model-settings-details">
+          <summary><span>Model settings</span> <span className="inspector-line-value">{modelSettingsValues(model)}</span></summary>
+          <ModelSettingsSection key={`model-settings:${projectSessionGeneration}`} model={model} queuedIntents={queuedIntents} onQueueIntent={onQueueIntent} operationBusy={operationBusy || multiSelection} unitCatalogRoute={unitCatalogRoute} />
+        </details>
+      ) : null}
+      {propertiesTarget.type === "project" ? (
+        <details className="inspector-details inspector-line" data-testid="project-units-details">
+          <summary><span>Project units</span> <span className="inspector-line-value">{projectUnitValues(model)}</span></summary>
+          <ProjectUnitsSection key={`project-units:${projectSessionGeneration}`} model={model} queuedIntents={queuedIntents} onQueueIntent={onQueueIntent} operationBusy={operationBusy || multiSelection} unitCatalogRoute={unitCatalogRoute} />
+        </details>
+      ) : null}
+      {selectedPipe ? (
+        <details className="inspector-details inspector-line" data-testid="inspector-section-assignment-details">
+          <summary><span>Section</span> <span className="inspector-line-value">{selectedPipe.section_ref ?? "local dimensions"}</span></summary>
+          <SectionAssignment model={model} selection={propertiesTarget} onQueueIntent={onQueueIntent} operationBusy={operationBusy || multiSelection} />
+        </details>
+      ) : null}
+      {selectedPipe ? (
+        <details className="inspector-details inspector-line" data-testid="inspector-condition-set-details">
+          <summary><span>Condition set</span> <span className="inspector-line-value">{selectedPipe.condition_set_ref ?? "not stated"}</span></summary>
+          <PipeConditionSetField key={`pipe-condition-set:${projectSessionGeneration}`} {...richProps} />
+        </details>
+      ) : null}
+      {offersSupportForm(propertiesTarget) ? (
+        <details className="inspector-details" data-testid="inspector-support-form-details">
+          <summary>{supportFormLine(propertiesTarget)}</summary>
+          <SupportConfigurationForm getPreparationEpoch={getPreparationEpoch} key={`support-properties:${projectSessionGeneration}`} model={model} preparationEpoch={selectionState?.preparationEpoch} selection={propertiesTarget} queuedIntents={queuedIntents} onQueueIntent={onQueueIntent} operationBusy={operationBusy || multiSelection} />
+        </details>
+      ) : null}
+      {cornerOffer.offered ? (
+        <details className="inspector-details" data-testid="insert-bend-at-corner-details">
+          <summary>Bend at this corner{cornerOffer.refusal ? <span className="inspector-line-value"> unavailable</span> : null}</summary>
+          {cornerOffer.refusal
+            ? <p role="note" data-testid="insert-bend-at-corner-refusal">{cornerOffer.refusal}</p>
+            : <InsertBendAtCornerForm key={propertiesTarget.id} {...richProps} node={propertiesTarget.id} />}
+        </details>
+      ) : null}
+      {selectedComponent && (selectedComponent.kind === "bend" || selectedComponent.kind === "elbow") ? (
+        <details className="inspector-details" data-testid="inspector-bend-realization-details">
+          {/* The engine refuses to realize a bend that names no arc span (OP-BEND-REALIZE-SPAN-MISSING):
+              it marks a corner, which its node's Bend at this corner turns into an arc. */}
+          {selectedComponent.geometry?.bend_pipe_ref?.trim() || selectedComponent.mechanics_interface?.solver_consumption === "curved_bend_macro_element" ? <>
+            <summary>Bend flexibility and SIFs</summary>
+            <BendRealizationForm key={selectedComponent.id} {...richProps} component={selectedComponent} />
+          </> : <>
+            <summary>Bend flexibility and SIFs <span className="inspector-line-value">unavailable</span></summary>
+            <p role="note" data-testid="bend-realization-corner-marker">This bend marks a corner. Select {selectedComponent.node} and use Bend at this corner, which places the tangent points.</p>
+          </>}
+        </details>
+      ) : null}
+      {selectedComponent?.kind === "expansion_joint" ? <JointPressureModelEditor {...richProps} /> : null}
+      {selectedMaterial ? (
+        <details className="inspector-details" data-testid="inspector-temperature-details">
+          <summary>Temperature-dependent properties</summary>
+          <MaterialTemperatureForm {...richProps} />
+        </details>
+      ) : null}
+      {selectedLoad?.equivalent_static?.wind ? (
+        <details className="inspector-details" data-testid="inspector-wind-exposure-details">
+          <summary>Wind exposure</summary>
+          <WindExposureForm {...richProps} />
+        </details>
+      ) : null}
+      <details className="inspector-details" data-testid="model-data-annotations-details">
+        <summary>Tags, notes and provenance</summary>
+        <ModelDataAnnotations key={`model-data:${projectSessionGeneration}`} model={model} selection={propertiesTarget} queuedIntents={queuedIntents} onQueueIntent={onQueueIntent} operationBusy={operationBusy || multiSelection} />
+      </details>
+      {nodeDeleteIntent ? (
+        <section className="inspector-delete" aria-label="Delete node intent" data-testid="delete-node-intent-panel">
+          <button data-testid="queue-delete-node-intent" disabled={multiSelection} onClick={handleQueueDeleteNodeIntent} type="button">
+            <Trash2 size={14} aria-hidden="true" />
+            Delete node
+          </button>
+          {deletionNote("Refused while a pipe, support, component or load names it; nothing else is removed.", nodeDeleteIntent)}
+        </section>
+      ) : mutationNode ? (
+        <section className="inspector-delete" aria-label="Delete node intent">
+          <button disabled type="button" aria-describedby="delete-node-engine-absent"><Trash2 size={14} aria-hidden="true" />Delete node</button>
+          <p className="inspector-delete-note" role="note" id="delete-node-engine-absent" data-testid="delete-node-engine-absent">{NODE_DELETE_ENGINE_ABSENT}</p>
+        </section>
+      ) : null}
+      {pipeDeleteIntent ? (
+        <section className="inspector-delete" aria-label="Delete pipe intent" data-testid="delete-pipe-intent-panel">
+          <button data-testid="queue-delete-pipe-intent" disabled={multiSelection} onClick={handleQueueDeletePipeIntent} type="button">
+            <Trash2 size={14} aria-hidden="true" />
+            Delete pipe
+          </button>
+          {deletionNote("Refused while a component, load, support or pressure region names it; nothing else is removed.", pipeDeleteIntent)}
+        </section>
+      ) : null}
+      {supportDeleteIntent ? (
+        <section className="inspector-delete" aria-label="Delete support intent" data-testid="delete-support-intent-panel">
+          <button data-testid="queue-delete-support-intent" disabled={multiSelection} onClick={handleQueueDeleteSupportIntent} type="button">
+            <Trash2 size={14} aria-hidden="true" />
+            Delete support
+          </button>
+          {deletionNote("Refused while a load names it; nothing else is removed.", supportDeleteIntent)}
+        </section>
+      ) : null}
+      <GuardedRemoval model={model} selection={propertiesTarget} onQueueIntent={onQueueIntent} operationBusy={operationBusy || multiSelection} />
+      </div>
+      {!aggregateProperties ? <>
       <details className="inspector-details" open={allPropertiesOpen} onToggle={(event) => setAllPropertiesOpen(event.currentTarget.open)}>
         <summary>All properties</summary>
         <dl>
@@ -504,14 +1055,15 @@ export function PropertyInspector({
         ))}
         </dl>
       </details>
-      {selectedPipe ? <p data-testid="pipe-section-basis">{selectedPipe.section_ref ? `Shared section: ${selectedPipe.section_ref}. Edit diameter and wall in Sections.` : "Local pipe section: diameter and wall belong to this pipe."}</p> : null}
-      {selectedPipe && Boolean(selectedPipe.section.insulation_thickness) !== Boolean(selectedPipe.section.insulation_density) ? <p role="status" data-testid="mass-input-completeness">Insulation mass is incomplete: enter both thickness and density before solving. The missing quantity has not been supplied.</p> : null}
-      {requiredFlags.length > 0 ? (
-        <section className="inspector-context-grid" aria-label="Inspector review context">
-          <RequiredFlagList flags={requiredFlags} />
-        </section>
-      ) : null}
-      </>}
+      <details className="inspector-details">
+        <summary>Sources and units</summary>
+        <ProvenanceBlock rows={entityProvenanceRows(model, propertiesTarget)} />
+        <UnitCatalogPanel
+          route={unitCatalogRoute}
+          bases={[lengthBasis, stressBasis, supportStiffnessBasis, thermalExpansionBasis]}
+        />
+      </details>
+      </> : null}
       </div>
       <section className="editor-intent" aria-label="Editor operation intent" data-testid="editor-intent-panel" hidden={inspectorView !== "task"} id="inspector-task-view" role="tabpanel" tabIndex={0}>
         {!taskActive ? <div className="inspector-task-empty" data-testid="inspector-task-empty">
@@ -637,498 +1189,18 @@ export function PropertyInspector({
         )}
         </>}
       </section>
-      <div key={`rich-properties-session:${projectSessionGeneration}`} hidden={inspectorView !== "properties" || multiSelection}>
-      <details className="inspector-details">
-        <summary>Sources and units</summary>
-        <ProvenanceBlock rows={entityProvenanceRows(model, propertiesTarget)} />
-        <UnitCatalogPanel
-          route={unitCatalogRoute}
-          bases={[lengthBasis, stressBasis, supportStiffnessBasis, thermalExpansionBasis]}
-        />
-      </details>
-      {["support", "node", "project"].includes(propertiesTarget.type) ? (
-        <details className="inspector-details" open={propertiesTarget.type === "support"}>
-          <summary>{propertiesTarget.type === "support" ? "Support configuration" : "New support configuration"}</summary>
-          <SupportConfigurationForm getPreparationEpoch={getPreparationEpoch} key={`support-properties:${projectSessionGeneration}`} model={model} preparationEpoch={selectionState?.preparationEpoch} selection={propertiesTarget} queuedIntents={queuedIntents} onQueueIntent={onQueueIntent} operationBusy={operationBusy || multiSelection} />
-        </details>
-      ) : null}
-      <MaterialTemperatureForm getPreparationEpoch={getPreparationEpoch} model={model} preparationEpoch={selectionState?.preparationEpoch} selection={propertiesTarget} queuedIntents={queuedIntents} onQueueIntent={onQueueIntent} operationBusy={operationBusy || multiSelection} />
-      <BendAuthoringForms getPreparationEpoch={getPreparationEpoch} model={model} preparationEpoch={selectionState?.preparationEpoch} selection={propertiesTarget} queuedIntents={queuedIntents} onQueueIntent={onQueueIntent} operationBusy={operationBusy || multiSelection} />
-      <JointPressureModelEditor getPreparationEpoch={getPreparationEpoch} model={model} preparationEpoch={selectionState?.preparationEpoch} selection={propertiesTarget} queuedIntents={queuedIntents} onQueueIntent={onQueueIntent} operationBusy={operationBusy || multiSelection} />
-      <WindExposureForm getPreparationEpoch={getPreparationEpoch} model={model} preparationEpoch={selectionState?.preparationEpoch} selection={propertiesTarget} queuedIntents={queuedIntents} onQueueIntent={onQueueIntent} operationBusy={operationBusy || multiSelection} />
-      <SectionAssignment model={model} selection={propertiesTarget} onQueueIntent={onQueueIntent} operationBusy={operationBusy || multiSelection} />
-      <PipeConditionSetField key={`pipe-condition-set:${projectSessionGeneration}`} getPreparationEpoch={getPreparationEpoch} model={model} preparationEpoch={selectionState?.preparationEpoch} selection={propertiesTarget} queuedIntents={queuedIntents} onQueueIntent={onQueueIntent} operationBusy={operationBusy || multiSelection} />
-      <GuardedRemoval model={model} selection={propertiesTarget} onQueueIntent={onQueueIntent} operationBusy={operationBusy || multiSelection} />
-      {propertiesTarget.type === "project" ? (
-        <details className="inspector-details" open data-testid="model-settings-details">
-          <summary>Model settings</summary>
-          <ModelSettingsSection key={`model-settings:${projectSessionGeneration}`} model={model} queuedIntents={queuedIntents} onQueueIntent={onQueueIntent} operationBusy={operationBusy || multiSelection} unitCatalogRoute={unitCatalogRoute} />
-        </details>
-      ) : null}
-      {propertiesTarget.type === "project" ? (
-        <details className="inspector-details" open data-testid="project-units-details">
-          <summary>Project units</summary>
-          <ProjectUnitsSection key={`project-units:${projectSessionGeneration}`} model={model} queuedIntents={queuedIntents} onQueueIntent={onQueueIntent} operationBusy={operationBusy || multiSelection} unitCatalogRoute={unitCatalogRoute} />
-        </details>
-      ) : null}
-      <details className="inspector-details" data-testid="model-data-annotations-details">
-        <summary>Tags, notes and provenance</summary>
-        <ModelDataAnnotations key={`model-data:${projectSessionGeneration}`} model={model} selection={propertiesTarget} queuedIntents={queuedIntents} onQueueIntent={onQueueIntent} operationBusy={operationBusy || multiSelection} />
-      </details>
-      <details className="inspector-details">
-        <summary>New section</summary>
-        <section className="editor-intent" aria-label="Create section intent" data-testid="create-section-intent-panel">
-        <div className="editor-intent-controls">
-          <label>
-            <span>Section ID</span>
-            <input
-              aria-label="New section ID"
-              data-testid="create-section-id"
-              onChange={(event) => updateSectionDraft("id", event.target.value)}
-              value={sectionDraft.id}
-            />
-          </label>
-          <label>
-            <span>Name</span>
-            <input
-              aria-label="New section name"
-              data-testid="create-section-name"
-              onChange={(event) => updateSectionDraft("name", event.target.value)}
-              value={sectionDraft.name}
-            />
-          </label>
-          <label>
-            <span>Type</span>
-            <CompactSelect
-              aria-label="New section type"
-              data-testid="create-section-type"
-              onValueChange={(value) => updateSectionDraft("sectionType", value)}
-              value={sectionDraft.sectionType}
-              options={[{ value: "pipe", label: "pipe" }]}
-            />
-          </label>
-          <label>
-            <span>Length unit</span>
-            <CompactSelect
-              aria-label="New section length unit"
-              data-testid="create-section-length-unit"
-              onValueChange={(value) => updateSectionDraft("lengthUnit", value)}
-              value={sectionDraft.lengthUnit}
-              options={lengthUnitOptions.map((option) => ({ value: option.symbol, label: option.label }))}
-            />
-          </label>
-          <label>
-            <span>Outside diameter ({lengthBasis.label})</span>
-            <input
-              aria-label="New section outside diameter"
-              data-testid="create-section-od"
-              inputMode="decimal"
-              onChange={(event) => updateSectionDraft("outsideDiameter", event.target.value)}
-              value={sectionDraft.outsideDiameter}
-            />
-          </label>
-          <label>
-            <span>Wall thickness ({lengthBasis.label})</span>
-            <input
-              aria-label="New section wall thickness"
-              data-testid="create-section-wall"
-              inputMode="decimal"
-              onChange={(event) => updateSectionDraft("wallThickness", event.target.value)}
-              value={sectionDraft.wallThickness}
-            />
-          </label>
-          <label>
-            <span>Provenance</span>
-            <input
-              aria-label="New section provenance"
-              data-testid="create-section-provenance"
-              onChange={(event) => updateSectionDraft("provenance", event.target.value)}
-              value={sectionDraft.provenance}
-            />
-          </label>
-          <button
-            data-testid="queue-create-section-intent"
-            disabled={multiSelection || !sectionCreateIntent}
-            onClick={handleQueueSectionIntent}
-            title="Queue section create intent"
-            type="button"
-          >
-            <PlusCircle size={14} aria-hidden="true" />
-            Queue section
-          </button>
-        </div>
-        {sectionCreateIntent ? <OperationIntentPreview intent={sectionCreateIntent} /> : null}
-      </section>
-      </details>
-      <details className="inspector-details">
-        <summary>New material</summary>
-        <section className="editor-intent" aria-label="Create material intent" data-testid="create-material-intent-panel">
-        <div className="editor-intent-controls">
-          <label>
-            <span>Material ID</span>
-            <input
-              aria-label="New material ID"
-              data-testid="create-material-id"
-              onChange={(event) => updateMaterialDraft("id", event.target.value)}
-              value={materialDraft.id}
-            />
-          </label>
-          <label>
-            <span>Label</span>
-            <input
-              aria-label="New material label"
-              data-testid="create-material-label"
-              onChange={(event) => updateMaterialDraft("label", event.target.value)}
-              value={materialDraft.label}
-            />
-          </label>
-          <label>
-            <span>Modulus unit</span>
-            <CompactSelect
-              aria-label="New material modulus unit"
-              data-testid="create-material-stress-unit"
-              onValueChange={(value) => updateMaterialDraft("stressUnit", value)}
-              value={materialDraft.stressUnit}
-              options={stressUnitOptions.map((option) => ({ value: option.symbol, label: option.label }))}
-            />
-          </label>
-          <label>
-            <span>Elastic modulus ({stressBasis.label})</span>
-            <input
-              aria-label="New material elastic modulus"
-              data-testid="create-material-elastic"
-              inputMode="decimal"
-              onChange={(event) => updateMaterialDraft("elasticModulus", event.target.value)}
-              value={materialDraft.elasticModulus}
-            />
-          </label>
-          <label>
-            <span>Shear modulus ({stressBasis.label})</span>
-            <input
-              aria-label="New material shear modulus"
-              data-testid="create-material-shear"
-              inputMode="decimal"
-              onChange={(event) => updateMaterialDraft("shearModulus", event.target.value)}
-              value={materialDraft.shearModulus}
-            />
-          </label>
-          <label>
-            <span>Thermal expansion unit</span>
-            <CompactSelect
-              aria-label="New material thermal expansion unit"
-              data-testid="create-material-thermal-unit"
-              onValueChange={(value) => updateMaterialDraft("thermalExpansionUnit", value)}
-              value={materialDraft.thermalExpansionUnit}
-              options={thermalExpansionUnitOptions.map((option) => ({ value: option.symbol, label: option.label }))}
-            />
-            {thermalExpansionUnitNotice ? <span className="muted" data-testid="create-material-thermal-unit-notice">{thermalExpansionUnitNotice}</span> : null}
-          </label>
-          <label>
-            <span>Thermal expansion ({thermalExpansionBasis.label})</span>
-            <input
-              aria-label="New material thermal expansion"
-              data-testid="create-material-thermal"
-              inputMode="decimal"
-              onChange={(event) => updateMaterialDraft("thermalExpansion", event.target.value)}
-              value={materialDraft.thermalExpansion}
-            />
-          </label>
-          <label>
-            <span>Provenance</span>
-            <input
-              aria-label="New material provenance"
-              data-testid="create-material-provenance"
-              onChange={(event) => updateMaterialDraft("provenance", event.target.value)}
-              value={materialDraft.provenance}
-            />
-          </label>
-          <button
-            data-testid="queue-create-material-intent"
-            disabled={multiSelection || !materialCreateIntent}
-            onClick={handleQueueMaterialIntent}
-            title="Queue material create intent"
-            type="button"
-          >
-            <PlusCircle size={14} aria-hidden="true" />
-            Queue material
-          </button>
-        </div>
-        {materialCreateIntent ? <OperationIntentPreview intent={materialCreateIntent} /> : null}
-      </section>
-      </details>
-      <details className="inspector-details">
-        <summary>New support</summary>
-        <section className="editor-intent" aria-label="Create support intent" data-testid="create-support-intent-panel">
-        <div className="editor-intent-controls">
-          <label>
-            <span>Support ID</span>
-            <input
-              aria-label="New support ID"
-              data-testid="create-support-id"
-              onChange={(event) => updateSupportDraft("id", event.target.value)}
-              value={supportDraft.id}
-            />
-          </label>
-          <label>
-            <span>Label</span>
-            <input
-              aria-label="New support label"
-              data-testid="create-support-label"
-              onChange={(event) => updateSupportDraft("label", event.target.value)}
-              value={supportDraft.label}
-            />
-          </label>
-          <VirtualTargetPicker label="New support node" testId="create-support-node" options={nodeTargetOptions} value={supportDraft.node} onChange={(value) => updateSupportDraft("node", value)} />
-          <div className="editor-intent-checkbox-grid" aria-label="New support restraints">
-            {RESTRAINT_OPTIONS.map((restraint) => (
-              <label key={restraint}>
-                <input
-                  checked={supportDraft.restraints.includes(restraint)}
-                  data-testid={`create-support-restraint-${restraint}`}
-                  onChange={() => toggleSupportRestraint(restraint)}
-                  type="checkbox"
-                />
-                <span>{restraint}</span>
-              </label>
-            ))}
-          </div>
-          <label>
-            <span>Support family</span>
-            <CompactSelect
-              aria-label="New support family"
-              data-testid="create-support-family"
-              onValueChange={(value) => updateSupportDraft("familyChoice", value)}
-              value={draftSupportFamily(supportDraft.familyChoice, supportFamilySuggestion)}
-              options={SUPPORT_FAMILY_OPTIONS}
-            />
-            {supportFamilySuggestion ? (
-              <span className="muted" data-testid="create-support-family-suggestion">
-                {supportFamilySuggestionText(supportFamilySuggestion)}{supportDraft.familyChoice === null ? "; you can change it" : ""}
-              </span>
-            ) : null}
-          </label>
-          <label>
-            <span>Linear stiffness unit</span>
-            <CompactSelect
-              aria-label="New support linear stiffness unit"
-              data-testid="create-support-stiffness-unit"
-              onValueChange={(value) => updateSupportDraft("linearStiffnessUnit", value)}
-              value={supportDraft.linearStiffnessUnit}
-              options={supportStiffnessUnitOptions.map((option) => ({ value: option.symbol, label: option.label }))}
-            />
-            {supportStiffnessUnitNotice ? <span className="muted" data-testid="create-support-stiffness-unit-notice">{supportStiffnessUnitNotice}</span> : null}
-          </label>
-          <label>
-            <span>Linear stiffness ({supportStiffnessBasis.label})</span>
-            <input
-              aria-label="New support linear stiffness"
-              data-testid="create-support-stiffness"
-              inputMode="decimal"
-              onChange={(event) => updateSupportDraft("linearStiffness", event.target.value)}
-              value={supportDraft.linearStiffness}
-            />
-          </label>
-          <label>
-            <span>Provenance</span>
-            <input
-              aria-label="New support provenance"
-              data-testid="create-support-provenance"
-              onChange={(event) => updateSupportDraft("provenance", event.target.value)}
-              value={supportDraft.provenance}
-            />
-          </label>
-          <button
-            data-testid="queue-create-support-intent"
-            disabled={multiSelection || !supportCreateIntent}
-            onClick={handleQueueSupportIntent}
-            title="Queue support create intent"
-            type="button"
-          >
-            <PlusCircle size={14} aria-hidden="true" />
-            Queue support
-          </button>
-        </div>
-        {supportCreateIntent ? <OperationIntentPreview intent={supportCreateIntent} /> : null}
-      </section>
-      </details>
-      <details className="inspector-details">
-        <summary>New component</summary>
-        <section className="editor-intent" aria-label="Create component intent" data-testid="create-component-intent-panel">
-        <div className="editor-intent-controls">
-          <label>
-            <span>Component ID</span>
-            <input
-              aria-label="New component ID"
-              data-testid="create-component-id"
-              onChange={(event) => updateComponentDraft("id", event.target.value)}
-              value={componentDraft.id}
-            />
-          </label>
-          <label>
-            <span>Label</span>
-            <input
-              aria-label="New component label"
-              data-testid="create-component-label"
-              onChange={(event) => updateComponentDraft("label", event.target.value)}
-              value={componentDraft.label}
-            />
-          </label>
-          <label>
-            <span>Kind</span>
-            <CompactSelect
-              aria-label="New component kind"
-              data-testid="create-component-kind"
-              value={componentDraft.kind}
-              onValueChange={(value) =>
-                setComponentDraft((current) =>
-                  componentDraftForKind(model, current, value as CreatableComponentKind)
-                )
-              }
-              options={creatableComponentKinds.map((kind) => ({ value: kind, label: kind }))}
-            />
-          </label>
-          <VirtualTargetPicker label="New component node" testId="create-component-node" options={nodeTargetOptions} value={componentDraft.node} onChange={(value) => setComponentDraft((current) => componentDraftForNode(model, current, value))} />
-          <VirtualTargetPicker label={componentDraft.kind === "tee" ? "New tee header pipe" : "New component realized pipe"} testId="create-component-pipe" options={connectedPipeTargetOptions} value={componentDraft.primaryPipeRef} onChange={(value) => updateComponentDraft("primaryPipeRef", value)} />
-          {componentDraft.kind === "tee" ? (
-            <VirtualTargetPicker label="New tee branch pipe" testId="create-component-secondary-pipe" options={connectedPipeTargetOptions} value={componentDraft.secondaryPipeRef} onChange={(value) => updateComponentDraft("secondaryPipeRef", value)} />
-          ) : null}
-          {componentDraft.kind === "bend" ? (
-            <>
-              <ComponentTextInput label="Radius" testId="create-component-radius" value={componentDraft.bendRadius} onChange={(value) => updateComponentDraft("bendRadius", value)} />
-              <ComponentUnitSelect label="Radius unit" testId="create-component-radius-unit" value={componentDraft.lengthUnit} options={lengthUnitOptions} onChange={(value) => updateComponentDraft("lengthUnit", value)} />
-              <ComponentTextInput label="Angle" testId="create-component-angle" value={componentDraft.bendAngle} onChange={(value) => updateComponentDraft("bendAngle", value)} />
-              <ComponentUnitSelect label="Angle unit" testId="create-component-angle-unit" value={componentDraft.angleUnit} options={componentAngleUnitOptions} onChange={(value) => updateComponentDraft("angleUnit", value)} />
-            </>
-          ) : null}
-          {componentDraft.kind === "tee" ? (
-            <>
-              <ComponentTextInput label="Run size" testId="create-component-run-size" value={componentDraft.branchRunSize} onChange={(value) => updateComponentDraft("branchRunSize", value)} />
-              <ComponentTextInput label="Header size" testId="create-component-header-size" value={componentDraft.branchHeaderSize} onChange={(value) => updateComponentDraft("branchHeaderSize", value)} />
-              <ComponentUnitSelect label="Size unit" testId="create-component-length-unit" value={componentDraft.lengthUnit} options={lengthUnitOptions} onChange={(value) => updateComponentDraft("lengthUnit", value)} />
-              <ComponentTextInput label="Connection angle" testId="create-component-connection-angle" value={componentDraft.branchConnectionAngle} onChange={(value) => updateComponentDraft("branchConnectionAngle", value)} />
-              <ComponentUnitSelect label="Angle unit" testId="create-component-angle-unit" value={componentDraft.angleUnit} options={componentAngleUnitOptions} onChange={(value) => updateComponentDraft("angleUnit", value)} />
-              <ComponentTextInput label="Connection type" testId="create-component-connection-type" value={componentDraft.branchConnectionType} onChange={(value) => updateComponentDraft("branchConnectionType", value)} />
-              <ComponentTextInput label="Reinforcement reference" testId="create-component-reinforcement" value={componentDraft.branchReinforcementReference} onChange={(value) => updateComponentDraft("branchReinforcementReference", value)} />
-            </>
-          ) : null}
-          {componentDraft.kind === "expansion_joint" ? (
-            <ConnectorDraftFields model={model} draft={componentDraft} prefix="create" TextInput={ComponentTextInput} update={(key, value) => updateComponentDraft(key, value)} />
-          ) : null}
-          {componentDraft.kind !== "bend" && componentDraft.kind !== "tee" && componentDraft.kind !== "expansion_joint" ? (
-            <>
-              <ComponentTextInput label="Body length" testId="create-component-body-length" value={componentDraft.rigidBodyLength} onChange={(value) => updateComponentDraft("rigidBodyLength", value)} />
-              <ComponentUnitSelect label="Body length unit" testId="create-component-length-unit" value={componentDraft.lengthUnit} options={lengthUnitOptions} onChange={(value) => updateComponentDraft("lengthUnit", value)} />
-              <ComponentTextInput label="End A size" testId="create-component-end-a-size" value={componentDraft.endASize} onChange={(value) => updateComponentDraft("endASize", value)} />
-              <ComponentUnitSelect label="End A size unit" testId="create-component-end-a-size-unit" value={componentDraft.endASizeUnit} options={lengthUnitOptions} onChange={(value) => updateComponentDraft("endASizeUnit", value)} />
-              <ComponentTextInput label="End B size" testId="create-component-end-b-size" value={componentDraft.endBSize} onChange={(value) => updateComponentDraft("endBSize", value)} />
-              <ComponentUnitSelect label="End B size unit" testId="create-component-end-b-size-unit" value={componentDraft.endBSizeUnit} options={lengthUnitOptions} onChange={(value) => updateComponentDraft("endBSizeUnit", value)} />
-              <ComponentTextInput label="Weight" testId="create-component-weight" value={componentDraft.weight} onChange={(value) => updateComponentDraft("weight", value)} />
-              <ComponentUnitSelect label="Weight unit" testId="create-component-force-unit" value={componentDraft.forceUnit} options={componentForceUnitOptions} onChange={(value) => updateComponentDraft("forceUnit", value)} />
-              <ComponentTextInput label="COG X" testId="create-component-cog-x" value={componentDraft.centerOfGravityX} onChange={(value) => updateComponentDraft("centerOfGravityX", value)} />
-              <ComponentTextInput label="COG Y" testId="create-component-cog-y" value={componentDraft.centerOfGravityY} onChange={(value) => updateComponentDraft("centerOfGravityY", value)} />
-              <ComponentTextInput label="COG Z" testId="create-component-cog-z" value={componentDraft.centerOfGravityZ} onChange={(value) => updateComponentDraft("centerOfGravityZ", value)} />
-              <ComponentUnitSelect label="COG unit" testId="create-component-cog-unit" value={componentDraft.centerOfGravityUnit} options={lengthUnitOptions} onChange={(value) => updateComponentDraft("centerOfGravityUnit", value)} />
-              <ComponentTextInput label="End A reference" testId="create-component-end-a-ref" value={componentDraft.connectionEndAReference} onChange={(value) => updateComponentDraft("connectionEndAReference", value)} />
-              <ComponentTextInput label="End B reference" testId="create-component-end-b-ref" value={componentDraft.connectionEndBReference} onChange={(value) => updateComponentDraft("connectionEndBReference", value)} />
-              <ComponentTextInput label="Stiffness behavior reference" testId="create-component-stiffness-ref" value={componentDraft.stiffnessBehaviorReference} onChange={(value) => updateComponentDraft("stiffnessBehaviorReference", value)} />
-              <RigidDraftFields draft={componentDraft} prefix="create" TextInput={ComponentTextInput} update={(key, value) => updateComponentDraft(key, value)} />
-            </>
-          ) : null}
-          <label>
-            <span>Geometry source</span>
-            <input
-              aria-label="New component geometry source"
-              data-testid="create-component-source"
-              onChange={(event) => updateComponentDraft("geometrySourceReference", event.target.value)}
-              value={componentDraft.geometrySourceReference}
-            />
-          </label>
-          <label>
-            <span>Provenance</span>
-            <input
-              aria-label="New component provenance"
-              data-testid="create-component-provenance"
-              onChange={(event) => updateComponentDraft("provenance", event.target.value)}
-              value={componentDraft.provenance}
-            />
-          </label>
-          {componentUnitNotices.map(({ key, text }) => (
-            <p key={key} role="status" data-testid={`create-component-missing-project-unit-${key}`}>{text}</p>
-          ))}
-          <button
-            data-testid="queue-create-component-intent"
-            disabled={multiSelection || !componentCreateIntent}
-            onClick={handleQueueComponentIntent}
-            title={`Queue explicit ${componentDraft.kind} component creation intent`}
-            type="button"
-          >
-            <PlusCircle size={14} aria-hidden="true" />
-            Queue {componentDraft.kind}
-          </button>
-        </div>
-        {componentCreateIntent ? <OperationIntentPreview intent={componentCreateIntent} /> : null}
-      </section>
-      </details>
-      {nodeDeleteIntent ? (
-        <section className="editor-intent" aria-label="Delete node intent" data-testid="delete-node-intent-panel">
-          <h3>Delete node</h3>
-          <div className="editor-intent-controls">
-            <button
-              data-testid="queue-delete-node-intent"
-              disabled={multiSelection}
-              onClick={handleQueueDeleteNodeIntent}
-              title="Queue node delete intent"
-              type="button"
-            >
-              <Trash2 size={14} aria-hidden="true" />
-              Queue delete node
-            </button>
-          </div>
-          <OperationIntentPreview intent={nodeDeleteIntent} />
-        </section>
-      ) : mutationNode ? (
-        <p className="muted" role="note" data-testid="delete-node-engine-absent">{NODE_DELETE_ENGINE_ABSENT}</p>
-      ) : null}
-      {pipeDeleteIntent ? (
-        <section className="editor-intent" aria-label="Delete pipe intent" data-testid="delete-pipe-intent-panel">
-          <h3>Delete pipe</h3>
-          <div className="editor-intent-controls">
-            <button
-              data-testid="queue-delete-pipe-intent"
-              disabled={multiSelection}
-              onClick={handleQueueDeletePipeIntent}
-              title="Queue pipe delete intent"
-              type="button"
-            >
-              <Trash2 size={14} aria-hidden="true" />
-              Queue delete pipe
-            </button>
-          </div>
-          <OperationIntentPreview intent={pipeDeleteIntent} />
-        </section>
-      ) : null}
-      {supportDeleteIntent ? (
-        <section className="editor-intent" aria-label="Delete support intent" data-testid="delete-support-intent-panel">
-          <h3>Delete support</h3>
-          <div className="editor-intent-controls">
-            <button
-              data-testid="queue-delete-support-intent"
-              disabled={multiSelection}
-              onClick={handleQueueDeleteSupportIntent}
-              title="Queue support delete intent"
-              type="button"
-            >
-              <Trash2 size={14} aria-hidden="true" />
-              Queue delete support
-            </button>
-          </div>
-          <OperationIntentPreview intent={supportDeleteIntent} />
-        </section>
-      ) : null}
-      </div>
     </div>
   );
 }
+
+type CreationForm = "section" | "material" | "support" | "component";
+/** The creation form each command's focus target opens (capabilityCatalog, Insert > Support). */
+const CREATION_FORM_BY_FOCUS: Readonly<Record<string, CreationForm>> = {
+  "create-section-id": "section",
+  "create-material-id": "material",
+  "create-support-id": "support",
+  "create-component-kind": "component"
+};
 
 /**
  * The heading's typed identity: the exact, unmodified id, after its kind. An id that already begins with
@@ -1141,7 +1213,7 @@ function typedIdentityText(ref: EntityRef): string {
 
 /** Rows shown in the inspector's always-visible overview: identity, connections, size and material. */
 const OVERVIEW_LABELS: ReadonlySet<string> = new Set([
-  "Project ID", "Schema", "ID", "Label", "Name", "Type", "Kind", "Family", "Hanger type", "From", "To", "Node", "Position",
+  "Project ID", "ID", "Label", "Name", "Type", "Kind", "Family", "Hanger type", "From", "To", "Node", "Position",
   "OD", "Wall", "Material", "Restraints", "Condition set"
 ]);
 

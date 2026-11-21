@@ -325,7 +325,7 @@ describe("ModelTree virtual typed selection", () => {
       selection={node}
       selectionState={{ ...singletonSelection(node), orderedKeys: [entityKey(support), entityKey(node)] }}
     /></DisplayUnitsProvider>);
-    expect(screen.getByTestId("aggregate-property-inspector")).toHaveTextContent("Existing Properties drafts remain attached");
+    expect(screen.getByTestId("aggregate-property-inspector")).toBeVisible();
     expect(screen.getByLabelText("Support provenance")).toHaveValue("entered rich draft");
     expect(screen.getByLabelText("Support provenance")).toBeDisabled();
 

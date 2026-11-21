@@ -132,8 +132,7 @@ export function InsertBendAtCornerForm(props: RichFormProps & { node: string }) 
     };
     await state.queue({ object_type: "Node", ref: node }, "insert_bend_at_corner", "bend_at_corner", context, after, "Insert bend at corner");
   } catch (e) { state.setError(e instanceof Error ? e.message : String(e)); } }
-  return <section aria-label="Insert bend at corner" data-testid="insert-bend-at-corner-form"><h3>Insert bend at corner</h3>
-    <p>Replaces corner {node} by a realized bend of radius R between its two straights: the tangent points are placed exactly, both pipes are shortened, the arc span joins them and the bend carries your k. Supports, loads and regions on the corner or either pipe must be removed first; nothing is repartitioned.</p>
+  return <section aria-label="Insert bend at corner" data-testid="insert-bend-at-corner-form">
     <fieldset disabled={state.busy}>
       <QuantityField label="Bend radius R" dimension="length" value={draft.radius} onChange={v => update("radius", v)} />
       <label>Flexibility factor k<input aria-label="Corner bend flexibility factor k" inputMode="decimal" value={String(draft.k ?? "")} onChange={e => update("k", e.target.value)} /></label>
@@ -147,6 +146,7 @@ export function InsertBendAtCornerForm(props: RichFormProps & { node: string }) 
         : <TextField label="Bend component ID" value={draft.component} onChange={v => update("component", v)} />}
       <TextField label="Geometry source reference" value={draft.geometrySource} onChange={v => update("geometrySource", v)} />
       <TextField label="Corner bend provenance" value={draft.provenance} onChange={v => update("provenance", v)} />
+      <p>Both pipes shorten to the tangent points; the arc joins them.</p>
       <button type="button" onClick={() => void submit()}>Queue insert bend at corner</button>
     </fieldset><QueueFeedback {...state} />
   </section>;
