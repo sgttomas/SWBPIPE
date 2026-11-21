@@ -3,7 +3,7 @@
 // guard and then adopts the record as Open Model Document adopts a file, with
 // no stored base; and a landed Save Local Project discards that project's
 // autosaves. Invented documents only.
-import { act, fireEvent, render, screen, waitFor } from "@testing-library/react";
+import { act, fireEvent, render, screen, waitFor, within } from "@testing-library/react";
 import { afterEach, describe, expect, it, vi } from "vitest";
 
 const invokeMock = vi.hoisted(() => vi.fn());
@@ -16,6 +16,7 @@ import type { LocalProjectEnvelope, PreviewModel } from "../../types";
 import { formatAutosaveTime } from "./autosaveRecovery";
 import type { BackupWriteOutcome } from "./backupService";
 import { autosaveSlot, type AutosaveEntry } from "./autosaveService";
+import { REVIEW_NO_RUN_TEXT } from "../results/ResultsStageNotices";
 
 afterEach(() => {
   vi.restoreAllMocks();
@@ -152,6 +153,25 @@ describe("Open autosave", () => {
     // No stored project was opened or written.
     expect(called("open_local_project")).toHaveLength(0);
     expect(called("save_local_project")).toHaveLength(0);
+  });
+  it("leaves Results and Review reachable after the recovered model is adopted without a solved run, and Review says what a report needs", async () => {
+    await editedNativeSession([[await recoveredRecord()]]);
+    await screen.findByTestId("autosave-recovery-prompt");
+    fireEvent.click(screen.getByTestId("autosave-recovery-open"));
+    fireEvent.click(await screen.findByTestId("unsaved-changes-discard"));
+    await waitFor(() => expect(toolbarProject()).toHaveTextContent(RECOVERED_NAME));
+    for (const stage of ["results", "review"]) {
+      const rail = screen.getByTestId(`rail-stage-${stage}`);
+      // Reachable, with no disabled reason ("No run yet" was the reason before the results cut).
+      expect(rail).not.toHaveAttribute("aria-disabled", "true");
+      expect(rail).not.toBeDisabled();
+      expect(rail).not.toHaveAttribute("aria-describedby");
+    }
+    fireEvent.click(screen.getByTestId("rail-stage-review"));
+    expect(screen.getByTestId("rail-stage-review")).toHaveAttribute("aria-current", "page");
+    const review = screen.getByTestId("workspace-section-report");
+    expect(review).not.toHaveClass("inactive");
+    expect(within(review).getByTestId("review-no-run")).toHaveTextContent(REVIEW_NO_RUN_TEXT);
   });
 });
 

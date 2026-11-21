@@ -13,7 +13,7 @@ import { createNativeMechanicsReplay, nativeMechanicsReplayPair, REPLAY_COMMANDS
 import type { LocalProjectEnvelope, PreviewModel } from "./types";
 import { confirmProjectUnits } from "./test-support/workspaceTestControls";
 import { SHELL_STAGE_LABELS } from "./features/workspace/shellLayout";
-import { RESULTS_NO_RUN_TEXT, REVIEW_REOPENED_RUN_TEXT } from "./features/results/ResultsStageNotices";
+import { RESULTS_NO_RUN_TEXT, REVIEW_NO_RUN_TEXT, REVIEW_REOPENED_RUN_TEXT } from "./features/results/ResultsStageNotices";
 import { openStageTab } from "./features/results/resultsStageTestSupport";
 
 // Slice B3: the shell through the product. The rules themselves are unit-tested
@@ -185,6 +185,8 @@ describe("the rail's states through the product", () => {
     fireEvent.click(rail("review"));
     expect(rail("review")).toHaveAttribute("aria-current", "page");
     expect(screen.getByTestId("workspace-section-report")).not.toHaveClass("inactive");
+    // Review says what a report needs.
+    expect(within(screen.getByTestId("workspace-section-report")).getByTestId("review-no-run")).toHaveTextContent(REVIEW_NO_RUN_TEXT);
     // The View menu agrees with the rail; it lists no Results, Report or Evidence section, which
     // the stages reach. The webview still accepts their command ids.
     fireEvent.click(screen.getByTestId("menu-view"));

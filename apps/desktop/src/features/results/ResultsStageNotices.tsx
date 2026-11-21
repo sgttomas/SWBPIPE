@@ -22,6 +22,11 @@ export function StoredRunRefusedNotice({ message }: { message: string }) {
 export const REVIEW_REOPENED_RUN_TEXT =
   "A report is made from a run solved in this session. This run was reopened from the saved project: solve the model again to report it. A report saved earlier is a file you kept; the project does not list saved reports.";
 
+/** The head of the Review stage while no run is shown (before any solve, or after a model is opened
+ * or recovered without one): what a report needs, said where the person looks for the report. */
+export const REVIEW_NO_RUN_TEXT =
+  "A report is made from a run solved in this session. No solved run is shown: solve the model to report it.";
+
 /** Whether the run shown is one reopened from a saved project (not the bundled reference). */
 export function isReopenedSavedRun(designation: string | null | undefined): boolean {
   return designation === "historical_saved_run" || designation === "recorded_run";
