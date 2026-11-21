@@ -10,6 +10,7 @@ import { DisplayUnitsProvider } from "../display-units";
 import { entityKey } from "../workspace/selectionState";
 import { chooseVirtualTarget } from "../../test-support/workspaceTestControls";
 import { PropertyInspector } from "./PropertyInspector";
+import type { CreationTool } from "../viewport/PipeViewport";
 import { offersBendAtCorner } from "./inspectorActions";
 
 afterEach(cleanup);
@@ -227,7 +228,7 @@ describe("settings are not properties", () => {
 });
 
 describe("the Support tool and New support agree", () => {
-  type Armed = "support" | null;
+  type Armed = CreationTool | null;
   function harness() {
     const model = inventedModel();
     const arm = vi.fn<(tool: Armed) => void>();
