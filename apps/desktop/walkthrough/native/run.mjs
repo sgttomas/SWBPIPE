@@ -48,7 +48,7 @@
 // replaced by a record, and Print is not pressed. The embedded agent is never started; no provider, model, key,
 // network or sign-in is used. Chromium renders after the app has ended, loads nothing, and is given no file of the
 // home. Evidence of what a person sees, not a test: a journey that stops is a finding in the index.
-import { randomBytes } from "node:crypto";
+import { createHash, randomBytes } from "node:crypto";
 import { execFileSync } from "node:child_process";
 import * as fs from "node:fs";
 import { lstatSync, mkdirSync, mkdtempSync, readFileSync, realpathSync, rmSync, writeFileSync, writeSync } from "node:fs";
@@ -107,10 +107,10 @@ export const JOURNEYS = Object.freeze({
   "refused-stored-run": {
     number: 25, title: "Reopen a saved project whose stored run this version does not read (launched app): the refusal, the Results stage and a save in place",
     use_case: "DEL-14-02 AX-003, refuse by name over reading leniently: a saved project whose run's record binds its result rules at a revision this version does not read, opened from the local store; the run is refused and the model opens",
-    place: [{ key: "store", at: "{app-data}/openpipestress-projects.sqlite3", from: "fixtures/persistence/refused_stored_run/openpipestress-projects.sqlite3" }],
+    place: [{ key: "store", at: "{app-data}/openpipestress-projects.sqlite3", from: "fixtures/persistence/refused_stored_run/openpipestress-projects.sql", build: "sqlite3-from-sql" }],
     open: { by: "local-project", project_id: "project:precision-connected-fixture" },
-    // Copies of the store the driver has the app write at these moments (storeCopy), read after the launch for
-    // whether the stored run's texts are still the placed ones (storedRunEvidence).
+    // Copies of the store the driver has the app write at these moments (driver.js storeCopy), read after the launch
+    // for whether the stored run's texts are still the placed ones (storedRunEvidence).
     store_copies: ["after-open", "after-save"]
   }
 });
@@ -150,9 +150,11 @@ export const APP_DATA = "{app-data}";
 /**
  * Where each declared file goes: [{ key, from, to }], absolute paths, `to` strictly inside `home`. Throws, naming the
  * entry, when `at` is absolute, climbs (`..`) or is empty; when `from` is not a committed path under `fixtures/`; when
- * the source is not a regular file (a link is refused); or when two entries share a key or a destination.
+ * the source is not a regular file (a link is refused); or when two entries share a key or a destination. An entry
+ * with `build: "sqlite3-from-sql"` is SQL text that placeFiles runs through sqlite3 into a store at `at`; it is also
+ * refused when sqlite3 is not there to run.
  */
-export function placementsFor(place = [], { home, identifier, projectRoot, lstat = fs.lstatSync }) {
+export function placementsFor(place = [], { home, identifier, projectRoot, lstat = fs.lstatSync, sqlite3 = SQLITE3, access = fs.accessSync }) {
   const seen = new Set();
   return place.map((entry, index) => {
     const name = `place[${index}] (${entry?.key ?? "no key"})`;
@@ -169,20 +171,64 @@ export function placementsFor(place = [], { home, identifier, projectRoot, lstat
     let stat;
     try { stat = lstat(from); } catch { throw new Error(`${name}: ${entry.from} does not exist`); }
     if (!stat.isFile()) throw new Error(`${name}: ${entry.from} is not a regular file`);
+    if (entry.build !== undefined) {
+      if (entry.build !== SQLITE3_FROM_SQL) throw new Error(`${name}: build must be "${SQLITE3_FROM_SQL}"`);
+      try { access(sqlite3, fs.constants.X_OK); } catch { throw new Error(`${name}: ${SQLITE3_FROM_SQL} needs ${sqlite3}, which is not there to run`); }
+    }
     const to = path.join(home, relative);
     if (seen.has(entry.key) || seen.has(to)) throw new Error(`${name}: a key or destination is declared twice`);
     seen.add(entry.key);
     seen.add(to);
-    return { key: entry.key, from, to };
+    return { key: entry.key, from, to, ...(entry.build ? { build: entry.build } : {}) };
   });
 }
 
-/** Copies each placement into the home (never over an existing file) and returns { key: path }. */
-export function placeFiles(placements) {
+/** sqlite3 by its absolute path on this platform, never found on PATH. */
+export const SQLITE3 = "/usr/bin/sqlite3";
+export const SQLITE3_FROM_SQL = "sqlite3-from-sql";
+
+/**
+ * Copies each placement into the home (never over an existing file) and returns { key: path }. A `sqlite3-from-sql`
+ * placement is built instead: sqlite3, by its absolute path, with a fixed argument list (nothing of the declaration
+ * in it), no shell, an environment of its own and the SQL text on standard input, writes a store in a new folder
+ * beside the destination (inside the home), which is then
+ * moved into place; a failing sqlite3, or a journal file left beside the store, refuses by name and places nothing.
+ * Each build is recorded in `built`: the SQL text's SHA-256 and the built file's.
+ */
+export function placeFiles(placements, { sqlite3 = SQLITE3, run = execFileSync, built = [] } = {}) {
   const placed = {};
-  for (const { key, from, to } of placements) {
+  for (const { key, from, to, build } of placements) {
     fs.mkdirSync(path.dirname(to), { recursive: true });
-    fs.copyFileSync(from, to, fs.constants.COPYFILE_EXCL);
+    if (build === SQLITE3_FROM_SQL) {
+      if (fs.existsSync(to)) throw new Error(`place (${key}): ${to} exists`);
+      const sql = fs.readFileSync(from);
+      const work = fs.mkdtempSync(path.join(path.dirname(to), ".placement-"));
+      try {
+        try {
+          // An environment of its own (HOME the build folder, so no ~/.sqliterc of the real user is read).
+          run(sqlite3, ["-bail", "-batch", "built.sqlite3"], { cwd: work, env: { HOME: work }, input: sql, stdio: ["pipe", "ignore", "pipe"], timeout: 120_000 });
+        } catch (error) {
+          throw new Error(`place (${key}): ${SQLITE3_FROM_SQL}: ${sqlite3} failed (${String(error.stderr ?? error.message).trim().split("\n")[0].slice(0, 300)})`);
+        }
+        // This platform's sqlite3 keeps its WAL files after a clean close: an empty WAL holds nothing and goes with
+        // its index; a WAL with content, or any other file, refuses.
+        const wal = path.join(work, "built.sqlite3-wal");
+        if (fs.existsSync(wal) && fs.statSync(wal).size === 0) {
+          fs.rmSync(wal);
+          fs.rmSync(path.join(work, "built.sqlite3-shm"), { force: true });
+        }
+        const left = fs.readdirSync(work).filter((name) => name !== "built.sqlite3");
+        if (left.length > 0 || !fs.existsSync(path.join(work, "built.sqlite3"))) throw new Error(`place (${key}): ${SQLITE3_FROM_SQL}: sqlite3 left ${left.length ? left.join(", ") : "no store"}`);
+        fs.renameSync(path.join(work, "built.sqlite3"), to);
+      } finally {
+        fs.rmSync(work, { recursive: true, force: true });
+      }
+      const sha = (bytes) => createHash("sha256").update(bytes).digest("hex");
+      const bytes = fs.readFileSync(to);
+      built.push({ key, from: path.basename(from), build, sql_sha256: sha(sql), sha256: sha(bytes), bytes: bytes.length });
+    } else {
+      fs.copyFileSync(from, to, fs.constants.COPYFILE_EXCL);
+    }
     placed[key] = to;
   }
   return placed;
@@ -200,33 +246,48 @@ export function composeDriver(driverText) {
 }
 
 const STORED_RUN_TEXTS = "SELECT project_id, mechanics_result_json AS result, analysis_run_json AS record FROM local_projects ORDER BY project_id";
+const STORE_AT = `${APP_DATA}/openpipestress-projects.sqlite3`;
 
 /**
- * Whether a journey's placed store still holds the same stored runs at each of its `store_copies`: for every project
- * row, the SHA-256 of its stored result and analysis-run record texts, read from the placed file (through a copy in
- * `scratch`, so nothing is written beside the fixture) and from each copy the app wrote at that moment through a
- * read-only connection (`<report>.store-<name>.store.sqlite3`, native_smoke_checkpoint's store snapshot). A copy the
- * app did not write is recorded as missing, and then nothing is claimed unchanged.
+ * A journey's `store_copies`: names (a-z, 0-9 and -, up to 26 characters) of the moments its driver has the app copy
+ * its own store (driver.js storeCopy). A name is not a path: the copy is written by the app, through a read-only
+ * connection, beside the launch's report in the run's folder. Refused by name when an entry is not such a name, is
+ * repeated, or the journey places no store at {app-data}/openpipestress-projects.sqlite3. None declared is [].
  */
-export async function storedRunEvidence({ names, report, placedStore, scratch }) {
+export function storeCopiesFor(spec) {
+  if (spec.store_copies === undefined) return [];
+  if (!Array.isArray(spec.store_copies)) throw new Error("store_copies must be a list of names");
+  spec.store_copies.forEach((name, index) => {
+    if (typeof name !== "string" || !/^[a-z0-9][a-z0-9-]{0,25}$/.test(name)) throw new Error(`store_copies[${index}] (${String(name)}): a store copy is named by a-z, 0-9 and -, up to 26 characters; it is not a path`);
+  });
+  if (new Set(spec.store_copies).size !== spec.store_copies.length) throw new Error("store_copies names a copy twice");
+  if (!(spec.place ?? []).some((entry) => entry?.at === STORE_AT)) throw new Error(`store_copies needs a store placed at ${STORE_AT}`);
+  return [...spec.store_copies];
+}
+
+/** Each project row's stored result and analysis-run record texts in the store `file`, by SHA-256. */
+export async function readStoredRuns(file) {
   const { DatabaseSync } = await import("node:sqlite");
-  const { createHash } = await import("node:crypto");
   const digest = (text) => (text === null || text === undefined ? null : createHash("sha256").update(text, "utf8").digest("hex"));
-  const read = (file) => {
-    const db = new DatabaseSync(file, { readOnly: true });
-    try {
-      return db.prepare(STORED_RUN_TEXTS).all().map((row) => ({ project_id: row.project_id, result_sha256: digest(row.result), record_sha256: digest(row.record) }));
-    } finally {
-      db.close();
-    }
-  };
-  const placedCopy = path.join(scratch, "placed-store.sqlite3");
-  fs.copyFileSync(placedStore, placedCopy, fs.constants.COPYFILE_EXCL);
-  const placed = read(placedCopy);
+  const db = new DatabaseSync(file, { readOnly: true });
+  try {
+    return db.prepare(STORED_RUN_TEXTS).all().map((row) => ({ project_id: row.project_id, result_sha256: digest(row.result), record_sha256: digest(row.record) }));
+  } finally {
+    db.close();
+  }
+}
+
+/**
+ * Whether the placed store still holds the same stored runs at each of its `store_copies`: `placed` is read before the
+ * launch from a copy the runner made of the placed store inside the home; each copy the app wrote at a named moment
+ * is `<report>.store-<name>.store.sqlite3`. A copy the app did not write is recorded as missing, and then nothing is
+ * claimed unchanged.
+ */
+export async function storedRunEvidence({ names, report, placed }) {
   const at = {};
   for (const name of names) {
     const file = `${report}.store-${name}.store.sqlite3`;
-    at[name] = fs.existsSync(file) ? read(file) : { missing: "the app wrote no copy of the store at this moment (the journey stopped before it)" };
+    at[name] = fs.existsSync(file) ? await readStoredRuns(file) : { missing: "the app wrote no copy of the store at this moment (the journey stopped before it)" };
   }
   const same = (rows) => Array.isArray(rows) && JSON.stringify(rows) === JSON.stringify(placed);
   return {
@@ -525,10 +586,20 @@ async function main() {
     if (spec.timeouts) plan.timeouts = spec.timeouts;
     if (name === "report") plan.local_package = path.join(where.saved, "walkthrough-local.opsproj");
     // The prepared files, in the home before the app starts; refused by name when a declaration is wrong.
-    let placements = [];
+    const built = [];
+    let storeCopies = [];
+    let placedRuns = null;
     try {
-      placements = placementsFor(spec.place, { home: where.home, identifier: IDENTIFIER, projectRoot: project });
-      plan.placed = placeFiles(placements);
+      storeCopies = storeCopiesFor(spec);
+      const placements = placementsFor(spec.place, { home: where.home, identifier: IDENTIFIER, projectRoot: project });
+      plan.placed = placeFiles(placements, { built });
+      // The placed store's stored runs, read from the runner's copy of it made inside the home, before the launch.
+      if (storeCopies.length > 0) {
+        const store = placements.find((item) => item.to === path.join(where.home, "Library", "Application Support", IDENTIFIER, "openpipestress-projects.sqlite3")).to;
+        const copy = path.join(where.root, "placed-store.sqlite3");
+        fs.copyFileSync(store, copy, fs.constants.COPYFILE_EXCL);
+        placedRuns = await readStoredRuns(copy);
+      }
       if (spec.open) {
         plan.open = { ...spec.open, ...(spec.open.file ? { file: plan.placed[spec.open.file] } : {}) };
         if (spec.open.by === "model-document") plan.open.project_id = JSON.parse(readFileSync(plan.open.file, "utf8")).project.id;
@@ -545,11 +616,9 @@ async function main() {
     else check("its throwaway home was removed", true);
     const records = readStepRecords(report);
     let storedRuns;
-    if (spec.store_copies) {
-      const placedStore = placements.find((item) => item.to.endsWith(`${path.sep}openpipestress-projects.sqlite3`))?.from;
+    if (storeCopies.length > 0) {
       try {
-        if (!placedStore) throw new Error("the journey places no local project store");
-        storedRuns = await storedRunEvidence({ names: spec.store_copies, report, placedStore, scratch: where.root });
+        storedRuns = await storedRunEvidence({ names: storeCopies, report, placed: placedRuns });
         check("the placed store's stored runs are read before and at each store copy", true, { unchanged: storedRuns.unchanged });
       } catch (error) {
         storedRuns = { error: error.message };
@@ -565,7 +634,7 @@ async function main() {
       number: spec.number, name, title: spec.title, use_case: spec.use_case, screens,
       revision: { commit: revision, uncommitted_paths: uncommitted },
       build: { kind: "scripted-run build (native-smoke feature), launched as a private copy", app_sha256: app.identity.sha256, app_bytes: app.identity.size, binding_record_sha256: bindingSha }, launch: { ended_cleanly: failures.length === 0, failures, driver_finished: seen?.ok === true },
-      ...(storedRuns ? { stored_runs: storedRuns } : {}) });
+      ...(built.length ? { built_placements: built } : {}), ...(storedRuns ? { stored_runs: storedRuns } : {}) });
     const pictured = screens.filter((screen) => screen.file).length;
     const stop = screens.find((screen) => screen.failed);
     console.log(`${NAME}: ${name}: ${pictured} screens${stop ? `; stopped at "${stop.step}": ${stop.failed}` : ""}`);

@@ -63,6 +63,7 @@ export function composeIndex(out, { size = null } = {}) {
       window: journey.window ?? size ?? null,
       ...(journey.picture_basis ? { picture_basis: journey.picture_basis } : {}),
       ...(journey.launch ? { launch: journey.launch } : {}),
+      ...(journey.built_placements ? { built_placements: journey.built_placements } : {}),
       ...(journey.stored_runs ? { stored_runs: journey.stored_runs } : {}),
       screens: journey.screens.filter((screen) => screen.file && !screen.failed).length,
       stopped_at: journey.screens.find((screen) => screen.failed)?.step ?? null,
@@ -106,10 +107,11 @@ function renderHtml(index) {
     const revision = journey.revision?.commit ? `${journey.revision.commit.slice(0, 12)}${journey.revision.uncommitted_paths ? ` with ${journey.revision.uncommitted_paths} uncommitted path(s)` : ""}` : "not recorded";
     const build = journey.build ? (typeof journey.build === "string" ? journey.build : `${journey.build.kind}${journey.build.app_sha256 ? `, app ${journey.build.app_sha256.replace(/^sha256:/, "").slice(0, 12)}` : ""}`) : "not recorded";
     const facts = `<p class="surface">Use case: ${escapeHtml(journey.use_case)}. Revision: ${escapeHtml(revision)}. Build: ${escapeHtml(build)}.</p>`;
+    const builds = (journey.built_placements ?? []).map((item) => `<p class="surface">Placed ${escapeHtml(item.key)}: built by ${escapeHtml(item.build)} from ${escapeHtml(item.from)} (SQL SHA-256 ${escapeHtml(item.sql_sha256)}; built file SHA-256 ${escapeHtml(item.sha256)}, ${item.bytes} bytes).</p>`).join("");
     const stored = journey.stored_runs
       ? `<p class="surface">Stored runs: ${journey.stored_runs.error ? `not read (${escapeHtml(journey.stored_runs.error)})` : `${journey.stored_runs.unchanged ? "unchanged" : "not shown unchanged"} at ${escapeHtml(Object.keys(journey.stored_runs.at).join(", "))}: ${escapeHtml(journey.stored_runs.what)}`}.</p>`
       : "";
-    return `<section id="j${journey.number}"><h2>${journey.number}. ${escapeHtml(journey.title)}</h2>${facts}${stored}${surface}${stopped}<ol class="screens">${screens.map(renderScreen).join("")}</ol></section>`;
+    return `<section id="j${journey.number}"><h2>${journey.number}. ${escapeHtml(journey.title)}</h2>${facts}${builds}${stored}${surface}${stopped}<ol class="screens">${screens.map(renderScreen).join("")}</ol></section>`;
   }).join("");
   const rows = index.screens.filter((screen) => screen.words_on_screen !== undefined).map((screen) =>
     `<tr><td><a href="#s${screen.number}">${screen.number}</a></td><td>${escapeHtml(screen.journey)}</td><td>${escapeHtml(screen.step)}</td><td>${[screen.redrawn ? "redrawn" : "", screen.substitutions?.length ? "substituted" : ""].filter(Boolean).join(", ")}</td><td class="n">${screen.words_on_screen}</td><td class="n">${screen.words_in_page}</td><td class="n">${screen.buttons_on_screen}</td><td class="n">${screen.inputs_on_screen}</td><td class="n">${screen.longest_scroll_screens}</td></tr>`).join("");

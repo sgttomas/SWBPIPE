@@ -113,7 +113,7 @@ nothing. A launch invocation builds nothing: anything stale refuses it by name.
 | `exports` | 22 | Solved, then the Exports page, top to foot. |
 | `reference-system` | 23 | Named alone, for its long solve: File > Open Model Document… of the reference system fixture, Run, the standing, the health line, Results, Report. |
 | `prepared-project` | 24 | A model document placed in the throwaway home before launch, opened by File > Open Model Document…: the start other journeys build on. |
-| `refused-stored-run` | 25 | A local project store placed before launch (`fixtures/persistence/refused_stored_run/`), whose saved run's record binds its result rules at a revision this version does not read: File > Open Local Project…, the Project page with what it says of the run, the Results stage, File > Save Local Project and what the person is told. The index's `stored_runs` says whether the stored run's texts are still the placed ones in copies of the store the app wrote after the open and after the save. |
+| `refused-stored-run` | 25 | A local project store built before launch from SQL text (`fixtures/persistence/refused_stored_run/`), whose saved run's record binds its result rules at a revision this version does not read: File > Open Local Project…, the Project page with what it says of the run, the Results stage, File > Save Local Project and what the person is told. The index's `stored_runs` says whether the stored run's texts are still the placed ones in copies of the store the app wrote after the open and after the save. |
 
 Without `--journey` the first three run, one launch each. Files are in
 `native/`: `run.mjs` (the command), `driver.js` (the steps, in the app),
@@ -202,6 +202,10 @@ saved states and runs. To add one:
      app's own data folder in that home. `from` is the committed path under
      `fixtures/`. A path outside the home, a source outside `fixtures/`, a
      link or a missing file is refused before anything launches.
+   - A store committed as SQL text adds `build: "sqlite3-from-sql"`: before
+     launch `/usr/bin/sqlite3` reads the text on standard input and writes the
+     store at `at`; the index's `built_placements` gives both SHA-256s. An
+     absent or failing sqlite3 refuses the journey before anything launches.
    - `open`: `{ by: "model-document", file: "<key>" }` (File > Open Model
      Document…, the chooser's answer the placed file), or
      `{ by: "local-project", project_id: "<id>" }` (File > Open Local
