@@ -48,9 +48,6 @@ pub const LOAD_CASE_CONDITION_USE_UNSUPPORTED: &str = "LOAD_CASE_CONDITION_USE_U
 pub const LOAD_CASE_CONDITION_USE_EXACT_UNSUPPORTED: &str = "LOAD_CASE_CONDITION_USE_EXACT_UNSUPPORTED";
 /// A test case on the pressure-free route (DEL-05-01 REQ-014), refused by name.
 pub use crate::hydrostatic::LOAD_CASE_TEST_CONDITION_PRESSURE_FREE;
-/// Interim at solve only, until the test case's solve is built: a hydrostatic
-/// test case on the exact route that the judgement admits is still not solved.
-pub const LOAD_CASE_TEST_CONDITION_UNSUPPORTED: &str = "LOAD_CASE_TEST_CONDITION_UNSUPPORTED";
 
 /// The entity name of a condition set in `EMPTY_ID` and `DUPLICATE_ID`.
 pub const CONDITION_SET_ENTITY: &str = "condition-set";
@@ -428,14 +425,6 @@ pub(crate) fn lower(model: &mut PreviewModel, diagnostics: &mut Vec<Diagnostic>)
     diagnostics.extend(judged.diagnostics);
     if judged.document_refused {
         return;
-    }
-    if model.pressure_contract.is_some() {
-        for case in model.load_cases.iter().filter(|case| case.test_condition.is_some()) {
-            diagnostics.push(crate::diag(&format!("diagnostic:load-case:{}:test-condition", crate::stable_suffix(&case.id)),
-                LOAD_CASE_TEST_CONDITION_UNSUPPORTED, "blocking",
-                format!("load case `{}` is a hydrostatic test condition; the test-case solve (held supports, test contents and pressure) is not built yet, so nothing is solved", case.id),
-                vec![case.id.clone()]));
-        }
     }
     if let Some(planned) = judged.plan {
         planned.apply(model);

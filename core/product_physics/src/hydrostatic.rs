@@ -434,12 +434,15 @@ pub(crate) fn mark(case: &PreviewLoadCase, held: &[HeldSupport], resolved: &[Con
     let test = test_condition(case)?;
     let mut refs: Vec<String> = if holds_supports(case) { held.iter().map(|support| support.support_id.clone()).collect() } else { Vec::new() };
     refs.sort();
+    // Lowering clears the case's `condition_use`; the key it selected is the
+    // one its resolutions carry.
+    let resolved: Vec<&ContentsResolution> = resolved.iter().filter(|item| item.case_id == case.id).collect();
     Some(json!({
         "kind": "hydrostatic",
         "held_supports": match test.held_supports { HeldSupports::SpringsAndConstantEffort => "springs_and_constant_effort", HeldSupports::None => "none" },
         "held_support_refs": refs,
-        "contents_condition": case.condition_use.as_ref().and_then(|using| using.contents_density.clone()),
-        "contents_resolution": resolved.iter().filter(|item| item.case_id == case.id).map(contents_record).collect::<Vec<_>>(),
+        "contents_condition": resolved.first().map(|item| item.condition_key.clone()),
+        "contents_resolution": resolved.into_iter().map(contents_record).collect::<Vec<_>>(),
     }))
 }
 
@@ -458,4 +461,93 @@ pub(crate) fn held_model(model: &PreviewModel, held: &[HeldSupport]) -> PreviewM
         support.hanger = None;
     }
     replaced
+}
+
+/// What [`solve_held_case`] did with one case.
+pub(crate) enum HeldOutcome {
+    /// The case holds no support; it is solved as any case.
+    NotHeld,
+    /// The case was solved on its replaced system.
+    Solved(Box<crate::LoadCaseSolve>),
+    /// A blocking diagnostic was added; nothing of the case is published.
+    Blocked,
+    /// The kernel refused the replaced system.
+    Failed(crate::FrameKernelError),
+}
+
+/// Solves a test case that holds supports (DEL-04-07 REQ-011) on its own
+/// replaced system: the held model's assembly, boundary, stiffness, solve,
+/// recovery and publication, at the case's own basis (its resolved load
+/// state's member pairs, its modulus basis, or the document's), so that the one
+/// replacement is used in every stage. A case that holds nothing is
+/// [`HeldOutcome::NotHeld`]. No retained source is joined to a held case.
+#[allow(clippy::too_many_arguments)]
+pub(crate) fn solve_held_case(
+    model: &PreviewModel,
+    materials: &[crate::MaterialInput],
+    resolved: Option<&crate::case_state::resolve::ResolvedCase>,
+    consumed_bases: &crate::pf_timoshenko::ConsumedBases,
+    load_case: &PreviewLoadCase,
+    solver_mode: crate::PreviewSolverMode,
+    source_budget: &mut crate::SourceRecoveryBudget,
+    diagnostics: &mut Vec<Diagnostic>,
+    invocation: crate::held_status::InvocationToken,
+) -> HeldOutcome {
+    if !holds_supports(load_case) {
+        return HeldOutcome::NotHeld;
+    }
+    let (held, _) = held_set(model, &load_case.id);
+    if held.is_empty() {
+        return HeldOutcome::NotHeld;
+    }
+    let replaced = held_model(model, &held);
+    let (basis_materials, record, pf_shear) = if resolved.is_some() {
+        (materials.to_vec(), None, None)
+    } else {
+        match crate::modulus_basis_key(load_case, diagnostics) {
+            None if crate::has_blocking(diagnostics) => return HeldOutcome::Blocked,
+            None => (materials.to_vec(), None, consumed_bases.base.as_ref()),
+            Some(key) => match crate::materials_for_modulus_basis_observed(model, materials, load_case, diagnostics, None) {
+                Some((resolved_materials, record)) => (resolved_materials, Some(record), consumed_bases.selected(&key)),
+                None => return HeldOutcome::Blocked,
+            },
+        }
+    };
+    let Some(built) = crate::build_model_for_basis(&replaced, &basis_materials, resolved.map(|state| &state.pairs), pf_shear, diagnostics)
+        .filter(|_| !crate::has_blocking(diagnostics))
+    else {
+        return HeldOutcome::Blocked;
+    };
+    let boundary = crate::prepare_boundary(built.nodes.len(), &built.supports);
+    if !boundary.findings.is_empty() {
+        for finding in &boundary.findings {
+            diagnostics.push(diag(&format!("diagnostic:support:{}", finding.support_id), "SUPPORT_INPUT_INVALID", "blocking",
+                finding.message.clone(), vec![finding.support_id.clone()]));
+        }
+        return HeldOutcome::Blocked;
+    }
+    let stiffness = match crate::form_basis_stiffness(&built, &boundary.springs, built.nonlinear_supports.is_empty()) {
+        Ok(stiffness) => stiffness,
+        Err(error) => return HeldOutcome::Failed(error),
+    };
+    match crate::solve_load_case_observed(
+        &replaced, &built, &basis_materials, &stiffness, &boundary.restrained_dofs, &boundary.springs, load_case,
+        record.as_deref(), solver_mode, None, source_budget, resolved, diagnostics, None,
+        crate::held_status::CaseRole::Own(Some(invocation)),
+    ) {
+        Ok(solve) => HeldOutcome::Solved(Box::new(solve)),
+        Err(error) => HeldOutcome::Failed(error),
+    }
+}
+
+/// The formulation statement of a document with a hydrostatic test case on the
+/// exact route, one whole static string. A document without a test case
+/// publishes none of it, so its formulation limitations keep their bytes.
+pub const HYDROSTATIC_TEST_LIMITATION: &str = "A load case that declares a hydrostatic test condition is solved as a test on the exact route only: its pressure is its own authored pressure; the contents density of the condition it selects replaces the section's own contents in its generated self-weight, once, and implies no hydrostatic pressure head; with springs_and_constant_effort held, each spring, variable spring and constant-effort support is replaced on the degree of freedom it acts on by a rigid restraint at zero displacement from the authored geometry, with neither its stiffness nor its force acting, and its reaction is published under its own identity; with none the supports act as in any case. The case's result states the test and the held choice. A combination with a test case among its operands is withheld (COMBINATION_HYDROSTATIC_TEST_WITHHELD).";
+
+/// Appends [`HYDROSTATIC_TEST_LIMITATION`] when the document has a test case.
+pub(crate) fn push_limitation(model: &PreviewModel, limitations: &mut Vec<String>) {
+    if model.load_cases.iter().any(|case| case.test_condition.is_some()) {
+        limitations.push(HYDROSTATIC_TEST_LIMITATION.to_string());
+    }
 }

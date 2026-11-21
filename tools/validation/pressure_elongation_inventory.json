@@ -28,10 +28,10 @@
    ".json",
    ".jsonl"
   ],
-  "files": 541,
+  "files": 542,
   "claimed_by": {
    "group": 142,
-   "in_code": 63,
+   "in_code": 64,
    "exemption": 336
   }
  },
@@ -9096,6 +9096,15 @@
    "expectations": "closed_form",
    "cases_named": "some",
    "detail": "named: the committed physics_source/mixed request (case:ordinary-pressure), solved to show source-recovery publications omit the global rows and keep their bytes (product output); unnamed: the inline straight line case:p and bend case:bend, judged by nodal equilibrium of published rows and authored loads at an interior node and by local axes recomputed from geometry, which hold whether or not elongation is included"
+  },
+  {
+   "paths": [
+    "core/product_physics/tests/hydrostatic_test_case.rs"
+   ],
+   "reference": "validation/references/hydrostatic_test",
+   "expectations": "reference_file",
+   "cases_named": "none",
+   "detail": "hydrostatic_test frozen references, every case under its own test pressure; unnamed by design: every row it compares is marked independent of the case's pressure elongation (the reference's conventions.pressure_elongation)"
   },
   {
    "paths": [
