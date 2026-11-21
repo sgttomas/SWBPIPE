@@ -12,8 +12,8 @@ metadata:
 **Product type:** Analysis-grade piping design engine and stress-model authoring environment  
 **Document version:** 0.4 Draft  
 **Date:** 2026-05-02  
-**Amended:** 2026-07-16; 2026-09-18; 2026-10-12; 2026-10-17 (§12.8, verified result bounds); 2026-10-27 (FR-SOL-016 and §12.9, modal analysis); 2026-10-28 (v1.0 target: §1, §7, §11.5, §12.9, §17.5, §23, §24 R4 and V1); 2026-10-31 (§12.4, hanger sizing)  
-**Status:** Adopted PRD authority per D-21 / DEC-056 / SCA-005, as amended by D-47 / DEC-080 / SCA-007 (2026-07-16) by D-71 / DEC-101 / SCA-010 (2026-09-18, product name only), by SCA-012 (2026-10-12, elastic tie rods), by the owner-approved 2026-10-17 §12.8 amendment (verified result bounds), by SCA-013 (2026-10-27, modal analysis), by SCA-014 (2026-10-28, response spectrum), by the owner's v1.0-target rulings of 2026-10-28 (§2) and by SCA-015 (2026-10-31, hanger sizing)  
+**Amended:** 2026-07-16; 2026-09-18; 2026-10-12; 2026-10-17 (§12.8, verified result bounds); 2026-10-27 (FR-SOL-016 and §12.9, modal analysis); 2026-10-28 (v1.0 target: §1, §7, §11.5, §12.9, §17.5, §23, §24 R4 and V1); 2026-10-31 (§12.4, hanger sizing); 2026-11-20 (§12.9 and §23, modal and response spectrum after v1.0)  
+**Status:** Adopted PRD authority per D-21 / DEC-056 / SCA-005, as amended by D-47 / DEC-080 / SCA-007 (2026-07-16) by D-71 / DEC-101 / SCA-010 (2026-09-18, product name only), by SCA-012 (2026-10-12, elastic tie rods), by the owner-approved 2026-10-17 §12.8 amendment (verified result bounds), by SCA-013 (2026-10-27, modal analysis), by SCA-014 (2026-10-28, response spectrum), by the owner's v1.0-target rulings of 2026-10-28 (§2), by SCA-015 (2026-10-31, hanger sizing) and by the owner-approved 2026-11-20 amendment (modal and response spectrum after v1.0)  
 **Intended audience:** Piping designers, piping stress engineers, software architects, numerical-method developers, open-source contributors, owner-operators, EPC engineering managers, and technical reviewers
 
 ---
@@ -88,6 +88,8 @@ This PRD was amended on 2026-10-17: §12.8 gained a requirement for verified res
 This PRD was amended on 2026-10-27 by SCA-013: modal analysis (natural frequencies and mode shapes) re-entered scope as FR-SOL-016 and §12.9 (decomposition revision 0.16, SOW-081, DEL-04-09), reversing the DEC-078 deferral of the v0.1 FR-024 for modal analysis only. Response-spectrum and time-history analysis remain deferred. HELP_HUMAN decided the change under the owner's delegation of 2026-10-27 (`loop/LOOP_INIT.md`: "Yes, decide them too").
 
 This PRD was amended on 2026-10-28 to implement the owner's rulings on the v1.0 target. §1 now states that the user's engineer may issue SWBPIPE's mechanics results under their own responsibility and establishes code compliance separately. Response-spectrum seismic analysis, with snubbers as dynamic-only restraints, entered scope (§7 item 15, §12.9, §23) because the condition the owner set is met (owner, 2026-10-28: "I said you should only develop a response spectrum capability for seismic analysis if that's a functionality that CAEPIPE has, otherwise you can go with only static for now."); the governed scope change DEC-078 requires is SCA-014. User-rule outcomes read "within or exceeds user limit" (FR-RULE-003, §17.5, §24 R4). §24 gained milestone V1, whose rows and exit criteria are in `docs/RELEASE_TARGET_v1.0.md`. The SCA-013 sentence above that response spectrum remains deferred is superseded.
+
+This PRD was amended on 2026-11-20: response-spectrum seismic analysis, with snubbers as dynamic-only restraints, is no longer required for v1.0 and follows after it (§12.9, §23); static seismic is v1.0's seismic analysis. Modal analysis (FR-SOL-016) remains a requirement of the product that v1.0 does not require, and the modal and response-spectrum work already done is kept. SWBPIPE's Agent 0 decided the deferral under the owner's grant and the owner's instruction of 2026-11-20 ("Static seismic is enough for v1.0 but response spectrum will follow later so keep what's there."), and the owner approved this amendment ("You have my approval now to amend the PR accordingly.").
 
 ---
 
@@ -817,7 +819,7 @@ The engine shall compute the natural frequencies and mode shapes of the linear m
 - admit the pressure-free and exact pressure routes, each on its own section and self-weight mass basis; take the stiffness, the mass and the nonlinear-support states of a load/reference-state document, or of a model with nonlinear supports, from the resolved state of one load case the user names, disclosing it and each support's state, never silently; include snubbers, as dynamic-only restraints, only when the request includes them; and refuse by name what it does not admit;
 - reproduce closed-form beam, rod and ring frequencies, and compare with at least one published piping benchmark, transcribed only with that source's own redistribution evidence, at a stated tolerance, as comparison evidence.
 
-Response-spectrum seismic analysis on this modal basis is required for v1.0 (SCA-014; `docs/RELEASE_TARGET_v1.0.md` exit criterion 1); harmonic and time-history analysis are not required. A modal result is a numerical statement about the discrete model: it establishes neither physical correctness nor a code-compliance determination (§21.2).
+Response-spectrum seismic analysis on this modal basis is in scope (SCA-014) and follows after v1.0; v1.0 requires neither it nor the modal analysis above (`docs/RELEASE_TARGET_v1.0.md`, Direction, "Seismic"). Harmonic and time-history analysis are not required. A modal result is a numerical statement about the discrete model: it establishes neither physical correctness nor a code-compliance determination (§21.2).
 
 ---
 
@@ -1538,7 +1540,7 @@ MVP shall not include:
 - forced prover-status lifecycle;
 - protected standards data;
 - automatic professional acceptance records;
-- advanced nonlinear/dynamic modules unless otherwise prioritized (modal analysis, §12.9, is prioritized by SCA-013, and response spectrum by the v1.0 target, §24 V1; time-history modules are not).
+- advanced nonlinear/dynamic modules unless otherwise prioritized (modal analysis, §12.9, is prioritized by SCA-013, and response spectrum by SCA-014, both to follow after v1.0, §24 V1; time-history modules are not).
 
 The first publication-ready release is SWBPIPE v1.0 (§24 V1). Where its target differs from this MVP list, the target governs.
 
