@@ -149,6 +149,21 @@ const OUTCOME_CLAUSE: Record<StoredProposalOutcome, string> = {
   replaced: "It was not carried into this save, and the save replaced the saved project, so it is no longer stored."
 };
 
+export const STORED_EDITOR_INTENTS_NOT_READ = "STORED-EDITOR-INTENTS-NOT-READ";
+
+/** The stored editor intents as the open adopts them for retained review context: a list as it is, none
+ * as none; anything else is a damaged store, not adopted (`readable: false`). */
+export function readStoredEditorIntents<T>(value: T[] | null | undefined): { intents: T[]; readable: boolean } {
+  if (value == null) return { intents: [], readable: true };
+  return Array.isArray(value) ? { intents: value, readable: true } : { intents: [], readable: false };
+}
+
+/** The open's sentence for stored editor intents that are not a list, in the same form as the proposal's:
+ * plain statement first, the code last. No stored content is quoted. */
+export function storedEditorIntentsSentence(): string {
+  return `The review records stored with this project could not be read, because they are not a list. They are not shown, and a save of this project does not keep them. (${STORED_EDITOR_INTENTS_NOT_READ}: the stored editor intents; wrong type the editor intents themselves)`;
+}
+
 /** The session's private record of the open project's unadmitted stored proposal. */
 export type UnadmittedStoredProposal = Readonly<{ projectId: string; generation: number; notice: StoredProposalNotice }>;
 

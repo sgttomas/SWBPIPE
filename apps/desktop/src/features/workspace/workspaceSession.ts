@@ -290,7 +290,7 @@ import { createSessionEventChannel } from "./sessionEvents";
 import type { WorkspaceSectionId } from "./workspaceSections";
 import { useReportSourceSequence, useSequencedState } from "./reportSourceSequence";
 import { useReportOutputOutcomes } from "../report/reportOutputOutcomes";
-import { admitStoredProposal, storedProposalSentence, writtenStoredProposalSentence, type UnadmittedStoredProposal } from "./storedProposalAdmission";
+import { admitStoredProposal, readStoredEditorIntents, storedEditorIntentsSentence, storedProposalSentence, writtenStoredProposalSentence, type UnadmittedStoredProposal } from "./storedProposalAdmission";
 
 /** W-13 §3.5 / W-17 §2.7: the model's library references checked against the
  * local store at open and load. Warnings only; the recorded versions stand. */
@@ -3249,6 +3249,8 @@ export function useWorkspaceSession() {
       unopenedStoredRun.current = refusedRun ? opened.model.project.id : null;
       // Issue 519: a stored proposal enters the session only if it has the members its readers read.
       const storedProposal = opened.proposal == null ? null : admitStoredProposal(opened.proposal);
+      // Stored editor intents that are not a list (a damaged store) are not adopted as review context.
+      const storedIntents = readStoredEditorIntents(opened.editor_intents);
       // The open commits here. An open that finds nothing, fails or is
       // superseded leaves the open project's rule revision gate and integrity
       // cells as they were.
@@ -3290,7 +3292,7 @@ export function useWorkspaceSession() {
       setProposal(storedProposal?.admitted ? storedProposal.proposal : null);
       unadmittedStoredProposal.current = storedProposal && !storedProposal.admitted
         ? { projectId: opened.model.project.id, generation: openedGeneration, notice: storedProposal.notice } : null;
-      setRetainedReviewContext(opened.editor_intents ?? []);
+      setRetainedReviewContext(storedIntents.intents);
       setEditorIntents([]);
       setSelectedReviewTarget(opened.selected_review_target ?? null);
       setSolveJob(initialSolveJob());
@@ -3301,7 +3303,7 @@ export function useWorkspaceSession() {
       // findings were refused by the store).
       // RT-U4: a saved run above the display limit was withheld natively; the person is told.
       const withheldRun = opened.stored_result_withheld ? ` ${describeStoredResultWithheld(opened.stored_result_withheld)}` : refusedRun ? ` ${refusedRun.message}` : "";
-      const unadmitted = storedProposal && !storedProposal.admitted ? ` ${storedProposalSentence(storedProposal.notice, "open")}` : "";
+      const unadmitted = `${storedProposal && !storedProposal.admitted ? ` ${storedProposalSentence(storedProposal.notice, "open")}` : ""}${storedIntents.readable ? "" : ` ${storedEditorIntentsSentence()}`}`;
       setProjectMessage(`${opened.summary.message}${withheldRun}${unadmitted}${modelFileWarningSuffix(modelDocumentSlotValidation(opened.model).warnings)}`);
       setProjectOperation(projectId ? "open_by_id" : "open");
       setActiveSection(restoredHistory ? "results" : null);

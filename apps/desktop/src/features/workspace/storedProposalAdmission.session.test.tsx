@@ -15,7 +15,7 @@ import * as projectService from "../../services/projectService";
 import { createLocalProject, findLocalProject, getLocalStorageCapability, openLocalProject } from "../../services/projectService";
 import { computeModelHash, computeProjectEnvelopeHash } from "../../services/hashService";
 import { loadDesignKnowledge, loadSampleProposal } from "../../services/previewService";
-import { STORED_PROPOSAL_NOT_ADMITTED, admitStoredProposal, storedProposalSentence } from "./storedProposalAdmission";
+import { STORED_PROPOSAL_NOT_ADMITTED, admitStoredProposal, storedEditorIntentsSentence, storedProposalSentence } from "./storedProposalAdmission";
 import type { AgentProposal, PreviewModel } from "../../types";
 
 type Json = any; // eslint-disable-line @typescript-eslint/no-explicit-any
@@ -164,6 +164,26 @@ describe("a stored proposal without its members, on the browser preview's store"
     // The request main's session sends for this store: its proposal, the hash over it, the base it opened.
     expect(saving.mock.calls[0]).toEqual([opened.model, [], opened.proposal, null, null, null, opened.model_hash, envelopeHash, null, opened.project_envelope_hash!.value]);
     expect((await openLocalProject(model.project.id))!.proposal).toEqual(proposal);
+  });
+});
+
+describe("stored editor intents that are not a list", () => {
+  it("are not adopted, the open says so, and a save in place succeeds", async () => {
+    const { result } = await readySession();
+    const model = structuredClone(result.current.model.model!);
+    model.project.id = "project:issue-519-intents";
+    const intents = { damaged: MARKER } as never;
+    const modelHash = await computeModelHash(model);
+    const envelopeHash = await computeProjectEnvelopeHash({ model, editor_intents: intents, proposal: null, selected_review_target: null, mechanics_result: null, analysis_run: null, model_hash: modelHash });
+    await createLocalProject(model, intents, null, null, null, null, modelHash, envelopeHash);
+    await act(async () => { await result.current.project.handleOpenProject(model.project.id); });
+    expect(result.current.model.model?.project.id).toBe(model.project.id);
+    expect(result.current.operations.retainedReviewContext).toEqual([]);
+    expect(result.current.project.projectMessage).toContain(storedEditorIntentsSentence());
+    expect(result.current.project.projectEnvelopeHashIntegrity).toMatchObject({ integrity_status: "verified_match" });
+    await act(async () => { await result.current.project.handleSaveProject(); });
+    expect(result.current.project.projectOperation).toBe("save");
+    expect((await openLocalProject(model.project.id))!.editor_intents).toEqual([]);
   });
 });
 
