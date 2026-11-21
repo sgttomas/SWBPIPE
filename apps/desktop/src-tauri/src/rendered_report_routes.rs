@@ -100,8 +100,9 @@
 //! other, the custody mutex (briefly: its ticket checks and its recording)
 //! and the memory pool's lock (its reservation). The reservation's stop check
 //! is a ticket check: the pool calls it with its own lock released, so the
-//! order is gate, then custody mutex, and gate, then pool. Nothing but a
-//! completion takes the gate: entry, retirement, advance, activation,
+//! order is gate, then custody mutex, and gate, then pool. A completion
+//! waiting for the gate holds nothing and rechecks its ticket each interval
+//! ([`GATE_RETRY_INTERVAL`]). Nothing but a completion takes the gate: entry, retirement, advance, activation,
 //! admission and a route's take of the document never wait on it.
 //!
 //! A user-released report has no route here: the render command refuses its
@@ -116,7 +117,7 @@ use serde::{Deserialize, Serialize};
 use sha2::{Digest, Sha256};
 use std::io;
 use std::path::{Path, PathBuf};
-use std::sync::{Arc, Condvar, Mutex, MutexGuard, PoisonError};
+use std::sync::{Arc, Condvar, Mutex, MutexGuard, PoisonError, TryLockError};
 use std::thread::ThreadId;
 use tauri::AppHandle;
 use tauri_plugin_dialog::DialogExt;
@@ -316,7 +317,7 @@ pub(crate) struct RenderCustody {
     handoff_done: Condvar,
     /// The reservation gate: one completion reserves at a time (module docs,
     /// "Lock order"). It is held for one completion's reservation only, from
-    /// its first ticket check to its recording or the release of what it
+    /// taking it to its recording or the release of what it
     /// reserved, and released by its guard on every exit (a refusal, a
     /// supersession, a stopped wait and a panic: it is taken recovering from
     /// poisoning). Its longest hold against a later render, which supersedes
@@ -330,6 +331,14 @@ pub(crate) struct RenderCustody {
 
 /// The desktop's custody of its current render.
 pub(crate) static CUSTODY: RenderCustody = RenderCustody::new();
+
+/// How long a completion waiting for the reservation gate sleeps before it
+/// rechecks its ticket and tries the gate again: a plain sleep, not a spin.
+/// It bounds how long a superseded completion can stay queued behind the
+/// gate, not how long the gate is held, and it is short against the pool's
+/// re-sampling tick (50 ms) and window (2 s), so a current completion waiting
+/// behind a stale holder loses little.
+pub(crate) const GATE_RETRY_INTERVAL: std::time::Duration = std::time::Duration::from_millis(10);
 
 fn source_error(code: &str, message: impl Into<String>) -> RouteError {
     RouteError::at(code, "source", message)
@@ -504,7 +513,7 @@ impl RenderCustody {
         let sha256_hex = sha256_hex(html.as_bytes());
         let blocked = export_blocked || content_withheld || sha256_hex != renderer_sha256_hex;
         // Released by this guard on every exit, after what was reserved is dropped.
-        let _gate = self.reserving.lock().unwrap_or_else(PoisonError::into_inner);
+        let _gate = self.take_gate(&ticket)?;
         Self::check_ticket(&self.lock(), &ticket)?;
         before_reserve();
         let document = if blocked {
@@ -535,6 +544,25 @@ impl RenderCustody {
         let generation = slot.generation;
         slot.current = Some(RenderRecord { generation, sha256_hex, export_context: export_context.map(str::to_string), blocked, source: ticket.source, document });
         Ok(generation)
+    }
+
+    /// Takes the reservation gate for the completion of `ticket`, never waiting
+    /// on it without rechecking the ticket: each round checks the ticket under
+    /// the custody mutex (superseded, it returns that refusal, holding
+    /// nothing), releases the mutex, then tries the gate; while another
+    /// completion holds it, waits [`GATE_RETRY_INTERVAL`], holding nothing,
+    /// and goes round again. A poisoned gate is taken, recovering.
+    fn take_gate(&self, ticket: &RenderTicket) -> Result<MutexGuard<'_, ()>, RouteError> {
+        loop {
+            // The custody mutex's guard is a temporary of this line: it is
+            // released here, before the try and before any wait.
+            Self::check_ticket(&self.lock(), ticket)?;
+            match self.reserving.try_lock() {
+                Ok(gate) => return Ok(gate),
+                Err(TryLockError::Poisoned(poisoned)) => return Ok(poisoned.into_inner()),
+                Err(TryLockError::WouldBlock) => std::thread::sleep(GATE_RETRY_INTERVAL),
+            }
+        }
     }
 
     /// A completion's ticket and source are still current. A later render
@@ -1517,6 +1545,68 @@ mod tests {
         assert_eq!(reserved(&pool).0, one, "B's document alone");
     }
 
+    /// A completion never waits on the gate without rechecking its ticket, in the reviewers'
+    /// order and shaped as the render command is (it holds its ingress lease until its
+    /// completion returns, then drops it). Z is in flight; a later request A supersedes it; A
+    /// completes first, takes the gate and waits for headroom that Z's command lease withholds.
+    /// Z's thread then calls its completion, which returns superseded without waiting for A,
+    /// and only then drops its lease; A is admitted and recorded, far inside the window.
+    #[test]
+    fn a_superseded_completion_does_not_queue_behind_the_gate() {
+        use crate::memory_pool::{test_host::{CountingHost, ScriptedHost}, JobCounts, PressureLevel};
+        use std::sync::atomic::{AtomicBool, Ordering};
+        const ATTEMPT_SAMPLES: usize = 2;
+        let document = held_document_bytes(REPORT_B.len());
+        let stand_in = 1u64 << 19;
+        // Headroom for Z's command lease, or for A's document, but not for both.
+        let host = CountingHost::new(ScriptedHost::with(Some(16 << 30), Some(stand_in + document / 2), PressureLevel::Normal));
+        let window = Duration::from_secs(40);
+        let pool = MemoryPool::with_timing(host.clone(), Duration::from_millis(5), window, Duration::from_millis(20));
+        let started = std::time::Instant::now();
+        let custody = Arc::new(RenderCustody::new());
+        custody.activate();
+        let ticket_z = custody.begin_next(FIRST).unwrap();
+        let ticket_a = custody.begin_next(FIRST).unwrap();
+        let a_returned = Arc::new(AtomicBool::new(false));
+        let (leased, z_leased) = std::sync::mpsc::channel();
+        let (go, z_go) = std::sync::mpsc::channel::<()>();
+        // Z's command: its lease, then its completion, then the lease's release.
+        let z = {
+            let (custody, pool, a_returned) = (Arc::clone(&custody), Arc::clone(&pool), Arc::clone(&a_returned));
+            std::thread::spawn(move || {
+                let command_lease = pool.acquire_interactive(stand_in).expect("Z's command lease");
+                leased.send(()).unwrap();
+                z_go.recv().unwrap();
+                let outcome = custody.complete_in(&pool, ticket_z, Some(LOCAL_PRIVATE), REPORT_A, &sha256_hex(REPORT_A.as_bytes()), false, false);
+                let a_had_returned = a_returned.load(Ordering::SeqCst);
+                drop(command_lease);
+                (outcome.map_err(|error| error.code), a_had_returned)
+            })
+        };
+        z_leased.recv().unwrap();
+        let before_a = host.samples();
+        let a = {
+            let (custody, pool, a_returned) = (Arc::clone(&custody), Arc::clone(&pool), Arc::clone(&a_returned));
+            std::thread::spawn(move || {
+                let outcome = custody.complete_in(&pool, ticket_a, Some(LOCAL_PRIVATE), REPORT_B, &sha256_hex(REPORT_B.as_bytes()), false, false);
+                a_returned.store(true, Ordering::SeqCst);
+                outcome
+            })
+        };
+        // A's second attempt has begun, so its first was refused and A holds the gate, waiting.
+        host.wait_for(before_a + ATTEMPT_SAMPLES + 1);
+        go.send(()).unwrap();
+        let (z, a_had_returned) = z.join().unwrap();
+        assert_eq!(z, Err(RENDER_SUPERSEDED.to_string()));
+        assert!(!a_had_returned, "Z's completion returned while A still waited for the headroom Z's lease withheld");
+        let generation = a.join().unwrap().expect("A is recorded once Z's lease is released");
+        assert!(started.elapsed() < window / 4, "far inside the window: {:?}", started.elapsed());
+        assert!(custody.is_current(generation));
+        assert_eq!(custody.held_document().map(|held| held.html().to_string()).as_deref(), Some(REPORT_B));
+        assert_eq!(reserved(&pool), (document, document), "A's document alone");
+        assert_eq!(pool.status(JobCounts::default()).last_refusal, None);
+    }
+
     /// A completion superseded after its first ticket check whose reservation is then refused
     /// reports the supersession, not the pool's refusal.
     #[test]
@@ -1560,8 +1650,10 @@ mod tests {
 
     /// The stall the gate must not cause: completion A (a large document) waits for headroom
     /// in its reservation's re-sampling, with a window of tens of seconds; B's request
-    /// supersedes it and B completes a small document. A stops at its next tick and leaves as
-    /// superseded, so B is recorded far inside the window, and A's passing headroom refusal is
+    /// supersedes it and B completes a small document while holding its own command's lease (a
+    /// stand-in), as the render command does. B is in the gate's loop, rechecking its ticket
+    /// each interval; A stops at its next tick and leaves as superseded, dropping the gate, so
+    /// B takes it and is recorded far inside the window, and A's passing headroom refusal is
     /// never recorded.
     #[test]
     fn a_superseded_completion_waiting_for_headroom_does_not_hold_back_the_next() {
@@ -1585,8 +1677,11 @@ mod tests {
         let b = {
             let (custody, pool) = (Arc::clone(&custody), Arc::clone(&pool));
             std::thread::spawn(move || {
+                let command_lease = pool.acquire_interactive(1 << 16).expect("B's command lease");
                 let ticket_b = custody.begin_next(FIRST).unwrap();
-                custody.complete_in(&pool, ticket_b, Some(PUBLIC_REPORT), HTML, &sha256_hex(HTML.as_bytes()), false, false)
+                let outcome = custody.complete_in(&pool, ticket_b, Some(PUBLIC_REPORT), HTML, &sha256_hex(HTML.as_bytes()), false, false);
+                drop(command_lease);
+                outcome
             })
         };
         let (a, b) = (a.join().unwrap(), b.join().unwrap());
