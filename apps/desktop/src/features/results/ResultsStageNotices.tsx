@@ -16,3 +16,13 @@ export function StoredRunRefusedNotice({ message }: { message: string }) {
     </div>
   );
 }
+
+/** The head of the Review stage while a run reopened from the saved project is the one shown: a
+ * report is made from a run solved in this session (the report panel's own buttons say the same). */
+export const REVIEW_REOPENED_RUN_TEXT =
+  "A report is made from a run solved in this session. This run was reopened from the saved project: solve the model again to report it. A report saved earlier is a file you kept; the project does not list saved reports.";
+
+/** Whether the run shown is one reopened from a saved project (not the bundled reference). */
+export function isReopenedSavedRun(designation: string | null | undefined): boolean {
+  return designation === "historical_saved_run" || designation === "recorded_run";
+}

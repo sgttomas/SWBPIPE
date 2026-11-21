@@ -121,7 +121,7 @@ import { RenderedReportPanel } from "./features/report/RenderedReportPanel";
 import { ReportOutputStatus } from "./features/report/ReportOutputStatus";
 import { ResultExportPanel } from "./features/result-export/ResultExportPanel";
 import { ResultsPanel, type ResultsStageContext, type ResultsStageTab } from "./features/results/ResultsPanel";
-import { RESULTS_NO_RUN_TEXT, StoredRunRefusedNotice } from "./features/results/ResultsStageNotices";
+import { isReopenedSavedRun, RESULTS_NO_RUN_TEXT, REVIEW_REOPENED_RUN_TEXT, StoredRunRefusedNotice } from "./features/results/ResultsStageNotices";
 import { GoverningValuesFor, type GoverningRequest, type GoverningRequestInput } from "./features/results/GoverningValuesPanel";
 import { SupportLoadSummaryPanel } from "./features/results/SupportLoadSummaryPanel";
 import { StressRatioTablePanel } from "./features/results/StressRatioTablePanel";
@@ -1012,6 +1012,10 @@ function AppSession() {
               aria-label="Report section"
               data-testid="workspace-section-report"
             >
+              {/* A run reopened from the saved project is read here; a report needs a run solved in this session. */}
+              {historicalRun && !result && isReopenedSavedRun(historicalRun.designation) ? (
+                <p className="review-reopened-run" role="status" data-testid="review-reopened-run">{REVIEW_REOPENED_RUN_TEXT}</p>
+              ) : null}
               {activeSection === "report" || activatedExpensiveSections.has("report") ? (
               <DormantSection active={activeSection === "report"} sessionGeneration={projectSessionGeneration}>
               <Fragment key={`report:${dormantOutputBasis}`}>
