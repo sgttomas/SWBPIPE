@@ -80,7 +80,9 @@ MODULE = 'core/reporting/result_export/src/load_reference.rs'
 # the case shape admits `intensified_measures` (was 110bb76f...).
 # S6: the reviewed support law/source/classification join and transport schema binding. DEL-05-01 REQ-014: the case
 # shape admits the hydrostatic test mark `test_condition`, never on the joined composite (was 66470124...).
-MODULE_SHA256 = 'c786740b48c67da93cc02cf49ee43cb2d92ac8024024838f305baa235d94ba8a'
+# DEL-05-01 REQ-014: on a marked case, a stored primitive a contents item names is applied as that item's weight
+# times its factor; the transport schema pin restated (was c786740b...).
+MODULE_SHA256 = '11b7db8dc5fe6da48001f54304c0fa443bf05131357394e1a7fd810dc30e17ef'
 UNITS = physics.UNITS
 DEPENDENCIES = {
     MODULE: MODULE_SHA256,

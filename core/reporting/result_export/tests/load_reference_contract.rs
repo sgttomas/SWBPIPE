@@ -326,9 +326,11 @@ fn current_inputs_table_and_schema_are_pinned() {
     assert_eq!(table["formulation_profile_id"], s::PRESSURE_PROFILE);
     assert!(lr::transport_schema().is_ok());
     // B7b A5: load_reference_state.schema.json lost its v2 definitions.
+    // DEL-05-01 REQ-014: the stored primitive's two magnitudes describe a
+    // hydrostatic test case's entry (descriptions only; was b95947ea...).
     assert_eq!(
         lr::TRANSPORT_SCHEMA_SHA256,
-        "b95947ea4b62406ea050ba46e8b7d32d3fe8cc9d4f4892f53ab0c9f6df1189b9"
+        "497caa66a2682dd42b8e9fd7b8ce49d1c24ffb732131e4089c79540983f94b78"
     );
     assert_eq!(
         sha(include_bytes!("../../../../schemas/load_reference_state.schema.json")),

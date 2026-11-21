@@ -9,6 +9,10 @@ forged envelope is refused by both, by the code named: the mark's model binding 
 contents) and the constant-effort binding's held set (a held case applies no held support's force; every other case,
 and a test case that holds none, applies them all).
 
+On the twin, the record of load sources states each generated self-weight entry's document magnitude as authored and the
+applied magnitude with the test contents, and both readers join that entry to its contents item; three forgeries of
+that rule are refused by its own code.
+
 Needs ``OPENPIPESTRESS_RUNNER_BIN`` (``tests/conftest.py`` builds it unless ``OPENPIPESTRESS_NO_CARGO_BUILD`` is set);
 skipped without it.
 """
@@ -185,6 +189,66 @@ def test_each_forgery_is_refused_by_both_readers_with_the_model(label: str, name
     envelope, model = _forge(name, mutate)
     assert rust_code(envelope, model) == code, label
     assert python_code(envelope, model) == code, label
+
+
+def _entry(envelope: dict, case_id: str, index: int) -> dict:
+    """The record of load sources' stored primitive entry ``index`` of ``case_id``."""
+    record = next(r for r in envelope["contract_evidence"]["load_reference_states"] if r["load_case_id"] == case_id)
+    return [c for c in record["contributions"] if c["owner_kind"] == "stored_primitive"][index]
+
+
+@pytest.mark.parametrize("mode", MODES)
+def test_the_record_of_load_sources_states_the_documents_magnitude_and_the_applied_one(mode: str) -> None:
+    """On the marked case, each generated self-weight entry's authored magnitude is the document's stored value and its
+    applied magnitude the factor times the mark's applied weight for that load; every other entry's applied magnitude is
+    the factor times its authored one."""
+    envelope, model = solved("load_state_twin", mode), MODELS["load_state_twin"]
+    items = {item["load_id"]: item for item in _mark(envelope)["contents_resolution"]}
+    for case_id in (TEST_CASE, ORDINARY):
+        stored = {load["id"]: load["magnitude"]["value"] for case in model["load_cases"] if case["id"] == case_id
+                  for load in case["primitive_loads"]}
+        record = next(r for r in envelope["contract_evidence"]["load_reference_states"] if r["load_case_id"] == case_id)
+        entries = [c for c in record["contributions"] if c["owner_kind"] == "stored_primitive"]
+        assert entries and {c["source_id"] for c in entries} == set(stored), case_id
+        for entry in entries:
+            assert entry["authored_normalized_magnitude"] == stored[entry["source_id"]], entry
+            base = items[entry["source_id"]]["applied_n_per_m"] if case_id == TEST_CASE else entry["authored_normalized_magnitude"]
+            assert entry["applied_magnitude"] == entry["factor"] * base, entry
+            assert (entry["applied_magnitude"] != entry["authored_normalized_magnitude"] * entry["factor"]) == (case_id == TEST_CASE), entry
+
+
+def _joined_to_another_item(envelope: dict, model: dict) -> None:
+    """The second item's applied weight moved, with its own entry kept consistent; the first entry takes that weight,
+    which only a reader that joins an entry to some item other than its own would admit."""
+    items = _mark(envelope)["contents_resolution"]
+    items[1]["applied_n_per_m"] = items[1]["applied_n_per_m"] * 1.01
+    for index in (0, 1):
+        entry = _entry(envelope, TEST_CASE, index)
+        assert entry["source_id"] == items[index]["load_id"]
+        entry["applied_magnitude"] = entry["factor"] * items[1]["applied_n_per_m"]
+
+
+def _unmarked_by_the_marked_rule(envelope: dict, model: dict) -> None:
+    entry = _entry(envelope, ORDINARY, 0)
+    entry["applied_magnitude"] = entry["factor"] * _mark(envelope)["contents_resolution"][0]["applied_n_per_m"]
+
+
+def _marked_by_the_plain_rule(envelope: dict, model: dict) -> None:
+    entry = _entry(envelope, TEST_CASE, 0)
+    entry["applied_magnitude"] = entry["factor"] * entry["authored_normalized_magnitude"]
+
+
+@pytest.mark.parametrize("label, mutate", [
+    ("an entry joined to another contents item", _joined_to_another_item),
+    ("an unmarked case's entry by the marked rule", _unmarked_by_the_marked_rule),
+    ("a marked case's entry by the plain rule", _marked_by_the_plain_rule),
+], ids=lambda value: value if isinstance(value, str) else "")
+def test_the_record_rule_on_a_marked_case_is_kept_by_both_readers(label: str, mutate) -> None:
+    """The record of load sources' factor rule, refused by its own code with and without the model."""
+    envelope, model = _forge("load_state_twin", mutate)
+    for bound in (None, model):
+        assert rust_code(envelope, bound) == "SOURCE_LOAD_REFERENCE_CONTRIBUTION_APPLIED_MAGNITUDE", (label, bound is not None)
+        assert python_code(envelope, bound) == "SOURCE_LOAD_REFERENCE_CONTRIBUTION_APPLIED_MAGNITUDE", (label, bound is not None)
 
 
 def test_the_mark_shape_is_refused_without_the_model() -> None:

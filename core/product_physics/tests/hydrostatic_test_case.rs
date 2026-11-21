@@ -565,13 +565,22 @@ fn the_held_four_span_case_solves_on_a_load_state_twin() {
         }
         mark_and_balance(&out, &held, &built, false);
         // The ledger takes each pipe's generated self-weight once, at factor 1,
-        // with the test contents in it.
+        // with the test contents in it. Its authored magnitude is the one the
+        // document stores, with the section's own contents; its applied
+        // magnitude is the factor times the mark's applied weight for that load.
         let record = state(&out, id);
         let primitives: Vec<&Value> = record["contributions"].as_array().unwrap().iter().filter(|c| c["owner_kind"] == "stored_primitive").collect();
         assert_eq!(primitives.len(), built.nodes - 1, "{mode:?}: one ledger entry per pipe's self-weight");
+        let stored = |load_id: &Value| both["load_cases"].as_array().unwrap().iter().find(|c| c["id"] == id).unwrap()["primitive_loads"]
+            .as_array().unwrap().iter().find(|load| load["id"] == *load_id).unwrap()["magnitude"]["value"].clone();
+        let items = exact_case(&out, id)["test_condition"]["contents_resolution"].as_array().unwrap().clone();
         for entry in primitives {
             assert_eq!(entry["factor"], 1.0, "{mode:?}: {entry}");
             assert!(close(-entry["applied_magnitude"].as_f64().unwrap(), w, w), "{mode:?}: the ledger carries the test weight once: {entry}");
+            assert_eq!(entry["authored_normalized_magnitude"], stored(&entry["source_id"]), "{mode:?}: the document's magnitude: {entry}");
+            let item = items.iter().find(|item| item["load_id"] == entry["source_id"]).unwrap_or_else(|| panic!("{mode:?}: no contents item for {entry}"));
+            assert_eq!(entry["applied_magnitude"].as_f64().unwrap(), entry["factor"].as_f64().unwrap() * item["applied_n_per_m"].as_f64().unwrap(), "{mode:?}: {entry}");
+            assert_ne!(entry["applied_magnitude"], entry["authored_normalized_magnitude"], "{mode:?}: the test contents differ from the section's: {entry}");
         }
         // The ordinary case is untouched by the test case beside it. A document
         // of one case names its rows without the case prefix; the identity is

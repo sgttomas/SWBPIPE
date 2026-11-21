@@ -2071,8 +2071,10 @@ def _ls_record(record: Mapping[str, Any], cases: list[tuple[str, Mapping[str, An
     # R10 contributions.
     contributions = _ls_array(record["contributions"])
     contribution_ids: list[str] = []
+    # DEL-05-01 REQ-014: a hydrostatic test case's mark names the loads its test contents entered.
+    mark = next((value.get("test_condition") for known, value in cases if known == case_id), None)
     for contribution in contributions:
-        _ls_contribution(contribution)
+        _ls_contribution(contribution, mark)
         source_id = _ls_text(contribution["source_id"])
         _ls_require(source_id not in contribution_ids, "CONTRIBUTION_DUPLICATE")
         contribution_ids.append(source_id)
@@ -2310,7 +2312,7 @@ def _ls_support_component(component: Any) -> None:
     _ls_number(component["prescribed_value"])
 
 
-def _ls_contribution(contribution: Any) -> None:
+def _ls_contribution(contribution: Any, mark: Any = None) -> None:
     kind = _ls_get(contribution, "owner_kind")
     shapes = {
         "stored_primitive": (LS_STORED_KEYS, "ordinary_applied"),
@@ -2335,7 +2337,12 @@ def _ls_contribution(contribution: Any) -> None:
         _ls_text(contribution["dimension"])
         authored = _ls_number(contribution["authored_normalized_magnitude"])
         applied = _ls_number(contribution["applied_magnitude"])
-        _ls_require(applied == authored * factor, "CONTRIBUTION_APPLIED_MAGNITUDE")
+        # DEL-05-01 REQ-014: on a marked case, a stored primitive that one of the mark's contents items names was
+        # applied with the test contents (factor times the item's applied_n_per_m); every other entry: factor times authored.
+        items = _ls_get(mark, "contents_resolution")
+        item = next((item for item in items if isinstance(_ls_get(item, "load_id"), str) and _ls_get(item, "load_id") == contribution["source_id"]), None) if isinstance(items, list) else None
+        base = authored if item is None else _ls_number(_ls_get(item, "applied_n_per_m"))
+        _ls_require(applied == base * factor, "CONTRIBUTION_APPLIED_MAGNITUDE")
     elif kind == "resolved_member_state":
         for reference in _ls_array(contribution["consumed_input_refs"]):
             _ls_text(reference)

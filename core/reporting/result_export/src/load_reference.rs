@@ -48,8 +48,10 @@ pub const BOUNDARY: &str = "every restrained DOF prescribed; reduced K_ff u_f = 
 pub const EIGENLOAD: &str =
     "axial E_member*A_s*total_eigenstrain assembled once and removed once in recovery";
 /// Frozen `schemas/load_reference_state.schema.json` (relayed by the manager).
+/// DEL-05-01 REQ-014: the stored primitive's two magnitudes describe a
+/// hydrostatic test case's entry (descriptions only; was b95947ea...).
 pub const TRANSPORT_SCHEMA_SHA256: &str =
-    "b95947ea4b62406ea050ba46e8b7d32d3fe8cc9d4f4892f53ab0c9f6df1189b9";
+    "497caa66a2682dd42b8e9fd7b8ce49d1c24ffb732131e4089c79540983f94b78";
 const TRANSPORT_SCHEMA_BYTES: &str =
     include_str!("../../../../schemas/load_reference_state.schema.json");
 
@@ -742,11 +744,16 @@ fn validate_record(
             "SUPPORT_COMPONENT_NODE",
         )?;
     }
-    // R10 contributions.
+    // R10 contributions. DEL-05-01 REQ-014: a hydrostatic test case's mark
+    // names the loads its test contents entered.
+    let mark = cases
+        .iter()
+        .find(|(c, _)| *c == case_id)
+        .and_then(|(_, case)| case.get("test_condition"));
     let contributions = array(&record["contributions"])?;
     let mut contribution_ids: Vec<&str> = Vec::new();
     for contribution in contributions {
-        validate_contribution(contribution)?;
+        validate_contribution(contribution, mark)?;
         let id = text(&contribution["source_id"])?;
         require(!contribution_ids.contains(&id), "CONTRIBUTION_DUPLICATE")?;
         contribution_ids.push(id);
@@ -1136,7 +1143,7 @@ fn support_law_classification(component: &Value) -> Option<&'static str> {
 
 const SUPPORT_CLASSIFICATIONS: &[&str] = &["prescribed_boundary", "nonlinear_ground_motion", "spring_base_motion"];
 
-fn validate_contribution(contribution: &Value) -> Check {
+fn validate_contribution(contribution: &Value, mark: Option<&Value>) -> Check {
     let (shape, classification) = match contribution["owner_kind"].as_str() {
         Some("stored_primitive") => (STORED_KEYS, "ordinary_applied"),
         Some("resolved_member_state") => (MEMBER_STATE_KEYS, "eigenstrain"),
@@ -1164,10 +1171,19 @@ fn validate_contribution(contribution: &Value) -> Check {
             text(&contribution["dimension"])?;
             let authored = number(&contribution["authored_normalized_magnitude"])?;
             let applied = number(&contribution["applied_magnitude"])?;
-            require(
-                applied == authored * factor,
-                "CONTRIBUTION_APPLIED_MAGNITUDE",
-            )
+            // DEL-05-01 REQ-014: on a marked case, a stored primitive that one
+            // of the mark's contents items names was applied with the test
+            // contents, so its applied magnitude is the factor times that
+            // item's applied_n_per_m; its authored magnitude is the document's.
+            // Every other entry: the factor times its authored magnitude.
+            let item = mark
+                .and_then(|mark| mark["contents_resolution"].as_array())
+                .and_then(|items| items.iter().find(|item| item["load_id"] == contribution["source_id"]));
+            let base = match item {
+                Some(item) => number(&item["applied_n_per_m"])?,
+                None => authored,
+            };
+            require(applied == base * factor, "CONTRIBUTION_APPLIED_MAGNITUDE")
         }
         Some("resolved_member_state") => {
             for reference in array(&contribution["consumed_input_refs"])? {

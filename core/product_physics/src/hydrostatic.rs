@@ -202,12 +202,14 @@ fn generated_id(case: &str, pipe: &str) -> String {
 }
 
 /// A test case's declared contents for one of its generated self-weight
-/// loads, as the model states them (see [`declared_contents`]).
+/// loads, as the model states them, and the magnitude the document stores for
+/// that load (see [`declared_contents`]).
 #[derive(Debug, Clone)]
 pub(crate) struct DeclaredContents {
     pub(crate) case_id: String,
     pub(crate) load_id: String,
     pub(crate) contents_density: Quantity,
+    pub(crate) authored_magnitude: f64,
 }
 
 /// The contents density a test case's own generated self-weight load takes,
@@ -234,7 +236,8 @@ fn selected_contents<'a>(model: &'a PreviewModel, case: &PreviewLoadCase, load: 
 /// removes the conditions. The certificate forms such a load's intended
 /// intensity with them (`certified_loads::intensity`), so the applied load,
 /// which the resolution forms, is checked against the model's condition and
-/// not against itself. Never published.
+/// not against itself. The density is never published; the stored magnitude
+/// is, as the record of load sources' authored magnitude ([`authored_magnitude`]).
 pub(crate) fn declared_contents(model: &PreviewModel) -> Vec<DeclaredContents> {
     #[cfg(test)]
     if contents_mutant::capture_dropped() {
@@ -245,8 +248,23 @@ pub(crate) fn declared_contents(model: &PreviewModel) -> Vec<DeclaredContents> {
             case_id: case.id.clone(),
             load_id: load.id.clone(),
             contents_density: density.clone(),
+            authored_magnitude: load.magnitude.value,
         })
     })).collect()
+}
+
+/// The magnitude the document stores for `load` of case `case_id`, which the
+/// record of load sources publishes as `authored_normalized_magnitude`
+/// (`case_state::resolve`): for a test case's own generated self-weight load,
+/// the one captured before the test contents replaced it
+/// ([`declared_contents`]); every other load still has its own. The record's
+/// applied magnitude stays the one the solve applies, so on a test case that
+/// load's entry is joined to its contents item by the readers, not to its
+/// authored magnitude.
+pub(crate) fn authored_magnitude(model: &PreviewModel, case_id: &str, load: &crate::PreviewPrimitiveLoad) -> f64 {
+    model.declared_test_contents.iter()
+        .find(|item| item.case_id == case_id && item.load_id == load.id)
+        .map_or(load.magnitude.value, |item| item.authored_magnitude)
 }
 
 /// Every refusal of the hydrostatic test cases of `model` (read only, before

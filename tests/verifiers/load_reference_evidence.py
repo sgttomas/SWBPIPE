@@ -22,7 +22,9 @@ from pathlib import Path
 from collections.abc import Mapping
 from typing import Any
 
-TRANSPORT_SCHEMA_SHA256 = "b95947ea4b62406ea050ba46e8b7d32d3fe8cc9d4f4892f53ab0c9f6df1189b9"
+# DEL-05-01 REQ-014: the stored primitive's two magnitudes describe a hydrostatic test case's entry (descriptions only;
+# was b95947ea...).
+TRANSPORT_SCHEMA_SHA256 = "497caa66a2682dd42b8e9fd7b8ce49d1c24ffb732131e4089c79540983f94b78"
 TRANSPORT_SCHEMA_PATH = Path(__file__).resolve().parents[2] / "schemas" / "load_reference_state.schema.json"
 
 RECORD_CONTRACT = "openpipestress.load_reference_state/1.0.0"
@@ -419,8 +421,10 @@ def _validate_record(record: Mapping[str, Any], cases: list[tuple[str, Mapping[s
     # R10 contributions.
     contributions = _array(record["contributions"])
     contribution_ids: list[str] = []
+    # DEL-05-01 REQ-014: a hydrostatic test case's mark names the loads its test contents entered.
+    mark = next((value.get("test_condition") for known, value in cases if known == case_id), None)
     for contribution in contributions:
-        _validate_contribution(contribution)
+        _validate_contribution(contribution, mark)
         source_id = _text(contribution["source_id"])
         _require(source_id not in contribution_ids, "CONTRIBUTION_DUPLICATE")
         contribution_ids.append(source_id)
@@ -658,7 +662,7 @@ def _validate_support_component(component: Any) -> None:
     _number(component["prescribed_value"])
 
 
-def _validate_contribution(contribution: Any) -> None:
+def _validate_contribution(contribution: Any, mark: Any = None) -> None:
     kind = _get(contribution, "owner_kind")
     shapes = {
         "stored_primitive": (STORED_KEYS, "ordinary_applied"),
@@ -683,7 +687,12 @@ def _validate_contribution(contribution: Any) -> None:
         _text(contribution["dimension"])
         authored = _number(contribution["authored_normalized_magnitude"])
         applied = _number(contribution["applied_magnitude"])
-        _require(applied == authored * factor, "CONTRIBUTION_APPLIED_MAGNITUDE")
+        # DEL-05-01 REQ-014: on a marked case, a stored primitive that one of the mark's contents items names was
+        # applied with the test contents (factor times the item's applied_n_per_m); every other entry: factor times authored.
+        items = _get(mark, "contents_resolution")
+        item = next((item for item in items if isinstance(_get(item, "load_id"), str) and _get(item, "load_id") == contribution["source_id"]), None) if isinstance(items, list) else None
+        base = authored if item is None else _number(_get(item, "applied_n_per_m"))
+        _require(applied == base * factor, "CONTRIBUTION_APPLIED_MAGNITUDE")
     elif kind == "resolved_member_state":
         for reference in _array(contribution["consumed_input_refs"]):
             _text(reference)
