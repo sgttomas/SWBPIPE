@@ -406,7 +406,7 @@ describe('the explanation as the head of the propose tool\'s message, with the e
    expect(refusal.status).toBe('unavailable');
    expect(refusal.message).toBe(refusedProposalMessage(head, outcome.diagnostics));
    expectHead(refusal.message, head);
-   const blocking = (outcome.diagnostics as AnyRecord[]).filter(finding => finding.severity === 'blocking');
+   const blocking = outcome.diagnostics.filter(finding => finding.severity === 'blocking');
    expect(blocking.map(finding => finding.code)).toEqual([MISMATCH]);
    expect(refusal.message.slice(head.length).startsWith(` 1 blocking finding. ${PROPOSAL_FINDINGS_LABEL} [1] ${MISMATCH} "Intent unit \`GPa\``)).toBe(true);
   } finally {await close();}

@@ -14,7 +14,7 @@ import { rowCaseKey } from '../features/results/resultsNavigator';
 import { canonicalJsonString } from './hashService';
 import { applierDisplayNumber, nodeDeletionSummary, pipeDeletionSummary, supportDeletionSummary } from '../features/model-tree/removalIntents';
 import { personEnteredWriteIn } from './operationAuthorship';
-import { GENERIC_REFUSAL, unitRefusalMessage } from './agentUnitRefusal';
+import { unitRefusalMessage } from './agentUnitRefusal';
 
 export type AgentAssumption=Readonly<{assumptionId:string;statement:string;affectedOperationIds:readonly string[]}>;
 export type AgentContext = Readonly<{requestRef:string;threadId:string;turnId:string;callId:string;basis:AgentBasis;assumptions:readonly AgentAssumption[]}>;
