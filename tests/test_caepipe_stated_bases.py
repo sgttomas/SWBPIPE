@@ -193,7 +193,7 @@ def test_c_rests_on_the_run_declaration_and_on_what_the_document_selects():
     assert not applies and "declared not screened" in why and "headless modal" in why
     applies, why = sb.condition({**cantilever(), "capture_only": True}, sb.SHEAR)
     assert not applies and "capture-only" in why
-    # A hand-entry run's declared screening waits for the window print route, which compares it.
+    # A hand-entry run's declared screening waits for AC-002 and VER-002 for window runs, which the window print route compares meanwhile.
     hand = run_pilot.run_declarations(MANIFEST, "hand-entry")["cpb-n-04"]
     assert hand["screened"] is False and sb.condition(cantilever(), sb.SHEAR, hand) == (True, "")
     # An explicit Euler-Bernoulli selection is still a plain Euler-Bernoulli solve: the basis applies.

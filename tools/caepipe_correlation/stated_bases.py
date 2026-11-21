@@ -91,7 +91,7 @@ STATEMENTS: dict[str, dict[str, str]] = {
         "title": "Timoshenko straight members",
         "condition": ("a pressure-free document (no pressure_contract) that does not select Timoshenko straight members "
                       "(it selects no shear model, or euler_bernoulli), of a run that is compared (declared screened, "
-                      "or whose declared screening waits for the window print route; a capture-only run is compared "
+                      "or whose declared screening waits for AC-002 and VER-002 for window runs, which the window print route compares meanwhile; a capture-only run is compared "
                       "by no route), with no wind exposed spans; applied only where the product solves the basis "
                       "document"),
         "reason": ("the benchmark documents select no Timoshenko shear model, so SWBPIPE's pressure-free solve is "
@@ -183,8 +183,8 @@ def _model(entry: Mapping[str, Any]) -> Mapping[str, Any]:
 def declared_compared(declaration: Mapping[str, Any] | None) -> tuple[bool, str]:
     """Whether a run's manifest declaration lets a route compare it, and why not, by name. A model without declared
     runs (None) is screened. A declared run is compared when it is declared screened, or when its declared screening
-    waits for the window print route alone (benchmark_tranche3.WINDOW_PRINT_WAIT: the hand-entry runs), which is the
-    route that compares it; any other run (a dynamics capture, which waits for a modal entry of the product) is a
+    waits for AC-002 and VER-002 for window runs (benchmark_tranche3.WINDOW_PRINT_WAIT: the hand-entry runs),
+    which the window print route compares meanwhile; any other run (a dynamics capture, which waits for a modal entry of the product) is a
     reference and is compared by no route."""
     if declaration is None or declaration.get("screened") is True:
         return True, ""
