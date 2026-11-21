@@ -10,8 +10,9 @@ candidate fixed-point precision per unit label; a value with no candidate for it
 it, is unmatched for that reason, never screened with a wider floor. A closed-form value the benchmark model carries is kept as the third value with its own checks.
 
 The record is built from CAEPIPE output and is private (docs/IP_AND_DATA_BOUNDARY.md §6.2): it stays in the exchange
-folder. It is screening evidence for Agent 0 and the owner's review of the full record, not validation,
-compatibility proof, code compliance or professional acceptance. The screening profile is a proposal under that
+folder. It is validation evidence (docs/PRD.md §22.5) that agents read and use to find and fix SWBPIPE's defects,
+and the basis of the owner's review of the full record; it is not compatibility proof, code compliance or
+professional acceptance. The screening profile is a proposal under that
 Benchmark method; the owner's review of the full record decides, not the profile.
 """
 
@@ -27,8 +28,8 @@ from .print_csv import PRINTED_DECIMALS, RESOLUTION_ABSENT, RESOLUTION_CAUSES, b
 
 BENCHMARK_RECORD_KIND = "openpipestress.caepipe_benchmark.comparison_record"
 BENCHMARK_RECORD_VERSION = "3"
-EVIDENCE_CLASSIFICATION = ("private screening evidence for review; not validation, compatibility proof, code "
-                           "compliance or professional acceptance")
+EVIDENCE_CLASSIFICATION = ("private validation evidence for review (docs/PRD.md section 22.5); not compatibility proof, "
+                           "code compliance or professional acceptance")
 
 WITHIN = "within_profile"
 FINDING = "finding"
