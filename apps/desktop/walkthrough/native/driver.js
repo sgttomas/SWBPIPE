@@ -222,7 +222,7 @@
   // `start` records what was done, then the driver takes no step and touches nothing: the promise never settles, so
   // native_smoke_finish is never called. A failed start is recorded, and the app is then ended by native_smoke_finish.
   async function attendedStart(journey, plan) {
-    const record = { nonce, attended: true, start: plan.start ?? null, at: Date.now(), window_shown: windowShown, opened: null, substitutions: [], unused_answers: null };
+    const record = { nonce, attended: true, start: plan.start ?? null, at: Date.now(), window_shown: windowShown, page_visibility: document.visibilityState, opened: null, substitutions: [], unused_answers: null };
     try {
       if (plan.open) {
         substitutions = [];

@@ -349,15 +349,21 @@ export function emptyAttendedOutput(out) {
 }
 const lstatOrNull = (file) => { try { return fs.lstatSync(file); } catch { return null; } };
 
-/** The lines the command prints once the start is made, `attended.<key>=<value>`, the last `attended.ready=yes`. */
-export function attendedStartLines({ pid, boundApp, launchCopy, finishFile, captures, limitMinutes, endsAt, shown, start }) {
+/**
+ * The handover: the lines the command prints once the driver's start checkpoint says the start was made (ok: true,
+ * with this launch's nonce) and the census has found the process running this launch's private copy,
+ * `attended.<key>=<value>`, the last `attended.ready=yes`. What it says of the window is what the driver observed at
+ * the start (`observed`, the checkpoint's window_shown and page_visibility), never the option asked for.
+ */
+export function attendedStartLines({ pid, boundApp, launchCopy, finishFile, captures, limitMinutes, endsAt, observed, start }) {
   return [
-    `attended.pid=${pid ?? "unknown"}`,
+    `attended.pid=${pid}`,
     `attended.process_name=${ATTENDED.process_name}`,
     `attended.bound_app=${boundApp}`,
     `attended.launch_copy=${launchCopy}`,
     `attended.window_title_ends_with=${ATTENDED.window_title_ends_with}`,
-    `attended.window_shown=${shown ? "yes" : "no (--hidden)"}`,
+    `attended.window_shown=${observed?.window_shown === true ? "yes" : "no"}`,
+    `attended.page_visibility=${observed?.page_visibility ?? "not reported"}`,
     `attended.start=${start ?? "the application as first opened"}`,
     `attended.finish_file=${finishFile}`,
     `attended.captures=${captures}`,
@@ -394,17 +400,19 @@ export function appPidOf(pids, table, self = process.pid) {
  * The attended launch's watcher. It owns the AbortController whose signal judgedPhase hands to runUnderLock, the
  * owner of the started child; no process or group is ever signalled here. start({ nonce }) is called directly before
  * the start. From then on, every `pollMs`, it looks for the app's pid (the census of the run's private copy, for the
- * printed line only), the driver's `start` checkpoint carrying `nonce` and the finish file; once the start and the pid
- * are known (or the pid is not found within `pidGraceMs` of the start), `onReady` is called once. When the finish file
- * appears, or `limitMs` passes, it aborts once: runUnderLock then sends SIGKILL to the child it started if that child
+ * printed line only), the driver's `start` checkpoint carrying `nonce` and the finish file. The handover, `onReady`,
+ * is called once, only when the checkpoint says the start was made (ok: true) and the pid is known; a checkpoint that
+ * says the start failed is never handed over, and the watcher aborts the launch ("start-failed") in case the driver's
+ * own ending does not come. When the finish file appears, or `limitMs` passes, it aborts once: runUnderLock then sends
+ * SIGKILL to the child it started if that child
  * is still running, and its receipt (the phase's `abort`) says what was sent. The first poll comes after the start,
  * when the child already exists, so a finish file that is there before the pid is known is acted on, not lost; one
- * that appears after the application has exited signals nothing. stop() returns { pid, start, ready_printed, stop },
- * where `stop` is null or { by: "finish-file" | "limit", at }.
+ * that appears after the application has exited signals nothing. stop() returns { pid, start, ready_printed,
+ * handed_over_at, stop }, where `stop` is null or { by: "finish-file" | "limit" | "start-failed", at }.
  */
-export function attendedWatch({ executable, finishFile, startReport, census, limitMs, onReady = () => {}, pollMs = 250, pidGraceMs = 10_000, processTable = readProcessTable, self = process.pid }) {
+export function attendedWatch({ executable, finishFile, startReport, census, limitMs, onReady = () => {}, pollMs = 250, processTable = readProcessTable, self = process.pid }) {
   const controller = new AbortController();
-  const seen = { pid: null, start: null, startAt: null, printed: false, stop: null };
+  const seen = { pid: null, start: null, printed: false, handedOverAt: null, stop: null };
   let nonce = null;
   let poll = null;
   let limit = null;
@@ -421,10 +429,12 @@ export function attendedWatch({ executable, finishFile, startReport, census, lim
     }
     if (seen.start === null) {
       const read = readReport(startReport).report;
-      if (read && read.nonce === nonce) { seen.start = read; seen.startAt = Date.now(); }
+      if (read && read.nonce === nonce) seen.start = read;
     }
-    if (seen.start !== null && !seen.printed && (seen.pid !== null || Date.now() - seen.startAt > pidGraceMs)) {
+    if (seen.start !== null && seen.start.ok !== true) halt("start-failed");
+    if (seen.start?.ok === true && seen.stop === null && !seen.printed && seen.pid !== null) {
       seen.printed = true;
+      seen.handedOverAt = Date.now();
       onReady({ pid: seen.pid, start: seen.start });
     }
   };
@@ -438,22 +448,27 @@ export function attendedWatch({ executable, finishFile, startReport, census, lim
     stop() {
       clearInterval(poll);
       clearTimeout(limit);
-      return { pid: seen.pid, start: seen.start, ready_printed: seen.printed, stop: seen.stop };
+      return { pid: seen.pid, start: seen.start, ready_printed: seen.printed, handed_over_at: seen.handedOverAt, stop: seen.stop };
     }
   };
 }
 
 /**
  * How an attended launch ended, from its recorded outcome (`recordedOutcome`), runUnderLock's abort receipt (the
- * phase's `abort`), the watcher's stop and the driver's `start` checkpoint: { by, ok, what } with `by` one of
- * finish-file, limit, strict-chooser, start-failed, app-exited. The finish file and the limit are the ending only when
- * the abort's SIGKILL was delivered to the running child and the child ended on it.
+ * phase's `abort`), the watcher's stop, the driver's `start` checkpoint and whether the handover was printed
+ * (`handedOver`): { by, ok, what } with `by` one of start-failed, finish-file, limit, strict-chooser, app-exited. A
+ * failed start is its own ending, whatever came after. The finish file and the limit are the ending only when the
+ * abort's SIGKILL was delivered to the running child and the child ended on it. An exit is the attendant's (Quit,
+ * the window closed) only after the handover; before it, it is a failure of the launch.
  */
-export function attendedEnding({ outcome, receipt = null, stop = null, start = null, nonce, limitMinutes, strictChooserExit = 86 }) {
+export function attendedEnding({ outcome, receipt = null, stop = null, start = null, nonce, limitMinutes, handedOver = false, strictChooserExit = 86 }) {
   if (!outcome) return { by: "unknown", ok: false, what: "no outcome of the launch was recorded" };
   const killed = receipt?.delivered === true && outcome.signal === "SIGKILL";
+  const thisStart = start !== null && start.nonce === nonce;
   let ending;
-  if (killed && stop?.by === "finish-file") {
+  if (thisStart && start.ok !== true) {
+    ending = { by: "start-failed", ok: false, what: `the start failed and the launch was ended without a handover: ${String(start.error ?? "no reason recorded").split("\n")[0]}` };
+  } else if (killed && stop?.by === "finish-file") {
     ending = { by: "finish-file", ok: true, what: "the finish file appeared; runUnderLock, which started the application, ended it (SIGKILL delivered to its child)" };
   } else if (killed && stop?.by === "limit") {
     ending = { by: "limit", ok: true, what: `the limit of ${limitMinutes} minute(s) passed; runUnderLock, which started the application, ended it (SIGKILL delivered to its child)` };
@@ -461,16 +476,17 @@ export function attendedEnding({ outcome, receipt = null, stop = null, start = n
     ending = { by: "limit", ok: true, what: `runUnderLock's own time limit, the backstop after ${limitMinutes} minute(s), ended the application (SIGKILL)` };
   } else if (outcome.status === strictChooserExit) {
     ending = { by: "strict-chooser", ok: true, what: `a file chooser was opened with no answer queued; the strict chooser ended the app before any panel (exit ${strictChooserExit})` };
-  } else if (start?.nonce === nonce && start?.ok === false) {
-    ending = { by: "start-failed", ok: false, what: `the start failed and the driver ended the app: ${String(start.error ?? "no reason recorded").split("\n")[0]}` };
+  } else if (outcome.status === 0 && outcome.signal === null && handedOver) {
+    ending = { by: "app-exited", ok: true, what: "the application exited by itself (status 0) after the handover, as the attendant's Quit or closing its window ends it" };
   } else if (outcome.status === 0 && outcome.signal === null) {
-    ending = { by: "app-exited", ok: true, what: "the application exited by itself (status 0), as Quit or closing its window ends it" };
+    ending = { by: "app-exited", ok: false, what: "the application exited by itself (status 0) before the handover" };
   } else {
     ending = { by: "app-exited", ok: false, what: `the application ended by itself with ${outcome.signal ? `signal ${outcome.signal}` : `status ${outcome.status}`}` };
   }
   if (stop && !killed) ending.what += `; the ${stop.by === "limit" ? "limit passed" : "finish file appeared"}, and nothing was signalled (${receipt?.error ?? "the application had already exited"})`;
-  const started = start !== null && start.nonce === nonce && start.ok === true;
-  if (!started && ending.by !== "start-failed") return { ...ending, ok: false, what: `${ending.what}; the start was not reported made by this launch${start?.error ? ` (${start.error})` : ""}` };
+  if (stop?.by === "start-failed" && ending.by !== "start-failed") ending.what += "; the watcher had ended the launch because the start failed";
+  if (!thisStart && ending.by !== "start-failed") return { ...ending, ok: false, what: `${ending.what}; the start was not reported made by this launch` };
+  if (!handedOver && ending.ok) return { ...ending, ok: false, what: `${ending.what}; there was no handover to an attendant` };
   return ending;
 }
 
@@ -971,8 +987,8 @@ async function main() {
     let startedAt = null;
     const watch = attendedWatch({
       executable: binary, finishFile, startReport, census: censusOf, limitMs: limitMinutes * 60_000,
-      onReady: ({ pid }) => {
-        for (const line of attendedStartLines({ pid, boundApp: app.binary, launchCopy: binary, finishFile, captures, limitMinutes, endsAt: new Date(startedAt + limitMinutes * 60_000).toISOString(), shown: !hidden, start })) console.log(line);
+      onReady: ({ pid, start: observed }) => {
+        for (const line of attendedStartLines({ pid, boundApp: app.binary, launchCopy: binary, finishFile, captures, limitMinutes, endsAt: new Date(startedAt + limitMinutes * 60_000).toISOString(), observed, start })) console.log(line);
       }
     });
     const lockedBefore = hidden ? null : readScreenLock();
@@ -990,7 +1006,7 @@ async function main() {
     const phase = `${name}/walk`;
     const outcome = launches[phase]?.outcome ?? null;
     const receipt = launches[phase]?.abort ?? null;
-    const ending = attendedEnding({ outcome, receipt, stop: watched.stop, start: readReport(startReport).report, nonce: outcome?.nonce, limitMinutes });
+    const ending = attendedEnding({ outcome, receipt, stop: watched.stop, start: readReport(startReport).report, nonce: outcome?.nonce, limitMinutes, handedOver: watched.ready_printed });
     check(`the attended launch ended in one of its ways (${ending.by})`, ending.ok, ending.what);
     if (removeHome(where.home) !== null) check("its throwaway home was removed", false, leftHomes.get(where.home));
     else check("its throwaway home was removed", true);
@@ -1017,7 +1033,7 @@ async function main() {
           : { journey: null, what: "the application as first opened, with its demonstration model" },
         start_made: startRecord?.ok === true, start_error: startRecord?.error ?? null,
         window_shown: shown.shown,
-        pid: watched.pid,
+        pid: watched.pid, handed_over: watched.ready_printed, handed_over_at: watched.handed_over_at ? new Date(watched.handed_over_at).toISOString() : null,
         started: outcome?.started ?? null, ended: outcome?.ended ?? null,
         ended_by: ending.by, ending: ending.what, ending_ok: ending.ok,
         limit_minutes: limitMinutes, finish_file: finishFile, stop: watched.stop, abort: receipt,

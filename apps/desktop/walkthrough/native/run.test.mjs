@@ -351,6 +351,7 @@ import { constants as fsConstants, copyFileSync, lstatSync } from "node:fs";
 import { ATTENDED, ATTENDED_SURFACE, CAPTURE_BASIS, UNEXPLAINED_BASIS, attendedEnding, attendedStartLines, attendedWatch, emptyAttendedOutput, parseCommandLine, readCaptures, readProcessTable, writeAttendedPart } from "./run.mjs";
 import { judgedPhase } from "../../native-smoke/judged-launch.mjs";
 import { censusOf } from "../../native-smoke/launch-env.mjs";
+import { readReport } from "../../native-smoke/launch-outcome.mjs";
 import { acquireBuildLock } from "../../scripts/worktreeBuildLock.mjs";
 
 test("attended arguments: the option, its defaults, and every refusal by name", () => {
@@ -380,9 +381,13 @@ test("attended arguments: the option, its defaults, and every refusal by name", 
 });
 
 test("attended start lines: one per fact, a script can read them, the last says ready", () => {
-  const lines = attendedStartLines({ pid: 4242, boundApp: "/b/app", launchCopy: "/c/app", finishFile: "/r/attended-finish", captures: "/o/captures", limitMinutes: 20, endsAt: "2026-01-01T00:20:00.000Z", shown: true, start: null });
+  const lines = attendedStartLines({ pid: 4242, boundApp: "/b/app", launchCopy: "/c/app", finishFile: "/r/attended-finish", captures: "/o/captures", limitMinutes: 20, endsAt: "2026-01-01T00:20:00.000Z", observed: { ok: true, window_shown: true, page_visibility: "visible" }, start: null });
   const facts = Object.fromEntries(lines.map((line) => line.match(/^attended\.([a-z_]+)=(.*)$/).slice(1)));
   assert.equal(facts.pid, "4242");
+  // What the driver observed, not the option asked for.
+  assert.deepEqual([facts.window_shown, facts.page_visibility], ["yes", "visible"]);
+  const unseen = Object.fromEntries(attendedStartLines({ pid: 1, observed: { ok: true, window_shown: false, page_visibility: "hidden" } }).map((line) => line.match(/^attended\.([a-z_]+)=(.*)$/).slice(1)));
+  assert.deepEqual([unseen.window_shown, unseen.page_visibility], ["no", "hidden"]);
   assert.equal(facts.bound_app, "/b/app");
   assert.equal(facts.window_title_ends_with, "SWBPIPE");
   assert.equal(facts.finish_file, "/r/attended-finish");
@@ -410,7 +415,7 @@ test("an attended launch's ending: each way named from the receipt of the owner 
   const start = { nonce: "n", ok: true };
   const outcome = (fields) => ({ status: null, signal: null, timed_out: false, ...fields });
   const delivered = { delivered: true, target: "group 7", signal: "SIGKILL" };
-  const ending = (fields) => attendedEnding({ start, nonce: "n", limitMinutes: 5, ...fields });
+  const ending = (fields) => attendedEnding({ start, nonce: "n", limitMinutes: 5, handedOver: true, ...fields });
   assert.deepEqual([ending({ outcome: outcome({ status: 0 }) }).by, ending({ outcome: outcome({ status: 0 }) }).ok], ["app-exited", true]);
   assert.equal(ending({ outcome: outcome({ status: 3 }) }).ok, false);
   assert.equal(ending({ outcome: outcome({ signal: "SIGSEGV" }) }).ok, false);
@@ -425,7 +430,12 @@ test("an attended launch's ending: each way named from the receipt of the owner 
   assert.equal(ending({ outcome: outcome({ status: 86 }) }).by, "strict-chooser");
   const failed = attendedEnding({ outcome: outcome({ status: 0 }), start: { nonce: "n", ok: false, error: "the journey declares nothing to open" }, nonce: "n" });
   assert.deepEqual([failed.by, failed.ok], ["start-failed", false]);
-  assert.equal(attendedEnding({ outcome: outcome({ status: 0 }), start: { nonce: "other", ok: true }, nonce: "n" }).ok, false);
+  assert.equal(attendedEnding({ outcome: outcome({ status: 0 }), start: { nonce: "other", ok: true }, nonce: "n", handedOver: true }).ok, false);
+  // An exit is the attendant's only after the handover; a failed start is its own ending whatever ended the app.
+  const early = ending({ outcome: outcome({ status: 0 }), handedOver: false });
+  assert.deepEqual([early.by, early.ok], ["app-exited", false]);
+  assert.match(early.what, /before the handover/);
+  assert.equal(ending({ outcome: outcome({ signal: "SIGKILL" }), receipt: delivered, stop: { by: "start-failed" }, start: { nonce: "n", ok: false, error: "x" }, handedOver: false }).by, "start-failed");
   assert.equal(attendedEnding({ outcome: null }).ok, false);
 });
 
@@ -532,7 +542,7 @@ const ATTENDED_STAND_IN = `
 const fs = require("node:fs");
 const plan = JSON.parse(process.env.SWBPIPE_NATIVE_SMOKE_PLAN);
 const report = process.env.SWBPIPE_NATIVE_SMOKE_REPORT;
-fs.writeFileSync(report + ".start.json", JSON.stringify({ nonce: plan.nonce, attended: true, ok: true }));
+fs.writeFileSync(report + ".start.json", JSON.stringify(plan.mode === "failed-start" ? { nonce: plan.nonce, attended: true, ok: false, error: "the journey declares nothing to open" } : { nonce: plan.nonce, attended: true, ok: true, window_shown: false, page_visibility: "hidden" }));
 if (plan.mode === "quit") setTimeout(() => process.exit(0), 1500);
 else if (plan.mode === "chooser") setTimeout(() => process.exit(86), 1500);
 else setInterval(() => {}, 1000);
@@ -559,7 +569,7 @@ test("the ways an attended launch ends, each through runUnderLock's abort and ea
       let ready;
       const readyNow = new Promise((resolve) => { ready = resolve; });
       const watch = attendedWatch({ executable, finishFile, startReport: `${report}.start.json`, census: censusOf, limitMs, pollMs: 100, onReady: ({ pid }) => {
-        lines.push(...attendedStartLines({ pid, boundApp: executable, launchCopy: executable, finishFile, captures: root, limitMinutes: 1, endsAt: "t", shown: false, start: null }));
+        lines.push(...attendedStartLines({ pid, boundApp: executable, launchCopy: executable, finishFile, captures: root, limitMinutes: 1, endsAt: "t", observed: readReport(`${report}.start.json`).report, start: null }));
         ready(pid);
       } });
       const result = judgedPhase({
@@ -578,7 +588,7 @@ test("the ways an attended launch ends, each through runUnderLock's abort and ea
       if (finishAfterExit) { writeFileSync(finishFile, ""); await pause(400); }
       const watched = watch.stop();
       const receipt = launches[mode].abort;
-      const ending = attendedEnding({ outcome: launches[mode].outcome, receipt, stop: watched.stop, start: watched.start, nonce, limitMinutes: 1 });
+      const ending = attendedEnding({ outcome: launches[mode].outcome, receipt, stop: watched.stop, start: readReport(`${report}.start.json`).report, nonce, limitMinutes: 1, handedOver: watched.ready_printed });
       return { judged, watched, receipt, ending, lines, outcome: launches[mode].outcome };
     }
     const quit = await attendedLaunch("quit");
@@ -610,6 +620,11 @@ test("the ways an attended launch ends, each through runUnderLock's abort and ea
 
     const backstop = await attendedLaunch("idle", { timeoutMs: 2_500 });
     assert.deepEqual([backstop.ending.by, backstop.outcome.timed_out, backstop.outcome.signal, backstop.receipt], ["limit", true, "SIGKILL", null], backstop.ending.what);
+
+    // A failed start is never handed over: no line is printed, and the launch ends as its own ending.
+    const failedStart = await attendedLaunch("failed-start");
+    assert.deepEqual([failedStart.ending.by, failedStart.ending.ok, failedStart.lines, failedStart.watched.ready_printed, failedStart.watched.stop.by], ["start-failed", false, [], false, "start-failed"], failedStart.ending.what);
+    assert.equal(failedStart.judged.census.resolved, true);
 
     const chooser = await attendedLaunch("chooser");
     assert.deepEqual([chooser.ending.by, chooser.ending.ok], ["strict-chooser", true], chooser.ending.what);
