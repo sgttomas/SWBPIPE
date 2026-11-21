@@ -88,7 +88,7 @@ import {
   claimBoxSelectionPointerDown,
   createRenderTransform,
   displayedBoundsForEntityKeys,
-  displayedEntityKeys,
+  fitSelectionPlan,
   formatMeasurementDisplayValue,
   fittedViewportDistance,
   hideSelectionVisibility,
@@ -2564,17 +2564,14 @@ export function PipeViewport({
     else fitViewportCameraAlong(resource, localBounds);
   }
 
-  function fitDisplayedBounds(label: string, kind: FitCommandKind, authoredBounds: Bounds3 | null) {
+  function fitDisplayedBounds(label: string, kind: FitCommandKind, authoredBounds: Bounds3 | null, fittedKeys?: readonly EntityKey[]) {
     const resource = viewportResourceRef.current;
     if (resource) {
       fitAuthoredBounds(resource, authoredBounds);
       const size = viewportCanvasSize(resource);
       // A Fit Selection keeps the keys it framed: a hidden selected entity, outside the bounds now,
       // stays outside the refit after it is shown again.
-      const fittedKeys = kind === "fit-selection"
-        ? displayedEntityKeys(activeModelIndex, orderedSelectionKeys, hiddenKeys, geometryMode === "actual-od" ? actualOd.radii : new Map())
-        : undefined;
-      cameraRuleRef.current = fitApplied(cameraRuleRef.current, kind, size.width, size.height, fittedKeys);
+      cameraRuleRef.current = fitApplied(cameraRuleRef.current, kind, size.width, size.height, kind === "fit-selection" ? fittedKeys : undefined);
       resource.invalidate();
     }
     setViewCommandStatus(resource
@@ -2659,11 +2656,19 @@ export function PipeViewport({
       setViewCommandStatus("All eligible model geometry shown.");
       return;
     }
-    fitDisplayedBounds(
-      command.type === "fit-model" ? "Fit Model" : command.type === "fit-selection" ? "Fit Selection" : "Fit Visible",
-      command.type,
-      fitCommandBounds(command.type)
-    );
+    if (command.type === "fit-selection") {
+      // The command's own targets when it names them (a run sheet row), else the selection: the
+      // bounds and the remembered keys both come from what this fit frames.
+      const targets = command.targets ? command.targets.map((ref) => entityKey(ref)) : orderedSelectionKeys;
+      const plan = fitSelectionPlan(activeModelIndex, targets, hiddenKeys, geometryMode === "actual-od" ? actualOd.radii : new Map());
+      if (!plan) {
+        setViewCommandStatus("Fit Selection: nothing it names is drawn; the view is unchanged.");
+        return;
+      }
+      fitDisplayedBounds("Fit Selection", "fit-selection", plan.bounds, plan.keys);
+      return;
+    }
+    fitDisplayedBounds(command.type === "fit-model" ? "Fit Model" : "Fit Visible", command.type, fitCommandBounds(command.type));
   }
 
   // A new canvas size fits again as the last fit did, unless the person has moved the camera since;

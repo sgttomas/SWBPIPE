@@ -73,7 +73,10 @@ export type ViewportViewCommand =
   | Readonly<{ type: "hide-selection" }>
   | Readonly<{ type: "isolate-selection" }>
   | Readonly<{ type: "show-all" }>
-  | Readonly<{ type: "fit-model" | "fit-visible" | "fit-selection" }>
+  | Readonly<{ type: "fit-model" | "fit-visible" }>
+  // Fit Selection frames `targets` when the command names them (a run sheet row's own entity,
+  // which the selection may not yet hold), else the selection.
+  | Readonly<{ type: "fit-selection"; targets?: readonly EntityRef[] }>
   // Key results (A6): the same view state the
   // result-colour toggle with its quantity and case selectors, and the deformation popover's case
   // selector, set. They carry ids the viewport already offers and form no value.
@@ -178,6 +181,21 @@ export function displayedEntityKeys(
   actualOdRadii: ReadonlyMap<EntityKey, number>
 ): EntityKey[] {
   return [...keys].filter((key) => displayedExtent(index, key, hiddenKeys, actualOdRadii) !== null);
+}
+
+/**
+ * What a Fit Selection frames: of `targets`, the keys that contribute to the displayed bounds, and
+ * those bounds; null when none contributes, and then the camera is left alone.
+ */
+export function fitSelectionPlan(
+  index: ModelIndex,
+  targets: Iterable<EntityKey>,
+  hiddenKeys: ReadonlySet<EntityKey>,
+  actualOdRadii: ReadonlyMap<EntityKey, number>
+): Readonly<{ keys: readonly EntityKey[]; bounds: Bounds3 }> | null {
+  const keys = displayedEntityKeys(index, targets, hiddenKeys, actualOdRadii);
+  const bounds = displayedBoundsForEntityKeys(index, keys, hiddenKeys, actualOdRadii);
+  return bounds ? { keys, bounds } : null;
 }
 
 /**
