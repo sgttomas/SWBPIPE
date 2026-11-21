@@ -17,11 +17,13 @@
 //!   webview or read from or saved to the Keychain (RT-E1 D4,
 //!   DEL-16-06).
 //!
-//! The harness substitutes exactly three things for a person at the machine: it
+//! The harness substitutes exactly four things for a person at the machine: it
 //! names the file the next model-document chooser returns (`native_smoke_choose`;
 //! the Open Model Document…, Save Model Document…, Save Handoff…, Save Report
 //! Package…, Save canonical HTML…, Export MBF's save and Import MBF's open choosers) instead of showing the chooser, it delivers native menu commands through the same
-//! dispatch a menu click uses (`native_smoke_menu`), and in place of the report
+//! dispatch a menu click uses (`native_smoke_menu`), it asks for a quit or a close of the main window by the route
+//! a person's takes (`native_smoke_request_close`; the unsaved-changes guard holds the request and the prompt is
+//! answered in the page, as a person answers it), and in place of the report
 //! print's system dialog it records which print document reached the native
 //! print (`record_report_print`, read by `native_smoke_take_report_prints`; the
 //! driver then asks for the open print window to be closed with
