@@ -68,7 +68,7 @@
           "ids": []
         },
         "limits": {
-          "argumentBytes": 16384,
+          "argumentBytes": 28672,
           "pageRows": 50,
           "pendingCalls": 16,
           "proposalOperations": 16,
@@ -190,7 +190,7 @@
           "ids": []
         },
         "limits": {
-          "argumentBytes": 16384,
+          "argumentBytes": 28672,
           "pageRows": 50,
           "pendingCalls": 16,
           "proposalOperations": 16,

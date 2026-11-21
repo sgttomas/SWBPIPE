@@ -47,28 +47,39 @@ results with".
   The governing text records each decision and its reason.
 - **What is published.** The user's engineer issues SWBPIPE's mechanics
   results under their own responsibility: support and equipment loads,
-  displacements, frequencies, fundamental stresses. SWBPIPE does the design
+  displacements and fundamental stresses, and frequencies once modal analysis
+  follows after v1.0 (Seismic, below). SWBPIPE does the design
   iteration and does not proclaim code compliance; the user goes to CAEPIPE
   for that.
-- **Analyses.** Sustained, expansion, operating, hydrostatic test and seismic,
-  with the others exit criterion 1 lists as standard.
+- **Analyses.** Sustained, expansion, operating, hydrostatic test and static
+  seismic, with the others exit criterion 1 lists as standard.
 - **One route.** EX is extended and PF gets no pressure. Nothing necessary is
   omitted by this provided EX admits every family PF has. Pressure on PF is
   revisited only if EX fails the performance targets (exit criterion 9).
-- **Seismic.** Response-spectrum analysis is in v1.0: user-entered spectra,
-  modal and directional combination, a missing-mass correction, and snubbers
-  as a dynamic-only restraint (DEL-04-10; scope change SCA-014). It is
-  developed because CAEPIPE has it; had CAEPIPE not, static seismic alone
-  would do for now. The vendor's public manual describes response-spectrum
-  analysis with mode and directional combination and missing mass
+- **Seismic.** Static seismic is v1.0's seismic analysis: three-axis static
+  seismic with SRSS and absolute-sum combination, and seismic anchor movement
+  (exit criterion 1). Modal analysis and response-spectrum analysis, with
+  user-entered spectra, modal and directional combination, a missing-mass
+  correction and snubbers as a dynamic-only restraint (DEL-04-09, DEL-04-10;
+  scope changes SCA-013 and SCA-014), follow after v1.0. The work already done
+  on them stays in the repository and is not withdrawn. Agent 0 decided this on
+  2026-11-20 under the grant in `AGENTS.md` and the owner's instruction:
+  "Static seismic is enough for v1.0 but response spectrum will follow later
+  so keep what's there." Response spectrum follows because CAEPIPE has it; the
+  vendor's public manual describes response-spectrum analysis with mode and
+  directional combination and missing mass
   ([dynamic analysis](https://docs.sstcae.com/tech_manual/dynamic_analysis.htm),
   [spectrums](https://docs.sstcae.com/users_manual/spectrums.htm),
   [load cases](https://docs.sstcae.com/users_manual/load_cases.htm)).
+  `docs/RELEASE_LIMITATIONS_v1.0.md` LIM-035 states the omission.
 - **Hangers.** v1.0 sizes hangers from the user's private catalogue (invented
   example records only) and produces a hanger table.
 - **Hydrotest.** A flagged test condition with test pressure, test contents
   density and spring supports held, marked as a test case in results and
-  reports.
+  reports. It is in v1.0 as a load case of its own, and no combination
+  includes it (LIM-003). The owner, 20 November 2026: "Hydrotest is an
+  essential part of stress analysis so it must be in." and "No combined
+  envelope. They are separate cases."
 - **Rule packs.** What is built is kept as a design aid. The extensions C2,
   E1, E2, E5 and E6 are deferred, and E3 (fatigue usage) and E4
   (pressure-design thickness) are dropped from the roadmap. User-rule outcomes
@@ -81,6 +92,13 @@ results with".
   hypothesis. The opening of a bend under pressure, which some texts also call
   the Bourdon effect, and pressure-dependent flexibility and SIF corrections
   are out of scope: users enter their own k and SIF.
+- **Numerical claims.** For v1.0 the product makes no verified-bound claim it
+  cannot support. A result states its integrity check as not verified rather
+  than as passed, and a converged nonlinear support state as not confirmed
+  (exit criterion 18). Such a result is still read, checked against the
+  user's rules, exported and reported, with that standing stated. The full proof, the verified inverse-norm bound
+  (DEL-04-01/REQ-015), follows after v1.0. Agent 0 decided this on 2026-11-20 under the grant in
+  `AGENTS.md`; LIM-026 states the present defect.
 - **Exact-route results under user release.** Route 010 admits exact-route results with exact source binding, exact sections and limitations, Diagnostics binding and producer item 9 (DEL-08-01, REQ-019).
 - **Usability.** Agent 0 uses its own judgment on typical use cases an
   engineer would go through, and puts the desktop through them thoroughly
@@ -165,6 +183,9 @@ The validation lane proposes the set; this section records the method only:
   | Modal | 5e-3 on frequencies, MAC ≥ 0.99 |
   | Spectrum | 1e-2 on displacements and rotations; 5e-3 on element forces, moments and support loads |
 
+  The modal and spectrum classes, and the references frozen for them, apply
+  when those analyses are taken up after v1.0 (Direction, "Seismic").
+
   The spectrum class was set before any spectrum comparison run, from its
   closed-form references alone, never from comparison results, and was
   reported to the owner. It applies to combined magnitudes whose two sides
@@ -208,17 +229,18 @@ target remains adequate. A failure alone does not justify relaxing one.
    - linear restraints, a gap, lift-off, friction, a variable spring and a
      constant-effort support.
 
-   The analyses are: sustained, operating, expansion with its basis,
-   hydrotest, wind, three-axis static seismic with SRSS and absolute-sum
-   combination, seismic anchor movement, modal, response spectrum and hanger
-   sizing.
+   The analyses are: sustained, operating, expansion as the operating minus
+   sustained difference, hydrotest, wind, three-axis static seismic with SRSS
+   and absolute-sum combination, seismic anchor movement and hanger sizing.
+   The declared basis of the expansion difference on EX follows after v1.0
+   (LIM-038), as do modal and response-spectrum analysis (Direction,
+   "Seismic").
 
-   *Owning deliverables:* DEL-04-07 (one route); DEL-03-03 to DEL-03-06 (components); DEL-04-03 and DEL-04-04 (supports); DEL-05-01 and DEL-05-02 (loads, cases, combinations); DEL-04-09 (modal); DEL-04-10 (response spectrum); DEL-04-11 (hanger sizing).
+   *Owning deliverables:* DEL-04-07 (one route); DEL-03-03 to DEL-03-06 (components); DEL-04-03 and DEL-04-04 (supports); DEL-05-01 and DEL-05-02 (loads, cases, combinations); DEL-04-11 (hanger sizing).
 2. **Benchmarks.** Each analysis in criterion 1 passes closed-form or
    hand-calculation benchmarks on invented cases that exercise that analysis,
    using references frozen in `validation/references/` with an independent
-   generator. Modal also passes at least one published piping benchmark
-   (DEL-04-09 AC-010).
+   generator.
 
    In both solver modes, the solved reference-system fixture passes every
    reference check that its cases admit (DEL-09-01 AC-009). The fixture
@@ -229,17 +251,19 @@ target remains adequate. A failure alone does not justify relaxing one.
      weight, including hydrotest weight. The change in support force and
      moment resultants from sustained balances each wind or static seismic
      load resultant. The anchor-movement reaction difference is
-     self-equilibrated. The expansion difference, the static seismic SRSS and
-     absolute-sum combinations, and the spectrum directional combination are
-     checked against their definitions. The checks also include the presence
-     of the specified tee stress rows and agreement of the constant-effort
-     support's published applied load and support action with its entered
-     load in cases that use that load.
+     self-equilibrated. The expansion difference and the static seismic SRSS
+     and absolute-sum combinations are checked against their definitions.
+     The checks also include the presence of the specified tee stress rows
+     and agreement of the constant-effort support's published applied load and
+     support action with its entered load in cases that use that load.
    - For numerical comparisons, use independent references applicable to the
      fixture revision under test. The packages `reference_system`,
-     `reference_system_r1_ce` and `reference_system_pending_cases` state
-     their respective bases and status. Section 9 also defines identities
-     that require no package.
+     `reference_system_r1_ce`, `reference_system_pending_cases` and
+     `reference_system_generated_loads` state their respective bases and
+     status. `reference_system_generated_loads` holds per-load and warning
+     references for the wind and static seismic cases;
+     `reference_system_pending_cases` remains the reference for EQ-6.
+     Section 9 also defines identities that require no package.
    - No independent solution of the full system's response is frozen, so
      these checks do not establish the response throughout the system.
 
@@ -281,6 +305,13 @@ target remains adequate. A failure alone does not justify relaxing one.
    - Every use case in DEL-07-06's acceptance criteria completes in the desktop
      with no step outside it. This is tested thoroughly before the owner is
      asked.
+   - Before the owner or any other person is asked to use the desktop, two
+     independent reviewers each score its interface, from a walkthrough of
+     those use cases in the launched application, on DEL-07-06's nine
+     interface criteria. Both give at least 4 overall on every criterion, and
+     neither gives any use case less than 3 on any criterion that applies to
+     it, with no applicable criterion left unscored (DEL-07-06 REQ-017 and
+     AC-008).
    - The owner then uses the desktop and answers yes or no on whether it is
      ready. The criterion is met on yes.
 
@@ -371,6 +402,22 @@ target remains adequate. A failure alone does not justify relaxing one.
   releasing.
 - The native-smoke `expected.json` values.
 - Amending `docs/PRD.md`.
+
+For the native-smoke `expected.json` values only: where a value must change
+solely as the direct consequence of a decision Agent 0 has made on the
+product's own grounds, Agent 0 may make the change, with independent review,
+and states it in the pull request. The owner, on 2026-11-20: "You can have my
+delegated authority in matters consistent with this pattern I've just
+provided. (coherent and consistency in those four aspects in support of
+engineering judgment to keep the design implementation moving forward)"; the
+four aspects are what the application is, what it can know, what it does and
+what it values. Every other item listed above stays the owner's: acceptance,
+issuance, release and the verdict on the product; publication, including
+benchmark agreement; licence, legal and professional sign-off; the benchmark
+record's review and the private CAEPIPE evaluation record; purchases,
+credentials, and repository protections and settings; release authority; and
+amending `docs/PRD.md`. An expected value still never changes to fit the
+implementation.
 
 Agent 0 decides what else the target needs, under the grant in `AGENTS.md`
 ("Posture for this phase"): changing an exit criterion or its value on product

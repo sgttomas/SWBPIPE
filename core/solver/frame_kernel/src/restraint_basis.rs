@@ -1255,6 +1255,30 @@ impl RestraintBasis {
         Ok(u)
     }
 
+    /// [`Self::lift`] into the caller's `out`, which allocates nothing for
+    /// the lifted vector: `out` must have the coordinate vector's length
+    /// (`Shape("lifted output length")` otherwise, before any write). The
+    /// coordinate check, each exact sum and its single rounding, their order
+    /// and their errors are `lift`'s; on success `out` holds exactly `lift`'s
+    /// vector. On an error `out` is partly written and is the caller's to
+    /// discard.
+    pub fn lift_into(&self, v: &[f64], out: &mut [f64]) -> Result<(), BasisError> {
+        self.check_coordinates(v)?;
+        if out.len() != v.len() {
+            return Err(BasisError::Shape("lifted output length"));
+        }
+        out.copy_from_slice(v);
+        for node in &self.nodes {
+            for i in 0..3 {
+                let dof = node.node * DOF_PER_NODE + i;
+                let mut sum = ExactAccumulator::new();
+                self.lift_exact(v, dof, &mut sum)?;
+                out[dof] = sum.round().map_err(|_| BasisError::NonFinite { dof })?;
+            }
+        }
+        Ok(())
+    }
+
     /// Adds (Q v)_dof exactly to `acc` (for certificates and the exact
     /// constraint check).
     pub fn lift_exact(&self, v: &[f64], dof: usize, acc: &mut ExactAccumulator) -> Result<(), BasisError> {

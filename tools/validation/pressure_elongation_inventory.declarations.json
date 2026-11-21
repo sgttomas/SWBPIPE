@@ -1641,6 +1641,7 @@
     "core/reporting/result_export/tests/retained_precision_contract.rs",
     "tests/verifiers/physics_source.py",
     "tests/verifiers/retained_precision.py",
+    "tests/verifiers/exact_difference_basis.py",
     "tests/test_physics_source_contract.py",
     "tests/test_retained_precision_b3.py",
     "tests/test_reference_system_records.py"
@@ -1770,6 +1771,7 @@
    "reason": "independent reference generator (imports no product code) that states pressure elongation on or off per case; no product test solves its cases yet",
    "paths": [
     "validation/references/exact_difference_basis/generators/exact_difference_basis_reference.py",
+    "validation/references/exact_difference_basis_completed/generators/exact_difference_basis_completed_reference.py",
     "validation/references/exact_load_state_equivalent_static/generators/exact_load_state_reference.py"
    ]
   },
@@ -1887,6 +1889,7 @@
    "reason": "reference case inputs that give pressure as a plain number and state pressure elongation on or off per case; no product test solves them yet",
    "paths": [
     "validation/references/exact_difference_basis/references.json",
+    "validation/references/exact_difference_basis_completed/references.json",
     "validation/references/exact_load_state_equivalent_static/references.json"
    ]
   },
@@ -1909,6 +1912,12 @@
    "reason": "record projection and before-text authoring tests through the wasm operation engine; reads and edits the committed reference system but performs no mechanics solve",
    "paths": [
     "apps/desktop/src/services/embeddedAgentSession.records.test.ts"
+   ]
+  },
+  {
+   "reason": "session tests of the agent's bounded record read: the committed reference system's load cases read back across pages, and invented cases that name pressure regions as a held text; no mechanics solve is performed",
+   "paths": [
+    "apps/desktop/src/services/embeddedAgentSession.test.ts"
    ]
   }
  ],

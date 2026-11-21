@@ -51,6 +51,16 @@ class WitnessAdmissionTest(unittest.TestCase):
         frame = json.loads(json.dumps(self.frame)); frame["id"] = True
         with self.assertRaises(WitnessError): self.admit(frame)
 
+    def test_argument_bound_is_the_catalogs_and_is_enforced_at_it(self):
+        catalog = json.loads((Path(__file__).resolve().parents[1] / "apps/desktop/src-tauri/resources/agent-capability-catalog.json").read_text())
+        self.assertEqual(witness.ARGUMENT_BYTES, catalog["limits"]["argumentBytes"])
+        open_schema = jsonschema.Draft202012Validator({"type": "object"})
+        def frame(fill):  # {"pad": "…"} as the tool serialises it is 11 bytes around its text
+            value = json.loads(json.dumps(self.frame)); value["params"]["arguments"] = {"pad": "x" * fill}
+            return value
+        self.assertEqual(admit_call(frame(witness.ARGUMENT_BYTES - 11), "thread-1", "turn-1", {}, open_schema), 8)
+        with self.assertRaises(WitnessError): admit_call(frame(witness.ARGUMENT_BYTES - 10), "thread-1", "turn-1", {}, open_schema)
+
     def test_framing_budgets_and_invalid_json(self):
         for raw in [b'{}', b'[]\n', b'{invalid}\n', b' ' * FRAME_BYTES + b'\n']:
             with self.assertRaises(WitnessError): parse_frame(raw)

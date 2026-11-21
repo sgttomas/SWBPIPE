@@ -1575,9 +1575,83 @@ pub fn cluster_error_estimates(
     Ok(out)
 }
 
+/// The cluster count [`cluster_error_estimates`] returns estimates for: one
+/// more than the largest id, or 0 with no id.
+pub fn cluster_estimate_count(cluster_ids: &[usize]) -> usize {
+    cluster_ids.iter().max().map_or(0, |m| m + 1)
+}
+
+/// [`cluster_error_estimates`] into the caller's `out`, which allocates
+/// nothing: `out` must have [`cluster_estimate_count`] slots, and
+/// `estimates` one per id (`DimensionMismatch` otherwise, before any
+/// write). The estimate check, the zero start and the maximum, in member
+/// order, are `cluster_error_estimates`'s; on success `out` holds exactly
+/// its values.
+pub fn cluster_error_estimates_into(
+    estimates: &[f64],
+    cluster_ids: &[usize],
+    out: &mut [f64],
+) -> Result<(), ResidualError> {
+    if estimates.len() != cluster_ids.len() {
+        return Err(ResidualError::DimensionMismatch { expected: cluster_ids.len(), actual: estimates.len() });
+    }
+    if let Some(index) = estimates
+        .iter()
+        .position(|e| !(e.is_finite() && *e >= 0.0))
+    {
+        return Err(ResidualError::InvalidEstimate { index });
+    }
+    let count = cluster_estimate_count(cluster_ids);
+    if out.len() != count {
+        return Err(ResidualError::DimensionMismatch { expected: count, actual: out.len() });
+    }
+    out.fill(0.0);
+    for (&e, &id) in estimates.iter().zip(cluster_ids) {
+        out[id] = max_propagating_nan(out[id], e);
+    }
+    Ok(())
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;
+
+    /// The caller-owned entry gives exactly `cluster_error_estimates`'s
+    /// values, bit for bit, including signed zeros, and its refusals; a
+    /// wrong output or estimate length refuses before any write.
+    #[test]
+    fn cluster_error_estimates_into_is_cluster_error_estimates() {
+        let cases: [(&[f64], &[usize]); 6] = [
+            (&[], &[]),
+            (&[0.0], &[0]),
+            (&[1e-12, 3e-12, 2e-12, 0.0, 5e-300, 0.0], &[0, 0, 1, 2, 2, 3]),
+            (&[0.5, 0.25], &[0, 0]),
+            (&[1.0, f64::NAN], &[0, 1]),
+            (&[1.0, -1.0], &[0, 1]),
+        ];
+        for (estimates, ids) in cases {
+            let old = cluster_error_estimates(estimates, ids);
+            let mut out = vec![f64::NAN; cluster_estimate_count(ids)];
+            let new = cluster_error_estimates_into(estimates, ids, &mut out);
+            match old {
+                Ok(values) => {
+                    assert_eq!(new, Ok(()), "{estimates:?}");
+                    assert_eq!(out.iter().map(|v| v.to_bits()).collect::<Vec<_>>(), values.iter().map(|v| v.to_bits()).collect::<Vec<_>>());
+                }
+                Err(error) => assert_eq!(new, Err(error), "{estimates:?}"),
+            }
+        }
+        let mut wrong = vec![7.0; 1];
+        assert_eq!(
+            cluster_error_estimates_into(&[1.0, 2.0], &[0, 1], &mut wrong),
+            Err(ResidualError::DimensionMismatch { expected: 2, actual: 1 })
+        );
+        assert_eq!(wrong, [7.0]);
+        assert_eq!(
+            cluster_error_estimates_into(&[1.0], &[0, 1], &mut [0.0; 2]),
+            Err(ResidualError::DimensionMismatch { expected: 2, actual: 1 })
+        );
+    }
 
     /// Review round 3, item B: a NaN row sum is refused, not passed over by
     /// the maximum.

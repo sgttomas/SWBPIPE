@@ -1,11 +1,9 @@
 """LIVE CHECKS of the reference packages that staged inputs from live repository files.
 
-Such a package's default check, run by tests/test_reference_packages_regeneration.py, reads only what the package
-holds, so it establishes that the committed output follows from the staged inputs. Its separate live check
-(--check-live) compares those staged inputs with the repository files they were staged from. The table module
-names those files as constants (reference_packages.PREVIEW_MODEL, DEMO_MODEL, FRICTION_REVERSAL_TEST), so the CI
-selector runs this test when any of them changes. A failure here means a source has moved on and a decision is
-needed on re-staging; the committed output still stands for its staged inputs.
+The default check, run by tests/test_reference_packages_regeneration.py, regenerates from the staged input. The
+live check (--check-live) compares the declared sources. The table module names those files as constants
+(reference_packages.PREVIEW_MODEL, DEMO_MODEL, FRICTION_REVERSAL_TEST, REFERENCE_FIXTURE), so the CI selector runs
+this test when any of them changes. A nonzero live exit reports a failed comparison or check error.
 
 Each check runs as `python3 -I -B` from its package directory, in place, within reference_packages.CHECK_TIMEOUT_S,
 and must leave every file under validation/references/ as it was. No product binary is built or run.
@@ -44,6 +42,9 @@ LIVE_CHECKS = {
         ("generators/demo_friction_preload_reference.py", "--check-live"), (R.DEMO_MODEL, R.FRICTION_REVERSAL_TEST),
         whole=((R.DEMO_MODEL, "2fd18681f688e60b03102eb65112d147871d3a59431685800d2bfa3baca7b672"),
                (R.FRICTION_REVERSAL_TEST, "a3d31f87f98f9fcdaca68d3430abaefe1eeb158b58084963b71c1c14e7f404ae"))),
+    "reference_system_generated_loads": LiveCheck(
+        ("generators/rsgl_reference.py", "--check-live"), (R.REFERENCE_FIXTURE,),
+        whole=((R.REFERENCE_FIXTURE, "14719edc7709d3f893ae4820ddae6747b48ce68c91dbe1d853c7b2151a6c8cc2"),)),
 }
 
 # A live check compares part of its source: the leaves of a model document that the derivation reads, or the lines
@@ -59,6 +60,9 @@ LOOK_AT = {
                   "pipe segments, the other supports, and the load cases' primitive loads",
     R.FRICTION_REVERSAL_TEST: "the table EXPECTED, and anything that decides which table the compiled test reads: "
                               "conditional compilation, imports, macros",
+    R.REFERENCE_FIXTURE: "the nodes, pipe segments with their sections, components and pressure contract, and any "
+                         "change elsewhere that bears on the four cases' generated loads: a load in the weight "
+                         "category, a self-weight override, or the cases RS-WIN, RS-EQX, RS-EQY and RS-EQZ themselves",
 }
 
 
@@ -77,8 +81,8 @@ MOVED_ON = ("a source this package's inputs were staged from has moved on, and a
 
 
 def declaration_problems(name: str) -> list[str]:
-    """The package has an entry and holds the generator; each source is a committed file, and the generator names
-    every part of its path as a quoted string, so the declared sources are the ones it reads."""
+    """The package has an entry and holds the generator. The declaration check looks for existing source paths and
+    their quoted path parts."""
     live = LIVE_CHECKS[name]
     if name not in PACKAGES:
         return [f"{name}: a live check with no package entry"]
@@ -94,8 +98,8 @@ def declaration_problems(name: str) -> list[str]:
 
 
 def live_problems(name: str) -> list[str]:
-    """Runs the live check in place. It must leave validation/references/ as it was and exit 0; a nonzero exit
-    means a source has moved on (MOVED_ON)."""
+    """Runs the live check in place. It must leave validation/references/ as it was and exit 0. A nonzero live exit
+    reports a failed comparison or check error."""
     live = LIVE_CHECKS[name]
     before = R.tree_state()
     label = f"python3 -I -B {' '.join(live.argv)} (in validation/references/{name})"
@@ -273,6 +277,38 @@ def _a_repeated_primitive_load(text: str) -> str:
     return json.dumps(document, indent=2) + "\n"
 
 
+def _a_reference_node_moved(text: str) -> str:
+    """The reducer's small-end node one millimetre lower."""
+    document = json.loads(text)
+    (node,) = [n for n in document["nodes"] if n["id"] == "node:RS-160"]
+    node["position"]["z"] -= 0.001
+    return json.dumps(document, indent=1) + "\n"
+
+
+def _another_valve_weight(text: str) -> str:
+    """The valve's entered weight, one newton more."""
+    document = json.loads(text)
+    (valve,) = [c for c in document["components"] if c["id"] == "component:RS-V1"]
+    valve["geometry"]["weight"]["value"] += 1
+    return json.dumps(document, indent=1) + "\n"
+
+
+def _a_reference_boolean_where_a_number_was(text: str) -> str:
+    """A coordinate of 0 written as false."""
+    document = json.loads(text)
+    (node,) = [n for n in document["nodes"] if n["id"] == "node:RS-010"]
+    assert node["position"]["x"] == 0 and node["position"]["x"] is not False
+    node["position"]["x"] = False
+    return json.dumps(document, indent=1) + "\n"
+
+
+def _a_load_case_appended(text: str) -> str:
+    """One more load case, outside the members the live check compares; only the whole-file digest sees it."""
+    document = json.loads(text)
+    document["load_cases"].append({"id": "load:RS-EXTRA"})
+    return json.dumps(document, indent=1) + "\n"
+
+
 # Each live source with the changes its package's live check must report. A source with no entry here fails
 # test_every_live_source_has_a_drift_control, so a source the generator stopped reading cannot stay declared.
 DRIFTS = {
@@ -282,6 +318,8 @@ DRIFTS = {
     ("demo_friction_reversal_preload", R.FRICTION_REVERSAL_TEST): (
         _another_number_in_a_row, _a_seventh_row, _a_comment_in_the_table, _a_commented_copy_and_a_changed_table,
         _a_second_declaration_behind_an_attribute, _a_closing_line_with_more_on_it),
+    ("reference_system_generated_loads", R.REFERENCE_FIXTURE): (
+        _a_reference_node_moved, _another_valve_weight, _a_reference_boolean_where_a_number_was),
 }
 
 
@@ -331,3 +369,16 @@ def test_a_source_the_generator_does_not_name_fails_its_declaration(monkeypatch)
     monkeypatch.setitem(LIVE_CHECKS, name, replace(LIVE_CHECKS[name], sources=("unnamed_source.json",)))
     problems = declaration_problems(name)
     assert any("does not name unnamed_source.json" in p for p in problems), problems
+
+
+def test_a_change_outside_the_reference_system_members_passes_the_leaf_check_and_fails_the_digest(tmp_path):
+    """Both sides for reference_system_generated_loads: a load case appended outside the four compared members
+    passes the leaf check (exit 0) and fails the whole-file digest."""
+    name, source = "reference_system_generated_loads", R.REFERENCE_FIXTURE
+    root = _copy_of_the_tree_the_live_check_reads(tmp_path, name)
+    assert not whole_problems(name, root)
+    (root / source).write_text(_a_load_case_appended((root / source).read_text(encoding="utf-8")), encoding="utf-8")
+    code, output = _live_exit(root, name)
+    assert code == 0, output[-3000:]
+    problems = whole_problems(name, root)
+    assert len(problems) == 1 and problems[0].startswith(f"{source} {WHOLE_CHANGED}"), problems
