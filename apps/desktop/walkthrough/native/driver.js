@@ -935,6 +935,11 @@
     if (!details.open) { acting(details.querySelector(":scope > summary"), "toolbar-appearance").click(); await settle(); }
     await waitFor("the appearance control open", () => byTestId("toolbar-appearance")?.open, T.ui);
   }
+  // The same disclosure closed again by its own summary, so that it no longer covers the window.
+  async function closeAppearance() {
+    const details = byTestId("toolbar-appearance");
+    if (details?.open) { acting(details.querySelector(":scope > summary"), "toolbar-appearance").click(); await settle(); }
+  }
   // What tells a person whether their work is saved: the title, its edited mark, the autosave words, the project line.
   const savedSigns = () => [
     `title: ${shown("toolbar-project-name") ?? "none"}`,
@@ -1013,8 +1018,7 @@
       return `${said(byTestId("autosave-interval").selectedOptions[0])}; ${savedSigns()}`;
     });
     await journey.step("saved-signs", "What the window says of saving, before the edit", async () => {
-      const details = byTestId("toolbar-appearance");
-      if (details?.open) { acting(details.querySelector(":scope > summary"), "toolbar-appearance").click(); await settle(); }
+      await closeAppearance();
       return savedSigns();
     });
     await journey.step("node-chosen", "node:N-110 chosen in the model tree", async () => selectInTree("node", "node:N-110"));
@@ -1056,7 +1060,11 @@
       const before = text("local-project-message") ?? "";
       await press("autosave-recovery-open");
       if (visible(byTestId("unsaved-changes-prompt"))) return `asked about unsaved edits: ${shown("unsaved-changes-prompt")}`;
-      return `${await localMessage(before)}; ${savedSigns()}`;
+      const message = await localMessage(before);
+      // The appearance control Recover Autosave… came from is closed by its summary, as a person would, so that it
+      // does not cover the steps after it.
+      await closeAppearance();
+      return `${message}; ${savedSigns()}`;
     });
     await journey.step("model-after", "node:N-110 in the model after recovery, its properties", async () => {
       await selectInTree("node", "node:N-110");
