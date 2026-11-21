@@ -604,10 +604,12 @@ def thermal_problems(text: str, model: dict, differences: str) -> list[str]:
     """Each element state's thermal provenance against what step states has the person enter for that
     case and that member: a sentence naming a member binds its value to that member, the case's other
     value is its template for every member; a case copied from another without marking its element
-    states absent keeps that case's values."""
+    states absent keeps that case's values. Each bullet is read with its whitespace normalised, as
+    `instructed` reads a literal, so that a line break inside a phrase or a backticked value reads as the
+    space it renders as."""
     body = step(text, "states")
     parts = re.split(r"(?m)^- \*\*(RS-[A-Z]+(?:-[A-Z]+)*)\.\*\*", body)
-    bullets = dict(zip(parts[1::2], parts[2::2]))
+    bullets = {case: re.sub(r"\s+", " ", bullet) for case, bullet in zip(parts[1::2], parts[2::2])}
     texts = pasted_texts(text)
     expected: dict[str, dict[str, str | None]] = {}
     for case, bullet in bullets.items():
@@ -1322,21 +1324,50 @@ def test_a_stale_source_or_a_changed_fixture_field_is_caught():
     assert reports(problems, "step states, load:RS-SUS pipe:RS-P180: thermal provenance")
     # RS-OPE-REF's instructions: a changed analysis-basis reason, a changed analysis-basis provenance and the
     # replaced span's thermal provenance moved to another member are each reported with the case and member.
-    bullet = re.search(r"(?ms)^- \*\*RS-OPE-REF\.\*\*.*?(?=^- \*\*|\Z)", step(RUN_SHEET, "states")).group(0)
-    for old, new, fragments in (
-            ("material basis (spec §8.1)`", "material basis (spec §8.2)`",
-             ("step states, analysis-basis reason: load:RS-OPE-REF pipe:RS-P010 holds",)),
-            ("**analysis-basis provenance** ⟨P⟩", "**analysis-basis provenance** ⟨S5⟩",
-             ("step states, analysis-basis provenance: load:RS-OPE-REF pipe:RS-P010 holds",)),
-            ("Then on RS-P180's row clear", "Then on RS-P170's row clear",
-             ("step states, load:RS-OPE-REF pipe:RS-P180: thermal provenance",),)):
+    _rs_ope_ref_mutations_are_caught(RUN_SHEET)
+
+
+# Three of RS-OPE-REF's instructions, changed, and what each must report.
+RS_OPE_REF_MUTATIONS = (
+    ("material basis (spec §8.1)`", "material basis (spec §8.2)`",
+     ("step states, analysis-basis reason: load:RS-OPE-REF pipe:RS-P010 holds",)),
+    ("**analysis-basis provenance** ⟨P⟩", "**analysis-basis provenance** ⟨S5⟩",
+     ("step states, analysis-basis provenance: load:RS-OPE-REF pipe:RS-P010 holds",)),
+    ("Then on RS-P180's row clear", "Then on RS-P170's row clear",
+     ("step states, load:RS-OPE-REF pipe:RS-P180: thermal provenance",)),
+)
+
+
+def _rs_ope_ref_bullet(sheet: str) -> str:
+    return re.search(r"(?ms)^- \*\*RS-OPE-REF\.\*\*.*?(?=^- \*\*|\Z)", step(sheet, "states")).group(0)
+
+
+def _rs_ope_ref_mutations_are_caught(sheet: str) -> None:
+    bullet = _rs_ope_ref_bullet(sheet)
+    for old, new, fragments in RS_OPE_REF_MUTATIONS:
         assert bullet.count(old) == 1, old
-        problems = field_problems(RUN_SHEET.replace(bullet, bullet.replace(old, new, 1), 1), MODEL)
+        problems = field_problems(sheet.replace(bullet, bullet.replace(old, new, 1), 1), MODEL)
         assert reports(problems, *fragments), (old, problems)
-    moved = field_problems(RUN_SHEET.replace(bullet, bullet.replace("Then on RS-P180's row clear",
-                                                                    "Then on RS-P170's row clear", 1), 1), MODEL)
+    moved = field_problems(sheet.replace(bullet, bullet.replace("Then on RS-P180's row clear",
+                                                                "Then on RS-P170's row clear", 1), 1), MODEL)
     assert reports(moved, "step states, load:RS-OPE-REF pipe:RS-P170: thermal provenance")
     assert not reports(moved, "step states, load:RS-OPE ")
+
+
+def test_a_rewrap_of_rs_ope_ref_s_instructions_changes_no_reading():
+    """A line break inside "Mark element_states absent" or inside the replaced span's backticked thermal provenance
+    changes nothing: the sheet still matches the fixture, and the three RS-OPE-REF mutations are still caught (in round
+    1 such a break hid the moved replaced span)."""
+    bullet = _rs_ope_ref_bullet(RUN_SHEET)
+    rewrapped = bullet
+    for phrase, wrapped in (("**Mark element_states absent**", "**Mark\n  element_states absent**"),
+                            ("replaced span RS-P180: zero eigenstrain", "replaced span\n  RS-P180: zero eigenstrain")):
+        assert rewrapped.count(phrase) == 1, phrase
+        rewrapped = rewrapped.replace(phrase, wrapped, 1)
+    sheet = RUN_SHEET.replace(bullet, rewrapped, 1)
+    assert sheet != RUN_SHEET
+    assert field_problems(sheet, MODEL) == []
+    _rs_ope_ref_mutations_are_caught(sheet)
 
 
 def test_a_wrong_typed_label_is_caught():
