@@ -278,8 +278,8 @@ LEDGER = [
      "interim: RS-FR1V authored as a linear `vertical_support` UZ (Agent 0, 2026-10-31)",
      "fixture adoption (DEL-09-01); the solve admits the one-way source (DEL-04-04 REQ-012)",
      "the intended one-way normal source solves in the combined test overlay and is not confirmed: "
-     "without RS-G1 each case is `NUMERICAL_INTEGRITY_SENSITIVE` (friction normal source is not a base "
-     "restraint), with RS-G1 unqualified (core/product_physics/tests/rt_a3_s6_reference_system.rs)"),
+     "without RS-G1 RS-SUS, RS-OPE and RS-SAM are each `NUMERICAL_INTEGRITY_SENSITIVE` (friction normal source "
+     "is not a base restraint), with RS-G1 unqualified (core/product_physics/tests/rt_a3_s6_reference_system.rs)"),
     ("RS-SUS, RS-OPE and RS-OPE-REF (thermal; modulus by temperature, or the 20 °C modulus with its stated basis)",
      "in tranche 1 as linear cases (load/reference-state group)", "—", "—"),
     ("RS-EXP", "in tranche 1 as a subtraction, RS-OPE-REF - RS-SUS; `difference_basis` pending",
