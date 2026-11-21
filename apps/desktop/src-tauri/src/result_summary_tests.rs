@@ -873,7 +873,7 @@ fn along_direction_rows_are_listed_per_case_and_never_a_column() {
 
 /// Release exit criterion 18: S's header carries each case's support-state confirmation outcome
 /// from the reader's standing record, so the desktop states a state the solver reports established
-/// as not confirmed; none without a standing.
+/// as the solver's report; none without a standing.
 #[test]
 fn the_header_carries_each_cases_support_confirmation() {
     let (source_text, model_text) = (read_text(DEMO), read_text(DEMO_MODEL));

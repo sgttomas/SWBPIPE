@@ -5,11 +5,13 @@ import { useKnowledgeAxialRow } from "../knowledge/KnowledgePanel";
 import type { ReactNode } from "react";
 import { ResultQuantity } from "../toolkit/ResultQuantity";
 import { AlertTriangle, Search, X } from "lucide-react";
-import { useEffect, useMemo, useRef, useState } from "react";
+import { Fragment, useEffect, useMemo, useRef, useState } from "react";
 import type { DiagnosticFilterRequest } from "./diagnosticFilterRequest";
 import type { DesignKnowledge, DiagnosticInterpretation, MechanicsResult, PreviewModel } from "../../types";
 import { buildDiagnosticInterpretation } from "../results/resultInterpretation";
 import { usePublishedLibraryRefFindings } from "../library/libraryRefFindings";
+import { presentedResultDiagnostics } from "../results/suppliedDiagnostics";
+import { SOLVER_MESSAGES_HEADING } from "../results/integrityStatus";
 import { countItemsBySeverity, diagnosticsListOf, groupIssues, type IssueItem, type IssueMember, type IssueSource } from "./issueItems";
 import { IssueItemView, NO_OWN_DETAIL_REASON } from "./IssueItemView";
 
@@ -83,6 +85,13 @@ export function DiagnosticsPanel({
     [items, allItems, filterText, pinned]
   );
   useEffect(() => { onPinnedChange?.(pinned); }, [pinned, onPinnedChange]);
+  // The solver's own messages are the result's diagnostics: in the drawer's items, the members
+  // `diagnosticsListOf` gives the origin "solve", which it gives to the result's diagnostics and to
+  // nothing else. The list carries one heading sentence directly above the first listed item that
+  // holds one, and the detail one where the selected diagnostic is one.
+  const firstSolverItem = filteredItems.find((item) => item.members.some((member) => member.origin === "solve"))?.key ?? null;
+  const resultDiagnostics = useMemo(() => presentedResultDiagnostics(result), [result]);
+  const selectedIsSolverMessage = selectedDiagnosticId !== null && resultDiagnostics.some((item) => (item.id ?? item.code) === selectedDiagnosticId);
   const nativeLinked = useNativeLinkedResults(model, knowledge, result, selectedDiagnosticId);
   const axial = useKnowledgeAxialRow(result);
   const interpretation = buildDiagnosticInterpretation({ model, knowledge, result, diagnosticId: selectedDiagnosticId, nativeLinkedResults: nativeLinked.rows, knowledgeAxialRow: axial.row });
@@ -93,10 +102,6 @@ export function DiagnosticsPanel({
         Diagnostics
         {givenItems ? <span className="issues-section-count" data-testid="diagnostics-item-count" aria-label={`${items.length} ${items.length === 1 ? "item" : "items"}`}>{items.length}</span> : null}
       </div>
-      {/* The place for the one sentence that these are the solver's own messages: once, at the head
-          of the list of them (not above the model checks or the missing data, which are not the
-          solver's), small and muted. The diagnostic's detail opens inside this list, beneath it, so it
-          takes no second copy. Nothing is rendered here until the sentence's constant is supplied. */}
       <DiagnosticControls
         filterText={filterText}
         filteredItems={filteredItems}
@@ -106,7 +111,7 @@ export function DiagnosticsPanel({
         onFilterChange={setFilterText}
       />
       {nativeLinked.error ? <p role="status" data-testid="diagnostic-linked-results-refused">{nativeLinked.error}</p> : null}
-      <DiagnosticDetail interpretation={interpretation} result={result} />
+      <DiagnosticDetail interpretation={interpretation} result={result} solverMessage={selectedIsSolverMessage} />
       <div className="diagnostic-list">
         {filteredItems.length > 0 ? (
           filteredItems.map((item) => {
@@ -114,8 +119,9 @@ export function DiagnosticsPanel({
             const active = item.members.some((member) => member.diagnostic.id !== undefined && member.diagnostic.id === selectedDiagnosticId);
             const opens = lead.source === "diagnostics" && lead.ownDetail;
             return (
+              <Fragment key={item.key}>
+              {item.key === firstSolverItem ? <p className="muted" data-testid="diagnostic-list-solver-messages-heading">{SOLVER_MESSAGES_HEADING}</p> : null}
               <IssueItemView
-                key={item.key}
                 item={item}
                 lead={lead}
                 selectedDiagnosticId={selectedDiagnosticId}
@@ -133,6 +139,7 @@ export function DiagnosticsPanel({
                   </button>
                 )}
               />
+              </Fragment>
             );
           })
         ) : (
@@ -241,7 +248,7 @@ function useNativeLinkedResults(model: PreviewModel, knowledge: DesignKnowledge 
   return { rows: current?.rows ?? null, error: current?.error ?? null };
 }
 
-function DiagnosticDetail({ interpretation, result }: { interpretation: DiagnosticInterpretation | null; result: SessionResult | null }) {
+function DiagnosticDetail({ interpretation, result, solverMessage }: { interpretation: DiagnosticInterpretation | null; result: SessionResult | null; solverMessage: boolean }) {
   if (!interpretation) {
     return (
       <section className="diagnostic-detail-panel" aria-label="Diagnostic detail" data-testid="diagnostic-detail-panel">
@@ -254,6 +261,7 @@ function DiagnosticDetail({ interpretation, result }: { interpretation: Diagnost
   return (
     <section className="diagnostic-detail-panel" aria-label="Diagnostic detail" data-testid="diagnostic-detail-panel">
       <h3>Diagnostic Detail</h3>
+      {solverMessage ? <p className="muted" data-testid="diagnostic-detail-solver-messages-heading">{SOLVER_MESSAGES_HEADING}</p> : null}
       <dl>
         <DetailLine label="Diagnostic" value={interpretation.diagnostic_id} testId="selected-diagnostic-id" />
         <DetailLine label="Code" value={interpretation.code} testId="selected-diagnostic-code" />

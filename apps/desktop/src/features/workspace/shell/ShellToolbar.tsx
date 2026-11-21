@@ -1,8 +1,6 @@
 import type { ReactNode } from "react";
 import {
-  Bot,
   Columns2,
-  Flag,
   MousePointer2,
   PanelRight,
   Play,
@@ -13,7 +11,7 @@ import {
   Box
 } from "lucide-react";
 import { DisplayUnitSelector } from "../../display-units";
-import { AGENT_UNAVAILABLE_REASON, inspectorToggleState, shellLocation, viewSwitchItems } from "../shellLayout";
+import { inspectorToggleState, shellLocation, viewSwitchItems } from "../shellLayout";
 import type { ShellView } from "../shellLayout";
 import { updateUiPreferences } from "../uiPreferences";
 import {
@@ -35,11 +33,12 @@ const VIEW_ICONS: Record<ShellView, typeof Table2> = { table: Table2, model: Box
 /**
  * The toolbar band: wordmark, project name, Undo and Redo
  * with the alert of a failed undo or redo,
- * the view switch, Run, the Issues count, the two panel toggles, the display
- * units and the palette field. Every control here maps to a session handler;
+ * the view switch, Run, the Inspector toggle, the display units and the
+ * palette field. The one Agent control is the agent strip's (AgentStrip.tsx). Every control here maps to a session handler;
  * none mutates the model by itself. `children` is the one palette surface.
+ * The Issues count is the rail's and the status bar's.
  */
-export function ShellToolbar({ issueCount, children }: { issueCount: number; children: ReactNode }) {
+export function ShellToolbar({ children }: { children: ReactNode }) {
   const { model } = useSessionModel();
   const { projectSummary, modelEdited, autosave } = useSessionProject();
   const { undoStack, redoStack, operationBusy, historyFailure, handleUndoSessionModelEdit, handleRedoSessionModelEdit } = useSessionOperations();
@@ -57,8 +56,6 @@ export function ShellToolbar({ issueCount, children }: { issueCount: number; chi
     toggleWorkspaceRail,
     armedCreationTool,
     handleArmCreationTool,
-    issuesDrawerOpen,
-    setIssuesDrawerOpen,
     uiPreferences,
     setUiPreferences
   } = useSessionChrome();
@@ -123,15 +120,6 @@ export function ShellToolbar({ issueCount, children }: { issueCount: number; chi
           ><Play size={15} aria-hidden="true" /><span>{withheldReason && !running ? "Run withheld" : "Run"}</span></button>
           {runReason ? <DisabledReason id="toolbar-run-reason" text={runReason} /> : null}
         </span>
-        <button
-          type="button"
-          className="shell-issues"
-          data-testid="toolbar-issues"
-          aria-expanded={issuesDrawerOpen}
-          aria-label={`Issues, ${issueCount}`}
-          title="Issues"
-          onClick={() => setIssuesDrawerOpen((open) => !open)}
-        ><Flag size={14} aria-hidden="true" /><span className="shell-toolbar-label">Issues</span><span>{issueCount}</span></button>
       </div>
       <div className="shell-toolbar-group shell-panel-toggles" role="group" aria-label="Panels">
         <span className="shell-reason-anchor">
@@ -149,18 +137,6 @@ export function ShellToolbar({ issueCount, children }: { issueCount: number; chi
             onClick={() => { if (inspector.enabled) toggleWorkspaceRail("inspector"); }}
           ><PanelRight size={16} aria-hidden="true" /><span className="shell-toolbar-label">Inspector</span></button>
           {inspector.enabled ? null : <DisabledReason id="toggle-inspector-reason" text={inspector.reason ?? ""} />}
-        </span>
-        <span className="shell-reason-anchor">
-          <button
-            type="button"
-            className="shell-panel-toggle"
-            data-testid="toggle-agent"
-            aria-label="Agent"
-            aria-disabled="true"
-            aria-describedby="toggle-agent-reason"
-            title={AGENT_UNAVAILABLE_REASON}
-          ><Bot size={16} aria-hidden="true" /><span className="shell-toolbar-label">Agent</span></button>
-          <DisabledReason id="toggle-agent-reason" text={AGENT_UNAVAILABLE_REASON} />
         </span>
       </div>
       <div className="shell-toolbar-units" title="Display units"><DisplayUnitSelector compact /></div>

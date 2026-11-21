@@ -1,7 +1,7 @@
 import type { ReportComposition } from "../report/reportComposition";
 import { currentSemanticContract, readerDispatch } from "../results/resultReader";
 import { numericalResultStanding, reportStanding, type NumericalStanding } from "../results/resultStanding";
-import { recoveredCaseIds, supportStatesByCase } from "../results/integrityStatus";
+import { nativeSupportStates, recoveredCaseIds, supportStatesFor } from "../results/integrityStatus";
 import { numericalHealthHold, numericalHealthView, readNumericalHealth, type NumericalHealthHold } from "../results/numericalHealth";
 import { isFreshSemanticResult } from "../results/knownSemanticLimitations";
 import { isExactReportSource } from "../report/exactReportSections";
@@ -169,15 +169,18 @@ export function useResultsSessionState(advanceReportSource?: () => number) {
   );
   const verdictHold = numericalHealthHold({ isCurrent: currentSolvedResult !== null, otherCurrentRequirementsHold, health: numericalHealth });
   // Release exit criterion 18: each nonlinear case's support-state line, from the reader's standing
-  // record (a native result's summary carries it, read natively with the bound model).
+  // record (a native result's summary carries it, read natively with the bound model). Fail closed:
+  // no line only where the manifest's model is known to have no nonlinear support or the record gives
+  // the case an outcome that takes none; with no model, or no record read, every case says its
+  // confirmation record could not be read.
   const supportStates = useMemo(() => {
     if (!result || standingFindingsKey === null) return undefined;
-    if (native) return supportStatesByCase(native.summary.header.support_confirmations);
-    if (!manifestModel) return undefined;
-    try {
+    if (native) return nativeSupportStates(native.summary.header.support_confirmations, native.supportConfirmations, manifestModel ?? null);
+    return supportStatesFor(manifestModel ?? null, () => {
+      if (!manifestModel) return null;
       const reading = reportStanding(result as MechanicsResult, manifestModel);
-      return reading.readability.readable && reading.readability.solved ? supportStatesByCase(reading.numerical_standing) : undefined;
-    } catch { return undefined; }
+      return reading.readability.readable && reading.readability.solved ? reading.numerical_standing : null;
+    });
   }, [result, native, manifestModel, standingFindingsKey]);
   // The pressure-source route's cases whose values come from the producer's recovery (the method the
   // result records for each case); an ordinary companion's do not.

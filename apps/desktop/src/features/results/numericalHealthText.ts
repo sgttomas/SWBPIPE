@@ -1,13 +1,9 @@
 /** Every user-visible literal of the numerical health indicator (DEL-07-05 Design
- * `numerical-health-indicator.md` §3-§5), copied from the design and kept in this one
- * module. Values in braces in the design are the parameters here. Nothing in this
- * module reads a result or decides a state: the states, the conditioning figure and the
- * verdict-only flag come from the Rust `numerical_health_json`; the callers pass them in.
- *
- * Release exit criterion 18 (LIM-026): the solver's `checks_passed` tag is shown as
- * "not verified". Its integrity check rests on a step the product does not verify, so
- * the indicator states the solver's report and never presents a case as having passed
- * an integrity check. */
+ * `numerical-health-indicator.md` §3-§5), kept in this one module; values in braces in the
+ * design are the parameters here. Nothing here reads a result or decides a state: the states,
+ * the conditioning figure and the verdict-only flag come from the Rust `numerical_health_json`.
+ * The solver's `checks_passed` state is worded as what its checks found ("solver checks found no
+ * problem"), not as a pass of an integrity check. */
 
 export type NumericalHealthState = "checks_passed" | "sensitive" | "quality_unresolved" | "solve_failed" | "not_assessed";
 
@@ -15,7 +11,7 @@ export const NUMERICAL_HEALTH_LABEL = "Numerical health";
 
 /** The state names, as the headlines, badges and counts show them. */
 export const NUMERICAL_HEALTH_STATE_TEXT: Readonly<Record<NumericalHealthState, string>> = Object.freeze({
-  checks_passed: "not verified",
+  checks_passed: "solver checks found no problem",
   sensitive: "sensitive",
   quality_unresolved: "quality unresolved",
   solve_failed: "solve failed",
@@ -31,12 +27,18 @@ export function numericalHealthHeadline(state: NumericalHealthState, ordinarySol
   return ordinarySolvePrefix ? `${ORDINARY_SOLVE_PREFIX} ${headline}` : headline;
 }
 
-/** The header's count form: non-zero counts in the order given; every case the solver
- * reports checks passed for reads "Numerical health: not verified". */
+/** A state's words after a count in the header's count form: "no problem found" for the
+ * solver's checks passed, the state's own words otherwise. */
+export function numericalHealthCountText(state: NumericalHealthState): string {
+  return state === "checks_passed" ? "no problem found" : NUMERICAL_HEALTH_STATE_TEXT[state];
+}
+
+/** The header's count form: non-zero counts in the order given; where every case is the solver's
+ * checks passed, the single headline "Numerical health: solver checks found no problem". */
 export function numericalHealthCountHeadline(counts: ReadonlyArray<readonly [NumericalHealthState, number]>, ordinarySolvePrefix = false): string {
   const present = counts.filter(([, count]) => count > 0);
   if (present.length === 1 && present[0][0] === "checks_passed") return numericalHealthHeadline("checks_passed", ordinarySolvePrefix);
-  const headline = `${NUMERICAL_HEALTH_LABEL}: ${present.map(([state, count]) => `${count} ${NUMERICAL_HEALTH_STATE_TEXT[state]}`).join(", ")}`;
+  const headline = `${NUMERICAL_HEALTH_LABEL}: ${present.map(([state, count]) => `${count} ${numericalHealthCountText(state)}`).join(", ")}`;
   return ordinarySolvePrefix ? `${ORDINARY_SOLVE_PREFIX} ${headline}` : headline;
 }
 
@@ -56,7 +58,7 @@ export const BOUNDARY_SENTENCE =
 /** The boundary sentence is not part of this case sentence: the detail carries it once,
  * whatever its cases' states (REQ-023, "every use"). */
 export function checksPassedText(caseId: string): string {
-  return `The solver's own checks found no problem with ${caseId}, but SWBPIPE has not verified an error bound for its values.`;
+  return `The solver's residual and conditioning checks found no problem with ${caseId}.`;
 }
 
 export function sensitiveLeadText(caseId: string): string {

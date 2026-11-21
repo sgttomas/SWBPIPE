@@ -97,7 +97,16 @@ needs:
     result, report, rule pack or library document before its request is parsed and grows it on request
     within the per-invocation budget, the pool's remaining bytes and a fresh headroom verdict, refusing
     by name otherwise, and releases it when the command returns.
-  when: Rendering a bound report or saving a report package.
+  when: Rendering a bound report, printing a rendered report or saving a report package.
+  gating: false
+- from: DEL-04-07
+  condition: The desktop's memory pool admits, as an interactive command's own reservation that the
+    host's pressure state does not gate, the bytes of one document the native host keeps after the
+    render command returns, with its capacity, per-invocation budget, pool and fresh headroom checks,
+    taken again on fresh samples within the pool's re-sampling window while refused only for
+    headroom, refusing by name otherwise, and releases it exactly once when the last holder of those
+    bytes drops it.
+  when: Keeping the current render's canonical HTML for the desktop's HTML save and print.
   gating: false
 - from: DEL-07-07
   condition: Until a completed solve job's result is disposed of, the native host keeps with it the digests
@@ -226,6 +235,7 @@ checks:
 - core/reporting/report_package/tests/exact_sections_parity.rs
 - core/reporting/report_package/tests/report_rows_parity.rs
 - core/reporting/report_package/tests/report_diagnostics_parity.rs
+- core/reporting/report_package/tests/report_members_parity.rs
 - core/reporting/report_package/tests/quantity_display_parity.rs
 - core/reporting/report_package/tests/user_release_derivation.rs
 - core/reporting/report_package/tests/user_release_package.rs
@@ -247,6 +257,8 @@ checks:
 - apps/desktop/src/features/report/renderedReport.test.tsx
 - apps/desktop/src/features/report/renderedReportNativeRoutes.test.tsx
 - apps/desktop/src/features/report/renderedReportGate.app.test.tsx
+- apps/desktop/src/features/report/restoredRunReportWords.app.test.tsx
+- apps/desktop/src/features/report/withheldPackageStatus.app.test.tsx
 - apps/desktop/src/features/report/reportOutputOutcomes.test.ts
 - apps/desktop/src/features/workspace/reportSourceSequence.test.ts
 - apps/desktop/src-tauri/src/rendered_report_routes.rs

@@ -5,7 +5,7 @@ import { QuantityReadout } from "../display-units";
 import { BookOpen } from "lucide-react";
 import type { DesignKnowledge, KnowledgeRecord, MechanicsResult } from "../../types";
 import { presentedResultDiagnostics } from "../results/suppliedDiagnostics";
-import { needsSolverReportNote, SOLVER_REPORT_NOTE } from "../results/integrityStatus";
+import { SOLVER_MESSAGES_HEADING } from "../results/integrityStatus";
 
 const RESULT_UNIT_DISPLAY_ORDER = ["MPa", "N", "N*m", "mm", "rad"];
 
@@ -39,6 +39,7 @@ export function useKnowledgeAxialRow(result: SessionResult | null): { row: Row |
 export function KnowledgePanel({ knowledge, result }: { knowledge: DesignKnowledge | null; result: SessionResult | null }) {
   const axial = useKnowledgeAxialRow(result);
   const computedRecords = physicsRecords(result, axial.row);
+  const showsSolverMessages = solverMessageRecords(result).length > 0;
   const records = [...(knowledge?.records ?? []), ...computedRecords];
   const unitContext = computedKnowledgeUnitContext(result, axial.row);
   return (
@@ -56,6 +57,7 @@ export function KnowledgePanel({ knowledge, result }: { knowledge: DesignKnowled
           <strong>{unitContext}</strong>
         </div>
       ) : null}
+      {showsSolverMessages ? <p className="muted" data-testid="knowledge-solver-messages-heading">{SOLVER_MESSAGES_HEADING}</p> : null}
       {records.length > 0 ? (
         <div className="record-list">
           {records.map((record) => (
@@ -76,6 +78,23 @@ export function KnowledgePanel({ knowledge, result }: { knowledge: DesignKnowled
   );
 }
 
+/** The records made from the solver's diagnostics (its warnings and blocking findings), each
+ * summarised by its presented message. */
+function solverMessageRecords(result: SessionResult | null): KnowledgeRecord[] {
+  if (!result) return [];
+  return presentedResultDiagnostics(result)
+    .filter((diagnostic) => diagnostic.severity === "warning" || diagnostic.severity === "blocking")
+    .map((diagnostic) => ({
+      id: `knowledge:${diagnostic.id ?? diagnostic.code}`,
+      kind: "computed_mechanics_context",
+      title: diagnostic.code.replaceAll("_", " "),
+      summary: diagnostic.message,
+      affected_refs: diagnostic.affected_refs ?? [],
+      provenance: "computed_preview_result",
+      status: diagnostic.severity
+    }));
+}
+
 /** The computed knowledge records of a result. A diagnostic's summary is its presented message
  * (`presentedResultDiagnostics`, the Diagnostics panel's classification): a held-status notice
  * (`HELD_STATUS_QUOTED_CODES`) is always quoted whole as supplied text, and on a result with
@@ -85,19 +104,7 @@ export function KnowledgePanel({ knowledge, result }: { knowledge: DesignKnowled
 export function physicsRecords(result: SessionResult | null, axialRow?: Row | null): KnowledgeRecord[] {
   if (!result) return [];
 
-  const records: KnowledgeRecord[] = presentedResultDiagnostics(result)
-    .filter((diagnostic) => diagnostic.severity === "warning" || diagnostic.severity === "blocking")
-    .map((diagnostic) => ({
-      id: `knowledge:${diagnostic.id ?? diagnostic.code}`,
-      kind: "computed_mechanics_context",
-      title: diagnostic.code.replaceAll("_", " "),
-      // Release exit criterion 18: a solver message that states a claim on the ordinary solve's
-      // unverified bound carries the note directly after it, wherever the record is shown.
-      summary: needsSolverReportNote(diagnostic) ? `${diagnostic.message} ${SOLVER_REPORT_NOTE}` : diagnostic.message,
-      affected_refs: diagnostic.affected_refs ?? [],
-      provenance: "computed_preview_result",
-      status: diagnostic.severity
-    }));
+  const records: KnowledgeRecord[] = solverMessageRecords(result);
 
   if (result.summary.max_displacement) {
     records.push({

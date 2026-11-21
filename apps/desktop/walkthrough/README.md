@@ -69,7 +69,8 @@ scripted-run build the step used in place of a person's (the file a chooser
 returns, a native menu command, the report print dialog). The index's
 `native_surfaces` names each native surface not pictured, what prevents it (a
 permission prompt, or a substitution), and whether that leaves evidence
-missing; `index.html` lists them under "Native surfaces not pictured".
+missing; `index.html` lists them under "Native surfaces not pictured". For the
+launched app, `native_menus` holds the menu each launch built, read from it.
 
 ## When a journey stops
 
@@ -98,7 +99,7 @@ This is the browser build, not the launched application.
 
 ```sh
 npm run walkthrough:native --workspace apps/desktop -- --build-only
-npm run walkthrough:native --workspace apps/desktop -- [--journey <names>] [--out <folder>]
+npm run walkthrough:native --workspace apps/desktop -- [--journey <names>] [--out <folder>] [--show-window]
 ```
 
 Run each under a host slot, as separate jobs, as the native-smoke runners are
@@ -114,7 +115,9 @@ nothing. A launch invocation builds nothing: anything stale refuses it by name.
 | `reference-system` | 23 | Named alone, for its long solve: File > Open Model Document… of the reference system fixture, Run, the status line while the job runs with its elapsed figure, its Details opened and closed on the running job, the line once the job ended and its completion line, the standing, the health line, Results, Report, the Issues drawer, an issue with a long message at rest and opened by Show all, then Run again and Stop on the status line, and the stopped line's Details. |
 | `prepared-project` | 24 | A model document placed in the throwaway home before launch, opened by File > Open Model Document…: the start other journeys build on. |
 
-Without `--journey` the first three run, one launch each. Files are in
+Without `--journey` the first three run, one launch each. `--show-window`, off
+by default, brings each launched window to the front for its run so that the
+3D view draws (below); without it the window is left where the system puts it. Files are in
 `native/`: `run.mjs` (the command), `driver.js` (the steps, in the app),
 `snapshot.mjs` (the record of the document) and `render.mjs` (the pictures).
 The counts are the browser walkthrough's own (`screen-counts.mjs`, one source
@@ -137,6 +140,30 @@ focus rings, the cursor and the system menu bar are not shown. Every native
 screen in `INDEX.json` and `index.html` says so (`picture`), and each journey
 states its surface.
 
+**The menu bar's items.** Once per launch, when the shell first shows, the
+driver asks the scripted-run build for the menu the app built
+(`native_smoke_menu_items`, compiled only into that build). It reads the
+installed menu item by item through the app's menu API, not a list of its own:
+each menu, its items in order with their labels, command identifiers (none for
+a system item such as Copy), enabled and ticked state, and its separators. The
+index records each launch's reading in `native_menus`, and `index.html` lists
+it. It establishes names, order and enabled state as built; it is not a picture,
+so how the system draws the menu bar, where it places it and the title it shows
+for the application menu are not shown.
+
+**Showing the window (`--show-window`).** The app brings its own window to the
+front with the window's API (`native_smoke_show_window`, compiled only into the
+scripted-run build: unminimized, shown, kept above other windows and focused);
+no system automation is used, nothing is captured from the screen and no
+permission is asked. The driver then waits for the page to report itself
+visible, and at each step waits for a drawn frame of the 3D view and reads its
+pixels from the canvas in the web view, trying up to three times. The window
+closes with the app. The index records, per launch and per screen, whether the
+window was shown (`window_shown`) and what the page reported
+(`page_visibility`), and the 3D view's entry in `native_surfaces` says whether
+it was captured at every step that showed it, or at how many it was not and
+why. The window takes the front of the screen and the focus while it runs.
+
 **How it is confined.** Each launch is a native-smoke launch, with the
 native-smoke runners' own functions (`native-smoke/launch-env.mjs`,
 `judged-launch.mjs`, `marks-check.mjs`): an environment built from nothing, a
@@ -158,17 +185,12 @@ in `acted_on` every control it used and that it was shown and open at that
 moment. The browser journeys get the same from Playwright, whose clicks and
 fills wait for a visible control and fail on one that is not.
 
-**What it cannot show.** The native menu bar: no command of the
-scripted-run build returns the menu the app builds, and reading it from
-outside the app needs the Accessibility permission, so its items' names and
-order are recorded as missing evidence in `native_surfaces`. A native-harness
-command that returns the built menu would supply it; that is a change to the
-app, not made here. The 3D view, as a rule: on this host the launched
-web view reports its page as hidden (the window is not the one in front), so
-it gives no animation frame and the viewport, which pauses while its page is
+**What it cannot show.** The native menu bar as drawn: its items are read
+from the app, not pictured. The 3D view without `--show-window`: the launched
+web view then reports its page as hidden (the window is not the one in front),
+so it gives no animation frame and the viewport, which pauses while its page is
 hidden, draws nothing to read. Each such step says so in its `snapshot_notes`,
-and the picture shows the placeholder. Bringing the window to the front is not
-something this command does. Also not shown: the system menu bar and native dialogs (the choosers
+and the picture shows the placeholder. Also not shown: native dialogs (the choosers
 are answered by the harness, the release dialog is the app's own), the
 embedded agent, printing, and anything outside the window. A step is driven by
 test identifiers, as in the browser walkthrough, so it finds a control a person

@@ -6,9 +6,9 @@
 import { fireEvent, render, screen, within } from "@testing-library/react";
 import { useState } from "react";
 import { describe, expect, it, vi } from "vitest";
-import type { Diagnostic, PreviewModel } from "../../types";
+import type { DesignKnowledge, Diagnostic, MechanicsResult, PreviewModel } from "../../types";
 import { DiagnosticsPanel } from "./DiagnosticsPanel";
-import { countItemsBySeverity, groupIssues, type IssueItem } from "./issueItems";
+import { countItemsBySeverity, diagnosticsListOf, groupIssues, type IssueItem } from "./issueItems";
 import { LONG_MESSAGE_CHARACTERS, NO_OWN_DETAIL_REASON } from "./IssueItemView";
 import type { ModelCheckFinding } from "./modelChecks";
 import { ModelChecksPanel } from "./ModelChecksPanel";
@@ -251,7 +251,6 @@ describe("the row, final: the severity's mark and the message, one muted line be
     expect(row.querySelector(".issue-first-line svg")).toHaveAttribute("aria-hidden", "true");
     expect(row.querySelector(".issue-message")).toHaveTextContent(/^invented checks passed on support:H-1$/);
     expect(meta(row)).toHaveTextContent(/^support:H-1 · info · NUMERICAL_INTEGRITY_CHECKS_PASSED · from the model$/);
-    expect(document.querySelector('[data-testid^="diagnostic-solver-report-note-"]')).toBeNull();
   });
 
   it("a grouped item: its count of reports is the control on its muted line; each opened row has the same form", () => {
@@ -324,6 +323,38 @@ describe("every row names its object (the missing-data use case's model)", () =>
     ]);
     fireEvent.click(rows[1]);
     expect(onSelect).toHaveBeenCalledWith("invented:pipe:md-outboard");
+  });
+});
+
+describe("the solver's messages: the result's diagnostics, and only those, carry the list's one heading", () => {
+  const own: Diagnostic = { id: "own", code: "INVENTED_MODEL_OWN", severity: "warning", message: "invented model finding", affected_refs: ["support:H-1"] };
+  const known: Diagnostic = { id: "known", code: "INVENTED_KNOWLEDGE", severity: "info", message: "invented knowledge finding", affected_refs: [] };
+  const solved = (id: string): Diagnostic => ({ id, code: `INVENTED_SOLVE_${id.toUpperCase()}`, severity: "warning", message: `invented solve finding ${id}`, affected_refs: [] });
+  const result = { diagnostics: [solved("a"), solved("b")], results: [], contract_evidence: {}, summary: {} } as unknown as MechanicsResult;
+  const knowledge = { diagnostics: [known] } as unknown as DesignKnowledge;
+  const withOwn = { ...model, diagnostics: [own] } as PreviewModel;
+
+  it("gives the origin solve to every result diagnostic and to nothing else", () => {
+    const { diagnostics, diagnosticOrigins } = diagnosticsListOf(withOwn, knowledge, result, { projectId: null, findings: [] } as never);
+    const solveIds = diagnostics.filter((_, index) => diagnosticOrigins[index] === "solve").map((item) => item.id);
+    expect(solveIds).toEqual(["a", "b"]);
+    expect(diagnostics.filter((_, index) => diagnosticOrigins[index] !== "solve").map((item) => item.id)).toEqual(expect.arrayContaining(["own", "known"]));
+  });
+
+  it("stands once, directly above the first listed item that holds one, and goes when a filter hides them all", () => {
+    render(<DiagnosticsPanel model={withOwn} knowledge={knowledge} result={result} selectedDiagnosticId={null} onSelectDiagnostic={() => {}} />);
+    const headings = screen.getAllByTestId("diagnostic-list-solver-messages-heading");
+    expect(headings).toHaveLength(1);
+    const next = headings[0].nextElementSibling as HTMLElement;
+    expect(next.querySelector('[data-testid="diagnostic-INVENTED_SOLVE_A"]')).not.toBeNull();
+    // Nothing before it in the list is the solver's.
+    let before = headings[0].previousElementSibling;
+    while (before) {
+      expect(before.querySelector('[data-testid^="diagnostic-INVENTED_SOLVE_"]')).toBeNull();
+      before = before.previousElementSibling;
+    }
+    fireEvent.change(screen.getByTestId("diagnostic-filter-input"), { target: { value: "INVENTED_MODEL_OWN" } });
+    expect(screen.queryByTestId("diagnostic-list-solver-messages-heading")).toBeNull();
   });
 });
 

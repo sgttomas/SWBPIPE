@@ -368,9 +368,10 @@ transmit the owner's own private model and Class-B data to that provider with
 no further app-side guard. Such transmission is never a public commit
 (`OPS-K-IP-1/2/3` unaffected) and is distinct from telemetry (off by default,
 `OPS-K-PRIV-2`). Operating system roots, application data directories, product
-and DB migration mechanics, portable export/copy workflows, encryption, key
-management, secret storage, provider/egress configuration surfaces, cloud
-exception workflows, and release packaging remain separate `TBD` decisions.
+and DB migration mechanics, encryption, key management, secret storage,
+provider/egress configuration surfaces, cloud exception workflows, and release
+packaging remain separate `TBD` decisions. A portable project export or copy is
+not provided in v1.0 (`docs/RELEASE_LIMITATIONS_v1.0.md`, LIM-045).
 
 ### 4.5 Plugin and extension domain contracts
 
@@ -407,8 +408,9 @@ validation, unit and dimensional validation, provenance completeness,
 redistribution review, privacy classification, protected-content screening,
 mechanics readiness, rule-check readiness, export review, and human review.
 Export operations remain local-first and review-gated by default; unresolved
-redaction, concrete format, runtime, packaging, CI, release, local FEA,
-portable project export/copy, and storage-root choices remain `TBD`.
+redaction, concrete format, runtime, packaging, CI, release, local FEA, and
+storage-root choices remain `TBD`. A portable project export or copy is not
+provided in v1.0 (`docs/RELEASE_LIMITATIONS_v1.0.md`, LIM-045).
 
 ## 5. Solver core requirements
 
@@ -865,9 +867,10 @@ professional-boundary posture.
 final CLI syntax, package-script posture, foreground process invocation,
 network prohibition, and stdout/default-plus-explicit-output filesystem
 posture. It still deliberately leaves public transport, CI provider, release
-matrix, external adapter formats, operating-system storage roots, portable
-project export/copy behavior, GUI/report runtime behavior, local FEA package
-structure, and release automation details as `TBD`. Runner access to
+matrix, external adapter formats, operating-system storage roots, GUI/report
+runtime behavior, local FEA package structure, and release automation details as
+`TBD`. A portable project export or copy is not provided in v1.0
+(`docs/RELEASE_LIMITATIONS_v1.0.md`, LIM-045). Runner access to
 persisted projects must stay behind application-service boundaries and must
 not depend on direct SQL or SQLite table layout. Missing solve-required or
 rule-check-required values must produce structured diagnostics rather than

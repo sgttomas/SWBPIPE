@@ -141,9 +141,6 @@ code_paths:
 # The boundary helper the GUI reference modules of DEL-07-03, DEL-07-04, DEL-07-05, DEL-07-07 and
 # DEL-07-08 import; each lists it.
 - core/gui/pkg02_boundary.py
-# Holds the desktop's table of solver text claims to the diagnostic code table (release exit criterion 18);
-# it runs wherever the code table changes.
-- tests/test_solver_text_claims.py
 checks:
 - apps/desktop/src/features/results/ResultsPanel.test.tsx
 - apps/desktop/src/App.resultPaging.test.tsx
@@ -154,10 +151,8 @@ checks:
 - apps/desktop/src/features/results/KnownSemanticNotices.test.tsx
 - apps/desktop/src/features/results/PhysicsSourceEvidencePanel.test.tsx
 - tests/test_results_viewer_contract.py
-- apps/desktop/src/features/results/integrityStatusClaims.test.ts
-- apps/desktop/src/features/results/integrityStatusSurfaces.test.tsx
+- apps/desktop/src/features/results/solverChecksSurfaces.test.tsx
 - apps/desktop/src/features/results/numericalHealthText.test.ts
-- tests/test_solver_text_claims.py
 - apps/desktop/src/features/viewport/deformationOverlay.test.ts
 - apps/desktop/src/features/viewport/viewportRotationGlyph.test.ts
 - apps/desktop/src/features/viewport/PipeViewport.rotation.test.tsx

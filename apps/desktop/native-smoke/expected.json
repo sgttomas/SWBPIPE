@@ -21,8 +21,8 @@
       "case": "demo",
       "fixture": "fixtures/product_preview/invented_demo_model.json",
       "observations": {
-        "sparse_interactive": { "rows": 837, "standing_prefix": "Numerical health: not verified." },
-        "dense_scrutiny": { "rows": 837, "standing_prefix": "Numerical health: not verified." }
+        "sparse_interactive": { "rows": 837, "standing_prefix": "Numerical health: solver checks found no problem." },
+        "dense_scrutiny": { "rows": 837, "standing_prefix": "Numerical health: solver checks found no problem." }
       }
     }
   ]

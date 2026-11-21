@@ -502,11 +502,11 @@ pub(crate) const WITHHELD_NO_HEALTH: &str = "Withheld: numerical health is not a
 pub(crate) const WITHHELD_NOT_ELIGIBLE: &str = "Withheld: the result's numerical standing does not admit it.";
 const WITHHELD_NO_STATE: &str = "Withheld: this case has no numerical health state.";
 
-/// `NUMERICAL_HEALTH_STATE_TEXT`: the solver's `checks_passed` reads "not
-/// verified" (release exit criterion 18).
+/// `NUMERICAL_HEALTH_STATE_TEXT`: the solver's `checks_passed` reads "solver
+/// checks found no problem" (release exit criterion 18).
 fn state_text(state: &str) -> &'static str {
     match state {
-        "checks_passed" => "not verified",
+        "checks_passed" => "solver checks found no problem",
         "sensitive" => "sensitive",
         "quality_unresolved" => "quality unresolved",
         "solve_failed" => "solve failed",

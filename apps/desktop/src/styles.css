@@ -4190,7 +4190,6 @@ body { min-width: 760px; min-height: 540px; }
 .app-shell .shell-status-bar button { display: inline-flex; align-items: center; gap: var(--space-1); min-height: 20px; padding: 0 var(--space-3); border: 1px solid var(--ui-border); border-radius: var(--radius-pill); color: var(--ui-text); background: var(--ui-surface); font-size: var(--type-size-chip); cursor: pointer; }
 .app-shell .shell-status-selection { margin-inline-end: auto; overflow: hidden; color: var(--ui-muted); text-overflow: ellipsis; white-space: nowrap; }
 .app-shell .shell-status-units { color: var(--ui-muted); }
-.app-shell .shell-status-bar .shell-about { min-width: 24px; justify-content: center; padding: 0; border-radius: var(--radius-control); }
 .app-shell .shell-chip-anchor { position: relative; display: inline-flex; }
 .app-shell .shell-chip-backdrop { position: fixed; inset: 0; z-index: 59; }
 .app-shell .shell-chip-popover { position: absolute; z-index: 60; bottom: calc(100% + var(--space-2)); left: 0; display: grid; gap: var(--space-1); min-width: 220px; padding: var(--space-3) var(--space-4); color: var(--ui-text); background: var(--surface-raised); border: 1px solid var(--ui-border); border-radius: var(--radius-card); box-shadow: var(--elevation-2); }
@@ -4465,11 +4464,39 @@ body { min-width: 760px; min-height: 540px; }
   place-items: center;
   background: rgba(0, 0, 0, 0.35);
 }
+/* The prompts and dialogs that share this rule are portalled outside .app-shell, so neither the
+   shell's text and control rules nor its --ui-* variables reach them. The rule gives them the
+   shell's text and control treatment from the theme tokens defined at the root, in both themes.
+   The control border and disabled text repeat the shell's own values (.app-shell --ui-border and
+   --ui-disabled-text, and their dark-theme values). */
 .replace-project-prompt {
+  --prompt-control-border: #71838d;
+  --prompt-disabled-text: #667680;
   max-width: 560px;
   padding: 16px 20px;
+  color: var(--text-primary);
   background: var(--surface-raised);
+  font-family: var(--font-ui);
+  font-size: var(--type-size-body);
+  line-height: var(--type-lineHeight-body);
 }
+:root[data-theme="dark"] .replace-project-prompt { --prompt-control-border: #70828c; --prompt-disabled-text: #9baab2; }
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme]) .replace-project-prompt { --prompt-control-border: #70828c; --prompt-disabled-text: #9baab2; }
+}
+.replace-project-prompt input, .replace-project-prompt select, .replace-project-prompt textarea, .replace-project-prompt button {
+  color: var(--text-primary); background-color: var(--surface-panel); border-color: var(--prompt-control-border);
+  border-radius: var(--radius-control); font-family: inherit;
+}
+.replace-project-prompt button:hover:not(:disabled):not([aria-disabled="true"]) { background-image: linear-gradient(var(--hover-wash), var(--hover-wash)); }
+.replace-project-prompt button[aria-pressed="true"] { color: var(--pressed-ink); background-color: var(--pressed-fill); border-color: var(--selection-bar); }
+.replace-project-prompt button:disabled, .replace-project-prompt input:disabled, .replace-project-prompt select:disabled {
+  color: var(--prompt-disabled-text); background: var(--disabled-fill);
+}
+.replace-project-prompt :focus-visible { outline: 2px solid var(--focus-ring); outline-offset: 2px; }
+/* The units dialog's Preset line: the label and its select side by side with a gap, so that the
+   select's focus ring does not cover the label. */
+.project-units-dialog .project-units-preset { display: inline-flex; align-items: center; gap: var(--space-4); }
 
 /* DEL-07-05 numerical health badges: the state text is always shown; colour only repeats it. */
 .numerical-health-badge {
@@ -4752,6 +4779,24 @@ article.issue-row.diagnostic { cursor: default; }
 
 /* A disclosure's summary is a control: at least the 24 px target (WCAG 2.2 2.5.8, D-68). */
 .app-shell .shell-surfaces summary, .app-shell .shell-page-sections summary { min-height: 24px; padding-block: 3px; box-sizing: border-box; cursor: pointer; }
+/* The tree's Condition sets and Lines disclosures: the summary reads as the block's heading did. */
+.app-shell .model-tree-records-disclosure > summary { margin-block-start: var(--space-3); font-weight: var(--type-weight-semibold); }
+/* In Tree mode the list grows into the height the closed Condition sets and Lines leave free.
+   The list windows its rows for a 420 px height plus eight rows of overscan each way
+   (VirtualList), so it grows to at most 640 px: every row in view is then a rendered row. */
+.app-shell .shell-tree-host > .model-tree[data-bounded-grid="false"] { display: flex; flex-direction: column; }
+.app-shell .shell-tree-host > .model-tree[data-bounded-grid="false"] > :not(.model-tree-virtual) { flex: 0 0 auto; }
+.app-shell .shell-tree-host > .model-tree[data-bounded-grid="false"] > .model-tree-virtual { flex: 1 1 420px; height: auto !important; min-height: 420px; max-height: 640px; }
+
+/* The Exports page: one row per export, its name, its link and its refusal line. */
+.app-shell .export-list { grid-column: 1 / -1; display: grid; gap: var(--space-2); margin: 0; padding: 0; list-style: none; }
+.app-shell .export-list > li { min-width: 0; }
+.app-shell .export-list > li > .panel { display: grid; grid-template-columns: minmax(140px, 200px) minmax(0, 1fr); column-gap: var(--space-4); align-items: start; margin: 0; }
+.app-shell .export-list > li > .panel > * { grid-column: 2; min-width: 0; }
+.app-shell .export-list > li > .panel > .panel-title { grid-column: 1; grid-row: 1; }
+
+/* Telemetry on the Evidence page: a closed disclosure whose summary is its state and reason. */
+.app-shell .telemetry-boundary-panel > summary { font-weight: var(--type-weight-semibold); }
 
 /* Canvas identity labels size to their id (up to a cap) so N-110 is never shown as N-…. */
 .app-shell .viewport-select-target { width: auto; min-width: 40px; max-width: 120px; font-weight: var(--type-weight-semibold); }

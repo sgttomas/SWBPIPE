@@ -544,7 +544,7 @@ for (const width of [1024, 1440] as const) {
     for (const railOpen of width < 1280 ? [false, true] : [true]) {
       await ensureRail(page, "inspector", railOpen);
       for (const [drawerId, toggleId] of [
-        ["issues-home", "issues-drawer-toggle"], ["audit-boundary-drawer", "audit-drawer-toggle"],
+        ["issues-home", "issues-drawer-toggle"],
       ]) {
         await page.getByTestId(toggleId).click();
         const drawer = page.getByTestId(drawerId);
@@ -575,14 +575,15 @@ for (const width of [1024, 1440] as const) {
           expect(hit.owned, `${phase} owns real drawer/workspace intersection`).toBe(true);
         };
         await page.getByTestId("menu-view").click();
-        await expectCenterUnobscured(page.getByTestId("menu-item-view.section.operations"), { minimumTarget: true });
+        // A View-menu section command (Review changes is no longer listed: the rail and its tab reach it).
+        await expectCenterUnobscured(page.getByTestId("menu-item-view.section.libraries"), { minimumTarget: true });
         await assertOwner('[data-testid="app-menu-backdrop"]', "menu-backdrop");
         await page.mouse.click(point.x, point.y);
         await expect(page.getByTestId("app-menu-backdrop")).toHaveCount(0);
         await expect(drawer).toBeVisible();
         await page.getByTestId("menu-view").click();
-        await page.getByTestId("menu-item-view.section.operations").click();
-        await expect(page.getByTestId("workspace-section-operations")).toBeVisible();
+        await page.getByTestId("menu-item-view.section.libraries").click();
+        await expect(page.getByTestId("workspace-section-libraries")).toBeVisible();
         await expect(drawer).toBeVisible();
         await page.getByTestId("toolkit-entry").click();
         const dialog = page.getByRole("dialog", { name: "Find a modeling tool" });

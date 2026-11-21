@@ -271,7 +271,7 @@ fn envelope(source: &Value) -> (Value, Value, Value) {
 /// `not_established_detail_quoted`, null otherwise), from the reader's
 /// standing record (`report_standing::historical_standing_record`, `cases[].confirmation.outcome`),
 /// for the desktop's support-state line (release exit criterion 18: a state the solver reports
-/// established is stated as not confirmed). Null for a result whose mechanics are not solved or
+/// established is stated as the solver's report). Null for a result whose mechanics are not solved or
 /// whose record the reader refuses. The outcomes are read from the result's integrity messages
 /// and the model alone, so the record is derived here with no standing findings.
 fn support_confirmations(source: &Value, model: &Value) -> Option<Value> {
