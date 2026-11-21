@@ -116,7 +116,7 @@ import { DEFLECTION_PHASE_STEPS, DeflectedShapeControls, deflectionLabel, deflec
 import { ViewportOverflowBar } from "./ViewportOverflowBar";
 import { ViewportSizeWatch } from "./viewportSizeWatch";
 import { alongViewPose, fitApplied, fitDirection, initialCameraRuleState, personMovedCamera, refitForCanvas, standardViewApplied, standardViewPose, type CameraPose, type CameraRuleState, type FitCommandKind } from "./viewportCameraRule";
-import { layoutLabels, type LabelBox, type LabelCandidate, type LabelKind } from "./viewportLabelLayout";
+import { labelObstacles, layoutLabels, type LabelBox, type LabelCandidate, type LabelKind } from "./viewportLabelLayout";
 import { buildElementAxesView, type ElementAxesFrame, type ElementAxesView } from "./elementAxes";
 import { elementAxisDisplayLength, instancedElementAxisMeshes, type ElementAxisPlacement } from "./viewportElementAxes";
 import { instancedRotationGlyphMeshes, type RotationGlyphPlacement } from "./viewportRotationGlyph";
@@ -1689,7 +1689,8 @@ export function PipeViewport({
               return [{ left: box.left - origin.left, top: box.top - origin.top, right: box.right - origin.left, bottom: box.bottom - origin.top }];
             })
           : [];
-        obstacles = { width, height, boxes };
+        // The closed drawer's tab strip covers the canvas's foot: no label is placed or counted under it.
+        obstacles = { width, height, boxes: labelObstacles(boxes, { width, height }, presentationBottomInset) };
       }
       const candidates: LabelCandidate<EntityKey>[] = [];
       const toCanvas = (point: THREE.Vector3) => {

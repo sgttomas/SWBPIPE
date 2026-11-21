@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { LABEL_EDGE_PX, LABEL_LAYOUT_BOUND, LABEL_OFFSET_PX, LABEL_TARGET_GAP_PX, labelTargetBox, layoutLabels, labelPlacementOrder, type LabelBox, type LabelCandidate } from "./viewportLabelLayout";
+import { labelObstacles, LABEL_EDGE_PX, LABEL_LAYOUT_BOUND, LABEL_OFFSET_PX, LABEL_TARGET_GAP_PX, labelTargetBox, layoutLabels, labelPlacementOrder, type LabelBox, type LabelCandidate } from "./viewportLabelLayout";
 
 const CANVAS = { width: 600, height: 400 };
 
@@ -87,6 +87,25 @@ describe("emphasised labels and a label's own entity", () => {
     expect(target.top).toBeGreaterThanOrEqual(0);
     expect(target.right).toBeLessThanOrEqual(CANVAS.width);
     expect(target.bottom).toBeLessThanOrEqual(CANVAS.height);
+  });
+
+  it("keeps every target off the closed drawer's tab strip, across the canvas's full width", () => {
+    const inset = 28;
+    const strip: LabelBox = { left: 0, top: CANVAS.height - inset, right: CANVAS.width, bottom: CANVAS.height };
+    expect(labelObstacles([], CANVAS, inset)).toEqual([strip]);
+    expect(labelObstacles([], CANVAS, 0)).toEqual([]);
+    // A dense row of nodes 37 px above the canvas's foot: some labels fall below their anchors.
+    const row = Array.from({ length: 9 }, (_, index) => label(`node:${index}`, "node", 200 + index * 17, CANVAS.height - 37));
+    const placements = layoutLabels(row, CANVAS, labelObstacles([], CANVAS, inset));
+    const drawn = placements.filter((placement) => placement.drawn);
+    expect(drawn.length).toBeGreaterThan(0);
+    for (const placement of drawn) {
+      const candidate = row.find((item) => item.key === placement.key)!;
+      expect(overlap(labelTargetBox(boxOf(placement, candidate)), strip)).toBe(false);
+    }
+    // Without the strip as an obstacle the same row puts targets under it.
+    const unguarded = layoutLabels(row, CANVAS).filter((placement) => placement.drawn);
+    expect(unguarded.some((placement) => overlap(labelTargetBox(boxOf(placement, row.find((item) => item.key === placement.key)!)), strip))).toBe(true);
   });
 
   it("never covers its own anchor or its own entity's line, so a press beside the label reaches the entity", () => {

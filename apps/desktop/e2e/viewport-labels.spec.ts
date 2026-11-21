@@ -112,3 +112,47 @@ test("a press on a pipe beside its own label reaches the canvas and picks the pi
   await page.mouse.click(onPipe.x, onPipe.y);
   await expect(page.getByTestId("viewport-select-pipe:LB-3")).toHaveAttribute("aria-pressed", "true");
 });
+
+// A tall riser with a dense row of nodes at its foot: fitted from the front, the row sits just above
+// the canvas's foot, where the closed drawer's tab strip lies over the canvas.
+async function tallModel() {
+  const { model } = await readFixture("precision-origin-base.model.json");
+  const node = (id: string, x: number, y: number) => ({ ...model.nodes[0], id, label: id.replace("node:", ""), position: { x, y, z: 0 } });
+  const row = Array.from({ length: 9 }, (_, index) => node(`node:W${index}`, -2 + index * 0.5, 0));
+  model.nodes = [...row, node("node:TOP", 0, 20)];
+  const basis = model.pipe_segments[0];
+  model.pipe_segments = [
+    { ...basis, id: "pipe:RISER", label: "RISER", from: "node:W4", to: "node:TOP" },
+    ...row.slice(1).map((end, index) => ({ ...basis, id: `pipe:ROW-${index}`, label: `ROW ${index}`, from: row[index].id, to: end.id }))
+  ];
+  model.supports = []; model.components = []; model.load_cases = []; model.combinations = []; model.diagnostics = [];
+  return model;
+}
+
+test("with the table drawer closed, no drawn label's target lies under its tab strip", async ({ page }) => {
+  await page.setViewportSize({ width: 1440, height: 920 });
+  await gotoModel(page, await tallModel());
+  await page.getByTestId("view-switch-model").click();
+  const drawer = page.getByTestId("toggle-tree");
+  if (await drawer.getAttribute("aria-expanded") === "true") await drawer.click();
+  await expect(drawer).toHaveAttribute("aria-expanded", "false");
+  await page.getByTestId("viewport-view-front").click();
+  await settled(page);
+  const strip = await page.getByTestId("stage-tab-strip").boundingBox();
+  if (!strip) throw new Error("the tab strip has no box");
+  // The case is engaged: the row's anchors stand within a label's reach of the strip (a label placed
+  // below its anchor reaches 28 px down: 8 px off, a 16 px plate, its 24 px target's margin).
+  const foot = await canvasPoint(page, { x: 0, y: 0, z: 0 });
+  expect(strip.y - foot.y, `the row is ${strip.y - foot.y} px above the strip`).toBeLessThan(28);
+  expect(strip.y - foot.y).toBeGreaterThan(0);
+  await page.waitForTimeout(300);
+  const targets = await page.evaluate(() => [...document.querySelectorAll<HTMLElement>(".viewport-selection-layer .viewport-select-target")]
+    .filter((label) => getComputedStyle(label).visibility !== "hidden")
+    .map((label) => {
+      const plate = label.getBoundingClientRect();
+      const height = Math.max(24, plate.height);
+      return { key: label.dataset.entityKey, bottom: plate.top + plate.height / 2 + height / 2 };
+    }));
+  expect(targets.length).toBeGreaterThan(0);
+  for (const target of targets) expect(target.bottom, `${target.key} reaches ${target.bottom}, the strip starts at ${strip.y}`).toBeLessThanOrEqual(strip.y + 0.5);
+});

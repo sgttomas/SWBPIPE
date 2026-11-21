@@ -210,6 +210,17 @@ function exposedPlace(box: LabelBox, canvas: { width: number; height: number }, 
 }
 
 /**
+ * The obstacles a layout keeps targets off: the canvas furniture's boxes, and the band along the
+ * canvas's foot that the closed table drawer's tab strip covers (the presentation inset), across the
+ * canvas's full width.
+ */
+export function labelObstacles(furniture: readonly LabelBox[], canvas: { width: number; height: number }, bottomInset: number): LabelBox[] {
+  const boxes = [...furniture];
+  if (bottomInset > 0) boxes.push({ left: 0, top: canvas.height - bottomInset, right: canvas.width, bottom: canvas.height });
+  return boxes;
+}
+
+/**
  * Places the labels. Each candidate takes the first of its places whose plate lies inside the
  * canvas and whose target (labelTargetBox) keeps LABEL_TARGET_GAP_PX from its own anchor, from every
  * target already placed and from every obstacle, and covers none of its own entity's lines. The
