@@ -2,7 +2,7 @@ import { ListChecks } from "lucide-react";
 import { useEffect, useId, useMemo, useRef, type KeyboardEvent, type ReactNode } from "react";
 import type { EntityRef, PreviewModel } from "../../types";
 import { MODEL_CHECK_GROUP_LABELS, type ModelCheckFinding, type ModelCheckGroupId, type ModelCheckRun } from "./modelChecks";
-import { groupIssues, type IssueItem } from "./issueItems";
+import { classText, groupIssues, type IssueItem } from "./issueItems";
 import { IssueItemView } from "./IssueItemView";
 
 /** The command's keyboard equivalent, as the menus show it. */
@@ -31,6 +31,7 @@ export function ModelChecksPanel({
   busy = false,
   onRun,
   onSelectEntity,
+  onSelectDiagnostic,
   items: givenItems
 }: {
   model: PreviewModel;
@@ -40,6 +41,8 @@ export function ModelChecksPanel({
   busy?: boolean;
   onRun: () => void;
   onSelectEntity: (entity: EntityRef) => void;
+  /** Opens a diagnostic's detail: a model or solve report gathered into a model-check item. */
+  onSelectDiagnostic?: (diagnosticId: string) => void;
   /** The drawer's items this list shows; without them the run's findings are grouped here. */
   items?: readonly IssueItem[];
 }) {
@@ -141,8 +144,9 @@ export function ModelChecksPanel({
                       <li key={item.key}>
                         <IssueItemView
                           item={item}
-                          main={(body) => <FindingButton finding={finding} onSelectEntity={onSelectEntity} body={body} />}
+                          main={(body) => <FindingButton finding={finding} onSelectEntity={onSelectEntity} body={body} severity={item.severity} />}
                           onSelectEntity={onSelectEntity}
+                          onSelectDiagnostic={onSelectDiagnostic}
                         />
                       </li>
                     ) : null;
@@ -159,12 +163,19 @@ export function ModelChecksPanel({
 
 /** One finding as the Model checks list shows it: choosing it selects the entity
  * it names. The Solve panel's withheld notice shows its findings with it too. */
-export function FindingButton({ finding, onSelectEntity, body }: { finding: ModelCheckFinding; onSelectEntity: (entity: EntityRef) => void; body?: ReactNode }) {
+export function FindingButton({ finding, onSelectEntity, body, severity }: {
+  finding: ModelCheckFinding;
+  onSelectEntity: (entity: EntityRef) => void;
+  body?: ReactNode;
+  /** The row's severity: its item's (the worst of the reports it gathers); the finding's own otherwise. */
+  severity?: string;
+}) {
   const { diagnostic, entity } = finding;
+  const shownSeverity = severity ?? diagnostic.severity;
   return (
     <button
       aria-disabled={entity === null}
-      className={`diagnostic ${diagnostic.severity}`}
+      className={`diagnostic ${shownSeverity}`}
       data-entity={entity ? `${entity.type}:${entity.id}` : undefined}
       data-finding={finding.key}
       data-testid={`model-check-${diagnostic.code}`}
@@ -172,8 +183,8 @@ export function FindingButton({ finding, onSelectEntity, body }: { finding: Mode
       title={entity ? `Select ${entity.id}` : "This finding names no model entity to select."}
       type="button"
     >
-      <strong>{diagnostic.code}</strong> <span className="muted">{diagnostic.severity}</span>
-      {body ?? <p>{diagnostic.message}</p>}
+      <strong>{diagnostic.code}</strong> <span className="muted">{shownSeverity}</span>
+      {body ?? <><p>{diagnostic.message}</p><small className="issue-class" data-testid="issue-class">{classText(diagnostic)}</small></>}
       {entity ? <small>Selects {entity.id}</small> : null}
       {(diagnostic as { truncated?: boolean }).truncated ? <small data-testid="model-check-truncated"> Text shortened in the bounded report.</small> : null}
     </button>

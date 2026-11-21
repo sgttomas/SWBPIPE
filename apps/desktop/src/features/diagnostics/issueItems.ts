@@ -26,12 +26,15 @@ import type { ModelCheckFinding, ModelCheckGroupId, ModelCheckRun } from "./mode
 export type IssueSource = "model-checks" | "operation" | "diagnostics";
 
 /** Who reported a member, as the drawer names it. */
-export type IssueOrigin = "model checks" | "operation" | "model" | "solve";
+export type IssueOrigin = "model checks" | "operation" | "model" | "model document" | "library reference" | "design knowledge" | "solve";
 
 export const ISSUE_ORIGIN_LABELS: Record<IssueOrigin, string> = {
   "model checks": "the model checks",
   operation: "an operation",
   model: "the model",
+  "model document": "the model document check",
+  "library reference": "a library reference",
+  "design knowledge": "design knowledge",
   solve: "the solve"
 };
 
@@ -78,8 +81,8 @@ export type IssueInputs = Readonly<{
   /** The diagnostics list: each as given and as shown (index for index). */
   diagnostics?: readonly Diagnostic[];
   shownDiagnostics?: readonly Diagnostic[];
-  /** How many of `diagnostics`, from the end, are the result's (reported by the solve). */
-  solveDiagnosticCount?: number;
+  /** Who reported each of `diagnostics` (index for index); "model" where not given. */
+  diagnosticOrigins?: readonly IssueOrigin[];
 }>;
 
 function objectOf(diagnostic: Diagnostic, model: PreviewModel | null | undefined, entity: EntityRef | null): { object: string | null; entity: EntityRef | null } {
@@ -101,8 +104,31 @@ function objectOf(diagnostic: Diagnostic, model: PreviewModel | null | undefined
   return { object: refs[0] ?? null, entity: null };
 }
 
-function classOf(diagnostic: Diagnostic): string | null {
+/** A report's class as its producer supplied it (`diagnostic_class`, else `class`); null where it
+ * supplied none. Never inferred (DEL-07-04 REQ-004). */
+export function classOf(diagnostic: Diagnostic): string | null {
   return diagnostic.diagnostic_class ?? diagnostic.class ?? null;
+}
+
+/** How a class is shown in text: the supplied class as given, or that none was supplied. */
+export function classText(diagnostic: Diagnostic): string {
+  const supplied = classOf(diagnostic);
+  return supplied === null ? "class not supplied" : `class ${supplied}`;
+}
+
+/** An item's class: the one class its members state (the grouping never joins two), shown once
+ * on the item; "class not supplied" where no member states one. */
+export function itemClassText(item: IssueItem): string {
+  const stated = item.members.map((member) => classOf(member.diagnostic)).find((value) => value !== null) ?? null;
+  return stated === null ? "class not supplied" : `class ${stated}`;
+}
+
+/** What tells this member's message apart from the item's other messages; null where the item's
+ * members share one message. */
+export function memberDifference(item: IssueItem, member: IssueMember): string | null {
+  if (item.differences.length === 0) return null;
+  const distinct = [...new Set(item.members.map((each) => each.diagnostic.message))];
+  return item.differences[distinct.indexOf(member.diagnostic.message)] ?? null;
 }
 
 /** Groups every report into items (see the rule at the top of this file). */
@@ -133,8 +159,7 @@ export function groupIssues(inputs: IssueInputs): IssueItem[] {
   for (const diagnostic of inputs.operations ?? []) add({ diagnostic, shown: diagnostic, source: "operation", origin: "operation" }, null);
   const shown = inputs.shownDiagnostics ?? inputs.diagnostics ?? [];
   const all = inputs.diagnostics ?? [];
-  const firstSolve = all.length - (inputs.solveDiagnosticCount ?? 0);
-  all.forEach((diagnostic, index) => add({ diagnostic, shown: shown[index] ?? diagnostic, source: "diagnostics", origin: index >= firstSolve ? "solve" : "model" }, null));
+  all.forEach((diagnostic, index) => add({ diagnostic, shown: shown[index] ?? diagnostic, source: "diagnostics", origin: inputs.diagnosticOrigins?.[index] ?? "model" }, null));
 
   return [...groups.entries()].sort((a, b) => a[1].order - b[1].order).map(([key, group]): IssueItem => {
     const home = group.members.reduce<IssueSource>((best, member) => (HOME_RANK[member.source] < HOME_RANK[best] ? member.source : best), "diagnostics");
@@ -254,10 +279,10 @@ export function useIssueSummary({
   const publishedLibraryRefs = usePublishedLibraryRefFindings();
   return useMemo(() => {
     if (!model) return issueSummary({ missingInputs: 0, solveJob });
-    const { diagnostics, shownDiagnostics, solveDiagnosticCount } = diagnosticsListOf(model, knowledge, result, publishedLibraryRefs);
+    const { diagnostics, shownDiagnostics, diagnosticOrigins } = diagnosticsListOf(model, knowledge, result, publishedLibraryRefs);
     return issueSummary({
       model,
-      solveDiagnosticCount,
+      diagnosticOrigins,
       modelChecks: modelCheckRun?.findings ?? [],
       operations: Object.values(operationOutcomes).flatMap((outcome) => outcome.diagnostics) as Diagnostic[],
       diagnostics,
@@ -276,14 +301,20 @@ export function diagnosticsListOf(
   knowledge: DesignKnowledge | null,
   result: SessionResult | null,
   publishedLibraryRefs: Parameters<typeof currentLibraryRefFindings>[1]
-): { diagnostics: Diagnostic[]; shownDiagnostics: Diagnostic[]; solveDiagnosticCount: number } {
-  const before = [
-    ...model.diagnostics,
-    ...modelDocumentDiagnostics(model),
-    ...libraryRefDiagnostics(currentLibraryRefFindings(model, publishedLibraryRefs)),
-    ...(knowledge?.diagnostics ?? [])
+): { diagnostics: Diagnostic[]; shownDiagnostics: Diagnostic[]; diagnosticOrigins: IssueOrigin[] } {
+  const parts: Array<[IssueOrigin, readonly Diagnostic[]]> = [
+    ["model", model.diagnostics ?? []],
+    ["model document", modelDocumentDiagnostics(model)],
+    ["library reference", libraryRefDiagnostics(currentLibraryRefFindings(model, publishedLibraryRefs))],
+    ["design knowledge", knowledge?.diagnostics ?? []]
   ];
+  const before = parts.flatMap(([, list]) => list);
+  const origins = parts.flatMap(([origin, list]) => list.map(() => origin));
   const raw = result?.diagnostics ?? [];
   const shown = presentedResultDiagnostics(result);
-  return { diagnostics: [...before, ...raw], shownDiagnostics: [...before, ...shown], solveDiagnosticCount: raw.length };
+  return {
+    diagnostics: [...before, ...raw],
+    shownDiagnostics: [...before, ...shown],
+    diagnosticOrigins: [...origins, ...raw.map((): IssueOrigin => "solve")]
+  };
 }

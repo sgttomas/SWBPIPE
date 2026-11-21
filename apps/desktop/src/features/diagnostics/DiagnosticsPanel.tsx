@@ -20,7 +20,8 @@ export function DiagnosticsPanel({
   selectedDiagnosticId,
   filterRequest = null,
   onSelectDiagnostic,
-  items: givenItems
+  items: givenItems,
+  allItems = null
 }: {
   model: PreviewModel;
   knowledge: DesignKnowledge | null;
@@ -33,6 +34,9 @@ export function DiagnosticsPanel({
   /** The Issues drawer's items this list shows (`issueItems.ts`); without them the
    * diagnostics below are grouped here. */
   items?: readonly IssueItem[];
+  /** Every item the drawer lists: a requested diagnostic is found among them wherever its item
+   * is filed (a solve diagnostic the model checks also found is filed under Model checks). */
+  allItems?: readonly IssueItem[] | null;
 }) {
   const [filterText, setFilterText] = useState(filterRequest?.diagnosticId ?? "");
   // The requested id, matched exactly while the filter text is that id.
@@ -58,16 +62,16 @@ export function DiagnosticsPanel({
   const publishedLibraryRefs = usePublishedLibraryRefFindings();
   const ownItems = useMemo(() => {
     if (givenItems) return null;
-    const { diagnostics, shownDiagnostics, solveDiagnosticCount } = diagnosticsListOf(model, knowledge, result, publishedLibraryRefs);
-    return groupIssues({ model, diagnostics, shownDiagnostics, solveDiagnosticCount });
+    const { diagnostics, shownDiagnostics, diagnosticOrigins } = diagnosticsListOf(model, knowledge, result, publishedLibraryRefs);
+    return groupIssues({ model, diagnostics, shownDiagnostics, diagnosticOrigins });
   }, [givenItems, model, knowledge, result, publishedLibraryRefs]);
   const items = givenItems ?? ownItems ?? [];
   const diagnosticCount = items.reduce((count, item) => count + item.members.length, 0);
   const filteredItems = useMemo(
     () => pinnedId !== null && filterText === pinnedId
-      ? items.filter((item) => item.members.some((member) => (member.diagnostic.id ?? member.diagnostic.code) === pinnedId))
+      ? (allItems ?? items).filter((item) => item.members.some((member) => member.source === "diagnostics" && (member.diagnostic.id ?? member.diagnostic.code) === pinnedId))
       : filterItems(items, filterText),
-    [items, filterText, pinnedId]
+    [items, allItems, filterText, pinnedId]
   );
   const nativeLinked = useNativeLinkedResults(model, knowledge, result, selectedDiagnosticId);
   const axial = useKnowledgeAxialRow(result);

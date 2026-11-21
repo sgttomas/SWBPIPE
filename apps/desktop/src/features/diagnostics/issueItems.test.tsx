@@ -1,8 +1,9 @@
 import { fireEvent, render, screen, within } from "@testing-library/react";
 import { describe, expect, it, vi } from "vitest";
+import { IssueItemView } from "./IssueItemView";
 import type { Diagnostic, PreviewModel } from "../../types";
 import { DiagnosticsPanel } from "./DiagnosticsPanel";
-import { groupIssues, issueSummary, messageDifferences } from "./issueItems";
+import { countItemsBySeverity, groupIssues, issueSummary, messageDifferences, type IssueItem } from "./issueItems";
 import type { ModelCheckFinding } from "./modelChecks";
 import { ModelChecksPanel } from "./ModelChecksPanel";
 
@@ -79,7 +80,6 @@ describe("the drawer's lists show items", () => {
     const disclosure = within(group).getByTestId("issue-group-members") as HTMLDetailsElement;
     expect(disclosure.open).toBe(false);
     fireEvent.click(within(disclosure).getByText(/All 3 reports for support:H-1/));
-    disclosure.open = true;
     expect(disclosure.open).toBe(true);
     const members = within(disclosure).getAllByTestId("issue-member-INVENTED_HANGER_LOAD_NOT_PRELOAD");
     expect(members.map((member) => member.textContent)).toEqual([
@@ -110,6 +110,161 @@ describe("classes stay apart (DEL-07-04 REQ-001)", () => {
     expect(items.map((item) => item.members.map((member) => member.diagnostic.id))).toEqual([
       ["diag:invented-hanger-cold", "a", "diag:invented-hanger-hot"],
       ["b"]
+    ]);
+  });
+});
+
+// Opens an item's disclosure of its reports by a press on its summary, as a person does, and
+// fails where the press does not open it.
+function openReports(group: HTMLElement): HTMLDetailsElement {
+  const disclosure = within(group).getByTestId("issue-group-members") as HTMLDetailsElement;
+  expect(disclosure.open).toBe(false);
+  fireEvent.click(within(disclosure).getByTestId("issue-group-members-toggle"));
+  expect(disclosure.open).toBe(true);
+  return disclosure;
+}
+const memberRows = (disclosure: HTMLElement, code: string) => within(disclosure).getAllByTestId(`issue-member-${code}`);
+const classesOf = (rows: HTMLElement[]) => rows.map((row) => within(row).getByTestId("issue-member-class").textContent);
+const diagnostic = (id: string, code: string, severity: Diagnostic["severity"], message: string, cls?: string): Diagnostic => ({
+  id, code, severity, message, affected_refs: ["support:H-1"], ...(cls ? { diagnostic_class: cls } : {})
+});
+const renderDiagnostics = (diagnostics: Diagnostic[], onSelect = vi.fn()) =>
+  render(<DiagnosticsPanel model={{ ...model, diagnostics } as PreviewModel} knowledge={null} result={null} selectedDiagnosticId={null} onSelectDiagnostic={onSelect} />);
+
+describe("every item and every report shows its class (DEL-07-04 REQ-001, REQ-004)", () => {
+  it("shows the supplied class on a one-report item, and 'class not supplied' where its producer gave none", () => {
+    renderDiagnostics([
+      diagnostic("c1", "INVENTED_CLASSED", "warning", "invented classed text", "ASSUMPTION_WARNING"),
+      { ...diagnostic("c2", "INVENTED_UNCLASSED", "info", "invented unclassed text"), affected_refs: [] },
+      { ...diagnostic("c3", "INVENTED_OLD_CLASS", "info", "invented class-field text"), affected_refs: [], class: "PROVENANCE_WARNING" } as Diagnostic
+    ]);
+    expect(within(screen.getByTestId("diagnostic-INVENTED_CLASSED")).getByTestId("issue-class")).toHaveTextContent(/^class ASSUMPTION_WARNING$/);
+    expect(within(screen.getByTestId("diagnostic-INVENTED_UNCLASSED")).getByTestId("issue-class")).toHaveTextContent(/^class not supplied$/);
+    expect(within(screen.getByTestId("diagnostic-INVENTED_OLD_CLASS")).getByTestId("issue-class")).toHaveTextContent(/^class PROVENANCE_WARNING$/);
+  });
+
+  it("shows a classed item's class once on the item, and a classless member as 'class not supplied' on its own row", () => {
+    renderDiagnostics([
+      hanger("cold"),
+      { ...hanger("installed"), id: "classed-installed", diagnostic_class: "ASSUMPTION_WARNING" },
+      hanger("hot")
+    ]);
+    const group = screen.getByTestId("issue-group-INVENTED_HANGER_LOAD_NOT_PRELOAD");
+    const main = screen.getByTestId("diagnostic-INVENTED_HANGER_LOAD_NOT_PRELOAD");
+    expect(within(main).getAllByTestId("issue-class").map((node) => node.textContent)).toEqual(["class ASSUMPTION_WARNING"]);
+    const rows = memberRows(openReports(group), "INVENTED_HANGER_LOAD_NOT_PRELOAD");
+    expect(classesOf(rows)).toEqual(["class not supplied", "class ASSUMPTION_WARNING", "class not supplied"]);
+  });
+
+  it("shows the class on the Model checks list's rows and on an operation's item", () => {
+    const run = {
+      model, solve: { kind: "checked" as const }, findings: [finding({ ...hanger("installed"), diagnostic_class: "ASSUMPTION_WARNING" })],
+      notShown: { solve: 0, slots: 0, library: 0 }, notShownBlocking: 0, notShownBlockingByGroup: { solve: 0, slots: 0, library: 0 }
+    };
+    render(<ModelChecksPanel model={model} run={run} onRun={() => {}} onSelectEntity={() => {}} />);
+    expect(within(screen.getByTestId("model-check-INVENTED_HANGER_LOAD_NOT_PRELOAD")).getByTestId("issue-class")).toHaveTextContent(/^class ASSUMPTION_WARNING$/);
+    const [operationItem] = groupIssues({ model, operations: [other] });
+    render(<IssueItemView item={operationItem} main={(body) => <article data-testid="operation-item">{body}</article>} />);
+    expect(within(screen.getByTestId("operation-item")).getByTestId("issue-class")).toHaveTextContent(/^class not supplied$/);
+  });
+});
+
+describe("a report gathered into another list's item opens its detail there", () => {
+  const checksRun = (findings: ModelCheckFinding[]) => ({
+    model, solve: { kind: "checked" as const }, findings,
+    notShown: { solve: 0, slots: 0, library: 0 }, notShownBlocking: 0, notShownBlockingByGroup: { solve: 0, slots: 0, library: 0 }
+  });
+
+  it("a solve diagnostic inside a Model checks item opens its detail, and the row shows the item's worst severity", () => {
+    const checked = finding(hanger("installed"));
+    const solved = { ...hanger("installed", "error"), id: "diag:invented-solve-installed" };
+    const items = groupIssues({ model, modelChecks: [checked], diagnostics: [solved], diagnosticOrigins: ["solve"] });
+    const onSelect = vi.fn();
+    render(<ModelChecksPanel model={model} run={checksRun([checked])} items={items} onRun={() => {}} onSelectEntity={() => {}} onSelectDiagnostic={onSelect} />);
+    const row = screen.getByTestId("model-check-INVENTED_HANGER_LOAD_NOT_PRELOAD");
+    expect(row).toHaveClass("error");
+    expect(row).toHaveTextContent(/^INVENTED_HANGER_LOAD_NOT_PRELOAD error/);
+    const rows = memberRows(openReports(screen.getByTestId("issue-group-INVENTED_HANGER_LOAD_NOT_PRELOAD")), "INVENTED_HANGER_LOAD_NOT_PRELOAD");
+    expect(rows.map((member) => member.textContent)).toEqual([expect.stringMatching(/warning · class not supplied · from the model checks/), expect.stringMatching(/error · class not supplied · from the solve/)]);
+    const solveRow = rows[1];
+    expect(solveRow).toHaveAttribute("aria-disabled", "false");
+    fireEvent.click(solveRow);
+    expect(onSelect).toHaveBeenCalledWith("diag:invented-solve-installed");
+  });
+
+  it("the Diagnostics list's filter request reaches a diagnostic the drawer lists under Model checks", () => {
+    const checked = finding(hanger("installed"));
+    const solved = { ...hanger("installed"), id: "diag:invented-solve-installed" };
+    const all = groupIssues({ model, modelChecks: [checked], diagnostics: [solved, other], diagnosticOrigins: ["solve", "model"] });
+    const own = all.filter((item) => item.home === "diagnostics");
+    expect(own.map((item) => item.code)).toEqual(["INVENTED_OTHER"]);
+    render(
+      <DiagnosticsPanel model={model} knowledge={null} result={null} selectedDiagnosticId={null} onSelectDiagnostic={() => {}}
+        items={own} allItems={all} filterRequest={{ diagnosticId: "diag:invented-solve-installed", sequence: 1 }} />
+    );
+    expect(screen.getByTestId("diagnostic-INVENTED_HANGER_LOAD_NOT_PRELOAD")).toBeInTheDocument();
+    expect(screen.queryByTestId("diagnostic-INVENTED_OTHER")).toBeNull();
+  });
+});
+
+describe("an item that holds several reports keeps each one readable", () => {
+  it("one code on one object for two load cases: the closed item says two, the open one gives each case's action", () => {
+    const forCase = (id: string, lc: string) =>
+      diagnostic(id, "INVENTED_CASE_LOAD_UNSET", "warning", `invented support:H-1 has no load for load case ${lc}; enter the ${lc} load on the support`);
+    renderDiagnostics([forCase("lc1", "LC-1"), forCase("lc2", "LC-2")]);
+    const group = screen.getByTestId("issue-group-INVENTED_CASE_LOAD_UNSET");
+    expect(within(group).getByTestId("issue-group-count")).toHaveTextContent(/^2 reports$/);
+    expect(within(group).getByTestId("issue-group-members-toggle")).toHaveTextContent("All 2 reports for support:H-1");
+    const rows = memberRows(openReports(group), "INVENTED_CASE_LOAD_UNSET");
+    expect(rows).toHaveLength(2);
+    expect(rows[0]).toHaveTextContent("enter the LC-1 load on the support");
+    expect(rows[1]).toHaveTextContent("enter the LC-2 load on the support");
+    expect(rows.map((row) => within(row).getByTestId("issue-member-difference").textContent)).toEqual([
+      "For: LC-1; enter the LC-1", "For: LC-2; enter the LC-2"
+    ]);
+    expect(classesOf(rows)).toEqual(["class not supplied", "class not supplied"]);
+  });
+
+  it("one code on one object for two missing fields: the closed item says two, the open one gives each field's action", () => {
+    const forField = (id: string, field: string) =>
+      diagnostic(id, "INVENTED_FIELD_MISSING", "blocking", `invented support:H-1 is missing ${field}; supply ${field} before solving`, "MISSING_INPUT");
+    renderDiagnostics([forField("f1", "support.stiffness"), forField("f2", "support.gap")]);
+    const group = screen.getByTestId("issue-group-INVENTED_FIELD_MISSING");
+    expect(within(group).getByTestId("issue-group-count")).toHaveTextContent(/^2 reports$/);
+    const rows = memberRows(openReports(group), "INVENTED_FIELD_MISSING");
+    expect(rows).toHaveLength(2);
+    expect(rows[0]).toHaveTextContent("supply support.stiffness before solving");
+    expect(rows[1]).toHaveTextContent("supply support.gap before solving");
+    expect(rows.map((row) => within(row).getByTestId("issue-member-difference").textContent)).toEqual([
+      "For: support.stiffness; supply support.stiffness", "For: support.gap; supply support.gap"
+    ]);
+    expect(classesOf(rows)).toEqual(["class MISSING_INPUT", "class MISSING_INPUT"]);
+  });
+});
+
+describe("no report that joins an item lowers it", () => {
+  it("a warning item joined by a blocking report becomes blocking, in its row and in the drawer's headings", () => {
+    renderDiagnostics([hanger("installed"), hanger("cold", "blocking")]);
+    expect(screen.getByTestId("diagnostic-INVENTED_HANGER_LOAD_NOT_PRELOAD")).toHaveClass("blocking");
+    expect(screen.getByTestId("issue-group-INVENTED_HANGER_LOAD_NOT_PRELOAD")).toHaveClass("blocking");
+    expect(screen.getByTestId("diagnostic-severity-blocking")).toHaveTextContent("1 Blocking");
+    expect(screen.getByTestId("diagnostic-severity-warning")).toHaveTextContent("0 Warnings");
+  });
+
+  it("a blocking item joined by an info report with no class stays blocking, and shows that report as 'class not supplied'", () => {
+    const blocking = diagnostic("b1", "INVENTED_JOINED", "blocking", "invented blocking text on support:H-1", "MISSING_INPUT");
+    const info = diagnostic("i1", "INVENTED_JOINED", "info", "invented info text on support:H-1");
+    const items: IssueItem[] = groupIssues({ model, diagnostics: [blocking, info] });
+    expect(items.map((item) => [item.severity, item.members.length])).toEqual([["blocking", 2]]);
+    expect(countItemsBySeverity(items)).toEqual({ blocking: 1, error: 0, warning: 0, info: 0 });
+    renderDiagnostics([blocking, info]);
+    expect(screen.getByTestId("diagnostic-INVENTED_JOINED")).toHaveClass("blocking");
+    expect(within(screen.getByTestId("diagnostic-INVENTED_JOINED")).getByTestId("issue-class")).toHaveTextContent(/^class MISSING_INPUT$/);
+    expect(screen.getByTestId("diagnostic-severity-blocking")).toHaveTextContent("1 Blocking");
+    expect(screen.getByTestId("diagnostic-severity-info")).toHaveTextContent("0 Info");
+    const rows = memberRows(openReports(screen.getByTestId("issue-group-INVENTED_JOINED")), "INVENTED_JOINED");
+    expect(rows.map((row) => row.textContent)).toEqual([
+      expect.stringMatching(/blocking · class MISSING_INPUT · from the model/), expect.stringMatching(/info · class not supplied · from the model/)
     ]);
   });
 });

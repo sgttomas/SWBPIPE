@@ -1915,7 +1915,7 @@ function IssuesHome({
         ))}
       </ul>
       {issues.solve && solveJob ? <SolveIssueItem solveJob={solveJob} /> : null}
-      <ModelChecksPanel model={model} run={modelCheckRun} busy={modelCheckBusy} onRun={onRunModelChecks} onSelectEntity={onSelectEntity} items={checkItems} />
+      <ModelChecksPanel model={model} run={modelCheckRun} busy={modelCheckBusy} onRun={onRunModelChecks} onSelectEntity={onSelectEntity} onSelectDiagnostic={onSelectDiagnostic} items={checkItems} />
       {operationItems.length > 0 ? (
         <section className="panel issues-operation-list" aria-label="Operation diagnostics">
           <div className="panel-title">
@@ -1926,6 +1926,8 @@ function IssuesHome({
             <IssueItemView
               key={item.key}
               item={item}
+              selectedDiagnosticId={selectedDiagnosticId}
+              onSelectDiagnostic={onSelectDiagnostic}
               main={(body) => (
                 <article className={`issue-row ${item.severity}`}>
                   <strong>{item.code}</strong>
@@ -1941,6 +1943,7 @@ function IssuesHome({
         knowledge={knowledge}
         result={result}
         items={diagnosticItems}
+        allItems={issues.items}
         selectedDiagnosticId={selectedDiagnosticId}
         filterRequest={diagnosticFilterRequest}
         onSelectDiagnostic={onSelectDiagnostic}
