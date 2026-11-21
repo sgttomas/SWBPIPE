@@ -536,6 +536,57 @@ mod tests {
         }
     }
 
+    /// The injected value reaches the certified producer: with the force one
+    /// ulp high, the term `certified_loads::nodal` pushes for the force's
+    /// identifier at its degree of freedom is that value, beside the operands
+    /// (W, k) it reads from the model.
+    #[test]
+    fn the_wrong_prepared_value_is_the_ledger_term() {
+        use open_pipe_stress_frame_kernel::load_ledger::{ForceTermKind, LoadLedger};
+        let force = load_id("case:s", "component:valve", 0, Part::Force);
+        let wire = document(2350.0, [-0.175, 0.12, 0.125], [Some(0.3), None, None], true);
+        let model = typed(&wire);
+        let target = force.clone();
+        prepared_mutant::arm(Box::new(move |load, value| (load == target).then(|| f64::from_bits(value.to_bits() + 1))));
+        let (loads, _) = generated(&wire);
+        prepared_mutant::disarm();
+        let application = open_pipe_stress_primitive_loads::prepare_loads(model.nodes.len(), model.pipe_segments.len(), &loads);
+        let mut ledger = LoadLedger::new();
+        crate::certified_loads::nodal(&mut ledger, &model, &application, "case:s", model.nodes.len());
+        let terms: Vec<_> = ledger.terms().iter().filter(|t| t.source == force).collect();
+        assert_eq!(terms.len(), 1);
+        assert_eq!(terms[0].dof, 2 * 6, "node C's global X");
+        assert!(matches!(terms[0].kind, ForceTermKind::Term(v) if v.to_bits() == (0.3f64 * 2350.0).to_bits() + 1), "{:?}", terms[0].kind);
+        assert_eq!(nodal_product(&model, "case:s", &force), Some((2350.0, 0.3)));
+    }
+
+    /// Exploratory sweep (ignored; run by hand): the case's standing as the
+    /// prepared force deviates by 2^n units in the last place.
+    #[test]
+    #[ignore = "exploratory: prints the deviation at which the standing changes"]
+    fn sweep_the_detected_deviation() {
+        let force = load_id("case:s", "component:valve", 0, Part::Force);
+        let wire = document(2350.0, [-0.175, 0.12, 0.125], [Some(0.3), None, None], true);
+        let row_bits = |out: &Value| out["results"].as_array().unwrap().iter().map(|r| r["value"].as_f64().unwrap().to_bits()).collect::<Vec<_>>();
+        let plain = serde_json::to_value(run_linear_static_preview_value_with_mode(wire.clone(), MODES[0]).unwrap()).unwrap();
+        for n in 0..52u32 {
+            let id = force.clone();
+            prepared_mutant::arm(Box::new(move |load, value| (load == id).then(|| f64::from_bits(value.to_bits() + (1u64 << n)))));
+            let out = serde_json::to_value(run_linear_static_preview_value_with_mode(wire.clone(), MODES[0]).unwrap()).unwrap();
+            prepared_mutant::disarm();
+            let v = 705.0f64;
+            let relative = (f64::from_bits(v.to_bits() + (1u64 << n)) - v) / v;
+            // Which check demoted the case: the formation check's appended record, and any
+            // diagnostic code the unperturbed run does not have (a load-fidelity finding).
+            let codes = |o: &Value| o["diagnostics"].as_array().unwrap().iter().map(|d| d["code"].as_str().unwrap().to_string()).collect::<std::collections::BTreeSet<_>>();
+            let added: Vec<String> = codes(&out).difference(&codes(&plain)).cloned().collect();
+            let formation: Vec<String> = out["diagnostics"].as_array().unwrap().iter()
+                .filter_map(|d| d["message"].as_str().and_then(|m| m.find("formation_check:").map(|i| m[i..].chars().take(300).collect())))
+                .collect();
+            println!("SWEEP 2^{n} ulp (relative {relative:.3e}): standing {} rows-equal {} added {:?} {:?}", out["numerical_quality"]["status"], row_bits(&out) == row_bits(&plain), added, formation);
+        }
+    }
+
     #[test]
     fn identifiers_are_distinct_from_member_loads_and_length_prefixed() {
         assert_eq!(load_id("case:s", "component:v", 0, Part::Force), "case:s:generated:seismic:global-x:component:11:component:v:force");
