@@ -2,10 +2,10 @@
 //! derives them, and the comparisons `validate_document`'s row loop makes of them.
 //!
 //! Every classification comes from `open_pipe_stress_result_export`'s public functions
-//! (`signature_for`, `canonical_metadata_for`, `complete_metadata`, `class_disclosure`,
-//! `component_body`). Three decisions that `derivative.rs` makes inline are restated here,
-//! each as one function with the signature a shared function would have, so that a later
-//! unification is a deletion: [`effective_disposition`] (a), [`disclosure_reason`] (b) and
+//! (`signature_for`, `canonical_metadata_for`, `complete_metadata`, `derivative`'s class
+//! disclosure, `component_body`). Three decisions that `derivative.rs` makes inline are
+//! restated here, each as one function with the signature a shared function would have, so
+//! that a later unification is a deletion: [`effective_disposition`] (a), [`disclosure_reason`] (b) and
 //! [`target_basis_and_evidence_kind`] (c).
 
 use crate::canonical;
