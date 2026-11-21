@@ -933,12 +933,14 @@ fn derived_composition(composition: &Value) -> Result<Value, String> {
     serde_json::to_value(&typed).map_err(|_| invalid("composition serialization"))
 }
 
-/// The source's identity must be pressure-free (§0, §2.1).
+/// The source's identity must be pressure-free (§0, §2.1). Its exact-route
+/// refusal is reached only for an exact-route source whose record is not of
+/// version 1.2.0 ([`derive_in`]): a 1.0.0 record covers a pressure-free result.
 fn check_pressure_free(source: &Value) -> Result<(), String> {
     match source.pointer("/producer/semantic_contract_id").and_then(Value::as_str) {
         Some(PREVIEW_PHYSICS_ID) => Ok(()),
         Some(id @ (PRESSURE_ID | PRESSURE_SOURCE_ID)) => Err(format!(
-            "{EXACT_ROUTE_NOT_ADMITTED}: a shareable report package carries pressure-free (preview-physics-2) results only; this exact-route result ({id}) can be saved in a local private package."
+            "{EXACT_ROUTE_NOT_ADMITTED}: a user-release record of version 1.0.0 covers a pressure-free (preview-physics-2) result only; this exact-route result ({id}) is shared with a record of version 1.2.0, or can be saved in a local private package."
         )),
         other => Err(invalid(format_args!("the source's identity {} is not preview-physics-2", other.unwrap_or("(none)")))),
     }

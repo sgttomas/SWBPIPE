@@ -814,7 +814,11 @@ fn the_derivation_and_the_producer_refuse_a_record_version_by_name() {
     let mut legacy = x.record.clone();
     legacy.record_version = USER_RELEASE_RECORD_VERSION.into();
     let error = x.derived(&legacy).unwrap_err();
-    assert!(error.starts_with(&format!("{EXACT_ROUTE_NOT_ADMITTED}:")), "{error}");
+    let id = x.v["source"]["producer"]["semantic_contract_id"].as_str().unwrap();
+    assert_eq!(
+        error,
+        format!("{EXACT_ROUTE_NOT_ADMITTED}: a user-release record of version 1.0.0 covers a pressure-free (preview-physics-2) result only; this exact-route result ({id}) is shared with a record of version 1.2.0, or can be saved in a local private package."),
+    );
     refused_with(x.assemble(request, &legacy), EXACT_ROUTE_NOT_ADMITTED);
 
     let case = case();
