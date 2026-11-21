@@ -262,7 +262,7 @@ function buildCaePipeExternalHarnessPacket({
     boundary_notes: [
       "An external prover run is optional and user-owned.",
       "This desktop preview does not configure, discover, invoke, bundle, download, install, or license an external tool.",
-      "Parsed CSV rows are invented parser-only regression and handoff evidence.",
+      "Parsed CSV rows are invented, parser-only examples; a comparison with the program's output is validation evidence.",
       "Validation occurs in the user's accepted professional tools; this is screening and handoff evidence."
     ],
     privacy: {
