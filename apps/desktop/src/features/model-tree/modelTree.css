@@ -177,6 +177,11 @@
   font-size: var(--type-size-caption);
 }
 
+/* A field's label and its control keep a gap (Shared section, and every labelled select). */
+.inspector .form-field > span + * {
+  margin-block-start: var(--space-1);
+}
+
 /* The shear deformation choice: each option on its own line, the chosen one visibly chosen. */
 .inspector .model-settings-choices {
   display: grid;

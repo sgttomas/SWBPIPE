@@ -73,6 +73,11 @@ export function TextField({ label, value, onChange, choices, compactSelect = fal
       onChange={e => onChange(e.target.value)}
     />}</label>;
 }
+/** A label inside a sentence: words lower-cased, symbols ("R", "SIF", "k_x") kept as written. */
+function sentenceCase(label: string): string {
+  return label.split(" ").map((word) => /^[A-Z]$|[A-Z].*[A-Z]|[a-z][A-Z]|_/.test(word) ? word : word.toLowerCase()).join(" ");
+}
+
 export function QuantityField({ label, value, onChange, dimension }: {
   label: string;
   value: unknown;
@@ -95,7 +100,7 @@ export function QuantityField({ label, value, onChange, dimension }: {
       value={typeof q.unit === "string" ? q.unit : ""}
       onChange={e => onChange({ ...q, unit: e.target.value })}
     />
-    </label></div>{value !== undefined && <button type="button" onClick={() => onChange(undefined)}>Clear {label.toLowerCase()}</button>}</fieldset>;
+    </label></div>{value !== undefined && <button type="button" onClick={() => onChange(undefined)}>Clear {sentenceCase(label)}</button>}</fieldset>;
 }
 export function makeRichIntent(target: EditorOperationIntent["target"], kind: EditorOperationIntent["change"]["change_kind"], path: string, before: string, after: unknown, label: string): EditorOperationIntent {
   const id = `${target.ref}:${path}`;
