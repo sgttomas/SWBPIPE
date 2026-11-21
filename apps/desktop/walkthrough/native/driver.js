@@ -206,6 +206,13 @@
     const box = element.getBoundingClientRect();
     return box.bottom > 0 && box.top < window.innerHeight && box.height > 0;
   };
+  // Method and limits: the disclosure, found shown; a person opens or closes it by its summary.
+  async function methodAndLimits(open) {
+    const method = await waitFor("Method and limits", () => { const item = byTestId("results-method"); return visible(item) ? item : null; }, T.ui);
+    if (method.open !== open) acting(method.querySelector(":scope > summary"), "results-method summary").click();
+    await sleep(200);
+    return method;
+  }
   async function chooseTab(id) {
     const tab = byTestId(`results-stage-tab-${id}`);
     if (tab && tab.getAttribute("aria-selected") !== "true") await press(`results-stage-tab-${id}`);
@@ -213,15 +220,12 @@
   }
   async function resultsStage(journey) {
     await journey.step("method-and-limits", "Results: Method and limits opened", async () => {
-      const method = await control("results-method");
-      if (!method.open) acting(method.querySelector(":scope > summary"), "results-method summary").click();
-      await sleep(200);
+      const method = await methodAndLimits(true);
       return method.open ? `open; it begins: ${method.querySelector(".results-method-body")?.textContent?.replace(/\s+/g, " ").trim().slice(0, 200) ?? ""}` : "it did not open";
     });
     await journey.scrolled("method-and-limits", "Results with Method and limits open", 2);
     await journey.step("method-and-limits-closed", "Results: Method and limits closed again", async () => {
-      const method = await control("results-method");
-      if (method.open) acting(method.querySelector(":scope > summary"), "results-method summary").click();
+      await methodAndLimits(false);
       await scrollTo(byTestId("results-stage-header"), "start");
     });
     const tabs = [...document.querySelectorAll('[data-testid^="results-stage-tab-"]')].filter(visible);
@@ -487,16 +491,13 @@
       return standing.textContent.replace(/\s+/g, " ").trim().slice(0, 300);
     });
     await journey.step("health-line", "The numerical health line, inside Method and limits", async () => {
-      const method = await control("results-method", { timeoutMs: T.ui });
-      if (!method.open) acting(method.querySelector(":scope > summary"), "results-method summary").click();
-      await sleep(200);
+      await methodAndLimits(true);
       const line = await control("numerical-health-header-line", { timeoutMs: T.ui });
       await scrollTo(line, "center");
       return line.textContent.replace(/\s+/g, " ").trim().slice(0, 300);
     });
     await journey.step("results", "The results table", async () => {
-      const method = byTestId("results-method");
-      if (method?.open) acting(method.querySelector(":scope > summary"), "results-method summary").click();
+      await methodAndLimits(false);
       const row = document.querySelector('[data-testid^="result-row-"]');
       if (row) await scrollTo(row, "start");
       return text("result-filter-summary") ?? "";
