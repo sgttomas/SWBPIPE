@@ -17763,7 +17763,7 @@
     },
     {
      "file": "core/product_physics/src/modal/prepare.rs",
-     "line": 357,
+     "line": 358,
      "via": "diag()",
      "severity": "blocking"
     },
@@ -19366,7 +19366,7 @@
     },
     {
      "file": "core/product_physics/src/modal/prepare.rs",
-     "line": 362,
+     "line": 363,
      "via": "diag()",
      "severity": "blocking"
     },
@@ -19415,7 +19415,7 @@
     },
     {
      "file": "core/product_physics/src/modal/prepare.rs",
-     "line": 332,
+     "line": 333,
      "via": "diag()",
      "severity": "blocking"
     },
@@ -20782,13 +20782,13 @@
   },
   {
    "file": "core/model_operations/operation_applier/src/lib.rs",
-   "line_text": "checker.push(",
+   "line_text": "checker.push(error.code, \"blocking\", error.message, remedy, vec![target_ref.clone()]);",
    "at": "push()",
    "expression": "error.code",
    "form": "record code field through an unproven receiver type",
    "outside_unit": true,
    "not_known": true,
-   "reason": "the error of resolver(..) (lib.rs 1966), a resolver chosen at run time; its record type was not traced. the operation applier's own code position: its codes are outside the unit"
+   "reason": "the error of resolver(..) (lib.rs 2017), a resolver chosen at run time; its record type was not traced. the operation applier's own code position: its codes are outside the unit"
   },
   {
    "file": "core/model_operations/operation_applier/src/lib.rs",
