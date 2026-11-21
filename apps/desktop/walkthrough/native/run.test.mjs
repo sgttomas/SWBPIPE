@@ -1481,3 +1481,55 @@ test("a late mark leaves a completed folder untouched: the attended output is pr
   assert.match(runner, /if \(!attended\) emptyNativeOutput\(out, selected\);/);
   assert.equal(runner.match(/^\s+emptyAttendedOutput\(out\);$/gm)?.length, 1, "called only inside prepareAttendedOutput");
 });
+
+// The handover, with the census and the start checkpoint stood in for: only to a running app, and, without --hidden,
+// only to a window the driver saw shown with its page visible.
+async function watchWith(t, { census, start = null, startAfterMs = 0, requireVisible = false, waitMs = 700 }) {
+  const dir = scratch(t);
+  const startReport = path.join(dir, "report.start.json");
+  const ready = [];
+  const watch = attendedWatch({ executable: "/copy", finishFile: path.join(dir, "attended-finish"), startReport, census, limitMs: 60_000, pollMs: 50, processTable: () => new Map(), requireVisible, onReady: (seen) => ready.push(seen) });
+  watch.start({ nonce: "n" });
+  if (start) setTimeout(() => writeFileSync(startReport, JSON.stringify({ nonce: "n", ...start })), startAfterMs);
+  await new Promise((resolve) => setTimeout(resolve, waitMs));
+  return { ready, watched: watch.stop(), aborted: watch.signal.aborted };
+}
+const censusSequence = (...answers) => { let index = 0; return () => answers[Math.min(index++, answers.length - 1)]; };
+
+test("the handover names a running app: a start checkpoint read after the app has quit prints nothing", async (t) => {
+  // The app is found, then gone; its start checkpoint is read only afterwards, while the run censuses it.
+  const late = await watchWith(t, { census: censusSequence({ ok: true, pids: [4242] }, { ok: true, pids: [4242] }, { ok: true, pids: [] }), start: { ok: true, window_shown: true, page_visibility: "visible" }, startAfterMs: 300 });
+  assert.deepEqual(late.ready, []);
+  assert.equal(late.watched.ready_printed, false);
+  assert.equal(typeof late.watched.exited_at, "number");
+  assert.equal(late.watched.pid, 4242);
+  // Another process running the copy is not the app first found: nothing is handed over.
+  const replaced = await watchWith(t, { census: censusSequence({ ok: true, pids: [4242] }, { ok: true, pids: [5151] }), start: { ok: true }, startAfterMs: 200 });
+  assert.deepEqual(replaced.ready, []);
+  // Running, started and found in the same poll: handed over once, with the pid that poll found.
+  const running = await watchWith(t, { census: () => ({ ok: true, pids: [4242] }), start: { ok: true } });
+  assert.deepEqual(running.ready.map((item) => item.pid), [4242]);
+  assert.equal(running.watched.exited_at, null);
+  // A census that cannot be read hands nothing over.
+  const unread = await watchWith(t, { census: () => ({ ok: false, reason: "lsof failed" }), start: { ok: true } });
+  assert.deepEqual(unread.ready, []);
+});
+
+test("without --hidden the attendant is directed to the window only once the driver saw it shown and its page visible", async (t) => {
+  const census = () => ({ ok: true, pids: [4242] });
+  const notShown = await watchWith(t, { census, start: { ok: true, window_shown: false, page_visibility: "hidden" }, requireVisible: true });
+  assert.deepEqual([notShown.ready.length, notShown.watched.stop?.by, notShown.aborted], [0, "window-not-shown", true]);
+  const hiddenPage = await watchWith(t, { census, start: { ok: true, window_shown: true, page_visibility: "hidden" }, requireVisible: true });
+  assert.deepEqual([hiddenPage.ready.length, hiddenPage.watched.stop?.by], [0, "window-not-shown"]);
+  const shown = await watchWith(t, { census, start: { ok: true, window_shown: true, page_visibility: "visible" }, requireVisible: true });
+  assert.deepEqual([shown.ready.length, shown.watched.stop], [1, null]);
+  // --hidden keeps its lifecycle checks: the handover does not wait for a window it was told not to show.
+  const hidden = await watchWith(t, { census, start: { ok: true, window_shown: false, page_visibility: "hidden" }, requireVisible: false });
+  assert.deepEqual([hidden.ready.length, hidden.watched.stop], [1, null]);
+  // Its ending is its own, and never a handover.
+  const ending = attendedEnding({ outcome: { status: null, signal: "SIGKILL", timed_out: false, nonce: "n" }, receipt: { delivered: true }, stop: { by: "window-not-shown" }, start: { nonce: "n", ok: true, window_shown: false, page_visibility: "hidden" }, nonce: "n", limitMinutes: 1, handedOver: false });
+  assert.deepEqual([ending.by, ending.ok], ["window-not-shown", false]);
+  assert.match(ending.what, /window shown: no, page hidden\), so the attendant was not directed to it/);
+  const unprepared = attendedEnding({ outcome: { status: null, signal: "SIGKILL", timed_out: false, nonce: "n" }, receipt: { delivered: true }, stop: { by: "output-not-prepared", why: "x" }, start: null, nonce: "n", limitMinutes: 1 });
+  assert.deepEqual([unprepared.by, unprepared.ok], ["output-not-prepared", false]);
+});
