@@ -357,14 +357,37 @@ async function selectInView(page: Page, type: "node" | "pipe" | "support" | "com
 async function labelTargets(page: Page, found?: string | void): Promise<string> {
   await page.waitForTimeout(350);
   const witness = await expectViewportLabelTargets(page);
-  const checked = `${witness.length} labels drawn, each target at least 24 by 24 CSS px and uncovered`;
+  const toggle = ((await page.getByTestId("toggle-viewport-labels").textContent()) ?? "").trim();
+  const checked = `${witness.length} labels drawn, each target at least 24 by 24 CSS px and uncovered; the toggle reads "${toggle}"`;
   return found ? `${found}; ${checked}` : checked;
+}
+
+/** Where an authored point is drawn on the canvas, in page pixels. */
+async function canvasPointOf(page: Page, authoredPoint: { x: number; y: number; z: number }): Promise<{ x: number; y: number }> {
+  return page.evaluate((authoredPoint) => {
+    const api = (globalThis as any).__openPipeStressUiDiagnosticsV1;
+    const current = api.readCurrent();
+    if ("status" in current.viewport || current.model.generation === null) throw new Error("the view is unavailable");
+    const projected = api.projectAuthoredPoint({ modelGeneration: current.model.generation, cameraSequence: current.viewport.camera.sequence, authoredPoint });
+    if (projected.status !== "available" || !projected.insideCanvasCss) throw new Error("the point is outside the canvas");
+    const bounds = document.querySelector('[data-testid="viewport-canvas"] canvas')!.getBoundingClientRect();
+    return { x: bounds.left + projected.canvasCssPoint.x, y: bounds.top + projected.canvasCssPoint.y };
+  }, authoredPoint);
+}
+
+async function orbit(page: Page): Promise<void> {
+  const box = await page.getByTestId("viewport-canvas").boundingBox();
+  if (!box) throw new Error("the canvas has no box");
+  await page.mouse.move(box.x + box.width * 0.5, box.y + box.height * 0.6);
+  await page.mouse.down();
+  await page.mouse.move(box.x + box.width * 0.75, box.y + box.height * 0.45, { steps: 12 });
+  await page.mouse.up();
 }
 
 test("09 the 3D view: controls, fit, standard views, labels", async ({ page }) => {
   const journey = new Journey(page, 9, "view", "The 3D view: its controls, the model kept in view, the standard views and the labels");
+  const demo = JSON.parse(readFileSync(new URL("../../../fixtures/product_preview/invented_demo_model.json", import.meta.url), "utf8"));
   await open(page);
-  const canvas = page.getByTestId("viewport-canvas");
   await journey.step("first-open", "The application as first opened: the demonstration model fitted in the view", async () => labelTargets(page));
   await journey.step("model-view", "Model view: the canvas alone", async () => { await page.getByTestId("view-switch-model").click(); });
   for (const view of ["front", "top", "side", "isometric"] as const) {
@@ -372,51 +395,78 @@ test("09 the 3D view: controls, fit, standard views, labels", async ({ page }) =
       await page.getByTestId(`viewport-view-${view}`).click();
     });
   }
-  await journey.step("orbited", "The view orbited by a drag on the canvas", async () => {
-    const box = await canvas.boundingBox();
-    if (!box) throw new Error("the canvas has no box");
-    await page.mouse.move(box.x + box.width * 0.5, box.y + box.height * 0.6);
-    await page.mouse.down();
-    await page.mouse.move(box.x + box.width * 0.75, box.y + box.height * 0.45, { steps: 12 });
-    await page.mouse.up();
+  await journey.step("orbited", "The view orbited by a drag on the canvas: no standard view is pressed", async () => orbit(page));
+  await journey.step("fit-after-orbit", "Fit Model after the orbit: the model reframed, the direction the person looked from kept", async () => {
+    await page.getByTestId("viewport-fit-model").click();
   });
-  await journey.step("fit-after-orbit", "Fit pressed after the orbit: with nothing selected it fits the model", async () => {
-    await page.locator(".viewport-view-cube .viewport-fit").click();
+  await journey.step("view-restored", "Isometric pressed again: the standard view restored and shown pressed", async () => {
+    await page.getByTestId("viewport-view-isometric").click();
   });
-  await journey.step("inspector-open", "A node selected and the inspector open: the model still wholly in view", async () => {
-    await selectInView(page, "node", "node:N-120");
+  await journey.step("canvas-click", "A node clicked on the canvas itself, not its label: selected, the view still fitted", async () => {
+    const node = demo.nodes.find((candidate: { id: string }) => candidate.id === "node:N-120") ?? demo.nodes[0];
+    const point = await canvasPointOf(page, node.position);
+    const onCanvas = await page.evaluate(({ x, y }) => document.elementFromPoint(x, y)?.closest('[data-testid="viewport-canvas"]') !== null, point);
+    await page.mouse.click(point.x, point.y);
+    return onCanvas ? undefined : "a label lay over the node's point, so the click went to it";
+  });
+  await journey.step("inspector-open", "The inspector opened: the model refitted to the narrower canvas, still wholly in view", async () => {
     await ensureInspectorExpanded(page);
   });
-  await journey.step("more-menu", "The bar's More menu open, with a control in it switched on", async () => {
+  await journey.step("more-menu", "The bar's More open as a second row, with a control in it on; Fit and the views uncovered", async () => {
     await page.getByTestId("viewport-more").click();
     const menuPanel = page.getByTestId("viewport-more-menu");
     await expect(menuPanel).toBeVisible();
     const measure = menuPanel.getByRole("button", { name: "Measure", exact: true });
     const axes = menuPanel.getByRole("combobox", { name: "Element axes" });
-    if (await measure.count()) await measure.click();
-    else if (await axes.count()) await axes.selectOption("local");
-    else return "every group fits in the bar at this size; More holds the Fit commands";
+    if (await axes.count()) await axes.selectOption("local");
+    else if (await measure.count()) await measure.click();
+    else return "every group fits in the bar at this size; More holds Fit Visible";
   });
-  // Put the switched control back, so the later pictures show the ordinary view.
   {
     const menuPanel = page.getByTestId("viewport-more-menu");
-    const measure = menuPanel.getByRole("button", { name: "Measure", exact: true });
     const axes = menuPanel.getByRole("combobox", { name: "Element axes" });
-    if (await measure.count() && await measure.getAttribute("aria-pressed") === "true") await measure.click();
+    const measure = menuPanel.getByRole("button", { name: "Measure", exact: true });
     if (await axes.count()) await axes.selectOption("off");
+    if (await measure.count() && await measure.getAttribute("aria-pressed") === "true") await measure.click();
     await page.keyboard.press("Escape");
   }
   await journey.step("selection-label", "A pipe selected from its label: its label emphasised", async () => labelTargets(page, await selectInView(page, "pipe", "pipe:P-120")));
-  await journey.step("isolate", "Isolate: the selection drawn, everything else dimmed", async () => {
+  await journey.step("isolate", "Isolate: the selection drawn, the rest dimmed, and the quiet line says so", async () => {
     await (await viewportControl(page, page.getByRole("button", { name: "Isolate", exact: true }))).click();
+    await page.keyboard.press("Escape");
+    await expect(page.getByTestId("viewport-isolated-count")).toBeVisible();
   });
-  await journey.step("hidden-show-all", "Hide: the pipe hidden, and the status line's Show all", async () => {
+  await journey.step("hidden-show-all", "Hide: the pipe hidden, and the quiet line's Show all", async () => {
     await (await viewportControl(page, page.getByRole("button", { name: "Show all", exact: true }))).click();
+    await page.keyboard.press("Escape");
     await selectInView(page, "pipe", "pipe:P-120");
     await (await viewportControl(page, page.getByRole("button", { name: "Hide", exact: true }))).click();
+    await page.keyboard.press("Escape");
     await expect(page.getByTestId("viewport-hidden-count")).toBeVisible();
   });
   await page.getByTestId("viewport-hidden-count").click();
+  await journey.step("measure-armed", "Measure armed: the quiet line says what it waits for", async () => {
+    await (await viewportControl(page, page.getByRole("button", { name: "Measure", exact: true }))).click();
+    await expect(page.getByTestId("viewport-measure-prompt")).toBeVisible();
+  });
+  {
+    await (await viewportControl(page, page.getByRole("button", { name: "Measure", exact: true }))).click();
+    if (await page.getByTestId("viewport-more-menu").count()) await page.keyboard.press("Escape");
+  }
+  await journey.step("box-select-beside-label", "Box Select: a box drawn from just beside a label, inside its target's margin", async () => {
+    await (await viewportControl(page, page.getByTestId("viewport-box-select"))).click();
+    if (await page.getByTestId("viewport-more-menu").count()) await page.keyboard.press("Escape");
+    const label = page.locator(".viewport-selection-layer .viewport-select-target:not([style*='visibility: hidden'])").first();
+    const plate = await label.boundingBox();
+    if (!plate) throw new Error("no label is drawn");
+    await page.mouse.move(plate.x + plate.width / 2, plate.y - 2);
+    await page.mouse.down();
+    await page.mouse.move(plate.x + plate.width / 2 - 140, plate.y + 110, { steps: 8 });
+    await expect(page.locator(".viewport-box-rect")).toBeVisible();
+  });
+  await page.mouse.up();
+  await (await viewportControl(page, page.getByTestId("viewport-box-select"))).click();
+  if (await page.getByTestId("viewport-more-menu").count()) await page.keyboard.press("Escape");
   await journey.step("dark", "The view in the dark theme (View > Dark)", async () => {
     await page.emulateMedia({ colorScheme: "dark" });
     await menu(page, "view", "view.theme.dark");
@@ -425,7 +475,7 @@ test("09 the 3D view: controls, fit, standard views, labels", async ({ page }) =
   await page.emulateMedia({ colorScheme: null });
 
   const reference = JSON.parse(readFileSync(new URL("../../../fixtures/reference_system/reference_system.json", import.meta.url), "utf8"));
-  await journey.step("reference-system", "The reference system opened: the crowded case for labels", async () => {
+  await journey.step("reference-system", "The reference system: its boundary nodes named first, and the Labels toggle's count", async () => {
     await openModel(page, reference);
     await page.getByTestId("view-switch-model").click();
     return labelTargets(page);
