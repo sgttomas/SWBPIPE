@@ -146,18 +146,19 @@ test("the menu reading and the window's outcome become the part file's records",
   assert.equal(screenLockState(undefined), null);
 });
 
-test("native surfaces: the menu bar supplied by a reading, the 3D view captured or why not, and missing wins in the index", (t) => {
+test("native surfaces: the menu bar's reading recorded but not as the menu bar drawn, the 3D view captured or why not, and missing wins in the index", (t) => {
   const menu = { read: true, read_when: "once", menus: [] };
   const menuEntry = (surfaces) => surfaces.find((item) => item.surface === MENU_SURFACE);
   const viewEntry = (surfaces) => surfaces.find((item) => item.surface === VIEW_3D_SURFACE);
   assert.equal(menuEntry(nativeSurfacesFor()).missing_evidence, true);
-  const supplied = menuEntry(nativeSurfacesFor({ menu }));
-  assert.equal(supplied.missing_evidence, false);
-  assert.equal(supplied.evidence, "supplied");
-  assert.equal(supplied.captured, false);
-  assert.match(supplied.instead, /names, order and enabled state as built; not how the system draws the menu bar, where it places it/);
-  assert.match(supplied.prevented_by, /Accessibility permission/);
-  assert.match(menuEntry(nativeSurfacesFor({ menu: { read: false, error: "no menu" } })).prevented_by, /: no menu$/);
+  const read = menuEntry(nativeSurfacesFor({ menu }));
+  assert.equal(read.missing_evidence, true);
+  assert.equal(read.evidence, "missing");
+  assert.equal(read.reading, "supplied");
+  assert.equal(read.captured, false);
+  assert.match(read.instead, /names, order and enabled state as built; not how the system draws the menu bar, where it places it/);
+  assert.equal(read.prevented_by, NOT_SUPPLIED);
+  assert.match(menuEntry(nativeSurfacesFor({ menu: { read: false, error: "no menu" } })).instead, /: no menu$/);
   const drawn = [{ view_3d: "captured" }, { view_3d: "not on screen" }, { view_3d: "captured" }];
   assert.equal(viewEntry(nativeSurfacesFor({ windowShown: true, screens: drawn })).missing_evidence, false);
   assert.equal(viewEntry(nativeSurfacesFor({ windowShown: true, screens: drawn })).captured, true);
@@ -272,9 +273,13 @@ test("pictures: each snapshot rendered at its recorded size with nothing loaded,
   assert.equal(native[1].substitutions, undefined);
   assert.deepEqual(index.native_surfaces.map((item) => item.surface), NATIVE_SURFACES.map((item) => item.surface));
   assert.ok(index.native_surfaces.every((item) => item.prevented_by && typeof item.missing_evidence === "boolean"));
-  assert.ok(index.native_surfaces.some((item) => /menu bar/.test(item.surface) && /Accessibility permission/.test(item.prevented_by) && item.missing_evidence === true));
+  // The window, the menu bar, the chooser and the print dialog: missing evidence, not supplied, never a permission prompt.
+  for (const key of ["window", "menu_bar", "file_chooser", "print_dialog"]) {
+    const entry = index.native_surfaces.find((item) => item.key === key);
+    assert.deepEqual([entry.missing_evidence, entry.evidence, entry.prevented_by], [true, "missing", NOT_SUPPLIED], key);
+  }
+  assert.ok(index.native_surfaces.every((item) => !/permission/.test(item.prevented_by)));
   assert.deepEqual(index.native_menus, []);
-  assert.ok(index.native_surfaces.some((item) => /window/.test(item.surface) && /Screen Recording permission/.test(item.prevented_by)));
   const html = readFileSync(path.join(out, "index.html"), "utf8");
   assert.match(html, /redrawn by Chromium/);
   assert.match(html, /not a capture of the window/);
@@ -607,4 +612,97 @@ test("the three ways an attended launch ends, each censused: the app exits, the 
   } finally {
     lock.release();
   }
+});
+
+// ---------------------------------------------------------------- native surfaces from attended captures
+
+import { NOT_SUPPLIED, SURFACE_KEYS } from "./render.mjs";
+
+/** A folder with one journey's part at `journeyRevision` and an attended part at `captureRevision` whose captures carry `sidecars`. */
+function surfacesIndex(t, { journeyRevision = "abc", captureRevision = "abc", sidecars = [], launch = {} } = {}) {
+  const out = scratch(t);
+  writePart(out, { number: 22, name: "exports", title: "E", use_case: "u", revision: { commit: journeyRevision, uncommitted_paths: 0 }, build: { kind: "k", app_sha256: "sha256:feed" }, screens: [], native_menu: { read: true, read_when: "once", menus: [], journey: "exports", number: 22 }, launch: { ended_cleanly: true } });
+  const folder = path.join(out, "captures");
+  mkdirSync(folder);
+  const png = Buffer.alloc(33);
+  Buffer.from([0x89, 0x50, 0x4e, 0x47, 0x0d, 0x0a, 0x1a, 0x0a]).copy(png);
+  png.write("IHDR", 12, "latin1");
+  sidecars.forEach((sidecar, index) => {
+    const base = `${String(index + 1).padStart(2, "0")}-capture`;
+    if (sidecar.picture !== false) writeFileSync(path.join(folder, `${base}.png`), png);
+    const { picture, ...claims } = sidecar;
+    writeFileSync(path.join(folder, `${base}.json`), JSON.stringify({ step: `step-${index + 1}`, note: "n", acted: ["looked"], ...claims }));
+  });
+  const captures = readCaptures(folder);
+  writeAttendedPart(out, { title: "Attended", revision: { commit: captureRevision, uncommitted_paths: 0 }, build: { kind: "k", app_sha256: "sha256:beef" }, launch: { attended: true, prevented: [], ...launch }, captures });
+  composeIndex(out);
+  const index = JSON.parse(readFileSync(path.join(out, "INDEX.json"), "utf8"));
+  return { index, html: readFileSync(path.join(out, "index.html"), "utf8"), captures, entry: (key) => index.native_surfaces.find((item) => item.key === key) };
+}
+
+test("native surfaces: with no attended capture, the window, menu bar, chooser and print dialog are each missing evidence, not supplied", (t) => {
+  const { entry, index, html } = surfacesIndex(t);
+  for (const key of ["window", "menu_bar", "file_chooser", "print_dialog"]) {
+    assert.deepEqual([entry(key).missing_evidence, entry(key).evidence, entry(key).prevented_by, entry(key).captured], [true, "missing", NOT_SUPPLIED, false], key);
+  }
+  assert.equal(entry("other_native_dialog"), undefined);
+  assert.match(index.marks_explained.native_surfaces, /missing evidence \(not supplied: no attended capture of it in this walkthrough\)/);
+  assert.match(html, /not supplied: no attended capture of this surface in this walkthrough\. Instead: the scripted runner takes no capture of the window/);
+  // Only the attended part's own record is the scripted runner's statement: it presses no Print.
+  assert.match(entry("print_dialog").instead, /the scripted runner presses no Print/);
+});
+
+test("native surfaces: a capture declaring menu_bar at the walkthrough's revision supplies it and is named; the others stay missing", (t) => {
+  const { entry, html } = surfacesIndex(t, { sidecars: [{ surfaces: ["menu_bar"] }] });
+  const menuBar = entry("menu_bar");
+  assert.deepEqual([menuBar.evidence, menuBar.missing_evidence, menuBar.captured], ["supplied", false, true]);
+  assert.deepEqual(menuBar.captures.map((ref) => [ref.file, ref.step, ref.revision.commit, ref.build.app_sha256]), [["captures/01-capture.png", "step-1", "abc", "sha256:beef"]]);
+  assert.equal(entry("window").missing_evidence, true);
+  assert.match(html, /supplied by attended capture <a href="captures\/01-capture\.png">step-1<\/a> \(revision abc, app beef\)/);
+});
+
+test("native surfaces: a capture at another revision than the walkthrough's screens supplies nothing, and says why", (t) => {
+  const { entry, html } = surfacesIndex(t, { journeyRevision: "abc", captureRevision: "def", sidecars: [{ surfaces: ["menu_bar", "window"] }] });
+  for (const key of ["menu_bar", "window"]) {
+    assert.deepEqual([entry(key).evidence, entry(key).missing_evidence], ["missing", true], key);
+    assert.deepEqual(entry(key).not_supplying.map((ref) => [ref.file, ref.why]), [["captures/01-capture.png", "it is at revision def, not the walkthrough's abc"]], key);
+  }
+  assert.match(html, /Not counted: captures\/01-capture\.png \(it is at revision def, not the walkthrough's abc\)/);
+});
+
+test("native surfaces: a recorded attempt and what prevented it makes a surface unseen; nothing else does", (t) => {
+  const { entry, html } = surfacesIndex(t, {
+    sidecars: [{ prevented: { surface: "print_dialog", what: "Print opened the print view's window; this build shows no print dialog" } }, { picture: false, prevented: [{ surface: "other_native_dialog", what: "the alert closed before it could be captured" }] }],
+    launch: { prevented: [{ surface: "file_chooser", what: "the strict chooser ended the application before any panel (exit 86)" }] }
+  });
+  assert.deepEqual([entry("print_dialog").evidence, entry("print_dialog").unseen, entry("print_dialog").missing_evidence, entry("print_dialog").prevented_by], ["unseen", true, false, "Print opened the print view's window; this build shows no print dialog"]);
+  assert.equal(entry("print_dialog").attempts[0].file, "captures/01-capture.png");
+  assert.deepEqual([entry("file_chooser").evidence, entry("file_chooser").attempts[0].source], ["unseen", "the attended launch's record"]);
+  assert.deepEqual([entry("other_native_dialog").evidence, entry("other_native_dialog").attempts[0].file], ["unseen", "captures/02-capture.json"]);
+  assert.equal(entry("window").evidence, "missing");
+  assert.match(html, /unseen; an attempt was recorded and was prevented: the strict chooser ended the application/);
+  // At another revision an attempt does not count.
+  const elsewhere = surfacesIndex(t, { captureRevision: "def", sidecars: [{ prevented: { surface: "print_dialog", what: "x" } }] });
+  assert.deepEqual([elsewhere.entry("print_dialog").evidence, elsewhere.entry("print_dialog").not_supplying[0].kind], ["missing", "attempt"]);
+});
+
+test("native surfaces: an unknown surface name in a sidecar is listed as unexplained, not dropped; a malformed claim leaves the capture unexplained", (t) => {
+  const { entry, index, html, captures } = surfacesIndex(t, { sidecars: [{ surfaces: ["menu_bar", "dock"], prevented: { surface: "touch_bar", what: "none here" } }, { surfaces: "window" }, { prevented: { surface: "window" } }] });
+  assert.deepEqual(captures.screens.map((screen) => screen.capture), ["the actual window", "unexplained", "unexplained"]);
+  assert.match(captures.screens[1].unexplained, /surfaces is not a list/);
+  assert.match(captures.screens[2].unexplained, /prevented is not \{ surface, what \}/);
+  assert.equal(entry("menu_bar").evidence, "supplied");
+  assert.deepEqual(index.native_surfaces_unexplained, [{ name: "dock", file: "captures/01-capture.png", member: "surfaces" }, { name: "touch_bar", file: "captures/01-capture.png", member: "prevented", what: "none here" }]);
+  assert.match(html, /Unexplained surface names in sidecars: dock \(captures\/01-capture\.png, surfaces\); touch_bar/);
+  // An unexplained capture's claims count for nothing.
+  assert.equal(entry("window").evidence, "missing");
+});
+
+test("native surfaces: the 3D view keeps its own logic, and an attended capture can supply it too", (t) => {
+  const { entry } = surfacesIndex(t);
+  assert.equal(entry("view_3d").missing_evidence, true);
+  assert.match(entry("view_3d").prevented_by, /not given --show-window/);
+  const captured = surfacesIndex(t, { sidecars: [{ surfaces: ["view_3d"] }] });
+  assert.deepEqual([captured.entry("view_3d").evidence, captured.entry("view_3d").captures[0].file], ["supplied", "captures/01-capture.png"]);
+  assert.deepEqual(Object.keys(SURFACE_KEYS), ["window", "menu_bar", "file_chooser", "print_dialog", "view_3d", "other_native_dialog"]);
 });

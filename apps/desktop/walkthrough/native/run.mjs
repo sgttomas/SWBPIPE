@@ -37,7 +37,8 @@
 // After the launch has ended and been censused and its home removed, each snapshot is rendered in Playwright's
 // Chromium at the recorded window size (`render.mjs`) into the output folder, in the browser walkthrough's form
 // (numbered pictures, part files, INDEX.json, index.html). The pictures are redrawn, not captures of the window:
-// capturing the window from outside needs a permission this runner does not ask for.
+// this runner takes no capture of the window, pictures no menu bar and presses no Print (an attended capture can
+// supply those surfaces: compose-index.mjs nativeSurfacesOf).
 //
 // Confinement: as every native-smoke runner (`launch-env.mjs`, `judged-launch.mjs`, `marks-check.mjs`), with their
 // own functions: an environment built from nothing, HOME and CFFIXED_USER_HOME the throwaway home with TMPDIR inside
@@ -71,7 +72,7 @@ import { readReport } from "../../native-smoke/launch-outcome.mjs";
 import { ATTENDED_SURFACE, composeIndex } from "../compose-index.mjs";
 import { readScreenCounts, scrollLongestRegion } from "../screen-counts.mjs";
 import { takeSnapshot } from "./snapshot.mjs";
-import { readStepRecords, renderScreens, screensFromRecords, writePart } from "./render.mjs";
+import { SURFACE_KEYS, readStepRecords, renderScreens, screensFromRecords, writePart } from "./render.mjs";
 
 const here = path.dirname(fileURLToPath(import.meta.url));
 const walkthrough = path.resolve(here, "..");
@@ -466,7 +467,28 @@ export function attendedEnding({ outcome, finish = null, finalReport = null, sta
 const SIDECAR_LIMIT = 64 * 1024;
 const PNG_SIGNATURE = Buffer.from([0x89, 0x50, 0x4e, 0x47, 0x0d, 0x0a, 0x1a, 0x0a]);
 
-/** A sidecar's claims: { step, note, acted } or { why } when it is not one. */
+/**
+ * A sidecar's optional surface claims: `surfaces`, the native surfaces the picture shows, and `prevented`, one record
+ * or a list of { surface, what } for an attempt at a surface that something prevented. Each surface is a key of
+ * SURFACE_KEYS; an unknown one is kept apart as unexplained. { surfaces, surfaces_unexplained, prevented,
+ * prevented_unexplained } or { why } when a member is not of that form.
+ */
+export function surfaceClaims(value) {
+  const claims = { surfaces: [], surfaces_unexplained: [], prevented: [], prevented_unexplained: [] };
+  if (value.surfaces !== undefined) {
+    if (!Array.isArray(value.surfaces) || value.surfaces.length > 20 || !value.surfaces.every((item) => typeof item === "string" && item.length > 0 && item.length <= 80)) return { why: "its sidecar's surfaces is not a list of surface names" };
+    for (const item of value.surfaces) (Object.hasOwn(SURFACE_KEYS, item) ? claims.surfaces : claims.surfaces_unexplained).push(item);
+  }
+  if (value.prevented !== undefined) {
+    const records = Array.isArray(value.prevented) ? value.prevented : [value.prevented];
+    const valid = (record) => record && typeof record === "object" && !Array.isArray(record) && typeof record.surface === "string" && record.surface.length > 0 && record.surface.length <= 80 && typeof record.what === "string" && record.what.trim() !== "" && record.what.length <= 1000;
+    if (records.length === 0 || records.length > 20 || !records.every(valid)) return { why: "its sidecar's prevented is not { surface, what } or a list of them" };
+    for (const { surface, what } of records) (Object.hasOwn(SURFACE_KEYS, surface) ? claims.prevented : claims.prevented_unexplained).push({ surface, what: what.trim() });
+  }
+  return claims;
+}
+
+/** A sidecar's claims: { step, note, acted, ...surfaceClaims } or { why } when it is not one. */
 export function readSidecar(file) {
   let text;
   try {
@@ -483,7 +505,9 @@ export function readSidecar(file) {
   if (typeof value.step !== "string" || value.step.trim() === "" || value.step.length > 200) return { why: "its sidecar names no step (a string of 1 to 200 characters)" };
   if (typeof value.note !== "string" || value.note.length > 4000) return { why: "its sidecar has no note (a string of at most 4000 characters)" };
   if (!Array.isArray(value.acted) || value.acted.length > 200 || !value.acted.every((item) => typeof item === "string" && item.length <= 1000)) return { why: "its sidecar's acted is not a list of what was done (strings)" };
-  return { step: value.step.trim(), note: value.note, acted: value.acted, raw: value };
+  const claims = surfaceClaims(value);
+  if (claims.why) return claims;
+  return { step: value.step.trim(), note: value.note, acted: value.acted, ...claims, raw: value };
 }
 
 function pngFacts(file) {
@@ -527,7 +551,8 @@ export function readCaptures(folder, { number = ATTENDED.number, journey = ATTEN
       found.screens.push({ ...entry, step: `unexplained-${base}`.slice(0, 120), note: `${name}: unexplained, because ${why}`, capture: "unexplained", unexplained: why, picture: UNEXPLAINED_BASIS, ...(facts ? { png: facts } : {}) });
       continue;
     }
-    found.screens.push({ ...entry, step: sidecar.step, note: sidecar.note, acted: sidecar.acted, capture: "the actual window", driven_by: "an attendant, through the window", picture: CAPTURE_BASIS, png: facts });
+    const { surfaces, surfaces_unexplained, prevented, prevented_unexplained } = sidecar;
+    found.screens.push({ ...entry, step: sidecar.step, note: sidecar.note, acted: sidecar.acted, capture: "the actual window", driven_by: "an attendant, through the window", picture: CAPTURE_BASIS, png: facts, surfaces, surfaces_unexplained, prevented, prevented_unexplained });
   }
   for (const name of entries) {
     if (pictures.includes(name)) continue;
@@ -980,6 +1005,7 @@ async function main() {
         limit_minutes: limitMinutes, finish_file: finishFile, finish: watched.finish,
         status: outcome?.status ?? null, signal: outcome?.signal ?? null, timed_out: outcome?.timed_out ?? null,
         census: outcome?.census ?? null,
+        prevented: ending.by === "strict-chooser" ? [{ surface: "file_chooser", what: "the attendant opened a file chooser and the strict chooser ended the application before any panel (exit 86): this build shows no chooser without a queued answer" }] : [],
         judged: judged.map(({ name: checkName, ok, detail }) => ({ name: checkName, ok, detail: detail ?? null }))
       }
     });

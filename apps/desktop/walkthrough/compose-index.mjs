@@ -5,6 +5,7 @@
 // browser build, or the launched app redrawn by Chromium.
 import { readFileSync, readdirSync, writeFileSync } from "node:fs";
 import path from "node:path";
+import { ATTENDED_ONLY_SURFACES, NATIVE_SURFACES, NOT_SUPPLIED, SURFACE_KEYS } from "./native/render.mjs";
 
 // The surface of an attended launch's part (native/run.mjs --attended): its screens are captures of the actual window.
 export const ATTENDED_SURFACE = "launched app, its actual window driven by an attendant";
@@ -22,6 +23,92 @@ export function readParts(out) {
 // A part written before journeys stated their surface is a browser one.
 const surfaceOf = (journey) => journey.surface ?? "browser build";
 
+const SURFACE_ORDER = Object.keys(SURFACE_KEYS);
+const keyOf = (item) => item.key ?? SURFACE_ORDER.find((key) => SURFACE_KEYS[key] === item.surface) ?? null;
+const shortCommit = (commit) => (typeof commit === "string" ? commit.slice(0, 12) : "unrecorded");
+
+/**
+ * The index's native surfaces. Each launch's parts name the surfaces it met (render.mjs nativeSurfacesFor); where the
+ * launches differ, the first entry that leaves evidence missing is kept. Then the attended launches' parts in the same
+ * folder decide each surface of the fixed set (render.mjs SURFACE_KEYS):
+ * - supplied, when an attended capture of the actual window at the revision of the walkthrough's screens declares it
+ *   in its sidecar's `surfaces`; the entry lists those captures with their revision and build. A capture at another
+ *   revision, or a sidecar with no picture, supplies nothing and is listed in `not_supplying` with why;
+ * - otherwise unseen, when a capture's sidecar, a sidecar with no picture, or the attended launch's own record says
+ *   an attempt was made and what prevented it (`prevented`), at that revision; nothing else makes a surface unseen;
+ * - otherwise, for the window, the menu bar, the file chooser and the print dialog (and another native dialog once
+ *   anything names it), missing evidence: NOT_SUPPLIED, never a permission prompt. The 3D view keeps its own logic
+ *   (captured, or not and why, at each step under --show-window), and an attended capture can supply it too.
+ * The walkthrough's screens are the scripted native journeys' (or, with none, the attended launches'). A surface name
+ * a sidecar gives outside the set is listed in `unexplained`, not dropped. A browser-only index lists no surface.
+ */
+export function nativeSurfacesOf(journeys) {
+  const bySurface = new Map();
+  for (const item of journeys.flatMap((journey) => journey.native_surfaces ?? [])) {
+    const id = keyOf(item) ?? item.surface;
+    const held = bySurface.get(id);
+    if (!held || (item.missing_evidence && !held.missing_evidence)) bySurface.set(id, item);
+  }
+  const native = journeys.filter((journey) => surfaceOf(journey) !== "browser build");
+  if (native.length === 0) return { surfaces: [...bySurface.values()], unexplained: [] };
+  const attendedParts = native.filter(attendedJourney);
+  const scripted = native.filter((journey) => !attendedJourney(journey));
+  const commits = [...new Set((scripted.length > 0 ? scripted : attendedParts).map((journey) => journey.revision?.commit ?? null))];
+  const sameRevision = (revision) => commits.length === 1 && commits[0] !== null && revision?.commit === commits[0];
+  const whyNot = (revision) => (typeof revision?.commit !== "string" ? "its revision is not recorded"
+    : commits.length !== 1 ? `the walkthrough's screens are at ${commits.length} revisions`
+      : commits[0] === null ? "the walkthrough's screens record no revision"
+        : `it is at revision ${shortCommit(revision.commit)}, not the walkthrough's ${shortCommit(commits[0])}`);
+  const supplies = new Map();
+  const attempts = new Map();
+  const notSupplying = new Map();
+  const unexplained = [];
+  const add = (map, key, value) => map.set(key, [...(map.get(key) ?? []), value]);
+  for (const part of attendedParts) {
+    const at = { revision: part.revision ?? null, build: part.build ?? null };
+    const counted = sameRevision(at.revision);
+    const claim = (key, ref, map, kind) => (counted ? add(map, key, ref) : add(notSupplying, key, { ...ref, kind, why: whyNot(at.revision) }));
+    for (const screen of part.screens ?? []) {
+      if (screen.capture !== "the actual window") continue;
+      const ref = { file: screen.file, number: screen.number, step: screen.step, ...at };
+      for (const key of screen.surfaces ?? []) claim(key, ref, supplies, "capture");
+      for (const record of screen.prevented ?? []) claim(record.surface, { ...ref, what: record.what }, attempts, "attempt");
+      for (const name of screen.surfaces_unexplained ?? []) unexplained.push({ name, file: screen.file, member: "surfaces" });
+      for (const record of screen.prevented_unexplained ?? []) unexplained.push({ name: record.surface, file: screen.file, member: "prevented", what: record.what });
+    }
+    for (const record of part.captures?.records_without_picture ?? []) {
+      const ref = { file: record.file, step: record.step ?? null, ...at };
+      for (const key of record.surfaces ?? []) add(notSupplying, key, { ...ref, kind: "capture", why: "a sidecar with no picture shows nothing" });
+      for (const item of record.prevented ?? []) claim(item.surface, { ...ref, what: item.what }, attempts, "attempt");
+      for (const name of record.surfaces_unexplained ?? []) unexplained.push({ name, file: record.file, member: "surfaces" });
+      for (const item of record.prevented_unexplained ?? []) unexplained.push({ name: item.surface, file: record.file, member: "prevented", what: item.what });
+    }
+    for (const item of part.launch?.prevented ?? []) claim(item.surface, { source: "the attended launch's record", what: item.what, ...at }, attempts, "attempt");
+  }
+  const decide = (key, item) => {
+    const base = item ?? NATIVE_SURFACES.find((entry) => entry.key === key) ?? { surface: SURFACE_KEYS[key], captured: false, instead: "none: the scripted runner does not meet it" };
+    const extra = notSupplying.has(key) ? { not_supplying: notSupplying.get(key) } : {};
+    if (supplies.has(key)) return { ...base, key, captured: true, evidence: "supplied", missing_evidence: false, prevented_by: "nothing: an attended capture of the actual window shows it", captures: supplies.get(key), ...extra };
+    if (key === "view_3d" && base.evidence === "supplied") return { ...base, key, ...extra };
+    if (attempts.has(key)) return { ...base, key, captured: false, evidence: "unseen", unseen: true, missing_evidence: false, prevented_by: attempts.get(key).map((attempt) => attempt.what).join("; "), attempts: attempts.get(key), ...extra };
+    if (key === "view_3d") return { ...base, key, ...extra };
+    return { ...base, key, captured: false, evidence: "missing", missing_evidence: true, prevented_by: NOT_SUPPLIED, ...extra };
+  };
+  const decided = [];
+  const keys = new Set();
+  for (const item of bySurface.values()) {
+    const key = keyOf(item);
+    if (key) keys.add(key);
+    decided.push(key ? decide(key, item) : item);
+  }
+  for (const key of SURFACE_ORDER) {
+    if (keys.has(key)) continue;
+    if (ATTENDED_ONLY_SURFACES.includes(key) || supplies.has(key) || attempts.has(key) || notSupplying.has(key)) decided.push(decide(key, null));
+  }
+  const rank = (item) => { const at = SURFACE_ORDER.indexOf(item.key ?? ""); return at === -1 ? SURFACE_ORDER.length : at; };
+  return { surfaces: decided.map((item, index) => [item, index]).sort(([a, i], [b, j]) => rank(a) - rank(b) || i - j).map(([item]) => item), unexplained };
+}
+
 export function composeIndex(out, { size = null } = {}) {
   const journeys = readParts(out);
   const surfaces = [...new Set(journeys.map(surfaceOf))];
@@ -35,15 +122,8 @@ export function composeIndex(out, { size = null } = {}) {
     use_case: journey.use_case ?? journey.title,
     ...(screen.file && !screen.redrawn ? { redrawn: false } : {})
   })));
-  // The native surfaces not pictured, each named once with what prevents it: where the journeys' launches differ, the
-  // entry of the first launch that left its evidence missing, so a surface counts as supplied only when every launch
-  // supplied it.
-  const bySurface = new Map();
-  for (const item of journeys.flatMap((journey) => journey.native_surfaces ?? [])) {
-    const held = bySurface.get(item.surface);
-    if (!held || (item.missing_evidence && !held.missing_evidence)) bySurface.set(item.surface, item);
-  }
-  const nativeSurfaces = [...bySurface.values()];
+  // The native surfaces, each named once: supplied, unseen with what prevented it, or missing evidence (nativeSurfacesOf).
+  const { surfaces: nativeSurfaces, unexplained: unexplainedSurfaces } = nativeSurfacesOf(journeys);
   // Each launch's reading of the menu the app built (native/run.mjs nativeMenuRecord).
   const nativeMenus = journeys.filter((journey) => journey.native_menu).map((journey) => ({ ...journey.native_menu, build: journey.build ?? null }));
   const stops = screens.filter((screen) => screen.failed).map((screen) => ({ journey: screen.journey, step: screen.step, reason: screen.failed }));
@@ -54,12 +134,13 @@ export function composeIndex(out, { size = null } = {}) {
     marks_explained: {
       redrawn: "true where the picture is the application's document redrawn outside its window by Chromium, not a capture of the window",
       substitutions: "each substitution of the scripted-run build the step used: the file a chooser returns, a native menu command, the report print dialog",
-      native_surfaces: "each native surface not pictured, what prevents it (the permission prompt, or the substitution) and whether that leaves evidence missing",
+      native_surfaces: "each native surface of the launched app: supplied (the attended captures of the actual window that show it, with their revision and build), unseen (an attempt was recorded and what prevented it), or missing evidence (not supplied: no attended capture of it in this walkthrough); and what the scripted runner does instead",
       native_menus: "for each launch of the app, the menu it built, read from it once by the scripted-run build: each menu's items in order with label, command identifier, enabled and ticked state, and separators; names, order and state, not appearance or placement",
       window_shown: "on a native screen, whether the run brought the app's window to the front (--show-window) so its web view drew; page_visibility is what the page reported at that step",
       ...(journeys.some(attendedJourney) ? { capture: "on an attended launch's screen: \"the actual window\" where the picture is a capture of the launched app's actual window that the attendant put in captures/ with a sidecar saying what it shows, redrawn false and scripted false; \"unexplained\" where a picture has no such sidecar, and nothing is claimed for it" } : {})
     },
     native_surfaces: nativeSurfaces,
+    ...(unexplainedSurfaces.length > 0 ? { native_surfaces_unexplained: unexplainedSurfaces } : {}),
     native_menus: nativeMenus,
     counts_explained: {
       words_on_screen: "words a person can read without scrolling: in the window, not clipped, not covered",
@@ -111,6 +192,17 @@ function renderScreen(screen) {
   const unpictured = screen.picture_error ? `<p class="stop">No picture: the redraw failed (${escapeHtml(screen.picture_error)}).</p>` : "";
   const picture = screen.file ? `<a href="${escapeHtml(screen.file)}"><img loading="lazy" src="${escapeHtml(screen.file)}" alt="${escapeHtml(screen.note)}"></a>` : "";
   return `<li class="screen${screen.failed ? " stopped" : ""}" id="s${screen.number}"><h3>${screen.number} · ${escapeHtml(screen.step)}</h3><p>${escapeHtml(screen.note)}</p>${stop}${substituted}${picture}${basis}${unpictured}${counts}${controls}</li>`;
+}
+
+// One native surface: supplied (with the captures that show it), unseen (what prevented it), or missing evidence.
+function renderSurface(item) {
+  const revision = (ref) => `revision ${escapeHtml(shortCommit(ref.revision?.commit))}${ref.build?.app_sha256 ? `, app ${escapeHtml(String(ref.build.app_sha256).replace(/^sha256:/, "").slice(0, 12))}` : ""}`;
+  const elsewhere = item.not_supplying?.length ? ` Not counted: ${item.not_supplying.map((ref) => `${escapeHtml(ref.file ?? ref.source ?? "a record")} (${escapeHtml(ref.why)})`).join("; ")}.` : "";
+  if (item.evidence === "supplied" && item.captures?.length) {
+    return `<li><strong>${escapeHtml(item.surface)}</strong>: supplied by attended capture${item.captures.length === 1 ? "" : "s"} ${item.captures.map((ref) => `<a href="${escapeHtml(ref.file)}">${escapeHtml(ref.step ?? ref.file)}</a> (${revision(ref)})`).join(", ")}. Evidence supplied.${elsewhere}</li>`;
+  }
+  if (item.evidence === "unseen") return `<li><strong>${escapeHtml(item.surface)}</strong>: unseen; an attempt was recorded and was prevented: ${escapeHtml(item.prevented_by)}.${elsewhere}</li>`;
+  return `<li><strong>${escapeHtml(item.surface)}</strong>: ${escapeHtml(item.prevented_by)}. Instead: ${escapeHtml(item.instead)}.${item.missing_evidence ? ' <span class="stop">Missing evidence.</span>' : item.evidence === "supplied" ? " Evidence supplied." : ""}${elsewhere}</li>`;
 }
 
 // The menu the app built, for reading: one launch's, the others said to match it or listed apart.
@@ -172,7 +264,7 @@ th, td { border-bottom: 1px solid var(--line); padding: 3px 8px; text-align: lef
 <h1>SWBPIPE walkthrough</h1>
 <p class="lede">Screens of the application (${escapeHtml(index.surface)}${index.window ? `, at ${escapeHtml(index.window)}` : ""}), taken by driving its own controls. Each screen lists what a person has in front of them. A journey that stops shows where a person would be stuck.${index.journeys.some((journey) => journey.surface !== "browser build" && !attendedJourney(journey)) ? " Journeys of the launched app are not captures of its window: each picture is the launched app's document, recorded in its own web view, redrawn by Chromium, so fonts and form controls may differ in detail. Each journey states its surface." : ""}${index.journeys.some(attendedJourney) ? " An attended launch's pictures are captures of the actual window, taken by the attendant who drove it, not redrawn and not scripted; each is evidence only of what it shows." : ""}</p>
 <nav><ol>${index.journeys.map((journey) => `<li><a href="#j${journey.number}">${escapeHtml(journey.title)}</a>${journey.stopped_at ? ` <span class="stop">(stopped at “${escapeHtml(journey.stopped_at)}”)</span>` : ""}</li>`).join("")}</ol></nav>
-${index.native_surfaces.length ? `<h2>Native surfaces not pictured</h2><ul class="surfaces">${index.native_surfaces.map((item) => `<li><strong>${escapeHtml(item.surface)}</strong>: ${escapeHtml(item.prevented_by)}. Instead: ${escapeHtml(item.instead)}.${item.missing_evidence ? ' <span class="stop">Missing evidence.</span>' : item.evidence === "supplied" ? " Evidence supplied." : ""}</li>`).join("")}</ul>` : ""}
+${index.native_surfaces.length ? `<h2>Native surfaces not pictured, and those an attended capture supplies</h2><ul class="surfaces">${index.native_surfaces.map(renderSurface).join("")}</ul>${(index.native_surfaces_unexplained ?? []).length ? `<p class="stop">Unexplained surface names in sidecars: ${index.native_surfaces_unexplained.map((item) => `${escapeHtml(item.name)} (${escapeHtml(item.file)}, ${escapeHtml(item.member)})`).join("; ")}.</p>` : ""}` : ""}
 ${index.native_menus.length ? renderMenus(index.native_menus) : ""}
 <h2>Every screen, by the numbers</h2>
 <div class="table-wrap"><table><thead><tr><th>No.</th><th>Journey</th><th>Step</th><th>Marks</th><th class="n">Words on screen</th><th class="n">Words in page</th><th class="n">Buttons</th><th class="n">Inputs</th><th class="n">Scroll</th></tr></thead><tbody>${rows}</tbody></table></div>

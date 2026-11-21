@@ -66,11 +66,18 @@ shows, and how much of it), its `step` and its picture. Two marks, as DEL-07-06
 VER-007 asks: `redrawn` is true where the picture is the app's document
 redrawn outside its window, and `substitutions` lists each act of the
 scripted-run build the step used in place of a person's (the file a chooser
-returns, a native menu command, the report print dialog). The index's
-`native_surfaces` names each native surface not pictured, what prevents it (a
-permission prompt, or a substitution), and whether that leaves evidence
-missing; `index.html` lists them under "Native surfaces not pictured". For the
-launched app, `native_menus` holds the menu each launch built, read from it.
+returns, a native menu command, the report print dialog). For the launched
+app, the index's `native_surfaces` records each native surface: the window,
+the menu bar as drawn, the file chooser, the print dialog, the 3D view and any
+other native dialog. Each is supplied only by an attended capture of it in the
+same folder at the revision of the walkthrough's screens (the entry lists those
+captures with their revision and build); unseen only where an attempt was
+recorded with what prevented it; and otherwise missing evidence ("not supplied:
+no attended capture of this surface in this walkthrough"), never excused by a
+permission prompt. The 3D view keeps its own record of each step under
+`--show-window` as well. `index.html` lists them under "Native surfaces not
+pictured, and those an attended capture supplies". For the launched app,
+`native_menus` holds the menu each launch built, read from it.
 
 ## When a journey stops
 
@@ -123,8 +130,8 @@ by default, brings each launched window to the front for its run so that the
 The counts are the browser walkthrough's own (`screen-counts.mjs`, one source
 for both), computed in the launched app's web view.
 
-**How the pictures are made.** Capturing the window from outside needs a
-permission this command does not ask for, so at each step the driver records,
+**How the pictures are made.** The scripted runner takes no capture of the
+window, pictures no menu bar and presses no Print. At each step the driver records,
 in the real web view, the document as drawn: its markup, the page's stylesheets
 inlined as text, each field's value and each box's ticked or chosen state,
 open disclosures, dialogs and popovers, scroll positions, the window's inner
@@ -185,8 +192,10 @@ in `acted_on` every control it used and that it was shown and open at that
 moment. The browser journeys get the same from Playwright, whose clicks and
 fills wait for a visible control and fail on one that is not.
 
-**What it cannot show.** The native menu bar as drawn: its items are read
-from the app, not pictured. The 3D view without `--show-window`: the launched
+**What it cannot show.** The scripted journeys show none of the window as
+drawn, the menu bar as drawn, a file chooser or the print dialog; only an
+attended capture (below) supplies them, and without one the index records each
+as missing evidence. The menu bar's items are read from the app, not pictured. The 3D view without `--show-window`: the launched
 web view then reports its page as hidden (the window is not the one in front),
 so it gives no animation frame and the viewport, which pauses while its page is
 hidden, draws nothing to read. Each such step says so in its `snapshot_notes`,
@@ -246,12 +255,23 @@ was scripted after the start, whether the window was shown, when the launch
 started and ended and how, the menu the app built (read once, as every launch
 reads it), and the census. Then one screen for each picture the attendant put
 in `<out>/captures/`. A picture `name.png` with a sidecar `name.json` of the
-form `{ "step": "...", "note": "...", "acted": ["..."] }` is a screen marked as
+form `{ "step": "...", "note": "...", "acted": ["..."] }`, with two optional
+members, is a screen marked as
 a capture of the actual window (`capture: "the actual window"`, `redrawn:
 false`, `scripted: false`). A picture without a sidecar, with one of another
 form, or that is not a PNG is listed as unexplained, with the reason, and
 nothing is claimed for it. A sidecar with no picture, a link, a folder or any
-other file is listed, not followed. The runner neither takes nor alters a
+other file is listed, not followed. The optional members say what the picture
+shows of the native surfaces and what was tried: `"surfaces": [...]`, names
+from the set `window`, `menu_bar`, `file_chooser`, `print_dialog`, `view_3d`,
+`other_native_dialog`, which the index then counts as supplied by that capture
+when it is at the revision of the walkthrough's screens; and `"prevented":
+{ "surface": "...", "what": "..." }` (or a list of them), an attempt at a
+surface and what prevented it, which makes that surface unseen with that
+reason unless a capture supplies it. A sidecar with no picture may carry
+`prevented`, never a supplied surface. When the strict chooser ends the app,
+the launch's own record says so for `file_chooser`. A name outside the set is
+listed as unexplained in `native_surfaces_unexplained`. The runner neither takes nor alters a
 capture. A journey run into the same folder later keeps `captures/` as it is.
 
 **What the attendant may do, and may not.** The attendant may accept the
