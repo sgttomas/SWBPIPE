@@ -1021,21 +1021,39 @@ mod tests {
         }
     }
 
-    /// The after bound equals the before bound (16,384 characters) so an analysis
-    /// state is written whole; the argument byte limit is unchanged, so such an
-    /// operation travels alone in its proposal.
+    /// One figure is the argument byte limit and the schema's bound, in
+    /// characters, on a change's before and after and on a record read's record
+    /// text and before texts: an analysis state is one field, written whole,
+    /// and its removal names the stored state as its before. This holds the four
+    /// figures equal and each schema bound at the figure and one over; that a
+    /// stored state is in fact read back is the desktop session's to show.
     #[test]
-    fn after_bound_admits_a_whole_analysis_state_alone() {
+    fn the_text_bounds_of_a_change_and_of_a_record_read_equal_the_argument_bound() {
         let catalog = Catalog::load().unwrap();
-        let mut input = proposal();
-        input["operations"][0]["change"]["after"] = json!("é".repeat(16384));
-        assert!(catalog.validate_input(Tool::ProposeOperations, &input).is_ok());
-        input["operations"][0]["change"]["after"] = json!("é".repeat(16385));
-        assert!(catalog.validate_input(Tool::ProposeOperations, &input).is_err());
-        input["operations"][0]["change"]["before"] = json!("é".repeat(16385));
-        input["operations"][0]["change"]["after"] = json!("1");
-        assert!(catalog.validate_input(Tool::ProposeOperations, &input).is_err());
-        assert_eq!(catalog.limits().argument_bytes, 16384);
+        let bound = catalog.limits().argument_bytes;
+        assert_eq!(bound, 28672);
+        let source: Value = serde_json::from_str(SOURCE).unwrap();
+        for pointer in [
+            "/definitions/operationIntent/properties/change/properties/before/maxLength",
+            "/definitions/operationIntent/properties/change/properties/after/maxLength",
+            "/definitions/record/properties/recordText/maxLength",
+            "/definitions/record/properties/before/additionalProperties/maxLength",
+        ] {
+            assert_eq!(source.pointer(pointer).and_then(Value::as_u64), Some(bound), "{pointer}");
+        }
+        let (at, over) = ("é".repeat(bound as usize), "é".repeat(bound as usize + 1));
+        for key in ["before", "after"] {
+            let mut input = proposal();
+            input["operations"][0]["change"][key] = json!(at);
+            assert!(catalog.validate_input(Tool::ProposeOperations, &input).is_ok(), "{key}");
+            input["operations"][0]["change"][key] = json!(over);
+            assert!(catalog.validate_input(Tool::ProposeOperations, &input).is_err(), "{key}");
+        }
+        let read = |record_text: &str, state: &str| json!({"status":"ok", "basis":basis(), "message":"ok", "data":{"family":"load_cases",
+            "records":[{"id":"load:L1", "recordText":record_text, "before":{"analysis_state":state}}], "nextCursor":null}});
+        assert!(catalog.validate_output(Tool::ReadRecords, &read(&at, &at)).is_ok());
+        assert!(catalog.validate_output(Tool::ReadRecords, &read(&over, "{}")).is_err());
+        assert!(catalog.validate_output(Tool::ReadRecords, &read("{}", &over)).is_err());
     }
 
     #[test]

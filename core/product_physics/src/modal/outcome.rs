@@ -32,10 +32,18 @@
 //! is made.
 use super::context::BoundCase;
 use super::eigen::{
-    complete_reported_set, modal_basis, modal_extraction_bound, modal_sturm_count, normalize_modal_shape, solve_modal_pencil_within,
-    CompletedSet, FiniteCensus, SturmRecord,
+    complete_reported_set, modal_basis, modal_extraction_bound, modal_sturm_count, solve_modal_pencil_within, CompletedSet, FiniteCensus,
+    SturmRecord,
 };
-use super::resource::{modal_resource_preflight, ModalResourceBudget};
+use super::resource::{
+    modal_completed_set_computed, modal_completed_set_judge, modal_completed_set_sizes, modal_resource_preflight, ModalCompletedSetLimits,
+    ModalCompletedSetStorage, ModalResourceBudget, MODAL_SET_CLUSTERS, MODAL_SET_COMPUTED_BAND_FLAGS, MODAL_SET_COMPUTED_CLUSTER_ESTIMATES,
+    MODAL_SET_COMPUTED_EIGENVALUES, MODAL_SET_COMPUTED_ESTIMATES, MODAL_SET_COMPUTED_EVIDENCE, MODAL_SET_COMPUTED_FREQUENCIES,
+    MODAL_SET_COMPUTED_RESIDUALS, MODAL_SET_COMPUTED_VECTORS, MODAL_SET_LIFTED_SHAPES, MODAL_SET_MODES, MODAL_SET_NORMALIZED_MODES,
+    MODAL_SET_CLUSTER_ESTIMATES, MODAL_SET_CLUSTER_IDS, MODAL_SET_CUTOFF_DISCLOSURE, MODAL_SET_CUTOFF_DISCLOSURES, MODAL_SET_PUBLISHED_SHAPE,
+    MODAL_SET_PUBLISHED_VIEWS, MODAL_SET_SENSITIVE_MODE_REASONS, MODAL_SET_SENSITIVE_REASON, MODAL_SET_SENSITIVE_REASONS,
+};
+use open_pipe_stress_modal_eigen::modal_quantities::ShapeStorage;
 use open_pipe_stress_modal_eigen::dense::DenseAllotments;
 use super::integrity::{
     modal_orthogonality, modal_reformation_operands, modal_residual, reform_modal_pencil, ModalIntegrityParameters,
@@ -47,14 +55,14 @@ use super::state::{solve_modal_state_case, ModalStateCase};
 use super::stiffness::{form_modal_pencil, DenseGuardRecord};
 use super::weight_basis::{check_weight_basis, IdentityReport};
 use crate::{Diagnostic, PreviewSolverMode};
-use open_pipe_stress_modal_eigen::clusters::{cluster_ids, ExtractionBound, ReportedSet};
+use open_pipe_stress_modal_eigen::clusters::{cluster_ids_into, ExtractionBound, ReportedSet};
 use open_pipe_stress_modal_eigen::dense::ScreenedMode;
 use open_pipe_stress_modal_eigen::modal_quantities::{
-    cumulative_effective_mass_fractions, frequency_from_eigenvalue, lifted_normalization, normalize_mode_lifted, publish_lifted, BelowNormalRange,
-    ModalQuantityError, NormalizationCase,
+    cumulative_effective_mass_fractions_with, frequency_from_eigenvalue, lifted_normalization, normalize_mode_lifted_with, normalize_mode_with,
+    publish_lifted_with, BelowNormalRange, LiftedShape, ModalQuantityError, NormalizationCase, NormalizedMode,
 };
 use open_pipe_stress_modal_eigen::orthogonality::MOrthogonality;
-use open_pipe_stress_modal_eigen::reformation::{cluster_error_estimates, FormationDifference, ResidualEstimate};
+use open_pipe_stress_modal_eigen::reformation::{cluster_error_estimates_into, cluster_estimate_count, FormationDifference, ResidualEstimate};
 
 /// The solver mode of this entry, the modal dense path: its state solve runs
 /// and records it (Agent 0's D3); no sparse or other mode is substituted.
@@ -271,6 +279,25 @@ pub(crate) fn run_modal_dense_with_budget(
     params: &ModalIntegrityParameters,
     budget: Option<&ModalResourceBudget>,
 ) -> Result<ModalOutcome, Vec<Diagnostic>> {
+    run_modal_dense_within(req, params, budget, None)
+}
+
+/// [`run_modal_dense_with_budget`] with the caller's limits on the completed
+/// set's actual dimensions (`resource`, "The completed-set boundary"): a
+/// separate internal argument with no default, no selected value and no
+/// production caller, which admits nothing. With `None` it is
+/// `run_modal_dense_with_budget`: unlimited, with the boundary's storage
+/// still requested fallibly. A budget is judged by P0 first, unchanged.
+pub(crate) fn run_modal_dense_within(
+    req: &ModalPreviewRequest,
+    params: &ModalIntegrityParameters,
+    budget: Option<&ModalResourceBudget>,
+    limits: Option<&ModalCompletedSetLimits>,
+) -> Result<ModalOutcome, Vec<Diagnostic>> {
+    #[cfg(test)]
+    let seam_limits = super::resource::completed_set_seam::modal_completed_set_test_limits();
+    #[cfg(test)]
+    let limits = limits.or(seam_limits.as_ref());
     let refusals = params.modal_parameter_refusals();
     if !refusals.is_empty() {
         return Err(refusals);
@@ -288,38 +315,57 @@ pub(crate) fn run_modal_dense_with_budget(
     let pencil = form_modal_pencil(&prepared, &mass, restrained, params.sturm_max_candidates)?;
     let allotments = budget.map_or_else(DenseAllotments::default, ModalResourceBudget::modal_dense_allotments);
     let solution = solve_modal_pencil_within(&pencil, params, &allotments)?;
+    // The completed-set boundary, stage A: the actual computed count n_c
+    // against the caller's limit, before any row sized by it.
+    let total = solution.eigenvalues.len();
+    modal_completed_set_computed(total, limits)?;
+    let mut storage = ModalCompletedSetStorage::modal_completed_set_storage(limits, total);
     let census = FiniteCensus::of_solution(&solution);
-    let eigenvalues = solution.eigenvalues.clone();
-    let total = eigenvalues.len();
-    let ids = cluster_ids(&eigenvalues, params.cluster_tolerance)
+    let mut eigenvalues: Vec<f64> = storage.modal_completed_set_rows(total, MODAL_SET_COMPUTED_EIGENVALUES)?;
+    eigenvalues.extend_from_slice(&solution.eigenvalues);
+    let mut ids: Vec<usize> = storage.modal_completed_set_rows(total, MODAL_SET_CLUSTER_IDS)?;
+    ids.resize(total, 0);
+    cluster_ids_into(&eigenvalues, params.cluster_tolerance, &mut ids)
         .map_err(|error| vec![super::integrity::modal_range_refusal("clusters", format!("the computed eigenvalues cannot be clustered ({error})"), vec!["model".into()])])?;
-    let frequencies: Vec<f64> = eigenvalues.iter().map(|&l| frequency_from_eigenvalue(l).0).collect();
+    let mut frequencies: Vec<f64> = storage.modal_completed_set_rows(total, MODAL_SET_COMPUTED_FREQUENCIES)?;
+    frequencies.extend(eigenvalues.iter().map(|&l| frequency_from_eigenvalue(l).0));
     let bound = modal_extraction_bound(&prepared.inputs).expect("a prepared request names its bound");
     let completed = complete_reported_set(&frequencies, &ids, bound, &census)?;
     let reported_count = completed.set.count;
+    // Stage B: the actual completed count r (cluster extension included),
+    // r·n, r·g and the caller's r·ρ, checked, then judged against the
+    // caller's limits, before any storage sized by them.
+    let sizes = modal_completed_set_sizes(total, reported_count, pencil.mass.dimension(), pencil.global_dimension)?;
+    modal_completed_set_judge(&sizes, limits)?;
+    storage.modal_completed_set_measured(sizes);
 
     // Normalization and participation of the reported modes (§1.5).
     let positions: Vec<[f64; 3]> = prepared.built.nodes.iter().map(|n| n.coordinates).collect();
     let diagonal = bounding_box_diagonal(&positions);
     let basis = modal_basis(&pencil, diagonal, params)?;
-    let mut normalized = Vec::with_capacity(reported_count);
+    let mut normalized: Vec<NormalizedMode> = storage.modal_completed_set_rows(reported_count, MODAL_SET_NORMALIZED_MODES)?;
     // D-1 B1: with a basis, each mode's published shape and flags on the lifted vector.
-    let mut lifted_shapes = Vec::with_capacity(if pencil.skew.is_some() { reported_count } else { 0 });
+    let mut lifted_shapes: Vec<LiftedShape> =
+        storage.modal_completed_set_rows(if pencil.skew.is_some() { reported_count } else { 0 }, MODAL_SET_LIFTED_SHAPES)?;
     for mode in 0..reported_count {
         normalized.push(match &pencil.skew {
             // N2: `ModalBasis`'s FreeDof slots are physical DOFs only here; a reduced
-            // pencil (mixed coordinates) never reaches `normalize_modal_shape`.
-            None => normalize_modal_shape(&basis, mode, solution.vector(mode))?,
+            // pencil (mixed coordinates) never reaches the axis normalization.
+            None => normalize_mode_with(mode, solution.vector(mode), &basis, &mut storage)
+                .map_err(|error| storage.modal_completed_set_quantity(mode, error))?,
             // R-6/R-7 D-1 (C6): the case, τ_t and the pivot on the lifted φ = Q̃φ′.
             Some(skew) => {
                 let vector = solution.vector(mode);
-                let lifted = skew.lift(&pencil.free_dofs, vector).ok_or_else(|| {
-                    super::eigen::quantity_refusal(Some(mode), ModalQuantityError::InvalidParameter { name: "lifted shape" })
-                })?;
+                let lifted = skew
+                    .modal_lift_within(&pencil.free_dofs, vector, &mut storage)
+                    .map_err(|error| storage.modal_completed_set_refusal(error))?
+                    .ok_or_else(|| super::eigen::quantity_refusal(Some(mode), ModalQuantityError::InvalidParameter { name: "lifted shape" }))?;
                 let chosen = lifted_normalization(mode, &lifted, diagonal, params.no_translation_threshold)
                     .map_err(|error| super::eigen::quantity_refusal(Some(mode), error))?;
-                lifted_shapes.push(publish_lifted(mode, &lifted, &chosen).map_err(|error| super::eigen::quantity_refusal(Some(mode), error))?);
-                normalize_mode_lifted(mode, vector, &basis, chosen).map_err(|error| super::eigen::quantity_refusal(Some(mode), error))?
+                lifted_shapes.push(
+                    publish_lifted_with(mode, &lifted, &chosen, &mut storage).map_err(|error| storage.modal_completed_set_quantity(mode, error))?,
+                );
+                normalize_mode_lifted_with(mode, vector, &basis, chosen, &mut storage).map_err(|error| storage.modal_completed_set_quantity(mode, error))?
             }
         });
     }
@@ -335,17 +381,22 @@ pub(crate) fn run_modal_dense_with_budget(
         &pencil.stiffness_entries,
         &pencil.mass_entries,
     )?;
-    let vectors: Vec<&[f64]> =
-        (0..total).map(|i| if i < reported_count { normalized[i].shape.as_slice() } else { solution.vector(i) }).collect();
-    let mut residuals = Vec::with_capacity(total);
+    let mut vectors: Vec<&[f64]> = storage.modal_completed_set_rows(total, MODAL_SET_COMPUTED_VECTORS)?;
+    vectors.extend((0..total).map(|i| if i < reported_count { normalized[i].shape.as_slice() } else { solution.vector(i) }));
+    let mut residuals = storage.modal_completed_set_rows(total, MODAL_SET_COMPUTED_RESIDUALS)?;
     for (i, vector) in vectors.iter().enumerate() {
         residuals.push(modal_residual(&reformed, &formation, i, eigenvalues[i], vector).map_err(|d| vec![d])?);
     }
-    let estimates: Vec<f64> = residuals.iter().map(|r| r.error_estimate).collect();
-    let per_cluster = cluster_error_estimates(&estimates, &ids).map_err(|error| {
+    let mut estimates: Vec<f64> = storage.modal_completed_set_rows(total, MODAL_SET_COMPUTED_ESTIMATES)?;
+    estimates.extend(residuals.iter().map(|r: &ResidualEstimate| r.error_estimate));
+    let cluster_count = cluster_estimate_count(&ids);
+    let mut per_cluster: Vec<f64> = storage.modal_completed_set_rows(cluster_count, MODAL_SET_CLUSTER_ESTIMATES)?;
+    per_cluster.resize(cluster_count, 0.0);
+    cluster_error_estimates_into(&estimates, &ids, &mut per_cluster).map_err(|error| {
         vec![super::integrity::modal_range_refusal("cluster-estimates", format!("the cluster error estimates cannot be formed ({error:?})"), vec!["model".into()])]
     })?;
-    let mode_estimates: Vec<f64> = ids.iter().map(|&id| per_cluster[id]).collect();
+    let mut mode_estimates: Vec<f64> = storage.modal_completed_set_rows(ids.len(), MODAL_SET_COMPUTED_CLUSTER_ESTIMATES)?;
+    mode_estimates.extend(ids.iter().map(|&id| per_cluster[id]));
 
     // Check 4 at the final shift.
     let cutoff_eigenvalue = prepared.inputs.frequency_cutoff_hz.map(|f| {
@@ -355,58 +406,72 @@ pub(crate) fn run_modal_dense_with_budget(
     let sturm = modal_sturm_count(&pencil, &completed, &eigenvalues, &vectors, &mode_estimates, cutoff_eigenvalue, params)?;
 
     // Check 3 on the published shapes.
-    let published: Vec<&[f64]> = normalized.iter().map(|m| m.shape.as_slice()).collect();
+    let mut published: Vec<&[f64]> = storage.modal_completed_set_rows(reported_count, MODAL_SET_PUBLISHED_VIEWS)?;
+    published.extend(normalized.iter().map(|m| m.shape.as_slice()));
     let orthogonality = modal_orthogonality(&reformed, &published).map_err(|d| vec![d])?;
 
     // Standing and the published rows.
     let band: Vec<bool> = {
         let recovered: Vec<f64> = solution.screened.iter().filter(|s| s.retained).filter_map(|s| s.recovery.as_ref().map(|r| r.eigenvalue)).collect();
-        eigenvalues.iter().map(|l| recovered.iter().any(|r| r.to_bits() == l.to_bits())).collect()
+        let mut band = storage.modal_completed_set_rows(total, MODAL_SET_COMPUTED_BAND_FLAGS)?;
+        band.extend(eigenvalues.iter().map(|l| recovered.iter().any(|r| r.to_bits() == l.to_bits())));
+        band
     };
-    let computed: Vec<ComputedModeEvidence> = residuals
-        .iter()
-        .enumerate()
-        .map(|(i, residual)| ComputedModeEvidence {
-            index: i,
-            eigenvalue: eigenvalues[i],
-            cluster: ids[i],
-            reported: i < reported_count,
-            residual: *residual,
-            band_recovered: band[i],
-        })
-        .collect();
-    let cumulative = cumulative_effective_mass_fractions(&normalized);
-    let mut set_reasons = Vec::new();
-    let mut modes = Vec::with_capacity(reported_count);
+    let mut computed: Vec<ComputedModeEvidence> = storage.modal_completed_set_rows(residuals.len(), MODAL_SET_COMPUTED_EVIDENCE)?;
+    computed.extend(residuals.iter().enumerate().map(|(i, residual)| ComputedModeEvidence {
+        index: i,
+        eigenvalue: eigenvalues[i],
+        cluster: ids[i],
+        reported: i < reported_count,
+        residual: *residual,
+        band_recovered: band[i],
+    }));
+    let cumulative = cumulative_effective_mass_fractions_with(&normalized, &mut storage).map_err(|error| storage.modal_completed_set_refusal(error))?;
+    // The Sensitive reasons, counted by the same predicates before any is
+    // formed: one per reported mode over τ_r and one for an orthogonality
+    // breach, each string requested at its exact formatted length.
+    let sensitive_modes = residuals[..reported_count].iter().filter(|r| r.backward_error > params.residual_threshold).count();
+    let orthogonality_breach = orthogonality.max_ratio > params.orthogonality_threshold;
+    let mut set_reasons: Vec<String> = storage.modal_completed_set_rows(sensitive_modes + usize::from(orthogonality_breach), MODAL_SET_SENSITIVE_REASONS)?;
+    let mut modes = storage.modal_completed_set_rows(reported_count, MODAL_SET_MODES)?;
+    // Each reduced mode's lifted shape and flags are moved, not copied, into
+    // its published row (one per reported mode, in order).
+    let mut lifted_shapes = lifted_shapes.into_iter();
     for (i, mode) in normalized.into_iter().enumerate() {
         let (frequency, circular_frequency, period) = frequency_from_eigenvalue(eigenvalues[i]);
         let residual = residuals[i];
         let standing = if residual.backward_error > params.residual_threshold {
-            let reason = format!(
-                "mode {}: residual backward error η = {:e} exceeds τ_r = {:e}",
-                i + 1,
-                residual.backward_error,
-                params.residual_threshold
-            );
-            set_reasons.push(reason.clone());
-            ModalStanding::Sensitive(vec![reason])
+            let reason = storage.modal_completed_set_format(
+                MODAL_SET_SENSITIVE_REASON,
+                format_args!("mode {}: residual backward error η = {:e} exceeds τ_r = {:e}", i + 1, residual.backward_error, params.residual_threshold),
+            )?;
+            set_reasons.push(storage.modal_completed_set_copy_text(&reason, MODAL_SET_SENSITIVE_REASON)?);
+            let mut mode_reasons = storage.modal_completed_set_rows(1, MODAL_SET_SENSITIVE_MODE_REASONS)?;
+            mode_reasons.push(reason);
+            ModalStanding::Sensitive(mode_reasons)
         } else {
             ModalStanding::ChecksPassed
         };
-        let mut shape = vec![0.0; pencil.global_dimension];
-        for (free, &dof) in pencil.free_dofs.iter().enumerate() {
-            shape[dof] = mode.shape[free];
-        }
-        let mut below = mode.below_normal_range.clone();
-        below.shape = below.shape.iter().map(|&free| pencil.free_dofs[free]).collect();
+        let mut below = mode.below_normal_range;
         // R-6/R-7 D-1 (C6, B1): a reduced mode publishes fl(lifted/pivot) over the
         // global DOFs, flagged per global DOF; the reference entry is exactly 1. Its
         // generalized mass, participation and effective masses are the reduced-
         // coordinate quantities (M′, Q̃ᵀ(M r_k)), consistent with it to rounding.
-        if let Some(lifted) = lifted_shapes.get(i) {
-            shape = lifted.shape.clone();
-            below.shape = lifted.below_normal_range.clone();
-        }
+        let shape = if pencil.skew.is_some() {
+            let lifted = lifted_shapes.next().expect("a reduced pencil has one lifted shape per reported mode");
+            below.shape = lifted.below_normal_range;
+            lifted.shape
+        } else {
+            let mut shape = storage.modal_completed_set_rows(pencil.global_dimension, MODAL_SET_PUBLISHED_SHAPE)?;
+            shape.resize(pencil.global_dimension, 0.0);
+            for (free, &dof) in pencil.free_dofs.iter().enumerate() {
+                shape[dof] = mode.shape[free];
+            }
+            for free in below.shape.iter_mut() {
+                *free = pencil.free_dofs[*free];
+            }
+            shape
+        };
         modes.push(ModalMode {
             index: i + 1,
             cluster: ids[i],
@@ -430,25 +495,25 @@ pub(crate) fn run_modal_dense_with_budget(
             standing,
         });
     }
-    if orthogonality.max_ratio > params.orthogonality_threshold {
-        set_reasons.push(format!(
-            "M-orthogonality deviation {:e} of modes {:?} exceeds τ_o = {:e}",
-            orthogonality.max_ratio,
-            orthogonality.pair.map(|(a, b)| (a + 1, b + 1)),
-            params.orthogonality_threshold
-        ));
+    if orthogonality_breach {
+        set_reasons.push(storage.modal_completed_set_format(
+            MODAL_SET_SENSITIVE_REASON,
+            format_args!(
+                "M-orthogonality deviation {:e} of modes {:?} exceeds τ_o = {:e}",
+                orthogonality.max_ratio,
+                orthogonality.pair.map(|(a, b)| (a + 1, b + 1)),
+                params.orthogonality_threshold
+            ),
+        )?);
     }
     let standing = if set_reasons.is_empty() { ModalStanding::ChecksPassed } else { ModalStanding::Sensitive(set_reasons) };
 
-    let clusters: Vec<ModalCluster> = per_cluster
-        .iter()
-        .enumerate()
-        .map(|(id, &error_estimate)| {
-            let start = ids.iter().position(|&c| c == id).expect("every cluster id has a member");
-            let end = ids.iter().rposition(|&c| c == id).expect("every cluster id has a member") + 1;
-            ModalCluster { id, modes: start..end, error_estimate, reported: start < reported_count }
-        })
-        .collect();
+    let mut clusters: Vec<ModalCluster> = storage.modal_completed_set_rows(per_cluster.len(), MODAL_SET_CLUSTERS)?;
+    clusters.extend(per_cluster.iter().enumerate().map(|(id, &error_estimate)| {
+        let start = ids.iter().position(|&c| c == id).expect("every cluster id has a member");
+        let end = ids.iter().rposition(|&c| c == id).expect("every cluster id has a member") + 1;
+        ModalCluster { id, modes: start..end, error_estimate, reported: start < reported_count }
+    }));
 
     // §2.6: f_e per straight member, with no threshold decision (O-5).
     let highest = modes.last().map(|m| m.frequency);
@@ -478,14 +543,25 @@ pub(crate) fn run_modal_dense_with_budget(
         disclosures.extend(state.disclosures.iter().cloned());
     }
     if let Some(lambda_c) = cutoff_eigenvalue {
+        // The n_c-dependent disclosures: counted by the same predicate, their
+        // room requested, then each string at its exact formatted length.
+        let crosses = |i: usize, lambda: f64| {
+            let e = mode_estimates[i];
+            lambda * (1.0 - e) <= lambda_c && lambda_c <= lambda * (1.0 + e)
+        };
+        let crossing = eigenvalues.iter().enumerate().filter(|&(i, &lambda)| crosses(i, lambda)).count();
+        storage.modal_shape_reserve(&mut disclosures, crossing, MODAL_SET_CUTOFF_DISCLOSURES).map_err(|error| storage.modal_completed_set_refusal(error))?;
         for (i, &lambda) in eigenvalues.iter().enumerate() {
             let e = mode_estimates[i];
-            if lambda * (1.0 - e) <= lambda_c && lambda_c <= lambda * (1.0 + e) {
-                disclosures.push(format!(
-                    "computed mode {} ({}) has a first-order eigenvalue error estimate e_λ = {e:e} that reaches across the cut-off",
-                    i + 1,
-                    if i < reported_count { "reported" } else { "not reported" }
-                ));
+            if crosses(i, lambda) {
+                disclosures.push(storage.modal_completed_set_format(
+                    MODAL_SET_CUTOFF_DISCLOSURE,
+                    format_args!(
+                        "computed mode {} ({}) has a first-order eigenvalue error estimate e_λ = {e:e} that reaches across the cut-off",
+                        i + 1,
+                        if i < reported_count { "reported" } else { "not reported" }
+                    ),
+                )?);
             }
         }
     }

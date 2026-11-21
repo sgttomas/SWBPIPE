@@ -122,6 +122,10 @@ code_paths:
 # Frozen before the fixture solve that adopted RS-R1 and RS-CE1: EQ-1, EQ-2, EQ-5 and RS-CE1's support action
 # with both in the fixture, and the tranche-1 inputs from which the two earlier packages are reproduced.
 - validation/references/reference_system_r1_ce/**
+# Per-load and warning references for RS-WIN and the three static seismic cases.
+# `reference_system_pending_cases` remains the EQ-6 reference.
+- validation/references/reference_system_generated_loads/**
+- tests/test_reference_system_generated_loads_references.py
 # The maintained check over every package under validation/references/: checksum-list inventory and
 # verification under the table's recorded exceptions; accounted membership, with no-basis cases named and
 # counted; and the retained check commands. Output entries not regenerated, regeneration gaps and
@@ -131,6 +135,9 @@ code_paths:
 - tests/reference_packages.py
 - tests/test_reference_packages.py
 - tests/test_reference_packages_regeneration.py
+# The live checks of the packages that staged inputs from live repository files: each compares the staged
+# copies with the files they came from, which the table names.
+- tests/test_reference_packages_live.py
 # The fixture's generated-weight verdicts, fixed by its metre twin's.
 - core/product_physics/tests/reference_system_generated_weight_standing.rs
 # Not decided: which deliverable's criteria govern the required-output qualification gate below.
@@ -156,6 +163,7 @@ checks:
 - tests/test_reference_system_records.py
 - tests/test_reference_packages.py
 - tests/test_reference_packages_regeneration.py
+- tests/test_reference_packages_live.py
 - core/product_physics/tests/reference_system_generated_weight_standing.rs
 - tests/test_qualification_gate.py
 - tests/test_qualification_physics.py

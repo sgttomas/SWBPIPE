@@ -1,0 +1,35 @@
+{
+ "staged_from": "fixtures/product_preview/invented_preview_model.json",
+ "commit": "3c8fc26a6c188f1613714f56d9807dc32433c46d",
+ "what": "the mechanical leaves of the variable spring hanger record support:SH-140, copied from the fixture as committed at that commit; the derivation's hanger records are checked against these",
+ "record": {
+  "id": "support:SH-140",
+  "node": "node:N-140",
+  "family": "variable_spring_hanger",
+  "hanger": {
+   "stiffness": {
+    "dof": "UZ",
+    "value": {
+     "value": 42000,
+     "unit": "N/m"
+    }
+   },
+   "installed_load": {
+    "value": 460,
+    "unit": "N"
+   },
+   "cold_load": {
+    "value": 430,
+    "unit": "N"
+   },
+   "hot_load": {
+    "value": 390,
+    "unit": "N"
+   },
+   "travel_range": {
+    "value": 0.045,
+    "unit": "m"
+   }
+  }
+ }
+}

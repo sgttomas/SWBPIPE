@@ -1159,33 +1159,90 @@ mod tests {
             .is_err());
     }
 
-    /// The reference system's largest analysis state (RS-OPE, about 13 KB of
-    /// canonical JSON) is admitted as one operation under the moved after bound;
-    /// the argument byte limit, counted before the schema, refuses it alongside a
-    /// second one, and refuses any after that fills the bound with the envelope.
+    /// Every analysis state of the reference system is admitted as one operation,
+    /// the largest of them included. The argument byte limit, counted before the
+    /// schema, admits arguments of exactly the bound and refuses one byte more;
+    /// it refuses that largest state twice in one proposal, and any after that
+    /// fills the bound with the envelope.
     #[test]
     fn an_analysis_state_travels_alone_within_the_argument_bound() {
         const REFERENCE: &str = include_str!("../../../../../fixtures/reference_system/reference_system.json");
         let reference: Value = serde_json::from_str(REFERENCE).unwrap();
-        let state = reference["load_cases"].as_array().unwrap().iter()
-            .find(|case| case["id"] == "load:RS-OPE").unwrap()["analysis_state"].to_string();
-        assert!(state.chars().count() > 8192 && state.chars().count() <= 16384, "{}", state.len());
+        let bound = Catalog::load().unwrap().limits().argument_bytes as usize;
+        let states: Vec<String> = reference["load_cases"].as_array().unwrap().iter()
+            .map(|case| case["analysis_state"].to_string()).collect();
+        let state = states.iter().max_by_key(|state| state.len()).unwrap().clone();
+        assert!(states.len() >= 3 && state.len() > 8192 && state.chars().count() <= bound, "{}", state.len());
         let hash = json!({"algorithm":"sha256","canonicalization":"rfc8785_jcs","payload_scope":"model_payload","payload_ref":"model","value":"a".repeat(64),"hash_status":"computed_local_preview"});
         let op = |id: &str, after: &str| json!({"operation_id":id,"operation_kind":"modify","target":{"object_type":"Load","ref":"load:RS-OPE"},
             "change":{"change_id":id,"change_kind":"update_load","field_label":"analysis state","field_path":"analysis_state","before":"not_present","after":after,"unit":"none","dimension":"dimensionless","source_note":"the person's run sheet"},
             "rationale":"enter the operating case's state"});
         let args = |ops: Vec<Value>| json!({"workspaceHandle":"workspace-1","basis":basis(),"claimedModelHash":hash,"operations":ops,"assumptions":[]});
         let mut p = active();
-        let alone = p.handle_frame(call(json!(6), "alone", Tool::ProposeOperations.name(), args(vec![op("op1", &state)])), &basis()).unwrap();
-        assert!(matches!(alone.events.first(), Some(Event::ToolRequested { .. })), "{:?}", alone.outbound);
+        for (index, each) in states.iter().enumerate() {
+            let alone = p.handle_frame(call(json!(60 + index), &format!("alone-{index}"), Tool::ProposeOperations.name(), args(vec![op("op1", each)])), &basis()).unwrap();
+            assert!(matches!(alone.events.first(), Some(Event::ToolRequested { .. })), "{:?}", alone.outbound);
+        }
+        // The byte limit itself: the whole arguments, serialised, at the bound and one byte over.
+        let envelope = serde_json::to_vec(&args(vec![op("op1", "")])).unwrap().len();
+        let exact = p.handle_frame(call(json!(70), "exact", Tool::ProposeOperations.name(), args(vec![op("op1", &"x".repeat(bound - envelope))])), &basis()).unwrap();
+        assert!(matches!(exact.events.first(), Some(Event::ToolRequested { .. })), "{:?}", exact.outbound);
         for (id, ops) in [
+            ("over", vec![op("op1", &"x".repeat(bound - envelope + 1))]),
             ("two", vec![op("op1", &state), op("op2", &state)]),
-            ("full", vec![op("op1", &"x".repeat(16384))]),
+            ("full", vec![op("op1", &"x".repeat(bound))]),
         ] {
             let refused = p.handle_frame(call(json!(id), id, Tool::ProposeOperations.name(), args(ops)), &basis()).unwrap();
             assert!(refused.events.is_empty(), "{id}");
             assert_eq!(refused.outbound[0]["result"]["success"], false, "{id}");
         }
+    }
+
+    /// The sizes behind the catalog's replacement instruction, at the admission step.
+    /// What is observed, with the stored state taken from the reference fixture and the
+    /// new state synthetic: the replacement in one operation is over the bound, which is
+    /// the case in which the instruction has the agent leave the stored state in place
+    /// and tell the person; arguments carrying the stored state's removal are admitted,
+    /// on a separate protocol instance; and arguments carrying a new state one byte too
+    /// long are refused and raise no tool event. So a removal can fit where the entry
+    /// that would follow it does not, which is why the instruction has the agent say
+    /// whether the entry alone fits before the person asks for the removal. No model is
+    /// read or changed here and no agent is observed. The assertion on the instruction
+    /// holds the quoted words and nothing else of the description.
+    #[test]
+    fn an_entry_over_the_bound_is_refused_at_admission_where_its_removal_would_be_admitted() {
+        const REFERENCE: &str = include_str!("../../../../../fixtures/reference_system/reference_system.json");
+        const CATALOG: &str = include_str!("../../resources/agent-capability-catalog.json");
+        let catalog: Value = serde_json::from_str(CATALOG).unwrap();
+        let instruction = catalog["tools"].as_array().unwrap().iter()
+            .find(|tool| tool["name"] == Tool::ProposeOperations.name()).unwrap()["description"].as_str().unwrap();
+        assert!(instruction.contains("If that one operation alone exceeds argumentBytes, leave the stored state in place, propose nothing, and tell the person that you cannot carry this replacement through from one request: it takes a removal and then a new entry, each asked for separately, and once the removal is applied the case has no analysis state and a solve that needs it refuses the case (LOAD_STATE_ANALYSIS_STATE_REQUIRED) until a new state is entered. Say also whether the new state's entry alone would fit argumentBytes by your count on the current basis, counting its complete arguments with their assumptions: if it would not, or you cannot tell, say so; if it would, say that it is a count on the current basis and no promise for a later request. Remove a stored state only when the person asks for its removal (before is read_records before.analysis_state on the current basis, after not_present); say in its assumptions and to the person, before they apply it, that the case then has no analysis state and a solve that needs it refuses the case (LOAD_STATE_ANALYSIS_STATE_REQUIRED) until a new state is entered. Enter a state into a case already in the model only if read_records returns that case with before.analysis_state not_present and you have the new state the person intends: a case the read does not return is not shown to have no state (propose nothing and say what the read returned), and a case with a state takes no entry (say so)"));
+        let reference: Value = serde_json::from_str(REFERENCE).unwrap();
+        let bound = Catalog::load().unwrap().limits().argument_bytes as usize;
+        let stored = reference["load_cases"].as_array().unwrap().iter()
+            .find(|case| case["id"] == "load:RS-OPE").unwrap()["analysis_state"].to_string();
+        let hash = json!({"algorithm":"sha256","canonicalization":"rfc8785_jcs","payload_scope":"model_payload","payload_ref":"model","value":"a".repeat(64),"hash_status":"computed_local_preview"});
+        let op = |before: &str, after: &str| json!({"operation_id":"op1","operation_kind":"modify","target":{"object_type":"Load","ref":"load:RS-OPE"},
+            "change":{"change_id":"op1","change_kind":"update_load","field_label":"analysis state","field_path":"analysis_state","before":before,"after":after,"unit":"none","dimension":"dimensionless","source_note":"the person's stated source"},
+            "rationale":"replace the operating case's state"});
+        let args = |operation: Value| json!({"workspaceHandle":"workspace-1","basis":basis(),"claimedModelHash":hash,"operations":[operation],
+            "assumptions":[]});
+        // The new state: one byte more than an entry's arguments can carry.
+        let envelope = serde_json::to_vec(&args(op("not_present", ""))).unwrap().len();
+        let entry = args(op("not_present", &"x".repeat(bound - envelope + 1)));
+        let removal = args(op(&stored, "not_present"));
+        assert!(serde_json::to_vec(&entry).unwrap().len() > bound);
+        assert!(serde_json::to_vec(&removal).unwrap().len() <= bound);
+        // The replacement in one operation does not fit either: the case in which the agent leaves the stored state in place.
+        assert!(serde_json::to_vec(&args(op(&stored, &"x".repeat(bound - envelope + 1)))).unwrap().len() > bound);
+        let mut p = active();
+        let refused = p.handle_frame(call(json!(80), "entry", Tool::ProposeOperations.name(), entry), &basis()).unwrap();
+        assert!(refused.events.is_empty(), "the entry raises no tool event: {:?}", refused.events);
+        assert_eq!(refused.outbound[0]["result"]["success"], false);
+        // The removal by itself is admitted.
+        let mut q = active();
+        let admitted = q.handle_frame(call(json!(81), "removal", Tool::ProposeOperations.name(), removal), &basis()).unwrap();
+        assert!(matches!(admitted.events.first(), Some(Event::ToolRequested { .. })), "{:?}", admitted.outbound);
     }
 
     #[test]

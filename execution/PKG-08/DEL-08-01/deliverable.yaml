@@ -168,6 +168,7 @@ code_paths:
 - apps/desktop/src/features/report/pfTimoshenkoReport.ts
 - apps/desktop/src/features/report/reportPackageRequest.ts
 - apps/desktop/src/features/report/userReleasedReportPackageSave.ts
+- apps/desktop/src/features/report/controlledRouteEvidence.ts
 - apps/desktop/src/services/reportRenderService.ts
 - apps/desktop/src/services/reportPackageSaveService.ts
 - apps/desktop/src/services/renderedReportRoutes.ts
@@ -260,6 +261,7 @@ checks:
 - apps/desktop/src/features/report/ReportComposer.test.tsx
 - apps/desktop/src/features/report/exactReportLimitations.test.ts
 - apps/desktop/src/features/report/exactReportBelowGate.test.tsx
+- apps/desktop/src/features/report/reportRowBindingAdmission.test.tsx
 - apps/desktop/src/features/report/userReleaseDerivation.parity.test.ts
 - apps/desktop/src/features/report/userReleaseExact.parity.test.ts
 - apps/desktop/src/features/report/UserReleaseDialog.test.tsx
@@ -267,6 +269,7 @@ checks:
 - apps/desktop/src/features/report/userReleasedReportPackageSave.test.ts
 - apps/desktop/src/features/workspace/reportPackageSave.session.test.tsx
 - apps/desktop/src/features/workspace/userReleaseSave.session.test.tsx
+- apps/desktop/src/features/workspace/reportPackageRedactionRecords.session.test.tsx
 - apps/desktop/src/features/results/outputPolicy.test.ts
 - apps/desktop/src/features/results/loadReferenceOutputRefusal.test.tsx
 - apps/desktop/src/services/reportPackageSaveService.test.ts

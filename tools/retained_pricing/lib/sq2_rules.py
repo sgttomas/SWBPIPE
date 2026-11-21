@@ -27,7 +27,7 @@ for _f in ("EDGE_ZERO", "SITE_FROM", "SITE_ZERO", "ID_AUDIT", "ARGS_FIRST"):
 # cannot be carried stops the run, unless the decisions' KEYMAP_ALLOW lists it with the kind the map reports and a reason
 # (rule_ops.carry_decision_keys).
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
-from rule_ops import carry_decision_keys, remove_caller_zero_edges
+from rule_ops import carry_decision_keys, o10_check_rules, remove_caller_zero_edges
 if os.environ.get("SQ2_TARGET"):
     from linemap_lib import Mapper, load_resolutions, load_rows
     _H = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
@@ -151,12 +151,12 @@ for key, per, why in D.get("SITE_FROM_REBIND", []):
     e["why"] = f"SQ2 G5 rebind ({e['per']} -> {per}): {why}. Was: " + e["why"]; e["per"] = per
 for key, bytes_, why in D.get("O10_SITE_SIZE", []):
     TA["site_size"][key] = {"bytes": bytes_, "why": "O-10: " + why}; LOG["other"].append(["site_size", key, bytes_])
-    LOG.setdefault("o10_mult0_sites", []).append(key)
 # B7b-JR: sites whose own multiplicity (no size, zero or other rule) must stay 0; o10_check.py fails the run otherwise.
 for key, why in D.get("O10_MULT0_SITES", []):
-    if not key:
-        raise SystemExit(f"O10_MULT0_SITES: unresolved site ({why[:60]})")
-    LOG.setdefault("o10_mult0_sites", []).append(key); LOG["other"].append(["mult0_guard", key, why])
+    LOG["other"].append(["mult0_guard", key, why])
+# The O-10 check's inputs (rule_ops.o10_check_rules): the multiplicity-0 sites, MODAL-CS-M0's exact row counts and
+# MODAL-CS-UR's functions asserted unreached (§8.63).
+LOG.update(o10_check_rules(D))
 for key, why in D.get("SITE_ZERO", []):
     TA["site_zero"][key] = "SQ2 G5: " + why; LOG["other"].append(["site_zero", key])
 for key, value in D.get("ID_AUDIT", []):
