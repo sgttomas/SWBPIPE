@@ -6,6 +6,7 @@
 // admission) refuses by name, and the form shows its finding in place.
 import { parseNumber } from "../model-tree/runSheet/runSheetModel";
 import type { SupportDirection } from "../../types";
+import { DIRECTION_REMOVAL_REASON, engineHangerKind } from "../hanger-selection/hangerSelection";
 
 export const DIRECTION_AXES = ["x", "y", "z"] as const;
 export type DirectionAxis = (typeof DIRECTION_AXES)[number];
@@ -15,8 +16,9 @@ export type { SupportDirection };
 
 export const EMPTY_DIRECTION_TEXT: DirectionText = Object.freeze({ x: "", y: "", z: "" });
 
-/** The stored-direction label: S-K1 has no `update_support`/`set_field` path for it. */
-export const STORED_DIRECTION_NOTE = "edit/remove not supported yet (S-K1)";
+/** The stored-direction label: no edit path writes it; the one change that removes it is its explicit removal, queued
+ * when the support is given a hanger (a hanger takes no direction). */
+export const STORED_DIRECTION_NOTE = "not editable; removed only by giving the support a hanger";
 
 export const DIRECTION_REFUSAL = {
   partial: (missing: readonly DirectionAxis[]) =>
@@ -65,3 +67,31 @@ export function storedDirectionText(support: unknown): string | null {
   }
   return JSON.stringify(direction);
 }
+
+/** Whether a support value carries a hanger as the operation engine reads it: a `hanger` member at all (any value), or
+ * a family or hanger type the engine names as a hanger, or a member its decode refuses. A hanger takes no direction. */
+export function supportCarriesHanger(value: unknown): boolean {
+  if (!value || typeof value !== "object" || Array.isArray(value)) return false;
+  return "hanger" in value || engineHangerKind(value) !== null;
+}
+
+/** In place of the direction fields while a support being created carries a hanger. */
+export const HANGER_NO_DIRECTION_TEXT = "A hanger's load acts along the positive axis of its degree of freedom; no direction is entered.";
+/** Said once where the fields were, when the hanger cleared a direction the person had typed. */
+export const DIRECTION_CLEARED_TEXT = "The direction you entered was cleared.";
+
+/** What the person reads before a configuration that gives a directed support a hanger is queued. `stored` is the
+ * stored direction as the form prints it (`storedDirectionText`). */
+export function directionRemovalStatement(stored: string): string {
+  return `Adding the hanger removes this support's stored direction ${stored}. ${DIRECTION_REMOVAL_REASON}`;
+}
+
+/** The engine refused the hanger on a record that still holds the direction (SUPPORT_DIRECTION_RECORD_UNSUPPORTED). */
+export function directionRemovalRefusedText(stored: string): string {
+  return `${directionRemovalStatement(stored)} The operation engine refused the configuration while the direction is stored, so nothing was queued. ` +
+    "To add the hanger, reopen the support and queue its configuration again, which queues the removal first; to keep the direction, leave out the hanger data and choose a family that is not a hanger.";
+}
+
+/** The removal's before no longer matches the stored direction (OP-BEFORE-VALUE-MISMATCH). */
+export const STORED_DIRECTION_CHANGED_TEXT = "The stored direction of this support changed since the form opened, so nothing was queued. Reopen the support.";
+
