@@ -6,20 +6,20 @@
  * panel's button (the session's handler the button calls) and from the File menu. For a
  * pressure-free result that is not numerically eligible, an unsolved result and an unreadable
  * result, the session gives no package source (`renderableSolvedResult`, from which App enables
- * the package controls), and each command leaves its refusal, word for word, with no dialog and
- * no save. For an exact-route result whose frame statements the native host refuses, the
- * shareable command's dialog shows the refusal in place of the statement and saves nothing.
+ * the package controls), and each command, run alone in a fresh session, leaves its refusal,
+ * word for word, with no dialog and no save. For an exact-route result whose frame statements
+ * the native host refuses, the shareable command's dialog shows the refusal in place of the
+ * statement and saves nothing.
  *
  * Unit transport replay of committed producer bytes through mocked IPC (the native replies are
  * the recorded corpus's); NOT a native UI qualification witness. Every value is invented. */
 import { act, cleanup, render, renderHook, screen, waitFor } from "@testing-library/react";
 import { isDeepStrictEqual } from "node:util";
-import { readFileSync } from "node:fs";
-import { resolve } from "node:path";
 import { afterEach, describe, expect, it, vi } from "vitest";
 const invokeMock = vi.hoisted(() => vi.fn());
 vi.mock("@tauri-apps/api/core", async () => ({ invoke: (await import("../../test/nativeIngress")).ingressDecodingInvoke(invokeMock) }));
 import { createSolveJobTransport, nativeMechanicsReplayPair } from "../../test/nativeMechanicsReplay";
+import { REPORT_PACKAGE_DENIED_STATES } from "../../test/reportPackageDeniedStates";
 import { getLocalStorageCapability } from "../../services/projectService";
 import { loadDesignKnowledge, resetSessionResultCustodyForTests } from "../../services/previewService";
 import { REPORT_FRAME_STATEMENTS_UNAVAILABLE } from "../report/reportFrameStatements";
@@ -39,11 +39,6 @@ afterEach(() => {
   delete (window as Json).__TAURI_INTERNALS__;
 });
 
-const root = resolve(__dirname, "../../../../../");
-const text = (path: string) => readFileSync(resolve(root, path), "utf8");
-const WITNESS = "fixtures/results/invented/agent_solve_witness";
-const NOT_ELIGIBLE = "Not saved: report-package save needs the current, numerically eligible mechanics result.";
-const SOLVE_FIRST = "Not saved: report-package save needs the current mechanics result and analysis-run record. Solve first.";
 
 let sequence = 0;
 /** The session over the replayed solve of `model` returning `bytes`, solved in `mode`, until the
@@ -78,32 +73,20 @@ async function solved(model: PreviewModel, bytes: string, state: "completed" | "
 
 const saveCalls = () => invokeMock.mock.calls.filter(([command]) => command === "save_report_package");
 
-/** The three states, each from committed producer bytes. */
-const STATES: [string, () => { model: PreviewModel; bytes: string; state: "completed" | "failed" }, string][] = [
-  ["a pressure-free result that is not numerically eligible", () => {
-    // The pressure-free pair, its one case marked sensitive by the solver's own quality fields.
-    const { model, bytes } = nativeMechanicsReplayPair("sparse_interactive", { profile: "preview" });
-    const source = JSON.parse(bytes);
-    source.numerical_quality.status = "sensitive";
-    source.numerical_quality.cases[0].solve_quality = "sensitive";
-    return { model, bytes: JSON.stringify(source), state: "completed" };
-  }, NOT_ELIGIBLE],
-  ["an unsolved result", () => {
-    // The producer's blocked document (MODEL_INCOMPLETE), its exact bytes.
-    const request = JSON.parse(text(`${WITNESS}/blocked_retained_evaluation.request.json`));
-    return { model: request.model as PreviewModel, bytes: text(`${WITNESS}/blocked_retained_evaluation-sparse_interactive.raw.json`), state: "completed" };
-  }, NOT_ELIGIBLE],
-  ["an unreadable result", () => {
-    // The exact pair with forged numerical evidence: the reader refuses it, and the session holds no result.
-    const { model, bytes } = nativeMechanicsReplayPair("sparse_interactive", { profile: "pressure" });
-    const source = JSON.parse(bytes);
-    source.contract_evidence.exact_cases[0].pipe_sections[0].nominal_section.As_m2 *= 1.01;
-    return { model, bytes: JSON.stringify(source), state: "failed" };
-  }, SOLVE_FIRST]
+const STATES = REPORT_PACKAGE_DENIED_STATES;
+
+/** The four commands, each run alone in a fresh session over the state: a command that
+ * dispatches nothing leaves the fresh session's empty status, and fails. */
+type Session = { current: ReturnType<typeof useWorkspaceSession> };
+const COMMANDS: [string, (hook: Session) => Promise<void> | void][] = [
+  ["Save Report Package… (button)", (hook) => hook.current.results.handleSaveReportPackage()],
+  ["Save Report Package… (File menu)", (hook) => hook.current.chrome.runMenuCommand("file.save-report-package")],
+  ["Save Shareable Report Package… (button)", (hook) => hook.current.results.requestSaveShareableReportPackage()],
+  ["Save Shareable Report Package… (File menu)", (hook) => hook.current.chrome.runMenuCommand("file.save-shareable-report-package")]
 ];
 
-describe("the report package's four commands for a result the rendered report does not take (DEL-08-01 REQ-024)", () => {
-  it.each(STATES)("%s: no package source, and each command refuses word for word, with no dialog and no save", async (_name, make, message) => {
+describe.each(STATES)("the report package's four commands for %s, which the rendered report does not take (DEL-08-01 REQ-024)", (_name, make, message) => {
+  it.each(COMMANDS)("%s, alone in a fresh session: no package source, and it refuses word for word, with no dialog and no save", async (command, run) => {
     const { model, bytes, state } = make();
     const { result: hook } = await solved(model, bytes, state);
     const results = () => hook.current.results;
@@ -115,18 +98,12 @@ describe("the report package's four commands for a result the rendered report do
     }
     // App enables the panel's package buttons and the menu's package items from this source only.
     expect(results().renderableSolvedResult).toBeNull();
-    const commands: [string, () => Promise<void> | void][] = [
-      ["Save Report Package… (button)", () => results().handleSaveReportPackage()],
-      ["Save Report Package… (File menu)", () => hook.current.chrome.runMenuCommand("file.save-report-package")],
-      ["Save Shareable Report Package… (button)", () => results().requestSaveShareableReportPackage()],
-      ["Save Shareable Report Package… (File menu)", () => hook.current.chrome.runMenuCommand("file.save-shareable-report-package")]
-    ];
-    for (const [command, run] of commands) {
-      await act(async () => { await run(); });
-      await waitFor(() => expect(results().reportPackageRoute, command).toEqual({ route: "not_requested", diagnostic: message }));
-      expect(results().userReleaseRequest, command).toBeNull();
-      expect(results().reportPackageBusy, command).toBe(false);
-    }
+    // The fresh session's status is empty before the command, so its refusal is this command's.
+    expect(results().reportPackageRoute, command).toBeNull();
+    await act(async () => { await run(hook); });
+    await waitFor(() => expect(results().reportPackageRoute, command).toEqual({ route: "not_requested", diagnostic: message }));
+    expect(results().userReleaseRequest, command).toBeNull();
+    expect(results().reportPackageBusy, command).toBe(false);
     expect(saveCalls()).toHaveLength(0);
   }, 60000);
 });

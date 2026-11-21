@@ -36,6 +36,7 @@ import { App } from "../../App";
 import { createSolveJobTransport, REPLAY_COMMANDS } from "../../test/nativeMechanicsReplay";
 import { useModelledVisibility } from "../../test-support/modelledVisibility";
 import { REPORT_SOURCE_COMMANDS, reportSourceRegistration } from "../../test/reportSourceRegistration";
+import { REPORT_PACKAGE_DENIED_STATES } from "../../test/reportPackageDeniedStates";
 import { getLocalStorageCapability } from "../../services/projectService";
 import { loadWasmEngine } from "../../services/wasmEngine/loadWasmEngine";
 import { outcomeFromWasmEngineJson } from "../../services/operationService";
@@ -108,11 +109,12 @@ async function openReportStage() {
 /** Each mount's job ids are its own (the native host's are unique in a session). */
 let mountSequence = 0;
 /** The App over the replay transport. `hold`, when given, keeps the job's start pending until it
- * settles, so that a test can act while the run is going. */
-async function mountApp(hold?: Promise<void>, onSave?: (args: Json) => unknown) {
-  const model = witnessModel();
+ * settles, so that a test can act while the run is going. `source`, when given, is the model and
+ * producer bytes solved in place of the witness's. */
+async function mountApp(hold?: Promise<void>, onSave?: (args: Json) => unknown, source?: { model: PreviewModel; raw: string }) {
+  const model = source?.model ?? witnessModel();
   const [storage, knowledge] = [await getLocalStorageCapability(), await loadDesignKnowledge()];
-  const raw = readFileSync(resolve(root, RAW), "utf8");
+  const raw = source?.raw ?? readFileSync(resolve(root, RAW), "utf8");
   const transport = createSolveJobTransport(async () => { if (hold) await hold; return raw; }, { jobIdPrefix: `invented-rendered-report-gate-job:${++mountSequence}` });
   const renders: Json[] = [];
   const prints: Json[] = [];
@@ -441,4 +443,30 @@ describe("the rendered report of a solved exact-route result that is not numeric
     }
     expect(saves).toHaveLength(4);
   }, 240_000);
+});
+
+/** DEL-08-01 REQ-024, "Package and user release": for each state the session test
+ * (`reportPackageAdmission.session.test.tsx`) observes the four package commands refusing, App
+ * offers no package once the solve has ended. The panel's two save buttons are disabled. The File
+ * menu is the native one in the desktop runtime, and the state the web view gives it
+ * (`NativeShellState`) carries no package items, so its two package commands stay selectable:
+ * each, when sent, leaves its refusal word for word in the panel, with no dialog and no save. */
+describe.each(REPORT_PACKAGE_DENIED_STATES)("the report package's controls for %s, through App", (_name, make, message) => {
+  it.each(["file.save-report-package", "file.save-shareable-report-package"])("the panel's two save buttons are disabled, and the native menu's %s, alone in a fresh App, refuses", async (command) => {
+    const { model, bytes, state } = make();
+    const { why } = await mountApp(undefined, () => { throw new Error("INVENTED-SAVE-NOT-EXPECTED"); }, { model, raw: bytes });
+    act(() => nativeMenuCommand("analyze.run"));
+    await waitFor(() => expect(screen.getByTestId("solve-progress-panel"), why()).toHaveAttribute("data-state", state), { timeout: 60_000 });
+    const panel = await openReportStage();
+    await waitFor(() => expect(within(panel).getByTestId("rendered-report-precondition"), why()).toBeInTheDocument(), { timeout: 60_000 });
+    for (const id of ["report-package-save", "report-package-user-release"]) {
+      expect(within(panel).getByTestId(id), `${id}; ${why()}`).toBeDisabled();
+    }
+    // No status before the command, so the refusal is this command's.
+    expect(within(panel).queryByTestId("report-package-save-status")).toBeNull();
+    act(() => nativeMenuCommand(command));
+    await waitFor(() => expect(within(screen.getByTestId("rendered-report-panel")).getByTestId("report-package-save-status"), why()).toHaveTextContent(message));
+    expect(screen.queryByTestId("user-release-dialog")).toBeNull();
+    expect(invokeMock.mock.calls.filter(([name]) => name === "save_report_package")).toHaveLength(0);
+  }, 120_000);
 });
