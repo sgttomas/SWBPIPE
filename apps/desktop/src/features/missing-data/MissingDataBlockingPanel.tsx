@@ -34,9 +34,9 @@ type MissingDataWarning = {
 
 export function MissingDataBlockingPanel({ model, result }: { model: PreviewModel; result: SessionResult | null }) {
   const packet = buildMissingDataBlockingPacket({ model, result });
-  // The heading sentence over the list while a listed warning is one of the result's own diagnostics.
-  const resultWarningIds = new Set((result?.diagnostics ?? []).map((item) => `nonlinear:${item.id ?? item.code}`));
-  const listsSolverMessage = packet.warnings.some((warning) => resultWarningIds.has(warning.warning_id));
+  // The heading sentence over the list while it lists one of the result's own diagnostics: every
+  // nonlinear diagnostic of the result is listed (`buildWarnings`), whatever a model warning's id.
+  const listsSolverMessage = (result?.diagnostics ?? []).some((item) => item.code.startsWith("NONLINEAR_"));
 
   return (
     <section

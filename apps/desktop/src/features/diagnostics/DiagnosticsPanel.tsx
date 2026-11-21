@@ -72,7 +72,10 @@ export function DiagnosticsPanel({
   // sentence where they show any.
   const solverMessages = useMemo(() => new Set<Diagnostic>(resultDiagnostics), [resultDiagnostics]);
   const listsSolverMessage = filteredDiagnostics.some((item) => solverMessages.has(item));
-  const selectedIsSolverMessage = selectedDiagnosticId !== null && resultDiagnostics.some((item) => (item.id ?? item.code) === selectedDiagnosticId);
+  // The detail shows the first diagnostic with the selected id, the model's and the knowledge's before
+  // the result's (`buildDiagnosticInterpretation`): it is the solver's only where that entry is the result's.
+  const selects = (item: Diagnostic) => (item.id ?? item.code) === selectedDiagnosticId;
+  const selectedIsSolverMessage = selectedDiagnosticId !== null && !model.diagnostics.some(selects) && !(knowledge?.diagnostics ?? []).some(selects) && resultDiagnostics.some(selects);
   const nativeLinked = useNativeLinkedResults(model, knowledge, result, selectedDiagnosticId);
   const axial = useKnowledgeAxialRow(result);
   const interpretation = buildDiagnosticInterpretation({ model, knowledge, result, diagnosticId: selectedDiagnosticId, nativeLinkedResults: nativeLinked.rows, knowledgeAxialRow: axial.row });

@@ -22,6 +22,11 @@ import {
 } from "./runComparisonCsv";
 import { heldStatusQuotedNotice, suppliedDiagnosticMessage } from "../results/suppliedDiagnostics";
 import { SOLVER_MESSAGES_HEADING, standingStatusText } from "../results/integrityStatus";
+import { RULE_PACK_REF_CHECKSUM_MISMATCH, RULE_PACK_REF_UNRESOLVED } from "../../services/rulePackRefDiagnostics";
+
+/** The warnings the desktop itself adds to a run's record (its rule-pack resolution); every other
+ * listed diagnostic is the solver's. */
+const DESKTOP_OWN_CODES: ReadonlySet<string> = new Set([RULE_PACK_REF_UNRESOLVED, RULE_PACK_REF_CHECKSUM_MISMATCH]);
 
 /** RT-A5: a held-status notice (`HELD_STATUS_QUOTED_CODES`) is quoted whole as supplied text here too (`suppliedDiagnosticMessage`). */
 const NO_COMBINATIONS: ReadonlySet<string> = new Set();
@@ -160,7 +165,7 @@ export function RunComparisonView({ result, onClose }: { result: RunComparisonRe
       </div>
       <div data-testid="run-comparison-diagnostics">
         <strong>Solve diagnostics</strong>
-        {comparison.diagnostics.length ? <p className="muted" data-testid="run-comparison-solver-messages-heading">{SOLVER_MESSAGES_HEADING}</p> : null}
+        {comparison.diagnostics.some((diagnostic) => !DESKTOP_OWN_CODES.has(diagnostic.code)) ? <p className="muted" data-testid="run-comparison-solver-messages-heading">{SOLVER_MESSAGES_HEADING}</p> : null}
         {comparison.diagnostics.length ? (
           <ul className="state-comparison-fields">
             {comparison.diagnostics.map((diagnostic, index) => (
