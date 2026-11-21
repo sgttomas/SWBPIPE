@@ -545,8 +545,8 @@ fn recorded_dispatch_of(found: &HistoricalFindings, result: &Value) -> Option<Va
 /// against the installed binding of the result's identity): the current binding and a registry
 /// variant are read and restored as before; any other binding is refused by its code, in a
 /// sentence that quotes the result's installed identity and nothing from the record. So is a
-/// record whose binding is read while one of its result references names other rules or another
-/// revision. A result
+/// record whose binding is read while its result references do not bind every published row to
+/// the same rules at the same revision. A result
 /// that does not render, an identity this version installs no table for (a retired one, refused
 /// by name in the findings), a record with no binding and a record of another version are left
 /// to the findings, as before.
@@ -565,14 +565,37 @@ fn unread_table_binding(result: &Value, record: &Value) -> Option<String> {
         }
         Err(code) => (format!("its record does not bind the stored result's rules `{id}` at a revision this version reads"), code),
         Ok(()) => {
-            // The run's binding is read. Every result reference must bind the same rules at the
-            // same revision: a reference that names another is the same unestablished meaning,
-            // for its row (the record validator's `ANALYSIS_ROW_SOURCE_BINDING_MISMATCH`).
-            let agree = |reference: &Value| ["id", "sha256"].iter().all(|key| reference["semantic_contract"][*key] == binding[*key]);
-            if record.pointer("/analysis_run/result_refs").and_then(Value::as_array).map_or(true, |references| references.iter().all(agree)) {
-                return None;
-            }
-            (format!("a result reference of its record does not bind the rules `{id}` at the revision the record binds"), "ANALYSIS_ROW_SOURCE_BINDING_MISMATCH".to_string())
+            // The run's binding is read. The record must also bind every published row: one
+            // result reference for each row, in the rows' order, naming that row by its position
+            // and identifier and binding the same rules at the same revision. A row with no
+            // reference of its own (references missing, not a list, fewer or more than the rows,
+            // or one row's reference repeated for another), or a reference that names another
+            // binding, is the same unestablished meaning for that row (the record validator's
+            // row findings). A result that publishes no row needs no reference.
+            let binds = |(index, (row, reference)): (usize, (&Value, &Value))| {
+                reference["source_row_index"].as_f64() == Some(index as f64)
+                    && reference["result_ref"]["ref"] == row["id"]
+                    && ["id", "sha256"].iter().all(|key| reference["semantic_contract"][*key] == binding[*key])
+            };
+            let rows = crate::analysis_run_v03_build::rows_of(result).ok().map_or(0, <[Value]>::len);
+            let references = record.pointer("/analysis_run/result_refs");
+            // The code is the record validator's for the same condition: a count that is not the
+            // rows' (as it counts: a list's entries, a string's UTF-16 units), or a reference
+            // that is not its row's.
+            let counted = match references {
+                Some(Value::Array(references)) => Some(references.len()),
+                Some(Value::String(text)) => Some(text.encode_utf16().count()),
+                _ => None,
+            };
+            let code = if counted != Some(rows) {
+                "ANALYSIS_ROW_ACCOUNTING_MISMATCH"
+            } else {
+                match (crate::analysis_run_v03_build::rows_of(result), references) {
+                    (Ok(rows), Some(Value::Array(references))) if rows.iter().zip(references).enumerate().all(binds) => return None,
+                    _ => "ANALYSIS_ROW_SOURCE_BINDING_MISMATCH",
+                }
+            };
+            (format!("its record does not bind every result row to the rules `{id}` at the revision the record binds"), code.to_string())
         }
     };
     Some(format!("{why} ({code}), so its rows are not shown; solve the model again."))

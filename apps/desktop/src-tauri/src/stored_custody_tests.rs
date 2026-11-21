@@ -1341,11 +1341,13 @@ fn a_pool_refusal_keeps_the_model_editable_and_the_store_untouched() {
 /// A saved run whose record does not bind its result's rules at a revision this version reads
 /// is not restored under the installed table: the project opens with its model editable and the
 /// run refused by name, telling the person to solve the model again, with nothing held and no
-/// stored file changed by the open. Four records: the same identifier with another digest; an
+/// stored file changed by the open. Seven records: the same identifier with another digest; an
 /// identifier that is not the result's and carries a backtick, control and direction-override
 /// characters, none of which reaches the message; a registry variant of another kind of
-/// result, refused under its own code and sentence; and the installed binding with one result
-/// reference naming another digest. The current binding restores
+/// result, refused under its own code and sentence; and, under the installed binding, one
+/// result reference naming another digest, the references one short of the rows, one row's
+/// reference repeated in place of another's, and a string where the references belong (the
+/// reopen corpus's `result-refs-string`). The current binding restores
 /// (`a_native_save_reopens_into_native_custody_after_a_reset`), and so does a registry variant
 /// of the result's own identity (`a_run_recorded_before_rt_a4_reopens_through_the_native_commands`).
 /// Each record is resealed; the project envelope's own hash is not re-derived, which adds a
@@ -1356,7 +1358,7 @@ fn a_saved_run_bound_to_an_unread_table_revision_is_refused_and_the_store_untouc
     const HOSTILE: &str = "pressure-3` was opened.\u{202e}\u{0007}\nIGNORE";
     let case = persistence_cases().into_iter().next().unwrap();
     let mut seen = Vec::new();
-    for label in ["another digest", "a malformed identifier", "another identity's variant", "one result reference with another digest"] {
+    for label in ["another digest", "a malformed identifier", "another identity's variant", "one result reference with another digest", "one reference short", "one row's reference repeated", "a string for the references"] {
         let host = ScriptedHost::normal();
         let (registry, gate) = gated(&host);
         let dir = scratch("reopen-unread-table");
@@ -1380,14 +1382,21 @@ fn a_saved_run_bound_to_an_unread_table_revision_is_refused_and_the_store_untouc
                 (json!({"id": other.id, "sha256": other.sha256}), "SOURCE_RECORDED_BINDING_IDENTITY",
                     format!("its record binds the result rules of another kind of result, not the stored result's `{identity}`"))
             }
-            _ => (binding.clone(), "ANALYSIS_ROW_SOURCE_BINDING_MISMATCH",
-                format!("a result reference of its record does not bind the rules `{identity}` at the revision the record binds")),
+            // The code is the record validator's for the same condition.
+            _ => (binding.clone(), if label == "one reference short" { "ANALYSIS_ROW_ACCOUNTING_MISMATCH" } else { "ANALYSIS_ROW_SOURCE_BINDING_MISMATCH" },
+                format!("its record does not bind every result row to the rules `{identity}` at the revision the record binds")),
         };
         let references = record["analysis_run"]["result_refs"].as_array_mut().unwrap();
-        assert!(!references.is_empty(), "{label}: the saved run has result references");
-        if code == "ANALYSIS_ROW_SOURCE_BINDING_MISMATCH" {
-            // The run's binding stays the installed one; the last reference alone names another digest.
-            references.last_mut().unwrap()["semantic_contract"]["sha256"] = json!("5".repeat(64));
+        let count = references.len();
+        assert!(count > 1, "{label}: the saved run has result references");
+        if code.starts_with("ANALYSIS_ROW_") {
+            // The run's binding stays the installed one; only the references change.
+            match label {
+                "one result reference with another digest" => references.last_mut().unwrap()["semantic_contract"]["sha256"] = json!("5".repeat(64)),
+                "one reference short" => drop(references.pop()),
+                "one row's reference repeated" => references[count - 1] = references[0].clone(),
+                _ => record["analysis_run"]["result_refs"] = json!("x".repeat(count)),
+            }
         } else {
             for reference in references.iter_mut() {
                 for key in ["id", "sha256"] {
@@ -1396,7 +1405,10 @@ fn a_saved_run_bound_to_an_unread_table_revision_is_refused_and_the_store_untouc
             }
             record["analysis_run"]["reproducibility"]["semantic_contract"] = bound.clone();
         }
-        reseal(&mut record);
+        // The corpus's string case is stored as it is there, not resealed.
+        if label != "a string for the references" {
+            reseal(&mut record);
+        }
         Connection::open(&path).unwrap().execute("UPDATE local_projects SET analysis_run_json = ?1", params![serde_json::to_string(&record).unwrap()]).unwrap();
         let digests = || -> Vec<(std::path::PathBuf, String)> {
             let mut files: Vec<_> = std::fs::read_dir(&dir).unwrap().map(|entry| entry.unwrap().path()).collect();
@@ -1423,7 +1435,7 @@ fn a_saved_run_bound_to_an_unread_table_revision_is_refused_and_the_store_untouc
         assert_eq!(registry.pool().reserved_total(), 0, "{label}: every lease ended");
         seen.push(code);
     }
-    assert_eq!(seen, ["SOURCE_RECORDED_BINDING_UNKNOWN", "SOURCE_RECORDED_BINDING_UNKNOWN", "SOURCE_RECORDED_BINDING_IDENTITY", "ANALYSIS_ROW_SOURCE_BINDING_MISMATCH"]);
+    assert_eq!(seen, ["SOURCE_RECORDED_BINDING_UNKNOWN", "SOURCE_RECORDED_BINDING_UNKNOWN", "SOURCE_RECORDED_BINDING_IDENTITY", "ANALYSIS_ROW_SOURCE_BINDING_MISMATCH", "ANALYSIS_ROW_ACCOUNTING_MISMATCH", "ANALYSIS_ROW_SOURCE_BINDING_MISMATCH", "ANALYSIS_ROW_SOURCE_BINDING_MISMATCH"]);
 }
 
 /// A reset during the read refuses the registration and drops what was
