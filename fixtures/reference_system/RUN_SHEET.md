@@ -575,7 +575,8 @@ or toggle; a unit is an entry where the person sets it. A **press** is one press
 or tab the steps name other than queue, validate and apply, and each key the steps name for
 a purpose other than committing an entry: Add …, Fill …, Replace …, Mark …, Generate …, Enter
 in a Support cell to add a row, F2 to open a grid cell's editor, Start task, Cancel, the inspector's Task and Properties tabs, Blank
-load/reference model, Create and Run mechanics preview. A **cycle** is one Apply or one Apply
+load/reference model, Create, New combination, the openers Analysis settings, Pressure, Reference state and More, and Run
+mechanics preview. A **cycle** is one Apply or one Apply
 entire batch. Moving between stages and pages is not counted.
 
 The estimate rates every grid cell at about 4.9 s (8 minutes per 98 cells) and every form
@@ -590,7 +591,7 @@ solve waiting time separately; their sum is compared with the threshold.
 | Step | Entries | Presses | Cycles | Arithmetic | Estimate (min) |
 |---|---|---|---|---|---|
 | units | 0 | 2 | 0 | 2 × 5.5 s = 11 s | 0.25 |
-| profile | 2 | 0 | 1 | 2 × 5.5 s = 11 s | 0.25 |
+| profile | 2 | 1 | 1 | 3 × 5.5 s = 16.5 s | 0.25 |
 | material | 59 | 5 | 3 | 64 × 5.5 s = 352 s | 5.75 |
 | sections | 19 | 0 | 3 | 19 × 5.5 s = 104.5 s | 1.75 |
 | rows | 224 | 40 | 1 | 224 × 8/98 min = 18.29 min; 40 × 5.5 s = 220 s | 22 |
@@ -600,22 +601,22 @@ solve waiting time separately; their sum is compared with the threshold.
 | reducer | 27 | 4 | 2 | 31 × 5.5 s = 170.5 s | 2.75 |
 | spring | 20 | 1 | 1 | 21 × 5.5 s = 115.5 s | 2 |
 | ce | 13 | 0 | 1 | 13 × 5.5 s = 71.5 s | 1.25 |
-| reference | 12 | 3 | 1 | 15 × 5.5 s = 82.5 s | 1.5 |
+| reference | 12 | 4 | 1 | 16 × 5.5 s = 88 s | 1.5 |
 | weight | 40 | 4 | 4 | 44 × 5.5 s = 242 s | 4 |
-| regions | 88 | 8 | 4 | 96 × 5.5 s = 528 s | 8.75 |
+| regions | 88 | 12 | 4 | 100 × 5.5 s = 550 s | 9.25 |
 | elongation | 6 | 0 | 1 | 6 × 5.5 s = 33 s | 0.5 |
-| states | 117 | 19 | 4 | 136 × 5.5 s = 748 s | 12.5 |
-| combinations | 9 | 0 | 2 | 9 × 5.5 s = 49.5 s | 0.75 |
+| states | 117 | 23 | 4 | 140 × 5.5 s = 770 s | 12.75 |
+| combinations | 9 | 3 | 2 | 12 × 5.5 s = 66 s | 1 |
 | solve | 0 | 1 | 0 | 1 × 5.5 s = 5.5 s entry; 2 min solve waiting | 0 entry + 2 waiting |
-| **Total** | **715** | **105** | **34** | | **about 73 entry + 2 waiting = about 75** |
+| **Total** | **715** | **118** | **34** | | **about 74 entry + 2 waiting = about 76** |
 
-Two subtotals, both estimates: **entry** about 73 minutes (the grid cells, form entries and
+Two subtotals, both estimates: **entry** about 74 minutes (the grid cells, form entries and
 presses, each step rounded), and **solve waiting** 2 minutes (an allowance, not entry). Their
-sum is about 75 minutes.
+sum is about 76 minutes.
 
-Unrounded, by direct arithmetic, the entry is 224 × 8/98 min + (491 form entries + 105
-presses) × 5.5/60 min = 18.286 + 54.633 = 72.92 minutes, and with the 2 minutes of solve
-waiting the sum is 74.92 minutes.
+Unrounded, by direct arithmetic, the entry is 224 × 8/98 min + (491 form entries + 118
+presses) × 5.5/60 min = 18.286 + 55.825 = 74.11 minutes, and with the 2 minutes of solve
+waiting the sum is 76.11 minutes.
 
 How the larger counts arise:
 
@@ -655,9 +656,9 @@ How the larger counts arise:
 - **regions, 88 entries and 8 presses.** RS-SUS's selection; 11 per region (ID, basis,
   pressure value and unit, six terminal fields, provenance) for five regions; 26 picker
   choices (25 member pipes and the connector); two entries for each of three copies. The
-  presses are Add pressure region five times and Replace once per copy.
+  presses are Pressure once per case, Add pressure region five times and Replace once per copy.
 - **elongation, 6 entries.** The project's selection, the switch and the four case boxes.
-- **states, 117 entries and 19 presses.** RS-SUS 19: its selection, a typed element row of 6
+- **states, 117 entries and 23 presses.** RS-SUS 19: its selection, a typed element row of 6
   fields, the element fill's two choices, one RS-P180 edit and 9 shared entries (contract,
   reference, the typed support state's two fields, the support fill's two choices, factor,
   history, provenance). RS-OPE 20: its selection, the copy's source, 11 element fields, two
@@ -668,10 +669,11 @@ How the larger counts arise:
   element states, Add support state, Fill support states and Add every primitive; for RS-OPE
   and for RS-OPE-REF, Replace, Mark element_states absent, Add element state, Fill element
   states and Add every primitive; for RS-SAM, Replace, Add every primitive and Add boundary
-  motion twice.
-- **combinations, 9.** The first: ID, label, basis, minuend, subtrahend, provenance; the
-  second: ID, label, minuend.
+  motion twice; and Reference state once per case.
+- **combinations, 9 entries and 3 presses.** The first: ID, label, basis, minuend, subtrahend,
+  provenance; the second: ID, label, minuend. The presses are New combination twice and More
+  once.
 
-The estimate of about 75 minutes (73 entry and 2 solve waiting) is about 2.5 times the
-provisional 30. The four largest steps are rows (22), states (12.5), regions (8.75) and
+The estimate of about 76 minutes (74 entry and 2 solve waiting) is about 2.5 times the
+provisional 30. The four largest steps are rows (22), states (12.75), regions (9.25) and
 material (5.75).
