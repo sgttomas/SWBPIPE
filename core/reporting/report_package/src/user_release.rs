@@ -81,8 +81,9 @@ pub const USER_RELEASED_CONTEXT: &str = "user_released_report";
 pub const USER_RELEASED_PACKAGE_PREFIX: &str = "desktop-user-released-report-";
 /// A request member is not its derivation (§2.5 step 9).
 pub const CONTENT_NOT_DERIVED: &str = "REPORT-USER-RELEASE-CONTENT-NOT-DERIVED";
-/// The source is an exact-route (`pressure-2`, `pressure-source-1`) result
-/// (§0): a shareable package carries pressure-free results only.
+/// The source is an exact-route result and the user-release record is not of
+/// the exact record version 1.2.0 (§0, DEL-08-01 REQ-024): an exact-route
+/// result is shared only under that version.
 pub const EXACT_ROUTE_NOT_ADMITTED: &str = "REPORT-USER-RELEASE-EXACT-ROUTE-NOT-ADMITTED";
 /// The basis cannot be derived from (a member the derivation reads is absent
 /// or not of the builders' form).
@@ -936,11 +937,13 @@ fn derived_composition(composition: &Value) -> Result<Value, String> {
 /// The source's identity must be pressure-free (§0, §2.1). Its exact-route
 /// refusal is reached only for an exact-route source whose record is not of
 /// version 1.2.0 ([`derive_in`]): a 1.0.0 record covers a pressure-free result.
+/// It runs before custody is checked and before the run record is read, so
+/// its message states the version rule only.
 fn check_pressure_free(source: &Value) -> Result<(), String> {
     match source.pointer("/producer/semantic_contract_id").and_then(Value::as_str) {
         Some(PREVIEW_PHYSICS_ID) => Ok(()),
         Some(id @ (PRESSURE_ID | PRESSURE_SOURCE_ID)) => Err(format!(
-            "{EXACT_ROUTE_NOT_ADMITTED}: a user-release record of version 1.0.0 covers a pressure-free (preview-physics-2) result only; this exact-route result ({id}) is shared with a record of version 1.2.0, or can be saved in a local private package."
+            "{EXACT_ROUTE_NOT_ADMITTED}: a shareable report package of an exact-route result ({id}) requires a user-release record of version 1.2.0."
         )),
         other => Err(invalid(format_args!("the source's identity {} is not preview-physics-2", other.unwrap_or("(none)")))),
     }
@@ -1275,8 +1278,9 @@ fn check_derived(basis: &UserReleaseBasis<'_>, input_manifest: &Value, request: 
 /// refusal 3). Its preflight runs first on each result document, reading no
 /// member of the report: item 0 (the public
 /// `document_form::check_route_admitted`), then
-/// `exact_sections::check_user_released_profile` with the profile constant,
-/// so an exact document is refused with
+/// `exact_sections::check_user_released_profile` with the profile constant
+/// where the record is not of the exact version 1.2.0, so an exact document
+/// under such a record is refused with
 /// `REPORT-USER-RELEASE-EXACT-ROUTE-NOT-ADMITTED` whatever the request
 /// carries. Only then does it derive the request from `basis` and require the
 /// input manifest `input_manifest` and the whole `request` to equal the

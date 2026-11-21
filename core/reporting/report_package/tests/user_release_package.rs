@@ -786,6 +786,7 @@ fn the_reader_refuses_a_retired_1_1_0_exact_package_for_its_version() {
     // The pressure-free record version on an exact-route result keeps its refusal.
     let legacy = unbound(&repacked(&outcome, record_edit(|record| record["record_version"] = json!(USER_RELEASE_RECORD_VERSION))), "record 1.0.0");
     assert!(legacy.contains(EXACT_ROUTE_NOT_ADMITTED), "{legacy}");
+    assert!(legacy.contains("requires a user-release record of version 1.2.0") && !legacy.contains("local private"), "{legacy}");
 }
 
 /// The record version follows the result's route at read-back: the exact
@@ -817,9 +818,12 @@ fn the_derivation_and_the_producer_refuse_a_record_version_by_name() {
     let id = x.v["source"]["producer"]["semantic_contract_id"].as_str().unwrap();
     assert_eq!(
         error,
-        format!("{EXACT_ROUTE_NOT_ADMITTED}: a user-release record of version 1.0.0 covers a pressure-free (preview-physics-2) result only; this exact-route result ({id}) is shared with a record of version 1.2.0, or can be saved in a local private package."),
+        format!("{EXACT_ROUTE_NOT_ADMITTED}: a shareable report package of an exact-route result ({id}) requires a user-release record of version 1.2.0."),
     );
-    refused_with(x.assemble(request, &legacy), EXACT_ROUTE_NOT_ADMITTED);
+    // The producer states the same rule and promises no other save: it has not
+    // established that the result could be saved at all.
+    let producer = refused_with(x.assemble(request, &legacy), EXACT_ROUTE_NOT_ADMITTED);
+    assert!(producer.contains("requires a user-release record of version 1.2.0") && !producer.contains("local private"), "{producer}");
 
     let case = case();
     let mut crossed = case.record.clone();
