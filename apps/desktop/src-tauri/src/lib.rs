@@ -5540,6 +5540,10 @@ fn build_app_menu<R: tauri::Runtime>(
     let app_menu = SubmenuBuilder::new(handle, "SWBPIPE")
         .about_with_text("About SWBPIPE", Some(about))
         .separator()
+        .hide_with_text("Hide SWBPIPE")
+        .hide_others()
+        .show_all()
+        .separator()
         .item(&quit)
         .build()?;
 
