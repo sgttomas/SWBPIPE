@@ -379,16 +379,52 @@ test("09 support direction and a hanger: no entry path stores a direction on a h
     await expect(form.getByTestId("support-direction-removal")).toBeVisible();
     await form.getByTestId("support-direction-stored").scrollIntoViewIfNeeded();
   });
-  await journey.step("review-removal-then-configuration", "Queued: Review changes holding the removal and the configuration", async () => {
-    await form.getByRole("button", { name: "Queue support configuration" }).click();
+  const batchReview = page.locator("#batch-review");
+  const openSupport = async () => {
+    await closeWorkspacePanels(page);
+    await showModelTree(page);
+    await selectTreeEntity(page, "support", supportId);
+    await ensureInspectorExpanded(page);
+    await page.getByTestId("property-inspector").getByRole("tab", { name: "Properties", exact: true }).click();
+    await expect(form).toBeVisible();
+  };
+  await journey.step("review-batch", "Queued as one batch of two changes: Batch review, its submitted changes opened to the removal's rationale", async () => {
+    await form.getByRole("button", { name: "Queue the removal and the configuration as one batch" }).click();
     await expect(form.getByTestId("support-direction-removal-engine-notice")).toBeVisible();
     await openWorkspaceSection(page, "operations");
-    await expect(page.getByTestId("operation-apply-panel").locator('[data-testid^="apply-intent-"]')).toHaveCount(2);
+    const batch = batchReview.locator('article[data-testid^="batch-"]').first();
+    await expect(batch).toBeVisible();
+    const submitted = batch.locator("details", { hasText: "Submitted changes and source metadata" });
+    await submitted.locator("summary").click();
+    await expect(submitted).toHaveAttribute("open", "");
+    await submitted.getByText("Adding the hanger removes this support", { exact: false }).first().scrollIntoViewIfNeeded();
   });
-  await journey.step("review-removal-listed", "Review changes scrolled to the second queued change: the list shows the newest first, so the removal queued first is below the configuration", async () => {
-    const applies = page.getByTestId("operation-apply-panel").locator('[data-testid^="apply-intent-"]');
-    await expect(applies).toHaveCount(2);
-    await applies.nth(1).scrollIntoViewIfNeeded();
+  await journey.step("review-batch-validated", "The batch validated: its two temporary steps, the removal first", async () => {
+    const batch = batchReview.locator('article[data-testid^="batch-"]').first();
+    await batch.locator("details summary").click();
+    await batch.locator('[data-testid^="validate-batch-"]').click();
+    await expect(batch.getByText("Temporary step 2", { exact: false })).toBeVisible();
+    await batch.getByText("Temporary step 1", { exact: false }).scrollIntoViewIfNeeded();
+  });
+  await journey.step("batch-applied", "Apply entire batch, then the support opened: its hanger included and no stored direction", async () => {
+    const apply = batchReview.locator('[data-testid^="apply-batch-"]').first();
+    await expect(apply).toBeEnabled();
+    await apply.click();
+    await expect(page.getByTestId("batch-receipt").first()).toBeAttached();
+    await openSupport();
+    await expect(form.getByTestId("support-direction-stored")).toHaveCount(0);
+    await expect(form.getByLabel("Include hanger data")).toBeChecked();
+    await form.getByLabel("Include hanger data").scrollIntoViewIfNeeded();
+  });
+  await journey.step("batch-undone", "One Undo, then the support opened: the stored direction is back and no hanger", async () => {
+    await openWorkspaceSection(page, "operations");
+    const undo = page.getByTestId("undo-session-model-edit");
+    await expect(undo).toBeEnabled();
+    await undo.click();
+    await openSupport();
+    await expect(form.getByTestId("support-direction-stored")).toBeVisible();
+    await expect(form.getByLabel("Include hanger data")).not.toBeChecked();
+    await form.getByTestId("support-direction-stored").scrollIntoViewIfNeeded();
   });
   journey.finish();
 });

@@ -9,12 +9,22 @@ import { act, cleanup, fireEvent, render, screen, waitFor, within } from "@testi
 import { afterEach, describe, expect, it, vi } from "vitest";
 import { SupportConfigurationForm } from "./SupportConfigurationForm";
 import { makeRichIntent } from "../rich-authoring/formSupport";
-import { buildDirectionRemovalChange, DIRECTION_REMOVAL_FIELD_LABEL, DIRECTION_REMOVAL_REASON, SUPPORT_DIRECTION_FIELD_PATH } from "../hanger-selection/hangerSelection";
+import {
+  buildDirectionRemovalChange,
+  buildHangerSelectionBatch,
+  DIRECTION_REMOVAL_FIELD_LABEL,
+  DIRECTION_REMOVAL_REASON,
+  SUPPORT_DIRECTION_FIELD_PATH,
+  type HangerDocument
+} from "../hanger-selection/hangerSelection";
+import fixture from "../../../../../fixtures/hanger/invented_hanger_library_valid.json";
+import { DIRECTION_REMOVAL_BUTTON_TEXT, DIRECTION_REMOVAL_NO_BATCH_TEXT, DIRECTION_REMOVAL_QUEUED_TEXT } from "./directionRemovalQueue";
 import { useWorkspaceSession } from "../workspace/workspaceSession";
 import { canonicalJsonString, computeModelHash } from "../../services/hashService";
 import { applyModelOperation } from "../../services/operationService";
 import * as operationBatchService from "../../services/operationBatchService";
 import * as previewService from "../../services/previewService";
+import type { OperationBatch } from "../../services/operationBatchService";
 import type { EditorOperationIntent, PreviewModel } from "../../types";
 import {
   DIRECTION_CLEARED_TEXT,
@@ -147,131 +157,218 @@ describe("creating a support that carries a hanger", () => {
   });
 });
 
+/** The form on `model`'s first support, with a single-change queue and a batch queue, both observed. */
+function renderEdit(model: PreviewModel, withBatch = true) {
+  const intent = vi.fn(), batch = vi.fn();
+  render(<SupportConfigurationForm model={model} selection={{ type: "support", id: model.supports[0].id }} onQueueIntent={intent}
+    {...(withBatch ? { onQueueBatch: batch } : {})} />);
+  return { intent, batch };
+}
+const batchesOf = (queue: ReturnType<typeof vi.fn>) => queue.mock.calls.map(call => call[0] as OperationBatch);
+
 describe("editing a support that holds a stored direction into one that carries a hanger", () => {
   async function queueHangerEdit(model: PreviewModel, chooseHanger: () => void) {
-    const queue = vi.fn();
-    render(<SupportConfigurationForm model={model} selection={{ type: "support", id: model.supports[0].id }} onQueueIntent={queue} />);
+    const queues = renderEdit(model);
     expect(screen.getByLabelText("Stored direction")).toHaveTextContent(STORED_TEXT);
     expect(screen.queryByTestId("support-direction-removal")).toBeNull();
     chooseHanger();
     // Stated beside the stored direction line before anything is queued.
     expect(screen.getByTestId("support-direction-removal")).toHaveTextContent(STATEMENT);
     expect(screen.getByTestId("support-direction-removal").previousElementSibling).toBe(screen.getByTestId("support-direction-stored"));
-    expect(queue).not.toHaveBeenCalled();
-    fireEvent.click(screen.getByText("Queue support configuration"));
-    await waitFor(() => expect(queue).toHaveBeenCalledTimes(2));
-    return intentsOf(queue);
+    expect(queues.batch).not.toHaveBeenCalled();
+    fireEvent.click(screen.getByText(DIRECTION_REMOVAL_BUTTON_TEXT));
+    await waitFor(() => expect(queues.batch).toHaveBeenCalledOnce());
+    expect(screen.getByTestId("support-direction-removal-engine-notice")).toHaveTextContent(DIRECTION_REMOVAL_QUEUED_TEXT);
+    // No single change, ever.
+    expect(queues.intent).not.toHaveBeenCalled();
+    return batchesOf(queues.batch)[0];
   }
 
-  it.each(HANGER_PATHS)("by %s: queues the removal then the configuration; the engine applies both and the support holds the hanger and no direction", async (_path, chooseHanger) => {
+  it.each(HANGER_PATHS)("by %s: queues exactly one batch, the removal then the configuration, and no single change; the engine applies it whole", async (_path, chooseHanger) => {
     const model = await skewModel(), original = JSON.stringify(model), id = model.supports[0].id;
-    const [removal, configuration] = await queueHangerEdit(model, chooseHanger);
+    const batch = await queueHangerEdit(model, chooseHanger);
+    expect(batch.operations).toHaveLength(2);
+    const [removal, configuration] = batch.operations;
     expect(removal).toMatchObject({
       operation_kind: "modify", target: { object_type: "Support", ref: id },
       change: { change_kind: "update_support", field_label: DIRECTION_REMOVAL_FIELD_LABEL, field_path: "direction",
         before: await canonicalJsonString(STORED), after: "not_present", unit: "none", dimension: "dimensionless" }
     });
     expect(removal.change.before).toBe('{"x":0.1,"y":-0.2,"z":5e-300}');
+    expect(removal.rationale).toContain(STATEMENT);
     expect(configuration.change).toMatchObject({ change_kind: "update_support", field_path: "configuration", before: await canonicalJsonString(projection(model.supports[0])) });
     expect(configuration.change.after).not.toContain("direction");
-    // The engine refuses the configuration alone, so the form never queues it alone.
+    // The engine refuses the configuration alone, which is why it is never queued alone.
     expect((await applyModelOperation(model, configuration, null)).diagnostics.map(d => d.code)).toContain("SUPPORT_DIRECTION_RECORD_UNSUPPORTED");
-    // Applied in queue order, one change at a time.
-    const withoutDirection = expectApplied(await applyModelOperation(model, removal, null));
-    expect(withoutDirection.supports[0]).not.toHaveProperty("direction");
-    const applied = expectApplied(await applyModelOperation(withoutDirection, configuration, null)).supports[0];
+    const applied = expectApplied(await applyOperationBatch(model, batch, await computeModelHash(model))).supports[0];
     expect(applied).not.toHaveProperty("direction");
     expect(applied.hanger !== undefined || HANGER_FAMILIES.includes(String(applied.family))).toBe(true);
-    // And as one batch, as Review all queued changes as one batch applies them.
-    const batch = expectApplied(await applyOperationBatch(model, { batch_id: "batch:test", operations: [removal, configuration] }, await computeModelHash(model)));
-    expect(batch.supports[0]).toEqual(applied);
     expect(JSON.stringify(model)).toBe(original);
   });
 
-  it("on a stored record that already holds both a hanger and a direction: offers the removal with the same statement, and never queues the configuration alone", async () => {
-    const model = await skewModel(), id = model.supports[0].id;
+  it("on a stored record that already holds both a hanger and a direction: the same statement and the same one batch, never the configuration alone", async () => {
+    const model = await skewModel();
     Object.assign(model.supports[0], { family: "variable_spring_hanger", hanger: STORED_HANGER });
-    const queue = vi.fn();
-    render(<SupportConfigurationForm model={model} selection={{ type: "support", id }} onQueueIntent={queue} />);
+    const queues = renderEdit(model);
     expect(screen.getByTestId("support-direction-removal")).toHaveTextContent(STATEMENT);
     enter("Support provenance", "revised invented provenance");
-    fireEvent.click(screen.getByText("Queue support configuration"));
-    await waitFor(() => expect(queue).toHaveBeenCalledTimes(2));
-    const [removal, configuration] = intentsOf(queue);
-    expect(removal.change).toMatchObject({ field_path: "direction", after: "not_present" });
-    expect(configuration.change.field_path).toBe("configuration");
-    const applied = expectApplied(await applyOperationBatch(model, { batch_id: "batch:test", operations: [removal, configuration] }, await computeModelHash(model))).supports[0];
+    fireEvent.click(screen.getByText(DIRECTION_REMOVAL_BUTTON_TEXT));
+    await waitFor(() => expect(queues.batch).toHaveBeenCalledOnce());
+    expect(queues.intent).not.toHaveBeenCalled();
+    const [batch] = batchesOf(queues.batch);
+    expect(batch.operations.map(operation => operation.change.field_path)).toEqual(["direction", "configuration"]);
+    const applied = expectApplied(await applyOperationBatch(model, batch, await computeModelHash(model))).supports[0];
     expect(applied).not.toHaveProperty("direction");
     expect(applied.provenance).toBe("revised invented provenance");
   });
 
+  it("builds the removal with hanger selection's builder: member for member the selection's, but for its identifiers and its own rationale", async () => {
+    const model = await skewModel(), id = model.supports[0].id;
+    const doc = structuredClone(fixture) as HangerDocument;
+    const selection = (await buildHangerSelectionBatch(model, doc, doc.hanger_records[0].hanger_id, { supportId: id, restraints: ["UY"] })).operations[0];
+    const form = (await queueHangerEdit(model, () => fireEvent.click(screen.getByLabelText("Include hanger data")))).operations[0];
+    const comparable = (operation: EditorOperationIntent) => ({ ...operation, operation_id: "id", rationale: "own", change: { ...operation.change, change_id: "id" } });
+    expect(comparable(form)).toEqual(comparable(selection));
+    expect(Object.keys(form).sort()).toEqual(Object.keys(selection).sort());
+    expect(Object.keys(form.change).sort()).toEqual(Object.keys(selection.change).sort());
+  });
+
+  it("without a batch queue refuses in a plain sentence and queues nothing, never two single changes", async () => {
+    const model = await skewModel();
+    const queues = renderEdit(model, false);
+    fireEvent.click(screen.getByLabelText("Include hanger data"));
+    fireEvent.click(screen.getByText(DIRECTION_REMOVAL_BUTTON_TEXT));
+    expect(await screen.findByTestId("support-direction-removal-engine-error")).toHaveTextContent(DIRECTION_REMOVAL_NO_BATCH_TEXT);
+    expect(queues.intent).not.toHaveBeenCalled();
+  });
+
   it("leaves a directed support that gains no hanger, and a hanger without a direction, as they were: the configuration alone", async () => {
     const directed = await skewModel();
-    const queue = vi.fn();
-    render(<SupportConfigurationForm model={directed} selection={{ type: "support", id: directed.supports[0].id }} onQueueIntent={queue} />);
+    const first = renderEdit(directed);
     enter("Support provenance", "revised");
     expect(screen.queryByTestId("support-direction-removal")).toBeNull();
     fireEvent.click(screen.getByText("Queue support configuration"));
-    await waitFor(() => expect(queue).toHaveBeenCalledOnce());
-    expect(intentsOf(queue)[0].change.field_path).toBe("configuration");
-    expect(expectApplied(await applyModelOperation(directed, intentsOf(queue)[0], null)).supports[0].direction).toEqual(STORED);
+    await waitFor(() => expect(first.intent).toHaveBeenCalledOnce());
+    expect(first.batch).not.toHaveBeenCalled();
+    expect(intentsOf(first.intent)[0].change.field_path).toBe("configuration");
+    expect(expectApplied(await applyModelOperation(directed, intentsOf(first.intent)[0], null)).supports[0].direction).toEqual(STORED);
     cleanup();
     const plain = await skewModel();
     delete (plain.supports[0] as { direction?: unknown }).direction;
-    Object.assign(plain.supports[0], { hanger: { hanger_type: "variable_spring_hanger", source_reference: "invented catalogue" } });
-    const again = vi.fn();
-    render(<SupportConfigurationForm model={plain} selection={{ type: "support", id: plain.supports[0].id }} onQueueIntent={again} />);
+    Object.assign(plain.supports[0], { family: "variable_spring_hanger", hanger: STORED_HANGER });
+    const second = renderEdit(plain);
     expect(screen.queryByTestId("support-direction-stored")).toBeNull();
     expect(screen.queryByTestId("support-direction-removal")).toBeNull();
     enter("Support provenance", "revised");
     fireEvent.click(screen.getByText("Queue support configuration"));
-    await waitFor(() => expect(again).toHaveBeenCalledOnce());
-    expect(intentsOf(again)[0].change.field_path).toBe("configuration");
+    await waitFor(() => expect(second.intent).toHaveBeenCalledOnce());
+    expect(second.batch).not.toHaveBeenCalled();
+    expect(intentsOf(second.intent)[0].change.field_path).toBe("configuration");
   });
+});
 
-  it("is one Undo step per applied change, each restoring the hash it had", async () => {
-    const source = await skewModel();
+describe("the batch in a real workspace session", () => {
+  type Session = ReturnType<typeof useWorkspaceSession>;
+  /** The desktop's own session on the directed model, with the form wired as the inspector wires it. */
+  async function workspace(source: PreviewModel) {
     vi.spyOn(previewService, "loadPreviewModel").mockResolvedValue(structuredClone(source));
-    let session: ReturnType<typeof useWorkspaceSession> | undefined;
+    const holder: { session?: Session } = {};
     function Workspace() {
-      session = useWorkspaceSession();
+      const session = useWorkspaceSession();
+      holder.session = session;
       const model = session.model.model;
       return model ? <SupportConfigurationForm model={model} selection={{ type: "support", id: source.supports[0].id }}
         queuedIntents={session.operations.editorIntents} onQueueIntent={session.operations.handleQueueEditorIntent}
+        onQueueBatch={session.operations.handleQueueOperationBatch}
         operationBusy={session.operations.operationBusy} getPreparationEpoch={session.operations.getPreparationEpoch} /> : null;
     }
     render(<Workspace />);
     await screen.findByLabelText("Stored direction");
-    const ops = () => session!.operations;
-    const hash = async () => (await computeModelHash(session!.model.model!))!.value;
+    const ops = () => holder.session!.operations;
+    const model = () => holder.session!.model.model!;
+    const hash = async () => (await computeModelHash(model()))!.value;
+    return { ops, model, hash };
+  }
+  async function queueFromForm(ops: () => Session["operations"], count: number) {
+    if (!screen.queryByRole("group", { name: "Hanger" })) fireEvent.click(screen.getByLabelText("Include hanger data"));
+    fireEvent.click(screen.getByText(DIRECTION_REMOVAL_BUTTON_TEXT));
+    await waitFor(() => expect(ops().queuedBatches).toHaveLength(count));
+    await waitFor(() => expect(screen.getByTestId("support-direction-removal-engine-notice")).toBeVisible());
+  }
+
+  it("queues the batch the engine checked, unchanged; one Apply applies both, one Undo restores the hash, Redo reapplies", async () => {
+    const source = await skewModel();
+    const checked = vi.spyOn(operationBatchService, "validateOperationBatch");
+    const { ops, model, hash } = await workspace(source);
     const originalHash = await hash();
-    fireEvent.click(screen.getByLabelText("Include hanger data"));
-    fireEvent.click(screen.getByText("Queue support configuration"));
-    await waitFor(() => expect(ops().editorIntents).toHaveLength(2));
-    // The session lists the newest first: the configuration above the removal queued ahead of it.
-    const [configuration, removal] = ops().editorIntents;
-    expect([removal.change.field_path, configuration.change.field_path]).toEqual(["direction", "configuration"]);
-    await act(async () => { expect(await ops().handleApplyIntent(removal)).toBe(true); });
-    const removedHash = await hash();
-    expect(session!.model.model!.supports[0]).not.toHaveProperty("direction");
-    await act(async () => { expect(await ops().handleApplyIntent(configuration)).toBe(true); });
-    expect(session!.model.model!.supports[0].hanger).toBeDefined();
-    expect(ops().undoStack).toHaveLength(2);
-    act(() => ops().handleUndoSessionModelEdit());
-    expect(await hash()).toBe(removedHash);
+    await queueFromForm(ops, 1);
+    expect(ops().editorIntents).toHaveLength(0);
+    const [entry] = ops().queuedBatches;
+    expect(checked).toHaveBeenCalledOnce();
+    expect(entry.batch).toEqual(checked.mock.calls[0][1]);
+    expect(entry.batch.operations.map(operation => operation.change.field_path)).toEqual(["direction", "configuration"]);
+    const undoBefore = ops().undoStack.length;
+    await act(async () => { await ops().handleRunOperationBatch(entry, true); });
+    await waitFor(() => expect(ops().batchReceipts).toHaveLength(1));
+    expect(model().supports[0]).not.toHaveProperty("direction");
+    expect(model().supports[0].hanger).toBeDefined();
+    expect(ops().undoStack).toHaveLength(undoBefore + 1);
+    const appliedHash = await hash();
     act(() => ops().handleUndoSessionModelEdit());
     expect(await hash()).toBe(originalHash);
-    expect(session!.model.model!.supports[0].direction).toEqual(STORED);
+    expect(model().supports[0].direction).toEqual(STORED);
+    act(() => ops().handleRedoSessionModelEdit());
+    expect(await hash()).toBe(appliedHash);
+    expect(model().supports[0]).not.toHaveProperty("direction");
+  });
+
+  it("is applied whole or not at all: after the stored direction changes, Apply refuses and the model, history and receipts stay", async () => {
+    const source = await skewModel();
+    const { ops, model, hash } = await workspace(source);
+    await queueFromForm(ops, 1);
+    const [entry] = ops().queuedBatches;
+    // The engine refuses the batch whole on a model whose stored direction is another.
+    const changed = structuredClone(source);
+    Object.assign(changed.supports[0], { direction: { x: 0, y: 1, z: 0 } });
+    const refused = await applyOperationBatch(changed, entry.batch, await computeModelHash(changed));
+    expect(refused.validation.application_status).toBe("blocked");
+    expect(refused.applied_model ?? null).toBeNull();
+    expect([...refused.diagnostics, ...refused.operation_outcomes.flatMap(step => step.diagnostics)].map(d => d.code)).toContain("OP-BEFORE-VALUE-MISMATCH");
+    // In the session the stored direction changes by an applied change (here its removal on its own); the queued batch
+    // was prepared on the earlier model and is not applied.
+    await act(async () => { expect(await ops().handleApplyIntent(buildDirectionRemovalChange(source.supports[0].id, await canonicalJsonString(STORED), "test"))).toBe(true); });
+    const afterChange = { model: JSON.stringify(model()), hash: await hash(), undo: ops().undoStack.length, receipts: ops().batchReceipts.length };
+    await act(async () => { await ops().handleRunOperationBatch(entry, true); });
+    expect(JSON.stringify(model())).toBe(afterChange.model);
+    expect(await hash()).toBe(afterChange.hash);
+    expect(ops().undoStack).toHaveLength(afterChange.undo);
+    expect(ops().batchReceipts).toHaveLength(afterChange.receipts);
+    expect(ops().queuedBatches[0].retired).toBeTruthy();
+    expect(model().supports[0].hanger).toBeUndefined();
+  });
+
+  it("a second batch for the same support is not refused by the form, which cannot see queued batches; once the first is applied the second is retired and never applies", async () => {
+    const source = await skewModel();
+    const { ops, model } = await workspace(source);
+    await queueFromForm(ops, 1);
+    await queueFromForm(ops, 2);
+    const [first, second] = ops().queuedBatches;
+    await act(async () => { await ops().handleRunOperationBatch(first, true); });
+    await waitFor(() => expect(ops().batchReceipts).toHaveLength(1));
+    const applied = JSON.stringify(model());
+    expect(ops().queuedBatches.find(entry => entry.key === second.key)!.retired).toBeTruthy();
+    await act(async () => { await ops().handleRunOperationBatch(second, true); });
+    expect(JSON.stringify(model())).toBe(applied);
+    expect(ops().batchReceipts).toHaveLength(1);
   });
 });
 
-describe("the engine's refusals of the pair, shown by the form's own statements", () => {
+describe("the engine's refusals of the batch, shown by the form's own statements", () => {
   async function submitHangerEdit(model: PreviewModel) {
-    const queue = vi.fn();
-    render(<SupportConfigurationForm model={model} selection={{ type: "support", id: model.supports[0].id }} onQueueIntent={queue} />);
+    const queues = renderEdit(model);
     fireEvent.click(screen.getByLabelText("Include hanger data"));
-    fireEvent.click(screen.getByText("Queue support configuration"));
-    return queue;
+    fireEvent.click(screen.getByText(DIRECTION_REMOVAL_BUTTON_TEXT));
+    return queues;
   }
 
   it("SUPPORT_DIRECTION_RECORD_UNSUPPORTED: the form's statement and what to do, never the applier's message tail or its remediation", async () => {
@@ -285,17 +382,17 @@ describe("the engine's refusals of the pair, shown by the form's own statements"
     expect(refusal, JSON.stringify(answer.diagnostics)).toBeDefined();
     expect(refusal.severity).toBe("blocking");
     const check = vi.spyOn(operationBatchService, "validateOperationBatch").mockResolvedValueOnce(answer);
-    const queue = await submitHangerEdit(model);
+    const queues = await submitHangerEdit(model);
     const error = await screen.findByTestId("support-direction-removal-engine-error");
     expect(check).toHaveBeenCalledOnce();
     expect(error).toHaveTextContent(directionRemovalRefusedText(STORED_TEXT));
-    expect(error).toHaveTextContent(directionRemovalStatement(STORED_TEXT));
     const shown = screen.getByLabelText("Support configuration").textContent!;
     expect(shown).not.toContain(refusal.remediation);
     expect(shown).not.toContain("malformed model-data slot");
     expect(shown).not.toContain("(at supports[0].direction)");
     expect(screen.queryByTestId("support-direction-removal-engine-diagnostic-SUPPORT_DIRECTION_RECORD_UNSUPPORTED")).toBeNull();
-    expect(queue).not.toHaveBeenCalled();
+    expect(queues.batch).not.toHaveBeenCalled();
+    expect(queues.intent).not.toHaveBeenCalled();
   });
 
   it("OP-BEFORE-VALUE-MISMATCH on the removal: the stored direction changed; reopen the support", async () => {
@@ -308,17 +405,10 @@ describe("the engine's refusals of the pair, shown by the form's own statements"
     const codes = [...answer.diagnostics, ...answer.operation_outcomes.flatMap(step => step.diagnostics)].map(d => d.code);
     expect(codes, JSON.stringify(answer.diagnostics)).toContain("OP-BEFORE-VALUE-MISMATCH");
     vi.spyOn(operationBatchService, "validateOperationBatch").mockResolvedValueOnce(answer);
-    const queue = await submitHangerEdit(model);
+    const queues = await submitHangerEdit(model);
     expect(await screen.findByTestId("support-direction-removal-engine-error")).toHaveTextContent(STORED_DIRECTION_CHANGED_TEXT);
     expect(within(screen.getByLabelText("Support configuration")).queryByTestId("support-direction-removal-engine-diagnostic-OP-BEFORE-VALUE-MISMATCH")).toBeNull();
-    expect(queue).not.toHaveBeenCalled();
-  });
-
-  it("the form's own check, through the engine, admits the pair it builds and queues it", async () => {
-    const model = await skewModel();
-    const queue = await submitHangerEdit(model);
-    await waitFor(() => expect(queue).toHaveBeenCalledTimes(2));
-    expect(screen.getByTestId("support-direction-removal-engine-notice")).toHaveTextContent("checked together by the operation engine");
-    expect(screen.queryByTestId("support-direction-removal-engine-error")).toBeNull();
+    expect(queues.batch).not.toHaveBeenCalled();
+    expect(queues.intent).not.toHaveBeenCalled();
   });
 });

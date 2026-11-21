@@ -4,7 +4,7 @@ import { clone, makeRichIntent, parseQuantities, QueueFeedback, QuantityField, r
 import { VirtualTargetPicker } from "../workspace/VirtualTargetPicker";
 import { EngineFeedback, useEngineCheckedQueue } from "../condition-sets/engineCheckedQueue";
 import { DIRECTION_AXES, DIRECTION_CLEARED_TEXT, directionRemovalStatement, EMPTY_DIRECTION_TEXT, HANGER_NO_DIRECTION_TEXT, parseDirectionEntry, STORED_DIRECTION_NOTE, storedDirectionText, supportCarriesHanger, type DirectionText } from "./supportDirection";
-import { useDirectionRemovalQueue } from "./directionRemovalQueue";
+import { DIRECTION_REMOVAL_BUTTON_TEXT, useDirectionRemovalQueue, type BatchFormProps } from "./directionRemovalQueue";
 import "./supportConfiguration.css";
 const DOFS = ["UX", "UY", "UZ", "RX", "RY", "RZ"];
 /** Product labels for the stored support family enums (also shown by the property inspector). */
@@ -66,7 +66,7 @@ function draftProjection(support: unknown): DraftRecord {
   if (draft.nonlinear === null) delete draft.nonlinear;
   return draft;
 }
-export function SupportConfigurationForm(props: RichFormProps) {
+export function SupportConfigurationForm(props: BatchFormProps) {
   if (!["support", "node", "project"].includes(props.selection.type))
     return null;
   const support = props.selection.type === "support" ? props.model.supports.find(s => s.id === props.selection.id) : undefined;
@@ -134,7 +134,7 @@ function FieldGroup({ title, children }: { title: string; children: ReactNode })
     {children}
   </fieldset>;
 }
-function SupportEditor(props: RichFormProps & {
+function SupportEditor(props: BatchFormProps & {
   support?: RichFormProps["model"]["supports"][number];
 }) {
   const { support } = props;
@@ -421,7 +421,7 @@ function SupportEditor(props: RichFormProps & {
       {create && (carriesHanger
         ? <HangerDirectionNote cleared={directionCleared} />
         : <DirectionFields value={directionText} onChange={next => { setDirectionText(next); setDirectionCleared(false); engine.reset(); }} />)}
-      <button type="button" onClick={() => void submit()}>{create ? "Queue support creation" : "Queue support configuration"}</button>
+      <button type="button" onClick={() => void submit()}>{create ? "Queue support creation" : removesDirection ? DIRECTION_REMOVAL_BUTTON_TEXT : "Queue support configuration"}</button>
     </fieldset>
     <QueueFeedback {...state} />
     <EngineFeedback error={engine.error} notice={engine.notice} diagnostics={engine.diagnostics} testId="support-direction-engine" />
