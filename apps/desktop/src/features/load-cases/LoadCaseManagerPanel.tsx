@@ -1,3 +1,4 @@
+import type { OperationBatch } from "../../services/operationBatchService";
 import { PressureAuthoringPanel, PressureRegionsEditor } from "../pressure-authoring/PressureAuthoringPanel";
 import { LoadReferenceStateInputs } from "./LoadReferenceStateInputs";
 import { ConditionUseControl, describeUse } from "../condition-sets/ConditionUseControl";
@@ -163,10 +164,12 @@ export function LoadCaseManagerPanel({
   onQueueIntent,
   onSelect,
   selection,
-  queuedIntents, operationBusy, preparationEpoch, getPreparationEpoch
+  queuedIntents, operationBusy, preparationEpoch, getPreparationEpoch, onQueueBatch
 }: {
   model: PreviewModel;
   onQueueIntent: (intent: EditorOperationIntent) => void;
+  /** Queues one batch for review (the pressure panel's shear change with its activation). */
+  onQueueBatch?: (batch: OperationBatch) => void | Promise<void>;
   onSelect: (selection: EntityRef) => void;
   selection: EntityRef;
   queuedIntents?: EditorOperationIntent[];
@@ -1870,7 +1873,7 @@ export function LoadCaseManagerPanel({
 
       <details className="loads-settings" data-testid="load-manager-analysis-settings">
         <summary>Analysis settings</summary>
-        <PressureAuthoringPanel model={model} selection={selection} queuedIntents={queuedIntents} operationBusy={operationBusy} preparationEpoch={preparationEpoch} getPreparationEpoch={getPreparationEpoch} onQueueIntent={onQueueIntent} />
+        <PressureAuthoringPanel model={model} selection={selection} queuedIntents={queuedIntents} operationBusy={operationBusy} preparationEpoch={preparationEpoch} getPreparationEpoch={getPreparationEpoch} onQueueIntent={onQueueIntent} onQueueBatch={onQueueBatch} />
       </details>
     </section>
   );

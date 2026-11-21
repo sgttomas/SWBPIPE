@@ -1,7 +1,11 @@
 import { useEffect, useId, useState } from "react";
-import { clone, parseQuantities, QueueFeedback, QuantityField, record, requireText, setMember, TextField, useRichQueue, type DraftRecord, type RichFormProps } from "../rich-authoring/formSupport";
+import { clone, makeRichIntent, parseQuantities, QueueFeedback, QuantityField, record, requireText, setMember, TextField, useRichQueue, type DraftRecord, type RichFormProps } from "../rich-authoring/formSupport";
+import { setShearModelIntent, type Canonicalize } from "../model-settings/modelSettingsIntents";
+import { canonicalJsonString } from "../../services/hashService";
+import type { OperationBatch } from "../../services/operationBatchService";
+import type { PreviewModel } from "../../types";
 import { VirtualMultiTargetPicker } from "../workspace/VirtualTargetPicker";
-import { DEFAULT_SHEAR_MODEL, documentShearModel, isPressureV3, isShearModel, PRESSURE_V3, pressureProfileTarget, SHEAR_MODEL_CHOICES, type ShearModel } from "./pressureContract";
+import { carriedShearModel, DEFAULT_SHEAR_MODEL, documentShearModel, isPressureV3, isShearModel, PRESSURE_V3, pressureProfileTarget, SHEAR_MODEL_CHOICES, shearModelClause, SHEAR_MODEL_LABEL, type ShearModel } from "./pressureContract";
 import { MODEL_SCHEMA_VERSION } from "../../services/modelSchemaVersion";
 import { CopyFromCase } from "../load-cases/BulkFillControls";
 import { copyPressureRegions } from "../load-cases/bulkFill";
@@ -74,12 +78,21 @@ function CreateExactMaterial(props: RichFormProps) {
     <button type="button" onClick={() => void submit()}>Queue exact material</button>
   </fieldset><QueueFeedback {...state} /></details>;
 }
-const shearModelLabel = (model: ShearModel) => SHEAR_MODEL_CHOICES.find(choice => choice.value === model)!.label;
-/** T4-U8: what a v3 document's straight members use; an absent or unknown value is
- * shown as such (the solver refuses it by name), never as a default. */
+/** T4-U8: what a v3 document's straight members use, in the control's words; an absent or
+ * unknown value is shown as such (the solver refuses it by name), never as a default. */
 function shearModelText(model: RichFormProps["model"]): string {
   const selected = documentShearModel(model);
-  return selected ? `straight members use ${shearModelLabel(selected)}` : "no admitted shear model is selected, so solves are refused until one is";
+  return selected ? shearModelClause(selected) : "no admitted shear model is selected, so solves are refused until one is";
+}
+/** The line a document carrying the current pressure profile shows at rest, from the applied document alone (a
+ * profile only queued is said by its queue notice): the solve includes pressure, and its straight members' theory
+ * in the control's words. Null where the document carries no current profile, or carries one with no admitted shear
+ * model, whose mode text says so. */
+export function pressureProfileLine(model: RichFormProps["model"]): string | null {
+  const selected = documentShearModel(model);
+  if (!selected) return null;
+  const clause = shearModelClause(selected);
+  return `Pressure is included in the solve. ${clause.charAt(0).toUpperCase()}${clause.slice(1)}.`;
 }
 /** Show actual authored presence, including malformed objects. The one current
  * document format selects v3 explicitly; no retired input is reinterpreted. */
@@ -88,7 +101,7 @@ export function pressureModeText(model: RichFormProps["model"]): string {
   const reauthor = `re-authored to ${PRESSURE_V3.mode}`;
   if (Object.hasOwn(model, "pressure_contract")) {
     if (!contract || typeof contract !== "object" || Array.isArray(contract)) return "invalid authored pressure contract (an object is required)";
-    if (isPressureV3(model)) return `${contract.mode} (straight members, realized bends and linear restraints or springs; other families are refused by name; ${shearModelText(model)}, and realized arcs are Euler–Bernoulli under either shear model; pressure-3 results are read with their standing, and only the result JSON and stress-neutral exports, the rule check, the rendered report and the report package admit a numerically eligible result)`;
+    if (isPressureV3(model)) return `${contract.mode} (${shearModelText(model)})`;
     const declared = `${contract.version}/${contract.mode}`;
     if (contract.version === "1.0.0" && contract.mode === "legacy_pressure_v1") return `${declared} (retired; solves are refused until the model is ${reauthor})`;
     return `${declared} (unsupported; solves are refused until the model is ${reauthor})`;
@@ -110,34 +123,85 @@ function memberLabel(model: RichFormProps["model"], pipe: RichFormProps["model"]
   }
   return `${name} (geometry-only bend span ${bend.id}: realize this bend first)`;
 }
-export function PressureAuthoringPanel(props: RichFormProps & { loadCaseId?: string }) {
+/** The selection a pressure-free document states in its model settings, or null. */
+export function statedFreeShearModel(model: Pick<PreviewModel, "model_settings">): ShearModel | null {
+  const stated = model.model_settings?.shear_model;
+  return isShearModel(stated) ? stated : null;
+}
+const theoryName = (model: ShearModel) => model === "euler_bernoulli" ? "Euler–Bernoulli" : "Timoshenko";
+
+/** The line under the selector, or null at rest: where the pick differs from what model settings state, or,
+ * for a document without a contract that states no choice, from Euler–Bernoulli, which it solves as today. */
+export function shearSelectionLine(model: PreviewModel, pick: ShearModel): string | null {
+  if (model.pressure_contract != null) return null;
+  const stated = statedFreeShearModel(model);
+  if (stated !== null) return stated === pick ? null : `Model settings state ${theoryName(stated)}. Queuing this changes it to ${theoryName(pick)}.`;
+  return pick === "euler_bernoulli" ? null
+    : `This document solves as Euler–Bernoulli today. Activating the pressure contract changes its straight members to ${theoryName(pick)}.`;
+}
+
+/** The one batch a pick that differs from the stated model queues: an explicit set of the model setting to the
+ * pick, then the activation, which carries that model into the contract and clears the setting. */
+export async function shearChangeAndActivationBatch(model: PreviewModel, pick: ShearModel, canonicalize: Canonicalize = canonicalJsonString): Promise<OperationBatch> {
+  const current = { schema_version: model.schema_version, ...(Object.hasOwn(model, "pressure_contract") ? { pressure_contract: model.pressure_contract } : {}) };
+  const setting = await setShearModelIntent(canonicalize, model, pick);
+  const profile = makeRichIntent({ object_type: "Model", ref: model.project.id }, "set_field", "pressure_profile", await canonicalize(current), pressureProfileTarget(model, pick), "Exact pressure profile");
+  return { batch_id: `batch:pressure-profile-shear:${model.project.id}`, operations: [setting, profile] };
+}
+
+export function PressureAuthoringPanel(props: RichFormProps & { loadCaseId?: string; onQueueBatch?: (batch: OperationBatch) => void | Promise<void> }) {
   const state = useRichQueue(props);
   const [profile, setProfile] = useState("");
   // T4-U8 (D-6/O3): null until the user changes the selector, so the queued profile
-  // keeps the document's own selection, or else writes the Timoshenko default.
+  // keeps the document's own selection (a pressure-free one is carried into the
+  // contract), or else writes the Timoshenko default.
   const [shearChoice, setShearChoice] = useState<ShearModel | null>(null);
-  const shearModel = shearChoice ?? documentShearModel(props.model) ?? DEFAULT_SHEAR_MODEL;
+  const shearModel = shearChoice ?? carriedShearModel(props.model) ?? DEFAULT_SHEAR_MODEL;
+  const selectionLine = shearSelectionLine(props.model, shearModel);
+  const stated = props.model.pressure_contract == null ? statedFreeShearModel(props.model) : null;
+  const [batchNotice, setBatchNotice] = useState("");
+  // A pick that differs from the stated model queues the setting's change and the activation as one batch.
+  async function queueProfile() {
+    const current = { schema_version: props.model.schema_version, ...(Object.hasOwn(props.model, "pressure_contract") ? { pressure_contract: props.model.pressure_contract } : {}) };
+    if (stated === null || stated === shearModel || !props.onQueueBatch) {
+      await state.queue({ object_type: "Model", ref: props.model.project.id }, "set_field", "pressure_profile", current, pressureProfileTarget(props.model, shearChoice ?? undefined), "Exact pressure profile");
+      return;
+    }
+    setBatchNotice("");
+    state.setError("");
+    try {
+      if (props.queuedIntents?.some(i => i.change.field_path === "pressure_profile" || i.change.field_path === "model_settings.shear_model"))
+        throw new Error("Review or remove the pending pressure profile or shear deformation change before queuing another.");
+      await props.onQueueBatch(await shearChangeAndActivationBatch(props.model, shearModel));
+      setBatchNotice("Shear deformation change and pressure profile queued for validation and review.");
+    } catch (e) {
+      state.setError(e instanceof Error ? e.message : String(e));
+    }
+  }
   const profileReasonId = useId();
   const missingAllowance = props.model.pipe_segments.some(pipe => !Object.hasOwn(pipe.section, "corrosion_allowance"));
   const profileDisabledReason = state.busy ? "Wait for the current change to finish queuing."
     : missingAllowance ? "Enter an explicit corrosion allowance on every member section before activating pressure; zero must be entered."
     : profile !== PRESSURE_V3.mode ? "Select a pressure profile before queuing this change." : undefined;
-  const currentProfile = { schema_version: props.model.schema_version, ...(Object.hasOwn(props.model, "pressure_contract") ? { pressure_contract: props.model.pressure_contract } : {}) };
   const loadCase = props.model.load_cases.find(c => c.id === props.loadCaseId);
-  return <section aria-label="Exact pressure authoring"><h3>Pressure mechanics profile</h3>
-    <p>Current model: {props.model.schema_version}; pressure mode: {pressureModeText(props.model)}.</p>
+  const profileLine = pressureProfileLine(props.model);
+  return <section aria-label="Pressure profile"><h3>Pressure mechanics profile</h3>
+    {profileLine ? <p data-testid="pressure-profile-line">{profileLine}</p>
+      : <p>Current model: {props.model.schema_version}; pressure mode: {pressureModeText(props.model)}.</p>}
     <fieldset disabled={state.busy}>
       <TextField label="Pressure profile" value={profile} choices={[PRESSURE_V3.mode]} onChange={setProfile} />
-      <label className="form-field">Shear model
-        <select aria-label="Shear model" value={shearModel} onChange={e => { const value = e.target.value; if (isShearModel(value)) setShearChoice(value); }}>
+      <label className="form-field">{SHEAR_MODEL_LABEL}
+        <select aria-label={SHEAR_MODEL_LABEL} value={shearModel} onChange={e => { const value = e.target.value; if (isShearModel(value)) setShearChoice(value); }}>
           {SHEAR_MODEL_CHOICES.map(choice => <option key={choice.value} value={choice.value}>{choice.label}</option>)}
         </select>
       </label>
-      <p>The shear model applies to straight members; realized arcs are Euler–Bernoulli under either model.</p>
-      <button type="button" disabled={!!profileDisabledReason} title={profileDisabledReason} aria-describedby={profileDisabledReason ? profileReasonId : undefined} onClick={() => void state.queue({ object_type: "Model", ref: props.model.project.id }, "set_field", "pressure_profile", currentProfile, pressureProfileTarget(props.model, shearChoice ?? undefined), "Exact pressure profile")}>Queue pressure profile</button>
+      {selectionLine ? <p data-testid="pressure-shear-selection-line">{selectionLine}</p> : null}
+      <p>Realized arcs are Euler–Bernoulli under either choice.</p>
+      <button type="button" disabled={!!profileDisabledReason} title={profileDisabledReason} aria-describedby={profileDisabledReason ? profileReasonId : undefined} onClick={() => void queueProfile()}>Queue pressure profile</button>
     </fieldset>
     {profileDisabledReason && <p id={profileReasonId}>{profileDisabledReason}</p>}
     <QueueFeedback {...state} />
+    {batchNotice ? <p role="status" data-testid="pressure-shear-batch-notice">{batchNotice}</p> : null}
     <CreateExactMaterial {...props} />
     {loadCase && <PressureRegionsEditor key={loadCase.id} {...props} loadCase={loadCase} />}
   </section>;

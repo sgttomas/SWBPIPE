@@ -1,6 +1,7 @@
 import { cleanup, fireEvent, render, screen, waitFor } from "@testing-library/react";
 import { afterEach, expect, it, vi } from "vitest";
-import { PressureAuthoringPanel, pressureModeText } from "./PressureAuthoringPanel";
+import { PressureAuthoringPanel, pressureModeText, shearChangeAndActivationBatch } from "./PressureAuthoringPanel";
+import { applyOperationBatch, validateOperationBatch } from "../../services/operationBatchService";
 import { pressureProfileTarget } from "./pressureContract";
 import { selectedPropertyRows } from "../model-workspace/modelView";
 import { evaluateModelDocumentLocal } from "../../services/projectService";
@@ -107,4 +108,60 @@ it("B7b WASM applies explicit omitted-region then profile edits without manufact
   expect(activated.diagnostics.filter(d => d.severity === "blocking")).toEqual([]);
   expect((activated.applied_model as PreviewModel).pipe_segments).toEqual(originalSections);
   expect((activated.applied_model as PreviewModel).pressure_contract).toEqual(pressureProfileTarget(current).pressure_contract);
+});
+
+it("activation carries a pressure-free shear selection into the contract and out of the model settings", async () => {
+  for (const stated of ["euler_bernoulli", "timoshenko_annulus_energy_v1"] as const) {
+    const current = model();
+    current.model_settings = { shear_model: stated };
+    // The queued target carries the stated selection, not the authoring default.
+    expect(pressureProfileTarget(current).pressure_contract?.shear_model).toBe(stated);
+    const profile = makeRichIntent({ object_type: "Model", ref: current.project.id }, "set_field",
+      "pressure_profile", await canonicalJsonString({ schema_version: "0.9.0" }),
+      pressureProfileTarget(current), "Pressure profile");
+    const hash = await computeModelHash(current);
+    const reviewed = await validateModelOperation(current, profile, hash);
+    expect(reviewed.diff_preview.map(row => [row.field_path, row.after])).toEqual([
+      ["pressure_profile", profile.change.after], ["model_settings.shear_model", "not_present"]]);
+    const activated = await applyModelOperation(current, profile, hash);
+    expect(activated.diagnostics.filter(d => d.severity === "blocking")).toEqual([]);
+    const applied = activated.applied_model as PreviewModel;
+    expect(applied.pressure_contract?.shear_model).toBe(stated);
+    expect(applied.model_settings).toBeUndefined();
+    // The other model is refused rather than overwriting the stated choice.
+    const other = stated === "euler_bernoulli" ? "timoshenko_annulus_energy_v1" : "euler_bernoulli";
+    const conflicting = makeRichIntent({ object_type: "Model", ref: current.project.id }, "set_field",
+      "pressure_profile", await canonicalJsonString({ schema_version: "0.9.0" }),
+      pressureProfileTarget(current, other), "Pressure profile");
+    const refused = await applyModelOperation(current, conflicting, hash);
+    expect(refused.applied_model).toBeFalsy();
+    expect(refused.diagnostics.map(d => d.code)).toContain("OP-PRESSURE-PROFILE-SHEAR-MODEL-CONFLICT");
+  }
+});
+
+it("a pick that differs from the stated model queues the setting's change, then the activation that carries it", async () => {
+  for (const [stated, pick] of [["euler_bernoulli", "timoshenko_annulus_energy_v1"], ["timoshenko_annulus_energy_v1", "euler_bernoulli"]] as const) {
+    const current = model();
+    current.model_settings = { shear_model: stated };
+    const batch = await shearChangeAndActivationBatch(current, pick);
+    expect(batch.operations.map(op => [op.target.object_type, op.change.change_kind, op.change.field_path])).toEqual([
+      ["Project", "set_model_setting", "model_settings.shear_model"], ["Model", "set_field", "pressure_profile"]]);
+    const hash = await computeModelHash(current);
+    const reviewed = await validateOperationBatch(current, batch, hash);
+    expect(reviewed.validation.batch_validation_status).toBe("passed");
+    // Three review rows: the setting changed, then the activation and the setting's move into the contract.
+    const rows = reviewed.operation_outcomes.flatMap(step => step.diff_preview.map(row => [row.field_path, row.before, row.after]));
+    expect(rows).toEqual([
+      ["model_settings.shear_model", JSON.stringify(stated), pick],
+      ["pressure_profile", batch.operations[1].change.before, batch.operations[1].change.after],
+      ["model_settings.shear_model", JSON.stringify(pick), "not_present"]]);
+    const applied = await applyOperationBatch(current, batch, hash);
+    expect(applied.validation.application_status).toBe("applied_to_session_model");
+    expect(applied.applied_model?.pressure_contract?.shear_model).toBe(pick);
+    expect(applied.applied_model?.model_settings).toBeUndefined();
+    // The activation alone, naming the pick, is still refused: the stated model's change is not with it.
+    const bare = makeRichIntent({ object_type: "Model", ref: current.project.id }, "set_field", "pressure_profile",
+      await canonicalJsonString({ schema_version: "0.9.0" }), pressureProfileTarget(current, pick), "Pressure profile");
+    expect((await applyModelOperation(current, bare, hash)).diagnostics.map(d => d.code)).toContain("OP-PRESSURE-PROFILE-SHEAR-MODEL-CONFLICT");
+  }
 });
