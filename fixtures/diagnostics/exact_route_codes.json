@@ -2474,22 +2474,22 @@
    "severity": "warning",
    "first_site": {
     "file": "core/product_physics/src/seismic_warning.rs",
-    "line": 169,
+    "line": 210,
     "via": "diag()"
    },
    "sites": [
     {
      "file": "core/product_physics/src/seismic_warning.rs",
-     "line": 169,
+     "line": 210,
      "via": "diag()",
      "severity": "warning",
      "through": [
-      "const CONDITION_WEIGHT_ADDED (core/product_physics/src/seismic_warning.rs:46)"
+      "const CONDITION_WEIGHT_ADDED (core/product_physics/src/seismic_warning.rs:54)"
      ]
     }
    ],
    "messages": [
-    "seismic case {}: the added weight {} that its operating condition gives member {pipe} acts in the case; static-equivalent seismic generation forms its loads from the model's own mass and geometry and is not extended to a condition's added weight"
+    "seismic case {}: {} added weight{} that its operating condition gives act{} in the case: {}; static-equivalent seismic generation forms its loads from the model's own mass and geometry and is not extended to a condition's added weight"
    ],
    "classification": "disclosure",
    "reason": "A seismic case's added weight from an operating condition, which static-equivalent seismic generation does not include, acts in the case (warning).",
@@ -2507,17 +2507,17 @@
    "severity": "warning",
    "first_site": {
     "file": "core/product_physics/src/seismic_warning.rs",
-    "line": 252,
+    "line": 304,
     "via": "diag()"
    },
    "sites": [
     {
      "file": "core/product_physics/src/seismic_warning.rs",
-     "line": 252,
+     "line": 304,
      "via": "diag()",
      "severity": "warning",
      "through": [
-      "const GRAVITY_DIFFERS (core/product_physics/src/seismic_warning.rs:47)"
+      "const GRAVITY_DIFFERS (core/product_physics/src/seismic_warning.rs:55)"
      ]
     }
    ],
@@ -2540,22 +2540,22 @@
    "severity": "warning",
    "first_site": {
     "file": "core/product_physics/src/seismic_warning.rs",
-    "line": 180,
+    "line": 229,
     "via": "diag()"
    },
    "sites": [
     {
      "file": "core/product_physics/src/seismic_warning.rs",
-     "line": 180,
+     "line": 229,
      "via": "diag()",
      "severity": "warning",
      "through": [
-      "const WEIGHT_LOAD_ENTERED (core/product_physics/src/seismic_warning.rs:45)"
+      "const WEIGHT_LOAD_ENTERED (core/product_physics/src/seismic_warning.rs:53)"
      ]
     }
    ],
    "messages": [
-    "seismic case {}: the entered weight load {} acts in the case as authored; static-equivalent seismic generation forms its loads from the model's own mass and geometry and is not extended to entered weight loads"
+    "seismic case {}: {} entered weight load{} act{} in the case as authored: {}; static-equivalent seismic generation forms its loads from the model's own mass and geometry and is not extended to entered weight loads"
    ],
    "classification": "disclosure",
    "reason": "A seismic case's entered weight-category load, which static-equivalent seismic generation does not include, acts in the case as authored (warning).",
