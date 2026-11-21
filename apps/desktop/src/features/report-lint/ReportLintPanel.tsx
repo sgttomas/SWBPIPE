@@ -835,7 +835,7 @@ function lintTargets({
     targets.push(
       target(
         "target:report-packet-preview-json",
-        suggestedFileName(model.project, "report", result.run_id),
+        suggestedFileName(model.project, "reportPacket", result.run_id),
         "public_report_example",
         "public_metadata",
         `${result.model_ref}; ${analysisRun.analysis_run.run_id}; ${resultRowCount(result)} result refs; private rule payloads redacted`

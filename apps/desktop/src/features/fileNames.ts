@@ -45,22 +45,32 @@ export const FILE_KINDS = Object.freeze({
   pcfText: { kind: "pcf", extension: "pcf" },
   projectValidation: { kind: "validation", extension: "json" },
   redactedExport: { kind: "redacted-export", extension: "json" },
-  report: { kind: "report", extension: "json" },
+  reportPacket: { kind: "report-packet", extension: "json" },
   reportLint: { kind: "report-lint", extension: "json" },
   ruleCompleteness: { kind: "rule-completeness", extension: "json" },
   secretPrivateLibrary: { kind: "secret-private-library", extension: "json" },
   securityThreatModel: { kind: "security-threat-model", extension: "json" },
   solveJob: { kind: "solve-job", extension: "json" },
   storageAudit: { kind: "storage-audit", extension: "json" },
-  stressNeutralCsv: { kind: "stress-neutral", extension: "csv" },
+  stressNeutralRows: { kind: "stress-neutral-rows", extension: "csv" },
   telemetryBoundary: { kind: "telemetry-boundary", extension: "json" },
-  validationEvidence: { kind: "validation-evidence", extension: "json" },
-  // The intended names of three files whose present names a native save checks or forms: they move with it, and
-  // nothing builds a name from these entries until then.
-  resultJson: { kind: "result", extension: "json" },
-  stressNeutralJson: { kind: "stress-neutral", extension: "json" },
-  reviewGeometry: { kind: "review-geometry", extension: "gltf.json" }
+  validationEvidence: { kind: "validation-evidence", extension: "json" }
 } as const);
+
+/** Kinds reserved for the names other lanes move with their native saves: no entry of `FILE_KINDS` takes one. */
+export const RESERVED_KINDS: ReadonlyArray<string> = Object.freeze(["report", "local-private-report", "result", "stress-neutral", "review-geometry"]);
+
+/** The suggested names not yet built by this rule, each with the reason, its file and line. The lane that owns
+ * each removes its entry when its native change lands; a test fails if any other source composes a name with the
+ * product's prefix or "preview". */
+export const FILE_NAME_EXCEPTIONS: ReadonlyArray<{ file: string; line: number; starts: string; reason: string }> = Object.freeze([
+  { file: "features/report/RenderedReportPanel.tsx", line: 718, starts: "openpipestress-local-private-report-", reason: "the local-private rendered report's download; another lane decides its form (reserved kind local-private-report)" },
+  { file: "features/report/RenderedReportPanel.tsx", line: 726, starts: "openpipestress-report-", reason: "the rendered report's download; another lane decides its form (reserved kind report)" },
+  { file: "features/result-export/ResultExportPanel.tsx", line: 77, starts: "openpipestress-preview-results-", reason: "the result JSON; its native save checks this prefix (nativeResultSave.ts and native_result_download.rs; reserved kind result)" },
+  { file: "features/stress-neutral/StressNeutralExportPanel.tsx", line: 134, starts: "openpipestress-preview-stress-neutral-", reason: "the stress-neutral JSON; its native save checks this prefix (nativeResultSave.ts and native_result_download.rs; reserved kind stress-neutral)" },
+  { file: "features/review-geometry/ReviewGeometryPanel.tsx", line: 74, starts: "openpipestress-preview-review-geometry-", reason: "the review geometry download, the twin of the name its package records and its native save forms (reserved kind review-geometry)" },
+  { file: "features/review-geometry/ReviewGeometryPanel.tsx", line: 226, starts: "openpipestress-preview-review-geometry-", reason: "the review geometry package's member file name, which the download repeats (reserved kind review-geometry)" }
+]);
 
 export type FileKind = keyof typeof FILE_KINDS;
 

@@ -1,0 +1,162 @@
+{
+  "description": "Shared invented cases for the project's name as a file-name slug (apps/desktop/src/features/fileNames.ts projectSlug), read by the desktop's test and by any native implementation of the same rule, which must give the same slug for each case. The rule: the project's display name; where that leaves nothing, its id without the leading \"project:\"; where that leaves nothing too, \"project\". Lower case; every run of characters outside a to z and 0 to 9 becomes one hyphen; no hyphen at either end; at most 64 characters, cut at the limit and then any trailing hyphen removed. Every value is invented.",
+  "schema_version": "0.1.0",
+  "deliverable_id": "DEL-07-12",
+  "provenance": {
+    "source": "invented_for_this_fixture",
+    "redistribution_status": "invented_non_engineering_example"
+  },
+  "cases": [
+    {
+      "case_id": "display-name-preferred",
+      "note": "the display name, where it has one, over the id",
+      "project": {
+        "id": "project:invented-demo-loop-01",
+        "name": "Invented Utility Loop Demo"
+      },
+      "expected_slug": "invented-utility-loop-demo"
+    },
+    {
+      "case_id": "no-display-name",
+      "note": "no display name: the id without its project: prefix",
+      "project": {
+        "id": "project:invented-loop-01"
+      },
+      "expected_slug": "invented-loop-01"
+    },
+    {
+      "case_id": "display-name-null",
+      "note": "a null display name: the id",
+      "project": {
+        "id": "project:invented-loop-01",
+        "name": null
+      },
+      "expected_slug": "invented-loop-01"
+    },
+    {
+      "case_id": "display-name-empty",
+      "note": "an empty display name: the id",
+      "project": {
+        "id": "project:invented-loop-01",
+        "name": ""
+      },
+      "expected_slug": "invented-loop-01"
+    },
+    {
+      "case_id": "id-without-prefix",
+      "note": "an id without the project: prefix, as it is",
+      "project": {
+        "id": "invented-loop-02"
+      },
+      "expected_slug": "invented-loop-02"
+    },
+    {
+      "case_id": "neither",
+      "note": "neither a name nor an id that leaves anything: project",
+      "project": {
+        "id": "project:",
+        "name": ""
+      },
+      "expected_slug": "project"
+    },
+    {
+      "case_id": "punctuation-only-name",
+      "note": "a name of only punctuation: the id",
+      "project": {
+        "id": "project:invented-loop-03",
+        "name": "?!… — ***"
+      },
+      "expected_slug": "invented-loop-03"
+    },
+    {
+      "case_id": "punctuation-only-both",
+      "note": "a name and an id of only punctuation: project",
+      "project": {
+        "id": "project:%%%",
+        "name": "***"
+      },
+      "expected_slug": "project"
+    },
+    {
+      "case_id": "over-64",
+      "note": "a name over 64 characters: cut at 64",
+      "project": {
+        "id": "project:x",
+        "name": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+      },
+      "expected_slug": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+    },
+    {
+      "case_id": "cut-on-hyphen",
+      "note": "a cut that lands on a hyphen: the trailing hyphen is removed, leaving 63 characters",
+      "project": {
+        "id": "project:x",
+        "name": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa b"
+      },
+      "expected_slug": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+    },
+    {
+      "case_id": "non-ascii-cyrillic",
+      "note": "non-Latin letters fall away by the same rule",
+      "project": {
+        "id": "project:x",
+        "name": "Трубопровод Север 7"
+      },
+      "expected_slug": "7"
+    },
+    {
+      "case_id": "non-ascii-only",
+      "note": "a name with no Latin letter or digit: the id",
+      "project": {
+        "id": "project:invented-loop-04",
+        "name": "配管"
+      },
+      "expected_slug": "invented-loop-04"
+    },
+    {
+      "case_id": "accented-latin",
+      "note": "an accented letter is outside a to z and becomes a hyphen",
+      "project": {
+        "id": "project:x",
+        "name": "Tubería Nº 5"
+      },
+      "expected_slug": "tuber-a-n-5"
+    },
+    {
+      "case_id": "leading-trailing-runs",
+      "note": "leading and trailing runs are trimmed",
+      "project": {
+        "id": "project:x",
+        "name": "  --Loop A--  "
+      },
+      "expected_slug": "loop-a"
+    },
+    {
+      "case_id": "upper-case",
+      "note": "upper case is lowered",
+      "project": {
+        "id": "project:x",
+        "name": "LOOP B"
+      },
+      "expected_slug": "loop-b"
+    },
+    {
+      "case_id": "digits",
+      "note": "digits are kept",
+      "project": {
+        "id": "project:x",
+        "name": "Unit 42 Line 7"
+      },
+      "expected_slug": "unit-42-line-7"
+    },
+    {
+      "case_id": "inner-runs",
+      "note": "a run of several characters becomes one hyphen",
+      "project": {
+        "id": "project:x",
+        "name": "Loop   //  C"
+      },
+      "expected_slug": "loop-c"
+    }
+  ]
+}

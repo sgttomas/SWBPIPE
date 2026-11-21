@@ -111,7 +111,7 @@ export function ReportPanel({
         <ControlledExportLink
               className="report-export-link"
               data-testid="report-export-link"
-              download={suggestedFileName(model.project, "report", result.run_id)}
+              download={suggestedFileName(model.project, "reportPacket", result.run_id)}
               href={jsonDataHref(controlledReport.payload)}
             >
               <Download size={14} aria-hidden="true" />
