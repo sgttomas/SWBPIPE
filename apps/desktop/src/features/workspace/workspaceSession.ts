@@ -2931,6 +2931,8 @@ export function useWorkspaceSession() {
 
   /** Form 1: the one-step commit of an immediate edit. */
   async function commitEditorInput(binding: EditorBindingRecord, input: unknown): Promise<EditorCommitResult> {
+    // Q5 (v): a retired workspace refuses before the input is read.
+    if (!sessionMounted.current) return editorRefusal("This workspace is closed, so nothing was applied.");
     const owned = ownEditorInput(binding.builder.input, input);
     if ("refused" in owned) return editorRefusal(`${binding.builder.name}: ${owned.refused}`);
     const request = beginEditorRequest();
@@ -2950,6 +2952,8 @@ export function useWorkspaceSession() {
   /** Form 2, first step: the engine's validate-only preview for a dialog to show, and the single-use handle its
    * confirm presents. Nothing is applied. */
   async function previewEditorInput(binding: EditorBindingRecord, input: unknown): Promise<EditorPreviewResult> {
+    // Q5 (v): a retired workspace refuses before the input is read.
+    if (!sessionMounted.current) return editorRefusal("This workspace is closed, so nothing was applied.");
     const owned = ownEditorInput(binding.builder.input, input);
     if ("refused" in owned) return editorRefusal(`${binding.builder.name}: ${owned.refused}`);
     const request = beginEditorRequest();

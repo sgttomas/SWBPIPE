@@ -6,6 +6,7 @@
 import { act, cleanup, render, waitFor } from "@testing-library/react";
 import { isDeepStrictEqual } from "node:util";
 import { afterEach, expect, it, vi } from "vitest";
+import * as operationBatchService from "../../services/operationBatchService";
 const invokeMock = vi.hoisted(() => vi.fn());
 vi.mock("@tauri-apps/api/core", async () => ({ invoke: (await import("../../test/nativeIngress")).ingressDecodingInvoke(invokeMock, { nativeReopen: "actual" }) }));
 import { createSolveJobTransport, nativeMechanicsReplayPair } from "../../test/nativeMechanicsReplay";
@@ -43,7 +44,7 @@ const coordinate: EditorBuilder<CoordinateInput> = {
   }
 };
 
-async function solvedSession() {
+async function solvedSession(steps: { solve: boolean; aggregate: boolean } = { solve: true, aggregate: true }) {
   const pair = nativeMechanicsReplayPair("sparse_interactive", { profile: "pressure" });
   const storage = await getLocalStorageCapability(), knowledge = await loadDesignKnowledge();
   const engine = loadWasmEngine();
@@ -75,9 +76,11 @@ async function solvedSession() {
   function Harness() { current = useWorkspaceSession(); return null; }
   render(<Harness />);
   await waitFor(() => expect(current.model.modelHash).not.toBeNull());
+  if (!steps.solve) return () => current;
   await act(async () => { await current.results.handleRun(); });
   await waitFor(() => expect(current.results.analysisRun).not.toBeNull(), { timeout: 20000 });
   const results = current.results;
+  if (!steps.aggregate) return () => current;
   await act(async () => {
     await results.handleRuleCheckAggregate("USER_RULE_CHECKED", { projectSessionGeneration: current.model.projectSessionGeneration,
       modelRevision: current.model.uiModelRevision, result: results.currentSolvedResult, inputManifest: results.inputManifest });
@@ -139,4 +142,57 @@ it("a listener's failure after publication, with a fresh result held: the commit
 it("a listener throwing an object with no prototype after publication: committed with a fixed notice, and all ten clears are made (Q3)", async () => {
   const outcome = await commitWithFailingListener(() => Object.create(null));
   expect(outcome.notice).toContain("A view of the session did not take this change: a failure that could not be put into words");
+}, 60_000);
+
+/** Holds the next application until released, then runs the real one. */
+function holdApply() {
+  const real = operationBatchService.applyOperationBatch;
+  let release!: () => void;
+  const gate = new Promise<void>((resolve) => { release = resolve; });
+  let reached!: () => void;
+  const arrived = new Promise<void>((resolve) => { reached = resolve; });
+  vi.spyOn(operationBatchService, "applyOperationBatch").mockImplementationOnce(async (...args) => { reached(); await gate; return real(...args); });
+  return { release, arrived };
+}
+
+it("a live solve published in the same act batch as the commit's completion is seen: the commit clears its result, run and manifest (Q5 i)", async () => {
+  const state = await solvedSession({ solve: false, aggregate: false });
+  expect(state().results.result).toBeNull();
+  const node = state().model.model!.nodes[1];
+  const held = holdApply();
+  let outcome: Json;
+  let during: Json;
+  // One act: React renders nothing until it ends, so a value read from the last render would miss the solve.
+  await act(async () => {
+    const pending = state().editorBinding.bindCommit(coordinate)({ nodeId: node.id, value: String(node.position.z + 0.5) });
+    await held.arrived;
+    await state().results.handleRun();
+    during = { result: state().results.result };
+    held.release();
+    outcome = await pending;
+  });
+  expect(during.result).toBeNull(); // the render before the act: nothing was rendered inside it
+  expect(outcome).toMatchObject({ status: "committed", resultsCleared: true });
+  const after = state().results;
+  expect([after.result, after.analysisRun, after.inputManifest, after.ruleCheckAggregate]).toEqual([null, null, null, null]);
+}, 60_000);
+
+it("a rule-check aggregate published in the same act batch as the commit's completion is cleared (Q5 i)", async () => {
+  const state = await solvedSession({ solve: true, aggregate: false });
+  const results = state().results;
+  // The aggregate's basis is the rendered solve, as the rule check's own panel takes it.
+  const basis = { projectSessionGeneration: state().model.projectSessionGeneration, modelRevision: state().model.uiModelRevision, result: results.currentSolvedResult, inputManifest: results.inputManifest };
+  expect(basis.result).not.toBeNull();
+  const node = state().model.model!.nodes[1];
+  const held = holdApply();
+  let outcome: Json;
+  await act(async () => {
+    const pending = state().editorBinding.bindCommit(coordinate)({ nodeId: node.id, value: String(node.position.z + 0.5) });
+    await held.arrived;
+    await results.handleRuleCheckAggregate("USER_RULE_CHECKED", basis);
+    held.release();
+    outcome = await pending;
+  });
+  expect(outcome).toMatchObject({ status: "committed", resultsCleared: true });
+  expect(state().results.ruleCheckAggregate).toBeNull();
 }, 60_000);

@@ -118,7 +118,8 @@ function refused<T extends { status: string }>(outcome: T) {
 }
 
 /** Everything a commit may change: the model, the history, the receipts, the review queue, the selection, the held
- * result and the solve job. The held values are compared by identity (they are not copied). */
+ * result and the solve job, as a deep copy taken when it is called, so an in-place change of a held object is seen. A
+ * held value that cannot be copied (a native custody record) is kept by identity. */
 function snapshot(result: Session) {
   const operations = result.current.operations, results = result.current.results;
   return {
@@ -128,7 +129,9 @@ function snapshot(result: Session) {
       editorIntents: operations.editorIntents, batchOutcomes: operations.batchOutcomes, operationOutcomes: operations.operationOutcomes,
       selection: result.current.selection.selection, orderedSelection: result.current.selection.orderedSelection, solveJob: results.solveJob
     }),
-    held: [results.result, results.analysisRun, results.inputManifest, results.ruleCheckAggregate, results.historicalRun]
+    held: [results.result, results.analysisRun, results.inputManifest, results.ruleCheckAggregate, results.historicalRun].map((value) => {
+      try { return structuredClone(value); } catch { return value; }
+    })
   };
 }
 /** The request state a refused call must leave alone (A10). */
@@ -902,6 +905,45 @@ describe("lifetime and currentness (P3)", () => {
     expect(applied.mock.calls.length).toBe(callsAtUnmount);
   });
 
+  it.each([["form 1's commit"], ["form 2's preview"]])("an unmount in the microtask after the build-and-validate helper resolves, before %s resumes: the engine applies nothing and no handle is issued (Q5 iii)", async (form) => {
+    const hook = await mounted();
+    const real = operationBatchService.validateOperationBatch;
+    let armed = false;
+    vi.spyOn(operationBatchService, "validateOperationBatch").mockImplementationOnce(async (...args) => {
+      const outcome = await real(...args);
+      const mode = outcome.mode;
+      // Read by the helper after it resumes with the reply; from there it returns without another await, so this
+      // microtask runs after the helper's promise resolves and before its caller resumes.
+      Object.defineProperty(outcome, "mode", { configurable: true, enumerable: true, get() {
+        if (!armed) { armed = true; queueMicrotask(() => hook.unmount()); }
+        return mode;
+      } });
+      return outcome;
+    });
+    const apply = vi.spyOn(operationBatchService, "applyOperationBatch");
+    const input = { nodeId: "node:C", axis: "y" as const, value: "2.5" };
+    const outcome = form === "form 1's commit"
+      ? await hook.result.current.editorBinding.bindCommit(gridCell)(input)
+      : await hook.result.current.editorBinding.bindDialog(gridCell).preview(input);
+    expect(armed).toBe(true);
+    expect(refused(outcome).reason).toContain("changed while this edit was checked");
+    expect(apply).not.toHaveBeenCalled();
+  });
+
+  it("a retired hook's callbacks refuse before the input is read: the guard's check is never called, even for invalid input (Q5 v)", async () => {
+    const hook = await mounted();
+    let checked = 0;
+    const guarded = { ...gridCell, name: "checked-grid-cell", input: { members: gridCell.input.members, check: (input: Readonly<Record<string, unknown>>) => { checked += 1; return gridCell.input.check(input); } } };
+    const commit = hook.result.current.editorBinding.bindCommit(guarded);
+    const dialog = hook.result.current.editorBinding.bindDialog(guarded);
+    hook.unmount();
+    for (const input of [{ nodeId: "node:C", axis: "y", value: "2.5" }, { nodeId: 1 }, { operations: [] }, null]) {
+      expect(refused(await commit(input as never)).reason, JSON.stringify(input)).toContain("This workspace is closed");
+      expect(refused(await dialog.preview(input as never)).reason, JSON.stringify(input)).toContain("This workspace is closed");
+    }
+    expect(checked).toBe(0);
+  });
+
   it("a callback kept after its workspace closed is refused at entry, with nothing built", async () => {
     const hook = await mounted();
     let built = 0;
@@ -1178,9 +1220,9 @@ describe("DEL-16-06: the binder and the command triggers are out of reach of the
     expect([...declared.matchAll(/^\s*(\w+)\(/gm)].map((match) => match[1]).sort()).toEqual(["proposal", "register", "snapshot", "solve", "withdraw"]);
   });
 
-  it("no source of the agent, its proposals, offline intake, the library or the model batch file import names the binder, a command trigger, the session's context hooks or an apply", () => {
-    const reached = files.filter(({ file }) => /^(features\/(embedded-agent|agent-proposals|offline-proposal-intake|library|caepipe-mbf)\/|services\/embeddedAgent)/.test(file));
-    for (const folder of ["features/embedded-agent/", "features/agent-proposals/", "features/offline-proposal-intake/", "features/library/", "features/caepipe-mbf/", "services/embeddedAgent"]) {
+  it("no source of the agent, its proposals, offline intake, the library, the model batch file import or hanger sizing names the binder, a command trigger, the session's context hooks or an apply", () => {
+    const reached = files.filter(({ file }) => /^(features\/(embedded-agent|agent-proposals|offline-proposal-intake|library|caepipe-mbf|hanger-sizing)\/|services\/embeddedAgent)/.test(file));
+    for (const folder of ["features/embedded-agent/", "features/agent-proposals/", "features/offline-proposal-intake/", "features/library/", "features/caepipe-mbf/", "features/hanger-sizing/", "services/embeddedAgent"]) {
       expect(reached.some(({ file }) => file.startsWith(folder)), folder).toBe(true);
     }
     expect(reached.filter(({ text }) => REACH.test(text)).map(({ file }) => file)).toEqual([]);

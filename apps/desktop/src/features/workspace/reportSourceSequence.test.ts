@@ -322,21 +322,24 @@ describe("sequenced state cells", () => {
     await settle();
     model.holding.add("advance");
     const reported = vi.spyOn(console, "error").mockImplementation(() => undefined);
-    const heard: number[] = [];
-    source.subscribe(() => { throw new Error("invented subscriber failure"); });
-    source.subscribe(() => { throw new Error("a second invented failure"); });
-    source.subscribe((sequence) => heard.push(sequence));
-    const { result } = renderHook(() => useSequencedState<string>("old model", source.advance));
-    expect(() => act(() => result.current[1]("new model"))).not.toThrow();
-    expect(heard).toEqual([1]);
-    expect(result.current[0]).toBe("new model");
-    expect(source.sequence).toBe(1);
-    await settle();
-    expect(model.held.map((entry) => [entry.kind, entry.argument])).toEqual([["advance", { incarnation: 1, sequence: 1 }]]);
-    expect(reported).toHaveBeenCalledTimes(1);
-    expect(reported.mock.calls[0]).toEqual(["A report-source subscriber failed; the others were still told and the advance went on.", new Error("invented subscriber failure")]);
-    await expect(source.registeredFor(0)).rejects.toMatchObject({ code: "REPORT-SOURCE-STALE-VIEW" });
-    reported.mockRestore();
+    try {
+      const heard: number[] = [];
+      source.subscribe(() => { throw new Error("invented subscriber failure"); });
+      source.subscribe(() => { throw new Error("a second invented failure"); });
+      source.subscribe((sequence) => heard.push(sequence));
+      const { result } = renderHook(() => useSequencedState<string>("old model", source.advance));
+      expect(() => act(() => result.current[1]("new model"))).not.toThrow();
+      expect(heard).toEqual([1]);
+      expect(result.current[0]).toBe("new model");
+      expect(source.sequence).toBe(1);
+      await settle();
+      expect(model.held.map((entry) => [entry.kind, entry.argument])).toEqual([["advance", { incarnation: 1, sequence: 1 }]]);
+      expect(reported).toHaveBeenCalledTimes(1);
+      expect(reported.mock.calls[0]).toEqual(["A report-source subscriber failed; the others were still told and the advance went on.", new Error("invented subscriber failure")]);
+      await expect(source.registeredFor(0)).rejects.toMatchObject({ code: "REPORT-SOURCE-STALE-VIEW" });
+    } finally {
+      reported.mockRestore();
+    }
   });
 
 
