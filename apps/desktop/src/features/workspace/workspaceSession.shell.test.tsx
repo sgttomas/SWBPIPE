@@ -51,7 +51,6 @@ const SESSION_SETTERS: Record<(typeof SLICES)[number], string[]> = {
     "setOpenMenu",
     "setOperationTab",
     "setReviewDetailsOpen",
-    "setAuditDrawerOpen",
     "setIssuesDrawerOpen",
     "setStageViewMemory"
   ]

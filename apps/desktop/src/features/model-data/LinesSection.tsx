@@ -34,7 +34,9 @@ export function LinesSection(props: ModelDataQueueProps & { selectionState?: Ord
 
   return (
     <section className="model-tree-lines" aria-label="Lines" data-testid="lines-section">
-      <h3>Lines</h3>
+      {/* Closed on first open, so the tree keeps its height; the summary is the name and the count. */}
+      <details className="model-tree-records-disclosure" data-testid="lines-disclosure">
+      <summary>Lines ({lines.length})</summary>
       <p className="model-data-note">A line groups pipes; the solve does not read it.</p>
       {lines.length === 0 ? <p data-testid="lines-empty">No lines in this model.</p> : (
         <ul className="model-data-list">
@@ -56,6 +58,7 @@ export function LinesSection(props: ModelDataQueueProps & { selectionState?: Ord
       </div>
       {error ? <p role="alert">{error}</p> : null}
       {notice ? <p role="status">{notice}</p> : null}
+      </details>
     </section>
   );
 }

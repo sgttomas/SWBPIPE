@@ -5499,6 +5499,21 @@ const NATIVE_FILE_MENU: &[Option<(&str, &str, Option<&str>)>] = &[
     Some(("file.save-shareable-report-package", "Save Shareable Report Package…", None)),
 ];
 
+/// The workspace sections the native View menu lists, in order, with the in-DOM
+/// menu's labels: the same set as `VIEW_MENU_SECTIONS` (`menuCommands.ts`). Review
+/// changes and Load Cases are not listed, because the rail and the stage tabs reach
+/// them in every state; the webview still accepts their `view.section.*` ids.
+const NATIVE_VIEW_SECTIONS: &[(&str, &str)] = &[
+    ("view.section.libraries", "Libraries"),
+    ("view.section.rule-packs", "Rules"),
+    ("view.section.solve", "Analyze"),
+    ("view.section.results", "Results"),
+    ("view.section.report", "Report"),
+    ("view.section.project", "Project"),
+    ("view.section.exports", "Exports"),
+    ("view.section.evidence", "Evidence"),
+];
+
 // Native macOS menu bar (TP-R3UX-CADSHELL). Each custom item carries the same
 // command id the in-DOM menu uses; on click the backend injects one typed DOM
 // event into the main webview, where the React command sink dispatches it.
@@ -5589,7 +5604,7 @@ fn build_app_menu<R: tauri::Runtime>(
         .checked(false)
         .build(handle)?;
 
-    let view = SubmenuBuilder::new(handle, "View")
+    let mut view = SubmenuBuilder::new(handle, "View")
         .item(&view_table)
         .item(&view_model)
         .item(&view_both)
@@ -5599,24 +5614,14 @@ fn build_app_menu<R: tauri::Runtime>(
         .item(&stage_results)
         .item(&stage_review)
         .separator()
-        .text("view.tree", "Model Tree")
         .item(&inspector)
-        .separator()
-        .text("view.section.operations", "Operation Apply")
-        .text("view.section.loads", "Load Cases")
-        .text("view.section.libraries", "Libraries")
-        .text("view.section.rule-packs", "Rule Packs")
-        .text("view.section.solve", "Solve")
-        .text("view.section.results", "Results")
-        .text("view.section.report", "Report")
-        .text("view.section.project", "Project")
-        .text("view.section.exports", "Exports")
-        .text("view.section.evidence", "Audit & Boundaries")
+        .separator();
+    for (id, label) in NATIVE_VIEW_SECTIONS {
+        view = view.text(*id, *label);
+    }
+    let view = view
         .separator()
         .text("view.issues", "Issues")
-        .text("view.audit", "Audit & Boundaries Drawer")
-        .separator()
-        .text("view.close-panels", "Close Panel (show viewport)")
         .separator()
         .item(&theme_light)
         .item(&theme_dark)
@@ -5624,6 +5629,8 @@ fn build_app_menu<R: tauri::Runtime>(
         .separator()
         .item(&density_comfortable)
         .item(&density_compact)
+        .separator()
+        .text("view.close-panels", "Close Page")
         .build()?;
 
     let insert = SubmenuBuilder::new(handle, "Insert")
@@ -6400,6 +6407,8 @@ pub fn run() {
         native_smoke::native_smoke_choose,
         native_smoke::native_smoke_clear_choices,
         native_smoke::native_smoke_menu,
+        native_smoke::native_smoke_menu_items,
+        native_smoke::native_smoke_show_window,
         native_smoke::native_smoke_plan,
         native_smoke::native_smoke_profile_readers,
         native_smoke::native_smoke_log,
@@ -7048,6 +7057,30 @@ mod tests {
         );
         let escaped = native_menu_dispatch_script("view.section.\"report\"");
         assert!(escaped.contains("view.section.\\\"report\\\""));
+    }
+
+    /// The native View menu lists the sections the in-DOM one lists (`VIEW_MENU_SECTIONS`,
+    /// `menuCommands.ts`), under the same labels, and not the routes the rail and the
+    /// stage tabs already give (Review changes, Load Cases, the table drawer).
+    #[test]
+    fn native_view_menu_lists_the_in_dom_sections_under_their_labels() {
+        assert_eq!(
+            NATIVE_VIEW_SECTIONS,
+            &[
+                ("view.section.libraries", "Libraries"),
+                ("view.section.rule-packs", "Rules"),
+                ("view.section.solve", "Analyze"),
+                ("view.section.results", "Results"),
+                ("view.section.report", "Report"),
+                ("view.section.project", "Project"),
+                ("view.section.exports", "Exports"),
+                ("view.section.evidence", "Evidence"),
+            ]
+        );
+        for removed in ["view.tree", "view.section.operations", "view.section.loads"] {
+            assert!(NATIVE_VIEW_SECTIONS.iter().all(|(id, _)| *id != removed), "{removed} is not listed");
+            assert!(native_menu_dispatch_script(removed).contains(&format!("detail: \"{removed}\"")));
+        }
     }
 
     fn sample_native_shell_state() -> NativeShellState {
@@ -11044,6 +11077,58 @@ mod tests {
             ));
             fs::create_dir_all(&root).unwrap();
             root.join(PROJECT_STORE_FILE)
+        }
+
+        /// Issue 382: each native operation command refuses a bare number that names a unit
+        /// other than the stored one, and returns no model. The bundled model stores the
+        /// material's elastic modulus as 200000000000 Pa; the edit is the issue's own (bare
+        /// 210, unit GPa). The explicit pair is the control.
+        #[test]
+        fn model_operation_commands_refuse_a_bare_number_naming_another_unit() {
+            const CODE: &str = "OP-UNIT-MISMATCH-CONVERSION-UNAVAILABLE";
+            let model = load_preview_model().unwrap();
+            let stored = |model: &Value| {
+                model["materials"].as_array().unwrap().iter().find(|m| m["id"] == "material:invented-carbon-steel").unwrap()["elastic_modulus"].clone()
+            };
+            assert_eq!(stored(&model), json!({"value": 200000000000u64, "unit": "Pa"}));
+            let with_unit = |after: &str| {
+                let mut intent = fixture_inspector_intent("200000000000", after);
+                intent["change"]["unit"] = json!("GPa");
+                intent
+            };
+            let bare = with_unit("210");
+            let pair = with_unit(r#"{"value":210,"unit":"GPa"}"#);
+            // The stored number is compared as a number: the applier stores a pair's value as binary64.
+            let pair_of = |quantity: &Value| (quantity["value"].as_f64(), quantity["unit"].as_str().map(str::to_owned));
+            let refuses = |diagnostics: &Value| diagnostics.as_array().unwrap().iter().any(|d| d["code"] == CODE && d["severity"] == "blocking");
+            let claim = json!({"algorithm": "sha256", "canonicalization": "rfc8785_jcs", "payload_scope": "model_payload",
+                "value": format!("sha256:{}", open_pipe_stress_operation_applier::sha256_hex(&open_pipe_stress_operation_applier::canonical_json(&model)))});
+
+            for command in ["validate_model_operation", "apply_model_operation"] {
+                let (mut args, _lease) = admit(command, json!({"model": model, "intent": bare, "claimedModelHash": null}));
+                let outcome = if command == "apply_model_operation" { apply_model_operation_args(&mut args) } else { validate_model_operation_args(&mut args) }.unwrap();
+                assert!(refuses(&outcome["diagnostics"]), "{command}: {}", outcome["diagnostics"]);
+                assert!(outcome["applied_model"].is_null(), "{command}");
+                assert_eq!(outcome["validation"]["unit_validation"], "blocked", "{command}");
+            }
+            for apply in [false, true] {
+                let command = if apply { "apply_model_operation_batch" } else { "validate_model_operation_batch" };
+                let batch = json!({"batch_id": "batch:bare-gpa", "operations": [bare]});
+                let (mut args, _lease) = admit(command, json!({"model": model, "batch": batch, "claimedModelHash": claim}));
+                let outcome = model_operation_batch_args(&mut args, apply).unwrap();
+                assert_eq!(outcome["simulation_disposition"], "rolled_back_no_model_published", "{command}: {}", outcome["diagnostics"]);
+                assert!(refuses(&outcome["operation_outcomes"][0]["diagnostics"]), "{command}: {}", outcome["operation_outcomes"]);
+                assert!(outcome["applied_model"].is_null(), "{command}");
+            }
+
+            let (mut args, _lease) = admit("apply_model_operation", json!({"model": model, "intent": pair, "claimedModelHash": null}));
+            let applied = apply_model_operation_args(&mut args).unwrap();
+            assert_eq!(pair_of(&stored(&applied["applied_model"])), (Some(210.0), Some("GPa".to_owned())), "{}", applied["diagnostics"]);
+            let batch = json!({"batch_id": "batch:pair-gpa", "operations": [pair]});
+            let (mut args, _lease) = admit("apply_model_operation_batch", json!({"model": model, "batch": batch, "claimedModelHash": claim}));
+            let applied = model_operation_batch_args(&mut args, true).unwrap();
+            assert_eq!(applied["simulation_disposition"], "committed_as_one_batch", "{}", applied["diagnostics"]);
+            assert_eq!(pair_of(&stored(&applied["applied_model"])), (Some(210.0), Some("GPa".to_owned())));
         }
 
         #[test]
