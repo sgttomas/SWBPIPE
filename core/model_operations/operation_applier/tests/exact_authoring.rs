@@ -58,6 +58,20 @@ fn apply(model: &Value, intent: &Value) -> Value {
         .applied_model
         .expect(&format!("{:?}", outcome.diagnostics))
 }
+/// `apply` for an operation whose review shows `rows` diff rows: the applier admits it, with no blocking finding in its
+/// review or its application. Activating a document that states a selection shows two: the profile, and the
+/// selection's removal from the model settings.
+fn admitted(model: &Value, intent: &Value, rows: usize) -> Value {
+    let claim = hash(model);
+    let preview = validate_operation(model, intent, Some(&claim));
+    assert!(preview.applied_model.is_none());
+    assert_eq!(preview.diff_preview.len(), rows, "{:?}", preview.diagnostics);
+    let outcome = apply_operation(model, intent, Some(&claim));
+    for diagnostic in preview.diagnostics.iter().chain(&outcome.diagnostics) {
+        assert_ne!(diagnostic.severity, "blocking", "{diagnostic:?}");
+    }
+    outcome.applied_model.unwrap_or_else(|| panic!("{:?}", outcome.diagnostics))
+}
 fn projection(value: &Value, keys: &[&str]) -> Value {
     Value::Object(
         keys.iter()
@@ -730,6 +744,397 @@ fn pressure_profile_changes_and_preserves_the_shear_selection_explicitly() {
         assert_eq!(canonical_json(&applied), canonical_json(&model), "{shear_model}");
         assert_eq!(applied["pressure_contract"]["shear_model"], shear_model);
     }
+}
+
+/// A pressure-free document's shear selection (`model_settings.shear_model`) is the
+/// user's choice for its straight members. Activating the pressure profile carries it
+/// into `pressure_contract.shear_model` and removes it from the model settings in the
+/// same operation, shown as its own row, so no document holds both: an explicit
+/// Euler-Bernoulli choice is kept, not overwritten. A contract naming the other model is
+/// refused and the document is unchanged. Other model settings stay.
+#[test]
+fn pressure_profile_carries_the_pressure_free_shear_selection_into_the_contract() {
+    let expected = fixture();
+    let free = pressure_free(&expected);
+    assert!(free.get("model_settings").is_none());
+    let id = expected["project"]["id"].as_str().unwrap().to_string();
+    let free_before = json!({"schema_version": "0.9.0"});
+    let tolerance = json!({"value": 5.0, "unit": "mm"});
+    for stated in [TIMOSHENKO, EULER_BERNOULLI] {
+        for other in [None, Some(&tolerance)] {
+            let mut document = free.clone();
+            document["model_settings"] = json!({"shear_model": stated});
+            if let Some(other) = other {
+                document["model_settings"]["node_proximity_tolerance"] = other.clone();
+            }
+            let after = json!({"schema_version": "0.9.0", "pressure_contract": contract(json!(stated))});
+            let op = intent("Model", &id, "pressure_profile", Some(&free_before), &after);
+            let claim = hash(&document);
+            let preview = validate_operation(&document, &op, Some(&claim));
+            let rows: Vec<_> = preview.diff_preview.iter().map(|row| (row.object_type.as_str(), row.field_path.as_str(), row.before.as_str(), row.after.as_str(), row.change_kind.as_str())).collect();
+            let quoted = format!("\"{stated}\"");
+            assert_eq!(rows[1..], [("Project", "model_settings.shear_model", quoted.as_str(), "not_present", "clear_model_setting")], "{stated}: {:?}", preview.diagnostics);
+            assert_eq!(rows[0].1, "pressure_profile");
+            let outcome = apply_operation(&document, &op, Some(&claim));
+            let activated = outcome.applied_model.unwrap_or_else(|| panic!("{stated}: {:?}", outcome.diagnostics));
+            // The result is the exact document with the stated selection; only the stated
+            // selection left the model settings.
+            let mut selected = with_shear(&expected, stated);
+            without_pressure_elongation(&mut selected);
+            if let Some(other) = other {
+                selected["model_settings"] = json!({"node_proximity_tolerance": other});
+            }
+            assert_eq!(canonical_json(&activated), canonical_json(&selected), "{stated} {other:?}");
+            // The other model is refused, and nothing is written.
+            let theirs = if stated == TIMOSHENKO { EULER_BERNOULLI } else { TIMOSHENKO };
+            let conflicting = json!({"schema_version": "0.9.0", "pressure_contract": contract(json!(theirs))});
+            let outcome = apply_operation(&document, &intent("Model", &id, "pressure_profile", Some(&free_before), &conflicting), Some(&claim));
+            assert!(outcome.applied_model.is_none(), "{stated}");
+            let codes: Vec<_> = outcome.diagnostics.iter().map(|d| d.code.as_str()).collect();
+            assert!(codes.contains(&"OP-PRESSURE-PROFILE-SHEAR-MODEL-CONFLICT"), "{stated}: {codes:?}");
+            assert!(outcome.diff_preview.is_empty());
+        }
+    }
+    // A saved document that states none takes the contract's own selection, and the
+    // operation writes only the profile.
+    for shear_model in [TIMOSHENKO, EULER_BERNOULLI] {
+        let after = json!({"schema_version": "0.9.0", "pressure_contract": contract(json!(shear_model))});
+        let activated = apply(&free, &intent("Model", &id, "pressure_profile", Some(&free_before), &after));
+        assert_eq!(activated["pressure_contract"]["shear_model"], shear_model);
+        assert!(activated.get("model_settings").is_none());
+    }
+    // A document that arrives holding both is still refused by name.
+    let mut both = with_shear(&free, TIMOSHENKO);
+    both["model_settings"] = json!({"shear_model": TIMOSHENKO});
+    let requeue = projection(&both, &["schema_version", "pressure_contract"]);
+    let outcome = apply_operation(&both, &intent("Model", &id, "pressure_profile", Some(&requeue), &requeue), Some(&hash(&both)));
+    assert!(outcome.applied_model.is_none());
+    let codes: Vec<_> = outcome.diagnostics.iter().map(|d| d.code.as_str()).collect();
+    assert!(codes.iter().any(|code| code.contains("SHEAR_MODEL_WITH_PRESSURE_CONTRACT") || code.contains("SHEAR-MODEL-WITH-PRESSURE-CONTRACT")), "{codes:?}");
+}
+
+/// The carry is shown in a result, not only in the document. A pressure-free document stating a model is solved, and
+/// the fixture's document stating the same model is activated and solved on the exact route: the straight members'
+/// theory is the same in both results (identity, member record, tip motions to 1e-9), and the other theory's result
+/// is measurably different, so the agreement cannot pass with the selection lost or with both solves on one theory.
+///
+/// Activation and the exact solve use the fixture's own document. The pressure-free route refuses three of its
+/// inputs by name, so the pressure-free solve takes its twin, which differs only there, none of it entering a
+/// straight member's stiffness or the load:
+/// - MATERIAL_INPUT_MISSING (an E/nu material; the route takes E and G): the twin states E and G = E/(2(1 + nu)),
+///   the relation the exact route forms from E and nu (`pressure_exact::IsotropicENu::new`), so both routes build
+///   with the same E and G.
+/// - CORROSION_ALLOWANCE_WITHOUT_PRESSURE_CONTRACT: the fixture's allowance is 0.0 m. The exact route's stiffness
+///   section is the nominal wall whatever the allowance (product_physics `lib.rs`, the D-5 block of the section
+///   build: "The built section below is the nominal one: it carries stiffness"); the allowance forms only the reduced
+///   section of the stress rows and the pressure bore. The 1e-9 agreement is the evidence.
+/// - PREVIEW_CONTRACT_VERSION_MISMATCH (a case's `pressure_regions` member on the pressure-free route): the case's
+///   list is empty, so it applies no load; activation needs the explicit list, the pressure-free route its absence.
+#[test]
+fn activation_keeps_the_stated_theory_in_the_solve() {
+    let base = fixture();
+    let id = base["project"]["id"].as_str().unwrap().to_string();
+    let mut free = pressure_free(&base);
+    // The six-component case alone, whose region list is empty: activation requires the explicit list.
+    free["load_cases"] = json!([base["load_cases"][1].clone()]);
+    assert_eq!(free["load_cases"][0]["pressure_regions"], json!([]));
+    assert_eq!(free["pipe_segments"][0]["section"]["corrosion_allowance"], json!({"value": 0.0, "unit": "m"}));
+    let solve = |model: &Value| {
+        let request: LinearStaticPreviewRequest = serde_json::from_value(json!({"model": model, "materials": []})).unwrap();
+        let result = run_linear_static_preview_with_mode(request, PreviewSolverMode::SparseInteractive);
+        assert_eq!(result.status.mechanics, "MECHANICS_SOLVED", "{:?}", result.diagnostics);
+        serde_json::to_value(&result).unwrap()
+    };
+    let identity = |result: &Value| result["producer"]["semantic_contract_id"].as_str().unwrap().rsplit('/').next().unwrap().to_string();
+    let tip = |result: &Value| -> Vec<f64> {
+        ["global_nodal_displacement_y", "global_nodal_displacement_z", "global_nodal_rotation_y", "global_nodal_rotation_z"].iter().map(|kind| {
+            result["results"].as_array().unwrap().iter()
+                .find(|row| row["kind"] == *kind && row["entity_ref"] == "node:fixture-tip")
+                .and_then(|row| row["value"].as_f64()).unwrap_or_else(|| panic!("{kind}"))
+        }).collect()
+    };
+    // The pressure-free twin: E and G, no allowance, no pressure_regions member (see above).
+    let twin = |document: &Value| {
+        let mut twin = document.clone();
+        for pipe in twin["pipe_segments"].as_array_mut().unwrap() {
+            pipe["section"].as_object_mut().unwrap().remove("corrosion_allowance");
+        }
+        for case in twin["load_cases"].as_array_mut().unwrap() {
+            case.as_object_mut().unwrap().remove("pressure_regions");
+        }
+        let material = &mut twin["materials"][0];
+        let (e, nu) = (material["elastic_modulus"]["value"].as_f64().unwrap(), material["poisson_ratio"]["value"].as_f64().unwrap());
+        let material = material.as_object_mut().unwrap();
+        material.remove("constitutive_basis");
+        material.remove("poisson_ratio");
+        material.insert("shear_modulus".into(), json!({"value": e / (2.0 * (1.0 + nu)), "unit": "Pa"}));
+        twin
+    };
+    // kappa_E of the fixture's annulus (OD 0.12 m, wall 0.01 m, the nominal stiffness section) with nu = 0.3, in
+    // DEL-05-03's operation order.
+    let (ro, ri, nu) = (0.06_f64, 0.05_f64, 0.3_f64);
+    let (m, n1) = (ri / ro, 1.0 + nu);
+    let (m2, a, b) = (m * m, 1.0 + m * m, 1.0 - m * m);
+    let c = (8.0 * nu + 14.0) * nu + 7.0;
+    let kappa = (6.0 * (n1 * n1)) * (a * a) / (c * (b * b) + 48.0 * (m2 * (n1 * n1)));
+    // For each stated model: (pressure-free twin's tip, activated document's tip).
+    let mut tips = Vec::new();
+    for stated in [TIMOSHENKO, EULER_BERNOULLI] {
+        let mut document = free.clone();
+        document["model_settings"] = json!({"shear_model": stated});
+        let before = solve(&twin(&document));
+        assert_eq!(identity(&before), if stated == TIMOSHENKO { "preview-physics-timoshenko-1" } else { "preview-physics-2" }, "{stated}");
+        let after = json!({"schema_version": "0.9.0", "pressure_contract": contract(json!(stated))});
+        let activated = admitted(&document, &intent("Model", &id, "pressure_profile", Some(&json!({"schema_version": "0.9.0"})), &after), 2);
+        assert_eq!(activated["pressure_contract"]["shear_model"], stated);
+        assert!(activated.get("model_settings").is_none(), "{:#}", activated["model_settings"]);
+        let exact = solve(&activated);
+        assert_eq!(identity(&exact), "pressure-3", "{stated}");
+        let theory = &exact["contract_evidence"]["exact_cases"][0]["pipe_sections"][0]["beam_theory"];
+        assert_eq!(theory["model"], stated, "{theory}");
+        if stated == TIMOSHENKO {
+            let factor = theory["shear_factor"].as_f64().unwrap();
+            assert!((factor - kappa).abs() <= 1e-14 * kappa, "{factor} against {kappa}");
+        }
+        let (pf, ex) = (tip(&before), tip(&exact));
+        for (p, e) in pf.iter().zip(&ex) {
+            assert!((p - e).abs() <= 1e-9 * p.abs().max(e.abs()), "{stated}: {pf:?} against {ex:?}");
+        }
+        tips.push((pf, ex));
+    }
+    // The cross pair differs by the shear term, far above the 1e-9 agreement (measured: uy about 1.6 %, uz about
+    // 3.0 %): the activated Timoshenko tip against the Euler-Bernoulli twin's, and the reverse.
+    let ((timoshenko_twin, timoshenko_exact), (euler_twin, euler_exact)) = (&tips[0], &tips[1]);
+    for (label, x, y) in [("activated Timoshenko against the Euler-Bernoulli twin", timoshenko_exact, euler_twin), ("activated Euler-Bernoulli against the Timoshenko twin", euler_exact, timoshenko_twin)] {
+        for (axis, index, floor) in [("uy", 0, 2e-3), ("uz", 1, 5e-3)] {
+            let relative = (x[index] - y[index]).abs() / x[index].abs().max(y[index].abs());
+            assert!(relative > floor, "{label}: tip {axis} differs by {relative:e}, not above {floor:e}");
+        }
+    }
+}
+
+const RICH_SOURCE: &str = "apps/desktop/src/features/rich-authoring";
+/// An intent as the desktop's builders write it; each step below names its builder.
+fn desktop_intent(operation_id: String, operation_kind: &str, source: Option<&str>, target: Value, change: Value, unit_validation: &str, rationale: String) -> Value {
+    let mut intent = json!({"operation_id": operation_id, "operation_kind": operation_kind, "operation_status": "proposed", "author_type": "user", "target": target, "change": change,
+      "validation": {"schema_validation": "not_run", "constraint_validation": "not_run", "unit_validation": unit_validation, "diff_preview_status": "not_generated", "application_status": "not_applied"},
+      "audit_boundary": {"mutation_route": "structured_operations_only", "direct_model_mutation_allowed": false, "requires_user_acceptance": true, "mutates_accepted_model_state": false},
+      "professional_boundary": {"human_review_required": true, "software_makes_compliance_claim": false, "software_makes_certification_claim": false, "software_makes_sealing_claim": false, "software_makes_approval_claim": false, "software_makes_authentication_claim": false},
+      "rationale": rationale});
+    if let Some(source) = source {
+        intent["source"] = json!({"source_ref": source, "source_channel": "local_desktop_preview", "source_role": "gui_editor"});
+    }
+    intent
+}
+/// `makeRichIntent` (rich-authoring `formSupport.tsx`), which the pressure panel's forms queue through.
+fn rich_intent(object: &str, reference: &str, change_kind: &str, path: &str, before: String, after: String, label: &str) -> Value {
+    let id = format!("{reference}:{path}");
+    desktop_intent(format!("op:rich:{id}"), "modify", Some(RICH_SOURCE), json!({"object_type": object, "ref": reference}),
+        json!({"change_id": format!("change:rich:{id}"), "change_kind": change_kind, "field_label": label, "field_path": path, "before": before, "after": after,
+          "unit": "none", "dimension": "dimensionless", "source_note": "Explicit user-authored values and units; missing optional fields remain absent."}),
+        "not_run", format!("User-authored {}; requires validation and review before application.", label.to_lowercase()))
+}
+
+/// The path a document travels. A solvable pressure-free document stating a shear model is solved, then taken to the
+/// exact route by the operations a person's edits make, each built as the desktop builds it and applied in turn,
+/// in the order the desktop admits them: the explicit E/nu material (the pressure panel's "Create explicit E/nu
+/// material"), the members' reassignment to it (Bulk change, material), the corrosion allowance on every section
+/// (the property inspector, an explicit zero), the `pressure_regions` list on every case (the pressure panel's
+/// regions editor, an empty list: the case has no pressure) and the activation (the pressure panel, its selector
+/// left on the stated model). The panel admits the activation only once every section's allowance is applied.
+/// The exact solve states the document's theory in its contract and on each member record, and its tip motions are
+/// the first solve's to 1e-9; the other theory's path is measurably different.
+///
+/// `activation_keeps_the_stated_theory_in_the_solve` stays: it isolates the activation operation. This test shows
+/// the path, and that between the first of these edits and the activation the document solves on neither route.
+///
+/// The person enters nu; the panel computes none (`checkedMaterial` takes the entered number). Entered as
+/// E/(2G) - 1 from the document's own moduli, the pressure-free route's own nu (`u4b_rows::preview_poisson_ratio`),
+/// it is that number exactly, so both routes build with the same E, G and shear factor.
+#[test]
+fn a_pressure_free_document_reaches_the_exact_route_by_the_desktops_edits_and_keeps_its_theory() {
+    const EXACT_MATERIAL: &str = "material:path-exact";
+    let base = fixture();
+    let id = base["project"]["id"].as_str().unwrap().to_string();
+    // The pressure-free document: the six-component case, a material stating E and G, no allowance, no regions.
+    let mut free = pressure_free(&base);
+    free["load_cases"] = json!([base["load_cases"][1].clone()]);
+    free["load_cases"][0].as_object_mut().unwrap().remove("pressure_regions");
+    for pipe in free["pipe_segments"].as_array_mut().unwrap() {
+        pipe["section"].as_object_mut().unwrap().remove("corrosion_allowance");
+    }
+    let material = free["materials"][0].as_object_mut().unwrap();
+    material.remove("constitutive_basis");
+    material.remove("poisson_ratio");
+    material.insert("shear_modulus".into(), json!({"value": 7.7e10, "unit": "Pa"}));
+    let (e, g) = (free["materials"][0]["elastic_modulus"]["value"].as_f64().unwrap(), free["materials"][0]["shear_modulus"]["value"].as_f64().unwrap());
+    let entered = format!("{}", e / (2.0 * g) - 1.0);
+    let nu: f64 = entered.parse().unwrap();
+    assert_eq!(nu, e / (2.0 * g) - 1.0, "the entered nu is E/(2G) - 1 exactly");
+    assert!((e / (2.0 * (1.0 + nu)) - g).abs() <= 1e-14 * g, "the exact route's G = E/(2(1 + nu)) is the document's G");
+
+    let run = |model: &Value| {
+        let request: LinearStaticPreviewRequest = serde_json::from_value(json!({"model": model, "materials": []})).unwrap();
+        serde_json::to_value(run_linear_static_preview_with_mode(request, PreviewSolverMode::SparseInteractive)).unwrap()
+    };
+    let blocking = |result: &Value| -> std::collections::BTreeSet<String> {
+        result["diagnostics"].as_array().unwrap().iter().filter(|d| d["severity"] == "blocking").map(|d| d["code"].as_str().unwrap().to_string()).collect()
+    };
+    let solved = |result: &Value, label: &str| {
+        assert_eq!(result["status"]["mechanics"], "MECHANICS_SOLVED", "{label}: {:#}", result["diagnostics"]);
+        result["producer"]["semantic_contract_id"].as_str().unwrap().rsplit('/').next().unwrap().to_string()
+    };
+    let tip = |result: &Value| -> Vec<f64> {
+        ["global_nodal_displacement_y", "global_nodal_displacement_z", "global_nodal_rotation_y", "global_nodal_rotation_z"].iter().map(|kind| {
+            result["results"].as_array().unwrap().iter()
+                .find(|row| row["kind"] == *kind && row["entity_ref"] == "node:fixture-tip")
+                .and_then(|row| row["value"].as_f64()).unwrap_or_else(|| panic!("{kind}"))
+        }).collect()
+    };
+    let (m, n1) = (0.05_f64 / 0.06, 1.0 + nu);
+    let (m2, a, b) = (m * m, 1.0 + m * m, 1.0 - m * m);
+    let c = (8.0 * nu + 14.0) * nu + 7.0;
+    let kappa = (6.0 * (n1 * n1)) * (a * a) / (c * (b * b) + 48.0 * (m2 * (n1 * n1)));
+
+    let mut tips = Vec::new();
+    for stated in [TIMOSHENKO, EULER_BERNOULLI] {
+        let mut document = free.clone();
+        document["model_settings"] = json!({"shear_model": stated});
+        let first = run(&document);
+        assert_eq!(solved(&first, stated), if stated == TIMOSHENKO { "preview-physics-timoshenko-1" } else { "preview-physics-2" });
+
+        // 1. Create explicit E/nu material: the person enters the document's E and the nu above.
+        let after = format!(r#"{{"id":"{EXACT_MATERIAL}","label":"Path E/nu","constitutive_basis":"homogeneous_isotropic_E_nu_v1","elastic_modulus":{{"value":{e},"unit":"Pa"}},"poisson_ratio":{{"value":{entered},"unit":"1"}},"provenance":"synthetic_integration_input_not_library_data"}}"#);
+        let mut create = rich_intent("Material", EXACT_MATERIAL, "create_material", "materials", "not_present".into(), after, "Exact E/nu material");
+        create["operation_kind"] = json!("create");
+        create["change"]["dimension"] = json!("stress");
+        create["change"]["unit"] = json!("Pa");
+        document = admitted(&document, &create, 1);
+        let mut states = vec![("the E/nu material", document.clone())];
+
+        // 2. Bulk change, material: one batch, an operation per member (`bulkChange.ts` `setFieldIntent`).
+        let operations: Vec<Value> = document["pipe_segments"].as_array().unwrap().iter().map(|pipe| {
+            let pipe_id = pipe["id"].as_str().unwrap();
+            let token = format!("{pipe_id}-material");
+            desktop_intent(format!("op:bulk-{token}"), "modify", Some("apps/desktop/src/features/bulk-change"), json!({"object_type": "Element", "ref": pipe_id}),
+                json!({"change_id": format!("change:bulk-{token}"), "change_kind": "set_field", "field_label": "Material", "field_path": "material",
+                  "before": pipe["material"], "after": EXACT_MATERIAL, "unit": "none", "dimension": "dimensionless", "source_note": "material reference"}),
+                "not_required_dimensionless", format!("Bulk change: material {EXACT_MATERIAL}; requires validation and review before application."))
+        }).collect();
+        let outcome = apply_operation_batch(&document, &json!({"batch_id": "batch:bulk-material", "operations": operations}), Some(&hash(&document)));
+        assert_eq!(outcome["validation"]["application_status"], "applied_to_session_model", "{outcome:#}");
+        let findings = outcome["diagnostics"].as_array().unwrap().iter()
+            .chain(outcome["operation_outcomes"].as_array().unwrap().iter().flat_map(|step| step["diagnostics"].as_array().unwrap()));
+        for finding in findings {
+            assert_ne!(finding["severity"], "blocking", "{finding}");
+        }
+        document = outcome["applied_model"].clone();
+        states.push(("the members' reassignment", document.clone()));
+
+        // 3. The property inspector's corrosion allowance on every section: an explicit 0 m (`buildOperationIntent`).
+        for pipe_id in document["pipe_segments"].as_array().unwrap().iter().map(|pipe| pipe["id"].as_str().unwrap().to_string()).collect::<Vec<_>>() {
+            let token = format!("pipe-{pipe_id}-section.corrosion_allowance.value");
+            document = admitted(&document, &desktop_intent(format!("op:editor-intent-{token}"), "modify", None, json!({"object_type": "Element", "ref": pipe_id}),
+                json!({"change_id": format!("change:{token}"), "change_kind": "set_field", "field_label": "Corrosion allowance (explicit zero or greater)",
+                  "field_path": "section.corrosion_allowance.value", "before": "TBD", "after": r#"{"value":0,"unit":"m"}"#, "unit": "m", "dimension": "length",
+                  "source_note": "unit metadata required; entered unit captured explicitly"}),
+                "dec018_catalog_dimension_match", format!("preview edit intent for {id}")), 1);
+        }
+        states.push(("the allowance", document.clone()));
+
+        // 4. The regions editor's list on every case.
+        for case_id in document["load_cases"].as_array().unwrap().iter().map(|case| case["id"].as_str().unwrap().to_string()).collect::<Vec<_>>() {
+            document = admitted(&document, &rich_intent("Load", &case_id, "update_load", "pressure_regions", "not_present".into(), "[]".into(), "Pressure regions"), 1);
+        }
+        states.push(("the regions", document.clone()));
+
+        // Each of steps 1 to 4 was admitted with no blocking finding, so the desktop lets a person into this state.
+        // Between the first edit and the activation the document solves on neither route: it has no contract, so
+        // it goes to the pressure-free route, which refuses each exact input by name (a material without G, then
+        // the allowance, then the regions list).
+        let mut expected = std::collections::BTreeSet::from(["MATERIAL_INPUT_MISSING".to_string()]);
+        for (label, state) in &states {
+            if *label == "the allowance" {
+                expected.insert("CORROSION_ALLOWANCE_WITHOUT_PRESSURE_CONTRACT".into());
+            }
+            if *label == "the regions" {
+                expected.insert("PREVIEW_CONTRACT_VERSION_MISMATCH".into());
+            }
+            let result = run(state);
+            assert_ne!(result["status"]["mechanics"], "MECHANICS_SOLVED", "{stated} after {label}");
+            let refused = blocking(&result);
+            assert!(expected.is_subset(&refused), "{stated} after {label}: {refused:?}");
+        }
+
+        // 5. The activation, the selector on the stated model (`PressureAuthoringPanel` `queueProfile`).
+        let after = format!(r#"{{"schema_version":"0.9.0","pressure_contract":{{"version":"3.0.0","mode":"exact_pressure_v3","shear_model":"{stated}"}}}}"#);
+        document = admitted(&document, &rich_intent("Model", &id, "set_field", "pressure_profile", canonical_json(&json!({"schema_version": "0.9.0"})), after, "Exact pressure profile"), 2);
+
+        assert_eq!(document["pressure_contract"], contract(json!(stated)));
+        assert!(document.get("model_settings").is_none(), "{:#}", document["model_settings"]);
+        let created = document["materials"].as_array().unwrap().iter().find(|m| m["id"] == EXACT_MATERIAL).unwrap();
+        assert_eq!(created["poisson_ratio"]["value"].as_f64(), Some(nu));
+        for pipe in document["pipe_segments"].as_array().unwrap() {
+            assert_eq!(pipe["material"], EXACT_MATERIAL);
+            assert_eq!((pipe["section"]["corrosion_allowance"]["value"].as_f64(), &pipe["section"]["corrosion_allowance"]["unit"]), (Some(0.0), &json!("m")));
+        }
+        assert!(document["load_cases"].as_array().unwrap().iter().all(|case| case["pressure_regions"] == json!([])));
+
+        let exact = run(&document);
+        assert_eq!(solved(&exact, stated), "pressure-3");
+        let sections: Vec<&Value> = exact["contract_evidence"]["exact_cases"].as_array().unwrap().iter()
+            .flat_map(|case| case["pipe_sections"].as_array().unwrap()).collect();
+        assert!(!sections.is_empty());
+        for section in sections {
+            let theory = &section["beam_theory"];
+            assert_eq!(theory["model"], stated, "{theory}");
+            if stated == TIMOSHENKO {
+                let factor = theory["shear_factor"].as_f64().unwrap();
+                assert!((factor - kappa).abs() <= 1e-14 * kappa, "{factor} against {kappa}");
+            }
+        }
+        let (pf, ex) = (tip(&first), tip(&exact));
+        for (p, x) in pf.iter().zip(&ex) {
+            assert!((p - x).abs() <= 1e-9 * p.abs().max(x.abs()), "{stated}: {pf:?} against {ex:?}");
+        }
+        tips.push((pf, ex));
+    }
+    let ((timoshenko_first, timoshenko_exact), (euler_first, euler_exact)) = (&tips[0], &tips[1]);
+    for (label, x, y) in [("Timoshenko's exact solve against Euler-Bernoulli's first", timoshenko_exact, euler_first), ("Euler-Bernoulli's exact solve against Timoshenko's first", euler_exact, timoshenko_first)] {
+        for (axis, index, floor) in [("uy", 0, 2e-3), ("uz", 1, 5e-3)] {
+            let relative = (x[index] - y[index]).abs() / x[index].abs().max(y[index].abs());
+            assert!(relative > floor, "{label}: tip {axis} differs by {relative:e}, not above {floor:e}");
+        }
+    }
+}
+
+/// The embedded agent's batch goes through the same applier: a batch that sets the
+/// pressure-free selection and then activates pressure with it leaves only the contract's
+/// selection; one that activates with the other model is refused whole, so a stated
+/// Euler-Bernoulli choice is never replaced by the authored default.
+#[test]
+fn a_batch_that_activates_pressure_carries_the_selection_it_set() {
+    let expected = fixture();
+    let free = pressure_free(&expected);
+    let id = expected["project"]["id"].as_str().unwrap().to_string();
+    let free_before = json!({"schema_version": "0.9.0"});
+    let claim = hash(&free);
+    let batch = |profile: &str| {
+        let mut setting = intent("Project", &id, "model_settings.shear_model", None, &json!(EULER_BERNOULLI));
+        setting["change"]["change_kind"] = json!("set_model_setting");
+        setting["change"]["after"] = json!(EULER_BERNOULLI);
+        let profile = intent("Model", &id, "pressure_profile", Some(&free_before),
+            &json!({"schema_version": "0.9.0", "pressure_contract": contract(json!(profile))}));
+        json!({"batch_id": "batch:carry-shear-selection", "source_model_hash": claim["value"], "operations": [setting, profile]})
+    };
+    let applied = apply_operation_batch(&free, &batch(EULER_BERNOULLI), Some(&claim));
+    assert_eq!(applied["validation"]["application_status"], "applied_to_session_model", "{applied:#}");
+    assert_eq!(applied["applied_model"]["pressure_contract"], contract(json!(EULER_BERNOULLI)));
+    assert!(applied["applied_model"].get("model_settings").is_none(), "{applied:#}");
+    let refused = apply_operation_batch(&free, &batch(TIMOSHENKO), Some(&claim));
+    assert_batch_unpublished(&refused);
+    let steps = refused["operation_outcomes"].as_array().unwrap();
+    assert!(steps[1]["diagnostics"].as_array().unwrap().iter().any(|d| d["code"] == "OP-PRESSURE-PROFILE-SHEAR-MODEL-CONFLICT"), "{refused:#}");
 }
 
 /// O4: signed pressure is admitted under v3 only (the retired v2 contract is a
