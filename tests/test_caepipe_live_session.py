@@ -25,11 +25,11 @@ if str(ROOT) not in sys.path:
 
 from core.handoff.caepipe_external import harness  # noqa: E402
 from core.handoff.caepipe_external.harness import (  # noqa: E402
-    SESSION_LIVENESS_CHECKS,
-    SESSION_LIVENESS_WAIT_S,
+    CONFIG_NAME,
     HarnessConfig,
     await_guest_alive,
     exchange_share_letter,
+    net_use_form,
     open_live_session,
     parse_net_use,
     run_caepipe_round_trip,
@@ -76,21 +76,22 @@ def answering(net_use_text: str, calls: list | None = None, *, exit_status: int 
 # Liveness: asked again a stated number of times, then the run stops before anything is staged
 # --------------------------------------------------------------------------------------------------------------
 def test_liveness_is_asked_again_until_the_guest_answers_and_never_more_than_the_stated_number(tmp_path):
+    """The stated commitment, in literals: four checks in all, 30 s apart."""
     config = config_for(tmp_path)
     answers = [{"status": "unreachable", "reason": "timeout"}, {"status": "unreachable", "reason": "timeout"},
                {"status": "alive"}]
     sleeps: list[float] = []
     result = await_guest_alive(config, liveness=lambda c: answers.pop(0), sleep=sleeps.append)
     assert result["status"] == "alive" and [c["check"] for c in result["checks"]] == [1, 2, 3]
-    assert sleeps == [SESSION_LIVENESS_WAIT_S] * 2
+    assert sleeps == [30.0, 30.0]
 
     asked: list[int] = []
     sleeps.clear()
     result = await_guest_alive(config, liveness=lambda c: asked.append(1) or {"status": "unreachable",
                                                                                 "reason": "no answer"},
                                sleep=sleeps.append)
-    assert result["status"] == "guest_unreachable" and len(asked) == SESSION_LIVENESS_CHECKS
-    assert sleeps == [SESSION_LIVENESS_WAIT_S] * (SESSION_LIVENESS_CHECKS - 1)
+    assert result["status"] == "guest_unreachable" and len(asked) == 4
+    assert sleeps == [30.0, 30.0, 30.0]
     assert "nothing was staged" in result["reason"] and "no answer" in result["reason"]
 
 
@@ -104,7 +105,7 @@ def test_a_guest_that_never_answers_stops_the_run_before_any_share_read_or_stagi
     session, record = open_live_session(config, runner=runner, sleep=lambda s: None)
     assert session is None and record["status"] == "guest_unreachable"
     assert set(calls) == {"ver"}  # nothing but the liveness call reached the guest
-    assert len(calls) == SESSION_LIVENESS_CHECKS * harness.PRLCTL_ATTEMPTS  # each check retries a transport answer
+    assert len(calls) == 4 * harness.PRLCTL_ATTEMPTS  # each check retries a transport answer
     assert sorted(p.name for p in config.exchange_root.iterdir()) == [".gitignore"]  # nothing staged
 
 
@@ -159,8 +160,56 @@ def test_a_line_the_column_layout_leaves_open_fails_closed(tmp_path):
     assert session is None and record["status"] == "share_unknown" and "more than one way" in record["reason"]
 
 
+@pytest.mark.parametrize("wrapped", ["Microsoft Windows Network", NETWORK, "   Another Network"])
+def test_a_row_with_its_network_column_and_a_wrapped_one_after_it_fails_closed(tmp_path, wrapped):
+    """A row that carries its network column and is continued on the next line: the wrapped text could be the row's
+    provider (the inline text then part of the remote), so the share is not read either way."""
+    text = net_use(f"OK           Y:        \\\\Mac\\{SHARE}     {NETWORK}", f"                    {wrapped}")
+    assert parse_net_use(text, SHARE)[0]["ambiguous"] is True
+    session, record = open_live_session(config_for(tmp_path), runner=answering(text), sleep=lambda s: None)
+    assert session is None and record["status"] == "share_unknown"
+
+
+def test_a_row_ending_at_the_name_is_continued_only_by_the_network_column(tmp_path):
+    """Ending at the name, a row may be continued by the network column alone (a long remote wraps it); any other
+    continuation leaves the provider open, and the share is not read."""
+    wrapped = net_use(f"OK           Y:        \\\\Mac\\{SHARE}", "                    Microsoft Windows Network")
+    assert parse_net_use(wrapped, SHARE)[0]["ambiguous"] is True
+    # A connection with no drive letter is a row of its own, not a continuation of the share's row.
+    deviceless = net_use(f"OK           Y:        \\\\Mac\\{SHARE}",
+                         "OK                     \\\\fileserver\\data     Microsoft Windows Network")
+    assert [(m["letter"], m["ambiguous"]) for m in parse_net_use(deviceless, SHARE)] == [("Y:", False)]
+
+
+@pytest.mark.parametrize("spelling, letters", [("Straße", ["Y:"]), ("STRAßE", ["Y:"]), ("Strasse", [])])
+def test_the_share_name_is_matched_letter_by_letter_in_its_exact_spelling(spelling, letters):
+    """The share is named by the exchange folder `Straße`: the same letters in any case are the share; `Strasse`,
+    which folds to the same text, is another name. With the network column on the line as well as without it."""
+    row = f"OK           Y:        \\\\Mac\\{spelling}"
+    for line in (f"{row}     {NETWORK}", row):
+        assert [m["letter"] for m in parse_net_use(net_use(line), "Straße")] == letters
+
+
+@pytest.mark.parametrize("text", [
+    # A mapping line, then the empty listing's last line: the reply contradicts itself.
+    f"New connections will be remembered.\r\n\r\nOK           Y:        \\\\Mac\\{SHARE}     {NETWORK}\r\n"
+    "There are no entries in the list.\r\n",
+    # A mapping line before the column header: outside the table body.
+    f"OK           Y:        \\\\Mac\\{SHARE}     {NETWORK}\r\n" + net_use(),
+    # The header twice, or a closing line inside the body.
+    net_use(f"OK           Y:        \\\\Mac\\{SHARE}", "Status       Local     Remote                    Network"),
+    net_use(f"OK           Y:        \\\\Mac\\{SHARE}", "There are no entries in the list."),
+])
+def test_a_contradictory_listing_is_unknown_and_its_lines_are_not_read(tmp_path, text):
+    assert net_use_form(text) is False and parse_net_use(text, SHARE) == []
+    session, record = open_live_session(config_for(tmp_path), runner=answering(text), sleep=lambda s: None)
+    assert session is None and record["status"] == "share_unknown"
+
+
 def test_the_share_letter_read_from_the_guest_replaces_the_configured_one_in_memory_only(tmp_path):
     config = config_for(tmp_path)
+    (config.exchange_root / CONFIG_NAME).write_text(json.dumps({"guest_exchange_root": "Z:\\invented"}) + "\n",
+                                                    encoding="utf-8")
     file_before = {p.name: p.read_bytes() for p in config.exchange_root.iterdir()}
     calls: list[str] = []
     session, record = open_live_session(
@@ -378,8 +427,35 @@ def test_the_benchmark_route_checks_its_stops_and_batch_before_any_guest_call(tm
     assert words in capsys.readouterr().out
 
 
-def test_the_command_states_a_letter_that_differs_and_runs_on_it(tmp_path, monkeypatch, capsys):
+def test_a_freeze_that_arrives_while_an_exclusive_job_is_waited_for_stops_before_any_guest_call(tmp_path,
+                                                                                                monkeypatch, capsys):
+    """While the command waits on an exclusive job, the job ends and the freeze file appears: both are checked again
+    after the wait, so the run stops on the freeze, with no guest call."""
     command_config(tmp_path, monkeypatch)
+    monkeypatch.setattr(run_pilot, "open_live_session", lambda *a, **k: pytest.fail("a session was opened"))
+    monkeypatch.setattr(run_pilot, "check_guest_alive", lambda *a, **k: pytest.fail("the guest was called"))
+    monkeypatch.setattr(run_pilot, "exchange_share_letter", lambda *a, **k: pytest.fail("the guest was called"))
+    monkeypatch.setattr(run_pilot, "run_benchmark", lambda *a, **k: pytest.fail("the benchmark ran"))
+    exclusive, freeze = tmp_path / "exclusive", tmp_path / "freeze"
+    exclusive.write_text(str(os.getpid()), encoding="ascii")  # a running process holds the host
+    waits: list[float] = []
+
+    def sleep(seconds):
+        waits.append(seconds)
+        exclusive.unlink()  # the job ends ...
+        freeze.write_text("", encoding="utf-8")  # ... and a freeze is set while the command waits
+    monkeypatch.setattr(run_pilot.time, "sleep", sleep)
+    assert run_pilot.main(benchmark_argv(tmp_path), environ={}) == 1
+    out = capsys.readouterr().out
+    assert len(waits) == 1 and "stopped before the first guest step: the freeze file is present" in out
+
+
+def test_the_command_states_a_letter_that_differs_and_runs_on_it(tmp_path, monkeypatch, capsys):
+    config = command_config(tmp_path, monkeypatch)
+    stored = config.exchange_root / CONFIG_NAME
+    stored.write_text(json.dumps({"vm_name": "invented-vm", "guest_exchange_root": "Z:\\invented"}) + "\n",
+                      encoding="utf-8")
+    before = stored.read_bytes()
     guest(monkeypatch, alive=True)
     used = []
     monkeypatch.setattr(run_pilot, "export_case", lambda case, config_: used.append(config_.guest_exchange_root)
@@ -387,12 +463,13 @@ def test_the_command_states_a_letter_that_differs_and_runs_on_it(tmp_path, monke
     assert run_pilot.main(["--export-only", "--case", "cpc-03-anchored-weight"], environ={}) == 0
     assert used == ["Y:"]
     assert "this run uses Y: (the configuration file is unchanged)" in capsys.readouterr().out
+    assert stored.read_bytes() == before  # the override is in memory: the file on disk is byte-unchanged
 
 
 def test_a_letter_equal_to_the_configured_one_is_not_reported_and_the_file_is_unchanged(tmp_path, monkeypatch,
                                                                                         capsys):
     config = command_config(tmp_path, monkeypatch, configured="Y:")
-    stored = config.exchange_root / run_pilot.CONFIG_NAME
+    stored = config.exchange_root / CONFIG_NAME
     stored.write_text(json.dumps({"vm_name": "invented-vm", "guest_exchange_root": "Y:"}) + "\n", encoding="utf-8")
     before = stored.read_bytes()
     guest(monkeypatch, alive=True)

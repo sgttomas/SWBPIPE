@@ -167,6 +167,9 @@ SESSION_LIVENESS_WAIT_S = 30.0
 # A drive mapping line of `net use` (`parse_net_use`): an optional status word, the drive letter and colon, then the
 # rest of the line, which is read only against the one remote wanted, never by a general pattern for a share name.
 NET_USE_DRIVE = re.compile(r"^\s*(?:(?P<status>\S+)\s+)?(?P<letter>[A-Za-z]):\s+(?P<rest>\S.*)\Z")
+# A connection line of `net use` with no drive letter (an optional status word, then the remote): a row of its own,
+# never a continuation of the line above it.
+NET_USE_DEVICELESS = re.compile(r"^\s*(?:\S+\s+)?\\\\\S")
 # The network column `net use` prints for the host's shared folders; it follows the remote after white space, or sits
 # alone on the next line when a long remote wraps the line.
 NET_USE_NETWORK = "Parallels Shared Folders"
@@ -1739,45 +1742,83 @@ def await_guest_alive(config: HarnessConfig, *, checks: int = SESSION_LIVENESS_C
                       f"(last: {outcomes[-1].get('reason', outcomes[-1]['status'])}); nothing was staged"}
 
 
+def _same_share_name(given: str, wanted: str) -> bool:
+    """Whether two share remotes are one name, letter by letter without regard to case (each letter compared alone,
+    so a letter never stands for two, and `Strasse` is not `Straße`)."""
+    return len(given) == len(wanted) and all(a == b or a.lower() == b.lower() for a, b in zip(given, wanted))
+
+
+def _net_use_row(line: str) -> bool:
+    return bool(NET_USE_DRIVE.match(line.rstrip()) or NET_USE_DEVICELESS.match(line))
+
+
+def net_use_rows(text: str) -> list[str] | None:
+    """The table body of a `net use` listing in its English form, or None when the reply is not one.
+
+    The form is either the column header `NET_USE_HEADER` (once), with the body after it (past a dashed separator,
+    when present) up to the last line `NET_USE_DONE`; or the last line `NET_USE_EMPTY` with no header and no body.
+    A connection line outside the body (before the header, or in an empty listing) makes the reply contradictory, so
+    not in form. Blank lines are dropped."""
+    lines = [line.rstrip() for line in text.splitlines() if line.strip()]
+    if not lines:
+        return None
+    last, earlier = lines[-1].strip(), lines[:-1]
+    if any(line.strip() in (NET_USE_DONE, NET_USE_EMPTY) for line in earlier):
+        return None
+    headers = [index for index, line in enumerate(earlier) if NET_USE_HEADER.match(line.strip())]
+    if last == NET_USE_EMPTY:
+        return [] if not headers and not any(_net_use_row(line) for line in earlier) else None
+    if last != NET_USE_DONE or len(headers) != 1 or any(_net_use_row(line) for line in earlier[:headers[0]]):
+        return None
+    body = earlier[headers[0] + 1:]
+    if body and set(body[0].strip()) == {"-"}:
+        body = body[1:]
+    return body
+
+
 def parse_net_use(text: str, share_name: str) -> list[dict[str, Any]]:
-    """The guest's mappings of the host share `share_name` in `net use` output.
+    """The guest's mappings of the host share `share_name` in the table body of `net use` output (`net_use_rows`; none
+    when the reply is not a listing in its English form).
 
     A line maps the share when, after an optional status word and the drive letter and colon, the rest of the line is
-    exactly `\\\\Mac\\<share name>` (compared without regard to letter case, as the guest compares share names),
-    followed by the end of the line, or by white space and then exactly the network column `NET_USE_NETWORK`. Anything
-    else after the name (a further path, another word) is not the share. A line whose reading `net use`'s own layout
-    leaves open is returned with `ambiguous` set: the network column after the name on the line and alone on the next
-    line too (the name could then end in it), or a share name that itself contains the network column's text. A drive
+    exactly `\\\\Mac\\<share name>` (`_same_share_name`), followed by the end of the line, or by white space and
+    then exactly the network column `NET_USE_NETWORK`. Anything else after the name (a further path, another word) is
+    not the share. The lines after a row, up to the next row, continue it. A mapping whose reading the layout leaves
+    open is returned with `ambiguous` set: a row with its network column on the line and a continuation too (the name
+    could end in the column's text, or the provider be the wrapped one); a row ending at the name whose continuation is
+    anything but the network column alone; or a share name that itself contains the network column's text. A drive
     letter is returned upper-case with its colon."""
 
-    wanted = f"\\\\Mac\\{share_name}".casefold()
-    lines = text.splitlines()
+    body = net_use_rows(text) or []
+    wanted = f"\\\\Mac\\{share_name}"
     found = []
-    for index, line in enumerate(lines):
-        match = NET_USE_DRIVE.match(line.rstrip())
+    for index, line in enumerate(body):
+        match = NET_USE_DRIVE.match(line)
         if not match:
             continue
         rest = match.group("rest")
-        head, tail = rest[:len(wanted)], rest[len(wanted):]
-        if head.casefold() != wanted or not (tail == "" or (tail[:1].isspace()
-                                                            and tail.lstrip() == NET_USE_NETWORK)):
+        if _same_share_name(rest, wanted):
+            remote, inline = rest, False
+        elif (rest.endswith(NET_USE_NETWORK) and rest[:-len(NET_USE_NETWORK)][-1:].isspace()
+              and _same_share_name(rest[:-len(NET_USE_NETWORK)].rstrip(), wanted)):
+            remote, inline = rest[:-len(NET_USE_NETWORK)].rstrip(), True
+        else:
             continue
-        following = next((other.strip() for other in lines[index + 1:] if other.strip()), "")
-        ambiguous = NET_USE_NETWORK.casefold() in share_name.casefold() or (tail != "" and following == NET_USE_NETWORK)
+        following = []
+        for other in body[index + 1:]:
+            if _net_use_row(other):
+                break
+            following.append(other.strip())
+        ambiguous = (NET_USE_NETWORK.lower() in share_name.lower()
+                     or (following != [] if inline else following not in ([], [NET_USE_NETWORK])))
         found.append({"status": match.group("status") or "", "letter": match.group("letter").upper() + ":",
-                      "remote": head, "ambiguous": ambiguous})
+                      "remote": remote, "ambiguous": ambiguous})
     return found
 
 
 def net_use_form(text: str) -> bool:
-    """Whether a reply is a `net use` listing in its English form: its last non-blank line `NET_USE_DONE` after the
-    column header, or `NET_USE_EMPTY`."""
-    lines = [line.strip() for line in text.splitlines() if line.strip()]
-    if not lines:
-        return False
-    if lines[-1] == NET_USE_EMPTY:
-        return True
-    return lines[-1] == NET_USE_DONE and any(NET_USE_HEADER.match(line) for line in lines)
+    """Whether a reply is a `net use` listing in its English form (`net_use_rows`)."""
+    return net_use_rows(text) is not None
 
 
 def exchange_share_letter(config: HarnessConfig, *, timeout_s: float | None = None,

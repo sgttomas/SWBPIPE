@@ -1333,18 +1333,20 @@ def _run_benchmark_model(entry: Mapping[str, Any], config: HarnessConfig, *, run
 def _stops_hold(stops: BenchmarkStops, label: str, *, sleep: Callable[[float], None],
                 emit: Callable[[str], None]) -> str | None:
     """The host's stop files, checked with no guest call: the freeze file present stops; a pending exclusive job is
-    waited for (up to BENCHMARK_EXCLUSIVE_WAIT_S), then stops. None when neither holds."""
-    if stops.freeze.exists():
-        return "the freeze file is present"
+    waited for (up to BENCHMARK_EXCLUSIVE_WAIT_S), then stops. Both are checked again after each wait, so a freeze
+    that arrives while an exclusive job is waited for stops. None when neither holds."""
     waited = 0.0
-    while _exclusive_pending(stops.exclusive):
+    while True:
+        if stops.freeze.exists():
+            return "the freeze file is present"
+        if not _exclusive_pending(stops.exclusive):
+            return None
         if waited >= BENCHMARK_EXCLUSIVE_WAIT_S:
             return f"an exclusive job was still pending after {waited:g} s"
         if waited == 0.0:
             emit(f"{label}: an exclusive job is pending; waiting for it (up to {BENCHMARK_EXCLUSIVE_WAIT_S:g} s)")
         sleep(BENCHMARK_POLL_S)
         waited += BENCHMARK_POLL_S
-    return None
 
 
 def _benchmark_gate(model_id: str, config: HarnessConfig, stops: BenchmarkStops, *,
