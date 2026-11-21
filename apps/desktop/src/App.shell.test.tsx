@@ -177,6 +177,9 @@ describe("the rail's states through the product", () => {
     const results = screen.getByTestId("workspace-section-results");
     expect(results).not.toHaveClass("inactive");
     expect(within(results).getByTestId("results-no-run")).toHaveTextContent(RESULTS_NO_RUN_TEXT);
+    // The stage's own controls are reachable before a run.
+    expect(within(results).getByTestId("results-stage-empty-actions")).toContainElement(within(results).getByTestId("inspect-bundled-reference"));
+    expect(within(results).getByTestId("key-results-open")).toBeInTheDocument();
     const weight = openStageTab("Weight", results);
     expect(weight).toContainElement(within(results).getByTestId("weight-summary-panel"));
     fireEvent.click(rail("review"));

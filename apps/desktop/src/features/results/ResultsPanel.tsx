@@ -618,6 +618,8 @@ function FullResultsPanel({
           {stage?.identity && stage.identity.kind !== "current" ? <p className="results-stage-run" data-testid="results-stage-run" data-run-kind={stage.identity.kind}>{RESULTS_RUN_LABELS[stage.identity.kind]}</p> : null}
           {stage?.methodPrefix}
           {stage?.emptyLine ?? <p className="muted">Run the bounded preview mechanics path to populate result summaries.</p>}
+          {/* The stage's own controls (Inspect bundled reference, Key results) are reachable before a run. */}
+          {stage?.actions ? <div className="results-stage-actions" data-testid="results-stage-empty-actions">{stage.actions}</div> : null}
           {stageContent?.tabs?.length ? <ResultsStageTabs tabs={stageContent.tabs.filter((tab) => tab.id !== ALL_ROWS_TAB)} current={stageTab} onChoose={setStageTab} /> : null}
         </>
       )}

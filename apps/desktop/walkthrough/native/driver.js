@@ -326,10 +326,11 @@
       return row.getAttribute("data-testid");
     });
     await journey.step("row-detail", "The chosen row's detail, with its id and full-precision value", async () => {
-      const detail = await waitFor("the row's detail", () => { const item = byTestId("result-detail-panel"); return visible(item) ? item : null; }, T.ui).catch(() => null);
-      if (!detail) throw new Error("the window shows no detail of the chosen row");
+      // Natively the chosen row's detail is "result-detail"; held whole it is "result-detail-panel".
+      const detail = await waitFor("the row's detail", () => [byTestId("result-detail"), byTestId("result-detail-panel")].find(visible) ?? null, T.ui).catch(() => null);
+      if (!detail) throw new Error(`the window shows no detail of the chosen row${text("result-detail-reading") ? `: ${text("result-detail-reading")}` : ""}`);
       await scrollTo(detail, "start");
-      return text("selected-result-id") ?? "";
+      return text("result-detail-id") ?? text("selected-result-id") ?? "";
     });
     await journey.step("row-in-viewport", "The chosen row's location in the viewport (Both view)", async () => {
       const both = byTestId("view-switch-both");

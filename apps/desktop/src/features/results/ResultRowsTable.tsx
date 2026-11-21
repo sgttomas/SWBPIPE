@@ -1,7 +1,7 @@
 /** One group of the results table ("All rows", DEL-07-05 REQ-010): each row on one line with its
  * entity's readable name, its load case or combination, its component, its value in the display
  * unit at the report's display precision, its location, its frame and its stored value. The row's
- * raw id stays in the row's detail. Columns sort on a click of their header (the state is shown in
+ * raw id stays in the row's detail; the case reads by its reference, its name as the hover text. Columns sort on a click of their header (the state is shown in
  * the header and is operable by keyboard); sorting orders rows and forms no value. */
 import type { ReactNode } from "react";
 import { ArrowDown, ArrowUp, ArrowUpDown } from "lucide-react";
@@ -129,7 +129,7 @@ export function ResultRowsTable({
               tabIndex={0}
             >
               <th scope="row" className="results-sticky-column" title={item.entity_ref}>{entityName(item.entity_ref)}</th>
-              <td>{caseName(item.basis_ref)}</td>
+              <td title={caseName(item.basis_ref)}>{item.basis_ref?.ref_id ?? caseName(item.basis_ref)}</td>
               <td>{item.metadata?.component ?? item.kind}</td>
               <td className="result-value-cell"><EngineeringQuantity quantity={{ value: item.value, unit: item.unit, dimension_id: dimension(item) }} /></td>
               <td>{item.metadata?.location ?? "summary"}</td>
