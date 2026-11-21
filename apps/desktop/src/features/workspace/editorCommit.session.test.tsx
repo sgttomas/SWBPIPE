@@ -557,9 +557,9 @@ describe("the stamp's allowlist, on what a builder returned", () => {
       ["an operation with an agent's author", { intent: agentOperation }, "carries another author than the person"],
       ["offline intake's stamped batch", { batch: imported.batch }, "carries another author than the person"],
       ["an import whose operation claims a person", { intent: { ...editorBuilt, source: { source_ref: "file", source_channel: "offline_intake", source_role: "imported" } } }, "carries a source that is not a desktop editor's own"],
-      ["a requeued record, as the requeue batch", { batch: requeued.batch }, "is a stored record requeued after reopening"],
-      ["a requeued record, as its operation alone", { intent: requeued.batch.operations[0] }, "is a stored record requeued after reopening"],
-      ["a retained record with an agent's role", { intent: { ...editorBuilt, source: { source_ref: "retained:0", source_channel: "retained_requeue", source_role: "agent" } } }, "is a stored record requeued after reopening"],
+      ["a requeued record, as the requeue batch", { batch: requeued.batch }, "is a stored record requeued, so nothing was applied."],
+      ["a requeued record, as its operation alone", { intent: requeued.batch.operations[0] }, "is a stored record requeued, so nothing was applied."],
+      ["a retained record with an agent's role", { intent: { ...editorBuilt, source: { source_ref: "retained:0", source_channel: "retained_requeue", source_role: "agent" } } }, "is a stored record requeued, so nothing was applied."],
       ["an operation with no author and no source", { intent: unstamped }, "names no author"],
       ["the desktop's channel with another role", { intent: { ...editorBuilt, source: { ...editorBuilt.source!, source_role: "agent" } } }, "carries a source that is not a desktop editor's own"],
       ["a source with a member no editor writes", { intent: { ...editorBuilt, source: { ...editorBuilt.source!, trusted: true } } }, "carries a source that is not a desktop editor's own"],
@@ -612,6 +612,10 @@ describe("the stamp's allowlist, on what a builder returned", () => {
     it("gives an agent record with an empty stored source the retained mark", () => {
       expect(requeued({ author_type: "agent", source: { source_ref: "", source_channel: "", source_role: "agent" } }, 6)).toMatchObject({ author_type: "agent", source: RETAINED(6) });
       expect(requeued({ author_type: "agent" }, 7)).toMatchObject({ author_type: "agent", source: RETAINED(7) });
+    });
+    it("counts a stored reference or channel of whitespace only as empty (Q6)", () => {
+      expect(requeued({ author_type: "agent", source: { source_ref: "  ", source_channel: "embedded_agent", source_role: "agent" } }, 10)).toMatchObject({ author_type: "agent", source: RETAINED(10) });
+      expect(requeued({ author_type: "agent", source: { source_ref: "agent:turn:call", source_channel: " \t", source_role: "agent" } }, 11)).toMatchObject({ author_type: "agent", source: RETAINED(11) });
     });
     it("gives an agent record on the desktop's own channel the retained mark", () => {
       expect(requeued({ author_type: "agent", source: { source_ref: "turn", source_channel: "local_desktop_preview", source_role: "agent" } }, 8)).toMatchObject({ author_type: "agent", source: RETAINED(8) });
@@ -1060,9 +1064,9 @@ describe("save, reopen and requeue of a committed record", () => {
     const through = passThrough();
     const commit = bindCommit(result, through.builder);
     through.next({ batch: entry.batch });
-    expect(refused(await run(() => commit({ key: "requeued" }))).reason).toContain("is a stored record requeued after reopening");
+    expect(refused(await run(() => commit({ key: "requeued" }))).reason).toContain("is a stored record requeued, so nothing was applied.");
     through.next({ intent: entry.batch.operations[0] });
-    expect(refused(await run(() => commit({ key: "requeued-operation" }))).reason).toContain("is a stored record requeued after reopening");
+    expect(refused(await run(() => commit({ key: "requeued-operation" }))).reason).toContain("is a stored record requeued, so nothing was applied.");
     expect(result.current.model.model).toEqual(reopened);
     // The review queue applies it, only by Apply.
     await act(async () => { await result.current.operations.handleRunOperationBatch(result.current.operations.queuedBatches[0], false); });

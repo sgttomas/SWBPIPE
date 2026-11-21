@@ -253,7 +253,8 @@ export function requeueRetainedRecord(intent: unknown, index: number): RequeueRe
     // stored. Only an empty one, the desktop's own channel or the commit binding's reference is replaced by the
     // retained mark, so a requeued proposal never reads as a live desktop editor's.
     const storedRef = typeof source?.source_ref === "string" ? source.source_ref : "";
-    const kept = storedRef !== "" && channel !== "" && channel !== "local_desktop_preview" && !storedRef.startsWith("desktop-editor:");
+    // Whitespace only counts as empty.
+    const kept = storedRef.trim() !== "" && channel.trim() !== "" && channel !== "local_desktop_preview" && !storedRef.startsWith("desktop-editor:");
     return { batch: { batch_id, operations: [{ ...structuredClone(intent), author_type: "agent",
       source: kept ? { source_ref: storedRef, source_channel: channel, source_role: "agent" } : { source_ref: `retained:${index}`, source_channel: "retained_requeue", source_role: "agent" } } as unknown as EditorOperationIntent] } };
   }
@@ -467,7 +468,7 @@ export function stampEditorCommit(edit: unknown, role: EditorCommitRole): { batc
     if (Object.hasOwn(batch, "source_model_hash")) sourceModelHash = { source_model_hash: batch.source_model_hash };
   }
   if (typeof batchId !== "string" || !batchId.trim()) return { refused: `The change has no identifier, ${NOT_AN_EDITORS}` };
-  if (batchId.startsWith("requeue-")) return { refused: `The change is a stored record requeued after reopening, ${NOT_AN_EDITORS}` };
+  if (batchId.startsWith("requeue-")) return { refused: `The change is a stored record requeued, ${NOT_AN_EDITORS}` };
   if (!Array.isArray(operations) || operations.length === 0 || !operations.every(plain)) return { refused: `The batch holds no operation a desktop editor builds, ${NOT_AN_EDITORS}` };
   for (const operation of operations as Record<string, unknown>[]) {
     if (Object.hasOwn(operation, "queue_id")) return { refused: `The change carries a queue id: it was queued for review, ${NOT_AN_EDITORS}` };
@@ -476,7 +477,7 @@ export function stampEditorCommit(edit: unknown, role: EditorCommitRole): { batc
     if (!Object.hasOwn(operation, "source")) continue;
     const source = operation.source;
     const ref = plain(source) && typeof source.source_ref === "string" ? source.source_ref : "";
-    if (ref.startsWith("retained:") || (plain(source) && source.source_channel === "retained_requeue")) return { refused: `The change is a stored record requeued after reopening, ${NOT_AN_EDITORS}` };
+    if (ref.startsWith("retained:") || (plain(source) && source.source_channel === "retained_requeue")) return { refused: `The change is a stored record requeued, ${NOT_AN_EDITORS}` };
     if (ref.startsWith(EDITOR_COMMIT_SOURCE_PREFIX)) return { refused: `The change is a record already committed once, ${NOT_AN_EDITORS}` };
     if (!plain(source) || Object.keys(source).some((key) => !EDITOR_SOURCE_MEMBERS.includes(key)) ||
       source.source_channel !== "local_desktop_preview" || (source.source_role !== "gui_editor" && source.source_role !== "viewport_editor") ||
