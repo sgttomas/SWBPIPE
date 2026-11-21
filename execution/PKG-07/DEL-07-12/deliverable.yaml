@@ -9,7 +9,8 @@ needs:
 - from: DEL-12-02
   condition: >-
     The export controls screen a payload before it is written, block protected content and redact
-    or block private content by export context, and return each decision as a finding.
+    or block private content by export context, and return every decision, with a finding for each
+    decision other than a plain inclusion.
   gating: true
 - from: DEL-17-02
   condition: >-
