@@ -771,6 +771,33 @@ def test_an_axis_aligned_direction_is_lowered_as_the_producer_lowers_it():
     _refused(null_on_anchor, phrase="SUPPORT_DIRECTION_INVALID")
 
 
+def test_a_direction_on_a_record_that_carries_a_hanger_is_refused_as_the_producer_refuses_it():
+    """The producer decides a direction on a record that carries a hanger before the
+    family (`supports_findings`): every such record, of whatever family and with an
+    axis-aligned or a skewed direction, is refused SUPPORT_DIRECTION_RECORD_UNSUPPORTED as
+    a direction that is not an input of a hanger. A hanger-family record with no hanger
+    member keeps the family refusal."""
+    variable = {"hanger_type": "variable_spring_hanger", "stiffness": {"dof": "UY", "value": _q(1e6, "N/m")},
+                "cold_load": _q(1000.0, "N")}
+    constant = {"hanger_type": "constant_effort_support", "constant_load": _q(1000.0, "N")}
+    records = (
+        {"family": "spring", "restraints": [], "hanger": variable},
+        {"family": "variable_spring_hanger", "restraints": [], "hanger": variable},
+        {"family": "spring_hanger", "restraints": [], "hanger": variable},
+        {"family": "constant_effort_support", "restraints": ["UY"], "hanger": constant},
+        {"family": "line_stop", "restraints": ["UY"], "hanger": constant},
+    )
+    reason = "carries a hanger, and a direction is not an input of a hanger (SUPPORT_DIRECTION_RECORD_UNSUPPORTED)"
+    for record in records:
+        for direction in ({"x": 0, "y": 1, "z": 0}, {"x": 1, "y": 1, "z": 0}):
+            _refused(lambda m, record=record, direction=direction: m["supports"].append(
+                {"id": "h", "node": "a", **copy.deepcopy(record), "direction": direction}), phrase=reason)
+    for family in ("variable_spring_hanger", "constant_effort_support"):  # control: no hanger member
+        _refused(lambda m, family=family: m["supports"].append(
+            {"id": "h", "node": "a", "family": family, "restraints": ["UY"], "direction": {"x": 0, "y": 1, "z": 0}}),
+            phrase="is on a family other than line_stop, spring or snubber (SUPPORT_DIRECTION_RECORD_UNSUPPORTED)")
+
+
 def test_a_body_whose_spatial_product_underflows_is_refused():
     """Review of ea6165a2d, finding 3: the producer's range premise (`component_range`)
     refuses a nonzero m·r_i·r_j that rounds to zero; W = 500, a = 10 and a centre of gravity

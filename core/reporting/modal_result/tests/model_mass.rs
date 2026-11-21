@@ -489,6 +489,43 @@ fn a_rebound_model_with_the_same_mass_passes() {
     assert_failed(&r.mass, "SUPPORT_DIRECTION_INVALID", "null direction on the anchor");
 }
 
+/// The producer decides a direction on a record that carries a hanger before the
+/// family (`supports_findings`): every such record, of whatever family and with an
+/// axis-aligned or a skewed direction, is refused SUPPORT_DIRECTION_RECORD_UNSUPPORTED
+/// as a direction that is not an input of a hanger. A hanger-family record with no
+/// hanger member keeps the family refusal.
+#[test]
+fn a_direction_on_a_record_that_carries_a_hanger_is_refused_as_the_producer_refuses_it() {
+    let stiffness = json!({"dof": "UY", "value": {"unit": "N/m", "value": 1e6}});
+    let variable = json!({"hanger_type": "variable_spring_hanger", "stiffness": stiffness, "cold_load": {"unit": "N", "value": 1000.0}});
+    let constant = json!({"hanger_type": "constant_effort_support", "constant_load": {"unit": "N", "value": 1000.0}});
+    let records = [
+        ("variable spring hanger on the spring family", json!({"family": "spring", "restraints": [], "hanger": variable})),
+        ("variable spring hanger on its own family", json!({"family": "variable_spring_hanger", "restraints": [], "hanger": variable})),
+        ("variable spring hanger on the spring_hanger family", json!({"family": "spring_hanger", "restraints": [], "hanger": variable})),
+        ("constant-effort hanger on its own family", json!({"family": "constant_effort_support", "restraints": ["UY"], "hanger": constant})),
+        ("constant-effort hanger on the line_stop family", json!({"family": "line_stop", "restraints": ["UY"], "hanger": constant})),
+    ];
+    let hanger_reason = "carries a hanger, and a direction is not an input of a hanger (SUPPORT_DIRECTION_RECORD_UNSUPPORTED)";
+    for (what, record) in &records {
+        for direction in [json!({"x": 0, "y": 1, "z": 0}), json!({"x": 1, "y": 1, "z": 0})] {
+            let mut record = record.clone();
+            record["id"] = json!("h");
+            record["node"] = json!("a");
+            record["direction"] = direction.clone();
+            let what = format!("{what}, direction {direction}");
+            let r = request_case(BODY, &what, |r| r["model"]["supports"].as_array_mut().unwrap().push(record.clone()));
+            assert_failed(&r.mass, hanger_reason, &what);
+        }
+    }
+    // Control: a hanger-family record with no hanger member is told its family, as before.
+    for family in ["variable_spring_hanger", "constant_effort_support"] {
+        let record = json!({"id": "h", "node": "a", "family": family, "restraints": ["UY"], "direction": {"x": 0, "y": 1, "z": 0}});
+        let r = request_case(BODY, family, |r| r["model"]["supports"].as_array_mut().unwrap().push(record.clone()));
+        assert_failed(&r.mass, "is on a family other than line_stop, spring or snubber (SUPPORT_DIRECTION_RECORD_UNSUPPORTED)", family);
+    }
+}
+
 // ---------------------------------------------------------------------------
 // Outside the rounding model (review of 3599a206b): undecidable entries are
 // unresolved one by one, and every other comparison is still made.

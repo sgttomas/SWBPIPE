@@ -1037,11 +1037,14 @@ _TOKEN_DOF = {token: (token[0] in "Uu", axis) for token, axis in _TOKEN_AXIS.ite
 
 def _direction_axis(support, support_id, restraints):
     """The producer's admission of a `direction` record (`supports_findings`), then its
-    axis: None when absent. Refused, as the producer refuses it before lowering: a
-    direction that is not three finite numbers or is zero; on a family other than
-    line_stop, spring or snubber; beside a nonlinear member; on a record whose
-    restraints and stiffness do not name exactly one DOF, or name a rotational one.
-    A skewed direction is admitted statically but refused by modal-1."""
+    axis: None when absent. Refused, as the producer refuses it before lowering and in
+    its order: a direction that is not three finite numbers or is zero; on a record that
+    carries a hanger (a present, non-null `hanger` member), of whatever family, since a
+    direction is not an input of a hanger (DEL-04-03 REQ-014, DEL-04-11 REQ-014); on a
+    family other than line_stop, spring or snubber (a hanger-family record with no hanger
+    member included); beside a nonlinear member; on a record whose restraints and
+    stiffness do not name exactly one DOF, or name a rotational one. A skewed direction
+    is admitted statically but refused by modal-1."""
     if "direction" not in support:  # a present null is refused, as `deserialize_direction` keeps it
         return None
     direction = support["direction"]
@@ -1054,6 +1057,9 @@ def _direction_axis(support, support_id, restraints):
         raise refused("is not three finite numbers (SUPPORT_DIRECTION_INVALID)")
     if all(v == 0 for v in d):
         raise refused("is zero (SUPPORT_DIRECTION_ZERO)")
+    if support.get("hanger") is not None:
+        raise refused("is on a record that carries a hanger, and a direction is not an input of a hanger "
+                      "(SUPPORT_DIRECTION_RECORD_UNSUPPORTED)")
     if support.get("family") not in ("line_stop", "spring", "snubber"):
         raise refused("is on a family other than line_stop, spring or snubber (SUPPORT_DIRECTION_RECORD_UNSUPPORTED)")
     if support.get("nonlinear") is not None:
