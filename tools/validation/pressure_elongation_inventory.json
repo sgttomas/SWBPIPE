@@ -28,9 +28,9 @@
    ".json",
    ".jsonl"
   ],
-  "files": 538,
+  "files": 540,
   "claimed_by": {
-   "group": 142,
+   "group": 144,
    "in_code": 63,
    "exemption": 333
   }
@@ -129,6 +129,13 @@
    "pressurised_load_cases": 0,
    "held_documents": 4,
    "held_pressurised_load_cases": 6
+  },
+  "report_standing_package_inputs": {
+   "files": 2,
+   "documents": 2,
+   "pressurised_load_cases": 3,
+   "held_documents": 2,
+   "held_pressurised_load_cases": 3
   },
   "report_standing_app_render_request": {
    "files": 1,
@@ -3879,6 +3886,88 @@
     },
     {
      "pointer": "/input_manifest_text",
+     "text_pointers": [
+      "/model_basis/model_payload"
+     ],
+     "schema_version": "0.9.0",
+     "pressurised_load_cases": [
+      "load:PRESSURE",
+      "load:VACUUM"
+     ]
+    }
+   ]
+  },
+  {
+   "id": "report_standing_package_inputs/pressure_3_coupled_friction_sensitive.package",
+   "group": "report_standing_package_inputs",
+   "path": "fixtures/reports/invented/report_standing_witnesses/pressure_3_coupled_friction_sensitive.package.json",
+   "producer": {
+    "kind": "ts_test",
+    "path": "apps/desktop/src/features/report/reportStandingWitness.test.tsx",
+    "write": "its write mode (OPENPIPESTRESS_WRITE_REPORT_STANDING_RENDER_INPUTS), beside the render inputs, from request_path and raw_path",
+    "switch_plumbed": false,
+    "switch_route": "copies its model from a committed source: re-produce that source with the switch, then re-run this writer"
+   },
+   "pinned_by": [
+    "apps/desktop/src-tauri/src/report_standing_package_tests.rs"
+   ],
+   "anchor": {
+    "kind": "excluded",
+    "reason": "the model is held inside the input manifest of package-request witness inputs, beside the render inputs that hold it as intake text"
+   },
+   "documents": [
+    {
+     "pointer": "/input_manifest/manifest/model_basis/model_payload",
+     "schema_version": "0.9.0",
+     "pressurised_load_cases": [
+      "load:RS-SUS"
+     ]
+    }
+   ],
+   "held_documents": [
+    {
+     "pointer": "/input_manifest/canonical_bytes",
+     "text_pointers": [
+      "/model_basis/model_payload"
+     ],
+     "schema_version": "0.9.0",
+     "pressurised_load_cases": [
+      "load:RS-SUS"
+     ]
+    }
+   ]
+  },
+  {
+   "id": "report_standing_package_inputs/pressure_3_gap_unresolved.package",
+   "group": "report_standing_package_inputs",
+   "path": "fixtures/reports/invented/report_standing_witnesses/pressure_3_gap_unresolved.package.json",
+   "producer": {
+    "kind": "ts_test",
+    "path": "apps/desktop/src/features/report/reportStandingWitness.test.tsx",
+    "write": "its write mode (OPENPIPESTRESS_WRITE_REPORT_STANDING_RENDER_INPUTS), beside the render inputs, from request_path and raw_path",
+    "switch_plumbed": false,
+    "switch_route": "copies its model from a committed source: re-produce that source with the switch, then re-run this writer"
+   },
+   "pinned_by": [
+    "apps/desktop/src-tauri/src/report_standing_package_tests.rs"
+   ],
+   "anchor": {
+    "kind": "excluded",
+    "reason": "the model is held inside the input manifest of package-request witness inputs, beside the render inputs that hold it as intake text"
+   },
+   "documents": [
+    {
+     "pointer": "/input_manifest/manifest/model_basis/model_payload",
+     "schema_version": "0.9.0",
+     "pressurised_load_cases": [
+      "load:PRESSURE",
+      "load:VACUUM"
+     ]
+    }
+   ],
+   "held_documents": [
+    {
+     "pointer": "/input_manifest/canonical_bytes",
      "text_pointers": [
       "/model_basis/model_payload"
      ],

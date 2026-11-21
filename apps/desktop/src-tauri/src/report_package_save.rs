@@ -47,7 +47,8 @@
 //! carries `exact_route`, is bound to its source natively right after the
 //! request text is parsed and before the other content checks: the named
 //! job's custody, the resubmitted result and intake texts against the digests
-//! the host recorded for that job, the native reader's eligible standing, the
+//! the host recorded for that job, the native reader's reading of a solved
+//! result (whatever its numerical standing, DEL-08-01 REQ-024), the
 //! admission's digests, then the request's source and the model text against
 //! the delivered result and the solved model (`exact_source_binding.rs`).
 //! Custody is checked again after the save dialog and before the write.
@@ -1099,7 +1100,6 @@ fn bind_exact_save_source(
         &digests,
         exact_result_text.unwrap_or(""),
         exact_intake_text.unwrap_or(""),
-        exact_binding::SourceAdmission::Eligible,
     )
     .map_err(|refusal| exact_refused(refusal, ADMISSION))?;
     // The save's own equalities: the request's source is the delivered result,
@@ -1114,8 +1114,9 @@ fn bind_exact_save_source(
         return Err(exact_refused(exact_binding::not_delivered("model"), "/model"));
     }
     // DEL-08-01 REQ-024: the packaged report states the standing record the reader
-    // derives from the bound result and model, exactly, after the
-    // save's own equalities above.
+    // derives from the bound result and model, exactly, after the save's own
+    // equalities above, for every result the binding admits: numerical standing
+    // is stated here, never a ground for refusing the save or the user release.
     let derived = open_pipe_stress_report_standing::report_standing::historical_standing_record(&bound.source, &bound.model, &bound.standing).ok();
     if derived.is_none() || request.pointer("/report/numerical_standing") != derived.as_ref() {
         return Err(exact_refused(exact_binding::sections_mismatch("numerical_standing"), "/request/report/numerical_standing"));

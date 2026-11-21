@@ -134,8 +134,13 @@ pub const USER_RELEASE_RECORD_KIND: &str = "user_release_of_own_project_data";
 /// The user-release record's version (§2.3). A later slice that widens what a
 /// user-released package carries changes `scope.not_carried` and this.
 pub const USER_RELEASE_RECORD_VERSION: &str = "1.0.0";
-/// D-6 widened scope, retaining the legacy record form.
-pub const USER_RELEASE_EXACT_RECORD_VERSION: &str = "1.1.0";
+/// The exact-route record (D-6 widened scope, retaining the legacy record form).
+/// Version 1.2.0 widens 1.1.0's scope to every exact-route result the rendered
+/// report admits, whatever its numerical standing, which the report states
+/// (DEL-08-01 REQ-024, "Package and user release"): `scope.not_carried` no longer
+/// names `ineligible_exact_route_results`. A 1.1.0 record is of another version
+/// and is refused by name (`record_version`), with no migration.
+pub const USER_RELEASE_EXACT_RECORD_VERSION: &str = "1.2.0";
 /// The statement the user ticks in the dialog, verbatim (§2.2, §2.3).
 pub const USER_RELEASE_STATEMENT: &str =
     "I hold the right to share this project's data, and I release my project data in this report for sharing.";
@@ -238,8 +243,9 @@ impl UserReleaseRecord {
         if !exact && self.record_version != USER_RELEASE_RECORD_VERSION {
             return Some("record_version");
         }
-        let expected = USER_RELEASE_NOT_CARRIED.into_iter().chain(exact.then_some("ineligible_exact_route_results"));
-        if self.scope.not_carried.iter().map(String::as_str).ne(expected) {
+        // The same items on every record version; none names a result as not carried
+        // on the ground of its numerical standing.
+        if self.scope.not_carried.iter().map(String::as_str).ne(USER_RELEASE_NOT_CARRIED) {
             return Some("scope.not_carried");
         }
         let bound = &self.bound_to;

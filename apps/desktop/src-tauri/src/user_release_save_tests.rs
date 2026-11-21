@@ -106,7 +106,7 @@ impl Basis {
 }
 
 /// Route-010 evidence (§2.5 step 1), bound to the request text.
-fn user_release_evidence(args: &mut ReportPackageSaveRequest) {
+pub(crate) fn user_release_evidence(args: &mut ReportPackageSaveRequest) {
     let screening = &mut args.screening;
     screening.route_id = REPORT_PACKAGE_USER_RELEASE_ROUTE_ID.to_string();
     screening.export_context = "user_released_report".to_string();
@@ -1066,13 +1066,21 @@ fn user_release_render_admits_only_the_user_released_class() {
     assert!(message.contains("user_release"), "{message}");
 }
 
-/// D-6: the widened record is a supported form, while legacy records remain readable.
+/// D-6 and DEL-08-01 REQ-024: the exact-route record 1.2.0 is a supported form, with the
+/// same items not carried as the pressure-free record. The former exact record 1.1.0, which
+/// named ineligible exact-route results as not carried, is of another version and is
+/// refused by name, and no record may name a result as not carried for its standing.
 #[test]
 fn d6_exact_record_form_is_supported() {
     let mut record = basis().record;
-    record.record_version = "1.1.0".into();
-    record.scope.not_carried.push("ineligible_exact_route_results".into());
+    record.record_version = "1.2.0".into();
     assert_eq!(record.form_defect(), None);
+    let mut standing_item = record.clone();
+    standing_item.scope.not_carried.push("ineligible_exact_route_results".into());
+    assert_eq!(standing_item.form_defect(), Some("scope.not_carried"));
+    let mut former = standing_item.clone();
+    former.record_version = "1.1.0".into();
+    assert_eq!(former.form_defect(), Some("record_version"));
 }
 
 /// D-6: exact texts receive the same additive priced parse on route 010.
@@ -1227,7 +1235,7 @@ fn route_010_saves_a_composed_package_with_its_required_disclosures() {
         let read = read_report_package_container(&std::fs::read(chosen.unwrap()).unwrap()).unwrap();
         assert_eq!(read.container_sha256_hex, receipt.container_sha256_hex, "{name}");
         let record = read.user_release.as_ref().unwrap();
-        assert_eq!(record["record_version"], if exact.is_some() { "1.1.0" } else { "1.0.0" }, "{name}");
+        assert_eq!(record["record_version"], if exact.is_some() { "1.2.0" } else { "1.0.0" }, "{name}");
         let html = read.members.iter().find(|member| member.file_name == "calculation_report.html").unwrap();
         let bound = record["content_binding"]["members"].as_array().unwrap();
         assert!(bound.iter().any(|member| member["file_name"] == "calculation_report.html" && member["sha256"] == html.sha256_hex.as_str()), "{name}");
@@ -1320,7 +1328,7 @@ fn d6_route_010_exact_vectors_save_and_read_back_with_disclosures() {
         }).unwrap();
         let read = read_report_package_container(&std::fs::read(chosen.unwrap()).unwrap()).unwrap();
         assert_eq!(read.container_sha256_hex, receipt.container_sha256_hex);
-        assert_eq!(read.user_release.as_ref().unwrap()["record_version"], "1.1.0");
+        assert_eq!(read.user_release.as_ref().unwrap()["record_version"], "1.2.0");
         let html = read.members.iter().find(|m| m.file_name == "calculation_report.html").unwrap();
         let html = std::str::from_utf8(&html.bytes).unwrap();
         assert!(html.contains("USER-RELEASED REPORT"));
@@ -1385,10 +1393,14 @@ fn d6_route_010_refuses_missing_partial_and_forged_exact_bindings() {
     }
 }
 
-/// D-6 keeps the native reader's eligibility check, even with genuine delivered
-/// bytes and coherent raw custody digests for an ineligible source.
+/// DEL-08-01 REQ-024 ("Package and user release"): route 010 no longer refuses a
+/// delivered exact source for its numerical standing. With genuine delivered bytes and
+/// coherent raw custody digests for a source that is not eligible, under a request made
+/// for another result, the binding passes step 4 and refuses at step 5 because the
+/// admission binds the other result's digest. That such a source saves when its own
+/// request binds it is `route_010_saves_each_standing_witness_stating_its_standing`.
 #[test]
-fn d6_ineligible_delivered_exact_source_is_refused() {
+fn d6_ineligible_delivered_exact_source_is_refused_only_as_another_result() {
     let mut v: Value = serde_json::from_str(D6_VECTORS[1]).unwrap();
     let raw = include_str!("../../../../fixtures/product_preview/pressure_source/load_reference_source/n05-sparse_interactive.raw.json");
     let input: Value = serde_json::from_str(include_str!("../../../../fixtures/product_preview/pressure_source/load_reference_source/n05.request.json")).unwrap();
@@ -1402,8 +1414,11 @@ fn d6_ineligible_delivered_exact_source_is_refused() {
     let mut session = UserReleaseSession { registry: &registry, lease: &mut lease };
     let outcome = admit_report_package_session(args, &software(), &mut no_store, &|_| Some(d6_custody(&v)), Some(&mut session));
     match outcome {
-        Err(SaveRefusal::Command(error)) => assert_eq!(error.code, "REPORT-EXACT-STANDING-NOT-ELIGIBLE", "{}", error.message),
-        _ => panic!("the native reader must refuse ineligible standing"),
+        Err(SaveRefusal::Command(error)) => {
+            assert_eq!(error.code, crate::exact_source_binding::SOURCE_NOT_DELIVERED, "{}", error.message);
+            assert!(error.message.contains("result:"), "{}", error.message);
+        }
+        _ => panic!("a request made for another result must be refused at the source binding"),
     }
 }
 

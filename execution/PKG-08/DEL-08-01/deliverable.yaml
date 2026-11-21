@@ -243,6 +243,7 @@ checks:
 - apps/desktop/src-tauri/src/object_form_tests.rs
 - apps/desktop/src-tauri/src/user_release_admission_tests.rs
 - apps/desktop/src-tauri/src/user_release_save_tests.rs
+- apps/desktop/src-tauri/src/report_standing_package_tests.rs
 - apps/desktop/src-tauri/src/user_release_reach_scan_tests.rs
 - apps/desktop/src/features/report/renderedReport.test.tsx
 - apps/desktop/src/features/report/renderedReportNativeRoutes.test.tsx
