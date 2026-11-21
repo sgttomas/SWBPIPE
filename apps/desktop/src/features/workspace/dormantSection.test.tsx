@@ -30,7 +30,7 @@ describe("DormantSection", () => {
     }
 
     const section = (active: boolean, sessionGeneration: number, modelRevision: number, guardGeneration = 1) => (
-      <DormantSection active={active} guardGeneration={guardGeneration} sessionGeneration={sessionGeneration}>
+      <DormantSection page="operations" active={active} guardGeneration={guardGeneration} sessionGeneration={sessionGeneration}>
         <Probe guardGeneration={guardGeneration} modelRevision={modelRevision} sessionGeneration={sessionGeneration} />
       </DormantSection>
     );
@@ -85,7 +85,7 @@ describe("DormantSection", () => {
     }
 
     const section = (active: boolean, modelRevision: number) => (
-      <DormantSection active={active} sessionGeneration={1}>
+      <DormantSection page="report" active={active} sessionGeneration={1}>
         <ReportProbe modelRevision={modelRevision} />
       </DormantSection>
     );
