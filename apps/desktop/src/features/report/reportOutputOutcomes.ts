@@ -30,8 +30,9 @@ import type {
   RenderedReportRouteOutcome
 } from "../../services/renderedReportRoutes";
 
-/** What the report was prepared from: its report source number and its model and run. */
-export type ReportOutputBasis = { sequence: number; model: string; run: string | null };
+/** What the report was prepared from: its report source number, its project's identity (null
+ * where there is none to compare), its model by the name the toolbar shows, and its run. */
+export type ReportOutputBasis = { sequence: number; projectId: string | null; model: string; run: string | null };
 
 export type ReportOutputState =
   | "pending"
@@ -225,10 +226,22 @@ export function notSentSettlement(code: string, detail: string): ReportOutputSet
   return { state: "refused", code, detail, basename: null };
 }
 
-/** A package save's basis: the open model by its name (its id where it has none) and the run
- * the report was prepared from, taken when the save begins. */
-export function reportOutputBasisOf(sequence: number, project: { name?: string | null; id: string }, run: string | null): ReportOutputBasis {
-  return { sequence, model: project.name ?? project.id, run };
+/** An output's basis, taken once, from the committed report source the press was made on: the
+ * project's identity (`model.project.id`), the model by the name the toolbar shows (the saved
+ * project's summary name, else the document's project name, else its id) and the run. */
+export function reportOutputBasisOf(
+  sequence: number,
+  project: { name?: string | null; id: string },
+  summaryName: string | null | undefined,
+  run: string | null
+): ReportOutputBasis {
+  return { sequence, projectId: project.id, model: summaryName ?? project.name ?? project.id, run };
+}
+
+/** Whether the open project is not the one the entry's report was prepared from. Only two known
+ * identities are compared; an entry or a workspace without one is never called another project. */
+function ofAnotherProject(basis: ReportOutputBasis, currentProjectId: string | null | undefined): boolean {
+  return basis.projectId !== null && currentProjectId != null && basis.projectId !== currentProjectId;
 }
 
 /** How every outcome names the model and the run it was prepared from. */
@@ -252,7 +265,17 @@ function packageSettlement(settlement: ReportOutputSettlement, facts: Partial<Re
 
 /** The settlement of a package save's native receipt (saved or cancelled at the chooser). */
 export function packageReceiptSettlement(receipt: ReportPackageSaveReceipt): ReportPackageSettlement {
-  if (receipt.outcome !== "saved") return packageSettlement({ state: "cancelled", code: null, detail: "", basename: null });
+  if (receipt.outcome === "cancelled") return packageSettlement({ state: "cancelled", code: null, detail: "", basename: null });
+  if (receipt.outcome !== "saved") {
+    // A receipt outcome this application does not know: whether anything was written is unknown.
+    const outcome: unknown = receipt.outcome;
+    return packageSettlement({
+      state: "unknown",
+      code: typeof receipt.code === "string" ? receipt.code : null,
+      detail: `The native receipt's outcome ${JSON.stringify(outcome) ?? String(outcome)} is not one this application knows.`,
+      basename: typeof receipt.selected_basename === "string" && receipt.selected_basename !== "" ? receipt.selected_basename : null
+    });
+  }
   return packageSettlement({
     state: receipt.durability === "durable" ? "saved" : "saved_durability_unconfirmed",
     code: receipt.code,
@@ -327,12 +350,15 @@ function readingWithCode(detail: string, code: string | null): string {
   return reading ? `: ${reading}${coded}` : coded;
 }
 
-/** A package save's line: the outcome first, named by the command, then the file; where the
- * workspace has changed since the save began, the model and the run it was prepared from. */
-function packageOutputText(entry: ReportPackageOutputEntry, changed: boolean): string {
+/** A package save's line: the outcome first, named by the command, then the file; where another
+ * project is open, that the entry is of another project, by that project's name; where the same
+ * project has changed since the save began, the model and the run it was prepared from. */
+function packageOutputText(entry: ReportPackageOutputEntry, changed: boolean, anotherProject: boolean): string {
   const name = packageName(entry.kind);
   const { model, run } = reportOutputBasisNames(entry.basis);
-  const earlier = changed ? ` It is of an earlier run: ${model}, run ${run}. The model or its results have changed since.` : "";
+  const earlier = anotherProject
+    ? ` It is of another project: ${model}.`
+    : changed ? ` It is of an earlier run: ${model}, run ${run}. The model or its results have changed since.` : "";
   const file = entry.basename ?? "the selected file";
   switch (entry.state) {
     case "pending":
@@ -377,10 +403,13 @@ export function reportOutputDetails(entry: ReportOutputEntry): string[] {
   return lines;
 }
 
-/** The outcome in words. `currentSequence` is the workspace's report source number now. */
-export function reportOutputText(entry: ReportOutputEntry, currentSequence: number): string {
+/** The outcome in words. `currentSequence` is the workspace's report source number now and
+ * `currentProjectId` the open project's identity (unknown: undefined). */
+export function reportOutputText(entry: ReportOutputEntry, currentSequence: number, currentProjectId?: string | null): string {
   const changed = entry.basis.sequence !== currentSequence;
-  if (isReportPackageEntry(entry)) return packageOutputText(entry, changed);
+  const anotherProject = ofAnotherProject(entry.basis, currentProjectId);
+  if (isReportPackageEntry(entry)) return packageOutputText(entry, changed, anotherProject);
+  const elsewhere = anotherProject ? ` It is of another project: ${entry.basis.model}.` : "";
   const file = entry.basename ? ` File: ${entry.basename}.` : "";
   const names = reportOutputBasisNames(entry.basis);
   const basis = ` Report basis: model ${names.model}, run ${names.run}.`;
@@ -392,7 +421,7 @@ export function reportOutputText(entry: ReportOutputEntry, currentSequence: numb
         return `Saving the selected report: choose where to save it.${basis}`;
       case "saved":
       case "saved_durability_unconfirmed": {
-        const head = changed ? "Saved the selected report. The workspace has changed since it was prepared." : "Saved the selected report.";
+        const head = changed ? `Saved the selected report. The workspace has changed since it was prepared.${elsewhere}` : "Saved the selected report.";
         const durability = entry.state === "saved_durability_unconfirmed"
           ? " The whole file was written, but the system did not confirm it is durable on disk."
           : "";
@@ -414,7 +443,7 @@ export function reportOutputText(entry: ReportOutputEntry, currentSequence: numb
       return `Opening the print window for the selected report.${basis}`;
     case "print_window_opened": {
       const head = changed
-        ? "Print window opened for the selected report. The workspace has changed since it was prepared."
+        ? `Print window opened for the selected report. The workspace has changed since it was prepared.${elsewhere}`
         : "Print window opened for the selected report.";
       return `${head} Opening it does not mean anything was printed: choose Print or Cancel in its dialog.${detail}${basis}`;
     }

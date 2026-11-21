@@ -14,10 +14,11 @@ import {
   ReportOutputOutcomes,
   reportOutputText,
   saveSettlement,
+  type ReportOutputBasis,
   type ReportOutputEntry
 } from "./reportOutputOutcomes";
 
-const basis = { sequence: 4, model: "project:invented", run: "run:invented-1" };
+const basis = { sequence: 4, projectId: "project:invented", model: "project:invented", run: "run:invented-1" };
 const receipt = (durability: RenderedReportHtmlSaveReceipt["durability"], outcome: "saved" | "cancelled" = "saved"): RenderedReportHtmlSaveReceipt => ({
   outcome, route_id: "DREP-HTML-SAVE-005", export_context: "local_private", sha256_hex: "b".repeat(64), byte_count: 42,
   file_name: "invented-report.html", replaced_existing: true, durability
@@ -112,8 +113,9 @@ const commandError = (code: string, stage: string, members: Record<string, unkno
   ({ code, stage, message: `${code}: invented.`, cleanup_code: null, selected_basename: "invented.opsproj", ...members });
 
 describe("report package outcomes (issue 508)", () => {
-  const line = (settlement: ReturnType<typeof packageReceiptSettlement>, current = basis.sequence, kind: "report_package" | "shareable_report_package" = "report_package") =>
-    reportOutputText({ id: 1, kind, basis, ...settlement }, current);
+  const line = (settlement: ReturnType<typeof packageReceiptSettlement>, current = basis.sequence, kind: "report_package" | "shareable_report_package" = "report_package",
+    project: string | null = basis.projectId, entryBasis: ReportOutputBasis = basis) =>
+    reportOutputText({ id: 1, kind, basis: entryBasis, ...settlement }, current, project);
 
   it("classifies the native reply: refusal stages, writer stages, the worker's failure and an unreadable rejection", () => {
     const state = (failure: unknown) => packageFailureSettlement(failure).state;
@@ -140,5 +142,27 @@ describe("report package outcomes (issue 508)", () => {
     const unknown = line(packageFailureSettlement(new Error("invented lost reply")));
     expect(unknown).toBe("Report package: outcome unknown. Check the file you selected.");
     expect(unknown).not.toMatch(/not saved|nothing was/i);
+  });
+
+  it("settles a receipt outcome it does not know as unknown, never as cancelled", () => {
+    const strange = packageReceiptSettlement({ ...packageReceipt("durable"), outcome: "invented_outcome" as never });
+    expect(strange.state).toBe("unknown");
+    expect(line(strange)).toBe("Report package: outcome unknown. Check invented.opsproj.");
+    expect(packageReceiptSettlement(packageReceipt("not_applicable", "cancelled")).state).toBe("cancelled");
+  });
+
+  it("names another project by its name, the same project's earlier run by model and run, and does not guess without an identity", () => {
+    const saved = packageReceiptSettlement(packageReceipt("durable"));
+    expect(line(saved, 5, "report_package", "project:other"))
+      .toBe("Report package saved: invented.opsproj. It is of another project: project:invented.");
+    expect(line(saved, 5, "report_package", "project:invented"))
+      .toBe("Report package saved: invented.opsproj. It is of an earlier run: project:invented, run run:invented-1. The model or its results have changed since.");
+    // An entry with no project identity, or a workspace whose identity is not known: the earlier-run sentence.
+    expect(line(saved, 5, "report_package", "project:other", { ...basis, projectId: null })).toMatch(/It is of an earlier run: /);
+    expect(line(saved, 5, "report_package", null)).toMatch(/It is of an earlier run: /);
+    // The HTML save and the print follow the same rule after their changed-workspace sentence.
+    const html = reportOutputText(entry("save", saveSettlement({ kind: "done", receipt: receipt("durable") })), 5, "project:other");
+    expect(html).toMatch(/^Saved the selected report\. The workspace has changed since it was prepared\. It is of another project: project:invented\. File: invented-report\.html\./);
+    expect(reportOutputText(entry("save", saveSettlement({ kind: "done", receipt: receipt("durable") })), 5, "project:invented")).not.toContain("another project");
   });
 });

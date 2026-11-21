@@ -469,7 +469,8 @@ function AppSession() {
             })}
           />
       </ShellToolbar>
-      <ReportOutputStatus outcomes={reportOutput.outcomes} entries={reportOutput.entries} currentSequence={reportOutput.sequence} />
+      <ReportOutputStatus outcomes={reportOutput.outcomes} entries={reportOutput.entries} currentSequence={reportOutput.sequence}
+        currentProjectId={model?.project.id ?? null} />
 
       <div className="shell-body">
         <StageRail issueCount={issueCount} />

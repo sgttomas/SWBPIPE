@@ -7,7 +7,12 @@
 import type { ReportOutputEntry, ReportOutputOutcomes, ReportPackageOutputEntry } from "./reportOutputOutcomes";
 import { isReportPackageEntry, reportOutputDetails, reportOutputText } from "./reportOutputOutcomes";
 
-function ReportPackageOutput({ outcomes, entry, currentSequence }: { outcomes: ReportOutputOutcomes; entry: ReportPackageOutputEntry; currentSequence: number }) {
+function ReportPackageOutput({ outcomes, entry, currentSequence, currentProjectId }: {
+  outcomes: ReportOutputOutcomes;
+  entry: ReportPackageOutputEntry;
+  currentSequence: number;
+  currentProjectId?: string | null;
+}) {
   const pending = entry.state === "pending";
   const details = reportOutputDetails(entry);
   return (
@@ -19,7 +24,7 @@ function ReportPackageOutput({ outcomes, entry, currentSequence }: { outcomes: R
       data-workspace-changed={String(entry.basis.sequence !== currentSequence)}
     >
       <p className={pending ? "operation-running" : undefined} data-testid={`report-output-${entry.id}-text`}>
-        {reportOutputText(entry, currentSequence)}
+        {reportOutputText(entry, currentSequence, currentProjectId)}
       </p>
       {entry.package.warnings.length > 0 ? (
         <ul aria-label="Warnings" data-testid={`report-output-${entry.id}-warnings`}>
@@ -48,18 +53,21 @@ function ReportPackageOutput({ outcomes, entry, currentSequence }: { outcomes: R
 export function ReportOutputStatus({
   outcomes,
   entries,
-  currentSequence
+  currentSequence,
+  currentProjectId
 }: {
   outcomes: ReportOutputOutcomes;
   entries: readonly ReportOutputEntry[];
   /** The workspace's report source number now. */
   currentSequence: number;
+  /** The open project's identity, to say an entry is of another project; unknown if omitted. */
+  currentProjectId?: string | null;
 }) {
   if (entries.length === 0) return null;
   return (
     <section className="report-output-status" aria-label="Report output outcomes" data-testid="report-output-status">
       {entries.map((entry) => isReportPackageEntry(entry) ? (
-        <ReportPackageOutput key={entry.id} outcomes={outcomes} entry={entry} currentSequence={currentSequence} />
+        <ReportPackageOutput key={entry.id} outcomes={outcomes} entry={entry} currentSequence={currentSequence} currentProjectId={currentProjectId} />
       ) : (
         <p
           key={entry.id}
@@ -69,7 +77,7 @@ export function ReportOutputStatus({
           data-state={entry.state}
           data-workspace-changed={String(entry.basis.sequence !== currentSequence)}
         >
-          <span data-testid={`report-output-${entry.id}-text`}>{reportOutputText(entry, currentSequence)}</span>
+          <span data-testid={`report-output-${entry.id}-text`}>{reportOutputText(entry, currentSequence, currentProjectId)}</span>
           {entry.state === "pending" ? null : (
             <button type="button" data-testid={`report-output-${entry.id}-dismiss`} onClick={() => outcomes.dismiss(entry.id)}>
               Dismiss

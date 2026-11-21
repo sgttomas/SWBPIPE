@@ -42,6 +42,7 @@ import { currentLibraryRefFindings, NO_LIBRARY_REF_FINDINGS, type LibraryRefFind
 import {
   notSentSettlement,
   printSettlement,
+  reportOutputBasisOf,
   saveSettlement,
   type ReportOutputBasis,
   type ReportOutputOutcomes
@@ -489,11 +490,8 @@ export function RenderedReportPanel({
     const stillCurrent = () => renderGeneration.current === generation;
     const renderedFor = renderState.source;
     const viewSequence = reportSourceSequence;
-    const basis: ReportOutputBasis = {
-      sequence: renderedFor.sequence,
-      model: model.project.name ?? model.project.id,
-      run: analysisRun?.analysis_run.run_id ?? result?.run_id ?? null
-    };
+    const basis: ReportOutputBasis = reportOutputBasisOf(renderedFor.sequence, model.project, projectSummary?.project_name,
+      analysisRun?.analysis_run.run_id ?? result?.run_id ?? null);
     // The session's outcome entry: started now, settled on every return or rejection,
     // whether or not this panel is still mounted.
     const operation = reportOutputs?.begin(kind, basis) ?? null;
