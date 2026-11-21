@@ -1282,6 +1282,169 @@ pub(crate) fn upsert_project_texts(
     Ok(())
 }
 
+/// Issue 519: the refusal of a save that asks the store to keep the stored
+/// proposal (`keepStoredProposal`, `keep_stored_proposal` in the plain save's
+/// request) when it cannot: a value other than `true`, a request carrying a
+/// proposal or an envelope hash of its own, a create, or no stored project.
+/// Nothing is written.
+pub(crate) const STORED_PROPOSAL_KEEP_REFUSED: &str = "STORED-PROPOSAL-KEEP-REFUSED";
+
+/// Issue 519: a save's keep-stored-proposal member, closed: present and
+/// `true`, or absent. A save keeping the stored proposal is a save in place
+/// that carries no proposal of its own; a create has nothing stored to keep.
+/// `proposal` is the request's proposal as sent (absent or `null` is none).
+pub(crate) fn keep_stored_proposal(member: &str, value: Option<Value>, create: bool, proposal: Option<&Value>) -> Result<bool, String> {
+    let kind = |value: &Value| match value {
+        Value::Null => "null",
+        Value::Bool(_) => "false",
+        Value::Number(_) => "a number",
+        Value::String(_) => "a string",
+        Value::Array(_) => "an array",
+        Value::Object(_) => "an object",
+    };
+    match value {
+        None => Ok(false),
+        Some(Value::Bool(true)) if create => Err(format!(
+            "{STORED_PROPOSAL_KEEP_REFUSED}: `{member}` keeps a stored project's proposal in a save in place; a create has no stored proposal to keep. Nothing was saved."
+        )),
+        Some(Value::Bool(true)) if proposal.is_some_and(|proposal| !proposal.is_null()) => Err(format!(
+            "{STORED_PROPOSAL_KEEP_REFUSED}: a save with `{member}` carries no proposal of its own; this one carries both. Nothing was saved."
+        )),
+        Some(Value::Bool(true)) => Ok(true),
+        Some(other) => Err(format!("{STORED_PROPOSAL_KEEP_REFUSED}: `{member}` is true or absent; it was {}. Nothing was saved.", kind(&other))),
+    }
+}
+
+/// Issue 519: the stored proposal a save keeps, read in the save's own
+/// transaction: its text as stored, never rewritten, and JavaScript's reading
+/// of it (each number as the webview reads it), which the envelope hash is
+/// computed over, as every open verifies it (the webview's recomputation and
+/// the native reopen's findings alike). The reservations cover SQLite's copy,
+/// the text and its parse.
+pub(crate) struct KeptProposal {
+    pub(crate) text: String,
+    pub(crate) value: Value,
+    _reservations: (stored_read::ReadReservation, stored_read::ReadReservation),
+}
+
+pub(crate) fn read_kept_proposal(transaction: &rusqlite::Transaction<'_>, project_id: &str, memory: &dyn stored_read::ReadMemory) -> Result<KeptProposal, String> {
+    let length: Option<i64> = transaction
+        .query_row("SELECT octet_length(proposal_json) FROM local_projects WHERE project_id = ?1", params![project_id], |row| row.get(0))
+        .optional()
+        .map_err(|error| stored_read::sql_error(&error))?;
+    let Some(length) = length else {
+        return Err(format!(
+            "{STORED_PROPOSAL_KEEP_REFUSED}: project `{}` is not stored, so it has no stored proposal to keep. Nothing was saved.",
+            stored_read::shown(project_id)
+        ));
+    };
+    let sqlite = stored_read::reserve_sqlite_value(memory, "the stored proposal's text", length)?;
+    let bytes = u64::try_from(length).unwrap_or(0);
+    let held = memory.reserve("the stored proposal's text and its parse", stored_read::loaded_text_bytes(bytes).saturating_add(stored_read::text_copy_bytes(bytes)))?;
+    let text: String = transaction
+        .query_row("SELECT proposal_json FROM local_projects WHERE project_id = ?1", params![project_id], |row| row.get(0))
+        .map_err(|error| stored_read::sql_error(&error))?;
+    let mut value = serde_json::from_str::<Value>(&text).map_err(|error| {
+        format!("{STORED_PROPOSAL_KEEP_REFUSED}: project `{}`'s stored proposal is not JSON ({}). Nothing was saved.", stored_read::shown(project_id), stored_read::json_error(&error))
+    })?;
+    analysis_run_v03_build::js_numbers(&mut value);
+    Ok(KeptProposal { text, value, _reservations: (sqlite, held) })
+}
+
+/// The project row's update for a save that keeps the stored proposal: every
+/// column [`upsert_project_texts`] writes except `proposal_json`, which the
+/// statement does not name, so its stored text is left exactly as it is.
+/// `texts.proposal_json` is not written. The row must exist.
+pub(crate) fn update_project_texts_keeping_proposal(
+    transaction: &rusqlite::Transaction<'_>,
+    project_id: &str,
+    project_name: &str,
+    texts: &ProjectTexts<'_>,
+    now: i64,
+) -> Result<(), rusqlite::Error> {
+    let ProjectTexts { model_json, editor_intents_json, proposal_json: _, selected_review_target_json, mechanics_result_json, analysis_run_json, model_hash_json, project_envelope_hash_json } = *texts;
+    let changed = transaction.execute(
+        "
+        UPDATE local_projects SET
+            project_name = ?2,
+            model_json = ?3,
+            editor_intents_json = ?4,
+            selected_review_target_json = ?5,
+            mechanics_result_json = ?6,
+            analysis_run_json = ?7,
+            model_hash_json = ?8,
+            project_envelope_hash_json = ?9,
+            updated_at_unix = ?10
+        WHERE project_id = ?1
+        ",
+        params![project_id, project_name, model_json, editor_intents_json, selected_review_target_json, mechanics_result_json, analysis_run_json, model_hash_json, project_envelope_hash_json, now],
+    )?;
+    if changed == 1 {
+        Ok(())
+    } else {
+        Err(rusqlite::Error::QueryReturnedNoRows)
+    }
+}
+
+/// The row write of a save: the upsert, or with a kept stored proposal the
+/// update that leaves `proposal_json` as stored.
+pub(crate) fn write_project_texts(
+    transaction: &rusqlite::Transaction<'_>,
+    project_id: &str,
+    project_name: &str,
+    texts: &ProjectTexts<'_>,
+    now: i64,
+    keep_stored_proposal: bool,
+) -> Result<(), rusqlite::Error> {
+    if keep_stored_proposal {
+        update_project_texts_keeping_proposal(transaction, project_id, project_name, texts, now)
+    } else {
+        upsert_project_texts(transaction, project_id, project_name, texts, now)
+    }
+}
+
+/// `computeProjectEnvelopeHash`'s evidence for the plain save that keeps the
+/// stored proposal: the payload hash over the request's members and the
+/// stored proposal as read, in RFC 8785's order and forms.
+fn kept_proposal_envelope_hash(
+    model: &Value,
+    editor_intents: &Value,
+    proposal: &Value,
+    selected_review_target: &Value,
+    mechanics_result: &Value,
+    analysis_run: &Value,
+    model_hash: &Value,
+) -> Value {
+    use analysis_run_v03_build::{Sink, Style, Writer};
+    use sha2::{Digest, Sha256};
+    let mut hasher = Sha256::new();
+    let members: [(&str, &Value); 7] = [
+        ("analysis_run", analysis_run),
+        ("editor_intents", editor_intents),
+        ("mechanics_result", mechanics_result),
+        ("model", model),
+        ("model_hash", model_hash),
+        ("proposal", proposal),
+        ("selected_review_target", selected_review_target),
+    ];
+    for (index, (key, value)) in members.into_iter().enumerate() {
+        hasher.put(if index == 0 { b"{\"" } else { b",\"" });
+        hasher.put(key.as_bytes());
+        hasher.put(b"\":");
+        Writer::new(&mut hasher, Style::Canonical).value(value);
+    }
+    hasher.put(b"}");
+    json!({
+        "algorithm": "sha256",
+        "canonicalization": "rfc8785_jcs",
+        "payload_scope": "project_envelope_payload",
+        "payload_excludes": "storage_summary_and_envelope_hash_carrier_fields",
+        "payload_ref": model.pointer("/project/id").cloned().unwrap_or(Value::Null),
+        "value": format!("sha256:{}", analysis_run_v03_build::hex(&hasher.finalize())),
+        "hash_status": "computed_local_preview"
+    })
+}
+
 struct StoredProjectRecord {
     project_id: String,
     project_name: String,
@@ -3534,41 +3697,80 @@ fn save_local_project_args(
     args: &mut Args,
     store: impl FnOnce() -> Result<PathBuf, String>,
 ) -> Result<LocalProjectEnvelope, CommandError> {
-    let request = args.decode_with("request", SaveLocalProjectRequest::from_value)?;
-    store().and_then(|path| save_project_in_store(path, request)).map_err(CommandError::Command)
+    // Issue 519: `keep_stored_proposal` as sent (absent: `None`), beside the request's other fields.
+    let (request, keep) = args.decode_with("request", |mut value| {
+        let keep = value.as_object_mut().and_then(|map| map.remove("keep_stored_proposal"));
+        SaveLocalProjectRequest::from_value(value).map(|request| (request, keep))
+    })?;
+    store().and_then(|path| save_project_in_store_keeping(path, request, keep)).map_err(CommandError::Command)
 }
 
 /// `save_local_project` on a given store, with the same single transaction as
 /// `create_project_in_store`.
 fn save_project_in_store(path: PathBuf, request: SaveLocalProjectRequest) -> Result<LocalProjectEnvelope, String> {
+    save_project_in_store_keeping(path, request, None)
+}
+
+/// `save_project_in_store` with the request's `keep_stored_proposal` as sent
+/// (issue 519): with it, the stored proposal is kept as stored.
+fn save_project_in_store_keeping(path: PathBuf, request: SaveLocalProjectRequest, keep: Option<Value>) -> Result<LocalProjectEnvelope, String> {
+    // Refused before the store is opened; nothing is written.
+    let keep = keep_stored_proposal("keep_stored_proposal", keep, false, Some(&request.proposal))?;
+    if keep && !request.project_envelope_hash.is_null() {
+        return Err(format!("{STORED_PROPOSAL_KEEP_REFUSED}: a save with `keep_stored_proposal` carries no envelope hash; the store computes it over what it stores. Nothing was saved."));
+    }
     let (mut connection, migration) = open_project_store(&path)?;
     // One write transaction from the preparation's reads to the commit.
     let transaction = immediate_transaction(&mut connection)?;
     let editor_intents = normalized_editor_intents(Some(request.editor_intents));
-    let proposal = normalized_proposal(Some(request.proposal));
+    let mut proposal = normalized_proposal(Some(request.proposal));
     let selected_review_target =
         normalized_selected_review_target(Some(request.selected_review_target));
     let mechanics_result = request.mechanics_result;
     let analysis_run = request.analysis_run;
     let model = request.model;
     let model_hash = request.model_hash;
-    let project_envelope_hash = request.project_envelope_hash;
+    let mut project_envelope_hash = request.project_envelope_hash;
     let document_version = check_model_document_for_persist(&model)?;
-    guarded_write_project_rows(
-        &transaction,
-        request.confirmed_revision.as_deref(),
-        request.expected_base.as_deref(),
-        &request.project_id,
-        &request.project_name,
-        &model,
-        &editor_intents,
-        &proposal,
-        &selected_review_target,
-        &mechanics_result,
-        &analysis_run,
-        &model_hash,
-        &project_envelope_hash,
-    )?;
+    if keep {
+        // The checks of `guarded_write_project_rows`, then the stored proposal read in this
+        // transaction: the envelope hash is computed over it and its text is left as stored.
+        refuse_unconfirmed_replacement(&transaction, &request.project_id, request.confirmed_revision.as_deref(), request.expected_base.as_deref())?;
+        refuse_dropping_withheld_run(&transaction, &request.project_id, request.confirmed_revision.as_deref(), &mechanics_result, solve_jobs::MAX_DISPLAYABLE_RESULT_BYTES)?;
+        let kept = read_kept_proposal(&transaction, &request.project_id, &stored_read::UnmeteredReadMemory)?;
+        project_envelope_hash = kept_proposal_envelope_hash(&model, &editor_intents, &kept.value, &selected_review_target, &mechanics_result, &analysis_run, &model_hash);
+        let text = |value: &Value| serde_json::to_string(value).map_err(|error| error.to_string());
+        let (model_json, editor_intents_json, selected_review_target_json) = (text(&model)?, text(&editor_intents)?, text(&selected_review_target)?);
+        let (mechanics_result_json, analysis_run_json, model_hash_json, project_envelope_hash_json) = (text(&mechanics_result)?, text(&analysis_run)?, text(&model_hash)?, text(&project_envelope_hash)?);
+        let texts = ProjectTexts {
+            model_json: &model_json,
+            editor_intents_json: &editor_intents_json,
+            proposal_json: &kept.text,
+            selected_review_target_json: &selected_review_target_json,
+            mechanics_result_json: &mechanics_result_json,
+            analysis_run_json: &analysis_run_json,
+            model_hash_json: &model_hash_json,
+            project_envelope_hash_json: &project_envelope_hash_json,
+        };
+        update_project_texts_keeping_proposal(&transaction, &request.project_id, &request.project_name, &texts, now_unix_seconds()?).map_err(|error| error.to_string())?;
+        proposal = kept.value;
+    } else {
+        guarded_write_project_rows(
+            &transaction,
+            request.confirmed_revision.as_deref(),
+            request.expected_base.as_deref(),
+            &request.project_id,
+            &request.project_name,
+            &model,
+            &editor_intents,
+            &proposal,
+            &selected_review_target,
+            &mechanics_result,
+            &analysis_run,
+            &model_hash,
+            &project_envelope_hash,
+        )?;
+    }
     transaction.commit().map_err(|error| error.to_string())?;
     Ok(LocalProjectEnvelope {
         summary: project_summary(
@@ -9447,6 +9649,120 @@ mod tests {
         std::fs::remove_dir_all(root).unwrap();
     }
 
+    /// Issue 519, the plain save: with `keep_stored_proposal` the stored
+    /// proposal's text (key order, whitespace, `1.0`, `-0`, an integer above
+    /// 2^53) is byte identical after a save in place, the other columns are
+    /// those of an ordinary save of the same values, and the envelope hash is
+    /// the one computed over the stored proposal as read. Without the member a
+    /// save replaces it as before; a request carrying a proposal or an
+    /// envelope hash with it, a value other than true, or no stored project is
+    /// refused by name with every column unchanged; a save that fails after
+    /// the row's update leaves the text as stored.
+    #[test]
+    fn save_local_project_keeps_the_stored_proposal_text_as_stored() {
+        let root = std::env::temp_dir().join(format!(
+            "keep-proposal-{}-{}",
+            std::process::id(),
+            std::time::SystemTime::now().duration_since(std::time::UNIX_EPOCH).unwrap().as_nanos()
+        ));
+        std::fs::create_dir(&root).unwrap();
+        let golden: Value = serde_json::from_str(include_str!("../../../../fixtures/model_document/desktop_emitted.json")).unwrap();
+        let model = golden["entries"].as_array().unwrap().last().unwrap()["document"].clone();
+        let project_id = model["project"]["id"].as_str().unwrap().to_string();
+        let odd = "{ \"zeta\" : 1.0,\n  \"alpha\": [ -0, 9007199254740993, {\"b\":2,\"a\":1} ],\n \"proposal_id\":\"proposal:odd\" }";
+        let parsed: Value = serde_json::from_str(odd).unwrap();
+        assert_ne!(serde_json::to_string(&parsed).unwrap(), odd, "a re-serialisation changes this text");
+        // What the webview reads of it, and so what a session would send and hash.
+        let mut read = parsed.clone();
+        analysis_run_v03_build::js_numbers(&mut read);
+        assert_ne!(read, parsed);
+        let request = |extra: Value| {
+            let mut value = json!({
+                "project_id": project_id, "project_name": "Invented keep", "model": model,
+                "model_hash": computed_model_hash(&model, &project_id), "expected_base": "base"
+            });
+            value.as_object_mut().unwrap().extend(extra.as_object().unwrap().clone());
+            SaveLocalProjectRequest::from_value(value).unwrap()
+        };
+        let seeded = |name: &str| {
+            let db = root.join(name);
+            let (mut connection, _) = open_project_store(&db).unwrap();
+            upsert_project(&mut connection, &project_id, "Invented keep", &model, &json!([]), &Value::Null, &Value::Null, &Value::Null, &Value::Null, &Value::Null, &json!({"value": "base"})).unwrap();
+            connection.execute("UPDATE local_projects SET proposal_json = ?1", params![odd]).unwrap();
+            db
+        };
+        let text = |db: &Path, column: &str| -> String {
+            Connection::open(db).unwrap().query_row(&format!("SELECT {column} FROM local_projects"), [], |row| row.get(0)).unwrap()
+        };
+        let row = |db: &Path| -> Vec<String> {
+            ["project_name", "model_json", "editor_intents_json", "proposal_json", "selected_review_target_json", "mechanics_result_json", "analysis_run_json", "model_hash_json", "project_envelope_hash_json"]
+                .iter().map(|column| text(db, column)).collect()
+        };
+
+        // Kept: the text as stored; the reply carries serde_json's reading of it.
+        let kept_db = seeded("kept.sqlite");
+        let saved = save_project_in_store_keeping(kept_db.clone(), request(json!({})), Some(json!(true))).unwrap();
+        assert_eq!(text(&kept_db, "proposal_json"), odd, "byte identical");
+        assert_eq!(saved.proposal, read);
+        assert_eq!(saved.summary.proposal_count, 1);
+        // An ordinary save of the same values (as the session computed its hash): every other column alike.
+        let reference_db = seeded("reference.sqlite");
+        let envelope = computed_project_envelope_hash(&project_id, &model, &json!([]), &read, &Value::Null, &Value::Null, &Value::Null, &computed_model_hash(&model, &project_id));
+        save_project_in_store(reference_db.clone(), request(json!({"proposal": read, "project_envelope_hash": envelope}))).unwrap();
+        let (kept_row, reference_row) = (row(&kept_db), row(&reference_db));
+        assert_eq!(reference_row[3], serde_json::to_string(&read).unwrap(), "the ordinary save re-serialises");
+        for (index, (kept, reference)) in kept_row.iter().zip(&reference_row).enumerate() {
+            if index != 3 {
+                assert_eq!(kept, reference, "column {index}");
+            }
+        }
+        assert_eq!(saved.project_envelope_hash, envelope, "the hash over the stored proposal as read");
+        // A reopen reads the kept text again, unchanged.
+        assert_eq!(open_project_in_store(kept_db.clone(), Some(&project_id)).unwrap().unwrap().proposal, parsed);
+        assert_eq!(text(&kept_db, "proposal_json"), odd);
+
+        // Without the member a save replaces it, as before.
+        let plain_db = seeded("plain.sqlite");
+        save_project_in_store_keeping(plain_db.clone(), request(json!({})), None).unwrap();
+        assert_eq!(text(&plain_db, "proposal_json"), "null");
+
+        // Refusals: nothing written.
+        for (name, extra, keep, expected) in [
+            ("both", json!({"proposal": {"proposal_id": "proposal:own"}}), Some(json!(true)), "carries both"),
+            ("hash", json!({"project_envelope_hash": {"value": "sha256:0"}}), Some(json!(true)), "carries no envelope hash"),
+            ("false", json!({}), Some(json!(false)), "it was false"),
+            ("null", json!({}), Some(Value::Null), "it was null"),
+            ("string", json!({}), Some(json!("true")), "it was a string"),
+            ("number", json!({}), Some(json!(1)), "it was a number"),
+        ] {
+            let db = seeded(&format!("refused-{name}.sqlite"));
+            let before = row(&db);
+            let error = save_project_in_store_keeping(db.clone(), request(extra), keep).unwrap_err();
+            assert!(error.starts_with(STORED_PROPOSAL_KEEP_REFUSED) && error.contains(expected), "{name}: {error}");
+            assert_eq!(row(&db), before, "{name}: every column unchanged");
+        }
+        let empty = root.join("empty.sqlite");
+        let error = save_project_in_store_keeping(empty.clone(), SaveLocalProjectRequest::from_value(json!({
+            "project_id": project_id, "project_name": "Invented keep", "model": model, "model_hash": computed_model_hash(&model, &project_id)
+        })).unwrap(), Some(json!(true))).unwrap_err();
+        assert!(error.starts_with(STORED_PROPOSAL_KEEP_REFUSED) && error.contains("is not stored"), "{error}");
+        let (connection, _) = open_project_store(&empty).unwrap();
+        assert_eq!(connection.query_row("SELECT count(*) FROM local_projects", [], |row| row.get::<_, i64>(0)).unwrap(), 0);
+        drop(connection);
+
+        // A failure after the row's update rolls the save back: the text as stored.
+        let failing = seeded("failing.sqlite");
+        Connection::open(&failing).unwrap().execute_batch(
+            "CREATE TRIGGER invented_failure AFTER UPDATE ON local_projects BEGIN SELECT RAISE(FAIL, 'INVENTED-FAILURE: after the project row'); END;"
+        ).unwrap();
+        let before = row(&failing);
+        let error = save_project_in_store_keeping(failing.clone(), request(json!({})), Some(json!(true))).unwrap_err();
+        assert!(error.contains("INVENTED-FAILURE"), "{error}");
+        assert_eq!(row(&failing), before);
+        assert_eq!(text(&failing, "proposal_json"), odd);
+        std::fs::remove_dir_all(root).unwrap();
+    }
+
     /// W-13 §5.4 (S2): a desktop-emitted document carrying every model-data
     /// member goes through Save Local Project and back with equal content and
     /// model hash; an edit (create a line) saved in place and its undo (the
@@ -11252,6 +11568,31 @@ mod tests {
                 let error = SaveLocalProjectRequest::from_value(value).unwrap_err().to_string();
                 assert!(error.starts_with(expected), "{error}");
             }
+        }
+
+        /// Issue 519: `save_local_project`'s request carries `keep_stored_proposal`
+        /// beside its fields; absent, the request decodes as before.
+        #[test]
+        fn save_local_project_args_read_keep_stored_proposal() {
+            let root = std::env::temp_dir().join(format!("keep-proposal-args-{}-{}", std::process::id(), std::time::SystemTime::now().duration_since(std::time::UNIX_EPOCH).unwrap().as_nanos()));
+            std::fs::create_dir(&root).unwrap();
+            let db = root.join("store.sqlite");
+            let model: Value = serde_json::from_str::<Value>(include_str!("../../../../fixtures/model_document/desktop_emitted.json")).unwrap()["entries"]
+                .as_array().unwrap().last().unwrap()["document"].clone();
+            let project_id = model["project"]["id"].as_str().unwrap().to_string();
+            let args = |keep: Option<Value>| {
+                let mut request = json!({"project_id": project_id, "project_name": "Invented keep", "model": model});
+                if let Some(keep) = keep {
+                    request["keep_stored_proposal"] = keep;
+                }
+                admit("save_local_project", json!({"request": request}))
+            };
+            let refused = save_local_project_args(&mut args(Some(json!("yes"))).0, || Ok(db.clone())).unwrap_err();
+            assert!(format!("{refused:?}").contains("STORED-PROPOSAL-KEEP-REFUSED"), "{refused:?}");
+            let refused = save_local_project_args(&mut args(Some(json!(true))).0, || Ok(db.clone())).unwrap_err();
+            assert!(format!("{refused:?}").contains("is not stored"), "{refused:?}");
+            assert!(save_local_project_args(&mut args(None).0, || Ok(db.clone())).is_ok());
+            std::fs::remove_dir_all(root).unwrap();
         }
 
         #[test]

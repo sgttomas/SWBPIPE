@@ -738,3 +738,81 @@ fn the_resave_runs_off_the_async_executor() {
     drop(held);
     assert_eq!(registry.pool().reserved_total(), 0);
 }
+
+/// Issue 519, the re-save of a reopened saved run: with `keepStoredProposal`
+/// the stored proposal's text is byte identical after a save in place, the
+/// envelope hash is computed over it as read (a later reopen's findings
+/// agree), and the reopen gives the same proposal. Without the member the
+/// re-save replaces it as before. Refused by name, nothing written: the member
+/// with a proposal, a value other than true, on a create. A re-save that fails
+/// after the row's update leaves the text as stored.
+#[test]
+fn a_resave_in_place_keeps_the_stored_proposal_text_as_stored() {
+    use crate::native_persistence::tests::{edited, fail_after_project_row_update, set_stored_proposal, stored_proposal_text, webview_reading, ODD_PROPOSAL_TEXT};
+    let host = ScriptedHost::normal();
+    let (registry, gate) = gated(&host);
+    let dir = scratch("resave-keep-proposal");
+    let case = persistence_cases().into_iter().next().unwrap();
+    let parsed = webview_reading(ODD_PROPOSAL_TEXT);
+    let read: Value = serde_json::from_str(ODD_PROPOSAL_TEXT).unwrap();
+    let reopened_with_odd = |name: &str| {
+        let path = dir.join(name);
+        let job = held(&registry, &gate, &case.text, &case.intake, &case.mode, ResultCustody::Native);
+        native_save(&registry, &path, &edited(&case.save_args(&job, "create", Value::Null, Value::Null), |args| { args.insert("proposal".into(), Value::Null); }), &unlimited()).unwrap();
+        registry.dispose_all_results();
+        set_stored_proposal(&path, ODD_PROPOSAL_TEXT);
+        let opened = native_open(&registry, &path, Some(case.project_id())).unwrap();
+        assert_eq!(opened["stored_run"]["state"], "restored");
+        assert_eq!(opened["proposal"], read, "the open sends serde_json's reading");
+        (path, opened)
+    };
+    let keeping = |opened: &Value, keep: Option<Value>, proposal: Value| edited(&in_place(opened), |args| {
+        args.insert("proposal".into(), proposal);
+        if let Some(keep) = keep {
+            args.insert("keepStoredProposal".into(), keep);
+        }
+    });
+
+    let (kept, opened) = reopened_with_odd("kept.sqlite");
+    let reply = native_resave(&registry, &kept, &keeping(&opened, Some(json!(true)), Value::Null), &unlimited()).unwrap();
+    assert_eq!(stored_proposal_text(&kept), ODD_PROPOSAL_TEXT, "byte identical");
+    assert_eq!(reply["proposal"], parsed);
+    // The opened values re-saved as they are: the basis is kept and its findings are the reopen's.
+    assert_eq!(reply["restored"]["envelope_payload_hash"], opened["stored_run"]["findings"]["envelope_payload_hash"]);
+    registry.dispose_all_results();
+    let again = native_open(&registry, &kept, Some(case.project_id())).unwrap();
+    assert_eq!(again["stored_run"]["findings"]["envelope_payload_hash"], reply["restored"]["envelope_payload_hash"], "a reopen verifies the hash");
+    assert_eq!(again["proposal"], read);
+    registry.dispose_all_results();
+
+    let (plain, opened) = reopened_with_odd("plain.sqlite");
+    native_resave(&registry, &plain, &keeping(&opened, None, Value::Null), &unlimited()).unwrap();
+    assert_eq!(stored_proposal_text(&plain), "null", "without the member, as before");
+    registry.dispose_all_results();
+
+    for (name, keep, proposal, mode, expected) in [
+        ("both", json!(true), json!({"proposal_id": "proposal:own"}), "save", "carries both"),
+        ("false", json!(false), Value::Null, "save", "it was false"),
+        ("string", json!("true"), Value::Null, "save", "it was a string"),
+        ("create", json!(true), Value::Null, "create", "a create has no stored proposal"),
+    ] {
+        let (path, opened) = reopened_with_odd(&format!("refused-{name}.sqlite"));
+        let before = dump(&path, "local_projects", &[]);
+        let args = edited(&keeping(&opened, Some(keep), proposal), |args| { args.insert("mode".into(), json!(mode)); });
+        let error = native_resave(&registry, &path, &args, &unlimited()).unwrap_err();
+        assert!(error.starts_with(crate::STORED_PROPOSAL_KEEP_REFUSED) && error.contains(expected), "{name}: {error}");
+        assert_eq!(dump(&path, "local_projects", &[]), before, "{name}: every column unchanged");
+        registry.dispose_all_results();
+    }
+
+    let (failing, opened) = reopened_with_odd("failing.sqlite");
+    fail_after_project_row_update(&failing);
+    let before = dump(&failing, "local_projects", &[]);
+    let error = native_resave(&registry, &failing, &keeping(&opened, Some(json!(true)), Value::Null), &unlimited()).unwrap_err();
+    assert!(error.contains("INVENTED-FAILURE"), "{error}");
+    assert_eq!(dump(&failing, "local_projects", &[]), before);
+    assert_eq!(stored_proposal_text(&failing), ODD_PROPOSAL_TEXT);
+    registry.dispose_all_results();
+    std::fs::remove_dir_all(&dir).unwrap();
+    assert_eq!(registry.pool().reserved_total(), 0);
+}

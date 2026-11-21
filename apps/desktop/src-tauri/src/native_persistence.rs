@@ -776,6 +776,9 @@ pub(crate) struct SaveRequest {
     pub(crate) expected: ExpectedRecord,
     /// The model text the job was sent ([`bound_intake`]).
     pub(crate) intake: Option<String>,
+    /// Issue 519: a save in place that keeps the stored proposal as stored
+    /// ([`crate::keep_stored_proposal`]).
+    pub(crate) keep_stored_proposal: bool,
 }
 
 fn decode_save(args: &mut command_ingress::Args) -> Result<SaveRequest, CommandError<String>> {
@@ -785,19 +788,23 @@ fn decode_save(args: &mut command_ingress::Args) -> Result<SaveRequest, CommandE
         "save" => false,
         _ => return Err(CommandError::Command("INGRESS-ARGS-INVALID: `mode` is `create` or `save`.".into())),
     };
+    let proposal = args.opt_value("proposal");
+    let keep = if args.keys().any(|key| key == "keepStoredProposal") { Some(args.value("keepStoredProposal")?) } else { None };
+    let keep_stored_proposal = crate::keep_stored_proposal("keepStoredProposal", keep, create, proposal.as_ref()).map_err(CommandError::Command)?;
     Ok(SaveRequest {
         create,
         project_id: args.decode("projectId")?,
         project_name: args.decode("projectName")?,
         model: args.value("model")?,
         editor_intents: args.opt_value("editorIntents"),
-        proposal: args.opt_value("proposal"),
+        proposal,
         selected_review_target: args.opt_value("selectedReviewTarget"),
         model_hash: args.opt_value("modelHash").unwrap_or(Value::Null),
         confirmed_revision: args.decode("confirmedRevision")?,
         expected_base: args.decode("expectedBase")?,
         expected: args.decode("expectedRecord")?,
         intake: args.decode("intakeText")?,
+        keep_stored_proposal,
     })
 }
 
@@ -909,7 +916,7 @@ pub(crate) fn run_save(
     build::verify_manifest(&prepared.evidence, prepared.manifest.as_ref()).map_err(CommandError::Command)?;
     let manifest = prepared.manifest.as_ref().expect("verified");
     let digests = bound_custody(registry, &prepared, manifest).map_err(refusal)?;
-    let SaveRequest { create, project_id, project_name, model, editor_intents, proposal, selected_review_target, model_hash, confirmed_revision, expected_base, expected, intake } = request;
+    let SaveRequest { create, project_id, project_name, model, editor_intents, proposal, selected_review_target, model_hash, confirmed_revision, expected_base, expected, intake, keep_stored_proposal } = request;
     bound_intake(&memory, &prepared.job_id, &digests, intake, manifest)?;
     let (project_id, project_name, expected_base) = if create {
         (crate::project_id_from_model(&model), crate::project_name_from_model(&model), None)
@@ -927,7 +934,10 @@ pub(crate) fn run_save(
         ("selected_review_target_json", stored_read::serialized_length(&selected_review_target).map_err(refusal)?),
         ("model_hash_json", stored_read::serialized_length(&model_hash).map_err(refusal)?),
     ];
-    let fields = ProjectFields { project_id: &project_id, project_name: &project_name, model: &model, editor_intents: &editor_intents, proposal: &proposal, selected_review_target: &selected_review_target, model_hash: &model_hash, small: &small };
+    // Issue 519: the stored proposal a save in place keeps, read in its transaction (below).
+    let kept: Option<crate::KeptProposal>;
+    let kept_small: [(&'static str, u64); 5];
+    let mut fields = ProjectFields { project_id: &project_id, project_name: &project_name, model: &model, editor_intents: &editor_intents, proposal: &proposal, selected_review_target: &selected_review_target, model_hash: &model_hash, small: &small, kept_proposal: None };
     let mut connection: Option<rusqlite::Connection> = None;
     let transaction: Transaction<'_>;
     let sqlite: stored_read::ReadReservation;
@@ -958,6 +968,9 @@ pub(crate) fn run_save(
         transaction = crate::immediate_transaction(opened).map_err(refusal)?;
         sqlite = stored_read::admit_sqlite_working_set(&transaction, &memory).map_err(refusal)?;
         crate::refuse_unconfirmed_replacement(&transaction, &project_id, confirmed_revision.as_deref(), expected_base.as_deref()).map_err(refusal)?;
+        kept = if keep_stored_proposal { Some(crate::read_kept_proposal(&transaction, &project_id, &memory).map_err(refusal)?) } else { None };
+        kept_small = keeping_small(small, kept.as_ref());
+        fields = fields.keeping(kept.as_ref(), &kept_small);
         let staged = stage_save(&transaction, &SaveRun::Fresh(&built), &fields, confirmed_revision.as_deref(), limits, now, &memory, None).map_err(refusal)?;
         // The record, the held result's parse and the builder's leases end here.
         drop(built);
@@ -982,6 +995,36 @@ pub(crate) struct ProjectFields<'f> {
     pub(crate) selected_review_target: &'f Value,
     pub(crate) model_hash: &'f Value,
     pub(crate) small: &'f [(&'static str, u64)],
+    /// Issue 519: the stored proposal's text a save in place keeps; the row's
+    /// `proposal_json` is then left as stored, and `proposal` and `small` are
+    /// the stored proposal's ([`ProjectFields::keeping`]).
+    pub(crate) kept_proposal: Option<&'f str>,
+}
+
+impl<'f> ProjectFields<'f> {
+    /// These fields with the kept stored proposal in place of the request's
+    /// (none: unchanged): its value for the envelope hash and the reply, its
+    /// stored text's length for the row's measures.
+    pub(crate) fn keeping(self, kept: Option<&'f crate::KeptProposal>, small: &'f [(&'static str, u64)]) -> Self {
+        match kept {
+            Some(kept) => ProjectFields { proposal: &kept.value, small, kept_proposal: Some(&kept.text), ..self },
+            None => self,
+        }
+    }
+}
+
+/// The small texts' lengths with the kept stored proposal's text length in
+/// place of the request's proposal's (none: unchanged).
+pub(crate) fn keeping_small(small: [(&'static str, u64); 5], kept: Option<&crate::KeptProposal>) -> [(&'static str, u64); 5] {
+    let mut small = small;
+    if let Some(kept) = kept {
+        for (name, bytes) in small.iter_mut() {
+            if *name == "proposal_json" {
+                *bytes = kept.text.len() as u64;
+            }
+        }
+    }
+    small
 }
 
 /// The run a project save stores: a fresh solve's held result with the
@@ -1339,7 +1382,11 @@ pub(crate) fn finish_save(
     stored_read::phase_probe::mark("save: result and record texts staged, parse released");
     let (model_json, model_lease) = leased_json(memory, "the project's model text", fields.model)?;
     let (editor_json, editor_lease) = leased_json(memory, "the project's editor intents text", fields.editor_intents)?;
-    let (proposal_json, proposal_lease) = leased_json(memory, "the project's proposal text", fields.proposal)?;
+    // A kept stored proposal's text is not written (the row's update leaves it as stored).
+    let (proposal_json, proposal_lease) = match fields.kept_proposal {
+        Some(_) => (String::new(), None),
+        None => leased_json(memory, "the project's proposal text", fields.proposal).map(|(text, lease)| (text, Some(lease)))?,
+    };
     let (selected_json, selected_lease) = leased_json(memory, "the project's review target text", fields.selected_review_target)?;
     let (model_hash_json, model_hash_lease) = leased_json(memory, "the project's model hash text", fields.model_hash)?;
     let (envelope_json, envelope_lease) = leased_json(memory, "the project's envelope hash text", &envelope)?;
@@ -1354,7 +1401,7 @@ pub(crate) fn finish_save(
         let texts = crate::ProjectTexts {
             model_json: &model_json,
             editor_intents_json: &editor_json,
-            proposal_json: &proposal_json,
+            proposal_json: fields.kept_proposal.unwrap_or(&proposal_json),
             selected_review_target_json: &selected_json,
             mechanics_result_json: &result_json,
             analysis_run_json: &record_json,
@@ -1362,7 +1409,7 @@ pub(crate) fn finish_save(
             project_envelope_hash_json: &envelope_json,
         };
         let statement = memory.reserve("SQLite's copies of the project's row", stored_read::total(&[bound, measured("project row")]))?;
-        crate::upsert_project_texts(transaction, fields.project_id, fields.project_name, &texts, now).map_err(|error| project_write_error(&error))?;
+        crate::write_project_texts(transaction, fields.project_id, fields.project_name, &texts, now, fields.kept_proposal.is_some()).map_err(|error| project_write_error(&error))?;
         #[cfg(test)]
         stored_read::phase_probe::mark("save: project row written");
         drop(statement);

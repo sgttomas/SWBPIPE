@@ -120,6 +120,9 @@ struct Request {
     selected_review_target: Option<Value>,
     confirmed_revision: Option<String>,
     expected_base: Option<String>,
+    /// Issue 519: a save in place that keeps the stored proposal as stored
+    /// ([`crate::keep_stored_proposal`]).
+    keep_stored_proposal: bool,
 }
 
 fn decode(args: &mut command_ingress::Args) -> Result<Request, CommandError<String>> {
@@ -129,6 +132,9 @@ fn decode(args: &mut command_ingress::Args) -> Result<Request, CommandError<Stri
         "save" => false,
         _ => return Err(CommandError::Command("INGRESS-ARGS-INVALID: `mode` is `create` or `save`.".into())),
     };
+    let proposal = args.opt_value("proposal");
+    let keep = if args.keys().any(|key| key == "keepStoredProposal") { Some(args.value("keepStoredProposal")?) } else { None };
+    let keep_stored_proposal = crate::keep_stored_proposal("keepStoredProposal", keep, create, proposal.as_ref()).map_err(CommandError::Command)?;
     Ok(Request {
         job_id: args.decode("jobId")?,
         expected_source: args.decode("expectedSource")?,
@@ -138,10 +144,11 @@ fn decode(args: &mut command_ingress::Args) -> Result<Request, CommandError<Stri
         project_name: args.decode("projectName")?,
         model: args.value("model")?,
         editor_intents: args.opt_value("editorIntents"),
-        proposal: args.opt_value("proposal"),
+        proposal,
         selected_review_target: args.opt_value("selectedReviewTarget"),
         confirmed_revision: args.decode("confirmedRevision")?,
         expected_base: args.decode("expectedBase")?,
+        keep_stored_proposal,
     })
 }
 
@@ -289,7 +296,7 @@ pub(crate) fn run_save(
     let bound = bound_restored(registry, &request).map_err(refusal)?;
     #[cfg(test)]
     tests::command_gate::pass(tests::command_gate::key(registry, "stored_save:bound"));
-    let Request { job_id, create, project_id, project_name, model, editor_intents, proposal, selected_review_target, confirmed_revision, expected_base, .. } = request;
+    let Request { job_id, create, project_id, project_name, model, editor_intents, proposal, selected_review_target, confirmed_revision, expected_base, keep_stored_proposal, .. } = request;
     let (project_id, project_name, expected_base) = if create {
         (crate::project_id_from_model(&model), crate::project_name_from_model(&model), None)
     } else {
@@ -308,7 +315,10 @@ pub(crate) fn run_save(
         ("selected_review_target_json", stored_read::serialized_length(&selected_review_target).map_err(refusal)?),
         ("model_hash_json", stored_read::serialized_length(&model_hash).map_err(refusal)?),
     ];
-    let fields = ProjectFields { project_id: &project_id, project_name: &project_name, model: &model, editor_intents: &editor_intents, proposal: &proposal, selected_review_target: &selected_review_target, model_hash: &model_hash, small: &small };
+    // Issue 519: the stored proposal a save in place keeps, read in its transaction (below).
+    let kept: Option<crate::KeptProposal>;
+    let kept_small: [(&'static str, u64); 5];
+    let mut fields = ProjectFields { project_id: &project_id, project_name: &project_name, model: &model, editor_intents: &editor_intents, proposal: &proposal, selected_review_target: &selected_review_target, model_hash: &model_hash, small: &small, kept_proposal: None };
     let mut connection: Option<rusqlite::Connection> = None;
     let transaction: Transaction<'_>;
     let sqlite: stored_read::ReadReservation;
@@ -331,6 +341,9 @@ pub(crate) fn run_save(
         transaction = crate::immediate_transaction(opened).map_err(refusal)?;
         sqlite = stored_read::admit_sqlite_working_set(&transaction, &memory).map_err(refusal)?;
         crate::refuse_unconfirmed_replacement(&transaction, &project_id, confirmed_revision.as_deref(), expected_base.as_deref()).map_err(refusal)?;
+        kept = if keep_stored_proposal { Some(crate::read_kept_proposal(&transaction, &project_id, &memory).map_err(refusal)?) } else { None };
+        kept_small = persistence::keeping_small(small, kept.as_ref());
+        fields = fields.keeping(kept.as_ref(), &kept_small);
         let staged = persistence::stage_save(&transaction, &SaveRun::Stored { result: &result, record: &record }, &fields, confirmed_revision.as_deref(), limits, now, &memory, Some(&basis))
             .map_err(refusal)?;
         // The findings of the project as stored: its values as serde_json reads the stored texts.
@@ -338,7 +351,7 @@ pub(crate) fn run_save(
             let project = SavedProject {
                 model: &model,
                 editor_intents: &editor_intents,
-                proposal: &proposal,
+                proposal: fields.proposal,
                 selected_review_target: &selected_review_target,
                 model_hash: &model_hash,
                 project_envelope_hash: &staged.envelope,

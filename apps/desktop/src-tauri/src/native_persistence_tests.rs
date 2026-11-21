@@ -2950,3 +2950,121 @@ const PARITY: &[(&str, &str)] = &[
     ("preview:rule-pack-excluded save reply", "6a76c9dcf1c4647faffa967701f80ac4a9d5231517df6a2e63987b780454af2e:3415"),
 ];
 
+
+/// Issue 519: a stored proposal's text in forms a re-serialisation changes
+/// (key order, whitespace, `1.0`, `-0`, an integer above 2^53).
+pub(crate) const ODD_PROPOSAL_TEXT: &str = "{ \"zeta\" : 1.0,\n  \"alpha\": [ -0, 9007199254740993, {\"b\":2,\"a\":1} ],\n \"proposal_id\":\"proposal:odd\" }";
+
+/// Issue 519: writes `text` as the stored project's proposal, as another tool would.
+pub(crate) fn set_stored_proposal(path: &Path, text: &str) {
+    assert_eq!(Connection::open(path).unwrap().execute("UPDATE local_projects SET proposal_json = ?1", [text]).unwrap(), 1);
+}
+
+pub(crate) fn stored_proposal_text(path: &Path) -> String {
+    Connection::open(path).unwrap().query_row("SELECT proposal_json FROM local_projects", [], |row| row.get(0)).unwrap()
+}
+
+/// Issue 519: a store whose project row's update fails after the row is written.
+pub(crate) fn fail_after_project_row_update(path: &Path) {
+    Connection::open(path).unwrap().execute_batch(
+        "CREATE TRIGGER invented_failure AFTER UPDATE ON local_projects BEGIN SELECT RAISE(FAIL, 'INVENTED-FAILURE: after the project row'); END;",
+    ).unwrap();
+}
+
+/// What the webview reads of a stored text: each number as JavaScript reads it.
+pub(crate) fn webview_reading(text: &str) -> Value {
+    let mut value: Value = serde_json::from_str(text).unwrap();
+    build::js_numbers(&mut value);
+    value
+}
+
+/// `args` with `edit` applied to its object.
+pub(crate) fn edited(args: &Value, edit: impl FnOnce(&mut serde_json::Map<String, Value>)) -> Value {
+    let mut args = args.clone();
+    edit(args.as_object_mut().unwrap());
+    args
+}
+
+/// Issue 519, the native Save Project: with `keepStoredProposal` the stored
+/// proposal's text is byte identical after a save in place, every other
+/// column is an ordinary save's of the same values, and the envelope hash is
+/// computed over the stored proposal as read (a reopen's findings agree).
+/// Without the member a save replaces it as before. Refused by name, nothing
+/// written: the member with a proposal, a value other than true, on a create,
+/// with no stored project. A save that fails after the row's update leaves
+/// the text as stored.
+#[test]
+fn a_native_save_in_place_keeps_the_stored_proposal_text_as_stored() {
+    let host = ScriptedHost::normal();
+    let (registry, gate) = gated(&host);
+    let dir = scratch("keep-proposal");
+    let case = case_named("preview:connected");
+    let parsed = webview_reading(ODD_PROPOSAL_TEXT);
+    let seeded = |name: &str, job: &str| {
+        let path = dir.join(name);
+        let first = native_save(&registry, &path, &edited(&case.save_args(job, "save", Value::Null, Value::Null), |args| { args.insert("proposal".into(), Value::Null); }), &unlimited()).unwrap();
+        set_stored_proposal(&path, ODD_PROPOSAL_TEXT);
+        (path, first["project_envelope_hash"]["value"].clone())
+    };
+    let in_place = |job: &str, base: &Value, keep: Option<Value>, proposal: Value| edited(&case.save_args(job, "save", base.clone(), Value::Null), |args| {
+        args.insert("proposal".into(), proposal);
+        if let Some(keep) = keep {
+            args.insert("keepStoredProposal".into(), keep);
+        }
+    });
+
+    let job = held(&registry, &gate, &case.text, &case.intake, &case.mode, ResultCustody::Native);
+    let (kept, base) = seeded("kept.sqlite", &job);
+    let reply = native_save(&registry, &kept, &in_place(&job, &base, Some(json!(true)), Value::Null), &unlimited()).unwrap();
+    assert_eq!(stored_proposal_text(&kept), ODD_PROPOSAL_TEXT, "byte identical");
+    assert_eq!(reply["proposal"], parsed);
+    assert_eq!(reply["summary"]["proposal_count"], 1);
+    let (reference, reference_base) = seeded("reference.sqlite", &job);
+    let ordinary = native_save(&registry, &reference, &in_place(&job, &reference_base, None, parsed.clone()), &unlimited()).unwrap();
+    assert_eq!(stored_proposal_text(&reference), serde_json::to_string(&parsed).unwrap(), "an ordinary save re-serialises");
+    same_rows(&reference, &kept, "local_projects", &["proposal_json"], "kept");
+    assert_eq!(reply["project_envelope_hash"], ordinary["project_envelope_hash"], "the hash over the stored proposal as read");
+    registry.dispose_all_results();
+    let reopened = crate::stored_custody::tests::native_open(&registry, &kept, Some(case.project_id())).unwrap();
+    assert_eq!(reopened["stored_run"]["state"], "restored");
+    assert_eq!(reopened["stored_run"]["findings"]["envelope_payload_hash"], reply["project_envelope_hash"]["value"], "a reopen verifies the hash");
+    assert_eq!(reopened["proposal"], serde_json::from_str::<Value>(ODD_PROPOSAL_TEXT).unwrap(), "the open sends serde_json's reading");
+    assert_eq!(stored_proposal_text(&kept), ODD_PROPOSAL_TEXT, "the open did not rewrite it");
+    registry.dispose_all_results();
+
+    let job = held(&registry, &gate, &case.text, &case.intake, &case.mode, ResultCustody::Native);
+    let (plain, base) = seeded("plain.sqlite", &job);
+    native_save(&registry, &plain, &in_place(&job, &base, None, Value::Null), &unlimited()).unwrap();
+    assert_eq!(stored_proposal_text(&plain), "null", "without the member, as before");
+
+    for (name, keep, proposal, mode, expected) in [
+        ("both", json!(true), json!({"proposal_id": "proposal:own"}), "save", "carries both"),
+        ("false", json!(false), Value::Null, "save", "it was false"),
+        ("null", Value::Null, Value::Null, "save", "it was null"),
+        ("string", json!("true"), Value::Null, "save", "it was a string"),
+        ("number", json!(1), Value::Null, "save", "it was a number"),
+        ("create", json!(true), Value::Null, "create", "a create has no stored proposal"),
+    ] {
+        let (path, base) = seeded(&format!("refused-{name}.sqlite"), &job);
+        let before = dump(&path, "local_projects", &[]);
+        let args = edited(&in_place(&job, &base, Some(keep), proposal), |args| { args.insert("mode".into(), json!(mode)); });
+        let error = native_save(&registry, &path, &args, &unlimited()).unwrap_err();
+        assert!(error.starts_with(crate::STORED_PROPOSAL_KEEP_REFUSED) && error.contains(expected), "{name}: {error}");
+        assert_eq!(dump(&path, "local_projects", &[]), before, "{name}: every column unchanged");
+    }
+    let empty = dir.join("empty.sqlite");
+    let error = native_save(&registry, &empty, &in_place(&job, &Value::Null, Some(json!(true)), Value::Null), &unlimited()).unwrap_err();
+    assert!(error.starts_with(crate::STORED_PROPOSAL_KEEP_REFUSED) && error.contains("is not stored"), "{error}");
+    assert!(dump(&empty, "local_projects", &[]).is_empty());
+
+    let (failing, base) = seeded("failing.sqlite", &job);
+    fail_after_project_row_update(&failing);
+    let before = dump(&failing, "local_projects", &[]);
+    let error = native_save(&registry, &failing, &in_place(&job, &base, Some(json!(true)), Value::Null), &unlimited()).unwrap_err();
+    assert!(error.contains("INVENTED-FAILURE"), "{error}");
+    assert_eq!(dump(&failing, "local_projects", &[]), before);
+    assert_eq!(stored_proposal_text(&failing), ODD_PROPOSAL_TEXT);
+    assert!(registry.dispose_result(&job).unwrap().released);
+    std::fs::remove_dir_all(&dir).unwrap();
+    assert_eq!(registry.pool().reserved_total(), 0);
+}
