@@ -465,6 +465,45 @@ describe("the input is owned (P4)", () => {
     expect(result.current.operations.batchReceipts[0].batch.operations[0].change).toMatchObject({ field_path: "position.y" });
   });
 
+  it("an own member named __proto__, at the top or nested, is refused by name in both forms, with nothing built (Q1)", async () => {
+    const result = await session();
+    let built = 0;
+    const counted = { ...gridCell, name: "counted-grid-cell", build: (model: PreviewModel, input: GridInput, id: { sequence: number; batchId: string }) => { built += 1; return gridCell.build(model, input, id); } };
+    const { builder, seen } = recording();
+    const top = JSON.parse('{"__proto__":{"target":"x","nodeId":"node:C","axis":"y","value":"2.5"}}');
+    const nested = { key: "k", value: JSON.parse('{"a":{"__proto__":{"x":1}}}') };
+    const before = snapshot(result);
+    expect(refused(await run(() => bindCommit(result, counted)(top))).reason).toContain("carries a member named __proto__, which is not plain data");
+    expect(refused(await run(() => bindDialog(result, counted).preview(top))).reason).toContain("carries a member named __proto__, which is not plain data");
+    expect(refused(await run(() => bindCommit(result, builder)(nested as never))).reason).toContain("carries a member named __proto__, which is not plain data");
+    expect(refused(await run(() => bindDialog(result, builder).preview(nested as never))).reason).toContain("carries a member named __proto__, which is not plain data");
+    expect(built).toBe(0);
+    expect(seen).toEqual({ checked: [], built: [] });
+    expect(snapshot(result)).toEqual(before);
+  });
+
+  it("members named like inherited ones are copied as own plain data, and no inherited setter fires for any key (Q1)", async () => {
+    const result = await session();
+    // Object.prototype has no accessor but __proto__, so one is installed for the test: an assignment would call it.
+    const fired: unknown[] = [];
+    Object.defineProperty(Object.prototype, "inheritedTrap", { set(value) { fired.push(value); }, get() { return undefined; }, configurable: true });
+    try {
+      for (const call of ["commit", "preview"] as const) {
+        const { builder, seen } = recording();
+        const input = { key: "k", value: { toString: "text", constructor: 1, hasOwnProperty: [2], inheritedTrap: 5, list: [{ inheritedTrap: 6 }] } };
+        const outcome = call === "commit" ? await run(() => bindCommit(result, builder)(input as never)) : await run(() => bindDialog(result, builder).preview(input as never));
+        expect(refused(outcome).reason, call).toContain("not built in this test");
+        const copy = (seen.built[0] as { value: Record<string, unknown> }).value;
+        expect(Object.keys(copy), call).toEqual(["toString", "constructor", "hasOwnProperty", "inheritedTrap", "list"]);
+        expect([copy.toString, copy.constructor, copy.hasOwnProperty, copy.inheritedTrap], call).toEqual(["text", 1, [2], 5]);
+        expect(Object.hasOwn((copy.list as Array<Record<string, unknown>>)[0], "inheritedTrap"), call).toBe(true);
+      }
+      expect(fired).toEqual([]);
+    } finally {
+      delete (Object.prototype as Record<string, unknown>).inheritedTrap;
+    }
+  });
+
   it("a nested member called target is a typed value, and is accepted", async () => {
     const result = await session();
     type Placement = { placement: { target: string; value: string } };

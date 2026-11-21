@@ -359,8 +359,15 @@ export function ownEditorInput(guard: EditorInputGuard, input: unknown): { input
       const keys = Reflect.ownKeys(value);
       inProgress.add(value);
       let copy: unknown;
+      // Q1: every member of a copy is defined, never assigned, so no inherited setter can fire for any key; an own
+      // "__proto__" is refused as not plain data.
+      const define = (target: object, key: string, member: unknown) =>
+        Object.defineProperty(target, key, { value: member, enumerable: true, writable: true, configurable: true });
+      if (keys.includes("__proto__")) throw new InputRefusal("carries a member named __proto__, which is not plain data");
       if (isArray) {
-        const length = (value as unknown[]).length;
+        const lengthDescriptor = Reflect.getOwnPropertyDescriptor(value, "length");
+        const length = lengthDescriptor && "value" in lengthDescriptor && typeof lengthDescriptor.value === "number" ? lengthDescriptor.value : -1;
+        if (length < 0) throw new InputRefusal("carries an array with no length of its own");
         const out: unknown[] = [];
         for (const key of keys) {
           if (typeof key === "symbol") throw new InputRefusal("carries a symbol key");
@@ -372,7 +379,7 @@ export function ownEditorInput(guard: EditorInputGuard, input: unknown): { input
           const descriptor = Reflect.getOwnPropertyDescriptor(value, String(index))!;
           if (!("value" in descriptor)) throw new InputRefusal("carries an accessor");
           if (!descriptor.enumerable) throw new InputRefusal("carries a non-enumerable member");
-          out.push(own(descriptor.value, depth + 1, false));
+          define(out, String(index), own(descriptor.value, depth + 1, false));
         }
         copy = Object.freeze(out);
       } else {
@@ -383,7 +390,7 @@ export function ownEditorInput(guard: EditorInputGuard, input: unknown): { input
           const descriptor = Reflect.getOwnPropertyDescriptor(value, key)!;
           if (!("value" in descriptor)) throw new InputRefusal(`carries an accessor at ${key}`);
           if (!descriptor.enumerable) throw new InputRefusal(`carries a non-enumerable member ${key}`);
-          out[key] = own(descriptor.value, depth + 1, false);
+          define(out, key, own(descriptor.value, depth + 1, false));
         }
         copy = Object.freeze(out);
       }
@@ -393,7 +400,8 @@ export function ownEditorInput(guard: EditorInputGuard, input: unknown): { input
     };
     if (input === null || typeof input !== "object" || Array.isArray(input)) return { refused: "This edit's input is not the editor's typed values, so nothing was built." };
     const owned = own(input, 0, true) as Readonly<Record<string, unknown>>;
-    const unnamed = Object.keys(owned).filter((key) => !guard.members.includes(key));
+    // Q1: the declaration is checked against the caller's object's own keys, not the copy's.
+    const unnamed = Reflect.ownKeys(input).filter((key): key is string => typeof key === "string" && !guard.members.includes(key));
     if (unnamed.length) return { refused: `This edit's input carries ${unnamed.join(", ")}, which the editor does not take, so nothing was built.` };
     const checked = guard.check(owned);
     if (checked !== null) return { refused: typeof checked === "string" ? checked : "The editor's check refused this input, so nothing was built." };
