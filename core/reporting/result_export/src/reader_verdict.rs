@@ -572,9 +572,10 @@ pub fn integrity_bound() -> Value {
 /// ordinary checks of `numerical_quality` against the model;
 /// then, but for the joined and successor routes, an unsolved envelope.
 /// `eligible` is no findings, and `status` is `solver_checks_passed` when
-/// eligible: the solver's own checks found nothing against the result, which is
-/// all that status asserts. `integrity_bound` is [`integrity_bound`], on every
-/// verdict this returns.
+/// eligible: an admission standing under the route's own rules (DEL-05-02
+/// Standing), which asserts no verified error bound; on the ordinary routes it
+/// says the solver reports every load case checks passed. `integrity_bound` is
+/// [`integrity_bound`], on every verdict this returns.
 ///
 /// RT-U4 (single pass): on the pressure route, pressure-2's evidence verdict is
 /// read once and given to both of its uses, the token's `for_source` and the
