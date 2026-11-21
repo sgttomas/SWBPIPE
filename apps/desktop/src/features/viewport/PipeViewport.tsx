@@ -90,6 +90,7 @@ import {
   displayedBoundsForEntityKeys,
   formatMeasurementDisplayValue,
   fittedViewportDistance,
+  viewportFitFill,
   hideSelectionVisibility,
   pointPickPrimitives,
   prioritizedLabelKeys,
@@ -278,6 +279,7 @@ export type CreationTool = "node" | "pipe" | "support" | "component" | "load";
 export type ViewportExposureInteraction = "measurement" | "box-selection";
 type ViewportCommandType = "create_node" | "connect_pipe_run" | "insert_component_symbol";
 type ViewPreset = "iso" | "front" | "top" | "side";
+type ViewportFitKind = "preset" | "fit-model" | "fit-visible" | "fit-selection";
 const VIEWPORT_DIMENSIONLESS_UNIT_VALIDATION_STATUS = "not_required_dimensionless";
 /** One full undeformed-deformed-undeformed animation cycle, and the step between drawn phases. */
 const DEFLECTION_CYCLE_MS = 2400;
@@ -497,6 +499,12 @@ export function PipeViewport({
   } | null>(null);
   const lastPresetRef = useRef<ViewPreset | null>(null);
   const fittedSessionGenerationRef = useRef<number | null>(null);
+  // The model stays in view: the last fit is remembered with the canvas size it was made for, and
+  // while the person has not orbited, panned or zoomed since, a new canvas size (a panel opened or
+  // closed, the window resized, Table, Model and Both switched) fits again the same way.
+  const lastFitRef = useRef<{ kind: ViewportFitKind; width: number; height: number } | null>(null);
+  const cameraMovedSinceFitRef = useRef(false);
+  const refitForSizeRef = useRef<((width: number, height: number) => void) | null>(null);
   const pickRef = useRef<((event: { clientX: number; clientY: number }) => EntityRef | null) | null>(null);
   const pointerGestureRef = useRef<{ gesture: PointerGesture; target: Element; pointerDownAt: number } | null>(null);
   const boxGestureRef = useRef<{
@@ -1108,6 +1116,8 @@ export function PipeViewport({
       resource = new ViewportResource(host, {
         onContextStatus: setViewportContextStatus,
         onRestore: () => viewportResourceRef.current?.invalidate(),
+        onNavigationStart: () => { cameraMovedSinceFitRef.current = true; },
+        onResize: (_current, width, height) => refitForSizeRef.current?.(width, height),
         onCameraChange: (current) => {
           cameraStateRef.current = {
             position: [current.camera.position.x, current.camera.position.y, current.camera.position.z],
@@ -1169,6 +1179,7 @@ export function PipeViewport({
     publishViewportDiagnostics(resource);
     resource.setOrigin(renderTransform.origin);
     fitViewportCamera(resource, viewPreset, renderTransform.localBounds);
+    recordFit(resource, "preset");
     fittedSessionGenerationRef.current = activeModelIndex.sessionGeneration;
     lastPresetRef.current = viewPreset;
     draftProjectorRef.current = (event, plane) => resource.projectToAuthoredPlane(
@@ -1701,6 +1712,7 @@ export function PipeViewport({
     const resource = viewportResourceRef.current;
     if (!resource || fittedSessionGenerationRef.current === activeModelIndex.sessionGeneration) return;
     fitViewportCamera(resource, viewPreset, renderTransform.localBounds);
+    recordFit(resource, "preset");
     fittedSessionGenerationRef.current = activeModelIndex.sessionGeneration;
     lastPresetRef.current = viewPreset;
     resource.invalidate();
@@ -1710,6 +1722,7 @@ export function PipeViewport({
     const resource = viewportResourceRef.current;
     if (!resource || lastPresetRef.current === viewPreset) return;
     fitViewportCamera(resource, viewPreset, renderTransform.localBounds);
+    recordFit(resource, "preset");
     lastPresetRef.current = viewPreset;
     resource.invalidate();
   }, [renderTransform.localBounds, viewPreset]);
@@ -2386,14 +2399,33 @@ export function PipeViewport({
     geometryMode === "actual-od" ? actualOd.radii : new Map()
   );
 
-  function fitDisplayedBounds(label: string, authoredBounds: Bounds3 | null) {
+  function recordFit(resource: ViewportResource, kind: ViewportFitKind) {
+    const size = resource.renderer.getSize(new THREE.Vector2());
+    lastFitRef.current = { kind, width: size.x, height: size.y };
+    cameraMovedSinceFitRef.current = false;
+  }
+
+  /** The authored envelope a fit command frames: the selection, the shown geometry or the model. */
+  function fitCommandBounds(kind: "fit-model" | "fit-visible" | "fit-selection"): Bounds3 | null {
+    const radii = geometryMode === "actual-od" ? actualOd.radii : new Map<EntityKey, number>();
+    const keys = kind === "fit-selection" ? orderedSelectionKeys : activeModelIndex.visibilityEligibleKeys;
+    const mask = kind === "fit-model" ? new Set<EntityKey>() : hiddenKeys;
+    return displayedBoundsForEntityKeys(activeModelIndex, keys, mask, radii);
+  }
+
+  function fitAuthoredBounds(resource: ViewportResource, authoredBounds: Bounds3 | null) {
     const localBounds = authoredBounds ? {
       min: authoredToLocal(authoredBounds.min, renderTransform.origin),
       max: authoredToLocal(authoredBounds.max, renderTransform.origin)
     } : null;
+    fitViewportCamera(resource, viewPreset, localBounds);
+  }
+
+  function fitDisplayedBounds(label: string, kind: "fit-model" | "fit-visible" | "fit-selection", authoredBounds: Bounds3 | null) {
     const resource = viewportResourceRef.current;
     if (resource) {
-      fitViewportCamera(resource, viewPreset, localBounds);
+      fitAuthoredBounds(resource, authoredBounds);
+      recordFit(resource, kind);
       resource.invalidate();
     }
     setViewCommandStatus(resource
@@ -2478,14 +2510,28 @@ export function PipeViewport({
       setViewCommandStatus("All eligible model geometry shown.");
       return;
     }
-    const radii = geometryMode === "actual-od" ? actualOd.radii : new Map<EntityKey, number>();
-    const keys = command.type === "fit-selection" ? orderedSelectionKeys : activeModelIndex.visibilityEligibleKeys;
-    const mask = command.type === "fit-model" ? new Set<EntityKey>() : hiddenKeys;
     fitDisplayedBounds(
       command.type === "fit-model" ? "Fit Model" : command.type === "fit-selection" ? "Fit Selection" : "Fit Visible",
-      displayedBoundsForEntityKeys(activeModelIndex, keys, mask, radii)
+      command.type,
+      fitCommandBounds(command.type)
     );
   }
+
+  // A new canvas size fits again as the last fit did, unless the person has moved the camera since;
+  // then the camera is left as they left it and Fit stays one press away. A fit of a selection that
+  // is no longer drawn fits the model.
+  useLayoutEffect(() => {
+    refitForSizeRef.current = (width, height) => {
+      const resource = viewportResourceRef.current;
+      const last = lastFitRef.current;
+      if (!resource || !last || cameraMovedSinceFitRef.current || width < 2 || height < 2) return;
+      if (Math.abs(last.width - width) < 1 && Math.abs(last.height - height) < 1) return;
+      if (last.kind === "preset") fitViewportCamera(resource, viewPreset, renderTransform.localBounds);
+      else fitAuthoredBounds(resource, fitCommandBounds(last.kind) ?? fitCommandBounds("fit-model"));
+      lastFitRef.current = { kind: last.kind, width, height };
+      resource.invalidate();
+    };
+  });
 
   // The quiet status line over the canvas: only statements that apply now, never an empty row.
   // Actual OD states itself only while it is asked for and not wholly drawn.
@@ -3639,7 +3685,8 @@ function fitViewportCamera(resource: ViewportResource, preset: ViewPreset, bound
   const extent = bounds
     ? Math.max(bounds.max.x - bounds.min.x, bounds.max.y - bounds.min.y, bounds.max.z - bounds.min.z, 1)
     : 4;
-  const distance = fittedViewportDistance(bounds, preset, resource.camera.fov, resource.camera.aspect);
+  const size = resource.renderer.getSize(new THREE.Vector2());
+  const distance = fittedViewportDistance(bounds, preset, resource.camera.fov, resource.camera.aspect, viewportFitFill(size.x, size.y));
   if (preset === "front") {
     resource.camera.position.set(center.x, center.y, center.z + distance);
   } else if (preset === "top") {

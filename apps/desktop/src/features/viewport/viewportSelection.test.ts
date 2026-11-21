@@ -5,6 +5,8 @@ import { entityKey } from "../workspace/selectionState";
 import {
   authoredToLocal,
   fittedViewportDistance,
+  FIT_MARGIN_PX,
+  viewportFitFill,
   applyMeasurementTargetCommand,
   broadPhaseEntityKeys,
   claimBoxSelectionPointerDown,
@@ -411,6 +413,31 @@ describe("envelope camera fitting", () => {
         expect(Math.abs(point.x)).toBeLessThanOrEqual(0.900001);
         expect(Math.abs(point.y)).toBeLessThanOrEqual(0.900001);
         expect(Math.abs(point.z)).toBeLessThan(1);
+      }
+    }
+  });
+  it("keeps a margin for labels and furniture on a small canvas, and never more than 90 % on a large one", () => {
+    expect(viewportFitFill(2000, 1600)).toEqual({ x: 0.9, y: 0.9 });
+    expect(viewportFitFill(0, 0)).toEqual({ x: 0.9, y: 0.9 });
+    expect(viewportFitFill(100, 100)).toEqual({ x: 0.5, y: 0.5 });
+    const bounds = { min: { x: -20, y: -3, z: -11 }, max: { x: 20, y: 3, z: 11 } };
+    for (const [width, height] of [[603, 828], [1000, 828], [420, 360]] as const) {
+      const fill = viewportFitFill(width, height);
+      for (const preset of ["front", "top", "side", "iso"] as const) {
+        const aspect = width / height;
+        const distance = fittedViewportDistance(bounds, preset, 42, aspect, fill);
+        const camera = new THREE.PerspectiveCamera(42, aspect, 0.001, 10000);
+        if (preset === "front") camera.position.set(0, 0, distance);
+        else if (preset === "top") camera.position.set(0, distance, 0);
+        else if (preset === "side") camera.position.set(distance, 0, 0);
+        else camera.position.setScalar(distance / Math.sqrt(3));
+        camera.lookAt(0, 0, 0); camera.updateMatrixWorld();
+        for (const x of [-20, 20]) for (const y of [-3, 3]) for (const z of [-11, 11]) {
+          const point = new THREE.Vector3(x, y, z).project(camera);
+          // Every corner lies at least FIT_MARGIN_PX inside each edge of the canvas.
+          expect((1 - Math.abs(point.x)) * width / 2).toBeGreaterThanOrEqual(FIT_MARGIN_PX - 1e-6);
+          expect((1 - Math.abs(point.y)) * height / 2).toBeGreaterThanOrEqual(FIT_MARGIN_PX - 1e-6);
+        }
       }
     }
   });

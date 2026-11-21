@@ -473,6 +473,10 @@ export type ViewportResourceOptions = {
   onOwnedRafCountChange?: (resource: ViewportResource, pendingCount: number) => void;
   onResourceStateChange?: (resource: ViewportResource, retired: boolean) => void;
   onCameraChange?: (resource: ViewportResource) => void;
+  /** A person began to orbit, pan or zoom (the controls' own start, never a programmatic pose). */
+  onNavigationStart?: (resource: ViewportResource) => void;
+  /** The drawing surface took a new size; the camera's aspect is already updated. */
+  onResize?: (resource: ViewportResource, width: number, height: number) => void;
   onRestore?: () => void;
 };
 
@@ -1060,6 +1064,7 @@ export class ViewportResource {
     // The halo's width and its pixel arithmetic: read here, where the renderer is sized, never per frame.
     this.halo?.setViewportFromRenderer(this.renderer);
     this.markCameraProjectionChanged();
+    this.options.onResize?.(this, width, height);
     this.invalidate();
   };
 
@@ -1103,6 +1108,7 @@ export class ViewportResource {
 
   private handleControlsStart = (): void => {
     this.navigationAdvancing = true;
+    this.options.onNavigationStart?.(this);
     this.invalidate();
   };
 
