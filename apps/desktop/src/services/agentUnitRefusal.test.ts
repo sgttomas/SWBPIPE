@@ -431,8 +431,10 @@ describe('unit refusal explanation', () => {
     .split(/\s+/).map(word => word.replace(/[;.,]+$/, '')));
    const literals = new Set([...UNIT_REFUSAL_CODES, ...UNIT_REFUSAL_FIELDS.flatMap(f => [f.objectType, f.fieldPath, f.dimension]), ...Object.values(UNIT_REFUSAL_UNITS).flat()]);
    const ops = [operation(), operation(), operation()];
+   // An earlier setter whose row carries the field's own dimension and a unit off the list: the pair-only form.
+   const offList = withUnit(operation(), HOSTILE);
    const texts = [unitRefusalMessage(...single(), model('GPa')), unitRefusalMessage(...single(), model(HOSTILE)), unitRefusalMessage(...single(operation(G)), {materials: [material()]}),
-    unitRefusalMessage(outcome([passed(0, ops[0]), refused(1, ops[1], [finding('OP-QUANTITY-PAYLOAD-INVALID')])]), ops, model()),
+    unitRefusalMessage(outcome([passed(0, offList), refused(1, ops[1], [finding('OP-QUANTITY-PAYLOAD-INVALID')])]), [offList, ops[1], ops[2]], model()),
     unitRefusalMessage(outcome([passed(0, withUnit(ops[0], 'GPa')), refused(1, ops[1])]), [withUnit(ops[0], 'GPa'), ops[1], ops[2]], model())];
    for (const text of texts) {
     expect(text).not.toBe(GENERIC_REFUSAL);
