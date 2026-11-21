@@ -7,8 +7,11 @@
 // The journeys follow DEL-07-06 AC-007's use cases as far as the browser build
 // reaches. The browser build cannot solve an edited model, so a journey that
 // needs a solve stops at the refusal; README.md says what that leaves unseen.
+import { readFileSync } from "node:fs";
+import path from "node:path";
 import { expect, test, type Page } from "@playwright/test";
 import {
+  chooseVirtualTarget,
   confirmProjectUnits,
   ensureInspectorExpanded,
   openWorkspaceSection,
@@ -344,14 +347,58 @@ async function clearTreeFilter(page: Page): Promise<void> {
   if (await filter.isVisible() && await filter.inputValue()) await filter.fill("");
 }
 
-/** Selects an entity in the 3D view by its own label there, as a person clicks it. */
-async function selectInView(page: Page, id: string): Promise<string | void> {
+/** The demonstration model's node positions, read from its maintained fixture. */
+const DEMO = JSON.parse(readFileSync(path.resolve(import.meta.dirname, "../../../fixtures/product_preview/invented_demo_model.json"), "utf8")) as {
+  nodes: Array<{ id: string; position: { x: number; y: number; z: number } }>;
+  supports: Array<{ id: string; node: string }>;
+};
+function placeOf(type: "node" | "support", id: string) {
+  const nodeId = type === "node" ? id : DEMO.supports.find((support) => support.id === id)?.node;
+  return DEMO.nodes.find((node) => node.id === nodeId)?.position ?? null;
+}
+
+/** The canvas point, in page pixels, where the view draws a model point now; null when it is off the canvas. */
+async function canvasPoint(page: Page, at: { x: number; y: number; z: number }): Promise<{ x: number; y: number } | null> {
+  await page.waitForTimeout(300);
+  return page.evaluate((authoredPoint) => {
+    const api = (globalThis as unknown as { __openPipeStressUiDiagnosticsV1?: { readCurrent(): any; projectAuthoredPoint(request: unknown): any } }).__openPipeStressUiDiagnosticsV1; // eslint-disable-line @typescript-eslint/no-explicit-any
+    if (!api) return null;
+    const current = api.readCurrent();
+    if ("status" in current.viewport || current.model.generation === null) return null;
+    const projected = api.projectAuthoredPoint({ modelGeneration: current.model.generation, cameraSequence: current.viewport.camera.sequence, authoredPoint });
+    if (projected.status !== "available" || !projected.insideCanvasCss) return null;
+    const bounds = document.querySelector('[data-testid="viewport-canvas"] canvas')!.getBoundingClientRect();
+    return { x: bounds.left + projected.canvasCssPoint.x, y: bounds.top + projected.canvasCssPoint.y };
+  }, at);
+}
+
+/**
+ * Selects an entity elsewhere than the tree, as a person does: a click on the canvas at its place,
+ * kept only when the status bar then names that entity. Where the click at that place picks
+ * another entity drawn there (a node and its supports share a place), the entity is chosen from a
+ * row of the grid instead. Either way the status bar names it before the journey goes on.
+ */
+async function selectElsewhere(page: Page, type: "node" | "support", id: string): Promise<string | void> {
+  const status = page.getByTestId("status-selection");
   await showCanvas(page);
-  const target = page.getByTestId(`viewport-select-${id}`);
-  if (await target.isVisible()) { await target.click(); return; }
-  // A label the view hides where labels overlap is still the entity's target; it is pressed by its event.
-  await target.dispatchEvent("click");
-  return "the entity's label in the view was hidden by an overlapping label, so it was pressed by its event";
+  const at = placeOf(type, id);
+  const point = at ? await canvasPoint(page, at) : null;
+  if (point) {
+    await page.mouse.click(point.x, point.y);
+    await page.waitForTimeout(200);
+    if ((await status.innerText()).includes(`${type}: ${id}`)) return;
+  }
+  await showModelTree(page);
+  await page.getByTestId("layout-mode-grid").click();
+  const family = page.getByTestId(`entity-grid-type-${type}s`);
+  if (await family.isVisible()) await family.click();
+  else await page.getByTestId("entity-grid-family").selectOption(`${type}s`);
+  await page.getByTestId(`entity-grid-row-${type}-${id.replace(/[^a-zA-Z0-9:_-]+/g, "-")}`).click();
+  await expect(status).toContainText(`${type}: ${id}`);
+  await page.getByTestId("layout-mode-tree").click();
+  return point
+    ? "a click on the canvas at its place picked another entity drawn there, so it was chosen from a row of the grid"
+    : "its place was off the canvas, so it was chosen from a row of the grid";
 }
 
 /** A selection, and the inspector scrolled to its end. */
@@ -388,7 +435,7 @@ test("09 inspector: what the inspector shows for each kind of selection", async 
     await showModelTree(page);
     await clearTreeFilter(page);
     await page.getByTestId("tree-row-node-node%3AN-100").click();
-    return selectInView(page, "support:S-130");
+    return selectElsewhere(page, "support", "support:S-130");
   });
   journey.finish();
 });
@@ -452,12 +499,14 @@ test("10 inspector actions: creation forms, the bend at a corner, settings, the 
     await clearTreeFilter(page);
     const group = page.getByTestId("tree-group-Supports");
     if (await group.getAttribute("aria-expanded") === "true") await group.click();
-    return selectInView(page, "support:S-130");
+    return selectElsewhere(page, "support", "support:S-130");
   });
-  await journey.step("tree-filtered-view-selection", "The tree filtered to pipes, then support:S-120 clicked in the view", async () => {
+  await journey.step("tree-filtered-view-selection", "support:S-120 selected outside the tree, then the tree filtered to pipes: the tree says the selection is filtered out", async () => {
+    const found = await selectElsewhere(page, "support", "support:S-120");
     await showModelTree(page);
     await page.getByTestId("model-tree-filter-input").fill("pipe");
-    return selectInView(page, "support:S-120");
+    await expect(page.getByTestId("model-tree-selection-filtered")).toBeVisible();
+    return found;
   });
   await journey.step("inspector-closed-model-view", "The Model view, then the toolbar's Inspector control pressed", async () => {
     await clearTreeFilter(page);
@@ -482,32 +531,44 @@ test("10 inspector actions: creation forms, the bend at a corner, settings, the 
   });
   await menu(page, "view", "view.theme.system");
   await page.emulateMedia({ colorScheme: null });
-  await journey.step("split-straight", "pipe:P-100 split in two from its menu in the tree, and applied: a node on a straight run", async () => {
+  await journey.step("straight-run-built", "A straight run built with the Node and Pipe tools: node:N-150 joins two collinear pipes and carries nothing", async () => {
+    await showCanvas(page);
+    for (const [id, z] of [["node:N-150", "4.0"], ["node:N-160", "5.8"]] as const) {
+      const idField = page.getByTestId("viewport-create-node-id");
+      // The node tool stays armed after an apply; the command then toggles it.
+      if (!await idField.isVisible()) await page.getByTestId("command-node").click();
+      await idField.fill(id);
+      await page.getByTestId("viewport-create-node-label").fill(id);
+      await page.getByTestId("viewport-create-node-x").fill("7.6");
+      await page.getByTestId("viewport-create-node-y").fill("2.4");
+      await page.getByTestId("viewport-create-node-z").fill(z);
+      await page.getByTestId("viewport-create-node-provenance").fill(INVENTED);
+      await page.getByTestId("queue-explicit-node-intent").click();
+      await page.getByTestId("apply-reviewed-draft").click();
+    }
+    for (const [id, from, to] of [["pipe:P-150", "node:N-140", "node:N-150"], ["pipe:P-160", "node:N-150", "node:N-160"]] as const) {
+      if (!await page.getByTestId("viewport-create-pipe-id").isVisible()) await page.getByTestId("command-pipe").click();
+      await page.getByTestId("viewport-create-pipe-id").fill(id);
+      await page.getByTestId("viewport-create-pipe-label").fill(id);
+      await chooseVirtualTarget(page, "viewport-create-pipe-from", from);
+      await page.getByRole("radio", { name: "Existing node", exact: true }).check();
+      await chooseVirtualTarget(page, "viewport-create-pipe-to", to);
+      await chooseVirtualTarget(page, "viewport-create-pipe-material", "material:invented-carbon-steel");
+      await page.getByTestId("viewport-create-pipe-od").fill("0.168");
+      await page.getByTestId("viewport-create-pipe-wall").fill("0.007");
+      await page.getByTestId("viewport-create-pipe-yref-x").fill("1");
+      await page.getByTestId("viewport-create-pipe-yref-y").fill("0");
+      await page.getByTestId("viewport-create-pipe-yref-z").fill("0");
+      await page.getByTestId("viewport-create-pipe-provenance").fill(INVENTED);
+      await page.getByTestId("queue-explicit-pipe-intent").click();
+      await page.getByTestId("apply-reviewed-draft").click();
+    }
+    if (await page.getByTestId("viewport-create-pipe-id").isVisible()) await page.getByTestId("command-pipe").click();
+  });
+  await pictureSelection(journey, "node-straight", "node:N-150, on the straight run and carrying nothing, selected in the tree: what the inspector shows for it", async () => {
     await showModelTree(page);
     await clearTreeFilter(page);
-    const row = page.getByTestId("tree-row-pipe-pipe%3AP-100");
-    await row.click({ button: "right" });
-    await page.getByRole("menuitem", { name: "Split into N…" }).click();
-    const panel = page.getByTestId("split-into-parts");
-    await expect(panel).toBeVisible();
-    for (const [label, value] of [["Number of equal parts", "2"], ["New node ID pattern", "node:N-S{k}"], ["New node label pattern", "Mid run {k}"],
-      ["New pipe ID pattern", "pipe:P-S{k}"], ["New pipe label pattern", "Part {k}"], ["First number", "1"], ["Number step", "1"], ["Provenance", INVENTED]] as const) {
-      const field = panel.getByLabel(label, { exact: true });
-      if (await field.count()) await field.fill(value);
-    }
-    const queue = panel.getByTestId("split-parts-queue");
-    // Every pipe of the demonstration model carries an attachment, which a geometry-only split refuses.
-    if (await queue.isDisabled()) return "the split is refused, so the demonstration model has no straight-run node";
-    await queue.click();
-    await applyFirstQueued(page);
-  });
-  await pictureSelection(journey, "node-straight", "The new node on the straight run selected: no bend offered", async () => {
-    await showModelTree(page);
-    const filter = page.getByTestId("model-tree-filter-input");
-    await filter.fill("node:N-S");
-    const row = page.locator('[data-testid^="tree-row-node-node%3AN-S"]').first();
-    if (await row.count() === 0) return "no straight-run node to select (the unit test of the inspector covers it)";
-    await row.click();
+    await selectTreeEntity(page, "node", "node:N-150");
     await ensureInspectorExpanded(page);
   });
   await pictureSelection(journey, "section", "A section created from Create section and applied, then selected", async () => {
