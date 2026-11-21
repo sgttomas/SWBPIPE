@@ -12,8 +12,12 @@
  *
  * Unit transport replay of committed producer bytes, edited as each vector states, through
  * mocked IPC; NOT a native UI qualification witness and not engineering output. Job ids are
- * invented. Each vector's result passes the session's Current checks and is numerically
- * eligible, as the panel requires before it builds. */
+ * invented. Each vector's model is asserted to be one File > Open Model Document… admits (the
+ * desktop's shape check and document validator) and its result numerically eligible. That
+ * each result also passes the session's Current requirements was established by the
+ * independent reader's replay probes at the head where the vectors were made; this test does
+ * not assert it, because that conjunction lives in a session state module only the session
+ * may import. */
 import { existsSync, mkdirSync, readFileSync, writeFileSync } from "node:fs";
 import { resolve } from "node:path";
 import { afterEach, describe, expect, it, vi } from "vitest";
@@ -23,8 +27,8 @@ import type { PreviewModel } from "../../types";
 import { createSolveJobTransport, solveBytes } from "../../test/nativeMechanicsReplay";
 import { buildAnalysisRunPreview, resetSessionResultCustodyForTests, runPreviewMechanics } from "../../services/previewService";
 import { buildCurrentSessionInputManifest } from "../../services/inputManifestService";
-import { currentRequirementsExceptNumericalEligibility } from "../workspace/resultsSessionState";
 import { numericalResultStanding } from "../results/resultStanding";
+import { checkNativeOutcome } from "../../services/modelDocumentFile";
 import { assembleRenderedReport } from "./renderedReportAssembly";
 
 type Json = any; // eslint-disable-line @typescript-eslint/no-explicit-any
@@ -44,19 +48,19 @@ const MODE = "sparse_interactive" as const;
  * sparse solve and its model. */
 const PREVIEW_SOURCE = "fixtures/results/preview_physics_connected_sparse.json";
 const PREVIEW_MODEL = "fixtures/model_operations/precision_connected_ui_model.json";
-/** The committed exact-route pair: the pressure-2 straight sparse solve, and the model the
- * straight witness request was built for (its request model with invented case labels and
- * project name), taken from that witness by `model_pointer` rather than copied. */
-const EXACT_SOURCE = "fixtures/results/pressure_connected_mechanics_sparse.json";
-const EXACT_MODEL = "fixtures/reports/invented/exact_report_package_requests/pressure_2_straight.json";
+/** The committed exact-route pair the desktop's native replay uses: the exact-pressure
+ * authoring model and its sparse solve. A vector names the model (`model_pointer` "") rather
+ * than copying it. */
+const EXACT_SOURCE = "fixtures/results/pressure_connected_ui_mechanics_sparse.json";
+const EXACT_MODEL = "fixtures/model_operations/exact_pressure_authoring_model.json";
 
 type Vector = {
   name: string;
   reason: string;
   source_fixture: string;
   model_fixture: string;
-  /** Where the model sits in `model_fixture`; absent, the fixture is the model, and the
-   * vector carries the model it was built for. */
+  /** Where the model sits in `model_fixture` (a JSON pointer, "" for the whole fixture); absent,
+   * the fixture is the model and the vector carries the model it was built for. */
   model_pointer?: string;
   editSource?: (source: Json) => void;
   editModel?: (model: Json) => void;
@@ -141,10 +145,10 @@ const VECTORS: readonly Vector[] = [
   },
   {
     name: "exact_unknown_kind_units",
-    reason: "the stored units are listed once each in UTF-16 code unit order: on the exact pressure-2 straight result, two case-scoped rows of a kind the reader does not know carry U+1F600 (a surrogate pair) and U+FF2E, and U+1F600 sorts first though its code point is greater",
+    reason: "the stored units are listed once each in UTF-16 code unit order: on the exact pressure-2 result of the authoring model, two case-scoped rows of a kind the reader does not know carry U+1F600 (a surrogate pair) and U+FF2E, and U+1F600 sorts first though its code point is greater",
     source_fixture: EXACT_SOURCE,
     model_fixture: EXACT_MODEL,
-    model_pointer: "/model",
+    model_pointer: "",
     editSource: (source) => {
       const template = source.results[3];
       for (const [index, unit] of ["\u{1F600}", "\u{FF2E}"].entries()) source.results.push({ ...structuredClone(template), id: `result:invented-quantity:${index}`, kind: "invented_quantity", unit });
@@ -153,12 +157,13 @@ const VECTORS: readonly Vector[] = [
   },
   {
     name: "session_diagnostics_after_results",
-    reason: "the session's Diagnostics entries follow the result's, in their own order: the model's material has no provenance note and the model has one component without provenance, so the builder adds a component entry and then a material entry after the result's",
+    reason: "the session's Diagnostics entries follow the result's, in their own order: the model's material has a blank provenance note and its one component (at the tip node) has a blank one too, so the builder adds a component entry and then a material entry after the result's",
     source_fixture: PREVIEW_SOURCE,
     model_fixture: PREVIEW_MODEL,
     editModel: (model) => {
-      delete model.materials[0].provenance;
-      model.components = [{ id: "component:invented-bend", label: "Invented bend", kind: "bend" }];
+      // A blank note: a model document requires the member, and the builder reads blank as none.
+      model.materials[0].provenance = "";
+      model.components = [{ id: "component:invented-bend", label: "Invented bend", kind: "bend", node: "node:fixture-tip", provenance: "" }];
     },
     shows: (report, source) => expect(report.report_sections.diagnostics.slice(source.diagnostics.length).map((entry: Json) => entry.code)).toEqual(["COMPONENT_PROVENANCE_MISSING", "MATERIAL_PROVENANCE_MISSING"])
   }
@@ -175,6 +180,9 @@ async function build(vector: Vector) {
   const fixture = JSON.parse(text(vector.model_fixture));
   const model = (vector.model_pointer === undefined ? fixture : pointer(fixture, vector.model_pointer)) as PreviewModel;
   vector.editModel?.(model);
+  // A model document File > Open Model Document… admits: the desktop's shape check and document validator.
+  const opened = checkNativeOutcome({ outcome: "opened", file_name: `${vector.name}.json`, byte_count: 0, schema_status: "invented", document: structuredClone(model) });
+  expect(opened.outcome === "refused" ? opened.diagnostics : opened.outcome, vector.name).toBe("opened");
   (window as Json).__TAURI_INTERNALS__ = {};
   const transport = createSolveJobTransport(() => sourceText, { jobIdPrefix: `invented-members-${vector.name}-job` });
   invokeMock.mockImplementation(transport.invoke);
@@ -182,12 +190,13 @@ async function build(vector: Vector) {
   const producer = result.producer!;
   const inputManifest = await buildCurrentSessionInputManifest({
     model,
-    solver: { solver_name: producer.component_name, solver_version: producer.component_version, solver_build_ref: `${producer.component_name}@${producer.component_version}`, solver_mode: MODE, settings: {} },
+    solver: { solver_name: producer.component_name, solver_version: producer.component_version, solver_build_ref: `${producer.component_name}@${producer.component_version}`, solver_mode: MODE,
+      // The settings the session's solve records (workspaceSession.ts).
+      settings: { nonlinear_iteration_policy: "DEC-046-CV-B-product-preview-active-set-count-v1", sparse_evidence_lane: MODE === "sparse_interactive" } },
     active_rule_packs: [],
     external_assets: []
   });
   const analysisRun = await buildAnalysisRunPreview(result, { inputManifest });
-  expect(currentRequirementsExceptNumericalEligibility({ model, result, analysisRun, inputManifest } as never), vector.name).toBe(true);
   expect(numericalResultStanding(result, model).eligible, vector.name).toBe(true);
   const assembly = await assembleRenderedReport({ model, result, analysisRun, inputManifest, projectSummary: null, ruleCheckRun: null, numericalHealth: null, context: "local_private", intent: true, generatedAt: null, libraryRefFindings: [] });
   return { model, source, sourceText, report: assembly.input as Json };

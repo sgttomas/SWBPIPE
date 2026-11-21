@@ -1,6 +1,6 @@
 //! The native producers of a report input's row-scale members
 //! (`report_package::report_members`, DEL-08-01) against report inputs the
-//! desktop's builder wrote: the five exact-route witness requests
+//! desktop's builder wrote: the six exact-route witness requests
 //! (`fixtures/reports/invented/exact_report_package_requests/`, written by
 //! `apps/desktop/src/features/report/exactReportBelowGate.test.tsx`), the two
 //! exact user-release fixtures (`fixtures/reports/invented/user_release_exact/`),
@@ -95,6 +95,7 @@ const MEMBERS_VECTORS: [(&str, &str); 7] = [
         include_str!("../../../../fixtures/reports/invented/report_members_vectors/session_diagnostics_after_results.json"),
     ),
 ];
+const EXACT_AUTHORING_MODEL: &str = include_str!("../../../../fixtures/model_operations/exact_pressure_authoring_model.json");
 const DIAGNOSTICS_VECTORS: &str = include_str!("../../../../fixtures/reports/invented/report_diagnostics_parity.json");
 
 /// One report input the desktop's builder wrote, with the model and the
@@ -144,16 +145,16 @@ fn built_reports() -> Vec<Built> {
         let fixture = parse(render);
         built.push(Built { name: name.to_string(), model: parse(fixture["exact_intake_text"].as_str().unwrap()), source: parse(raw), report: fixture["input"].clone() });
     }
-    // The one model a vector names rather than carries: the straight witness request's.
-    let straight_model = parse(WITNESS_REQUESTS[0].1)["model"].clone();
+    // The one model a vector names rather than carries: the exact-pressure authoring model.
+    let authoring_model = parse(EXACT_AUTHORING_MODEL);
     for (name, text) in MEMBERS_VECTORS {
         let fixture = parse(text);
         assert_eq!(fixture["name"], name);
         let model = match fixture.get("model_pointer") {
             None => fixture["model"].clone(),
             Some(pointer) => {
-                assert_eq!((&fixture["model_fixture"], pointer), (&json!("fixtures/reports/invented/exact_report_package_requests/pressure_2_straight.json"), &json!("/model")), "{name}");
-                straight_model.clone()
+                assert_eq!((&fixture["model_fixture"], pointer), (&json!("fixtures/model_operations/exact_pressure_authoring_model.json"), &json!("")), "{name}");
+                authoring_model.clone()
             }
         };
         built.push(Built {
@@ -244,8 +245,8 @@ fn a_report_input_completed_natively_is_the_desktop_builders() {
 }
 
 /// The session's Diagnostics entries follow the result's, in their own order:
-/// the builder's input for a model with a component and a material without
-/// provenance carries the session's two entries after the result's. Without the
+/// the builder's input for a model whose component and material have blank
+/// provenance notes carries the session's two entries after the result's. Without the
 /// result's entries the input keeps the session's as the builder wrote them, and
 /// placing puts the result's before them, giving the builder's list.
 #[test]
