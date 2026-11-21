@@ -383,10 +383,23 @@ export async function selectCompactOption(control: Locator, value: string): Prom
  * More while it is too narrow, and More always holds Fit Visible and the Fit that the canvas's Fit
  * is not; this opens More, as a person would, when the control is not in the bar.
  */
-export async function viewportControl(page: Page, control: Locator): Promise<Locator> {
+/**
+ * The view's control, from its bar or, when the bar has no room for it, from the More row, which is
+ * opened for it. With `keyboard`, More is opened by focusing it and pressing Enter, so that a mouse
+ * button held down (and the canvas's pointer capture) is left undisturbed.
+ */
+export async function viewportControl(page: Page, control: Locator, options: { keyboard?: boolean } = {}): Promise<Locator> {
   if (await control.isVisible()) return control;
   const menu = page.getByTestId("viewport-more-menu");
-  if (!await menu.isVisible()) await page.getByTestId("viewport-more").click();
+  if (!await menu.isVisible()) {
+    const more = page.getByTestId("viewport-more");
+    if (options.keyboard) {
+      await more.focus();
+      await page.keyboard.press("Enter");
+    } else {
+      await more.click();
+    }
+  }
   await expect(menu).toBeVisible();
   await expect(control).toBeVisible();
   return control;

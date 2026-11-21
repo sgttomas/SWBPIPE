@@ -551,9 +551,14 @@ test("Box Select keeps the camera and authored projection invariant for plain, S
   const orbitMoved = await settledCameraProjectionWitness(page, authoredPoints);
   expect(cameraPose(orbitMoved.camera)).not.toEqual(cameraPose(orbitBeforeFit.camera));
   expect(orbitMoved.projections.map(projectionGeometry)).not.toEqual(orbitBeforeFit.projections.map(projectionGeometry));
+  // After an orbit, Fit Model keeps the person's viewing direction and frames the model along it
+  // (viewportCameraRule.ts): the same target as the first fit, the orbit's direction, not the first
+  // fit's.
   await activateWithKeyboard(page, await viewportControl(page, page.getByTestId("viewport-fit-model")));
   const secondFit = await settledCameraProjectionWitness(page, authoredPoints);
-  expectStableViewportEndpoint(secondFit, firstFit, "orbit to Fit Model");
+  expect(unitViewDirection(secondFit.camera).every((component, axis) => Math.abs(component - unitViewDirection(orbitMoved.camera)[axis]) <= 1e-9), "orbit to Fit Model keeps the orbit's viewing direction").toBe(true);
+  expect(secondFit.camera.target, "orbit to Fit Model frames the first fit's target").toEqual(firstFit.camera.target);
+  expectStableCanvasRectangle(secondFit, firstFit, "orbit to Fit Model");
   expect(await page.getByTestId("command-selection-readout").innerText()).toBe(selectionReadoutAfterFit);
 
   const beforeRightPan = await settledCameraProjectionWitness(page, authoredPoints);
@@ -561,6 +566,10 @@ test("Box Select keeps the camera and authored projection invariant for plain, S
   const rightPanMoved = await settledCameraProjectionWitness(page, authoredPoints);
   expect(cameraPose(rightPanMoved.camera)).not.toEqual(cameraPose(beforeRightPan.camera));
   expect(rightPanMoved.projections.map(projectionGeometry)).not.toEqual(beforeRightPan.projections.map(projectionGeometry));
+  // A pan keeps the direction, so Fit Model after it returns to the second fit's exact endpoint.
+  await activateWithKeyboard(page, await viewportControl(page, page.getByTestId("viewport-fit-model")));
+  const panFit = await settledCameraProjectionWitness(page, authoredPoints);
+  expectStableViewportEndpoint(panFit, secondFit, "right pan to Fit Model");
   const front = page.getByRole("button", { name: "Front", exact: true });
   await activateWithKeyboard(page, front);
   await expect(front).toHaveAttribute("aria-pressed", "true");
@@ -957,7 +966,9 @@ test("selection IDs and cardinality keep the viewport rectangle fixed at three w
     }
 
     // Toggle the current singleton off through its real tree row. The ordered
-    // selection is empty even though the public primary fallback is Project.
+    // selection is empty even though the public primary fallback is Project:
+    // the readout shows that fallback, and the status bar, which names the
+    // ordered selection's primary, names nothing.
     await selectTreeRow(page, "component", component.id, { toggle: true });
     const emptyWitness = await settledCameraProjectionWitness(page, authoredPoints);
     expectStableCanvasRectangle(emptyWitness, baseline, `${width}px empty ordered selection`);
@@ -966,7 +977,8 @@ test("selection IDs and cardinality keep the viewport rectangle fixed at three w
     expect(emptySelection.orderedRefs).toEqual([]);
     await expect(page.getByTestId("command-selection-readout")).toContainText(`project: ${model.project.id}`);
     const emptyToolbarStatus = await readViewportToolbarSelectionStatus(page);
-    expectToolbarSelectionStatus(emptyToolbarStatus, `project: ${model.project.id}`, `${width}px empty ordered selection`);
+    expect(emptyToolbarStatus.text, `${width}px empty ordered selection status text`).toBe("");
+    expect(emptyToolbarStatus.title, `${width}px empty ordered selection status title`).toBeNull();
     states.push({ name: "empty", selection: emptySelection, toolbarStatus: emptyToolbarStatus, witness: emptyWitness });
 
     await selectTreeRow(page, "node", node.id);
@@ -1534,6 +1546,12 @@ function expectStableViewportEndpoint(actual: any, expected: any, label: string)
   expectStableCanvasRectangle(actual, expected, label);
 }
 
+function unitViewDirection(camera: any): number[] {
+  const offset = [0, 1, 2].map((axis) => camera.position[axis] - camera.target[axis]);
+  const norm = Math.hypot(...offset);
+  return offset.map((component) => component / norm);
+}
+
 function cameraPose({ sequence: _sequence, ...pose }: any): any {
   return pose;
 }
@@ -1901,12 +1919,20 @@ test("empty ordered selection publishes independently from project inspector", a
   await identity([node], node, node);
   await selectTreeRow(page, project.type, project.id);
   await identity([project], project, project);
+  // Hide and Show all are reached through the in-flow More row, whose opening and closing resize
+  // the canvas: the fitted camera refits to each size and returns to the same pose, under a new
+  // camera sequence. So the pose is held over every record, and the sequence itself over the
+  // selection-only and empty-Box transitions, which touch no canvas.
+  expect(selected.viewport.camera.sequence).toBe(baseline.viewport.camera.sequence);
+  const emptyIndex = records.indexOf(empty);
+  expect(emptyIndex).toBeGreaterThan(0);
   for (const snapshot of records) {
     expect(snapshot.model).toEqual(baseline.model);
-    expect(snapshot.viewport.camera).toEqual(baseline.viewport.camera);
+    expect(cameraPose(snapshot.viewport.camera)).toEqual(cameraPose(baseline.viewport.camera));
     expect(snapshot.viewport.canvas).toEqual(baseline.viewport.canvas);
     expect(snapshot.viewport.resources.ownedPendingRafCount).toBe(0);
   }
+  for (const snapshot of records.slice(emptyIndex)) expect(snapshot.viewport.camera.sequence).toBe(empty.viewport.camera.sequence);
   expect(await page.getByTestId("results-panel").allTextContents()).toEqual(resultsBefore);
   await expect(page.getByTestId("command-selection-readout")).toContainText("0 queued");
   await projectCommand(page, "save-local", true);
@@ -1942,9 +1968,11 @@ test("decorative viewport overlays pass real canvas gestures while view controls
   // 2026-11-09, DEL-07-06 workspace presentation: the canvas header went from a fixed
   // 80 px box to a 32 px command row and the 24 px status strip (69 px with padding),
   // so the same move again: 772 less the 213 px of bars is the same 559.
+  // 2026-11-21, the 3D view's ergonomics: the canvas status strip went (36 px), so the same move
+  // again: 736 less the 177 px of bars is the same 559.
   // The box is asserted below, so the geometry the frozen endpoints depend on is
   // pinned and not implied. The endpoints and every other assertion are untouched.
-  await page.setViewportSize({ width: 1688, height: 772 });
+  await page.setViewportSize({ width: 1688, height: 736 });
   await page.addInitScript(() => {
     window.localStorage.setItem("chirality.desktop.ui-preferences.v1", JSON.stringify({ version: 1, bothSplitPct: 50 }));
   });
@@ -2042,7 +2070,7 @@ test("decorative viewport overlays pass real canvas gestures while view controls
   const label = page.getByRole("button", { name: `Select ${node.label} in viewport`, exact: true });
   await expect(label).toBeVisible(); await label.click();
   await expect(page.getByTestId("command-selection-readout")).toContainText(`node: ${node.id}`);
-  await expect(axis).toBeVisible(); await expect(scale).toHaveText(/1\s*m/);
+  await expect(axis).toBeVisible(); await expect(page.getByTestId("viewport-scale-bar")).toHaveCount(0);
   const events = await page.evaluate(() => (globalThis as any).__decorativePointerWitness);
   expect(events.filter((event: any) => event.type === "wheel")).toEqual(expect.arrayContaining([expect.objectContaining({ trusted: true, mainCanvas: true })]));
   await testInfo.attach("decorative-pointer-gesture-results", { body: JSON.stringify({ beforeBox, afterBox, orbitBefore, orbitAfter, panAfter, wheelAfter, frontAfter, events }, null, 2), contentType: "application/json" });
@@ -2190,17 +2218,22 @@ for (const route of ["Select", "New blank"] as const) test(`${route} retires cap
 });
 for (const route of ["Measure", "palette Node and Select"] as const) test(`${route} cannot revive a captured Box through a mode ABA`, async ({ page }, info) => {
   await setup(page); const input = await begin(page);
+  // The left button stays held with the canvas capturing it, so More is opened from the keyboard.
+  const keyboard = { keyboard: true };
   if (route === "Measure") {
-    await (await viewportControl(page, page.getByRole("button", { name: "Measure", exact: true }))).focus(); await page.keyboard.press("Enter");
-    await expect((await viewportControl(page, page.getByRole("button", { name: "Measure", exact: true })))).toHaveAttribute("aria-pressed", "true");
+    const measure = await viewportControl(page, page.getByRole("button", { name: "Measure", exact: true }), keyboard);
+    // Opening More leaves the captured Box alive: Measure, not More, retires it.
+    expect(await page.locator(".viewport-box-rect").count()).toBe(1);
+    await measure.focus(); await page.keyboard.press("Enter");
+    await expect((await viewportControl(page, page.getByRole("button", { name: "Measure", exact: true }), keyboard))).toHaveAttribute("aria-pressed", "true");
   } else {
     await choosePaletteNodeThenSelectWithFocusEvidence(page, info);
   }
   const exited = await read(page);
-  if (await (await viewportControl(page, page.getByTestId("viewport-box-select"))).getAttribute("aria-pressed") !== "true") {
-    await (await viewportControl(page, page.getByTestId("viewport-box-select"))).focus(); await page.keyboard.press("Enter");
+  if (await (await viewportControl(page, page.getByTestId("viewport-box-select"), keyboard)).getAttribute("aria-pressed") !== "true") {
+    await (await viewportControl(page, page.getByTestId("viewport-box-select"), keyboard)).focus(); await page.keyboard.press("Enter");
   }
-  await expect((await viewportControl(page, page.getByTestId("viewport-box-select")))).toHaveAttribute("aria-pressed", "true");
+  await expect((await viewportControl(page, page.getByTestId("viewport-box-select"), keyboard))).toHaveAttribute("aria-pressed", "true");
   const after = await finish(page, input.end);
   await info.attach("mode-aba", { body: JSON.stringify({ input, exited, after }, null, 2), contentType: "application/json" });
   expect.soft(exited.rectangleCount).toBe(0);

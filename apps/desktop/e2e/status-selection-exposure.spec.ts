@@ -13,10 +13,10 @@ const expected = { type: "pipe", id: "pipe:UIF-00077" };
 async function fixture(page: Page, width: number, text = expected, idShrink = 1) {
   await page.setContent(`
     <style>
-      .shell-status-selection { display: flex; align-items: baseline; min-width: 0; width: ${width}px; font: 13px sans-serif; }
+      .shell-status-selection { display: flex; align-items: center; min-width: 0; width: ${width}px; font: 13px sans-serif; line-height: 16px; }
       .shell-status-selection > span { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: pre; }
       .shell-status-selection-type { flex: 0 1000 auto; }
-      .shell-status-selection-id { flex: 0 ${idShrink} auto; margin-inline-start: 0.3em; }
+      .shell-status-selection-id { flex: 0 ${idShrink} auto; margin-inline-start: 0.3em; line-height: 14px; }
     </style>
     <span class="shell-status-selection" data-testid="status-selection"><span class="shell-status-selection-type">${text.type}:</span> <span class="shell-status-selection-id">${text.id}</span></span>
   `);
