@@ -28,10 +28,10 @@
    ".json",
    ".jsonl"
   ],
-  "files": 539,
+  "files": 540,
   "claimed_by": {
    "group": 142,
-   "in_code": 63,
+   "in_code": 64,
    "exemption": 334
   }
  },
@@ -9096,6 +9096,15 @@
    "expectations": "closed_form",
    "cases_named": "some",
    "detail": "named: the committed physics_source/mixed request (case:ordinary-pressure), solved to show source-recovery publications omit the global rows and keep their bytes (product output); unnamed: the inline straight line case:p and bend case:bend, judged by nodal equilibrium of published rows and authored loads at an interior node and by local axes recomputed from geometry, which hold whether or not elongation is included"
+  },
+  {
+   "paths": [
+    "core/product_physics/tests/exact_load_state_generated_references.rs"
+   ],
+   "reference": "validation/references/exact_load_state_equivalent_static",
+   "expectations": "reference_file",
+   "cases_named": "some",
+   "detail": "exact_load_state_equivalent_static frozen references: STRAIGHT and FRAME built from the package and solved as load and reference-state documents in both settings; named (eqs_document with elongation on lists every pressurised case) against the package's elongation-on values, unnamed (off) against its elongation-off values; the refusal controls solve the unnamed document. The generated-interactions models carry no pressure region"
   },
   {
    "paths": [
