@@ -146,6 +146,22 @@ describe('unit refusal explanation', () => {
    expect(run([operation('label'), operation(G)], {materials: [material()]})).toBe(`${head(G, 2, 2)}, and no value is stored. Create it with before TBD and ${PAIR}.`);
   });
 
+  it('is not explained after an earlier operation on another record that is not a set_field, or whose rows name this record', () => {
+   const elsewhere = (members: AnyRecord, change: AnyRecord = {}) => {
+    const base = operation('label', 'Node', 'node:c');
+    return {...base, ...members, change: {...(base.change as AnyRecord), ...change}};
+   };
+   // Another kind of operation can rewrite a record it does not target.
+   for (const first of [elsewhere({}, {change_kind: 'insert_bend_at_corner'}), elsewhere({operation_kind: 'create'}), elsewhere({operation_kind: 'delete'}), elsewhere({}, {change_kind: 'apply_library_record'})])
+    expect(run([first, operation()], model('Pa'))).toBe(GENERIC_REFUSAL);
+   // A set_field elsewhere whose engine account names a row of the judged record.
+   const first = elsewhere({}), ops = [first, operation()];
+   const named = {...passed(0, first), diff_preview: [{entity_ref: 'material:m', object_type: 'Material', field_path: 'elastic_modulus.value', before: '1', after: '2', unit: 'GPa', dimension: 'stress', change_kind: 'set_field'}]};
+   expect(unitRefusalMessage(outcome([named, refused(1, ops[1])]), ops, model('Pa'))).toBe(GENERIC_REFUSAL);
+   // The control: the same set_field elsewhere with its own row is explained from the starting document.
+   expect(run(ops, model('Pa'))).toBe(stated('Pa', MISMATCH, E, 2, 2));
+  });
+
   it('is not explained after another kind of earlier operation on the same record', () => {
    const others = [operation('constitutive_properties'), operation('temperature_points'), operation(E, 'Material', 'material:m', {operation_kind: 'delete'}),
     {...operation(), change: {...(operation().change as AnyRecord), change_kind: 'update_load'}}];

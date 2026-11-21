@@ -767,3 +767,27 @@ fn a_later_bare_number_is_judged_against_the_unit_an_earlier_step_of_the_batch_s
     }
     assert_eq!(model, original);
 }
+
+/// A stored unit the catalog does not hold for the field's dimension is not
+/// admitted by being repeated: a bare number naming that same unit is refused,
+/// with the stored unit and the explicit pair named, and nothing is written.
+/// The explicit pair in a unit of the field's dimension is the way out.
+#[test]
+fn a_stored_unit_outside_the_fields_dimension_is_refused_even_when_the_edit_repeats_it() {
+    let elastic = family().into_iter().find(|member| member.name == "elastic modulus").unwrap();
+    for stored_unit in ["furlong", "m"] {
+        let mut model = matrix_model();
+        model["materials"][0]["elastic_modulus"] = json!({"value": 200.0, "unit": stored_unit});
+        for operation in [apply_operation, validate_operation] {
+            let outcome = operation(&model, &intent(&elastic, "200", "210", stored_unit, elastic.dimension), None);
+            assert!(blocking(&outcome).contains(&MISMATCH), "{stored_unit}: {:?}", outcome.diagnostics);
+            assert!(outcome.applied_model.is_none(), "{stored_unit}");
+            let finding = outcome.diagnostics.iter().find(|d| d.code == MISMATCH).unwrap();
+            assert!(finding.message.contains(&format!("stored unit `{stored_unit}`")), "{stored_unit}: {}", finding.message);
+            assert!(finding.remediation.contains("explicit JSON value/unit pair"), "{stored_unit}: {}", finding.remediation);
+        }
+        let outcome = apply_operation(&model, &intent(&elastic, "200", &pair(210.0, "GPa"), "GPa", elastic.dimension), None);
+        assert!(blocking(&outcome).is_empty(), "{stored_unit}: {:?}", outcome.diagnostics);
+        assert_eq!(stored(&outcome.applied_model.unwrap(), &elastic), json!({"value": 210.0, "unit": "GPa"}), "{stored_unit}");
+    }
+}

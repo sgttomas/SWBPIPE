@@ -188,7 +188,7 @@ function setterUnit(step: unknown, operation: unknown, field: QuantityField): st
  if (rows.length !== 1) return unfit();
  const row = rows[0], target = own(operation, 'target'), change = own(operation, 'change'), unit = own(row, 'unit');
  const agreed: [unknown, unknown][] = [[own(row, 'entity_ref'), own(target, 'ref')], [own(row, 'object_type'), field.objectType], [own(row, 'field_path'), field.fieldPath],
-  [own(row, 'change_kind'), 'set_field'], [unit, own(change, 'unit')], [own(row, 'dimension'), own(change, 'dimension')]];
+  [own(row, 'change_kind'), 'set_field'], [unit, own(change, 'unit')], [own(row, 'dimension'), own(change, 'dimension')], [own(row, 'dimension'), field.dimension]];
  if (agreed.some(([engine, submitted]) => typeof engine !== 'string' || engine !== submitted)) return unfit();
  return UNIT_REFUSAL_UNITS[field.dimension].find(symbol => symbol === unit) ?? null;
 }
@@ -237,11 +237,18 @@ function explain(outcome: unknown, operations: unknown, model: unknown): string 
  if (!state) return unfit();
  // The state the engine judged: earlier operations on the same record may only be set_field on a
  // field of the table or on its label or provenance text, which leave the record's other state
- // alone; the latest of them that set this field gives its stored unit.
+ // alone; the latest of them that set this field gives its stored unit. An earlier operation on
+ // another record may only be a set_field, and the engine's account of it must name no row of this
+ // record: an operation of another kind can rewrite a record it does not target (inserting a bend
+ // at a node rewrites the bend component's radius).
  let setter = -1;
  for (let i = 0; i < last; i++) {
   const earlier = ops[i], earlierTarget = own(earlier, 'target'), earlierChange = own(earlier, 'change');
-  if (own(earlierTarget, 'object_type') !== field.objectType || own(earlierTarget, 'ref') !== ref) continue;
+  if (own(earlierTarget, 'object_type') !== field.objectType || own(earlierTarget, 'ref') !== ref) {
+   if (own(earlier, 'operation_kind') !== 'modify' || own(earlierChange, 'change_kind') !== 'set_field') return unfit();
+   if (list(own(steps[i], 'diff_preview'), MAX_ROWS).some(row => own(row, 'object_type') === field.objectType && own(row, 'entity_ref') === ref)) return unfit();
+   continue;
+  }
   const path = own(earlierChange, 'field_path');
   if (own(earlier, 'operation_kind') !== 'modify' || own(earlierChange, 'change_kind') !== 'set_field' || !(path === 'label' || path === 'provenance' || tableField(field.objectType, path))) return unfit();
   if (path === field.fieldPath) setter = i;

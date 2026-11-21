@@ -73,15 +73,16 @@ checks:
 # unit, dimension, positivity and staleness refusals; E and alpha keep the existing-only rule).
 - core/model_operations/operation_applier/tests/material_shear_modulus_entry.rs
 # Issue 382 (REQ-010, AC-006): the one rule for an edit of the number of a quantity stored as a
-# value beside its unit. Twenty family members, no optional quantity slot among them, against each
+# value beside its unit. Twenty family members, two optional quantity slots among them (the base
+# shear modulus and the inline material density), against each
 # admission and refusal at the single-operation apply entry (a bare number must name the stored
 # unit; an explicit pair writes value and unit together; the dimension is the field's, never the
 # intent's); the mismatched bare number also at the validate entry and in an atomic batch, alone
 # and after an earlier step of the batch changed the field's unit.
 # Edits of the material moduli and expansion coefficient, the inline diameter and wall, a nodal
 # force and a thermal magnitude are carried from the operation to the stored document to the solve
-# against closed forms; a shared section, the optional slots and the other primitive shapes have
-# no solve witness.
+# against closed forms; a shared section, the other optional slots and the other primitive shapes
+# have no solve witness. A stored unit outside the field's dimension is refused when repeated.
 - core/model_operations/operation_applier/tests/stored_quantity_unit_pair.rs
 # Issue 382, the imported-proposal surface: ten family members, two primitive shapes among them,
 # through the offline intake panel, the workspace session's Review Apply and the Wasm engine, read
