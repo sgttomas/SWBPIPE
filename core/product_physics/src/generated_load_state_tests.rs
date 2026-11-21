@@ -65,3 +65,44 @@ fn the_origin_test_reads_the_effective_case() {
     none.load_cases[0].equivalent_static = None;
     assert!(!is_generated_in_effective_case(&none, &none.load_cases[0], GENERATED, None));
 }
+
+/// The certified nodal producer (`seismic_component::nodal_product`) reads
+/// the same effective case: on the witness with a valve at the tip that
+/// replaces its member, the generated component force is the producer's,
+/// and an authored stored primitive under the same identity that the ledger
+/// lists, a lowering-appended one included, is not.
+#[test]
+fn the_nodal_producer_reads_the_effective_case() {
+    let generated = crate::seismic_component::load_id("case:join", "component:valve", 1, crate::seismic_component::Part::Force);
+    let with_valve = |mut model: PreviewModel| {
+        let valve: PreviewComponent = serde_json::from_value(json!({"id": "component:valve", "kind": "valve", "node": "tip",
+            "geometry": {"rigid_pipe_ref": "member", "weight": {"value": 2350.0, "unit": "N"},
+                "center_of_gravity": {"x": 0.0, "y": 0.0, "z": 0.125, "unit": "m"}},
+            "mechanics_interface": {"solver_consumption": "mechanics_geometry_only"}, "provenance": "invented"})).unwrap();
+        model.components.push(valve);
+        model
+    };
+    let produced = |model: &PreviewModel| crate::seismic_component::nodal_product(model, "case:join", &generated);
+
+    let plain = with_valve(model("case:join:authored", true));
+    assert!(produced(&plain).is_some(), "the generated component force is the producer's");
+
+    let listed = with_valve(model(&generated, true));
+    assert!(produced(&listed).is_none(), "a listed authored lookalike is not generated");
+
+    let mut lowered = with_valve(model("case:join:authored", true));
+    let mut appended = lowered.load_cases[0].primitive_loads[0].clone();
+    appended.id = generated.clone();
+    lowered.load_cases[0].primitive_loads.push(appended);
+    if let case_state::input::Authored::Value(state) = &mut lowered.load_cases[0].analysis_state {
+        state.load_sources.push(case_state::input::LoadSourceInput { source_ref: generated.clone(), factor: 1.0 });
+    }
+    assert!(produced(&lowered).is_none(), "a lowering-appended listed lookalike is not generated");
+
+    // Unlisted, the primitive is outside the effective case, so the identity
+    // is judged generated there; the collision itself is refused by
+    // `refuse_load_state_generated_collisions`.
+    let unlisted = with_valve(model(&generated, false));
+    assert!(produced(&unlisted).is_some());
+    assert!(!is_generated_equivalent_static_load(&unlisted.load_cases[0], &generated, Some("seismic")));
+}

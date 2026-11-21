@@ -301,14 +301,17 @@ pub(crate) mod prepared_mutant {
 }
 
 /// The certified nodal producer's generated branch (issue 450 item 3): for a
-/// load the case's generation produced (`is_generated_equivalent_static_load`,
-/// the three-condition predicate) that is a component primitive of the
+/// load the case's generation produced (the three-condition predicate, judged
+/// on the effective case by `is_generated_in_effective_case`: on a load and
+/// reference-state document a stored primitive the ledger lists, one a
+/// lowering appended included, is authored; issue 452 decision 10) that is a
+/// component primitive of the
 /// case's own plan, by exact identifier, the operands of its rounded
 /// product, read from the model: (W, k) for a force; (fl(k × W), ±r_j) for a
 /// moment. `None` for every other load.
 pub(crate) fn nodal_product(model: &PreviewModel, case_id: &str, load_id: &str) -> Option<(f64, f64)> {
     let case = model.load_cases.iter().find(|case| case.id == case_id)?;
-    if !crate::is_generated_equivalent_static_load(case, load_id, Some("seismic")) {
+    if !crate::is_generated_in_effective_case(model, case, load_id, Some("seismic")) {
         return None;
     }
     let replaced = crate::joint::replaced_span_ids(model);
