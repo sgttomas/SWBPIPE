@@ -45,7 +45,9 @@
 //!   header check, the copy's reservation and the copy; everything else in a
 //!   blocking task.
 //! - **Residuals, unpriced** (for slice 7's measurement): the
-//!   numerical health's working memory; the tables' and the value table's
+//!   numerical health's working memory; the support-state confirmations'
+//!   reader standing, readability and standing record (`support_confirmations`,
+//!   read from the parsed source and model in place); the tables' and the value table's
 //!   `Value`s and the header text (bounded by entities × sets, not rows); the
 //!   ids the intensified-bending rows name and their rows' ordinals; and
 //!   the returned response buffer and Tauri's copies during delivery after
@@ -268,17 +270,32 @@ fn envelope(source: &Value) -> (Value, Value, Value) {
 
 /// Each load case's support-state confirmation outcome and its quoted detail,
 /// `[{case_id, outcome, detail}]` (`detail`: the solver's reason for
-/// `not_established_detail_quoted`, null otherwise), from the reader's
-/// standing record (`report_standing::historical_standing_record`, `cases[].confirmation.outcome`),
-/// for the desktop's support-state line (release exit criterion 18: a state the solver reports
-/// established is stated as the solver's report). Null for a result whose mechanics are not solved or
-/// whose record the reader refuses. The outcomes are read from the result's integrity messages
-/// and the model alone, so the record is derived here with no standing findings.
-fn support_confirmations(source: &Value, model: &Value) -> Option<Value> {
-    if source["status"]["mechanics"] != "MECHANICS_SOLVED" {
+/// `not_established_detail_quoted`, null otherwise), for the desktop's support-state line
+/// (release exit criterion 18). It is given exactly where the browser path gives one
+/// (`reader_report_standing_json`, `standaloneNumericalHealth`): today's reader standing
+/// (`reader_verdict::standing`, with the confirmations model and no invocation), its
+/// readability (`reader_readability::readability`), and, only for a result that standing reads
+/// as readable and solved, the standing record derived under it
+/// (`report_standing::historical_standing_record`, `cases[].confirmation`). None (the header
+/// then has no `support_confirmations` member, which the desktop reads as null and states as not
+/// read here) for a run held under a recorded table (`recorded`: today's
+/// reader does not read it), a result today's reader does not read or whose mechanics are not
+/// solved, and a record the reader refuses; and none with no model (a null model: a restored run's
+/// plain read, whose tables are read with no model). The reader is not run for a run held under a
+/// recorded table or with no model. It reads the parsed source and model in place, inside the summary's build,
+/// under the parse lease that covers the source; its working memory is unpriced, as the
+/// numerical health's is.
+fn support_confirmations(source: &Value, model: &Value, recorded: Option<RecordedTable>) -> Option<Value> {
+    use open_pipe_stress_report_standing::{reader_readability, report_standing};
+    if recorded.is_some() || model.is_null() {
         return None;
     }
-    let record = open_pipe_stress_report_standing::report_standing::historical_standing_record(source, model, &json!({"findings": []})).ok()?;
+    let standing = rv::standing(source, Some(model), None);
+    let readability = reader_readability::readability(source, &standing);
+    if readability["readable"] != true || readability["solved"] != true {
+        return None;
+    }
+    let record = report_standing::historical_standing_record(source, model, &standing).ok()?;
     Some(Value::Array(
         record["cases"].as_array()?.iter().map(|case| json!({"case_id": case["case_id"], "outcome": case["confirmation"]["outcome"], "detail": case["confirmation"]["detail"]})).collect(),
     ))
@@ -335,7 +352,7 @@ pub(crate) fn build_with_models<R, E>(
         let mut seen = std::collections::HashSet::new();
         rows.iter().map(|row| row.get("unit")).filter(|unit| seen.insert(tables::js_key(*unit))).map(|unit| unit.cloned().unwrap_or(Value::Null)).collect()
     };
-    let header = json!({
+    let mut header = json!({
         "document_kind": DOCUMENT_KIND,
         "version": VERSION,
         "job_id": job_id,
@@ -345,7 +362,6 @@ pub(crate) fn build_with_models<R, E>(
         "row_count": rows.len(),
         "units": units,
         "numerical_health": health,
-        "support_confirmations": standing.and_then(|_| support_confirmations(source, confirmations_model)),
         diagnostics_presentation::MEMBER: presentation,
         "standing": standing.map(|s| json!({"eligible": s.eligible, "health_view": s.health.is_some()})),
         "tables": {
@@ -377,6 +393,12 @@ pub(crate) fn build_with_models<R, E>(
         "planes": planes,
         "planes_bytes": planes_bytes,
     });
+    // Release exit criterion 18: present only where the reader's record gives the confirmations; absent
+    // otherwise (no standing, no model, a run today's reader does not read), so a read without them is
+    // byte for byte what it was before they were added. The desktop reads an absent member as null.
+    if let Some(confirmations) = standing.and_then(|_| support_confirmations(source, confirmations_model, recorded)) {
+        header.as_object_mut().expect("S's header is an object").insert("support_confirmations".into(), confirmations);
+    }
     let header = serde_json::to_vec(&header).expect("S serializes");
     let len = result_planes::response_len(header.len(), planes_bytes);
     let guard = reserve(len as u64)?;

@@ -192,7 +192,8 @@ export function restoredHistoricalStanding(verdict: ReaderDispatch, recordedVerd
  * `numericalResultStanding` on it reads as not bound (fail closed), never as eligible.
  * Release exit criterion 18: where the model the run is read with (`readModel`, the saved project's)
  * has a nonlinear support and S has a standing (the native summary derives its confirmations only
- * then: `result_summary.rs`, `"support_confirmations": standing.and_then(…)`), S is first read with
+ * then, and only where today's reader reads the run as readable and solved: `result_summary.rs`
+ * `support_confirmations`; otherwise S's header has no such member, read as null), S is first read with
  * that model for its support-state confirmations only (`modelUse: "confirmations"`; its tables are
  * still read with no model). That read is optional: on any failure of it (a refusal, a parse
  * failure, anything) S is read with no model exactly as before, the project opens, and each case

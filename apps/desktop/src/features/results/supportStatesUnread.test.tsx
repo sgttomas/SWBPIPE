@@ -6,7 +6,8 @@
 // optional: a saved project always opens; what cannot be read is said, never the cause of a refused
 // open. Paths: the standalone (whole-value) historical panel, a recorded run, and the native reopen
 // (`restoredNativeResult`) with its read refused at the native command, with no model, with a model
-// known to have no nonlinear support, and readable. Unit transport replay (`nativeReplayStore.ts`);
+// known to have no nonlinear support, readable, and a run recorded before RT-A4 held under its table
+// (the native summary gives no confirmations for a run today's reader does not read). Unit transport replay (`nativeReplayStore.ts`);
 // NOT native UI qualification. Committed fixtures only.
 import { readFileSync } from "node:fs";
 import { resolve } from "node:path";
@@ -36,7 +37,9 @@ vi.mock("../../test/nativeReplayStore", async (importOriginal) => {
 
 import type { LocalProjectEnvelope, MechanicsResult, PreviewModel } from "../../types";
 import { computeModelHash, computeProjectEnvelopeHash } from "../../services/hashService";
-import { openLocalProjectNative, restoredNativeResult } from "../../services/nativeReopen";
+import { openLocalProjectNative, restoredNativeResult, type NativeProjectEnvelope } from "../../services/nativeReopen";
+import { nativeReplayReply } from "../../test/nativeReplayStore";
+import { recordedReaderDispatch } from "./resultReader";
 import { isNativeJobLive, isNativeResult, nativeCustody, resetNativeResultsForTests } from "../../services/nativeResult";
 import { resetSessionResultCustodyForTests } from "../../services/previewService";
 import { resetNativeReopenEmulation } from "../../test/nativeReopenEmulation";
@@ -189,6 +192,46 @@ describe("the native reopen", () => {
     render(<HistoricalRunPanel context={context} />);
     await waitFor(() => expect(screen.getByTestId("numerical-health-detail")).toBeTruthy());
     expect(screen.queryAllByTestId(/^numerical-health-case-support-states-/)).toEqual([]);
+  });
+
+  it("a run recorded before RT-A4 held under its table: the confirmation read answers with none, so each case says its record could not be read, as the browser path does", async () => {
+    // The native open of a saved project holding the pre-RT-A4 demo run, as the native host restores
+    // it: held under the record's table (`HeldResult::read_under`) with its recorded dispatch. The
+    // handle's reads are the actual commands' replies on a handle restored under that table
+    // (`native_replay_tests.rs`).
+    const sourceText = readFileSync(resolve(root, DEMO_PRE_RT_A4), "utf8");
+    const source = JSON.parse(sourceText) as MechanicsResult, model = json<PreviewModel>(DEMO_MODEL);
+    const handle = "restored-stored-result-pre-rt-a4-demo";
+    invokeMock.mockImplementation(async (command: string, args: Json) => {
+      if (args?.jobId === handle && command !== "dispose_preview_mechanics_result") return nativeReplayReply(command, args, handle, sourceText, PRE_RT_A4_TABLE);
+      if (command === "dispose_preview_mechanics_result") return { job_id: handle, released: true, released_bytes: 0, delivered: false };
+      throw new Error(`UNEXPECTED_COMMAND: ${command}`);
+    });
+    (window as Json).__TAURI_INTERNALS__ = {};
+    const recorded = recordedReaderDispatch(source, PRE_RT_A4_TABLE);
+    const opened = {
+      model, model_hash: null, project_envelope_hash: null, editor_intents: [], proposal: null, selected_review_target: null,
+      summary: { project_id: (model as Json).project?.id ?? "", message: "Opened the invented stored project." },
+      stored_run: {
+        state: "restored", handle, origin: "restored_saved_run",
+        source: { kind: "saved_project_run", project_id: (model as Json).project?.id ?? "", recording_id: null, result_sha256: "invented", record_sha256: "invented" },
+        result_bytes: sourceText.length, record_bytes: 0, result_present: true, record_present: true,
+        findings: { findings: [], check_findings: [], recorded_table_read: PRE_RT_A4_TABLE, historical_reader_findings: [...((recorded.standing as Json)?.findings ?? [])], run_id: source.run_id, renderable: true, mechanics: "MECHANICS_SOLVED", envelope_payload_hash: null, model_hash: null },
+        recorded_dispatch: recorded, record_header: { record: null, rule_pack_ref_diagnostics: [], result_ref_count: null, diagnostic_count: null, carried_members: [] }, record_header_bytes: null
+      }
+    } as unknown as NativeProjectEnvelope;
+    const context = (await buildNativeHistoricalRunContext(opened))!;
+    // The confirmation read was made with the saved model and answered (no fallback): the native summary
+    // itself gives no confirmations for this run.
+    expect(summaryReads()).toEqual([{ model: "the saved model", modelUse: "confirmations" }]);
+    expect(nativeCustody(context.mechanicsResult as never).supportConfirmations).toBe("read");
+    // The native summary gives no confirmations for a run today's reader does not read: no member.
+    expect(Object.hasOwn(nativeCustody(context.mechanicsResult as never).summary.header, "support_confirmations")).toBe(false);
+    render(<HistoricalRunPanel context={context} />);
+    await waitFor(() => expect(screen.getAllByTestId(/^numerical-health-case-support-states-/).length).toBe(2));
+    for (const line of Object.values(linesShown(caseIdsOf(source)))) expect(line).toBe(UNREAD);
+    // The browser path's sentence for the same run (`the standalone historical panel` above).
+    for (const c of standaloneNumericalHealth(source, PRE_RT_A4_TABLE, model)!.cases) expect(c.supportStates!.text).toBe(UNREAD);
   });
 
   it("the confirmation read answered: each case shows the reader's statement, as before", async () => {
