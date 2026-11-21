@@ -5256,7 +5256,7 @@
    "sites": [
     {
      "file": "core/model_operations/operation_applier/src/lib.rs",
-     "line": 5627,
+     "line": 5645,
      "via": "push()",
      "severity": "blocking",
      "any_arm": true,
@@ -6555,13 +6555,13 @@
    "severity": "blocking",
    "first_site": {
     "file": "core/model_operations/operation_applier/src/lib.rs",
-    "line": 5739,
+    "line": 5757,
     "via": "refuse_interim_member()"
    },
    "sites": [
     {
      "file": "core/model_operations/operation_applier/src/lib.rs",
-     "line": 5739,
+     "line": 5757,
      "via": "refuse_interim_member()",
      "severity": "blocking",
      "through": [
@@ -11455,7 +11455,7 @@
    "sites": [
     {
      "file": "core/model_operations/operation_applier/src/lib.rs",
-     "line": 1666,
+     "line": 1684,
      "via": "push()",
      "severity": "blocking",
      "by_name": true,
@@ -18732,7 +18732,7 @@
    "sites": [
     {
      "file": "core/model_operations/operation_applier/src/lib.rs",
-     "line": 5627,
+     "line": 5645,
      "via": "push()",
      "severity": "blocking",
      "any_arm": true,
@@ -18788,7 +18788,7 @@
    "sites": [
     {
      "file": "core/model_operations/operation_applier/src/lib.rs",
-     "line": 5627,
+     "line": 5645,
      "via": "push()",
      "severity": "blocking",
      "any_arm": true,
@@ -18844,7 +18844,7 @@
    "sites": [
     {
      "file": "core/model_operations/operation_applier/src/lib.rs",
-     "line": 5627,
+     "line": 5645,
      "via": "push()",
      "severity": "blocking",
      "any_arm": true,
@@ -18900,7 +18900,7 @@
    "sites": [
     {
      "file": "core/model_operations/operation_applier/src/lib.rs",
-     "line": 5627,
+     "line": 5645,
      "via": "push()",
      "severity": "blocking",
      "any_arm": true,
@@ -19052,13 +19052,13 @@
    "severity": "blocking",
    "first_site": {
     "file": "core/model_operations/operation_applier/src/lib.rs",
-    "line": 5627,
+    "line": 5645,
     "via": "push()"
    },
    "sites": [
     {
      "file": "core/model_operations/operation_applier/src/lib.rs",
-     "line": 5627,
+     "line": 5645,
      "via": "push()",
      "severity": "blocking",
      "any_arm": true,
@@ -19104,7 +19104,7 @@
    "sites": [
     {
      "file": "core/model_operations/operation_applier/src/lib.rs",
-     "line": 5627,
+     "line": 5645,
      "via": "push()",
      "severity": "blocking",
      "any_arm": true,
@@ -19160,13 +19160,13 @@
    "severity": "blocking",
    "first_site": {
     "file": "core/model_operations/operation_applier/src/lib.rs",
-    "line": 5627,
+    "line": 5645,
     "via": "push()"
    },
    "sites": [
     {
      "file": "core/model_operations/operation_applier/src/lib.rs",
-     "line": 5627,
+     "line": 5645,
      "via": "push()",
      "severity": "blocking",
      "any_arm": true,
@@ -19212,7 +19212,7 @@
    "sites": [
     {
      "file": "core/model_operations/operation_applier/src/lib.rs",
-     "line": 5627,
+     "line": 5645,
      "via": "push()",
      "severity": "blocking",
      "any_arm": true,
@@ -19516,7 +19516,7 @@
    "sites": [
     {
      "file": "core/model_operations/operation_applier/src/lib.rs",
-     "line": 5627,
+     "line": 5645,
      "via": "push()",
      "severity": "blocking",
      "any_arm": true,
@@ -19572,7 +19572,7 @@
    "sites": [
     {
      "file": "core/model_operations/operation_applier/src/lib.rs",
-     "line": 5627,
+     "line": 5645,
      "via": "push()",
      "severity": "blocking",
      "any_arm": true,
@@ -19628,7 +19628,7 @@
    "sites": [
     {
      "file": "core/model_operations/operation_applier/src/lib.rs",
-     "line": 5627,
+     "line": 5645,
      "via": "push()",
      "severity": "blocking",
      "any_arm": true,
@@ -21047,7 +21047,7 @@
   },
   {
    "file": "core/model_operations/operation_applier/src/lib.rs",
-   "line": 1757,
+   "line": 1775,
    "at": "push()",
    "why": "the code field of error, whose record type the scanner cannot prove is built only at code positions it reads",
    "expression": "error.code",
@@ -21055,7 +21055,7 @@
   },
   {
    "file": "core/model_operations/operation_applier/src/lib.rs",
-   "line": 1782,
+   "line": 1800,
    "at": "push()",
    "why": "the code field of warning, whose record type the scanner cannot prove is built only at code positions it reads",
    "expression": "warning.code",
@@ -21063,7 +21063,7 @@
   },
   {
    "file": "core/model_operations/operation_applier/src/lib.rs",
-   "line": 1791,
+   "line": 1809,
    "at": "push()",
    "why": "the code field of block, whose record type the scanner cannot prove is built only at code positions it reads",
    "expression": "block.code",
@@ -21071,7 +21071,7 @@
   },
   {
    "file": "core/model_operations/operation_applier/src/lib.rs",
-   "line": 1838,
+   "line": 1856,
    "at": "push()",
    "why": "the code field of error, whose record type the scanner cannot prove is built only at code positions it reads",
    "expression": "error.code",
@@ -21079,7 +21079,7 @@
   },
   {
    "file": "core/model_operations/operation_applier/src/lib.rs",
-   "line": 1867,
+   "line": 1885,
    "at": "push()",
    "why": "the code field of error, whose record type the scanner cannot prove is built only at code positions it reads",
    "expression": "error.code",
@@ -21087,7 +21087,7 @@
   },
   {
    "file": "core/model_operations/operation_applier/src/lib.rs",
-   "line": 1893,
+   "line": 1911,
    "at": "push()",
    "why": "the code field of error, whose record type the scanner cannot prove is built only at code positions it reads",
    "expression": "error.code",
@@ -21095,7 +21095,7 @@
   },
   {
    "file": "core/model_operations/operation_applier/src/lib.rs",
-   "line": 1929,
+   "line": 1947,
    "at": "push()",
    "why": "the code field of error, whose record type the scanner cannot prove is built only at code positions it reads",
    "expression": "error.code",
@@ -21103,7 +21103,7 @@
   },
   {
    "file": "core/model_operations/operation_applier/src/lib.rs",
-   "line": 2088,
+   "line": 2106,
    "at": "push()",
    "why": "the code field of error, whose record type the scanner cannot prove is built only at code positions it reads",
    "expression": "error.code",
@@ -21111,7 +21111,7 @@
   },
   {
    "file": "core/model_operations/operation_applier/src/lib.rs",
-   "line": 2774,
+   "line": 2792,
    "at": "push()",
    "why": "the code field of finding, whose record type the scanner cannot prove is built only at code positions it reads",
    "expression": "finding.code",
@@ -21119,7 +21119,7 @@
   },
   {
    "file": "core/model_operations/operation_applier/src/lib.rs",
-   "line": 5239,
+   "line": 5257,
    "at": "push()",
    "why": "the code field of error, whose record type the scanner cannot prove is built only at code positions it reads",
    "expression": "error.code",
@@ -21127,7 +21127,7 @@
   },
   {
    "file": "core/model_operations/operation_applier/src/lib.rs",
-   "line": 5562,
+   "line": 5580,
    "at": "push()",
    "why": "the code field of error, whose record type the scanner cannot prove is built only at code positions it reads",
    "expression": "error.code",
@@ -21135,7 +21135,7 @@
   },
   {
    "file": "core/model_operations/operation_applier/src/lib.rs",
-   "line": 5608,
+   "line": 5626,
    "at": "push()",
    "why": "the code field of error, whose record type the scanner cannot prove is built only at code positions it reads",
    "expression": "error.code",
@@ -21143,7 +21143,7 @@
   },
   {
    "file": "core/model_operations/operation_applier/src/lib.rs",
-   "line": 5733,
+   "line": 5751,
    "at": "refuse_interim_member()",
    "why": "the code field of refusal, whose record type the scanner cannot prove is built only at code positions it reads",
    "expression": "refusal.code",
@@ -21151,7 +21151,7 @@
   },
   {
    "file": "core/model_operations/operation_applier/src/lib.rs",
-   "line": 6377,
+   "line": 6383,
    "at": "refuse_interim_member()",
    "why": "a tuple source the scanner cannot follow",
    "expression": "code",
