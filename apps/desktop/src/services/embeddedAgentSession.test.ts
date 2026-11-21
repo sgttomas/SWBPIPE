@@ -1,5 +1,6 @@
 import { afterEach, describe, expect, it, vi } from 'vitest';
-import { EmbeddedAgentSession, boundedFindings, type WorkspaceExecution, type AgentSolveOutcome, type AgentSolverMode } from './embeddedAgentSession';
+import { EmbeddedAgentSession, boundedFindings, integrityBoundChecks, type WorkspaceExecution, type AgentSolveOutcome, type AgentSolverMode } from './embeddedAgentSession';
+import { SOLVER_REPORT_NOTE } from '../features/results/integrityStatus';
 import { agentDetailFilter } from './resultDetail';
 import { PERSON_ENTERED_CHECK } from './operationAuthorship';
 import type { PreviewModel, ModelHashEvidence, MechanicsResult, Diagnostic } from '../types';
@@ -746,5 +747,22 @@ describe('a native result read tells the host which rows its values are',()=>{
   expect(JSON.parse(session.actual('invented-session:2')!.outcome).status).toBe('ok');
   expect(sent.filter(v=>v.kind==='publish_actual').at(-1)!.proof).toMatchObject({kind:'run',handle:runHandle,nativeJobId:'job-1',ordinals:[7,9]});
   await session.close();
+ });
+});
+
+describe('release exit criterion 18: the agent reads the solver\'s verdict as not verified',()=>{
+ it('gives a finding that states the solver\'s checks-passed code or established line with the note, within the message bound',()=>{
+  const passed:Diagnostic={code:'MODEL_INCOMPLETE',severity:'blocking',message:'Inspection only (prior_outcome=NUMERICAL_INTEGRITY_CHECKS_PASSED): this document is blocked.',affected_refs:[]};
+  const established:Diagnostic={code:'NUMERICAL_INTEGRITY_CHECKS_PASSED',severity:'info',message:`${'x'.repeat(600)} Converged support state: established at 128-bit precision`,affected_refs:[]};
+  const plain:Diagnostic={code:'CC',severity:'warning',message:'Plain.',affected_refs:[]};
+  const {diagnostics}=boundedFindings([passed,established,plain],0);
+  expect(diagnostics[0].message).toBe(`${passed.message} ${SOLVER_REPORT_NOTE}`);
+  expect(diagnostics[1].message.endsWith(` ${SOLVER_REPORT_NOTE}`)).toBe(true);
+  expect(diagnostics[1].message.length).toBeLessThanOrEqual(500);
+  expect(diagnostics[2].message).toBe('Plain.');
+ });
+ it('carries the reader verdict\'s integrity bound among a results read\'s checks',()=>{
+  expect(integrityBoundChecks({status:'not_verified',reason:'inverse_norm_bound_not_verified'})).toEqual(['integrity_bound:not_verified:inverse_norm_bound_not_verified']);
+  expect(integrityBoundChecks(null)).toEqual([]);
  });
 });

@@ -366,24 +366,40 @@ target remains adequate. A failure alone does not justify relaxing one.
 
     *Owning deliverables:* DEL-16-06.
 18. **Numerical claims.** A case governed by DEL-04-01/REQ-015 that is
-    presented as having passed its integrity check, or as established, has
-    the bound and standing that requirement states. Only the modal
-    eigenproblem's integrity checks governed by DEL-04-09/REQ-003 and REQ-004
-    are outside this criterion. A static state-case solve used by a modal
-    analysis, including its nonlinear support-state confirmation, remains
-    within this criterion. The error-bound argument is justified under its stated
+    presented as having passed its integrity check, or as established, has the
+    bound and standing that requirement states. Only the modal eigenproblem's
+    integrity checks governed by DEL-04-09/REQ-003 and REQ-004 are outside
+    this criterion. A static state-case solve used by a modal analysis,
+    including its nonlinear support-state confirmation, remains within this
+    criterion. The error-bound argument is justified under its stated
     arithmetic model, and the product establishes its case-dependent
     conditions; an unproved multiple of a condition estimate does not
-    establish an upper bound. Where the integrity bound's conditions cannot be
-    met, the check is unavailable and the solve is reported as numerically
-    sensitive with its named reason. A converged nonlinear state is presented
-    as confirmed only when DEL-04-01/REQ-016's enclosures establish every
-    nonlinear support's state, as DEL-04-04/REQ-013 and DEL-04-07/CLM-002
-    require; otherwise it remains unconfirmed with its named reason. Readers
-    and consumers preserve these outcomes and apply their existing standing
-    and admission rules. A capability these criteria require that is refused
-    on this ground is a refusal under criterion 3; declaring that refusal
-    acceptable does not make an unmet criterion met.
+    establish an upper bound. Where the integrity check finds sensitivity, or
+    is unavailable for a reason DEL-04-01/REQ-015 names, the solve is reported
+    as numerically sensitive with its named reason. Where the solver's checks
+    find nothing against a case and the bound they rest on is not verified for
+    that case, the case is reported as not verified with its named reason: it
+    is not reported as numerically sensitive on that ground, and it is not
+    presented as having passed its integrity check or as established. A
+    converged nonlinear state is presented as confirmed only when
+    DEL-04-01/REQ-016's enclosures establish every nonlinear support's state,
+    as DEL-04-04/REQ-013 and DEL-04-07/CLM-002 require; otherwise it remains
+    unconfirmed with its named reason. A state the solver's confirmation
+    reports established while the bound its enclosures rest on is not verified
+    is unconfirmed, with that reason. Readers and consumers preserve these
+    outcomes and apply their existing standing and admission rules. A not
+    verified case keeps the admission its solver verdict gives it, and that
+    admission asserts no bound. The not verified status is stated beside the
+    solver's verdict wherever a person reads it, and is carried as a field in
+    every verdict and file output a consumer reads. For v1.0 the product
+    verifies the bound for no case (LIM-026): every case the solver's checks
+    find nothing against is not verified, and no nonlinear state is confirmed.
+    A claim derived from a case's bound, such as a combination certificate's
+    verdict over its operand cases or a statement that a case is stress-free
+    within a stated bound, has that bound's standing and is stated the same
+    way. A capability these criteria require that is refused on this ground is
+    a refusal under criterion 3; declaring that refusal acceptable does not
+    make an unmet criterion met.
 
     *Owning deliverables:* DEL-04-01 (integrity bound and nonlinear enclosures); DEL-04-04 and DEL-04-07 (support-state confirmation and publication); DEL-05-02 (ordinary product reader); DEL-04-08 (retained-result reader, reader bindings and test verifier). The viewer, report, export, rule-binding and modal-state consumers apply their existing rules under their own deliverables (DEL-07-05, DEL-08-01, DEL-08-04, DEL-06-03, DEL-04-09).
 

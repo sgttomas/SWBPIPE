@@ -1,10 +1,14 @@
 import type { MechanicsResult } from "../../types";
 import { PRESSURE_SOURCE_CONTRACT_ID } from "./numericalResultQuality";
+import { numericalQualityStatusText } from "./integrityStatus";
 
 type RecordValue = Record<string, unknown>;
 const record = (v: unknown): RecordValue | null => v && typeof v === "object" && !Array.isArray(v) ? v as RecordValue : null;
 const rows = (v: unknown): RecordValue[] => Array.isArray(v) ? v.map(record).filter((x): x is RecordValue => x !== null) : [];
 const text = (v: unknown) => typeof v === "string" && v ? v : "unavailable";
+/** An ordinary attempt's quality in the desktop's state words: the solver's `checks_passed` reads
+ * "not verified" (release exit criterion 18); every other status as recorded. */
+const quality = (v: unknown) => typeof v === "string" && v ? numericalQualityStatusText(v) : "unavailable";
 
 /** The panel's own marker for a field it cannot display: a member the row always lists that the
  * record lacks, or a value of another kind than its field's. It does not begin with the word
@@ -89,7 +93,7 @@ export function PhysicsSourceEvidencePanel({ result }: { result: MechanicsResult
   const physicalIds = exactCases.map(c => text(c.load_case_id));
   const coverageMatches = (receiptIds.length === physicalIds.length && new Set(receiptIds).size === receiptIds.length && receiptIds.every(id => physicalIds.includes(id)));
   return <section aria-label="Recorded recovery evidence" data-testid="physics-source-evidence">
-    <p>Physical profile: {text(result.formulation_basis?.profile_id)}. Ordinary numerical attempt: {text(result.numerical_quality?.status)}.</p>
+    <p>Physical profile: {text(result.formulation_basis?.profile_id)}. Ordinary numerical attempt: {quality(result.numerical_quality?.status)}.</p>
     <p>Producer receipt: {text(body?.status)}. These recorded labels do not grant Current use; actual invocation and complete method evidence are checked separately.</p>
     <p data-testid="physics-source-case-coverage">Recorded cases: {cases.length}; physical cases: {exactCases.length}. {coverageMatches ? "Receipt and physical case identities agree." : "Case evidence is incomplete or inconsistent."}</p>
     {cases.map((c, index) => {
@@ -97,7 +101,7 @@ export function PhysicsSourceEvidencePanel({ result }: { result: MechanicsResult
       const ordinary = result.numerical_quality?.cases.find(x => x.basis_ref.ref_id === id);
       return <article key={`${id}:${index}`} data-testid={`physics-source-case-${id}`}>
         <h4>{id}</h4>
-        <p>Ordinary case attempt: {text(ordinary?.solve_quality)}. Selected method: <code>{text(c.selected_method)}</code>. Producer outcome: {text(c.outcome)}.</p>
+        <p>Ordinary case attempt: {quality(ordinary?.solve_quality)}. Selected method: <code>{text(c.selected_method)}</code>. Producer outcome: {text(c.outcome)}.</p>
         {exact ? <p>Material selection: {text(exact.material_basis)}; {rows(exact.pipe_materials).length} member material records; {rows(exact.pipe_sections).length} section records.</p> : null}
         {rows(exact?.pipe_stress_extrema).length > 0 ? <p data-testid={`physics-source-recorded-fields-notice-${index}`}>{RECORDED_FIELDS_NOTICE}</p> : null}
         {/* Test identifiers go by position (case, entry), never by a recorded identifier. */}

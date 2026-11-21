@@ -7,9 +7,9 @@ import { railStageState, runPresenceFromCells, statusChipInputsFromCells, status
 
 const solved = { status: { mechanics: "MECHANICS_SOLVED", professional_acceptance: "NOT_PROVIDED" } };
 const hold = {
-  headline: "Numerical health: 1 sensitive, 1 checks passed",
+  headline: "Numerical health: 1 sensitive, 1 not verified",
   shortHeadline: "Numerical health: sensitive",
-  outputSentence: "Rule checks, the result JSON and stress-neutral exports and the report package do not use this run while 1 load case(s) are not checks passed; results tables, CSV export and, for an exact-route result, the rendered report carry each case's standing."
+  outputSentence: "Rule checks, the result JSON and stress-neutral exports and the report package do not use this run while 1 load case(s) are sensitive, quality unresolved, solve failed or not assessed; results tables, CSV export and, for an exact-route result, the rendered report carry each case's standing."
 };
 const cells = (extra: Record<string, unknown>) => ({
   model: { analysis_status: { mechanics: "MECHANICS_SOLVED" } },
@@ -28,9 +28,9 @@ describe("shell chip and rail under a numerical-health hold", () => {
     expect(railStageState("review", run)).toMatchObject({ enabled: false, reason: "Numerical health: sensitive" });
     const chips = statusChips(statusChipInputsFromCells(cells({ hasQualifiedCurrentResult: false, numericalHealthHold: hold })), "results");
     expect(chips).toHaveLength(1);
-    expect(chips[0]).toMatchObject({ token: "needs_recompute", label: "Numerical health: 1 sensitive, 1 checks passed", source: "Derived numerical qualification",
+    expect(chips[0]).toMatchObject({ token: "needs_recompute", label: "Numerical health: 1 sensitive, 1 not verified", source: "Derived numerical qualification",
       numericalHealth: { headline: hold.headline, outputSentence: hold.outputSentence } });
-    expect(statusChipText(chips[0])).toBe("Solver · Numerical health: 1 sensitive, 1 checks passed");
+    expect(statusChipText(chips[0])).toBe("Solver · Numerical health: 1 sensitive, 1 not verified");
   });
 
   it("keeps Needs recompute without the hold (missing evidence, another route, or any other unmet requirement)", () => {

@@ -134,22 +134,22 @@ describe("numericalHealthView", () => {
       healthCase("D", "solve_failed"), healthCase("E", "not_assessed")
     ]), { eligible: false, verdictHold: false })!;
     expect(view.cases.map((c) => [c.caseId, c.badge, c.headline])).toEqual([
-      ["A", "green", "Numerical health: checks passed"],
+      ["A", "grey", "Numerical health: not verified"],
       ["B", "red", "Numerical health: sensitive"],
       ["C", "red", "Numerical health: quality unresolved"],
       ["D", "red", "Numerical health: solve failed"],
       ["E", "grey", "Numerical health: not assessed"]
     ]);
-    expect(view.headline).toBe("Numerical health: 1 solve failed, 1 quality unresolved, 1 sensitive, 1 not assessed, 1 checks passed");
+    expect(view.headline).toBe("Numerical health: 1 solve failed, 1 quality unresolved, 1 sensitive, 1 not assessed, 1 not verified");
     expect(view.shortHeadline).toBe("Numerical health: solve failed");
     expect(view.badge).toBe("red");
   });
 
-  it("counts load cases once and colours the header red, then grey, then green", () => {
+  it("counts load cases once and colours the header red, otherwise grey (no state is styled as success)", () => {
     const passing = numericalHealthView(health("generic", false, [healthCase("A", "checks_passed"), healthCase("B", "checks_passed")]), { eligible: true, verdictHold: false })!;
-    expect([passing.badge, passing.headline, passing.shortHeadline]).toEqual(["green", "Numerical health: checks passed", "Numerical health: checks passed"]);
+    expect([passing.badge, passing.headline, passing.shortHeadline]).toEqual(["grey", "Numerical health: not verified", "Numerical health: not verified"]);
     const grey = numericalHealthView(health("generic", false, [healthCase("A", "checks_passed"), healthCase("B", "not_assessed")]), { eligible: false, verdictHold: false })!;
-    expect([grey.badge, grey.headline, grey.shortHeadline]).toEqual(["grey", "Numerical health: 1 not assessed, 1 checks passed", "Numerical health: not assessed"]);
+    expect([grey.badge, grey.headline, grey.shortHeadline]).toEqual(["grey", "Numerical health: 1 not assessed, 1 not verified", "Numerical health: not assessed"]);
     const red = numericalHealthView(health("generic", false, [healthCase("A", "sensitive"), healthCase("B", "sensitive"), healthCase("C", "not_assessed")],
       [{ combination_id: "C1", state: "sensitive", cases: ["A", "B"], withheld: false }]), { eligible: false, verdictHold: false })!;
     expect([red.badge, red.headline]).toEqual(["red", "Numerical health: 2 sensitive, 1 not assessed"]);
@@ -166,9 +166,9 @@ describe("numericalHealthView", () => {
       { combination_id: "C4", state: "sensitive", cases: ["LC1"], withheld: true }
     ]), { eligible: false, verdictHold: false })!;
     expect(view.combinations).toEqual([
-      { combinationId: "C1", state: "sensitive", badge: "red", text: "Inherited from its load cases: LC1: sensitive; LC2: checks passed." },
+      { combinationId: "C1", state: "sensitive", badge: "red", text: "Inherited from its load cases: LC1: sensitive; LC2: not verified." },
       // A case missing from numerical_quality reads "not assessed".
-      { combinationId: "C2", state: "not_assessed", badge: "grey", text: "Inherited from its load cases: LC2: checks passed; LC9: not assessed." },
+      { combinationId: "C2", state: "not_assessed", badge: "grey", text: "Inherited from its load cases: LC2: not verified; LC9: not assessed." },
     ]);
     // Withheld combinations keep their existing finding: no badge and no detail of their own.
     expect(view.combinationState("C3")).toBeNull();
@@ -223,7 +223,7 @@ describe("numericalHealthView", () => {
       healthCase("X", "not_assessed", { integrity_diagnostic_id: null })
     ]), { eligible: false, verdictHold: false })!;
     const byId = Object.fromEntries(view.cases.map((c) => [c.caseId, c]));
-    expect(byId.P.sentences).toEqual(["The solver's residual and conditioning checks passed for P."]);
+    expect(byId.P.sentences).toEqual(["The solver's own checks found no problem with P, but SWBPIPE has not verified an error bound for its values."]);
     expect(byId.P.conditioning).toContain("roughly below 0.1 of the about 16");
     // The figure shows for passed and sensitive cases only.
     expect(byId.U.conditioning).toBeNull();
@@ -241,8 +241,8 @@ describe("numericalHealthView", () => {
   });
 
   it("prefixes the pressure-source route, adds the eligible wording and places no row badges", () => {
-    const eligible = numericalHealthView(health("pressure_source", false, [healthCase("case", "sensitive", { digits: 10.2, conditioning_sensitive: true })]), { eligible: true, verdictHold: false })!;
-    expect(eligible.headline).toBe("Ordinary solve — Numerical health: 1 sensitive");
+    const eligible = numericalHealthView(health("pressure_source", false, [healthCase("case", "sensitive", { digits: 10.2, conditioning_sensitive: true }), healthCase("case:ordinary", "checks_passed")]), { eligible: true, verdictHold: false, recoveredCases: new Set(["case"]) })!;
+    expect(eligible.headline).toBe("Ordinary solve — Numerical health: 1 sensitive, 1 not verified");
     expect(eligible.cases[0].headline).toBe("Ordinary solve — Numerical health: sensitive");
     expect(eligible.rowBadges).toBe(false);
     expect(eligible.outputSentence).toBeNull();
@@ -252,7 +252,9 @@ describe("numericalHealthView", () => {
       "Solving the unchanged model again in the same solver mode gives the same result. A very short or very stiff element next to flexible ones, stiffnesses that differ by many orders of magnitude, or a weakly restrained direction are common causes.",
       "The values shown come from the producer's recovery of this case, which passed its own checks. This badge describes the ordinary solve only."
     ]);
-    const notEligible = numericalHealthView(health("pressure_source", false, [healthCase("case", "sensitive")]), { eligible: false, verdictHold: false })!;
+    // An ordinary companion of a mixed run was solved by the ordinary solve alone: its values are not the recovery's.
+    expect(eligible.cases[1].sentences).toEqual(["The solver's own checks found no problem with case:ordinary, but SWBPIPE has not verified an error bound for its values."]);
+    const notEligible = numericalHealthView(health("pressure_source", false, [healthCase("case", "sensitive")]), { eligible: false, verdictHold: false, recoveredCases: new Set(["case"]) })!;
     expect(notEligible.cases[0].sentences).toContain("Its values are kept for inspection.");
     expect(notEligible.cases[0].sentences).not.toContain("The values shown come from the producer's recovery of this case, which passed its own checks. This badge describes the ordinary solve only.");
     // The generic route's rows carry badges.
@@ -262,7 +264,7 @@ describe("numericalHealthView", () => {
   it("adds the output sentence only under the verdict-only hold on the generic route", () => {
     const cases = [healthCase("LC1", "sensitive"), healthCase("LC2", "not_assessed"), healthCase("LC3", "checks_passed")];
     expect(numericalHealthView(health("generic", true, cases), { eligible: false, verdictHold: true })!.outputSentence)
-      .toBe("Rule checks, the result JSON and stress-neutral exports and the report package do not use this run while 2 load case(s) are not checks passed; results tables, CSV export and, for an exact-route result, the rendered report carry each case's standing.");
+      .toBe("Rule checks, the result JSON and stress-neutral exports and the report package do not use this run while 2 load case(s) are sensitive, quality unresolved, solve failed or not assessed; results tables, CSV export and, for an exact-route result, the rendered report carry each case's standing.");
     expect(numericalHealthView(health("generic", true, cases), { eligible: false, verdictHold: false })!.outputSentence).toBeNull();
     expect(numericalHealthView(health("generic", false, cases), { eligible: false, verdictHold: false })!.outputSentence).toBeNull();
     expect(numericalHealthView(health("pressure_source", false, cases), { eligible: false, verdictHold: true })!.outputSentence).toBeNull();

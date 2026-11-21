@@ -280,7 +280,7 @@ describe("comparison CSV (run-comparison, state-comparison)", () => {
     const { source } = await loadBundledMechanicsReference();
     const rows = source.results;
     // Compared through the view model with the comparison's own inputs.
-    const left = { rows: flattenRunResult(source), standing: { eligible: true, status: "integrity_checked", contract: "generic", findings: [] }, semantic_identity: { route: "generic", contract_id: null, contract_sha256: null }, context: {}, diagnostics: [] };
+    const left = { rows: flattenRunResult(source), standing: { eligible: true, status: "solver_checks_passed", contract: "generic", findings: [] }, semantic_identity: { route: "generic", contract_id: null, contract_sha256: null }, context: {}, diagnostics: [] };
     const right = { ...left, rows: flattenRunResult({ ...source, results: rows.map((item, index) => (index % 3 === 0 ? { ...item, value: item.value * 1.1 + 0.1 } : item)).slice(1) }) };
     const comparison = compareRunInputs(left as never, right as never);
     const filters = { status: "all" as const, family: "all", idFilter: "" };

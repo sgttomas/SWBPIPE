@@ -131,7 +131,15 @@ pub(crate) fn run(registry: SolveJobRegistry, raw: Vec<u8>, copy: Lease) -> Resu
     let job_id: String = args.decode("jobId")?;
     let model_json: String = args.decode("modelJson")?;
     let standing: Option<StandingArg> = args.decode("standing")?;
+    // Release exit criterion 18: `"confirmations"` reads the model for the support-state
+    // confirmations only (a restored run); absent, it is S's model for every table.
+    let model_use: Option<String> = args.decode("modelUse")?;
     drop(args);
+    let confirmations_only = match model_use.as_deref() {
+        None => false,
+        Some("confirmations") => true,
+        Some(_) => return Err(CommandError::Command(format!("{SUMMARY_READ_FAILED}: modelUse is not \"confirmations\""))),
+    };
     let held = registry.held_result(&job_id)?;
     let texts = [("source", Some(held.text())), ("model", Some(model_json.as_str()))];
     let bounds = native_verdict::diagnostic_phase(call, "source_prescan", held.text().len() as u64, || native_verdict::prescan_in_order(&registry, &texts))?;
@@ -161,7 +169,9 @@ pub(crate) fn run(registry: SolveJobRegistry, raw: Vec<u8>, copy: Lease) -> Resu
         // The diagnostics presentation facts of this share's bytes (`diagnostics_presentation`),
         // from S's own parse, under its current tables, with the share's cache.
         let presentation = diagnostics_presentation::facts(held.text(), &source, held.recorded_table(), Some(held.presentation()));
-        build(&job_id, &source, &model, standing.as_ref(), &health, held.recorded_table(), &presentation, |bytes| registry.acquire_result_parse(bytes))
+        let no_model = Value::Null;
+        let tables_model = if confirmations_only { &no_model } else { &model };
+        build_with_models(&job_id, &source, tables_model, &model, standing.as_ref(), &health, held.recorded_table(), &presentation, |bytes| registry.acquire_result_parse(bytes))
     })?;
     native_verdict::diagnostic_phase(call, "source_drop", 0, || { drop((written, source, model, reading, held, lease)); Ok::<_, CommandError<String>>(()) })?;
     Ok(response)
@@ -256,6 +266,24 @@ fn envelope(source: &Value) -> (Value, Value, Value) {
     (Value::Object(carried), json!(omitted), Value::Array(counts))
 }
 
+/// Each load case's support-state confirmation outcome and its quoted detail,
+/// `[{case_id, outcome, detail}]` (`detail`: the solver's reason for
+/// `not_established_detail_quoted`, null otherwise), from the reader's
+/// standing record (`report_standing::historical_standing_record`, `cases[].confirmation.outcome`),
+/// for the desktop's support-state line (release exit criterion 18: a state the solver reports
+/// established is stated as not confirmed). Null for a result whose mechanics are not solved or
+/// whose record the reader refuses. The outcomes are read from the result's integrity messages
+/// and the model alone, so the record is derived here with no standing findings.
+fn support_confirmations(source: &Value, model: &Value) -> Option<Value> {
+    if source["status"]["mechanics"] != "MECHANICS_SOLVED" {
+        return None;
+    }
+    let record = open_pipe_stress_report_standing::report_standing::historical_standing_record(source, model, &json!({"findings": []})).ok()?;
+    Some(Value::Array(
+        record["cases"].as_array()?.iter().map(|case| json!({"case_id": case["case_id"], "outcome": case["confirmation"]["outcome"], "detail": case["confirmation"]["detail"]})).collect(),
+    ))
+}
+
 /// S's bytes for a parsed source and model, the caller's standing and the
 /// numerical health, after `reserve` admits the response's exact length
 /// (whose guard is returned with them).
@@ -269,6 +297,25 @@ pub(crate) fn build<R, E>(
     job_id: &str,
     source: &Value,
     model: &Value,
+    standing: Option<&Standing>,
+    health: &Value,
+    recorded: Option<RecordedTable>,
+    presentation: &Value,
+    reserve: impl FnOnce(u64) -> Result<R, E>,
+) -> Result<(Vec<u8>, R), E> {
+    build_with_models(job_id, source, model, model, standing, health, recorded, presentation, reserve)
+}
+
+/// [`build`] with the support-state confirmations read under their own model:
+/// a restored run's S (`modelUse: "confirmations"`) reads every table with no
+/// model and its confirmations with the saved model it is read with (release
+/// exit criterion 18), so the support-state line shows on a reopened result.
+#[allow(clippy::too_many_arguments)]
+pub(crate) fn build_with_models<R, E>(
+    job_id: &str,
+    source: &Value,
+    model: &Value,
+    confirmations_model: &Value,
     standing: Option<&Standing>,
     health: &Value,
     recorded: Option<RecordedTable>,
@@ -298,6 +345,7 @@ pub(crate) fn build<R, E>(
         "row_count": rows.len(),
         "units": units,
         "numerical_health": health,
+        "support_confirmations": standing.and_then(|_| support_confirmations(source, confirmations_model)),
         diagnostics_presentation::MEMBER: presentation,
         "standing": standing.map(|s| json!({"eligible": s.eligible, "health_view": s.health.is_some()})),
         "tables": {

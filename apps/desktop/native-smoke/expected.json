@@ -13,7 +13,7 @@
       "probe": "result:disp:N1",
       "result_export": { "offered": false, "panel_text_prefix": "Run mechanics preview with valid Current input proof" },
       "observations": {
-        "sparse_interactive": { "rows": 125, "probe_entered": "Entered: 0.09426732782247199 mm", "standing_prefix": "Numerical integrity: sensitive." },
+        "sparse_interactive": { "rows": 125, "probe_entered": "Entered: 0.09426732782247199 mm", "standing_prefix": "Numerical health: sensitive." },
         "dense_scrutiny": { "rows": 125, "probe_entered": "Entered: 0.0942673274792288 mm" }
       }
     },
@@ -21,8 +21,8 @@
       "case": "demo",
       "fixture": "fixtures/product_preview/invented_demo_model.json",
       "observations": {
-        "sparse_interactive": { "rows": 837, "standing_prefix": "Numerical integrity: checks_passed." },
-        "dense_scrutiny": { "rows": 837, "standing_prefix": "Numerical integrity: checks_passed." }
+        "sparse_interactive": { "rows": 837, "standing_prefix": "Numerical health: not verified." },
+        "dense_scrutiny": { "rows": 837, "standing_prefix": "Numerical health: not verified." }
       }
     }
   ]

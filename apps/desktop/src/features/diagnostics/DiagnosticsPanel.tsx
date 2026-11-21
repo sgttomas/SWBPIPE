@@ -10,6 +10,7 @@ import type { DiagnosticFilterRequest } from "./diagnosticFilterRequest";
 import type { DesignKnowledge, Diagnostic, DiagnosticInterpretation, MechanicsResult, PreviewModel } from "../../types";
 import { buildDiagnosticInterpretation } from "../results/resultInterpretation";
 import { presentedResultDiagnostics } from "../results/suppliedDiagnostics";
+import { needsSolverReportNote, SOLVER_REPORT_NOTE } from "../results/integrityStatus";
 import { modelDocumentDiagnostics } from "../model-data/documentDiagnostics";
 import { currentLibraryRefFindings, libraryRefDiagnostics, usePublishedLibraryRefFindings } from "../library/libraryRefFindings";
 
@@ -96,6 +97,7 @@ export function DiagnosticsPanel({
             >
               <strong>{item.code}</strong>
               <p>{item.message}</p>
+              {needsSolverReportNote(item) ? <p className="muted" data-testid={`diagnostic-solver-report-note-${item.code}`}>{SOLVER_REPORT_NOTE}</p> : null}
             </button>
           ))
         ) : (
@@ -241,7 +243,8 @@ function DiagnosticDetail({ interpretation, result }: { interpretation: Diagnost
               : "none linked"
           }
         />
-        <DetailLine label="Explanation" value={interpretation.review_explanation} testId="selected-diagnostic-explanation" />
+        {/* Release exit criterion 18: the explanation repeats the solver's message, so the note stands with it. */}
+        <DetailLine label="Explanation" value={needsSolverReportNote(interpretation) ? <>{interpretation.review_explanation} <span data-testid="selected-diagnostic-solver-report-note">{SOLVER_REPORT_NOTE}</span></> : interpretation.review_explanation} testId="selected-diagnostic-explanation" />
         <DetailLine label="Remediation" value={interpretation.remediation} testId="selected-diagnostic-remediation" />
         <DetailLine label="Provenance" value={interpretation.provenance} testId="selected-diagnostic-provenance" />
         <DetailLine label="Boundary" value={interpretation.professional_boundary} />

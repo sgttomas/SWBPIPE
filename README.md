@@ -32,12 +32,17 @@ The [release limitations](docs/RELEASE_LIMITATIONS_v1.0.md) record each
 remaining refusal and whether Agent 0 has declared it acceptable. Package version strings and older
 0.1.0 documentation do not change the v1.0 publication target.
 
-**Known numerical defect on development main:** ordinary output, desktop badges
-and ordinary numerical eligibility can report passed or established standing
-without a verified inverse-norm bound. This violates exit criterion 18;
-[LIM-026](docs/RELEASE_LIMITATIONS_v1.0.md#lim-026--ordinary-results-can-say-checks-passed-or-established-without-a-verified-inverse-norm-bound)
-names the maintained false-pass and false-state witness and the limits of the
-rendered report's disclosure. These tokens are not independent assurance.
+**Known numerical defect on development main:** the solver's integrity check
+rests on an inverse-norm bound the product does not verify, so that check
+establishes no error bound, and no nonlinear support-state confirmation
+resting on it, for any solve. The retained-precision and pressure-source
+recovery certificates are separate and are not affected. The desktop and the
+result reader's verdict state this as not verified and not confirmed; a
+result document's own tokens, the file outputs and the rendered report's
+diagnostics table do not yet carry that status. Exit criterion 18 is not met;
+[LIM-026](docs/RELEASE_LIMITATIONS_v1.0.md#lim-026--swbpipe-does-not-verify-the-ordinary-solves-error-bound-every-results-integrity-check-reads-not-verified)
+names the maintained false-pass and false-state witness and what remains. The
+solver's tokens are not independent assurance.
 
 A separate [structured quantity-edit defect, LIM-027](docs/RELEASE_LIMITATIONS_v1.0.md#lim-027--a-bare-structured-quantity-edit-can-store-its-number-beside-the-old-unit),
 can store a bare entered number beside the old unit and publish a result for
