@@ -30,7 +30,8 @@ needs:
   when: Comparing SWBPIPE's results with the prover's
   condition: >-
     The headless runner solves a model document and returns the product's published result for it,
-    the same as the desktop's for the same request, with a unit on every quantity.
+    the same as the desktop's for the same request, with a unit on every quantity, and the mechanics
+    status and numerical quality it published for that solve, which each benchmark comparison states.
   gating: true
 - from: DEL-08-04
   when: Comparing SWBPIPE's results with the prover's
