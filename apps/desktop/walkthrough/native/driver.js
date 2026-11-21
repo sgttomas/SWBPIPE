@@ -201,10 +201,19 @@
   // ------------------------------------------------------------ journeys
 
   // A. Solve and read results, on the bundled demonstration model.
+  /** The completion line's words and the controls it offers. */
+  async function completionLine() {
+    const line = byTestId("solve-progress-panel");
+    if (!line) return "no status line";
+    const controls = [...line.querySelectorAll(".solve-status-actions button")].map((button) => button.textContent.trim() || button.getAttribute("aria-label")).join(" | ");
+    return `${text("solve-progress-state") ?? ""} [${controls}]`;
+  }
+
   async function solveAndResults(journey, plan) {
     await journey.step("first-open", "The application as first opened, with its demonstration model");
     await journey.step("run", "Run pressed on the demonstration model", pressRun);
     await journey.step("solve-progress", "The solve's progress, once it ended", awaitSolve);
+    await journey.step("completion-line", "The completion line on the demonstration model", completionLine);
     await journey.step("details-open", "The status line's Details, opened", async () => {
       await press("solve-progress-details-toggle");
       const opened = byTestId("solve-progress-details-toggle")?.getAttribute("aria-expanded") === "true" && visible(byTestId("solve-progress-details"));
@@ -293,6 +302,16 @@
       await scrollTo(row, "center");
       return row.textContent.replace(/\s+/g, " ").trim().slice(0, 300);
     });
+    const entryWith = (classed) => [...document.querySelectorAll('[data-testid="issues-home"] .issue-entry:not(.issue-group)')]
+      .find((entry) => Boolean(entry.querySelector(':scope > [data-testid="issue-meta"] [data-testid="issue-class"]')) === classed && visible(entry)) ?? null;
+    for (const [name, title, classed] of [["issue-row-classed", "An issue row at rest whose class is supplied", true], ["issue-row-unclassed", "An issue row at rest whose class is not supplied", false]]) {
+      await journey.step(name, title, async () => {
+        const entry = entryWith(classed);
+        if (!entry) return classed ? "no single-report item here states a class" : "every single-report item here states a class";
+        await scrollTo(entry, "center");
+        return entry.textContent.replace(/\s+/g, " ").trim().slice(0, 300);
+      });
+    }
     const hangerGroup = () => document.querySelector('[data-testid="issues-home"] [data-testid="issue-group-SPRING_HANGER_LOAD_NOT_APPLIED_AS_PRELOAD"]') ?? document.querySelector('[data-testid="issues-home"] [data-testid^="issue-group-"]');
     await journey.step("hanger-item-collapsed", "A spring hanger's grouped item, collapsed", async () => {
       const group = await waitFor("a grouped item", hangerGroup, T.ui).catch(() => null);
@@ -310,6 +329,14 @@
       const itemClass = group.querySelector('[data-testid="issue-class"]')?.textContent?.trim() ?? "no class supplied";
       const notSupplied = [...group.querySelectorAll('[data-testid="issue-member-not-supplied"]')].map((node) => node.textContent.trim());
       return `${group.getAttribute("data-testid")}; item ${itemClass}; opened rows ${notSupplied.join(" | ") || "every field supplied"}`;
+    });
+    await journey.step("rule-inputs", "The completion line's Rule inputs missing, pressed: the drawer at the Missing data entries", async () => {
+      const control = byTestId("solve-progress-rule-inputs");
+      if (!visible(control)) return "the line offers no rule-inputs control";
+      const said = control.textContent.trim();
+      acting(control, "solve-progress-rule-inputs").click();
+      await sleep(400);
+      return `${said}; focus on ${document.activeElement?.getAttribute("data-testid") ?? document.activeElement?.tagName ?? "?"}`;
     });
   }
 
@@ -446,7 +473,9 @@
         const state = byTestId("solve-progress-panel")?.getAttribute("data-state");
         return state === "running" || solveOutcome() ? state : null;
       }, T.solve).catch(() => null);
-      return seen === "running" ? text("solve-progress-state") ?? "" : `not seen running (${seen ?? "no line"})`;
+      if (seen !== "running") return `not seen running (${seen ?? "no line"})`;
+      await sleep(3000);
+      return `${text("solve-progress-state") ?? ""} ${text("solve-progress-elapsed") ?? "(no elapsed figure)"}`;
     });
     await journey.step("solving-details", "The status line's Details, opened on the running job", async () => {
       if (byTestId("solve-progress-panel")?.getAttribute("data-state") !== "running") return "the job was no longer running";
@@ -464,6 +493,7 @@
       return outcome?.completed ?? "still running";
     });
     await journey.step("solved", "The solve, once it ended", awaitSolve);
+    await journey.step("completion-line", "The completion line on the reference system", completionLine);
     await journey.step("results-stage", "The Results stage after the solve", async () => {
       await openStage("results");
       await waitFor("the results table's rows", () => document.querySelector('[data-testid^="result-row-"]'), T.step);
@@ -493,6 +523,22 @@
     await journey.step("issues-drawer", "The Issues drawer, from the toolbar", async () => {
       await press("toolbar-issues");
       return `toolbar ${text("toolbar-issues") ?? "?"}; status bar ${text("issues-drawer-toggle") ?? "?"}; drawer ${text("issues-total") ?? "?"}; ${text("issues-breakdown") ?? ""}`;
+    });
+    const longEntry = () => [...document.querySelectorAll('[data-testid="issues-home"] .issue-entry')].find((entry) => entry.querySelector('[data-testid="issue-show-all"]')) ?? null;
+    await journey.step("long-message", "An issue whose message is long, at rest", async () => {
+      const entry = await waitFor("an issue with a long message", longEntry, T.ui).catch(() => null);
+      if (!entry) return "no issue carries a long message here";
+      await scrollTo(entry, "start");
+      return entry.textContent.replace(/\s+/g, " ").trim().slice(0, 300);
+    });
+    await journey.step("long-message-open", "That issue's whole message, opened by Show all", async () => {
+      const entry = longEntry();
+      if (!entry) return "no issue carries a long message here";
+      acting(entry.querySelector('[data-testid="issue-show-all"]'), "issue-show-all").click();
+      await sleep(200);
+      await scrollTo(entry, "start");
+      const full = entry.querySelector('[data-testid="issue-message-full"]');
+      return full ? `${full.textContent.length} characters shown; next entry ${entry.nextElementSibling ? "in the list" : "none"}` : "the whole text did not open";
     });
     // A stopped solve, as the line says it: Run again, then Stop on the status line.
     await journey.step("run-again", "Run pressed again on the reference system", pressRun);
