@@ -429,7 +429,7 @@ test("placement sqlite3-from-sql: sqlite3 is run by its path with a fixed argume
   assert.throws(() => placeFiles(placements, { sqlite3: "/usr/bin/sqlite3", run: failing }), /place \(store\): sqlite3-from-sql: \/usr\/bin\/sqlite3 failed \(Parse error near line 1\)/);
   assert.equal(calls.length, 1);
   assert.equal(calls[0].command, "/usr/bin/sqlite3");
-  assert.deepEqual(calls[0].args, ["-bail", "-batch", "built.sqlite3"]);
+  assert.deepEqual(calls[0].args, ["-bail", "-batch", "-safe", "built.sqlite3"]);
   assert.equal(calls[0].input, sql);
   assert.equal(calls[0].shell, undefined);
   assert.deepEqual(calls[0].env, { HOME: calls[0].cwd });

@@ -226,8 +226,10 @@ saved states and runs. To add one:
      link or a missing file is refused before anything launches.
    - A store committed as SQL text adds `build: "sqlite3-from-sql"`: before
      launch `/usr/bin/sqlite3` reads the text on standard input and writes the
-     store at `at`; the index's `built_placements` gives both SHA-256s. An
-     absent or failing sqlite3 refuses the journey before anything launches.
+     store at `at`; the index's `built_placements` gives both SHA-256s. The
+     build runs sqlite3 in its safe mode, so a dot-command that reaches the
+     host refuses the journey. An absent or failing sqlite3 refuses the
+     journey before anything launches.
    - `open`: `{ by: "model-document", file: "<key>" }` (File > Open Model
      Document…, the chooser's answer the placed file), or
      `{ by: "local-project", project_id: "<id>" }` (File > Open Local

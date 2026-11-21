@@ -196,6 +196,9 @@ export function placementsFor(place = [], { home, identifier, projectRoot, lstat
 /** sqlite3 by its absolute path on this platform, never found on PATH. */
 export const SQLITE3 = "/usr/bin/sqlite3";
 export const SQLITE3_FROM_SQL = "sqlite3-from-sql";
+/** Its fixed arguments. `-safe`: the shell obeys dot-commands on standard input, and in safe mode it refuses the ones
+ * that reach the host (.shell, .system, .open of another file), so a line of a committed SQL text cannot run a program. */
+export const SQLITE3_ARGS = Object.freeze(["-bail", "-batch", "-safe", "built.sqlite3"]);
 
 /**
  * Copies each placement into the home (never over an existing file) and returns { key: path }. A `sqlite3-from-sql`
@@ -216,7 +219,7 @@ export function placeFiles(placements, { sqlite3 = SQLITE3, run = execFileSync, 
       try {
         try {
           // An environment of its own (HOME the build folder, so no ~/.sqliterc of the real user is read).
-          run(sqlite3, ["-bail", "-batch", "built.sqlite3"], { cwd: work, env: { HOME: work }, input: sql, stdio: ["pipe", "ignore", "pipe"], timeout: 120_000 });
+          run(sqlite3, SQLITE3_ARGS, { cwd: work, env: { HOME: work }, input: sql, stdio: ["pipe", "ignore", "pipe"], timeout: 120_000 });
         } catch (error) {
           throw new Error(`place (${key}): ${SQLITE3_FROM_SQL}: ${sqlite3} failed (${String(error.stderr ?? error.message).trim().split("\n")[0].slice(0, 300)})`);
         }
@@ -289,7 +292,7 @@ export async function readStoredRuns(file) {
 
 /**
  * Whether the placed store still holds the same stored runs at each of its `store_copies`: `placed` is read before the
- * launch from a copy the runner made of the placed store inside the home; each copy the app wrote at a named moment
+ * launch from a copy the runner made of the placed store in the run's own folder, beside the home; each copy the app wrote at a named moment
  * is `<report>.store-<name>.store.sqlite3`. A copy the app did not write is recorded as missing, and then nothing is
  * claimed unchanged.
  */
@@ -643,9 +646,10 @@ async function main() {
       storeCopies = storeCopiesFor(spec);
       const placements = placementsFor(spec.place, { home: where.home, identifier: IDENTIFIER, projectRoot: project });
       plan.placed = placeFiles(placements, { built });
-      // The placed store's stored runs, read from the runner's copy of it made inside the home, before the launch.
+      // The placed store's stored runs, read before the launch from the runner's copy of it in the run's own folder.
       if (storeCopies.length > 0) {
-        const store = placements.find((item) => item.to === path.join(where.home, "Library", "Application Support", IDENTIFIER, "openpipestress-projects.sqlite3")).to;
+        // Found by its declared `at`, so `{app-data}` is expanded in one place (placementsFor).
+        const store = plan.placed[spec.place.find((entry) => entry.at === STORE_AT).key];
         const copy = path.join(where.root, "placed-store.sqlite3");
         fs.copyFileSync(store, copy, fs.constants.COPYFILE_EXCL);
         placedRuns = await readStoredRuns(copy);
@@ -675,7 +679,8 @@ async function main() {
     if (storeCopies.length > 0) {
       try {
         storedRuns = await storedRunEvidence({ names: storeCopies, report, placed: placedRuns });
-        check("the placed store's stored runs are read before and at each store copy", true, { unchanged: storedRuns.unchanged });
+        // Read, not judged: the line says which, so a pass here is not taken for custody shown.
+        check(`the placed store's stored runs are read before and at each store copy: ${storedRuns.unchanged ? "unchanged" : "NOT shown unchanged"}`, true, { unchanged: storedRuns.unchanged });
       } catch (error) {
         storedRuns = { error: error.message };
         check("the placed store's stored runs are read before and at each store copy", false, error.message);
