@@ -144,7 +144,7 @@ export function tableDrawerState(view: ShellView, narrowWindow: boolean, collaps
   return { collapsible: true, expanded: !collapsed, reason: null };
 }
 
-/** The Agent toggle and the agent strip: the column is a later slice and its live binding is the host gap G-19. */
+/** The agent strip's control: the column is a later slice. The toolbar's Agent button opens the embedded agent on Review changes' Agent tab. */
 export const AGENT_UNAVAILABLE_REASON = "Agent: not available yet";
 
 // ---------------------------------------------------------------------------
