@@ -49,6 +49,8 @@ It serves SOW-072 under OBJ-016 (`execution/_Decomposition/SOFTWARE_DECOMP.md`, 
 - **CLM-003** — Comparing two runs is DEL-14-04's. Holding a result in the native process and showing it are DEL-07-07's and DEL-07-05's; recording a run from the History panel is DEL-07-08's interaction. The result export document is DEL-08-04's and the run sections of a report DEL-08-06's.
 - **CLM-004** — Outside the product: comprehensive ingestion of a commercial prover's outputs, external validation, and any record of professional acceptance.
 
+**Not provided in v1.0.** A project's recorded runs do not travel in a portable package. The second sentence of REQ-018, and AC-013 with VER-013, are unmet in v1.0. No package writer carries a recorded run and no command reads a package into a project store. SWBPIPE's Agent 0 decided on 2026-11-21 that this is not built for v1.0 (issue #509). No PRD section states it; its source is SOW-072 and the decomposition's rulings DEC-028 and DEC-057, which stand and are unmet for v1.0. `docs/RELEASE_LIMITATIONS_v1.0.md`, LIM-045, states what that means for a user and what the user does instead.
+
 ## Completion and Reliance Basis — Epistemology
 
 A run record establishes which inputs and which build produced a result, and that neither has changed since. It does not establish that the result is right: that is examined where the solve is examined. A row recorded as unverifiable and a missing value recorded as a finding keep a gap visible; neither supplies the unit, dimension or value the producer did not state.
