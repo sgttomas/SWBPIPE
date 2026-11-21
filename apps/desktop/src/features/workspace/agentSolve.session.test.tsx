@@ -29,6 +29,7 @@ import { resultRowCount } from "../../services/nativeResult";
 import type { PreviewModel } from "../../types";
 import { getLocalStorageCapability } from "../../services/projectService";
 import { loadDesignKnowledge, resetSessionResultCustodyForTests } from "../../services/previewService";
+import * as modelChecks from "../diagnostics/modelChecks";
 import { useWorkspaceSession, type WorkspaceSession } from "./workspaceSession";
 
 type Json = any; // eslint-disable-line @typescript-eslint/no-explicit-any
@@ -110,10 +111,16 @@ async function session(answer: { mode: "solved" | "too_large" | "blocked" | "wit
     return transport.invoke(command, args, options);
   });
   (window as Json).__TAURI_INTERNALS__ = {};
+  // The checks run by themselves when the model opens (issue 530); that check is held, never
+  // completing, so the Solve command's gate finds no current run and runs its own, as these tests
+  // follow it.
+  const opening = vi.spyOn(modelChecks, "runModelChecks").mockImplementation(() => new Promise(() => {}));
   let current!: WorkspaceSession;
   function Harness() { current = useWorkspaceSession(); return null; }
   render(<Harness />);
   await waitFor(() => expect(current.model.modelHash).not.toBeNull());
+  await waitFor(() => expect(opening).toHaveBeenCalled());
+  opening.mockRestore();
   const startAgent = () => act(async () => { await current.agent.start("r".repeat(48)); });
   const call = async (tool: string, extra: Json = {}) => {
     const requestRef = `invented-session:${++reference}`;

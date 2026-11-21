@@ -34,8 +34,13 @@ async function session() {
   loaded.pipe_segments.find((pipe) => pipe.id === PIPE)!.material = "";
   vi.spyOn(previewService, "loadPreviewModel").mockResolvedValue(loaded);
   const start = vi.spyOn(previewService, "startPreviewMechanicsJob").mockRejectedValue(new Error("INVENTED-START-OBSERVED"));
+  // The checks run by themselves when the model opens (issue 530); that check is held, never
+  // completing, so a Solve request finds no current run and runs its own, which these tests follow.
+  const opening = vi.spyOn(modelChecks, "runModelChecks").mockImplementation(() => new Promise(() => {}));
   const hook = renderHook(() => useWorkspaceSession());
   await waitFor(() => expect(hook.result.current.model.model).not.toBeNull());
+  await waitFor(() => expect(opening).toHaveBeenCalled());
+  opening.mockRestore();
   return { result: hook.result, start, material, unmount: hook.unmount };
 }
 type Result = Awaited<ReturnType<typeof session>>["result"];
@@ -65,7 +70,7 @@ it("withholds Solve on the missing value, names the finding and its entity, chan
   const cells = solveCells(result.current);
   expect(result.current.chrome.issuesDrawerOpen).toBe(false);
 
-  // Solve: the checks run on the request (none is current), and the solve is withheld.
+  // Solve: the checks run on the request (the opening check is held, so none is current), and the solve is withheld.
   await act(async () => { await result.current.results.handleRun(); });
   expect(start).not.toHaveBeenCalled();
   expect(solveCells(result.current)).toEqual(cells);

@@ -1424,10 +1424,7 @@ export function useWorkspaceSession() {
   function solveGateAllows(runGeneration: number): SolveGateOutcome | Promise<SolveGateOutcome> {
     if (!model) return { kind: "proceed", reading: { kind: "unknown", reason: "not_checked" } }; // The solve's own refusal of no model stands.
     const settle = (reading: SolveGateReading): SolveGateOutcome => {
-      if (reading.kind !== "withheld") {
-        solveLastWithheld.current = false;
-        return { kind: "proceed", reading };
-      }
+      if (reading.kind !== "withheld") return { kind: "proceed", reading };
       solveRunGate.current.finish(runGeneration);
       setIssuesDrawerOpen(true);
       return { kind: "withheld", reading };
@@ -4505,20 +4502,21 @@ export function useWorkspaceSession() {
 
   // The Solve command's gate as it reads now, for the controls that offer Solve.
   const solveGate = readSolveGate(model, modelCheckRun);
-  // Once Solve has read withheld, and until a solve passes the gate or the project
-  // session changes, a change of the model value (an applied operation, an undo,
-  // a redo) runs the checks again for the new value without being asked, so the
-  // withheld notice updates, clears, or comes back by itself (an undo of the
-  // operation that supplied a value). A later change supersedes a check in
-  // progress, as a later request does.
-  const solveLastWithheld = useRef(false);
-  useEffect(() => { solveLastWithheld.current = false; }, [projectSessionGeneration]);
+  // Issue 530 and DEL-07-06 AC-007 (Missing data): whenever no completed run of the
+  // checks describes the model value as it stands (the model opened, an applied
+  // operation, an undo, a redo, a new project session), the checks run for it
+  // without being asked, so their findings, the solve's input checks and missing
+  // inputs among them, are current without a solve and a finding stays listed
+  // until a run stops reporting it. Each run is `runModelChecksRequest`'s: a later
+  // change supersedes a check in progress as a later request does, nothing waits
+  // on it, and a native check runs under the memory pool's admission as before.
+  // A run that could not run (`checks_unavailable`) is not repeated until the
+  // model changes.
   useEffect(() => {
     // A model change ends a Solve request's check of the earlier value (before any re-check starts).
     const gateCheck = solveGateCheck.current;
     if (gateCheck && gateCheck.model !== model) endSolveGateCheck(gateCheck, "model_changed");
-    if (solveGate.kind === "withheld") solveLastWithheld.current = true;
-    else if (solveGate.kind === "unknown" && solveGate.reason === "model_changed" && solveLastWithheld.current && model) void runModelChecksRequest(model, { kind: "recheck" });
+    if (model && solveGate.kind === "unknown" && (solveGate.reason === "model_changed" || solveGate.reason === "not_checked")) void runModelChecksRequest(model, { kind: "recheck" });
   }, [model, modelCheckRun]);
 
   // Single command sink for both the in-DOM menu bar (tested) and the native

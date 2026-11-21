@@ -1,9 +1,11 @@
 // On-demand model checks: the
-// model's existing checks, run when the user asks, with their findings as the
-// checks state them. No check is defined here; each comes from its owner:
+// model's existing checks, run when the user asks and by themselves whenever no
+// completed run describes the model as it stands (workspaceSession), with their
+// findings as the checks state them. No check is defined here; each comes from its owner:
 // - the solve's own checks before stiffness formation (input validation, the
-//   restraint pre-checks and the W-8 topology checks;
-//   core/product_physics/src/validation/model_checks.rs), through the native
+//   restraint pre-checks and the W-8 topology checks) and the solve's load
+//   generation for every load case, which names each missing solve input
+//   (core/product_physics/src/validation/model_checks.rs), through the native
 //   `check_preview_model` command under the memory pool in the app, or the wasm
 //   engine's bounded `model_checks_json` in the browser preview;
 // - the W-13 model-data slot checks of the one document validator, run by the
@@ -172,7 +174,7 @@ function checkFailureText(error: unknown): string {
 }
 
 /** The engine's checks for `model`: the solve's checks before stiffness
- * formation and the W-13 slot checks, in one bounded report. In the native app
+ * formation, its load generation's findings and the W-13 slot checks, in one bounded report. In the native app
  * they run in the native host (`check_preview_model`), admitted by its memory
  * pool and run in a capped worker as a solve is; in the browser preview, in the
  * wasm engine, for a model text of at most `MODEL_CHECKS_MAX_BROWSER_INPUT_BYTES`
