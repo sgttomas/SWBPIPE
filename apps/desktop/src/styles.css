@@ -4783,3 +4783,8 @@ body { min-width: 760px; min-height: 540px; }
 .app-shell .quantity-field-row > label + label { flex: 1 1 6rem; }
 .app-shell .quantity-field-row > label > input { width: 100%; min-width: 0; margin-inline: 0; color: var(--ui-text); }
 .app-shell .quantity-field > .quantity-field-row + button { margin-top: var(--space-2); }
+
+/* Human controls: the table drawer's chevron, where the drawer collapses, carries its name
+   ("Show tree and tables"), so the tree is not behind an unlabelled glyph. */
+.app-shell .shell-tab-strip .shell-drawer-chevron { display: inline-flex; align-items: center; gap: var(--space-2); }
+.app-shell .shell-tab-strip .shell-drawer-chevron-label { font-size: var(--type-size-caption); white-space: nowrap; }
