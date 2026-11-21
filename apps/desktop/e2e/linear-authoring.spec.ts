@@ -11,6 +11,7 @@ import {
   ensureInspectorExpanded,
   expectVirtualTarget,
   confirmProjectUnits,
+  openStorageRecord,
   openWorkspaceSection,
   projectCommand,
   selectTreeEntity,
@@ -20,7 +21,7 @@ import {
 } from "./workspace-driver";
 
 async function currentModelHash(page: Page): Promise<string> {
-  await openWorkspaceSection(page, "project");
+  await openStorageRecord(page);
   const intent = page.getByTestId("project-validation-export-link-local-private-intent");
   if (!await intent.isChecked()) {
     await intent.check();

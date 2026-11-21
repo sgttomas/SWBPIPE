@@ -142,10 +142,11 @@ async function runMechanicsButton() {
   return within(openWorkspaceSection("solve")).getByTestId("run-mechanics-preview");
 }
 
-const PROJECT_CONTROL_NAMES = [/^Create local$/, /^New blank$/, /^Open local$/, /^List local$/, /^Save local$/];
+// The Project page's header buttons; the File menu holds the rest of the project commands.
+const PROJECT_CONTROL_IDS = ["project-new", "new-blank-040", "open-model-document", "project-save"];
 
 function projectControls() {
-  return PROJECT_CONTROL_NAMES.map((name) => screen.getByRole("button", { name }));
+  return PROJECT_CONTROL_IDS.map((id) => screen.getByTestId(id));
 }
 
 function issueCountShown(): number {
@@ -287,7 +288,7 @@ describe("project handlers: listing does not release a busy state it does not ow
     render(<App />);
     await screen.findByTestId("desktop-preview-shell");
     setTauriRuntime(true);
-    fireEvent.click(screen.getByRole("button", { name: /^Save local$/ }));
+    fireEvent.click(screen.getByTestId("project-save"));
     await waitFor(() => expect(invokeMock).toHaveBeenCalledWith("save_local_project", expect.any(Object)));
     for (const control of projectControls()) expect(control).toBeDisabled();
     const messageBeforeList = projectMessage().textContent;
@@ -307,7 +308,7 @@ describe("project handlers: listing does not release a busy state it does not ow
       pendingSave.resolve(saved);
       await pendingSave.promise;
     });
-    await waitFor(() => expect(screen.getByRole("button", { name: /^Save local$/ })).toBeEnabled());
+    await waitFor(() => expect(screen.getByTestId("project-save")).toBeEnabled());
     for (const control of projectControls()) expect(control).toBeEnabled();
     expect(projectMessage()).toHaveTextContent(saved.summary.message);
     expect(lastProjectOperation()).toBe("save");
@@ -329,7 +330,7 @@ describe("project handlers: listing does not release a busy state it does not ow
     render(<App />);
     await screen.findByTestId("desktop-preview-shell");
     setTauriRuntime(true);
-    fireEvent.click(screen.getByRole("button", { name: /^List local$/ }));
+    act(() => nativeMenuCommand("file.list-local"));
     await waitFor(() => expect(invokeMock).toHaveBeenCalledWith("list_local_projects"));
     for (const control of projectControls()) expect(control).toBeDisabled();
 
@@ -337,7 +338,7 @@ describe("project handlers: listing does not release a busy state it does not ow
     await flushPendingWork();
     expect(saveRequest).toBeUndefined();
     await act(async () => { pendingList.resolve([]); await pendingList.promise; });
-    await waitFor(() => expect(screen.getByRole("button", { name: /^Save local$/ })).toBeEnabled());
+    await waitFor(() => expect(screen.getByTestId("project-save")).toBeEnabled());
     act(() => nativeMenuCommand("file.save-local"));
     await waitFor(() => expect(saveRequest).toBeDefined());
     for (const control of projectControls()) expect(control).toBeDisabled();
@@ -347,7 +348,7 @@ describe("project handlers: listing does not release a busy state it does not ow
       pendingSave.resolve(saved);
       await pendingSave.promise;
     });
-    await waitFor(() => expect(screen.getByRole("button", { name: /^Save local$/ })).toBeEnabled());
+    await waitFor(() => expect(screen.getByTestId("project-save")).toBeEnabled());
     for (const control of projectControls()) expect(control).toBeEnabled();
     expect(projectMessage()).toHaveTextContent(saved.summary.message);
     expect(lastProjectOperation()).toBe("save");
@@ -1459,7 +1460,7 @@ it.each([["Save", "file.save-local", "save_local_project", null], ["Save", "file
   setTauriRuntime(true);
   act(() => nativeMenuCommand(menu));
   await waitFor(() => expect(projectMessage()).toHaveTextContent(`${label} failed:`));
-  await waitFor(() => expect(screen.getByRole("button", { name: /^Save local$/ })).toBeEnabled());
+  await waitFor(() => expect(screen.getByTestId("project-save")).toBeEnabled());
   expect(modelHashLine()).toHaveTextContent("integrity=persistence_verification_not_run_this_session");
   expect(envelopeHashLine()).toHaveTextContent("integrity=persistence_verification_not_run_this_session");
 });

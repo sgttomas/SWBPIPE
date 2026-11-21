@@ -631,7 +631,7 @@ describe("SWBPIPE desktop preview", () => {
     expect(within(solve).getByTestId("rule-check-run")).toBeDisabled();
     expect(renderedReportButton()).toBeDisabled();
     openWorkspaceSection("project");
-    fireEvent.click(screen.getByRole("button", { name: /^Save local$/ }));
+    fireEvent.click(screen.getByTestId("project-save"));
     await waitFor(() => expect(screen.getByTestId("local-project-message")).toHaveTextContent("Saved"));
     const storage = projectStorageAudit();
     const exportIntent = within(storage).getByTestId("project-storage-export-link-local-private-intent") as HTMLInputElement;
@@ -6579,9 +6579,7 @@ describe("SWBPIPE desktop preview", () => {
     ).toContain("1 pending operation; applied_operations=0");
 
     openWorkspaceSection("project");
-    fireEvent.click(
-      within(controls).getByRole("button", { name: /Create local/i }),
-    );
+    act(() => nativeMenuCommand("file.new-local"));
     await waitFor(() =>
       expect(screen.getByTestId("local-project-message")).toHaveTextContent(
         "Created local browser-preview project snapshot without external file copies.",
@@ -6606,7 +6604,7 @@ describe("SWBPIPE desktop preview", () => {
     ).toContain("persisted_editor_intents=1");
 
     fireEvent.click(
-      within(controls).getByRole("button", { name: /Save local/i }),
+      within(controls).getByTestId("project-save"),
     );
     await waitFor(() =>
       expect(screen.getByTestId("local-project-message")).toHaveTextContent(
@@ -6624,9 +6622,7 @@ describe("SWBPIPE desktop preview", () => {
       ).toContain("operation=save"),
     );
 
-    fireEvent.click(
-      within(controls).getByRole("button", { name: /Open local/i }),
-    );
+    act(() => nativeMenuCommand("file.open-local"));
     await waitFor(() =>
       expect(screen.getByTestId("local-project-message")).toHaveTextContent(
         "Opened local browser-preview project snapshot.",
@@ -7106,7 +7102,7 @@ describe("SWBPIPE desktop preview", () => {
     expect(await screen.findByText("SWBPIPE")).toBeInTheDocument();
     const controls = screen.getByLabelText("Local project controls");
     fireEvent.click(
-      within(controls).getByRole("button", { name: /New blank/i }),
+      within(controls).getByTestId("project-new"),
     );
     confirmProjectUnits();
 
@@ -7216,9 +7212,7 @@ describe("SWBPIPE desktop preview", () => {
       ).toContain("persisted_model_hashes=1"),
     );
 
-    fireEvent.click(
-      within(controls).getByRole("button", { name: /List local/i }),
-    );
+    act(() => nativeMenuCommand("file.list-local"));
     await waitFor(() =>
       expect(screen.getByTestId("local-project-message")).toHaveTextContent(
         "Listed 1 local project snapshot from the local store index.",
@@ -7344,7 +7338,7 @@ describe("SWBPIPE desktop preview", () => {
 
     const controls = screen.getByLabelText("Local project controls");
     fireEvent.click(
-      within(controls).getByRole("button", { name: /Save local/i }),
+      within(controls).getByTestId("project-save"),
     );
     await waitFor(() =>
       expect(screen.getByTestId("local-project-message")).toHaveTextContent(
@@ -7427,9 +7421,7 @@ describe("SWBPIPE desktop preview", () => {
     );
     expect(savedStoragePacket.summary.listed_project_count).toBe(0);
 
-    fireEvent.click(
-      within(controls).getByRole("button", { name: /List local/i }),
-    );
+    act(() => nativeMenuCommand("file.list-local"));
     await waitFor(() =>
       expect(screen.getByTestId("local-project-message")).toHaveTextContent(
         "Listed 1 local project snapshot from the local store index.",
@@ -7676,9 +7668,7 @@ describe("SWBPIPE desktop preview", () => {
     */
 
     referencePackageView.unmount();
-    fireEvent.click(
-      within(controls).getByRole("button", { name: /Open local/i }),
-    );
+    act(() => nativeMenuCommand("file.open-local"));
     await waitFor(() =>
       expect(screen.getByTestId("local-project-message")).toHaveTextContent(
         "Opened local browser-preview project snapshot.",
@@ -9119,7 +9109,7 @@ describe("SWBPIPE desktop preview", () => {
     expect(screen.queryByTestId("status-pill-solve-proof")).not.toBeInTheDocument();
     expect(screen.getByTestId("viewport-deformation-status")).toHaveTextContent("rows=0");
 
-    fireEvent.click(screen.getByRole("button", { name: /Save local/i }));
+    fireEvent.click(screen.getByTestId("project-save"));
     await waitFor(() =>
       expect(screen.getByTestId("local-project-message").textContent).toContain(
         "Saved local browser-preview project snapshot",
@@ -11616,7 +11606,7 @@ describe("native straight-route Add and Apply", () => {
     render(<App />);
     await screen.findByTestId("desktop-preview-shell");
     const controls = screen.getByLabelText("Local project controls");
-    fireEvent.click(within(controls).getByRole("button", { name: /New blank/i }));
+    fireEvent.click(within(controls).getByTestId("project-new"));
     confirmProjectUnits();
     await waitFor(() => expect(screen.getByTestId("local-project-message")).toHaveTextContent("Created blank local model"));
     expectStatusChip("status-pill-mechanics", "MODEL_INCOMPLETE", "Solver · Model incomplete");
@@ -11634,9 +11624,9 @@ describe("native straight-route Add and Apply", () => {
     fireEvent.click(within(panel).getByTestId("apply-reviewed-draft"));
     await screen.findByTestId(typedTreeRowTestId("node", "node:UI-A-100"));
     expectStatusChip("status-pill-mechanics", "MODEL_INCOMPLETE", "Solver · Model incomplete");
-    fireEvent.click(within(controls).getByRole("button", { name: /Save local/i }));
+    fireEvent.click(within(controls).getByTestId("project-save"));
     await waitFor(() => expect(screen.getByTestId("local-project-message")).toHaveTextContent("Saved local browser-preview project snapshot"));
-    fireEvent.click(within(controls).getByRole("button", { name: /^Open local$/i }));
+    act(() => nativeMenuCommand("file.open-local"));
     await waitFor(() => expect(screen.getByTestId("local-project-message")).toHaveTextContent("Opened local browser-preview project snapshot"));
     expect(screen.getByTestId(typedTreeRowTestId("node", "node:UI-A-100"))).toBeInTheDocument();
     expectStatusChip("status-pill-mechanics", "MODEL_INCOMPLETE", "Solver · Model incomplete");
@@ -11660,7 +11650,7 @@ async function openBatchContext(records?: EditorOperationIntent[]) {
   (window as unknown as Record<string, unknown>).__TAURI_INTERNALS__ = {};
   act(() => nativeMenuCommand("file.open-local"));
   await waitFor(() => expect(screen.getByTestId("command-selection-readout")).toHaveTextContent(envelope.model.project.id));
-  await waitFor(() => expect(screen.getByRole("button", { name: /^Open local$/ })).toBeEnabled());
+  await waitFor(() => expect(screen.getByTestId("project-save")).toBeEnabled());
   delete (window as unknown as Record<string, unknown>).__TAURI_INTERNALS__;
   fireEvent.click(screen.getByTestId("workspace-review"));
   return { envelope, intent };
@@ -11809,7 +11799,7 @@ describe("Tier3 adversarial batch publication", () => {
     act(() => nativeMenuCommand("file.save-local"));
     await waitFor(() => expect(saved).toBeDefined());
     expect(saved!.editor_intents).toEqual([intent, null]);
-    await waitFor(() => expect(screen.getByRole("button", { name: /^Open local$/ })).toBeEnabled());
+    await waitFor(() => expect(screen.getByTestId("project-save")).toBeEnabled());
     act(() => nativeMenuCommand("file.open-local"));
     await waitFor(() => expect(screen.getByTestId("retained-context-summary")).toHaveTextContent("2 retained operation records"));
     expect(screen.getByTestId("batch-review-summary")).toHaveTextContent("0 queued batches; 0 batches applied");
@@ -11865,7 +11855,7 @@ describe("Tier3 adversarial batch publication", () => {
     await act(async () => { await Promise.resolve(); });
     expect(screen.getByTestId("command-selection-readout")).not.toHaveTextContent("project:second-replacement");
     await act(async () => { save.reject(new Error("Synthetic save failure before replacement")); await save.promise.catch(() => undefined); });
-    await waitFor(() => expect(screen.getByRole("button", { name: /^Open local$/ })).toBeEnabled());
+    await waitFor(() => expect(screen.getByTestId("project-save")).toBeEnabled());
     act(() => nativeMenuCommand("file.open-local"));
     await waitFor(() => expect(screen.getByTestId("command-selection-readout")).toHaveTextContent("project:second-replacement"));
     await act(async () => { apply.resolve({ deliberately: "unreadable stale application" }); await apply.promise; });
@@ -13106,7 +13096,7 @@ describe("historical lifecycle history transitions", () => {
       (window as unknown as Record<string, unknown>).__TAURI_INTERNALS__ = {};
       act(() => nativeMenuCommand("file.save-local"));
       await waitFor(() => expect(savedRequest).toBeDefined());
-      await waitFor(() => expect(screen.getByRole("button", { name: /^Save local$/ })).toBeEnabled());
+      await waitFor(() => expect(screen.getByTestId("project-save")).toBeEnabled());
       delete (window as unknown as Record<string, unknown>).__TAURI_INTERNALS__;
       return (await computeModelHash(savedRequest!.model as PreviewModel))!.value;
     };
@@ -13150,7 +13140,7 @@ describe("historical lifecycle history transitions", () => {
     act(() => nativeMenuCommand("file.open-local"));
     await waitFor(() => expect(screen.getByTestId("historical-run-context")).toHaveTextContent("HISTORICAL_MODEL_HASH_MISMATCH"));
     act(() => nativeMenuCommand("file.save-local"));
-    await waitFor(() => expect(screen.getByRole("button", { name: /^Save local$/ })).toBeEnabled());
+    await waitFor(() => expect(screen.getByTestId("project-save")).toBeEnabled());
     expect(screen.getByTestId("historical-run-context")).not.toHaveTextContent("HISTORICAL_MODEL_HASH_MISMATCH");
     expect(screen.getByTestId("historical-run-context")).toHaveTextContent(opened.mechanics_result!.run_id);
     act(() => nativeMenuCommand("file.save-local"));
@@ -13192,7 +13182,7 @@ describe("historical lifecycle history transitions", () => {
     openWorkspaceSection("results");
     expect(screen.queryByTestId("historical-run-context")).not.toBeInTheDocument();
     await act(async () => pendingSave.resolve(refreshed));
-    await waitFor(() => expect(screen.getByRole("button", { name: /^Save local$/ })).toBeEnabled());
+    await waitFor(() => expect(screen.getByTestId("project-save")).toBeEnabled());
     expect(screen.queryByTestId("historical-run-context")).not.toBeInTheDocument();
     expectStatusChip("status-pill-mechanics", "MECHANICS_SOLVED", "Solver · Mechanics solved");
   });
@@ -13214,7 +13204,7 @@ describe("historical lifecycle history transitions", () => {
     (window as unknown as Record<string, unknown>).__TAURI_INTERNALS__ = {};
     act(() => nativeMenuCommand("file.open-local"));
     await screen.findByTestId("historical-run-context");
-    await waitFor(() => expect(screen.getByRole("button", { name: /^Save local$/ })).toBeEnabled());
+    await waitFor(() => expect(screen.getByTestId("project-save")).toBeEnabled());
     act(() => nativeMenuCommand("file.save-local"));
     await waitFor(() => expect(screen.getByTestId("local-project-message")).toHaveTextContent("PROJECT-PERSISTENCE-RESPONSE-INTEGRITY"));
     expect(screen.getByText(opened.summary.project_name, { selector: ".titlebar p" })).toBeInTheDocument();

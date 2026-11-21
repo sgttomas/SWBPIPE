@@ -7,6 +7,7 @@ import {
   confirmProjectUnits,
   ensureInspectorExpanded,
   expectTreeEntity,
+  openStorageRecord,
   openWorkspaceSection,
   selectCompactOption,
   selectTreeEntity,
@@ -22,7 +23,7 @@ import {
 const P = "invented_wp3_ui_acceptance_input";
 
 async function modelHash(page: Page): Promise<string> {
-  await openWorkspaceSection(page, "project");
+  await openStorageRecord(page);
   const intent = page.getByTestId("project-validation-export-link-local-private-intent");
   if (!await intent.isChecked()) await intent.check();
   const link = page.getByTestId("project-validation-export-link");

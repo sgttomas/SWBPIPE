@@ -20,11 +20,9 @@ import {
   Bot,
   ClipboardCheck,
   Crosshair,
-  Database,
   FilePlus,
   FolderOpen,
   HardDrive,
-  List,
   Play,
   Save,
   Sparkles,
@@ -89,9 +87,9 @@ import { OperationLedgerPanel } from "./features/operations/OperationLedgerPanel
 import { PcfExportPanel } from "./features/pcf-export/PcfExportPanel";
 import { ProjectStorageAuditPanel } from "./features/project-storage/ProjectStorageAuditPanel";
 import { ReplaceProjectPrompt } from "./features/project-storage/ReplaceProjectPrompt";
-import { HistoryPanel } from "./features/history/HistoryPanel";
+import { ProjectPage } from "./features/project-storage/ProjectPage";
 import { QuitWhileBusyPrompt, UnsavedChangesPrompt } from "./features/project-storage/UnsavedChangesPrompt";
-import { AUTOSAVE_DESKTOP_ONLY, AutosaveRecoveryPrompt } from "./features/autosave";
+import { AutosaveRecoveryPrompt } from "./features/autosave";
 import { ProjectUnitsDialog } from "./features/project-units/ProjectUnitsDialog";
 import { ModelDocumentSaveDialog } from "./features/model-file/ModelDocumentSaveDialog";
 import { HandoffSaveDialog } from "./features/handoff/HandoffSaveDialog";
@@ -302,13 +300,11 @@ function AppSession() {
     projectMessage,
     projectOperation,
     projectBusy,
-    handleCreateProject,
     requestBlankProject,
     blankProjectUnitsRequest,
     handleOpenProject,
     handleOpenModelDocument,
     handleSaveProject,
-    handleListProjects,
     replaceProjectPrompt,
     modelDocumentSaveRequest,
     handoffSaveRequest,
@@ -1077,13 +1073,11 @@ function AppSession() {
           <header className="workspace-dock-header" data-testid="workspace-dock-header">
             <h2>{shell.page ? WORKSPACE_SECTIONS.find((candidate) => candidate.id === shell.page)?.label ?? shell.page : ""}</h2>
             <div className={shell.page === "project" ? "titlebar-actions shell-project-controls" : "titlebar-actions shell-project-controls inactive"} aria-label="Local project controls">
-          <button type="button" onClick={handleCreateProject} disabled={projectBusy}>
-            <Database size={15} aria-hidden="true" />
-            Create local
-          </button>
-          <button type="button" onClick={() => requestBlankProject("local")} disabled={projectBusy}>
+          {/* New, Open… and Save: the File menu keeps the complete list (Save as New Local Project,
+              Open Local Project…, List Local Projects); the saved projects are listed on the page. */}
+          <button type="button" data-testid="project-new" onClick={() => requestBlankProject("local")} disabled={projectBusy}>
             <FilePlus size={15} aria-hidden="true" />
-            New blank
+            New
           </button>
           <button type="button" data-testid="new-blank-040" onClick={() => requestBlankProject("load_state")} disabled={projectBusy}>
             <FilePlus size={15} aria-hidden="true" />
@@ -1091,23 +1085,11 @@ function AppSession() {
           </button>
           <button data-testid="open-model-document" type="button" onClick={() => void handleOpenModelDocument()} disabled={projectBusy}>
             <FolderOpen size={15} aria-hidden="true" />
-            Open model file
+            Open…
           </button>
-          <button data-testid="project-recover-autosave" type="button" onClick={() => void autosave.recoverAutosave()} disabled={projectBusy || !autosave.settings} title={autosave.settings ? "Offer each autosave not shown to be saved" : AUTOSAVE_DESKTOP_ONLY}>
-            <FolderOpen size={15} aria-hidden="true" />
-            Recover autosave…
-          </button>
-          <button data-testid="open-local-project" type="button" onClick={() => handleOpenProject()} disabled={projectBusy}>
-            <FolderOpen size={15} aria-hidden="true" />
-            Open local
-          </button>
-          <button type="button" onClick={handleListProjects} disabled={projectBusy}>
-            <List size={15} aria-hidden="true" />
-            List local
-          </button>
-          <button type="button" onClick={handleSaveProject} disabled={projectBusy}>
+          <button type="button" data-testid="project-save" onClick={handleSaveProject} disabled={projectBusy}>
             <Save size={15} aria-hidden="true" />
-            Save local
+            Save
           </button>
             </div>
             {shell.page ? (
@@ -1222,32 +1204,33 @@ function AppSession() {
             >
               {activeSection === "project" || activatedExpensiveSections.has("project") ? (
               <DormantSection page="project" active={activeSection === "project"} sessionGeneration={projectSessionGeneration}>
-              <ProjectStorageAuditPanel
-                model={model}
-                storageCapability={storageCapability}
-                projectSummary={projectSummary}
-                projectIndex={projectIndex}
-                projectMessage={projectMessage}
-                projectOperation={projectOperation}
-                editorIntents={editorIntents}
-                proposal={proposal}
-                modelHashIntegrity={modelHashIntegrity}
-                projectEnvelopeHashIntegrity={projectEnvelopeHashIntegrity}
-              />
-              <HistoryPanel />
-              <ProjectValidationPanel
-                model={model}
-                storageCapability={storageCapability}
-                projectSummary={projectSummary}
-                projectOperation={projectOperation}
-                editorIntents={editorIntents}
-                proposal={proposal}
-                modelHash={modelHash}
-                modelHashIntegrity={modelHashIntegrity}
-                projectEnvelopeHash={projectEnvelopeHash}
-                projectEnvelopeHashIntegrity={projectEnvelopeHashIntegrity}
-                modelDocumentVersion={modelDocumentVersion}
-              />
+              <ProjectPage storageRecord={<>
+                  <ProjectStorageAuditPanel
+                    model={model}
+                    storageCapability={storageCapability}
+                    projectSummary={projectSummary}
+                    projectIndex={projectIndex}
+                    projectMessage={projectMessage}
+                    projectOperation={projectOperation}
+                    editorIntents={editorIntents}
+                    proposal={proposal}
+                    modelHashIntegrity={modelHashIntegrity}
+                    projectEnvelopeHashIntegrity={projectEnvelopeHashIntegrity}
+                  />
+                  <ProjectValidationPanel
+                    model={model}
+                    storageCapability={storageCapability}
+                    projectSummary={projectSummary}
+                    projectOperation={projectOperation}
+                    editorIntents={editorIntents}
+                    proposal={proposal}
+                    modelHash={modelHash}
+                    modelHashIntegrity={modelHashIntegrity}
+                    projectEnvelopeHash={projectEnvelopeHash}
+                    projectEnvelopeHashIntegrity={projectEnvelopeHashIntegrity}
+                    modelDocumentVersion={modelDocumentVersion}
+                  />
+              </>} />
               </DormantSection>) : null}
             </section>
 

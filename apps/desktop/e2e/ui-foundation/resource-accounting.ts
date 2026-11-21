@@ -112,12 +112,12 @@ function resourceDeltas(before: any, after: any): Record<OwnedResourceKey, Resou
 
 export async function exerciseRealOpenReplacementCycles(page: Page, cycles: number, timeoutMs: number): Promise<any> {
   if (cycles !== 20) throw new Error("resource qualification requires exactly 20 replacement cycles");
-  const saveButton = page.getByRole("button", { name: "Save local", exact: true });
+  const saveButton = page.getByTestId("project-save");
   const initialMessage = await page.getByTestId("local-project-message").textContent();
   await saveButton.click({ timeout: timeoutMs });
   await page.waitForFunction((previous) => {
     const message = document.querySelector('[data-testid="local-project-message"]')?.textContent ?? "";
-    const button = [...document.querySelectorAll("button")].find((entry) => entry.textContent?.trim().includes("Save local"));
+    const button = document.querySelector('[data-testid="project-save"]');
     return message !== previous && !button?.hasAttribute("disabled");
   }, initialMessage, { timeout: timeoutMs });
   const initialBoundary = await readSettledResourceBoundary(page);
@@ -143,8 +143,9 @@ export async function exerciseRealOpenReplacementCycles(page: Page, cycles: numb
     const beforeBoundary = await readSettledResourceBoundary(page);
     const before = beforeBoundary.snapshot;
     const beforeValidation = validateOwnedResourceSnapshot(before);
-    const openButton = page.getByTestId("open-local-project");
-    await openButton.click({ timeout: timeoutMs });
+    // Open Local Project… is the File menu's (the Project page lists the saved projects instead).
+    await page.getByTestId("menu-file").click({ timeout: timeoutMs });
+    await page.getByTestId("menu-item-file.open-local").click({ timeout: timeoutMs });
     await page.waitForFunction(({ priorGeneration, priorRenderSequence }) => {
       const snapshot = (globalThis as any).__openPipeStressUiDiagnosticsV1?.readCurrent?.();
       return snapshot?.model?.generation > priorGeneration &&

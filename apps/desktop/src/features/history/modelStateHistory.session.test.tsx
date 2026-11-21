@@ -178,8 +178,9 @@ function nativeStore(options: { projectStored?: boolean; find?: StoredProjectEnt
 }
 
 const calls = (command: string) => invokeMock.mock.calls.filter(([name]) => name === command).map(([, args]) => args as Record<string, unknown>);
-// Read-only listings, including D5 autosave's settings read and record listing (RT-U3), are not part of the save order.
-const commandOrder = () => invokeMock.mock.calls.map(([name]) => name as string).filter((name) => name !== "sync_native_shell_state" && name !== "list_model_states" && name !== "list_analysis_runs" && name !== "get_autosave_settings" && name !== "list_project_autosaves");
+// Read-only listings, including D5 autosave's settings read and record listing (RT-U3) and the
+// Project page's list of saved projects, are not part of the save order.
+const commandOrder = () => invokeMock.mock.calls.map(([name]) => name as string).filter((name) => name !== "sync_native_shell_state" && name !== "list_model_states" && name !== "list_analysis_runs" && name !== "get_autosave_settings" && name !== "list_project_autosaves" && name !== "list_local_projects");
 const historyMessage = () => screen.getByTestId("model-history-message");
 
 async function renderApp() {
@@ -393,7 +394,7 @@ describe("model states in the session (W-12 S1)", () => {
       fireEvent.click(open);
       // Every model-replacing command starts nothing: no prompt, no native call.
       for (const command of ["file.open-local", "file.open-model", "file.new-blank"]) act(() => nativeMenuCommand(command));
-      for (const id of ["open-local-project", "open-model-document", "new-blank-040"]) expect(screen.getByTestId(id)).toBeDisabled();
+      for (const id of ["project-new", "open-model-document", "new-blank-040"]) expect(screen.getByTestId(id)).toBeDisabled();
       expect(screen.queryByTestId("unsaved-changes-prompt")).not.toBeInTheDocument();
       expect(screen.queryByTestId("project-units-dialog")).not.toBeInTheDocument();
       expect(invokeMock.mock.calls.slice(callsBefore).map(([name]) => name)
