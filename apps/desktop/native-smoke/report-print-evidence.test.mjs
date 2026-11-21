@@ -43,10 +43,12 @@ test("the stated standing lead is checked against the printed line", () => {
 
 test("a caller that states no expectation fails, whatever the documents hold", () => {
   const { expectStanding: _unstated, ...unstated } = OPTIONS;
-  for (const expectStanding of [undefined, null, "", { no_standing_line: true }])
+  for (const expectStanding of [undefined, null, "", "   ", { no_standing_line: true }])
     assert.deepEqual(failed(judgeReportPrint("print", record(), { ...unstated, expectStanding })), [STANDING], String(expectStanding));
-  const check = judgeReportPrint("print", record(), unstated).find((item) => item.name === `print: ${STANDING}`);
-  assert.match(check.detail.expectation, /not stated/);
+  for (const expectStanding of [undefined, "   "]) {
+    const check = judgeReportPrint("print", record(), { ...unstated, expectStanding }).find((item) => item.name === `print: ${STANDING}`);
+    assert.match(check.detail.expectation, /not stated/, String(expectStanding));
+  }
 });
 
 test("no record, or two, fails; a refused print fails", () => {
@@ -96,6 +98,12 @@ test("a printed standing line other than the canonical one fails its own check",
   const print_html = PRINT.replace(LINE, "Numerical standing: L-1 passing — invented");
   assert.deepEqual(failed(judgeReportPrint("print", record({}, { print_html }), OPTIONS)),
     ["the printed document is the canonical HTML with exactly the derived-view banner naming its hash", STANDING]);
+  // A printed line that starts with the stated lead and still differs from the canonical line fails on the
+  // comparison alone: the derived-view check fails with it, since the documents differ.
+  const sameLead = PRINT.replace(LINE, "Numerical standing: L-1 sensitive &amp; conditional — altered");
+  assert.ok(standingLineOf(sameLead).startsWith(OPTIONS.expectStanding));
+  assert.deepEqual(failed(judgeReportPrint("print", record({}, { print_html: sameLead }), OPTIONS)),
+    ["the printed document is the canonical HTML with exactly the derived-view banner naming its hash", STANDING]);
   // Two standing lines in the printed document are not one line.
   const doubled = PRINT.replace("<p>Invented body</p>", `<div class="standing-line">${LINE}</div>`);
   assert.ok(failed(judgeReportPrint("print", record({}, { print_html: doubled }), OPTIONS)).includes(STANDING));
@@ -106,16 +114,27 @@ test("a report expected to have no standing line passes only when both documents
   const hash = sha256(canonical);
   const options = { canonicalHtml: canonical, shownHash: `Canonical HTML SHA-256: ${hash}` };
   const faithful = record({}, { print_html: derive(canonical, hash), canonical_sha256_hex: hash });
-  assert.deepEqual(failed(judgeReportPrint("print", faithful, { ...options, expectStanding: NO_STANDING_LINE })), []);
+  const none = judgeReportPrint("print", faithful, { ...options, expectStanding: NO_STANDING_LINE });
+  assert.deepEqual(failed(none), []);
+  assert.equal(none.length, 8);
   // The same documents with nothing stated, or with a lead stated, fail: three nulls are not a comparison.
   assert.deepEqual(failed(judgeReportPrint("print", faithful, options)), [STANDING]);
   assert.deepEqual(failed(judgeReportPrint("print", faithful, { ...options, expectStanding: "Numerical standing" })), [STANDING]);
-  // A document that has a line fails the expectation of none, on either side.
+  // A document that has a line fails the expectation of none: on both sides, on the printed side only, and on the
+  // canonical side only.
   assert.deepEqual(failed(judgeReportPrint("print", record(), { ...OPTIONS, expectStanding: NO_STANDING_LINE })), [NO_LINE]);
   assert.ok(failed(judgeReportPrint("print", record({}, { print_html: PRINT, canonical_sha256_hex: hash }), { ...options, expectStanding: NO_STANDING_LINE })).includes(NO_LINE));
+  assert.ok(failed(judgeReportPrint("print", faithful, { ...OPTIONS, expectStanding: NO_STANDING_LINE })).includes(NO_LINE));
+  // Two lines on the canonical side are not "no line".
+  const twice = CANONICAL.replace("<p>Invented body</p>", `<div class="standing-line">${LINE}</div>`);
+  assert.ok(failed(judgeReportPrint("print", faithful, { canonicalHtml: twice, shownHash: `Canonical HTML SHA-256: ${sha256(twice)}`, expectStanding: NO_STANDING_LINE })).includes(NO_LINE));
   // Either document unread fails it: no print recorded, or no canonical document given.
   assert.ok(failed(judgeReportPrint("print", record({ events: [] }), { ...options, expectStanding: NO_STANDING_LINE })).includes(NO_LINE));
   assert.ok(failed(judgeReportPrint("print", faithful, { shownHash: options.shownHash, expectStanding: NO_STANDING_LINE })).includes(NO_LINE));
+  // An empty document, on either side, was not read.
+  const empty = record({}, { print_html: "", canonical_sha256_hex: hash });
+  assert.ok(failed(judgeReportPrint("print", empty, { ...options, expectStanding: NO_STANDING_LINE })).includes(NO_LINE));
+  assert.ok(failed(judgeReportPrint("print", faithful, { canonicalHtml: "", shownHash: options.shownHash, expectStanding: NO_STANDING_LINE })).includes(NO_LINE));
 });
 
 test("a print window left open fails", () => {

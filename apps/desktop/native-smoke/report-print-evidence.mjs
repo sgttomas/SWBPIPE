@@ -64,14 +64,15 @@ export function judgeReportPrint(label, observed, { canonicalHtml, shownHash, ex
   const derivedOk = printHtml !== null && banner !== null && printHtml.split(banner).length === 2 && printHtml.replace(banner, "") === canonicalHtml;
   check("the printed document is the canonical HTML with exactly the derived-view banner naming its hash", derivedOk,
     printHtml === null ? "no print document recorded" : { banners: banner ? printHtml.split(banner).length - 1 : null, bytes: printHtml.length });
-  const printedLine = printHtml === null ? undefined : standingLineOf(printHtml);
+  // An empty document was not read: it has no line because it has nothing, which is not the absence of a line.
+  const printedLine = printHtml === null || printHtml.length === 0 ? undefined : standingLineOf(printHtml);
   const canonicalLine = canonical === null ? undefined : standingLineOf(canonicalHtml);
   const seen = { printed: printedLine ?? null, canonical: canonicalLine ?? null, printed_read: printedLine !== undefined, canonical_read: canonicalLine !== undefined };
   if (expectStanding === NO_STANDING_LINE) {
     check("neither the printed nor the canonical document has a standing line, as expected of this report",
       printedLine === null && canonicalLine === null, seen);
   } else {
-    const lead = typeof expectStanding === "string" && expectStanding.length > 0 ? expectStanding : null;
+    const lead = typeof expectStanding === "string" && expectStanding.trim().length > 0 ? expectStanding : null;
     check("the printed document's standing line is the canonical document's",
       lead !== null && typeof printedLine === "string" && printedLine === canonicalLine && printedLine.startsWith(lead),
       { ...seen, expected_lead: lead, ...(lead === null ? { expectation: "not stated: the caller must give a lead or NO_STANDING_LINE" } : {}) });
