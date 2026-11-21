@@ -7,8 +7,9 @@
  * from which the native render composes the standing line (shown by the Rust
  * connecting-path test `a_readable_solved_result_that_is_not_checks_passed_renders_with_its_standing`
  * on the render input this build step makes). The rendered document is shown and its print
- * reached: in the desktop runtime Print sends the shown canonical HTML to the native print route
- * (DEL-08-01 REQ-022, `renderedReportRoutes.ts`) and mounts no print frame. The report package and the
+ * reached: in the desktop runtime Print names the shown render by its SHA-256 to the native print
+ * route, which holds the document (DEL-08-01 REQ-022, `renderedReportRoutes.ts`), and mounts no
+ * print frame. The report package and the
  * user release take the same source (DEL-08-01 REQ-024, "Package and user release"): each of the four
  * package commands (the panel's two save buttons, the File menu's two commands) offers the save and makes
  * its request, which carries the result's standing record, and the user-release dialog states the
@@ -260,12 +261,15 @@ describe("the rendered report of a solved exact-route result that is not numeric
       expect(requestSha256).toBe(APP_RENDER_REQUEST_SHA256);
     }
     // The rendered report is shown, and its print is reached: in the desktop runtime the native
-    // print route receives the shown canonical HTML under the render's context, and no print frame
-    // is mounted (DEL-08-01 REQ-022).
+    // print route is asked for the shown render, named by its SHA-256 (no HTML is sent; the desktop
+    // keeps the document), under the render's context, and no print frame is mounted (DEL-08-01
+    // REQ-022).
     await waitFor(() => expect(within(screen.getByTestId("rendered-report-panel")).getByTestId("rendered-report-preview")).toBeInTheDocument());
     fireEvent.click(within(screen.getByTestId("rendered-report-panel")).getByTestId("rendered-report-print"));
     await waitFor(() => expect(within(screen.getByTestId("rendered-report-panel")).getByTestId("rendered-report-print-status")).toHaveTextContent("Print window opened"));
-    expect(prints.map((p: Json) => [p.html, p.exportContext, p.explicitLocalPrivateIntent])).toEqual([[HTML, "local_private", true]]);
+    expect(prints.map((p: Json) => ["html" in p, p.sha256Hex, p.exportContext, p.explicitLocalPrivateIntent])).toEqual([
+      [false, createHash("sha256").update(HTML).digest("hex"), "local_private", true]
+    ]);
     expect(within(screen.getByTestId("rendered-report-panel")).queryByTestId("rendered-report-print-frame")).toBeNull();
     const retiredBefore = retirements();
 
