@@ -95,8 +95,8 @@ test("01 orientation: every menu, stage and page as first met", async ({ page })
   });
   await page.keyboard.press("Escape");
 
-  await journey.step("agent-control", "The toolbar's Agent control, as offered", async () => {
-    await page.getByTestId("toggle-agent").hover();
+  await journey.step("agent-control", "The toolbar's Agent button: Review changes opened on its Agent tab", async () => {
+    await page.getByTestId("toggle-agent").click();
   });
 
   for (const stage of ["model", "loads", "results", "review"]) {
@@ -114,7 +114,7 @@ test("01 orientation: every menu, stage and page as first met", async ({ page })
 });
 
 test("02 pages: each page of the workspace, top to bottom", async ({ page }) => {
-  const journey = new Journey(page, 2, "pages", "Pages: each page reached from the View menu, with what lies below the fold");
+  const journey = new Journey(page, 2, "pages", "Pages: each page, reached from the rail or the View menu, with what lies below the fold");
   await open(page);
   const pages: ReadonlyArray<[Parameters<typeof openWorkspaceSection>[1], string]> = [
     ["operations", "Review changes"], ["loads", "Load Cases"], ["libraries", "Libraries"], ["rule-packs", "Rules"],
@@ -122,7 +122,9 @@ test("02 pages: each page of the workspace, top to bottom", async ({ page }) => 
     ["exports", "Exports"], ["evidence", "Audit & Boundaries"]
   ];
   for (const [id, label] of pages) {
-    await journey.step(`page-${id}`, `The ${label} page, opened from the View menu`, async () => { await openWorkspaceSection(page, id); });
+    // Review changes and Load Cases are reached by the rail and the stage tab; the View menu does not list them.
+    const route = id === "operations" || id === "loads" ? "the rail and its tab" : "the View menu";
+    await journey.step(`page-${id}`, `The ${label} page, opened from ${route}`, async () => { await openWorkspaceSection(page, id); });
     await journey.scrolled(`page-${id}`, `The ${label} page`);
   }
   await showModelTree(page);
