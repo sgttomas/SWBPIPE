@@ -137,6 +137,22 @@ pub(crate) struct PrintReceipt {
     pub(crate) print_sha256_hex: String,
 }
 
+/// The print's refusal when its lease cannot grow by the derivation's bound:
+/// the refusal's JSON, then `memory_refusal_note`, which advises waiting only
+/// where waiting can cure the refusal.
+pub(crate) fn derivation_unavailable(refusal: &crate::memory_pool::ResourceRefusal) -> RouteError {
+    let note = routes::memory_refusal_note(refusal, "Try again when more memory is free.");
+    RouteError::at(
+        PRINT_DERIVATION_UNAVAILABLE,
+        "print",
+        format!(
+            "The desktop could not reserve memory to derive the print view ({}); nothing was printed.{}{note}",
+            serde_json::to_string(refusal).unwrap_or_default(),
+            if note.is_empty() { "" } else { " " }
+        ),
+    )
+}
+
 /// Admits the request against `custody`, grows the print command's `lease`
 /// by the derivation's bound ([`print_derivation_bytes`]; refused
 /// [`PRINT_DERIVATION_UNAVAILABLE`] with nothing derived), then takes the held
@@ -150,16 +166,7 @@ pub(crate) fn print_document_in(custody: &RenderCustody, request: &RouteRequest,
 /// before the document is taken (a seam for tests at that boundary).
 fn print_document_between(custody: &RenderCustody, request: &RouteRequest, lease: &mut Lease, before_take: impl FnOnce()) -> Result<PrintDocument, RouteError> {
     let admitted = custody.admit(request)?;
-    lease.grow_to(lease.bytes().saturating_add(print_derivation_bytes(admitted.byte_count))).map_err(|refusal| {
-        RouteError::at(
-            PRINT_DERIVATION_UNAVAILABLE,
-            "print",
-            format!(
-                "The desktop could not reserve memory to derive the print view ({}); nothing was printed. Try again when more memory is free.",
-                serde_json::to_string(&refusal).unwrap_or_default()
-            ),
-        )
-    })?;
+    lease.grow_to(lease.bytes().saturating_add(print_derivation_bytes(admitted.byte_count))).map_err(|refusal| derivation_unavailable(&refusal))?;
     before_take();
     // Bound to the render the request named: the same generation and hash.
     let document = custody.document_if_current(admitted.generation, &admitted.sha256_hex).ok_or_else(|| {
@@ -675,6 +682,46 @@ mod tests {
         assert_eq!(Arc::strong_count(&held), 2, "the record and this test: the refused print kept no share");
         let bytes = crate::rendered_report_routes::held_document_bytes(OTHER.len());
         assert_eq!((pool.reserved(crate::memory_pool::LeasePurpose::Custody), pool.reserved_total()), (bytes, bytes));
+    }
+
+    /// A render of identical bytes recorded after admission (the same hash, a new generation)
+    /// is another render: the print is refused as not current and nothing is derived.
+    #[test]
+    fn a_print_never_derives_an_identical_render_that_replaced_the_named_one() {
+        let pool = routes::test_pool();
+        let custody = RenderCustody::new();
+        custody.record_in(&pool, Some(PUBLIC_REPORT), HTML, &sha256_hex(HTML.as_bytes()), false, false);
+        let lease_pool = routes::test_pool();
+        let mut lease = lease_pool.acquire_interactive(1).unwrap();
+        let refusal = print_document_between(&custody, &request(HTML, PUBLIC_REPORT, false), &mut lease, || {
+            custody.record_in(&pool, Some(PUBLIC_REPORT), HTML, &sha256_hex(HTML.as_bytes()), false, false);
+        })
+        .unwrap_err();
+        assert_eq!((refusal.code.as_str(), refusal.stage.as_str()), (NOT_CURRENT, "print"));
+        let held = custody.held_document().unwrap();
+        assert_eq!(Arc::strong_count(&held), 2, "the record and this test: the refused print derived nothing and kept no share");
+        let bytes = crate::rendered_report_routes::held_document_bytes(HTML.len());
+        assert_eq!((pool.reserved(crate::memory_pool::LeasePurpose::Custody), pool.reserved_total()), (bytes, bytes));
+    }
+
+    /// The print's refusal advises waiting only where waiting can cure it, and says plainly
+    /// what is wrong for a document over the per-invocation budget and an unknown capacity;
+    /// its code, stage and the refusal's JSON stay.
+    #[test]
+    fn a_derivation_refusal_advises_waiting_only_where_waiting_can_help() {
+        use crate::memory_pool::ResourceRefusal;
+        let lead = "The desktop could not reserve memory to derive the print view";
+        for (refusal, ending) in [
+            (ResourceRefusal::HeadroomInsufficient { required_bytes: 9, available_bytes: 1 }, "nothing was printed. Try again when more memory is free."),
+            (ResourceRefusal::PoolExhausted { requested_bytes: 9, reserved_bytes: 1, pool_bytes: 2 }, "nothing was printed. Try again when more memory is free."),
+            (ResourceRefusal::IngressExceedsBudget { required_bytes: 9, budget_bytes: 1 }, "nothing was printed. The document is larger than the memory the desktop allows one command."),
+            (ResourceRefusal::CapacityUnknown, "nothing was printed. The desktop could not read the machine's memory."),
+        ] {
+            let error = derivation_unavailable(&refusal);
+            let json = serde_json::to_string(&refusal).unwrap();
+            assert_eq!((error.code.as_str(), error.stage.as_str()), (PRINT_DERIVATION_UNAVAILABLE, "print"));
+            assert_eq!(error.message, format!("{lead} ({json}); {ending}"));
+        }
     }
 
     #[test]

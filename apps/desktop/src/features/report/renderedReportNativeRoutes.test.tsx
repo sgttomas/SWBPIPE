@@ -505,11 +505,11 @@ describe("native runtime", () => {
     context.native.held = { html: "<!DOCTYPE html>\n<html><body>another invented render</body></html>", sha256Hex: "d".repeat(64) };
     expect(context.native.record).toBe(held);
     fireEvent.click(screen.getByTestId("rendered-report-save-local-private"));
-    await waitFor(() => expect(screen.getByTestId("rendered-report-save-status")).toHaveTextContent(`Not saved (REPORT-ROUTE-HTML-UNBOUND): ${UNBOUND_MESSAGE}`));
+    await waitFor(() => expect(screen.getByTestId("rendered-report-save-status").textContent).toBe(`Not saved (REPORT-ROUTE-HTML-UNBOUND): ${UNBOUND_MESSAGE}`));
     expect(screen.getByTestId("rendered-report-save-status")).not.toHaveTextContent("left as it was");
     await waitFor(() => expect(screen.getByTestId("rendered-report-print")).toBeEnabled());
     fireEvent.click(screen.getByTestId("rendered-report-print"));
-    await waitFor(() => expect(screen.getByTestId("rendered-report-print-status")).toHaveTextContent(`Not printed (REPORT-ROUTE-HTML-UNBOUND): ${UNBOUND_MESSAGE}`));
+    await waitFor(() => expect(screen.getByTestId("rendered-report-print-status").textContent).toBe(`Not printed (REPORT-ROUTE-HTML-UNBOUND): ${UNBOUND_MESSAGE}`));
     expect(context.native.published).toEqual([]);
     expect(context.native.pendingSaves).toEqual([]);
     expect(routeCalls("save_rendered_report_html").map((args) => args.sha256Hex)).toEqual([SHA]);

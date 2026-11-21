@@ -97,7 +97,7 @@ needs:
     result, report, rule pack or library document before its request is parsed and grows it on request
     within the per-invocation budget, the pool's remaining bytes and a fresh headroom verdict, refusing
     by name otherwise, and releases it when the command returns.
-  when: Rendering a bound report or saving a report package.
+  when: Rendering a bound report, printing a rendered report or saving a report package.
   gating: false
 - from: DEL-04-07
   condition: The desktop's memory pool admits, as an interactive command's own reservation that the

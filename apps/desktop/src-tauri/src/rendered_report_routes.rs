@@ -16,8 +16,8 @@
 //! the renderer's named hash hold no document. The held document's memory is
 //! reserved from the native memory pool before it is copied, as the render
 //! command's own interactive admission (`memory_pool` module docs: the host's
-//! pressure state does not gate it; the pool, a known capacity and fresh
-//! headroom do), counted as custody, and released when its last holder drops
+//! pressure state does not gate it; a known capacity, the per-invocation
+//! budget, the pool and fresh headroom do), counted as custody, and released when its last holder drops
 //! it; a refused reservation records nothing and the render command refuses by
 //! name ([`RENDER_CUSTODY_UNAVAILABLE`]). Retiring the render, a later render
 //! request, a registered source advance and an activation drop the document
@@ -95,13 +95,22 @@
 //! document's reservation) also takes a worker's control mutex while it
 //! samples residency, and never runs under this mutex.
 //!
+//! A completion takes the reservation gate ([`RenderCustody::complete_in`])
+//! first, and with it held takes, one at a time and never one inside the
+//! other, the custody mutex (briefly: its ticket checks and its recording)
+//! and the memory pool's lock (its reservation). The reservation's stop check
+//! is a ticket check: the pool calls it with its own lock released, so the
+//! order is gate, then custody mutex, and gate, then pool. Nothing but a
+//! completion takes the gate: entry, retirement, advance, activation,
+//! admission and a route's take of the document never wait on it.
+//!
 //! A user-released report has no route here: the render command refuses its
 //! input (`refuse_user_release_render`), and a user release lets out only its
 //! package (DEL-08-01 REQ-019, "Admission"); a record under any context but
 //! the two above is refused by name.
 use crate::atomic_report_package_save::{self as atomic, AtomicSaveError, AtomicSaveFormat, AtomicSaveOutcome, GuardedSaveError};
 use crate::command_ingress::{self, respond, ArgsDecoding, CommandError};
-use crate::memory_pool::{Lease, LeasePurpose, MemoryPool};
+use crate::memory_pool::{Lease, LeasePurpose, MemoryPool, ResampleStop, ResourceRefusal};
 use crate::solve_jobs::SolveJobRegistry;
 use serde::{Deserialize, Serialize};
 use sha2::{Digest, Sha256};
@@ -219,22 +228,42 @@ pub(crate) fn held_document_bytes(len: usize) -> u64 {
     envelope(len).saturating_add(envelope(2 * std::mem::size_of::<usize>() + std::mem::size_of::<HeldDocument>()))
 }
 
+/// The closing words of a memory refusal: advice to wait only for the kinds
+/// that waiting can cure (`headroom_insufficient`, `pool_exhausted`: `retry`),
+/// a plain statement for a document over the per-invocation budget and for an
+/// unknown capacity, and nothing for any other kind.
+pub(crate) fn memory_refusal_note(refusal: &ResourceRefusal, retry: &'static str) -> &'static str {
+    match refusal {
+        ResourceRefusal::HeadroomInsufficient { .. } | ResourceRefusal::PoolExhausted { .. } => retry,
+        ResourceRefusal::IngressExceedsBudget { .. } => "The document is larger than the memory the desktop allows one command.",
+        ResourceRefusal::CapacityUnknown => "The desktop could not read the machine's memory.",
+        _ => "",
+    }
+}
+
+/// The render's refusal when the pool refuses the document's reservation: the
+/// refusal's JSON, then [`memory_refusal_note`].
+pub(crate) fn custody_unavailable(refusal: &ResourceRefusal) -> RouteError {
+    let note = memory_refusal_note(refusal, "Render the report again when more memory is free.");
+    RouteError::at(
+        RENDER_CUSTODY_UNAVAILABLE,
+        "render",
+        format!(
+            "The desktop could not reserve memory to keep this render's document ({}); the render was not recorded and nothing can be saved or printed from it.{}{note}",
+            serde_json::to_string(refusal).unwrap_or_default(),
+            if note.is_empty() { "" } else { " " }
+        ),
+    )
+}
+
 /// Reserves the memory for `html` from `pool` and then copies it into a held
 /// document. The reservation is the render command's own: an interactive
 /// admission (`memory_pool` module docs), which the host's pressure state does
-/// not gate, re-sampled while refused only for headroom, then counted as
-/// custody. A refusal copies nothing.
-fn hold_document(pool: &Arc<MemoryPool>, html: &str) -> Result<Arc<HeldDocument>, RouteError> {
-    let mut lease = pool.acquire_interactive_resampling(held_document_bytes(html.len())).map_err(|refusal| {
-        RouteError::at(
-            RENDER_CUSTODY_UNAVAILABLE,
-            "render",
-            format!(
-                "The desktop could not reserve memory to keep this render's document ({}); the render was not recorded and nothing can be saved or printed from it. Render the report again.",
-                serde_json::to_string(&refusal).unwrap_or_default()
-            ),
-        )
-    })?;
+/// not gate, re-sampled while refused only for headroom until `stop` (called
+/// outside the pool's lock) says the completion was superseded, then counted
+/// as custody. A refusal or a stop copies nothing.
+fn hold_document(pool: &Arc<MemoryPool>, html: &str, stop: &dyn Fn() -> bool) -> Result<Arc<HeldDocument>, ResampleStop> {
+    let mut lease = pool.acquire_interactive_resampling(held_document_bytes(html.len()), stop)?;
     // Copied while the lease is still the command's ingress lease, then counted
     // as custody, as a held result's copy is (`solve_jobs`): the pool's
     // interactive verdict credits half of custody as already resident, which
@@ -285,6 +314,18 @@ struct Slot {
 pub(crate) struct RenderCustody {
     slot: Mutex<Slot>,
     handoff_done: Condvar,
+    /// The reservation gate: one completion reserves at a time (module docs,
+    /// "Lock order"). It is held for one completion's reservation only, from
+    /// its first ticket check to its recording or the release of what it
+    /// reserved, and released by its guard on every exit (a refusal, a
+    /// supersession, a stopped wait and a panic: it is taken recovering from
+    /// poisoning). Its longest hold against a later render, which supersedes
+    /// the completion holding it, is one re-sampling tick of the pool
+    /// (`memory_pool::HEADROOM_RESAMPLE_TICK`, 50 ms) plus one copy of the
+    /// document, with, as for every change of custody, a print hand-off in
+    /// progress; for a completion that is still the current one, which nobody
+    /// waits behind, it is one re-sampling window plus one copy.
+    reserving: Mutex<()>,
 }
 
 /// The desktop's custody of its current render.
@@ -299,6 +340,7 @@ impl RenderCustody {
         Self {
             slot: Mutex::new(Slot { generation: 0, current: None, source: SourceMark { incarnation: 0, sequence: 0 }, last_incarnation: 0, ticket: 0, active: None, entry_watermark: 0, handoff: false }),
             handoff_done: Condvar::new(),
+            reserving: Mutex::new(()),
         }
     }
 
@@ -413,17 +455,22 @@ impl RenderCustody {
 
     /// Records a completed render as the current one, only while its ticket
     /// and its source number are both current, and returns its generation.
-    /// The SHA-256 is computed here; a render whose canonical HTML does not
-    /// hash to the renderer's named hash, a blocked render and a
-    /// metadata-only refusal are recorded as blocked and hold no document.
+    /// The SHA-256 is computed here, before anything is held; a render whose
+    /// canonical HTML does not hash to the renderer's named hash, a blocked
+    /// render and a metadata-only refusal are recorded as blocked and hold no
+    /// document.
     ///
-    /// Any other render's document is reserved from `pool` and copied without
-    /// the custody mutex (the admission may re-sample the host), between two
-    /// checks of the ticket and the source: one before anything is reserved,
-    /// so a completion already superseded is refused as superseded and
-    /// reserves nothing, and one under the mutex for change before recording,
-    /// so a completion superseded meanwhile drops the document it reserved. A
-    /// refused reservation records nothing ([`RENDER_CUSTODY_UNAVAILABLE`]).
+    /// Any other render's document is reserved from `pool` and copied under
+    /// the reservation gate (one completion reserves at a time) and without
+    /// the custody mutex, between two checks of the ticket and the source: one
+    /// before anything is reserved, so a completion already superseded is
+    /// refused as superseded and reserves nothing, and one under the mutex for
+    /// change before recording, so a completion superseded meanwhile drops the
+    /// document it reserved before the gate is released. A reservation waiting
+    /// for headroom stops as soon as its ticket is superseded. A refused or
+    /// stopped reservation is checked against the ticket again: superseded, it
+    /// is refused as superseded; otherwise the refusal records nothing
+    /// ([`RENDER_CUSTODY_UNAVAILABLE`]).
     pub(crate) fn complete_in(
         &self,
         pool: &Arc<MemoryPool>,
@@ -434,12 +481,13 @@ impl RenderCustody {
         export_blocked: bool,
         content_withheld: bool,
     ) -> Result<u64, RouteError> {
-        self.complete_between(pool, ticket, export_context, html, renderer_sha256_hex, export_blocked, content_withheld, || {})
+        self.complete_between(pool, ticket, export_context, html, renderer_sha256_hex, export_blocked, content_withheld, || {}, || {})
     }
 
-    /// [`Self::complete_in`], running `reserved` after the document is
+    /// [`Self::complete_in`], running `before_reserve` after the first ticket
+    /// check and before the reservation, and `reserved` after the document is
     /// reserved and copied and before the custody mutex is taken to record it
-    /// (a seam for tests at that boundary).
+    /// (seams for tests at those boundaries).
     #[allow(clippy::too_many_arguments)]
     fn complete_between(
         &self,
@@ -450,16 +498,35 @@ impl RenderCustody {
         renderer_sha256_hex: &str,
         export_blocked: bool,
         content_withheld: bool,
+        before_reserve: impl FnOnce(),
         reserved: impl FnOnce(),
     ) -> Result<u64, RouteError> {
-        Self::check_ticket(&self.lock(), &ticket)?;
         let sha256_hex = sha256_hex(html.as_bytes());
         let blocked = export_blocked || content_withheld || sha256_hex != renderer_sha256_hex;
-        let document = if blocked { None } else { Some(hold_document(pool, html)?) };
+        // Released by this guard on every exit, after what was reserved is dropped.
+        let _gate = self.reserving.lock().unwrap_or_else(PoisonError::into_inner);
+        Self::check_ticket(&self.lock(), &ticket)?;
+        before_reserve();
+        let document = if blocked {
+            None
+        } else {
+            let superseded = || Self::check_ticket(&self.lock(), &ticket).is_err();
+            match hold_document(pool, html, &superseded) {
+                Ok(document) => Some(document),
+                Err(stop) => {
+                    Self::check_ticket(&self.lock(), &ticket)?;
+                    return Err(match stop {
+                        ResampleStop::Refused(refusal) => custody_unavailable(&refusal),
+                        // A stop is a supersession, which the check above has reported.
+                        ResampleStop::Cancelled => RouteError::at(RENDER_SUPERSEDED, "render", "A later render request or a retirement superseded this render; it is not recorded."),
+                    });
+                }
+            }
+        };
         reserved();
         let mut slot = self.lock_for_change();
         if let Err(superseded) = Self::check_ticket(&slot, &ticket) {
-            // The document is released after the custody mutex.
+            // The document is released after the custody mutex and before the gate.
             drop(slot);
             drop(document);
             return Err(superseded);
@@ -470,9 +537,11 @@ impl RenderCustody {
         Ok(generation)
     }
 
-    /// A completion's ticket and source are still current: refused
-    /// [`RENDER_SUPERSEDED`] after a later render request or a retirement,
-    /// and by the source's own refusal after a source change.
+    /// A completion's ticket and source are still current. A later render
+    /// request, a retirement, a registered source advance and an activation
+    /// each retire the ticket, so each is refused [`RENDER_SUPERSEDED`]; the
+    /// source check after it is kept as before, although every registered
+    /// source change also retires the ticket.
     fn check_ticket(slot: &Slot, ticket: &RenderTicket) -> Result<(), RouteError> {
         if ticket.id != slot.ticket {
             return Err(RouteError::at(RENDER_SUPERSEDED, "render", "A later render request or a retirement superseded this render; it is not recorded."));
@@ -494,7 +563,28 @@ impl RenderCustody {
         content_withheld: bool,
         reserved: impl FnOnce(),
     ) -> Result<u64, RouteError> {
-        self.complete_between(pool, ticket, export_context, html, renderer_sha256_hex, export_blocked, content_withheld, reserved)
+        self.complete_between(pool, ticket, export_context, html, renderer_sha256_hex, export_blocked, content_withheld, || {}, reserved)
+    }
+
+    /// Tests' [`Self::complete_between`] with its seam before the reservation.
+    #[cfg(test)]
+    #[allow(clippy::too_many_arguments)]
+    pub(crate) fn complete_in_before_reserve(
+        &self,
+        pool: &Arc<MemoryPool>,
+        ticket: RenderTicket,
+        export_context: Option<&str>,
+        html: &str,
+        renderer_sha256_hex: &str,
+        before_reserve: impl FnOnce(),
+    ) -> Result<u64, RouteError> {
+        self.complete_between(pool, ticket, export_context, html, renderer_sha256_hex, false, false, before_reserve, || {})
+    }
+
+    /// Whether any render is recorded (tests).
+    #[cfg(test)]
+    pub(crate) fn has_record(&self) -> bool {
+        self.lock().current.is_some()
     }
 
     /// Tests' completion, its document reserved from a pool of its own on an
@@ -554,7 +644,10 @@ impl RenderCustody {
     /// current record is that render: the same generation and the same
     /// recorded SHA-256 the request named, checked under the custody mutex. A
     /// render that replaced it since admission is never handed out in its
-    /// place. This is the one way a route takes a share of the document.
+    /// place. This is the one way a route takes a share of the document. The
+    /// hash comparison cannot be isolated by a test: a generation is unique
+    /// per recording, so a different render always fails the generation
+    /// comparison first.
     pub(crate) fn document_if_current(&self, generation: u64, sha256_hex: &str) -> Option<Arc<HeldDocument>> {
         self.lock()
             .current
@@ -1296,25 +1389,18 @@ mod tests {
     }
 
     /// A reservation refused only for headroom is tried again on fresh samples within the
-    /// pool's re-sampling window, and admitted at the first that passes. The headroom returns
-    /// only once the first attempt has sampled it short (and so been refused).
+    /// pool's re-sampling window, and admitted at the first that passes. The host's headroom
+    /// is short for exactly the first attempt's samples and ample from the next (the host
+    /// changes it itself, inside its sample): one construction sample, then two per attempt.
     #[test]
     fn a_reservation_short_of_headroom_is_taken_again_on_a_fresh_sample() {
         use crate::memory_pool::{test_host::{CountingHost, ScriptedHost}, JobCounts, PressureLevel};
-        let host = CountingHost::new(ScriptedHost::with(Some(16 << 30), Some(8), PressureLevel::Normal));
+        const ATTEMPT_SAMPLES: usize = 2;
+        let host = CountingHost::staged(ScriptedHost::with(Some(16 << 30), Some(8), PressureLevel::Normal), 1 + ATTEMPT_SAMPLES, 64 << 30);
         let pool = MemoryPool::with_timing(host.clone(), Duration::from_millis(1), Duration::from_secs(30), Duration::from_millis(5));
-        let first_attempt = host.samples() + 1;
-        let refill = {
-            let host = Arc::clone(&host);
-            std::thread::spawn(move || {
-                host.wait_for(first_attempt);
-                host.script.set(|script| script.headroom_bytes = Some(64 << 30));
-            })
-        };
         let custody = RenderCustody::new();
         custody.record_in(&pool, Some(PUBLIC_REPORT), HTML, &sha256_hex(HTML.as_bytes()), false, false);
-        refill.join().unwrap();
-        assert!(host.samples() > first_attempt, "admitted on a later attempt than the refused one");
+        assert_eq!(host.samples(), 1 + 2 * ATTEMPT_SAMPLES, "exactly two attempts");
         assert_eq!(reserved(&pool).0, held_document_bytes(HTML.len()));
         assert_eq!(pool.status(JobCounts::default()).last_refusal, None, "the overcome refusal is not recorded");
     }
@@ -1351,7 +1437,8 @@ mod tests {
         assert_eq!(late.map_err(|error| error.code), Err(RENDER_SUPERSEDED.to_string()));
         assert_eq!(host.samples(), samples, "no admission was attempted");
         assert_eq!(reserved(&pool), (0, 0));
-        // A source advance first is refused by the source's own refusal, reserving nothing too.
+        // A source advance first retires the ticket, so it too is refused as superseded,
+        // reserving nothing.
         let ticket = custody.begin_next(FIRST).unwrap();
         custody.advance(NEXT).unwrap();
         let late = custody.complete_in_between(&pool, ticket, Some(PUBLIC_REPORT), HTML, &sha256_hex(HTML.as_bytes()), false, false, || panic!("nothing reserved"));
@@ -1361,6 +1448,8 @@ mod tests {
 
     /// A completion superseded between its reservation and its recording (a later render
     /// request enters at that boundary) is refused as superseded and releases the reservation.
+    /// The change runs on the thread that holds the reservation gate, inside its seam: a later
+    /// request, a retirement and an advance do not wait on the gate.
     #[test]
     fn a_completion_superseded_after_its_reservation_releases_it() {
         for change in ["later request", "retire", "advance"] {
@@ -1379,6 +1468,153 @@ mod tests {
             assert_eq!(late.map_err(|error| error.code), Err(RENDER_SUPERSEDED.to_string()), "{change}");
             assert!(custody.held_document().is_none(), "{change}");
             assert_eq!(reserved(&pool), (0, 0), "{change}: the reservation was released");
+        }
+    }
+
+    /// One completion reserves at a time. With room in the pool for exactly one document,
+    /// completion A is held inside its seam with its document reserved; B's request supersedes
+    /// it at once (entry does not wait on the gate) and B's completion starts on another
+    /// thread. When A is released it drops its document before the gate, and B, waiting on the
+    /// gate, reserves and is recorded: B holds its document, A is refused as superseded and
+    /// the pool holds B's document alone.
+    #[test]
+    fn one_completion_reserves_at_a_time() {
+        let pool = test_pool();
+        let (pool_bytes, _) = pool.settings();
+        assert_eq!(REPORT_A.len(), REPORT_B.len());
+        let one = held_document_bytes(REPORT_A.len());
+        let _rest = pool.acquire(pool_bytes - one, LeasePurpose::Result).unwrap();
+        let custody = Arc::new(RenderCustody::new());
+        custody.activate();
+        let ticket_a = custody.begin_next(FIRST).unwrap();
+        let (reached, at_seam) = std::sync::mpsc::channel();
+        let (go, released) = std::sync::mpsc::channel::<()>();
+        let a = {
+            let (custody, pool) = (Arc::clone(&custody), Arc::clone(&pool));
+            std::thread::spawn(move || {
+                custody.complete_in_between(&pool, ticket_a, Some(LOCAL_PRIVATE), REPORT_A, &sha256_hex(REPORT_A.as_bytes()), false, false, || {
+                    reached.send(()).unwrap();
+                    released.recv().unwrap();
+                })
+            })
+        };
+        at_seam.recv().unwrap();
+        assert_eq!(reserved(&pool).0, one, "A holds the one document's room");
+        let ticket_b = custody.begin_next(FIRST).unwrap();
+        let b = {
+            let (custody, pool) = (Arc::clone(&custody), Arc::clone(&pool));
+            std::thread::spawn(move || custody.complete_in(&pool, ticket_b, Some(LOCAL_PRIVATE), REPORT_B, &sha256_hex(REPORT_B.as_bytes()), false, false))
+        };
+        // Not synchronisation: room for B's completion to reach the gate before A leaves, so
+        // that the order under test is the one exercised. The outcome is asserted either way.
+        std::thread::sleep(Duration::from_millis(100));
+        go.send(()).unwrap();
+        let (a, b) = (a.join().unwrap(), b.join().unwrap());
+        assert_eq!(a.map_err(|error| error.code), Err(RENDER_SUPERSEDED.to_string()));
+        let generation = b.expect("B is recorded");
+        assert!(custody.is_current(generation));
+        assert_eq!(custody.held_document().map(|held| held.html().to_string()).as_deref(), Some(REPORT_B));
+        assert_eq!(reserved(&pool).0, one, "B's document alone");
+    }
+
+    /// A completion superseded after its first ticket check whose reservation is then refused
+    /// reports the supersession, not the pool's refusal.
+    #[test]
+    fn a_refused_reservation_of_a_superseded_completion_is_refused_as_superseded() {
+        use crate::memory_pool::{test_host::ScriptedHost, PressureLevel};
+        let pool = MemoryPool::new(ScriptedHost::with(None, Some(64 << 30), PressureLevel::Normal));
+        let custody = RenderCustody::new();
+        custody.activate();
+        let ticket = custody.begin_next(FIRST).unwrap();
+        let late = custody.complete_in_before_reserve(&pool, ticket, Some(PUBLIC_REPORT), HTML, &sha256_hex(HTML.as_bytes()), || drop(custody.begin_next(FIRST).unwrap()));
+        assert_eq!(late.map_err(|error| error.code), Err(RENDER_SUPERSEDED.to_string()));
+        assert_eq!(reserved(&pool), (0, 0));
+    }
+
+    /// Every exit releases the gate: a completion refused its reservation, and one that panics
+    /// while it holds the gate, leave it free, and the next completion is recorded.
+    #[test]
+    fn a_refused_or_panicking_completion_leaves_the_gate_free() {
+        use crate::memory_pool::{test_host::ScriptedHost, PressureLevel};
+        let refusing = MemoryPool::new(ScriptedHost::with(None, Some(64 << 30), PressureLevel::Normal));
+        let custody = Arc::new(RenderCustody::new());
+        custody.activate();
+        let ticket = custody.begin_next(FIRST).unwrap();
+        let refused = custody.complete_in(&refusing, ticket, Some(PUBLIC_REPORT), HTML, &sha256_hex(HTML.as_bytes()), false, false).unwrap_err();
+        assert_eq!(refused.code, RENDER_CUSTODY_UNAVAILABLE);
+        let pool = test_pool();
+        let ticket = custody.begin_next(FIRST).unwrap();
+        assert!(custody.complete_in(&pool, ticket, Some(PUBLIC_REPORT), HTML, &sha256_hex(HTML.as_bytes()), false, false).is_ok(), "recorded after a refusal");
+        let ticket = custody.begin_next(FIRST).unwrap();
+        let panicked = {
+            let (custody, pool) = (Arc::clone(&custody), Arc::clone(&pool));
+            std::thread::spawn(move || custody.complete_in_between(&pool, ticket, Some(PUBLIC_REPORT), HTML, &sha256_hex(HTML.as_bytes()), false, false, || panic!("an invented failure while the gate is held")))
+                .join()
+        };
+        assert!(panicked.is_err());
+        assert_eq!(reserved(&pool), (0, 0), "the panicking completion's document was dropped");
+        let ticket = custody.begin_next(FIRST).unwrap();
+        assert!(custody.complete_in(&pool, ticket, Some(PUBLIC_REPORT), HTML, &sha256_hex(HTML.as_bytes()), false, false).is_ok(), "recorded after a panic");
+        assert_eq!(reserved(&pool).0, held_document_bytes(HTML.len()));
+    }
+
+    /// The stall the gate must not cause: completion A (a large document) waits for headroom
+    /// in its reservation's re-sampling, with a window of tens of seconds; B's request
+    /// supersedes it and B completes a small document. A stops at its next tick and leaves as
+    /// superseded, so B is recorded far inside the window, and A's passing headroom refusal is
+    /// never recorded.
+    #[test]
+    fn a_superseded_completion_waiting_for_headroom_does_not_hold_back_the_next() {
+        use crate::memory_pool::{test_host::{CountingHost, ScriptedHost}, JobCounts, PressureLevel};
+        const ATTEMPT_SAMPLES: usize = 2;
+        let large = format!("{HTML}{}", "x".repeat(4 << 20));
+        // Headroom ample for the small document and short for the large one.
+        let host = CountingHost::new(ScriptedHost::with(Some(16 << 30), Some(1 << 20), PressureLevel::Normal));
+        let window = Duration::from_secs(40);
+        let pool = MemoryPool::with_timing(host.clone(), Duration::from_millis(5), window, Duration::from_millis(20));
+        let custody = Arc::new(RenderCustody::new());
+        custody.activate();
+        let started = std::time::Instant::now();
+        let ticket_a = custody.begin_next(FIRST).unwrap();
+        let a = {
+            let (custody, pool) = (Arc::clone(&custody), Arc::clone(&pool));
+            std::thread::spawn(move || custody.complete_in(&pool, ticket_a, Some(PUBLIC_REPORT), &large, &sha256_hex(large.as_bytes()), false, false))
+        };
+        // A's second attempt has begun, so its first was refused for headroom.
+        host.wait_for(1 + ATTEMPT_SAMPLES + 1);
+        let b = {
+            let (custody, pool) = (Arc::clone(&custody), Arc::clone(&pool));
+            std::thread::spawn(move || {
+                let ticket_b = custody.begin_next(FIRST).unwrap();
+                custody.complete_in(&pool, ticket_b, Some(PUBLIC_REPORT), HTML, &sha256_hex(HTML.as_bytes()), false, false)
+            })
+        };
+        let (a, b) = (a.join().unwrap(), b.join().unwrap());
+        assert!(started.elapsed() < window / 4, "both returned far inside the window: {:?}", started.elapsed());
+        assert_eq!(a.map_err(|error| error.code), Err(RENDER_SUPERSEDED.to_string()));
+        assert!(custody.is_current(b.expect("B is recorded")));
+        assert_eq!(custody.held_document().map(|held| held.html().to_string()).as_deref(), Some(HTML));
+        assert_eq!(reserved(&pool), (held_document_bytes(HTML.len()), held_document_bytes(HTML.len())), "B's document alone");
+        assert_eq!(pool.status(JobCounts::default()).last_refusal, None, "A's passing headroom refusal is not recorded");
+    }
+
+    /// The render's refusal advises waiting only where waiting can cure it, and says plainly
+    /// what is wrong for a document over the per-invocation budget and an unknown capacity;
+    /// its code, stage and the refusal's JSON stay.
+    #[test]
+    fn a_custody_refusal_advises_waiting_only_where_waiting_can_help() {
+        let lead = "The desktop could not reserve memory to keep this render's document";
+        let tail = "the render was not recorded and nothing can be saved or printed from it.";
+        for (refusal, ending) in [
+            (ResourceRefusal::HeadroomInsufficient { required_bytes: 9, available_bytes: 1 }, " Render the report again when more memory is free."),
+            (ResourceRefusal::PoolExhausted { requested_bytes: 9, reserved_bytes: 1, pool_bytes: 2 }, " Render the report again when more memory is free."),
+            (ResourceRefusal::IngressExceedsBudget { required_bytes: 9, budget_bytes: 1 }, " The document is larger than the memory the desktop allows one command."),
+            (ResourceRefusal::CapacityUnknown, " The desktop could not read the machine's memory."),
+        ] {
+            let error = custody_unavailable(&refusal);
+            let json = serde_json::to_string(&refusal).unwrap();
+            assert_eq!((error.code.as_str(), error.stage.as_str()), (RENDER_CUSTODY_UNAVAILABLE, "render"));
+            assert_eq!(error.message, format!("{lead} ({json}); {tail}{ending}"));
         }
     }
 

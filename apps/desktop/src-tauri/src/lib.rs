@@ -7363,7 +7363,7 @@ mod tests {
         assert!(refused.starts_with(&format!("{}: ", rendered_report_routes::RENDER_CUSTODY_UNAVAILABLE)), "{refused}");
         assert!(refused.contains("\"kind\":\"capacity_unknown\""), "{refused}");
         assert!(!refused.contains("<!DOCTYPE") && !refused.contains("DERIVED VIEW") && !refused.contains("Invented Calculation Report"), "the refusal carries nothing of the document");
-        assert!(custody.held_document().is_none(), "no render is recorded");
+        assert!(!custody.has_record(), "no render is recorded, blocked or otherwise");
         assert_eq!(pool.reserved_total(), 0);
     }
 

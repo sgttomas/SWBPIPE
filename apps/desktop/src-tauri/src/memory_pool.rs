@@ -50,8 +50,8 @@
 //! command's product and is admitted in this class when the render is
 //! recorded ([`MemoryPool::acquire_interactive_resampling`]), counted as
 //! custody, for the current render's document only, and released when the
-//! render is retired, or when a write or a print derivation already using it
-//! ends.
+//! render is retired or is superseded before it is recorded, or when a write
+//! or a print derivation already using it ends.
 //!
 //! Residency credit: a running worker's pages that are already resident were
 //! taken from the free queue when they were touched, so the headroom verdict
@@ -76,7 +76,12 @@
 //! once the window has elapsed, stands. Interactive admissions refuse at
 //! once (most interactive commands run on the main thread); the desktop
 //! re-sends a command refused at admission with `headroom_insufficient`
-//! within the same window (`nativeIngress.ts`). A worker's growth step
+//! within the same window (`nativeIngress.ts`). The one exception is the
+//! reservation of the rendered report's document
+//! ([`MemoryPool::acquire_interactive_resampling`]), made off the main thread
+//! after its command was admitted, where a re-send would repeat the whole
+//! render: refused only with `headroom_insufficient`, it takes further fresh
+//! samples in the same way, within the same window. A worker's growth step
 //! ([`Lease::grow_resampling`]: each attempt tries the doubling and then the
 //! minimal need) and the custody grow at take (a separately admitted
 //! [`MemoryPool::acquire_resampling`] lease, folded in by [`Lease::absorb`])
@@ -459,8 +464,10 @@ impl MemoryPool {
             // An interactive command (an edit or a save) also counts what is
             // already written: a retained result's bytes are resident in this
             // process, and a delivered result's webview copy (half its 2R
-            // custody lease) is resident in the webview. Adaptive admissions
-            // keep the stricter double counting.
+            // custody lease) is resident in the webview. Custody also counts
+            // the rendered report's document, wholly resident in this process,
+            // so the half credit under-credits it: the conservative direction.
+            // Adaptive admissions keep the stricter double counting.
             credit = credit
                 .saturating_add(state.reserved[LeasePurpose::Result as usize])
                 .saturating_add(state.reserved[LeasePurpose::Custody as usize] / 2);
@@ -629,13 +636,20 @@ impl MemoryPool {
     /// document): the same verdict on a fresh sample each time, taken again
     /// while the only refusal is `headroom_insufficient` and the re-sampling
     /// window has not elapsed, as [`Self::acquire_resampling`] does. Any other
-    /// refusal stands at once.
-    pub(crate) fn acquire_interactive_resampling(self: &Arc<Self>, bytes: u64) -> Result<Lease, ResourceRefusal> {
+    /// refusal stands at once ([`ResampleStop::Refused`]).
+    ///
+    /// `stop` is called after each wait, with the pool lock released (it may
+    /// take its caller's own locks, which are never held while this lock is
+    /// taken: for the rendered report, its custody mutex); `true` ends the
+    /// wait with nothing reserved and no refusal recorded
+    /// ([`ResampleStop::Cancelled`]). A completion superseded while it waits
+    /// so leaves at the next tick or release, not at the window's end.
+    pub(crate) fn acquire_interactive_resampling(self: &Arc<Self>, bytes: u64, stop: &dyn Fn() -> bool) -> Result<Lease, ResampleStop> {
         let cap = |budget: u64| budget;
         let deadline = Instant::now().checked_add(self.resample_window);
-        // One critical section per attempt: the verdict and its recording run
-        // under the pool lock, the wait releases it only inside the condition
-        // variable, and the deadline is checked once it is held again, so no
+        // Each attempt's verdict and its recording run under one hold of the
+        // pool lock; the first attempt always runs, and the deadline is
+        // checked once the lock is held again after each wait, so no further
         // attempt starts after the window. Only a refusal that stands is
         // recorded as the pool's last refusal.
         let mut state = self.lock();
@@ -647,13 +661,18 @@ impl MemoryPool {
             let remaining = deadline.map_or(Duration::ZERO, |deadline| deadline.saturating_duration_since(Instant::now()));
             if !matches!(refusal, ResourceRefusal::HeadroomInsufficient { .. }) || remaining.is_zero() {
                 state.last_refusal = Some(refusal.clone());
-                return Err(refusal);
+                return Err(ResampleStop::Refused(refusal));
             }
-            // A release (`notify`) wakes the wait early.
-            state = self.changed.wait_timeout(state, self.resample_tick.min(remaining)).unwrap_or_else(PoisonError::into_inner).0;
+            // A release (`notify`) wakes the wait early; the lock is released
+            // while waiting and while `stop` runs.
+            drop(self.changed.wait_timeout(state, self.resample_tick.min(remaining)).unwrap_or_else(PoisonError::into_inner));
+            if stop() {
+                return Err(ResampleStop::Cancelled);
+            }
+            state = self.lock();
             if deadline.is_none_or(|deadline| Instant::now() >= deadline) {
                 state.last_refusal = Some(refusal.clone());
-                return Err(refusal);
+                return Err(ResampleStop::Refused(refusal));
             }
         }
     }
@@ -1485,17 +1504,27 @@ pub(crate) mod test_host {
     }
 
     /// A scripted host that counts its samples, so a test can act once an
-    /// admission has sampled it (and so been given that sample's verdict).
+    /// admission has sampled it (and so been given that sample's verdict),
+    /// and that can change its headroom itself, inside `sample`, from a stated
+    /// sample on ([`Self::staged`]).
     #[derive(Debug)]
     pub(crate) struct CountingHost {
         pub(crate) script: Arc<ScriptedHost>,
         samples: Mutex<usize>,
         sampled: Condvar,
+        /// From this many samples taken, every later sample reports this headroom.
+        staged: Option<(usize, u64)>,
     }
 
     impl CountingHost {
         pub(crate) fn new(script: Arc<ScriptedHost>) -> Arc<Self> {
-            Arc::new(Self { script, samples: Mutex::new(0), sampled: Condvar::new() })
+            Arc::new(Self { script, samples: Mutex::new(0), sampled: Condvar::new(), staged: None })
+        }
+
+        /// The script's headroom for the first `samples` samples, `headroom` for
+        /// every sample after them.
+        pub(crate) fn staged(script: Arc<ScriptedHost>, samples: usize, headroom: u64) -> Arc<Self> {
+            Arc::new(Self { script, samples: Mutex::new(0), sampled: Condvar::new(), staged: Some((samples, headroom)) })
         }
 
         /// The samples taken so far.
@@ -1514,8 +1543,15 @@ pub(crate) mod test_host {
 
     impl HostMemory for CountingHost {
         fn sample(&self) -> HostSample {
+            let mut taken = self.samples.lock().unwrap();
+            if let Some((from, headroom)) = self.staged {
+                if *taken >= from {
+                    self.script.set(|script| script.headroom_bytes = Some(headroom));
+                }
+            }
             let sample = self.script.sample();
-            *self.samples.lock().unwrap() += 1;
+            *taken += 1;
+            drop(taken);
             self.sampled.notify_all();
             sample
         }
@@ -3200,15 +3236,15 @@ mod interactive_resampling_tests {
         let pool = MemoryPool::with_timing(host.clone(), Duration::from_millis(5), Duration::from_secs(30), Duration::from_millis(5));
         let before = host.samples();
         let started = Instant::now();
-        assert_eq!(pool.acquire_interactive_resampling(1024).unwrap_err(), ResourceRefusal::CapacityUnknown);
+        assert!(matches!(pool.acquire_interactive_resampling(1024, &|| -> bool { panic!("no wait") }), Err(ResampleStop::Refused(ResourceRefusal::CapacityUnknown))));
         assert!(started.elapsed() < Duration::from_secs(5), "no wait for the 30 s window");
         assert_eq!(host.samples(), before + 1, "one attempt");
         assert_eq!(last_refusal(&pool), Some(ResourceRefusal::CapacityUnknown));
 
         host.script.set(|script| script.capacity_bytes = Some(16 * GIB));
         let over = 13 * GIB;
-        let refusal = pool.acquire_interactive_resampling(over).unwrap_err();
-        assert!(matches!(refusal, ResourceRefusal::IngressExceedsBudget { required_bytes, .. } if required_bytes == over), "{refusal:?}");
+        let refusal = pool.acquire_interactive_resampling(over, &|| -> bool { panic!("no wait") }).unwrap_err();
+        assert!(matches!(refusal, ResampleStop::Refused(ResourceRefusal::IngressExceedsBudget { required_bytes, .. }) if required_bytes == over), "{refusal:?}");
         assert!(started.elapsed() < Duration::from_secs(5));
         assert_eq!(pool.reserved_total(), 0);
     }
@@ -3221,7 +3257,10 @@ mod interactive_resampling_tests {
         let window = Duration::from_millis(60);
         let pool = MemoryPool::with_timing(host, Duration::from_millis(5), window, Duration::from_millis(5));
         let started = Instant::now();
-        let refusal = pool.acquire_interactive_resampling(1024).unwrap_err();
+        let refusal = match pool.acquire_interactive_resampling(1024, &|| false) {
+            Err(ResampleStop::Refused(refusal)) => refusal,
+            other => panic!("{other:?}"),
+        };
         let elapsed = started.elapsed();
         assert!(matches!(refusal, ResourceRefusal::HeadroomInsufficient { .. }), "{refusal:?}");
         assert!(elapsed >= window, "refused only once the window ended ({elapsed:?})");
@@ -3230,29 +3269,43 @@ mod interactive_resampling_tests {
         assert_eq!(pool.reserved_total(), 0);
     }
 
-    /// An attempt refused for headroom and overcome by a later one within the window leaves
-    /// no refusal recorded: the admitted lease is the interactive ingress lease it would be at
-    /// once.
+    /// One construction sample, then two per interactive attempt (its capacity and budget
+    /// verdict, then its pool and headroom verdict).
+    const ATTEMPT_SAMPLES: usize = 2;
+
+    /// An attempt refused for headroom and overcome by the next within the window leaves no
+    /// refusal recorded: the headroom is short for exactly the first attempt's samples (the
+    /// host changes it itself, inside its sample), and the admitted lease is the interactive
+    /// ingress lease it would be at once.
     #[test]
     fn an_attempt_overcome_within_the_window_records_no_refusal() {
-        let host = CountingHost::new(ScriptedHost::with(Some(16 * GIB), Some(8), PressureLevel::Normal));
+        let host = CountingHost::staged(ScriptedHost::with(Some(16 * GIB), Some(8), PressureLevel::Normal), 1 + ATTEMPT_SAMPLES, 64 * GIB);
         let pool = MemoryPool::with_timing(host.clone(), Duration::from_millis(5), Duration::from_secs(30), Duration::from_millis(5));
-        let first_attempt = host.samples() + 1;
-        let refill = {
-            let host = Arc::clone(&host);
-            std::thread::spawn(move || {
-                // The first attempt has sampled the short headroom (and so been refused).
-                host.wait_for(first_attempt);
-                host.script.set(|script| script.headroom_bytes = Some(64 * GIB));
-            })
-        };
-        let lease = pool.acquire_interactive_resampling(1024).expect("admitted once the headroom returns");
-        refill.join().unwrap();
-        assert!(host.samples() > first_attempt, "admitted on a later attempt");
+        let lease = pool.acquire_interactive_resampling(1024, &|| false).expect("admitted on the second attempt");
+        assert_eq!(host.samples(), 1 + 2 * ATTEMPT_SAMPLES, "exactly two attempts");
         assert_eq!((lease.bytes(), lease.purpose()), (1024, LeasePurpose::Ingress));
         assert_eq!(pool.reserved(LeasePurpose::Ingress), 1024);
         assert_eq!(last_refusal(&pool), None, "the overcome refusal is not recorded");
         drop(lease);
         assert_eq!(pool.reserved_total(), 0);
+    }
+
+    /// A stop that turns true ends the wait at the next tick: nothing is reserved and no
+    /// refusal is recorded, long before the window's end.
+    #[test]
+    fn a_stop_ends_the_wait_with_nothing_reserved_and_nothing_recorded() {
+        let host = CountingHost::new(ScriptedHost::with(Some(16 * GIB), Some(8), PressureLevel::Normal));
+        let window = Duration::from_secs(40);
+        let pool = MemoryPool::with_timing(host.clone(), Duration::from_millis(5), window, Duration::from_millis(5));
+        let calls = std::sync::atomic::AtomicUsize::new(0);
+        let started = Instant::now();
+        // False after the first wait, true after the second.
+        let stopped = pool.acquire_interactive_resampling(1024, &|| calls.fetch_add(1, std::sync::atomic::Ordering::SeqCst) >= 1);
+        assert!(matches!(stopped, Err(ResampleStop::Cancelled)), "{stopped:?}");
+        assert!(started.elapsed() < window / 4, "{:?}", started.elapsed());
+        assert_eq!(calls.load(std::sync::atomic::Ordering::SeqCst), 2);
+        assert_eq!(host.samples(), 1 + 2 * ATTEMPT_SAMPLES, "two refused attempts, no third");
+        assert_eq!(pool.reserved_total(), 0);
+        assert_eq!(last_refusal(&pool), None);
     }
 }
