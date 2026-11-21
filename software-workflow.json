@@ -384,6 +384,10 @@
         "tools/retained_pricing/**",
         "tools/repository_history.py",
         "core/product_physics/src/retained_memory.rs",
+        "core/product_physics/build.rs",
+        "core/product_physics/src/build_identity.rs",
+        "core/product_physics/tests/retained_memory_challenge.rs",
+        ".github/workflows/retained-registration-rust.yml",
         "software-workflow.json"
       ],
       "checks": [

@@ -663,28 +663,22 @@ def test_merge_group_missing_base_fails_closed():
     assert 'HEAD^1' not in (ROOT / ".github/workflows/governance-harness.yml").read_text()
 
 
-def test_the_retained_drift_check_runs_on_its_own_schedule_and_dispatch_and_keeps_one_drift_issue():
-    """docs/CI_STRATEGY.md, "Retained registration drift check": its own workflow, on a schedule and by dispatch on any
-    ref; no candidate event; only the report job writes issues, and never with the `nightly` label."""
+def test_the_retained_drift_check_runs_by_dispatch_as_a_plain_red_or_green_run():
+    """docs/CI_STRATEGY.md, "Retained registration drift check": its own workflow, by dispatch on any ref, with no
+    schedule until the solver freeze's registration and no candidate event; it reads only and reports nothing."""
     text = (ROOT / '.github/workflows/retained-drift-check.yml').read_text()
     check = workflow('retained-drift-check.yml')
-    assert set(check['on']) == {'schedule', 'workflow_dispatch'}
+    assert set(check['on']) == {'workflow_dispatch'}
     assert check['permissions'] == {'contents': 'read'}
     jobs = check['jobs']
-    assert set(jobs) == {'python', 'rust', 'report'}
+    assert set(jobs) == {'python', 'rust'}
     [run] = [s for s in jobs['python']['steps'] if 'run' in s and 'python_ci.py' in s['run']]
     assert '--drift-check' in run['run'] and '--shard-count 4' in run['run']
     assert jobs['python']['strategy']['matrix']['shard'] == ['1', '2', '3', '4']
     assert 'permissions' not in jobs['python']
-    # The Rust half is the same called job a registration-path pull request runs.
+    # The Rust part is the same called job a registration-path pull request runs.
     assert jobs['rust'] == {'uses': './.github/workflows/retained-registration-rust.yml'}
-    report = jobs['report']
-    assert report['if'] == 'always()' and report['needs'] == ['python', 'rust']
-    assert report['permissions'] == {'contents': 'read', 'actions': 'read', 'issues': 'write'}
-    [step] = [s for s in report['steps'] if 'run' in s]
-    assert step['run'] == 'python3 tools/software_workflow/drift_check_report.py'
-    assert step['env']['RESULTS'] == '${{ toJSON(needs) }}'
-    assert text.count('write') == 1 and 'secrets.' not in text and 'nightly' not in text
+    assert 'write' not in text and 'secrets.' not in text and 'issues' not in text
     for job in jobs.values():
         for entry in job.get('steps', []):
             assert '${{' not in entry.get('run', '')
@@ -703,10 +697,12 @@ def test_a_registration_path_candidate_runs_the_registered_build_rust_tests():
     assert any(s.get('uses') == 'dtolnay/rust-toolchain@1.97.1' for s in job['steps'])
     [checkout] = [s for s in job['steps'] if str(s.get('uses', '')).startswith('actions/checkout@')]
     assert checkout['with']['ref'] == HEAD_REF
+    # Uncoloured output, and every test binary run whatever an earlier one does, so the red or green covers both.
+    assert job['env']['CARGO_TERM_COLOR'] == 'never'
     [cargo] = [s for s in job['steps'] if 'cargo test' in s.get('run', '')]
     assert cargo['env'] == {'OPS_RETAINED_DRIFT_CHECK': '1'}
-    assert '--manifest-path core/product_physics/Cargo.toml --lib --test retained_precision_admission' in cargo['run']
-    assert 'set -o pipefail' in cargo['run']
+    assert cargo['run'] == ('cargo test --locked --no-fail-fast --manifest-path core/product_physics/Cargo.toml --lib '
+                            '--test retained_precision_admission')
     product = workflow('piping-desktop-e2e.yml')['jobs']
     assert product['selection']['outputs']['retained_registration'] == '${{ steps.registration.outputs.retained_registration }}'
     [read] = [s for s in product['selection']['steps'] if s.get('id') == 'registration']

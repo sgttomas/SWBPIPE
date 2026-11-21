@@ -125,23 +125,30 @@ PREFIX_TESTS = {
 # The retained registration drift check (DEL-04-08 REQ-004, "Registration"; docs/CI_STRATEGY.md, "Retained registration
 # drift check"). These tool tests run the pricing tool's models on the checkout's own priced source, and they stop
 # wherever that source differs from the source the tool's pins and the registered profile were reviewed against: they
-# report drift between main and the committed registration, not a fault of the change under test, and they price no
-# revision. They run in their own workflow (retained-drift-check.yml), on a schedule and by dispatch, and in a pull
-# request or queue group only when it changes the tool or the registration. Every other selection, the nightly full
-# run's included, leaves them out. Every test file under the directory is part of the drift check except the
-# source-independent ones named here.
+# report drift of the checked revision from the committed registration, not a fault of the change under test, and they
+# price no revision. They run by dispatch in their own workflow (retained-drift-check.yml), and in a pull request or
+# queue group only when it changes the tool or the registration, or when its complete diff is unavailable. Every other
+# selection, the nightly full run's included, leaves them out. Every test file under the directory is part of the
+# drift check except the ones named here, which read no priced source.
 RETAINED_PRICING_TESTS = 'tools/retained_pricing/tests'
 RETAINED_PRICING_SOURCE_INDEPENDENT = {
     'tools/retained_pricing/tests/test_linemap_prune_collision.py': 'reads only a two-commit fixture repository',
     'tools/retained_pricing/tests/test_u6_rp_route_e_premise.py': "reads only the tool's own census, rules and chain",
 }
+# The regeneration check of the law tests' GENERATED POINT ATOMS block: it reads only the generator and that file, so it
+# is not part of the drift check, and a change to that file selects it whatever else the change does.
+RETAINED_POINT_ATOMS_TEST = 'tools/retained_pricing/tests/test_point_atoms_block.py'
+RETAINED_POINT_ATOMS_INPUT = 'core/product_physics/src/retained_memory_law_tests.rs'
 # A pull request changing one of these changes the tool or the registration and runs the whole drift check, here and in
 # the registered build's Rust tests (retained-registration-rust.yml): the tool, the history module it imports, the file
-# that holds the generated profile block and REGISTERED_PROFILES, and the build script and module that compute the
-# build identity and the reviewed-input record a profile is matched against.
+# that holds the generated profile block and REGISTERED_PROFILES, the build script and module that compute the build
+# identity and the reviewed-input record a profile is matched against, the allocation challenge whose bounds are the
+# generated profile's values, and the called workflow that runs the registered build's tests.
 RETAINED_PRICING_REGISTRATION = ('tools/retained_pricing/', 'tools/repository_history.py',
                                  'core/product_physics/src/retained_memory.rs', 'core/product_physics/build.rs',
-                                 'core/product_physics/src/build_identity.rs')
+                                 'core/product_physics/src/build_identity.rs',
+                                 'core/product_physics/tests/retained_memory_challenge.rs',
+                                 '.github/workflows/retained-registration-rust.yml')
 
 
 @functools.lru_cache(maxsize=None)
@@ -149,25 +156,31 @@ def retained_drift_check(project):
     """The drift check's selection: every tool test file that reads the checkout's priced source."""
     return tuple(sorted(path.relative_to(project).as_posix()
                         for path in (project / RETAINED_PRICING_TESTS).glob('test_*.py')
-                        if path.relative_to(project).as_posix() not in RETAINED_PRICING_SOURCE_INDEPENDENT))
+                        if path.relative_to(project).as_posix() not in RETAINED_PRICING_SOURCE_INDEPENDENT
+                        and path.relative_to(project).as_posix() != RETAINED_POINT_ATOMS_TEST))
 
 
 def changes_registration(plan):
-    """Whether a plan's paths change the pricing tool or the registration."""
-    return any(path[len(PREFIX):].startswith(RETAINED_PRICING_REGISTRATION) for path in plan.get('paths', []))
+    """Whether a plan's paths change the pricing tool or the registration. A plan without its complete diff fails
+    closed: the planner records no base and no paths when it cannot compute the diff, and an empty diff shows nothing
+    either, so both count as a change of the registration."""
+    paths = plan.get('paths', [])
+    if not paths or ('base' in plan and not plan['base']):
+        return True
+    return any(path[len(PREFIX):].startswith(RETAINED_PRICING_REGISTRATION) for path in paths)
 
 
 def registration_output(plan):
     """The product workflow's `retained_registration` output: a pull request or queue group changing the pricing tool
-    or the registration runs the registered build's Rust tests (retained-registration-rust.yml) beside its Python
-    selection."""
+    or the registration, or whose complete diff is unavailable, runs the registered build's Rust tests
+    (retained-registration-rust.yml) beside its Python selection."""
     registration = plan.get('event') in hosted_ci.CANDIDATE_EVENTS and changes_registration(plan)
     return f"retained_registration={'true' if registration else 'false'}"
 
 
 def drift_check_deferred(project, plan):
     """The drift check's tests a plan's selection leaves to its workflow: none for a pull request or queue group that
-    changes the tool or the registration, all of them for every other plan."""
+    changes the tool or the registration or has no complete diff, all of them for every other plan."""
     if plan.get('event') in hosted_ci.CANDIDATE_EVENTS and changes_registration(plan):
         return frozenset()
     return frozenset(retained_drift_check(project))
@@ -321,6 +334,8 @@ def select(project, plan, repository_checks_run=False):
             if local in REFERENCE_SYSTEM_INPUTS or local.startswith(REFERENCE_SYSTEM_PREFIXES):
                 patterns.append(REFERENCE_SYSTEM_TEST)
             patterns.extend(PINNED_FIXTURE_READERS.get(local, []))
+            if local == RETAINED_POINT_ATOMS_INPUT:
+                patterns.append(RETAINED_POINT_ATOMS_TEST)
             for prefix, tests in PREFIX_TESTS.items():
                 if local.startswith(prefix):
                     patterns.extend(tests)
@@ -442,7 +457,7 @@ def reaching_paths(project, paths):
                  or set(select(project, {'event': 'pull_request', 'paths': [path]})) - base)]
 
 
-def run_drift_check(project, shard_index, shard_count, junit_xml, dry_run):
+def run_drift_check(project, shard_index, shard_count, dry_run):
     """Run the drift check's selection, or one shard of it, on this checkout."""
     selected = list(retained_drift_check(project))
     if shard_count is not None:
@@ -451,9 +466,8 @@ def run_drift_check(project, shard_index, shard_count, junit_xml, dry_run):
     print(json.dumps({'drift_check': selected, 'shard': shard_index, 'count': shard_count}, indent=2), flush=True)
     if dry_run or not selected:
         return 0
-    report = ['--junitxml', str(junit_xml)] if junit_xml else []
     return subprocess.run([sys.executable, '-m', 'pytest', '-v', '--tb=short', '-o', 'tmp_path_retention_policy=failed',
-                           '-n', 'auto', *report, *selected], cwd=project).returncode
+                           '-n', 'auto', *selected], cwd=project).returncode
 
 
 def main():
@@ -463,7 +477,6 @@ def main():
     parser.add_argument('--plan', type=Path)
     parser.add_argument('--registration', action='store_true',
                         help="With --plan: print the product workflow's retained_registration output and stop")
-    parser.add_argument('--junit-xml', type=Path, help='With --drift-check: write pytest\'s JUnit report here')
     parser.add_argument('--dry-run', action='store_true')
     parser.add_argument('--repository-checks-run', action='store_true',
                         help='The caller runs tests/test_ci_numerical.py in Repository checks')
@@ -476,8 +489,6 @@ def main():
     if args.drift_check:
         if args.plan or args.repository_checks_run:
             parser.error('--drift-check takes no plan or repository-checks option')
-    elif args.junit_xml:
-        parser.error('--junit-xml is for --drift-check')
     elif args.plan is None:
         parser.error('--plan is required unless --drift-check is given')
     if (args.shard_index is None) != (args.shard_count is None):
@@ -485,7 +496,7 @@ def main():
     if args.shard_count is not None and (args.shard_count < 1 or not 1 <= args.shard_index <= args.shard_count):
         parser.error('shard index must be between 1 and shard count')
     if args.drift_check:
-        return run_drift_check(project, args.shard_index, args.shard_count, args.junit_xml, args.dry_run)
+        return run_drift_check(project, args.shard_index, args.shard_count, args.dry_run)
     plan = json.loads(args.plan.read_text())
     root = project
     hosted_ci.validate_plan(root, plan)

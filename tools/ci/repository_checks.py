@@ -78,6 +78,8 @@ ROUTING_INVARIANT_TESTS = tuple(f"tests/test_ci_python.py::{name}" for name in (
     "test_a_solver_core_pull_request_leaves_the_drift_check_out",
     "test_a_pull_request_changing_the_tool_or_the_registration_runs_the_whole_drift_check",
     "test_full_selections_and_the_queue_leave_the_drift_check_to_its_workflow",
+    "test_a_law_tests_change_selects_the_point_atoms_regeneration_check",
+    "test_the_tool_test_rule_follows_every_registration_path",
 ))
 STEP_NAMES = ("Select repository regressions",
               "Bounded shared-tool and routing regressions",

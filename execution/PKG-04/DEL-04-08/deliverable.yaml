@@ -139,10 +139,9 @@ code_paths:
 - tests/test_u4b_retained_tau.py
 - tests/test_u4b_source_derived_not_qualified.py
 - tools/retained_pricing/**
-# The registration drift check's workflows and its standing drift issue (REQ-004, "Registration").
+# The registration drift check's workflows (REQ-004, "Registration").
 - .github/workflows/retained-drift-check.yml
 - .github/workflows/retained-registration-rust.yml
-- tools/software_workflow/drift_check_report.py
 - tools/fixtures/retained_precision_corpus.py
 - tools/fixtures/retained_precision_synthetic_bases.py
 - tools/fixtures/j7_rf_census_inputs.py

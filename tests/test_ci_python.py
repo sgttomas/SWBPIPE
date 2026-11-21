@@ -2,6 +2,7 @@
 import bisect
 import functools
 import importlib.util
+import json
 from pathlib import Path
 
 PROJECT = Path(__file__).resolve().parents[1]
@@ -471,6 +472,8 @@ EVERY_PULL_REQUEST = frozenset((
     'test_a_solver_core_pull_request_leaves_the_drift_check_out',
     'test_a_pull_request_changing_the_tool_or_the_registration_runs_the_whole_drift_check',
     'test_full_selections_and_the_queue_leave_the_drift_check_to_its_workflow',
+    'test_a_law_tests_change_selects_the_point_atoms_regeneration_check',
+    'test_the_tool_test_rule_follows_every_registration_path',
     'test_repository_numerical_routing_checks_are_not_duplicated_in_product_job',
     'test_merge_group_selects_python_tests_as_a_pull_request',
     'test_sensitive_families_follow_their_inputs',
@@ -510,6 +513,7 @@ EVERY_PULL_REQUEST = frozenset((
     'test_tests_that_build_offline_have_their_locked_dependencies_fetched_before_pytest',
 ))
 SELECTOR_ONLY = frozenset((
+    'test_an_unavailable_or_empty_candidate_diff_runs_both_halves_of_the_drift_check',
     'test_the_registration_output_names_a_candidate_that_changes_the_tool_or_the_registration',
     'test_repeated_full_selection_does_not_mutate_the_cached_cohort',
     'test_known_helper_import_forms_are_selected_without_unrelated_tests',
@@ -846,8 +850,8 @@ PRICING_TESTS = PROJECT / 'tools/retained_pricing/tests'
 def test_the_drift_check_is_every_tool_test_but_the_source_independent_ones():
     files = {path.relative_to(PROJECT).as_posix() for path in PRICING_TESTS.glob('test_*.py')}
     independent = set(ci.RETAINED_PRICING_SOURCE_INDEPENDENT)
-    assert independent <= files
-    assert set(ci.retained_drift_check(PROJECT)) == files - independent
+    assert independent <= files and ci.RETAINED_POINT_ATOMS_TEST in files
+    assert set(ci.retained_drift_check(PROJECT)) == files - independent - {ci.RETAINED_POINT_ATOMS_TEST}
     # A source-independent file names no path of the checkout outside the tool: it resolves nothing from the
     # repository root, so the checkout's priced source cannot reach it.
     for test in independent:
@@ -868,7 +872,9 @@ def test_a_solver_core_pull_request_leaves_the_drift_check_out():
 def test_a_pull_request_changing_the_tool_or_the_registration_runs_the_whole_drift_check():
     for path in ('tools/retained_pricing/base/kd5_text_model.py', 'tools/retained_pricing/tests/test_w1_reductions.py',
                  'tools/repository_history.py', 'core/product_physics/src/retained_memory.rs',
-                 'core/product_physics/build.rs', 'core/product_physics/src/build_identity.rs'):
+                 'core/product_physics/build.rs', 'core/product_physics/src/build_identity.rs',
+                 'core/product_physics/tests/retained_memory_challenge.rs',
+                 '.github/workflows/retained-registration-rust.yml'):
         assert ci.drift_check_deferred(PROJECT, {'event': 'pull_request', 'paths': [path]}) == frozenset(), path
         assert set(ci.retained_drift_check(PROJECT)) | all_readers(path) <= set(selected(path)), path
     # With another change beside it, the registration still runs the drift check.
@@ -887,6 +893,50 @@ def test_full_selections_and_the_queue_leave_the_drift_check_to_its_workflow():
         assert set(ci.RETAINED_PRICING_SOURCE_INDEPENDENT) <= set(ci.select(PROJECT, {'event': event})), event
     assert ci.drift_check_deferred(PROJECT, {'event': 'merge_group', 'paths': ['core/product_physics/src/lib.rs']}) == audit
     assert ci.drift_check_deferred(PROJECT, {'event': 'merge_group', 'paths': ['tools/retained_pricing/price.py']}) == frozenset()
+
+
+def test_an_unavailable_or_empty_candidate_diff_runs_both_halves_of_the_drift_check():
+    """A candidate whose complete diff the planner could not compute (no base, no paths) or that changes nothing fails
+    closed: its selection holds the whole Python drift check and the registered build's Rust tests run."""
+    audit = set(ci.retained_drift_check(PROJECT))
+    for event in ('pull_request', 'merge_group'):
+        for plan in ({'event': event, 'base': None, 'paths': []}, {'event': event, 'base': 'a' * 40, 'paths': []},
+                     {'event': event, 'paths': []}, {'event': event, 'base': None, 'paths': ['core/product_physics/src/lib.rs']}):
+            assert ci.changes_registration(plan), plan
+            assert ci.drift_check_deferred(PROJECT, plan) == frozenset(), plan
+            assert ci.registration_output(plan) == 'retained_registration=true', plan
+        assert audit <= set(ci.select(PROJECT, {'event': event, 'base': None, 'paths': []})), event
+    # A complete diff of an unrelated change still leaves both out.
+    plan = {'event': 'pull_request', 'base': 'a' * 40, 'paths': ['core/product_physics/src/lib.rs']}
+    assert ci.registration_output(plan) == 'retained_registration=false'
+    assert not audit & set(ci.select(PROJECT, plan))
+
+
+def test_a_law_tests_change_selects_the_point_atoms_regeneration_check():
+    """A change confined to the law tests' GENERATED POINT ATOMS block is checked against its generator in the pull
+    request: the check reads only the generator and that file, so it stays out of the drift check, and the law tests
+    file is not a registration path."""
+    law = ci.RETAINED_POINT_ATOMS_INPUT
+    assert law == 'core/product_physics/src/retained_memory_law_tests.rs' and (PROJECT / law).is_file()
+    assert not law.startswith(ci.RETAINED_PRICING_REGISTRATION)
+    assert ci.RETAINED_POINT_ATOMS_TEST not in ci.retained_drift_check(PROJECT)
+    for event in ('pull_request', 'merge_group'):
+        plan = {'event': event, 'base': 'a' * 40, 'paths': [ci.PREFIX + law]}
+        assert ci.RETAINED_POINT_ATOMS_TEST in ci.select(PROJECT, plan), event
+        assert ci.registration_output(plan) == 'retained_registration=false', event
+    text = (PROJECT / ci.RETAINED_POINT_ATOMS_TEST).read_text()
+    assert 'def test_the_committed_point_atoms_are_the_generators():' in text
+    # The checkout outside the tool is read through the law tests path alone.
+    assert text.count('SOURCE') == 2 and 'LAW = SOURCE / PP / "retained_memory_law_tests.rs"' in text
+
+
+def test_the_tool_test_rule_follows_every_registration_path():
+    """software-workflow.json routes the retained-pricing-tool-tests check by the same registration paths as the
+    selection."""
+    rules = json.loads((PROJECT / 'software-workflow.json').read_text())['path_rules']
+    [paths] = [rule['paths'] for rule in rules if rule['checks'] == ['retained-pricing-tool-tests']]
+    expected = {path + '**' if path.endswith('/') else path for path in ci.RETAINED_PRICING_REGISTRATION}
+    assert set(paths) == expected | {'software-workflow.json'}
 
 
 def test_the_registration_output_names_a_candidate_that_changes_the_tool_or_the_registration():
