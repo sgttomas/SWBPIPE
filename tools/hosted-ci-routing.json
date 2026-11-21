@@ -264,11 +264,11 @@
       "core/numerics/correct_norm/Cargo.toml": "57cbcd985c88d79c7ebf198d9a5d3a68fa67fe74bfd11440791be7c9a44c8844",
       "core/product_physics/Cargo.toml": "737a7f4c50e8c8fdb7c06c6b3ccb7efd947dcad58c8eb00b6b421ce128183e61",
       "core/reporting/audit_manifest/Cargo.toml": "b8bc4623a383ed2c22205326bc737486becd9d931bf869e1e8cf40e147f4fad7",
-      "core/reporting/pdf_emitter/Cargo.toml": "aef459ce93aa7dae801284e172f7e5b7ab958801c4716d3c8db262f8303259be",
+      "core/reporting/pdf_emitter/Cargo.toml": "b88700a3d3385fc2fb134047ff47db55b3526740be53a69c5d81aaa2a85106ac",
       "core/reporting/protected_content_linter/Cargo.toml": "6a11912d00b5c5c502e1f3d6d3036cf60d3e163078afbc3300005fd496a756ef",
       "core/reporting/report_generator/Cargo.toml": "625a9a604bf91c108cdbd55f650788f319c27c21390ae536d660a0d640d3c81c",
       "core/reporting/report_package/Cargo.toml": "97ee73aef3868ae8de66878aa0ef1f0c2c1a8db5f4951e2114163d964945de5d",
-      "core/reporting/report_renderer/Cargo.toml": "bf10e7fd524d99128bd60438abd8fe22c0ea029628b17cfd884451acad129802",
+      "core/reporting/report_renderer/Cargo.toml": "191ab341f09a7f946155aeb0e0e0f3975571b202d520973bcae88514442fa2af",
       "core/reporting/report_sections/Cargo.toml": "44acb66312edbc9bfd77aa2980a898511ac34de67fba0fc773b70007a3aad0f1",
       "core/reporting/result_export/Cargo.toml": "3f697c63c3d487a802d8bcc27df89aab8f6b2d2c9070b4f97920311c961e250e",
       "core/rules/completeness_checker/Cargo.toml": "95cf7430d70fffc65a984a6841980f2c65f12000e28004da89efc092f1152737",
@@ -2575,6 +2575,7 @@
               "apps/desktop/src-tauri/src/report_render_pf_timoshenko_tests.rs",
               "apps/desktop/src-tauri/src/report_session_diagnostics.rs",
               "apps/desktop/src-tauri/src/report_session_diagnostics_tests.rs",
+              "apps/desktop/src-tauri/src/report_standing_package_tests.rs",
               "apps/desktop/src-tauri/src/result_detail.rs",
               "apps/desktop/src-tauri/src/result_detail_tests.rs",
               "apps/desktop/src-tauri/src/result_js_text.rs",
@@ -5407,8 +5408,10 @@
               "fixtures/reports/invented/report_standing_witnesses/coupled_friction.request.json",
               "fixtures/reports/invented/report_standing_witnesses/pressure_3_coupled_friction_sensitive-sparse_interactive.raw.json",
               "fixtures/reports/invented/report_standing_witnesses/pressure_3_coupled_friction_sensitive.app_render_request.json",
+              "fixtures/reports/invented/report_standing_witnesses/pressure_3_coupled_friction_sensitive.package.json",
               "fixtures/reports/invented/report_standing_witnesses/pressure_3_coupled_friction_sensitive.render.json",
               "fixtures/reports/invented/report_standing_witnesses/pressure_3_gap_unresolved-sparse_interactive.raw.json",
+              "fixtures/reports/invented/report_standing_witnesses/pressure_3_gap_unresolved.package.json",
               "fixtures/reports/invented/report_standing_witnesses/pressure_3_gap_unresolved.render.json",
               "fixtures/reports/invented/state_comparison_handoff_desktop_parity.json",
               "fixtures/reports/invented/user_release_derivation_vectors.json",
@@ -6510,7 +6513,7 @@
         }
       },
       "core/reporting/report_renderer/tests/standing_statements.rs": {
-        "sha256": "19fb8d4c7d23f54063978b299cd626db522d044ed8d848eb59dace703669d015",
+        "sha256": "d50c489caf2e6cc8ef11bcc6db3d8d5425d6248968fd31a90b644a72ad25c860",
         "source_trees": [
           "core/reporting/report_renderer/Cargo.toml"
         ],
