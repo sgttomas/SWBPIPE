@@ -94,16 +94,19 @@ pub fn check_runner_profile(export_profile_id: &str, document: &Value) -> Result
 
 /// The user-released profile's exact-route refusal for the pressure-free
 /// record version (W-18b, DEL-08-01 Design `report-user-release.md` §0, §2.8,
-/// §11): a record of version 1.0.0 covers a pressure-free result only, and an
+/// §11): a record of version 1.0.0 covers a pressure-free Euler–Bernoulli result only, and an
 /// exact-route result is shared with a record of version 1.2.0. Of the same
 /// form as [`check_runner_profile`]: it reads only the profile it is given and
 /// the document's producer identity. Its callers (the admitting entry, the
 /// producer and the reader) run it only where the record is not of version
-/// 1.2.0.
+/// 1.2.0. It has not compared the source with the document, checked custody
+/// or read the run record, and a record of an unknown version reaches it
+/// too, so its message states the version rule and nothing about what else
+/// could be saved.
 pub fn check_user_released_profile(export_profile_id: &str, document: &Value) -> Result<(), String> {
     if export_profile_id == crate::user_release::USER_RELEASED_DESKTOP_PROFILE && producer_contract_id(document).is_some_and(is_exact_identity) {
         return Err(format!(
-            "{}: a user-release record of version 1.0.0 covers a pressure-free Euler–Bernoulli (preview-physics-2) result only; this exact-route result is shared with a record of version 1.2.0, or can be saved in a local private package.",
+            "{}: a shareable report package of an exact-route result requires a user-release record of version 1.2.0.",
             crate::user_release::EXACT_ROUTE_NOT_ADMITTED
         ));
     }

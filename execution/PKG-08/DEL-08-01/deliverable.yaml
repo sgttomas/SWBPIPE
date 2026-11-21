@@ -267,6 +267,8 @@ checks:
 - apps/desktop/src/features/report/renderedReportNativeRoutes.test.tsx
 - apps/desktop/src/features/report/renderedReportGate.app.test.tsx
 - apps/desktop/src/features/report/timoshenkoReportAnyStanding.app.test.tsx
+- apps/desktop/src/features/report/restoredRunReportWords.app.test.tsx
+- apps/desktop/src/features/report/withheldPackageStatus.app.test.tsx
 - apps/desktop/src/features/report/reportOutputOutcomes.test.ts
 - apps/desktop/src/features/workspace/reportSourceSequence.test.ts
 - apps/desktop/src-tauri/src/rendered_report_routes.rs
