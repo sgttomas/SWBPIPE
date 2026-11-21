@@ -1448,6 +1448,140 @@ fn a_saved_run_bound_to_an_unread_table_revision_is_refused_and_the_store_untouc
     assert_eq!(seen, ["SOURCE_RECORDED_BINDING_UNKNOWN", "SOURCE_RECORDED_BINDING_UNKNOWN", "SOURCE_RECORDED_BINDING_IDENTITY", "ANALYSIS_ROW_SOURCE_BINDING_MISMATCH", "ANALYSIS_ROW_ACCOUNTING_MISMATCH", "ANALYSIS_ROW_SOURCE_BINDING_MISMATCH", "ANALYSIS_ROW_SOURCE_BINDING_MISMATCH", "ANALYSIS_ROW_ACCOUNTING_MISMATCH"]);
 }
 
+/// The native walkthrough's `refused-stored-run` store (`apps/desktop/walkthrough/native/run.mjs`): the
+/// app's own `openpipestress-projects.sqlite3`, placed in the launch's throwaway home and opened by File >
+/// Open Local Project….
+const REFUSED_STORED_RUN_STORE: &str = "fixtures/persistence/refused_stored_run/openpipestress-projects.sqlite3";
+const REFUSED_STORED_RUN_WRITE: &str = "NATIVE_WALKTHROUGH_STORE_WRITE";
+/// The digest the store's record binds the result's rules at: no table this version installs or
+/// keeps in its registry has it.
+const UNREAD_DIGEST: &str = "5555555555555555555555555555555555555555555555555555555555555555";
+
+/// Makes the walkthrough's store at `path` with the product's own writers, as the guard's test does
+/// for its "another digest" record: the first persistence case (the invented connected model, the
+/// smallest on its route, and the held text of its solve) saved by the native Save Project
+/// (`create`), one saved state of the same model by the saved-state writer, then the record's
+/// binding of the result's rules, the run's and each result reference's, moved to [`UNREAD_DIGEST`]
+/// and the record resealed. Times and the state's token are fixed, and the store is vacuumed, so
+/// each run writes the same content. Returns the project id and the result's identity.
+fn refused_stored_run_store(path: &Path) -> (String, String) {
+    use crate::model_states::{labels_from_value, save_state_in_store, SaveModelStateRequest, StateWriteHooks};
+    use open_pipe_stress_result_export::recorded_tables::VARIANTS;
+    let case = persistence_cases().into_iter().next().unwrap();
+    let host = ScriptedHost::normal();
+    let (registry, gate) = gated(&host);
+    let job = held(&registry, &gate, &case.text, &case.intake, &case.mode, ResultCustody::Native);
+    let saved = native_save(&registry, path, &case.save_args(&job, "create", Value::Null, Value::Null), &unlimited()).unwrap();
+    assert_eq!(saved["result"]["outcome"], "saved", "{saved}");
+    registry.dispose_all_results();
+    assert_eq!(registry.pool().reserved_total(), 0);
+    let project_id = case.project_id().to_string();
+    let model_canonical = open_pipe_stress_operation_applier::canonical_json(case.model());
+    let request = SaveModelStateRequest {
+        project_id: project_id.clone(),
+        expected_base: saved["project_envelope_hash"]["value"].as_str().unwrap().to_string(),
+        model_hash: format!("sha256:{}", hex(&sha256_in_place(model_canonical.as_bytes()))),
+        model_canonical,
+        state_kind: "design_snapshot".to_string(),
+        parent_state_id: None,
+        labels: labels_from_value(json!({"state_name": "Invented state before the solve"})).unwrap(),
+    };
+    let allocate = || Ok(("0000000000000000000000000000a025".to_string(), 1_793_000_000_000_i64));
+    let between_rows = |_: &rusqlite::Transaction<'_>| Ok(());
+    assert_eq!(save_state_in_store(path, request, &StateWriteHooks { allocate: &allocate, between_rows: &between_rows }).unwrap().outcome, "saved");
+    let mut record: Value = serde_json::from_str(&column_text(path, "SELECT analysis_run_json FROM local_projects")).unwrap();
+    let identity = record["analysis_run"]["reproducibility"]["semantic_contract"]["id"].as_str().unwrap().to_string();
+    let installed = open_pipe_stress_result_export::reader_verdict::current_binding(&identity);
+    assert!(installed.is_some() && installed != Some(UNREAD_DIGEST) && VARIANTS.iter().all(|variant| variant.sha256 != UNREAD_DIGEST), "{UNREAD_DIGEST} is no revision this version reads");
+    for reference in record["analysis_run"]["result_refs"].as_array_mut().unwrap() {
+        reference["semantic_contract"]["sha256"] = json!(UNREAD_DIGEST);
+    }
+    record["analysis_run"]["reproducibility"]["semantic_contract"]["sha256"] = json!(UNREAD_DIGEST);
+    reseal(&mut record);
+    let connection = Connection::open(path).unwrap();
+    assert_eq!(connection.execute("UPDATE local_projects SET analysis_run_json = ?1", params![serde_json::to_string(&record).unwrap()]).unwrap(), 1);
+    connection.execute_batch("VACUUM").unwrap();
+    drop(connection);
+    (project_id, identity)
+}
+
+/// What a store holds, compared in place of its bytes: its version, its journal mode, its schema and
+/// every row of every table.
+fn store_content(path: &Path) -> Vec<(String, String)> {
+    let connection = Connection::open(path).unwrap();
+    let mut content = vec![
+        ("user_version".to_string(), connection.query_row("PRAGMA user_version", [], |row| row.get::<_, i64>(0)).unwrap().to_string()),
+        ("journal_mode".to_string(), connection.query_row("PRAGMA journal_mode", [], |row| row.get::<_, String>(0)).unwrap()),
+    ];
+    let mut statement = connection.prepare("SELECT type, name, sql FROM sqlite_master ORDER BY type, name").unwrap();
+    let schema: Vec<(String, String, Option<String>)> = statement.query_map([], |row| Ok((row.get(0)?, row.get(1)?, row.get(2)?))).unwrap().map(Result::unwrap).collect();
+    drop(statement);
+    drop(connection);
+    for (kind, name, sql) in schema {
+        content.push((format!("{kind} {name}"), sql.unwrap_or_default()));
+        if kind == "table" {
+            content.push((format!("rows of {name}"), format!("{:?}", crate::native_persistence::tests::dump(path, &name, &[]))));
+        }
+    }
+    content
+}
+
+/// The committed store of the `refused-stored-run` walkthrough is current: what this build's
+/// writers make now ([`refused_stored_run_store`]), compared by content, not bytes (SQLite's file
+/// layout is its own), and it opens, as File > Open Local Project… opens it (the most recent
+/// project), to the guard's refusal of the unread revision with the project's model open, nothing
+/// held and no stored file changed. `NATIVE_WALKTHROUGH_STORE_WRITE=1` rewrites it after a store
+/// schema change or a table revision has made it stale.
+#[test]
+fn the_walkthrough_store_opens_to_the_unread_revision_refusal() {
+    let dir = scratch("refused-stored-run");
+    let fresh = dir.join("fresh.sqlite3");
+    let (project_id, identity) = refused_stored_run_store(&fresh);
+    let committed = root().join(REFUSED_STORED_RUN_STORE);
+    if std::env::var_os(REFUSED_STORED_RUN_WRITE).is_some() {
+        std::fs::create_dir_all(committed.parent().unwrap()).unwrap();
+        std::fs::copy(&fresh, &committed).unwrap();
+    }
+    let stale = format!("{REFUSED_STORED_RUN_STORE} is stale: rewrite it with {REFUSED_STORED_RUN_WRITE}=1 cargo test --manifest-path apps/desktop/src-tauri/Cargo.toml --lib the_walkthrough_store_opens_to_the_unread_revision_refusal");
+    let bytes = std::fs::read(&committed).unwrap_or_else(|error| panic!("{stale} ({error})"));
+    // One file, in WAL mode with nothing left in a journal: the walkthrough places only this file.
+    assert!(bytes.len() > 100 && bytes.starts_with(b"SQLite format 3\0") && bytes[18] == 2 && bytes[19] == 2, "{stale}: not a WAL-mode SQLite store");
+    for suffix in ["-wal", "-shm", "-journal"] {
+        assert!(!root().join(format!("{REFUSED_STORED_RUN_STORE}{suffix}")).exists(), "{REFUSED_STORED_RUN_STORE}{suffix} must not be committed");
+    }
+    // Read from copies: opening the committed file in place would write SQLite's sidecars beside it.
+    let copy = dir.join("committed.sqlite3");
+    std::fs::write(&copy, &bytes).unwrap();
+    let (expected, found) = (store_content(&fresh), store_content(&copy));
+    assert_eq!(found.iter().map(|(name, _)| name).collect::<Vec<_>>(), expected.iter().map(|(name, _)| name).collect::<Vec<_>>(), "{stale}");
+    for ((name, want), (_, have)) in expected.iter().zip(&found) {
+        assert!(want == have, "{stale}: {name} differs");
+    }
+    assert_eq!(found[0].1, crate::STORE_SCHEMA_TARGET_VERSION.to_string(), "{stale}: the store is at this build's store schema");
+    assert_eq!(column_text(&copy, "SELECT COUNT(*) || '/' || (SELECT COUNT(*) FROM model_states) FROM local_projects"), "1/1", "one project and one saved state");
+    let open = dir.join("open.sqlite3");
+    std::fs::write(&open, &bytes).unwrap();
+    let run_texts = || -> (String, String) {
+        let connection = Connection::open(&open).unwrap();
+        connection.query_row("SELECT mechanics_result_json, analysis_run_json FROM local_projects", [], |row| Ok((row.get(0)?, row.get(1)?))).unwrap()
+    };
+    let before = run_texts();
+    let host = ScriptedHost::normal();
+    let (registry, _gate) = gated(&host);
+    let opened = native_open(&registry, &open, None).unwrap();
+    let run = &opened["stored_run"];
+    assert_eq!(run["state"], "refused", "{run}");
+    assert_eq!(run["code"], RESTORE_REFUSED);
+    let message = run["message"].as_str().unwrap();
+    let reason = format!("was not opened: its record does not bind the stored result's rules `{identity}` at a revision this version reads (SOURCE_RECORDED_BINDING_UNKNOWN), so its rows are not shown; solve the model again.");
+    assert!(message.starts_with(&format!("{RESTORE_REFUSED}: project `{project_id}`'s stored run")) && message.contains(&reason), "{message}");
+    assert_eq!(opened["model"]["project"]["id"], project_id.as_str(), "the project's model opens for editing");
+    assert_eq!(registry.pool_status().retained_results, 0, "nothing is held");
+    assert_eq!(registry.pool().reserved_total(), 0, "every lease ended");
+    assert!(run_texts() == before, "the stored run is unchanged by the open");
+    std::fs::remove_dir_all(&dir).unwrap();
+}
+
 /// A reset during the read refuses the registration and drops what was
 /// loaded; full retention refuses by name; a stored result that is not JSON
 /// fails the open with the legacy open's own message.
