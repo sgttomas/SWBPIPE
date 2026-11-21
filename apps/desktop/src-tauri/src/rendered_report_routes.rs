@@ -7,15 +7,28 @@
 //!
 //! Binding. The render command records, for the one current render, a
 //! generation, the SHA-256 the desktop itself computes of the canonical HTML,
-//! the render's export context, whether its gates blocked it and the report
-//! source it was rendered for ([`RenderCustody`]); it keeps no copy of the
-//! document. A route receives the canonical HTML in its raw body (priced by
-//! the ingress lease), computes its SHA-256 and admits it only when that is the
-//! current render's. The context and the block are read from the record, never
-//! from the request, whose context, intent and evidence must agree with it.
-//! The saved file is exactly the admitted bytes; the printed document is
-//! derived from them here (`derived_print_view`), so HTML that the render did
-//! not produce is refused and neither route sends anything the webview composed.
+//! the render's export context, whether its gates blocked it, the report
+//! source it was rendered for and, for a render that is not blocked, the
+//! canonical HTML itself ([`RenderCustody`], [`HeldDocument`]). The desktop
+//! keeps the current render's document: one copy, shared by the record and
+//! the routes reading it, never copied per request. A blocked render, a
+//! metadata-only (content-withheld) render and one whose HTML does not hash to
+//! the renderer's named hash hold no document. The held document's memory is
+//! reserved from the native memory pool as custody (`memory_pool`,
+//! `LeasePurpose::Custody`, admitted as a held result's full copy is in
+//! `solve_jobs`) before it is copied, and released when its last holder drops
+//! it; a refused reservation records nothing and the render command refuses by
+//! name ([`RENDER_CUSTODY_UNAVAILABLE`]). Retiring the render, a later render
+//! request, a registered source advance and an activation drop the document
+//! with the record.
+//!
+//! A route request carries no document: it names the render by the SHA-256
+//! the webview holds from the render's reply, and is admitted only when that
+//! is the current render's. The context and the block are read from the
+//! record, never from the request, whose context, intent and evidence must
+//! agree with it. The saved file is exactly the held bytes; the printed
+//! document is derived from them here (`derived_print_view`), so neither
+//! route sends anything the webview composed.
 //!
 //! Currency (DEL-08-01 REQ-022). The workspace numbers each change of the
 //! report's source (its model, result, runs, manifest, summary, rule check,
@@ -69,6 +82,8 @@
 //! this mutex is never held while that lock, or the solve-job registry's
 //! `jobs` mutex, is taken. Work that will hold job custody across a
 //! publication (issue 366) takes this mutex first and the registry's second.
+//! A held document dropped under this mutex (a retirement) releases its
+//! reservation by taking the memory pool's lock, which takes no other lock.
 //!
 //! A user-released report has no route here: the render command refuses its
 //! input (`refuse_user_release_render`), and a user release lets out only its
@@ -76,12 +91,13 @@
 //! the two above is refused by name.
 use crate::atomic_report_package_save::{self as atomic, AtomicSaveError, AtomicSaveFormat, AtomicSaveOutcome, GuardedSaveError};
 use crate::command_ingress::{self, respond, ArgsDecoding, CommandError};
+use crate::memory_pool::{Lease, LeasePurpose, MemoryPool, ResampleStop};
 use crate::solve_jobs::SolveJobRegistry;
 use serde::{Deserialize, Serialize};
 use sha2::{Digest, Sha256};
 use std::io;
 use std::path::{Path, PathBuf};
-use std::sync::{Condvar, Mutex, MutexGuard, PoisonError};
+use std::sync::{Arc, Condvar, Mutex, MutexGuard, PoisonError};
 use std::thread::ThreadId;
 use tauri::AppHandle;
 use tauri_plugin_dialog::DialogExt;
@@ -96,7 +112,7 @@ pub(crate) const LOCAL_PRIVATE: &str = "local_private";
 pub(crate) const NOT_CURRENT: &str = "REPORT-ROUTE-NOT-CURRENT";
 /// The current render is blocked by its gates (DEL-08-01 REQ-014).
 pub(crate) const BLOCKED: &str = "REPORT-ROUTE-BLOCKED";
-/// The submitted HTML's SHA-256 is not the current render's.
+/// The render the request names (by its SHA-256) is not the current render.
 pub(crate) const UNBOUND: &str = "REPORT-ROUTE-HTML-UNBOUND";
 /// The current render's context is not one this route admits.
 pub(crate) const CONTEXT_NOT_ADMITTED: &str = "REPORT-ROUTE-CONTEXT-NOT-ADMITTED";
@@ -124,6 +140,9 @@ pub(crate) const SOURCE_RETIRED: &str = "REPORT-SOURCE-RETIRED";
 pub(crate) const SOURCE_ACTIVATION_CONFLICT: &str = "REPORT-SOURCE-ACTIVATION-CONFLICT";
 /// A later render request or a retirement superseded this render's ticket.
 pub(crate) const RENDER_SUPERSEDED: &str = "REPORT-RENDER-SUPERSEDED";
+/// The memory pool refused the reservation for keeping the render's document:
+/// the render is not recorded.
+pub(crate) const RENDER_CUSTODY_UNAVAILABLE: &str = "REPORT-RENDER-CUSTODY-UNAVAILABLE";
 
 /// The canonical HTML file (`.html`) under the desktop's atomic writer.
 pub(crate) const REPORT_HTML_FORMAT: AtomicSaveFormat = AtomicSaveFormat {
@@ -141,14 +160,76 @@ pub(crate) struct SourceMark {
     pub(crate) sequence: u64,
 }
 
-/// The current render as the desktop recorded it.
-#[derive(Clone, Debug, PartialEq, Eq)]
+/// The current render as the desktop recorded it. `document` is the canonical
+/// HTML it holds: `None` exactly when the render is blocked.
+#[derive(Clone, Debug)]
 pub(crate) struct RenderRecord {
     pub(crate) generation: u64,
     pub(crate) sha256_hex: String,
     pub(crate) export_context: Option<String>,
     pub(crate) blocked: bool,
     pub(crate) source: SourceMark,
+    pub(crate) document: Option<Arc<HeldDocument>>,
+}
+
+/// The canonical HTML of a render the desktop keeps (module docs), with the
+/// memory pool's custody reservation covering it. Shared by `Arc` between the
+/// record and the routes reading it; the bytes and their reservation are
+/// released together when the last holder drops it.
+pub(crate) struct HeldDocument {
+    html: String,
+    lease: Lease,
+}
+
+impl HeldDocument {
+    /// The canonical HTML.
+    pub(crate) fn html(&self) -> &str {
+        &self.html
+    }
+
+    /// The bytes the reservation covers.
+    #[cfg(test)]
+    pub(crate) fn reserved_bytes(&self) -> u64 {
+        self.lease.bytes()
+    }
+}
+
+impl std::fmt::Debug for HeldDocument {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        f.debug_struct("HeldDocument").field("bytes", &self.html.len()).field("lease", &self.lease).finish()
+    }
+}
+
+/// The pool bytes reserved for keeping `len` bytes of canonical HTML: the
+/// allocation envelope of its exact buffer and of the shared record that owns
+/// it (`ingress::allocation_envelope`).
+pub(crate) fn held_document_bytes(len: usize) -> u64 {
+    let envelope = |size: usize| crate::ingress::allocation_envelope(size as u64).unwrap_or(u64::MAX);
+    // The `Arc`'s allocation: its two counts and the document.
+    envelope(len).saturating_add(envelope(2 * std::mem::size_of::<usize>() + std::mem::size_of::<HeldDocument>()))
+}
+
+/// Reserves custody for `html` from `pool` and then copies it into a held
+/// document, as a held result's full copy is reserved (`solve_jobs`
+/// `copy_result_within`: an admission that re-samples the host while refused
+/// only for headroom, then moved to custody). A refusal copies nothing.
+fn hold_document(pool: &Arc<MemoryPool>, html: &str) -> Result<Arc<HeldDocument>, RouteError> {
+    let mut lease = match pool.acquire_resampling(held_document_bytes(html.len()), LeasePurpose::Ingress, &|| false) {
+        Ok(lease) => lease,
+        Err(stop) => {
+            let refusal = match stop {
+                ResampleStop::Refused(refusal) => serde_json::to_string(&refusal).unwrap_or_default(),
+                ResampleStop::Cancelled => "cancelled".to_string(),
+            };
+            return Err(RouteError::at(
+                RENDER_CUSTODY_UNAVAILABLE,
+                "render",
+                format!("The desktop could not reserve memory to keep this render's document ({refusal}); the render was not recorded and nothing can be saved or printed from it. Render the report again."),
+            ));
+        }
+    };
+    lease.set_purpose(LeasePurpose::Custody);
+    Ok(Arc::new(HeldDocument { html: html.to_owned(), lease }))
 }
 
 /// A render request's identity: the registered source it was prepared for and
@@ -322,10 +403,24 @@ impl RenderCustody {
     /// and its source number are both current, and returns its generation.
     /// The SHA-256 is computed here; a render whose canonical HTML does not
     /// hash to the renderer's named hash, a blocked render and a
-    /// metadata-only refusal are recorded as blocked.
-    pub(crate) fn complete(&self, ticket: RenderTicket, export_context: Option<&str>, html: &str, renderer_sha256_hex: &str, export_blocked: bool, content_withheld: bool) -> Result<u64, RouteError> {
+    /// metadata-only refusal are recorded as blocked and hold no document.
+    /// Any other render's document is reserved from `pool` and copied before
+    /// the custody mutex is taken (the admission may re-sample the host); a
+    /// refused reservation records nothing ([`RENDER_CUSTODY_UNAVAILABLE`]),
+    /// and a superseded completion drops the document it reserved.
+    pub(crate) fn complete_in(
+        &self,
+        pool: &Arc<MemoryPool>,
+        ticket: RenderTicket,
+        export_context: Option<&str>,
+        html: &str,
+        renderer_sha256_hex: &str,
+        export_blocked: bool,
+        content_withheld: bool,
+    ) -> Result<u64, RouteError> {
         let sha256_hex = sha256_hex(html.as_bytes());
         let blocked = export_blocked || content_withheld || sha256_hex != renderer_sha256_hex;
+        let document = if blocked { None } else { Some(hold_document(pool, html)?) };
         let mut slot = self.lock_for_change();
         if ticket.id != slot.ticket {
             return Err(RouteError::at(RENDER_SUPERSEDED, "render", "A later render request or a retirement superseded this render; it is not recorded."));
@@ -333,8 +428,21 @@ impl RenderCustody {
         Self::check_source(&slot, ticket.source)?;
         slot.generation += 1;
         let generation = slot.generation;
-        slot.current = Some(RenderRecord { generation, sha256_hex, export_context: export_context.map(str::to_string), blocked, source: ticket.source });
+        slot.current = Some(RenderRecord { generation, sha256_hex, export_context: export_context.map(str::to_string), blocked, source: ticket.source, document });
         Ok(generation)
+    }
+
+    /// Tests' completion, its document reserved from a pool of its own on an
+    /// ample scripted host.
+    #[cfg(test)]
+    pub(crate) fn complete(&self, ticket: RenderTicket, export_context: Option<&str>, html: &str, renderer_sha256_hex: &str, export_blocked: bool, content_withheld: bool) -> Result<u64, RouteError> {
+        self.complete_in(&test_pool(), ticket, export_context, html, renderer_sha256_hex, export_blocked, content_withheld)
+    }
+
+    /// The current render's held document (tests).
+    #[cfg(test)]
+    pub(crate) fn held_document(&self) -> Option<Arc<HeldDocument>> {
+        self.lock().current.as_ref().and_then(|record| record.document.clone())
     }
 
     /// The panel's retirement of the render request it names (module docs).
@@ -420,10 +528,11 @@ impl RenderCustody {
 
     /// Admits a route request against the current record (module docs):
     /// refused by name when its source is not the registered one, when no
-    /// render is current, when it is blocked, when the HTML is not its
-    /// canonical HTML, when its context is not admitted or differs from the
-    /// request's, when a local-private render lacks the explicit intent, and
-    /// when the evidence does not admit the route.
+    /// render is current, when it is blocked, when the SHA-256 it names is not
+    /// the current render's, when its context is not admitted or differs from
+    /// the request's, when a local-private render lacks the explicit intent,
+    /// and when the evidence does not admit the route. The admitted request
+    /// shares the record's held document.
     pub(crate) fn admit(&self, request: &RouteRequest) -> Result<Admitted, RouteError> {
         let record = {
             let slot = self.lock();
@@ -434,14 +543,16 @@ impl RenderCustody {
         if record.source != request.source {
             return Err(RouteError::refused(NOT_CURRENT, "No rendered report is current for this source. Render the report again."));
         }
-        if record.blocked {
-            return Err(RouteError::refused(BLOCKED, "The current render is blocked by its export gates: it is neither saved nor printed."));
-        }
-        let sha256_hex = sha256_hex(request.html.as_bytes());
-        if sha256_hex != record.sha256_hex {
+        // A blocked render holds no document; neither does anything else, so
+        // the two are one refusal.
+        let document = match (&record.document, record.blocked) {
+            (Some(document), false) => Arc::clone(document),
+            _ => return Err(RouteError::refused(BLOCKED, "The current render is blocked by its export gates: it is neither saved nor printed.")),
+        };
+        if request.sha256_hex != record.sha256_hex {
             return Err(RouteError::refused(
                 UNBOUND,
-                "The submitted HTML is not the current render's canonical HTML: its SHA-256 differs from the one the desktop recorded for that render.",
+                "The render the request names is not the current one: the SHA-256 it names is not the one the desktop recorded for the current render. Render the report again.",
             ));
         }
         let context = match record.export_context.as_deref() {
@@ -474,7 +585,7 @@ impl RenderCustody {
                 format!("The controlled export's evidence does not admit route {ROUTE_ID} for this render (route, context, block or intent differ)."),
             ));
         }
-        Ok(Admitted { generation: record.generation, sha256_hex, export_context: context.to_string() })
+        Ok(Admitted { generation: record.generation, sha256_hex: record.sha256_hex.clone(), export_context: context.to_string(), document })
     }
 
     /// The registered source.
@@ -508,34 +619,49 @@ impl RenderCustody {
     /// completion would record it.
     #[cfg(test)]
     pub(crate) fn record(&self, export_context: Option<&str>, html: &str, renderer_sha256_hex: &str, export_blocked: bool, content_withheld: bool) -> u64 {
+        self.record_in(&test_pool(), export_context, html, renderer_sha256_hex, export_blocked, content_withheld)
+    }
+
+    /// [`Self::record`] with the document reserved from `pool`.
+    #[cfg(test)]
+    pub(crate) fn record_in(&self, pool: &Arc<MemoryPool>, export_context: Option<&str>, html: &str, renderer_sha256_hex: &str, export_blocked: bool, content_withheld: bool) -> u64 {
         if self.source().incarnation == 0 {
             self.activate();
         }
         let ticket = self.begin_next(self.source()).expect("the registered source admits a render");
-        self.complete(ticket, export_context, html, renderer_sha256_hex, export_blocked, content_withheld).expect("an unsuperseded render completes")
+        self.complete_in(pool, ticket, export_context, html, renderer_sha256_hex, export_blocked, content_withheld).expect("an unsuperseded render completes")
     }
 }
 
-/// The render tickets of the render commands running now, each held for its
-/// worker thread ([`with_render_ticket`]).
-static RENDER_TICKETS: Mutex<Vec<(ThreadId, RenderTicket)>> = Mutex::new(Vec::new());
+/// Tests' memory pool: a 16 GiB scripted host with ample headroom at normal
+/// pressure, so a held document's reservation is admitted.
+#[cfg(test)]
+pub(crate) fn test_pool() -> Arc<MemoryPool> {
+    MemoryPool::new(crate::memory_pool::test_host::ScriptedHost::normal())
+}
 
-fn render_tickets() -> MutexGuard<'static, Vec<(ThreadId, RenderTicket)>> {
+/// The render tickets of the render commands running now, each held for its
+/// worker thread with the memory pool its document is reserved from
+/// ([`with_render_ticket`]).
+static RENDER_TICKETS: Mutex<Vec<(ThreadId, RenderTicket, Arc<MemoryPool>)>> = Mutex::new(Vec::new());
+
+fn render_tickets() -> MutexGuard<'static, Vec<(ThreadId, RenderTicket, Arc<MemoryPool>)>> {
     RENDER_TICKETS.lock().unwrap_or_else(PoisonError::into_inner)
 }
 
-/// Takes the render ticket held for this thread, if any.
-fn take_render_ticket() -> Option<RenderTicket> {
+/// Takes the render ticket held for this thread, and its pool, if any.
+fn take_render_ticket() -> Option<(RenderTicket, Arc<MemoryPool>)> {
     let thread = std::thread::current().id();
     let mut tickets = render_tickets();
-    let at = tickets.iter().position(|(owner, _)| *owner == thread)?;
-    Some(tickets.swap_remove(at).1)
+    let at = tickets.iter().position(|(owner, _, _)| *owner == thread)?;
+    let (_, ticket, pool) = tickets.swap_remove(at);
+    Some((ticket, pool))
 }
 
-/// Runs the render command's worker with its ticket held for this thread,
-/// which [`record_render`] consumes; the ticket goes with the worker when the
-/// render does not reach its record.
-pub(crate) fn with_render_ticket<T>(ticket: RenderTicket, render: impl FnOnce() -> T) -> T {
+/// Runs the render command's worker with its ticket and the native memory
+/// pool held for this thread, which [`record_render`] consumes; the ticket
+/// goes with the worker when the render does not reach its record.
+pub(crate) fn with_render_ticket<T>(ticket: RenderTicket, pool: Arc<MemoryPool>, render: impl FnOnce() -> T) -> T {
     struct Clear;
     impl Drop for Clear {
         fn drop(&mut self) {
@@ -543,19 +669,21 @@ pub(crate) fn with_render_ticket<T>(ticket: RenderTicket, render: impl FnOnce() 
         }
     }
     take_render_ticket();
-    render_tickets().push((std::thread::current().id(), ticket));
+    render_tickets().push((std::thread::current().id(), ticket, pool));
     let _clear = Clear;
     render()
 }
 
 /// Records a completed render in the desktop's custody under the render
-/// command's ticket, and closes a print window whose render it replaces (the
-/// render's one call). A completion whose ticket or source number is no
-/// longer current is refused by name and records nothing. A render made
-/// without a ticket (a test of the renderer itself) records nothing.
+/// command's ticket, keeping its canonical HTML unless it is blocked
+/// ([`RenderCustody::complete_in`]), and closes a print window whose render it
+/// replaces (the render's one call). A completion whose ticket or source
+/// number is no longer current, or whose document's reservation the pool
+/// refuses, is refused by name and records nothing. A render made without a
+/// ticket (a test of the renderer itself) records nothing.
 pub(crate) fn record_render(export_context: Option<&str>, html: &str, renderer_sha256_hex: &str, export_blocked: bool, content_withheld: bool) -> Result<(), String> {
-    let Some(ticket) = take_render_ticket() else { return Ok(()) };
-    match CUSTODY.complete(ticket, export_context, html, renderer_sha256_hex, export_blocked, content_withheld) {
+    let Some((ticket, pool)) = take_render_ticket() else { return Ok(()) };
+    match CUSTODY.complete_in(&pool, ticket, export_context, html, renderer_sha256_hex, export_blocked, content_withheld) {
         Ok(_) => {
             crate::rendered_report_print::close_retired();
             Ok(())
@@ -623,24 +751,26 @@ pub(crate) struct RouteEvidence {
     pub(crate) blocking_count: u64,
 }
 
-/// A route request: the canonical HTML, the context and intent the panel
-/// names, the controlled export's evidence and the report source number the
-/// render was prepared for.
+/// A route request: the SHA-256 naming the render (as the render's reply gave
+/// it), the context and intent the panel names, the controlled export's
+/// evidence and the report source number the render was prepared for. It
+/// carries no document.
 #[derive(Clone, Debug, PartialEq, Eq)]
 pub(crate) struct RouteRequest {
-    pub(crate) html: String,
+    pub(crate) sha256_hex: String,
     pub(crate) export_context: String,
     pub(crate) explicit_local_private_intent: bool,
     pub(crate) evidence: RouteEvidence,
     pub(crate) source: SourceMark,
 }
 
-/// An admitted request's record.
-#[derive(Clone, Debug, PartialEq, Eq)]
+/// An admitted request's record, sharing the render's held document.
+#[derive(Clone, Debug)]
 pub(crate) struct Admitted {
     pub(crate) generation: u64,
     pub(crate) sha256_hex: String,
     pub(crate) export_context: String,
+    pub(crate) document: Arc<HeldDocument>,
 }
 
 /// A route's refusal or failure. `destination` says what became of the
@@ -711,7 +841,7 @@ pub(crate) fn suggested_file_name(admitted: &Admitted) -> String {
 /// The route's arguments, moved out of the admitted body.
 pub(crate) fn route_request_args(args: &mut command_ingress::Args) -> Result<RouteRequest, crate::solve_jobs::SolveJobError> {
     Ok(RouteRequest {
-        html: args.decode("html")?,
+        sha256_hex: args.decode("sha256Hex")?,
         export_context: args.decode("exportContext")?,
         explicit_local_private_intent: args.decode("explicitLocalPrivateIntent")?,
         evidence: args.decode("evidence")?,
@@ -734,8 +864,9 @@ impl PublicationGate<'_> {
 }
 
 /// The HTML save after decoding: admission, the chooser, the currency check
-/// and the write, whose rename runs through the publication gate. `choose`
-/// is the save chooser and `write` the guarded atomic writer (seams in tests).
+/// and the write of exactly the held document's bytes, whose rename runs
+/// through the publication gate. `choose` is the save chooser and `write` the
+/// guarded atomic writer (seams in tests).
 pub(crate) fn save_in(
     custody: &RenderCustody,
     request: RouteRequest,
@@ -749,7 +880,7 @@ pub(crate) fn save_in(
         route_id: ROUTE_ID,
         export_context: admitted.export_context.clone(),
         sha256_hex: admitted.sha256_hex.clone(),
-        byte_count: request.html.len(),
+        byte_count: admitted.document.html().len(),
         file_name,
         replaced_existing,
         durability: durability.to_string(),
@@ -767,7 +898,7 @@ pub(crate) fn save_in(
         ));
     }
     let gate = PublicationGate { custody, generation: admitted.generation };
-    let outcome = write(&path, request.html.as_bytes(), gate).map_err(|error| match error {
+    let outcome = write(&path, admitted.document.html().as_bytes(), gate).map_err(|error| match error {
         GuardedSaveError::Save(error) => RouteError::write(error),
         // Retired before the rename: the destination is as it was and the owned
         // temporary file was removed, or its removal failure is named.
@@ -837,8 +968,10 @@ mod tests {
         RouteEvidence { route_id: ROUTE_ID.to_string(), export_context: context.to_string(), explicit_local_private_intent: intent, blocked: false, blocking_count: 0 }
     }
 
+    /// A request naming the render of `html` by its SHA-256, as the webview names the render
+    /// whose reply gave it that HTML and hash; the request carries no document.
     fn request(html: &str, context: &str, intent: bool) -> RouteRequest {
-        RouteRequest { html: html.to_string(), export_context: context.to_string(), explicit_local_private_intent: intent, evidence: evidence(context, intent), source: FIRST }
+        RouteRequest { sha256_hex: sha256_hex(html.as_bytes()), export_context: context.to_string(), explicit_local_private_intent: intent, evidence: evidence(context, intent), source: FIRST }
     }
 
     /// The source the tests' custody registers first: incarnation 1, number 0.
@@ -894,15 +1027,148 @@ mod tests {
     }
 
     #[test]
-    fn html_the_render_did_not_produce_is_refused() {
+    fn a_request_naming_another_render_is_refused() {
         let custody = rendered(Some(PUBLIC_REPORT));
         let substituted = HTML.replace("Invented report", "Substituted report");
         assert_eq!(refused(&custody, request(&substituted, PUBLIC_REPORT, false)).code, UNBOUND);
         // One byte more, as a trailing newline would be.
         assert_eq!(refused(&custody, request(&format!("{HTML}\n"), PUBLIC_REPORT, false)).code, UNBOUND);
-        // An earlier render's HTML is not the current one's.
+        // A hash in another spelling, or none, names no render.
+        let upper = RouteRequest { sha256_hex: sha256_hex(HTML.as_bytes()).to_uppercase(), ..request(HTML, PUBLIC_REPORT, false) };
+        assert_eq!(refused(&custody, upper).code, UNBOUND);
+        let empty = RouteRequest { sha256_hex: String::new(), ..request(HTML, PUBLIC_REPORT, false) };
+        assert_eq!(refused(&custody, empty).code, UNBOUND);
+        // An earlier render's hash is not the current one's.
         custody.record(Some(PUBLIC_REPORT), "<p>later</p>", &sha256_hex(b"<p>later</p>"), false, false);
         assert_eq!(refused(&custody, request(HTML, PUBLIC_REPORT, false)).code, UNBOUND);
+    }
+
+    // The held document (DEL-08-01 REQ-022: the desktop keeps the current render's document and a
+    // route names it). Each pool here is the test's own, so its reserved bytes are exact.
+
+    /// The pool's custody reservation, and the total, now.
+    fn reserved(pool: &Arc<MemoryPool>) -> (u64, u64) {
+        (pool.reserved(LeasePurpose::Custody), pool.reserved_total())
+    }
+
+    /// The writer receives exactly the held document's buffer, not a copy and nothing the
+    /// request carried, and the file is those bytes; the receipt counts and hashes them.
+    #[test]
+    fn the_save_writes_exactly_the_held_document() {
+        let _lock = atomic_save_test_lock();
+        let pool = test_pool();
+        let custody = RenderCustody::new();
+        custody.record_in(&pool, Some(PUBLIC_REPORT), HTML, &sha256_hex(HTML.as_bytes()), false, false);
+        let held = custody.held_document().expect("an unblocked render holds its document");
+        assert_eq!(held.html(), HTML);
+        assert_eq!(reserved(&pool), (held_document_bytes(HTML.len()), held_document_bytes(HTML.len())));
+        assert_eq!(held.reserved_bytes(), held_document_bytes(HTML.len()));
+        let dir = scratch("held");
+        let mut written_from = None;
+        let receipt = save_in(&custody, request(HTML, PUBLIC_REPORT, false), |name| Some(Ok(dir.join(name))), |path, bytes, gate| {
+            written_from = Some(bytes.as_ptr());
+            system_write(path, bytes, gate)
+        })
+        .unwrap();
+        assert_eq!(written_from, Some(held.html().as_ptr()), "the writer was handed the held buffer itself");
+        let written = fs::read(dir.join(&receipt.file_name)).unwrap();
+        assert_eq!(written, HTML.as_bytes());
+        assert_eq!((receipt.byte_count, receipt.sha256_hex.as_str()), (HTML.len(), sha256_hex(&written).as_str()));
+        fs::remove_dir_all(dir).unwrap();
+    }
+
+    /// A blocked render, a withheld (metadata-only) render and one whose HTML does not hash to
+    /// the renderer's named hash hold no document and reserve nothing; a save naming them is
+    /// refused before the chooser.
+    #[test]
+    fn a_blocked_withheld_or_mismatched_render_holds_no_document() {
+        let sha = sha256_hex(HTML.as_bytes());
+        for (blocked, withheld, named) in [(true, false, sha.clone()), (false, true, sha.clone()), (false, false, "0".repeat(64))] {
+            let pool = test_pool();
+            let custody = RenderCustody::new();
+            custody.record_in(&pool, Some(PUBLIC_REPORT), HTML, &named, blocked, withheld);
+            assert!(custody.held_document().is_none(), "blocked={blocked} withheld={withheld}");
+            assert_eq!(reserved(&pool), (0, 0));
+            assert_eq!(refused(&custody, request(HTML, PUBLIC_REPORT, false)).code, BLOCKED);
+        }
+    }
+
+    /// Retiring the render, a later render request's entry, a registered source advance and an
+    /// activation each drop the held document with the record and release its reservation.
+    #[test]
+    fn every_retirement_drops_the_document_and_releases_its_reservation() {
+        for change in ["retire", "later request", "advance", "activation"] {
+            let pool = test_pool();
+            let custody = RenderCustody::new();
+            custody.record_in(&pool, Some(PUBLIC_REPORT), HTML, &sha256_hex(HTML.as_bytes()), false, false);
+            let held = Arc::downgrade(&custody.held_document().unwrap());
+            assert_eq!(reserved(&pool).0, held_document_bytes(HTML.len()), "{change}");
+            match change {
+                "retire" => assert!(custody.retire_active()),
+                "later request" => drop(custody.begin_next(FIRST).unwrap()),
+                "advance" => assert_eq!(custody.advance(NEXT).unwrap(), (NEXT, true)),
+                _ => drop(custody.activate()),
+            }
+            assert!(custody.held_document().is_none(), "{change}");
+            assert!(held.upgrade().is_none(), "{change}: no holder keeps the document");
+            assert_eq!(reserved(&pool), (0, 0), "{change}: the reservation returned");
+        }
+    }
+
+    /// A save retired while its chooser is open writes nothing, and once it returns its share of
+    /// the document is gone and the reservation released.
+    #[test]
+    fn a_save_retired_during_the_chooser_writes_nothing_and_releases_the_document() {
+        let pool = test_pool();
+        let custody = RenderCustody::new();
+        custody.record_in(&pool, Some(PUBLIC_REPORT), HTML, &sha256_hex(HTML.as_bytes()), false, false);
+        let dir = scratch("retired-held");
+        let error = save_in(&custody, request(HTML, PUBLIC_REPORT, false), |name| {
+            assert!(custody.retire_active());
+            // The admitted save still shares the bytes, so they stay reserved while it runs.
+            assert_eq!(reserved(&pool).0, held_document_bytes(HTML.len()));
+            Some(Ok(dir.join(name)))
+        }, |_, _, _| panic!("no write after retirement"))
+        .unwrap_err();
+        assert_eq!((error.code.as_str(), error.destination), (RETIRED_DURING_SAVE, "untouched"));
+        assert_eq!(fs::read_dir(&dir).unwrap().count(), 0);
+        assert_eq!(reserved(&pool), (0, 0));
+        fs::remove_dir_all(dir).unwrap();
+    }
+
+    /// A refused reservation records nothing: the completion is refused by name, no render is
+    /// current, the earlier render stays retired and nothing stays reserved.
+    #[test]
+    fn a_refused_reservation_records_no_render() {
+        use crate::memory_pool::{test_host::ScriptedHost, PressureLevel};
+        // Elevated pressure refuses the custody admission at once; so does an exhausted pool.
+        for host in [
+            ScriptedHost::with(Some(16 << 30), Some(64 << 30), PressureLevel::Warning),
+            ScriptedHost::with(Some(64), Some(64 << 30), PressureLevel::Normal),
+        ] {
+            let pool = MemoryPool::new(host);
+            let custody = RenderCustody::new();
+            custody.activate();
+            let ticket = custody.begin_next(FIRST).unwrap();
+            let refusal = custody.complete_in(&pool, ticket, Some(PUBLIC_REPORT), HTML, &sha256_hex(HTML.as_bytes()), false, false).unwrap_err();
+            assert_eq!((refusal.code.as_str(), refusal.stage.as_str()), (RENDER_CUSTODY_UNAVAILABLE, "render"));
+            assert!(!refusal.message.contains("Invented"), "the refusal names nothing of the document");
+            assert_eq!(refused(&custody, request(HTML, PUBLIC_REPORT, false)).code, NOT_CURRENT);
+            assert_eq!(reserved(&pool), (0, 0));
+        }
+    }
+
+    /// A completion superseded after its document was reserved drops it.
+    #[test]
+    fn a_superseded_completion_releases_the_document_it_reserved() {
+        let pool = test_pool();
+        let custody = RenderCustody::new();
+        custody.activate();
+        let ticket = custody.begin_next(FIRST).unwrap();
+        custody.retire_active();
+        let late = custody.complete_in(&pool, ticket, Some(PUBLIC_REPORT), HTML, &sha256_hex(HTML.as_bytes()), false, false);
+        assert_eq!(late.map_err(|error| error.code), Err(RENDER_SUPERSEDED.to_string()));
+        assert_eq!(reserved(&pool), (0, 0));
     }
 
     #[test]
@@ -1422,15 +1688,18 @@ mod tests {
     #[test]
     fn a_render_ticket_is_consumed_only_within_its_worker_scope() {
         let ticket = || RenderTicket { id: u64::MAX, source: SourceMark { incarnation: u64::MAX, sequence: 7 } };
-        let held = |id: u64| render_tickets().iter().any(|(owner, ticket)| *owner == std::thread::current().id() && ticket.id == id);
+        let held = |id: u64| render_tickets().iter().any(|(owner, ticket, _)| *owner == std::thread::current().id() && ticket.id == id);
         assert!(!held(u64::MAX));
-        with_render_ticket(ticket(), || {
+        with_render_ticket(ticket(), test_pool(), || {
             assert!(held(u64::MAX));
-            std::thread::spawn(|| assert!(take_render_ticket().map_or(true, |found| found.source.incarnation != u64::MAX))).join().unwrap();
+            std::thread::spawn(|| assert!(take_render_ticket().map_or(true, |(found, _)| found.source.incarnation != u64::MAX))).join().unwrap();
             assert!(held(u64::MAX));
         });
         assert!(!held(u64::MAX));
-        with_render_ticket(ticket(), || assert_eq!(take_render_ticket().map(|found| found.source.sequence), Some(7)));
+        let pool = test_pool();
+        with_render_ticket(ticket(), Arc::clone(&pool), || {
+            assert_eq!(take_render_ticket().map(|(found, with)| (found.source.sequence, Arc::ptr_eq(&with, &pool))), Some((7, true)), "the ticket travels with its pool");
+        });
     }
 
     // F2 (round-two review): conditional activation across workspace lifetimes. A replaced

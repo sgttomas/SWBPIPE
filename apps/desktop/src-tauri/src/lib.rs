@@ -1909,8 +1909,11 @@ async fn render_calculation_report(
     let ordinal: u64 = args.decode("request")?;
     let ticket = rendered_report_routes::begin_render(rendered_report_routes::RenderRequest { source, ordinal }).map_err(CommandError::Command)?;
     let registry = registry.inner().clone();
+    // The render's document, when it is recorded, is reserved from the native
+    // memory pool for as long as the desktop keeps it.
+    let pool = std::sync::Arc::clone(registry.pool());
     tauri::async_runtime::spawn_blocking(move || {
-        let outcome = rendered_report_routes::with_render_ticket(ticket, || render_calculation_report_args(&mut args, &registry, &mut lease));
+        let outcome = rendered_report_routes::with_render_ticket(ticket, pool, || render_calculation_report_args(&mut args, &registry, &mut lease));
         // The response is serialized while the lease is still held.
         let response = respond(outcome);
         drop(lease);
@@ -1962,10 +1965,11 @@ fn render_calculation_report_value(input: Value) -> Result<Value, String> {
     // offending value (W-11 slice (c), Codex review round 3 of #1639).
     let renderable = open_pipe_stress_report_renderer::decode_renderable_report_input(input)?;
     let outcome = open_pipe_stress_report_renderer::render_calculation_report(&renderable);
-    // The desktop's record of this render, which binds the HTML save and the
-    // print to its bytes (`rendered_report_routes`); no copy is kept. A
-    // completion superseded by a later request, a retirement or a source change
-    // is refused by name.
+    // The desktop's record of this render, which keeps its canonical HTML (one
+    // reserved copy, none for a blocked or withheld render) for the HTML save
+    // and the print, which name it (`rendered_report_routes`). A completion
+    // superseded by a later request, a retirement or a source change, or whose
+    // document's reservation is refused, is refused by name.
     rendered_report_routes::record_render(export_context.as_deref(), &outcome.html, &outcome.sha256_hex, outcome.export_blocked, outcome.content_withheld)?;
     // W-11 slice (c) (DEL-08-01 Design `exact-route-report-sections.md` §6.2):
     // a render refused for its provenance records is metadata-only, so no

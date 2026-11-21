@@ -259,12 +259,15 @@ describe("the rendered report of a solved exact-route result that is not numeric
       expect(requestSha256).toBe(APP_RENDER_REQUEST_SHA256);
     }
     // The rendered report is shown, and its print is reached: in the desktop runtime the native
-    // print route receives the shown canonical HTML under the render's context, and no print frame
-    // is mounted (DEL-08-01 REQ-022).
+    // print route is asked for the shown render, named by its SHA-256 (no HTML is sent; the desktop
+    // keeps the document), under the render's context, and no print frame is mounted (DEL-08-01
+    // REQ-022).
     await waitFor(() => expect(within(screen.getByTestId("rendered-report-panel")).getByTestId("rendered-report-preview")).toBeInTheDocument());
     fireEvent.click(within(screen.getByTestId("rendered-report-panel")).getByTestId("rendered-report-print"));
     await waitFor(() => expect(within(screen.getByTestId("rendered-report-panel")).getByTestId("rendered-report-print-status")).toHaveTextContent("Print window opened"));
-    expect(prints.map((p: Json) => [p.html, p.exportContext, p.explicitLocalPrivateIntent])).toEqual([[HTML, "local_private", true]]);
+    expect(prints.map((p: Json) => ["html" in p, p.sha256Hex, p.exportContext, p.explicitLocalPrivateIntent])).toEqual([
+      [false, createHash("sha256").update(HTML).digest("hex"), "local_private", true]
+    ]);
     expect(within(screen.getByTestId("rendered-report-panel")).queryByTestId("rendered-report-print-frame")).toBeNull();
     const retiredBefore = retirements();
 

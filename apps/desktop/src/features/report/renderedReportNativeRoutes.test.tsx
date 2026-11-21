@@ -1,6 +1,7 @@
 // DEL-08-01 REQ-022: the report panel's Save canonical HTML and Print in the
-// desktop runtime go to the native commands (`renderedReportRoutes.ts`), carry
-// the canonical HTML and the controlled export's evidence, and show the
+// desktop runtime go to the native commands (`renderedReportRoutes.ts`), name
+// the render by its SHA-256 (the desktop keeps the document; no HTML is sent),
+// carry the controlled export's evidence, and show the
 // outcome in words; each keeps the gate its link or iframe had (the save the
 // HTML route's control, which withholds a public render's HTML whole; the
 // print of a public render the render's own gate); a blocked render offers
@@ -181,9 +182,10 @@ describe("native runtime", () => {
     await waitFor(() => expect(screen.getByTestId("rendered-report-save-status")).toHaveTextContent("Saved invented-report.html"));
     expect(screen.getByTestId("rendered-report-save-status")).toHaveAttribute("role", "status");
     expect(screen.getByTestId("rendered-report-save-status")).toHaveTextContent(`SHA-256 ${SHA}`);
+    expect(routeCalls("save_rendered_report_html").map((args) => "html" in args)).toEqual([false]);
     expect(routeCalls("save_rendered_report_html")).toEqual([
       {
-        html: HTML,
+        sha256Hex: SHA,
         exportContext: "local_private",
         explicitLocalPrivateIntent: true,
         evidence: { route_id: "DREP-HTML-SAVE-005", export_context: "local_private", explicit_local_private_intent: true, blocked: false, blocking_count: 0 },
@@ -241,9 +243,10 @@ describe("native runtime", () => {
     await renderShown();
     fireEvent.click(screen.getByTestId("rendered-report-print"));
     await waitFor(() => expect(screen.getByTestId("rendered-report-print-status")).toHaveTextContent(`Print window opened with the derived print view of SHA-256 ${SHA}`));
+    expect(routeCalls("print_rendered_report").map((args) => "html" in args)).toEqual([false]);
     expect(routeCalls("print_rendered_report")).toEqual([
       {
-        html: HTML,
+        sha256Hex: SHA,
         exportContext: "public_report",
         explicitLocalPrivateIntent: false,
         evidence: { route_id: "DREP-HTML-SAVE-005", export_context: "public_report", explicit_local_private_intent: false, blocked: false, blocking_count: 0 },
@@ -293,7 +296,7 @@ describe("native runtime", () => {
       active: null as null | { source: Mark; request: number }, watermark: 0,
       retirements: [] as Array<{ source: Mark; request: number }>, holdRetires: false, heldRetires: [] as Array<() => void>,
       entered: [] as number[],
-      published: [] as string[], advancesSent: 0, retiresSent: 0, holdAdvances: false, failAdvances: false,
+      held: null as null | string, published: [] as string[], advancesSent: 0, retiresSent: 0, holdAdvances: false, failAdvances: false,
       heldAdvances: [] as Array<() => void>, pendingSaves: [] as Array<() => void>, heldRenders: [] as Array<() => void>, holdRenders: false
     };
     const register = (mark: Mark): Mark => {
@@ -342,6 +345,8 @@ describe("native runtime", () => {
         nativeRender.pending = () => {
           if (ticket !== native.ticket || !current(source)) throw new Error("REPORT-RENDER-SUPERSEDED: not recorded.");
           native.record = source;
+          // The desktop keeps the recorded render's canonical HTML; a save publishes exactly it.
+          native.held = (outcomeRef.current?.html as string | undefined) ?? null;
         };
       },
       completion: async () => {
@@ -381,10 +386,16 @@ describe("native runtime", () => {
         return Promise.resolve({ outcome: "print_window_opened", route_id: "DREP-HTML-SAVE-005", export_context: "public_report", canonical_sha256_hex: SHA, print_sha256_hex: "c".repeat(64) });
       }
       if (command === "save_rendered_report_html") {
-        const { html, source } = ingressArgs([command, args, options]) as { html: string; source: Mark };
+        const named = ingressArgs([command, args, options]) as { sha256Hex: string; source: Mark };
+        const { source } = named;
+        if ("html" in named) throw new Error("the save request carries no document");
         if (!current(source) || native.record?.sequence !== source.sequence) {
           return Promise.reject({ code: "REPORT-SOURCE-RETIRED", stage: "source", message: "The report's source changed.", destination: "untouched", cleanup_code: null, selected_basename: null });
         }
+        if (named.sha256Hex !== SHA) {
+          return Promise.reject({ code: "REPORT-ROUTE-HTML-UNBOUND", stage: "admission", message: "The render the request names is not the current one.", destination: "untouched", cleanup_code: null, selected_basename: null });
+        }
+        const html = native.held as string;
         const admittedTicket = native.ticket;
         return new Promise((resolve, reject) => native.pendingSaves.push(() => {
           // The publication gate at the rename: the render and its source must still be current.

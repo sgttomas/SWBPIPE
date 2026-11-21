@@ -5,10 +5,11 @@
 //! shell replaces `window.print` only in the main frame (tauri 2.11.1
 //! `src/webview/scripts/print.js`, installed for the main frame only at
 //! `src/plugin.rs` 370-374), and the main frame's print is of the whole
-//! application window. So the desktop admits the canonical HTML against its
-//! render custody, derives the print view from those bytes itself
-//! (`derived_print_view`: the canonical document with a banner naming its
-//! hash), and loads that view into a window of its own, whose webview runs no
+//! application window. So the desktop admits the request, which names the
+//! render by its SHA-256 and carries no document, against its render custody,
+//! derives the print view itself from the canonical HTML that custody holds for
+//! the current render (`derived_print_view`: the canonical document with a
+//! banner naming its hash), and loads that view into a window of its own, whose webview runs no
 //! script (`disable_javascript`), keeps no data (`incognito`), navigates
 //! nowhere but its one address and is served the document over the
 //! [`SCHEME`] protocol with a content security policy that admits no load
@@ -109,10 +110,10 @@ pub(crate) struct PrintReceipt {
 }
 
 /// Admits the request against `custody` and derives the print view from the
-/// admitted canonical HTML.
+/// held canonical HTML of the render it names.
 pub(crate) fn admit_print_in(custody: &RenderCustody, request: &RouteRequest) -> Result<PrintDocument, RouteError> {
     let admitted = custody.admit(request)?;
-    let print_html = open_pipe_stress_report_renderer::derived_print_view(&request.html, &admitted.sha256_hex).into_bytes();
+    let print_html = open_pipe_stress_report_renderer::derived_print_view(admitted.document.html(), &admitted.sha256_hex).into_bytes();
     let print_sha256_hex = routes::sha256_hex(&print_html);
     Ok(PrintDocument {
         generation: admitted.generation,
@@ -485,9 +486,10 @@ mod tests {
 
     const HTML: &str = "<!DOCTYPE html>\n<html lang=\"en\">\n<head>\n<meta charset=\"utf-8\">\n<title>Invented</title>\n</head>\n<body>\n<p>Invented report</p>\n</body>\n</html>\n";
 
+    /// A request naming the render of `html` by its SHA-256; it carries no document.
     fn request(html: &str, context: &str, intent: bool) -> RouteRequest {
         RouteRequest {
-            html: html.to_string(),
+            sha256_hex: sha256_hex(html.as_bytes()),
             export_context: context.to_string(),
             explicit_local_private_intent: intent,
             evidence: RouteEvidence { route_id: ROUTE_ID.to_string(), export_context: context.to_string(), explicit_local_private_intent: intent, blocked: false, blocking_count: 0 },
@@ -517,6 +519,36 @@ mod tests {
             assert!(text.contains(&format!("Canonical rendered-report artifact SHA-256: {canonical}")));
             assert_eq!(document.print_sha256_hex, sha256_hex(text.as_bytes()));
             assert_eq!(document.export_context, context);
+        }
+    }
+
+    /// The request names the render and carries no document: the view the protocol serves to
+    /// the print window is the one derived from the document custody holds for that render.
+    #[test]
+    fn the_served_print_view_is_derived_from_the_held_document() {
+        let custody = rendered(PUBLIC_REPORT);
+        let held = custody.held_document().expect("an unblocked render holds its document");
+        let named = request(HTML, PUBLIC_REPORT, false);
+        assert_eq!(named.sha256_hex, sha256_hex(held.html().as_bytes()));
+        let document = admit_print_in(&custody, &named).unwrap();
+        let path = format!("/{}", document.print_sha256_hex);
+        let open = open_for(document);
+        let served = respond_in(&open, &custody, "report-print-7", &path);
+        assert_eq!(served.status(), 200);
+        let expected = open_pipe_stress_report_renderer::derived_print_view(held.html(), &named.sha256_hex);
+        assert_eq!(served.body(), expected.as_bytes());
+    }
+
+    /// A blocked, withheld or hash-mismatched render holds no document, and a print naming it is
+    /// refused before any view is derived.
+    #[test]
+    fn a_print_naming_a_render_that_holds_no_document_is_refused() {
+        let sha = sha256_hex(HTML.as_bytes());
+        for (blocked, withheld, named) in [(true, false, sha.clone()), (false, true, sha.clone()), (false, false, "0".repeat(64))] {
+            let custody = RenderCustody::new();
+            custody.record(Some(PUBLIC_REPORT), HTML, &named, blocked, withheld);
+            assert!(custody.held_document().is_none());
+            assert_eq!(admit_print_in(&custody, &request(HTML, PUBLIC_REPORT, false)).unwrap_err().code, BLOCKED);
         }
     }
 
