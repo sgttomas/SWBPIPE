@@ -57,7 +57,10 @@ async function editMagnitude(member: FamilyMember, entered: { value: number; uni
   await screen.findByTestId("workspace-toolbar");
   const manager = within(openSection("loads").getByTestId("load-case-manager"));
   fireEvent.click(manager.getByTestId(`load-manager-primitive-${PRIMITIVES[member.fieldPath]}`));
-  expect(manager.getByTestId("load-manager-selected-primitive")).toHaveTextContent(member.fieldPath);
+  // The editor opened under the row names the primitive chosen, by its identifier. The page does
+  // not print a document path: that the edit is made on this member's field is held by the queued
+  // intent's field path below, and by the stored document read back at the end.
+  expect(within(manager.getByTestId("load-manager-selected-primitive")).getByText(PRIMITIVES[member.fieldPath], { exact: true })).toBeVisible();
   await waitFor(() => expect(manager.getByTestId("load-manager-magnitude-unit")).toHaveValue(member.stored.unit));
   // The unit list is the field's dimension's; it holds the other unit entered here.
   await waitFor(() => expect([...(manager.getByTestId("load-manager-magnitude-unit") as HTMLSelectElement).options].map((option) => option.value)).toContain(entered.unit));
