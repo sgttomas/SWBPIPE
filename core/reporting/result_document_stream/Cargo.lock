@@ -88,6 +88,14 @@ name = "open_pipe_stress_correct_norm"
 version = "0.1.0"
 
 [[package]]
+name = "open_pipe_stress_export_decision"
+version = "0.1.0"
+dependencies = [
+ "serde",
+ "serde_json",
+]
+
+[[package]]
 name = "open_pipe_stress_frame_kernel"
 version = "0.1.0"
 dependencies = [
@@ -122,6 +130,7 @@ name = "open_pipe_stress_result_document_stream"
 version = "0.1.0"
 dependencies = [
  "open_pipe_stress_canonical_json",
+ "open_pipe_stress_export_decision",
  "open_pipe_stress_result_export",
  "serde_json",
  "sha2",
