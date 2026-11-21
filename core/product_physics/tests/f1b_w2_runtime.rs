@@ -352,6 +352,15 @@ fn cantilever_family(family: &str, modulus_scale: f64) -> Value {
             "hanger": {"hanger_type": "constant_effort_support", "constant_load": {"value": 375.0, "unit": "N"},
                        "travel_range": {"value": 0.05, "unit": "m"}, "source_reference": "invented"},
             "provenance": PROV})),
+        // DEL-04-11 REQ-014: a variable spring hanger applying its cold load on UY at the tip; its
+        // rate is scaled with the modulus, so the whole stiffness is scaled alike.
+        "variable_spring_hanger_preload" => supports.push(json!({"id": "support:sh", "node": "node:b",
+            "family": "variable_spring_hanger", "restraints": ["UY"],
+            "hanger": {"hanger_type": "variable_spring_hanger", "stiffness": {"dof": "UY", "value": {"value": 2.0e5 * modulus_scale, "unit": "N/m"}},
+                       "installed_load": {"value": 375.0, "unit": "N"}, "cold_load": {"value": 375.0, "unit": "N"},
+                       "hot_load": {"value": 375.0, "unit": "N"}, "travel_range": {"value": 0.05, "unit": "m"},
+                       "source_reference": "invented"},
+            "provenance": PROV})),
         other => panic!("{other}"),
     }
     t0r(
@@ -1312,6 +1321,41 @@ fn f1b_w2_two_spring_publication_gives_each_spring_its_own_action() {
                 actions.push(action);
             }
             assert!(actions[0] != actions[1], "{ctx}: {actions:?}");
+        }
+    }
+}
+
+/// DEL-04-11 REQ-014: a range-triggered case whose first excluded family is the
+/// variable spring preload (no connector, bend, thermal or eigen load, pressure
+/// operand, uniform load or consuming constant-effort support precedes it in
+/// `force_scaling_admission`'s order) is refused by W2 by that family's name,
+/// with no result row; the constant-effort-only control keeps its own outcome
+/// under `constant_effort_support`. The range check is triggered as the other
+/// families' are, by a modulus scaled by 2^-1000. The force-scale exponent is
+/// the product's selection and is not pinned here.
+#[test]
+fn f1b_w2_admission_refuses_the_spring_preload_by_name_and_constant_effort_keeps_its_own() {
+    let trigger = "Evaluation(Range(\"arithmetic outside normal range\"))";
+    for family in ["variable_spring_hanger_preload", "constant_effort_support"] {
+        let request = cantilever_family(family, pow2(-1000));
+        for mode in MODES {
+            for (entry, envelope) in envelopes(&request, mode, Entries::Both) {
+                let ctx = format!("{family} {entry} {mode:?}");
+                assert_eq!(envelope.status.mechanics, "MODEL_INCOMPLETE", "{ctx}: {:?}", envelope.diagnostics);
+                assert!(envelope.results.is_empty(), "{ctx}");
+                let blocking: Vec<_> = envelope.diagnostics.iter().filter(|d| d.severity == "blocking").collect();
+                assert_eq!(blocking.len(), 1, "{ctx}: {:?}", envelope.diagnostics);
+                let record = integrity(&envelope, "case:f");
+                assert_eq!(record.code, "NUMERICAL_INTEGRITY_UNRESOLVED", "{ctx}");
+                let prefix = format!("Load case case:f: range: family not admitted under force scaling: {family}; range_scaling: attempted; step1_trigger={trigger}; force_scale_exponent=");
+                assert!(record.message.starts_with(&prefix), "{ctx}: {}", record.message);
+            }
+        }
+    }
+    // The unscaled twin solves.
+    for mode in MODES {
+        for (entry, envelope) in envelopes(&cantilever_family("variable_spring_hanger_preload", 1.0), mode, Entries::Both) {
+            assert_eq!(envelope.status.mechanics, "MECHANICS_SOLVED", "{entry} {mode:?}: {:?}", envelope.diagnostics);
         }
     }
 }

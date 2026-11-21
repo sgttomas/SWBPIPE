@@ -22,7 +22,7 @@ const SUPPORT_COMPONENTS: [&str; 6] = ["Fx", "Fy", "Fz", "Mx", "My", "Mz"];
 
 /// The linear state kinds admitted to combination algebra (table
 /// `combination_policy.linear_state_kinds`).
-const LINEAR_STATE_KINDS: [&str; 23] = [
+const LINEAR_STATE_KINDS: [&str; 24] = [
     "global_nodal_displacement_x",
     "global_nodal_displacement_y",
     "global_nodal_displacement_z",
@@ -49,6 +49,7 @@ const LINEAR_STATE_KINDS: [&str; 23] = [
     // R-6/R-7 S-K1 (DEL-04-03 skew-restraints.md §7.1): a skewed record's along-direction
     // value, a signed linear state combined as any scalar of its kind.
     "support_reaction_along_direction_v1",
+    "variable_spring_hanger_applied_load",
 ];
 const ARC_STRESS_KINDS: [&str; 6] = [
     "element_local_axial_normal_stress",
@@ -892,7 +893,8 @@ fn gate_reason(
     // the exact sum of the binary64 factors, admitted iff |sum - 1| <= 64*epsilon,
     // compared exactly. A non-finite factor (already refused by validation's
     // LOAD_COMBINATION_FACTOR_INVALID) makes κ undefined, which never passes.
-    if rendered.consuming_constant_effort {
+    let springs = crate::spring_preload::fixed_load_source(model);
+    if rendered.consuming_constant_effort || springs {
         let operand_kappa: Vec<_> = targets.iter().map(|target| plan.kappa_of(target)).collect();
         let withholding = if basis == "mechanics" {
             open_pipe_stress_load_case_algebra::mechanics_fixed_load_gate(&plan.kappa[index], operand_kappa.iter())
@@ -901,11 +903,14 @@ fn gate_reason(
         };
         if let Some(withholding) = withholding {
             use open_pipe_stress_load_case_algebra::FixedLoadWithholding as W;
-            return gated(match withholding {
+            let code = match withholding {
                 W::UnitFactorSum => CONSTANT_EFFORT_REQUIRES_SOLVE,
                 W::OperandUndefined => CONSTANT_EFFORT_OPERAND_MIXED,
                 W::UnsignedOperand => CONSTANT_EFFORT_UNSIGNED_OPERAND,
-            });
+            };
+            // DEL-04-11 REQ-014: a spring's cold load is one more fixed-load source
+            // under the same codes; the message names the actual source.
+            return Some((code, crate::spring_preload::fixed_load_gate_message(code, rendered.consuming_constant_effort, springs, gate_message(code))));
         }
     }
     let mut scratch = Vec::new();
@@ -924,8 +929,8 @@ fn gate_reason(
 fn gate_message(code: &str) -> &'static str {
     match code {
         "NONLINEAR_COMBINATION_REQUIRES_SOLVE" => "Combination withheld: the model has nonlinear supports, so superposing case states is not a solved state.",
-        CONSTANT_EFFORT_REQUIRES_SOLVE => "Combination withheld: a constant-effort support would be counted by the sum of factors instead of once.",
-        CONSTANT_EFFORT_UNSIGNED_OPERAND => "Combination withheld: a constant-effort support's force acts in every case state; an absolute sum or SRSS of operands whose fixed-load count is not exactly 0 would count it once per term with its sign discarded.",
+        CONSTANT_EFFORT_REQUIRES_SOLVE => "Combination withheld: a constant-effort support would be counted by the sum of factors instead of once. The difference of two solved cases is available as a result state subtraction.",
+        CONSTANT_EFFORT_UNSIGNED_OPERAND => "Combination withheld: a constant-effort support's force acts in every case state; an absolute sum or SRSS of operands whose fixed-load count is not exactly 0 would count it once per term with its sign discarded. The difference of two solved cases is available as a result state subtraction.",
         CONSTANT_EFFORT_OPERAND_MIXED => "Combination withheld: an operand's fixed-load count is undefined, so the number of times this combination counts a constant-effort support's force cannot be decided.",
         difference_basis::SUSTAINED_NOT_IN_OPERATING => difference_basis::SUSTAINED_NOT_IN_OPERATING_MESSAGE,
         difference_basis::MODULUS_MIXED => difference_basis::MODULUS_MIXED_MESSAGE,
@@ -1382,11 +1387,17 @@ pub(crate) fn combination_derivation(model: &PreviewModel, rendered: &Rendered, 
         .filter(|c| recorded.contains(&c.id))
         .map(|c| serde_json::json!({"combination_id": c.id, "basis": c.basis, "expression": exact_combinations::expression_evidence(c)}))
         .collect();
-    Some(serde_json::json!({
+    let mut member = serde_json::json!({
         "nonlinear_supports": rendered.nonlinear,
         "consuming_constant_effort": rendered.consuming_constant_effort,
         "combinations": records,
-    }))
+    });
+    // DEL-04-11 REQ-014: the sibling fixed-load source, stated only where it holds,
+    // so that a document without an applying spring keeps its bytes.
+    if crate::spring_preload::fixed_load_source(model) {
+        member[crate::spring_preload::COLD_LOAD_FACT] = serde_json::Value::Bool(true);
+    }
+    Some(member)
 }
 
 /// Operating-case slice 1a (DEL-05-02 Design `pf-nonlinear-operand-standing.md`):

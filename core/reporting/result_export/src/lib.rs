@@ -1705,6 +1705,8 @@ pub use physics_evidence::{cap_remainder_warning_message, CAP_REMAINDER_WARNING_
 mod exact_combination_evidence;
 mod combination_graph;
 mod preview_combination_gates;
+// DEL-04-11 REQ-014: the variable spring preload as the readers re-derive it.
+mod spring_preload;
 pub mod section_basis;
 mod preview_physics_evidence;
 mod preview_combination_operands;

@@ -329,6 +329,7 @@ pub(super) fn summary_row(
 
 pub(super) fn support(
     model: &PreviewModel,
+    case: &PreviewLoadCase,
     support: &PreviewSupport,
     built: &BuiltModel,
     springs: &[SpringEntry],
@@ -420,7 +421,13 @@ pub(super) fn support(
         .filter(|(spring, _)| spring.support_id == support.id)
     {
         let dof = spring.node_dof.global_index();
-        rows[dof % 6] = certify_spring_reaction(dof, spring.stiffness.value, ground, u, bound)?;
+        let row = certify_spring_reaction(dof, spring.stiffness.value, ground, u, bound)?;
+        // DEL-04-11 REQ-014: a spring that applies its cold load publishes
+        // F_cold - k·(u + w + w₂ - g), the cold load entering exactly.
+        rows[dof % 6] = match crate::spring_preload::applied(model, case, &support.id) {
+            Some(preload) => row.add_value(CertifiedValue::exact(preload.cold_load_newtons)?)?,
+            None => row,
+        };
     }
     Ok((rows, None))
 }

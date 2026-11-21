@@ -28,11 +28,11 @@
    ".json",
    ".jsonl"
   ],
-  "files": 543,
+  "files": 544,
   "claimed_by": {
    "group": 142,
    "in_code": 64,
-   "exemption": 337
+   "exemption": 338
   }
  },
  "counts": {
@@ -9262,7 +9262,7 @@
    ],
    "expectations": "no_response_value",
    "cases_named": "all",
-   "detail": "the committed shared_terminal_junction request (case:pressure named) with its closures set to transfer and a hanger added; it asserts the SPRING_HANGER_LOAD_NOT_APPLIED_AS_PRELOAD warnings and messages only"
+   "detail": "the committed shared_terminal_junction request (case:pressure named) with its closures set to transfer and a hanger added; it asserts the variable spring preload warnings (SPRING_HANGER_COLD_LOAD_NOT_APPLIED, SPRING_HANGER_INSTALLED_LOAD_DIFFERS_FROM_COLD_LOAD) and their messages, the count of applied-load rows and the review rows' consumption keys, and no response value"
   },
   {
    "paths": [
@@ -9707,6 +9707,7 @@
     "core/product_physics/src/retained_memory_witness_tests.rs",
     "core/product_physics/src/source_recovery/j7_rf_census.rs",
     "core/product_physics/tests/common/b1_sq_inputs.rs",
+    "core/product_physics/tests/common/spring_preload_model.rs",
     "core/product_physics/tests/common/w15c_bench.rs",
     "core/product_physics/tests/connector_pp_paths.rs",
     "core/product_physics/tests/elastic_extrema_runtime.rs",
@@ -9739,6 +9740,7 @@
     "core/product_physics/src/retained_memory_witness_tests.rs",
     "core/product_physics/src/source_recovery/j7_rf_census.rs",
     "core/product_physics/tests/common/b1_sq_inputs.rs",
+    "core/product_physics/tests/common/spring_preload_model.rs",
     "core/product_physics/tests/common/w15c_bench.rs",
     "core/product_physics/tests/connector_pp_paths.rs",
     "core/product_physics/tests/elastic_extrema_runtime.rs",

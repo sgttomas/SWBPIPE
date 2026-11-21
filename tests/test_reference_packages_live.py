@@ -41,7 +41,7 @@ LIVE_CHECKS = {
     "demo_friction_reversal_preload": LiveCheck(
         ("generators/demo_friction_preload_reference.py", "--check-live"), (R.DEMO_MODEL, R.FRICTION_REVERSAL_TEST),
         whole=((R.DEMO_MODEL, "2fd18681f688e60b03102eb65112d147871d3a59431685800d2bfa3baca7b672"),
-               (R.FRICTION_REVERSAL_TEST, "a3d31f87f98f9fcdaca68d3430abaefe1eeb158b58084963b71c1c14e7f404ae"))),
+               (R.FRICTION_REVERSAL_TEST, "1234030ce58270ef98f311ed58c13b6ce85504819d04adac6a50a8d408507dd0"))),
     "reference_system_generated_loads": LiveCheck(
         ("generators/rsgl_reference.py", "--check-live"), (R.REFERENCE_FIXTURE,),
         whole=((R.REFERENCE_FIXTURE, "14719edc7709d3f893ae4820ddae6747b48ce68c91dbe1d853c7b2151a6c8cc2"),)),

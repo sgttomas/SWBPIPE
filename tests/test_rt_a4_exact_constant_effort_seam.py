@@ -92,7 +92,8 @@ def test_the_mirror_reads_gate_four_on_kappa_with_its_own_codes():
     assert set(_gate_codes(CHAIN, [], False).values()) == {None}
     assert combinations.GATE_MESSAGES[CE_UNSIGNED] == (
         "Combination withheld: a constant-effort support's force acts in every case state; an absolute sum or SRSS of operands "
-        "whose fixed-load count is not exactly 0 would count it once per term with its sign discarded.")
+        "whose fixed-load count is not exactly 0 would count it once per term with its sign discarded."
+        " The difference of two solved cases is available as a result state subtraction.")
 
 
 T = 2.0 ** -1074

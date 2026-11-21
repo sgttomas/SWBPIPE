@@ -402,7 +402,16 @@ fn supports_findings(supports: &[SupportView<'_>], found: &mut MemberFindings) {
         let one = dofs.as_ref().filter(|dofs| dofs.len() == 1).map(|dofs| dofs[0]);
         // A snubber is admitted with exactly one restraint, any stiffness being on that DOF.
         let snubber_shape = !snubber || support.restraints.len() == 1;
-        if !admitted_family {
+        if support.hanger {
+            // DEL-04-03 REQ-014, DEL-04-11 REQ-014: a hanger's axis is its stiffness DOF or its
+            // single translational restraint, and its load acts along that axis's positive
+            // direction; a direction is not an input of either hanger family. Decided before
+            // the family, so that every record carrying a hanger, of whatever family, is told
+            // the one thing that corrects it. A hanger-family record with no hanger member
+            // (refused on its own as SPRING_HANGER_DATA_MISSING) keeps the family's words.
+            found.push(refuse(SUPPORT_DIRECTION_RECORD_UNSUPPORTED,
+                "is not an input of a hanger: a hanger's load acts along the positive axis of its stiffness DOF (or of its single translational restraint), so remove the direction"));
+        } else if !admitted_family {
             found.push(refuse(SUPPORT_DIRECTION_RECORD_UNSUPPORTED, "is admitted only on an explicit line_stop, spring or snubber family"));
         } else if support.nonlinear {
             found.push(refuse(SUPPORT_DIRECTION_RECORD_UNSUPPORTED, "is not admitted on a support with a nonlinear member"));

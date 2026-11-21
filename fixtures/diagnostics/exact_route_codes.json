@@ -348,17 +348,17 @@
    "severity": "blocking",
    "first_site": {
     "file": "core/product_physics/src/validation.rs",
-    "line": 2252,
+    "line": 2248,
     "via": "diag()"
    },
    "sites": [
     {
      "file": "core/product_physics/src/validation.rs",
-     "line": 2252,
+     "line": 2248,
      "via": "diag()",
      "severity": "blocking",
      "through": [
-      "const BEND_DIRECTIONAL_SIF_INCOMPLETE (core/product_physics/src/validation.rs:2221)"
+      "const BEND_DIRECTIONAL_SIF_INCOMPLETE (core/product_physics/src/validation.rs:2217)"
      ]
     }
    ],
@@ -381,17 +381,17 @@
    "severity": "blocking",
    "first_site": {
     "file": "core/product_physics/src/validation.rs",
-    "line": 2236,
+    "line": 2232,
     "via": "diag()"
    },
    "sites": [
     {
      "file": "core/product_physics/src/validation.rs",
-     "line": 2236,
+     "line": 2232,
      "via": "diag()",
      "severity": "blocking",
      "through": [
-      "const BEND_DIRECTIONAL_SIF_NOT_REALIZED_ARC (core/product_physics/src/validation.rs:2222)"
+      "const BEND_DIRECTIONAL_SIF_NOT_REALIZED_ARC (core/product_physics/src/validation.rs:2218)"
      ]
     }
    ],
@@ -414,13 +414,13 @@
    "severity": "warning",
    "first_site": {
     "file": "core/product_physics/src/validation.rs",
-    "line": 1317,
+    "line": 1313,
     "via": "diag()"
    },
    "sites": [
     {
      "file": "core/product_physics/src/validation.rs",
-     "line": 1317,
+     "line": 1313,
      "via": "diag()",
      "severity": "warning"
     }
@@ -444,17 +444,17 @@
    "severity": "warning",
    "first_site": {
     "file": "core/product_physics/src/validation.rs",
-    "line": 1329,
+    "line": 1325,
     "via": "diag()"
    },
    "sites": [
     {
      "file": "core/product_physics/src/validation.rs",
-     "line": 1329,
+     "line": 1325,
      "via": "diag()",
      "severity": "warning",
      "through": [
-      "const BEND_GEOMETRY_ONLY_SOLVED_AS_CHORD (core/product_physics/src/validation.rs:1665)"
+      "const BEND_GEOMETRY_ONLY_SOLVED_AS_CHORD (core/product_physics/src/validation.rs:1661)"
      ]
     }
    ],
@@ -477,13 +477,13 @@
    "severity": "warning",
    "first_site": {
     "file": "core/product_physics/src/validation.rs",
-    "line": 1357,
+    "line": 1353,
     "via": "diag()"
    },
    "sites": [
     {
      "file": "core/product_physics/src/validation.rs",
-     "line": 1357,
+     "line": 1353,
      "via": "diag()",
      "severity": "warning"
     }
@@ -507,13 +507,13 @@
    "severity": "warning",
    "first_site": {
     "file": "core/product_physics/src/validation.rs",
-    "line": 1341,
+    "line": 1337,
     "via": "diag()"
    },
    "sites": [
     {
      "file": "core/product_physics/src/validation.rs",
-     "line": 1341,
+     "line": 1337,
      "via": "diag()",
      "severity": "warning"
     }
@@ -537,13 +537,13 @@
    "severity": "warning",
    "first_site": {
     "file": "core/product_physics/src/validation.rs",
-    "line": 1371,
+    "line": 1367,
     "via": "diag()"
    },
    "sites": [
     {
      "file": "core/product_physics/src/validation.rs",
-     "line": 1371,
+     "line": 1367,
      "via": "diag()",
      "severity": "warning"
     }
@@ -567,13 +567,13 @@
    "severity": "warning",
    "first_site": {
     "file": "core/product_physics/src/validation.rs",
-    "line": 1383,
+    "line": 1379,
     "via": "diag()"
    },
    "sites": [
     {
      "file": "core/product_physics/src/validation.rs",
-     "line": 1383,
+     "line": 1379,
      "via": "diag()",
      "severity": "warning"
     }
@@ -597,13 +597,13 @@
    "severity": "warning",
    "first_site": {
     "file": "core/product_physics/src/validation.rs",
-    "line": 1400,
+    "line": 1396,
     "via": "diag()"
    },
    "sites": [
     {
      "file": "core/product_physics/src/validation.rs",
-     "line": 1400,
+     "line": 1396,
      "via": "diag()",
      "severity": "warning"
     }
@@ -627,13 +627,13 @@
    "severity": "warning",
    "first_site": {
     "file": "core/product_physics/src/validation.rs",
-    "line": 1427,
+    "line": 1423,
     "via": "diag()"
    },
    "sites": [
     {
      "file": "core/product_physics/src/validation.rs",
-     "line": 1427,
+     "line": 1423,
      "via": "diag()",
      "severity": "warning"
     }
@@ -657,13 +657,13 @@
    "severity": "warning",
    "first_site": {
     "file": "core/product_physics/src/validation.rs",
-    "line": 1415,
+    "line": 1411,
     "via": "diag()"
    },
    "sites": [
     {
      "file": "core/product_physics/src/validation.rs",
-     "line": 1415,
+     "line": 1411,
      "via": "diag()",
      "severity": "warning"
     }
@@ -687,26 +687,26 @@
    "severity": "info",
    "first_site": {
     "file": "core/product_physics/src/exact_combinations.rs",
-    "line": 959,
+    "line": 965,
     "via": "diag()"
    },
    "sites": [
     {
      "file": "core/product_physics/src/exact_combinations.rs",
-     "line": 959,
+     "line": 965,
      "via": "diag()",
      "severity": "info",
      "through": [
-      "const FIXED_LOAD_COUNT_UNREPRESENTABLE (core/product_physics/src/preview_physics.rs:821)"
+      "const FIXED_LOAD_COUNT_UNREPRESENTABLE (core/product_physics/src/preview_physics.rs:822)"
      ]
     },
     {
      "file": "core/product_physics/src/preview_physics.rs",
-     "line": 1044,
+     "line": 1049,
      "via": "diag()",
      "severity": "info",
      "through": [
-      "const FIXED_LOAD_COUNT_UNREPRESENTABLE (core/product_physics/src/preview_physics.rs:821)"
+      "const FIXED_LOAD_COUNT_UNREPRESENTABLE (core/product_physics/src/preview_physics.rs:822)"
      ]
     }
    ],
@@ -730,13 +730,13 @@
    "severity": "warning",
    "first_site": {
     "file": "core/product_physics/src/exact_combinations.rs",
-    "line": 405,
+    "line": 406,
     "via": "gated()"
    },
    "sites": [
     {
      "file": "core/product_physics/src/exact_combinations.rs",
-     "line": 405,
+     "line": 406,
      "via": "gated()",
      "severity": null,
      "through": [
@@ -745,7 +745,7 @@
     },
     {
      "file": "core/product_physics/src/exact_combinations.rs",
-     "line": 972,
+     "line": 978,
      "via": "diag()",
      "severity": "warning",
      "through": [
@@ -772,19 +772,19 @@
    "severity": "info",
    "first_site": {
     "file": "core/product_physics/src/exact_combinations.rs",
-    "line": 1029,
+    "line": 1035,
     "via": "diag()"
    },
    "sites": [
     {
      "file": "core/product_physics/src/exact_combinations.rs",
-     "line": 1029,
+     "line": 1035,
      "via": "diag()",
      "severity": "info"
     },
     {
      "file": "core/product_physics/src/preview_physics.rs",
-     "line": 1298,
+     "line": 1303,
      "via": "diag()",
      "severity": "info"
     }
@@ -811,13 +811,13 @@
    "severity": "warning",
    "first_site": {
     "file": "core/product_physics/src/exact_combinations.rs",
-    "line": 374,
+    "line": 375,
     "via": "gated()"
    },
    "sites": [
     {
      "file": "core/product_physics/src/exact_combinations.rs",
-     "line": 374,
+     "line": 375,
      "via": "gated()",
      "severity": null,
      "through": [
@@ -826,7 +826,7 @@
     },
     {
      "file": "core/product_physics/src/exact_combinations.rs",
-     "line": 972,
+     "line": 978,
      "via": "diag()",
      "severity": "warning",
      "through": [
@@ -835,13 +835,13 @@
     },
     {
      "file": "core/product_physics/src/preview_physics.rs",
-     "line": 919,
+     "line": 924,
      "via": "gated()",
      "severity": null
     },
     {
      "file": "core/product_physics/src/preview_physics.rs",
-     "line": 1057,
+     "line": 1062,
      "via": "diag()",
      "severity": "warning"
     }
@@ -868,17 +868,17 @@
    "severity": "warning",
    "first_site": {
     "file": "core/product_physics/src/preview_physics.rs",
-    "line": 1541,
+    "line": 1552,
     "via": "diag()"
    },
    "sites": [
     {
      "file": "core/product_physics/src/preview_physics.rs",
-     "line": 1541,
+     "line": 1552,
      "via": "diag()",
      "severity": "warning",
      "through": [
-      "const OPERAND_CHECKS_NOT_PASSED (core/product_physics/src/preview_physics.rs:1398)"
+      "const OPERAND_CHECKS_NOT_PASSED (core/product_physics/src/preview_physics.rs:1409)"
      ]
     }
    ],
@@ -901,17 +901,17 @@
    "severity": "info",
    "first_site": {
     "file": "core/product_physics/src/preview_physics.rs",
-    "line": 1503,
+    "line": 1514,
     "via": "diag()"
    },
    "sites": [
     {
      "file": "core/product_physics/src/preview_physics.rs",
-     "line": 1503,
+     "line": 1514,
      "via": "diag()",
      "severity": "info",
      "through": [
-      "const OPERAND_STATES_DIFFER (core/product_physics/src/preview_physics.rs:1396)"
+      "const OPERAND_STATES_DIFFER (core/product_physics/src/preview_physics.rs:1407)"
      ]
     }
    ],
@@ -934,13 +934,13 @@
    "severity": "warning",
    "first_site": {
     "file": "core/product_physics/src/exact_combinations.rs",
-    "line": 388,
+    "line": 389,
     "via": "gated()"
    },
    "sites": [
     {
      "file": "core/product_physics/src/exact_combinations.rs",
-     "line": 388,
+     "line": 389,
      "via": "gated()",
      "severity": null,
      "through": [
@@ -949,7 +949,7 @@
     },
     {
      "file": "core/product_physics/src/exact_combinations.rs",
-     "line": 972,
+     "line": 978,
      "via": "diag()",
      "severity": "warning",
      "through": [
@@ -1045,19 +1045,19 @@
    "severity": "info",
    "first_site": {
     "file": "core/product_physics/src/exact_combinations.rs",
-    "line": 1020,
+    "line": 1026,
     "via": "diag()"
    },
    "sites": [
     {
      "file": "core/product_physics/src/exact_combinations.rs",
-     "line": 1020,
+     "line": 1026,
      "via": "diag()",
      "severity": "info"
     },
     {
      "file": "core/product_physics/src/preview_physics.rs",
-     "line": 1289,
+     "line": 1294,
      "via": "diag()",
      "severity": "info"
     }
@@ -1084,13 +1084,13 @@
    "severity": "info",
    "first_site": {
     "file": "core/product_physics/src/preview_physics.rs",
-    "line": 717,
+    "line": 718,
     "via": "diag()"
    },
    "sites": [
     {
      "file": "core/product_physics/src/preview_physics.rs",
-     "line": 717,
+     "line": 718,
      "via": "diag()",
      "severity": "info"
     }
@@ -1114,19 +1114,19 @@
    "severity": "info",
    "first_site": {
     "file": "core/product_physics/src/preview_physics.rs",
-    "line": 387,
+    "line": 388,
     "via": "diag()"
    },
    "sites": [
     {
      "file": "core/product_physics/src/preview_physics.rs",
-     "line": 387,
+     "line": 388,
      "via": "diag()",
      "severity": "info"
     },
     {
      "file": "core/product_physics/src/preview_physics.rs",
-     "line": 402,
+     "line": 403,
      "via": "diag()",
      "severity": "info"
     },
@@ -1157,13 +1157,13 @@
    "severity": "warning",
    "first_site": {
     "file": "core/product_physics/src/preview_physics.rs",
-    "line": 423,
+    "line": 424,
     "via": "diag()"
    },
    "sites": [
     {
      "file": "core/product_physics/src/preview_physics.rs",
-     "line": 423,
+     "line": 424,
      "via": "diag()",
      "severity": "warning"
     },
@@ -1193,13 +1193,13 @@
    "severity": "warning",
    "first_site": {
     "file": "core/product_physics/src/validation.rs",
-    "line": 1303,
+    "line": 1299,
     "via": "diag()"
    },
    "sites": [
     {
      "file": "core/product_physics/src/validation.rs",
-     "line": 1303,
+     "line": 1299,
      "via": "diag()",
      "severity": "warning"
     }
@@ -1223,13 +1223,13 @@
    "severity": "warning",
    "first_site": {
     "file": "core/product_physics/src/validation.rs",
-    "line": 1268,
+    "line": 1264,
     "via": "diag()"
    },
    "sites": [
     {
      "file": "core/product_physics/src/validation.rs",
-     "line": 1268,
+     "line": 1264,
      "via": "diag()",
      "severity": "warning"
     }
@@ -1253,13 +1253,13 @@
    "severity": "info",
    "first_site": {
     "file": "core/product_physics/src/preview_physics.rs",
-    "line": 372,
+    "line": 373,
     "via": "diag()"
    },
    "sites": [
     {
      "file": "core/product_physics/src/preview_physics.rs",
-     "line": 372,
+     "line": 373,
      "via": "diag()",
      "severity": "info"
     }
@@ -1349,48 +1349,48 @@
    "severity": "warning",
    "first_site": {
     "file": "core/product_physics/src/exact_combinations.rs",
-    "line": 419,
-    "via": "gated()"
+    "line": 429,
+    "via": "fixed_load_gate_message()"
    },
    "sites": [
     {
      "file": "core/product_physics/src/exact_combinations.rs",
-     "line": 419,
-     "via": "gated()",
+     "line": 429,
+     "via": "fixed_load_gate_message()",
      "severity": null,
      "through": [
-      "const CONSTANT_EFFORT_OPERAND_MIXED (core/product_physics/src/preview_physics.rs:817)",
-      "const CONSTANT_EFFORT_OPERAND_MIXED <- const CONSTANT_EFFORT_OPERAND_MIXED (core/product_physics/src/preview_physics.rs:817)"
+      "const CONSTANT_EFFORT_OPERAND_MIXED (core/product_physics/src/preview_physics.rs:818)",
+      "const CONSTANT_EFFORT_OPERAND_MIXED <- const CONSTANT_EFFORT_OPERAND_MIXED (core/product_physics/src/preview_physics.rs:818)"
      ]
     },
     {
      "file": "core/product_physics/src/exact_combinations.rs",
-     "line": 972,
+     "line": 978,
      "via": "diag()",
      "severity": "warning",
      "through": [
-      "const CONSTANT_EFFORT_OPERAND_MIXED (core/product_physics/src/preview_physics.rs:817)",
-      "const CONSTANT_EFFORT_OPERAND_MIXED <- const CONSTANT_EFFORT_OPERAND_MIXED (core/product_physics/src/preview_physics.rs:817)"
+      "const CONSTANT_EFFORT_OPERAND_MIXED (core/product_physics/src/preview_physics.rs:818)",
+      "const CONSTANT_EFFORT_OPERAND_MIXED <- const CONSTANT_EFFORT_OPERAND_MIXED (core/product_physics/src/preview_physics.rs:818)"
      ]
     },
     {
      "file": "core/product_physics/src/preview_physics.rs",
-     "line": 904,
-     "via": "gated()",
+     "line": 913,
+     "via": "fixed_load_gate_message()",
      "severity": null,
      "through": [
-      "const CONSTANT_EFFORT_OPERAND_MIXED (core/product_physics/src/preview_physics.rs:817)",
-      "const CONSTANT_EFFORT_OPERAND_MIXED <- const CONSTANT_EFFORT_OPERAND_MIXED (core/product_physics/src/preview_physics.rs:817)"
+      "const CONSTANT_EFFORT_OPERAND_MIXED (core/product_physics/src/preview_physics.rs:818)",
+      "const CONSTANT_EFFORT_OPERAND_MIXED <- const CONSTANT_EFFORT_OPERAND_MIXED (core/product_physics/src/preview_physics.rs:818)"
      ]
     },
     {
      "file": "core/product_physics/src/preview_physics.rs",
-     "line": 1057,
+     "line": 1062,
      "via": "diag()",
      "severity": "warning",
      "through": [
-      "const CONSTANT_EFFORT_OPERAND_MIXED (core/product_physics/src/preview_physics.rs:817)",
-      "const CONSTANT_EFFORT_OPERAND_MIXED <- const CONSTANT_EFFORT_OPERAND_MIXED (core/product_physics/src/preview_physics.rs:817)"
+      "const CONSTANT_EFFORT_OPERAND_MIXED (core/product_physics/src/preview_physics.rs:818)",
+      "const CONSTANT_EFFORT_OPERAND_MIXED <- const CONSTANT_EFFORT_OPERAND_MIXED (core/product_physics/src/preview_physics.rs:818)"
      ]
     }
    ],
@@ -1413,14 +1413,14 @@
    "severity": "warning",
    "first_site": {
     "file": "core/product_physics/src/exact_combinations.rs",
-    "line": 419,
-    "via": "gated()"
+    "line": 429,
+    "via": "fixed_load_gate_message()"
    },
    "sites": [
     {
      "file": "core/product_physics/src/exact_combinations.rs",
-     "line": 419,
-     "via": "gated()",
+     "line": 429,
+     "via": "fixed_load_gate_message()",
      "severity": null,
      "through": [
       "const CONSTANT_EFFORT (core/product_physics/src/exact_combinations.rs:64)"
@@ -1428,7 +1428,7 @@
     },
     {
      "file": "core/product_physics/src/exact_combinations.rs",
-     "line": 972,
+     "line": 978,
      "via": "diag()",
      "severity": "warning",
      "through": [
@@ -1437,20 +1437,20 @@
     },
     {
      "file": "core/product_physics/src/preview_physics.rs",
-     "line": 904,
-     "via": "gated()",
+     "line": 913,
+     "via": "fixed_load_gate_message()",
      "severity": null,
      "through": [
-      "const CONSTANT_EFFORT_REQUIRES_SOLVE (core/product_physics/src/preview_physics.rs:815)"
+      "const CONSTANT_EFFORT_REQUIRES_SOLVE (core/product_physics/src/preview_physics.rs:816)"
      ]
     },
     {
      "file": "core/product_physics/src/preview_physics.rs",
-     "line": 1057,
+     "line": 1062,
      "via": "diag()",
      "severity": "warning",
      "through": [
-      "const CONSTANT_EFFORT_REQUIRES_SOLVE (core/product_physics/src/preview_physics.rs:815)"
+      "const CONSTANT_EFFORT_REQUIRES_SOLVE (core/product_physics/src/preview_physics.rs:816)"
      ]
     }
    ],
@@ -1481,13 +1481,13 @@
    "severity": "blocking",
    "first_site": {
     "file": "core/product_physics/src/validation.rs",
-    "line": 1134,
+    "line": 1130,
     "via": "spring_hanger_diag()"
    },
    "sites": [
     {
      "file": "core/product_physics/src/validation.rs",
-     "line": 1134,
+     "line": 1130,
      "via": "spring_hanger_diag()",
      "severity": "blocking"
     }
@@ -1511,13 +1511,13 @@
    "severity": "info",
    "first_site": {
     "file": "core/product_physics/src/preview_physics.rs",
-    "line": 766,
+    "line": 767,
     "via": "diag()"
    },
    "sites": [
     {
      "file": "core/product_physics/src/preview_physics.rs",
-     "line": 766,
+     "line": 767,
      "via": "diag()",
      "severity": "info",
      "through": [
@@ -1544,13 +1544,13 @@
    "severity": "blocking",
    "first_site": {
     "file": "core/product_physics/src/validation.rs",
-    "line": 1156,
+    "line": 1152,
     "via": "spring_hanger_diag()"
    },
    "sites": [
     {
      "file": "core/product_physics/src/validation.rs",
-     "line": 1156,
+     "line": 1152,
      "via": "spring_hanger_diag()",
      "severity": "blocking"
     }
@@ -1574,13 +1574,13 @@
    "severity": "blocking",
    "first_site": {
     "file": "core/product_physics/src/validation.rs",
-    "line": 1146,
+    "line": 1142,
     "via": "spring_hanger_diag()"
    },
    "sites": [
     {
      "file": "core/product_physics/src/validation.rs",
-     "line": 1146,
+     "line": 1142,
      "via": "spring_hanger_diag()",
      "severity": "blocking"
     }
@@ -1604,14 +1604,14 @@
    "severity": "warning",
    "first_site": {
     "file": "core/product_physics/src/exact_combinations.rs",
-    "line": 419,
-    "via": "gated()"
+    "line": 429,
+    "via": "fixed_load_gate_message()"
    },
    "sites": [
     {
      "file": "core/product_physics/src/exact_combinations.rs",
-     "line": 419,
-     "via": "gated()",
+     "line": 429,
+     "via": "fixed_load_gate_message()",
      "severity": null,
      "through": [
       "const CONSTANT_EFFORT_UNSIGNED (core/product_physics/src/exact_combinations.rs:67)"
@@ -1619,7 +1619,7 @@
     },
     {
      "file": "core/product_physics/src/exact_combinations.rs",
-     "line": 972,
+     "line": 978,
      "via": "diag()",
      "severity": "warning",
      "through": [
@@ -1628,20 +1628,20 @@
     },
     {
      "file": "core/product_physics/src/preview_physics.rs",
-     "line": 904,
-     "via": "gated()",
+     "line": 913,
+     "via": "fixed_load_gate_message()",
      "severity": null,
      "through": [
-      "const CONSTANT_EFFORT_UNSIGNED_OPERAND (core/product_physics/src/preview_physics.rs:816)"
+      "const CONSTANT_EFFORT_UNSIGNED_OPERAND (core/product_physics/src/preview_physics.rs:817)"
      ]
     },
     {
      "file": "core/product_physics/src/preview_physics.rs",
-     "line": 1057,
+     "line": 1062,
      "via": "diag()",
      "severity": "warning",
      "through": [
-      "const CONSTANT_EFFORT_UNSIGNED_OPERAND (core/product_physics/src/preview_physics.rs:816)"
+      "const CONSTANT_EFFORT_UNSIGNED_OPERAND (core/product_physics/src/preview_physics.rs:817)"
      ]
     }
    ],
@@ -1664,13 +1664,13 @@
    "severity": "info",
    "first_site": {
     "file": "core/product_physics/src/validation.rs",
-    "line": 1165,
+    "line": 1161,
     "via": "spring_hanger_diag()"
    },
    "sites": [
     {
      "file": "core/product_physics/src/validation.rs",
-     "line": 1165,
+     "line": 1161,
      "via": "spring_hanger_diag()",
      "severity": "info"
     }
@@ -1880,13 +1880,13 @@
    "severity": "warning",
    "first_site": {
     "file": "core/product_physics/src/preview_physics.rs",
-    "line": 469,
+    "line": 470,
     "via": "diag()"
    },
    "sites": [
     {
      "file": "core/product_physics/src/preview_physics.rs",
-     "line": 469,
+     "line": 470,
      "via": "diag()",
      "severity": "warning"
     }
@@ -1982,7 +1982,7 @@
     },
     {
      "file": "core/product_physics/src/validation.rs",
-     "line": 1495,
+     "line": 1491,
      "via": "diag()",
      "severity": "blocking"
     }
@@ -2129,7 +2129,7 @@
     },
     {
      "file": "core/product_physics/src/preview_physics.rs",
-     "line": 680,
+     "line": 681,
      "via": "diag()",
      "severity": "blocking"
     }
@@ -2168,7 +2168,7 @@
     },
     {
      "file": "core/product_physics/src/validation.rs",
-     "line": 1475,
+     "line": 1471,
      "via": "diag()",
      "severity": "blocking"
     }
@@ -2438,13 +2438,13 @@
    "severity": "info",
    "first_site": {
     "file": "core/product_physics/src/exact_combinations.rs",
-    "line": 1012,
+    "line": 1018,
     "via": "diag()"
    },
    "sites": [
     {
      "file": "core/product_physics/src/exact_combinations.rs",
-     "line": 1012,
+     "line": 1018,
      "via": "diag()",
      "severity": "info",
      "through": [
@@ -2471,13 +2471,13 @@
    "severity": "info",
    "first_site": {
     "file": "core/product_physics/src/exact_combinations.rs",
-    "line": 1052,
+    "line": 1058,
     "via": "diag()"
    },
    "sites": [
     {
      "file": "core/product_physics/src/exact_combinations.rs",
-     "line": 1052,
+     "line": 1058,
      "via": "diag()",
      "severity": "info",
      "through": [
@@ -3425,13 +3425,13 @@
    "severity": "warning",
    "first_site": {
     "file": "core/product_physics/src/preview_physics.rs",
-    "line": 876,
+    "line": 877,
     "via": "gated()"
    },
    "sites": [
     {
      "file": "core/product_physics/src/preview_physics.rs",
-     "line": 876,
+     "line": 877,
      "via": "gated()",
      "severity": null,
      "through": [
@@ -3440,7 +3440,7 @@
     },
     {
      "file": "core/product_physics/src/preview_physics.rs",
-     "line": 1057,
+     "line": 1062,
      "via": "diag()",
      "severity": "warning",
      "through": [
@@ -3470,13 +3470,13 @@
    "severity": "warning",
    "first_site": {
     "file": "core/product_physics/src/preview_physics.rs",
-    "line": 876,
+    "line": 877,
     "via": "gated()"
    },
    "sites": [
     {
      "file": "core/product_physics/src/preview_physics.rs",
-     "line": 876,
+     "line": 877,
      "via": "gated()",
      "severity": null,
      "through": [
@@ -3485,7 +3485,7 @@
     },
     {
      "file": "core/product_physics/src/preview_physics.rs",
-     "line": 1057,
+     "line": 1062,
      "via": "diag()",
      "severity": "warning",
      "through": [
@@ -4698,13 +4698,13 @@
    "severity": "warning",
    "first_site": {
     "file": "core/product_physics/src/preview_physics.rs",
-    "line": 1313,
+    "line": 1318,
     "via": "diag()"
    },
    "sites": [
     {
      "file": "core/product_physics/src/preview_physics.rs",
-     "line": 1313,
+     "line": 1318,
      "via": "diag()",
      "severity": "warning",
      "through": [
@@ -5234,7 +5234,7 @@
     },
     {
      "file": "core/product_physics/src/document_members.rs",
-     "line": 855,
+     "line": 864,
      "via": "diag()",
      "severity": "blocking",
      "any_arm": true,
@@ -5422,13 +5422,13 @@
    "severity": "warning",
    "first_site": {
     "file": "core/product_physics/src/exact_combinations.rs",
-    "line": 405,
+    "line": 406,
     "via": "gated()"
    },
    "sites": [
     {
      "file": "core/product_physics/src/exact_combinations.rs",
-     "line": 405,
+     "line": 406,
      "via": "gated()",
      "severity": null,
      "through": [
@@ -5437,7 +5437,7 @@
     },
     {
      "file": "core/product_physics/src/exact_combinations.rs",
-     "line": 972,
+     "line": 978,
      "via": "diag()",
      "severity": "warning",
      "through": [
@@ -6211,13 +6211,13 @@
    "severity": "warning",
    "first_site": {
     "file": "core/product_physics/src/validation.rs",
-    "line": 255,
+    "line": 268,
     "via": "diag()"
    },
    "sites": [
     {
      "file": "core/product_physics/src/validation.rs",
-     "line": 255,
+     "line": 268,
      "via": "diag()",
      "severity": "warning"
     }
@@ -6606,13 +6606,13 @@
    "severity": "blocking",
    "first_site": {
     "file": "core/product_physics/src/validation.rs",
-    "line": 1963,
+    "line": 1959,
     "via": "diag()"
    },
    "sites": [
     {
      "file": "core/product_physics/src/validation.rs",
-     "line": 1963,
+     "line": 1959,
      "via": "diag()",
      "severity": "blocking"
     }
@@ -6636,13 +6636,13 @@
    "severity": "blocking",
    "first_site": {
     "file": "core/product_physics/src/document_members.rs",
-    "line": 897,
+    "line": 906,
     "via": "diag()"
    },
    "sites": [
     {
      "file": "core/product_physics/src/document_members.rs",
-     "line": 897,
+     "line": 906,
      "via": "diag()",
      "severity": "blocking",
      "through": [
@@ -6679,13 +6679,13 @@
    "severity": "not_stated",
    "first_site": {
     "file": "core/product_physics/src/document_members.rs",
-    "line": 526,
+    "line": 535,
     "via": "new()"
    },
    "sites": [
     {
      "file": "core/product_physics/src/document_members.rs",
-     "line": 526,
+     "line": 535,
      "via": "new()",
      "severity": null,
      "through": [
@@ -6712,13 +6712,13 @@
    "severity": "not_stated",
    "first_site": {
     "file": "core/product_physics/src/document_members.rs",
-    "line": 552,
+    "line": 561,
     "via": "new()"
    },
    "sites": [
     {
      "file": "core/product_physics/src/document_members.rs",
-     "line": 552,
+     "line": 561,
      "via": "new()",
      "severity": null,
      "through": [
@@ -6745,13 +6745,13 @@
    "severity": "not_stated",
    "first_site": {
     "file": "core/product_physics/src/document_members.rs",
-    "line": 523,
+    "line": 532,
     "via": "new()"
    },
    "sites": [
     {
      "file": "core/product_physics/src/document_members.rs",
-     "line": 523,
+     "line": 532,
      "via": "new()",
      "severity": null,
      "through": [
@@ -6778,25 +6778,25 @@
    "severity": "blocking",
    "first_site": {
     "file": "core/product_physics/src/validation.rs",
-    "line": 2072,
+    "line": 2068,
     "via": "diag()"
    },
    "sites": [
     {
      "file": "core/product_physics/src/validation.rs",
-     "line": 2072,
+     "line": 2068,
      "via": "diag()",
      "severity": "blocking"
     },
     {
      "file": "core/product_physics/src/validation.rs",
-     "line": 2131,
+     "line": 2127,
      "via": "diag()",
      "severity": "blocking"
     },
     {
      "file": "core/product_physics/src/validation.rs",
-     "line": 2197,
+     "line": 2193,
      "via": "diag()",
      "severity": "blocking"
     }
@@ -6822,13 +6822,13 @@
    "severity": "blocking",
    "first_site": {
     "file": "core/product_physics/src/validation.rs",
-    "line": 2086,
+    "line": 2082,
     "via": "diag()"
    },
    "sites": [
     {
      "file": "core/product_physics/src/validation.rs",
-     "line": 2086,
+     "line": 2082,
      "via": "diag()",
      "severity": "blocking"
     }
@@ -6852,13 +6852,13 @@
    "severity": "blocking",
    "first_site": {
     "file": "core/product_physics/src/validation.rs",
-    "line": 1998,
+    "line": 1994,
     "via": "diag()"
    },
    "sites": [
     {
      "file": "core/product_physics/src/validation.rs",
-     "line": 1998,
+     "line": 1994,
      "via": "diag()",
      "severity": "blocking"
     }
@@ -6882,13 +6882,13 @@
    "severity": "blocking",
    "first_site": {
     "file": "core/product_physics/src/validation.rs",
-    "line": 2178,
+    "line": 2174,
     "via": "diag()"
    },
    "sites": [
     {
      "file": "core/product_physics/src/validation.rs",
-     "line": 2178,
+     "line": 2174,
      "via": "diag()",
      "severity": "blocking"
     }
@@ -6912,13 +6912,13 @@
    "severity": "not_stated",
    "first_site": {
     "file": "core/product_physics/src/document_members.rs",
-    "line": 575,
+    "line": 584,
     "via": "new()"
    },
    "sites": [
     {
      "file": "core/product_physics/src/document_members.rs",
-     "line": 575,
+     "line": 584,
      "via": "new()",
      "severity": null,
      "through": [
@@ -6945,13 +6945,13 @@
    "severity": "not_stated",
    "first_site": {
     "file": "core/product_physics/src/document_members.rs",
-    "line": 544,
+    "line": 553,
     "via": "new()"
    },
    "sites": [
     {
      "file": "core/product_physics/src/document_members.rs",
-     "line": 544,
+     "line": 553,
      "via": "new()",
      "severity": null,
      "through": [
@@ -6978,13 +6978,13 @@
    "severity": "warning",
    "first_site": {
     "file": "core/product_physics/src/document_members.rs",
-    "line": 998,
+    "line": 1007,
     "via": "diag()"
    },
    "sites": [
     {
      "file": "core/product_physics/src/document_members.rs",
-     "line": 998,
+     "line": 1007,
      "via": "diag()",
      "severity": "warning",
      "through": [
@@ -6993,38 +6993,38 @@
     },
     {
      "file": "core/product_physics/src/exact_combinations.rs",
-     "line": 353,
+     "line": 354,
      "via": "code-message pair",
      "severity": null,
      "through": [
-      "const OPERAND_WITHHELD (core/product_physics/src/preview_physics.rs:819)"
+      "const OPERAND_WITHHELD (core/product_physics/src/preview_physics.rs:820)"
      ]
     },
     {
      "file": "core/product_physics/src/exact_combinations.rs",
-     "line": 972,
+     "line": 978,
      "via": "diag()",
      "severity": "warning",
      "through": [
-      "const OPERAND_WITHHELD (core/product_physics/src/preview_physics.rs:819)"
+      "const OPERAND_WITHHELD (core/product_physics/src/preview_physics.rs:820)"
      ]
     },
     {
      "file": "core/product_physics/src/preview_physics.rs",
-     "line": 869,
+     "line": 870,
      "via": "code-message pair",
      "severity": null,
      "through": [
-      "const OPERAND_WITHHELD (core/product_physics/src/preview_physics.rs:819)"
+      "const OPERAND_WITHHELD (core/product_physics/src/preview_physics.rs:820)"
      ]
     },
     {
      "file": "core/product_physics/src/preview_physics.rs",
-     "line": 1057,
+     "line": 1062,
      "via": "diag()",
      "severity": "warning",
      "through": [
-      "const OPERAND_WITHHELD (core/product_physics/src/preview_physics.rs:819)"
+      "const OPERAND_WITHHELD (core/product_physics/src/preview_physics.rs:820)"
      ]
     }
    ],
@@ -7053,13 +7053,13 @@
    "severity": "blocking",
    "first_site": {
     "file": "core/product_physics/src/validation.rs",
-    "line": 2161,
+    "line": 2157,
     "via": "diag()"
    },
    "sites": [
     {
      "file": "core/product_physics/src/validation.rs",
-     "line": 2161,
+     "line": 2157,
      "via": "diag()",
      "severity": "blocking"
     }
@@ -7083,13 +7083,13 @@
    "severity": "warning",
    "first_site": {
     "file": "core/product_physics/src/exact_combinations.rs",
-    "line": 1004,
+    "line": 1010,
     "via": "diag()"
    },
    "sites": [
     {
      "file": "core/product_physics/src/exact_combinations.rs",
-     "line": 1004,
+     "line": 1010,
      "via": "diag()",
      "severity": "warning",
      "through": [
@@ -7098,7 +7098,7 @@
     },
     {
      "file": "core/product_physics/src/preview_physics.rs",
-     "line": 1280,
+     "line": 1285,
      "via": "diag()",
      "severity": "warning"
     }
@@ -7122,13 +7122,13 @@
    "severity": "blocking",
    "first_site": {
     "file": "core/product_physics/src/validation.rs",
-    "line": 1979,
+    "line": 1975,
     "via": "diag()"
    },
    "sites": [
     {
      "file": "core/product_physics/src/validation.rs",
-     "line": 1979,
+     "line": 1975,
      "via": "diag()",
      "severity": "blocking"
     }
@@ -7152,13 +7152,13 @@
    "severity": "warning",
    "first_site": {
     "file": "core/product_physics/src/exact_combinations.rs",
-    "line": 990,
+    "line": 996,
     "via": "diag()"
    },
    "sites": [
     {
      "file": "core/product_physics/src/exact_combinations.rs",
-     "line": 990,
+     "line": 996,
      "via": "diag()",
      "severity": "warning",
      "through": [
@@ -7167,7 +7167,7 @@
     },
     {
      "file": "core/product_physics/src/preview_physics.rs",
-     "line": 1120,
+     "line": 1125,
      "via": "diag()",
      "severity": "warning"
     }
@@ -7195,13 +7195,13 @@
    "severity": "not_stated",
    "first_site": {
     "file": "core/product_physics/src/document_members.rs",
-    "line": 538,
+    "line": 547,
     "via": "new()"
    },
    "sites": [
     {
      "file": "core/product_physics/src/document_members.rs",
-     "line": 538,
+     "line": 547,
      "via": "new()",
      "severity": null,
      "through": [
@@ -7228,13 +7228,13 @@
    "severity": "not_stated",
    "first_site": {
     "file": "core/product_physics/src/document_members.rs",
-    "line": 535,
+    "line": 544,
     "via": "new()"
    },
    "sites": [
     {
      "file": "core/product_physics/src/document_members.rs",
-     "line": 535,
+     "line": 544,
      "via": "new()",
      "severity": null,
      "through": [
@@ -7261,13 +7261,13 @@
    "severity": "blocking",
    "first_site": {
     "file": "core/product_physics/src/validation.rs",
-    "line": 2028,
+    "line": 2024,
     "via": "diag()"
    },
    "sites": [
     {
      "file": "core/product_physics/src/validation.rs",
-     "line": 2028,
+     "line": 2024,
      "via": "diag()",
      "severity": "blocking"
     }
@@ -7450,7 +7450,7 @@
     },
     {
      "file": "core/product_physics/src/validation.rs",
-     "line": 242,
+     "line": 255,
      "via": "diag()",
      "severity": "blocking"
     }
@@ -9601,7 +9601,7 @@
     },
     {
      "file": "core/product_physics/src/validation.rs",
-     "line": 482,
+     "line": 498,
      "via": "diag()",
      "severity": "blocking"
     }
@@ -12079,13 +12079,13 @@
    "severity": "blocking",
    "first_site": {
     "file": "core/product_physics/src/validation.rs",
-    "line": 201,
+    "line": 214,
     "via": "diag()"
    },
    "sites": [
     {
      "file": "core/product_physics/src/validation.rs",
-     "line": 201,
+     "line": 214,
      "via": "diag()",
      "severity": "blocking"
     }
@@ -12139,13 +12139,13 @@
    "severity": "warning",
    "first_site": {
     "file": "core/product_physics/src/exact_combinations.rs",
-    "line": 364,
+    "line": 365,
     "via": "gated()"
    },
    "sites": [
     {
      "file": "core/product_physics/src/exact_combinations.rs",
-     "line": 364,
+     "line": 365,
      "via": "gated()",
      "severity": null,
      "through": [
@@ -12154,7 +12154,7 @@
     },
     {
      "file": "core/product_physics/src/exact_combinations.rs",
-     "line": 972,
+     "line": 978,
      "via": "diag()",
      "severity": "warning",
      "through": [
@@ -12163,13 +12163,13 @@
     },
     {
      "file": "core/product_physics/src/preview_physics.rs",
-     "line": 889,
+     "line": 890,
      "via": "gated()",
      "severity": null
     },
     {
      "file": "core/product_physics/src/preview_physics.rs",
-     "line": 1057,
+     "line": 1062,
      "via": "diag()",
      "severity": "warning"
     }
@@ -12508,13 +12508,13 @@
    "severity": "blocking",
    "first_site": {
     "file": "core/product_physics/src/validation.rs",
-    "line": 149,
+    "line": 162,
     "via": "diag()"
    },
    "sites": [
     {
      "file": "core/product_physics/src/validation.rs",
-     "line": 149,
+     "line": 162,
      "via": "diag()",
      "severity": "blocking"
     }
@@ -12538,13 +12538,13 @@
    "severity": "blocking",
    "first_site": {
     "file": "core/product_physics/src/validation.rs",
-    "line": 137,
+    "line": 150,
     "via": "diag()"
    },
    "sites": [
     {
      "file": "core/product_physics/src/validation.rs",
-     "line": 137,
+     "line": 150,
      "via": "diag()",
      "severity": "blocking"
     }
@@ -14427,13 +14427,13 @@
    "severity": "blocking",
    "first_site": {
     "file": "core/product_physics/src/validation.rs",
-    "line": 210,
+    "line": 223,
     "via": "diag()"
    },
    "sites": [
     {
      "file": "core/product_physics/src/validation.rs",
-     "line": 210,
+     "line": 223,
      "via": "diag()",
      "severity": "blocking"
     }
@@ -15545,13 +15545,13 @@
    "severity": "info",
    "first_site": {
     "file": "core/product_physics/src/preview_physics.rs",
-    "line": 786,
+    "line": 787,
     "via": "diag()"
    },
    "sites": [
     {
      "file": "core/product_physics/src/preview_physics.rs",
-     "line": 786,
+     "line": 787,
      "via": "diag()",
      "severity": "info"
     }
@@ -15653,13 +15653,13 @@
    "severity": "warning",
    "first_site": {
     "file": "core/product_physics/src/preview_physics.rs",
-    "line": 777,
+    "line": 778,
     "via": "diag()"
    },
    "sites": [
     {
      "file": "core/product_physics/src/preview_physics.rs",
-     "line": 777,
+     "line": 778,
      "via": "diag()",
      "severity": "warning"
     }
@@ -15683,13 +15683,13 @@
    "severity": "warning",
    "first_site": {
     "file": "core/product_physics/src/preview_physics.rs",
-    "line": 504,
+    "line": 505,
     "via": "diag()"
    },
    "sites": [
     {
      "file": "core/product_physics/src/preview_physics.rs",
-     "line": 504,
+     "line": 505,
      "via": "diag()",
      "severity": "warning"
     }
@@ -15713,13 +15713,13 @@
    "severity": "blocking",
    "first_site": {
     "file": "core/product_physics/src/validation.rs",
-    "line": 1522,
+    "line": 1518,
     "via": "diag()"
    },
    "sites": [
     {
      "file": "core/product_physics/src/validation.rs",
-     "line": 1522,
+     "line": 1518,
      "via": "diag()",
      "severity": "blocking"
     }
@@ -16149,13 +16149,13 @@
    "severity": "warning",
    "first_site": {
     "file": "core/product_physics/src/validation.rs",
-    "line": 1441,
+    "line": 1437,
     "via": "diag()"
    },
    "sites": [
     {
      "file": "core/product_physics/src/validation.rs",
-     "line": 1441,
+     "line": 1437,
      "via": "diag()",
      "severity": "warning"
     }
@@ -17206,13 +17206,13 @@
    "severity": "blocking",
    "first_site": {
     "file": "core/product_physics/src/document_members.rs",
-    "line": 830,
+    "line": 839,
     "via": "diag()"
    },
    "sites": [
     {
      "file": "core/product_physics/src/document_members.rs",
-     "line": 830,
+     "line": 839,
      "via": "diag()",
      "severity": "blocking",
      "through": [
@@ -17246,13 +17246,13 @@
    "severity": "not_stated",
    "first_site": {
     "file": "core/product_physics/src/document_members.rs",
-    "line": 440,
+    "line": 449,
     "via": "refuse()"
    },
    "sites": [
     {
      "file": "core/product_physics/src/document_members.rs",
-     "line": 440,
+     "line": 449,
      "via": "refuse()",
      "severity": null,
      "through": [
@@ -17279,13 +17279,13 @@
    "severity": "not_stated",
    "first_site": {
     "file": "core/product_physics/src/document_members.rs",
-    "line": 427,
+    "line": 436,
     "via": "refuse()"
    },
    "sites": [
     {
      "file": "core/product_physics/src/document_members.rs",
-     "line": 427,
+     "line": 436,
      "via": "refuse()",
      "severity": null,
      "through": [
@@ -17312,13 +17312,13 @@
    "severity": "not_stated",
    "first_site": {
     "file": "core/product_physics/src/document_members.rs",
-    "line": 435,
+    "line": 444,
     "via": "refuse()"
    },
    "sites": [
     {
      "file": "core/product_physics/src/document_members.rs",
-     "line": 435,
+     "line": 444,
      "via": "refuse()",
      "severity": null,
      "through": [
@@ -18203,6 +18203,42 @@
    "named_by_statement": null
   },
   {
+   "code": "SPRING_HANGER_COLD_LOAD_NOT_APPLIED",
+   "crates": [
+    "core/product_physics"
+   ],
+   "severity": "warning",
+   "first_site": {
+    "file": "core/product_physics/src/spring_preload.rs",
+    "line": 225,
+    "via": "diag()"
+   },
+   "sites": [
+    {
+     "file": "core/product_physics/src/spring_preload.rs",
+     "line": 225,
+     "via": "diag()",
+     "severity": "warning",
+     "through": [
+      "const NOT_APPLIED (core/product_physics/src/spring_preload.rs:182)"
+     ]
+    }
+   ],
+   "messages": [
+    "variable spring hanger {}: its cold load is not applied in load case {}, because {}; the spring acts with its rate only, and no applied force is published for it in this case"
+   ],
+   "classification": "absent_capability",
+   "reason": "The product does not apply a variable spring hanger's entered cold load in a load case where it cannot (a nonlinear member, a skewed direction, a single-axis direction along the negative axis or a rotational stiffness DOF); the hanger acts with its rate only, and the warning names the reason (warning).",
+   "unsure": true,
+   "candidates": [
+    "absent_capability",
+    "disclosure"
+   ],
+   "named_by": "unnamed",
+   "named_by_coverage": null,
+   "named_by_statement": null
+  },
+  {
    "code": "SPRING_HANGER_DATA_MISSING",
    "crates": [
     "core/product_physics"
@@ -18210,13 +18246,13 @@
    "severity": "blocking",
    "first_site": {
     "file": "core/product_physics/src/validation.rs",
-    "line": 962,
+    "line": 978,
     "via": "spring_hanger_diag()"
    },
    "sites": [
     {
      "file": "core/product_physics/src/validation.rs",
-     "line": 962,
+     "line": 978,
      "via": "spring_hanger_diag()",
      "severity": "blocking"
     }
@@ -18240,13 +18276,13 @@
    "severity": "blocking",
    "first_site": {
     "file": "core/product_physics/src/validation.rs",
-    "line": 1025,
+    "line": 1041,
     "via": "spring_hanger_diag()"
    },
    "sites": [
     {
      "file": "core/product_physics/src/validation.rs",
-     "line": 1025,
+     "line": 1041,
      "via": "spring_hanger_diag()",
      "severity": "blocking"
     }
@@ -18263,29 +18299,32 @@
    "named_by_statement": null
   },
   {
-   "code": "SPRING_HANGER_LOAD_MISSING",
+   "code": "SPRING_HANGER_INSTALLED_LOAD_DIFFERS_FROM_COLD_LOAD",
    "crates": [
     "core/product_physics"
    ],
-   "severity": "blocking",
+   "severity": "warning",
    "first_site": {
-    "file": "core/product_physics/src/validation.rs",
-    "line": 1049,
-    "via": "spring_hanger_diag()"
+    "file": "core/product_physics/src/spring_preload.rs",
+    "line": 319,
+    "via": "diag()"
    },
    "sites": [
     {
-     "file": "core/product_physics/src/validation.rs",
-     "line": 1049,
-     "via": "spring_hanger_diag()",
-     "severity": "blocking"
+     "file": "core/product_physics/src/spring_preload.rs",
+     "line": 319,
+     "via": "diag()",
+     "severity": "warning",
+     "through": [
+      "const INSTALLED_DIFFERS (core/product_physics/src/spring_preload.rs:183)"
+     ]
     }
    ],
    "messages": [
-    "variable spring hanger requires finite positive installed, cold, and hot load metadata; no preload or operating-load default is supplied"
+    "variable spring hanger {}: its installed load ({} {}) differs from its cold load ({} {}); the solve applies the cold load, and the installed load is review data only"
    ],
-   "classification": "input_error",
-   "reason": "The document is incomplete, inconsistent or invalid here: variable spring hanger requires finite positive installed, cold, and hot load metadata; no preload or operating-load default is supplied",
+   "classification": "disclosure",
+   "reason": "A variable spring hanger's entered installed load differs from its cold load, which the solve applies; the installed load is review data (warning).",
    "unsure": false,
    "candidates": null,
    "named_by": null,
@@ -18293,47 +18332,34 @@
    "named_by_statement": null
   },
   {
-   "code": "SPRING_HANGER_LOAD_NOT_APPLIED_AS_PRELOAD",
+   "code": "SPRING_HANGER_LOAD_MISSING",
    "crates": [
     "core/product_physics"
    ],
-   "severity": "warning",
+   "severity": "blocking",
    "first_site": {
     "file": "core/product_physics/src/validation.rs",
-    "line": 1095,
+    "line": 1065,
     "via": "spring_hanger_diag()"
    },
    "sites": [
     {
      "file": "core/product_physics/src/validation.rs",
-     "line": 1095,
+     "line": 1065,
      "via": "spring_hanger_diag()",
-     "severity": "warning",
-     "through": [
-      "const SPRING_HANGER_LOAD_NOT_APPLIED_AS_PRELOAD (core/product_physics/src/validation.rs:1111)"
-     ]
+     "severity": "blocking"
     }
    ],
    "messages": [
-    "variable spring hanger {support_id}: its {name} ({field}) is not applied as preload; results treat the hanger as a linear spring from zero load, whose force is its stiffness times the displacement at its DOF, and the entered load remains review evidence only"
+    "variable spring hanger requires finite positive installed, cold, and hot loads; the solve applies the cold load, and the installed and hot loads are review data; no preload or operating-load default is supplied"
    ],
-   "classification": "absent_capability",
-   "reason": "A variable spring hanger's installed/cold/hot load is not applied as preload; the hanger acts as a linear spring from zero load (warning).",
-   "unsure": true,
-   "candidates": [
-    "absent_capability",
-    "disclosure"
-   ],
-   "named_by": "unnamed",
+   "classification": "input_error",
+   "reason": "The document is incomplete, inconsistent or invalid here: variable spring hanger requires finite positive installed, cold, and hot loads; the solve applies the cold load, and the installed and hot loads are review data; no preload or operating-load default is supplied",
+   "unsure": false,
+   "candidates": null,
+   "named_by": null,
    "named_by_coverage": null,
-   "named_by_statement": [
-    {
-     "status": "planned",
-     "statement": "H",
-     "subject": "variable spring hanger",
-     "lands_with": "the first landing after pull request 217, unless its own unit lands first"
-    }
-   ]
+   "named_by_statement": null
   },
   {
    "code": "SPRING_HANGER_SOURCE_MISSING",
@@ -18343,13 +18369,13 @@
    "severity": "blocking",
    "first_site": {
     "file": "core/product_physics/src/validation.rs",
-    "line": 1071,
+    "line": 1087,
     "via": "spring_hanger_diag()"
    },
    "sites": [
     {
      "file": "core/product_physics/src/validation.rs",
-     "line": 1071,
+     "line": 1087,
      "via": "spring_hanger_diag()",
      "severity": "blocking"
     }
@@ -18373,13 +18399,13 @@
    "severity": "blocking",
    "first_site": {
     "file": "core/product_physics/src/validation.rs",
-    "line": 1035,
+    "line": 1051,
     "via": "spring_hanger_diag()"
    },
    "sites": [
     {
      "file": "core/product_physics/src/validation.rs",
-     "line": 1035,
+     "line": 1051,
      "via": "spring_hanger_diag()",
      "severity": "blocking"
     }
@@ -18403,13 +18429,13 @@
    "severity": "blocking",
    "first_site": {
     "file": "core/product_physics/src/validation.rs",
-    "line": 1061,
+    "line": 1077,
     "via": "spring_hanger_diag()"
    },
    "sites": [
     {
      "file": "core/product_physics/src/validation.rs",
-     "line": 1061,
+     "line": 1077,
      "via": "spring_hanger_diag()",
      "severity": "blocking"
     }
@@ -18433,19 +18459,19 @@
    "severity": "blocking",
    "first_site": {
     "file": "core/product_physics/src/validation.rs",
-    "line": 1013,
+    "line": 1029,
     "via": "spring_hanger_diag()"
    },
    "sites": [
     {
      "file": "core/product_physics/src/validation.rs",
-     "line": 1013,
+     "line": 1029,
      "via": "spring_hanger_diag()",
      "severity": "blocking"
     },
     {
      "file": "core/product_physics/src/validation.rs",
-     "line": 1124,
+     "line": 1120,
      "via": "spring_hanger_diag()",
      "severity": "blocking"
     }
@@ -18470,13 +18496,13 @@
    "severity": "blocking",
    "first_site": {
     "file": "core/product_physics/src/validation.rs",
-    "line": 977,
+    "line": 993,
     "via": "spring_hanger_diag()"
    },
    "sites": [
     {
      "file": "core/product_physics/src/validation.rs",
-     "line": 977,
+     "line": 993,
      "via": "spring_hanger_diag()",
      "severity": "blocking"
     }
@@ -18500,13 +18526,13 @@
    "severity": "info",
    "first_site": {
     "file": "core/product_physics/src/validation.rs",
-    "line": 1080,
+    "line": 1096,
     "via": "spring_hanger_diag()"
    },
    "sites": [
     {
      "file": "core/product_physics/src/validation.rs",
-     "line": 1080,
+     "line": 1096,
      "via": "spring_hanger_diag()",
      "severity": "info"
     }
@@ -18597,13 +18623,13 @@
    "severity": "warning",
    "first_site": {
     "file": "core/product_physics/src/preview_physics.rs",
-    "line": 759,
+    "line": 760,
     "via": "diag()"
    },
    "sites": [
     {
      "file": "core/product_physics/src/preview_physics.rs",
-     "line": 759,
+     "line": 760,
      "via": "diag()",
      "severity": "warning",
      "through": [
@@ -18710,7 +18736,7 @@
     },
     {
      "file": "core/product_physics/src/document_members.rs",
-     "line": 855,
+     "line": 864,
      "via": "diag()",
      "severity": "blocking",
      "any_arm": true,
@@ -18775,7 +18801,7 @@
     },
     {
      "file": "core/product_physics/src/document_members.rs",
-     "line": 855,
+     "line": 864,
      "via": "diag()",
      "severity": "blocking",
      "any_arm": true,
@@ -18822,7 +18848,7 @@
     },
     {
      "file": "core/product_physics/src/document_members.rs",
-     "line": 855,
+     "line": 864,
      "via": "diag()",
      "severity": "blocking",
      "any_arm": true,
@@ -18878,7 +18904,7 @@
     },
     {
      "file": "core/product_physics/src/document_members.rs",
-     "line": 855,
+     "line": 864,
      "via": "diag()",
      "severity": "blocking",
      "any_arm": true,
@@ -18917,13 +18943,13 @@
    "severity": "not_stated",
    "first_site": {
     "file": "core/product_physics/src/document_members.rs",
-    "line": 406,
+    "line": 412,
     "via": "refuse()"
    },
    "sites": [
     {
      "file": "core/product_physics/src/document_members.rs",
-     "line": 406,
+     "line": 412,
      "via": "refuse()",
      "severity": null,
      "through": [
@@ -18932,7 +18958,7 @@
     },
     {
      "file": "core/product_physics/src/document_members.rs",
-     "line": 408,
+     "line": 415,
      "via": "refuse()",
      "severity": null,
      "through": [
@@ -18941,7 +18967,7 @@
     },
     {
      "file": "core/product_physics/src/document_members.rs",
-     "line": 411,
+     "line": 417,
      "via": "refuse()",
      "severity": null,
      "through": [
@@ -18950,7 +18976,16 @@
     },
     {
      "file": "core/product_physics/src/document_members.rs",
-     "line": 413,
+     "line": 420,
+     "via": "refuse()",
+     "severity": null,
+     "through": [
+      "const SUPPORT_DIRECTION_RECORD_UNSUPPORTED (core/product_physics/src/document_members.rs:38)"
+     ]
+    },
+    {
+     "file": "core/product_physics/src/document_members.rs",
+     "line": 422,
      "via": "refuse()",
      "severity": null,
      "through": [
@@ -18959,10 +18994,10 @@
     }
    ],
    "messages": [
+    "is not an input of a hanger: a hanger's load acts along the positive axis of its stiffness DOF (or of its single translational restraint), so remove the direction",
     "is admitted only on an explicit line_stop, spring or snubber family",
     "is not admitted on a support with a nonlinear member",
-    "is admitted on a snubber only with exactly one translational restraint",
-    "is admitted only on a support that acts on exactly one DOF"
+    "is admitted on a snubber only with exactly one translational restraint"
    ],
    "classification": "absent_capability",
    "reason": "A direction is admitted only on an explicit line_stop, spring or snubber with one DOF; a skewed guide, anchor or nonlinear support is not built.",
@@ -18983,13 +19018,13 @@
    "severity": "not_stated",
    "first_site": {
     "file": "core/product_physics/src/document_members.rs",
-    "line": 415,
+    "line": 424,
     "via": "refuse()"
    },
    "sites": [
     {
      "file": "core/product_physics/src/document_members.rs",
-     "line": 415,
+     "line": 424,
      "via": "refuse()",
      "severity": null,
      "through": [
@@ -19036,7 +19071,7 @@
     },
     {
      "file": "core/product_physics/src/document_members.rs",
-     "line": 855,
+     "line": 864,
      "via": "diag()",
      "severity": "blocking",
      "any_arm": true,
@@ -19082,7 +19117,7 @@
     },
     {
      "file": "core/product_physics/src/document_members.rs",
-     "line": 855,
+     "line": 864,
      "via": "diag()",
      "severity": "blocking",
      "any_arm": true,
@@ -19144,7 +19179,7 @@
     },
     {
      "file": "core/product_physics/src/document_members.rs",
-     "line": 855,
+     "line": 864,
      "via": "diag()",
      "severity": "blocking",
      "any_arm": true,
@@ -19199,7 +19234,7 @@
     },
     {
      "file": "core/product_physics/src/document_members.rs",
-     "line": 855,
+     "line": 864,
      "via": "diag()",
      "severity": "blocking",
      "any_arm": true,
@@ -19259,22 +19294,22 @@
    "severity": "blocking",
    "first_site": {
     "file": "core/product_physics/src/validation.rs",
-    "line": 94,
+    "line": 107,
     "via": "diag()"
    },
    "sites": [
     {
      "file": "core/product_physics/src/validation.rs",
-     "line": 94,
+     "line": 107,
      "via": "diag()",
      "severity": "blocking"
     }
    ],
    "messages": [
-    "spring family conflicts with constant-effort hanger type; choose one support law so stiffness and applied force cannot be silently substituted"
+    "{family} family conflicts with {law} hanger type; choose one support law so stiffness and applied force cannot be silently substituted"
    ],
    "classification": "input_error",
-   "reason": "The document is incomplete, inconsistent or invalid here: spring family conflicts with constant-effort hanger type; choose one support law so stiffness and applied force cannot be silently substitut",
+   "reason": "The document is incomplete, inconsistent or invalid here: a spring family with a constant-effort hanger, or a line_stop family with either hanger family, states two support laws; choose one.",
    "unsure": false,
    "candidates": null,
    "named_by": null,
@@ -19410,13 +19445,13 @@
    "severity": "blocking",
    "first_site": {
     "file": "core/product_physics/src/validation.rs",
-    "line": 188,
+    "line": 201,
     "via": "diag()"
    },
    "sites": [
     {
      "file": "core/product_physics/src/validation.rs",
-     "line": 188,
+     "line": 201,
      "via": "diag()",
      "severity": "blocking"
     }
@@ -19494,7 +19529,7 @@
     },
     {
      "file": "core/product_physics/src/document_members.rs",
-     "line": 855,
+     "line": 864,
      "via": "diag()",
      "severity": "blocking",
      "any_arm": true,
@@ -19550,7 +19585,7 @@
     },
     {
      "file": "core/product_physics/src/document_members.rs",
-     "line": 855,
+     "line": 864,
      "via": "diag()",
      "severity": "blocking",
      "any_arm": true,
@@ -19606,7 +19641,7 @@
     },
     {
      "file": "core/product_physics/src/document_members.rs",
-     "line": 855,
+     "line": 864,
      "via": "diag()",
      "severity": "blocking",
      "any_arm": true,
@@ -19645,13 +19680,13 @@
    "severity": "blocking",
    "first_site": {
     "file": "core/product_physics/src/validation.rs",
-    "line": 120,
+    "line": 133,
     "via": "diag()"
    },
    "sites": [
     {
      "file": "core/product_physics/src/validation.rs",
-     "line": 120,
+     "line": 133,
      "via": "diag()",
      "severity": "blocking"
     }
@@ -19675,13 +19710,13 @@
    "severity": "blocking",
    "first_site": {
     "file": "core/product_physics/src/validation.rs",
-    "line": 1185,
+    "line": 1181,
     "via": "diag()"
    },
    "sites": [
     {
      "file": "core/product_physics/src/validation.rs",
-     "line": 1185,
+     "line": 1181,
      "via": "diag()",
      "severity": "blocking"
     }
@@ -19705,13 +19740,13 @@
    "severity": "blocking",
    "first_site": {
     "file": "core/product_physics/src/validation.rs",
-    "line": 109,
+    "line": 122,
     "via": "diag()"
    },
    "sites": [
     {
      "file": "core/product_physics/src/validation.rs",
-     "line": 109,
+     "line": 122,
      "via": "diag()",
      "severity": "blocking"
     }
@@ -19735,13 +19770,13 @@
    "severity": "blocking",
    "first_site": {
     "file": "core/product_physics/src/validation.rs",
-    "line": 1934,
+    "line": 1930,
     "via": "diag()"
    },
    "sites": [
     {
      "file": "core/product_physics/src/validation.rs",
-     "line": 1934,
+     "line": 1930,
      "via": "diag()",
      "severity": "blocking"
     }
@@ -19789,7 +19824,7 @@
     },
     {
      "file": "core/product_physics/src/validation.rs",
-     "line": 1921,
+     "line": 1917,
      "via": "diag()",
      "severity": "blocking"
     }
@@ -19952,7 +19987,7 @@
     },
     {
      "file": "core/product_physics/src/validation.rs",
-     "line": 1542,
+     "line": 1538,
      "via": "diag()",
      "severity": "blocking"
     }
@@ -21167,7 +21202,7 @@
   },
   {
    "file": "core/product_physics/src/preview_physics.rs",
-   "line": 1057,
+   "line": 1062,
    "at": "diag()",
    "why": "the code field of refusal, whose record type the scanner cannot prove is built only at code positions it reads",
    "expression": "code",
@@ -21818,49 +21853,31 @@
   {
    "literal": "branch_branch",
    "sites": [
-    "core/product_physics/src/preview_physics.rs:354"
+    "core/product_physics/src/preview_physics.rs:355"
    ]
   },
   {
    "literal": "branch_header",
    "sites": [
-    "core/product_physics/src/preview_physics.rs:352"
+    "core/product_physics/src/preview_physics.rs:353"
    ]
   },
   {
    "literal": "direction-range",
    "sites": [
-    "core/product_physics/src/document_members.rs:877"
+    "core/product_physics/src/document_members.rs:886"
    ]
   },
   {
    "literal": "direction-skew-exact",
    "sites": [
-    "core/product_physics/src/document_members.rs:867"
+    "core/product_physics/src/document_members.rs:876"
    ]
   },
   {
    "literal": "direction-skew-nonlinear-model",
    "sites": [
-    "core/product_physics/src/document_members.rs:868"
-   ]
-  },
-  {
-   "literal": "hanger.cold_load",
-   "sites": [
-    "core/product_physics/src/validation.rs:1091"
-   ]
-  },
-  {
-   "literal": "hanger.hot_load",
-   "sites": [
-    "core/product_physics/src/validation.rs:1092"
-   ]
-  },
-  {
-   "literal": "hanger.installed_load",
-   "sites": [
-    "core/product_physics/src/validation.rs:1090"
+    "core/product_physics/src/document_members.rs:877"
    ]
   },
   {

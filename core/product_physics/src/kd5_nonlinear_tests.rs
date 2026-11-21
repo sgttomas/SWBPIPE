@@ -2,6 +2,14 @@
 //! §6): the PP consumers of the independent references in
 //! `validation/references/kd5_nonlinear/`, the committed demo models and the
 //! named fail-closed controls.
+//!
+//! One frozen request carries a variable spring hanger, `u1_spring_request.json`
+//! (SH-C, 430 N cold load). Under the preload law (DEL-04-11 REQ-014) it is read
+//! against its successor `validation/references/kd5_nonlinear_preload/`: the
+//! frozen request under the law, the plain-spring twin that keeps the frozen
+//! pressed and lifted control, and a preloaded hanger beside a pressed and a
+//! lifted one-way support. Every other frozen request carries no hanger, so the
+//! law does not touch it and its frozen oracle is still its expectation.
 use super::*;
 
 const SUPPORT_SLOT: [&str; 6] = ["Fx", "Fy", "Fz", "Mx", "My", "Mz"];
@@ -14,7 +22,7 @@ struct Reference {
     expected: &'static [(&'static str, Option<&'static str>)],
 }
 
-const REFERENCES: [Reference; 7] = [
+const REFERENCES: [Reference; 9] = [
     Reference {
         request: include_str!("../../../validation/references/kd5_nonlinear/f1_request.json"),
         oracle: include_str!("../../../validation/references/kd5_nonlinear/f1_oracle.json"),
@@ -51,9 +59,11 @@ const REFERENCES: [Reference; 7] = [
             ("load:IN-PLANE", Some("support support:NL-U: separation not established")),
         ],
     },
+    // The frozen request under the law: the hanger's cold load lifts the one-way
+    // support in both cases (kd5_nonlinear_preload README, "Results").
     Reference {
         request: include_str!("../../../validation/references/kd5_nonlinear/u1_spring_request.json"),
-        oracle: include_str!("../../../validation/references/kd5_nonlinear/u1_spring_oracle.json"),
+        oracle: include_str!("../../../validation/references/kd5_nonlinear_preload/u1_spring_law_oracle.json"),
         expected: &[("load:PRESSED", None), ("load:LIFTED", None)],
     },
     // U-1's rotational twin (review M1): the one-way support on RX, in the
@@ -63,6 +73,19 @@ const REFERENCES: [Reference; 7] = [
         request: include_str!("../../../validation/references/kd5_nonlinear/u1_rx_request.json"),
         oracle: include_str!("../../../validation/references/kd5_nonlinear/u1_rx_oracle.json"),
         expected: &[("load:PRESSED", None), ("load:LIFTED", None)],
+    },
+    // The parallel-spring control the frozen request carried before the law: the
+    // hanger a plain spring of the same rate (pressed active, lifted inactive).
+    Reference {
+        request: include_str!("../../../validation/references/kd5_nonlinear_preload/u1_spring_twin_request.json"),
+        oracle: include_str!("../../../validation/references/kd5_nonlinear_preload/u1_spring_twin_oracle.json"),
+        expected: &[("load:PRESSED", None), ("load:LIFTED", None)],
+    },
+    // A preloaded hanger beside a pressed and beside a lifted one-way support.
+    Reference {
+        request: include_str!("../../../validation/references/kd5_nonlinear_preload/u1_preload_request.json"),
+        oracle: include_str!("../../../validation/references/kd5_nonlinear_preload/u1_preload_oracle.json"),
+        expected: &[("load:PRESSED-PRELOAD", None), ("load:LIFTED-PRELOAD", None)],
     },
 ];
 
@@ -194,6 +217,18 @@ fn kd5_nonlinear_references_bind_and_match_in_both_modes() {
                         if signed["value"][0] == 0.0 && signed["value"][1] == 0.0 {
                             assert_eq!(component.to_bits(), 0.0_f64.to_bits(), "{at}: an inactive support publishes exact +0");
                         }
+                    }
+                    // Under the preload law: each hanger's row F_cold - k*u within B of the
+                    // exact value, and its applied force F_cold, exactly.
+                    for (support, hanger) in state.get("hanger_force").and_then(|h| h.as_object()).into_iter().flatten() {
+                        let index = ["UX", "UY", "UZ"].iter().position(|d| *d == hanger["slot"].as_str().unwrap()).unwrap();
+                        let component = output.results.iter().find(|r| r.kind == "support_reaction_component_v2" && &r.entity_ref == support && r.metadata.as_ref().is_some_and(|m| m.component == SUPPORT_SLOT[index])).unwrap().value;
+                        let record = records.iter().find(|r| &r.member == support).unwrap();
+                        let bound = record.groups.iter().find(|g| g.kind == "support_force").unwrap().bound.clone().unwrap();
+                        assert!(within_exact(component, bound_pair(&hanger["value"]), bound), "{at}: {support} {component:e} B={bound:e} exact={:?}", hanger["value"]);
+                        let applied = output.results.iter().find(|r| r.kind == "variable_spring_hanger_applied_load" && &r.entity_ref == support).unwrap().value;
+                        let (lo, hi) = bound_pair(&state["applied_force"][support]["value"]);
+                        assert!(lo == hi && applied == lo, "{at}: {support} applied {applied:e}, exact {lo:e}");
                     }
                 }
             }
