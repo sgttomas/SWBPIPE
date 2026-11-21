@@ -13,7 +13,8 @@
 // number of items the drawer lists.
 import { useMemo } from "react";
 import type { SessionResult } from "../../services/nativeResult";
-import type { DesignKnowledge, Diagnostic, EntityRef, OperationOutcome, PreviewModel } from "../../types";
+import type { DesignKnowledge, Diagnostic, EntityRef, OperationOutcome, PreviewModel, SolveJobAuditState } from "../../types";
+import { isResultTooLargeSolveJob } from "../workspace/solveJobAudit";
 import { currentLibraryRefFindings, libraryRefDiagnostics, usePublishedLibraryRefFindings } from "../library/libraryRefFindings";
 import { countMissingDataBlockers } from "../missing-data/MissingDataBlockingPanel";
 import { modelDocumentDiagnostics } from "../model-data/documentDiagnostics";
@@ -180,23 +181,39 @@ export function isGrouped(item: IssueItem): boolean {
   return item.members.length > 1;
 }
 
+/** The last solve, where it ended without a result for a reason the job gives: one
+ * item, which the solve status line's "Show in Issues" opens. A stopped solve is the
+ * person's own act, not an item. */
+export type SolveIssue = Readonly<{ state: "failed" | "refused"; jobId: string }>;
+
+export function solveIssueOf(solveJob: SolveJobAuditState | null | undefined): SolveIssue | null {
+  if (!solveJob) return null;
+  if (solveJob.state === "failed" || solveJob.state === "refused" || isResultTooLargeSolveJob(solveJob)) {
+    return { state: solveJob.state === "failed" ? "failed" : "refused", jobId: solveJob.job_id };
+  }
+  return null;
+}
+
 /** Everything the Issues drawer lists, and the count the Issues controls show. */
 export type IssueSummary = Readonly<{
   items: readonly IssueItem[];
   /** The missing-input blockers the drawer's Missing Data panel lists. */
   missingInputs: number;
-  /** items + missing inputs. */
+  solve: SolveIssue | null;
+  /** items + missing inputs + the last solve's failure or refusal. */
   total: number;
   /** How many reports the items gather (each diagnostic and finding once). */
   reports: number;
 }>;
 
-export function issueSummary(inputs: IssueInputs & { missingInputs: number }): IssueSummary {
+export function issueSummary(inputs: IssueInputs & { missingInputs: number; solveJob?: SolveJobAuditState | null }): IssueSummary {
   const items = groupIssues(inputs);
+  const solve = solveIssueOf(inputs.solveJob);
   return {
     items,
     missingInputs: inputs.missingInputs,
-    total: items.length + inputs.missingInputs,
+    solve,
+    total: items.length + inputs.missingInputs + (solve ? 1 : 0),
     reports: items.reduce((count, item) => count + item.members.length, 0)
   };
 }
@@ -215,17 +232,19 @@ export function useIssueSummary({
   knowledge,
   result,
   operationOutcomes,
-  modelCheckRun
+  modelCheckRun,
+  solveJob = null
 }: {
   model: PreviewModel | null;
   knowledge: DesignKnowledge | null;
   result: SessionResult | null;
   operationOutcomes: Record<string, OperationOutcome>;
   modelCheckRun: ModelCheckRun | null;
+  solveJob?: SolveJobAuditState | null;
 }): IssueSummary {
   const publishedLibraryRefs = usePublishedLibraryRefFindings();
   return useMemo(() => {
-    if (!model) return issueSummary({ missingInputs: 0 });
+    if (!model) return issueSummary({ missingInputs: 0, solveJob });
     const { diagnostics, shownDiagnostics } = diagnosticsListOf(model, knowledge, result, publishedLibraryRefs);
     return issueSummary({
       model,
@@ -233,9 +252,10 @@ export function useIssueSummary({
       operations: Object.values(operationOutcomes).flatMap((outcome) => outcome.diagnostics) as Diagnostic[],
       diagnostics,
       shownDiagnostics,
-      missingInputs: countMissingDataBlockers({ model, result })
+      missingInputs: countMissingDataBlockers({ model, result }),
+      solveJob
     });
-  }, [model, knowledge, result, operationOutcomes, modelCheckRun, publishedLibraryRefs]);
+  }, [model, knowledge, result, operationOutcomes, modelCheckRun, solveJob, publishedLibraryRefs]);
 }
 
 /** The diagnostics list the drawer's Diagnostics panel reads: the model's own, the

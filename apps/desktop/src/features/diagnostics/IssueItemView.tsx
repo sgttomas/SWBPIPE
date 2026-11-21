@@ -43,7 +43,7 @@ export function IssueItemView({
         </>
       )}
       <details className="issue-group-members" data-testid="issue-group-members">
-        <summary>
+        <summary data-testid="issue-group-members-toggle">
           All {item.members.length} reports{item.object ? ` for ${item.object}` : ""}
         </summary>
         <ol>

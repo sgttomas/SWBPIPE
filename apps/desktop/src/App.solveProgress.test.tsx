@@ -6,15 +6,25 @@ vi.mock("@tauri-apps/api/core", async () => ({ invoke: (await import("./test/nat
 
 import { App } from "./App";
 
-// DEL-07-07 Design `solve-progress-panel.md`: the shell's solve progress panel
-// follows a native job (invented replies) from its start, and its own Cancel
-// control sends the job's cancellation through the session's handler.
+// DEL-07-07 REQ-014: the shell's solve status line follows a native job
+// (invented replies) from its start, and its own Stop control sends the job's
+// cancellation through the session's handler. What the line keeps behind its
+// closed Details is read only after Details is opened.
 afterEach(() => {
   cleanup();
   vi.restoreAllMocks();
   invokeMock.mockReset();
   delete (window as unknown as Record<string, unknown>).__TAURI_INTERNALS__;
 });
+
+function openDetails(region: HTMLElement) {
+  const details = within(region).getByTestId("solve-progress-details") as HTMLDetailsElement;
+  if (!details.open) {
+    fireEvent.click(within(region).getByTestId("solve-progress-details-toggle"));
+    if (!details.open) details.open = true;
+  }
+  expect(details.open).toBe(true);
+}
 
 function nativeMenuCommand(command: string) {
   window.dispatchEvent(new CustomEvent("openpipestress-native-menu-command", { detail: command }));
@@ -50,10 +60,13 @@ it("opens on a run, shows the job's live state, and cancels it from the panel", 
 
   const region = await screen.findByRole("region", { name: "Solve progress" });
   await waitFor(() => expect(region).toHaveAttribute("data-state", "running"));
+  // The line is in the page, under the toolbar, not laid over the workspace.
+  expect(region.nextElementSibling).toHaveClass("shell-body");
+  openDetails(region);
   expect(within(region).getByTestId("solve-progress-job")).toHaveTextContent("backend-solve-job-panel");
   expect(within(region).getByTestId("solve-progress-stage")).toHaveTextContent("Backend solve job backend-solve-job-panel is executing in its worker process");
 
-  const cancel = within(region).getByRole("button", { name: "Cancel solve" });
+  const cancel = within(region).getByRole("button", { name: "Stop" });
   cancel.focus();
   fireEvent.click(cancel);
   await waitFor(() => expect(invokeMock).toHaveBeenCalledWith("cancel_preview_mechanics_job", { jobId: "backend-solve-job-panel", cancellationToken: "cancel-token-panel" }));
@@ -65,7 +78,7 @@ it("opens on a run, shows the job's live state, and cancels it from the panel", 
   expect(events.at(-1)).toBe("solve-preview-cancelled");
   expect(invokeMock.mock.calls.filter(([command]) => command === "cancel_preview_mechanics_job")).toHaveLength(1);
 
-  fireEvent.click(within(region).getByRole("button", { name: "Close" }));
+  fireEvent.click(within(region).getByRole("button", { name: "Dismiss" }));
   expect(screen.queryByTestId("solve-progress-panel")).toBeNull();
 });
 
@@ -102,11 +115,12 @@ it("a rerun after a failed job shows Starting with Cancel, never the previous jo
   expect(region).toHaveAttribute("data-state", "starting");
   expect(screen.queryByTestId("solve-progress-job")).toBeNull();
   expect(screen.queryByTestId("solve-progress-failure")).toBeNull();
-  expect(within(region).getByRole("button", { name: "Cancel solve" })).toHaveAttribute("aria-disabled", "false");
+  expect(within(region).getByRole("button", { name: "Stop" })).toHaveAttribute("aria-disabled", "false");
   await act(async () => {
     releaseSecond({ job_id: "review-job-two", backend_cancellation_token: "review-token-two", state: "queued", cancellation_scope: "worker_process_terminated" });
     await Promise.resolve();
   });
+  openDetails(region);
   await waitFor(() => expect(screen.getByTestId("solve-progress-job")).toHaveTextContent("review-job-two"));
   expect(within(within(region).getByRole("list", { name: "Solve job events" })).getAllByRole("listitem").map((item) => item.getAttribute("data-event-id"))[0]).toBe("solve-preview-queued");
 });

@@ -4643,35 +4643,39 @@ body { min-width: 760px; min-height: 540px; }
   overflow-wrap: anywhere;
 }
 
-/* Solve progress panel (DEL-07-07 Design `solve-progress-panel.md`): a raised
-   card over the workspace's bottom-right corner, above the status bar. */
-.solve-progress-panel {
-  position: fixed;
-  z-index: 55;
-  right: var(--space-5);
-  bottom: calc(var(--layout-statusBar) + var(--space-4));
+/* The solve status line (DEL-07-07 REQ-014): one band under the toolbar, in the
+   page's flow, so it never lies over the model, the Key results panel or the Insert
+   controls. Its Details disclosure opens downward inside the band. */
+.solve-status-line {
+  flex: 0 0 auto;
   display: grid;
-  gap: var(--space-3);
+  gap: var(--space-2);
   box-sizing: border-box;
-  width: min(420px, calc(100vw - 2 * var(--space-5)));
-  max-height: min(60vh, 520px);
+  max-height: 45vh;
   overflow: auto;
-  padding: var(--space-4) var(--space-5);
+  padding: var(--space-2) var(--space-5);
   color: var(--ui-text);
-  background: var(--surface-raised);
-  border: 1px solid var(--ui-border);
-  border-radius: var(--radius-card);
-  box-shadow: var(--elevation-2);
+  background: var(--ui-info-surface);
+  border-bottom: 1px solid var(--ui-info-border);
   font-size: var(--type-size-chip);
 }
-.solve-progress-header { display: flex; align-items: baseline; justify-content: space-between; gap: var(--space-3); }
-.solve-progress-header h2 { margin: 0; font-size: var(--type-size-caption); }
-.solve-progress-header code { overflow: hidden; color: var(--ui-muted); text-overflow: ellipsis; white-space: nowrap; }
-.solve-progress-state { display: grid; gap: var(--space-1); margin: 0; overflow-wrap: anywhere; }
+.solve-status-line.done { background: var(--ui-raised); border-bottom-color: var(--ui-divider); }
+.solve-status-line.error { color: var(--ui-error-text); background: var(--ui-error-surface); border-bottom-color: var(--ui-error-border); }
+.solve-status-line.stopped { background: var(--ui-raised); border-bottom-color: var(--ui-divider); }
+.solve-status-main { display: flex; flex-wrap: wrap; align-items: center; gap: var(--space-2) var(--space-5); min-width: 0; }
+.solve-status-text { flex: 1 1 320px; margin: 0; min-width: 0; overflow-wrap: anywhere; font-size: var(--type-size-body, 13px); }
+.solve-status-text:focus { outline: none; }
+.solve-status-text:focus-visible { outline: 2px solid var(--ui-focus); outline-offset: 2px; }
+.solve-status-actions { display: flex; flex-wrap: wrap; align-items: center; gap: var(--space-3); }
+.solve-status-actions [aria-disabled="true"] { opacity: 0.6; cursor: default; }
+.solve-status-actions button { display: inline-flex; align-items: center; gap: var(--space-2); }
+.solve-status-dismiss { padding: 2px 6px; }
+.solve-status-details > summary { cursor: pointer; width: max-content; color: var(--ui-muted); }
+.solve-status-line.error .solve-status-details > summary { color: inherit; }
+.solve-status-details-body { display: grid; gap: var(--space-2); padding: var(--space-2) 0 var(--space-2) var(--space-5); color: var(--ui-text); }
+.solve-status-details-body p { margin: 0; overflow-wrap: anywhere; }
 .solve-progress-basis, .solve-progress-line { margin: 0; color: var(--ui-muted); overflow-wrap: anywhere; }
 .solve-progress-events { display: grid; gap: var(--space-2); margin: 0; padding-inline-start: var(--space-5); overflow-wrap: anywhere; }
-.solve-progress-actions { display: flex; justify-content: flex-end; gap: var(--space-3); }
-.solve-progress-actions [aria-disabled="true"] { opacity: 0.6; cursor: default; }
 
 /* On-demand model checks (DEL-04-06 Design `on-demand-model-checks.md`). */
 .model-checks-actions { display: flex; align-items: center; gap: var(--space-3); }
@@ -4721,11 +4725,12 @@ body { min-width: 760px; min-height: 540px; }
 .context-menu-separator { height: 1px; margin: var(--space-2) var(--space-1); background: var(--ui-divider, var(--border-hairline)); }
 
 /* Key results (A6; DEL-07-05 Design `key-results-panel.md` §5): a raised card over the
-   workspace's top-right corner, below the toolbar, clear of the solve progress card. */
+   workspace's top-right corner, below the toolbar and the solve status line (whose
+   height the line keeps in --solve-status-line-height while it is shown). */
 .key-results-panel {
   position: fixed;
   z-index: 54;
-  top: calc(var(--layout-toolbar) + var(--space-5));
+  top: calc(var(--layout-toolbar) + var(--solve-status-line-height, 0px) + var(--space-5));
   right: var(--space-5);
   display: grid;
   gap: var(--space-3);

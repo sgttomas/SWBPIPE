@@ -143,7 +143,7 @@ import { SecurityThreatModelPanel } from "./features/security-threat-model/Secur
 import { HistoricalRunPanel } from "./features/results/HistoricalRunContext";
 import { SolvePanel } from "./features/solve/SolvePanel";
 import { solveWithheldReason } from "./features/workspace/solveGates";
-import { SolveProgressPanel } from "./features/solve/SolveProgressPanel";
+import { SolveIssueItem, SolveProgressPanel } from "./features/solve/SolveProgressPanel";
 import { StressNeutralExportPanel } from "./features/stress-neutral/StressNeutralExportPanel";
 import { TelemetryBoundaryPanel } from "./features/telemetry/TelemetryBoundaryPanel";
 import { ValidationEvidencePanel } from "./features/validation-evidence/ValidationEvidencePanel";
@@ -390,7 +390,7 @@ function AppSession() {
   });
   const keyResultsRuleCheckRun = currentSolvedResult !== null && result === currentSolvedResult ? ruleCheckReportRun : null;
   // One count for every Issues control: the number of items the Issues drawer lists.
-  const issues = useIssueSummary({ model, knowledge, result, operationOutcomes, modelCheckRun });
+  const issues = useIssueSummary({ model, knowledge, result, operationOutcomes, modelCheckRun, solveJob });
 
   // In the packaged Tauri shell the OS-level menu bar is the single menu, so the
   // in-DOM menu bar is suppressed to avoid a redundant second row. In the
@@ -494,6 +494,15 @@ function AppSession() {
           />
       </ShellToolbar>
       <ReportOutputStatus outcomes={reportOutput.outcomes} entries={reportOutput.entries} currentSequence={reportOutput.sequence} />
+      {/* The solve's one status line, in the band under the Run control (DEL-07-07 REQ-014). */}
+      <SolveProgressPanel
+        solveJob={solveJob}
+        running={running}
+        onCancel={handleCancelRun}
+        onOpenResults={() => runMenuCommand("view.stage.results")}
+        onShowIssue={() => setIssuesDrawerOpen(true)}
+        subject={{ name: model.project.name, loadCases: model.load_cases.length, combinations: model.combinations?.length ?? 0 }}
+      />
 
       <div className="shell-body">
         <StageRail issueCount={issueCount} />
@@ -1357,7 +1366,6 @@ function AppSession() {
         <AgentStrip />
       </div>
 
-      <SolveProgressPanel solveJob={solveJob} running={running} onCancel={handleCancelRun} />
       {keyResults.open ? (
         <KeyResultsPanel
           fullResult={session.results.fullResult}
@@ -1388,6 +1396,7 @@ function AppSession() {
       {issuesDrawerOpen ? (
         <IssuesHome
           issues={issues}
+          solveJob={solveJob}
           model={model}
           knowledge={knowledge}
           result={result}
@@ -1849,6 +1858,7 @@ function AuditBoundaryDrawer({
 
 function IssuesHome({
   issues,
+  solveJob = null,
   model,
   knowledge,
   result,
@@ -1863,6 +1873,7 @@ function IssuesHome({
 }: {
   /** The items this drawer lists; their number is the Issues controls' count. */
   issues: IssueSummary;
+  solveJob?: SolveJobAuditState | null;
   model: PreviewModel;
   knowledge: DesignKnowledge | null;
   result: SessionResult | null;
@@ -1881,6 +1892,7 @@ function IssuesHome({
   const operationItems = itemsAt(issues, "operation");
   const diagnosticItems = itemsAt(issues, "diagnostics");
   const parts: Array<[string, number, string]> = [
+    ...(issues.solve ? [["Last solve", 1, "solve"] as [string, number, string]] : []),
     ["Model checks", checkItems.length, "model-checks"],
     ...(operationItems.length > 0 ? [["Operation diagnostics", operationItems.length, "operations"] as [string, number, string]] : []),
     ["Diagnostics", diagnosticItems.length, "diagnostics"],
@@ -1902,6 +1914,7 @@ function IssuesHome({
           <li key={id} data-testid={`issues-breakdown-${id}`}>{label} <strong>{count}</strong></li>
         ))}
       </ul>
+      {issues.solve && solveJob ? <SolveIssueItem solveJob={solveJob} /> : null}
       <ModelChecksPanel model={model} run={modelCheckRun} busy={modelCheckBusy} onRun={onRunModelChecks} onSelectEntity={onSelectEntity} items={checkItems} />
       {operationItems.length > 0 ? (
         <section className="panel issues-operation-list" aria-label="Operation diagnostics">

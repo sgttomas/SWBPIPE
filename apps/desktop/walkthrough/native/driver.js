@@ -100,7 +100,8 @@
   }
   const slug = (value) => String(value).toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "").slice(0, 40) || "unnamed";
   const closeOverlays = async () => {
-    for (const id of ["key-results-close", "solve-progress-close"]) { const item = byTestId(id); if (visible(item)) { acting(item, id).click(); await settle(); } }
+    // The solve status line lies over nothing (it is a band in the page), so it stays.
+    for (const id of ["key-results-close"]) { const item = byTestId(id); if (visible(item)) { acting(item, id).click(); await settle(); } }
     for (const drawer of ["issues-home", "audit-boundary-drawer"]) {
       const close = byTestId(drawer) && [...byTestId(drawer).querySelectorAll("button")].find((button) => button.textContent.trim() === "Close" || button.getAttribute("aria-label") === "Close");
       if (visible(close)) { acting(close, `${drawer} Close`).click(); await settle(); }
@@ -169,13 +170,14 @@
 
   // ------------------------------------------------------------ shared acts
 
+  // The solve status line's state, as the line states it: the job's own state on `data-state`.
   const solveOutcome = () => {
-    for (const id of ["solve-progress-failure", "solve-progress-refusal", "solve-progress-cancellation", "solve-progress-result-too-large"]) {
-      const shown = byTestId(id);
-      if (visible(shown)) return { failed: `the solve did not complete: ${shown.textContent.replace(/\s+/g, " ").trim().slice(0, 300)}` };
-    }
-    const completed = byTestId("solve-progress-completed");
-    return visible(completed) ? { completed: completed.textContent.replace(/\s+/g, " ").trim() } : null;
+    const line = byTestId("solve-progress-panel");
+    if (!visible(line)) return null;
+    const state = line.getAttribute("data-state");
+    const said = text("solve-progress-state") ?? "";
+    if (state === "failed" || state === "refused" || state === "cancelled") return { failed: `the solve did not complete: ${said.slice(0, 300)}` };
+    return state === "completed" ? { completed: said } : null;
   };
   async function pressRun() {
     await closeOverlays();
@@ -203,9 +205,15 @@
     await journey.step("first-open", "The application as first opened, with its demonstration model");
     await journey.step("run", "Run pressed on the demonstration model", pressRun);
     await journey.step("solve-progress", "The solve's progress, once it ended", awaitSolve);
-    await journey.step("results-stage", "The Results stage as first shown", async () => {
-      await openStage("results");
+    await journey.step("details-open", "The status line's Details, opened", async () => {
+      await press("solve-progress-details-toggle");
+      return byTestId("solve-progress-details")?.open ? "open" : "did not open";
+    });
+    await journey.step("details-closed", "The status line's Details, closed again", async () => { await press("solve-progress-details-toggle"); });
+    await journey.step("results-stage", "The Results stage as first shown, by Open results on the status line", async () => {
+      await press("solve-progress-open-results");
       await waitFor("the results table's rows", () => document.querySelector('[data-testid^="result-row-"]'), T.step);
+      return "Open results pressed";
     });
     // Each table or panel in the Results section, scrolled to its foot.
     const section = byTestId("workspace-section-results");
@@ -263,8 +271,20 @@
     await journey.scrolled("evidence-tab", "The Evidence tab");
     await journey.step("analyze-page", "The Analyze page after the solve", async () => { await closeOverlays(); await showSection("solve"); });
     await journey.scrolled("analyze-page", "The Analyze page", 3);
-    await journey.step("issues-drawer", "The Issues drawer, from the status bar", async () => { await press("issues-drawer-toggle"); });
+    await journey.step("issues-drawer", "The Issues drawer, from the status bar", async () => {
+      await press("issues-drawer-toggle");
+      return `toolbar ${text("toolbar-issues") ?? "?"}; status bar ${text("issues-drawer-toggle") ?? "?"}; drawer ${text("issues-total") ?? "?"}; ${text("issues-breakdown") ?? ""}`;
+    });
     await journey.scrolled("issues-drawer", "The Issues drawer", 2, '[data-testid="issues-home"]');
+    await journey.step("hanger-item-open", "A spring hanger's grouped item, its reports opened", async () => {
+      const group = await waitFor("a grouped item", () => [...document.querySelectorAll('[data-testid="issues-home"] [data-testid^="issue-group-SPRING_HANGER"]')].find(visible) ?? document.querySelector('[data-testid="issues-home"] [data-testid^="issue-group-"]'), T.ui).catch(() => null);
+      if (!group) throw new Error("the Issues drawer shows no grouped item");
+      const toggle = group.querySelector('[data-testid="issue-group-members-toggle"]');
+      await scrollTo(group, "start");
+      acting(toggle, "issue-group-members-toggle").click();
+      await sleep(200);
+      return group.getAttribute("data-testid");
+    });
   }
 
   // B. The report, from the Review stage to a saved package.
@@ -395,6 +415,13 @@
     await journey.step("first-open", "The application as first opened");
     await openPrepared(journey, plan, "the reference system");
     await journey.step("run", "Run pressed on the reference system", pressRun);
+    await journey.step("solving", "The status line while the job reports it running", async () => {
+      const seen = await waitFor("the running solve", () => {
+        const state = byTestId("solve-progress-panel")?.getAttribute("data-state");
+        return state === "running" || solveOutcome() ? state : null;
+      }, T.solve).catch(() => null);
+      return seen === "running" ? text("solve-progress-state") ?? "" : `not seen running (${seen ?? "no line"})`;
+    });
     await journey.step("solve-progress", "The solve's progress, a minute in", async () => {
       const outcome = await waitFor("a minute of the solve, or its outcome", () => solveOutcome(), 60000).catch(() => null);
       if (outcome?.failed) throw new Error(outcome.failed);
@@ -427,6 +454,18 @@
       return text("report-package-source-unavailable") ?? text("rendered-report-precondition") ?? "";
     });
     await journey.scrolled("report", "The Report tab", 4);
+    await journey.step("issues-drawer", "The Issues drawer, from the toolbar", async () => {
+      await press("toolbar-issues");
+      return `toolbar ${text("toolbar-issues") ?? "?"}; status bar ${text("issues-drawer-toggle") ?? "?"}; drawer ${text("issues-total") ?? "?"}; ${text("issues-breakdown") ?? ""}`;
+    });
+    // A stopped solve, as the line says it: Run again, then Stop on the status line.
+    await journey.step("run-again", "Run pressed again on the reference system", pressRun);
+    await journey.step("stopped", "Stop pressed on the status line, and the line once the job reported", async () => {
+      await press("solve-progress-cancel");
+      await waitFor("the stopped solve", () => byTestId("solve-progress-panel")?.getAttribute("data-state") === "cancelled", T.solve);
+      return text("solve-progress-state") ?? "";
+    });
+    await journey.step("stopped-details", "The stopped solve's Details, opened", async () => { await press("solve-progress-details-toggle"); });
   }
 
   const JOURNEYS = { "solve-and-results": solveAndResults, report, exports: exportsPage, "reference-system": referenceSystem, "prepared-project": preparedProject };

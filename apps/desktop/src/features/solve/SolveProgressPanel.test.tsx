@@ -15,8 +15,9 @@ import {
 } from "../workspace/solveJobAudit";
 import { SolveProgressPanel } from "./SolveProgressPanel";
 
-// DEL-07-07 Design `solve-progress-panel.md`: the panel shows the solve-job
-// record the session already keeps, from invented native job reports.
+// DEL-07-07 REQ-014: the solve status line shows the solve-job record the
+// session already keeps, from invented native job reports. What the line keeps
+// behind its closed Details is read only after Details is opened.
 const GiB = 1024 ** 3;
 const MiB = 1024 ** 2;
 const model = {
@@ -38,6 +39,17 @@ function status(overrides: Partial<BackendSolveJobStatus>): BackendSolveJobStatu
     cancellation_status: "not_requested", cancellation_scope: "worker_process_terminated", result_available: false,
     result_bytes: null, error_message: null, resource_refusal: null, resource: grant(null, null), ...overrides
   };
+}
+
+/** Opens the line's Details as a person does, and checks it is open before anything inside is read. */
+function openDetails() {
+  const details = screen.getByTestId("solve-progress-details") as HTMLDetailsElement;
+  if (!details.open) {
+    fireEvent.click(screen.getByTestId("solve-progress-details-toggle"));
+    if (!details.open) details.open = true;
+  }
+  expect(details.open).toBe(true);
+  return details;
 }
 
 function panel(job: SolveJobAuditState, running: boolean, onCancel = () => {}) {
@@ -70,19 +82,26 @@ describe("solve progress panel", () => {
     expect(screen.getByTestId("solve-progress-state")).toHaveAttribute("role", "status");
     expect(screen.getByTestId("solve-progress-state")).toHaveAttribute("aria-live", "polite");
     expect(screen.getByTestId("solve-progress-state")).toHaveTextContent(/^Queued/);
+    openDetails();
     expect(screen.getByTestId("solve-progress-stage")).toHaveTextContent(queued.events[0].message);
     expect(screen.getByTestId("solve-progress-job")).toHaveTextContent("backend-solve-job-31");
 
     const waiting = progressSolveJob(queued, status({ queue_reason: { kind: "pool_exhausted", requested_bytes: 12 * GiB, reserved_bytes: 40 * GiB, pool_bytes: 48 * GiB } }));
     view.rerender(panel(waiting, true));
     expect(screen.getByTestId("solve-progress-queue-reason")).toHaveTextContent(
-      "Waiting in the queue: The memory pool is fully reserved: this request needs 12 GiB, and 40 GiB of the 48 GiB pool is already reserved. Code: pool_exhausted (requested_bytes=12884901888, reserved_bytes=42949672960, pool_bytes=51539607552)"
+      "Waiting in the queue: The memory pool is fully reserved: this request needs 12 GiB, and 40 GiB of the 48 GiB pool is already reserved."
+    );
+    expect(screen.getByTestId("solve-progress-queue-reason").closest("details")).toBeNull();
+    openDetails();
+    expect(screen.getByTestId("solve-progress-queue-code")).toHaveTextContent(
+      "Queue reason code: pool_exhausted (requested_bytes=12884901888, reserved_bytes=42949672960, pool_bytes=51539607552)"
     );
 
     const running = progressSolveJob(progressSolveJob(waiting, status({ state: "running" })), status({ state: "running", resource: grant(64 * MiB, 96 * MiB, 70 * MiB) }));
     view.rerender(panel(running, true));
     expect(screen.getByTestId("solve-progress-state")).toHaveTextContent(/^Running/);
     expect(screen.queryByTestId("solve-progress-queue-reason")).toBeNull();
+    openDetails();
     expect(screen.getByTestId("solve-progress-worker")).toHaveTextContent("Worker memory: grant 64 MiB; peak grant 96 MiB; peak footprint 70 MiB; budget 12 GiB");
     const events = within(screen.getByRole("list", { name: "Solve job events" })).getAllByRole("listitem");
     expect(events.map((item) => item.getAttribute("data-event-id"))).toEqual(["solve-preview-queued", "solve-preview-queued-waiting", "solve-preview-running"]);
@@ -99,7 +118,7 @@ describe("solve progress panel", () => {
     const onCancel = vi.fn();
     const running = progressSolveJob(startSolveJob(model, receipt), status({ state: "running" }));
     const view = renderRun(running, onCancel);
-    const cancel = screen.getByRole("button", { name: "Cancel solve" });
+    const cancel = screen.getByRole("button", { name: "Stop" });
     expect(cancel.tagName).toBe("BUTTON");
     expect(cancel).toHaveAttribute("type", "button");
     expect(cancel).not.toHaveAttribute("tabindex");
@@ -118,12 +137,15 @@ describe("solve progress panel", () => {
     expect(pending).toHaveAttribute("aria-disabled", "true");
     fireEvent.click(pending);
     expect(onCancel).toHaveBeenCalledTimes(1);
+    openDetails();
     expect(screen.getByTestId("solve-progress-cancellation")).toHaveTextContent("Cancellation requested: request_sent_to_backend_job_awaiting_receipt");
 
     const cancelled = cancelledSolveJob(cancelling, status({ state: "cancelled", cancellation_requested: true, cancellation_status: "worker_terminated" }));
     view.rerender(panel(cancelled, false, onCancel));
     expect(screen.getByTestId("solve-progress-state")).toHaveTextContent(/^Cancelled/);
+    expect(screen.getByTestId("solve-progress-state")).toHaveTextContent("The solve was stopped before it finished; no result was published.");
     expect(screen.queryByTestId("solve-progress-cancel")).toBeNull();
+    openDetails();
     expect(screen.getByTestId("solve-progress-cancellation")).toHaveTextContent("Cancellation requested: worker_terminated");
   });
 
@@ -139,6 +161,10 @@ describe("solve progress panel", () => {
     expect(screen.getByTestId("solve-progress-retry")).toHaveTextContent(
       "Refused at the result hand-off after the solve finished; the finished result was dropped. Available memory was re-sampled for up to 2 s before this refusal stood. You can run the solve again when more memory is available."
     );
+    // The reading and the way to retry are on the line; the exact code is in Details.
+    expect(screen.getByTestId("solve-progress-refusal").closest("details")).toBeNull();
+    expect(screen.getByTestId("solve-progress-retry").closest("details")).toBeNull();
+    openDetails();
     expect(screen.getByTestId("solve-progress-refusal-code")).toHaveTextContent("headroom_insufficient (required_bytes=68165632, available_bytes=52641792)");
     expect(screen.queryByTestId("solve-progress-completed")).toBeNull();
   });
@@ -161,7 +187,7 @@ describe("solve progress panel", () => {
     view.rerender(panel(completed, false));
     expect(screen.getByTestId("solve-progress-state")).toHaveTextContent(/^Completed/);
     expect(screen.getByTestId("solve-progress-completed")).toHaveTextContent("3 result rows; 1 diagnostic.");
-    fireEvent.click(screen.getByRole("button", { name: "Close" }));
+    fireEvent.click(screen.getByRole("button", { name: "Dismiss" }));
     expect(screen.queryByTestId("solve-progress-panel")).toBeNull();
     // The next run opens it again.
     view.rerender(panel(completed, true));
@@ -190,7 +216,7 @@ describe("solve progress panel", () => {
     // The first run ends on `previous`, and the user closes the panel.
     const view = renderRun(previous, onCancel);
     view.rerender(panel(previous, false, onCancel));
-    fireEvent.click(screen.getByRole("button", { name: "Close" }));
+    fireEvent.click(screen.getByRole("button", { name: "Dismiss" }));
     expect(screen.queryByTestId("solve-progress-panel")).toBeNull();
     // A new run starts; the session still holds the previous record until the start receipt.
     view.rerender(panel(previous, true, onCancel));
@@ -200,17 +226,20 @@ describe("solve progress panel", () => {
     expect(screen.getByTestId("solve-progress-state")).toHaveTextContent("Starting");
     expect(screen.queryByTestId("solve-progress-failure")).toBeNull();
     expect(screen.queryByTestId("solve-progress-completed")).toBeNull();
+    openDetails();
     expect(within(screen.getByRole("list", { name: "Solve job events" })).queryAllByRole("listitem")).toHaveLength(0);
-    fireEvent.click(screen.getByRole("button", { name: "Cancel solve" }));
+    fireEvent.click(screen.getByRole("button", { name: "Stop" }));
     expect(onCancel).toHaveBeenCalledTimes(1);
     // A cancellation before the start receipt records a new state over the previous events; only the new event is this run's.
     const pending = { ...requestSolveCancellation(startSolveJob(model, receipt)), job_id: "job:preview-linear-static:pending-start-cancel",
       events: [...previous.events, { event_id: "solve-preview-cancel-requested-before-backend-start", state: "cancelling" as const, message: "invented pending cancel", result_available: false, diagnostic_count: 0, result_row_count: 0, analysis_status: [] }] };
     view.rerender(panel(pending, true, onCancel));
+    openDetails();
     expect(within(screen.getByRole("list", { name: "Solve job events" })).getAllByRole("listitem").map((item) => item.getAttribute("data-event-id")))
       .toEqual(["solve-preview-cancel-requested-before-backend-start"]);
     // The new job's own record replaces it.
     view.rerender(panel({ ...startSolveJob(model, { ...receipt, job_id: "backend-solve-job-32" }) }, true, onCancel));
+    openDetails();
     expect(screen.getByTestId("solve-progress-job")).toHaveTextContent("backend-solve-job-32");
     expect(screen.getByTestId("solve-progress-panel")).toHaveAttribute("data-state", "queued");
   });
@@ -235,13 +264,53 @@ describe("solve progress panel", () => {
     expect(screen.queryByTestId("solve-progress-panel")).toBeNull();
     view.rerender(panel(idle, true, onCancel));
     expect(screen.getByRole("region", { name: "Solve progress" })).toHaveAttribute("data-state", "starting");
-    const cancel = screen.getByRole("button", { name: "Cancel solve" });
+    const cancel = screen.getByRole("button", { name: "Stop" });
     expect(cancel).toHaveAttribute("aria-disabled", "false");
     fireEvent.click(cancel);
     expect(onCancel).toHaveBeenCalledTimes(1);
+    openDetails();
     expect(within(screen.getByRole("list", { name: "Solve job events" })).queryAllByRole("listitem")).toHaveLength(0);
     // A run that ends without publishing a record leaves nothing shown.
     view.rerender(panel(idle, false, onCancel));
     expect(screen.queryByTestId("solve-progress-panel")).toBeNull();
+  });
+});
+
+describe("the status line's outcome and its one action", () => {
+  const subject = { name: "Invented Loop", loadCases: 4, combinations: 2 };
+  const line = (job: SolveJobAuditState, running: boolean, actions: { onOpenResults?: () => void; onShowIssue?: () => void }) => (
+    <SolveProgressPanel solveJob={job} running={running} onCancel={() => {}} subject={subject} {...actions} />
+  );
+
+  it("names what is solving, and on completion says Solved with the counts and offers Open results", () => {
+    const onOpenResults = vi.fn();
+    const running = progressSolveJob(startSolveJob(model, receipt), status({ state: "running" }));
+    const view = render(line(initialSolveJob(), false, { onOpenResults }));
+    view.rerender(line(initialSolveJob(), true, { onOpenResults }));
+    view.rerender(line(running, true, { onOpenResults }));
+    expect(screen.getByTestId("solve-progress-state")).toHaveTextContent("Running Solving Invented Loop (4 load cases, 2 combinations).");
+    expect(screen.queryByTestId("solve-progress-open-results")).toBeNull();
+    const result = { results: [{}, {}], diagnostics: [{}, {}] } as unknown as MechanicsResult;
+    const run = { analysis_run: { run_id: "analysis-run:invented-solved", analysis_status: ["MECHANICS_SOLVED"] } } as unknown as AnalysisRunEnvelope;
+    view.rerender(line(completeSolveJob(running, result, run), false, { onOpenResults }));
+    expect(screen.getByTestId("solve-progress-state")).toHaveTextContent("Solved Invented Loop (4 load cases, 2 combinations): 2 result rows; 2 diagnostics.");
+    // Details stays closed until the person opens it.
+    expect((screen.getByTestId("solve-progress-details") as HTMLDetailsElement).open).toBe(false);
+    fireEvent.click(screen.getByRole("button", { name: /Open results/ }));
+    expect(onOpenResults).toHaveBeenCalledTimes(1);
+    expect(screen.queryByTestId("solve-progress-show-issue")).toBeNull();
+  });
+
+  it("on a failure says so with the job's reason and offers Show in Issues, not Open results", () => {
+    const onShowIssue = vi.fn();
+    const started = startSolveJob(model, receipt);
+    const view = render(line(initialSolveJob(), false, { onShowIssue, onOpenResults: () => {} }));
+    view.rerender(line(initialSolveJob(), true, { onShowIssue, onOpenResults: () => {} }));
+    view.rerender(line(started, true, { onShowIssue, onOpenResults: () => {} }));
+    view.rerender(line(failSolveJob(started, new Error("SOLVE_WORKER_EXITED: invented exit")), false, { onShowIssue, onOpenResults: () => {} }));
+    expect(screen.getByTestId("solve-progress-state")).toHaveTextContent(/^Failed The solve's worker process ended without returning a result/);
+    expect(screen.queryByTestId("solve-progress-open-results")).toBeNull();
+    fireEvent.click(screen.getByRole("button", { name: /Show in Issues/ }));
+    expect(onShowIssue).toHaveBeenCalledTimes(1);
   });
 });
